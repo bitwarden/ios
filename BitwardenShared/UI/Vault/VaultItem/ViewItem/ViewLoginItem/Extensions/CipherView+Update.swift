@@ -217,6 +217,20 @@ extension CipherView {
         )
     }
 
+    /// Returns a copy of the existing cipher with an updated folder id.
+    ///
+    /// - Parameter folderId: The id of the folder this cipher belongs to.
+    /// - Returns: A copy of the existing cipher, with the specified properties updated.
+    ///
+    func update(folderId: String?) -> CipherView {
+        update(
+            collectionIds: collectionIds,
+            deletedDate: deletedDate,
+            folderId: folderId,
+            organizationId: organizationId
+        )
+    }
+
     // MARK: Private
 
     /// Returns a copy of the existing cipher, updating any of the specified properties.

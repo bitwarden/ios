@@ -9,6 +9,7 @@ class SyncServiceTests: BitwardenTestCase {
 
     var cipherService: MockCipherService!
     var client: MockHTTPClient!
+    var clientVault: MockClientVaultService!
     var collectionService: MockCollectionService!
     var folderService: MockFolderService!
     var organizationService: MockOrganizationService!
@@ -25,6 +26,7 @@ class SyncServiceTests: BitwardenTestCase {
 
         cipherService = MockCipherService()
         client = MockHTTPClient()
+        clientVault = MockClientVaultService()
         collectionService = MockCollectionService()
         folderService = MockFolderService()
         organizationService = MockOrganizationService()
@@ -35,6 +37,7 @@ class SyncServiceTests: BitwardenTestCase {
 
         subject = DefaultSyncService(
             cipherService: cipherService,
+            clientVault: clientVault,
             collectionService: collectionService,
             folderService: folderService,
             organizationService: organizationService,
@@ -51,6 +54,7 @@ class SyncServiceTests: BitwardenTestCase {
 
         cipherService = nil
         client = nil
+        clientVault = nil
         collectionService = nil
         folderService = nil
         organizationService = nil

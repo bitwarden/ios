@@ -134,7 +134,7 @@ class DefaultNotificationService: NotificationService {
         }
     }
 
-    func messageReceived(
+    func messageReceived( // swiftlint:disable:this function_body_length
         _ message: [AnyHashable: Any],
         notificationDismissed: Bool?,
         notificationTapped: Bool?
@@ -154,45 +154,46 @@ class DefaultNotificationService: NotificationService {
             else { return }
             let userId = try await stateService.getActiveAccountId()
 
+            print("notification received: \(notificationData)")
+
             // Handle the notification according to the type of data.
             switch type {
             case .syncCipherCreate,
                  .syncCipherUpdate:
                 if let data: SyncCipherNotification = notificationData.data(), data.userId == userId {
-                    // TODO: BIT-1528 "SyncUpsertCipherAsync"
+                    try await syncService.fetchUpsertSyncCipher(data: data)
                 }
             case .syncFolderCreate,
                  .syncFolderUpdate:
                 if let data: SyncFolderNotification = notificationData.data(), data.userId == userId {
-                    // TODO: BIT-1528 "SyncUpsertFolderAsync"
+                    try await syncService.fetchUpsertSyncFolder(data: data)
                 }
             case .syncCipherDelete,
                  .syncLoginDelete:
                 if let data: SyncCipherNotification = notificationData.data(), data.userId == userId {
-                    // TODO: BIT-1528 "SyncDeleteCipherAsync"
+                    try await syncService.deleteCipher(data: data)
                 }
             case .syncFolderDelete:
                 if let data: SyncFolderNotification = notificationData.data(), data.userId == userId {
-                    // TODO: BIT-1528 "SyncDeleteFolderAsync"
+                    try await syncService.deleteFolder(data: data)
                 }
             case .syncCiphers,
                  .syncSettings,
                  .syncVault:
                 try await syncService.fetchSync()
             case .syncOrgKeys:
-                // TODO: BIT-1528 call api to refresh token
-                // try await authAPIService.refreshIdentityToken(refreshToken: ???)
                 try await syncService.fetchSync()
             case .logOut:
+                // no-op
                 break
             case .syncSendCreate,
                  .syncSendUpdate:
                 if let data: SyncSendNotification = notificationData.data(), data.userId == userId {
-                    // TODO: BIT-1528 "SyncUpsertSendAsync"
+                    try await syncService.fetchUpsertSyncSend(data: data)
                 }
             case .syncSendDelete:
                 if let data: SyncSendNotification = notificationData.data(), data.userId == userId {
-                    // TODO: BIT-1528 "SyncDeleteSendAsync"
+                    try await syncService.deleteSend(data: data)
                 }
             case .authRequest:
                 try await handleLoginRequest(notificationData, userId: userId)
