@@ -180,6 +180,20 @@ extension Alert {
         )
     }
 
+    /// Alerts the user that their selected timeout value exceeds the policy's limit.
+    ///
+    /// - Returns an alert notifying the user that their selected timeout value exceeds the policy's limit.
+    ///
+    static func timeoutExceedsPolicyLengthAlert() -> Alert {
+        Alert(
+            title: Localizations.warning,
+            message: Localizations.vaultTimeoutToLarge,
+            alertActions: [
+                AlertAction(title: Localizations.ok, style: .default),
+            ]
+        )
+    }
+
     /// An alert notifying the user that they will be navigated to the web app to set up two step login.
     ///
     /// - Parameter action: The action to perform when the user confirms that they want to be navigated to the

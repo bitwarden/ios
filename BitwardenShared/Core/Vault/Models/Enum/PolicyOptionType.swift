@@ -3,6 +3,9 @@
 enum PolicyOptionType: String {
     // MARK: Password Generation Options
 
+    /// A policy option for the vault timeout action.
+    case action
+
     /// A policy option for whether to capitalize the passphrase words.
     case capitalize
 
@@ -11,6 +14,9 @@ enum PolicyOptionType: String {
 
     /// A policy option for whether to include a number in a passphrase.
     case includeNumber
+
+    /// A policy option for the vault timeout value in minutes.
+    case minutes
 
     /// A policy option for the minimum length.
     case minLength

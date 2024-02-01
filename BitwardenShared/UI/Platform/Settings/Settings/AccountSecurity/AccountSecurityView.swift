@@ -134,9 +134,19 @@ struct AccountSecurityView: View {
             SectionHeaderView(Localizations.sessionTimeout)
 
             VStack(spacing: 0) {
+                if store.state.isTimeoutPolicyEnabled {
+                    InfoContainer(
+                        Localizations.vaultTimeoutPolicyInEffect(
+                            store.state.policyTimeoutHours,
+                            store.state.policyTimeoutMinutes
+                        )
+                    )
+                    .padding(16)
+                }
+
                 SettingsMenuField(
                     title: Localizations.sessionTimeout,
-                    options: SessionTimeoutValue.allCases,
+                    options: store.state.availableTimeoutOptions,
                     accessibilityIdentifier: "VaultTimeoutChooser",
                     selectionAccessibilityID: "SessionTimeoutStatusLabel",
                     selection: store.binding(
@@ -159,7 +169,7 @@ struct AccountSecurityView: View {
 
                 SettingsMenuField(
                     title: Localizations.sessionTimeoutAction,
-                    options: SessionTimeoutAction.allCases,
+                    options: store.state.availableTimeoutActions,
                     hasDivider: false,
                     accessibilityIdentifier: "VaultTimeoutActionChooser",
                     selectionAccessibilityID: "SessionTimeoutActionStatusLabel",

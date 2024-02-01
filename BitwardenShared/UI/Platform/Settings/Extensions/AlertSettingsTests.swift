@@ -112,6 +112,17 @@ class AlertSettingsTests: BitwardenTestCase {
         XCTAssertEqual(subject.message, Localizations.setPINDescription)
     }
 
+    /// `timeoutExceedsPolicyLengthAlert()` constructs an `Alert` with the correct title, message, and Ok button.
+    func test_timeoutExceedsPolicyLengthAlert() {
+        let subject = Alert.timeoutExceedsPolicyLengthAlert()
+
+        XCTAssertEqual(subject.title, Localizations.warning)
+        XCTAssertEqual(subject.message, Localizations.vaultTimeoutToLarge)
+        XCTAssertEqual(subject.alertActions.first?.title, Localizations.ok)
+        XCTAssertEqual(subject.alertActions.count, 1)
+        XCTAssertEqual(subject.alertActions.first?.style, .default)
+    }
+
     /// `unlockWithPINCodeAlert(action)` constructs an `Alert` with the correct title, message, Yes and No buttons.
     func test_unlockWithPINAlert() {
         let subject = Alert.unlockWithPINCodeAlert { _ in }

@@ -193,8 +193,38 @@ extension DefaultSyncService {
         try await sendService.replaceSends(response.sends, userId: userId)
         try await settingsService.replaceEquivalentDomains(response.domains, userId: userId)
         try await policyService.replacePolicies(response.policies, userId: userId)
-
         try await stateService.setLastSyncTime(Date(), userId: userId)
+        try await checkVaultTimeoutPolicy()
+    }
+
+    // MARK: Private Methods
+
+    /// Checks if the policy for a maximum vault timeout value is enabled.
+    /// If it is, update the timeout values for the user.
+    ///
+    /// If the user's stored timeout value is greater than the policy's timeout value,
+    /// update it to equal the policy's timeout value.
+    ///
+    /// Set the user's timeout action to equal the policy's regardless.
+    ///
+    private func checkVaultTimeoutPolicy() async throws {
+        guard let timeoutPolicyValues = try await policyService.fetchTimeoutPolicyValues() else { return }
+
+        let action = timeoutPolicyValues.action
+        let value = timeoutPolicyValues.value
+
+        let timeoutAction = try await stateService.getTimeoutAction()
+        let timeoutValue = try await stateService.getVaultTimeout()
+
+        // Only update the user's stored vault timeout value if
+        // their stored timeout value is > the policy's timeout value.
+        if timeoutValue.rawValue > value {
+            try await stateService.setVaultTimeout(
+                value: SessionTimeoutValue(rawValue: value)
+            )
+        }
+
+        try await stateService.setTimeoutAction(action: action ?? timeoutAction)
     }
 
     func deleteCipher(data: SyncCipherNotification) async throws {

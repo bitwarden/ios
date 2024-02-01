@@ -4,7 +4,8 @@ import XCTest
 
 import BitwardenSdk
 
-class SyncServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body_length
+// swiftlint:disable:next type_body_length
+class SyncServiceTests: BitwardenTestCase {
     // MARK: Properties
 
     var cipherService: MockCipherService!
@@ -67,6 +68,34 @@ class SyncServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body_
     }
 
     // MARK: Tests
+
+    /// `fetchSync()` only updates the user's timeout action to match the policy's
+    /// if the user's timeout value is less than the policy's.
+    func test_checkVaultTimeoutPolicy_actionOnly() async throws {
+        client.result = .httpSuccess(testData: .syncWithCiphers)
+        stateService.activeAccount = .fixture()
+        policyService.fetchTimeoutPolicyValuesResult = .success((.logout, 60))
+
+        try await subject.fetchSync(forceSync: false)
+
+        XCTAssertEqual(stateService.timeoutAction["1"], .logout)
+        XCTAssertNil(stateService.vaultTimeout["1"])
+    }
+
+    /// `fetchSync()` updates the user's timeout action and value
+    /// if the user's timeout value is greater than the policy's.
+    func test_checkVaultTimeoutPolicy_actionAndValue() async throws {
+        client.result = .httpSuccess(testData: .syncWithCiphers)
+        stateService.activeAccount = .fixture()
+        stateService.vaultTimeout["1"] = SessionTimeoutValue(rawValue: 120)
+
+        policyService.fetchTimeoutPolicyValuesResult = .success((.logout, 60))
+
+        try await subject.fetchSync(forceSync: false)
+
+        XCTAssertEqual(stateService.timeoutAction["1"], .logout)
+        XCTAssertEqual(stateService.vaultTimeout["1"], SessionTimeoutValue(rawValue: 60))
+    }
 
     /// `fetchSync()` performs the sync API request.
     func test_fetchSync() async throws {

@@ -12,6 +12,13 @@ protocol PolicyService: AnyObject {
     ///
     func applyPasswordGenerationPolicy(options: inout PasswordGenerationOptions) async throws -> Bool
 
+    /// If the policy for a maximum vault timeout value is enabled,
+    /// return the value and action to take upon timeout.
+    ///
+    /// - Returns: The timeout value in minutes, and the action to take upon timeout.
+    ///
+    func fetchTimeoutPolicyValues() async throws -> (action: SessionTimeoutAction?, value: Int)?
+
     /// Go through current users policy, filter them and build a master password policy options based on enabled policy.
     /// - Returns: Optional `MasterPasswordPolicyOptions` if it exist.
     ///
@@ -221,6 +228,31 @@ extension DefaultPolicyService {
         return true
     }
 
+    func fetchTimeoutPolicyValues() async throws -> (action: SessionTimeoutAction?, value: Int)? {
+        guard let userId = try? await stateService.getActiveAccountId(),
+              let policies = try? await policiesForUser(userId: userId, type: .maximumVaultTimeout),
+              !policies.isEmpty
+        else {
+            return nil
+        }
+
+        var timeoutAction: SessionTimeoutAction?
+        var timeoutValue = 0
+
+        for policy in policies {
+            guard let policyTimeoutValue = policy[.minutes]?.intValue else { continue }
+            timeoutValue = policyTimeoutValue * 60
+
+            // If the policy's timeout action is not lock or logOut, there is no policy timeout action.
+            // In that case, we would present both timeout action options to the user.
+            guard let action = policy[.action]?.stringValue, action == "lock" || action == "logOut" else {
+                return (nil, timeoutValue)
+            }
+            timeoutAction = action == "lock" ? .lock : .logout
+        }
+        return (timeoutAction, timeoutValue)
+    }
+
     // swiftlint:disable:next function_body_length
     func getMasterPasswordPolicyOptions() async throws -> MasterPasswordPolicyOptions? {
         guard let userId = try? await stateService.getActiveAccountId(),
@@ -234,7 +266,6 @@ extension DefaultPolicyService {
         else {
             return nil
         }
-
         var minComplexity: UInt8 = 0
         var minLength: UInt8 = 0
         var requireUpper = false

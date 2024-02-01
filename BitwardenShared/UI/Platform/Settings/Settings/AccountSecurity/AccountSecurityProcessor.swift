@@ -16,10 +16,12 @@ final class AccountSecurityProcessor: StateProcessor<
         & HasBiometricsRepository
         & HasClientAuth
         & HasErrorReporter
+        & HasPolicyService
         & HasSettingsRepository
         & HasStateService
         & HasTimeProvider
         & HasTwoStepLoginService
+        & HasVaultTimeoutService
 
     // MARK: Private Properties
 
@@ -105,8 +107,19 @@ final class AccountSecurityProcessor: StateProcessor<
     ///
     private func appeared() async {
         do {
-            state.sessionTimeoutAction = try await services.stateService.getTimeoutAction()
+            if let policy = try await services.policyService.fetchTimeoutPolicyValues() {
+                // If the policy returns no timeout action, we present the user all timeout actions.
+                // If the policy returns a timeout action, it's the only one we show the user.
+                if policy.action != nil {
+                    state.policyTimeoutAction = policy.action
+                }
+
+                state.policyTimeoutValue = policy.value
+                state.isTimeoutPolicyEnabled = true
+            }
+
             state.sessionTimeoutValue = try await services.stateService.getVaultTimeout()
+            state.sessionTimeoutAction = try await services.stateService.getTimeoutAction()
         } catch {
             coordinator.navigate(to: .alert(.defaultAlert(title: Localizations.anErrorHasOccurred)))
             services.errorReporter.log(error: error)
@@ -166,6 +179,7 @@ final class AccountSecurityProcessor: StateProcessor<
             coordinator.navigate(to: .alert(.logoutOnTimeoutAlert {
                 do {
                     try await self.services.stateService.setTimeoutAction(action: action)
+                    self.state.sessionTimeoutAction = action
                 } catch {
                     self.coordinator.navigate(to: .alert(.defaultAlert(title: Localizations.anErrorHasOccurred)))
                     self.services.errorReporter.log(error: error)
@@ -175,9 +189,8 @@ final class AccountSecurityProcessor: StateProcessor<
             Task {
                 try await services.stateService.setTimeoutAction(action: action)
             }
+            state.sessionTimeoutAction = action
         }
-
-        state.sessionTimeoutAction = action
     }
 
     /// Sets the vault timeout value.
@@ -187,8 +200,20 @@ final class AccountSecurityProcessor: StateProcessor<
     private func setVaultTimeout(value: SessionTimeoutValue) {
         Task {
             do {
+                if state.isTimeoutPolicyEnabled {
+                    // If the user's selection exceeds the policy's limit,
+                    // show an alert, and set their timeout value equal to the policy max.
+                    guard value.rawValue <= state.policyTimeoutValue else {
+                        try await services.vaultTimeoutService.setVaultTimeout(
+                            value: SessionTimeoutValue(rawValue: state.policyTimeoutValue),
+                            userId: nil
+                        )
+                        coordinator.navigate(to: .alert(.timeoutExceedsPolicyLengthAlert()))
+                        return
+                    }
+                }
+                try await services.vaultTimeoutService.setVaultTimeout(value: value, userId: nil)
                 state.sessionTimeoutValue = value
-                try await services.authRepository.setVaultTimeout(value: value)
             } catch {
                 self.coordinator.navigate(to: .alert(.defaultAlert(title: Localizations.anErrorHasOccurred)))
                 self.services.errorReporter.log(error: error)

@@ -160,6 +160,12 @@ public enum SessionTimeoutAction: Int, CaseIterable, Codable, Equatable, Menuabl
 /// An object that defines the current state of the `AccountSecurityView`.
 ///
 struct AccountSecurityState: Equatable {
+    /// The timeout actions to show when the policy for maximum timeout value is in effect.
+    var availableTimeoutActions: [SessionTimeoutAction] = SessionTimeoutAction.allCases
+
+    /// The timeout options to show when the policy for maximum timeout value is in effect.
+    var availableTimeoutOptions: [SessionTimeoutValue] = SessionTimeoutValue.allCases
+
     /// The biometric auth status for the user.
     var biometricUnlockStatus: BiometricsUnlockStatus = .notAvailable
 
@@ -193,8 +199,43 @@ struct AccountSecurityState: Equatable {
         return true
     }
 
+    /// Whether the maximum timeout value policy is in effect.
+    var isTimeoutPolicyEnabled: Bool = false
+
     /// Whether the unlock with pin code toggle is on.
     var isUnlockWithPINCodeOn: Bool = false
+
+    /// The maximum vault timeout policy action.
+    ///
+    /// When set, this is the only action option available to users.
+    var policyTimeoutAction: SessionTimeoutAction? = .lock {
+        didSet {
+            availableTimeoutActions = SessionTimeoutAction.allCases
+                .filter { $0 == policyTimeoutAction }
+        }
+    }
+
+    /// The policy's timeout value in hours.
+    var policyTimeoutHours: Int {
+        policyTimeoutValue / (60 * 60)
+    }
+
+    /// The policy's timeout value in minutes.
+    var policyTimeoutMinutes: Int {
+        policyTimeoutValue / 60 % 60
+    }
+
+    /// The policy's maximum vault timeout value.
+    ///
+    /// When set, all timeout values greater than this are no longer shown.
+    var policyTimeoutValue: Int = 0 {
+        didSet {
+            availableTimeoutOptions = SessionTimeoutValue.allCases
+                .filter { $0 != .never }
+                .filter { $0 != .onAppRestart }
+                .filter { $0.rawValue <= policyTimeoutValue }
+        }
+    }
 
     /// The action taken when a session timeout occurs.
     var sessionTimeoutAction: SessionTimeoutAction = .lock
