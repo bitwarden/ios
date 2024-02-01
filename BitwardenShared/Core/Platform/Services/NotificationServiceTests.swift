@@ -2,7 +2,7 @@ import XCTest
 
 @testable import BitwardenShared
 
-class NotificationServiceTests: BitwardenTestCase {
+class NotificationServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body_length
     // MARK: Properties
 
     var appSettingsStore: MockAppSettingsStore!
@@ -106,6 +106,247 @@ class NotificationServiceTests: BitwardenTestCase {
 
         // Confirm the results.
         XCTAssertFalse(errorReporter.errors.isEmpty)
+    }
+
+    /// `messageReceived(_:notificationDismissed:notificationTapped:)` handles messages appropriately.
+    func test_messageReceived_syncCipherCreate() async throws {
+        // Set up the mock data.
+        stateService.setIsAuthenticated()
+        appSettingsStore.appId = "10"
+        let message: [AnyHashable: Any] = [
+            "aps": [
+                "data": [
+                    "type": NotificationType.syncCipherCreate.rawValue,
+                    "payload": "{\"Id\":\"CIPHER ID\",\"UserId\":\"1\"}",
+                ],
+            ],
+        ]
+
+        // Test.
+        await subject.messageReceived(message, notificationDismissed: nil, notificationTapped: nil)
+
+        // Confirm the results.
+        XCTAssertEqual(syncService.fetchUpsertSyncCipherData?.id, "CIPHER ID")
+        XCTAssertEqual(syncService.fetchUpsertSyncCipherData?.userId, "1")
+    }
+
+    /// `messageReceived(_:notificationDismissed:notificationTapped:)` handles messages appropriately.
+    func test_messageReceived_syncCipherUpdate() async throws {
+        // Set up the mock data.
+        stateService.setIsAuthenticated()
+        appSettingsStore.appId = "10"
+        let message: [AnyHashable: Any] = [
+            "aps": [
+                "data": [
+                    "type": NotificationType.syncCipherUpdate.rawValue,
+                    "payload": "{\"Id\":\"CIPHER ID\",\"UserId\":\"1\"}",
+                ],
+            ],
+        ]
+
+        // Test.
+        await subject.messageReceived(message, notificationDismissed: nil, notificationTapped: nil)
+
+        // Confirm the results.
+        XCTAssertEqual(syncService.fetchUpsertSyncCipherData?.id, "CIPHER ID")
+        XCTAssertEqual(syncService.fetchUpsertSyncCipherData?.userId, "1")
+    }
+
+    /// `messageReceived(_:notificationDismissed:notificationTapped:)` handles messages appropriately.
+    func test_messageReceived_syncFolderCreate() async throws {
+        // Set up the mock data.
+        stateService.setIsAuthenticated()
+        appSettingsStore.appId = "10"
+        let message: [AnyHashable: Any] = [
+            "aps": [
+                "data": [
+                    "type": NotificationType.syncFolderCreate.rawValue,
+                    "payload": "{\"Id\":\"FOLDER ID\",\"UserId\":\"1\"}",
+                ],
+            ],
+        ]
+
+        // Test.
+        await subject.messageReceived(message, notificationDismissed: nil, notificationTapped: nil)
+
+        // Confirm the results.
+        XCTAssertEqual(syncService.fetchUpsertSyncFolderData?.id, "FOLDER ID")
+        XCTAssertEqual(syncService.fetchUpsertSyncFolderData?.userId, "1")
+    }
+
+    /// `messageReceived(_:notificationDismissed:notificationTapped:)` handles messages appropriately.
+    func test_messageReceived_syncFolderUpdate() async throws {
+        // Set up the mock data.
+        stateService.setIsAuthenticated()
+        appSettingsStore.appId = "10"
+        let message: [AnyHashable: Any] = [
+            "aps": [
+                "data": [
+                    "type": NotificationType.syncFolderUpdate.rawValue,
+                    "payload": "{\"Id\":\"FOLDER ID\",\"UserId\":\"1\"}",
+                ],
+            ],
+        ]
+
+        // Test.
+        await subject.messageReceived(message, notificationDismissed: nil, notificationTapped: nil)
+
+        // Confirm the results.
+        XCTAssertEqual(syncService.fetchUpsertSyncFolderData?.id, "FOLDER ID")
+        XCTAssertEqual(syncService.fetchUpsertSyncFolderData?.userId, "1")
+    }
+
+    /// `messageReceived(_:notificationDismissed:notificationTapped:)` handles messages appropriately.
+    func test_messageReceived_syncCipherDelete() async throws {
+        // Set up the mock data.
+        stateService.setIsAuthenticated()
+        appSettingsStore.appId = "10"
+        let message: [AnyHashable: Any] = [
+            "aps": [
+                "data": [
+                    "type": NotificationType.syncCipherDelete.rawValue,
+                    "payload": "{\"Id\":\"CIPHER ID\",\"UserId\":\"1\"}",
+                ],
+            ],
+        ]
+
+        // Test.
+        await subject.messageReceived(message, notificationDismissed: nil, notificationTapped: nil)
+
+        // Confirm the results.
+        XCTAssertEqual(syncService.deleteCipherData?.id, "CIPHER ID")
+        XCTAssertEqual(syncService.deleteCipherData?.userId, "1")
+    }
+
+    /// `messageReceived(_:notificationDismissed:notificationTapped:)` handles messages appropriately.
+    func test_messageReceived_syncLoginDelete() async throws {
+        // Set up the mock data.
+        stateService.setIsAuthenticated()
+        appSettingsStore.appId = "10"
+        let message: [AnyHashable: Any] = [
+            "aps": [
+                "data": [
+                    "type": NotificationType.syncLoginDelete.rawValue,
+                    "payload": "{\"Id\":\"CIPHER ID\",\"UserId\":\"1\"}",
+                ],
+            ],
+        ]
+
+        // Test.
+        await subject.messageReceived(message, notificationDismissed: nil, notificationTapped: nil)
+
+        // Confirm the results.
+        XCTAssertEqual(syncService.deleteCipherData?.id, "CIPHER ID")
+        XCTAssertEqual(syncService.deleteCipherData?.userId, "1")
+    }
+
+    /// `messageReceived(_:notificationDismissed:notificationTapped:)` handles messages appropriately.
+    func test_messageReceived_syncFolderDelete() async throws {
+        // Set up the mock data.
+        stateService.setIsAuthenticated()
+        appSettingsStore.appId = "10"
+        let message: [AnyHashable: Any] = [
+            "aps": [
+                "data": [
+                    "type": NotificationType.syncFolderDelete.rawValue,
+                    "payload": "{\"Id\":\"FOLDER ID\",\"UserId\":\"1\"}",
+                ],
+            ],
+        ]
+
+        // Test.
+        await subject.messageReceived(message, notificationDismissed: nil, notificationTapped: nil)
+
+        // Confirm the results.
+        XCTAssertEqual(syncService.deleteFolderData?.id, "FOLDER ID")
+        XCTAssertEqual(syncService.deleteFolderData?.userId, "1")
+    }
+
+    /// `messageReceived(_:notificationDismissed:notificationTapped:)` handles messages appropriately.
+    func test_messageReceived_syncSendCreate() async throws {
+        // Set up the mock data.
+        stateService.setIsAuthenticated()
+        appSettingsStore.appId = "10"
+        let message: [AnyHashable: Any] = [
+            "aps": [
+                "data": [
+                    "type": NotificationType.syncSendCreate.rawValue,
+                    "payload": "{\"Id\":\"SEND ID\",\"UserId\":\"1\"}",
+                ],
+            ],
+        ]
+
+        // Test.
+        await subject.messageReceived(message, notificationDismissed: nil, notificationTapped: nil)
+
+        // Confirm the results.
+        XCTAssertEqual(syncService.fetchUpsertSyncSendData?.id, "SEND ID")
+        XCTAssertEqual(syncService.fetchUpsertSyncSendData?.userId, "1")
+    }
+
+    /// `messageReceived(_:notificationDismissed:notificationTapped:)` handles messages appropriately.
+    func test_messageReceived_syncSendUpdate() async throws {
+        // Set up the mock data.
+        stateService.setIsAuthenticated()
+        appSettingsStore.appId = "10"
+        let message: [AnyHashable: Any] = [
+            "aps": [
+                "data": [
+                    "type": NotificationType.syncSendUpdate.rawValue,
+                    "payload": "{\"Id\":\"SEND ID\",\"UserId\":\"1\"}",
+                ],
+            ],
+        ]
+
+        // Test.
+        await subject.messageReceived(message, notificationDismissed: nil, notificationTapped: nil)
+
+        // Confirm the results.
+        XCTAssertEqual(syncService.fetchUpsertSyncSendData?.id, "SEND ID")
+        XCTAssertEqual(syncService.fetchUpsertSyncSendData?.userId, "1")
+    }
+
+    /// `messageReceived(_:notificationDismissed:notificationTapped:)` handles messages appropriately.
+    func test_messageReceived_syncSendDelete() async throws {
+        // Set up the mock data.
+        stateService.setIsAuthenticated()
+        appSettingsStore.appId = "10"
+        let message: [AnyHashable: Any] = [
+            "aps": [
+                "data": [
+                    "type": NotificationType.syncSendDelete.rawValue,
+                    "payload": "{\"Id\":\"SEND ID\",\"UserId\":\"1\"}",
+                ],
+            ],
+        ]
+
+        // Test.
+        await subject.messageReceived(message, notificationDismissed: nil, notificationTapped: nil)
+
+        // Confirm the results.
+        XCTAssertEqual(syncService.deleteSendData?.id, "SEND ID")
+        XCTAssertEqual(syncService.deleteSendData?.userId, "1")
+    }
+
+    /// `messageReceived(_:notificationDismissed:notificationTapped:)` handles messages appropriately.
+    func test_messageReceived_syncOrgKeys() async throws {
+        // Set up the mock data.
+        stateService.setIsAuthenticated()
+        appSettingsStore.appId = "10"
+        let message: [AnyHashable: Any] = [
+            "aps": [
+                "data": [
+                    "type": NotificationType.syncOrgKeys.rawValue,
+                    "payload": "anything",
+                ],
+            ],
+        ]
+
+        // Test.
+        await subject.messageReceived(message, notificationDismissed: nil, notificationTapped: nil)
+
+        // Confirm the results.
+        XCTAssertTrue(syncService.didFetchSync)
     }
 
     /// `messageReceived(_:notificationDismissed:notificationTapped:)` handles messages appropriately.
@@ -274,4 +515,4 @@ class MockNotificationServiceDelegate: NotificationServiceDelegate {
         switchAccountsLoginRequest = loginRequest
         switchAccountsShowAlert = showAlert
     }
-}
+} // swiftlint:disable:this file_length

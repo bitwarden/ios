@@ -5,11 +5,21 @@ import Combine
 
 class MockFolderService: FolderService {
     var addedFolderName: String?
+
     var deletedFolderId: String?
+
     var editedFolderName: String?
+
     var fetchAllFoldersResult: Result<[Folder], Error> = .success([])
+
+    var fetchFolderId: String?
+    var fetchFolderResult: Result<Folder?, Error> = .success(nil)
+
     var replaceFoldersFolders: [FolderResponseModel]?
     var replaceFoldersUserId: String?
+
+    var syncFolderWithServerId: String?
+    var syncFolderWithServerResult: Result<Void, Error> = .success(())
 
     var foldersSubject = CurrentValueSubject<[Folder], Error>([])
 
@@ -25,6 +35,11 @@ class MockFolderService: FolderService {
         editedFolderName = name
     }
 
+    func fetchFolder(id: String) async throws -> BitwardenSdk.Folder? {
+        fetchFolderId = id
+        return try fetchFolderResult.get()
+    }
+
     func fetchAllFolders() async throws -> [Folder] {
         try fetchAllFoldersResult.get()
     }
@@ -32,6 +47,11 @@ class MockFolderService: FolderService {
     func replaceFolders(_ folders: [FolderResponseModel], userId: String) async throws {
         replaceFoldersFolders = folders
         replaceFoldersUserId = userId
+    }
+
+    func syncFolderWithServer(withId id: String) async throws {
+        syncFolderWithServerId = id
+        return try syncFolderWithServerResult.get()
     }
 
     func foldersPublisher() async throws -> AnyPublisher<[Folder], Error> {

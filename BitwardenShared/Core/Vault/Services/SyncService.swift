@@ -13,16 +13,40 @@ protocol SyncService: AnyObject {
     ///
     func fetchSync() async throws
 
+    /// Deletes the cipher specified in the notification data in local storage.
+    ///
+    /// - Parameter data: The notification data for the cipher delete action.
+    ///
     func deleteCipher(data: SyncCipherNotification) async throws
 
+    /// Deletes the folder specified in the notification data in local storage.
+    ///
+    /// - Parameter data: The notification data for the folder delete action.
+    ///
     func deleteFolder(data: SyncFolderNotification) async throws
 
+    /// Deletes the send specified in the notification data in local storage.
+    ///
+    /// - Parameter data: The notification data for the send delete action.
+    ///
     func deleteSend(data: SyncSendNotification) async throws
 
+    /// Synchronizes the cipher specified in the notification data with the server.
+    ///
+    /// - Parameter data: The notification data for the cipher sync action.
+    ///
     func fetchUpsertSyncCipher(data: SyncCipherNotification) async throws
 
+    /// Synchronizes the folder specified in the notification data with the server.
+    ///
+    /// - Parameter data: The notification data for the folder sync action.
+    ///
     func fetchUpsertSyncFolder(data: SyncFolderNotification) async throws
 
+    /// Synchronizes the send specified in the notification data with the server.
+    ///
+    /// - Parameter data: The notification data for the send sync action.
+    ///
     func fetchUpsertSyncSend(data: SyncSendNotification) async throws
 }
 
