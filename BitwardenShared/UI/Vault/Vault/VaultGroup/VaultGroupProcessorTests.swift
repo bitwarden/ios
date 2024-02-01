@@ -64,6 +64,7 @@ class VaultGroupProcessorTests: BitwardenTestCase { // swiftlint:disable:this ty
         policyService = nil
         stateService = nil
         subject = nil
+        timeProvider = nil
         vaultRepository = nil
     }
 
@@ -211,7 +212,7 @@ class VaultGroupProcessorTests: BitwardenTestCase { // swiftlint:disable:this ty
         let expired = VaultListItem(
             id: "1",
             itemType: .totp(
-                name: "totp",
+                name: "expiredTOTP",
                 totpModel: .init(
                     id: "1",
                     loginView: loginView,
@@ -227,7 +228,7 @@ class VaultGroupProcessorTests: BitwardenTestCase { // swiftlint:disable:this ty
         let stable = VaultListItem(
             id: "2",
             itemType: .totp(
-                name: "totp",
+                name: "stableTOTP",
                 totpModel: .init(
                     id: "1",
                     loginView: loginView,
@@ -251,13 +252,11 @@ class VaultGroupProcessorTests: BitwardenTestCase { // swiftlint:disable:this ty
             vaultRepository.refreshedTOTPCodes,
             [expired]
         )
-        XCTAssertEqual(
-            subject.state.searchResults,
-            [
-                refreshed,
-                stable,
-            ]
-        )
+        let expectedRefresh = [
+            refreshed,
+            stable,
+        ]
+        waitFor(subject.state.searchResults == expectedRefresh)
     }
 
     /// `perform(.search)` with a keyword should update search results in state.
@@ -270,7 +269,7 @@ class VaultGroupProcessorTests: BitwardenTestCase { // swiftlint:disable:this ty
         let expired = VaultListItem(
             id: "1",
             itemType: .totp(
-                name: "totp",
+                name: "expiredTOTP",
                 totpModel: .init(
                     id: "1",
                     loginView: loginView,
@@ -286,7 +285,7 @@ class VaultGroupProcessorTests: BitwardenTestCase { // swiftlint:disable:this ty
         let stable = VaultListItem(
             id: "2",
             itemType: .totp(
-                name: "totp",
+                name: "stableTOTP",
                 totpModel: .init(
                     id: "1",
                     loginView: loginView,
@@ -310,6 +309,17 @@ class VaultGroupProcessorTests: BitwardenTestCase { // swiftlint:disable:this ty
             vaultRepository.refreshedTOTPCodes,
             [expired]
         )
+
+        // Ensure that even after a delay, the searchResults are not refreshed,
+        //  given the error.
+        var didWait = false
+        let delay = Task {
+            try await Task.sleep(nanoseconds: (1 * NSEC_PER_SEC) / 4)
+            didWait = true
+        }
+        waitFor(didWait)
+        delay.cancel()
+
         XCTAssertEqual(
             subject.state.searchResults,
             [

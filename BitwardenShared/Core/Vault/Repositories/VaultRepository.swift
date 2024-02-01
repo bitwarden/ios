@@ -263,7 +263,7 @@ extension VaultRepository {
 
 /// A default implementation of a `VaultRepository`.
 ///
-class DefaultVaultRepository {
+class DefaultVaultRepository { // swiftlint:disable:this type_body_length
     // MARK: Properties
 
     /// The API service used to perform API requests for the ciphers in a user's vault.
@@ -436,6 +436,12 @@ class DefaultVaultRepository {
         from ciphers: [CipherView],
         filter: VaultFilterType?
     ) async -> [VaultListItem] {
+        // Ensure the user has premium features access
+        let hasPremiumFeaturesAccess = await (try? doesActiveAccountHavePremium()) ?? false
+        guard hasPremiumFeaturesAccess else {
+            return []
+        }
+
         // Filter and sort the list.
         let activeCiphers = ciphers
             .filter(filter?.cipherFilter(_:) ?? { _ in true })
@@ -526,6 +532,10 @@ class DefaultVaultRepository {
         case .secureNote:
             return activeCiphers.filter { $0.type == .secureNote }.compactMap(VaultListItem.init)
         case .totp:
+            // Ensure the user has premium features access
+            guard try await doesActiveAccountHavePremium() else {
+                return []
+            }
             return await totpListItems(from: ciphers, filter: filter)
         case .trash:
             return deletedCiphers.compactMap(VaultListItem.init)
@@ -573,17 +583,21 @@ class DefaultVaultRepository {
         let ciphersTrashCount = ciphers.lazy.filter { $0.deletedDate != nil }.count
         let ciphersTrashItem = VaultListItem(id: "Trash", itemType: .group(.trash, ciphersTrashCount))
 
-        let oneTimePasswordCount: Int = await totpListItems(from: ciphers, filter: filter).count
+        // Add TOTP items for premium accounts.
+        var totpItems = [VaultListItem]()
+        if try await doesActiveAccountHavePremium() {
+            let oneTimePasswordCount: Int = await totpListItems(from: ciphers, filter: filter).count
 
-        let totpItems = (oneTimePasswordCount > 0) ? [
-            VaultListItem(
-                id: "Types.VerificationCodes",
-                itemType: .group(
-                    .totp,
-                    oneTimePasswordCount
-                )
-            ),
-        ] : []
+            totpItems = (oneTimePasswordCount > 0) ? [
+                VaultListItem(
+                    id: "Types.VerificationCodes",
+                    itemType: .group(
+                        .totp,
+                        oneTimePasswordCount
+                    )
+                ),
+            ] : []
+        }
 
         let folderItems: [VaultListItem] = folders.compactMap { folder in
             guard let folderId = folder.id else {
