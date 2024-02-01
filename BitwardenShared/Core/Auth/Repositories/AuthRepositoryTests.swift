@@ -906,4 +906,53 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
             try await subject.unlockVaultWithPIN(pin: "123")
         }
     }
+
+    /// `updateMasterPassword()` rethrows an error if an error occurs.
+    func test_updateMasterPassword_error() async throws {
+        clientCrypto.updatePasswordResult = .failure(BitwardenTestError.example)
+        stateService.activeAccount = .fixture()
+
+        await assertAsyncThrows(error: BitwardenTestError.example) {
+            try await subject.updateMasterPassword(
+                currentPassword: "PASSWORD",
+                newPassword: "NEW_PASSWORD",
+                passwordHint: "PASSWORD_HINT",
+                reason: .weakMasterPasswordOnLogin
+            )
+        }
+    }
+
+    /// `updateMasterPassword()` performs the API request to update the user's password.
+    func test_updateMasterPassword_weakMasterPasswordOnLogin() async throws {
+        client.result = .httpSuccess(testData: .emptyResponse)
+        clientCrypto.updatePasswordResult = .success(
+            UpdatePasswordResponse(passwordHash: "NEW_PASSWORD_HASH", newKey: "NEW_KEY")
+        )
+        stateService.accountEncryptionKeys["1"] = AccountEncryptionKeys(
+            encryptedPrivateKey: "PRIVATE_KEY",
+            encryptedUserKey: "KEY"
+        )
+        stateService.activeAccount = .fixture()
+        stateService.masterPasswordHashes["1"] = "MASTER_PASSWORD_HASH"
+
+        try await subject.updateMasterPassword(
+            currentPassword: "PASSWORD",
+            newPassword: "NEW_PASSWORD",
+            passwordHint: "PASSWORD_HINT",
+            reason: .weakMasterPasswordOnLogin
+        )
+
+        XCTAssertEqual(clientCrypto.updatePasswordNewPassword, "NEW_PASSWORD")
+
+        XCTAssertEqual(client.requests.count, 1)
+        XCTAssertNotNil(client.requests[0].body)
+        XCTAssertEqual(client.requests[0].method, .post)
+        XCTAssertEqual(client.requests[0].url.absoluteString, "https://example.com/api/accounts/password")
+
+        XCTAssertEqual(stateService.masterPasswordHashes["1"], "NEW_PASSWORD_HASH")
+        XCTAssertEqual(
+            stateService.accountEncryptionKeys["1"],
+            AccountEncryptionKeys(encryptedPrivateKey: "PRIVATE_KEY", encryptedUserKey: "NEW_KEY")
+        )
+    }
 } // swiftlint:disable:this file_length

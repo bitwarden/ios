@@ -168,4 +168,22 @@ class AccountAPIServiceTests: BitwardenTestCase {
         XCTAssertNil(response.kdfMemory)
         XCTAssertNil(response.kdfParallelism)
     }
+
+    /// `updatePassword()` doesn't throw an error when receiving the empty response.
+    func test_updatePassword() async throws {
+        client.result = .httpSuccess(testData: .emptyResponse)
+
+        let requestModel = UpdatePasswordRequestModel(
+            key: "KEY",
+            masterPasswordHash: "MASTER_PASSWORD_HASH",
+            masterPasswordHint: "MASTER_PASSWORD_HINT",
+            newMasterPasswordHash: "NEW_MASTER_PASSWORD_HASH"
+        )
+        try await subject.updatePassword(requestModel)
+
+        XCTAssertEqual(client.requests.count, 1)
+        XCTAssertNotNil(client.requests[0].body)
+        XCTAssertEqual(client.requests[0].method, .post)
+        XCTAssertEqual(client.requests[0].url.absoluteString, "https://example.com/api/accounts/password")
+    }
 }

@@ -310,14 +310,3 @@ class ActionExtensionHelperTests: BitwardenTestCase {
         }
     }
 }
-
-private extension String {
-    var prettyPrintedJson: String? {
-        guard let object = try? JSONSerialization.jsonObject(with: Data(utf8)),
-              let data = try? JSONSerialization.data(withJSONObject: object, options: [.prettyPrinted, .sortedKeys]),
-              let prettyPrintedString = String(data: data, encoding: .utf8) else {
-            return nil
-        }
-        return prettyPrintedString
-    }
-}
