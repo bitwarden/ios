@@ -25,7 +25,7 @@ class MockCipherService: CipherService {
     var fetchAllCiphersResult: Result<[Cipher], Error> = .success([])
 
     var deleteCipherId: String?
-    var deleteWithServerResult: Result<Void, Error> = .success(())
+    var deleteCipherWithServerResult: Result<Void, Error> = .success(())
 
     var replaceCiphersCiphers: [CipherDetailsResponseModel]?
     var replaceCiphersUserId: String?
@@ -73,7 +73,7 @@ class MockCipherService: CipherService {
 
     func deleteCipherWithServer(id: String) async throws {
         deleteCipherId = id
-        try deleteWithServerResult.get()
+        try deleteCipherWithServerResult.get()
     }
 
     func downloadAttachment(withId id: String, cipherId _: String) async throws -> URL? {

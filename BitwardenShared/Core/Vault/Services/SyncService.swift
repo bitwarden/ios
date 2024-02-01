@@ -160,12 +160,14 @@ extension DefaultSyncService {
         let userId = try await stateService.getActiveAccountId()
         guard userId == data.userId else { return }
 
-        try await cipherService.deleteCipherWithServer(id: data.id)
+        try await cipherService.deleteCipherWithLocalStorage(id: data.id)
     }
 
     func deleteFolder(data: SyncFolderNotification) async throws {
         let userId = try await stateService.getActiveAccountId()
         guard userId == data.userId else { return }
+
+        try await folderService.deleteFolderWithLocalStorage(id: data.id)
 
         let updatedCiphers = try await cipherService.fetchAllCiphers()
             .asyncMap { try await clientVault.ciphers().decrypt(cipher: $0) }

@@ -18,6 +18,12 @@ protocol FolderService {
     ///
     func deleteFolderWithServer(id: String) async throws
 
+    /// Delete a folder for the current user, in local storage.
+    ///
+    /// - Parameter id: The id of the folder to delete.
+    ///
+    func deleteFolderWithLocalStorage(id: String) async throws
+
     /// Edit a folder for the current user, both in the backend and in local storage.
     ///
     /// - Parameters:
@@ -117,6 +123,11 @@ extension DefaultFolderService {
         _ = try await folderAPIService.deleteFolder(withID: id)
 
         // Delete the folder in the local data store.
+        try await folderDataStore.deleteFolder(id: id, userId: userID)
+    }
+
+    func deleteFolderWithLocalStorage(id: String) async throws {
+        let userID = try await stateService.getActiveAccountId()
         try await folderDataStore.deleteFolder(id: id, userId: userID)
     }
 

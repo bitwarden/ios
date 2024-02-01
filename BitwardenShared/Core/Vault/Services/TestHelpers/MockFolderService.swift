@@ -8,6 +8,9 @@ class MockFolderService: FolderService {
 
     var deletedFolderId: String?
 
+    var deleteFolderWithLocalStorageId: String?
+    var deleteFolderWithLocalStorageResult: Result<Void, Error> = .success(())
+
     var editedFolderName: String?
 
     var fetchAllFoldersResult: Result<[Folder], Error> = .success([])
@@ -29,6 +32,11 @@ class MockFolderService: FolderService {
 
     func deleteFolderWithServer(id: String) async throws {
         deletedFolderId = id
+    }
+
+    func deleteFolderWithLocalStorage(id: String) async throws {
+        deleteFolderWithLocalStorageId = id
+        return try deleteFolderWithLocalStorageResult.get()
     }
 
     func editFolderWithServer(id _: String, name: String) async throws {

@@ -316,4 +316,89 @@ class SyncServiceTests: BitwardenTestCase {
             try await subject.fetchSync()
         }
     }
-}
+
+    func test_deleteCipher() async throws {
+        stateService.activeAccount = .fixture()
+        cipherService.deleteCipherWithLocalStorageResult = .success(())
+
+        let notification = SyncCipherNotification(
+            collectionIds: nil,
+            id: "id",
+            organizationId: nil,
+            revisionDate: nil,
+            userId: "1"
+        )
+        try await subject.deleteCipher(data: notification)
+        XCTAssertEqual(cipherService.deleteCipherWithLocalStorageId, "id")
+    }
+
+    func test_deleteFolder() async throws {
+        stateService.activeAccount = .fixture()
+        folderService.deleteFolderWithLocalStorageResult = .success(())
+        cipherService.fetchAllCiphersResult = .success([.fixture(folderId: "id")])
+        cipherService.updateCipherWithLocalStorageResult = .success(())
+
+        let notification = SyncFolderNotification(
+            id: "id",
+            revisionDate: nil,
+            userId: "1"
+        )
+        try await subject.deleteFolder(data: notification)
+        XCTAssertEqual(folderService.deleteFolderWithLocalStorageId, "id")
+        XCTAssertEqual(cipherService.updateCipherWithLocalStorageCipher, .fixture(folderId: nil))
+    }
+
+    func test_deleteSend() async throws {
+        stateService.activeAccount = .fixture()
+        sendService.deleteSendWithLocalStorageResult = .success(())
+
+        let notification = SyncSendNotification(
+            id: "id",
+            revisionDate: nil,
+            userId: "1"
+        )
+        try await subject.deleteSend(data: notification)
+        XCTAssertEqual(sendService.deleteSendWithLocalStorageId, "id")
+    }
+
+    func test_fetchUpsertSyncCipher() async throws {
+        stateService.activeAccount = .fixture()
+        cipherService.syncCipherWithServerResult = .success(())
+
+        let notification = SyncCipherNotification(
+            collectionIds: nil,
+            id: "id",
+            organizationId: nil,
+            revisionDate: nil,
+            userId: "1"
+        )
+        try await subject.fetchUpsertSyncCipher(data: notification)
+        XCTAssertEqual(cipherService.syncCipherWithServerId, "id")
+    }
+
+    func test_fetchUpsertSyncFolder() async throws {
+        stateService.activeAccount = .fixture()
+        folderService.syncFolderWithServerResult = .success(())
+
+        let notification = SyncFolderNotification(
+            id: "id",
+            revisionDate: nil,
+            userId: "1"
+        )
+        try await subject.fetchUpsertSyncFolder(data: notification)
+        XCTAssertEqual(folderService.syncFolderWithServerId, "id")
+    }
+
+    func test_fetchUpsertSyncSend() async throws {
+        stateService.activeAccount = .fixture()
+        sendService.syncSendWithServerResult = .success(())
+
+        let notification = SyncSendNotification(
+            id: "id",
+            revisionDate: nil,
+            userId: "1"
+        )
+        try await subject.fetchUpsertSyncSend(data: notification)
+        XCTAssertEqual(sendService.syncSendWithServerId, "id")
+    }
+} // swiftlint:disable:this file_length
