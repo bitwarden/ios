@@ -309,6 +309,17 @@ class VaultGroupProcessorTests: BitwardenTestCase { // swiftlint:disable:this ty
             vaultRepository.refreshedTOTPCodes,
             [expired]
         )
+
+        // Ensure that even after a delay, the searchResults are not refreshed,
+        //  given the error.
+        var didWait = false
+        let delay = Task {
+            try await Task.sleep(nanoseconds: (1 * NSEC_PER_SEC) / 4)
+            didWait = true
+        }
+        waitFor(didWait)
+        delay.cancel()
+
         XCTAssertEqual(
             subject.state.searchResults,
             [
