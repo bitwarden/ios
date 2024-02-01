@@ -167,14 +167,18 @@ final class SendListProcessor: StateProcessor<SendListState, SendListAction, Sen
         do {
             if let type = state.type {
                 for try await sends in try await services.sendRepository.sendTypeListPublisher(type: type) {
-                    state.sections = [
-                        SendListSection(
-                            id: type.localizedName,
-                            isCountDisplayed: false,
-                            items: sends,
-                            name: nil
-                        ),
-                    ]
+                    if sends.isEmpty {
+                        state.sections = []
+                    } else {
+                        state.sections = [
+                            SendListSection(
+                                id: type.localizedName,
+                                isCountDisplayed: false,
+                                items: sends,
+                                name: nil
+                            ),
+                        ]
+                    }
                 }
             } else {
                 for try await sections in try await services.sendRepository.sendListPublisher() {

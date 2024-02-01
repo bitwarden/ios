@@ -136,12 +136,12 @@ class SendListViewTests: BitwardenTestCase {
     /// The view renders in dark mode correctly when there are sends.
     func test_snapshot_textValues_dark() {
         processor.state = .contentTextType
-        assertSnapshot(of: subject, as: .defaultPortraitDark, record: true)
+        assertSnapshot(of: subject, as: .defaultPortraitDark)
     }
 
     /// The view renders in large accessibility sizes correctly when there are sends.
     func test_snapshot_textValues_ax5() {
         processor.state = .contentTextType
-        assertSnapshot(of: subject, as: .defaultPortraitAX5, record: true)
+        assertSnapshot(of: subject, as: .defaultPortraitAX5)
     }
 }
