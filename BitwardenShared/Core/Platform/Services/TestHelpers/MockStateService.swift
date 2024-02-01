@@ -176,7 +176,7 @@ class MockStateService: StateService { // swiftlint:disable:this type_body_lengt
     }
 
     func getLastSyncTime(userId: String?) async throws -> Date? {
-        let userId = try userId ?? getActiveAccount().profile.userId
+        let userId = try unwrapUserId(userId)
         return lastSyncTimeByUserId[userId]
     }
 
