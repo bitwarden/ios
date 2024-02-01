@@ -262,6 +262,10 @@ extension AppCoordinator: LoginRequestDelegate {
 // MARK: - SendItemDelegate
 
 extension AppCoordinator: SendItemDelegate {
+    func handle(_ authAction: AuthAction) async {
+        await handleAuthEvent(.action(authAction))
+    }
+
     func sendItemCancelled() {
         appExtensionDelegate?.didCancel()
     }

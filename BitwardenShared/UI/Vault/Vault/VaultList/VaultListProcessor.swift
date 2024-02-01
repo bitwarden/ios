@@ -203,7 +203,7 @@ final class VaultListProcessor: StateProcessor<// swiftlint:disable:this type_bo
                 guard let self else { return }
                 do {
                     // Log out of the selected account.
-                    let activeAccountId = try await services.authRepository.getActiveAccount().userId
+                    let activeAccountId = try await services.authRepository.getUserId()
                     await coordinator.handleEvent(.logout(userId: account.userId, userInitiated: true))
 
                     // If that account was not active,
@@ -235,24 +235,11 @@ final class VaultListProcessor: StateProcessor<// swiftlint:disable:this type_bo
 
     /// Configures a profile switcher state with the current account and alternates.
     ///
-    /// - Returns: A current ProfileSwitcherState, if available.
-    ///
     private func refreshProfileState() async {
-        var accounts = [ProfileSwitcherItem]()
-        var activeAccount: ProfileSwitcherItem?
-        do {
-            accounts = try await services.authRepository.getAccounts()
-            activeAccount = try? await services.authRepository.getActiveAccount()
-
-            state.profileSwitcherState = ProfileSwitcherState(
-                accounts: accounts,
-                activeAccountId: activeAccount?.userId,
-                isVisible: state.profileSwitcherState.isVisible
-            )
-        } catch {
-            services.errorReporter.log(error: error)
-            state.profileSwitcherState = .empty()
-        }
+        state.profileSwitcherState = await services.authRepository.getProfilesState(
+            isVisible: state.profileSwitcherState.isVisible,
+            shouldAlwaysHideAddAccount: false
+        )
     }
 
     /// Refreshes the vault's contents.

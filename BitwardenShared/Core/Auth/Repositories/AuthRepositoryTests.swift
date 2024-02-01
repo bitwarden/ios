@@ -199,15 +199,14 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         XCTAssertNil(biometricsRepository.capturedUserAuthKey)
     }
 
-    /// `getAccounts()` throws an error when the accounts are nil.
-    func test_getAccounts_empty() async throws {
-        await assertAsyncThrows(error: StateServiceError.noAccounts) {
-            _ = try await subject.getAccounts()
-        }
+    /// `getProfilesState()` throws an error when the accounts are nil.
+    func test_getProfilesState_empty() async {
+        let state = await subject.getProfilesState(isVisible: false, shouldAlwaysHideAddAccount: false)
+        XCTAssertEqual(state, .empty(shouldAlwaysHideAddAccount: false))
     }
 
-    /// `getAccounts()` returns all known accounts.
-    func test_getAccounts_valid() async throws { // swiftlint:disable:this function_body_length
+    /// `getProfilesState()` returns all known accounts.
+    func test_getProfilesState_valid() async { // swiftlint:disable:this function_body_length
         stateService.accounts = [
             anneAccount,
             beeAccount,
@@ -217,7 +216,7 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
             shortName,
         ]
 
-        let accounts = try await subject.getAccounts()
+        let accounts = await subject.getProfilesState(isVisible: true, shouldAlwaysHideAddAccount: false).accounts
         XCTAssertEqual(
             accounts.first,
             ProfileSwitcherItem.fixture(
@@ -268,8 +267,8 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         )
     }
 
-    /// `getAccounts()` can return locked accounts correctly.
-    func test_getAccounts_locked() async throws {
+    /// `getProfilesState()` can return locked accounts correctly.
+    func test_getProfilesState_locked() async {
         stateService.accounts = [
             anneAccount,
             beeAccount,
@@ -283,7 +282,7 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
             shortEmail.profile.userId: true,
             shortName.profile.userId: false,
         ]
-        let profiles = try await subject.getAccounts()
+        let profiles = await subject.getProfilesState(isVisible: true, shouldAlwaysHideAddAccount: true).accounts
         let lockedStatuses = profiles.map { profile in
             profile.isUnlocked
         }
@@ -300,31 +299,27 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
     }
 
     /// `getActiveAccount()` returns a profile switcher item.
-    func test_getActiveAccount_empty() async throws {
+    func test_getAccount_empty() async throws {
         stateService.accounts = [
             anneAccount,
         ]
 
         await assertAsyncThrows(error: StateServiceError.noActiveAccount) {
-            _ = try await subject.getActiveAccount()
+            _ = try await subject.getAccount()
         }
     }
 
-    /// `getActiveAccount()` returns an account when the active account is valid.
-    func test_getActiveAccount_valid() async throws {
+    /// `getAccount()` returns an account when the active account is valid.
+    func test_getAccount_valid() async throws {
         stateService.accounts = [
             anneAccount,
         ]
         stateService.activeAccount = anneAccount
 
-        let active = try await subject.getActiveAccount()
+        let active = try await subject.getAccount()
         XCTAssertEqual(
             active,
-            ProfileSwitcherItem.fixture(
-                email: anneAccount.profile.email,
-                userId: anneAccount.profile.userId,
-                userInitials: "AA"
-            )
+            anneAccount
         )
     }
 
