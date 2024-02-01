@@ -229,6 +229,55 @@ class AuthServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body_
         )
     }
 
+    /// `loginWithMasterPassword(_:username:captchaToken:)` logs in with the password updates AccountProfile's
+    /// `.forcePasswordResetReason` value if policy requires user to update password.
+    func test_loginWithMasterPassword_updatesAccountProfile() async throws {
+        // Set up the mock data.
+        client.results = [
+            .httpSuccess(testData: .preLoginSuccess),
+            .httpSuccess(testData: .IdentityTokenSuccessWithMasterPasswordPolicy),
+        ]
+        appSettingsStore.appId = "App id"
+        clientAuth.hashPasswordResult = .success("hashed password")
+        clientAuth.satisfiesPolicyResult = false
+        stateService.preAuthEnvironmentUrls = EnvironmentUrlData(base: URL(string: "https://vault.bitwarden.com"))
+        systemDevice.modelIdentifier = "Model id"
+
+        // Attempt to login.
+        try await subject.loginWithMasterPassword(
+            "Password1234!",
+            username: "email@example.com",
+            captchaToken: nil
+        )
+
+        // Verify the results.
+        let preLoginRequest = PreLoginRequestModel(
+            email: "email@example.com"
+        )
+        let tokenRequest = IdentityTokenRequestModel(
+            authenticationMethod: .password(
+                username: "email@example.com",
+                password: "hashed password",
+                plainPassword: "plain password"
+            ),
+            captchaToken: nil,
+            deviceInfo: DeviceInfo(
+                identifier: "App id",
+                name: "Model id"
+            )
+        )
+        XCTAssertEqual(client.requests.count, 2)
+        XCTAssertEqual(client.requests[0].body, try preLoginRequest.encode())
+        XCTAssertEqual(client.requests[1].body, try tokenRequest.encode())
+
+        XCTAssertEqual(clientAuth.hashPasswordEmail, "user@bitwarden.com")
+        XCTAssertEqual(clientAuth.hashPasswordPassword, "hashed password")
+        XCTAssertEqual(clientAuth.hashPasswordKdfParams, .pbkdf2(iterations: 600_000))
+        var account = Account.fixtureAccountLogin()
+        account.profile.forcePasswordResetReason = .adminForcePasswordReset
+        XCTAssertEqual(stateService.accountsAdded, [account])
+    }
+
     /// `loginWithMasterPassword(_:username:captchaToken:)` handles a two-factor auth error.
     func test_loginWithMasterPassword_twoFactorError() async throws {
         // Set up the mock data.

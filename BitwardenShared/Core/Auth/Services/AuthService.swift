@@ -437,7 +437,7 @@ class DefaultAuthService: AuthService { // swiftlint:disable:this type_body_leng
 
         // Check if master password meets the master password policy.
         let satisfyPolicy = await clientAuth.satisfiesPolicy(
-            password: "livefrontpassword",
+            password: masterPassword,
             strength: strength,
             policy: masterPasswordPolicy
         )
