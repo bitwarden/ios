@@ -437,7 +437,10 @@ class DefaultVaultRepository { // swiftlint:disable:this type_body_length
         filter: VaultFilterType?
     ) async -> [VaultListItem] {
         // Ensure the user has premium features access
-        guard await ((try? doesActiveAccountHavePremium()) ?? false) else { return [] }
+        let hasPremiumFeaturesAccess = await (try? doesActiveAccountHavePremium()) ?? false
+        guard hasPremiumFeaturesAccess else {
+            return []
+        }
 
         // Filter and sort the list.
         let activeCiphers = ciphers

@@ -64,6 +64,7 @@ class VaultGroupProcessorTests: BitwardenTestCase { // swiftlint:disable:this ty
         policyService = nil
         stateService = nil
         subject = nil
+        timeProvider = nil
         vaultRepository = nil
     }
 
@@ -211,7 +212,7 @@ class VaultGroupProcessorTests: BitwardenTestCase { // swiftlint:disable:this ty
         let expired = VaultListItem(
             id: "1",
             itemType: .totp(
-                name: "totp",
+                name: "expiredTOTP",
                 totpModel: .init(
                     id: "1",
                     loginView: loginView,
@@ -227,7 +228,7 @@ class VaultGroupProcessorTests: BitwardenTestCase { // swiftlint:disable:this ty
         let stable = VaultListItem(
             id: "2",
             itemType: .totp(
-                name: "totp",
+                name: "stableTOTP",
                 totpModel: .init(
                     id: "1",
                     loginView: loginView,
@@ -245,6 +246,14 @@ class VaultGroupProcessorTests: BitwardenTestCase { // swiftlint:disable:this ty
         ])
         waitFor(subject.state.searchResults.count == 2)
         task.cancel()
+
+        var didWait = false
+        let delay = Task {
+            try await Task.sleep(nanoseconds: 1 * NSEC_PER_SEC)
+            didWait = true
+        }
+        waitFor(didWait)
+        delay.cancel()
 
         waitFor(!vaultRepository.refreshedTOTPCodes.isEmpty)
         XCTAssertEqual(
@@ -270,7 +279,7 @@ class VaultGroupProcessorTests: BitwardenTestCase { // swiftlint:disable:this ty
         let expired = VaultListItem(
             id: "1",
             itemType: .totp(
-                name: "totp",
+                name: "expiredTOTP",
                 totpModel: .init(
                     id: "1",
                     loginView: loginView,
@@ -286,7 +295,7 @@ class VaultGroupProcessorTests: BitwardenTestCase { // swiftlint:disable:this ty
         let stable = VaultListItem(
             id: "2",
             itemType: .totp(
-                name: "totp",
+                name: "stableTOTP",
                 totpModel: .init(
                     id: "1",
                     loginView: loginView,
