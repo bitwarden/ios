@@ -66,7 +66,6 @@ struct UpdateMasterPasswordState: Equatable {
             policySummary.append(bullet)
             policySummary.append(Localizations.policyInEffectSpecial("!@#$%^&*"))
         }
-        print(policySummary)
         return policySummary
     }
 }
