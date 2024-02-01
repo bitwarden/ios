@@ -430,6 +430,19 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
         )
     }
 
+    /// `getLastSyncTime(userId:)` gets the user's last sync time.
+    func test_getLastSyncTime() async throws {
+        await subject.addAccount(.fixture(profile: .fixture(userId: "1")))
+
+        let noTime = try await subject.getLastSyncTime(userId: "1")
+        XCTAssertNil(noTime)
+
+        let date = Date(timeIntervalSince1970: 1_704_067_200)
+        appSettingsStore.lastSyncTimeByUserId["1"] = date
+        let lastSyncTime = try await subject.getLastSyncTime(userId: "1")
+        XCTAssertEqual(lastSyncTime, date)
+    }
+
     /// `getLoginRequest()` gets any pending login requests.
     func test_getLoginRequest() async {
         let loginRequest = LoginRequestNotification(id: "1", userId: "10")

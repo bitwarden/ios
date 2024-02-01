@@ -55,6 +55,9 @@ enum Constants {
     /// A default value for the minimum number of characters required when creating a password.
     static let minimumPasswordCharacters = 12
 
+    /// The minimum number of minutes before allowing the vault to sync again.
+    static let minimumSyncInterval: TimeInterval = 30 * 60 // 30 minutes
+
     /// The default number of KDF iterations to perform.
     static let pbkdf2Iterations = 600_000
 

@@ -26,6 +26,23 @@ class AccountAPIServiceTests: BitwardenTestCase {
 
     // MARK: Tests
 
+    /// `accountRevisionDate()` returns the account's last revision date.
+    func test_accountRevisionDate() async throws {
+        client.result = .httpSuccess(testData: .accountRevisionDate())
+
+        let date = try await subject.accountRevisionDate()
+        XCTAssertEqual(date, Date(timeIntervalSince1970: 1_704_067_200))
+    }
+
+    /// `accountRevisionDate()` throws an error if the request fails.
+    func test_accountRevisionDate_httpFailure() async throws {
+        client.result = .httpFailure(BitwardenTestError.example)
+
+        await assertAsyncThrows(error: BitwardenTestError.example) {
+            _ = try await subject.accountRevisionDate()
+        }
+    }
+
     /// `createNewAccount(email:masterPasswordHash)` throws an error if the request fails.
     func test_create_account_httpFailure() async {
         client.result = .httpFailure()

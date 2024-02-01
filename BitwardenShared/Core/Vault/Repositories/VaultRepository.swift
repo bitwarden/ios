@@ -646,7 +646,7 @@ extension DefaultVaultRepository: VaultRepository {
     func fetchSync(isManualRefresh: Bool) async throws {
         let allowSyncOnRefresh = try await stateService.getAllowSyncOnRefresh()
         if !isManualRefresh || allowSyncOnRefresh {
-            try await syncService.fetchSync()
+            try await syncService.fetchSync(forceSync: isManualRefresh)
         }
     }
 
