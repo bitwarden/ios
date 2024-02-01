@@ -662,7 +662,9 @@ extension DefaultVaultRepository: VaultRepository {
             do {
                 let userId = try await stateService.getActiveAccountId()
                 let url = try FileManager.default.attachmentsUrl(for: userId)
-                try FileManager.default.removeItem(at: url)
+                if FileManager.default.fileExists(atPath: url.path) {
+                    try FileManager.default.removeItem(at: url)
+                }
             } catch {
                 errorReporter.log(error: error)
             }
