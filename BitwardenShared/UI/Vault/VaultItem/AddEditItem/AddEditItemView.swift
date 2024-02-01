@@ -32,6 +32,7 @@ struct AddEditItemView: View {
                 existing
             }
         }
+        .task { await store.perform(.appeared) }
         .task { await store.perform(.fetchCipherOptions) }
         .toast(store.binding(
             get: \.toast,

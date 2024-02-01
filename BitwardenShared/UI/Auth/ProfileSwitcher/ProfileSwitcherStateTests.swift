@@ -41,7 +41,7 @@ final class ProfileSwitcherStateTests: BitwardenTestCase {
     /// Setting the alternate accounts should succeed
     func test_empty_setAlternates_alternatesMatch() {
         let newAlternates = [
-            ProfileSwitcherItem(),
+            ProfileSwitcherItem.fixture(),
         ]
         subject.accounts = newAlternates
 
@@ -50,7 +50,7 @@ final class ProfileSwitcherStateTests: BitwardenTestCase {
 
     /// Setting the active account id should yield an active account if the id matches an account
     func test_empty_setActiveAccountId_found() {
-        let alternate = ProfileSwitcherItem()
+        let alternate = ProfileSwitcherItem.fixture()
         let newAccounts = [
             alternate,
         ]
@@ -70,7 +70,7 @@ final class ProfileSwitcherStateTests: BitwardenTestCase {
 
     /// Tests the current account initials when current account known
     func test_currentAccount_userInitials_nonEmpty() {
-        let alternate = ProfileSwitcherItem(
+        let alternate = ProfileSwitcherItem.fixture(
             userInitials: "TC"
         )
         let newAccounts = [
@@ -94,7 +94,7 @@ final class ProfileSwitcherStateTests: BitwardenTestCase {
 
     /// Passing an account with no active id yields no active account
     func test_init_accountsWithoutActive() {
-        let account = ProfileSwitcherItem()
+        let account = ProfileSwitcherItem.fixture()
         subject = ProfileSwitcherState(
             accounts: [account],
             activeAccountId: nil,
@@ -106,7 +106,7 @@ final class ProfileSwitcherStateTests: BitwardenTestCase {
 
     /// Passing an account and a matching active id yields an active account
     func test_init_accountsWithCurrent_accountsMatch() {
-        let account = ProfileSwitcherItem()
+        let account = ProfileSwitcherItem.fixture()
         subject = ProfileSwitcherState(
             accounts: [account],
             activeAccountId: account.userId,
@@ -120,8 +120,8 @@ final class ProfileSwitcherStateTests: BitwardenTestCase {
 
     /// Tests the init succeeds with current account matching
     func test_init_accountsWithCurrent_currentProfilesMatch() {
-        let account = ProfileSwitcherItem()
-        let alternate = ProfileSwitcherItem(isUnlocked: true)
+        let account = ProfileSwitcherItem.fixture()
+        let alternate = ProfileSwitcherItem.fixture(isUnlocked: true)
         let accounts = [
             account,
             alternate,
@@ -150,8 +150,8 @@ final class ProfileSwitcherStateTests: BitwardenTestCase {
 
     /// Tests `shouldSetAccessibilityFocus(for: )` responds to state and row type
     func test_shouldSetAccessibilityFocus_addAccount() {
-        let account = ProfileSwitcherItem()
-        let alternate = ProfileSwitcherItem(isUnlocked: false)
+        let account = ProfileSwitcherItem.fixture()
+        let alternate = ProfileSwitcherItem.fixture(isUnlocked: false)
         let alternates = [
             alternate,
         ]
@@ -167,8 +167,8 @@ final class ProfileSwitcherStateTests: BitwardenTestCase {
 
     /// Tests `shouldSetAccessibilityFocus(for: )` responds to state and row type
     func test_shouldSetAccessibilityFocus_alternate() {
-        let account = ProfileSwitcherItem()
-        let alternate = ProfileSwitcherItem(isUnlocked: false)
+        let account = ProfileSwitcherItem.fixture()
+        let alternate = ProfileSwitcherItem.fixture(isUnlocked: false)
         let alternates = [
             alternate,
         ]
@@ -184,8 +184,8 @@ final class ProfileSwitcherStateTests: BitwardenTestCase {
 
     /// Tests `shouldSetAccessibilityFocus(for: )` responds to state and row type
     func test_shouldSetAccessibilityFocus_active_visibleAndHasNotSet() {
-        let active = ProfileSwitcherItem()
-        let alternate = ProfileSwitcherItem(isUnlocked: false)
+        let active = ProfileSwitcherItem.fixture()
+        let alternate = ProfileSwitcherItem.fixture(isUnlocked: false)
         let alternates = [
             alternate,
         ]
@@ -199,8 +199,8 @@ final class ProfileSwitcherStateTests: BitwardenTestCase {
 
     /// Tests `shouldSetAccessibilityFocus(for: )` responds to state and row type
     func test_shouldSetAccessibilityFocus_active_notVisibleAndHasNotSet() {
-        let active = ProfileSwitcherItem()
-        let alternate = ProfileSwitcherItem(isUnlocked: false)
+        let active = ProfileSwitcherItem.fixture()
+        let alternate = ProfileSwitcherItem.fixture(isUnlocked: false)
         let alternates = [
             alternate,
         ]
@@ -213,8 +213,8 @@ final class ProfileSwitcherStateTests: BitwardenTestCase {
 
     /// Tests `shouldSetAccessibilityFocus(for: )` responds to state and row type
     func test_shouldSetAccessibilityFocus_active_visibleAndHasSet() {
-        let active = ProfileSwitcherItem()
-        let alternate = ProfileSwitcherItem(isUnlocked: false)
+        let active = ProfileSwitcherItem.fixture()
+        let alternate = ProfileSwitcherItem.fixture(isUnlocked: false)
         let alternates = [
             alternate,
         ]

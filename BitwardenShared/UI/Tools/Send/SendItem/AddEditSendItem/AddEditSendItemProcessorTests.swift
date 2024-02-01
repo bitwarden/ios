@@ -8,7 +8,7 @@ import XCTest
 class AddEditSendItemProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_body_length
     // MARK: Properties
 
-    var coordinator: MockCoordinator<SendItemRoute>!
+    var coordinator: MockCoordinator<SendItemRoute, AuthAction>!
     var pasteboardService: MockPasteboardService!
     var policyService: MockPolicyService!
     var sendRepository: MockSendRepository!
@@ -333,6 +333,45 @@ class AddEditSendItemProcessorTests: BitwardenTestCase { // swiftlint:disable:th
                 message: Localizations.maxFileSize
             ),
         ])
+    }
+
+    /// `perform(_:)` with `.savePressed` and valid input in the share extension saves the item and
+    /// copies the share link to the clipboard.
+    func test_perform_savePressed_shareExtension_validated_success() async {
+        subject.state.mode = .shareExtension(.empty())
+        subject.state.name = "Name"
+        subject.state.type = .text
+        subject.state.text = "Text"
+        subject.state.deletionDate = .custom
+        subject.state.customDeletionDate = Date(year: 2023, month: 11, day: 5)
+        let sendView = SendView.fixture(
+            id: "SEND_ID",
+            name: "Name",
+            text: .fixture(text: "Text")
+        )
+        sendRepository.addTextSendResult = .success(sendView)
+        sendRepository.shareURLResult = .success(.example)
+
+        await subject.perform(.savePressed)
+
+        XCTAssertEqual(coordinator.loadingOverlaysShown, [
+            LoadingOverlayState(title: Localizations.saving),
+        ])
+        XCTAssertEqual(sendRepository.addTextSendSendView?.name, "Name")
+        XCTAssertEqual(sendRepository.addTextSendSendView?.text?.text, "Text")
+        XCTAssertEqual(sendRepository.addTextSendSendView?.deletionDate, Date(year: 2023, month: 11, day: 5))
+
+        XCTAssertFalse(coordinator.isLoadingOverlayShowing)
+        XCTAssertEqual(sendRepository.shareURLSendView, sendView)
+        XCTAssertEqual(pasteboardService.copiedString, "https://example.com")
+        XCTAssertEqual(
+            subject.state.toast?.text,
+            Localizations.valueHasBeenCopied(Localizations.sendLink)
+        )
+
+        subject.receive(.toastShown(nil))
+
+        XCTAssertEqual(coordinator.routes.last, .complete(sendView))
     }
 
     /// `perform(_:)` with `.savePressed` while editing and valid input updates the item.

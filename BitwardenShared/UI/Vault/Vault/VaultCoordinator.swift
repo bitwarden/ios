@@ -9,17 +9,17 @@ import SwiftUI
 public protocol VaultCoordinatorDelegate: AnyObject {
     /// Called when the user locks their vault.
     ///
-    /// - Parameter account: The user's account.
+    /// - Parameter userId: The id of the account to lock.
     ///
-    func didLockVault(account: Account)
+    func lockVault(userId: String?)
 
     /// Called when the user has been logged out.
     ///
     /// - Parameters:
-    ///   - userInitiated: Did a user action initiate this logout.
-    ///   - otherAccounts: An optional array of the user's other accounts.
+    ///   - userId: The id of the account to log out.
+    ///   - userInitiated: Did a user action initiate this logout?
     ///
-    func didLogout(userInitiated: Bool, otherAccounts: [Account]?)
+    func logout(userId: String?, userInitiated: Bool)
 
     /// Called when the user taps add account.
     ///
@@ -36,6 +36,14 @@ public protocol VaultCoordinatorDelegate: AnyObject {
     /// - Parameter loginRequest: The login request.
     ///
     func presentLoginRequest(_ loginRequest: LoginRequest)
+
+    /// When the user requests an account switch.
+    ///
+    /// - Parameters:
+    ///   - userId: The user Id of the account.
+    ///   - isAutomatic: Did the system trigger the account switch?
+    ///
+    func switchAccount(userId: String, isAutomatic: Bool)
 }
 
 // MARK: - VaultCoordinator
@@ -106,11 +114,22 @@ final class VaultCoordinator: Coordinator, HasStackNavigator {
 
     // MARK: Methods
 
+    func handleEvent(_ event: AuthAction, context: AnyObject?) async {
+        switch event {
+        case let .logout(userId, userInitiated):
+            delegate?.logout(userId: userId, userInitiated: userInitiated)
+        case let .lockVault(userId):
+            delegate?.lockVault(userId: userId)
+        case let .switchAccount(isAutomatic, userId):
+            delegate?.switchAccount(userId: userId, isAutomatic: isAutomatic)
+        }
+    }
+
     func navigate(to route: VaultRoute, context: AnyObject?) {
         switch route {
         case .addAccount:
             delegate?.didTapAddAccount()
-        case let .addItem(allowTypeSelection, group, uri):
+        case let .addItem(allowTypeSelection, group, newCipherOptions):
             Task {
                 let hasPremium = try? await services.vaultRepository.doesActiveAccountHavePremium()
                 showVaultItem(
@@ -118,7 +137,7 @@ final class VaultCoordinator: Coordinator, HasStackNavigator {
                         allowTypeSelection: allowTypeSelection,
                         group: group,
                         hasPremium: hasPremium ?? false,
-                        uri: uri
+                        newCipherOptions: newCipherOptions
                     )
                 )
             }
@@ -142,13 +161,6 @@ final class VaultCoordinator: Coordinator, HasStackNavigator {
             showList()
         case let .loginRequest(loginRequest):
             delegate?.presentLoginRequest(loginRequest)
-        case let .lockVault(account):
-            delegate?.didLockVault(account: account)
-        case let .logout(userInitiated):
-            Task {
-                let accounts = try? await services.stateService.getAccounts()
-                delegate?.didLogout(userInitiated: userInitiated, otherAccounts: accounts)
-            }
         case let .viewItem(id):
             showVaultItem(route: .viewItem(id: id), delegate: context as? CipherItemOperationDelegate)
         case let .switchAccount(userId: userId):

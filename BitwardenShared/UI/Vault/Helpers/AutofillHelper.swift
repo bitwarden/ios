@@ -16,7 +16,7 @@ class AutofillHelper {
     private weak var appExtensionDelegate: AppExtensionDelegate?
 
     /// The `Coordinator` that handles navigation.
-    private let coordinator: AnyCoordinator<VaultRoute>
+    private let coordinator: AnyCoordinator<VaultRoute, AuthAction>
 
     /// The services used by this helper.
     private let services: Services
@@ -32,7 +32,7 @@ class AutofillHelper {
     ///
     init(
         appExtensionDelegate: AppExtensionDelegate?,
-        coordinator: AnyCoordinator<VaultRoute>,
+        coordinator: AnyCoordinator<VaultRoute, AuthAction>,
         services: Services
     ) {
         self.appExtensionDelegate = appExtensionDelegate
@@ -112,7 +112,16 @@ class AutofillHelper {
             services.errorReporter.log(error: error)
         }
 
-        appExtensionDelegate?.completeAutofillRequest(username: username, password: password)
+        let fields: [(String, String)]? = cipherView.fields?.compactMap { field in
+            guard let name = field.name, let value = field.value else { return nil }
+            return (name, value)
+        }
+
+        appExtensionDelegate?.completeAutofillRequest(
+            username: username,
+            password: password,
+            fields: fields
+        )
     }
 
     /// Handles the case where the username or password is missing for the cipher which prevents it

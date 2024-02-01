@@ -12,11 +12,9 @@ enum AccountSecurityEffect: Equatable {
     /// Any initial data for the view should be loaded.
     case loadData
 
-    /// The user's vault was locked.
+    /// The user's vault should be locked.
     ///
-    /// - Parameter userInitiated: Did a user action trigger this lock event.
-    ///
-    case lockVault(userInitiated: Bool)
+    case lockVault
 
     /// Unlock with Biometrics was toggled.
     case toggleUnlockWithBiometrics(Bool)

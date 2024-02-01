@@ -5,17 +5,26 @@ import Foundation
 
 /// The processor used to manage state and handle actions for the add/edit send item screen.
 ///
-class AddEditSendItemProcessor: StateProcessor<AddEditSendItemState, AddEditSendItemAction, AddEditSendItemEffect> {
+class AddEditSendItemProcessor: // swiftlint:disable:this type_body_length
+    StateProcessor<AddEditSendItemState, AddEditSendItemAction, AddEditSendItemEffect> {
     // MARK: Types
 
-    typealias Services = HasPasteboardService
+    typealias Services = HasAuthRepository
+        & HasErrorReporter
+        & HasPasteboardService
         & HasPolicyService
         & HasSendRepository
+
+    // MARK: Private Properties
+
+    /// A block to execute the next time the toast is cleared. This value is cleared once the block
+    /// is executed once.
+    private var onNextToastClear: (() -> Void)?
 
     // MARK: Properties
 
     /// The `Coordinator` that handles navigation for this processor.
-    let coordinator: any Coordinator<SendItemRoute>
+    let coordinator: any Coordinator<SendItemRoute, AuthAction>
 
     /// The services required by this processor.
     let services: Services
@@ -30,7 +39,7 @@ class AddEditSendItemProcessor: StateProcessor<AddEditSendItemState, AddEditSend
     ///   - state: The initial state of this processor.
     ///
     init(
-        coordinator: any Coordinator<SendItemRoute>,
+        coordinator: any Coordinator<SendItemRoute, AuthAction>,
         services: Services,
         state: AddEditSendItemState
     ) {
@@ -44,12 +53,8 @@ class AddEditSendItemProcessor: StateProcessor<AddEditSendItemState, AddEditSend
     override func perform(_ effect: AddEditSendItemEffect) async {
         switch effect {
         case .copyLinkPressed:
-            guard let sendView = state.originalSendView,
-                  let url = try? await services.sendRepository.shareURL(for: sendView)
-            else { return }
-
-            services.pasteboardService.copy(url.absoluteString)
-            state.toast = Toast(text: Localizations.valueHasBeenCopied(Localizations.sendLink))
+            guard let sendView = state.originalSendView else { return }
+            await copyLink(to: sendView)
         case .deletePressed:
             guard let sendView = state.originalSendView else { return }
             let alert = Alert.confirmation(title: Localizations.areYouSureDeleteSend) { [weak self] in
@@ -58,6 +63,16 @@ class AddEditSendItemProcessor: StateProcessor<AddEditSendItemState, AddEditSend
             coordinator.showAlert(alert)
         case .loadData:
             await loadData()
+        case let .profileSwitcher(profileEffect):
+            guard case var .shareExtension(profileSwitcherState) = state.mode else { return }
+            switch profileEffect {
+            case let .rowAppeared(rowType):
+                guard profileSwitcherState.shouldSetAccessibilityFocus(for: rowType) == true else { return }
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
+                    profileSwitcherState.hasSetAccessibilityFocus = true
+                    self.state.mode = .shareExtension(profileSwitcherState)
+                }
+            }
         case .removePassword:
             guard let sendView = state.originalSendView else { return }
             let alert = Alert.confirmation(title: Localizations.areYouSureRemoveSendPassword) { [weak self] in
@@ -100,6 +115,8 @@ class AddEditSendItemProcessor: StateProcessor<AddEditSendItemState, AddEditSend
             state.password = newValue
         case let .passwordVisibleChanged(newValue):
             state.isPasswordVisible = newValue
+        case let .profileSwitcherAction(profileAction):
+            handle(profileAction)
         case let .maximumAccessCountChanged(newValue):
             state.maximumAccessCount = newValue
         case let .nameChanged(newValue):
@@ -110,12 +127,27 @@ class AddEditSendItemProcessor: StateProcessor<AddEditSendItemState, AddEditSend
             state.text = newValue
         case let .toastShown(toast):
             state.toast = toast
+            if toast == nil {
+                onNextToastClear?()
+                onNextToastClear = nil
+            }
         case let .typeChanged(newValue):
             updateType(newValue)
         }
     }
 
     // MARK: Private Methods
+
+    /// Copies the share link for the provided send.
+    ///
+    /// - Parameter sendView: The send to copy the link to.
+    ///
+    private func copyLink(to sendView: SendView) async {
+        guard let url = try? await services.sendRepository.shareURL(for: sendView) else { return }
+
+        services.pasteboardService.copy(url.absoluteString)
+        state.toast = Toast(text: Localizations.valueHasBeenCopied(Localizations.sendLink))
+    }
 
     /// Deletes the provided send.
     ///
@@ -141,6 +173,54 @@ class AddEditSendItemProcessor: StateProcessor<AddEditSendItemState, AddEditSend
     private func loadData() async {
         state.isSendDisabled = await services.policyService.policyAppliesToUser(.disableSend)
         state.isSendHideEmailDisabled = await services.policyService.isSendHideEmailDisabledByPolicy()
+        await refreshProfileState()
+    }
+
+    /// Handles a tap of an account in the profile switcher
+    /// - Parameter selectedAccount: The `ProfileSwitcherItem` selected by the user.
+    ///
+    private func didTapProfileSwitcherItem(
+        _ selectedAccount: ProfileSwitcherItem,
+        switcherState: ProfileSwitcherState
+    ) {
+        var newSwitcherState = switcherState
+        newSwitcherState.isVisible = false
+        defer { state.mode = .shareExtension(newSwitcherState) }
+        guard selectedAccount.userId != newSwitcherState.activeAccountId else { return }
+        Task {
+            await coordinator.handleEvent(
+                .switchAccount(
+                    isAutomatic: false,
+                    userId: selectedAccount.userId
+                )
+            )
+        }
+    }
+
+    /// A method to respond to a `ProfileSwitcherAction`
+    ///    No-Op unless the `state.mode` is `.shareExtension` with a `ProfileSwitcherState`.
+    ///
+    /// - Parameter profileAction: The action to be handled.
+    ///
+    private func handle(_ profileAction: ProfileSwitcherAction) {
+        guard case var .shareExtension(switcherState) = state.mode else { return }
+        switch profileAction {
+        case .accountLongPressed,
+             .addAccountPressed:
+            // No-Op for the extension
+            break
+        case let .accountPressed(account):
+            didTapProfileSwitcherItem(account, switcherState: switcherState)
+        case .backgroundPressed:
+            switcherState.isVisible = false
+            state.mode = .shareExtension(switcherState)
+        case let .requestedProfileSwitcher(visible: isVisible):
+            switcherState.isVisible = isVisible
+            state.mode = .shareExtension(switcherState)
+        case let .scrollOffsetChanged(newOffset):
+            switcherState.scrollOffset = newOffset
+            state.mode = .shareExtension(switcherState)
+        }
     }
 
     /// Presents the file selection alert.
@@ -151,6 +231,17 @@ class AddEditSendItemProcessor: StateProcessor<AddEditSendItemState, AddEditSend
             coordinator.navigate(to: .fileSelection(route), context: self)
         }
         coordinator.showAlert(alert)
+    }
+
+    /// Configures a profile switcher state with the current account and alternates.
+    ///
+    private func refreshProfileState() async {
+        guard case let .shareExtension(switcherState) = state.mode else { return }
+        let newSwitcherState = await services.authRepository.getProfilesState(
+            isVisible: switcherState.isVisible,
+            shouldAlwaysHideAddAccount: true
+        )
+        state.mode = .shareExtension(newSwitcherState)
     }
 
     /// Removes the password from the provided send.
@@ -200,7 +291,15 @@ class AddEditSendItemProcessor: StateProcessor<AddEditSendItemState, AddEditSend
                 newSendView = try await services.sendRepository.updateSend(sendView)
             }
             coordinator.hideLoadingOverlay()
-            coordinator.navigate(to: .complete(newSendView))
+            switch state.mode {
+            case .add, .edit:
+                coordinator.navigate(to: .complete(newSendView))
+            case .shareExtension:
+                onNextToastClear = { [weak self] in
+                    self?.coordinator.navigate(to: .complete(newSendView))
+                }
+                await copyLink(to: newSendView)
+            }
         } catch {
             coordinator.showAlert(.networkResponseError(error) { [weak self] in
                 await self?.saveSendItem()

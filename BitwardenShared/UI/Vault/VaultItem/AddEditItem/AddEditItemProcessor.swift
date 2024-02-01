@@ -31,13 +31,17 @@ final class AddEditItemProcessor: StateProcessor<// swiftlint:disable:this type_
         & HasErrorReporter
         & HasPasteboardService
         & HasPolicyService
+        & HasStateService
         & HasTOTPService
         & HasVaultRepository
 
     // MARK: Properties
 
+    /// A delegate used to communicate with the app extension.
+    private weak var appExtensionDelegate: AppExtensionDelegate?
+
     /// The `Coordinator` that handles navigation.
-    private var coordinator: AnyCoordinator<VaultItemRoute>
+    private var coordinator: AnyCoordinator<VaultItemRoute, VaultItemEvent>
 
     /// The delegate that is notified when delete cipher item have occurred.
     private weak var delegate: CipherItemOperationDelegate?
@@ -50,17 +54,20 @@ final class AddEditItemProcessor: StateProcessor<// swiftlint:disable:this type_
     /// Creates a new `AddEditItemProcessor`.
     ///
     /// - Parameters:
+    ///   - appExtensionDelegate: A delegate used to communicate with the app extension.
     ///   - coordinator: The `Coordinator` that handles navigation.
     ///   - delegate: The delegate that is notified when add/edit/delete cipher item have occurred.
     ///   - services: The services required by this processor.
     ///   - state: The initial state for the processor.
     ///
     init(
-        coordinator: AnyCoordinator<VaultItemRoute>,
+        appExtensionDelegate: AppExtensionDelegate?,
+        coordinator: AnyCoordinator<VaultItemRoute, VaultItemEvent>,
         delegate: CipherItemOperationDelegate?,
         services: Services,
         state: AddEditItemState
     ) {
+        self.appExtensionDelegate = appExtensionDelegate
         self.coordinator = coordinator
         self.delegate = delegate
         self.services = services
@@ -72,6 +79,8 @@ final class AddEditItemProcessor: StateProcessor<// swiftlint:disable:this type_
 
     override func perform(_ effect: AddEditItemEffect) async {
         switch effect {
+        case .appeared:
+            await showPasswordAutofillAlertIfNeeded()
         case .checkPasswordPressed:
             await checkPassword()
         case .copyTotpPressed:
@@ -98,7 +107,7 @@ final class AddEditItemProcessor: StateProcessor<// swiftlint:disable:this type_
         case let .customField(action):
             handleCustomFieldAction(action)
         case .dismissPressed:
-            coordinator.navigate(to: .dismiss())
+            handleDismiss()
         case let .favoriteChanged(newValue):
             state.isFavoriteOn = newValue
         case let .folderChanged(newValue):
@@ -160,6 +169,24 @@ final class AddEditItemProcessor: StateProcessor<// swiftlint:disable:this type_
     }
 
     // MARK: Private Methods
+
+    /// Handles dismissing the processor.
+    ///
+    /// - Parameter didAddItem: `true` if a new cipher was added or `false` if the user is
+    ///     dismissing the view without saving.
+    ///
+    private func handleDismiss(didAddItem: Bool = false) {
+        guard let appExtensionDelegate, appExtensionDelegate.isInAppExtensionSaveLoginFlow else {
+            coordinator.navigate(to: .dismiss())
+            return
+        }
+
+        if didAddItem, let username = state.cipher.login?.username, let password = state.cipher.login?.password {
+            appExtensionDelegate.completeAutofillRequest(username: username, password: password, fields: nil)
+        } else {
+            appExtensionDelegate.didCancel()
+        }
+    }
 
     /// Fetches any additional data (e.g. organizations and folders) needed for adding or editing a cipher.
     private func fetchCipherOptions() async {
@@ -461,7 +488,7 @@ final class AddEditItemProcessor: StateProcessor<// swiftlint:disable:this type_
     private func addItem() async throws {
         try await services.vaultRepository.addCipher(state.cipher)
         coordinator.hideLoadingOverlay()
-        coordinator.navigate(to: .dismiss())
+        handleDismiss(didAddItem: true)
     }
 
     /// Soft Deletes the item currently stored in `state`.
@@ -478,6 +505,20 @@ final class AddEditItemProcessor: StateProcessor<// swiftlint:disable:this type_
             coordinator.showAlert(.networkResponseError(error))
             services.errorReporter.log(error: error)
         }
+    }
+
+    /// Shows the password autofill information alert if it hasn't been shown before and the user
+    /// is adding a new login in the app.
+    ///
+    private func showPasswordAutofillAlertIfNeeded() async {
+        guard await !services.stateService.getAddSitePromptShown(),
+              state.configuration == .add,
+              state.type == .login,
+              !(appExtensionDelegate?.isInAppExtension ?? false) else {
+            return
+        }
+        coordinator.showAlert(.passwordAutofillInformation())
+        await services.stateService.setAddSitePromptShown(true)
     }
 
     /// Shows a soft delete cipher confirmation alert.
@@ -507,7 +548,7 @@ final class AddEditItemProcessor: StateProcessor<// swiftlint:disable:this type_
         }
         let status = await services.cameraService.checkStatusOrRequestCameraAuthorization()
         if status == .authorized {
-            await coordinator.navigate(asyncTo: .scanCode, context: self)
+            await coordinator.handleEvent(.showScanCode, context: self)
         } else {
             coordinator.navigate(to: .setupTotpManual, context: self)
         }
@@ -532,7 +573,7 @@ extension AddEditItemProcessor: GeneratorCoordinatorDelegate {
 
 extension AddEditItemProcessor: AuthenticatorKeyCaptureDelegate {
     func didCompleteCapture(
-        _ captureCoordinator: AnyCoordinator<AuthenticatorKeyCaptureRoute>,
+        _ captureCoordinator: AnyCoordinator<AuthenticatorKeyCaptureRoute, AuthenticatorKeyCaptureEvent>,
         with value: String
     ) {
         let dismissAction = DismissAction(action: { [weak self] in
@@ -559,15 +600,22 @@ extension AddEditItemProcessor: AuthenticatorKeyCaptureDelegate {
         coordinator.navigate(to: .alert(.totpScanFailureAlert()))
     }
 
-    func showCameraScan(_ captureCoordinator: AnyCoordinator<AuthenticatorKeyCaptureRoute>) {
+    func showCameraScan(
+        _ captureCoordinator: AnyCoordinator<AuthenticatorKeyCaptureRoute, AuthenticatorKeyCaptureEvent>
+    ) {
         guard services.cameraService.deviceSupportsCamera() else { return }
         let dismissAction = DismissAction(action: { [weak self] in
-            self?.coordinator.navigate(to: .scanCode, context: self)
+            guard let self else { return }
+            Task {
+                await self.coordinator.handleEvent(.showScanCode, context: self)
+            }
         })
         captureCoordinator.navigate(to: .dismiss(dismissAction))
     }
 
-    func showManualEntry(_ captureCoordinator: AnyCoordinator<AuthenticatorKeyCaptureRoute>) {
+    func showManualEntry(
+        _ captureCoordinator: AnyCoordinator<AuthenticatorKeyCaptureRoute, AuthenticatorKeyCaptureEvent>
+    ) {
         let dismissAction = DismissAction(action: { [weak self] in
             self?.coordinator.navigate(to: .setupTotpManual, context: self)
         })

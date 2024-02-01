@@ -14,14 +14,14 @@ protocol SendItemModule {
     func makeSendItemCoordinator(
         delegate: SendItemDelegate,
         stackNavigator: StackNavigator
-    ) -> AnyCoordinator<SendItemRoute>
+    ) -> AnyCoordinator<SendItemRoute, AuthAction>
 }
 
 extension DefaultAppModule: SendItemModule {
     func makeSendItemCoordinator(
         delegate: SendItemDelegate,
         stackNavigator: StackNavigator
-    ) -> AnyCoordinator<SendItemRoute> {
+    ) -> AnyCoordinator<SendItemRoute, AuthAction> {
         SendItemCoordinator(
             delegate: delegate,
             module: self,

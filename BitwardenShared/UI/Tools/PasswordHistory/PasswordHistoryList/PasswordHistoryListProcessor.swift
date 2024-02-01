@@ -19,7 +19,7 @@ final class PasswordHistoryListProcessor: StateProcessor<
     // MARK: Private Properties
 
     /// The `Coordinator` that handles navigation.
-    private let coordinator: AnyCoordinator<PasswordHistoryRoute>
+    private let coordinator: AnyCoordinator<PasswordHistoryRoute, Void>
 
     /// The services used by this processor.
     private var services: Services
@@ -34,7 +34,7 @@ final class PasswordHistoryListProcessor: StateProcessor<
     ///   - state: The initial state of the processor.
     ///
     init(
-        coordinator: AnyCoordinator<PasswordHistoryRoute>,
+        coordinator: AnyCoordinator<PasswordHistoryRoute, Void>,
         services: Services,
         state: PasswordHistoryListState
     ) {

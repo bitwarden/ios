@@ -17,7 +17,7 @@ enum VaultItemRoute: Equatable, Hashable {
         allowTypeSelection: Bool = true,
         group: VaultListGroup? = nil,
         hasPremium: Bool = false,
-        uri: String? = nil
+        newCipherOptions: NewCipherOptions? = nil
     )
 
     /// A route to display the specified alert.
@@ -84,9 +84,6 @@ enum VaultItemRoute: Equatable, Hashable {
     ///
     case saveFile(temporaryUrl: URL)
 
-    /// A route to the scan code screen. Defaults to `.setupTotpManual` if camera is unavailable.
-    case scanCode
-
     /// A route to the manual totp screen for setting up TOTP.
     case setupTotpManual
 
@@ -95,6 +92,12 @@ enum VaultItemRoute: Equatable, Hashable {
     /// - Parameter id: The id of the item to display.
     ///
     case viewItem(id: String)
+}
+
+enum VaultItemEvent {
+    /// When the app should show the scan code screen.
+    ///  Defaults to `.setupTotpManual` if camera is unavailable.
+    case showScanCode
 }
 
 /// An action to perform on dismiss.

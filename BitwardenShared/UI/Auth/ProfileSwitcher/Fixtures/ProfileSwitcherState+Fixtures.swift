@@ -1,30 +1,50 @@
+import SwiftUI
+
 @testable import BitwardenShared
 
 extension ProfileSwitcherItem {
-    static let anneAccount = ProfileSwitcherItem(
+    static let anneAccount = ProfileSwitcherItem.fixture(
         color: .purple,
         email: "anne.account@bitwarden.com",
         userInitials: "AA"
     )
 }
 
+extension ProfileSwitcherItem {
+    static func fixture(
+        color: Color = .purple,
+        email: String = "",
+        isUnlocked: Bool = false,
+        userId: String = UUID().uuidString,
+        userInitials: String = ".."
+    ) -> ProfileSwitcherItem {
+        ProfileSwitcherItem(
+            color: color,
+            email: email,
+            isUnlocked: isUnlocked,
+            userId: userId,
+            userInitials: userInitials
+        )
+    }
+}
+
 extension ProfileSwitcherState {
     static let subMaximumAccounts = ProfileSwitcherState(
         accounts: [
             .anneAccount,
-            ProfileSwitcherItem(
+            .fixture(
                 color: .yellow,
                 email: "bonus.bridge@bitwarden.com",
                 isUnlocked: true,
                 userInitials: "BB"
             ),
-            ProfileSwitcherItem(
+            .fixture(
                 color: .teal,
                 email: "concurrent.claim@bitarden.com",
                 isUnlocked: true,
                 userInitials: "CC"
             ),
-            ProfileSwitcherItem(
+            .fixture(
                 color: .indigo,
                 email: "double.dip@bitwarde.com",
                 isUnlocked: true,
@@ -38,25 +58,25 @@ extension ProfileSwitcherState {
     static let maximumAccounts = ProfileSwitcherState(
         accounts: [
             .anneAccount,
-            ProfileSwitcherItem(
+            .fixture(
                 color: .yellow,
                 email: "bonus.bridge@bitwarden.com",
                 isUnlocked: true,
                 userInitials: "BB"
             ),
-            ProfileSwitcherItem(
+            .fixture(
                 color: .teal,
                 email: "concurrent.claim@bitarden.com",
                 isUnlocked: true,
                 userInitials: "CC"
             ),
-            ProfileSwitcherItem(
+            .fixture(
                 color: .indigo,
                 email: "double.dip@bitwarde.com",
                 isUnlocked: true,
                 userInitials: "DD"
             ),
-            ProfileSwitcherItem(
+            .fixture(
                 color: .green,
                 email: "extra.edition@bitwarden.com",
                 isUnlocked: true,

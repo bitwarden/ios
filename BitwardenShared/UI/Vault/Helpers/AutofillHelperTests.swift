@@ -7,7 +7,7 @@ class AutofillHelperTests: BitwardenTestCase {
     // MARK: Properties
 
     var appExtensionDelegate: MockAppExtensionDelegate!
-    var coordinator: MockCoordinator<VaultRoute>!
+    var coordinator: MockCoordinator<VaultRoute, AuthAction>!
     var errorReporter: MockErrorReporter!
     var pasteboardService: MockPasteboardService!
     var subject: AutofillHelper!
@@ -58,8 +58,8 @@ class AutofillHelperTests: BitwardenTestCase {
         let cipher = CipherListView.fixture(id: "1")
         await subject.handleCipherForAutofill(cipherListView: cipher) { _ in }
 
-        XCTAssertEqual(appExtensionDelegate.didCompleteAutofillRequest?.username, "user@bitwarden.com")
-        XCTAssertEqual(appExtensionDelegate.didCompleteAutofillRequest?.password, "PASSWORD")
+        XCTAssertEqual(appExtensionDelegate.didCompleteAutofillRequestUsername, "user@bitwarden.com")
+        XCTAssertEqual(appExtensionDelegate.didCompleteAutofillRequestPassword, "PASSWORD")
     }
 
     /// `handleCipherForAutofill(cipherListView:)` copies the TOTP code for the login.
@@ -244,8 +244,8 @@ class AutofillHelperTests: BitwardenTestCase {
         let submitAction = try XCTUnwrap(alert.alertActions.first(where: { $0.title == Localizations.submit }))
         await submitAction.handler?(submitAction, [textField])
 
-        XCTAssertEqual(appExtensionDelegate.didCompleteAutofillRequest?.username, "user@bitwarden.com")
-        XCTAssertEqual(appExtensionDelegate.didCompleteAutofillRequest?.password, "PASSWORD")
+        XCTAssertEqual(appExtensionDelegate.didCompleteAutofillRequestUsername, "user@bitwarden.com")
+        XCTAssertEqual(appExtensionDelegate.didCompleteAutofillRequestPassword, "PASSWORD")
     }
 
     /// `handleCipherForAutofill(cipherListView:)` displays an alert if the password reprompt
@@ -280,8 +280,8 @@ class AutofillHelperTests: BitwardenTestCase {
         let cipher = CipherListView.fixture(id: "1")
         await subject.handleCipherForAutofill(cipherListView: cipher) { _ in }
 
-        XCTAssertEqual(appExtensionDelegate.didCompleteAutofillRequest?.username, "user@bitwarden.com")
-        XCTAssertEqual(appExtensionDelegate.didCompleteAutofillRequest?.password, "PASSWORD")
+        XCTAssertEqual(appExtensionDelegate.didCompleteAutofillRequestUsername, "user@bitwarden.com")
+        XCTAssertEqual(appExtensionDelegate.didCompleteAutofillRequestPassword, "PASSWORD")
         XCTAssertEqual(errorReporter.errors.last as? GenerateTotpError, GenerateTotpError())
     }
 }

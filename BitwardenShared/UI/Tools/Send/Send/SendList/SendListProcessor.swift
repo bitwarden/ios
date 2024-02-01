@@ -16,7 +16,7 @@ final class SendListProcessor: StateProcessor<SendListState, SendListAction, Sen
     // MARK: Private properties
 
     /// The `Coordinator` that handles navigation.
-    private let coordinator: AnyCoordinator<SendRoute>
+    private let coordinator: AnyCoordinator<SendRoute, Void>
 
     /// The services required by this processor.
     private let services: Services
@@ -31,7 +31,7 @@ final class SendListProcessor: StateProcessor<SendListState, SendListAction, Sen
     ///   - state: The initial state of the processor.
     ///
     init(
-        coordinator: AnyCoordinator<SendRoute>,
+        coordinator: AnyCoordinator<SendRoute, Void>,
         services: Services,
         state: SendListState
     ) {
@@ -201,6 +201,10 @@ final class SendListProcessor: StateProcessor<SendListState, SendListAction, Sen
 // MARK: - SendListProcessor:SendItemDelegate
 
 extension SendListProcessor: SendItemDelegate {
+    func handle(_ authAction: AuthAction) async {
+        // No-Op, only for use by the AppCoordinator.
+    }
+
     func sendItemCancelled() {
         coordinator.navigate(to: .dismiss())
     }

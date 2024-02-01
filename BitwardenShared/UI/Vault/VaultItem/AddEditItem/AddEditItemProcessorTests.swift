@@ -11,13 +11,15 @@ import XCTest
 class AddEditItemProcessorTests: BitwardenTestCase {
     // MARK: Properties
 
+    var appExtensionDelegate: MockAppExtensionDelegate!
     var cameraService: MockCameraService!
     var client: MockHTTPClient!
-    var coordinator: MockCoordinator<VaultItemRoute>!
+    var coordinator: MockCoordinator<VaultItemRoute, VaultItemEvent>!
     var delegate: MockCipherItemOperationDelegate!
     var errorReporter: MockErrorReporter!
     var pasteboardService: MockPasteboardService!
     var policyService: MockPolicyService!
+    var stateService: MockStateService!
     var totpService: MockTOTPService!
     var subject: AddEditItemProcessor!
     var vaultRepository: MockVaultRepository!
@@ -27,16 +29,19 @@ class AddEditItemProcessorTests: BitwardenTestCase {
     override func setUp() {
         super.setUp()
 
+        appExtensionDelegate = MockAppExtensionDelegate()
         cameraService = MockCameraService()
         client = MockHTTPClient()
-        coordinator = MockCoordinator<VaultItemRoute>()
+        coordinator = MockCoordinator<VaultItemRoute, VaultItemEvent>()
         delegate = MockCipherItemOperationDelegate()
         errorReporter = MockErrorReporter()
         pasteboardService = MockPasteboardService()
         policyService = MockPolicyService()
+        stateService = MockStateService()
         totpService = MockTOTPService()
         vaultRepository = MockVaultRepository()
         subject = AddEditItemProcessor(
+            appExtensionDelegate: appExtensionDelegate,
             coordinator: coordinator.asAnyCoordinator(),
             delegate: delegate,
             services: ServiceContainer.withMocks(
@@ -45,6 +50,7 @@ class AddEditItemProcessorTests: BitwardenTestCase {
                 httpClient: client,
                 pasteboardService: pasteboardService,
                 policyService: policyService,
+                stateService: stateService,
                 totpService: totpService,
                 vaultRepository: vaultRepository
             ),
@@ -63,11 +69,13 @@ class AddEditItemProcessorTests: BitwardenTestCase {
 
     override func tearDown() {
         super.tearDown()
+        appExtensionDelegate = nil
         cameraService = nil
         client = nil
         coordinator = nil
         errorReporter = nil
         pasteboardService = nil
+        stateService = nil
         subject = nil
         totpService = nil
         vaultRepository = nil
@@ -447,7 +455,7 @@ class AddEditItemProcessorTests: BitwardenTestCase {
     func test_didCompleteCapture_failure() {
         subject.state.loginState.totpState = .none
         totpService.getTOTPConfigResult = .failure(TOTPServiceError.invalidKeyFormat)
-        let captureCoordinator = MockCoordinator<AuthenticatorKeyCaptureRoute>()
+        let captureCoordinator = MockCoordinator<AuthenticatorKeyCaptureRoute, AuthenticatorKeyCaptureEvent>()
         subject.didCompleteCapture(captureCoordinator.asAnyCoordinator(), with: "1234")
         var dismissAction: DismissAction?
         if case let .dismiss(onDismiss) = captureCoordinator.routes.last {
@@ -476,7 +484,7 @@ class AddEditItemProcessorTests: BitwardenTestCase {
         let key = String.base32Key
         let keyConfig = try XCTUnwrap(TOTPKeyModel(authenticatorKey: key))
         totpService.getTOTPConfigResult = .success(keyConfig)
-        let captureCoordinator = MockCoordinator<AuthenticatorKeyCaptureRoute>()
+        let captureCoordinator = MockCoordinator<AuthenticatorKeyCaptureRoute, AuthenticatorKeyCaptureEvent>()
         subject.didCompleteCapture(captureCoordinator.asAnyCoordinator(), with: key)
         var dismissAction: DismissAction?
         if case let .dismiss(onDismiss) = captureCoordinator.routes.last {
@@ -507,6 +515,34 @@ class AddEditItemProcessorTests: BitwardenTestCase {
         waitFor { subject.state.toast != nil }
 
         XCTAssertEqual(subject.state.toast?.text, Localizations.itemUpdated)
+    }
+
+    /// `perform(_:)` with `.appeared` doesn't show the password autofill alert if it has already been shown.
+    func test_perform_appeared_showPasswordAutofill_alreadyShown() async {
+        stateService.addSitePromptShown = true
+        await subject.perform(.appeared)
+        XCTAssertTrue(coordinator.alertShown.isEmpty)
+    }
+
+    /// `perform(_:)` with `.appeared` doesn't show the password autofill alert if it's in the extension.
+    func test_perform_appeared_showPasswordAutofill_extension() async {
+        appExtensionDelegate.isInAppExtension = true
+        await subject.perform(.appeared)
+        XCTAssertTrue(coordinator.alertShown.isEmpty)
+    }
+
+    /// `perform(_:)` with `.appeared` doesn't show the password autofill alert if the user isn't adding a login.
+    func test_perform_appeared_showPasswordAutofill_nonLoginType() async {
+        subject.state.type = .card
+        await subject.perform(.appeared)
+        XCTAssertTrue(coordinator.alertShown.isEmpty)
+    }
+
+    /// `perform(_:)` with `.appeared` shows the password autofill alert.
+    func test_perform_appeared_showPasswordAutofill_notShown() async {
+        await subject.perform(.appeared)
+        XCTAssertEqual(coordinator.alertShown.last, .passwordAutofillInformation())
+        XCTAssertTrue(stateService.addSitePromptShown)
     }
 
     /// `perform` with `.checkPasswordPressed` checks the password with the HIBP service.
@@ -848,6 +884,35 @@ class AddEditItemProcessorTests: BitwardenTestCase {
         XCTAssertEqual(coordinator.routes.last, .dismiss())
     }
 
+    /// `perform(_:)` with `.savePressed` in the app extension completes the autofill request if a
+    /// username and password was entered.
+    func test_perform_savePressed_appExtension() async {
+        appExtensionDelegate.isInAppExtensionSaveLoginFlow = true
+        subject.state.loginState.password = "PASSWORD"
+        subject.state.loginState.username = "user@bitwarden.com"
+        subject.state.name = "Login from App Extension"
+
+        await subject.perform(.savePressed)
+
+        XCTAssertFalse(vaultRepository.addCipherCiphers.isEmpty)
+
+        XCTAssertEqual(appExtensionDelegate.didCompleteAutofillRequestPassword, "PASSWORD")
+        XCTAssertEqual(appExtensionDelegate.didCompleteAutofillRequestUsername, "user@bitwarden.com")
+    }
+
+    /// `perform(_:)` with `.savePressed` in the app extension cancels the autofill extension if no
+    /// username or password was entered.
+    func test_perform_savePressed_appExtension_cancel() async {
+        appExtensionDelegate.isInAppExtensionSaveLoginFlow = true
+        subject.state.name = "Login from App Extension"
+
+        await subject.perform(.savePressed)
+
+        XCTAssertFalse(vaultRepository.addCipherCiphers.isEmpty)
+
+        XCTAssertTrue(appExtensionDelegate.didCancelCalled)
+    }
+
     /// `perform(_:)` with `.savePressed` forwards errors to the error reporter.
     func test_perform_savePressed_error() async {
         subject.state.name = "vault item"
@@ -916,7 +981,7 @@ class AddEditItemProcessorTests: BitwardenTestCase {
         cameraService.cameraAuthorizationStatus = .authorized
         await subject.perform(.setupTotpPressed)
 
-        XCTAssertEqual(coordinator.asyncRoutes.last, .scanCode)
+        XCTAssertEqual(coordinator.events.last, .showScanCode)
     }
 
     /// `perform(_:)` with `.setupTotpPressed` with camera authorization denied navigates to the

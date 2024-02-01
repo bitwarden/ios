@@ -191,9 +191,12 @@ struct CipherItemState: Equatable {
         customFields: [CustomFieldState] = [],
         folderId: String? = nil,
         hasPremium: Bool,
+        name: String? = nil,
         organizationId: String? = nil,
+        password: String? = nil,
         totpKeyString: String? = nil,
-        uri: String? = nil
+        uri: String? = nil,
+        username: String? = nil
     ) {
         self.init(
             accountHasPremium: hasPremium,
@@ -209,10 +212,12 @@ struct CipherItemState: Equatable {
             isPersonalOwnershipDisabled: false,
             loginState: .init(
                 isTOTPAvailable: hasPremium,
+                password: password ?? "",
                 totpState: .init(totpKeyString),
-                uris: [UriState(uri: uri ?? "")]
+                uris: [UriState(uri: uri ?? "")],
+                username: username ?? ""
             ),
-            name: uri.flatMap(URL.init)?.host ?? "",
+            name: name ?? uri.flatMap(URL.init)?.host ?? "",
             notes: "",
             organizationId: organizationId,
             type: type,

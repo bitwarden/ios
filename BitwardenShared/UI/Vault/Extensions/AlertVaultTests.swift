@@ -36,6 +36,17 @@ class AlertVaultTests: BitwardenTestCase {
         XCTAssertEqual(subject.alertActions[3].style, .cancel)
     }
 
+    /// `passwordAutofillInformation()` constructs an `Alert` that informs the user about password
+    /// autofill.
+    func test_passwordAutofillInformation() {
+        let subject = Alert.passwordAutofillInformation()
+
+        XCTAssertEqual(subject.title, Localizations.passwordAutofill)
+        XCTAssertEqual(subject.message, Localizations.bitwardenAutofillAlert2)
+        XCTAssertEqual(subject.alertActions.first?.title, Localizations.ok)
+        XCTAssertEqual(subject.alertActions.first?.style, .cancel)
+    }
+
     /// `pushNotificationsInformation(action:)` constructs an `Alert` that informs the
     ///  user about receiving push notifications.
     func test_pushNotificationsInformation() {

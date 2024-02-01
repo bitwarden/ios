@@ -6,7 +6,7 @@ class LoginRequestProcessorTests: BitwardenTestCase {
     // MARK: Properties
 
     var authService: MockAuthService!
-    var coordinator: MockCoordinator<LoginRequestRoute>!
+    var coordinator: MockCoordinator<LoginRequestRoute, Void>!
     var delegate: MockLoginRequestDelegate!
     var errorReporter: MockErrorReporter!
     var stateService: MockStateService!
@@ -18,7 +18,7 @@ class LoginRequestProcessorTests: BitwardenTestCase {
         super.setUp()
 
         authService = MockAuthService()
-        coordinator = MockCoordinator<LoginRequestRoute>()
+        coordinator = MockCoordinator<LoginRequestRoute, Void>()
         delegate = MockLoginRequestDelegate()
         errorReporter = MockErrorReporter()
         stateService = MockStateService()

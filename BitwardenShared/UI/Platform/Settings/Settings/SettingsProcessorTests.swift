@@ -5,7 +5,7 @@ import XCTest
 class SettingsProcessorTests: BitwardenTestCase {
     // MARK: Properties
 
-    var coordinator: MockCoordinator<SettingsRoute>!
+    var coordinator: MockCoordinator<SettingsRoute, SettingsEvent>!
     var subject: SettingsProcessor!
 
     // MARK: Setup & Teardown

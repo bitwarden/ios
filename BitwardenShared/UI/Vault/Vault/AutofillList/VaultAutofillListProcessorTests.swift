@@ -8,7 +8,7 @@ class VaultAutofillListProcessorTests: BitwardenTestCase {
 
     var appExtensionDelegate: MockAppExtensionDelegate!
     var authRepository: MockAuthRepository!
-    var coordinator: MockCoordinator<VaultRoute>!
+    var coordinator: MockCoordinator<VaultRoute, AuthAction>!
     var errorReporter: MockErrorReporter!
     var subject: VaultAutofillListProcessor!
     var vaultRepository: MockVaultRepository!
@@ -55,8 +55,8 @@ class VaultAutofillListProcessorTests: BitwardenTestCase {
         let cipher = CipherView.fixture(login: .fixture(password: "PASSWORD", username: "user@bitwarden.com"))
         await subject.perform(.cipherTapped(cipher))
 
-        XCTAssertEqual(appExtensionDelegate.didCompleteAutofillRequest?.username, "user@bitwarden.com")
-        XCTAssertEqual(appExtensionDelegate.didCompleteAutofillRequest?.password, "PASSWORD")
+        XCTAssertEqual(appExtensionDelegate.didCompleteAutofillRequestUsername, "user@bitwarden.com")
+        XCTAssertEqual(appExtensionDelegate.didCompleteAutofillRequestPassword, "PASSWORD")
     }
 
     /// `cipherTapped(_:)` has the autofill helper handle autofill for the cipher and shows a toast
@@ -79,22 +79,24 @@ class VaultAutofillListProcessorTests: BitwardenTestCase {
 
     /// `perform(_:)` with `.loadData` loads the profile switcher state.
     func test_perform_loadData_profileSwitcher() async {
-        authRepository.accountsResult = .success([.anneAccount])
-        authRepository.activeAccountResult = .success(.anneAccount)
+        authRepository.profileSwitcherState = ProfileSwitcherState(
+            accounts: [.anneAccount],
+            activeAccountId: ProfileSwitcherItem.anneAccount.userId,
+            isVisible: true
+        )
 
         await subject.perform(.loadData)
 
         XCTAssertEqual(subject.state.profileSwitcherState.accounts, [.anneAccount])
     }
 
-    /// `perform(_:)` with `.loadData` logs an error if one occurs when loading the profile switcher.
-    func test_perform_loadData_profileSwitcher_error() async {
-        authRepository.accountsResult = .failure(StateServiceError.noAccounts)
+    /// `perform(_:)` with `.loadData` loads an empty state the profile switcher.
+    func test_perform_loadData_profileSwitcher_empty() async {
+        authRepository.profileSwitcherState = .empty()
 
         await subject.perform(.loadData)
 
         XCTAssertEqual(subject.state.profileSwitcherState, .empty(shouldAlwaysHideAddAccount: true))
-        XCTAssertEqual(errorReporter.errors.last as? StateServiceError, StateServiceError.noAccounts)
     }
 
     /// `perform(_:)` with `.search()` performs a cipher search and updates the state with the results.
@@ -182,7 +184,10 @@ class VaultAutofillListProcessorTests: BitwardenTestCase {
     func test_receive_addTapped() {
         subject.receive(.addTapped)
 
-        XCTAssertEqual(coordinator.routes.last, .addItem(allowTypeSelection: false, group: .login))
+        XCTAssertEqual(
+            coordinator.routes.last,
+            .addItem(allowTypeSelection: false, group: .login, newCipherOptions: NewCipherOptions())
+        )
     }
 
     /// `receive(_:)` with `.addTapped` hides the profile switcher if it's visible.
@@ -205,7 +210,7 @@ class VaultAutofillListProcessorTests: BitwardenTestCase {
     /// visibility and navigates to switch account.
     func test_receive_profileSwitcher_accountPressed() {
         subject.state.profileSwitcherState.isVisible = true
-        subject.receive(.profileSwitcherAction(.accountPressed(ProfileSwitcherItem(userId: "1"))))
+        subject.receive(.profileSwitcherAction(.accountPressed(ProfileSwitcherItem.fixture(userId: "1"))))
 
         XCTAssertFalse(subject.state.profileSwitcherState.isVisible)
         XCTAssertEqual(coordinator.routes.last, .switchAccount(userId: "1"))

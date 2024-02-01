@@ -13,7 +13,8 @@ final class SendItemCoordinator: Coordinator, HasStackNavigator {
 
     typealias Module = FileSelectionModule
 
-    typealias Services = HasErrorReporter
+    typealias Services = HasAuthRepository
+        & HasErrorReporter
         & HasPasteboardService
         & HasPolicyService
         & HasSendRepository
@@ -22,7 +23,7 @@ final class SendItemCoordinator: Coordinator, HasStackNavigator {
 
     /// The most recent coordinator used to navigate to a `FileSelectionRoute`. Used to keep the
     /// coordinator in memory.
-    private var fileSelectionCoordinator: AnyCoordinator<FileSelectionRoute>?
+    private var fileSelectionCoordinator: AnyCoordinator<FileSelectionRoute, Void>?
 
     // MARK: Properties
 
@@ -61,6 +62,10 @@ final class SendItemCoordinator: Coordinator, HasStackNavigator {
     }
 
     // MARK: Methods
+
+    func handleEvent(_ event: AuthAction, context: AnyObject?) async {
+        await delegate?.handle(event)
+    }
 
     func navigate(to route: SendItemRoute, context: AnyObject?) {
         switch route {
@@ -101,11 +106,11 @@ final class SendItemCoordinator: Coordinator, HasStackNavigator {
             state.fileName = fileName
             state.fileData = fileData
             state.type = .file
-            state.mode = .shareExtension
+            state.mode = .shareExtension(.empty())
         case let .text(text):
             state.text = text
             state.type = .text
-            state.mode = .shareExtension
+            state.mode = .shareExtension(.empty())
         case nil:
             break
         }

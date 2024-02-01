@@ -62,7 +62,7 @@ class VaultCoordinatorTests: BitwardenTestCase {
 
     /// `navigate(to:)` with `.addItem` presents the add item view onto the stack navigator.
     func test_navigateTo_addItem() throws {
-        let coordinator = MockCoordinator<VaultItemRoute>()
+        let coordinator = MockCoordinator<VaultItemRoute, VaultItemEvent>()
         module.vaultItemCoordinator = coordinator
         subject.navigate(to: .addItem())
 
@@ -146,9 +146,11 @@ class VaultCoordinatorTests: BitwardenTestCase {
 
     /// `navigate(to:)` with `.lockVault` navigates the user to the login view.
     func test_navigateTo_lockVault() throws {
-        subject.navigate(to: .lockVault(account: .fixture()))
-
-        XCTAssertEqual(delegate.lockVaultAccount, .fixture())
+        let task = Task {
+            await subject.handleEvent(.lockVault(userId: "123"))
+        }
+        waitFor(delegate.lockVaultId == "123")
+        task.cancel()
     }
 
     /// `navigate(to:)` with `.loginRequest` calls the delegate method.
@@ -159,18 +161,24 @@ class VaultCoordinatorTests: BitwardenTestCase {
 
     /// `navigate(to:)` with `.logout` informs the delegate that the user logged out.
     func test_navigateTo_logout() throws {
-        subject.navigate(to: .logout(userInitiated: true))
+        let task = Task {
+            await subject.handleEvent(.logout(userId: "123", userInitiated: true))
+        }
 
         waitFor(delegate.logoutTapped)
+        task.cancel()
         let userInitiated = try XCTUnwrap(delegate.userInitiated)
         XCTAssertTrue(userInitiated)
     }
 
     /// `navigate(to:)` with `.logout` informs the delegate that the user logged out.
     func test_navigateTo_logout_systemInitiated() throws {
-        subject.navigate(to: .logout(userInitiated: false))
+        let task = Task {
+            await subject.handleEvent(.logout(userId: "123", userInitiated: false))
+        }
 
         waitFor(delegate.logoutTapped)
+        task.cancel()
         let userInitiated = try XCTUnwrap(delegate.userInitiated)
         XCTAssertFalse(userInitiated)
     }
@@ -226,19 +234,20 @@ class MockVaultFilterDelegate: VaultFilterDelegate {
 class MockVaultCoordinatorDelegate: VaultCoordinatorDelegate {
     var addAccountTapped = false
     var accountTapped = [String]()
-    var lockVaultAccount: Account?
+    var lockVaultId: String?
     var logoutTapped = false
-    var otherAccounts: [Account]?
+    var logoutUserId: String?
     var presentLoginRequestRequest: LoginRequest?
+    var switchedAccounts = false
     var userInitiated: Bool?
 
-    func didLockVault(account: Account) {
-        lockVaultAccount = account
+    func lockVault(userId: String?) {
+        lockVaultId = userId
     }
 
-    func didLogout(userInitiated: Bool, otherAccounts: [Account]?) {
+    func logout(userId: String?, userInitiated: Bool) {
         self.userInitiated = userInitiated
-        self.otherAccounts = otherAccounts
+        logoutUserId = userId
         logoutTapped = true
     }
 
@@ -252,5 +261,9 @@ class MockVaultCoordinatorDelegate: VaultCoordinatorDelegate {
 
     func presentLoginRequest(_ loginRequest: LoginRequest) {
         presentLoginRequestRequest = loginRequest
+    }
+
+    func switchAccount(userId: String, isAutomatic: Bool) {
+        switchedAccounts = true
     }
 }

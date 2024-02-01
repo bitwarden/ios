@@ -6,7 +6,7 @@ import XCTest
 class EditCollectionsProcessorTests: BitwardenTestCase {
     // MARK: Properties
 
-    var coordinator: MockCoordinator<VaultItemRoute>!
+    var coordinator: MockCoordinator<VaultItemRoute, VaultItemEvent>!
     var delegate: MockEditCollectionsProcessorDelegate!
     var errorReporter: MockErrorReporter!
     var subject: EditCollectionsProcessor!

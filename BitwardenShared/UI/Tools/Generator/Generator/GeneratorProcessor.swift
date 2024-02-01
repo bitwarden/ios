@@ -14,7 +14,7 @@ final class GeneratorProcessor: StateProcessor<GeneratorState, GeneratorAction, 
     // MARK: Private Properties
 
     /// The `Coordinator` that handles navigation.
-    private let coordinator: AnyCoordinator<GeneratorRoute>
+    private let coordinator: AnyCoordinator<GeneratorRoute, Void>
 
     /// A flag set once the initial generator options have been loaded.
     private(set) var didLoadGeneratorOptions = false
@@ -38,7 +38,7 @@ final class GeneratorProcessor: StateProcessor<GeneratorState, GeneratorAction, 
     ///   - state: The initial state of the processor.
     ///
     init(
-        coordinator: AnyCoordinator<GeneratorRoute>,
+        coordinator: AnyCoordinator<GeneratorRoute, Void>,
         services: Services,
         state: GeneratorState
     ) {
@@ -218,7 +218,7 @@ final class GeneratorProcessor: StateProcessor<GeneratorState, GeneratorAction, 
             state.isPolicyInEffect = try await services.policyService.applyPasswordGenerationPolicy(
                 options: &passwordOptions
             )
-            state.passwordState.update(with: passwordOptions)
+            state.passwordState.update(with: passwordOptions, shouldUpdateGeneratorType: true)
 
             let usernameOptions = try await services.generatorRepository.getUsernameGenerationOptions()
             state.usernameState.update(with: usernameOptions)
@@ -273,7 +273,9 @@ final class GeneratorProcessor: StateProcessor<GeneratorState, GeneratorAction, 
         var passwordOptions = state.passwordState.passwordGenerationOptions
         state.isPolicyInEffect = await (try? services.policyService
             .applyPasswordGenerationPolicy(options: &passwordOptions)) ?? false
-        state.passwordState.update(with: passwordOptions)
+        // When updating the state, don't update the password generator type or it can override the
+        // user's current selection.
+        state.passwordState.update(with: passwordOptions, shouldUpdateGeneratorType: false)
 
         var policyOptions = PasswordGenerationOptions()
         _ = try? await services.policyService.applyPasswordGenerationPolicy(options: &policyOptions)

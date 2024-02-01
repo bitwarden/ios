@@ -14,14 +14,14 @@ protocol SettingsModule {
     func makeSettingsCoordinator(
         delegate: SettingsCoordinatorDelegate,
         stackNavigator: StackNavigator
-    ) -> AnyCoordinator<SettingsRoute>
+    ) -> AnyCoordinator<SettingsRoute, SettingsEvent>
 }
 
 extension DefaultAppModule: SettingsModule {
     func makeSettingsCoordinator(
         delegate: SettingsCoordinatorDelegate,
         stackNavigator: StackNavigator
-    ) -> AnyCoordinator<SettingsRoute> {
+    ) -> AnyCoordinator<SettingsRoute, SettingsEvent> {
         SettingsCoordinator(
             delegate: delegate,
             module: self,

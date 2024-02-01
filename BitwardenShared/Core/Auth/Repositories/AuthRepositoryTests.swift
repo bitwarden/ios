@@ -8,12 +8,13 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
 
     var accountAPIService: APIService!
     var authService: MockAuthService!
-    var biometricsService: MockBiometricsService!
+    var biometricsRepository: MockBiometricsRepository!
     var client: MockHTTPClient!
     var clientAuth: MockClientAuth!
     var clientCrypto: MockClientCrypto!
     var clientPlatform: MockClientPlatform!
     var environmentService: MockEnvironmentService!
+    var keychainService: MockKeychainRepository!
     var organizationService: MockOrganizationService!
     var subject: DefaultAuthRepository!
     var stateService: MockStateService!
@@ -78,10 +79,11 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         clientAuth = MockClientAuth()
         accountAPIService = APIService(client: client)
         authService = MockAuthService()
-        biometricsService = MockBiometricsService()
+        biometricsRepository = MockBiometricsRepository()
         clientCrypto = MockClientCrypto()
         clientPlatform = MockClientPlatform()
         environmentService = MockEnvironmentService()
+        keychainService = MockKeychainRepository()
         organizationService = MockOrganizationService()
         stateService = MockStateService()
         vaultTimeoutService = MockVaultTimeoutService()
@@ -89,11 +91,12 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         subject = DefaultAuthRepository(
             accountAPIService: accountAPIService,
             authService: authService,
-            biometricsService: biometricsService,
+            biometricsRepository: biometricsRepository,
             clientAuth: clientAuth,
             clientCrypto: clientCrypto,
             clientPlatform: clientPlatform,
             environmentService: environmentService,
+            keychainService: keychainService,
             organizationService: organizationService,
             stateService: stateService,
             vaultTimeoutService: vaultTimeoutService
@@ -105,12 +108,13 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
 
         accountAPIService = nil
         authService = nil
-        biometricsService = nil
+        biometricsRepository = nil
         client = nil
         clientAuth = nil
         clientCrypto = nil
         clientPlatform = nil
         environmentService = nil
+        keychainService = nil
         organizationService = nil
         subject = nil
         stateService = nil
@@ -150,61 +154,59 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
     }
 
     /// `allowBioMetricUnlock(:)` throws an error if required.
-    func test_allowBioMetricUnlock_biometricsServiceError() async throws {
-        biometricsService.setBiometricUnlockKeyError = BiometricsServiceError.setAuthKeyFailed
+    func test_allowBioMetricUnlock_biometricsRepositoryError() async throws {
+        biometricsRepository.setBiometricUnlockKeyError = BiometricsServiceError.setAuthKeyFailed
         await assertAsyncThrows(error: BiometricsServiceError.setAuthKeyFailed) {
-            try await subject.allowBioMetricUnlock(true, userId: nil)
+            try await subject.allowBioMetricUnlock(true)
         }
     }
 
     /// `allowBioMetricUnlock(:)` throws an error if required.
     func test_allowBioMetricUnlock_cryptoError() async throws {
-        biometricsService.setBiometricUnlockKeyError = nil
+        biometricsRepository.setBiometricUnlockKeyError = nil
         struct ClientError: Error, Equatable {}
         clientCrypto.getUserEncryptionKeyResult = .failure(ClientError())
         await assertAsyncThrows(error: ClientError()) {
-            try await subject.allowBioMetricUnlock(true, userId: "123")
+            try await subject.allowBioMetricUnlock(true)
         }
     }
 
     /// `allowBioMetricUnlock(:)` throws an error if required.
     func test_allowBioMetricUnlock_true_success() async throws {
-        biometricsService.setBiometricUnlockKeyError = nil
+        stateService.activeAccount = .fixture()
+        biometricsRepository.setBiometricUnlockKeyError = nil
         let key = "userKey"
         clientCrypto.getUserEncryptionKeyResult = .success(key)
-        try await subject.allowBioMetricUnlock(true, userId: "123")
-        XCTAssertEqual(biometricsService.capturedUserAuthKey, key)
-        XCTAssertEqual("123", biometricsService.capturedUserID)
+        try await subject.allowBioMetricUnlock(true)
+        XCTAssertEqual(biometricsRepository.capturedUserAuthKey, key)
     }
 
     /// `allowBioMetricUnlock(:)` throws an error if required.
     func test_allowBioMetricUnlock_false_success() async throws {
-        biometricsService.setBiometricUnlockKeyError = nil
+        stateService.activeAccount = .fixture()
+        biometricsRepository.setBiometricUnlockKeyError = nil
         let key = "userKey"
         clientCrypto.getUserEncryptionKeyResult = .success(key)
-        try await subject.allowBioMetricUnlock(false, userId: "456")
-        XCTAssertNil(biometricsService.capturedUserAuthKey)
-        XCTAssertEqual("456", biometricsService.capturedUserID)
+        try await subject.allowBioMetricUnlock(false)
+        XCTAssertNil(biometricsRepository.capturedUserAuthKey)
     }
 
     /// `allowBioMetricUnlock(:)` throws an error if required.
-    func test_allowBioMetricUnlock_false_success_biometricsServiceError() async throws {
-        biometricsService.setBiometricUnlockKeyError = nil
+    func test_allowBioMetricUnlock_false_success_biometricsRepositoryError() async throws {
+        biometricsRepository.setBiometricUnlockKeyError = nil
         clientCrypto.getUserEncryptionKeyResult = .failure(BiometricsServiceError.getAuthKeyFailed)
-        try await subject.allowBioMetricUnlock(false, userId: nil)
-        XCTAssertNil(biometricsService.capturedUserAuthKey)
-        XCTAssertNil(biometricsService.capturedUserID)
+        try await subject.allowBioMetricUnlock(false)
+        XCTAssertNil(biometricsRepository.capturedUserAuthKey)
     }
 
-    /// `getAccounts()` throws an error when the accounts are nil.
-    func test_getAccounts_empty() async throws {
-        await assertAsyncThrows(error: StateServiceError.noAccounts) {
-            _ = try await subject.getAccounts()
-        }
+    /// `getProfilesState()` throws an error when the accounts are nil.
+    func test_getProfilesState_empty() async {
+        let state = await subject.getProfilesState(isVisible: false, shouldAlwaysHideAddAccount: false)
+        XCTAssertEqual(state, .empty(shouldAlwaysHideAddAccount: false))
     }
 
-    /// `getAccounts()` returns all known accounts.
-    func test_getAccounts_valid() async throws { // swiftlint:disable:this function_body_length
+    /// `getProfilesState()` returns all known accounts.
+    func test_getProfilesState_valid() async { // swiftlint:disable:this function_body_length
         stateService.accounts = [
             anneAccount,
             beeAccount,
@@ -214,10 +216,10 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
             shortName,
         ]
 
-        let accounts = try await subject.getAccounts()
+        let accounts = await subject.getProfilesState(isVisible: true, shouldAlwaysHideAddAccount: false).accounts
         XCTAssertEqual(
             accounts.first,
-            ProfileSwitcherItem(
+            ProfileSwitcherItem.fixture(
                 email: anneAccount.profile.email,
                 userId: anneAccount.profile.userId,
                 userInitials: "AA"
@@ -225,7 +227,7 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         )
         XCTAssertEqual(
             accounts[1],
-            ProfileSwitcherItem(
+            ProfileSwitcherItem.fixture(
                 email: beeAccount.profile.email,
                 userId: beeAccount.profile.userId,
                 userInitials: "BA"
@@ -233,7 +235,7 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         )
         XCTAssertEqual(
             accounts[2],
-            ProfileSwitcherItem(
+            ProfileSwitcherItem.fixture(
                 email: claimedAccount.profile.email,
                 userId: claimedAccount.profile.userId,
                 userInitials: "CL"
@@ -241,7 +243,7 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         )
         XCTAssertEqual(
             accounts[3],
-            ProfileSwitcherItem(
+            ProfileSwitcherItem.fixture(
                 email: "",
                 userId: "4",
                 userInitials: ".."
@@ -249,7 +251,7 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         )
         XCTAssertEqual(
             accounts[4],
-            ProfileSwitcherItem(
+            ProfileSwitcherItem.fixture(
                 email: shortEmail.profile.email,
                 userId: shortEmail.profile.userId,
                 userInitials: "A"
@@ -257,7 +259,7 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         )
         XCTAssertEqual(
             accounts[5],
-            ProfileSwitcherItem(
+            ProfileSwitcherItem.fixture(
                 email: shortName.profile.email,
                 userId: shortName.profile.userId,
                 userInitials: "AJ"
@@ -265,8 +267,8 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         )
     }
 
-    /// `getAccounts()` can return locked accounts correctly.
-    func test_getAccounts_locked() async throws {
+    /// `getProfilesState()` can return locked accounts correctly.
+    func test_getProfilesState_locked() async {
         stateService.accounts = [
             anneAccount,
             beeAccount,
@@ -280,7 +282,7 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
             shortEmail.profile.userId: true,
             shortName.profile.userId: false,
         ]
-        let profiles = try await subject.getAccounts()
+        let profiles = await subject.getProfilesState(isVisible: true, shouldAlwaysHideAddAccount: true).accounts
         let lockedStatuses = profiles.map { profile in
             profile.isUnlocked
         }
@@ -297,31 +299,27 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
     }
 
     /// `getActiveAccount()` returns a profile switcher item.
-    func test_getActiveAccount_empty() async throws {
+    func test_getAccount_empty() async throws {
         stateService.accounts = [
             anneAccount,
         ]
 
         await assertAsyncThrows(error: StateServiceError.noActiveAccount) {
-            _ = try await subject.getActiveAccount()
+            _ = try await subject.getAccount()
         }
     }
 
-    /// `getActiveAccount()` returns an account when the active account is valid.
-    func test_getActiveAccount_valid() async throws {
+    /// `getAccount()` returns an account when the active account is valid.
+    func test_getAccount_valid() async throws {
         stateService.accounts = [
             anneAccount,
         ]
         stateService.activeAccount = anneAccount
 
-        let active = try await subject.getActiveAccount()
+        let active = try await subject.getAccount()
         XCTAssertEqual(
             active,
-            ProfileSwitcherItem(
-                email: anneAccount.profile.email,
-                userId: anneAccount.profile.userId,
-                userInitials: "AA"
-            )
+            anneAccount
         )
     }
 
@@ -331,7 +329,7 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
             anneAccount,
         ]
         stateService.activeAccount = anneAccount
-        let profile = ProfileSwitcherItem(
+        let profile = ProfileSwitcherItem.fixture(
             email: anneAccount.profile.email,
             userId: anneAccount.profile.userId,
             userInitials: "AA"
@@ -350,7 +348,7 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
             anneAccount,
         ]
         stateService.activeAccount = anneAccount
-        let profile = ProfileSwitcherItem(
+        let profile = ProfileSwitcherItem.fixture(
             email: beeAccount.profile.email,
             userId: beeAccount.profile.userId,
             userInitials: "BA"
@@ -382,14 +380,179 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         }
     }
 
-    /// `isPinUnlockAvailable` returns the value from the state service.
-    func test_isPinUnlockAvailable() async throws {
+    /// `isLocked` returns the lock state of an active user.
+    func test_isLocked_noUser() async {
+        await assertAsyncThrows(error: StateServiceError.noActiveAccount) {
+            _ = try await subject.isLocked()
+        }
+    }
+
+    /// `isLocked` returns the lock state of an active user.
+    func test_isLocked_noHistory() async throws {
         stateService.activeAccount = .fixture()
-        stateService.pinProtectedUserKeyValue = ["1": "something"]
+        let isLocked = try await subject.isLocked()
+        XCTAssertTrue(isLocked)
+    }
 
+    /// `isLocked` returns the lock state of an active user.
+    func test_isLocked_value() async throws {
+        stateService.activeAccount = .fixture(profile: .fixture(userId: "1"))
+        vaultTimeoutService.timeoutStore = [
+            "1": false,
+        ]
+
+        let isLocked = try await subject.isLocked()
+        XCTAssertFalse(isLocked)
+    }
+
+    /// `isPinUnlockAvailable` returns the pin unlock availability for the active user.
+    func test_isPinUnlockAvailable_noUser() async {
+        await assertAsyncThrows(error: StateServiceError.noActiveAccount) {
+            _ = try await subject.isPinUnlockAvailable()
+        }
+    }
+
+    /// `isPinUnlockAvailable` returns the pin unlock availability for the active user.
+    func test_isPinUnlockAvailable_noValue() async throws {
+        stateService.activeAccount = .fixture()
         let value = try await subject.isPinUnlockAvailable()
+        XCTAssertFalse(value)
+    }
 
+    /// `isPinUnlockAvailable` returns the pin unlock availability for the active user.
+    func test_isPinUnlockAvailable_value() async throws {
+        let active = Account.fixture()
+        stateService.activeAccount = active
+        stateService.pinProtectedUserKeyValue = [
+            active.profile.userId: "123",
+        ]
+        let value = try await subject.isPinUnlockAvailable()
         XCTAssertTrue(value)
+    }
+
+    /// `setVaultTimeout` correctly configures the user's timeout value.
+    func test_setVaultTimeout_noUser() async {
+        await assertAsyncThrows(error: StateServiceError.noActiveAccount) {
+            try await subject.setVaultTimeout(value: .fourHours)
+        }
+    }
+
+    /// `setVaultTimeout` correctly configures the user's timeout value.
+    func test_setVaultTimeout_success() async throws {
+        let active = Account.fixture()
+        stateService.activeAccount = active
+        try await subject.setVaultTimeout(value: .fourHours)
+        XCTAssertEqual(vaultTimeoutService.vaultTimeout[active.profile.userId], .fourHours)
+    }
+
+    /// `setVaultTimeout` correctly configures the user's timeout value.
+    func test_setVaultTimeout_never_cryptoError() async throws {
+        let active = Account.fixture()
+        stateService.activeAccount = active
+        clientCrypto.getUserEncryptionKeyResult = .failure(BitwardenTestError.example)
+        await assertAsyncThrows(error: BitwardenTestError.example) {
+            try await subject.setVaultTimeout(value: .never)
+        }
+    }
+
+    /// `setVaultTimeout` correctly configures the user's timeout value.
+    func test_setVaultTimeout_deleteNeverlock_error() async {
+        let active = Account.fixture()
+        stateService.activeAccount = active
+        vaultTimeoutService.vaultTimeout = [
+            active.profile.userId: .never,
+        ]
+        keychainService.deleteResult = .failure(BitwardenTestError.example)
+        await assertAsyncThrows(error: BitwardenTestError.example) {
+            try await subject.setVaultTimeout(value: .fiveMinutes)
+        }
+    }
+
+    /// `setVaultTimeout` correctly configures the user's timeout value.
+    func test_setVaultTimeout_deleteNeverlock_success() async throws {
+        let active = Account.fixture()
+        stateService.activeAccount = active
+        vaultTimeoutService.vaultTimeout = [
+            active.profile.userId: .never,
+        ]
+        keychainService.mockStorage = [
+            keychainService.formattedKey(
+                for: KeychainItem.neverLock(
+                    userId: active.profile.userId
+                )
+            ):
+                "pasta",
+        ]
+        keychainService.deleteResult = .success(())
+        try await subject.setVaultTimeout(value: .fiveMinutes)
+        XCTAssertTrue(keychainService.mockStorage.isEmpty)
+    }
+
+    /// `setVaultTimeout` correctly configures the user's timeout value.
+    func test_setVaultTimeout_never_success() async throws {
+        let active = Account.fixture()
+        stateService.activeAccount = active
+        clientCrypto.getUserEncryptionKeyResult = .success("pasta")
+        try await subject.setVaultTimeout(value: .never)
+        XCTAssertEqual(vaultTimeoutService.vaultTimeout[active.profile.userId], .never)
+        XCTAssertEqual(
+            keychainService.mockStorage,
+            [
+                keychainService.formattedKey(
+                    for: KeychainItem.neverLock(userId: active.profile.userId)
+                ):
+                    "pasta",
+            ]
+        )
+    }
+
+    /// `unlockVaultWithNeverlockKey` attempts to unlock the vault using an auth key from the keychain.
+    func test_unlockVaultWithNeverlockKey_error() async throws {
+        let active = Account.fixture()
+        keychainService.mockStorage = [
+            keychainService.formattedKey(
+                for: KeychainItem.neverLock(
+                    userId: active.profile.userId
+                )
+            ):
+                "pasta",
+        ]
+        stateService.accountEncryptionKeys = [
+            active.profile.userId: .init(
+                encryptedPrivateKey: "secret",
+                encryptedUserKey: "recipe"
+            ),
+        ]
+        clientCrypto.getUserEncryptionKeyResult = .success("sauce")
+        clientCrypto.initializeUserCryptoResult = .success(())
+        await assertAsyncThrows(error: StateServiceError.noActiveAccount) {
+            try await subject.unlockVaultWithNeverlockKey()
+        }
+    }
+
+    /// `unlockVaultWithNeverlockKey` attempts to unlock the vault using an auth key from the keychain.
+    func test_unlockVaultWithNeverlockKey_success() async throws {
+        let active = Account.fixture()
+        stateService.activeAccount = active
+        keychainService.mockStorage = [
+            keychainService.formattedKey(
+                for: KeychainItem.neverLock(
+                    userId: active.profile.userId
+                )
+            ):
+                "pasta",
+        ]
+        stateService.accountEncryptionKeys = [
+            active.profile.userId: .init(
+                encryptedPrivateKey: "secret",
+                encryptedUserKey: "recipe"
+            ),
+        ]
+        clientCrypto.getUserEncryptionKeyResult = .success("sauce")
+        clientCrypto.initializeUserCryptoResult = .success(())
+        await assertAsyncDoesNotThrow {
+            try await subject.unlockVaultWithNeverlockKey()
+        }
     }
 
     /// `lockVault(userId:)` locks the vault for the specified user id.
@@ -509,16 +672,19 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         XCTAssertTrue(organizationService.initializeOrganizationCryptoCalled)
         XCTAssertEqual(authService.hashPasswordPassword, "password")
         XCTAssertEqual(stateService.masterPasswordHashes["1"], "hashed")
-        XCTAssertFalse(biometricsService.didConfigureBiometricIntegrity)
+        XCTAssertFalse(biometricsRepository.didConfigureBiometricIntegrity)
     }
 
     /// `unlockVaultWithPassword(password:)` configures biometric integrity refreshes.
     func test_unlockVault_integrityRefresh() async throws {
         stateService.activeAccount = .fixture()
         stateService.accountEncryptionKeys = [
-            "1": AccountEncryptionKeys(encryptedPrivateKey: "PRIVATE_KEY", encryptedUserKey: "USER_KEY"),
+            "1": AccountEncryptionKeys(
+                encryptedPrivateKey: "PRIVATE_KEY",
+                encryptedUserKey: "USER_KEY"
+            ),
         ]
-        biometricsService.biometricUnlockStatus = .success(
+        biometricsRepository.biometricUnlockStatus = .success(
             .available(.faceID, enabled: true, hasValidIntegrity: false)
         )
 
@@ -539,7 +705,7 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         XCTAssertTrue(organizationService.initializeOrganizationCryptoCalled)
         XCTAssertEqual(authService.hashPasswordPassword, "password")
         XCTAssertEqual(stateService.masterPasswordHashes["1"], "hashed")
-        XCTAssertTrue(biometricsService.didConfigureBiometricIntegrity)
+        XCTAssertTrue(biometricsRepository.didConfigureBiometricIntegrity)
     }
 
     /// `unlockVaultWithBiometrics()` throws an error if the vault is unable to be unlocked.
@@ -567,10 +733,10 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
     }
 
     /// `unlockVaultWithBiometrics()` throws an error if the vault is unable to be unlocked.
-    func test_unlockVaultWithBiometrics_error_biometricsService_noKeys() async {
+    func test_unlockVaultWithBiometrics_error_biometricsRepository_noKeys() async {
         stateService.activeAccount = .fixture()
         struct KeyError: Error, Equatable {}
-        biometricsService.getUserAuthKeyResult = .failure(KeyError())
+        biometricsRepository.getUserAuthKeyResult = .failure(KeyError())
         await assertAsyncThrows(error: KeyError()) {
             _ = try await subject.unlockVaultWithBiometrics()
         }
@@ -580,7 +746,7 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
     func test_unlockVaultWithBiometrics_error_stateService_noKey() async {
         stateService.activeAccount = .fixture()
         stateService.accountEncryptionKeys = [:]
-        biometricsService.getUserAuthKeyResult = .success("UserKey")
+        biometricsRepository.getUserAuthKeyResult = .success("UserKey")
         clientCrypto.initializeUserCryptoResult = .success(())
         organizationService.initializeOrganizationCryptoError = nil
         await assertAsyncThrows(error: StateServiceError.noActiveAccount) {
@@ -597,7 +763,7 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
                 encryptedUserKey: "Encrypted User Key"
             ),
         ]
-        biometricsService.getUserAuthKeyResult = .success("UserKey")
+        biometricsRepository.getUserAuthKeyResult = .success("UserKey")
         clientCrypto.initializeUserCryptoResult = .success(())
         struct OrgError: Error, Equatable {}
         organizationService.initializeOrganizationCryptoError = OrgError()
@@ -615,7 +781,7 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
             ),
         ]
         stateService.activeAccount = .fixture()
-        biometricsService.getUserAuthKeyResult = .success("")
+        biometricsRepository.getUserAuthKeyResult = .success("")
         await assertAsyncDoesNotThrow {
             try await subject.unlockVaultWithBiometrics()
         }
@@ -661,8 +827,8 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         stateService.accounts = [account]
         stateService.activeAccount = account
         vaultTimeoutService.timeoutStore = [account.profile.userId: false]
-        biometricsService.capturedUserAuthKey = "Value"
-        biometricsService.setBiometricUnlockKeyError = nil
+        biometricsRepository.capturedUserAuthKey = "Value"
+        biometricsRepository.setBiometricUnlockKeyError = nil
         let task = Task {
             try await subject.logout()
         }
@@ -670,7 +836,7 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         task.cancel()
 
         XCTAssertEqual([account.profile.userId], stateService.accountsLoggedOut)
-        XCTAssertNil(biometricsService.capturedUserAuthKey)
+        XCTAssertNil(biometricsRepository.capturedUserAuthKey)
     }
 
     /// `unlockVault(password:)` throws an error if the vault is unable to be unlocked.

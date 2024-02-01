@@ -4,8 +4,7 @@ import XCTest
 
 import BitwardenSdk
 
-// swiftlint:disable:next type_body_length
-class SyncServiceTests: BitwardenTestCase {
+class SyncServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body_length
     // MARK: Properties
 
     var cipherService: MockCipherService!

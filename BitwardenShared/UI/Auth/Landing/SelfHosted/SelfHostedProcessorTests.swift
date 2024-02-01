@@ -5,14 +5,14 @@ import XCTest
 class SelfHostedProcessorTests: BitwardenTestCase {
     // MARK: Properties
 
-    var coordinator: MockCoordinator<AuthRoute>!
+    var coordinator: MockCoordinator<AuthRoute, AuthEvent>!
     var delegate: MockSelfHostedProcessorDelegate!
     var subject: SelfHostedProcessor!
 
     // MARK: Setup and Teardown
 
     override func setUp() {
-        coordinator = MockCoordinator<AuthRoute>()
+        coordinator = MockCoordinator<AuthRoute, AuthEvent>()
         delegate = MockSelfHostedProcessorDelegate()
         subject = SelfHostedProcessor(
             coordinator: coordinator.asAnyCoordinator(),

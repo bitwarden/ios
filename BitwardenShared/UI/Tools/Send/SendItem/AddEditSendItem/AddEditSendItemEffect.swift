@@ -12,6 +12,9 @@ enum AddEditSendItemEffect: Equatable {
     /// Any initial data for the view should be loaded.
     case loadData
 
+    /// A Profile Switcher Effect.
+    case profileSwitcher(ProfileSwitcherEffect)
+
     /// The remove password button was pressed.
     case removePassword
 
