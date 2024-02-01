@@ -86,13 +86,19 @@ struct AttachmentsView: View {
             .cornerRadius(10)
             .padding(.bottom, 20)
         } else {
-            Text(Localizations.noAttachments)
-                .styleGuide(.body)
-                .foregroundStyle(Asset.Colors.textPrimary.swiftUIColor)
-                .multilineTextAlignment(.center)
-                .frame(maxWidth: .infinity)
-                .padding(.vertical, 20)
+            noAttachementsView
         }
+    }
+
+    /// The empty state for the currentAttachments view.
+    private var noAttachementsView: some View {
+        Text(Localizations.noAttachments)
+            .accessibilityIdentifier("NoAttachmentsLabel")
+            .styleGuide(.body)
+            .foregroundStyle(Asset.Colors.textPrimary.swiftUIColor)
+            .multilineTextAlignment(.center)
+            .frame(maxWidth: .infinity)
+            .padding(.vertical, 20)
     }
 
     /// The save button.
@@ -145,6 +151,7 @@ struct AttachmentsView: View {
             }
         }
         .background(Asset.Colors.backgroundPrimary.swiftUIColor)
+        .accessibilityIdentifier("AttachmentRow")
     }
 }
 
