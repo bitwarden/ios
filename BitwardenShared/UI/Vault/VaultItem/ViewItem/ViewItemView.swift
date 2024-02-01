@@ -58,14 +58,10 @@ struct ViewItemView: View {
                     )
                 )
 
-                Button {
+                ToolbarButton(asset: Asset.Images.cancel, label: Localizations.close) {
                     store.send(.dismissPressed)
-                } label: {
-                    Asset.Images.cancel.swiftUIImage
-                        .resizable()
-                        .frame(width: 19, height: 19)
                 }
-                .accessibilityLabel(Localizations.close)
+                .accessibilityIdentifier("CLOSE")
             }
         }
         .task {
@@ -104,10 +100,12 @@ struct ViewItemView: View {
                     AsyncButton(Localizations.restore) {
                         await store.perform(.restorePressed)
                     }
+                    .buttonStyle(.toolbar)
                 } else {
                     Button(Localizations.edit) {
                         store.send(.editPressed)
                     }
+                    .buttonStyle(.toolbar)
                 }
             }
         }
