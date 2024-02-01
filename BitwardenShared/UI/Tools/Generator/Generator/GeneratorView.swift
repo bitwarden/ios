@@ -55,14 +55,9 @@ struct GeneratorView: View {
 
             ToolbarItem(placement: .navigationBarTrailing) {
                 if store.state.presentationMode.isDismissButtonVisible {
-                    Button {
+                    ToolbarButton(asset: Asset.Images.cancel, label: Localizations.cancel) {
                         store.send(.dismissPressed)
-                    } label: {
-                        Asset.Images.cancel.swiftUIImage
-                            .resizable()
-                            .frame(width: 19, height: 19)
                     }
-                    .accessibilityLabel(Localizations.cancel)
                 }
             }
         }

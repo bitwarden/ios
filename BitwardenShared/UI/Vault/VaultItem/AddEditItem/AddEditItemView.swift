@@ -115,14 +115,10 @@ struct AddEditItemView: View {
                         )
                     )
 
-                    Button {
+                    ToolbarButton(asset: Asset.Images.cancel, label: Localizations.close) {
                         store.send(.dismissPressed)
-                    } label: {
-                        Asset.Images.cancel.swiftUIImage
-                            .resizable()
-                            .frame(width: 19, height: 19)
                     }
-                    .accessibilityLabel(Localizations.close)
+                    .accessibilityIdentifier("CLOSE")
                 }
             }
     }
