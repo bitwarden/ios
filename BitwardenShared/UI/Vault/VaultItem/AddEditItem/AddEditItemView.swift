@@ -243,7 +243,6 @@ private extension AddEditItemView {
                     )
                 )
             }
-            .accessibilityIdentifier("ItemOwnershipPicker")
 
             if !owner.isPersonal {
                 SectionView(Localizations.collections) {
