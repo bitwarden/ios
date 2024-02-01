@@ -324,6 +324,29 @@ class AccountSecurityProcessorTests: BitwardenTestCase { // swiftlint:disable:th
     }
 
     /// `receive(_:)` with `sessionTimeoutValueChanged(:)` triggers an alert when selecting never lock,
+    ///  and accepting the alert sets the sessionTimeoutValue.
+    func test_receive_sessionTimeoutValueChanged_neverLockAlert_accept() throws {
+        XCTAssertEqual(subject.state.sessionTimeoutValue, .immediately)
+
+        let account = Account.fixture()
+        authRepository.activeAccount = account
+        subject.receive(.sessionTimeoutValueChanged(.never))
+        waitFor(!coordinator.routes.isEmpty)
+
+        let neverLockAlert = try coordinator.unwrapLastRouteAsAlert()
+        XCTAssertEqual(neverLockAlert, Alert.neverLockAlert {})
+        var didAccept = false
+        let accept = Task {
+            try await neverLockAlert.tapAction(title: Localizations.yes)
+            didAccept = true
+        }
+        waitFor(didAccept)
+        accept.cancel()
+
+        XCTAssertEqual(subject.state.sessionTimeoutValue, .never)
+    }
+
+    /// `receive(_:)` with `sessionTimeoutValueChanged(:)` triggers an alert when selecting never lock,
     ///  and declining the alert does not set the sessionTimeoutValue.
     func test_receive_sessionTimeoutValueChanged_neverLockAlert_cancel() throws {
         XCTAssertEqual(subject.state.sessionTimeoutValue, .immediately)
@@ -345,26 +368,26 @@ class AccountSecurityProcessorTests: BitwardenTestCase { // swiftlint:disable:th
     }
 
     /// `receive(_:)` with `sessionTimeoutValueChanged(:)` triggers an alert when selecting never lock,
-    ///  and accepting the alert sets the sessionTimeoutValue.
-    func test_receive_sessionTimeoutValueChanged_neverLockAlert_accept() throws {
+    ///  and any error is surfaced correctly.
+    func test_receive_sessionTimeoutValueChanged_neverLockAlert_error() throws {
         XCTAssertEqual(subject.state.sessionTimeoutValue, .immediately)
 
         let account = Account.fixture()
         authRepository.activeAccount = account
+        authRepository.setVaultTimeoutError = BitwardenTestError.example
         subject.receive(.sessionTimeoutValueChanged(.never))
         waitFor(!coordinator.routes.isEmpty)
 
         let neverLockAlert = try coordinator.unwrapLastRouteAsAlert()
         XCTAssertEqual(neverLockAlert, Alert.neverLockAlert {})
-        var didAccept = false
         let accept = Task {
             try await neverLockAlert.tapAction(title: Localizations.yes)
-            didAccept = true
         }
-        waitFor(didAccept)
+        waitFor(!errorReporter.errors.isEmpty)
         accept.cancel()
 
-        XCTAssertEqual(subject.state.sessionTimeoutValue, .never)
+        XCTAssertEqual(errorReporter.errors.last as? BitwardenTestError, BitwardenTestError.example)
+        XCTAssertEqual(subject.state.sessionTimeoutValue, .immediately)
     }
 
     /// `receive(_:)` with `sessionTimeoutValueChanged(:)` updates the session timeout value in the state.
@@ -388,6 +411,20 @@ class AccountSecurityProcessorTests: BitwardenTestCase { // swiftlint:disable:th
         subject.receive(.sessionTimeoutValueChanged(.fourHours))
 
         waitFor(authRepository.vaultTimeout["1"] == .oneMinute)
+    }
+
+    /// `receive(_:)` with `sessionTimeoutValueChanged(:)` shows an alert when the user
+    /// enters a value that exceeds the policy limit. It surfaces any error when setting the policy value.
+    func test_receive_sessionTimeoutValueChanged_policy_exceedsLimit_error() throws {
+        let account = Account.fixture()
+        authRepository.activeAccount = account
+        authRepository.setVaultTimeoutError = BitwardenTestError.example
+        subject.state.isTimeoutPolicyEnabled = true
+        subject.state.policyTimeoutValue = 60
+
+        subject.receive(.sessionTimeoutValueChanged(.fourHours))
+
+        waitFor(errorReporter.errors.last as? BitwardenTestError == BitwardenTestError.example)
     }
 
     /// `receive(_:)` with `setCustomSessionTimeoutValue(_:)` updates the custom session timeout value in the state.
