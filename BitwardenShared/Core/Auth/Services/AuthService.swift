@@ -271,13 +271,11 @@ class DefaultAuthService: AuthService { // swiftlint:disable:this type_body_leng
         let publicKey = loginRequest.publicKey
         let encodedKey = try await clientAuth.approveAuthRequest(publicKey: publicKey)
 
-        let masterPasswordHash = try await stateService.getMasterPasswordHash()
-
         // Send the API request.
         let requestModel = AnswerLoginRequestRequestModel(
             deviceIdentifier: appID,
             key: encodedKey,
-            masterPasswordHash: masterPasswordHash,
+            masterPasswordHash: nil,
             requestApproved: approve
         )
         _ = try await authAPIService.answerLoginRequest(loginRequest.id, requestModel: requestModel)

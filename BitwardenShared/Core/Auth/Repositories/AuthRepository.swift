@@ -390,10 +390,18 @@ extension DefaultAuthRepository: AuthRepository {
     }
 
     func unlockVaultFromLoginWithDevice(privateKey: String, key: String, masterPasswordHash: String?) async throws {
-        try await unlockVault(method: .authRequest(requestPrivateKey: privateKey, protectedUserKey: key))
-        if let masterPasswordHash {
-            try await stateService.setMasterPasswordHash(masterPasswordHash)
+        let encryptionKeys = try await stateService.getAccountEncryptionKeys()
+        let method: AuthRequestMethod = if masterPasswordHash != nil {
+            AuthRequestMethod.masterKey(protectedMasterKey: key, authRequestKey: encryptionKeys.encryptedUserKey)
+        } else {
+            AuthRequestMethod.userKey(protectedUserKey: key)
         }
+        try await unlockVault(
+            method: .authRequest(
+                requestPrivateKey: privateKey,
+                method: method
+            )
+        )
     }
 
     func unlockVaultWithBiometrics() async throws {
