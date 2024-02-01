@@ -401,7 +401,7 @@ class DefaultAuthService: AuthService { // swiftlint:disable:this type_body_leng
         guard let key = loginRequest.key else { throw AuthError.missingLoginWithDeviceKey }
 
         // Get the identity token to log in to Bitwarden.
-        try await getIdentityTokenResponse(
+        _ = try await getIdentityTokenResponse(
             authenticationMethod: .password(
                 username: email,
                 password: loginWithDeviceData.accessCode

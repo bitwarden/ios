@@ -17,7 +17,9 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
     var environmentService: MockEnvironmentService!
     var errorReporter: MockErrorReporter!
     var folderService: MockFolderService!
+    var nonPremiumAccount = Account.fixture(profile: .fixture(hasPremiumPersonally: false))
     var now: Date!
+    var premiumAccount = Account.fixture(profile: .fixture(hasPremiumPersonally: true))
     var organizationService: MockOrganizationService!
     var stateService: MockStateService!
     var subject: DefaultVaultRepository!
@@ -1306,7 +1308,8 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
     }
 
     /// `vaultListPublisher(group:filter:)` returns a publisher for the vault list items.
-    func test_vaultListPublisher_groups_totp() async throws {
+    func test_vaultListPublisher_groups_totp_premium() async throws {
+        stateService.activeAccount = premiumAccount
         let cipher = Cipher.fixture(id: "1", login: .fixture(totp: "123"), type: .login)
         cipherService.ciphersSubject.send([cipher])
 
@@ -1321,9 +1324,22 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
         }
     }
 
+    /// `vaultListPublisher(group:filter:)` returns a publisher for the vault list items.
+    func test_vaultListPublisher_groups_totp_notPremium() async throws {
+        stateService.activeAccount = nonPremiumAccount
+        let cipher = Cipher.fixture(id: "1", login: .fixture(totp: "123"), type: .login)
+        cipherService.ciphersSubject.send([cipher])
+
+        var iterator = try await subject.vaultListPublisher(group: .totp, filter: .allVaults).makeAsyncIterator()
+        let maybeItems = try await iterator.next()
+        let vaultListItems = try XCTUnwrap(maybeItems)
+        XCTAssertTrue(vaultListItems.isEmpty)
+    }
+
     /// `vaultListPublisher(group:filter:)` filters out TOTP items with keys that
     ///      the SDK cannot parse into TOTP codes.
     func test_vaultListPublisher_groups_totp_invalidCode() async throws {
+        stateService.activeAccount = premiumAccount
         let cipher = Cipher.fixture(id: "1", login: .fixture(totp: "123"), type: .login)
         struct InvalidCodeError: Error, Equatable {}
         clientVault.generateTOTPCodeResult = .failure(InvalidCodeError())
@@ -1347,7 +1363,8 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
     }
 
     /// `vaultListPublisher(filter:)` returns a publisher for the vault list sections.
-    func test_vaultListPublisher_section() async throws { // swiftlint:disable:this function_body_length
+    func test_vaultListPublisher_section_premium() async throws { // swiftlint:disable:this function_body_length
+        stateService.activeAccount = premiumAccount
         let ciphers: [Cipher] = [
             .fixture(folderId: "1", id: "1", type: .login),
             .fixture(id: "2", login: .fixture(totp: "123"), type: .login),
@@ -1418,8 +1435,77 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
         XCTAssertEqual(vaultListSections, expectedResult)
     }
 
+    /// `vaultListPublisher(filter:)` returns a publisher for the vault list sections.
+    func test_vaultListPublisher_section_nonPremium() async throws { // swiftlint:disable:this function_body_length
+        stateService.activeAccount = nonPremiumAccount
+        let ciphers: [Cipher] = [
+            .fixture(folderId: "1", id: "1", type: .login),
+            .fixture(id: "2", login: .fixture(totp: "123"), type: .login),
+            .fixture(collectionIds: ["1"], favorite: true, id: "3"),
+            .fixture(deletedDate: Date(), id: "3"),
+        ]
+        let collection = Collection.fixture(id: "1")
+        let folder = Folder.fixture(id: "1")
+        cipherService.ciphersSubject.send(ciphers)
+        collectionService.collectionsSubject.send([collection])
+        folderService.foldersSubject.send([folder])
+
+        var iterator = try await subject.vaultListPublisher(filter: .allVaults).makeAsyncIterator()
+        let vaultListSections = try await iterator.next()
+
+        let expectedResult: [VaultListSection] = [
+            .init(
+                id: "Favorites",
+                items: [.fixture(cipherView: .init(cipher: ciphers[2]))],
+                name: Localizations.favorites
+            ),
+            .init(
+                id: "Types",
+                items: [
+                    .fixtureGroup(id: "Types.Logins", group: .login, count: 3),
+                    .fixtureGroup(id: "Types.Cards", group: .card, count: 0),
+                    .fixtureGroup(id: "Types.Identities", group: .identity, count: 0),
+                    .fixtureGroup(id: "Types.SecureNotes", group: .secureNote, count: 0),
+                ],
+                name: Localizations.types
+            ),
+            .init(
+                id: "Folders",
+                items: [.fixtureGroup(id: "1", group: .folder(id: "1", name: ""), count: 1)],
+                name: Localizations.folders
+            ),
+            .init(
+                id: "NoFolder",
+                items: [
+                    .fixture(cipherView: .init(cipher: ciphers[1])),
+                    .fixture(cipherView: .init(cipher: ciphers[2])),
+                ],
+                name: Localizations.folderNone
+            ),
+            .init(
+                id: "Collections",
+                items: [
+                    .fixtureGroup(
+                        id: "1",
+                        group: .collection(id: "1", name: "", organizationId: ""),
+                        count: 1
+                    ),
+                ],
+                name: Localizations.collections
+            ),
+            .init(
+                id: "Trash",
+                items: [.fixtureGroup(id: "Trash", group: .trash, count: 1)],
+                name: Localizations.trash
+            ),
+        ]
+
+        XCTAssertEqual(vaultListSections, expectedResult)
+    }
+
     /// `vaultListPublisher(filter:)` records an error if the folder ids is nil.
     func test_vaultListPublisher_section_collectionError() async throws {
+        stateService.activeAccount = .fixture()
         let collection = Collection.fixture(id: nil)
         let folder = Folder.fixture(id: "1")
         cipherService.ciphersSubject.send([.fixture()])
@@ -1437,6 +1523,7 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
 
     /// `vaultListPublisher(filter:)` records an error if the folder ids is nil.
     func test_vaultListPublisher_section_folderError() async throws {
+        stateService.activeAccount = .fixture()
         let collection = Collection.fixture(id: "1")
         let folder = Folder.fixture(id: nil)
         cipherService.ciphersSubject.send([.fixture()])
@@ -1455,6 +1542,7 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
     /// `vaultListPublisher()` returns a publisher for the list of sections and items that are
     /// displayed in the vault for a vault that contains collections with the my vault filter.
     func test_vaultListPublisher_withCollections_myVault() async throws {
+        stateService.activeAccount = .fixture()
         let syncResponse = try JSONDecoder.defaultDecoder.decode(
             SyncResponseModel.self,
             from: APITestData.syncWithCiphersCollections.data
@@ -1488,6 +1576,7 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
     /// `vaultListPublisher()` returns a publisher for the list of sections and items that are
     /// displayed in the vault for a vault that contains collections with the organization filter.
     func test_vaultListPublisher_withCollections_organization() async throws {
+        stateService.activeAccount = .fixture()
         let syncResponse = try JSONDecoder.defaultDecoder.decode(
             SyncResponseModel.self,
             from: APITestData.syncWithCiphersCollections.data
