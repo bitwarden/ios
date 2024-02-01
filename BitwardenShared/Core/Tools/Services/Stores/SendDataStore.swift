@@ -21,6 +21,14 @@ protocol SendDataStore: AnyObject {
     ///
     func deleteSend(id: String, userId: String) async throws
 
+    /// Fetches a `Send` by id for a user.
+    ///
+    /// - Parameters:
+    ///   - id: The id of the `Send` to fetch.
+    ///   - userId: The id of the user associated with the send to retrieve.
+    ///
+    func fetchSend(id: String, userId: String) async throws -> Send?
+
     /// A publisher for a user's send objects.
     ///
     /// - Parameter userId: The user ID of the user to associated with the objects to fetch.
@@ -57,6 +65,12 @@ extension DataStore: SendDataStore {
                 self.backgroundContext.delete(result)
             }
         }
+    }
+
+    func fetchSend(id: String, userId: String) async throws -> Send? {
+        try backgroundContext.fetch(SendData.fetchByIdRequest(id: id, userId: userId))
+            .map(Send.init)
+            .first
     }
 
     func sendPublisher(userId: String) -> AnyPublisher<[Send], Error> {

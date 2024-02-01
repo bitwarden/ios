@@ -68,6 +68,16 @@ class FolderServiceTests: XCTestCase {
         XCTAssertEqual(folderDataStore.deleteFolderId, "123456789")
     }
 
+    /// `deleteFolderWithLocalStorage(id:)` deletes the folder in the data store.
+    func test_deleteFolderWithLocalStorage() async throws {
+        stateService.activeAccount = .fixture()
+
+        try await subject.deleteFolderWithLocalStorage(id: "id")
+
+        XCTAssertEqual(folderDataStore.deleteFolderUserId, "1")
+        XCTAssertEqual(folderDataStore.deleteFolderId, "id")
+    }
+
     /// `editFolderWithServer(id:name:)` edits the existing folder in both the backend and the data store.
     func test_editFolderWithServer() async throws {
         stateService.activeAccount = .fixtureAccountLogin()
@@ -100,6 +110,17 @@ class FolderServiceTests: XCTestCase {
         XCTAssertEqual(fetchedFolders, folders)
     }
 
+    /// `fetchFolder(id:)` returns the folder.
+    func test_fetchFolder() async throws {
+        let folder = Folder.fixture(id: "1", name: "Folder 1")
+        folderDataStore.fetchFolderResult = .success(folder)
+        stateService.activeAccount = .fixture()
+
+        let fetchedFolder = try await subject.fetchFolder(id: "1")
+
+        XCTAssertEqual(fetchedFolder, folder)
+    }
+
     /// `replaceFolders(_:userId:)` replaces the persisted folders in the data store.
     func test_replaceFolders() async throws {
         let folders: [FolderResponseModel] = [
@@ -125,5 +146,16 @@ class FolderServiceTests: XCTestCase {
         let publisherValue = try await iterator.next()
         try XCTAssertNotNil(XCTUnwrap(publisherValue))
         try XCTAssertEqual(XCTUnwrap(publisherValue), [folder])
+    }
+
+    /// `syncFolderWithServer()` retrieves the folder from the backend and updates the data store.
+    func test_syncFolderWithServer() async throws {
+        stateService.activeAccount = .fixture()
+        client.result = .httpSuccess(testData: .folderResponse)
+
+        try await subject.syncFolderWithServer(withId: "123456789")
+
+        XCTAssertEqual(folderDataStore.upsertFolderValue?.id, "123456789")
+        XCTAssertEqual(folderDataStore.upsertFolderUserId, "1")
     }
 }

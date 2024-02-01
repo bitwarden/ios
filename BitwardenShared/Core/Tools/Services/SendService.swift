@@ -27,11 +27,32 @@ protocol SendService {
     ///
     func deleteSend(_ send: Send) async throws
 
+    /// Deletes the send in local storage.
+    ///
+    /// - Parameter id: The id of the send to be deleted.
+    ///
+    func deleteSendWithLocalStorage(id: String) async throws
+
+    /// Retrieves a Send from local storage, if one can be found.
+    ///
+    /// - Parameter id: The id of the send to retrieve.
+    ///
+    func fetchSend(id: String) async throws -> Send?
+
     /// Removes the password from the provided send.
     ///
     /// - Parameter send: The send to remove the password from.
     ///
     func removePasswordFromSend(_ send: Send) async throws -> Send
+
+    /// Attempts to synchronize a send with the server.
+    ///
+    /// This method fetches the updated send value from the server and updates the value in the
+    /// local storage.
+    ///
+    /// - Parameter id: The id of the send to fetch.
+    ///
+    func syncSendWithServer(id: String) async throws
 
     /// Updates an existing Send for the current user in both the backend and in local storage.
     ///
@@ -141,6 +162,16 @@ extension DefaultSendService {
         try await sendDataStore.deleteSend(id: id, userId: userId)
     }
 
+    func deleteSendWithLocalStorage(id: String) async throws {
+        let userId = try await stateService.getActiveAccountId()
+        try await sendDataStore.deleteSend(id: id, userId: userId)
+    }
+
+    func fetchSend(id: String) async throws -> Send? {
+        let userId = try await stateService.getActiveAccountId()
+        return try await sendDataStore.fetchSend(id: id, userId: userId)
+    }
+
     func removePasswordFromSend(_ send: Send) async throws -> Send {
         guard let id = send.id else {
             throw BitwardenError.dataError("Send missing id.")
@@ -152,6 +183,14 @@ extension DefaultSendService {
         let newSend = Send(sendResponseModel: response)
         try await sendDataStore.upsertSend(newSend, userId: userId)
         return newSend
+    }
+
+    func syncSendWithServer(id: String) async throws {
+        let userId = try await stateService.getActiveAccountId()
+
+        let response = try await sendAPIService.getSend(with: id)
+        let send = Send(sendResponseModel: response)
+        try await sendDataStore.upsertSend(send, userId: userId)
     }
 
     func updateSend(_ send: Send) async throws -> Send {

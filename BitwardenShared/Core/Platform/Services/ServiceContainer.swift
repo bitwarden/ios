@@ -297,6 +297,7 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
         let syncService = DefaultSyncService(
             accountAPIService: apiService,
             cipherService: cipherService,
+            clientVault: clientService.clientVault(),
             collectionService: collectionService,
             folderService: folderService,
             organizationService: organizationService,

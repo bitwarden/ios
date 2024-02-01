@@ -29,6 +29,12 @@ protocol CipherService {
     ///
     func deleteCipherWithServer(id: String) async throws
 
+    /// Deletes a cipher for the current user in local storage.
+    ///
+    /// - Parameter id: The id of cipher item to be deleted.
+    ///
+    func deleteCipherWithLocalStorage(id: String) async throws
+
     /// Download the data of an attachment.
     ///
     /// - Parameters:
@@ -45,6 +51,21 @@ protocol CipherService {
     /// - Returns: The cipher if it was found and `nil` if not.
     ///
     func fetchCipher(withId id: String) async throws -> Cipher?
+
+    /// Fetches all the ciphers for the current user.
+    ///
+    /// - Returns: The ciphers belonging to the current user.
+    ///
+    func fetchAllCiphers() async throws -> [Cipher]
+
+    /// Attempts to synchronize a cipher with the server.
+    ///
+    /// This method fetches the updated cipher value from the server and updates the value in the
+    /// local storage.
+    ///
+    /// - Parameter id: The id of the cipher to fetch.
+    ///
+    func syncCipherWithServer(withId id: String) async throws
 
     /// Replaces the persisted list of ciphers for the current user.
     ///
@@ -95,6 +116,12 @@ protocol CipherService {
     /// - Parameter cipher: The cipher to update.
     ///
     func updateCipherWithServer(_ cipher: Cipher) async throws
+
+    /// Updates the cipher for the current user in local storage only.
+    ///
+    /// - Parameter cipher: The cipher to update.
+    ///
+    func updateCipherWithLocalStorage(_ cipher: Cipher) async throws
 
     // MARK: Publishers
 
@@ -195,6 +222,11 @@ extension DefaultCipherService {
         try await cipherDataStore.deleteCipher(id: id, userId: userId)
     }
 
+    func deleteCipherWithLocalStorage(id: String) async throws {
+        let userId = try await stateService.getActiveAccountId()
+        try await cipherDataStore.deleteCipher(id: id, userId: userId)
+    }
+
     func downloadAttachment(withId id: String, cipherId: String) async throws -> URL? {
         // Get the url that contains the downloadable data for the attachment.
         let response = try await cipherAPIService.downloadAttachment(withId: id, cipherId: cipherId)
@@ -206,6 +238,18 @@ extension DefaultCipherService {
     func fetchCipher(withId id: String) async throws -> Cipher? {
         let userId = try await stateService.getActiveAccountId()
         return try await cipherDataStore.fetchCipher(withId: id, userId: userId)
+    }
+
+    func fetchAllCiphers() async throws -> [Cipher] {
+        let userId = try await stateService.getActiveAccountId()
+        return try await cipherDataStore.fetchAllCiphers(userId: userId)
+    }
+
+    func syncCipherWithServer(withId id: String) async throws {
+        let userId = try await stateService.getActiveAccountId()
+        let response = try await cipherAPIService.getCipher(withId: id)
+        let cipher = Cipher(responseModel: response)
+        try await cipherDataStore.upsertCipher(cipher, userId: userId)
     }
 
     func replaceCiphers(_ ciphers: [CipherDetailsResponseModel], userId: String) async throws {
@@ -295,6 +339,11 @@ extension DefaultCipherService {
 
         // Update the cipher in local storage.
         try await cipherDataStore.upsertCipher(Cipher(responseModel: response), userId: userId)
+    }
+
+    func updateCipherWithLocalStorage(_ cipher: Cipher) async throws {
+        let userId = try await stateService.getActiveAccountId()
+        try await cipherDataStore.upsertCipher(cipher, userId: userId)
     }
 
     // MARK: Publishers

@@ -11,6 +11,10 @@ class MockFolderDataStore: FolderDataStore {
 
     var fetchAllFoldersResult: Result<[Folder], Error> = .success([])
 
+    var fetchFolderId: String?
+    var fetchFolderUserId: String?
+    var fetchFolderResult: Result<Folder?, Error> = .success(nil)
+
     var folderSubject = CurrentValueSubject<[Folder], Error>([])
 
     var replaceFoldersValue: [Folder]?
@@ -30,6 +34,12 @@ class MockFolderDataStore: FolderDataStore {
 
     func fetchAllFolders(userId: String) async throws -> [Folder] {
         try fetchAllFoldersResult.get()
+    }
+
+    func fetchFolder(id: String, userId: String) async throws -> BitwardenSdk.Folder? {
+        fetchFolderId = id
+        fetchFolderUserId = userId
+        return try fetchFolderResult.get()
     }
 
     func folderPublisher(userId: String) -> AnyPublisher<[Folder], Error> {

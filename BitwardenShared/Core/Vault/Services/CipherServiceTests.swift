@@ -108,6 +108,15 @@ class CipherServiceTests: XCTestCase {
         XCTAssertEqual(cipherDataStore.deleteCipherUserId, "13512467-9cfe-43b0-969f-07534084764b")
     }
 
+    /// `deleteCipherWithLocalStorage()` deletes the cipher from the data store.
+    func test_deleteCipherWithLocalStorage() async throws {
+        stateService.activeAccount = .fixture()
+        try await subject.deleteCipherWithLocalStorage(id: "id")
+
+        XCTAssertEqual(cipherDataStore.deleteCipherId, "id")
+        XCTAssertEqual(cipherDataStore.deleteCipherUserId, "1")
+    }
+
     /// `downloadAttachment(withId:cipherId:)` downloads the attachment and returns the associated data.
     func test_downloadAttachment() async throws {
         client.result = .httpSuccess(testData: .downloadAttachment)
@@ -132,6 +141,19 @@ class CipherServiceTests: XCTestCase {
         cipher = try await subject.fetchCipher(withId: "2")
         XCTAssertEqual(cipher, testCipher)
         XCTAssertEqual(cipherDataStore.fetchCipherId, "2")
+    }
+
+    func test_fetchAllCiphers() async throws {
+        stateService.activeAccount = .fixture()
+        cipherDataStore.fetchAllCiphersResult = .success([
+            .fixture(id: "1"),
+            .fixture(id: "2"),
+        ])
+
+        let ciphers = try await subject.fetchAllCiphers()
+        XCTAssertEqual(ciphers.count, 2)
+        XCTAssertEqual(ciphers[0].id, "1")
+        XCTAssertEqual(ciphers[1].id, "2")
     }
 
     /// `replaceCiphers(_:userId:)` replaces the persisted ciphers in the data store.
@@ -207,6 +229,18 @@ class CipherServiceTests: XCTestCase {
         XCTAssertEqual(cipherDataStore.upsertCipherValue, cipherToDeleted)
     }
 
+    /// `syncCipherWithServer()` retrieves the cipher from the backend and updates it in the data
+    /// store.
+    func test_syncCipherWithServer() async throws {
+        stateService.activeAccount = .fixture()
+        client.result = .httpSuccess(testData: .cipherResponse)
+
+        try await subject.syncCipherWithServer(withId: "3792af7a-4441-11ee-be56-0242ac120002")
+
+        XCTAssertEqual(cipherDataStore.upsertCipherValue?.id, "3792af7a-4441-11ee-be56-0242ac120002")
+        XCTAssertEqual(cipherDataStore.upsertCipherUserId, "1")
+    }
+
     /// `updateCipherCollectionsWithServer(_:)` updates the cipher's collections and updates the data store.
     func test_updateCipherCollections() async throws {
         client.result = .success(.success())
@@ -242,5 +276,14 @@ class CipherServiceTests: XCTestCase {
         XCTAssertEqual(client.requests[0].url.absoluteString, "https://example.com/api/ciphers/123")
         XCTAssertEqual(cipherDataStore.upsertCipherValue?.collectionIds, ["1", "2"])
         XCTAssertEqual(cipherDataStore.upsertCipherValue?.id, "3792af7a-4441-11ee-be56-0242ac120002")
+    }
+
+    /// `updateCipherWithLocalStorage(_:)` updates the cipher in the local storage.
+    func test_updateCipherWithLocalStorage() async throws {
+        stateService.activeAccount = .fixtureAccountLogin()
+
+        try await subject.updateCipherWithLocalStorage(.fixture(id: "id"))
+
+        XCTAssertEqual(cipherDataStore.upsertCipherValue?.id, "id")
     }
 }

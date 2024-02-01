@@ -276,6 +276,29 @@ class SendServiceTests: BitwardenTestCase {
         XCTAssertNil(sendDataStore.deleteSendUserId)
     }
 
+    /// `deleteSendWithLocalStorage` deletes the send from the data store.
+    func test_deleteSendWithLocalStorage() async throws {
+        stateService.activeAccount = .fixture()
+
+        try await subject.deleteSendWithLocalStorage(id: "id")
+
+        XCTAssertEqual(sendDataStore.deleteSendId, "id")
+        XCTAssertEqual(sendDataStore.deleteSendUserId, "1")
+    }
+
+    /// `fetchSend()` fetches the send.
+    func test_fetchSend() async throws {
+        let send = Send.fixture(id: "id")
+        stateService.activeAccount = .fixture()
+        sendDataStore.fetchSendResult = .success(send)
+
+        let fetchedSend = try await subject.fetchSend(id: "id")
+
+        XCTAssertEqual(fetchedSend, send)
+        XCTAssertEqual(sendDataStore.fetchSendId, "id")
+        XCTAssertEqual(sendDataStore.fetchSendUserId, "1")
+    }
+
     /// `removePasswordFromSend()` performs the remove password request and updates the value in the
     /// data store.
     func test_removePasswordFromSend_success() async throws {
@@ -333,6 +356,17 @@ class SendServiceTests: BitwardenTestCase {
         let publisherValue = try await iterator.next()
 
         try XCTAssertEqual(XCTUnwrap(publisherValue), [.fixture()])
+    }
+
+    /// `syncFolderWithServer()` retrieves the folder from the backend and updates the data store.
+    func test_syncSendWithServer() async throws {
+        stateService.activeAccount = .fixture()
+        client.result = .httpSuccess(testData: .sendResponse)
+
+        try await subject.syncSendWithServer(id: "fc483c22-443c-11ee-be56-0242ac120002")
+
+        XCTAssertEqual(sendDataStore.upsertSendValue?.id, "fc483c22-443c-11ee-be56-0242ac120002")
+        XCTAssertEqual(sendDataStore.upsertSendUserId, "1")
     }
 
     /// `updateSend()` with a successful response uses the api service to send an update send

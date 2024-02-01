@@ -18,6 +18,12 @@ protocol FolderService {
     ///
     func deleteFolderWithServer(id: String) async throws
 
+    /// Delete a folder for the current user, in local storage.
+    ///
+    /// - Parameter id: The id of the folder to delete.
+    ///
+    func deleteFolderWithLocalStorage(id: String) async throws
+
     /// Edit a folder for the current user, both in the backend and in local storage.
     ///
     /// - Parameters:
@@ -32,6 +38,13 @@ protocol FolderService {
     ///
     func fetchAllFolders() async throws -> [Folder]
 
+    /// Fetches the folder with the provided `id`, if one exists in the local storage.
+    ///
+    /// - Parameter id: The id of the folder to fetch.
+    /// - Returns: The `Folder` if one can be found, or `nil`.
+    ///
+    func fetchFolder(id: String) async throws -> Folder?
+
     /// Replaces the persisted list of folders for the user.
     ///
     /// - Parameters:
@@ -39,6 +52,15 @@ protocol FolderService {
     ///   - userId: The user ID associated with the folders.
     ///
     func replaceFolders(_ folders: [FolderResponseModel], userId: String) async throws
+
+    /// Attempts to synchronize a folder with the server.
+    ///
+    /// This method fetches the updated folder value from the server and updates the value in the
+    /// local storage.
+    ///
+    /// - Parameter id: The id of the folder to fetch.
+    ///
+    func syncFolderWithServer(withId id: String) async throws
 
     // MARK: Publishers
 
@@ -104,6 +126,11 @@ extension DefaultFolderService {
         try await folderDataStore.deleteFolder(id: id, userId: userID)
     }
 
+    func deleteFolderWithLocalStorage(id: String) async throws {
+        let userID = try await stateService.getActiveAccountId()
+        try await folderDataStore.deleteFolder(id: id, userId: userID)
+    }
+
     func editFolderWithServer(id: String, name: String) async throws {
         let userID = try await stateService.getActiveAccountId()
 
@@ -119,9 +146,23 @@ extension DefaultFolderService {
         return try await folderDataStore.fetchAllFolders(userId: userId)
     }
 
+    func fetchFolder(id: String) async throws -> Folder? {
+        let userId = try await stateService.getActiveAccountId()
+        return try await folderDataStore.fetchFolder(id: id, userId: userId)
+    }
+
     func replaceFolders(_ folders: [FolderResponseModel], userId: String) async throws {
         try await folderDataStore.replaceFolders(folders.map(Folder.init), userId: userId)
     }
+
+    func syncFolderWithServer(withId id: String) async throws {
+        let userId = try await stateService.getActiveAccountId()
+        let response = try await folderAPIService.getFolder(withId: id)
+        let folder = Folder(folderResponseModel: response)
+        try await folderDataStore.upsertFolder(folder, userId: userId)
+    }
+
+    // MARK: Publishers
 
     func foldersPublisher() async throws -> AnyPublisher<[Folder], Error> {
         let userID = try await stateService.getActiveAccountId()

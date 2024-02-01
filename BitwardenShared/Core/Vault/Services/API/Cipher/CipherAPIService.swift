@@ -66,9 +66,16 @@ protocol CipherAPIService {
     ///
     func downloadAttachmentData(from url: URL) async throws -> URL?
 
+    /// Performs an API request to retrieve the details of a cipher.
+    ///
+    /// - Parameter id: The id of the cipher to be retrieved.
+    /// - Returns: The details of the cipher.
+    ///
+    func getCipher(withId id: String) async throws -> CipherDetailsResponseModel
+
     /// Performs an API request to restore a cipher in the user's trash.
     ///
-    /// - Parameter id: The cipher id that to be restored.
+    /// - Parameter id: The id of the cipher to be restored.
     /// - Returns: The `EmptyResponse`.
     ///
     func restoreCipher(withID id: String) async throws -> EmptyResponse
@@ -141,6 +148,10 @@ extension APIService: CipherAPIService {
 
     func downloadAttachmentData(from url: URL) async throws -> URL? {
         try await apiUnauthenticatedService.download(from: URLRequest(url: url))
+    }
+
+    func getCipher(withId id: String) async throws -> CipherDetailsResponseModel {
+        try await apiService.send(GetCipherRequest(cipherId: id))
     }
 
     func restoreCipher(withID id: String) async throws -> EmptyResponse {
