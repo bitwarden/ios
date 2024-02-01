@@ -6,15 +6,20 @@ enum MockCoordinatorError: Error {
     case alertRouteNotFound
 }
 
-class MockCoordinator<Route>: Coordinator {
+class MockCoordinator<Route, Event>: Coordinator {
     var alertShown = [Alert]()
     var contexts: [AnyObject?] = []
+    var events = [Event]()
     var isLoadingOverlayShowing = false
     var isStarted: Bool = false
     var loadingOverlaysShown = [LoadingOverlayState]()
     var toastsShown = [String]()
     var routes: [Route] = []
-    var asyncRoutes: [Route] = []
+
+    func handleEvent(_ event: Event, context: AnyObject?) async {
+        events.append(event)
+        contexts.append(context)
+    }
 
     func hideLoadingOverlay() {
         isLoadingOverlayShowing = false
@@ -22,14 +27,6 @@ class MockCoordinator<Route>: Coordinator {
 
     func navigate(to route: Route, context: AnyObject?) {
         routes.append(route)
-        contexts.append(context)
-    }
-
-    func navigate(
-        asyncTo route: Route,
-        context: AnyObject?
-    ) async {
-        asyncRoutes.append(route)
         contexts.append(context)
     }
 
@@ -51,7 +48,7 @@ class MockCoordinator<Route>: Coordinator {
     }
 }
 
-extension MockCoordinator<AuthRoute> {
+extension MockCoordinator<AuthRoute, AuthEvent> {
     func unwrapLastRouteAsAlert(file: StaticString = #file, line: UInt = #line) throws -> Alert {
         guard case let .alert(alert) = routes.last else {
             XCTFail(
@@ -65,7 +62,7 @@ extension MockCoordinator<AuthRoute> {
     }
 }
 
-extension MockCoordinator<SettingsRoute> {
+extension MockCoordinator<SettingsRoute, SettingsEvent> {
     func unwrapLastRouteAsAlert(file: StaticString = #file, line: UInt = #line) throws -> Alert {
         guard case let .alert(alert) = routes.last else {
             XCTFail(
@@ -79,7 +76,7 @@ extension MockCoordinator<SettingsRoute> {
     }
 }
 
-extension MockCoordinator<VaultRoute> {
+extension MockCoordinator<VaultRoute, AuthAction> {
     func unwrapLastRouteAsAlert(file: StaticString = #file, line: UInt = #line) throws -> Alert {
         guard case let .alert(alert) = routes.last else {
             XCTFail(
@@ -93,7 +90,7 @@ extension MockCoordinator<VaultRoute> {
     }
 }
 
-extension MockCoordinator<VaultItemRoute> {
+extension MockCoordinator<VaultItemRoute, VaultItemEvent> {
     func unwrapLastRouteAsAlert(file: StaticString = #file, line: UInt = #line) throws -> Alert {
         guard case let .alert(alert) = routes.last else {
             XCTFail(

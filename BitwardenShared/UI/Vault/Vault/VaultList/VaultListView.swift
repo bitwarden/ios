@@ -365,6 +365,8 @@ struct VaultListView_Previews: PreviewProvider {
     static let account1 = ProfileSwitcherItem(
         color: .purple,
         email: "Anne.Account@bitwarden.com",
+        isUnlocked: true,
+        userId: "1",
         userInitials: "AA"
     )
 
@@ -372,6 +374,7 @@ struct VaultListView_Previews: PreviewProvider {
         color: .green,
         email: "bonus.bridge@bitwarden.com",
         isUnlocked: true,
+        userId: "2",
         userInitials: "BB"
     )
 

@@ -11,12 +11,11 @@ final class DeleteAccountProcessor: StateProcessor<DeleteAccountState, DeleteAcc
         & HasAuthRepository
         & HasClientAuth
         & HasStateService
-        & HasVaultTimeoutService
 
     // MARK: Properties
 
     /// The coordinator that handles navigation.
-    private let coordinator: AnyCoordinator<SettingsRoute>
+    private let coordinator: AnyCoordinator<SettingsRoute, SettingsEvent>
 
     /// The services used by this processor.
     private var services: Services
@@ -31,7 +30,7 @@ final class DeleteAccountProcessor: StateProcessor<DeleteAccountState, DeleteAcc
     ///   - state: The initial state of the processor.
     ///
     init(
-        coordinator: AnyCoordinator<SettingsRoute>,
+        coordinator: AnyCoordinator<SettingsRoute, SettingsEvent>,
         services: Services,
         state: DeleteAccountState
     ) {
@@ -71,7 +70,7 @@ final class DeleteAccountProcessor: StateProcessor<DeleteAccountState, DeleteAcc
 
         do {
             try await services.authRepository.deleteAccount(passwordText: passwordText)
-            try await navigatePostDeletion()
+            navigatePostDeletion()
         } catch {
             coordinator.navigate(to: .alert(.networkResponseError(error) {
                 await self.deleteAccount(passwordText: passwordText)
@@ -83,9 +82,10 @@ final class DeleteAccountProcessor: StateProcessor<DeleteAccountState, DeleteAcc
     /// If the user has another account, they're navigated to the vault unlock screen.
     /// If the user does not, they're navigated to the landing screen.
     ///
-    private func navigatePostDeletion() async throws {
-        let userAccounts = try await services.stateService.getAccounts()
-        coordinator.navigate(to: .didDeleteAccount(otherAccounts: userAccounts))
+    private func navigatePostDeletion() {
+        Task {
+            await coordinator.handleEvent(.didDeleteAccount)
+        }
     }
 
     /// Shows the master password prompt when the user is attempting to delete their account.

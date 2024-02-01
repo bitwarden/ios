@@ -7,8 +7,8 @@ class AccountSecurityProcessorTests: BitwardenTestCase { // swiftlint:disable:th
 
     var appSettingsStore: MockAppSettingsStore!
     var authRepository: MockAuthRepository!
-    var biometricsService: MockBiometricsService!
-    var coordinator: MockCoordinator<SettingsRoute>!
+    var biometricsRepository: MockBiometricsRepository!
+    var coordinator: MockCoordinator<SettingsRoute, SettingsEvent>!
     var errorReporter: MockErrorReporter!
     var settingsRepository: MockSettingsRepository!
     var stateService: MockStateService!
@@ -22,8 +22,8 @@ class AccountSecurityProcessorTests: BitwardenTestCase { // swiftlint:disable:th
 
         appSettingsStore = MockAppSettingsStore()
         authRepository = MockAuthRepository()
-        biometricsService = MockBiometricsService()
-        coordinator = MockCoordinator<SettingsRoute>()
+        biometricsRepository = MockBiometricsRepository()
+        coordinator = MockCoordinator<SettingsRoute, SettingsEvent>()
         errorReporter = MockErrorReporter()
         settingsRepository = MockSettingsRepository()
         stateService = MockStateService()
@@ -33,7 +33,7 @@ class AccountSecurityProcessorTests: BitwardenTestCase { // swiftlint:disable:th
             coordinator: coordinator.asAnyCoordinator(),
             services: ServiceContainer.withMocks(
                 authRepository: authRepository,
-                biometricsService: biometricsService,
+                biometricsRepository: biometricsRepository,
                 errorReporter: errorReporter,
                 settingsRepository: settingsRepository,
                 stateService: stateService,
@@ -48,7 +48,7 @@ class AccountSecurityProcessorTests: BitwardenTestCase { // swiftlint:disable:th
 
         appSettingsStore = nil
         authRepository = nil
-        biometricsService = nil
+        biometricsRepository = nil
         coordinator = nil
         errorReporter = nil
         settingsRepository = nil
@@ -93,18 +93,10 @@ class AccountSecurityProcessorTests: BitwardenTestCase { // swiftlint:disable:th
         let account: Account = .fixture()
         stateService.activeAccount = account
 
-        await subject.perform(.lockVault(userInitiated: true))
+        await subject.perform(.lockVault)
 
-        XCTAssertEqual(authRepository.lockVaultUserId, account.profile.userId)
-        XCTAssertEqual(coordinator.routes.last, .lockVault(account: account, userInitiated: true))
-    }
-
-    /// `perform(_:)` with `.lockVault` fails, locks the vault and navigates to the landing screen.
-    func test_perform_lockVault_failure() async {
-        await subject.perform(.lockVault(userInitiated: true))
-
-        XCTAssertEqual(errorReporter.errors as? [StateServiceError], [StateServiceError.noActiveAccount])
-        XCTAssertEqual(coordinator.routes.last, .logout(userInitiated: true))
+        XCTAssertEqual(authRepository.lockVaultUserId, nil)
+        XCTAssertEqual(coordinator.events.last, .authAction(.lockVault(userId: nil)))
     }
 
     /// `perform(_:)` with `.accountFingerprintPhrasePressed` navigates to the web app
@@ -184,29 +176,7 @@ class AccountSecurityProcessorTests: BitwardenTestCase { // swiftlint:disable:th
         // Tapping yes logs the user out.
         try await alert.tapAction(title: Localizations.yes)
 
-        XCTAssertEqual(coordinator.routes.last, .logout(userInitiated: true))
-    }
-
-    /// `receive(_:)` with `.logout` presents a logout confirmation alert.
-    func test_receive_logout_error() async throws {
-        authRepository.logoutResult = .failure(StateServiceError.noActiveAccount)
-        subject.receive(.logout)
-
-        let alert = try coordinator.unwrapLastRouteAsAlert()
-        XCTAssertEqual(alert.title, Localizations.logOut)
-        XCTAssertEqual(alert.message, Localizations.logoutConfirmation)
-        XCTAssertEqual(alert.preferredStyle, .alert)
-        XCTAssertEqual(alert.alertActions.count, 2)
-        XCTAssertEqual(alert.alertActions[0].title, Localizations.yes)
-        XCTAssertEqual(alert.alertActions[1].title, Localizations.cancel)
-
-        // Tapping yes relays any errors to the error reporter.
-        try await alert.tapAction(title: Localizations.yes)
-
-        XCTAssertEqual(
-            errorReporter.errors as? [StateServiceError],
-            [StateServiceError.noActiveAccount]
-        )
+        XCTAssertEqual(coordinator.events.last, .authAction(.logout(userId: nil, userInitiated: true)))
     }
 
     /// `.receive(_:)` with `.pendingLoginRequestsTapped` navigates to the pending requests view.
@@ -389,7 +359,7 @@ class AccountSecurityProcessorTests: BitwardenTestCase { // swiftlint:disable:th
     /// `perform(_:)` with `.loadData` updates the state.
     func test_perform_loadData_biometricsValue() async {
         let biometricUnlockStatus = BiometricsUnlockStatus.available(.faceID, enabled: true, hasValidIntegrity: true)
-        biometricsService.biometricUnlockStatus = .success(
+        biometricsRepository.biometricUnlockStatus = .success(
             biometricUnlockStatus
         )
         subject.state.biometricUnlockStatus = .notAvailable
@@ -401,7 +371,7 @@ class AccountSecurityProcessorTests: BitwardenTestCase { // swiftlint:disable:th
     /// `perform(_:)` with `.loadData` updates the state.
     func test_perform_loadData_biometricsValue_error() async {
         struct TestError: Error {}
-        biometricsService.biometricUnlockStatus = .failure(TestError())
+        biometricsRepository.biometricUnlockStatus = .failure(TestError())
         subject.state.biometricUnlockStatus = .notAvailable
         await subject.perform(.loadData)
 
@@ -412,7 +382,7 @@ class AccountSecurityProcessorTests: BitwardenTestCase { // swiftlint:disable:th
     func test_perform_toggleUnlockWithBiometrics_authRepositoryFailure() async throws {
         struct TestError: Error, Equatable {}
         let biometricUnlockStatus = BiometricsUnlockStatus.available(.faceID, enabled: true, hasValidIntegrity: true)
-        biometricsService.biometricUnlockStatus = .success(
+        biometricsRepository.biometricUnlockStatus = .success(
             .available(.touchID, enabled: false, hasValidIntegrity: false)
         )
 
@@ -426,10 +396,10 @@ class AccountSecurityProcessorTests: BitwardenTestCase { // swiftlint:disable:th
     }
 
     /// `perform(_:)` with `.toggleUnlockWithBiometrics` updates the state.
-    func test_perform_toggleUnlockWithBiometrics_biometricsServiceFailure() async throws {
+    func test_perform_toggleUnlockWithBiometrics_biometricsRepositoryFailure() async throws {
         struct TestError: Error, Equatable {}
         let biometricUnlockStatus = BiometricsUnlockStatus.available(.faceID, enabled: true, hasValidIntegrity: true)
-        biometricsService.biometricUnlockStatus = .failure(TestError())
+        biometricsRepository.biometricUnlockStatus = .failure(TestError())
 
         authRepository.allowBiometricUnlockResult = .success(())
         subject.state.biometricUnlockStatus = biometricUnlockStatus
@@ -443,20 +413,20 @@ class AccountSecurityProcessorTests: BitwardenTestCase { // swiftlint:disable:th
     /// `perform(_:)` with `.toggleUnlockWithBiometrics` configures biometric integrity state if needed.
     func test_perform_toggleUnlockWithBiometrics_invalidBiometryState() async {
         let biometricUnlockStatus = BiometricsUnlockStatus.available(.faceID, enabled: true, hasValidIntegrity: false)
-        biometricsService.biometricUnlockStatus = .success(
+        biometricsRepository.biometricUnlockStatus = .success(
             biometricUnlockStatus
         )
         authRepository.allowBiometricUnlockResult = .success(())
         subject.state.biometricUnlockStatus = .available(.faceID, enabled: false, hasValidIntegrity: false)
         await subject.perform(.toggleUnlockWithBiometrics(false))
 
-        XCTAssertTrue(biometricsService.didConfigureBiometricIntegrity)
+        XCTAssertTrue(biometricsRepository.didConfigureBiometricIntegrity)
     }
 
     /// `perform(_:)` with `.toggleUnlockWithBiometrics` updates the state.
     func test_perform_toggleUnlockWithBiometrics_success() async {
         let biometricUnlockStatus = BiometricsUnlockStatus.available(.faceID, enabled: false, hasValidIntegrity: true)
-        biometricsService.biometricUnlockStatus = .success(
+        biometricsRepository.biometricUnlockStatus = .success(
             biometricUnlockStatus
         )
         authRepository.allowBiometricUnlockResult = .success(())

@@ -11,7 +11,7 @@ final class FoldersProcessor: StateProcessor<FoldersState, FoldersAction, Folder
     // MARK: Properties
 
     /// The coordinator used to manage navigation.
-    private let coordinator: AnyCoordinator<SettingsRoute>
+    private let coordinator: AnyCoordinator<SettingsRoute, SettingsEvent>
 
     /// The services used by this processor.
     private let services: Services
@@ -26,7 +26,7 @@ final class FoldersProcessor: StateProcessor<FoldersState, FoldersAction, Folder
     ///   - state: The initial state of the processor.
     ///
     init(
-        coordinator: AnyCoordinator<SettingsRoute>,
+        coordinator: AnyCoordinator<SettingsRoute, SettingsEvent>,
         services: Services,
         state: FoldersState
     ) {

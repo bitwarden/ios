@@ -4,6 +4,7 @@ import Foundation
 @testable import BitwardenShared
 
 class MockAppSettingsStore: AppSettingsStore {
+    var addSitePromptShown = false
     var allowSyncOnRefreshes = [String: Bool]()
     var appId: String?
     var appLocale: String?

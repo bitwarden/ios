@@ -16,7 +16,7 @@ struct AddEditSendItemState: Equatable {
         case edit
 
         /// A mode for adding a new send using the share extension.
-        case shareExtension
+        case shareExtension(ProfileSwitcherState)
 
         /// The navigation title to use for this mode.
         var navigationTitle: String {

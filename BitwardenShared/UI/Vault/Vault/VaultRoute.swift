@@ -44,23 +44,11 @@ public enum VaultRoute: Equatable, Hashable {
     /// A route to the vault list screen.
     case list
 
-    /// A route to the login screen after the vault has been locked.
-    ///
-    /// - Parameter account: The user's account.
-    ///
-    case lockVault(account: Account)
-
     /// A route to show a login request.
     ///
     /// - Parameter loginRequest: The login request to display.
     ///
     case loginRequest(_ loginRequest: LoginRequest)
-
-    /// A route to log the user out.
-    ///
-    /// - Parameter userInitiated: Did a user action trigger the logout.
-    ///
-    case logout(userInitiated: Bool)
 
     /// A route to switch accounts.
     ///

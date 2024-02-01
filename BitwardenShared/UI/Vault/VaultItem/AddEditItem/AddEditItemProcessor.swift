@@ -30,6 +30,7 @@ final class AddEditItemProcessor: StateProcessor<// swiftlint:disable:this type_
         & HasCameraService
         & HasErrorReporter
         & HasPasteboardService
+        & HasStateService
         & HasTOTPService
         & HasVaultRepository
 
@@ -39,7 +40,7 @@ final class AddEditItemProcessor: StateProcessor<// swiftlint:disable:this type_
     private weak var appExtensionDelegate: AppExtensionDelegate?
 
     /// The `Coordinator` that handles navigation.
-    private var coordinator: AnyCoordinator<VaultItemRoute>
+    private var coordinator: AnyCoordinator<VaultItemRoute, VaultItemEvent>
 
     /// The delegate that is notified when delete cipher item have occurred.
     private weak var delegate: CipherItemOperationDelegate?
@@ -60,7 +61,7 @@ final class AddEditItemProcessor: StateProcessor<// swiftlint:disable:this type_
     ///
     init(
         appExtensionDelegate: AppExtensionDelegate?,
-        coordinator: AnyCoordinator<VaultItemRoute>,
+        coordinator: AnyCoordinator<VaultItemRoute, VaultItemEvent>,
         delegate: CipherItemOperationDelegate?,
         services: Services,
         state: AddEditItemState
@@ -77,6 +78,8 @@ final class AddEditItemProcessor: StateProcessor<// swiftlint:disable:this type_
 
     override func perform(_ effect: AddEditItemEffect) async {
         switch effect {
+        case .appeared:
+            await showPasswordAutofillAlertIfNeeded()
         case .checkPasswordPressed:
             await checkPassword()
         case .copyTotpPressed:
@@ -498,6 +501,20 @@ final class AddEditItemProcessor: StateProcessor<// swiftlint:disable:this type_
         }
     }
 
+    /// Shows the password autofill information alert if it hasn't been shown before and the user
+    /// is adding a new login in the app.
+    ///
+    private func showPasswordAutofillAlertIfNeeded() async {
+        guard await !services.stateService.getAddSitePromptShown(),
+              state.configuration == .add,
+              state.type == .login,
+              !(appExtensionDelegate?.isInAppExtension ?? false) else {
+            return
+        }
+        coordinator.showAlert(.passwordAutofillInformation())
+        await services.stateService.setAddSitePromptShown(true)
+    }
+
     /// Shows a soft delete cipher confirmation alert.
     ///
     private func showSoftDeleteConfirmation() async {
@@ -525,7 +542,7 @@ final class AddEditItemProcessor: StateProcessor<// swiftlint:disable:this type_
         }
         let status = await services.cameraService.checkStatusOrRequestCameraAuthorization()
         if status == .authorized {
-            await coordinator.navigate(asyncTo: .scanCode, context: self)
+            await coordinator.handleEvent(.showScanCode, context: self)
         } else {
             coordinator.navigate(to: .setupTotpManual, context: self)
         }
@@ -550,7 +567,7 @@ extension AddEditItemProcessor: GeneratorCoordinatorDelegate {
 
 extension AddEditItemProcessor: AuthenticatorKeyCaptureDelegate {
     func didCompleteCapture(
-        _ captureCoordinator: AnyCoordinator<AuthenticatorKeyCaptureRoute>,
+        _ captureCoordinator: AnyCoordinator<AuthenticatorKeyCaptureRoute, AuthenticatorKeyCaptureEvent>,
         with value: String
     ) {
         let dismissAction = DismissAction(action: { [weak self] in
@@ -577,15 +594,22 @@ extension AddEditItemProcessor: AuthenticatorKeyCaptureDelegate {
         coordinator.navigate(to: .alert(.totpScanFailureAlert()))
     }
 
-    func showCameraScan(_ captureCoordinator: AnyCoordinator<AuthenticatorKeyCaptureRoute>) {
+    func showCameraScan(
+        _ captureCoordinator: AnyCoordinator<AuthenticatorKeyCaptureRoute, AuthenticatorKeyCaptureEvent>
+    ) {
         guard services.cameraService.deviceSupportsCamera() else { return }
         let dismissAction = DismissAction(action: { [weak self] in
-            self?.coordinator.navigate(to: .scanCode, context: self)
+            guard let self else { return }
+            Task {
+                await self.coordinator.handleEvent(.showScanCode, context: self)
+            }
         })
         captureCoordinator.navigate(to: .dismiss(dismissAction))
     }
 
-    func showManualEntry(_ captureCoordinator: AnyCoordinator<AuthenticatorKeyCaptureRoute>) {
+    func showManualEntry(
+        _ captureCoordinator: AnyCoordinator<AuthenticatorKeyCaptureRoute, AuthenticatorKeyCaptureEvent>
+    ) {
         let dismissAction = DismissAction(action: { [weak self] in
             self?.coordinator.navigate(to: .setupTotpManual, context: self)
         })

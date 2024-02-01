@@ -184,8 +184,8 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
         XCTAssertEqual(activeAccount, account)
     }
 
-    /// `getActiveAccount()` throws an error if there aren't any accounts.
-    func test_getActiveAccount_noAccounts() async throws {
+    /// `getActiveAccount()` throws an error if there aren't isn't an active account.
+    func test_getActiveAccount_noAccount() async throws {
         await assertAsyncThrows(error: StateServiceError.noActiveAccount) {
             _ = try await subject.getActiveAccount()
         }
@@ -262,6 +262,16 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
 
         let accountId = try await subject.getAccountIdOrActiveId(userId: account.profile.userId)
         XCTAssertEqual(accountId, account.profile.userId)
+    }
+
+    /// `getAddSitePromptShown()` returns whether the autofill info prompt has been shown
+    func test_getAddSitePromptShown() async {
+        var hasShownPrompt = await subject.getAddSitePromptShown()
+        XCTAssertFalse(hasShownPrompt)
+
+        appSettingsStore.addSitePromptShown = true
+        hasShownPrompt = await subject.getAddSitePromptShown()
+        XCTAssertTrue(hasShownPrompt)
     }
 
     /// `allowSyncOnRefreshes()` returns the allow sync on refresh value for the active account.
@@ -944,6 +954,15 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
         try await subject.setActiveAccount(userId: "1")
         active = try await subject.getActiveAccount()
         XCTAssertEqual(active, account1)
+    }
+
+    /// `setAddSitePromptShown(_:)` sets whether the autofill info prompt has been shown.
+    func test_setAddSitePromptShown() async {
+        await subject.setAddSitePromptShown(true)
+        XCTAssertTrue(appSettingsStore.addSitePromptShown)
+
+        await subject.setAddSitePromptShown(false)
+        XCTAssertFalse(appSettingsStore.addSitePromptShown)
     }
 
     /// `setAllowSyncOnRefresh(_:userId:)` sets the allow sync on refresh value for a user.

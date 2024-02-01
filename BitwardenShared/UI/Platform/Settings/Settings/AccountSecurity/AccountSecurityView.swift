@@ -105,7 +105,7 @@ struct AccountSecurityView: View {
                     accessibilityIdentifier: "LockNowLabel"
                 ) {
                     Task {
-                        await store.perform(.lockVault(userInitiated: true))
+                        await store.perform(.lockVault)
                     }
                 }
 
