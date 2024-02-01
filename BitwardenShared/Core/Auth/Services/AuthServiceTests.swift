@@ -1,3 +1,4 @@
+import BitwardenSdk
 import XCTest
 
 @testable import BitwardenShared
@@ -16,6 +17,7 @@ class AuthServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body_
     var clientPlatform: MockClientPlatform!
     var environmentService: MockEnvironmentService!
     var stateService: MockStateService!
+    var policyService: MockPolicyService!
     var subject: DefaultAuthService!
     var systemDevice: MockSystemDevice!
 
@@ -32,6 +34,7 @@ class AuthServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body_
         clientGenerators = MockClientGenerators()
         clientPlatform = MockClientPlatform()
         environmentService = MockEnvironmentService()
+        policyService = MockPolicyService()
         stateService = MockStateService()
         systemDevice = MockSystemDevice()
 
@@ -43,6 +46,7 @@ class AuthServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body_
             clientGenerators: clientGenerators,
             clientPlatform: clientPlatform,
             environmentService: environmentService,
+            policyService: policyService,
             stateService: stateService,
             systemDevice: systemDevice
         )
@@ -192,7 +196,8 @@ class AuthServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body_
         let tokenRequest = IdentityTokenRequestModel(
             authenticationMethod: .password(
                 username: "email@example.com",
-                password: "hashed password"
+                password: "hashed password",
+                plainPassword: "plain password"
             ),
             captchaToken: nil,
             deviceInfo: DeviceInfo(
@@ -366,6 +371,62 @@ class AuthServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body_
         )
 
         XCTAssertEqual(account, .fixtureAccountLogin())
+    }
+
+    /// `requirePasswordChange(email:masterPassword:policy)` returns `false` if there
+    /// is no policy to check.
+    func test_requirePasswordChange_noPolicy() async throws {
+        policyService.getMasterPasswordPolicyOptionsResult = .success(nil)
+        let requirePasswordChange = try await subject.requirePasswordChange(
+            email: "email",
+            masterPassword: "master password",
+            policy: nil
+        )
+        XCTAssertFalse(requirePasswordChange)
+    }
+
+    /// `requirePasswordChange(email:masterPassword:policy)` returns `true` if the master password meet the
+    /// master password policy option.
+    func test_requirePasswordChange_withPolicy_strong() async throws {
+        clientAuth.satisfiesPolicyResult = true
+        policyService.getMasterPasswordPolicyOptionsResult = .success(nil)
+        let policy = MasterPasswordPolicyOptions(
+            minComplexity: 6,
+            minLength: 6,
+            requireUpper: false,
+            requireLower: false,
+            requireNumbers: true,
+            requireSpecial: true,
+            enforceOnLogin: true
+        )
+        let requirePasswordChange = try await subject.requirePasswordChange(
+            email: "email",
+            masterPassword: "strong 32 password & #",
+            policy: policy
+        )
+        XCTAssertFalse(requirePasswordChange)
+    }
+
+    /// `requirePasswordChange(email:masterPassword:policy)` returns `true` if the master password does not
+    /// meet master password policy option.
+    func test_requirePasswordChange_withPolicy_weak() async throws {
+        clientAuth.satisfiesPolicyResult = false
+        policyService.getMasterPasswordPolicyOptionsResult = .success(nil)
+        let policy = MasterPasswordPolicyOptions(
+            minComplexity: 6,
+            minLength: 6,
+            requireUpper: true,
+            requireLower: true,
+            requireNumbers: true,
+            requireSpecial: true,
+            enforceOnLogin: true
+        )
+        let requirePasswordChange = try await subject.requirePasswordChange(
+            email: "email",
+            masterPassword: "weak password",
+            policy: policy
+        )
+        XCTAssertTrue(requirePasswordChange)
     }
 
     /// `resendVerificationCodeEmail()` throws an error if there is no cached request model to use.

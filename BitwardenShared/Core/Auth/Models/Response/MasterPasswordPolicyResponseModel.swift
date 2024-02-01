@@ -7,10 +7,10 @@ struct MasterPasswordPolicyResponseModel: Codable, Equatable {
     let enforceOnLogin: Bool?
 
     /// The minimum required password complexity.
-    let minComplexity: Int?
+    let minComplexity: UInt8?
 
     /// The minimum required password length.
-    let minLength: Int?
+    let minLength: UInt8?
 
     /// Whether the password requires a lowercase character.
     let requireLower: Bool?

@@ -41,6 +41,7 @@ class MockAuthService: AuthService {
     var loginWithTwoFactorCodeCaptchaToken: String?
     var loginWithTwoFactorCodeResult: Result<Account, Error> = .success(.fixture())
     var publicKey: String = ""
+    var requirePasswordChangeResult: Result<Bool, Error> = .success(false)
     var resendVerificationCodeEmailResult: Result<Void, Error> = .success(())
 
     func answerLoginRequest(_ request: LoginRequest, approve: Bool) async throws {
@@ -100,6 +101,14 @@ class MockAuthService: AuthService {
         loginWithTwoFactorCodeRemember = remember
         loginWithTwoFactorCodeCaptchaToken = captchaToken
         return try loginWithTwoFactorCodeResult.get()
+    }
+
+    func requirePasswordChange(
+        email: String,
+        masterPassword: String,
+        policy: BitwardenSdk.MasterPasswordPolicyOptions?
+    ) async throws -> Bool {
+        try requirePasswordChangeResult.get()
     }
 
     func resendVerificationCodeEmail() async throws {

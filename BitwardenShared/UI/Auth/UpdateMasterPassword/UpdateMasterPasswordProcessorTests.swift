@@ -8,7 +8,7 @@ class UpdateMasterPasswordProcessorTests: BitwardenTestCase {
     // MARK: Properties
 
     var httpClient: MockHTTPClient!
-    var coordinator: MockCoordinator<VaultRoute>!
+    var coordinator: MockCoordinator<AuthRoute>!
     var subject: UpdateMasterPasswordProcessor!
 
     // MARK: Setup & Teardown

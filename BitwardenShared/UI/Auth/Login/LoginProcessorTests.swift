@@ -30,6 +30,10 @@ class LoginProcessorTests: BitwardenTestCase {
         coordinator = MockCoordinator()
         errorReporter = MockErrorReporter()
 
+        let account = Account.fixture()
+        authRepository.activeAccountResult = .success(.anneAccount)
+        authRepository.accountForItemResult = .success(account)
+
         subject = LoginProcessor(
             coordinator: coordinator.asAnyCoordinator(),
             services: ServiceContainer.withMocks(

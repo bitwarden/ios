@@ -225,8 +225,8 @@ extension DefaultPolicyService {
     func getMasterPasswordPolicyOptions() async throws -> MasterPasswordPolicyOptions? {
         guard let userId = try? await stateService.getActiveAccountId(),
               let policies = try? await policiesForUser(
-                userId: userId,
-                type: .masterPassword
+                  userId: userId,
+                  type: .masterPassword
               ).filter({ policy in
                   policy.enabled && policy.data != nil
               }),

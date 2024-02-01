@@ -141,10 +141,15 @@ class LoginProcessor: StateProcessor<LoginState, LoginAction, LoginEffect> {
 
             // Unlock the vault.
             try await services.authRepository.unlockVaultWithPassword(password: state.masterPassword)
-
+            let activeAccount = try await services.authRepository.getActiveAccount()
+            let account = try await services.authRepository.getAccount(for: activeAccount.userId)
             // Complete the login flow.
             coordinator.hideLoadingOverlay()
-            coordinator.navigate(to: .complete)
+            if account.profile.forcePasswordResetReason != nil {
+                coordinator.navigate(to: .updateMasterPassword)
+            } else {
+                coordinator.navigate(to: .complete)
+            }
         } catch let error as InputValidationError {
             coordinator.showAlert(.inputValidationAlert(error: error))
         } catch let error as IdentityTokenRequestError {

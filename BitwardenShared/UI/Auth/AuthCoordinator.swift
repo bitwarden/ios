@@ -33,6 +33,7 @@ final class AuthCoordinator: NSObject, Coordinator, HasStackNavigator { // swift
         & HasEnvironmentService
         & HasErrorReporter
         & HasPolicyService
+        & HasSettingsRepository
         & HasStateService
         & HasSystemDevice
         & HasVaultTimeoutService
@@ -114,6 +115,8 @@ final class AuthCoordinator: NSObject, Coordinator, HasStackNavigator { // swift
             )
         case .loginOptions:
             showLoginOptions()
+        case .updateMasterPassword:
+            showUpdateMasterPassword()
         case let .loginWithDevice(email):
             showLoginWithDevice(email: email)
         case let .masterPasswordHint(username):
@@ -324,6 +327,24 @@ final class AuthCoordinator: NSObject, Coordinator, HasStackNavigator { // swift
         let view = PasswordHintView(store: store)
         let viewController = UIHostingController(rootView: view)
         let navigationController = UINavigationController(rootViewController: viewController)
+        stackNavigator?.present(navigationController)
+    }
+
+    /// Shows the update master password view.
+    private func showUpdateMasterPassword() {
+        let processor = UpdateMasterPasswordProcessor(
+            coordinator: asAnyCoordinator(),
+            services: services,
+            state: .init()
+        )
+        let store = Store(processor: processor)
+        let view = UpdateMasterPasswordView(
+            store: store
+        )
+        let viewController = UIHostingController(rootView: view)
+        let navigationController = UINavigationController(rootViewController: viewController)
+        navigationController.isModalInPresentation = true
+
         stackNavigator?.present(navigationController)
     }
 

@@ -10,6 +10,16 @@ class PolicyServiceTests: BitwardenTestCase { // swiftlint:disable:this type_bod
     var stateService: MockStateService!
     var subject: DefaultPolicyService!
 
+    let masterPasswordPolicy = Policy.fixture(
+        data: [
+            PolicyOptionType.minLength.rawValue: .int(30),
+            PolicyOptionType.requireUpper.rawValue: .bool(true),
+            PolicyOptionType.requireLower.rawValue: .bool(true),
+            PolicyOptionType.enforceOnLogin.rawValue: .bool(true),
+        ],
+        type: .masterPassword
+    )
+
     let policies: [PolicyResponseModel] = [
         .fixture(id: "1"),
         .fixture(id: "2"),
@@ -211,6 +221,29 @@ class PolicyServiceTests: BitwardenTestCase { // swiftlint:disable:this type_bod
                 uppercase: true
             )
         )
+    }
+
+    /// `getMasterPasswordPolicyOptions()` returns `nil` if there is no master password policy type exist.
+    func test_getMasterPasswordPolicyOptions_nil() async throws {
+        let policy = try await subject.getMasterPasswordPolicyOptions()
+        XCTAssertNil(policy)
+    }
+
+    /// `getMasterPasswordPolicyOptions()` returns `MasterPasswordPolicyOptions` if there is
+    ///  master password policy type exist.
+    func test_getMasterPasswordPolicyOptions_success() async throws {
+        stateService.activeAccount = .fixture()
+        policyDataStore.fetchPoliciesResult = .success([masterPasswordPolicy])
+        let policy = try await subject.getMasterPasswordPolicyOptions()
+        XCTAssertNotNil(policy)
+        let safePolicy = try XCTUnwrap(policy)
+        XCTAssertEqual(safePolicy.minLength, 30)
+        XCTAssertEqual(safePolicy.minComplexity, 0)
+        XCTAssertEqual(safePolicy.enforceOnLogin, true)
+        XCTAssertEqual(safePolicy.requireLower, true)
+        XCTAssertEqual(safePolicy.requireUpper, true)
+        XCTAssertEqual(safePolicy.requireSpecial, false)
+        XCTAssertEqual(safePolicy.requireNumbers, false)
     }
 
     /// `isSendHideEmailDisabledByPolicy()` returns whether the send's hide email option is disabled.

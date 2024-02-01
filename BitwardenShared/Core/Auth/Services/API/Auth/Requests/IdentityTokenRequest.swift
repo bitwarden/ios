@@ -44,7 +44,7 @@ struct IdentityTokenRequest: Request {
 
     /// HTTP headers to be sent in the request.
     var headers: [String: String] {
-        guard case let .password(email, _) = requestModel.authenticationMethod else {
+        guard case let .password(email, _, _) = requestModel.authenticationMethod else {
             return [:]
         }
         return ["Auth-Email": Data(email.utf8).base64EncodedString().urlEncoded()]

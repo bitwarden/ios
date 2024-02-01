@@ -118,9 +118,15 @@ protocol AuthService {
     /// - Parameters:
     ///   - email: user email.
     ///   - masterPassword: user master password.
-    /// - Returns: True if the master password does NOT meet any policy requirements, false otherwise (or if no policy present)
+    ///   - policy: Optional `MasterPasswordPolicyOptions` to check against password.
+    /// - Returns: True if the master password does NOT meet any policy requirements, false otherwise
+    /// (or if no policy present)
     ///
-    func requirePasswordChange(email: String, masterPassword: String) async throws -> Bool
+    func requirePasswordChange(
+        email: String,
+        masterPassword: String,
+        policy: MasterPasswordPolicyOptions?
+    ) async throws -> Bool
 
     /// Resend the email with the user's verification code.
     func resendVerificationCodeEmail() async throws
@@ -138,7 +144,7 @@ extension AuthService {
 
 /// The default implementation of `AuthService`.
 ///
-class DefaultAuthService: AuthService {
+class DefaultAuthService: AuthService { // swiftlint:disable:this type_body_length
     // MARK: Properties
 
     /// The API service used to make calls related to the account process.
@@ -359,7 +365,8 @@ class DefaultAuthService: AuthService {
         try await getIdentityTokenResponse(
             authenticationMethod: .password(
                 username: username,
-                password: hashedPassword
+                password: hashedPassword,
+                plainPassword: masterPassword
             ),
             email: username,
             captchaToken: captchaToken
@@ -410,21 +417,32 @@ class DefaultAuthService: AuthService {
         return try await stateService.getActiveAccount()
     }
 
-    func requirePasswordChange(email: String, masterPassword: String) async throws -> Bool {
-        guard let masterPasswordPolicy = try await policyService.getMasterPasswordPolicyOptions(), masterPasswordPolicy.enforceOnLogin else {
+    func requirePasswordChange(
+        email: String,
+        masterPassword: String,
+        policy: MasterPasswordPolicyOptions?
+    ) async throws -> Bool {
+        // Check if we need to change password on login
+        guard let masterPasswordPolicy = try await policyService.getMasterPasswordPolicyOptions() ?? policy,
+              masterPasswordPolicy.enforceOnLogin else {
             return false
         }
+
+        // Calculate the strength of the user email and password
         let strength = await clientAuth.passwordStrength(
             password: masterPassword,
             email: email,
             additionalInputs: []
         )
 
-        return await clientAuth.satisfiesPolicy(
-            password: masterPassword,
+        // Check if master password meets the master password policy.
+        let satisfyPolicy = await clientAuth.satisfiesPolicy(
+            password: "livefrontpassword",
             strength: strength,
             policy: masterPasswordPolicy
-        ) == false
+        )
+
+        return satisfyPolicy == false
     }
 
     func resendVerificationCodeEmail() async throws {
@@ -500,7 +518,24 @@ class DefaultAuthService: AuthService {
 
             // Create the account.
             let urls = await stateService.getPreAuthEnvironmentUrls()
-            let account = try Account(identityTokenResponseModel: identityTokenResponse, environmentUrls: urls)
+            var account = try Account(identityTokenResponseModel: identityTokenResponse, environmentUrls: urls)
+            if case let .password(_, _, plainPassword) = request.authenticationMethod {
+                var policy: MasterPasswordPolicyOptions?
+                if let model = identityTokenResponse.masterPasswordPolicy {
+                    policy = MasterPasswordPolicyOptions(
+                        minComplexity: model.minComplexity ?? 0,
+                        minLength: model.minLength ?? 0,
+                        requireUpper: model.requireUpper ?? false,
+                        requireLower: model.requireLower ?? false,
+                        requireNumbers: model.requireNumbers ?? false,
+                        requireSpecial: model.requireSpecial ?? false,
+                        enforceOnLogin: model.enforceOnLogin ?? false
+                    )
+                }
+                if try await requirePasswordChange(email: email, masterPassword: plainPassword, policy: policy) {
+                    account.profile.forcePasswordResetReason = .adminForcePasswordReset
+                }
+            }
             await stateService.addAccount(account)
 
             // Save the encryption keys.
@@ -508,7 +543,7 @@ class DefaultAuthService: AuthService {
             try await stateService.setAccountEncryptionKeys(encryptionKeys)
 
             // Save the master password, if applicable.
-            if case let .password(_, password) = request.authenticationMethod {
+            if case let .password(_, password, _) = request.authenticationMethod {
                 try await stateService.setMasterPasswordHash(hashPassword(
                     password: password,
                     purpose: .localAuthorization
@@ -523,7 +558,7 @@ class DefaultAuthService: AuthService {
 
                 // Form the resend email request in case the user needs to resend the verification code email.
                 var passwordHash: String?
-                if case let .password(_, password) = request?.authenticationMethod { passwordHash = password }
+                if case let .password(_, password, _) = request?.authenticationMethod { passwordHash = password }
                 resendEmailModel = .init(
                     deviceIdentifier: appID,
                     email: email,

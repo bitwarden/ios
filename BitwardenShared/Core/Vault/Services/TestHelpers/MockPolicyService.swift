@@ -6,8 +6,7 @@ class MockPolicyService: PolicyService {
     var applyPasswordGenerationOptionsResult = false
     var applyPasswordGenerationOptionsTransform = { (_: inout PasswordGenerationOptions) in }
 
-    var getMasterPasswordPolicyOptions: MasterPasswordPolicyOptions?
-    var getMasterPasswordPolicyOptionsResult: Result<MasterPasswordPolicyOptions, Error> = .success(
+    var getMasterPasswordPolicyOptionsResult: Result<MasterPasswordPolicyOptions?, Error> = .success(
         MasterPasswordPolicyOptions(
             minComplexity: 2,
             minLength: 8,
