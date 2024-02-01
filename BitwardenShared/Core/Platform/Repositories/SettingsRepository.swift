@@ -175,7 +175,7 @@ extension DefaultSettingsRepository: SettingsRepository {
     }
 
     func fetchSync() async throws {
-        try await syncService.fetchSync()
+        try await syncService.fetchSync(forceSync: true)
     }
 
     func getAllowSyncOnRefresh() async throws -> Bool {

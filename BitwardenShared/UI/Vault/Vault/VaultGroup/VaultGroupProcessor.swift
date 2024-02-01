@@ -11,6 +11,7 @@ final class VaultGroupProcessor: StateProcessor<VaultGroupState, VaultGroupActio
 
     typealias Services = HasErrorReporter
         & HasPasteboardService
+        & HasPolicyService
         & HasStateService
         & HasTimeProvider
         & HasVaultRepository
@@ -81,6 +82,7 @@ final class VaultGroupProcessor: StateProcessor<VaultGroupState, VaultGroupActio
     override func perform(_ effect: VaultGroupEffect) async {
         switch effect {
         case .appeared:
+            await checkPersonalOwnershipPolicy()
             await streamVaultList()
         case .refresh:
             await refreshVaultGroup()
@@ -147,6 +149,13 @@ final class VaultGroupProcessor: StateProcessor<VaultGroupState, VaultGroupActio
     }
 
     // MARK: Private Methods
+
+    /// Checks if the personal ownership policy is enabled.
+    ///
+    private func checkPersonalOwnershipPolicy() async {
+        let isPersonalOwnershipDisabled = await services.policyService.policyAppliesToUser(.personalOwnership)
+        state.isPersonalOwnershipDisabled = isPersonalOwnershipDisabled
+    }
 
     /// Refreshes the vault group's TOTP Codes.
     ///

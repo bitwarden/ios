@@ -10,6 +10,9 @@ class MockAuthService: AuthService {
 
     var callbackUrlScheme: String = "callback"
 
+    var checkPendingLoginRequestId: String?
+    var checkPendingLoginRequestResult: Result<LoginRequest, Error> = .success(.fixture())
+
     var denyAllLoginRequestsResult: Result<Void, Error> = .success(())
     var denyAllLoginRequestsRequests: [LoginRequest]?
 
@@ -24,7 +27,12 @@ class MockAuthService: AuthService {
     var hashPasswordResult: Result<String, Error> = .success("hashed")
 
     var initiateLoginWithDeviceEmail: String?
-    var initiateLoginWithDeviceResult: Result<String, Error> = .success("")
+    var initiateLoginWithDeviceResult: Result<(fingerprint: String, requestId: String), Error> = .success(("", ""))
+
+    var loginWithDeviceRequest: LoginRequest?
+    var loginWithDeviceEmail: String?
+    var loginWithDeviceCaptchaToken: String?
+    var loginWithDeviceResult: Result<(String, String), Error> = .success(("", ""))
 
     var loginWithMasterPasswordPassword: String?
     var loginWithMasterPasswordUsername: String?
@@ -50,6 +58,11 @@ class MockAuthService: AuthService {
         try answerLoginRequestResult.get()
     }
 
+    func checkPendingLoginRequest(withId id: String) async throws -> LoginRequest {
+        checkPendingLoginRequestId = id
+        return try checkPendingLoginRequestResult.get()
+    }
+
     func denyAllLoginRequests(_ requests: [LoginRequest]) async throws {
         denyAllLoginRequestsRequests = requests
         try denyAllLoginRequestsResult.get()
@@ -71,9 +84,20 @@ class MockAuthService: AuthService {
         return try hashPasswordResult.get()
     }
 
-    func initiateLoginWithDevice(email: String) async throws -> String {
+    func initiateLoginWithDevice(email: String) async throws -> (fingerprint: String, requestId: String) {
         initiateLoginWithDeviceEmail = email
         return try initiateLoginWithDeviceResult.get()
+    }
+
+    func loginWithDevice(
+        _ loginRequest: LoginRequest,
+        email: String,
+        captchaToken: String?
+    ) async throws -> (String, String) {
+        loginWithDeviceRequest = loginRequest
+        loginWithDeviceEmail = email
+        loginWithDeviceCaptchaToken = captchaToken
+        return try loginWithDeviceResult.get()
     }
 
     func loginWithMasterPassword(_ password: String, username: String, captchaToken: String?) async throws {

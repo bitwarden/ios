@@ -74,13 +74,14 @@ class AuthServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body_
     func test_answerLoginRequest() async throws {
         // Set up the mock data.
         client.result = .httpSuccess(testData: .authRequestSuccess)
+        stateService.activeAccount = .fixture()
         appSettingsStore.appId = "App id"
 
         // Test.
         try await subject.answerLoginRequest(.fixture(), approve: true)
 
         // Confirm the results.
-        XCTAssertEqual(clientAuth.approveAuthRequestPublicKey, "reallyLongPublicKey=")
+        XCTAssertEqual(clientAuth.approveAuthRequestPublicKey, "reallyLongPublicKey")
         XCTAssertEqual(client.requests.last?.url.absoluteString, "https://example.com/api/auth-requests/1")
     }
 
@@ -89,17 +90,51 @@ class AuthServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body_
         XCTAssertEqual(subject.callbackUrlScheme, "bitwarden")
     }
 
+    /// `checkPendingLoginRequest(withId:)` returns the result of the API request.
+    func test_checkPendingLoginRequest() async throws {
+        // First initiate the login with device flow so that the necessary data is cached.
+        client.results = [
+            .httpSuccess(testData: .authRequestSuccess),
+            .httpSuccess(testData: .authRequestSuccess),
+        ]
+        appSettingsStore.appId = "App id"
+        clientAuth.newAuthRequestResult = .success(.init(
+            privateKey: "",
+            publicKey: "",
+            fingerprint: "fingerprint",
+            accessCode: "accessCode"
+        ))
+        let request = try await subject.initiateLoginWithDevice(email: "email@example.com")
+
+        // Check the pending login request.
+        let updatedRequest = try await subject.checkPendingLoginRequest(withId: request.requestId)
+
+        XCTAssertEqual(updatedRequest, .fixture())
+        XCTAssertEqual(
+            client.requests.last?.url.absoluteString,
+            "https://example.com/api/auth-requests/1/response?code=accessCode"
+        )
+    }
+
+    /// `checkPendingLoginRequest(withId:)` throws an error if there's no cached data.
+    func test_checkPendingLoginRequest_error() async throws {
+        await assertAsyncThrows(error: AuthError.missingLoginWithDeviceData) {
+            _ = try await subject.checkPendingLoginRequest(withId: "404")
+        }
+    }
+
     /// `denyAllLoginRequests(_:)` denies all the login requests.
     func test_denyAllLoginRequests() async throws {
         // Set up the mock data.
         client.result = .httpSuccess(testData: .authRequestSuccess)
+        stateService.activeAccount = .fixture()
         appSettingsStore.appId = "App id"
 
         // Test.
         try await subject.denyAllLoginRequests([.fixture()])
 
         // Confirm the results.
-        XCTAssertEqual(clientAuth.approveAuthRequestPublicKey, "reallyLongPublicKey=")
+        XCTAssertEqual(clientAuth.approveAuthRequestPublicKey, "reallyLongPublicKey")
         XCTAssertEqual(client.requests.last?.url.absoluteString, "https://example.com/api/auth-requests/1")
     }
 
@@ -162,12 +197,56 @@ class AuthServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body_
         ))
 
         // Test.
-        let fingerprint = try await subject.initiateLoginWithDevice(email: "example@email.com")
+        let result = try await subject.initiateLoginWithDevice(email: "email@example.com")
 
         // Verify the results.
         XCTAssertEqual(client.requests.count, 1)
-        XCTAssertEqual(clientAuth.newAuthRequestEmail, "example@email.com")
-        XCTAssertEqual(fingerprint, "fingerprint")
+        XCTAssertEqual(clientAuth.newAuthRequestEmail, "email@example.com")
+        XCTAssertEqual(result.fingerprint, "fingerprint")
+        XCTAssertEqual(result.requestId, LoginRequest.fixture().id)
+    }
+
+    /// `loginWithDevice(_:email:captchaToken:)` logs in with an approved login with device request.
+    func test_loginWithDevice() async throws {
+        // First initiate the login with device flow so that the necessary data is cached.
+        client.results = [
+            .httpSuccess(testData: .authRequestSuccess),
+            .httpSuccess(testData: .identityTokenSuccess),
+        ]
+        appSettingsStore.appId = "App id"
+        systemDevice.modelIdentifier = "Model id"
+        clientAuth.newAuthRequestResult = .success(.init(
+            privateKey: "",
+            publicKey: "",
+            fingerprint: "fingerprint",
+            accessCode: "accessCode"
+        ))
+        _ = try await subject.initiateLoginWithDevice(email: "email@example.com")
+
+        // Attempt to log in.
+        _ = try await subject.loginWithDevice(.fixture(), email: "email@example.com", captchaToken: nil)
+
+        // Verify the results.
+        let tokenRequest = IdentityTokenRequestModel(
+            authenticationMethod: .password(
+                username: "email@example.com",
+                password: "accessCode"
+            ),
+            captchaToken: nil,
+            deviceInfo: DeviceInfo(
+                identifier: "App id",
+                name: "Model id"
+            ),
+            loginRequestId: "1"
+        )
+        XCTAssertEqual(client.requests.last?.body, try tokenRequest.encode())
+    }
+
+    /// `loginWithDevice(_:email:captchaToken:)` throws an error if there's no cached data.
+    func test_loginWithDevice_error() async throws {
+        await assertAsyncThrows(error: AuthError.missingLoginWithDeviceData) {
+            _ = try await subject.loginWithDevice(.fixture(), email: "", captchaToken: nil)
+        }
     }
 
     /// `loginWithMasterPassword(_:username:captchaToken:)` logs in with the password.
@@ -199,7 +278,8 @@ class AuthServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body_
             deviceInfo: DeviceInfo(
                 identifier: "App id",
                 name: "Model id"
-            )
+            ),
+            loginRequestId: nil
         )
         XCTAssertEqual(client.requests.count, 2)
         XCTAssertEqual(client.requests[0].body, try preLoginRequest.encode())
@@ -259,7 +339,8 @@ class AuthServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body_
             deviceInfo: DeviceInfo(
                 identifier: "App id",
                 name: "Model id"
-            )
+            ),
+            loginRequestId: nil
         )
         XCTAssertEqual(client.requests.count, 2)
         XCTAssertEqual(client.requests[0].body, try preLoginRequest.encode())
@@ -332,7 +413,8 @@ class AuthServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body_
             deviceInfo: DeviceInfo(
                 identifier: "App id",
                 name: "Model id"
-            )
+            ),
+            loginRequestId: nil
         )
         XCTAssertEqual(client.requests.count, 1)
         XCTAssertEqual(client.requests[0].body, try tokenRequest.encode())

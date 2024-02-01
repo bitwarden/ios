@@ -59,11 +59,17 @@ final class SendCoordinator: Coordinator, HasStackNavigator {
 
     func navigate(to route: SendRoute, context: AnyObject?) {
         switch route {
-        case .addItem:
+        case let .addItem(type):
             guard let delegate = context as? SendItemDelegate else { return }
             Task {
                 let hasPremium = try? await services.sendRepository.doesActiveAccountHavePremium()
-                showItem(route: .add(content: nil, hasPremium: hasPremium ?? false), delegate: delegate)
+                let route: SendItemRoute
+                if let type {
+                    route = .add(content: .type(type), hasPremium: hasPremium ?? false)
+                } else {
+                    route = .add(content: nil, hasPremium: hasPremium ?? false)
+                }
+                showItem(route: route, delegate: delegate)
             }
         case let .dismiss(dismissAction):
             stackNavigator?.dismiss(completion: dismissAction?.action)
@@ -73,6 +79,8 @@ final class SendCoordinator: Coordinator, HasStackNavigator {
                 let hasPremium = try? await services.sendRepository.doesActiveAccountHavePremium()
                 showItem(route: .edit(sendView, hasPremium: hasPremium ?? false), delegate: delegate)
             }
+        case let .group(type):
+            showGroup(type)
         case .list:
             showList()
         case let .share(url):
@@ -85,6 +93,34 @@ final class SendCoordinator: Coordinator, HasStackNavigator {
     }
 
     // MARK: Private methods
+
+    /// Shows the group send screen.
+    ///
+    /// - Parameter type: The send type to display in this screen.
+    ///
+    private func showGroup(_ type: SendType) {
+        let processor = SendListProcessor(
+            coordinator: asAnyCoordinator(),
+            services: services,
+            state: SendListState(type: type)
+        )
+        let store = Store(processor: processor)
+        let searchHandler = SendListSearchHandler(store: store)
+        let view = SendListView(
+            searchHandler: searchHandler,
+            store: store
+        )
+
+        let viewController = UIHostingController(rootView: view)
+        let searchController = UISearchController()
+        searchController.searchResultsUpdater = searchHandler
+
+        stackNavigator?.push(
+            viewController,
+            navigationTitle: type.localizedName,
+            searchController: searchController
+        )
+    }
 
     /// Shows the provided send item route.
     ///

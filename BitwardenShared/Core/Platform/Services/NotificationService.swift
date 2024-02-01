@@ -178,11 +178,11 @@ class DefaultNotificationService: NotificationService {
             case .syncCiphers,
                  .syncSettings,
                  .syncVault:
-                try await syncService.fetchSync()
+                try await syncService.fetchSync(forceSync: true)
             case .syncOrgKeys:
                 // TODO: BIT-1528 call api to refresh token
                 // try await authAPIService.refreshIdentityToken(refreshToken: ???)
-                try await syncService.fetchSync()
+                try await syncService.fetchSync(forceSync: true)
             case .logOut:
                 break
             case .syncSendCreate,

@@ -7,6 +7,12 @@ import Networking
 /// A protocol for an API service used to make account requests.
 ///
 protocol AccountAPIService {
+    /// Performs the account revision date request and returns the date of the account's last revision.
+    ///
+    /// - Returns: The account's last revision date.
+    ///
+    func accountRevisionDate() async throws -> Date?
+
     /// Checks if the user's entered password has been found in a data breach.
     ///
     ///  - Parameter password: The user's entered password.
@@ -48,6 +54,10 @@ protocol AccountAPIService {
 // MARK: - APIService
 
 extension APIService: AccountAPIService {
+    func accountRevisionDate() async throws -> Date? {
+        try await apiService.send(AccountRevisionDateRequest()).date
+    }
+
     func checkDataBreaches(password: String) async throws -> Int {
         // Generate a SHA1 hash value for the password.
         let fullPasswordHash = Data(password.utf8).generatedHash(using: Insecure.SHA1.self)

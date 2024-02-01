@@ -20,7 +20,8 @@ class IdentityTokenRequestModelTests: BitwardenTestCase {
                 redirectUri: "redirectUri"
             ),
             captchaToken: "captchaToken",
-            deviceInfo: .fixture()
+            deviceInfo: .fixture(),
+            loginRequestId: nil
         )
 
         subjectPassword = IdentityTokenRequestModel(
@@ -29,7 +30,8 @@ class IdentityTokenRequestModelTests: BitwardenTestCase {
                 password: "password"
             ),
             captchaToken: "captchaToken",
-            deviceInfo: .fixture()
+            deviceInfo: .fixture(),
+            loginRequestId: nil
         )
     }
 
@@ -86,7 +88,8 @@ class IdentityTokenRequestModelTests: BitwardenTestCase {
         let subject = IdentityTokenRequestModel(
             authenticationMethod: .password(username: "user@example.com", password: "password"),
             captchaToken: nil,
-            deviceInfo: .fixture()
+            deviceInfo: .fixture(),
+            loginRequestId: nil
         )
         let valuesByKey = valuesByKey(subject.values)
 
@@ -102,6 +105,7 @@ class IdentityTokenRequestModelTests: BitwardenTestCase {
             ),
             captchaToken: nil,
             deviceInfo: .fixture(),
+            loginRequestId: nil,
             twoFactorCode: "hi_im_a_lil_code",
             twoFactorMethod: .email,
             twoFactorRemember: true

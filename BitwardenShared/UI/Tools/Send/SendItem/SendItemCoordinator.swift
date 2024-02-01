@@ -111,6 +111,9 @@ final class SendItemCoordinator: Coordinator, HasStackNavigator {
             state.text = text
             state.type = .text
             state.mode = .shareExtension(.empty())
+        case let .type(type):
+            state.type = type
+            state.mode = .add
         case nil:
             break
         }

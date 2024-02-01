@@ -17,6 +17,9 @@ struct VaultGroupState: Equatable {
     /// The base url used to fetch icons.
     var iconBaseURL: URL?
 
+    /// Whether the policy is enforced to disable personal vault ownership.
+    var isPersonalOwnershipDisabled: Bool = false
+
     /// Is the view searching.
     var isSearching: Bool = false
 

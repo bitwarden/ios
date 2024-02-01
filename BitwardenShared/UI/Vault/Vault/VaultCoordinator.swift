@@ -200,7 +200,7 @@ final class VaultCoordinator: Coordinator, HasStackNavigator {
         )
         processor.vaultFilterDelegate = content.filterDelegate
         let store = Store(processor: processor)
-        let searchHandler = GroupSearchHandler(store: store)
+        let searchHandler = VaultGroupSearchHandler(store: store)
         let view = VaultGroupView(
             searchHandler: searchHandler,
             store: store,

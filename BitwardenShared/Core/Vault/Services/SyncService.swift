@@ -11,7 +11,10 @@ protocol SyncService: AnyObject {
 
     /// Performs an API request to sync the user's vault data.
     ///
-    func fetchSync() async throws
+    /// - Parameter forceSync: Whether syncing should be forced, bypassing the account revision and
+    ///     minimum sync interval checks.
+    ///
+    func fetchSync(forceSync: Bool) async throws
 }
 
 // MARK: - DefaultSyncService
@@ -20,6 +23,9 @@ protocol SyncService: AnyObject {
 ///
 class DefaultSyncService: SyncService {
     // MARK: Properties
+
+    /// The services used by the application to make account related API requests.
+    private let accountAPIService: AccountAPIService
 
     /// The service for managing the ciphers for the user.
     private let cipherService: CipherService
@@ -53,6 +59,7 @@ class DefaultSyncService: SyncService {
     /// Initializes a `DefaultSyncService`.
     ///
     /// - Parameters:
+    ///   - accountAPIService: The services used by the application to make account related API requests.
     ///   - cipherService: The service for managing the ciphers for the user.
     ///   - collectionService: The service for managing the collections for the user.
     ///   - folderService: The service for managing the folders for the user.
@@ -64,6 +71,7 @@ class DefaultSyncService: SyncService {
     ///   - syncAPIService: The API service used to perform sync API requests.
     ///
     init(
+        accountAPIService: AccountAPIService,
         cipherService: CipherService,
         collectionService: CollectionService,
         folderService: FolderService,
@@ -74,6 +82,7 @@ class DefaultSyncService: SyncService {
         stateService: StateService,
         syncAPIService: SyncAPIService
     ) {
+        self.accountAPIService = accountAPIService
         self.cipherService = cipherService
         self.collectionService = collectionService
         self.folderService = folderService
@@ -84,11 +93,44 @@ class DefaultSyncService: SyncService {
         self.stateService = stateService
         self.syncAPIService = syncAPIService
     }
+
+    // MARK: Private
+
+    /// Determine if a full sync is necessary.
+    ///
+    /// - Parameters:
+    ///   - forceSync: Whether syncing should be forced, bypassing the account revision and minimum
+    ///     sync interval checks.
+    ///   - userId: The user ID of the account to sync.
+    /// - Returns: Whether a sync should be performed.
+    ///
+    private func needsSync(forceSync: Bool, userId: String) async throws -> Bool {
+        guard let lastSyncTime = try await stateService.getLastSyncTime(userId: userId), !forceSync else { return true }
+        guard lastSyncTime.addingTimeInterval(Constants.minimumSyncInterval) < Date.now else { return false }
+
+        do {
+            guard let accountRevisionDate = try await accountAPIService.accountRevisionDate()
+            else { return true }
+
+            if lastSyncTime < accountRevisionDate {
+                return true
+            } else {
+                // No updates to the account since the last sync. Update the last sync time but
+                // don't do a full sync.
+                try await stateService.setLastSyncTime(Date(), userId: userId)
+                return false
+            }
+        } catch {
+            return false
+        }
+    }
 }
 
 extension DefaultSyncService {
-    func fetchSync() async throws {
+    func fetchSync(forceSync: Bool) async throws {
         let userId = try await stateService.getActiveAccountId()
+
+        guard try await needsSync(forceSync: forceSync, userId: userId) else { return }
 
         let response = try await syncAPIService.getSync()
 
