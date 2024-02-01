@@ -8,6 +8,9 @@ struct SendListState {
     /// The info URL to open.
     var infoUrl: URL?
 
+    /// Is the view searching.
+    var isSearching: Bool = false
+
     /// Whether sends are disabled via a policy.
     var isSendDisabled = false
 

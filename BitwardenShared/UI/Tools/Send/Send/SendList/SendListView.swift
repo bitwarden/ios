@@ -7,12 +7,10 @@ import SwiftUI
 /// `isSearching` environment variable will work correctly.
 ///
 private struct MainSendListView: View {
-    // MARK: Private Properties
+    // MARK: Properties
 
     /// A flag indicating if the search bar is focused.
     @Environment(\.isSearching) private var isSearching
-
-    // MARK: Properties
 
     /// The `Store` for this view.
     @ObservedObject var store: Store<SendListState, SendListAction, SendListEffect>
@@ -29,7 +27,7 @@ private struct MainSendListView: View {
         // which is not ideal.
 
         ZStack {
-            let isSearching = isSearching
+            let isSearching = store.state.isSearching
                 || !store.state.searchText.isEmpty
                 || !store.state.searchResults.isEmpty
 
@@ -38,6 +36,9 @@ private struct MainSendListView: View {
 
             search
                 .hidden(!isSearching)
+        }
+        .onChange(of: isSearching) { newValue in
+            store.send(.searchStateChanged(isSearching: newValue))
         }
     }
 
@@ -179,6 +180,9 @@ private struct MainSendListView: View {
 ///
 struct SendListView: View {
     // MARK: Properties
+
+    /// The GroupSearchDelegate used to bridge UIKit to SwiftUI
+    var searchHandler: SendListSearchHandler?
 
     /// An action that opens URLs.
     @Environment(\.openURL) private var openURL

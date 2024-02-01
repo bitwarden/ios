@@ -47,7 +47,8 @@ final class SendListProcessor: StateProcessor<SendListState, SendListAction, Sen
         case .loadData:
             await loadData()
         case let .search(text):
-            state.searchResults = await searchSends(for: text)
+            let results = await searchSends(for: text)
+            state.searchResults = results
         case .refresh:
             await refresh()
         case let .sendListItemRow(effect):
@@ -83,6 +84,12 @@ final class SendListProcessor: StateProcessor<SendListState, SendListAction, Sen
             state.infoUrl = nil
         case .infoButtonPressed:
             state.infoUrl = ExternalLinksConstants.sendInfo
+        case let .searchStateChanged(isSearching):
+            if !isSearching {
+                state.searchText = ""
+                state.searchResults = []
+            }
+            state.isSearching = isSearching
         case let .searchTextChanged(newValue):
             state.searchText = newValue
         case let .sendListItemRow(rowAction):

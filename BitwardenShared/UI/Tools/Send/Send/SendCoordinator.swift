@@ -105,8 +105,12 @@ final class SendCoordinator: Coordinator, HasStackNavigator {
             state: SendListState(type: type)
         )
         let store = Store(processor: processor)
-        let view = SendListView(store: store)
         let searchHandler = SendListSearchHandler(store: store)
+        let view = SendListView(
+            searchHandler: searchHandler,
+            store: store
+        )
+
         let viewController = UIHostingController(rootView: view)
         let searchController = UISearchController()
         searchController.searchResultsUpdater = searchHandler
