@@ -20,6 +20,15 @@ class UpdateMasterPasswordViewTests: BitwardenTestCase {
             currentMasterPassword: "current master password",
             masterPassword: "new master password",
             masterPasswordHint: "new master password hint",
+            masterPasswordPolicy: .init(
+                minComplexity: 0,
+                minLength: 20,
+                requireUpper: true,
+                requireLower: false,
+                requireNumbers: false,
+                requireSpecial: false,
+                enforceOnLogin: true
+            ),
             masterPasswordRetype: "new master password"
         )
         processor = MockProcessor(state: state)
@@ -111,16 +120,25 @@ class UpdateMasterPasswordViewTests: BitwardenTestCase {
 
     /// A snapshot of the view with all filled values fields.
     func test_snapshot_withFilled_default() {
-        assertSnapshots(of: subject, as: [.defaultPortrait])
+        assertSnapshots(
+            of: subject,
+            as: [.portrait(heightMultiple: 1.25)]
+        )
     }
 
     /// A snapshot of the view with all filled values fields in a dark mode.
     func test_snapshot_withFilled_dark() {
-        assertSnapshots(of: subject, as: [.defaultPortraitDark])
+        assertSnapshots(
+            of: subject,
+            as: [.portrait(heightMultiple: 1.25)]
+        )
     }
 
     /// A snapshot of the view with all filled values fields in a large text.
     func test_snapshot_withFilled_large() {
-        assertSnapshots(of: subject, as: [.tallPortraitAX5(heightMultiple: 6)])
+        assertSnapshots(
+            of: subject,
+            as: [.tallPortraitAX5(heightMultiple: 6)]
+        )
     }
 }

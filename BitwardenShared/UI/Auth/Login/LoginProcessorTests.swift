@@ -66,6 +66,8 @@ class LoginProcessorTests: BitwardenTestCase {
     func test_captchaCompleted() {
         subject.state.masterPassword = "Test"
         subject.captchaCompleted(token: "token")
+        authRepository.unlockWithPasswordResult = .success(())
+        authRepository.activeAccount = .fixture()
         waitFor(!coordinator.routes.isEmpty)
 
         XCTAssertEqual(authService.loginWithMasterPasswordCaptchaToken, "token")
@@ -140,6 +142,9 @@ class LoginProcessorTests: BitwardenTestCase {
         subject.state.username = "email@example.com"
         subject.state.masterPassword = "Password1234!"
 
+        authRepository.unlockWithPasswordResult = .success(())
+        authRepository.activeAccount = .fixture()
+
         await subject.perform(.loginWithMasterPasswordPressed)
 
         XCTAssertEqual(authService.loginWithMasterPasswordUsername, "email@example.com")
@@ -161,6 +166,8 @@ class LoginProcessorTests: BitwardenTestCase {
         authRepository.accountForItemResult = .success(account)
         subject.state.username = "email@example.com"
         subject.state.masterPassword = "Password1234!"
+        authRepository.unlockWithPasswordResult = .success(())
+        authRepository.activeAccount = account
         authService.requirePasswordChangeResult = .success(true)
         await subject.perform(.loginWithMasterPasswordPressed)
 
