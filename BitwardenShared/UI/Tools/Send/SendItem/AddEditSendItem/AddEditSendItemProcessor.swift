@@ -197,6 +197,11 @@ class AddEditSendItemProcessor: // swiftlint:disable:this type_body_length
         }
     }
 
+    /// A method to respond to a `ProfileSwitcherAction`
+    ///    No-Op unless the `state.mode` is `.shareExtension` with a `ProfileSwitcherState`.
+    ///
+    /// - Parameter profileAction: The action to be handled.
+    ///
     private func handle(_ profileAction: ProfileSwitcherAction) {
         guard case var .shareExtension(switcherState) = state.mode else { return }
         switch profileAction {
