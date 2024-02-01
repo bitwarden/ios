@@ -45,6 +45,12 @@ class MockAuthRepository: AuthRepository {
         return combined.compactMap { $0 }
     }
 
+    var updateMasterPasswordCurrentPassword: String?
+    var updateMasterPasswordNewPassword: String?
+    var updateMasterPasswordPasswordHint: String?
+    var updateMasterPasswordReason: ForcePasswordResetReason?
+    var updateMasterPasswordResult: Result<Void, Error> = .success(())
+
     func allowBioMetricUnlock(_ enabled: Bool) async throws {
         allowBiometricUnlock = enabled
         try allowBiometricUnlockResult.get()
@@ -171,5 +177,18 @@ class MockAuthRepository: AuthRepository {
 
     func unlockVaultWithNeverlockKey() async throws {
         try unlockVaultWithNeverlockResult.get()
+    }
+
+    func updateMasterPassword(
+        currentPassword: String,
+        newPassword: String,
+        passwordHint: String,
+        reason: ForcePasswordResetReason
+    ) async throws {
+        updateMasterPasswordCurrentPassword = currentPassword
+        updateMasterPasswordNewPassword = newPassword
+        updateMasterPasswordPasswordHint = passwordHint
+        updateMasterPasswordReason = reason
+        return try updateMasterPasswordResult.get()
     }
 }

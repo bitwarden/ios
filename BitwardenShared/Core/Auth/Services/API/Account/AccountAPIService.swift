@@ -49,6 +49,12 @@ protocol AccountAPIService {
     /// - Parameter email: The email being used to log into the app.
     ///
     func requestPasswordHint(for email: String) async throws
+
+    /// Performs the API request to update the user's password.
+    ///
+    /// - Parameter requestModel: The request model used to send the request.
+    ///
+    func updatePassword(_ requestModel: UpdatePasswordRequestModel) async throws
 }
 
 // MARK: - APIService
@@ -96,5 +102,9 @@ extension APIService: AccountAPIService {
     func requestPasswordHint(for email: String) async throws {
         let request = PasswordHintRequest(body: PasswordHintRequestModel(email: email))
         _ = try await apiUnauthenticatedService.send(request)
+    }
+
+    func updatePassword(_ requestModel: UpdatePasswordRequestModel) async throws {
+        _ = try await apiService.send(UpdatePasswordRequest(requestModel: requestModel))
     }
 }

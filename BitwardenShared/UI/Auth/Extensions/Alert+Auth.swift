@@ -100,4 +100,15 @@ extension Alert {
             ]
         )
     }
+
+    /// Returns an alert notifying the user that their master password is invalid.
+    ///
+    /// - Returns: An alert notifying the user that their master password is invalid.
+    ///
+    static func masterPasswordInvalid() -> Alert {
+        defaultAlert(
+            title: Localizations.masterPasswordPolicyValidationTitle,
+            message: Localizations.masterPasswordPolicyValidationMessage
+        )
+    }
 }

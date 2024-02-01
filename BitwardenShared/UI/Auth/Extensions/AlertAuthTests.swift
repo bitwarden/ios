@@ -62,4 +62,14 @@ class AlertAuthTests: BitwardenTestCase {
         XCTAssertEqual(subject.alertActions.count, 1)
         XCTAssertEqual(subject.alertActions[0].title, Localizations.ok)
     }
+
+    /// `masterPasswordInvalid()` returns an alert notifying the user that their master password is invalid.
+    func test_masterPasswordInvalid() {
+        let subject = Alert.masterPasswordInvalid()
+
+        XCTAssertEqual(subject.title, Localizations.masterPasswordPolicyValidationTitle)
+        XCTAssertEqual(subject.message, Localizations.masterPasswordPolicyValidationMessage)
+        XCTAssertEqual(subject.alertActions.count, 1)
+        XCTAssertEqual(subject.alertActions[0].title, Localizations.ok)
+    }
 }

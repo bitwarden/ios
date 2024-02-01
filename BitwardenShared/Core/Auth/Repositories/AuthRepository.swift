@@ -138,6 +138,21 @@ protocol AuthRepository: AnyObject {
     /// - Parameter pin: The user's PIN.
     ///
     func unlockVaultWithPIN(pin: String) async throws
+
+    /// Updates the user's master password.
+    ///
+    /// - Parameters:
+    ///   - currentPassword: The user's current master password.
+    ///   - newPassword: The user's new master password.
+    ///   - passwordHint: The user's new password hint.
+    ///   - reason: The update password reason.
+    ///
+    func updateMasterPassword(
+        currentPassword: String,
+        newPassword: String,
+        passwordHint: String,
+        reason: ForcePasswordResetReason
+    ) async throws
 }
 
 extension AuthRepository {
@@ -502,6 +517,46 @@ extension DefaultAuthRepository: AuthRepository {
 
         await vaultTimeoutService.unlockVault(userId: account.profile.userId)
         try await organizationService.initializeOrganizationCrypto()
+    }
+
+    func updateMasterPassword(
+        currentPassword: String,
+        newPassword: String,
+        passwordHint: String,
+        reason: ForcePasswordResetReason
+    ) async throws {
+        let account = try await stateService.getActiveAccount()
+        let updatePasswordResponse = try await clientCrypto.updatePassword(newPassword: newPassword)
+
+        let masterPasswordHash = try await clientAuth.hashPassword(
+            email: account.profile.email,
+            password: currentPassword,
+            kdfParams: account.kdf.sdkKdf,
+            purpose: .serverAuthorization
+        )
+
+        let encryptionKeys = try await stateService.getAccountEncryptionKeys()
+        let newEncryptionKeys = AccountEncryptionKeys(
+            encryptedPrivateKey: encryptionKeys.encryptedPrivateKey,
+            encryptedUserKey: updatePasswordResponse.newKey
+        )
+
+        switch reason {
+        case .adminForcePasswordReset:
+            break
+        case .weakMasterPasswordOnLogin:
+            try await accountAPIService.updatePassword(
+                UpdatePasswordRequestModel(
+                    key: updatePasswordResponse.newKey,
+                    masterPasswordHash: masterPasswordHash,
+                    masterPasswordHint: passwordHint,
+                    newMasterPasswordHash: updatePasswordResponse.passwordHash
+                )
+            )
+        }
+
+        try await stateService.setAccountEncryptionKeys(newEncryptionKeys)
+        try await stateService.setMasterPasswordHash(updatePasswordResponse.passwordHash)
     }
 
     private func userIdOrActive(_ maybeId: String?) async throws -> String {
