@@ -11,6 +11,7 @@ final class VaultGroupProcessor: StateProcessor<VaultGroupState, VaultGroupActio
 
     typealias Services = HasErrorReporter
         & HasPasteboardService
+        & HasPolicyService
         & HasStateService
         & HasTimeProvider
         & HasVaultRepository
@@ -22,7 +23,7 @@ final class VaultGroupProcessor: StateProcessor<VaultGroupState, VaultGroupActio
     // MARK: Private Properties
 
     /// The `Coordinator` for this processor.
-    private var coordinator: any Coordinator<VaultRoute>
+    private var coordinator: any Coordinator<VaultRoute, AuthAction>
 
     /// The services for this processor.
     private var services: Services
@@ -43,7 +44,7 @@ final class VaultGroupProcessor: StateProcessor<VaultGroupState, VaultGroupActio
     ///   - state: The initial state of this processor.
     ///
     init(
-        coordinator: any Coordinator<VaultRoute>,
+        coordinator: any Coordinator<VaultRoute, AuthAction>,
         services: Services,
         state: VaultGroupState
     ) {
@@ -81,6 +82,7 @@ final class VaultGroupProcessor: StateProcessor<VaultGroupState, VaultGroupActio
     override func perform(_ effect: VaultGroupEffect) async {
         switch effect {
         case .appeared:
+            await checkPersonalOwnershipPolicy()
             await streamVaultList()
         case .refresh:
             await refreshVaultGroup()
@@ -147,6 +149,13 @@ final class VaultGroupProcessor: StateProcessor<VaultGroupState, VaultGroupActio
     }
 
     // MARK: Private Methods
+
+    /// Checks if the personal ownership policy is enabled.
+    ///
+    private func checkPersonalOwnershipPolicy() async {
+        let isPersonalOwnershipDisabled = await services.policyService.policyAppliesToUser(.personalOwnership)
+        state.isPersonalOwnershipDisabled = isPersonalOwnershipDisabled
+    }
 
     /// Refreshes the vault group's TOTP Codes.
     ///
@@ -270,7 +279,13 @@ final class VaultGroupProcessor: StateProcessor<VaultGroupState, VaultGroupActio
                 state.toast = Toast(text: Localizations.valueHasBeenCopied(toast))
             }
         case let .edit(cipherView):
-            coordinator.navigate(to: .editItem(cipherView), context: self)
+            if cipherView.reprompt == .password {
+                presentMasterPasswordRepromptAlert {
+                    self.coordinator.navigate(to: .editItem(cipherView), context: self)
+                }
+            } else {
+                coordinator.navigate(to: .editItem(cipherView), context: self)
+            }
         case let .launch(url):
             state.url = url.sanitized
         case let .view(id):

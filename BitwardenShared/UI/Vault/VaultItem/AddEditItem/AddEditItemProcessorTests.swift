@@ -14,10 +14,12 @@ class AddEditItemProcessorTests: BitwardenTestCase {
     var appExtensionDelegate: MockAppExtensionDelegate!
     var cameraService: MockCameraService!
     var client: MockHTTPClient!
-    var coordinator: MockCoordinator<VaultItemRoute>!
+    var coordinator: MockCoordinator<VaultItemRoute, VaultItemEvent>!
     var delegate: MockCipherItemOperationDelegate!
     var errorReporter: MockErrorReporter!
     var pasteboardService: MockPasteboardService!
+    var policyService: MockPolicyService!
+    var stateService: MockStateService!
     var totpService: MockTOTPService!
     var subject: AddEditItemProcessor!
     var vaultRepository: MockVaultRepository!
@@ -30,10 +32,12 @@ class AddEditItemProcessorTests: BitwardenTestCase {
         appExtensionDelegate = MockAppExtensionDelegate()
         cameraService = MockCameraService()
         client = MockHTTPClient()
-        coordinator = MockCoordinator<VaultItemRoute>()
+        coordinator = MockCoordinator<VaultItemRoute, VaultItemEvent>()
         delegate = MockCipherItemOperationDelegate()
         errorReporter = MockErrorReporter()
         pasteboardService = MockPasteboardService()
+        policyService = MockPolicyService()
+        stateService = MockStateService()
         totpService = MockTOTPService()
         vaultRepository = MockVaultRepository()
         subject = AddEditItemProcessor(
@@ -45,6 +49,8 @@ class AddEditItemProcessorTests: BitwardenTestCase {
                 errorReporter: errorReporter,
                 httpClient: client,
                 pasteboardService: pasteboardService,
+                policyService: policyService,
+                stateService: stateService,
                 totpService: totpService,
                 vaultRepository: vaultRepository
             ),
@@ -69,6 +75,7 @@ class AddEditItemProcessorTests: BitwardenTestCase {
         coordinator = nil
         errorReporter = nil
         pasteboardService = nil
+        stateService = nil
         subject = nil
         totpService = nil
         vaultRepository = nil
@@ -448,7 +455,7 @@ class AddEditItemProcessorTests: BitwardenTestCase {
     func test_didCompleteCapture_failure() {
         subject.state.loginState.totpState = .none
         totpService.getTOTPConfigResult = .failure(TOTPServiceError.invalidKeyFormat)
-        let captureCoordinator = MockCoordinator<AuthenticatorKeyCaptureRoute>()
+        let captureCoordinator = MockCoordinator<AuthenticatorKeyCaptureRoute, AuthenticatorKeyCaptureEvent>()
         subject.didCompleteCapture(captureCoordinator.asAnyCoordinator(), with: "1234")
         var dismissAction: DismissAction?
         if case let .dismiss(onDismiss) = captureCoordinator.routes.last {
@@ -477,7 +484,7 @@ class AddEditItemProcessorTests: BitwardenTestCase {
         let key = String.base32Key
         let keyConfig = try XCTUnwrap(TOTPKeyModel(authenticatorKey: key))
         totpService.getTOTPConfigResult = .success(keyConfig)
-        let captureCoordinator = MockCoordinator<AuthenticatorKeyCaptureRoute>()
+        let captureCoordinator = MockCoordinator<AuthenticatorKeyCaptureRoute, AuthenticatorKeyCaptureEvent>()
         subject.didCompleteCapture(captureCoordinator.asAnyCoordinator(), with: key)
         var dismissAction: DismissAction?
         if case let .dismiss(onDismiss) = captureCoordinator.routes.last {
@@ -508,6 +515,34 @@ class AddEditItemProcessorTests: BitwardenTestCase {
         waitFor { subject.state.toast != nil }
 
         XCTAssertEqual(subject.state.toast?.text, Localizations.itemUpdated)
+    }
+
+    /// `perform(_:)` with `.appeared` doesn't show the password autofill alert if it has already been shown.
+    func test_perform_appeared_showPasswordAutofill_alreadyShown() async {
+        stateService.addSitePromptShown = true
+        await subject.perform(.appeared)
+        XCTAssertTrue(coordinator.alertShown.isEmpty)
+    }
+
+    /// `perform(_:)` with `.appeared` doesn't show the password autofill alert if it's in the extension.
+    func test_perform_appeared_showPasswordAutofill_extension() async {
+        appExtensionDelegate.isInAppExtension = true
+        await subject.perform(.appeared)
+        XCTAssertTrue(coordinator.alertShown.isEmpty)
+    }
+
+    /// `perform(_:)` with `.appeared` doesn't show the password autofill alert if the user isn't adding a login.
+    func test_perform_appeared_showPasswordAutofill_nonLoginType() async {
+        subject.state.type = .card
+        await subject.perform(.appeared)
+        XCTAssertTrue(coordinator.alertShown.isEmpty)
+    }
+
+    /// `perform(_:)` with `.appeared` shows the password autofill alert.
+    func test_perform_appeared_showPasswordAutofill_notShown() async {
+        await subject.perform(.appeared)
+        XCTAssertEqual(coordinator.alertShown.last, .passwordAutofillInformation())
+        XCTAssertTrue(stateService.addSitePromptShown)
     }
 
     /// `perform` with `.checkPasswordPressed` checks the password with the HIBP service.
@@ -642,6 +677,42 @@ class AddEditItemProcessorTests: BitwardenTestCase {
         )
         XCTAssertEqual(subject.state.ownershipOptions, [.personal(email: "user@bitwarden.com")])
         try XCTAssertFalse(XCTUnwrap(vaultRepository.fetchCollectionsIncludeReadOnly))
+    }
+
+    /// `perform(_:)` with `.fetchCipherOptions` fetches the ownership options for a cipher from the repository
+    /// when the personal ownership policy is in place.
+    func test_perform_fetchCipherOptions_personOwnershipPolicy() async throws {
+        let collections: [CollectionView] = [
+            .fixture(id: "1", name: "Design"),
+            .fixture(id: "2", name: "Engineering"),
+        ]
+        let folders: [FolderView] = [
+            .fixture(id: "1", name: "Social"),
+            .fixture(id: "2", name: "Work"),
+        ]
+
+        vaultRepository.fetchCipherOwnershipOptions = [
+            .organization(id: "12345", name: "Test Org 1"),
+            .organization(id: "12345", name: "Test Org 2"),
+        ]
+        vaultRepository.fetchCollectionsResult = .success(collections)
+        vaultRepository.fetchFoldersResult = .success(folders)
+
+        policyService.policyAppliesToUserResult[.personalOwnership] = true
+
+        await subject.perform(.fetchCipherOptions)
+
+        XCTAssertEqual(subject.state.collections, collections)
+        XCTAssertEqual(
+            subject.state.folders,
+            [.default] + folders.map { .custom($0) }
+        )
+        XCTAssertEqual(subject.state.ownershipOptions, [
+            .organization(id: "12345", name: "Test Org 1"),
+            .organization(id: "12345", name: "Test Org 2"),
+        ])
+        try XCTAssertFalse(XCTUnwrap(vaultRepository.fetchCollectionsIncludeReadOnly))
+        try XCTAssertFalse(XCTUnwrap(vaultRepository.fetchCipherOwnershipOptionsIncludePersonal))
     }
 
     /// `perform(_:)` with `.savePressed` displays an alert if name field is invalid.
@@ -910,7 +981,7 @@ class AddEditItemProcessorTests: BitwardenTestCase {
         cameraService.cameraAuthorizationStatus = .authorized
         await subject.perform(.setupTotpPressed)
 
-        XCTAssertEqual(coordinator.asyncRoutes.last, .scanCode)
+        XCTAssertEqual(coordinator.events.last, .showScanCode)
     }
 
     /// `perform(_:)` with `.setupTotpPressed` with camera authorization denied navigates to the

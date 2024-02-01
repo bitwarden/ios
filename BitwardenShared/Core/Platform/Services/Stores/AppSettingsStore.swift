@@ -9,6 +9,9 @@ import OSLog
 /// A protocol for an object that persists app setting values.
 ///
 protocol AppSettingsStore: AnyObject {
+    /// Whether the autofill info prompt has been shown.
+    var addSitePromptShown: Bool { get set }
+
     /// The app's unique identifier.
     var appId: String? { get set }
 
@@ -401,6 +404,11 @@ class DefaultAppSettingsStore {
     /// A subject containing a `String?` for the userId of the active account.
     lazy var activeAccountIdSubject = CurrentValueSubject<String?, Never>(state?.activeUserId)
 
+    /// The bundleId used to set values that are bundleId dependent.
+    var bundleId: String {
+        Bundle.main.bundleIdentifier ?? Bundle.main.appIdentifier
+    }
+
     // MARK: Initialization
 
     /// Initialize a `DefaultAppSettingsStore`.
@@ -498,13 +506,14 @@ extension DefaultAppSettingsStore: AppSettingsStore {
     /// The keys used to store their associated values.
     ///
     enum Keys {
+        case addSitePromptShown
         case allowSyncOnRefresh(userId: String)
         case appId
         case appLocale
         case approveLoginRequests(userId: String)
         case appTheme
         case biometricAuthEnabled(userId: String)
-        case biometricIntegrityState(userId: String)
+        case biometricIntegrityState(userId: String, bundleId: String)
         case clearClipboardValue(userId: String)
         case connectToWatch(userId: String)
         case defaultUriMatch(userId: String)
@@ -535,6 +544,8 @@ extension DefaultAppSettingsStore: AppSettingsStore {
         var storageKey: String {
             let key: String
             switch self {
+            case .addSitePromptShown:
+                key = "addSitePromptShown"
             case let .allowSyncOnRefresh(userId):
                 key = "syncOnRefresh_\(userId)"
             case .appId:
@@ -547,8 +558,8 @@ extension DefaultAppSettingsStore: AppSettingsStore {
                 key = "theme"
             case let .biometricAuthEnabled(userId):
                 key = "biometricUnlock_\(userId)"
-            case let .biometricIntegrityState(userId):
-                key = "biometricIntegritySource_\(userId)"
+            case let .biometricIntegrityState(userId, bundleId):
+                key = "biometricIntegritySource_\(userId)_\(bundleId)"
             case let .clearClipboardValue(userId):
                 key = "clearClipboard_\(userId)"
             case let .connectToWatch(userId):
@@ -602,6 +613,11 @@ extension DefaultAppSettingsStore: AppSettingsStore {
             }
             return "bwPreferencesStorage:\(key)"
         }
+    }
+
+    var addSitePromptShown: Bool {
+        get { fetch(for: .addSitePromptShown) }
+        set { store(newValue, for: .addSitePromptShown) }
     }
 
     var appId: String? {
@@ -666,7 +682,12 @@ extension DefaultAppSettingsStore: AppSettingsStore {
     }
 
     func biometricIntegrityState(userId: String) -> String? {
-        fetch(for: .biometricIntegrityState(userId: userId))
+        fetch(
+            for: .biometricIntegrityState(
+                userId: userId,
+                bundleId: bundleId
+            )
+        )
     }
 
     func clearClipboardValue(userId: String) -> ClearClipboardValue {
@@ -742,7 +763,13 @@ extension DefaultAppSettingsStore: AppSettingsStore {
     }
 
     func setBiometricIntegrityState(_ base64EncodedIntegrityState: String?, userId: String) {
-        store(base64EncodedIntegrityState, for: .biometricIntegrityState(userId: userId))
+        store(
+            base64EncodedIntegrityState,
+            for: .biometricIntegrityState(
+                userId: userId,
+                bundleId: bundleId
+            )
+        )
     }
 
     func setClearClipboardValue(_ clearClipboardValue: ClearClipboardValue?, userId: String) {

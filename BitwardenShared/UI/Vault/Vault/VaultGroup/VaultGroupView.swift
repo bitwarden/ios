@@ -12,7 +12,7 @@ struct VaultGroupView: View {
     @Environment(\.openURL) private var openURL
 
     /// The GroupSearchDelegate used to bridge UIKit to SwiftUI
-    var searchHandler: GroupSearchHandler?
+    var searchHandler: VaultGroupSearchHandler?
 
     /// The `Store` for this view.
     @ObservedObject var store: Store<VaultGroupState, VaultGroupAction, VaultGroupEffect>
@@ -167,7 +167,8 @@ struct VaultGroupView: View {
                 state: { state in
                     SearchVaultFilterRowState(
                         organizations: state.organizations,
-                        searchVaultFilterType: state.searchVaultFilterType
+                        searchVaultFilterType: state.searchVaultFilterType,
+                        isPersonalOwnershipDisabled: state.isPersonalOwnershipDisabled
                     )
                 },
                 mapAction: { action in
@@ -191,7 +192,8 @@ struct VaultGroupView: View {
                 state: { state in
                     SearchVaultFilterRowState(
                         organizations: state.organizations,
-                        searchVaultFilterType: state.vaultFilterType
+                        searchVaultFilterType: state.vaultFilterType,
+                        isPersonalOwnershipDisabled: state.isPersonalOwnershipDisabled
                     )
                 },
                 mapAction: { action in
@@ -275,30 +277,6 @@ struct VaultGroupView: View {
             ),
             timeProvider: timeProvider
         )
-    }
-}
-
-// MARK: - GroupSearchHandler
-
-/// A helper class to bridge `UISearchController`'s  `UISearchResultsUpdating`
-///  to the SwiftUI `VaultGroupView`.
-class GroupSearchHandler: NSObject {
-    typealias HandlerStore = Store<VaultGroupState, VaultGroupAction, VaultGroupEffect>
-
-    /// The store for this group search handler.
-    var store: HandlerStore
-
-    /// Initializes the GroupSearchHandler with a given store.
-    ///
-    init(store: HandlerStore) {
-        self.store = store
-    }
-}
-
-extension GroupSearchHandler: UISearchResultsUpdating {
-    func updateSearchResults(for searchController: UISearchController) {
-        store.send(.searchStateChanged(isSearching: searchController.isActive))
-        store.send(.searchTextChanged(searchController.searchBar.text ?? ""))
     }
 }
 

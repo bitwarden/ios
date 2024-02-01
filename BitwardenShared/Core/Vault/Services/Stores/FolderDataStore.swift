@@ -28,6 +28,15 @@ protocol FolderDataStore: AnyObject {
     ///
     func fetchAllFolders(userId: String) async throws -> [Folder]
 
+    /// Fetches the folder with the provided `id`, if one exists.
+    ///
+    /// - Parameters:
+    ///   - id: The id of the folder to fetch.
+    ///   - userId: The id of the user the folder belongs to.
+    /// - Returns: The `Folder` if one can be found, or `nil`.
+    ///
+    func fetchFolder(id: String, userId: String) async throws -> Folder?
+
     /// A publisher for a user's folder objects.
     ///
     /// - Parameter userId: The user ID of the user to associated with the objects to fetch.
@@ -70,6 +79,14 @@ extension DataStore: FolderDataStore {
         try await backgroundContext.perform {
             let fetchRequest = FolderData.fetchByUserIdRequest(userId: userId)
             return try self.backgroundContext.fetch(fetchRequest).map(Folder.init)
+        }
+    }
+
+    func fetchFolder(id: String, userId: String) async throws -> Folder? {
+        try await backgroundContext.perform {
+            try self.backgroundContext.fetch(FolderData.fetchByIdRequest(id: id, userId: userId))
+                .compactMap(Folder.init)
+                .first
         }
     }
 

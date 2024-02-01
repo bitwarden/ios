@@ -24,7 +24,7 @@ final class ScanCodeProcessor: StateProcessor<ScanCodeState, ScanCodeAction, Sca
     // MARK: Private Properties
 
     /// The `Coordinator` responsible for navigation-related actions.
-    private let coordinator: any Coordinator<AuthenticatorKeyCaptureRoute>
+    private let coordinator: any Coordinator<AuthenticatorKeyCaptureRoute, AuthenticatorKeyCaptureEvent>
 
     /// The services used by this processor, including camera authorization and error reporting.
     private let services: Services
@@ -42,7 +42,7 @@ final class ScanCodeProcessor: StateProcessor<ScanCodeState, ScanCodeAction, Sca
     ///   - state: The initial state of this processor, representing the UI's state.
     ///
     init(
-        coordinator: any Coordinator<AuthenticatorKeyCaptureRoute>,
+        coordinator: any Coordinator<AuthenticatorKeyCaptureRoute, AuthenticatorKeyCaptureEvent>,
         services: Services,
         state: ScanCodeState
     ) {

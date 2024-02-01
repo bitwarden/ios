@@ -13,7 +13,7 @@ public class AppProcessor {
     let appModule: AppModule
 
     /// The root coordinator of the app.
-    var coordinator: AnyCoordinator<AppRoute>?
+    var coordinator: AnyCoordinator<AppRoute, AppEvent>?
 
     /// The services used by the app.
     let services: ServiceContainer
@@ -41,9 +41,10 @@ public class AppProcessor {
         Task {
             for await _ in services.notificationCenterService.willEnterForegroundPublisher() {
                 let userId = try await self.services.stateService.getActiveAccountId()
-                let shouldTimeout = try await services.vaultTimeoutService.shouldSessionTimeout(userId: userId)
+                let shouldTimeout = try await services.vaultTimeoutService.hasPassedSessionTimeout(userId: userId)
                 if shouldTimeout {
-                    navigatePostTimeout()
+                    // Allow the AuthCoordinator to handle the timeout.
+                    await coordinator?.handleEvent(.didTimeout(userId: userId))
                 }
             }
         }
@@ -89,43 +90,11 @@ public class AppProcessor {
 
         if let initialRoute {
             coordinator.navigate(to: initialRoute)
-        } else if let activeAccount = services.appSettingsStore.state?.activeAccount {
-            let vaultTimeout = services.appSettingsStore.vaultTimeout(userId: activeAccount.profile.userId)
-            if vaultTimeout == SessionTimeoutValue.onAppRestart.rawValue {
-                navigatePostTimeout()
-            } else {
-                coordinator.navigate(
-                    to: .auth(
-                        .vaultUnlock(
-                            activeAccount,
-                            attemptAutomaticBiometricUnlock: true,
-                            didSwitchAccountAutomatically: false
-                        )
-                    )
-                )
-            }
         } else {
-            coordinator.navigate(to: .auth(.landing))
-        }
-    }
-
-    // MARK: Private methods
-
-    /// Navigates when a session timeout occurs.
-    ///
-    private func navigatePostTimeout() {
-        guard let account = services.appSettingsStore.state?.activeAccount else { return }
-        guard let action = services.appSettingsStore.timeoutAction(userId: account.profile.userId) else { return }
-        switch action {
-        case SessionTimeoutAction.lock.rawValue:
-            coordinator?.navigate(to: .auth(.vaultUnlock(account, didSwitchAccountAutomatically: false)))
-        case SessionTimeoutAction.logout.rawValue:
+            // Navigate to the .didStart rotue
             Task {
-                try await services.stateService.logoutAccount(userId: account.profile.userId)
+                await coordinator.handleEvent(.didStart)
             }
-            coordinator?.navigate(to: .auth(.landing))
-        default:
-            break
         }
     }
 

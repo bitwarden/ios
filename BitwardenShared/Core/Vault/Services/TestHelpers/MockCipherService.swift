@@ -13,17 +13,22 @@ class MockCipherService: CipherService {
     var deleteAttachmentWithServerAttachmentId: String?
     var deleteAttachmentWithServerResult: Result<Cipher?, Error> = .success(.fixture())
 
+    var deleteCipherWithLocalStorageId: String?
+    var deleteCipherWithLocalStorageResult: Result<Void, Error> = .success(())
+
     var downloadAttachmentId: String?
     var downloadAttachmentResult: Result<URL?, Error> = .success(nil)
 
     var fetchCipherId: String?
     var fetchCipherResult: Result<Cipher?, Error> = .success(nil)
 
-    var replaceCiphersCiphers: [CipherDetailsResponseModel]?
-    var replaceCiphersUserId: String?
+    var fetchAllCiphersResult: Result<[Cipher], Error> = .success([])
 
     var deleteCipherId: String?
-    var deleteWithServerResult: Result<Void, Error> = .success(())
+    var deleteCipherWithServerResult: Result<Void, Error> = .success(())
+
+    var replaceCiphersCiphers: [CipherDetailsResponseModel]?
+    var replaceCiphersUserId: String?
 
     var restoredCipherId: String?
     var restoredCipher: Cipher?
@@ -38,6 +43,12 @@ class MockCipherService: CipherService {
 
     var shareCipherWithServerCiphers = [Cipher]()
     var shareCipherWithServerResult: Result<Void, Error> = .success(())
+
+    var syncCipherWithServerId: String?
+    var syncCipherWithServerResult: Result<Void, Error> = .success(())
+
+    var updateCipherWithLocalStorageCipher: BitwardenSdk.Cipher?
+    var updateCipherWithLocalStorageResult: Result<Void, Error> = .success(())
 
     var updateCipherWithServerCiphers = [Cipher]()
     var updateCipherWithServerResult: Result<Void, Error> = .success(())
@@ -55,14 +66,23 @@ class MockCipherService: CipherService {
         return try deleteAttachmentWithServerResult.get()
     }
 
+    func deleteCipherWithLocalStorage(id: String) async throws {
+        deleteCipherWithLocalStorageId = id
+        return try deleteCipherWithLocalStorageResult.get()
+    }
+
     func deleteCipherWithServer(id: String) async throws {
         deleteCipherId = id
-        try deleteWithServerResult.get()
+        try deleteCipherWithServerResult.get()
     }
 
     func downloadAttachment(withId id: String, cipherId _: String) async throws -> URL? {
         downloadAttachmentId = id
         return try downloadAttachmentResult.get()
+    }
+
+    func fetchAllCiphers() async throws -> [Cipher] {
+        try fetchAllCiphersResult.get()
     }
 
     func fetchCipher(withId id: String) async throws -> Cipher? {
@@ -97,6 +117,16 @@ class MockCipherService: CipherService {
         try softDeleteWithServerResult.get()
     }
 
+    func syncCipherWithServer(withId id: String) async throws {
+        syncCipherWithServerId = id
+        return try syncCipherWithServerResult.get()
+    }
+
+    func updateCipherWithLocalStorage(_ cipher: Cipher) async throws {
+        updateCipherWithLocalStorageCipher = cipher
+        return try updateCipherWithLocalStorageResult.get()
+    }
+
     func updateCipherWithServer(_ cipher: Cipher) async throws {
         updateCipherWithServerCiphers.append(cipher)
         try updateCipherWithServerResult.get()
@@ -107,7 +137,7 @@ class MockCipherService: CipherService {
         try updateCipherCollectionsWithServerResult.get()
     }
 
-    func ciphersPublisher() async throws -> AnyPublisher<[BitwardenSdk.Cipher], Error> {
+    func ciphersPublisher() async throws -> AnyPublisher<[Cipher], Error> {
         ciphersSubject.eraseToAnyPublisher()
     }
 }

@@ -30,6 +30,13 @@ protocol CipherDataStore: AnyObject {
     ///
     func fetchCipher(withId id: String, userId: String) async throws -> Cipher?
 
+    /// Fetches all the ciphers belonging to the specified user id.
+    ///
+    /// - Parameter userId: The id of the user associated with the ciphers.
+    /// - Returns: The ciphers associated with the user id.
+    ///
+    func fetchAllCiphers(userId: String) async throws -> [Cipher]
+
     /// A publisher for a user's cipher objects.
     ///
     /// - Parameter userId: The user ID of the user to associated with the objects to fetch.
@@ -73,6 +80,13 @@ extension DataStore: CipherDataStore {
             try self.backgroundContext.fetch(CipherData.fetchByIdRequest(id: id, userId: userId))
                 .compactMap(Cipher.init)
                 .first
+        }
+    }
+
+    func fetchAllCiphers(userId: String) async throws -> [Cipher] {
+        try await backgroundContext.perform {
+            let fetchRequest = CipherData.fetchByUserIdRequest(userId: userId)
+            return try self.backgroundContext.fetch(fetchRequest).map(Cipher.init)
         }
     }
 

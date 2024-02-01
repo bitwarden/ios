@@ -1,9 +1,22 @@
+import BitwardenSdk
 @testable import BitwardenShared
 
 class MockPolicyService: PolicyService {
     var applyPasswordGenerationOptionsCalled = false
     var applyPasswordGenerationOptionsResult = false
     var applyPasswordGenerationOptionsTransform = { (_: inout PasswordGenerationOptions) in }
+
+    var getMasterPasswordPolicyOptionsResult: Result<MasterPasswordPolicyOptions?, Error> = .success(
+        MasterPasswordPolicyOptions(
+            minComplexity: 2,
+            minLength: 8,
+            requireUpper: true,
+            requireLower: false,
+            requireNumbers: true,
+            requireSpecial: false,
+            enforceOnLogin: true
+        )
+    )
 
     var isSendHideEmailDisabledByPolicy = false
 
@@ -22,6 +35,10 @@ class MockPolicyService: PolicyService {
         applyPasswordGenerationOptionsCalled = true
         applyPasswordGenerationOptionsTransform(&options)
         return applyPasswordGenerationOptionsResult
+    }
+
+    func getMasterPasswordPolicyOptions() async throws -> MasterPasswordPolicyOptions? {
+        try getMasterPasswordPolicyOptionsResult.get()
     }
 
     func isSendHideEmailDisabledByPolicy() async -> Bool {

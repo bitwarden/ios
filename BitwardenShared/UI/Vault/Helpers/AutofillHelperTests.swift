@@ -7,7 +7,7 @@ class AutofillHelperTests: BitwardenTestCase {
     // MARK: Properties
 
     var appExtensionDelegate: MockAppExtensionDelegate!
-    var coordinator: MockCoordinator<VaultRoute>!
+    var coordinator: MockCoordinator<VaultRoute, AuthAction>!
     var errorReporter: MockErrorReporter!
     var pasteboardService: MockPasteboardService!
     var subject: AutofillHelper!

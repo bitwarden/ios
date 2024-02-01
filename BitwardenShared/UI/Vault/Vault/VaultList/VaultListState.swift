@@ -10,6 +10,9 @@ struct VaultListState: Equatable {
     /// The base url used to fetch icons.
     var iconBaseURL: URL?
 
+    /// Whether the policy is enforced to disable personal vault ownership.
+    var isPersonalOwnershipDisabled: Bool = false
+
     /// The loading state of the My Vault screen.
     var loadingState: LoadingState<[VaultListSection]> = .loading
 

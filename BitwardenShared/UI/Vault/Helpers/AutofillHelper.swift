@@ -16,7 +16,7 @@ class AutofillHelper {
     private weak var appExtensionDelegate: AppExtensionDelegate?
 
     /// The `Coordinator` that handles navigation.
-    private let coordinator: AnyCoordinator<VaultRoute>
+    private let coordinator: AnyCoordinator<VaultRoute, AuthAction>
 
     /// The services used by this helper.
     private let services: Services
@@ -32,7 +32,7 @@ class AutofillHelper {
     ///
     init(
         appExtensionDelegate: AppExtensionDelegate?,
-        coordinator: AnyCoordinator<VaultRoute>,
+        coordinator: AnyCoordinator<VaultRoute, AuthAction>,
         services: Services
     ) {
         self.appExtensionDelegate = appExtensionDelegate

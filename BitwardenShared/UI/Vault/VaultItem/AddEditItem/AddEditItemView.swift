@@ -16,6 +16,13 @@ struct AddEditItemView: View {
     /// The `Store` for this view.
     @ObservedObject var store: Store<AddEditItemState, AddEditItemAction, AddEditItemEffect>
 
+    /// Whether to show that a policy is in effect.
+    var isPolicyEnabled: Bool {
+        store.state.isPersonalOwnershipDisabled && store.state.configuration == .add
+    }
+
+    // MARK: View
+
     var body: some View {
         Group {
             switch store.state.configuration {
@@ -25,6 +32,7 @@ struct AddEditItemView: View {
                 existing
             }
         }
+        .task { await store.perform(.appeared) }
         .task { await store.perform(.fetchCipherOptions) }
         .toast(store.binding(
             get: \.toast,
@@ -45,6 +53,10 @@ struct AddEditItemView: View {
     private var content: some View {
         ScrollView {
             VStack(spacing: 20) {
+                if isPolicyEnabled {
+                    InfoContainer(Localizations.personalOwnershipPolicyInEffect)
+                }
+
                 informationSection
                 miscellaneousSection
                 notesSection
@@ -103,14 +115,10 @@ struct AddEditItemView: View {
                         )
                     )
 
-                    Button {
+                    ToolbarButton(asset: Asset.Images.cancel, label: Localizations.close) {
                         store.send(.dismissPressed)
-                    } label: {
-                        Asset.Images.cancel.swiftUIImage
-                            .resizable()
-                            .frame(width: 19, height: 19)
                     }
-                    .accessibilityLabel(Localizations.close)
+                    .accessibilityIdentifier("CLOSE")
                 }
             }
     }
@@ -188,12 +196,14 @@ private extension AddEditItemView {
                     send: AddEditItemAction.folderChanged
                 )
             )
+            .accessibilityIdentifier("FolderPicker")
 
             Toggle(Localizations.favorite, isOn: store.binding(
                 get: \.isFavoriteOn,
                 send: AddEditItemAction.favoriteChanged
             ))
             .toggleStyle(.bitwarden)
+            .accessibilityIdentifier("ItemFavoriteToggle")
 
             Toggle(isOn: store.binding(
                 get: \.isMasterPasswordRePromptOn,
@@ -211,6 +221,7 @@ private extension AddEditItemView {
                 }
             }
             .toggleStyle(.bitwarden)
+            .accessibilityIdentifier("MasterPasswordRepromptToggle")
         }
     }
 

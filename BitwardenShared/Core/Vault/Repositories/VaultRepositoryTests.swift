@@ -160,7 +160,7 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
 
     /// `deleteCipher()` throws on id errors.
     func test_deleteCipher_idError_nil() async throws {
-        cipherService.deleteWithServerResult = .failure(CipherAPIServiceError.updateMissingId)
+        cipherService.deleteCipherWithServerResult = .failure(CipherAPIServiceError.updateMissingId)
         await assertAsyncThrows(error: CipherAPIServiceError.updateMissingId) {
             try await subject.deleteCipher("")
         }
@@ -188,7 +188,7 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
 
     /// `deleteCipher()` deletes cipher from backend and local storage.
     func test_deleteCipher() async throws {
-        cipherService.deleteWithServerResult = .success(())
+        cipherService.deleteCipherWithServerResult = .success(())
         try await subject.deleteCipher("123")
         XCTAssertEqual(cipherService.deleteCipherId, "123")
     }

@@ -53,6 +53,9 @@ public enum AuthRoute: Equatable {
     /// - Parameter username: The username to display on the password hint screen.
     case masterPasswordHint(username: String)
 
+    /// A route to the update master password view.
+    case updateMasterPassword
+
     /// A route to the self-hosted settings view.
     case selfHosted
 
@@ -64,12 +67,6 @@ public enum AuthRoute: Equatable {
     ///   - url: The url to present to the web auth session.
     ///
     case singleSignOn(callbackUrlScheme: String, state: String, url: URL)
-
-    /// A route to switch accounts.
-    ///
-    /// - Parameter userId: The user Id of the selected account.
-    ///
-    case switchAccount(userId: String)
 
     /// A route to the two-factor authentication view.
     ///
@@ -95,8 +92,8 @@ public enum AuthRoute: Equatable {
     ///
     case vaultUnlock(
         Account,
-        animated: Bool = true,
-        attemptAutomaticBiometricUnlock: Bool = false,
+        animated: Bool,
+        attemptAutomaticBiometricUnlock: Bool,
         didSwitchAccountAutomatically: Bool
     )
 }

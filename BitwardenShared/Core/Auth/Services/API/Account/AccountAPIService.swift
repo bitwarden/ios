@@ -7,6 +7,12 @@ import Networking
 /// A protocol for an API service used to make account requests.
 ///
 protocol AccountAPIService {
+    /// Performs the account revision date request and returns the date of the account's last revision.
+    ///
+    /// - Returns: The account's last revision date.
+    ///
+    func accountRevisionDate() async throws -> Date?
+
     /// Checks if the user's entered password has been found in a data breach.
     ///
     ///  - Parameter password: The user's entered password.
@@ -43,11 +49,21 @@ protocol AccountAPIService {
     /// - Parameter email: The email being used to log into the app.
     ///
     func requestPasswordHint(for email: String) async throws
+
+    /// Performs the API request to update the user's password.
+    ///
+    /// - Parameter requestModel: The request model used to send the request.
+    ///
+    func updatePassword(_ requestModel: UpdatePasswordRequestModel) async throws
 }
 
 // MARK: - APIService
 
 extension APIService: AccountAPIService {
+    func accountRevisionDate() async throws -> Date? {
+        try await apiService.send(AccountRevisionDateRequest()).date
+    }
+
     func checkDataBreaches(password: String) async throws -> Int {
         // Generate a SHA1 hash value for the password.
         let fullPasswordHash = Data(password.utf8).generatedHash(using: Insecure.SHA1.self)
@@ -86,5 +102,9 @@ extension APIService: AccountAPIService {
     func requestPasswordHint(for email: String) async throws {
         let request = PasswordHintRequest(body: PasswordHintRequestModel(email: email))
         _ = try await apiUnauthenticatedService.send(request)
+    }
+
+    func updatePassword(_ requestModel: UpdatePasswordRequestModel) async throws {
+        _ = try await apiService.send(UpdatePasswordRequest(requestModel: requestModel))
     }
 }

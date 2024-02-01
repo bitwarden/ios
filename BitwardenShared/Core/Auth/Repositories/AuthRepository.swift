@@ -1,20 +1,22 @@
 import BitwardenSdk
 import Foundation
+import LocalAuthentication
+
+// swiftlint:disable file_length
 
 /// A protocol for an `AuthRepository` which manages access to the data needed by the UI layer.
 ///
 protocol AuthRepository: AnyObject {
     // MARK: Methods
 
-    /// Enables or disables biometric unlock for a user.
+    /// Enables or disables biometric unlock for the active user.
     ///
     /// - Parameters:
     ///   - enabled: Whether or not the the user wants biometric auth enabled.
     ///     If `true`, the userAuthKey is stored to the keychain and the user preference is set to false.
     ///     If `false`, any userAuthKey is deleted from the keychain and the user preference is set to false.
-    ///   - userId: The user Id to be configured.
     ///
-    func allowBioMetricUnlock(_ enabled: Bool, userId: String?) async throws
+    func allowBioMetricUnlock(_ enabled: Bool) async throws
 
     /// Clears the pins stored on device and in memory.
     ///
@@ -27,24 +29,12 @@ protocol AuthRepository: AnyObject {
     ///
     func deleteAccount(passwordText: String) async throws
 
-    /// Gets all accounts.
-    ///
-    /// - Returns: The known user accounts as `[ProfileSwitcherItem]`.
-    ///
-    func getAccounts() async throws -> [ProfileSwitcherItem]
-
-    /// Gets the active account.
-    ///
-    /// - Returns: The active user account as a `ProfileSwitcherItem`.
-    ///
-    func getActiveAccount() async throws -> ProfileSwitcherItem
-
-    /// Gets the account for a `ProfileSwitcherItem`.
+    /// Gets the account for a user id.
     ///
     /// - Parameter userId: The user Id to be mapped to an account.
     /// - Returns: The user account.
     ///
-    func getAccount(for userId: String) async throws -> Account
+    func getAccount(for userId: String?) async throws -> Account
 
     /// Gets the current account's unique fingerprint phrase.
     ///
@@ -57,6 +47,12 @@ protocol AuthRepository: AnyObject {
     /// - Returns: Whether pin unlock is available.
     ///
     func isPinUnlockAvailable() async throws -> Bool
+
+    /// Checks the locked status of a user vault by user id
+    ///  - Parameter userId: The userId of the account
+    ///  - Returns: A bool, true if locked, false if unlocked.
+    ///
+    func isLocked(userId: String?) async throws -> Bool
 
     /// Locks the user's vault and clears decrypted data from memory.
     ///
@@ -80,6 +76,17 @@ protocol AuthRepository: AnyObject {
     ///
     func passwordStrength(email: String, password: String) async -> UInt8
 
+    /// Gets the profiles state for a user.
+    /// - Parameters:
+    ///   - isVisible: Should the state be visible?
+    ///   - shouldAlwaysHideAddAccount: Should the state always hide add account?
+    /// - Returns: A ProfileSwitcherState.
+    ///
+    func getProfilesState(
+        isVisible: Bool,
+        shouldAlwaysHideAddAccount: Bool
+    ) async -> ProfileSwitcherState
+
     /// Sets the encrypted pin and the pin protected user key.
     ///
     /// - Parameters:
@@ -95,9 +102,30 @@ protocol AuthRepository: AnyObject {
     ///
     func setActiveAccount(userId: String) async throws -> Account
 
+    /// Sets the SessionTimeoutValue.
+    ///
+    /// - Parameters:
+    ///   - newValue: The timeout value.
+    ///   - userId: The user's ID.
+    ///
+    func setVaultTimeout(value newValue: SessionTimeoutValue, userId: String?) async throws
+
+    /// Attempts to unlock the user's vault using information returned from the login with device method.
+    ///
+    /// - Parameters:
+    ///   - privateKey: The private key from the login with device response.
+    ///   - key: The returned key from the approved auth request.
+    ///   - masterPasswordHash: The master password hash from the approved auth request.
+    ///
+    func unlockVaultFromLoginWithDevice(privateKey: String, key: String, masterPasswordHash: String?) async throws
+
     /// Attempts to unlock the user's vault with biometrics.
     ///
     func unlockVaultWithBiometrics() async throws
+
+    /// Attempts to unlock the user's vault with the stored neverlock key.
+    ///
+    func unlockVaultWithNeverlockKey() async throws
 
     /// Attempts to unlock the user's vault with their master password.
     ///
@@ -110,13 +138,60 @@ protocol AuthRepository: AnyObject {
     /// - Parameter pin: The user's PIN.
     ///
     func unlockVaultWithPIN(pin: String) async throws
+
+    /// Updates the user's master password.
+    ///
+    /// - Parameters:
+    ///   - currentPassword: The user's current master password.
+    ///   - newPassword: The user's new master password.
+    ///   - passwordHint: The user's new password hint.
+    ///   - reason: The update password reason.
+    ///
+    func updateMasterPassword(
+        currentPassword: String,
+        newPassword: String,
+        passwordHint: String,
+        reason: ForcePasswordResetReason
+    ) async throws
 }
 
 extension AuthRepository {
+    /// Gets the account for the active user id.
+    ///
+    /// - Returns: The active user account.
+    ///
+    func getAccount() async throws -> Account {
+        try await getAccount(for: nil)
+    }
+
+    /// Gets the active user id.
+    ///
+    /// - Returns: The active user id.
+    ///
+    func getUserId() async throws -> String {
+        try await getAccount(for: nil).profile.userId
+    }
+
+    /// Checks the locked status of a user vault by user id
+    ///
+    ///  - Returns: A bool, true if locked, false if unlocked.
+    ///
+    func isLocked() async throws -> Bool {
+        try await isLocked(userId: nil)
+    }
+
     /// Logs the user out of the active account.
     ///
     func logout() async throws {
         try await logout(userId: nil)
+    }
+
+    /// Sets the SessionTimeoutValue upon the app being backgrounded.
+    ///
+    /// - Parameter newValue: The timeout value.
+    ///
+    func setVaultTimeout(value newValue: SessionTimeoutValue) async throws {
+        try await setVaultTimeout(value: newValue, userId: nil)
     }
 }
 
@@ -134,7 +209,7 @@ class DefaultAuthRepository {
     private let authService: AuthService
 
     /// The service to use system Biometrics for vault unlock.
-    let biometricsService: BiometricsService
+    let biometricsRepository: BiometricsRepository
 
     /// The client used by the application to handle auth related encryption and decryption tasks.
     private let clientAuth: ClientAuthProtocol
@@ -147,6 +222,9 @@ class DefaultAuthRepository {
 
     /// The service used by the application to manage the environment settings.
     private let environmentService: EnvironmentService
+
+    /// The keychain service used by this repository.
+    private let keychainService: KeychainRepository
 
     /// The service used to manage syncing and updates to the user's organizations.
     private let organizationService: OrganizationService
@@ -164,11 +242,12 @@ class DefaultAuthRepository {
     /// - Parameters:
     ///   - accountAPIService: The services used by the application to make account related API requests.
     ///   - authService: The service used that handles some of the auth logic.
-    ///   - biometricsService: The service to use system Biometrics for vault unlock.
+    ///   - biometricsRepository: The service to use system Biometrics for vault unlock.
     ///   - clientAuth: The client used by the application to handle auth related encryption and decryption tasks.
     ///   - clientCrypto: The client used by the application to handle encryption and decryption setup tasks.
     ///   - clientPlatform: The client used by the application to handle generating account fingerprints.
     ///   - environmentService: The service used by the application to manage the environment settings.
+    ///   - keychainService: The keychain service used by the application.
     ///   - organizationService: The service used to manage syncing and updates to the user's organizations.
     ///   - stateService: The service used by the application to manage account state.
     ///   - vaultTimeoutService: The service used by the application to manage vault access.
@@ -176,22 +255,24 @@ class DefaultAuthRepository {
     init(
         accountAPIService: AccountAPIService,
         authService: AuthService,
-        biometricsService: BiometricsService,
+        biometricsRepository: BiometricsRepository,
         clientAuth: ClientAuthProtocol,
         clientCrypto: ClientCryptoProtocol,
         clientPlatform: ClientPlatformProtocol,
         environmentService: EnvironmentService,
+        keychainService: KeychainRepository,
         organizationService: OrganizationService,
         stateService: StateService,
         vaultTimeoutService: VaultTimeoutService
     ) {
         self.accountAPIService = accountAPIService
         self.authService = authService
-        self.biometricsService = biometricsService
+        self.biometricsRepository = biometricsRepository
         self.clientAuth = clientAuth
         self.clientCrypto = clientCrypto
         self.clientPlatform = clientPlatform
         self.environmentService = environmentService
+        self.keychainService = keychainService
         self.organizationService = organizationService
         self.stateService = stateService
         self.vaultTimeoutService = vaultTimeoutService
@@ -201,15 +282,14 @@ class DefaultAuthRepository {
 // MARK: - AuthRepository
 
 extension DefaultAuthRepository: AuthRepository {
-    func clearPins() async throws {
-        try await stateService.clearPins()
+    func allowBioMetricUnlock(_ enabled: Bool) async throws {
+        try await biometricsRepository.setBiometricUnlockKey(
+            authKey: enabled ? clientCrypto.getUserEncryptionKey() : nil
+        )
     }
 
-    func allowBioMetricUnlock(_ enabled: Bool, userId: String?) async throws {
-        try await biometricsService.setBiometricUnlockKey(
-            authKey: enabled ? clientCrypto.getUserEncryptionKey() : nil,
-            for: userId
-        )
+    func clearPins() async throws {
+        try await stateService.clearPins()
     }
 
     func deleteAccount(passwordText: String) async throws {
@@ -223,31 +303,34 @@ extension DefaultAuthRepository: AuthRepository {
         await vaultTimeoutService.remove(userId: nil)
     }
 
-    func getAccounts() async throws -> [ProfileSwitcherItem] {
-        let accounts = try await stateService.getAccounts()
-        return await accounts.asyncMap { account in
-            await profileItem(from: account)
-        }
-    }
-
-    func getActiveAccount() async throws -> ProfileSwitcherItem {
-        let active = try await stateService.getActiveAccount()
-        return await profileItem(from: active)
-    }
-
-    func getAccount(for userId: String) async throws -> Account {
-        let accounts = try await stateService.getAccounts()
-        guard let match = accounts.first(where: { account in
-            account.profile.userId == userId
-        }) else {
-            throw StateServiceError.noAccounts
-        }
-        return match
+    func getAccount(for userId: String?) async throws -> Account {
+        try await stateService.getAccount(userId: userId)
     }
 
     func getFingerprintPhrase() async throws -> String {
         let userId = try await stateService.getActiveAccountId()
         return try await clientPlatform.userFingerprint(fingerprintMaterial: userId)
+    }
+
+    func getProfilesState(
+        isVisible: Bool,
+        shouldAlwaysHideAddAccount: Bool
+    ) async -> ProfileSwitcherState {
+        let accounts = await (try? getAccounts()) ?? []
+        guard !accounts.isEmpty else { return .empty() }
+        let activeAccount = try? await getActiveAccount()
+        return ProfileSwitcherState(
+            accounts: accounts,
+            activeAccountId: activeAccount?.userId,
+            isVisible: isVisible,
+            shouldAlwaysHideAddAccount: shouldAlwaysHideAddAccount
+        )
+    }
+
+    func isLocked(userId: String?) async throws -> Bool {
+        try await vaultTimeoutService.isLocked(
+            userId: userIdOrActive(userId)
+        )
     }
 
     func isPinUnlockAvailable() async throws -> Bool {
@@ -259,8 +342,8 @@ extension DefaultAuthRepository: AuthRepository {
     }
 
     func logout(userId: String?) async throws {
+        try? await biometricsRepository.setBiometricUnlockKey(authKey: nil)
         await vaultTimeoutService.remove(userId: userId)
-        try? await biometricsService.setBiometricUnlockKey(authKey: nil, for: userId)
         try await stateService.logoutAccount(userId: userId)
     }
 
@@ -283,10 +366,46 @@ extension DefaultAuthRepository: AuthRepository {
         )
     }
 
+    func setVaultTimeout(value newValue: SessionTimeoutValue, userId: String?) async throws {
+        // Ensure we have a user id.
+        let id = try await userIdOrActive(userId)
+        let currentValue = try? await vaultTimeoutService.sessionTimeoutValue(userId: id)
+        // Set or delete the never lock key according to the current and new values.
+        if case .never = newValue {
+            try await keychainService.setUserAuthKey(
+                for: .neverLock(userId: id),
+                value: clientCrypto.getUserEncryptionKey()
+            )
+        } else if currentValue == .never {
+            try await keychainService.deleteUserAuthKey(
+                for: .neverLock(userId: id)
+            )
+        }
+
+        // Then configure the vault timeout service with the correct value.
+        try await vaultTimeoutService.setVaultTimeout(
+            value: newValue,
+            userId: id
+        )
+    }
+
+    func unlockVaultFromLoginWithDevice(privateKey: String, key: String, masterPasswordHash: String?) async throws {
+        try await unlockVault(method: .authRequest(requestPrivateKey: privateKey, protectedUserKey: key))
+        if let masterPasswordHash {
+            try await stateService.setMasterPasswordHash(masterPasswordHash)
+        }
+    }
+
     func unlockVaultWithBiometrics() async throws {
-        let account = try await stateService.getActiveAccount()
-        let decryptedUserKey = try await biometricsService.getUserAuthKey(for: account.profile.userId)
+        let decryptedUserKey = try await biometricsRepository.getUserAuthKey()
         try await unlockVault(method: .decryptedKey(decryptedUserKey: decryptedUserKey))
+    }
+
+    func unlockVaultWithNeverlockKey() async throws {
+        let id = try await stateService.getActiveAccountId()
+        let key = KeychainItem.neverLock(userId: id)
+        let neverlockKey = try await keychainService.getUserAuthKeyValue(for: key)
+        try await unlockVault(method: .decryptedKey(decryptedUserKey: neverlockKey))
     }
 
     func unlockVaultWithPassword(password: String) async throws {
@@ -304,35 +423,48 @@ extension DefaultAuthRepository: AuthRepository {
 
     // MARK: Private
 
+    /// A helper function to convert state service `Account`s to `ProfileSwitcherItem`s.
+    ///
+    /// - Returns: A list of available accounts as `[ProfileSwitcherItem]`.
+    ///
+    private func getAccounts() async throws -> [ProfileSwitcherItem] {
+        let accounts = try await stateService.getAccounts()
+        return await accounts.asyncMap { account in
+            await profileItem(from: account)
+        }
+    }
+
+    /// A helper function to convert the state service active `Account` to a `ProfileSwitcherItem`.
+    ///
+    /// - Returns: The active account as a `ProfileSwitcherItem`.
+    ///
+    private func getActiveAccount() async throws -> ProfileSwitcherItem {
+        let active = try await stateService.getActiveAccount()
+        return await profileItem(from: active)
+    }
+
     /// A function to convert an `Account` to a `ProfileSwitcherItem`
     ///
     ///   - Parameter account: The account to convert.
     ///   - Returns: The `ProfileSwitcherItem` representing the account.
     ///
     private func profileItem(from account: Account) async -> ProfileSwitcherItem {
-        var profile = ProfileSwitcherItem(
+        let isLocked = await (try? isLocked(userId: account.profile.userId)) ?? true
+        let hasNeverLock = await (try? stateService
+            .getVaultTimeout(userId: account.profile.userId)) == .never
+        let displayAsUnlocked = !isLocked || hasNeverLock
+        return ProfileSwitcherItem(
             email: account.profile.email,
+            isUnlocked: displayAsUnlocked,
             userId: account.profile.userId,
             userInitials: account.initials()
                 ?? ".."
         )
-        do {
-            let isUnlocked = try !vaultTimeoutService.isLocked(userId: account.profile.userId)
-            profile.isUnlocked = isUnlocked
-            return profile
-        } catch {
-            profile.isUnlocked = false
-            let userId = profile.userId
-            await vaultTimeoutService.lockVault(userId: userId)
-            return profile
-        }
     }
 
-    /// Unlocks the vault with the pin or password.
+    /// Attempts to unlock the vault with a given method.
     ///
-    /// - Parameters:
-    ///   - passwordOrPin: The user's password or pin.
-    ///   - method: The unlocking method, which is either password or pin.
+    /// - Parameter method: The unlocking `InitUserCryptoMethod` method.
     ///
     private func unlockVault(method: InitUserCryptoMethod) async throws {
         let account = try await stateService.getActiveAccount()
@@ -348,6 +480,11 @@ extension DefaultAuthRepository: AuthRepository {
         )
 
         switch method {
+        case .authRequest:
+            break
+        case .decryptedKey:
+            // No-op: nothing extra to do for decryptedKey.
+            break
         case let .password(password, _):
             let hashedPassword = try await authService.hashPassword(
                 password: password,
@@ -363,13 +500,12 @@ extension DefaultAuthRepository: AuthRepository {
             }
 
             // Re-enable biometrics, if required.
-            let biometricUnlockStatus = try? await biometricsService.getBiometricUnlockStatus()
+            let biometricUnlockStatus = try? await biometricsRepository.getBiometricUnlockStatus()
             switch biometricUnlockStatus {
             case .available(_, true, false):
-                try await biometricsService.configureBiometricIntegrity()
-                try await biometricsService.setBiometricUnlockKey(
-                    authKey: clientCrypto.getUserEncryptionKey(),
-                    for: account.profile.userId
+                try await biometricsRepository.configureBiometricIntegrity()
+                try await biometricsRepository.setBiometricUnlockKey(
+                    authKey: clientCrypto.getUserEncryptionKey()
                 )
             default:
                 break
@@ -377,12 +513,54 @@ extension DefaultAuthRepository: AuthRepository {
         case .pin:
             // No-op: nothing extra to do for pin unlock.
             break
-        case .decryptedKey:
-            break
-        case .authRequest:
-            break
         }
+
         await vaultTimeoutService.unlockVault(userId: account.profile.userId)
         try await organizationService.initializeOrganizationCrypto()
+    }
+
+    func updateMasterPassword(
+        currentPassword: String,
+        newPassword: String,
+        passwordHint: String,
+        reason: ForcePasswordResetReason
+    ) async throws {
+        let account = try await stateService.getActiveAccount()
+        let updatePasswordResponse = try await clientCrypto.updatePassword(newPassword: newPassword)
+
+        let masterPasswordHash = try await clientAuth.hashPassword(
+            email: account.profile.email,
+            password: currentPassword,
+            kdfParams: account.kdf.sdkKdf,
+            purpose: .serverAuthorization
+        )
+
+        let encryptionKeys = try await stateService.getAccountEncryptionKeys()
+        let newEncryptionKeys = AccountEncryptionKeys(
+            encryptedPrivateKey: encryptionKeys.encryptedPrivateKey,
+            encryptedUserKey: updatePasswordResponse.newKey
+        )
+
+        switch reason {
+        case .adminForcePasswordReset:
+            break
+        case .weakMasterPasswordOnLogin:
+            try await accountAPIService.updatePassword(
+                UpdatePasswordRequestModel(
+                    key: updatePasswordResponse.newKey,
+                    masterPasswordHash: masterPasswordHash,
+                    masterPasswordHint: passwordHint,
+                    newMasterPasswordHash: updatePasswordResponse.passwordHash
+                )
+            )
+        }
+
+        try await stateService.setAccountEncryptionKeys(newEncryptionKeys)
+        try await stateService.setMasterPasswordHash(updatePasswordResponse.passwordHash)
+    }
+
+    private func userIdOrActive(_ maybeId: String?) async throws -> String {
+        if let maybeId { return maybeId }
+        return try await stateService.getActiveAccountId()
     }
 }

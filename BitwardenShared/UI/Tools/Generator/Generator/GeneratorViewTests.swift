@@ -33,7 +33,7 @@ class GeneratorViewTests: BitwardenTestCase {
     /// Tapping on the dismiss button dispatches the `.dismissPressed` action.
     func test_dismissButton_tap() throws {
         processor.state.presentationMode = .inPlace
-        let button = try subject.inspect().find(buttonWithAccessibilityLabel: Localizations.cancel)
+        let button = try subject.inspect().find(button: Localizations.cancel)
         try button.tap()
         XCTAssertEqual(processor.dispatchedActions.last, .dismissPressed)
     }

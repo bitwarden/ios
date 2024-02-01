@@ -89,26 +89,28 @@ struct ProfileSwitcherView: View {
     /// - Parameter accountProfile: A `ProfileSwitcherItem` to display in row format
     ///
     private var selectedProfileSwitcherRow: some View {
-        ProfileSwitcherRow(store: store.child(
-            state: { state in
-                ProfileSwitcherRowState(
-                    shouldTakeAccessibilityFocus: state.isVisible,
-                    showDivider: state.showsAddAccount,
-                    rowType: .active(
-                        state.activeAccountProfile ?? ProfileSwitcherItem()
+        ProfileSwitcherRow(
+            store: store.child(
+                state: { state in
+                    ProfileSwitcherRowState(
+                        shouldTakeAccessibilityFocus: state.isVisible,
+                        showDivider: state.showsAddAccount,
+                        rowType: .active(
+                            state.activeAccountProfile ?? .empty
+                        )
                     )
-                )
-            },
-            mapAction: { action in
-                switch action {
-                case .longPressed:
-                    .accountLongPressed(store.state.activeAccountProfile ?? ProfileSwitcherItem())
-                case .pressed:
-                    .accountPressed(store.state.activeAccountProfile ?? ProfileSwitcherItem())
-                }
-            },
-            mapEffect: nil
-        ))
+                },
+                mapAction: { action in
+                    switch action {
+                    case .longPressed:
+                        .accountLongPressed(store.state.activeAccountProfile ?? .empty)
+                    case .pressed:
+                        .accountPressed(store.state.activeAccountProfile ?? .empty)
+                    }
+                },
+                mapEffect: nil
+            )
+        )
     }
 
     // MARK: Private Methods
@@ -150,6 +152,7 @@ struct ProfileSwitcherView_Previews: PreviewProvider {
     static let selectedAccount = ProfileSwitcherItem(
         color: .purple,
         email: "anne.account@bitwarden.com",
+        isUnlocked: true,
         userId: "1",
         userInitials: "AA"
     )
@@ -183,6 +186,7 @@ struct ProfileSwitcherView_Previews: PreviewProvider {
                                     color: .green,
                                     email: "bonus.bridge@bitwarde.com",
                                     isUnlocked: true,
+                                    userId: "2",
                                     userInitials: "BB"
                                 ),
                             ],
@@ -206,18 +210,21 @@ struct ProfileSwitcherView_Previews: PreviewProvider {
                                     color: .yellow,
                                     email: "bonus.bridge@bitwarden.com",
                                     isUnlocked: true,
+                                    userId: "2",
                                     userInitials: "BB"
                                 ),
                                 ProfileSwitcherItem(
                                     color: .teal,
                                     email: "concurrent.claim@bitarden.com",
                                     isUnlocked: true,
+                                    userId: "3",
                                     userInitials: "CC"
                                 ),
                                 ProfileSwitcherItem(
                                     color: .indigo,
                                     email: "double.dip@bitwarde.com",
                                     isUnlocked: true,
+                                    userId: "4",
                                     userInitials: "DD"
                                 ),
                             ],
@@ -241,24 +248,28 @@ struct ProfileSwitcherView_Previews: PreviewProvider {
                                     color: .yellow,
                                     email: "bonus.bridge@bitwarden.com",
                                     isUnlocked: true,
+                                    userId: "2",
                                     userInitials: "BB"
                                 ),
                                 ProfileSwitcherItem(
                                     color: .teal,
                                     email: "concurrent.claim@bitarden.com",
                                     isUnlocked: true,
+                                    userId: "3",
                                     userInitials: "CC"
                                 ),
                                 ProfileSwitcherItem(
                                     color: .indigo,
                                     email: "double.dip@bitwarde.com",
                                     isUnlocked: true,
+                                    userId: "4",
                                     userInitials: "DD"
                                 ),
                                 ProfileSwitcherItem(
                                     color: .green,
                                     email: "extra.edition@bitwarden.com",
                                     isUnlocked: false,
+                                    userId: "5",
                                     userInitials: "EE"
                                 ),
                             ],

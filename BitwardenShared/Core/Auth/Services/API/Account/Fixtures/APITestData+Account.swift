@@ -1,4 +1,14 @@
+import Foundation
+
 extension APITestData {
+    // MARK: Account Revision Date
+
+    static func accountRevisionDate( // swiftlint:disable:this type_contents_order
+        _ date: Date = Date(timeIntervalSince1970: 1_704_067_200)
+    ) -> APITestData {
+        APITestData(data: Data(String(date.timeIntervalSince1970 * 1000).utf8))
+    }
+
     // MARK: Create Account
 
     static let createAccountAccountAlreadyExists = loadFromJsonBundle(resource: "CreateAccountAccountAlreadyExists")

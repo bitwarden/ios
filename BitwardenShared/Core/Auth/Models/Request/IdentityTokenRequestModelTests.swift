@@ -20,13 +20,18 @@ class IdentityTokenRequestModelTests: BitwardenTestCase {
                 redirectUri: "redirectUri"
             ),
             captchaToken: "captchaToken",
-            deviceInfo: .fixture()
+            deviceInfo: .fixture(),
+            loginRequestId: nil
         )
 
         subjectPassword = IdentityTokenRequestModel(
-            authenticationMethod: .password(username: "user@example.com", password: "password"),
+            authenticationMethod: .password(
+                username: "ramen@delicious.com",
+                password: "password"
+            ),
             captchaToken: "captchaToken",
-            deviceInfo: .fixture()
+            deviceInfo: .fixture(),
+            loginRequestId: nil
         )
     }
 
@@ -72,7 +77,7 @@ class IdentityTokenRequestModelTests: BitwardenTestCase {
         XCTAssertEqual(valuesByKey["deviceType"], "1")
 
         XCTAssertEqual(valuesByKey["grant_type"], "password")
-        XCTAssertEqual(valuesByKey["username"], "user@example.com")
+        XCTAssertEqual(valuesByKey["username"], "ramen@delicious.com")
         XCTAssertEqual(valuesByKey["password"], "password")
 
         XCTAssertEqual(valuesByKey["captchaResponse"], "captchaToken")
@@ -83,7 +88,8 @@ class IdentityTokenRequestModelTests: BitwardenTestCase {
         let subject = IdentityTokenRequestModel(
             authenticationMethod: .password(username: "user@example.com", password: "password"),
             captchaToken: nil,
-            deviceInfo: .fixture()
+            deviceInfo: .fixture(),
+            loginRequestId: nil
         )
         let valuesByKey = valuesByKey(subject.values)
 
@@ -93,9 +99,13 @@ class IdentityTokenRequestModelTests: BitwardenTestCase {
     /// `values` contains the two-factor information if it's provided.
     func test_values_withTwoFactorInformation() {
         let subject = IdentityTokenRequestModel(
-            authenticationMethod: .password(username: "user@example.com", password: "password"),
+            authenticationMethod: .password(
+                username: "user@example.com",
+                password: "password"
+            ),
             captchaToken: nil,
             deviceInfo: .fixture(),
+            loginRequestId: nil,
             twoFactorCode: "hi_im_a_lil_code",
             twoFactorMethod: .email,
             twoFactorRemember: true

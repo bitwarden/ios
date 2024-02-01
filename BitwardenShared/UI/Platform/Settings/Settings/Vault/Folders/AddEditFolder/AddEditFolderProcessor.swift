@@ -26,7 +26,7 @@ final class AddEditFolderProcessor: StateProcessor<AddEditFolderState, AddEditFo
     // MARK: Properties
 
     /// The coordinator used to manage navigation.
-    private let coordinator: AnyCoordinator<SettingsRoute>
+    private let coordinator: AnyCoordinator<SettingsRoute, SettingsEvent>
 
     /// The delegate that is notified when specific circumstances in the add/edit folder view have occurred.
     private weak var delegate: AddEditFolderDelegate?
@@ -44,7 +44,7 @@ final class AddEditFolderProcessor: StateProcessor<AddEditFolderState, AddEditFo
     ///   - state: The initial state of the processor.
     ///
     init(
-        coordinator: AnyCoordinator<SettingsRoute>,
+        coordinator: AnyCoordinator<SettingsRoute, SettingsEvent>,
         delegate: AddEditFolderDelegate?,
         services: Services,
         state: AddEditFolderState

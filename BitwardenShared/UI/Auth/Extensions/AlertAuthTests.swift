@@ -6,7 +6,7 @@ class AlertAuthTests: BitwardenTestCase {
     /// `accountOptions(_:lockAction:logoutAction:)`
     func test_accountOptions() {
         let subject = Alert.accountOptions(
-            .init(email: "test@example.com", isUnlocked: true),
+            .fixture(email: "test@example.com", isUnlocked: true),
             lockAction: {},
             logoutAction: {}
         )
@@ -59,6 +59,16 @@ class AlertAuthTests: BitwardenTestCase {
         let subject = Alert.dataBreachesCountAlert(count: 0)
 
         XCTAssertEqual(subject.title, Localizations.passwordSafe)
+        XCTAssertEqual(subject.alertActions.count, 1)
+        XCTAssertEqual(subject.alertActions[0].title, Localizations.ok)
+    }
+
+    /// `masterPasswordInvalid()` returns an alert notifying the user that their master password is invalid.
+    func test_masterPasswordInvalid() {
+        let subject = Alert.masterPasswordInvalid()
+
+        XCTAssertEqual(subject.title, Localizations.masterPasswordPolicyValidationTitle)
+        XCTAssertEqual(subject.message, Localizations.masterPasswordPolicyValidationMessage)
         XCTAssertEqual(subject.alertActions.count, 1)
         XCTAssertEqual(subject.alertActions[0].title, Localizations.ok)
     }

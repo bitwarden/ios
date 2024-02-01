@@ -1,3 +1,4 @@
+import BitwardenSdk
 import XCTest
 
 @testable import BitwardenShared
@@ -16,6 +17,7 @@ class AuthServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body_
     var clientPlatform: MockClientPlatform!
     var environmentService: MockEnvironmentService!
     var stateService: MockStateService!
+    var policyService: MockPolicyService!
     var subject: DefaultAuthService!
     var systemDevice: MockSystemDevice!
 
@@ -32,6 +34,7 @@ class AuthServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body_
         clientGenerators = MockClientGenerators()
         clientPlatform = MockClientPlatform()
         environmentService = MockEnvironmentService()
+        policyService = MockPolicyService()
         stateService = MockStateService()
         systemDevice = MockSystemDevice()
 
@@ -43,6 +46,7 @@ class AuthServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body_
             clientGenerators: clientGenerators,
             clientPlatform: clientPlatform,
             environmentService: environmentService,
+            policyService: policyService,
             stateService: stateService,
             systemDevice: systemDevice
         )
@@ -70,13 +74,14 @@ class AuthServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body_
     func test_answerLoginRequest() async throws {
         // Set up the mock data.
         client.result = .httpSuccess(testData: .authRequestSuccess)
+        stateService.activeAccount = .fixture()
         appSettingsStore.appId = "App id"
 
         // Test.
         try await subject.answerLoginRequest(.fixture(), approve: true)
 
         // Confirm the results.
-        XCTAssertEqual(clientAuth.approveAuthRequestPublicKey, "reallyLongPublicKey=")
+        XCTAssertEqual(clientAuth.approveAuthRequestPublicKey, "reallyLongPublicKey")
         XCTAssertEqual(client.requests.last?.url.absoluteString, "https://example.com/api/auth-requests/1")
     }
 
@@ -85,17 +90,51 @@ class AuthServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body_
         XCTAssertEqual(subject.callbackUrlScheme, "bitwarden")
     }
 
+    /// `checkPendingLoginRequest(withId:)` returns the result of the API request.
+    func test_checkPendingLoginRequest() async throws {
+        // First initiate the login with device flow so that the necessary data is cached.
+        client.results = [
+            .httpSuccess(testData: .authRequestSuccess),
+            .httpSuccess(testData: .authRequestSuccess),
+        ]
+        appSettingsStore.appId = "App id"
+        clientAuth.newAuthRequestResult = .success(.init(
+            privateKey: "",
+            publicKey: "",
+            fingerprint: "fingerprint",
+            accessCode: "accessCode"
+        ))
+        let request = try await subject.initiateLoginWithDevice(email: "email@example.com")
+
+        // Check the pending login request.
+        let updatedRequest = try await subject.checkPendingLoginRequest(withId: request.requestId)
+
+        XCTAssertEqual(updatedRequest, .fixture())
+        XCTAssertEqual(
+            client.requests.last?.url.absoluteString,
+            "https://example.com/api/auth-requests/1/response?code=accessCode"
+        )
+    }
+
+    /// `checkPendingLoginRequest(withId:)` throws an error if there's no cached data.
+    func test_checkPendingLoginRequest_error() async throws {
+        await assertAsyncThrows(error: AuthError.missingLoginWithDeviceData) {
+            _ = try await subject.checkPendingLoginRequest(withId: "404")
+        }
+    }
+
     /// `denyAllLoginRequests(_:)` denies all the login requests.
     func test_denyAllLoginRequests() async throws {
         // Set up the mock data.
         client.result = .httpSuccess(testData: .authRequestSuccess)
+        stateService.activeAccount = .fixture()
         appSettingsStore.appId = "App id"
 
         // Test.
         try await subject.denyAllLoginRequests([.fixture()])
 
         // Confirm the results.
-        XCTAssertEqual(clientAuth.approveAuthRequestPublicKey, "reallyLongPublicKey=")
+        XCTAssertEqual(clientAuth.approveAuthRequestPublicKey, "reallyLongPublicKey")
         XCTAssertEqual(client.requests.last?.url.absoluteString, "https://example.com/api/auth-requests/1")
     }
 
@@ -158,12 +197,56 @@ class AuthServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body_
         ))
 
         // Test.
-        let fingerprint = try await subject.initiateLoginWithDevice(email: "example@email.com")
+        let result = try await subject.initiateLoginWithDevice(email: "email@example.com")
 
         // Verify the results.
         XCTAssertEqual(client.requests.count, 1)
-        XCTAssertEqual(clientAuth.newAuthRequestEmail, "example@email.com")
-        XCTAssertEqual(fingerprint, "fingerprint")
+        XCTAssertEqual(clientAuth.newAuthRequestEmail, "email@example.com")
+        XCTAssertEqual(result.fingerprint, "fingerprint")
+        XCTAssertEqual(result.requestId, LoginRequest.fixture().id)
+    }
+
+    /// `loginWithDevice(_:email:captchaToken:)` logs in with an approved login with device request.
+    func test_loginWithDevice() async throws {
+        // First initiate the login with device flow so that the necessary data is cached.
+        client.results = [
+            .httpSuccess(testData: .authRequestSuccess),
+            .httpSuccess(testData: .identityTokenSuccess),
+        ]
+        appSettingsStore.appId = "App id"
+        systemDevice.modelIdentifier = "Model id"
+        clientAuth.newAuthRequestResult = .success(.init(
+            privateKey: "",
+            publicKey: "",
+            fingerprint: "fingerprint",
+            accessCode: "accessCode"
+        ))
+        _ = try await subject.initiateLoginWithDevice(email: "email@example.com")
+
+        // Attempt to log in.
+        _ = try await subject.loginWithDevice(.fixture(), email: "email@example.com", captchaToken: nil)
+
+        // Verify the results.
+        let tokenRequest = IdentityTokenRequestModel(
+            authenticationMethod: .password(
+                username: "email@example.com",
+                password: "accessCode"
+            ),
+            captchaToken: nil,
+            deviceInfo: DeviceInfo(
+                identifier: "App id",
+                name: "Model id"
+            ),
+            loginRequestId: "1"
+        )
+        XCTAssertEqual(client.requests.last?.body, try tokenRequest.encode())
+    }
+
+    /// `loginWithDevice(_:email:captchaToken:)` throws an error if there's no cached data.
+    func test_loginWithDevice_error() async throws {
+        await assertAsyncThrows(error: AuthError.missingLoginWithDeviceData) {
+            _ = try await subject.loginWithDevice(.fixture(), email: "", captchaToken: nil)
+        }
     }
 
     /// `loginWithMasterPassword(_:username:captchaToken:)` logs in with the password.
@@ -190,15 +273,13 @@ class AuthServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body_
             email: "email@example.com"
         )
         let tokenRequest = IdentityTokenRequestModel(
-            authenticationMethod: .password(
-                username: "email@example.com",
-                password: "hashed password"
-            ),
+            authenticationMethod: .password(username: "email@example.com", password: "hashed password"),
             captchaToken: nil,
             deviceInfo: DeviceInfo(
                 identifier: "App id",
                 name: "Model id"
-            )
+            ),
+            loginRequestId: nil
         )
         XCTAssertEqual(client.requests.count, 2)
         XCTAssertEqual(client.requests[0].body, try preLoginRequest.encode())
@@ -222,6 +303,54 @@ class AuthServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body_
             stateService.masterPasswordHashes,
             ["13512467-9cfe-43b0-969f-07534084764b": "hashed password"]
         )
+    }
+
+    /// `loginWithMasterPassword(_:username:captchaToken:)` logs in with the password updates AccountProfile's
+    /// `.forcePasswordResetReason` value if policy requires user to update password.
+    func test_loginWithMasterPassword_updatesAccountProfile() async throws {
+        // Set up the mock data.
+        client.results = [
+            .httpSuccess(testData: .preLoginSuccess),
+            .httpSuccess(testData: .IdentityTokenWithMasterPasswordPolicy),
+        ]
+        appSettingsStore.appId = "App id"
+        clientAuth.hashPasswordResult = .success("hashed password")
+        clientAuth.satisfiesPolicyResult = false
+        stateService.preAuthEnvironmentUrls = EnvironmentUrlData(base: URL(string: "https://vault.bitwarden.com"))
+        systemDevice.modelIdentifier = "Model id"
+
+        // Attempt to login.
+        try await subject.loginWithMasterPassword(
+            "Password1234!",
+            username: "email@example.com",
+            captchaToken: nil
+        )
+
+        // Verify the results.
+        let preLoginRequest = PreLoginRequestModel(
+            email: "email@example.com"
+        )
+        let tokenRequest = IdentityTokenRequestModel(
+            authenticationMethod: .password(
+                username: "email@example.com",
+                password: "hashed password"
+            ),
+            captchaToken: nil,
+            deviceInfo: DeviceInfo(
+                identifier: "App id",
+                name: "Model id"
+            ),
+            loginRequestId: nil
+        )
+        XCTAssertEqual(client.requests.count, 2)
+        XCTAssertEqual(client.requests[0].body, try preLoginRequest.encode())
+        XCTAssertEqual(client.requests[1].body, try tokenRequest.encode())
+
+        XCTAssertEqual(clientAuth.hashPasswordEmail, "user@bitwarden.com")
+        XCTAssertEqual(clientAuth.hashPasswordPassword, "hashed password")
+        XCTAssertEqual(clientAuth.hashPasswordKdfParams, .pbkdf2(iterations: 600_000))
+
+        XCTAssertEqual(stateService.accountsAdded.last?.profile.forcePasswordResetReason, .adminForcePasswordReset)
     }
 
     /// `loginWithMasterPassword(_:username:captchaToken:)` handles a two-factor auth error.
@@ -284,7 +413,8 @@ class AuthServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body_
             deviceInfo: DeviceInfo(
                 identifier: "App id",
                 name: "Model id"
-            )
+            ),
+            loginRequestId: nil
         )
         XCTAssertEqual(client.requests.count, 1)
         XCTAssertEqual(client.requests[0].body, try tokenRequest.encode())
@@ -366,6 +496,62 @@ class AuthServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body_
         )
 
         XCTAssertEqual(account, .fixtureAccountLogin())
+    }
+
+    /// `requirePasswordChange(email:masterPassword:policy)` returns `false` if there
+    /// is no policy to check.
+    func test_requirePasswordChange_noPolicy() async throws {
+        policyService.getMasterPasswordPolicyOptionsResult = .success(nil)
+        let requirePasswordChange = try await subject.requirePasswordChange(
+            email: "email",
+            masterPassword: "master password",
+            policy: nil
+        )
+        XCTAssertFalse(requirePasswordChange)
+    }
+
+    /// `requirePasswordChange(email:masterPassword:policy)` returns `true` if the master password meet the
+    /// master password policy option.
+    func test_requirePasswordChange_withPolicy_strong() async throws {
+        clientAuth.satisfiesPolicyResult = true
+        policyService.getMasterPasswordPolicyOptionsResult = .success(nil)
+        let policy = MasterPasswordPolicyOptions(
+            minComplexity: 6,
+            minLength: 6,
+            requireUpper: false,
+            requireLower: false,
+            requireNumbers: true,
+            requireSpecial: true,
+            enforceOnLogin: true
+        )
+        let requirePasswordChange = try await subject.requirePasswordChange(
+            email: "email",
+            masterPassword: "strong 32 password & #",
+            policy: policy
+        )
+        XCTAssertFalse(requirePasswordChange)
+    }
+
+    /// `requirePasswordChange(email:masterPassword:policy)` returns `true` if the master password does not
+    /// meet master password policy option.
+    func test_requirePasswordChange_withPolicy_weak() async throws {
+        clientAuth.satisfiesPolicyResult = false
+        policyService.getMasterPasswordPolicyOptionsResult = .success(nil)
+        let policy = MasterPasswordPolicyOptions(
+            minComplexity: 6,
+            minLength: 6,
+            requireUpper: true,
+            requireLower: true,
+            requireNumbers: true,
+            requireSpecial: true,
+            enforceOnLogin: true
+        )
+        let requirePasswordChange = try await subject.requirePasswordChange(
+            email: "email",
+            masterPassword: "weak password",
+            policy: policy
+        )
+        XCTAssertTrue(requirePasswordChange)
     }
 
     /// `resendVerificationCodeEmail()` throws an error if there is no cached request model to use.

@@ -1,6 +1,8 @@
 import BitwardenSdk
 import UIKit
 
+// swiftlint:disable file_length
+
 /// The `ServiceContainer` contains the list of services used by the app. This can be injected into
 /// `Coordinator`s throughout the app which build processors. A `Processor` can define which
 /// services it needs access to by defining a typealias containing a list of services.
@@ -30,7 +32,10 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
     /// The service used by the application to handle authentication tasks.
     let authService: AuthService
 
-    /// The service used to obtain the available authentication policies and access controls for the user's device.
+    /// The repository to manage bioemtric unlock policies and access controls the user.
+    let biometricsRepository: BiometricsRepository
+
+    /// The service used to obtain device biometrics status & data.
     let biometricsService: BiometricsService
 
     /// The service used by the application to generate captcha related artifacts.
@@ -50,6 +55,12 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
 
     /// The repository used by the application to manage generator data for the UI layer.
     let generatorRepository: GeneratorRepository
+
+    /// The service used to access & store data on the device keychain.
+    let keychainService: KeychainService
+
+    /// The repository used to manage keychain items.
+    let keychainRepository: KeychainRepository
 
     /// The service used by the application to access the system's notification center.
     let notificationCenterService: NotificationCenterService
@@ -109,15 +120,18 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
     ///   - appSettingsStore: The service used by the application to persist app setting values.
     ///   - authRepository: The repository used by the application to manage auth data for the UI layer.
     ///   - authService: The service used by the application to handle authentication tasks.
-    ///   - biometricsService: The service used to obtain the available authentication policies
-    ///     and access controls for the user's device.
+    ///   - biometricsRepository: The repository to manage bioemtric unlock policies
+    ///         and access controls for the user.
+    ///   - biometricsService: The service used to obtain device biometrics status & data.
     ///   - captchaService: The service used by the application to create captcha related artifacts.
     ///   - cameraService: The service used by the application to manage camera use.
     ///   - clientService: The service used by the application to handle encryption and decryption tasks.
     ///   - environmentService: The service used by the application to manage the environment settings.
     ///   - errorReporter: The service used by the application to report non-fatal errors.
     ///   - generatorRepository: The repository used by the application to manage generator data for the UI layer.
-    ///   - notificationCenterService: The service used by the application to access the system's notification center.
+    ///   - keychainRepository: The repository used to manages keychain items.
+    ///   - keychainService: The service used to access & store data on the device keychain.
+    ///   - notificaitonCenterService: The service used by the application to access the system's notification center.
     ///   - notificationService: The service used by the application to handle notifications.
     ///   - pasteboardService: The service used by the application for sharing data with other apps.
     ///   - policyService: The service for managing the polices for the user.
@@ -140,6 +154,7 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
         appSettingsStore: AppSettingsStore,
         authRepository: AuthRepository,
         authService: AuthService,
+        biometricsRepository: BiometricsRepository,
         biometricsService: BiometricsService,
         captchaService: CaptchaService,
         cameraService: CameraService,
@@ -147,6 +162,8 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
         environmentService: EnvironmentService,
         errorReporter: ErrorReporter,
         generatorRepository: GeneratorRepository,
+        keychainRepository: KeychainRepository,
+        keychainService: KeychainService,
         notificationCenterService: NotificationCenterService,
         notificationService: NotificationService,
         pasteboardService: PasteboardService,
@@ -169,6 +186,7 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
         self.appSettingsStore = appSettingsStore
         self.authRepository = authRepository
         self.authService = authService
+        self.biometricsRepository = biometricsRepository
         self.biometricsService = biometricsService
         self.captchaService = captchaService
         self.cameraService = cameraService
@@ -176,6 +194,8 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
         self.environmentService = environmentService
         self.errorReporter = errorReporter
         self.generatorRepository = generatorRepository
+        self.keychainService = keychainService
+        self.keychainRepository = keychainRepository
         self.notificationCenterService = notificationCenterService
         self.notificationService = notificationService
         self.pasteboardService = pasteboardService
@@ -207,11 +227,23 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
         let clientService = DefaultClientService()
         let dataStore = DataStore(errorReporter: errorReporter)
 
+        let keychainService = DefaultKeychainService()
+
+        let keychainRepository = DefaultKeychainRepository(
+            appIdService: appIdService,
+            keychainService: keychainService
+        )
         let timeProvider = CurrentTime()
 
         let stateService = DefaultStateService(appSettingsStore: appSettingsStore, dataStore: dataStore)
 
-        let biometricsService = DefaultBiometricsService(stateService: stateService)
+        let biometricsService = DefaultBiometricsService()
+        let biometricsRepository = DefaultBiometricsRepository(
+            biometricsService: biometricsService,
+            keychainService: keychainRepository,
+            stateService: stateService
+        )
+
         let environmentService = DefaultEnvironmentService(stateService: stateService)
         let collectionService = DefaultCollectionService(collectionDataStore: dataStore, stateService: stateService)
         let settingsService = DefaultSettingsService(settingsDataStore: dataStore, stateService: stateService)
@@ -263,7 +295,9 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
         )
 
         let syncService = DefaultSyncService(
+            accountAPIService: apiService,
             cipherService: cipherService,
+            clientVault: clientService.clientVault(),
             collectionService: collectionService,
             folderService: folderService,
             organizationService: organizationService,
@@ -277,7 +311,7 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
         let totpService = DefaultTOTPService()
 
         let twoStepLoginService = DefaultTwoStepLoginService(environmentService: environmentService)
-        let vaultTimeoutService = DefaultVaultTimeoutService(stateService: stateService)
+        let vaultTimeoutService = DefaultVaultTimeoutService(stateService: stateService, timeProvider: timeProvider)
 
         let pasteboardService = DefaultPasteboardService(
             errorReporter: errorReporter,
@@ -292,6 +326,7 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
             clientGenerators: clientService.clientGenerator(),
             clientPlatform: clientService.clientPlatform(),
             environmentService: environmentService,
+            policyService: policyService,
             stateService: stateService,
             systemDevice: UIDevice.current
         )
@@ -308,11 +343,12 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
         let authRepository = DefaultAuthRepository(
             accountAPIService: apiService,
             authService: authService,
-            biometricsService: biometricsService,
+            biometricsRepository: biometricsRepository,
             clientAuth: clientService.clientAuth(),
             clientCrypto: clientService.clientCrypto(),
             clientPlatform: clientService.clientPlatform(),
             environmentService: environmentService,
+            keychainService: keychainRepository,
             organizationService: organizationService,
             stateService: stateService,
             vaultTimeoutService: vaultTimeoutService
@@ -368,6 +404,7 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
             appSettingsStore: appSettingsStore,
             authRepository: authRepository,
             authService: authService,
+            biometricsRepository: biometricsRepository,
             biometricsService: biometricsService,
             captchaService: captchaService,
             cameraService: DefaultCameraService(),
@@ -375,6 +412,8 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
             environmentService: environmentService,
             errorReporter: errorReporter,
             generatorRepository: generatorRepository,
+            keychainRepository: keychainRepository,
+            keychainService: keychainService,
             notificationCenterService: notificationCenterService,
             notificationService: notificationService,
             pasteboardService: pasteboardService,
@@ -423,4 +462,4 @@ extension ServiceContainer {
     var clientPlatform: ClientPlatformProtocol {
         clientService.clientPlatform()
     }
-} // swiftlint:disable:this file_length
+}

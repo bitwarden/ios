@@ -84,7 +84,7 @@ extension Account {
         var emailVerified: Bool?
 
         /// The reasoning for why a forced password reset may be required.
-        let forcePasswordResetReason: ForcePasswordResetReason?
+        var forcePasswordResetReason: ForcePasswordResetReason?
 
         /// Whether the account has premium
         var hasPremiumPersonally: Bool?

@@ -32,11 +32,12 @@ class LoginProcessor: StateProcessor<LoginState, LoginAction, LoginEffect> {
         & HasCaptchaService
         & HasDeviceAPIService
         & HasErrorReporter
+        & HasPolicyService
 
     // MARK: Private Properties
 
     /// The `Coordinator` that handles navigation.
-    private var coordinator: AnyCoordinator<AuthRoute>
+    private var coordinator: AnyCoordinator<AuthRoute, AuthEvent>
 
     /// A flag indicating if this is the first time that the view has appeared.
     ///
@@ -56,7 +57,7 @@ class LoginProcessor: StateProcessor<LoginState, LoginAction, LoginEffect> {
     ///   - state: The initial state of the processor.
     ///
     init(
-        coordinator: AnyCoordinator<AuthRoute>,
+        coordinator: AnyCoordinator<AuthRoute, AuthEvent>,
         services: Services,
         state: LoginState
     ) {
@@ -140,10 +141,14 @@ class LoginProcessor: StateProcessor<LoginState, LoginAction, LoginEffect> {
 
             // Unlock the vault.
             try await services.authRepository.unlockVaultWithPassword(password: state.masterPassword)
-
+            let account = try await services.authRepository.getAccount()
             // Complete the login flow.
             coordinator.hideLoadingOverlay()
-            coordinator.navigate(to: .complete)
+            if account.profile.forcePasswordResetReason != nil {
+                coordinator.navigate(to: .updateMasterPassword)
+            } else {
+                coordinator.navigate(to: .complete)
+            }
         } catch let error as InputValidationError {
             coordinator.showAlert(.inputValidationAlert(error: error))
         } catch let error as IdentityTokenRequestError {

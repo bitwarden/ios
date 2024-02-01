@@ -67,6 +67,9 @@ struct CipherItemState: Equatable {
     /// A flag indicating if master password re-prompt is required.
     var isMasterPasswordRePromptOn: Bool
 
+    /// Whether the policy is enforced to disable personal vault ownership.
+    var isPersonalOwnershipDisabled: Bool
+
     /// The state for a login type item.
     var loginState: LoginItemState
 
@@ -151,6 +154,7 @@ struct CipherItemState: Equatable {
         identityState: IdentityItemState,
         isFavoriteOn: Bool,
         isMasterPasswordRePromptOn: Bool,
+        isPersonalOwnershipDisabled: Bool,
         loginState: LoginItemState,
         name: String,
         notes: String,
@@ -168,6 +172,7 @@ struct CipherItemState: Equatable {
         self.identityState = identityState
         self.isFavoriteOn = isFavoriteOn
         self.isMasterPasswordRePromptOn = isMasterPasswordRePromptOn
+        self.isPersonalOwnershipDisabled = isPersonalOwnershipDisabled
         folders = []
         self.loginState = loginState
         self.name = name
@@ -204,6 +209,7 @@ struct CipherItemState: Equatable {
             identityState: .init(),
             isFavoriteOn: false,
             isMasterPasswordRePromptOn: false,
+            isPersonalOwnershipDisabled: false,
             loginState: .init(
                 isTOTPAvailable: hasPremium,
                 password: password ?? "",
@@ -231,6 +237,7 @@ struct CipherItemState: Equatable {
             identityState: cipherView.identityItemState(),
             isFavoriteOn: cipherView.favorite,
             isMasterPasswordRePromptOn: cipherView.reprompt == .password,
+            isPersonalOwnershipDisabled: false,
             loginState: cipherView.loginItemState(showTOTP: hasPremium),
             name: "\(cipherView.name) - \(Localizations.clone)",
             notes: cipherView.notes ?? "",
@@ -253,6 +260,7 @@ struct CipherItemState: Equatable {
             identityState: cipherView.identityItemState(),
             isFavoriteOn: cipherView.favorite,
             isMasterPasswordRePromptOn: cipherView.reprompt == .password,
+            isPersonalOwnershipDisabled: false,
             loginState: cipherView.loginItemState(showTOTP: hasPremium),
             name: cipherView.name,
             notes: cipherView.notes ?? "",

@@ -11,7 +11,45 @@ protocol SyncService: AnyObject {
 
     /// Performs an API request to sync the user's vault data.
     ///
-    func fetchSync() async throws
+    /// - Parameter forceSync: Whether syncing should be forced, bypassing the account revision and
+    ///     minimum sync interval checks.
+    func fetchSync(forceSync: Bool) async throws
+
+    /// Deletes the cipher specified in the notification data in local storage.
+    ///
+    /// - Parameter data: The notification data for the cipher delete action.
+    ///
+    func deleteCipher(data: SyncCipherNotification) async throws
+
+    /// Deletes the folder specified in the notification data in local storage.
+    ///
+    /// - Parameter data: The notification data for the folder delete action.
+    ///
+    func deleteFolder(data: SyncFolderNotification) async throws
+
+    /// Deletes the send specified in the notification data in local storage.
+    ///
+    /// - Parameter data: The notification data for the send delete action.
+    ///
+    func deleteSend(data: SyncSendNotification) async throws
+
+    /// Synchronizes the cipher specified in the notification data with the server.
+    ///
+    /// - Parameter data: The notification data for the cipher sync action.
+    ///
+    func fetchUpsertSyncCipher(data: SyncCipherNotification) async throws
+
+    /// Synchronizes the folder specified in the notification data with the server.
+    ///
+    /// - Parameter data: The notification data for the folder sync action.
+    ///
+    func fetchUpsertSyncFolder(data: SyncFolderNotification) async throws
+
+    /// Synchronizes the send specified in the notification data with the server.
+    ///
+    /// - Parameter data: The notification data for the send sync action.
+    ///
+    func fetchUpsertSyncSend(data: SyncSendNotification) async throws
 }
 
 // MARK: - DefaultSyncService
@@ -21,8 +59,14 @@ protocol SyncService: AnyObject {
 class DefaultSyncService: SyncService {
     // MARK: Properties
 
+    /// The services used by the application to make account related API requests.
+    private let accountAPIService: AccountAPIService
+
     /// The service for managing the ciphers for the user.
     private let cipherService: CipherService
+
+    /// The client used by the application to handle vault encryption and decryption tasks.
+    private let clientVault: ClientVaultService
 
     /// The service for managing the collections for the user.
     private let collectionService: CollectionService
@@ -53,7 +97,10 @@ class DefaultSyncService: SyncService {
     /// Initializes a `DefaultSyncService`.
     ///
     /// - Parameters:
+    ///   - accountAPIService: The services used by the application to make account related API requests.
     ///   - cipherService: The service for managing the ciphers for the user.
+    ///   - clientVault: The client used by the application to handle vault encryption and
+    ///     decryption tasks.
     ///   - collectionService: The service for managing the collections for the user.
     ///   - folderService: The service for managing the folders for the user.
     ///   - organizationService: The service for managing the organizations for the user.
@@ -64,7 +111,9 @@ class DefaultSyncService: SyncService {
     ///   - syncAPIService: The API service used to perform sync API requests.
     ///
     init(
+        accountAPIService: AccountAPIService,
         cipherService: CipherService,
+        clientVault: ClientVaultService,
         collectionService: CollectionService,
         folderService: FolderService,
         organizationService: OrganizationService,
@@ -74,7 +123,9 @@ class DefaultSyncService: SyncService {
         stateService: StateService,
         syncAPIService: SyncAPIService
     ) {
+        self.accountAPIService = accountAPIService
         self.cipherService = cipherService
+        self.clientVault = clientVault
         self.collectionService = collectionService
         self.folderService = folderService
         self.organizationService = organizationService
@@ -84,11 +135,44 @@ class DefaultSyncService: SyncService {
         self.stateService = stateService
         self.syncAPIService = syncAPIService
     }
+
+    // MARK: Private
+
+    /// Determine if a full sync is necessary.
+    ///
+    /// - Parameters:
+    ///   - forceSync: Whether syncing should be forced, bypassing the account revision and minimum
+    ///     sync interval checks.
+    ///   - userId: The user ID of the account to sync.
+    /// - Returns: Whether a sync should be performed.
+    ///
+    private func needsSync(forceSync: Bool, userId: String) async throws -> Bool {
+        guard let lastSyncTime = try await stateService.getLastSyncTime(userId: userId), !forceSync else { return true }
+        guard lastSyncTime.addingTimeInterval(Constants.minimumSyncInterval) < Date.now else { return false }
+
+        do {
+            guard let accountRevisionDate = try await accountAPIService.accountRevisionDate()
+            else { return true }
+
+            if lastSyncTime < accountRevisionDate {
+                return true
+            } else {
+                // No updates to the account since the last sync. Update the last sync time but
+                // don't do a full sync.
+                try await stateService.setLastSyncTime(Date(), userId: userId)
+                return false
+            }
+        } catch {
+            return false
+        }
+    }
 }
 
 extension DefaultSyncService {
-    func fetchSync() async throws {
+    func fetchSync(forceSync: Bool) async throws {
         let userId = try await stateService.getActiveAccountId()
+
+        guard try await needsSync(forceSync: forceSync, userId: userId) else { return }
 
         let response = try await syncAPIService.getSync()
 
@@ -141,5 +225,106 @@ extension DefaultSyncService {
         }
 
         try await stateService.setTimeoutAction(action: action ?? timeoutAction)
+    }
+
+    func deleteCipher(data: SyncCipherNotification) async throws {
+        let userId = try await stateService.getActiveAccountId()
+        guard userId == data.userId else { return }
+
+        try await cipherService.deleteCipherWithLocalStorage(id: data.id)
+    }
+
+    func deleteFolder(data: SyncFolderNotification) async throws {
+        let userId = try await stateService.getActiveAccountId()
+        guard userId == data.userId else { return }
+
+        try await folderService.deleteFolderWithLocalStorage(id: data.id)
+
+        let updatedCiphers = try await cipherService.fetchAllCiphers()
+            .asyncMap { try await clientVault.ciphers().decrypt(cipher: $0) }
+            .map { $0.update(folderId: nil) }
+            .asyncMap { try await clientVault.ciphers().encrypt(cipherView: $0) }
+
+        for cipher in updatedCiphers {
+            try await cipherService.updateCipherWithLocalStorage(cipher)
+        }
+    }
+
+    func deleteSend(data: SyncSendNotification) async throws {
+        let userId = try await stateService.getActiveAccountId()
+        guard userId == data.userId else { return }
+
+        try await sendService.deleteSendWithLocalStorage(id: data.id)
+    }
+
+    func fetchUpsertSyncCipher(data: SyncCipherNotification) async throws {
+        let userId = try await stateService.getActiveAccountId()
+        guard userId == data.userId else { return }
+
+        // If the local data is more recent than the nofication, skip the sync.
+        let localCipher = try await cipherService.fetchCipher(withId: data.id)
+        if let localCipher, let revisionDate = data.revisionDate, localCipher.revisionDate >= revisionDate {
+            return
+        }
+
+        if let collectionIds = data.collectionIds {
+            let collectionsToUpdate = try await collectionService
+                .fetchAllCollections(includeReadOnly: true)
+                .filter { collection in
+                    guard let id = collection.id else { return false }
+                    return !collectionIds.contains(id)
+                }
+            if collectionsToUpdate.isEmpty {
+                return
+            }
+        }
+
+        do {
+            try await cipherService.syncCipherWithServer(withId: data.id)
+        } catch let error as URLError {
+            if (error as NSError).code == 404 {
+                // The cipher does not exist on the server, and should be removed from local
+                // storage.
+                try await cipherService.deleteCipherWithLocalStorage(id: data.id)
+            }
+        }
+    }
+
+    func fetchUpsertSyncFolder(data: SyncFolderNotification) async throws {
+        let userId = try await stateService.getActiveAccountId()
+        guard userId == data.userId else { return }
+
+        // If the local data is more recent than the nofication, skip the sync.
+        let localFolder = try await folderService.fetchFolder(id: data.id)
+        if let localFolder, let revisionDate = data.revisionDate, localFolder.revisionDate >= revisionDate {
+            return
+        }
+
+        do {
+            try await folderService.syncFolderWithServer(withId: data.id)
+        } catch let error as URLError {
+            if (error as NSError).code == 404 {
+                try await folderService.deleteFolderWithServer(id: data.id)
+            }
+        }
+    }
+
+    func fetchUpsertSyncSend(data: SyncSendNotification) async throws {
+        let userId = try await stateService.getActiveAccountId()
+        guard userId == data.userId else { return }
+
+        // If the local data is more recent than the nofication, skip the sync.
+        let localSend = try await sendService.fetchSend(id: data.id)
+        if let localSend, let revisionDate = data.revisionDate, localSend.revisionDate >= revisionDate {
+            return
+        }
+
+        do {
+            try await sendService.syncSendWithServer(id: data.id)
+        } catch let error as URLError {
+            if (error as NSError).code == 404 {
+                try await sendService.deleteSendWithLocalStorage(id: data.id)
+            }
+        }
     }
 }

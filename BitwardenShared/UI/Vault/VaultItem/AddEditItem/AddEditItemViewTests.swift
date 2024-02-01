@@ -63,7 +63,7 @@ class AddEditItemViewTests: BitwardenTestCase { // swiftlint:disable:this type_b
             existing: CipherView.loginFixture(),
             hasPremium: true
         )!
-        let button = try subject.inspect().find(buttonWithAccessibilityLabel: Localizations.close)
+        let button = try subject.inspect().find(button: Localizations.close)
         try button.tap()
         XCTAssertEqual(processor.dispatchedActions.last, .dismissPressed)
     }
@@ -584,6 +584,11 @@ class AddEditItemViewTests: BitwardenTestCase { // swiftlint:disable:this type_b
         processor.state.ownershipOptions = [.personal(email: "user@bitwarden.com")]
 
         assertSnapshot(of: subject, as: .tallPortrait)
+    }
+
+    func test_snapshot_add_personalOwnershipPolicy() {
+        processor.state.isPersonalOwnershipDisabled = true
+        assertSnapshot(of: subject, as: .defaultPortrait)
     }
 
     func test_snapshot_add_secureNote_full_fieldsVisible() {

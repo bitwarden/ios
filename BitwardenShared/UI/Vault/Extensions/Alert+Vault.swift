@@ -111,7 +111,7 @@ extension Alert {
                     action(.copy(
                         toast: Localizations.number,
                         value: number,
-                        requiresMasterPasswordReprompt: false
+                        requiresMasterPasswordReprompt: cipherView.reprompt == .password
                     ))
                 })
             }
@@ -120,7 +120,7 @@ extension Alert {
                     action(.copy(
                         toast: Localizations.securityCode,
                         value: code,
-                        requiresMasterPasswordReprompt: false
+                        requiresMasterPasswordReprompt: cipherView.reprompt == .password
                     ))
                 })
             }
@@ -171,6 +171,17 @@ extension Alert {
             message: nil,
             preferredStyle: .actionSheet,
             alertActions: alertActions + [AlertAction(title: Localizations.cancel, style: .cancel)]
+        )
+    }
+
+    /// An alert that informs the user about password autofill.
+    ///
+    /// - Returns: An alert that informs the user about password autofill.
+    ///
+    static func passwordAutofillInformation() -> Alert {
+        Alert.defaultAlert(
+            title: Localizations.passwordAutofill,
+            message: Localizations.bitwardenAutofillAlert2
         )
     }
 

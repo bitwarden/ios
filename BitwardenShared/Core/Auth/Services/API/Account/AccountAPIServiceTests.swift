@@ -26,6 +26,23 @@ class AccountAPIServiceTests: BitwardenTestCase {
 
     // MARK: Tests
 
+    /// `accountRevisionDate()` returns the account's last revision date.
+    func test_accountRevisionDate() async throws {
+        client.result = .httpSuccess(testData: .accountRevisionDate())
+
+        let date = try await subject.accountRevisionDate()
+        XCTAssertEqual(date, Date(timeIntervalSince1970: 1_704_067_200))
+    }
+
+    /// `accountRevisionDate()` throws an error if the request fails.
+    func test_accountRevisionDate_httpFailure() async throws {
+        client.result = .httpFailure(BitwardenTestError.example)
+
+        await assertAsyncThrows(error: BitwardenTestError.example) {
+            _ = try await subject.accountRevisionDate()
+        }
+    }
+
     /// `createNewAccount(email:masterPasswordHash)` throws an error if the request fails.
     func test_create_account_httpFailure() async {
         client.result = .httpFailure()
@@ -150,5 +167,23 @@ class AccountAPIServiceTests: BitwardenTestCase {
         XCTAssertEqual(response.kdfIterations, 600_000)
         XCTAssertNil(response.kdfMemory)
         XCTAssertNil(response.kdfParallelism)
+    }
+
+    /// `updatePassword()` doesn't throw an error when receiving the empty response.
+    func test_updatePassword() async throws {
+        client.result = .httpSuccess(testData: .emptyResponse)
+
+        let requestModel = UpdatePasswordRequestModel(
+            key: "KEY",
+            masterPasswordHash: "MASTER_PASSWORD_HASH",
+            masterPasswordHint: "MASTER_PASSWORD_HINT",
+            newMasterPasswordHash: "NEW_MASTER_PASSWORD_HASH"
+        )
+        try await subject.updatePassword(requestModel)
+
+        XCTAssertEqual(client.requests.count, 1)
+        XCTAssertNotNil(client.requests[0].body)
+        XCTAssertEqual(client.requests[0].method, .post)
+        XCTAssertEqual(client.requests[0].url.absoluteString, "https://example.com/api/accounts/password")
     }
 }
