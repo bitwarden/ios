@@ -97,9 +97,9 @@ class UpdateMasterPasswordProcessor: StateProcessor<
             if let policy = try await services.policyService.getMasterPasswordPolicyOptions() {
                 state.masterPasswordPolicy = policy
             } else {
+                coordinator.hideLoadingOverlay()
                 coordinator.navigate(to: .complete)
             }
-            coordinator.hideLoadingOverlay()
         } catch {
             coordinator.showAlert(.networkResponseError(error) {
                 await self.syncVault()
