@@ -176,9 +176,10 @@ final class SendListProcessor: StateProcessor<SendListState, SendListAction, Sen
                         ),
                     ]
                 }
-            }
-            for try await sections in try await services.sendRepository.sendListPublisher() {
-                state.sections = sections
+            } else {
+                for try await sections in try await services.sendRepository.sendListPublisher() {
+                    state.sections = sections
+                }
             }
         } catch {
             services.errorReporter.log(error: error)
