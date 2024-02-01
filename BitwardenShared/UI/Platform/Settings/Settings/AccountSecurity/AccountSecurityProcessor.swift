@@ -102,6 +102,9 @@ final class AccountSecurityProcessor: StateProcessor<
     private func appeared() async {
         do {
             if let policy = try await services.policyService.fetchTimeoutPolicyValues() {
+
+                // If the policy returns no timeout action, we present the user all timeout actions.
+                // If the policy returns a timeout action, it's the only one we show the user.
                 if policy.action != nil {
                     state.timeoutPolicyAction = policy.action
                 }
@@ -208,8 +211,14 @@ final class AccountSecurityProcessor: StateProcessor<
         Task {
             do {
                 if state.isTimeoutPolicyEnabled {
+                    // If the user's selection exceeds the policy's limit,
+                    // show an alert, and set their timeout value equal to the policy max.
                     guard value.rawValue <= state.timeoutPolicyValue else {
-                        coordinator.showAlert(.timeoutExceedsPolicyLengthAlert)
+                        try await services.vaultTimeoutService.setVaultTimeout(
+                            value: SessionTimeoutValue(rawValue: state.timeoutPolicyValue),
+                            userId: nil
+                        )
+                        coordinator.showAlert(.timeoutExceedsPolicyLengthAlert())
                         return
                     }
                 }

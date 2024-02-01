@@ -10,9 +10,10 @@ protocol PolicyService: AnyObject {
     ///
     func applyPasswordGenerationPolicy(options: inout PasswordGenerationOptions) async throws -> Bool
 
-    /// If the maximum vault timeout policy is enabled, return the policy values.
+    /// If the policy for a maximum vault timeout value is enabled,
+    /// return the value and action to take upon timeout.
     ///
-    /// - Returns: The action to take upon a timeout, and the timeout value in minutes.
+    /// - Returns: The timeout value in minutes, and the action to take upon timeout.
     ///
     func fetchTimeoutPolicyValues() async throws -> (action: SessionTimeoutAction?, value: Int)?
 
@@ -235,6 +236,8 @@ extension DefaultPolicyService {
             guard let policyTimeoutValue = policy[.minutes]?.intValue else { continue }
             timeoutValue = policyTimeoutValue * 60
 
+            // If the policy's timeout action is not lock or logOut, there is no policy timeout action.
+            // In that case, we would present both timeout action options to the user.
             guard let action = policy[.action]?.stringValue, action == "lock" || action == "logOut" else {
                 return (nil, timeoutValue)
             }

@@ -180,7 +180,11 @@ extension Alert {
         )
     }
 
-    static var timeoutExceedsPolicyLengthAlert: Alert {
+    /// Alerts the user that their selected timeout value exceeds the policy's limit.
+    ///
+    /// - Returns an alert notifying the user that their selected timeout value exceeds the policy's limit.
+    ///
+    static func timeoutExceedsPolicyLengthAlert() -> Alert {
         Alert(
             title: Localizations.warning,
             message: Localizations.vaultTimeoutToLarge,

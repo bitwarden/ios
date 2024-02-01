@@ -115,8 +115,13 @@ extension DefaultSyncService {
 
     // MARK: Private Methods
 
-    /// Checks if the maximum vault timeout policy is enabled. If it is,
-    /// update the vault timeout values stored on device.
+    /// Checks if the policy for a maximum vault timeout value is enabled.
+    /// If it is, update the timeout values for the user.
+    ///
+    /// If the user's stored timeout value is greater than the policy's timeout value,
+    /// update it to equal the policy's timeout value.
+    ///
+    /// Set the user's timeout action to equal the policy's regardless.
     ///
     private func checkVaultTimeoutPolicy() async throws {
         guard let timeoutPolicyValues = try await policyService.fetchTimeoutPolicyValues() else { return }
@@ -127,8 +132,8 @@ extension DefaultSyncService {
         let timeoutAction = try await stateService.getTimeoutAction()
         let timeoutValue = try await stateService.getVaultTimeout()
 
-        // If the stored timeout value is > the policy timeout value,
-        // store the policy timeout value.
+        // Only update the user's stored vault timeout value if
+        // their stored timeout value is > the policy's timeout value.
         if timeoutValue.rawValue > value {
             try await stateService.setVaultTimeout(
                 value: SessionTimeoutValue(rawValue: value)
