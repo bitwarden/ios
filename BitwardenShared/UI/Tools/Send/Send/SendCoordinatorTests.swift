@@ -220,7 +220,9 @@ class SendCoordinatorTests: BitwardenTestCase {
         let action = try XCTUnwrap(stackNavigator.actions.last)
         XCTAssertEqual(action.type, .pushed)
 
-        let view = try XCTUnwrap(action.view as? BitwardenShared.SendListView)
+        let view = try XCTUnwrap(
+            (action.view as? UIHostingController<BitwardenShared.SendListView>)?.rootView
+        )
         XCTAssertEqual(view.store.state.type, .file)
     }
 

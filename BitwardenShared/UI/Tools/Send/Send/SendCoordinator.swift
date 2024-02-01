@@ -106,7 +106,16 @@ final class SendCoordinator: Coordinator, HasStackNavigator {
         )
         let store = Store(processor: processor)
         let view = SendListView(store: store)
-        stackNavigator?.push(view)
+        let searchHandler = SendListSearchHandler(store: store)
+        let viewController = UIHostingController(rootView: view)
+        let searchController = UISearchController()
+        searchController.searchResultsUpdater = searchHandler
+
+        stackNavigator?.push(
+            viewController,
+            navigationTitle: type.localizedName,
+            searchController: searchController
+        )
     }
 
     /// Shows the provided send item route.
