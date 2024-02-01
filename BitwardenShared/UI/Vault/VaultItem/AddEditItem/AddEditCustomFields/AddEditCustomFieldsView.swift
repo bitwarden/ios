@@ -99,6 +99,7 @@ struct AddEditCustomFieldsView: View {
                 store.send(.newCustomFieldPressed)
             }
             .buttonStyle(.tertiary())
+            .accessibilityIdentifier("NewCustomFieldButton")
         }
     }
 

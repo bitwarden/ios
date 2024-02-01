@@ -189,12 +189,14 @@ private extension AddEditItemView {
                     send: AddEditItemAction.folderChanged
                 )
             )
+            .accessibilityIdentifier("FolderPicker")
 
             Toggle(Localizations.favorite, isOn: store.binding(
                 get: \.isFavoriteOn,
                 send: AddEditItemAction.favoriteChanged
             ))
             .toggleStyle(.bitwarden)
+            .accessibilityIdentifier("ItemFavoriteToggle")
 
             Toggle(isOn: store.binding(
                 get: \.isMasterPasswordRePromptOn,
@@ -212,6 +214,7 @@ private extension AddEditItemView {
                 }
             }
             .toggleStyle(.bitwarden)
+            .accessibilityIdentifier("MasterPasswordRepromptToggle")
         }
     }
 
@@ -240,6 +243,7 @@ private extension AddEditItemView {
                     )
                 )
             }
+            .accessibilityIdentifier("ItemOwnershipPicker")
 
             if !owner.isPersonal {
                 SectionView(Localizations.collections) {
