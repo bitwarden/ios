@@ -8,7 +8,7 @@ class PasswordHintProcessorTests: BitwardenTestCase {
     // MARK: Properties
 
     var httpClient: MockHTTPClient!
-    var coordinator: MockCoordinator<AuthRoute>!
+    var coordinator: MockCoordinator<AuthRoute, AuthEvent>!
     var subject: PasswordHintProcessor!
 
     // MARK: Setup & Teardown

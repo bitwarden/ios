@@ -15,7 +15,7 @@ final class LoginWithDeviceProcessor: StateProcessor<
     // MARK: Properties
 
     /// The coordinator used for navigation.
-    private let coordinator: AnyCoordinator<AuthRoute>
+    private let coordinator: AnyCoordinator<AuthRoute, AuthEvent>
 
     /// The services used by this processor.
     let services: Services
@@ -30,7 +30,7 @@ final class LoginWithDeviceProcessor: StateProcessor<
     ///   - state: The initial state of the processor.
     ///
     init(
-        coordinator: AnyCoordinator<AuthRoute>,
+        coordinator: AnyCoordinator<AuthRoute, AuthEvent>,
         services: Services,
         state: LoginWithDeviceState
     ) {

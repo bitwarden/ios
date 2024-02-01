@@ -21,7 +21,7 @@ class UpdateMasterPasswordProcessor: StateProcessor<
     // MARK: Private Properties
 
     /// The `Coordinator` that handles navigation.
-    private var coordinator: AnyCoordinator<AuthRoute>
+    private var coordinator: AnyCoordinator<AuthRoute, Void>
 
     /// The services used by this processor.
     private var services: Services
@@ -36,7 +36,7 @@ class UpdateMasterPasswordProcessor: StateProcessor<
     ///   - state: The initial state of the processor.
     ///
     init(
-        coordinator: AnyCoordinator<AuthRoute>,
+        coordinator: AnyCoordinator<AuthRoute, Void>,
         services: Services,
         state: UpdateMasterPasswordState
     ) {

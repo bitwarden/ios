@@ -20,7 +20,7 @@ class VaultListViewTests: BitwardenTestCase {
     override func setUp() {
         super.setUp()
 
-        let account = ProfileSwitcherItem(
+        let account = ProfileSwitcherItem.fixture(
             email: "anne.account@bitwarden.com",
             userInitials: "AA"
         )

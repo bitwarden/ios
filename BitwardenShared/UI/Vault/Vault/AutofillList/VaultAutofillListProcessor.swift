@@ -23,7 +23,7 @@ class VaultAutofillListProcessor: StateProcessor<
     private let autofillHelper: AutofillHelper
 
     /// The `Coordinator` that handles navigation.
-    private var coordinator: AnyCoordinator<VaultRoute>
+    private var coordinator: AnyCoordinator<VaultRoute, AuthAction>
 
     /// The services used by this processor.
     private var services: Services
@@ -40,7 +40,7 @@ class VaultAutofillListProcessor: StateProcessor<
     ///
     init(
         appExtensionDelegate: AppExtensionDelegate?,
-        coordinator: AnyCoordinator<VaultRoute>,
+        coordinator: AnyCoordinator<VaultRoute, AuthAction>,
         services: Services,
         state: VaultAutofillListState
     ) {
@@ -140,22 +140,10 @@ class VaultAutofillListProcessor: StateProcessor<
     /// Configures a profile switcher state with the current account and alternates.
     ///
     private func refreshProfileState() async {
-        var accounts = [ProfileSwitcherItem]()
-        var activeAccount: ProfileSwitcherItem?
-        do {
-            accounts = try await services.authRepository.getAccounts()
-            activeAccount = try? await services.authRepository.getActiveAccount()
-
-            state.profileSwitcherState = ProfileSwitcherState(
-                accounts: accounts,
-                activeAccountId: activeAccount?.userId,
-                isVisible: state.profileSwitcherState.isVisible,
-                shouldAlwaysHideAddAccount: true
-            )
-        } catch {
-            services.errorReporter.log(error: error)
-            state.profileSwitcherState = .empty(shouldAlwaysHideAddAccount: true)
-        }
+        state.profileSwitcherState = await services.authRepository.getProfilesState(
+            isVisible: false,
+            shouldAlwaysHideAddAccount: true
+        )
     }
 
     /// Searches the list of ciphers for those matching the search term.

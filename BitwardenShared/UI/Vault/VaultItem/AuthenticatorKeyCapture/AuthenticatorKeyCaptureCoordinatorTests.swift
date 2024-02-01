@@ -92,21 +92,6 @@ class AuthenticatorKeyCaptureCoordinatorTests: BitwardenTestCase {
     }
 
     /// `navigate(to:)` with `.setupTotpManual` presents the manual entry view.
-    func test_navigateTo_setupTotpManual_async() throws {
-        let task = Task {
-            await subject.navigate(asyncTo: .manualKeyEntry)
-        }
-
-        waitFor(!stackNavigator.actions.isEmpty)
-        task.cancel()
-
-        let action = try XCTUnwrap(stackNavigator.actions.last)
-        XCTAssertEqual(action.type, .replaced)
-        let view = action.view as? (any View)
-        XCTAssertNotNil(try? view?.inspect().find(ManualEntryView.self))
-    }
-
-    /// `navigate(to:)` with `.setupTotpManual` presents the manual entry view.
     func test_navigateTo_setupTotpManual_nonEmptyStack() throws {
         stackNavigator.isEmpty = false
         subject.navigate(to: .manualKeyEntry)
@@ -118,7 +103,7 @@ class AuthenticatorKeyCaptureCoordinatorTests: BitwardenTestCase {
     func test_navigateTo_scanCode() throws {
         cameraService.deviceHasCamera = true
         let task = Task {
-            subject.navigate(to: .scanCode)
+            await subject.handleEvent(.showScanCode)
         }
         waitFor(!stackNavigator.actions.isEmpty)
         task.cancel()
@@ -134,7 +119,7 @@ class AuthenticatorKeyCaptureCoordinatorTests: BitwardenTestCase {
         stackNavigator.isEmpty = false
         cameraService.deviceHasCamera = true
         let task = Task {
-            subject.navigate(to: .scanCode)
+            await subject.handleEvent(.showScanCode)
         }
         waitFor(delegate.didRequestCamera)
         task.cancel()
@@ -160,7 +145,7 @@ class AuthenticatorKeyCaptureCoordinatorTests: BitwardenTestCase {
     func test_navigateAsyncTo_scanCode() throws {
         cameraService.deviceHasCamera = true
         let task = Task {
-            await subject.navigate(asyncTo: .scanCode)
+            await subject.handleEvent(.showScanCode)
         }
         waitFor(!stackNavigator.actions.isEmpty)
         task.cancel()
@@ -177,7 +162,7 @@ class AuthenticatorKeyCaptureCoordinatorTests: BitwardenTestCase {
         struct TestError: Error, Equatable {}
         cameraService.startResult = .failure(TestError())
         let task = Task {
-            await subject.navigate(asyncTo: .scanCode)
+            await subject.handleEvent(.showScanCode)
         }
         waitFor(!stackNavigator.actions.isEmpty)
         task.cancel()
@@ -194,7 +179,7 @@ class AuthenticatorKeyCaptureCoordinatorTests: BitwardenTestCase {
         cameraService.deviceHasCamera = true
         cameraService.cameraAuthorizationStatus = .denied
         let task = Task {
-            await subject.navigate(asyncTo: .scanCode)
+            await subject.handleEvent(.showScanCode)
         }
         waitFor(!stackNavigator.actions.isEmpty)
         task.cancel()
@@ -209,7 +194,7 @@ class AuthenticatorKeyCaptureCoordinatorTests: BitwardenTestCase {
     func test_navigateAsyncTo_scanCode_noCamera() throws {
         cameraService.deviceHasCamera = false
         let task = Task {
-            await subject.navigate(asyncTo: .scanCode)
+            await subject.handleEvent(.showScanCode)
         }
         waitFor(!stackNavigator.actions.isEmpty)
         task.cancel()
@@ -225,7 +210,7 @@ class AuthenticatorKeyCaptureCoordinatorTests: BitwardenTestCase {
         stackNavigator.isEmpty = false
         cameraService.deviceHasCamera = true
         let task = Task {
-            await subject.navigate(asyncTo: .scanCode)
+            await subject.handleEvent(.showScanCode)
         }
         waitFor(delegate.didRequestCamera)
         task.cancel()
@@ -236,7 +221,7 @@ class AuthenticatorKeyCaptureCoordinatorTests: BitwardenTestCase {
 // MARK: - MockAuthenticatorKeyCaptureDelegate
 
 class MockAuthenticatorKeyCaptureDelegate: AuthenticatorKeyCaptureDelegate {
-    var capturedCaptureCoordinator: AnyCoordinator<AuthenticatorKeyCaptureRoute>?
+    var capturedCaptureCoordinator: AnyCoordinator<AuthenticatorKeyCaptureRoute, AuthenticatorKeyCaptureEvent>?
     var didCancelScanCalled = false
 
     var didCompleteCaptureCalled = false
@@ -253,7 +238,7 @@ class MockAuthenticatorKeyCaptureDelegate: AuthenticatorKeyCaptureDelegate {
     }
 
     func didCompleteCapture(
-        _ captureCoordinator: AnyCoordinator<AuthenticatorKeyCaptureRoute>,
+        _ captureCoordinator: AnyCoordinator<AuthenticatorKeyCaptureRoute, AuthenticatorKeyCaptureEvent>,
         with value: String
     ) {
         didCompleteCaptureCalled = true
@@ -261,12 +246,16 @@ class MockAuthenticatorKeyCaptureDelegate: AuthenticatorKeyCaptureDelegate {
         didCompleteCaptureValue = value
     }
 
-    func showCameraScan(_ captureCoordinator: AnyCoordinator<AuthenticatorKeyCaptureRoute>) {
+    func showCameraScan(
+        _ captureCoordinator: AnyCoordinator<AuthenticatorKeyCaptureRoute, AuthenticatorKeyCaptureEvent>
+    ) {
         didRequestCamera = true
         capturedCaptureCoordinator = captureCoordinator
     }
 
-    func showManualEntry(_ captureCoordinator: AnyCoordinator<AuthenticatorKeyCaptureRoute>) {
+    func showManualEntry(
+        _ captureCoordinator: AnyCoordinator<AuthenticatorKeyCaptureRoute, AuthenticatorKeyCaptureEvent>
+    ) {
         didRequestManual = true
         capturedCaptureCoordinator = captureCoordinator
     }

@@ -6,7 +6,7 @@ import XCTest
 class MoveToOrganizationProcessorTests: BitwardenTestCase {
     // MARK: Properties
 
-    var coordinator: MockCoordinator<VaultItemRoute>!
+    var coordinator: MockCoordinator<VaultItemRoute, VaultItemEvent>!
     var delegate: MockMoveToOrganizationProcessorDelegate!
     var errorReporter: MockErrorReporter!
     var subject: MoveToOrganizationProcessor!

@@ -5,7 +5,7 @@ import XCTest
 class VaultSettingsProcessorTests: BitwardenTestCase {
     // MARK: Properties
 
-    var coordinator: MockCoordinator<SettingsRoute>!
+    var coordinator: MockCoordinator<SettingsRoute, SettingsEvent>!
     var subject: VaultSettingsProcessor!
 
     // MARK: Setup and Teardown
@@ -13,7 +13,7 @@ class VaultSettingsProcessorTests: BitwardenTestCase {
     override func setUp() {
         super.setUp()
 
-        coordinator = MockCoordinator<SettingsRoute>()
+        coordinator = MockCoordinator<SettingsRoute, SettingsEvent>()
         subject = VaultSettingsProcessor(coordinator: coordinator.asAnyCoordinator(), state: VaultSettingsState())
     }
 

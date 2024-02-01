@@ -1,4 +1,5 @@
 import AuthenticationServices
+import OSLog
 import SwiftUI
 import UIKit
 
@@ -17,8 +18,13 @@ protocol AuthCoordinatorDelegate: AnyObject {
 
 /// A coordinator that manages navigation in the authentication flow.
 ///
-final class AuthCoordinator: NSObject, Coordinator, HasStackNavigator { // swiftlint:disable:this type_body_length
+final class AuthCoordinator: NSObject, // swiftlint:disable:this type_body_length
+    Coordinator,
+    HasStackNavigator,
+    HasRouter {
     // MARK: Types
+
+    typealias Router = AnyRouter<AuthEvent, AuthRoute>
 
     typealias Services = HasAccountAPIService
         & HasAppIdService
@@ -26,7 +32,7 @@ final class AuthCoordinator: NSObject, Coordinator, HasStackNavigator { // swift
         & HasAuthAPIService
         & HasAuthRepository
         & HasAuthService
-        & HasBiometricsService
+        & HasBiometricsRepository
         & HasCaptchaService
         & HasClientAuth
         & HasDeviceAPIService
@@ -52,6 +58,9 @@ final class AuthCoordinator: NSObject, Coordinator, HasStackNavigator { // swift
     /// The root navigator used to display this coordinator's interface.
     weak var rootNavigator: (any RootNavigator)?
 
+    /// The router used by this coordinator.
+    var router: AnyRouter<AuthEvent, AuthRoute>
+
     /// The services used by this coordinator.
     let services: Services
 
@@ -66,6 +75,7 @@ final class AuthCoordinator: NSObject, Coordinator, HasStackNavigator { // swift
     ///   - appExtensionDelegate: A delegate used to communicate with the app extension.
     ///   - delegate: The delegate for this coordinator. Used to signal when auth has been completed.
     ///   - rootNavigator: The root navigator used to display this coordinator's interface.
+    ///   - router: The router used by this coordinator to handle events.
     ///   - services: The services used by this coordinator.
     ///   - stackNavigator: The stack navigator that is managed by this coordinator.
     ///
@@ -73,12 +83,14 @@ final class AuthCoordinator: NSObject, Coordinator, HasStackNavigator { // swift
         appExtensionDelegate: AppExtensionDelegate?,
         delegate: AuthCoordinatorDelegate,
         rootNavigator: RootNavigator,
+        router: AnyRouter<AuthEvent, AuthRoute>,
         services: Services,
         stackNavigator: StackNavigator
     ) {
         self.appExtensionDelegate = appExtensionDelegate
         self.delegate = delegate
         self.rootNavigator = rootNavigator
+        self.router = router
         self.services = services
         self.stackNavigator = stackNavigator
     }
@@ -130,8 +142,6 @@ final class AuthCoordinator: NSObject, Coordinator, HasStackNavigator { // swift
                 state: state,
                 url: url
             )
-        case let .switchAccount(userId: userId):
-            selectAccount(for: userId)
         case let .twoFactor(email, password, authMethodsData):
             showTwoFactorAuth(email: email, password: password, authMethodsData: authMethodsData)
         case let .vaultUnlock(
@@ -156,29 +166,21 @@ final class AuthCoordinator: NSObject, Coordinator, HasStackNavigator { // swift
 
     // MARK: Private Methods
 
-    /// Selects the account for a given userId and navigates to the correct point
+    /// Configures the app with an active account.
     ///
-    /// - Parameter userId: The user id of the selected account.
-    private func selectAccount(for userId: String) {
-        Task {
-            do {
-                let account = try await services.authRepository.setActiveAccount(userId: userId)
-                let isLocked = try services.vaultTimeoutService.isLocked(userId: userId)
-                if isLocked {
-                    showVaultUnlock(
-                        account: account,
-                        animated: false,
-                        attemptAutmaticBiometricUnlock: true,
-                        didSwitchAccountAutomatically: false
-                    )
-                } else {
-                    delegate?.didCompleteAuth()
-                }
-            } catch {
-                services.errorReporter.log(error: error)
-                showLanding()
-            }
+    /// - Parameter shouldSwitchAutomatically: Should the app switch to the next available account
+    ///     if there is no active account?
+    /// - Returns: The account model currently set as active.
+    ///
+    private func configureActiveAccount(shouldSwitchAutomatically: Bool) async throws -> Account {
+        if let active = try? await services.stateService.getActiveAccount() {
+            return active
         }
+        guard shouldSwitchAutomatically,
+              let alternate = try await services.stateService.getAccounts().first else {
+            throw StateServiceError.noActiveAccount
+        }
+        return try await services.authRepository.setActiveAccount(userId: alternate.profile.userId)
     }
 
     /// Shows the captcha screen.
@@ -434,8 +436,8 @@ final class AuthCoordinator: NSObject, Coordinator, HasStackNavigator { // swift
     ///
     private func showVaultUnlock(
         account: Account,
-        animated: Bool = true,
-        attemptAutmaticBiometricUnlock: Bool = false,
+        animated: Bool,
+        attemptAutmaticBiometricUnlock: Bool,
         didSwitchAccountAutomatically: Bool
     ) {
         let processor = VaultUnlockProcessor(

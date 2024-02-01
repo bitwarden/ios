@@ -18,7 +18,7 @@ final class SelfHostedProcessor: StateProcessor<SelfHostedState, SelfHostedActio
     // MARK: Private Properties
 
     /// The coordinator that handles navigation.
-    private let coordinator: AnyCoordinator<AuthRoute>
+    private let coordinator: AnyCoordinator<AuthRoute, AuthEvent>
 
     /// The delegate for the processor that is notified when the user saves their environment settings.
     private weak var delegate: SelfHostedProcessorDelegate?
@@ -34,7 +34,7 @@ final class SelfHostedProcessor: StateProcessor<SelfHostedState, SelfHostedActio
     ///   - state: The initial state of the processor.
     ///
     init(
-        coordinator: AnyCoordinator<AuthRoute>,
+        coordinator: AnyCoordinator<AuthRoute, AuthEvent>,
         delegate: SelfHostedProcessorDelegate?,
         state: SelfHostedState
     ) {

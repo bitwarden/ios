@@ -10,7 +10,7 @@ class PasswordHintProcessor: StateProcessor<PasswordHintState, PasswordHintActio
     // MARK: Private Properties
 
     /// The coordinator that handles navigation.
-    private let coordinator: AnyCoordinator<AuthRoute>
+    private let coordinator: AnyCoordinator<AuthRoute, AuthEvent>
 
     /// The services required by this processor.
     private let services: Services
@@ -24,7 +24,7 @@ class PasswordHintProcessor: StateProcessor<PasswordHintState, PasswordHintActio
     ///   - state: The initial state of the processor.
     ///
     init(
-        coordinator: AnyCoordinator<AuthRoute>,
+        coordinator: AnyCoordinator<AuthRoute, AuthEvent>,
         services: Services,
         state: PasswordHintState
     ) {

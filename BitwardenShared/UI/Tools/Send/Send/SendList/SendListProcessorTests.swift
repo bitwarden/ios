@@ -8,7 +8,7 @@ import XCTest
 class SendListProcessorTests: BitwardenTestCase {
     // MARK: Properties
 
-    var coordinator: MockCoordinator<SendRoute>!
+    var coordinator: MockCoordinator<SendRoute, Void>!
     var errorReporter: MockErrorReporter!
     var pasteboardService: MockPasteboardService!
     var policyService: MockPolicyService!

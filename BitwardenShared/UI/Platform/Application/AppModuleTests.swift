@@ -6,6 +6,7 @@ import XCTest
 class AppModuleTests: BitwardenTestCase {
     // MARK: Properties
 
+    var rootViewController: RootViewController!
     var subject: DefaultAppModule!
 
     // MARK: Setup & Teardown
@@ -13,12 +14,14 @@ class AppModuleTests: BitwardenTestCase {
     override func setUp() {
         super.setUp()
 
+        rootViewController = RootViewController()
         subject = DefaultAppModule(services: .withMocks())
     }
 
     override func tearDown() {
         super.tearDown()
 
+        rootViewController = nil
         subject = nil
     }
 
@@ -26,15 +29,16 @@ class AppModuleTests: BitwardenTestCase {
 
     /// `makeAppCoordinator` builds the app coordinator.
     func test_makeAppCoordinator() {
-        let rootViewController = RootViewController()
         let coordinator = subject.makeAppCoordinator(appContext: .mainApp, navigator: rootViewController)
-        coordinator.navigate(to: .auth(.landing), context: nil)
-        XCTAssertNotNil(rootViewController.childViewController)
+        let task = Task {
+            coordinator.navigate(to: .auth(.landing), context: nil)
+        }
+        waitFor(rootViewController.childViewController != nil)
+        task.cancel()
     }
 
     /// `makeAuthCoordinator` builds the auth coordinator.
     func test_makeAuthCoordinator() {
-        let rootViewController = RootViewController()
         let navigationController = UINavigationController()
         let coordinator = subject.makeAuthCoordinator(
             delegate: MockAuthDelegate(),
@@ -83,7 +87,6 @@ class AppModuleTests: BitwardenTestCase {
 
     /// `makeTabCoordinator` builds the tab coordinator.
     func test_makeTabCoordinator() {
-        let rootViewController = RootViewController()
         let tabBarController = UITabBarController()
         let settingsDelegate = MockSettingsCoordinatorDelegate()
         let vaultDelegate = MockVaultCoordinatorDelegate()

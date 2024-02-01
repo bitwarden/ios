@@ -13,7 +13,7 @@ class LoginProcessorTests: BitwardenTestCase {
     var authService: MockAuthService!
     var captchaService: MockCaptchaService!
     var client: MockHTTPClient!
-    var coordinator: MockCoordinator<AuthRoute>!
+    var coordinator: MockCoordinator<AuthRoute, AuthEvent>!
     var errorReporter: MockErrorReporter!
     var subject: LoginProcessor!
 

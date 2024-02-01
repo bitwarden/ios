@@ -10,8 +10,11 @@ class AuthCoordinatorTests: BitwardenTestCase {
 
     var authDelegate: MockAuthDelegate!
     var authRepository: MockAuthRepository!
+    var authRouter: AuthRouter!
+    var errorReporter: MockErrorReporter!
     var rootNavigator: MockRootNavigator!
     var stackNavigator: MockStackNavigator!
+    var stateService: MockStateService!
     var subject: AuthCoordinator!
     var vaultTimeoutService: MockVaultTimeoutService!
 
@@ -21,17 +24,24 @@ class AuthCoordinatorTests: BitwardenTestCase {
         super.setUp()
         authDelegate = MockAuthDelegate()
         authRepository = MockAuthRepository()
+        errorReporter = MockErrorReporter()
         rootNavigator = MockRootNavigator()
         stackNavigator = MockStackNavigator()
+        stateService = MockStateService()
         vaultTimeoutService = MockVaultTimeoutService()
+        let services = ServiceContainer.withMocks(
+            authRepository: authRepository,
+            errorReporter: errorReporter,
+            stateService: stateService,
+            vaultTimeoutService: vaultTimeoutService
+        )
+        authRouter = AuthRouter(services: services)
         subject = AuthCoordinator(
             appExtensionDelegate: MockAppExtensionDelegate(),
             delegate: authDelegate,
             rootNavigator: rootNavigator,
-            services: ServiceContainer.withMocks(
-                authRepository: authRepository,
-                vaultTimeoutService: vaultTimeoutService
-            ),
+            router: authRouter.asAnyRouter(),
+            services: services,
             stackNavigator: stackNavigator
         )
     }
@@ -40,8 +50,10 @@ class AuthCoordinatorTests: BitwardenTestCase {
         super.tearDown()
         authDelegate = nil
         authRepository = nil
+        errorReporter = nil
         rootNavigator = nil
         stackNavigator = nil
+        stateService = nil
         vaultTimeoutService = nil
         subject = nil
     }
@@ -169,14 +181,15 @@ class AuthCoordinatorTests: BitwardenTestCase {
         XCTAssertTrue(navigationController.viewControllers.first is UIHostingController<SelfHostedView>)
     }
 
-    /// `navigate(to:)` with `.switchAccount` with an locked account navigates to vault unlock
+    /// `handleEvent()` with `.switchAccount` with an locked account navigates to vault unlock
     func test_navigate_switchAccount_locked() {
         let account = Account.fixture()
-        authRepository.setActiveAccountResult = .success(account)
+        authRepository.altAccounts = [account]
         vaultTimeoutService.timeoutStore = [account.profile.userId: true]
+        stateService.activeAccount = account
 
         let task = Task {
-            subject.navigate(to: .switchAccount(userId: account.profile.userId))
+            await subject.handleEvent(.action(.switchAccount(isAutomatic: true, userId: account.profile.userId)))
         }
         waitFor(stackNavigator.actions.last?.type == .replaced)
         task.cancel()
@@ -186,11 +199,12 @@ class AuthCoordinatorTests: BitwardenTestCase {
     /// `navigate(to:)` with `.switchAccount` with an unlocked account triggers completion
     func test_navigate_switchAccount_unlocked() {
         let account = Account.fixture()
-        authRepository.setActiveAccountResult = .success(account)
-        vaultTimeoutService.timeoutStore = [account.profile.userId: false]
+        authRepository.altAccounts = [account]
+        authRepository.isLockedResult = .success(false)
+        stateService.activeAccount = account
 
         let task = Task {
-            subject.navigate(to: .switchAccount(userId: account.profile.userId))
+            await subject.handleEvent(.action(.switchAccount(isAutomatic: true, userId: account.profile.userId)))
         }
         waitFor(authDelegate.didCompleteAuthCalled)
         task.cancel()
@@ -198,25 +212,26 @@ class AuthCoordinatorTests: BitwardenTestCase {
         XCTAssertTrue(authDelegate.didCompleteAuthCalled)
     }
 
-    /// `navigate(to:)` with `.switchAccount` with an unknown account triggers completion.
+    /// `navigate(to:)` with `.switchAccount` with an unknown lock status account navigates to vault unlock.
     func test_navigate_switchAccount_unknownLock() {
         let account = Account.fixture()
-        authRepository.setActiveAccountResult = .success(account)
-        vaultTimeoutService.timeoutStore = [:]
+        authRepository.altAccounts = [account]
+        authRepository.isLockedResult = .failure(VaultTimeoutServiceError.noAccountFound)
+        stateService.activeAccount = account
 
         let task = Task {
-            subject.navigate(to: .switchAccount(userId: account.profile.userId))
+            await subject.handleEvent(.action(.switchAccount(isAutomatic: true, userId: account.profile.userId)))
         }
-        waitFor(stackNavigator.actions.last?.view is LandingView)
+        waitFor(stackNavigator.actions.last?.view is VaultUnlockView)
         task.cancel()
-        XCTAssertTrue(stackNavigator.actions.last?.view is LandingView)
+        XCTAssertTrue(stackNavigator.actions.last?.view is VaultUnlockView)
     }
 
     /// `navigate(to:)` with `.switchAccount` with an invalid account navigates to landing view.
     func test_navigate_switchAccount_notFound() {
         let account = Account.fixture()
         let task = Task {
-            subject.navigate(to: .switchAccount(userId: account.profile.userId))
+            await subject.handleEvent(.action(.switchAccount(isAutomatic: true, userId: account.profile.userId)))
         }
         waitFor(stackNavigator.actions.last?.view is LandingView)
         task.cancel()
@@ -237,6 +252,8 @@ class AuthCoordinatorTests: BitwardenTestCase {
         subject.navigate(
             to: .vaultUnlock(
                 .fixture(),
+                animated: false,
+                attemptAutomaticBiometricUnlock: true,
                 didSwitchAccountAutomatically: false
             )
         )
@@ -251,6 +268,8 @@ class AuthCoordinatorTests: BitwardenTestCase {
         subject.navigate(
             to: .vaultUnlock(
                 .fixture(),
+                animated: false,
+                attemptAutomaticBiometricUnlock: true,
                 didSwitchAccountAutomatically: true
             )
         )
@@ -271,6 +290,7 @@ class AuthCoordinatorTests: BitwardenTestCase {
             appExtensionDelegate: MockAppExtensionDelegate(),
             delegate: authDelegate,
             rootNavigator: rootNavigator!,
+            router: MockRouter(routeForEvent: { _ in .landing }).asAnyRouter(),
             services: ServiceContainer.withMocks(),
             stackNavigator: stackNavigator
         )

@@ -48,6 +48,7 @@ struct ProfileSwitcherToolbarView_Previews: PreviewProvider {
     static let selectedAccount = ProfileSwitcherItem(
         color: .purple,
         email: "anne.account@bitwarden.com",
+        isUnlocked: true,
         userId: "1",
         userInitials: "AA"
     )

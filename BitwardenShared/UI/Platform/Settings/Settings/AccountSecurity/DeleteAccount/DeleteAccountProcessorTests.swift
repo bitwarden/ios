@@ -5,7 +5,7 @@ import XCTest
 class DeleteAccountProcessorTests: BitwardenTestCase {
     // MARK: Properties
 
-    var coordinator: MockCoordinator<SettingsRoute>!
+    var coordinator: MockCoordinator<SettingsRoute, SettingsEvent>!
     var errorReporter: MockErrorReporter!
     var stateService: MockStateService!
     var subject: DeleteAccountProcessor!
@@ -15,7 +15,7 @@ class DeleteAccountProcessorTests: BitwardenTestCase {
     override func setUp() {
         super.setUp()
 
-        coordinator = MockCoordinator<SettingsRoute>()
+        coordinator = MockCoordinator<SettingsRoute, SettingsEvent>()
         errorReporter = MockErrorReporter()
         stateService = MockStateService()
         subject = DeleteAccountProcessor(
