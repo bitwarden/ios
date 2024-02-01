@@ -154,6 +154,29 @@ class LoginProcessorTests: BitwardenTestCase {
         XCTAssertEqual(authRepository.unlockVaultPassword, "Password1234!")
     }
 
+    /// `perform(_:)` with `.loginWithMasterPasswordPressed` logs the user in with the provided master password,
+    /// presents update master password view if user's password needs to be updated.
+    func test_perform_loginWithMasterPasswordPressed_updateMasterPassword() async throws {
+        var account = Account.fixture()
+        account.profile.forcePasswordResetReason = .adminForcePasswordReset
+        authRepository.activeAccountResult = .success(.anneAccount)
+        authRepository.accountForItemResult = .success(account)
+        subject.state.username = "email@example.com"
+        subject.state.masterPassword = "Password1234!"
+        authService.requirePasswordChangeResult = .success(true)
+        await subject.perform(.loginWithMasterPasswordPressed)
+
+        XCTAssertEqual(authService.loginWithMasterPasswordUsername, "email@example.com")
+        XCTAssertEqual(authService.loginWithMasterPasswordPassword, "Password1234!")
+        XCTAssertNil(authService.loginWithMasterPasswordCaptchaToken)
+
+        XCTAssertEqual(coordinator.routes.last, .updateMasterPassword)
+        XCTAssertFalse(coordinator.isLoadingOverlayShowing)
+        XCTAssertEqual(coordinator.loadingOverlaysShown, [.init(title: Localizations.loggingIn)])
+
+        XCTAssertEqual(authRepository.unlockVaultPassword, "Password1234!")
+    }
+
     /// `perform(_:)` with `.loginWithMasterPasswordPressed` and a captcha error occurs navigates to the `.captcha`
     /// route.
     func test_perform_loginWithMasterPasswordPressed_captchaError() async {
