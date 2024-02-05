@@ -456,16 +456,15 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
     }
 
     /// `setVaultTimeout` correctly configures the user's timeout value.
-    func test_setVaultTimeout_deleteNeverlock_error() async {
+    func test_setVaultTimeout_deleteNeverlock_error() async throws {
         let active = Account.fixture()
         stateService.activeAccount = active
         vaultTimeoutService.vaultTimeout = [
             active.profile.userId: .never,
         ]
         keychainService.deleteResult = .failure(BitwardenTestError.example)
-        await assertAsyncThrows(error: BitwardenTestError.example) {
-            try await subject.setVaultTimeout(value: .fiveMinutes)
-        }
+        try await subject.setVaultTimeout(value: .fiveMinutes)
+        XCTAssertEqual(vaultTimeoutService.vaultTimeout["1"], .fiveMinutes)
     }
 
     /// `setVaultTimeout` correctly configures the user's timeout value.

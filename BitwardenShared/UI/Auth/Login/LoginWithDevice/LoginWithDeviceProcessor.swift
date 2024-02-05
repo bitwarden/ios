@@ -28,7 +28,7 @@ final class LoginWithDeviceProcessor: StateProcessor<
     private let services: Services
 
     /// The timer used to automatically check for a response to the login request.
-    private var checkTimer: Timer?
+    private(set) var checkTimer: Timer?
 
     // MARK: Initialization
 
@@ -132,6 +132,7 @@ final class LoginWithDeviceProcessor: StateProcessor<
 
                 // Show an alert and dismiss the view if the request has expired.
                 guard !request.isExpired else {
+                    self.checkTimer?.invalidate()
                     return coordinator.showAlert(.requestExpired {
                         self.coordinator.navigate(to: .dismiss)
                     })
@@ -142,6 +143,7 @@ final class LoginWithDeviceProcessor: StateProcessor<
 
                 // If the request has been denied, show an alert and dismiss the view.
                 if request.requestApproved == false {
+                    self.checkTimer?.invalidate()
                     coordinator.showAlert(.requestDenied {
                         self.coordinator.navigate(to: .dismiss)
                     })
@@ -204,8 +206,8 @@ final class LoginWithDeviceProcessor: StateProcessor<
         checkTimer?.invalidate()
 
         // Set the timer to auto-check for a response every four seconds.
-        checkTimer = Timer.scheduledTimer(withTimeInterval: UI.duration(4), repeats: true) { _ in
-            self.checkForResponse()
+        checkTimer = Timer.scheduledTimer(withTimeInterval: UI.duration(4), repeats: true) { [weak self] _ in
+            self?.checkForResponse()
         }
     }
 }

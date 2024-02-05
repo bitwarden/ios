@@ -81,6 +81,48 @@ class LoginWithDeviceProcessorTests: BitwardenTestCase {
         XCTAssertEqual(errorReporter.errors.last as? BitwardenTestError, .example)
     }
 
+    /// `checkForResponse()` shows an alert and dismisses the view if the request has been denied.
+    func test_checkForResponse_denied() throws {
+        let expiredLoginRequest = LoginRequest.fixture(requestApproved: false, responseDate: .now)
+        authService.checkPendingLoginRequestResult = .success(expiredLoginRequest)
+
+        let task = Task {
+            await self.subject.perform(.appeared)
+        }
+
+        waitFor(!coordinator.alertShown.isEmpty)
+        task.cancel()
+
+        XCTAssertEqual(coordinator.alertShown.last, .requestDenied(action: {}))
+        XCTAssertTrue(subject.checkTimer?.isValid == false)
+
+        let alert = try XCTUnwrap(coordinator.alertShown.last)
+        Task { try await alert.tapAction(title: Localizations.ok) }
+        waitFor(!coordinator.routes.isEmpty)
+        XCTAssertEqual(coordinator.routes, [.dismiss])
+    }
+
+    /// `checkForResponse()` shows an alert and dismisses the view if the request has expired.
+    func test_checkForResponse_expired() throws {
+        let expiredLoginRequest = LoginRequest.fixture(creationDate: .distantPast)
+        authService.checkPendingLoginRequestResult = .success(expiredLoginRequest)
+
+        let task = Task {
+            await self.subject.perform(.appeared)
+        }
+
+        waitFor(!coordinator.alertShown.isEmpty)
+        task.cancel()
+
+        XCTAssertEqual(coordinator.alertShown.last, .requestExpired(action: {}))
+        XCTAssertTrue(subject.checkTimer?.isValid == false)
+
+        let alert = try XCTUnwrap(coordinator.alertShown.last)
+        Task { try await alert.tapAction(title: Localizations.ok) }
+        waitFor(!coordinator.routes.isEmpty)
+        XCTAssertEqual(coordinator.routes, [.dismiss])
+    }
+
     /// `perform(_:)` with `.appeared` sets the fingerprint phrase in the state.
     func test_perform_appeared() async {
         authService.initiateLoginWithDeviceResult = .success(("fingerprint", "id"))

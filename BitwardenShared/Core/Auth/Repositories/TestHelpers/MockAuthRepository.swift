@@ -54,6 +54,8 @@ class MockAuthRepository: AuthRepository {
     var validatePasswordPasswords = [String]()
     var validatePasswordResult: Result<Bool, Error> = .success(true)
 
+    var vaultTimeout = [String: SessionTimeoutValue]()
+
     func allowBioMetricUnlock(_ enabled: Bool) async throws {
         allowBiometricUnlock = enabled
         try allowBiometricUnlockResult.get()
@@ -152,6 +154,7 @@ class MockAuthRepository: AuthRepository {
     }
 
     func setVaultTimeout(value: BitwardenShared.SessionTimeoutValue, userId: String?) async throws {
+        try vaultTimeout[unwrapUserId(userId)] = value
         if let setVaultTimeoutError {
             throw setVaultTimeoutError
         }
@@ -180,6 +183,20 @@ class MockAuthRepository: AuthRepository {
 
     func unlockVaultWithNeverlockKey() async throws {
         try unlockVaultWithNeverlockResult.get()
+    }
+
+    /// Attempts to convert a possible user id into a known account id.
+    ///
+    /// - Parameter userId: If nil, the active account id is returned. Otherwise, validate the id.
+    ///
+    func unwrapUserId(_ userId: String?) throws -> String {
+        if let userId {
+            return userId
+        } else if let activeAccount {
+            return activeAccount.profile.userId
+        } else {
+            throw StateServiceError.noActiveAccount
+        }
     }
 
     func updateMasterPassword(
