@@ -92,7 +92,7 @@ enum CardComponent {
         case mastercard = "Mastercard" // swiftlint:disable:this inclusive_language
 
         /// American Express
-        case americanExpress = "American Express"
+        case americanExpress = "Amex"
 
         /// Discover
         case discover = "Discover"
@@ -128,6 +128,9 @@ extension CardComponent.Brand: Menuable {
     /// For the 'other' case, it returns a localized string for 'Other'.
     var localizedName: String {
         guard case .other = self else {
+            if case .americanExpress = self {
+                return "American Express"
+            }
             return rawValue
         }
         return Localizations.other
