@@ -6,7 +6,7 @@ protocol ViewCardItemState: Equatable {
     /// The brand of the card.
     var brand: DefaultableType<CardComponent.Brand> { get }
 
-    /// The computed property of  the brand of the card, needed special case for `Amex`.
+    /// The computed property of the brand of the card, needed special case for `Amex`.
     var brandName: String { get }
 
     /// The name of the card holder.
