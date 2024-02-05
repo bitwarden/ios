@@ -55,4 +55,12 @@ extension CardItemState: AddEditCardItemState {}
 
 // MARK: ViewCardItemState
 
-extension CardItemState: ViewCardItemState {}
+extension CardItemState: ViewCardItemState {
+    /// The computed property of  the brand of the card, needed special case for `Amex`.
+    var brandName: String {
+        if case .custom(.americanExpress) = brand {
+            return "Amex"
+        }
+        return brand.localizedName
+    }
+}

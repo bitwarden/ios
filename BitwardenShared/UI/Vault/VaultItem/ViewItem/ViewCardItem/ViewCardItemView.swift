@@ -64,7 +64,7 @@ struct ViewCardItemView: View {
         if case .custom = store.state.brand {
             BitwardenTextValueField(
                 title: Localizations.brand,
-                value: store.state.brand.localizedName
+                value: store.state.brandName
             )
         }
     }
