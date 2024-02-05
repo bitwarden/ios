@@ -19,12 +19,19 @@ struct VaultUnlockView: View {
         """
     }
 
+    /// The view's navigation title.
+    var navigationTitle: String {
+        store.state.unlockMethod == .pin
+            ? Localizations.verifyPIN
+            : Localizations.verifyMasterPassword
+    }
+
     var body: some View {
         ZStack {
             scrollView
             profileSwitcher
         }
-        .navigationTitle(Localizations.verifyMasterPassword)
+        .navigationTitle(navigationTitle)
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {
             ToolbarItem(placement: .navigationBarTrailing) {
