@@ -180,6 +180,23 @@ extension Alert {
         )
     }
 
+    /// Confirms that the user wants to set their vault timeout to never.
+    ///
+    /// - Parameter action: The action performed when they select `Yes`.
+    ///
+    /// - Returns: An alert confirming that the user wants to set their vault timeout to never.
+    ///
+    static func neverLockAlert(action: @escaping () async -> Void) -> Alert {
+        Alert(
+            title: Localizations.warning,
+            message: Localizations.neverLockWarning,
+            alertActions: [
+                AlertAction(title: Localizations.yes, style: .default) { _ in await action() },
+                AlertAction(title: Localizations.cancel, style: .cancel),
+            ]
+        )
+    }
+
     /// Alerts the user that their selected timeout value exceeds the policy's limit.
     ///
     /// - Returns an alert notifying the user that their selected timeout value exceeds the policy's limit.
