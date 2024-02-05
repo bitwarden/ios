@@ -377,7 +377,8 @@ extension DefaultAuthRepository: AuthRepository {
                 value: clientCrypto.getUserEncryptionKey()
             )
         } else if currentValue == .never {
-            try await keychainService.deleteUserAuthKey(
+            // If there is a key, delete. If not, no worries.
+            try? await keychainService.deleteUserAuthKey(
                 for: .neverLock(userId: id)
             )
         }

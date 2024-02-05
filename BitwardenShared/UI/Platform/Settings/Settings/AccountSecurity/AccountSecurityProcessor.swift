@@ -21,7 +21,6 @@ final class AccountSecurityProcessor: StateProcessor<
         & HasStateService
         & HasTimeProvider
         & HasTwoStepLoginService
-        & HasVaultTimeoutService
 
     // MARK: Private Properties
 
@@ -90,7 +89,6 @@ final class AccountSecurityProcessor: StateProcessor<
         case let .sessionTimeoutActionChanged(newValue):
             setTimeoutAction(newValue)
         case let .sessionTimeoutValueChanged(newValue):
-            state.sessionTimeoutValue = newValue
             setVaultTimeout(value: newValue)
         case let .toggleApproveLoginRequestsToggle(isOn):
             confirmTogglingApproveLoginRequests(isOn)
@@ -198,25 +196,39 @@ final class AccountSecurityProcessor: StateProcessor<
     /// - Parameter value: The vault timeout value.
     ///
     private func setVaultTimeout(value: SessionTimeoutValue) {
+        let errorHandler: (Error) -> Void = { error in
+            self.coordinator.navigate(to: .alert(.defaultAlert(title: Localizations.anErrorHasOccurred)))
+            self.services.errorReporter.log(error: error)
+        }
         Task {
             do {
                 if state.isTimeoutPolicyEnabled {
                     // If the user's selection exceeds the policy's limit,
                     // show an alert, and set their timeout value equal to the policy max.
                     guard value.rawValue <= state.policyTimeoutValue else {
-                        try await services.vaultTimeoutService.setVaultTimeout(
-                            value: SessionTimeoutValue(rawValue: state.policyTimeoutValue),
-                            userId: nil
+                        try await services.authRepository.setVaultTimeout(
+                            value: SessionTimeoutValue(rawValue: state.policyTimeoutValue)
                         )
                         coordinator.navigate(to: .alert(.timeoutExceedsPolicyLengthAlert()))
                         return
                     }
                 }
-                try await services.vaultTimeoutService.setVaultTimeout(value: value, userId: nil)
-                state.sessionTimeoutValue = value
+                let setTimeoutAction = { [weak self] in
+                    guard let self else { return }
+                    do {
+                        try await services.authRepository.setVaultTimeout(value: value)
+                        state.sessionTimeoutValue = value
+                    } catch {
+                        errorHandler(error)
+                    }
+                }
+                if value == .never {
+                    coordinator.navigate(to: .alert(.neverLockAlert(action: setTimeoutAction)))
+                } else {
+                    await setTimeoutAction()
+                }
             } catch {
-                self.coordinator.navigate(to: .alert(.defaultAlert(title: Localizations.anErrorHasOccurred)))
-                self.services.errorReporter.log(error: error)
+                errorHandler(error)
             }
         }
     }
