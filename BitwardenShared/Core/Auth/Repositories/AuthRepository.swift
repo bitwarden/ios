@@ -1,6 +1,7 @@
 import BitwardenSdk
 import Foundation
 import LocalAuthentication
+import OSLog
 
 // swiftlint:disable file_length
 
@@ -153,6 +154,13 @@ protocol AuthRepository: AnyObject {
         passwordHint: String,
         reason: ForcePasswordResetReason
     ) async throws
+
+    /// Validates the user's entered master password to determine if it matches the stored hash.
+    ///
+    /// - Parameter password: The user's master password.
+    /// - Returns: Whether the hash of the password matches the stored hash.
+    ///
+    func validatePassword(_ password: String) async throws -> Bool
 }
 
 extension AuthRepository {
@@ -427,6 +435,25 @@ extension DefaultAuthRepository: AuthRepository {
             throw StateServiceError.noPinProtectedUserKey
         }
         try await unlockVault(method: .pin(pin: pin, pinProtectedUserKey: pinProtectedUserKey))
+    }
+
+    func validatePassword(_ password: String) async throws -> Bool {
+        if let passwordHash = try await stateService.getMasterPasswordHash() {
+            return try await clientAuth.validatePassword(password: password, passwordHash: passwordHash)
+        } else {
+            let encryptionKeys = try await stateService.getAccountEncryptionKeys()
+            do {
+                let passwordHash = try await clientAuth.validatePasswordUserKey(
+                    password: password,
+                    encryptedUserKey: encryptionKeys.encryptedUserKey
+                )
+                try await stateService.setMasterPasswordHash(passwordHash)
+                return true
+            } catch {
+                Logger.application.log("Error validating password user key: \(error)")
+                return false
+            }
+        }
     }
 
     // MARK: Private

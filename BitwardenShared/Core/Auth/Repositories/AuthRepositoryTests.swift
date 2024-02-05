@@ -985,4 +985,63 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
             AccountEncryptionKeys(encryptedPrivateKey: "PRIVATE_KEY", encryptedUserKey: "NEW_KEY")
         )
     }
+
+    /// `validatePassword(_:)` returns `true` if the master password matches the stored password hash.
+    func test_validatePassword() async throws {
+        stateService.activeAccount = .fixture(profile: .fixture(userId: "1"))
+        stateService.masterPasswordHashes["1"] = "wxyz4321"
+        clientAuth.validatePasswordResult = true
+
+        let isValid = try await subject.validatePassword("test1234")
+
+        XCTAssertTrue(isValid)
+        XCTAssertEqual(clientAuth.validatePasswordPassword, "test1234")
+        XCTAssertEqual(clientAuth.validatePasswordPasswordHash, "wxyz4321")
+    }
+
+    /// `validatePassword(_:)` validates the password with the user key and sets the master password
+    /// hash if successful.
+    func test_validatePassword_noPasswordHash() async throws {
+        stateService.activeAccount = .fixture(profile: .fixture(userId: "1"))
+        stateService.accountEncryptionKeys["1"] = AccountEncryptionKeys(
+            encryptedPrivateKey: "PRIVATE_KEY",
+            encryptedUserKey: "KEY"
+        )
+        clientAuth.validatePasswordUserKeyResult = .success("MASTER_PASSWORD_HASH")
+
+        let isValid = try await subject.validatePassword("test1234")
+
+        XCTAssertTrue(isValid)
+        XCTAssertEqual(clientAuth.validatePasswordUserKeyPassword, "test1234")
+        XCTAssertEqual(clientAuth.validatePasswordUserKeyEncryptedUserKey, "KEY")
+        XCTAssertEqual(stateService.masterPasswordHashes["1"], "MASTER_PASSWORD_HASH")
+    }
+
+    /// `validatePassword(_:)` returns `false` if validating the password with the user key fails.
+    func test_validatePassword_noPasswordHash_invalidPassword() async throws {
+        stateService.activeAccount = .fixture(profile: .fixture(userId: "1"))
+        stateService.accountEncryptionKeys["1"] = AccountEncryptionKeys(
+            encryptedPrivateKey: "PRIVATE_KEY",
+            encryptedUserKey: "KEY"
+        )
+        clientAuth.validatePasswordUserKeyResult = .failure(BitwardenTestError.example)
+
+        let isValid = try await subject.validatePassword("not the password")
+
+        XCTAssertFalse(isValid)
+        XCTAssertEqual(clientAuth.validatePasswordUserKeyPassword, "not the password")
+        XCTAssertEqual(clientAuth.validatePasswordUserKeyEncryptedUserKey, "KEY")
+        XCTAssertNil(stateService.masterPasswordHashes["1"])
+    }
+
+    /// `validatePassword(_:)` returns `false` if the master password doesn't match the stored password hash.
+    func test_validatePassword_notValid() async throws {
+        stateService.activeAccount = .fixture(profile: .fixture(userId: "1"))
+        stateService.masterPasswordHashes["1"] = "wxyz4321"
+        clientAuth.validatePasswordResult = false
+
+        let isValid = try await subject.validatePassword("not the password")
+
+        XCTAssertFalse(isValid)
+    }
 } // swiftlint:disable:this file_length

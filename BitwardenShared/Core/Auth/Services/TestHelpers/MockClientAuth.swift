@@ -45,6 +45,10 @@ class MockClientAuth: ClientAuthProtocol {
     var validatePasswordPasswordHash: String?
     var validatePasswordResult: Bool = false
 
+    var validatePasswordUserKeyEncryptedUserKey: String?
+    var validatePasswordUserKeyPassword: String?
+    var validatePasswordUserKeyResult: Result<String, Error> = .success("MASTER_PASSWORD_HASH")
+
     func approveAuthRequest(publicKey: String) async throws -> AsymmetricEncString {
         approveAuthRequestPublicKey = publicKey
         return try approveAuthRequestResult.get()
@@ -92,5 +96,11 @@ class MockClientAuth: ClientAuthProtocol {
         validatePasswordPassword = password
         validatePasswordPasswordHash = passwordHash
         return validatePasswordResult
+    }
+
+    func validatePasswordUserKey(password: String, encryptedUserKey: String) async throws -> String {
+        validatePasswordUserKeyPassword = password
+        validatePasswordUserKeyEncryptedUserKey = encryptedUserKey
+        return try validatePasswordUserKeyResult.get()
     }
 }

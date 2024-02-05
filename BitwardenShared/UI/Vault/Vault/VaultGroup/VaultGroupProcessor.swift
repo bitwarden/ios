@@ -9,7 +9,8 @@ import Foundation
 final class VaultGroupProcessor: StateProcessor<VaultGroupState, VaultGroupAction, VaultGroupEffect> {
     // MARK: Types
 
-    typealias Services = HasErrorReporter
+    typealias Services = HasAuthRepository
+        & HasErrorReporter
         & HasPasteboardService
         & HasPolicyService
         & HasStateService
@@ -304,7 +305,7 @@ final class VaultGroupProcessor: StateProcessor<VaultGroupState, VaultGroupActio
             guard let self else { return }
 
             do {
-                let isValid = try await services.vaultRepository.validatePassword(password)
+                let isValid = try await services.authRepository.validatePassword(password)
                 guard isValid else {
                     coordinator.showAlert(.defaultAlert(title: Localizations.invalidMasterPassword))
                     return

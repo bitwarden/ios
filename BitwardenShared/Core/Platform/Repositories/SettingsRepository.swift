@@ -76,13 +76,6 @@ protocol SettingsRepository: AnyObject {
     ///
     func updateDisableAutoTotpCopy(_ disableAutoTotpCopy: Bool) async throws
 
-    /// Validates the user's entered master password to determine if it matches the stored hash.
-    ///
-    /// - Parameter password: The user's master password.
-    /// - Returns: Whether the hash of the password matches the stored hash.
-    ///
-    func validatePassword(_ password: String) async throws -> Bool
-
     // MARK: Publishers
 
     /// The publisher to keep track of the list of the user's current folders.
@@ -212,11 +205,6 @@ extension DefaultSettingsRepository: SettingsRepository {
 
     func updateDisableAutoTotpCopy(_ disableAutoTotpCopy: Bool) async throws {
         try await stateService.setDisableAutoTotpCopy(disableAutoTotpCopy)
-    }
-
-    func validatePassword(_ password: String) async throws -> Bool {
-        guard let passwordHash = try await stateService.getMasterPasswordHash() else { return false }
-        return try await clientAuth.validatePassword(password: password, passwordHash: passwordHash)
     }
 
     // MARK: Publishers

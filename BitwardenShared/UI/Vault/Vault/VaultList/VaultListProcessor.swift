@@ -398,7 +398,7 @@ final class VaultListProcessor: StateProcessor<// swiftlint:disable:this type_bo
             guard let self else { return }
 
             do {
-                let isValid = try await services.vaultRepository.validatePassword(password)
+                let isValid = try await services.authRepository.validatePassword(password)
                 guard isValid else {
                     coordinator.showAlert(.defaultAlert(title: Localizations.invalidMasterPassword))
                     return

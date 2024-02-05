@@ -96,7 +96,7 @@ protocol AuthService {
     ///   - loginRequest: The approved login request.
     ///   - email: The user's email.
     ///   - captchaToken: An optional captcha token value to add to the token request.
-    /// - Returns: <#description#>
+    /// - Returns: A tuple containing the private key from the auth request and the encrypted user key.
     ///
     func loginWithDevice(_ loginRequest: LoginRequest, email: String, captchaToken: String?) async throws
         -> (String, String)
@@ -429,6 +429,10 @@ class DefaultAuthService: AuthService { // swiftlint:disable:this type_body_leng
             email: username,
             captchaToken: captchaToken
         )
+
+        // Save the master password hash.
+        try await saveMasterPasswordHash(password: masterPassword)
+
         var policy: MasterPasswordPolicyOptions?
         if let model = token.masterPasswordPolicy {
             policy = MasterPasswordPolicyOptions(
@@ -483,6 +487,11 @@ class DefaultAuthService: AuthService { // swiftlint:disable:this type_body_leng
 
         // Get the identity token to log in to Bitwarden.
         _ = try await getIdentityTokenResponse(email: email, request: twoFactorRequest)
+
+        // Save the master password hash.
+        if case let .password(_, password) = twoFactorRequest.authenticationMethod {
+            try await saveMasterPasswordHash(password: password)
+        }
 
         // Remove the cached request after successfully logging in.
         self.twoFactorRequest = nil
@@ -550,7 +559,7 @@ class DefaultAuthService: AuthService { // swiftlint:disable:this type_body_leng
     ///   - captchaToken: The optional captcha token. Defaults to `nil`.
     ///   - request: The cached request, if resending a login request with two-factor codes. Defaults to `nil`.
     ///
-    private func getIdentityTokenResponse( // swiftlint:disable:this function_body_length
+    private func getIdentityTokenResponse(
         authenticationMethod: IdentityTokenRequestModel.AuthenticationMethod? = nil,
         email: String,
         captchaToken: String? = nil,
@@ -602,13 +611,6 @@ class DefaultAuthService: AuthService { // swiftlint:disable:this type_body_leng
             let encryptionKeys = AccountEncryptionKeys(identityTokenResponseModel: identityTokenResponse)
             try await stateService.setAccountEncryptionKeys(encryptionKeys)
 
-            // Save the master password, if applicable.
-            if case let .password(_, password) = request.authenticationMethod {
-                try await stateService.setMasterPasswordHash(hashPassword(
-                    password: password,
-                    purpose: .localAuthorization
-                ))
-            }
             return identityTokenResponse
         } catch let error as IdentityTokenRequestError {
             if case let .twoFactorRequired(_, ssoToken, captchaBypassToken) = error {
@@ -633,5 +635,16 @@ class DefaultAuthService: AuthService { // swiftlint:disable:this type_body_leng
             // Re-throw the error.
             throw error
         }
+    }
+
+    /// Saves the user's master password hash.
+    ///
+    /// - Parameter password: The user's master password to hash and save.
+    ///
+    private func saveMasterPasswordHash(password: String) async throws {
+        try await stateService.setMasterPasswordHash(hashPassword(
+            password: password,
+            purpose: .localAuthorization
+        ))
     }
 } // swiftlint:disable:this file_length

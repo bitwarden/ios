@@ -5,10 +5,10 @@ import XCTest
 class ExportVaultProcessorTests: BitwardenTestCase {
     // MARK: Properties
 
+    var authRepository: MockAuthRepository!
     var coordinator: MockCoordinator<SettingsRoute, SettingsEvent>!
     var errorReporter: MockErrorReporter!
     var policyService: MockPolicyService!
-    var settingsRepository: MockSettingsRepository!
     var subject: ExportVaultProcessor!
 
     // MARK: Setup and Teardown
@@ -16,14 +16,14 @@ class ExportVaultProcessorTests: BitwardenTestCase {
     override func setUp() {
         super.setUp()
 
+        authRepository = MockAuthRepository()
         coordinator = MockCoordinator<SettingsRoute, SettingsEvent>()
         errorReporter = MockErrorReporter()
         policyService = MockPolicyService()
-        settingsRepository = MockSettingsRepository()
         let services = ServiceContainer.withMocks(
+            authRepository: authRepository,
             errorReporter: errorReporter,
-            policyService: policyService,
-            settingsRepository: settingsRepository
+            policyService: policyService
         )
 
         subject = ExportVaultProcessor(
@@ -35,10 +35,10 @@ class ExportVaultProcessorTests: BitwardenTestCase {
     override func tearDown() {
         super.tearDown()
 
+        authRepository = nil
         coordinator = nil
         errorReporter = nil
         policyService = nil
-        settingsRepository = nil
         subject = nil
     }
 
@@ -46,7 +46,7 @@ class ExportVaultProcessorTests: BitwardenTestCase {
 
     /// Test that an alert is displayed if the user tries to export with an invalid password.
     func test_invalidPassword() async throws {
-        settingsRepository.validatePasswordResult = .success(false)
+        authRepository.validatePasswordResult = .success(false)
 
         subject.receive(.exportVaultTapped)
         let exportAction = try XCTUnwrap(coordinator.alertShown.last?.alertActions.first)
@@ -57,7 +57,7 @@ class ExportVaultProcessorTests: BitwardenTestCase {
 
     /// Test that an error is recorded if there was an error validating the password.
     func test_invalidPassword_error() async throws {
-        settingsRepository.validatePasswordResult = .failure(BitwardenTestError.example)
+        authRepository.validatePasswordResult = .failure(BitwardenTestError.example)
 
         subject.receive(.exportVaultTapped)
         let exportAction = try XCTUnwrap(coordinator.alertShown.last?.alertActions.first)
