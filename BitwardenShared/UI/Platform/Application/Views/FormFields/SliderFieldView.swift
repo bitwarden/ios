@@ -64,6 +64,7 @@ struct SliderFieldView<State>: View {
                     .foregroundColor(Asset.Colors.textSecondary.swiftUIColor)
                     .accessibilityIdentifier(field.sliderValueAccessibilityId ?? field.id)
             }
+            .accessibilityHidden(true)
 
             Divider()
 
