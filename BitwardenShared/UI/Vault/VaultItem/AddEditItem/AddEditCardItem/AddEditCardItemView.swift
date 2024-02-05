@@ -35,6 +35,7 @@ struct AddEditCardItemView: View {
                 )
             )
             .focused($focusedField, equals: .cardholderName)
+            .onSubmit { focusNextField($focusedField) }
 
             BitwardenTextField(
                 title: Localizations.number,
@@ -48,6 +49,7 @@ struct AddEditCardItemView: View {
             )
             .textFieldConfiguration(.password)
             .focused($focusedField, equals: .number)
+            .onSubmit { focusNextField($focusedField) }
 
             BitwardenMenuField(
                 title: Localizations.brand,
@@ -58,6 +60,7 @@ struct AddEditCardItemView: View {
                 )
             )
             .focused($focusedField, equals: .brand)
+            .onSubmit { focusNextField($focusedField) }
 
             BitwardenMenuField(
                 title: Localizations.expirationMonth,
@@ -68,6 +71,7 @@ struct AddEditCardItemView: View {
                 )
             )
             .focused($focusedField, equals: .expirationMonth)
+            .onSubmit { focusNextField($focusedField) }
 
             BitwardenTextField(
                 title: Localizations.expirationYear,
@@ -77,6 +81,7 @@ struct AddEditCardItemView: View {
                 )
             )
             .focused($focusedField, equals: .expirationYear)
+            .onSubmit { focusNextField($focusedField) }
 
             BitwardenTextField(
                 title: Localizations.securityCode,
@@ -91,6 +96,7 @@ struct AddEditCardItemView: View {
             )
             .textFieldConfiguration(.password)
             .focused($focusedField, equals: .securityCode)
+            .onSubmit { focusNextField($focusedField) }
         }
     }
 }
