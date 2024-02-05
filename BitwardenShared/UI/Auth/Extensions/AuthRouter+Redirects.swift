@@ -1,6 +1,3 @@
-import LocalAuthentication
-import OSLog
-
 // MARK: AuthRouterRedirects
 
 extension AuthRouter {
