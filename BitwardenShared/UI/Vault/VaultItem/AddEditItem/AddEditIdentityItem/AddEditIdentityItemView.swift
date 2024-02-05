@@ -39,7 +39,7 @@ struct AddEditIdentityItemView: View {
     // MARK: Views
 
     var body: some View {
-        LazyVStack(alignment: .leading, spacing: 16) {
+        VStack(alignment: .leading, spacing: 16) {
             BitwardenMenuField(
                 title: Localizations.title,
                 options: DefaultableType<TitleType>.allCases,

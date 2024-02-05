@@ -5,13 +5,28 @@ import SwiftUI
 /// A view that allows the user to add or edit a card item for a vault.
 ///
 struct AddEditCardItemView: View {
+    // MARK: Type
+
+    /// The focusable fields in identity view.
+    enum FocusedField: Int, Hashable {
+        case cardholderName
+        case number
+        case brand
+        case expirationMonth
+        case expirationYear
+        case securityCode
+    }
+
     // MARK: Properties
+
+    /// The currently focused field.
+    @FocusState private var focusedField: FocusedField?
 
     /// The `Store` for this view.
     @ObservedObject var store: Store<any AddEditCardItemState, AddEditCardItemAction, AddEditItemEffect>
 
     var body: some View {
-        LazyVStack(spacing: 16.0) {
+        VStack(spacing: 16.0) {
             BitwardenTextField(
                 title: Localizations.cardholderName,
                 text: store.binding(
@@ -19,6 +34,7 @@ struct AddEditCardItemView: View {
                     send: AddEditCardItemAction.cardholderNameChanged
                 )
             )
+            .focused($focusedField, equals: .cardholderName)
 
             BitwardenTextField(
                 title: Localizations.number,
@@ -31,6 +47,7 @@ struct AddEditCardItemView: View {
                 )
             )
             .textFieldConfiguration(.password)
+            .focused($focusedField, equals: .number)
 
             BitwardenMenuField(
                 title: Localizations.brand,
@@ -40,6 +57,7 @@ struct AddEditCardItemView: View {
                     send: AddEditCardItemAction.brandChanged
                 )
             )
+            .focused($focusedField, equals: .brand)
 
             BitwardenMenuField(
                 title: Localizations.expirationMonth,
@@ -49,6 +67,7 @@ struct AddEditCardItemView: View {
                     send: AddEditCardItemAction.expirationMonthChanged
                 )
             )
+            .focused($focusedField, equals: .expirationMonth)
 
             BitwardenTextField(
                 title: Localizations.expirationYear,
@@ -57,6 +76,7 @@ struct AddEditCardItemView: View {
                     send: AddEditCardItemAction.expirationYearChanged
                 )
             )
+            .focused($focusedField, equals: .expirationYear)
 
             BitwardenTextField(
                 title: Localizations.securityCode,
@@ -70,6 +90,7 @@ struct AddEditCardItemView: View {
                 )
             )
             .textFieldConfiguration(.password)
+            .focused($focusedField, equals: .securityCode)
         }
     }
 }
