@@ -36,6 +36,13 @@ public class ShareExtensionHelper {
                 if let imageData = try? Data(contentsOf: url) {
                     return .file(fileName: fileName, fileData: imageData)
                 }
+            } else if let image = data as? UIImage {
+                if let imageData = image.pngData() {
+                    let formatter = DateFormatter()
+                    formatter.dateFormat = "yyyyMMddHHmmss"
+                    let fileName = "image_\(formatter.string(from: Date())).png"
+                    return .file(fileName: fileName, fileData: imageData)
+                }
             }
 
             return nil

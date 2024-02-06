@@ -65,6 +65,28 @@ class ShareExtensionHelperTests: BitwardenTestCase {
         try FileManager.default.removeItem(at: url)
     }
 
+    /// `processInputItems(_:)` processes the input image for the extension setup and returns a
+    /// `.file` type.
+    func test_processInputItems_image() async throws {
+        let data = UIImage(systemName: "star.fill")
+
+        let extensionItem = NSExtensionItem()
+        extensionItem.attachments = [
+            NSItemProvider(
+                item: data! as UIImage,
+                typeIdentifier: UTType.image.identifier
+            ),
+        ]
+
+        let formatter = DateFormatter()
+        formatter.dateFormat = "yyyyMMddHHmmss"
+        let fileName = "image_\(formatter.string(from: Date())).png"
+
+        let content = await subject.processInputItems([extensionItem])
+
+        XCTAssertEqual(content, .file(fileName: fileName, fileData: data!.pngData()!))
+    }
+
     /// `processInputItems(_:)` processes the input items for content but does not return anything.
     func test_processInputItems_notSupportedType() async {
         let extensionItem = NSExtensionItem()
