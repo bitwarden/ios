@@ -23,7 +23,7 @@ class FileSelectionCoordinator: NSObject, Coordinator, HasStackNavigator {
     /// The navigator that is used to present each of the flows within this coordinator.
     private(set) weak var stackNavigator: StackNavigator?
 
-    // MARK: Intialization
+    // MARK: Initialization
 
     /// Creates a new `FileSelectionCoordinator`.
     ///
@@ -67,26 +67,32 @@ class FileSelectionCoordinator: NSObject, Coordinator, HasStackNavigator {
     /// - Parameters:
     ///   - image: The image that was selected.
     ///   - suggestedName: The name suggested by the system, if one was provided.
+    ///   - typeIdentifiers: The list of type identifiers for the selected image.
     ///
-    private func selected(image: UIImage, suggestedName: String?) {
+    private func selected(image: UIImage, suggestedName: String?, typeIdentifiers: [String]) {
         var fileName = suggestedName ?? {
             let formatter = DateFormatter()
             formatter.dateFormat = "yyyyMMddHHmmss"
-            return "photo_\(formatter.string(from: Date())).jpg"
+            return "photo_\(formatter.string(from: Date()))"
         }()
             .lowercased()
 
         let imageData: Data?
-        if fileName.hasSuffix("jpg") || fileName.hasSuffix("jpeg") {
-            imageData = image.jpegData(compressionQuality: 1)
-        } else {
+        let fileNameExtension: String
+        if typeIdentifiers.contains(UTType.png.identifier) {
             imageData = image.pngData()
-            if !fileName.hasSuffix(".png") {
-                // PHPickerViewController may not provide the filename along with an extension, so
-                // we need to provide one.
-                fileName.append(".png")
-            }
+            fileNameExtension = ".png"
+        } else {
+            imageData = image.jpegData(compressionQuality: 1)
+            fileNameExtension = ".jpg"
         }
+
+        if !fileName.hasSuffix(fileNameExtension) {
+            // PHPickerViewController may not provide the filename along with an extension, so
+            // we need to provide one.
+            fileName.append(fileNameExtension)
+        }
+
         guard let imageData else { return }
         delegate?.fileSelectionCompleted(fileName: fileName, data: imageData)
     }
@@ -170,7 +176,11 @@ extension FileSelectionCoordinator: PHPickerViewControllerDelegate {
                 }
 
                 guard let image = image as? UIImage else { return }
-                self?.selected(image: image, suggestedName: result.itemProvider.suggestedName)
+                self?.selected(
+                    image: image,
+                    suggestedName: result.itemProvider.suggestedName,
+                    typeIdentifiers: result.itemProvider.registeredTypeIdentifiers
+                )
             }
         }
     }
@@ -186,7 +196,8 @@ extension FileSelectionCoordinator: UIImagePickerControllerDelegate {
         picker.dismiss()
 
         guard let image = (info[.editedImage] ?? info[.originalImage]) as? UIImage else { return }
-        selected(image: image, suggestedName: nil)
+        let typeIdentifiers = (info[.mediaType] as? String).map { [$0] } ?? []
+        selected(image: image, suggestedName: nil, typeIdentifiers: typeIdentifiers)
     }
 
     func imagePickerControllerDidCancel(_ picker: UIImagePickerController) {
