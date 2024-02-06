@@ -93,12 +93,25 @@ class UpdateMasterPasswordProcessorTests: BitwardenTestCase {
     /// `perform()` with `.appeared` succeeds to sync but master password policy fails to load,
     /// and move to main vault screen.
     func test_perform_appeared_succeeds_policyNil() async throws {
-        authRepository.activeAccount = .fixture()
+        authRepository.activeAccount = .fixture(
+            profile: .fixture(forcePasswordResetReason: .weakMasterPasswordOnLogin)
+        )
         policyService.getMasterPasswordPolicyOptionsResult = .success(nil)
         XCTAssertNil(subject.state.masterPasswordPolicy)
         await subject.perform(.appeared)
         XCTAssertNil(subject.state.masterPasswordPolicy)
         XCTAssertEqual(coordinator.routes.last, .complete)
+    }
+
+    /// `perform()` with `.appeared` succeeds to sync but master password policy fails to load,
+    /// and move to main vault screen.
+    func test_perform_appeared_succeeds_policyNilAccountRecovery() async throws {
+        authRepository.activeAccount = .fixture()
+        policyService.getMasterPasswordPolicyOptionsResult = .success(nil)
+        XCTAssertNil(subject.state.masterPasswordPolicy)
+        await subject.perform(.appeared)
+        XCTAssertNil(subject.state.masterPasswordPolicy)
+        XCTAssertTrue(coordinator.routes.isEmpty)
     }
 
     /// `perform()` with `.logoutPressed` logs the user out.
