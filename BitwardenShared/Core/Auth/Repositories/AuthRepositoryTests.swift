@@ -963,6 +963,7 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         )
         stateService.activeAccount = .fixture()
         stateService.masterPasswordHashes["1"] = "MASTER_PASSWORD_HASH"
+        stateService.forcePasswordResetReason["1"] = .adminForcePasswordReset
 
         try await subject.updateMasterPassword(
             currentPassword: "PASSWORD",
@@ -983,6 +984,7 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
             stateService.accountEncryptionKeys["1"],
             AccountEncryptionKeys(encryptedPrivateKey: "PRIVATE_KEY", encryptedUserKey: "NEW_KEY")
         )
+        XCTAssertNil(stateService.forcePasswordResetReason["1"])
     }
 
     /// `validatePassword(_:)` returns `true` if the master password matches the stored password hash.

@@ -115,8 +115,7 @@ final class LoginWithDeviceProcessor: StateProcessor<
 
             // If login was successful, navigate to the vault.
             coordinator.hideLoadingOverlay()
-            coordinator.navigate(to: .dismiss)
-            coordinator.navigate(to: .complete)
+            await coordinator.handleEvent(.didCompleteAuth)
         } catch {
             handleError(error) { await self.attemptLogin(with: request) }
         }

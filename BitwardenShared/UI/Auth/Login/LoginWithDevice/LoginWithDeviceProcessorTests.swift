@@ -57,7 +57,7 @@ class LoginWithDeviceProcessorTests: BitwardenTestCase {
             await subject.perform(.appeared)
         }
 
-        waitFor(!coordinator.routes.isEmpty)
+        waitFor(!coordinator.events.isEmpty)
         task.cancel()
 
         XCTAssertEqual(authService.checkPendingLoginRequestId, "id")
@@ -69,7 +69,7 @@ class LoginWithDeviceProcessorTests: BitwardenTestCase {
         XCTAssertEqual(authRepository.unlockVaultFromLoginWithDevicePrivateKey, "PRIVATE_KEY")
         XCTAssertEqual(authRepository.unlockVaultFromLoginWithDeviceMasterPasswordHash, "reallyLongMasterPasswordHash")
 
-        XCTAssertEqual(coordinator.routes, [.dismiss, .complete])
+        XCTAssertEqual(coordinator.events, [.didCompleteAuth])
     }
 
     /// `captchaErrored(error:)` records an error.

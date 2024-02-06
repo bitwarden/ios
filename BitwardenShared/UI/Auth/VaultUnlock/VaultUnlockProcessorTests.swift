@@ -236,7 +236,7 @@ class VaultUnlockProcessorTests: BitwardenTestCase { // swiftlint:disable:this t
         XCTAssertEqual(authRepository.pinProtectedUserKey, "123")
         XCTAssertEqual(authRepository.encryptedPin, "123")
         XCTAssertEqual(authRepository.unlockVaultPassword, "password")
-        XCTAssertEqual(coordinator.routes.last, .complete)
+        XCTAssertEqual(coordinator.events.last, .didCompleteAuth)
     }
 
     /// `perform(_:)` with `.unlockVault` shows an alert if the master password is empty.
@@ -512,8 +512,8 @@ class VaultUnlockProcessorTests: BitwardenTestCase { // swiftlint:disable:this t
         authRepository.unlockVaultWithBiometricsResult = .success(())
 
         await subject.perform(.unlockVaultWithBiometrics)
-        let route = try XCTUnwrap(coordinator.routes.last)
-        XCTAssertEqual(route, .complete)
+        let event = try XCTUnwrap(coordinator.events.last)
+        XCTAssertEqual(event, .didCompleteAuth)
         XCTAssertEqual(0, subject.state.unsuccessfulUnlockAttemptsCount)
     }
 

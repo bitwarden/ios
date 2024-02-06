@@ -311,7 +311,7 @@ class AuthServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body_
         // Set up the mock data.
         client.results = [
             .httpSuccess(testData: .preLoginSuccess),
-            .httpSuccess(testData: .IdentityTokenWithMasterPasswordPolicy),
+            .httpSuccess(testData: .identityTokenWithMasterPasswordPolicy),
         ]
         appSettingsStore.appId = "App id"
         clientAuth.hashPasswordResult = .success("hashed password")
@@ -350,7 +350,10 @@ class AuthServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body_
         XCTAssertEqual(clientAuth.hashPasswordPassword, "Password1234!")
         XCTAssertEqual(clientAuth.hashPasswordKdfParams, .pbkdf2(iterations: 600_000))
 
-        XCTAssertEqual(stateService.accountsAdded.last?.profile.forcePasswordResetReason, .weakMasterPasswordOnLogin)
+        XCTAssertEqual(
+            stateService.forcePasswordResetReason["13512467-9cfe-43b0-969f-07534084764b"],
+            .weakMasterPasswordOnLogin
+        )
     }
 
     /// `loginWithMasterPassword(_:username:captchaToken:)` handles a two-factor auth error.

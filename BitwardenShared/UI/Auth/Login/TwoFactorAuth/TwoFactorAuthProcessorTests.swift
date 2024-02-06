@@ -157,7 +157,7 @@ class TwoFactorAuthProcessorTests: BitwardenTestCase {
 
         await subject.perform(.continueTapped)
 
-        XCTAssertEqual(coordinator.routes, [.dismiss, .complete])
+        XCTAssertEqual(coordinator.events, [.didCompleteAuth])
     }
 
     /// `perform(_:)` with `.continueTapped` handles a two-factor error correctly.
