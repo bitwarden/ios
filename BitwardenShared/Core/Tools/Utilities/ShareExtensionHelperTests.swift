@@ -8,17 +8,20 @@ import XCTest
 class ShareExtensionHelperTests: BitwardenTestCase {
     // MARK: Properties
 
+    var timeProvider: MockTimeProvider!
     var subject: ShareExtensionHelper!
 
     // MARK: Setup & Teardown
 
     override func setUp() {
         super.setUp()
+        timeProvider = MockTimeProvider(.currentTime)
         subject = ShareExtensionHelper()
     }
 
     override func tearDown() {
         super.tearDown()
+        timeProvider = nil
         subject = nil
     }
 
@@ -80,7 +83,7 @@ class ShareExtensionHelperTests: BitwardenTestCase {
 
         let formatter = DateFormatter()
         formatter.dateFormat = "yyyyMMddHHmmss"
-        let fileName = "image_\(formatter.string(from: Date())).png"
+        let fileName = "image_\(formatter.string(from: timeProvider.presentTime)).png"
 
         let content = await subject.processInputItems([extensionItem])
 
