@@ -161,9 +161,13 @@ class VaultGroupProcessorTests: BitwardenTestCase { // swiftlint:disable:this ty
     func test_perform_search() async {
         let searchResult: [CipherView] = [.fixture(name: "example")]
         vaultRepository.searchVaultListSubject.value = searchResult.compactMap { VaultListItem(cipherView: $0) }
+        subject.state.searchVaultFilterType = .organization(.fixture(id: "id1"))
         await subject.perform(.search("example"))
-
         XCTAssertEqual(subject.state.searchResults.count, 1)
+        XCTAssertEqual(
+            vaultRepository.searchVaultListFilterType,
+            .organization(.fixture(id: "id1"))
+        )
         XCTAssertEqual(
             subject.state.searchResults,
             try [VaultListItem.fixture(cipherView: XCTUnwrap(searchResult.first))]

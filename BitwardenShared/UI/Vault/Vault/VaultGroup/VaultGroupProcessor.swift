@@ -209,7 +209,7 @@ final class VaultGroupProcessor: StateProcessor<VaultGroupState, VaultGroupActio
             let result = try await services.vaultRepository.searchVaultListPublisher(
                 searchText: searchText,
                 group: state.group,
-                filterType: state.vaultFilterType
+                filterType: state.searchVaultFilterType
             )
             for try await ciphers in result {
                 return ciphers
