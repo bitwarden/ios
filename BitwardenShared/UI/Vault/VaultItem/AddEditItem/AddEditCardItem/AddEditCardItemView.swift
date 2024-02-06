@@ -98,6 +98,9 @@ struct AddEditCardItemView: View {
             .focused($focusedField, equals: .securityCode)
             .onSubmit { focusNextField($focusedField) }
         }
+        .onTapGesture {
+            focusedField = nil
+        }
     }
 }
 

@@ -23,54 +23,59 @@ struct AddEditLoginItemView: View {
     @ObservedObject var store: Store<LoginItemState, AddEditItemAction, AddEditItemEffect>
 
     var body: some View {
-        BitwardenTextField(
-            title: Localizations.username,
-            text: store.binding(
-                get: \.username,
-                send: AddEditItemAction.usernameChanged
-            )
-        ) {
-            AccessoryButton(
-                asset: Asset.Images.restart2,
-                accessibilityLabel: Localizations.generateUsername
+        VStack(spacing: 16.0) {
+            BitwardenTextField(
+                title: Localizations.username,
+                text: store.binding(
+                    get: \.username,
+                    send: AddEditItemAction.usernameChanged
+                )
             ) {
-                store.send(.generateUsernamePressed)
-            }
-            .accessibilityIdentifier("GenerateUsernameButton")
-        }
-        .textFieldConfiguration(.username)
-        .focused($focusedField, equals: .userName)
-        .onSubmit { focusNextField($focusedField) }
-
-        BitwardenTextField(
-            title: Localizations.password,
-            text: store.binding(
-                get: \.password,
-                send: AddEditItemAction.passwordChanged
-            ),
-            canViewPassword: store.state.canViewPassword,
-            isPasswordVisible: store.binding(
-                get: \.isPasswordVisible,
-                send: AddEditItemAction.togglePasswordVisibilityChanged
-            )
-        ) {
-            if store.state.canViewPassword {
-                AccessoryButton(asset: Asset.Images.roundCheck, accessibilityLabel: Localizations.checkPassword) {
-                    await store.perform(.checkPasswordPressed)
+                AccessoryButton(
+                    asset: Asset.Images.restart2,
+                    accessibilityLabel: Localizations.generateUsername
+                ) {
+                    store.send(.generateUsernamePressed)
                 }
-                AccessoryButton(asset: Asset.Images.restart2, accessibilityLabel: Localizations.generatePassword) {
-                    store.send(.generatePasswordPressed)
+                .accessibilityIdentifier("GenerateUsernameButton")
+            }
+            .textFieldConfiguration(.username)
+            .focused($focusedField, equals: .userName)
+            .onSubmit { focusNextField($focusedField) }
+
+            BitwardenTextField(
+                title: Localizations.password,
+                text: store.binding(
+                    get: \.password,
+                    send: AddEditItemAction.passwordChanged
+                ),
+                canViewPassword: store.state.canViewPassword,
+                isPasswordVisible: store.binding(
+                    get: \.isPasswordVisible,
+                    send: AddEditItemAction.togglePasswordVisibilityChanged
+                )
+            ) {
+                if store.state.canViewPassword {
+                    AccessoryButton(asset: Asset.Images.roundCheck, accessibilityLabel: Localizations.checkPassword) {
+                        await store.perform(.checkPasswordPressed)
+                    }
+                    AccessoryButton(asset: Asset.Images.restart2, accessibilityLabel: Localizations.generatePassword) {
+                        store.send(.generatePasswordPressed)
+                    }
                 }
             }
+            .disabled(!store.state.canViewPassword)
+            .textFieldConfiguration(.password)
+            .focused($focusedField, equals: .password)
+            .onSubmit { focusNextField($focusedField) }
+
+            totpView
+
+            uriSection
         }
-        .disabled(!store.state.canViewPassword)
-        .textFieldConfiguration(.password)
-        .focused($focusedField, equals: .password)
-        .onSubmit { focusNextField($focusedField) }
-
-        totpView
-
-        uriSection
+        .onTapGesture {
+            focusedField = nil
+        }
     }
 
     /// The view for TOTP authenticator key..
