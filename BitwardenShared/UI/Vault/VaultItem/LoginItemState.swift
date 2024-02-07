@@ -25,6 +25,9 @@ struct LoginItemState: Equatable {
     /// The date the password was last updated.
     var passwordUpdatedDate: Date?
 
+    /// A toast message to show in the view.
+    var toast: Toast?
+
     /// The TOTP key/code state.
     var totpState: LoginTOTPState
 

@@ -333,10 +333,23 @@ class ViewItemProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
         XCTAssertEqual(subject.state.loadingState, .data(cipherState))
     }
 
-    /// `receive` with `.copyPressed` copies the value with the pasteboard service.
+    /// `receive` with `.copyPressed` copies the value with the pasteboard service and shows a toast.
     func test_receive_copyPressed() {
-        subject.receive(.copyPressed(value: "value"))
+        subject.receive(.copyPressed(value: "value", field: .cardNumber))
         XCTAssertEqual(pasteboardService.copiedString, "value")
+        XCTAssertEqual(subject.state.toast?.text, Localizations.valueHasBeenCopied(Localizations.number))
+
+        subject.receive(.copyPressed(value: "value", field: .password))
+        XCTAssertEqual(pasteboardService.copiedString, "value")
+        XCTAssertEqual(subject.state.toast?.text, Localizations.valueHasBeenCopied(Localizations.password))
+
+        subject.receive(.copyPressed(value: "value", field: .totp))
+        XCTAssertEqual(pasteboardService.copiedString, "value")
+        XCTAssertEqual(subject.state.toast?.text, Localizations.valueHasBeenCopied(Localizations.totp))
+
+        subject.receive(.copyPressed(value: "value", field: .username))
+        XCTAssertEqual(pasteboardService.copiedString, "value")
+        XCTAssertEqual(subject.state.toast?.text, Localizations.valueHasBeenCopied(Localizations.username))
     }
 
     /// `receive` with `.customFieldVisibilityPressed()` toggles custom field visibility.

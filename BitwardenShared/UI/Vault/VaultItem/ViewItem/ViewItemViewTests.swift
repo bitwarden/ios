@@ -68,7 +68,7 @@ class ViewItemViewTests: BitwardenTestCase { // swiftlint:disable:this type_body
         processor.state.loadingState = .data(loginState)
         let button = try subject.inspect().find(buttonWithAccessibilityLabel: Localizations.copy)
         try button.tap()
-        XCTAssertEqual(processor.dispatchedActions.last, .copyPressed(value: "username"))
+        XCTAssertTrue(processor.dispatchedActions.contains(.copyPressed(value: "username", field: .username)))
     }
 
     /// Tapping the copy password button dispatches the `.copyPressed` action along with the
@@ -84,7 +84,7 @@ class ViewItemViewTests: BitwardenTestCase { // swiftlint:disable:this type_body
         processor.state.loadingState = .data(loginState)
         let button = try subject.inspect().find(buttonWithAccessibilityLabel: Localizations.copy)
         try button.tap()
-        XCTAssertEqual(processor.dispatchedActions.last, .copyPressed(value: "password"))
+        XCTAssertTrue(processor.dispatchedActions.contains(.copyPressed(value: "password", field: .password)))
     }
 
     /// Tapping the copy uri button dispatches the `.copyPressed` action along with the uri.
@@ -104,7 +104,7 @@ class ViewItemViewTests: BitwardenTestCase { // swiftlint:disable:this type_body
         processor.state.loadingState = .data(loginState)
         let button = try subject.inspect().find(buttonWithAccessibilityLabel: Localizations.copy)
         try button.tap()
-        XCTAssertEqual(processor.dispatchedActions.last, .copyPressed(value: "www.example.com"))
+        XCTAssertTrue(processor.dispatchedActions.contains(.copyPressed(value: "www.example.com", field: .uri)))
     }
 
     /// Tapping the dismiss button dispatches the `.dismissPressed` action.
