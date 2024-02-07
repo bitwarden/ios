@@ -30,18 +30,17 @@ struct ProfileSwitcherView: View {
         .background {
             backgroundView
                 .hidden(!store.state.isVisible)
-                .accessibilityHidden(!store.state.isVisible)
-                .accessibilityLabel(Localizations.close)
-                .accessibility(addTraits: .isButton)
-                .accessibilityAction {
-                    store.send(.backgroundPressed)
-                }
+                .accessibilityHidden(true)
         }
         .onTapGesture {
             store.send(.backgroundPressed)
         }
         .allowsHitTesting(store.state.isVisible)
         .animation(.easeInOut(duration: 0.2), value: store.state.isVisible)
+        .accessibilityHidden(!store.state.isVisible)
+        .accessibilityAction(named: Localizations.close) {
+            store.send(.backgroundPressed)
+        }
     }
 
     // MARK: Private Properties
@@ -56,8 +55,10 @@ struct ProfileSwitcherView: View {
                     rowType: .addAccount
                 )
             },
-            mapAction: { _ in .addAccountPressed },
-            mapEffect: nil
+            mapAction: nil,
+            mapEffect: { _ in
+                .addAccountPressed
+            }
         ))
         .accessibilityIdentifier("AddAccountButton")
     }
@@ -78,7 +79,7 @@ struct ProfileSwitcherView: View {
     private var accounts: some View {
         VStack(alignment: .leading, spacing: 0) {
             ForEachIndexed(store.state.alternateAccounts, id: \.self) { _, account in
-                unselectedProfileSwitcherRow(accountProfile: account)
+                profileSwitcherRow(accountProfile: account)
             }
             selectedProfileSwitcherRow
         }
@@ -88,58 +89,66 @@ struct ProfileSwitcherView: View {
     ///
     /// - Parameter accountProfile: A `ProfileSwitcherItem` to display in row format
     ///
-    private var selectedProfileSwitcherRow: some View {
-        ProfileSwitcherRow(
-            store: store.child(
-                state: { state in
-                    ProfileSwitcherRowState(
-                        shouldTakeAccessibilityFocus: state.isVisible,
-                        showDivider: state.showsAddAccount,
-                        rowType: .active(
-                            state.activeAccountProfile ?? .empty
-                        )
-                    )
-                },
-                mapAction: { action in
-                    switch action {
-                    case .longPressed:
-                        .accountLongPressed(store.state.activeAccountProfile ?? .empty)
-                    case .pressed:
-                        .accountPressed(store.state.activeAccountProfile ?? .empty)
-                    }
-                },
-                mapEffect: nil
+    @ViewBuilder private var selectedProfileSwitcherRow: some View {
+        if let profile = store.state.activeAccountProfile {
+            profileSwitcherRow(
+                accountProfile: profile,
+                showDivider: store.state.showsAddAccount
             )
-        )
+        }
     }
 
     // MARK: Private Methods
 
-    /// A row to display an alternate account profile
+    /// A row to display an account profile
     ///
-    /// - Parameter accountProfile: A `ProfileSwitcherItem` to display in row format
+    /// - Parameters
+    ///     - accountProfile: A `ProfileSwitcherItem` to display in row format
+    ///     - showDivider: Should the cell show a divider at the bottom.
     ///
     @ViewBuilder
-    private func unselectedProfileSwitcherRow(
-        accountProfile: ProfileSwitcherItem
+    private func profileSwitcherRow(
+        accountProfile: ProfileSwitcherItem,
+        showDivider: Bool = true
     ) -> some View {
+        let isActive = (accountProfile.userId == store.state.activeAccountId)
         ProfileSwitcherRow(
             store: store.child(
                 state: { _ in
                     ProfileSwitcherRowState(
-                        shouldTakeAccessibilityFocus: false,
-                        rowType: .alternate(accountProfile)
+                        allowLockAndLogout: store.state.allowLockAndLogout,
+                        shouldTakeAccessibilityFocus: store.state.isVisible
+                            && isActive,
+                        showDivider: showDivider,
+                        rowType: isActive
+                            ? .active(accountProfile)
+                            : .alternate(accountProfile)
                     )
                 },
                 mapAction: { action in
                     switch action {
+                    case let .accessibility(accessibilityAction):
+                        switch accessibilityAction {
+                        case .logout:
+                            .accessibility(.logout(accountProfile))
+                        }
+                    }
+                },
+                mapEffect: { effect in
+                    switch effect {
+                    case let .accessibility(accessibility):
+                        switch accessibility {
+                        case .lock:
+                            .accessibility(.lock(accountProfile))
+                        case .select:
+                            .accessibility(.select(accountProfile))
+                        }
                     case .longPressed:
                         .accountLongPressed(accountProfile)
                     case .pressed:
                         .accountPressed(accountProfile)
                     }
-                },
-                mapEffect: nil
+                }
             )
         )
     }
@@ -167,6 +176,7 @@ struct ProfileSwitcherView_Previews: PreviewProvider {
                                 selectedAccount,
                             ],
                             activeAccountId: selectedAccount.userId,
+                            allowLockAndLogout: true,
                             isVisible: true
                         )
                     )
@@ -191,6 +201,7 @@ struct ProfileSwitcherView_Previews: PreviewProvider {
                                 ),
                             ],
                             activeAccountId: selectedAccount.userId,
+                            allowLockAndLogout: true,
                             isVisible: true
                         )
                     )
@@ -229,6 +240,7 @@ struct ProfileSwitcherView_Previews: PreviewProvider {
                                 ),
                             ],
                             activeAccountId: "1",
+                            allowLockAndLogout: true,
                             isVisible: true
                         )
                     )
@@ -274,6 +286,7 @@ struct ProfileSwitcherView_Previews: PreviewProvider {
                                 ),
                             ],
                             activeAccountId: "1",
+                            allowLockAndLogout: true,
                             isVisible: true
                         )
                     )

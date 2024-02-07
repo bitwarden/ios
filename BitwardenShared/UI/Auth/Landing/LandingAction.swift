@@ -12,7 +12,7 @@ enum LandingAction: Equatable {
     case emailChanged(String)
 
     /// A forwarded profile switcher action.
-    case profileSwitcherAction(ProfileSwitcherAction)
+    case profileSwitcher(ProfileSwitcherAction)
 
     /// The region button was pressed.
     case regionPressed
