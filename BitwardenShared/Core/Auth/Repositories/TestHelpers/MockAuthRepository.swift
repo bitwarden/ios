@@ -51,6 +51,9 @@ class MockAuthRepository: AuthRepository {
     var updateMasterPasswordReason: ForcePasswordResetReason?
     var updateMasterPasswordResult: Result<Void, Error> = .success(())
 
+    var validatePasswordPasswords = [String]()
+    var validatePasswordResult: Result<Bool, Error> = .success(true)
+
     var vaultTimeout = [String: SessionTimeoutValue]()
 
     func allowBioMetricUnlock(_ enabled: Bool) async throws {
@@ -207,5 +210,10 @@ class MockAuthRepository: AuthRepository {
         updateMasterPasswordPasswordHint = passwordHint
         updateMasterPasswordReason = reason
         return try updateMasterPasswordResult.get()
+    }
+
+    func validatePassword(_ password: String) async throws -> Bool {
+        validatePasswordPasswords.append(password)
+        return try validatePasswordResult.get()
     }
 }

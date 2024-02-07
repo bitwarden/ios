@@ -84,6 +84,15 @@ class AuthCoordinatorTests: BitwardenTestCase {
         XCTAssertTrue(authDelegate.didCompleteAuthCalled)
     }
 
+    /// `navigate(to:)` with `.complete` dismisses a presented view and notifies the delegate that
+    /// auth has completed.
+    func test_navigate_complete_withPresented() {
+        subject.navigate(to: .updateMasterPassword)
+        subject.navigate(to: .complete)
+        XCTAssertTrue(authDelegate.didCompleteAuthCalled)
+        XCTAssertEqual(stackNavigator.actions.last?.type, .dismissedWithCompletionHandler)
+    }
+
     /// `navigate(to:)` with `.createAccount` pushes the create account view onto the stack navigator.
     func test_navigate_createAccount() throws {
         subject.navigate(to: .createAccount)
