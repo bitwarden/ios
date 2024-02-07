@@ -36,16 +36,15 @@ struct VaultUnlockView: View {
         .toolbar {
             ToolbarItem(placement: .navigationBarTrailing) {
                 if store.state.isInAppExtension {
-                    ToolbarButton(asset: Asset.Images.cancel, label: Localizations.cancel) {
+                    cancelToolbarButton {
                         store.send(.cancelPressed)
                     }
                 } else {
-                    ToolbarButton(asset: Asset.Images.verticalKabob, label: Localizations.options) {
-                        store.send(.morePressed)
+                    optionsToolbarMenu {
+                        Button(Localizations.logOut) {
+                            store.send(.morePressed)
+                        }
                     }
-                    .accessibilityIdentifier(
-                        "//XCUIElementTypeScrollView[2]/XCUIElementTypeOther[1]/XCUIElementTypeOther"
-                    )
                 }
             }
             ToolbarItem(placement: .navigationBarLeading) {

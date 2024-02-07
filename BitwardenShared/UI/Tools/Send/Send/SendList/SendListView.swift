@@ -215,9 +215,10 @@ struct SendListView: View {
                         } label: {
                             Image(asset: Asset.Images.infoRound, label: Text(Localizations.aboutSend))
                                 .resizable()
+                                .foregroundColor(Asset.Colors.primaryBitwarden.swiftUIColor)
                                 .frame(width: 22, height: 22)
                         }
-                        .buttonStyle(.toolbar)
+                        .frame(minHeight: 44)
                     }
                 }
 

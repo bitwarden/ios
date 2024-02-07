@@ -42,7 +42,7 @@ class TwoFactorAuthViewTests: BitwardenTestCase {
 
     /// Tapping the cancel button dispatches the `.dismiss` action.
     func test_cancelButton_tap() throws {
-        let button = try subject.inspect().find(button: Localizations.close)
+        let button = try subject.inspect().find(button: Localizations.cancel)
         try button.tap()
         XCTAssertEqual(processor.dispatchedActions.last, .dismiss)
     }

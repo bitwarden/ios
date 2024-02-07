@@ -39,9 +39,6 @@ public enum AuthRoute: Equatable {
     ///                               login screen.
     case login(username: String, region: RegionType, isLoginWithDeviceVisible: Bool)
 
-    /// A route to the login options screen.
-    case loginOptions
-
     /// A route to the login with device screen.
     ///
     /// - Parameter email: The user's email.

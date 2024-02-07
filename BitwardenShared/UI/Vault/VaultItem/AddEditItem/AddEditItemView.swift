@@ -115,10 +115,9 @@ struct AddEditItemView: View {
                         )
                     )
 
-                    ToolbarButton(asset: Asset.Images.cancel, label: Localizations.close) {
+                    cancelToolbarButton {
                         store.send(.dismissPressed)
                     }
-                    .accessibilityIdentifier("CLOSE")
                 }
             }
     }

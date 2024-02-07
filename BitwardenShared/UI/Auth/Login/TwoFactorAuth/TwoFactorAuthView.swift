@@ -33,7 +33,7 @@ struct TwoFactorAuthView: View {
             ToolbarItemGroup(placement: .navigationBarTrailing) {
                 authMethodsMenu
 
-                ToolbarButton(asset: Asset.Images.cancel, label: Localizations.close) {
+                cancelToolbarButton {
                     store.send(.dismiss)
                 }
             }
@@ -53,7 +53,7 @@ struct TwoFactorAuthView: View {
 
     /// The two-factor authentication menu buttons.
     private var authMethodsMenu: some View {
-        Menu {
+        optionsToolbarMenu {
             Menu(Localizations.useAnotherTwoStepMethod) {
                 ForEach(store.state.availableAuthMethods) { method in
                     Button(method.title) {
@@ -61,11 +61,6 @@ struct TwoFactorAuthView: View {
                     }
                 }
             }
-        } label: {
-            Image(asset: Asset.Images.verticalKabob, label: Text(Localizations.options))
-                .resizable()
-                .frame(width: 19, height: 19)
-                .foregroundColor(Asset.Colors.primaryBitwarden.swiftUIColor)
         }
     }
 
