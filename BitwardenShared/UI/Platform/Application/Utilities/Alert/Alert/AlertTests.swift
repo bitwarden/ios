@@ -5,7 +5,7 @@ import XCTest
 
 // MARK: - AlertTests
 
-class AlertTests: XCTestCase {
+class AlertTests: BitwardenTestCase {
     // MARK: Properties
 
     var subject: Alert!
@@ -193,7 +193,6 @@ class AlertTests: XCTestCase {
         XCTAssertNil(capturedAction)
     }
 
-    @MainActor
     func test_vault_moreOptions_login_cannotViewPassword() async throws {
         var capturedAction: MoreOptionsAction?
         let action: (MoreOptionsAction) -> Void = { action in
