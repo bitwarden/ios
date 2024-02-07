@@ -9,6 +9,7 @@ final class ViewItemProcessor: StateProcessor<ViewItemState, ViewItemAction, Vie
     // MARK: Types
 
     typealias Services = HasAPIService
+        & HasAuthRepository
         & HasErrorReporter
         & HasPasteboardService
         & HasVaultRepository
@@ -312,7 +313,7 @@ private extension ViewItemProcessor {
             guard let self else { return }
 
             do {
-                let isValid = try await services.vaultRepository.validatePassword(password)
+                let isValid = try await services.authRepository.validatePassword(password)
                 guard isValid else {
                     coordinator.navigate(to: .alert(Alert.defaultAlert(title: Localizations.invalidMasterPassword)))
                     return

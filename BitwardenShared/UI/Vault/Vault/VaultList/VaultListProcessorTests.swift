@@ -663,7 +663,7 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
         await copyPasswordAction.handler?(copyPasswordAction, [])
 
         // mock the master password
-        vaultRepository.validatePasswordResult = .success(true)
+        authRepository.validatePasswordResult = .success(true)
 
         // Validate master password re-prompt is shown
         alert = try XCTUnwrap(coordinator.alertShown.last)
@@ -707,7 +707,7 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
         await copyPasswordAction.handler?(copyPasswordAction, [])
 
         // mock the master password
-        vaultRepository.validatePasswordResult = .success(false)
+        authRepository.validatePasswordResult = .success(false)
 
         // Validate master password re-prompt is shown
         alert = try XCTUnwrap(coordinator.alertShown.last)

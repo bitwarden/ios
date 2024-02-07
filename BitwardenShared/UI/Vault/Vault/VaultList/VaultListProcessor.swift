@@ -398,7 +398,7 @@ final class VaultListProcessor: StateProcessor<// swiftlint:disable:this type_bo
             guard let self else { return }
 
             do {
-                let isValid = try await services.vaultRepository.validatePassword(password)
+                let isValid = try await services.authRepository.validatePassword(password)
                 guard isValid else {
                     coordinator.showAlert(.defaultAlert(title: Localizations.invalidMasterPassword))
                     return
@@ -437,7 +437,7 @@ extension VaultListProcessor: CipherItemOperationDelegate {
 // MARK: - MoreOptionsAction
 
 /// The actions available from the More Options alert.
-enum MoreOptionsAction {
+enum MoreOptionsAction: Equatable {
     /// Copy the `value` and show a toast with the `toast` string.
     case copy(toast: String, value: String, requiresMasterPasswordReprompt: Bool)
 

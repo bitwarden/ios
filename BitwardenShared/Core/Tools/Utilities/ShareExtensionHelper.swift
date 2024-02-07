@@ -9,11 +9,26 @@ import UniformTypeIdentifiers
 ///
 @MainActor
 public class ShareExtensionHelper {
+    // MARK: Properties
+
+    /// The service used to get the present time.
+    let timeProvider: TimeProvider
+
     // MARK: Initialization
 
     /// Creates a new `ShareExtensionHelper`.
     ///
-    public init() {}
+    public convenience init() {
+        self.init(timeProvider: CurrentTime())
+    }
+
+    /// Creates a new `ShareExtensionHelper`.
+    ///
+    /// - Parameter timeProvider: The service used to get the present time.
+    ///
+    init(timeProvider: TimeProvider) {
+        self.timeProvider = timeProvider
+    }
 
     // MARK: Methods
 
@@ -34,6 +49,13 @@ public class ShareExtensionHelper {
             if let url = data as? URL {
                 let fileName = url.lastPathComponent
                 if let imageData = try? Data(contentsOf: url) {
+                    return .file(fileName: fileName, fileData: imageData)
+                }
+            } else if let image = data as? UIImage {
+                if let imageData = image.pngData() {
+                    let formatter = DateFormatter()
+                    formatter.dateFormat = "yyyyMMddHHmmss"
+                    let fileName = "image_\(formatter.string(from: timeProvider.presentTime)).png"
                     return .file(fileName: fileName, fileData: imageData)
                 }
             }

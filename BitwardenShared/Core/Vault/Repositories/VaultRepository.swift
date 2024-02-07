@@ -150,13 +150,6 @@ protocol VaultRepository: AnyObject {
     ///
     func updateCipherCollections(_ cipher: CipherView) async throws
 
-    /// Validates the user's entered master password to determine if it matches the stored hash.
-    ///
-    /// - Parameter password: The user's master password.
-    /// - Returns: Whether the hash of the password matches the stored hash.
-    ///
-    func validatePassword(_ password: String) async throws -> Bool
-
     // MARK: Publishers
 
     /// A publisher for the details of a cipher in the vault.
@@ -878,11 +871,6 @@ extension DefaultVaultRepository: VaultRepository {
     func updateCipherCollections(_ cipherView: CipherView) async throws {
         let cipher = try await clientVault.ciphers().encrypt(cipherView: cipherView)
         try await cipherService.updateCipherCollectionsWithServer(cipher)
-    }
-
-    func validatePassword(_ password: String) async throws -> Bool {
-        guard let passwordHash = try await stateService.getMasterPasswordHash() else { return false }
-        return try await clientAuth.validatePassword(password: password, passwordHash: passwordHash)
     }
 
     // MARK: Publishers
