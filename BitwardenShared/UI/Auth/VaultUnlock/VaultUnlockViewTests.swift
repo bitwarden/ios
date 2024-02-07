@@ -20,6 +20,7 @@ class VaultUnlockViewTests: BitwardenTestCase {
                 profileSwitcherState: .init(
                     accounts: [],
                     activeAccountId: nil,
+                    allowLockAndLogout: false,
                     isVisible: false
                 ),
                 unlockMethod: .password,
@@ -171,6 +172,7 @@ class VaultUnlockViewTests: BitwardenTestCase {
                 account,
             ],
             activeAccountId: account.userId,
+            allowLockAndLogout: true,
             isVisible: true
         )
         assertSnapshot(matching: subject, as: .defaultPortrait)
@@ -199,6 +201,7 @@ class VaultUnlockViewTests: BitwardenTestCase {
                 account,
             ],
             activeAccountId: account.userId,
+            allowLockAndLogout: true,
             isVisible: false
         )
         assertSnapshot(matching: subject, as: .defaultPortrait)

@@ -94,6 +94,7 @@ struct ProfileSwitcherView: View {
             store: store.child(
                 state: { state in
                     ProfileSwitcherRowState(
+                        allowLockAndLogout: state.allowLockAndLogout,
                         shouldTakeAccessibilityFocus: state.isVisible,
                         showDivider: state.showsAddAccount,
                         rowType: .active(
@@ -143,6 +144,7 @@ struct ProfileSwitcherView: View {
             store: store.child(
                 state: { _ in
                     ProfileSwitcherRowState(
+                        allowLockAndLogout: store.state.allowLockAndLogout,
                         shouldTakeAccessibilityFocus: false,
                         rowType: .alternate(accountProfile)
                     )
@@ -198,6 +200,7 @@ struct ProfileSwitcherView_Previews: PreviewProvider {
                                 selectedAccount,
                             ],
                             activeAccountId: selectedAccount.userId,
+                            allowLockAndLogout: true,
                             isVisible: true
                         )
                     )
@@ -222,6 +225,7 @@ struct ProfileSwitcherView_Previews: PreviewProvider {
                                 ),
                             ],
                             activeAccountId: selectedAccount.userId,
+                            allowLockAndLogout: true,
                             isVisible: true
                         )
                     )
@@ -260,6 +264,7 @@ struct ProfileSwitcherView_Previews: PreviewProvider {
                                 ),
                             ],
                             activeAccountId: "1",
+                            allowLockAndLogout: true,
                             isVisible: true
                         )
                     )
@@ -305,6 +310,7 @@ struct ProfileSwitcherView_Previews: PreviewProvider {
                                 ),
                             ],
                             activeAccountId: "1",
+                            allowLockAndLogout: true,
                             isVisible: true
                         )
                     )

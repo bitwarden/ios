@@ -79,11 +79,13 @@ protocol AuthRepository: AnyObject {
 
     /// Gets the profiles state for a user.
     /// - Parameters:
+    ///   - allowLockAndLogout: Should the view allow lock & logout?
     ///   - isVisible: Should the state be visible?
     ///   - shouldAlwaysHideAddAccount: Should the state always hide add account?
     /// - Returns: A ProfileSwitcherState.
     ///
     func getProfilesState(
+        allowLockAndLogout: Bool,
         isVisible: Bool,
         shouldAlwaysHideAddAccount: Bool
     ) async -> ProfileSwitcherState
@@ -336,6 +338,7 @@ extension DefaultAuthRepository: AuthRepository {
     }
 
     func getProfilesState(
+        allowLockAndLogout: Bool,
         isVisible: Bool,
         shouldAlwaysHideAddAccount: Bool
     ) async -> ProfileSwitcherState {
@@ -345,6 +348,7 @@ extension DefaultAuthRepository: AuthRepository {
         return ProfileSwitcherState(
             accounts: accounts,
             activeAccountId: activeAccount?.userId,
+            allowLockAndLogout: allowLockAndLogout,
             isVisible: isVisible,
             shouldAlwaysHideAddAccount: shouldAlwaysHideAddAccount
         )

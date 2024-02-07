@@ -91,6 +91,7 @@ class MockAuthRepository: AuthRepository {
     }
 
     func getProfilesState(
+        allowLockAndLogout: Bool,
         isVisible: Bool,
         shouldAlwaysHideAddAccount: Bool
     ) async -> BitwardenShared.ProfileSwitcherState {
@@ -98,6 +99,7 @@ class MockAuthRepository: AuthRepository {
             return ProfileSwitcherState(
                 accounts: profileSwitcherState.accounts,
                 activeAccountId: profileSwitcherState.activeAccountId,
+                allowLockAndLogout: allowLockAndLogout,
                 isVisible: isVisible,
                 shouldAlwaysHideAddAccount: shouldAlwaysHideAddAccount
             )

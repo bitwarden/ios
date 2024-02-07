@@ -6,11 +6,17 @@ protocol ProfileSwitcherHandler: AnyObject {
     typealias ProfileServices = HasAuthRepository
         & HasErrorReporter
 
+    /// Should the view allow lock & logout?
+    var allowLockAndLogout: Bool { get }
+
     /// The `State` for the profile switcher.
     var profileSwitcherState: ProfileSwitcherState { get set }
 
     /// The services used by this handler.
     var profileServices: ProfileServices { get }
+
+    /// Should this handler should hide add account?
+    var shouldHideAddAccount: Bool { get }
 
     /// The `State` for a toast view.
     var toast: Toast? { get set }
@@ -38,12 +44,6 @@ protocol ProfileSwitcherHandler: AnyObject {
     /// Configures a profile switcher state with the current account and alternates.
     ///
     func refreshProfileState() async
-
-    /// A function to determine if this handler should hide add account.
-    ///
-    /// - Returns: should add account be hidden?
-    ///
-    func shouldHideAddAccount() -> Bool
 
     /// Shows the correct destination for add account.
     ///
@@ -97,8 +97,9 @@ extension ProfileSwitcherHandler {
 
     func refreshProfileState() async {
         profileSwitcherState = await profileServices.authRepository.getProfilesState(
+            allowLockAndLogout: allowLockAndLogout,
             isVisible: profileSwitcherState.isVisible,
-            shouldAlwaysHideAddAccount: shouldHideAddAccount()
+            shouldAlwaysHideAddAccount: shouldHideAddAccount
         )
     }
 }

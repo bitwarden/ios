@@ -92,6 +92,7 @@ class VaultUnlockProcessorTests: BitwardenTestCase { // swiftlint:disable:this t
         authRepository.profileSwitcherState = .init(
             accounts: [profile],
             activeAccountId: profile.userId,
+            allowLockAndLogout: true,
             isVisible: false
         )
         await subject.perform(.appeared)
@@ -105,7 +106,12 @@ class VaultUnlockProcessorTests: BitwardenTestCase { // swiftlint:disable:this t
     /// in the app extension.
     func test_perform_appeared_refreshProfile_inAppExtension() async {
         let profile = ProfileSwitcherItem.fixture()
-        authRepository.profileSwitcherState = .init(accounts: [profile], activeAccountId: nil, isVisible: false)
+        authRepository.profileSwitcherState = .init(
+            accounts: [profile],
+            activeAccountId: nil,
+            allowLockAndLogout: true,
+            isVisible: false
+        )
         appExtensionDelegate.isInAppExtension = true
 
         await subject.perform(.appeared)
@@ -115,6 +121,7 @@ class VaultUnlockProcessorTests: BitwardenTestCase { // swiftlint:disable:this t
             ProfileSwitcherState(
                 accounts: [profile],
                 activeAccountId: nil,
+                allowLockAndLogout: true,
                 isVisible: false,
                 shouldAlwaysHideAddAccount: true
             )
@@ -145,7 +152,12 @@ class VaultUnlockProcessorTests: BitwardenTestCase { // swiftlint:disable:this t
     /// No active account and accounts should yield a profile switcher state without an active account.
     func test_perform_refresh_profiles_single_notActive() async {
         let profile = ProfileSwitcherItem.fixture()
-        authRepository.profileSwitcherState = .init(accounts: [profile], activeAccountId: nil, isVisible: false)
+        authRepository.profileSwitcherState = .init(
+            accounts: [profile],
+            activeAccountId: nil,
+            allowLockAndLogout: true,
+            isVisible: false
+        )
         await subject.perform(.appeared)
 
         XCTAssertEqual(
@@ -153,6 +165,7 @@ class VaultUnlockProcessorTests: BitwardenTestCase { // swiftlint:disable:this t
             ProfileSwitcherState(
                 accounts: [profile],
                 activeAccountId: nil,
+                allowLockAndLogout: true,
                 isVisible: false
             )
         )
@@ -166,6 +179,7 @@ class VaultUnlockProcessorTests: BitwardenTestCase { // swiftlint:disable:this t
         authRepository.profileSwitcherState = .init(
             accounts: [profile, alternate],
             activeAccountId: profile.userId,
+            allowLockAndLogout: true,
             isVisible: false
         )
         await subject.perform(.appeared)
@@ -182,6 +196,7 @@ class VaultUnlockProcessorTests: BitwardenTestCase { // swiftlint:disable:this t
         subject.state.profileSwitcherState = ProfileSwitcherState(
             accounts: [profile, alternate],
             activeAccountId: profile.userId,
+            allowLockAndLogout: true,
             isVisible: true
         )
 
@@ -197,6 +212,7 @@ class VaultUnlockProcessorTests: BitwardenTestCase { // swiftlint:disable:this t
         subject.state.profileSwitcherState = ProfileSwitcherState(
             accounts: [profile, alternate],
             activeAccountId: profile.userId,
+            allowLockAndLogout: true,
             isVisible: true
         )
 
@@ -212,6 +228,7 @@ class VaultUnlockProcessorTests: BitwardenTestCase { // swiftlint:disable:this t
         subject.state.profileSwitcherState = ProfileSwitcherState(
             accounts: [profile, alternate],
             activeAccountId: profile.userId,
+            allowLockAndLogout: true,
             isVisible: true
         )
 
@@ -615,6 +632,7 @@ class VaultUnlockProcessorTests: BitwardenTestCase { // swiftlint:disable:this t
         subject.state.profileSwitcherState = ProfileSwitcherState(
             accounts: [otherProfile, activeProfile],
             activeAccountId: activeProfile.userId,
+            allowLockAndLogout: true,
             isVisible: true
         )
         authRepository.activeAccount = Account.fixture(profile: .fixture(userId: "1"))
@@ -639,6 +657,7 @@ class VaultUnlockProcessorTests: BitwardenTestCase { // swiftlint:disable:this t
         subject.state.profileSwitcherState = ProfileSwitcherState(
             accounts: [otherProfile, activeProfile],
             activeAccountId: activeProfile.userId,
+            allowLockAndLogout: true,
             isVisible: true
         )
         authRepository.activeAccount = nil
@@ -663,6 +682,7 @@ class VaultUnlockProcessorTests: BitwardenTestCase { // swiftlint:disable:this t
         subject.state.profileSwitcherState = ProfileSwitcherState(
             accounts: [otherProfile, activeProfile],
             activeAccountId: activeProfile.userId,
+            allowLockAndLogout: true,
             isVisible: true
         )
         authRepository.activeAccount = .fixture()
@@ -696,6 +716,7 @@ class VaultUnlockProcessorTests: BitwardenTestCase { // swiftlint:disable:this t
         subject.state.profileSwitcherState = ProfileSwitcherState(
             accounts: [otherProfile, activeProfile],
             activeAccountId: activeProfile.userId,
+            allowLockAndLogout: true,
             isVisible: true
         )
         authRepository.activeAccount = .fixture()
@@ -736,11 +757,13 @@ class VaultUnlockProcessorTests: BitwardenTestCase { // swiftlint:disable:this t
         subject.state.profileSwitcherState = ProfileSwitcherState(
             accounts: [otherProfile, activeProfile],
             activeAccountId: activeProfile.userId,
+            allowLockAndLogout: true,
             isVisible: true
         )
         authRepository.profileSwitcherState = ProfileSwitcherState(
             accounts: [otherProfile, activeProfile],
             activeAccountId: activeProfile.userId,
+            allowLockAndLogout: true,
             isVisible: true
         )
         authRepository.activeAccount = .fixture()
@@ -772,6 +795,7 @@ class VaultUnlockProcessorTests: BitwardenTestCase { // swiftlint:disable:this t
         subject.state.profileSwitcherState = ProfileSwitcherState(
             accounts: [otherProfile, activeProfile],
             activeAccountId: activeProfile.userId,
+            allowLockAndLogout: true,
             isVisible: true
         )
         authRepository.activeAccount = nil
@@ -797,12 +821,14 @@ class VaultUnlockProcessorTests: BitwardenTestCase { // swiftlint:disable:this t
         authRepository.profileSwitcherState = .init(
             accounts: [profile],
             activeAccountId: profile.userId,
+            allowLockAndLogout: true,
             isVisible: false
         )
 
         subject.state.profileSwitcherState = ProfileSwitcherState(
             accounts: [profile],
             activeAccountId: profile.userId,
+            allowLockAndLogout: true,
             isVisible: true
         )
 
@@ -826,12 +852,14 @@ class VaultUnlockProcessorTests: BitwardenTestCase { // swiftlint:disable:this t
         authRepository.profileSwitcherState = .init(
             accounts: [profile],
             activeAccountId: profile.userId,
+            allowLockAndLogout: true,
             isVisible: false
         )
         authRepository.accountForItemResult = .success(account)
         subject.state.profileSwitcherState = ProfileSwitcherState(
             accounts: [profile],
             activeAccountId: profile.userId,
+            allowLockAndLogout: true,
             isVisible: true
         )
 
@@ -856,6 +884,7 @@ class VaultUnlockProcessorTests: BitwardenTestCase { // swiftlint:disable:this t
         authRepository.profileSwitcherState = .init(
             accounts: [active, profile],
             activeAccountId: active.userId,
+            allowLockAndLogout: true,
             isVisible: true
         )
         authRepository.accountForItemResult = .success(account)
@@ -863,6 +892,7 @@ class VaultUnlockProcessorTests: BitwardenTestCase { // swiftlint:disable:this t
         subject.state.profileSwitcherState = ProfileSwitcherState(
             accounts: [profile, active],
             activeAccountId: active.userId,
+            allowLockAndLogout: true,
             isVisible: true
         )
 
@@ -887,12 +917,14 @@ class VaultUnlockProcessorTests: BitwardenTestCase { // swiftlint:disable:this t
         subject.state.profileSwitcherState = ProfileSwitcherState(
             accounts: [profile, active],
             activeAccountId: active.userId,
+            allowLockAndLogout: true,
             isVisible: true
         )
         authRepository.accountForItemResult = .success(account)
         subject.state.profileSwitcherState = ProfileSwitcherState(
             accounts: [profile, active],
             activeAccountId: active.userId,
+            allowLockAndLogout: true,
             isVisible: true
         )
 
@@ -914,11 +946,13 @@ class VaultUnlockProcessorTests: BitwardenTestCase { // swiftlint:disable:this t
         subject.state.profileSwitcherState = ProfileSwitcherState(
             accounts: [active],
             activeAccountId: active.userId,
+            allowLockAndLogout: true,
             isVisible: true
         )
         subject.state.profileSwitcherState = ProfileSwitcherState(
             accounts: [profile, active],
             activeAccountId: active.userId,
+            allowLockAndLogout: true,
             isVisible: true
         )
 
@@ -939,6 +973,7 @@ class VaultUnlockProcessorTests: BitwardenTestCase { // swiftlint:disable:this t
         subject.state.profileSwitcherState = ProfileSwitcherState(
             accounts: [active],
             activeAccountId: active.userId,
+            allowLockAndLogout: true,
             isVisible: true
         )
 
@@ -959,6 +994,7 @@ class VaultUnlockProcessorTests: BitwardenTestCase { // swiftlint:disable:this t
         subject.state.profileSwitcherState = ProfileSwitcherState(
             accounts: [active],
             activeAccountId: active.userId,
+            allowLockAndLogout: true,
             isVisible: true
         )
 
@@ -986,6 +1022,7 @@ class VaultUnlockProcessorTests: BitwardenTestCase { // swiftlint:disable:this t
         subject.state.profileSwitcherState = ProfileSwitcherState(
             accounts: [active],
             activeAccountId: active.userId,
+            allowLockAndLogout: true,
             isVisible: true
         )
 
@@ -1005,6 +1042,7 @@ class VaultUnlockProcessorTests: BitwardenTestCase { // swiftlint:disable:this t
         subject.state.profileSwitcherState = ProfileSwitcherState(
             accounts: [active],
             activeAccountId: active.userId,
+            allowLockAndLogout: true,
             isVisible: false
         )
 
@@ -1024,6 +1062,7 @@ class VaultUnlockProcessorTests: BitwardenTestCase { // swiftlint:disable:this t
         subject.state.profileSwitcherState = ProfileSwitcherState(
             accounts: [active],
             activeAccountId: active.userId,
+            allowLockAndLogout: true,
             isVisible: true,
             scrollOffset: .zero
         )

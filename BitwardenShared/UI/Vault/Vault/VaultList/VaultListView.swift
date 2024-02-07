@@ -385,12 +385,14 @@ struct VaultListView_Previews: PreviewProvider {
     static let singleAccountState = ProfileSwitcherState(
         accounts: [account1],
         activeAccountId: account1.userId,
+        allowLockAndLogout: true,
         isVisible: true
     )
 
     static let dualAccountState = ProfileSwitcherState(
         accounts: [account1, account2],
         activeAccountId: account1.userId,
+        allowLockAndLogout: true,
         isVisible: true
     )
 
@@ -618,6 +620,7 @@ struct VaultListView_Previews: PreviewProvider {
                             profileSwitcherState: ProfileSwitcherState(
                                 accounts: [],
                                 activeAccountId: nil,
+                                allowLockAndLogout: true,
                                 isVisible: false
                             ),
                             searchResults: [

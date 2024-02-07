@@ -364,6 +364,10 @@ enum MoreOptionsAction: Equatable {
 // MARK: - ProfileSwitcherHandler
 
 extension VaultListProcessor: ProfileSwitcherHandler {
+    var allowLockAndLogout: Bool {
+        true
+    }
+
     var profileServices: ProfileServices {
         services
     }
@@ -375,6 +379,10 @@ extension VaultListProcessor: ProfileSwitcherHandler {
         set {
             state.profileSwitcherState = newValue
         }
+    }
+
+    var shouldHideAddAccount: Bool {
+        false
     }
 
     var toast: Toast? {
@@ -389,10 +397,6 @@ extension VaultListProcessor: ProfileSwitcherHandler {
     func handleAuthEvent(_ authEvent: AuthEvent) async {
         guard case let .action(authAction) = authEvent else { return }
         await coordinator.handleEvent(authAction)
-    }
-
-    func shouldHideAddAccount() -> Bool {
-        false
     }
 
     func showAddAccount() {

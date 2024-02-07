@@ -183,6 +183,10 @@ class VaultAutofillListProcessor: StateProcessor<
 // MARK: - ProfileSwitcherHandler
 
 extension VaultAutofillListProcessor: ProfileSwitcherHandler {
+    var allowLockAndLogout: Bool {
+        false
+    }
+
     var profileServices: ProfileServices {
         services
     }
@@ -194,6 +198,10 @@ extension VaultAutofillListProcessor: ProfileSwitcherHandler {
         set {
             state.profileSwitcherState = newValue
         }
+    }
+
+    var shouldHideAddAccount: Bool {
+        true
     }
 
     var toast: Toast? {
@@ -210,15 +218,11 @@ extension VaultAutofillListProcessor: ProfileSwitcherHandler {
         await coordinator.handleEvent(authAction)
     }
 
-    func shouldHideAddAccount() -> Bool {
-        true
-    }
-
     func showAddAccount() {
         // No-Op for the VaultAutofillListProcessor.
     }
 
     func showAlert(_ alert: Alert) {
-        coordinator.showAlert(alert)
+        // No-Op for the VaultAutofillListProcessor.
     }
 }

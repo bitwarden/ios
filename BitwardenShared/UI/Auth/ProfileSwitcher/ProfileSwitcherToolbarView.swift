@@ -80,6 +80,7 @@ struct ProfileSwitcherToolbarView_Previews: PreviewProvider {
                                     state: .init(
                                         accounts: [selectedAccount],
                                         activeAccountId: nil,
+                                        allowLockAndLogout: true,
                                         isVisible: false
                                     )
                                 )
@@ -102,6 +103,7 @@ struct ProfileSwitcherToolbarView_Previews: PreviewProvider {
                                             selectedAccount,
                                         ],
                                         activeAccountId: selectedAccount.userId,
+                                        allowLockAndLogout: true,
                                         isVisible: false
                                     )
                                 )
@@ -131,6 +133,7 @@ struct ProfileSwitcherToolbarView_Previews: PreviewProvider {
                                             ),
                                         ],
                                         activeAccountId: "123",
+                                        allowLockAndLogout: true,
                                         isVisible: false
                                     )
                                 )

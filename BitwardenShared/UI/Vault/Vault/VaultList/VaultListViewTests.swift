@@ -28,6 +28,7 @@ class VaultListViewTests: BitwardenTestCase {
             profileSwitcherState: ProfileSwitcherState(
                 accounts: [account],
                 activeAccountId: account.userId,
+                allowLockAndLogout: true,
                 isVisible: false
             )
         )

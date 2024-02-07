@@ -254,6 +254,10 @@ class VaultUnlockProcessor: StateProcessor<
 // MARK: - ProfileSwitcherHandler
 
 extension VaultUnlockProcessor: ProfileSwitcherHandler {
+    var allowLockAndLogout: Bool {
+        true
+    }
+
     var profileServices: ProfileServices {
         services
     }
@@ -267,6 +271,10 @@ extension VaultUnlockProcessor: ProfileSwitcherHandler {
         }
     }
 
+    var shouldHideAddAccount: Bool {
+        appExtensionDelegate?.isInAppExtension ?? false
+    }
+
     var toast: Toast? {
         get {
             state.toast
@@ -278,10 +286,6 @@ extension VaultUnlockProcessor: ProfileSwitcherHandler {
 
     func handleAuthEvent(_ authEvent: AuthEvent) async {
         await coordinator.handleEvent(authEvent)
-    }
-
-    func shouldHideAddAccount() -> Bool {
-        appExtensionDelegate?.isInAppExtension ?? false
     }
 
     func showAddAccount() {

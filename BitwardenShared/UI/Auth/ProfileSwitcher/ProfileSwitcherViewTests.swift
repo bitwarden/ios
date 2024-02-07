@@ -22,6 +22,7 @@ class ProfileSwitcherViewTests: BitwardenTestCase { // swiftlint:disable:this ty
         let state = ProfileSwitcherState(
             accounts: [account],
             activeAccountId: account.userId,
+            allowLockAndLogout: true,
             isVisible: true
         )
         processor = MockProcessor(state: state)
@@ -79,6 +80,7 @@ class ProfileSwitcherViewTests: BitwardenTestCase { // swiftlint:disable:this ty
                 current,
             ],
             activeAccountId: current.userId,
+            allowLockAndLogout: true,
             isVisible: true
         )
         let addAccountRow = try subject.inspect().find(button: "alternate@bitwarden.com")
@@ -101,6 +103,7 @@ class ProfileSwitcherViewTests: BitwardenTestCase { // swiftlint:disable:this ty
                 current,
             ],
             activeAccountId: current.userId,
+            allowLockAndLogout: true,
             isVisible: true
         )
         let addAccountRow = try subject.inspect().find(button: "alternate@bitwarden.com")
@@ -126,6 +129,7 @@ class ProfileSwitcherViewTests: BitwardenTestCase { // swiftlint:disable:this ty
         processor.state = ProfileSwitcherState(
             accounts: alternateAccounts + [current],
             activeAccountId: current.userId,
+            allowLockAndLogout: true,
             isVisible: true
         )
         let addAccountRow = try subject.inspect().find(button: "")
@@ -175,6 +179,7 @@ class ProfileSwitcherViewTests: BitwardenTestCase { // swiftlint:disable:this ty
                 ),
             ],
             activeAccountId: ProfileSwitcherItem.anneAccount.userId,
+            allowLockAndLogout: true,
             isVisible: true,
             shouldAlwaysHideAddAccount: true
         )
@@ -218,6 +223,7 @@ class ProfileSwitcherViewTests: BitwardenTestCase { // swiftlint:disable:this ty
                 ),
             ],
             activeAccountId: ProfileSwitcherItem.anneAccount.userId,
+            allowLockAndLogout: true,
             isVisible: true
         )
         assertSnapshot(matching: subject, as: .defaultPortrait)
@@ -257,6 +263,7 @@ class ProfileSwitcherViewTests: BitwardenTestCase { // swiftlint:disable:this ty
                 ),
             ],
             activeAccountId: ProfileSwitcherItem.anneAccount.userId,
+            allowLockAndLogout: true,
             isVisible: true
         )
         assertSnapshot(matching: subject, as: .defaultPortrait)
@@ -292,6 +299,7 @@ class ProfileSwitcherViewTests: BitwardenTestCase { // swiftlint:disable:this ty
                 ),
             ],
             activeAccountId: ProfileSwitcherItem.anneAccount.userId,
+            allowLockAndLogout: true,
             isVisible: true
         )
         assertSnapshot(matching: subject, as: .defaultPortrait)

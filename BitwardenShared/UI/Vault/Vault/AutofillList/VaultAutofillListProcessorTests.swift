@@ -82,6 +82,7 @@ class VaultAutofillListProcessorTests: BitwardenTestCase {
         authRepository.profileSwitcherState = ProfileSwitcherState(
             accounts: [.anneAccount],
             activeAccountId: ProfileSwitcherItem.anneAccount.userId,
+            allowLockAndLogout: false,
             isVisible: true
         )
 
@@ -97,6 +98,32 @@ class VaultAutofillListProcessorTests: BitwardenTestCase {
         await subject.perform(.loadData)
 
         XCTAssertEqual(subject.state.profileSwitcherState, .empty(shouldAlwaysHideAddAccount: true))
+    }
+
+    /// `perform(_:)` with `.profileSwitcher(.accountPressed)` updates the profile switcher's
+    /// visibility and navigates to switch account.
+    func test_perform_profileSwitcher_accountPressed() async {
+        subject.state.profileSwitcherState.isVisible = true
+        await subject.perform(.profileSwitcher(.accountPressed(ProfileSwitcherItem.fixture(userId: "1"))))
+        authRepository.activeAccount = .fixture(profile: .fixture(userId: "42"))
+        authRepository.altAccounts = [
+            .fixture(),
+        ]
+        authRepository.vaultTimeout = [
+            "1": .fiveMinutes,
+            "42": .immediately,
+        ]
+
+        XCTAssertFalse(subject.state.profileSwitcherState.isVisible)
+        XCTAssertEqual(coordinator.events.last, .switchAccount(isAutomatic: false, userId: "1"))
+    }
+
+    /// `perform(_:)` with `.profileSwitcher(.lock)` does nothing.
+    func test_perform_profileSwitcher_lock() async {
+        subject.state.profileSwitcherState.isVisible = true
+        await subject.perform(.profileSwitcher(.accessibility(.lock(.fixture()))))
+
+        XCTAssertTrue(subject.state.profileSwitcherState.isVisible)
     }
 
     /// `perform(_:)` with `.search()` performs a cipher search and updates the state with the results.
@@ -206,30 +233,20 @@ class VaultAutofillListProcessorTests: BitwardenTestCase {
         XCTAssertTrue(appExtensionDelegate.didCancelCalled)
     }
 
-    /// `receive(_:)` with `.profileSwitcher(.accountPressed)` updates the profile switcher's
-    /// visibility and navigates to switch account.
-    func test_receive_profileSwitcher_accountPressed() async {
-        subject.state.profileSwitcherState.isVisible = true
-        await subject.perform(.profileSwitcher(.accountPressed(ProfileSwitcherItem.fixture(userId: "1"))))
-        authRepository.activeAccount = .fixture(profile: .fixture(userId: "42"))
-        authRepository.altAccounts = [
-            .fixture(),
-        ]
-        authRepository.vaultTimeout = [
-            "1": .fiveMinutes,
-            "42": .immediately,
-        ]
-
-        XCTAssertFalse(subject.state.profileSwitcherState.isVisible)
-        XCTAssertEqual(coordinator.events.last, .switchAccount(isAutomatic: false, userId: "1"))
-    }
-
     /// `receive(_:)` with `.profileSwitcher(.backgroundPressed)` turns off the Profile Switcher Visibility.
     func test_receive_profileSwitcher_backgroundPressed() {
         subject.state.profileSwitcherState.isVisible = true
         subject.receive(.profileSwitcher(.backgroundPressed))
 
         XCTAssertFalse(subject.state.profileSwitcherState.isVisible)
+    }
+
+    /// `receive(_:)` with `.profileSwitcher(.logout)` does nothing.
+    func test_receive_profileSwitcher_logout() async {
+        subject.state.profileSwitcherState.isVisible = true
+        subject.receive(.profileSwitcher(.accessibility(.logout(.fixture()))))
+
+        XCTAssertTrue(subject.state.profileSwitcherState.isVisible)
     }
 
     /// `receive(_:)` with `.profileSwitcher(.scrollOffsetChanged)` updates the scroll offset.

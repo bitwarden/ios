@@ -166,6 +166,10 @@ class LandingProcessor: StateProcessor<LandingState, LandingAction, LandingEffec
 // MARK: - ProfileSwitcherHandler
 
 extension LandingProcessor: ProfileSwitcherHandler {
+    var allowLockAndLogout: Bool {
+        true
+    }
+
     var profileServices: ProfileServices {
         services
     }
@@ -179,6 +183,10 @@ extension LandingProcessor: ProfileSwitcherHandler {
         }
     }
 
+    var shouldHideAddAccount: Bool {
+        true
+    }
+
     var toast: Toast? {
         get {
             state.toast
@@ -190,10 +198,6 @@ extension LandingProcessor: ProfileSwitcherHandler {
 
     func handleAuthEvent(_ authEvent: AuthEvent) async {
         await coordinator.handleEvent(authEvent)
-    }
-
-    func shouldHideAddAccount() -> Bool {
-        true
     }
 
     func showAddAccount() {

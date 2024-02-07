@@ -188,6 +188,7 @@ struct UnlockVaultView_Previews: PreviewProvider {
                             profileSwitcherState: .init(
                                 accounts: [],
                                 activeAccountId: nil,
+                                allowLockAndLogout: true,
                                 isVisible: false
                             ),
                             unlockMethod: .password,
@@ -214,6 +215,7 @@ struct UnlockVaultView_Previews: PreviewProvider {
                                     ),
                                 ],
                                 activeAccountId: "123",
+                                allowLockAndLogout: true,
                                 isVisible: false
                             ),
                             unlockMethod: .pin,
@@ -241,6 +243,7 @@ struct UnlockVaultView_Previews: PreviewProvider {
                                     ),
                                 ],
                                 activeAccountId: "123",
+                                allowLockAndLogout: true,
                                 isVisible: true
                             ),
                             unlockMethod: .password,

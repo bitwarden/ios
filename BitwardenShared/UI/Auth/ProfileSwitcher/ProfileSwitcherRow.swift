@@ -34,68 +34,13 @@ struct ProfileSwitcherRow: View {
             } label: {
                 rowContents
             }
-            .accessibilityAction(named: Localizations.addAccount) {
-                Task {
-                    await store.perform(.pressed(rowType))
-                }
+            .accessibilityAsyncAction(named: Localizations.addAccount) {
+                await store.perform(.pressed(rowType))
             }
         case let .alternate(account):
-            AsyncButton {} label: {
-                rowContents
-                    .onTapGesture {
-                        Task {
-                            await store.perform(.pressed(rowType))
-                        }
-                    }
-                    .onLongPressGesture {
-                        Task {
-                            await store.perform(.longPressed(rowType))
-                        }
-                    }
-            }
-            .accessibilityAction(named: Localizations.select) {
-                Task {
-                    await store.perform(.accessibility(.select(account)))
-                }
-            }
-            .accessibilityAction(named: Localizations.lock) {
-                Task {
-                    await store.perform(.accessibility(.lock(account)))
-                }
-            }
-            .accessibilityAction(named: Localizations.logOut) {
-                store.send(.accessibility(.logout(account)))
-            }
+            accountRow(for: account, isSelected: false)
         case let .active(account):
-            AsyncButton {} label: {
-                rowContents
-                    .onTapGesture {
-                        Task {
-                            await store.perform(.pressed(rowType))
-                        }
-                    }
-                    .onLongPressGesture {
-                        Task {
-                            await store.perform(.longPressed(rowType))
-                        }
-                    }
-            }
-            .accessibility(
-                addTraits: .isSelected
-            )
-            .accessibilityAction(named: Localizations.select) {
-                Task {
-                    await store.perform(.accessibility(.select(account)))
-                }
-            }
-            .accessibilityAction(named: Localizations.lock) {
-                Task {
-                    await store.perform(.accessibility(.lock(account)))
-                }
-            }
-            .accessibilityAction(named: Localizations.logOut) {
-                store.send(.accessibility(.logout(account)))
-            }
+            accountRow(for: account, isSelected: true)
         }
     }
 
@@ -213,6 +158,59 @@ struct ProfileSwitcherRow: View {
         case .addAccount:
             return nil
         }
+    }
+
+    /// Builds an account row for a given row type
+    ///
+    /// - Parameters
+    ///     - profileSwitcherItem: The item used to construct the account row.
+    ///     - isSelected: Is this item selected?
+    ///
+    @ViewBuilder
+    private func accountRow(
+        for profileSwitcherItem: ProfileSwitcherItem,
+        isSelected: Bool
+    ) -> some View {
+        AsyncButton {} label: {
+            rowContents
+                .onTapGesture {
+                    await store.perform(
+                        .pressed(
+                            isSelected
+                                ? .active(profileSwitcherItem)
+                                : .alternate(profileSwitcherItem)
+                        )
+                    )
+                }
+                .onLongPressGesture(if: store.state.allowLockAndLogout) {
+                    await store.perform(
+                        .longPressed(
+                            isSelected
+                                ? .active(profileSwitcherItem)
+                                : .alternate(profileSwitcherItem)
+                        )
+                    )
+                }
+        }
+        .accessibilityAsyncAction(named: Localizations.select) {
+            await store.perform(.accessibility(.select(profileSwitcherItem)))
+        }
+        .conditionalAccessibilityAsyncAction(
+            if: store.state.allowLockAndLogout,
+            named: Localizations.lock
+        ) {
+            await store.perform(.accessibility(.lock(profileSwitcherItem)))
+        }
+        .conditionalAccessibilityAction(
+            if: store.state.allowLockAndLogout,
+            named: Localizations.logOut
+        ) {
+            store.send(.accessibility(.logout(profileSwitcherItem)))
+        }
+        .accessibility(
+            if: isSelected,
+            addTraits: .isSelected
+        )
     }
 
     /// Helper function to set accessibility focus state inside the view body

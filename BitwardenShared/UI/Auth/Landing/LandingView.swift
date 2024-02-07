@@ -189,6 +189,7 @@ struct LandingView_Previews: PreviewProvider {
                                     ),
                                 ],
                                 activeAccountId: "123",
+                                allowLockAndLogout: true,
                                 isVisible: false
                             )
                         )
@@ -215,6 +216,7 @@ struct LandingView_Previews: PreviewProvider {
                                     ),
                                 ],
                                 activeAccountId: "123",
+                                allowLockAndLogout: true,
                                 isVisible: true
                             )
                         )

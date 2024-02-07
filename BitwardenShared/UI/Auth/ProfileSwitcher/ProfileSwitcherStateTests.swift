@@ -14,7 +14,12 @@ final class ProfileSwitcherStateTests: BitwardenTestCase {
     override func setUp() {
         super.setUp()
 
-        subject = ProfileSwitcherState(accounts: [], activeAccountId: nil, isVisible: false)
+        subject = ProfileSwitcherState(
+            accounts: [],
+            activeAccountId: nil,
+            allowLockAndLogout: false,
+            isVisible: false
+        )
     }
 
     override func tearDown() {
@@ -86,6 +91,7 @@ final class ProfileSwitcherStateTests: BitwardenTestCase {
         subject = ProfileSwitcherState(
             accounts: [],
             activeAccountId: "1",
+            allowLockAndLogout: true,
             isVisible: false
         )
 
@@ -98,6 +104,7 @@ final class ProfileSwitcherStateTests: BitwardenTestCase {
         subject = ProfileSwitcherState(
             accounts: [account],
             activeAccountId: nil,
+            allowLockAndLogout: true,
             isVisible: false
         )
 
@@ -110,6 +117,7 @@ final class ProfileSwitcherStateTests: BitwardenTestCase {
         subject = ProfileSwitcherState(
             accounts: [account],
             activeAccountId: account.userId,
+            allowLockAndLogout: true,
             isVisible: false
         )
 
@@ -129,6 +137,7 @@ final class ProfileSwitcherStateTests: BitwardenTestCase {
         subject = ProfileSwitcherState(
             accounts: accounts,
             activeAccountId: account.userId,
+            allowLockAndLogout: true,
             isVisible: true
         )
 
@@ -158,6 +167,7 @@ final class ProfileSwitcherStateTests: BitwardenTestCase {
         subject = ProfileSwitcherState(
             accounts: [account] + alternates,
             activeAccountId: account.userId,
+            allowLockAndLogout: true,
             isVisible: true
         )
 
@@ -175,6 +185,7 @@ final class ProfileSwitcherStateTests: BitwardenTestCase {
         subject = ProfileSwitcherState(
             accounts: [account] + alternates,
             activeAccountId: account.userId,
+            allowLockAndLogout: true,
             isVisible: true
         )
 

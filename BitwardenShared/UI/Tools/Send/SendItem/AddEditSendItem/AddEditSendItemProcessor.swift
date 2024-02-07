@@ -362,6 +362,10 @@ extension AddEditSendItemProcessor: FileSelectionDelegate {
 // MARK: - ProfileSwitcherHandler
 
 extension AddEditSendItemProcessor: ProfileSwitcherHandler {
+    var allowLockAndLogout: Bool {
+        false
+    }
+
     var profileServices: ProfileServices {
         services
     }
@@ -381,6 +385,10 @@ extension AddEditSendItemProcessor: ProfileSwitcherHandler {
         }
     }
 
+    var shouldHideAddAccount: Bool {
+        true
+    }
+
     var toast: Toast? {
         get {
             state.toast
@@ -393,10 +401,6 @@ extension AddEditSendItemProcessor: ProfileSwitcherHandler {
     func handleAuthEvent(_ authEvent: AuthEvent) async {
         guard case let .action(authAction) = authEvent else { return }
         await coordinator.handleEvent(authAction)
-    }
-
-    func shouldHideAddAccount() -> Bool {
-        true
     }
 
     func showAddAccount() {
