@@ -73,8 +73,8 @@ class FileSelectionCoordinatorTests: BitwardenTestCase {
     }
 
     /// `imagePickerController(_:,didFinishPickingMediaWithInfo:)` creates a filename for the photo
-    /// and notifies the delegate.
-    func test_imagePickerViewControllerDidFinishPickingMediaWithInfo() throws {
+    /// and notifies the delegate for a JPG image.
+    func test_imagePickerViewControllerDidFinishPickingMedia_jpg() throws {
         guard UIImagePickerController.isSourceTypeAvailable(.camera) else {
             throw XCTSkip("Unable to unit test UIImagePickerController with a camera input on CI")
         }
@@ -84,12 +84,36 @@ class FileSelectionCoordinatorTests: BitwardenTestCase {
         let viewController = UIImagePickerController()
         let image = UIImage(systemName: "doc.zipper")!
         subject.imagePickerController(viewController, didFinishPickingMediaWithInfo: [
+            .mediaType: UTType.image.identifier,
             .originalImage: image,
         ])
 
         XCTAssertTrue(errorReporter.errors.isEmpty)
         XCTAssertTrue(delegate.fileName!.hasPrefix("photo_"))
+        XCTAssertTrue(delegate.fileName!.hasSuffix(".jpg"))
         XCTAssertEqual(delegate.data, image.jpegData(compressionQuality: 1))
+    }
+
+    /// `imagePickerController(_:,didFinishPickingMediaWithInfo:)` creates a filename for the photo
+    /// and notifies the delegate for a PNG image.
+    func test_imagePickerViewControllerDidFinishPickingMedia_png() throws {
+        guard UIImagePickerController.isSourceTypeAvailable(.camera) else {
+            throw XCTSkip("Unable to unit test UIImagePickerController with a camera input on CI")
+        }
+
+        subject.navigate(to: .camera)
+
+        let viewController = UIImagePickerController()
+        let image = UIImage(systemName: "doc.zipper")!
+        subject.imagePickerController(viewController, didFinishPickingMediaWithInfo: [
+            .mediaType: UTType.png.identifier,
+            .originalImage: image,
+        ])
+
+        XCTAssertTrue(errorReporter.errors.isEmpty)
+        XCTAssertTrue(delegate.fileName!.hasPrefix("photo_"))
+        XCTAssertTrue(delegate.fileName!.hasSuffix(".png"))
+        XCTAssertEqual(delegate.data, image.pngData())
     }
 
     /// `navigate(to:)` with `.camera` and with camera authorization presents the camera screen.
