@@ -163,7 +163,8 @@ struct ProfileSwitcherView_Previews: PreviewProvider {
         email: "anne.account@bitwarden.com",
         isUnlocked: true,
         userId: "1",
-        userInitials: "AA"
+        userInitials: "AA",
+        webVault: ""
     )
 
     static var previews: some View {
@@ -197,7 +198,8 @@ struct ProfileSwitcherView_Previews: PreviewProvider {
                                     email: "bonus.bridge@bitwarde.com",
                                     isUnlocked: true,
                                     userId: "2",
-                                    userInitials: "BB"
+                                    userInitials: "BB",
+                                    webVault: ""
                                 ),
                             ],
                             activeAccountId: selectedAccount.userId,
@@ -222,21 +224,24 @@ struct ProfileSwitcherView_Previews: PreviewProvider {
                                     email: "bonus.bridge@bitwarden.com",
                                     isUnlocked: true,
                                     userId: "2",
-                                    userInitials: "BB"
+                                    userInitials: "BB",
+                                    webVault: ""
                                 ),
                                 ProfileSwitcherItem(
                                     color: .teal,
                                     email: "concurrent.claim@bitarden.com",
                                     isUnlocked: true,
                                     userId: "3",
-                                    userInitials: "CC"
+                                    userInitials: "CC",
+                                    webVault: ""
                                 ),
                                 ProfileSwitcherItem(
                                     color: .indigo,
                                     email: "double.dip@bitwarde.com",
                                     isUnlocked: true,
                                     userId: "4",
-                                    userInitials: "DD"
+                                    userInitials: "DD",
+                                    webVault: ""
                                 ),
                             ],
                             activeAccountId: "1",
@@ -261,28 +266,32 @@ struct ProfileSwitcherView_Previews: PreviewProvider {
                                     email: "bonus.bridge@bitwarden.com",
                                     isUnlocked: true,
                                     userId: "2",
-                                    userInitials: "BB"
+                                    userInitials: "BB",
+                                    webVault: ""
                                 ),
                                 ProfileSwitcherItem(
                                     color: .teal,
                                     email: "concurrent.claim@bitarden.com",
                                     isUnlocked: true,
                                     userId: "3",
-                                    userInitials: "CC"
+                                    userInitials: "CC",
+                                    webVault: ""
                                 ),
                                 ProfileSwitcherItem(
                                     color: .indigo,
                                     email: "double.dip@bitwarde.com",
                                     isUnlocked: true,
                                     userId: "4",
-                                    userInitials: "DD"
+                                    userInitials: "DD",
+                                    webVault: ""
                                 ),
                                 ProfileSwitcherItem(
                                     color: .green,
                                     email: "extra.edition@bitwarden.com",
                                     isUnlocked: false,
                                     userId: "5",
-                                    userInitials: "EE"
+                                    userInitials: "EE",
+                                    webVault: ""
                                 ),
                             ],
                             activeAccountId: "1",
