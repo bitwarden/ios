@@ -314,7 +314,7 @@ struct VaultListView: View {
                             state.profileSwitcherState
                         },
                         mapAction: { action in
-                            .profileSwitcherAction(action)
+                            .profileSwitcher(action)
                         },
                         mapEffect: nil
                     )
@@ -351,9 +351,11 @@ struct VaultListView: View {
                     vaultListState.profileSwitcherState
                 },
                 mapAction: { action in
-                    .profileSwitcherAction(action)
+                    .profileSwitcher(action)
                 },
-                mapEffect: nil
+                mapEffect: { effect in
+                    .profileSwitcher(effect)
+                }
             )
         )
     }

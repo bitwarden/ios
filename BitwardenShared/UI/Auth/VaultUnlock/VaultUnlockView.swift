@@ -90,7 +90,7 @@ struct VaultUnlockView: View {
                     state.profileSwitcherState
                 },
                 mapAction: { action in
-                    .profileSwitcherAction(action)
+                    .profileSwitcher(action)
                 },
                 mapEffect: nil
             )
@@ -117,7 +117,7 @@ struct VaultUnlockView: View {
                     mainState.profileSwitcherState
                 },
                 mapAction: { action in
-                    .profileSwitcherAction(action)
+                    .profileSwitcher(action)
                 },
                 mapEffect: { profileEffect in
                     .profileSwitcher(profileEffect)

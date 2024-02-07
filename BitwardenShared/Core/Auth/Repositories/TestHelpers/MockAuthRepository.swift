@@ -153,6 +153,15 @@ class MockAuthRepository: AuthRepository {
         pinProtectedUserKey = pin
     }
 
+    func sessionTimeoutValue(userId: String?) async throws -> BitwardenShared.SessionTimeoutValue {
+        guard let value = try vaultTimeout[unwrapUserId(userId)] else {
+            throw (userId == nil)
+                ? StateServiceError.noActiveAccount
+                : StateServiceError.noAccounts
+        }
+        return value
+    }
+
     func setVaultTimeout(value: BitwardenShared.SessionTimeoutValue, userId: String?) async throws {
         try vaultTimeout[unwrapUserId(userId)] = value
         if let setVaultTimeoutError {

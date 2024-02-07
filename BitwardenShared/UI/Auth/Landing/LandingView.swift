@@ -39,7 +39,7 @@ struct LandingView: View {
                     state.profileSwitcherState
                 },
                 mapAction: { action in
-                    .profileSwitcherAction(action)
+                    .profileSwitcher(action)
                 },
                 mapEffect: nil
             )
@@ -54,7 +54,7 @@ struct LandingView: View {
                     mainState.profileSwitcherState
                 },
                 mapAction: { action in
-                    .profileSwitcherAction(action)
+                    .profileSwitcher(action)
                 },
                 mapEffect: { profileEffect in
                     .profileSwitcher(profileEffect)

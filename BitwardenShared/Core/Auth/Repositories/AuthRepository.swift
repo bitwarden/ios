@@ -88,6 +88,13 @@ protocol AuthRepository: AnyObject {
         shouldAlwaysHideAddAccount: Bool
     ) async -> ProfileSwitcherState
 
+    /// Gets the `SessionTimeoutValue` for a user.
+    ///
+    ///  - Parameter userId: The userId of the account.
+    ///     Defaults to the active user if nil.
+    ///
+    func sessionTimeoutValue(userId: String?) async throws -> SessionTimeoutValue
+
     /// Sets the encrypted pin and the pin protected user key.
     ///
     /// - Parameters:
@@ -192,6 +199,14 @@ extension AuthRepository {
     ///
     func logout() async throws {
         try await logout(userId: nil)
+    }
+
+    /// Gets the `SessionTimeoutValue` for the active user.
+    ///
+    /// - Returns: The session timeout value.
+    ///
+    func sessionTimeoutValue() async throws -> SessionTimeoutValue {
+        try await sessionTimeoutValue(userId: nil)
     }
 
     /// Sets the SessionTimeoutValue upon the app being backgrounded.
@@ -357,6 +372,10 @@ extension DefaultAuthRepository: AuthRepository {
 
     func passwordStrength(email: String, password: String) async -> UInt8 {
         await clientAuth.passwordStrength(password: password, email: email, additionalInputs: [])
+    }
+
+    func sessionTimeoutValue(userId: String?) async throws -> SessionTimeoutValue {
+        try await vaultTimeoutService.sessionTimeoutValue(userId: userId)
     }
 
     func setActiveAccount(userId: String) async throws -> Account {

@@ -206,35 +206,43 @@ class VaultAutofillListProcessorTests: BitwardenTestCase {
         XCTAssertTrue(appExtensionDelegate.didCancelCalled)
     }
 
-    /// `receive(_:)` with `.profileSwitcherAction(.accountPressed)` updates the profile switcher's
+    /// `receive(_:)` with `.profileSwitcher(.accountPressed)` updates the profile switcher's
     /// visibility and navigates to switch account.
-    func test_receive_profileSwitcher_accountPressed() {
+    func test_receive_profileSwitcher_accountPressed() async {
         subject.state.profileSwitcherState.isVisible = true
-        subject.receive(.profileSwitcherAction(.accountPressed(ProfileSwitcherItem.fixture(userId: "1"))))
+        await subject.perform(.profileSwitcher(.accountPressed(ProfileSwitcherItem.fixture(userId: "1"))))
+        authRepository.activeAccount = .fixture(profile: .fixture(userId: "42"))
+        authRepository.altAccounts = [
+            .fixture(),
+        ]
+        authRepository.vaultTimeout = [
+            "1": .fiveMinutes,
+            "42": .immediately,
+        ]
 
         XCTAssertFalse(subject.state.profileSwitcherState.isVisible)
-        XCTAssertEqual(coordinator.routes.last, .switchAccount(userId: "1"))
+        XCTAssertEqual(coordinator.events.last, .switchAccount(isAutomatic: false, userId: "1"))
     }
 
-    /// `receive(_:)` with `.profileSwitcherAction(.backgroundPressed)` turns off the Profile Switcher Visibility.
+    /// `receive(_:)` with `.profileSwitcher(.backgroundPressed)` turns off the Profile Switcher Visibility.
     func test_receive_profileSwitcher_backgroundPressed() {
         subject.state.profileSwitcherState.isVisible = true
-        subject.receive(.profileSwitcherAction(.backgroundPressed))
+        subject.receive(.profileSwitcher(.backgroundPressed))
 
         XCTAssertFalse(subject.state.profileSwitcherState.isVisible)
     }
 
-    /// `receive(_:)` with `.profileSwitcherAction(.scrollOffsetChanged)` updates the scroll offset.
+    /// `receive(_:)` with `.profileSwitcher(.scrollOffsetChanged)` updates the scroll offset.
     func test_receive_profileSwitcher_scrollOffset() {
         subject.state.profileSwitcherState.scrollOffset = .zero
-        subject.receive(.profileSwitcherAction(.scrollOffsetChanged(CGPoint(x: 10, y: 10))))
+        subject.receive(.profileSwitcher(.scrollOffsetChanged(CGPoint(x: 10, y: 10))))
         XCTAssertEqual(subject.state.profileSwitcherState.scrollOffset, CGPoint(x: 10, y: 10))
     }
 
-    /// `receive(_:)` with `.profileSwitcherAction(.toggleProfilesViewVisibility)` updates the state correctly.
+    /// `receive(_:)` with `.profileSwitcher(.toggleProfilesViewVisibility)` updates the state correctly.
     func test_receive_profileSwitcher_toggleProfilesViewVisibility() {
         subject.state.profileSwitcherState.isVisible = false
-        subject.receive(.profileSwitcherAction(.requestedProfileSwitcher(visible: true)))
+        subject.receive(.profileSwitcher(.requestedProfileSwitcher(visible: true)))
 
         XCTAssertTrue(subject.state.profileSwitcherState.isVisible)
     }

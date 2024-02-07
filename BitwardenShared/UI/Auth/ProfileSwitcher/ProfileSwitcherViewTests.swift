@@ -8,7 +8,7 @@ import XCTest
 
 // MARK: - ProfileSwitcherViewTests
 
-class ProfileSwitcherViewTests: BitwardenTestCase {
+class ProfileSwitcherViewTests: BitwardenTestCase { // swiftlint:disable:this type_body_length
     // MARK: Properties
 
     var processor: MockProcessor<ProfileSwitcherState, ProfileSwitcherAction, ProfileSwitcherEffect>!
@@ -42,8 +42,9 @@ class ProfileSwitcherViewTests: BitwardenTestCase {
         let accountRow = try subject.inspect().find(button: "anne.account@bitwarden.com")
         try accountRow.labelView().callOnLongPressGesture()
         let currentAccount = processor.state.activeAccountProfile!
+        waitFor(!processor.effects.isEmpty)
 
-        XCTAssertEqual(processor.dispatchedActions.last, .accountLongPressed(currentAccount))
+        XCTAssertEqual(processor.effects.last, .accountLongPressed(currentAccount))
     }
 
     /// Tapping a profile row dispatches the `.accountPressed` action.
@@ -51,16 +52,18 @@ class ProfileSwitcherViewTests: BitwardenTestCase {
         let accountRow = try subject.inspect().find(button: "anne.account@bitwarden.com")
         try accountRow.labelView().callOnTapGesture()
         let currentAccount = processor.state.activeAccountProfile!
+        waitFor(!processor.effects.isEmpty)
 
-        XCTAssertEqual(processor.dispatchedActions.last, .accountPressed(currentAccount))
+        XCTAssertEqual(processor.effects.last, .accountPressed(currentAccount))
     }
 
     /// Tapping a profile row dispatches the `.accountPressed` action.
     func test_accountRow_tap_addAccount() throws {
         let addAccountRow = try subject.inspect().find(button: "Add account")
         try addAccountRow.tap()
+        waitFor(!processor.effects.isEmpty)
 
-        XCTAssertEqual(processor.dispatchedActions.last, .addAccountPressed)
+        XCTAssertEqual(processor.effects.last, .addAccountPressed)
     }
 
     /// Long pressing an alternative profile row dispatches the `.accountLongPressed` action.
@@ -80,8 +83,9 @@ class ProfileSwitcherViewTests: BitwardenTestCase {
         )
         let addAccountRow = try subject.inspect().find(button: "alternate@bitwarden.com")
         try addAccountRow.labelView().callOnLongPressGesture()
+        waitFor(!processor.effects.isEmpty)
 
-        XCTAssertEqual(processor.dispatchedActions.last, .accountLongPressed(alternate))
+        XCTAssertEqual(processor.effects.last, .accountLongPressed(alternate))
     }
 
     /// Tapping an alternative profile row dispatches the `.accountPressed` action.
@@ -101,8 +105,9 @@ class ProfileSwitcherViewTests: BitwardenTestCase {
         )
         let addAccountRow = try subject.inspect().find(button: "alternate@bitwarden.com")
         try addAccountRow.labelView().callOnTapGesture()
+        waitFor(!processor.effects.isEmpty)
 
-        XCTAssertEqual(processor.dispatchedActions.last, .accountPressed(alternate))
+        XCTAssertEqual(processor.effects.last, .accountPressed(alternate))
     }
 
     /// Tapping an alternative profile row dispatches the `.accountPressed` action.
@@ -125,8 +130,9 @@ class ProfileSwitcherViewTests: BitwardenTestCase {
         )
         let addAccountRow = try subject.inspect().find(button: "")
         try addAccountRow.labelView().callOnTapGesture()
+        waitFor(!processor.effects.isEmpty)
 
-        XCTAssertEqual(processor.dispatchedActions.last, .accountPressed(secondAlternate))
+        XCTAssertEqual(processor.effects.last, .accountPressed(secondAlternate))
     }
 
     /// Tapping the background triggers a `.backgroundPressed` action.

@@ -65,6 +65,8 @@ class VaultAutofillListProcessor: StateProcessor<
             }
         case .loadData:
             await refreshProfileState()
+        case let .profileSwitcher(profileEffect):
+            await handle(profileEffect)
         case let .search(text):
             await searchVault(for: text)
         case .streamAutofillItems:
@@ -85,8 +87,8 @@ class VaultAutofillListProcessor: StateProcessor<
             )
         case .cancelTapped:
             appExtensionDelegate?.didCancel()
-        case let .profileSwitcherAction(action):
-            handleProfileSwitcherAction(action)
+        case let .profileSwitcher(action):
+            handle(action)
         case let .searchStateChanged(isSearching: isSearching):
             guard isSearching else { return }
             state.searchText = ""
@@ -102,48 +104,40 @@ class VaultAutofillListProcessor: StateProcessor<
 
     // MARK: Private Methods
 
-    /// Handles a tap of an account in the profile switcher.
-    ///
-    /// - Parameter selectedAccount: The `ProfileSwitcherItem` selected by the user.
-    ///
-    private func didTapProfileSwitcherItem(_ selectedAccount: ProfileSwitcherItem) {
-        defer { state.profileSwitcherState.setIsVisible(false) }
-        guard state.profileSwitcherState.activeAccountId != selectedAccount.userId else { return }
-        coordinator.navigate(
-            to: .switchAccount(userId: selectedAccount.userId)
-        )
-    }
-
     /// Handles receiving a `ProfileSwitcherAction`.
     ///
     /// - Parameter action: The `ProfileSwitcherAction` to handle.
     ///
-    private func handleProfileSwitcherAction(_ action: ProfileSwitcherAction) {
-        switch action {
-        case .accountLongPressed:
-            // No-op: account long-press not supported in the extension.
-            break
-        case let .accountPressed(account):
-            didTapProfileSwitcherItem(account)
-        case .addAccountPressed:
-            // No-op: add account not supported in the extension.
-            break
-        case .backgroundPressed:
-            state.profileSwitcherState.setIsVisible(false)
-        case let .requestedProfileSwitcher(visible: isVisible):
-            state.profileSwitcherState.isVisible = isVisible
-        case let .scrollOffsetChanged(newOffset):
-            state.profileSwitcherState.scrollOffset = newOffset
+    private func handle(_ profileSwitcherAction: ProfileSwitcherAction) {
+        switch profileSwitcherAction {
+        case let .accessibility(accessibilityAction):
+            switch accessibilityAction {
+            case .logout:
+                // No-op: account logout not supported in the extension.
+                break
+            }
+        default:
+            handleProfileSwitcherAction(profileSwitcherAction)
         }
     }
 
-    /// Configures a profile switcher state with the current account and alternates.
+    /// Handles receiving a `ProfileSwitcherEffect`.
     ///
-    private func refreshProfileState() async {
-        state.profileSwitcherState = await services.authRepository.getProfilesState(
-            isVisible: false,
-            shouldAlwaysHideAddAccount: true
-        )
+    /// - Parameter action: The `ProfileSwitcherEffect` to handle.
+    ///
+    private func handle(_ profileSwitcherEffect: ProfileSwitcherEffect) async {
+        switch profileSwitcherEffect {
+        case let .accessibility(accessibilityAction):
+            switch accessibilityAction {
+            case .lock:
+                // No-op: account lock not supported in the extension.
+                break
+            default:
+                await handleProfileSwitcherEffect(profileSwitcherEffect)
+            }
+        default:
+            await handleProfileSwitcherEffect(profileSwitcherEffect)
+        }
     }
 
     /// Searches the list of ciphers for those matching the search term.
@@ -183,5 +177,48 @@ class VaultAutofillListProcessor: StateProcessor<
             coordinator.showAlert(.defaultAlert(title: Localizations.anErrorHasOccurred))
             services.errorReporter.log(error: error)
         }
+    }
+}
+
+// MARK: - ProfileSwitcherHandler
+
+extension VaultAutofillListProcessor: ProfileSwitcherHandler {
+    var profileServices: ProfileServices {
+        services
+    }
+
+    var profileSwitcherState: ProfileSwitcherState {
+        get {
+            state.profileSwitcherState
+        }
+        set {
+            state.profileSwitcherState = newValue
+        }
+    }
+
+    var toast: Toast? {
+        get {
+            state.toast
+        }
+        set {
+            state.toast = newValue
+        }
+    }
+
+    func handleAuthEvent(_ authEvent: AuthEvent) async {
+        guard case let .action(authAction) = authEvent else { return }
+        await coordinator.handleEvent(authAction)
+    }
+
+    func shouldHideAddAccount() -> Bool {
+        true
+    }
+
+    func showAddAccount() {
+        // No-Op for the VaultAutofillListProcessor.
+    }
+
+    func showAlert(_ alert: Alert) {
+        coordinator.showAlert(alert)
     }
 }

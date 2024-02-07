@@ -10,7 +10,7 @@ struct ProfileSwitcherRow: View {
     @Environment(\.accessibilityVoiceOverEnabled) private var isVoiceoverEnabled: Bool
 
     /// The `Store` for this view.
-    @ObservedObject var store: Store<ProfileSwitcherRowState, ProfileSwitcherRowAction, Void>
+    @ObservedObject var store: Store<ProfileSwitcherRowState, ProfileSwitcherRowAction, ProfileSwitcherRowEffect>
 
     /// Defines the accessibility focus state
     @AccessibilityFocusState var isFocused: Bool
@@ -29,34 +29,73 @@ struct ProfileSwitcherRow: View {
     @ViewBuilder private var button: some View {
         switch store.state.rowType {
         case .addAccount:
-            Button {
-                store.send(.pressed(rowType))
+            AsyncButton {
+                await store.perform(.pressed(rowType))
             } label: {
                 rowContents
             }
-        case .alternate:
-            Button {} label: {
+            .accessibilityAction(named: Localizations.addAccount) {
+                Task {
+                    await store.perform(.pressed(rowType))
+                }
+            }
+        case let .alternate(account):
+            AsyncButton {} label: {
                 rowContents
                     .onTapGesture {
-                        store.send(.pressed(rowType))
+                        Task {
+                            await store.perform(.pressed(rowType))
+                        }
                     }
                     .onLongPressGesture {
-                        store.send(.longPressed(rowType))
+                        Task {
+                            await store.perform(.longPressed(rowType))
+                        }
                     }
             }
-        case .active:
-            Button {} label: {
+            .accessibilityAction(named: Localizations.select) {
+                Task {
+                    await store.perform(.accessibility(.select(account)))
+                }
+            }
+            .accessibilityAction(named: Localizations.lock) {
+                Task {
+                    await store.perform(.accessibility(.lock(account)))
+                }
+            }
+            .accessibilityAction(named: Localizations.logOut) {
+                store.send(.accessibility(.logout(account)))
+            }
+        case let .active(account):
+            AsyncButton {} label: {
                 rowContents
                     .onTapGesture {
-                        store.send(.pressed(rowType))
+                        Task {
+                            await store.perform(.pressed(rowType))
+                        }
                     }
                     .onLongPressGesture {
-                        store.send(.longPressed(rowType))
+                        Task {
+                            await store.perform(.longPressed(rowType))
+                        }
                     }
             }
             .accessibility(
                 addTraits: .isSelected
             )
+            .accessibilityAction(named: Localizations.select) {
+                Task {
+                    await store.perform(.accessibility(.select(account)))
+                }
+            }
+            .accessibilityAction(named: Localizations.lock) {
+                Task {
+                    await store.perform(.accessibility(.lock(account)))
+                }
+            }
+            .accessibilityAction(named: Localizations.logOut) {
+                store.send(.accessibility(.logout(account)))
+            }
         }
     }
 

@@ -30,18 +30,17 @@ struct ProfileSwitcherView: View {
         .background {
             backgroundView
                 .hidden(!store.state.isVisible)
-                .accessibilityHidden(!store.state.isVisible)
-                .accessibilityLabel(Localizations.close)
-                .accessibility(addTraits: .isButton)
-                .accessibilityAction {
-                    store.send(.backgroundPressed)
-                }
+                .accessibilityHidden(true)
         }
         .onTapGesture {
             store.send(.backgroundPressed)
         }
         .allowsHitTesting(store.state.isVisible)
         .animation(.easeInOut(duration: 0.2), value: store.state.isVisible)
+        .accessibilityHidden(!store.state.isVisible)
+        .accessibilityAction(named: Localizations.close) {
+            store.send(.backgroundPressed)
+        }
     }
 
     // MARK: Private Properties
@@ -56,8 +55,10 @@ struct ProfileSwitcherView: View {
                     rowType: .addAccount
                 )
             },
-            mapAction: { _ in .addAccountPressed },
-            mapEffect: nil
+            mapAction: nil,
+            mapEffect: { _ in
+                .addAccountPressed
+            }
         ))
         .accessibilityIdentifier("AddAccountButton")
     }
@@ -102,13 +103,28 @@ struct ProfileSwitcherView: View {
                 },
                 mapAction: { action in
                     switch action {
+                    case let .accessibility(accessibilityAction):
+                        switch accessibilityAction {
+                        case let .logout(account):
+                            .accessibility(.logout(account))
+                        }
+                    }
+                },
+                mapEffect: { effect in
+                    switch effect {
+                    case let .accessibility(accessibility):
+                        switch accessibility {
+                        case let .lock(account):
+                            .accessibility(.lock(account))
+                        case let .select(account):
+                            .accessibility(.select(account))
+                        }
                     case .longPressed:
                         .accountLongPressed(store.state.activeAccountProfile ?? .empty)
                     case .pressed:
                         .accountPressed(store.state.activeAccountProfile ?? .empty)
                     }
-                },
-                mapEffect: nil
+                }
             )
         )
     }
@@ -133,13 +149,28 @@ struct ProfileSwitcherView: View {
                 },
                 mapAction: { action in
                     switch action {
+                    case let .accessibility(accessibilityAction):
+                        switch accessibilityAction {
+                        case .logout:
+                            .accessibility(.logout(accountProfile))
+                        }
+                    }
+                },
+                mapEffect: { effect in
+                    switch effect {
+                    case let .accessibility(accessibility):
+                        switch accessibility {
+                        case .lock:
+                            .accessibility(.lock(accountProfile))
+                        case .select:
+                            .accessibility(.select(accountProfile))
+                        }
                     case .longPressed:
                         .accountLongPressed(accountProfile)
                     case .pressed:
                         .accountPressed(accountProfile)
                     }
-                },
-                mapEffect: nil
+                }
             )
         )
     }

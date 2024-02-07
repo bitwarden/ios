@@ -55,13 +55,7 @@ class LandingProcessor: StateProcessor<LandingState, LandingAction, LandingEffec
             await loadRegion()
             await refreshProfileState()
         case let .profileSwitcher(profileEffect):
-            switch profileEffect {
-            case let .rowAppeared(rowType):
-                guard state.profileSwitcherState.shouldSetAccessibilityFocus(for: rowType) == true else { return }
-                DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
-                    self.state.profileSwitcherState.hasSetAccessibilityFocus = true
-                }
-            }
+            await handleProfileSwitcherEffect(profileEffect)
         }
     }
 
@@ -74,21 +68,8 @@ class LandingProcessor: StateProcessor<LandingState, LandingAction, LandingEffec
             coordinator.navigate(to: .createAccount)
         case let .emailChanged(newValue):
             state.email = newValue
-        case let .profileSwitcherAction(profileAction):
-            switch profileAction {
-            case let .accountLongPressed(account):
-                didLongPressProfileSwitcherItem(account)
-            case let .accountPressed(account):
-                didTapProfileSwitcherItem(account)
-            case .addAccountPressed:
-                state.profileSwitcherState.isVisible = false
-            case .backgroundPressed:
-                state.profileSwitcherState.isVisible = false
-            case let .requestedProfileSwitcher(visible: isVisible):
-                state.profileSwitcherState.isVisible = isVisible
-            case let .scrollOffsetChanged(newOffset):
-                state.profileSwitcherState.scrollOffset = newOffset
-            }
+        case let .profileSwitcher(profileAction):
+            handleProfileSwitcherAction(profileAction)
         case .regionPressed:
             presentRegionSelectionAlert()
         case let .rememberMeChanged(newValue):
@@ -102,70 +83,6 @@ class LandingProcessor: StateProcessor<LandingState, LandingAction, LandingEffec
     }
 
     // MARK: Private Methods
-
-    /// Handles a long press of an account in the profile switcher.
-    ///
-    /// - Parameter account: The `ProfileSwitcherItem` long pressed by the user.
-    ///
-    private func didLongPressProfileSwitcherItem(_ account: ProfileSwitcherItem) {
-        state.profileSwitcherState.isVisible = false
-        coordinator.showAlert(.accountOptions(account, lockAction: {
-            do {
-                // Lock the vault of the selected account.
-                let activeAccountId = try await self.services.authRepository.getUserId()
-                await self.coordinator.handleEvent(.action(.lockVault(userId: account.userId)))
-
-                // No navigation is necessary, since the user is already on the unlock
-                // vault view, but if it was the non-active account, display a success toast
-                // and update the profile switcher view.
-                if account.userId != activeAccountId {
-                    self.state.toast = Toast(text: Localizations.accountLockedSuccessfully)
-                    await self.refreshProfileState()
-                }
-            } catch {
-                self.services.errorReporter.log(error: error)
-            }
-        }, logoutAction: {
-            // Confirm logging out.
-            self.coordinator.showAlert(.logoutConfirmation { [weak self] in
-                guard let self else { return }
-                do {
-                    // Log out of the selected account.
-                    let activeAccountId = try await services.authRepository.getUserId()
-                    await coordinator.handleEvent(.action(.logout(userId: account.userId, userInitiated: true)))
-
-                    // If that account was not active,
-                    // show a toast that the account was logged out successfully.
-                    if account.userId != activeAccountId {
-                        state.toast = Toast(text: Localizations.accountLoggedOutSuccessfully)
-
-                        // Update the profile switcher view.
-                        await refreshProfileState()
-                    }
-                } catch {
-                    services.errorReporter.log(error: error)
-                }
-            })
-        }))
-    }
-
-    /// Handles a tap of an account in the profile switcher
-    /// - Parameter selectedAccount: The `ProfileSwitcherItem` selected by the user.
-    ///
-    private func didTapProfileSwitcherItem(_ selectedAccount: ProfileSwitcherItem) {
-        defer { state.profileSwitcherState.isVisible = false }
-        guard selectedAccount.userId != state.profileSwitcherState.activeAccountId else { return }
-        Task {
-            await coordinator.handleEvent(
-                .action(
-                    .switchAccount(
-                        isAutomatic: false,
-                        userId: selectedAccount.userId
-                    )
-                )
-            )
-        }
-    }
 
     /// Sets the region to the last used region.
     ///
@@ -182,15 +99,6 @@ class LandingProcessor: StateProcessor<LandingState, LandingAction, LandingEffec
         } else {
             await setRegion(.selfHosted, urls: urls)
         }
-    }
-
-    /// Configures a profile switcher state with the current account and alternates.
-    ///
-    private func refreshProfileState() async {
-        state.profileSwitcherState = await services.authRepository.getProfilesState(
-            isVisible: state.profileSwitcherState.isVisible,
-            shouldAlwaysHideAddAccount: true
-        )
     }
 
     /// Validate the currently entered email address and navigate to the login screen.
@@ -252,6 +160,48 @@ class LandingProcessor: StateProcessor<LandingState, LandingAction, LandingEffec
         } else {
             services.appSettingsStore.rememberedEmail = nil
         }
+    }
+}
+
+// MARK: - ProfileSwitcherHandler
+
+extension LandingProcessor: ProfileSwitcherHandler {
+    var profileServices: ProfileServices {
+        services
+    }
+
+    var profileSwitcherState: ProfileSwitcherState {
+        get {
+            state.profileSwitcherState
+        }
+        set {
+            state.profileSwitcherState = newValue
+        }
+    }
+
+    var toast: Toast? {
+        get {
+            state.toast
+        }
+        set {
+            state.toast = newValue
+        }
+    }
+
+    func handleAuthEvent(_ authEvent: AuthEvent) async {
+        await coordinator.handleEvent(authEvent)
+    }
+
+    func shouldHideAddAccount() -> Bool {
+        true
+    }
+
+    func showAddAccount() {
+        // No-Op for the landing processor.
+    }
+
+    func showAlert(_ alert: Alert) {
+        coordinator.showAlert(alert)
     }
 }
 

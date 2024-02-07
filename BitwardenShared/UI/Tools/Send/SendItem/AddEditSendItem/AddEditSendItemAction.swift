@@ -54,7 +54,7 @@ enum AddEditSendItemAction: Equatable {
     case passwordVisibleChanged(Bool)
 
     /// A forwarded profile switcher action.
-    case profileSwitcherAction(ProfileSwitcherAction)
+    case profileSwitcher(ProfileSwitcherAction)
 
     /// The text value text field was changed.
     case textChanged(String)

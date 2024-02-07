@@ -71,8 +71,9 @@ class VaultListViewTests: BitwardenTestCase {
         let accountRow = try subject.inspect().find(button: "anne.account@bitwarden.com")
         let currentAccount = processor.state.profileSwitcherState.activeAccountProfile!
         try accountRow.labelView().callOnLongPressGesture()
+        waitFor(!processor.effects.isEmpty)
 
-        XCTAssertEqual(processor.dispatchedActions.last, .profileSwitcherAction(.accountLongPressed(currentAccount)))
+        XCTAssertEqual(processor.effects.last, .profileSwitcher(.accountLongPressed(currentAccount)))
     }
 
     /// Tapping a profile row dispatches the `.accountPressed` action.
@@ -81,8 +82,9 @@ class VaultListViewTests: BitwardenTestCase {
         let accountRow = try subject.inspect().find(button: "anne.account@bitwarden.com")
         let currentAccount = processor.state.profileSwitcherState.activeAccountProfile!
         try accountRow.labelView().callOnTapGesture()
+        waitFor(!processor.effects.isEmpty)
 
-        XCTAssertEqual(processor.dispatchedActions.last, .profileSwitcherAction(.accountPressed(currentAccount)))
+        XCTAssertEqual(processor.effects.last, .profileSwitcher(.accountPressed(currentAccount)))
     }
 
     /// Tapping the add account row dispatches the `.addAccountPressed ` action.
@@ -90,8 +92,9 @@ class VaultListViewTests: BitwardenTestCase {
         processor.state.profileSwitcherState.isVisible = true
         let addAccountRow = try subject.inspect().find(button: "Add account")
         try addAccountRow.tap()
+        waitFor(!processor.effects.isEmpty)
 
-        XCTAssertEqual(processor.dispatchedActions.last, .profileSwitcherAction(.addAccountPressed))
+        XCTAssertEqual(processor.effects.last, .profileSwitcher(.addAccountPressed))
     }
 
     /// Tapping the profile button dispatches the `.toggleProfilesViewVisibility` action.
@@ -101,7 +104,7 @@ class VaultListViewTests: BitwardenTestCase {
         try buttonUnselected.tap()
         XCTAssertEqual(
             processor.dispatchedActions.last,
-            .profileSwitcherAction(.requestedProfileSwitcher(visible: true))
+            .profileSwitcher(.requestedProfileSwitcher(visible: true))
         )
     }
 
@@ -113,7 +116,7 @@ class VaultListViewTests: BitwardenTestCase {
 
         XCTAssertEqual(
             processor.dispatchedActions.last,
-            .profileSwitcherAction(.requestedProfileSwitcher(visible: false))
+            .profileSwitcher(.requestedProfileSwitcher(visible: false))
         )
     }
 

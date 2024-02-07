@@ -2,7 +2,7 @@ import OSLog
 
 /// The processor used to manage state and handle actions for the vault unlock screen.
 ///
-class VaultUnlockProcessor: StateProcessor<// swiftlint:disable:this type_body_length
+class VaultUnlockProcessor: StateProcessor<
     VaultUnlockState,
     VaultUnlockAction,
     VaultUnlockEffect
@@ -59,13 +59,7 @@ class VaultUnlockProcessor: StateProcessor<// swiftlint:disable:this type_body_l
             await checkIfPinUnlockIsAvailable()
             await loadData()
         case let .profileSwitcher(profileEffect):
-            switch profileEffect {
-            case let .rowAppeared(rowType):
-                guard state.profileSwitcherState.shouldSetAccessibilityFocus(for: rowType) == true else { return }
-                DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
-                    self.state.profileSwitcherState.hasSetAccessibilityFocus = true
-                }
-            }
+            await handleProfileSwitcherEffect(profileEffect)
         case .unlockVault:
             await unlockVault()
         case .unlockVaultWithBiometrics:
@@ -94,22 +88,8 @@ class VaultUnlockProcessor: StateProcessor<// swiftlint:disable:this type_body_l
             coordinator.navigate(to: .alert(alert))
         case let .pinChanged(pin):
             state.pin = pin
-        case let .profileSwitcherAction(profileAction):
-            switch profileAction {
-            case let .accountLongPressed(account):
-                didLongPressProfileSwitcherItem(account)
-            case let .accountPressed(account):
-                didTapProfileSwitcherItem(account)
-            case .addAccountPressed:
-                state.profileSwitcherState.isVisible = false
-                coordinator.navigate(to: .landing)
-            case .backgroundPressed:
-                state.profileSwitcherState.isVisible = false
-            case let .requestedProfileSwitcher(visible: isVisible):
-                state.profileSwitcherState.isVisible = isVisible
-            case let .scrollOffsetChanged(newOffset):
-                state.profileSwitcherState.scrollOffset = newOffset
-            }
+        case let .profileSwitcher(profileAction):
+            handleProfileSwitcherAction(profileAction)
         case let .revealMasterPasswordFieldPressed(isMasterPasswordRevealed):
             state.isMasterPasswordRevealed = isMasterPasswordRevealed
         case let .revealPinFieldPressed(isPinRevealed):
@@ -171,81 +151,6 @@ class VaultUnlockProcessor: StateProcessor<// swiftlint:disable:this type_body_l
                     userInitiated: userInitiated
                 )
             )
-        )
-    }
-
-    /// Handles a long press of an account in the profile switcher.
-    ///
-    /// - Parameter account: The `ProfileSwitcherItem` long pressed by the user.
-    ///
-    private func didLongPressProfileSwitcherItem(_ account: ProfileSwitcherItem) {
-        state.profileSwitcherState.isVisible = false
-        coordinator.showAlert(.accountOptions(account, lockAction: {
-            do {
-                // Lock the vault of the selected account.
-                let activeAccountId = try await self.services.authRepository.getUserId()
-                await self.coordinator.handleEvent(.action(.lockVault(userId: account.userId)))
-
-                // No navigation is necessary, since the user is already on the unlock
-                // vault view, but if it was the non-active account, display a success toast
-                // and update the profile switcher view.
-                if account.userId != activeAccountId {
-                    self.state.toast = Toast(text: Localizations.accountLockedSuccessfully)
-                    await self.refreshProfileState()
-                }
-            } catch {
-                self.services.errorReporter.log(error: error)
-            }
-        }, logoutAction: {
-            // Confirm logging out.
-            self.coordinator.showAlert(.logoutConfirmation { [weak self] in
-                guard let self else { return }
-                do {
-                    // Log out of the selected account.
-                    let activeAccountId = try await services.authRepository.getUserId()
-                    await coordinator.handleEvent(.action(.logout(userId: account.userId, userInitiated: true)))
-
-                    // If that account was not active,
-                    // show a toast that the account was logged out successfully.
-                    if account.userId != activeAccountId {
-                        state.toast = Toast(text: Localizations.accountLoggedOutSuccessfully)
-
-                        // Update the profile switcher view.
-                        await refreshProfileState()
-                    }
-                } catch {
-                    services.errorReporter.log(error: error)
-                }
-            })
-        }))
-    }
-
-    /// Handles a tap of an account in the profile switcher.
-    ///
-    /// - Parameter selectedAccount: The `ProfileSwitcherItem` selected by the user.
-    ///
-    private func didTapProfileSwitcherItem(_ selectedAccount: ProfileSwitcherItem) {
-        defer { state.profileSwitcherState.isVisible = false }
-        guard selectedAccount.userId != state.profileSwitcherState.activeAccountId else { return }
-        Task {
-            await coordinator.handleEvent(
-                .action(
-                    .switchAccount(
-                        isAutomatic: false,
-                        userId: selectedAccount.userId
-                    )
-                )
-            )
-        }
-        state.profileSwitcherState.isVisible = false
-    }
-
-    /// Configures a profile switcher state with the current account and alternates.
-    ///
-    private func refreshProfileState() async {
-        state.profileSwitcherState = await services.authRepository.getProfilesState(
-            isVisible: state.profileSwitcherState.isVisible,
-            shouldAlwaysHideAddAccount: appExtensionDelegate?.isInAppExtension ?? false
         )
     }
 
@@ -343,5 +248,47 @@ class VaultUnlockProcessor: StateProcessor<// swiftlint:disable:this type_body_l
             }
             await loadData()
         }
+    }
+}
+
+// MARK: - ProfileSwitcherHandler
+
+extension VaultUnlockProcessor: ProfileSwitcherHandler {
+    var profileServices: ProfileServices {
+        services
+    }
+
+    var profileSwitcherState: ProfileSwitcherState {
+        get {
+            state.profileSwitcherState
+        }
+        set {
+            state.profileSwitcherState = newValue
+        }
+    }
+
+    var toast: Toast? {
+        get {
+            state.toast
+        }
+        set {
+            state.toast = newValue
+        }
+    }
+
+    func handleAuthEvent(_ authEvent: AuthEvent) async {
+        await coordinator.handleEvent(authEvent)
+    }
+
+    func shouldHideAddAccount() -> Bool {
+        appExtensionDelegate?.isInAppExtension ?? false
+    }
+
+    func showAddAccount() {
+        coordinator.navigate(to: .landing)
+    }
+
+    func showAlert(_ alert: Alert) {
+        coordinator.showAlert(alert)
     }
 }

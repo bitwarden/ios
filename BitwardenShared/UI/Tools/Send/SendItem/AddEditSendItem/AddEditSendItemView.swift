@@ -69,7 +69,7 @@ struct AddEditSendItemView: View { // swiftlint:disable:this type_body_length
                                 profileSwitcherState
                             },
                             mapAction: { action in
-                                .profileSwitcherAction(action)
+                                .profileSwitcher(action)
                             },
                             mapEffect: nil
                         )
@@ -429,7 +429,7 @@ struct AddEditSendItemView: View { // swiftlint:disable:this type_body_length
                         profileSwitcherState
                     },
                     mapAction: { action in
-                        .profileSwitcherAction(action)
+                        .profileSwitcher(action)
                     },
                     mapEffect: { profileEffect in
                         .profileSwitcher(profileEffect)
