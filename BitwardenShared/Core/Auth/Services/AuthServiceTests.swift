@@ -286,7 +286,7 @@ class AuthServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body_
         XCTAssertEqual(client.requests[1].body, try tokenRequest.encode())
 
         XCTAssertEqual(clientAuth.hashPasswordEmail, "user@bitwarden.com")
-        XCTAssertEqual(clientAuth.hashPasswordPassword, "hashed password")
+        XCTAssertEqual(clientAuth.hashPasswordPassword, "Password1234!")
         XCTAssertEqual(clientAuth.hashPasswordKdfParams, .pbkdf2(iterations: 600_000))
 
         XCTAssertEqual(stateService.accountsAdded, [Account.fixtureAccountLogin()])
@@ -347,7 +347,7 @@ class AuthServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body_
         XCTAssertEqual(client.requests[1].body, try tokenRequest.encode())
 
         XCTAssertEqual(clientAuth.hashPasswordEmail, "user@bitwarden.com")
-        XCTAssertEqual(clientAuth.hashPasswordPassword, "hashed password")
+        XCTAssertEqual(clientAuth.hashPasswordPassword, "Password1234!")
         XCTAssertEqual(clientAuth.hashPasswordKdfParams, .pbkdf2(iterations: 600_000))
 
         XCTAssertEqual(stateService.accountsAdded.last?.profile.forcePasswordResetReason, .weakMasterPasswordOnLogin)

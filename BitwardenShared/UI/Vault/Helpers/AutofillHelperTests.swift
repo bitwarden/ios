@@ -7,6 +7,7 @@ class AutofillHelperTests: BitwardenTestCase {
     // MARK: Properties
 
     var appExtensionDelegate: MockAppExtensionDelegate!
+    var authRepository: MockAuthRepository!
     var coordinator: MockCoordinator<VaultRoute, AuthAction>!
     var errorReporter: MockErrorReporter!
     var pasteboardService: MockPasteboardService!
@@ -19,6 +20,7 @@ class AutofillHelperTests: BitwardenTestCase {
         super.setUp()
 
         appExtensionDelegate = MockAppExtensionDelegate()
+        authRepository = MockAuthRepository()
         coordinator = MockCoordinator()
         errorReporter = MockErrorReporter()
         pasteboardService = MockPasteboardService()
@@ -28,6 +30,7 @@ class AutofillHelperTests: BitwardenTestCase {
             appExtensionDelegate: appExtensionDelegate,
             coordinator: coordinator.asAnyCoordinator(),
             services: ServiceContainer.withMocks(
+                authRepository: authRepository,
                 errorReporter: errorReporter,
                 pasteboardService: pasteboardService,
                 vaultRepository: vaultRepository
@@ -39,6 +42,7 @@ class AutofillHelperTests: BitwardenTestCase {
         super.tearDown()
 
         appExtensionDelegate = nil
+        authRepository = nil
         coordinator = nil
         errorReporter = nil
         pasteboardService = nil
@@ -256,7 +260,7 @@ class AutofillHelperTests: BitwardenTestCase {
             name: "Bitwarden Login",
             reprompt: .password
         ))
-        vaultRepository.validatePasswordResult = .success(false)
+        authRepository.validatePasswordResult = .success(false)
 
         let cipher = CipherListView.fixture(id: "1")
         await subject.handleCipherForAutofill(cipherListView: cipher) { _ in }

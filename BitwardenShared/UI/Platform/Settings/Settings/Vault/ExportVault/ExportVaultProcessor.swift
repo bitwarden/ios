@@ -4,9 +4,9 @@
 final class ExportVaultProcessor: StateProcessor<ExportVaultState, ExportVaultAction, ExportVaultEffect> {
     // MARK: Types
 
-    typealias Services = HasErrorReporter
+    typealias Services = HasAuthRepository
+        & HasErrorReporter
         & HasPolicyService
-        & HasSettingsRepository
 
     // MARK: Properties
 
@@ -91,7 +91,7 @@ final class ExportVaultProcessor: StateProcessor<ExportVaultState, ExportVaultAc
     @MainActor
     private func validatePassword() async -> Bool {
         do {
-            return try await services.settingsRepository.validatePassword(state.passwordText)
+            return try await services.authRepository.validatePassword(state.passwordText)
         } catch {
             services.errorReporter.log(error: error)
             return false
