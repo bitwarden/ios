@@ -437,7 +437,7 @@ extension VaultListProcessor: CipherItemOperationDelegate {
 // MARK: - MoreOptionsAction
 
 /// The actions available from the More Options alert.
-enum MoreOptionsAction {
+enum MoreOptionsAction: Equatable {
     /// Copy the `value` and show a toast with the `toast` string.
     case copy(toast: String, value: String, requiresMasterPasswordReprompt: Bool)
 

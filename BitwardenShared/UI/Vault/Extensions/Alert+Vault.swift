@@ -134,7 +134,8 @@ extension Alert {
                     ))
                 })
             }
-            if let password = cipherView.login?.password {
+            if let password = cipherView.login?.password,
+               cipherView.viewPassword {
                 alertActions.append(AlertAction(title: Localizations.copyPassword, style: .default) { _, _ in
                     action(.copy(
                         toast: Localizations.password,
