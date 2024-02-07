@@ -8,20 +8,17 @@ import XCTest
 class ShareExtensionHelperTests: BitwardenTestCase {
     // MARK: Properties
 
-    var timeProvider: MockTimeProvider!
     var subject: ShareExtensionHelper!
 
     // MARK: Setup & Teardown
 
     override func setUp() {
         super.setUp()
-        timeProvider = MockTimeProvider(.currentTime)
-        subject = ShareExtensionHelper()
+        subject = ShareExtensionHelper(timeProvider: MockTimeProvider(.mockTime(Date(year: 2024, month: 2, day: 1))))
     }
 
     override func tearDown() {
         super.tearDown()
-        timeProvider = nil
         subject = nil
     }
 
@@ -81,13 +78,9 @@ class ShareExtensionHelperTests: BitwardenTestCase {
             ),
         ]
 
-        let formatter = DateFormatter()
-        formatter.dateFormat = "yyyyMMddHHmmss"
-        let fileName = "image_\(formatter.string(from: timeProvider.presentTime)).png"
-
         let content = await subject.processInputItems([extensionItem])
 
-        XCTAssertEqual(content, .file(fileName: fileName, fileData: data!.pngData()!))
+        XCTAssertEqual(content, .file(fileName: "image_20240201000000.png", fileData: data!.pngData()!))
     }
 
     /// `processInputItems(_:)` processes the input items for content but does not return anything.

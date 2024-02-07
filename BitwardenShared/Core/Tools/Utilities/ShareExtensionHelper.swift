@@ -9,6 +9,8 @@ import UniformTypeIdentifiers
 ///
 @MainActor
 public class ShareExtensionHelper {
+    // MARK: Properties
+
     /// The service used to get the present time.
     let timeProvider: TimeProvider
 
