@@ -185,7 +185,8 @@ struct LandingView_Previews: PreviewProvider {
                                         email: "max.protecc@bitwarden.com",
                                         isUnlocked: false,
                                         userId: "123",
-                                        userInitials: "MP"
+                                        userInitials: "MP",
+                                        webVault: ""
                                     ),
                                 ],
                                 activeAccountId: "123",
@@ -212,7 +213,8 @@ struct LandingView_Previews: PreviewProvider {
                                         email: "max.protecc@bitwarden.com",
                                         isUnlocked: false,
                                         userId: "123",
-                                        userInitials: "MP"
+                                        userInitials: "MP",
+                                        webVault: ""
                                     ),
                                 ],
                                 activeAccountId: "123",

@@ -71,7 +71,8 @@ final class ProfileSwitcherToolbarViewTests: BitwardenTestCase {
                     email: "",
                     isUnlocked: true,
                     userId: "123",
-                    userInitials: "OW"
+                    userInitials: "OW",
+                    webVault: ""
                 ),
             ],
             activeAccountId: "123",
