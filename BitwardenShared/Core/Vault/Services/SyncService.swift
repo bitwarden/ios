@@ -218,7 +218,7 @@ extension DefaultSyncService {
 
         // Only update the user's stored vault timeout value if
         // their stored timeout value is > the policy's timeout value.
-        if timeoutValue.rawValue > value {
+        if timeoutValue.rawValue > value || timeoutValue.rawValue < 0 {
             try await stateService.setVaultTimeout(
                 value: SessionTimeoutValue(rawValue: value)
             )

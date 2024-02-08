@@ -97,6 +97,21 @@ class SyncServiceTests: BitwardenTestCase {
         XCTAssertEqual(stateService.vaultTimeout["1"], SessionTimeoutValue(rawValue: 60))
     }
 
+    /// `fetchSync()` updates the user's timeout action and value - if the timeout value is set to
+    /// never, it is set to the maximum timeout allowed by the policy.
+    func test_checkVaultTimeoutPolicy_valueNever() async throws {
+        client.result = .httpSuccess(testData: .syncWithCiphers)
+        stateService.activeAccount = .fixture()
+        stateService.vaultTimeout["1"] = .never
+
+        policyService.fetchTimeoutPolicyValuesResult = .success((.lock, 15 * 60))
+
+        try await subject.fetchSync(forceSync: false)
+
+        XCTAssertEqual(stateService.timeoutAction["1"], .lock)
+        XCTAssertEqual(stateService.vaultTimeout["1"], SessionTimeoutValue.fifteenMinutes)
+    }
+
     /// `fetchSync()` performs the sync API request.
     func test_fetchSync() async throws {
         client.result = .httpSuccess(testData: .syncWithCiphers)
