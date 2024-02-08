@@ -2,6 +2,10 @@ import Foundation
 
 // MARK: - ProfileSwitcherHandler
 
+/// A protocol for a `@MainActor` object that handles ProfileSwitcherView Actions & Effects.
+///     Most likely, this will be a processor.
+///
+@MainActor
 protocol ProfileSwitcherHandler: AnyObject {
     typealias ProfileServices = HasAuthRepository
         & HasErrorReporter
@@ -31,14 +35,12 @@ protocol ProfileSwitcherHandler: AnyObject {
     ///
     /// - Parameter action: The action to handle.
     ///
-    @MainActor
     func handleProfileSwitcherAction(_ action: ProfileSwitcherAction)
 
     /// Handles a profile switcher action.
     ///
     /// - Parameter effect: The effect to handle.
     ///
-    @MainActor
     func handleProfileSwitcherEffect(_ effect: ProfileSwitcherEffect) async
 
     /// Configures a profile switcher state with the current account and alternates.
@@ -57,7 +59,6 @@ protocol ProfileSwitcherHandler: AnyObject {
 }
 
 extension ProfileSwitcherHandler {
-    @MainActor
     func handleProfileSwitcherAction(_ action: ProfileSwitcherAction) {
         switch action {
         case let .accessibility(accessibilityAction):
@@ -109,7 +110,6 @@ private extension ProfileSwitcherHandler {
     ///
     /// - Parameter account: The profile switcher item for the account to be logged out.
     ///
-    @MainActor
     func confirmLogout(_ account: ProfileSwitcherItem) {
         // Confirm logging out.
         showAlert(.logoutConfirmation { [weak self] in
@@ -122,7 +122,6 @@ private extension ProfileSwitcherHandler {
     ///
     /// - Parameter account: The `ProfileSwitcherItem` long pressed by the user.
     ///
-    @MainActor
     func didLongPressProfileSwitcherItem(_ account: ProfileSwitcherItem) async {
         profileSwitcherState.isVisible = false
         let hasNeverLock = await (try? profileServices.authRepository
@@ -142,6 +141,10 @@ private extension ProfileSwitcherHandler {
         )
     }
 
+    /// Lock an account.
+    ///
+    /// - Parameter account: The profile switcher item for the account to lock.
+    ///
     func lock(_ account: ProfileSwitcherItem) async {
         do {
             // Lock the vault of the selected account.
