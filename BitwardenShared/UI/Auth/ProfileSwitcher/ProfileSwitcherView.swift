@@ -79,7 +79,7 @@ struct ProfileSwitcherView: View {
     private var accounts: some View {
         VStack(alignment: .leading, spacing: 0) {
             ForEachIndexed(store.state.alternateAccounts, id: \.self) { _, account in
-                unselectedProfileSwitcherRow(accountProfile: account)
+                profileSwitcherRow(accountProfile: account)
             }
             selectedProfileSwitcherRow
         }
@@ -89,64 +89,40 @@ struct ProfileSwitcherView: View {
     ///
     /// - Parameter accountProfile: A `ProfileSwitcherItem` to display in row format
     ///
-    private var selectedProfileSwitcherRow: some View {
-        ProfileSwitcherRow(
-            store: store.child(
-                state: { state in
-                    ProfileSwitcherRowState(
-                        allowLockAndLogout: state.allowLockAndLogout,
-                        shouldTakeAccessibilityFocus: state.isVisible,
-                        showDivider: state.showsAddAccount,
-                        rowType: .active(
-                            state.activeAccountProfile ?? .empty
-                        )
-                    )
-                },
-                mapAction: { action in
-                    switch action {
-                    case let .accessibility(accessibilityAction):
-                        switch accessibilityAction {
-                        case let .logout(account):
-                            .accessibility(.logout(account))
-                        }
-                    }
-                },
-                mapEffect: { effect in
-                    switch effect {
-                    case let .accessibility(accessibility):
-                        switch accessibility {
-                        case let .lock(account):
-                            .accessibility(.lock(account))
-                        case let .select(account):
-                            .accessibility(.select(account))
-                        }
-                    case .longPressed:
-                        .accountLongPressed(store.state.activeAccountProfile ?? .empty)
-                    case .pressed:
-                        .accountPressed(store.state.activeAccountProfile ?? .empty)
-                    }
-                }
+    @ViewBuilder private var selectedProfileSwitcherRow: some View {
+        if let profile = store.state.activeAccountProfile {
+            profileSwitcherRow(
+                accountProfile: profile,
+                showDivider: store.state.showsAddAccount
             )
-        )
+        }
     }
 
     // MARK: Private Methods
 
-    /// A row to display an alternate account profile
+    /// A row to display an account profile
     ///
-    /// - Parameter accountProfile: A `ProfileSwitcherItem` to display in row format
+    /// - Parameters
+    ///     - accountProfile: A `ProfileSwitcherItem` to display in row format
+    ///     - showDivider: Should the cell show a divider at the bottom.
     ///
     @ViewBuilder
-    private func unselectedProfileSwitcherRow(
-        accountProfile: ProfileSwitcherItem
+    private func profileSwitcherRow(
+        accountProfile: ProfileSwitcherItem,
+        showDivider: Bool = true
     ) -> some View {
+        let isActive = (accountProfile.userId == store.state.activeAccountId)
         ProfileSwitcherRow(
             store: store.child(
                 state: { _ in
                     ProfileSwitcherRowState(
                         allowLockAndLogout: store.state.allowLockAndLogout,
-                        shouldTakeAccessibilityFocus: false,
-                        rowType: .alternate(accountProfile)
+                        shouldTakeAccessibilityFocus: store.state.isVisible
+                            && isActive,
+                        showDivider: showDivider,
+                        rowType: isActive
+                            ? .active(accountProfile)
+                            : .alternate(accountProfile)
                     )
                 },
                 mapAction: { action in
