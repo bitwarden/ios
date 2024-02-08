@@ -108,8 +108,8 @@ final class ViewItemProcessor: StateProcessor<ViewItemState, ViewItemAction, Vie
         switch action {
         case let .cardItemAction(cardAction):
             handleCardAction(cardAction)
-        case let .copyPressed(value):
-            copyValue(value)
+        case let .copyPressed(value, field):
+            copyValue(value, field)
         case let .customFieldVisibilityPressed(customFieldState):
             guard case var .data(cipherState) = state.loadingState else {
                 services.errorReporter.log(
@@ -171,12 +171,18 @@ private extension ViewItemProcessor {
         }
     }
 
-    /// Copies a value to the pasteboard.
+    /// Copies a value to the pasteboard and shows a toast for the field that was copied.
     ///
-    /// - Parameter value: The string to be copied.
+    /// - Parameters:
+    ///   - value: The string to be copied.
+    ///   - field: The field being copied.
     ///
-    private func copyValue(_ value: String) {
+    private func copyValue(_ value: String, _ field: CopyableField?) {
         services.pasteboardService.copy(value)
+
+        if let field {
+            state.toast = Toast(text: Localizations.valueHasBeenCopied(field.localizedName))
+        }
     }
 
     /// Download the attachment.
