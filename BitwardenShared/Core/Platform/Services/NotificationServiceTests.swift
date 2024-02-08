@@ -6,6 +6,7 @@ class NotificationServiceTests: BitwardenTestCase { // swiftlint:disable:this ty
     // MARK: Properties
 
     var appSettingsStore: MockAppSettingsStore!
+    var authRepository: MockAuthRepository!
     var authService: MockAuthService!
     var client: MockHTTPClient!
     var delegate: MockNotificationServiceDelegate!
@@ -21,6 +22,7 @@ class NotificationServiceTests: BitwardenTestCase { // swiftlint:disable:this ty
         super.setUp()
 
         appSettingsStore = MockAppSettingsStore()
+        authRepository = MockAuthRepository()
         authService = MockAuthService()
         client = MockHTTPClient()
         delegate = MockNotificationServiceDelegate()
@@ -31,6 +33,7 @@ class NotificationServiceTests: BitwardenTestCase { // swiftlint:disable:this ty
 
         subject = DefaultNotificationService(
             appIdService: AppIdService(appSettingStore: appSettingsStore),
+            authRepository: authRepository,
             authService: authService,
             errorReporter: errorReporter,
             notificationAPIService: notificationAPIService,
@@ -428,6 +431,27 @@ class NotificationServiceTests: BitwardenTestCase { // swiftlint:disable:this ty
         XCTAssertEqual(delegate.showLoginRequestRequest, .fixture())
     }
 
+    /// `messageReceived(_:notificationDismissed:notificationTapped:)` handles logout request and call
+    /// the delegate to route to landing screen.
+    func test_messageReceived_logout() async throws {
+        // Set up the mock data.
+        stateService.setIsAuthenticated()
+
+        let message: [AnyHashable: Any] = [
+            "aps": [
+                "data": [
+                    "type": NotificationType.logOut.rawValue,
+                    "payload": "anything",
+                ],
+            ],
+        ]
+
+        // Test.
+        await subject.messageReceived(message, notificationDismissed: nil, notificationTapped: nil)
+        XCTAssertTrue(authRepository.logoutAllUsersCalled)
+        XCTAssertTrue(delegate.routeToLandingCalled)
+    }
+
     /// `messageReceived(_:notificationDismissed:notificationTapped:)` handles notifications being dismissed.
     func test_messageReceived_notificationDismissed() async throws {
         // Set up the mock data.
@@ -500,11 +524,17 @@ class NotificationServiceTests: BitwardenTestCase { // swiftlint:disable:this ty
 // MARK: - MockNotificationServiceDelegate
 
 class MockNotificationServiceDelegate: NotificationServiceDelegate {
+    var routeToLandingCalled: Bool = false
+
     var showLoginRequestRequest: LoginRequest?
 
     var switchAccountsAccount: Account?
     var switchAccountsLoginRequest: LoginRequest?
     var switchAccountsShowAlert: Bool?
+
+    func routeToLanding() async {
+        routeToLandingCalled = true
+    }
 
     func showLoginRequest(_ loginRequest: LoginRequest) {
         showLoginRequestRequest = loginRequest

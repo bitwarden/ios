@@ -139,10 +139,9 @@ public class AppProcessor {
 }
 
 extension AppProcessor: NotificationServiceDelegate {
-    /// Logs out the current user.
+    /// Users are logged out, route to landing page.
     ///
-    func logout() async throws {
-        try await services.authRepository.logout()
+    func routeToLanding() async {
         coordinator?.navigate(to: .auth(.landing))
     }
 

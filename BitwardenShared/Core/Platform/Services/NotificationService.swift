@@ -39,9 +39,9 @@ protocol NotificationService {
 /// The delegate to handle login request actions originating from notifications.
 ///
 protocol NotificationServiceDelegate: AnyObject {
-    /// Logs out the current user.
+    /// Users are logged out, route to landing page.
     ///
-    func logout() async throws
+    func routeToLanding() async
 
     /// Show the login request.
     ///
@@ -72,6 +72,9 @@ class DefaultNotificationService: NotificationService {
     /// The service used by the application to manage the app's ID.
     private let appIdService: AppIdService
 
+    /// The repository used by the application to manage auth data for the UI layer.
+    private let authRepository: AuthRepository
+
     /// The service used by the application to handle authentication tasks.
     private let authService: AuthService
 
@@ -93,6 +96,7 @@ class DefaultNotificationService: NotificationService {
     ///
     /// - Parameters:
     ///   - appIdService: The service used by the application to manage the app's ID.
+    ///   - authRepository: The repository used by the application to manage auth data for the UI layer.
     ///   - authService: The service used by the application to handle authentication tasks.
     ///   - errorReporter: The service used by the application to report non-fatal errors.
     ///   - notificationAPIService: The API service used to make notification requests.
@@ -100,6 +104,7 @@ class DefaultNotificationService: NotificationService {
     ///   - syncService: The service used to handle syncing vault data with the API.
     init(
         appIdService: AppIdService,
+        authRepository: AuthRepository,
         authService: AuthService,
         errorReporter: ErrorReporter,
         notificationAPIService: NotificationAPIService,
@@ -107,6 +112,7 @@ class DefaultNotificationService: NotificationService {
         syncService: SyncService
     ) {
         self.appIdService = appIdService
+        self.authRepository = authRepository
         self.authService = authService
         self.errorReporter = errorReporter
         self.notificationAPIService = notificationAPIService
@@ -189,7 +195,8 @@ class DefaultNotificationService: NotificationService {
             case .syncOrgKeys:
                 try await syncService.fetchSync(forceSync: true)
             case .logOut:
-                try await delegate?.logout()
+                try await authRepository.logoutAllUsers()
+                await delegate?.routeToLanding()
             case .syncSendCreate,
                  .syncSendUpdate:
                 if let data: SyncSendNotification = notificationData.data(), data.userId == userId {
