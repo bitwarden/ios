@@ -573,12 +573,15 @@ class GeneratorProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
         )
 
         subject.receive(.sliderValueChanged(field: field, value: 10))
+        subject.receive(.sliderEditingChanged(field: field, isEditing: false))
         XCTAssertNil(generatorRepository.passwordGeneratorRequest)
 
         subject.receive(.sliderValueChanged(field: field, value: 19))
+        subject.receive(.sliderEditingChanged(field: field, isEditing: false))
         XCTAssertNil(generatorRepository.passwordGeneratorRequest)
 
         subject.receive(.sliderValueChanged(field: field, value: 20))
+        subject.receive(.sliderEditingChanged(field: field, isEditing: false))
         waitFor(generatorRepository.passwordGeneratorRequest != nil)
         XCTAssertEqual(generatorRepository.passwordGeneratorRequest?.length, 20)
     }
@@ -710,7 +713,7 @@ class GeneratorProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
     }
 
     /// The user's password options are saved when any of the password options are changed.
-    func test_saveGeneratorOptions_password() { // swiftlint:disable:this function_body_length
+    func test_saveGeneratorOptions_password() {
         // Wait for the initial loading of the generation options to complete before making changes.
         waitFor { subject.didLoadGeneratorOptions }
 
@@ -736,16 +739,14 @@ class GeneratorProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
                 wordSeparator: "-"
             )
         )
-        subject.receive(
-            .sliderValueChanged(
-                field: sliderField(
-                    keyPath: \.passwordState.lengthDouble,
-                    sliderAccessibilityId: "PasswordLengthSlider",
-                    sliderValueAccessibilityId: "PasswordLengthLabel"
-                ),
-                value: 30
-            )
+
+        let sliderField = sliderField(
+            keyPath: \.passwordState.lengthDouble,
+            sliderAccessibilityId: "PasswordLengthSlider",
+            sliderValueAccessibilityId: "PasswordLengthLabel"
         )
+        subject.receive(.sliderValueChanged(field: sliderField, value: 30))
+        subject.receive(.sliderEditingChanged(field: sliderField, isEditing: false))
         waitFor { generatorRepository.passwordGenerationOptions.length == 30 }
         XCTAssertEqual(generatorRepository.passwordGenerationOptions.length, 30)
 
