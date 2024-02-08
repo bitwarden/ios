@@ -12,7 +12,7 @@ extension View {
     func accessibility(
         if condition: Bool = true,
         addTraits traits: AccessibilityTraits
-    ) -> ModifiedContent<Self, AccessibilityAttachmentModifier> {
+    ) -> some View {
         accessibility(addTraits: condition ? traits : [])
     }
 
@@ -28,7 +28,7 @@ extension View {
     func accessibilityAsyncAction<S>(
         named name: S,
         _ asyncHandler: @escaping () async -> Void
-    ) -> ModifiedContent<Self, AccessibilityAttachmentModifier> where S: StringProtocol {
+    ) -> some View where S: StringProtocol {
         accessibilityAction(
             named: name, { Task { await asyncHandler() } }
         )
@@ -44,15 +44,16 @@ extension View {
     /// - Returns: A modifeid version of the content, with or without the accessibility action,
     ///    based on the supplied condition.
     ///
+    @ViewBuilder
     func conditionalAccessibilityAction<S>(
         if condition: Bool = true,
         named name: S,
         _ handler: @escaping () -> Void
-    ) -> ModifiedContent<Self, AccessibilityAttachmentModifier> where S: StringProtocol {
+    ) -> some View where S: StringProtocol {
         if condition {
-            return accessibilityAction(named: name, handler)
+            accessibilityAction(named: name, handler)
         } else {
-            return self as! ModifiedContent<Self, AccessibilityAttachmentModifier> // swiftlint:disable:this force_cast
+            self
         }
     }
 
@@ -66,19 +67,20 @@ extension View {
     /// - Returns: A modifeid version of the content, with or without the accessibility action,
     ///    based on the supplied condition.
     ///
+    @ViewBuilder
     func conditionalAccessibilityAsyncAction<S>(
         if condition: Bool = true,
         named name: S,
         _ asyncHandler: @escaping () async -> Void
-    ) -> ModifiedContent<Self, AccessibilityAttachmentModifier> where S: StringProtocol {
+    ) -> some View where S: StringProtocol {
         if condition {
-            return accessibilityAsyncAction(
+            accessibilityAsyncAction(
                 named: name
             ) {
                 await asyncHandler()
             }
         } else {
-            return self as! ModifiedContent<Self, AccessibilityAttachmentModifier> // swiftlint:disable:this force_cast
+            self
         }
     }
 
