@@ -56,6 +56,11 @@ public enum UI {
 
         UIBarButtonItem.appearance().tintColor = Asset.Colors.primaryBitwarden.color
 
+        // Make the tab bar opaque.
+        let tabBarAppearance = UITabBarAppearance()
+        tabBarAppearance.configureWithOpaqueBackground()
+        UITabBar.appearance().scrollEdgeAppearance = tabBarAppearance
+        UITabBar.appearance().standardAppearance = tabBarAppearance
         UITabBar.appearance().tintColor = Asset.Colors.primaryBitwarden.color
 
         UISearchBar.appearance().tintColor = Asset.Colors.primaryBitwarden.color
