@@ -64,8 +64,8 @@ class VaultUnlockViewTests: BitwardenTestCase {
     }
 
     /// Tapping the options button in the navigation bar dispatches the `.morePressed` action.
-    func test_moreButton_tap() throws {
-        let button = try subject.inspect().find(button: Localizations.options)
+    func test_optionsButton_logOut_tap() throws {
+        let button = try subject.inspect().find(button: Localizations.logOut)
         try button.tap()
         XCTAssertEqual(processor.dispatchedActions.last, .morePressed)
     }

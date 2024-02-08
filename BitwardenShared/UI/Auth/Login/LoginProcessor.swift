@@ -87,8 +87,6 @@ class LoginProcessor: StateProcessor<LoginState, LoginAction, LoginEffect> {
             coordinator.navigate(to: .loginWithDevice(email: state.username))
         case let .masterPasswordChanged(newValue):
             state.masterPassword = newValue
-        case .morePressed:
-            coordinator.navigate(to: .loginOptions)
         case .notYouPressed:
             coordinator.navigate(to: .landing)
         case .revealMasterPasswordFieldPressed:

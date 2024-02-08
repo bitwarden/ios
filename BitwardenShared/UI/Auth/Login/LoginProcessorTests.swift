@@ -285,12 +285,6 @@ class LoginProcessorTests: BitwardenTestCase {
         XCTAssertEqual(subject.state.masterPassword, "password")
     }
 
-    /// `receive(_:)` with `.morePressed` navigates to the login options screen.
-    func test_receive_morePressed() {
-        subject.receive(.morePressed)
-        XCTAssertEqual(coordinator.routes.last, .loginOptions)
-    }
-
     /// `receive(_:)` with `.notYouPressed` navigates to the landing screen.
     func test_receive_notYouPressed() {
         subject.receive(.notYouPressed)

@@ -30,21 +30,15 @@ struct PasswordHistoryListView: View {
         .toolbar {
             ToolbarItemGroup(placement: .navigationBarTrailing) {
                 if store.state.source == .generator {
-                    Menu {
+                    optionsToolbarMenu {
                         AsyncButton(Localizations.clear) {
                             await store.perform(.clearList)
                         }
                         .accessibilityIdentifier("ClearPasswordList")
-                    } label: {
-                        Image(asset: Asset.Images.verticalKabob, label: Text(Localizations.options))
-                            .resizable()
-                            .frame(width: 19, height: 19)
-                            .foregroundColor(Asset.Colors.primaryBitwarden.swiftUIColor)
-                            .accessibilityIdentifier("Options")
                     }
                 }
 
-                ToolbarButton(asset: Asset.Images.cancel, label: Localizations.close) {
+                closeToolbarButton {
                     store.send(.dismiss)
                 }
             }

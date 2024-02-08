@@ -131,8 +131,6 @@ final class AuthCoordinator: NSObject, // swiftlint:disable:this type_body_lengt
                     region: region
                 )
             )
-        case .loginOptions:
-            showLoginOptions()
         case .updateMasterPassword:
             showUpdateMasterPassword()
         case let .loginWithDevice(email):
@@ -296,12 +294,6 @@ final class AuthCoordinator: NSObject, // swiftlint:disable:this type_body_lengt
         if isPresenting {
             stackNavigator.dismiss()
         }
-    }
-
-    /// Shows the login options screen.
-    private func showLoginOptions() {
-        let view = Text("Login Options")
-        stackNavigator?.push(view)
     }
 
     /// Shows the login with device screen.

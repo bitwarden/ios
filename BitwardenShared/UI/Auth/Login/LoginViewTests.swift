@@ -59,13 +59,6 @@ class LoginViewTests: BitwardenTestCase {
         XCTAssertEqual(processor.dispatchedActions.last, .getMasterPasswordHintPressed)
     }
 
-    /// Tapping the options button in the nav bar dispatches the `.morePressed` action.
-    func test_moreButton_tap() throws {
-        let button = try subject.inspect().find(button: Localizations.options)
-        try button.tap()
-        XCTAssertEqual(processor.dispatchedActions.last, .morePressed)
-    }
-
     /// The login with device button should not be visible when `isLoginWithDeviceVisible` is `false`.
     func test_loginWithDeviceButton_isLoginWithDeviceVisible_false() {
         processor.state.isLoginWithDeviceVisible = false

@@ -157,12 +157,6 @@ class AuthCoordinatorTests: BitwardenTestCase {
         XCTAssertTrue(state.isLoginWithDeviceVisible)
     }
 
-    /// `navigate(to:)` with `.loginOptions` pushes the login options view onto the stack navigator.
-    func test_navigate_loginOptions() {
-        subject.navigate(to: .loginOptions)
-        XCTAssertTrue(stackNavigator.actions.last?.view is Text)
-    }
-
     /// `navigate(to:)` with `.loginWithDevice` pushes the login with device view onto the stack navigator.
     func test_navigate_loginWithDevice() throws {
         subject.navigate(to: .loginWithDevice(email: "example@email.com"))

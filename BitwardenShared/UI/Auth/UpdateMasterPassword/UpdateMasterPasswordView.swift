@@ -90,7 +90,7 @@ struct UpdateMasterPasswordView: View {
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {
             ToolbarItemGroup(placement: .navigationBarTrailing) {
-                AsyncButton(Localizations.logOut) {
+                toolbarButton(Localizations.logOut) {
                     await store.perform(.logoutPressed)
                 }
             }
