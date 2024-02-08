@@ -139,6 +139,13 @@ public class AppProcessor {
 }
 
 extension AppProcessor: NotificationServiceDelegate {
+    /// Logs out the current user.
+    ///
+    func logout() async throws {
+        try await services.authRepository.logout()
+        coordinator?.navigate(to: .auth(.landing))
+    }
+
     /// Show the login request.
     ///
     /// - Parameter loginRequest: The login request.

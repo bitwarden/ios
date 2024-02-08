@@ -39,6 +39,10 @@ protocol NotificationService {
 /// The delegate to handle login request actions originating from notifications.
 ///
 protocol NotificationServiceDelegate: AnyObject {
+    /// Logs out the current user.
+    ///
+    func logout() async throws
+
     /// Show the login request.
     ///
     /// - Parameter loginRequest: The login request.
@@ -185,8 +189,7 @@ class DefaultNotificationService: NotificationService {
             case .syncOrgKeys:
                 try await syncService.fetchSync(forceSync: true)
             case .logOut:
-                // no-op
-                break
+                try await delegate?.logout()
             case .syncSendCreate,
                  .syncSendUpdate:
                 if let data: SyncSendNotification = notificationData.data(), data.userId == userId {
