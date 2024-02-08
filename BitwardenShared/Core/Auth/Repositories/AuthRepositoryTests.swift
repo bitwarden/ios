@@ -201,7 +201,11 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
 
     /// `getProfilesState()` throws an error when the accounts are nil.
     func test_getProfilesState_empty() async {
-        let state = await subject.getProfilesState(isVisible: false, shouldAlwaysHideAddAccount: false)
+        let state = await subject.getProfilesState(
+            allowLockAndLogout: true,
+            isVisible: false,
+            shouldAlwaysHideAddAccount: false
+        )
         XCTAssertEqual(state, .empty(shouldAlwaysHideAddAccount: false))
     }
 
@@ -216,7 +220,11 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
             shortName,
         ]
 
-        let accounts = await subject.getProfilesState(isVisible: true, shouldAlwaysHideAddAccount: false).accounts
+        let accounts = await subject.getProfilesState(
+            allowLockAndLogout: true,
+            isVisible: true,
+            shouldAlwaysHideAddAccount: false
+        ).accounts
         XCTAssertEqual(
             accounts.first,
             ProfileSwitcherItem.fixture(
@@ -282,7 +290,11 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
             shortEmail.profile.userId: true,
             shortName.profile.userId: false,
         ]
-        let profiles = await subject.getProfilesState(isVisible: true, shouldAlwaysHideAddAccount: true).accounts
+        let profiles = await subject.getProfilesState(
+            allowLockAndLogout: true,
+            isVisible: true,
+            shouldAlwaysHideAddAccount: true
+        ).accounts
         let lockedStatuses = profiles.map { profile in
             profile.isUnlocked
         }
@@ -428,6 +440,35 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         ]
         let value = try await subject.isPinUnlockAvailable()
         XCTAssertTrue(value)
+    }
+
+    /// `setVaultTimeout` correctly configures the user's timeout value.
+    func test_sessionTimeoutValue_active_noUser() async {
+        vaultTimeoutService.sessionTimeoutValueError = StateServiceError.noActiveAccount
+        await assertAsyncThrows(error: StateServiceError.noActiveAccount) {
+            _ = try await subject.sessionTimeoutValue()
+        }
+    }
+
+    /// `setVaultTimeout` correctly configures the user's timeout value.
+    func test_sessionTimeouValue_active_success() async throws {
+        let active = Account.fixture()
+        stateService.activeAccount = active
+        vaultTimeoutService.vaultTimeout = [
+            "1": .fourHours,
+        ]
+        let value = try await subject.sessionTimeoutValue()
+        XCTAssertEqual(value, .fourHours)
+    }
+
+    /// `setVaultTimeout` correctly configures the user's timeout value.
+    func test_sessionTimeouValue_alt_success() async throws {
+        vaultTimeoutService.vaultTimeout = [
+            "1": .fourHours,
+            "42": .never,
+        ]
+        let value = try await subject.sessionTimeoutValue(userId: "42")
+        XCTAssertEqual(value, .never)
     }
 
     /// `setVaultTimeout` correctly configures the user's timeout value.

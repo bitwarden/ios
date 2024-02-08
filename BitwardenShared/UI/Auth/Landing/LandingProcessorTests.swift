@@ -117,6 +117,7 @@ class LandingProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_
         authRepository.profileSwitcherState = .init(
             accounts: [profile],
             activeAccountId: profile.userId,
+            allowLockAndLogout: true,
             isVisible: false
         )
         await subject.perform(.appeared)
@@ -142,6 +143,7 @@ class LandingProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_
         authRepository.profileSwitcherState = .init(
             accounts: [profile],
             activeAccountId: profile.userId,
+            allowLockAndLogout: true,
             isVisible: false
         )
         await subject.perform(.appeared)
@@ -155,7 +157,12 @@ class LandingProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_
     /// No active account and accounts should yield a profile switcher state without an active account.
     func test_perform_refresh_profiles_single_notActive() async {
         let profile = ProfileSwitcherItem.fixture()
-        authRepository.profileSwitcherState = .init(accounts: [profile], activeAccountId: nil, isVisible: false)
+        authRepository.profileSwitcherState = .init(
+            accounts: [profile],
+            activeAccountId: nil,
+            allowLockAndLogout: true,
+            isVisible: false
+        )
         await subject.perform(.appeared)
 
         XCTAssertEqual(
@@ -163,6 +170,7 @@ class LandingProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_
             ProfileSwitcherState(
                 accounts: [profile],
                 activeAccountId: nil,
+                allowLockAndLogout: true,
                 isVisible: false,
                 shouldAlwaysHideAddAccount: true
             )
@@ -177,6 +185,7 @@ class LandingProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_
         authRepository.profileSwitcherState = .init(
             accounts: [profile, alternate],
             activeAccountId: profile.userId,
+            allowLockAndLogout: true,
             isVisible: false
         )
         await subject.perform(.appeared)
@@ -193,6 +202,7 @@ class LandingProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_
         subject.state.profileSwitcherState = ProfileSwitcherState(
             accounts: [profile, alternate],
             activeAccountId: profile.userId,
+            allowLockAndLogout: true,
             isVisible: true
         )
 
@@ -208,6 +218,7 @@ class LandingProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_
         subject.state.profileSwitcherState = ProfileSwitcherState(
             accounts: [profile, alternate],
             activeAccountId: profile.userId,
+            allowLockAndLogout: true,
             isVisible: true
         )
 
@@ -223,6 +234,7 @@ class LandingProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_
         subject.state.profileSwitcherState = ProfileSwitcherState(
             accounts: [profile, alternate],
             activeAccountId: profile.userId,
+            allowLockAndLogout: true,
             isVisible: true
         )
 
@@ -408,7 +420,7 @@ class LandingProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_
         XCTAssertNil(appSettingsStore.rememberedEmail)
     }
 
-    /// `receive(_:)` with `.profileSwitcherAction(.accountLongPressed)` shows the alert and allows the user to
+    /// `receive(_:)` with `.profileSwitcher(.accountLongPressed)` shows the alert and allows the user to
     /// lock the selected account.
     func test_receive_accountLongPressed_lock() async throws {
         // Set up the mock data.
@@ -417,11 +429,12 @@ class LandingProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_
         subject.state.profileSwitcherState = ProfileSwitcherState(
             accounts: [otherProfile, activeProfile],
             activeAccountId: activeProfile.userId,
+            allowLockAndLogout: true,
             isVisible: true
         )
         authRepository.activeAccount = .fixture()
 
-        subject.receive(.profileSwitcherAction(.accountLongPressed(otherProfile)))
+        await subject.perform(.profileSwitcher(.accountLongPressed(otherProfile)))
         XCTAssertFalse(subject.state.profileSwitcherState.isVisible)
 
         // Select the alert action to lock the account.
@@ -436,7 +449,7 @@ class LandingProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_
         XCTAssertEqual(subject.state.toast?.text, Localizations.accountLockedSuccessfully)
     }
 
-    /// `receive(_:)` with `.profileSwitcherAction(.accountLongPressed)` records any errors from locking the account.
+    /// `receive(_:)` with `.profileSwitcher(.accountLongPressed)` records any errors from locking the account.
     func test_receive_accountLongPressed_lock_error() async throws {
         // Set up the mock data.
         let activeProfile = ProfileSwitcherItem.fixture()
@@ -444,11 +457,12 @@ class LandingProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_
         subject.state.profileSwitcherState = ProfileSwitcherState(
             accounts: [otherProfile, activeProfile],
             activeAccountId: activeProfile.userId,
+            allowLockAndLogout: true,
             isVisible: true
         )
         authRepository.activeAccount = nil
 
-        subject.receive(.profileSwitcherAction(.accountLongPressed(otherProfile)))
+        await subject.perform(.profileSwitcher(.accountLongPressed(otherProfile)))
         XCTAssertFalse(subject.state.profileSwitcherState.isVisible)
 
         // Select the alert action to lock the account.
@@ -459,7 +473,7 @@ class LandingProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_
         XCTAssertEqual(errorReporter.errors.last as? StateServiceError, .noActiveAccount)
     }
 
-    /// `receive(_:)` with `.profileSwitcherAction(.accountLongPressed)` shows the alert and allows the user to
+    /// `receive(_:)` with `.profileSwitcher(.accountLongPressed)` shows the alert and allows the user to
     /// log out of the selected account.
     func test_receive_accountLongPressed_logout() async throws {
         // Set up the mock data.
@@ -468,11 +482,12 @@ class LandingProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_
         subject.state.profileSwitcherState = ProfileSwitcherState(
             accounts: [otherProfile, activeProfile],
             activeAccountId: activeProfile.userId,
+            allowLockAndLogout: true,
             isVisible: true
         )
         authRepository.activeAccount = .fixture()
 
-        subject.receive(.profileSwitcherAction(.accountLongPressed(otherProfile)))
+        await subject.perform(.profileSwitcher(.accountLongPressed(otherProfile)))
         XCTAssertFalse(subject.state.profileSwitcherState.isVisible)
 
         // Select the alert action to log out from the account.
@@ -491,7 +506,7 @@ class LandingProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_
         )
     }
 
-    /// `receive(_:)` with `.profileSwitcherAction(.accountLongPressed)` records any errors from logging out the
+    /// `receive(_:)` with `.profileSwitcher(.accountLongPressed)` records any errors from logging out the
     /// account.
     func test_receive_accountLongPressed_logout_error() async throws {
         // Set up the mock data.
@@ -500,11 +515,12 @@ class LandingProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_
         subject.state.profileSwitcherState = ProfileSwitcherState(
             accounts: [otherProfile, activeProfile],
             activeAccountId: activeProfile.userId,
+            allowLockAndLogout: true,
             isVisible: true
         )
         authRepository.activeAccount = nil
 
-        subject.receive(.profileSwitcherAction(.accountLongPressed(otherProfile)))
+        await subject.perform(.profileSwitcher(.accountLongPressed(otherProfile)))
         XCTAssertFalse(subject.state.profileSwitcherState.isVisible)
 
         // Select the alert action to log out from the account.
@@ -519,23 +535,25 @@ class LandingProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_
         XCTAssertEqual(errorReporter.errors.last as? StateServiceError, .noActiveAccount)
     }
 
-    /// `receive(_:)` with `.profileSwitcherAction(.accountPressed)` with the active account
+    /// `receive(_:)` with `.profileSwitcher(.accountPressed)` with the active account
     ///  dismisses the profile switcher.
     func test_receive_accountPressed_active_unlocked() {
         let profile = ProfileSwitcherItem.fixture()
         authRepository.profileSwitcherState = .init(
             accounts: [profile],
             activeAccountId: profile.userId,
+            allowLockAndLogout: true,
             isVisible: false
         )
         subject.state.profileSwitcherState = ProfileSwitcherState(
             accounts: [profile],
             activeAccountId: profile.userId,
+            allowLockAndLogout: true,
             isVisible: true
         )
 
         let task = Task {
-            subject.receive(.profileSwitcherAction(.accountPressed(profile)))
+            await subject.perform(.profileSwitcher(.accountPressed(profile)))
         }
         waitFor(!subject.state.profileSwitcherState.isVisible)
         task.cancel()
@@ -548,7 +566,7 @@ class LandingProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_
         )
     }
 
-    /// `receive(_:)` with `.profileSwitcherAction(.accountPressed)`  with the active account
+    /// `receive(_:)` with `.profileSwitcher(.accountPressed)`  with the active account
     ///  dismisses the profile switcher.
     func test_receive_accountPressed_active_locked() {
         let profile = ProfileSwitcherItem.fixture(isUnlocked: false)
@@ -558,17 +576,19 @@ class LandingProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_
         subject.state.profileSwitcherState = ProfileSwitcherState(
             accounts: [profile],
             activeAccountId: profile.userId,
+            allowLockAndLogout: true,
             isVisible: true
         )
         authRepository.accountForItemResult = .success(account)
         subject.state.profileSwitcherState = ProfileSwitcherState(
             accounts: [profile],
             activeAccountId: profile.userId,
+            allowLockAndLogout: true,
             isVisible: true
         )
 
         let task = Task {
-            subject.receive(.profileSwitcherAction(.accountPressed(profile)))
+            await subject.perform(.profileSwitcher(.accountPressed(profile)))
         }
         waitFor(!subject.state.profileSwitcherState.isVisible)
         task.cancel()
@@ -581,7 +601,7 @@ class LandingProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_
         )
     }
 
-    /// `receive(_:)` with `.profileSwitcherAction(.accountPressed)` updates the state to reflect the changes.
+    /// `receive(_:)` with `.profileSwitcher(.accountPressed)` updates the state to reflect the changes.
     func test_receive_accountPressed_alternateUnlocked() {
         let profile = ProfileSwitcherItem.fixture()
         let active = ProfileSwitcherItem.fixture()
@@ -593,17 +613,19 @@ class LandingProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_
         subject.state.profileSwitcherState = ProfileSwitcherState(
             accounts: [profile, active],
             activeAccountId: active.userId,
+            allowLockAndLogout: true,
             isVisible: true
         )
         authRepository.accountForItemResult = .success(account)
         subject.state.profileSwitcherState = ProfileSwitcherState(
             accounts: [profile, active],
             activeAccountId: active.userId,
+            allowLockAndLogout: true,
             isVisible: true
         )
 
         let task = Task {
-            subject.receive(.profileSwitcherAction(.accountPressed(profile)))
+            await subject.perform(.profileSwitcher(.accountPressed(profile)))
         }
         waitFor(!coordinator.events.isEmpty)
         task.cancel()
@@ -616,7 +638,7 @@ class LandingProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_
         )
     }
 
-    /// `receive(_:)` with `.profileSwitcherAction(.accountPressed)` updates the state to reflect the changes.
+    /// `receive(_:)` with `.profileSwitcher(.accountPressed)` updates the state to reflect the changes.
     func test_receive_accountPressed_alternateLocked() {
         let profile = ProfileSwitcherItem.fixture(isUnlocked: false)
         let active = ProfileSwitcherItem.fixture()
@@ -626,17 +648,19 @@ class LandingProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_
         subject.state.profileSwitcherState = ProfileSwitcherState(
             accounts: [profile, active],
             activeAccountId: active.userId,
+            allowLockAndLogout: true,
             isVisible: true
         )
         authRepository.accountForItemResult = .success(account)
         subject.state.profileSwitcherState = ProfileSwitcherState(
             accounts: [profile, active],
             activeAccountId: active.userId,
+            allowLockAndLogout: true,
             isVisible: true
         )
 
         let task = Task {
-            subject.receive(.profileSwitcherAction(.accountPressed(profile)))
+            await subject.perform(.profileSwitcher(.accountPressed(profile)))
         }
         waitFor(!coordinator.events.isEmpty)
         task.cancel()
@@ -649,23 +673,25 @@ class LandingProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_
         )
     }
 
-    /// `receive(_:)` with `.profileSwitcherAction(.accountPressed)` updates the state to reflect the changes.
+    /// `receive(_:)` with `.profileSwitcher(.accountPressed)` updates the state to reflect the changes.
     func test_receive_accountPressed_noMatch() {
         let profile = ProfileSwitcherItem.fixture()
         let active = ProfileSwitcherItem.fixture()
         authRepository.profileSwitcherState = ProfileSwitcherState(
             accounts: [profile, active],
             activeAccountId: active.userId,
+            allowLockAndLogout: true,
             isVisible: true
         )
         subject.state.profileSwitcherState = ProfileSwitcherState(
             accounts: [profile, active],
             activeAccountId: active.userId,
+            allowLockAndLogout: true,
             isVisible: true
         )
 
         let task = Task {
-            subject.receive(.profileSwitcherAction(.accountPressed(profile)))
+            await subject.perform(.profileSwitcher(.accountPressed(profile)))
         }
         waitFor(!coordinator.events.isEmpty)
         task.cancel()
@@ -678,17 +704,18 @@ class LandingProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_
         )
     }
 
-    /// `receive(_:)` with `.profileSwitcherAction(.addAccountPressed)` updates the state to reflect the changes.
+    /// `receive(_:)` with `.profileSwitcher(.addAccountPressed)` updates the state to reflect the changes.
     func test_receive_addAccountPressed() {
         let active = ProfileSwitcherItem.fixture()
         subject.state.profileSwitcherState = ProfileSwitcherState(
             accounts: [active],
             activeAccountId: active.userId,
+            allowLockAndLogout: true,
             isVisible: true
         )
 
         let task = Task {
-            subject.receive(.profileSwitcherAction(.addAccountPressed))
+            await subject.perform(.profileSwitcher(.addAccountPressed))
         }
         waitFor(!subject.state.profileSwitcherState.isVisible)
         task.cancel()
@@ -698,17 +725,18 @@ class LandingProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_
         XCTAssertEqual(coordinator.routes, [])
     }
 
-    /// `receive(_:)` with `.profileSwitcherAction(.backgroundPressed)` updates the state to reflect the changes.
+    /// `receive(_:)` with `.profileSwitcher(.backgroundPressed)` updates the state to reflect the changes.
     func test_receive_backgroundPressed() {
         let active = ProfileSwitcherItem.fixture()
         subject.state.profileSwitcherState = ProfileSwitcherState(
             accounts: [active],
             activeAccountId: active.userId,
+            allowLockAndLogout: true,
             isVisible: true
         )
 
         let task = Task {
-            subject.receive(.profileSwitcherAction(.backgroundPressed))
+            subject.receive(.profileSwitcher(.backgroundPressed))
         }
         waitFor(!subject.state.profileSwitcherState.isVisible)
         task.cancel()
@@ -718,18 +746,19 @@ class LandingProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_
         XCTAssertEqual(coordinator.routes, [])
     }
 
-    /// `receive(_:)` with `.profileSwitcherAction(.scrollOffset)` updates the state to reflect the changes.
+    /// `receive(_:)` with `.profileSwitcher(.scrollOffset)` updates the state to reflect the changes.
     func test_receive_scrollOffset() {
         let active = ProfileSwitcherItem.fixture()
         subject.state.profileSwitcherState = ProfileSwitcherState(
             accounts: [active],
             activeAccountId: active.userId,
+            allowLockAndLogout: true,
             isVisible: true,
             scrollOffset: .zero
         )
 
         let newPoint = CGPoint(x: 0, y: 100)
-        subject.receive(.profileSwitcherAction(.scrollOffsetChanged(newPoint)))
+        subject.receive(.profileSwitcher(.scrollOffsetChanged(newPoint)))
 
         XCTAssertNotNil(subject.state.profileSwitcherState)
         XCTAssertTrue(subject.state.profileSwitcherState.isVisible)

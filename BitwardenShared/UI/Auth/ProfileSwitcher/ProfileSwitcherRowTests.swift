@@ -24,7 +24,7 @@ final class ProfileSwitcherRowTests: BitwardenTestCase {
         userInitials: "AA"
     )
 
-    var processor: MockProcessor<ProfileSwitcherRowState, ProfileSwitcherRowAction, Void>!
+    var processor: MockProcessor<ProfileSwitcherRowState, ProfileSwitcherRowAction, ProfileSwitcherRowEffect>!
     var subject: ProfileSwitcherRow!
 
     // MARK: Setup & Teardown

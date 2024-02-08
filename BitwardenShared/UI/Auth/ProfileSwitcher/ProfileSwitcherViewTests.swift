@@ -8,7 +8,7 @@ import XCTest
 
 // MARK: - ProfileSwitcherViewTests
 
-class ProfileSwitcherViewTests: BitwardenTestCase {
+class ProfileSwitcherViewTests: BitwardenTestCase { // swiftlint:disable:this type_body_length
     // MARK: Properties
 
     var processor: MockProcessor<ProfileSwitcherState, ProfileSwitcherAction, ProfileSwitcherEffect>!
@@ -22,6 +22,7 @@ class ProfileSwitcherViewTests: BitwardenTestCase {
         let state = ProfileSwitcherState(
             accounts: [account],
             activeAccountId: account.userId,
+            allowLockAndLogout: true,
             isVisible: true
         )
         processor = MockProcessor(state: state)
@@ -42,8 +43,16 @@ class ProfileSwitcherViewTests: BitwardenTestCase {
         let accountRow = try subject.inspect().find(button: "anne.account@bitwarden.com")
         try accountRow.labelView().callOnLongPressGesture()
         let currentAccount = processor.state.activeAccountProfile!
+        waitFor(!processor.effects.isEmpty)
 
-        XCTAssertEqual(processor.dispatchedActions.last, .accountLongPressed(currentAccount))
+        XCTAssertEqual(processor.effects.last, .accountLongPressed(currentAccount))
+    }
+
+    /// Long pressing is disabled if lock and logout are not available.
+    func test_accountRow_longPress_currentAccount_noLockOrLogout() throws {
+        processor.state.allowLockAndLogout = false
+        let accountRow = try subject.inspect().find(button: "anne.account@bitwarden.com")
+        XCTAssertThrowsError(try accountRow.labelView().callOnLongPressGesture())
     }
 
     /// Tapping a profile row dispatches the `.accountPressed` action.
@@ -51,16 +60,18 @@ class ProfileSwitcherViewTests: BitwardenTestCase {
         let accountRow = try subject.inspect().find(button: "anne.account@bitwarden.com")
         try accountRow.labelView().callOnTapGesture()
         let currentAccount = processor.state.activeAccountProfile!
+        waitFor(!processor.effects.isEmpty)
 
-        XCTAssertEqual(processor.dispatchedActions.last, .accountPressed(currentAccount))
+        XCTAssertEqual(processor.effects.last, .accountPressed(currentAccount))
     }
 
     /// Tapping a profile row dispatches the `.accountPressed` action.
     func test_accountRow_tap_addAccount() throws {
         let addAccountRow = try subject.inspect().find(button: "Add account")
         try addAccountRow.tap()
+        waitFor(!processor.effects.isEmpty)
 
-        XCTAssertEqual(processor.dispatchedActions.last, .addAccountPressed)
+        XCTAssertEqual(processor.effects.last, .addAccountPressed)
     }
 
     /// Long pressing an alternative profile row dispatches the `.accountLongPressed` action.
@@ -76,12 +87,35 @@ class ProfileSwitcherViewTests: BitwardenTestCase {
                 current,
             ],
             activeAccountId: current.userId,
+            allowLockAndLogout: true,
             isVisible: true
         )
-        let addAccountRow = try subject.inspect().find(button: "alternate@bitwarden.com")
-        try addAccountRow.labelView().callOnLongPressGesture()
+        let alternateRow = try subject.inspect().find(button: "alternate@bitwarden.com")
+        try alternateRow.labelView().callOnLongPressGesture()
+        waitFor(!processor.effects.isEmpty)
 
-        XCTAssertEqual(processor.dispatchedActions.last, .accountLongPressed(alternate))
+        XCTAssertEqual(processor.effects.last, .accountLongPressed(alternate))
+    }
+
+    /// Long pressing is disabled if lock and logout are not available.
+    func test_alternateAccountRow_longPress_currentAccount_noLockOrLogout() throws {
+        let alternate = ProfileSwitcherItem.fixture(
+            email: "alternate@bitwarden.com",
+            userInitials: "NA"
+        )
+        let current = processor.state.activeAccountProfile!
+        processor.state = ProfileSwitcherState(
+            accounts: [
+                alternate,
+                current,
+            ],
+            activeAccountId: current.userId,
+            allowLockAndLogout: false,
+            isVisible: true
+        )
+        let alternateRow = try subject.inspect().find(button: "alternate@bitwarden.com")
+        _ = try subject.inspect().find(button: "anne.account@bitwarden.com")
+        XCTAssertThrowsError(try alternateRow.labelView().callOnLongPressGesture())
     }
 
     /// Tapping an alternative profile row dispatches the `.accountPressed` action.
@@ -97,12 +131,14 @@ class ProfileSwitcherViewTests: BitwardenTestCase {
                 current,
             ],
             activeAccountId: current.userId,
+            allowLockAndLogout: true,
             isVisible: true
         )
         let addAccountRow = try subject.inspect().find(button: "alternate@bitwarden.com")
         try addAccountRow.labelView().callOnTapGesture()
+        waitFor(!processor.effects.isEmpty)
 
-        XCTAssertEqual(processor.dispatchedActions.last, .accountPressed(alternate))
+        XCTAssertEqual(processor.effects.last, .accountPressed(alternate))
     }
 
     /// Tapping an alternative profile row dispatches the `.accountPressed` action.
@@ -121,12 +157,14 @@ class ProfileSwitcherViewTests: BitwardenTestCase {
         processor.state = ProfileSwitcherState(
             accounts: alternateAccounts + [current],
             activeAccountId: current.userId,
+            allowLockAndLogout: true,
             isVisible: true
         )
         let addAccountRow = try subject.inspect().find(button: "")
         try addAccountRow.labelView().callOnTapGesture()
+        waitFor(!processor.effects.isEmpty)
 
-        XCTAssertEqual(processor.dispatchedActions.last, .accountPressed(secondAlternate))
+        XCTAssertEqual(processor.effects.last, .accountPressed(secondAlternate))
     }
 
     /// Tapping the background triggers a `.backgroundPressed` action.
@@ -169,6 +207,7 @@ class ProfileSwitcherViewTests: BitwardenTestCase {
                 ),
             ],
             activeAccountId: ProfileSwitcherItem.anneAccount.userId,
+            allowLockAndLogout: true,
             isVisible: true,
             shouldAlwaysHideAddAccount: true
         )
@@ -212,6 +251,7 @@ class ProfileSwitcherViewTests: BitwardenTestCase {
                 ),
             ],
             activeAccountId: ProfileSwitcherItem.anneAccount.userId,
+            allowLockAndLogout: true,
             isVisible: true
         )
         assertSnapshot(matching: subject, as: .defaultPortrait)
@@ -251,6 +291,7 @@ class ProfileSwitcherViewTests: BitwardenTestCase {
                 ),
             ],
             activeAccountId: ProfileSwitcherItem.anneAccount.userId,
+            allowLockAndLogout: true,
             isVisible: true
         )
         assertSnapshot(matching: subject, as: .defaultPortrait)
@@ -286,6 +327,7 @@ class ProfileSwitcherViewTests: BitwardenTestCase {
                 ),
             ],
             activeAccountId: ProfileSwitcherItem.anneAccount.userId,
+            allowLockAndLogout: true,
             isVisible: true
         )
         assertSnapshot(matching: subject, as: .defaultPortrait)

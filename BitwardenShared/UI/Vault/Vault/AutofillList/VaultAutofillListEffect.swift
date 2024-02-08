@@ -11,6 +11,9 @@ enum VaultAutofillListEffect: Equatable {
     /// Any initial data for the view should be loaded.
     case loadData
 
+    /// A forwarded profile switcher effect.
+    case profileSwitcher(ProfileSwitcherEffect)
+
     /// Searches based on the keyword.
     case search(String)
 

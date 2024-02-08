@@ -52,6 +52,7 @@ extension ProfileSwitcherState {
             ),
         ],
         activeAccountId: ProfileSwitcherItem.anneAccount.userId,
+        allowLockAndLogout: true,
         isVisible: true
     )
 
@@ -84,6 +85,7 @@ extension ProfileSwitcherState {
             ),
         ],
         activeAccountId: ProfileSwitcherItem.anneAccount.userId,
+        allowLockAndLogout: true,
         isVisible: true
     )
 }

@@ -11,7 +11,7 @@ enum VaultUnlockAction: Equatable {
     case morePressed
 
     /// A forwarded profile switcher action.
-    case profileSwitcherAction(ProfileSwitcherAction)
+    case profileSwitcher(ProfileSwitcherAction)
 
     /// The value for the PIN was changed.
     case pinChanged(String)
