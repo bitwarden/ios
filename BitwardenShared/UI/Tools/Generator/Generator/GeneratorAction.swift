@@ -25,6 +25,9 @@ enum GeneratorAction: Equatable {
     /// The show password history button was pressed.
     case showPasswordHistory
 
+    /// A slider field editing value was changed.
+    case sliderEditingChanged(field: SliderField<GeneratorState>, isEditing: Bool)
+
     /// A slider field value was changed.
     case sliderValueChanged(field: SliderField<GeneratorState>, value: Double)
 
@@ -63,13 +66,15 @@ extension GeneratorAction {
              .generatorTypeChanged,
              .passwordGeneratorTypeChanged,
              .refreshGeneratedValue,
-             .sliderValueChanged,
              .stepperValueChanged,
              .textValueChanged,
              .toggleValueChanged,
              .usernameForwardedEmailServiceChanged,
              .usernameGeneratorTypeChanged:
             return true
+        case let .sliderEditingChanged(_, isEditing):
+            // Only generate a new value when editing completes.
+            return !isEditing
         case let .textFieldFocusChanged(keyPath):
             // Only generate a new value when focus leaves the field (keyPath == nil).
             return keyPath == nil
@@ -77,6 +82,7 @@ extension GeneratorAction {
              .dismissPressed,
              .selectButtonPressed,
              .showPasswordHistory,
+             .sliderValueChanged,
              .textFieldIsPasswordVisibleChanged,
              .toastShown:
             return false

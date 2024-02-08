@@ -87,6 +87,10 @@ final class GeneratorProcessor: StateProcessor<GeneratorState, GeneratorAction, 
             )
         case .showPasswordHistory:
             coordinator.navigate(to: .generatorHistory)
+        case .sliderEditingChanged:
+            // No-op: This action is just used to generate a value when the slider finishes
+            // editing, which happens below.
+            break
         case let .sliderValueChanged(field, value):
             guard state.shouldGenerateNewValueOnSliderValueChanged(value, keyPath: field.keyPath) else {
                 shouldGenerateNewValue = false

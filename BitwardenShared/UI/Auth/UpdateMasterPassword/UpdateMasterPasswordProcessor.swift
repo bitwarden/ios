@@ -104,7 +104,9 @@ class UpdateMasterPasswordProcessor: StateProcessor<
 
             if let policy = try await services.policyService.getMasterPasswordPolicyOptions() {
                 state.masterPasswordPolicy = policy
-            } else {
+            } else if state.forcePasswordResetReason == .weakMasterPasswordOnLogin {
+                // If the reset reason is because of a weak password, but there's no policy don't
+                // require a master password update.
                 coordinator.hideLoadingOverlay()
                 try await services.stateService.setForcePasswordResetReason(nil)
                 await coordinator.handleEvent(.didCompleteAuth)

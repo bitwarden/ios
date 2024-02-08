@@ -62,6 +62,7 @@ struct PendingRequestsView: View {
             }
         }
         .buttonStyle(.secondary())
+        .accessibilityIdentifier("DeclineAllRequestsButton")
         .accessibilityLabel(Localizations.declineAllRequests)
     }
 

@@ -108,7 +108,13 @@ final class AuthCoordinator: NSObject, // swiftlint:disable:this type_body_lengt
                 delegate: context as? CaptchaFlowDelegate
             )
         case .complete:
-            delegate?.didCompleteAuth()
+            if stackNavigator?.isPresenting == true {
+                stackNavigator?.dismiss {
+                    self.delegate?.didCompleteAuth()
+                }
+            } else {
+                delegate?.didCompleteAuth()
+            }
         case .createAccount:
             showCreateAccount()
         case .dismiss:

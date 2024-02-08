@@ -107,7 +107,9 @@ struct GeneratorView: View {
                 case let .menuUsernameGeneratorType(menuField):
                     menuUsernameGeneratorTypeView(field: menuField)
                 case let .slider(sliderField):
-                    SliderFieldView(field: sliderField) { newValue in
+                    SliderFieldView(field: sliderField) { isEditing in
+                        store.send(.sliderEditingChanged(field: sliderField, isEditing: isEditing))
+                    } onValueChanged: { newValue in
                         store.send(.sliderValueChanged(field: sliderField, value: newValue))
                     }
                 case let .stepper(stepperField):
