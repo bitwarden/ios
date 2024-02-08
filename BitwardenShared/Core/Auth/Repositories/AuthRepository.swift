@@ -599,6 +599,7 @@ extension DefaultAuthRepository: AuthRepository {
 
         try await stateService.setAccountEncryptionKeys(newEncryptionKeys)
         try await stateService.setMasterPasswordHash(updatePasswordResponse.passwordHash)
+        try await stateService.setForcePasswordResetReason(nil)
     }
 
     private func userIdOrActive(_ maybeId: String?) async throws -> String {

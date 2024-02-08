@@ -68,11 +68,11 @@ class LoginProcessorTests: BitwardenTestCase {
         subject.captchaCompleted(token: "token")
         authRepository.unlockWithPasswordResult = .success(())
         authRepository.activeAccount = .fixture()
-        waitFor(!coordinator.routes.isEmpty)
+        waitFor(!coordinator.events.isEmpty)
 
         XCTAssertEqual(authService.loginWithMasterPasswordCaptchaToken, "token")
 
-        XCTAssertEqual(coordinator.routes.last, .complete)
+        XCTAssertEqual(coordinator.events.last, .didCompleteAuth)
     }
 
     /// `captchaErrored(error:)` records an error.
@@ -151,7 +151,7 @@ class LoginProcessorTests: BitwardenTestCase {
         XCTAssertEqual(authService.loginWithMasterPasswordPassword, "Password1234!")
         XCTAssertNil(authService.loginWithMasterPasswordCaptchaToken)
 
-        XCTAssertEqual(coordinator.routes.last, .complete)
+        XCTAssertEqual(coordinator.events.last, .didCompleteAuth)
         XCTAssertFalse(coordinator.isLoadingOverlayShowing)
         XCTAssertEqual(coordinator.loadingOverlaysShown, [.init(title: Localizations.loggingIn)])
 
@@ -175,7 +175,7 @@ class LoginProcessorTests: BitwardenTestCase {
         XCTAssertEqual(authService.loginWithMasterPasswordPassword, "Password1234!")
         XCTAssertNil(authService.loginWithMasterPasswordCaptchaToken)
 
-        XCTAssertEqual(coordinator.routes.last, .updateMasterPassword)
+        XCTAssertEqual(coordinator.events.last, .didCompleteAuth)
         XCTAssertFalse(coordinator.isLoadingOverlayShowing)
         XCTAssertEqual(coordinator.loadingOverlaysShown, [.init(title: Localizations.loggingIn)])
 

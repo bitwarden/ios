@@ -5,7 +5,7 @@ extension APITestData {
     static let authRequestsSuccess = loadFromJsonBundle(resource: "AuthRequests")
     static let emptyResponse = APITestData(data: "{}".data(using: .utf8)!)
     static let identityTokenSuccess = loadFromJsonBundle(resource: "IdentityTokenSuccess")
-    static let IdentityTokenWithMasterPasswordPolicy = loadFromJsonBundle(
+    static let identityTokenWithMasterPasswordPolicy = loadFromJsonBundle(
         resource: "IdentityTokenWithMasterPasswordPolicy"
     )
     static let identityTokenSuccessTwoFactorToken = loadFromJsonBundle(resource: "IdentityTokenSuccessTwoFactorToken")

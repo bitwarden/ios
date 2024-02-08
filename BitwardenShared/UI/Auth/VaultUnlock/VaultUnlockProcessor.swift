@@ -274,7 +274,7 @@ class VaultUnlockProcessor: StateProcessor<// swiftlint:disable:this type_body_l
                 try await services.authRepository.unlockVaultWithPIN(pin: state.pin)
             }
 
-            coordinator.navigate(to: .complete)
+            await coordinator.handleEvent(.didCompleteAuth)
             state.unsuccessfulUnlockAttemptsCount = 0
             await services.stateService.setUnsuccessfulUnlockAttempts(0)
         } catch let error as InputValidationError {
@@ -308,7 +308,7 @@ class VaultUnlockProcessor: StateProcessor<// swiftlint:disable:this type_body_l
 
         do {
             try await services.authRepository.unlockVaultWithBiometrics()
-            coordinator.navigate(to: .complete)
+            await coordinator.handleEvent(.didCompleteAuth)
             state.unsuccessfulUnlockAttemptsCount = 0
             await services.stateService.setUnsuccessfulUnlockAttempts(0)
         } catch let error as BiometricsServiceError {
