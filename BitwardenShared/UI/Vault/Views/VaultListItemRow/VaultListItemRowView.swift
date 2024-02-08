@@ -49,7 +49,7 @@ struct VaultListItemRowView: View {
                                 }
                             }
 
-                            if let subTitle = store.state.item.subtitle {
+                            if let subTitle = store.state.item.subtitle, !subTitle.isEmpty {
                                 Text(subTitle)
                                     .styleGuide(.subheadline)
                                     .foregroundColor(Asset.Colors.textSecondary.swiftUIColor)
