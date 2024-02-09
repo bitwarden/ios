@@ -108,14 +108,16 @@ extension ProfileSwitcherHandler {
 private extension ProfileSwitcherHandler {
     /// Confirms that the user would like to log out of an account by presenting an alert.
     ///
-    /// - Parameter account: The profile switcher item for the account to be logged out.
+    /// - Parameter profile: The profile switcher item for the account to be logged out.
     ///
-    func confirmLogout(_ account: ProfileSwitcherItem) {
+    func confirmLogout(_ profile: ProfileSwitcherItem) {
         // Confirm logging out.
-        showAlert(.logoutConfirmation { [weak self] in
-            guard let self else { return }
-            await logout(account)
-        })
+        showAlert(
+            .logoutConfirmation(profile) { [weak self] in
+                guard let self else { return }
+                await logout(profile)
+            }
+        )
     }
 
     /// Handles a long press of an account in the profile switcher.

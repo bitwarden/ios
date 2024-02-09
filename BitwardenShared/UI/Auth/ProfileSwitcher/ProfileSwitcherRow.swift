@@ -229,7 +229,8 @@ struct ProfileSwitcherRow_Previews: PreviewProvider {
         email: "anne.account@bitwarden.com",
         isUnlocked: true,
         userId: "1",
-        userInitials: "AA"
+        userInitials: "AA",
+        webVault: ""
     )
 
     static var lockedAccount = ProfileSwitcherItem(
@@ -237,7 +238,8 @@ struct ProfileSwitcherRow_Previews: PreviewProvider {
         email: "anne.account@bitwarden.com",
         isUnlocked: false,
         userId: "2",
-        userInitials: "AA"
+        userInitials: "AA",
+        webVault: ""
     )
 
     static var previews: some View {
