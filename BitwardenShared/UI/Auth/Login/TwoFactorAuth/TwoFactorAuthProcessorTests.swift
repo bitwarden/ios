@@ -150,14 +150,34 @@ class TwoFactorAuthProcessorTests: BitwardenTestCase {
         )
     }
 
-    /// `perform(_:)` with `.continueTapped` logs in and unlocks the vault successfully.
+    /// `perform(_:)` with `.continueTapped` logs in and unlocks the vault successfully when using
+    /// a password.
     func test_perform_continueTapped_success() async {
-        subject.state.password = "password123"
+        subject.state.unlockMethod = .password("password123")
         subject.state.verificationCode = "Test"
 
         await subject.perform(.continueTapped)
 
         XCTAssertEqual(coordinator.events, [.didCompleteAuth])
+        XCTAssertEqual(authRepository.unlockVaultPassword, "password123")
+    }
+
+    /// `perform(_:)` with `.continueTapped` logs in and unlocks the vault successfully when using
+    /// login with device.
+    func test_perform_continueTapped_loginWithDevice_success() async {
+        subject.state.unlockMethod = .loginWithDevice(
+            key: "KEY",
+            masterPasswordHash: "MASTER_PASSWORD_HASH",
+            privateKey: "PRIVATE_KEY"
+        )
+        subject.state.verificationCode = "Test"
+
+        await subject.perform(.continueTapped)
+
+        XCTAssertEqual(coordinator.events, [.didCompleteAuth])
+        XCTAssertEqual(authRepository.unlockVaultFromLoginWithDeviceKey, "KEY")
+        XCTAssertEqual(authRepository.unlockVaultFromLoginWithDevicePrivateKey, "PRIVATE_KEY")
+        XCTAssertEqual(authRepository.unlockVaultFromLoginWithDeviceMasterPasswordHash, "MASTER_PASSWORD_HASH")
     }
 
     /// `perform(_:)` with `.continueTapped` handles a two-factor error correctly.

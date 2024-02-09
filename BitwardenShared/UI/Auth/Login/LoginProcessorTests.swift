@@ -251,7 +251,7 @@ class LoginProcessorTests: BitwardenTestCase {
 
         await subject.perform(.loginWithMasterPasswordPressed)
 
-        XCTAssertEqual(coordinator.routes.last, .twoFactor("", "Test", AuthMethodsData()))
+        XCTAssertEqual(coordinator.routes.last, .twoFactor("", .password("Test"), AuthMethodsData()))
         XCTAssertFalse(coordinator.isLoadingOverlayShowing)
         XCTAssertEqual(coordinator.loadingOverlaysShown, [.init(title: Localizations.loggingIn)])
     }

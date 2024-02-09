@@ -189,12 +189,8 @@ class AuthServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body_
         // Set up the mock data.
         client.result = .httpSuccess(testData: .authRequestSuccess)
         appSettingsStore.appId = "App id"
-        clientAuth.newAuthRequestResult = .success(.init(
-            privateKey: "",
-            publicKey: "",
-            fingerprint: "fingerprint",
-            accessCode: ""
-        ))
+        let authRequestResponse = AuthRequestResponse.fixture()
+        clientAuth.newAuthRequestResult = .success(authRequestResponse)
 
         // Test.
         let result = try await subject.initiateLoginWithDevice(email: "email@example.com")
@@ -202,7 +198,7 @@ class AuthServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body_
         // Verify the results.
         XCTAssertEqual(client.requests.count, 1)
         XCTAssertEqual(clientAuth.newAuthRequestEmail, "email@example.com")
-        XCTAssertEqual(result.fingerprint, "fingerprint")
+        XCTAssertEqual(result.authRequestResponse, authRequestResponse)
         XCTAssertEqual(result.requestId, LoginRequest.fixture().id)
     }
 

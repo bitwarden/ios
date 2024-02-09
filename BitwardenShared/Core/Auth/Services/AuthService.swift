@@ -85,10 +85,12 @@ protocol AuthService {
     ///
     /// - Parameters email: The user's email.
     ///
-    /// - Returns: The fingerprint associated with the new login request and the id of the login
-    ///   request, used to check for a response.
+    /// - Returns: The auth request response containing the fingerprint for the new login request
+    ///     and the id of the login request, used to check for a response.
     ///
-    func initiateLoginWithDevice(email: String) async throws -> (fingerprint: String, requestId: String)
+    func initiateLoginWithDevice(
+        email: String
+    ) async throws -> (authRequestResponse: AuthRequestResponse, requestId: String)
 
     /// Login with the response received from a login with device request.
     ///
@@ -371,7 +373,9 @@ class DefaultAuthService: AuthService { // swiftlint:disable:this type_body_leng
         )
     }
 
-    func initiateLoginWithDevice(email: String) async throws -> (fingerprint: String, requestId: String) {
+    func initiateLoginWithDevice(
+        email: String
+    ) async throws -> (authRequestResponse: AuthRequestResponse, requestId: String) {
         // Get the app's id.
         let appId = await appIdService.getOrCreateAppId()
 
@@ -386,8 +390,11 @@ class DefaultAuthService: AuthService { // swiftlint:disable:this type_body_leng
         )
         self.loginWithDeviceData = loginWithDeviceData
 
-        // Return the fingerprint and the request id.
-        return (fingerprint: loginWithDeviceData.fingerprint, requestId: loginRequest.id)
+        // Return the auth request response and the request id.
+        return (
+            authRequestResponse: loginWithDeviceData,
+            requestId: loginRequest.id
+        )
     }
 
     func loginWithDevice(
