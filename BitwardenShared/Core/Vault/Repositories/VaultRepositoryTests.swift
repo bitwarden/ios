@@ -1507,6 +1507,110 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
         )
     }
 
+    /// `vaultListPublisher(filter:)`should return `NoFolder` items as folder item, when collections are available.
+    func test_vaultListPublisher_section_noFolderItem() async throws { // swiftlint:disable:this function_body_length
+        stateService.activeAccount = .fixture()
+        let ciphers: [Cipher] = [
+            .fixture(folderId: "1", id: "1", type: .login),
+            .fixture(id: "2", login: .fixture(), type: .login),
+            .fixture(collectionIds: ["1"], favorite: false, id: "3"),
+            .fixture(deletedDate: Date(), id: "3"),
+        ]
+        let collection = Collection.fixture(id: "1")
+        let folder = Folder.fixture(id: "1")
+        cipherService.ciphersSubject.send(ciphers)
+        collectionService.collectionsSubject.send([collection])
+        folderService.foldersSubject.send([folder])
+
+        var iterator = try await subject.vaultListPublisher(filter: .allVaults).makeAsyncIterator()
+        let vaultListSections = try await iterator.next()
+        let expectedResult: [VaultListSection] = [
+            .init(
+                id: "Types",
+                items: [
+                    .fixtureGroup(id: "Types.Logins", group: .login, count: 3),
+                    .fixtureGroup(id: "Types.Cards", group: .card, count: 0),
+                    .fixtureGroup(id: "Types.Identities", group: .identity, count: 0),
+                    .fixtureGroup(id: "Types.SecureNotes", group: .secureNote, count: 0),
+                ],
+                name: Localizations.types
+            ),
+            .init(
+                id: "Folders",
+                items: [
+                    .fixtureGroup(id: "1", group: .folder(id: "1", name: ""), count: 1),
+                    .init(id: "NoFolderFolderItem", itemType: .group(.noFolder, 2)),
+                ],
+                name: Localizations.folders
+            ),
+            .init(
+                id: "Collections",
+                items: [
+                    .fixtureGroup(
+                        id: "1",
+                        group: .collection(id: "1", name: "", organizationId: ""),
+                        count: 1
+                    ),
+                ],
+                name: Localizations.collections
+            ),
+            .init(
+                id: "Trash",
+                items: [.fixtureGroup(id: "Trash", group: .trash, count: 1)],
+                name: Localizations.trash
+            ),
+        ]
+        XCTAssertEqual(
+            vaultListSections,
+            expectedResult
+        )
+    }
+
+    /// `vaultListPublisher(filter:)`should return `NoFolder` items as folder item, when there are
+    /// more than 100 ciphers without a folder assigned.
+    func test_vaultListPublisher_section_100Cipher() async throws {
+        stateService.activeAccount = .fixture()
+        var ciphers: [Cipher] = []
+        for index in 1 ... 100 {
+            ciphers.append(.fixture(id: "\(index)", type: .login))
+        }
+        let folder = Folder.fixture(id: "1")
+        cipherService.ciphersSubject.send(ciphers)
+        folderService.foldersSubject.send([folder])
+
+        var iterator = try await subject.vaultListPublisher(filter: .allVaults).makeAsyncIterator()
+        let vaultListSections = try await iterator.next()
+        let expectedResult: [VaultListSection] = [
+            .init(
+                id: "Types",
+                items: [
+                    .fixtureGroup(id: "Types.Logins", group: .login, count: 100),
+                    .fixtureGroup(id: "Types.Cards", group: .card, count: 0),
+                    .fixtureGroup(id: "Types.Identities", group: .identity, count: 0),
+                    .fixtureGroup(id: "Types.SecureNotes", group: .secureNote, count: 0),
+                ],
+                name: Localizations.types
+            ),
+            .init(
+                id: "Folders",
+                items: [
+                    .fixtureGroup(id: "1", group: .folder(id: "1", name: ""), count: 0),
+                    .init(id: "NoFolderFolderItem", itemType: .group(.noFolder, 100)),
+                ],
+                name: Localizations.folders
+            ),
+            .init(
+                id: "Trash",
+                items: [.fixtureGroup(id: "Trash", group: .trash, count: 0)],
+                name: Localizations.trash
+            ),
+        ]
+        XCTAssertEqual(
+            vaultListSections,
+            expectedResult
+        )
+    }
+
     /// `vaultListPublisher()` returns a publisher for the list of sections and items that are
     /// displayed in the vault for a vault that contains collections with the my vault filter.
     func test_vaultListPublisher_withCollections_myVault() async throws {

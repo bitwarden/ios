@@ -522,6 +522,8 @@ class DefaultVaultRepository { // swiftlint:disable:this type_body_length
             return activeCiphers.filter { $0.type == .identity }.compactMap(VaultListItem.init)
         case .login:
             return activeCiphers.filter { $0.type == .login }.compactMap(VaultListItem.init)
+        case .noFolder:
+            return activeCiphers.filter { $0.folderId == nil }.compactMap(VaultListItem.init)
         case .secureNote:
             return activeCiphers.filter { $0.type == .secureNote }.compactMap(VaultListItem.init)
         case .totp:
@@ -576,6 +578,9 @@ class DefaultVaultRepository { // swiftlint:disable:this type_body_length
         let ciphersTrashCount = ciphers.lazy.filter { $0.deletedDate != nil }.count
         let ciphersTrashItem = VaultListItem(id: "Trash", itemType: .group(.trash, ciphersTrashCount))
 
+        let noFolderListSize = 100
+        let showNoFolderCipherGroup = collections.isEmpty && ciphersNoFolder.count < noFolderListSize
+
         // Add TOTP items for premium accounts.
         var totpItems = [VaultListItem]()
         if try await doesActiveAccountHavePremium() {
@@ -592,7 +597,7 @@ class DefaultVaultRepository { // swiftlint:disable:this type_body_length
             ] : []
         }
 
-        let folderItems: [VaultListItem] = folders.compactMap { folder in
+        var folderItems: [VaultListItem] = folders.compactMap { folder in
             guard let folderId = folder.id else {
                 self.errorReporter.log(
                     error: BitwardenError.dataError("Received a folder from the API with a missing ID.")
@@ -603,6 +608,16 @@ class DefaultVaultRepository { // swiftlint:disable:this type_body_length
             return VaultListItem(
                 id: folderId,
                 itemType: .group(.folder(id: folderId, name: folder.name), cipherCount)
+            )
+        }
+
+        // Add no folder to folders item if needed.
+        if !showNoFolderCipherGroup {
+            folderItems.append(
+                VaultListItem(
+                    id: "NoFolderFolderItem",
+                    itemType: .group(.noFolder, ciphersNoFolder.count)
+                )
             )
         }
 
@@ -640,7 +655,11 @@ class DefaultVaultRepository { // swiftlint:disable:this type_body_length
             VaultListSection(id: "Favorites", items: ciphersFavorites, name: Localizations.favorites),
             VaultListSection(id: "Types", items: types, name: Localizations.types),
             VaultListSection(id: "Folders", items: folderItems, name: Localizations.folders),
-            VaultListSection(id: "NoFolder", items: ciphersNoFolder, name: Localizations.folderNone),
+            VaultListSection(
+                id: "NoFolder",
+                items: showNoFolderCipherGroup ? ciphersNoFolder : [],
+                name: Localizations.folderNone
+            ),
             VaultListSection(id: "Collections", items: collectionItems, name: Localizations.collections),
             VaultListSection(id: "Trash", items: [ciphersTrashItem], name: Localizations.trash),
         ].filter { !$0.items.isEmpty }
@@ -956,6 +975,8 @@ extension DefaultVaultRepository: VaultRepository {
                 return cipher.type == .identity
             case .login:
                 return cipher.type == .login
+            case .noFolder:
+                return cipher.folderId == nil
             case .secureNote:
                 return cipher.type == .secureNote
             case .totp:

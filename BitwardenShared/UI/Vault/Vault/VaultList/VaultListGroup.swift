@@ -30,6 +30,9 @@ public enum VaultListGroup: Equatable, Hashable {
     /// A group of ciphers within a folder.
     case folder(id: String, name: String)
 
+    /// A group of ciphers without a folder
+    case noFolder
+
     // MARK: Trash
 
     /// A group of ciphers in the trash.
@@ -68,6 +71,8 @@ extension VaultListGroup {
             return Localizations.verificationCodes
         case .trash:
             return Localizations.trash
+        case .noFolder:
+            return Localizations.folderNone
         }
     }
 
@@ -90,6 +95,8 @@ extension VaultListGroup {
             return Localizations.verificationCodes
         case .trash:
             return Localizations.trash
+        case .noFolder:
+            return Localizations.folderNone
         }
     }
 
