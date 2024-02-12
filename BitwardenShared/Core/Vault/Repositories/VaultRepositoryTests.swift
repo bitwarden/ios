@@ -1370,16 +1370,11 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
             ),
             .init(
                 id: "Folders",
-                items: [.fixtureGroup(id: "1", group: .folder(id: "1", name: ""), count: 1)],
-                name: Localizations.folders
-            ),
-            .init(
-                id: "NoFolder",
                 items: [
-                    .fixture(cipherView: .init(cipher: ciphers[1])),
-                    .fixture(cipherView: .init(cipher: ciphers[2])),
+                    .fixtureGroup(id: "1", group: .folder(id: "1", name: ""), count: 1),
+                    .init(id: "NoFolderFolderItem", itemType: .group(.noFolder, 2)),
                 ],
-                name: Localizations.folderNone
+                name: Localizations.folders
             ),
             .init(
                 id: "Collections",
@@ -1439,16 +1434,11 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
             ),
             .init(
                 id: "Folders",
-                items: [.fixtureGroup(id: "1", group: .folder(id: "1", name: ""), count: 1)],
-                name: Localizations.folders
-            ),
-            .init(
-                id: "NoFolder",
                 items: [
-                    .fixture(cipherView: .init(cipher: ciphers[1])),
-                    .fixture(cipherView: .init(cipher: ciphers[2])),
+                    .fixtureGroup(id: "1", group: .folder(id: "1", name: ""), count: 1),
+                    .init(id: "NoFolderFolderItem", itemType: .group(.noFolder, 2)),
                 ],
-                name: Localizations.folderNone
+                name: Localizations.folders
             ),
             .init(
                 id: "Collections",
@@ -1670,9 +1660,8 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
               - Group: Card (0)
               - Group: Identity (0)
               - Group: Secure note (0)
-            Section: No Folder
-              - Cipher: Apple
-              - Cipher: Figma
+            Section: Folders
+              - Group: No Folder (2)
             Section: Collections
               - Group: Design (1)
               - Group: Engineering (1)
