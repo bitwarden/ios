@@ -578,8 +578,7 @@ class DefaultVaultRepository { // swiftlint:disable:this type_body_length
         let ciphersTrashCount = ciphers.lazy.filter { $0.deletedDate != nil }.count
         let ciphersTrashItem = VaultListItem(id: "Trash", itemType: .group(.trash, ciphersTrashCount))
 
-        let noFolderListSize = 100
-        let showNoFolderCipherGroup = collections.isEmpty && ciphersNoFolder.count < noFolderListSize
+        let showNoFolderCipherGroup = collections.isEmpty && ciphersNoFolder.count < Constants.noFolderListSize
 
         // Add TOTP items for premium accounts.
         var totpItems = [VaultListItem]()
