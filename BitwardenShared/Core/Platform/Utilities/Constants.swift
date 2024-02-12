@@ -58,6 +58,8 @@ enum Constants {
     /// The minimum number of minutes before allowing the vault to sync again.
     static let minimumSyncInterval: TimeInterval = 30 * 60 // 30 minutes
 
+    /// The minimum number of cipher items without folder
+    static let noFolderListSize = 100
     /// The default number of KDF iterations to perform.
     static let pbkdf2Iterations = 600_000
 
