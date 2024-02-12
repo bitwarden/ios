@@ -69,12 +69,12 @@ public enum AuthRoute: Equatable {
     ///
     /// - Parameters:
     ///   - email: The user's email address.
-    ///   - password: The password, if the login method was password.
+    ///   - unlockMethod: The method used to unlock the vault after two-factor completes successfully.
     ///   - authMethodsData: The data on the available auth methods.
     ///
     case twoFactor(
         _ email: String,
-        _ password: String?,
+        _ unlockMethod: TwoFactorUnlockMethod?,
         _ authMethodsData: AuthMethodsData
     )
 

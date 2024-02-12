@@ -146,8 +146,8 @@ final class AuthCoordinator: NSObject, // swiftlint:disable:this type_body_lengt
                 state: state,
                 url: url
             )
-        case let .twoFactor(email, password, authMethodsData):
-            showTwoFactorAuth(email: email, password: password, authMethodsData: authMethodsData)
+        case let .twoFactor(email, unlockMethod, authMethodsData):
+            showTwoFactorAuth(email: email, unlockMethod: unlockMethod, authMethodsData: authMethodsData)
         case let .vaultUnlock(
             account,
             animated,
@@ -405,13 +405,20 @@ final class AuthCoordinator: NSObject, // swiftlint:disable:this type_body_lengt
 
     /// Show the two factor authentication view.
     ///
-    /// - Parameter data: The data required for the two-factor flow.
+    /// - Parameters:
+    ///   - email: The user's email.
+    ///   - unlockMethod: The method used to unlock the vault after two-factor completes successfully.
+    ///   - authMethodsData: The data required for the two-factor flow.
     ///
-    private func showTwoFactorAuth(email: String, password: String?, authMethodsData: AuthMethodsData) {
+    private func showTwoFactorAuth(
+        email: String,
+        unlockMethod: TwoFactorUnlockMethod?,
+        authMethodsData: AuthMethodsData
+    ) {
         let state = TwoFactorAuthState(
             authMethodsData: authMethodsData,
             email: email,
-            password: password
+            unlockMethod: unlockMethod
         )
         let processor = TwoFactorAuthProcessor(
             coordinator: asAnyCoordinator(),

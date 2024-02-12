@@ -149,7 +149,9 @@ class LoginProcessor: StateProcessor<LoginState, LoginAction, LoginEffect> {
             case let .captchaRequired(hCaptchaSiteCode):
                 launchCaptchaFlow(with: hCaptchaSiteCode)
             case let .twoFactorRequired(authMethodsData, _, _):
-                coordinator.navigate(to: .twoFactor(state.username, state.masterPassword, authMethodsData))
+                coordinator.navigate(
+                    to: .twoFactor(state.username, .password(state.masterPassword), authMethodsData)
+                )
             }
         } catch {
             coordinator.showAlert(.networkResponseError(error))

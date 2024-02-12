@@ -128,9 +128,9 @@ final class TwoFactorAuthProcessor: StateProcessor<TwoFactorAuthState, TwoFactor
                 captchaToken: captchaToken
             )
 
-            // Try to unlock the vault with the master password, if it's known.
-            if let password = state.password {
-                try await services.authRepository.unlockVaultWithPassword(password: password)
+            // Try to unlock the vault with the unlock method.
+            if let unlockMethod = state.unlockMethod {
+                try await unlockVault(unlockMethod: unlockMethod)
                 coordinator.hideLoadingOverlay()
                 await coordinator.handleEvent(.didCompleteAuth)
             } else {
@@ -206,6 +206,23 @@ final class TwoFactorAuthProcessor: StateProcessor<TwoFactorAuthState, TwoFactor
            let emailData = state.authMethodsData["\(TwoFactorAuthMethod.email.rawValue)"],
            let emailToDisplay = emailData?["Email"] {
             state.displayEmail = emailToDisplay ?? state.email
+        }
+    }
+
+    /// Attempts to unlock the user's vault with the specified unlock method.
+    ///
+    /// - Parameter unlockMethod: The method used to unlock the vault.
+    ///
+    private func unlockVault(unlockMethod: TwoFactorUnlockMethod) async throws {
+        switch unlockMethod {
+        case let .password(password):
+            try await services.authRepository.unlockVaultWithPassword(password: password)
+        case let .loginWithDevice(key, masterPasswordHash, privateKey):
+            try await services.authRepository.unlockVaultFromLoginWithDevice(
+                privateKey: privateKey,
+                key: key,
+                masterPasswordHash: masterPasswordHash
+            )
         }
     }
 }
