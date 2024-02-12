@@ -242,6 +242,7 @@ class LandingProcessor: StateProcessor<LandingState, LandingAction, LandingEffec
         guard !urls.isEmpty else { return }
         await services.environmentService.setPreAuthURLs(urls: urls)
         state.region = region
+        state.toast = Toast(text: Localizations.environmentSaved)
     }
 
     /// Updates the value of `rememberedEmail` in the app settings store with the `email` value in `state`.

@@ -353,7 +353,9 @@ final class AuthCoordinator: NSObject, // swiftlint:disable:this type_body_lengt
         let processor = SelfHostedProcessor(
             coordinator: asAnyCoordinator(),
             delegate: delegate,
-            state: SelfHostedState()
+            state: SelfHostedState(
+                serverUrl: services.appSettingsStore.preAuthEnvironmentUrls?.base?.sanitized.description ?? ""
+            )
         )
         let view = SelfHostedView(store: Store(processor: processor))
         let navController = UINavigationController(rootViewController: UIHostingController(rootView: view))
