@@ -16,14 +16,16 @@ extension ProfileSwitcherItem {
         email: String = "",
         isUnlocked: Bool = false,
         userId: String = UUID().uuidString,
-        userInitials: String = ".."
+        userInitials: String = "..",
+        webVault: String = "vault.bitwarden.com"
     ) -> ProfileSwitcherItem {
         ProfileSwitcherItem(
             color: color,
             email: email,
             isUnlocked: isUnlocked,
             userId: userId,
-            userInitials: userInitials
+            userInitials: userInitials,
+            webVault: webVault
         )
     }
 }
@@ -52,6 +54,7 @@ extension ProfileSwitcherState {
             ),
         ],
         activeAccountId: ProfileSwitcherItem.anneAccount.userId,
+        allowLockAndLogout: true,
         isVisible: true
     )
 
@@ -84,6 +87,7 @@ extension ProfileSwitcherState {
             ),
         ],
         activeAccountId: ProfileSwitcherItem.anneAccount.userId,
+        allowLockAndLogout: true,
         isVisible: true
     )
 }

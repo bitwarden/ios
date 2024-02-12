@@ -20,6 +20,7 @@ class VaultUnlockViewTests: BitwardenTestCase {
                 profileSwitcherState: .init(
                     accounts: [],
                     activeAccountId: nil,
+                    allowLockAndLogout: false,
                     isVisible: false
                 ),
                 unlockMethod: .password,
@@ -64,8 +65,8 @@ class VaultUnlockViewTests: BitwardenTestCase {
     }
 
     /// Tapping the options button in the navigation bar dispatches the `.morePressed` action.
-    func test_moreButton_tap() throws {
-        let button = try subject.inspect().find(button: Localizations.options)
+    func test_optionsButton_logOut_tap() throws {
+        let button = try subject.inspect().find(button: Localizations.logOut)
         try button.tap()
         XCTAssertEqual(processor.dispatchedActions.last, .morePressed)
     }
@@ -171,6 +172,7 @@ class VaultUnlockViewTests: BitwardenTestCase {
                 account,
             ],
             activeAccountId: account.userId,
+            allowLockAndLogout: true,
             isVisible: true
         )
         assertSnapshot(matching: subject, as: .defaultPortrait)
@@ -199,6 +201,7 @@ class VaultUnlockViewTests: BitwardenTestCase {
                 account,
             ],
             activeAccountId: account.userId,
+            allowLockAndLogout: true,
             isVisible: false
         )
         assertSnapshot(matching: subject, as: .defaultPortrait)

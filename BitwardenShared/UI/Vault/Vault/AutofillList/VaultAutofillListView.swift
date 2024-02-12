@@ -33,7 +33,7 @@ struct VaultAutofillListView: View {
                 ProfileSwitcherToolbarView(
                     store: store.child(
                         state: \.profileSwitcherState,
-                        mapAction: VaultAutofillListAction.profileSwitcherAction,
+                        mapAction: VaultAutofillListAction.profileSwitcher,
                         mapEffect: nil
                     )
                 )
@@ -56,7 +56,7 @@ struct VaultAutofillListView: View {
         ProfileSwitcherView(
             store: store.child(
                 state: \.profileSwitcherState,
-                mapAction: VaultAutofillListAction.profileSwitcherAction,
+                mapAction: VaultAutofillListAction.profileSwitcher,
                 mapEffect: nil
             )
         )

@@ -6,12 +6,12 @@ class AlertAuthTests: BitwardenTestCase {
     /// `accountOptions(_:lockAction:logoutAction:)`
     func test_accountOptions() {
         let subject = Alert.accountOptions(
-            .fixture(email: "test@example.com", isUnlocked: true),
+            .fixture(email: "test@example.com", isUnlocked: true, webVault: "secureVault.example.com"),
             lockAction: {},
             logoutAction: {}
         )
 
-        XCTAssertEqual(subject.title, "test@example.com")
+        XCTAssertEqual(subject.title, "test@example.com\nsecureVault.example.com")
         XCTAssertNil(subject.message)
         XCTAssertEqual(subject.preferredStyle, .actionSheet)
         XCTAssertEqual(subject.alertActions.count, 3)

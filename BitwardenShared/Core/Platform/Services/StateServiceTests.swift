@@ -1098,6 +1098,23 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
         XCTAssertEqual(active, account1)
     }
 
+    /// `setForcePasswordResetReason(_:)` sets the force password reset reason.
+    func test_setForcePasswordResetReason() async throws {
+        await subject.addAccount(.fixture(profile: .fixture(userId: "1")))
+        await subject.addAccount(.fixture(profile: .fixture(userId: "2")))
+
+        try await subject.setForcePasswordResetReason(.adminForcePasswordReset)
+        XCTAssertNil(appSettingsStore.state?.accounts["1"]?.profile.forcePasswordResetReason)
+        XCTAssertEqual(
+            appSettingsStore.state?.accounts["2"]?.profile.forcePasswordResetReason,
+            .adminForcePasswordReset
+        )
+
+        try await subject.setForcePasswordResetReason(nil)
+        XCTAssertNil(appSettingsStore.state?.accounts["1"]?.profile.forcePasswordResetReason)
+        XCTAssertNil(appSettingsStore.state?.accounts["2"]?.profile.forcePasswordResetReason)
+    }
+
     /// `setLastActiveTime(userId:)` sets the user's last active time.
     func test_setLastActiveTime() async throws {
         await subject.addAccount(.fixture(profile: .fixture(userId: "1")))

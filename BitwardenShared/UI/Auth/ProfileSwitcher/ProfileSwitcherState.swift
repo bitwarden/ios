@@ -23,6 +23,9 @@ struct ProfileSwitcherState: Equatable {
         activeAccountProfile?.userInitials ?? ".."
     }
 
+    /// Should the view allow lock & logout actions
+    var allowLockAndLogout: Bool
+
     /// A list of alternate accounts/profiles.
     var alternateAccounts: [ProfileSwitcherItem] {
         accounts.filter { $0.userId != activeAccountId }
@@ -47,24 +50,27 @@ struct ProfileSwitcherState: Equatable {
 
     // MARK: Initialization
 
-    /// Initialize the `ProfileSwitcherState`
+    /// Initialize the `ProfileSwitcherState`.
     ///
     /// - Parameters:
-    ///   - alternateAccounts: A list of alternate `ProfileSwitcherItem` profiles
-    ///   - currentAccountProfile: The current `ProfileSwitcherItem` profile
-    ///   - isVisible: The visibility of the view
-    ///   - scrollOffset: The offset of the scroll view
-    ///   - shouldAlwaysHideAddAccount: Overrides visibility of the add account row
+    ///   - alternateAccounts: A list of alternate `ProfileSwitcherItem` profiles.
+    ///   - allowLockAndLogout: Should the view be allowed to lock and logout accounts?
+    ///   - currentAccountProfile: The current `ProfileSwitcherItem` profile.
+    ///   - isVisible: The visibility of the view.
+    ///   - scrollOffset: The offset of the scroll view.
+    ///   - shouldAlwaysHideAddAccount: Overrides visibility of the add account row.
     ///
     init(
         accounts: [ProfileSwitcherItem],
         activeAccountId: String?,
+        allowLockAndLogout: Bool,
         isVisible: Bool,
         scrollOffset: CGPoint = .zero,
         shouldAlwaysHideAddAccount: Bool = false
     ) {
         self.accounts = accounts
         self.activeAccountId = activeAccountId
+        self.allowLockAndLogout = allowLockAndLogout
         self.isVisible = isVisible
         self.scrollOffset = scrollOffset
         self.shouldAlwaysHideAddAccount = shouldAlwaysHideAddAccount
@@ -72,10 +78,11 @@ struct ProfileSwitcherState: Equatable {
 
     // MARK: Static Functions
 
-    static func empty(shouldAlwaysHideAddAccount: Bool = false) -> Self {
+    static func empty(allowLockAndLogout: Bool = false, shouldAlwaysHideAddAccount: Bool = false) -> Self {
         ProfileSwitcherState(
             accounts: [],
             activeAccountId: nil,
+            allowLockAndLogout: allowLockAndLogout,
             isVisible: false,
             shouldAlwaysHideAddAccount: shouldAlwaysHideAddAccount
         )

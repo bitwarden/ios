@@ -87,8 +87,6 @@ class LoginProcessor: StateProcessor<LoginState, LoginAction, LoginEffect> {
             coordinator.navigate(to: .loginWithDevice(email: state.username))
         case let .masterPasswordChanged(newValue):
             state.masterPassword = newValue
-        case .morePressed:
-            coordinator.navigate(to: .loginOptions)
         case .notYouPressed:
             coordinator.navigate(to: .landing)
         case .revealMasterPasswordFieldPressed:
@@ -141,14 +139,9 @@ class LoginProcessor: StateProcessor<LoginState, LoginAction, LoginEffect> {
 
             // Unlock the vault.
             try await services.authRepository.unlockVaultWithPassword(password: state.masterPassword)
-            let account = try await services.authRepository.getAccount()
             // Complete the login flow.
             coordinator.hideLoadingOverlay()
-            if account.profile.forcePasswordResetReason != nil {
-                coordinator.navigate(to: .updateMasterPassword)
-            } else {
-                coordinator.navigate(to: .complete)
-            }
+            await coordinator.handleEvent(.didCompleteAuth)
         } catch let error as InputValidationError {
             coordinator.showAlert(.inputValidationAlert(error: error))
         } catch let error as IdentityTokenRequestError {

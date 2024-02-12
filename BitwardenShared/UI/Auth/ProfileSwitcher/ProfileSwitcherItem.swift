@@ -11,7 +11,8 @@ struct ProfileSwitcherItem: Equatable, Hashable {
             email: "",
             isUnlocked: false,
             userId: "",
-            userInitials: ".."
+            userInitials: "..",
+            webVault: ""
         )
     }
 
@@ -29,4 +30,7 @@ struct ProfileSwitcherItem: Equatable, Hashable {
 
     /// The user's initials.
     var userInitials: String
+
+    /// The account's email.
+    var webVault: String
 }

@@ -93,6 +93,7 @@ class MockAuthRepository: AuthRepository {
     }
 
     func getProfilesState(
+        allowLockAndLogout: Bool,
         isVisible: Bool,
         shouldAlwaysHideAddAccount: Bool
     ) async -> BitwardenShared.ProfileSwitcherState {
@@ -100,6 +101,7 @@ class MockAuthRepository: AuthRepository {
             return ProfileSwitcherState(
                 accounts: profileSwitcherState.accounts,
                 activeAccountId: profileSwitcherState.activeAccountId,
+                allowLockAndLogout: allowLockAndLogout,
                 isVisible: isVisible,
                 shouldAlwaysHideAddAccount: shouldAlwaysHideAddAccount
             )
@@ -158,6 +160,15 @@ class MockAuthRepository: AuthRepository {
     func setPins(_ pin: String, requirePasswordAfterRestart _: Bool) async throws {
         encryptedPin = pin
         pinProtectedUserKey = pin
+    }
+
+    func sessionTimeoutValue(userId: String?) async throws -> BitwardenShared.SessionTimeoutValue {
+        guard let value = try vaultTimeout[unwrapUserId(userId)] else {
+            throw (userId == nil)
+                ? StateServiceError.noActiveAccount
+                : StateServiceError.noAccounts
+        }
+        return value
     }
 
     func setVaultTimeout(value: BitwardenShared.SessionTimeoutValue, userId: String?) async throws {

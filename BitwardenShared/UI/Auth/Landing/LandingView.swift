@@ -39,7 +39,7 @@ struct LandingView: View {
                     state.profileSwitcherState
                 },
                 mapAction: { action in
-                    .profileSwitcherAction(action)
+                    .profileSwitcher(action)
                 },
                 mapEffect: nil
             )
@@ -54,7 +54,7 @@ struct LandingView: View {
                     mainState.profileSwitcherState
                 },
                 mapAction: { action in
-                    .profileSwitcherAction(action)
+                    .profileSwitcher(action)
                 },
                 mapEffect: { profileEffect in
                     .profileSwitcher(profileEffect)
@@ -185,10 +185,12 @@ struct LandingView_Previews: PreviewProvider {
                                         email: "max.protecc@bitwarden.com",
                                         isUnlocked: false,
                                         userId: "123",
-                                        userInitials: "MP"
+                                        userInitials: "MP",
+                                        webVault: ""
                                     ),
                                 ],
                                 activeAccountId: "123",
+                                allowLockAndLogout: true,
                                 isVisible: false
                             )
                         )
@@ -211,10 +213,12 @@ struct LandingView_Previews: PreviewProvider {
                                         email: "max.protecc@bitwarden.com",
                                         isUnlocked: false,
                                         userId: "123",
-                                        userInitials: "MP"
+                                        userInitials: "MP",
+                                        webVault: ""
                                     ),
                                 ],
                                 activeAccountId: "123",
+                                allowLockAndLogout: true,
                                 isVisible: true
                             )
                         )

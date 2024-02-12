@@ -28,6 +28,7 @@ class MockStateService: StateService { // swiftlint:disable:this type_body_lengt
     var defaultUriMatchTypeByUserId = [String: UriMatchType]()
     var disableAutoTotpCopyByUserId = [String: Bool]()
     var environmentUrls = [String: EnvironmentUrlData]()
+    var forcePasswordResetReason = [String: ForcePasswordResetReason]()
     var lastActiveTime = [String: Date]()
     var loginRequest: LoginRequestNotification?
     var getAccountEncryptionKeysError: Error?
@@ -309,6 +310,11 @@ class MockStateService: StateService { // swiftlint:disable:this type_body_lengt
     func setEnvironmentUrls(_ environmentUrls: EnvironmentUrlData, userId: String?) async throws {
         let userId = try unwrapUserId(userId)
         self.environmentUrls[userId] = environmentUrls
+    }
+
+    func setForcePasswordResetReason(_ reason: ForcePasswordResetReason?, userId: String?) async throws {
+        let userId = try unwrapUserId(userId)
+        forcePasswordResetReason[userId] = reason
     }
 
     func setIsAuthenticated() {

@@ -83,14 +83,23 @@ protocol AuthRepository: AnyObject {
 
     /// Gets the profiles state for a user.
     /// - Parameters:
+    ///   - allowLockAndLogout: Should the view allow lock & logout?
     ///   - isVisible: Should the state be visible?
     ///   - shouldAlwaysHideAddAccount: Should the state always hide add account?
     /// - Returns: A ProfileSwitcherState.
     ///
     func getProfilesState(
+        allowLockAndLogout: Bool,
         isVisible: Bool,
         shouldAlwaysHideAddAccount: Bool
     ) async -> ProfileSwitcherState
+
+    /// Gets the `SessionTimeoutValue` for a user.
+    ///
+    ///  - Parameter userId: The userId of the account.
+    ///     Defaults to the active user if nil.
+    ///
+    func sessionTimeoutValue(userId: String?) async throws -> SessionTimeoutValue
 
     /// Sets the encrypted pin and the pin protected user key.
     ///
@@ -196,6 +205,14 @@ extension AuthRepository {
     ///
     func logout() async throws {
         try await logout(userId: nil)
+    }
+
+    /// Gets the `SessionTimeoutValue` for the active user.
+    ///
+    /// - Returns: The session timeout value.
+    ///
+    func sessionTimeoutValue() async throws -> SessionTimeoutValue {
+        try await sessionTimeoutValue(userId: nil)
     }
 
     /// Sets the SessionTimeoutValue upon the app being backgrounded.
@@ -325,6 +342,7 @@ extension DefaultAuthRepository: AuthRepository {
     }
 
     func getProfilesState(
+        allowLockAndLogout: Bool,
         isVisible: Bool,
         shouldAlwaysHideAddAccount: Bool
     ) async -> ProfileSwitcherState {
@@ -334,6 +352,7 @@ extension DefaultAuthRepository: AuthRepository {
         return ProfileSwitcherState(
             accounts: accounts,
             activeAccountId: activeAccount?.userId,
+            allowLockAndLogout: allowLockAndLogout,
             isVisible: isVisible,
             shouldAlwaysHideAddAccount: shouldAlwaysHideAddAccount
         )
@@ -370,6 +389,10 @@ extension DefaultAuthRepository: AuthRepository {
 
     func passwordStrength(email: String, password: String) async -> UInt8 {
         await clientAuth.passwordStrength(password: password, email: email, additionalInputs: [])
+    }
+
+    func sessionTimeoutValue(userId: String?) async throws -> SessionTimeoutValue {
+        try await vaultTimeoutService.sessionTimeoutValue(userId: userId)
     }
 
     func setActiveAccount(userId: String) async throws -> Account {
@@ -507,7 +530,8 @@ extension DefaultAuthRepository: AuthRepository {
             isUnlocked: displayAsUnlocked,
             userId: account.profile.userId,
             userInitials: account.initials()
-                ?? ".."
+                ?? "..",
+            webVault: account.settings.environmentUrls?.webVaultHost ?? ""
         )
     }
 
@@ -612,6 +636,7 @@ extension DefaultAuthRepository: AuthRepository {
 
         try await stateService.setAccountEncryptionKeys(newEncryptionKeys)
         try await stateService.setMasterPasswordHash(updatePasswordResponse.passwordHash)
+        try await stateService.setForcePasswordResetReason(nil)
     }
 
     private func userIdOrActive(_ maybeId: String?) async throws -> String {

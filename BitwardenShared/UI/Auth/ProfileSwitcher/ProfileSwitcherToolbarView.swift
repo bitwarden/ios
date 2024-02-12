@@ -50,7 +50,8 @@ struct ProfileSwitcherToolbarView_Previews: PreviewProvider {
         email: "anne.account@bitwarden.com",
         isUnlocked: true,
         userId: "1",
-        userInitials: "AA"
+        userInitials: "AA",
+        webVault: ""
     )
 
     static var previews: some View {
@@ -80,6 +81,7 @@ struct ProfileSwitcherToolbarView_Previews: PreviewProvider {
                                     state: .init(
                                         accounts: [selectedAccount],
                                         activeAccountId: nil,
+                                        allowLockAndLogout: true,
                                         isVisible: false
                                     )
                                 )
@@ -102,6 +104,7 @@ struct ProfileSwitcherToolbarView_Previews: PreviewProvider {
                                             selectedAccount,
                                         ],
                                         activeAccountId: selectedAccount.userId,
+                                        allowLockAndLogout: true,
                                         isVisible: false
                                     )
                                 )
@@ -127,10 +130,12 @@ struct ProfileSwitcherToolbarView_Previews: PreviewProvider {
                                                 email: "bonus.bridge@bitwarde.com",
                                                 isUnlocked: true,
                                                 userId: "123",
-                                                userInitials: "BB"
+                                                userInitials: "BB",
+                                                webVault: ""
                                             ),
                                         ],
                                         activeAccountId: "123",
+                                        allowLockAndLogout: true,
                                         isVisible: false
                                     )
                                 )

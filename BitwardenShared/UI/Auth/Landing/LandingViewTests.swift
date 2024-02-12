@@ -115,6 +115,7 @@ class LandingViewTests: BitwardenTestCase {
                 account,
             ],
             activeAccountId: account.userId,
+            allowLockAndLogout: true,
             isVisible: true
         )
         assertSnapshot(matching: subject, as: .defaultPortrait)
@@ -131,6 +132,7 @@ class LandingViewTests: BitwardenTestCase {
                 account,
             ],
             activeAccountId: account.userId,
+            allowLockAndLogout: true,
             isVisible: false
         )
         assertSnapshot(matching: subject, as: .defaultPortrait)

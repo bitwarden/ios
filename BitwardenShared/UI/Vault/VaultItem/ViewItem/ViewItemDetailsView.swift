@@ -231,7 +231,7 @@ struct ViewItemDetailsView: View {
                         .accessibilityLabel(Localizations.launch)
 
                         Button {
-                            store.send(.copyPressed(value: uri.uri))
+                            store.send(.copyPressed(value: uri.uri, field: .uri))
                         } label: {
                             Asset.Images.copy.swiftUIImage
                                 .resizable()

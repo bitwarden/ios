@@ -16,6 +16,7 @@ final class ProfileSwitcherToolbarViewTests: BitwardenTestCase {
         let state = ProfileSwitcherState(
             accounts: [account],
             activeAccountId: account.userId,
+            allowLockAndLogout: true,
             isVisible: true
         )
         processor = MockProcessor(state: state)
@@ -51,6 +52,7 @@ final class ProfileSwitcherToolbarViewTests: BitwardenTestCase {
         processor.state = .init(
             accounts: [ProfileSwitcherItem.anneAccount],
             activeAccountId: nil,
+            allowLockAndLogout: true,
             isVisible: true
         )
         assertSnapshot(matching: subject, as: .defaultPortrait)
@@ -69,10 +71,12 @@ final class ProfileSwitcherToolbarViewTests: BitwardenTestCase {
                     email: "",
                     isUnlocked: true,
                     userId: "123",
-                    userInitials: "OW"
+                    userInitials: "OW",
+                    webVault: ""
                 ),
             ],
             activeAccountId: "123",
+            allowLockAndLogout: true,
             isVisible: true
         )
         assertSnapshot(matching: subject, as: .defaultPortrait)

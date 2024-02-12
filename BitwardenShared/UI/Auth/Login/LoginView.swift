@@ -30,9 +30,9 @@ struct LoginView: View {
         .navigationBarTitleDisplayMode(.inline)
         .navigationBarBackButtonHidden(true)
         .toolbar {
-            ToolbarItem(placement: .navigationBarTrailing) {
-                ToolbarButton(asset: Asset.Images.verticalKabob, label: Localizations.options) {
-                    store.send(.morePressed)
+            optionsToolbarMenu {
+                Button(Localizations.getMasterPasswordwordHint) {
+                    store.send(.getMasterPasswordHintPressed)
                 }
             }
         }

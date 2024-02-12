@@ -58,10 +58,9 @@ struct ViewItemView: View {
                     )
                 )
 
-                ToolbarButton(asset: Asset.Images.cancel, label: Localizations.close) {
+                closeToolbarButton {
                     store.send(.dismissPressed)
                 }
-                .accessibilityIdentifier("CLOSE")
             }
         }
         .task {
@@ -97,15 +96,13 @@ struct ViewItemView: View {
         .toolbar {
             ToolbarItem(placement: .navigationBarLeading) {
                 if state.isSoftDeleted {
-                    AsyncButton(Localizations.restore) {
+                    toolbarButton(Localizations.restore) {
                         await store.perform(.restorePressed)
                     }
-                    .buttonStyle(.toolbar)
                 } else {
-                    Button(Localizations.edit) {
+                    toolbarButton(Localizations.edit) {
                         store.send(.editPressed)
                     }
-                    .buttonStyle(.toolbar)
                 }
             }
         }

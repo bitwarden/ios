@@ -446,9 +446,7 @@ class DefaultAuthService: AuthService { // swiftlint:disable:this type_body_leng
             )
         }
         if try await requirePasswordChange(email: username, masterPassword: masterPassword, policy: policy) {
-            var account = try await stateService.getActiveAccount()
-            account.profile.forcePasswordResetReason = .weakMasterPasswordOnLogin
-            await stateService.addAccount(account)
+            try await stateService.setForcePasswordResetReason(.weakMasterPasswordOnLogin)
         }
     }
 
