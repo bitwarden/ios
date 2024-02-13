@@ -218,9 +218,7 @@ struct ViewItemDetailsView: View {
             SectionView(Localizations.urIs) {
                 ForEach(store.state.loginState.uris, id: \.self) { uri in
                     BitwardenTextValueField(title: Localizations.uri, value: uri.uri) {
-                        if uri.uri.hasPrefix("https://") ||
-                            uri.uri.hasPrefix("http://") ||
-                            uri.uri.hasSuffix(".com") {
+                        if uri.uri.contains(".com") {
                             Button {
                                 guard let url = URL(string: uri.uri) else {
                                     return
