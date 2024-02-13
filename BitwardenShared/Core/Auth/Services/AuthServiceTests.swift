@@ -370,7 +370,7 @@ class AuthServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body_
         systemDevice.modelIdentifier = "Model id"
 
         // Attempt to login.
-        let authMethodsData = ["1": ["Email": "sh***@example.com"]]
+        let authMethodsData = AuthMethodsData.fixture()
         await assertAsyncThrows(
             error: IdentityTokenRequestError.twoFactorRequired(
                 authMethodsData,
@@ -452,7 +452,7 @@ class AuthServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body_
         systemDevice.modelIdentifier = "Model id"
 
         // First login with the master password so that the request will be saved.
-        let authMethodsData = ["1": ["Email": "sh***@example.com"]]
+        let authMethodsData = AuthMethodsData.fixture()
         await assertAsyncThrows(
             error: IdentityTokenRequestError.twoFactorRequired(
                 authMethodsData,
@@ -579,7 +579,7 @@ class AuthServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body_
         systemDevice.modelIdentifier = "Model id"
 
         // First login with the master password so that the resend email request will be saved.
-        let authMethodsData = ["1": ["Email": "sh***@example.com"]]
+        let authMethodsData = AuthMethodsData.fixture()
         await assertAsyncThrows(
             error: IdentityTokenRequestError.twoFactorRequired(
                 authMethodsData,

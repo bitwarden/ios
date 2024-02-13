@@ -4,6 +4,8 @@ import Foundation
 
 /// The state used to present the `TwoFactorAuthView`.
 struct TwoFactorAuthState: Equatable {
+    // MARK: Properties
+
     /// The selected authenticator method.
     var authMethod: TwoFactorAuthMethod = .email
 
@@ -39,4 +41,16 @@ struct TwoFactorAuthState: Equatable {
 
     /// The verification code text.
     var verificationCode = ""
+
+    // MARK: Computed Properties
+
+    /// The image asset to display for the auth method.
+    var detailImageAsset: ImageAsset? {
+        switch authMethod {
+        case .yubiKey:
+            Asset.Images.yubikey
+        default:
+            nil
+        }
+    }
 }

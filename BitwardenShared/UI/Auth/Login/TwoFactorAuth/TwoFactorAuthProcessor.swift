@@ -193,6 +193,7 @@ final class TwoFactorAuthProcessor: StateProcessor<TwoFactorAuthState, TwoFactor
         var availableMethods = state
             .authMethodsData
             .keys
+            .sorted()
             .compactMap(TwoFactorAuthMethod.init)
         availableMethods.append(.recoveryCode)
         state.availableAuthMethods = availableMethods
@@ -205,7 +206,7 @@ final class TwoFactorAuthProcessor: StateProcessor<TwoFactorAuthState, TwoFactor
         if availableMethods.contains(.email),
            let emailData = state.authMethodsData["\(TwoFactorAuthMethod.email.rawValue)"],
            let emailToDisplay = emailData?["Email"] {
-            state.displayEmail = emailToDisplay ?? state.email
+            state.displayEmail = emailToDisplay?.stringValue ?? state.email
         }
     }
 

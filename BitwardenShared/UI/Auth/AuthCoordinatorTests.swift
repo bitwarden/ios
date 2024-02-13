@@ -243,7 +243,7 @@ class AuthCoordinatorTests: BitwardenTestCase {
 
     /// `navigate(to:)` with `.twoFactor` shows the two factor auth view.
     func test_navigate_twoFactor() throws {
-        subject.navigate(to: .twoFactor("", .password(""), ["": ["": ""]]))
+        subject.navigate(to: .twoFactor("", .password(""), ["": ["": .string("")]]))
 
         XCTAssertEqual(stackNavigator.actions.last?.type, .presented)
         let navigationController = try XCTUnwrap(stackNavigator.actions.last?.view as? UINavigationController)

@@ -1,5 +1,14 @@
 @testable import BitwardenShared
 
+extension AuthMethodsData {
+    static func fixture() -> AuthMethodsData {
+        [
+            "1": ["Email": .string("sh***@example.com")],
+            "3": ["Nfc": .bool(true)],
+        ]
+    }
+}
+
 extension IdentityTokenResponseModel {
     static func fixture(
         forcePasswordReset: Bool = false,

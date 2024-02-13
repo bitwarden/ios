@@ -40,6 +40,8 @@ enum TwoFactorAuthMethod: Int {
             Localizations.email
         case .recoveryCode:
             Localizations.recoveryCodeTitle
+        case .yubiKey:
+            Localizations.yubiKeyTitle
         default:
             ""
         }
@@ -86,6 +88,8 @@ enum TwoFactorAuthMethod: Int {
             Localizations.enterVerificationCodeApp
         case .email:
             Localizations.enterVerificationCodeEmail(email ?? "")
+        case .yubiKey:
+            Localizations.yubiKeyInstructionIos
         default:
             ""
         }

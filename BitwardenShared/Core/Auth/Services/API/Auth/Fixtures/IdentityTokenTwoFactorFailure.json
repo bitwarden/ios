@@ -1,14 +1,14 @@
 {
-    "error": "invalid_grant",
-    "error_description": "Two-factor required.",
-    "TwoFactorProviders2":
-    {
-        "1":
-        {
-            "Email":
-            "sh***@example.com"
-        }
+  "error": "invalid_grant",
+  "error_description": "Two-factor required.",
+  "TwoFactorProviders2": {
+    "1": {
+      "Email": "sh***@example.com"
     },
-    "SsoEmail2faSessionToken": "exampleToken",
-    "CaptchaBypassToken": "BWCaptchaBypass_ABCXYZ"
+    "3": {
+      "Nfc": true
+    }
+  },
+  "SsoEmail2faSessionToken": "exampleToken",
+  "CaptchaBypassToken": "BWCaptchaBypass_ABCXYZ"
 }
