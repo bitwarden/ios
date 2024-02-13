@@ -545,6 +545,9 @@ extension DefaultAuthRepository: AuthRepository {
         case .decryptedKey:
             // No-op: nothing extra to do for decryptedKey.
             break
+        case .deviceKey:
+            // No-op: nothing extra (for now).
+            break
         case let .password(password, _):
             let hashedPassword = try await authService.hashPassword(
                 password: password,

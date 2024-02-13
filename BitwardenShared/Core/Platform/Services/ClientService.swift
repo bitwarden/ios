@@ -12,6 +12,10 @@ protocol ClientService {
     ///
     func clientCrypto() -> ClientCryptoProtocol
 
+    /// Returns a `ClientExportersProtocol` for vault export data tasks.
+    ///
+    func clientExporters() -> ClientExportersProtocol
+
     /// Returns a `ClientGeneratorsProtocol` for generator data tasks.
     ///
     func clientGenerator() -> ClientGeneratorsProtocol
@@ -54,6 +58,10 @@ class DefaultClientService: ClientService {
 
     func clientCrypto() -> ClientCryptoProtocol {
         client.crypto()
+    }
+
+    func clientExporters() -> ClientExportersProtocol {
+        client.exporters()
     }
 
     func clientGenerator() -> ClientGeneratorsProtocol {

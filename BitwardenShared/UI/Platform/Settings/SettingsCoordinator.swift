@@ -51,7 +51,9 @@ final class SettingsCoordinator: Coordinator, HasStackNavigator { // swiftlint:d
         & HasAuthService
         & HasBiometricsRepository
         & HasClientAuth
+        & HasClientExporters
         & HasErrorReporter
+        & HasExportVaultService
         & HasPasteboardService
         & HasPolicyService
         & HasSettingsRepository
@@ -157,6 +159,8 @@ final class SettingsCoordinator: Coordinator, HasStackNavigator { // swiftlint:d
             showSelectLanguage(currentLanguage: currentLanguage, delegate: context as? SelectLanguageDelegate)
         case .settings:
             showSettings()
+        case let .shareExportedVault(fileURL):
+            showExportedVaultURL(fileURL)
         case .vault:
             showVault()
         }
@@ -291,6 +295,13 @@ final class SettingsCoordinator: Coordinator, HasStackNavigator { // swiftlint:d
         let view = DeleteAccountView(store: Store(processor: processor))
         let navController = UINavigationController(rootViewController: UIHostingController(rootView: view))
         stackNavigator?.present(navController)
+    }
+
+    /// presents an activity contorller for an exported vault file URL.
+    ///
+    private func showExportedVaultURL(_ fileURL: URL) {
+        let activityVC = UIActivityViewController(activityItems: [fileURL], applicationActivities: nil)
+        stackNavigator?.present(activityVC)
     }
 
     /// Shows the export vault screen.
