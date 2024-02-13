@@ -431,24 +431,51 @@ class NotificationServiceTests: BitwardenTestCase { // swiftlint:disable:this ty
         XCTAssertEqual(delegate.showLoginRequestRequest, .fixture())
     }
 
-    /// `messageReceived(_:notificationDismissed:notificationTapped:)` handles logout request and call
-    /// the delegate to route to landing screen.
-    func test_messageReceived_logout() async throws {
+    /// `messageReceived(_:notificationDismissed:notificationTapped:)` handles logout requests and will not route
+    /// to the landing screen if the logged-out account was not the currently active account.
+    func test_messageReceived_logout_nonActiveUser() async throws {
         // Set up the mock data.
         stateService.setIsAuthenticated()
+        let activeAccount: Account = .fixture()
+        let nonActiveAccount: Account = .fixture(profile: .fixture(userId: "b245a33f"))
+        stateService.accounts = [activeAccount, nonActiveAccount]
 
         let message: [AnyHashable: Any] = [
             "aps": [
                 "data": [
                     "type": NotificationType.logOut.rawValue,
-                    "payload": "anything",
+                    "payload": "{\"UserId\":\"\(nonActiveAccount.profile.userId)\"}",
                 ],
             ],
         ]
 
         // Test.
         await subject.messageReceived(message, notificationDismissed: nil, notificationTapped: nil)
-        XCTAssertTrue(authRepository.logoutAllUsersCalled)
+        XCTAssertEqual(authRepository.logoutUserId, nonActiveAccount.profile.userId)
+        XCTAssertFalse(delegate.routeToLandingCalled)
+    }
+
+    /// `messageReceived(_:notificationDismissed:notificationTapped:)` handles logout requests and will route
+    /// to the landing screen if the logged-out account was the currently active account.
+    func test_messageReceived_logout_activeUser() async throws {
+        // Set up the mock data.
+        stateService.setIsAuthenticated()
+        let activeAccount: Account = .fixture()
+        let nonActiveAccount: Account = .fixture(profile: .fixture(userId: "b245a33f"))
+        stateService.accounts = [activeAccount, nonActiveAccount]
+
+        let message: [AnyHashable: Any] = [
+            "aps": [
+                "data": [
+                    "type": NotificationType.logOut.rawValue,
+                    "payload": "{\"UserId\":\"\(activeAccount.profile.userId)\"}",
+                ],
+            ],
+        ]
+
+        // Test.
+        await subject.messageReceived(message, notificationDismissed: nil, notificationTapped: nil)
+        XCTAssertEqual(authRepository.logoutUserId, activeAccount.profile.userId)
         XCTAssertTrue(delegate.routeToLandingCalled)
     }
 

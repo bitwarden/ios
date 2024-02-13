@@ -195,8 +195,12 @@ class DefaultNotificationService: NotificationService {
             case .syncOrgKeys:
                 try await syncService.fetchSync(forceSync: true)
             case .logOut:
-                try await authRepository.logoutAllUsers()
-                await delegate?.routeToLanding()
+                guard let data: UserNotification = notificationData.data() else { return }
+                try await authRepository.logout(userId: data.userId)
+                // Only route to landing page if the current active user was logged out.
+                if data.userId == userId {
+                    await delegate?.routeToLanding()
+                }
             case .syncSendCreate,
                  .syncSendUpdate:
                 if let data: SyncSendNotification = notificationData.data(), data.userId == userId {

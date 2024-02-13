@@ -68,10 +68,6 @@ protocol AuthRepository: AnyObject {
     ///
     func logout(userId: String?) async throws
 
-    /// Logs out all users.
-    ///
-    func logoutAllUsers() async throws
-
     /// Calculates the password strength of a password.
     ///
     /// - Parameters:
@@ -376,15 +372,6 @@ extension DefaultAuthRepository: AuthRepository {
         try? await biometricsRepository.setBiometricUnlockKey(authKey: nil)
         await vaultTimeoutService.remove(userId: userId)
         try await stateService.logoutAccount(userId: userId)
-    }
-
-    func logoutAllUsers() async throws {
-        try? await biometricsRepository.setBiometricUnlockKey(authKey: nil)
-        let accounts = try await getAccounts()
-        for account in accounts {
-            await vaultTimeoutService.remove(userId: account.userId)
-            try await stateService.logoutAccount(userId: account.userId)
-        }
     }
 
     func passwordStrength(email: String, password: String) async -> UInt8 {

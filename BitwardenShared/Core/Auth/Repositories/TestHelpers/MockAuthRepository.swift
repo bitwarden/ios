@@ -19,8 +19,6 @@ class MockAuthRepository: AuthRepository {
     var logoutCalled = false
     var logoutUserId: String?
     var logoutResult: Result<Void, Error> = .success(())
-    var logoutAllUsersCalled = false
-    var logoutAllUsersResult: Result<Void, Error> = .success(())
     var passwordStrengthEmail: String?
     var passwordStrengthPassword: String?
     var passwordStrengthResult: UInt8 = 0
@@ -137,11 +135,6 @@ class MockAuthRepository: AuthRepository {
     func logout() async throws {
         logoutCalled = true
         try logoutResult.get()
-    }
-
-    func logoutAllUsers() async throws {
-        logoutAllUsersCalled = true
-        try logoutAllUsersResult.get()
     }
 
     func setActiveAccount(userId: String) async throws -> Account {
