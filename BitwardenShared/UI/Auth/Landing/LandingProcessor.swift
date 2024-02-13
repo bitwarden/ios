@@ -218,7 +218,10 @@ class LandingProcessor: StateProcessor<LandingState, LandingAction, LandingEffec
                 if let urls = region.defaultURLs {
                     await self?.setRegion(region, urls: urls)
                 } else {
-                    self?.coordinator.navigate(to: .selfHosted, context: self)
+                    self?.coordinator.navigate(
+                        to: .selfHosted(currentRegion: self?.state.region ?? .unitedStates),
+                        context: self
+                    )
                 }
             }
         }
@@ -242,7 +245,6 @@ class LandingProcessor: StateProcessor<LandingState, LandingAction, LandingEffec
         guard !urls.isEmpty else { return }
         await services.environmentService.setPreAuthURLs(urls: urls)
         state.region = region
-        state.toast = Toast(text: Localizations.environmentSaved)
     }
 
     /// Updates the value of `rememberedEmail` in the app settings store with the `email` value in `state`.
@@ -261,5 +263,6 @@ class LandingProcessor: StateProcessor<LandingState, LandingAction, LandingEffec
 extension LandingProcessor: SelfHostedProcessorDelegate {
     func didSaveEnvironment(urls: EnvironmentUrlData) async {
         await setRegion(.selfHosted, urls: urls)
+        state.toast = Toast(text: Localizations.environmentSaved)
     }
 }
