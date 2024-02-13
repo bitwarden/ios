@@ -6,6 +6,7 @@ class NotificationServiceTests: BitwardenTestCase { // swiftlint:disable:this ty
     // MARK: Properties
 
     var appSettingsStore: MockAppSettingsStore!
+    var authRepository: MockAuthRepository!
     var authService: MockAuthService!
     var client: MockHTTPClient!
     var delegate: MockNotificationServiceDelegate!
@@ -21,6 +22,7 @@ class NotificationServiceTests: BitwardenTestCase { // swiftlint:disable:this ty
         super.setUp()
 
         appSettingsStore = MockAppSettingsStore()
+        authRepository = MockAuthRepository()
         authService = MockAuthService()
         client = MockHTTPClient()
         delegate = MockNotificationServiceDelegate()
@@ -31,6 +33,7 @@ class NotificationServiceTests: BitwardenTestCase { // swiftlint:disable:this ty
 
         subject = DefaultNotificationService(
             appIdService: AppIdService(appSettingStore: appSettingsStore),
+            authRepository: authRepository,
             authService: authService,
             errorReporter: errorReporter,
             notificationAPIService: notificationAPIService,
@@ -428,6 +431,54 @@ class NotificationServiceTests: BitwardenTestCase { // swiftlint:disable:this ty
         XCTAssertEqual(delegate.showLoginRequestRequest, .fixture())
     }
 
+    /// `messageReceived(_:notificationDismissed:notificationTapped:)` handles logout requests and will not route
+    /// to the landing screen if the logged-out account was not the currently active account.
+    func test_messageReceived_logout_nonActiveUser() async throws {
+        // Set up the mock data.
+        stateService.setIsAuthenticated()
+        let activeAccount: Account = .fixture()
+        let nonActiveAccount: Account = .fixture(profile: .fixture(userId: "b245a33f"))
+        stateService.accounts = [activeAccount, nonActiveAccount]
+
+        let message: [AnyHashable: Any] = [
+            "aps": [
+                "data": [
+                    "type": NotificationType.logOut.rawValue,
+                    "payload": "{\"UserId\":\"\(nonActiveAccount.profile.userId)\"}",
+                ],
+            ],
+        ]
+
+        // Test.
+        await subject.messageReceived(message, notificationDismissed: nil, notificationTapped: nil)
+        XCTAssertEqual(authRepository.logoutUserId, nonActiveAccount.profile.userId)
+        XCTAssertFalse(delegate.routeToLandingCalled)
+    }
+
+    /// `messageReceived(_:notificationDismissed:notificationTapped:)` handles logout requests and will route
+    /// to the landing screen if the logged-out account was the currently active account.
+    func test_messageReceived_logout_activeUser() async throws {
+        // Set up the mock data.
+        stateService.setIsAuthenticated()
+        let activeAccount: Account = .fixture()
+        let nonActiveAccount: Account = .fixture(profile: .fixture(userId: "b245a33f"))
+        stateService.accounts = [activeAccount, nonActiveAccount]
+
+        let message: [AnyHashable: Any] = [
+            "aps": [
+                "data": [
+                    "type": NotificationType.logOut.rawValue,
+                    "payload": "{\"UserId\":\"\(activeAccount.profile.userId)\"}",
+                ],
+            ],
+        ]
+
+        // Test.
+        await subject.messageReceived(message, notificationDismissed: nil, notificationTapped: nil)
+        XCTAssertEqual(authRepository.logoutUserId, activeAccount.profile.userId)
+        XCTAssertTrue(delegate.routeToLandingCalled)
+    }
+
     /// `messageReceived(_:notificationDismissed:notificationTapped:)` handles notifications being dismissed.
     func test_messageReceived_notificationDismissed() async throws {
         // Set up the mock data.
@@ -500,11 +551,17 @@ class NotificationServiceTests: BitwardenTestCase { // swiftlint:disable:this ty
 // MARK: - MockNotificationServiceDelegate
 
 class MockNotificationServiceDelegate: NotificationServiceDelegate {
+    var routeToLandingCalled: Bool = false
+
     var showLoginRequestRequest: LoginRequest?
 
     var switchAccountsAccount: Account?
     var switchAccountsLoginRequest: LoginRequest?
     var switchAccountsShowAlert: Bool?
+
+    func routeToLanding() async {
+        routeToLandingCalled = true
+    }
 
     func showLoginRequest(_ loginRequest: LoginRequest) {
         showLoginRequestRequest = loginRequest

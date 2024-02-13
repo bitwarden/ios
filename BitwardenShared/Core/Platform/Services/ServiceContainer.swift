@@ -331,15 +331,6 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
             systemDevice: UIDevice.current
         )
 
-        let notificationService = DefaultNotificationService(
-            appIdService: appIdService,
-            authService: authService,
-            errorReporter: errorReporter,
-            notificationAPIService: apiService,
-            stateService: stateService,
-            syncService: syncService
-        )
-
         let authRepository = DefaultAuthRepository(
             accountAPIService: apiService,
             authService: authService,
@@ -352,6 +343,16 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
             organizationService: organizationService,
             stateService: stateService,
             vaultTimeoutService: vaultTimeoutService
+        )
+
+        let notificationService = DefaultNotificationService(
+            appIdService: appIdService,
+            authRepository: authRepository,
+            authService: authService,
+            errorReporter: errorReporter,
+            notificationAPIService: apiService,
+            stateService: stateService,
+            syncService: syncService
         )
 
         let generatorRepository = DefaultGeneratorRepository(
