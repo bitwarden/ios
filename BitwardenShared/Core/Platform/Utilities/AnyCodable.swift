@@ -2,7 +2,7 @@
 
 /// A custom codable type that can be used to encode/decode a variety of primitive types.
 ///
-enum AnyCodable: Codable, Equatable {
+public enum AnyCodable: Codable, Equatable {
     /// The wrapped value is a bool value.
     case bool(Bool)
 
@@ -17,7 +17,7 @@ enum AnyCodable: Codable, Equatable {
 
     // MARK: Decodable
 
-    init(from decoder: Decoder) throws {
+    public init(from decoder: Decoder) throws {
         let container = try decoder.singleValueContainer()
 
         if let boolValue = try? container.decode(Bool.self) {
@@ -38,7 +38,7 @@ enum AnyCodable: Codable, Equatable {
 
     // MARK: Encodable
 
-    func encode(to encoder: Encoder) throws {
+    public func encode(to encoder: Encoder) throws {
         var container = encoder.singleValueContainer()
 
         switch self {

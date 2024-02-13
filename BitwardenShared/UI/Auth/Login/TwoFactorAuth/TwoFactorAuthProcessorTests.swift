@@ -73,7 +73,7 @@ class TwoFactorAuthProcessorTests: BitwardenTestCase {
 
     /// `init` sets up the state correctly.
     func test_init() {
-        let authMethodsData = ["1": ["Email": "test@example.com"]]
+        let authMethodsData = AuthMethodsData.fixture()
         let state = TwoFactorAuthState(authMethodsData: authMethodsData)
         subject = TwoFactorAuthProcessor(
             coordinator: coordinator.asAnyCoordinator(),
@@ -83,8 +83,8 @@ class TwoFactorAuthProcessorTests: BitwardenTestCase {
             state: state
         )
 
-        XCTAssertEqual(subject.state.availableAuthMethods, [.email, .recoveryCode])
-        XCTAssertEqual(subject.state.displayEmail, "test@example.com")
+        XCTAssertEqual(subject.state.availableAuthMethods, [.email, .yubiKey, .recoveryCode])
+        XCTAssertEqual(subject.state.displayEmail, "sh***@example.com")
     }
 
     /// `perform(_:)` with `.continueTapped` navigates to the `.captcha` route if there was a captcha error.

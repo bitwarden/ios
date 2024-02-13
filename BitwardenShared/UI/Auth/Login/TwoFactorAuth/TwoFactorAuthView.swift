@@ -75,10 +75,16 @@ struct TwoFactorAuthView: View {
 
     /// The detailed instructions for the method.
     private var detailText: some View {
-        Text(store.state.detailsText)
-            .styleGuide(.body)
-            .foregroundColor(Asset.Colors.textPrimary.swiftUIColor)
-            .multilineTextAlignment(.center)
+        VStack(spacing: 16) {
+            Text(store.state.detailsText)
+                .styleGuide(.body)
+                .foregroundColor(Asset.Colors.textPrimary.swiftUIColor)
+                .multilineTextAlignment(.center)
+
+            if let detailImageAsset = store.state.detailImageAsset {
+                Image(decorative: detailImageAsset)
+            }
+        }
     }
 
     /// The remember me toggle.

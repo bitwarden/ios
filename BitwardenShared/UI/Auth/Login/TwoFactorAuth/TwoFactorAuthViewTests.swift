@@ -98,4 +98,10 @@ class TwoFactorAuthViewTests: BitwardenTestCase {
         processor.state.continueEnabled = true
         assertSnapshots(of: subject.navStackWrapped, as: [.defaultPortrait, .defaultPortraitDark, .defaultPortraitAX5])
     }
+
+    /// The default view renders correctly for the YubiKey method.
+    func test_snapshot_default_yubikey() {
+        processor.state.authMethod = .yubiKey
+        assertSnapshots(of: subject.navStackWrapped, as: [.defaultPortrait, .defaultPortraitDark, .defaultPortraitAX5])
+    }
 }
