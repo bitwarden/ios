@@ -1,6 +1,6 @@
 import OSLog
 
-extension Logger {
+public extension Logger {
     // MARK: Type Properties
 
     /// Logger instance for the app's action extension.

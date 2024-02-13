@@ -17,6 +17,7 @@ typealias Services = HasAPIService
     & HasErrorReporter
     & HasFileAPIService
     & HasGeneratorRepository
+    & HasNFCReaderService
     & HasNotificationCenterService
     & HasNotificationService
     & HasPasteboardService
@@ -142,6 +143,13 @@ protocol HasFileAPIService {
 protocol HasGeneratorRepository {
     /// The repository used by the application to manage generator data for the UI layer.
     var generatorRepository: GeneratorRepository { get }
+}
+
+/// Protocol for an object that provides a `NFCReaderService`.
+///
+protocol HasNFCReaderService {
+    /// The service used by the application to read NFC tags.
+    var nfcReaderService: NFCReaderService { get }
 }
 
 /// Protocol for an object that provides a `NotificationService`.

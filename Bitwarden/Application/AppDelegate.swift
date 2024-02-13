@@ -43,7 +43,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
         let errorReporter = CrashlyticsErrorReporter()
         #endif
 
-        let services = ServiceContainer(errorReporter: errorReporter)
+        let services = ServiceContainer(errorReporter: errorReporter, nfcReaderService: DefaultNFCReaderService())
         let appModule = DefaultAppModule(services: services)
         appProcessor = AppProcessor(appModule: appModule, services: services)
         return true

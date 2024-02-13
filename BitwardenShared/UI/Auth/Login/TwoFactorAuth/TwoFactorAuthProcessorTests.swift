@@ -13,6 +13,7 @@ class TwoFactorAuthProcessorTests: BitwardenTestCase {
     var captchaService: MockCaptchaService!
     var coordinator: MockCoordinator<AuthRoute, AuthEvent>!
     var errorReporter: MockErrorReporter!
+    var nfcReaderService: MockNFCReaderService!
     var subject: TwoFactorAuthProcessor!
 
     // MARK: Setup & Teardown
@@ -25,6 +26,7 @@ class TwoFactorAuthProcessorTests: BitwardenTestCase {
         captchaService = MockCaptchaService()
         coordinator = MockCoordinator<AuthRoute, AuthEvent>()
         errorReporter = MockErrorReporter()
+        nfcReaderService = MockNFCReaderService()
 
         subject = TwoFactorAuthProcessor(
             coordinator: coordinator.asAnyCoordinator(),
@@ -32,7 +34,8 @@ class TwoFactorAuthProcessorTests: BitwardenTestCase {
                 authRepository: authRepository,
                 authService: authService,
                 captchaService: captchaService,
-                errorReporter: errorReporter
+                errorReporter: errorReporter,
+                nfcReaderService: nfcReaderService
             ),
             state: TwoFactorAuthState()
         )
@@ -46,6 +49,7 @@ class TwoFactorAuthProcessorTests: BitwardenTestCase {
         captchaService = nil
         coordinator = nil
         errorReporter = nil
+        nfcReaderService = nil
         subject = nil
     }
 
@@ -194,6 +198,37 @@ class TwoFactorAuthProcessorTests: BitwardenTestCase {
             title: Localizations.anErrorHasOccurred,
             message: Localizations.invalidVerificationCode
         ))
+    }
+
+    /// `perform(_:)` with `.listenForNFC` starts listening for NFC tags and attempts login if one is read.
+    func test_perform_listenForNFC() {
+        nfcReaderService.resultSubject.value = "NFC_TAG_VALUE"
+        subject.state.unlockMethod = .password("password123")
+
+        let task = Task {
+            await subject.perform(.listenForNFC)
+        }
+
+        waitFor(!coordinator.events.isEmpty)
+        task.cancel()
+
+        XCTAssertTrue(nfcReaderService.didStartReading)
+        XCTAssertEqual(subject.state.verificationCode, "NFC_TAG_VALUE")
+        XCTAssertEqual(coordinator.events, [.didCompleteAuth])
+        XCTAssertEqual(authRepository.unlockVaultPassword, "password123")
+
+        subject = nil
+        XCTAssertTrue(nfcReaderService.didStopReading)
+    }
+
+    /// `perform(_:)` with `.listenForNFC` logs an error and shows an alert if listening for NFC tags fails.
+    func test_perform_listenForNFC_error() async {
+        nfcReaderService.resultSubject.send(completion: .failure(BitwardenTestError.example))
+
+        await subject.perform(.listenForNFC)
+
+        XCTAssertEqual(errorReporter.errors as? [BitwardenTestError], [.example])
+        XCTAssertEqual(coordinator.alertShown, [.networkResponseError(BitwardenTestError.example)])
     }
 
     /// `perform(_:)` with `.resendEmailTapped` handles errors correctly.

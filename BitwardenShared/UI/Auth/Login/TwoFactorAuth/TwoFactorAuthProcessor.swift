@@ -11,6 +11,7 @@ final class TwoFactorAuthProcessor: StateProcessor<TwoFactorAuthState, TwoFactor
         & HasAuthService
         & HasCaptchaService
         & HasErrorReporter
+        & HasNFCReaderService
 
     // MARK: Properties
 
@@ -42,12 +43,18 @@ final class TwoFactorAuthProcessor: StateProcessor<TwoFactorAuthState, TwoFactor
         setUpState()
     }
 
+    deinit {
+        services.nfcReaderService.stopReading()
+    }
+
     // MARK: Methods
 
     override func perform(_ effect: TwoFactorAuthEffect) async {
         switch effect {
         case .continueTapped:
             await login()
+        case .listenForNFC:
+            await listenForNFC()
         case .resendEmailTapped:
             await resendEmail()
         }
@@ -100,6 +107,22 @@ final class TwoFactorAuthProcessor: StateProcessor<TwoFactorAuthState, TwoFactor
         } catch {
             coordinator.showAlert(.networkResponseError(error))
             services.errorReporter.log(error: error)
+        }
+    }
+
+    /// Listens for a Yubikey NFC tag.
+    private func listenForNFC() async {
+        do {
+            services.nfcReaderService.startReading()
+            for try await result in try await services.nfcReaderService.resultPublisher() {
+                guard let result else { continue }
+                state.verificationCode = result
+                await login()
+                break
+            }
+        } catch {
+            services.errorReporter.log(error: error)
+            coordinator.showAlert(.networkResponseError(error))
         }
     }
 

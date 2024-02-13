@@ -29,6 +29,10 @@ struct TwoFactorAuthView: View {
         }
         .scrollView()
         .navigationBar(title: store.state.authMethod.title, titleDisplayMode: .inline)
+        .task(id: store.state.authMethod) {
+            guard store.state.authMethod == .yubiKey else { return }
+            await store.perform(.listenForNFC)
+        }
         .toolbar {
             ToolbarItemGroup(placement: .navigationBarTrailing) {
                 authMethodsMenu
