@@ -148,8 +148,6 @@ struct AddEditSendItemView: View { // swiftlint:disable:this type_body_length
             }
             .accessibilityIdentifier("SendMaxAccessCountEntry")
 
-            Divider()
-
             Text(Localizations.maximumAccessCountInfo)
                 .styleGuide(.footnote)
                 .foregroundColor(Asset.Colors.textSecondary.swiftUIColor)
