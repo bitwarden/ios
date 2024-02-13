@@ -54,7 +54,9 @@ public enum AuthRoute: Equatable {
     case updateMasterPassword
 
     /// A route to the self-hosted settings view.
-    case selfHosted
+    ///
+    /// - Parameter currentRegion: The user's region type prior to navigating to the self-hosted view.
+    case selfHosted(currentRegion: RegionType)
 
     /// A route to the single sign on WebAuth screen.
     ///

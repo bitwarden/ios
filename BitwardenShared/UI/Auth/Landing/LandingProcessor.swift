@@ -126,7 +126,10 @@ class LandingProcessor: StateProcessor<LandingState, LandingAction, LandingEffec
                 if let urls = region.defaultURLs {
                     await self?.setRegion(region, urls: urls)
                 } else {
-                    self?.coordinator.navigate(to: .selfHosted, context: self)
+                    self?.coordinator.navigate(
+                        to: .selfHosted(currentRegion: self?.state.region ?? .unitedStates),
+                        context: self
+                    )
                 }
             }
         }
@@ -214,5 +217,6 @@ extension LandingProcessor: ProfileSwitcherHandler {
 extension LandingProcessor: SelfHostedProcessorDelegate {
     func didSaveEnvironment(urls: EnvironmentUrlData) async {
         await setRegion(.selfHosted, urls: urls)
+        state.toast = Toast(text: Localizations.environmentSaved)
     }
 }

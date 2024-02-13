@@ -137,8 +137,8 @@ final class AuthCoordinator: NSObject, // swiftlint:disable:this type_body_lengt
             showLoginWithDevice(email: email)
         case let .masterPasswordHint(username):
             showMasterPasswordHint(for: username)
-        case .selfHosted:
-            showSelfHostedView(delegate: context as? SelfHostedProcessorDelegate)
+        case let .selfHosted(region):
+            showSelfHostedView(delegate: context as? SelfHostedProcessorDelegate, currentRegion: region)
         case let .singleSignOn(callbackUrlScheme, state, url):
             showSingleSignOn(
                 callbackUrlScheme: callbackUrlScheme,
@@ -349,11 +349,30 @@ final class AuthCoordinator: NSObject, // swiftlint:disable:this type_body_lengt
     }
 
     /// Shows the self-hosted settings view.
-    private func showSelfHostedView(delegate: SelfHostedProcessorDelegate?) {
+    ///
+    /// - Parameters:
+    ///   - delegate: A delegate of `SelfHostedProcessor` that is notified
+    ///     when the user saves their environment settings.
+    ///   - currentRegion: The user's region prior to showing the self-hosted settings view.
+    ///
+    private func showSelfHostedView(delegate: SelfHostedProcessorDelegate?, currentRegion: RegionType) {
+        let preAuthEnvironmentUrls = services.appSettingsStore.preAuthEnvironmentUrls ?? EnvironmentUrlData()
+        var state = SelfHostedState()
+
+        if currentRegion == .selfHosted {
+            state = SelfHostedState(
+                apiServerUrl: preAuthEnvironmentUrls.api?.sanitized.description ?? "",
+                iconsServerUrl: preAuthEnvironmentUrls.icons?.sanitized.description ?? "",
+                identityServerUrl: preAuthEnvironmentUrls.identity?.sanitized.description ?? "",
+                serverUrl: preAuthEnvironmentUrls.base?.sanitized.description ?? "",
+                webVaultServerUrl: preAuthEnvironmentUrls.webVault?.sanitized.description ?? ""
+            )
+        }
+
         let processor = SelfHostedProcessor(
             coordinator: asAnyCoordinator(),
             delegate: delegate,
-            state: SelfHostedState()
+            state: state
         )
         let view = SelfHostedView(store: Store(processor: processor))
         let navController = UINavigationController(rootViewController: UIHostingController(rootView: view))

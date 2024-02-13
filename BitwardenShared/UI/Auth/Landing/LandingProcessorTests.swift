@@ -62,6 +62,7 @@ class LandingProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_
         subject.state.region = .unitedStates
         await subject.didSaveEnvironment(urls: EnvironmentUrlData(base: .example))
         XCTAssertEqual(subject.state.region, .selfHosted)
+        XCTAssertEqual(subject.state.toast?.text, Localizations.environmentSaved)
         XCTAssertEqual(
             environmentService.setPreAuthEnvironmentUrlsData,
             EnvironmentUrlData(base: .example)
@@ -399,7 +400,7 @@ class LandingProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_
 
         XCTAssertEqual(alert.alertActions[2].title, Localizations.selfHosted)
         try await alert.tapAction(title: Localizations.selfHosted)
-        XCTAssertEqual(coordinator.routes.last, .selfHosted)
+        XCTAssertEqual(coordinator.routes.last, .selfHosted(currentRegion: .europe))
     }
 
     /// `receive(_:)` with `.rememberMeChanged(true)` updates the state to reflect the changes.
