@@ -100,7 +100,7 @@ struct LandingView: View {
                         }
                         .styleGuide(.subheadline)
 
-                        Image(decorative: Asset.Images.downTriangle)
+                        Image(decorative: Asset.Images.downAngle)
                             .resizable()
                             .frame(width: 12, height: 12)
                             .foregroundColor(Asset.Colors.primaryBitwarden.swiftUIColor)
