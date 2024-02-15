@@ -343,6 +343,10 @@ class ViewItemProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
         XCTAssertEqual(pasteboardService.copiedString, "value")
         XCTAssertEqual(subject.state.toast?.text, Localizations.valueHasBeenCopied(Localizations.password))
 
+        subject.receive(.copyPressed(value: "value", field: .securityCode))
+        XCTAssertEqual(pasteboardService.copiedString, "value")
+        XCTAssertEqual(subject.state.toast?.text, Localizations.valueHasBeenCopied(Localizations.securityCode))
+
         subject.receive(.copyPressed(value: "value", field: .totp))
         XCTAssertEqual(pasteboardService.copiedString, "value")
         XCTAssertEqual(subject.state.toast?.text, Localizations.valueHasBeenCopied(Localizations.totp))
