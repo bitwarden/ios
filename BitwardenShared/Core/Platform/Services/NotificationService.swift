@@ -145,7 +145,7 @@ class DefaultNotificationService: NotificationService {
         }
     }
 
-    func messageReceived( // swiftlint:disable:this function_body_length
+    func messageReceived( // swiftlint:disable:this function_body_length cyclomatic_complexity
         _ message: [AnyHashable: Any],
         notificationDismissed: Bool?,
         notificationTapped: Bool?

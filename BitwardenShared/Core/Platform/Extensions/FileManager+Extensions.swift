@@ -16,4 +16,18 @@ extension FileManager {
         .appendingPathComponent(userId, isDirectory: true)
         .appendingPathComponent("Attachments", isDirectory: true)
     }
+
+    /// Returns a URL for an exported vault directory.
+    ///
+    /// - Returns: A URL for storing a vault export file.
+    ///
+    func exportedVaultURL() throws -> URL {
+        try url(
+            for: .applicationSupportDirectory,
+            in: .userDomainMask,
+            appropriateFor: nil,
+            create: true
+        )
+        .appendingPathComponent("Exports", isDirectory: true)
+    }
 }
