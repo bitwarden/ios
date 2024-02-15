@@ -145,8 +145,9 @@ struct GeneratorState: Equatable {
     func shouldGenerateNewValueOnSliderValueChanged(_ value: Double, keyPath: KeyPath<GeneratorState, Double>) -> Bool {
         switch keyPath {
         case \.passwordState.lengthDouble:
+            guard Int(value) != passwordState.length else { return false }
             guard let minLength = policyOptions?.length else { return true }
-            return Int(value) >= minLength && Int(value) != passwordState.length
+            return Int(value) >= minLength
         default:
             return true
         }

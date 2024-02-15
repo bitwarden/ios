@@ -546,6 +546,40 @@ class GeneratorProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
         XCTAssertEqual(coordinator.routes.last, .generatorHistory)
     }
 
+    /// `receive(_:)` with `.sliderEditingChanged` saves the previously generated value when the
+    /// slider ends editing.
+    func test_receive_sliderEditingChanged() {
+        let field = sliderField(
+            keyPath: \.passwordState.lengthDouble,
+            sliderAccessibilityId: "PasswordLengthSlider",
+            sliderValueAccessibilityId: "PasswordLengthLabel"
+        )
+
+        subject.receive(.sliderEditingChanged(field: field, isEditing: true))
+
+        generatorRepository.passwordResult = .success("PASSSSWORD")
+        subject.receive(.sliderValueChanged(field: field, value: 10))
+        waitFor(subject.state.generatedValue.count == 10)
+
+        generatorRepository.passwordResult = .success("PASSSSSSSSSWORD")
+        subject.receive(.sliderValueChanged(field: field, value: 15))
+        waitFor(subject.state.generatedValue.count == 15)
+
+        generatorRepository.passwordResult = .success("PASSSSSSSSSSSSSSWORD")
+        subject.receive(.sliderValueChanged(field: field, value: 20))
+        waitFor(subject.state.generatedValue.count == 20)
+
+        generatorRepository.passwordGeneratorRequest = nil
+        subject.receive(.sliderEditingChanged(field: field, isEditing: false))
+        waitFor(generatorRepository.passwordHistorySubject.value.last?.password.count == 20)
+
+        // Only the final password should be saved when the slider ends editing.
+        XCTAssertEqual(
+            generatorRepository.passwordHistorySubject.value.map(\.password),
+            ["PASSSSSSSSSSSSSSWORD"]
+        )
+    }
+
     /// `receive(_:)` with `.sliderValueChanged` updates the state's value for the slider field.
     func test_receive_sliderValueChanged() {
         let field = sliderField(
