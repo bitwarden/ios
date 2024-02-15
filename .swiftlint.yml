@@ -4,6 +4,8 @@ analyzer_rules:
 
 disabled_rules:
   - todo
+  - trailing_whitespace # Covered by SwiftFormat
+  - vertical_whitespace # Covered by SwiftFormat
 
 opt_in_rules:
   - anonymous_argument_in_multiline_closure
@@ -35,8 +37,6 @@ opt_in_rules:
   - type_contents_order
   - unneeded_parentheses_in_closure_argument
   - unowned_variable_capture
-  - vertical_whitespace_closing_braces
-  - vertical_whitespace_opening_braces
   - yoda_condition
 
 excluded:
