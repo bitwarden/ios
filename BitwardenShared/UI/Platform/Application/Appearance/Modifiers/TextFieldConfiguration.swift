@@ -69,6 +69,16 @@ extension TextFieldConfiguration {
         textContentType: .username,
         textInputAutocapitalization: .never
     )
+
+    /// A `TextFieldConfiguration` for applying common properties to one-time code text fields.
+    static func oneTimeCode(keyboardType: UIKeyboardType = .numberPad) -> TextFieldConfiguration {
+        TextFieldConfiguration(
+            isAutocorrectionDisabled: true,
+            keyboardType: keyboardType,
+            textContentType: .oneTimeCode,
+            textInputAutocapitalization: .never
+        )
+    }
 }
 
 // MARK: - View

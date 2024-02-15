@@ -13,6 +13,16 @@ struct TwoFactorAuthView: View {
     /// The `Store` for this view.
     @ObservedObject var store: Store<TwoFactorAuthState, TwoFactorAuthAction, TwoFactorAuthEffect>
 
+    /// The text field configuration for the verification field.
+    var verificationTextFieldConfiguration: TextFieldConfiguration {
+        switch store.state.authMethod {
+        case .yubiKey:
+            TextFieldConfiguration.oneTimeCode(keyboardType: .default)
+        default:
+            TextFieldConfiguration.oneTimeCode()
+        }
+    }
+
     // MARK: View
 
     var body: some View {
@@ -123,8 +133,7 @@ struct TwoFactorAuthView: View {
                 send: TwoFactorAuthAction.verificationCodeChanged
             )
         )
-        .textContentType(.oneTimeCode)
-        .keyboardType(.numberPad)
+        .textFieldConfiguration(verificationTextFieldConfiguration)
     }
 }
 
