@@ -3,6 +3,8 @@ import Foundation
 
 // MARK: - ExportFileType
 
+/// An enum describing the format of the vault export file.
+///
 enum ExportFileType: Equatable {
     /// A `.csv` file type.
     case csv
@@ -27,6 +29,8 @@ enum ExportFileType: Equatable {
 
 // MARK: - ExportVaultService
 
+/// A service to export vault contents and write them to a file.
+///
 protocol ExportVaultService: AnyObject {
     /// Removes any temporarily export files.
     func clearTemporaryFiles()
@@ -201,8 +205,18 @@ class DefultExportVaultService: ExportVaultService {
         name fileName: String,
         content fileContent: String
     ) throws -> URL {
-        let fileURL = try FileManager.default.exportedVaultURL()
-            .appendingPathComponent(fileName)
+        // Get the exports directory.
+        let exportsDirectoryURL = try FileManager.default.exportedVaultURL()
+
+        // Check if the directory exists, and create it if it doesn't.
+        if !FileManager.default.fileExists(atPath: exportsDirectoryURL.path) {
+            try FileManager.default.createDirectory(at: exportsDirectoryURL, withIntermediateDirectories: true, attributes: nil)
+        }
+
+        // Create the file URL.
+        let fileURL = exportsDirectoryURL.appendingPathComponent(fileName, isDirectory: false)
+
+        // Write the content to the file.
         try fileContent.write(to: fileURL, atomically: true, encoding: .utf8)
         return fileURL
     }
