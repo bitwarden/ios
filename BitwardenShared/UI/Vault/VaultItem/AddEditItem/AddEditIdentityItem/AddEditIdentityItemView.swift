@@ -222,9 +222,6 @@ struct AddEditIdentityItemView: View {
             .focused($focusedField, equals: .country)
             .onSubmit { focusNextField($focusedField) }
         }
-        .onTapGesture {
-            focusedField = nil
-        }
     }
 }
 

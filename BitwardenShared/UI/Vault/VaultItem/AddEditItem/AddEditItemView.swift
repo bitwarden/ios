@@ -67,7 +67,7 @@ struct AddEditItemView: View {
             .padding(16)
         }
         .animation(.default, value: store.state.collectionsForOwner)
-        .dismissKeyboardInteractively()
+        .dismissKeyboardImmediately()
         .background(
             Asset.Colors.backgroundSecondary.swiftUIColor
                 .ignoresSafeArea()

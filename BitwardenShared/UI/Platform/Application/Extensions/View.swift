@@ -31,6 +31,16 @@ extension View {
         }
     }
 
+    /// On iOS 16+, configures the scroll view to dismiss the keyboard immediately.
+    ///
+    func dismissKeyboardImmediately() -> some View {
+        if #available(iOSApplicationExtension 16, *) {
+            return self.scrollDismissesKeyboard(.immediately)
+        } else {
+            return self
+        }
+    }
+
     /// On iOS 16+, configures the scroll view to dismiss the keyboard interactively.
     ///
     func dismissKeyboardInteractively() -> some View {
