@@ -11,6 +11,20 @@ final class GeneratorProcessor: StateProcessor<GeneratorState, GeneratorAction, 
         & HasPasteboardService
         & HasPolicyService
 
+    /// The behavior that should be taken after receiving a new action for generating a new value
+    /// and persisting it.
+    ///
+    enum GenerateValueBehavior {
+        /// A new value should be generated and saved to the user's password history based on the
+        /// `shouldSave` associated value (saving the value only applies to generated passwords).
+        case generateNewValue(shouldSave: Bool)
+
+        /// The existing generated value should be saved without generating a new value. This is
+        /// used to generate a new value as the length slider changes, but only save the last
+        /// generated value when the slider ends editing.
+        case saveExistingValue
+    }
+
     // MARK: Private Properties
 
     /// The `Coordinator` that handles navigation.
@@ -64,16 +78,8 @@ final class GeneratorProcessor: StateProcessor<GeneratorState, GeneratorAction, 
     }
 
     override func receive(_ action: GeneratorAction) { // swiftlint:disable:this function_body_length
-        // Whether a new value should be generated.
-        var shouldGenerateNewValue = action.shouldGenerateNewValue
-
-        // Whether a new generated value should be persisted to password history.
-        var shouldSaveGeneratedValue = true
-
-        // Whether the existing generated value should be saved without generating a new value.
-        // This is used to generate a new value as the length slider changes, but only save the last
-        // generated value when the slider ends editing.
-        var shouldSaveExistingGeneratedValue = false
+        var generateValueBehavior: GenerateValueBehavior? = action.shouldGenerateNewValue ?
+            .generateNewValue(shouldSave: true) : nil
 
         switch action {
         case .copyGeneratedValue:
@@ -103,16 +109,16 @@ final class GeneratorProcessor: StateProcessor<GeneratorState, GeneratorAction, 
             isEditingSlider = isEditing
             if !isEditing {
                 // When the slider ends editing, save the existing generated value without generating a new one.
-                shouldSaveExistingGeneratedValue = true
+                generateValueBehavior = .saveExistingValue
             }
         case let .sliderValueChanged(field, value):
             guard state.shouldGenerateNewValueOnSliderValueChanged(value, keyPath: field.keyPath) else {
-                shouldGenerateNewValue = false
+                generateValueBehavior = nil
                 break
             }
             state[keyPath: field.keyPath] = value
             if isEditingSlider {
-                shouldSaveGeneratedValue = false
+                generateValueBehavior = .generateNewValue(shouldSave: false)
             }
         case let .stepperValueChanged(field, value):
             state[keyPath: field.keyPath] = value
@@ -132,7 +138,8 @@ final class GeneratorProcessor: StateProcessor<GeneratorState, GeneratorAction, 
             }
 
             if let focusedKeyPath {
-                shouldGenerateNewValue = state.shouldGenerateNewValueOnTextValueChanged(keyPath: focusedKeyPath)
+                let shouldGenerateNewValue = state.shouldGenerateNewValueOnTextValueChanged(keyPath: focusedKeyPath)
+                generateValueBehavior = shouldGenerateNewValue ? .generateNewValue(shouldSave: true) : nil
             }
         case let .toastShown(newValue):
             state.toast = newValue
@@ -144,13 +151,14 @@ final class GeneratorProcessor: StateProcessor<GeneratorState, GeneratorAction, 
             state.usernameState.usernameGeneratorType = usernameGeneratorType
         }
 
-        if shouldGenerateNewValue || shouldSaveGeneratedValue {
+        if let generateValueBehavior {
             generateValueTask?.cancel()
             generateValueTask = Task {
-                if shouldSaveExistingGeneratedValue {
+                switch generateValueBehavior {
+                case let .generateNewValue(shouldSave):
+                    await generateValue(shouldSavePassword: shouldSave)
+                case .saveExistingValue:
                     await saveExistingGeneratedValue()
-                } else if shouldGenerateNewValue {
-                    await generateValue(shouldSavePassword: shouldSaveGeneratedValue)
                 }
                 await saveGeneratorOptions()
             }
