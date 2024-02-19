@@ -24,7 +24,7 @@ enum VaultListAction: Equatable {
     case morePressed(_ item: VaultListItem)
 
     /// A forwarded profile switcher action
-    case profileSwitcherAction(ProfileSwitcherAction)
+    case profileSwitcher(ProfileSwitcherAction)
 
     /// The user has started or stopped searching.
     case searchStateChanged(isSearching: Bool)

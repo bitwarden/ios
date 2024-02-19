@@ -4,6 +4,8 @@ import Foundation
 
 /// The state used to present the `TwoFactorAuthView`.
 struct TwoFactorAuthState: Equatable {
+    // MARK: Properties
+
     /// The selected authenticator method.
     var authMethod: TwoFactorAuthMethod = .email
 
@@ -28,15 +30,27 @@ struct TwoFactorAuthState: Equatable {
     /// Whether the remember me toggle is on.
     var isRememberMeOn = false
 
-    /// The master password used to unlock the vault if the login method is password.
-    var password: String?
-
     /// A toast message to show in the view.
     var toast: Toast?
+
+    /// The method used to unlock the vault after two-factor completes successfully.
+    var unlockMethod: TwoFactorUnlockMethod?
 
     /// The url to open in the device's web browser.
     var url: URL?
 
     /// The verification code text.
     var verificationCode = ""
+
+    // MARK: Computed Properties
+
+    /// The image asset to display for the auth method.
+    var detailImageAsset: ImageAsset? {
+        switch authMethod {
+        case .yubiKey:
+            Asset.Images.yubikey
+        default:
+            nil
+        }
+    }
 }

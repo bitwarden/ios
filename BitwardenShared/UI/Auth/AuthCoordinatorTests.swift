@@ -84,6 +84,15 @@ class AuthCoordinatorTests: BitwardenTestCase {
         XCTAssertTrue(authDelegate.didCompleteAuthCalled)
     }
 
+    /// `navigate(to:)` with `.complete` dismisses a presented view and notifies the delegate that
+    /// auth has completed.
+    func test_navigate_complete_withPresented() {
+        subject.navigate(to: .updateMasterPassword)
+        subject.navigate(to: .complete)
+        XCTAssertTrue(authDelegate.didCompleteAuthCalled)
+        XCTAssertEqual(stackNavigator.actions.last?.type, .dismissedWithCompletionHandler)
+    }
+
     /// `navigate(to:)` with `.createAccount` pushes the create account view onto the stack navigator.
     func test_navigate_createAccount() throws {
         subject.navigate(to: .createAccount)
@@ -148,12 +157,6 @@ class AuthCoordinatorTests: BitwardenTestCase {
         XCTAssertTrue(state.isLoginWithDeviceVisible)
     }
 
-    /// `navigate(to:)` with `.loginOptions` pushes the login options view onto the stack navigator.
-    func test_navigate_loginOptions() {
-        subject.navigate(to: .loginOptions)
-        XCTAssertTrue(stackNavigator.actions.last?.view is Text)
-    }
-
     /// `navigate(to:)` with `.loginWithDevice` pushes the login with device view onto the stack navigator.
     func test_navigate_loginWithDevice() throws {
         subject.navigate(to: .loginWithDevice(email: "example@email.com"))
@@ -174,7 +177,7 @@ class AuthCoordinatorTests: BitwardenTestCase {
 
     /// `navigate(to:)` with `.selfHosted` pushes the self-hosted view onto the stack navigator.
     func test_navigate_selfHosted() throws {
-        subject.navigate(to: .selfHosted)
+        subject.navigate(to: .selfHosted(currentRegion: .unitedStates))
 
         let navigationController = try XCTUnwrap(stackNavigator.actions.last?.view as? UINavigationController)
         XCTAssertTrue(stackNavigator.actions.last?.view is UINavigationController)
@@ -240,7 +243,7 @@ class AuthCoordinatorTests: BitwardenTestCase {
 
     /// `navigate(to:)` with `.twoFactor` shows the two factor auth view.
     func test_navigate_twoFactor() throws {
-        subject.navigate(to: .twoFactor("", "", ["": ["": ""]]))
+        subject.navigate(to: .twoFactor("", .password(""), ["": ["": .string("")]]))
 
         XCTAssertEqual(stackNavigator.actions.last?.type, .presented)
         let navigationController = try XCTUnwrap(stackNavigator.actions.last?.view as? UINavigationController)

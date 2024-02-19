@@ -23,6 +23,11 @@ public enum AuthEvent: Equatable {
     ///
     case action(AuthAction)
 
+    /// An action for when the router should check whether the account requires an updated password
+    /// prior to completing auth and navigating to the vault.
+    ///
+    case didCompleteAuth
+
     /// When the router should check the lock status of an account and propose a route.
     ///
     /// - Parameters:

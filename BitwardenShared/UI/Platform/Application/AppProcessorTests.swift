@@ -112,6 +112,12 @@ class AppProcessorTests: BitwardenTestCase {
         XCTAssertEqual(notificationService.messageReceivedMessage?.keys.first, "knock knock")
     }
 
+    /// `routeToLanding(_:)` navigates to show the landing view.
+    func test_routeToLanding() async {
+        await subject.routeToLanding()
+        XCTAssertEqual(coordinator.routes.last, .auth(.landing))
+    }
+
     /// Upon a session timeout on app foreground, send the user to the `.didTimeout` route.
     func test_shouldSessionTimeout_navigateTo_didTimeout() throws {
         let rootNavigator = MockRootNavigator()

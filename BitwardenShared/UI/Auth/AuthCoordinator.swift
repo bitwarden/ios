@@ -108,7 +108,13 @@ final class AuthCoordinator: NSObject, // swiftlint:disable:this type_body_lengt
                 delegate: context as? CaptchaFlowDelegate
             )
         case .complete:
-            delegate?.didCompleteAuth()
+            if stackNavigator?.isPresenting == true {
+                stackNavigator?.dismiss {
+                    self.delegate?.didCompleteAuth()
+                }
+            } else {
+                delegate?.didCompleteAuth()
+            }
         case .createAccount:
             showCreateAccount()
         case .dismiss:
@@ -125,16 +131,14 @@ final class AuthCoordinator: NSObject, // swiftlint:disable:this type_body_lengt
                     region: region
                 )
             )
-        case .loginOptions:
-            showLoginOptions()
         case .updateMasterPassword:
             showUpdateMasterPassword()
         case let .loginWithDevice(email):
             showLoginWithDevice(email: email)
         case let .masterPasswordHint(username):
             showMasterPasswordHint(for: username)
-        case .selfHosted:
-            showSelfHostedView(delegate: context as? SelfHostedProcessorDelegate)
+        case let .selfHosted(region):
+            showSelfHostedView(delegate: context as? SelfHostedProcessorDelegate, currentRegion: region)
         case let .singleSignOn(callbackUrlScheme, state, url):
             showSingleSignOn(
                 callbackUrlScheme: callbackUrlScheme,
@@ -142,8 +146,8 @@ final class AuthCoordinator: NSObject, // swiftlint:disable:this type_body_lengt
                 state: state,
                 url: url
             )
-        case let .twoFactor(email, password, authMethodsData):
-            showTwoFactorAuth(email: email, password: password, authMethodsData: authMethodsData)
+        case let .twoFactor(email, unlockMethod, authMethodsData):
+            showTwoFactorAuth(email: email, unlockMethod: unlockMethod, authMethodsData: authMethodsData)
         case let .vaultUnlock(
             account,
             animated,
@@ -292,12 +296,6 @@ final class AuthCoordinator: NSObject, // swiftlint:disable:this type_body_lengt
         }
     }
 
-    /// Shows the login options screen.
-    private func showLoginOptions() {
-        let view = Text("Login Options")
-        stackNavigator?.push(view)
-    }
-
     /// Shows the login with device screen.
     ///
     /// - Parameter email: The user's email.
@@ -351,11 +349,30 @@ final class AuthCoordinator: NSObject, // swiftlint:disable:this type_body_lengt
     }
 
     /// Shows the self-hosted settings view.
-    private func showSelfHostedView(delegate: SelfHostedProcessorDelegate?) {
+    ///
+    /// - Parameters:
+    ///   - delegate: A delegate of `SelfHostedProcessor` that is notified
+    ///     when the user saves their environment settings.
+    ///   - currentRegion: The user's region prior to showing the self-hosted settings view.
+    ///
+    private func showSelfHostedView(delegate: SelfHostedProcessorDelegate?, currentRegion: RegionType) {
+        let preAuthEnvironmentUrls = services.appSettingsStore.preAuthEnvironmentUrls ?? EnvironmentUrlData()
+        var state = SelfHostedState()
+
+        if currentRegion == .selfHosted {
+            state = SelfHostedState(
+                apiServerUrl: preAuthEnvironmentUrls.api?.sanitized.description ?? "",
+                iconsServerUrl: preAuthEnvironmentUrls.icons?.sanitized.description ?? "",
+                identityServerUrl: preAuthEnvironmentUrls.identity?.sanitized.description ?? "",
+                serverUrl: preAuthEnvironmentUrls.base?.sanitized.description ?? "",
+                webVaultServerUrl: preAuthEnvironmentUrls.webVault?.sanitized.description ?? ""
+            )
+        }
+
         let processor = SelfHostedProcessor(
             coordinator: asAnyCoordinator(),
             delegate: delegate,
-            state: SelfHostedState()
+            state: state
         )
         let view = SelfHostedView(store: Store(processor: processor))
         let navController = UINavigationController(rootViewController: UIHostingController(rootView: view))
@@ -407,13 +424,20 @@ final class AuthCoordinator: NSObject, // swiftlint:disable:this type_body_lengt
 
     /// Show the two factor authentication view.
     ///
-    /// - Parameter data: The data required for the two-factor flow.
+    /// - Parameters:
+    ///   - email: The user's email.
+    ///   - unlockMethod: The method used to unlock the vault after two-factor completes successfully.
+    ///   - authMethodsData: The data required for the two-factor flow.
     ///
-    private func showTwoFactorAuth(email: String, password: String?, authMethodsData: AuthMethodsData) {
+    private func showTwoFactorAuth(
+        email: String,
+        unlockMethod: TwoFactorUnlockMethod?,
+        authMethodsData: AuthMethodsData
+    ) {
         let state = TwoFactorAuthState(
             authMethodsData: authMethodsData,
             email: email,
-            password: password
+            unlockMethod: unlockMethod
         )
         let processor = TwoFactorAuthProcessor(
             coordinator: asAnyCoordinator(),

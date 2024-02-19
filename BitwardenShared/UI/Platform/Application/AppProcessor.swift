@@ -139,6 +139,12 @@ public class AppProcessor {
 }
 
 extension AppProcessor: NotificationServiceDelegate {
+    /// Users are logged out, route to landing page.
+    ///
+    func routeToLanding() async {
+        coordinator?.navigate(to: .auth(.landing))
+    }
+
     /// Show the login request.
     ///
     /// - Parameter loginRequest: The login request.

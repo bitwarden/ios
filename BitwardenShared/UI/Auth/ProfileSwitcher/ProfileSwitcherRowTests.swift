@@ -13,7 +13,8 @@ final class ProfileSwitcherRowTests: BitwardenTestCase {
         email: "anne.account@bitwarden.com",
         isUnlocked: true,
         userId: "1",
-        userInitials: "AA"
+        userInitials: "AA",
+        webVault: ""
     )
 
     let lockedAccount = ProfileSwitcherItem(
@@ -21,10 +22,11 @@ final class ProfileSwitcherRowTests: BitwardenTestCase {
         email: "anne.account@bitwarden.com",
         isUnlocked: false,
         userId: "2",
-        userInitials: "AA"
+        userInitials: "AA",
+        webVault: ""
     )
 
-    var processor: MockProcessor<ProfileSwitcherRowState, ProfileSwitcherRowAction, Void>!
+    var processor: MockProcessor<ProfileSwitcherRowState, ProfileSwitcherRowAction, ProfileSwitcherRowEffect>!
     var subject: ProfileSwitcherRow!
 
     // MARK: Setup & Teardown

@@ -1,11 +1,6 @@
 import Foundation
 import Networking
 
-// MARK: - AuthMethodsData
-
-/// The structure of the data returned in the two-factor authentication error.
-public typealias AuthMethodsData = [String: [String: String?]?]
-
 // MARK: - IdentityTokenRequestError
 
 /// Errors that can occur when sending an `IdentityTokenRequest`.
@@ -74,13 +69,18 @@ struct IdentityTokenRequest: Request {
     func validate(_ response: HTTPResponse) throws {
         switch response.statusCode {
         case 400:
-            guard let object = try? JSONSerialization.jsonObject(with: response.body) as? [String: Any] else { return }
+            guard let errorModel = try? JSONDecoder().decode(
+                IdentityTokenErrorModel.self,
+                from: response.body
+            ) else { return }
 
-            if let providersData = object["TwoFactorProviders2"] as? AuthMethodsData {
-                let ssoToken = object["SsoEmail2faSessionToken"] as? String
-                let captchaBypassToken = object["CaptchaBypassToken"] as? String
-                throw IdentityTokenRequestError.twoFactorRequired(providersData, ssoToken, captchaBypassToken)
-            } else if let siteCode = object["HCaptcha_SiteKey"] as? String {
+            if let twoFactorProviders = errorModel.twoFactorProviders {
+                throw IdentityTokenRequestError.twoFactorRequired(
+                    twoFactorProviders,
+                    errorModel.ssoToken,
+                    errorModel.captchaBypassToken
+                )
+            } else if let siteCode = errorModel.siteCode {
                 // Throw the captcha error if the captcha site key can be found.
                 throw IdentityTokenRequestError.captchaRequired(hCaptchaSiteCode: siteCode)
             }

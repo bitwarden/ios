@@ -29,7 +29,7 @@ final class AuthRouter: NSObject, Router {
     /// - Parameter route: The proposed `AuthRoute`.
     /// - Returns: Either the supplied route or a new route if the coordinator state demands a different route.
     ///
-    func handleAndRoute(_ event: AuthEvent) async -> AuthRoute {
+    func handleAndRoute(_ event: AuthEvent) async -> AuthRoute { // swiftlint:disable:this function_body_length
         switch event {
         case let .accountBecameActive(
             activeAccount,
@@ -45,6 +45,8 @@ final class AuthRouter: NSObject, Router {
             )
         case let .action(authAction):
             return await handleAuthAction(authAction)
+        case .didCompleteAuth:
+            return await completeAuthRedirect()
         case .didDeleteAccount:
             return await deleteAccountRedirect()
         case let .didLockAccount(

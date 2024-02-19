@@ -8,6 +8,7 @@ import XCTest
 class ViewItemProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_body_length
     // MARK: Properties
 
+    var authRepository: MockAuthRepository!
     var client: MockHTTPClient!
     var coordinator: MockCoordinator<VaultItemRoute, VaultItemEvent>!
     var delegate: MockCipherItemOperationDelegate!
@@ -20,6 +21,7 @@ class ViewItemProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
 
     override func setUp() {
         super.setUp()
+        authRepository = MockAuthRepository()
         client = MockHTTPClient()
         coordinator = MockCoordinator<VaultItemRoute, VaultItemEvent>()
         delegate = MockCipherItemOperationDelegate()
@@ -27,6 +29,7 @@ class ViewItemProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
         pasteboardService = MockPasteboardService()
         vaultRepository = MockVaultRepository()
         let services = ServiceContainer.withMocks(
+            authRepository: authRepository,
             errorReporter: errorReporter,
             httpClient: client,
             pasteboardService: pasteboardService,
@@ -43,6 +46,7 @@ class ViewItemProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
 
     override func tearDown() {
         super.tearDown()
+        authRepository = nil
         client = nil
         coordinator = nil
         errorReporter = nil
@@ -329,10 +333,27 @@ class ViewItemProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
         XCTAssertEqual(subject.state.loadingState, .data(cipherState))
     }
 
-    /// `receive` with `.copyPressed` copies the value with the pasteboard service.
+    /// `receive` with `.copyPressed` copies the value with the pasteboard service and shows a toast.
     func test_receive_copyPressed() {
-        subject.receive(.copyPressed(value: "value"))
+        subject.receive(.copyPressed(value: "value", field: .cardNumber))
         XCTAssertEqual(pasteboardService.copiedString, "value")
+        XCTAssertEqual(subject.state.toast?.text, Localizations.valueHasBeenCopied(Localizations.number))
+
+        subject.receive(.copyPressed(value: "value", field: .password))
+        XCTAssertEqual(pasteboardService.copiedString, "value")
+        XCTAssertEqual(subject.state.toast?.text, Localizations.valueHasBeenCopied(Localizations.password))
+
+        subject.receive(.copyPressed(value: "value", field: .securityCode))
+        XCTAssertEqual(pasteboardService.copiedString, "value")
+        XCTAssertEqual(subject.state.toast?.text, Localizations.valueHasBeenCopied(Localizations.securityCode))
+
+        subject.receive(.copyPressed(value: "value", field: .totp))
+        XCTAssertEqual(pasteboardService.copiedString, "value")
+        XCTAssertEqual(subject.state.toast?.text, Localizations.valueHasBeenCopied(Localizations.totp))
+
+        subject.receive(.copyPressed(value: "value", field: .username))
+        XCTAssertEqual(pasteboardService.copiedString, "value")
+        XCTAssertEqual(subject.state.toast?.text, Localizations.valueHasBeenCopied(Localizations.username))
     }
 
     /// `receive` with `.customFieldVisibilityPressed()` toggles custom field visibility.
@@ -989,7 +1010,7 @@ class ViewItemProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
         let action = try XCTUnwrap(alert.alertActions.first(where: { $0.title == Localizations.submit }))
         await action.handler?(action, [AlertTextField(id: "password", text: "password1234")])
 
-        XCTAssertEqual(vaultRepository.validatePasswordPasswords, ["password1234"])
+        XCTAssertEqual(authRepository.validatePasswordPasswords, ["password1234"])
 
         cipherState.loginState.isPasswordVisible = true
         XCTAssertEqual(subject.state.loadingState, .data(cipherState))
@@ -999,7 +1020,7 @@ class ViewItemProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
     /// If validation the user's password fails, an error is logged.
     func test_masterPasswordReprompt_submitButtonPressed_error() async throws {
         struct ValidatePasswordError: Error {}
-        vaultRepository.validatePasswordResult = .failure(ValidatePasswordError())
+        authRepository.validatePasswordResult = .failure(ValidatePasswordError())
 
         let cipherView = CipherView.fixture(id: "1", reprompt: .password)
         let cipherState = CipherItemState(
@@ -1014,14 +1035,14 @@ class ViewItemProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
         let action = try XCTUnwrap(alert.alertActions.first(where: { $0.title == Localizations.submit }))
         await action.handler?(action, [AlertTextField(id: "password", text: "password1234")])
 
-        XCTAssertEqual(vaultRepository.validatePasswordPasswords, ["password1234"])
+        XCTAssertEqual(authRepository.validatePasswordPasswords, ["password1234"])
         XCTAssertFalse(subject.state.hasVerifiedMasterPassword)
         XCTAssertTrue(errorReporter.errors.last is ValidatePasswordError)
     }
 
     /// If the user's password validation fails, an invalid password alert is presented.
     func test_masterPasswordReprompt_submitButtonPressed_invalidPassword() async throws {
-        vaultRepository.validatePasswordResult = .success(false)
+        authRepository.validatePasswordResult = .success(false)
 
         let cipherView = CipherView.fixture(id: "1", reprompt: .password)
         let cipherState = CipherItemState(
@@ -1036,7 +1057,7 @@ class ViewItemProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
         let action = try XCTUnwrap(alert.alertActions.first(where: { $0.title == Localizations.submit }))
         await action.handler?(action, [AlertTextField(id: "password", text: "password1234")])
 
-        XCTAssertEqual(vaultRepository.validatePasswordPasswords, ["password1234"])
+        XCTAssertEqual(authRepository.validatePasswordPasswords, ["password1234"])
         XCTAssertFalse(subject.state.hasVerifiedMasterPassword)
 
         let invalidPasswordAlert = try coordinator.unwrapLastRouteAsAlert()

@@ -69,17 +69,18 @@ struct AddEditSendItemView: View { // swiftlint:disable:this type_body_length
                                 profileSwitcherState
                             },
                             mapAction: { action in
-                                .profileSwitcherAction(action)
+                                .profileSwitcher(action)
                             },
                             mapEffect: nil
                         )
                     )
                 }
             }
+
             ToolbarItemGroup(placement: .navigationBarTrailing) {
                 switch store.state.mode {
                 case .edit:
-                    Menu {
+                    optionsToolbarMenu {
                         if !store.state.isSendDisabled {
                             AsyncButton(Localizations.shareLink) {
                                 await store.perform(.shareLinkPressed)
@@ -97,21 +98,13 @@ struct AddEditSendItemView: View { // swiftlint:disable:this type_body_length
                         AsyncButton(Localizations.delete, role: .destructive) {
                             await store.perform(.deletePressed)
                         }
-                    } label: {
-                        Asset.Images.verticalKabob.swiftUIImage
-                            .resizable()
-                            .frame(width: 19, height: 19)
-                            .foregroundStyle(Asset.Colors.textSecondary.swiftUIColor)
                     }
                 case .add,
                      .shareExtension:
                     EmptyView()
                 }
 
-                ToolbarButton(
-                    asset: Asset.Images.cancel,
-                    label: Localizations.cancel
-                ) {
+                cancelToolbarButton {
                     store.send(.dismissPressed)
                 }
             }
@@ -154,8 +147,6 @@ struct AddEditSendItemView: View { // swiftlint:disable:this type_body_length
                 }
             }
             .accessibilityIdentifier("SendMaxAccessCountEntry")
-
-            Divider()
 
             Text(Localizations.maximumAccessCountInfo)
                 .styleGuide(.footnote)
@@ -429,7 +420,7 @@ struct AddEditSendItemView: View { // swiftlint:disable:this type_body_length
                         profileSwitcherState
                     },
                     mapAction: { action in
-                        .profileSwitcherAction(action)
+                        .profileSwitcher(action)
                     },
                     mapEffect: { profileEffect in
                         .profileSwitcher(profileEffect)

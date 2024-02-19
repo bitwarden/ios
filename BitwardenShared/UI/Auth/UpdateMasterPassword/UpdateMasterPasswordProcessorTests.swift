@@ -15,6 +15,7 @@ class UpdateMasterPasswordProcessorTests: BitwardenTestCase {
     var httpClient: MockHTTPClient!
     var policyService: MockPolicyService!
     var settingsRepository: MockSettingsRepository!
+    var stateService: MockStateService!
     var subject: UpdateMasterPasswordProcessor!
 
     // MARK: Setup & Teardown
@@ -28,6 +29,7 @@ class UpdateMasterPasswordProcessorTests: BitwardenTestCase {
         httpClient = MockHTTPClient()
         policyService = MockPolicyService()
         settingsRepository = MockSettingsRepository()
+        stateService = MockStateService()
 
         let services = ServiceContainer.withMocks(
             authRepository: authRepository,
@@ -35,7 +37,8 @@ class UpdateMasterPasswordProcessorTests: BitwardenTestCase {
             errorReporter: errorReporter,
             httpClient: httpClient,
             policyService: policyService,
-            settingsRepository: settingsRepository
+            settingsRepository: settingsRepository,
+            stateService: stateService
         )
         let state = UpdateMasterPasswordState()
         subject = UpdateMasterPasswordProcessor(
@@ -54,6 +57,7 @@ class UpdateMasterPasswordProcessorTests: BitwardenTestCase {
         httpClient = nil
         settingsRepository = nil
         subject = nil
+        stateService = nil
     }
 
     // MARK: Tests
@@ -93,12 +97,27 @@ class UpdateMasterPasswordProcessorTests: BitwardenTestCase {
     /// `perform()` with `.appeared` succeeds to sync but master password policy fails to load,
     /// and move to main vault screen.
     func test_perform_appeared_succeeds_policyNil() async throws {
+        authRepository.activeAccount = .fixture(
+            profile: .fixture(forcePasswordResetReason: .weakMasterPasswordOnLogin)
+        )
+        policyService.getMasterPasswordPolicyOptionsResult = .success(nil)
+        stateService.activeAccount = .fixture()
+
+        XCTAssertNil(subject.state.masterPasswordPolicy)
+        await subject.perform(.appeared)
+        XCTAssertNil(subject.state.masterPasswordPolicy)
+        XCTAssertEqual(coordinator.events, [.didCompleteAuth])
+    }
+
+    /// `perform()` with `.appeared` succeeds to sync but doesn't navigate for account recovery with
+    /// no policy.
+    func test_perform_appeared_succeeds_policyNilAccountRecovery() async throws {
         authRepository.activeAccount = .fixture()
         policyService.getMasterPasswordPolicyOptionsResult = .success(nil)
         XCTAssertNil(subject.state.masterPasswordPolicy)
         await subject.perform(.appeared)
         XCTAssertNil(subject.state.masterPasswordPolicy)
-        XCTAssertEqual(coordinator.routes.last, .complete)
+        XCTAssertTrue(coordinator.routes.isEmpty)
     }
 
     /// `perform()` with `.logoutPressed` logs the user out.
@@ -213,7 +232,8 @@ class UpdateMasterPasswordProcessorTests: BitwardenTestCase {
         XCTAssertEqual(authRepository.updateMasterPasswordPasswordHint, "NEW_PASSWORD_HINT")
         XCTAssertEqual(authRepository.updateMasterPasswordReason, .weakMasterPasswordOnLogin)
 
-        XCTAssertEqual(coordinator.routes, [.dismiss, .complete])
+        XCTAssertEqual(coordinator.events, [.didCompleteAuth])
+        XCTAssertEqual(coordinator.routes, [.dismiss])
     }
 
     /// `receive(_:)` with `.currentMasterPasswordChanged` updates the state to reflect the changes.

@@ -79,6 +79,8 @@ extension VaultListItem {
                 Asset.Images.id
             case .login:
                 Asset.Images.globe
+            case .noFolder:
+                Asset.Images.folderClosed
             case .secureNote:
                 Asset.Images.doc
             case .totp:

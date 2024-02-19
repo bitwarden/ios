@@ -12,9 +12,11 @@ typealias Services = HasAPIService
     & HasCameraService
     & HasCaptchaService
     & HasClientAuth
+    & HasClientExporters
     & HasDeviceAPIService
     & HasEnvironmentService
     & HasErrorReporter
+    & HasExportVaultService
     & HasFileAPIService
     & HasGeneratorRepository
     & HasNotificationCenterService
@@ -109,6 +111,13 @@ protocol HasClientAuth {
     var clientAuth: ClientAuthProtocol { get }
 }
 
+/// Protocol for an object that provides a `ClientExportersProtocol`.
+///
+protocol HasClientExporters {
+    /// The client used by the application to handle auth related encryption and decryption tasks.
+    var clientExporters: ClientExportersProtocol { get }
+}
+
 /// Protocol for an object that provides a `DeviceAPIService`.
 ///
 protocol HasDeviceAPIService {
@@ -128,6 +137,13 @@ protocol HasEnvironmentService {
 protocol HasErrorReporter {
     /// The service used by the application to report non-fatal errors.
     var errorReporter: ErrorReporter { get }
+}
+
+/// Protocol for an object that provides a `ExportVaultService`.
+///
+protocol HasExportVaultService {
+    /// The service used by the application to handle vault export tasks.
+    var exportVaultService: ExportVaultService { get }
 }
 
 /// Protocol for an object that provides a `FileAPIService`.

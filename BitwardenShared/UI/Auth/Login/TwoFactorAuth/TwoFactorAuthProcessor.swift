@@ -104,7 +104,7 @@ final class TwoFactorAuthProcessor: StateProcessor<TwoFactorAuthState, TwoFactor
     }
 
     /// Attempt to login.
-    private func login(captchaToken: String? = nil) async { // swiftlint:disable:this function_body_length
+    private func login(captchaToken: String? = nil) async {
         // Hide the loading overlay when exiting this method, in case it hasn't been hidden yet.
         defer { coordinator.hideLoadingOverlay() }
 
@@ -128,12 +128,11 @@ final class TwoFactorAuthProcessor: StateProcessor<TwoFactorAuthState, TwoFactor
                 captchaToken: captchaToken
             )
 
-            // Try to unlock the vault with the master password, if it's known.
-            if let password = state.password {
-                try await services.authRepository.unlockVaultWithPassword(password: password)
+            // Try to unlock the vault with the unlock method.
+            if let unlockMethod = state.unlockMethod {
+                try await unlockVault(unlockMethod: unlockMethod)
                 coordinator.hideLoadingOverlay()
-                coordinator.navigate(to: .dismiss)
-                coordinator.navigate(to: .complete)
+                await coordinator.handleEvent(.didCompleteAuth)
             } else {
                 // Otherwise, navigate to the unlock vault view.
                 coordinator.hideLoadingOverlay()
@@ -194,6 +193,7 @@ final class TwoFactorAuthProcessor: StateProcessor<TwoFactorAuthState, TwoFactor
         var availableMethods = state
             .authMethodsData
             .keys
+            .sorted()
             .compactMap(TwoFactorAuthMethod.init)
         availableMethods.append(.recoveryCode)
         state.availableAuthMethods = availableMethods
@@ -206,7 +206,24 @@ final class TwoFactorAuthProcessor: StateProcessor<TwoFactorAuthState, TwoFactor
         if availableMethods.contains(.email),
            let emailData = state.authMethodsData["\(TwoFactorAuthMethod.email.rawValue)"],
            let emailToDisplay = emailData?["Email"] {
-            state.displayEmail = emailToDisplay ?? state.email
+            state.displayEmail = emailToDisplay?.stringValue ?? state.email
+        }
+    }
+
+    /// Attempts to unlock the user's vault with the specified unlock method.
+    ///
+    /// - Parameter unlockMethod: The method used to unlock the vault.
+    ///
+    private func unlockVault(unlockMethod: TwoFactorUnlockMethod) async throws {
+        switch unlockMethod {
+        case let .password(password):
+            try await services.authRepository.unlockVaultWithPassword(password: password)
+        case let .loginWithDevice(key, masterPasswordHash, privateKey):
+            try await services.authRepository.unlockVaultFromLoginWithDevice(
+                privateKey: privateKey,
+                key: key,
+                masterPasswordHash: masterPasswordHash
+            )
         }
     }
 }

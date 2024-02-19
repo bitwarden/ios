@@ -12,7 +12,7 @@ enum VaultAutofillListAction: Equatable {
     case cancelTapped
 
     /// A forwarded profile switcher action.
-    case profileSwitcherAction(ProfileSwitcherAction)
+    case profileSwitcher(ProfileSwitcherAction)
 
     /// The text in the search bar was changed.
     case searchStateChanged(isSearching: Bool)

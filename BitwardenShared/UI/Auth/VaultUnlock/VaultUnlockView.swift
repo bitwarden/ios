@@ -36,16 +36,15 @@ struct VaultUnlockView: View {
         .toolbar {
             ToolbarItem(placement: .navigationBarTrailing) {
                 if store.state.isInAppExtension {
-                    ToolbarButton(asset: Asset.Images.cancel, label: Localizations.cancel) {
+                    cancelToolbarButton {
                         store.send(.cancelPressed)
                     }
                 } else {
-                    ToolbarButton(asset: Asset.Images.verticalKabob, label: Localizations.options) {
-                        store.send(.morePressed)
+                    optionsToolbarMenu {
+                        Button(Localizations.logOut) {
+                            store.send(.morePressed)
+                        }
                     }
-                    .accessibilityIdentifier(
-                        "//XCUIElementTypeScrollView[2]/XCUIElementTypeOther[1]/XCUIElementTypeOther"
-                    )
                 }
             }
             ToolbarItem(placement: .navigationBarLeading) {
@@ -90,7 +89,7 @@ struct VaultUnlockView: View {
                     state.profileSwitcherState
                 },
                 mapAction: { action in
-                    .profileSwitcherAction(action)
+                    .profileSwitcher(action)
                 },
                 mapEffect: nil
             )
@@ -117,7 +116,7 @@ struct VaultUnlockView: View {
                     mainState.profileSwitcherState
                 },
                 mapAction: { action in
-                    .profileSwitcherAction(action)
+                    .profileSwitcher(action)
                 },
                 mapEffect: { profileEffect in
                     .profileSwitcher(profileEffect)
@@ -188,6 +187,7 @@ struct UnlockVaultView_Previews: PreviewProvider {
                             profileSwitcherState: .init(
                                 accounts: [],
                                 activeAccountId: nil,
+                                allowLockAndLogout: true,
                                 isVisible: false
                             ),
                             unlockMethod: .password,
@@ -210,10 +210,12 @@ struct UnlockVaultView_Previews: PreviewProvider {
                                         email: "max.protecc@bitwarden.com",
                                         isUnlocked: false,
                                         userId: "123",
-                                        userInitials: "MP"
+                                        userInitials: "MP",
+                                        webVault: ""
                                     ),
                                 ],
                                 activeAccountId: "123",
+                                allowLockAndLogout: true,
                                 isVisible: false
                             ),
                             unlockMethod: .pin,
@@ -237,10 +239,12 @@ struct UnlockVaultView_Previews: PreviewProvider {
                                         email: "max.protecc@bitwarden.com",
                                         isUnlocked: false,
                                         userId: "123",
-                                        userInitials: "MP"
+                                        userInitials: "MP",
+                                        webVault: ""
                                     ),
                                 ],
                                 activeAccountId: "123",
+                                allowLockAndLogout: true,
                                 isVisible: true
                             ),
                             unlockMethod: .password,

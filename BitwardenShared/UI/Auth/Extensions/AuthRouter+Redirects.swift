@@ -18,6 +18,23 @@ extension AuthRouter {
         return try await services.authRepository.setActiveAccount(userId: alternate.profile.userId)
     }
 
+    /// Handles the `didComplete` route by navigating the user to the update master password screen
+    /// if their password needs to be updated or completes the auth flow by navigating the user to
+    /// the vault.
+    ///
+    /// - Returns: A redirect route to either `.complete` or `.updateMasterPassword`.
+    ///
+    func completeAuthRedirect() async -> AuthRoute {
+        guard let account = try? await services.authRepository.getAccount() else {
+            return .landing
+        }
+        if account.profile.forcePasswordResetReason != nil {
+            return .updateMasterPassword
+        } else {
+            return .complete
+        }
+    }
+
     /// Handles the `.didDeleteAccount`route and redirects the user to the correct screen
     ///     based on alternate accounts state. If the user has an alternate account,
     ///     they will go to the unlock sequence for that account.

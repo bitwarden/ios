@@ -14,9 +14,6 @@ enum LoginAction: Equatable {
     /// The value for the master password was changed.
     case masterPasswordChanged(String)
 
-    /// The more button was pressed.
-    case morePressed
-
     /// The not you? button was pressed.
     case notYouPressed
 

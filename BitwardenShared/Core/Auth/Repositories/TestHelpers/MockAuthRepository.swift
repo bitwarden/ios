@@ -51,6 +51,9 @@ class MockAuthRepository: AuthRepository {
     var updateMasterPasswordReason: ForcePasswordResetReason?
     var updateMasterPasswordResult: Result<Void, Error> = .success(())
 
+    var validatePasswordPasswords = [String]()
+    var validatePasswordResult: Result<Bool, Error> = .success(true)
+
     var vaultTimeout = [String: SessionTimeoutValue]()
 
     func allowBioMetricUnlock(_ enabled: Bool) async throws {
@@ -88,6 +91,7 @@ class MockAuthRepository: AuthRepository {
     }
 
     func getProfilesState(
+        allowLockAndLogout: Bool,
         isVisible: Bool,
         shouldAlwaysHideAddAccount: Bool
     ) async -> BitwardenShared.ProfileSwitcherState {
@@ -95,6 +99,7 @@ class MockAuthRepository: AuthRepository {
             return ProfileSwitcherState(
                 accounts: profileSwitcherState.accounts,
                 activeAccountId: profileSwitcherState.activeAccountId,
+                allowLockAndLogout: allowLockAndLogout,
                 isVisible: isVisible,
                 shouldAlwaysHideAddAccount: shouldAlwaysHideAddAccount
             )
@@ -148,6 +153,15 @@ class MockAuthRepository: AuthRepository {
     func setPins(_ pin: String, requirePasswordAfterRestart _: Bool) async throws {
         encryptedPin = pin
         pinProtectedUserKey = pin
+    }
+
+    func sessionTimeoutValue(userId: String?) async throws -> BitwardenShared.SessionTimeoutValue {
+        guard let value = try vaultTimeout[unwrapUserId(userId)] else {
+            throw (userId == nil)
+                ? StateServiceError.noActiveAccount
+                : StateServiceError.noAccounts
+        }
+        return value
     }
 
     func setVaultTimeout(value: BitwardenShared.SessionTimeoutValue, userId: String?) async throws {
@@ -207,5 +221,10 @@ class MockAuthRepository: AuthRepository {
         updateMasterPasswordPasswordHint = passwordHint
         updateMasterPasswordReason = reason
         return try updateMasterPasswordResult.get()
+    }
+
+    func validatePassword(_ password: String) async throws -> Bool {
+        validatePasswordPasswords.append(password)
+        return try validatePasswordResult.get()
     }
 }

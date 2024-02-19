@@ -9,9 +9,11 @@ enum ViewItemAction: Equatable {
 
     /// A copy button was pressed for the given value.
     ///
-    /// - Parameter value: The value to copy.
+    /// - Parameters:
+    ///   - value: The value to copy.
+    ///   - field: The field being copied.
     ///
-    case copyPressed(value: String)
+    case copyPressed(value: String, field: CopyableField? = nil)
 
     /// The visibility button was pressed for the specified custom field.
     case customFieldVisibilityPressed(CustomFieldState)
@@ -54,6 +56,48 @@ enum ViewItemAction: Equatable {
              .passwordHistoryPressed,
              .toastShown:
             false
+        }
+    }
+}
+
+// MARK: CopyableField
+
+/// The text fields within the `ViewItemView` that can be copied.
+///
+enum CopyableField {
+    /// The card number field.
+    case cardNumber
+
+    /// The password field.
+    case password
+
+    /// The security code field.
+    case securityCode
+
+    /// The totp field.
+    case totp
+
+    /// The uri field.
+    case uri
+
+    /// The username field.
+    case username
+
+    /// The localized name for each field.
+    var localizedName: String {
+        switch self {
+        case .cardNumber:
+            Localizations.number
+        case .password:
+            Localizations.password
+        case .securityCode:
+            Localizations.securityCode
+        case .totp:
+            Localizations.totp
+        case .uri:
+            Localizations.uri
+        case .username:
+            Localizations.username
         }
     }
 }

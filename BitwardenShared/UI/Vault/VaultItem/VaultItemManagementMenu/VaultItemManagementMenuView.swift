@@ -53,6 +53,7 @@ struct VaultItemManagementMenuView: View {
                 .foregroundColor(Asset.Colors.primaryBitwarden.swiftUIColor)
         }
         .accessibilityLabel(Localizations.options)
+        .frame(minHeight: 44)
     }
 }
 

@@ -3,34 +3,6 @@ import SwiftUI
 /// Helper functions extended off the `View` protocol.
 ///
 extension View {
-    /// A `ToolbarItem` for views with an add button.
-    ///
-    /// - Parameters:
-    ///   - hidden: Whether to hide the toolbar item.
-    ///   - action: The action to perform when the add button is tapped.
-    ///
-    /// - Returns: A `ToolbarItem` with an add button.
-    ///
-    func addToolbarItem(hidden: Bool = false, _ action: @escaping () -> Void) -> some ToolbarContent {
-        ToolbarItem(placement: .navigationBarTrailing) {
-            ToolbarButton(asset: Asset.Images.plus, label: Localizations.add, action: action)
-                .hidden(hidden)
-        }
-    }
-
-    /// A `ToolbarItem` for views with a dismiss button.
-    ///
-    /// - Parameter action: The action to perform when the dismiss button is tapped.
-    ///
-    /// - Returns: A `ToolbarItem` with a dismiss button.
-    ///
-    func cancelToolbarItem(_ action: @escaping () -> Void) -> some ToolbarContent {
-        ToolbarItem(placement: .navigationBarTrailing) {
-            ToolbarButton(asset: Asset.Images.cancel, label: Localizations.cancel, action: action)
-                .accessibilityIdentifier("CLOSE")
-        }
-    }
-
     /// On iOS 16+, configures the scroll view to dismiss the keyboard immediately.
     ///
     func dismissKeyboardImmediately() -> some View {
@@ -76,25 +48,6 @@ extension View {
         let nextValue = currentValue.rawValue + 1
         if let newValue = F(rawValue: nextValue) {
             field.wrappedValue = newValue
-        }
-    }
-
-    /// A `ToolbarItem` for views with a more button.
-    ///
-    /// - Parameter content: The content to display in the menu when the more icon is tapped.
-    ///
-    /// - Returns: A `ToolbarItem` with a more button that shows a menu.
-    ///
-    func moreToolbarItem(_ content: () -> some View) -> some ToolbarContent {
-        ToolbarItem {
-            Menu {
-                content()
-            } label: {
-                Image(asset: Asset.Images.verticalKabob, label: Text(Localizations.options))
-                    .resizable()
-                    .frame(width: 19, height: 19)
-                    .foregroundColor(Asset.Colors.primaryBitwarden.swiftUIColor)
-            }
         }
     }
 

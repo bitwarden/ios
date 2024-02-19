@@ -39,9 +39,6 @@ public enum AuthRoute: Equatable {
     ///                               login screen.
     case login(username: String, region: RegionType, isLoginWithDeviceVisible: Bool)
 
-    /// A route to the login options screen.
-    case loginOptions
-
     /// A route to the login with device screen.
     ///
     /// - Parameter email: The user's email.
@@ -57,7 +54,9 @@ public enum AuthRoute: Equatable {
     case updateMasterPassword
 
     /// A route to the self-hosted settings view.
-    case selfHosted
+    ///
+    /// - Parameter currentRegion: The user's region type prior to navigating to the self-hosted view.
+    case selfHosted(currentRegion: RegionType)
 
     /// A route to the single sign on WebAuth screen.
     ///
@@ -72,12 +71,12 @@ public enum AuthRoute: Equatable {
     ///
     /// - Parameters:
     ///   - email: The user's email address.
-    ///   - password: The password, if the login method was password.
+    ///   - unlockMethod: The method used to unlock the vault after two-factor completes successfully.
     ///   - authMethodsData: The data on the available auth methods.
     ///
     case twoFactor(
         _ email: String,
-        _ password: String?,
+        _ unlockMethod: TwoFactorUnlockMethod?,
         _ authMethodsData: AuthMethodsData
     )
 

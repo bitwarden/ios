@@ -1203,39 +1203,6 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
         XCTAssertEqual(cipherService.softDeleteCipherId, "123")
     }
 
-    /// `validatePassword(_:)` returns `true` if the master password matches the stored password hash.
-    func test_validatePassword() async throws {
-        stateService.activeAccount = .fixture(profile: .fixture(userId: "1"))
-        stateService.masterPasswordHashes["1"] = "wxyz4321"
-        clientAuth.validatePasswordResult = true
-
-        let isValid = try await subject.validatePassword("test1234")
-
-        XCTAssertTrue(isValid)
-        XCTAssertEqual(clientAuth.validatePasswordPassword, "test1234")
-        XCTAssertEqual(clientAuth.validatePasswordPasswordHash, "wxyz4321")
-    }
-
-    /// `validatePassword(_:)` returns `false` if there's no stored password hash.
-    func test_validatePassword_noPasswordHash() async throws {
-        stateService.activeAccount = .fixture(profile: .fixture(userId: "1"))
-
-        let isValid = try await subject.validatePassword("not the password")
-
-        XCTAssertFalse(isValid)
-    }
-
-    /// `validatePassword(_:)` returns `false` if the master password doesn't match the stored password hash.
-    func test_validatePassword_notValid() async throws {
-        stateService.activeAccount = .fixture(profile: .fixture(userId: "1"))
-        stateService.masterPasswordHashes["1"] = "wxyz4321"
-        clientAuth.validatePasswordResult = false
-
-        let isValid = try await subject.validatePassword("not the password")
-
-        XCTAssertFalse(isValid)
-    }
-
     /// `vaultListPublisher(group:filter:)` returns a publisher for the vault list items.
     func test_vaultListPublisher_groups_card() async throws {
         let cipher = Cipher.fixture(id: "1", type: .card)
@@ -1403,16 +1370,11 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
             ),
             .init(
                 id: "Folders",
-                items: [.fixtureGroup(id: "1", group: .folder(id: "1", name: ""), count: 1)],
-                name: Localizations.folders
-            ),
-            .init(
-                id: "NoFolder",
                 items: [
-                    .fixture(cipherView: .init(cipher: ciphers[1])),
-                    .fixture(cipherView: .init(cipher: ciphers[2])),
+                    .fixtureGroup(id: "1", group: .folder(id: "1", name: ""), count: 1),
+                    .init(id: "NoFolderFolderItem", itemType: .group(.noFolder, 2)),
                 ],
-                name: Localizations.folderNone
+                name: Localizations.folders
             ),
             .init(
                 id: "Collections",
@@ -1472,16 +1434,11 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
             ),
             .init(
                 id: "Folders",
-                items: [.fixtureGroup(id: "1", group: .folder(id: "1", name: ""), count: 1)],
-                name: Localizations.folders
-            ),
-            .init(
-                id: "NoFolder",
                 items: [
-                    .fixture(cipherView: .init(cipher: ciphers[1])),
-                    .fixture(cipherView: .init(cipher: ciphers[2])),
+                    .fixtureGroup(id: "1", group: .folder(id: "1", name: ""), count: 1),
+                    .init(id: "NoFolderFolderItem", itemType: .group(.noFolder, 2)),
                 ],
-                name: Localizations.folderNone
+                name: Localizations.folders
             ),
             .init(
                 id: "Collections",
@@ -1537,6 +1494,110 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
         XCTAssertEqual(
             errorReporter.errors.last as? NSError,
             BitwardenError.dataError("Received a folder from the API with a missing ID.")
+        )
+    }
+
+    /// `vaultListPublisher(filter:)`should return `NoFolder` items as folder item, when collections are available.
+    func test_vaultListPublisher_section_noFolderItem() async throws { // swiftlint:disable:this function_body_length
+        stateService.activeAccount = .fixture()
+        let ciphers: [Cipher] = [
+            .fixture(folderId: "1", id: "1", type: .login),
+            .fixture(id: "2", login: .fixture(), type: .login),
+            .fixture(collectionIds: ["1"], favorite: false, id: "3"),
+            .fixture(deletedDate: Date(), id: "3"),
+        ]
+        let collection = Collection.fixture(id: "1")
+        let folder = Folder.fixture(id: "1")
+        cipherService.ciphersSubject.send(ciphers)
+        collectionService.collectionsSubject.send([collection])
+        folderService.foldersSubject.send([folder])
+
+        var iterator = try await subject.vaultListPublisher(filter: .allVaults).makeAsyncIterator()
+        let vaultListSections = try await iterator.next()
+        let expectedResult: [VaultListSection] = [
+            .init(
+                id: "Types",
+                items: [
+                    .fixtureGroup(id: "Types.Logins", group: .login, count: 3),
+                    .fixtureGroup(id: "Types.Cards", group: .card, count: 0),
+                    .fixtureGroup(id: "Types.Identities", group: .identity, count: 0),
+                    .fixtureGroup(id: "Types.SecureNotes", group: .secureNote, count: 0),
+                ],
+                name: Localizations.types
+            ),
+            .init(
+                id: "Folders",
+                items: [
+                    .fixtureGroup(id: "1", group: .folder(id: "1", name: ""), count: 1),
+                    .init(id: "NoFolderFolderItem", itemType: .group(.noFolder, 2)),
+                ],
+                name: Localizations.folders
+            ),
+            .init(
+                id: "Collections",
+                items: [
+                    .fixtureGroup(
+                        id: "1",
+                        group: .collection(id: "1", name: "", organizationId: ""),
+                        count: 1
+                    ),
+                ],
+                name: Localizations.collections
+            ),
+            .init(
+                id: "Trash",
+                items: [.fixtureGroup(id: "Trash", group: .trash, count: 1)],
+                name: Localizations.trash
+            ),
+        ]
+        XCTAssertEqual(
+            vaultListSections,
+            expectedResult
+        )
+    }
+
+    /// `vaultListPublisher(filter:)`should return `NoFolder` items as folder item, when there are
+    /// more than 100 ciphers without a folder assigned.
+    func test_vaultListPublisher_section_100Cipher() async throws {
+        stateService.activeAccount = .fixture()
+        var ciphers: [Cipher] = []
+        for index in 1 ... 100 {
+            ciphers.append(.fixture(id: "\(index)", type: .login))
+        }
+        let folder = Folder.fixture(id: "1")
+        cipherService.ciphersSubject.send(ciphers)
+        folderService.foldersSubject.send([folder])
+
+        var iterator = try await subject.vaultListPublisher(filter: .allVaults).makeAsyncIterator()
+        let vaultListSections = try await iterator.next()
+        let expectedResult: [VaultListSection] = [
+            .init(
+                id: "Types",
+                items: [
+                    .fixtureGroup(id: "Types.Logins", group: .login, count: 100),
+                    .fixtureGroup(id: "Types.Cards", group: .card, count: 0),
+                    .fixtureGroup(id: "Types.Identities", group: .identity, count: 0),
+                    .fixtureGroup(id: "Types.SecureNotes", group: .secureNote, count: 0),
+                ],
+                name: Localizations.types
+            ),
+            .init(
+                id: "Folders",
+                items: [
+                    .fixtureGroup(id: "1", group: .folder(id: "1", name: ""), count: 0),
+                    .init(id: "NoFolderFolderItem", itemType: .group(.noFolder, 100)),
+                ],
+                name: Localizations.folders
+            ),
+            .init(
+                id: "Trash",
+                items: [.fixtureGroup(id: "Trash", group: .trash, count: 0)],
+                name: Localizations.trash
+            ),
+        ]
+        XCTAssertEqual(
+            vaultListSections,
+            expectedResult
         )
     }
 
@@ -1599,9 +1660,8 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
               - Group: Card (0)
               - Group: Identity (0)
               - Group: Secure note (0)
-            Section: No Folder
-              - Cipher: Apple
-              - Cipher: Figma
+            Section: Folders
+              - Group: No Folder (2)
             Section: Collections
               - Group: Design (1)
               - Group: Engineering (1)

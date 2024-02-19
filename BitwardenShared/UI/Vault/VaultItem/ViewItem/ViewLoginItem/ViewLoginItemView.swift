@@ -16,12 +16,14 @@ struct ViewLoginItemView: View {
     /// The `TimeProvider` used to calculate TOTP expiration.
     var timeProvider: any TimeProvider
 
+    // MARK: View
+
     var body: some View {
         if !store.state.username.isEmpty {
             let username = store.state.username
             BitwardenTextValueField(title: Localizations.username, value: username) {
                 Button {
-                    store.send(.copyPressed(value: username))
+                    store.send(.copyPressed(value: username, field: .username))
                 } label: {
                     Asset.Images.copy.swiftUIImage
                         .resizable()
@@ -53,7 +55,7 @@ struct ViewLoginItemView: View {
                     .accessibilityLabel(Localizations.checkPassword)
 
                     Button {
-                        store.send(.copyPressed(value: password))
+                        store.send(.copyPressed(value: password, field: .password))
                     } label: {
                         Asset.Images.copy.swiftUIImage
                             .resizable()
@@ -92,7 +94,7 @@ struct ViewLoginItemView: View {
                         }
                     )
                     Button {
-                        store.send(.copyPressed(value: totpModel.code))
+                        store.send(.copyPressed(value: totpModel.code, field: .totp))
                     } label: {
                         Asset.Images.copy.swiftUIImage
                             .resizable()

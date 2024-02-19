@@ -47,15 +47,15 @@ struct GeneratorView: View {
             send: GeneratorAction.toastShown
         ))
         .toolbar {
-            moreToolbarItem {
-                Button(Localizations.passwordHistory) {
-                    store.send(.showPasswordHistory)
+            ToolbarItemGroup(placement: .topBarTrailing) {
+                optionsToolbarMenu {
+                    Button(Localizations.passwordHistory) {
+                        store.send(.showPasswordHistory)
+                    }
                 }
-            }
 
-            ToolbarItem(placement: .navigationBarTrailing) {
                 if store.state.presentationMode.isDismissButtonVisible {
-                    ToolbarButton(asset: Asset.Images.cancel, label: Localizations.cancel) {
+                    cancelToolbarButton {
                         store.send(.dismissPressed)
                     }
                 }
@@ -107,7 +107,9 @@ struct GeneratorView: View {
                 case let .menuUsernameGeneratorType(menuField):
                     menuUsernameGeneratorTypeView(field: menuField)
                 case let .slider(sliderField):
-                    SliderFieldView(field: sliderField) { newValue in
+                    SliderFieldView(field: sliderField) { isEditing in
+                        store.send(.sliderEditingChanged(field: sliderField, isEditing: isEditing))
+                    } onValueChanged: { newValue in
                         store.send(.sliderValueChanged(field: sliderField, value: newValue))
                     }
                 case let .stepper(stepperField):

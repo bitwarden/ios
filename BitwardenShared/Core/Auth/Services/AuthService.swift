@@ -85,10 +85,12 @@ protocol AuthService {
     ///
     /// - Parameters email: The user's email.
     ///
-    /// - Returns: The fingerprint associated with the new login request and the id of the login
-    ///   request, used to check for a response.
+    /// - Returns: The auth request response containing the fingerprint for the new login request
+    ///     and the id of the login request, used to check for a response.
     ///
-    func initiateLoginWithDevice(email: String) async throws -> (fingerprint: String, requestId: String)
+    func initiateLoginWithDevice(
+        email: String
+    ) async throws -> (authRequestResponse: AuthRequestResponse, requestId: String)
 
     /// Login with the response received from a login with device request.
     ///
@@ -96,7 +98,7 @@ protocol AuthService {
     ///   - loginRequest: The approved login request.
     ///   - email: The user's email.
     ///   - captchaToken: An optional captcha token value to add to the token request.
-    /// - Returns: <#description#>
+    /// - Returns: A tuple containing the private key from the auth request and the encrypted user key.
     ///
     func loginWithDevice(_ loginRequest: LoginRequest, email: String, captchaToken: String?) async throws
         -> (String, String)
@@ -271,13 +273,11 @@ class DefaultAuthService: AuthService { // swiftlint:disable:this type_body_leng
         let publicKey = loginRequest.publicKey
         let encodedKey = try await clientAuth.approveAuthRequest(publicKey: publicKey)
 
-        let masterPasswordHash = try await stateService.getMasterPasswordHash()
-
         // Send the API request.
         let requestModel = AnswerLoginRequestRequestModel(
             deviceIdentifier: appID,
             key: encodedKey,
-            masterPasswordHash: masterPasswordHash,
+            masterPasswordHash: nil,
             requestApproved: approve
         )
         _ = try await authAPIService.answerLoginRequest(loginRequest.id, requestModel: requestModel)
@@ -373,7 +373,9 @@ class DefaultAuthService: AuthService { // swiftlint:disable:this type_body_leng
         )
     }
 
-    func initiateLoginWithDevice(email: String) async throws -> (fingerprint: String, requestId: String) {
+    func initiateLoginWithDevice(
+        email: String
+    ) async throws -> (authRequestResponse: AuthRequestResponse, requestId: String) {
         // Get the app's id.
         let appId = await appIdService.getOrCreateAppId()
 
@@ -388,8 +390,11 @@ class DefaultAuthService: AuthService { // swiftlint:disable:this type_body_leng
         )
         self.loginWithDeviceData = loginWithDeviceData
 
-        // Return the fingerprint and the request id.
-        return (fingerprint: loginWithDeviceData.fingerprint, requestId: loginRequest.id)
+        // Return the auth request response and the request id.
+        return (
+            authRequestResponse: loginWithDeviceData,
+            requestId: loginRequest.id
+        )
     }
 
     func loginWithDevice(
@@ -431,6 +436,10 @@ class DefaultAuthService: AuthService { // swiftlint:disable:this type_body_leng
             email: username,
             captchaToken: captchaToken
         )
+
+        // Save the master password hash.
+        try await saveMasterPasswordHash(password: masterPassword)
+
         var policy: MasterPasswordPolicyOptions?
         if let model = token.masterPasswordPolicy {
             policy = MasterPasswordPolicyOptions(
@@ -444,9 +453,7 @@ class DefaultAuthService: AuthService { // swiftlint:disable:this type_body_leng
             )
         }
         if try await requirePasswordChange(email: username, masterPassword: masterPassword, policy: policy) {
-            var account = try await stateService.getActiveAccount()
-            account.profile.forcePasswordResetReason = .weakMasterPasswordOnLogin
-            await stateService.addAccount(account)
+            try await stateService.setForcePasswordResetReason(.weakMasterPasswordOnLogin)
         }
     }
 
@@ -485,6 +492,11 @@ class DefaultAuthService: AuthService { // swiftlint:disable:this type_body_leng
 
         // Get the identity token to log in to Bitwarden.
         _ = try await getIdentityTokenResponse(email: email, request: twoFactorRequest)
+
+        // Save the master password hash.
+        if case let .password(_, password) = twoFactorRequest.authenticationMethod {
+            try await saveMasterPasswordHash(password: password)
+        }
 
         // Remove the cached request after successfully logging in.
         self.twoFactorRequest = nil
@@ -552,7 +564,7 @@ class DefaultAuthService: AuthService { // swiftlint:disable:this type_body_leng
     ///   - captchaToken: The optional captcha token. Defaults to `nil`.
     ///   - request: The cached request, if resending a login request with two-factor codes. Defaults to `nil`.
     ///
-    private func getIdentityTokenResponse( // swiftlint:disable:this function_body_length
+    private func getIdentityTokenResponse(
         authenticationMethod: IdentityTokenRequestModel.AuthenticationMethod? = nil,
         email: String,
         captchaToken: String? = nil,
@@ -604,13 +616,6 @@ class DefaultAuthService: AuthService { // swiftlint:disable:this type_body_leng
             let encryptionKeys = AccountEncryptionKeys(identityTokenResponseModel: identityTokenResponse)
             try await stateService.setAccountEncryptionKeys(encryptionKeys)
 
-            // Save the master password, if applicable.
-            if case let .password(_, password) = request.authenticationMethod {
-                try await stateService.setMasterPasswordHash(hashPassword(
-                    password: password,
-                    purpose: .localAuthorization
-                ))
-            }
             return identityTokenResponse
         } catch let error as IdentityTokenRequestError {
             if case let .twoFactorRequired(_, ssoToken, captchaBypassToken) = error {
@@ -635,5 +640,16 @@ class DefaultAuthService: AuthService { // swiftlint:disable:this type_body_leng
             // Re-throw the error.
             throw error
         }
+    }
+
+    /// Saves the user's master password hash.
+    ///
+    /// - Parameter password: The user's master password to hash and save.
+    ///
+    private func saveMasterPasswordHash(password: String) async throws {
+        try await stateService.setMasterPasswordHash(hashPassword(
+            password: password,
+            purpose: .localAuthorization
+        ))
     }
 } // swiftlint:disable:this file_length

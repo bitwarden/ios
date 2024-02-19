@@ -20,10 +20,9 @@ struct EditCollectionsView: View {
             .task { await store.perform(.fetchCipherOptions) }
             .toolbar {
                 ToolbarItem(placement: .topBarLeading) {
-                    AsyncButton(Localizations.save) {
+                    toolbarButton(Localizations.save) {
                         await store.perform(.save)
                     }
-                    .buttonStyle(.toolbar)
                 }
 
                 cancelToolbarItem {

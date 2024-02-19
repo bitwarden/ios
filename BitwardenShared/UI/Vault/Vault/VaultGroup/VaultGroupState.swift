@@ -101,7 +101,7 @@ struct VaultGroupState: Equatable {
             return ""
         case .collection:
             return "CollectionFilter"
-        case .folder:
+        case .folder, .noFolder:
             return "FolderFilter"
         case .trash:
             return "TrashFilter"

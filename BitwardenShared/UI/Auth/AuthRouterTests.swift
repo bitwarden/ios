@@ -112,6 +112,30 @@ final class AuthRouterTests: BitwardenTestCase { // swiftlint:disable:this type_
         XCTAssertEqual(route, .complete)
     }
 
+    /// `handleAndRoute(_:)` redirects `.didCompleteAuth` to complete the auth flow if the account
+    /// doesn't require an updated password.
+    func test_handleAndRoute_didCompleteAuth_complete() async {
+        authRepository.activeAccount = .fixture()
+        let route = await subject.handleAndRoute(.didCompleteAuth)
+        XCTAssertEqual(route, .complete)
+    }
+
+    /// `handleAndRoute(_ :)` redirects `.didCompleteAuth` to `.landing` when there are no accounts.
+    func test_handleAndRoute_didCompleteAuth_noAccounts() async {
+        let route = await subject.handleAndRoute(.didCompleteAuth)
+        XCTAssertEqual(route, .landing)
+    }
+
+    /// `handleAndRoute(_:)` redirects `.didCompleteAuth` to the update master password screen if
+    /// the account requires an updated password.
+    func test_handleAndRoute_didCompleteAuth_updatePassword() async {
+        authRepository.activeAccount = .fixture(
+            profile: .fixture(forcePasswordResetReason: .adminForcePasswordReset)
+        )
+        let route = await subject.handleAndRoute(.didCompleteAuth)
+        XCTAssertEqual(route, .updateMasterPassword)
+    }
+
     /// `handleAndRoute(_ :)` redirects`.didDeleteAccount` to another account
     ///     when there are more accounts.
     func test_handleAndRoute_didDeleteAccount_alternateAccount() {

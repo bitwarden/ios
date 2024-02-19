@@ -1,6 +1,7 @@
 import BitwardenSdk
 import Foundation
 import LocalAuthentication
+import OSLog
 
 // swiftlint:disable file_length
 
@@ -78,14 +79,23 @@ protocol AuthRepository: AnyObject {
 
     /// Gets the profiles state for a user.
     /// - Parameters:
+    ///   - allowLockAndLogout: Should the view allow lock & logout?
     ///   - isVisible: Should the state be visible?
     ///   - shouldAlwaysHideAddAccount: Should the state always hide add account?
     /// - Returns: A ProfileSwitcherState.
     ///
     func getProfilesState(
+        allowLockAndLogout: Bool,
         isVisible: Bool,
         shouldAlwaysHideAddAccount: Bool
     ) async -> ProfileSwitcherState
+
+    /// Gets the `SessionTimeoutValue` for a user.
+    ///
+    ///  - Parameter userId: The userId of the account.
+    ///     Defaults to the active user if nil.
+    ///
+    func sessionTimeoutValue(userId: String?) async throws -> SessionTimeoutValue
 
     /// Sets the encrypted pin and the pin protected user key.
     ///
@@ -153,6 +163,13 @@ protocol AuthRepository: AnyObject {
         passwordHint: String,
         reason: ForcePasswordResetReason
     ) async throws
+
+    /// Validates the user's entered master password to determine if it matches the stored hash.
+    ///
+    /// - Parameter password: The user's master password.
+    /// - Returns: Whether the hash of the password matches the stored hash.
+    ///
+    func validatePassword(_ password: String) async throws -> Bool
 }
 
 extension AuthRepository {
@@ -184,6 +201,14 @@ extension AuthRepository {
     ///
     func logout() async throws {
         try await logout(userId: nil)
+    }
+
+    /// Gets the `SessionTimeoutValue` for the active user.
+    ///
+    /// - Returns: The session timeout value.
+    ///
+    func sessionTimeoutValue() async throws -> SessionTimeoutValue {
+        try await sessionTimeoutValue(userId: nil)
     }
 
     /// Sets the SessionTimeoutValue upon the app being backgrounded.
@@ -313,6 +338,7 @@ extension DefaultAuthRepository: AuthRepository {
     }
 
     func getProfilesState(
+        allowLockAndLogout: Bool,
         isVisible: Bool,
         shouldAlwaysHideAddAccount: Bool
     ) async -> ProfileSwitcherState {
@@ -322,6 +348,7 @@ extension DefaultAuthRepository: AuthRepository {
         return ProfileSwitcherState(
             accounts: accounts,
             activeAccountId: activeAccount?.userId,
+            allowLockAndLogout: allowLockAndLogout,
             isVisible: isVisible,
             shouldAlwaysHideAddAccount: shouldAlwaysHideAddAccount
         )
@@ -349,6 +376,10 @@ extension DefaultAuthRepository: AuthRepository {
 
     func passwordStrength(email: String, password: String) async -> UInt8 {
         await clientAuth.passwordStrength(password: password, email: email, additionalInputs: [])
+    }
+
+    func sessionTimeoutValue(userId: String?) async throws -> SessionTimeoutValue {
+        try await vaultTimeoutService.sessionTimeoutValue(userId: userId)
     }
 
     func setActiveAccount(userId: String) async throws -> Account {
@@ -391,10 +422,18 @@ extension DefaultAuthRepository: AuthRepository {
     }
 
     func unlockVaultFromLoginWithDevice(privateKey: String, key: String, masterPasswordHash: String?) async throws {
-        try await unlockVault(method: .authRequest(requestPrivateKey: privateKey, protectedUserKey: key))
-        if let masterPasswordHash {
-            try await stateService.setMasterPasswordHash(masterPasswordHash)
+        let encryptionKeys = try await stateService.getAccountEncryptionKeys()
+        let method: AuthRequestMethod = if masterPasswordHash != nil {
+            AuthRequestMethod.masterKey(protectedMasterKey: key, authRequestKey: encryptionKeys.encryptedUserKey)
+        } else {
+            AuthRequestMethod.userKey(protectedUserKey: key)
         }
+        try await unlockVault(
+            method: .authRequest(
+                requestPrivateKey: privateKey,
+                method: method
+            )
+        )
     }
 
     func unlockVaultWithBiometrics() async throws {
@@ -420,6 +459,25 @@ extension DefaultAuthRepository: AuthRepository {
             throw StateServiceError.noPinProtectedUserKey
         }
         try await unlockVault(method: .pin(pin: pin, pinProtectedUserKey: pinProtectedUserKey))
+    }
+
+    func validatePassword(_ password: String) async throws -> Bool {
+        if let passwordHash = try await stateService.getMasterPasswordHash() {
+            return try await clientAuth.validatePassword(password: password, passwordHash: passwordHash)
+        } else {
+            let encryptionKeys = try await stateService.getAccountEncryptionKeys()
+            do {
+                let passwordHash = try await clientAuth.validatePasswordUserKey(
+                    password: password,
+                    encryptedUserKey: encryptionKeys.encryptedUserKey
+                )
+                try await stateService.setMasterPasswordHash(passwordHash)
+                return true
+            } catch {
+                Logger.application.log("Error validating password user key: \(error)")
+                return false
+            }
+        }
     }
 
     // MARK: Private
@@ -459,7 +517,8 @@ extension DefaultAuthRepository: AuthRepository {
             isUnlocked: displayAsUnlocked,
             userId: account.profile.userId,
             userInitials: account.initials()
-                ?? ".."
+                ?? "..",
+            webVault: account.settings.environmentUrls?.webVaultHost ?? ""
         )
     }
 
@@ -485,6 +544,9 @@ extension DefaultAuthRepository: AuthRepository {
             break
         case .decryptedKey:
             // No-op: nothing extra to do for decryptedKey.
+            break
+        case .deviceKey:
+            // No-op: nothing extra (for now).
             break
         case let .password(password, _):
             let hashedPassword = try await authService.hashPassword(
@@ -564,6 +626,7 @@ extension DefaultAuthRepository: AuthRepository {
 
         try await stateService.setAccountEncryptionKeys(newEncryptionKeys)
         try await stateService.setMasterPasswordHash(updatePasswordResponse.passwordHash)
+        try await stateService.setForcePasswordResetReason(nil)
     }
 
     private func userIdOrActive(_ maybeId: String?) async throws -> String {

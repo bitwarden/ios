@@ -10,6 +10,7 @@ import XCTest
 class VaultGroupProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_body_length
     // MARK: Properties
 
+    var authRepository: MockAuthRepository!
     var coordinator: MockCoordinator<VaultRoute, AuthAction>!
     var errorReporter: MockErrorReporter!
     var filterDelegate: MockVaultFilterDelegate!
@@ -26,6 +27,7 @@ class VaultGroupProcessorTests: BitwardenTestCase { // swiftlint:disable:this ty
     override func setUp() {
         super.setUp()
 
+        authRepository = MockAuthRepository()
         coordinator = MockCoordinator()
         errorReporter = MockErrorReporter()
         filterDelegate = MockVaultFilterDelegate()
@@ -39,6 +41,7 @@ class VaultGroupProcessorTests: BitwardenTestCase { // swiftlint:disable:this ty
         subject = VaultGroupProcessor(
             coordinator: coordinator.asAnyCoordinator(),
             services: ServiceContainer.withMocks(
+                authRepository: authRepository,
                 errorReporter: errorReporter,
                 pasteboardService: pasteboardService,
                 policyService: policyService,
@@ -57,6 +60,7 @@ class VaultGroupProcessorTests: BitwardenTestCase { // swiftlint:disable:this ty
     override func tearDown() {
         super.tearDown()
 
+        authRepository = nil
         coordinator = nil
         errorReporter = nil
         filterDelegate = nil
@@ -161,9 +165,13 @@ class VaultGroupProcessorTests: BitwardenTestCase { // swiftlint:disable:this ty
     func test_perform_search() async {
         let searchResult: [CipherView] = [.fixture(name: "example")]
         vaultRepository.searchVaultListSubject.value = searchResult.compactMap { VaultListItem(cipherView: $0) }
+        subject.state.searchVaultFilterType = .organization(.fixture(id: "id1"))
         await subject.perform(.search("example"))
-
         XCTAssertEqual(subject.state.searchResults.count, 1)
+        XCTAssertEqual(
+            vaultRepository.searchVaultListFilterType,
+            .organization(.fixture(id: "id1"))
+        )
         XCTAssertEqual(
             subject.state.searchResults,
             try [VaultListItem.fixture(cipherView: XCTUnwrap(searchResult.first))]
@@ -731,7 +739,7 @@ class VaultGroupProcessorTests: BitwardenTestCase { // swiftlint:disable:this ty
         await copyPasswordAction.handler?(copyPasswordAction, [])
 
         // mock the master password
-        vaultRepository.validatePasswordResult = .success(true)
+        authRepository.validatePasswordResult = .success(true)
 
         // Validate master password re-prompt is shown
         alert = try XCTUnwrap(coordinator.alertShown.last)
@@ -775,7 +783,7 @@ class VaultGroupProcessorTests: BitwardenTestCase { // swiftlint:disable:this ty
         await copyPasswordAction.handler?(copyPasswordAction, [])
 
         // mock the master password
-        vaultRepository.validatePasswordResult = .success(false)
+        authRepository.validatePasswordResult = .success(false)
 
         // Validate master password re-prompt is shown
         alert = try XCTUnwrap(coordinator.alertShown.last)

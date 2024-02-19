@@ -189,12 +189,8 @@ class AuthServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body_
         // Set up the mock data.
         client.result = .httpSuccess(testData: .authRequestSuccess)
         appSettingsStore.appId = "App id"
-        clientAuth.newAuthRequestResult = .success(.init(
-            privateKey: "",
-            publicKey: "",
-            fingerprint: "fingerprint",
-            accessCode: ""
-        ))
+        let authRequestResponse = AuthRequestResponse.fixture()
+        clientAuth.newAuthRequestResult = .success(authRequestResponse)
 
         // Test.
         let result = try await subject.initiateLoginWithDevice(email: "email@example.com")
@@ -202,7 +198,7 @@ class AuthServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body_
         // Verify the results.
         XCTAssertEqual(client.requests.count, 1)
         XCTAssertEqual(clientAuth.newAuthRequestEmail, "email@example.com")
-        XCTAssertEqual(result.fingerprint, "fingerprint")
+        XCTAssertEqual(result.authRequestResponse, authRequestResponse)
         XCTAssertEqual(result.requestId, LoginRequest.fixture().id)
     }
 
@@ -286,7 +282,7 @@ class AuthServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body_
         XCTAssertEqual(client.requests[1].body, try tokenRequest.encode())
 
         XCTAssertEqual(clientAuth.hashPasswordEmail, "user@bitwarden.com")
-        XCTAssertEqual(clientAuth.hashPasswordPassword, "hashed password")
+        XCTAssertEqual(clientAuth.hashPasswordPassword, "Password1234!")
         XCTAssertEqual(clientAuth.hashPasswordKdfParams, .pbkdf2(iterations: 600_000))
 
         XCTAssertEqual(stateService.accountsAdded, [Account.fixtureAccountLogin()])
@@ -311,7 +307,7 @@ class AuthServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body_
         // Set up the mock data.
         client.results = [
             .httpSuccess(testData: .preLoginSuccess),
-            .httpSuccess(testData: .IdentityTokenWithMasterPasswordPolicy),
+            .httpSuccess(testData: .identityTokenWithMasterPasswordPolicy),
         ]
         appSettingsStore.appId = "App id"
         clientAuth.hashPasswordResult = .success("hashed password")
@@ -347,10 +343,13 @@ class AuthServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body_
         XCTAssertEqual(client.requests[1].body, try tokenRequest.encode())
 
         XCTAssertEqual(clientAuth.hashPasswordEmail, "user@bitwarden.com")
-        XCTAssertEqual(clientAuth.hashPasswordPassword, "hashed password")
+        XCTAssertEqual(clientAuth.hashPasswordPassword, "Password1234!")
         XCTAssertEqual(clientAuth.hashPasswordKdfParams, .pbkdf2(iterations: 600_000))
 
-        XCTAssertEqual(stateService.accountsAdded.last?.profile.forcePasswordResetReason, .weakMasterPasswordOnLogin)
+        XCTAssertEqual(
+            stateService.forcePasswordResetReason["13512467-9cfe-43b0-969f-07534084764b"],
+            .weakMasterPasswordOnLogin
+        )
     }
 
     /// `loginWithMasterPassword(_:username:captchaToken:)` handles a two-factor auth error.
@@ -371,7 +370,7 @@ class AuthServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body_
         systemDevice.modelIdentifier = "Model id"
 
         // Attempt to login.
-        let authMethodsData = ["1": ["Email": "sh***@example.com"]]
+        let authMethodsData = AuthMethodsData.fixture()
         await assertAsyncThrows(
             error: IdentityTokenRequestError.twoFactorRequired(
                 authMethodsData,
@@ -453,7 +452,7 @@ class AuthServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body_
         systemDevice.modelIdentifier = "Model id"
 
         // First login with the master password so that the request will be saved.
-        let authMethodsData = ["1": ["Email": "sh***@example.com"]]
+        let authMethodsData = AuthMethodsData.fixture()
         await assertAsyncThrows(
             error: IdentityTokenRequestError.twoFactorRequired(
                 authMethodsData,
@@ -580,7 +579,7 @@ class AuthServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body_
         systemDevice.modelIdentifier = "Model id"
 
         // First login with the master password so that the resend email request will be saved.
-        let authMethodsData = ["1": ["Email": "sh***@example.com"]]
+        let authMethodsData = AuthMethodsData.fixture()
         await assertAsyncThrows(
             error: IdentityTokenRequestError.twoFactorRequired(
                 authMethodsData,

@@ -352,6 +352,14 @@ protocol StateService: AnyObject {
     ///
     func setDisableAutoTotpCopy(_ disableAutoTotpCopy: Bool, userId: String?) async throws
 
+    /// Sets the force password reset reason for an account.
+    ///
+    /// - Parameters:
+    ///   - reason: The reason why a password reset is required.
+    ///   - userId: The user ID of the account. Defaults to the active account if `nil`.
+    ///
+    func setForcePasswordResetReason(_ reason: ForcePasswordResetReason?, userId: String?) async throws
+
     /// Sets the last active time within the app.
     ///
     /// - Parameters:
@@ -780,6 +788,14 @@ extension StateService {
         try await setDisableAutoTotpCopy(disableAutoTotpCopy, userId: nil)
     }
 
+    /// Sets the force password reset reason for the active account.
+    ///
+    /// - Parameter reason: The reason why a password reset is required.
+    ///
+    func setForcePasswordResetReason(_ reason: ForcePasswordResetReason?) async throws {
+        try await setForcePasswordResetReason(reason, userId: nil)
+    }
+
     /// Sets the last active time within the app.
     ///
     /// - Parameter date: The current time.
@@ -1205,6 +1221,15 @@ actor DefaultStateService: StateService { // swiftlint:disable:this type_body_le
     func setDisableAutoTotpCopy(_ disableAutoTotpCopy: Bool, userId: String?) async throws {
         let userId = try userId ?? getActiveAccountUserId()
         appSettingsStore.setDisableAutoTotpCopy(disableAutoTotpCopy, userId: userId)
+    }
+
+    func setForcePasswordResetReason(_ reason: ForcePasswordResetReason?, userId: String?) async throws {
+        let userId = try userId ?? getActiveAccountUserId()
+        guard var state = appSettingsStore.state else {
+            throw StateServiceError.noAccounts
+        }
+        defer { appSettingsStore.state = state }
+        state.accounts[userId]?.profile.forcePasswordResetReason = reason
     }
 
     func setLastActiveTime(_ date: Date?, userId: String?) async throws {

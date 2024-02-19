@@ -27,7 +27,9 @@ class MockAuthService: AuthService {
     var hashPasswordResult: Result<String, Error> = .success("hashed")
 
     var initiateLoginWithDeviceEmail: String?
-    var initiateLoginWithDeviceResult: Result<(fingerprint: String, requestId: String), Error> = .success(("", ""))
+    var initiateLoginWithDeviceResult: Result<
+        (authRequestResponse: AuthRequestResponse, requestId: String), Error
+    > = .success((.fixture(), ""))
 
     var loginWithDeviceRequest: LoginRequest?
     var loginWithDeviceEmail: String?
@@ -84,7 +86,9 @@ class MockAuthService: AuthService {
         return try hashPasswordResult.get()
     }
 
-    func initiateLoginWithDevice(email: String) async throws -> (fingerprint: String, requestId: String) {
+    func initiateLoginWithDevice(
+        email: String
+    ) async throws -> (authRequestResponse: AuthRequestResponse, requestId: String) {
         initiateLoginWithDeviceEmail = email
         return try initiateLoginWithDeviceResult.get()
     }

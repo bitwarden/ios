@@ -44,11 +44,14 @@ struct SliderField<State>: Equatable, Identifiable {
 struct SliderFieldView<State>: View {
     // MARK: Properties
 
-    /// A closure containing the action to take when a new value is selected.
-    let action: (Double) -> Void
-
     /// The data for displaying the field.
     let field: SliderField<State>
+
+    /// A closure containing the action to take when the slider begins or ends editing.
+    let onEditingChanged: (Bool) -> Void
+
+    /// A closure containing the action to take when a new value is selected.
+    let onValueChanged: (Double) -> Void
 
     var body: some View {
         VStack(spacing: 8) {
@@ -69,9 +72,10 @@ struct SliderFieldView<State>: View {
             Divider()
 
             Slider(
-                value: Binding(get: { field.value }, set: action),
+                value: Binding(get: { field.value }, set: onValueChanged),
                 in: field.range,
-                step: field.step
+                step: field.step,
+                onEditingChanged: onEditingChanged
             )
             .tint(Asset.Colors.primaryBitwarden.swiftUIColor)
             .accessibilityLabel(field.title)
@@ -88,11 +92,17 @@ struct SliderFieldView<State>: View {
     /// Initialize a `SliderFieldView`.
     ///
     /// - Parameters:
-    ///   - field:  The data for displaying the field.
-    ///   - action: A closure containing the action to take when a new value is selected.
+    ///   - field: The data for displaying the field.
+    ///   - onEditingChanged: A closure containing the action to take when the slider begins or ends editing.
+    ///   - onValueChanged: A closure containing the action to take when a new value is selected.
     ///
-    init(field: SliderField<State>, action: @escaping (Double) -> Void) {
-        self.action = action
+    init(
+        field: SliderField<State>,
+        onEditingChanged: @escaping (Bool) -> Void = { _ in },
+        onValueChanged: @escaping (Double) -> Void
+    ) {
         self.field = field
+        self.onEditingChanged = onEditingChanged
+        self.onValueChanged = onValueChanged
     }
 }

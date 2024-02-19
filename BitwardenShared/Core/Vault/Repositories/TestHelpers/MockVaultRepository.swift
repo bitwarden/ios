@@ -70,6 +70,7 @@ class MockVaultRepository: VaultRepository {
     var searchCipherAutofillSubject = CurrentValueSubject<[CipherView], Error>([])
 
     var searchVaultListSubject = CurrentValueSubject<[VaultListItem], Error>([])
+    var searchVaultListFilterType: VaultFilterType?
 
     var shareCipherCiphers = [CipherView]()
     var shareCipherResult: Result<Void, Error> = .success(())
@@ -84,9 +85,6 @@ class MockVaultRepository: VaultRepository {
 
     var updateCipherCollectionsCiphers = [CipherView]()
     var updateCipherCollectionsResult: Result<Void, Error> = .success(())
-
-    var validatePasswordPasswords = [String]()
-    var validatePasswordResult: Result<Bool, Error> = .success(true)
 
     var vaultListSubject = CurrentValueSubject<[VaultListSection], Error>([])
     var vaultListGroupSubject = CurrentValueSubject<[VaultListItem], Error>([])
@@ -211,9 +209,10 @@ class MockVaultRepository: VaultRepository {
     func searchVaultListPublisher(
         searchText _: String,
         group: VaultListGroup?,
-        filterType _: VaultFilterType
+        filterType filter: VaultFilterType
     ) async throws -> AsyncThrowingPublisher<AnyPublisher<[VaultListItem], Error>> {
-        searchVaultListSubject.eraseToAnyPublisher().values
+        searchVaultListFilterType = filter
+        return searchVaultListSubject.eraseToAnyPublisher().values
     }
 
     func shareCipher(_ cipher: CipherView) async throws {
@@ -234,11 +233,6 @@ class MockVaultRepository: VaultRepository {
     func updateCipherCollections(_ cipher: CipherView) async throws {
         updateCipherCollectionsCiphers.append(cipher)
         try updateCipherCollectionsResult.get()
-    }
-
-    func validatePassword(_ password: String) async throws -> Bool {
-        validatePasswordPasswords.append(password)
-        return try validatePasswordResult.get()
     }
 
     func vaultListPublisher(

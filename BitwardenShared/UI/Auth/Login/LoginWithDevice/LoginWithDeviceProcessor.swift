@@ -1,3 +1,4 @@
+import BitwardenSdk
 import Foundation
 
 // MARK: - LoginWithDeviceProcessor
@@ -20,6 +21,9 @@ final class LoginWithDeviceProcessor: StateProcessor<
 
     /// The approved login request (stored in case the login flow is interrupted by a captcha request).
     private var approvedRequest: LoginRequest?
+
+    /// The response from creating an auth request for logging in with another device.
+    private var authRequestResponse: AuthRequestResponse?
 
     /// The coordinator used for navigation.
     private let coordinator: AnyCoordinator<AuthRoute, AuthEvent>
@@ -80,8 +84,9 @@ final class LoginWithDeviceProcessor: StateProcessor<
             coordinator.showLoadingOverlay(title: Localizations.loading)
 
             let result = try await services.authService.initiateLoginWithDevice(email: state.email)
-            state.fingerprintPhrase = result.fingerprint
+            state.fingerprintPhrase = result.authRequestResponse.fingerprint
             state.requestId = result.requestId
+            authRequestResponse = result.authRequestResponse
 
             // Start checking for a response every few seconds.
             setCheckTimer()
@@ -115,8 +120,7 @@ final class LoginWithDeviceProcessor: StateProcessor<
 
             // If login was successful, navigate to the vault.
             coordinator.hideLoadingOverlay()
-            coordinator.navigate(to: .dismiss)
-            coordinator.navigate(to: .complete)
+            await coordinator.handleEvent(.didCompleteAuth)
         } catch {
             handleError(error) { await self.attemptLogin(with: request) }
         }
@@ -171,7 +175,16 @@ final class LoginWithDeviceProcessor: StateProcessor<
             case let .captchaRequired(token):
                 launchCaptchaFlow(with: token)
             case let .twoFactorRequired(authMethodsData, _, _):
-                coordinator.navigate(to: .twoFactor(state.email, nil, authMethodsData))
+                let unlockMethod: TwoFactorUnlockMethod? = if let key = approvedRequest?.key, let authRequestResponse {
+                    TwoFactorUnlockMethod.loginWithDevice(
+                        key: key,
+                        masterPasswordHash: approvedRequest?.masterPasswordHash,
+                        privateKey: authRequestResponse.privateKey
+                    )
+                } else {
+                    nil
+                }
+                coordinator.navigate(to: .twoFactor(state.email, unlockMethod, authMethodsData))
             }
             return
         }

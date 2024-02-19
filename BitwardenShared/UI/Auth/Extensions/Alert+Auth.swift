@@ -30,6 +30,7 @@ extension Alert {
     ///
     static func accountOptions(
         _ item: ProfileSwitcherItem,
+        hasNeverLock: Bool = false,
         lockAction: @escaping () async -> Void,
         logoutAction: @escaping () async -> Void
     ) -> Alert {
@@ -42,7 +43,8 @@ extension Alert {
                 handler: { _, _ in await logoutAction() }
             ),
         ]
-        if item.isUnlocked {
+        if item.isUnlocked,
+           !hasNeverLock {
             alertActions.insert(
                 AlertAction(
                     title: Localizations.lock,
@@ -54,7 +56,7 @@ extension Alert {
         }
 
         return Alert(
-            title: item.email,
+            title: [item.email, item.webVault].joined(separator: "\n"),
             message: nil,
             preferredStyle: .actionSheet,
             alertActions: alertActions + [AlertAction(title: Localizations.cancel, style: .cancel)]
@@ -94,6 +96,28 @@ extension Alert {
         Alert(
             title: Localizations.logOut,
             message: Localizations.logoutConfirmation,
+            alertActions: [
+                AlertAction(title: Localizations.yes, style: .default) { _ in await action() },
+                AlertAction(title: Localizations.cancel, style: .cancel),
+            ]
+        )
+    }
+
+    /// An alert that is displayed to confirm the user wants to log out of the account.
+    ///
+    /// - Parameters:
+    ///   - profile: The profile switcher item to log out.
+    ///   - action: An action to perform when the user taps `Yes`, to confirm logout.
+    /// - Returns: An alert that is displayed to confirm the user wants to log out of the account.
+    ///
+    static func logoutConfirmation(
+        _ profile: ProfileSwitcherItem,
+        action: @escaping () async -> Void
+    ) -> Alert {
+        Alert(
+            title: Localizations.logOut,
+            message: Localizations.logoutConfirmation + "\n\n"
+                + [profile.email, profile.webVault].joined(separator: "\n"),
             alertActions: [
                 AlertAction(title: Localizations.yes, style: .default) { _ in await action() },
                 AlertAction(title: Localizations.cancel, style: .cancel),

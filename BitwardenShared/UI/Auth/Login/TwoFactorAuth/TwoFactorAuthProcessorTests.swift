@@ -73,7 +73,7 @@ class TwoFactorAuthProcessorTests: BitwardenTestCase {
 
     /// `init` sets up the state correctly.
     func test_init() {
-        let authMethodsData = ["1": ["Email": "test@example.com"]]
+        let authMethodsData = AuthMethodsData.fixture()
         let state = TwoFactorAuthState(authMethodsData: authMethodsData)
         subject = TwoFactorAuthProcessor(
             coordinator: coordinator.asAnyCoordinator(),
@@ -83,8 +83,8 @@ class TwoFactorAuthProcessorTests: BitwardenTestCase {
             state: state
         )
 
-        XCTAssertEqual(subject.state.availableAuthMethods, [.email, .recoveryCode])
-        XCTAssertEqual(subject.state.displayEmail, "test@example.com")
+        XCTAssertEqual(subject.state.availableAuthMethods, [.email, .yubiKey, .recoveryCode])
+        XCTAssertEqual(subject.state.displayEmail, "sh***@example.com")
     }
 
     /// `perform(_:)` with `.continueTapped` navigates to the `.captcha` route if there was a captcha error.
@@ -150,14 +150,34 @@ class TwoFactorAuthProcessorTests: BitwardenTestCase {
         )
     }
 
-    /// `perform(_:)` with `.continueTapped` logs in and unlocks the vault successfully.
+    /// `perform(_:)` with `.continueTapped` logs in and unlocks the vault successfully when using
+    /// a password.
     func test_perform_continueTapped_success() async {
-        subject.state.password = "password123"
+        subject.state.unlockMethod = .password("password123")
         subject.state.verificationCode = "Test"
 
         await subject.perform(.continueTapped)
 
-        XCTAssertEqual(coordinator.routes, [.dismiss, .complete])
+        XCTAssertEqual(coordinator.events, [.didCompleteAuth])
+        XCTAssertEqual(authRepository.unlockVaultPassword, "password123")
+    }
+
+    /// `perform(_:)` with `.continueTapped` logs in and unlocks the vault successfully when using
+    /// login with device.
+    func test_perform_continueTapped_loginWithDevice_success() async {
+        subject.state.unlockMethod = .loginWithDevice(
+            key: "KEY",
+            masterPasswordHash: "MASTER_PASSWORD_HASH",
+            privateKey: "PRIVATE_KEY"
+        )
+        subject.state.verificationCode = "Test"
+
+        await subject.perform(.continueTapped)
+
+        XCTAssertEqual(coordinator.events, [.didCompleteAuth])
+        XCTAssertEqual(authRepository.unlockVaultFromLoginWithDeviceKey, "KEY")
+        XCTAssertEqual(authRepository.unlockVaultFromLoginWithDevicePrivateKey, "PRIVATE_KEY")
+        XCTAssertEqual(authRepository.unlockVaultFromLoginWithDeviceMasterPasswordHash, "MASTER_PASSWORD_HASH")
     }
 
     /// `perform(_:)` with `.continueTapped` handles a two-factor error correctly.

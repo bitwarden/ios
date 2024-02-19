@@ -53,6 +53,9 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
     /// The service used by the application to report non-fatal errors.
     let errorReporter: ErrorReporter
 
+    /// The service used to export a vault.
+    let exportVaultService: ExportVaultService
+
     /// The repository used by the application to manage generator data for the UI layer.
     let generatorRepository: GeneratorRepository
 
@@ -161,6 +164,7 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
         clientService: ClientService,
         environmentService: EnvironmentService,
         errorReporter: ErrorReporter,
+        exportVaultService: ExportVaultService,
         generatorRepository: GeneratorRepository,
         keychainRepository: KeychainRepository,
         keychainService: KeychainService,
@@ -193,6 +197,7 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
         self.clientService = clientService
         self.environmentService = environmentService
         self.errorReporter = errorReporter
+        self.exportVaultService = exportVaultService
         self.generatorRepository = generatorRepository
         self.keychainService = keychainService
         self.keychainRepository = keychainRepository
@@ -278,6 +283,14 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
             stateService: stateService
         )
 
+        let exportVaultService = DefultExportVaultService(
+            cipherService: cipherService,
+            clientExporters: clientService.clientExporters(),
+            errorReporter: errorReporter,
+            folderService: folderService,
+            timeProvider: timeProvider
+        )
+
         let sendService = DefaultSendService(
             fileAPIService: apiService,
             sendAPIService: apiService,
@@ -331,15 +344,6 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
             systemDevice: UIDevice.current
         )
 
-        let notificationService = DefaultNotificationService(
-            appIdService: appIdService,
-            authService: authService,
-            errorReporter: errorReporter,
-            notificationAPIService: apiService,
-            stateService: stateService,
-            syncService: syncService
-        )
-
         let authRepository = DefaultAuthRepository(
             accountAPIService: apiService,
             authService: authService,
@@ -352,6 +356,16 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
             organizationService: organizationService,
             stateService: stateService,
             vaultTimeoutService: vaultTimeoutService
+        )
+
+        let notificationService = DefaultNotificationService(
+            appIdService: appIdService,
+            authRepository: authRepository,
+            authService: authService,
+            errorReporter: errorReporter,
+            notificationAPIService: apiService,
+            stateService: stateService,
+            syncService: syncService
         )
 
         let generatorRepository = DefaultGeneratorRepository(
@@ -411,6 +425,7 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
             clientService: clientService,
             environmentService: environmentService,
             errorReporter: errorReporter,
+            exportVaultService: exportVaultService,
             generatorRepository: generatorRepository,
             keychainRepository: keychainRepository,
             keychainService: keychainService,
@@ -457,6 +472,10 @@ extension ServiceContainer {
 
     var clientCrypto: ClientCryptoProtocol {
         clientService.clientCrypto()
+    }
+
+    var clientExporters: ClientExportersProtocol {
+        clientService.clientExporters()
     }
 
     var clientPlatform: ClientPlatformProtocol {
