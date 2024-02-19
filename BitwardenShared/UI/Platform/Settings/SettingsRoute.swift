@@ -1,4 +1,5 @@
 import BitwardenSdk
+import Foundation
 
 /// A route to a specific screen in the settings tab.
 ///
@@ -68,6 +69,9 @@ public enum SettingsRoute: Equatable, Hashable {
 
     /// A route to the settings screen.
     case settings
+
+    /// A route to the share sheet for an exported vault URL.
+    case shareExportedVault(URL)
 
     /// A route to the vault settings view.
     case vault
