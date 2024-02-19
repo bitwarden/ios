@@ -25,6 +25,11 @@ struct ProfileSwitcherItem: Equatable, Hashable {
     /// The the locked state of an account profile
     var isUnlocked: Bool
 
+    /// The color to use for the account profile icon text.
+    var profileIconText: Color {
+        UIColor(color).isLight() ? .black : .white
+    }
+
     /// The user's identifier
     var userId: String
 

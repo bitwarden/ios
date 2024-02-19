@@ -2,6 +2,7 @@ import BitwardenSdk
 import Foundation
 import LocalAuthentication
 import OSLog
+import SwiftUI
 
 // swiftlint:disable file_length
 
@@ -513,11 +514,11 @@ extension DefaultAuthRepository: AuthRepository {
             .getVaultTimeout(userId: account.profile.userId)) == .never
         let displayAsUnlocked = !isLocked || hasNeverLock
         return ProfileSwitcherItem(
+            color: Color(UIColor(hex: account.profile.avatarColor ?? "")),
             email: account.profile.email,
             isUnlocked: displayAsUnlocked,
             userId: account.profile.userId,
-            userInitials: account.initials()
-                ?? "..",
+            userInitials: account.initials() ?? "..",
             webVault: account.settings.environmentUrls?.webVaultHost ?? ""
         )
     }
