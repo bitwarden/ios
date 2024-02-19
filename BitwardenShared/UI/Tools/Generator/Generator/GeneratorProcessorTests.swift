@@ -780,7 +780,6 @@ class GeneratorProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
             sliderValueAccessibilityId: "PasswordLengthLabel"
         )
         subject.receive(.sliderValueChanged(field: sliderField, value: 30))
-        subject.receive(.sliderEditingChanged(field: sliderField, isEditing: false))
         waitFor { generatorRepository.passwordGenerationOptions.length == 30 }
         XCTAssertEqual(generatorRepository.passwordGenerationOptions.length, 30)
 
