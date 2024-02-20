@@ -218,17 +218,16 @@ struct ViewItemDetailsView: View {
             SectionView(Localizations.urIs) {
                 ForEach(store.state.loginState.uris, id: \.self) { uri in
                     BitwardenTextValueField(title: Localizations.uri, value: uri.uri) {
-                        Button {
-                            guard let url = URL(string: uri.uri) else {
-                                return
+                        if let url = URL(string: uri.uri), uri.uri.isValidURL {
+                            Button {
+                                openURL(url.sanitized)
+                            } label: {
+                                Asset.Images.externalLink.swiftUIImage
+                                    .resizable()
+                                    .frame(width: 16, height: 16)
                             }
-                            openURL(url)
-                        } label: {
-                            Asset.Images.externalLink.swiftUIImage
-                                .resizable()
-                                .frame(width: 16, height: 16)
+                            .accessibilityLabel(Localizations.launch)
                         }
-                        .accessibilityLabel(Localizations.launch)
 
                         Button {
                             store.send(.copyPressed(value: uri.uri, field: .uri))
