@@ -26,41 +26,30 @@ struct TwoFactorAuthView: View {
     // MARK: View
 
     var body: some View {
-        VStack(spacing: 16) {
-            detailText
+        content
+            .onChange(of: store.state.url) { newValue in
+                guard let url = newValue else { return }
+                openURL(url)
+                store.send(.clearURL)
+            }
+            .toast(store.binding(
+                get: \.toast,
+                send: TwoFactorAuthAction.toastShown
+            ))
+            .navigationBar(title: store.state.authMethod.title, titleDisplayMode: .inline)
+            .task(id: store.state.authMethod) {
+                guard store.state.authMethod == .yubiKey else { return }
+                await store.perform(.listenForNFC)
+            }
+            .toolbar {
+                ToolbarItemGroup(placement: .navigationBarTrailing) {
+                    authMethodsMenu
 
-            verificationCodeTextField
-
-            rememberMeToggle
-
-            continueButton
-
-            resendEmailButton
-        }
-        .scrollView()
-        .navigationBar(title: store.state.authMethod.title, titleDisplayMode: .inline)
-        .task(id: store.state.authMethod) {
-            guard store.state.authMethod == .yubiKey else { return }
-            await store.perform(.listenForNFC)
-        }
-        .toolbar {
-            ToolbarItemGroup(placement: .navigationBarTrailing) {
-                authMethodsMenu
-
-                cancelToolbarButton {
-                    store.send(.dismiss)
+                    cancelToolbarButton {
+                        store.send(.dismiss)
+                    }
                 }
             }
-        }
-        .toast(store.binding(
-            get: \.toast,
-            send: TwoFactorAuthAction.toastShown
-        ))
-        .onChange(of: store.state.url) { newValue in
-            guard let url = newValue else { return }
-            openURL(url)
-            store.send(.clearURL)
-        }
     }
 
     // MARK: Private Views
@@ -78,6 +67,17 @@ struct TwoFactorAuthView: View {
         }
     }
 
+    /// The main body content of the view
+    @ViewBuilder private var content: some View {
+        switch store.state.authMethod {
+        case .duo,
+             .duoOrganization:
+            duo2FAView
+        default:
+            defaultContent
+        }
+    }
+
     /// The continue button.
     private var continueButton: some View {
         AsyncButton(Localizations.continue) {
@@ -85,6 +85,22 @@ struct TwoFactorAuthView: View {
         }
         .disabled(!store.state.continueEnabled)
         .buttonStyle(.primary())
+    }
+
+    /// The body content for most 2FA methods.
+    private var defaultContent: some View {
+        VStack(spacing: 16) {
+            detailText
+
+            verificationCodeTextField
+
+            rememberMeToggle
+
+            continueButton
+
+            resendEmailButton
+        }
+        .scrollView()
     }
 
     /// The detailed instructions for the method.
@@ -99,6 +115,31 @@ struct TwoFactorAuthView: View {
                 Image(decorative: detailImageAsset)
             }
         }
+    }
+
+    /// The launch duo button.
+    private var duoButton: some View {
+        // TODO: BIT-1927 - Update Duo Localization strings.
+        AsyncButton(Localizations.launchDuo) {
+            await store.perform(.beginDuoAuth)
+        }
+        .buttonStyle(.primary())
+    }
+
+    /// A view for DUO 2FA type.
+    @ViewBuilder private var duo2FAView: some View {
+        VStack(spacing: 16) {
+            detailText
+
+            rememberMeToggle
+
+            duoButton
+        }
+        .scrollView()
+        .toast(store.binding(
+            get: \.toast,
+            send: TwoFactorAuthAction.toastShown
+        ))
     }
 
     /// The remember me toggle.

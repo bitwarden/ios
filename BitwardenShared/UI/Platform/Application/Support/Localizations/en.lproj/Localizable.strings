@@ -428,6 +428,10 @@
 "VaultLockedPIN" = "Your vault is locked. Verify your PIN code to continue.";
 "VaultLockedIdentity" = "Your vault is locked. Verify your identity to continue.";
 "Dark" = "Dark";
+"Duo" = "Duo";
+"DuoUnsupported" = "Duo not yet supported.";
+"FollowStepsDuo" = "Follow the steps from Duo to finish logging in.";
+"LaunchDuo" = "Launch Duo";
 "Light" = "Light";
 "FiveMinutes" = "5 minutes";
 "TenSeconds" = "10 seconds";

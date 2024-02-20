@@ -1,3 +1,4 @@
+import AuthenticationServices
 import Foundation
 
 // MARK: - TwoFactorAuthProcessor
@@ -10,10 +11,11 @@ final class TwoFactorAuthProcessor: StateProcessor<TwoFactorAuthState, TwoFactor
     typealias Services = HasAuthRepository
         & HasAuthService
         & HasCaptchaService
+        & HasEnvironmentService
         & HasErrorReporter
         & HasNFCReaderService
 
-    // MARK: Properties
+    // MARK: Private Properties
 
     /// The `Coordinator` that handles navigation.
     private let coordinator: AnyCoordinator<AuthRoute, AuthEvent>
@@ -51,10 +53,15 @@ final class TwoFactorAuthProcessor: StateProcessor<TwoFactorAuthState, TwoFactor
 
     override func perform(_ effect: TwoFactorAuthEffect) async {
         switch effect {
+        case .beginDuoAuth:
+            authenticateWithDuo()
         case .continueTapped:
             await login()
         case .listenForNFC:
             await listenForNFC()
+        case let .receivedDuoToken(duoToken):
+            state.verificationCode = duoToken
+            await login()
         case .resendEmailTapped:
             await resendEmail()
         }
@@ -269,4 +276,82 @@ extension TwoFactorAuthProcessor: CaptchaFlowDelegate {
             self.coordinator.showAlert(.networkResponseError(error))
         }
     }
+}
+
+// MARK: - DuoAuthenticationFlowDelegate
+
+/// An object that is signaled when specific circumstances in the web authentication on flow have been encountered.
+///
+protocol DuoAuthenticationFlowDelegate: AnyObject {
+    /// Called when the web auth flow has been completed successfully.
+    ///
+    /// - Parameter code: The code that was returned by the single sign on web auth process.
+    ///
+    func didComplete(code: String)
+
+    /// Called when the single sign on flow encounters an error.
+    ///
+    /// - Parameter error: The error that was encountered.
+    ///
+    func duoErrored(error: Error)
+}
+
+extension TwoFactorAuthProcessor: DuoAuthenticationFlowDelegate {
+    func didComplete(code: String) {
+        Task {
+            await self.perform(.receivedDuoToken(code))
+        }
+    }
+
+    func duoErrored(error: Error) {
+        // The delay is necessary in order to ensure the alert displays over the WebAuth view.
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+            self.handleError(error) {
+                self.authenticateWithDuo()
+            }
+        }
+    }
+
+    /// Initiates the DUO 2FA Authentication flow by extracting the auth url from `authMethodsData`.
+    ///
+    func authenticateWithDuo() {
+        guard state.authMethod == .duo || state.authMethod == .duoOrganization,
+              let maybeValues = state.authMethodsData["\(state.authMethod.rawValue)"],
+              let values = maybeValues,
+              let authURLString = values["AuthUrl"]??.stringValue,
+              let authURL = URL(string: authURLString) else {
+            state.toast = Toast(text: Localizations.duoUnsupported)
+            return
+        }
+
+        coordinator.navigate(
+            to: .duoAuthenticationFlow(authURL),
+            context: self
+        )
+    }
+
+    /// Generically handle an error on the view.
+    private func handleError(_ error: Error, _ tryAgain: (() async -> Void)? = nil) {
+        // First, hide the loading overlay.
+        coordinator.hideLoadingOverlay()
+
+        // Do nothing if the user cancelled.
+        if case ASWebAuthenticationSessionError.canceledLogin = error { return }
+
+        // Otherwise, show the alert and log the error.
+        coordinator.showAlert(.networkResponseError(error, tryAgain))
+        services.errorReporter.log(error: error)
+    }
+}
+
+// MARK: - DuoCallbackURLComponent
+
+/// A component in the Duo Callback URL.
+///
+enum DuoCallbackURLComponent: String {
+    /// The code parameter.
+    case code
+
+    /// The state parameter.
+    case state
 }

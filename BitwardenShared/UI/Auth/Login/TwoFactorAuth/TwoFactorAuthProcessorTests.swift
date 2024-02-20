@@ -1,11 +1,14 @@
+import AuthenticationServices
 import BitwardenSdk
 import XCTest
+
+// swiftlint:disable file_length
 
 @testable import BitwardenShared
 
 // MARK: - TwoFactorAuthProcessorTests
 
-class TwoFactorAuthProcessorTests: BitwardenTestCase {
+class TwoFactorAuthProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_body_length
     // MARK: Properties
 
     var authRepository: MockAuthRepository!
@@ -89,6 +92,89 @@ class TwoFactorAuthProcessorTests: BitwardenTestCase {
 
         XCTAssertEqual(subject.state.availableAuthMethods, [.email, .yubiKey, .recoveryCode])
         XCTAssertEqual(subject.state.displayEmail, "sh***@example.com")
+    }
+
+    /// A `didComplete` call triggers the `.receivedDuoToken` effect.
+    func test_duoAuthenticationFlowDelegate_didComplete() {
+        subject.state.authMethod = .duo
+        subject.state.verificationCode = ""
+        subject.state.unlockMethod = .password("duo token")
+        authService.loginWithTwoFactorCodeResult = .success(.fixtureAccountLogin())
+
+        let task = Task {
+            subject.didComplete(code: "1234")
+        }
+        waitFor(!coordinator.events.isEmpty)
+        task.cancel()
+
+        XCTAssertEqual(subject.state.verificationCode, "1234")
+        XCTAssertEqual(coordinator.events, [.didCompleteAuth])
+        XCTAssertEqual(authRepository.unlockVaultPassword, "duo token")
+    }
+
+    /// A `duoErrored` call presents no alert on cancel.
+    func test_duoAuthenticationFlowDelegate_duoErrored_cancel() {
+        coordinator.isLoadingOverlayShowing = true
+        subject.state.authMethod = .duo
+
+        subject.duoErrored(
+            error: ASWebAuthenticationSessionError(ASWebAuthenticationSessionError.canceledLogin)
+        )
+        waitFor(!coordinator.isLoadingOverlayShowing)
+
+        XCTAssertEqual(coordinator.alertShown, [])
+    }
+
+    /// A `duoErrored` call presents an alert on error.
+    func test_duoAuthenticationFlowDelegate_duoErrored_decodeFail() {
+        subject.state.authMethod = .duo
+
+        subject.duoErrored(error: AuthError.unableToDecodeDuoResponse)
+        waitFor(!errorReporter.errors.isEmpty)
+
+        XCTAssertFalse(coordinator.isLoadingOverlayShowing)
+        XCTAssertEqual(errorReporter.errors.last as? AuthError, .unableToDecodeDuoResponse)
+    }
+
+    /// `perform(_:)` with `.beginDuoAuth` does nothing if duo is not configured.
+    func test_perform_beginDuoAuth_failure() async {
+        subject.state.authMethod = .duo
+        subject.state.authMethodsData = [
+            "2": [
+                "AuthUrl": .null,
+            ],
+        ]
+        await subject.perform(.beginDuoAuth)
+
+        XCTAssertEqual(coordinator.routes, [])
+    }
+
+    /// `perform(_:)` with `.beginDuoAuth` initates the duo auth flow.
+    func test_perform_beginDuoAuth_success() async {
+        let expectedURL = URL(string: "bitwarden://expectedURL")!
+        subject.state.authMethod = .duo
+        subject.state.authMethodsData = [
+            "2": [
+                "AuthUrl": .string(expectedURL.absoluteString),
+            ],
+        ]
+        await subject.perform(.beginDuoAuth)
+
+        XCTAssertEqual(coordinator.routes.last, .duoAuthenticationFlow(expectedURL))
+    }
+
+    /// `perform(_:)` with `.beginDuoAuth`  does nothing if duo is not the auth method.
+    func test_perform_beginDuoAuth_wrongAuthMethod() async {
+        let expectedURL = URL(string: "bitwarden://expectedURL")!
+        subject.state.authMethod = .authenticatorApp
+        subject.state.authMethodsData = [
+            "2": [
+                "AuthUrl": .string(expectedURL.absoluteString),
+            ],
+        ]
+        await subject.perform(.beginDuoAuth)
+
+        XCTAssertEqual(coordinator.routes, [])
     }
 
     /// `perform(_:)` with `.continueTapped` navigates to the `.captcha` route if there was a captcha error.
@@ -224,11 +310,66 @@ class TwoFactorAuthProcessorTests: BitwardenTestCase {
     /// `perform(_:)` with `.listenForNFC` logs an error and shows an alert if listening for NFC tags fails.
     func test_perform_listenForNFC_error() async {
         nfcReaderService.resultSubject.send(completion: .failure(BitwardenTestError.example))
-
+        
         await subject.perform(.listenForNFC)
-
+        
         XCTAssertEqual(errorReporter.errors as? [BitwardenTestError], [.example])
         XCTAssertEqual(coordinator.alertShown, [.networkResponseError(BitwardenTestError.example)])
+    }
+
+    /// `perform(_:)` with `.receivedDuoToken` handles an error correctly.
+    func test_perform_receivedDuoToken_failure() async {
+        subject.state.authMethod = .duo
+        subject.state.verificationCode = ""
+        authService.loginWithTwoFactorCodeResult = .failure(BitwardenTestError.example)
+
+        await subject.perform(.receivedDuoToken("DuoToken"))
+
+        XCTAssertFalse(coordinator.isLoadingOverlayShowing)
+        XCTAssertEqual(coordinator.alertShown.last, .defaultAlert(
+            title: Localizations.anErrorHasOccurred,
+            message: Localizations.invalidVerificationCode
+        ))
+    }
+
+    /// `perform(_:)` with `.receivedDuoToken` handles a two-factor error correctly.
+    func test_perform_receivedDuoToken_noUnlockMethod() async {
+        subject.state.authMethod = .duo
+        subject.state.verificationCode = ""
+        subject.state.unlockMethod = nil
+        let expectedAccount = Account.fixtureAccountLogin()
+        authService.loginWithTwoFactorCodeResult = .success(expectedAccount)
+
+        await subject.perform(.receivedDuoToken("DuoToken"))
+
+        XCTAssertFalse(coordinator.isLoadingOverlayShowing)
+        XCTAssertEqual(
+            coordinator.routes,
+            [
+                .vaultUnlock(
+                    expectedAccount,
+                    animated: false,
+                    attemptAutomaticBiometricUnlock: true,
+                    didSwitchAccountAutomatically: false
+                ),
+                .dismiss,
+            ]
+        )
+    }
+
+    /// `perform(_:)` with `.receivedDuoToken` logs in and unlocks the vault successfully when using
+    /// a duo.
+    func test_perform_receivedDuoToken_success() async {
+        subject.state.authMethod = .duo
+        subject.state.verificationCode = ""
+        subject.state.unlockMethod = .password("duo token")
+        authService.loginWithTwoFactorCodeResult = .success(.fixtureAccountLogin())
+
+        await subject.perform(.receivedDuoToken("DuoToken"))
+
+        XCTAssertEqual(subject.state.verificationCode, "DuoToken")
+        XCTAssertEqual(coordinator.events, [.didCompleteAuth])
+        XCTAssertEqual(authRepository.unlockVaultPassword, "duo token")
     }
 
     /// `perform(_:)` with `.resendEmailTapped` handles errors correctly.

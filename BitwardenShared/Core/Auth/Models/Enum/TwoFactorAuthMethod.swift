@@ -36,6 +36,10 @@ enum TwoFactorAuthMethod: Int {
         switch self {
         case .authenticatorApp:
             Localizations.authenticatorAppTitle
+        case .duo,
+             .duoOrganization:
+            // TODO: BIT-1927 - Update Duo Localization strings.
+            Localizations.duo
         case .email:
             Localizations.email
         case .recoveryCode:
@@ -86,6 +90,10 @@ enum TwoFactorAuthMethod: Int {
         switch self {
         case .authenticatorApp:
             Localizations.enterVerificationCodeApp
+        case .duo,
+             .duoOrganization:
+            // TODO: BIT-1927 - Update Duo Localization strings.
+            Localizations.followStepsDuo
         case .email:
             Localizations.enterVerificationCodeEmail(email ?? "")
         case .yubiKey:
