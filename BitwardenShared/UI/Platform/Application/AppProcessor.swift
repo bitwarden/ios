@@ -84,15 +84,14 @@ public class AppProcessor {
                 window?.overrideUserInterfaceStyle = appTheme.userInterfaceStyle
             }
         }
+
         Task {
             await services.environmentService.loadURLsForActiveAccount()
-        }
+            await services.migrationService.performMigrations()
 
-        if let initialRoute {
-            coordinator.navigate(to: initialRoute)
-        } else {
-            // Navigate to the .didStart rotue
-            Task {
+            if let initialRoute {
+                coordinator.navigate(to: initialRoute)
+            } else {
                 await coordinator.handleEvent(.didStart)
             }
         }

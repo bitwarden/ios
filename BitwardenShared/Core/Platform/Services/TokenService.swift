@@ -29,6 +29,9 @@ protocol TokenService: AnyObject {
 actor DefaultTokenService: TokenService {
     // MARK: Properties
 
+    /// The repository used to manages keychain items.
+    let keychainRepository: KeychainRepository
+
     /// The service that manages the account state.
     let stateService: StateService
 
@@ -36,23 +39,33 @@ actor DefaultTokenService: TokenService {
 
     /// Initialize a `DefaultTokenService`.
     ///
-    /// - Parameter stateService: The service that manages the account state.
+    /// - Parameters
+    ///   - keychainRepository: The repository used to manages keychain items.
+    ///   - stateService: The service that manages the account state.
     ///
-    init(stateService: StateService) {
+    init(
+        keychainRepository: KeychainRepository,
+        stateService: StateService
+    ) {
+        self.keychainRepository = keychainRepository
         self.stateService = stateService
     }
 
     // MARK: Methods
 
     func getAccessToken() async throws -> String {
-        try await stateService.getActiveAccount().tokens.accessToken
+        let userId = try await stateService.getActiveAccountId()
+        return try await keychainRepository.getAccessToken(userId: userId)
     }
 
     func getRefreshToken() async throws -> String {
-        try await stateService.getActiveAccount().tokens.refreshToken
+        let userId = try await stateService.getActiveAccountId()
+        return try await keychainRepository.getRefreshToken(userId: userId)
     }
 
     func setTokens(accessToken: String, refreshToken: String) async throws {
-        try await stateService.setTokens(accessToken: accessToken, refreshToken: refreshToken)
+        let userId = try await stateService.getActiveAccountId()
+        try await keychainRepository.setAccessToken(accessToken, userId: userId)
+        try await keychainRepository.setRefreshToken(refreshToken, userId: userId)
     }
 }

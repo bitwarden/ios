@@ -57,10 +57,7 @@ class AccountTests: BitwardenTestCase {
                     userId: "13512467-9cfe-43b0-969f-07534084764b"
                 ),
                 settings: Account.AccountSettings(environmentUrls: nil),
-                tokens: Account.AccountTokens(
-                    accessToken: accessToken,
-                    refreshToken: "REFRESH_TOKEN"
-                )
+                _tokens: nil
             )
         )
     }

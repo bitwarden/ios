@@ -12,6 +12,7 @@ class MockAppSettingsStore: AppSettingsStore {
     var disableWebIcons = false
     var lastUserShouldConnectToWatch = false
     var loginRequest: LoginRequestNotification?
+    var migrationVersion = 0
     var preAuthEnvironmentUrls: EnvironmentUrlData?
     var rememberedEmail: String?
     var rememberedOrgIdentifier: String?
@@ -211,8 +212,8 @@ class MockAppSettingsStore: AppSettingsStore {
         timeoutAction[userId]
     }
 
-    func unsuccessfulUnlockAttempts(userId: String) -> Int? {
-        unsuccessfulUnlockAttempts[userId]
+    func unsuccessfulUnlockAttempts(userId: String) -> Int {
+        unsuccessfulUnlockAttempts[userId] ?? 0
     }
 
     func usernameGenerationOptions(userId: String) -> UsernameGenerationOptions? {

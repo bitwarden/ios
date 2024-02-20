@@ -65,6 +65,9 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
     /// The repository used to manage keychain items.
     let keychainRepository: KeychainRepository
 
+    /// The serviced used to perform app data migrations.
+    let migrationService: MigrationService
+
     /// The service used by the application to read NFC tags.
     let nfcReaderService: NFCReaderService
 
@@ -137,6 +140,7 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
     ///   - generatorRepository: The repository used by the application to manage generator data for the UI layer.
     ///   - keychainRepository: The repository used to manages keychain items.
     ///   - keychainService: The service used to access & store data on the device keychain.
+    ///   - migrationService: The serviced used to perform app data migrations.
     ///   - nfcReaderService: The service used by the application to read NFC tags.
     ///   - notificationCenterService: The service used by the application to access the system's notification center.
     ///   - notificationService: The service used by the application to handle notifications.
@@ -172,6 +176,7 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
         generatorRepository: GeneratorRepository,
         keychainRepository: KeychainRepository,
         keychainService: KeychainService,
+        migrationService: MigrationService,
         nfcReaderService: NFCReaderService,
         notificationCenterService: NotificationCenterService,
         notificationService: NotificationService,
@@ -206,6 +211,7 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
         self.generatorRepository = generatorRepository
         self.keychainService = keychainService
         self.keychainRepository = keychainRepository
+        self.migrationService = migrationService
         self.nfcReaderService = nfcReaderService
         self.notificationCenterService = notificationCenterService
         self.notificationService = notificationService
@@ -263,7 +269,7 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
         let environmentService = DefaultEnvironmentService(stateService: stateService)
         let collectionService = DefaultCollectionService(collectionDataStore: dataStore, stateService: stateService)
         let settingsService = DefaultSettingsService(settingsDataStore: dataStore, stateService: stateService)
-        let tokenService = DefaultTokenService(stateService: stateService)
+        let tokenService = DefaultTokenService(keychainRepository: keychainRepository, stateService: stateService)
         let apiService = APIService(environmentService: environmentService, tokenService: tokenService)
         let captchaService = DefaultCaptchaService(environmentService: environmentService, stateService: stateService)
         let notificationCenterService = DefaultNotificationCenterService()
@@ -350,6 +356,7 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
             clientGenerators: clientService.clientGenerator(),
             clientPlatform: clientService.clientPlatform(),
             environmentService: environmentService,
+            keychainRepository: keychainRepository,
             policyService: policyService,
             stateService: stateService,
             systemDevice: UIDevice.current
@@ -367,6 +374,12 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
             organizationService: organizationService,
             stateService: stateService,
             vaultTimeoutService: vaultTimeoutService
+        )
+
+        let migrationService = DefaultMigrationService(
+            appSettingsStore: appSettingsStore,
+            errorReporter: errorReporter,
+            keychainRepository: keychainRepository
         )
 
         let notificationService = DefaultNotificationService(
@@ -440,6 +453,7 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
             generatorRepository: generatorRepository,
             keychainRepository: keychainRepository,
             keychainService: keychainService,
+            migrationService: migrationService,
             nfcReaderService: nfcReaderService ?? NoopNFCReaderService(),
             notificationCenterService: notificationCenterService,
             notificationService: notificationService,
