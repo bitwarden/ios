@@ -86,8 +86,10 @@ public class AppProcessor {
         }
 
         Task {
-            await services.environmentService.loadURLsForActiveAccount()
             await services.migrationService.performMigrations()
+
+            await services.environmentService.loadURLsForActiveAccount()
+            services.application?.registerForRemoteNotifications()
 
             if let initialRoute {
                 coordinator.navigate(to: initialRoute)

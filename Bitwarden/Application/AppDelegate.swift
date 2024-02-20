@@ -35,7 +35,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
         guard !isTesting else { return true }
 
         UNUserNotificationCenter.current().delegate = self
-        UIApplication.shared.registerForRemoteNotifications()
 
         #if DEBUG
         let errorReporter = OSLogErrorReporter()
@@ -43,7 +42,11 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
         let errorReporter = CrashlyticsErrorReporter()
         #endif
 
-        let services = ServiceContainer(errorReporter: errorReporter, nfcReaderService: DefaultNFCReaderService())
+        let services = ServiceContainer(
+            application: UIApplication.shared,
+            errorReporter: errorReporter,
+            nfcReaderService: DefaultNFCReaderService()
+        )
         let appModule = DefaultAppModule(services: services)
         appProcessor = AppProcessor(appModule: appModule, services: services)
         return true

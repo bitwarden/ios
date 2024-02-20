@@ -23,6 +23,9 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
     /// The service used by the application to manage the app's ID.
     let appIdService: AppIdService
 
+    /// The application instance (i.e. `UIApplication`), if the app isn't running in an extension.
+    let application: Application?
+
     /// The service used by the application to persist app setting values.
     let appSettingsStore: AppSettingsStore
 
@@ -32,7 +35,7 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
     /// The service used by the application to handle authentication tasks.
     let authService: AuthService
 
-    /// The repository to manage bioemtric unlock policies and access controls the user.
+    /// The repository to manage biometric unlock policies and access controls the user.
     let biometricsRepository: BiometricsRepository
 
     /// The service used to obtain device biometrics status & data.
@@ -126,6 +129,7 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
     /// - Parameters:
     ///   - apiService: The service used by the application to make API requests.
     ///   - appIdService: The service used by the application to manage the app's ID.
+    ///   - application: The application instance.
     ///   - appSettingsStore: The service used by the application to persist app setting values.
     ///   - authRepository: The repository used by the application to manage auth data for the UI layer.
     ///   - authService: The service used by the application to handle authentication tasks.
@@ -162,6 +166,7 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
     init(
         apiService: APIService,
         appIdService: AppIdService,
+        application: Application?,
         appSettingsStore: AppSettingsStore,
         authRepository: AuthRepository,
         authService: AuthService,
@@ -197,6 +202,7 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
     ) {
         self.apiService = apiService
         self.appIdService = appIdService
+        self.application = application
         self.appSettingsStore = appSettingsStore
         self.authRepository = authRepository
         self.authService = authService
@@ -234,10 +240,12 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
     /// A convenience initializer to initialize the `ServiceContainer` with the default services.
     ///
     /// - Parameters:
+    ///   - application: The application instance.
     ///   - errorReporter: The service used by the application to report non-fatal errors.
     ///   - nfcReaderService: The service used by the application to read NFC tags.
     ///
     public convenience init( // swiftlint:disable:this function_body_length
+        application: Application? = nil,
         errorReporter: ErrorReporter,
         nfcReaderService: NFCReaderService? = nil
     ) {
@@ -439,6 +447,7 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
         self.init(
             apiService: apiService,
             appIdService: appIdService,
+            application: application,
             appSettingsStore: appSettingsStore,
             authRepository: authRepository,
             authService: authService,

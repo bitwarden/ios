@@ -5,6 +5,7 @@ import Networking
 
 extension ServiceContainer {
     static func withMocks(
+        application: Application? = nil,
         appSettingsStore: AppSettingsStore = MockAppSettingsStore(),
         authRepository: AuthRepository = MockAuthRepository(),
         authService: AuthService = MockAuthService(),
@@ -45,6 +46,7 @@ extension ServiceContainer {
                 environmentService: environmentService
             ),
             appIdService: AppIdService(appSettingStore: appSettingsStore),
+            application: application,
             appSettingsStore: appSettingsStore,
             authRepository: authRepository,
             authService: authService,
