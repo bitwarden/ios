@@ -1,4 +1,5 @@
 import BitwardenSdk
+import SwiftUI
 import XCTest
 
 @testable import BitwardenShared
@@ -228,6 +229,7 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         XCTAssertEqual(
             accounts.first,
             ProfileSwitcherItem.fixture(
+                color: Color(UIColor(hex: anneAccount.profile.avatarColor ?? "")),
                 email: anneAccount.profile.email,
                 userId: anneAccount.profile.userId,
                 userInitials: "AA"
@@ -236,6 +238,7 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         XCTAssertEqual(
             accounts[1],
             ProfileSwitcherItem.fixture(
+                color: Color(UIColor(hex: anneAccount.profile.avatarColor ?? "")),
                 email: beeAccount.profile.email,
                 userId: beeAccount.profile.userId,
                 userInitials: "BA"
@@ -244,6 +247,7 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         XCTAssertEqual(
             accounts[2],
             ProfileSwitcherItem.fixture(
+                color: Color(UIColor(hex: anneAccount.profile.avatarColor ?? "")),
                 email: claimedAccount.profile.email,
                 userId: claimedAccount.profile.userId,
                 userInitials: "CL"
@@ -252,6 +256,7 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         XCTAssertEqual(
             accounts[3],
             ProfileSwitcherItem.fixture(
+                color: Color(UIColor(hex: anneAccount.profile.avatarColor ?? "")),
                 email: "",
                 userId: "4",
                 userInitials: ".."
@@ -260,6 +265,7 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         XCTAssertEqual(
             accounts[4],
             ProfileSwitcherItem.fixture(
+                color: Color(UIColor(hex: anneAccount.profile.avatarColor ?? "")),
                 email: shortEmail.profile.email,
                 userId: shortEmail.profile.userId,
                 userInitials: "A"
@@ -268,6 +274,7 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         XCTAssertEqual(
             accounts[5],
             ProfileSwitcherItem.fixture(
+                color: Color(UIColor(hex: anneAccount.profile.avatarColor ?? "")),
                 email: shortName.profile.email,
                 userId: shortName.profile.userId,
                 userInitials: "AJ"
