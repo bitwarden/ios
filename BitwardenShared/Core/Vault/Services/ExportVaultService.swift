@@ -158,27 +158,20 @@ class DefultExportVaultService: ExportVaultService {
         var exportFormat: BitwardenSdk.ExportFormat
         let folders = try await folderService.fetchAllFolders()
         var ciphers = try await cipherService.fetchAllCiphers()
+            .filter { $0.deletedDate == nil }
+            .filter { $0.organizationId == nil }
         switch format {
         case .csv:
             exportFormat = .csv
-            // Only export active Login and Secure Note ciphers for CSV.
+            // Only export Login and Secure Note ciphers for CSV.
             ciphers = ciphers
                 .filter { cipher in
-                    cipher.deletedDate == nil
-                        && (cipher.type == .login || cipher.type == .secureNote)
+                    cipher.type == .login || cipher.type == .secureNote
                 }
         case let .encryptedJson(password):
             exportFormat = .encryptedJson(password: password)
-            // Only export active items without an organization id for encrypted JSON.
-            ciphers = ciphers
-                .filter { cipher in
-                    cipher.organizationId == nil && cipher.deletedDate == nil
-                }
         case .json:
             exportFormat = .json
-            // Only export active items for plain JSON.
-            ciphers = ciphers
-                .filter { $0.deletedDate == nil }
         }
 
         // A string representing the file contents
@@ -210,7 +203,11 @@ class DefultExportVaultService: ExportVaultService {
 
         // Check if the directory exists, and create it if it doesn't.
         if !FileManager.default.fileExists(atPath: exportsDirectoryURL.path) {
-            try FileManager.default.createDirectory(at: exportsDirectoryURL, withIntermediateDirectories: true, attributes: nil)
+            try FileManager.default.createDirectory(
+                at: exportsDirectoryURL,
+                withIntermediateDirectories: true,
+                attributes: nil
+            )
         }
 
         // Create the file URL.
