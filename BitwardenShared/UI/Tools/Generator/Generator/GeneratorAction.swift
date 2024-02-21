@@ -66,15 +66,13 @@ extension GeneratorAction {
              .generatorTypeChanged,
              .passwordGeneratorTypeChanged,
              .refreshGeneratedValue,
+             .sliderValueChanged,
              .stepperValueChanged,
              .textValueChanged,
              .toggleValueChanged,
              .usernameForwardedEmailServiceChanged,
              .usernameGeneratorTypeChanged:
             return true
-        case let .sliderEditingChanged(_, isEditing):
-            // Only generate a new value when editing completes.
-            return !isEditing
         case let .textFieldFocusChanged(keyPath):
             // Only generate a new value when focus leaves the field (keyPath == nil).
             return keyPath == nil
@@ -82,7 +80,7 @@ extension GeneratorAction {
              .dismissPressed,
              .selectButtonPressed,
              .showPasswordHistory,
-             .sliderValueChanged,
+             .sliderEditingChanged,
              .textFieldIsPasswordVisibleChanged,
              .toastShown:
             return false
