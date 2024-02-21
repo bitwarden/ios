@@ -32,13 +32,14 @@ final class ExportVaultServiceTests: BitwardenTestCase {
                 month: 12,
                 day: 31
             ),
-            id: "123"
+            id: "example-deleted-uuid",
+            name: "Deleted"
         )
     )
 
     let folder = Folder.fixture(
         id: "1234",
-        name: "Mock Folder",
+        name: "Folder",
         revisionDate: .init(
             year: 2024,
             month: 01,
@@ -88,6 +89,25 @@ final class ExportVaultServiceTests: BitwardenTestCase {
                 )
             ),
             name: "Login",
+            organizationId: nil,
+            type: .login
+        )
+    )
+
+    let loginOrgCipher = Cipher(
+        cipherView: .fixture(
+            id: "example-login-org-uuid",
+            login: .init(
+                .init(
+                    username: "example@bitwarden.com",
+                    password: "password9876",
+                    passwordRevisionDate: nil,
+                    uris: nil,
+                    totp: nil,
+                    autofillOnPageLoad: false
+                )
+            ),
+            name: "Login Org",
             organizationId: "123",
             type: .login
         )
@@ -122,6 +142,7 @@ final class ExportVaultServiceTests: BitwardenTestCase {
                 deletedCipehr,
                 identityCipher,
                 loginCipher,
+                loginOrgCipher,
                 secureNoteCipher,
             ]
         )
@@ -189,12 +210,13 @@ final class ExportVaultServiceTests: BitwardenTestCase {
         _ = try await subject.exportVaultFileContents(format: fileType)
         XCTAssertEqual(exporters.folders, [folder])
         XCTAssertEqual(
-            exporters.ciphers,
-            [
+            Set(exporters.ciphers),
+            Set([
                 cardCipher,
+                loginCipher,
                 identityCipher,
                 secureNoteCipher,
-            ]
+            ])
         )
     }
 
