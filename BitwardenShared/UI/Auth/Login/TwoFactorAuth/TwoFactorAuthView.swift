@@ -119,7 +119,7 @@ struct TwoFactorAuthView: View {
 
     /// The launch duo button.
     private var duoButton: some View {
-        // TODO: BIT-1927 - Update Duo Localization strings.
+        // TODO: BIT-1933 - Update Duo Localization strings.
         AsyncButton(Localizations.launchDuo) {
             await store.perform(.beginDuoAuth)
         }

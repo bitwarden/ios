@@ -310,9 +310,9 @@ class TwoFactorAuthProcessorTests: BitwardenTestCase { // swiftlint:disable:this
     /// `perform(_:)` with `.listenForNFC` logs an error and shows an alert if listening for NFC tags fails.
     func test_perform_listenForNFC_error() async {
         nfcReaderService.resultSubject.send(completion: .failure(BitwardenTestError.example))
-        
+
         await subject.perform(.listenForNFC)
-        
+
         XCTAssertEqual(errorReporter.errors as? [BitwardenTestError], [.example])
         XCTAssertEqual(coordinator.alertShown, [.networkResponseError(BitwardenTestError.example)])
     }

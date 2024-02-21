@@ -38,7 +38,7 @@ enum TwoFactorAuthMethod: Int {
             Localizations.authenticatorAppTitle
         case .duo,
              .duoOrganization:
-            // TODO: BIT-1927 - Update Duo Localization strings.
+            // TODO: BIT-1933 - Update Duo Localization strings.
             Localizations.duo
         case .email:
             Localizations.email
@@ -92,7 +92,7 @@ enum TwoFactorAuthMethod: Int {
             Localizations.enterVerificationCodeApp
         case .duo,
              .duoOrganization:
-            // TODO: BIT-1927 - Update Duo Localization strings.
+            // TODO: BIT-1933 - Update Duo Localization strings.
             Localizations.followStepsDuo
         case .email:
             Localizations.enterVerificationCodeEmail(email ?? "")
