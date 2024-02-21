@@ -197,36 +197,6 @@ extension DefaultSyncService {
         try await checkVaultTimeoutPolicy()
     }
 
-    // MARK: Private Methods
-
-    /// Checks if the policy for a maximum vault timeout value is enabled.
-    /// If it is, update the timeout values for the user.
-    ///
-    /// If the user's stored timeout value is greater than the policy's timeout value,
-    /// update it to equal the policy's timeout value.
-    ///
-    /// Set the user's timeout action to equal the policy's regardless.
-    ///
-    private func checkVaultTimeoutPolicy() async throws {
-        guard let timeoutPolicyValues = try await policyService.fetchTimeoutPolicyValues() else { return }
-
-        let action = timeoutPolicyValues.action
-        let value = timeoutPolicyValues.value
-
-        let timeoutAction = try await stateService.getTimeoutAction()
-        let timeoutValue = try await stateService.getVaultTimeout()
-
-        // Only update the user's stored vault timeout value if
-        // their stored timeout value is > the policy's timeout value.
-        if timeoutValue.rawValue > value || timeoutValue.rawValue < 0 {
-            try await stateService.setVaultTimeout(
-                value: SessionTimeoutValue(rawValue: value)
-            )
-        }
-
-        try await stateService.setTimeoutAction(action: action ?? timeoutAction)
-    }
-
     func deleteCipher(data: SyncCipherNotification) async throws {
         let userId = try await stateService.getActiveAccountId()
         guard userId == data.userId else { return }
@@ -326,5 +296,35 @@ extension DefaultSyncService {
                 try await sendService.deleteSendWithLocalStorage(id: data.id)
             }
         }
+    }
+
+    // MARK: Private Methods
+
+    /// Checks if the policy for a maximum vault timeout value is enabled.
+    /// If it is, update the timeout values for the user.
+    ///
+    /// If the user's stored timeout value is greater than the policy's timeout value,
+    /// update it to equal the policy's timeout value.
+    ///
+    /// Set the user's timeout action to equal the policy's regardless.
+    ///
+    private func checkVaultTimeoutPolicy() async throws {
+        guard let timeoutPolicyValues = try await policyService.fetchTimeoutPolicyValues() else { return }
+
+        let action = timeoutPolicyValues.action
+        let value = timeoutPolicyValues.value
+
+        let timeoutAction = try await stateService.getTimeoutAction()
+        let timeoutValue = try await stateService.getVaultTimeout()
+
+        // Only update the user's stored vault timeout value if
+        // their stored timeout value is > the policy's timeout value.
+        if timeoutValue.rawValue > value || timeoutValue.rawValue < 0 {
+            try await stateService.setVaultTimeout(
+                value: SessionTimeoutValue(rawValue: value)
+            )
+        }
+
+        try await stateService.setTimeoutAction(action: action ?? timeoutAction)
     }
 }

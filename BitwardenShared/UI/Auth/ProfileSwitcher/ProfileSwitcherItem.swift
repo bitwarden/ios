@@ -8,6 +8,7 @@ struct ProfileSwitcherItem: Equatable, Hashable {
     /// A placeholder empty item.
     static var empty: ProfileSwitcherItem {
         ProfileSwitcherItem(
+            color: Color(asset: Asset.Colors.primaryBitwardenLight),
             email: "",
             isUnlocked: false,
             userId: "",
@@ -17,13 +18,18 @@ struct ProfileSwitcherItem: Equatable, Hashable {
     }
 
     /// The color associated with the profile
-    var color = Color.purple
+    var color = Color(asset: Asset.Colors.primaryBitwardenLight)
 
     /// The account's email.
     var email: String
 
     /// The the locked state of an account profile
     var isUnlocked: Bool
+
+    /// The color to use for the profile icon text.
+    var profileIconTextColor: Color {
+        color.isLight() ? .black : .white
+    }
 
     /// The user's identifier
     var userId: String

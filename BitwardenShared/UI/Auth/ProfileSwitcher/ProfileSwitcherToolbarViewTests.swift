@@ -1,5 +1,6 @@
 import BitwardenSdk
 import SnapshotTesting
+import SwiftUI
 import XCTest
 
 @testable import BitwardenShared
@@ -68,6 +69,86 @@ final class ProfileSwitcherToolbarViewTests: BitwardenTestCase {
                 ProfileSwitcherItem.anneAccount,
                 ProfileSwitcherItem(
                     color: .blue,
+                    email: "",
+                    isUnlocked: true,
+                    userId: "123",
+                    userInitials: "OW",
+                    webVault: ""
+                ),
+            ],
+            activeAccountId: "123",
+            allowLockAndLogout: true,
+            isVisible: true
+        )
+        assertSnapshot(matching: subject, as: .defaultPortrait)
+    }
+
+    func test_snapshot_profileIconColor_black() {
+        processor.state = .init(
+            accounts: [
+                ProfileSwitcherItem.anneAccount,
+                ProfileSwitcherItem(
+                    color: Color(hex: "000000"),
+                    email: "",
+                    isUnlocked: true,
+                    userId: "123",
+                    userInitials: "OW",
+                    webVault: ""
+                ),
+            ],
+            activeAccountId: "123",
+            allowLockAndLogout: true,
+            isVisible: true
+        )
+        assertSnapshot(matching: subject, as: .defaultPortrait)
+    }
+
+    func test_snapshot_profileIconColor_blue() {
+        processor.state = .init(
+            accounts: [
+                ProfileSwitcherItem.anneAccount,
+                ProfileSwitcherItem(
+                    color: Color(hex: "16cbfc"),
+                    email: "",
+                    isUnlocked: true,
+                    userId: "123",
+                    userInitials: "OW",
+                    webVault: ""
+                ),
+            ],
+            activeAccountId: "123",
+            allowLockAndLogout: true,
+            isVisible: true
+        )
+        assertSnapshot(matching: subject, as: .defaultPortrait)
+    }
+
+    func test_snapshot_profileIconColor_white() {
+        processor.state = .init(
+            accounts: [
+                ProfileSwitcherItem.anneAccount,
+                ProfileSwitcherItem(
+                    color: Color(hex: "ffffff"),
+                    email: "",
+                    isUnlocked: true,
+                    userId: "123",
+                    userInitials: "OW",
+                    webVault: ""
+                ),
+            ],
+            activeAccountId: "123",
+            allowLockAndLogout: true,
+            isVisible: true
+        )
+        assertSnapshot(matching: subject, as: .defaultPortrait)
+    }
+
+    func test_snapshot_profileIconColor_yellow() {
+        processor.state = .init(
+            accounts: [
+                ProfileSwitcherItem.anneAccount,
+                ProfileSwitcherItem(
+                    color: Color(hex: "fcff41"),
                     email: "",
                     isUnlocked: true,
                     userId: "123",
