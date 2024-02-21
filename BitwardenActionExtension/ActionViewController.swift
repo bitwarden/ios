@@ -57,12 +57,14 @@ class ActionViewController: UIViewController {
             nil
         }
 
-        appProcessor.start(
-            appContext: .appExtension,
-            initialRoute: initialRoute,
-            navigator: self,
-            window: nil
-        )
+        Task {
+            await appProcessor.start(
+                appContext: .appExtension,
+                initialRoute: initialRoute,
+                navigator: self,
+                window: nil
+            )
+        }
     }
 }
 

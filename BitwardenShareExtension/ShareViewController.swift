@@ -61,12 +61,14 @@ class ShareViewController: UIViewController {
 
         authCompletionRoute = .sendItem(.add(content: content, hasPremium: hasPremium ?? false))
 
-        appProcessor.start(
-            appContext: .appExtension,
-            initialRoute: nil,
-            navigator: self,
-            window: nil
-        )
+        Task {
+            await appProcessor.start(
+                appContext: .appExtension,
+                initialRoute: nil,
+                navigator: self,
+                window: nil
+            )
+        }
     }
 }
 

@@ -85,7 +85,9 @@ class CredentialProviderViewController: ASCredentialProviderViewController {
         let appProcessor = AppProcessor(appModule: appModule, services: services)
         self.appProcessor = appProcessor
 
-        appProcessor.start(appContext: .appExtension, navigator: self, window: nil)
+        Task {
+            await appProcessor.start(appContext: .appExtension, navigator: self, window: nil)
+        }
     }
 }
 
