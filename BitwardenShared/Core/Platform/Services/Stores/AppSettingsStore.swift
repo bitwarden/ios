@@ -31,6 +31,9 @@ protocol AppSettingsStore: AnyObject {
     /// The login request information received from a push notification.
     var loginRequest: LoginRequestNotification? { get set }
 
+    /// The app's last data migration version.
+    var migrationVersion: Int { get set }
+
     /// The environment URLs used prior to user authentication.
     var preAuthEnvironmentUrls: EnvironmentUrlData? { get set }
 
@@ -373,7 +376,7 @@ protocol AppSettingsStore: AnyObject {
     /// - Parameter userId: The user ID associated with the unsuccessful unlock attempts.
     /// - Returns: The number of unsuccessful attempts to unlock the vault.
     ///
-    func unsuccessfulUnlockAttempts(userId: String) -> Int?
+    func unsuccessfulUnlockAttempts(userId: String) -> Int
 
     /// Returns the session timeout date.
     ///
@@ -435,7 +438,7 @@ class DefaultAppSettingsStore {
     /// - Parameter key: The key used to store the value.
     /// - Returns: The value associated with the given key.
     ///
-    private func fetch(for key: Keys) -> Int? {
+    private func fetch(for key: Keys) -> Int {
         userDefaults.integer(forKey: key.storageKey)
     }
 
@@ -526,6 +529,7 @@ extension DefaultAppSettingsStore: AppSettingsStore {
         case lastUserShouldConnectToWatch
         case loginRequest
         case masterPasswordHash(userId: String)
+        case migrationVersion
         case notificationsLastRegistrationDate(userId: String)
         case passwordGenerationOptions(userId: String)
         case pinKeyEncryptedUserKey(userId: String)
@@ -584,6 +588,8 @@ extension DefaultAppSettingsStore: AppSettingsStore {
                 key = "passwordlessLoginNotificationKey"
             case let .masterPasswordHash(userId):
                 key = "keyHash_\(userId)"
+            case .migrationVersion:
+                key = "migrationVersion"
             case let .notificationsLastRegistrationDate(userId):
                 key = "pushLastRegistrationDate_\(userId)"
             case let .passwordGenerationOptions(userId):
@@ -648,6 +654,11 @@ extension DefaultAppSettingsStore: AppSettingsStore {
     var loginRequest: LoginRequestNotification? {
         get { fetch(for: .loginRequest) }
         set { store(newValue, for: .loginRequest) }
+    }
+
+    var migrationVersion: Int {
+        get { fetch(for: .migrationVersion) }
+        set { store(newValue, for: .migrationVersion) }
     }
 
     var preAuthEnvironmentUrls: EnvironmentUrlData? {
@@ -852,7 +863,7 @@ extension DefaultAppSettingsStore: AppSettingsStore {
         fetch(for: .vaultTimeout(userId: userId))
     }
 
-    func unsuccessfulUnlockAttempts(userId: String) -> Int? {
+    func unsuccessfulUnlockAttempts(userId: String) -> Int {
         fetch(for: .unsuccessfulUnlockAttempts(userId: userId))
     }
 

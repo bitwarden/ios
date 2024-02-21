@@ -905,43 +905,6 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
         )
     }
 
-    /// `setTokens(accessToken:refreshToken)` throws an error if there isn't an active account.
-    func test_setAccountTokens_noAccount() async {
-        await assertAsyncThrows(error: StateServiceError.noActiveAccount) {
-            try await subject.setTokens(accessToken: "🔑", refreshToken: "🔒")
-        }
-    }
-
-    /// `setTokens(accessToken:refreshToken)` sets the tokens for a single account.
-    func test_setAccountTokens_singleAccount() async throws {
-        await subject.addAccount(.fixture())
-
-        try await subject.setTokens(accessToken: "🔑", refreshToken: "🔒")
-
-        let account = try XCTUnwrap(appSettingsStore.state?.accounts["1"])
-        XCTAssertEqual(
-            account,
-            Account.fixture(tokens: Account.AccountTokens(accessToken: "🔑", refreshToken: "🔒"))
-        )
-    }
-
-    /// `setTokens(accessToken:refreshToken)` sets the tokens for an account where there are multiple accounts.
-    func test_setAccountTokens_multipleAccount() async throws {
-        await subject.addAccount(.fixture(profile: .fixture(userId: "1")))
-        await subject.addAccount(.fixture(profile: .fixture(userId: "2")))
-
-        try await subject.setTokens(accessToken: "🔑", refreshToken: "🔒")
-
-        let account = try XCTUnwrap(appSettingsStore.state?.accounts["2"])
-        XCTAssertEqual(
-            account,
-            Account.fixture(
-                profile: .fixture(userId: "2"),
-                tokens: Account.AccountTokens(accessToken: "🔑", refreshToken: "🔒")
-            )
-        )
-    }
-
     /// `setActiveAccount(userId: )` returns without action if there are no accounts
     func test_setActiveAccount_noAccounts() async throws {
         let storeState = await subject.appSettingsStore.state

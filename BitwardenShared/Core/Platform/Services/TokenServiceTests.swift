@@ -5,6 +5,7 @@ import XCTest
 class TokenServiceTests: BitwardenTestCase {
     // MARK: Properties
 
+    var keychainRepository: MockKeychainRepository!
     var stateService: MockStateService!
     var subject: DefaultTokenService!
 
@@ -13,14 +14,16 @@ class TokenServiceTests: BitwardenTestCase {
     override func setUp() {
         super.setUp()
 
+        keychainRepository = MockKeychainRepository()
         stateService = MockStateService()
 
-        subject = DefaultTokenService(stateService: stateService)
+        subject = DefaultTokenService(keychainRepository: keychainRepository, stateService: stateService)
     }
 
     override func tearDown() {
         super.tearDown()
 
+        keychainRepository = nil
         stateService = nil
         subject = nil
     }
@@ -34,7 +37,7 @@ class TokenServiceTests: BitwardenTestCase {
         let accessToken = try await subject.getAccessToken()
         XCTAssertEqual(accessToken, "ACCESS_TOKEN")
 
-        stateService.activeAccount = .fixture(tokens: Account.AccountTokens(accessToken: "🔑", refreshToken: "🔒"))
+        keychainRepository.getAccessTokenResult = .success("🔑")
 
         let updatedAccessToken = try await subject.getAccessToken()
         XCTAssertEqual(updatedAccessToken, "🔑")
@@ -56,7 +59,7 @@ class TokenServiceTests: BitwardenTestCase {
         let refreshToken = try await subject.getRefreshToken()
         XCTAssertEqual(refreshToken, "REFRESH_TOKEN")
 
-        stateService.activeAccount = .fixture(tokens: Account.AccountTokens(accessToken: "🔑", refreshToken: "🔒"))
+        keychainRepository.getRefreshTokenResult = .success("🔒")
 
         let updatedRefreshToken = try await subject.getRefreshToken()
         XCTAssertEqual(updatedRefreshToken, "🔒")
@@ -78,8 +81,12 @@ class TokenServiceTests: BitwardenTestCase {
         try await subject.setTokens(accessToken: "🔑", refreshToken: "🔒")
 
         XCTAssertEqual(
-            stateService.accountTokens,
-            Account.AccountTokens(accessToken: "🔑", refreshToken: "🔒")
+            keychainRepository.mockStorage[keychainRepository.formattedKey(for: .accessToken(userId: "1"))],
+            "🔑"
+        )
+        XCTAssertEqual(
+            keychainRepository.mockStorage[keychainRepository.formattedKey(for: .refreshToken(userId: "1"))],
+            "🔒"
         )
     }
 }

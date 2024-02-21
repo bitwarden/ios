@@ -5,6 +5,7 @@ import Networking
 
 extension ServiceContainer {
     static func withMocks(
+        application: Application? = nil,
         appSettingsStore: AppSettingsStore = MockAppSettingsStore(),
         authRepository: AuthRepository = MockAuthRepository(),
         authService: AuthService = MockAuthService(),
@@ -20,6 +21,7 @@ extension ServiceContainer {
         httpClient: HTTPClient = MockHTTPClient(),
         keychainRepository: KeychainRepository = MockKeychainRepository(),
         keychainService: KeychainService = MockKeychainService(),
+        migrationService: MigrationService = MockMigrationService(),
         nfcReaderService: NFCReaderService = MockNFCReaderService(),
         notificationService: NotificationService = MockNotificationService(),
         pasteboardService: PasteboardService = MockPasteboardService(),
@@ -44,6 +46,7 @@ extension ServiceContainer {
                 environmentService: environmentService
             ),
             appIdService: AppIdService(appSettingStore: appSettingsStore),
+            application: application,
             appSettingsStore: appSettingsStore,
             authRepository: authRepository,
             authService: authService,
@@ -58,6 +61,7 @@ extension ServiceContainer {
             generatorRepository: generatorRepository,
             keychainRepository: keychainRepository,
             keychainService: keychainService,
+            migrationService: migrationService,
             nfcReaderService: nfcReaderService,
             notificationCenterService: notificationCenterService,
             notificationService: notificationService,

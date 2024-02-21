@@ -3,21 +3,29 @@ import Foundation
 // MARK: - KeychainItem
 
 enum KeychainItem: Equatable {
+    /// The keychain item for a user's access token.
+    case accessToken(userId: String)
+
     /// The keychain item for biometrics protected user auth key.
     case biometrics(userId: String)
 
     /// The keychain item for the neverLock user auth key.
     case neverLock(userId: String)
 
+    /// The keychain item for a user's refresh token.
+    case refreshToken(userId: String)
+
     /// The `SecAccessControlCreateFlags` protection level for this keychain item.
     ///     If `nil`, no extra protection is applied.
     ///
     var protection: SecAccessControlCreateFlags? {
         switch self {
+        case .accessToken,
+             .neverLock,
+             .refreshToken:
+            nil
         case .biometrics:
             .biometryCurrentSet
-        case .neverLock:
-            nil
         }
     }
 
@@ -25,10 +33,14 @@ enum KeychainItem: Equatable {
     ///
     var unformattedKey: String {
         switch self {
+        case let .accessToken(userId):
+            "accessToken_\(userId)"
         case let .biometrics(userId: id):
             "biometric_key_" + id
         case let .neverLock(userId: id):
             "userKeyAutoUnlock_" + id
+        case let .refreshToken(userId):
+            "refreshToken_\(userId)"
         }
     }
 }
@@ -42,12 +54,42 @@ protocol KeychainRepository: AnyObject {
     ///
     func deleteUserAuthKey(for item: KeychainItem) async throws
 
+    /// Gets the stored access token for a user from the keychain.
+    ///
+    /// - Parameter userId: The user ID associated with the stored access token.
+    /// - Returns: The user's access token.
+    ///
+    func getAccessToken(userId: String) async throws -> String
+
+    /// Gets the stored refresh token for a user from the keychain.
+    ///
+    /// - Parameter userId: The user ID associated with the stored refresh token.
+    /// - Returns: The user's refresh token.
+    ///
+    func getRefreshToken(userId: String) async throws -> String
+
     /// Gets a user auth key value.
     ///
     /// - Parameter item: The storage key of the user auth key.
     /// - Returns: A string representing the user auth key.
     ///
     func getUserAuthKeyValue(for item: KeychainItem) async throws -> String
+
+    /// Stores the access token for a user in the keychain.
+    ///
+    /// - Parameters:
+    ///   - value: The access token to store.
+    ///   - userId: The user's ID, used to get back the token later on.
+    ///
+    func setAccessToken(_ value: String, userId: String) async throws
+
+    /// Stores the refresh token for a user in the keychain.
+    ///
+    /// - Parameters:
+    ///   - value: The refresh token to store.
+    ///   - userId: The user's ID, used to get back the token later on.
+    ///
+    func setRefreshToken(_ value: String, userId: String) async throws
 
     /// Sets a user auth key/value pair.
     ///
@@ -107,13 +149,7 @@ class DefaultKeychainRepository: KeychainRepository {
 
     // MARK: Methods
 
-    func deleteUserAuthKey(for item: KeychainItem) async throws {
-        try await keychainService.delete(
-            query: keychainQueryValues(for: item)
-        )
-    }
-
-    /// Generates a formated storage key for a keychain item.
+    /// Generates a formatted storage key for a keychain item.
     ///
     /// - Parameter item: The keychain item that needs a formatted key.
     /// - Returns: A formatted storage key.
@@ -123,7 +159,12 @@ class DefaultKeychainRepository: KeychainRepository {
         return String(format: storageKeyFormat, appId, item.unformattedKey)
     }
 
-    func getUserAuthKeyValue(for item: KeychainItem) async throws -> String {
+    /// Gets the value associated with the keychain item from the keychain.
+    ///
+    /// - Parameter item: The keychain item used to fetch the associated value.
+    /// - Returns: The fetched value associated with the keychain item.
+    ///
+    func getValue(for item: KeychainItem) async throws -> String {
         let foundItem = try await keychainService.search(
             query: keychainQueryValues(
                 for: item,
@@ -166,7 +207,7 @@ class DefaultKeychainRepository: KeychainRepository {
             kSecClass: kSecClassGenericPassword,
         ]
 
-        // Add the addional key value pairs.
+        // Add the additional key value pairs.
         additionalPairs.forEach { key, value in
             result[key] = value
         }
@@ -174,7 +215,13 @@ class DefaultKeychainRepository: KeychainRepository {
         return result as CFDictionary
     }
 
-    func setUserAuthKey(for item: KeychainItem, value: String) async throws {
+    /// Sets a value associated with a keychain item in the keychain.
+    ///
+    /// - Parameters:
+    ///   - value: The value associated with the keychain item to set.
+    ///   - item: The keychain item used to set the associated value.
+    ///
+    func setValue(_ value: String, for item: KeychainItem) async throws {
         let accessControl = try keychainService.accessControl(
             for: item.protection ?? []
         )
@@ -194,5 +241,37 @@ class DefaultKeychainRepository: KeychainRepository {
         try keychainService.add(
             attributes: query
         )
+    }
+}
+
+extension DefaultKeychainRepository {
+    func deleteUserAuthKey(for item: KeychainItem) async throws {
+        try await keychainService.delete(
+            query: keychainQueryValues(for: item)
+        )
+    }
+
+    func getAccessToken(userId: String) async throws -> String {
+        try await getValue(for: .accessToken(userId: userId))
+    }
+
+    func getRefreshToken(userId: String) async throws -> String {
+        try await getValue(for: .refreshToken(userId: userId))
+    }
+
+    func getUserAuthKeyValue(for item: KeychainItem) async throws -> String {
+        try await getValue(for: item)
+    }
+
+    func setAccessToken(_ value: String, userId: String) async throws {
+        try await setValue(value, for: .accessToken(userId: userId))
+    }
+
+    func setRefreshToken(_ value: String, userId: String) async throws {
+        try await setValue(value, for: .refreshToken(userId: userId))
+    }
+
+    func setUserAuthKey(for item: KeychainItem, value: String) async throws {
+        try await setValue(value, for: item)
     }
 }

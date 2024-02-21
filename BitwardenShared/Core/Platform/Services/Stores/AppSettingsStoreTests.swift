@@ -416,6 +416,22 @@ class AppSettingsStoreTests: BitwardenTestCase { // swiftlint:disable:this type_
         )
     }
 
+    /// `migrationVersion` returns `0` if there isn't a previously stored value.
+    func test_migrationVersion_isInitiallyZero() {
+        XCTAssertEqual(subject.migrationVersion, 0)
+    }
+
+    /// `migrationVersion` can be used to get and set the migration version.
+    func test_migrationVersion_withValue() throws {
+        subject.migrationVersion = 1
+        XCTAssertEqual(userDefaults.integer(forKey: "bwPreferencesStorage:migrationVersion"), 1)
+        XCTAssertEqual(subject.migrationVersion, 1)
+
+        subject.migrationVersion = 2
+        XCTAssertEqual(userDefaults.integer(forKey: "bwPreferencesStorage:migrationVersion"), 2)
+        XCTAssertEqual(subject.migrationVersion, 2)
+    }
+
     /// `masterPasswordHash(userId:)` returns `nil` if there isn't a previously stored value.
     func test_masterPasswordHash_isInitiallyNil() {
         XCTAssertNil(subject.masterPasswordHash(userId: "-1"))

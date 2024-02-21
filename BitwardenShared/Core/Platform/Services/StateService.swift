@@ -445,15 +445,6 @@ protocol StateService: AnyObject {
     ///
     func setTimeoutAction(action: SessionTimeoutAction, userId: String?) async throws
 
-    /// Sets a new access and refresh token for an account.
-    ///
-    /// - Parameters:
-    ///   - accessToken: The account's updated access token.
-    ///   - refreshToken: The account's updated refresh token.
-    ///   - userId: The user ID of the account. Defaults to the active account if `nil`.
-    ///
-    func setTokens(accessToken: String, refreshToken: String, userId: String?) async throws
-
     /// Sets the user's two-factor token.
     ///
     /// - Parameters:
@@ -844,16 +835,6 @@ extension StateService {
         try await setTimeoutAction(action: action, userId: nil)
     }
 
-    /// Sets a new access and refresh token for the active account.
-    ///
-    /// - Parameters:
-    ///   - accessToken: The account's updated access token.
-    ///   - refreshToken: The account's updated refresh token.
-    ///
-    func setTokens(accessToken: String, refreshToken: String) async throws {
-        try await setTokens(accessToken: accessToken, refreshToken: refreshToken, userId: nil)
-    }
-
     /// Sets the number of unsuccessful attempts to unlock the vault for the active account.
     ///
     /// - Parameter attempts: The number of unsuccessful unlock attempts.
@@ -1114,7 +1095,7 @@ actor DefaultStateService: StateService { // swiftlint:disable:this type_body_le
 
     func getUnsuccessfulUnlockAttempts(userId: String?) async throws -> Int {
         let userId = try userId ?? getActiveAccountUserId()
-        return appSettingsStore.unsuccessfulUnlockAttempts(userId: userId) ?? 0
+        return appSettingsStore.unsuccessfulUnlockAttempts(userId: userId)
     }
 
     func getUsernameGenerationOptions(userId: String?) async throws -> UsernameGenerationOptions? {
@@ -1294,20 +1275,6 @@ actor DefaultStateService: StateService { // swiftlint:disable:this type_body_le
     func setTimeoutAction(action: SessionTimeoutAction, userId: String?) async throws {
         let userId = try userId ?? getActiveAccountUserId()
         appSettingsStore.setTimeoutAction(key: action, userId: userId)
-    }
-
-    func setTokens(accessToken: String, refreshToken: String, userId: String?) async throws {
-        guard var state = appSettingsStore.state,
-              let userId = userId ?? state.activeUserId
-        else {
-            throw StateServiceError.noActiveAccount
-        }
-
-        state.accounts[userId]?.tokens = Account.AccountTokens(
-            accessToken: accessToken,
-            refreshToken: refreshToken
-        )
-        appSettingsStore.state = state
     }
 
     func setTwoFactorToken(_ token: String?, email: String) async {
