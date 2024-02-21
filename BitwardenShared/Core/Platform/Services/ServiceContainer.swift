@@ -65,6 +65,9 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
     /// The repository used to manage keychain items.
     let keychainRepository: KeychainRepository
 
+    /// The service used by the application to read NFC tags.
+    let nfcReaderService: NFCReaderService
+
     /// The service used by the application to access the system's notification center.
     let notificationCenterService: NotificationCenterService
 
@@ -134,7 +137,8 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
     ///   - generatorRepository: The repository used by the application to manage generator data for the UI layer.
     ///   - keychainRepository: The repository used to manages keychain items.
     ///   - keychainService: The service used to access & store data on the device keychain.
-    ///   - notificaitonCenterService: The service used by the application to access the system's notification center.
+    ///   - nfcReaderService: The service used by the application to read NFC tags.
+    ///   - notificationCenterService: The service used by the application to access the system's notification center.
     ///   - notificationService: The service used by the application to handle notifications.
     ///   - pasteboardService: The service used by the application for sharing data with other apps.
     ///   - policyService: The service for managing the polices for the user.
@@ -168,6 +172,7 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
         generatorRepository: GeneratorRepository,
         keychainRepository: KeychainRepository,
         keychainService: KeychainService,
+        nfcReaderService: NFCReaderService,
         notificationCenterService: NotificationCenterService,
         notificationService: NotificationService,
         pasteboardService: PasteboardService,
@@ -201,6 +206,7 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
         self.generatorRepository = generatorRepository
         self.keychainService = keychainService
         self.keychainRepository = keychainRepository
+        self.nfcReaderService = nfcReaderService
         self.notificationCenterService = notificationCenterService
         self.notificationService = notificationService
         self.pasteboardService = pasteboardService
@@ -221,9 +227,14 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
 
     /// A convenience initializer to initialize the `ServiceContainer` with the default services.
     ///
-    /// - Parameter errorReporter: The service used by the application to report non-fatal errors.
+    /// - Parameters:
+    ///   - errorReporter: The service used by the application to report non-fatal errors.
+    ///   - nfcReaderService: The service used by the application to read NFC tags.
     ///
-    public convenience init(errorReporter: ErrorReporter) { // swiftlint:disable:this function_body_length
+    public convenience init( // swiftlint:disable:this function_body_length
+        errorReporter: ErrorReporter,
+        nfcReaderService: NFCReaderService? = nil
+    ) {
         let appSettingsStore = DefaultAppSettingsStore(
             userDefaults: UserDefaults(suiteName: Bundle.main.groupIdentifier)!
         )
@@ -429,6 +440,7 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
             generatorRepository: generatorRepository,
             keychainRepository: keychainRepository,
             keychainService: keychainService,
+            nfcReaderService: nfcReaderService ?? NoopNFCReaderService(),
             notificationCenterService: notificationCenterService,
             notificationService: notificationService,
             pasteboardService: pasteboardService,
