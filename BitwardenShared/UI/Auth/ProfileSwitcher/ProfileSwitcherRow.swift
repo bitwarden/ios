@@ -100,7 +100,7 @@ struct ProfileSwitcherRow: View {
              let .alternate(account):
             Text(account.userInitials)
                 .styleGuide(.caption2Monospaced)
-                .foregroundColor(account.profileIconText)
+                .foregroundColor(account.profileIconTextColor)
                 .padding(4)
                 .background(account.color)
                 .clipShape(Circle())

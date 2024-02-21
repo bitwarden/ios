@@ -21,7 +21,7 @@ struct ProfileSwitcherToolbarView: View {
                 HStack {
                     Text(store.state.activeAccountInitials)
                         .styleGuide(.caption2Monospaced)
-                        .foregroundColor(store.state.activeAccountProfile?.profileIconText ?? .white)
+                        .foregroundColor(store.state.activeAccountProfile?.profileIconTextColor ?? .white)
                         .padding(4)
                         .background(
                             store.state.activeAccountProfile?.color

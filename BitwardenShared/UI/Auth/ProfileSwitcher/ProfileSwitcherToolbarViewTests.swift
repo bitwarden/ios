@@ -88,7 +88,7 @@ final class ProfileSwitcherToolbarViewTests: BitwardenTestCase {
             accounts: [
                 ProfileSwitcherItem.anneAccount,
                 ProfileSwitcherItem(
-                    color: Color(UIColor(hex: "000000")),
+                    color: Color(hex: "000000"),
                     email: "",
                     isUnlocked: true,
                     userId: "123",
@@ -108,7 +108,7 @@ final class ProfileSwitcherToolbarViewTests: BitwardenTestCase {
             accounts: [
                 ProfileSwitcherItem.anneAccount,
                 ProfileSwitcherItem(
-                    color: Color(UIColor(hex: "16cbfc")),
+                    color: Color(hex: "16cbfc"),
                     email: "",
                     isUnlocked: true,
                     userId: "123",
@@ -128,7 +128,7 @@ final class ProfileSwitcherToolbarViewTests: BitwardenTestCase {
             accounts: [
                 ProfileSwitcherItem.anneAccount,
                 ProfileSwitcherItem(
-                    color: Color(UIColor(hex: "ffffff")),
+                    color: Color(hex: "ffffff"),
                     email: "",
                     isUnlocked: true,
                     userId: "123",
@@ -148,7 +148,7 @@ final class ProfileSwitcherToolbarViewTests: BitwardenTestCase {
             accounts: [
                 ProfileSwitcherItem.anneAccount,
                 ProfileSwitcherItem(
-                    color: Color(UIColor(hex: "fcff41")),
+                    color: Color(hex: "fcff41"),
                     email: "",
                     isUnlocked: true,
                     userId: "123",

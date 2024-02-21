@@ -8,6 +8,7 @@ struct ProfileSwitcherItem: Equatable, Hashable {
     /// A placeholder empty item.
     static var empty: ProfileSwitcherItem {
         ProfileSwitcherItem(
+            color: Color(hex: "175DDC"),
             email: "",
             isUnlocked: false,
             userId: "",
@@ -17,7 +18,7 @@ struct ProfileSwitcherItem: Equatable, Hashable {
     }
 
     /// The color associated with the profile
-    var color = Color.purple
+    var color = Color(hex: "175DDC")
 
     /// The account's email.
     var email: String
@@ -25,9 +26,9 @@ struct ProfileSwitcherItem: Equatable, Hashable {
     /// The the locked state of an account profile
     var isUnlocked: Bool
 
-    /// The color to use for the account profile icon text.
-    var profileIconText: Color {
-        UIColor(color).isLight() ? .black : .white
+    /// The color to use for the profile icon text.
+    var profileIconTextColor: Color {
+        color.isLight() ? .black : .white
     }
 
     /// The user's identifier

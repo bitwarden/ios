@@ -514,7 +514,7 @@ extension DefaultAuthRepository: AuthRepository {
             .getVaultTimeout(userId: account.profile.userId)) == .never
         let displayAsUnlocked = !isLocked || hasNeverLock
         return ProfileSwitcherItem(
-            color: Color(UIColor(hex: account.profile.avatarColor ?? "")),
+            color: Color(hex: account.profile.avatarColor ?? "175DDC"),
             email: account.profile.email,
             isUnlocked: displayAsUnlocked,
             userId: account.profile.userId,
