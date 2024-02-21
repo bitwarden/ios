@@ -19,6 +19,9 @@ enum AuthError: Error {
     /// The request that should have been cached for the two-factor authentication method was missing.
     case missingTwoFactorRequest
 
+    /// There was a problem extracting the code from the Duo WebAuth response.
+    case unableToDecodeDuoResponse
+
     /// There was a problem extracting the code from the single sign on WebAuth response.
     case unableToDecodeSSOResponse
 

@@ -120,6 +120,8 @@ final class AuthCoordinator: NSObject, // swiftlint:disable:this type_body_lengt
             showCreateAccount()
         case .dismiss:
             stackNavigator?.dismiss()
+        case let .duoAuthenticationFlow(authURL):
+            showDuo2FA(authURL: authURL, delegate: context as? DuoAuthenticationFlowDelegate)
         case let .enterpriseSingleSignOn(email):
             showEnterpriseSingleSignOn(email: email)
         case .landing:
@@ -234,6 +236,49 @@ final class AuthCoordinator: NSObject, // swiftlint:disable:this type_body_lengt
         )
         let navController = UINavigationController(rootViewController: UIHostingController(rootView: view))
         stackNavigator?.present(navController)
+    }
+
+    /// Shows the Duo 2FA screen.
+    ///
+    /// - Parameters:
+    ///   - url: The URL for the single sign on web auth session.
+    ///   - delegate: A `DuoAuthenticationFlowDelegate` object that is notified when the duo flow succeeds or fails.
+    ///
+    private func showDuo2FA(
+        authURL url: URL,
+        delegate: DuoAuthenticationFlowDelegate?
+    ) {
+        let session = ASWebAuthenticationSession(
+            url: url,
+            callbackURLScheme: services.authService.callbackUrlScheme
+        ) { callbackURL, error in
+            if let error {
+                delegate?.duoErrored(error: error)
+                return
+            }
+            guard let callbackURL,
+                  let components = URLComponents(
+                      url: callbackURL,
+                      resolvingAgainstBaseURL: false
+                  ),
+                  let queryItems = components.queryItems,
+                  let code = queryItems.first(where: { component in
+                      component.name == DuoCallbackURLComponent.code.rawValue
+                  })?.value,
+                  let state = queryItems.first(where: { component in
+                      component.name == DuoCallbackURLComponent.state.rawValue
+                  })?.value else {
+                delegate?.duoErrored(error: AuthError.unableToDecodeDuoResponse)
+                return
+            }
+
+            let duoCode: String = code + "|" + state
+            delegate?.didComplete(code: duoCode)
+        }
+
+        session.prefersEphemeralWebBrowserSession = false
+        session.presentationContextProvider = self
+        session.start()
     }
 
     /// Shows the enterprise single sign-on screen.

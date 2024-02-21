@@ -54,6 +54,15 @@ class TwoFactorAuthViewTests: BitwardenTestCase {
         XCTAssertEqual(processor.effects.last, .continueTapped)
     }
 
+    /// Tapping the duo button performs the `.beginDuoAuth` effect.
+    func test_launchDuo_tap() async throws {
+        processor.state.authMethod = .duo
+        // TODO: BIT-1933 - Update Duo Localization strings.
+        let button = try subject.inspect().find(asyncButton: Localizations.launchDuo)
+        try await button.tap()
+        XCTAssertEqual(processor.effects.last, .beginDuoAuth)
+    }
+
     /// Changing the remember me toggle dispatches the `.rememberMeToggleChanged(_)` action.
     func test_rememberMeToggle_changed() throws {
         if #available(iOS 16.0, macOS 13.0, tvOS 16.0, watchOS 9.0, *) {
@@ -84,6 +93,33 @@ class TwoFactorAuthViewTests: BitwardenTestCase {
     func test_snapshot_default_authApp() {
         processor.state.authMethod = .authenticatorApp
         assertSnapshots(of: subject.navStackWrapped, as: [.defaultPortrait, .defaultPortraitDark, .defaultPortraitAX5])
+    }
+
+    /// The default view renders correctly for the duo method.
+    func test_snapshot_default_authApp_light() {
+        processor.state.authMethod = .duo
+        assertSnapshot(
+            of: subject.navStackWrapped,
+            as: .defaultPortrait
+        )
+    }
+
+    /// The default view renders correctly for the duo method.
+    func test_snapshot_default_authApp_dark() {
+        processor.state.authMethod = .duo
+        assertSnapshot(
+            of: subject.navStackWrapped,
+            as: .defaultPortraitDark
+        )
+    }
+
+    /// The default view renders correctly for the duo method.
+    func test_snapshot_default_authApp_largeText() {
+        processor.state.authMethod = .duo
+        assertSnapshot(
+            of: subject.navStackWrapped,
+            as: .defaultPortraitAX5
+        )
     }
 
     /// The default view renders correctly for the email method.
