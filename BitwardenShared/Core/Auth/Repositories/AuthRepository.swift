@@ -513,8 +513,16 @@ extension DefaultAuthRepository: AuthRepository {
         let hasNeverLock = await (try? stateService
             .getVaultTimeout(userId: account.profile.userId)) == .never
         let displayAsUnlocked = !isLocked || hasNeverLock
+
+        var color: Color = .clear
+        if let avatarColor = account.profile.avatarColor {
+            color = Color(hex: avatarColor)
+        } else {
+            color = Color(asset: Asset.Colors.primaryBitwardenLight)
+        }
+
         return ProfileSwitcherItem(
-            color: Color(hex: account.profile.avatarColor ?? "175DDC"),
+            color: color,
             email: account.profile.email,
             isUnlocked: displayAsUnlocked,
             userId: account.profile.userId,
