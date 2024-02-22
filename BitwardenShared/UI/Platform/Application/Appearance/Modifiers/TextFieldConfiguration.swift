@@ -22,6 +22,22 @@ struct TextFieldConfiguration {
 }
 
 extension TextFieldConfiguration {
+    /// A `TextFieldConfiguration` for applying common properties to credit card number fields.
+    static let creditCardNumber = TextFieldConfiguration(
+        isAutocorrectionDisabled: true,
+        keyboardType: .numberPad,
+        textContentType: .creditCardNumber,
+        textInputAutocapitalization: .never
+    )
+
+    /// A `TextFieldConfiguration` for applying common properties to credit card security code fields.
+    static let creditCardSecurityCode = TextFieldConfiguration(
+        isAutocorrectionDisabled: true,
+        keyboardType: .numberPad,
+        textContentType: .password,
+        textInputAutocapitalization: .never
+    )
+
     /// A `TextFieldConfiguration` for applying common properties to email text fields.
     static let email = TextFieldConfiguration(
         isAutocorrectionDisabled: true,
@@ -70,6 +86,16 @@ extension TextFieldConfiguration {
         textInputAutocapitalization: .never
     )
 
+    /// A `TextFieldConfiguration` for applying common properties to numeric text fields.
+    static func numeric(_ textContentType: UITextContentType) -> TextFieldConfiguration {
+        TextFieldConfiguration(
+            isAutocorrectionDisabled: true,
+            keyboardType: .numberPad,
+            textContentType: textContentType,
+            textInputAutocapitalization: .never
+        )
+    }
+
     /// A `TextFieldConfiguration` for applying common properties to one-time code text fields.
     static func oneTimeCode(keyboardType: UIKeyboardType = .numberPad) -> TextFieldConfiguration {
         TextFieldConfiguration(
@@ -78,6 +104,26 @@ extension TextFieldConfiguration {
             textContentType: .oneTimeCode,
             textInputAutocapitalization: .never
         )
+    }
+}
+
+extension UITextContentType {
+    /// A `.creditCardExpirationYear` value that falls back to `.dateTime`.
+    static var creditCardExpirationYearOrDateTime: UITextContentType {
+        if #available(iOSApplicationExtension 17.0, *) {
+            .creditCardExpirationYear
+        } else {
+            .dateTime
+        }
+    }
+
+    /// A `.creditCardName` value that falls back to `.name`.
+    static var creditCardNameOrName: UITextContentType {
+        if #available(iOSApplicationExtension 17.0, *) {
+            .creditCardName
+        } else {
+            .name
+        }
     }
 }
 

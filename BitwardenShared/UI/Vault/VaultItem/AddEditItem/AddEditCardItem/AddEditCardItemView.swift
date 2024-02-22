@@ -35,6 +35,7 @@ struct AddEditCardItemView: View {
                 )
             )
             .focused($focusedField, equals: .cardholderName)
+            .textContentType(.creditCardNameOrName)
             .onSubmit { focusNextField($focusedField) }
 
             BitwardenTextField(
@@ -47,7 +48,7 @@ struct AddEditCardItemView: View {
                     send: AddEditCardItemAction.toggleNumberVisibilityChanged
                 )
             )
-            .textFieldConfiguration(.password)
+            .textFieldConfiguration(.creditCardNumber)
             .focused($focusedField, equals: .number)
             .onSubmit { focusNextField($focusedField) }
 
@@ -80,6 +81,9 @@ struct AddEditCardItemView: View {
                     send: AddEditCardItemAction.expirationYearChanged
                 )
             )
+            .textFieldConfiguration(
+                .numeric(.creditCardExpirationYearOrDateTime)
+            )
             .focused($focusedField, equals: .expirationYear)
             .onSubmit { focusNextField($focusedField) }
 
@@ -94,7 +98,7 @@ struct AddEditCardItemView: View {
                     send: AddEditCardItemAction.toggleCodeVisibilityChanged
                 )
             )
-            .textFieldConfiguration(.password)
+            .textFieldConfiguration(.creditCardSecurityCode)
             .focused($focusedField, equals: .securityCode)
             .onSubmit { focusNextField($focusedField) }
         }
