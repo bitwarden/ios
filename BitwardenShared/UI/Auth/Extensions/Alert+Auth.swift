@@ -85,6 +85,27 @@ extension Alert {
         )
     }
 
+    /// An alert notifying the user that unlocking the user's vault may fail in an app extension
+    /// because their KDF settings use too much memory.
+    ///
+    /// - Parameter continueAction: A closure containing the action to take if the user wants to
+    ///     continue despite the warning.
+    /// - Returns: An alert notifying the user that unlocking the user's vault may fail in an app
+    ///     extension because their KDF settings use too much memory.
+    ///
+    static func extensionKdfMemoryWarning(continueAction: @escaping () async -> Void) -> Alert {
+        Alert(
+            title: Localizations.warning,
+            message: Localizations.unlockingMayFailDueToInsufficientMemoryDecreaseYourKDFMemorySettingsToResolve,
+            alertActions: [
+                AlertAction(title: Localizations.continue, style: .default) { _ in
+                    await continueAction()
+                },
+                AlertAction(title: Localizations.cancel, style: .cancel),
+            ]
+        )
+    }
+
     /// An alert that is displayed to confirm the user wants to log out of the account.
     ///
     /// - Parameter action: An action to perform when the user taps `Yes`, to confirm logout.
