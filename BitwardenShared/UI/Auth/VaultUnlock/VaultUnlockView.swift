@@ -91,7 +91,9 @@ struct VaultUnlockView: View {
                 mapAction: { action in
                     .profileSwitcher(action)
                 },
-                mapEffect: nil
+                mapEffect: { effect in
+                    .profileSwitcher(effect)
+                }
             )
         )
     }

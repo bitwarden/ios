@@ -385,6 +385,10 @@ extension VaultListProcessor: ProfileSwitcherHandler {
         false
     }
 
+    var showPlaceholderToolbarIcon: Bool {
+        false
+    }
+
     var toast: Toast? {
         get {
             state.toast

@@ -6,7 +6,7 @@ import XCTest
 @testable import BitwardenShared
 
 final class ProfileSwitcherToolbarViewTests: BitwardenTestCase {
-    var processor: MockProcessor<ProfileSwitcherState, ProfileSwitcherAction, Void>!
+    var processor: MockProcessor<ProfileSwitcherState, ProfileSwitcherAction, ProfileSwitcherEffect>!
     var subject: ProfileSwitcherToolbarView!
 
     // MARK: Setup & Teardown
@@ -31,6 +31,19 @@ final class ProfileSwitcherToolbarViewTests: BitwardenTestCase {
         subject = nil
     }
 
+    @ViewBuilder
+    func snapshotSubject(title: String) -> some View {
+        NavigationView {
+            Spacer()
+                .navigationBarTitle(title, displayMode: .inline)
+                .toolbar {
+                    ToolbarItem(placement: .navigationBarLeading) {
+                        subject
+                    }
+                }
+        }
+    }
+
     /// Tapping the view dispatches the `.requestedProfileSwitcher` action.
     func test_tap_currentAccount() throws {
         let view = try subject.inspect().find(buttonWithAccessibilityLabel: Localizations.account)
@@ -46,7 +59,12 @@ final class ProfileSwitcherToolbarViewTests: BitwardenTestCase {
 
     func test_snapshot_empty() {
         processor.state = .empty()
-        assertSnapshot(matching: subject, as: .defaultPortrait)
+        assertSnapshot(
+            matching: snapshotSubject(
+                title: "Empty State"
+            ),
+            as: .portrait(heightMultiple: 0.1)
+        )
     }
 
     func test_snapshot_noActive() {
@@ -56,11 +74,21 @@ final class ProfileSwitcherToolbarViewTests: BitwardenTestCase {
             allowLockAndLogout: true,
             isVisible: true
         )
-        assertSnapshot(matching: subject, as: .defaultPortrait)
+        assertSnapshot(
+            matching: snapshotSubject(
+                title: "No Active Account"
+            ),
+            as: .portrait(heightMultiple: 0.1)
+        )
     }
 
     func test_snapshot_singleAccount() {
-        assertSnapshot(matching: subject, as: .defaultPortrait)
+        assertSnapshot(
+            matching: snapshotSubject(
+                title: "Single Account"
+            ),
+            as: .portrait(heightMultiple: 0.1)
+        )
     }
 
     func test_snapshot_multi() {
@@ -80,7 +108,12 @@ final class ProfileSwitcherToolbarViewTests: BitwardenTestCase {
             allowLockAndLogout: true,
             isVisible: true
         )
-        assertSnapshot(matching: subject, as: .defaultPortrait)
+        assertSnapshot(
+            matching: snapshotSubject(
+                title: "Multi Account"
+            ),
+            as: .portrait(heightMultiple: 0.1)
+        )
     }
 
     func test_snapshot_profileIconColor_black() {
@@ -100,7 +133,12 @@ final class ProfileSwitcherToolbarViewTests: BitwardenTestCase {
             allowLockAndLogout: true,
             isVisible: true
         )
-        assertSnapshot(matching: subject, as: .defaultPortrait)
+        assertSnapshot(
+            matching: snapshotSubject(
+                title: "Black Icon Color"
+            ),
+            as: .portrait(heightMultiple: 0.1)
+        )
     }
 
     func test_snapshot_profileIconColor_blue() {
@@ -120,7 +158,12 @@ final class ProfileSwitcherToolbarViewTests: BitwardenTestCase {
             allowLockAndLogout: true,
             isVisible: true
         )
-        assertSnapshot(matching: subject, as: .defaultPortrait)
+        assertSnapshot(
+            matching: snapshotSubject(
+                title: "Blue Icon Color"
+            ),
+            as: .portrait(heightMultiple: 0.1)
+        )
     }
 
     func test_snapshot_profileIconColor_white() {
@@ -140,7 +183,12 @@ final class ProfileSwitcherToolbarViewTests: BitwardenTestCase {
             allowLockAndLogout: true,
             isVisible: true
         )
-        assertSnapshot(matching: subject, as: .defaultPortrait)
+        assertSnapshot(
+            matching: snapshotSubject(
+                title: "White Icon Color"
+            ),
+            as: .portrait(heightMultiple: 0.1)
+        )
     }
 
     func test_snapshot_profileIconColor_yellow() {
@@ -160,6 +208,11 @@ final class ProfileSwitcherToolbarViewTests: BitwardenTestCase {
             allowLockAndLogout: true,
             isVisible: true
         )
-        assertSnapshot(matching: subject, as: .defaultPortrait)
+        assertSnapshot(
+            matching: snapshotSubject(
+                title: "Yellow Icon Color"
+            ),
+            as: .portrait(heightMultiple: 0.1)
+        )
     }
 }

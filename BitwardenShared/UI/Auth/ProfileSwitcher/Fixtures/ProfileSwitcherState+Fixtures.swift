@@ -16,7 +16,7 @@ extension ProfileSwitcherItem {
         email: String = "",
         isUnlocked: Bool = false,
         userId: String = UUID().uuidString,
-        userInitials: String = "..",
+        userInitials: String? = nil,
         webVault: String = "vault.bitwarden.com"
     ) -> ProfileSwitcherItem {
         ProfileSwitcherItem(

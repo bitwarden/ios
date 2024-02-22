@@ -68,7 +68,7 @@ struct ProfileSwitcherRow: View {
                         trailingIcon?
                             .resizable()
                             .frame(width: 22, height: 22)
-                            .foregroundColor(Asset.Colors.textSecondary.swiftUIColor)
+                            .foregroundColor(trailingIconColor)
                     }
                     .padding([.top, .bottom], subtitle != nil ? 9 : 19)
                     .padding([.trailing], 16)
@@ -98,14 +98,12 @@ struct ProfileSwitcherRow: View {
         switch store.state.rowType {
         case let .active(account),
              let .alternate(account):
-            Text(account.userInitials)
-                .styleGuide(.caption2Monospaced)
-                .foregroundColor(account.profileIconTextColor)
-                .padding(4)
-                .background(account.color)
-                .clipShape(Circle())
-                .frame(minWidth: 22)
-                .accessibilityLabel(Localizations.account)
+            profileSwitcherIcon(
+                color: account.color,
+                initials: account.userInitials,
+                textColor: account.profileIconTextColor
+            )
+            .accessibilityLabel(Localizations.account)
         case .addAccount:
             Asset.Images.plus.swiftUIImage
                 .resizable()
@@ -157,6 +155,18 @@ struct ProfileSwitcherRow: View {
             }
         case .addAccount:
             return nil
+        }
+    }
+
+    /// A trailing icon color for the row
+    private var trailingIconColor: Color {
+        switch store.state.rowType {
+        case .active:
+            Asset.Colors.primaryBitwarden.swiftUIColor
+        case .alternate:
+            Asset.Colors.textSecondary.swiftUIColor
+        case .addAccount:
+            Asset.Colors.backgroundPrimary.swiftUIColor
         }
     }
 

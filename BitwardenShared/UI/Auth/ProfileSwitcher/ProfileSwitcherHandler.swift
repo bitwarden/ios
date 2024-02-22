@@ -22,6 +22,9 @@ protocol ProfileSwitcherHandler: AnyObject {
     /// Should this handler should hide add account?
     var shouldHideAddAccount: Bool { get }
 
+    /// Should the handler replace the toolbar icon with two dots?
+    var showPlaceholderToolbarIcon: Bool { get }
+
     /// The `State` for a toast view.
     var toast: Toast? { get set }
 
@@ -100,7 +103,8 @@ extension ProfileSwitcherHandler {
         profileSwitcherState = await profileServices.authRepository.getProfilesState(
             allowLockAndLogout: allowLockAndLogout,
             isVisible: profileSwitcherState.isVisible,
-            shouldAlwaysHideAddAccount: shouldHideAddAccount
+            shouldAlwaysHideAddAccount: shouldHideAddAccount,
+            showPlaceholderToolbarIcon: showPlaceholderToolbarIcon
         )
     }
 }
@@ -205,7 +209,7 @@ private extension ProfileSwitcherHandler {
     ///
     func select(_ account: ProfileSwitcherItem) async {
         defer { profileSwitcherState.isVisible = false }
-        guard account.userId != profileSwitcherState.activeAccountId else { return }
+        guard account.userId != profileSwitcherState.activeAccountId || showPlaceholderToolbarIcon else { return }
         await handleAuthEvent(
             .action(
                 .switchAccount(

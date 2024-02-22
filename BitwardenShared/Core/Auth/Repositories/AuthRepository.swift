@@ -83,12 +83,14 @@ protocol AuthRepository: AnyObject {
     ///   - allowLockAndLogout: Should the view allow lock & logout?
     ///   - isVisible: Should the state be visible?
     ///   - shouldAlwaysHideAddAccount: Should the state always hide add account?
+    ///   - showPlaceholderToolbarIcon: Should the handler replace the toolbar icon with two dots?
     /// - Returns: A ProfileSwitcherState.
     ///
     func getProfilesState(
         allowLockAndLogout: Bool,
         isVisible: Bool,
-        shouldAlwaysHideAddAccount: Bool
+        shouldAlwaysHideAddAccount: Bool,
+        showPlaceholderToolbarIcon: Bool
     ) async -> ProfileSwitcherState
 
     /// Gets the `SessionTimeoutValue` for a user.
@@ -341,7 +343,8 @@ extension DefaultAuthRepository: AuthRepository {
     func getProfilesState(
         allowLockAndLogout: Bool,
         isVisible: Bool,
-        shouldAlwaysHideAddAccount: Bool
+        shouldAlwaysHideAddAccount: Bool,
+        showPlaceholderToolbarIcon: Bool
     ) async -> ProfileSwitcherState {
         let accounts = await (try? getAccounts()) ?? []
         guard !accounts.isEmpty else { return .empty() }
@@ -351,7 +354,8 @@ extension DefaultAuthRepository: AuthRepository {
             activeAccountId: activeAccount?.userId,
             allowLockAndLogout: allowLockAndLogout,
             isVisible: isVisible,
-            shouldAlwaysHideAddAccount: shouldAlwaysHideAddAccount
+            shouldAlwaysHideAddAccount: shouldAlwaysHideAddAccount,
+            showPlaceholderToolbarIcon: showPlaceholderToolbarIcon
         )
     }
 
@@ -526,7 +530,7 @@ extension DefaultAuthRepository: AuthRepository {
             email: account.profile.email,
             isUnlocked: displayAsUnlocked,
             userId: account.profile.userId,
-            userInitials: account.initials() ?? "..",
+            userInitials: account.initials(),
             webVault: account.settings.environmentUrls?.webVaultHost ?? ""
         )
     }
