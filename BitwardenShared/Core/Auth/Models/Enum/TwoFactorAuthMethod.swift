@@ -24,7 +24,7 @@ enum TwoFactorAuthMethod: Int {
     case duoOrganization = 6
 
     /// The Fido2WebApp software handles the two-factor code.
-    case fido2WebApp = 7
+    case webAuthn = 7
 
     /// Let the user get a recovery code.
     case recoveryCode = -1
@@ -42,6 +42,8 @@ enum TwoFactorAuthMethod: Int {
             Localizations.duo
         case .email:
             Localizations.email
+        case .webAuthn:
+            Localizations.fido2AuthenticateWebAuthn
         case .recoveryCode:
             Localizations.recoveryCodeTitle
         case .yubiKey:
@@ -65,7 +67,7 @@ enum TwoFactorAuthMethod: Int {
             3
         case .duoOrganization:
             10
-        case .fido2WebApp:
+        case .webAuthn:
             4
         default:
             -1
@@ -98,6 +100,8 @@ enum TwoFactorAuthMethod: Int {
             Localizations.enterVerificationCodeEmail(email ?? "")
         case .yubiKey:
             Localizations.yubiKeyInstructionIos
+        case .webAuthn:
+            Localizations.continueToCompleteWebAuthnVerfication
         default:
             ""
         }

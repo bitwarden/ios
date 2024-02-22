@@ -872,3 +872,6 @@
 "AppInfo" = "App info";
 "Browse" = "Browse";
 "SelectLanguage" = "Select language";
+"ContinueToCompleteWebAuthnVerfication" = "Continue to complete WebAuthn verfication.";
+"ThereWasAnErrorStartingWebAuthnTwoFactorAuthentication" = "There was an error starting WebAuthn two factor authentication";
+"LaunchWebAuthn" = "Launch WebAuthn";

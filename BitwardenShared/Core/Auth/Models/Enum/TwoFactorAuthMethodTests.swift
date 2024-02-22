@@ -41,7 +41,7 @@ class TwoFactorAuthMethodTests: BitwardenTestCase {
         XCTAssertEqual(TwoFactorAuthMethod.u2F.priority, -1)
         XCTAssertEqual(TwoFactorAuthMethod.remember.priority, -1)
         XCTAssertEqual(TwoFactorAuthMethod.duoOrganization.priority, 10)
-        XCTAssertEqual(TwoFactorAuthMethod.fido2WebApp.priority, 4)
+        XCTAssertEqual(TwoFactorAuthMethod.webAuthn.priority, 4)
         XCTAssertEqual(TwoFactorAuthMethod.recoveryCode.priority, -1)
     }
 }

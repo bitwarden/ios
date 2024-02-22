@@ -2,8 +2,11 @@
 
 /// Effects that can be processed by a `TwoFactorAuthProcessor`.
 enum TwoFactorAuthEffect: Equatable {
-    /// Attempts to authenticate via DUO.
+    /// Attempts to authenticate via Duo.
     case beginDuoAuth
+    
+    /// Attempts to authenticate via WebAuthn.
+    case beginWebAuthn
 
     /// The continue button was tapped.
     case continueTapped
