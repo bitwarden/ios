@@ -26,9 +26,9 @@ protocol SingleSignOnFlowDelegate: AnyObject {
 final class SingleSignOnProcessor: StateProcessor<SingleSignOnState, SingleSignOnAction, SingleSignOnEffect> {
     // MARK: Types
 
-    typealias Services = HasAuthAPIService
-        & HasAuthService
+    typealias Services = HasAuthService
         & HasErrorReporter
+        & HasOrganizationAPIService
         & HasStateService
 
     // MARK: Properties
@@ -128,7 +128,7 @@ final class SingleSignOnProcessor: StateProcessor<SingleSignOnState, SingleSignO
 
         // Get the single sign on details for the user.
         do {
-            let response = try await services.authAPIService.getSingleSignOnDetails(email: state.email)
+            let response = try await services.organizationAPIService.getSingleSignOnDetails(email: state.email)
 
             // If there is already an organization identifier associated with the user's email,
             // attempt to start the single sign on process with that identifier.
