@@ -146,6 +146,12 @@ struct VaultUnlockView: View {
                 )
             )
             .textFieldConfiguration(.password)
+            .submitLabel(.go)
+            .onSubmit {
+                Task {
+                    await store.perform(.unlockVault)
+                }
+            }
         case .pin:
             BitwardenTextField(
                 title: Localizations.pin,
@@ -162,6 +168,12 @@ struct VaultUnlockView: View {
                 )
             )
             .textFieldConfiguration(.pin)
+            .submitLabel(.go)
+            .onSubmit {
+                Task {
+                    await store.perform(.unlockVault)
+                }
+            }
         }
     }
 
