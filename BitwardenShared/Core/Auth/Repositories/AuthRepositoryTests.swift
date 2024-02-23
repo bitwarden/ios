@@ -211,7 +211,8 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         let state = await subject.getProfilesState(
             allowLockAndLogout: true,
             isVisible: false,
-            shouldAlwaysHideAddAccount: false
+            shouldAlwaysHideAddAccount: false,
+            showPlaceholderToolbarIcon: false
         )
         XCTAssertEqual(state, .empty(shouldAlwaysHideAddAccount: false))
     }
@@ -230,7 +231,8 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         let accounts = await subject.getProfilesState(
             allowLockAndLogout: true,
             isVisible: true,
-            shouldAlwaysHideAddAccount: false
+            shouldAlwaysHideAddAccount: false,
+            showPlaceholderToolbarIcon: false
         ).accounts
         XCTAssertEqual(
             accounts.first,
@@ -265,7 +267,7 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
                 color: Color(hex: empty.profile.avatarColor ?? ""),
                 email: "",
                 userId: "4",
-                userInitials: ".."
+                userInitials: nil
             )
         )
         XCTAssertEqual(
@@ -306,7 +308,8 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         let profiles = await subject.getProfilesState(
             allowLockAndLogout: true,
             isVisible: true,
-            shouldAlwaysHideAddAccount: true
+            shouldAlwaysHideAddAccount: true,
+            showPlaceholderToolbarIcon: true
         ).accounts
         let lockedStatuses = profiles.map { profile in
             profile.isUnlocked

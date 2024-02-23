@@ -155,46 +155,48 @@ private enum MenuPreviewOptions: CaseIterable, Menuable {
     }
 }
 
-struct BitwardenMenuField_Previews: PreviewProvider {
-    static var previews: some View {
-        VStack {
-            BitwardenMenuField(
-                title: "Animals",
-                options: MenuPreviewOptions.allCases,
-                selection: .constant(.dog)
-            )
-            .padding()
-        }
-        .background(Color(.systemGroupedBackground))
-        .previewDisplayName("CipherType")
-
-        Group {
-            BitwardenMenuField(
-                title: "Animals",
-                options: MenuPreviewOptions.allCases,
-                selection: .constant(.dog)
-            ) {
-                Button {} label: {
-                    Asset.Images.camera.swiftUIImage
-                }
-                .buttonStyle(.accessory)
-            }
-            .padding()
-        }
-        .background(Color(.systemGroupedBackground))
-        .previewDisplayName("Trailing Button")
-
-        Group {
-            BitwardenMenuField(
-                title: "Animals",
-                footer: "Select your favorite animal",
-                options: MenuPreviewOptions.allCases,
-                selection: .constant(.dog)
-            )
-            .padding()
-        }
-        .background(Color(.systemGroupedBackground))
-        .previewDisplayName("Footer")
+#Preview {
+    VStack {
+        BitwardenMenuField(
+            title: "Animals",
+            options: MenuPreviewOptions.allCases,
+            selection: .constant(.dog)
+        )
+        .padding()
     }
+    .background(Color(.systemGroupedBackground))
+    .previewDisplayName("CipherType")
+}
+
+#Preview {
+    Group {
+        BitwardenMenuField(
+            title: "Animals",
+            options: MenuPreviewOptions.allCases,
+            selection: .constant(.dog)
+        ) {
+            Button {} label: {
+                Asset.Images.camera.swiftUIImage
+            }
+            .buttonStyle(.accessory)
+        }
+        .padding()
+    }
+    .background(Color(.systemGroupedBackground))
+    .previewDisplayName("Trailing Button")
+}
+
+#Preview {
+    Group {
+        BitwardenMenuField(
+            title: "Animals",
+            footer: "Select your favorite animal",
+            options: MenuPreviewOptions.allCases,
+            selection: .constant(.dog)
+        )
+        .padding()
+    }
+    .background(Color(.systemGroupedBackground))
+    .previewDisplayName("Footer")
 }
 #endif

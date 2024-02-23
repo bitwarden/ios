@@ -186,9 +186,7 @@ struct CreateAccountView: View {
 // MARK: Previews
 
 #if DEBUG
-struct CreateAccountView_Previews: PreviewProvider {
-    static var previews: some View {
-        CreateAccountView(store: Store(processor: StateProcessor(state: CreateAccountState())))
-    }
+#Preview {
+    CreateAccountView(store: Store(processor: StateProcessor(state: CreateAccountState())))
 }
 #endif

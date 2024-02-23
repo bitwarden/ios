@@ -6,7 +6,7 @@ import SwiftUI
 ///
 struct ProfileSwitcherToolbarView: View {
     /// The `Store` for this view.
-    @ObservedObject var store: Store<ProfileSwitcherState, ProfileSwitcherAction, Void>
+    @ObservedObject var store: Store<ProfileSwitcherState, ProfileSwitcherAction, ProfileSwitcherEffect>
 
     var body: some View {
         profileSwitcherToolbarItem
@@ -17,35 +17,63 @@ struct ProfileSwitcherToolbarView: View {
         Button {
             store.send(.requestedProfileSwitcher(visible: !store.state.isVisible))
         } label: {
-            if !store.state.accounts.isEmpty {
-                HStack {
-                    Text(store.state.activeAccountInitials)
-                        .styleGuide(.caption2Monospaced)
-                        .foregroundColor(store.state.activeAccountProfile?.profileIconTextColor ?? .white)
-                        .padding(4)
-                        .background(
-                            store.state.activeAccountProfile?.color
-                                ?? Asset.Colors.primaryBitwarden.swiftUIColor
-                        )
-                        .clipShape(Circle())
-                    Spacer()
-                }
-                .frame(minWidth: 50)
-                .fixedSize()
-            } else {
-                EmptyView()
+            HStack {
+                profileSwitcherIcon(
+                    color: store.state.showPlaceholderToolbarIcon
+                        ? nil : store.state.activeAccountProfile?.color,
+                    initials: store.state.showPlaceholderToolbarIcon
+                        ? nil : store.state.activeAccountProfile?.userInitials,
+                    textColor: store.state.showPlaceholderToolbarIcon
+                        ? nil : store.state.activeAccountProfile?.profileIconTextColor
+                )
+                Spacer()
             }
+            .frame(minWidth: 50)
         }
         .accessibilityIdentifier("AccountIconButton")
         .accessibilityLabel(Localizations.account)
+        .hidden(!store.state.showPlaceholderToolbarIcon && store.state.accounts.isEmpty)
+    }
+}
+
+extension View {
+    /// An icon for a profile switcher item.
+    ///
+    /// - Parameters:
+    ///   - color: The color of the icon.
+    ///   - initials: The initials for the icon.
+    ///   - textColor: The text color for the icon.
+    ///
+    @ViewBuilder
+    func profileSwitcherIcon(
+        color: Color?,
+        initials: String?,
+        textColor: Color?
+    ) -> some View {
+        Text(initials ?? "  ")
+            .styleGuide(.caption2Monospaced)
+            .padding(4)
+            .frame(minWidth: 22, alignment: .center)
+            .background {
+                if initials == nil {
+                    Asset.Images.horizontalDots.swiftUIImage
+                        .padding(.vertical, 10)
+                        .padding(.horizontal, 14)
+                        .opacity(initials == nil ? 1.0 : 0.0)
+                        .accessibilityHidden(initials != nil)
+                }
+            }
+            .foregroundColor(textColor ?? Asset.Colors.primaryBitwarden.swiftUIColor)
+            .background(color ?? Asset.Colors.primaryBitwarden.swiftUIColor.opacity(0.12))
+            .clipShape(Circle())
     }
 }
 
 // MARK: Previews
 
 #if DEBUG
-struct ProfileSwitcherToolbarView_Previews: PreviewProvider {
-    static let selectedAccount = ProfileSwitcherItem(
+extension ProfileSwitcherItem {
+    static let previewSelectedAccount = ProfileSwitcherItem(
         color: .purple,
         email: "anne.account@bitwarden.com",
         isUnlocked: true,
@@ -53,98 +81,104 @@ struct ProfileSwitcherToolbarView_Previews: PreviewProvider {
         userInitials: "AA",
         webVault: ""
     )
+}
 
-    static var previews: some View {
-        NavigationView {
-            Spacer()
-                .toolbar {
-                    ToolbarItem(placement: .topBarLeading) {
-                        ProfileSwitcherToolbarView(
-                            store: Store(
-                                processor: StateProcessor(
-                                    state: .empty()
-                                )
+#Preview {
+    NavigationView {
+        Spacer()
+            .toolbar {
+                ToolbarItem(placement: .topBarLeading) {
+                    ProfileSwitcherToolbarView(
+                        store: Store(
+                            processor: StateProcessor(
+                                state: .empty()
                             )
                         )
-                    }
+                    )
                 }
-        }
-        .previewDisplayName("Empty")
-
-        NavigationView {
-            Spacer()
-                .toolbar {
-                    ToolbarItem(placement: .topBarLeading) {
-                        ProfileSwitcherToolbarView(
-                            store: Store(
-                                processor: StateProcessor(
-                                    state: .init(
-                                        accounts: [selectedAccount],
-                                        activeAccountId: nil,
-                                        allowLockAndLogout: true,
-                                        isVisible: false
-                                    )
-                                )
-                            )
-                        )
-                    }
-                }
-        }
-        .previewDisplayName("No Active")
-
-        NavigationView {
-            Spacer()
-                .toolbar {
-                    ToolbarItem(placement: .topBarLeading) {
-                        ProfileSwitcherToolbarView(
-                            store: Store(
-                                processor: StateProcessor(
-                                    state: ProfileSwitcherState(
-                                        accounts: [
-                                            selectedAccount,
-                                        ],
-                                        activeAccountId: selectedAccount.userId,
-                                        allowLockAndLogout: true,
-                                        isVisible: false
-                                    )
-                                )
-                            )
-                        )
-                    }
-                }
-        }
-        .previewDisplayName("Single Account")
-
-        NavigationView {
-            Spacer()
-                .toolbar {
-                    ToolbarItem(placement: .topBarLeading) {
-                        ProfileSwitcherToolbarView(
-                            store: Store(
-                                processor: StateProcessor(
-                                    state: ProfileSwitcherState(
-                                        accounts: [
-                                            selectedAccount,
-                                            ProfileSwitcherItem(
-                                                color: .green,
-                                                email: "bonus.bridge@bitwarde.com",
-                                                isUnlocked: true,
-                                                userId: "123",
-                                                userInitials: "BB",
-                                                webVault: ""
-                                            ),
-                                        ],
-                                        activeAccountId: "123",
-                                        allowLockAndLogout: true,
-                                        isVisible: false
-                                    )
-                                )
-                            )
-                        )
-                    }
-                }
-        }
-        .previewDisplayName("Dual Account")
+            }
     }
+    .previewDisplayName("Empty")
+}
+
+#Preview {
+    NavigationView {
+        Spacer()
+            .toolbar {
+                ToolbarItem(placement: .topBarLeading) {
+                    ProfileSwitcherToolbarView(
+                        store: Store(
+                            processor: StateProcessor(
+                                state: .init(
+                                    accounts: [.previewSelectedAccount],
+                                    activeAccountId: nil,
+                                    allowLockAndLogout: true,
+                                    isVisible: false
+                                )
+                            )
+                        )
+                    )
+                }
+            }
+    }
+    .previewDisplayName("No Active")
+}
+
+#Preview {
+    NavigationView {
+        Spacer()
+            .toolbar {
+                ToolbarItem(placement: .topBarLeading) {
+                    ProfileSwitcherToolbarView(
+                        store: Store(
+                            processor: StateProcessor(
+                                state: ProfileSwitcherState(
+                                    accounts: [
+                                        .previewSelectedAccount,
+                                    ],
+                                    activeAccountId: ProfileSwitcherItem.previewSelectedAccount.userId,
+                                    allowLockAndLogout: true,
+                                    isVisible: false
+                                )
+                            )
+                        )
+                    )
+                }
+            }
+    }
+    .previewDisplayName("Single Account")
+}
+
+#Preview {
+    NavigationView {
+        Spacer()
+            .toolbar {
+                ToolbarItem(placement: .topBarLeading) {
+                    ProfileSwitcherToolbarView(
+                        store: Store(
+                            processor: StateProcessor(
+                                state: ProfileSwitcherState(
+                                    accounts: [
+                                        .previewSelectedAccount,
+                                        ProfileSwitcherItem(
+                                            color: .green,
+                                            email: "bonus.bridge@bitwarde.com",
+                                            isUnlocked: true,
+                                            userId: "123",
+                                            userInitials: "BB",
+                                            webVault: ""
+                                        ),
+                                    ],
+                                    activeAccountId: "123",
+                                    allowLockAndLogout: true,
+                                    isVisible: false
+                                )
+                            )
+                        )
+                    )
+                }
+            }
+    }
+    .previewDisplayName("Dual Account")
 }
 #endif

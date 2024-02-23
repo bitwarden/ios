@@ -8,17 +8,17 @@ struct ProfileSwitcherItem: Equatable, Hashable {
     /// A placeholder empty item.
     static var empty: ProfileSwitcherItem {
         ProfileSwitcherItem(
-            color: Color(asset: Asset.Colors.primaryBitwardenLight),
+            color: Color(asset: Asset.Colors.primaryBitwardenLight).opacity(0.12),
             email: "",
             isUnlocked: false,
             userId: "",
-            userInitials: "..",
+            userInitials: nil,
             webVault: ""
         )
     }
 
     /// The color associated with the profile
-    var color = Color(asset: Asset.Colors.primaryBitwardenLight)
+    var color: Color = .init(asset: Asset.Colors.primaryBitwardenLight).opacity(0.12)
 
     /// The account's email.
     var email: String
@@ -35,7 +35,7 @@ struct ProfileSwitcherItem: Equatable, Hashable {
     var userId: String
 
     /// The user's initials.
-    var userInitials: String
+    var userInitials: String?
 
     /// The account's email.
     var webVault: String

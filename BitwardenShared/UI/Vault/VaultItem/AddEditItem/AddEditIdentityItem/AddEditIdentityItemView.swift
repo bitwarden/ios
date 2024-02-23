@@ -228,25 +228,23 @@ struct AddEditIdentityItemView: View {
 // MARK: Previews
 
 #if DEBUG
-struct AddEditIdentityItemView_Previews: PreviewProvider {
-    static var previews: some View {
-        NavigationView {
-            ScrollView {
-                LazyVStack(spacing: 20) {
-                    AddEditIdentityItemView(
-                        store: Store(
-                            processor: StateProcessor(
-                                state: IdentityItemState()
-                            )
+#Preview {
+    NavigationView {
+        ScrollView {
+            LazyVStack(spacing: 20) {
+                AddEditIdentityItemView(
+                    store: Store(
+                        processor: StateProcessor(
+                            state: IdentityItemState()
                         )
                     )
-                }
-                .padding(16)
+                )
             }
-            .background(Asset.Colors.backgroundSecondary.swiftUIColor)
-            .ignoresSafeArea()
+            .padding(16)
         }
-        .previewDisplayName("Empty Add Edit Identity State")
+        .background(Asset.Colors.backgroundSecondary.swiftUIColor)
+        .ignoresSafeArea()
     }
+    .previewDisplayName("Empty Add Edit Identity State")
 }
 #endif

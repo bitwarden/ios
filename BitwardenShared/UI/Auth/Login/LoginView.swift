@@ -125,31 +125,31 @@ struct LoginView: View {
 // MARK: - Previews
 
 #if DEBUG
-struct LoginView_Previews: PreviewProvider {
-    static var previews: some View {
-        NavigationView {
-            LoginView(
-                store: Store(
-                    processor: StateProcessor(
-                        state: LoginState()
-                    )
+#Preview {
+    NavigationView {
+        LoginView(
+            store: Store(
+                processor: StateProcessor(
+                    state: LoginState()
                 )
             )
-        }
-        .previewDisplayName("Empty")
-
-        NavigationView {
-            LoginView(
-                store: Store(
-                    processor: StateProcessor(
-                        state: LoginState(
-                            isLoginWithDeviceVisible: true
-                        )
-                    )
-                )
-            )
-        }
-        .previewDisplayName("With Device")
+        )
     }
+    .previewDisplayName("Empty")
+}
+
+#Preview {
+    NavigationView {
+        LoginView(
+            store: Store(
+                processor: StateProcessor(
+                    state: LoginState(
+                        isLoginWithDeviceVisible: true
+                    )
+                )
+            )
+        )
+    }
+    .previewDisplayName("With Device")
 }
 #endif
