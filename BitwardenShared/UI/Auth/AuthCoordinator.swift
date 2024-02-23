@@ -116,8 +116,8 @@ final class AuthCoordinator: NSObject, // swiftlint:disable:this type_body_lengt
             } else {
                 delegate?.didCompleteAuth()
             }
-        case .createAccount:
-            showCreateAccount()
+        case let .createAccount(region):
+            showCreateAccount(region)
         case .dismiss:
             stackNavigator?.dismiss()
         case let .duoAuthenticationFlow(authURL):
@@ -218,13 +218,16 @@ final class AuthCoordinator: NSObject, // swiftlint:disable:this type_body_lengt
     }
 
     /// Shows the create account screen.
-    private func showCreateAccount() {
+    ///
+    /// - Parameter region: The user's region.
+    ///
+    private func showCreateAccount(_ region: RegionType) {
         let view = CreateAccountView(
             store: Store(
                 processor: CreateAccountProcessor(
                     coordinator: asAnyCoordinator(),
                     services: services,
-                    state: CreateAccountState()
+                    state: CreateAccountState(region: region)
                 )
             )
         )

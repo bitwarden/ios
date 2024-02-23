@@ -192,7 +192,7 @@ class CreateAccountProcessor: StateProcessor<CreateAccountState, CreateAccountAc
 
             coordinator.navigate(to: .login(
                 username: email,
-                region: LoginState().region,
+                region: state.region,
                 isLoginWithDeviceVisible: LoginState().isLoginWithDeviceVisible
             ))
         } catch CreateAccountError.acceptPoliciesError {

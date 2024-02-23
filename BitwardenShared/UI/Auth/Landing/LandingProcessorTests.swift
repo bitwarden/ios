@@ -355,7 +355,7 @@ class LandingProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_
     /// `receive(_:)` with `.createAccountPressed` navigates to the create account screen.
     func test_receive_createAccountPressed() {
         subject.receive(.createAccountPressed)
-        XCTAssertEqual(coordinator.routes.last, .createAccount)
+        XCTAssertEqual(coordinator.routes.last, .createAccount(.unitedStates))
     }
 
     /// `receive(_:)` with `.emailChanged` and an empty value updates the state to reflect the changes.
