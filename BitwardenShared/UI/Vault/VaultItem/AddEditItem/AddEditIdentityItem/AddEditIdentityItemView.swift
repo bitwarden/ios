@@ -148,7 +148,7 @@ struct AddEditIdentityItemView: View {
                     send: AddEditIdentityItemAction.phoneNumberChanged
                 )
             )
-            .textFieldConfiguration(.phone)
+            .textFieldConfiguration(.numeric(.telephoneNumber))
             .focused($focusedField, equals: .phone)
             .onSubmit { focusNextField($focusedField) }
 

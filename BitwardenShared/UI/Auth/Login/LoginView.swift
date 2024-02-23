@@ -58,6 +58,12 @@ struct LoginView: View {
                 )
             )
             .textFieldConfiguration(.password)
+            .submitLabel(.go)
+            .onSubmit {
+                Task {
+                    await store.perform(.loginWithMasterPasswordPressed)
+                }
+            }
 
             Button(Localizations.getMasterPasswordwordHint) {
                 store.send(.getMasterPasswordHintPressed)

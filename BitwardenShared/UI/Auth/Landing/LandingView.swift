@@ -89,6 +89,10 @@ struct LandingView: View {
                     accessibilityIdentifier: "EmailAddressEntry"
                 )
                 .textFieldConfiguration(.email)
+                .onSubmit {
+                    guard store.state.isContinueButtonEnabled else { return }
+                    store.send(.continuePressed)
+                }
 
                 Button {
                     store.send(.regionPressed)
