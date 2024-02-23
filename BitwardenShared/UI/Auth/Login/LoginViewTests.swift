@@ -128,6 +128,13 @@ class LoginViewTests: BitwardenTestCase {
         assertSnapshot(matching: subject, as: .defaultPortrait)
     }
 
+    func test_snapshot_selfHosted() {
+        processor.state.username = "user"
+        processor.state.region = .selfHosted
+        processor.state.selfHostedURLString = "example@testing.com"
+        assertSnapshot(of: subject, as: .defaultPortrait)
+    }
+
     func test_snapshot_withDevice() {
         processor.state.isLoginWithDeviceVisible = true
         assertSnapshot(matching: subject, as: .defaultPortrait)

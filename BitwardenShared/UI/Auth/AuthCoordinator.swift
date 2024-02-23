@@ -127,13 +127,7 @@ final class AuthCoordinator: NSObject, // swiftlint:disable:this type_body_lengt
         case .landing:
             showLanding()
         case let .login(username, region, isLoginWithDeviceVisible):
-            showLogin(
-                state: LoginState(
-                    isLoginWithDeviceVisible: isLoginWithDeviceVisible,
-                    username: username,
-                    region: region
-                )
-            )
+            showLogin(username, region, isLoginWithDeviceVisible)
         case .updateMasterPassword:
             showUpdateMasterPassword()
         case let .loginWithDevice(email):
@@ -317,11 +311,33 @@ final class AuthCoordinator: NSObject, // swiftlint:disable:this type_body_lengt
     /// Shows the login screen. If the create account flow is being presented it will be dismissed
     /// and the login screen will be pushed
     ///
-    /// - Parameter state: The `LoginState` to initialize the login screen with.
+    /// - Parameters:
+    ///   - username: The user's username.
+    ///   - region: The user's region.
+    ///   - isLoginWithDeviceVisible: Whether login with device is available.
     ///
-    private func showLogin(state: LoginState) {
+    private func showLogin(_ username: String, _ region: RegionType, _ isLoginWithDeviceVisible: Bool) {
         guard let stackNavigator else { return }
         let isPresenting = stackNavigator.rootViewController?.presentedViewController != nil
+
+        var state = LoginState()
+        if region == .selfHosted {
+            let environmentUrls = EnvironmentUrls(
+                environmentUrlData: services.appSettingsStore.preAuthEnvironmentUrls ?? EnvironmentUrlData()
+            )
+            state = LoginState(
+                isLoginWithDeviceVisible: isLoginWithDeviceVisible,
+                region: region,
+                selfHostedURLString: environmentUrls.webVaultURL.host ?? "",
+                username: username
+            )
+        } else {
+            state = LoginState(
+                isLoginWithDeviceVisible: isLoginWithDeviceVisible,
+                region: region,
+                username: username
+            )
+        }
 
         let processor = LoginProcessor(
             coordinator: asAnyCoordinator(),

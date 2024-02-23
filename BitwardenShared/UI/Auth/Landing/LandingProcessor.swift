@@ -110,7 +110,6 @@ class LandingProcessor: StateProcessor<LandingState, LandingAction, LandingEffec
             return
         }
 
-        // Region placeholder until region selection support is added: BIT-268
         coordinator.navigate(to: .login(
             username: email,
             region: state.region,

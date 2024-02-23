@@ -5,9 +5,11 @@ import XCTest
 
 // MARK: - AuthCoordinatorTests
 
+// swiftlint:disable:next type_body_length
 class AuthCoordinatorTests: BitwardenTestCase {
     // MARK: Properties
 
+    var appSettingsStore: MockAppSettingsStore!
     var authDelegate: MockAuthDelegate!
     var authRepository: MockAuthRepository!
     var authRouter: AuthRouter!
@@ -22,6 +24,7 @@ class AuthCoordinatorTests: BitwardenTestCase {
 
     override func setUp() {
         super.setUp()
+        appSettingsStore = MockAppSettingsStore()
         authDelegate = MockAuthDelegate()
         authRepository = MockAuthRepository()
         errorReporter = MockErrorReporter()
@@ -30,6 +33,7 @@ class AuthCoordinatorTests: BitwardenTestCase {
         stateService = MockStateService()
         vaultTimeoutService = MockVaultTimeoutService()
         let services = ServiceContainer.withMocks(
+            appSettingsStore: appSettingsStore,
             authRepository: authRepository,
             errorReporter: errorReporter,
             stateService: stateService,
@@ -48,6 +52,7 @@ class AuthCoordinatorTests: BitwardenTestCase {
 
     override func tearDown() {
         super.tearDown()
+        appSettingsStore = nil
         authDelegate = nil
         authRepository = nil
         errorReporter = nil
@@ -154,6 +159,28 @@ class AuthCoordinatorTests: BitwardenTestCase {
         let state = view.store.state
         XCTAssertEqual(state.username, "username")
         XCTAssertEqual(state.region, .unitedStates)
+        XCTAssertTrue(state.isLoginWithDeviceVisible)
+    }
+
+    /// `navigate(to:)` with `.login`, when using a self-hosted environment,
+    /// pushes the login view onto the stack navigator and hides the back button.
+    /// It also initializes `LoginState` with the self-hosted URL host.
+    func test_navigate_login_selfHosted() async throws {
+        appSettingsStore.preAuthEnvironmentUrls = EnvironmentUrlData(webVault: URL(string: "http://www.testing.com")!)
+        subject.navigate(to: .login(
+            username: "username",
+            region: .selfHosted,
+            isLoginWithDeviceVisible: true
+        ))
+
+        let viewController = try XCTUnwrap(
+            stackNavigator.actions.last?.view as? UIHostingController<LoginView>
+        )
+        let view = viewController.rootView
+        let state = view.store.state
+        XCTAssertEqual(state.username, "username")
+        XCTAssertEqual(state.region, .selfHosted)
+        XCTAssertEqual(state.selfHostedURLString, "www.testing.com")
         XCTAssertTrue(state.isLoginWithDeviceVisible)
     }
 
