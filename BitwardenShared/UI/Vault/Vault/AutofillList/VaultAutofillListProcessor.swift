@@ -204,10 +204,6 @@ extension VaultAutofillListProcessor: ProfileSwitcherHandler {
         true
     }
 
-    var showPlaceholderToolbarIcon: Bool {
-        false
-    }
-
     var toast: Toast? {
         get {
             state.toast

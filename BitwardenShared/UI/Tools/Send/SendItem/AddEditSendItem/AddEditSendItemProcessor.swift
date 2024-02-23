@@ -389,10 +389,6 @@ extension AddEditSendItemProcessor: ProfileSwitcherHandler {
         true
     }
 
-    var showPlaceholderToolbarIcon: Bool {
-        false
-    }
-
     var toast: Toast? {
         get {
             state.toast

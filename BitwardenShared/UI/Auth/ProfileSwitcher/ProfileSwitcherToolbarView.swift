@@ -64,7 +64,7 @@ extension View {
                 }
             }
             .foregroundColor(textColor ?? Asset.Colors.primaryBitwarden.swiftUIColor)
-            .background(color ?? Asset.Colors.primaryBitwardenLight.swiftUIColor.opacity(0.12))
+            .background(color ?? Asset.Colors.primaryBitwarden.swiftUIColor.opacity(0.12))
             .clipShape(Circle())
     }
 }

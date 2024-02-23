@@ -62,6 +62,11 @@ protocol ProfileSwitcherHandler: AnyObject {
 }
 
 extension ProfileSwitcherHandler {
+    /// Default to non-placeholder switcher icon.
+    var showPlaceholderToolbarIcon: Bool {
+        false
+    }
+
     func handleProfileSwitcherAction(_ action: ProfileSwitcherAction) {
         switch action {
         case let .accessibility(accessibilityAction):
