@@ -43,6 +43,10 @@ enum Constants {
     /// The maximum number of accounts permitted for a user.
     static let maxAccounts = 5
 
+    /// The maximum amount of KDF memory that can be used to unlock the user's vault in an app
+    /// extension before the app should warn the user that the extension may hit its memory limit.
+    static let maxArgon2IdMemoryBeforeExtensionCrashing = 48
+
     /// The value representing 100 MB of data.
     static let maxFileSize = 104_857_600
 
