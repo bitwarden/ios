@@ -167,7 +167,7 @@ struct VaultUnlockView: View {
                     send: VaultUnlockAction.revealPinFieldPressed
                 )
             )
-            .textFieldConfiguration(.pin)
+            .textFieldConfiguration(.numeric(.password))
             .submitLabel(.go)
             .onSubmit {
                 Task {

@@ -22,22 +22,6 @@ struct TextFieldConfiguration {
 }
 
 extension TextFieldConfiguration {
-    /// A `TextFieldConfiguration` for applying common properties to credit card number fields.
-    static let creditCardNumber = TextFieldConfiguration(
-        isAutocorrectionDisabled: true,
-        keyboardType: .numberPad,
-        textContentType: .creditCardNumber,
-        textInputAutocapitalization: .never
-    )
-
-    /// A `TextFieldConfiguration` for applying common properties to credit card security code fields.
-    static let creditCardSecurityCode = TextFieldConfiguration(
-        isAutocorrectionDisabled: true,
-        keyboardType: .numberPad,
-        textContentType: .password,
-        textInputAutocapitalization: .never
-    )
-
     /// A `TextFieldConfiguration` for applying common properties to email text fields.
     static let email = TextFieldConfiguration(
         isAutocorrectionDisabled: true,
@@ -50,22 +34,6 @@ extension TextFieldConfiguration {
     static let password = TextFieldConfiguration(
         isAutocorrectionDisabled: true,
         keyboardType: .default,
-        textContentType: .password,
-        textInputAutocapitalization: .never
-    )
-
-    /// A `TextFieldConfiguration` for applying common properties to phone text fields.
-    static let phone = TextFieldConfiguration(
-        isAutocorrectionDisabled: true,
-        keyboardType: .numberPad,
-        textContentType: .telephoneNumber,
-        textInputAutocapitalization: .never
-    )
-
-    /// A `TextFieldConfiguration` for applying common properties to PIN text fields.
-    static let pin = TextFieldConfiguration(
-        isAutocorrectionDisabled: true,
-        keyboardType: .numberPad,
         textContentType: .password,
         textInputAutocapitalization: .never
     )
@@ -123,6 +91,15 @@ extension UITextContentType {
             .creditCardName
         } else {
             .name
+        }
+    }
+
+    /// A `.creditCardSecurityCode` value that falls back to `.password`.
+    static var creditCardSecurityCodeOrPassword: UITextContentType {
+        if #available(iOSApplicationExtension 17.0, *) {
+            .creditCardSecurityCode
+        } else {
+            .password
         }
     }
 }

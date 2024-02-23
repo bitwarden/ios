@@ -48,7 +48,7 @@ struct AddEditCardItemView: View {
                     send: AddEditCardItemAction.toggleNumberVisibilityChanged
                 )
             )
-            .textFieldConfiguration(.creditCardNumber)
+            .textFieldConfiguration(.numeric(.creditCardNumber))
             .focused($focusedField, equals: .number)
             .onSubmit { focusNextField($focusedField) }
 
@@ -98,7 +98,7 @@ struct AddEditCardItemView: View {
                     send: AddEditCardItemAction.toggleCodeVisibilityChanged
                 )
             )
-            .textFieldConfiguration(.creditCardSecurityCode)
+            .textFieldConfiguration(.numeric(.creditCardSecurityCodeOrPassword))
             .focused($focusedField, equals: .securityCode)
             .onSubmit { focusNextField($focusedField) }
         }
