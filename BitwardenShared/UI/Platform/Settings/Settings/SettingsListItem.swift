@@ -86,20 +86,18 @@ struct SettingsListItem<Content: View>: View {
 // MARK: Previews
 
 #if DEBUG
-struct SettingsListItem_Previews: PreviewProvider {
-    static var previews: some View {
-        ScrollView {
-            VStack(spacing: 0) {
-                SettingsListItem("Account Security") {} trailingContent: {
-                    Text("Trailing content")
-                }
-
-                SettingsListItem("Account Security") {} trailingContent: {
-                    Image(asset: Asset.Images.externalLink)
-                }
-
-                SettingsListItem("Account Security") {}
+#Preview {
+    ScrollView {
+        VStack(spacing: 0) {
+            SettingsListItem("Account Security") {} trailingContent: {
+                Text("Trailing content")
             }
+
+            SettingsListItem("Account Security") {} trailingContent: {
+                Image(asset: Asset.Images.externalLink)
+            }
+
+            SettingsListItem("Account Security") {}
         }
     }
 }

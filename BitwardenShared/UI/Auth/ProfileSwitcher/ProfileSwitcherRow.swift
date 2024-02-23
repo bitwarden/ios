@@ -233,8 +233,8 @@ struct ProfileSwitcherRow: View {
 }
 
 #if DEBUG
-struct ProfileSwitcherRow_Previews: PreviewProvider {
-    static var unlockedAccount = ProfileSwitcherItem(
+extension ProfileSwitcherItem {
+    static var unlockedAccountPreview = ProfileSwitcherItem(
         color: .purple,
         email: "anne.account@bitwarden.com",
         isUnlocked: true,
@@ -243,7 +243,7 @@ struct ProfileSwitcherRow_Previews: PreviewProvider {
         webVault: ""
     )
 
-    static var lockedAccount = ProfileSwitcherItem(
+    static var lockedAccountPreview = ProfileSwitcherItem(
         color: .purple,
         email: "anne.account@bitwarden.com",
         isUnlocked: false,
@@ -251,92 +251,102 @@ struct ProfileSwitcherRow_Previews: PreviewProvider {
         userInitials: "AA",
         webVault: ""
     )
+}
 
-    static var previews: some View {
-        NavigationView {
-            ProfileSwitcherRow(
-                store: Store(
-                    processor: StateProcessor(
-                        state: ProfileSwitcherRowState(
-                            shouldTakeAccessibilityFocus: true,
-                            rowType: .active(unlockedAccount)
-                        )
+#Preview {
+    NavigationView {
+        ProfileSwitcherRow(
+            store: Store(
+                processor: StateProcessor(
+                    state: ProfileSwitcherRowState(
+                        shouldTakeAccessibilityFocus: true,
+                        rowType: .active(.unlockedAccountPreview)
                     )
                 )
             )
-        }
-        .previewDisplayName("Active Unlocked Account")
-
-        NavigationView {
-            ProfileSwitcherRow(
-                store: Store(
-                    processor: StateProcessor(
-                        state: ProfileSwitcherRowState(
-                            shouldTakeAccessibilityFocus: true,
-                            rowType: .active(lockedAccount)
-                        )
-                    )
-                )
-            )
-        }
-        .previewDisplayName("Active Locked Account")
-
-        NavigationView {
-            ProfileSwitcherRow(
-                store: Store(
-                    processor: StateProcessor(
-                        state: ProfileSwitcherRowState(
-                            shouldTakeAccessibilityFocus: true,
-                            showDivider: false,
-                            rowType: .active(lockedAccount)
-                        )
-                    )
-                )
-            )
-        }
-        .previewDisplayName("Active Account, No Divider")
-
-        NavigationView {
-            ProfileSwitcherRow(
-                store: Store(
-                    processor: StateProcessor(
-                        state: ProfileSwitcherRowState(
-                            shouldTakeAccessibilityFocus: true,
-                            rowType: .alternate(unlockedAccount)
-                        )
-                    )
-                )
-            )
-        }
-        .previewDisplayName("Alternate Unlocked Account")
-
-        NavigationView {
-            ProfileSwitcherRow(
-                store: Store(
-                    processor: StateProcessor(
-                        state: ProfileSwitcherRowState(
-                            shouldTakeAccessibilityFocus: true,
-                            rowType: .alternate(lockedAccount)
-                        )
-                    )
-                )
-            )
-        }
-        .previewDisplayName("Alternate Locked Account")
-
-        NavigationView {
-            ProfileSwitcherRow(
-                store: Store(
-                    processor: StateProcessor(
-                        state: ProfileSwitcherRowState(
-                            shouldTakeAccessibilityFocus: false,
-                            rowType: .addAccount
-                        )
-                    )
-                )
-            )
-        }
-        .previewDisplayName("Add Account")
+        )
     }
+    .previewDisplayName("Active Unlocked Account")
+}
+
+#Preview {
+    NavigationView {
+        ProfileSwitcherRow(
+            store: Store(
+                processor: StateProcessor(
+                    state: ProfileSwitcherRowState(
+                        shouldTakeAccessibilityFocus: true,
+                        rowType: .active(.lockedAccountPreview)
+                    )
+                )
+            )
+        )
+    }
+    .previewDisplayName("Active Locked Account")
+}
+
+#Preview {
+    NavigationView {
+        ProfileSwitcherRow(
+            store: Store(
+                processor: StateProcessor(
+                    state: ProfileSwitcherRowState(
+                        shouldTakeAccessibilityFocus: true,
+                        showDivider: false,
+                        rowType: .active(.lockedAccountPreview)
+                    )
+                )
+            )
+        )
+    }
+    .previewDisplayName("Active Account, No Divider")
+}
+
+#Preview {
+    NavigationView {
+        ProfileSwitcherRow(
+            store: Store(
+                processor: StateProcessor(
+                    state: ProfileSwitcherRowState(
+                        shouldTakeAccessibilityFocus: true,
+                        rowType: .alternate(.unlockedAccountPreview)
+                    )
+                )
+            )
+        )
+    }
+    .previewDisplayName("Alternate Unlocked Account")
+}
+
+#Preview {
+    NavigationView {
+        ProfileSwitcherRow(
+            store: Store(
+                processor: StateProcessor(
+                    state: ProfileSwitcherRowState(
+                        shouldTakeAccessibilityFocus: true,
+                        rowType: .alternate(.lockedAccountPreview)
+                    )
+                )
+            )
+        )
+    }
+    .previewDisplayName("Alternate Locked Account")
+}
+
+#Preview {
+    NavigationView {
+        ProfileSwitcherRow(
+            store: Store(
+                processor: StateProcessor(
+                    state: ProfileSwitcherRowState(
+                        shouldTakeAccessibilityFocus: false,
+                        rowType: .addAccount
+                    )
+                )
+            )
+        )
+    }
+    .previewDisplayName("Add Account")
 }
 #endif

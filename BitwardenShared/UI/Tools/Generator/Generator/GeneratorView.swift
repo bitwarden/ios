@@ -206,11 +206,9 @@ struct GeneratorView: View {
 // MARK: - Previews
 
 #if DEBUG
-struct GeneratorView_Previews: PreviewProvider {
-    static var previews: some View {
-        NavigationView {
-            GeneratorView(store: Store(processor: StateProcessor(state: GeneratorState())))
-        }
+#Preview {
+    NavigationView {
+        GeneratorView(store: Store(processor: StateProcessor(state: GeneratorState())))
     }
 }
 #endif
