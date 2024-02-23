@@ -2,10 +2,10 @@
 
 extension AuthMethodsData {
     static func fixture() -> AuthMethodsData {
-        [
-            "1": ["Email": .string("sh***@example.com")],
-            "3": ["Nfc": .bool(true)],
-        ]
+        AuthMethodsData(
+            email: Email(email: "sh***@example.com"),
+            yubikey: Yubikey(nfc: true)
+        )
     }
 }
 

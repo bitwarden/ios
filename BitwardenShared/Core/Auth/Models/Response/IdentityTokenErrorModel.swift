@@ -38,7 +38,6 @@ struct IdentityTokenErrorModel: Codable {
 
 /// The structure of the data returned in the two-factor authentication error.
 public struct AuthMethodsData: Codable, Equatable {
-    
     /// Key names used for encoding and decoding.
     enum CodingKeys: String, CodingKey {
         case email = "1"
@@ -47,32 +46,56 @@ public struct AuthMethodsData: Codable, Equatable {
         case yubikey = "3"
         case webAuthn = "7"
     }
-    
+
     /// Information for two factor authentication with Email
     let email: Email?
-    
+
     /// Information for two factor authentication with Duo
     let duo: Duo?
-    
+
     /// Information for two factor authentication with Duo for organizations
     let organizationDuo: Duo?
-    
+
     /// Information for two factor authentication with Yubikey
     let yubikey: Yubikey?
-    
+
     /// Information for two factor authentication with WebAuthn
     let webAuthn: WebAuthn?
-    
-    /// List of all available two factor authentication for the user
-    var providersAvailable: [String]?
-    
+
     /// Constructor to initialise the AuthMethodsData empty
-    init(){
-        self.email = nil
-        self.duo = nil
-        self.organizationDuo = nil
-        self.yubikey = nil
-        self.webAuthn = nil
+    init(
+        email: Email? = nil,
+        duo: Duo? = nil,
+        organizationDuo: Duo? = nil,
+        yubikey: Yubikey? = nil,
+        webAuthn: WebAuthn? = nil
+    ) {
+        self.email = email
+        self.duo = duo
+        self.organizationDuo = organizationDuo
+        self.yubikey = yubikey
+        self.webAuthn = webAuthn
+    }
+
+    /// List of all available two factor authentication for the user
+    func providersAvailable() -> [String]? {
+        var providers: [String] = []
+        if duo != nil {
+            providers.append(String(TwoFactorAuthMethod.duo.rawValue))
+        }
+        if organizationDuo != nil {
+            providers.append(String(TwoFactorAuthMethod.duoOrganization.rawValue))
+        }
+        if email != nil {
+            providers.append(String(TwoFactorAuthMethod.email.rawValue))
+        }
+        if yubikey != nil {
+            providers.append(String(TwoFactorAuthMethod.yubiKey.rawValue))
+        }
+        if webAuthn != nil {
+            providers.append(String(TwoFactorAuthMethod.webAuthn.rawValue))
+        }
+        return providers.isEmpty ? nil : providers
     }
 }
 
@@ -96,7 +119,7 @@ public struct Email: Codable, Equatable {
     enum CodingKeys: String, CodingKey {
         case email = "Email"
     }
-    
+
     /// Email used to send the code to verify 2fa
     let email: String?
 }
@@ -110,25 +133,25 @@ public struct WebAuthn: Codable, Equatable {
         case rpId
         case allowCredentials, userVerification, status, errorMessage
     }
-    
+
     /// Challenge sent from the server to be solved by an authenticator
     let challenge: String?
-    
+
     /// Available time to complete the challenge attestation
     let timeout: Int?
-    
+
     /// Identifier for the relying party
     let rpId: String?
-    
+
     /// Credentials allowed to be used to solve the challenge
     let allowCredentials: [AllowCredential]?
-    
+
     /// Type of user verification to be applied in the attestation process
     let userVerification: String?
-    
+
     /// WebAuthn status
     let status: String?
-    
+
     /// Describes an error if one occurred
     let errorMessage: String?
 }
@@ -139,9 +162,9 @@ public struct WebAuthn: Codable, Equatable {
 public struct AllowCredential: Codable, Equatable {
     /// Public key identifier
     let id: String?
-    
+
     /// Credential type usually public-key
-    let type:  String?
+    let type: String?
 }
 
 // MARK: - Yubikey
@@ -155,4 +178,3 @@ public struct Yubikey: Codable, Equatable {
     /// Indicates if NFC is supported
     let nfc: Bool?
 }
-

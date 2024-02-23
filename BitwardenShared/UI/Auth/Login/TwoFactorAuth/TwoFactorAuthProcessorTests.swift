@@ -139,11 +139,13 @@ class TwoFactorAuthProcessorTests: BitwardenTestCase { // swiftlint:disable:this
     /// `perform(_:)` with `.beginDuoAuth` does nothing if duo is not configured.
     func test_perform_beginDuoAuth_failure() async {
         subject.state.authMethod = .duo
-        subject.state.authMethodsData = [
-            "2": [
-                "AuthUrl": .null,
-            ],
-        ]
+        subject.state.authMethodsData = AuthMethodsData(
+            duo: Duo(
+                host: nil,
+                signature: nil,
+                authURL: nil
+            )
+        )
         await subject.perform(.beginDuoAuth)
 
         XCTAssertEqual(coordinator.routes, [])
@@ -153,11 +155,13 @@ class TwoFactorAuthProcessorTests: BitwardenTestCase { // swiftlint:disable:this
     func test_perform_beginDuoAuth_success() async {
         let expectedURL = URL(string: "bitwarden://expectedURL")!
         subject.state.authMethod = .duo
-        subject.state.authMethodsData = [
-            "2": [
-                "AuthUrl": .string(expectedURL.absoluteString),
-            ],
-        ]
+        subject.state.authMethodsData = AuthMethodsData(
+            duo: Duo(
+                host: "",
+                signature: "",
+                authURL: expectedURL.absoluteString
+            )
+        )
         await subject.perform(.beginDuoAuth)
 
         XCTAssertEqual(coordinator.routes.last, .duoAuthenticationFlow(expectedURL))
@@ -167,12 +171,13 @@ class TwoFactorAuthProcessorTests: BitwardenTestCase { // swiftlint:disable:this
     func test_perform_beginDuoAuth_wrongAuthMethod() async {
         let expectedURL = URL(string: "bitwarden://expectedURL")!
         subject.state.authMethod = .authenticatorApp
-        subject.state.authMethodsData = [
-            "2": [
-                "AuthUrl": .string(expectedURL.absoluteString),
-            ],
-        ]
-        await subject.perform(.beginDuoAuth)
+        subject.state.authMethodsData = AuthMethodsData(
+            duo: Duo(
+                host: "",
+                signature: "",
+                authURL: expectedURL.absoluteString
+            )
+        )
 
         XCTAssertEqual(coordinator.routes, [])
     }
