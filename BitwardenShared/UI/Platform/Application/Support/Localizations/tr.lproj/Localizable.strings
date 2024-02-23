@@ -695,7 +695,7 @@
 "LogInAccepted" = "Giriş onaylandı";
 "LogInDenied" = "Giriş reddedildi";
 "ApproveLoginRequests" = "Giriş isteklerini onayla";
-"UseThisDeviceToApproveLoginRequestsMadeFromOtherDevices" = "Diğer cihazlardan yapılan giriş isteklerini onaylamak için bu cihazı kullan";
+"UseThisDeviceToApproveLoginRequestsMadeFromOtherDevices" = "Diğer cihazlardan yapılan giriş isteklerini bu cihazdan onayla";
 "AllowNotifications" = "Bildirimlere izin ver";
 "ReceivePushNotificationsForNewLoginRequests" = "Yeni giriş istekleri için bildirim al";
 "NoThanks" = "Gerek yok";
@@ -847,14 +847,14 @@
 "ContinueToX" = "%1$@ ile devam edilsin mi?";
 "ContinueToHelpCenter" = "Yardım merkezine gitmek ister misiniz?";
 "ContinueToContactSupport" = "Destek ekibiyle iletişim kurmak ister misiniz?";
-"ContinueToPrivacyPolicy" = "Continue to privacy policy?";
+"ContinueToPrivacyPolicy" = "Gizlilik ilkelerine gidilsin mi?";
 "ContinueToAppStore" = "App Store'a gitmek ister misiniz?";
 "TwoStepLoginDescriptionLong" = "Bitwarden web uygulamasında iki aşamalı girişi ayarlayarak hesabınızın güvenliğini artırabilirsiniz.";
 "ChangeMasterPasswordDescriptionLong" = "Ana parolanızı Bitwarden web uygulamasında değiştirebilirsiniz.";
 "YouCanImportDataToYourVaultOnX" = "Verilerinizi %1$@ adresinden kasanıza aktarabilirsiniz.";
 "LearnMoreAboutHowToUseBitwardenOnTheHelpCenter" = "Yardım merkezinde Bitwarden kullanımı hakkında daha fazla bilgi alabilirsiniz.";
 "ContactSupportDescriptionLong" = "Aradığınızı bulamadınız mı? bitwarden.com sitesinden Bitwarden destek ekibine ulaşabilirsiniz.";
-"PrivacyPolicyDescriptionLong" = "Check out our privacy policy on bitwarden.com.";
+"PrivacyPolicyDescriptionLong" = "Gizlilik ilkelerimizi bitwarden.com'da bulabilirsiniz.";
 "ExploreMoreFeaturesOfYourBitwardenAccountOnTheWebApp" = "Web uygulamasında Bitwarden hesabınızın diğer özelliklerini keşfedin.";
 "LearnAboutOrganizationsDescriptionLong" = "Bitwarden'ın kuruluş özelliğini kullanarak kasanızdaki kayıtları başkalarıyla paylaşabilirsiniz. Daha fazla bilgi için bitwarden.com sitesini ziyaret edin.";
 "RateAppDescriptionLong" = "Bitwarden'ı başkalarına da tanımak ister misiniz? Uygulama mağazasını ziyaret edip Bitwarden'ı değerlendirin.";

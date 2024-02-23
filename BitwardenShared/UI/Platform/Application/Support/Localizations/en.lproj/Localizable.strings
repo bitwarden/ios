@@ -428,10 +428,6 @@
 "VaultLockedPIN" = "Your vault is locked. Verify your PIN code to continue.";
 "VaultLockedIdentity" = "Your vault is locked. Verify your identity to continue.";
 "Dark" = "Dark";
-"Duo" = "Duo";
-"DuoUnsupported" = "Duo not yet supported.";
-"FollowStepsDuo" = "Follow the steps from Duo to finish logging in.";
-"LaunchDuo" = "Launch Duo";
 "Light" = "Light";
 "FiveMinutes" = "5 minutes";
 "TenSeconds" = "10 seconds";
@@ -869,6 +865,6 @@
 "YourOrganizationPermissionsWereUpdatedRequeringYouToSetAMasterPassword" = "Your organization permissions were updated, requiring you to set a master password.";
 "YourOrganizationRequiresYouToSetAMasterPassword" = "Your organization requires you to set a master password.";
 "SetUpAnUnlockOptionToChangeYourVaultTimeoutAction" = "Set up an unlock option to change your vault timeout action.";
-"AppInfo" = "App info";
-"Browse" = "Browse";
-"SelectLanguage" = "Select language";
+"DuoTwoStepLoginIsRequiredForYourAccount" = "Duo two-step login is required for your account.";
+"FollowTheStepsFromDuoToFinishLoggingIn" = "Follow the steps from Duo to finish logging in.";
+"LaunchDuo" = "Launch Duo";
