@@ -260,7 +260,7 @@ class VaultUnlockProcessorTests: BitwardenTestCase { // swiftlint:disable:this t
     /// potentially too high.
     func test_perform_unlockVault_extensionKdfWarning() async throws {
         appExtensionDelegate.isInAppExtension = true
-        stateService.activeAccount = .fixture(profile: .fixture(kdfMemory: 50, kdfType: .argon2id))
+        stateService.activeAccount = .fixture(profile: .fixture(kdfMemory: 65, kdfType: .argon2id))
         subject.state.masterPassword = "password"
 
         await subject.perform(.unlockVault)
@@ -439,7 +439,7 @@ class VaultUnlockProcessorTests: BitwardenTestCase { // swiftlint:disable:this t
         biometricsRepository.biometricUnlockStatus = .success(
             .available(.faceID, enabled: true, hasValidIntegrity: true)
         )
-        stateService.activeAccount = .fixture(profile: .fixture(kdfMemory: 50, kdfType: .argon2id))
+        stateService.activeAccount = .fixture(profile: .fixture(kdfMemory: 65, kdfType: .argon2id))
         subject.state.biometricUnlockStatus = .available(.touchID, enabled: true, hasValidIntegrity: true)
 
         await subject.perform(.unlockVaultWithBiometrics)
