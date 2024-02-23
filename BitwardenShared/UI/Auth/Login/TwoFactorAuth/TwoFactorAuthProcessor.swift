@@ -221,7 +221,7 @@ final class TwoFactorAuthProcessor: StateProcessor<TwoFactorAuthState, TwoFactor
 
     /// Set up the initial parameters of the state.
     private func setUpState() {
-        guard let providersAvailable = state.authMethodsData.providersAvailable() else { return }
+        guard let providersAvailable = state.authMethodsData.providersAvailable else { return }
         // Determine all the available auth methods for the user, adding on the recovery code
         // which is always available.
         var availableMethods = providersAvailable

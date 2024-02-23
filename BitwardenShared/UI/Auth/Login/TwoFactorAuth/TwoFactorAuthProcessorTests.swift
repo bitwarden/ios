@@ -90,7 +90,7 @@ class TwoFactorAuthProcessorTests: BitwardenTestCase { // swiftlint:disable:this
             state: state
         )
 
-        XCTAssertEqual(subject.state.availableAuthMethods, [.email, .yubiKey, .recoveryCode])
+        XCTAssertEqual(subject.state.availableAuthMethods, [.authenticatorApp, .email, .yubiKey, .recoveryCode])
         XCTAssertEqual(subject.state.displayEmail, "sh***@example.com")
     }
 
@@ -178,6 +178,77 @@ class TwoFactorAuthProcessorTests: BitwardenTestCase { // swiftlint:disable:this
                 authURL: expectedURL.absoluteString
             )
         )
+
+        XCTAssertEqual(coordinator.routes, [])
+    }
+
+    /// A `webAuthnCompleted` call triggers a login and sets a token
+    func test_webAuthnAuthenticationFlowDelegate_didComplete() {
+        subject.state.authMethod = .webAuthn
+        authService.loginWithTwoFactorCodeResult = .success(.fixtureAccountLogin())
+        subject.state.unlockMethod = .password("token")
+
+        let task = Task {
+            subject.webAuthnCompleted(token: "1234")
+        }
+        waitFor(!coordinator.events.isEmpty)
+        task.cancel()
+
+        XCTAssertEqual(subject.state.verificationCode, "1234")
+        XCTAssertEqual(coordinator.events, [.didCompleteAuth])
+        XCTAssertEqual(authRepository.unlockVaultPassword, "token")
+    }
+
+    /// A `webAuthnErrored` call presents an alert on error.
+    func test_webAuthnAuthenticationFlowDelegate_webAuthnErrored_decodeFail() {
+        subject.state.authMethod = .webAuthn
+
+        subject.webAuthnErrored(error: WebAuthnError.unableToDecodeCredential)
+        waitFor(!errorReporter.errors.isEmpty)
+
+        XCTAssertFalse(coordinator.isLoadingOverlayShowing)
+        XCTAssertEqual(errorReporter.errors.last as? WebAuthnError, .unableToDecodeCredential)
+    }
+
+    // swiftlint:disable force_try
+    /// `perform(_:)` with `.beginWebAuthn` initates the WebAuthn auth flow.
+    func test_perform_beginWebAuthn_success() async {
+        let testData = AuthMethodsData.fixtureWebAuthn()
+        let rpIdExpected = testData.webAuthn!.rpId!
+        let userVerificationPreferenceExpected = testData.webAuthn!.userVerification!
+        let challengeExpected = try! Data(base64Encoded: testData.webAuthn!.challenge!.urlDecoded())!
+        let allowCredentials = testData.webAuthn?.allowCredentials!.map { credential in
+            try! Data(base64Encoded: credential.id!.urlDecoded())!
+        }
+        subject.state.authMethod = .webAuthn
+        subject.state.authMethodsData = AuthMethodsData.fixtureWebAuthn()
+        await subject.perform(.beginWebAuthn)
+
+        XCTAssertEqual(
+            coordinator.routes.last,
+            .webAuthn(
+                rpid: rpIdExpected,
+                challenge: challengeExpected,
+                allowCredentialIDs: allowCredentials!,
+                userVerificationPreference: userVerificationPreferenceExpected
+            )
+        )
+    }
+
+    // swiftlint:enable force_try
+
+    /// `perform(_:)` with `.beginWebAuthnAuth`  does nothing if WebAuthn is not configured.
+    func test_perform_beginWebAuthn_failure() async {
+        subject.state.authMethod = .webAuthn
+        subject.state.authMethodsData = AuthMethodsData.fixture()
+
+        XCTAssertEqual(coordinator.routes, [])
+    }
+
+    /// `perform(_:)` with `.beginWebAuthnAuth`  does nothing if WebAuthn is not the auth method.
+    func test_perform_beginWebAuthn_wrongAuthMethod() async {
+        subject.state.authMethod = .authenticatorApp
+        subject.state.authMethodsData = AuthMethodsData.fixtureWebAuthn()
 
         XCTAssertEqual(coordinator.routes, [])
     }

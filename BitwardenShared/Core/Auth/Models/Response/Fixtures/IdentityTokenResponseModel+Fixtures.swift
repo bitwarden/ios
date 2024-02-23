@@ -2,10 +2,39 @@
 
 extension AuthMethodsData {
     static func fixture() -> AuthMethodsData {
-        AuthMethodsData(
+        var methodsData = AuthMethodsData(
             email: Email(email: "sh***@example.com"),
             yubikey: Yubikey(nfc: true)
         )
+        methodsData.providersAvailable = [
+            String(TwoFactorAuthMethod.email.rawValue),
+            String(TwoFactorAuthMethod.yubiKey.rawValue),
+            String(TwoFactorAuthMethod.authenticatorApp.rawValue),
+        ]
+        return methodsData
+    }
+
+    static func fixtureWebAuthn() -> AuthMethodsData {
+        var methodsData = AuthMethodsData(
+            email: Email(email: "sh***@example.com"),
+            yubikey: Yubikey(nfc: true),
+            webAuthn: WebAuthn(
+                challenge: "3Hu2GPMuYlbKqRQgdlu123",
+                timeout: 60000,
+                rpId: "vault.bitwarden.com",
+                allowCredentials: [
+                    AllowCredential(
+                        id: "_YSahxwU5GEkoLbFOBSMgRVoCwUZMAhuC_HhLnwG123",
+                        type: "public-key"
+                    ),
+                ],
+                userVerification: "discouraged",
+                status: "ok",
+                errorMessage: ""
+            )
+        )
+        methodsData.providersAvailable = [String(TwoFactorAuthMethod.webAuthn.rawValue)]
+        return methodsData
     }
 }
 

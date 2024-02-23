@@ -4,7 +4,7 @@
 enum TwoFactorAuthEffect: Equatable {
     /// Attempts to authenticate via Duo.
     case beginDuoAuth
-    
+
     /// Attempts to authenticate via WebAuthn.
     case beginWebAuthn
 

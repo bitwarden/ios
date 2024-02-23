@@ -74,7 +74,9 @@ struct IdentityTokenRequest: Request {
                 from: response.body
             ) else { return }
 
-            if let twoFactorProvidersData = errorModel.twoFactorProvidersData {
+            if let twoFactorProviders = errorModel.twoFactorProviders,
+               var twoFactorProvidersData = errorModel.twoFactorProvidersData {
+                twoFactorProvidersData.providersAvailable = twoFactorProviders
                 throw IdentityTokenRequestError.twoFactorRequired(
                     twoFactorProvidersData,
                     errorModel.ssoToken,

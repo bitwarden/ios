@@ -1,5 +1,3 @@
-// MARK: - AuthMethodsData
-
 // MARK: - IdentityTokenErrorModel
 
 /// An error model for `IdentityTokenRequest`.
@@ -62,6 +60,10 @@ public struct AuthMethodsData: Codable, Equatable {
     /// Information for two factor authentication with WebAuthn
     let webAuthn: WebAuthn?
 
+    /// List of all available two factor authentication for the user
+    /// This is necessary because authenticator is one possible option but has no information
+    var providersAvailable: [String]?
+
     /// Constructor to initialise the AuthMethodsData empty
     init(
         email: Email? = nil,
@@ -75,27 +77,6 @@ public struct AuthMethodsData: Codable, Equatable {
         self.organizationDuo = organizationDuo
         self.yubikey = yubikey
         self.webAuthn = webAuthn
-    }
-
-    /// List of all available two factor authentication for the user
-    func providersAvailable() -> [String]? {
-        var providers: [String] = []
-        if duo != nil {
-            providers.append(String(TwoFactorAuthMethod.duo.rawValue))
-        }
-        if organizationDuo != nil {
-            providers.append(String(TwoFactorAuthMethod.duoOrganization.rawValue))
-        }
-        if email != nil {
-            providers.append(String(TwoFactorAuthMethod.email.rawValue))
-        }
-        if yubikey != nil {
-            providers.append(String(TwoFactorAuthMethod.yubiKey.rawValue))
-        }
-        if webAuthn != nil {
-            providers.append(String(TwoFactorAuthMethod.webAuthn.rawValue))
-        }
-        return providers.isEmpty ? nil : providers
     }
 }
 
