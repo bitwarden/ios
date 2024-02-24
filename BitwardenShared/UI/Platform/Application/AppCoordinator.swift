@@ -37,6 +37,9 @@ class AppCoordinator: Coordinator, HasRootNavigator {
     /// The navigator to use for presenting screens.
     private(set) weak var rootNavigator: RootNavigator?
 
+    /// The service container used by the coordinator
+    private let services: Services
+
     // MARK: Initialization
 
     /// Creates a new `AppCoordinator`.
@@ -46,17 +49,20 @@ class AppCoordinator: Coordinator, HasRootNavigator {
     ///   - appExtensionDelegate: A delegate used to communicate with the app extension.
     ///   - module: The module to use for creating child coordinators.
     ///   - rootNavigator: The navigator to use for presenting screens.
+    ///   - serviceContainer: The service container used by the coordinator.
     ///
     init(
         appContext: AppContext,
         appExtensionDelegate: AppExtensionDelegate?,
         module: Module,
-        rootNavigator: RootNavigator
+        rootNavigator: RootNavigator,
+        services: Services
     ) {
         self.appContext = appContext
         self.appExtensionDelegate = appExtensionDelegate
         self.module = module
         self.rootNavigator = rootNavigator
+        self.services = services
     }
 
     // MARK: Methods
@@ -176,10 +182,12 @@ class AppCoordinator: Coordinator, HasRootNavigator {
             guard let rootNavigator else { return }
             let tabNavigator = UITabBarController()
             let coordinator = module.makeTabCoordinator(
+                errorReporter: services.errorReporter,
                 rootNavigator: rootNavigator,
                 settingsDelegate: self,
                 tabNavigator: tabNavigator,
-                vaultDelegate: self
+                vaultDelegate: self,
+                vaultRepository: services.vaultRepository
             )
             coordinator.start()
             coordinator.navigate(to: route)

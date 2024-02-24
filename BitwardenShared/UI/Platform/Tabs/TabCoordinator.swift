@@ -24,6 +24,9 @@ final class TabCoordinator: Coordinator, HasTabNavigator {
 
     // MARK: Private Properties
 
+    /// The error reporter used by the tab coordinator.
+    private var errorReporter: ErrorReporter
+
     /// The coordinator used to navigate to `GeneratorRoute`s.
     private var generatorCoordinator: AnyCoordinator<GeneratorRoute, Void>?
 
@@ -45,29 +48,38 @@ final class TabCoordinator: Coordinator, HasTabNavigator {
     /// A delegate of the `VaultCoordinator`.
     private weak var vaultDelegate: VaultCoordinatorDelegate?
 
+    /// A vault repository used to the vault tab tab title.
+    private var vaultRepository: VaultRepository
+
     // MARK: Initialization
 
     /// Creates a new `TabCoordinator`.
     ///
     /// - Parameters:
+    ///   - errorReporter: The error reporter used by the tab coordinator.
     ///   - module: The module used to create child coordinators.
     ///   - rootNavigator: The root navigator used to display this coordinator's interface.
     ///   - settingsDelegate: A delegate of the `SettingsCoordinator`.
     ///   - tabNavigator: The tab navigator that is managed by this coordinator.
     ///   - vaultDelegate: A delegate of the `VaultCoordinator`.
+    ///   - vaultRepository: A vault repository used to the vault tab tab title.
     ///
     init(
+        errorReporter: ErrorReporter,
         module: Module,
         rootNavigator: RootNavigator,
         settingsDelegate: SettingsCoordinatorDelegate,
         tabNavigator: TabNavigator,
-        vaultDelegate: VaultCoordinatorDelegate
+        vaultDelegate: VaultCoordinatorDelegate,
+        vaultRepository: VaultRepository
     ) {
+        self.errorReporter = errorReporter
         self.module = module
         self.rootNavigator = rootNavigator
         self.settingsDelegate = settingsDelegate
         self.tabNavigator = tabNavigator
         self.vaultDelegate = vaultDelegate
+        self.vaultRepository = vaultRepository
     }
 
     // MARK: Methods
@@ -135,5 +147,22 @@ final class TabCoordinator: Coordinator, HasTabNavigator {
             .settings(.settings): settingsNavigator,
         ]
         tabNavigator.setNavigators(tabsAndNavigators)
+        Task { await streamOrganizations() }
+    }
+
+    /// Streams the user's organizations.
+    private func streamOrganizations() async {
+        do {
+            for try await organizations in try await vaultRepository.organizationsPublisher() {
+                guard let navigator = tabNavigator?.navigator(for: TabRoute.vault(.list)) else { return }
+                if organizations.isEmpty {
+                    navigator.rootViewController?.title = Localizations.myVault
+                } else {
+                    navigator.rootViewController?.title = Localizations.vaults
+                }
+            }
+        } catch {
+            errorReporter.log(error: error)
+        }
     }
 }

@@ -2,7 +2,7 @@
 
 /// A model defining the state of a TOTP key/code pair along with a TimeProvider to calculate expiration.
 ///
-enum LoginTOTPState: Equatable {
+public enum LoginTOTPState: Equatable {
     /// A case with a code and key pair.
     case codeKeyPair(_ code: TOTPCodeModel, key: TOTPKeyModel)
 

@@ -2,7 +2,7 @@
 
 /// A type to describe the owner of a cipher.
 ///
-enum CipherOwner: Equatable, Hashable, Menuable {
+public enum CipherOwner: Equatable, Hashable, Menuable {
     /// The cipher is owned by an organization.
     case organization(id: String, name: String)
 

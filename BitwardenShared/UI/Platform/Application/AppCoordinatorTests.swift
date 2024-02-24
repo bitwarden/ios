@@ -12,6 +12,7 @@ class AppCoordinatorTests: BitwardenTestCase {
     var module: MockAppModule!
     var rootNavigator: MockRootNavigator!
     var router: MockRouter<AuthEvent, AuthRoute>!
+    var services: Services!
     var subject: AppCoordinator!
 
     // MARK: Setup & Teardown
@@ -24,12 +25,14 @@ class AppCoordinatorTests: BitwardenTestCase {
         module = MockAppModule()
         module.authRouter = router
         rootNavigator = MockRootNavigator()
+        services = ServiceContainer.withMocks()
 
         subject = AppCoordinator(
             appContext: .mainApp,
             appExtensionDelegate: appExtensionDelegate,
             module: module,
-            rootNavigator: rootNavigator
+            rootNavigator: rootNavigator,
+            services: services
         )
     }
 
@@ -38,6 +41,7 @@ class AppCoordinatorTests: BitwardenTestCase {
         appExtensionDelegate = nil
         module = nil
         rootNavigator = nil
+        services = nil
         subject = nil
     }
 
@@ -57,7 +61,8 @@ class AppCoordinatorTests: BitwardenTestCase {
             appContext: .appExtension,
             appExtensionDelegate: appExtensionDelegate,
             module: module,
-            rootNavigator: rootNavigator
+            rootNavigator: rootNavigator,
+            services: services
         )
 
         appExtensionDelegate.authCompletionRoute = .vault(.autofillList)
