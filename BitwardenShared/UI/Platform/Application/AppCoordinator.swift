@@ -49,7 +49,7 @@ class AppCoordinator: Coordinator, HasRootNavigator {
     ///   - appExtensionDelegate: A delegate used to communicate with the app extension.
     ///   - module: The module to use for creating child coordinators.
     ///   - rootNavigator: The navigator to use for presenting screens.
-    ///   - serviceContainer: The service container used by the coordinator.
+    ///   - services: The service container used by the coordinator.
     ///
     init(
         appContext: AppContext,
