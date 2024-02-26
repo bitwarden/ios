@@ -34,7 +34,7 @@ final class TabCoordinator: Coordinator, HasTabNavigator {
     private let module: Module
 
     /// A task to handle organization streams.
-    private var organizationStreamTask: Task<Any, Error>?
+    private var organizationStreamTask: Task<Void, Error>?
 
     /// The coordinator used to navigate to `SendRoute`s.
     private var sendCoordinator: AnyCoordinator<SendRoute, Void>?
@@ -155,24 +155,24 @@ final class TabCoordinator: Coordinator, HasTabNavigator {
             .settings(.settings): settingsNavigator,
         ]
         tabNavigator.setNavigators(tabsAndNavigators)
-        organizationStreamTask = Task {
-            await streamOrganizations()
-        }
+        streamOrganizations()
     }
 
     /// Streams the user's organizations.
-    private func streamOrganizations() async {
-        do {
-            for try await organizations in try await vaultRepository.organizationsPublisher() {
-                guard let navigator = tabNavigator?.navigator(for: TabRoute.vault(.list)) else { return }
-                if organizations.isEmpty {
-                    navigator.rootViewController?.title = Localizations.myVault
-                } else {
-                    navigator.rootViewController?.title = Localizations.vaults
+    private func streamOrganizations() {
+        organizationStreamTask = Task { [errorReporter, tabNavigator, vaultRepository] in
+            do {
+                for try await organizations in try await vaultRepository.organizationsPublisher() {
+                    guard let navigator = tabNavigator?.navigator(for: TabRoute.vault(.list)) else { return }
+                    if organizations.isEmpty {
+                        navigator.rootViewController?.title = Localizations.myVault
+                    } else {
+                        navigator.rootViewController?.title = Localizations.vaults
+                    }
                 }
+            } catch {
+                errorReporter.log(error: error)
             }
-        } catch {
-            errorReporter.log(error: error)
         }
     }
 }
