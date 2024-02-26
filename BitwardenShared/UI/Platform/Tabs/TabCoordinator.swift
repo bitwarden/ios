@@ -48,7 +48,7 @@ final class TabCoordinator: Coordinator, HasTabNavigator {
     /// A delegate of the `VaultCoordinator`.
     private weak var vaultDelegate: VaultCoordinatorDelegate?
 
-    /// A vault repository used to the vault tab tab title.
+    /// A vault repository used to the vault tab title.
     private var vaultRepository: VaultRepository
 
     // MARK: Initialization
@@ -62,7 +62,7 @@ final class TabCoordinator: Coordinator, HasTabNavigator {
     ///   - settingsDelegate: A delegate of the `SettingsCoordinator`.
     ///   - tabNavigator: The tab navigator that is managed by this coordinator.
     ///   - vaultDelegate: A delegate of the `VaultCoordinator`.
-    ///   - vaultRepository: A vault repository used to the vault tab tab title.
+    ///   - vaultRepository: A vault repository used to the vault tab title.
     ///
     init(
         errorReporter: ErrorReporter,
