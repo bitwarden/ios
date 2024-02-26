@@ -33,6 +33,9 @@ final class TabCoordinator: Coordinator, HasTabNavigator {
     /// The module used to create child coordinators.
     private let module: Module
 
+    /// A task to handle organization streams.
+    private var organizationStreamTask: Task<Any, Error>?
+
     /// The coordinator used to navigate to `SendRoute`s.
     private var sendCoordinator: AnyCoordinator<SendRoute, Void>?
 
@@ -80,6 +83,11 @@ final class TabCoordinator: Coordinator, HasTabNavigator {
         self.tabNavigator = tabNavigator
         self.vaultDelegate = vaultDelegate
         self.vaultRepository = vaultRepository
+    }
+
+    deinit {
+        organizationStreamTask?.cancel()
+        organizationStreamTask = nil
     }
 
     // MARK: Methods
@@ -147,7 +155,9 @@ final class TabCoordinator: Coordinator, HasTabNavigator {
             .settings(.settings): settingsNavigator,
         ]
         tabNavigator.setNavigators(tabsAndNavigators)
-        Task { await streamOrganizations() }
+        organizationStreamTask = Task {
+            await streamOrganizations()
+        }
     }
 
     /// Streams the user's organizations.
