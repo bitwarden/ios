@@ -104,11 +104,13 @@ class MockAppModule:
         settingsCoordinator.asAnyCoordinator()
     }
 
-    func makeTabCoordinator(
+    func makeTabCoordinator( // swiftlint:disable:this function_parameter_count
+        errorReporter _: BitwardenShared.ErrorReporter,
         rootNavigator _: BitwardenShared.RootNavigator,
         settingsDelegate _: BitwardenShared.SettingsCoordinatorDelegate,
         tabNavigator _: BitwardenShared.TabNavigator,
-        vaultDelegate _: BitwardenShared.VaultCoordinatorDelegate
+        vaultDelegate _: BitwardenShared.VaultCoordinatorDelegate,
+        vaultRepository _: BitwardenShared.VaultRepository
     ) -> BitwardenShared.AnyCoordinator<BitwardenShared.TabRoute, Void> {
         tabCoordinator.asAnyCoordinator()
     }
