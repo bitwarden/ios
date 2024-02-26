@@ -19,6 +19,7 @@ class SyncServiceTests: BitwardenTestCase {
     var settingsService: MockSettingsService!
     var stateService: MockStateService!
     var subject: SyncService!
+    var timeProvider: MockTimeProvider!
 
     // MARK: Setup & Teardown
 
@@ -35,6 +36,15 @@ class SyncServiceTests: BitwardenTestCase {
         sendService = MockSendService()
         settingsService = MockSettingsService()
         stateService = MockStateService()
+        timeProvider = MockTimeProvider(
+            .mockTime(
+                Date(
+                    year: 2024,
+                    month: 2,
+                    day: 14
+                )
+            )
+        )
 
         subject = DefaultSyncService(
             accountAPIService: APIService(client: client),
@@ -47,7 +57,8 @@ class SyncServiceTests: BitwardenTestCase {
             sendService: sendService,
             settingsService: settingsService,
             stateService: stateService,
-            syncAPIService: APIService(client: client)
+            syncAPIService: APIService(client: client),
+            timeProvider: timeProvider
         )
     }
 
@@ -65,6 +76,7 @@ class SyncServiceTests: BitwardenTestCase {
         settingsService = nil
         stateService = nil
         subject = nil
+        timeProvider = nil
     }
 
     // MARK: Tests
@@ -124,9 +136,33 @@ class SyncServiceTests: BitwardenTestCase {
         XCTAssertEqual(client.requests[0].url.absoluteString, "https://example.com/api/sync")
 
         try XCTAssertEqual(
-            XCTUnwrap(stateService.lastSyncTimeByUserId["1"]).timeIntervalSince1970,
-            Date().timeIntervalSince1970,
-            accuracy: 1
+            XCTUnwrap(stateService.lastSyncTimeByUserId["1"]),
+            timeProvider.presentTime
+        )
+    }
+
+    /// `fetchSync()` with `forceSync: true` performs the sync API request regardless of the
+    /// account revision or sync interval.
+    func test_fetchSync_failedParse() async throws {
+        client.results = [
+            .httpSuccess(testData: .accountRevisionDate(timeProvider.presentTime)),
+            .httpSuccess(testData: .syncWithCipher),
+        ]
+        stateService.activeAccount = .fixture()
+        let priorSyncDate = Date(year: 2022, month: 1, day: 1)
+        stateService.lastSyncTimeByUserId["1"] = priorSyncDate
+        cipherService.replaceCiphersError = BitwardenTestError.example
+
+        await assertAsyncThrows(error: BitwardenTestError.example) {
+            try await subject.fetchSync(forceSync: false)
+        }
+
+        XCTAssertEqual(client.requests.count, 2)
+        XCTAssertNotNil(cipherService.replaceCiphersCiphers)
+
+        try XCTAssertEqual(
+            XCTUnwrap(stateService.lastSyncTimeByUserId["1"]),
+            priorSyncDate
         )
     }
 
@@ -144,9 +180,8 @@ class SyncServiceTests: BitwardenTestCase {
         XCTAssertEqual(client.requests[0].url.absoluteString, "https://example.com/api/sync")
 
         try XCTAssertEqual(
-            XCTUnwrap(stateService.lastSyncTimeByUserId["1"]).timeIntervalSince1970,
-            Date().timeIntervalSince1970,
-            accuracy: 1
+            XCTUnwrap(stateService.lastSyncTimeByUserId["1"]),
+            timeProvider.presentTime
         )
     }
 
@@ -154,12 +189,13 @@ class SyncServiceTests: BitwardenTestCase {
     /// newer revisions.
     func test_fetchSync_needsSync_lastSyncTime_older30MinsWithRevisions() async throws {
         client.results = [
-            .httpSuccess(testData: .accountRevisionDate(Date.now)),
+            .httpSuccess(testData: .accountRevisionDate(timeProvider.presentTime)),
             .httpSuccess(testData: .syncWithCipher),
         ]
         stateService.activeAccount = .fixture()
+        let lastSync = timeProvider.presentTime.addingTimeInterval(-(Constants.minimumSyncInterval + 1))
         stateService.lastSyncTimeByUserId["1"] = try XCTUnwrap(
-            Calendar.current.date(byAdding: .minute, value: -31, to: .now)
+            lastSync
         )
 
         try await subject.fetchSync(forceSync: false)
@@ -168,9 +204,8 @@ class SyncServiceTests: BitwardenTestCase {
         XCTAssertNotNil(cipherService.replaceCiphersCiphers)
 
         try XCTAssertEqual(
-            XCTUnwrap(stateService.lastSyncTimeByUserId["1"]?.timeIntervalSinceNow),
-            0,
-            accuracy: 1
+            XCTUnwrap(stateService.lastSyncTimeByUserId["1"]),
+            timeProvider.presentTime
         )
     }
 
@@ -178,7 +213,7 @@ class SyncServiceTests: BitwardenTestCase {
     /// the account revision date fails.
     func test_fetchSync_needsSync_lastSyncTime_older30Mins_revisionsError() async throws {
         let lastSyncTime = try XCTUnwrap(
-            Calendar.current.date(byAdding: .minute, value: -31, to: .now)
+            timeProvider.presentTime.addingTimeInterval(-(Constants.minimumSyncInterval + 1))
         )
         client.result = .httpFailure(BitwardenTestError.example)
         stateService.activeAccount = .fixture()
@@ -195,14 +230,15 @@ class SyncServiceTests: BitwardenTestCase {
     /// `fetchSync()` doesn't syncs if the last sync time is greater than 30 minutes ago but the
     /// account doesn't have newer revisions.
     func test_fetchSync_needsSync_lastSyncTime_older30MinsWithoutRevisions() async throws {
-        let lastRevision = try XCTUnwrap(Calendar.current.date(byAdding: .day, value: -1, to: .now))
+        let lastRevision = try XCTUnwrap(timeProvider.presentTime.addingTimeInterval(-24 * 60 * 60))
         client.results = [
             .httpSuccess(testData: .accountRevisionDate(lastRevision)),
             .httpSuccess(testData: .syncWithCipher),
         ]
         stateService.activeAccount = .fixture()
+        let lastSync = timeProvider.presentTime.addingTimeInterval(-(Constants.minimumSyncInterval + 60))
         stateService.lastSyncTimeByUserId["1"] = try XCTUnwrap(
-            Calendar.current.date(byAdding: .minute, value: -31, to: .now)
+            lastSync
         )
 
         try await subject.fetchSync(forceSync: false)
@@ -211,9 +247,8 @@ class SyncServiceTests: BitwardenTestCase {
         XCTAssertNil(cipherService.replaceCiphersCiphers)
 
         try XCTAssertEqual(
-            XCTUnwrap(stateService.lastSyncTimeByUserId["1"]?.timeIntervalSinceNow),
-            0,
-            accuracy: 1
+            XCTUnwrap(stateService.lastSyncTimeByUserId["1"]),
+            timeProvider.presentTime
         )
     }
 
@@ -222,7 +257,7 @@ class SyncServiceTests: BitwardenTestCase {
         client.result = .httpSuccess(testData: .syncWithCipher)
         stateService.activeAccount = .fixture()
         stateService.lastSyncTimeByUserId["1"] = try XCTUnwrap(
-            Calendar.current.date(byAdding: .minute, value: -29, to: .now)
+            timeProvider.presentTime.addingTimeInterval(-(Constants.minimumSyncInterval - 1))
         )
 
         try await subject.fetchSync(forceSync: false)

@@ -243,7 +243,10 @@ final class VaultListProcessor: StateProcessor<
         do {
             for try await value in try await services.vaultRepository
                 .vaultListPublisher(filter: state.vaultFilterType) {
-                state.loadingState = .data(value)
+                let needsSync = try await services.vaultRepository.needsSync()
+                if !needsSync {
+                    state.loadingState = .data(value)
+                }
             }
         } catch {
             services.errorReporter.log(error: error)

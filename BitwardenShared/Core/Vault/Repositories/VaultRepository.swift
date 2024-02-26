@@ -177,6 +177,12 @@ public protocol VaultRepository: AnyObject {
         uri: String?
     ) async throws -> AsyncThrowingPublisher<AnyPublisher<[CipherView], Error>>
 
+    /// Determine if a full sync is necessary.
+    ///
+    /// - Returns: Whether a sync should be performed.
+    ///
+    func needsSync() async throws -> Bool
+
     /// A publisher for the list of organizations the user is a member of.
     ///
     /// - Returns: A publisher for the list of organizations the user is a member of.
@@ -799,6 +805,11 @@ extension DefaultVaultRepository: VaultRepository {
 
     func getDisableAutoTotpCopy() async throws -> Bool {
         try await stateService.getDisableAutoTotpCopy()
+    }
+
+    func needsSync() async throws -> Bool {
+        let userId = try await stateService.getActiveAccountId()
+        return try await syncService.needsSync(for: userId)
     }
 
     func refreshTOTPCode(for key: TOTPKeyModel) async throws -> LoginTOTPState {

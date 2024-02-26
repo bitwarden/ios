@@ -29,6 +29,7 @@ class MockCipherService: CipherService {
 
     var replaceCiphersCiphers: [CipherDetailsResponseModel]?
     var replaceCiphersUserId: String?
+    var replaceCiphersError: Error?
 
     var restoredCipherId: String?
     var restoredCipher: Cipher?
@@ -93,6 +94,9 @@ class MockCipherService: CipherService {
     func replaceCiphers(_ ciphers: [CipherDetailsResponseModel], userId: String) async throws {
         replaceCiphersCiphers = ciphers
         replaceCiphersUserId = userId
+        if let replaceCiphersError {
+            throw replaceCiphersError
+        }
     }
 
     func restoreCipherWithServer(id: String, _ cipher: Cipher) async throws {
