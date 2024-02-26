@@ -173,7 +173,8 @@ class LandingProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_
                 activeAccountId: nil,
                 allowLockAndLogout: true,
                 isVisible: false,
-                shouldAlwaysHideAddAccount: true
+                shouldAlwaysHideAddAccount: true,
+                showPlaceholderToolbarIcon: true
             )
         )
     }
@@ -563,7 +564,9 @@ class LandingProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_
         XCTAssertFalse(subject.state.profileSwitcherState.isVisible)
         XCTAssertEqual(
             coordinator.events,
-            []
+            [
+                .action(.switchAccount(isAutomatic: false, userId: profile.userId)),
+            ]
         )
     }
 
@@ -598,7 +601,9 @@ class LandingProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_
         XCTAssertFalse(subject.state.profileSwitcherState.isVisible)
         XCTAssertEqual(
             coordinator.events,
-            []
+            [
+                .action(.switchAccount(isAutomatic: false, userId: profile.userId)),
+            ]
         )
     }
 

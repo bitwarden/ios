@@ -122,24 +122,22 @@ extension PasswordStrengthIndicator {
 // MARK: Previews
 
 #if DEBUG
-struct PasswordStrengthIndicator_Previews: PreviewProvider {
-    static var previews: some View {
-        ScrollView {
-            VStack {
+#Preview {
+    ScrollView {
+        VStack {
+            PasswordStrengthIndicator(
+                minimumPasswordLength: Constants.minimumPasswordCharacters,
+                passwordStrengthScore: nil
+            )
+
+            ForEach(UInt8(0) ... UInt8(4), id: \.self) { score in
                 PasswordStrengthIndicator(
                     minimumPasswordLength: Constants.minimumPasswordCharacters,
-                    passwordStrengthScore: nil
+                    passwordStrengthScore: score
                 )
-
-                ForEach(UInt8(0) ... UInt8(4), id: \.self) { score in
-                    PasswordStrengthIndicator(
-                        minimumPasswordLength: Constants.minimumPasswordCharacters,
-                        passwordStrengthScore: score
-                    )
-                }
             }
-            .padding()
         }
+        .padding()
     }
 }
 #endif

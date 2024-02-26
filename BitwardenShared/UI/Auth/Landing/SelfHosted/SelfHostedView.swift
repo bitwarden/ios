@@ -143,9 +143,7 @@ struct SelfHostedView: View {
 // MARK: Previews
 
 #if DEBUG
-struct SelfHostedView_Previews: PreviewProvider {
-    static var previews: some View {
-        SelfHostedView(store: Store(processor: StateProcessor(state: SelfHostedState())))
-    }
+#Preview {
+    SelfHostedView(store: Store(processor: StateProcessor(state: SelfHostedState())))
 }
 #endif
