@@ -26,6 +26,11 @@ class MockAuthRepository: AuthRepository {
     var profileSwitcherState: ProfileSwitcherState?
     var setActiveAccountId: String?
     var setActiveAccountError: Error?
+    var setMasterPasswordHint: String?
+    var setMasterPasswordPassword: String?
+    var setMasterPasswordOrganizationId: String?
+    var setMasterPasswordResetPasswordAutoEnroll: Bool?
+    var setMasterPasswordResult: Result<Void, Error> = .success(())
     var setVaultTimeoutError: Error?
     var unlockVaultFromLoginWithDeviceKey: String?
     var unlockVaultFromLoginWithDeviceMasterPasswordHash: String? // swiftlint:disable:this identifier_name
@@ -164,6 +169,19 @@ class MockAuthRepository: AuthRepository {
                 : StateServiceError.noAccounts
         }
         return value
+    }
+
+    func setMasterPassword(
+        _ password: String,
+        masterPasswordHint: String,
+        organizationId: String,
+        resetPasswordAutoEnroll: Bool
+    ) async throws {
+        setMasterPasswordHint = masterPasswordHint
+        setMasterPasswordPassword = password
+        setMasterPasswordOrganizationId = organizationId
+        setMasterPasswordResetPasswordAutoEnroll = resetPasswordAutoEnroll
+        try setMasterPasswordResult.get()
     }
 
     func setVaultTimeout(value: BitwardenShared.SessionTimeoutValue, userId: String?) async throws {

@@ -45,9 +45,9 @@ extension IdentityTokenResponseModel {
         kdfIterations: Int = 600_000,
         kdfMemory: Int? = nil,
         kdfParallelism: Int? = nil,
-        key: String = "KEY",
+        key: String? = "KEY",
         masterPasswordPolicy: MasterPasswordPolicyResponseModel? = nil,
-        privateKey: String = "PRIVATE_KEY",
+        privateKey: String? = "PRIVATE_KEY",
         resetMasterPassword: Bool = false,
         twoFactorToken: String? = nil,
         userDecryptionOptions: UserDecryptionOptions? = UserDecryptionOptions(

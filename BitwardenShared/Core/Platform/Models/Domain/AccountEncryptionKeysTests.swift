@@ -18,4 +18,10 @@ class AccountEncryptionKeysTests: BitwardenTestCase {
             )
         )
     }
+
+    /// `init(identityTokenResponseModel:)` returns `nil` if the response model doesn't contain encryption keys.
+    func test_init_identityTokenResponseModel_missingKeys() {
+        let subject = AccountEncryptionKeys(identityTokenResponseModel: .fixture(key: nil, privateKey: nil))
+        XCTAssertNil(subject)
+    }
 }

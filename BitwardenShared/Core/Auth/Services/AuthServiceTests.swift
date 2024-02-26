@@ -402,6 +402,15 @@ class AuthServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body_
         XCTAssertNil(cachedToken)
     }
 
+    /// `loginWithSingleSignOn(code:email:)` throws an error if the user doesn't have a master password set.
+    func test_loginSingleSignOn_noMasterPassword() async {
+        client.result = .httpSuccess(testData: .identityTokenNoMasterPassword)
+
+        await assertAsyncThrows(error: AuthError.requireSetPassword) {
+            _ = try await subject.loginWithSingleSignOn(code: "super_cool_secret_code", email: "")
+        }
+    }
+
     /// `loginWithSingleSignOn(code:email:)` returns an account if the vault is still locked after authenticating.
     func test_loginSingleSignOn_vaultLocked() async throws {
         // Set up the mock data.

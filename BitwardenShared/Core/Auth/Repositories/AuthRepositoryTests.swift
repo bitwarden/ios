@@ -104,7 +104,9 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
             clientPlatform: clientPlatform,
             environmentService: environmentService,
             keychainService: keychainService,
+            organizationAPIService: APIService(client: client),
             organizationService: organizationService,
+            organizationUserAPIService: APIService(client: client),
             stateService: stateService,
             vaultTimeoutService: vaultTimeoutService
         )
@@ -485,6 +487,69 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         ]
         let value = try await subject.sessionTimeoutValue(userId: "42")
         XCTAssertEqual(value, .never)
+    }
+
+    /// `setMasterPassword()` sets the user's master password, saves their encryption keys and
+    /// unlocks the vault.
+    func test_setMasterPassword() async throws {
+        let account = Account.fixture()
+        client.result = .httpSuccess(testData: .emptyResponse)
+        stateService.activeAccount = account
+
+        try await subject.setMasterPassword(
+            "PASSWORD",
+            masterPasswordHint: "HINT",
+            organizationId: "ORG_ID",
+            resetPasswordAutoEnroll: false
+        )
+
+        XCTAssertEqual(clientAuth.makeRegisterKeysKdf, account.kdf.sdkKdf)
+        XCTAssertEqual(clientAuth.makeRegisterKeysEmail, account.profile.email)
+        XCTAssertEqual(clientAuth.makeRegisterKeysPassword, "PASSWORD")
+
+        XCTAssertEqual(clientAuth.hashPasswordEmail, account.profile.email)
+        XCTAssertEqual(clientAuth.hashPasswordKdfParams, account.kdf.sdkKdf)
+        XCTAssertEqual(clientAuth.hashPasswordPassword, "PASSWORD")
+        XCTAssertEqual(clientAuth.hashPasswordPurpose, .serverAuthorization)
+
+        let requests = client.requests
+        XCTAssertEqual(requests.count, 1)
+
+        XCTAssertEqual(requests[0].url.absoluteString, "https://example.com/api/accounts/set-password")
+
+        XCTAssertEqual(
+            stateService.accountEncryptionKeys["1"],
+            AccountEncryptionKeys(
+                encryptedPrivateKey: "private",
+                encryptedUserKey: "encryptedUserKey"
+            )
+        )
+
+        XCTAssertEqual(
+            clientCrypto.initializeUserCryptoRequest,
+            InitUserCryptoRequest(
+                kdfParams: account.kdf.sdkKdf,
+                email: account.profile.email,
+                privateKey: "private",
+                method: .password(password: "PASSWORD", userKey: "encryptedUserKey")
+            )
+        )
+    }
+
+    /// `setMasterPassword()` throws an error if one occurs.
+    func test_setMasterPassword_error() async {
+        let account = Account.fixture()
+        client.result = .httpFailure(BitwardenTestError.example)
+        stateService.activeAccount = account
+
+        await assertAsyncThrows(error: BitwardenTestError.example) {
+            try await subject.setMasterPassword(
+                "PASSWORD",
+                masterPasswordHint: "HINT",
+                organizationId: "ORG_ID",
+                resetPasswordAutoEnroll: false
+            )
+        }
     }
 
     /// `setVaultTimeout` correctly configures the user's timeout value.
