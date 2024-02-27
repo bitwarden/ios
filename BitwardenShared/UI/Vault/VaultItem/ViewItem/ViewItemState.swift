@@ -19,7 +19,7 @@ struct ViewItemState: Equatable {
 
     /// The current state. If this state is not `.loading`, this value will contain an associated value with the
     /// appropriate internal state.
-    var loadingState: LoadingState<CipherItemState> = .loading
+    var loadingState: LoadingState<CipherItemState> = .loading(nil)
 
     /// A flag indicating if the user has premium features.
     var hasPremiumFeatures = false

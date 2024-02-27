@@ -213,43 +213,14 @@ extension DefaultSyncService {
             await stateService.updateProfile(from: profile, userId: userId)
         }
 
-        try await setSyncResponseData(response, userId: userId)
+        try await cipherService.replaceCiphers(response.ciphers, userId: userId)
+        try await collectionService.replaceCollections(response.collections, userId: userId)
+        try await folderService.replaceFolders(response.folders, userId: userId)
+        try await sendService.replaceSends(response.sends, userId: userId)
+        try await settingsService.replaceEquivalentDomains(response.domains, userId: userId)
+        try await policyService.replacePolicies(response.policies, userId: userId)
+        try await stateService.setLastSyncTime(timeProvider.presentTime, userId: userId)
         try await checkVaultTimeoutPolicy()
-    }
-
-    /// A function to handle parsing a sync response data and setting a sync date timestamp.
-    ///  If a failure occurs while replacing local data with the response data,
-    ///  the sync date should revert to the existing timestamp.
-    ///
-    ///  - Parameters:
-    ///    - response: The `SyncResponseModel` to use for updated data.
-    ///    - userId: The user id for the data.
-    ///
-    private func setSyncResponseData(_ response: SyncResponseModel, userId: String) async throws {
-        // Grab the prior sync date.
-        let priorSyncDate = try? await stateService.getLastSyncTime()
-        // Set a preliminary sync to update any loading state.
-        try await stateService.setLastSyncTime(
-            timeProvider.presentTime,
-            userId: userId
-        )
-
-        // Parse the sync response.
-        do {
-            try await cipherService.replaceCiphers(response.ciphers, userId: userId)
-            try await collectionService.replaceCollections(response.collections, userId: userId)
-            try await folderService.replaceFolders(response.folders, userId: userId)
-            try await sendService.replaceSends(response.sends, userId: userId)
-            try await settingsService.replaceEquivalentDomains(response.domains, userId: userId)
-            try await policyService.replacePolicies(response.policies, userId: userId)
-        } catch {
-            // If an error occurs during sync, revert to the prior sync date
-            try await stateService.setLastSyncTime(
-                priorSyncDate,
-                userId: userId
-            )
-            throw error
-        }
     }
 
     func deleteCipher(data: SyncCipherNotification) async throws {

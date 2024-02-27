@@ -248,7 +248,7 @@ struct ViewItemView_Previews: PreviewProvider {
                 store: Store(
                     processor: StateProcessor(
                         state: ViewItemState(
-                            loadingState: .loading
+                            loadingState: .loading(nil)
                         )
                     )
                 ),

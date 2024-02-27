@@ -14,7 +14,7 @@ struct VaultListState: Equatable {
     var isPersonalOwnershipDisabled: Bool = false
 
     /// The loading state of the My Vault screen.
-    var loadingState: LoadingState<[VaultListSection]> = .loading
+    var loadingState: LoadingState<[VaultListSection]> = .loading(nil)
 
     /// The list of organizations the user is a member of.
     var organizations = [Organization]()

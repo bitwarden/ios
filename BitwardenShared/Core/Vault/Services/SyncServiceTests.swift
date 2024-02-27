@@ -171,7 +171,7 @@ class SyncServiceTests: BitwardenTestCase {
     func test_fetchSync_forceSync() async throws {
         client.result = .httpSuccess(testData: .syncWithCiphers)
         stateService.activeAccount = .fixture()
-        stateService.lastSyncTimeByUserId["1"] = .now
+        stateService.lastSyncTimeByUserId["1"] = timeProvider.presentTime
 
         try await subject.fetchSync(forceSync: true)
 

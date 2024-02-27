@@ -295,7 +295,7 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
             await subject.perform(.streamVaultList)
         }
 
-        waitFor(subject.state.loadingState != .loading)
+        waitFor(subject.state.loadingState != .loading(nil))
         task.cancel()
 
         let sections = try XCTUnwrap(subject.state.loadingState.data)
@@ -330,7 +330,7 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
         waitFor(vaultRepository.needsSyncCalled)
         task.cancel()
 
-        XCTAssertEqual(subject.state.loadingState, .loading)
+        XCTAssertEqual(subject.state.loadingState, .loading([]))
     }
 
     /// `perform(_:)` with `.streamVaultList` updates the state's vault list whenever it changes.
@@ -349,7 +349,7 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
                 name: "Name"
             ),
         ])
-        waitFor(subject.state.loadingState != .loading)
+        waitFor(subject.state.loadingState != .loading(nil))
         task.cancel()
 
         let sections = try XCTUnwrap(subject.state.loadingState.data)

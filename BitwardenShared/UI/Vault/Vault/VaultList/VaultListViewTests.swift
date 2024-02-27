@@ -175,7 +175,7 @@ class VaultListViewTests: BitwardenTestCase {
     }
 
     func test_snapshot_loading() {
-        processor.state.loadingState = .loading
+        processor.state.loadingState = .loading(nil)
         assertSnapshot(of: subject, as: .defaultPortrait)
     }
 
