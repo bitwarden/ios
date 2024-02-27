@@ -57,21 +57,11 @@ extension URL {
         return DomainName.parseBaseDomain(url: self) ?? host
     }
 
-    /// The concatenation of the URL's subdomain and domain.
-    var domainsConcatenated: String {
-        let parsedURL = DomainName.parseURL(self)
-        let domain = parsedURL?.domain ?? ""
-        var subDomain = ""
-
-        if let subDomainParsed = parsedURL?.subDomain, !subDomainParsed.isEmpty {
-            subDomain = subDomainParsed + "."
-        }
-        return subDomain + domain
-    }
-
     /// Whether the URL's domain ends in an accepted top-level domain value.
     var hasTldEndingRegex: Bool {
-        for tldRegex in tldRegex where domainsConcatenated.hasSuffix(tldRegex) {
+        guard let host else { return false }
+
+        for tldRegex in tldRegex where host.hasSuffix(tldRegex) {
             return true
         }
         return false
@@ -81,8 +71,9 @@ extension URL {
     var hasValidURLComponents: Bool {
         guard absoluteString.isValidURL, hasTldEndingRegex else { return false }
         let scheme = scheme ?? ""
+        let host = host ?? ""
 
-        let urlString = "\(scheme)" + "://" + "\(domainsConcatenated)"
+        let urlString = "\(scheme)" + "://" + "\(host)"
         return absoluteString.hasPrefix(urlString)
     }
 

@@ -15,21 +15,11 @@ struct BitwardenTextValueField<AccessoryContent>: View where AccessoryContent: V
     /// content automatically has the `AccessoryButtonStyle` applied to it.
     var accessoryContent: AccessoryContent?
 
-    // MARK: Computed properties
-
-    /// An optional URL that could be shown in the field.
-    var url: String? {
-        if let url = URL(string: value)?.domainsConcatenated, !url.isEmpty {
-            return url
-        }
-        return nil
-    }
-
     // MARK: View
 
     var body: some View {
         BitwardenField(title: title) {
-            Text(url ?? value)
+            Text(value)
                 .styleGuide(.body)
                 .multilineTextAlignment(.leading)
                 .foregroundColor(Asset.Colors.textPrimary.swiftUIColor)
