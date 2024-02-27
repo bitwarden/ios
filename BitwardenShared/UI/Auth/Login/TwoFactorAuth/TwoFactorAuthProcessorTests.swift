@@ -400,6 +400,15 @@ class TwoFactorAuthProcessorTests: BitwardenTestCase { // swiftlint:disable:this
         XCTAssertEqual(subject.state.toast?.text, Localizations.verificationEmailSent)
     }
 
+    /// `perform(_:)` with `.tryAgainTapped` starts reading NFC tags.
+    func test_perform_tryAgainTapped() async {
+        subject.state.authMethod = .yubiKey
+
+        await subject.perform(.tryAgainTapped)
+
+        XCTAssertTrue(nfcReaderService.didStartReading)
+    }
+
     /// `receive(_:)` with `.authMethodSelected` updates the value in the state.
     func test_receive_authMethodSelected() {
         subject.receive(.authMethodSelected(.authenticatorApp))

@@ -64,6 +64,8 @@ final class TwoFactorAuthProcessor: StateProcessor<TwoFactorAuthState, TwoFactor
             await login()
         case .resendEmailTapped:
             await resendEmail()
+        case .tryAgainTapped:
+            services.nfcReaderService.startReading()
         }
     }
 

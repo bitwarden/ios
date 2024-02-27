@@ -16,4 +16,7 @@ enum TwoFactorAuthEffect: Equatable {
 
     /// The resend email button was tapped.
     case resendEmailTapped
+
+    /// The Yubikey try again button was tapped.
+    case tryAgainTapped
 }
