@@ -57,7 +57,6 @@ class TwoFactorAuthViewTests: BitwardenTestCase {
     /// Tapping the duo button performs the `.beginDuoAuth` effect.
     func test_launchDuo_tap() async throws {
         processor.state.authMethod = .duo
-        // TODO: BIT-1933 - Update Duo Localization strings.
         let button = try subject.inspect().find(asyncButton: Localizations.launchDuo)
         try await button.tap()
         XCTAssertEqual(processor.effects.last, .beginDuoAuth)

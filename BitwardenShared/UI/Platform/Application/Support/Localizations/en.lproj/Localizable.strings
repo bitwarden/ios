@@ -868,3 +868,8 @@
 "DuoTwoStepLoginIsRequiredForYourAccount" = "Duo two-step login is required for your account.";
 "FollowTheStepsFromDuoToFinishLoggingIn" = "Follow the steps from Duo to finish logging in.";
 "LaunchDuo" = "Launch Duo";
+"AppInfo" = "App info";
+"Browse" = "Browse";
+"SelectLanguage" = "Select language";
+"Duo" = "Duo";
+"DuoUnsupported" = "Duo not yet supported.";

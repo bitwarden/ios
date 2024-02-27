@@ -320,7 +320,6 @@ extension TwoFactorAuthProcessor: DuoAuthenticationFlowDelegate {
               let values = maybeValues,
               let authURLString = values["AuthUrl"]??.stringValue,
               let authURL = URL(string: authURLString) else {
-            // TODO: BIT-1933 - Update Duo Localization strings.
             state.toast = Toast(text: Localizations.duoUnsupported)
             return
         }
