@@ -319,13 +319,13 @@ extension TwoFactorAuthProcessor: DuoAuthenticationFlowDelegate {
         var maybeAuthURL: String?
         if state.authMethod == .duo,
            let duoData = state.authMethodsData.duo,
-           let authURLStringValue = duoData.authURL {
+           let authURLStringValue = duoData.authUrl {
             maybeAuthURL = authURLStringValue
         }
 
         if state.authMethod == .duoOrganization,
            let duoOrgData = state.authMethodsData.organizationDuo,
-           let authURLStringValue = duoOrgData.authURL {
+           let authURLStringValue = duoOrgData.authUrl {
             maybeAuthURL = authURLStringValue
         }
 
@@ -389,6 +389,7 @@ protocol WebAuthnFlowDelegate: AnyObject {
 public enum WebAuthnError: Error {
     case unableToDecodeCredential
     case unableToCreateAttestationVerification
+    case requiredParametersMissing
 }
 
 extension TwoFactorAuthProcessor: WebAuthnFlowDelegate {
@@ -433,6 +434,8 @@ extension TwoFactorAuthProcessor: WebAuthnFlowDelegate {
                                   userVerificationPreference: userVerificationPreference),
                     context: self
                 )
+            } else {
+                throw WebAuthnError.requiredParametersMissing
             }
         } catch {
             coordinator.showAlert(.defaultAlert(

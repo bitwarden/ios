@@ -141,9 +141,9 @@ class TwoFactorAuthProcessorTests: BitwardenTestCase { // swiftlint:disable:this
         subject.state.authMethod = .duo
         subject.state.authMethodsData = AuthMethodsData(
             duo: Duo(
+                authUrl: nil,
                 host: nil,
-                signature: nil,
-                authURL: nil
+                signature: nil
             )
         )
         await subject.perform(.beginDuoAuth)
@@ -157,9 +157,9 @@ class TwoFactorAuthProcessorTests: BitwardenTestCase { // swiftlint:disable:this
         subject.state.authMethod = .duo
         subject.state.authMethodsData = AuthMethodsData(
             duo: Duo(
+                authUrl: expectedURL.absoluteString,
                 host: "",
-                signature: "",
-                authURL: expectedURL.absoluteString
+                signature: ""
             )
         )
         await subject.perform(.beginDuoAuth)
@@ -173,9 +173,9 @@ class TwoFactorAuthProcessorTests: BitwardenTestCase { // swiftlint:disable:this
         subject.state.authMethod = .authenticatorApp
         subject.state.authMethodsData = AuthMethodsData(
             duo: Duo(
+                authUrl: expectedURL.absoluteString,
                 host: "",
-                signature: "",
-                authURL: expectedURL.absoluteString
+                signature: ""
             )
         )
 
@@ -210,15 +210,16 @@ class TwoFactorAuthProcessorTests: BitwardenTestCase { // swiftlint:disable:this
         XCTAssertEqual(errorReporter.errors.last as? WebAuthnError, .unableToDecodeCredential)
     }
 
-    // swiftlint:disable force_try
     /// `perform(_:)` with `.beginWebAuthn` initates the WebAuthn auth flow.
-    func test_perform_beginWebAuthn_success() async {
+    func test_perform_beginWebAuthn_success() async throws {
         let testData = AuthMethodsData.fixtureWebAuthn()
-        let rpIdExpected = testData.webAuthn!.rpId!
-        let userVerificationPreferenceExpected = testData.webAuthn!.userVerification!
-        let challengeExpected = try! Data(base64Encoded: testData.webAuthn!.challenge!.urlDecoded())!
-        let allowCredentials = testData.webAuthn?.allowCredentials!.map { credential in
-            try! Data(base64Encoded: credential.id!.urlDecoded())!
+        let rpIdExpected = try XCTUnwrap(testData.webAuthn?.rpId)
+        let userVerificationPreferenceExpected = try XCTUnwrap(testData.webAuthn?.userVerification)
+        let challengeExpected = try XCTUnwrap(
+            Data(base64Encoded: XCTUnwrap(testData.webAuthn?.challenge?.urlDecoded()))
+        )
+        let allowCredentials = try testData.webAuthn?.allowCredentials?.map { credential in
+            try XCTUnwrap(Data(base64Encoded: XCTUnwrap(credential.id!.urlDecoded())))
         }
         subject.state.authMethod = .webAuthn
         subject.state.authMethodsData = AuthMethodsData.fixtureWebAuthn()
@@ -234,8 +235,6 @@ class TwoFactorAuthProcessorTests: BitwardenTestCase { // swiftlint:disable:this
             )
         )
     }
-
-    // swiftlint:enable force_try
 
     /// `perform(_:)` with `.beginWebAuthnAuth`  does nothing if WebAuthn is not configured.
     func test_perform_beginWebAuthn_failure() async {

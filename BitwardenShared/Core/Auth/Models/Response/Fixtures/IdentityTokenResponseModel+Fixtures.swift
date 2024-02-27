@@ -19,18 +19,18 @@ extension AuthMethodsData {
             email: Email(email: "sh***@example.com"),
             yubikey: Yubikey(nfc: true),
             webAuthn: WebAuthn(
-                challenge: "3Hu2GPMuYlbKqRQgdlu123",
-                timeout: 60000,
-                rpId: "vault.bitwarden.com",
                 allowCredentials: [
                     AllowCredential(
                         id: "_YSahxwU5GEkoLbFOBSMgRVoCwUZMAhuC_HhLnwG123",
                         type: "public-key"
                     ),
                 ],
-                userVerification: "discouraged",
+                challenge: "3Hu2GPMuYlbKqRQgdlu123",
+                errorMessage: "",
+                rpId: "vault.bitwarden.com",
                 status: "ok",
-                errorMessage: ""
+                timeout: 60000,
+                userVerification: "discouraged"
             )
         )
         methodsData.providersAvailable = [String(TwoFactorAuthMethod.webAuthn.rawValue)]

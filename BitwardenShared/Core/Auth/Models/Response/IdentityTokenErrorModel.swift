@@ -1,3 +1,5 @@
+import Foundation
+
 // MARK: - IdentityTokenErrorModel
 
 /// An error model for `IdentityTokenRequest`.
@@ -84,22 +86,16 @@ public struct AuthMethodsData: Codable, Equatable {
 
 /// Struct with information regarding Duo two factor authentication
 public struct Duo: Codable, Equatable {
-    enum CodingKeys: String, CodingKey {
-        case host = "Host"
-        case signature = "Signature"
-        case authURL = "AuthUrl"
-    }
+    static var decoder = JSONDecoder.snakeCaseDecoder
 
-    let host, signature, authURL: String?
+    let authUrl, host, signature: String?
 }
 
 // MARK: - Email
 
 /// Struct with information regarding Email two factor authentication
 public struct Email: Codable, Equatable {
-    enum CodingKeys: String, CodingKey {
-        case email = "Email"
-    }
+    static var decoder = JSONDecoder.snakeCaseDecoder
 
     /// Email used to send the code to verify 2fa
     let email: String?
@@ -109,32 +105,26 @@ public struct Email: Codable, Equatable {
 
 /// Struct with information regarding WebAuthn two factor authentication
 public struct WebAuthn: Codable, Equatable {
-    enum CodingKeys: String, CodingKey {
-        case challenge, timeout
-        case rpId
-        case allowCredentials, userVerification, status, errorMessage
-    }
+    /// Credentials allowed to be used to solve the challenge
+    let allowCredentials: [AllowCredential]?
 
     /// Challenge sent from the server to be solved by an authenticator
     let challenge: String?
 
-    /// Available time to complete the challenge attestation
-    let timeout: Int?
+    /// Describes an error if one occurred
+    let errorMessage: String?
 
     /// Identifier for the relying party
     let rpId: String?
 
-    /// Credentials allowed to be used to solve the challenge
-    let allowCredentials: [AllowCredential]?
-
-    /// Type of user verification to be applied in the attestation process
-    let userVerification: String?
-
     /// WebAuthn status
     let status: String?
 
-    /// Describes an error if one occurred
-    let errorMessage: String?
+    /// Available time to complete the challenge attestation
+    let timeout: Int?
+
+    /// Type of user verification to be applied in the attestation process
+    let userVerification: String?
 }
 
 // MARK: - AllowCredential
@@ -152,9 +142,7 @@ public struct AllowCredential: Codable, Equatable {
 
 /// Struct with information for two factor authentication with Yubikeys
 public struct Yubikey: Codable, Equatable {
-    enum CodingKeys: String, CodingKey {
-        case nfc = "Nfc"
-    }
+    static var decoder = JSONDecoder.snakeCaseDecoder
 
     /// Indicates if NFC is supported
     let nfc: Bool?

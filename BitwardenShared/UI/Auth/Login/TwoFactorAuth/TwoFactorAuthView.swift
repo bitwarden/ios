@@ -138,10 +138,6 @@ struct TwoFactorAuthView: View {
             duoButton
         }
         .scrollView()
-        .toast(store.binding(
-            get: \.toast,
-            send: TwoFactorAuthAction.toastShown
-        ))
     }
 
     /// The launch webAuthn button.
@@ -162,10 +158,6 @@ struct TwoFactorAuthView: View {
             webAuthnButton
         }
         .scrollView()
-        .toast(store.binding(
-            get: \.toast,
-            send: TwoFactorAuthAction.toastShown
-        ))
     }
 
     /// The remember me toggle.
