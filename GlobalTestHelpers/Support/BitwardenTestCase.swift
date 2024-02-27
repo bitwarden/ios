@@ -17,6 +17,9 @@ open class BitwardenTestCase: XCTestCase {
                 """
             )
         }
+
+        // Apply default appearances for snapshot tests.
+        UI.applyDefaultAppearances()
     }
 
     /// Executes any logic that should be applied before each test runs.
