@@ -116,8 +116,8 @@ final class AuthCoordinator: NSObject, // swiftlint:disable:this type_body_lengt
             } else {
                 delegate?.didCompleteAuth()
             }
-        case let .createAccount(region):
-            showCreateAccount(region)
+        case .createAccount:
+            showCreateAccount()
         case .dismiss:
             stackNavigator?.dismiss()
         case let .duoAuthenticationFlow(authURL):
@@ -219,15 +219,13 @@ final class AuthCoordinator: NSObject, // swiftlint:disable:this type_body_lengt
 
     /// Shows the create account screen.
     ///
-    /// - Parameter region: The user's region.
-    ///
-    private func showCreateAccount(_ region: RegionType) {
+    private func showCreateAccount() {
         let view = CreateAccountView(
             store: Store(
                 processor: CreateAccountProcessor(
                     coordinator: asAnyCoordinator(),
                     services: services,
-                    state: CreateAccountState(region: region)
+                    state: CreateAccountState()
                 )
             )
         )
@@ -323,24 +321,18 @@ final class AuthCoordinator: NSObject, // swiftlint:disable:this type_body_lengt
         guard let stackNavigator else { return }
         let isPresenting = stackNavigator.rootViewController?.presentedViewController != nil
 
+        let environmentUrls = EnvironmentUrls(
+            environmentUrlData: services.appSettingsStore.preAuthEnvironmentUrls ?? EnvironmentUrlData()
+        )
+
         var state = LoginState()
-        if region == .selfHosted {
-            let environmentUrls = EnvironmentUrls(
-                environmentUrlData: services.appSettingsStore.preAuthEnvironmentUrls ?? EnvironmentUrlData()
-            )
-            state = LoginState(
-                isLoginWithDeviceVisible: isLoginWithDeviceVisible,
-                region: region,
-                selfHostedURLString: environmentUrls.webVaultURL.host ?? "",
-                username: username
-            )
-        } else {
-            state = LoginState(
-                isLoginWithDeviceVisible: isLoginWithDeviceVisible,
-                region: region,
-                username: username
-            )
-        }
+
+        state = LoginState(
+            isLoginWithDeviceVisible: isLoginWithDeviceVisible,
+            region: region,
+            selfHostedURLString: environmentUrls.webVaultURL.host ?? "",
+            username: username
+        )
 
         let processor = LoginProcessor(
             coordinator: asAnyCoordinator(),

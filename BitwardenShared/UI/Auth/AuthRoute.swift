@@ -16,10 +16,7 @@ public enum AuthRoute: Equatable {
     case complete
 
     /// A route to the create account screen.
-    ///
-    /// - Parameter region: The user's region.
-    ///
-    case createAccount(_ region: RegionType)
+    case createAccount
 
     /// A route that dismisses a presented sheet.
     case dismiss

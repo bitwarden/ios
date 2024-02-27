@@ -34,9 +34,6 @@ struct CreateAccountState: Equatable {
         arePasswordsVisible ? Asset.Images.hidden : Asset.Images.visible
     }
 
-    /// The user's selected region.
-    var region: RegionType = .unitedStates
-
     /// The text in the re-type password text field.
     var retypePasswordText: String = ""
 }

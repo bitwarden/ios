@@ -65,7 +65,7 @@ class LandingProcessor: StateProcessor<LandingState, LandingAction, LandingEffec
             updateRememberedEmail()
             validateEmailAndContinue()
         case .createAccountPressed:
-            coordinator.navigate(to: .createAccount(state.region))
+            coordinator.navigate(to: .createAccount)
         case let .emailChanged(newValue):
             state.email = newValue
         case let .profileSwitcher(profileAction):

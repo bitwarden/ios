@@ -100,7 +100,7 @@ class AuthCoordinatorTests: BitwardenTestCase {
 
     /// `navigate(to:)` with `.createAccount` pushes the create account view onto the stack navigator.
     func test_navigate_createAccount() throws {
-        subject.navigate(to: .createAccount(.unitedStates))
+        subject.navigate(to: .createAccount)
 
         let navigationController = try XCTUnwrap(stackNavigator.actions.last?.view as? UINavigationController)
         XCTAssertTrue(stackNavigator.actions.last?.view is UINavigationController)
@@ -109,7 +109,7 @@ class AuthCoordinatorTests: BitwardenTestCase {
 
     /// `navigate(to:)` with `.dismiss` dismisses the presented view.
     func test_navigate_dismiss() throws {
-        subject.navigate(to: .createAccount(.unitedStates))
+        subject.navigate(to: .createAccount)
         subject.navigate(to: .dismiss)
         let lastAction = try XCTUnwrap(stackNavigator.actions.last)
         XCTAssertEqual(lastAction.type, .dismissed)
