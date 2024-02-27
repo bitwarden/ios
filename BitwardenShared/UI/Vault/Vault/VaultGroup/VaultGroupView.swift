@@ -289,7 +289,7 @@ struct VaultGroupView: View {
             store: Store(
                 processor: StateProcessor(
                     state: VaultGroupState(
-                        loadingState: .loading,
+                        loadingState: .loading(nil),
                         searchVaultFilterType: .allVaults,
                         vaultFilterType: .allVaults
                     )

@@ -47,6 +47,9 @@ class MockVaultRepository: VaultRepository {
 
     var getDisableAutoTotpCopyResult: Result<Bool, Error> = .success(false)
 
+    var needsSyncCalled = false
+    var needsSyncResult: Result<Bool, Error> = .success(false)
+
     var organizationsPublisherCalled = false
     var organizationsPublisherError: Error?
     var organizationsSubject = CurrentValueSubject<[Organization], Error>([])
@@ -170,6 +173,11 @@ class MockVaultRepository: VaultRepository {
 
     func getDisableAutoTotpCopy() async throws -> Bool {
         try getDisableAutoTotpCopyResult.get()
+    }
+
+    func needsSync() async throws -> Bool {
+        needsSyncCalled = true
+        return try needsSyncResult.get()
     }
 
     func organizationsPublisher() async throws -> AsyncThrowingPublisher<AnyPublisher<[Organization], Error>> {

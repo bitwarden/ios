@@ -50,6 +50,13 @@ protocol SyncService: AnyObject {
     /// - Parameter data: The notification data for the send sync action.
     ///
     func fetchUpsertSyncSend(data: SyncSendNotification) async throws
+
+    /// Does a given account need a sync?
+    ///
+    /// - Parameter userId: The user id of the account.
+    /// - Returns: A bool indicating if the user needs a sync or not.
+    ///
+    func needsSync(for userId: String) async throws -> Bool
 }
 
 // MARK: - DefaultSyncService
@@ -92,6 +99,9 @@ class DefaultSyncService: SyncService {
     /// The API service used to perform sync API requests.
     private let syncAPIService: SyncAPIService
 
+    /// The time provider for this service.
+    private let timeProvider: TimeProvider
+
     // MARK: Initialization
 
     /// Initializes a `DefaultSyncService`.
@@ -109,6 +119,7 @@ class DefaultSyncService: SyncService {
     ///   - settingsService: The service for managing the organizations for the user.
     ///   - stateService: The service used by the application to manage account state.
     ///   - syncAPIService: The API service used to perform sync API requests.
+    ///   - timeProvider: The time provider for this service.
     ///
     init(
         accountAPIService: AccountAPIService,
@@ -121,7 +132,8 @@ class DefaultSyncService: SyncService {
         sendService: SendService,
         settingsService: SettingsService,
         stateService: StateService,
-        syncAPIService: SyncAPIService
+        syncAPIService: SyncAPIService,
+        timeProvider: TimeProvider
     ) {
         self.accountAPIService = accountAPIService
         self.cipherService = cipherService
@@ -134,6 +146,17 @@ class DefaultSyncService: SyncService {
         self.settingsService = settingsService
         self.stateService = stateService
         self.syncAPIService = syncAPIService
+        self.timeProvider = timeProvider
+    }
+
+    /// Determine if a full sync is necessary.
+    ///
+    /// - Parameters:
+    ///   - userId: The user ID of the account to sync.
+    /// - Returns: Whether a sync should be performed.
+    ///
+    func needsSync(for userId: String) async throws -> Bool {
+        try await needsSync(forceSync: false, userId: userId)
     }
 
     // MARK: Private
@@ -148,8 +171,8 @@ class DefaultSyncService: SyncService {
     ///
     private func needsSync(forceSync: Bool, userId: String) async throws -> Bool {
         guard let lastSyncTime = try await stateService.getLastSyncTime(userId: userId), !forceSync else { return true }
-        guard lastSyncTime.addingTimeInterval(Constants.minimumSyncInterval) < Date.now else { return false }
-
+        guard lastSyncTime.addingTimeInterval(Constants.minimumSyncInterval)
+            < timeProvider.presentTime else { return false }
         do {
             guard let accountRevisionDate = try await accountAPIService.accountRevisionDate()
             else { return true }
@@ -159,7 +182,10 @@ class DefaultSyncService: SyncService {
             } else {
                 // No updates to the account since the last sync. Update the last sync time but
                 // don't do a full sync.
-                try await stateService.setLastSyncTime(Date(), userId: userId)
+                try await stateService.setLastSyncTime(
+                    timeProvider.presentTime,
+                    userId: userId
+                )
                 return false
             }
         } catch {
@@ -193,7 +219,7 @@ extension DefaultSyncService {
         try await sendService.replaceSends(response.sends, userId: userId)
         try await settingsService.replaceEquivalentDomains(response.domains, userId: userId)
         try await policyService.replacePolicies(response.policies, userId: userId)
-        try await stateService.setLastSyncTime(Date(), userId: userId)
+        try await stateService.setLastSyncTime(timeProvider.presentTime, userId: userId)
         try await checkVaultTimeoutPolicy()
     }
 
