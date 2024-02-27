@@ -17,6 +17,7 @@ final class VaultListProcessor: StateProcessor<
     typealias Services = HasAuthRepository
         & HasAuthService
         & HasErrorReporter
+        & HasNotificationService
         & HasPasteboardService
         & HasPolicyService
         & HasStateService
@@ -182,14 +183,14 @@ final class VaultListProcessor: StateProcessor<
     /// Request permission to send push notifications if the user hasn't granted or denied permissions before.
     private func requestNotificationPermissions() async {
         // Don't do anything if the user has already responded to the permission request.
-        let notificationSettings = await UNUserNotificationCenter.current().notificationSettings()
-        guard notificationSettings.authorizationStatus == .notDetermined else { return }
+        let notificationAuthorization = await services.notificationService.notificationAuthorization()
+        guard notificationAuthorization == .notDetermined else { return }
 
         // Show the explanation alert before asking for permissions.
         coordinator.showAlert(
-            .pushNotificationsInformation {
+            .pushNotificationsInformation { [services] in
                 do {
-                    _ = try await UNUserNotificationCenter.current()
+                    _ = try await services.notificationService
                         .requestAuthorization(options: [.alert, .sound, .badge])
                 } catch {
                     self.services.errorReporter.log(error: error)

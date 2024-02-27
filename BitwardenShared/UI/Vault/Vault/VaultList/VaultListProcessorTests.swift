@@ -14,6 +14,7 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
     var authService: MockAuthService!
     var coordinator: MockCoordinator<VaultRoute, AuthAction>!
     var errorReporter: MockErrorReporter!
+    var notificationService: MockNotificationService!
     var pasteboardService: MockPasteboardService!
     var stateService: MockStateService!
     var subject: VaultListProcessor!
@@ -32,6 +33,7 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
         errorReporter = MockErrorReporter()
         coordinator = MockCoordinator()
         errorReporter = MockErrorReporter()
+        notificationService = MockNotificationService()
         pasteboardService = MockPasteboardService()
         stateService = MockStateService()
         vaultRepository = MockVaultRepository()
@@ -39,6 +41,7 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
             authRepository: authRepository,
             authService: authService,
             errorReporter: errorReporter,
+            notificationService: notificationService,
             pasteboardService: pasteboardService,
             stateService: stateService,
             vaultRepository: vaultRepository
@@ -103,6 +106,7 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
         stateService.activeAccount = .fixture()
         stateService.loginRequest = .init(id: "2", userId: Account.fixture().profile.userId)
         authService.getPendingLoginRequestResult = .success([.fixture()])
+        notificationService.authorizationStatus = .authorized
 
         // Test.
         await subject.perform(.appeared)
@@ -110,6 +114,54 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
         // Verify the results.
         XCTAssertEqual(coordinator.routes.last, .loginRequest(.fixture()))
         XCTAssertNil(stateService.loginRequest)
+    }
+
+    /// `perform(_:)` with `.appeared` requests notification permissions.
+    func test_perform_appeared_requestNotifications_error() async throws {
+        stateService.activeAccount = .fixture()
+        notificationService.authorizationStatus = .notDetermined
+        notificationService.requestAuthorizationResult = .failure(BitwardenTestError.example)
+        stateService.loginRequest = .init(id: "2", userId: Account.fixture().profile.userId)
+        authService.getPendingLoginRequestResult = .success([.fixture()])
+
+        // Test.
+        await subject.perform(.appeared)
+
+        // Verify the results.
+        let alert = try XCTUnwrap(coordinator.alertShown.last)
+        XCTAssertEqual(alert, .pushNotificationsInformation {})
+
+        // Trigger the request
+        let requestPermissionAction = try XCTUnwrap(alert.alertActions.first)
+        await requestPermissionAction.handler?(requestPermissionAction, [])
+
+        let error = try XCTUnwrap(errorReporter.errors.last as? BitwardenTestError)
+        XCTAssertEqual(error, .example)
+    }
+
+    /// `perform(_:)` with `.appeared` requests notification permissions.
+    func test_perform_appeared_requestNotifications_success() async throws {
+        stateService.activeAccount = .fixture()
+        notificationService.authorizationStatus = .notDetermined
+        stateService.loginRequest = .init(id: "2", userId: Account.fixture().profile.userId)
+        authService.getPendingLoginRequestResult = .success([.fixture()])
+
+        // Test.
+        await subject.perform(.appeared)
+
+        // Verify the results.
+        let alert = try XCTUnwrap(coordinator.alertShown.last)
+        XCTAssertEqual(alert, .pushNotificationsInformation {})
+
+        // Trigger the request
+        let requestPermissionAction = try XCTUnwrap(alert.alertActions.first)
+        await requestPermissionAction.handler?(requestPermissionAction, [])
+
+        XCTAssertTrue(errorReporter.errors.isEmpty)
+        XCTAssertEqual(
+            [.alert, .sound, .badge],
+            notificationService.requestedOptions
+        )
     }
 
     /// `perform(_:)` with `.refreshed` requests a fetch sync update with the vault repository.

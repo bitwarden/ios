@@ -27,6 +27,19 @@ protocol NotificationService {
         notificationTapped: Bool?
     ) async
 
+    /// Gets the notification authorization for the device.
+    ///
+    /// - Returns: The current device UNAuthorizationStatus.
+    ///
+    func notificationAuthorization() async -> UNAuthorizationStatus
+
+    /// Requests notification authotrization.
+    ///
+    /// - Parameter options: The `UNAuthorizationOptions` to request.
+    /// - Returns: A bool indicating the status.
+    ///
+    func requestAuthorization(options: UNAuthorizationOptions) async throws -> Bool
+
     /// Set the delegate for the `NotificationService`.
     ///
     /// - Parameter delegate: The delegate.
@@ -220,6 +233,14 @@ class DefaultNotificationService: NotificationService {
         } catch {
             errorReporter.log(error: error)
         }
+    }
+
+    func notificationAuthorization() async -> UNAuthorizationStatus {
+        await UNUserNotificationCenter.current().notificationSettings().authorizationStatus
+    }
+
+    func requestAuthorization(options: UNAuthorizationOptions) async throws -> Bool {
+        try await UNUserNotificationCenter.current().requestAuthorization(options: options)
     }
 
     // MARK: Private Methods
