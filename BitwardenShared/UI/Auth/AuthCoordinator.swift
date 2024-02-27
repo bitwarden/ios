@@ -126,8 +126,8 @@ final class AuthCoordinator: NSObject, // swiftlint:disable:this type_body_lengt
             showEnterpriseSingleSignOn(email: email)
         case .landing:
             showLanding()
-        case let .login(username, region, isLoginWithDeviceVisible):
-            showLogin(username, region, isLoginWithDeviceVisible)
+        case let .login(username):
+            showLogin(username)
         case .updateMasterPassword:
             showUpdateMasterPassword()
         case let .loginWithDevice(email):
@@ -312,12 +312,9 @@ final class AuthCoordinator: NSObject, // swiftlint:disable:this type_body_lengt
     /// Shows the login screen. If the create account flow is being presented it will be dismissed
     /// and the login screen will be pushed
     ///
-    /// - Parameters:
-    ///   - username: The user's username.
-    ///   - region: The user's region.
-    ///   - isLoginWithDeviceVisible: Whether login with device is available.
+    /// - Parameter username: The user's username.
     ///
-    private func showLogin(_ username: String, _ region: RegionType, _ isLoginWithDeviceVisible: Bool) {
+    private func showLogin(_ username: String) {
         guard let stackNavigator else { return }
         let isPresenting = stackNavigator.rootViewController?.presentedViewController != nil
 
@@ -328,9 +325,7 @@ final class AuthCoordinator: NSObject, // swiftlint:disable:this type_body_lengt
         var state = LoginState()
 
         state = LoginState(
-            isLoginWithDeviceVisible: isLoginWithDeviceVisible,
-            region: region,
-            selfHostedURLString: environmentUrls.webVaultURL.host ?? "",
+            serverURLString: environmentUrls.webVaultURL.host ?? "",
             username: username
         )
 

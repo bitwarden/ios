@@ -143,11 +143,8 @@ class AuthCoordinatorTests: BitwardenTestCase {
 
     /// `navigate(to:)` with `.login` pushes the login view onto the stack navigator and hides the back button.
     func test_navigate_login() throws {
-        subject.navigate(to: .login(
-            username: "username",
-            region: .unitedStates,
-            isLoginWithDeviceVisible: true
-        ))
+        appSettingsStore.preAuthEnvironmentUrls = EnvironmentUrlData.defaultEU
+        subject.navigate(to: .login(username: "username"))
 
         XCTAssertEqual(stackNavigator.actions.last?.type, .pushed)
         let viewController = try XCTUnwrap(
@@ -158,8 +155,7 @@ class AuthCoordinatorTests: BitwardenTestCase {
         let view = viewController.rootView
         let state = view.store.state
         XCTAssertEqual(state.username, "username")
-        XCTAssertEqual(state.region, .unitedStates)
-        XCTAssertTrue(state.isLoginWithDeviceVisible)
+        XCTAssertEqual(state.serverURLString, "vault.bitwarden.eu")
     }
 
     /// `navigate(to:)` with `.login`, when using a self-hosted environment,
@@ -167,11 +163,7 @@ class AuthCoordinatorTests: BitwardenTestCase {
     /// It also initializes `LoginState` with the self-hosted URL host.
     func test_navigate_login_selfHosted() async throws {
         appSettingsStore.preAuthEnvironmentUrls = EnvironmentUrlData(webVault: URL(string: "http://www.testing.com")!)
-        subject.navigate(to: .login(
-            username: "username",
-            region: .selfHosted,
-            isLoginWithDeviceVisible: true
-        ))
+        subject.navigate(to: .login(username: "username"))
 
         let viewController = try XCTUnwrap(
             stackNavigator.actions.last?.view as? UIHostingController<LoginView>
@@ -179,9 +171,7 @@ class AuthCoordinatorTests: BitwardenTestCase {
         let view = viewController.rootView
         let state = view.store.state
         XCTAssertEqual(state.username, "username")
-        XCTAssertEqual(state.region, .selfHosted)
-        XCTAssertEqual(state.selfHostedURLString, "www.testing.com")
-        XCTAssertTrue(state.isLoginWithDeviceVisible)
+        XCTAssertEqual(state.serverURLString, "www.testing.com")
     }
 
     /// `navigate(to:)` with `.loginWithDevice` pushes the login with device view onto the stack navigator.

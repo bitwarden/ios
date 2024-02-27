@@ -19,11 +19,8 @@ struct LoginState: Equatable {
         isMasterPasswordRevealed ? Asset.Images.hidden : Asset.Images.visible
     }
 
-    /// The region selected by the user on the landing screen.
-    var region: RegionType = .unitedStates
-
     /// The server URL that is hosting the user's session.
-    var selfHostedURLString: String = ""
+    var serverURLString: String = ""
 
     /// The username provided by the user on the landing screen.
     var username: String = ""

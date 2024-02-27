@@ -110,9 +110,7 @@ struct LoginView: View {
         VStack(alignment: .leading, spacing: 2) {
             Text(Localizations.loggedInAsOn(
                 store.state.username,
-                store.state.selfHostedURLString.isEmpty
-                    ? store.state.region.baseUrlDescription
-                    : store.state.selfHostedURLString
+                store.state.serverURLString
             ))
             .accessibilityIdentifier("LoggingInAsLabel")
             .foregroundColor(Asset.Colors.textSecondary.swiftUIColor)

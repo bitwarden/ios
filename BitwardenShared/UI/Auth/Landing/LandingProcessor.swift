@@ -110,11 +110,7 @@ class LandingProcessor: StateProcessor<LandingState, LandingAction, LandingEffec
             return
         }
 
-        coordinator.navigate(to: .login(
-            username: email,
-            region: state.region,
-            isLoginWithDeviceVisible: false
-        ))
+        coordinator.navigate(to: .login(username: email))
     }
 
     /// Builds an alert for region selection and navigates to the alert.
