@@ -243,8 +243,13 @@ final class VaultListProcessor: StateProcessor<
         do {
             for try await value in try await services.vaultRepository
                 .vaultListPublisher(filter: state.vaultFilterType) {
+                // Check if the vault needs a sync.
                 let needsSync = try await services.vaultRepository.needsSync()
-                if !needsSync {
+
+                // If the data is empty, check to ensure that a sync is not needed.
+                // Otherwise keep the state in a `.loading` condition.
+                if !needsSync || !value.isEmpty {
+                    // If the data is not empty or if a sync is not needed, set the data.
                     state.loadingState = .data(value)
                 }
             }

@@ -281,7 +281,7 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
     }
 
     /// `perform(_:)` with `.streamVaultList` updates the state's vault list whenever it changes.
-    func test_perform_streamVaultList() throws {
+    func test_perform_streamVaultList_doesntNeedSync() throws {
         let vaultListItem = VaultListItem.fixture()
         vaultRepository.vaultListSubject.send([
             VaultListSection(
@@ -315,6 +315,46 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
         task.cancel()
 
         XCTAssertEqual(errorReporter.errors.last as? BitwardenTestError, .example)
+    }
+
+    /// `perform(_:)` with `.streamVaultList` updates the state's vault list whenever it changes.
+    func test_perform_streamVaultList_needsSync_emptyData() throws {
+        let vaultListItem = VaultListItem.fixture()
+        vaultRepository.needsSyncResult = .success(true)
+
+        let task = Task {
+            await subject.perform(.streamVaultList)
+        }
+
+        vaultRepository.vaultListSubject.send([])
+        waitFor(vaultRepository.needsSyncCalled)
+        task.cancel()
+
+        XCTAssertEqual(subject.state.loadingState, .loading)
+    }
+
+    /// `perform(_:)` with `.streamVaultList` updates the state's vault list whenever it changes.
+    func test_perform_streamVaultList_needsSync_hasData() throws {
+        let vaultListItem = VaultListItem.fixture()
+        vaultRepository.needsSyncResult = .success(true)
+
+        let task = Task {
+            await subject.perform(.streamVaultList)
+        }
+
+        vaultRepository.vaultListSubject.send([
+            VaultListSection(
+                id: "1",
+                items: [vaultListItem],
+                name: "Name"
+            ),
+        ])
+        waitFor(subject.state.loadingState != .loading)
+        task.cancel()
+
+        let sections = try XCTUnwrap(subject.state.loadingState.data)
+        XCTAssertEqual(sections.count, 1)
+        XCTAssertEqual(sections[0].items, [vaultListItem])
     }
 
     /// `receive(_:)` with `.profileSwitcher(.accountLongPressed)` shows the alert and allows the user to
