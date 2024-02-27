@@ -208,7 +208,7 @@ class CipherServiceTests: BitwardenTestCase {
         ]
         stateService.activeAccount = .fixture()
 
-        var cipherResponse = try await subject.saveAttachmentWithServer(
+        let cipherResponse = try await subject.saveAttachmentWithServer(
             cipher: Cipher.fixture(collectionIds: ["1", "2"], id: "123"),
             attachment: .init(attachment: .fixture(), contents: Data())
         )
