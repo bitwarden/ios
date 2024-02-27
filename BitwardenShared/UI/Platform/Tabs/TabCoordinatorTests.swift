@@ -8,38 +8,46 @@ import XCTest
 class TabCoordinatorTests: BitwardenTestCase {
     // MARK: Properties
 
+    var errorReporter: MockErrorReporter!
     var module: MockAppModule!
     var rootNavigator: MockRootNavigator!
     var settingsDelegate: MockSettingsCoordinatorDelegate!
     var subject: TabCoordinator!
     var tabNavigator: MockTabNavigator!
     var vaultDelegate: MockVaultCoordinatorDelegate!
+    var vaultRepository: MockVaultRepository!
 
     // MARK: Setup & Teardown
 
     override func setUp() {
         super.setUp()
+        errorReporter = MockErrorReporter()
         module = MockAppModule()
         rootNavigator = MockRootNavigator()
         tabNavigator = MockTabNavigator()
         settingsDelegate = MockSettingsCoordinatorDelegate()
         vaultDelegate = MockVaultCoordinatorDelegate()
+        vaultRepository = MockVaultRepository()
         subject = TabCoordinator(
+            errorReporter: errorReporter,
             module: module,
             rootNavigator: rootNavigator,
             settingsDelegate: settingsDelegate,
             tabNavigator: tabNavigator,
-            vaultDelegate: vaultDelegate
+            vaultDelegate: vaultDelegate,
+            vaultRepository: vaultRepository
         )
     }
 
     override func tearDown() {
         super.tearDown()
+        errorReporter = nil
         module = nil
         rootNavigator = nil
         subject = nil
         tabNavigator = nil
         vaultDelegate = nil
+        vaultRepository = nil
     }
 
     // MARK: Tests
@@ -74,11 +82,13 @@ class TabCoordinatorTests: BitwardenTestCase {
     func test_rootNavigator_resetWeakReference() {
         var rootNavigator: MockRootNavigator? = MockRootNavigator()
         subject = TabCoordinator(
+            errorReporter: errorReporter,
             module: module,
             rootNavigator: rootNavigator!,
             settingsDelegate: MockSettingsCoordinatorDelegate(),
             tabNavigator: tabNavigator,
-            vaultDelegate: MockVaultCoordinatorDelegate()
+            vaultDelegate: MockVaultCoordinatorDelegate(),
+            vaultRepository: vaultRepository
         )
         XCTAssertNotNil(subject.rootNavigator)
 
@@ -102,7 +112,12 @@ class TabCoordinatorTests: BitwardenTestCase {
     }
 
     /// `start()` presents the tab navigator within the root navigator and starts the child-coordinators.
-    func test_start() {
+    func test_start_noOrganizations() {
+        let mockRoot = MockRootNavigator()
+        let viewController = UIViewController()
+        mockRoot.rootViewController = viewController
+        tabNavigator.navigatorForTabReturns = mockRoot
+        vaultRepository.organizationsSubject = .init([])
         subject.start()
         XCTAssertIdentical(rootNavigator.navigatorShown, tabNavigator)
 
@@ -117,5 +132,66 @@ class TabCoordinatorTests: BitwardenTestCase {
 
         XCTAssertTrue(tabNavigator.navigators[3] is StackNavigator)
         XCTAssertTrue(module.settingsCoordinator.isStarted)
+
+        waitFor(vaultRepository.organizationsPublisherCalled)
+        waitFor(viewController.title != nil)
+        XCTAssertEqual(viewController.title, Localizations.myVault)
+    }
+
+    /// `start()` presents the tab navigator within the root navigator and starts the child-coordinators.
+    func test_start_organizations() {
+        let mockRoot = MockRootNavigator()
+        let viewController = UIViewController()
+        mockRoot.rootViewController = viewController
+        tabNavigator.navigatorForTabReturns = mockRoot
+        vaultRepository.organizationsSubject = .init([
+            .fixture(),
+        ])
+        subject.start()
+        XCTAssertIdentical(rootNavigator.navigatorShown, tabNavigator)
+
+        // Placeholder assertion until the vault screen is added: BIT-218
+        XCTAssertTrue(tabNavigator.navigators[0] is StackNavigator)
+
+        // Placeholder assertion until the send screen is added: BIT-249
+        XCTAssertTrue(tabNavigator.navigators[1] is StackNavigator)
+
+        XCTAssertTrue(tabNavigator.navigators[2] is StackNavigator)
+        XCTAssertTrue(module.generatorCoordinator.isStarted)
+
+        XCTAssertTrue(tabNavigator.navigators[3] is StackNavigator)
+        XCTAssertTrue(module.settingsCoordinator.isStarted)
+
+        waitFor(vaultRepository.organizationsPublisherCalled)
+        waitFor(viewController.title != nil)
+        XCTAssertEqual(viewController.title, Localizations.vaults)
+    }
+
+    /// `start()` presents the tab navigator within the root navigator and starts the child-coordinators.
+    func test_start_organizationsError() throws {
+        let mockRoot = MockRootNavigator()
+        let viewController = UIViewController()
+        mockRoot.rootViewController = viewController
+        tabNavigator.navigatorForTabReturns = mockRoot
+        let expectedError = BitwardenTestError.example
+        vaultRepository.organizationsPublisherError = expectedError
+        subject.start()
+        XCTAssertIdentical(rootNavigator.navigatorShown, tabNavigator)
+
+        // Placeholder assertion until the vault screen is added: BIT-218
+        XCTAssertTrue(tabNavigator.navigators[0] is StackNavigator)
+
+        // Placeholder assertion until the send screen is added: BIT-249
+        XCTAssertTrue(tabNavigator.navigators[1] is StackNavigator)
+
+        XCTAssertTrue(tabNavigator.navigators[2] is StackNavigator)
+        XCTAssertTrue(module.generatorCoordinator.isStarted)
+
+        XCTAssertTrue(tabNavigator.navigators[3] is StackNavigator)
+        XCTAssertTrue(module.settingsCoordinator.isStarted)
+
+        waitFor(!errorReporter.errors.isEmpty)
+        let error = try XCTUnwrap(errorReporter.errors.first as? BitwardenTestError)
+        XCTAssertEqual(error, expectedError)
     }
 }

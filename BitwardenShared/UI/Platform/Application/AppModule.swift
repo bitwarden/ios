@@ -55,7 +55,8 @@ extension DefaultAppModule: AppModule {
             appContext: appContext,
             appExtensionDelegate: appExtensionDelegate,
             module: self,
-            rootNavigator: navigator
+            rootNavigator: navigator,
+            services: services
         ).asAnyCoordinator()
     }
 }

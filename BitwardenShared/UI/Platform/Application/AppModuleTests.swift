@@ -87,14 +87,18 @@ class AppModuleTests: BitwardenTestCase {
 
     /// `makeTabCoordinator` builds the tab coordinator.
     func test_makeTabCoordinator() {
+        let errorReporter = MockErrorReporter()
         let tabBarController = UITabBarController()
         let settingsDelegate = MockSettingsCoordinatorDelegate()
         let vaultDelegate = MockVaultCoordinatorDelegate()
+        let vaultRepository = MockVaultRepository()
         let coordinator = subject.makeTabCoordinator(
+            errorReporter: errorReporter,
             rootNavigator: rootViewController,
             settingsDelegate: settingsDelegate,
             tabNavigator: tabBarController,
-            vaultDelegate: vaultDelegate
+            vaultDelegate: vaultDelegate,
+            vaultRepository: vaultRepository
         )
         coordinator.start()
         XCTAssertNotNil(rootViewController.childViewController)
