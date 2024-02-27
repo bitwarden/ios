@@ -517,4 +517,8 @@ extension ServiceContainer {
     var clientPlatform: ClientPlatformProtocol {
         clientService.clientPlatform()
     }
+
+    var organizationAPIService: OrganizationAPIService {
+        apiService
+    }
 }

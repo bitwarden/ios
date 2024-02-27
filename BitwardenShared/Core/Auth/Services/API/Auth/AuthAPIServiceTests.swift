@@ -110,18 +110,6 @@ class AuthAPIServiceTests: BitwardenTestCase {
         XCTAssertEqual(response, [.fixture()])
     }
 
-    /// `getSingleSignOnDetails(email:)` successfully decodes the single sign on details response.
-    func test_getSingleSignOnDetails() async throws {
-        client.result = .httpSuccess(testData: .singleSignOnDetails)
-
-        let response = try await subject.getSingleSignOnDetails(email: "example@email.com")
-
-        XCTAssertEqual(
-            response,
-            SingleSignOnDetailsResponse(organizationIdentifier: "TeamLivefront", ssoAvailable: true)
-        )
-    }
-
     /// `initiateLoginWithDevice()` successfully decodes the initiate login with device response.
     func test_initiateLoginWithDevice() async throws {
         client.result = .httpSuccess(testData: .authRequestSuccess)

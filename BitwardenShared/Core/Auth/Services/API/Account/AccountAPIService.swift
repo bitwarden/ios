@@ -50,13 +50,20 @@ protocol AccountAPIService {
     ///
     func requestPasswordHint(for email: String) async throws
 
+    /// Performs the API request to set the user's password.
+    ///
+    /// - Parameter requestModel: The request model containing the details needed to set the user's
+    ///     password.
+    ///
+    func setPassword(_ requestModel: SetPasswordRequestModel) async throws
+
     /// Performs the API request to update the user's password.
     ///
     /// - Parameter requestModel: The request model used to send the request.
     ///
     func updatePassword(_ requestModel: UpdatePasswordRequestModel) async throws
 
-    /// Performs  the API request to update the user's temporary password.
+    /// Performs the API request to update the user's temporary password.
     ///
     /// - Parameter requestModel: The request model used to send the request.
     ///
@@ -108,6 +115,10 @@ extension APIService: AccountAPIService {
     func requestPasswordHint(for email: String) async throws {
         let request = PasswordHintRequest(body: PasswordHintRequestModel(email: email))
         _ = try await apiUnauthenticatedService.send(request)
+    }
+
+    func setPassword(_ requestModel: SetPasswordRequestModel) async throws {
+        _ = try await apiService.send(SetPasswordRequest(requestModel: requestModel))
     }
 
     func updatePassword(_ requestModel: UpdatePasswordRequestModel) async throws {
