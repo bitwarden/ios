@@ -11,6 +11,33 @@ extension URL {
             "(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$"
     }
 
+    /// Valid top-level domain values.
+    private var tldRegex: [String] {
+        [
+            ".com",
+            ".net",
+            ".org",
+            ".edu",
+            ".uk",
+            ".gov",
+            ".ca",
+            ".de",
+            ".jp",
+            ".fr",
+            ".au",
+            ".ru",
+            ".ch",
+            ".io",
+            ".es",
+            ".us",
+            ".co",
+            ".xyz",
+            ".info",
+            ".ly",
+            ".mil",
+        ]
+    }
+
     // MARK: Properties
 
     /// If the URL is for an app using the Bitwarden `iosapp://` URL scheme, this returns the web
@@ -28,6 +55,35 @@ extension URL {
             return host
         }
         return DomainName.parseBaseDomain(url: self) ?? host
+    }
+
+    /// The concatenation of the URL's subdomain and domain.
+    var domainsConcatenated: String {
+        let parsedURL = DomainName.parseURL(self)
+        let domain = parsedURL?.domain ?? ""
+        var subDomain = ""
+
+        if let subDomainParsed = parsedURL?.subDomain, !subDomainParsed.isEmpty {
+            subDomain = subDomainParsed + "."
+        }
+        return subDomain + domain
+    }
+
+    /// Whether the URL's domain ends in an accepted top-level domain value.
+    var hasTldEndingRegex: Bool {
+        for tldRegex in tldRegex where domainsConcatenated.hasSuffix(tldRegex) {
+            return true
+        }
+        return false
+    }
+
+    /// Whether the URL has valid components that are in the correct order.
+    var hasValidURLComponents: Bool {
+        guard absoluteString.isValidURL, hasTldEndingRegex else { return false }
+        let scheme = scheme ?? ""
+
+        let urlString = "\(scheme)" + "://" + "\(domainsConcatenated)"
+        return absoluteString.hasPrefix(urlString)
     }
 
     /// Returns the URL's host with a port, if one exists.
