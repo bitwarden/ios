@@ -3,11 +3,11 @@ import Foundation
 
 /// Data model for an item displayed in the vault list.
 ///
-struct VaultListItem: Equatable, Identifiable {
+public struct VaultListItem: Equatable, Identifiable {
     // MARK: Types
 
     /// An enumeration for the type of item being displayed by this item.
-    enum ItemType: Equatable {
+    public enum ItemType: Equatable {
         /// The wrapped item is a cipher.
         case cipher(CipherView)
 
@@ -26,10 +26,10 @@ struct VaultListItem: Equatable, Identifiable {
     // MARK: Properties
 
     /// The identifier for the item.
-    let id: String
+    public let id: String
 
     /// The type of item being displayed by this item.
-    let itemType: ItemType
+    public let itemType: ItemType
 }
 
 extension VaultListItem {
@@ -143,7 +143,7 @@ extension CipherView {
     }
 }
 
-struct VaultListTOTP: Equatable {
+public struct VaultListTOTP: Equatable {
     /// The id of the associated Cipher.
     ///
     let id: String

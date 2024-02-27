@@ -1,4 +1,5 @@
 import BitwardenSdk
+import SwiftUI
 import XCTest
 
 @testable import BitwardenShared
@@ -23,6 +24,7 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
     let anneAccount = Account
         .fixture(
             profile: .fixture(
+                avatarColor: "175DDC",
                 email: "Anne.Account@bitwarden.com",
                 name: "Anne Account",
                 userId: "1"
@@ -32,6 +34,7 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
     let beeAccount = Account
         .fixture(
             profile: .fixture(
+                avatarColor: "175DDC",
                 email: "bee.account@bitwarden.com",
                 userId: "2"
             )
@@ -40,6 +43,7 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
     let claimedAccount = Account
         .fixture(
             profile: .fixture(
+                avatarColor: "175DDC",
                 email: "claims@bitwarden.com",
                 userId: "3"
             )
@@ -48,6 +52,7 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
     let empty = Account
         .fixture(
             profile: .fixture(
+                avatarColor: "175DDC",
                 email: "",
                 userId: "4"
             )
@@ -56,6 +61,7 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
     let shortEmail = Account
         .fixture(
             profile: .fixture(
+                avatarColor: "175DDC",
                 email: "a@gmail.com",
                 userId: "5"
             )
@@ -64,6 +70,7 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
     let shortName = Account
         .fixture(
             profile: .fixture(
+                avatarColor: "175DDC",
                 email: "aj@gmail.com",
                 name: "AJ",
                 userId: "6"
@@ -204,7 +211,8 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         let state = await subject.getProfilesState(
             allowLockAndLogout: true,
             isVisible: false,
-            shouldAlwaysHideAddAccount: false
+            shouldAlwaysHideAddAccount: false,
+            showPlaceholderToolbarIcon: false
         )
         XCTAssertEqual(state, .empty(shouldAlwaysHideAddAccount: false))
     }
@@ -223,11 +231,13 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         let accounts = await subject.getProfilesState(
             allowLockAndLogout: true,
             isVisible: true,
-            shouldAlwaysHideAddAccount: false
+            shouldAlwaysHideAddAccount: false,
+            showPlaceholderToolbarIcon: false
         ).accounts
         XCTAssertEqual(
             accounts.first,
             ProfileSwitcherItem.fixture(
+                color: Color(hex: anneAccount.profile.avatarColor ?? ""),
                 email: anneAccount.profile.email,
                 userId: anneAccount.profile.userId,
                 userInitials: "AA"
@@ -236,6 +246,7 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         XCTAssertEqual(
             accounts[1],
             ProfileSwitcherItem.fixture(
+                color: Color(hex: beeAccount.profile.avatarColor ?? ""),
                 email: beeAccount.profile.email,
                 userId: beeAccount.profile.userId,
                 userInitials: "BA"
@@ -244,6 +255,7 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         XCTAssertEqual(
             accounts[2],
             ProfileSwitcherItem.fixture(
+                color: Color(hex: claimedAccount.profile.avatarColor ?? ""),
                 email: claimedAccount.profile.email,
                 userId: claimedAccount.profile.userId,
                 userInitials: "CL"
@@ -252,14 +264,16 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         XCTAssertEqual(
             accounts[3],
             ProfileSwitcherItem.fixture(
+                color: Color(hex: empty.profile.avatarColor ?? ""),
                 email: "",
                 userId: "4",
-                userInitials: ".."
+                userInitials: nil
             )
         )
         XCTAssertEqual(
             accounts[4],
             ProfileSwitcherItem.fixture(
+                color: Color(hex: shortEmail.profile.avatarColor ?? ""),
                 email: shortEmail.profile.email,
                 userId: shortEmail.profile.userId,
                 userInitials: "A"
@@ -268,6 +282,7 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         XCTAssertEqual(
             accounts[5],
             ProfileSwitcherItem.fixture(
+                color: Color(hex: shortName.profile.avatarColor ?? ""),
                 email: shortName.profile.email,
                 userId: shortName.profile.userId,
                 userInitials: "AJ"
@@ -293,7 +308,8 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         let profiles = await subject.getProfilesState(
             allowLockAndLogout: true,
             isVisible: true,
-            shouldAlwaysHideAddAccount: true
+            shouldAlwaysHideAddAccount: true,
+            showPlaceholderToolbarIcon: true
         ).accounts
         let lockedStatuses = profiles.map { profile in
             profile.isUnlocked

@@ -10,6 +10,7 @@ class AppProcessorTests: BitwardenTestCase {
     var appSettingStore: MockAppSettingsStore!
     var coordinator: MockCoordinator<AppRoute, AppEvent>!
     var errorReporter: MockErrorReporter!
+    var migrationService: MockMigrationService!
     var notificationCenterService: MockNotificationCenterService!
     var notificationService: MockNotificationService!
     var router: MockRouter<AuthEvent, AuthRoute>!
@@ -31,6 +32,7 @@ class AppProcessorTests: BitwardenTestCase {
         appModule.appCoordinator = coordinator
         appSettingStore = MockAppSettingsStore()
         errorReporter = MockErrorReporter()
+        migrationService = MockMigrationService()
         notificationCenterService = MockNotificationCenterService()
         notificationService = MockNotificationService()
         stateService = MockStateService()
@@ -43,6 +45,7 @@ class AppProcessorTests: BitwardenTestCase {
             services: ServiceContainer.withMocks(
                 appSettingsStore: appSettingStore,
                 errorReporter: errorReporter,
+                migrationService: migrationService,
                 notificationService: notificationService,
                 stateService: stateService,
                 syncService: syncService,
@@ -59,6 +62,7 @@ class AppProcessorTests: BitwardenTestCase {
         appSettingStore = nil
         coordinator = nil
         errorReporter = nil
+        migrationService = nil
         notificationCenterService = nil
         notificationService = nil
         stateService = nil
@@ -112,6 +116,12 @@ class AppProcessorTests: BitwardenTestCase {
         XCTAssertEqual(notificationService.messageReceivedMessage?.keys.first, "knock knock")
     }
 
+    /// `routeToLanding(_:)` navigates to show the landing view.
+    func test_routeToLanding() async {
+        await subject.routeToLanding()
+        XCTAssertEqual(coordinator.routes.last, .auth(.landing))
+    }
+
     /// Upon a session timeout on app foreground, send the user to the `.didTimeout` route.
     func test_shouldSessionTimeout_navigateTo_didTimeout() throws {
         let rootNavigator = MockRootNavigator()
@@ -155,11 +165,14 @@ class AppProcessorTests: BitwardenTestCase {
             window: nil
         )
 
+        waitFor(!coordinator.routes.isEmpty)
+
         XCTAssertTrue(appModule.appCoordinator.isStarted)
         XCTAssertEqual(
             appModule.appCoordinator.routes,
             [.extensionSetup(.extensionActivation(type: .appExtension))]
         )
+        XCTAssertEqual(migrationService.didPerformMigrations, true)
     }
 
     /// `start(navigator:)` builds the AppCoordinator and navigates to the `.didStart` route.
@@ -172,5 +185,6 @@ class AppProcessorTests: BitwardenTestCase {
 
         XCTAssertTrue(appModule.appCoordinator.isStarted)
         XCTAssertEqual(appModule.appCoordinator.events, [.didStart])
+        XCTAssertEqual(migrationService.didPerformMigrations, true)
     }
 }

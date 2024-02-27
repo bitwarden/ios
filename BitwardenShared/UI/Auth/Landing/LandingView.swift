@@ -41,7 +41,9 @@ struct LandingView: View {
                 mapAction: { action in
                     .profileSwitcher(action)
                 },
-                mapEffect: nil
+                mapEffect: { effect in
+                    .profileSwitcher(effect)
+                }
             )
         )
     }
@@ -87,6 +89,10 @@ struct LandingView: View {
                     accessibilityIdentifier: "EmailAddressEntry"
                 )
                 .textFieldConfiguration(.email)
+                .onSubmit {
+                    guard store.state.isContinueButtonEnabled else { return }
+                    store.send(.continuePressed)
+                }
 
                 Button {
                     store.send(.regionPressed)
@@ -100,7 +106,7 @@ struct LandingView: View {
                         }
                         .styleGuide(.subheadline)
 
-                        Image(decorative: Asset.Images.downTriangle)
+                        Image(decorative: Asset.Images.downAngle)
                             .resizable()
                             .frame(width: 12, height: 12)
                             .foregroundColor(Asset.Colors.primaryBitwarden.swiftUIColor)
@@ -142,91 +148,95 @@ struct LandingView: View {
 // MARK: - Previews
 
 #if DEBUG
-struct LandingView_Previews: PreviewProvider {
-    static var previews: some View {
-        NavigationView {
-            LandingView(
-                store: Store(
-                    processor: StateProcessor(
-                        state: LandingState(
-                            email: "",
-                            isRememberMeOn: false
-                        )
+#Preview {
+    NavigationView {
+        LandingView(
+            store: Store(
+                processor: StateProcessor(
+                    state: LandingState(
+                        email: "",
+                        isRememberMeOn: false
                     )
                 )
             )
-        }
-        .previewDisplayName("Empty Email")
-
-        NavigationView {
-            LandingView(
-                store: Store(
-                    processor: StateProcessor(
-                        state: LandingState(
-                            email: "email@example.com",
-                            isRememberMeOn: true
-                        )
-                    )
-                )
-            )
-        }
-        .previewDisplayName("Example Email")
-
-        NavigationView {
-            LandingView(
-                store: Store(
-                    processor: StateProcessor(
-                        state: LandingState(
-                            email: "",
-                            isRememberMeOn: false,
-                            profileSwitcherState: ProfileSwitcherState(
-                                accounts: [
-                                    ProfileSwitcherItem(
-                                        email: "max.protecc@bitwarden.com",
-                                        isUnlocked: false,
-                                        userId: "123",
-                                        userInitials: "MP",
-                                        webVault: ""
-                                    ),
-                                ],
-                                activeAccountId: "123",
-                                allowLockAndLogout: true,
-                                isVisible: false
-                            )
-                        )
-                    )
-                )
-            )
-        }
-        .previewDisplayName("Profiles Closed")
-
-        NavigationView {
-            LandingView(
-                store: Store(
-                    processor: StateProcessor(
-                        state: LandingState(
-                            email: "",
-                            isRememberMeOn: false,
-                            profileSwitcherState: ProfileSwitcherState(
-                                accounts: [
-                                    ProfileSwitcherItem(
-                                        email: "max.protecc@bitwarden.com",
-                                        isUnlocked: false,
-                                        userId: "123",
-                                        userInitials: "MP",
-                                        webVault: ""
-                                    ),
-                                ],
-                                activeAccountId: "123",
-                                allowLockAndLogout: true,
-                                isVisible: true
-                            )
-                        )
-                    )
-                )
-            )
-        }
-        .previewDisplayName("Profiles Open")
+        )
     }
+    .previewDisplayName("Empty Email")
+}
+
+#Preview {
+    NavigationView {
+        LandingView(
+            store: Store(
+                processor: StateProcessor(
+                    state: LandingState(
+                        email: "email@example.com",
+                        isRememberMeOn: true
+                    )
+                )
+            )
+        )
+    }
+    .previewDisplayName("Example Email")
+}
+
+#Preview {
+    NavigationView {
+        LandingView(
+            store: Store(
+                processor: StateProcessor(
+                    state: LandingState(
+                        email: "",
+                        isRememberMeOn: false,
+                        profileSwitcherState: ProfileSwitcherState(
+                            accounts: [
+                                ProfileSwitcherItem(
+                                    email: "max.protecc@bitwarden.com",
+                                    isUnlocked: false,
+                                    userId: "123",
+                                    userInitials: "MP",
+                                    webVault: ""
+                                ),
+                            ],
+                            activeAccountId: "123",
+                            allowLockAndLogout: true,
+                            isVisible: false
+                        )
+                    )
+                )
+            )
+        )
+    }
+    .previewDisplayName("Profiles Closed")
+}
+
+#Preview {
+    NavigationView {
+        LandingView(
+            store: Store(
+                processor: StateProcessor(
+                    state: LandingState(
+                        email: "",
+                        isRememberMeOn: false,
+                        profileSwitcherState: ProfileSwitcherState(
+                            accounts: [
+                                ProfileSwitcherItem(
+                                    email: "max.protecc@bitwarden.com",
+                                    isUnlocked: false,
+                                    userId: "123",
+                                    userInitials: "MP",
+                                    webVault: ""
+                                ),
+                            ],
+                            activeAccountId: "123",
+                            allowLockAndLogout: true,
+                            isVisible: true
+                        )
+                    )
+                )
+            )
+        )
+    }
+    .previewDisplayName("Profiles Open")
 }
 #endif

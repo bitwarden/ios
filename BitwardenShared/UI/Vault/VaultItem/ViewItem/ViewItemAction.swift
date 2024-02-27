@@ -71,14 +71,17 @@ enum CopyableField {
     /// The password field.
     case password
 
+    /// The security code field.
+    case securityCode
+
+    /// The totp field.
+    case totp
+
     /// The uri field.
     case uri
 
     /// The username field.
     case username
-
-    /// The totp field.
-    case totp
 
     /// The localized name for each field.
     var localizedName: String {
@@ -87,12 +90,14 @@ enum CopyableField {
             Localizations.number
         case .password:
             Localizations.password
+        case .securityCode:
+            Localizations.securityCode
+        case .totp:
+            Localizations.totp
         case .uri:
             Localizations.uri
         case .username:
             Localizations.username
-        case .totp:
-            Localizations.totp
         }
     }
 }

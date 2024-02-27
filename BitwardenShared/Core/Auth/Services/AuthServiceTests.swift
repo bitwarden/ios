@@ -16,6 +16,7 @@ class AuthServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body_
     var clientGenerators: MockClientGenerators!
     var clientPlatform: MockClientPlatform!
     var environmentService: MockEnvironmentService!
+    var keychainRepository: MockKeychainRepository!
     var stateService: MockStateService!
     var policyService: MockPolicyService!
     var subject: DefaultAuthService!
@@ -34,6 +35,7 @@ class AuthServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body_
         clientGenerators = MockClientGenerators()
         clientPlatform = MockClientPlatform()
         environmentService = MockEnvironmentService()
+        keychainRepository = MockKeychainRepository()
         policyService = MockPolicyService()
         stateService = MockStateService()
         systemDevice = MockSystemDevice()
@@ -46,6 +48,7 @@ class AuthServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body_
             clientGenerators: clientGenerators,
             clientPlatform: clientPlatform,
             environmentService: environmentService,
+            keychainRepository: keychainRepository,
             policyService: policyService,
             stateService: stateService,
             systemDevice: systemDevice
@@ -63,6 +66,7 @@ class AuthServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body_
         clientGenerators = nil
         clientPlatform = nil
         environmentService = nil
+        keychainRepository = nil
         stateService = nil
         subject = nil
         systemDevice = nil
@@ -246,7 +250,7 @@ class AuthServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body_
     }
 
     /// `loginWithMasterPassword(_:username:captchaToken:)` logs in with the password.
-    func test_loginWithMasterPassword() async throws {
+    func test_loginWithMasterPassword() async throws { // swiftlint:disable:this function_body_length
         // Set up the mock data.
         client.results = [
             .httpSuccess(testData: .preLoginSuccess),
@@ -298,6 +302,14 @@ class AuthServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body_
         XCTAssertEqual(
             stateService.masterPasswordHashes,
             ["13512467-9cfe-43b0-969f-07534084764b": "hashed password"]
+        )
+        try XCTAssertEqual(
+            keychainRepository.getValue(for: .accessToken(userId: "13512467-9cfe-43b0-969f-07534084764b")),
+            IdentityTokenResponseModel.fixture().accessToken
+        )
+        try XCTAssertEqual(
+            keychainRepository.getValue(for: .refreshToken(userId: "13512467-9cfe-43b0-969f-07534084764b")),
+            IdentityTokenResponseModel.fixture().refreshToken
         )
     }
 
@@ -428,6 +440,14 @@ class AuthServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body_
                 ),
             ]
         )
+        try XCTAssertEqual(
+            keychainRepository.getValue(for: .accessToken(userId: "13512467-9cfe-43b0-969f-07534084764b")),
+            IdentityTokenResponseModel.fixture().accessToken
+        )
+        try XCTAssertEqual(
+            keychainRepository.getValue(for: .refreshToken(userId: "13512467-9cfe-43b0-969f-07534084764b")),
+            IdentityTokenResponseModel.fixture().refreshToken
+        )
 
         XCTAssertEqual(account, .fixtureAccountLogin())
     }
@@ -492,6 +512,14 @@ class AuthServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body_
         XCTAssertEqual(
             stateService.masterPasswordHashes,
             ["13512467-9cfe-43b0-969f-07534084764b": "hashed password"]
+        )
+        try XCTAssertEqual(
+            keychainRepository.getValue(for: .accessToken(userId: "13512467-9cfe-43b0-969f-07534084764b")),
+            IdentityTokenResponseModel.fixture().accessToken
+        )
+        try XCTAssertEqual(
+            keychainRepository.getValue(for: .refreshToken(userId: "13512467-9cfe-43b0-969f-07534084764b")),
+            IdentityTokenResponseModel.fixture().refreshToken
         )
 
         XCTAssertEqual(account, .fixtureAccountLogin())

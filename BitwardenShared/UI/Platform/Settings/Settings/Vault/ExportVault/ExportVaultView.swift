@@ -14,9 +14,7 @@ struct ExportVaultView: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 16) {
-            if store.state.disableIndividualVaultExport {
-                InfoContainer(Localizations.disablePersonalVaultExportPolicyInEffect)
-            }
+            disabledExportInfo
 
             fileFormatField
 
@@ -39,18 +37,28 @@ struct ExportVaultView: View {
 
     // MARK: Private Views
 
+    /// An info container displayed if individual export is disabled.
+    @ViewBuilder private var disabledExportInfo: some View {
+        if store.state.disableIndividualVaultExport {
+            InfoContainer(Localizations.disablePersonalVaultExportPolicyInEffect)
+                .accessibilityIdentifier("DisablePrivateVaultPolicyLabel")
+        }
+    }
+
     /// The button to export the vault.
     private var exportVaultButton: some View {
         Button(Localizations.exportVault) {
             store.send(.exportVaultTapped)
         }
         .buttonStyle(.tertiary())
+        .accessibilityIdentifier("ExportVaultButton")
     }
 
     /// The selector to choose the export file format.
     private var fileFormatField: some View {
         BitwardenMenuField(
             title: Localizations.fileFormat,
+            accessibilityIdentifier: "FileFormatPicker",
             options: ExportFormatType.allCases,
             selection: store.binding(
                 get: \.fileFormat,

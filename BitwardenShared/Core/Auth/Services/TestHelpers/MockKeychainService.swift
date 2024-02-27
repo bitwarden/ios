@@ -38,3 +38,10 @@ extension MockKeychainService: KeychainService {
         return try searchResult.get()
     }
 }
+
+extension MockKeychainService {
+    func setSearchResultData(string: String) {
+        let dictionary = [kSecValueData as String: Data(string.utf8)]
+        searchResult = .success(dictionary as AnyObject)
+    }
+}

@@ -1,3 +1,6 @@
+import BitwardenSdk
+import Foundation
+
 // MARK: - ExportVaultProcessor
 
 /// The processor used to manage state and handle actions for the `ExportVaultView`.
@@ -6,6 +9,7 @@ final class ExportVaultProcessor: StateProcessor<ExportVaultState, ExportVaultAc
 
     typealias Services = HasAuthRepository
         & HasErrorReporter
+        & HasExportVaultService
         & HasPolicyService
 
     // MARK: Properties
@@ -33,6 +37,11 @@ final class ExportVaultProcessor: StateProcessor<ExportVaultState, ExportVaultAc
         super.init(state: ExportVaultState())
     }
 
+    deinit {
+        // When the view is dismissed, ensure any temporary files are deleted.
+        services.exportVaultService.clearTemporaryFiles()
+    }
+
     // MARK: Methods
 
     override func perform(_ effect: ExportVaultEffect) async {
@@ -45,6 +54,7 @@ final class ExportVaultProcessor: StateProcessor<ExportVaultState, ExportVaultAc
     override func receive(_ action: ExportVaultAction) {
         switch action {
         case .dismiss:
+            services.exportVaultService.clearTemporaryFiles()
             coordinator.navigate(to: .dismiss)
         case .exportVaultTapped:
             confirmExportVault()
@@ -62,6 +72,8 @@ final class ExportVaultProcessor: StateProcessor<ExportVaultState, ExportVaultAc
     /// Show an alert to confirm exporting the vault.
     private func confirmExportVault() {
         let encrypted = (state.fileFormat == .jsonEncrypted)
+        let format = state.fileFormat
+        let password = state.passwordText
 
         // She the alert to confirm exporting the vault.
         coordinator.showAlert(.confirmExportVault(encrypted: encrypted) {
@@ -70,10 +82,33 @@ final class ExportVaultProcessor: StateProcessor<ExportVaultState, ExportVaultAc
                 return self.coordinator.showAlert(.defaultAlert(title: Localizations.invalidMasterPassword))
             }
 
-            // TODO: BIT-429
-            // TODO: BIT-447
-            // TODO: BIT-449
+            do {
+                try await self.exportVault(format: format, password: password)
+            } catch {
+                self.services.errorReporter.log(error: error)
+            }
         })
+    }
+
+    /// Export a vault with a given format and trigger a share.
+    ///
+    /// - Parameters:
+    ///    - format: The format of the export file.
+    ///    - password: The password used to validate the export.
+    ///
+    private func exportVault(format: ExportFormatType, password: String) async throws {
+        var exportFormat: ExportFileType
+        switch format {
+        case .csv:
+            exportFormat = .csv
+        case .json:
+            exportFormat = .json
+        case .jsonEncrypted:
+            exportFormat = .encryptedJson(password: password)
+        }
+
+        let fileURL = try await services.exportVaultService.exportVault(format: exportFormat)
+        coordinator.navigate(to: .shareExportedVault(fileURL))
     }
 
     /// Load any initial data for the view.

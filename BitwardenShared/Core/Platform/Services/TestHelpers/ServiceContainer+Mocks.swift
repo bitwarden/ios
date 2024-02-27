@@ -5,6 +5,7 @@ import Networking
 
 extension ServiceContainer {
     static func withMocks(
+        application: Application? = nil,
         appSettingsStore: AppSettingsStore = MockAppSettingsStore(),
         authRepository: AuthRepository = MockAuthRepository(),
         authService: AuthService = MockAuthService(),
@@ -15,10 +16,13 @@ extension ServiceContainer {
         clientService: ClientService = MockClientService(),
         environmentService: EnvironmentService = MockEnvironmentService(),
         errorReporter: ErrorReporter = MockErrorReporter(),
+        exportVaultService: ExportVaultService = MockExportVaultService(),
         generatorRepository: GeneratorRepository = MockGeneratorRepository(),
         httpClient: HTTPClient = MockHTTPClient(),
         keychainRepository: KeychainRepository = MockKeychainRepository(),
         keychainService: KeychainService = MockKeychainService(),
+        migrationService: MigrationService = MockMigrationService(),
+        nfcReaderService: NFCReaderService = MockNFCReaderService(),
         notificationService: NotificationService = MockNotificationService(),
         pasteboardService: PasteboardService = MockPasteboardService(),
         policyService: PolicyService = MockPolicyService(),
@@ -42,6 +46,7 @@ extension ServiceContainer {
                 environmentService: environmentService
             ),
             appIdService: AppIdService(appSettingStore: appSettingsStore),
+            application: application,
             appSettingsStore: appSettingsStore,
             authRepository: authRepository,
             authService: authService,
@@ -52,9 +57,12 @@ extension ServiceContainer {
             clientService: clientService,
             environmentService: environmentService,
             errorReporter: errorReporter,
+            exportVaultService: exportVaultService,
             generatorRepository: generatorRepository,
             keychainRepository: keychainRepository,
             keychainService: keychainService,
+            migrationService: migrationService,
+            nfcReaderService: nfcReaderService,
             notificationCenterService: notificationCenterService,
             notificationService: notificationService,
             pasteboardService: pasteboardService,

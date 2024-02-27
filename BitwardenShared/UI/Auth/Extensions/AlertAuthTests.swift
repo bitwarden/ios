@@ -32,6 +32,22 @@ class AlertAuthTests: BitwardenTestCase {
         XCTAssertEqual(subject.alertActions[1].title, Localizations.yes)
     }
 
+    /// `extensionKdfMemoryWarning(continueAction:)` constructs an `Alert` used to warn the user
+    /// that their KDF memory setting may be too high to unlock the vault in an extension.
+    func test_extensionKdfMemoryWarning() async throws {
+        let subject = Alert.extensionKdfMemoryWarning {}
+
+        XCTAssertEqual(subject.title, Localizations.warning)
+        XCTAssertEqual(
+            subject.message,
+            Localizations.unlockingMayFailDueToInsufficientMemoryDecreaseYourKDFMemorySettingsToResolve
+        )
+        XCTAssertEqual(subject.preferredStyle, .alert)
+        XCTAssertEqual(subject.alertActions.count, 2)
+        XCTAssertEqual(subject.alertActions[0].title, Localizations.continue)
+        XCTAssertEqual(subject.alertActions[1].title, Localizations.cancel)
+    }
+
     /// `logoutConfirmation(action:)` constructs an `Alert` used to confirm that the user wants to
     /// logout of the account.
     func test_logoutConfirmation() {

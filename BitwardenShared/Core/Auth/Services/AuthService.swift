@@ -19,6 +19,9 @@ enum AuthError: Error {
     /// The request that should have been cached for the two-factor authentication method was missing.
     case missingTwoFactorRequest
 
+    /// There was a problem extracting the code from the Duo WebAuth response.
+    case unableToDecodeDuoResponse
+
     /// There was a problem extracting the code from the single sign on WebAuth response.
     case unableToDecodeSSOResponse
 
@@ -201,6 +204,9 @@ class DefaultAuthService: AuthService { // swiftlint:disable:this type_body_leng
     /// The service used by the application to manage the environment settings.
     private let environmentService: EnvironmentService
 
+    /// The repository used to manages keychain items.
+    private let keychainRepository: KeychainRepository
+
     /// The service used by the application to manage the policy.
     private var policyService: PolicyService
 
@@ -236,6 +242,7 @@ class DefaultAuthService: AuthService { // swiftlint:disable:this type_body_leng
     ///   - clientGenerators: The client used for generating passwords and passphrases.
     ///   - clientPlatform: The client used by the application to handle account fingerprint phrase generation.
     ///   - environmentService: The service used by the application to manage the environment settings.
+    ///   - keychainRepository: The repository used to manages keychain items.
     ///   - policyService: The service used by the application to manage the policy.
     ///   - stateService: The object used by the application to retrieve information about this device.
     ///   - systemDevice: The object used by the application to retrieve information about this device.
@@ -248,6 +255,7 @@ class DefaultAuthService: AuthService { // swiftlint:disable:this type_body_leng
         clientGenerators: ClientGeneratorsProtocol,
         clientPlatform: ClientPlatformProtocol,
         environmentService: EnvironmentService,
+        keychainRepository: KeychainRepository,
         policyService: PolicyService,
         stateService: StateService,
         systemDevice: SystemDevice
@@ -259,6 +267,7 @@ class DefaultAuthService: AuthService { // swiftlint:disable:this type_body_leng
         self.clientGenerators = clientGenerators
         self.clientPlatform = clientPlatform
         self.environmentService = environmentService
+        self.keychainRepository = keychainRepository
         self.policyService = policyService
         self.stateService = stateService
         self.systemDevice = systemDevice
@@ -610,11 +619,7 @@ class DefaultAuthService: AuthService { // swiftlint:disable:this type_body_leng
             // Create the account.
             let urls = await stateService.getPreAuthEnvironmentUrls()
             let account = try Account(identityTokenResponseModel: identityTokenResponse, environmentUrls: urls)
-            await stateService.addAccount(account)
-
-            // Save the encryption keys.
-            let encryptionKeys = AccountEncryptionKeys(identityTokenResponseModel: identityTokenResponse)
-            try await stateService.setAccountEncryptionKeys(encryptionKeys)
+            try await saveAccount(account, identityTokenResponse: identityTokenResponse)
 
             return identityTokenResponse
         } catch let error as IdentityTokenRequestError {
@@ -640,6 +645,30 @@ class DefaultAuthService: AuthService { // swiftlint:disable:this type_body_leng
             // Re-throw the error.
             throw error
         }
+    }
+
+    /// Saves the user's account information.
+    ///
+    /// - Parameters:
+    ///   - account: The user's account.
+    ///   - identityTokenResponse: The response from the identity token request.
+    ///
+    private func saveAccount(_ account: Account, identityTokenResponse: IdentityTokenResponseModel) async throws {
+        await stateService.addAccount(account)
+
+        // Save the encryption keys.
+        let encryptionKeys = AccountEncryptionKeys(identityTokenResponseModel: identityTokenResponse)
+        try await stateService.setAccountEncryptionKeys(encryptionKeys)
+
+        // Save the account tokens.
+        try await keychainRepository.setAccessToken(
+            identityTokenResponse.accessToken,
+            userId: account.profile.userId
+        )
+        try await keychainRepository.setRefreshToken(
+            identityTokenResponse.refreshToken,
+            userId: account.profile.userId
+        )
     }
 
     /// Saves the user's master password hash.

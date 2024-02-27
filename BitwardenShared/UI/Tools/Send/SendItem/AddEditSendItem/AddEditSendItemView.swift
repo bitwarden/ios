@@ -71,7 +71,9 @@ struct AddEditSendItemView: View { // swiftlint:disable:this type_body_length
                             mapAction: { action in
                                 .profileSwitcher(action)
                             },
-                            mapEffect: nil
+                            mapEffect: { effect in
+                                .profileSwitcher(effect)
+                            }
                         )
                     )
                 }
@@ -182,7 +184,10 @@ struct AddEditSendItemView: View { // swiftlint:disable:this type_body_length
                     )
                 )
             case .edit:
-                EmptyView()
+                Text(Localizations.deletionDate)
+                    .styleGuide(.subheadline, weight: .semibold)
+                    .foregroundColor(Asset.Colors.textSecondary.swiftUIColor)
+                    .padding(.bottom, 8.0)
             }
 
             if store.state.deletionDate == .custom {
@@ -228,7 +233,10 @@ struct AddEditSendItemView: View { // swiftlint:disable:this type_body_length
                     )
                 )
             case .edit:
-                EmptyView()
+                Text(Localizations.expirationDate)
+                    .styleGuide(.subheadline, weight: .semibold)
+                    .foregroundColor(Asset.Colors.textSecondary.swiftUIColor)
+                    .padding(.bottom, 8.0)
             }
 
             if store.state.expirationDate == .custom {

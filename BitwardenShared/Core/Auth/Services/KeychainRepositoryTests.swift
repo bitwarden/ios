@@ -4,7 +4,7 @@ import XCTest
 
 // MARK: - KeychainRepositoryTests
 
-final class KeychainRepositoryTests: BitwardenTestCase {
+final class KeychainRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_body_length
     // MARK: Properties
 
     var appSettingsStore: MockAppSettingsStore!
@@ -103,6 +103,38 @@ final class KeychainRepositoryTests: BitwardenTestCase {
             formattedKey,
             expectedKey
         )
+    }
+
+    /// `getAccessToken(userId:)` returns the stored access token.
+    func test_getAccessToken() async throws {
+        keychainService.setSearchResultData(string: "ACCESS_TOKEN")
+        let accessToken = try await subject.getAccessToken(userId: "1")
+        XCTAssertEqual(accessToken, "ACCESS_TOKEN")
+    }
+
+    /// `getAccessToken(userId:)` throws an error if one occurs.
+    func test_getAccessToken_error() async {
+        let error = KeychainServiceError.keyNotFound(.accessToken(userId: "1"))
+        keychainService.searchResult = .failure(error)
+        await assertAsyncThrows(error: error) {
+            _ = try await subject.getAccessToken(userId: "1")
+        }
+    }
+
+    /// `getRefreshToken(userId:)` returns the stored refresh token.
+    func test_getRefreshToken() async throws {
+        keychainService.setSearchResultData(string: "REFRESH_TOKEN")
+        let accessToken = try await subject.getRefreshToken(userId: "1")
+        XCTAssertEqual(accessToken, "REFRESH_TOKEN")
+    }
+
+    /// `getRefreshToken(userId:)` throws an error if one occurs.
+    func test_getRefreshToken_error() async {
+        let error = KeychainServiceError.keyNotFound(.refreshToken(userId: "1"))
+        keychainService.searchResult = .failure(error)
+        await assertAsyncThrows(error: error) {
+            _ = try await subject.getRefreshToken(userId: "1")
+        }
     }
 
     /// `getUserAuthKeyValue(_:)` failures rethrow.
@@ -206,6 +238,64 @@ final class KeychainRepositoryTests: BitwardenTestCase {
             queryValues,
             expectedResult
         )
+    }
+
+    /// `setAccessToken(userId:)` stored the access token.
+    func test_setAccessToken() async throws {
+        keychainService.accessControlResult = .success(
+            SecAccessControlCreateWithFlags(
+                nil,
+                kSecAttrAccessibleWhenUnlockedThisDeviceOnly,
+                [],
+                nil
+            )!
+        )
+        keychainService.setSearchResultData(string: "ACCESS_TOKEN")
+        try await subject.setAccessToken("ACCESS_TOKEN", userId: "1")
+
+        let attributes = try XCTUnwrap(keychainService.addAttributes) as Dictionary
+        try XCTAssertEqual(
+            String(data: XCTUnwrap(attributes[kSecValueData] as? Data), encoding: .utf8),
+            "ACCESS_TOKEN"
+        )
+    }
+
+    /// `setAccessToken(userId:)` throws an error if one occurs.
+    func test_setAccessToken_error() async {
+        let error = KeychainServiceError.accessControlFailed(nil)
+        keychainService.addResult = .failure(error)
+        await assertAsyncThrows(error: error) {
+            _ = try await subject.setAccessToken("ACCESS_TOKEN", userId: "1")
+        }
+    }
+
+    /// `setRefreshToken(userId:)` stored the refresh token.
+    func test_setRefreshToken() async throws {
+        keychainService.accessControlResult = .success(
+            SecAccessControlCreateWithFlags(
+                nil,
+                kSecAttrAccessibleWhenUnlockedThisDeviceOnly,
+                [],
+                nil
+            )!
+        )
+        keychainService.setSearchResultData(string: "REFRESH_TOKEN")
+        try await subject.setRefreshToken("REFRESH_TOKEN", userId: "1")
+
+        let attributes = try XCTUnwrap(keychainService.addAttributes) as Dictionary
+        try XCTAssertEqual(
+            String(data: XCTUnwrap(attributes[kSecValueData] as? Data), encoding: .utf8),
+            "REFRESH_TOKEN"
+        )
+    }
+
+    /// `setRefreshToken(userId:)` throws an error if one occurs.
+    func test_setRefreshToken_error() async {
+        let error = KeychainServiceError.accessControlFailed(nil)
+        keychainService.addResult = .failure(error)
+        await assertAsyncThrows(error: error) {
+            _ = try await subject.setRefreshToken("REFRESH_TOKEN", userId: "1")
+        }
     }
 
     /// `setUserAuthKey(_:)` failures rethrow.

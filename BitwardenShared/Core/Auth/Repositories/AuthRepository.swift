@@ -2,6 +2,7 @@ import BitwardenSdk
 import Foundation
 import LocalAuthentication
 import OSLog
+import SwiftUI
 
 // swiftlint:disable file_length
 
@@ -82,12 +83,14 @@ protocol AuthRepository: AnyObject {
     ///   - allowLockAndLogout: Should the view allow lock & logout?
     ///   - isVisible: Should the state be visible?
     ///   - shouldAlwaysHideAddAccount: Should the state always hide add account?
+    ///   - showPlaceholderToolbarIcon: Should the handler replace the toolbar icon with two dots?
     /// - Returns: A ProfileSwitcherState.
     ///
     func getProfilesState(
         allowLockAndLogout: Bool,
         isVisible: Bool,
-        shouldAlwaysHideAddAccount: Bool
+        shouldAlwaysHideAddAccount: Bool,
+        showPlaceholderToolbarIcon: Bool
     ) async -> ProfileSwitcherState
 
     /// Gets the `SessionTimeoutValue` for a user.
@@ -340,7 +343,8 @@ extension DefaultAuthRepository: AuthRepository {
     func getProfilesState(
         allowLockAndLogout: Bool,
         isVisible: Bool,
-        shouldAlwaysHideAddAccount: Bool
+        shouldAlwaysHideAddAccount: Bool,
+        showPlaceholderToolbarIcon: Bool
     ) async -> ProfileSwitcherState {
         let accounts = await (try? getAccounts()) ?? []
         guard !accounts.isEmpty else { return .empty() }
@@ -350,7 +354,8 @@ extension DefaultAuthRepository: AuthRepository {
             activeAccountId: activeAccount?.userId,
             allowLockAndLogout: allowLockAndLogout,
             isVisible: isVisible,
-            shouldAlwaysHideAddAccount: shouldAlwaysHideAddAccount
+            shouldAlwaysHideAddAccount: shouldAlwaysHideAddAccount,
+            showPlaceholderToolbarIcon: showPlaceholderToolbarIcon
         )
     }
 
@@ -512,12 +517,20 @@ extension DefaultAuthRepository: AuthRepository {
         let hasNeverLock = await (try? stateService
             .getVaultTimeout(userId: account.profile.userId)) == .never
         let displayAsUnlocked = !isLocked || hasNeverLock
+
+        var color: Color = .clear
+        if let avatarColor = account.profile.avatarColor {
+            color = Color(hex: avatarColor)
+        } else {
+            color = Color(asset: Asset.Colors.primaryBitwardenLight)
+        }
+
         return ProfileSwitcherItem(
+            color: color,
             email: account.profile.email,
             isUnlocked: displayAsUnlocked,
             userId: account.profile.userId,
-            userInitials: account.initials()
-                ?? "..",
+            userInitials: account.initials(),
             webVault: account.settings.environmentUrls?.webVaultHost ?? ""
         )
     }
@@ -544,6 +557,9 @@ extension DefaultAuthRepository: AuthRepository {
             break
         case .decryptedKey:
             // No-op: nothing extra to do for decryptedKey.
+            break
+        case .deviceKey:
+            // No-op: nothing extra (for now).
             break
         case let .password(password, _):
             let hashedPassword = try await authService.hashPassword(

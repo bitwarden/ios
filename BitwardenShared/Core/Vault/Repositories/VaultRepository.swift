@@ -5,7 +5,7 @@ import OSLog
 
 /// A protocol for a `VaultRepository` which manages access to the data needed by the UI layer.
 ///
-protocol VaultRepository: AnyObject {
+public protocol VaultRepository: AnyObject {
     // MARK: API Methods
 
     /// Performs an API request to sync the user's vault data. The publishers in the repository can

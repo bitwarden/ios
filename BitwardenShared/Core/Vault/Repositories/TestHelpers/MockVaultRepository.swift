@@ -47,6 +47,8 @@ class MockVaultRepository: VaultRepository {
 
     var getDisableAutoTotpCopyResult: Result<Bool, Error> = .success(false)
 
+    var organizationsPublisherCalled = false
+    var organizationsPublisherError: Error?
     var organizationsSubject = CurrentValueSubject<[Organization], Error>([])
 
     var refreshTOTPCodesResult: Result<[VaultListItem], Error> = .success([])
@@ -171,7 +173,11 @@ class MockVaultRepository: VaultRepository {
     }
 
     func organizationsPublisher() async throws -> AsyncThrowingPublisher<AnyPublisher<[Organization], Error>> {
-        organizationsSubject.eraseToAnyPublisher().values
+        organizationsPublisherCalled = true
+        if let organizationsPublisherError {
+            throw organizationsPublisherError
+        }
+        return organizationsSubject.eraseToAnyPublisher().values
     }
 
     func refreshTOTPCode(for key: BitwardenShared.TOTPKeyModel) async throws -> BitwardenShared.LoginTOTPState {

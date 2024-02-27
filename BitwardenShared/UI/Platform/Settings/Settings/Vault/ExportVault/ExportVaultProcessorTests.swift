@@ -8,6 +8,7 @@ class ExportVaultProcessorTests: BitwardenTestCase {
     var authRepository: MockAuthRepository!
     var coordinator: MockCoordinator<SettingsRoute, SettingsEvent>!
     var errorReporter: MockErrorReporter!
+    var exportService: MockExportVaultService!
     var policyService: MockPolicyService!
     var subject: ExportVaultProcessor!
 
@@ -19,10 +20,12 @@ class ExportVaultProcessorTests: BitwardenTestCase {
         authRepository = MockAuthRepository()
         coordinator = MockCoordinator<SettingsRoute, SettingsEvent>()
         errorReporter = MockErrorReporter()
+        exportService = MockExportVaultService()
         policyService = MockPolicyService()
         let services = ServiceContainer.withMocks(
             authRepository: authRepository,
             errorReporter: errorReporter,
+            exportVaultService: exportService,
             policyService: policyService
         )
 
@@ -38,6 +41,7 @@ class ExportVaultProcessorTests: BitwardenTestCase {
         authRepository = nil
         coordinator = nil
         errorReporter = nil
+        exportService = nil
         policyService = nil
         subject = nil
     }
@@ -76,10 +80,11 @@ class ExportVaultProcessorTests: BitwardenTestCase {
         XCTAssertTrue(subject.state.disableIndividualVaultExport)
     }
 
-    /// `.receive()` with `.dismiss` dismisses the view.
+    /// `.receive()` with `.dismiss` dismisses the view and clears any files.
     func test_receive_dismiss() {
         subject.receive(.dismiss)
 
+        XCTAssertTrue(exportService.didClearFiles)
         XCTAssertEqual(coordinator.routes.last, .dismiss)
     }
 
@@ -92,6 +97,22 @@ class ExportVaultProcessorTests: BitwardenTestCase {
         XCTAssertEqual(coordinator.alertShown.last, .confirmExportVault(encrypted: true, action: {}))
     }
 
+    /// `.receive()` with  `.exportVaultTapped` logs an error on export failure.
+    func test_receive_exportVaultTapped_encrypted_error() throws {
+        exportService.exportVaultContentResult = .failure(BitwardenTestError.example)
+        subject.state.fileFormat = .jsonEncrypted
+        subject.receive(.exportVaultTapped)
+
+        // Select the alert action to export.
+        let exportAction = try XCTUnwrap(coordinator.alertShown.last?.alertActions.first)
+        let task = Task {
+            await exportAction.handler?(exportAction, [])
+        }
+        waitFor(!errorReporter.errors.isEmpty)
+        task.cancel()
+        XCTAssertEqual(errorReporter.errors.first as? BitwardenTestError, .example)
+    }
+
     /// `.receive()` with `.exportVaultTapped` shows the confirm alert for unencrypted formats.
     func test_receive_exportVaultTapped_unencrypted() {
         subject.state.fileFormat = .json
@@ -99,6 +120,40 @@ class ExportVaultProcessorTests: BitwardenTestCase {
 
         // Confirm that the correct alert is displayed.
         XCTAssertEqual(coordinator.alertShown.last, .confirmExportVault(encrypted: false, action: {}))
+    }
+
+    /// `.receive()` with  `.exportVaultTapped` logs an error on export failure.
+    func test_receive_exportVaultTapped_unencrypted_error() throws {
+        exportService.exportVaultContentResult = .failure(BitwardenTestError.example)
+        subject.state.fileFormat = .csv
+        subject.receive(.exportVaultTapped)
+
+        // Select the alert action to export.
+        let exportAction = try XCTUnwrap(coordinator.alertShown.last?.alertActions.first)
+        let task = Task {
+            await exportAction.handler?(exportAction, [])
+        }
+        waitFor(!errorReporter.errors.isEmpty)
+        task.cancel()
+        XCTAssertEqual(errorReporter.errors.first as? BitwardenTestError, .example)
+    }
+
+    /// `.receive()` with  `.exportVaultTapped` passes a file url to the coordinator on success.
+    func test_receive_exportVaultTapped_unencrypted_success() throws {
+        let testURL = URL(string: "www.bitwarden.com")!
+        exportService.exportVaultContentResult = .success("")
+        exportService.writeToFileResult = .success(testURL)
+        subject.state.fileFormat = .json
+        subject.receive(.exportVaultTapped)
+
+        // Select the alert action to export.
+        let exportAction = try XCTUnwrap(coordinator.alertShown.last?.alertActions.first)
+        let task = Task {
+            await exportAction.handler?(exportAction, [])
+        }
+        waitFor(!coordinator.routes.isEmpty)
+        task.cancel()
+        XCTAssertEqual(coordinator.routes.last, .shareExportedVault(testURL))
     }
 
     /// `.receive()` with `.fileFormatTypeChanged()` updates the file format.

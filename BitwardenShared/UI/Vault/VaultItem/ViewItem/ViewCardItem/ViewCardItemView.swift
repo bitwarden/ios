@@ -107,7 +107,7 @@ struct ViewCardItemView: View {
                 }
 
                 Button {
-                    store.send(.copyPressed(value: code))
+                    store.send(.copyPressed(value: code, field: .securityCode))
                 } label: {
                     Asset.Images.copy.swiftUIImage
                         .resizable()

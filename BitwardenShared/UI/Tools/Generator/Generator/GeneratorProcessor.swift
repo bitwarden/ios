@@ -11,6 +11,20 @@ final class GeneratorProcessor: StateProcessor<GeneratorState, GeneratorAction, 
         & HasPasteboardService
         & HasPolicyService
 
+    /// The behavior that should be taken after receiving a new action for generating a new value
+    /// and persisting it.
+    ///
+    enum GenerateValueBehavior {
+        /// A new value should be generated and saved to the user's password history based on the
+        /// `shouldSave` associated value (saving the value only applies to generated passwords).
+        case generateNewValue(shouldSave: Bool)
+
+        /// The existing generated value should be saved without generating a new value. This is
+        /// used to generate a new value as the length slider changes, but only save the last
+        /// generated value when the slider ends editing.
+        case saveExistingValue
+    }
+
     // MARK: Private Properties
 
     /// The `Coordinator` that handles navigation.
@@ -21,6 +35,9 @@ final class GeneratorProcessor: StateProcessor<GeneratorState, GeneratorAction, 
 
     /// The key path of the currently focused text field.
     private var focusedKeyPath: KeyPath<GeneratorState, String>?
+
+    /// Whether the slider is currently in editing mode.
+    private var isEditingSlider = false
 
     /// The task used to generate a new value so it can be cancelled if needed.
     private var generateValueTask: Task<Void, Never>?
@@ -56,12 +73,13 @@ final class GeneratorProcessor: StateProcessor<GeneratorState, GeneratorAction, 
     override func perform(_ effect: GeneratorEffect) async {
         switch effect {
         case .appeared:
-            await generateValue()
+            await generateValue(shouldSavePassword: true)
         }
     }
 
     override func receive(_ action: GeneratorAction) { // swiftlint:disable:this function_body_length
-        var shouldGenerateNewValue = action.shouldGenerateNewValue
+        var generateValueBehavior: GenerateValueBehavior? = action.shouldGenerateNewValue ?
+            .generateNewValue(shouldSave: true) : nil
 
         switch action {
         case .copyGeneratedValue:
@@ -87,16 +105,21 @@ final class GeneratorProcessor: StateProcessor<GeneratorState, GeneratorAction, 
             )
         case .showPasswordHistory:
             coordinator.navigate(to: .generatorHistory)
-        case .sliderEditingChanged:
-            // No-op: This action is just used to generate a value when the slider finishes
-            // editing, which happens below.
-            break
+        case let .sliderEditingChanged(_, isEditing):
+            isEditingSlider = isEditing
+            if !isEditing {
+                // When the slider ends editing, save the existing generated value without generating a new one.
+                generateValueBehavior = .saveExistingValue
+            }
         case let .sliderValueChanged(field, value):
             guard state.shouldGenerateNewValueOnSliderValueChanged(value, keyPath: field.keyPath) else {
-                shouldGenerateNewValue = false
+                generateValueBehavior = nil
                 break
             }
             state[keyPath: field.keyPath] = value
+            if isEditingSlider {
+                generateValueBehavior = .generateNewValue(shouldSave: false)
+            }
         case let .stepperValueChanged(field, value):
             state[keyPath: field.keyPath] = value
         case let .textFieldFocusChanged(keyPath):
@@ -115,7 +138,8 @@ final class GeneratorProcessor: StateProcessor<GeneratorState, GeneratorAction, 
             }
 
             if let focusedKeyPath {
-                shouldGenerateNewValue = state.shouldGenerateNewValueOnTextValueChanged(keyPath: focusedKeyPath)
+                let shouldGenerateNewValue = state.shouldGenerateNewValueOnTextValueChanged(keyPath: focusedKeyPath)
+                generateValueBehavior = shouldGenerateNewValue ? .generateNewValue(shouldSave: true) : nil
             }
         case let .toastShown(newValue):
             state.toast = newValue
@@ -127,10 +151,15 @@ final class GeneratorProcessor: StateProcessor<GeneratorState, GeneratorAction, 
             state.usernameState.usernameGeneratorType = usernameGeneratorType
         }
 
-        if shouldGenerateNewValue {
+        if let generateValueBehavior {
             generateValueTask?.cancel()
             generateValueTask = Task {
-                await generateValue()
+                switch generateValueBehavior {
+                case let .generateNewValue(shouldSave):
+                    await generateValue(shouldSavePassword: shouldSave)
+                case .saveExistingValue:
+                    await saveExistingGeneratedValue()
+                }
                 await saveGeneratorOptions()
             }
         }
@@ -158,15 +187,17 @@ final class GeneratorProcessor: StateProcessor<GeneratorState, GeneratorAction, 
 
     /// Generate a new password.
     ///
-    /// - Parameter settings: The password generator settings used to generate a new password.
+    /// - Parameters:
+    ///   - settings: The password generator settings used to generate a new password.
+    ///   - shouldSavePassword: Whether the generated password should be saved.
     ///
-    func generatePassword(settings: PasswordGeneratorRequest) async {
+    func generatePassword(settings: PasswordGeneratorRequest, shouldSavePassword: Bool) async {
         do {
             let password = try await services.generatorRepository.generatePassword(
                 settings: settings
             )
             try Task.checkCancellation()
-            try await setGeneratedValue(password)
+            try await setGeneratedValue(password, shouldSavePassword: shouldSavePassword)
         } catch is CancellationError {
             // No-op: don't log or alert for cancellation errors.
         } catch {
@@ -199,7 +230,10 @@ final class GeneratorProcessor: StateProcessor<GeneratorState, GeneratorAction, 
 
     /// Generates a new value based on the current settings.
     ///
-    func generateValue() async {
+    /// - Parameter shouldSavePassword: Whether a generated password should be saved. This is
+    ///     ignored if not generating a password.
+    ///
+    func generateValue(shouldSavePassword: Bool) async {
         switch state.generatorType {
         case .password:
             let passwordState = await validatePasswordOptionsAndApplyPolicies()
@@ -207,7 +241,10 @@ final class GeneratorProcessor: StateProcessor<GeneratorState, GeneratorAction, 
             case .passphrase:
                 await generatePassphrase(settings: passwordState.passphraseGeneratorRequest)
             case .password:
-                await generatePassword(settings: passwordState.passwordGeneratorRequest)
+                await generatePassword(
+                    settings: passwordState.passwordGeneratorRequest,
+                    shouldSavePassword: shouldSavePassword
+                )
             }
         case .username:
             await generateUsername()
@@ -232,6 +269,35 @@ final class GeneratorProcessor: StateProcessor<GeneratorState, GeneratorAction, 
         }
     }
 
+    /// Saves the existing generated value to the user's password history.
+    ///
+    /// This should only be called in the case where we want to save a previously generated value,
+    /// which wasn't saved, but now should be saved. This supports generating new passwords as the
+    /// length slider moves around but only saves the last password when the slider ends editing.
+    ///
+    func saveExistingGeneratedValue() async {
+        guard state.generatorType == .password else { return }
+        do {
+            try await saveGeneratedValue(state.generatedValue)
+        } catch {
+            coordinator.showAlert(.networkResponseError(error))
+            Logger.application.error("Generator: error generating username: \(error)")
+        }
+    }
+
+    /// Saves the generated value to the user's password history.
+    ///
+    /// - Parameter value: The generated value to save to the user's password history.
+    ///
+    func saveGeneratedValue(_ value: String) async throws {
+        try await services.generatorRepository.addPasswordHistory(
+            PasswordHistoryView(
+                password: value,
+                lastUsedDate: Date()
+            )
+        )
+    }
+
     /// Saves the user's generation options so their selections can be persisted across app launches.
     ///
     func saveGeneratorOptions() async {
@@ -252,17 +318,15 @@ final class GeneratorProcessor: StateProcessor<GeneratorState, GeneratorAction, 
 
     /// Sets a newly generated value to the state and saves it to the user's password history.
     ///
-    /// - Parameter value: The generated value.
+    /// - Parameters:
+    ///   - value: The generated value.
+    ///   - shouldSavePassword: Whether a generated password should be save. This is
+    ///     ignored if not generating a password.
     ///
-    func setGeneratedValue(_ value: String) async throws {
+    func setGeneratedValue(_ value: String, shouldSavePassword: Bool = true) async throws {
         state.generatedValue = value
-        if state.generatorType == .password {
-            try await services.generatorRepository.addPasswordHistory(
-                PasswordHistoryView(
-                    password: value,
-                    lastUsedDate: Date()
-                )
-            )
+        if state.generatorType == .password, shouldSavePassword {
+            try await saveGeneratedValue(value)
         }
     }
 

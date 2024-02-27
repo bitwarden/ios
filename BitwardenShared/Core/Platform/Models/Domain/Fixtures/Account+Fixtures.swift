@@ -6,12 +6,12 @@ extension Account {
     static func fixture(
         profile: AccountProfile = .fixture(),
         settings: AccountSettings = .fixture(),
-        tokens: AccountTokens = .fixture()
+        tokens: AccountTokens? = nil
     ) -> Account {
         Account(
             profile: profile,
             settings: settings,
-            tokens: tokens
+            _tokens: tokens
         )
     }
 
@@ -32,9 +32,7 @@ extension Account {
             settings: Account.AccountSettings(
                 environmentUrls: EnvironmentUrlData(base: URL(string: "https://vault.bitwarden.com")!)
             ),
-            tokens: Account.AccountTokens.fixture(
-                accessToken: IdentityTokenResponseModel.fixture().accessToken
-            )
+            tokens: nil
         )
     }
 }
@@ -81,18 +79,6 @@ extension Account.AccountSettings {
     ) -> Account.AccountSettings {
         Account.AccountSettings(
             environmentUrls: environmentUrls
-        )
-    }
-}
-
-extension Account.AccountTokens {
-    static func fixture(
-        accessToken: String = "ACCESS_TOKEN",
-        refreshToken: String = "REFRESH_TOKEN"
-    ) -> Account.AccountTokens {
-        Account.AccountTokens(
-            accessToken: accessToken,
-            refreshToken: refreshToken
         )
     }
 }

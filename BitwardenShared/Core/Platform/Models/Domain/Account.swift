@@ -1,6 +1,15 @@
 /// Domain model for a user account.
 ///
 public struct Account: Codable, Equatable, Hashable {
+    // MARK: Types
+
+    /// Key names used for encoding and decoding.
+    enum CodingKeys: String, CodingKey {
+        case profile
+        case settings
+        case _tokens = "tokens" // swiftlint:disable:this identifier_name
+    }
+
     // MARK: Properties
 
     /// The account's profile details.
@@ -10,7 +19,11 @@ public struct Account: Codable, Equatable, Hashable {
     var settings: AccountSettings
 
     /// The account's API tokens.
-    var tokens: AccountTokens
+    ///
+    /// Note: This is deprecated, but remains to support migration - the tokens have been moved to
+    /// the keychain.
+    ///
+    var _tokens: AccountTokens? // swiftlint:disable:this identifier_name
 }
 
 extension Account {
@@ -60,10 +73,7 @@ extension Account {
             settings: AccountSettings(
                 environmentUrls: environmentUrls
             ),
-            tokens: AccountTokens(
-                accessToken: identityTokenResponseModel.accessToken,
-                refreshToken: identityTokenResponseModel.refreshToken
-            )
+            _tokens: nil // Tokens have been moved out of `State` to the keychain.
         )
     }
 }

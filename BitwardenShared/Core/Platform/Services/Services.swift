@@ -12,11 +12,14 @@ typealias Services = HasAPIService
     & HasCameraService
     & HasCaptchaService
     & HasClientAuth
+    & HasClientExporters
     & HasDeviceAPIService
     & HasEnvironmentService
     & HasErrorReporter
+    & HasExportVaultService
     & HasFileAPIService
     & HasGeneratorRepository
+    & HasNFCReaderService
     & HasNotificationCenterService
     & HasNotificationService
     & HasPasteboardService
@@ -109,6 +112,13 @@ protocol HasClientAuth {
     var clientAuth: ClientAuthProtocol { get }
 }
 
+/// Protocol for an object that provides a `ClientExportersProtocol`.
+///
+protocol HasClientExporters {
+    /// The client used by the application to handle auth related encryption and decryption tasks.
+    var clientExporters: ClientExportersProtocol { get }
+}
+
 /// Protocol for an object that provides a `DeviceAPIService`.
 ///
 protocol HasDeviceAPIService {
@@ -130,6 +140,13 @@ protocol HasErrorReporter {
     var errorReporter: ErrorReporter { get }
 }
 
+/// Protocol for an object that provides a `ExportVaultService`.
+///
+protocol HasExportVaultService {
+    /// The service used by the application to handle vault export tasks.
+    var exportVaultService: ExportVaultService { get }
+}
+
 /// Protocol for an object that provides a `FileAPIService`.
 ///
 protocol HasFileAPIService {
@@ -142,6 +159,13 @@ protocol HasFileAPIService {
 protocol HasGeneratorRepository {
     /// The repository used by the application to manage generator data for the UI layer.
     var generatorRepository: GeneratorRepository { get }
+}
+
+/// Protocol for an object that provides a `NFCReaderService`.
+///
+protocol HasNFCReaderService {
+    /// The service used by the application to read NFC tags.
+    var nfcReaderService: NFCReaderService { get }
 }
 
 /// Protocol for an object that provides a `NotificationService`.
