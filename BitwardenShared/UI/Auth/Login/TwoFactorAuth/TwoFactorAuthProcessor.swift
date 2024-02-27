@@ -331,7 +331,6 @@ extension TwoFactorAuthProcessor: DuoAuthenticationFlowDelegate {
 
         guard let authURLValue = maybeAuthURL,
               let authURL = URL(string: authURLValue) else {
-            // TODO: BIT-1933 - Update Duo Localization strings.
             state.toast = Toast(text: Localizations.duoUnsupported)
             return
         }

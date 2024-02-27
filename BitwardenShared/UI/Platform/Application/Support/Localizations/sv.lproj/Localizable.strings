@@ -198,7 +198,7 @@
 "On" = "På";
 "Status" = "Status";
 "BitwardenAutofillServiceAlert2" = "Det lättaste sättet att lägga till nya inloggningar till ditt valv är från Bitwardens hjälpmedelsservice för automatisk ifyllnad. Läs mer om hur man använder Bitwardens hjälpmedelsservice för automatisk ifyllnad genom att navigera till fliken \"Inställningar\".";
-"Autofill" = "Automatisk ifyllnad";
+"Autofill" = "Autofyll";
 "AutofillOrView" = "Vill du automatiskt fylla i den här inloggningen eller visa den?";
 "BitwardenAutofillServiceMatchConfirm" = "Är du säker på att du vill automatiskt fylla i den här inloggningen? Det är inte en fullständig träff för \"%1$@\".";
 "MatchingItems" = "Matchande objekt";
@@ -702,7 +702,7 @@
 "ConfimLogInAttempForX" = "Bekräfta inloggningsförsök för %1$@";
 "AllNotifications" = "Alla aviseringar";
 "PasswordType" = "Lösenordstyp";
-"WhatWouldYouLikeToGenerate" = "Vad vill du skapa?";
+"WhatWouldYouLikeToGenerate" = "Vad skulle du vilja generera?";
 "UsernameType" = "Typ av användarnamn";
 "PlusAddressedEmail" = "Plusadresserad e-post";
 "CatchAllEmail" = "E-post med catch-all";
