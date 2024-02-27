@@ -398,7 +398,6 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
 
     /// `perform(_:)` with `.streamVaultList` updates the state's vault list whenever it changes.
     func test_perform_streamVaultList_needsSync_emptyData() throws {
-        let vaultListItem = VaultListItem.fixture()
         vaultRepository.needsSyncResult = .success(true)
 
         let task = Task {
