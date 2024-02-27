@@ -86,12 +86,12 @@ protocol CipherService {
     /// Save an attachment to a cipher for the current user, both in the backend and in local storage.
     ///
     /// - Parameters:
-    ///   - cipherId: The id of the cipher to add the attachment to.
+    ///   - cipher: The cipher to add the attachment to.
     ///   - attachment: The encrypted attachment data to save.
     ///
     /// - Returns: The updated cipher with one more attachment.
     ///
-    func saveAttachmentWithServer(cipherId: String, attachment: AttachmentEncryptResult) async throws -> Cipher
+    func saveAttachmentWithServer(cipher: Cipher, attachment: AttachmentEncryptResult) async throws -> Cipher
 
     /// Shares a cipher with an organization and updates the locally stored data.
     ///
@@ -266,11 +266,13 @@ extension DefaultCipherService {
         try await cipherDataStore.upsertCipher(cipher, userId: userID)
     }
 
-    func saveAttachmentWithServer(cipherId: String, attachment: AttachmentEncryptResult) async throws -> Cipher {
+    func saveAttachmentWithServer(cipher: Cipher, attachment: AttachmentEncryptResult) async throws -> Cipher {
+        guard let cipherId = cipher.id else { throw CipherAPIServiceError.updateMissingId }
+
         let userId = try await stateService.getActiveAccountId()
 
         // Create the cipher attachment in the backend
-        let response = try await cipherAPIService.saveAttachment(
+        var response = try await cipherAPIService.saveAttachment(
             cipherId: cipherId,
             fileName: attachment.attachment.fileName,
             fileSize: Int(attachment.attachment.size ?? ""),
@@ -286,6 +288,9 @@ extension DefaultCipherService {
             type: response.fileUploadType,
             url: response.url
         )
+
+        // The API doesn't return the collectionIds, so manually add them back.
+        response.cipherResponse.collectionIds = cipher.collectionIds
 
         // Update the cipher in local storage.
         let updatedCipher = Cipher(responseModel: response.cipherResponse)

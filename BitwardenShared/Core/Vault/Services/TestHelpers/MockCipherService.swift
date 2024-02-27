@@ -38,7 +38,7 @@ class MockCipherService: CipherService {
     var softDeleteCipher: Cipher?
     var softDeleteWithServerResult: Result<Void, Error> = .success(())
 
-    var saveAttachmentWithServerCipherId: String?
+    var saveAttachmentWithServerCipher: Cipher?
     var saveAttachmentWithServerResult: Result<Cipher, Error> = .success(.fixture())
 
     var shareCipherWithServerCiphers = [Cipher]()
@@ -101,8 +101,8 @@ class MockCipherService: CipherService {
         try restoreWithServerResult.get()
     }
 
-    func saveAttachmentWithServer(cipherId: String, attachment _: AttachmentEncryptResult) async throws -> Cipher {
-        saveAttachmentWithServerCipherId = cipherId
+    func saveAttachmentWithServer(cipher: Cipher, attachment _: AttachmentEncryptResult) async throws -> Cipher {
+        saveAttachmentWithServerCipher = cipher
         return try saveAttachmentWithServerResult.get()
     }
 
