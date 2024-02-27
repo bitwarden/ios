@@ -86,7 +86,11 @@ public struct AuthMethodsData: Codable, Equatable {
 
 /// Struct with information regarding Duo two factor authentication
 public struct Duo: Codable, Equatable {
-    static var decoder = JSONDecoder.snakeCaseDecoder
+    enum CodingKeys: String, CodingKey {
+        case authUrl = "AuthUrl"
+        case host = "Host"
+        case signature = "Signature"
+    }
 
     let authUrl, host, signature: String?
 }
@@ -95,7 +99,9 @@ public struct Duo: Codable, Equatable {
 
 /// Struct with information regarding Email two factor authentication
 public struct Email: Codable, Equatable {
-    static var decoder = JSONDecoder.snakeCaseDecoder
+    enum CodingKeys: String, CodingKey {
+        case email = "Email"
+    }
 
     /// Email used to send the code to verify 2fa
     let email: String?
@@ -142,7 +148,9 @@ public struct AllowCredential: Codable, Equatable {
 
 /// Struct with information for two factor authentication with Yubikeys
 public struct Yubikey: Codable, Equatable {
-    static var decoder = JSONDecoder.snakeCaseDecoder
+    enum CodingKeys: String, CodingKey {
+        case nfc = "Nfc"
+    }
 
     /// Indicates if NFC is supported
     let nfc: Bool?
