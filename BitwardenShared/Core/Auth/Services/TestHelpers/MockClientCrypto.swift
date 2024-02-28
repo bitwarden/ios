@@ -14,6 +14,9 @@ class MockClientCrypto: ClientCryptoProtocol {
 
     var encryptedPin: String?
 
+    var enrollAdminPasswordPublicKey: String?
+    var enrollAdminPasswordResetResult: Result<String, Error> = .success("RESET_PASSWORD_KEY")
+
     var getUserEncryptionKeyResult: Result<String, Error> = .success("USER_ENCRYPTION_KEY")
 
     var initializeOrgCryptoRequest: InitOrgCryptoRequest?
@@ -37,6 +40,11 @@ class MockClientCrypto: ClientCryptoProtocol {
 
     func derivePinUserKey(encryptedPin: EncString) async throws -> EncString {
         try derivePinUserKeyResult.get()
+    }
+
+    func enrollAdminPasswordReset(publicKey: String) async throws -> AsymmetricEncString {
+        enrollAdminPasswordPublicKey = publicKey
+        return try enrollAdminPasswordResetResult.get()
     }
 
     func getUserEncryptionKey() async throws -> String {

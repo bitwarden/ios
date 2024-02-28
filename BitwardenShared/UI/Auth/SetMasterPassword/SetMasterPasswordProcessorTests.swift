@@ -39,7 +39,7 @@ class SetMasterPasswordProcessorTests: BitwardenTestCase {
             settingsRepository: settingsRepository,
             stateService: stateService
         )
-        let state = SetMasterPasswordState(organizationId: "ORG_ID")
+        let state = SetMasterPasswordState(organizationId: "1234", organizationIdentifier: "ORG_ID")
         subject = SetMasterPasswordProcessor(
             coordinator: coordinator.asAnyCoordinator(),
             services: services,
@@ -210,7 +210,8 @@ class SetMasterPasswordProcessorTests: BitwardenTestCase {
 
         XCTAssertEqual(authRepository.setMasterPasswordHint, "PASSWORD_HINT")
         XCTAssertEqual(authRepository.setMasterPasswordPassword, "PASSWORD1234")
-        XCTAssertEqual(authRepository.setMasterPasswordOrganizationId, "ORG_ID")
+        XCTAssertEqual(authRepository.setMasterPasswordOrganizationId, "1234")
+        XCTAssertEqual(authRepository.setMasterPasswordOrganizationIdentifier, "ORG_ID")
         XCTAssertEqual(authRepository.setMasterPasswordResetPasswordAutoEnroll, true)
 
         XCTAssertEqual(coordinator.events, [.didCompleteAuth])

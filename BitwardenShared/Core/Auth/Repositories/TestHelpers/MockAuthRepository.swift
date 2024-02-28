@@ -29,6 +29,7 @@ class MockAuthRepository: AuthRepository {
     var setMasterPasswordHint: String?
     var setMasterPasswordPassword: String?
     var setMasterPasswordOrganizationId: String?
+    var setMasterPasswordOrganizationIdentifier: String?
     var setMasterPasswordResetPasswordAutoEnroll: Bool?
     var setMasterPasswordResult: Result<Void, Error> = .success(())
     var setVaultTimeoutError: Error?
@@ -175,11 +176,13 @@ class MockAuthRepository: AuthRepository {
         _ password: String,
         masterPasswordHint: String,
         organizationId: String,
+        organizationIdentifier: String,
         resetPasswordAutoEnroll: Bool
     ) async throws {
         setMasterPasswordHint = masterPasswordHint
         setMasterPasswordPassword = password
         setMasterPasswordOrganizationId = organizationId
+        setMasterPasswordOrganizationIdentifier = organizationIdentifier
         setMasterPasswordResetPasswordAutoEnroll = resetPasswordAutoEnroll
         try setMasterPasswordResult.get()
     }

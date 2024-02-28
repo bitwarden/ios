@@ -83,8 +83,9 @@ class SetMasterPasswordProcessor: StateProcessor<
 
         do {
             let response = try await services.organizationAPIService.getOrganizationAutoEnrollStatus(
-                identifier: state.organizationId
+                identifier: state.organizationIdentifier
             )
+            state.organizationId = response.id
             state.resetPasswordAutoEnroll = response.resetPasswordEnabled
 
             try await services.settingsRepository.fetchSync()
@@ -100,6 +101,11 @@ class SetMasterPasswordProcessor: StateProcessor<
     /// Sets the user's password.
     ///
     private func setPassword() async {
+        guard let organizationId = state.organizationId else {
+            coordinator.showAlert(.defaultAlert(title: Localizations.anErrorHasOccurred))
+            return
+        }
+
         do {
             try EmptyInputValidator(fieldName: Localizations.masterPassword)
                 .validate(input: state.masterPassword)
@@ -132,7 +138,8 @@ class SetMasterPasswordProcessor: StateProcessor<
             try await services.authRepository.setMasterPassword(
                 state.masterPassword,
                 masterPasswordHint: state.masterPasswordHint,
-                organizationId: state.organizationId,
+                organizationId: organizationId,
+                organizationIdentifier: state.organizationIdentifier,
                 resetPasswordAutoEnroll: state.resetPasswordAutoEnroll
             )
 

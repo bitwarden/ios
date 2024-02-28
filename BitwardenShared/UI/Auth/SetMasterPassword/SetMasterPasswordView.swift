@@ -100,7 +100,7 @@ struct SetMasterPasswordView: View {
         SetMasterPasswordView(
             store: Store(
                 processor: StateProcessor(
-                    state: SetMasterPasswordState(organizationId: "")
+                    state: SetMasterPasswordState(organizationIdentifier: "")
                 )
             )
         )

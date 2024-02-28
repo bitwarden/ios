@@ -15,7 +15,7 @@ class SetMasterPasswordViewTests: BitwardenTestCase {
     override func setUp() {
         super.setUp()
 
-        processor = MockProcessor(state: SetMasterPasswordState(organizationId: "ORG_ID"))
+        processor = MockProcessor(state: SetMasterPasswordState(organizationIdentifier: "ORG_ID"))
         subject = SetMasterPasswordView(store: Store(processor: processor))
     }
 
