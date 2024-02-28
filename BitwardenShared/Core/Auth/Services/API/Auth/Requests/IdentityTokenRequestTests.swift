@@ -131,10 +131,7 @@ class IdentityTokenRequestTests: BitwardenTestCase {
             XCTAssertEqual(
                 error as? IdentityTokenRequestError,
                 .twoFactorRequired(
-                    [
-                        "1": ["Email": .string("sh***@example.com")],
-                        "3": ["Nfc": .bool(true)],
-                    ],
+                    AuthMethodsData.fixture(),
                     "exampleToken",
                     "BWCaptchaBypass_ABCXYZ"
                 )

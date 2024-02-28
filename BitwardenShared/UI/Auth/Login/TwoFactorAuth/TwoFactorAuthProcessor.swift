@@ -1,4 +1,5 @@
 import AuthenticationServices
+import CryptoKit
 import Foundation
 
 // MARK: - TwoFactorAuthProcessor
@@ -55,6 +56,8 @@ final class TwoFactorAuthProcessor: StateProcessor<TwoFactorAuthState, TwoFactor
         switch effect {
         case .beginDuoAuth:
             authenticateWithDuo()
+        case .beginWebAuthn:
+            authenticateWithWebAuthn()
         case .continueTapped:
             await login()
         case .listenForNFC:
@@ -220,11 +223,10 @@ final class TwoFactorAuthProcessor: StateProcessor<TwoFactorAuthState, TwoFactor
 
     /// Set up the initial parameters of the state.
     private func setUpState() {
+        guard let providersAvailable = state.authMethodsData.providersAvailable else { return }
         // Determine all the available auth methods for the user, adding on the recovery code
         // which is always available.
-        var availableMethods = state
-            .authMethodsData
-            .keys
+        var availableMethods = providersAvailable
             .sorted()
             .compactMap(TwoFactorAuthMethod.init)
         availableMethods.append(.recoveryCode)
@@ -236,9 +238,8 @@ final class TwoFactorAuthProcessor: StateProcessor<TwoFactorAuthState, TwoFactor
 
         // If email is one of the options, then parse the data to get the email to display.
         if availableMethods.contains(.email),
-           let emailData = state.authMethodsData["\(TwoFactorAuthMethod.email.rawValue)"],
-           let emailToDisplay = emailData?["Email"] {
-            state.displayEmail = emailToDisplay?.stringValue ?? state.email
+           let emailData = state.authMethodsData.email {
+            state.displayEmail = emailData.email ?? state.email
         }
     }
 
@@ -317,11 +318,21 @@ extension TwoFactorAuthProcessor: DuoAuthenticationFlowDelegate {
     /// Initiates the DUO 2FA Authentication flow by extracting the auth url from `authMethodsData`.
     ///
     func authenticateWithDuo() {
-        guard state.authMethod == .duo || state.authMethod == .duoOrganization,
-              let maybeValues = state.authMethodsData["\(state.authMethod.rawValue)"],
-              let values = maybeValues,
-              let authURLString = values["AuthUrl"]??.stringValue,
-              let authURL = URL(string: authURLString) else {
+        var maybeAuthURL: String?
+        if state.authMethod == .duo,
+           let duoData = state.authMethodsData.duo,
+           let authURLStringValue = duoData.authUrl {
+            maybeAuthURL = authURLStringValue
+        }
+
+        if state.authMethod == .duoOrganization,
+           let duoOrgData = state.authMethodsData.organizationDuo,
+           let authURLStringValue = duoOrgData.authUrl {
+            maybeAuthURL = authURLStringValue
+        }
+
+        guard let authURLValue = maybeAuthURL,
+              let authURL = URL(string: authURLValue) else {
             state.toast = Toast(text: Localizations.duoUnsupported)
             return
         }
@@ -357,3 +368,82 @@ enum DuoCallbackURLComponent: String {
     /// The state parameter.
     case state
 }
+
+// MARK: WebAuthnFlowDelegate
+
+/// An object that is signaled when specific circumstances in the WebAuthn flow have been encountered.
+///
+protocol WebAuthnFlowDelegate: AnyObject {
+    /// Called when the WebAuthn flow has been completed successfully.
+    ///
+    /// - Parameter token: The token that is computed from the attestation data.
+    ///
+    func webAuthnCompleted(token: String)
+
+    /// Called when the WebAuthn flow encounters an error.
+    ///
+    /// - Parameter error: The error that was encountered.
+    ///
+    func webAuthnErrored(error: Error)
+}
+
+public enum WebAuthnError: Error {
+    case unableToDecodeCredential
+    case unableToCreateAttestationVerification
+    case requiredParametersMissing
+}
+
+extension TwoFactorAuthProcessor: WebAuthnFlowDelegate {
+    func webAuthnCompleted(token: String) {
+        Task {
+            state.verificationCode = token
+            await login()
+        }
+    }
+
+    func webAuthnErrored(error: Error) {
+        // The delay is necessary in order to ensure the alert displays over the WebAuthn view.
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+            self.handleError(error) {
+                self.authenticateWithWebAuthn()
+            }
+        }
+    }
+
+    /// Initiates the WebAuthn 2FA Authentication flow
+    ///
+    private func authenticateWithWebAuthn() {
+        do {
+            if let webAuthnProvider = state.authMethodsData.webAuthn,
+               let rpID = webAuthnProvider.rpId,
+               let userVerificationPreference = webAuthnProvider.userVerification,
+               let challenge = webAuthnProvider.challenge,
+               let challengeUrlDecode = try? challenge.urlDecoded(),
+               let challengeData = Data(base64Encoded: challengeUrlDecode),
+               let allowCredentials = webAuthnProvider.allowCredentials {
+                try coordinator.navigate(
+                    to: .webAuthn(rpid: rpID,
+                                  challenge: challengeData,
+                                  allowCredentialIDs: allowCredentials.map { credential in
+                                      guard let id = credential.id,
+                                            let idUrlDecoded = try? id.urlDecoded(),
+                                            let idData = Data(base64Encoded: idUrlDecoded) else {
+                                          throw WebAuthnError.unableToDecodeCredential
+                                      }
+                                      return idData
+                                  },
+                                  userVerificationPreference: userVerificationPreference),
+                    context: self
+                )
+            } else {
+                throw WebAuthnError.requiredParametersMissing
+            }
+        } catch {
+            coordinator.showAlert(.defaultAlert(
+                title: Localizations.anErrorHasOccurred,
+                message: Localizations.thereWasAnErrorStartingWebAuthnTwoFactorAuthentication
+            ))
+            services.errorReporter.log(error: error)
+        }
+    }
+} // swiftlint:disable:this file_length
