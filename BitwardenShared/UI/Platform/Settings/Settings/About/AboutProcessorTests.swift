@@ -75,6 +75,19 @@ class AboutProcessorTests: BitwardenTestCase {
         XCTAssertEqual(subject.state.url, ExternalLinksConstants.helpAndFeedback)
     }
 
+    /// `receive(_:)` with `.privacyPolicyTapped` shows an alert for navigating to the Privacy Policy
+    /// When `Continue` is tapped on the alert, sets the URL to open in the state.
+    func test_receive_privacyPolicyTapped() async throws {
+        subject.receive(.privacyPolicyTapped)
+
+        guard case let .alert(alert) = coordinator.routes.last else {
+            return XCTFail("Expected an `.alert` route, but found \(String(describing: coordinator.routes.last))")
+        }
+
+        try await alert.tapAction(title: Localizations.continue)
+        XCTAssertEqual(subject.state.url, ExternalLinksConstants.privacyPolicy)
+    }
+
     /// `receive(_:)` with `.rateTheAppTapped` shows an alert for navigating to the app store.
     /// When `Continue` is tapped on the alert, the `appReviewUrl` is populated.
     func test_receive_rateTheAppTapped() async throws {
