@@ -36,45 +36,6 @@ struct UpdateMasterPasswordState: Equatable {
 
     // MARK: Computed Properties
 
-    /// The policy summary based on the `MasterPasswordPolicyOptions`.
-    var policySummary: String {
-        guard let masterPasswordPolicy, masterPasswordPolicy.inEffect() else {
-            return Localizations.masterPasswordPolicyInEffect
-        }
-        let bullet = "\n".appending(String(repeating: " ", count: 2)).appending("\u{2022} ")
-        var policySummary = Localizations.masterPasswordPolicyInEffect
-        if masterPasswordPolicy.minComplexity > 0 {
-            policySummary.append(bullet)
-            policySummary.append(Localizations.policyInEffectMinComplexity(masterPasswordPolicy.minComplexity))
-        }
-
-        if masterPasswordPolicy.minLength > 0 {
-            policySummary.append(bullet)
-            policySummary.append(Localizations.policyInEffectMinLength(masterPasswordPolicy.minLength))
-        }
-
-        if masterPasswordPolicy.requireUpper {
-            policySummary.append(bullet)
-            policySummary.append(Localizations.policyInEffectUppercase)
-        }
-
-        if masterPasswordPolicy.requireLower {
-            policySummary.append(bullet)
-            policySummary.append(Localizations.policyInEffectLowercase)
-        }
-
-        if masterPasswordPolicy.requireNumbers {
-            policySummary.append(bullet)
-            policySummary.append(Localizations.policyInEffectNumbers)
-        }
-
-        if masterPasswordPolicy.requireSpecial {
-            policySummary.append(bullet)
-            policySummary.append(Localizations.policyInEffectSpecial("!@#$%^&*"))
-        }
-        return policySummary
-    }
-
     /// Whether the current password is required.
     var requireCurrentPassword: Bool {
         forcePasswordResetReason == .weakMasterPasswordOnLogin
@@ -85,16 +46,5 @@ struct UpdateMasterPasswordState: Equatable {
         forcePasswordResetReason == .weakMasterPasswordOnLogin ?
             Localizations.updateWeakMasterPasswordWarning :
             Localizations.updateMasterPasswordWarning
-    }
-}
-
-extension MasterPasswordPolicyOptions {
-    func inEffect() -> Bool {
-        minComplexity > 0 ||
-            minLength > 0 ||
-            requireUpper ||
-            requireLower ||
-            requireNumbers ||
-            requireSpecial
     }
 }

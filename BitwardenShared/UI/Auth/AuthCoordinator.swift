@@ -133,14 +133,14 @@ final class AuthCoordinator: NSObject, // swiftlint:disable:this type_body_lengt
             showLanding()
         case let .login(username):
             showLogin(username)
-        case .updateMasterPassword:
-            showUpdateMasterPassword()
         case let .loginWithDevice(email):
             showLoginWithDevice(email: email)
         case let .masterPasswordHint(username):
             showMasterPasswordHint(for: username)
         case let .selfHosted(region):
             showSelfHostedView(delegate: context as? SelfHostedProcessorDelegate, currentRegion: region)
+        case let .setMasterPassword(organizationId):
+            showSetMasterPassword(organizationId: organizationId)
         case let .singleSignOn(callbackUrlScheme, state, url):
             showSingleSignOn(
                 callbackUrlScheme: callbackUrlScheme,
@@ -150,6 +150,8 @@ final class AuthCoordinator: NSObject, // swiftlint:disable:this type_body_lengt
             )
         case let .twoFactor(email, unlockMethod, authMethodsData):
             showTwoFactorAuth(email: email, unlockMethod: unlockMethod, authMethodsData: authMethodsData)
+        case .updateMasterPassword:
+            showUpdateMasterPassword()
         case let .webAuthn(rpId, challenge, allowCredentialIds, userVerificationPreference):
             webAuthnFlowDelegate = context as? WebAuthnFlowDelegate
             showWebAuthn(
@@ -393,24 +395,6 @@ final class AuthCoordinator: NSObject, // swiftlint:disable:this type_body_lengt
         stackNavigator?.present(navigationController)
     }
 
-    /// Shows the update master password view.
-    private func showUpdateMasterPassword() {
-        let processor = UpdateMasterPasswordProcessor(
-            coordinator: asAnyCoordinator(),
-            services: services,
-            state: .init()
-        )
-        let store = Store(processor: processor)
-        let view = UpdateMasterPasswordView(
-            store: store
-        )
-        let viewController = UIHostingController(rootView: view)
-        let navigationController = UINavigationController(rootViewController: viewController)
-        navigationController.isModalInPresentation = true
-
-        stackNavigator?.present(navigationController)
-    }
-
     /// Shows the self-hosted settings view.
     ///
     /// - Parameters:
@@ -440,6 +424,24 @@ final class AuthCoordinator: NSObject, // swiftlint:disable:this type_body_lengt
         let view = SelfHostedView(store: Store(processor: processor))
         let navController = UINavigationController(rootViewController: UIHostingController(rootView: view))
         stackNavigator?.present(navController)
+    }
+
+    /// Shows the set master password view.
+    ///
+    /// - Parameter organizationId: The organization's ID.
+    ///
+    private func showSetMasterPassword(organizationId: String) {
+        let processor = SetMasterPasswordProcessor(
+            coordinator: asAnyCoordinator(),
+            services: services,
+            state: SetMasterPasswordState(organizationId: organizationId)
+        )
+        let view = SetMasterPasswordView(store: Store(processor: processor))
+        let viewController = UIHostingController(rootView: view)
+        let navigationController = UINavigationController(rootViewController: viewController)
+        navigationController.isModalInPresentation = true
+
+        stackNavigator?.present(navigationController)
     }
 
     /// Shows the single sign on screen.
@@ -511,6 +513,24 @@ final class AuthCoordinator: NSObject, // swiftlint:disable:this type_body_lengt
         let view = TwoFactorAuthView(store: Store(processor: processor))
         let viewController = UIHostingController(rootView: view)
         let navigationController = UINavigationController(rootViewController: viewController)
+        stackNavigator?.present(navigationController)
+    }
+
+    /// Shows the update master password view.
+    private func showUpdateMasterPassword() {
+        let processor = UpdateMasterPasswordProcessor(
+            coordinator: asAnyCoordinator(),
+            services: services,
+            state: .init()
+        )
+        let store = Store(processor: processor)
+        let view = UpdateMasterPasswordView(
+            store: store
+        )
+        let viewController = UIHostingController(rootView: view)
+        let navigationController = UINavigationController(rootViewController: viewController)
+        navigationController.isModalInPresentation = true
+
         stackNavigator?.present(navigationController)
     }
 

@@ -175,6 +175,19 @@ class SingleSignOnProcessorTests: BitwardenTestCase {
         XCTAssertEqual(coordinator.routes.last, .twoFactor("", nil, AuthMethodsData()))
     }
 
+    /// `singleSignOnCompleted(code:)` navigates to the set password screen if the user needs
+    /// to set a master password.
+    func test_singleSignOnCompleted_requireSetPasswordError() {
+        authService.loginWithSingleSignOnResult = .failure(AuthError.requireSetPassword)
+        subject.state.identifierText = "BestOrganization"
+
+        subject.singleSignOnCompleted(code: "CODE")
+
+        waitFor(!coordinator.routes.isEmpty)
+
+        XCTAssertEqual(coordinator.routes, [.setMasterPassword(organizationId: "BestOrganization")])
+    }
+
     /// `singleSignOnCompleted(code:)` navigates to the vault unlock view if the vault is still locked.
     func test_singleSignOnCompleted_vaultLocked() {
         // Set up the mock data.

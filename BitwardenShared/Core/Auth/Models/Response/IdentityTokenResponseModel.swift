@@ -24,13 +24,13 @@ struct IdentityTokenResponseModel: Equatable, JSONResponse, KdfConfigProtocol {
     let kdfParallelism: Int?
 
     /// The user's key.
-    let key: String
+    let key: String?
 
     /// Policies related to the user's master password.
     let masterPasswordPolicy: MasterPasswordPolicyResponseModel?
 
     /// The user's private key.
-    let privateKey: String
+    let privateKey: String?
 
     /// Whether the user's master password needs to be reset.
     let resetMasterPassword: Bool

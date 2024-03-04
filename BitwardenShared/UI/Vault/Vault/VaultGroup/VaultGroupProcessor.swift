@@ -190,7 +190,7 @@ final class VaultGroupProcessor: StateProcessor<VaultGroupState, VaultGroupActio
     ///
     private func refreshVaultGroup() async {
         do {
-            try await services.vaultRepository.fetchSync(isManualRefresh: true)
+            try await services.vaultRepository.fetchSync(isManualRefresh: true, filter: state.vaultFilterType)
         } catch {
             coordinator.showAlert(.networkResponseError(error))
             services.errorReporter.log(error: error)

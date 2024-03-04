@@ -163,6 +163,24 @@ extension Alert {
         )
     }
 
+    /// An alert that asks if the user wants to navigate to the "learn about organizations" help page in a browser.
+    ///
+    /// - Parameter action: The action taken if they select continue.
+    /// - Returns: An alert that asks if the user wants to navigate to the app store to leave a review.
+    ///
+    static func learnAboutOrganizationsAlert(action: @escaping () -> Void) -> Alert {
+        Alert(
+            title: Localizations.learnOrg,
+            message: Localizations.learnAboutOrganizationsDescriptionLong,
+            alertActions: [
+                AlertAction(title: Localizations.cancel, style: .cancel),
+                AlertAction(title: Localizations.continue, style: .default) { _ in
+                    action()
+                },
+            ]
+        )
+    }
+
     /// Confirms that the user wants to logout if their session times out.
     ///
     /// - Parameter action: The action performed when they select `Yes`.
@@ -193,6 +211,24 @@ extension Alert {
             alertActions: [
                 AlertAction(title: Localizations.yes, style: .default) { _ in await action() },
                 AlertAction(title: Localizations.cancel, style: .cancel),
+            ]
+        )
+    }
+
+    /// An alert that asks if the user wants to navigate to the privacy policy in a browser.
+    ///
+    /// - Parameter action: The action taken if they select continue.
+    /// - Returns: An alert that asks if the user wants to navigate to the app store to leave a review.
+    ///
+    static func privacyPolicyAlert(action: @escaping () -> Void) -> Alert {
+        Alert(
+            title: Localizations.continueToPrivacyPolicy,
+            message: Localizations.privacyPolicyDescriptionLong,
+            alertActions: [
+                AlertAction(title: Localizations.cancel, style: .cancel),
+                AlertAction(title: Localizations.continue, style: .default) { _ in
+                    action()
+                },
             ]
         )
     }

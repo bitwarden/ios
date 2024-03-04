@@ -1,20 +1,21 @@
 import BitwardenSdk
 import Foundation
 
-// MARK: - UpdateMasterPasswordProcessor
+// MARK: - SetMasterPasswordProcessor
 
-/// The processor used to manage state and handle actions for the update master password screen.
+/// The processor used to manage state and handle actions for the set master password screen.
 ///
-class UpdateMasterPasswordProcessor: StateProcessor<
-    UpdateMasterPasswordState,
-    UpdateMasterPasswordAction,
-    UpdateMasterPasswordEffect
+class SetMasterPasswordProcessor: StateProcessor<
+    SetMasterPasswordState,
+    SetMasterPasswordAction,
+    SetMasterPasswordEffect
 > {
     // MARK: Types
 
     typealias Services = HasAuthRepository
         & HasAuthService
         & HasErrorReporter
+        & HasOrganizationAPIService
         & HasPolicyService
         & HasSettingsRepository
         & HasStateService
@@ -29,7 +30,7 @@ class UpdateMasterPasswordProcessor: StateProcessor<
 
     // MARK: Initialization
 
-    /// Creates a new `UpdateMasterPasswordProcessor`.
+    /// Creates a new `SetMasterPasswordProcessor`.
     ///
     /// - Parameters:
     ///   - coordinator: The coordinator that handles navigation.
@@ -39,7 +40,7 @@ class UpdateMasterPasswordProcessor: StateProcessor<
     init(
         coordinator: AnyCoordinator<AuthRoute, AuthEvent>,
         services: Services,
-        state: UpdateMasterPasswordState
+        state: SetMasterPasswordState
     ) {
         self.coordinator = coordinator
         self.services = services
@@ -48,85 +49,57 @@ class UpdateMasterPasswordProcessor: StateProcessor<
 
     // MARK: Methods
 
-    override func perform(_ effect: UpdateMasterPasswordEffect) async {
+    override func perform(_ effect: SetMasterPasswordEffect) async {
         switch effect {
         case .appeared:
-            await syncVault()
-        case .logoutPressed:
-            showLogoutConfirmation()
+            await loadData()
+        case .cancelPressed:
+            coordinator.navigate(to: .dismiss)
         case .submitPressed:
-            await updateMasterPassword()
+            await setPassword()
         }
     }
 
-    override func receive(_ action: UpdateMasterPasswordAction) {
+    override func receive(_ action: SetMasterPasswordAction) {
         switch action {
-        case let .currentMasterPasswordChanged(newValue):
-            state.currentMasterPassword = newValue
         case let .masterPasswordChanged(newValue):
             state.masterPassword = newValue
         case let .masterPasswordHintChanged(newValue):
             state.masterPasswordHint = newValue
         case let .masterPasswordRetypeChanged(newValue):
             state.masterPasswordRetype = newValue
-        case let .revealCurrentMasterPasswordFieldPressed(isOn):
-            state.isCurrentMasterPasswordRevealed = isOn
         case let .revealMasterPasswordFieldPressed(isOn):
             state.isMasterPasswordRevealed = isOn
-        case let .revealMasterPasswordRetypeFieldPressed(isOn):
-            state.isMasterPasswordRetypeRevealed = isOn
         }
     }
 
     // MARK: Private Methods
 
-    /// Shows an alert asking the user to confirm that they want to logout.
+    /// Loads any data needed to render the view.
     ///
-    private func showLogoutConfirmation() {
-        let alert = Alert.logoutConfirmation { [weak self] in
-            guard let self else { return }
-            await coordinator.handleEvent(.action(.logout(userId: nil, userInitiated: true)))
-            coordinator.navigate(to: .dismiss)
-        }
-        coordinator.navigate(to: .alert(alert))
-    }
-
-    /// Syncs the user's vault with the API.
-    ///
-    private func syncVault() async {
+    private func loadData() async {
         coordinator.showLoadingOverlay(title: Localizations.syncing)
         defer { coordinator.hideLoadingOverlay() }
 
         do {
-            try await services.settingsRepository.fetchSync()
-            let account = try await services.authRepository.getAccount()
-            state.forcePasswordResetReason = account.profile.forcePasswordResetReason
+            let response = try await services.organizationAPIService.getOrganizationAutoEnrollStatus(
+                identifier: state.organizationId
+            )
+            state.resetPasswordAutoEnroll = response.resetPasswordEnabled
 
+            try await services.settingsRepository.fetchSync()
             if let policy = try await services.policyService.getMasterPasswordPolicyOptions() {
                 state.masterPasswordPolicy = policy
-            } else if state.forcePasswordResetReason == .weakMasterPasswordOnLogin {
-                // If the reset reason is because of a weak password, but there's no policy don't
-                // require a master password update.
-                coordinator.hideLoadingOverlay()
-                try await services.stateService.setForcePasswordResetReason(nil)
-                await coordinator.handleEvent(.didCompleteAuth)
             }
         } catch {
-            coordinator.showAlert(.networkResponseError(error) {
-                await self.syncVault()
-            })
+            coordinator.showAlert(.networkResponseError(error))
             services.errorReporter.log(error: error)
         }
     }
 
-    /// Updates the master password.
+    /// Sets the user's password.
     ///
-    private func updateMasterPassword() async {
-        guard let forcePasswordResetReason = state.forcePasswordResetReason else {
-            coordinator.showAlert(.defaultAlert(title: Localizations.anErrorHasOccurred))
-            return
-        }
-
+    private func setPassword() async {
         do {
             try EmptyInputValidator(fieldName: Localizations.masterPassword)
                 .validate(input: state.masterPassword)
@@ -153,18 +126,16 @@ class UpdateMasterPasswordProcessor: StateProcessor<
                 return
             }
 
-            coordinator.showLoadingOverlay(title: Localizations.updatingPassword)
+            coordinator.showLoadingOverlay(title: Localizations.loading)
             defer { coordinator.hideLoadingOverlay() }
 
-            try await services.authRepository.updateMasterPassword(
-                currentPassword: state.currentMasterPassword,
-                newPassword: state.masterPassword,
-                passwordHint: state.masterPasswordHint,
-                reason: forcePasswordResetReason
+            try await services.authRepository.setMasterPassword(
+                state.masterPassword,
+                masterPasswordHint: state.masterPasswordHint,
+                organizationId: state.organizationId,
+                resetPasswordAutoEnroll: state.resetPasswordAutoEnroll
             )
 
-            coordinator.hideLoadingOverlay()
-            coordinator.navigate(to: .dismiss)
             await coordinator.handleEvent(.didCompleteAuth)
         } catch let error as InputValidationError {
             coordinator.showAlert(.inputValidationAlert(error: error))

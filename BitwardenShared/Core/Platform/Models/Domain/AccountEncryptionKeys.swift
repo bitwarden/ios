@@ -15,10 +15,13 @@ extension AccountEncryptionKeys {
     ///
     /// - Parameter identityTokenResponseModel: The response model from the identity token request.
     ///
-    init(identityTokenResponseModel: IdentityTokenResponseModel) {
+    init?(identityTokenResponseModel: IdentityTokenResponseModel) {
+        guard let key = identityTokenResponseModel.key,
+              let privateKey = identityTokenResponseModel.privateKey
+        else { return nil }
         self.init(
-            encryptedPrivateKey: identityTokenResponseModel.privateKey,
-            encryptedUserKey: identityTokenResponseModel.key
+            encryptedPrivateKey: privateKey,
+            encryptedUserKey: key
         )
     }
 }

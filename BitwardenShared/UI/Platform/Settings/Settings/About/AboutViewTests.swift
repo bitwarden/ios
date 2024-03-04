@@ -39,6 +39,20 @@ class AboutViewTests: BitwardenTestCase {
         XCTAssertEqual(processor.dispatchedActions.last, .helpCenterTapped)
     }
 
+    /// Tapping the privacy policy button dispatches the `.privacyPolicyTapped` action.
+    func test_privacyPolicyButton_tap() throws {
+        let button = try subject.inspect().find(button: Localizations.privacyPolicy)
+        try button.tap()
+        XCTAssertEqual(processor.dispatchedActions.last, .privacyPolicyTapped)
+    }
+
+    /// Tapping the learn about organizations button dispatches the `.learnAboutOrganizationsTapped` action.
+    func test_learnAboutOrganizationsButton_tap() throws {
+        let button = try subject.inspect().find(button: Localizations.learnOrg)
+        try button.tap()
+        XCTAssertEqual(processor.dispatchedActions.last, .learnAboutOrganizationsTapped)
+    }
+
     /// Tapping the rate this app button dispatches the `.rateTheAppTapped` action.
     func test_rateAppButton_tap() throws {
         let button = try subject.inspect().find(button: Localizations.rateTheApp)

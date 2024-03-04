@@ -51,13 +51,16 @@ public enum AuthRoute: Equatable {
     /// - Parameter username: The username to display on the password hint screen.
     case masterPasswordHint(username: String)
 
-    /// A route to the update master password view.
-    case updateMasterPassword
-
     /// A route to the self-hosted settings view.
     ///
     /// - Parameter currentRegion: The user's region type prior to navigating to the self-hosted view.
     case selfHosted(currentRegion: RegionType)
+
+    /// A route to the set master password view.
+    ///
+    /// - Parameter organizationId: The organization's ID.
+    ///
+    case setMasterPassword(organizationId: String)
 
     /// A route to the single sign on WebAuth screen.
     ///
@@ -80,6 +83,9 @@ public enum AuthRoute: Equatable {
         _ unlockMethod: TwoFactorUnlockMethod?,
         _ authMethodsData: AuthMethodsData
     )
+
+    /// A route to the update master password view.
+    case updateMasterPassword
 
     /// A route to the unlock vault screen.
     ///

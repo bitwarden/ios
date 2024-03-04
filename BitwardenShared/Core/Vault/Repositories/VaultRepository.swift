@@ -11,9 +11,13 @@ public protocol VaultRepository: AnyObject {
     /// Performs an API request to sync the user's vault data. The publishers in the repository can
     /// be used to subscribe to the vault data, which are updated as a result of the request.
     ///
-    /// - Parameter isRefresh: Whether the sync is being performed as a manual refresh.
+    /// - Parameters:
+    ///   - isRefresh: Whether the sync is being performed as a manual refresh.
+    ///   - filter: The filter to apply to the vault.
+    /// - Returns: If a sync is performed without error, this returns `[VaultListSection]` to display.
     ///
-    func fetchSync(isManualRefresh: Bool) async throws
+    @discardableResult
+    func fetchSync(isManualRefresh: Bool, filter: VaultFilterType) async throws -> [VaultListSection]?
 
     // MARK: Data Methods
 
@@ -674,11 +678,20 @@ class DefaultVaultRepository { // swiftlint:disable:this type_body_length
 extension DefaultVaultRepository: VaultRepository {
     // MARK: API Methods
 
-    func fetchSync(isManualRefresh: Bool) async throws {
+    @discardableResult
+    func fetchSync(isManualRefresh: Bool, filter: VaultFilterType) async throws -> [VaultListSection]? {
         let allowSyncOnRefresh = try await stateService.getAllowSyncOnRefresh()
-        if !isManualRefresh || allowSyncOnRefresh {
-            try await syncService.fetchSync(forceSync: isManualRefresh)
-        }
+        guard !isManualRefresh || allowSyncOnRefresh else { return nil }
+        try await syncService.fetchSync(forceSync: isManualRefresh)
+        let ciphers = try await cipherService.fetchAllCiphers()
+        let collections = try await collectionService.fetchAllCollections(includeReadOnly: true)
+        let folders = try await folderService.fetchAllFolders()
+        return try await vaultListSections(
+            from: ciphers,
+            collections: collections,
+            folders: folders,
+            filter: filter
+        )
     }
 
     // MARK: Data Methods
