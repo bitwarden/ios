@@ -14,7 +14,7 @@ public protocol VaultRepository: AnyObject {
     /// - Parameters:
     ///   - isRefresh: Whether the sync is being performed as a manual refresh.
     ///   - filter: The filter to apply to the vault.
-    /// - Returns: If a sync is performed without error, this returns`[VaultListSection]` to display.
+    /// - Returns: If a sync is performed without error, this returns `[VaultListSection]` to display.
     ///
     @discardableResult
     func fetchSync(isManualRefresh: Bool, filter: VaultFilterType) async throws -> [VaultListSection]?
