@@ -3,6 +3,8 @@ import SwiftUI
 /// A standardized view used to display some text into a row of a list. This is commonly used in
 /// forms.
 struct BitwardenTextValueField<AccessoryContent>: View where AccessoryContent: View {
+    // MARK: Properties
+
     /// The (optional) title of the field.
     var title: String?
 
@@ -12,6 +14,8 @@ struct BitwardenTextValueField<AccessoryContent>: View where AccessoryContent: V
     /// Any accessory content that should be displayed on the trailing edge of the field. This
     /// content automatically has the `AccessoryButtonStyle` applied to it.
     var accessoryContent: AccessoryContent?
+
+    // MARK: View
 
     var body: some View {
         BitwardenField(title: title) {

@@ -217,10 +217,13 @@ struct ViewItemDetailsView: View {
         if store.state.type == .login, !store.state.loginState.uris.isEmpty {
             SectionView(Localizations.urIs) {
                 ForEach(store.state.loginState.uris, id: \.self) { uri in
-                    BitwardenTextValueField(title: Localizations.uri, value: uri.uri) {
-                        if let url = URL(string: uri.uri), uri.uri.isValidURL {
+                    BitwardenTextValueField(
+                        title: Localizations.uri,
+                        value: URL(string: uri.uri)?.host ?? uri.uri
+                    ) {
+                        if let url = URL(string: uri.uri)?.sanitized, url.hasValidURLComponents {
                             Button {
-                                openURL(url.sanitized)
+                                openURL(url)
                             } label: {
                                 Asset.Images.externalLink.swiftUIImage
                                     .resizable()
