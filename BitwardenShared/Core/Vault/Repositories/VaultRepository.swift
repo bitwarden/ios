@@ -5,7 +5,7 @@ import OSLog
 
 /// A protocol for a `VaultRepository` which manages access to the data needed by the UI layer.
 ///
-protocol VaultRepository: AnyObject {
+public protocol VaultRepository: AnyObject {
     // MARK: API Methods
 
     /// Performs an API request to sync the user's vault data. The publishers in the repository can
@@ -176,6 +176,12 @@ protocol VaultRepository: AnyObject {
     func ciphersAutofillPublisher(
         uri: String?
     ) async throws -> AsyncThrowingPublisher<AnyPublisher<[CipherView], Error>>
+
+    /// Determine if a full sync is necessary.
+    ///
+    /// - Returns: Whether a sync should be performed.
+    ///
+    func needsSync() async throws -> Bool
 
     /// A publisher for the list of organizations the user is a member of.
     ///
@@ -801,6 +807,11 @@ extension DefaultVaultRepository: VaultRepository {
         try await stateService.getDisableAutoTotpCopy()
     }
 
+    func needsSync() async throws -> Bool {
+        let userId = try await stateService.getActiveAccountId()
+        return try await syncService.needsSync(for: userId)
+    }
+
     func refreshTOTPCode(for key: TOTPKeyModel) async throws -> LoginTOTPState {
         let codeState = try await clientVault.generateTOTPCode(
             for: key.rawAuthenticatorKey,
@@ -844,8 +855,6 @@ extension DefaultVaultRepository: VaultRepository {
     }
 
     func saveAttachment(cipherView: CipherView, fileData: Data, fileName: String) async throws -> CipherView {
-        guard let cipherId = cipherView.id else { throw BitwardenError.dataError("Received a cipher with a nil id") }
-
         // Put the file data size and file name into a blank attachment view.
         let attachmentView = AttachmentView(
             id: nil,
@@ -865,7 +874,10 @@ extension DefaultVaultRepository: VaultRepository {
         )
 
         // Save the attachment to the cipher and return the updated cipher.
-        let updatedCipher = try await cipherService.saveAttachmentWithServer(cipherId: cipherId, attachment: attachment)
+        let updatedCipher = try await cipherService.saveAttachmentWithServer(
+            cipher: cipher,
+            attachment: attachment
+        )
         return try await clientVault.ciphers().decrypt(cipher: updatedCipher)
     }
 

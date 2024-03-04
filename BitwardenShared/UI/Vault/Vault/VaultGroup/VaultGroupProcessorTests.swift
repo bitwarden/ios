@@ -109,7 +109,7 @@ class VaultGroupProcessorTests: BitwardenTestCase { // swiftlint:disable:this ty
             await subject.perform(.appeared)
         }
 
-        waitFor(subject.state.loadingState != .loading)
+        waitFor(subject.state.loadingState != .loading(nil))
         task.cancel()
 
         XCTAssertEqual(subject.state.loadingState, .data([vaultListItem]))
@@ -420,7 +420,7 @@ class VaultGroupProcessorTests: BitwardenTestCase { // swiftlint:disable:this ty
             await subject.perform(.streamVaultList)
         }
 
-        waitFor(subject.state.loadingState != .loading)
+        waitFor(subject.state.loadingState != .loading(nil))
         task.cancel()
 
         let items = try XCTUnwrap(subject.state.loadingState.data)

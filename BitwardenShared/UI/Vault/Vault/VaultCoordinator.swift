@@ -61,6 +61,7 @@ final class VaultCoordinator: Coordinator, HasStackNavigator {
         & HasCameraService
         & HasEnvironmentService
         & HasErrorReporter
+        & HasNotificationService
         & HasStateService
         & HasTimeProvider
         & HasVaultRepository

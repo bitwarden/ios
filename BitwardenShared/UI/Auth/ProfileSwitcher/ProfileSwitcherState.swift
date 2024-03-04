@@ -48,6 +48,9 @@ struct ProfileSwitcherState: Equatable {
         !shouldAlwaysHideAddAccount && accounts.count < Constants.maxAccounts
     }
 
+    /// Should the handler replace the toolbar icon with two dots?
+    let showPlaceholderToolbarIcon: Bool
+
     // MARK: Initialization
 
     /// Initialize the `ProfileSwitcherState`.
@@ -59,6 +62,7 @@ struct ProfileSwitcherState: Equatable {
     ///   - isVisible: The visibility of the view.
     ///   - scrollOffset: The offset of the scroll view.
     ///   - shouldAlwaysHideAddAccount: Overrides visibility of the add account row.
+    ///   - showPlaceholderToolbarIcon: Should the handler replace the toolbar icon with two dots?
     ///
     init(
         accounts: [ProfileSwitcherItem],
@@ -66,7 +70,8 @@ struct ProfileSwitcherState: Equatable {
         allowLockAndLogout: Bool,
         isVisible: Bool,
         scrollOffset: CGPoint = .zero,
-        shouldAlwaysHideAddAccount: Bool = false
+        shouldAlwaysHideAddAccount: Bool = false,
+        showPlaceholderToolbarIcon: Bool = false
     ) {
         self.accounts = accounts
         self.activeAccountId = activeAccountId
@@ -74,17 +79,23 @@ struct ProfileSwitcherState: Equatable {
         self.isVisible = isVisible
         self.scrollOffset = scrollOffset
         self.shouldAlwaysHideAddAccount = shouldAlwaysHideAddAccount
+        self.showPlaceholderToolbarIcon = showPlaceholderToolbarIcon
     }
 
     // MARK: Static Functions
 
-    static func empty(allowLockAndLogout: Bool = false, shouldAlwaysHideAddAccount: Bool = false) -> Self {
+    static func empty(
+        allowLockAndLogout: Bool = false,
+        shouldAlwaysHideAddAccount: Bool = false,
+        showPlaceholderToolbarIcon: Bool = false
+    ) -> Self {
         ProfileSwitcherState(
             accounts: [],
             activeAccountId: nil,
             allowLockAndLogout: allowLockAndLogout,
             isVisible: false,
-            shouldAlwaysHideAddAccount: shouldAlwaysHideAddAccount
+            shouldAlwaysHideAddAccount: shouldAlwaysHideAddAccount,
+            showPlaceholderToolbarIcon: showPlaceholderToolbarIcon
         )
     }
 

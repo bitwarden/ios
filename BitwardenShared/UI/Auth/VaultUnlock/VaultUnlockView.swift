@@ -91,7 +91,9 @@ struct VaultUnlockView: View {
                 mapAction: { action in
                     .profileSwitcher(action)
                 },
-                mapEffect: nil
+                mapEffect: { effect in
+                    .profileSwitcher(effect)
+                }
             )
         )
     }
@@ -144,6 +146,12 @@ struct VaultUnlockView: View {
                 )
             )
             .textFieldConfiguration(.password)
+            .submitLabel(.go)
+            .onSubmit {
+                Task {
+                    await store.perform(.unlockVault)
+                }
+            }
         case .pin:
             BitwardenTextField(
                 title: Localizations.pin,
@@ -159,7 +167,13 @@ struct VaultUnlockView: View {
                     send: VaultUnlockAction.revealPinFieldPressed
                 )
             )
-            .textFieldConfiguration(.pin)
+            .textFieldConfiguration(.numeric(.password))
+            .submitLabel(.go)
+            .onSubmit {
+                Task {
+                    await store.perform(.unlockVault)
+                }
+            }
         }
     }
 
@@ -176,85 +190,87 @@ struct VaultUnlockView: View {
 // MARK: - Previews
 
 #if DEBUG
-struct UnlockVaultView_Previews: PreviewProvider {
-    static var previews: some View {
-        NavigationView {
-            VaultUnlockView(
-                store: Store(
-                    processor: StateProcessor(
-                        state: VaultUnlockState(
-                            email: "user@bitwarden.com",
-                            profileSwitcherState: .init(
-                                accounts: [],
-                                activeAccountId: nil,
-                                allowLockAndLogout: true,
-                                isVisible: false
-                            ),
-                            unlockMethod: .password,
-                            webVaultHost: "vault.bitwarden.com"
-                        )
+#Preview {
+    NavigationView {
+        VaultUnlockView(
+            store: Store(
+                processor: StateProcessor(
+                    state: VaultUnlockState(
+                        email: "user@bitwarden.com",
+                        profileSwitcherState: .init(
+                            accounts: [],
+                            activeAccountId: nil,
+                            allowLockAndLogout: true,
+                            isVisible: false
+                        ),
+                        unlockMethod: .password,
+                        webVaultHost: "vault.bitwarden.com"
                     )
                 )
             )
-        }
-
-        NavigationView {
-            VaultUnlockView(
-                store: Store(
-                    processor: StateProcessor(
-                        state: VaultUnlockState(
-                            email: "user@bitwarden.com",
-                            profileSwitcherState: ProfileSwitcherState(
-                                accounts: [
-                                    ProfileSwitcherItem(
-                                        email: "max.protecc@bitwarden.com",
-                                        isUnlocked: false,
-                                        userId: "123",
-                                        userInitials: "MP",
-                                        webVault: ""
-                                    ),
-                                ],
-                                activeAccountId: "123",
-                                allowLockAndLogout: true,
-                                isVisible: false
-                            ),
-                            unlockMethod: .pin,
-                            webVaultHost: "vault.bitwarden.com"
-                        )
-                    )
-                )
-            )
-        }
-        .previewDisplayName("Profiles Closed")
-
-        NavigationView {
-            VaultUnlockView(
-                store: Store(
-                    processor: StateProcessor(
-                        state: VaultUnlockState(
-                            email: "user@bitwarden.com",
-                            profileSwitcherState: ProfileSwitcherState(
-                                accounts: [
-                                    ProfileSwitcherItem(
-                                        email: "max.protecc@bitwarden.com",
-                                        isUnlocked: false,
-                                        userId: "123",
-                                        userInitials: "MP",
-                                        webVault: ""
-                                    ),
-                                ],
-                                activeAccountId: "123",
-                                allowLockAndLogout: true,
-                                isVisible: true
-                            ),
-                            unlockMethod: .password,
-                            webVaultHost: "vault.bitwarden.com"
-                        )
-                    )
-                )
-            )
-        }
-        .previewDisplayName("Profiles Open")
+        )
     }
+}
+
+#Preview {
+    NavigationView {
+        VaultUnlockView(
+            store: Store(
+                processor: StateProcessor(
+                    state: VaultUnlockState(
+                        email: "user@bitwarden.com",
+                        profileSwitcherState: ProfileSwitcherState(
+                            accounts: [
+                                ProfileSwitcherItem(
+                                    email: "max.protecc@bitwarden.com",
+                                    isUnlocked: false,
+                                    userId: "123",
+                                    userInitials: "MP",
+                                    webVault: ""
+                                ),
+                            ],
+                            activeAccountId: "123",
+                            allowLockAndLogout: true,
+                            isVisible: false
+                        ),
+                        unlockMethod: .pin,
+                        webVaultHost: "vault.bitwarden.com"
+                    )
+                )
+            )
+        )
+    }
+    .previewDisplayName("Profiles Closed")
+}
+
+#Preview {
+    NavigationView {
+        VaultUnlockView(
+            store: Store(
+                processor: StateProcessor(
+                    state: VaultUnlockState(
+                        email: "user@bitwarden.com",
+                        profileSwitcherState: ProfileSwitcherState(
+                            accounts: [
+                                ProfileSwitcherItem(
+                                    email: "max.protecc@bitwarden.com",
+                                    isUnlocked: false,
+                                    userId: "123",
+                                    userInitials: "MP",
+                                    webVault: ""
+                                ),
+                            ],
+                            activeAccountId: "123",
+                            allowLockAndLogout: true,
+                            isVisible: true
+                        ),
+                        unlockMethod: .password,
+                        webVaultHost: "vault.bitwarden.com"
+                    )
+                )
+            )
+        )
+    }
+    .previewDisplayName("Profiles Open")
 }
 #endif

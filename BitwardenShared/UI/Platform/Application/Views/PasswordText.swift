@@ -54,34 +54,32 @@ struct PasswordText: View {
 }
 
 #if DEBUG
-struct PasswordText_Previews: PreviewProvider {
-    static var previews: some View {
-        VStack(spacing: 16) {
-            PasswordText(
-                password: "1234",
-                isPasswordVisible: false
-            )
+#Preview {
+    VStack(spacing: 16) {
+        PasswordText(
+            password: "1234",
+            isPasswordVisible: false
+        )
 
-            PasswordText(
-                password: "Password1234!",
-                isPasswordVisible: false
-            )
+        PasswordText(
+            password: "Password1234!",
+            isPasswordVisible: false
+        )
 
-            PasswordText(
-                password: "Password1234!",
-                isPasswordVisible: true
-            )
+        PasswordText(
+            password: "Password1234!",
+            isPasswordVisible: true
+        )
 
-            PasswordText(
-                password: "!@#$%^&*()_+-=.<>,:;\"'?/\\|`~",
-                isPasswordVisible: true
-            )
+        PasswordText(
+            password: "!@#$%^&*()_+-=.<>,:;\"'?/\\|`~",
+            isPasswordVisible: true
+        )
 
-            PasswordText(
-                password: "1234567890",
-                isPasswordVisible: true
-            )
-        }
+        PasswordText(
+            password: "1234567890",
+            isPasswordVisible: true
+        )
     }
 }
 #endif

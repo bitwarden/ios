@@ -61,9 +61,13 @@ class VaultUnlockProcessor: StateProcessor<
         case let .profileSwitcher(profileEffect):
             await handleProfileSwitcherEffect(profileEffect)
         case .unlockVault:
-            await unlockVault()
+            await showExtensionKdfMemoryWarningIfNecessary {
+                await self.unlockVault()
+            }
         case .unlockVaultWithBiometrics:
-            await unlockWithBiometrics()
+            await showExtensionKdfMemoryWarningIfNecessary {
+                await self.unlockWithBiometrics()
+            }
         }
     }
 
@@ -152,6 +156,29 @@ class VaultUnlockProcessor: StateProcessor<
                 )
             )
         )
+    }
+
+    /// Checks to see if the the extension KDF memory warning alert needs to be shown and shows it
+    /// if necessary. The completion handler will be invoked if the alert doesn't need to be shown
+    /// or if the user wants to continue despite the warning.
+    ///
+    /// - Parameter completion: A closure containing the action to take if the user wants to continue
+    ///     with unlocking their vault despite the warning.
+    ///
+    private func showExtensionKdfMemoryWarningIfNecessary(completion: @escaping () async -> Void) async {
+        guard appExtensionDelegate?.isInAppExtension == true,
+              let account = try? await services.stateService.getActiveAccount(),
+              account.profile.kdfType == .argon2id,
+              let kdfMemory = account.profile.kdfMemory,
+              kdfMemory > Constants.maxArgon2IdMemoryBeforeExtensionCrashing
+        else {
+            await completion()
+            return
+        }
+
+        coordinator.showAlert(.extensionKdfMemoryWarning {
+            await completion()
+        })
     }
 
     /// Shows an alert asking the user to confirm that they want to logout.

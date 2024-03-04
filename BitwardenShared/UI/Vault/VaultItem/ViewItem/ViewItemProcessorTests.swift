@@ -101,7 +101,7 @@ class ViewItemProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
             await subject.perform(.appeared)
         }
 
-        waitFor(subject.state.loadingState != .loading)
+        waitFor(subject.state.loadingState != .loading(nil))
         task.cancel()
 
         let expectedState = CipherItemState(
@@ -141,7 +141,7 @@ class ViewItemProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
 
         XCTAssertEqual(
             subject.state.loadingState,
-            .loading
+            .loading(nil)
         )
         XCTAssertFalse(vaultRepository.fetchSyncCalled)
     }
@@ -158,7 +158,7 @@ class ViewItemProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
             await subject.perform(.appeared)
         }
 
-        waitFor(subject.state.loadingState != .loading)
+        waitFor(subject.state.loadingState != .loading(nil))
         task.cancel()
 
         let expectedState = CipherItemState(
@@ -182,7 +182,7 @@ class ViewItemProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
             await subject.perform(.appeared)
         }
 
-        waitFor(subject.state.loadingState != .loading)
+        waitFor(subject.state.loadingState != .loading(nil))
         task.cancel()
 
         let expectedState = CipherItemState(
@@ -274,7 +274,7 @@ class ViewItemProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
 
     /// `receive` with `.cardItemAction` while loading logs an error.
     func test_receive_cardItemAction_impossible_loading() throws {
-        subject.state.loadingState = .loading
+        subject.state.loadingState = .loading(nil)
         subject.receive(.cardItemAction(.toggleCodeVisibilityChanged(true)))
         XCTAssertEqual(
             errorReporter.errors.first as? ViewItemProcessor.ActionError,
@@ -415,7 +415,7 @@ class ViewItemProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
             type: .hidden,
             value: "value 2"
         )
-        subject.state.loadingState = .loading
+        subject.state.loadingState = .loading(nil)
         subject.receive(.customFieldVisibilityPressed(customField))
         XCTAssertEqual(
             errorReporter.errors.first as? ViewItemProcessor.ActionError,
@@ -842,7 +842,7 @@ class ViewItemProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
 
     /// `receive(_:)` with `.morePressed()` shows an error alert if the data is unavailable.
     func test_receive_morePressed_loading() throws {
-        subject.state.loadingState = .loading
+        subject.state.loadingState = .loading(nil)
 
         subject.receive(.morePressed(.attachments))
 
@@ -888,7 +888,7 @@ class ViewItemProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
 
     /// `receive` with `.passwordVisibilityPressed` while loading logs an error.
     func test_receive_passwordVisibilityPressed_impossible_loading() throws {
-        subject.state.loadingState = .loading
+        subject.state.loadingState = .loading(nil)
         subject.receive(.passwordVisibilityPressed)
         XCTAssertEqual(
             errorReporter.errors.first as? ViewItemProcessor.ActionError,

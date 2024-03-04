@@ -169,6 +169,26 @@ class AccountAPIServiceTests: BitwardenTestCase {
         XCTAssertNil(response.kdfParallelism)
     }
 
+    /// `setPassword(_:)` performs the request to set the user's password.
+    func test_setPassword() async throws {
+        client.result = .httpSuccess(testData: .emptyResponse)
+
+        let requestModel = SetPasswordRequestModel(
+            kdfConfig: KdfConfig(),
+            key: "KEY",
+            keys: KeysRequestModel(publicKey: "PUBLIC_KEY", encryptedPrivateKey: "ENCRYPTED_PRIVATE_KEY"),
+            masterPasswordHash: "MASTER_PASSWORD_HASH",
+            masterPasswordHint: "MASTER_PASSWORD_HINT",
+            orgIdentifier: "ORG_ID"
+        )
+        try await subject.setPassword(requestModel)
+
+        XCTAssertEqual(client.requests.count, 1)
+        XCTAssertNotNil(client.requests[0].body)
+        XCTAssertEqual(client.requests[0].method, .post)
+        XCTAssertEqual(client.requests[0].url.absoluteString, "https://example.com/api/accounts/set-password")
+    }
+
     /// `updatePassword()` doesn't throw an error when receiving the empty response.
     func test_updatePassword() async throws {
         client.result = .httpSuccess(testData: .emptyResponse)

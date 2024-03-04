@@ -185,6 +185,10 @@ extension LandingProcessor: ProfileSwitcherHandler {
         true
     }
 
+    var showPlaceholderToolbarIcon: Bool {
+        true
+    }
+
     var toast: Toast? {
         get {
             state.toast

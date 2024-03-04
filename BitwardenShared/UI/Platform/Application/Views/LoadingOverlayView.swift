@@ -35,12 +35,12 @@ struct LoadingOverlayView: View {
 }
 
 #if DEBUG
-struct LoadingOverlay_Previews: PreviewProvider {
-    static var previews: some View {
-        LoadingOverlayView(state: LoadingOverlayState(title: "Progress..."))
+#Preview {
+    LoadingOverlayView(state: LoadingOverlayState(title: "Progress..."))
+}
 
-        LoadingOverlayView(state: LoadingOverlayState(title: "Progress..."))
-            .preferredColorScheme(.dark)
-    }
+#Preview {
+    LoadingOverlayView(state: LoadingOverlayState(title: "Progress..."))
+        .preferredColorScheme(.dark)
 }
 #endif

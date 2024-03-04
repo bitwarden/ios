@@ -74,11 +74,9 @@ struct SettingsView: View {
 // MARK: - Previews
 
 #if DEBUG
-struct SettingsView_Previews: PreviewProvider {
-    static var previews: some View {
-        NavigationView {
-            SettingsView(store: Store(processor: StateProcessor(state: SettingsState())))
-        }
+#Preview {
+    NavigationView {
+        SettingsView(store: Store(processor: StateProcessor(state: SettingsState())))
     }
 }
 #endif

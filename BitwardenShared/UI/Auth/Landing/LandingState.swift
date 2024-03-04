@@ -38,7 +38,10 @@ struct LandingState: Equatable {
     init(
         email: String = "",
         isRememberMeOn: Bool = false,
-        profileSwitcherState: ProfileSwitcherState = .empty(shouldAlwaysHideAddAccount: true),
+        profileSwitcherState: ProfileSwitcherState = .empty(
+            shouldAlwaysHideAddAccount: true,
+            showPlaceholderToolbarIcon: true
+        ),
         region: RegionType = .unitedStates
     ) {
         self.email = email

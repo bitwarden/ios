@@ -343,7 +343,8 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
             sendService: sendService,
             settingsService: settingsService,
             stateService: stateService,
-            syncAPIService: apiService
+            syncAPIService: apiService,
+            timeProvider: timeProvider
         )
 
         let totpService = DefaultTOTPService()
@@ -515,5 +516,9 @@ extension ServiceContainer {
 
     var clientPlatform: ClientPlatformProtocol {
         clientService.clientPlatform()
+    }
+
+    var organizationAPIService: OrganizationAPIService {
+        apiService
     }
 }

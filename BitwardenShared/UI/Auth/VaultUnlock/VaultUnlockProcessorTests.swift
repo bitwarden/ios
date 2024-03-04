@@ -256,6 +256,24 @@ class VaultUnlockProcessorTests: BitwardenTestCase { // swiftlint:disable:this t
         XCTAssertEqual(coordinator.events.last, .didCompleteAuth)
     }
 
+    /// `perform(_:)` with `.unlockVault` shows the KDF warning in an extension if the KDF memory is
+    /// potentially too high.
+    func test_perform_unlockVault_extensionKdfWarning() async throws {
+        appExtensionDelegate.isInAppExtension = true
+        stateService.activeAccount = .fixture(profile: .fixture(kdfMemory: 65, kdfType: .argon2id))
+        subject.state.masterPassword = "password"
+
+        await subject.perform(.unlockVault)
+
+        XCTAssertEqual(coordinator.alertShown, [.extensionKdfMemoryWarning {}])
+
+        let alert = coordinator.alertShown.last
+        try await alert?.tapAction(title: Localizations.continue)
+
+        XCTAssertEqual(authRepository.unlockVaultPassword, "password")
+        XCTAssertEqual(coordinator.events.last, .didCompleteAuth)
+    }
+
     /// `perform(_:)` with `.unlockVault` shows an alert if the master password is empty.
     func test_perform_unlockVault_InputValidationError_noPassword() async throws {
         subject.state.unlockMethod = .password
@@ -411,6 +429,27 @@ class VaultUnlockProcessorTests: BitwardenTestCase { // swiftlint:disable:this t
         XCTAssertEqual(subject.state.unsuccessfulUnlockAttemptsCount, 0)
         attemptsInUserDefaults = await stateService.getUnsuccessfulUnlockAttempts()
         XCTAssertEqual(attemptsInUserDefaults, 0)
+    }
+
+    /// `perform(_:)` with `.unlockVaultWithBiometrics` shows the KDF warning in an extension if the
+    /// KDF memory is potentially too high.
+    func test_perform_unlockWithBiometrics_extensionKdfWarning() async throws {
+        appExtensionDelegate.isInAppExtension = true
+        authRepository.unlockVaultWithBiometricsResult = .success(())
+        biometricsRepository.biometricUnlockStatus = .success(
+            .available(.faceID, enabled: true, hasValidIntegrity: true)
+        )
+        stateService.activeAccount = .fixture(profile: .fixture(kdfMemory: 65, kdfType: .argon2id))
+        subject.state.biometricUnlockStatus = .available(.touchID, enabled: true, hasValidIntegrity: true)
+
+        await subject.perform(.unlockVaultWithBiometrics)
+
+        XCTAssertEqual(coordinator.alertShown, [.extensionKdfMemoryWarning {}])
+
+        let alert = coordinator.alertShown.last
+        try await alert?.tapAction(title: Localizations.continue)
+
+        XCTAssertEqual(coordinator.events.last, .didCompleteAuth)
     }
 
     /// `perform(_:)` with `.unlockWithBiometrics` requires a set user preference.

@@ -193,7 +193,7 @@ struct SendListItemRowView: View {
                 iconStack(for: sendView)
             }
 
-            Text(sendView.revisionDate.formatted(date: .abbreviated, time: .shortened))
+            Text(sendView.deletionDate.formatted(date: .abbreviated, time: .shortened))
                 .styleGuide(.subheadline)
                 .lineLimit(1)
                 .foregroundStyle(Asset.Colors.textSecondary.swiftUIColor)

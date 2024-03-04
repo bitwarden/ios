@@ -17,6 +17,7 @@ final class VaultListProcessor: StateProcessor<
     typealias Services = HasAuthRepository
         & HasAuthService
         & HasErrorReporter
+        & HasNotificationService
         & HasPasteboardService
         & HasPolicyService
         & HasStateService
@@ -168,6 +169,11 @@ final class VaultListProcessor: StateProcessor<
     private func refreshVault(isManualRefresh: Bool) async {
         do {
             try await services.vaultRepository.fetchSync(isManualRefresh: isManualRefresh)
+            // If there is data stuck in a loading state, set it as valid data.
+            if case let .loading(loadingData) = state.loadingState,
+               let data = loadingData {
+                state.loadingState = .data(data)
+            }
         } catch {
             coordinator.showAlert(.networkResponseError(error))
             services.errorReporter.log(error: error)
@@ -177,14 +183,14 @@ final class VaultListProcessor: StateProcessor<
     /// Request permission to send push notifications if the user hasn't granted or denied permissions before.
     private func requestNotificationPermissions() async {
         // Don't do anything if the user has already responded to the permission request.
-        let notificationSettings = await UNUserNotificationCenter.current().notificationSettings()
-        guard notificationSettings.authorizationStatus == .notDetermined else { return }
+        let notificationAuthorization = await services.notificationService.notificationAuthorization()
+        guard notificationAuthorization == .notDetermined else { return }
 
         // Show the explanation alert before asking for permissions.
         coordinator.showAlert(
-            .pushNotificationsInformation {
+            .pushNotificationsInformation { [services] in
                 do {
-                    _ = try await UNUserNotificationCenter.current()
+                    _ = try await services.notificationService
                         .requestAuthorization(options: [.alert, .sound, .badge])
                 } catch {
                     self.services.errorReporter.log(error: error)
@@ -243,7 +249,17 @@ final class VaultListProcessor: StateProcessor<
         do {
             for try await value in try await services.vaultRepository
                 .vaultListPublisher(filter: state.vaultFilterType) {
-                state.loadingState = .data(value)
+                // Check if the vault needs a sync.
+                let needsSync = try await services.vaultRepository.needsSync()
+
+                // If the data is empty, check to ensure that a sync is not needed.
+                if !needsSync || !value.isEmpty {
+                    // If the data is not empty or if a sync is not needed, set the data.
+                    state.loadingState = .data(value)
+                } else {
+                    // Otherwise mark the state as `.loading` until the sync is complete.
+                    state.loadingState = .loading(value)
+                }
             }
         } catch {
             services.errorReporter.log(error: error)

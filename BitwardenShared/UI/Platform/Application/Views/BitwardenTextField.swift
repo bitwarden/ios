@@ -194,68 +194,74 @@ extension BitwardenTextField where TrailingContent == EmptyView {
 // MARK: Previews
 
 #if DEBUG
-struct BitwardenTextField_Previews: PreviewProvider {
-    static var previews: some View {
-        VStack {
-            BitwardenTextField(
-                title: "Title",
-                text: .constant("Text field text")
-            )
-            .textContentType(.emailAddress)
-            .padding()
-        }
-        .background(Color(.systemGroupedBackground))
-        .previewDisplayName("No buttons")
-
-        VStack {
-            BitwardenTextField(
-                title: "Title",
-                text: .constant("Text field text"),
-                isPasswordVisible: .constant(false)
-            )
-            .textContentType(.password)
-            .padding()
-        }
-        .background(Color(.systemGroupedBackground))
-        .previewDisplayName("Password button")
-
-        VStack {
-            BitwardenTextField(
-                title: "Title",
-                text: .constant("Password"),
-                isPasswordVisible: .constant(true)
-            )
-            .textContentType(.password)
-            .padding()
-        }
-        .background(Color(.systemGroupedBackground))
-        .previewDisplayName("Password revealed")
-
-        VStack {
-            BitwardenTextField(
-                title: "Title",
-                text: .constant("Text field text")
-            ) {
-                AccessoryButton(asset: Asset.Images.gear, accessibilityLabel: "") {}
-            }
-            .padding()
-        }
-        .background(Color(.systemGroupedBackground))
-        .previewDisplayName("Additional buttons")
-
-        VStack {
-            BitwardenTextField(
-                title: "Title",
-                text: .constant("Text field text"),
-                footer: Localizations.vaultLockedMasterPassword,
-                isPasswordVisible: .constant(false)
-            ) {
-                AccessoryButton(asset: Asset.Images.gear, accessibilityLabel: "") {}
-            }
-            .padding()
-        }
-        .background(Color(.systemGroupedBackground))
-        .previewDisplayName("Footer text")
+#Preview {
+    VStack {
+        BitwardenTextField(
+            title: "Title",
+            text: .constant("Text field text")
+        )
+        .textContentType(.emailAddress)
+        .padding()
     }
+    .background(Color(.systemGroupedBackground))
+    .previewDisplayName("No buttons")
+}
+
+#Preview {
+    VStack {
+        BitwardenTextField(
+            title: "Title",
+            text: .constant("Text field text"),
+            isPasswordVisible: .constant(false)
+        )
+        .textContentType(.password)
+        .padding()
+    }
+    .background(Color(.systemGroupedBackground))
+    .previewDisplayName("Password button")
+}
+
+#Preview {
+    VStack {
+        BitwardenTextField(
+            title: "Title",
+            text: .constant("Password"),
+            isPasswordVisible: .constant(true)
+        )
+        .textContentType(.password)
+        .padding()
+    }
+    .background(Color(.systemGroupedBackground))
+    .previewDisplayName("Password revealed")
+}
+
+#Preview {
+    VStack {
+        BitwardenTextField(
+            title: "Title",
+            text: .constant("Text field text")
+        ) {
+            AccessoryButton(asset: Asset.Images.gear, accessibilityLabel: "") {}
+        }
+        .padding()
+    }
+    .background(Color(.systemGroupedBackground))
+    .previewDisplayName("Additional buttons")
+}
+
+#Preview {
+    VStack {
+        BitwardenTextField(
+            title: "Title",
+            text: .constant("Text field text"),
+            footer: Localizations.vaultLockedMasterPassword,
+            isPasswordVisible: .constant(false)
+        ) {
+            AccessoryButton(asset: Asset.Images.gear, accessibilityLabel: "") {}
+        }
+        .padding()
+    }
+    .background(Color(.systemGroupedBackground))
+    .previewDisplayName("Footer text")
 }
 #endif
