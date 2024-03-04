@@ -16,8 +16,10 @@ struct UpdateMasterPasswordView: View {
                 if store.state.forcePasswordResetReason != nil {
                     InfoContainer(store.state.updateMasterPasswordWarning)
 
-                    if let policy = store.state.masterPasswordPolicy, policy.inEffect() {
-                        InfoContainer(store.state.policySummary, textAlignment: .leading)
+                    if let policy = store.state.masterPasswordPolicy,
+                       policy.isInEffect,
+                       let policySummary = policy.policySummary {
+                        InfoContainer(policySummary, textAlignment: .leading)
                     }
                 }
 

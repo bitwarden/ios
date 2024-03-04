@@ -380,7 +380,9 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
             clientPlatform: clientService.clientPlatform(),
             environmentService: environmentService,
             keychainService: keychainRepository,
+            organizationAPIService: apiService,
             organizationService: organizationService,
+            organizationUserAPIService: apiService,
             stateService: stateService,
             vaultTimeoutService: vaultTimeoutService
         )
