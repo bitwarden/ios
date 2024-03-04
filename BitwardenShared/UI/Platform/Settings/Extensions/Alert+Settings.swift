@@ -286,4 +286,22 @@ extension Alert {
             ]
         )
     }
+
+    /// An alert that asks if the user wants to navigate to the web vault in a browser.
+    ///
+    /// - Parameter action: The action taken if they select continue.
+    /// - Returns: An alert that asks if the user wants to navigate to the web vault to leave a review.
+    ///
+    static func webVaultAlert(action: @escaping () -> Void) -> Alert {
+        Alert(
+            title: Localizations.continueToWebApp,
+            message: Localizations.exploreMoreFeaturesOfYourBitwardenAccountOnTheWebApp,
+            alertActions: [
+                AlertAction(title: Localizations.cancel, style: .cancel),
+                AlertAction(title: Localizations.continue, style: .default) { _ in
+                    action()
+                },
+            ]
+        )
+    }
 }

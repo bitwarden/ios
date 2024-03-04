@@ -6,6 +6,7 @@ class AboutProcessorTests: BitwardenTestCase {
     // MARK: Properties
 
     var coordinator: MockCoordinator<SettingsRoute, SettingsEvent>!
+    var environmentService: MockEnvironmentService!
     var errorReporter: MockErrorReporter!
     var pasteboardService: MockPasteboardService!
     var subject: AboutProcessor!
@@ -16,12 +17,14 @@ class AboutProcessorTests: BitwardenTestCase {
         super.setUp()
 
         coordinator = MockCoordinator<SettingsRoute, SettingsEvent>()
+        environmentService = MockEnvironmentService()
         errorReporter = MockErrorReporter()
         pasteboardService = MockPasteboardService()
 
         subject = AboutProcessor(
             coordinator: coordinator.asAnyCoordinator(),
             services: ServiceContainer.withMocks(
+                environmentService: environmentService,
                 errorReporter: errorReporter,
                 pasteboardService: pasteboardService
             ),
@@ -33,6 +36,7 @@ class AboutProcessorTests: BitwardenTestCase {
         super.tearDown()
 
         coordinator = nil
+        environmentService = nil
         errorReporter = nil
         pasteboardService = nil
         subject = nil
@@ -144,5 +148,18 @@ class AboutProcessorTests: BitwardenTestCase {
         let text = subject.state.copyrightText + "\n\n" + subject.state.version
         XCTAssertEqual(pasteboardService.copiedString, text)
         XCTAssertEqual(subject.state.toast?.text, Localizations.valueHasBeenCopied(Localizations.appInfo))
+    }
+
+    /// `receive(_:)` with `.webVaultTapped` shows an alert for navigating to the Privacy Policy
+    /// When `Continue` is tapped on the alert, sets the URL to open in the state.
+    func test_receive_webVaultTapped() async throws {
+        subject.receive(.webVaultTapped)
+
+        guard case let .alert(alert) = coordinator.routes.last else {
+            return XCTFail("Expected an `.alert` route, but found \(String(describing: coordinator.routes.last))")
+        }
+
+        try await alert.tapAction(title: Localizations.continue)
+        XCTAssertEqual(subject.state.url, environmentService.webVaultURL)
     }
 }
