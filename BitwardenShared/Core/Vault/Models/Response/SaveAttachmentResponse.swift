@@ -10,7 +10,7 @@ struct SaveAttachmentResponse: JSONResponse, Codable, Equatable {
     let attachmentId: String
 
     /// The updated cipher model.
-    let cipherResponse: CipherDetailsResponseModel
+    var cipherResponse: CipherDetailsResponseModel
 
     /// The type of file upload to perform with the file.
     let fileUploadType: FileUploadType

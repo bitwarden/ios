@@ -25,6 +25,8 @@ class MockSyncService: SyncService {
     var fetchUpsertSyncSendData: SyncSendNotification?
     var fetchUpsertSyncSendResult: Result<Void, Error> = .success(())
 
+    var needsSyncResult: Result<Bool, Error> = .success(false)
+
     func fetchSync(forceSync: Bool) async throws {
         didFetchSync = true
         fetchSyncForceSync = forceSync
@@ -59,5 +61,9 @@ class MockSyncService: SyncService {
     func fetchUpsertSyncSend(data: SyncSendNotification) async throws {
         fetchUpsertSyncSendData = data
         return try fetchUpsertSyncSendResult.get()
+    }
+
+    func needsSync(for userId: String) async throws -> Bool {
+        try needsSyncResult.get()
     }
 }

@@ -41,14 +41,6 @@ protocol AuthAPIService {
     ///
     func getPendingLoginRequests() async throws -> [LoginRequest]
 
-    /// Query the API to determine if the user's email is able to use single sign on and if the organization
-    /// identifier is already known.
-    ///
-    /// - Parameter email: The user's email address.
-    /// - Returns: A `SingleSignOnDetailsResponse`.
-    ///
-    func getSingleSignOnDetails(email: String) async throws -> SingleSignOnDetailsResponse
-
     /// Initiates the login with device process.
     ///
     /// - Parameters:
@@ -110,10 +102,6 @@ extension APIService: AuthAPIService {
     func getPendingLoginRequests() async throws -> [LoginRequest] {
         // Filter the response to only show the non-expired, non-answered requests.
         try await apiService.send(PendingLoginsRequest()).data.filter { !$0.isAnswered && !$0.isExpired }
-    }
-
-    func getSingleSignOnDetails(email: String) async throws -> SingleSignOnDetailsResponse {
-        try await apiUnauthenticatedService.send(SingleSignOnDetailsRequest(email: email))
     }
 
     func initiateLoginWithDevice(

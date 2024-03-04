@@ -1161,6 +1161,7 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
     func test_saveAttachment() async throws {
         cipherService.saveAttachmentWithServerResult = .success(.fixture(id: "42"))
 
+        let cipherView = CipherView.fixture()
         let updatedCipher = try await subject.saveAttachment(
             cipherView: .fixture(),
             fileData: Data(),
@@ -1170,15 +1171,8 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
         // Ensure all the steps completed as expected.
         XCTAssertEqual(clientVault.clientCiphers.encryptedCiphers, [.fixture()])
         XCTAssertEqual(clientVault.clientAttachments.encryptedBuffers, [Data()])
-        XCTAssertEqual(cipherService.saveAttachmentWithServerCipherId, "1")
+        XCTAssertEqual(cipherService.saveAttachmentWithServerCipher, Cipher(cipherView: cipherView))
         XCTAssertEqual(updatedCipher.id, "42")
-    }
-
-    /// `saveAttachment(cipherView:fileData:fileName:)`  throws on id errors.
-    func test_saveAttachment_idNilError() async throws {
-        await assertAsyncThrows {
-            _ = try await subject.saveAttachment(cipherView: .fixture(id: nil), fileData: Data(), fileName: "")
-        }
     }
 
     /// `softDeleteCipher()` throws on id errors.

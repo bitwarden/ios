@@ -99,4 +99,19 @@ public enum AuthRoute: Equatable {
         attemptAutomaticBiometricUnlock: Bool,
         didSwitchAccountAutomatically: Bool
     )
+
+    /// A route to the WebAuthn two factor authentication.
+    ///
+    /// - Parameters:
+    ///   - rpId: Identifier for the relying party.
+    ///   - challenge: Challenge sent to be solve by an authenticator.
+    ///   - credentialsIds: Identifiers for the allowed credentials to be used to solve the challenge
+    ///   - userVerificationPreference: specifies which type of user verification is necessary
+    ///
+    case webAuthn(
+        rpid: String,
+        challenge: Data,
+        allowCredentialIDs: [Data],
+        userVerificationPreference: String
+    )
 }

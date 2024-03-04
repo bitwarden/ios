@@ -39,6 +39,7 @@ final class AuthCoordinator: NSObject, // swiftlint:disable:this type_body_lengt
         & HasEnvironmentService
         & HasErrorReporter
         & HasNFCReaderService
+        & HasOrganizationAPIService
         & HasPolicyService
         & HasSettingsRepository
         & HasStateService
@@ -55,6 +56,10 @@ final class AuthCoordinator: NSObject, // swiftlint:disable:this type_body_lengt
     /// be used by the coordinator to communicate to its parent coordinator when auth completes and
     /// the auth flow should be dismissed.
     private weak var delegate: (any AuthCoordinatorDelegate)?
+
+    /// A delegate used to communicate the WebAuthn result when the auth has been completed. This is assigned
+    /// on a webAuthn navigation casted from the provided context.
+    private weak var webAuthnFlowDelegate: (any WebAuthnFlowDelegate)?
 
     /// The root navigator used to display this coordinator's interface.
     weak var rootNavigator: (any RootNavigator)?
@@ -151,6 +156,14 @@ final class AuthCoordinator: NSObject, // swiftlint:disable:this type_body_lengt
             )
         case let .twoFactor(email, unlockMethod, authMethodsData):
             showTwoFactorAuth(email: email, unlockMethod: unlockMethod, authMethodsData: authMethodsData)
+        case let .webAuthn(rpId, challenge, allowCredentialIds, userVerificationPreference):
+            webAuthnFlowDelegate = context as? WebAuthnFlowDelegate
+            showWebAuthn(
+                rpId: rpId,
+                challenge: challenge,
+                credentialIds: allowCredentialIds,
+                userVerificationPreference: userVerificationPreference
+            )
         case let .vaultUnlock(
             account,
             animated,
@@ -490,10 +503,48 @@ final class AuthCoordinator: NSObject, // swiftlint:disable:this type_body_lengt
             services: services,
             state: state
         )
+
         let view = TwoFactorAuthView(store: Store(processor: processor))
         let viewController = UIHostingController(rootView: view)
         let navigationController = UINavigationController(rootViewController: viewController)
         stackNavigator?.present(navigationController)
+    }
+
+    /// Show the WebAuthn two factor authentication view.
+    ///
+    /// - Parameters:
+    ///   - rpId: Identifier for the relying party.
+    ///   - challenge: Challenge sent to be solve by an authenticator.
+    ///   - credentialsIds: Identifiers for the allowed credentials to be used to solve the challenge
+    ///   - userVerificationPreference: specifies which type of user verification is needed to complete the attestation
+    ///
+    func showWebAuthn(rpId: String, challenge: Data, credentialIds: [Data], userVerificationPreference: String) {
+        let platformProvider = ASAuthorizationPlatformPublicKeyCredentialProvider(relyingPartyIdentifier: rpId)
+        let platformKeyRequest = platformProvider.createCredentialAssertionRequest(challenge: challenge)
+        platformKeyRequest.userVerificationPreference =
+            ASAuthorizationPublicKeyCredentialUserVerificationPreference(userVerificationPreference)
+
+        let securityKeyProvider = ASAuthorizationSecurityKeyPublicKeyCredentialProvider(relyingPartyIdentifier: rpId)
+        let securityKeyRequest = securityKeyProvider.createCredentialAssertionRequest(challenge: challenge)
+        securityKeyRequest.userVerificationPreference =
+            ASAuthorizationPublicKeyCredentialUserVerificationPreference(userVerificationPreference)
+
+        for credentialId in credentialIds {
+            securityKeyRequest.allowedCredentials.append(
+                ASAuthorizationSecurityKeyPublicKeyCredentialDescriptor(
+                    credentialID: credentialId,
+                    transports: ASAuthorizationSecurityKeyPublicKeyCredentialDescriptor.Transport.allSupported
+                )
+            )
+            platformKeyRequest.allowedCredentials.append(ASAuthorizationPlatformPublicKeyCredentialDescriptor(
+                credentialID: credentialId)
+            )
+        }
+
+        let authController = ASAuthorizationController(authorizationRequests: [securityKeyRequest, platformKeyRequest])
+        authController.delegate = self
+        authController.presentationContextProvider = self
+        authController.performRequests()
     }
 
     /// Shows the vault unlock view.
@@ -530,5 +581,71 @@ final class AuthCoordinator: NSObject, // swiftlint:disable:this type_body_lengt
 extension AuthCoordinator: ASWebAuthenticationPresentationContextProviding {
     func presentationAnchor(for _: ASWebAuthenticationSession) -> ASPresentationAnchor {
         stackNavigator?.rootViewController?.view.window ?? UIWindow()
+    }
+}
+
+// MARK: ASAuthorizationControllerPresentationContextProviding
+
+extension AuthCoordinator: ASAuthorizationControllerPresentationContextProviding {
+    func presentationAnchor(for controller: ASAuthorizationController) -> ASPresentationAnchor {
+        stackNavigator?.rootViewController?.view.window ?? UIWindow()
+    }
+}
+
+// MARK: ASAuthorizationControllerDelegate
+
+/// Delegate used to handle ASAuthorization flows
+extension AuthCoordinator: ASAuthorizationControllerDelegate {
+    /// Data structure to be sent to the server
+    struct WebAuthnRequest: Codable {
+        let id: String
+        let rawId: String
+        let type: String
+        let response: AttestationData
+    }
+
+    /// struct to hold information about the attestation created by the authenticator
+    struct AttestationData: Codable {
+        let authenticatorData: String
+        let clientDataJson: String
+        let signature: String
+    }
+
+    /// Handle ASAuthorization flow where the attestation did complete with success
+    func authorizationController(
+        controller: ASAuthorizationController,
+        didCompleteWithAuthorization authorization: ASAuthorization
+    ) {
+        if let credential = authorization.credential as? ASAuthorizationPublicKeyCredentialAssertion {
+            let rawClientDataJSON = credential.rawClientDataJSON.base64EncodedString().urlEncoded()
+            let credentialID = credential.credentialID.base64EncodedString().urlEncoded()
+            let rawAuthenticatorData = credential.rawAuthenticatorData.base64EncodedString().urlEncoded()
+            let signature = credential.signature.base64EncodedString().urlEncoded()
+            let request = WebAuthnRequest(
+                id: credentialID,
+                rawId: credential.credentialID.base64EncodedString(),
+                type: "public-key",
+                response: AttestationData(
+                    authenticatorData: rawAuthenticatorData,
+                    clientDataJson: rawClientDataJSON,
+                    signature: signature
+                )
+            )
+
+            guard let jsonData = try? JSONEncoder().encode(request),
+                  let jsonString = String(data: jsonData, encoding: .utf8) else {
+                webAuthnFlowDelegate?.webAuthnErrored(error: WebAuthnError.unableToCreateAttestationVerification)
+                return
+            }
+
+            webAuthnFlowDelegate?.webAuthnCompleted(
+                token: jsonString
+            )
+        }
+    }
+
+    /// Handle errors during the creation of the attestation
+    func authorizationController(controller: ASAuthorizationController, didCompleteWithError error: Error) {
+        webAuthnFlowDelegate?.webAuthnErrored(error: error)
     }
 } // swiftlint:disable:this file_length

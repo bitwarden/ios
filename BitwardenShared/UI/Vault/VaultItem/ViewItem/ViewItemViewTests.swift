@@ -137,7 +137,7 @@ class ViewItemViewTests: BitwardenTestCase { // swiftlint:disable:this type_body
     // MARK: Snapshots
 
     func test_snapshot_loading() {
-        processor.state.loadingState = .loading
+        processor.state.loadingState = .loading(nil)
         assertSnapshot(of: subject, as: .defaultPortrait)
     }
 

@@ -73,6 +73,8 @@ struct TwoFactorAuthView: View {
         case .duo,
              .duoOrganization:
             duo2FAView
+        case .webAuthn:
+            webAuthn2FAView
         default:
             defaultContent
         }
@@ -119,7 +121,6 @@ struct TwoFactorAuthView: View {
 
     /// The launch duo button.
     private var duoButton: some View {
-        // TODO: BIT-1933 - Update Duo Localization strings.
         AsyncButton(Localizations.launchDuo) {
             await store.perform(.beginDuoAuth)
         }
@@ -136,10 +137,26 @@ struct TwoFactorAuthView: View {
             duoButton
         }
         .scrollView()
-        .toast(store.binding(
-            get: \.toast,
-            send: TwoFactorAuthAction.toastShown
-        ))
+    }
+
+    /// The launch webAuthn button.
+    private var webAuthnButton: some View {
+        AsyncButton(Localizations.launchWebAuthn) {
+            await store.perform(.beginWebAuthn)
+        }
+        .buttonStyle(.primary())
+    }
+
+    /// A view for WebAuthn 2FA type.
+    @ViewBuilder private var webAuthn2FAView: some View {
+        VStack(spacing: 16) {
+            detailText
+
+            rememberMeToggle
+
+            webAuthnButton
+        }
+        .scrollView()
     }
 
     /// The remember me toggle.
@@ -160,6 +177,11 @@ struct TwoFactorAuthView: View {
         if store.state.authMethod == .email {
             AsyncButton(Localizations.sendVerificationCodeAgain) {
                 await store.perform(.resendEmailTapped)
+            }
+            .buttonStyle(.tertiary())
+        } else if store.state.authMethod == .yubiKey {
+            AsyncButton(Localizations.tryAgain) {
+                await store.perform(.tryAgainTapped)
             }
             .buttonStyle(.tertiary())
         }

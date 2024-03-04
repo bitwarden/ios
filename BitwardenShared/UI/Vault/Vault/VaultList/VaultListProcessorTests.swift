@@ -14,6 +14,7 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
     var authService: MockAuthService!
     var coordinator: MockCoordinator<VaultRoute, AuthAction>!
     var errorReporter: MockErrorReporter!
+    var notificationService: MockNotificationService!
     var pasteboardService: MockPasteboardService!
     var stateService: MockStateService!
     var subject: VaultListProcessor!
@@ -32,6 +33,7 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
         errorReporter = MockErrorReporter()
         coordinator = MockCoordinator()
         errorReporter = MockErrorReporter()
+        notificationService = MockNotificationService()
         pasteboardService = MockPasteboardService()
         stateService = MockStateService()
         vaultRepository = MockVaultRepository()
@@ -39,6 +41,7 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
             authRepository: authRepository,
             authService: authService,
             errorReporter: errorReporter,
+            notificationService: notificationService,
             pasteboardService: pasteboardService,
             stateService: stateService,
             vaultRepository: vaultRepository
@@ -103,6 +106,7 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
         stateService.activeAccount = .fixture()
         stateService.loginRequest = .init(id: "2", userId: Account.fixture().profile.userId)
         authService.getPendingLoginRequestResult = .success([.fixture()])
+        notificationService.authorizationStatus = .authorized
 
         // Test.
         await subject.perform(.appeared)
@@ -112,11 +116,86 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
         XCTAssertNil(stateService.loginRequest)
     }
 
+    /// `perform(_:)` with `.appeared` requests notification permissions.
+    func test_perform_appeared_requestNotifications_error() async throws {
+        stateService.activeAccount = .fixture()
+        notificationService.authorizationStatus = .notDetermined
+        notificationService.requestAuthorizationResult = .failure(BitwardenTestError.example)
+        stateService.loginRequest = .init(id: "2", userId: Account.fixture().profile.userId)
+        authService.getPendingLoginRequestResult = .success([.fixture()])
+
+        // Test.
+        await subject.perform(.appeared)
+
+        // Verify the results.
+        let alert = try XCTUnwrap(coordinator.alertShown.last)
+        XCTAssertEqual(alert, .pushNotificationsInformation {})
+
+        // Trigger the request
+        let requestPermissionAction = try XCTUnwrap(alert.alertActions.first)
+        await requestPermissionAction.handler?(requestPermissionAction, [])
+
+        let error = try XCTUnwrap(errorReporter.errors.last as? BitwardenTestError)
+        XCTAssertEqual(error, .example)
+    }
+
+    /// `perform(_:)` with `.appeared` requests notification permissions.
+    func test_perform_appeared_requestNotifications_success() async throws {
+        stateService.activeAccount = .fixture()
+        notificationService.authorizationStatus = .notDetermined
+        stateService.loginRequest = .init(id: "2", userId: Account.fixture().profile.userId)
+        authService.getPendingLoginRequestResult = .success([.fixture()])
+
+        // Test.
+        await subject.perform(.appeared)
+
+        // Verify the results.
+        let alert = try XCTUnwrap(coordinator.alertShown.last)
+        XCTAssertEqual(alert, .pushNotificationsInformation {})
+
+        // Trigger the request
+        let requestPermissionAction = try XCTUnwrap(alert.alertActions.first)
+        await requestPermissionAction.handler?(requestPermissionAction, [])
+
+        XCTAssertTrue(errorReporter.errors.isEmpty)
+        XCTAssertEqual(
+            [.alert, .sound, .badge],
+            notificationService.requestedOptions
+        )
+    }
+
     /// `perform(_:)` with `.refreshed` requests a fetch sync update with the vault repository.
     func test_perform_refresh() async {
         await subject.perform(.refreshVault)
 
         XCTAssertTrue(vaultRepository.fetchSyncCalled)
+    }
+
+    /// `perform(_:)` with `.refreshed` rescues data stuck in a loading state.
+    func test_perform_refresh_loadingData() async {
+        let pendingSection = VaultListSection(
+            id: "123",
+            items: [
+                .fixture(),
+            ],
+            name: "Temp"
+        )
+        subject.state.loadingState = .loading(
+            [
+                pendingSection,
+            ]
+        )
+        await subject.perform(.refreshVault)
+
+        XCTAssertTrue(vaultRepository.fetchSyncCalled)
+        XCTAssertEqual(
+            subject.state.loadingState,
+            .data(
+                [
+                    pendingSection,
+                ]
+            )
+        )
     }
 
     /// `perform(_:)` with `.refreshed` records an error if applicable.
@@ -281,7 +360,7 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
     }
 
     /// `perform(_:)` with `.streamVaultList` updates the state's vault list whenever it changes.
-    func test_perform_streamVaultList() throws {
+    func test_perform_streamVaultList_doesntNeedSync() throws {
         let vaultListItem = VaultListItem.fixture()
         vaultRepository.vaultListSubject.send([
             VaultListSection(
@@ -295,7 +374,7 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
             await subject.perform(.streamVaultList)
         }
 
-        waitFor(subject.state.loadingState != .loading)
+        waitFor(subject.state.loadingState != .loading(nil))
         task.cancel()
 
         let sections = try XCTUnwrap(subject.state.loadingState.data)
@@ -315,6 +394,45 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
         task.cancel()
 
         XCTAssertEqual(errorReporter.errors.last as? BitwardenTestError, .example)
+    }
+
+    /// `perform(_:)` with `.streamVaultList` updates the state's vault list whenever it changes.
+    func test_perform_streamVaultList_needsSync_emptyData() throws {
+        vaultRepository.needsSyncResult = .success(true)
+
+        let task = Task {
+            await subject.perform(.streamVaultList)
+        }
+
+        vaultRepository.vaultListSubject.send([])
+        waitFor(vaultRepository.needsSyncCalled)
+        task.cancel()
+
+        XCTAssertEqual(subject.state.loadingState, .loading([]))
+    }
+
+    /// `perform(_:)` with `.streamVaultList` updates the state's vault list whenever it changes.
+    func test_perform_streamVaultList_needsSync_hasData() throws {
+        let vaultListItem = VaultListItem.fixture()
+        vaultRepository.needsSyncResult = .success(true)
+
+        let task = Task {
+            await subject.perform(.streamVaultList)
+        }
+
+        vaultRepository.vaultListSubject.send([
+            VaultListSection(
+                id: "1",
+                items: [vaultListItem],
+                name: "Name"
+            ),
+        ])
+        waitFor(subject.state.loadingState != .loading(nil))
+        task.cancel()
+
+        let sections = try XCTUnwrap(subject.state.loadingState.data)
+        XCTAssertEqual(sections.count, 1)
+        XCTAssertEqual(sections[0].items, [vaultListItem])
     }
 
     /// `receive(_:)` with `.profileSwitcher(.accountLongPressed)` shows the alert and allows the user to
