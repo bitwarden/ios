@@ -15,37 +15,34 @@ extension MasterPasswordPolicyOptions {
     var policySummary: String? {
         guard isInEffect else { return nil }
 
-        let bullet = "\n".appending(String(repeating: " ", count: 2)).appending("\u{2022} ")
-        var policySummary = Localizations.masterPasswordPolicyInEffect
+        var policies = [String]()
         if minComplexity > 0 {
-            policySummary.append(bullet)
-            policySummary.append(Localizations.policyInEffectMinComplexity(minComplexity))
+            policies.append(Localizations.policyInEffectMinComplexity(minComplexity))
         }
 
         if minLength > 0 {
-            policySummary.append(bullet)
-            policySummary.append(Localizations.policyInEffectMinLength(minLength))
+            policies.append(Localizations.policyInEffectMinLength(minLength))
         }
 
         if requireUpper {
-            policySummary.append(bullet)
-            policySummary.append(Localizations.policyInEffectUppercase)
+            policies.append(Localizations.policyInEffectUppercase)
         }
 
         if requireLower {
-            policySummary.append(bullet)
-            policySummary.append(Localizations.policyInEffectLowercase)
+            policies.append(Localizations.policyInEffectLowercase)
         }
 
         if requireNumbers {
-            policySummary.append(bullet)
-            policySummary.append(Localizations.policyInEffectNumbers)
+            policies.append(Localizations.policyInEffectNumbers)
         }
 
         if requireSpecial {
-            policySummary.append(bullet)
-            policySummary.append(Localizations.policyInEffectSpecial("!@#$%^&*"))
+            policies.append(Localizations.policyInEffectSpecial("!@#$%^&*"))
         }
+
+        let newLineAndBullet = "\n".appending(String(repeating: " ", count: 2)).appending("\u{2022} ")
+        let policySummary = ([Localizations.masterPasswordPolicyInEffect] + policies)
+            .joined(separator: newLineAndBullet)
 
         return policySummary
     }
