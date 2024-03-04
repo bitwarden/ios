@@ -12,6 +12,9 @@ enum AboutAction: Equatable {
     /// The help center button was tapped.
     case helpCenterTapped
 
+    /// The learn about organizations button was tapped.
+    case learnAboutOrganizationsTapped
+
     /// The privacy policy button was tapped.
     case privacyPolicyTapped
 

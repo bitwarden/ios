@@ -7,6 +7,9 @@ import Foundation
 enum ExternalLinksConstants {
     // MARK: Properties
 
+    /// A link to Bitwarden's organizations information webpage.
+    static let aboutOrganizations = URL(string: "https://bitwarden.com/help/about-organizations")!
+
     /// A link to the app review page within the app store.
     static let appReview = URL(string: "https://itunes.apple.com/us/app/id1137397744?action=write-review")
 
