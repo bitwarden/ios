@@ -15,6 +15,9 @@ enum AboutAction: Equatable {
     /// The privacy policy button was tapped.
     case privacyPolicyTapped
 
+    /// The learn about organizations button was tapped.
+    case learnAboutOrganizationsTapped
+
     /// The rate the app button was tapped.
     case rateTheAppTapped
 

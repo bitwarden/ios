@@ -25,6 +25,9 @@ enum ExternalLinksConstants {
     /// A markdown link to Bitwarden's privacy policy.
     static let privacyPolicy = URL(string: "https://bitwarden.com/privacy/")!
 
+    /// A link to Bitwarden's organizations information webpage.
+    static let aboutOrganizations = URL(string: "https://bitwarden.com/help/about-organizations")!
+
     /// A markdown link to Bitwarden's help page about protecting individual items.
     static let protectIndividualItems = URL(
         string: "https://bitwarden.com/help/managing-items/#protect-individual-items"
