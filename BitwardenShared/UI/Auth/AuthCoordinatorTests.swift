@@ -162,7 +162,7 @@ class AuthCoordinatorTests: BitwardenTestCase {
     /// pushes the login view onto the stack navigator and hides the back button.
     /// It also initializes `LoginState` with the self-hosted URL host.
     func test_navigate_login_selfHosted() async throws {
-        appSettingsStore.preAuthEnvironmentUrls = EnvironmentUrlData(webVault: URL(string: "http://www.testing.com")!)
+        appSettingsStore.preAuthEnvironmentUrls = EnvironmentUrlData(webVault: URL(string: "http://www.example.com")!)
         subject.navigate(to: .login(username: "username"))
 
         let viewController = try XCTUnwrap(
@@ -171,7 +171,7 @@ class AuthCoordinatorTests: BitwardenTestCase {
         let view = viewController.rootView
         let state = view.store.state
         XCTAssertEqual(state.username, "username")
-        XCTAssertEqual(state.serverURLString, "www.testing.com")
+        XCTAssertEqual(state.serverURLString, "www.example.com")
     }
 
     /// `navigate(to:)` with `.loginWithDevice` pushes the login with device view onto the stack navigator.
