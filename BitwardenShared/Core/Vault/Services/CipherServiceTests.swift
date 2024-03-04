@@ -3,7 +3,7 @@ import XCTest
 
 @testable import BitwardenShared
 
-class CipherServiceTests: XCTestCase {
+class CipherServiceTests: BitwardenTestCase {
     // MARK: Properties
 
     var cipherAPIService: CipherAPIService!
@@ -190,13 +190,43 @@ class CipherServiceTests: XCTestCase {
         stateService.activeAccount = .fixture()
 
         let cipherResponse = try await subject.saveAttachmentWithServer(
-            cipherId: "1",
+            cipher: Cipher.fixture(id: "123"),
             attachment: .init(attachment: .fixture(), contents: Data())
         )
 
         XCTAssertEqual(cipherDataStore.upsertCipherValue, cipherResponse)
         XCTAssertEqual(cipherDataStore.upsertCipherUserId, "1")
         XCTAssertEqual(cipherResponse.attachments?.count, 1)
+    }
+
+    /// `saveAttachmentWithServer(cipherId:attachment:)` ensures the collection IDs from the cipher
+    /// are saved with the updated cipher.
+    func test_saveAttachmentWithServer_collectionIds() async throws {
+        client.results = [
+            .httpSuccess(testData: .saveAttachment),
+            .httpSuccess(testData: .emptyResponse),
+        ]
+        stateService.activeAccount = .fixture()
+
+        let cipherResponse = try await subject.saveAttachmentWithServer(
+            cipher: Cipher.fixture(collectionIds: ["1", "2"], id: "123"),
+            attachment: .init(attachment: .fixture(), contents: Data())
+        )
+
+        XCTAssertEqual(cipherDataStore.upsertCipherValue, cipherResponse)
+        XCTAssertEqual(cipherDataStore.upsertCipherValue?.collectionIds, ["1", "2"])
+        XCTAssertEqual(cipherDataStore.upsertCipherUserId, "1")
+        XCTAssertEqual(cipherResponse.attachments?.count, 1)
+    }
+
+    /// `saveAttachmentWithServer(cipherId:attachment:)`  throws on id errors.
+    func test_saveAttachmentWithServer_idNilError() async throws {
+        await assertAsyncThrows(error: CipherAPIServiceError.updateMissingId) {
+            _ = try await subject.saveAttachmentWithServer(
+                cipher: .fixture(id: nil),
+                attachment: .init(attachment: .fixture(), contents: Data())
+            )
+        }
     }
 
     /// `shareCipherWithServer(_:)` shares the cipher with the organization and updates the data store.
