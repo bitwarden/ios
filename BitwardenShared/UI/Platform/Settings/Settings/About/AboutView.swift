@@ -63,6 +63,14 @@ struct AboutView: View {
                     .frame(width: 22, height: 22)
             }
 
+            SettingsListItem(Localizations.privacyPolicy) {
+                store.send(.privacyPolicyTapped)
+            } trailingContent: {
+                Image(asset: Asset.Images.externalLink2)
+                    .resizable()
+                    .frame(width: 22, height: 22)
+            }
+
             SettingsListItem(Localizations.rateTheApp) {
                 store.send(.rateTheAppTapped)
             } trailingContent: {

@@ -197,6 +197,24 @@ extension Alert {
         )
     }
 
+    /// An alert that asks if the user wants to navigate to the privacy policy in a browser.
+    ///
+    /// - Parameter action: The action taken if they select continue.
+    /// - Returns: An alert that asks if the user wants to navigate to the app store to leave a review.
+    ///
+    static func privacyPolicyAlert(action: @escaping () -> Void) -> Alert {
+        Alert(
+            title: Localizations.continueToPrivacyPolicy,
+            message: Localizations.privacyPolicyDescriptionLong,
+            alertActions: [
+                AlertAction(title: Localizations.cancel, style: .cancel),
+                AlertAction(title: Localizations.continue, style: .default) { _ in
+                    action()
+                },
+            ]
+        )
+    }
+
     /// Alerts the user that their selected timeout value exceeds the policy's limit.
     ///
     /// - Returns an alert notifying the user that their selected timeout value exceeds the policy's limit.
