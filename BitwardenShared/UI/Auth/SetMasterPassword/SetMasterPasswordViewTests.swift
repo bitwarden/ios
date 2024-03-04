@@ -94,7 +94,11 @@ class SetMasterPasswordViewTests: BitwardenTestCase {
         processor.state.resetPasswordAutoEnroll = true
         assertSnapshots(
             of: subject,
-            as: [.portrait(), .portraitDark(), .tallPortraitAX5()]
+            as: [
+                "portrait": .portrait(),
+                "portraitDark": .portraitDark(),
+                "tallPortraitAX5": .tallPortraitAX5(),
+            ]
         )
     }
 }
