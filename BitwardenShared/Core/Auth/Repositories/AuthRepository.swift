@@ -115,6 +115,21 @@ protocol AuthRepository: AnyObject {
     ///
     func setActiveAccount(userId: String) async throws -> Account
 
+    /// Sets the user's master password.
+    ///
+    /// - Parameters:
+    ///   - password: The user's master password.
+    ///   - masterPasswordHint: The user's password hint.
+    ///   - organizationId: The ID of the organization the user is joining.
+    ///   - resetPasswordAutoEnroll: Whether to enroll the user in reset password.
+    ///
+    func setMasterPassword(
+        _ password: String,
+        masterPasswordHint: String,
+        organizationId: String,
+        resetPasswordAutoEnroll: Bool
+    ) async throws
+
     /// Sets the SessionTimeoutValue.
     ///
     /// - Parameters:
@@ -254,8 +269,14 @@ class DefaultAuthRepository {
     /// The keychain service used by this repository.
     private let keychainService: KeychainRepository
 
+    /// The service used by the application to make organization-related API requests.
+    private let organizationAPIService: OrganizationAPIService
+
     /// The service used to manage syncing and updates to the user's organizations.
     private let organizationService: OrganizationService
+
+    /// The service used by the application to make organization user-related API requests.
+    private let organizationUserAPIService: OrganizationUserAPIService
 
     /// The service used by the application to manage account state.
     private let stateService: StateService
@@ -276,7 +297,10 @@ class DefaultAuthRepository {
     ///   - clientPlatform: The client used by the application to handle generating account fingerprints.
     ///   - environmentService: The service used by the application to manage the environment settings.
     ///   - keychainService: The keychain service used by the application.
+    ///   - organizationAPIService: The service used by the application to make organization-related API requests.
     ///   - organizationService: The service used to manage syncing and updates to the user's organizations.
+    ///   - organizationUserAPIService: The service used by the application to make organization
+    ///     user-related API requests.
     ///   - stateService: The service used by the application to manage account state.
     ///   - vaultTimeoutService: The service used by the application to manage vault access.
     ///
@@ -289,7 +313,9 @@ class DefaultAuthRepository {
         clientPlatform: ClientPlatformProtocol,
         environmentService: EnvironmentService,
         keychainService: KeychainRepository,
+        organizationAPIService: OrganizationAPIService,
         organizationService: OrganizationService,
+        organizationUserAPIService: OrganizationUserAPIService,
         stateService: StateService,
         vaultTimeoutService: VaultTimeoutService
     ) {
@@ -301,7 +327,9 @@ class DefaultAuthRepository {
         self.clientPlatform = clientPlatform
         self.environmentService = environmentService
         self.keychainService = keychainService
+        self.organizationAPIService = organizationAPIService
         self.organizationService = organizationService
+        self.organizationUserAPIService = organizationUserAPIService
         self.stateService = stateService
         self.vaultTimeoutService = vaultTimeoutService
     }
@@ -391,6 +419,68 @@ extension DefaultAuthRepository: AuthRepository {
         try await stateService.setActiveAccount(userId: userId)
         await environmentService.loadURLsForActiveAccount()
         return try await stateService.getActiveAccount()
+    }
+
+    func setMasterPassword(
+        _ password: String,
+        masterPasswordHint: String,
+        organizationId: String,
+        resetPasswordAutoEnroll: Bool
+    ) async throws {
+        let account = try await stateService.getActiveAccount()
+        let email = account.profile.email
+        let kdf = account.kdf
+
+        let keys = try await clientAuth.makeRegisterKeys(
+            email: email,
+            password: password,
+            kdf: kdf.sdkKdf
+        )
+
+        let masterPasswordHash = try await clientAuth.hashPassword(
+            email: email,
+            password: password,
+            kdfParams: kdf.sdkKdf,
+            purpose: .serverAuthorization
+        )
+
+        let requestModel = SetPasswordRequestModel(
+            kdfConfig: kdf,
+            key: keys.encryptedUserKey,
+            keys: KeysRequestModel(publicKey: keys.keys.public, encryptedPrivateKey: keys.keys.private),
+            masterPasswordHash: masterPasswordHash,
+            masterPasswordHint: masterPasswordHint,
+            orgIdentifier: organizationId
+        )
+        try await accountAPIService.setPassword(requestModel)
+
+        let accountEncryptionKeys = AccountEncryptionKeys(
+            encryptedPrivateKey: keys.keys.private,
+            encryptedUserKey: keys.encryptedUserKey
+        )
+        try await stateService.setAccountEncryptionKeys(accountEncryptionKeys)
+
+        if resetPasswordAutoEnroll {
+            // TODO: BIT-1956 Enroll the user in password reset
+            // This is waiting on the SDK to provide `resetPasswordKey`.
+            //
+            // let organizationKeys = try await organizationAPIService.getOrganizationKeys(
+            //     organizationId: organizationId
+            // )
+            //
+            // let resetPasswordKey = .. from SDK method ..
+            //
+            // try await organizationUserAPIService.organizationUserResetPasswordEnrollment(
+            //     organizationId: organizationId,
+            //     requestModel: OrganizationUserResetPasswordEnrollmentRequestModel(
+            //         masterPasswordHash: masterPasswordHash,
+            //         resetPasswordKey: resetPasswordKey
+            //     ),
+            //     userId: account.profile.userId
+            // )
+        }
+
+        try await unlockVaultWithPassword(password: password)
     }
 
     func setPins(_ pin: String, requirePasswordAfterRestart: Bool) async throws {

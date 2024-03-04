@@ -84,12 +84,17 @@ final class SingleSignOnProcessor: StateProcessor<SingleSignOnState, SingleSignO
     /// Generically handle an error on the view.
     private func handleError(_ error: Error, _ tryAgain: (() async -> Void)? = nil) {
         coordinator.hideLoadingOverlay()
-        if case ASWebAuthenticationSessionError.canceledLogin = error { return }
-        if case let .twoFactorRequired(authMethodsData, _, _) = error as? IdentityTokenRequestError {
-            return coordinator.navigate(to: .twoFactor(state.email, nil, authMethodsData))
+        switch error {
+        case ASWebAuthenticationSessionError.canceledLogin:
+            break
+        case let IdentityTokenRequestError.twoFactorRequired(authMethodsData, _, _):
+            coordinator.navigate(to: .twoFactor(state.email, nil, authMethodsData))
+        case AuthError.requireSetPassword:
+            coordinator.navigate(to: .setMasterPassword(organizationId: state.identifierText))
+        default:
+            coordinator.showAlert(.networkResponseError(error, tryAgain))
+            services.errorReporter.log(error: error)
         }
-        coordinator.showAlert(.networkResponseError(error, tryAgain))
-        services.errorReporter.log(error: error)
     }
 
     /// Handle attempting to login.
@@ -177,7 +182,7 @@ extension SingleSignOnProcessor: SingleSignOnFlowDelegate {
                 coordinator.navigate(to: .dismiss)
             } catch {
                 // The delay is necessary in order to ensure the alert displays over the WebAuth view.
-                DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+                DispatchQueue.main.asyncAfter(deadline: UI.after(0.5)) {
                     self.handleError(error)
                 }
             }
@@ -186,7 +191,7 @@ extension SingleSignOnProcessor: SingleSignOnFlowDelegate {
 
     func singleSignOnErrored(error: Error) {
         // The delay is necessary in order to ensure the alert displays over the WebAuth view.
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+        DispatchQueue.main.asyncAfter(deadline: UI.after(0.5)) {
             self.handleError(error)
         }
     }

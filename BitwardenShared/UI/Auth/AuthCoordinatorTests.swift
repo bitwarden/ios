@@ -5,7 +5,7 @@ import XCTest
 
 // MARK: - AuthCoordinatorTests
 
-class AuthCoordinatorTests: BitwardenTestCase {
+class AuthCoordinatorTests: BitwardenTestCase { // swiftlint:disable:this type_body_length
     // MARK: Properties
 
     var authDelegate: MockAuthDelegate!
@@ -184,6 +184,15 @@ class AuthCoordinatorTests: BitwardenTestCase {
         XCTAssertTrue(navigationController.viewControllers.first is UIHostingController<SelfHostedView>)
     }
 
+    /// `navigate(to:)` with `.setMasterPassword` pushes the set master password view onto the stack navigator.
+    func test_navigate_setMasterPassword() throws {
+        subject.navigate(to: .setMasterPassword(organizationId: "ORG_ID"))
+
+        let navigationController = try XCTUnwrap(stackNavigator.actions.last?.view as? UINavigationController)
+        XCTAssertTrue(stackNavigator.actions.last?.view is UINavigationController)
+        XCTAssertTrue(navigationController.viewControllers.first is UIHostingController<SetMasterPasswordView>)
+    }
+
     /// `handleEvent()` with `.switchAccount` with an locked account navigates to vault unlock
     func test_navigate_switchAccount_locked() {
         let account = Account.fixture()
@@ -248,6 +257,15 @@ class AuthCoordinatorTests: BitwardenTestCase {
         XCTAssertEqual(stackNavigator.actions.last?.type, .presented)
         let navigationController = try XCTUnwrap(stackNavigator.actions.last?.view as? UINavigationController)
         XCTAssertTrue(navigationController.viewControllers.first is UIHostingController<TwoFactorAuthView>)
+    }
+
+    /// `navigate(to:)` with `.updateMasterPassword` pushes the update master password view onto the stack navigator.
+    func test_navigate_updateMasterPassword() throws {
+        subject.navigate(to: .updateMasterPassword)
+
+        let navigationController = try XCTUnwrap(stackNavigator.actions.last?.view as? UINavigationController)
+        XCTAssertTrue(stackNavigator.actions.last?.view is UINavigationController)
+        XCTAssertTrue(navigationController.viewControllers.first is UIHostingController<UpdateMasterPasswordView>)
     }
 
     /// `navigate(to:)` with `.vaultUnlock` replaces the current view with the vault unlock view.

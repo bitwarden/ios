@@ -19,6 +19,9 @@ enum AuthError: Error {
     /// The request that should have been cached for the two-factor authentication method was missing.
     case missingTwoFactorRequest
 
+    /// The user doesn't have a master password set; one needs to be set before continuing.
+    case requireSetPassword
+
     /// There was a problem extracting the code from the Duo WebAuth response.
     case unableToDecodeDuoResponse
 
@@ -468,7 +471,7 @@ class DefaultAuthService: AuthService { // swiftlint:disable:this type_body_leng
 
     func loginWithSingleSignOn(code: String, email: String) async throws -> Account? {
         // Get the identity token to log in to Bitwarden.
-        _ = try await getIdentityTokenResponse(
+        let response = try await getIdentityTokenResponse(
             authenticationMethod: .authorizationCode(
                 code: code,
                 codeVerifier: codeVerifier,
@@ -476,6 +479,10 @@ class DefaultAuthService: AuthService { // swiftlint:disable:this type_body_leng
             ),
             email: email
         )
+
+        if response.userDecryptionOptions?.hasMasterPassword == false {
+            throw AuthError.requireSetPassword
+        }
 
         // Return the account if the vault still needs to be unlocked and nil otherwise.
         // TODO: BIT-1392 Wait for SDK to support unlocking vault for TDE accounts.
@@ -657,8 +664,9 @@ class DefaultAuthService: AuthService { // swiftlint:disable:this type_body_leng
         await stateService.addAccount(account)
 
         // Save the encryption keys.
-        let encryptionKeys = AccountEncryptionKeys(identityTokenResponseModel: identityTokenResponse)
-        try await stateService.setAccountEncryptionKeys(encryptionKeys)
+        if let encryptionKeys = AccountEncryptionKeys(identityTokenResponseModel: identityTokenResponse) {
+            try await stateService.setAccountEncryptionKeys(encryptionKeys)
+        }
 
         // Save the account tokens.
         try await keychainRepository.setAccessToken(

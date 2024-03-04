@@ -50,6 +50,10 @@ final class AboutProcessor: StateProcessor<AboutState, AboutAction, Void> {
             state.url = nil
         case .helpCenterTapped:
             state.url = ExternalLinksConstants.helpAndFeedback
+        case .privacyPolicyTapped:
+            coordinator.navigate(to: .alert(.privacyPolicyAlert {
+                self.state.url = ExternalLinksConstants.privacyPolicy
+            }))
         case .rateTheAppTapped:
             coordinator.navigate(to: .alert(.appStoreAlert {
                 self.state.appReviewUrl = ExternalLinksConstants.appReview
