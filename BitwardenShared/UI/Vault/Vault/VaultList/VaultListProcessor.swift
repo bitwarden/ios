@@ -168,12 +168,11 @@ final class VaultListProcessor: StateProcessor<
     ///
     private func refreshVault(isManualRefresh: Bool) async {
         do {
-            try await services.vaultRepository.fetchSync(isManualRefresh: isManualRefresh)
-            // If there is data stuck in a loading state, set it as valid data.
-            if case let .loading(loadingData) = state.loadingState,
-               let data = loadingData {
-                state.loadingState = .data(data)
-            }
+            guard let sections = try await services.vaultRepository.fetchSync(
+                isManualRefresh: isManualRefresh,
+                filter: state.vaultFilterType
+            ) else { return }
+            state.loadingState = .data(sections)
         } catch {
             coordinator.showAlert(.networkResponseError(error))
             services.errorReporter.log(error: error)
