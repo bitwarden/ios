@@ -335,9 +335,7 @@ final class AuthCoordinator: NSObject, // swiftlint:disable:this type_body_lengt
             environmentUrlData: services.appSettingsStore.preAuthEnvironmentUrls ?? EnvironmentUrlData()
         )
 
-        var state = LoginState()
-
-        state = LoginState(
+        let state = LoginState(
             serverURLString: environmentUrls.webVaultURL.host ?? "",
             username: username
         )
