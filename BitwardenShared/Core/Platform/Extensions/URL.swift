@@ -12,7 +12,7 @@ extension URL {
     }
 
     /// Valid top-level domain values.
-    private var tldRegex: [String] {
+    private var validTlds: [String] {
         [
             ".com",
             ".net",
@@ -58,10 +58,10 @@ extension URL {
     }
 
     /// Whether the URL's domain ends in an accepted top-level domain value.
-    var hasTldEndingRegex: Bool {
+    var hasValidTld: Bool {
         guard let host else { return false }
 
-        for tldRegex in tldRegex where host.hasSuffix(tldRegex) {
+        for tld in validTlds where host.hasSuffix(tld) {
             return true
         }
         return false
@@ -69,7 +69,7 @@ extension URL {
 
     /// Whether the URL has valid components that are in the correct order.
     var hasValidURLComponents: Bool {
-        guard absoluteString.isValidURL, hasTldEndingRegex else { return false }
+        guard absoluteString.isValidURL, hasValidTld else { return false }
         let scheme = scheme ?? ""
         let host = host ?? ""
 
