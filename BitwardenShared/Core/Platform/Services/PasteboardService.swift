@@ -34,6 +34,9 @@ class DefaultPasteboardService: PasteboardService {
     /// The time after which the clipboard should clear.
     var clearClipboardValue: ClearClipboardValue = .never
 
+    /// The pasteboard used by this service.
+    private let pasteboard: UIPasteboard
+
     /// The service used by the application to manage account state.
     private let stateService: StateService
 
@@ -43,10 +46,16 @@ class DefaultPasteboardService: PasteboardService {
     ///
     /// - Parameters:
     ///   - errorReporter: The service used by the application to report non-fatal errors.
+    ///   - pasteboard: The pasteboard used by the service. Default is `.general`.
     ///   - stateService: The service used by the application to manage account state.
     ///
-    init(errorReporter: ErrorReporter, stateService: StateService) {
+    init(
+        errorReporter: ErrorReporter,
+        pasteboard: UIPasteboard = .general,
+        stateService: StateService
+    ) {
         self.errorReporter = errorReporter
+        self.pasteboard = pasteboard
         self.stateService = stateService
 
         // Get the value of the clipboard setting for the currently active user.
@@ -68,14 +77,14 @@ class DefaultPasteboardService: PasteboardService {
 
     func copy(_ string: String) {
         if clearClipboardValue == .never {
-            UIPasteboard.general.setItems(
+            pasteboard.setItems(
                 [[UTType.utf8PlainText.identifier: string]],
                 options: [.localOnly: true]
             )
         } else {
             // Set the expiration date if the clear clipboard preference is not never.
             let expirationDate = Date().addingTimeInterval(Double(clearClipboardValue.rawValue))
-            UIPasteboard.general.setItems(
+            pasteboard.setItems(
                 [[UTType.utf8PlainText.identifier: string]],
                 options: [
                     .localOnly: true,

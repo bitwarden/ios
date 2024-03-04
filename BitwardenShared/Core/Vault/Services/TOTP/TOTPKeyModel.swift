@@ -1,6 +1,6 @@
 /// A model representing  a TOTP authentication key.
 ///
-public struct TOTPKeyModel: Equatable {
+public struct TOTPKeyModel: Equatable, Sendable {
     // MARK: Properties
 
     /// The hash algorithm used for the TOTP code.

@@ -171,33 +171,6 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
         XCTAssertTrue(vaultRepository.fetchSyncCalled)
     }
 
-    /// `perform(_:)` with `.refreshed` rescues data stuck in a loading state.
-    func test_perform_refresh_loadingData() async {
-        let pendingSection = VaultListSection(
-            id: "123",
-            items: [
-                .fixture(),
-            ],
-            name: "Temp"
-        )
-        subject.state.loadingState = .loading(
-            [
-                pendingSection,
-            ]
-        )
-        await subject.perform(.refreshVault)
-
-        XCTAssertTrue(vaultRepository.fetchSyncCalled)
-        XCTAssertEqual(
-            subject.state.loadingState,
-            .data(
-                [
-                    pendingSection,
-                ]
-            )
-        )
-    }
-
     /// `perform(_:)` with `.refreshed` records an error if applicable.
     func test_perform_refreshed_error() async {
         vaultRepository.fetchSyncResult = .failure(BitwardenTestError.example)

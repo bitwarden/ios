@@ -6,6 +6,7 @@ class PasteboardServiceTests: BitwardenTestCase {
     // MARK: Properties
 
     var errorReporter: MockErrorReporter!
+    var pasteboard: UIPasteboard!
     var stateService: MockStateService!
     var subject: PasteboardService!
 
@@ -15,12 +16,13 @@ class PasteboardServiceTests: BitwardenTestCase {
         super.setUp()
 
         errorReporter = MockErrorReporter()
-
+        pasteboard = UIPasteboard.withUniqueName()
         stateService = MockStateService()
         stateService.activeAccount = .fixture()
 
         subject = DefaultPasteboardService(
             errorReporter: errorReporter,
+            pasteboard: pasteboard,
             stateService: stateService
         )
     }
@@ -29,6 +31,7 @@ class PasteboardServiceTests: BitwardenTestCase {
         super.tearDown()
 
         errorReporter = nil
+        pasteboard = nil
         stateService = nil
         subject = nil
     }
@@ -39,8 +42,8 @@ class PasteboardServiceTests: BitwardenTestCase {
     func test_copy() async throws {
         try await stateService.setClearClipboardValue(.never)
         subject.copy("Test string")
-        XCTAssertEqual(UIPasteboard.general.strings?.last, "Test string")
-        XCTAssertTrue(UIPasteboard.general.isPersistent)
+        XCTAssertEqual(pasteboard.strings?.last, "Test string")
+        XCTAssertTrue(pasteboard.isPersistent)
 
         subject.updateClearClipboardValue(.fiveMinutes)
         waitFor { self.stateService.clearClipboardValues["1"] != .never }
@@ -48,8 +51,8 @@ class PasteboardServiceTests: BitwardenTestCase {
         XCTAssertEqual(value, .fiveMinutes)
 
         subject.copy("Test string2")
-        XCTAssertEqual(UIPasteboard.general.strings?.last, "Test string2")
-        XCTAssertTrue(UIPasteboard.general.isPersistent)
+        XCTAssertEqual(pasteboard.strings?.last, "Test string2")
+        XCTAssertTrue(pasteboard.isPersistent)
     }
 
     /// Test that an error from no account should use the default value without recording an error.

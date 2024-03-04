@@ -41,7 +41,7 @@ class MockVaultRepository: VaultRepository {
     var fetchFoldersResult: Result<[FolderView], Error> = .success([])
 
     var fetchSyncCalled = false
-    var fetchSyncResult: Result<Void, Error> = .success(())
+    var fetchSyncResult: Result<[VaultListSection]?, Error> = .success([])
 
     var getActiveAccountIdResult: Result<String, StateServiceError> = .failure(.noActiveAccount)
 
@@ -166,9 +166,12 @@ class MockVaultRepository: VaultRepository {
         return try fetchFoldersResult.get()
     }
 
-    func fetchSync(isManualRefresh _: Bool) async throws {
+    func fetchSync(
+        isManualRefresh _: Bool,
+        filter _: VaultFilterType
+    ) async throws -> [VaultListSection]? {
         fetchSyncCalled = true
-        try fetchSyncResult.get()
+        return try fetchSyncResult.get()
     }
 
     func getDisableAutoTotpCopy() async throws -> Bool {
