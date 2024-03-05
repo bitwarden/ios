@@ -189,12 +189,7 @@ class CreateAccountProcessor: StateProcessor<CreateAccountState, CreateAccountAc
                     masterPasswordHint: state.passwordHintText
                 )
             )
-
-            coordinator.navigate(to: .login(
-                username: email,
-                region: LoginState().region,
-                isLoginWithDeviceVisible: LoginState().isLoginWithDeviceVisible
-            ))
+            coordinator.navigate(to: .login(username: email))
         } catch CreateAccountError.acceptPoliciesError {
             coordinator.navigate(to: .alert(.acceptPoliciesAlert()))
         } catch CreateAccountError.emailEmpty {

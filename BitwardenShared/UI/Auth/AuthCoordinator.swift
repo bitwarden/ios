@@ -131,14 +131,8 @@ final class AuthCoordinator: NSObject, // swiftlint:disable:this type_body_lengt
             showEnterpriseSingleSignOn(email: email)
         case .landing:
             showLanding()
-        case let .login(username, region, isLoginWithDeviceVisible):
-            showLogin(
-                state: LoginState(
-                    isLoginWithDeviceVisible: isLoginWithDeviceVisible,
-                    username: username,
-                    region: region
-                )
-            )
+        case let .login(username):
+            showLogin(username)
         case let .loginWithDevice(email):
             showLoginWithDevice(email: email)
         case let .masterPasswordHint(username):
@@ -239,6 +233,7 @@ final class AuthCoordinator: NSObject, // swiftlint:disable:this type_body_lengt
     }
 
     /// Shows the create account screen.
+    ///
     private func showCreateAccount() {
         let view = CreateAccountView(
             store: Store(
@@ -332,11 +327,20 @@ final class AuthCoordinator: NSObject, // swiftlint:disable:this type_body_lengt
     /// Shows the login screen. If the create account flow is being presented it will be dismissed
     /// and the login screen will be pushed
     ///
-    /// - Parameter state: The `LoginState` to initialize the login screen with.
+    /// - Parameter username: The user's username.
     ///
-    private func showLogin(state: LoginState) {
+    private func showLogin(_ username: String) {
         guard let stackNavigator else { return }
         let isPresenting = stackNavigator.rootViewController?.presentedViewController != nil
+
+        let environmentUrls = EnvironmentUrls(
+            environmentUrlData: services.appSettingsStore.preAuthEnvironmentUrls ?? EnvironmentUrlData()
+        )
+
+        let state = LoginState(
+            serverURLString: environmentUrls.webVaultURL.host ?? "",
+            username: username
+        )
 
         let processor = LoginProcessor(
             coordinator: asAnyCoordinator(),

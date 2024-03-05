@@ -113,23 +113,37 @@ class LoginViewTests: BitwardenTestCase {
     // MARK: Snapshots
 
     func test_snapshot_empty() {
+        processor.state.username = "user@bitwarden.com"
+        processor.state.serverURLString = "bitwarden.com"
         assertSnapshot(matching: subject, as: .defaultPortrait)
     }
 
     func test_snapshot_passwordHidden() {
+        processor.state.username = "user@bitwarden.com"
         processor.state.masterPassword = "Password"
+        processor.state.serverURLString = "bitwarden.com"
         processor.state.isMasterPasswordRevealed = false
         assertSnapshot(matching: subject, as: .defaultPortrait)
     }
 
     func test_snapshot_passwordRevealed() {
+        processor.state.username = "user@bitwarden.com"
         processor.state.masterPassword = "Password"
+        processor.state.serverURLString = "bitwarden.com"
         processor.state.isMasterPasswordRevealed = true
         assertSnapshot(matching: subject, as: .defaultPortrait)
     }
 
+    func test_snapshot_selfHosted() {
+        processor.state.username = "user@bitwarden.com"
+        processor.state.serverURLString = "selfhostedserver.com"
+        assertSnapshot(of: subject, as: .defaultPortrait)
+    }
+
     func test_snapshot_withDevice() {
+        processor.state.username = "user@bitwarden.com"
         processor.state.isLoginWithDeviceVisible = true
+        processor.state.serverURLString = "bitwarden.com"
         assertSnapshot(matching: subject, as: .defaultPortrait)
     }
 }

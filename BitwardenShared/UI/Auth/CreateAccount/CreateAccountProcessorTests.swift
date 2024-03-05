@@ -80,14 +80,7 @@ class CreateAccountProcessorTests: BitwardenTestCase {
         XCTAssertEqual(client.requests[0].body, try createAccountRequest.encode())
         XCTAssertEqual(clientAuth.hashPasswordPassword, "password1234")
         XCTAssertEqual(clientAuth.hashPasswordKdfParams, .pbkdf2(iterations: 600_000))
-        XCTAssertEqual(
-            coordinator.routes.last,
-            .login(
-                username: "email@example.com",
-                region: LoginState().region,
-                isLoginWithDeviceVisible: LoginState().isLoginWithDeviceVisible
-            )
-        )
+        XCTAssertEqual(coordinator.routes.last, .login(username: "email@example.com"))
     }
 
     /// `perform(_:)` with `.createAccount` will still make the `CreateAccountRequest` when the HIBP
@@ -105,14 +98,7 @@ class CreateAccountProcessorTests: BitwardenTestCase {
         XCTAssertEqual(client.requests.count, 2)
         XCTAssertEqual(client.requests[0].url, URL(string: "https://api.pwnedpasswords.com/range/e6b6a"))
         XCTAssertEqual(client.requests[1].url, URL(string: "https://example.com/identity/accounts/register"))
-        XCTAssertEqual(
-            coordinator.routes.last,
-            .login(
-                username: "email@example.com",
-                region: LoginState().region,
-                isLoginWithDeviceVisible: LoginState().isLoginWithDeviceVisible
-            )
-        )
+        XCTAssertEqual(coordinator.routes.last, .login(username: "email@example.com"))
     }
 
     /// `perform(_:)` with `.createAccount` presents an alert when the user has
@@ -381,17 +367,10 @@ class CreateAccountProcessorTests: BitwardenTestCase {
 
         try await alert.tapAction(title: Localizations.tryAgain)
 
-        XCTAssertEqual(
-            coordinator.routes.last,
-            .login(
-                username: "email@example.com",
-                region: RegionType.unitedStates,
-                isLoginWithDeviceVisible: false
-            )
-        )
         XCTAssertEqual(client.requests.count, 2)
         XCTAssertEqual(client.requests[0].url, URL(string: "https://example.com/identity/accounts/register"))
         XCTAssertEqual(client.requests[1].url, URL(string: "https://example.com/identity/accounts/register"))
+        XCTAssertEqual(coordinator.routes.last, .login(username: "email@example.com"))
     }
 
     /// `perform(_:)` with `.createAccount` presents an alert when password confirmation is incorrect.
@@ -448,17 +427,10 @@ class CreateAccountProcessorTests: BitwardenTestCase {
 
         try await alert.tapAction(title: Localizations.tryAgain)
 
-        XCTAssertEqual(
-            coordinator.routes.last,
-            .login(
-                username: "email@example.com",
-                region: RegionType.unitedStates,
-                isLoginWithDeviceVisible: false
-            )
-        )
         XCTAssertEqual(client.requests.count, 2)
         XCTAssertEqual(client.requests[0].url, URL(string: "https://example.com/identity/accounts/register"))
         XCTAssertEqual(client.requests[1].url, URL(string: "https://example.com/identity/accounts/register"))
+        XCTAssertEqual(coordinator.routes.last, .login(username: "email@example.com"))
     }
 
     /// `perform(_:)` with `.createAccount` and an invalid email navigates to an invalid email alert.

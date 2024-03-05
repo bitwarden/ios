@@ -304,11 +304,7 @@ class LandingProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_
         subject.state.email = "email@example.com"
 
         subject.receive(.continuePressed)
-        XCTAssertEqual(coordinator.routes.last, .login(
-            username: "email@example.com",
-            region: .unitedStates,
-            isLoginWithDeviceVisible: false
-        ))
+        XCTAssertEqual(coordinator.routes.last, .login(username: "email@example.com"))
         XCTAssertNil(appSettingsStore.rememberedEmail)
     }
 
@@ -318,11 +314,7 @@ class LandingProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_
         subject.state.email = " email@example.com "
 
         subject.receive(.continuePressed)
-        XCTAssertEqual(coordinator.routes.last, .login(
-            username: "email@example.com",
-            region: .unitedStates,
-            isLoginWithDeviceVisible: false
-        ))
+        XCTAssertEqual(coordinator.routes.last, .login(username: "email@example.com"))
     }
 
     /// `receive(_:)` with `.continuePressed` and a valid email with uppercase characters converts the email to
@@ -331,11 +323,7 @@ class LandingProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_
         subject.state.email = "EMAIL@EXAMPLE.COM"
 
         subject.receive(.continuePressed)
-        XCTAssertEqual(coordinator.routes.last, .login(
-            username: "email@example.com",
-            region: .unitedStates,
-            isLoginWithDeviceVisible: false
-        ))
+        XCTAssertEqual(coordinator.routes.last, .login(username: "email@example.com"))
     }
 
     /// `receive(_:)` with `.continuePressed` and a valid email navigates to the login screen.
@@ -345,11 +333,7 @@ class LandingProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_
         subject.state.email = "email@example.com"
 
         subject.receive(.continuePressed)
-        XCTAssertEqual(coordinator.routes.last, .login(
-            username: "email@example.com",
-            region: .unitedStates,
-            isLoginWithDeviceVisible: false
-        ))
+        XCTAssertEqual(coordinator.routes.last, .login(username: "email@example.com"))
         XCTAssertEqual(appSettingsStore.rememberedEmail, "email@example.com")
     }
 
