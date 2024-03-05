@@ -185,7 +185,7 @@ class SingleSignOnProcessorTests: BitwardenTestCase {
 
         waitFor(!coordinator.routes.isEmpty)
 
-        XCTAssertEqual(coordinator.routes, [.setMasterPassword(organizationId: "BestOrganization")])
+        XCTAssertEqual(coordinator.routes, [.setMasterPassword(organizationIdentifier: "BestOrganization")])
     }
 
     /// `singleSignOnCompleted(code:)` navigates to the vault unlock view if the vault is still locked.

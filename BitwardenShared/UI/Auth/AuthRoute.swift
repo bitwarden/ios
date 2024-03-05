@@ -58,9 +58,9 @@ public enum AuthRoute: Equatable {
 
     /// A route to the set master password view.
     ///
-    /// - Parameter organizationId: The organization's ID.
+    /// - Parameter organizationIdentifier: The organization's identifier.
     ///
-    case setMasterPassword(organizationId: String)
+    case setMasterPassword(organizationIdentifier: String)
 
     /// A route to the single sign on WebAuth screen.
     ///

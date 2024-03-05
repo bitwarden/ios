@@ -25,8 +25,11 @@ struct SetMasterPasswordState: Equatable {
     /// The retype of new master password provided by the user.
     var masterPasswordRetype: String = ""
 
-    /// The organization's ID.
-    var organizationId: String
+    /// The organization's ID (UUID).
+    var organizationId: String?
+
+    /// THe organization's identifier.
+    var organizationIdentifier: String
 
     /// Whether the user will be automatically enrolled in reset password.
     var resetPasswordAutoEnroll = false

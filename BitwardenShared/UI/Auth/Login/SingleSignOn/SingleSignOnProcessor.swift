@@ -90,7 +90,7 @@ final class SingleSignOnProcessor: StateProcessor<SingleSignOnState, SingleSignO
         case let IdentityTokenRequestError.twoFactorRequired(authMethodsData, _, _):
             coordinator.navigate(to: .twoFactor(state.email, nil, authMethodsData))
         case AuthError.requireSetPassword:
-            coordinator.navigate(to: .setMasterPassword(organizationId: state.identifierText))
+            coordinator.navigate(to: .setMasterPassword(organizationIdentifier: state.identifierText))
         default:
             coordinator.showAlert(.networkResponseError(error, tryAgain))
             services.errorReporter.log(error: error)

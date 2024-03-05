@@ -139,8 +139,8 @@ final class AuthCoordinator: NSObject, // swiftlint:disable:this type_body_lengt
             showMasterPasswordHint(for: username)
         case let .selfHosted(region):
             showSelfHostedView(delegate: context as? SelfHostedProcessorDelegate, currentRegion: region)
-        case let .setMasterPassword(organizationId):
-            showSetMasterPassword(organizationId: organizationId)
+        case let .setMasterPassword(organizationIdentifier):
+            showSetMasterPassword(organizationIdentifier: organizationIdentifier)
         case let .singleSignOn(callbackUrlScheme, state, url):
             showSingleSignOn(
                 callbackUrlScheme: callbackUrlScheme,
@@ -428,13 +428,13 @@ final class AuthCoordinator: NSObject, // swiftlint:disable:this type_body_lengt
 
     /// Shows the set master password view.
     ///
-    /// - Parameter organizationId: The organization's ID.
+    /// - Parameter organizationIdentifier: The organization's identifier.
     ///
-    private func showSetMasterPassword(organizationId: String) {
+    private func showSetMasterPassword(organizationIdentifier: String) {
         let processor = SetMasterPasswordProcessor(
             coordinator: asAnyCoordinator(),
             services: services,
-            state: SetMasterPasswordState(organizationId: organizationId)
+            state: SetMasterPasswordState(organizationIdentifier: organizationIdentifier)
         )
         let view = SetMasterPasswordView(store: Store(processor: processor))
         let viewController = UIHostingController(rootView: view)

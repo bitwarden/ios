@@ -134,6 +134,8 @@ final class LoginWithDeviceProcessor: StateProcessor<
                 guard let requestId = self.state.requestId else { throw AuthError.missingData }
                 let request = try await self.services.authService.checkPendingLoginRequest(withId: requestId)
 
+                guard let timer = self.checkTimer, timer.isValid else { return }
+
                 // Show an alert and dismiss the view if the request has expired.
                 guard !request.isExpired else {
                     self.checkTimer?.invalidate()

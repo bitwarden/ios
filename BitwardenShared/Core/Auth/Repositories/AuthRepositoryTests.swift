@@ -499,7 +499,8 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         try await subject.setMasterPassword(
             "PASSWORD",
             masterPasswordHint: "HINT",
-            organizationId: "ORG_ID",
+            organizationId: "1234",
+            organizationIdentifier: "ORG_ID",
             resetPasswordAutoEnroll: false
         )
 
@@ -546,10 +547,77 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
             try await subject.setMasterPassword(
                 "PASSWORD",
                 masterPasswordHint: "HINT",
-                organizationId: "ORG_ID",
+                organizationId: "1234",
+                organizationIdentifier: "ORG_ID",
                 resetPasswordAutoEnroll: false
             )
         }
+    }
+
+    /// `setMasterPassword()` sets the user's master password, saves their encryption keys, enrolls
+    /// the user in password reset and unlocks the vault.
+    func test_setMasterPassword_resetPasswordEnrollment() async throws {
+        // swiftlint:disable:previous function_body_length
+        let account = Account.fixture()
+        client.results = [
+            .httpSuccess(testData: .emptyResponse),
+            .httpSuccess(testData: .organizationKeys),
+            .httpSuccess(testData: .emptyResponse),
+        ]
+        stateService.activeAccount = account
+
+        try await subject.setMasterPassword(
+            "PASSWORD",
+            masterPasswordHint: "HINT",
+            organizationId: "1234",
+            organizationIdentifier: "ORG_ID",
+            resetPasswordAutoEnroll: true
+        )
+
+        XCTAssertEqual(clientAuth.makeRegisterKeysKdf, account.kdf.sdkKdf)
+        XCTAssertEqual(clientAuth.makeRegisterKeysEmail, account.profile.email)
+        XCTAssertEqual(clientAuth.makeRegisterKeysPassword, "PASSWORD")
+
+        XCTAssertEqual(clientAuth.hashPasswordEmail, account.profile.email)
+        XCTAssertEqual(clientAuth.hashPasswordKdfParams, account.kdf.sdkKdf)
+        XCTAssertEqual(clientAuth.hashPasswordPassword, "PASSWORD")
+        XCTAssertEqual(clientAuth.hashPasswordPurpose, .serverAuthorization)
+
+        XCTAssertEqual(clientCrypto.enrollAdminPasswordPublicKey, "MIIBIjAN...2QIDAQAB")
+
+        let requests = client.requests
+        XCTAssertEqual(requests.count, 3)
+
+        XCTAssertEqual(
+            requests[0].url.absoluteString,
+            "https://example.com/api/accounts/set-password"
+        )
+        XCTAssertEqual(
+            requests[1].url.absoluteString,
+            "https://example.com/api/organizations/1234/keys"
+        )
+        XCTAssertEqual(
+            requests[2].url.absoluteString,
+            "https://example.com/api/organizations/1234/users/1/reset-password-enrollment"
+        )
+
+        XCTAssertEqual(
+            stateService.accountEncryptionKeys["1"],
+            AccountEncryptionKeys(
+                encryptedPrivateKey: "private",
+                encryptedUserKey: "encryptedUserKey"
+            )
+        )
+
+        XCTAssertEqual(
+            clientCrypto.initializeUserCryptoRequest,
+            InitUserCryptoRequest(
+                kdfParams: account.kdf.sdkKdf,
+                email: account.profile.email,
+                privateKey: "private",
+                method: .password(password: "PASSWORD", userKey: "encryptedUserKey")
+            )
+        )
     }
 
     /// `setVaultTimeout` correctly configures the user's timeout value.

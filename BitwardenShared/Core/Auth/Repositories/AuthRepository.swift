@@ -121,12 +121,14 @@ protocol AuthRepository: AnyObject {
     ///   - password: The user's master password.
     ///   - masterPasswordHint: The user's password hint.
     ///   - organizationId: The ID of the organization the user is joining.
+    ///   - organizationIdentifier: The shorthand organization identifier for the organization.
     ///   - resetPasswordAutoEnroll: Whether to enroll the user in reset password.
     ///
     func setMasterPassword(
         _ password: String,
         masterPasswordHint: String,
         organizationId: String,
+        organizationIdentifier: String,
         resetPasswordAutoEnroll: Bool
     ) async throws
 
@@ -425,6 +427,7 @@ extension DefaultAuthRepository: AuthRepository {
         _ password: String,
         masterPasswordHint: String,
         organizationId: String,
+        organizationIdentifier: String,
         resetPasswordAutoEnroll: Bool
     ) async throws {
         let account = try await stateService.getActiveAccount()
@@ -450,7 +453,7 @@ extension DefaultAuthRepository: AuthRepository {
             keys: KeysRequestModel(publicKey: keys.keys.public, encryptedPrivateKey: keys.keys.private),
             masterPasswordHash: masterPasswordHash,
             masterPasswordHint: masterPasswordHint,
-            orgIdentifier: organizationId
+            orgIdentifier: organizationIdentifier
         )
         try await accountAPIService.setPassword(requestModel)
 
@@ -461,23 +464,22 @@ extension DefaultAuthRepository: AuthRepository {
         try await stateService.setAccountEncryptionKeys(accountEncryptionKeys)
 
         if resetPasswordAutoEnroll {
-            // TODO: BIT-1956 Enroll the user in password reset
-            // This is waiting on the SDK to provide `resetPasswordKey`.
-            //
-            // let organizationKeys = try await organizationAPIService.getOrganizationKeys(
-            //     organizationId: organizationId
-            // )
-            //
-            // let resetPasswordKey = .. from SDK method ..
-            //
-            // try await organizationUserAPIService.organizationUserResetPasswordEnrollment(
-            //     organizationId: organizationId,
-            //     requestModel: OrganizationUserResetPasswordEnrollmentRequestModel(
-            //         masterPasswordHash: masterPasswordHash,
-            //         resetPasswordKey: resetPasswordKey
-            //     ),
-            //     userId: account.profile.userId
-            // )
+            let organizationKeys = try await organizationAPIService.getOrganizationKeys(
+                organizationId: organizationId
+            )
+
+            let resetPasswordKey = try await clientCrypto.enrollAdminPasswordReset(
+                publicKey: organizationKeys.publicKey
+            )
+
+            try await organizationUserAPIService.organizationUserResetPasswordEnrollment(
+                organizationId: organizationId,
+                requestModel: OrganizationUserResetPasswordEnrollmentRequestModel(
+                    masterPasswordHash: masterPasswordHash,
+                    resetPasswordKey: resetPasswordKey
+                ),
+                userId: account.profile.userId
+            )
         }
 
         try await unlockVaultWithPassword(password: password)

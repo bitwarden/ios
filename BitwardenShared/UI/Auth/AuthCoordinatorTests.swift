@@ -202,7 +202,7 @@ class AuthCoordinatorTests: BitwardenTestCase { // swiftlint:disable:this type_b
 
     /// `navigate(to:)` with `.setMasterPassword` pushes the set master password view onto the stack navigator.
     func test_navigate_setMasterPassword() throws {
-        subject.navigate(to: .setMasterPassword(organizationId: "ORG_ID"))
+        subject.navigate(to: .setMasterPassword(organizationIdentifier: "ORG_ID"))
 
         let navigationController = try XCTUnwrap(stackNavigator.actions.last?.view as? UINavigationController)
         XCTAssertTrue(stackNavigator.actions.last?.view is UINavigationController)
