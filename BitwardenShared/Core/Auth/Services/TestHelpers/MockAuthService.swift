@@ -53,6 +53,7 @@ class MockAuthService: AuthService {
     var publicKey: String = ""
     var requirePasswordChangeResult: Result<Bool, Error> = .success(false)
     var resendVerificationCodeEmailResult: Result<Void, Error> = .success(())
+    var sentVerificationEmail = false
 
     func answerLoginRequest(_ request: LoginRequest, approve: Bool) async throws {
         answerLoginRequestRequest = request
@@ -140,6 +141,7 @@ class MockAuthService: AuthService {
     }
 
     func resendVerificationCodeEmail() async throws {
+        sentVerificationEmail = true
         try resendVerificationCodeEmailResult.get()
     }
 }
