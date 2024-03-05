@@ -378,9 +378,10 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
         }
 
         vaultRepository.vaultListSubject.send([])
-        waitFor(vaultRepository.needsSyncCalled)
+        waitFor(subject.state.loadingState == .loading([]))
         task.cancel()
 
+        XCTAssertTrue(vaultRepository.needsSyncCalled)
         XCTAssertEqual(subject.state.loadingState, .loading([]))
     }
 
