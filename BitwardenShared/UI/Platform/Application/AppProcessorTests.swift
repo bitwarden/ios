@@ -9,7 +9,6 @@ class AppProcessorTests: BitwardenTestCase {
     var appModule: MockAppModule!
     var appSettingStore: MockAppSettingsStore!
     var coordinator: MockCoordinator<AppRoute, AppEvent>!
-    var environmentService: MockEnvironmentService!
     var errorReporter: MockErrorReporter!
     var migrationService: MockMigrationService!
     var notificationCenterService: MockNotificationCenterService!
@@ -32,7 +31,6 @@ class AppProcessorTests: BitwardenTestCase {
         appModule.authRouter = router
         appModule.appCoordinator = coordinator
         appSettingStore = MockAppSettingsStore()
-        environmentService = MockEnvironmentService()
         errorReporter = MockErrorReporter()
         migrationService = MockMigrationService()
         notificationCenterService = MockNotificationCenterService()
@@ -46,7 +44,6 @@ class AppProcessorTests: BitwardenTestCase {
             appModule: appModule,
             services: ServiceContainer.withMocks(
                 appSettingsStore: appSettingStore,
-                environmentService: environmentService,
                 errorReporter: errorReporter,
                 migrationService: migrationService,
                 notificationService: notificationService,
@@ -64,7 +61,6 @@ class AppProcessorTests: BitwardenTestCase {
         appModule = nil
         appSettingStore = nil
         coordinator = nil
-        environmentService = nil
         errorReporter = nil
         migrationService = nil
         notificationCenterService = nil

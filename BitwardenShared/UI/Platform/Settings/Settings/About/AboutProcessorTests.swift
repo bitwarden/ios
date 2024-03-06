@@ -150,7 +150,7 @@ class AboutProcessorTests: BitwardenTestCase {
         XCTAssertEqual(subject.state.toast?.text, Localizations.valueHasBeenCopied(Localizations.appInfo))
     }
 
-    /// `receive(_:)` with `.webVaultTapped` shows an alert for navigating to the Privacy Policy
+    /// `receive(_:)` with `.webVaultTapped` shows an alert for navigating to the web vault
     /// When `Continue` is tapped on the alert, sets the URL to open in the state.
     func test_receive_webVaultTapped() async throws {
         subject.receive(.webVaultTapped)
