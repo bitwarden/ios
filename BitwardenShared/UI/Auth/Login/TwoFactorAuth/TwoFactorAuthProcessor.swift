@@ -94,9 +94,13 @@ final class TwoFactorAuthProcessor: StateProcessor<TwoFactorAuthState, TwoFactor
 
     /// Update the selected auth method or launch the web view for the recovery code.
     private func handleAuthMethodSelected(_ authMethod: TwoFactorAuthMethod) {
-        if authMethod == .recoveryCode {
+        switch authMethod {
+        case .recoveryCode:
             state.url = ExternalLinksConstants.recoveryCode
-        } else {
+        case .email:
+            Task { await resendEmail() }
+            state.authMethod = authMethod
+        default:
             state.authMethod = authMethod
         }
     }

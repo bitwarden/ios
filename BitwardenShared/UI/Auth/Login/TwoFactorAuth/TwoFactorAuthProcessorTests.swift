@@ -464,6 +464,17 @@ class TwoFactorAuthProcessorTests: BitwardenTestCase { // swiftlint:disable:this
         XCTAssertEqual(errorReporter.errors.last as? BitwardenTestError, .example)
     }
 
+    /// `perform(_:)` with `.resendEmailTapped` does nothing when not required.
+    func test_perform_resendEmailTapped_notRequired() async {
+        subject.state.authMethod = .duo
+
+        await subject.perform(.resendEmailTapped)
+
+        XCTAssertFalse(coordinator.isLoadingOverlayShowing)
+        XCTAssertNil(coordinator.loadingOverlaysShown.last)
+        XCTAssertNil(subject.state.toast?.text, Localizations.verificationEmailSent)
+    }
+
     /// `perform(_:)` with `.resendEmailTapped` sends the email and displays the toast.
     func test_perform_resendEmailTapped_success() async {
         subject.state.authMethod = .email
@@ -488,6 +499,15 @@ class TwoFactorAuthProcessorTests: BitwardenTestCase { // swiftlint:disable:this
     func test_receive_authMethodSelected() {
         subject.receive(.authMethodSelected(.authenticatorApp))
         XCTAssertEqual(subject.state.authMethod, .authenticatorApp)
+    }
+
+    /// `receive(_:)` `.authMethodSelected` with `.email` sends a code to the user's email.
+    func test_receive_authMethodSelected_email() {
+        authService.resendVerificationCodeEmailResult = .success(())
+        subject.state.authMethod = .webAuthn
+        subject.receive(.authMethodSelected(.email))
+        waitFor(authService.sentVerificationEmail)
+        XCTAssertEqual(subject.state.authMethod, .email)
     }
 
     /// `receive(_:)` with `.authMethodSelected` opens the url for the recover code.
