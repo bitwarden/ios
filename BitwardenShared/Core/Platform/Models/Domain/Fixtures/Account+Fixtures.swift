@@ -50,7 +50,7 @@ extension Account.AccountProfile {
         kdfType: KdfType? = .pbkdf2sha256,
         name: String? = nil,
         orgIdentifier: String? = nil,
-        stamp: String? = "STAMP",
+        stamp: String? = "security stamp",
         userDecryptionOptions: UserDecryptionOptions? = nil,
         userId: String = "1"
     ) -> Account.AccountProfile {

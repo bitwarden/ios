@@ -7,6 +7,7 @@ class AppProcessorTests: BitwardenTestCase {
     // MARK: Properties
 
     var appModule: MockAppModule!
+    var authRepository: MockAuthRepository!
     var appSettingStore: MockAppSettingsStore!
     var coordinator: MockCoordinator<AppRoute, AppEvent>!
     var errorReporter: MockErrorReporter!
@@ -27,6 +28,7 @@ class AppProcessorTests: BitwardenTestCase {
 
         router = MockRouter(routeForEvent: { _ in .landing })
         appModule = MockAppModule()
+        authRepository = MockAuthRepository()
         coordinator = MockCoordinator()
         appModule.authRouter = router
         appModule.appCoordinator = coordinator
@@ -44,6 +46,7 @@ class AppProcessorTests: BitwardenTestCase {
             appModule: appModule,
             services: ServiceContainer.withMocks(
                 appSettingsStore: appSettingStore,
+                authRepository: authRepository,
                 errorReporter: errorReporter,
                 migrationService: migrationService,
                 notificationService: notificationService,
@@ -59,6 +62,7 @@ class AppProcessorTests: BitwardenTestCase {
         super.tearDown()
 
         appModule = nil
+        authRepository = nil
         appSettingStore = nil
         coordinator = nil
         errorReporter = nil
@@ -107,6 +111,12 @@ class AppProcessorTests: BitwardenTestCase {
         XCTAssertEqual(errorReporter.errors.last as? BitwardenTestError, .example)
     }
 
+    /// `init()` sets the `AppProcessor` as the delegate of any necessary services.
+    func test_init_setDelegates() {
+        XCTAssertIdentical(notificationService.delegate, subject)
+        XCTAssertIdentical(syncService.delegate, subject)
+    }
+
     /// `messageReceived(_:notificationDismissed:notificationTapped)` passes the data to the notification service.
     func test_messageReceived() async {
         let message: [AnyHashable: Any] = ["knock knock": "who's there?"]
@@ -120,6 +130,18 @@ class AppProcessorTests: BitwardenTestCase {
     func test_routeToLanding() async {
         await subject.routeToLanding()
         XCTAssertEqual(coordinator.routes.last, .auth(.landing))
+    }
+
+    /// `securityStampChanged(userId:)` logs the user out and notifies the coordinator.
+    func test_securityStampChanged() async {
+        coordinator.isLoadingOverlayShowing = true
+
+        await subject.securityStampChanged(userId: "1")
+
+        XCTAssertTrue(authRepository.logoutCalled)
+        XCTAssertEqual(authRepository.logoutUserId, "1")
+        XCTAssertFalse(coordinator.isLoadingOverlayShowing)
+        XCTAssertEqual(coordinator.events, [.didLogout(userId: "1", userInitiated: false)])
     }
 
     /// Upon a session timeout on app foreground, send the user to the `.didTimeout` route.

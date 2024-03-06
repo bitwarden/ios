@@ -19,6 +19,7 @@ class SyncServiceTests: BitwardenTestCase {
     var settingsService: MockSettingsService!
     var stateService: MockStateService!
     var subject: SyncService!
+    var syncServiceDelegate: MockSyncServiceDelegate!
     var timeProvider: MockTimeProvider!
 
     // MARK: Setup & Teardown
@@ -36,6 +37,7 @@ class SyncServiceTests: BitwardenTestCase {
         sendService = MockSendService()
         settingsService = MockSettingsService()
         stateService = MockStateService()
+        syncServiceDelegate = MockSyncServiceDelegate()
         timeProvider = MockTimeProvider(
             .mockTime(
                 Date(
@@ -60,6 +62,7 @@ class SyncServiceTests: BitwardenTestCase {
             syncAPIService: APIService(client: client),
             timeProvider: timeProvider
         )
+        subject.delegate = syncServiceDelegate
     }
 
     override func tearDown() {
@@ -76,6 +79,7 @@ class SyncServiceTests: BitwardenTestCase {
         settingsService = nil
         stateService = nil
         subject = nil
+        syncServiceDelegate = nil
         timeProvider = nil
     }
 
@@ -357,6 +361,31 @@ class SyncServiceTests: BitwardenTestCase {
         XCTAssertEqual(stateService.updateProfileUserId, "1")
     }
 
+    /// `fetchSync()` notifies the sync service delegate if the security stamp changes and doesn't
+    /// replace any of the user's data.
+    func test_fetchSync_securityStampChanged() async throws {
+        client.result = .httpSuccess(testData: .syncWithProfile)
+        stateService.activeAccount = .fixture(profile: .fixture(stamp: "OLD_STAMP"))
+
+        try await subject.fetchSync(forceSync: false)
+
+        XCTAssertTrue(syncServiceDelegate.securityStampChangedCalled)
+        XCTAssertEqual(syncServiceDelegate.securityStampChangedUserId, "1")
+        XCTAssertNil(stateService.updateProfileResponse)
+    }
+
+    /// `fetchSync()` does not notify the sync service delegate if the security stamp is the same
+    /// and syncs the user's data.
+    func test_fetchSync_securityStampSame() async throws {
+        client.result = .httpSuccess(testData: .syncWithProfile)
+        stateService.activeAccount = .fixture(profile: .fixture(stamp: "security stamp"))
+
+        try await subject.fetchSync(forceSync: false)
+
+        XCTAssertFalse(syncServiceDelegate.securityStampChangedCalled)
+        XCTAssertNotNil(stateService.updateProfileResponse)
+    }
+
     /// `fetchSync()` replaces the list of the user's sends.
     func test_fetchSync_sends() async throws {
         client.result = .httpSuccess(testData: .syncWithSends)
@@ -592,5 +621,15 @@ class SyncServiceTests: BitwardenTestCase {
         )
         try await subject.fetchUpsertSyncSend(data: notification)
         XCTAssertEqual(sendService.syncSendWithServerId, "id")
+    }
+}
+
+class MockSyncServiceDelegate: SyncServiceDelegate {
+    var securityStampChangedCalled = false
+    var securityStampChangedUserId: String?
+
+    func securityStampChanged(userId: String) async {
+        securityStampChangedCalled = true
+        securityStampChangedUserId = userId
     }
 } // swiftlint:disable:this file_length

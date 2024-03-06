@@ -34,6 +34,7 @@ public class AppProcessor {
         self.services = services
 
         self.services.notificationService.setDelegate(self)
+        self.services.syncService.delegate = self
 
         UI.initialLanguageCode = services.appSettingsStore.appLocale ?? Locale.current.languageCode
         UI.applyDefaultAppearances()
@@ -139,6 +140,8 @@ public class AppProcessor {
     }
 }
 
+// MARK: - NotificationServiceDelegate
+
 extension AppProcessor: NotificationServiceDelegate {
     /// Users are logged out, route to landing page.
     ///
@@ -185,5 +188,16 @@ extension AppProcessor: NotificationServiceDelegate {
     private func switchAccounts(to userId: String, for loginRequest: LoginRequest) {
         (coordinator as? VaultCoordinatorDelegate)?.didTapAccount(userId: userId)
         coordinator?.navigate(to: .loginRequest(loginRequest))
+    }
+}
+
+// MARK: - SyncServiceDelegate
+
+extension AppProcessor: SyncServiceDelegate {
+    func securityStampChanged(userId: String) async {
+        // Log the user out if their security stamp changes.
+        coordinator?.hideLoadingOverlay()
+        try? await services.authRepository.logout(userId: userId)
+        await coordinator?.handleEvent(.didLogout(userId: userId, userInitiated: false))
     }
 }

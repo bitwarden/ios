@@ -7,6 +7,11 @@ import Foundation
 /// A protocol for a service that manages syncing vault data with the API.
 ///
 protocol SyncService: AnyObject {
+    // MARK: Properties
+
+    /// A delegate of the `SyncService` that is notified if a user's security stamp changes.
+    var delegate: SyncServiceDelegate? { get set }
+
     // MARK: Methods
 
     /// Performs an API request to sync the user's vault data.
@@ -59,6 +64,18 @@ protocol SyncService: AnyObject {
     func needsSync(for userId: String) async throws -> Bool
 }
 
+// MARK: - SyncServiceDelegate
+
+/// A protocol for a delegate of a `SyncService` which is notified if the user's security stamp changes.
+///
+protocol SyncServiceDelegate: AnyObject {
+    /// The user's security stamp changed.
+    ///
+    /// - Parameter userId: The user ID of the user who's security stamp changed.
+    ///
+    func securityStampChanged(userId: String) async
+}
+
 // MARK: - DefaultSyncService
 
 /// A default implementation of a `SyncService` which manages syncing vault data with the API.
@@ -98,6 +115,9 @@ class DefaultSyncService: SyncService {
 
     /// The API service used to perform sync API requests.
     private let syncAPIService: SyncAPIService
+
+    /// A delegate of the `SyncService` that is notified if a user's security stamp changes.
+    weak var delegate: SyncServiceDelegate?
 
     /// The time provider for this service.
     private let timeProvider: TimeProvider
@@ -196,11 +216,19 @@ class DefaultSyncService: SyncService {
 
 extension DefaultSyncService {
     func fetchSync(forceSync: Bool) async throws {
-        let userId = try await stateService.getActiveAccountId()
+        let account = try await stateService.getActiveAccount()
+        let userId = account.profile.userId
 
         guard try await needsSync(forceSync: forceSync, userId: userId) else { return }
 
         let response = try await syncAPIService.getSync()
+
+        if let savedStamp = account.profile.stamp,
+           let currentStamp = response.profile?.securityStamp,
+           savedStamp != currentStamp {
+            await delegate?.securityStampChanged(userId: userId)
+            return
+        }
 
         if let organizations = response.profile?.organizations {
             await organizationService.initializeOrganizationCrypto(
