@@ -29,4 +29,7 @@ enum AboutAction: Equatable {
 
     /// The version was tapped.
     case versionTapped
+
+    /// The web vault button was tapped.
+    case webVaultTapped
 }

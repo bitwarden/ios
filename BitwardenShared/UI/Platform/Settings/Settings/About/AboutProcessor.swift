@@ -5,7 +5,8 @@
 final class AboutProcessor: StateProcessor<AboutState, AboutAction, Void> {
     // MARK: Types
 
-    typealias Services = HasErrorReporter
+    typealias Services = HasEnvironmentService
+        & HasErrorReporter
         & HasPasteboardService
 
     // MARK: Properties
@@ -69,6 +70,10 @@ final class AboutProcessor: StateProcessor<AboutState, AboutAction, Void> {
             services.errorReporter.isEnabled = isOn
         case .versionTapped:
             handleVersionTapped()
+        case .webVaultTapped:
+            coordinator.navigate(to: .alert(.webVaultAlert {
+                self.state.url = self.services.environmentService.webVaultURL
+            }))
         }
     }
 
