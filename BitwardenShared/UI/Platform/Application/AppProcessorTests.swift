@@ -136,12 +136,15 @@ class AppProcessorTests: BitwardenTestCase {
         stateService.accounts = [account]
 
         vaultTimeoutService.shouldSessionTimeout[account.profile.userId] = true
-        subject.start(appContext: .mainApp, navigator: rootNavigator, window: nil)
+        let task = Task {
+            await subject.start(appContext: .mainApp, navigator: rootNavigator, window: nil)
+        }
 
         notificationCenterService.willEnterForegroundSubject.send()
         waitFor(vaultTimeoutService.shouldSessionTimeout[account.profile.userId] == true)
 
         waitFor(coordinator.events.count > 1)
+        task.cancel()
         XCTAssertEqual(
             coordinator.events.last,
             .didTimeout(userId: account.profile.userId)
@@ -155,10 +158,10 @@ class AppProcessorTests: BitwardenTestCase {
     }
 
     /// `start(navigator:)` builds the AppCoordinator and navigates to the initial route if provided.
-    func test_start_initialRoute() {
+    func test_start_initialRoute() async {
         let rootNavigator = MockRootNavigator()
 
-        subject.start(
+        await subject.start(
             appContext: .mainApp,
             initialRoute: .extensionSetup(.extensionActivation(type: .appExtension)),
             navigator: rootNavigator,
@@ -176,10 +179,10 @@ class AppProcessorTests: BitwardenTestCase {
     }
 
     /// `start(navigator:)` builds the AppCoordinator and navigates to the `.didStart` route.
-    func test_start_authRoute() {
+    func test_start_authRoute() async {
         let rootNavigator = MockRootNavigator()
 
-        subject.start(appContext: .mainApp, navigator: rootNavigator, window: nil)
+        await subject.start(appContext: .mainApp, navigator: rootNavigator, window: nil)
 
         waitFor(!coordinator.events.isEmpty)
 

@@ -73,7 +73,7 @@ public class AppProcessor {
         initialRoute: AppRoute? = nil,
         navigator: RootNavigator,
         window: UIWindow?
-    ) {
+    ) async {
         let coordinator = appModule.makeAppCoordinator(appContext: appContext, navigator: navigator)
         coordinator.start()
         self.coordinator = coordinator
@@ -85,17 +85,15 @@ public class AppProcessor {
             }
         }
 
-        Task {
-            await services.migrationService.performMigrations()
+        await services.migrationService.performMigrations()
 
-            await services.environmentService.loadURLsForActiveAccount()
-            services.application?.registerForRemoteNotifications()
+        await services.environmentService.loadURLsForActiveAccount()
+        services.application?.registerForRemoteNotifications()
 
-            if let initialRoute {
-                coordinator.navigate(to: initialRoute)
-            } else {
-                await coordinator.handleEvent(.didStart)
-            }
+        if let initialRoute {
+            coordinator.navigate(to: initialRoute)
+        } else {
+            await coordinator.handleEvent(.didStart)
         }
     }
 

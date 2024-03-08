@@ -42,8 +42,12 @@ class SceneDelegateTests: BitwardenTestCase {
         let options = TestInstanceFactory.create(UIScene.ConnectionOptions.self)
         subject.scene(scene, willConnectTo: session, options: options)
 
+        waitFor(!subject.isStartingUp)
+
         XCTAssertNotNil(appProcessor.coordinator)
-        XCTAssertNotNil(subject.privacyWindow)
+        XCTAssertFalse(subject.isStartingUp)
+        XCTAssertNotNil(subject.splashWindow)
+        XCTAssertEqual(subject.splashWindow?.alpha, 0)
         XCTAssertNotNil(subject.window)
         XCTAssertTrue(appModule.appCoordinator.isStarted)
     }
@@ -64,7 +68,7 @@ class SceneDelegateTests: BitwardenTestCase {
         subject.scene(scene, willConnectTo: session, options: options)
 
         XCTAssertNil(appProcessor.coordinator)
-        XCTAssertNil(subject.privacyWindow)
+        XCTAssertNil(subject.splashWindow)
         XCTAssertNil(subject.window)
         XCTAssertFalse(appModule.appCoordinator.isStarted)
     }
@@ -86,6 +90,6 @@ class SceneDelegateTests: BitwardenTestCase {
         subject.scene(scene, willConnectTo: session, options: options)
 
         subject.sceneWillResignActive(scene)
-        XCTAssertEqual(subject.privacyWindow?.alpha, 1)
+        XCTAssertEqual(subject.splashWindow?.alpha, 1)
     }
 }
