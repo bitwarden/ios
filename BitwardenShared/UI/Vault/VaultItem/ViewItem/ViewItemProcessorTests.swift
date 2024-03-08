@@ -354,6 +354,10 @@ class ViewItemProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
         subject.receive(.copyPressed(value: "value", field: .username))
         XCTAssertEqual(pasteboardService.copiedString, "value")
         XCTAssertEqual(subject.state.toast?.text, Localizations.valueHasBeenCopied(Localizations.username))
+
+        subject.receive(.copyPressed(value: "valueWithoutField"))
+        XCTAssertEqual(pasteboardService.copiedString, "valueWithoutField")
+        XCTAssertEqual(subject.state.toast?.text, Localizations.valueHasBeenCopied(Localizations.value))
     }
 
     /// `receive` with `.customFieldVisibilityPressed()` toggles custom field visibility.

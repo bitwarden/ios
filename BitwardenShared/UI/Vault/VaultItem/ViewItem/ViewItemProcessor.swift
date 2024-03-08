@@ -180,9 +180,8 @@ private extension ViewItemProcessor {
     private func copyValue(_ value: String, _ field: CopyableField?) {
         services.pasteboardService.copy(value)
 
-        if let field {
-            state.toast = Toast(text: Localizations.valueHasBeenCopied(field.localizedName))
-        }
+        let localizedFieldName = if let field { field.localizedName } else { Localizations.value }
+        state.toast = Toast(text: Localizations.valueHasBeenCopied(localizedFieldName))
     }
 
     /// Download the attachment.
