@@ -1,4 +1,5 @@
 import Foundation
+import SwiftUI
 
 // MARK: - URLDecodingError
 
@@ -29,6 +30,21 @@ extension String {
 
     // MARK: Properties
 
+    /// Returns a color that's generated from the hash of the characters in the string. This can be
+    /// used to create a consistent color based on the provided string.
+    var hashColor: Color {
+        let hash = unicodeScalars.reduce(into: 0) { result, scalar in
+            result = Int(scalar.value) + ((result << 5) &- result)
+        }
+
+        let color = (0 ..< 3).reduce(into: "#") { result, index in
+            let value = (hash >> (index * 8)) & 0xFF
+            result += String(value, radix: 16).leftPadding(toLength: 2, withPad: "0")
+        }
+
+        return Color(hex: color)
+    }
+
     /// A flag indicating if this string is considered a valid email address or not.
     ///
     /// An email is considered valid if it has at least one `@` symbol in it.
@@ -55,6 +71,23 @@ extension String {
     }
 
     // MARK: Methods
+
+    /// Returns a copy of the string, padded to the specified length on the left side with the
+    /// provided padding character.
+    ///
+    /// - Parameters:
+    ///   - toLength: The length of the string to return. If the string's length is less than this,
+    ///     it will be padded with the provided character on the left/leading side.
+    ///   - character: The character to use for padding.
+    /// - Returns: A copy of the string, padded to the specified length on the left side.
+    ///
+    func leftPadding(toLength: Int, withPad character: Character) -> String {
+        if count < toLength {
+            return String(repeatElement(character, count: toLength - count)) + self
+        } else {
+            return String(suffix(toLength))
+        }
+    }
 
     /// Creates a new string that has been encoded for use in a url or request header.
     ///
