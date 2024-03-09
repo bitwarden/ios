@@ -1273,6 +1273,33 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
         )
     }
 
+    /// `vaultListPublisher(group:filter:)` returns a publisher for the vault list sections within
+    /// the folder group with nested folders.
+    func test_vaultListPublisher_groups_folder_nestedFolders() async throws {
+        let workCipher = Cipher.fixture(folderId: "1", id: "1")
+        let workEngineeringCipher = Cipher.fixture(folderId: "3", id: "2")
+        cipherService.ciphersSubject.send([workCipher, workEngineeringCipher])
+
+        let workFolder = Folder.fixture(id: "1", name: "Work")
+        let workDesignFolder = Folder.fixture(id: "2", name: "Work/Design")
+        let workEngineeringFolder = Folder.fixture(id: "3", name: "Work/Engineering")
+        folderService.foldersSubject.send([workFolder, workDesignFolder, workEngineeringFolder])
+
+        var iterator = try await subject.vaultListPublisher(group: .folder(id: "1", name: ""), filter: .allVaults)
+            .makeAsyncIterator()
+        let vaultListSections = try await iterator.next()
+
+        try assertInlineSnapshot(of: dumpVaultListSections(XCTUnwrap(vaultListSections)), as: .lines) {
+            """
+            Section: Folder
+              - Group: Design (0)
+              - Group: Engineering (1)
+            Section: Items
+              - Cipher: Bitwarden
+            """
+        }
+    }
+
     /// `vaultListPublisher(group:filter:)` returns a publisher for the vault list items.
     func test_vaultListPublisher_groups_identity() async throws {
         let cipher = Cipher.fixture(id: "1", type: .identity)

@@ -371,6 +371,48 @@ class DefaultVaultRepository { // swiftlint:disable:this type_body_length
 
     // MARK: Private
 
+    /// Returns a list of `VaultListItem`s for the folders within a nested tree. By default, this
+    /// will return the list items for the folders at the root of the tree. Specifying a
+    /// `nestedFolderId` will return the list items for the children of the folder with the
+    /// specified ID.
+    ///
+    /// - Parameters:
+    ///   - activeCiphers: The list of active (non-deleted) ciphers, used to determine the count of
+    ///     ciphers within a folder.
+    ///   - folderTree: The nested tree of folders.
+    ///   - nestedFolderId: An optional folder ID of a nested folder to create the list items from
+    ///     the children of that folder. Defaults to `nil` which will return the list items for the
+    ///     folders at the root of the tree.
+    /// - Returns: A list of `VaultListItem`s for the folders within a nested tree.
+    ///
+    private func folderVaultListItems(
+        activeCiphers: [CipherView],
+        folderTree: Tree<FolderView>,
+        nestedFolderId: String? = nil
+    ) -> [VaultListItem] {
+        let folders: [TreeNode<FolderView>]? = if let nestedFolderId {
+            folderTree.getTreeNodeObject(with: nestedFolderId)?.children
+        } else {
+            folderTree.rootNodes
+        }
+
+        guard let folders else { return [] }
+
+        return folders.compactMap { folderNode in
+            guard let folderId = folderNode.node.id else {
+                self.errorReporter.log(
+                    error: BitwardenError.dataError("Received a folder from the API with a missing ID.")
+                )
+                return nil
+            }
+            let cipherCount = activeCiphers.lazy.filter { $0.folderId == folderId }.count
+            return VaultListItem(
+                id: folderId,
+                itemType: .group(.folder(id: folderId, name: folderNode.name), cipherCount)
+            )
+        }
+    }
+
     /// A publisher for searching a user's ciphers based on the specified search text and filter type.
     ///
     /// - Parameters:
@@ -506,12 +548,15 @@ class DefaultVaultRepository { // swiftlint:disable:this type_body_length
     ///   - group: The group of items to get.
     ///   - filter: A filter to apply to the vault items.
     ///   - ciphers: The ciphers to build the list of items.
+    ///   - folders: The list of all folders. This is used to show any nested folders within a
+    ///     folder group.
     /// - Returns: A list of items for the group in the vault list.
     ///
-    private func vaultListItems(
+    private func vaultListItems( // swiftlint:disable:this function_body_length
         group: VaultListGroup,
         filter: VaultFilterType,
-        from ciphers: [Cipher]
+        ciphers: [Cipher],
+        folders: [Folder] = []
     ) async throws -> [VaultListSection] {
         let ciphers = try await ciphers.asyncMap { cipher in
             try await self.clientVault.ciphers().decrypt(cipher: cipher)
@@ -549,9 +594,34 @@ class DefaultVaultRepository { // swiftlint:disable:this type_body_length
             items = deletedCiphers.compactMap(VaultListItem.init)
         }
 
+        let folderSection: VaultListSection?
+        if let folderId = group.folderId {
+            let folders = try await clientVault.folders()
+                .decryptList(folders: folders)
+                .filter(filter.folderFilter)
+                .sorted { $0.name.localizedStandardCompare($1.name) == .orderedAscending }
+
+            let folderItems = folderVaultListItems(
+                activeCiphers: activeCiphers,
+                folderTree: folders.asNestedNodes(),
+                nestedFolderId: folderId
+            )
+
+            folderSection = VaultListSection(
+                id: "Folders",
+                items: folderItems,
+                name: Localizations.folder
+            )
+        } else {
+            folderSection = nil
+        }
+
         return [
+            folderSection,
             VaultListSection(id: "Items", items: items, name: Localizations.items),
         ]
+        .compactMap { $0 }
+        .filter { !$0.items.isEmpty }
     }
 
     /// Returns a list of the sections in the vault list from a sync response.
@@ -613,19 +683,10 @@ class DefaultVaultRepository { // swiftlint:disable:this type_body_length
             ] : []
         }
 
-        var folderItems: [VaultListItem] = folders.compactMap { folder in
-            guard let folderId = folder.id else {
-                self.errorReporter.log(
-                    error: BitwardenError.dataError("Received a folder from the API with a missing ID.")
-                )
-                return nil
-            }
-            let cipherCount = activeCiphers.lazy.filter { $0.folderId == folderId }.count
-            return VaultListItem(
-                id: folderId,
-                itemType: .group(.folder(id: folderId, name: folder.name), cipherCount)
-            )
-        }
+        var folderItems = folderVaultListItems(
+            activeCiphers: activeCiphers,
+            folderTree: folders.asNestedNodes()
+        )
 
         // Add no folder to folders item if needed.
         if !showNoFolderCipherGroup {
@@ -1046,11 +1107,14 @@ extension DefaultVaultRepository: VaultRepository {
         group: VaultListGroup,
         filter: VaultFilterType
     ) async throws -> AsyncThrowingPublisher<AnyPublisher<[VaultListSection], Error>> {
-        try await cipherService.ciphersPublisher()
-            .asyncTryMap { ciphers in
-                try await self.vaultListItems(group: group, filter: filter, from: ciphers)
-            }
-            .eraseToAnyPublisher()
-            .values
+        try await Publishers.CombineLatest(
+            cipherService.ciphersPublisher(),
+            folderService.foldersPublisher()
+        )
+        .asyncTryMap { ciphers, folders in
+            try await self.vaultListItems(group: group, filter: filter, ciphers: ciphers, folders: folders)
+        }
+        .eraseToAnyPublisher()
+        .values
     }
 } // swiftlint:disable:this file_length
