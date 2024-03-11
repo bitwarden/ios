@@ -90,10 +90,12 @@ struct PasswordHistoryListView: View {
         HStack(spacing: 16) {
             VStack(alignment: .leading, spacing: 2) {
                 PasswordText(password: passwordHistory.password, isPasswordVisible: true)
+                    .accessibilityIdentifier("GeneratedPasswordValue")
 
                 FormattedDateTimeView(date: passwordHistory.lastUsedDate)
                     .styleGuide(.subheadline)
                     .foregroundColor(Asset.Colors.textSecondary.swiftUIColor)
+                    .accessibilityIdentifier("GeneratedPasswordDateLabel")
             }
             .padding(.vertical, 10)
             .frame(maxWidth: .infinity, alignment: .leading)
@@ -107,6 +109,7 @@ struct PasswordHistoryListView: View {
                     .foregroundColor(Asset.Colors.textSecondary.swiftUIColor)
             }
             .accessibilityLabel(Localizations.copyPassword)
+            .accessibilityIdentifier("CopyPasswordValueButton")
         }
         .accessibilityElement(children: .combine)
         .accessibilityAction(named: Localizations.copyPassword) {
