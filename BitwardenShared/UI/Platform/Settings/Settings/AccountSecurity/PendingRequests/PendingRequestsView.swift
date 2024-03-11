@@ -142,6 +142,7 @@ struct PendingRequestsView: View {
             }
         }
         .background(Asset.Colors.backgroundTertiary.swiftUIColor)
+        .accessibilityIdentifier("LoginRequestCell")
     }
 }
 
