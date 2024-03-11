@@ -36,36 +36,42 @@ struct SettingsView: View {
             } trailingContent: {
                 chevron
             }
+            .accessibilityIdentifier("AccountSecuritySettingsButton")
 
             SettingsListItem(Localizations.autofill) {
                 store.send(.autoFillPressed)
             } trailingContent: {
                 chevron
             }
+            .accessibilityIdentifier("AutofillSettingsButton")
 
             SettingsListItem(Localizations.vault) {
                 store.send(.vaultPressed)
             } trailingContent: {
                 chevron
             }
+            .accessibilityIdentifier("VaultSettingsButton")
 
             SettingsListItem(Localizations.appearance) {
                 store.send(.appearancePressed)
             } trailingContent: {
                 chevron
             }
+            .accessibilityIdentifier("AppearanceSettingsButton")
 
             SettingsListItem(Localizations.other) {
                 store.send(.otherPressed)
             } trailingContent: {
                 chevron
             }
+            .accessibilityIdentifier("OtherSettingsButton")
 
             SettingsListItem(Localizations.about, hasDivider: false) {
                 store.send(.aboutPressed)
             } trailingContent: {
                 chevron
             }
+            .accessibilityIdentifier("AboutSettingsButton")
         }
         .cornerRadius(10)
     }
