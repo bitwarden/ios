@@ -66,7 +66,8 @@ protocol SyncService: AnyObject {
 
 // MARK: - SyncServiceDelegate
 
-/// A protocol for a delegate of a `SyncService` which is notified if the user's security stamp changes.
+/// A protocol for a delegate of a `SyncService` which is notified to handle actions that need to
+/// be taken outside of the service layer.
 ///
 protocol SyncServiceDelegate: AnyObject {
     /// The user's security stamp changed.

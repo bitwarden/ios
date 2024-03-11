@@ -27,7 +27,7 @@ public enum AppEvent: Equatable {
     ///
     /// - Parameters:
     ///   - userId: The userId of the account that was logged out.
-    ///   - isUserInitiated: Did a user action trigger the account switch?
+    ///   - userInitiated: Did a user action trigger the account switch?
     ///
     case didLogout(userId: String, userInitiated: Bool)
 
