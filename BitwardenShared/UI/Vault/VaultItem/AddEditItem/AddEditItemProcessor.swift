@@ -196,6 +196,11 @@ final class AddEditItemProcessor: StateProcessor<// swiftlint:disable:this type_
                 .fetchCipherOwnershipOptions(includePersonal: !isPersonalOwnershipDisabled)
 
             state.collections = try await services.vaultRepository.fetchCollections(includeReadOnly: false)
+            // Filter out any collection IDs that aren't included in the fetched collections.
+            state.collectionIds = state.collectionIds.filter { collectionId in
+                state.collections.contains(where: { $0.id == collectionId })
+            }
+
             state.isPersonalOwnershipDisabled = isPersonalOwnershipDisabled
             state.ownershipOptions = ownershipOptions
             if isPersonalOwnershipDisabled, state.organizationId == nil {
