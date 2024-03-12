@@ -97,6 +97,8 @@ extension GeneratorState {
             fastmailAPIKey = options.fastMailApiKey ?? fastmailAPIKey
             firefoxRelayAPIAccessToken = options.firefoxRelayApiAccessToken ?? firefoxRelayAPIAccessToken
             forwardedEmailService = options.serviceType ?? forwardedEmailService
+            forwardEmailAPIToken = options.forwardEmailApiToken ?? forwardEmailAPIToken
+            forwardEmailDomainName = options.forwardEmailDomainName ?? forwardEmailDomainName
             simpleLoginAPIKey = options.simpleLoginApiKey ?? simpleLoginAPIKey
 
             // Plus Address Email Properties
