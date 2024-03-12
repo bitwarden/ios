@@ -355,7 +355,7 @@ class SyncServiceTests: BitwardenTestCase {
                 key: "key",
                 organizations: [],
                 privateKey: "private key",
-                securityStamp: "security stamp"
+                securityStamp: "stamp"
             )
         )
         XCTAssertEqual(stateService.updateProfileUserId, "1")
@@ -365,7 +365,7 @@ class SyncServiceTests: BitwardenTestCase {
     /// replace any of the user's data.
     func test_fetchSync_securityStampChanged() async throws {
         client.result = .httpSuccess(testData: .syncWithProfile)
-        stateService.activeAccount = .fixture(profile: .fixture(stamp: "OLD_STAMP"))
+        stateService.activeAccount = .fixture(profile: .fixture(stamp: "old stamp"))
 
         try await subject.fetchSync(forceSync: false)
 
@@ -378,7 +378,7 @@ class SyncServiceTests: BitwardenTestCase {
     /// and syncs the user's data.
     func test_fetchSync_securityStampSame() async throws {
         client.result = .httpSuccess(testData: .syncWithProfile)
-        stateService.activeAccount = .fixture(profile: .fixture(stamp: "security stamp"))
+        stateService.activeAccount = .fixture(profile: .fixture(stamp: "stamp"))
 
         try await subject.fetchSync(forceSync: false)
 
