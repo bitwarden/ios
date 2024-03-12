@@ -28,6 +28,12 @@ struct UsernameGenerationOptions: Codable, Equatable {
     /// The Firefox Relay API access token used to generate a forwarded email alias.
     var firefoxRelayApiAccessToken: String?
 
+    /// The ForwardEmail API key used to generate a forwarded email alias.
+    var forwardEmailApiKey: String?
+
+    /// The ForwardEmail domain name used to generate a forwarded email alias.
+    var forwardEmailDomainName: String?
+
     /// Whether the random word should include numbers.
     var includeNumberRandomWordUsername: Bool?
 
