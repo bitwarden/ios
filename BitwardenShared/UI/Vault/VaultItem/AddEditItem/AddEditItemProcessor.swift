@@ -198,7 +198,12 @@ final class AddEditItemProcessor: StateProcessor<// swiftlint:disable:this type_
             state.collections = try await services.vaultRepository.fetchCollections(includeReadOnly: false)
             state.isPersonalOwnershipDisabled = isPersonalOwnershipDisabled
             state.ownershipOptions = ownershipOptions
-            state.owner = ownershipOptions.first
+            if isPersonalOwnershipDisabled, state.organizationId == nil {
+                // Only set the owner if personal ownership is disabled and there isn't already an
+                // organization owner set. This prevents overwriting a preset owner when adding a
+                // new item from a collection group view.
+                state.owner = ownershipOptions.first
+            }
 
             let folders = try await services.vaultRepository.fetchFolders()
                 .map { DefaultableType<FolderView>.custom($0) }
