@@ -360,6 +360,21 @@ extension GeneratorState {
                         title: Localizations.apiAccessToken
                     )
                 )
+            case .forwardEmail:
+                optionFields.append(contentsOf: [
+                    textField(
+                        accessibilityId: "ForwardedEmailApiSecretEntry",
+                        isPasswordVisibleKeyPath: \.usernameState.isAPIKeyVisible,
+                        keyPath: \.usernameState.forwardEmailAPIToken,
+                        passwordVisibilityAccessibilityId: "ShowForwardedEmailApiSecretButton",
+                        title: Localizations.apiKeyRequiredParenthesis
+                    ),
+                    textField(
+                        accessibilityId: "ForwardEmailDomainNameEntry",
+                        keyPath: \.usernameState.forwardEmailDomainName,
+                        title: Localizations.domainNameRequiredParenthesis
+                    ),
+                ])
             case .simpleLogin:
                 optionFields.append(
                     textField(
