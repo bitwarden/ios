@@ -7,14 +7,18 @@ struct ProfileSwitcherRowState: Equatable {
         /// Add Account
         ///
         case addAccount
+
         /// Active Account
-        /// - Parameters
-        ///   - `ProfileSwitcherItem`: The profile
-        ///   - `showDivider`: a flag for toggling divider visibility, defaults to true
+        ///
+        /// - Parameters:
+        ///   - ProfileSwitcherItem: The profile switcher item.
+        ///   - showDivider: a flag for toggling divider visibility, defaults to true
         ///
         case active(ProfileSwitcherItem)
-        /// AlternateAccount
-        /// - Parameter `ProfileSwitcherItem`
+
+        /// Alternate Account
+        ///
+        /// - Parameter ProfileSwitcherItem: The profile switcher item.
         ///
         case alternate(ProfileSwitcherItem)
     }
@@ -30,4 +34,7 @@ struct ProfileSwitcherRowState: Equatable {
 
     /// The type of the row
     var rowType: RowType
+
+    /// The accessibility ID for the trailing icon.
+    var trailingIconAccessibilityID: String = ""
 }

@@ -20,7 +20,7 @@ struct ProfileSwitcherRow: View {
             .onChange(of: store.state.shouldTakeAccessibilityFocus) { shouldTakeFocus in
                 updateFocusIfNeeded(shouldTakeFocus: shouldTakeFocus)
             }
-            .accessibilityIdentifier("//XCUIElementTypeTable/XCUIElementTypeCell")
+            .accessibilityIdentifier("AccountCell")
     }
 
     // MARK: Private Properties
@@ -62,6 +62,7 @@ struct ProfileSwitcherRow: View {
                                 Text(subtitle)
                                     .styleGuide(.subheadline)
                                     .foregroundColor(Asset.Colors.textSecondary.swiftUIColor)
+                                    .accessibilityIdentifier("AccountStatusLabel")
                             }
                         }
                         Spacer()
@@ -69,6 +70,7 @@ struct ProfileSwitcherRow: View {
                             .resizable()
                             .frame(width: 22, height: 22)
                             .foregroundColor(trailingIconColor)
+                            .accessibilityIdentifier(store.state.trailingIconAccessibilityID)
                     }
                     .padding([.top, .bottom], subtitle != nil ? 9 : 19)
                     .padding([.trailing], 16)
