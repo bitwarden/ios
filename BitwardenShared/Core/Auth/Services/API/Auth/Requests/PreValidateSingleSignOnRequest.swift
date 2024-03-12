@@ -16,7 +16,7 @@ struct PreValidateSingleSignOnRequest: Request {
     let organizationIdentifier: String
 
     /// The URL path for this request.
-    var path: String { "/account/prevalidate" }
+    var path: String { "/sso/prevalidate" }
 
     /// The query items for this request.
     var query: [URLQueryItem] { [URLQueryItem(name: "domainHint", value: organizationIdentifier)] }
