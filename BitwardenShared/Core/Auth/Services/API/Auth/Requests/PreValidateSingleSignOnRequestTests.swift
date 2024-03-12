@@ -31,7 +31,7 @@ class PreValidateSingleSignOnRequestTests: BitwardenTestCase {
 
     /// `path` returns the path of the request.
     func test_path() {
-        XCTAssertEqual(subject.path, "/account/prevalidate")
+        XCTAssertEqual(subject.path, "/sso/prevalidate")
     }
 
     /// `query` returns the queries of the request.
