@@ -58,7 +58,8 @@ class VaultGroupViewTests: BitwardenTestCase {
     /// Tapping a vault item dispatches the `.itemPressed` action.
     func test_vaultItem_tap() throws {
         let item = VaultListItem.fixture(cipherView: .fixture(name: "Item"))
-        processor.state.loadingState = .data([item])
+        let section = VaultListSection(id: "Items", items: [item], name: Localizations.items)
+        processor.state.loadingState = .data([section])
         let button = try subject.inspect().find(button: "Item")
         try button.tap()
         XCTAssertEqual(processor.dispatchedActions.last, .itemPressed(item))
@@ -68,10 +69,16 @@ class VaultGroupViewTests: BitwardenTestCase {
     func test_vaultItem_copyTOTPButton_tap() throws {
         processor.state.loadingState = .data(
             [
-                .fixtureTOTP(
-                    totp: .fixture(
-                        timeProvider: timeProvider
-                    )
+                VaultListSection(
+                    id: "Items",
+                    items: [
+                        .fixtureTOTP(
+                            totp: .fixture(
+                                timeProvider: timeProvider
+                            )
+                        ),
+                    ],
+                    name: Localizations.items
                 ),
             ]
         )
@@ -84,7 +91,8 @@ class VaultGroupViewTests: BitwardenTestCase {
     /// Tapping the more button on a vault item dispatches the `.morePressed` action.
     func test_vaultItem_moreButton_tap() throws {
         let item = VaultListItem.fixture()
-        processor.state.loadingState = .data([.fixture()])
+        let section = VaultListSection(id: "Items", items: [item], name: Localizations.items)
+        processor.state.loadingState = .data([section])
         let button = try subject.inspect().find(buttonWithAccessibilityLabel: Localizations.more)
         try button.tap()
         XCTAssertEqual(processor.dispatchedActions.last, .morePressed(item))
@@ -115,42 +123,58 @@ class VaultGroupViewTests: BitwardenTestCase {
     }
 
     func test_snapshot_multipleItems() {
-        processor.state.loadingState = .data([
-            .fixture(
-                cipherView: .fixture(
-                    id: "1",
-                    login: .fixture(username: "email@example.com"),
-                    name: "Example"
-                )
-            ),
-            .fixture(cipherView: .fixture(
-                id: "2",
-                login: .fixture(
-                    username: "An equally long subtitle that should also take up more than one line"
+        processor.state.loadingState = .data(
+            [
+                VaultListSection(
+                    id: "Items",
+                    items: [
+                        .fixture(
+                            cipherView: .fixture(
+                                id: "1",
+                                login: .fixture(username: "email@example.com"),
+                                name: "Example"
+                            )
+                        ),
+                        .fixture(cipherView: .fixture(
+                            id: "2",
+                            login: .fixture(
+                                username: "An equally long subtitle that should also take up more than one line"
+                            ),
+                            name: "An extra long name that should take up more than one line"
+                        )),
+                        .fixture(cipherView: .fixture(
+                            id: "3",
+                            login: .fixture(username: "email@example.com"),
+                            name: "Example"
+                        )),
+                        .fixture(cipherView: .fixture(
+                            id: "4",
+                            login: .fixture(username: "email@example.com"),
+                            name: "Example"
+                        )),
+                    ],
+                    name: Localizations.items
                 ),
-                name: "An extra long name that should take up more than one line"
-            )),
-            .fixture(cipherView: .fixture(
-                id: "3",
-                login: .fixture(username: "email@example.com"),
-                name: "Example"
-            )),
-            .fixture(cipherView: .fixture(
-                id: "4",
-                login: .fixture(username: "email@example.com"),
-                name: "Example"
-            )),
-        ])
+            ]
+        )
         assertSnapshot(of: subject, as: .defaultPortrait)
     }
 
     func test_snapshot_oneItem() {
-        processor.state.loadingState = .data([
-            .fixture(cipherView: .fixture(
-                login: .fixture(username: "email@example.com"),
-                name: "Example"
-            )),
-        ])
+        processor.state.loadingState = .data(
+            [
+                VaultListSection(
+                    id: "Items",
+                    items: [
+                        .fixture(cipherView: .fixture(
+                            login: .fixture(username: "email@example.com"),
+                            name: "Example"
+                        )),
+                    ],
+                    name: Localizations.items
+                ),
+            ]
+        )
         assertSnapshot(of: subject, as: .defaultPortrait)
     }
 

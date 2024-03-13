@@ -1212,9 +1212,18 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
         cipherService.ciphersSubject.send([cipher])
 
         var iterator = try await subject.vaultListPublisher(group: .card, filter: .allVaults).makeAsyncIterator()
-        let vaultListItems = try await iterator.next()
+        let vaultListSections = try await iterator.next()
 
-        XCTAssertEqual(vaultListItems, [.fixture(cipherView: .init(cipher: cipher))])
+        XCTAssertEqual(
+            vaultListSections,
+            [
+                VaultListSection(
+                    id: "Items",
+                    items: [.fixture(cipherView: .init(cipher: cipher))],
+                    name: Localizations.items
+                ),
+            ]
+        )
     }
 
     /// `vaultListPublisher(group:filter:)` returns a publisher for the vault list items.
@@ -1227,9 +1236,18 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
             filter: .allVaults
         )
         .makeAsyncIterator()
-        let vaultListItems = try await iterator.next()
+        let vaultListSections = try await iterator.next()
 
-        XCTAssertEqual(vaultListItems, [.fixture(cipherView: .init(cipher: cipher))])
+        XCTAssertEqual(
+            vaultListSections,
+            [
+                VaultListSection(
+                    id: "Items",
+                    items: [.fixture(cipherView: .init(cipher: cipher))],
+                    name: Localizations.items
+                ),
+            ]
+        )
     }
 
     /// `vaultListPublisher(group:filter:)` returns a publisher for the vault list items.
@@ -1239,9 +1257,18 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
 
         var iterator = try await subject.vaultListPublisher(group: .folder(id: "1", name: ""), filter: .allVaults)
             .makeAsyncIterator()
-        let vaultListItems = try await iterator.next()
+        let vaultListSections = try await iterator.next()
 
-        XCTAssertEqual(vaultListItems, [.fixture(cipherView: .init(cipher: cipher))])
+        XCTAssertEqual(
+            vaultListSections,
+            [
+                VaultListSection(
+                    id: "Items",
+                    items: [.fixture(cipherView: .init(cipher: cipher))],
+                    name: Localizations.items
+                ),
+            ]
+        )
     }
 
     /// `vaultListPublisher(group:filter:)` returns a publisher for the vault list items.
@@ -1250,9 +1277,18 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
         cipherService.ciphersSubject.send([cipher])
 
         var iterator = try await subject.vaultListPublisher(group: .identity, filter: .allVaults).makeAsyncIterator()
-        let vaultListItems = try await iterator.next()
+        let vaultListSections = try await iterator.next()
 
-        XCTAssertEqual(vaultListItems, [.fixture(cipherView: .init(cipher: cipher))])
+        XCTAssertEqual(
+            vaultListSections,
+            [
+                VaultListSection(
+                    id: "Items",
+                    items: [.fixture(cipherView: .init(cipher: cipher))],
+                    name: Localizations.items
+                ),
+            ]
+        )
     }
 
     /// `vaultListPublisher(group:filter:)` returns a publisher for the vault list items.
@@ -1261,9 +1297,18 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
         cipherService.ciphersSubject.send([cipher])
 
         var iterator = try await subject.vaultListPublisher(group: .login, filter: .allVaults).makeAsyncIterator()
-        let vaultListItems = try await iterator.next()
+        let vaultListSections = try await iterator.next()
 
-        XCTAssertEqual(vaultListItems, [.fixture(cipherView: .init(cipher: cipher))])
+        XCTAssertEqual(
+            vaultListSections,
+            [
+                VaultListSection(
+                    id: "Items",
+                    items: [.fixture(cipherView: .init(cipher: cipher))],
+                    name: Localizations.items
+                ),
+            ]
+        )
     }
 
     /// `vaultListPublisher(group:filter:)` returns a publisher for the vault list items.
@@ -1272,9 +1317,18 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
         cipherService.ciphersSubject.send([cipher])
 
         var iterator = try await subject.vaultListPublisher(group: .secureNote, filter: .allVaults).makeAsyncIterator()
-        let vaultListItems = try await iterator.next()
+        let vaultListSections = try await iterator.next()
 
-        XCTAssertEqual(vaultListItems, [.fixture(cipherView: .init(cipher: cipher))])
+        XCTAssertEqual(
+            vaultListSections,
+            [
+                VaultListSection(
+                    id: "Items",
+                    items: [.fixture(cipherView: .init(cipher: cipher))],
+                    name: Localizations.items
+                ),
+            ]
+        )
     }
 
     /// `vaultListPublisher(group:filter:)` returns a publisher for the vault list items for premium accounts.
@@ -1284,9 +1338,10 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
         cipherService.ciphersSubject.send([cipher])
 
         var iterator = try await subject.vaultListPublisher(group: .totp, filter: .allVaults).makeAsyncIterator()
-        let vaultListItems = try await iterator.next()
+        let vaultListSections = try await iterator.next()
+        let vaultListItems = try XCTUnwrap(vaultListSections).flatMap(\.items)
 
-        let itemType = try XCTUnwrap(vaultListItems?.last?.itemType)
+        let itemType = try XCTUnwrap(vaultListItems.last?.itemType)
         if case let .totp(name, _) = itemType {
             XCTAssertEqual(name, "Bitwarden")
         } else {
@@ -1301,8 +1356,8 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
         cipherService.ciphersSubject.send([cipher])
 
         var iterator = try await subject.vaultListPublisher(group: .totp, filter: .allVaults).makeAsyncIterator()
-        let maybeItems = try await iterator.next()
-        let vaultListItems = try XCTUnwrap(maybeItems)
+        let vaultListSections = try await iterator.next()
+        let vaultListItems = try XCTUnwrap(vaultListSections).flatMap(\.items)
         XCTAssertTrue(vaultListItems.isEmpty)
     }
 
@@ -1316,9 +1371,9 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
         cipherService.ciphersSubject.send([cipher])
 
         var iterator = try await subject.vaultListPublisher(group: .totp, filter: .allVaults).makeAsyncIterator()
-        let vaultListItems = try await iterator.next()
+        let vaultListSections = try await iterator.next()
 
-        XCTAssertNil(vaultListItems?.last?.itemType)
+        try XCTAssertTrue(XCTUnwrap(vaultListSections).allSatisfy(\.items.isEmpty))
     }
 
     /// `vaultListPublisher(group:filter:)` returns a publisher for the vault list items.
@@ -1327,9 +1382,18 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
         cipherService.ciphersSubject.send([cipher])
 
         var iterator = try await subject.vaultListPublisher(group: .trash, filter: .allVaults).makeAsyncIterator()
-        let vaultListItems = try await iterator.next()
+        let vaultListSections = try await iterator.next()
 
-        XCTAssertEqual(vaultListItems, [.fixture(cipherView: .init(cipher: cipher))])
+        XCTAssertEqual(
+            vaultListSections,
+            [
+                VaultListSection(
+                    id: "Items",
+                    items: [.fixture(cipherView: .init(cipher: cipher))],
+                    name: Localizations.items
+                ),
+            ]
+        )
     }
 
     /// `vaultListPublisher(filter:)` returns a publisher for the vault list sections.
@@ -1685,11 +1749,12 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
         var iterator = try await subject.vaultListPublisher(group: .login, filter: .allVaults).makeAsyncIterator()
         let items = try await iterator.next()
 
-        try assertInlineSnapshot(of: dumpVaultListItems(XCTUnwrap(items)), as: .lines) {
+        try assertInlineSnapshot(of: dumpVaultListSections(XCTUnwrap(items)), as: .lines) {
             """
-            - Cipher: Apple
-            - Cipher: Facebook
-            - Cipher: Figma
+            Section: Items
+              - Cipher: Apple
+              - Cipher: Facebook
+              - Cipher: Figma
             """
         }
     }
@@ -1706,9 +1771,10 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
         var iterator = try await subject.vaultListPublisher(group: .login, filter: .myVault).makeAsyncIterator()
         let items = try await iterator.next()
 
-        try assertInlineSnapshot(of: dumpVaultListItems(XCTUnwrap(items)), as: .lines) {
+        try assertInlineSnapshot(of: dumpVaultListSections(XCTUnwrap(items)), as: .lines) {
             """
-            - Cipher: Facebook
+            Section: Items
+              - Cipher: Facebook
             """
         }
     }
@@ -1728,10 +1794,11 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
         ).makeAsyncIterator()
         let items = try await iterator.next()
 
-        try assertInlineSnapshot(of: dumpVaultListItems(XCTUnwrap(items)), as: .lines) {
+        try assertInlineSnapshot(of: dumpVaultListSections(XCTUnwrap(items)), as: .lines) {
             """
-            - Cipher: Apple
-            - Cipher: Figma
+            Section: Items
+              - Cipher: Apple
+              - Cipher: Figma
             """
         }
     }
@@ -1755,9 +1822,10 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
         ).makeAsyncIterator()
         let items = try await iterator.next()
 
-        try assertInlineSnapshot(of: dumpVaultListItems(XCTUnwrap(items)), as: .lines) {
+        try assertInlineSnapshot(of: dumpVaultListSections(XCTUnwrap(items)), as: .lines) {
             """
-            - Cipher: Apple
+            Section: Items
+              - Cipher: Apple
             """
         }
     }

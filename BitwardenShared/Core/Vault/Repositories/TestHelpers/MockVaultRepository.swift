@@ -92,7 +92,7 @@ class MockVaultRepository: VaultRepository {
     var updateCipherCollectionsResult: Result<Void, Error> = .success(())
 
     var vaultListSubject = CurrentValueSubject<[VaultListSection], Error>([])
-    var vaultListGroupSubject = CurrentValueSubject<[VaultListItem], Error>([])
+    var vaultListGroupSubject = CurrentValueSubject<[VaultListSection], Error>([])
     var vaultListFilter: VaultFilterType?
 
     // MARK: Computed Properties
@@ -262,7 +262,7 @@ class MockVaultRepository: VaultRepository {
     func vaultListPublisher(
         group _: BitwardenShared.VaultListGroup,
         filter _: VaultFilterType
-    ) async throws -> AsyncThrowingPublisher<AnyPublisher<[VaultListItem], Error>> {
+    ) async throws -> AsyncThrowingPublisher<AnyPublisher<[VaultListSection], Error>> {
         vaultListGroupSubject.eraseToAnyPublisher().values
     }
 }

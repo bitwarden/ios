@@ -161,12 +161,13 @@ final class VaultGroupProcessor: StateProcessor<VaultGroupState, VaultGroupActio
     /// Refreshes the vault group's TOTP Codes.
     ///
     private func refreshTOTPCodes(for items: [VaultListItem]) async {
-        guard case let .data(currentItems) = state.loadingState else { return }
+        guard case let .data(currentSections) = state.loadingState else { return }
         do {
             let refreshedItems = try await services.vaultRepository.refreshTOTPCodes(for: items)
-            let allItems = currentItems.updated(with: refreshedItems)
+            let updatedSections = currentSections.updated(with: refreshedItems)
+            let allItems = updatedSections.flatMap(\.items)
             groupTotpExpirationManager?.configureTOTPRefreshScheduling(for: allItems)
-            state.loadingState = .data(allItems)
+            state.loadingState = .data(updatedSections)
         } catch {
             services.errorReporter.log(error: error)
         }
@@ -255,7 +256,7 @@ final class VaultGroupProcessor: StateProcessor<VaultGroupState, VaultGroupActio
                 group: state.group,
                 filter: state.vaultFilterType
             ) {
-                groupTotpExpirationManager?.configureTOTPRefreshScheduling(for: vaultList)
+                groupTotpExpirationManager?.configureTOTPRefreshScheduling(for: vaultList.flatMap(\.items))
                 state.loadingState = .data(vaultList)
             }
         } catch {
