@@ -20,6 +20,9 @@ struct EnvironmentUrls: Equatable {
     /// The URL for the identity API.
     let identityURL: URL
 
+    /// The URL for importing items.
+    let importItemsURL: URL
+
     /// The URL for sharing a send.
     let sendShareURL: URL
 
@@ -48,6 +51,7 @@ extension EnvironmentUrls {
             identityURL = environmentUrlData.identity ?? URL(string: "https://identity.bitwarden.com")!
             webVaultURL = environmentUrlData.webVault ?? URL(string: "https://vault.bitwarden.com")!
         }
+        importItemsURL = environmentUrlData.importItemsURL ?? URL(string: "https://vault.bitwarden.com/#/tools/import")!
         sendShareURL = environmentUrlData.sendShareURL ?? URL(string: "https://send.bitwarden.com/#")!
     }
 }

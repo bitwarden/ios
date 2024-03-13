@@ -412,6 +412,7 @@ final class SettingsCoordinator: Coordinator, HasStackNavigator { // swiftlint:d
     private func showVault() {
         let processor = VaultSettingsProcessor(
             coordinator: asAnyCoordinator(),
+            services: services,
             state: VaultSettingsState()
         )
         let view = VaultSettingsView(store: Store(processor: processor))

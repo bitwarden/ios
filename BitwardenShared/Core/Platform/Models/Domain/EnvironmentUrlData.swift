@@ -59,6 +59,15 @@ struct EnvironmentUrlData: Codable, Equatable, Hashable {
 }
 
 extension EnvironmentUrlData {
+    /// The base url for importing items.
+    var importItemsURL: URL? {
+        if let importBase = webVault ?? base,
+           let url = URL(string: importBase.absoluteString.appending("/#/tools/import")) {
+            return url
+        }
+        return nil
+    }
+
     /// Whether all of the environment URLs are not set.
     var isEmpty: Bool {
         api == nil

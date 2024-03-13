@@ -18,6 +18,9 @@ protocol EnvironmentService {
     /// The URL for the identity API.
     var identityURL: URL { get }
 
+    /// The URL for importing items.
+    var importItemsURL: URL { get }
+
     /// The URL for sharing a send.
     var sendShareURL: URL { get }
 
@@ -95,6 +98,10 @@ extension DefaultEnvironmentService {
 
     var identityURL: URL {
         environmentUrls.identityURL
+    }
+
+    var importItemsURL: URL {
+        environmentUrls.importItemsURL
     }
 
     var eventsURL: URL {

@@ -5,6 +5,12 @@ import XCTest
 class EnvironmentUrlDataTests: XCTestCase {
     // MARK: Tests
 
+    /// `importItemsURL` returns the import items url for the base url.
+    func test_importItemsURL_baseURL() {
+        let subject = EnvironmentUrlData(base: URL(string: "https://vault.example.com"))
+        XCTAssertEqual(subject.importItemsURL?.absoluteString, "https://vault.example.com/#/tools/import")
+    }
+
     /// `isEmpty` is true if none of the URLs are set.
     func test_isEmpty_empty() {
         XCTAssertTrue(EnvironmentUrlData().isEmpty)
