@@ -34,6 +34,9 @@ struct CipherRequestModel: JSONRequestBody {
     /// Login data if the cipher is a login.
     let login: CipherLoginModel?
 
+    /// The cipher's key.
+    let key: String?
+
     /// The name of the cipher.
     let name: String
 
@@ -75,6 +78,7 @@ extension CipherRequestModel {
             identity: cipher.identity.map(CipherIdentityModel.init),
             lastKnownRevisionDate: cipher.revisionDate,
             login: cipher.login.map(CipherLoginModel.init),
+            key: cipher.key,
             name: cipher.name,
             notes: cipher.notes,
             organizationID: cipher.organizationId,
