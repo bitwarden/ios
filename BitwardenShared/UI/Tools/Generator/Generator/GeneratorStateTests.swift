@@ -691,7 +691,7 @@ class GeneratorStateTests: BitwardenTestCase { // swiftlint:disable:this type_bo
     }
 
     /// `usernameGeneratorRequest()` returns a request for generating forwarded email aliases.
-    func test_usernameState_usernameGeneratorRequest_forwardedEmail() {
+    func test_usernameState_usernameGeneratorRequest_forwardedEmail() { // swiftlint:disable:this function_body_length
         var subject = GeneratorState.UsernameState()
         subject.usernameGeneratorType = .forwardedEmail
         subject.addyIOAPIAccessToken = "ADDY IO TOKEN"
