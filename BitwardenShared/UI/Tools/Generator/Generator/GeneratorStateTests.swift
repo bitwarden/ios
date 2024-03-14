@@ -200,7 +200,7 @@ class GeneratorStateTests: BitwardenTestCase { // swiftlint:disable:this type_bo
                 Footer: Generate an email alias with an external forwarding service.
               Menu: Service
                 Selection: addy.io
-                Options: addy.io, DuckDuckGo, Fastmail, Firefox Relay, SimpleLogin
+                Options: addy.io, DuckDuckGo, Fastmail, Firefox Relay, ForwardEmail, SimpleLogin
               Text: API access token Value: (empty)
               Text: Domain name (required) Value: (empty)
             """
@@ -228,7 +228,7 @@ class GeneratorStateTests: BitwardenTestCase { // swiftlint:disable:this type_bo
                 Footer: Generate an email alias with an external forwarding service.
               Menu: Service
                 Selection: DuckDuckGo
-                Options: addy.io, DuckDuckGo, Fastmail, Firefox Relay, SimpleLogin
+                Options: addy.io, DuckDuckGo, Fastmail, Firefox Relay, ForwardEmail, SimpleLogin
               Text: API key (required) Value: (empty)
             """
         }
@@ -255,7 +255,7 @@ class GeneratorStateTests: BitwardenTestCase { // swiftlint:disable:this type_bo
                 Footer: Generate an email alias with an external forwarding service.
               Menu: Service
                 Selection: Fastmail
-                Options: addy.io, DuckDuckGo, Fastmail, Firefox Relay, SimpleLogin
+                Options: addy.io, DuckDuckGo, Fastmail, Firefox Relay, ForwardEmail, SimpleLogin
               Text: API key (required) Value: (empty)
             """
         }
@@ -282,8 +282,36 @@ class GeneratorStateTests: BitwardenTestCase { // swiftlint:disable:this type_bo
                 Footer: Generate an email alias with an external forwarding service.
               Menu: Service
                 Selection: Firefox Relay
-                Options: addy.io, DuckDuckGo, Fastmail, Firefox Relay, SimpleLogin
+                Options: addy.io, DuckDuckGo, Fastmail, Firefox Relay, ForwardEmail, SimpleLogin
               Text: API access token Value: (empty)
+            """
+        }
+    }
+
+    /// `formSections` returns the sections and fields for generating a forwarded email alias using ForwardEmail.
+    func test_formSections_username_forwardedEmail_forwardEmail() {
+        var subject = GeneratorState()
+        subject.generatorType = .username
+        subject.usernameState.usernameGeneratorType = .forwardedEmail
+        subject.usernameState.forwardedEmailService = .forwardEmail
+
+        assertInlineSnapshot(of: dumpFormSections(subject.formSections), as: .lines) {
+            """
+            Section: (empty)
+              Generated: (empty)
+              Menu: What would you like to generate?
+                Selection: Username
+                Options: Password, Username
+            Section: Options
+              Menu: Username type
+                Selection: Forwarded email alias
+                Options: Plus addressed email, Catch-all email, Forwarded email alias, Random word
+                Footer: Generate an email alias with an external forwarding service.
+              Menu: Service
+                Selection: ForwardEmail
+                Options: addy.io, DuckDuckGo, Fastmail, Firefox Relay, ForwardEmail, SimpleLogin
+              Text: API key (required) Value: (empty)
+              Text: Domain name (required) Value: (empty)
             """
         }
     }
@@ -309,7 +337,7 @@ class GeneratorStateTests: BitwardenTestCase { // swiftlint:disable:this type_bo
                 Footer: Generate an email alias with an external forwarding service.
               Menu: Service
                 Selection: SimpleLogin
-                Options: addy.io, DuckDuckGo, Fastmail, Firefox Relay, SimpleLogin
+                Options: addy.io, DuckDuckGo, Fastmail, Firefox Relay, ForwardEmail, SimpleLogin
               Text: API key (required) Value: (empty)
             """
         }
@@ -611,6 +639,12 @@ class GeneratorStateTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         subject.firefoxRelayAPIAccessToken = "apiKey"
         XCTAssertTrue(subject.canGenerateUsername)
 
+        subject.forwardedEmailService = .forwardEmail
+        XCTAssertFalse(subject.canGenerateUsername)
+        subject.forwardEmailAPIToken = "token"
+        subject.forwardEmailDomainName = "bitwarden.com"
+        XCTAssertTrue(subject.canGenerateUsername)
+
         subject.forwardedEmailService = .simpleLogin
         XCTAssertFalse(subject.canGenerateUsername)
         subject.simpleLoginAPIKey = "apiKey"
@@ -657,7 +691,7 @@ class GeneratorStateTests: BitwardenTestCase { // swiftlint:disable:this type_bo
     }
 
     /// `usernameGeneratorRequest()` returns a request for generating forwarded email aliases.
-    func test_usernameState_usernameGeneratorRequest_forwardedEmail() {
+    func test_usernameState_usernameGeneratorRequest_forwardedEmail() { // swiftlint:disable:this function_body_length
         var subject = GeneratorState.UsernameState()
         subject.usernameGeneratorType = .forwardedEmail
         subject.addyIOAPIAccessToken = "ADDY IO TOKEN"
@@ -665,6 +699,8 @@ class GeneratorStateTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         subject.duckDuckGoAPIKey = "DUCK DUCK GO TOKEN"
         subject.fastmailAPIKey = "FASTMAIL TOKEN"
         subject.firefoxRelayAPIAccessToken = "FIREFOX TOKEN"
+        subject.forwardEmailAPIToken = "FORWARDEMAIL TOKEN"
+        subject.forwardEmailDomainName = "forward-example.com"
         subject.simpleLoginAPIKey = "SIMPLE LOGIN TOKEN"
         subject.emailWebsite = "example.com"
 
@@ -697,6 +733,18 @@ class GeneratorStateTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         try XCTAssertEqual(
             subject.usernameGeneratorRequest(),
             .forwarded(service: .firefox(apiToken: "FIREFOX TOKEN"), website: "example.com")
+        )
+
+        subject.forwardedEmailService = .forwardEmail
+        try XCTAssertEqual(
+            subject.usernameGeneratorRequest(),
+            .forwarded(
+                service: .forwardEmail(
+                    apiToken: "FORWARDEMAIL TOKEN",
+                    domain: "forward-example.com"
+                ),
+                website: "example.com"
+            )
         )
 
         subject.forwardedEmailService = .simpleLogin
@@ -772,6 +820,8 @@ class GeneratorStateTests: BitwardenTestCase { // swiftlint:disable:this type_bo
             \.usernameState.email,
             \.usernameState.fastmailAPIKey,
             \.usernameState.firefoxRelayAPIAccessToken,
+            \.usernameState.forwardEmailAPIToken,
+            \.usernameState.forwardEmailDomainName,
             \.usernameState.simpleLoginAPIKey,
         ]
         for keyPath in keyPaths {
