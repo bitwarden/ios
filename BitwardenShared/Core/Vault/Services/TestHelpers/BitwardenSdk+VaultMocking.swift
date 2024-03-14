@@ -269,7 +269,8 @@ extension Login {
             passwordRevisionDate: loginView.passwordRevisionDate,
             uris: loginView.uris?.map(LoginUri.init),
             totp: loginView.totp,
-            autofillOnPageLoad: loginView.autofillOnPageLoad
+            autofillOnPageLoad: loginView.autofillOnPageLoad,
+            fido2Credentials: loginView.fido2Credentials
         )
     }
 }
@@ -282,7 +283,8 @@ extension LoginView {
             passwordRevisionDate: login.passwordRevisionDate,
             uris: login.uris?.map(LoginUriView.init),
             totp: login.totp,
-            autofillOnPageLoad: login.autofillOnPageLoad
+            autofillOnPageLoad: login.autofillOnPageLoad,
+            fido2Credentials: login.fido2Credentials
         )
     }
 }

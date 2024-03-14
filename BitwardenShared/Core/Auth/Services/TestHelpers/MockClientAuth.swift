@@ -92,7 +92,7 @@ class MockClientAuth: ClientAuthProtocol {
         return satisfiesPolicyResult
     }
 
-    func t() async throws -> BitwardenSdk.TrustDeviceResponse {
+    func trustDevice() async throws -> BitwardenSdk.TrustDeviceResponse {
         // Nothing yet.
         throw BitwardenTestError.example
     }
