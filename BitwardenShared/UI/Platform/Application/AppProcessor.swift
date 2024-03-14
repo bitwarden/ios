@@ -40,6 +40,8 @@ public class AppProcessor {
         UI.applyDefaultAppearances()
 
         Task {
+            await loadFlags()
+
             for await _ in services.notificationCenterService.willEnterForegroundPublisher() {
                 let userId = try await self.services.stateService.getActiveAccountId()
                 let shouldTimeout = try await services.vaultTimeoutService.hasPassedSessionTimeout(userId: userId)
@@ -87,11 +89,9 @@ public class AppProcessor {
         }
 
         await services.migrationService.performMigrations()
-
         await services.environmentService.loadURLsForActiveAccount()
-        services.application?.registerForRemoteNotifications()
 
-        await loadFlags()
+        services.application?.registerForRemoteNotifications()
 
         if let initialRoute {
             coordinator.navigate(to: initialRoute)
