@@ -50,7 +50,7 @@ struct LoginItemState: Equatable {
             passwordRevisionDate: passwordUpdatedDate,
             uris: uris.compactMap(\.loginUriView).nilIfEmpty,
             totp: authenticatorKey,
-            autofillOnPageLoad: nil, 
+            autofillOnPageLoad: nil,
             fido2Credentials: nil
         )
     }

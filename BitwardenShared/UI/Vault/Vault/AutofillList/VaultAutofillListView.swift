@@ -213,7 +213,7 @@ private struct VaultAutofillListSearchableView: View {
                                     passwordRevisionDate: nil,
                                     uris: nil,
                                     totp: nil,
-                                    autofillOnPageLoad: nil, 
+                                    autofillOnPageLoad: nil,
                                     fido2Credentials: nil
                                 ),
                                 identity: nil,
