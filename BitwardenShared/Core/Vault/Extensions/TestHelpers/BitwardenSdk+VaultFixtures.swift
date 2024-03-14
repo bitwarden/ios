@@ -312,7 +312,8 @@ extension BitwardenSdk.Login {
             passwordRevisionDate: passwordRevisionDate,
             uris: uris,
             totp: totp,
-            autofillOnPageLoad: autofillOnPageLoad
+            autofillOnPageLoad: autofillOnPageLoad,
+            fido2Credentials: nil
         )
     }
 }
@@ -332,7 +333,8 @@ extension BitwardenSdk.LoginView {
             passwordRevisionDate: passwordRevisionDate,
             uris: uris,
             totp: totp,
-            autofillOnPageLoad: autofillOnPageLoad
+            autofillOnPageLoad: autofillOnPageLoad,
+            fido2Credentials: nil
         )
     }
 }

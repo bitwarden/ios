@@ -89,7 +89,8 @@ class ViewItemProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
                 passwordRevisionDate: Date(year: 2023, month: 11, day: 5, hour: 9, minute: 41),
                 uris: nil,
                 totp: nil,
-                autofillOnPageLoad: nil
+                autofillOnPageLoad: nil,
+                fido2Credentials: nil
             ),
             name: "Name",
             notes: "Notes",
@@ -778,7 +779,8 @@ class ViewItemProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
                 passwordRevisionDate: nil,
                 uris: nil,
                 totp: nil,
-                autofillOnPageLoad: nil
+                autofillOnPageLoad: nil,
+                fido2Credentials: nil
             ),
             name: "name",
             revisionDate: Date()
@@ -934,7 +936,8 @@ class ViewItemProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
                 passwordRevisionDate: nil,
                 uris: nil,
                 totp: nil,
-                autofillOnPageLoad: nil
+                autofillOnPageLoad: nil,
+                fido2Credentials: nil
             ),
             name: "name",
             revisionDate: Date()
@@ -961,7 +964,8 @@ class ViewItemProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
                 passwordRevisionDate: nil,
                 uris: nil,
                 totp: nil,
-                autofillOnPageLoad: nil
+                autofillOnPageLoad: nil,
+                fido2Credentials: nil
             ),
             name: "name",
             reprompt: .password,
@@ -996,7 +1000,8 @@ class ViewItemProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
                 passwordRevisionDate: nil,
                 uris: nil,
                 totp: nil,
-                autofillOnPageLoad: nil
+                autofillOnPageLoad: nil,
+                fido2Credentials: nil
             ),
             name: "name",
             reprompt: .password,
