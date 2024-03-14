@@ -679,9 +679,29 @@ class AddEditItemProcessorTests: BitwardenTestCase {
         try XCTAssertFalse(XCTUnwrap(vaultRepository.fetchCollectionsIncludeReadOnly))
     }
 
+    /// `perform(_:)` with `.fetchCipherOptions` fetches the ownership options for a cipher and
+    /// filters out any preset collections that the user doesn't have access to.
+    func test_perform_fetchCipherOptions_filtersUnavailableCollections() async {
+        let owner = CipherOwner.organization(id: "123", name: "Test Org 1")
+        subject.state = CipherItemState(
+            collectionIds: ["1", "2"],
+            hasPremium: false,
+            organizationId: owner.organizationId
+        )
+        vaultRepository.fetchCipherOwnershipOptions = [owner]
+        vaultRepository.fetchCollectionsResult = .success([
+            .fixture(id: "2", name: "Engineering"),
+        ])
+
+        await subject.perform(.fetchCipherOptions)
+
+        XCTAssertEqual(subject.state.collectionIds, ["2"])
+        XCTAssertEqual(subject.state.owner, owner)
+    }
+
     /// `perform(_:)` with `.fetchCipherOptions` fetches the ownership options for a cipher from the repository
     /// when the personal ownership policy is in place.
-    func test_perform_fetchCipherOptions_personOwnershipPolicy() async throws {
+    func test_perform_fetchCipherOptions_personalOwnershipPolicy_enabled() async throws {
         let collections: [CollectionView] = [
             .fixture(id: "1", name: "Design"),
             .fixture(id: "2", name: "Engineering"),
@@ -692,8 +712,8 @@ class AddEditItemProcessorTests: BitwardenTestCase {
         ]
 
         vaultRepository.fetchCipherOwnershipOptions = [
-            .organization(id: "12345", name: "Test Org 1"),
-            .organization(id: "12345", name: "Test Org 2"),
+            .organization(id: "123", name: "Test Org 1"),
+            .organization(id: "987", name: "Test Org 2"),
         ]
         vaultRepository.fetchCollectionsResult = .success(collections)
         vaultRepository.fetchFoldersResult = .success(folders)
@@ -702,17 +722,47 @@ class AddEditItemProcessorTests: BitwardenTestCase {
 
         await subject.perform(.fetchCipherOptions)
 
+        XCTAssertEqual(subject.state.collectionIds, [])
         XCTAssertEqual(subject.state.collections, collections)
         XCTAssertEqual(
             subject.state.folders,
             [.default] + folders.map { .custom($0) }
         )
+        XCTAssertEqual(subject.state.organizationId, "123")
         XCTAssertEqual(subject.state.ownershipOptions, [
-            .organization(id: "12345", name: "Test Org 1"),
-            .organization(id: "12345", name: "Test Org 2"),
+            .organization(id: "123", name: "Test Org 1"),
+            .organization(id: "987", name: "Test Org 2"),
         ])
         try XCTAssertFalse(XCTUnwrap(vaultRepository.fetchCollectionsIncludeReadOnly))
         try XCTAssertFalse(XCTUnwrap(vaultRepository.fetchCipherOwnershipOptionsIncludePersonal))
+    }
+
+    /// `perform(_:)` with `.fetchCipherOptions` fetches the ownership and policy options for a
+    /// cipher, but doesn't overwrite the owner if it was previously set to an organization and the
+    /// personal ownership policy is in effect.
+    func test_perform_fetchCipherOptions_personalOwnershipPolicy_doesNotOverrideOwner() async {
+        let owner = CipherOwner.organization(id: "987", name: "Test Org 2")
+        subject.state = CipherItemState(
+            collectionIds: ["1"],
+            hasPremium: false,
+            organizationId: owner.organizationId
+        )
+
+        vaultRepository.fetchCipherOwnershipOptions = [
+            .organization(id: "123", name: "Test Org 1"),
+            .organization(id: "987", name: "Test Org 2"),
+        ]
+        vaultRepository.fetchCollectionsResult = .success([
+            .fixture(id: "1", name: "Design"),
+            .fixture(id: "2", name: "Engineering"),
+        ])
+
+        policyService.policyAppliesToUserResult[.personalOwnership] = true
+
+        await subject.perform(.fetchCipherOptions)
+
+        XCTAssertEqual(subject.state.collectionIds, ["1"])
+        XCTAssertEqual(subject.state.owner, owner)
     }
 
     /// `perform(_:)` with `.savePressed` displays an alert if name field is invalid.
