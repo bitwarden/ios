@@ -91,7 +91,7 @@ public class AppProcessor {
         await services.environmentService.loadURLsForActiveAccount()
         services.application?.registerForRemoteNotifications()
 
-       await loadFlags()
+        await loadFlags()
 
         if let initialRoute {
             coordinator.navigate(to: initialRoute)
