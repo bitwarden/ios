@@ -317,7 +317,8 @@ struct AddEditItemView_Previews: PreviewProvider {
                         .init(uri: "account.yahoo.com", match: nil),
                     ],
                     totp: nil,
-                    autofillOnPageLoad: nil
+                    autofillOnPageLoad: nil,
+                    fido2Credentials: nil
                 ),
                 identity: nil,
                 card: nil,

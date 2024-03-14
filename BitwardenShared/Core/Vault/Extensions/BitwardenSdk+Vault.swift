@@ -389,7 +389,8 @@ extension BitwardenSdk.Login {
             passwordRevisionDate: model.passwordRevisionDate,
             uris: model.uris?.map(LoginUri.init),
             totp: model.totp,
-            autofillOnPageLoad: model.autofillOnPageLoad
+            autofillOnPageLoad: model.autofillOnPageLoad,
+            fido2Credentials: nil
         )
     }
 }
