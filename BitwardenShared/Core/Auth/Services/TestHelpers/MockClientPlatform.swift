@@ -11,7 +11,7 @@ class MockClientPlatform: ClientPlatformProtocol {
         try fingerprintResult.get()
     }
 
-    func loadFlags(flags: [String : Bool]) async throws {
+    func loadFlags(flags: [String: Bool]) async throws {
         // Nothing yet.
         throw BitwardenTestError.example
     }
