@@ -1306,6 +1306,7 @@ actor DefaultStateService: StateService { // swiftlint:disable:this type_body_le
         profile.email = response.email ?? profile.email
         profile.emailVerified = response.emailVerified
         profile.name = response.name
+        profile.stamp = response.securityStamp
 
         state.accounts[userId]?.profile = profile
     }

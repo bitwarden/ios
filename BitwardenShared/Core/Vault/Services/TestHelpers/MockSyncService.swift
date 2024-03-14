@@ -3,6 +3,7 @@ import Combine
 @testable import BitwardenShared
 
 class MockSyncService: SyncService {
+    var delegate: SyncServiceDelegate?
     var didFetchSync = false
     var fetchSyncForceSync: Bool?
     var fetchSyncResult: Result<Void, Error> = .success(())

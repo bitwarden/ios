@@ -136,7 +136,7 @@ class SyncAPIServiceTests: BitwardenTestCase {
                     key: "key",
                     organizations: [],
                     privateKey: "private key",
-                    securityStamp: "security stamp"
+                    securityStamp: "stamp"
                 ),
                 sends: []
             )

@@ -1224,4 +1224,49 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
 
         XCTAssertEqual(publishedValues, [true, false])
     }
+
+    /// `updateProfile(from:userId:)` updates the user's profile from the profile response.
+    func test_updateProfile() async throws {
+        await subject.addAccount(
+            .fixture(
+                profile: .fixture(
+                    avatarColor: nil,
+                    email: "user@bitwarden.com",
+                    emailVerified: false,
+                    hasPremiumPersonally: false,
+                    name: "User",
+                    stamp: "stamp",
+                    userId: "1"
+                )
+            )
+        )
+
+        await subject.updateProfile(
+            from: .fixture(
+                avatarColor: "175DDC",
+                email: "other@bitwarden.com",
+                emailVerified: true,
+                name: "Other",
+                premium: true,
+                securityStamp: "new stamp"
+            ),
+            userId: "1"
+        )
+
+        let updatedAccount = try await subject.getActiveAccount()
+        XCTAssertEqual(
+            updatedAccount,
+            .fixture(
+                profile: .fixture(
+                    avatarColor: "175DDC",
+                    email: "other@bitwarden.com",
+                    emailVerified: true,
+                    hasPremiumPersonally: true,
+                    name: "Other",
+                    stamp: "new stamp",
+                    userId: "1"
+                )
+            )
+        )
+    }
 } // swiftlint:disable:this file_length

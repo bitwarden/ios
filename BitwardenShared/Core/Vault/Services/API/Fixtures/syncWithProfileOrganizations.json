@@ -11,7 +11,7 @@
     "twoFactorEnabled": false,
     "key": "key",
     "privateKey": "private key",
-    "securityStamp": "security stamp",
+    "securityStamp": "stamp",
     "forcePasswordReset": false,
     "usesKeyConnector": false,
     "avatarColor": null,
