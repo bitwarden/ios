@@ -24,6 +24,9 @@ protocol EnvironmentService {
     /// The URL for sharing a send.
     var sendShareURL: URL { get }
 
+    /// The URL for vault settings.
+    var settingsURL: URL { get }
+
     /// The URL for the web vault.
     var webVaultURL: URL { get }
 
@@ -92,6 +95,10 @@ extension DefaultEnvironmentService {
         environmentUrls.apiURL
     }
 
+    var eventsURL: URL {
+        environmentUrls.eventsURL
+    }
+
     var iconsURL: URL {
         environmentUrls.iconsURL
     }
@@ -104,12 +111,12 @@ extension DefaultEnvironmentService {
         environmentUrls.importItemsURL
     }
 
-    var eventsURL: URL {
-        environmentUrls.eventsURL
-    }
-
     var sendShareURL: URL {
         environmentUrls.sendShareURL
+    }
+
+    var settingsURL: URL {
+        environmentUrls.settingsURL
     }
 
     var webVaultURL: URL {

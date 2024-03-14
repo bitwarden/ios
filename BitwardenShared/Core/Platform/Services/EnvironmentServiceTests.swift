@@ -31,7 +31,11 @@ class EnvironmentServiceTests: XCTestCase {
     func test_defaultUrls() {
         XCTAssertEqual(subject.apiURL, URL(string: "https://vault.bitwarden.com/api"))
         XCTAssertEqual(subject.eventsURL, URL(string: "https://vault.bitwarden.com/events"))
+        XCTAssertEqual(subject.iconsURL, URL(string: "https://vault.bitwarden.com/icons"))
         XCTAssertEqual(subject.identityURL, URL(string: "https://vault.bitwarden.com/identity"))
+        XCTAssertEqual(subject.importItemsURL, URL(string: "https://vault.bitwarden.com/#/tools/import"))
+        XCTAssertEqual(subject.sendShareURL, URL(string: "https://vault.bitwarden.com/#/send"))
+        XCTAssertEqual(subject.settingsURL, URL(string: "https://vault.bitwarden.com/#/settings"))
         XCTAssertEqual(subject.webVaultURL, URL(string: "https://vault.bitwarden.com"))
     }
 
@@ -46,7 +50,11 @@ class EnvironmentServiceTests: XCTestCase {
 
         XCTAssertEqual(subject.apiURL, URL(string: "https://example.com/api"))
         XCTAssertEqual(subject.eventsURL, URL(string: "https://example.com/events"))
+        XCTAssertEqual(subject.iconsURL, URL(string: "https://example.com/icons"))
         XCTAssertEqual(subject.identityURL, URL(string: "https://example.com/identity"))
+        XCTAssertEqual(subject.importItemsURL, URL(string: "https://example.com/#/tools/import"))
+        XCTAssertEqual(subject.sendShareURL, URL(string: "https://example.com/#/send"))
+        XCTAssertEqual(subject.settingsURL, URL(string: "https://example.com/#/settings"))
         XCTAssertEqual(subject.webVaultURL, URL(string: "https://example.com"))
     }
 
@@ -56,7 +64,11 @@ class EnvironmentServiceTests: XCTestCase {
 
         XCTAssertEqual(subject.apiURL, URL(string: "https://vault.bitwarden.com/api"))
         XCTAssertEqual(subject.eventsURL, URL(string: "https://vault.bitwarden.com/events"))
+        XCTAssertEqual(subject.iconsURL, URL(string: "https://vault.bitwarden.com/icons"))
         XCTAssertEqual(subject.identityURL, URL(string: "https://vault.bitwarden.com/identity"))
+        XCTAssertEqual(subject.importItemsURL, URL(string: "https://vault.bitwarden.com/#/tools/import"))
+        XCTAssertEqual(subject.sendShareURL, URL(string: "https://vault.bitwarden.com/#/send"))
+        XCTAssertEqual(subject.settingsURL, URL(string: "https://vault.bitwarden.com/#/settings"))
         XCTAssertEqual(subject.webVaultURL, URL(string: "https://vault.bitwarden.com"))
     }
 
@@ -68,7 +80,11 @@ class EnvironmentServiceTests: XCTestCase {
 
         XCTAssertEqual(subject.apiURL, URL(string: "https://example.com/api"))
         XCTAssertEqual(subject.eventsURL, URL(string: "https://example.com/events"))
+        XCTAssertEqual(subject.iconsURL, URL(string: "https://example.com/icons"))
         XCTAssertEqual(subject.identityURL, URL(string: "https://example.com/identity"))
+        XCTAssertEqual(subject.importItemsURL, URL(string: "https://example.com/#/tools/import"))
+        XCTAssertEqual(subject.sendShareURL, URL(string: "https://example.com/#/send"))
+        XCTAssertEqual(subject.settingsURL, URL(string: "https://example.com/#/settings"))
         XCTAssertEqual(subject.webVaultURL, URL(string: "https://example.com"))
         XCTAssertEqual(stateService.preAuthEnvironmentUrls, urls)
     }
