@@ -207,7 +207,11 @@ extension AppProcessor: SyncServiceDelegate {
 extension AppProcessor {
     /// Loads feature flags.
     ///
-    private func loadFlags() async {
-        try? await services.clientPlatform.loadFlags(flags: ["enableCipherKeyEncryption": true])
+    func loadFlags() async {
+        do {
+            try await services.clientPlatform.loadFlags(flags: ["enableCipherKeyEncryption": true])
+        } catch {
+            services.errorReporter.log(error: error)
+        }
     }
 }

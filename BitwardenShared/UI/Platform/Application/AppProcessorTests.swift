@@ -9,6 +9,7 @@ class AppProcessorTests: BitwardenTestCase {
     var appModule: MockAppModule!
     var authRepository: MockAuthRepository!
     var appSettingStore: MockAppSettingsStore!
+    var clientPlatform: MockClientPlatform!
     var coordinator: MockCoordinator<AppRoute, AppEvent>!
     var errorReporter: MockErrorReporter!
     var migrationService: MockMigrationService!
@@ -29,6 +30,7 @@ class AppProcessorTests: BitwardenTestCase {
         router = MockRouter(routeForEvent: { _ in .landing })
         appModule = MockAppModule()
         authRepository = MockAuthRepository()
+        clientPlatform = MockClientPlatform()
         coordinator = MockCoordinator()
         appModule.authRouter = router
         appModule.appCoordinator = coordinator
@@ -47,6 +49,7 @@ class AppProcessorTests: BitwardenTestCase {
             services: ServiceContainer.withMocks(
                 appSettingsStore: appSettingStore,
                 authRepository: authRepository,
+                clientService: MockClientService(clientPlatform: clientPlatform),
                 errorReporter: errorReporter,
                 migrationService: migrationService,
                 notificationService: notificationService,
@@ -115,6 +118,14 @@ class AppProcessorTests: BitwardenTestCase {
     func test_init_setDelegates() {
         XCTAssertIdentical(notificationService.delegate, subject)
         XCTAssertIdentical(syncService.delegate, subject)
+    }
+
+    /// `.loadFlags()` loads the feature flags.
+    func test_loadFlags() async throws {
+        try await clientPlatform.loadFlags(flags: ["enableCipherKeyEncryption": true])
+        await subject.loadFlags()
+
+        XCTAssertEqual(clientPlatform.featureFlags, ["enableCipherKeyEncryption": true])
     }
 
     /// `messageReceived(_:notificationDismissed:notificationTapped)` passes the data to the notification service.
