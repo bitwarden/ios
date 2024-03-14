@@ -91,6 +91,8 @@ public class AppProcessor {
         await services.environmentService.loadURLsForActiveAccount()
         services.application?.registerForRemoteNotifications()
 
+       await loadFlags()
+
         if let initialRoute {
             coordinator.navigate(to: initialRoute)
         } else {
@@ -197,5 +199,15 @@ extension AppProcessor: SyncServiceDelegate {
         coordinator?.hideLoadingOverlay()
         try? await services.authRepository.logout(userId: userId)
         await coordinator?.handleEvent(.didLogout(userId: userId, userInitiated: false))
+    }
+}
+
+// MARK: - Feature flags
+
+extension AppProcessor {
+    /// Loads feature flags.
+    ///
+    private func loadFlags() async {
+        try? await services.clientPlatform.loadFlags(flags: ["enableCipherKeyEncryption": true])
     }
 }
