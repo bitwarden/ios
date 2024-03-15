@@ -122,7 +122,10 @@ struct ProfileSwitcherView: View {
                         showDivider: showDivider,
                         rowType: isActive
                             ? .active(accountProfile)
-                            : .alternate(accountProfile)
+                            : .alternate(accountProfile),
+                        trailingIconAccessibilityID: isActive
+                            ? "ActiveVaultIcon"
+                            : "InactiveVaultIcon"
                     )
                 },
                 mapAction: { action in
