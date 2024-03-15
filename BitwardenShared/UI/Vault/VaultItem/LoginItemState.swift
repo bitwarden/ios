@@ -10,6 +10,9 @@ struct LoginItemState: Equatable {
     /// Whether the user has permissions to view the cipher's password.
     var canViewPassword: Bool = true
 
+    /// The FIDO2 credentials for the login.
+    var fido2Credentials: [Fido2Credential] = []
+
     /// A flag indicating if the password field is visible.
     var isPasswordVisible: Bool = false
 

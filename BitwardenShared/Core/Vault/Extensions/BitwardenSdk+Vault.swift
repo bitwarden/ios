@@ -122,10 +122,31 @@ extension CipherIdentityModel {
     }
 }
 
+extension CipherLoginFido2Credential {
+    init(fido2Credential credential: Fido2Credential) {
+        self.init(
+            counter: credential.counter,
+            creationDate: credential.creationDate,
+            credentialId: credential.credentialId,
+            discoverable: credential.discoverable,
+            keyAlgorithm: credential.keyAlgorithm,
+            keyCurve: credential.keyCurve,
+            keyType: credential.keyType,
+            keyValue: credential.keyValue,
+            rpId: credential.rpId,
+            rpName: credential.rpName,
+            userDisplayName: credential.userDisplayName,
+            userHandle: credential.userHandle,
+            userName: credential.userName
+        )
+    }
+}
+
 extension CipherLoginModel {
     init(login: BitwardenSdk.Login) {
         self.init(
             autofillOnPageLoad: login.autofillOnPageLoad,
+            fido2Credentials: login.fido2Credentials?.map(CipherLoginFido2Credential.init),
             password: login.password,
             passwordRevisionDate: login.passwordRevisionDate,
             totp: login.totp,
@@ -330,6 +351,28 @@ extension BitwardenSdk.CipherRepromptType {
     }
 }
 
+extension BitwardenSdk.Fido2Credential: Identifiable, @unchecked Sendable {
+    public var id: String { credentialId }
+
+    init(cipherLoginFido2Credential model: CipherLoginFido2Credential) {
+        self.init(
+            credentialId: model.credentialId,
+            keyType: model.keyType,
+            keyAlgorithm: model.keyAlgorithm,
+            keyCurve: model.keyCurve,
+            keyValue: model.keyValue,
+            rpId: model.rpId,
+            userHandle: model.userHandle,
+            userName: model.userName,
+            counter: model.counter,
+            rpName: model.rpName,
+            userDisplayName: model.userDisplayName,
+            discoverable: model.discoverable,
+            creationDate: model.creationDate
+        )
+    }
+}
+
 extension BitwardenSdk.Field {
     init(cipherFieldModel model: CipherFieldModel) {
         self.init(
@@ -390,7 +433,7 @@ extension BitwardenSdk.Login {
             uris: model.uris?.map(LoginUri.init),
             totp: model.totp,
             autofillOnPageLoad: model.autofillOnPageLoad,
-            fido2Credentials: nil
+            fido2Credentials: model.fido2Credentials?.map(Fido2Credential.init)
         )
     }
 }

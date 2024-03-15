@@ -318,7 +318,23 @@ struct AddEditItemView_Previews: PreviewProvider {
                     ],
                     totp: nil,
                     autofillOnPageLoad: nil,
-                    fido2Credentials: nil
+                    fido2Credentials: [
+                        Fido2Credential(
+                            credentialId: "1",
+                            keyType: "",
+                            keyAlgorithm: "",
+                            keyCurve: "",
+                            keyValue: "",
+                            rpId: "",
+                            userHandle: nil,
+                            userName: nil,
+                            counter: "",
+                            rpName: nil,
+                            userDisplayName: nil,
+                            discoverable: "",
+                            creationDate: Date(timeIntervalSince1970: 1_710_494_110)
+                        ),
+                    ]
                 ),
                 identity: nil,
                 card: nil,

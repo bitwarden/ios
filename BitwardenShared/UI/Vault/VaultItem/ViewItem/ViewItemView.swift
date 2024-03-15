@@ -225,6 +225,23 @@ struct ViewItemView_Previews: PreviewProvider {
         state.isMasterPasswordRePromptOn = false
         state.name = "Example"
         state.notes = "This is a long note so that it goes to the next line!"
+        state.loginState.fido2Credentials = [
+            Fido2Credential(
+                credentialId: "1",
+                keyType: "",
+                keyAlgorithm: "",
+                keyCurve: "",
+                keyValue: "",
+                rpId: "",
+                userHandle: nil,
+                userName: nil,
+                counter: "",
+                rpName: nil,
+                userDisplayName: nil,
+                discoverable: "",
+                creationDate: Date(timeIntervalSince1970: 1_710_494_110)
+            ),
+        ]
         state.loginState.password = "Password1!"
         state.updatedDate = .init(timeIntervalSince1970: 1_695_000_000)
         state.loginState.uris = [
