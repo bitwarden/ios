@@ -3,10 +3,17 @@
 /// The processor used to manage state and handle actions for the `VaultSettingsView`.
 ///
 final class VaultSettingsProcessor: StateProcessor<VaultSettingsState, VaultSettingsAction, Void> {
+    // MARK: Types
+
+    typealias Services = HasEnvironmentService
+
     // MARK: Properties
 
     /// The coordinator used to manage navigation.
     private let coordinator: AnyCoordinator<SettingsRoute, SettingsEvent>
+
+    /// The services used by this processor.
+    private let services: Services
 
     // MARK: Initialization
 
@@ -14,13 +21,16 @@ final class VaultSettingsProcessor: StateProcessor<VaultSettingsState, VaultSett
     ///
     /// - Parameters:
     ///   - coordinator: The coordinator used to manage navigation.
+    ///   - services: The services used by this processor.
     ///   - state: The initial state of the processor.
     ///
     init(
         coordinator: AnyCoordinator<SettingsRoute, SettingsEvent>,
+        services: Services,
         state: VaultSettingsState
     ) {
         self.coordinator = coordinator
+        self.services = services
         super.init(state: state)
     }
 
@@ -35,7 +45,11 @@ final class VaultSettingsProcessor: StateProcessor<VaultSettingsState, VaultSett
         case .foldersTapped:
             coordinator.navigate(to: .folders)
         case .importItemsTapped:
-            state.url = ExternalLinksConstants.importItems
+            coordinator.navigate(to: .alert(.importItemsAlert(importUrl:
+                services.environmentService.importItemsURL.absoluteString
+            ) {
+                self.state.url = self.services.environmentService.importItemsURL
+            }))
         }
     }
 }
