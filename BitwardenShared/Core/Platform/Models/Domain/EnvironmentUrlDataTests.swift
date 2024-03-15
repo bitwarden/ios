@@ -5,20 +5,20 @@ import XCTest
 class EnvironmentUrlDataTests: XCTestCase {
     // MARK: Tests
 
-    /// `importItemsURL` returns the settings url for the base url.
+    /// `importItemsURL` returns the import items url for the base url.
     func test_importItemsURL_baseURL() {
         let subject = EnvironmentUrlData(base: URL(string: "https://vault.example.com"))
         XCTAssertEqual(subject.importItemsURL?.absoluteString, "https://vault.example.com/#/tools/import")
     }
 
-    /// `importItemsURL` returns the default settings base url.
+    /// `importItemsURL` returns the default import items base url.
     func test_importItemsURL_noURLs() {
         let subject = EnvironmentUrlData(base: nil, webVault: nil)
-        XCTAssertNil(subject.settingsURL?.absoluteString)
+        XCTAssertNil(subject.importItemsURL?.absoluteString)
     }
 
-    /// `importItemsURL` returns the settings url for the web vault url.
-    func test_importItemsURLL_webVaultURL() {
+    /// `importItemsURL` returns the import items url for the web vault url.
+    func test_importItemsURL_webVaultURL() {
         let subject = EnvironmentUrlData(
             base: URL(string: "https://vault.example.com"),
             webVault: URL(string: "https://web.vault.example.com")
