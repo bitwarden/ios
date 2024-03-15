@@ -12,7 +12,7 @@ struct ProfileSwitcherRowState: Equatable {
         ///
         /// - Parameters:
         ///   - ProfileSwitcherItem: The profile switcher item.
-        ///   - showDivider: a flag for toggling divider visibility, defaults to true
+        ///   - showDivider: A flag for toggling divider visibility, defaults to true
         ///
         case active(ProfileSwitcherItem)
 

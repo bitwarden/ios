@@ -55,14 +55,15 @@ struct ProfileSwitcherRow: View {
                         VStack(alignment: .leading, spacing: 0) {
                             Text(title)
                                 .styleGuide(.body)
+                                .accessibilityIdentifier("AccountEmailLabel")
                                 .foregroundColor(Asset.Colors.textPrimary.swiftUIColor)
-                                .truncationMode(.tail)
                                 .lineLimit(1)
+                                .truncationMode(.tail)
                             if let subtitle {
                                 Text(subtitle)
                                     .styleGuide(.subheadline)
-                                    .foregroundColor(Asset.Colors.textSecondary.swiftUIColor)
                                     .accessibilityIdentifier("AccountStatusLabel")
+                                    .foregroundColor(Asset.Colors.textSecondary.swiftUIColor)
                             }
                         }
                         Spacer()
