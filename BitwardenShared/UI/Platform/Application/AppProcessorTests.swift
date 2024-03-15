@@ -8,7 +8,6 @@ class AppProcessorTests: BitwardenTestCase {
 
     var appModule: MockAppModule!
     var authRepository: MockAuthRepository!
-    var appSettingStore: MockAppSettingsStore!
     var coordinator: MockCoordinator<AppRoute, AppEvent>!
     var errorReporter: MockErrorReporter!
     var migrationService: MockMigrationService!
@@ -32,7 +31,6 @@ class AppProcessorTests: BitwardenTestCase {
         coordinator = MockCoordinator()
         appModule.authRouter = router
         appModule.appCoordinator = coordinator
-        appSettingStore = MockAppSettingsStore()
         errorReporter = MockErrorReporter()
         migrationService = MockMigrationService()
         notificationCenterService = MockNotificationCenterService()
@@ -45,11 +43,11 @@ class AppProcessorTests: BitwardenTestCase {
         subject = AppProcessor(
             appModule: appModule,
             services: ServiceContainer.withMocks(
-                appSettingsStore: appSettingStore,
                 authRepository: authRepository,
                 errorReporter: errorReporter,
                 migrationService: migrationService,
                 notificationService: notificationService,
+                notificationCenterService: notificationCenterService,
                 stateService: stateService,
                 syncService: syncService,
                 vaultTimeoutService: vaultTimeoutService
@@ -63,7 +61,6 @@ class AppProcessorTests: BitwardenTestCase {
 
         appModule = nil
         authRepository = nil
-        appSettingStore = nil
         coordinator = nil
         errorReporter = nil
         migrationService = nil
@@ -147,29 +144,27 @@ class AppProcessorTests: BitwardenTestCase {
     /// Upon a session timeout on app foreground, send the user to the `.didTimeout` route.
     func test_shouldSessionTimeout_navigateTo_didTimeout() throws {
         let rootNavigator = MockRootNavigator()
-        let account: Account = .fixture()
-
-        appSettingStore.timeoutAction[account.profile.userId] = SessionTimeoutAction.lock.rawValue
-        appSettingStore.state = State(
-            accounts: [account.profile.userId: account],
-            activeUserId: account.profile.userId
-        )
+        let account = Account.fixture()
         stateService.activeAccount = account
-        stateService.accounts = [account]
 
-        vaultTimeoutService.shouldSessionTimeout[account.profile.userId] = true
         let task = Task {
             await subject.start(appContext: .mainApp, navigator: rootNavigator, window: nil)
         }
+        waitFor(coordinator.events == [.didStart])
+        task.cancel()
+
+        vaultTimeoutService.shouldSessionTimeout[account.profile.userId] = true
 
         notificationCenterService.willEnterForegroundSubject.send()
         waitFor(vaultTimeoutService.shouldSessionTimeout[account.profile.userId] == true)
 
         waitFor(coordinator.events.count > 1)
-        task.cancel()
         XCTAssertEqual(
-            coordinator.events.last,
-            .didTimeout(userId: account.profile.userId)
+            coordinator.events,
+            [
+                .didStart,
+                .didTimeout(userId: account.profile.userId),
+            ]
         )
     }
 
