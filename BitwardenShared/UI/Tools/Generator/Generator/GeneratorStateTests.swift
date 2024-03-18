@@ -436,6 +436,37 @@ class GeneratorStateTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         }
     }
 
+    /// `passwordState.minimumLength` correctly calculates the minimum length allowed
+    func test_passwordState_minimumLength() {
+        var subject = GeneratorState().passwordState
+
+        XCTAssertEqual(subject.minimumLength, 3)
+
+        subject.containsSpecial = true
+
+        XCTAssertEqual(subject.minimumLength, 4)
+
+        subject.minimumNumber = 3
+
+        XCTAssertEqual(subject.minimumLength, 6)
+
+        subject.minimumSpecial = 4
+
+        XCTAssertEqual(subject.minimumLength, 9)
+
+        subject.containsLowercase = false
+
+        XCTAssertEqual(subject.minimumLength, 8)
+
+        subject.containsNumbers = false
+
+        XCTAssertEqual(subject.minimumLength, 5)
+
+        subject.containsUppercase = false
+
+        XCTAssertEqual(subject.minimumLength, 4)
+    }
+
     /// `passwordState.passphraseGeneratorRequest` returns the passphrase generator request.
     func test_passwordState_passphraseGeneratorRequest() {
         var subject = GeneratorState().passwordState
@@ -803,6 +834,19 @@ class GeneratorStateTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         XCTAssertTrue(subject.shouldGenerateNewValueOnSliderValueChanged(20, keyPath: \.passwordState.lengthDouble))
         XCTAssertTrue(subject.shouldGenerateNewValueOnSliderValueChanged(21, keyPath: \.passwordState.lengthDouble))
         XCTAssertTrue(subject.shouldGenerateNewValueOnSliderValueChanged(128, keyPath: \.passwordState.lengthDouble))
+
+        subject.policyOptions = nil
+        subject.passwordState.minimumNumber = 8
+        XCTAssertFalse(subject.shouldGenerateNewValueOnSliderValueChanged(9, keyPath: \.passwordState.lengthDouble))
+        XCTAssertTrue(subject.shouldGenerateNewValueOnSliderValueChanged(10, keyPath: \.passwordState.lengthDouble))
+
+        subject.policyOptions = PasswordGenerationOptions(length: 11)
+        XCTAssertFalse(subject.shouldGenerateNewValueOnSliderValueChanged(10, keyPath: \.passwordState.lengthDouble))
+        XCTAssertTrue(subject.shouldGenerateNewValueOnSliderValueChanged(11, keyPath: \.passwordState.lengthDouble))
+
+        subject.passwordState.minimumNumber = 10
+        XCTAssertFalse(subject.shouldGenerateNewValueOnSliderValueChanged(11, keyPath: \.passwordState.lengthDouble))
+        XCTAssertTrue(subject.shouldGenerateNewValueOnSliderValueChanged(12, keyPath: \.passwordState.lengthDouble))
     }
 
     /// `shouldGenerateNewValueOnTextValueChanged(keyPath:)` returns whether a new value should be
