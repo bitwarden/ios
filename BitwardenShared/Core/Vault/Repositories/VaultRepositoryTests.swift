@@ -575,7 +575,8 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
                     passwordRevisionDate: nil,
                     uris: [.init(uri: "www.domain.com", match: .domain)],
                     totp: nil,
-                    autofillOnPageLoad: nil
+                    autofillOnPageLoad: nil,
+                    fido2Credentials: nil
                 ),
                 name: "Café"
             ),
@@ -994,7 +995,8 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
                     passwordRevisionDate: nil,
                     uris: [.init(uri: "www.domain.com", match: .domain)],
                     totp: nil,
-                    autofillOnPageLoad: nil
+                    autofillOnPageLoad: nil,
+                    fido2Credentials: nil
                 ),
                 name: "Café"
             ),

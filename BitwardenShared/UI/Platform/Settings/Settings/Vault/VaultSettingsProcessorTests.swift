@@ -6,6 +6,7 @@ class VaultSettingsProcessorTests: BitwardenTestCase {
     // MARK: Properties
 
     var coordinator: MockCoordinator<SettingsRoute, SettingsEvent>!
+    var environmentService: MockEnvironmentService!
     var subject: VaultSettingsProcessor!
 
     // MARK: Setup and Teardown
@@ -14,7 +15,15 @@ class VaultSettingsProcessorTests: BitwardenTestCase {
         super.setUp()
 
         coordinator = MockCoordinator<SettingsRoute, SettingsEvent>()
-        subject = VaultSettingsProcessor(coordinator: coordinator.asAnyCoordinator(), state: VaultSettingsState())
+        environmentService = MockEnvironmentService()
+
+        subject = VaultSettingsProcessor(
+            coordinator: coordinator.asAnyCoordinator(),
+            services: ServiceContainer.withMocks(
+                environmentService: environmentService
+            ),
+            state: VaultSettingsState()
+        )
     }
 
     override func tearDown() {
@@ -48,10 +57,16 @@ class VaultSettingsProcessorTests: BitwardenTestCase {
         XCTAssertEqual(coordinator.routes.last, .folders)
     }
 
-    /// `receive(_:)` with `.importItemsTapped` set the URL to open in the state.
-    func test_receive_importItemsTapped() {
+    /// `receive(_:)` with `.importItemsTapped` shows an alert for navigating to the import items website.
+    ///  When `Continue` is tapped on the alert, sets the URL to open in the state
+    func test_receive_importItemsTapped() async throws {
         subject.receive(.importItemsTapped)
 
-        XCTAssertEqual(subject.state.url, ExternalLinksConstants.importItems)
+        guard case let .alert(alert) = coordinator.routes.last else {
+            return XCTFail("Expected an `.alert` route, but found \(String(describing: coordinator.routes.last))")
+        }
+
+        try await alert.tapAction(title: Localizations.continue)
+        XCTAssertEqual(subject.state.url, environmentService.importItemsURL)
     }
 }

@@ -344,7 +344,8 @@ struct VaultGroupView: View {
                                                 passwordRevisionDate: nil,
                                                 uris: nil,
                                                 totp: nil,
-                                                autofillOnPageLoad: nil
+                                                autofillOnPageLoad: nil,
+                                                fido2Credentials: nil
                                             ),
                                             identity: nil,
                                             card: nil,
@@ -377,7 +378,8 @@ struct VaultGroupView: View {
                                                 passwordRevisionDate: nil,
                                                 uris: nil,
                                                 totp: nil,
-                                                autofillOnPageLoad: nil
+                                                autofillOnPageLoad: nil,
+                                                fido2Credentials: nil
                                             ),
                                             identity: nil,
                                             card: nil,

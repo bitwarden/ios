@@ -85,7 +85,8 @@ final class ExportVaultServiceTests: BitwardenTestCase {
                     passwordRevisionDate: nil,
                     uris: nil,
                     totp: nil,
-                    autofillOnPageLoad: false
+                    autofillOnPageLoad: false,
+                    fido2Credentials: nil
                 )
             ),
             name: "Login",
@@ -104,7 +105,8 @@ final class ExportVaultServiceTests: BitwardenTestCase {
                     passwordRevisionDate: nil,
                     uris: nil,
                     totp: nil,
-                    autofillOnPageLoad: false
+                    autofillOnPageLoad: false,
+                    fido2Credentials: nil
                 )
             ),
             name: "Login Org",

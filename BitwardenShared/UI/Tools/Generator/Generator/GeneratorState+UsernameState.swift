@@ -49,6 +49,12 @@ extension GeneratorState {
         /// The service used to generate a forwarded email alias.
         var forwardedEmailService = ForwardedEmailServiceType.addyIO
 
+        /// The ForwardEmail API token used to generate a forwarded email alias.
+        var forwardEmailAPIToken: String = ""
+
+        /// The domain name used to generate a forwarded email alias with ForwardEmail.
+        var forwardEmailDomainName: String = ""
+
         /// Whether the service's API key is visible or not.
         var isAPIKeyVisible = false
 
@@ -91,6 +97,8 @@ extension GeneratorState {
             fastmailAPIKey = options.fastMailApiKey ?? fastmailAPIKey
             firefoxRelayAPIAccessToken = options.firefoxRelayApiAccessToken ?? firefoxRelayAPIAccessToken
             forwardedEmailService = options.serviceType ?? forwardedEmailService
+            forwardEmailAPIToken = options.forwardEmailApiToken ?? forwardEmailAPIToken
+            forwardEmailDomainName = options.forwardEmailDomainName ?? forwardEmailDomainName
             simpleLoginAPIKey = options.simpleLoginApiKey ?? simpleLoginAPIKey
 
             // Plus Address Email Properties
@@ -140,6 +148,8 @@ extension GeneratorState.UsernameState {
                 !fastmailAPIKey.isEmpty
             case .firefoxRelay:
                 !firefoxRelayAPIAccessToken.isEmpty
+            case .forwardEmail:
+                [forwardEmailAPIToken, forwardEmailDomainName].allSatisfy { !$0.isEmpty }
             case .simpleLogin:
                 !simpleLoginAPIKey.isEmpty
             }
@@ -158,6 +168,8 @@ extension GeneratorState.UsernameState {
             duckDuckGoApiKey: duckDuckGoAPIKey.nilIfEmpty,
             fastMailApiKey: fastmailAPIKey.nilIfEmpty,
             firefoxRelayApiAccessToken: firefoxRelayAPIAccessToken.nilIfEmpty,
+            forwardEmailApiToken: forwardEmailAPIToken.nilIfEmpty,
+            forwardEmailDomainName: forwardEmailDomainName.nilIfEmpty,
             includeNumberRandomWordUsername: includeNumber,
             plusAddressedEmail: email.nilIfEmpty,
             plusAddressedEmailType: plusAddressedEmailType,
@@ -217,6 +229,11 @@ extension GeneratorState.UsernameState {
             ForwarderServiceType.fastmail(apiToken: fastmailAPIKey)
         case .firefoxRelay:
             ForwarderServiceType.firefox(apiToken: firefoxRelayAPIAccessToken)
+        case .forwardEmail:
+            ForwarderServiceType.forwardEmail(
+                apiToken: forwardEmailAPIToken,
+                domain: forwardEmailDomainName
+            )
         case .simpleLogin:
             ForwarderServiceType.simpleLogin(apiKey: simpleLoginAPIKey)
         }

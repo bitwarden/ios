@@ -16,8 +16,11 @@ enum ForwardedEmailServiceType: Int, CaseIterable, Codable, Equatable, Menuable 
     /// Generate a forwarded email using Fastmail.
     case fastmail = 4
 
+    /// Generate a forwarded email using ForwardEmail.
+    case forwardEmail = 5
+
     /// All of the cases to show in the menu.
-    static let allCases: [Self] = [.addyIO, .duckDuckGo, .fastmail, .firefoxRelay, .simpleLogin]
+    static let allCases: [Self] = [.addyIO, .duckDuckGo, .fastmail, .firefoxRelay, .forwardEmail, .simpleLogin]
 
     var localizedName: String {
         switch self {
@@ -29,6 +32,8 @@ enum ForwardedEmailServiceType: Int, CaseIterable, Codable, Equatable, Menuable 
             return Localizations.fastmail
         case .firefoxRelay:
             return Localizations.firefoxRelay
+        case .forwardEmail:
+            return Localizations.forwardEmail
         case .simpleLogin:
             return Localizations.simpleLogin
         }

@@ -23,6 +23,14 @@ public enum AppRoute: Equatable {
 }
 
 public enum AppEvent: Equatable {
+    /// When the user logs out from an account.
+    ///
+    /// - Parameters:
+    ///   - userId: The userId of the account that was logged out.
+    ///   - userInitiated: Did a user action trigger the account switch?
+    ///
+    case didLogout(userId: String, userInitiated: Bool)
+
     /// When the app has started.
     case didStart
 

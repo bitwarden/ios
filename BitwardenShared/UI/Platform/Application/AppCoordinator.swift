@@ -69,6 +69,8 @@ class AppCoordinator: Coordinator, HasRootNavigator {
 
     func handleEvent(_ event: AppEvent, context: AnyObject?) async {
         switch event {
+        case let .didLogout(userId, userInitiated):
+            await handleAuthEvent(.didLogout(userId: userId, userInitiated: userInitiated))
         case .didStart:
             await handleAuthEvent(.didStart)
         case let .didTimeout(userId):

@@ -18,7 +18,7 @@ settings:
 packages:
   BitwardenSdk:
     url: https://github.com/bitwarden/sdk-swift
-    revision: f4f2230bd806214b782dec6470e674ff459f16a5
+    revision: 93ce71195a729f30b3edd48caeb7af9a39f35403
   Firebase:
     url: https://github.com/firebase/firebase-ios-sdk
     exactVersion: 10.19.0

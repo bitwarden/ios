@@ -143,6 +143,24 @@ extension Alert {
         )
     }
 
+    /// An alert that asks if the user wants to navigate to the "import items" page in a browser.
+    ///
+    /// - Parameter action: The action taken if they select continue.
+    /// - Returns: An alert that asks if the user wants to navigate to the import items page.
+    ///
+    static func importItemsAlert(importUrl: String, action: @escaping () -> Void) -> Alert {
+        Alert(
+            title: Localizations.continueToWebApp,
+            message: Localizations.youCanImportDataToYourVaultOnX(importUrl),
+            alertActions: [
+                AlertAction(title: Localizations.cancel, style: .cancel),
+                AlertAction(title: Localizations.continue, style: .default) { _ in
+                    action()
+                },
+            ]
+        )
+    }
+
     /// Show the alert notifying the user that the language has been changed.
     ///
     /// - Parameters:

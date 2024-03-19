@@ -118,7 +118,7 @@ extension Account {
         let orgIdentifier: String?
 
         /// The account's security stamp.
-        let stamp: String?
+        var stamp: String?
 
         /// User decryption options for the account.
         let userDecryptionOptions: UserDecryptionOptions?
