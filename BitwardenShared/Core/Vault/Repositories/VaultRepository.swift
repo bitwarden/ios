@@ -541,6 +541,43 @@ class DefaultVaultRepository { // swiftlint:disable:this type_body_length
         )
     }
 
+    /// Returns a `VaultListSection` for the folder section, if one exists.
+    ///
+    /// - Parameters:
+    ///   - activeCiphers: The list of active (non-deleted) ciphers, used to determine the count of
+    ///     ciphers within a folder.
+    ///   - group: The group of items to get.
+    ///   - filter: A filter to apply to the vault items.
+    ///   - folders: The list of all folders. This is used to show any nested folders within a
+    ///     folder group.
+    /// - Returns: A `VaultListSection` for the folder section, if one exists.
+    ///
+    private func vaultListFolderSection(
+        activeCiphers: [CipherView],
+        group: VaultListGroup,
+        filter: VaultFilterType,
+        folders: [Folder]
+    ) async throws -> VaultListSection? {
+        guard let folderId = group.folderId else { return nil }
+
+        let folders = try await clientVault.folders()
+            .decryptList(folders: folders)
+            .filter(filter.folderFilter)
+            .sorted { $0.name.localizedStandardCompare($1.name) == .orderedAscending }
+
+        let folderItems = folderVaultListItems(
+            activeCiphers: activeCiphers,
+            folderTree: folders.asNestedNodes(),
+            nestedFolderId: folderId
+        )
+
+        return VaultListSection(
+            id: "Folders",
+            items: folderItems,
+            name: Localizations.folder
+        )
+    }
+
     /// Returns a list of sections containing the items that are grouped together in the vault list
     /// from a list of encrypted ciphers.
     ///
@@ -552,7 +589,7 @@ class DefaultVaultRepository { // swiftlint:disable:this type_body_length
     ///     folder group.
     /// - Returns: A list of items for the group in the vault list.
     ///
-    private func vaultListItems( // swiftlint:disable:this function_body_length
+    private func vaultListItems(
         group: VaultListGroup,
         filter: VaultFilterType,
         ciphers: [Cipher],
@@ -594,27 +631,12 @@ class DefaultVaultRepository { // swiftlint:disable:this type_body_length
             items = deletedCiphers.compactMap(VaultListItem.init)
         }
 
-        let folderSection: VaultListSection?
-        if let folderId = group.folderId {
-            let folders = try await clientVault.folders()
-                .decryptList(folders: folders)
-                .filter(filter.folderFilter)
-                .sorted { $0.name.localizedStandardCompare($1.name) == .orderedAscending }
-
-            let folderItems = folderVaultListItems(
-                activeCiphers: activeCiphers,
-                folderTree: folders.asNestedNodes(),
-                nestedFolderId: folderId
-            )
-
-            folderSection = VaultListSection(
-                id: "Folders",
-                items: folderItems,
-                name: Localizations.folder
-            )
-        } else {
-            folderSection = nil
-        }
+        let folderSection = try await vaultListFolderSection(
+            activeCiphers: activeCiphers,
+            group: group,
+            filter: filter,
+            folders: folders
+        )
 
         return [
             folderSection,
