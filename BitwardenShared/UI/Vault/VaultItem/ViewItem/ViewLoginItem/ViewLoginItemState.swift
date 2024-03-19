@@ -1,3 +1,4 @@
+import BitwardenSdk
 import Foundation
 
 // MARK: ViewLoginItemState
@@ -10,6 +11,9 @@ protocol ViewLoginItemState: Sendable {
 
     /// Whether the user has permissions to view the cipher's password.
     var canViewPassword: Bool { get }
+
+    /// The FIDO2 credentials for the login.
+    var fido2Credentials: [Fido2Credential] { get }
 
     /// A flag indicating if the TOTP feature is available.
     var isTOTPAvailable: Bool { get }

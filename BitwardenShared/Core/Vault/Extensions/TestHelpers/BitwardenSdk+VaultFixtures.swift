@@ -297,9 +297,44 @@ extension CollectionView {
     }
 }
 
+extension Fido2Credential {
+    static func fixture(
+        counter: String = "",
+        creationDate: Date = Date(year: 2024, month: 3, day: 15, hour: 9, minute: 15),
+        credentialId: String = "",
+        discoverable: String = "",
+        keyAlgorithm: String = "",
+        keyCurve: String = "",
+        keyType: String = "",
+        keyValue: String = "",
+        rpId: String = "",
+        rpName: String? = nil,
+        userDisplayName: String? = nil,
+        userHandle: String? = nil,
+        userName: String? = nil
+    ) -> Fido2Credential {
+        Fido2Credential(
+            credentialId: credentialId,
+            keyType: keyType,
+            keyAlgorithm: keyAlgorithm,
+            keyCurve: keyCurve,
+            keyValue: keyValue,
+            rpId: rpId,
+            userHandle: userHandle,
+            userName: userName,
+            counter: counter,
+            rpName: rpName,
+            userDisplayName: userDisplayName,
+            discoverable: discoverable,
+            creationDate: creationDate
+        )
+    }
+}
+
 extension BitwardenSdk.Login {
     static func fixture(
         autofillOnPageLoad: Bool? = nil,
+        fido2Credentials: [Fido2Credential]? = nil,
         password: String? = nil,
         passwordRevisionDate: Date? = nil,
         uris: [LoginUri]? = nil,
@@ -313,13 +348,14 @@ extension BitwardenSdk.Login {
             uris: uris,
             totp: totp,
             autofillOnPageLoad: autofillOnPageLoad,
-            fido2Credentials: nil
+            fido2Credentials: fido2Credentials
         )
     }
 }
 
 extension BitwardenSdk.LoginView {
     static func fixture(
+        fido2Credentials: [Fido2Credential]? = nil,
         password: String? = nil,
         passwordRevisionDate: DateTime? = nil,
         uris: [LoginUriView]? = nil,
@@ -334,7 +370,7 @@ extension BitwardenSdk.LoginView {
             uris: uris,
             totp: totp,
             autofillOnPageLoad: autofillOnPageLoad,
-            fido2Credentials: nil
+            fido2Credentials: fido2Credentials
         )
     }
 }

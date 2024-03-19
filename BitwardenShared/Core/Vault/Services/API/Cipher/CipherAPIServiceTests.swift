@@ -57,6 +57,7 @@ class CipherAPIServiceTests: XCTestCase { // swiftlint:disable:this type_body_le
                 key: nil,
                 login: CipherLoginModel(
                     autofillOnPageLoad: nil,
+                    fido2Credentials: nil,
                     password: "encrypted password",
                     passwordRevisionDate: nil,
                     totp: "totp",
@@ -105,6 +106,7 @@ class CipherAPIServiceTests: XCTestCase { // swiftlint:disable:this type_body_le
                 key: nil,
                 login: CipherLoginModel(
                     autofillOnPageLoad: nil,
+                    fido2Credentials: nil,
                     password: "encrypted password",
                     passwordRevisionDate: nil,
                     totp: "totp",
@@ -231,6 +233,7 @@ class CipherAPIServiceTests: XCTestCase { // swiftlint:disable:this type_body_le
                     key: nil,
                     login: CipherLoginModel(
                         autofillOnPageLoad: nil,
+                        fido2Credentials: nil,
                         password: "encrypted password",
                         passwordRevisionDate: nil,
                         totp: "totp",
@@ -282,6 +285,7 @@ class CipherAPIServiceTests: XCTestCase { // swiftlint:disable:this type_body_le
                 key: nil,
                 login: CipherLoginModel(
                     autofillOnPageLoad: nil,
+                    fido2Credentials: nil,
                     password: "encrypted password",
                     passwordRevisionDate: nil,
                     totp: "totp",

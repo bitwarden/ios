@@ -567,6 +567,7 @@ class AddEditItemViewTests: BitwardenTestCase { // swiftlint:disable:this type_b
             hasPremium: true
         )!
         processor.state.loginState = .fixture(
+            fido2Credentials: [.fixture()],
             isPasswordVisible: false,
             password: "password1!",
             uris: [
@@ -610,6 +611,7 @@ class AddEditItemViewTests: BitwardenTestCase { // swiftlint:disable:this type_b
         )!
         processor.state.loginState = .fixture(
             canViewPassword: false,
+            fido2Credentials: [.fixture()],
             isPasswordVisible: false,
             password: "password1!",
             uris: [
@@ -635,6 +637,7 @@ class AddEditItemViewTests: BitwardenTestCase { // swiftlint:disable:this type_b
             hasPremium: true
         )!
         processor.state.loginState = .fixture(
+            fido2Credentials: [.fixture()],
             isPasswordVisible: false,
             password: "password1!",
             uris: [
@@ -662,6 +665,7 @@ class AddEditItemViewTests: BitwardenTestCase { // swiftlint:disable:this type_b
         processor.state.type = .login
         processor.state.name = "Name"
         processor.state.loginState = .fixture(
+            fido2Credentials: [.fixture()],
             isPasswordVisible: true,
             password: "password1!",
             uris: [
@@ -685,6 +689,7 @@ class AddEditItemViewTests: BitwardenTestCase { // swiftlint:disable:this type_b
             hasPremium: true
         )!
         processor.state.loginState = .fixture(
+            fido2Credentials: [.fixture()],
             isPasswordVisible: true,
             password: "password1!",
             uris: [

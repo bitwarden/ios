@@ -26,7 +26,24 @@
         "password": "encrypted password",
         "passwordRevisionDate": null,
         "totp": "totp",
-        "autofillOnPageLoad": null
+        "autofillOnPageLoad": null,
+        "fido2Credentials": [
+          {
+            "credentialId": "encrypted credentialId",
+            "keyType": "encrypted keyType",
+            "keyAlgorithm": "encrypted keyAlgorithm",
+            "keyCurve": "encrypted keyCurve",
+            "keyValue": "encrypted keyValue",
+            "rpId": "encrypted rpId",
+            "rpName": "encrypted rpName",
+            "userHandle": "encrypted userHandle",
+            "userName": "encrypted userName",
+            "userDisplayName": "encrypted userDisplayName",
+            "counter": "encrypted counter",
+            "discoverable": "encrypted discoverable",
+            "creationDate": "2024-03-15T17:31:02.244Z"
+          }
+        ]
       },
       "card": null,
       "identity": null,

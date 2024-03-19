@@ -97,6 +97,7 @@ extension CipherView {
     func loginItemState(showPassword: Bool = false, showTOTP: Bool) -> LoginItemState {
         LoginItemState(
             canViewPassword: viewPassword,
+            fido2Credentials: login?.fido2Credentials ?? [],
             isPasswordVisible: showPassword,
             isTOTPAvailable: showTOTP,
             password: login?.password ?? "",

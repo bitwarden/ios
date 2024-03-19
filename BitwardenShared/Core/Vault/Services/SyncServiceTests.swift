@@ -297,6 +297,23 @@ class SyncServiceTests: BitwardenTestCase {
                     edit: true,
                     id: "3792af7a-4441-11ee-be56-0242ac120002",
                     login: .fixture(
+                        fido2Credentials: [
+                            CipherLoginFido2Credential(
+                                counter: "encrypted counter",
+                                creationDate: Date(timeIntervalSince1970: 1_710_523_862.244),
+                                credentialId: "encrypted credentialId",
+                                discoverable: "encrypted discoverable",
+                                keyAlgorithm: "encrypted keyAlgorithm",
+                                keyCurve: "encrypted keyCurve",
+                                keyType: "encrypted keyType",
+                                keyValue: "encrypted keyValue",
+                                rpId: "encrypted rpId",
+                                rpName: "encrypted rpName",
+                                userDisplayName: "encrypted userDisplayName",
+                                userHandle: "encrypted userHandle",
+                                userName: "encrypted userName"
+                            ),
+                        ],
                         password: "encrypted password",
                         totp: "totp",
                         uris: [

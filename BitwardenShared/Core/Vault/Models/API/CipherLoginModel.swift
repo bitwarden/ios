@@ -8,6 +8,9 @@ struct CipherLoginModel: Codable, Equatable {
     /// Whether the login should be autofilled when the page loads.
     let autofillOnPageLoad: Bool?
 
+    /// A list of FIDO2 credentials for the login.
+    let fido2Credentials: [CipherLoginFido2Credential]?
+
     /// The login's password.
     let password: String?
 
