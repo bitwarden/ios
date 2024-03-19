@@ -8,7 +8,7 @@ class ResponseValidationErrorModelTests: BitwardenTestCase {
     // MARK: - Tests
 
     /// Tests that a response is initialized correctly.
-    func testInit() {
+    func test_init() {
         let subject = ResponseValidationErrorModel(
             error: "invalid_input",
             errorDescription: "invalid_username",

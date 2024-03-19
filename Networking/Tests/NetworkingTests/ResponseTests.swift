@@ -4,7 +4,7 @@ import XCTest
 
 class ResponseTests: XCTestCase {
     /// Test creating a `Response` from JSON.
-    func testJSONResponse() throws {
+    func test_jsonresponse() throws {
         let httpResponse = HTTPResponse(
             url: URL(string: "http://example.com")!,
             statusCode: 200,
@@ -17,7 +17,7 @@ class ResponseTests: XCTestCase {
     }
 
     /// Test creating a `Response` from a JSON array.
-    func testJSONArray() throws {
+    func test_jsonresponse_array() throws {
         let httpResponse = HTTPResponse(
             url: URL(string: "http://example.com")!,
             statusCode: 200,
