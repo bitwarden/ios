@@ -59,6 +59,13 @@ struct EnvironmentUrlData: Codable, Equatable, Hashable {
 }
 
 extension EnvironmentUrlData {
+    // MARK: Properties
+
+    /// The base url for importing items.
+    var importItemsURL: URL? {
+        subpageUrl(additionalPath: "tools/import")
+    }
+
     /// Whether all of the environment URLs are not set.
     var isEmpty: Bool {
         api == nil
@@ -72,17 +79,35 @@ extension EnvironmentUrlData {
 
     /// The base url for send sharing.
     var sendShareURL: URL? {
-        if let sendBase = webVault ?? base,
-           let url = URL(string: sendBase.absoluteString.appending("/#/send")) {
-            return url
-        }
-        return nil
+        subpageUrl(additionalPath: "send")
+    }
+
+    /// The base url for the settings screen.
+    var settingsURL: URL? {
+        subpageUrl(additionalPath: "settings")
     }
 
     /// The host of URL to the user's web vault.
     var webVaultHost: String? {
         let url = webVault ?? base
         return url?.host
+    }
+
+    // MARK: Methods
+
+    /// The URL for a given subpage of the vault webpage.
+    ///
+    /// - Parameters:
+    ///   - additionalPath: The additional path string to append to the vault's base URL
+    private func subpageUrl(additionalPath: String) -> URL? {
+        // Foundation's URL appending methods percent encode the path component that is passed into the method,
+        // which includes the `#` symbol. Since the `#` character is a critical portion of these urls, we use String
+        // concatenation to get around this limitation.
+        if let baseUrl = webVault ?? base,
+           let url = URL(string: baseUrl.absoluteString.appending("/#/\(additionalPath)")) {
+            return url
+        }
+        return nil
     }
 }
 

@@ -36,6 +36,15 @@ extension GeneratorState {
             set { length = Int(newValue) }
         }
 
+        /// The calculated minimum length the password can be based on constraints.
+        var minimumLength: Int {
+            let minimumLowercase = containsLowercase ? 1 : 0
+            let minimumUppercase = containsUppercase ? 1 : 0
+            let minimumNumber = containsNumbers ? max(1, minimumNumber) : 0
+            let minimumSpecial = containsSpecial ? max(1, minimumSpecial) : 0
+            return minimumLowercase + minimumUppercase + minimumNumber + minimumSpecial
+        }
+
         /// The minimum number of numbers in the generated password.
         var minimumNumber: Int = 1
 
@@ -94,11 +103,6 @@ extension GeneratorState {
                 containsLowercase = true
             }
 
-            let minimumLowercase = containsLowercase ? 1 : 0
-            let minimumUppercase = containsUppercase ? 1 : 0
-            let minimumNumber = containsNumbers ? max(1, minimumNumber) : 0
-            let minimumSpecial = containsSpecial ? max(1, minimumSpecial) : 0
-            let minimumLength = minimumLowercase + minimumUppercase + minimumNumber + minimumSpecial
             if length < minimumLength {
                 length = minimumLength
             }

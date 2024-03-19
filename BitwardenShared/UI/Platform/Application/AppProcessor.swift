@@ -40,8 +40,6 @@ public class AppProcessor {
         UI.applyDefaultAppearances()
 
         Task {
-            await loadFlags()
-
             for await _ in services.notificationCenterService.willEnterForegroundPublisher() {
                 let userId = try await self.services.stateService.getActiveAccountId()
                 let shouldTimeout = try await services.vaultTimeoutService.hasPassedSessionTimeout(userId: userId)
@@ -88,6 +86,7 @@ public class AppProcessor {
             }
         }
 
+        await loadFlags()
         await services.migrationService.performMigrations()
         await services.environmentService.loadURLsForActiveAccount()
 
@@ -209,7 +208,7 @@ extension AppProcessor {
     ///
     func loadFlags() async {
         do {
-            try await services.clientPlatform.loadFlags(flags: ["enableCipherKeyEncryption": true])
+            try await services.clientPlatform.loadFlags(flags: [FeatureFlagsConstants.enableCipherKeyEncryption: true])
         } catch {
             services.errorReporter.log(error: error)
         }
