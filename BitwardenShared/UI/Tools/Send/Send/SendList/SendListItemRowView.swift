@@ -174,7 +174,7 @@ struct SendListItemRowView: View {
                 .scaledFrame(width: 22, height: 22)
                 .foregroundStyle(Asset.Colors.textSecondary.swiftUIColor)
         }
-        .accessibilityIdentifier("Options")
+        .accessibilityIdentifier("SendOptionsButton")
     }
 
     /// The label for a send.
@@ -189,6 +189,7 @@ struct SendListItemRowView: View {
                     .styleGuide(.body)
                     .lineLimit(1)
                     .foregroundStyle(Asset.Colors.textPrimary.swiftUIColor)
+                    .accessibilityIdentifier("SendNameLabel")
 
                 iconStack(for: sendView)
             }
@@ -197,6 +198,7 @@ struct SendListItemRowView: View {
                 .styleGuide(.subheadline)
                 .lineLimit(1)
                 .foregroundStyle(Asset.Colors.textSecondary.swiftUIColor)
+                .accessibilityIdentifier("SendDateLabel")
         }
         .padding(.vertical, 9)
 
@@ -205,28 +207,28 @@ struct SendListItemRowView: View {
 
     private func icons(
         for sendView: SendView
-    ) -> [(assets: [(asset: ImageAsset, id: String)], id: String)] {
-        var icons: [ImageAsset] = []
+    ) -> [(assets: [(asset: ImageAsset, id: String, accessibilityID: String)], id: String)] {
+        var icons: [(asset: ImageAsset, accessibilityID: String)] = []
         if sendView.disabled {
-            icons.append(Asset.Images.exclamationTriangle)
+            icons.append((Asset.Images.exclamationTriangle, "DisabledSendIcon"))
         }
         if sendView.hasPassword {
-            icons.append(Asset.Images.key)
+            icons.append((Asset.Images.key, "PasswordProtectedSendIcon"))
         }
         if let maxAccessCount = sendView.maxAccessCount,
            sendView.accessCount >= maxAccessCount {
-            icons.append(Asset.Images.doNot)
+            icons.append((Asset.Images.doNot, "MaxAccessSendIcon"))
         }
         if let expirationDate = sendView.expirationDate, expirationDate < Date() {
-            icons.append(Asset.Images.clock)
+            icons.append((Asset.Images.clock, "ExpiredSendIcon"))
         }
         if sendView.deletionDate < Date() {
-            icons.append(Asset.Images.trash)
+            icons.append((Asset.Images.trash, "PendingDeletionSendIcon"))
         }
         let groupedIcons = stride(from: icons.startIndex, to: icons.endIndex, by: 3)
             .map { index in
                 Array(icons[index ..< min(index + 3, icons.endIndex)])
-                    .map { (asset: $0, id: $0.name) }
+                    .map { (asset: $0.asset, id: $0.asset.name, accessibilityID: $0.accessibilityID) }
             }
             .map { (assets: $0, id: $0.map(\.id).joined()) }
         return groupedIcons
@@ -241,6 +243,7 @@ struct SendListItemRowView: View {
                         image.asset.swiftUIImage
                             .scaledFrame(width: 16, height: 16)
                             .foregroundStyle(Asset.Colors.textSecondary.swiftUIColor)
+                            .accessibilityIdentifier(image.accessibilityID)
                     }
                 }
             }
