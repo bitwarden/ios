@@ -32,3 +32,22 @@ extension [VaultListItem] {
             .sorted { $0.name.localizedStandardCompare($1.name) == .orderedAscending }
     }
 }
+
+extension [VaultListSection] {
+    /// Update the array of sections with a batch of possible item updates.
+    ///
+    /// - Parameters:
+    ///   - updatedValues: An array of updates to make the items within the sections.
+    ///   - includeNewValues: A flag for including new values not found in the current list. Default is `false`.
+    /// - Returns: An updated version of the array including the updated elements.
+    ///
+    func updated(
+        with updatedValues: [VaultListItem],
+        includeNewValues: Bool = false
+    ) -> [VaultListSection] {
+        map { section in
+            let updatedItems = section.items.updated(with: updatedValues, includeNewValues: includeNewValues)
+            return VaultListSection(id: section.id, items: updatedItems, name: section.name)
+        }
+    }
+}

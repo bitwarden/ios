@@ -24,7 +24,7 @@ struct VaultGroupState: Equatable {
     var isSearching: Bool = false
 
     /// The current loading state.
-    var loadingState: LoadingState<[VaultListItem]> = .loading(nil)
+    var loadingState: LoadingState<[VaultListSection]> = .loading(nil)
 
     /// The string to use in the empty view.
     var noItemsString: String {

@@ -106,7 +106,7 @@ struct VaultGroupView: View {
         }
     }
 
-    /// A view that displays either thegroup or empty interface.
+    /// A view that displays either the group or empty interface.
     @ViewBuilder private var groupItems: some View {
         LoadingView(state: store.state.loadingState) { items in
             if items.isEmpty {
@@ -210,37 +210,37 @@ struct VaultGroupView: View {
 
     // MARK: Private Methods
 
-    /// A view that displays a list of the contents of this vault group.
+    /// A view that displays a list of the sections within this vault group.
     ///
     @ViewBuilder
-    private func groupView(with items: [VaultListItem]) -> some View {
+    private func groupView(with sections: [VaultListSection]) -> some View {
         ScrollView {
             VStack(spacing: 20.0) {
                 vaultFilterRow
 
-                VStack(alignment: .leading, spacing: 7) {
-                    HStack(alignment: .firstTextBaseline) {
-                        Text(Localizations.items.uppercased())
-                        Spacer()
-                        Text("\(items.count)")
-                    }
-                    .font(.footnote)
-                    .foregroundColor(Asset.Colors.textSecondary.swiftUIColor)
+                ForEach(sections) { section in
+                    VStack(alignment: .leading, spacing: 7) {
+                        HStack(alignment: .firstTextBaseline) {
+                            SectionHeaderView(section.name)
+                            Spacer()
+                            SectionHeaderView(String(section.items.count))
+                        }
 
-                    LazyVStack(alignment: .leading, spacing: 0) {
-                        ForEach(items) { item in
-                            Button {
-                                store.send(.itemPressed(item))
-                            } label: {
-                                vaultItemRow(
-                                    for: item,
-                                    isLastInSection: items.last == item
-                                )
+                        LazyVStack(alignment: .leading, spacing: 0) {
+                            ForEach(section.items) { item in
+                                Button {
+                                    store.send(.itemPressed(item))
+                                } label: {
+                                    vaultItemRow(
+                                        for: item,
+                                        isLastInSection: section.items.last == item
+                                    )
+                                }
                             }
                         }
+                        .background(Asset.Colors.backgroundPrimary.swiftUIColor)
+                        .clipShape(RoundedRectangle(cornerRadius: 10))
                     }
-                    .background(Asset.Colors.backgroundPrimary.swiftUIColor)
-                    .clipShape(RoundedRectangle(cornerRadius: 10))
                 }
             }
             .padding(16)
@@ -324,76 +324,84 @@ struct VaultGroupView: View {
                 processor: StateProcessor(
                     state: VaultGroupState(
                         group: .login,
-                        loadingState: .data([
-                            .init(cipherView: .init(
-                                id: UUID().uuidString,
-                                organizationId: nil,
-                                folderId: nil,
-                                collectionIds: [],
-                                key: nil,
-                                name: "Example",
-                                notes: nil,
-                                type: .login,
-                                login: .init(
-                                    username: "email@example.com",
-                                    password: nil,
-                                    passwordRevisionDate: nil,
-                                    uris: nil,
-                                    totp: nil,
-                                    autofillOnPageLoad: nil,
-                                    fido2Credentials: nil
+                        loadingState: .data(
+                            [
+                                .init(
+                                    id: "Items",
+                                    items: [
+                                        .init(cipherView: .init(
+                                            id: UUID().uuidString,
+                                            organizationId: nil,
+                                            folderId: nil,
+                                            collectionIds: [],
+                                            key: nil,
+                                            name: "Example",
+                                            notes: nil,
+                                            type: .login,
+                                            login: .init(
+                                                username: "email@example.com",
+                                                password: nil,
+                                                passwordRevisionDate: nil,
+                                                uris: nil,
+                                                totp: nil,
+                                                autofillOnPageLoad: nil,
+                                                fido2Credentials: nil
+                                            ),
+                                            identity: nil,
+                                            card: nil,
+                                            secureNote: nil,
+                                            favorite: true,
+                                            reprompt: .none,
+                                            organizationUseTotp: false,
+                                            edit: false,
+                                            viewPassword: true,
+                                            localData: nil,
+                                            attachments: [],
+                                            fields: [],
+                                            passwordHistory: [],
+                                            creationDate: Date(),
+                                            deletedDate: nil,
+                                            revisionDate: Date()
+                                        ))!,
+                                        .init(cipherView: .init(
+                                            id: UUID().uuidString,
+                                            organizationId: nil,
+                                            folderId: nil,
+                                            collectionIds: [],
+                                            key: nil,
+                                            name: "Example 2",
+                                            notes: nil,
+                                            type: .login,
+                                            login: .init(
+                                                username: "email2@example.com",
+                                                password: nil,
+                                                passwordRevisionDate: nil,
+                                                uris: nil,
+                                                totp: nil,
+                                                autofillOnPageLoad: nil,
+                                                fido2Credentials: nil
+                                            ),
+                                            identity: nil,
+                                            card: nil,
+                                            secureNote: nil,
+                                            favorite: true,
+                                            reprompt: .none,
+                                            organizationUseTotp: false,
+                                            edit: false,
+                                            viewPassword: true,
+                                            localData: nil,
+                                            attachments: [],
+                                            fields: [],
+                                            passwordHistory: [],
+                                            creationDate: Date(),
+                                            deletedDate: nil,
+                                            revisionDate: Date()
+                                        ))!,
+                                    ],
+                                    name: "Items"
                                 ),
-                                identity: nil,
-                                card: nil,
-                                secureNote: nil,
-                                favorite: true,
-                                reprompt: .none,
-                                organizationUseTotp: false,
-                                edit: false,
-                                viewPassword: true,
-                                localData: nil,
-                                attachments: [],
-                                fields: [],
-                                passwordHistory: [],
-                                creationDate: Date(),
-                                deletedDate: nil,
-                                revisionDate: Date()
-                            ))!,
-                            .init(cipherView: .init(
-                                id: UUID().uuidString,
-                                organizationId: nil,
-                                folderId: nil,
-                                collectionIds: [],
-                                key: nil,
-                                name: "Example 2",
-                                notes: nil,
-                                type: .login,
-                                login: .init(
-                                    username: "email2@example.com",
-                                    password: nil,
-                                    passwordRevisionDate: nil,
-                                    uris: nil,
-                                    totp: nil,
-                                    autofillOnPageLoad: nil,
-                                    fido2Credentials: nil
-                                ),
-                                identity: nil,
-                                card: nil,
-                                secureNote: nil,
-                                favorite: true,
-                                reprompt: .none,
-                                organizationUseTotp: false,
-                                edit: false,
-                                viewPassword: true,
-                                localData: nil,
-                                attachments: [],
-                                fields: [],
-                                passwordHistory: [],
-                                creationDate: Date(),
-                                deletedDate: nil,
-                                revisionDate: Date()
-                            ))!,
-                        ]),
+                            ]
+                        ),
                         searchVaultFilterType: .allVaults,
                         vaultFilterType: .allVaults
                     )

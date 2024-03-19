@@ -230,18 +230,18 @@ public protocol VaultRepository: AnyObject {
         filter: VaultFilterType
     ) async throws -> AsyncThrowingPublisher<AnyPublisher<[VaultListSection], Error>>
 
-    /// A publisher for a group of items within the vault list.
+    /// A publisher for the sections within a group of items in the vault list.
     ///
     /// - Parameters:
     ///   - group: The group of items within the vault list to subscribe to.
     ///   - filter: A filter to apply to the vault items.
-    /// - Returns: A publisher for a group of items within the vault list which will be notified as
-    ///     the data changes.
+    /// - Returns: A publisher for the sections within a group of items in the vault list which will
+    ///     be notified as the data changes.
     ///
     func vaultListPublisher(
         group: VaultListGroup,
         filter: VaultFilterType
-    ) async throws -> AsyncThrowingPublisher<AnyPublisher<[VaultListItem], Error>>
+    ) async throws -> AsyncThrowingPublisher<AnyPublisher<[VaultListSection], Error>>
 }
 
 extension VaultRepository {
@@ -499,7 +499,8 @@ class DefaultVaultRepository { // swiftlint:disable:this type_body_length
         )
     }
 
-    /// Returns a list of items that are grouped together in the vault list from a list of encrypted ciphers.
+    /// Returns a list of sections containing the items that are grouped together in the vault list
+    /// from a list of encrypted ciphers.
     ///
     /// - Parameters:
     ///   - group: The group of items to get.
@@ -511,7 +512,7 @@ class DefaultVaultRepository { // swiftlint:disable:this type_body_length
         group: VaultListGroup,
         filter: VaultFilterType,
         from ciphers: [Cipher]
-    ) async throws -> [VaultListItem] {
+    ) async throws -> [VaultListSection] {
         let ciphers = try await ciphers.asyncMap { cipher in
             try await self.clientVault.ciphers().decrypt(cipher: cipher)
         }
@@ -521,30 +522,36 @@ class DefaultVaultRepository { // swiftlint:disable:this type_body_length
         let activeCiphers = ciphers.filter { $0.deletedDate == nil }
         let deletedCiphers = ciphers.filter { $0.deletedDate != nil }
 
+        let items: [VaultListItem]
         switch group {
         case .card:
-            return activeCiphers.filter { $0.type == .card }.compactMap(VaultListItem.init)
+            items = activeCiphers.filter { $0.type == .card }.compactMap(VaultListItem.init)
         case let .collection(id, _, _):
-            return activeCiphers.filter { $0.collectionIds.contains(id) }.compactMap(VaultListItem.init)
+            items = activeCiphers.filter { $0.collectionIds.contains(id) }.compactMap(VaultListItem.init)
         case let .folder(id, _):
-            return activeCiphers.filter { $0.folderId == id }.compactMap(VaultListItem.init)
+            items = activeCiphers.filter { $0.folderId == id }.compactMap(VaultListItem.init)
         case .identity:
-            return activeCiphers.filter { $0.type == .identity }.compactMap(VaultListItem.init)
+            items = activeCiphers.filter { $0.type == .identity }.compactMap(VaultListItem.init)
         case .login:
-            return activeCiphers.filter { $0.type == .login }.compactMap(VaultListItem.init)
+            items = activeCiphers.filter { $0.type == .login }.compactMap(VaultListItem.init)
         case .noFolder:
-            return activeCiphers.filter { $0.folderId == nil }.compactMap(VaultListItem.init)
+            items = activeCiphers.filter { $0.folderId == nil }.compactMap(VaultListItem.init)
         case .secureNote:
-            return activeCiphers.filter { $0.type == .secureNote }.compactMap(VaultListItem.init)
+            items = activeCiphers.filter { $0.type == .secureNote }.compactMap(VaultListItem.init)
         case .totp:
             // Ensure the user has premium features access
             guard try await doesActiveAccountHavePremium() else {
-                return []
+                items = []
+                break
             }
-            return await totpListItems(from: ciphers, filter: filter)
+            items = await totpListItems(from: ciphers, filter: filter)
         case .trash:
-            return deletedCiphers.compactMap(VaultListItem.init)
+            items = deletedCiphers.compactMap(VaultListItem.init)
         }
+
+        return [
+            VaultListSection(id: "Items", items: items, name: Localizations.items),
+        ]
     }
 
     /// Returns a list of the sections in the vault list from a sync response.
@@ -1038,7 +1045,7 @@ extension DefaultVaultRepository: VaultRepository {
     func vaultListPublisher(
         group: VaultListGroup,
         filter: VaultFilterType
-    ) async throws -> AsyncThrowingPublisher<AnyPublisher<[VaultListItem], Error>> {
+    ) async throws -> AsyncThrowingPublisher<AnyPublisher<[VaultListSection], Error>> {
         try await cipherService.ciphersPublisher()
             .asyncTryMap { ciphers in
                 try await self.vaultListItems(group: group, filter: filter, from: ciphers)
