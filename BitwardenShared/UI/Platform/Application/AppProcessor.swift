@@ -86,9 +86,10 @@ public class AppProcessor {
             }
         }
 
+        await loadFlags()
         await services.migrationService.performMigrations()
-
         await services.environmentService.loadURLsForActiveAccount()
+
         services.application?.registerForRemoteNotifications()
 
         if let initialRoute {
@@ -197,5 +198,19 @@ extension AppProcessor: SyncServiceDelegate {
         coordinator?.hideLoadingOverlay()
         try? await services.authRepository.logout(userId: userId)
         await coordinator?.handleEvent(.didLogout(userId: userId, userInitiated: false))
+    }
+}
+
+// MARK: - Feature flags
+
+extension AppProcessor {
+    /// Loads feature flags.
+    ///
+    func loadFlags() async {
+        do {
+            try await services.clientPlatform.loadFlags(flags: [FeatureFlagsConstants.enableCipherKeyEncryption: true])
+        } catch {
+            services.errorReporter.log(error: error)
+        }
     }
 }
