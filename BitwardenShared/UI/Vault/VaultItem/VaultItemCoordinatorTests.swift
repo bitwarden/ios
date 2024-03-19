@@ -144,11 +144,9 @@ class VaultItemCoordinatorTests: BitwardenTestCase { // swiftlint:disable:this t
         XCTAssertEqual(view.store.state.folderId, "12345")
     }
 
-    /// `navigate(to:)` with `.cloneItem()`  triggers the show clone item flow.
+    /// `navigate(to:)` with `.cloneItem()` triggers the show clone item flow.
     func test_navigateTo_cloneItem_nonPremium() throws {
-        vaultRepository.doesActiveAccountHavePremiumResult = .success(false)
-        subject.navigate(to: .cloneItem(cipher: .loginFixture()), context: subject)
-        waitFor(!stackNavigator.actions.isEmpty)
+        subject.navigate(to: .cloneItem(cipher: .loginFixture(), hasPremium: false), context: subject)
 
         let action = try XCTUnwrap(stackNavigator.actions.last)
         XCTAssertEqual(action.type, .replaced)

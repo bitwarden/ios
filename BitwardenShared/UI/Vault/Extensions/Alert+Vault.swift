@@ -4,6 +4,22 @@ import UIKit
 // MARK: - Alert+Vault
 
 extension Alert {
+    /// Returns an alert confirming whether to clone an item without the FIDO2 credential.
+    ///
+    /// - Parameter action: The action to perform if the user confirms.
+    /// - Returns: An alert confirming whether to clone an item without the FIDO2 credential.
+    ///
+    static func confirmCloneExcludesFido2Credential(action: @escaping () async -> Void) -> Alert {
+        Alert(
+            title: Localizations.passkeyWillNotBeCopied,
+            message: Localizations.thePasskeyWillNotBeCopiedToTheClonedItemDoYouWantToContinueCloningThisItem,
+            alertActions: [
+                AlertAction(title: Localizations.yes, style: .default) { _, _ in await action() },
+                AlertAction(title: Localizations.no, style: .cancel),
+            ]
+        )
+    }
+
     /// Present an alert confirming deleting an attachment.
     ///
     /// - Parameter action: The action to perform if the user confirms.

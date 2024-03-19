@@ -823,7 +823,40 @@ class ViewItemProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
 
         subject.receive(.morePressed(.clone))
 
-        XCTAssertEqual(coordinator.routes.last, .cloneItem(cipher: cipher))
+        waitFor(!coordinator.routes.isEmpty)
+
+        XCTAssertEqual(coordinator.routes.last, .cloneItem(cipher: cipher, hasPremium: true))
+        XCTAssertIdentical(coordinator.contexts.last as? ViewItemProcessor, subject)
+    }
+
+    /// `receive(_:)` with `.morePressed(.clone)` for a cipher with FIDO2 credentials shows an
+    /// alert confirming that the user wants to proceed without cloning the FIDO2 credential and
+    /// navigates the user to the clone item view.
+    func test_receive_morePressed_clone_fido2Credentials() throws {
+        let cipher = CipherView.loginFixture(id: "1", login: .fixture(fido2Credentials: [.fixture()]))
+        subject.state.loadingState = try .data(
+            XCTUnwrap(
+                CipherItemState(
+                    existing: cipher,
+                    hasPremium: false
+                )
+            )
+        )
+
+        subject.receive(.morePressed(.clone))
+
+        waitFor(!coordinator.alertShown.isEmpty)
+
+        let alert = try XCTUnwrap(coordinator.alertShown.last)
+        XCTAssertEqual(alert, Alert.confirmCloneExcludesFido2Credential {})
+
+        let task = Task {
+            try await alert.tapAction(title: Localizations.yes)
+        }
+        waitFor(!coordinator.routes.isEmpty)
+        task.cancel()
+
+        XCTAssertEqual(coordinator.routes.last, .cloneItem(cipher: cipher, hasPremium: true))
         XCTAssertIdentical(coordinator.contexts.last as? ViewItemProcessor, subject)
     }
 

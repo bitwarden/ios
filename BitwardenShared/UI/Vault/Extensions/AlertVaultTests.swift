@@ -3,6 +3,31 @@ import XCTest
 @testable import BitwardenShared
 
 class AlertVaultTests: BitwardenTestCase {
+    /// `confirmCloneExcludesFido2Credential(action:)` constructs an alert to confirm whether to
+    /// clone the item without the FIDO2 credential.
+    func test_confirmCloneExcludesFido2Credential() async throws {
+        var actionCalled: Bool?
+        let subject = Alert.confirmCloneExcludesFido2Credential { actionCalled = true }
+
+        XCTAssertEqual(subject.title, Localizations.passkeyWillNotBeCopied)
+        XCTAssertEqual(
+            subject.message,
+            Localizations.thePasskeyWillNotBeCopiedToTheClonedItemDoYouWantToContinueCloningThisItem
+        )
+        XCTAssertEqual(subject.alertActions.count, 2)
+
+        XCTAssertEqual(subject.alertActions[0].title, Localizations.yes)
+        XCTAssertEqual(subject.alertActions[0].style, .default)
+        try await subject.tapAction(title: Localizations.yes)
+        XCTAssertEqual(actionCalled, true)
+        actionCalled = nil
+
+        XCTAssertEqual(subject.alertActions[1].title, Localizations.no)
+        XCTAssertEqual(subject.alertActions[1].style, .cancel)
+        try await subject.tapAction(title: Localizations.no)
+        XCTAssertNil(actionCalled)
+    }
+
     /// `confirmDeleteAttachment(action:)` shows an `Alert` that asks the user to confirm deleting
     /// an attachment.
     func test_confirmDeleteAttachment() {
