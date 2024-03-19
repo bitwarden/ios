@@ -174,7 +174,7 @@ struct SendListItemRowView: View {
                 .scaledFrame(width: 22, height: 22)
                 .foregroundStyle(Asset.Colors.textSecondary.swiftUIColor)
         }
-        .accessibilityIdentifier("Options")
+        .accessibilityIdentifier("SendOptionsButton")
     }
 
     /// The label for a send.
@@ -189,6 +189,7 @@ struct SendListItemRowView: View {
                     .styleGuide(.body)
                     .lineLimit(1)
                     .foregroundStyle(Asset.Colors.textPrimary.swiftUIColor)
+                    .accessibilityIdentifier("SendNameLabel")
 
                 iconStack(for: sendView)
             }
@@ -197,6 +198,7 @@ struct SendListItemRowView: View {
                 .styleGuide(.subheadline)
                 .lineLimit(1)
                 .foregroundStyle(Asset.Colors.textSecondary.swiftUIColor)
+                .accessibilityIdentifier("SendDateLabel")
         }
         .padding(.vertical, 9)
 
@@ -205,46 +207,91 @@ struct SendListItemRowView: View {
 
     private func icons(
         for sendView: SendView
-    ) -> [(assets: [(asset: ImageAsset, id: String)], id: String)] {
-        var icons: [ImageAsset] = []
+    ) -> [[SendListItemIcon]] {
+        var icons: [SendListItemIcon] = []
         if sendView.disabled {
-            icons.append(Asset.Images.exclamationTriangle)
+            icons.append(
+                SendListItemIcon(
+                    accessibilityID: "DisabledSendIcon",
+                    asset: Asset.Images.exclamationTriangle.swiftUIImage
+                )
+            )
         }
+
         if sendView.hasPassword {
-            icons.append(Asset.Images.key)
+            icons.append(
+                SendListItemIcon(
+                    accessibilityID: "PasswordProtectedSendIcon",
+                    asset: Asset.Images.key.swiftUIImage
+                )
+            )
         }
+
         if let maxAccessCount = sendView.maxAccessCount,
            sendView.accessCount >= maxAccessCount {
-            icons.append(Asset.Images.doNot)
+            icons.append(
+                SendListItemIcon(
+                    accessibilityID: "MaxAccessSendIcon",
+                    asset: Asset.Images.doNot.swiftUIImage
+                )
+            )
         }
+
         if let expirationDate = sendView.expirationDate, expirationDate < Date() {
-            icons.append(Asset.Images.clock)
+            icons.append(
+                SendListItemIcon(
+                    accessibilityID: "ExpiredSendIcon",
+                    asset: Asset.Images.clock.swiftUIImage
+                )
+            )
         }
+
         if sendView.deletionDate < Date() {
-            icons.append(Asset.Images.trash)
+            icons.append(
+                SendListItemIcon(
+                    accessibilityID: "PendingDeletionSendIcon",
+                    asset: Asset.Images.trash.swiftUIImage
+                )
+            )
         }
+
         let groupedIcons = stride(from: icons.startIndex, to: icons.endIndex, by: 3)
             .map { index in
                 Array(icons[index ..< min(index + 3, icons.endIndex)])
-                    .map { (asset: $0, id: $0.name) }
             }
-            .map { (assets: $0, id: $0.map(\.id).joined()) }
         return groupedIcons
     }
 
     @ViewBuilder
     private func iconStack(for sendView: SendView) -> some View {
         AccessibleHStack(alignment: .leading, spacing: 8, minVerticalDynamicTypeSize: .accessibility3) {
-            ForEach(icons(for: sendView), id: \.id) { row in
+            ForEachIndexed(icons(for: sendView), id: \.self) { _, row in
                 HStack(spacing: 8) {
-                    ForEach(row.assets, id: \.id) { image in
-                        image.asset.swiftUIImage
+                    ForEachIndexed(row, id: \.self) { _, image in
+                        image.asset
                             .scaledFrame(width: 16, height: 16)
                             .foregroundStyle(Asset.Colors.textSecondary.swiftUIColor)
+                            .accessibilityIdentifier(image.accessibilityID)
                     }
                 }
             }
         }
+    }
+}
+
+// MARK: - SendListItemIcon
+
+/// An icon used in the `SendListItemRowView`.
+///
+struct SendListItemIcon: Hashable {
+    /// The icon's accessibility ID.
+    let accessibilityID: String
+
+    /// The asset for the icon.
+    let asset: Image
+
+    func hash(into hasher: inout Hasher) {
+        hasher.combine(accessibilityID)
     }
 }
 

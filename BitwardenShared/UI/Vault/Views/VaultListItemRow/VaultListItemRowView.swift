@@ -35,17 +35,20 @@ struct VaultListItemRowView: View {
                                     .styleGuide(.body)
                                     .foregroundColor(Asset.Colors.textPrimary.swiftUIColor)
                                     .lineLimit(1)
+                                    .accessibilityIdentifier("CipherNameLabel")
 
                                 if cipherItem.organizationId != nil {
                                     Asset.Images.collections.swiftUIImage
                                         .foregroundColor(Asset.Colors.textSecondary.swiftUIColor)
                                         .accessibilityLabel(Localizations.shared)
+                                        .accessibilityIdentifier("CipherInCollectionIcon")
                                 }
 
                                 if cipherItem.attachments?.isEmpty == false {
                                     Asset.Images.paperclip.swiftUIImage
                                         .foregroundColor(Asset.Colors.textSecondary.swiftUIColor)
                                         .accessibilityLabel(Localizations.attachments)
+                                        .accessibilityIdentifier("CipherWithAttachmentsIcon")
                                 }
                             }
 
@@ -54,6 +57,7 @@ struct VaultListItemRowView: View {
                                     .styleGuide(.subheadline)
                                     .foregroundColor(Asset.Colors.textSecondary.swiftUIColor)
                                     .lineLimit(1)
+                                    .accessibilityIdentifier("CipherSubTitleLabel")
                             }
                         }
                         .accessibilityElement(children: .combine)
@@ -67,6 +71,7 @@ struct VaultListItemRowView: View {
                         }
                         .foregroundColor(Asset.Colors.textSecondary.swiftUIColor)
                         .accessibilityLabel(Localizations.more)
+                        .accessibilityIdentifier("CipherOptionsButton")
 
                     case let .group(group, count):
                         Text(group.name)
