@@ -1,0 +1,5 @@
+#include "./Common.xcconfig"
+#include? "./Local.xcconfig"
+
+PRODUCT_BUNDLE_IDENTIFIER = $(ORGANIZATION_IDENTIFIER).bitwarden.beta.find-login-action-extension
+PROVISIONING_PROFILE_SPECIFIER = $(PROVISIONING_PROFILE_SPECIFIER_ACTION_EXTENSION)

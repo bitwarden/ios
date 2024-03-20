@@ -192,7 +192,7 @@ targets:
     configFiles:
       Debug: Configs/BitwardenActionExtension.xcconfig
       Release: Configs/BitwardenActionExtension.xcconfig
-      Release-Beta: Configs/BitwardenActionExtension.xcconfig
+      Release-Beta: Configs/BitwardenActionExtension-Beta.xcconfig
     settings:
       base:
         CODE_SIGN_ENTITLEMENTS: BitwardenActionExtension/Application/Support/BitwardenActionExtension.entitlements
@@ -229,7 +229,7 @@ targets:
     configFiles:
       Debug: Configs/BitwardenAutoFillExtension.xcconfig
       Release: Configs/BitwardenAutoFillExtension.xcconfig
-      Release-Beta: Configs/BitwardenAutoFillExtension.xcconfig
+      Release-Beta: Configs/BitwardenAutoFillExtension-Beta.xcconfig
     settings:
       base:
         CODE_SIGN_ENTITLEMENTS: BitwardenAutoFillExtension/Application/Support/BitwardenAutoFill.entitlements
@@ -266,7 +266,7 @@ targets:
     configFiles:
       Debug: Configs/BitwardenShareExtension.xcconfig
       Release: Configs/BitwardenShareExtension.xcconfig
-      Release-Beta: Configs/BitwardenShareExtension.xcconfig
+      Release-Beta: Configs/BitwardenShareExtension-Beta.xcconfig
     settings:
       base:
         CODE_SIGN_ENTITLEMENTS: BitwardenShareExtension/Application/Support/BitwardenShareExtension.entitlements
@@ -303,7 +303,7 @@ targets:
     configFiles:
       Debug: Configs/BitwardenShared.xcconfig
       Release: Configs/BitwardenShared.xcconfig
-      Release-Beta: Configs/BitwardenShared.xcconfig
+      Release-Beta: Configs/BitwardenShared-Beta.xcconfig
     settings:
       base:
         APPLICATION_EXTENSION_API_ONLY: true
