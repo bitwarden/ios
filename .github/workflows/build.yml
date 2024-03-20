@@ -66,3 +66,7 @@ jobs:
         run: |
           brew install mint xcbeautify
           ./Scripts/bootstrap.sh
+
+      - name: Build iOS app
+        run: |
+          ./Scripts/build.sh . 2024.1.1 100
