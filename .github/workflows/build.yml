@@ -64,8 +64,7 @@ jobs:
 
       - name: Install dependencies
         run: |
-          brew install mint
-          mint install xcbeautify
+          brew install mint xcbeautify
           ./Scripts/bootstrap.sh
 
       - name: Build iOS app
