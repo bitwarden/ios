@@ -13,7 +13,7 @@ class HTTPRequestTests: XCTestCase {
     }
 
     /// The initializer provides default values.
-    func testInitDefaultValues() {
+    func test_init_defaultValues() {
         let subject = HTTPRequest(url: URL(string: "https://example.com")!)
 
         XCTAssertNil(subject.body)
@@ -23,7 +23,7 @@ class HTTPRequestTests: XCTestCase {
     }
 
     /// The initializer sets the item's properties.
-    func testInit() throws {
+    func test_init() throws {
         let subject = HTTPRequest(
             url: URL(string: "https://example.com/json")!,
             method: .post,
@@ -50,7 +50,7 @@ class HTTPRequestTests: XCTestCase {
     }
 
     /// `init(request:baseURL)` builds a `HTTPRequest` from a `Request` object.
-    func testInitRequest() throws {
+    func test_init_request() throws {
         let subject = try HTTPRequest(
             request: TestRequest(),
             baseURL: URL(string: "https://example.com/")!

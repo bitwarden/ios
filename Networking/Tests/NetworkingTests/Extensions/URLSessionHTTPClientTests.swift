@@ -22,7 +22,7 @@ class URLSessionHTTPClientTests: XCTestCase {
     }
 
     /// `send(_:)` performs the request and returns the response for a 200 status request.
-    func testSendSuccess200() async throws {
+    func test_send_success200() async throws {
         let urlResponse = HTTPURLResponse(
             url: URL(string: "https://example.com")!,
             statusCode: 200,
@@ -47,7 +47,7 @@ class URLSessionHTTPClientTests: XCTestCase {
     }
 
     /// `send(_:)` performs the request and returns the response for a 500 status request.
-    func testSendSuccess500() async throws {
+    func test_send_success500() async throws {
         let urlResponse = HTTPURLResponse(
             url: URL(string: "https://example.com")!,
             statusCode: 500,
@@ -69,7 +69,7 @@ class URLSessionHTTPClientTests: XCTestCase {
     }
 
     /// `send(_:)` performs the request and throws an error if one occurs.
-    func testSendError() async throws {
+    func test_send_error() async throws {
         URLProtocolMocking.mock(
             HTTPRequest.default.url,
             with: .failure(NSError(domain: NSURLErrorDomain, code: NSURLErrorTimedOut, userInfo: nil))
