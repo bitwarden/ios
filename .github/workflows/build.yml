@@ -2,7 +2,7 @@
 name: Build
 
 on:
-    workflow_dispatch:
+  workflow_dispatch:
 
 jobs:
   cloc:
@@ -19,3 +19,22 @@ jobs:
 
       - name: Print lines of code
         run: cloc --vcs git --include-lang Swift
+
+  build:
+    name: Build iOS app
+    runs-on: macos-13
+    steps:
+      - name: Print Environment
+        run: |
+          echo "GitHub ref: $GITHUB_REF"
+          echo "GitHub event: $GITHUB_EVENT"
+      
+      - name: Check out repository
+        uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
+        with:
+          submodules: 'true'
+
+      - name: Install dependencies
+        run: |
+          ./Scripts/bootstrap.sh
+
