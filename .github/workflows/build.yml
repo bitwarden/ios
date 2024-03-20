@@ -44,7 +44,7 @@ jobs:
         uses: actions/cache@e12d46a63a90f2fae62d114769bbf2a179198b5c # v3.3.3
         with:
           path: .mint
-          key: ${{ runner.os }}-mint-${{ hashFiles('**/Mintfile') }}
+          key: ${{ runner.os }}-mint-${{ hashFiles('./Mintfile') }}
           restore-keys: |
             ${{ runner.os }}-mint-
 
@@ -64,7 +64,8 @@ jobs:
 
       - name: Install dependencies
         run: |
-          brew install mint xcbeautify
+          brew install mint
+          mint install xcbeautify
           ./Scripts/bootstrap.sh
 
       - name: Build iOS app
