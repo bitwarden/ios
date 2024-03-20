@@ -156,8 +156,8 @@ final class VaultCoordinator: Coordinator, HasStackNavigator {
             }
         case .dismiss:
             stackNavigator?.dismiss()
-        case let .group(content):
-            showGroup(content)
+        case let .group(group, filter):
+            showGroup(group, filter: filter)
         case .list:
             showList()
         case let .loginRequest(loginRequest):
@@ -188,18 +188,20 @@ final class VaultCoordinator: Coordinator, HasStackNavigator {
 
     /// Shows the vault group screen.
     ///
-    private func showGroup(_ content: VaultGroupContent) {
+    /// - Parameters:
+    ///   - group: The group of items to display.
+    ///   - filter: The filter to apply to the view.
+    ///
+    private func showGroup(_ group: VaultListGroup, filter: VaultFilterType) {
         let processor = VaultGroupProcessor(
             coordinator: asAnyCoordinator(),
             services: services,
             state: VaultGroupState(
-                group: content.group,
+                group: group,
                 iconBaseURL: services.environmentService.iconsURL,
-                searchVaultFilterType: content.filter,
-                vaultFilterType: content.filter
+                vaultFilterType: filter
             )
         )
-        processor.vaultFilterDelegate = content.filterDelegate
         let store = Store(processor: processor)
         let searchHandler = VaultGroupSearchHandler(store: store)
         let view = VaultGroupView(
@@ -213,7 +215,7 @@ final class VaultCoordinator: Coordinator, HasStackNavigator {
 
         stackNavigator?.push(
             viewController,
-            navigationTitle: content.group.navigationTitle,
+            navigationTitle: group.navigationTitle,
             searchController: searchController
         )
     }
@@ -248,14 +250,4 @@ final class VaultCoordinator: Coordinator, HasStackNavigator {
 
         stackNavigator?.present(navigationController)
     }
-}
-
-/// A protocol to share vault filter settings between screens.
-///
-public protocol VaultFilterDelegate: AnyObject {
-    /// A method to inform the delegate that the vault filter has changed.
-    ///
-    /// - Parameter newFilter: The up to date vault filter.
-    ///
-    func didSetVaultFilter(_ newFilter: VaultFilterType)
 }

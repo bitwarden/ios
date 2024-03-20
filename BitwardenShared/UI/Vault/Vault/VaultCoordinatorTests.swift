@@ -9,7 +9,6 @@ class VaultCoordinatorTests: BitwardenTestCase {
     // MARK: Properties
 
     var delegate: MockVaultCoordinatorDelegate!
-    var filterDelegate: MockVaultFilterDelegate!
     var module: MockAppModule!
     var stackNavigator: MockStackNavigator!
     var subject: VaultCoordinator!
@@ -20,7 +19,6 @@ class VaultCoordinatorTests: BitwardenTestCase {
         super.setUp()
 
         delegate = MockVaultCoordinatorDelegate()
-        filterDelegate = MockVaultFilterDelegate()
         module = MockAppModule()
         stackNavigator = MockStackNavigator()
         subject = VaultCoordinator(
@@ -36,7 +34,6 @@ class VaultCoordinatorTests: BitwardenTestCase {
         super.tearDown()
 
         delegate = nil
-        filterDelegate = nil
         module = nil
         stackNavigator = nil
         subject = nil
@@ -114,15 +111,7 @@ class VaultCoordinatorTests: BitwardenTestCase {
 
     /// `navigate(to:)` with `.group` pushes the vault group view onto the stack navigator.
     func test_navigateTo_group() throws {
-        subject.navigate(
-            to: .group(
-                .init(
-                    group: .identity,
-                    filter: .allVaults,
-                    filterDelegate: filterDelegate
-                )
-            )
-        )
+        subject.navigate(to: .group(.identity, filter: .allVaults))
 
         let action = try XCTUnwrap(stackNavigator.actions.last)
         XCTAssertEqual(action.type, .pushed)
@@ -130,8 +119,6 @@ class VaultCoordinatorTests: BitwardenTestCase {
         let view = try XCTUnwrap((action.view as? UIHostingController<VaultGroupView>)?.rootView)
         XCTAssertEqual(view.store.state.group, .identity)
         XCTAssertEqual(view.store.state.vaultFilterType, .allVaults)
-        view.store.send(.vaultFilterChanged(.myVault))
-        XCTAssertEqual(filterDelegate.newFilter, .myVault)
     }
 
     /// `navigate(to:)` with `.list` pushes the vault list view onto the stack navigator.
@@ -220,14 +207,6 @@ class VaultCoordinatorTests: BitwardenTestCase {
         subject.start()
 
         XCTAssertTrue(stackNavigator.actions.isEmpty)
-    }
-}
-
-class MockVaultFilterDelegate: VaultFilterDelegate {
-    var newFilter: VaultFilterType?
-
-    func didSetVaultFilter(_ newFilter: VaultFilterType) {
-        self.newFilter = newFilter
     }
 }
 

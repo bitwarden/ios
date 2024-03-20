@@ -13,7 +13,6 @@ class VaultGroupProcessorTests: BitwardenTestCase { // swiftlint:disable:this ty
     var authRepository: MockAuthRepository!
     var coordinator: MockCoordinator<VaultRoute, AuthAction>!
     var errorReporter: MockErrorReporter!
-    var filterDelegate: MockVaultFilterDelegate!
     let fixedDate = Date(year: 2023, month: 12, day: 31, minute: 0, second: 31)
     var pasteboardService: MockPasteboardService!
     var policyService: MockPolicyService!
@@ -30,7 +29,6 @@ class VaultGroupProcessorTests: BitwardenTestCase { // swiftlint:disable:this ty
         authRepository = MockAuthRepository()
         coordinator = MockCoordinator()
         errorReporter = MockErrorReporter()
-        filterDelegate = MockVaultFilterDelegate()
         pasteboardService = MockPasteboardService()
         policyService = MockPolicyService()
         stateService = MockStateService()
@@ -54,7 +52,6 @@ class VaultGroupProcessorTests: BitwardenTestCase { // swiftlint:disable:this ty
                 vaultFilterType: .allVaults
             )
         )
-        subject.vaultFilterDelegate = filterDelegate
     }
 
     override func tearDown() {
@@ -63,7 +60,6 @@ class VaultGroupProcessorTests: BitwardenTestCase { // swiftlint:disable:this ty
         authRepository = nil
         coordinator = nil
         errorReporter = nil
-        filterDelegate = nil
         pasteboardService = nil
         policyService = nil
         stateService = nil
@@ -392,53 +388,6 @@ class VaultGroupProcessorTests: BitwardenTestCase { // swiftlint:disable:this ty
         task.cancel()
     }
 
-    /// `perform(_:)` with `.streamVaultList` updates the state's vault list whenever it changes.
-    func test_perform_streamVaultList() throws {
-        let loginView = LoginView.fixture(totp: .base32Key)
-        let vaultListItem = VaultListItem(
-            id: "2",
-            itemType: .totp(
-                name: "totp",
-                totpModel: .init(
-                    id: "1",
-                    loginView: loginView,
-                    totpCode: .init(
-                        code: "111222",
-                        codeGenerationDate: timeProvider.presentTime,
-                        period: 30
-                    )
-                )
-            )
-        )
-        let vaultListSection = VaultListSection(id: "", items: [vaultListItem], name: "Items")
-        subject.state.group = .totp
-        vaultRepository.vaultListGroupSubject.send([vaultListSection])
-
-        let task = Task {
-            await subject.perform(.streamVaultList)
-        }
-
-        waitFor(subject.state.loadingState != .loading(nil))
-        task.cancel()
-
-        let items = try XCTUnwrap(subject.state.loadingState.data)
-        XCTAssertEqual(items, [vaultListSection])
-    }
-
-    /// `perform(_:)` with `.streamVaultList` records any errors.
-    func test_perform_streamVaultList_error() throws {
-        vaultRepository.vaultListGroupSubject.send(completion: .failure(BitwardenTestError.example))
-
-        let task = Task {
-            await subject.perform(.streamVaultList)
-        }
-
-        waitFor(!errorReporter.errors.isEmpty)
-        task.cancel()
-
-        XCTAssertEqual(errorReporter.errors.last as? BitwardenTestError, .example)
-    }
-
     /// `receive(_:)` with `.addItemPressed` navigates to the `.addItem` route with the correct group.
     func test_receive_addItemPressed() {
         subject.state.group = .card
@@ -634,12 +583,7 @@ class VaultGroupProcessorTests: BitwardenTestCase { // swiftlint:disable:this ty
     /// `receive(_:)` with `.itemPressed` on a group navigates to the `.group` route.
     func test_receive_itemPressed_group() {
         subject.receive(.itemPressed(VaultListItem(id: "1", itemType: .group(.card, 2))))
-        XCTAssertEqual(
-            coordinator.routes.last,
-            .group(
-                .init(group: .card, filter: .allVaults)
-            )
-        )
+        XCTAssertEqual(coordinator.routes.last, .group(.card, filter: .allVaults))
     }
 
     /// `receive(_:)` with `.itemPressed` navigates to the `.viewItem` route.
@@ -1051,22 +995,5 @@ class VaultGroupProcessorTests: BitwardenTestCase { // swiftlint:disable:this ty
         task.cancel()
         let first = try XCTUnwrap(errorReporter.errors.first as? TestError)
         XCTAssertEqual(first, TestError())
-    }
-
-    /// `receive(_:)` with `.vaultFilterChanged` updates the state correctly.
-    func test_receive_vaultFilterChanged() {
-        let organization = Organization.fixture()
-
-        subject.state.vaultFilterType = .myVault
-        subject.receive(.vaultFilterChanged(.organization(organization)))
-
-        XCTAssertEqual(subject.state.vaultFilterType, .organization(organization))
-        XCTAssertEqual(filterDelegate.newFilter, .organization(organization))
-    }
-
-    /// `didSetVaultFilter(_:)` udpates the filters.
-    func test_didSetVaultFilter() {
-        subject.didSetVaultFilter(.myVault)
-        XCTAssertEqual(subject.state.vaultFilterType, .myVault)
     }
 }
