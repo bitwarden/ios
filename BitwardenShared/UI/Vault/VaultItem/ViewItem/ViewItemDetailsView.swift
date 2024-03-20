@@ -107,7 +107,7 @@ struct ViewItemDetailsView: View {
                                         store.send(.customFieldVisibilityPressed(customField))
                                     }
                                     Button {
-                                        store.send(.copyPressed(value: value))
+                                        store.send(.copyPressed(value: value, field: .customHiddenField))
                                     } label: {
                                         Asset.Images.copy.swiftUIImage
                                             .resizable()
@@ -115,7 +115,7 @@ struct ViewItemDetailsView: View {
                                     }
                                 case .text:
                                     Button {
-                                        store.send(.copyPressed(value: value))
+                                        store.send(.copyPressed(value: value, field: .customTextField))
                                     } label: {
                                         Asset.Images.copy.swiftUIImage
                                             .resizable()

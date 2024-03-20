@@ -13,7 +13,7 @@ enum ViewItemAction: Equatable {
     ///   - value: The value to copy.
     ///   - field: The field being copied.
     ///
-    case copyPressed(value: String, field: CopyableField? = nil)
+    case copyPressed(value: String, field: CopyableField)
 
     /// The visibility button was pressed for the specified custom field.
     case customFieldVisibilityPressed(CustomFieldState)
@@ -45,14 +45,15 @@ enum ViewItemAction: Equatable {
     var requiresMasterPasswordReprompt: Bool {
         switch self {
         case .cardItemAction,
-             .copyPressed,
              .customFieldVisibilityPressed,
              .editPressed,
+             .morePressed,
              .passwordVisibilityPressed:
             true
+        case let .copyPressed(_, field):
+            field.requiresMasterPasswordReprompt
         case .dismissPressed,
              .downloadAttachment,
-             .morePressed,
              .passwordHistoryPressed,
              .toastShown:
             false
@@ -67,6 +68,12 @@ enum ViewItemAction: Equatable {
 enum CopyableField {
     /// The card number field.
     case cardNumber
+
+    /// A custom hidden field.
+    case customHiddenField
+
+    /// A custom text field.
+    case customTextField
 
     /// The password field.
     case password
@@ -83,11 +90,31 @@ enum CopyableField {
     /// The username field.
     case username
 
+    /// Whether copying the field requires the user to be reprompted for their master password, if
+    /// master password reprompt is enabled.
+    var requiresMasterPasswordReprompt: Bool {
+        switch self {
+        case .cardNumber,
+             .customHiddenField,
+             .password,
+             .securityCode,
+             .totp:
+            true
+        case .customTextField,
+             .uri,
+             .username:
+            false
+        }
+    }
+
     /// The localized name for each field.
-    var localizedName: String {
+    var localizedName: String? {
         switch self {
         case .cardNumber:
             Localizations.number
+        case .customHiddenField,
+             .customTextField:
+            nil
         case .password:
             Localizations.password
         case .securityCode:

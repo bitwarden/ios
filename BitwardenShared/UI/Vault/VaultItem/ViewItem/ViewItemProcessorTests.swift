@@ -336,29 +336,33 @@ class ViewItemProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
 
     /// `receive` with `.copyPressed` copies the value with the pasteboard service and shows a toast.
     func test_receive_copyPressed() {
-        subject.receive(.copyPressed(value: "value", field: .cardNumber))
-        XCTAssertEqual(pasteboardService.copiedString, "value")
+        subject.receive(.copyPressed(value: "card number", field: .cardNumber))
+        XCTAssertEqual(pasteboardService.copiedString, "card number")
         XCTAssertEqual(subject.state.toast?.text, Localizations.valueHasBeenCopied(Localizations.number))
 
-        subject.receive(.copyPressed(value: "value", field: .password))
-        XCTAssertEqual(pasteboardService.copiedString, "value")
+        subject.receive(.copyPressed(value: "hidden field value", field: .customHiddenField))
+        XCTAssertEqual(pasteboardService.copiedString, "hidden field value")
+        XCTAssertEqual(subject.state.toast?.text, Localizations.valueHasBeenCopied(Localizations.value))
+
+        subject.receive(.copyPressed(value: "text field value", field: .customTextField))
+        XCTAssertEqual(pasteboardService.copiedString, "text field value")
+        XCTAssertEqual(subject.state.toast?.text, Localizations.valueHasBeenCopied(Localizations.value))
+
+        subject.receive(.copyPressed(value: "password", field: .password))
+        XCTAssertEqual(pasteboardService.copiedString, "password")
         XCTAssertEqual(subject.state.toast?.text, Localizations.valueHasBeenCopied(Localizations.password))
 
-        subject.receive(.copyPressed(value: "value", field: .securityCode))
-        XCTAssertEqual(pasteboardService.copiedString, "value")
+        subject.receive(.copyPressed(value: "security code", field: .securityCode))
+        XCTAssertEqual(pasteboardService.copiedString, "security code")
         XCTAssertEqual(subject.state.toast?.text, Localizations.valueHasBeenCopied(Localizations.securityCode))
 
-        subject.receive(.copyPressed(value: "value", field: .totp))
-        XCTAssertEqual(pasteboardService.copiedString, "value")
+        subject.receive(.copyPressed(value: "totp", field: .totp))
+        XCTAssertEqual(pasteboardService.copiedString, "totp")
         XCTAssertEqual(subject.state.toast?.text, Localizations.valueHasBeenCopied(Localizations.totp))
 
-        subject.receive(.copyPressed(value: "value", field: .username))
-        XCTAssertEqual(pasteboardService.copiedString, "value")
+        subject.receive(.copyPressed(value: "username", field: .username))
+        XCTAssertEqual(pasteboardService.copiedString, "username")
         XCTAssertEqual(subject.state.toast?.text, Localizations.valueHasBeenCopied(Localizations.username))
-
-        subject.receive(.copyPressed(value: "valueWithoutField"))
-        XCTAssertEqual(pasteboardService.copiedString, "valueWithoutField")
-        XCTAssertEqual(subject.state.toast?.text, Localizations.valueHasBeenCopied(Localizations.value))
     }
 
     /// `receive` with `.customFieldVisibilityPressed()` toggles custom field visibility.
@@ -497,6 +501,24 @@ class ViewItemProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
             .networkResponseError(TestError())
         )
         XCTAssertEqual(errorReporter.errors.first as? TestError, TestError())
+    }
+
+    /// `perform(_:)` with `.deletePressed` reprompts the user for their master password if reprompt
+    /// is enabled prior to deleting the cipher.
+    func test_perform_deletePressed_masterPasswordReprompt() async throws {
+        subject.state = try XCTUnwrap(ViewItemState(cipherView: .fixture(reprompt: .password), hasPremium: false))
+        await subject.perform(.deletePressed)
+
+        let repromptAlert = try XCTUnwrap(coordinator.unwrapLastRouteAsAlert())
+        XCTAssertEqual(repromptAlert, .masterPasswordPrompt(completion: { _ in }))
+        repromptAlert.alertTextFields = [AlertTextField(id: "password", text: "password")]
+        try await repromptAlert.tapAction(title: Localizations.submit)
+
+        let deleteConfirmationAlert = try XCTUnwrap(coordinator.alertShown.last)
+        XCTAssertEqual(deleteConfirmationAlert, .deleteCipherConfirmation(isSoftDelete: true) {})
+        try await deleteConfirmationAlert.tapAction(title: Localizations.yes)
+
+        XCTAssertEqual(vaultRepository.softDeletedCipher.last?.id, "1")
     }
 
     /// `perform(_:)` with `.deletePressed` presents the confirmation alert before permanently
