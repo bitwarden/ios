@@ -68,16 +68,16 @@ jobs:
 
       - name: Install Mint
         run: |
-          brew install mint
+          brew install mint xcbeautify
 
       - name: Install Mint packages
         if: steps.mint-cache.outputs.cache-hit != 'true'
         run: |
           mint bootstrap
       
-      - name: Install xcbeautify
-        run: |
-          mint install xcbeautify
+      # - name: Install xcbeautify
+      #   run: |
+      #     mint install xcbeautify
 
       - name: Generate project
         run: |
