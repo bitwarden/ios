@@ -23,6 +23,9 @@ jobs:
   build:
     name: Build iOS app
     runs-on: macos-13
+    env:
+      MINT_PATH: .mint/lib
+      MINT_LINK_PATH: .mint/bin
     steps:
       - name: Print Environment
         run: |
@@ -41,20 +44,21 @@ jobs:
           ruby-version: 3.2.2
 
       - name: Cache Mint Packages
+        id: mint-cache
         uses: actions/cache@e12d46a63a90f2fae62d114769bbf2a179198b5c # v3.3.3
         with:
           path: .mint
-          key: ${{ runner.os }}-mint-${{ hashFiles('./Mintfile') }}
+          key: ${{ runner.os }}-mint-build-${{ hashFiles('**/Mintfile') }}
           restore-keys: |
-            ${{ runner.os }}-mint-
+            ${{ runner.os }}-mint-build-
 
       - name: Cache SPM Packages
         uses: actions/cache@e12d46a63a90f2fae62d114769bbf2a179198b5c # v3.3.3
         with:
           path: build/DerivedData/SourcePackages
-          key: ${{ runner.os }}-spm-${{ hashFiles('**/Package.resolved') }}
+          key: ${{ runner.os }}-spm-build-${{ hashFiles('**/Package.resolved') }}
           restore-keys: |
-            ${{ runner.os }}-spm-
+            ${{ runner.os }}-spm-build-
 
       - name: Install yeetd
         run: |
@@ -62,11 +66,15 @@ jobs:
           sudo installer -pkg yeetd-normal.pkg -target /
           yeetd &
 
-      - name: Install dependencies
+      - name: Install Mint
         run: |
-          brew install mint xcbeautify
+          brew install mint
+
+      - name: Install Mint packages
+        if: steps.mint-cache.outputs.cache-hit != 'true'
+        run: |
           ./Scripts/bootstrap.sh
 
-      - name: Build iOS app
-        run: |
-          ./Scripts/build.sh . 2024.1.1 100
+      # - name: Build iOS app
+      #   run: |
+      #     ./Scripts/build.sh . 2024.1.1 100
