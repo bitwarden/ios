@@ -70,7 +70,7 @@ xcrun xcodebuild archive \
   -archivePath "${ARCHIVE_PATH}" \
   MARKETING_VERSION="${VERSION_NUMBER}" \
   CURRENT_PROJECT_VERSION="${BUILD_NUMBER}" \
-  | mint run xcbeautify --renderer github-actions
+  | xcbeautify --renderer github-actions
 echo ""
 
 echo "Performing Xcode archive export"
@@ -78,6 +78,6 @@ xcrun xcodebuild -exportArchive \
   -archivePath "${ARCHIVE_PATH}" \
   -exportPath "${EXPORT_PATH}" \
   -exportOptionsPlist "${EXPORT_OPTIONS_PATH}" \
-  | mint run xcbeautify --renderer github-actions
+  | xcbeautify --renderer github-actions
 
 echo "Build complete 🎉"

@@ -83,6 +83,6 @@ jobs:
         run: |
           mint run xcodegen xcodegen
 
-      # - name: Build iOS app
-      #   run: |
-      #     ./Scripts/build.sh . 2024.1.1 100
+      - name: Build iOS app
+        run: |
+          ./Scripts/build.sh . 2024.1.1 100
