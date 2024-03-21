@@ -43,15 +43,15 @@ cat << EOF > "${EXPORT_OPTIONS_PATH}"
     <key>provisioningProfiles</key>
     <dict>
         <key>com.8bit.bitwarden</key>
-        <string>Bitwarden Distribution</string>
+        <string>Dist: Bitwarden</string>
         <key>com.8bit.bitwarden.find-login-action-extension</key>
-        <string>Bitwarden Action Extension Distribution</string>
+        <string>Dist: Extension</string>
         <key>com.8bit.bitwarden.autofill</key>
-        <string>Bitwarden AutoFill Extension Distribution</string>
+        <string>Dist: Autofill</string>
         <key>com.8bit.bitwarden.share-extension</key>
-        <string>Bitwarden Share Extension Distribution</string>
+        <string>Dist: Share Extension</string>
         <key>com.8bit.bitwarden.watchkitapp</key>
-        <string>Bitwarden watchOS Distribution</string>
+        <string>Dist: Bitwarden Watch App</string>
     </dict>
     <key>signingCertificate</key>
     <string>Apple Distribution: Bitwarden Inc</string>
