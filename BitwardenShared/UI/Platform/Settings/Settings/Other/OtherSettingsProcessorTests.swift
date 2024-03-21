@@ -140,8 +140,8 @@ class OtherSettingsProcessorTests: BitwardenTestCase {
 
         let alert = try coordinator.unwrapLastRouteAsAlert()
 
-        // Tapping yes navigates the user to the web app.
-        try await alert.tapAction(title: Localizations.yes)
+        // Tapping continue navigates the user to the web app.
+        try await alert.tapAction(title: Localizations.continue)
         XCTAssertNotNil(subject.state.url)
     }
 

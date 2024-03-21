@@ -154,7 +154,7 @@ extension Alert {
             message: Localizations.continueToGiveFeedbackDescription,
             alertActions: [
                 AlertAction(title: Localizations.cancel, style: .cancel),
-                AlertAction(title: Localizations.yes, style: .default) { _ in
+                AlertAction(title: Localizations.continue, style: .default) { _ in
                     action()
                 },
             ]
