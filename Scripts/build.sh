@@ -63,7 +63,7 @@ EOF
 
 cat << EOF > Configs/Local.xcconfig
 CODE_SIGN_STYLE = Manual
-CODE_SIGN_IDENTITY = Apple Distribution: Bitwarden, Inc.
+CODE_SIGN_IDENTITY = Apple Distribution
 DEVELOPMENT_TEAM = LTZ2PFU5D6
 ORGANIZATION_IDENTIFIER = com.8bit
 PROVISIONING_PROFILE_SPECIFIER = Dist: Bitwarden
