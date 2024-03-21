@@ -66,19 +66,6 @@ jobs:
           sudo installer -pkg yeetd-normal.pkg -target /
           yeetd &
 
-      - name: Install Mint
-        run: |
-          brew install mint xcbeautify
-
-      - name: Install Mint packages
-        if: steps.mint-cache.outputs.cache-hit != 'true'
-        run: |
-          mint bootstrap
-
-      # - name: Install xcbeautify
-      #   run: |
-      #     mint install xcbeautify
-
       - name: Log In to Azure - CI Subscription
         uses: Azure/login@cb79c773a3cfa27f31f25eb3f677781210c9ce3d # v1.6.1
         with:
@@ -171,9 +158,26 @@ jobs:
           WATCH_APP_EXTENSION_UUID=$(grep UUID -A1 -a $WATCH_APP_EXTENSION_PROFILE_PATH | grep -io "[-A-F0-9]\{36\}")
           cp $WATCH_APP_EXTENSION_PROFILE_PATH "$PROFILES_DIR_PATH/$WATCH_APP_EXTENSION_UUID.mobileprovision"
 
+      - name: Install Mint
+        run: |
+          brew install mint xcbeautify
+
+      - name: Install Mint packages
+        if: steps.mint-cache.outputs.cache-hit != 'true'
+        run: |
+          mint bootstrap
+
+      # - name: Install xcbeautify
+      #   run: |
+      #     mint install xcbeautify
+
       - name: Generate project
         run: |
           mint run xcodegen xcodegen
+
+      # - name: List provisioning profiles
+      #   run: |
+      #     ls -al $HOME/Library/MobileDevice/Provisioning\ Profiles
 
       - name: Build iOS app
         run: |
