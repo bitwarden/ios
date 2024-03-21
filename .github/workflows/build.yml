@@ -120,7 +120,7 @@ jobs:
         run: |
           mkdir -p $HOME/secrets
           az storage blob download --account-name $ACCOUNT_NAME --container-name $CONTAINER_NAME --name $FILE \
-            --file src/watchOS/bitwarden/$FILE --output none
+            --file Bitwarden/Application/Support/$FILE --output none
 
       - name: Get certificates
         run: |
