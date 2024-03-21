@@ -150,8 +150,8 @@ extension Alert {
     ///
     static func giveFeedbackAlert(action: @escaping () -> Void) -> Alert {
         Alert(
-            title: "Continue to Give Feedback?",
-            message: "Continue to provide feedback on your experience.",
+            title: Localizations.continueToGiveFeedback,
+            message: Localizations.continueToGiveFeedbackDescription,
             alertActions: [
                 AlertAction(title: Localizations.cancel, style: .cancel),
                 AlertAction(title: Localizations.yes, style: .default) { _ in

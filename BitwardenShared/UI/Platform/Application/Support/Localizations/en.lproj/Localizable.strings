@@ -6,6 +6,8 @@
 "Back" = "Back";
 "Bitwarden" = "Bitwarden";
 "Cancel" = "Cancel";
+"ContinueToGiveFeedback" = "Continue to Give Feedback?";
+"ContinueToGiveFeedbackDescription" = "Continue to provide feedback on your experience.";
 "Copy" = "Copy";
 "CopyPassword" = "Copy password";
 "CopyUsername" = "Copy username";
@@ -30,6 +32,7 @@
 "FolderNone" = "No Folder";
 "Folders" = "Folders";
 "FolderUpdated" = "Folder saved";
+"GiveFeedback" = "Give feedback";
 "GoToWebsite" = "Go to website";
 "HelpAndFeedback" = "Help and feedback";
 "Hide" = "Hide";

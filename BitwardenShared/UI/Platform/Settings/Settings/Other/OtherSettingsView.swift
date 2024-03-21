@@ -106,7 +106,7 @@ struct OtherSettingsView: View {
 
     /// A link that redirects users to a feedback form.
     private var giveFeedback: some View {
-        SettingsListItem("Give feedback", hasDivider: false) {
+        SettingsListItem(Localizations.giveFeedback, hasDivider: false) {
             store.send(.giveFeedbackPressed)
         } trailingContent: {
             Image(asset: Asset.Images.externalLink2)
