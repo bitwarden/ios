@@ -126,6 +126,25 @@ class OtherSettingsProcessorTests: BitwardenTestCase {
         XCTAssertEqual(settingsRepository.clearClipboardValue, .twentySeconds)
     }
 
+    /// `receive(_:)` with `.clearURL` clears the URL in the state.
+    func test_receive_clearURL() {
+        subject.state.url = URL(string: "example.com")
+        subject.receive(.clearURL)
+
+        XCTAssertNil(subject.state.url)
+    }
+
+    /// `receive(_:)` with `.giveFeedbackPressed` populates the URL in the state.
+    func test_receive_giveFeedback() async throws {
+        subject.receive(.giveFeedbackPressed)
+
+        let alert = try coordinator.unwrapLastRouteAsAlert()
+
+        // Tapping yes navigates the user to the web app.
+        try await alert.tapAction(title: Localizations.yes)
+        XCTAssertNotNil(subject.state.url)
+    }
+
     /// `receive(_:)` with `.toastShown` updates the state's toast value.
     func test_receive_toastShown() {
         let toast = Toast(text: "toast!")
