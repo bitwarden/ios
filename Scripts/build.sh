@@ -42,19 +42,19 @@ cat << EOF > "${EXPORT_OPTIONS_PATH}"
     <string>app-store</string>
     <key>provisioningProfiles</key>
     <dict>
-        <key>com.8bit.bitwardentest</key>
+        <key>com.8bit.bitwarden</key>
         <string>Bitwarden Distribution</string>
-        <key>com.8bit.bitwarden.find-login-action-extensiontest</key>
+        <key>com.8bit.bitwarden.find-login-action-extension</key>
         <string>Bitwarden Action Extension Distribution</string>
-        <key>com.8bit.bitwarden.autofilltest</key>
+        <key>com.8bit.bitwarden.autofill</key>
         <string>Bitwarden AutoFill Extension Distribution</string>
-        <key>com.8bit.bitwarden.share-extensiontest</key>
+        <key>com.8bit.bitwarden.share-extension</key>
         <string>Bitwarden Share Extension Distribution</string>
-        <key>com.8bit.bitwarden.watchkitapptest</key>
+        <key>com.8bit.bitwarden.watchkitapp</key>
         <string>Bitwarden watchOS Distribution</string>
     </dict>
     <key>signingCertificate</key>
-    <string>Apple Distribution: Bitwarden Inctest</string>
+    <string>Apple Distribution: Bitwarden Inc</string>
     <key>manageAppVersionAndBuildNumber</key>
     <false/>
 </dict>
