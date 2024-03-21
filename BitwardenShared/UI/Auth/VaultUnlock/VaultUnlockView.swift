@@ -64,7 +64,14 @@ struct VaultUnlockView: View {
     @ViewBuilder var scrollView: some View {
         ScrollView {
             VStack(spacing: 24) {
-                textField
+                VStack(alignment: .leading, spacing: 8) {
+                    textField
+
+                    Text(footerText)
+                        .styleGuide(.footnote)
+                        .foregroundColor(Asset.Colors.textSecondary.swiftUIColor)
+                        .accessibilityIdentifier("UserAndEnvironmentDataLabel")
+                }
 
                 biometricAuthButton
 
@@ -137,7 +144,7 @@ struct VaultUnlockView: View {
                     get: \.masterPassword,
                     send: VaultUnlockAction.masterPasswordChanged
                 ),
-                footer: footerText,
+                footer: nil,
                 accessibilityIdentifier: "MasterPasswordEntry",
                 passwordVisibilityAccessibilityId: "PasswordVisibilityToggle",
                 isPasswordVisible: store.binding(
@@ -159,7 +166,7 @@ struct VaultUnlockView: View {
                     get: \.pin,
                     send: VaultUnlockAction.pinChanged
                 ),
-                footer: footerText,
+                footer: nil,
                 accessibilityIdentifier: "PinEntry",
                 passwordVisibilityAccessibilityId: "PinVisibilityToggle",
                 isPasswordVisible: store.binding(
