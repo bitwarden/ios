@@ -53,8 +53,6 @@ cat << EOF > "${EXPORT_OPTIONS_PATH}"
         <key>com.8bit.bitwarden.watchkitapp</key>
         <string>Dist: Bitwarden Watch App</string>
     </dict>
-    <key>signingCertificate</key>
-    <string>Apple Distribution: Bitwarden Inc</string>
     <key>manageAppVersionAndBuildNumber</key>
     <false/>
 </dict>
