@@ -55,6 +55,7 @@ struct AddEditItemView: View {
             VStack(spacing: 20) {
                 if isPolicyEnabled {
                     InfoContainer(Localizations.personalOwnershipPolicyInEffect)
+                        .accessibilityIdentifier("PersonalOwnershipPolicyLabel")
                 }
 
                 informationSection
