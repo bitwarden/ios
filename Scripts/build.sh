@@ -61,6 +61,18 @@ cat << EOF > "${EXPORT_OPTIONS_PATH}"
 </plist>
 EOF
 
+cat << EOF > Configs/Local.xcconfig
+CODE_SIGN_STYLE = Manual
+CODE_SIGN_IDENTITY = Apple Distribution: Bitwarden, Inc.
+DEVELOPMENT_TEAM = LTZ2PFU5D6
+ORGANIZATION_IDENTIFIER = com.8bit
+PROVISIONING_PROFILE_SPECIFIER = Dist: Bitwarden
+PROVISIONING_PROFILE_SPECIFIER_ACTION_EXTENSION = Dist: Extension
+PROVISIONING_PROFILE_SPECIFIER_AUTOFILL_EXTENSION = Dist: Autofill
+PROVISIONING_PROFILE_SPECIFIER_SHARE_EXTENSION = Dist: Share Extension
+PROVISIONING_PROFILE_SPECIFIER_WATCH_APP = Dist: Bitwarden Watch App
+EOF
+
 echo "Performing Xcode archive"
 xcrun xcodebuild archive \
   -project Bitwarden.xcodeproj \
