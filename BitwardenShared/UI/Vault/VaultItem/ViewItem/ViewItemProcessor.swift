@@ -88,6 +88,10 @@ final class ViewItemProcessor: StateProcessor<ViewItemState, ViewItemAction, Vie
             }
         case .deletePressed:
             guard case let .data(cipherState) = state.loadingState else { return }
+            guard !state.isMasterPasswordRequired else {
+                presentMasterPasswordRepromptAlert { await self.perform(effect) }
+                return
+            }
             if cipherState.cipher.deletedDate == nil {
                 await showSoftDeleteConfirmation(cipherState.cipher)
             } else {
@@ -102,7 +106,7 @@ final class ViewItemProcessor: StateProcessor<ViewItemState, ViewItemAction, Vie
 
     override func receive(_ action: ViewItemAction) {
         guard !state.isMasterPasswordRequired || !action.requiresMasterPasswordReprompt else {
-            presentMasterPasswordRepromptAlert(for: action)
+            presentMasterPasswordRepromptAlert { self.receive(action) }
             return
         }
         switch action {
@@ -196,7 +200,7 @@ private extension ViewItemProcessor {
     private func copyValue(_ value: String, _ field: CopyableField?) {
         services.pasteboardService.copy(value)
 
-        let localizedFieldName = if let field { field.localizedName } else { Localizations.value }
+        let localizedFieldName = field?.localizedName ?? Localizations.value
         state.toast = Toast(text: Localizations.valueHasBeenCopied(localizedFieldName))
     }
 
@@ -329,9 +333,10 @@ private extension ViewItemProcessor {
     /// Presents the master password re-prompt alert for the specified action. This method will
     /// process the action once the master password has been verified.
     ///
-    /// - Parameter action: The action to process once the password has been verified.
+    /// - Parameter completion: A closure containing the action to perform once the password has
+    ///     been verified.
     ///
-    private func presentMasterPasswordRepromptAlert(for action: ViewItemAction) {
+    private func presentMasterPasswordRepromptAlert(completion: @escaping () async -> Void) {
         let alert = Alert.masterPasswordPrompt { [weak self] password in
             guard let self else { return }
 
@@ -342,7 +347,7 @@ private extension ViewItemProcessor {
                     return
                 }
                 state.hasVerifiedMasterPassword = true
-                receive(action)
+                await completion()
             } catch {
                 services.errorReporter.log(error: error)
             }
