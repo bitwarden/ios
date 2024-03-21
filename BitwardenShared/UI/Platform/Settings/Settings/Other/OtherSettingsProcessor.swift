@@ -58,7 +58,7 @@ final class OtherSettingsProcessor: StateProcessor<OtherSettingsState, OtherSett
         case .clearURL:
             state.url = nil
         case .giveFeedbackPressed:
-            state.url = ExternalLinksConstants.giveFeedback
+            giveFeedbackPressed()
         case let .toastShown(newValue):
             state.toast = newValue
         case let .toggleAllowSyncOnRefresh(isOn):
@@ -69,6 +69,13 @@ final class OtherSettingsProcessor: StateProcessor<OtherSettingsState, OtherSett
     }
 
     // MARK: Private
+
+    /// The give feedback button was pressed.
+    private func giveFeedbackPressed() {
+        coordinator.navigate(to: .alert(.giveFeedbackAlert {
+            self.state.url = ExternalLinksConstants.giveFeedback
+        }))
+    }
 
     /// Load the initial values for the toggles on the view.
     private func loadInitialValues() async {
