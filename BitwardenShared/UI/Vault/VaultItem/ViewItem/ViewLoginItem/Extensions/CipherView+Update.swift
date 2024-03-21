@@ -89,15 +89,20 @@ extension CipherView {
     /// which is used to manage and display login data in the UI.
     ///
     /// - Parameters:
+    ///   - excludeFido2Credentials: Whether to exclude copying any FIDO2 credentials from the login item.
     ///   - showPassword: A Boolean value indicating whether the password should be visible.
     ///   - showTOTP: A Boolean value indicating whether TOTP should be visible.
     ///
     /// - Returns: A `LoginItemState` representing the login information of the cipher.
     ///
-    func loginItemState(showPassword: Bool = false, showTOTP: Bool) -> LoginItemState {
+    func loginItemState(
+        excludeFido2Credentials: Bool = false,
+        showPassword: Bool = false,
+        showTOTP: Bool
+    ) -> LoginItemState {
         LoginItemState(
             canViewPassword: viewPassword,
-            fido2Credentials: login?.fido2Credentials ?? [],
+            fido2Credentials: excludeFido2Credentials ? [] : login?.fido2Credentials ?? [],
             isPasswordVisible: showPassword,
             isTOTPAvailable: showTOTP,
             password: login?.password ?? "",

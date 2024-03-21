@@ -34,9 +34,11 @@ enum VaultItemRoute: Equatable, Hashable {
 
     /// A route to the clone item screen.
     ///
-    /// - Parameter cipher: A  `CipherView` to be cloned.
+    /// - Parameters:
+    ///   - cipher: A `CipherView` to be cloned.
+    ///   - hasPremium: Whether the user has premium.
     ///
-    case cloneItem(cipher: CipherView)
+    case cloneItem(cipher: CipherView, hasPremium: Bool)
 
     /// A route to dismiss the screen currently presented modally.
     ///

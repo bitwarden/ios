@@ -88,8 +88,8 @@ class VaultItemCoordinator: NSObject, Coordinator, HasStackNavigator { // swiftl
             stackNavigator?.present(alert)
         case let .attachments(cipher):
             showAttachments(for: cipher)
-        case let .cloneItem(cipher):
-            showCloneItem(for: cipher, delegate: context as? CipherItemOperationDelegate)
+        case let .cloneItem(cipher, hasPremium):
+            showCloneItem(for: cipher, delegate: context as? CipherItemOperationDelegate, hasPremium: hasPremium)
         case let .dismiss(onDismiss):
             stackNavigator?.dismiss(animated: true, completion: {
                 onDismiss?.action()
@@ -214,32 +214,35 @@ class VaultItemCoordinator: NSObject, Coordinator, HasStackNavigator { // swiftl
     /// - Parameters:
     ///   - cipherView: A `CipherView` to initialize this view with.
     ///   - delegate: A `CipherItemOperationDelegate` delegate that is notified when specific circumstances
-    ///    in the add/edit/delete item view have occurred.
+    ///     in the add/edit/delete item view have occurred.
+    ///   - hasPremium: Whether the user has premium.
     ///
-    private func showCloneItem(for cipherView: CipherView, delegate: CipherItemOperationDelegate?) {
-        Task {
-            guard let stackNavigator else { return }
-            let hasPremium = await (
-                try? services.vaultRepository.doesActiveAccountHavePremium()
-            ) ?? false
-            let state = CipherItemState(
-                cloneItem: cipherView,
-                hasPremium: hasPremium
+    private func showCloneItem(
+        for cipherView: CipherView,
+        delegate: CipherItemOperationDelegate?,
+        hasPremium: Bool
+    ) {
+        guard let stackNavigator else { return }
+        let state = CipherItemState(
+            cloneItem: cipherView,
+            hasPremium: hasPremium
+        )
+        if stackNavigator.isEmpty {
+            let processor = AddEditItemProcessor(
+                appExtensionDelegate: appExtensionDelegate,
+                coordinator: asAnyCoordinator(),
+                delegate: delegate,
+                services: services,
+                state: state
             )
-            if stackNavigator.isEmpty {
-                let processor = AddEditItemProcessor(
-                    appExtensionDelegate: appExtensionDelegate,
-                    coordinator: asAnyCoordinator(),
-                    delegate: delegate,
-                    services: services,
-                    state: state
-                )
-                let store = Store(processor: processor)
-                let view = AddEditItemView(store: store)
-                stackNavigator.replace(view)
-            } else {
-                presentChildVaultItemCoordinator(route: .cloneItem(cipher: cipherView), context: delegate)
-            }
+            let store = Store(processor: processor)
+            let view = AddEditItemView(store: store)
+            stackNavigator.replace(view)
+        } else {
+            presentChildVaultItemCoordinator(
+                route: .cloneItem(cipher: cipherView, hasPremium: hasPremium),
+                context: delegate
+            )
         }
     }
 

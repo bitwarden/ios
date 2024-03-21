@@ -238,7 +238,7 @@ struct CipherItemState: Equatable {
             isFavoriteOn: cipherView.favorite,
             isMasterPasswordRePromptOn: cipherView.reprompt == .password,
             isPersonalOwnershipDisabled: false,
-            loginState: cipherView.loginItemState(showTOTP: hasPremium),
+            loginState: cipherView.loginItemState(excludeFido2Credentials: true, showTOTP: hasPremium),
             name: "\(cipherView.name) - \(Localizations.clone)",
             notes: cipherView.notes ?? "",
             organizationId: cipherView.organizationId,

@@ -154,6 +154,22 @@ final class ViewItemProcessor: StateProcessor<ViewItemState, ViewItemAction, Vie
 private extension ViewItemProcessor {
     // MARK: Private Methods
 
+    /// Navigates to the clone item view. If the cipher contains FIDO2 credentials, an alert is
+    /// shown confirming that the user wants to proceed cloning the cipher without a FIDO2 credential.
+    ///
+    /// - Parameter cipher: The cipher to clone.
+    ///
+    private func cloneItem(_ cipher: CipherView) async {
+        let hasPremium = await (try? services.vaultRepository.doesActiveAccountHavePremium()) ?? false
+        if cipher.login?.fido2Credentials?.isEmpty == false {
+            coordinator.showAlert(.confirmCloneExcludesFido2Credential {
+                self.coordinator.navigate(to: .cloneItem(cipher: cipher, hasPremium: hasPremium), context: self)
+            })
+        } else {
+            coordinator.navigate(to: .cloneItem(cipher: cipher, hasPremium: hasPremium), context: self)
+        }
+    }
+
     /// Present an alert to confirm downloading large attachments.
     ///
     /// - Parameter attachment: The attachment to download.
@@ -300,7 +316,9 @@ private extension ViewItemProcessor {
         case .attachments:
             coordinator.navigate(to: .attachments(cipher))
         case .clone:
-            coordinator.navigate(to: .cloneItem(cipher: cipher), context: self)
+            Task {
+                await cloneItem(cipher)
+            }
         case .editCollections:
             coordinator.navigate(to: .editCollections(cipher), context: self)
         case .moveToOrganization:

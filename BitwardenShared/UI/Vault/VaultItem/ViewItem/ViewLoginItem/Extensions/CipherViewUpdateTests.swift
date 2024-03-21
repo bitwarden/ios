@@ -25,6 +25,37 @@ final class CipherViewUpdateTests: BitwardenTestCase {
 
     // MARK: Tests
 
+    /// `loginItemState()` doesn't exclude the FIDO2 credential when `excludeFido2Credentials` is false.
+    func test_loginItemState_excludeFido2Credential_false() {
+        let cipherView = CipherView.fixture(
+            login: .fixture(
+                fido2Credentials: [
+                    .fixture(),
+                ]
+            )
+        )
+
+        let loginItemState = cipherView.loginItemState(excludeFido2Credentials: false, showTOTP: false)
+        XCTAssertEqual(
+            loginItemState.fido2Credentials,
+            [.fixture()]
+        )
+    }
+
+    /// `loginItemState()` excludes the FIDO2 credential when `excludeFido2Credentials` is true.
+    func test_loginItemState_excludeFido2Credential_true() {
+        let cipherView = CipherView.fixture(
+            login: .fixture(
+                fido2Credentials: [
+                    .fixture(),
+                ]
+            )
+        )
+
+        let loginItemState = cipherView.loginItemState(excludeFido2Credentials: true, showTOTP: false)
+        XCTAssertTrue(loginItemState.fido2Credentials.isEmpty)
+    }
+
     /// Tests that the update succeeds with new properties.
     func test_update_card_edits_succeeds() {
         cipherItemState.type = .card
