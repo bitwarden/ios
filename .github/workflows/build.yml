@@ -80,7 +80,7 @@ jobs:
       #     mint install xcbeautify
 
       - name: Log In to Azure - CI Subscription
-        uses: Azure/login@e15b166166a8746d1a47596803bd8c1b595455cf # v1.6.0
+        uses: Azure/login@cb79c773a3cfa27f31f25eb3f677781210c9ce3d # v1.6.1
         with:
           creds: ${{ secrets.AZURE_KV_CI_SERVICE_PRINCIPAL }}
 
