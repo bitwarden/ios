@@ -1,7 +1,5 @@
 import SwiftUI
 
-// swiftlint:disable file_length
-
 // MARK: - VaultGroupView
 
 /// A view that displays the items in a single vault group.
@@ -49,9 +47,6 @@ struct VaultGroupView: View {
             .task {
                 await store.perform(.streamShowWebIcons)
             }
-            .task(id: store.state.vaultFilterType) {
-                await store.perform(.streamVaultList)
-            }
             .toast(store.binding(
                 get: \.toast,
                 send: VaultGroupAction.toastShown
@@ -81,9 +76,6 @@ struct VaultGroupView: View {
         GeometryReader { reader in
             ScrollView {
                 VStack(spacing: 24) {
-                    vaultFilterRow
-                        .padding(.top, 16)
-
                     Spacer()
 
                     Text(store.state.noItemsString)
@@ -182,32 +174,6 @@ struct VaultGroupView: View {
         )
     }
 
-    /// Displays the vault filter row if the user is a member of any.
-    ///
-    private var vaultFilterRow: some View {
-        SearchVaultFilterRowView(
-            hasDivider: false,
-            accessibilityID: store.state.filterAccessibilityID,
-            store: store.child(
-                state: { state in
-                    SearchVaultFilterRowState(
-                        organizations: state.organizations,
-                        searchVaultFilterType: state.vaultFilterType,
-                        isPersonalOwnershipDisabled: state.isPersonalOwnershipDisabled
-                    )
-                },
-                mapAction: { action in
-                    switch action {
-                    case let .searchVaultFilterChanged(type):
-                        return .vaultFilterChanged(type)
-                    }
-                },
-                mapEffect: nil
-            )
-        )
-        .clipShape(RoundedRectangle(cornerRadius: 10))
-    }
-
     // MARK: Private Methods
 
     /// A view that displays a list of the sections within this vault group.
@@ -216,8 +182,6 @@ struct VaultGroupView: View {
     private func groupView(with sections: [VaultListSection]) -> some View {
         ScrollView {
             VStack(spacing: 20.0) {
-                vaultFilterRow
-
                 ForEach(sections) { section in
                     VStack(alignment: .leading, spacing: 7) {
                         HStack(alignment: .firstTextBaseline) {
