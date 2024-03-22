@@ -744,47 +744,105 @@ class VaultGroupProcessorTests: BitwardenTestCase { // swiftlint:disable:this ty
         XCTAssertEqual(pasteboardService.copiedString, "username")
     }
 
+    /// `receive(_:)` with `.morePressed` and press `copyTotp` presents master password re-prompt
+    /// alert and copies the TOTP code when the master password is confirmed.
+    func test_receive_morePressed_copyTotp_passwordReprompt() async throws {
+        vaultRepository.refreshTOTPCodeResult = .success(
+            LoginTOTPState(
+                authKeyModel: TOTPKeyModel(authenticatorKey: .base32Key)!,
+                codeModel: TOTPCodeModel(code: "123321", codeGenerationDate: Date(), period: 30)
+            )
+        )
+
+        let item = try XCTUnwrap(
+            VaultListItem(
+                cipherView: .fixture(
+                    login: .fixture(totp: "totpKey"),
+                    reprompt: .password
+                )
+            )
+        )
+
+        subject.receive(.morePressed(item))
+
+        authRepository.validatePasswordResult = .success(true)
+
+        let optionsAlert = try XCTUnwrap(coordinator.alertShown.last)
+        try await optionsAlert.tapAction(title: Localizations.copyTotp)
+
+        let repromptAlert = try XCTUnwrap(coordinator.alertShown.last)
+        XCTAssertEqual(repromptAlert, .masterPasswordPrompt(completion: { _ in }))
+        try await repromptAlert.tapAction(title: Localizations.submit)
+
+        XCTAssertEqual(pasteboardService.copiedString, "123321")
+        XCTAssertEqual(
+            subject.state.toast?.text,
+            Localizations.valueHasBeenCopied(Localizations.verificationCodeTotp)
+        )
+    }
+
+    /// `receive(_:)` with `.morePressed` and press `copyTotp` presents master password re-prompt
+    /// alert and displays an alert if the entered master password doesn't match.
+    func test_receive_morePressed_copyTotp_passwordReprompt_invalidPassword() async throws {
+        vaultRepository.refreshTOTPCodeResult = .success(
+            LoginTOTPState(
+                authKeyModel: TOTPKeyModel(authenticatorKey: .base32Key)!,
+                codeModel: TOTPCodeModel(code: "123321", codeGenerationDate: Date(), period: 30)
+            )
+        )
+
+        let item = try XCTUnwrap(
+            VaultListItem(
+                cipherView: .fixture(
+                    login: .fixture(totp: "totpKey"),
+                    reprompt: .password
+                )
+            )
+        )
+
+        subject.receive(.morePressed(item))
+
+        authRepository.validatePasswordResult = .success(false)
+
+        let optionsAlert = try XCTUnwrap(coordinator.alertShown.last)
+        try await optionsAlert.tapAction(title: Localizations.copyTotp)
+
+        let repromptAlert = try XCTUnwrap(coordinator.alertShown.last)
+        XCTAssertEqual(repromptAlert, .masterPasswordPrompt(completion: { _ in }))
+        try await repromptAlert.tapAction(title: Localizations.submit)
+
+        let invalidPasswordAlert = try XCTUnwrap(coordinator.alertShown.last)
+        XCTAssertEqual(invalidPasswordAlert, .defaultAlert(title: Localizations.invalidMasterPassword))
+    }
+
     /// `receive(_:)` with `.morePressed` shows the appropriate more options alert for a login cipher.
-    func test_receive_morePressed_login() async throws {
-        var item = try XCTUnwrap(VaultListItem(cipherView: .fixture(type: .login)))
+    func test_receive_morePressed_login_full() async throws {
+        vaultRepository.refreshTOTPCodeResult = .success(
+            LoginTOTPState(
+                authKeyModel: TOTPKeyModel(authenticatorKey: .base32Key)!,
+                codeModel: TOTPCodeModel(code: "123321", codeGenerationDate: Date(), period: 30)
+            )
+        )
 
-        // If the login item has no username, password, or url, only the view and add buttons should display.
-        vaultRepository.fetchCipherResult = .success(.loginFixture())
-        subject.receive(.morePressed(item))
-        var alert = try XCTUnwrap(coordinator.alertShown.last)
-        XCTAssertEqual(alert.title, "Bitwarden")
-        XCTAssertEqual(alert.alertActions.count, 3)
-        XCTAssertEqual(alert.alertActions[0].title, Localizations.view)
-        XCTAssertEqual(alert.alertActions[1].title, Localizations.edit)
-        XCTAssertEqual(alert.alertActions[2].title, Localizations.cancel)
-
-        // If the item is in the trash, the edit option should not display.
-        subject.state.group = .trash
-        subject.receive(.morePressed(item))
-        alert = try XCTUnwrap(coordinator.alertShown.last)
-        XCTAssertEqual(alert.title, "Bitwarden")
-        XCTAssertEqual(alert.alertActions.count, 2)
-        XCTAssertEqual(alert.alertActions[0].title, Localizations.view)
-        XCTAssertEqual(alert.alertActions[1].title, Localizations.cancel)
-
-        // A login with data should show the copy and launch actions.
         let loginWithData = CipherView.loginFixture(login: .fixture(
             password: "password",
             uris: [.init(uri: URL.example.relativeString, match: nil)],
-            username: "username"
+            username: "username",
+            totp: "totpKey"
         ))
-        item = try XCTUnwrap(VaultListItem(cipherView: loginWithData))
+        let item = try XCTUnwrap(VaultListItem(cipherView: loginWithData))
         subject.state.group = .login
         subject.receive(.morePressed(item))
-        alert = try XCTUnwrap(coordinator.alertShown.last)
+        let alert = try XCTUnwrap(coordinator.alertShown.last)
         XCTAssertEqual(alert.title, "Bitwarden")
-        XCTAssertEqual(alert.alertActions.count, 6)
+        XCTAssertEqual(alert.alertActions.count, 7)
         XCTAssertEqual(alert.alertActions[0].title, Localizations.view)
         XCTAssertEqual(alert.alertActions[1].title, Localizations.edit)
         XCTAssertEqual(alert.alertActions[2].title, Localizations.copyUsername)
         XCTAssertEqual(alert.alertActions[3].title, Localizations.copyPassword)
-        XCTAssertEqual(alert.alertActions[4].title, Localizations.launch)
-        XCTAssertEqual(alert.alertActions[5].title, Localizations.cancel)
+        XCTAssertEqual(alert.alertActions[4].title, Localizations.copyTotp)
+        XCTAssertEqual(alert.alertActions[5].title, Localizations.launch)
+        XCTAssertEqual(alert.alertActions[6].title, Localizations.cancel)
 
         // Test the functionality of the buttons.
 
@@ -808,10 +866,39 @@ class VaultGroupProcessorTests: BitwardenTestCase { // swiftlint:disable:this ty
         await copyPasswordAction.handler?(copyPasswordAction, [])
         XCTAssertEqual(pasteboardService.copiedString, "password")
 
+        // Copy TOTP copies the user's TOTP code.
+        let copyTotpAction = try XCTUnwrap(alert.alertActions[4])
+        await copyTotpAction.handler?(copyPasswordAction, [])
+        XCTAssertEqual(pasteboardService.copiedString, "123321")
+
         // Launch action set's the url to open.
-        let launchAction = try XCTUnwrap(alert.alertActions[4])
+        let launchAction = try XCTUnwrap(alert.alertActions[5])
         await launchAction.handler?(launchAction, [])
         XCTAssertEqual(subject.state.url, .example)
+    }
+
+    /// `receive(_:)` with `.morePressed` shows the appropriate more options alert for a login cipher.
+    func test_receive_morePressed_login_minimal() async throws {
+        let item = try XCTUnwrap(VaultListItem(cipherView: .fixture(type: .login)))
+
+        // If the login item has no username, password, or url, only the view and add buttons should display.
+        vaultRepository.fetchCipherResult = .success(.loginFixture())
+        subject.receive(.morePressed(item))
+        var alert = try XCTUnwrap(coordinator.alertShown.last)
+        XCTAssertEqual(alert.title, "Bitwarden")
+        XCTAssertEqual(alert.alertActions.count, 3)
+        XCTAssertEqual(alert.alertActions[0].title, Localizations.view)
+        XCTAssertEqual(alert.alertActions[1].title, Localizations.edit)
+        XCTAssertEqual(alert.alertActions[2].title, Localizations.cancel)
+
+        // If the item is in the trash, the edit option should not display.
+        subject.state.group = .trash
+        subject.receive(.morePressed(item))
+        alert = try XCTUnwrap(coordinator.alertShown.last)
+        XCTAssertEqual(alert.title, "Bitwarden")
+        XCTAssertEqual(alert.alertActions.count, 2)
+        XCTAssertEqual(alert.alertActions[0].title, Localizations.view)
+        XCTAssertEqual(alert.alertActions[1].title, Localizations.cancel)
     }
 
     /// `receive(_:)` with `.morePressed` shows the appropriate more options alert for an identity cipher.
