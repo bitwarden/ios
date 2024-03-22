@@ -159,8 +159,7 @@ struct GeneratorView: View {
                 store.send(.copyGeneratedValue)
             } label: {
                 Asset.Images.copy.swiftUIImage
-                    .resizable()
-                    .frame(width: 16, height: 16)
+                    .imageStyle(.accessoryIcon)
             }
             .buttonStyle(.accessory)
             .accessibilityIdentifier("CopyValueButton")
@@ -170,8 +169,7 @@ struct GeneratorView: View {
                 store.send(.refreshGeneratedValue)
             } label: {
                 Asset.Images.restart2.swiftUIImage
-                    .resizable()
-                    .frame(width: 16, height: 16)
+                    .imageStyle(.accessoryIcon)
             }
             .buttonStyle(.accessory)
             .accessibilityIdentifier("RegenerateValueButton")

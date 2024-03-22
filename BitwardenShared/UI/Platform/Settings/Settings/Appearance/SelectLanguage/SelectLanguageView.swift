@@ -36,8 +36,7 @@ struct SelectLanguageView: View {
     private func checkmarkView(_ languageOption: LanguageOption) -> some View {
         if languageOption == store.state.currentLanguage {
             Image(asset: Asset.Images.check)
-                .resizable()
-                .frame(width: 22, height: 22)
+                .imageStyle(.rowIcon)
         }
     }
 
