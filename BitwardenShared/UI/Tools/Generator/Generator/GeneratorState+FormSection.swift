@@ -129,7 +129,8 @@ extension GeneratorState {
                 keyPath: keyPath,
                 options: UsernameEmailType.allCases,
                 selection: self[keyPath: keyPath],
-                title: Localizations.emailType
+                title: Localizations.emailType,
+                accessibilityIdentifier: "EmailTypePicker"
             )
         ))
     }
@@ -155,7 +156,8 @@ extension GeneratorState {
                 keyPath: \.passwordState.passwordGeneratorType,
                 options: PasswordGeneratorType.allCases,
                 selection: passwordState.passwordGeneratorType,
-                title: Localizations.passwordType
+                title: Localizations.passwordType,
+                accessibilityIdentifier: "PasswordTypePicker"
             )
         ))
     }

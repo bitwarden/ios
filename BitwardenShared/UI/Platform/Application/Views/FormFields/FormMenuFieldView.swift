@@ -22,6 +22,9 @@ struct FormMenuField<State, T: Menuable>: Equatable, Identifiable {
     /// The title of the field.
     let title: String
 
+    /// The accessibility identifier to apply to the field.
+    let accessibilityIdentifier: String?
+
     // MARK: Identifiable
 
     var id: String {
@@ -43,13 +46,15 @@ struct FormMenuField<State, T: Menuable>: Equatable, Identifiable {
         keyPath: WritableKeyPath<State, T>,
         options: [T],
         selection: T,
-        title: String
+        title: String,
+        accessibilityIdentifier: String?
     ) {
         self.footer = footer
         self.keyPath = keyPath
         self.options = options
         self.selection = selection
         self.title = title
+        self.accessibilityIdentifier = accessibilityIdentifier
     }
 }
 
@@ -75,6 +80,7 @@ struct FormMenuFieldView<State, T: Menuable, TrailingContent: View>: View {
         BitwardenMenuField(
             title: field.title,
             footer: field.footer,
+            accessibilityIdentifier: field.accessibilityIdentifier,
             options: field.options,
             selection: Binding(get: { field.selection }, set: action),
             trailingContent: { trailingContent }

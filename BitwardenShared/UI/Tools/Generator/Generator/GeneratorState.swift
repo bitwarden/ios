@@ -110,7 +110,8 @@ struct GeneratorState: Equatable {
                     keyPath: \.generatorType,
                     options: GeneratorType.allCases,
                     selection: generatorType,
-                    title: Localizations.whatWouldYouLikeToGenerate
+                    title: Localizations.whatWouldYouLikeToGenerate,
+                    accessibilityIdentifier: "GeneratorTypePicker"
                 ))),
             ]
         } else {
@@ -288,7 +289,8 @@ extension GeneratorState {
                 keyPath: \.usernameState.usernameGeneratorType,
                 options: UsernameGeneratorType.allCases,
                 selection: usernameState.usernameGeneratorType,
-                title: Localizations.usernameType
+                title: Localizations.usernameType,
+                accessibilityIdentifier: "UsernameTypePicker"
             ))),
         ]
 
@@ -316,7 +318,8 @@ extension GeneratorState {
                     keyPath: \.usernameState.forwardedEmailService,
                     options: ForwardedEmailServiceType.allCases,
                     selection: usernameState.forwardedEmailService,
-                    title: Localizations.service
+                    title: Localizations.service,
+                    accessibilityIdentifier: "ServiceTypePicker"
                 )
             )))
 
