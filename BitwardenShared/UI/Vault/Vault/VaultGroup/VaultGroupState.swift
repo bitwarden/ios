@@ -31,6 +31,8 @@ struct VaultGroupState: Equatable {
         switch group {
         case .collection:
             return Localizations.noItemsCollection
+        case .folder:
+            return Localizations.noItemsFolder
         case .trash:
             return Localizations.noItemsTrash
         default:
