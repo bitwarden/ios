@@ -52,17 +52,17 @@ final class AboutProcessor: StateProcessor<AboutState, AboutAction, Void> {
         case .helpCenterTapped:
             state.url = ExternalLinksConstants.helpAndFeedback
         case .learnAboutOrganizationsTapped:
-            coordinator.navigate(to: .alert(.learnAboutOrganizationsAlert {
+            coordinator.showAlert(.learnAboutOrganizationsAlert {
                 self.state.url = ExternalLinksConstants.aboutOrganizations
-            }))
+            })
         case .privacyPolicyTapped:
-            coordinator.navigate(to: .alert(.privacyPolicyAlert {
+            coordinator.showAlert(.privacyPolicyAlert {
                 self.state.url = ExternalLinksConstants.privacyPolicy
-            }))
+            })
         case .rateTheAppTapped:
-            coordinator.navigate(to: .alert(.appStoreAlert {
+            coordinator.showAlert(.appStoreAlert {
                 self.state.appReviewUrl = ExternalLinksConstants.appReview
-            }))
+            })
         case let .toastShown(newValue):
             state.toast = newValue
         case let .toggleSubmitCrashLogs(isOn):
@@ -71,9 +71,9 @@ final class AboutProcessor: StateProcessor<AboutState, AboutAction, Void> {
         case .versionTapped:
             handleVersionTapped()
         case .webVaultTapped:
-            coordinator.navigate(to: .alert(.webVaultAlert {
+            coordinator.showAlert(.webVaultAlert {
                 self.state.url = self.services.environmentService.webVaultURL
-            }))
+            })
         }
     }
 

@@ -83,7 +83,7 @@ class AlertSettingsTests: BitwardenTestCase {
     /// `displayFingerprintPhraseAlert(encrypted:action:)` constructs an `Alert`
     /// with the correct title, message, and Cancel and Learn More buttons.
     func test_displayFingerprintPhraseAlert() {
-        let subject = Alert.displayFingerprintPhraseAlert({}, phrase: "phrase")
+        let subject = Alert.displayFingerprintPhraseAlert(phrase: "phrase") {}
 
         XCTAssertEqual(subject.preferredStyle, .alert)
         XCTAssertEqual(subject.title, Localizations.fingerprintPhrase)

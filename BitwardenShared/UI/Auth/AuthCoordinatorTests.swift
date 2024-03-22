@@ -64,24 +64,6 @@ class AuthCoordinatorTests: BitwardenTestCase { // swiftlint:disable:this type_b
 
     // MARK: Tests
 
-    /// `navigate(to:)` with `.alert` presents the provided alert on the stack navigator.
-    func test_navigate_alert() {
-        let alert = Alert(
-            title: "title",
-            message: "message",
-            preferredStyle: .alert,
-            alertActions: [
-                AlertAction(
-                    title: "alert title",
-                    style: .cancel
-                ),
-            ]
-        )
-
-        subject.navigate(to: .alert(alert))
-        XCTAssertEqual(stackNavigator.alerts.last, alert)
-    }
-
     /// `navigate(to:)` with `.complete` notifies the delegate that auth has completed.
     func test_navigate_complete() {
         subject.navigate(to: .complete)

@@ -16,12 +16,6 @@ public enum SettingsRoute: Equatable, Hashable {
     ///
     case addEditFolder(folder: FolderView?)
 
-    /// A route to display the specified alert.
-    ///
-    /// - Parameter alert: The alert to display.
-    ///
-    case alert(_ alert: Alert)
-
     /// A route to the appearance screen.
     case appearance
 

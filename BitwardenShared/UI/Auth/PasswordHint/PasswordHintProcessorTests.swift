@@ -50,7 +50,7 @@ class PasswordHintProcessorTests: BitwardenTestCase {
         coordinator.loadingOverlaysShown = [LoadingOverlayState(title: Localizations.submitting)]
         XCTAssertFalse(coordinator.isLoadingOverlayShowing)
 
-        let alert = try coordinator.unwrapLastRouteAsAlert()
+        let alert = try XCTUnwrap(coordinator.alertShown.last)
         XCTAssertEqual(alert.title, "")
         XCTAssertEqual(alert.message, Localizations.passwordHintAlert)
         XCTAssertEqual(alert.alertActions.count, 1)

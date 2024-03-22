@@ -84,8 +84,6 @@ class VaultItemCoordinator: NSObject, Coordinator, HasStackNavigator { // swiftl
                 newCipherOptions: newCipherOptions,
                 delegate: context as? CipherItemOperationDelegate
             )
-        case let .alert(alert):
-            stackNavigator?.present(alert)
         case let .attachments(cipher):
             showAttachments(for: cipher)
         case let .cloneItem(cipher, hasPremium):

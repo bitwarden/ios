@@ -96,12 +96,12 @@ extension Alert {
     /// Displays the account fingerprint phrase alert.
     ///
     /// - Parameters:
-    ///   - action: The action to perform when the user selects `Learn more`.
     ///   - phrase: The user's fingerprint phrase.
+    ///   - action: The action to perform when the user selects `Learn more`.
     ///
     /// - Returns: An alert that displays the user's fingerprint phrase and prompts them to learn more about it.
     ///
-    static func displayFingerprintPhraseAlert(_ action: @escaping () async -> Void, phrase: String) -> Alert {
+    static func displayFingerprintPhraseAlert(phrase: String, action: @escaping () async -> Void) -> Alert {
         Alert(
             title: Localizations.fingerprintPhrase,
             message: "\(Localizations.yourAccountsFingerprint):\n\n\(phrase)",

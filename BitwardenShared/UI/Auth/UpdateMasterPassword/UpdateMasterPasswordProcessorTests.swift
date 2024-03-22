@@ -124,7 +124,7 @@ class UpdateMasterPasswordProcessorTests: BitwardenTestCase {
     func test_perform_logoutPressed() async throws {
         await subject.perform(.logoutPressed)
 
-        let alert = try coordinator.unwrapLastRouteAsAlert()
+        let alert = try XCTUnwrap(coordinator.alertShown.last)
         XCTAssertEqual(alert.title, Localizations.logOut)
         XCTAssertEqual(alert.message, Localizations.logoutConfirmation)
         XCTAssertEqual(alert.preferredStyle, .alert)

@@ -21,11 +21,6 @@ public enum VaultRoute: Equatable, Hashable {
         newCipherOptions: NewCipherOptions? = nil
     )
 
-    /// A route to display the specified alert.
-    ///
-    /// - Parameter alert: The alert to display.
-    case alert(_ alert: Alert)
-
     /// A route to the autofill list screen.
     case autofillList
 

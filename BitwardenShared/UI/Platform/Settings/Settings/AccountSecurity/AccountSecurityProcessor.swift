@@ -119,7 +119,7 @@ final class AccountSecurityProcessor: StateProcessor<
             state.sessionTimeoutValue = try await services.stateService.getVaultTimeout()
             state.sessionTimeoutAction = try await services.stateService.getTimeoutAction()
         } catch {
-            coordinator.navigate(to: .alert(.defaultAlert(title: Localizations.anErrorHasOccurred)))
+            coordinator.showAlert(.defaultAlert(title: Localizations.anErrorHasOccurred))
             services.errorReporter.log(error: error)
         }
     }
@@ -174,15 +174,15 @@ final class AccountSecurityProcessor: StateProcessor<
     private func setTimeoutAction(_ action: SessionTimeoutAction) {
         guard action != state.sessionTimeoutAction else { return }
         if action == .logout {
-            coordinator.navigate(to: .alert(.logoutOnTimeoutAlert {
+            coordinator.showAlert(.logoutOnTimeoutAlert {
                 do {
                     try await self.services.stateService.setTimeoutAction(action: action)
                     self.state.sessionTimeoutAction = action
                 } catch {
-                    self.coordinator.navigate(to: .alert(.defaultAlert(title: Localizations.anErrorHasOccurred)))
+                    self.coordinator.showAlert(.defaultAlert(title: Localizations.anErrorHasOccurred))
                     self.services.errorReporter.log(error: error)
                 }
-            }))
+            })
         } else {
             Task {
                 try await services.stateService.setTimeoutAction(action: action)
@@ -197,7 +197,7 @@ final class AccountSecurityProcessor: StateProcessor<
     ///
     private func setVaultTimeout(value: SessionTimeoutValue) {
         let errorHandler: (Error) -> Void = { error in
-            self.coordinator.navigate(to: .alert(.defaultAlert(title: Localizations.anErrorHasOccurred)))
+            self.coordinator.showAlert(.defaultAlert(title: Localizations.anErrorHasOccurred))
             self.services.errorReporter.log(error: error)
         }
         Task {
@@ -209,7 +209,7 @@ final class AccountSecurityProcessor: StateProcessor<
                         try await services.authRepository.setVaultTimeout(
                             value: SessionTimeoutValue(rawValue: state.policyTimeoutValue)
                         )
-                        coordinator.navigate(to: .alert(.timeoutExceedsPolicyLengthAlert()))
+                        coordinator.showAlert(.timeoutExceedsPolicyLengthAlert())
                         return
                     }
                 }
@@ -223,7 +223,7 @@ final class AccountSecurityProcessor: StateProcessor<
                     }
                 }
                 if value == .never {
-                    coordinator.navigate(to: .alert(.neverLockAlert(action: setTimeoutAction)))
+                    coordinator.showAlert(.neverLockAlert(action: setTimeoutAction))
                 } else {
                     await setTimeoutAction()
                 }
@@ -239,33 +239,30 @@ final class AccountSecurityProcessor: StateProcessor<
         do {
             let phrase = try await services.authRepository.getFingerprintPhrase()
 
-            coordinator.navigate(to: .alert(
-                .displayFingerprintPhraseAlert({
-                    self.state.fingerprintPhraseUrl = ExternalLinksConstants.fingerprintPhrase
-                }, phrase: phrase)
-            ))
+            coordinator.showAlert(.displayFingerprintPhraseAlert(phrase: phrase) {
+                self.state.fingerprintPhraseUrl = ExternalLinksConstants.fingerprintPhrase
+            })
         } catch {
-            coordinator.navigate(to: .alert(.defaultAlert(title: Localizations.anErrorHasOccurred)))
+            coordinator.showAlert(.defaultAlert(title: Localizations.anErrorHasOccurred))
         }
     }
 
     /// Shows an alert asking the user to confirm that they want to logout.
     private func showLogoutConfirmation() {
-        let alert = Alert.logoutConfirmation {
+        coordinator.showAlert(.logoutConfirmation {
             await self.coordinator.handleEvent(
                 .authAction(
                     .logout(userId: nil, userInitiated: true)
                 )
             )
-        }
-        coordinator.navigate(to: .alert(alert))
+        })
     }
 
     /// Shows the two step login alert. If `Yes` is selected, the user will be navigated to the web app.
     private func showTwoStepLoginAlert() {
-        coordinator.navigate(to: .alert(.twoStepLoginAlert {
+        coordinator.showAlert(.twoStepLoginAlert {
             self.state.twoStepLoginUrl = self.services.twoStepLoginService.twoStepLoginUrl()
-        }))
+        })
     }
 
     /// Sets the user's biometric auth
@@ -305,8 +302,8 @@ final class AccountSecurityProcessor: StateProcessor<
     ///
     private func toggleUnlockWithPIN(_ isOn: Bool) {
         if isOn {
-            coordinator.navigate(to: .alert(.enterPINCode(completion: { pin in
-                self.coordinator.navigate(to: .alert(.unlockWithPINCodeAlert { requirePassword in
+            coordinator.showAlert(.enterPINCode(completion: { pin in
+                self.coordinator.showAlert(.unlockWithPINCodeAlert { requirePassword in
                     do {
                         try await self.services.authRepository.setPins(
                             pin,
@@ -314,19 +311,19 @@ final class AccountSecurityProcessor: StateProcessor<
                         )
                         self.state.isUnlockWithPINCodeOn = isOn
                     } catch {
-                        self.coordinator.navigate(to: .alert(.defaultAlert(
+                        self.coordinator.showAlert(.defaultAlert(
                             title: Localizations.anErrorHasOccurred
-                        )))
+                        ))
                     }
-                }))
-            })))
+                })
+            }))
         } else {
             Task {
                 do {
                     try await self.services.authRepository.clearPins()
                     state.isUnlockWithPINCodeOn = isOn
                 } catch {
-                    self.coordinator.navigate(to: .alert(.defaultAlert(title: Localizations.anErrorHasOccurred)))
+                    self.coordinator.showAlert(.defaultAlert(title: Localizations.anErrorHasOccurred))
                 }
             }
         }
