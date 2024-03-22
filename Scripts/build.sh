@@ -18,16 +18,10 @@ if [ $# -ne 5 ]; then
 fi
 
 PROJECT_DIR=$1
-EXPORT_OPTIONS_PATH=$2
-LOCAL_XCCONFIG_PATH=$3
+LOCAL_XCCONFIG_PATH=$2
+EXPORT_OPTIONS_PATH=$3
 VERSION_NUMBER=$4
 BUILD_NUMBER=$5
-
-echo "Export options:"
-cat "${EXPORT_OPTIONS_PATH}"
-
-echo "Local xcconfig:"
-cat "${LOCAL_XCCONFIG_PATH}"
 
 BUILD_DIR="build"
 
@@ -41,9 +35,6 @@ echo ""
 mkdir -p "${BUILD_DIR}"
 
 cp "${LOCAL_XCCONFIG_PATH}" "Configs/Local.xcconfig"
-
-echo "Local xcconfig 2:"
-cat "Configs/Local.xcconfig"
 
 echo "🔨 Performing Xcode archive"
 xcrun xcodebuild archive \
