@@ -17,12 +17,6 @@ enum VaultListAction: Equatable {
     /// An item in the vault was pressed.
     case itemPressed(item: VaultListItem)
 
-    /// The more button on an item in the vault group was tapped.
-    ///
-    /// - Parameter item: The item associated with the more button that was tapped.
-    ///
-    case morePressed(_ item: VaultListItem)
-
     /// A forwarded profile switcher action
     case profileSwitcher(ProfileSwitcherAction)
 

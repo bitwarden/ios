@@ -59,6 +59,8 @@ final class VaultListProcessor: StateProcessor<
             await requestNotificationPermissions()
             await checkPendingLoginRequests()
             await checkPersonalOwnershipPolicy()
+        case let .morePressed(item):
+            await showMoreOptionsAlert(for: item)
         case let .profileSwitcher(profileEffect):
             await handleProfileSwitcherEffect(profileEffect)
         case .refreshAccountProfiles:
@@ -98,8 +100,6 @@ final class VaultListProcessor: StateProcessor<
             }
         case let .profileSwitcher(profileAction):
             handleProfileSwitcherAction(profileAction)
-        case let .morePressed(item):
-            showMoreOptionsAlert(for: item)
         case let .searchStateChanged(isSearching: isSearching):
             guard isSearching else {
                 state.searchText = ""
@@ -282,12 +282,15 @@ extension VaultListProcessor {
     ///
     /// - Parameter item: The selected item to show the options for.
     ///
-    private func showMoreOptionsAlert(for item: VaultListItem) {
+    private func showMoreOptionsAlert(for item: VaultListItem) async {
         // Only ciphers have more options.
         guard case let .cipher(cipherView) = item.itemType else { return }
 
+        let hasPremium = await (try? services.vaultRepository.doesActiveAccountHavePremium()) ?? false
+
         coordinator.showAlert(.moreOptions(
             cipherView: cipherView,
+            hasPremium: hasPremium,
             id: item.id,
             showEdit: true,
             action: handleMoreOptionsAction

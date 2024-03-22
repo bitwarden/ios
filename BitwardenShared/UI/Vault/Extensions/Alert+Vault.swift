@@ -95,6 +95,7 @@ extension Alert {
     ///
     /// - Parameters:
     ///   - cipherView: The cipher view to show.
+    ///   - hasPremium: Whether the user has a premium account.
     ///   - id: The id of the item.
     ///   - showEdit: Whether to show the edit option (should be `false` for items in the trash).
     ///   - action: The action to perform after selecting an option.
@@ -103,6 +104,7 @@ extension Alert {
     @MainActor
     static func moreOptions( // swiftlint:disable:this function_body_length
         cipherView: CipherView,
+        hasPremium: Bool,
         id: String,
         showEdit: Bool,
         action: @escaping (_ action: MoreOptionsAction) async -> Void
@@ -160,7 +162,7 @@ extension Alert {
                     ))
                 })
             }
-            if let totp = cipherView.login?.totp, let totpKey = TOTPKeyModel(authenticatorKey: totp) {
+            if hasPremium, let totp = cipherView.login?.totp, let totpKey = TOTPKeyModel(authenticatorKey: totp) {
                 alertActions.append(AlertAction(title: Localizations.copyTotp, style: .default) { _, _ in
                     await action(.copyTotp(
                         totpKey: totpKey,

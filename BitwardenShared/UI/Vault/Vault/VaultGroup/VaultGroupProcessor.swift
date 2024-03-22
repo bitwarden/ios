@@ -83,6 +83,8 @@ final class VaultGroupProcessor: StateProcessor<VaultGroupState, VaultGroupActio
         case .appeared:
             await checkPersonalOwnershipPolicy()
             await streamVaultList()
+        case let .morePressed(item):
+            await showMoreOptionsAlert(for: item)
         case .refresh:
             await refreshVaultGroup()
         case let .search(text):
@@ -116,8 +118,6 @@ final class VaultGroupProcessor: StateProcessor<VaultGroupState, VaultGroupActio
             case let .totp(_, model):
                 coordinator.navigate(to: .viewItem(id: model.id))
             }
-        case let .morePressed(item):
-            showMoreOptionsAlert(for: item)
         case let .searchStateChanged(isSearching):
             if !isSearching {
                 state.searchText = ""
@@ -230,12 +230,15 @@ final class VaultGroupProcessor: StateProcessor<VaultGroupState, VaultGroupActio
     ///
     /// - Parameter item: The selected item to show the options for.
     ///
-    private func showMoreOptionsAlert(for item: VaultListItem) {
+    private func showMoreOptionsAlert(for item: VaultListItem) async {
         // Only ciphers have more options.
         guard case let .cipher(cipherView) = item.itemType else { return }
 
+        let hasPremium = await (try? services.vaultRepository.doesActiveAccountHavePremium()) ?? false
+
         coordinator.showAlert(.moreOptions(
             cipherView: cipherView,
+            hasPremium: hasPremium,
             id: item.id,
             showEdit: state.group != .trash,
             action: handleMoreOptionsAction
