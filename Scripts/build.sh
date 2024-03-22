@@ -25,39 +25,13 @@ BUILD_DIR="build"
 
 ARCHIVE_PATH="${BUILD_DIR}/Bitwarden.xcarchive"
 EXPORT_PATH="${BUILD_DIR}/Bitwarden"
-EXPORT_OPTIONS_PATH="${BUILD_DIR}/ExportOptions.plist"
+EXPORT_OPTIONS_PATH="${PROJECT_DIR}/.github/resources/export-options-app-store.plist"
 
 pushd "${PROJECT_DIR}"
 echo "Building in $(pwd)"
 echo ""
 
 mkdir -p "${BUILD_DIR}"
-
-cat << EOF > "${EXPORT_OPTIONS_PATH}"
-<?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
-<plist version="1.0">
-<dict>
-    <key>method</key>
-    <string>app-store</string>
-    <key>provisioningProfiles</key>
-    <dict>
-        <key>com.8bit.bitwarden</key>
-        <string>Dist: Bitwarden</string>
-        <key>com.8bit.bitwarden.find-login-action-extension</key>
-        <string>Dist: Extension</string>
-        <key>com.8bit.bitwarden.autofill</key>
-        <string>Dist: Autofill</string>
-        <key>com.8bit.bitwarden.share-extension</key>
-        <string>Dist: Share Extension</string>
-        <key>com.8bit.bitwarden.watchkitapp</key>
-        <string>Dist: Bitwarden Watch App</string>
-    </dict>
-    <key>manageAppVersionAndBuildNumber</key>
-    <false/>
-</dict>
-</plist>
-EOF
 
 cat << EOF > Configs/Local.xcconfig
 CODE_SIGN_STYLE = Manual
