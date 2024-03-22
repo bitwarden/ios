@@ -23,7 +23,6 @@ class MockAppSettingsStore: AppSettingsStore {
     var clearClipboardValues = [String: ClearClipboardValue]()
     var connectToWatchByUserId = [String: Bool]()
     var defaultUriMatchTypeByUserId = [String: UriMatchType]()
-    var timeProvider = MockTimeProvider(.currentTime)
     var disableAutoTotpCopyByUserId = [String: Bool]()
     var encryptedPrivateKeys = [String: String]()
     var encryptedUserKeys = [String: String]()
@@ -152,8 +151,8 @@ class MockAppSettingsStore: AppSettingsStore {
         encryptedUserKeys[userId] = key
     }
 
-    func setLastActiveTime(_: Date?, userId: String) {
-        lastActiveTime[userId] = timeProvider.presentTime
+    func setLastActiveTime(_ date: Date?, userId: String) {
+        lastActiveTime[userId] = date
     }
 
     func setLastSyncTime(_ date: Date?, userId: String) {
