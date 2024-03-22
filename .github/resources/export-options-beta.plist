@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+    <key>method</key>
+    <string>app-store</string>
+    <key>provisioningProfiles</key>
+    <dict>
+        <key>com.8bit.bitwarden.beta</key>
+        <string>Dist: Beta Bitwarden</string>
+        <key>com.8bit.bitwarden.beta.find-login-action-extension</key>
+        <string>Dist: Beta Extension</string>
+        <key>com.8bit.bitwarden.beta.autofill</key>
+        <string>Dist: Beta Autofill</string>
+        <key>com.8bit.bitwarden.beta.share-extension</key>
+        <string>Dist: Beta Share Extension</string>
+        <key>com.8bit.bitwarden.beta.watchkitapp</key>
+        <string>Dist: Beta Bitwarden Watch App</string>
+    </dict>
+    <key>manageAppVersionAndBuildNumber</key>
+    <false/>
+</dict>
+</plist>

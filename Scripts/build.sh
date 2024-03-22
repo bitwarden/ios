@@ -11,17 +11,18 @@ set -euo pipefail
 bold=$(tput -T ansi bold)
 normal=$(tput -T ansi sgr0)
 
-if [ $# -ne 5 ]; then
-  echo >&2 "Called without necessary arguments: ${bold}Project_Dir${normal} ${bold}Local_xcconfig_path${normal} ${bold}Export_options_path${normal} ${bold}Version_Number${normal} {$bold}Build_Number${normal}."
-  echo >&2 "For example: \`Scripts/build.sh . resources/Local.xcconfig resources/export_options.plist 2024.1.1 100\`."
+if [ $# -ne 6 ]; then
+  echo >&2 "Called without necessary arguments: ${bold}Project_Dir${normal} ${bold}Local_xcconfig_path${normal} ${bold}Export_options_path${normal} ${bold}Configuration${normal} ${bold}Version_Number${normal} {$bold}Build_Number${normal}."
+  echo >&2 "For example: \`Scripts/build.sh . resources/Local.xcconfig resources/export_options.plist Release 2024.1.1 100\`."
   exit 1
 fi
 
 PROJECT_DIR=$1
 LOCAL_XCCONFIG_PATH=$2
 EXPORT_OPTIONS_PATH=$3
-VERSION_NUMBER=$4
-BUILD_NUMBER=$5
+CONFIGURATION=$4
+VERSION_NUMBER=$5
+BUILD_NUMBER=$6
 
 BUILD_DIR="build"
 
@@ -40,7 +41,7 @@ echo "🔨 Performing Xcode archive"
 xcrun xcodebuild archive \
   -project Bitwarden.xcodeproj \
   -scheme Bitwarden \
-  -configuration Release \
+  -configuration "${CONFIGURATION}" \
   -archivePath "${ARCHIVE_PATH}" \
   MARKETING_VERSION="${VERSION_NUMBER}" \
   CURRENT_PROJECT_VERSION="${BUILD_NUMBER}" \
