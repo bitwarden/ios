@@ -11,21 +11,22 @@ set -euo pipefail
 bold=$(tput -T ansi bold)
 normal=$(tput -T ansi sgr0)
 
-if [ $# -ne 3 ]; then
-  echo >&2 "Called without necessary arguments: ${bold}Project_Dir${normal} ${bold}Version_Number${normal} {$bold}Build_Number${normal}."
-  echo >&2 "For example: \`Scripts/build.sh . 2024.1.1 100\`."
+if [ $# -ne 5 ]; then
+  echo >&2 "Called without necessary arguments: ${bold}Project_Dir${normal} ${bold}Local_xcconfig_path${normal} ${bold}Export_options_path${normal} ${bold}Version_Number${normal} {$bold}Build_Number${normal}."
+  echo >&2 "For example: \`Scripts/build.sh . resources/Local.xcconfig resources/export_options.plist 2024.1.1 100\`."
   exit 1
 fi
 
 PROJECT_DIR=$1
-VERSION_NUMBER=$2
-BUILD_NUMBER=$3
+EXPORT_OPTIONS_PATH=$2
+LOCAL_XCCONFIG_PATH=$3
+VERSION_NUMBER=$4
+BUILD_NUMBER=$5
 
 BUILD_DIR="build"
 
 ARCHIVE_PATH="${BUILD_DIR}/Bitwarden.xcarchive"
 EXPORT_PATH="${BUILD_DIR}/Bitwarden"
-EXPORT_OPTIONS_PATH="${PROJECT_DIR}/.github/resources/export-options-app-store.plist"
 
 pushd "${PROJECT_DIR}"
 echo "Building in $(pwd)"
@@ -33,19 +34,9 @@ echo ""
 
 mkdir -p "${BUILD_DIR}"
 
-cat << EOF > Configs/Local.xcconfig
-CODE_SIGN_STYLE = Manual
-CODE_SIGN_IDENTITY = Apple Distribution
-DEVELOPMENT_TEAM = LTZ2PFU5D6
-ORGANIZATION_IDENTIFIER = com.8bit
-PROVISIONING_PROFILE_SPECIFIER = Dist: Bitwarden
-PROVISIONING_PROFILE_SPECIFIER_ACTION_EXTENSION = Dist: Extension
-PROVISIONING_PROFILE_SPECIFIER_AUTOFILL_EXTENSION = Dist: Autofill
-PROVISIONING_PROFILE_SPECIFIER_SHARE_EXTENSION = Dist: Share Extension
-PROVISIONING_PROFILE_SPECIFIER_WATCH_APP = Dist: Bitwarden Watch App
-EOF
+cp "${LOCAL_XCCONFIG_PATH}" "${PROJECT_DIR}/Configs/Local.xcconfig"
 
-echo "Performing Xcode archive"
+echo "🔨 Performing Xcode archive"
 xcrun xcodebuild archive \
   -project Bitwarden.xcodeproj \
   -scheme Bitwarden \
@@ -56,11 +47,11 @@ xcrun xcodebuild archive \
   | xcbeautify --renderer github-actions
 echo ""
 
-echo "Performing Xcode archive export"
+echo "📦 Performing Xcode archive export"
 xcrun xcodebuild -exportArchive \
   -archivePath "${ARCHIVE_PATH}" \
   -exportPath "${EXPORT_PATH}" \
   -exportOptionsPlist "${EXPORT_OPTIONS_PATH}" \
   | xcbeautify --renderer github-actions
 
-echo "Build complete 🎉"
+echo "🎉 Build complete"

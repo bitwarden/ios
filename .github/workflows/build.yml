@@ -180,5 +180,8 @@ jobs:
       #     ls -al $HOME/Library/MobileDevice/Provisioning\ Profiles
 
       - name: Build iOS app
+        env:
+          EXPORT_OPTIONS_PATH: ./.github/resources/export-options-app-store.plist
+          LOCAL_XCCONFIG_PATH: ./.github/resources/Local-app-store.xcconfig
         run: |
-          ./Scripts/build.sh . 2024.1.1 100
+          ./Scripts/build.sh . "${LOCAL_XCCONFIG_PATH}" "${EXPORT_OPTIONS_PATH}" 2024.1.1 100
