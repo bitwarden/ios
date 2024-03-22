@@ -23,6 +23,12 @@ LOCAL_XCCONFIG_PATH=$3
 VERSION_NUMBER=$4
 BUILD_NUMBER=$5
 
+echo "Export options:"
+cat "${EXPORT_OPTIONS_PATH}"
+
+echo "Local xcconfig:"
+cat "${LOCAL_XCCONFIG_PATH}"
+
 BUILD_DIR="build"
 
 ARCHIVE_PATH="${BUILD_DIR}/Bitwarden.xcarchive"
@@ -34,7 +40,10 @@ echo ""
 
 mkdir -p "${BUILD_DIR}"
 
-cp "${LOCAL_XCCONFIG_PATH}" "${PROJECT_DIR}/Configs/Local.xcconfig"
+cp "${LOCAL_XCCONFIG_PATH}" "Configs/Local.xcconfig"
+
+echo "Local xcconfig 2:"
+cat "Configs/Local.xcconfig"
 
 echo "🔨 Performing Xcode archive"
 xcrun xcodebuild archive \
