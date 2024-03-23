@@ -70,7 +70,6 @@ struct BitwardenMenuField<T, TrailingContent: View>: View where T: Menuable {
             } label: {
                 Text("")
             }
-            .accessibilityIdentifier(accessibilityIdentifier ?? "")
         } label: {
             HStack {
                 Text(selection.localizedName)
@@ -85,6 +84,7 @@ struct BitwardenMenuField<T, TrailingContent: View>: View where T: Menuable {
         }
         .styleGuide(.body)
         .foregroundColor(Asset.Colors.textPrimary.swiftUIColor)
+        .accessibilityIdentifier(accessibilityIdentifier ?? "")
     }
 
     // MARK: Initialization
