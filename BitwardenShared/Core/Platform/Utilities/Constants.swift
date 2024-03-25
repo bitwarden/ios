@@ -94,7 +94,7 @@ extension Constants {
         static let appExtensionSaveLogin = "org.appextension.save-login-action"
 
         /// A type identifier for the app extension setup.
-        static let appExtensionSetup = "com.8bit.bitwarden.beta.extension-setup"
+        static let appExtensionSetup = "com.8bit.bitwarden.extension-setup"
     }
 
     /// An app extension key for notes for a login.

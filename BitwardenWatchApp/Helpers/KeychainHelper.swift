@@ -2,7 +2,7 @@ import Foundation
 
 final class KeychainHelper {
     static let standard = KeychainHelper()
-    let genericService = "com.8bit.bitwarden.beta.watch.kc"
+    let genericService = "com.8bit.bitwarden.watch.kc"
 
     private init() {}
 
