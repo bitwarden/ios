@@ -178,3 +178,14 @@ jobs:
         run: |
           BUILD_NUMBER=$((7000 + $GITHUB_RUN_NUMBER))
           ./Scripts/build.sh . "${LOCAL_XCCONFIG_PATH}" "${EXPORT_OPTIONS_PATH}" Release-Beta $BUILD_NUMBER
+
+      - name: Validate app
+        env:
+          APPLE_ID_USERNAME: ${{ secrets.APPLE_ID_USERNAME }}
+          APPLE_ID_PASSWORD: ${{ secrets.APPLE_ID_PASSWORD }}
+        run: |
+          xcrun altool --validate-app \
+            --type ios \
+            --file "build/Bitwarden" \
+            --username "$APPLE_ID_USERNAME"
+            --password "$APPLE_ID_PASSWORD"
