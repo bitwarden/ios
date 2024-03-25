@@ -85,12 +85,12 @@ jobs:
         run: |
           mkdir -p $HOME/secrets
           profiles=(
-              "dist_autofill.mobileprovision"
-              "dist_bitwarden.mobileprovision"
-              "dist_extension.mobileprovision"
-              "dist_share_extension.mobileprovision"
-              "dist_bitwarden_watch_app.mobileprovision"
-              "dist_bitwarden_watch_app_extension.mobileprovision"
+            "dist_beta_autofill.mobileprovision"
+            "dist_beta_bitwarden.mobileprovision"
+            "dist_beta_extension.mobileprovision"
+            "dist_beta_share_extension.mobileprovision"
+            "dist_beta_bitwarden_watch_app.mobileprovision"
+            "dist_beta_bitwarden_watch_app_extension.mobileprovision"
           )
 
           for FILE in "${profiles[@]}"
@@ -130,12 +130,12 @@ jobs:
 
       - name: Set up provisioning profiles
         run: |
-          AUTOFILL_PROFILE_PATH=$HOME/secrets/dist_autofill.mobileprovision
-          BITWARDEN_PROFILE_PATH=$HOME/secrets/dist_bitwarden.mobileprovision
-          EXTENSION_PROFILE_PATH=$HOME/secrets/dist_extension.mobileprovision
-          SHARE_EXTENSION_PROFILE_PATH=$HOME/secrets/dist_share_extension.mobileprovision
-          WATCH_APP_PROFILE_PATH=$HOME/secrets/dist_bitwarden_watch_app.mobileprovision
-          WATCH_APP_EXTENSION_PROFILE_PATH=$HOME/secrets/dist_bitwarden_watch_app_extension.mobileprovision
+          AUTOFILL_PROFILE_PATH=$HOME/secrets/dist_beta_autofill.mobileprovision
+          BITWARDEN_PROFILE_PATH=$HOME/secrets/dist_beta_bitwarden.mobileprovision
+          EXTENSION_PROFILE_PATH=$HOME/secrets/dist_beta_extension.mobileprovision
+          SHARE_EXTENSION_PROFILE_PATH=$HOME/secrets/dist_beta_share_extension.mobileprovision
+          WATCH_APP_PROFILE_PATH=$HOME/secrets/dist_beta_bitwarden_watch_app.mobileprovision
+          WATCH_APP_EXTENSION_PROFILE_PATH=$HOME/secrets/dist_beta_bitwarden_watch_app_extension.mobileprovision
           PROFILES_DIR_PATH=$HOME/Library/MobileDevice/Provisioning\ Profiles
 
           mkdir -p "$PROFILES_DIR_PATH"
