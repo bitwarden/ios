@@ -192,5 +192,5 @@ jobs:
           EXPORT_OPTIONS_PATH: ./.github/resources/export-options-beta.plist
           LOCAL_XCCONFIG_PATH: ./.github/resources/Local-beta.xcconfig
         run: |
-          ./Scripts/build.sh . "${LOCAL_XCCONFIG_PATH}" "${EXPORT_OPTIONS_PATH}" Release 2024.1.1 100
+          ./Scripts/build.sh . "${LOCAL_XCCONFIG_PATH}" "${EXPORT_OPTIONS_PATH}" Release-Beta 2024.1.1 100
   
