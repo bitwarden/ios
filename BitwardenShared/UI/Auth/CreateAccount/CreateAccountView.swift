@@ -148,7 +148,7 @@ struct CreateAccountView: View {
         } label: {
             Text(Localizations.submit)
         }
-        .accessibilityIdentifier("CreateAccountLabel")
+        .accessibilityIdentifier("SubmitButton")
         .buttonStyle(.primary())
     }
 
