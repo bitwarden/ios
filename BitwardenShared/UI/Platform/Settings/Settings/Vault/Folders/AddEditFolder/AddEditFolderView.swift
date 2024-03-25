@@ -77,6 +77,7 @@ struct AddEditFolderView: View {
         AsyncButton(Localizations.save) {
             await store.perform(.saveTapped)
         }
+        .accessibilityIdentifier("SaveButton")
         .buttonStyle(.primary())
     }
 }

@@ -23,6 +23,7 @@ struct EditCollectionsView: View {
                     toolbarButton(Localizations.save) {
                         await store.perform(.save)
                     }
+                    .accessibilityIdentifier("SaveButton")
                 }
 
                 cancelToolbarItem {
