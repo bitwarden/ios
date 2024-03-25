@@ -444,8 +444,8 @@ struct AddEditSendItemView: View { // swiftlint:disable:this type_body_length
         AsyncButton(Localizations.save) {
             await store.perform(.savePressed)
         }
+        .accessibilityIdentifier("SaveButton")
         .buttonStyle(.primary())
-        .accessibilityIdentifier("Done")
     }
 
     /// The attributes for a text type send.

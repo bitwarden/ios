@@ -23,6 +23,7 @@ struct MoveToOrganizationView: View {
                     toolbarButton(Localizations.move) {
                         await store.perform(.moveCipher)
                     }
+                    .accessibilityIdentifier("MoveButton")
                 }
 
                 cancelToolbarItem {

@@ -281,6 +281,7 @@ private extension AddEditItemView {
         AsyncButton(Localizations.save) {
             await store.perform(.savePressed)
         }
+        .accessibilityIdentifier("SaveButton")
         .buttonStyle(.primary())
     }
 }
