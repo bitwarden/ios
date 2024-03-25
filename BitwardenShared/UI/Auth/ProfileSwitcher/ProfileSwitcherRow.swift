@@ -83,7 +83,7 @@ struct ProfileSwitcherRow: View {
                             .foregroundColor(trailingIconColor)
                             .accessibilityIdentifier(store.state.trailingIconAccessibilityID)
                     }
-                    .padding([.top, .bottom], statusSubtitle != nil ? 9 : 19)
+                    .padding([.top, .bottom], (statusSubtitle != nil || hostSubtitle != nil) ? 9 : 19)
                     .padding([.trailing], 16)
                     divider
                 }
@@ -277,7 +277,7 @@ extension ProfileSwitcherItem {
     )
 }
 
-#Preview {
+#Preview("Active Unlocked Account") {
     NavigationView {
         ProfileSwitcherRow(
             store: Store(
@@ -290,10 +290,9 @@ extension ProfileSwitcherItem {
             )
         )
     }
-    .previewDisplayName("Active Unlocked Account")
 }
 
-#Preview {
+#Preview("Active Locked Account") {
     NavigationView {
         ProfileSwitcherRow(
             store: Store(
@@ -306,10 +305,9 @@ extension ProfileSwitcherItem {
             )
         )
     }
-    .previewDisplayName("Active Locked Account")
 }
 
-#Preview {
+#Preview("Active Account, No Divider") {
     NavigationView {
         ProfileSwitcherRow(
             store: Store(
@@ -323,10 +321,9 @@ extension ProfileSwitcherItem {
             )
         )
     }
-    .previewDisplayName("Active Account, No Divider")
 }
 
-#Preview {
+#Preview("Alternate Unlocked Account") {
     NavigationView {
         ProfileSwitcherRow(
             store: Store(
@@ -339,10 +336,9 @@ extension ProfileSwitcherItem {
             )
         )
     }
-    .previewDisplayName("Alternate Unlocked Account")
 }
 
-#Preview {
+#Preview("Alternate Locked Account") {
     NavigationView {
         ProfileSwitcherRow(
             store: Store(
@@ -355,10 +351,9 @@ extension ProfileSwitcherItem {
             )
         )
     }
-    .previewDisplayName("Alternate Locked Account")
 }
 
-#Preview {
+#Preview("Add Account") {
     NavigationView {
         ProfileSwitcherRow(
             store: Store(
@@ -371,6 +366,5 @@ extension ProfileSwitcherItem {
             )
         )
     }
-    .previewDisplayName("Add Account")
 }
 #endif
