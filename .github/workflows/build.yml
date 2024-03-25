@@ -48,17 +48,17 @@ jobs:
         uses: actions/cache@e12d46a63a90f2fae62d114769bbf2a179198b5c # v3.3.3
         with:
           path: .mint
-          key: ${{ runner.os }}-mint-build-${{ hashFiles('**/Mintfile') }}
+          key: ${{ runner.os }}-mint-${{ hashFiles('**/Mintfile') }}
           restore-keys: |
-            ${{ runner.os }}-mint-build-
+            ${{ runner.os }}-mint-
 
       - name: Cache SPM Packages
         uses: actions/cache@e12d46a63a90f2fae62d114769bbf2a179198b5c # v3.3.3
         with:
           path: build/DerivedData/SourcePackages
-          key: ${{ runner.os }}-spm-build-${{ hashFiles('**/Package.resolved') }}
+          key: ${{ runner.os }}-spm-${{ hashFiles('**/Package.resolved') }}
           restore-keys: |
-            ${{ runner.os }}-spm-build-
+            ${{ runner.os }}-spm-
 
       - name: Install yeetd
         run: |

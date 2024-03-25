@@ -56,9 +56,9 @@ jobs:
         uses: actions/cache@e12d46a63a90f2fae62d114769bbf2a179198b5c # v3.3.3
         with:
           path: build/DerivedData/SourcePackages
-          key: ${{ runner.os }}-spm-build-${{ hashFiles('**/Package.resolved') }}
+          key: ${{ runner.os }}-spm-${{ hashFiles('**/Package.resolved') }}
           restore-keys: |
-            ${{ runner.os }}-spm-build-
+            ${{ runner.os }}-spm-
 
       - name: Install yeetd
         run: |
