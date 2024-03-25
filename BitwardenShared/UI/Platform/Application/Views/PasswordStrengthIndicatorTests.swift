@@ -10,7 +10,6 @@ class PasswordStrengthIndicatorTests: BitwardenTestCase {
     /// `PasswordStrength(_:)` sets the expected color, text and strength percent for a score of 0.
     func test_passwordStrength_0() {
         let view = PasswordStrengthIndicator(
-            minimumPasswordLength: Constants.minimumPasswordCharacters,
             passwordStrengthScore: 0
         )
         XCTAssertEqual(view.passwordStrength.color.swiftUIColor, Asset.Colors.loadingRed.swiftUIColor)
@@ -21,7 +20,6 @@ class PasswordStrengthIndicatorTests: BitwardenTestCase {
     /// `PasswordStrength(_:)` sets the expected color, text and strength percent for a score of 1.
     func test_passwordStrength_1() {
         let view = PasswordStrengthIndicator(
-            minimumPasswordLength: Constants.minimumPasswordCharacters,
             passwordStrengthScore: 1
         )
         XCTAssertEqual(view.passwordStrength.color.swiftUIColor, Asset.Colors.loadingRed.swiftUIColor)
@@ -32,7 +30,6 @@ class PasswordStrengthIndicatorTests: BitwardenTestCase {
     /// `PasswordStrength(_:)` sets the expected color, text and strength percent for a score of 2.
     func test_passwordStrength_2() {
         let view = PasswordStrengthIndicator(
-            minimumPasswordLength: Constants.minimumPasswordCharacters,
             passwordStrengthScore: 2
         )
         XCTAssertEqual(view.passwordStrength.color.swiftUIColor, Asset.Colors.loadingOrange.swiftUIColor)
@@ -43,7 +40,6 @@ class PasswordStrengthIndicatorTests: BitwardenTestCase {
     /// `PasswordStrength(_:)` sets the expected color, text and strength percent for a score of 3.
     func test_passwordStrength_3() {
         let view = PasswordStrengthIndicator(
-            minimumPasswordLength: Constants.minimumPasswordCharacters,
             passwordStrengthScore: 3
         )
         XCTAssertEqual(view.passwordStrength.color.swiftUIColor, Asset.Colors.loadingBlue.swiftUIColor)
@@ -54,7 +50,6 @@ class PasswordStrengthIndicatorTests: BitwardenTestCase {
     /// `PasswordStrength(_:)` sets the expected color, text and strength percent for a score of 4.
     func test_passwordStrength_4() {
         let view = PasswordStrengthIndicator(
-            minimumPasswordLength: Constants.minimumPasswordCharacters,
             passwordStrengthScore: 4
         )
         XCTAssertEqual(view.passwordStrength.color.swiftUIColor, Asset.Colors.loadingGreen.swiftUIColor)
@@ -65,7 +60,6 @@ class PasswordStrengthIndicatorTests: BitwardenTestCase {
     /// `PasswordStrength(_:)` sets the expected color, text and strength percent for an invalid score.
     func test_passwordStrength_invalid() {
         let view = PasswordStrengthIndicator(
-            minimumPasswordLength: Constants.minimumPasswordCharacters,
             passwordStrengthScore: 8
         )
         XCTAssertEqual(view.passwordStrength.color.swiftUIColor, Asset.Colors.loadingRed.swiftUIColor)
@@ -76,7 +70,6 @@ class PasswordStrengthIndicatorTests: BitwardenTestCase {
     /// `PasswordStrength(_:)` sets the expected color, text and strength percent for a `nil` score.
     func test_passwordStrength_nil() {
         let view = PasswordStrengthIndicator(
-            minimumPasswordLength: Constants.minimumPasswordCharacters,
             passwordStrengthScore: nil
         )
         XCTAssertEqual(view.passwordStrength.color.swiftUIColor, Asset.Colors.loadingRed.swiftUIColor)
@@ -93,13 +86,11 @@ class PasswordStrengthIndicatorTests: BitwardenTestCase {
                 ScrollView {
                     VStack(spacing: 32) {
                         PasswordStrengthIndicator(
-                            minimumPasswordLength: Constants.minimumPasswordCharacters,
                             passwordStrengthScore: nil
                         )
 
                         ForEach(UInt8(0) ... UInt8(4), id: \.self) { score in
                             PasswordStrengthIndicator(
-                                minimumPasswordLength: Constants.minimumPasswordCharacters,
                                 passwordStrengthScore: score
                             )
                         }

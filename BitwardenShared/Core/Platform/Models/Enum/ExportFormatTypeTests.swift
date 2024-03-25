@@ -9,6 +9,6 @@ class ExportFormatTypeTests: BitwardenTestCase {
     func test_localizedName() {
         XCTAssertEqual(ExportFormatType.csv.localizedName, ".csv")
         XCTAssertEqual(ExportFormatType.json.localizedName, ".json")
-        XCTAssertEqual(ExportFormatType.jsonEncrypted.localizedName, ".json (Encrypted)")
+        XCTAssertEqual(ExportFormatType.jsonEncrypted.localizedName, ".json (Password protected)")
     }
 }
