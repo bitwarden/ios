@@ -7,7 +7,7 @@ struct AccountEncryptionKeys: Equatable {
     let encryptedPrivateKey: String
 
     /// The encrypted user key for the account.
-    let encryptedUserKey: String
+    let encryptedUserKey: String?
 }
 
 extension AccountEncryptionKeys {
@@ -16,12 +16,10 @@ extension AccountEncryptionKeys {
     /// - Parameter identityTokenResponseModel: The response model from the identity token request.
     ///
     init?(identityTokenResponseModel: IdentityTokenResponseModel) {
-        guard let key = identityTokenResponseModel.key,
-              let privateKey = identityTokenResponseModel.privateKey
-        else { return nil }
+        guard let privateKey = identityTokenResponseModel.privateKey else { return nil }
         self.init(
             encryptedPrivateKey: privateKey,
-            encryptedUserKey: key
+            encryptedUserKey: identityTokenResponseModel.key
         )
     }
 }

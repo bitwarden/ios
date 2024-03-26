@@ -519,12 +519,14 @@ extension DefaultAuthRepository: AuthRepository {
     }
 
     func unlockVaultFromLoginWithDevice(privateKey: String, key: String, masterPasswordHash: String?) async throws {
-        let encryptionKeys = try await stateService.getAccountEncryptionKeys()
-        let method: AuthRequestMethod = if masterPasswordHash != nil {
-            AuthRequestMethod.masterKey(protectedMasterKey: key, authRequestKey: encryptionKeys.encryptedUserKey)
-        } else {
-            AuthRequestMethod.userKey(protectedUserKey: key)
-        }
+        let method: AuthRequestMethod =
+            if masterPasswordHash != nil,
+            let encUserKey = try await stateService.getAccountEncryptionKeys().encryptedUserKey {
+                AuthRequestMethod.masterKey(protectedMasterKey: key, authRequestKey: encUserKey)
+            } else {
+                AuthRequestMethod.userKey(protectedUserKey: key)
+            }
+
         try await unlockVault(
             method: .authRequest(
                 requestPrivateKey: privateKey,
@@ -548,7 +550,8 @@ extension DefaultAuthRepository: AuthRepository {
     func unlockVaultWithPassword(password: String) async throws {
         let account = try await stateService.getActiveAccount()
         let encryptionKeys = try await stateService.getAccountEncryptionKeys(userId: account.profile.userId)
-        try await unlockVault(method: .password(password: password, userKey: encryptionKeys.encryptedUserKey))
+        guard let encUserKey = encryptionKeys.encryptedUserKey else { throw StateServiceError.noEncUserKey }
+        try await unlockVault(method: .password(password: password, userKey: encUserKey))
     }
 
     func unlockVaultWithPIN(pin: String) async throws {
@@ -563,10 +566,11 @@ extension DefaultAuthRepository: AuthRepository {
             return try await clientAuth.validatePassword(password: password, passwordHash: passwordHash)
         } else {
             let encryptionKeys = try await stateService.getAccountEncryptionKeys()
+            guard let encUserKey = encryptionKeys.encryptedUserKey else { throw StateServiceError.noEncUserKey }
             do {
                 let passwordHash = try await clientAuth.validatePasswordUserKey(
                     password: password,
-                    encryptedUserKey: encryptionKeys.encryptedUserKey
+                    encryptedUserKey: encUserKey
                 )
                 try await stateService.setMasterPasswordHash(passwordHash)
                 return true

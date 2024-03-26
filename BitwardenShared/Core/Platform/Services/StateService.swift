@@ -885,6 +885,9 @@ enum StateServiceError: Error {
 
     /// The user has no pin protected user key.
     case noPinProtectedUserKey
+
+    /// The user has no user key.
+    case noEncUserKey
 }
 
 // MARK: - DefaultStateService
@@ -983,14 +986,12 @@ actor DefaultStateService: StateService { // swiftlint:disable:this type_body_le
 
     func getAccountEncryptionKeys(userId: String?) async throws -> AccountEncryptionKeys {
         let userId = try userId ?? getActiveAccountUserId()
-        guard let encryptedPrivateKey = appSettingsStore.encryptedPrivateKey(userId: userId),
-              let encryptedUserKey = appSettingsStore.encryptedUserKey(userId: userId)
-        else {
+        guard let encryptedPrivateKey = appSettingsStore.encryptedPrivateKey(userId: userId) else {
             throw StateServiceError.noActiveAccount
         }
         return AccountEncryptionKeys(
             encryptedPrivateKey: encryptedPrivateKey,
-            encryptedUserKey: encryptedUserKey
+            encryptedUserKey: appSettingsStore.encryptedUserKey(userId: userId)
         )
     }
 
