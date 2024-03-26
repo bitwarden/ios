@@ -10,6 +10,12 @@ enum AuthError: Error {
     /// The request that should've been cached is somehow missing.
     case missingData
 
+    /// The device key from trusting the device is missing.
+    case missingDeviceKey
+
+    /// The device key from trusting the device is missing.
+    case missingUserDecryptionOptions
+
     /// The data that should have been cached for the login with device method was missing.
     case missingLoginWithDeviceData
 
@@ -21,6 +27,12 @@ enum AuthError: Error {
 
     /// The user doesn't have a master password set; one needs to be set before continuing.
     case requireSetPassword
+
+    /// The user needs to update the temporary password; one needs to be set before continuing.
+    case requireUpdatePassword
+
+    /// The user needs to choose a decryption option before continuing to vault.
+    case requireDecryptionOptions
 
     /// There was a problem extracting the code from the Duo WebAuth response.
     case unableToDecodeDuoResponse
@@ -228,6 +240,9 @@ class DefaultAuthService: AuthService { // swiftlint:disable:this type_body_leng
     /// The object used by the application to retrieve information about this device.
     private let systemDevice: SystemDevice
 
+    /// The service used by the application to manage trust device information.
+    private let trustDeviceService: TrustDeviceService
+
     /// The two-factor request, which is cached after the original login request fails and then
     /// reused with the code once the user has entered it.
     private var twoFactorRequest: IdentityTokenRequestModel?
@@ -252,6 +267,7 @@ class DefaultAuthService: AuthService { // swiftlint:disable:this type_body_leng
     ///   - policyService: The service used by the application to manage the policy.
     ///   - stateService: The object used by the application to retrieve information about this device.
     ///   - systemDevice: The object used by the application to retrieve information about this device.
+    ///   - trustDeviceService: The service used by the application to manage trust device information.
     ///
     init(
         accountAPIService: AccountAPIService,
@@ -264,7 +280,8 @@ class DefaultAuthService: AuthService { // swiftlint:disable:this type_body_leng
         keychainRepository: KeychainRepository,
         policyService: PolicyService,
         stateService: StateService,
-        systemDevice: SystemDevice
+        systemDevice: SystemDevice,
+        trustDeviceService: TrustDeviceService
     ) {
         self.accountAPIService = accountAPIService
         self.appIdService = appIdService
@@ -277,6 +294,7 @@ class DefaultAuthService: AuthService { // swiftlint:disable:this type_body_leng
         self.policyService = policyService
         self.stateService = stateService
         self.systemDevice = systemDevice
+        self.trustDeviceService = trustDeviceService
     }
 
     // MARK: Methods
@@ -488,6 +506,34 @@ class DefaultAuthService: AuthService { // swiftlint:disable:this type_body_leng
             ),
             email: email
         )
+
+        if let decryptionOptions = response.userDecryptionOptions,
+           let trustedDeviceOption = decryptionOptions.trustedDeviceOption {
+            if try await trustDeviceService.isDeviceTrusted() {
+                if trustedDeviceOption.encryptedPrivateKey == nil,
+                   trustedDeviceOption.encryptedUserKey == nil {
+                    try await trustDeviceService.removeTrustedDevice()
+                    throw AuthError.requireDecryptionOptions
+                }
+
+                if response.forcePasswordReset {
+                    throw AuthError.requireUpdatePassword
+                }
+
+                if !decryptionOptions.hasMasterPassword,
+                   trustedDeviceOption.hasManageResetPasswordPermission {
+                    try await stateService.setForcePasswordResetReason(
+                        ForcePasswordResetReason.tdeUserWithoutPasswordHasPasswordResetPermission
+                    )
+                }
+
+                return nil
+            }
+
+            // TODO: Handle pending admin auth requests
+
+            throw AuthError.requireDecryptionOptions
+        }
 
         if response.userDecryptionOptions?.hasMasterPassword == false {
             throw AuthError.requireSetPassword

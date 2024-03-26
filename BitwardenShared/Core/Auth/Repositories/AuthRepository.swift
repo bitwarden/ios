@@ -153,6 +153,10 @@ protocol AuthRepository: AnyObject {
     ///
     func unlockVaultWithBiometrics() async throws
 
+    /// Attempts to unlock the user's vault with the stored device key.
+    ///
+    func unlockVaultWithDeviceKey() async throws
+
     /// Attempts to unlock the user's vault with the stored neverlock key.
     ///
     func unlockVaultWithNeverlockKey() async throws
@@ -283,6 +287,9 @@ class DefaultAuthRepository {
     /// The service used by the application to manage account state.
     private let stateService: StateService
 
+    /// The service used by the application to manage trust device information.
+    private let trustDeviceService: TrustDeviceService
+
     /// The service used by the application to manage vault access.
     private let vaultTimeoutService: VaultTimeoutService
 
@@ -304,6 +311,7 @@ class DefaultAuthRepository {
     ///   - organizationUserAPIService: The service used by the application to make organization
     ///     user-related API requests.
     ///   - stateService: The service used by the application to manage account state.
+    ///   - trustDeviceService: The service used by the application to manage trust device information.
     ///   - vaultTimeoutService: The service used by the application to manage vault access.
     ///
     init(
@@ -319,6 +327,7 @@ class DefaultAuthRepository {
         organizationService: OrganizationService,
         organizationUserAPIService: OrganizationUserAPIService,
         stateService: StateService,
+        trustDeviceService: TrustDeviceService,
         vaultTimeoutService: VaultTimeoutService
     ) {
         self.accountAPIService = accountAPIService
@@ -333,6 +342,7 @@ class DefaultAuthRepository {
         self.organizationService = organizationService
         self.organizationUserAPIService = organizationUserAPIService
         self.stateService = stateService
+        self.trustDeviceService = trustDeviceService
         self.vaultTimeoutService = vaultTimeoutService
     }
 }
@@ -540,6 +550,26 @@ extension DefaultAuthRepository: AuthRepository {
         try await unlockVault(method: .decryptedKey(decryptedUserKey: decryptedUserKey))
     }
 
+    func unlockVaultWithDeviceKey() async throws {
+        let id = try await stateService.getActiveAccountId()
+        let decryptionOption = try await stateService.getActiveAccount().profile.userDecryptionOptions
+
+        guard let deviceKey = try await keychainService.getDeviceKey(userId: id) else {
+            throw AuthError.missingDeviceKey
+        }
+
+        guard let protectedDevicePrivateKey = decryptionOption?.trustedDeviceOption?.encryptedPrivateKey,
+              let deviceProtectedUserKey = decryptionOption?.trustedDeviceOption?.encryptedUserKey else {
+            throw AuthError.missingUserDecryptionOptions
+        }
+
+        try await unlockVault(method: .deviceKey(
+            deviceKey: deviceKey,
+            protectedDevicePrivateKey: protectedDevicePrivateKey as EncString,
+            deviceProtectedUserKey: deviceProtectedUserKey as AsymmetricEncString
+        ))
+    }
+
     func unlockVaultWithNeverlockKey() async throws {
         let id = try await stateService.getActiveAccountId()
         let key = KeychainItem.neverLock(userId: id)
@@ -686,6 +716,7 @@ extension DefaultAuthRepository: AuthRepository {
             break
         }
 
+        _ = try await trustDeviceService.trustDeviceIfNeeded()
         await vaultTimeoutService.unlockVault(userId: account.profile.userId)
         try await organizationService.initializeOrganizationCrypto()
     }
