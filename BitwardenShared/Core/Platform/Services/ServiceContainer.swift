@@ -110,6 +110,9 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
     /// The service used by the application to validate TOTP keys and produce TOTP values.
     let totpService: TOTPService
 
+    /// A service used to handle device trust.
+    let trustDeviceService: TrustDeviceService
+
     /// The service used by the application to generate a two step login URL.
     let twoStepLoginService: TwoStepLoginService
 
@@ -158,6 +161,7 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
     ///   - timeProvider: Provides the present time for TOTP Code Calculation.
     ///   - tokenService: The service used by the application to manage account access tokens.
     ///   - totpService: The service used by the application to validate TOTP keys and produce TOTP values.
+    ///   - trustDeviceService: The service used to handle device trust.
     ///   - twoStepLoginService: The service used by the application to generate a two step login URL.
     ///   - vaultRepository: The repository used by the application to manage vault data for the UI layer.
     ///   - vaultTimeoutService: The service used by the application to manage vault access.
@@ -195,6 +199,7 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
         timeProvider: TimeProvider,
         tokenService: TokenService,
         totpService: TOTPService,
+        trustDeviceService: TrustDeviceService,
         twoStepLoginService: TwoStepLoginService,
         vaultRepository: VaultRepository,
         vaultTimeoutService: VaultTimeoutService,
@@ -231,6 +236,7 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
         self.timeProvider = timeProvider
         self.tokenService = tokenService
         self.totpService = totpService
+        self.trustDeviceService = trustDeviceService
         self.twoStepLoginService = twoStepLoginService
         self.vaultRepository = vaultRepository
         self.vaultTimeoutService = vaultTimeoutService
@@ -349,6 +355,12 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
 
         let totpService = DefaultTOTPService()
 
+        let trustDeviceService = DefaultTrustDeviceService(appIdService: appIdService,
+                                                           authAPIService: apiService,
+                                                           clientAuth: clientService.clientAuth(),
+                                                           keychainRepository: keychainRepository,
+                                                           stateService: stateService)
+
         let twoStepLoginService = DefaultTwoStepLoginService(environmentService: environmentService)
         let vaultTimeoutService = DefaultVaultTimeoutService(stateService: stateService, timeProvider: timeProvider)
 
@@ -368,7 +380,8 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
             keychainRepository: keychainRepository,
             policyService: policyService,
             stateService: stateService,
-            systemDevice: UIDevice.current
+            systemDevice: UIDevice.current,
+            trustDeviceService: trustDeviceService
         )
 
         let authRepository = DefaultAuthRepository(
@@ -384,6 +397,7 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
             organizationService: organizationService,
             organizationUserAPIService: apiService,
             stateService: stateService,
+            trustDeviceService: trustDeviceService,
             vaultTimeoutService: vaultTimeoutService
         )
 
@@ -479,6 +493,7 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
             timeProvider: timeProvider,
             tokenService: tokenService,
             totpService: totpService,
+            trustDeviceService: trustDeviceService,
             twoStepLoginService: twoStepLoginService,
             vaultRepository: vaultRepository,
             vaultTimeoutService: vaultTimeoutService,
