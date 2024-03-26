@@ -9,6 +9,9 @@ enum KeychainItem: Equatable {
     /// The keychain item for biometrics protected user auth key.
     case biometrics(userId: String)
 
+    /// The keychain item for device key.
+    case deviceKey(userId: String)
+
     /// The keychain item for the neverLock user auth key.
     case neverLock(userId: String)
 
@@ -21,6 +24,7 @@ enum KeychainItem: Equatable {
     var protection: SecAccessControlCreateFlags? {
         switch self {
         case .accessToken,
+             .deviceKey,
              .neverLock,
              .refreshToken:
             nil
@@ -37,6 +41,8 @@ enum KeychainItem: Equatable {
             "accessToken_\(userId)"
         case let .biometrics(userId: id):
             "biometric_key_" + id
+        case let .deviceKey(userId: id):
+            "device_key_" + id
         case let .neverLock(userId: id):
             "userKeyAutoUnlock_" + id
         case let .refreshToken(userId):
@@ -54,12 +60,25 @@ protocol KeychainRepository: AnyObject {
     ///
     func deleteUserAuthKey(for item: KeychainItem) async throws
 
+    /// Attempts to delete the device key from the keychain.
+    ///
+    /// - Parameter userId: The user ID associated with the stored device key.
+    ///
+    func deleteDeviceKey(userId: String) async throws
+
     /// Gets the stored access token for a user from the keychain.
     ///
     /// - Parameter userId: The user ID associated with the stored access token.
     /// - Returns: The user's access token.
     ///
     func getAccessToken(userId: String) async throws -> String
+
+    /// Gets the stored device key for a user from the keychain.
+    ///
+    /// - Parameter userId: The user ID associated with the stored device key.
+    /// - Returns: The device key.
+    ///
+    func getDeviceKey(userId: String) async throws -> String?
 
     /// Gets the stored refresh token for a user from the keychain.
     ///
@@ -82,6 +101,14 @@ protocol KeychainRepository: AnyObject {
     ///   - userId: The user's ID, used to get back the token later on.
     ///
     func setAccessToken(_ value: String, userId: String) async throws
+
+    /// Stores the device key for a user in the keychain.
+    ///
+    /// - Parameters:
+    ///   - value: The device key to store.
+    ///   - userId: The user's ID, used to get back the device key later on.
+    ///
+    func setDeviceKey(_ value: String, userId: String) async throws
 
     /// Stores the refresh token for a user in the keychain.
     ///
@@ -251,8 +278,18 @@ extension DefaultKeychainRepository {
         )
     }
 
+    func deleteDeviceKey(userId: String) async throws {
+        try await keychainService.delete(
+            query: keychainQueryValues(for: .deviceKey(userId: userId))
+        )
+    }
+
     func getAccessToken(userId: String) async throws -> String {
         try await getValue(for: .accessToken(userId: userId))
+    }
+
+    func getDeviceKey(userId: String) async throws -> String? {
+        try await getValue(for: .deviceKey(userId: userId))
     }
 
     func getRefreshToken(userId: String) async throws -> String {
@@ -265,6 +302,10 @@ extension DefaultKeychainRepository {
 
     func setAccessToken(_ value: String, userId: String) async throws {
         try await setValue(value, for: .accessToken(userId: userId))
+    }
+
+    func setDeviceKey(_ value: String, userId: String) async throws {
+        try await setValue(value, for: .deviceKey(userId: userId))
     }
 
     func setRefreshToken(_ value: String, userId: String) async throws {

@@ -80,6 +80,15 @@ protocol AuthAPIService {
     /// - Parameter model: The data needed to send the request.
     ///
     func resendEmailCode(_ model: ResendEmailCodeRequestModel) async throws
+
+    /// Sends the request to email the user another verification code.
+    ///
+    /// - Parameters:
+    ///   - deviceIdentifier: The user's device ID.
+    ///   - model: The data needed to send the request.
+    ///
+    /// - Returns: The new pending login requests.
+    func updateTrustedDeviceKeys(deviceIdentifier: String, model: TrustedDeviceKeysRequestModel) async throws
 }
 
 extension APIService: AuthAPIService {
@@ -137,4 +146,9 @@ extension APIService: AuthAPIService {
     func resendEmailCode(_ model: ResendEmailCodeRequestModel) async throws {
         _ = try await apiUnauthenticatedService.send(ResendEmailCodeRequest(model: model))
     }
+
+    func updateTrustedDeviceKeys(deviceIdentifier: String, model: TrustedDeviceKeysRequestModel) async throws {
+        _ = try await apiService.send(TrustedDeviceKeysRequest(deviceIdentifier: deviceIdentifier, requestModel: model))
+    }
+
 }
