@@ -105,7 +105,7 @@ final class LoginWithDeviceProcessor: StateProcessor<
             // Used the cached request if it's nil (for example, if the captcha flow just completed).
             guard let request = request ?? approvedRequest else { return }
             approvedRequest = request
-            
+
             // Attempt to login.
             let (privateKey, key) = try await services.authService.loginWithDevice(
                 request,
