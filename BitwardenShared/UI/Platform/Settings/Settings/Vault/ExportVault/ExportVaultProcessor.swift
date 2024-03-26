@@ -84,6 +84,10 @@ final class ExportVaultProcessor: StateProcessor<ExportVaultState, ExportVaultAc
 
             do {
                 try await self.exportVault(format: format, password: password)
+
+                // Clear the user's entered password so that it's required to be entered again for
+                // any subsequent exports.
+                self.state.passwordText = ""
             } catch {
                 self.services.errorReporter.log(error: error)
             }
