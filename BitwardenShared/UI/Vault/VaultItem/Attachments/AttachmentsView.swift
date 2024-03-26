@@ -106,6 +106,7 @@ struct AttachmentsView: View {
         AsyncButton(Localizations.save) {
             await store.perform(.save)
         }
+        .accessibilityIdentifier("SaveButton")
         .buttonStyle(.primary())
     }
 

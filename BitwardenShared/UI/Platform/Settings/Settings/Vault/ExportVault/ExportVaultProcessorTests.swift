@@ -156,6 +156,23 @@ class ExportVaultProcessorTests: BitwardenTestCase {
         XCTAssertEqual(coordinator.routes.last, .shareExportedVault(testURL))
     }
 
+    /// `.receive()` with  `.exportVaultTapped` clears the user's master password after exporting
+    /// the vault successfully.
+    func test_receive_exportVaultTapped_success_clearsMasterPassword() async throws {
+        let testURL = URL(string: "www.bitwarden.com")!
+        exportService.exportVaultContentResult = .success("")
+        exportService.writeToFileResult = .success(testURL)
+        subject.state.fileFormat = .json
+
+        subject.receive(.exportVaultTapped)
+
+        XCTAssertEqual(coordinator.alertShown.last, .confirmExportVault(encrypted: false, action: {}))
+        try await coordinator.alertShown.last?.tapAction(title: Localizations.exportVault)
+
+        XCTAssertEqual(coordinator.routes.last, .shareExportedVault(testURL))
+        XCTAssertTrue(subject.state.passwordText.isEmpty)
+    }
+
     /// `.receive()` with `.fileFormatTypeChanged()` updates the file format.
     func test_receive_fileFormatTypeChanged() {
         subject.receive(.fileFormatTypeChanged(.csv))

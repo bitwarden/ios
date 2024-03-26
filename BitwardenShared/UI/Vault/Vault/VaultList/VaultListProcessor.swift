@@ -59,6 +59,8 @@ final class VaultListProcessor: StateProcessor<
             await requestNotificationPermissions()
             await checkPendingLoginRequests()
             await checkPersonalOwnershipPolicy()
+        case let .morePressed(item):
+            await showMoreOptionsAlert(for: item)
         case let .profileSwitcher(profileEffect):
             await handleProfileSwitcherEffect(profileEffect)
         case .refreshAccountProfiles:
@@ -98,8 +100,6 @@ final class VaultListProcessor: StateProcessor<
             }
         case let .profileSwitcher(profileAction):
             handleProfileSwitcherAction(profileAction)
-        case let .morePressed(item):
-            showMoreOptionsAlert(for: item)
         case let .searchStateChanged(isSearching: isSearching):
             guard isSearching else {
                 state.searchText = ""
@@ -120,8 +120,10 @@ final class VaultListProcessor: StateProcessor<
             state.vaultFilterType = newValue
         }
     }
+}
 
-    // MARK: - Private Methods
+extension VaultListProcessor {
+    // MARK: Private Methods
 
     /// Check if there are any pending login requests for the user to deal with.
     private func checkPendingLoginRequests() async {
@@ -152,6 +154,25 @@ final class VaultListProcessor: StateProcessor<
     private func checkPersonalOwnershipPolicy() async {
         let isPersonalOwnershipDisabled = await services.policyService.policyAppliesToUser(.personalOwnership)
         state.isPersonalOwnershipDisabled = isPersonalOwnershipDisabled
+    }
+
+    /// Generates and copies a TOTP code for the cipher's TOTP key.
+    ///
+    /// - Parameter totpKey: The TOTP key used to generate a TOTP code.
+    ///
+    private func generateAndCopyTotpCode(totpKey: TOTPKeyModel) async {
+        do {
+            let response = try await services.vaultRepository.refreshTOTPCode(for: totpKey)
+            if let code = response.codeModel?.code {
+                services.pasteboardService.copy(code)
+                state.toast = Toast(text: Localizations.valueHasBeenCopied(Localizations.verificationCodeTotp))
+            } else {
+                coordinator.showAlert(.defaultAlert(title: Localizations.anErrorHasOccurred))
+            }
+        } catch {
+            coordinator.showAlert(.defaultAlert(title: Localizations.anErrorHasOccurred))
+            services.errorReporter.log(error: error)
+        }
     }
 
     /// Refreshes the vault's contents.
@@ -261,12 +282,15 @@ final class VaultListProcessor: StateProcessor<
     ///
     /// - Parameter item: The selected item to show the options for.
     ///
-    private func showMoreOptionsAlert(for item: VaultListItem) {
+    private func showMoreOptionsAlert(for item: VaultListItem) async {
         // Only ciphers have more options.
         guard case let .cipher(cipherView) = item.itemType else { return }
 
+        let hasPremium = await (try? services.vaultRepository.doesActiveAccountHavePremium()) ?? false
+
         coordinator.showAlert(.moreOptions(
             cipherView: cipherView,
+            hasPremium: hasPremium,
             id: item.id,
             showEdit: true,
             action: handleMoreOptionsAction
@@ -277,7 +301,7 @@ final class VaultListProcessor: StateProcessor<
     ///
     /// - Parameter action: The selected action.
     ///
-    private func handleMoreOptionsAction(_ action: MoreOptionsAction) {
+    private func handleMoreOptionsAction(_ action: MoreOptionsAction) async {
         switch action {
         case let .copy(toast, value, requiresMasterPasswordReprompt):
             if requiresMasterPasswordReprompt {
@@ -288,6 +312,14 @@ final class VaultListProcessor: StateProcessor<
             } else {
                 services.pasteboardService.copy(value)
                 state.toast = Toast(text: Localizations.valueHasBeenCopied(toast))
+            }
+        case let .copyTotp(totpKey, requiresMasterPasswordReprompt):
+            if requiresMasterPasswordReprompt {
+                presentMasterPasswordRepromptAlert {
+                    await self.generateAndCopyTotpCode(totpKey: totpKey)
+                }
+            } else {
+                await generateAndCopyTotpCode(totpKey: totpKey)
             }
         case let .edit(cipherView):
             if cipherView.reprompt == .password {
@@ -310,7 +342,7 @@ final class VaultListProcessor: StateProcessor<
     /// - Parameter completion: A completion handler that is called when the user's master password
     ///     has been confirmed.
     ///
-    private func presentMasterPasswordRepromptAlert(completion: @escaping () -> Void) {
+    private func presentMasterPasswordRepromptAlert(completion: @escaping () async -> Void) {
         let alert = Alert.masterPasswordPrompt { [weak self] password in
             guard let self else { return }
 
@@ -320,7 +352,7 @@ final class VaultListProcessor: StateProcessor<
                     coordinator.showAlert(.defaultAlert(title: Localizations.invalidMasterPassword))
                     return
                 }
-                completion()
+                await completion()
             } catch {
                 services.errorReporter.log(error: error)
             }
@@ -351,6 +383,9 @@ extension VaultListProcessor: CipherItemOperationDelegate {
 enum MoreOptionsAction: Equatable {
     /// Copy the `value` and show a toast with the `toast` string.
     case copy(toast: String, value: String, requiresMasterPasswordReprompt: Bool)
+
+    /// Generate and copy the TOTP code for the given `totpKey`.
+    case copyTotp(totpKey: TOTPKeyModel, requiresMasterPasswordReprompt: Bool)
 
     /// Navigate to the view to edit the `cipherView`.
     case edit(cipherView: CipherView)

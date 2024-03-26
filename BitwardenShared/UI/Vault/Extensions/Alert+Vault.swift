@@ -95,6 +95,7 @@ extension Alert {
     ///
     /// - Parameters:
     ///   - cipherView: The cipher view to show.
+    ///   - hasPremium: Whether the user has a premium account.
     ///   - id: The id of the item.
     ///   - showEdit: Whether to show the edit option (should be `false` for items in the trash).
     ///   - action: The action to perform after selecting an option.
@@ -103,19 +104,20 @@ extension Alert {
     @MainActor
     static func moreOptions( // swiftlint:disable:this function_body_length
         cipherView: CipherView,
+        hasPremium: Bool,
         id: String,
         showEdit: Bool,
-        action: @escaping (_ action: MoreOptionsAction) -> Void
+        action: @escaping (_ action: MoreOptionsAction) async -> Void
     ) -> Alert {
         // All the cipher types have the option to view the cipher.
         var alertActions = [
-            AlertAction(title: Localizations.view, style: .default) { _, _ in action(.view(id: id)) },
+            AlertAction(title: Localizations.view, style: .default) { _, _ in await action(.view(id: id)) },
         ]
 
         // Add the option to edit the cipher if desired.
         if showEdit {
             alertActions.append(AlertAction(title: Localizations.edit, style: .default) { _, _ in
-                action(.edit(cipherView: cipherView))
+                await action(.edit(cipherView: cipherView))
             })
         }
 
@@ -124,7 +126,7 @@ extension Alert {
         case .card:
             if let number = cipherView.card?.number {
                 alertActions.append(AlertAction(title: Localizations.copyNumber, style: .default) { _, _ in
-                    action(.copy(
+                    await action(.copy(
                         toast: Localizations.number,
                         value: number,
                         requiresMasterPasswordReprompt: cipherView.reprompt == .password
@@ -133,7 +135,7 @@ extension Alert {
             }
             if let code = cipherView.card?.code {
                 alertActions.append(AlertAction(title: Localizations.copySecurityCode, style: .default) { _, _ in
-                    action(.copy(
+                    await action(.copy(
                         toast: Localizations.securityCode,
                         value: code,
                         requiresMasterPasswordReprompt: cipherView.reprompt == .password
@@ -143,7 +145,7 @@ extension Alert {
         case .login:
             if let username = cipherView.login?.username {
                 alertActions.append(AlertAction(title: Localizations.copyUsername, style: .default) { _, _ in
-                    action(.copy(
+                    await action(.copy(
                         toast: Localizations.username,
                         value: username,
                         requiresMasterPasswordReprompt: false
@@ -153,9 +155,17 @@ extension Alert {
             if let password = cipherView.login?.password,
                cipherView.viewPassword {
                 alertActions.append(AlertAction(title: Localizations.copyPassword, style: .default) { _, _ in
-                    action(.copy(
+                    await action(.copy(
                         toast: Localizations.password,
                         value: password,
+                        requiresMasterPasswordReprompt: cipherView.reprompt == .password
+                    ))
+                })
+            }
+            if hasPremium, let totp = cipherView.login?.totp, let totpKey = TOTPKeyModel(authenticatorKey: totp) {
+                alertActions.append(AlertAction(title: Localizations.copyTotp, style: .default) { _, _ in
+                    await action(.copyTotp(
+                        totpKey: totpKey,
                         requiresMasterPasswordReprompt: cipherView.reprompt == .password
                     ))
                 })
@@ -164,7 +174,7 @@ extension Alert {
                let url = URL(string: uri) {
                 alertActions
                     .append(AlertAction(title: Localizations.launch, style: .default) { _, _ in
-                        action(.launch(url: url))
+                        await action(.launch(url: url))
                     })
             }
         case .identity:
@@ -173,7 +183,7 @@ extension Alert {
         case .secureNote:
             if let notes = cipherView.notes {
                 alertActions.append(AlertAction(title: Localizations.copyNotes, style: .default) { _, _ in
-                    action(.copy(
+                    await action(.copy(
                         toast: Localizations.notes,
                         value: notes,
                         requiresMasterPasswordReprompt: false

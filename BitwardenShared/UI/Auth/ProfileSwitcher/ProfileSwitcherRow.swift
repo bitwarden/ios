@@ -52,26 +52,32 @@ struct ProfileSwitcherRow: View {
                     .padding(.trailing, 16)
                 VStack(alignment: .leading, spacing: 0) {
                     HStack(spacing: 0) {
-                        VStack(alignment: .leading, spacing: 0) {
+                        VStack(alignment: .leading, spacing: -4) {
                             Text(title)
                                 .styleGuide(.body)
                                 .accessibilityIdentifier("AccountEmailLabel")
                                 .foregroundColor(Asset.Colors.textPrimary.swiftUIColor)
-                                .lineLimit(1)
-                                .truncationMode(.tail)
-                            if let subtitle {
-                                Text(subtitle)
+                            if let hostSubtitle {
+                                Text(hostSubtitle)
                                     .styleGuide(.subheadline)
+                                    .accessibilityIdentifier("AccountHostUrlLabel")
+                                    .foregroundColor(Asset.Colors.textSecondary.swiftUIColor)
+                            }
+                            if let statusSubtitle {
+                                Text(statusSubtitle)
+                                    .styleGuide(.subheadline, isItalic: true)
                                     .accessibilityIdentifier("AccountStatusLabel")
                                     .foregroundColor(Asset.Colors.textSecondary.swiftUIColor)
                             }
                         }
+                        .lineLimit(1)
+                        .truncationMode(.tail)
                         Spacer()
                         trailingIcon?
                             .imageStyle(.rowIcon(color: trailingIconColor))
                             .accessibilityIdentifier(store.state.trailingIconAccessibilityID)
                     }
-                    .padding([.top, .bottom], subtitle != nil ? 9 : 19)
+                    .padding([.top, .bottom], (statusSubtitle != nil || hostSubtitle != nil) ? 9 : 19)
                     .padding([.trailing], 16)
                     divider
                 }
@@ -130,8 +136,19 @@ struct ProfileSwitcherRow: View {
         }
     }
 
-    /// A title for the row
-    private var subtitle: String? {
+    /// A subtitle for the row, used to indicate vault host
+    private var hostSubtitle: String? {
+        switch store.state.rowType {
+        case let .active(account),
+             let .alternate(account):
+            return account.webVault
+        case .addAccount:
+            return nil
+        }
+    }
+
+    /// A subtitle for the row, used to indicate lock status
+    private var statusSubtitle: String? {
         switch store.state.rowType {
         case .active,
              .addAccount:
@@ -241,7 +258,7 @@ extension ProfileSwitcherItem {
         isUnlocked: true,
         userId: "1",
         userInitials: "AA",
-        webVault: ""
+        webVault: "bitwarden.com"
     )
 
     static var lockedAccountPreview = ProfileSwitcherItem(
@@ -250,11 +267,11 @@ extension ProfileSwitcherItem {
         isUnlocked: false,
         userId: "2",
         userInitials: "AA",
-        webVault: ""
+        webVault: "bitwarden.com"
     )
 }
 
-#Preview {
+#Preview("Active Unlocked Account") {
     NavigationView {
         ProfileSwitcherRow(
             store: Store(
@@ -267,10 +284,9 @@ extension ProfileSwitcherItem {
             )
         )
     }
-    .previewDisplayName("Active Unlocked Account")
 }
 
-#Preview {
+#Preview("Active Locked Account") {
     NavigationView {
         ProfileSwitcherRow(
             store: Store(
@@ -283,10 +299,9 @@ extension ProfileSwitcherItem {
             )
         )
     }
-    .previewDisplayName("Active Locked Account")
 }
 
-#Preview {
+#Preview("Active Account, No Divider") {
     NavigationView {
         ProfileSwitcherRow(
             store: Store(
@@ -300,10 +315,9 @@ extension ProfileSwitcherItem {
             )
         )
     }
-    .previewDisplayName("Active Account, No Divider")
 }
 
-#Preview {
+#Preview("Alternate Unlocked Account") {
     NavigationView {
         ProfileSwitcherRow(
             store: Store(
@@ -316,10 +330,9 @@ extension ProfileSwitcherItem {
             )
         )
     }
-    .previewDisplayName("Alternate Unlocked Account")
 }
 
-#Preview {
+#Preview("Alternate Locked Account") {
     NavigationView {
         ProfileSwitcherRow(
             store: Store(
@@ -332,10 +345,9 @@ extension ProfileSwitcherItem {
             )
         )
     }
-    .previewDisplayName("Alternate Locked Account")
 }
 
-#Preview {
+#Preview("Add Account") {
     NavigationView {
         ProfileSwitcherRow(
             store: Store(
@@ -348,6 +360,5 @@ extension ProfileSwitcherItem {
             )
         )
     }
-    .previewDisplayName("Add Account")
 }
 #endif

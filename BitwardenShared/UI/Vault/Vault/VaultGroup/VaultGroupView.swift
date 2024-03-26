@@ -233,11 +233,14 @@ struct VaultGroupView: View {
                     switch action {
                     case let .copyTOTPCode(code):
                         return .copyTOTPCode(code)
+                    }
+                },
+                mapEffect: { effect in
+                    switch effect {
                     case .morePressed:
                         return .morePressed(item)
                     }
-                },
-                mapEffect: nil
+                }
             ),
             timeProvider: timeProvider
         )

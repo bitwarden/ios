@@ -23,6 +23,7 @@ struct MoveToOrganizationView: View {
                     toolbarButton(Localizations.move) {
                         await store.perform(.moveCipher)
                     }
+                    .accessibilityIdentifier("MoveButton")
                 }
 
                 cancelToolbarItem {
@@ -45,6 +46,7 @@ struct MoveToOrganizationView: View {
                         Text(collection.name)
                     }
                     .toggleStyle(.bitwarden)
+                    .accessibilityIdentifier("CollectionItemCell")
                 }
             }
         }
@@ -72,6 +74,7 @@ struct MoveToOrganizationView: View {
             BitwardenMenuField(
                 title: Localizations.organization,
                 footer: Localizations.moveToOrgDesc,
+                accessibilityIdentifier: "OrganizationListDropdown",
                 options: store.state.ownershipOptions,
                 selection: store.binding(
                     get: { _ in owner },

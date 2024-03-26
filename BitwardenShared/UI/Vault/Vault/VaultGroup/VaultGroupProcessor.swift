@@ -83,6 +83,8 @@ final class VaultGroupProcessor: StateProcessor<VaultGroupState, VaultGroupActio
         case .appeared:
             await checkPersonalOwnershipPolicy()
             await streamVaultList()
+        case let .morePressed(item):
+            await showMoreOptionsAlert(for: item)
         case .refresh:
             await refreshVaultGroup()
         case let .search(text):
@@ -116,8 +118,6 @@ final class VaultGroupProcessor: StateProcessor<VaultGroupState, VaultGroupActio
             case let .totp(_, model):
                 coordinator.navigate(to: .viewItem(id: model.id))
             }
-        case let .morePressed(item):
-            showMoreOptionsAlert(for: item)
         case let .searchStateChanged(isSearching):
             if !isSearching {
                 state.searchText = ""
@@ -141,6 +141,25 @@ final class VaultGroupProcessor: StateProcessor<VaultGroupState, VaultGroupActio
     private func checkPersonalOwnershipPolicy() async {
         let isPersonalOwnershipDisabled = await services.policyService.policyAppliesToUser(.personalOwnership)
         state.isPersonalOwnershipDisabled = isPersonalOwnershipDisabled
+    }
+
+    /// Generates and copies a TOTP code for the cipher's TOTP key.
+    ///
+    /// - Parameter totpKey: The TOTP key used to generate a TOTP code.
+    ///
+    private func generateAndCopyTotpCode(totpKey: TOTPKeyModel) async {
+        do {
+            let response = try await services.vaultRepository.refreshTOTPCode(for: totpKey)
+            if let code = response.codeModel?.code {
+                services.pasteboardService.copy(code)
+                state.toast = Toast(text: Localizations.valueHasBeenCopied(Localizations.verificationCodeTotp))
+            } else {
+                coordinator.showAlert(.defaultAlert(title: Localizations.anErrorHasOccurred))
+            }
+        } catch {
+            coordinator.showAlert(.defaultAlert(title: Localizations.anErrorHasOccurred))
+            services.errorReporter.log(error: error)
+        }
     }
 
     /// Refreshes the vault group's TOTP Codes.
@@ -211,12 +230,15 @@ final class VaultGroupProcessor: StateProcessor<VaultGroupState, VaultGroupActio
     ///
     /// - Parameter item: The selected item to show the options for.
     ///
-    private func showMoreOptionsAlert(for item: VaultListItem) {
+    private func showMoreOptionsAlert(for item: VaultListItem) async {
         // Only ciphers have more options.
         guard case let .cipher(cipherView) = item.itemType else { return }
 
+        let hasPremium = await (try? services.vaultRepository.doesActiveAccountHavePremium()) ?? false
+
         coordinator.showAlert(.moreOptions(
             cipherView: cipherView,
+            hasPremium: hasPremium,
             id: item.id,
             showEdit: state.group != .trash,
             action: handleMoreOptionsAction
@@ -253,7 +275,7 @@ final class VaultGroupProcessor: StateProcessor<VaultGroupState, VaultGroupActio
     ///
     /// - Parameter action: The selected action.
     ///
-    private func handleMoreOptionsAction(_ action: MoreOptionsAction) {
+    private func handleMoreOptionsAction(_ action: MoreOptionsAction) async {
         switch action {
         case let .copy(toast, value, requiresMasterPasswordReprompt):
             if requiresMasterPasswordReprompt {
@@ -264,6 +286,14 @@ final class VaultGroupProcessor: StateProcessor<VaultGroupState, VaultGroupActio
             } else {
                 services.pasteboardService.copy(value)
                 state.toast = Toast(text: Localizations.valueHasBeenCopied(toast))
+            }
+        case let .copyTotp(totpKey, requiresMasterPasswordReprompt):
+            if requiresMasterPasswordReprompt {
+                presentMasterPasswordRepromptAlert {
+                    await self.generateAndCopyTotpCode(totpKey: totpKey)
+                }
+            } else {
+                await generateAndCopyTotpCode(totpKey: totpKey)
             }
         case let .edit(cipherView):
             if cipherView.reprompt == .password {
@@ -286,7 +316,7 @@ final class VaultGroupProcessor: StateProcessor<VaultGroupState, VaultGroupActio
     /// - Parameter completion: A completion handler that is called when the user's master password
     ///     has been confirmed.
     ///
-    private func presentMasterPasswordRepromptAlert(completion: @escaping () -> Void) {
+    private func presentMasterPasswordRepromptAlert(completion: @escaping () async -> Void) {
         let alert = Alert.masterPasswordPrompt { [weak self] password in
             guard let self else { return }
 
@@ -296,7 +326,7 @@ final class VaultGroupProcessor: StateProcessor<VaultGroupState, VaultGroupActio
                     coordinator.showAlert(.defaultAlert(title: Localizations.invalidMasterPassword))
                     return
                 }
-                completion()
+                await completion()
             } catch {
                 services.errorReporter.log(error: error)
             }
