@@ -201,6 +201,12 @@ protocol StateService: AnyObject {
     ///
     func getPreAuthEnvironmentUrls() async -> EnvironmentUrlData?
 
+    /// Get whether the device should be trusted.
+    ///
+    /// - Returns: Whether to trust the device.
+    ///
+    func getShouldTrustDevice(userId: String) async -> Bool?
+
     /// Get whether to show the website icons.
     ///
     /// - Returns: Whether to show the website icons.
@@ -430,6 +436,12 @@ protocol StateService: AnyObject {
     /// - Parameter urls: The environment URLs used prior to user authentication.
     ///
     func setPreAuthEnvironmentUrls(_ urls: EnvironmentUrlData) async
+
+    /// Set whether to trust the device.
+    ///
+    /// - Parameter shouldTrustDevice: Whether to trust the device.
+    ///
+    func setShouldTrustDevice(_ shouldTrustDevice: Bool?, userId: String) async
 
     /// Set whether to show the website icons.
     ///
@@ -1076,6 +1088,10 @@ actor DefaultStateService: StateService { // swiftlint:disable:this type_body_le
         appSettingsStore.preAuthEnvironmentUrls
     }
 
+    func getShouldTrustDevice(userId: String) async -> Bool? {
+        appSettingsStore.shouldTrustDevice(userId: userId)
+    }
+
     func getShowWebIcons() async -> Bool {
         !appSettingsStore.disableWebIcons
     }
@@ -1265,6 +1281,10 @@ actor DefaultStateService: StateService { // swiftlint:disable:this type_body_le
 
     func setPreAuthEnvironmentUrls(_ urls: EnvironmentUrlData) async {
         appSettingsStore.preAuthEnvironmentUrls = urls
+    }
+
+    func setShouldTrustDevice(_ shouldTrustDevice: Bool?, userId: String) {
+        appSettingsStore.setShouldTrustDevice(shouldTrustDevice: shouldTrustDevice, userId: userId)
     }
 
     func setShowWebIcons(_ showWebIcons: Bool) async {
