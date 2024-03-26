@@ -87,7 +87,8 @@ public enum AuthRoute: Equatable {
     case twoFactor(
         _ email: String,
         _ unlockMethod: TwoFactorUnlockMethod?,
-        _ authMethodsData: AuthMethodsData
+        _ authMethodsData: AuthMethodsData,
+        _ orgIdentifier: String?
     )
 
     /// A route to the update master password view.

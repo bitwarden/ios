@@ -165,7 +165,7 @@ protocol AuthService {
         method: TwoFactorAuthMethod,
         remember: Bool,
         captchaToken: String?
-    ) async throws -> Account
+    ) async throws -> Account?
 
     /// Evaluates the supplied master password against the master password policy provided by the Identity response.
     /// - Parameters:
@@ -501,6 +501,42 @@ class DefaultAuthService: AuthService { // swiftlint:disable:this type_body_leng
         }
     }
 
+    private func canUnlockWithDeviceKey(_ response: IdentityTokenResponseModel) async throws -> Bool {
+        if let decryptionOptions = response.userDecryptionOptions,
+           let trustedDeviceOption = decryptionOptions.trustedDeviceOption {
+            if try await trustDeviceService.isDeviceTrusted() {
+                if trustedDeviceOption.encryptedPrivateKey == nil,
+                   trustedDeviceOption.encryptedUserKey == nil {
+                    try await trustDeviceService.removeTrustedDevice()
+                    throw AuthError.requireDecryptionOptions
+                }
+                
+                if response.forcePasswordReset {
+                    throw AuthError.requireUpdatePassword
+                }
+                
+                if !decryptionOptions.hasMasterPassword,
+                   trustedDeviceOption.hasManageResetPasswordPermission {
+                    try await stateService.setForcePasswordResetReason(
+                        ForcePasswordResetReason.tdeUserWithoutPasswordHasPasswordResetPermission
+                    )
+                }
+                
+                return true
+            }
+            
+            // TODO: Handle pending admin auth requests
+            
+            throw AuthError.requireDecryptionOptions
+        }
+        
+        if response.userDecryptionOptions?.hasMasterPassword == false {
+            throw AuthError.requireSetPassword
+        }
+
+        return false
+    }
+    
     func loginWithSingleSignOn(code: String, email: String) async throws -> Account? {
         // Get the identity token to log in to Bitwarden.
         let response = try await getIdentityTokenResponse(
@@ -512,36 +548,8 @@ class DefaultAuthService: AuthService { // swiftlint:disable:this type_body_leng
             email: email
         )
 
-        if let decryptionOptions = response.userDecryptionOptions,
-           let trustedDeviceOption = decryptionOptions.trustedDeviceOption {
-            if try await trustDeviceService.isDeviceTrusted() {
-                if trustedDeviceOption.encryptedPrivateKey == nil,
-                   trustedDeviceOption.encryptedUserKey == nil {
-                    try await trustDeviceService.removeTrustedDevice()
-                    throw AuthError.requireDecryptionOptions
-                }
-
-                if response.forcePasswordReset {
-                    throw AuthError.requireUpdatePassword
-                }
-
-                if !decryptionOptions.hasMasterPassword,
-                   trustedDeviceOption.hasManageResetPasswordPermission {
-                    try await stateService.setForcePasswordResetReason(
-                        ForcePasswordResetReason.tdeUserWithoutPasswordHasPasswordResetPermission
-                    )
-                }
-
-                return nil
-            }
-
-            // TODO: Handle pending admin auth requests
-
-            throw AuthError.requireDecryptionOptions
-        }
-
-        if response.userDecryptionOptions?.hasMasterPassword == false {
-            throw AuthError.requireSetPassword
+        if try await canUnlockWithDeviceKey(response) {
+            return nil
         }
 
         // Return the account if the vault still needs to be unlocked and nil otherwise.
@@ -555,7 +563,7 @@ class DefaultAuthService: AuthService { // swiftlint:disable:this type_body_leng
         method: TwoFactorAuthMethod,
         remember: Bool,
         captchaToken: String? = nil
-    ) async throws -> Account {
+    ) async throws -> Account? {
         guard var twoFactorRequest else { throw AuthError.missingTwoFactorRequest }
 
         // Add the two factor information to the request.
@@ -567,7 +575,7 @@ class DefaultAuthService: AuthService { // swiftlint:disable:this type_body_leng
         if let captchaToken { twoFactorRequest.captchaToken = captchaToken }
 
         // Get the identity token to log in to Bitwarden.
-        _ = try await getIdentityTokenResponse(email: email, request: twoFactorRequest)
+        let response = try await getIdentityTokenResponse(email: email, request: twoFactorRequest)
 
         // Save the master password hash.
         if case let .password(_, password) = twoFactorRequest.authenticationMethod {
@@ -577,6 +585,10 @@ class DefaultAuthService: AuthService { // swiftlint:disable:this type_body_leng
         // Remove the cached request after successfully logging in.
         self.twoFactorRequest = nil
         resendEmailModel = nil
+
+        if try await canUnlockWithDeviceKey(response) {
+            return nil
+        }
 
         // Return the account if the vault still needs to be unlocked.
         return try await stateService.getActiveAccount()

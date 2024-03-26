@@ -89,7 +89,7 @@ final class SingleSignOnProcessor: StateProcessor<SingleSignOnState, SingleSignO
         case ASWebAuthenticationSessionError.canceledLogin:
             break
         case let IdentityTokenRequestError.twoFactorRequired(authMethodsData, _, _):
-            coordinator.navigate(to: .twoFactor(state.email, nil, authMethodsData))
+            coordinator.navigate(to: .twoFactor(state.email, nil, authMethodsData, state.identifierText))
         case AuthError.requireSetPassword:
             coordinator.navigate(to: .setMasterPassword(organizationIdentifier: state.identifierText))
         case AuthError.requireUpdatePassword:

@@ -189,7 +189,7 @@ final class LoginWithDeviceProcessor: StateProcessor<
                 } else {
                     nil
                 }
-                coordinator.navigate(to: .twoFactor(state.email, unlockMethod, authMethodsData))
+                coordinator.navigate(to: .twoFactor(state.email, unlockMethod, authMethodsData, nil))
             }
             return
         }

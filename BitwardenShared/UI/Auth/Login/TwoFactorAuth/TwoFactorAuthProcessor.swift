@@ -167,24 +167,7 @@ final class TwoFactorAuthProcessor: StateProcessor<TwoFactorAuthState, TwoFactor
                 captchaToken: captchaToken
             )
 
-            // Try to unlock the vault with the unlock method.
-            if let unlockMethod = state.unlockMethod {
-                try await unlockVault(unlockMethod: unlockMethod)
-                coordinator.hideLoadingOverlay()
-                await coordinator.handleEvent(.didCompleteAuth)
-            } else {
-                // Otherwise, navigate to the unlock vault view.
-                coordinator.hideLoadingOverlay()
-                coordinator.navigate(
-                    to: .vaultUnlock(
-                        account,
-                        animated: false,
-                        attemptAutomaticBiometricUnlock: true,
-                        didSwitchAccountAutomatically: false
-                    )
-                )
-                coordinator.navigate(to: .dismiss)
-            }
+            try await tryToUnlockVault(account)
         } catch let error as InputValidationError {
             coordinator.showAlert(Alert.inputValidationAlert(error: error))
         } catch let error as IdentityTokenRequestError {
@@ -195,6 +178,15 @@ final class TwoFactorAuthProcessor: StateProcessor<TwoFactorAuthState, TwoFactor
                     title: Localizations.anErrorHasOccurred,
                     message: Localizations.invalidVerificationCode
                 ))
+            }
+        } catch let authError as AuthError {
+            if authError == .requireSetPassword,
+               let orgId = state.orgIdentifier {
+                coordinator.navigate(to: .setMasterPassword(organizationIdentifier: orgId))
+            } else if authError == .requireUpdatePassword {
+                coordinator.navigate(to: .updateMasterPassword)
+            } else if authError == .requireDecryptionOptions {
+                coordinator.navigate(to: .showLoginDecryptionOptions)
             }
         } catch {
             coordinator.showAlert(.defaultAlert(
@@ -247,11 +239,36 @@ final class TwoFactorAuthProcessor: StateProcessor<TwoFactorAuthState, TwoFactor
         }
     }
 
+    /// Try to unlock the vault with the unlock method.
+    private func tryToUnlockVault(_ account: Account?) async throws {
+        if let unlockMethod = state.unlockMethod {
+            try await unlockVaultWithMethod(unlockMethod: unlockMethod)
+            coordinator.hideLoadingOverlay()
+            await coordinator.handleEvent(.didCompleteAuth)
+        } else if let accountValue = account {
+            // Otherwise, navigate to the unlock vault view.
+            coordinator.hideLoadingOverlay()
+            coordinator.navigate(
+                to: .vaultUnlock(
+                    accountValue,
+                    animated: false,
+                    attemptAutomaticBiometricUnlock: true,
+                    didSwitchAccountAutomatically: false
+                )
+            )
+            coordinator.navigate(to: .dismiss)
+        } else {
+            // Attempt to unlock the vault with tde.
+            try await services.authRepository.unlockVaultWithDeviceKey()
+            coordinator.navigate(to: .complete)
+        }
+    }
+
     /// Attempts to unlock the user's vault with the specified unlock method.
     ///
     /// - Parameter unlockMethod: The method used to unlock the vault.
     ///
-    private func unlockVault(unlockMethod: TwoFactorUnlockMethod) async throws {
+    private func unlockVaultWithMethod(unlockMethod: TwoFactorUnlockMethod) async throws {
         switch unlockMethod {
         case let .password(password):
             try await services.authRepository.unlockVaultWithPassword(password: password)

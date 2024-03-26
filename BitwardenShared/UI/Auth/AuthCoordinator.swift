@@ -151,8 +151,8 @@ final class AuthCoordinator: NSObject, // swiftlint:disable:this type_body_lengt
                 state: state,
                 url: url
             )
-        case let .twoFactor(email, unlockMethod, authMethodsData):
-            showTwoFactorAuth(email: email, unlockMethod: unlockMethod, authMethodsData: authMethodsData)
+        case let .twoFactor(email, unlockMethod, authMethodsData, orgIdentifier):
+            showTwoFactorAuth(email: email, unlockMethod: unlockMethod, authMethodsData: authMethodsData, orgIdentifier: orgIdentifier)
         case .updateMasterPassword:
             showUpdateMasterPassword()
         case let .webAuthn(rpId, challenge, allowCredentialIds, userVerificationPreference):
@@ -517,11 +517,13 @@ final class AuthCoordinator: NSObject, // swiftlint:disable:this type_body_lengt
     private func showTwoFactorAuth(
         email: String,
         unlockMethod: TwoFactorUnlockMethod?,
-        authMethodsData: AuthMethodsData
+        authMethodsData: AuthMethodsData,
+        orgIdentifier: String?
     ) {
         let state = TwoFactorAuthState(
             authMethodsData: authMethodsData,
             email: email,
+            orgIdentifier: orgIdentifier,
             unlockMethod: unlockMethod
         )
         let processor = TwoFactorAuthProcessor(

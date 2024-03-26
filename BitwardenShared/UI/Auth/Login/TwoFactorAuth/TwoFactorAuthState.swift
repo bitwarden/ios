@@ -30,6 +30,9 @@ struct TwoFactorAuthState: Equatable {
     /// Whether the remember me toggle is on.
     var isRememberMeOn = false
 
+    /// User organization idenfier if came from SSO flow
+    var orgIdentifier: String?
+    
     /// A toast message to show in the view.
     var toast: Toast?
 
