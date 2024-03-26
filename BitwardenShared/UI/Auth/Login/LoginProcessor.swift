@@ -84,7 +84,8 @@ class LoginProcessor: StateProcessor<LoginState, LoginAction, LoginEffect> {
         case .getMasterPasswordHintPressed:
             coordinator.navigate(to: .masterPasswordHint(username: state.username))
         case .loginWithDevicePressed:
-            coordinator.navigate(to: .loginWithDevice(email: state.username))
+            coordinator.navigate(to: .loginWithDevice(email: state.username,
+                                                      authRequestType: AuthRequestType.authenticateAndUnlock))
         case let .masterPasswordChanged(newValue):
             state.masterPassword = newValue
         case .notYouPressed:

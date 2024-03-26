@@ -10,8 +10,13 @@ struct LoginWithDeviceRequest: Request {
     /// The body of this request.
     let body: LoginWithDeviceRequestModel?
 
+    /// The type of auth request.
+    let requestType: Int
+
     /// The URL path for this request.
-    var path: String = "auth-requests"
+    var path: String {
+        requestType == AuthRequestType.adminApproval.rawValue ? "auth-requests/admin-request" : "auth-requests"
+    }
 
     /// The HTTP method for this request.
     let method: HTTPMethod = .post
@@ -22,5 +27,6 @@ struct LoginWithDeviceRequest: Request {
     ///
     init(body: LoginWithDeviceRequestModel) {
         self.body = body
+        requestType = body.type
     }
 }

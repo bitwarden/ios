@@ -82,8 +82,10 @@ final class LoginWithDeviceProcessor: StateProcessor<
         defer { coordinator.hideLoadingOverlay() }
         do {
             coordinator.showLoadingOverlay(title: Localizations.loading)
+            guard let authRequestType = state.requestType else { throw AuthError.missingData }
 
-            let result = try await services.authService.initiateLoginWithDevice(email: state.email)
+            let result = try await services.authService.initiateLoginWithDevice(email: state.email,
+                                                                                type: authRequestType)
             state.fingerprintPhrase = result.authRequestResponse.fingerprint
             state.requestId = result.requestId
             authRequestResponse = result.authRequestResponse
@@ -103,11 +105,12 @@ final class LoginWithDeviceProcessor: StateProcessor<
             // Used the cached request if it's nil (for example, if the captcha flow just completed).
             guard let request = request ?? approvedRequest else { return }
             approvedRequest = request
-
+            
             // Attempt to login.
             let (privateKey, key) = try await services.authService.loginWithDevice(
                 request,
                 email: state.email,
+                isAuthenticated: state.isAuthenticated,
                 captchaToken: captchaToken
             )
 

@@ -89,13 +89,16 @@ protocol AuthService {
 
     /// Initiates the login with device process.
     ///
-    /// - Parameters email: The user's email.
+    /// - Parameters:
+    ///  - email: The user's email.
+    ///  - type: The auth request type.
     ///
     /// - Returns: The auth request response containing the fingerprint for the new login request
     ///     and the id of the login request, used to check for a response.
     ///
     func initiateLoginWithDevice(
-        email: String
+        email: String,
+        type: AuthRequestType
     ) async throws -> (authRequestResponse: AuthRequestResponse, requestId: String)
 
     /// Login with the response received from a login with device request.
@@ -106,8 +109,8 @@ protocol AuthService {
     ///   - captchaToken: An optional captcha token value to add to the token request.
     /// - Returns: A tuple containing the private key from the auth request and the encrypted user key.
     ///
-    func loginWithDevice(_ loginRequest: LoginRequest, email: String, captchaToken: String?) async throws
-        -> (String, String)
+    func loginWithDevice(_ loginRequest: LoginRequest, email: String, isAuthenticated: Bool,
+                         captchaToken: String?) async throws -> (String, String)
 
     /// Login with the master password.
     ///
@@ -386,20 +389,23 @@ class DefaultAuthService: AuthService { // swiftlint:disable:this type_body_leng
     }
 
     func initiateLoginWithDevice(
-        email: String
+        email: String,
+        type: AuthRequestType
     ) async throws -> (authRequestResponse: AuthRequestResponse, requestId: String) {
         // Get the app's id.
         let appId = await appIdService.getOrCreateAppId()
 
         // Initiate the login request and cache the result.
         let loginWithDeviceData = try await clientAuth.newAuthRequest(email: email)
-        let loginRequest = try await authAPIService.initiateLoginWithDevice(
-            accessCode: loginWithDeviceData.accessCode,
-            deviceIdentifier: appId,
+        let loginRequest = try await authAPIService.initiateLoginWithDevice(LoginWithDeviceRequestModel(
             email: email,
-            fingerPrint: loginWithDeviceData.fingerprint,
-            publicKey: loginWithDeviceData.publicKey
-        )
+            publicKey: loginWithDeviceData.publicKey,
+            deviceIdentifier: appId,
+            accessCode: loginWithDeviceData.accessCode,
+            type: type.rawValue,
+            fingerprintPhrase: loginWithDeviceData.fingerprint
+        ))
+
         self.loginWithDeviceData = loginWithDeviceData
 
         // Return the auth request response and the request id.
@@ -412,21 +418,24 @@ class DefaultAuthService: AuthService { // swiftlint:disable:this type_body_leng
     func loginWithDevice(
         _ loginRequest: LoginRequest,
         email: String,
+        isAuthenticated: Bool = false,
         captchaToken: String?
     ) async throws -> (String, String) {
         guard let loginWithDeviceData else { throw AuthError.missingLoginWithDeviceData }
         guard let key = loginRequest.key else { throw AuthError.missingLoginWithDeviceKey }
 
-        // Get the identity token to log in to Bitwarden.
-        _ = try await getIdentityTokenResponse(
-            authenticationMethod: .password(
-                username: email,
-                password: loginWithDeviceData.accessCode
-            ),
-            email: email,
-            captchaToken: captchaToken,
-            loginRequestId: loginRequest.id
-        )
+        if !isAuthenticated {
+            // Get the identity token to log in to Bitwarden.
+            _ = try await getIdentityTokenResponse(
+                authenticationMethod: .password(
+                    username: email,
+                    password: loginWithDeviceData.accessCode
+                ),
+                email: email,
+                captchaToken: captchaToken,
+                loginRequestId: loginRequest.id
+            )
+        }
 
         // Return the information necessary to unlock the vault.
         return (loginWithDeviceData.privateKey, key)

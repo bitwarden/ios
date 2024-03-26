@@ -11,4 +11,10 @@ struct LoginWithDeviceState: Equatable {
 
     /// The id of the login request.
     var requestId: String?
+
+    /// The id of the login request.
+    var requestType: AuthRequestType?
+
+    /// If user comes from SSO flow and is already authenticated
+    var isAuthenticated: Bool = false
 }

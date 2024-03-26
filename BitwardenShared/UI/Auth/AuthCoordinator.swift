@@ -133,8 +133,8 @@ final class AuthCoordinator: NSObject, // swiftlint:disable:this type_body_lengt
             showLanding()
         case let .login(username):
             showLogin(username)
-        case let .loginWithDevice(email):
-            showLoginWithDevice(email: email)
+        case let .loginWithDevice(email, type):
+            showLoginWithDevice(email: email, type: type, isAuthenticated: context is LoginDecryptionOptionsProcessor)
         case let .masterPasswordHint(username):
             showMasterPasswordHint(for: username)
         case let .selfHosted(region):
@@ -365,11 +365,11 @@ final class AuthCoordinator: NSObject, // swiftlint:disable:this type_body_lengt
     ///
     /// - Parameter email: The user's email.
     ///
-    private func showLoginWithDevice(email: String) {
+    private func showLoginWithDevice(email: String, type: AuthRequestType, isAuthenticated: Bool) {
         let processor = LoginWithDeviceProcessor(
             coordinator: asAnyCoordinator(),
             services: services,
-            state: LoginWithDeviceState(email: email)
+            state: LoginWithDeviceState(email: email, requestType: type, isAuthenticated: isAuthenticated)
         )
         let store = Store(processor: processor)
         let view = LoginWithDeviceView(store: store)

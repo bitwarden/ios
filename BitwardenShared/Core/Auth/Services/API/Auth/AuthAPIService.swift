@@ -43,21 +43,10 @@ protocol AuthAPIService {
 
     /// Initiates the login with device process.
     ///
-    /// - Parameters:
-    ///   - accessCode: The access code used in the request.
-    ///   - deviceIdentifier: The user's device ID.
-    ///   - email: The user's email.
-    ///   - fingerprint: The fingerprint used in the request.
-    ///   - publicKey: The key used in the request.
-    ///
+    /// - Parameter requestModel The access code used in the request
     /// - Returns: The new pending login requests.
     ///
-    func initiateLoginWithDevice(
-        accessCode: String,
-        deviceIdentifier: String,
-        email: String,
-        fingerPrint: String,
-        publicKey: String
+    func initiateLoginWithDevice(_ requestModel: LoginWithDeviceRequestModel
     ) async throws -> LoginRequest
 
     /// Queries the API to pre-validate single-sign on for the requested organization identifier.
@@ -113,25 +102,13 @@ extension APIService: AuthAPIService {
         try await apiService.send(PendingLoginsRequest()).data.filter { !$0.isAnswered && !$0.isExpired }
     }
 
-    func initiateLoginWithDevice(
-        accessCode: String,
-        deviceIdentifier: String,
-        email: String,
-        fingerPrint: String,
-        publicKey: String
-    ) async throws -> LoginRequest {
-        try await apiUnauthenticatedService.send(
-            LoginWithDeviceRequest(
-                body: LoginWithDeviceRequestModel(
-                    email: email,
-                    publicKey: publicKey,
-                    deviceIdentifier: deviceIdentifier,
-                    accessCode: accessCode,
-                    type: 0,
-                    fingerprintPhrase: fingerPrint
-                )
-            )
-        )
+    func initiateLoginWithDevice(_ requestModel: LoginWithDeviceRequestModel) async throws -> LoginRequest {
+        let request = LoginWithDeviceRequest(body: requestModel)
+        if request.requestType == AuthRequestType.adminApproval.rawValue {
+            return try await apiService.send(request)
+        } else {
+            return try await apiUnauthenticatedService.send(request)
+        }
     }
 
     func preValidateSingleSignOn(organizationIdentifier: String) async throws -> PreValidateSingleSignOnResponse {
@@ -150,5 +127,4 @@ extension APIService: AuthAPIService {
     func updateTrustedDeviceKeys(deviceIdentifier: String, model: TrustedDeviceKeysRequestModel) async throws {
         _ = try await apiService.send(TrustedDeviceKeysRequest(deviceIdentifier: deviceIdentifier, requestModel: model))
     }
-
 }
