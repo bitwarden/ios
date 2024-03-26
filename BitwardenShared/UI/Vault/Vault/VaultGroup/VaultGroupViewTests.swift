@@ -111,6 +111,12 @@ class VaultGroupViewTests: BitwardenTestCase {
         assertSnapshot(of: subject, as: .defaultPortrait)
     }
 
+    func test_snapshot_emptyFolder() {
+        processor.state.group = .folder(id: "id", name: "name")
+        processor.state.loadingState = .data([])
+        assertSnapshot(of: subject, as: .defaultPortrait)
+    }
+
     func test_snapshot_emptyTrash() {
         processor.state.group = .trash
         processor.state.loadingState = .data([])
