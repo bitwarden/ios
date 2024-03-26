@@ -59,9 +59,7 @@ extension View {
     func toolbarButton(asset: ImageAsset, label: String, action: @escaping () -> Void) -> some View {
         Button(action: action) {
             Image(asset: asset, label: Text(label))
-                .resizable()
-                .foregroundColor(Asset.Colors.primaryBitwarden.swiftUIColor)
-                .frame(width: 19, height: 19)
+                .imageStyle(.toolbarIcon)
         }
         // Ideally we would set both `minHeight` and `minWidth` to 44. Setting `minWidth` causes
         // padding to be applied equally on both sides of the image. This results in extra padding
@@ -97,9 +95,7 @@ extension View {
             content()
         } label: {
             Image(asset: Asset.Images.verticalKabob, label: Text(Localizations.options))
-                .resizable()
-                .frame(width: 19, height: 19)
-                .foregroundColor(Asset.Colors.primaryBitwarden.swiftUIColor)
+                .imageStyle(.toolbarIcon)
                 .accessibilityIdentifier("HeaderBarOptionsButton")
         }
         // Ideally we would set both `minHeight` and `minWidth` to 44. Setting `minWidth` causes

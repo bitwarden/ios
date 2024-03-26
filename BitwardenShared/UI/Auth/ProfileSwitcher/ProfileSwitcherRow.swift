@@ -74,9 +74,7 @@ struct ProfileSwitcherRow: View {
                         .truncationMode(.tail)
                         Spacer()
                         trailingIcon?
-                            .resizable()
-                            .frame(width: 22, height: 22)
-                            .foregroundColor(trailingIconColor)
+                            .imageStyle(.rowIcon(color: trailingIconColor))
                             .accessibilityIdentifier(store.state.trailingIconAccessibilityID)
                     }
                     .padding([.top, .bottom], (statusSubtitle != nil || hostSubtitle != nil) ? 9 : 19)
