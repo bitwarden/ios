@@ -57,25 +57,21 @@ struct ProfileSwitcherRow: View {
                                 .styleGuide(.body)
                                 .accessibilityIdentifier("AccountEmailLabel")
                                 .foregroundColor(Asset.Colors.textPrimary.swiftUIColor)
-                                .lineLimit(1)
-                                .truncationMode(.tail)
                             if let hostSubtitle {
                                 Text(hostSubtitle)
                                     .styleGuide(.subheadline)
                                     .accessibilityIdentifier("AccountHostUrlLabel")
                                     .foregroundColor(Asset.Colors.textSecondary.swiftUIColor)
-                                    .lineLimit(1)
-                                    .truncationMode(.tail)
                             }
                             if let statusSubtitle {
                                 Text(statusSubtitle)
                                     .styleGuide(.subheadline, isItalic: true)
                                     .accessibilityIdentifier("AccountStatusLabel")
                                     .foregroundColor(Asset.Colors.textSecondary.swiftUIColor)
-                                    .lineLimit(1)
-                                    .truncationMode(.tail)
                             }
                         }
+                        .lineLimit(1)
+                        .truncationMode(.tail)
                         Spacer()
                         trailingIcon?
                             .resizable()
