@@ -51,6 +51,7 @@ class ExportVaultProcessorTests: BitwardenTestCase {
     /// Test that an alert is displayed if the user tries to export with an invalid password.
     func test_invalidPassword() async throws {
         authRepository.validatePasswordResult = .success(false)
+        subject.state.masterPasswordText = "password"
 
         subject.receive(.exportVaultTapped)
         let exportAction = try XCTUnwrap(coordinator.alertShown.last?.alertActions.first)
@@ -62,6 +63,7 @@ class ExportVaultProcessorTests: BitwardenTestCase {
     /// Test that an error is recorded if there was an error validating the password.
     func test_invalidPassword_error() async throws {
         authRepository.validatePasswordResult = .failure(BitwardenTestError.example)
+        subject.state.masterPasswordText = "password"
 
         subject.receive(.exportVaultTapped)
         let exportAction = try XCTUnwrap(coordinator.alertShown.last?.alertActions.first)
@@ -88,19 +90,38 @@ class ExportVaultProcessorTests: BitwardenTestCase {
         XCTAssertEqual(coordinator.routes.last, .dismiss)
     }
 
-    /// `.receive()` with  `.exportVaultTapped` shows the confirm alert for encrypted formats.
-    func test_receive_exportVaultTapped_encrypted() {
+    /// `.receive()` with  `.exportVaultTapped` shows the confirm alert for encrypted formats and
+    /// exports the vault.
+    func test_receive_exportVaultTapped_encrypted() throws {
+        let testURL = URL(string: "www.bitwarden.com")!
+        exportService.exportVaultContentResult = .success("")
+        exportService.writeToFileResult = .success(testURL)
         subject.state.fileFormat = .jsonEncrypted
+        subject.state.filePasswordText = "file password"
+        subject.state.filePasswordConfirmationText = "file password"
+        subject.state.masterPasswordText = "password"
         subject.receive(.exportVaultTapped)
 
         // Confirm that the correct alert is displayed.
         XCTAssertEqual(coordinator.alertShown.last, .confirmExportVault(encrypted: true, action: {}))
+
+        let exportAction = try XCTUnwrap(coordinator.alertShown.last?.alertActions.first)
+        let task = Task {
+            await exportAction.handler?(exportAction, [])
+        }
+        waitFor(!coordinator.routes.isEmpty)
+        task.cancel()
+        XCTAssertEqual(exportService.exportVaultContentsFormat, .encryptedJson(password: "file password"))
+        XCTAssertEqual(coordinator.routes.last, .shareExportedVault(testURL))
     }
 
     /// `.receive()` with  `.exportVaultTapped` logs an error on export failure.
     func test_receive_exportVaultTapped_encrypted_error() throws {
         exportService.exportVaultContentResult = .failure(BitwardenTestError.example)
         subject.state.fileFormat = .jsonEncrypted
+        subject.state.filePasswordText = "file password"
+        subject.state.filePasswordConfirmationText = "file password"
+        subject.state.masterPasswordText = "password"
         subject.receive(.exportVaultTapped)
 
         // Select the alert action to export.
@@ -113,9 +134,68 @@ class ExportVaultProcessorTests: BitwardenTestCase {
         XCTAssertEqual(errorReporter.errors.first as? BitwardenTestError, .example)
     }
 
+    /// `.receive()` with  `.exportVaultTapped` shows an alert if the file password fields don't match.
+    func test_receive_exportVaultTapped_encrypted_filePasswordMismatch() {
+        subject.state.fileFormat = .jsonEncrypted
+        subject.state.filePasswordText = "filePassword"
+        subject.state.filePasswordConfirmationText = "not the file password"
+
+        subject.receive(.exportVaultTapped)
+
+        XCTAssertEqual(coordinator.alertShown.last, .passwordsDontMatch)
+    }
+
+    /// `.receive()` with  `.exportVaultTapped` shows an alert if the file password is missing.
+    func test_receive_exportVaultTapped_encrypted_missingFilePassword() {
+        subject.state.fileFormat = .jsonEncrypted
+
+        subject.receive(.exportVaultTapped)
+
+        XCTAssertEqual(
+            coordinator.alertShown.last,
+            .inputValidationAlert(
+                error: InputValidationError(
+                    message: Localizations.validationFieldRequired(Localizations.filePassword)
+                )
+            )
+        )
+    }
+
+    /// `.receive()` with  `.exportVaultTapped` shows an alert if the file password confirmation is missing.
+    func test_receive_exportVaultTapped_encrypted_missingFilePasswordConfirmation() {
+        subject.state.fileFormat = .jsonEncrypted
+        subject.state.filePasswordText = "file password"
+
+        subject.receive(.exportVaultTapped)
+
+        XCTAssertEqual(
+            coordinator.alertShown.last,
+            .inputValidationAlert(
+                error: InputValidationError(
+                    message: Localizations.validationFieldRequired(Localizations.confirmFilePassword)
+                )
+            )
+        )
+    }
+
+    /// `.receive()` with  `.exportVaultTapped` shows an alert if the master password is missing.
+    func test_receive_exportVaultTapped_missingMasterPassword() {
+        subject.receive(.exportVaultTapped)
+
+        XCTAssertEqual(
+            coordinator.alertShown.last,
+            .inputValidationAlert(
+                error: InputValidationError(
+                    message: Localizations.validationFieldRequired(Localizations.masterPassword)
+                )
+            )
+        )
+    }
+
     /// `.receive()` with `.exportVaultTapped` shows the confirm alert for unencrypted formats.
     func test_receive_exportVaultTapped_unencrypted() {
         subject.state.fileFormat = .json
+        subject.state.masterPasswordText = "password"
         subject.receive(.exportVaultTapped)
 
         // Confirm that the correct alert is displayed.
@@ -126,6 +206,7 @@ class ExportVaultProcessorTests: BitwardenTestCase {
     func test_receive_exportVaultTapped_unencrypted_error() throws {
         exportService.exportVaultContentResult = .failure(BitwardenTestError.example)
         subject.state.fileFormat = .csv
+        subject.state.masterPasswordText = "password"
         subject.receive(.exportVaultTapped)
 
         // Select the alert action to export.
@@ -144,6 +225,7 @@ class ExportVaultProcessorTests: BitwardenTestCase {
         exportService.exportVaultContentResult = .success("")
         exportService.writeToFileResult = .success(testURL)
         subject.state.fileFormat = .json
+        subject.state.masterPasswordText = "password"
         subject.receive(.exportVaultTapped)
 
         // Select the alert action to export.
@@ -163,6 +245,7 @@ class ExportVaultProcessorTests: BitwardenTestCase {
         exportService.exportVaultContentResult = .success("")
         exportService.writeToFileResult = .success(testURL)
         subject.state.fileFormat = .json
+        subject.state.masterPasswordText = "password"
 
         subject.receive(.exportVaultTapped)
 
@@ -185,6 +268,24 @@ class ExportVaultProcessorTests: BitwardenTestCase {
         subject.receive(.filePasswordTextChanged("file password"))
 
         XCTAssertEqual(subject.state.filePasswordText, "file password")
+    }
+
+    /// `.receive()` with `.filePasswordTextChanged()` updates the password strength.
+    func test_receive_filePasswordTextChanged_updatesPasswordStrength() {
+        authRepository.passwordStrengthResult = 1
+        subject.receive(.filePasswordTextChanged("file"))
+        waitFor(subject.state.filePasswordStrengthScore == 1)
+        XCTAssertEqual(authRepository.passwordStrengthPassword, "file")
+        XCTAssertEqual(subject.state.filePasswordStrengthScore, 1)
+
+        authRepository.passwordStrengthResult = 4
+        subject.receive(.filePasswordTextChanged("file password"))
+        waitFor(subject.state.filePasswordStrengthScore == 4)
+        XCTAssertEqual(authRepository.passwordStrengthPassword, "file password")
+        XCTAssertEqual(subject.state.filePasswordStrengthScore, 4)
+
+        subject.receive(.filePasswordTextChanged(""))
+        XCTAssertNil(subject.state.filePasswordStrengthScore)
     }
 
     /// `.receive()` with `.filePasswordConfirmationTextChanged()` updates the file password confirmation text.

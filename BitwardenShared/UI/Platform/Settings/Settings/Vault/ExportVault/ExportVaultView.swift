@@ -24,6 +24,7 @@ struct ExportVaultView: View {
 
             exportVaultButton
         }
+        .animation(.default, value: store.state.filePasswordStrengthScore)
         .disabled(store.state.disableIndividualVaultExport)
         .scrollView()
         .navigationBar(title: Localizations.exportVault, titleDisplayMode: .inline)
