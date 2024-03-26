@@ -11,9 +11,22 @@ struct ExportVaultState: Equatable {
     /// The currently selected file format type.
     var fileFormat: ExportFormatType = .json
 
-    /// Whether the password field is visible.
-    var isPasswordVisible = false
+    /// The file password confirmation text.
+    var filePasswordConfirmationText = ""
 
-    /// The password text.
-    var passwordText: String = ""
+    /// A scoring metric that represents the strength of the entered password. The score ranges from
+    /// 0-4 (weak to strong password).
+    var filePasswordStrengthScore: UInt8?
+
+    /// The file password text.
+    var filePasswordText = ""
+
+    /// Whether the file password field is visible.
+    var isFilePasswordVisible = false
+
+    /// Whether the master password field is visible.
+    var isMasterPasswordVisible = false
+
+    /// The master password text.
+    var masterPasswordText = ""
 }

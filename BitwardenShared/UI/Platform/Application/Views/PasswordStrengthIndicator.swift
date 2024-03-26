@@ -7,9 +7,6 @@ import SwiftUI
 struct PasswordStrengthIndicator: View {
     // MARK: Properties
 
-    /// The minimum password length.
-    var minimumPasswordLength: Int
-
     /// The password's strength.
     let passwordStrength: PasswordStrength
 
@@ -17,17 +14,6 @@ struct PasswordStrengthIndicator: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
-            Group {
-                Text(Localizations.important + ": ")
-                    .bold() +
-                    Text(Localizations.yourMasterPasswordCannotBeRecoveredIfYouForgetItXCharactersMinimum(
-                        minimumPasswordLength)
-                    )
-            }
-            .styleGuide(.footnote)
-            .foregroundColor(Color(asset: Asset.Colors.textSecondary))
-            .padding(.bottom, 16)
-
             GeometryReader { geometry in
                 ZStack(alignment: .leading) {
                     RoundedRectangle(cornerRadius: 2)
@@ -54,12 +40,10 @@ struct PasswordStrengthIndicator: View {
 
     /// Initialize a `PasswordStrengthIndicator`.
     ///
-    /// - Parameters:
-    ///   - minimumPasswordLength: The minimum password length.
-    ///   - passwordStrengthScore: The scoring metric representing the strength of the entered password.
+    /// - Parameter passwordStrengthScore: The scoring metric representing the strength of the
+    ///     entered password.
     ///
-    init(minimumPasswordLength: Int, passwordStrengthScore: UInt8? = nil) {
-        self.minimumPasswordLength = minimumPasswordLength
+    init(passwordStrengthScore: UInt8? = nil) {
         passwordStrength = PasswordStrength(score: passwordStrengthScore)
     }
 }
@@ -126,13 +110,11 @@ extension PasswordStrengthIndicator {
     ScrollView {
         VStack {
             PasswordStrengthIndicator(
-                minimumPasswordLength: Constants.minimumPasswordCharacters,
                 passwordStrengthScore: nil
             )
 
             ForEach(UInt8(0) ... UInt8(4), id: \.self) { score in
                 PasswordStrengthIndicator(
-                    minimumPasswordLength: Constants.minimumPasswordCharacters,
                     passwordStrengthScore: score
                 )
             }

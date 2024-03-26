@@ -60,10 +60,16 @@ final class ExportVaultProcessor: StateProcessor<ExportVaultState, ExportVaultAc
             confirmExportVault()
         case let .fileFormatTypeChanged(fileFormat):
             state.fileFormat = fileFormat
-        case let .passwordTextChanged(newValue):
-            state.passwordText = newValue
-        case let .togglePasswordVisibility(isOn):
-            state.isPasswordVisible = isOn
+        case let .filePasswordTextChanged(newValue):
+            state.filePasswordText = newValue
+        case let .filePasswordConfirmationTextChanged(newValue):
+            state.filePasswordConfirmationText = newValue
+        case let .masterPasswordTextChanged(newValue):
+            state.masterPasswordText = newValue
+        case let .toggleFilePasswordVisibility(isOn):
+            state.isFilePasswordVisible = isOn
+        case let .toggleMasterPasswordVisibility(isOn):
+            state.isMasterPasswordVisible = isOn
         }
     }
 
@@ -73,7 +79,7 @@ final class ExportVaultProcessor: StateProcessor<ExportVaultState, ExportVaultAc
     private func confirmExportVault() {
         let encrypted = (state.fileFormat == .jsonEncrypted)
         let format = state.fileFormat
-        let password = state.passwordText
+        let password = state.masterPasswordText
 
         // She the alert to confirm exporting the vault.
         coordinator.showAlert(.confirmExportVault(encrypted: encrypted) {
@@ -87,7 +93,7 @@ final class ExportVaultProcessor: StateProcessor<ExportVaultState, ExportVaultAc
 
                 // Clear the user's entered password so that it's required to be entered again for
                 // any subsequent exports.
-                self.state.passwordText = ""
+                self.state.masterPasswordText = ""
             } catch {
                 self.services.errorReporter.log(error: error)
             }
@@ -130,7 +136,7 @@ final class ExportVaultProcessor: StateProcessor<ExportVaultState, ExportVaultAc
     @MainActor
     private func validatePassword() async -> Bool {
         do {
-            return try await services.authRepository.validatePassword(state.passwordText)
+            return try await services.authRepository.validatePassword(state.masterPasswordText)
         } catch {
             services.errorReporter.log(error: error)
             return false

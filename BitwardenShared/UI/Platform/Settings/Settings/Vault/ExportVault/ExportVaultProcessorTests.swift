@@ -170,7 +170,7 @@ class ExportVaultProcessorTests: BitwardenTestCase {
         try await coordinator.alertShown.last?.tapAction(title: Localizations.exportVault)
 
         XCTAssertEqual(coordinator.routes.last, .shareExportedVault(testURL))
-        XCTAssertTrue(subject.state.passwordText.isEmpty)
+        XCTAssertTrue(subject.state.masterPasswordText.isEmpty)
     }
 
     /// `.receive()` with `.fileFormatTypeChanged()` updates the file format.
@@ -180,19 +180,42 @@ class ExportVaultProcessorTests: BitwardenTestCase {
         XCTAssertEqual(subject.state.fileFormat, .csv)
     }
 
-    /// `.receive()` with `.passwordTextChanged()` updates the password text.
-    func test_receive_passwordTextChanged() {
-        subject.receive(.passwordTextChanged("password"))
+    /// `.receive()` with `.filePasswordTextChanged()` updates the file password text.
+    func test_receive_filePasswordTextChanged() {
+        subject.receive(.filePasswordTextChanged("file password"))
 
-        XCTAssertEqual(subject.state.passwordText, "password")
+        XCTAssertEqual(subject.state.filePasswordText, "file password")
     }
 
-    /// `.receive()` with `.togglePasswordVisibility()` toggles the password visibility.
-    func test_receive_togglePasswordVisibility() {
-        subject.receive(.togglePasswordVisibility(true))
-        XCTAssertTrue(subject.state.isPasswordVisible)
+    /// `.receive()` with `.filePasswordConfirmationTextChanged()` updates the file password confirmation text.
+    func test_receive_filePasswordConfirmationTextChanged() {
+        subject.receive(.filePasswordConfirmationTextChanged("file password"))
 
-        subject.receive(.togglePasswordVisibility(false))
-        XCTAssertFalse(subject.state.isPasswordVisible)
+        XCTAssertEqual(subject.state.filePasswordConfirmationText, "file password")
+    }
+
+    /// `.receive()` with `.masterPasswordTextChanged()` updates the master password text.
+    func test_receive_masterPasswordTextChanged() {
+        subject.receive(.masterPasswordTextChanged("password"))
+
+        XCTAssertEqual(subject.state.masterPasswordText, "password")
+    }
+
+    /// `.receive()` with `.toggleFilePasswordVisibility()` toggles the file password visibility.
+    func test_receive_toggleFilePasswordVisibility() {
+        subject.receive(.toggleFilePasswordVisibility(true))
+        XCTAssertTrue(subject.state.isFilePasswordVisible)
+
+        subject.receive(.toggleFilePasswordVisibility(false))
+        XCTAssertFalse(subject.state.isFilePasswordVisible)
+    }
+
+    /// `.receive()` with `.toggleMasterPasswordVisibility()` toggles the master password visibility.
+    func test_receive_toggleMasterPasswordVisibility() {
+        subject.receive(.toggleMasterPasswordVisibility(true))
+        XCTAssertTrue(subject.state.isMasterPasswordVisible)
+
+        subject.receive(.toggleMasterPasswordVisibility(false))
+        XCTAssertFalse(subject.state.isMasterPasswordVisible)
     }
 }

@@ -18,7 +18,9 @@ struct ExportVaultView: View {
 
             fileFormatField
 
-            passwordField
+            filePasswordFields
+
+            masterPasswordField
 
             exportVaultButton
         }
@@ -67,20 +69,60 @@ struct ExportVaultView: View {
         )
     }
 
-    /// The password text field.
-    private var passwordField: some View {
+    /// The file password text fields for a JSON encrypted export.
+    @ViewBuilder private var filePasswordFields: some View {
+        if store.state.fileFormat == .jsonEncrypted {
+            BitwardenTextField(
+                title: Localizations.filePassword,
+                text: store.binding(
+                    get: \.filePasswordText,
+                    send: ExportVaultAction.filePasswordTextChanged
+                ),
+                footer: Localizations.filePasswordDescription,
+                accessibilityIdentifier: "FilePasswordEntry",
+                passwordVisibilityAccessibilityId: "FilePasswordVisibilityToggle",
+                isPasswordVisible: store.binding(
+                    get: \.isFilePasswordVisible,
+                    send: ExportVaultAction.toggleFilePasswordVisibility
+                )
+            )
+            .textFieldConfiguration(.password)
+
+            PasswordStrengthIndicator(
+                passwordStrengthScore: store.state.filePasswordStrengthScore
+            )
+
+            BitwardenTextField(
+                title: Localizations.confirmFilePassword,
+                text: store.binding(
+                    get: \.filePasswordConfirmationText,
+                    send: ExportVaultAction.filePasswordConfirmationTextChanged
+                ),
+                accessibilityIdentifier: "FilePasswordEntry",
+                passwordVisibilityAccessibilityId: "FilePasswordVisibilityToggle",
+                isPasswordVisible: store.binding(
+                    get: \.isFilePasswordVisible,
+                    send: ExportVaultAction.toggleFilePasswordVisibility
+                )
+            )
+            .textFieldConfiguration(.password)
+        }
+    }
+
+    /// The master password text field.
+    private var masterPasswordField: some View {
         BitwardenTextField(
             title: Localizations.masterPassword,
             text: store.binding(
-                get: \.passwordText,
-                send: ExportVaultAction.passwordTextChanged
+                get: \.masterPasswordText,
+                send: ExportVaultAction.masterPasswordTextChanged
             ),
             footer: Localizations.exportVaultMasterPasswordDescription,
             accessibilityIdentifier: "MasterPasswordEntry",
             passwordVisibilityAccessibilityId: "PasswordVisibilityToggle",
             isPasswordVisible: store.binding(
-                get: \.isPasswordVisible,
-                send: ExportVaultAction.togglePasswordVisibility
+                get: \.isMasterPasswordVisible,
+                send: ExportVaultAction.toggleMasterPasswordVisibility
             )
         )
         .textFieldConfiguration(.password)

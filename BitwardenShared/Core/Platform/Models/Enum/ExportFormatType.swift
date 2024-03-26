@@ -27,7 +27,7 @@ enum ExportFormatType: Menuable {
         case .json:
             ".json"
         case .jsonEncrypted:
-            ".json (Encrypted)"
+            ".json (Password protected)"
         }
     }
 }

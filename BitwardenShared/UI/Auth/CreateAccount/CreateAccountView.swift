@@ -31,10 +31,7 @@ struct CreateAccountView: View {
                 emailAndPassword
                     .padding(.bottom, 8)
 
-                PasswordStrengthIndicator(
-                    minimumPasswordLength: Constants.minimumPasswordCharacters,
-                    passwordStrengthScore: store.state.passwordStrengthScore
-                )
+                passwordStrengthIndicator
             }
 
             retypePassword
@@ -118,6 +115,25 @@ struct CreateAccountView: View {
             Text(Localizations.masterPasswordHintDescription)
                 .foregroundColor(Color(asset: Asset.Colors.textSecondary))
                 .styleGuide(.footnote)
+        }
+    }
+
+    /// The password strength indicator.
+    private var passwordStrengthIndicator: some View {
+        VStack(alignment: .leading, spacing: 0) {
+            Group {
+                Text(Localizations.important + ": ").bold() +
+                    Text(Localizations.yourMasterPasswordCannotBeRecoveredIfYouForgetItXCharactersMinimum(
+                        Constants.minimumPasswordCharacters)
+                    )
+            }
+            .styleGuide(.footnote)
+            .foregroundColor(Color(asset: Asset.Colors.textSecondary))
+            .padding(.bottom, 16)
+
+            PasswordStrengthIndicator(
+                passwordStrengthScore: store.state.passwordStrengthScore
+            )
         }
     }
 
