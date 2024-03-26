@@ -40,6 +40,10 @@ public enum AuthRoute: Equatable {
     ///
     case login(username: String)
 
+    /// A route to the login decryption options screen.
+    ///
+    case showLoginDecryptionOptions
+    
     /// A route to the login with device screen.
     ///
     /// - Parameters:

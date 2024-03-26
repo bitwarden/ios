@@ -44,6 +44,7 @@ final class AuthCoordinator: NSObject, // swiftlint:disable:this type_body_lengt
         & HasSettingsRepository
         & HasStateService
         & HasSystemDevice
+        & HasTrustDeviceService
         & HasVaultTimeoutService
 
     // MARK: Properties
@@ -133,6 +134,8 @@ final class AuthCoordinator: NSObject, // swiftlint:disable:this type_body_lengt
             showLanding()
         case let .login(username):
             showLogin(username)
+        case .showLoginDecryptionOptions:
+            showLoginDecryptionOptions()
         case let .loginWithDevice(email, type):
             showLoginWithDevice(email: email, type: type, isAuthenticated: context is LoginDecryptionOptionsProcessor)
         case let .masterPasswordHint(username):
@@ -373,6 +376,23 @@ final class AuthCoordinator: NSObject, // swiftlint:disable:this type_body_lengt
         )
         let store = Store(processor: processor)
         let view = LoginWithDeviceView(store: store)
+        let viewController = UIHostingController(rootView: view)
+        let navigationController = UINavigationController(rootViewController: viewController)
+        stackNavigator?.present(navigationController)
+    }
+
+    /// Shows the login decryption options screen.
+    ///
+    /// - Parameter email: The user's email.
+    ///
+    private func showLoginDecryptionOptions() {
+        let processor = LoginDecryptionOptionsProcessor(
+            coordinator: asAnyCoordinator(),
+            services: services,
+            state: LoginDecryptionOptionsState()
+        )
+        let store = Store(processor: processor)
+        let view = LoginDecryptionOptionsView(store: store)
         let viewController = UIHostingController(rootView: view)
         let navigationController = UINavigationController(rootViewController: viewController)
         stackNavigator?.present(navigationController)
