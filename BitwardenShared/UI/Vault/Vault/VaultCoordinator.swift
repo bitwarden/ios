@@ -142,8 +142,6 @@ final class VaultCoordinator: Coordinator, HasStackNavigator {
                     )
                 )
             }
-        case let .alert(alert):
-            stackNavigator?.present(alert)
         case .autofillList:
             showAutofillList()
         case let .editItem(cipher):

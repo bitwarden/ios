@@ -72,7 +72,7 @@ class SettingsCoordinatorTests: BitwardenTestCase {
             title: Localizations.anErrorHasOccurred,
             message: Localizations.genericErrorMessage
         )
-        subject.navigate(to: .alert(alert))
+        subject.showAlert(alert)
 
         XCTAssertEqual(stackNavigator.alerts, [alert])
     }

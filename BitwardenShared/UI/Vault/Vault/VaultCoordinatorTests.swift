@@ -71,24 +71,6 @@ class VaultCoordinatorTests: BitwardenTestCase {
         XCTAssertEqual(module.vaultItemCoordinator.routes.last, .addItem(hasPremium: true))
     }
 
-    /// `navigate(to:)` with `.alert` presents the provided alert on the stack navigator.
-    func test_navigate_alert() {
-        let alert = BitwardenShared.Alert(
-            title: "title",
-            message: "message",
-            preferredStyle: .alert,
-            alertActions: [
-                AlertAction(
-                    title: "alert title",
-                    style: .cancel
-                ),
-            ]
-        )
-
-        subject.navigate(to: .alert(alert))
-        XCTAssertEqual(stackNavigator.alerts.last, alert)
-    }
-
     /// `.navigate(to:)` with `.editItem` presents the edit item screen.
     func test_navigateTo_editItem() throws {
         subject.navigate(to: .editItem(.fixture()))

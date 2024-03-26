@@ -115,10 +115,9 @@ class CreateAccountProcessor: StateProcessor<CreateAccountState, CreateAccountAc
         do {
             let breachCount = try await services.accountAPIService.checkDataBreaches(password: state.passwordText)
             guard breachCount == 0 else {
-                let alert = Alert.breachesAlert {
+                coordinator.showAlert(.breachesAlert {
                     await self.createAccount()
-                }
-                coordinator.navigate(to: .alert(alert))
+                })
                 return
             }
         } catch {
@@ -191,23 +190,23 @@ class CreateAccountProcessor: StateProcessor<CreateAccountState, CreateAccountAc
             )
             coordinator.navigate(to: .login(username: email))
         } catch CreateAccountError.acceptPoliciesError {
-            coordinator.navigate(to: .alert(.acceptPoliciesAlert()))
+            coordinator.showAlert(.acceptPoliciesAlert())
         } catch CreateAccountError.emailEmpty {
-            coordinator.navigate(to: .alert(.validationFieldRequired(fieldName: Localizations.email)))
+            coordinator.showAlert(.validationFieldRequired(fieldName: Localizations.email))
         } catch CreateAccountError.invalidEmail {
-            coordinator.navigate(to: .alert(.invalidEmail))
+            coordinator.showAlert(.invalidEmail)
         } catch CreateAccountError.passwordsDontMatch {
-            coordinator.navigate(to: .alert(.passwordsDontMatch))
+            coordinator.showAlert(.passwordsDontMatch)
         } catch CreateAccountError.passwordEmpty {
-            coordinator.navigate(to: .alert(.validationFieldRequired(fieldName: Localizations.masterPassword)))
+            coordinator.showAlert(.validationFieldRequired(fieldName: Localizations.masterPassword))
         } catch CreateAccountError.passwordIsTooShort {
-            coordinator.navigate(to: .alert(.passwordIsTooShort))
+            coordinator.showAlert(.passwordIsTooShort)
         } catch let CreateAccountRequestError.captchaRequired(hCaptchaSiteCode: siteCode) {
             launchCaptchaFlow(with: siteCode)
         } catch {
-            coordinator.navigate(to: .alert(.networkResponseError(error) {
+            coordinator.showAlert(.networkResponseError(error) {
                 await self.createAccount(captchaToken: captchaToken)
-            }))
+            })
         }
     }
 

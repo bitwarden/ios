@@ -281,19 +281,19 @@ class LandingProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_
         XCTAssertTrue(subject.state.isRememberMeOn)
     }
 
-    /// `receive(_:)` with `.continuePressed` and an invalid email navigates to the `.alert` route.
+    /// `receive(_:)` with `.continuePressed` and an invalid email shows an error alert.
     func test_receive_continuePressed_withInvalidEmail() {
         appSettingsStore.rememberedEmail = nil
         subject.state.email = "email"
 
         subject.receive(.continuePressed)
-        XCTAssertEqual(coordinator.routes.last, .alert(Alert(
+        XCTAssertEqual(coordinator.alertShown.last, Alert(
             title: Localizations.anErrorHasOccurred,
             message: Localizations.invalidEmail,
             alertActions: [
                 AlertAction(title: Localizations.ok, style: .default),
             ]
-        )))
+        ))
         XCTAssertNil(appSettingsStore.rememberedEmail)
     }
 
@@ -365,12 +365,7 @@ class LandingProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_
     func test_receive_regionPressed() async throws {
         subject.receive(.regionPressed)
 
-        let route = coordinator.routes.last
-        guard let route, case let AuthRoute.alert(alert) = route
-        else {
-            XCTFail("The last route was not an `.alert`: \(String(describing: route))")
-            return
-        }
+        let alert = try XCTUnwrap(coordinator.alertShown.last)
         XCTAssertEqual(alert.title, Localizations.loggingInOn)
         XCTAssertNil(alert.message)
         XCTAssertEqual(alert.alertActions.count, 4)

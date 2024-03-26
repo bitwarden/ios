@@ -216,13 +216,13 @@ class ViewItemProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
 
         XCTAssertEqual(client.requests.count, 1)
         XCTAssertEqual(client.requests[0].url, URL(string: "https://api.pwnedpasswords.com/range/e6b6a"))
-        XCTAssertEqual(coordinator.routes.last, .alert(Alert(
+        XCTAssertEqual(coordinator.alertShown.last, Alert(
             title: Localizations.passwordExposed(1957),
             message: nil,
             alertActions: [
                 AlertAction(title: Localizations.ok, style: .default),
             ]
-        )))
+        ))
     }
 
     /// `perform` with `.checkPasswordPressed` shows an alert notifying the user that
@@ -236,13 +236,13 @@ class ViewItemProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
 
         XCTAssertEqual(client.requests.count, 1)
         XCTAssertEqual(client.requests[0].url, URL(string: "https://api.pwnedpasswords.com/range/c3ed8"))
-        XCTAssertEqual(coordinator.routes.last, .alert(Alert(
+        XCTAssertEqual(coordinator.alertShown.last, Alert(
             title: Localizations.passwordSafe,
             message: nil,
             alertActions: [
                 AlertAction(title: Localizations.ok, style: .default),
             ]
-        )))
+        ))
     }
 
     /// `perform(_:)` with `.totpCodeExpired` updates the totp code.
@@ -509,7 +509,7 @@ class ViewItemProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
         subject.state = try XCTUnwrap(ViewItemState(cipherView: .fixture(reprompt: .password), hasPremium: false))
         await subject.perform(.deletePressed)
 
-        let repromptAlert = try XCTUnwrap(coordinator.unwrapLastRouteAsAlert())
+        let repromptAlert = try XCTUnwrap(coordinator.alertShown.last)
         XCTAssertEqual(repromptAlert, .masterPasswordPrompt(completion: { _ in }))
         repromptAlert.alertTextFields = [AlertTextField(id: "password", text: "password")]
         try await repromptAlert.tapAction(title: Localizations.submit)
@@ -1033,7 +1033,7 @@ class ViewItemProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
         subject.state.loadingState = .data(loginState)
         subject.receive(.passwordVisibilityPressed)
 
-        XCTAssertEqual(try coordinator.unwrapLastRouteAsAlert(), .masterPasswordPrompt(completion: { _ in }))
+        XCTAssertEqual(coordinator.alertShown.last, .masterPasswordPrompt(completion: { _ in }))
     }
 
     /// `receive(_:)` with `.toastShown` with a value updates the state correctly.
@@ -1069,7 +1069,7 @@ class ViewItemProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
         subject.state.loadingState = .data(cipherState)
         subject.receive(.passwordVisibilityPressed)
 
-        let alert = try coordinator.unwrapLastRouteAsAlert()
+        let alert = try XCTUnwrap(coordinator.alertShown.last)
         XCTAssertNotNil(alert.alertTextFields.first)
         let action = try XCTUnwrap(alert.alertActions.first(where: { $0.title == Localizations.submit }))
         await action.handler?(action, [AlertTextField(id: "password", text: "password1234")])
@@ -1094,7 +1094,7 @@ class ViewItemProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
         subject.state.loadingState = .data(cipherState)
         subject.receive(.passwordVisibilityPressed)
 
-        let alert = try coordinator.unwrapLastRouteAsAlert()
+        let alert = try XCTUnwrap(coordinator.alertShown.last)
         XCTAssertNotNil(alert.alertTextFields.first)
         let action = try XCTUnwrap(alert.alertActions.first(where: { $0.title == Localizations.submit }))
         await action.handler?(action, [AlertTextField(id: "password", text: "password1234")])
@@ -1116,7 +1116,7 @@ class ViewItemProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
         subject.state.loadingState = .data(cipherState)
         subject.receive(.passwordVisibilityPressed)
 
-        let alert = try coordinator.unwrapLastRouteAsAlert()
+        let alert = try XCTUnwrap(coordinator.alertShown.last)
         XCTAssertNotNil(alert.alertTextFields.first)
         let action = try XCTUnwrap(alert.alertActions.first(where: { $0.title == Localizations.submit }))
         await action.handler?(action, [AlertTextField(id: "password", text: "password1234")])
@@ -1124,7 +1124,7 @@ class ViewItemProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
         XCTAssertEqual(authRepository.validatePasswordPasswords, ["password1234"])
         XCTAssertFalse(subject.state.hasVerifiedMasterPassword)
 
-        let invalidPasswordAlert = try coordinator.unwrapLastRouteAsAlert()
+        let invalidPasswordAlert = try XCTUnwrap(coordinator.alertShown.last)
         XCTAssertEqual(invalidPasswordAlert, .defaultAlert(title: Localizations.invalidMasterPassword))
     }
 } // swiftlint:disable:this file_length

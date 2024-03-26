@@ -89,7 +89,7 @@ class VaultUnlockProcessor: StateProcessor<
                     AlertAction(title: Localizations.cancel, style: .cancel),
                 ]
             )
-            coordinator.navigate(to: .alert(alert))
+            coordinator.showAlert(alert)
         case let .pinChanged(pin):
             state.pin = pin
         case let .profileSwitcher(profileAction):
@@ -188,7 +188,7 @@ class VaultUnlockProcessor: StateProcessor<
             guard let self else { return }
             await logoutUser(userInitiated: true)
         }
-        coordinator.navigate(to: .alert(alert))
+        coordinator.showAlert(alert)
     }
 
     /// Attempts to unlock the vault with the user's master password.
@@ -210,7 +210,7 @@ class VaultUnlockProcessor: StateProcessor<
             state.unsuccessfulUnlockAttemptsCount = 0
             await services.stateService.setUnsuccessfulUnlockAttempts(0)
         } catch let error as InputValidationError {
-            coordinator.navigate(to: .alert(Alert.inputValidationAlert(error: error)))
+            coordinator.showAlert(Alert.inputValidationAlert(error: error))
         } catch {
             let alert = Alert.defaultAlert(
                 title: Localizations.anErrorHasOccurred,
@@ -223,7 +223,7 @@ class VaultUnlockProcessor: StateProcessor<
                 await logoutUser(resetAttempts: true, userInitiated: true)
                 return
             }
-            coordinator.navigate(to: .alert(alert))
+            coordinator.showAlert(alert)
         }
     }
 

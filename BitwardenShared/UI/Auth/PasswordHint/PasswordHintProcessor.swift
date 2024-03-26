@@ -74,7 +74,7 @@ class PasswordHintProcessor: StateProcessor<PasswordHintState, PasswordHintActio
             )
 
             coordinator.hideLoadingOverlay()
-            coordinator.navigate(to: .alert(alert))
+            coordinator.showAlert(alert)
         } catch {
             // TODO: BIT-1257 Add error handling
             print(error)

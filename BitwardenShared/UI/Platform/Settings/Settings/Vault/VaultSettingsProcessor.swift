@@ -45,11 +45,11 @@ final class VaultSettingsProcessor: StateProcessor<VaultSettingsState, VaultSett
         case .foldersTapped:
             coordinator.navigate(to: .folders)
         case .importItemsTapped:
-            coordinator.navigate(to: .alert(.importItemsAlert(importUrl:
+            coordinator.showAlert(.importItemsAlert(importUrl:
                 services.environmentService.importItemsURL.absoluteString
             ) {
                 self.state.url = self.services.environmentService.importItemsURL
-            }))
+            })
         }
     }
 }
