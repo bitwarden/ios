@@ -377,7 +377,7 @@ struct VaultListView_Previews: PreviewProvider {
         isUnlocked: true,
         userId: "1",
         userInitials: "AA",
-        webVault: ""
+        webVault: "vault.bitwarden.com"
     )
 
     static let account2 = ProfileSwitcherItem(
@@ -386,7 +386,7 @@ struct VaultListView_Previews: PreviewProvider {
         isUnlocked: true,
         userId: "2",
         userInitials: "BB",
-        webVault: ""
+        webVault: "vault.bitwarden.com"
     )
 
     static let singleAccountState = ProfileSwitcherState(

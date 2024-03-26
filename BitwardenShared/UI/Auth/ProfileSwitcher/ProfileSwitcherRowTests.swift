@@ -14,7 +14,7 @@ final class ProfileSwitcherRowTests: BitwardenTestCase {
         isUnlocked: true,
         userId: "1",
         userInitials: "AA",
-        webVault: ""
+        webVault: "bitwarden.com"
     )
 
     let lockedAccount = ProfileSwitcherItem(
@@ -23,7 +23,7 @@ final class ProfileSwitcherRowTests: BitwardenTestCase {
         isUnlocked: false,
         userId: "2",
         userInitials: "AA",
-        webVault: ""
+        webVault: "bitwarden.com"
     )
 
     var processor: MockProcessor<ProfileSwitcherRowState, ProfileSwitcherRowAction, ProfileSwitcherRowEffect>!
