@@ -761,6 +761,9 @@ extension DefaultAuthRepository: AuthRepository {
                     newMasterPasswordHash: updatePasswordResponse.passwordHash
                 )
             )
+        case .tdeUserWithoutPasswordHasPasswordResetPermission:
+            // not applicable here since this is a SetPassword and not an UpdatePassword
+            break
         }
 
         try await stateService.setAccountEncryptionKeys(newEncryptionKeys)

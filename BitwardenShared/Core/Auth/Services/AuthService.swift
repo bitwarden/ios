@@ -119,10 +119,15 @@ protocol AuthService {
     ///   - loginRequest: The approved login request.
     ///   - email: The user's email.
     ///   - captchaToken: An optional captcha token value to add to the token request.
+    ///   - isAuthenticated: If the user came from sso and is already authenticated
     /// - Returns: A tuple containing the private key from the auth request and the encrypted user key.
     ///
-    func loginWithDevice(_ loginRequest: LoginRequest, email: String, isAuthenticated: Bool,
-                         captchaToken: String?) async throws -> (String, String)
+    func loginWithDevice(
+        _ loginRequest: LoginRequest,
+        email: String,
+        isAuthenticated: Bool,
+        captchaToken: String?
+    ) async throws -> (String, String)
 
     /// Login with the master password.
     ///
