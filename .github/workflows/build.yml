@@ -184,9 +184,9 @@ jobs:
           APPLE_ID_USERNAME: ${{ secrets.APPLE_ID_USERNAME }}
           APPLE_ID_PASSWORD: ${{ secrets.APPLE_ID_PASSWORD }}
         run: |
-          ls build
+          ls build/Bitwarden
           xcrun altool --validate-app \
             --type ios \
-            --file "build/Bitwarden.ipa" \
+            --file "build/Bitwarden/Bitwarden.ipa" \
             --username "$APPLE_ID_USERNAME"
-            --password "$APPLE_ID_PASSWORD"
+            --password @env:APPLE_ID_PASSWORD
