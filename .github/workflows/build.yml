@@ -66,14 +66,6 @@ jobs:
           sudo installer -pkg yeetd-normal.pkg -target /
           yeetd &
 
-      - name: "Confirm Apple Password Secret"
-        env:
-          APPLE_ID_PASSWORD: ${{ secrets.APPLE_ID_PASSWORD }}
-        if: ${{ env.super_secret == '' }}
-        run: |
-          echo "The secret \"APPLE_ID_PASSWORD\" has not been set"
-          exit 1
-
       - name: Log In to Azure - CI Subscription
         uses: Azure/login@cb79c773a3cfa27f31f25eb3f677781210c9ce3d # v1.6.1
         with:
