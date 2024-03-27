@@ -74,7 +74,7 @@ jobs:
           echo "The secret \"AZURE_KV_CI_SERVICE_PRINCIPAL\" has not been set"
           exit 1
 
-      - name: "Confirm Apple Password Secret"
+      - name: "Confirm Apple Username Secret"
         env:
           APPLE_ID_USERNAME: ${{ secrets.APPLE_ID_USERNAME }}
         if: ${{ env.APPLE_ID_USERNAME == '' }}
