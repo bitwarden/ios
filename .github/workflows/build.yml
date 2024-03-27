@@ -66,30 +66,6 @@ jobs:
           sudo installer -pkg yeetd-normal.pkg -target /
           yeetd &
 
-      - name: "Confirm Azure Secret"
-        env:
-          AZURE_KV_CI_SERVICE_PRINCIPAL: ${{ secrets.AZURE_KV_CI_SERVICE_PRINCIPAL }}
-        if: ${{ env.AZURE_KV_CI_SERVICE_PRINCIPAL == '' }}
-        run: |
-          echo "The secret \"AZURE_KV_CI_SERVICE_PRINCIPAL\" has not been set"
-          exit 1
-
-      - name: "Confirm Apple Username Secret"
-        env:
-          APPLE_ID_USERNAME: ${{ secrets.APPLE_ID_USERNAME }}
-        if: ${{ env.APPLE_ID_USERNAME == '' }}
-        run: |
-          echo "The secret \"APPLE_ID_USERNAME\" has not been set"
-          exit 1
-
-      - name: "Confirm Apple Password Secret"
-        env:
-          APPLE_ID_PASSWORD: ${{ secrets.APPLE_ID_PASSWORD }}
-        if: ${{ env.APPLE_ID_PASSWORD == '' }}
-        run: |
-          echo "The secret \"APPLE_ID_PASSWORD\" has not been set"
-          exit 1
-
       - name: Log In to Azure - CI Subscription
         uses: Azure/login@cb79c773a3cfa27f31f25eb3f677781210c9ce3d # v1.6.1
         with:
@@ -211,5 +187,5 @@ jobs:
           xcrun altool --validate-app \
             --type ios \
             --file "build/Bitwarden/Bitwarden.ipa" \
-            --username "$APPLE_ID_USERNAME"
-            --password "$APPLE_ID_PASSWORD"
+            --username "$APPLE_ID_USERNAME" \
+            --password @env:APPLE_ID_PASSWORD
