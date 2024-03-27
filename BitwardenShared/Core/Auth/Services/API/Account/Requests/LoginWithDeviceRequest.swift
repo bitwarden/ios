@@ -10,11 +10,14 @@ struct LoginWithDeviceRequest: Request {
     /// The body of this request.
     let body: LoginWithDeviceRequestModel?
 
-    /// The URL path for this request.
-    var path: String = "auth-requests"
+    /// A dictionary of HTTP headers to be sent in the request.
+    let headers: [String: String]
 
     /// The HTTP method for this request.
     let method: HTTPMethod = .post
+
+    /// The URL path for this request.
+    let path: String = "/auth-requests"
 
     /// Creates a new `LoginWithDeviceRequest`.
     ///
@@ -22,5 +25,6 @@ struct LoginWithDeviceRequest: Request {
     ///
     init(body: LoginWithDeviceRequestModel) {
         self.body = body
+        headers = ["Device-Identifier": body.deviceIdentifier]
     }
 }
