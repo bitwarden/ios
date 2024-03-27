@@ -66,10 +66,18 @@ jobs:
           sudo installer -pkg yeetd-normal.pkg -target /
           yeetd &
 
+      - name: "Confirm Azure Secret"
+        env:
+          AZURE_KV_CI_SERVICE_PRINCIPAL: ${{ secrets.AZURE_KV_CI_SERVICE_PRINCIPAL }}
+        if: ${{ env.AZURE_KV_CI_SERVICE_PRINCIPAL == '' }}
+        run: |
+          echo "The secret \"AZURE_KV_CI_SERVICE_PRINCIPAL\" has not been set"
+          exit 1
+
       - name: "Confirm Apple Password Secret"
         env:
-          APPLE_ID_PASSWORD: ${{ secrets.APPLE_ID_USERNAME }}
-        if: ${{ env.super_secret == '' }}
+          APPLE_ID_USERNAME: ${{ secrets.APPLE_ID_USERNAME }}
+        if: ${{ env.APPLE_ID_USERNAME == '' }}
         run: |
           echo "The secret \"APPLE_ID_USERNAME\" has not been set"
           exit 1
@@ -77,7 +85,7 @@ jobs:
       - name: "Confirm Apple Password Secret"
         env:
           APPLE_ID_PASSWORD: ${{ secrets.APPLE_ID_PASSWORD }}
-        if: ${{ env.super_secret == '' }}
+        if: ${{ env.APPLE_ID_PASSWORD == '' }}
         run: |
           echo "The secret \"APPLE_ID_PASSWORD\" has not been set"
           exit 1
