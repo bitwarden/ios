@@ -212,4 +212,4 @@ jobs:
             --type ios \
             --file "build/Bitwarden/Bitwarden.ipa" \
             --username "$APPLE_ID_USERNAME"
-            --password @env:APPLE_ID_PASSWORD
+            --password "$APPLE_ID_PASSWORD"
