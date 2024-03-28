@@ -5,6 +5,6 @@ import XCTest
 
 // MARK: - LoginDecryptionOptionsProcessorTests
 
-//class LoginDecryptionOptionsProcessorTests: BitwardenTestCase {
+// class LoginDecryptionOptionsProcessorTests: BitwardenTestCase {
 //    // MARK: Properties
-//}
+// }

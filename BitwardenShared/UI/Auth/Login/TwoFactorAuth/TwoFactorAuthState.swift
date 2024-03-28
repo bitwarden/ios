@@ -32,7 +32,7 @@ struct TwoFactorAuthState: Equatable {
 
     /// User organization idenfier if came from SSO flow
     var orgIdentifier: String?
-    
+
     /// A toast message to show in the view.
     var toast: Toast?
 

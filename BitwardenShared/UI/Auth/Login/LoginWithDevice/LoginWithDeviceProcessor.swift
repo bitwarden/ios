@@ -141,6 +141,9 @@ final class LoginWithDeviceProcessor: StateProcessor<
 
                 // Show an alert and dismiss the view if the request has expired.
                 guard !request.isExpired else {
+                    // Remove admin pending login request if exists
+                    try await services.authService.setPendingAdminLoginRequest(nil, userId: nil)
+
                     self.checkTimer?.invalidate()
                     return coordinator.showAlert(.requestExpired {
                         self.coordinator.navigate(to: .dismiss)
@@ -149,6 +152,9 @@ final class LoginWithDeviceProcessor: StateProcessor<
 
                 // Keep waiting if the request hasn't been answered yet.
                 guard request.isAnswered else { return }
+
+                // Remove admin pending login request if exists
+                try await services.authService.setPendingAdminLoginRequest(nil, userId: nil)
 
                 // If the request has been denied, show an alert and dismiss the view.
                 if request.requestApproved == false {

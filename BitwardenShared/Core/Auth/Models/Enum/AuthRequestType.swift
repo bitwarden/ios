@@ -3,9 +3,9 @@
 /// The type of auth request.
 ///
 public enum AuthRequestType: Int {
-    // Login with device request
+    /// Login with device request
     case authenticateAndUnlock = 0
 
-    // Admin approval request
+    /// Admin approval request
     case adminApproval = 2
 }

@@ -679,7 +679,8 @@ extension DefaultAuthRepository: AuthRepository {
 
         switch method {
         case .authRequest:
-            break
+            // Remove admin pending login request if exists
+            try await authService.setPendingAdminLoginRequest(nil, userId: nil)
         case .decryptedKey:
             // No-op: nothing extra to do for decryptedKey.
             break

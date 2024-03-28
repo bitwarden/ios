@@ -7,7 +7,7 @@ import XCTest
 
 // MARK: - LoginViewTests
 
-//class LoginViewTests: BitwardenTestCase {
+// class LoginViewTests: BitwardenTestCase {
 //    // MARK: Properties
 //
-//}
+// }

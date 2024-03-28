@@ -85,6 +85,13 @@ protocol AuthService {
     ///
     func generateSingleSignOnUrl(from organizationIdentifier: String) async throws -> (url: URL, state: String)
 
+    /// Gets the pending admin login request for a user ID.
+    ///
+    /// - Parameter userId: The user ID associated with the pending admin login request.
+    /// - Returns: The pending admin login request.
+    ///
+    func getPendingAdminLoginRequest(userId: String?) async throws -> PendingAdminLoginRequest?
+
     /// Get a specific login request, or all the pending login requests if the id is `nil`.
     ///
     func getPendingLoginRequest(withId id: String?) async throws -> [LoginRequest]
@@ -183,6 +190,14 @@ protocol AuthService {
 
     /// Resend the email with the user's verification code.
     func resendVerificationCodeEmail() async throws
+
+    /// Sets the pending admin login request for a user ID.
+    ///
+    /// - Parameters:
+    ///   - adminLoginRequest: The user's pending admin login request.
+    ///   - userId: The user ID associated with the pending admin login request.
+    ///
+    func setPendingAdminLoginRequest(_ adminLoginRequest: PendingAdminLoginRequest?, userId: String?) async throws
 }
 
 extension AuthService {
@@ -383,6 +398,15 @@ class DefaultAuthService: AuthService { // swiftlint:disable:this type_body_leng
         return (url, state)
     }
 
+    func getPendingAdminLoginRequest(userId: String?) async throws -> PendingAdminLoginRequest? {
+        let userId = try await stateService.getActiveAccountId()
+        if let jsonString = try await keychainRepository.getPendingAdminLoginRequest(userId: userId),
+           let jsonData = jsonString.data(using: .utf8) {
+            return try JSONDecoder().decode(PendingAdminLoginRequest.self, from: jsonData)
+        }
+        return nil
+    }
+
     func getPendingLoginRequest(withId id: String?) async throws -> [LoginRequest] {
         // Get the pending login requests.
         var loginRequests = if let id {
@@ -415,6 +439,27 @@ class DefaultAuthService: AuthService { // swiftlint:disable:this type_body_leng
         email: String,
         type: AuthRequestType
     ) async throws -> (authRequestResponse: AuthRequestResponse, requestId: String) {
+        // Check for a valid pending admin login request
+        if type == AuthRequestType.adminApproval {
+            if let savedRequest = try await getPendingAdminLoginRequest(userId: nil),
+               let updatedRequest = try await getPendingLoginRequest(withId: savedRequest.id).first,
+               updatedRequest.isAnswered == false,
+               updatedRequest.isExpired == false {
+                let loginData = AuthRequestResponse(
+                    privateKey: savedRequest.privateKey,
+                    publicKey: savedRequest.publicKey,
+                    fingerprint: savedRequest.fingerprint,
+                    accessCode: savedRequest.accessCode
+                )
+
+                self.loginWithDeviceData = loginData
+                // Return existing data to continue waiting for the response
+                return (authRequestResponse: loginData, requestId: savedRequest.id)
+            } else {
+                try await setPendingAdminLoginRequest(nil, userId: nil)
+            }
+        }
+
         // Get the app's id.
         let appId = await appIdService.getOrCreateAppId()
 
@@ -430,6 +475,14 @@ class DefaultAuthService: AuthService { // swiftlint:disable:this type_body_leng
         ))
 
         self.loginWithDeviceData = loginWithDeviceData
+
+        // Save request for future use if necessary
+        if type == AuthRequestType.adminApproval {
+            try await setPendingAdminLoginRequest(PendingAdminLoginRequest(
+                id: loginRequest.id,
+                authRequestResponse: loginWithDeviceData
+            ), userId: nil)
+        }
 
         // Return the auth request response and the request id.
         return (
@@ -510,26 +563,24 @@ class DefaultAuthService: AuthService { // swiftlint:disable:this type_body_leng
                     try await trustDeviceService.removeTrustedDevice()
                     throw AuthError.requireDecryptionOptions
                 }
-                
+
                 if response.forcePasswordReset {
                     throw AuthError.requireUpdatePassword
                 }
-                
+
                 if !decryptionOptions.hasMasterPassword,
                    trustedDeviceOption.hasManageResetPasswordPermission {
                     try await stateService.setForcePasswordResetReason(
                         ForcePasswordResetReason.tdeUserWithoutPasswordHasPasswordResetPermission
                     )
                 }
-                
+
                 return true
             }
-            
-            // TODO: Handle pending admin auth requests
-            
+
             throw AuthError.requireDecryptionOptions
         }
-        
+
         if response.userDecryptionOptions?.hasMasterPassword == false,
            response.userDecryptionOptions?.keyConnectorOption == nil {
             throw AuthError.requireSetPassword
@@ -537,7 +588,7 @@ class DefaultAuthService: AuthService { // swiftlint:disable:this type_body_leng
 
         return false
     }
-    
+
     func loginWithSingleSignOn(code: String, email: String) async throws -> Account? {
         // Get the identity token to log in to Bitwarden.
         let response = try await getIdentityTokenResponse(
@@ -626,6 +677,17 @@ class DefaultAuthService: AuthService { // swiftlint:disable:this type_body_leng
     func resendVerificationCodeEmail() async throws {
         guard let resendEmailModel else { throw AuthError.unableToResendEmail }
         try await authAPIService.resendEmailCode(resendEmailModel)
+    }
+
+    func setPendingAdminLoginRequest(_ adminLoginRequest: PendingAdminLoginRequest?, userId: String?) async throws {
+        let userId = try await stateService.getAccountIdOrActiveId(userId: userId)
+        if let adminLoginRequest {
+            let jsonData = try JSONEncoder().encode(adminLoginRequest)
+            guard let jsonString = String(data: jsonData, encoding: .utf8) else { throw AuthError.missingData }
+            try await keychainRepository.setPendingAdminLoginRequest(jsonString, userId: userId)
+        } else {
+            try await keychainRepository.deletePendingAdminLoginRequest(userId: userId)
+        }
     }
 
     // MARK: Private Methods

@@ -11,6 +11,7 @@ class LoginDecryptionOptionsProcessor: StateProcessor<
 
     typealias Services = HasAccountAPIService
         & HasAuthRepository
+        & HasAuthService
         & HasCaptchaService
         & HasClientAuth
         & HasOrganizationAPIService
@@ -118,6 +119,29 @@ class LoginDecryptionOptionsProcessor: StateProcessor<
         }
     }
 
+    private func hasApprovedPendingAdminRequest() async throws -> Bool {
+        if let savedPendingAdminLoginRequest = try await services.authService.getPendingAdminLoginRequest(userId: nil),
+           let adminAuthRequest = try await services.authService.getPendingLoginRequest(
+               withId: savedPendingAdminLoginRequest.id
+           ).first,
+           let key = adminAuthRequest.key,
+           let approved = adminAuthRequest.requestApproved,
+           approved {
+            // Attempt to unlock the vault.
+            try await services.authRepository.unlockVaultFromLoginWithDevice(
+                privateKey: savedPendingAdminLoginRequest.privateKey,
+                key: key,
+                masterPasswordHash: adminAuthRequest.masterPasswordHash
+            )
+
+            // Remove admin pending login request if exists
+            try await services.authService.setPendingAdminLoginRequest(nil, userId: nil)
+
+            return true
+        }
+        return false
+    }
+
     /// Loads user decryption option used to show/hide buttons on screen
     private func loadUserDecryptionOptions() async {
         do {
@@ -134,6 +158,11 @@ class LoginDecryptionOptionsProcessor: StateProcessor<
             state.approveWithMasterPasswordEnabled = userDecryptionOptions?.hasMasterPassword ?? false
             state.approveWithOtherDeviceEnabled = trustedDeviceOption?.hasLoginApprovingDevice ?? false
             state.continueButtonEnabled = !state.requestAdminApprovalEnabled && !state.approveWithMasterPasswordEnabled
+
+            if try await hasApprovedPendingAdminRequest() {
+                coordinator.showToast(Localizations.loginApproved)
+                coordinator.navigate(to: .complete)
+            }
         } catch {
             // TODO: handle errors with correct messages
             coordinator.showAlert(.defaultAlert(title: Localizations.anErrorHasOccurred))

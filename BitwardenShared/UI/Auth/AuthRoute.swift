@@ -43,7 +43,7 @@ public enum AuthRoute: Equatable {
     /// A route to the login decryption options screen.
     ///
     case showLoginDecryptionOptions
-    
+
     /// A route to the login with device screen.
     ///
     /// - Parameters:
