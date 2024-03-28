@@ -530,7 +530,8 @@ class DefaultAuthService: AuthService { // swiftlint:disable:this type_body_leng
             throw AuthError.requireDecryptionOptions
         }
         
-        if response.userDecryptionOptions?.hasMasterPassword == false {
+        if response.userDecryptionOptions?.hasMasterPassword == false,
+           response.userDecryptionOptions?.keyConnectorOption == nil {
             throw AuthError.requireSetPassword
         }
 
