@@ -74,16 +74,18 @@ extension VaultFilterType {
         }
     }
 
-    /// A filter to determine if a `FolderView` should be included in the vault list with the
-    /// current filter.
+    /// A filter to determine if a `VaultListItem` should be included in the vault list with the
+    /// current filter. Filters out any empty folders on the my vault and organization vault filters.
     ///
-    /// - Parameter folder: The `FolderView` to determine if it should be in the vault list.
-    /// - Returns: Whether the folder should be displayed in the vault list.
+    /// - Parameter item: The `VaultListItem` to determine if it should be in the vault list.
+    /// - Returns: Whether the item should be displayed in the vault list.
     ///
-    func folderFilter(_ folder: FolderView) -> Bool {
-        if case .organization = self {
-            false
-        } else {
+    func folderFilter(_ item: VaultListItem) -> Bool {
+        switch (item.itemType, self) {
+        case (let .group(_, cipherCount), .myVault),
+             (let .group(_, cipherCount), .organization):
+            cipherCount > 0
+        default:
             true
         }
     }

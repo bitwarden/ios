@@ -67,19 +67,22 @@ class VaultFilterTypeTests: BitwardenTestCase {
         )
     }
 
-    /// `folderFilter(_:)` returns whether the folder should be included in the all vaults list.
+    /// `folderFilter(_:)` returns that folders are always included in the all vaults lists
     func test_folderFilter_allVaults() {
-        XCTAssertTrue(VaultFilterType.allVaults.folderFilter(.fixture()))
+        XCTAssertTrue(VaultFilterType.allVaults.folderFilter(.fixtureGroup(count: 0)))
+        XCTAssertTrue(VaultFilterType.allVaults.folderFilter(.fixtureGroup(count: 1)))
     }
 
-    /// `folderFilter(_:)` returns whether the folder should be included in the my vault list.
+    /// `folderFilter(_:)` returns that folders are included in the my vaults list if they aren't empty.
     func test_folderFilter_myVaults() {
-        XCTAssertTrue(VaultFilterType.myVault.folderFilter(.fixture()))
+        XCTAssertFalse(VaultFilterType.myVault.folderFilter(.fixtureGroup(count: 0)))
+        XCTAssertTrue(VaultFilterType.myVault.folderFilter(.fixtureGroup(count: 1)))
     }
 
-    /// `folderFilter(_:)` returns whether the folder should be included in the organization vault list.
+    /// `folderFilter(_:)` returns that folders are included in the organization vault list if they aren't empty.
     func test_folderFilter_organization() {
-        XCTAssertFalse(VaultFilterType.organization(.fixture()).folderFilter(.fixture()))
+        XCTAssertFalse(VaultFilterType.organization(.fixture()).folderFilter(.fixtureGroup(count: 0)))
+        XCTAssertTrue(VaultFilterType.organization(.fixture()).folderFilter(.fixtureGroup(count: 1)))
     }
 
     /// `title` returns the title of filter for displaying in the filter menu.

@@ -1698,6 +1698,43 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
     }
 
     /// `vaultListPublisher()` returns a publisher for the list of sections and items that are
+    /// displayed in the vault for a vault that contains collections and folders, with no filter.
+    func test_vaultListPublisher_withCollections_all() async throws {
+        stateService.activeAccount = .fixture()
+        let syncResponse = try JSONDecoder.defaultDecoder.decode(
+            SyncResponseModel.self,
+            from: APITestData.syncWithCiphersCollections.data
+        )
+        cipherService.ciphersSubject.send(syncResponse.ciphers.compactMap(Cipher.init))
+        collectionService.collectionsSubject.send(syncResponse.collections.compactMap(Collection.init))
+        folderService.foldersSubject.send(syncResponse.folders.compactMap(Folder.init))
+
+        var iterator = try await subject.vaultListPublisher(filter: .allVaults).makeAsyncIterator()
+        let sections = try await iterator.next()
+
+        try assertInlineSnapshot(of: dumpVaultListSections(XCTUnwrap(sections)), as: .lines) {
+            """
+            Section: Favorites
+              - Cipher: Apple
+            Section: Types
+              - Group: Login (5)
+              - Group: Card (1)
+              - Group: Identity (1)
+              - Group: Secure note (1)
+            Section: Folders
+              - Group: Internal (1)
+              - Group: Social (2)
+              - Group: No Folder (5)
+            Section: Collections
+              - Group: Design (2)
+              - Group: Engineering (2)
+            Section: Trash
+              - Group: Trash (1)
+            """
+        }
+    }
+
+    /// `vaultListPublisher()` returns a publisher for the list of sections and items that are
     /// displayed in the vault for a vault that contains collections with the my vault filter.
     func test_vaultListPublisher_withCollections_myVault() async throws {
         stateService.activeAccount = .fixture()
@@ -1752,15 +1789,17 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
             Section: Favorites
               - Cipher: Apple
             Section: Types
-              - Group: Login (2)
+              - Group: Login (4)
               - Group: Card (0)
               - Group: Identity (0)
               - Group: Secure note (0)
             Section: Folders
+              - Group: Internal (1)
+              - Group: Social (1)
               - Group: No Folder (2)
             Section: Collections
-              - Group: Design (1)
-              - Group: Engineering (1)
+              - Group: Design (2)
+              - Group: Engineering (2)
             Section: Trash
               - Group: Trash (0)
             """
@@ -1784,6 +1823,8 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
               - Cipher: Apple
               - Cipher: Facebook
               - Cipher: Figma
+              - Cipher: Reddit
+              - Cipher: Zoom
             """
         }
     }
@@ -1828,6 +1869,8 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
             Section: Items
               - Cipher: Apple
               - Cipher: Figma
+              - Cipher: Reddit
+              - Cipher: Zoom
             """
         }
     }
@@ -1855,6 +1898,7 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
             """
             Section: Items
               - Cipher: Apple
+              - Cipher: Reddit
             """
         }
     }
