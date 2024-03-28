@@ -1,0 +1,4 @@
+#include "./Common.xcconfig"
+#include? "./Local.xcconfig"
+
+PRODUCT_BUNDLE_IDENTIFIER = com.bitwarden.authenticator.authenticator-shared

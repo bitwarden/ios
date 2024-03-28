@@ -1,0 +1,165 @@
+name: Authenticator
+configs:
+  Debug: debug
+  Release: release
+  Release-Beta: release
+options:
+  createIntermediateGroups: true
+  deploymentTarget:
+    iOS: 15.0
+    watchOS: 8.0
+  groupSortPosition: top
+  usesTabs: false
+  indentWidth: 4
+  tabWidth: 4
+settings:
+  MARKETING_VERSION: 2024.03.0    # Bump this for a new version update.
+  CURRENT_PROJECT_VERSION: 1
+packages:
+  BitwardenSdk:
+    url: https://github.com/bitwarden/sdk-swift
+    revision: 93ce71195a729f30b3edd48caeb7af9a39f35403
+  Firebase:
+    url: https://github.com/firebase/firebase-ios-sdk
+    exactVersion: 10.19.0
+  SnapshotTesting:
+    url: https://github.com/pointfreeco/swift-snapshot-testing
+    exactVersion: 1.15.2
+  ViewInspector:
+    url: https://github.com/nalexn/ViewInspector
+    exactVersion: 0.9.9
+schemes:
+  Authenticator:
+    build:
+      targets:
+        Authenticator: all
+        AuthenticatorTests: [test]
+    test:
+      commandLineArguments:
+        "-testing": true
+      environmentVariables:
+        TZ: UTC
+      gatherCoverageData: true
+      coverageTargets:
+        - Authenticator
+        - AuthenticatorShared
+      targets:
+        - AuthenticatorTests
+        - AuthenticatorSharedTests
+  AuthenticatorShared:
+    build:
+      targets:
+        AuthenticatorShared: all
+        AuthenticatorSharedTests: [test]
+    test:
+      commandLineArguments:
+        "-testing": true
+      environmentVariables:
+        TZ: UTC
+      gatherCoverageData: true
+      targets:
+        - AuthenticatorSharedTests
+
+targets:
+  Authenticator:
+    type: application
+    platform: iOS
+    configFiles:
+      Debug: Configs/Authenticator-Debug.xcconfig
+      Release: Configs/Authenticator-Release.xcconfig
+      Release-Beta: Configs/Authenticator-Release-Beta.xcconfig
+    settings:
+      base:
+        INFOPLIST_FILE: Authenticator/Application/Support/Info.plist
+    sources:
+      - path: Authenticator
+        excludes:
+          - "**/*Tests.*"
+          - "**/TestHelpers/*"
+          - "**/swiftgen.yml"
+          - "**/GoogleService-Info.*.plist"
+          - "**/__Snapshots__/*"
+      - path: Authenticator
+        includes:
+          - "**/__Snapshots__/*"
+          - "**/GoogleService-Info.*.plist"
+        buildPhase: none
+      - path: README.md
+        buildPhase: none
+      - path: swiftgen.yml
+        buildPhase: none
+    dependencies:
+      - package: Firebase
+        product: FirebaseCrashlytics
+    postCompileScripts:
+      - script: mint run swiftlint
+        name: Swiftlint
+        basedOnDependencyAnalysis: false
+      - script: mint run swiftformat --lint --lenient .
+        name: SwiftFormat Lint
+        basedOnDependencyAnalysis: false
+  AuthenticatorTests:
+    type: bundle.unit-test
+    platform: iOS
+    settings:
+      base:
+        INFOPLIST_FILE: Authenticator/Application/TestHelpers/Support/Info.plist
+    sources:
+      - path: Authenticator
+        includes:
+          - "**/*Tests.*"
+          - "**/TestHelpers/*"
+      - path: GlobalTestHelpers
+    dependencies:
+      - target: Authenticator
+      - package: SnapshotTesting
+      - package: ViewInspector
+    randomExecutionOrder: true
+
+  AuthenticatorShared:
+    type: framework
+    platform: iOS
+    configFiles:
+      Debug: Configs/AuthenticatorShared.xcconfig
+      Release: Configs/AuthenticatorShared.xcconfig
+      Release-Beta: Configs/AuthenticatorShared-Beta.xcconfig
+    settings:
+      base:
+        APPLICATION_EXTENSION_API_ONLY: true
+        INFOPLIST_FILE: AuthenticatorShared/Application/Support/Info.plist
+    sources:
+      - path: AuthenticatorShared
+        excludes:
+          - "**/*Tests.*"
+          - "**/TestHelpers/*"
+          - "**/Fixtures/*"
+          - "**/__Snapshots__/*"
+      - path: AuthenticatorShared
+        includes:
+          - "**/__Snapshots__/*"
+        buildPhase: none
+    dependencies:
+      - package: BitwardenSdk
+  AuthenticatorSharedTests:
+    type: bundle.unit-test
+    platform: iOS
+    settings:
+      base:
+        BUNDLE_LOADER: "$(TEST_HOST)"
+        TEST_HOST: "$(BUILT_PRODUCTS_DIR)/Authenticator.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/Authenticator"
+        INFOPLIST_FILE: AuthenticatorShared/Application/TestHelpers/Support/Info.plist
+    sources:
+      - path: AuthenticatorShared
+        includes:
+          - "**/*Tests.*"
+          - "**/TestHelpers/*"
+          - "**/Fixtures/*"
+      - path: GlobalTestHelpers
+    dependencies:
+      - target: Authenticator
+      - target: AuthenticatorShared
+      - package: SnapshotTesting
+      - package: SnapshotTesting
+        product: InlineSnapshotTesting
+      - package: ViewInspector
+    randomExecutionOrder: true
