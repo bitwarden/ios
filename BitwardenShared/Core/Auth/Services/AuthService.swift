@@ -399,12 +399,16 @@ class DefaultAuthService: AuthService { // swiftlint:disable:this type_body_leng
     }
 
     func getPendingAdminLoginRequest(userId: String?) async throws -> PendingAdminLoginRequest? {
-        let userId = try await stateService.getActiveAccountId()
-        if let jsonString = try await keychainRepository.getPendingAdminLoginRequest(userId: userId),
-           let jsonData = jsonString.data(using: .utf8) {
-            return try JSONDecoder().decode(PendingAdminLoginRequest.self, from: jsonData)
+        let activeUserId = try await stateService.getAccountIdOrActiveId(userId: userId)
+        do {
+            if let jsonString = try await keychainRepository.getPendingAdminLoginRequest(userId: activeUserId),
+               let jsonData = jsonString.data(using: .utf8) {
+                return try JSONDecoder().decode(PendingAdminLoginRequest.self, from: jsonData)
+            }
+            return nil
+        } catch KeychainServiceError.osStatusError(errSecItemNotFound) {
+            return nil
         }
-        return nil
     }
 
     func getPendingLoginRequest(withId id: String?) async throws -> [LoginRequest] {
@@ -680,13 +684,17 @@ class DefaultAuthService: AuthService { // swiftlint:disable:this type_body_leng
     }
 
     func setPendingAdminLoginRequest(_ adminLoginRequest: PendingAdminLoginRequest?, userId: String?) async throws {
-        let userId = try await stateService.getAccountIdOrActiveId(userId: userId)
-        if let adminLoginRequest {
-            let jsonData = try JSONEncoder().encode(adminLoginRequest)
-            guard let jsonString = String(data: jsonData, encoding: .utf8) else { throw AuthError.missingData }
-            try await keychainRepository.setPendingAdminLoginRequest(jsonString, userId: userId)
-        } else {
-            try await keychainRepository.deletePendingAdminLoginRequest(userId: userId)
+        let activeUserId = try await stateService.getAccountIdOrActiveId(userId: userId)
+        do {
+            if let adminLoginRequest {
+                let jsonData = try JSONEncoder().encode(adminLoginRequest)
+                guard let jsonString = String(data: jsonData, encoding: .utf8) else { throw AuthError.missingData }
+                try await keychainRepository.setPendingAdminLoginRequest(jsonString, userId: activeUserId)
+            } else {
+                try await keychainRepository.deletePendingAdminLoginRequest(userId: activeUserId)
+            }
+        } catch KeychainServiceError.osStatusError(errSecItemNotFound) {
+            return
         }
     }
 
