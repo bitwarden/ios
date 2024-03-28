@@ -629,16 +629,22 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
     func test_connectToWatchPublisher() async throws {
         await subject.addAccount(.fixture(profile: .fixture(userId: "1")))
 
-        var publishedValues = [Bool]()
+        var publishedValues = [ConnectToWatchValue]()
         let publisher = await subject.connectToWatchPublisher()
-            .sink(receiveValue: { date in
-                publishedValues.append(date)
+            .sink(receiveValue: { userId, shouldConnect in
+                publishedValues.append(ConnectToWatchValue(userId: userId, shouldConnect: shouldConnect))
             })
         defer { publisher.cancel() }
 
         try await subject.setConnectToWatch(true)
 
-        XCTAssertEqual(publishedValues, [false, true])
+        XCTAssertEqual(
+            publishedValues,
+            [
+                ConnectToWatchValue(userId: "1", shouldConnect: false),
+                ConnectToWatchValue(userId: "1", shouldConnect: true),
+            ]
+        )
     }
 
     /// `connectToWatchPublisher()` gets the initial stored value if a cached value doesn't exist.
@@ -647,30 +653,36 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
 
         appSettingsStore.connectToWatchByUserId["1"] = true
 
-        var publishedValues = [Bool]()
+        var publishedValues = [ConnectToWatchValue]()
         let publisher = await subject.connectToWatchPublisher()
-            .sink(receiveValue: { date in
-                publishedValues.append(date)
+            .sink(receiveValue: { userId, shouldConnect in
+                publishedValues.append(ConnectToWatchValue(userId: userId, shouldConnect: shouldConnect))
             })
         defer { publisher.cancel() }
 
         try await subject.setConnectToWatch(false)
 
-        XCTAssertEqual(publishedValues, [true, false])
+        XCTAssertEqual(
+            publishedValues,
+            [
+                ConnectToWatchValue(userId: "1", shouldConnect: true),
+                ConnectToWatchValue(userId: "1", shouldConnect: false),
+            ]
+        )
     }
 
     /// `connectToWatchPublisher()` uses the last connect to watch value if the user is not logged in.
     func test_connectToWatchPublisher_notLoggedIn() async throws {
         appSettingsStore.lastUserShouldConnectToWatch = true
 
-        var publishedValues = [Bool]()
+        var publishedValues = [ConnectToWatchValue]()
         let publisher = await subject.connectToWatchPublisher()
-            .sink(receiveValue: { date in
-                publishedValues.append(date)
+            .sink(receiveValue: { userId, shouldConnect in
+                publishedValues.append(ConnectToWatchValue(userId: userId, shouldConnect: shouldConnect))
             })
         defer { publisher.cancel() }
 
-        XCTAssertEqual(publishedValues, [true])
+        XCTAssertEqual(publishedValues, [ConnectToWatchValue(userId: nil, shouldConnect: true)])
     }
 
     /// `getLastUserShouldConnectToWatch()` returns the value in the app settings store.
@@ -1269,4 +1281,9 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
             )
         )
     }
+}
+
+private struct ConnectToWatchValue: Equatable {
+    let userId: String?
+    let shouldConnect: Bool
 } // swiftlint:disable:this file_length

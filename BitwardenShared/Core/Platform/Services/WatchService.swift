@@ -70,14 +70,8 @@ class DefaultWatchService: NSObject, WatchService {
 
         // Listen for changes in the settings and data that would require syncing with the watch.
         Task {
-            let jointPublisher = await Publishers.CombineLatest(
-                self.stateService.activeAccountIdPublisher(),
-                self.stateService.connectToWatchPublisher()
-            )
-            .values
-
-            for await values in jointPublisher {
-                syncWithWatch(userId: values.0, shouldConnect: values.1)
+            for await (userId, shouldConnect) in await self.stateService.connectToWatchPublisher().values {
+                syncWithWatch(userId: userId, shouldConnect: shouldConnect)
             }
         }
     }
