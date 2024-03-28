@@ -386,6 +386,9 @@ final class AuthCoordinator: NSObject, // swiftlint:disable:this type_body_lengt
     /// - Parameter email: The user's email.
     ///
     private func showLoginDecryptionOptions() {
+        guard let stackNavigator else { return }
+        let isPresenting = stackNavigator.rootViewController?.presentedViewController != nil
+
         let processor = LoginDecryptionOptionsProcessor(
             coordinator: asAnyCoordinator(),
             services: services,
@@ -394,8 +397,12 @@ final class AuthCoordinator: NSObject, // swiftlint:disable:this type_body_lengt
         let store = Store(processor: processor)
         let view = LoginDecryptionOptionsView(store: store)
         let viewController = UIHostingController(rootView: view)
-        let navigationController = UINavigationController(rootViewController: viewController)
-        stackNavigator?.present(navigationController)
+        viewController.navigationItem.hidesBackButton = true
+        stackNavigator.push(viewController)
+
+        if isPresenting {
+            stackNavigator.dismiss()
+        }
     }
 
     /// Shows the master password hint screen for the provided username.

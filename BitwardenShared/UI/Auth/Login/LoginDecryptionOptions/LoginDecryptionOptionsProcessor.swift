@@ -160,7 +160,7 @@ class LoginDecryptionOptionsProcessor: StateProcessor<
             state.continueButtonEnabled = !state.requestAdminApprovalEnabled && !state.approveWithMasterPasswordEnabled
 
             if try await hasApprovedPendingAdminRequest() {
-                coordinator.showToast(Localizations.loginApproved)
+                state.toast = Toast(text: Localizations.loginApproved)
                 coordinator.navigate(to: .complete)
             }
         } catch {

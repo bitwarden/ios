@@ -24,11 +24,7 @@ struct LoginDecryptionOptionsView: View {
         }
         .scrollView()
         .navigationBar(title: Localizations.loggingIn, titleDisplayMode: .inline)
-        .toolbar {
-            cancelToolbarItem {
-                store.send(.dismiss)
-            }
-        }
+        .navigationBarBackButtonHidden(true)
         .task {
             await store.perform(.loadLoginDecryptionOptions)
         }
