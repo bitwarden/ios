@@ -562,7 +562,6 @@ class DefaultVaultRepository { // swiftlint:disable:this type_body_length
 
         let folders = try await clientVault.folders()
             .decryptList(folders: folders)
-            .filter(filter.folderFilter)
             .sorted { $0.name.localizedStandardCompare($1.name) == .orderedAscending }
 
         let folderItems = folderVaultListItems(
@@ -570,6 +569,7 @@ class DefaultVaultRepository { // swiftlint:disable:this type_body_length
             folderTree: folders.asNestedNodes(),
             nestedFolderId: folderId
         )
+        .filter(filter.folderFilter)
 
         return VaultListSection(
             id: "Folders",
@@ -669,7 +669,6 @@ class DefaultVaultRepository { // swiftlint:disable:this type_body_length
 
         let folders = try await clientVault.folders()
             .decryptList(folders: folders)
-            .filter(filter.folderFilter)
             .sorted { $0.name.localizedStandardCompare($1.name) == .orderedAscending }
 
         let collections = try await clientVault.collections()
@@ -709,6 +708,7 @@ class DefaultVaultRepository { // swiftlint:disable:this type_body_length
             activeCiphers: activeCiphers,
             folderTree: folders.asNestedNodes()
         )
+        .filter(filter.folderFilter)
 
         // Add no folder to folders item if needed.
         if !showNoFolderCipherGroup {
