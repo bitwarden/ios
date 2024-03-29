@@ -108,6 +108,7 @@ class CreateAccountProcessor: StateProcessor<CreateAccountState, CreateAccountAc
     ///
     private func checkForBreaches(isWeakPassword: Bool) async {
         do {
+            coordinator.showLoadingOverlay(title: Localizations.creatingAccount)
             let breachCount = try await services.accountAPIService.checkDataBreaches(password: state.passwordText)
 
             // If unexposed and strong, create the account
@@ -117,6 +118,7 @@ class CreateAccountProcessor: StateProcessor<CreateAccountState, CreateAccountAc
             }
 
             // If exposed and/or weak, show alert
+            coordinator.hideLoadingOverlay()
             let alertType = Alert.PasswordStrengthAlertType(isBreached: breachCount > 0, isWeak: isWeakPassword)
             coordinator.showAlert(.passwordStrengthAlert(alertType) {
                 await self.createAccount()
@@ -155,6 +157,10 @@ class CreateAccountProcessor: StateProcessor<CreateAccountState, CreateAccountAc
     ///
     private func createAccount(captchaToken: String? = nil) async {
         // swiftlint:disable:previous function_body_length
+
+        // Hide the loading overlay when exiting this method, in case it hasn't been hidden yet.
+        defer { coordinator.hideLoadingOverlay() }
+
         do {
             let email = state.emailText.trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
             guard !email.isEmpty else {
@@ -180,6 +186,8 @@ class CreateAccountProcessor: StateProcessor<CreateAccountState, CreateAccountAc
             guard state.isTermsAndPrivacyToggleOn else {
                 throw CreateAccountError.acceptPoliciesError
             }
+
+            coordinator.showLoadingOverlay(title: Localizations.creatingAccount)
 
             let kdf: Kdf = .pbkdf2(iterations: NonZeroU32(KdfConfig().kdfIterations))
 
