@@ -84,10 +84,7 @@ class AboutProcessorTests: BitwardenTestCase {
     func test_receive_learnAboutOrganizationsTapped() async throws {
         subject.receive(.learnAboutOrganizationsTapped)
 
-        guard case let .alert(alert) = coordinator.routes.last else {
-            return XCTFail("Expected an `.alert` route, but found \(String(describing: coordinator.routes.last))")
-        }
-
+        let alert = try XCTUnwrap(coordinator.alertShown.last)
         try await alert.tapAction(title: Localizations.continue)
         XCTAssertEqual(subject.state.url, ExternalLinksConstants.aboutOrganizations)
     }
@@ -97,10 +94,7 @@ class AboutProcessorTests: BitwardenTestCase {
     func test_receive_privacyPolicyTapped() async throws {
         subject.receive(.privacyPolicyTapped)
 
-        guard case let .alert(alert) = coordinator.routes.last else {
-            return XCTFail("Expected an `.alert` route, but found \(String(describing: coordinator.routes.last))")
-        }
-
+        let alert = try XCTUnwrap(coordinator.alertShown.last)
         try await alert.tapAction(title: Localizations.continue)
         XCTAssertEqual(subject.state.url, ExternalLinksConstants.privacyPolicy)
     }
@@ -110,10 +104,7 @@ class AboutProcessorTests: BitwardenTestCase {
     func test_receive_rateTheAppTapped() async throws {
         subject.receive(.rateTheAppTapped)
 
-        guard case let .alert(alert) = coordinator.routes.last else {
-            return XCTFail("Expected an `.alert` route, but found \(String(describing: coordinator.routes.last))")
-        }
-
+        let alert = try XCTUnwrap(coordinator.alertShown.last)
         try await alert.tapAction(title: Localizations.continue)
         XCTAssertEqual(
             subject.state.appReviewUrl?.absoluteString,
@@ -155,10 +146,7 @@ class AboutProcessorTests: BitwardenTestCase {
     func test_receive_webVaultTapped() async throws {
         subject.receive(.webVaultTapped)
 
-        guard case let .alert(alert) = coordinator.routes.last else {
-            return XCTFail("Expected an `.alert` route, but found \(String(describing: coordinator.routes.last))")
-        }
-
+        let alert = try XCTUnwrap(coordinator.alertShown.last)
         try await alert.tapAction(title: Localizations.continue)
         XCTAssertEqual(subject.state.url, environmentService.webVaultURL)
     }

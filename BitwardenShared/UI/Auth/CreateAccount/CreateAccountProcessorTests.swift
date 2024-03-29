@@ -114,10 +114,7 @@ class CreateAccountProcessorTests: BitwardenTestCase {
 
         await subject.perform(.createAccount)
 
-        guard case let .alert(alert) = coordinator.routes.last else {
-            return XCTFail("Expected an `.alert` route, but found \(String(describing: coordinator.routes.last))")
-        }
-
+        let alert = try XCTUnwrap(coordinator.alertShown.last)
         try await alert.tapAction(title: Localizations.yes)
 
         XCTAssertEqual(client.requests.count, 2)
@@ -140,14 +137,14 @@ class CreateAccountProcessorTests: BitwardenTestCase {
 
         XCTAssertEqual(client.requests.count, 1)
         XCTAssertEqual(client.requests[0].url, URL(string: "https://api.pwnedpasswords.com/range/e6b6a"))
-        XCTAssertEqual(coordinator.routes.last, .alert(Alert(
+        XCTAssertEqual(coordinator.alertShown.last, Alert(
             title: Localizations.weakAndExposedMasterPassword,
             message: Localizations.weakPasswordIdentifiedAndFoundInADataBreachAlertDescription,
             alertActions: [
                 AlertAction(title: Localizations.no, style: .cancel),
                 AlertAction(title: Localizations.yes, style: .default) { _ in },
             ]
-        )))
+        ))
     }
 
     /// `perform(_:)` with `.createAccount` presents an alert when the email has already been taken.
@@ -173,12 +170,10 @@ class CreateAccountProcessorTests: BitwardenTestCase {
 
         XCTAssertEqual(client.requests.count, 1)
         XCTAssertEqual(
-            coordinator.routes.last,
-            .alert(
-                .defaultAlert(
-                    title: Localizations.anErrorHasOccurred,
-                    message: "Email 'j@a.com' is already taken."
-                )
+            coordinator.alertShown.last,
+            .defaultAlert(
+                title: Localizations.anErrorHasOccurred,
+                message: "Email 'j@a.com' is already taken."
             )
         )
     }
@@ -215,12 +210,10 @@ class CreateAccountProcessorTests: BitwardenTestCase {
 
         XCTAssertEqual(client.requests.count, 1)
         XCTAssertEqual(
-            coordinator.routes.last,
-            .alert(
-                .defaultAlert(
-                    title: Localizations.anErrorHasOccurred,
-                    message: "The field Email must be a string with a maximum length of 256."
-                )
+            coordinator.alertShown.last,
+            .defaultAlert(
+                title: Localizations.anErrorHasOccurred,
+                message: "The field Email must be a string with a maximum length of 256."
             )
         )
     }
@@ -236,7 +229,7 @@ class CreateAccountProcessorTests: BitwardenTestCase {
         await subject.perform(.createAccount)
 
         XCTAssertEqual(client.requests.count, 0)
-        XCTAssertEqual(coordinator.routes.last, .alert(.validationFieldRequired(fieldName: "Email")))
+        XCTAssertEqual(coordinator.alertShown.last, .validationFieldRequired(fieldName: "Email"))
     }
 
     /// `perform(_:)` with `.createAccount` presents an alert when the password field is empty.
@@ -252,7 +245,7 @@ class CreateAccountProcessorTests: BitwardenTestCase {
         await subject.perform(.createAccount)
 
         XCTAssertEqual(client.requests.count, 0)
-        XCTAssertEqual(coordinator.routes.last, .alert(.validationFieldRequired(fieldName: "Master password")))
+        XCTAssertEqual(coordinator.alertShown.last, .validationFieldRequired(fieldName: "Master password"))
     }
 
     /// `perform(_:)` with `.createAccount` and a captcha error occurs navigates to the `.captcha` route.
@@ -300,12 +293,10 @@ class CreateAccountProcessorTests: BitwardenTestCase {
 
         XCTAssertEqual(client.requests.count, 1)
         XCTAssertEqual(
-            coordinator.routes.last,
-            .alert(
-                .defaultAlert(
-                    title: Localizations.anErrorHasOccurred,
-                    message: "The field MasterPasswordHint must be a string with a maximum length of 50."
-                )
+            coordinator.alertShown.last,
+            .defaultAlert(
+                title: Localizations.anErrorHasOccurred,
+                message: "The field MasterPasswordHint must be a string with a maximum length of 50."
             )
         )
     }
@@ -333,12 +324,10 @@ class CreateAccountProcessorTests: BitwardenTestCase {
 
         XCTAssertEqual(client.requests.count, 1)
         XCTAssertEqual(
-            coordinator.routes.last,
-            .alert(
-                .defaultAlert(
-                    title: Localizations.anErrorHasOccurred,
-                    message: "The Email field is not a supported e-mail address format."
-                )
+            coordinator.alertShown.last,
+            .defaultAlert(
+                title: Localizations.anErrorHasOccurred,
+                message: "The Email field is not a supported e-mail address format."
             )
         )
     }
@@ -357,10 +346,7 @@ class CreateAccountProcessorTests: BitwardenTestCase {
 
         await subject.perform(.createAccount)
 
-        guard case let .alert(alert) = coordinator.routes.last else {
-            return XCTFail("Expected an `.alert` route, but found \(String(describing: coordinator.routes.last))")
-        }
-
+        let alert = try XCTUnwrap(coordinator.alertShown.last)
         XCTAssertEqual(alert, Alert.networkResponseError(urlError) {
             await self.subject.perform(.createAccount)
         })
@@ -386,7 +372,7 @@ class CreateAccountProcessorTests: BitwardenTestCase {
         await subject.perform(.createAccount)
 
         XCTAssertEqual(client.requests.count, 0)
-        XCTAssertEqual(coordinator.routes.last, .alert(.passwordsDontMatch))
+        XCTAssertEqual(coordinator.alertShown.last, .passwordsDontMatch)
     }
 
     /// `perform(_:)` with `.createAccount` presents an alert when the password isn't long enough.
@@ -402,7 +388,7 @@ class CreateAccountProcessorTests: BitwardenTestCase {
         await subject.perform(.createAccount)
 
         XCTAssertEqual(client.requests.count, 0)
-        XCTAssertEqual(coordinator.routes.last, .alert(.passwordIsTooShort))
+        XCTAssertEqual(coordinator.alertShown.last, .passwordIsTooShort)
     }
 
     /// `perform(_:)` with `.createAccount` presents an alert when the request times out.
@@ -419,10 +405,7 @@ class CreateAccountProcessorTests: BitwardenTestCase {
 
         await subject.perform(.createAccount)
 
-        guard case let .alert(alert) = coordinator.routes.last else {
-            return XCTFail("Expected an `.alert` route, but found \(String(describing: coordinator.routes.last))")
-        }
-
+        let alert = try XCTUnwrap(coordinator.alertShown.last)
         XCTAssertEqual(alert.message, urlError.localizedDescription)
 
         try await alert.tapAction(title: Localizations.tryAgain)
@@ -444,7 +427,7 @@ class CreateAccountProcessorTests: BitwardenTestCase {
         await subject.perform(.createAccount)
 
         XCTAssertEqual(client.requests.count, 0)
-        XCTAssertEqual(coordinator.routes.last, .alert(.invalidEmail))
+        XCTAssertEqual(coordinator.alertShown.last, .invalidEmail)
     }
 
     /// `perform(_:)` with `.createAccount` and a valid email creates the user's account.
@@ -514,7 +497,7 @@ class CreateAccountProcessorTests: BitwardenTestCase {
         await subject.perform(.createAccount)
 
         XCTAssertEqual(client.requests.count, 0)
-        XCTAssertEqual(coordinator.routes.last, .alert(.acceptPoliciesAlert()))
+        XCTAssertEqual(coordinator.alertShown.last, .acceptPoliciesAlert())
     }
 
     /// `receive(_:)` with `.dismiss` dismisses the view.

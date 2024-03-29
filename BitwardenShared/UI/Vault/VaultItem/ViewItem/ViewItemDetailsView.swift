@@ -60,9 +60,7 @@ struct ViewItemDetailsView: View {
                                 ? Asset.Images.checkSquare.swiftUIImage
                                 : Asset.Images.square.swiftUIImage
                             image
-                                .resizable()
-                                .frame(width: 16, height: 16)
-                                .foregroundColor(Asset.Colors.textSecondary.swiftUIColor)
+                                .imageStyle(.accessoryIcon(color: Asset.Colors.textSecondary.swiftUIColor))
 
                             Text(customField.name ?? "")
                                 .styleGuide(.body)
@@ -92,9 +90,7 @@ struct ViewItemDetailsView: View {
                                 if let linkedIdType = customField.linkedIdType {
                                     HStack(spacing: 8) {
                                         Asset.Images.link.swiftUIImage
-                                            .resizable()
-                                            .frame(width: 16, height: 16)
-                                            .foregroundColor(Asset.Colors.textSecondary.swiftUIColor)
+                                            .imageStyle(.accessoryIcon(color: Asset.Colors.textSecondary.swiftUIColor))
                                         Text(linkedIdType.localizedName)
                                     }
                                 }
@@ -107,19 +103,17 @@ struct ViewItemDetailsView: View {
                                         store.send(.customFieldVisibilityPressed(customField))
                                     }
                                     Button {
-                                        store.send(.copyPressed(value: value))
+                                        store.send(.copyPressed(value: value, field: .customHiddenField))
                                     } label: {
                                         Asset.Images.copy.swiftUIImage
-                                            .resizable()
-                                            .frame(width: 16, height: 16)
+                                            .imageStyle(.accessoryIcon)
                                     }
                                 case .text:
                                     Button {
-                                        store.send(.copyPressed(value: value))
+                                        store.send(.copyPressed(value: value, field: .customTextField))
                                     } label: {
                                         Asset.Images.copy.swiftUIImage
-                                            .resizable()
-                                            .frame(width: 16, height: 16)
+                                            .imageStyle(.accessoryIcon)
                                     }
                                 case .boolean, .linked:
                                     EmptyView()
@@ -226,8 +220,7 @@ struct ViewItemDetailsView: View {
                                 openURL(url)
                             } label: {
                                 Asset.Images.externalLink.swiftUIImage
-                                    .resizable()
-                                    .frame(width: 16, height: 16)
+                                    .imageStyle(.accessoryIcon)
                             }
                             .accessibilityLabel(Localizations.launch)
                         }
@@ -236,8 +229,7 @@ struct ViewItemDetailsView: View {
                             store.send(.copyPressed(value: uri.uri, field: .uri))
                         } label: {
                             Asset.Images.copy.swiftUIImage
-                                .resizable()
-                                .frame(width: 16, height: 16)
+                                .imageStyle(.accessoryIcon)
                         }
                         .accessibilityLabel(Localizations.copy)
                     }
@@ -273,10 +265,7 @@ struct ViewItemDetailsView: View {
                     store.send(.downloadAttachment(attachment))
                 } label: {
                     Image(uiImage: Asset.Images.download.image)
-                        .resizable()
-                        .aspectRatio(contentMode: .fit)
-                        .foregroundStyle(Asset.Colors.primaryBitwarden.swiftUIColor)
-                        .frame(width: 22, height: 22)
+                        .imageStyle(.rowIcon(color: Asset.Colors.primaryBitwarden.swiftUIColor))
                 }
                 .accessibilityLabel(Localizations.download)
             }

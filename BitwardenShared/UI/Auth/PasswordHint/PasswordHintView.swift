@@ -26,6 +26,7 @@ struct PasswordHintView: View {
                 AsyncButton(Localizations.submit) {
                     await store.perform(.submitPressed)
                 }
+                .accessibilityIdentifier("SubmitButton")
                 .buttonStyle(.primary())
                 .disabled(!store.state.isSubmitButtonEnabled)
             }

@@ -49,7 +49,7 @@ class DeleteAccountProcessorTests: BitwardenTestCase {
     func test_perform_deleteAccount() async {
         await subject.perform(.deleteAccount)
 
-        XCTAssertEqual(try coordinator.unwrapLastRouteAsAlert(), .masterPasswordPrompt(completion: { _ in }))
+        XCTAssertEqual(coordinator.alertShown.last, .masterPasswordPrompt(completion: { _ in }))
     }
 
     /// Perform with `.deleteAccount` presents the master password prompt alert.
@@ -60,7 +60,7 @@ class DeleteAccountProcessorTests: BitwardenTestCase {
         await stateService.addAccount(account)
         await subject.perform(.deleteAccount)
 
-        let alert = try coordinator.unwrapLastRouteAsAlert()
+        let alert = try XCTUnwrap(coordinator.alertShown.last)
         var textField = try XCTUnwrap(alert.alertTextFields.first)
         textField = AlertTextField(text: "password")
 
@@ -83,7 +83,7 @@ class DeleteAccountProcessorTests: BitwardenTestCase {
         await stateService.addAccount(account2)
         await subject.perform(.deleteAccount)
 
-        let alert = try coordinator.unwrapLastRouteAsAlert()
+        let alert = try XCTUnwrap(coordinator.alertShown.last)
         var textField = try XCTUnwrap(alert.alertTextFields.first)
         textField = AlertTextField(text: "password")
         let action = try XCTUnwrap(alert.alertActions.first(where: { $0.title == Localizations.submit }))

@@ -99,8 +99,9 @@ struct ViewItemView: View {
                     toolbarButton(Localizations.restore) {
                         await store.perform(.restorePressed)
                     }
+                    .accessibilityIdentifier("RestoreButton")
                 } else {
-                    toolbarButton(Localizations.edit) {
+                    editToolbarButton {
                         store.send(.editPressed)
                     }
                 }

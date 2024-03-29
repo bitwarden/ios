@@ -566,7 +566,7 @@ extension BitwardenSdk.Folder {
     }
 }
 
-extension BitwardenSdk.FolderView: Menuable, @unchecked Sendable {
+extension BitwardenSdk.FolderView: Menuable, @unchecked Sendable, TreeNodeModel {
     static var defaultValueLocalizedName: String {
         Localizations.folderNone
     }

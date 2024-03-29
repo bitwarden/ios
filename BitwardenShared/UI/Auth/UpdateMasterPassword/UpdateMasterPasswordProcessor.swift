@@ -88,7 +88,7 @@ class UpdateMasterPasswordProcessor: StateProcessor<
             await coordinator.handleEvent(.action(.logout(userId: nil, userInitiated: true)))
             coordinator.navigate(to: .dismiss)
         }
-        coordinator.navigate(to: .alert(alert))
+        coordinator.showAlert(alert)
     }
 
     /// Syncs the user's vault with the API.

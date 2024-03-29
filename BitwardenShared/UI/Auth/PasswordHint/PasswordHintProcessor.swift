@@ -6,6 +6,7 @@ class PasswordHintProcessor: StateProcessor<PasswordHintState, PasswordHintActio
     // MARK: Types
 
     typealias Services = HasAccountAPIService
+        & HasErrorReporter
 
     // MARK: Private Properties
 
@@ -74,10 +75,10 @@ class PasswordHintProcessor: StateProcessor<PasswordHintState, PasswordHintActio
             )
 
             coordinator.hideLoadingOverlay()
-            coordinator.navigate(to: .alert(alert))
+            coordinator.showAlert(alert)
         } catch {
-            // TODO: BIT-1257 Add error handling
-            print(error)
+            coordinator.showAlert(.networkResponseError(error))
+            services.errorReporter.log(error: error)
         }
     }
 }

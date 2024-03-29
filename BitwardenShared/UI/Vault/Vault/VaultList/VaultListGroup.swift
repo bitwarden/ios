@@ -46,6 +46,12 @@ extension VaultListGroup {
         return collectionId
     }
 
+    /// Whether the group is a folder.
+    var isFolder: Bool {
+        guard case .folder = self else { return false }
+        return true
+    }
+
     /// The folder's ID, if the group is a collection.
     var folderId: String? {
         guard case let .folder(folderId, _) = self else { return nil }

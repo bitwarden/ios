@@ -7,6 +7,9 @@ public protocol AppExtensionDelegate: AnyObject {
     /// The app's route that the app should navigate to after auth has been completed.
     var authCompletionRoute: AppRoute { get }
 
+    /// Whether the app extension can autofill credentials.
+    var canAutofill: Bool { get }
+
     /// Whether the app is running within an extension.
     var isInAppExtension: Bool { get }
 
@@ -32,6 +35,9 @@ public protocol AppExtensionDelegate: AnyObject {
 }
 
 public extension AppExtensionDelegate {
+    /// Whether the app extension can autofill credentials.
+    var canAutofill: Bool { false }
+
     /// Whether the app is running the save login flow in the action extension. This flow opens the
     /// add vault item view and completes the extension request when the item has been added.
     var isInAppExtensionSaveLoginFlow: Bool { false }

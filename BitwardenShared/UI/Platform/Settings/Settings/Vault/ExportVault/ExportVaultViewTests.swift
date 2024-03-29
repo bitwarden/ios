@@ -66,22 +66,52 @@ class ExportVaultViewTests: BitwardenTestCase {
         XCTAssertEqual(processor.dispatchedActions.last, .fileFormatTypeChanged(.csv))
     }
 
-    /// Updating the text field in the password field sends the `.passwordTextChanged()` action.
-    func test_passwordField_updateValue() throws {
-        processor.state.isPasswordVisible = true
-        let textfield = try subject.inspect().find(viewWithId: Localizations.masterPassword).textField()
+    /// Updating the text in the file password field sends the `.filePasswordTextChanged()` action.
+    func test_filePasswordField_updateValue() throws {
+        processor.state.fileFormat = .jsonEncrypted
+        processor.state.isFilePasswordVisible = true
+        let textfield = try subject.inspect().find(viewWithId: Localizations.filePassword).textField()
         try textfield.setInput("text")
-        XCTAssertEqual(processor.dispatchedActions.last, .passwordTextChanged("text"))
+        XCTAssertEqual(processor.dispatchedActions.last, .filePasswordTextChanged("text"))
     }
 
-    /// Tapping the password visibility icon changes whether or not the password is visible.
-    func test_passwordVisibility_tap() throws {
-        processor.state.isPasswordVisible = false
+    /// Tapping the file password visibility icon changes whether or not the password is visible.
+    func test_filePasswordVisibility_tap() throws {
+        processor.state.fileFormat = .jsonEncrypted
+        processor.state.isFilePasswordVisible = false
+        let visibilityIcon = try subject.inspect().find(
+            viewWithAccessibilityIdentifier: "FilePasswordVisibilityToggle"
+        ).button()
+        try visibilityIcon.tap()
+        XCTAssertEqual(processor.dispatchedActions.last, .toggleFilePasswordVisibility(true))
+    }
+
+    /// Updating the text in the file password confirmation field sends the
+    /// `.filePasswordConfirmationTextChanged()` action.
+    func test_filePasswordConfirmationField_updateValue() throws {
+        processor.state.fileFormat = .jsonEncrypted
+        processor.state.isFilePasswordVisible = true
+        let textfield = try subject.inspect().find(viewWithId: Localizations.confirmFilePassword).textField()
+        try textfield.setInput("text")
+        XCTAssertEqual(processor.dispatchedActions.last, .filePasswordConfirmationTextChanged("text"))
+    }
+
+    /// Updating the text in the master password field sends the `.masterPasswordTextChanged()` action.
+    func test_masterPasswordField_updateValue() throws {
+        processor.state.isMasterPasswordVisible = true
+        let textfield = try subject.inspect().find(viewWithId: Localizations.masterPassword).textField()
+        try textfield.setInput("text")
+        XCTAssertEqual(processor.dispatchedActions.last, .masterPasswordTextChanged("text"))
+    }
+
+    /// Tapping the master password visibility icon changes whether or not the password is visible.
+    func test_masterPasswordVisibility_tap() throws {
+        processor.state.isMasterPasswordVisible = false
         let visibilityIcon = try subject.inspect().find(
             viewWithAccessibilityLabel: Localizations.passwordIsNotVisibleTapToShow
         ).button()
         try visibilityIcon.tap()
-        XCTAssertEqual(processor.dispatchedActions.last, .togglePasswordVisibility(true))
+        XCTAssertEqual(processor.dispatchedActions.last, .toggleMasterPasswordVisibility(true))
     }
 
     // MARK: Snapshots
@@ -93,13 +123,19 @@ class ExportVaultViewTests: BitwardenTestCase {
 
     /// The populated view renders correctly.
     func test_snapshot_populated() {
-        processor.state.passwordText = "password"
+        processor.state.masterPasswordText = "password"
         assertSnapshots(of: subject, as: [.defaultPortrait, .defaultPortraitDark, .defaultPortraitAX5])
     }
 
     /// The vault export disabled view renders correctly.
     func test_snapshot_vaultExportDisabled() {
         processor.state.disableIndividualVaultExport = true
+        assertSnapshots(of: subject, as: [.defaultPortrait, .defaultPortraitDark, .defaultPortraitAX5])
+    }
+
+    /// The JSON encrypted view renders correctly.
+    func test_snapshot_jsonEncrypted() {
+        processor.state.fileFormat = .jsonEncrypted
         assertSnapshots(of: subject, as: [.defaultPortrait, .defaultPortraitDark, .defaultPortraitAX5])
     }
 }

@@ -279,7 +279,7 @@ class VaultUnlockProcessorTests: BitwardenTestCase { // swiftlint:disable:this t
         subject.state.unlockMethod = .password
         await subject.perform(.unlockVault)
 
-        let alert = try coordinator.unwrapLastRouteAsAlert()
+        let alert = try XCTUnwrap(coordinator.alertShown.last)
         XCTAssertEqual(
             alert,
             Alert.inputValidationAlert(error: InputValidationError(
@@ -293,7 +293,7 @@ class VaultUnlockProcessorTests: BitwardenTestCase { // swiftlint:disable:this t
         subject.state.unlockMethod = .pin
         await subject.perform(.unlockVault)
 
-        let alert = try coordinator.unwrapLastRouteAsAlert()
+        let alert = try XCTUnwrap(coordinator.alertShown.last)
         XCTAssertEqual(
             alert,
             Alert.inputValidationAlert(error: InputValidationError(
@@ -311,7 +311,7 @@ class VaultUnlockProcessorTests: BitwardenTestCase { // swiftlint:disable:this t
 
         await subject.perform(.unlockVault)
 
-        let alert = try coordinator.unwrapLastRouteAsAlert()
+        let alert = try XCTUnwrap(coordinator.alertShown.last)
         XCTAssertEqual(alert.title, Localizations.anErrorHasOccurred)
         XCTAssertEqual(alert.message, Localizations.invalidMasterPassword)
     }
@@ -327,7 +327,7 @@ class VaultUnlockProcessorTests: BitwardenTestCase { // swiftlint:disable:this t
 
         // 1st unsuccessful attempt
         await subject.perform(.unlockVault)
-        var alert = try coordinator.unwrapLastRouteAsAlert()
+        var alert = try XCTUnwrap(coordinator.alertShown.last)
         XCTAssertEqual(alert.title, Localizations.anErrorHasOccurred)
         XCTAssertEqual(alert.message, Localizations.invalidMasterPassword)
         XCTAssertEqual(subject.state.unsuccessfulUnlockAttemptsCount, 1)
@@ -342,7 +342,7 @@ class VaultUnlockProcessorTests: BitwardenTestCase { // swiftlint:disable:this t
         XCTAssertEqual(subject.state.unsuccessfulUnlockAttemptsCount, 2)
         attemptsInUserDefaults = await stateService.getUnsuccessfulUnlockAttempts()
         XCTAssertEqual(attemptsInUserDefaults, 2)
-        alert = try coordinator.unwrapLastRouteAsAlert()
+        alert = try XCTUnwrap(coordinator.alertShown.last)
         await alert.alertActions[0].handler?(alert.alertActions[0], [])
         XCTAssertFalse(authRepository.logoutCalled)
         XCTAssertNotEqual(coordinator.routes.last, .landing)
@@ -352,7 +352,7 @@ class VaultUnlockProcessorTests: BitwardenTestCase { // swiftlint:disable:this t
         XCTAssertEqual(subject.state.unsuccessfulUnlockAttemptsCount, 3)
         attemptsInUserDefaults = await stateService.getUnsuccessfulUnlockAttempts()
         XCTAssertEqual(attemptsInUserDefaults, 3)
-        alert = try coordinator.unwrapLastRouteAsAlert()
+        alert = try XCTUnwrap(coordinator.alertShown.last)
         await alert.alertActions[0].handler?(alert.alertActions[0], [])
         XCTAssertFalse(authRepository.logoutCalled)
         XCTAssertNotEqual(coordinator.routes.last, .landing)
@@ -362,7 +362,7 @@ class VaultUnlockProcessorTests: BitwardenTestCase { // swiftlint:disable:this t
         XCTAssertEqual(subject.state.unsuccessfulUnlockAttemptsCount, 4)
         attemptsInUserDefaults = await stateService.getUnsuccessfulUnlockAttempts()
         XCTAssertEqual(attemptsInUserDefaults, 4)
-        alert = try coordinator.unwrapLastRouteAsAlert()
+        alert = try XCTUnwrap(coordinator.alertShown.last)
         await alert.alertActions[0].handler?(alert.alertActions[0], [])
         XCTAssertFalse(authRepository.logoutCalled)
         XCTAssertNotEqual(coordinator.routes.last, .landing)
@@ -586,7 +586,7 @@ class VaultUnlockProcessorTests: BitwardenTestCase { // swiftlint:disable:this t
     func test_receive_morePressed_logout() async throws {
         subject.receive(.morePressed)
 
-        let optionsAlert = try coordinator.unwrapLastRouteAsAlert()
+        let optionsAlert = try XCTUnwrap(coordinator.alertShown.last)
         XCTAssertEqual(optionsAlert.title, Localizations.options)
         XCTAssertNil(optionsAlert.message)
         XCTAssertEqual(optionsAlert.preferredStyle, .actionSheet)
@@ -596,7 +596,7 @@ class VaultUnlockProcessorTests: BitwardenTestCase { // swiftlint:disable:this t
 
         await optionsAlert.alertActions[0].handler?(optionsAlert.alertActions[0], [])
 
-        let logoutConfirmationAlert = try coordinator.unwrapLastRouteAsAlert()
+        let logoutConfirmationAlert = try XCTUnwrap(coordinator.alertShown.last)
         XCTAssertEqual(logoutConfirmationAlert.title, Localizations.logOut)
         XCTAssertEqual(logoutConfirmationAlert.message, Localizations.logoutConfirmation)
         XCTAssertEqual(logoutConfirmationAlert.preferredStyle, .alert)
@@ -624,7 +624,7 @@ class VaultUnlockProcessorTests: BitwardenTestCase { // swiftlint:disable:this t
         stateService.activeAccount = .fixture()
         subject.receive(.morePressed)
 
-        let optionsAlert = try coordinator.unwrapLastRouteAsAlert()
+        let optionsAlert = try XCTUnwrap(coordinator.alertShown.last)
         XCTAssertEqual(optionsAlert.title, Localizations.options)
         XCTAssertNil(optionsAlert.message)
         XCTAssertEqual(optionsAlert.preferredStyle, .actionSheet)
@@ -634,7 +634,7 @@ class VaultUnlockProcessorTests: BitwardenTestCase { // swiftlint:disable:this t
 
         await optionsAlert.alertActions[0].handler?(optionsAlert.alertActions[0], [])
 
-        let logoutConfirmationAlert = try coordinator.unwrapLastRouteAsAlert()
+        let logoutConfirmationAlert = try XCTUnwrap(coordinator.alertShown.last)
         XCTAssertEqual(logoutConfirmationAlert.title, Localizations.logOut)
         XCTAssertEqual(logoutConfirmationAlert.message, Localizations.logoutConfirmation)
         XCTAssertEqual(logoutConfirmationAlert.preferredStyle, .alert)

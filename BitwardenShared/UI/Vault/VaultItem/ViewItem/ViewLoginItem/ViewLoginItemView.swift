@@ -27,8 +27,7 @@ struct ViewLoginItemView: View {
                     store.send(.copyPressed(value: username, field: .username))
                 } label: {
                     Asset.Images.copy.swiftUIImage
-                        .resizable()
-                        .frame(width: 16, height: 16)
+                        .imageStyle(.accessoryIcon)
                 }
                 .accessibilityLabel(Localizations.copy)
             }
@@ -50,8 +49,7 @@ struct ViewLoginItemView: View {
                         await store.perform(.checkPasswordPressed)
                     } label: {
                         Asset.Images.roundCheck.swiftUIImage
-                            .resizable()
-                            .frame(width: 16, height: 16)
+                            .imageStyle(.accessoryIcon)
                     }
                     .accessibilityLabel(Localizations.checkPassword)
 
@@ -59,8 +57,7 @@ struct ViewLoginItemView: View {
                         store.send(.copyPressed(value: password, field: .password))
                     } label: {
                         Asset.Images.copy.swiftUIImage
-                            .resizable()
-                            .frame(width: 16, height: 16)
+                            .imageStyle(.accessoryIcon)
                     }
                     .accessibilityLabel(Localizations.copy)
                 }
@@ -108,8 +105,7 @@ struct ViewLoginItemView: View {
                         store.send(.copyPressed(value: totpModel.code, field: .totp))
                     } label: {
                         Asset.Images.copy.swiftUIImage
-                            .resizable()
-                            .frame(width: 16, height: 16)
+                            .imageStyle(.accessoryIcon)
                     }
                     .accessibilityLabel(Localizations.copy)
                 }

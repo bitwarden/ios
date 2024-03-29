@@ -22,6 +22,19 @@ class VaultListGroupTests: BitwardenTestCase {
         XCTAssertNil(VaultListGroup.trash.collectionId)
     }
 
+    /// `isFolder` returns whether the group is a folder.
+    func test_isFolder() {
+        XCTAssertFalse(VaultListGroup.card.isFolder)
+        XCTAssertFalse(VaultListGroup.collection(id: "", name: "", organizationId: "").isFolder)
+        XCTAssertTrue(VaultListGroup.folder(id: "1", name: "Folder").isFolder)
+        XCTAssertFalse(VaultListGroup.identity.isFolder)
+        XCTAssertFalse(VaultListGroup.login.isFolder)
+        XCTAssertFalse(VaultListGroup.noFolder.isFolder)
+        XCTAssertFalse(VaultListGroup.secureNote.isFolder)
+        XCTAssertFalse(VaultListGroup.totp.isFolder)
+        XCTAssertFalse(VaultListGroup.trash.isFolder)
+    }
+
     /// `folderId` returns the folders's ID, if the group is a folder.
     func test_folderId() {
         XCTAssertNil(VaultListGroup.card.folderId)

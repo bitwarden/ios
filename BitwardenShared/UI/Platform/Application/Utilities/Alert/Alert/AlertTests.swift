@@ -133,6 +133,7 @@ class AlertTests: BitwardenTestCase {
         )
         let alert = Alert.moreOptions(
             cipherView: cipher,
+            hasPremium: false,
             id: cipher.id!,
             showEdit: true,
             action: action
@@ -211,6 +212,7 @@ class AlertTests: BitwardenTestCase {
         )
         let alert = Alert.moreOptions(
             cipherView: cipher,
+            hasPremium: false,
             id: cipher.id!,
             showEdit: true,
             action: action

@@ -187,7 +187,7 @@ class AccountSecurityProcessorTests: BitwardenTestCase { // swiftlint:disable:th
         await subject.perform(.accountFingerprintPhrasePressed)
 
         let fingerprint = try authRepository.fingerprintPhraseResult.get()
-        let alert = try coordinator.unwrapLastRouteAsAlert()
+        let alert = try XCTUnwrap(coordinator.alertShown.last)
         XCTAssertEqual(alert.title, Localizations.fingerprintPhrase)
         XCTAssertEqual(alert.message, "\(Localizations.yourAccountsFingerprint):\n\n\(fingerprint)")
         XCTAssertEqual(alert.preferredStyle, .alert)
@@ -210,8 +210,7 @@ class AccountSecurityProcessorTests: BitwardenTestCase { // swiftlint:disable:th
         authRepository.fingerprintPhraseResult = .failure(FingerprintPhraseError())
         await subject.perform(.accountFingerprintPhrasePressed)
 
-        let alert = try coordinator.unwrapLastRouteAsAlert()
-
+        let alert = try XCTUnwrap(coordinator.alertShown.last)
         XCTAssertEqual(
             alert,
             Alert.defaultAlert(
@@ -224,7 +223,7 @@ class AccountSecurityProcessorTests: BitwardenTestCase { // swiftlint:disable:th
     func test_receive_clearTwoStepLoginUrl() async throws {
         subject.receive(.twoStepLoginPressed)
 
-        let alert = try coordinator.unwrapLastRouteAsAlert()
+        let alert = try XCTUnwrap(coordinator.alertShown.last)
 
         // Tapping yes navigates the user to the web app.
         try await alert.tapAction(title: Localizations.yes)
@@ -245,7 +244,7 @@ class AccountSecurityProcessorTests: BitwardenTestCase { // swiftlint:disable:th
     func test_receive_logout() async throws {
         subject.receive(.logout)
 
-        let alert = try coordinator.unwrapLastRouteAsAlert()
+        let alert = try XCTUnwrap(coordinator.alertShown.last)
         XCTAssertEqual(alert.title, Localizations.logOut)
         XCTAssertEqual(alert.message, Localizations.logoutConfirmation)
         XCTAssertEqual(alert.preferredStyle, .alert)
@@ -273,7 +272,7 @@ class AccountSecurityProcessorTests: BitwardenTestCase { // swiftlint:disable:th
 
         subject.receive(.sessionTimeoutActionChanged(.logout))
 
-        let alert = try coordinator.unwrapLastRouteAsAlert()
+        let alert = try XCTUnwrap(coordinator.alertShown.last)
         XCTAssertEqual(alert.title, Localizations.warning)
         XCTAssertEqual(alert.message, Localizations.vaultTimeoutLogOutConfirmation)
         XCTAssertEqual(alert.alertActions.count, 2)
@@ -296,7 +295,7 @@ class AccountSecurityProcessorTests: BitwardenTestCase { // swiftlint:disable:th
         stateService.activeAccount = .fixture()
 
         subject.receive(.sessionTimeoutActionChanged(.logout))
-        let alert = try coordinator.unwrapLastRouteAsAlert()
+        let alert = try XCTUnwrap(coordinator.alertShown.last)
         try await alert.tapAction(title: Localizations.yes)
         XCTAssertEqual(subject.state.sessionTimeoutAction, .logout)
 
@@ -309,17 +308,17 @@ class AccountSecurityProcessorTests: BitwardenTestCase { // swiftlint:disable:th
         stateService.activeAccount = .fixture()
 
         subject.receive(.sessionTimeoutActionChanged(.logout))
-        let alert = try coordinator.unwrapLastRouteAsAlert()
+        let alert = try XCTUnwrap(coordinator.alertShown.last)
         try await alert.tapAction(title: Localizations.yes)
         XCTAssertEqual(subject.state.sessionTimeoutAction, .logout)
 
         subject.receive(.twoStepLoginPressed)
-        let twoStepLoginAlert = try coordinator.unwrapLastRouteAsAlert()
+        let twoStepLoginAlert = try XCTUnwrap(coordinator.alertShown.last)
         try await twoStepLoginAlert.tapAction(title: Localizations.cancel)
 
         // Should not show alert since the state's sessionTimeoutAction is already .logout
         subject.receive(.sessionTimeoutActionChanged(.logout))
-        let lastShownAlert = try coordinator.unwrapLastRouteAsAlert()
+        let lastShownAlert = try XCTUnwrap(coordinator.alertShown.last)
         XCTAssertEqual(lastShownAlert, twoStepLoginAlert)
     }
 
@@ -331,9 +330,9 @@ class AccountSecurityProcessorTests: BitwardenTestCase { // swiftlint:disable:th
         let account = Account.fixture()
         authRepository.activeAccount = account
         subject.receive(.sessionTimeoutValueChanged(.never))
-        waitFor(!coordinator.routes.isEmpty)
+        waitFor(!coordinator.alertShown.isEmpty)
 
-        let neverLockAlert = try coordinator.unwrapLastRouteAsAlert()
+        let neverLockAlert = try XCTUnwrap(coordinator.alertShown.last)
         XCTAssertEqual(neverLockAlert, Alert.neverLockAlert {})
         var didAccept = false
         let accept = Task {
@@ -354,15 +353,15 @@ class AccountSecurityProcessorTests: BitwardenTestCase { // swiftlint:disable:th
         let account = Account.fixture()
         stateService.activeAccount = account
         subject.receive(.sessionTimeoutValueChanged(.never))
-        waitFor(!coordinator.routes.isEmpty)
+        waitFor(!coordinator.alertShown.isEmpty)
 
-        let neverLockAlert = try coordinator.unwrapLastRouteAsAlert()
+        let neverLockAlert = try XCTUnwrap(coordinator.alertShown.last)
         XCTAssertEqual(neverLockAlert, Alert.neverLockAlert {})
         let dismiss = Task {
             try await neverLockAlert.tapAction(title: Localizations.cancel)
-            coordinator.routes = []
+            coordinator.alertShown = []
         }
-        waitFor(coordinator.routes.isEmpty)
+        waitFor(coordinator.alertShown.isEmpty)
         dismiss.cancel()
         XCTAssertEqual(subject.state.sessionTimeoutValue, .immediately)
     }
@@ -376,9 +375,9 @@ class AccountSecurityProcessorTests: BitwardenTestCase { // swiftlint:disable:th
         authRepository.activeAccount = account
         authRepository.setVaultTimeoutError = BitwardenTestError.example
         subject.receive(.sessionTimeoutValueChanged(.never))
-        waitFor(!coordinator.routes.isEmpty)
+        waitFor(!coordinator.alertShown.isEmpty)
 
-        let neverLockAlert = try coordinator.unwrapLastRouteAsAlert()
+        let neverLockAlert = try XCTUnwrap(coordinator.alertShown.last)
         XCTAssertEqual(neverLockAlert, Alert.neverLockAlert {})
         let accept = Task {
             try await neverLockAlert.tapAction(title: Localizations.yes)
@@ -502,16 +501,10 @@ class AccountSecurityProcessorTests: BitwardenTestCase { // swiftlint:disable:th
         subject.state.isUnlockWithPINCodeOn = false
         subject.receive(.toggleUnlockWithPINCode(true))
 
-        guard case let .alert(alert) = coordinator.routes.last else {
-            return XCTFail("Expected an `.alert` route, but found \(String(describing: coordinator.routes.last))")
-        }
-
+        var alert = try XCTUnwrap(coordinator.alertShown.last)
         try await alert.tapAction(title: Localizations.submit)
 
-        guard case let .alert(alert) = coordinator.routes.last else {
-            return XCTFail("Expected an `.alert` route, but found \(String(describing: coordinator.routes.last))")
-        }
-
+        alert = try XCTUnwrap(coordinator.alertShown.last)
         try await alert.tapAction(title: Localizations.yes)
         XCTAssertTrue(subject.state.isUnlockWithPINCodeOn)
     }
@@ -618,7 +611,7 @@ class AccountSecurityProcessorTests: BitwardenTestCase { // swiftlint:disable:th
     func test_receive_twoStepLoginPressed() async throws {
         subject.receive(.twoStepLoginPressed)
 
-        let alert = try coordinator.unwrapLastRouteAsAlert()
+        let alert = try XCTUnwrap(coordinator.alertShown.last)
         XCTAssertEqual(alert.title, Localizations.continueToWebApp)
         XCTAssertEqual(alert.message, Localizations.twoStepLoginDescriptionLong)
         XCTAssertEqual(alert.preferredStyle, .alert)
@@ -636,7 +629,7 @@ class AccountSecurityProcessorTests: BitwardenTestCase { // swiftlint:disable:th
     func test_twoStepLoginUrl() async throws {
         subject.receive(.twoStepLoginPressed)
 
-        let alert = try coordinator.unwrapLastRouteAsAlert()
+        let alert = try XCTUnwrap(coordinator.alertShown.last)
         try await alert.tapAction(title: Localizations.yes)
 
         XCTAssertEqual(subject.state.twoStepLoginUrl, URL.example)

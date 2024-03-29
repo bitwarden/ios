@@ -10,6 +10,12 @@ struct LoginWithDeviceRequest: Request {
     /// The body of this request.
     let body: LoginWithDeviceRequestModel?
 
+    /// A dictionary of HTTP headers to be sent in the request.
+    let headers: [String: String]
+
+    /// The HTTP method for this request.
+    let method: HTTPMethod = .post
+    
     /// The type of auth request.
     let requestType: Int
 
@@ -18,9 +24,6 @@ struct LoginWithDeviceRequest: Request {
         requestType == AuthRequestType.adminApproval.rawValue ? "auth-requests/admin-request" : "auth-requests"
     }
 
-    /// The HTTP method for this request.
-    let method: HTTPMethod = .post
-
     /// Creates a new `LoginWithDeviceRequest`.
     ///
     /// - Parameter body: The body of this request.
@@ -28,5 +31,6 @@ struct LoginWithDeviceRequest: Request {
     init(body: LoginWithDeviceRequestModel) {
         self.body = body
         requestType = body.type
+        headers = ["Device-Identifier": body.deviceIdentifier]
     }
 }

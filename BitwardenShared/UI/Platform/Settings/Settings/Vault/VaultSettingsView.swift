@@ -47,8 +47,7 @@ struct VaultSettingsView: View {
                 store.send(.importItemsTapped)
             } trailingContent: {
                 Image(asset: Asset.Images.externalLink2)
-                    .resizable()
-                    .frame(width: 22, height: 22)
+                    .imageStyle(.rowIcon)
             }
             .accessibilityIdentifier("ImportItemsLinkItemView")
         }

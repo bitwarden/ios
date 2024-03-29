@@ -55,6 +55,7 @@ struct AddEditItemView: View {
             VStack(spacing: 20) {
                 if isPolicyEnabled {
                     InfoContainer(Localizations.personalOwnershipPolicyInEffect)
+                        .accessibilityIdentifier("PersonalOwnershipPolicyLabel")
                 }
 
                 informationSection
@@ -281,6 +282,7 @@ private extension AddEditItemView {
         AsyncButton(Localizations.save) {
             await store.perform(.savePressed)
         }
+        .accessibilityIdentifier("SaveButton")
         .buttonStyle(.primary())
     }
 }

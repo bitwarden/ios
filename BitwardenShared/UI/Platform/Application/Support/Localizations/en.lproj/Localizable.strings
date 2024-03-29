@@ -6,6 +6,8 @@
 "Back" = "Back";
 "Bitwarden" = "Bitwarden";
 "Cancel" = "Cancel";
+"ContinueToGiveFeedback" = "Continue to Give Feedback?";
+"ContinueToGiveFeedbackDescription" = "Select continue to provide feedback on your experience in a web form.";
 "Copy" = "Copy";
 "CopyPassword" = "Copy password";
 "CopyUsername" = "Copy username";
@@ -30,6 +32,7 @@
 "FolderNone" = "No Folder";
 "Folders" = "Folders";
 "FolderUpdated" = "Folder saved";
+"GiveFeedback" = "Give feedback";
 "GoToWebsite" = "Go to website";
 "HelpAndFeedback" = "Help and feedback";
 "Hide" = "Hide";
@@ -876,3 +879,6 @@
 "LaunchWebAuthn" = "Launch WebAuthn";
 "Duo" = "Duo";
 "DuoUnsupported" = "Duo not yet supported.";
+"FilePassword" = "File password";
+"ConfirmFilePassword" = "Confirm file password";
+"FilePasswordDescription" = "This password will be used to export and import this file";

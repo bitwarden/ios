@@ -20,12 +20,6 @@ enum VaultItemRoute: Equatable, Hashable {
         newCipherOptions: NewCipherOptions? = nil
     )
 
-    /// A route to display the specified alert.
-    ///
-    /// - Parameter alert: The alert to display.
-    ///
-    case alert(_ alert: Alert)
-
     /// A route to view the attachments.
     ///
     /// - Parameter cipher: The  `CipherView` to view/edit the attachments for.
@@ -34,9 +28,11 @@ enum VaultItemRoute: Equatable, Hashable {
 
     /// A route to the clone item screen.
     ///
-    /// - Parameter cipher: A  `CipherView` to be cloned.
+    /// - Parameters:
+    ///   - cipher: A `CipherView` to be cloned.
+    ///   - hasPremium: Whether the user has premium.
     ///
-    case cloneItem(cipher: CipherView)
+    case cloneItem(cipher: CipherView, hasPremium: Bool)
 
     /// A route to dismiss the screen currently presented modally.
     ///
