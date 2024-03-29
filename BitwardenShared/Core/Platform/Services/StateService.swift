@@ -1155,8 +1155,9 @@ actor DefaultStateService: StateService { // swiftlint:disable:this type_body_le
         guard var state = appSettingsStore.state else { return }
         defer { appSettingsStore.state = state }
 
-        guard state.accounts
-            .contains(where: { $0.key == userId }) else { throw StateServiceError.noAccounts }
+        guard state.accounts.contains(where: { $0.key == userId }) else {
+            throw StateServiceError.noAccounts
+        }
         state.activeUserId = userId
     }
 

@@ -276,7 +276,7 @@ extension AuthRouter {
     /// Configures state and suggests a redirect for the switch accounts route.
     ///
     /// - Parameters:
-    ///   - isUserInitiated: Did the user trigger the account switch?
+    ///   - isAutomatic: Did the user trigger the account switch?
     ///   - userId: The user Id of the selected account.
     /// - Returns: A suggested route for the active account with state pre-configured.
     ///
@@ -311,11 +311,11 @@ extension AuthRouter {
     /// Configures state and suggests a redirect for the `.vaultUnlock` route.
     ///
     /// - Parameters:
-    ///     - activeAccount: The active account.
-    ///     - animated: If the suggested route can be animated, use this value.
-    ///     - shouldAttemptAutomaticBiometricUnlock: If the route uses automatic bioemtrics unlock,
-    ///         this value enables or disables the feature.
-    ///     - shouldAttemptAccountSwitch: Should the application automatically switch accounts for the user?
+    ///    - activeAccount: The active account.
+    ///    - animated: If the suggested route can be animated, use this value.
+    ///    - shouldAttemptAutomaticBiometricUnlock: If the route uses automatic bioemtrics unlock,
+    ///      this value enables or disables the feature.
+    ///    - shouldAttemptAccountSwitch: Should the application automatically switch accounts for the user?
     /// - Returns: A suggested route for the active account with state pre-configured.
     ///
     func vaultUnlockRedirect(
@@ -326,18 +326,20 @@ extension AuthRouter {
     ) async -> AuthRoute {
         let userId = activeAccount.profile.userId
         do {
-            // Check for Never Lock.
+            // Check if the vault is currently locked or has already been unlocked.
             let isLocked = try? await services.authRepository.isLocked(userId: userId)
             let vaultTimeout = try? await services.vaultTimeoutService.sessionTimeoutValue(userId: userId)
 
             switch (vaultTimeout, isLocked) {
             case (.never, true):
                 // If the user has enabled Never Lock, but the vault is locked,
-                //  unlock the vault and return `.complete`.
+                // unlock the vault and return `.complete`.
                 try await services.authRepository.unlockVaultWithNeverlockKey()
                 return .complete
             case (_, false):
-                // If the  vault is unlocked, return `.complete`.
+                // If the vault is in an unlocked state, it should be unlocked with
+                // the never lock key.
+                try await services.authRepository.unlockVaultWithNeverlockKey()
                 return .complete
             default:
                 // Otherwise, return `.vaultUnlock`.

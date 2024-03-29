@@ -350,7 +350,12 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
         let totpService = DefaultTOTPService()
 
         let twoStepLoginService = DefaultTwoStepLoginService(environmentService: environmentService)
-        let vaultTimeoutService = DefaultVaultTimeoutService(stateService: stateService, timeProvider: timeProvider)
+        let vaultTimeoutService = DefaultVaultTimeoutService(
+            clientCrypto: clientService.clientCrypto(),
+            keychainRepository: keychainRepository,
+            stateService: stateService,
+            timeProvider: timeProvider
+        )
 
         let pasteboardService = DefaultPasteboardService(
             errorReporter: errorReporter,

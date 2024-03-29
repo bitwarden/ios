@@ -7,6 +7,8 @@ final class VaultTimeoutServiceTests: BitwardenTestCase { // swiftlint:disable:t
     // MARK: Properties
 
     var cancellables: Set<AnyCancellable>!
+    var clientCrypto: MockClientCrypto!
+    var keychainRepository: MockKeychainRepository!
     var stateService: MockStateService!
     var subject: DefaultVaultTimeoutService!
     var timeProvider: MockTimeProvider!
@@ -17,19 +19,28 @@ final class VaultTimeoutServiceTests: BitwardenTestCase { // swiftlint:disable:t
         super.setUp()
 
         cancellables = []
+        clientCrypto = MockClientCrypto()
+        keychainRepository = MockKeychainRepository()
         stateService = MockStateService()
         timeProvider = MockTimeProvider(
             .mockTime(
                 .init(year: 2024, month: 1, day: 1)
             )
         )
-        subject = DefaultVaultTimeoutService(stateService: stateService, timeProvider: timeProvider)
+        subject = DefaultVaultTimeoutService(
+            clientCrypto: clientCrypto,
+            keychainRepository: keychainRepository,
+            stateService: stateService,
+            timeProvider: timeProvider
+        )
     }
 
     override func tearDown() {
         super.tearDown()
 
         cancellables = nil
+        clientCrypto = nil
+        keychainRepository = nil
         subject = nil
         stateService = nil
         timeProvider = nil
@@ -237,12 +248,12 @@ final class VaultTimeoutServiceTests: BitwardenTestCase { // swiftlint:disable:t
     }
 
     /// `unlockVault(userId: nil)` should unock the active account.
-    func test_unlock_nil_active() async {
+    func test_unlock_nil_active() async throws {
         let account = Account.fixtureAccountLogin()
         stateService.activeAccount = account
         stateService.accounts = [account]
         subject.timeoutStore = [:]
-        await subject.unlockVault(userId: nil)
+        try await subject.unlockVault(userId: nil)
         XCTAssertEqual(
             [
                 account.profile.userId: false,
@@ -252,21 +263,21 @@ final class VaultTimeoutServiceTests: BitwardenTestCase { // swiftlint:disable:t
     }
 
     /// `unlockVault(userId: nil)` should do nothing for no active account.
-    func test_unlock_nil_noActive() async {
+    func test_unlock_nil_noActive() async throws {
         stateService.activeAccount = nil
         stateService.accounts = []
         subject.timeoutStore = [:]
-        await subject.unlockVault(userId: nil)
+        try await subject.unlockVault(userId: nil)
         XCTAssertEqual([:], subject.timeoutStore)
     }
 
     /// `unlockVault(userId:)` preserves the unlocked status of an unlocked account.
-    func test_unlock_unlocked() async {
+    func test_unlock_unlocked() async throws {
         let account = Account.fixtureAccountLogin()
         subject.timeoutStore = [
             account.profile.userId: false,
         ]
-        await subject.unlockVault(userId: account.profile.userId)
+        try await subject.unlockVault(userId: account.profile.userId)
         XCTAssertEqual(
             [
                 account.profile.userId: false,
@@ -276,13 +287,13 @@ final class VaultTimeoutServiceTests: BitwardenTestCase { // swiftlint:disable:t
     }
 
     /// `unlockVault(userId:)` should unlock a locked account.
-    func test_unlock_locked() async {
+    func test_unlock_locked() async throws {
         let account = Account.fixtureAccountLogin()
         stateService.accounts = [account]
         subject.timeoutStore = [
             account.profile.userId: true,
         ]
-        await subject.unlockVault(userId: account.profile.userId)
+        try await subject.unlockVault(userId: account.profile.userId)
         XCTAssertEqual(
             [
                 account.profile.userId: false,
@@ -292,11 +303,11 @@ final class VaultTimeoutServiceTests: BitwardenTestCase { // swiftlint:disable:t
     }
 
     /// `unlockVault(userId:)` should unlock an unknown account.
-    func test_unlock_notFound() async {
+    func test_unlock_notFound() async throws {
         let account = Account.fixtureAccountLogin()
         stateService.accounts = [account]
         subject.timeoutStore = [:]
-        await subject.unlockVault(userId: account.profile.userId)
+        try await subject.unlockVault(userId: account.profile.userId)
         XCTAssertEqual(
             [
                 account.profile.userId: false,
@@ -305,8 +316,8 @@ final class VaultTimeoutServiceTests: BitwardenTestCase { // swiftlint:disable:t
         )
     }
 
-    /// `unlockVault(userId:)` should lock all other accounts.
-    func test_unlock_locksAlternates() async {
+    /// `unlockVault(userId:)` keeps the previously unlocked vaults unlocked.
+    func test_unlock_locksAlternates() async throws {
         let account = Account.fixtureAccountLogin()
         let alternate = Account.fixture(profile: .fixture(userId: "123"))
         let secondAlternate = Account.fixture(profile: .fixture(userId: "312"))
@@ -320,14 +331,36 @@ final class VaultTimeoutServiceTests: BitwardenTestCase { // swiftlint:disable:t
             alternate.profile.userId: false,
             secondAlternate.profile.userId: true,
         ]
-        await subject.unlockVault(userId: account.profile.userId)
+        try await subject.unlockVault(userId: account.profile.userId)
+
+        let key = try await subject.keychainRepository.getUserAuthKeyValue(
+            for: .neverLock(userId: account.profile.userId)
+        )
+        XCTAssertNotNil(key)
         XCTAssertEqual(
             [
                 account.profile.userId: false,
-                alternate.profile.userId: true,
+                alternate.profile.userId: false,
                 secondAlternate.profile.userId: true,
             ],
             subject.timeoutStore
         )
+    }
+
+    /// `unlockVault(userId:)` throws on a keychain error and unlocks the vault.
+    func test_unlock_keychainError() async throws {
+        let account = Account.fixture()
+        let id = account.profile.userId
+
+        stateService.activeAccount = account
+        keychainRepository.setResult = .failure(KeychainServiceError.osStatusError(13))
+        subject.timeoutStore = [id: true]
+
+        await assertAsyncThrows(
+            error: VaultTimeoutServiceError.setAuthKeyFailed
+        ) {
+            try await subject.unlockVault(userId: id)
+        }
+        XCTAssertEqual(subject.timeoutStore[id], false)
     }
 }

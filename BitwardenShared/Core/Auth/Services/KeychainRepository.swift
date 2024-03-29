@@ -94,8 +94,8 @@ protocol KeychainRepository: AnyObject {
     /// Sets a user auth key/value pair.
     ///
     /// - Parameters:
-    ///     - item: The storage key for this auth key.
-    ///     - value: A `String` representing the user auth key.
+    ///    - item: The storage key for this auth key.
+    ///    - value: A `String` representing the user auth key.
     ///
     func setUserAuthKey(for item: KeychainItem, value: String) async throws
 }
@@ -188,7 +188,7 @@ class DefaultKeychainRepository: KeychainRepository {
         throw KeychainServiceError.keyNotFound(item)
     }
 
-    /// The core key/value pairs for Keychain operations
+    /// The core key/value pairs for Keychain operations.
     ///
     /// - Parameter item: The `KeychainItem` to be queried.
     ///

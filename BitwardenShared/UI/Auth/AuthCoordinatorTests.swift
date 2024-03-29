@@ -211,6 +211,7 @@ class AuthCoordinatorTests: BitwardenTestCase { // swiftlint:disable:this type_b
         let account = Account.fixture()
         authRepository.altAccounts = [account]
         authRepository.isLockedResult = .success(false)
+        authRepository.unlockVaultWithNeverlockResult = .success(())
         stateService.activeAccount = account
 
         let task = Task {

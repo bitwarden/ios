@@ -1,3 +1,4 @@
+import BitwardenSdk
 import Combine
 import Foundation
 
@@ -8,6 +9,10 @@ import Foundation
 enum VaultTimeoutServiceError: Error {
     /// There are no known accounts.
     case noAccountFound
+
+    /// An error for when saving an auth key to the keychain fails.
+    ///
+    case setAuthKeyFailed
 }
 
 // MARK: - VaultTimeoutService
@@ -15,6 +20,11 @@ enum VaultTimeoutServiceError: Error {
 /// A protocol for handling vault access.
 ///
 protocol VaultTimeoutService: AnyObject {
+    // MARK: Properties
+
+    /// The store of locked status for known accounts.
+    var timeoutStore: [String: Bool] { get }
+
     // MARK: Methods
 
     /// Whether a session timeout should occur.
@@ -61,7 +71,7 @@ protocol VaultTimeoutService: AnyObject {
     /// - Parameter userId: The userId of the account to unlock.
     ///     Defaults to the active account if nil
     ///
-    func unlockVault(userId: String?) async
+    func unlockVault(userId: String?) async throws
 
     /// Gets the `SessionTimeoutValue` for a user.
     ///
@@ -74,10 +84,23 @@ protocol VaultTimeoutService: AnyObject {
 // MARK: - DefaultVaultTimeoutService
 
 class DefaultVaultTimeoutService: VaultTimeoutService {
-    // MARK: Properties
+    // MARK: Publishers
 
     /// A subject containing the active account id.
     var activeAccountIdSubject = CurrentValueSubject<String?, Never>(nil)
+
+    // MARK: Properties
+
+    /// The repository used to manage keychain items.
+    let keychainRepository: KeychainRepository
+
+    /// The store of locked status for known accounts.
+    var timeoutStore = [String: Bool]()
+
+    // MARK: Private properties
+
+    /// The client used by the application to handle encryption and decryption setup tasks.
+    private let clientCrypto: ClientCryptoProtocol
 
     /// The state service used by this Default Service.
     private var stateService: StateService
@@ -85,21 +108,23 @@ class DefaultVaultTimeoutService: VaultTimeoutService {
     /// Provides the current time.
     private var timeProvider: TimeProvider
 
-    /// The store of locked status for known accounts
-    var timeoutStore = [String: Bool]()
-
-    /// A String to track the last known active account id.
-    var lastKnownActiveAccountId: String?
-
     // MARK: Initialization
 
     /// Creates a new `DefaultVaultTimeoutService`.
     ///
     /// - Parameters:
+    ///   - keychainRepository: The repository used to manages keychain items.
     ///   - stateService: The StateService used by DefaultVaultTimeoutService.
     ///   - timeProvider: Provides the current time.
     ///
-    init(stateService: StateService, timeProvider: TimeProvider) {
+    init(
+        clientCrypto: ClientCryptoProtocol,
+        keychainRepository: KeychainRepository,
+        stateService: StateService,
+        timeProvider: TimeProvider
+    ) {
+        self.clientCrypto = clientCrypto
+        self.keychainRepository = keychainRepository
         self.stateService = stateService
         self.timeProvider = timeProvider
     }
@@ -149,11 +174,17 @@ class DefaultVaultTimeoutService: VaultTimeoutService {
         try await stateService.setVaultTimeout(value: value, userId: userId)
     }
 
-    func unlockVault(userId: String?) async {
+    func unlockVault(userId: String?) async throws {
         guard let id = try? await stateService.getAccountIdOrActiveId(userId: userId) else { return }
-        var updatedStore = timeoutStore.mapValues { _ in true }
-        updatedStore[id] = false
-        timeoutStore = updatedStore
+        defer { timeoutStore[id] = false }
+        do {
+            try await keychainRepository.setUserAuthKey(
+                for: .neverLock(userId: id),
+                value: clientCrypto.getUserEncryptionKey()
+            )
+        } catch {
+            throw VaultTimeoutServiceError.setAuthKeyFailed
+        }
     }
 
     func sessionTimeoutValue(userId: String?) async throws -> SessionTimeoutValue {

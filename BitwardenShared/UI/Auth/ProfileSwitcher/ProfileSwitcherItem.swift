@@ -23,7 +23,7 @@ struct ProfileSwitcherItem: Equatable, Hashable {
     /// The account's email.
     var email: String
 
-    /// The the locked state of an account profile
+    /// The the locked state of an account profile.
     var isUnlocked: Bool
 
     /// The color to use for the profile icon text.

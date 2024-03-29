@@ -50,7 +50,8 @@ protocol AuthRepository: AnyObject {
     ///
     func isPinUnlockAvailable() async throws -> Bool
 
-    /// Checks the locked status of a user vault by user id
+    /// Checks the locked status of a user vault by user id.
+    ///
     ///  - Parameter userId: The userId of the account
     ///  - Returns: A bool, true if locked, false if unlocked.
     ///
@@ -79,6 +80,7 @@ protocol AuthRepository: AnyObject {
     func passwordStrength(email: String, password: String) async -> UInt8
 
     /// Gets the profiles state for a user.
+    ///
     /// - Parameters:
     ///   - allowLockAndLogout: Should the view allow lock & logout?
     ///   - isVisible: Should the state be visible?
@@ -682,7 +684,7 @@ extension DefaultAuthRepository: AuthRepository {
             break
         }
 
-        await vaultTimeoutService.unlockVault(userId: account.profile.userId)
+        try await vaultTimeoutService.unlockVault(userId: account.profile.userId)
         try await organizationService.initializeOrganizationCrypto()
     }
 

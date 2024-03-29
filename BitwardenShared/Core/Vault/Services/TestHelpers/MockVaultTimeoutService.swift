@@ -49,7 +49,7 @@ class MockVaultTimeoutService: VaultTimeoutService {
         shouldSessionTimeout[userId] ?? false
     }
 
-    func unlockVault(userId: String?) async {
+    func unlockVault(userId: String?) async throws {
         unlockedIds.append(userId)
         guard let userId else { return }
         timeoutStore[userId] = false

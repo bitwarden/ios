@@ -24,7 +24,7 @@ final class AuthRouter: NSObject, Router {
         self.services = services
     }
 
-    /// Prepare the coordinator asynchronously for a redirected `AuthRoute` based on current state
+    /// Prepare the coordinator asynchronously for a redirected `AuthRoute` based on current state.
     ///
     /// - Parameter route: The proposed `AuthRoute`.
     /// - Returns: Either the supplied route or a new route if the coordinator state demands a different route.
