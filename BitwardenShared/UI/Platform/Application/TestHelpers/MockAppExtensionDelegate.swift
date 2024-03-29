@@ -2,6 +2,7 @@
 
 class MockAppExtensionDelegate: AppExtensionDelegate {
     var authCompletionRoute = AppRoute.vault(.autofillList)
+    var canAutofill = true
     var didCancelCalled = false
     var didCompleteAutofillRequestFields: [(String, String)]?
     var didCompleteAutofillRequestPassword: String?
