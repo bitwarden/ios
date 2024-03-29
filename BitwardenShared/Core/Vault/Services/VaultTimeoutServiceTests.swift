@@ -333,7 +333,7 @@ final class VaultTimeoutServiceTests: BitwardenTestCase { // swiftlint:disable:t
         ]
         try await subject.unlockVault(userId: account.profile.userId)
 
-        let key = try await subject.keychainRepository.getUserAuthKeyValue(
+        let key = try await keychainRepository.getUserAuthKeyValue(
             for: .neverLock(userId: account.profile.userId)
         )
         XCTAssertNotNil(key)
