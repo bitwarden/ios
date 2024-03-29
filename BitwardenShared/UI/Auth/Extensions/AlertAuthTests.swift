@@ -20,12 +20,30 @@ class AlertAuthTests: BitwardenTestCase {
         XCTAssertEqual(subject.alertActions[2].title, Localizations.cancel)
     }
 
-    /// `breachesAlert(action:)` constructs an `Alert` with the title, message, and Yes and No buttons.
-    func test_breachesAlert() {
-        let subject = Alert.breachesAlert {}
+    /// `passwordStrengthAlert(alert:action:)` constructs an `Alert` with the title, message, and Yes and No buttons.
+    func test_passwordStrengthAlert() {
+        var subject = Alert.passwordStrengthAlert(.weak) {}
+
+        XCTAssertEqual(subject.title, Localizations.weakMasterPassword)
+        XCTAssertEqual(subject.message, Localizations.weakPasswordIdentifiedUseAStrongPasswordToProtectYourAccount)
+        XCTAssertEqual(subject.preferredStyle, .alert)
+        XCTAssertEqual(subject.alertActions.count, 2)
+        XCTAssertEqual(subject.alertActions[0].title, Localizations.no)
+        XCTAssertEqual(subject.alertActions[1].title, Localizations.yes)
+
+        subject = Alert.passwordStrengthAlert(.exposedWeak) {}
 
         XCTAssertEqual(subject.title, Localizations.weakAndExposedMasterPassword)
         XCTAssertEqual(subject.message, Localizations.weakPasswordIdentifiedAndFoundInADataBreachAlertDescription)
+        XCTAssertEqual(subject.preferredStyle, .alert)
+        XCTAssertEqual(subject.alertActions.count, 2)
+        XCTAssertEqual(subject.alertActions[0].title, Localizations.no)
+        XCTAssertEqual(subject.alertActions[1].title, Localizations.yes)
+
+        subject = Alert.passwordStrengthAlert(.exposedStrong) {}
+
+        XCTAssertEqual(subject.title, Localizations.exposedMasterPassword)
+        XCTAssertEqual(subject.message, Localizations.passwordFoundInADataBreachAlertDescription)
         XCTAssertEqual(subject.preferredStyle, .alert)
         XCTAssertEqual(subject.alertActions.count, 2)
         XCTAssertEqual(subject.alertActions[0].title, Localizations.no)
