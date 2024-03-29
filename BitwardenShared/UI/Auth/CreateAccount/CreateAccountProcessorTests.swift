@@ -140,7 +140,7 @@ class CreateAccountProcessorTests: BitwardenTestCase {
         XCTAssertEqual(client.requests[1].url, URL(string: "https://example.com/identity/accounts/register"))
         XCTAssertEqual(coordinator.alertShown.last, Alert(
             title: Localizations.exposedMasterPassword,
-            message:  Localizations.passwordFoundInADataBreachAlertDescription,
+            message: Localizations.passwordFoundInADataBreachAlertDescription,
             alertActions: [
                 AlertAction(title: Localizations.no, style: .cancel),
                 AlertAction(title: Localizations.yes, style: .default) { _ in },
