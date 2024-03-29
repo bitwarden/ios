@@ -1,3 +1,4 @@
+import AuthenticationServices
 import BitwardenSdk
 import Combine
 import Foundation
@@ -38,6 +39,7 @@ class CreateAccountProcessor: StateProcessor<CreateAccountState, CreateAccountAc
         & HasAuthRepository
         & HasCaptchaService
         & HasClientAuth
+        & HasErrorReporter
 
     // MARK: Private Properties
 
@@ -237,8 +239,8 @@ class CreateAccountProcessor: StateProcessor<CreateAccountState, CreateAccountAc
                 context: self
             )
         } catch {
-            // TODO: BIT-887 Show alert for when hCaptcha fails
-            print(error)
+            coordinator.showAlert(.networkResponseError(error))
+            services.errorReporter.log(error: error)
         }
     }
 
@@ -289,7 +291,14 @@ extension CreateAccountProcessor: CaptchaFlowDelegate {
     }
 
     func captchaErrored(error: Error) {
-        // TODO: BIT-681
-        print(error)
+        guard (error as NSError).code != ASWebAuthenticationSessionError.canceledLogin.rawValue else { return }
+
+        services.errorReporter.log(error: error)
+
+        // Show the alert after a delay to ensure it doesn't try to display over the
+        // closing captcha view.
+        DispatchQueue.main.asyncAfter(deadline: UI.after(0.6)) {
+            self.coordinator.showAlert(.networkResponseError(error))
+        }
     }
 }
