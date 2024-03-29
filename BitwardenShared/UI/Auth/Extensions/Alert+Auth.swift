@@ -3,11 +3,11 @@ import Foundation
 // MARK: - Alert+Auth
 
 extension Alert {
-    // MARK: - PasswordStrengthAlert
+    // MARK: - PasswordStrengthAlertType
 
-    /// An enumeration of password strength related alerts.
+    /// An enumeration of password strength related alert types.
     ///
-    enum PasswordStrengthAlert: CaseIterable {
+    enum PasswordStrengthAlertType: CaseIterable {
         /// An exposed but strong password.
         case exposedStrong
 
@@ -38,6 +38,25 @@ extension Alert {
                 Localizations.weakPasswordIdentifiedAndFoundInADataBreachAlertDescription
             case .weak:
                 Localizations.weakPasswordIdentifiedUseAStrongPasswordToProtectYourAccount
+            }
+        }
+
+        // MARK: Initialization
+
+        /// Initializes a `PasswordStrengthAlertType`.
+        ///
+        /// - Parameters:
+        ///   - isBreached: Whether the password is breached.
+        ///   - isWeak: Whether the password is weak.
+        ///
+        init(isBreached: Bool, isWeak: Bool) {
+            switch (isBreached, isWeak) {
+            case (true, true):
+                self = .exposedWeak
+            case (true, false):
+                self = .exposedStrong
+            default:
+                self = .weak
             }
         }
     }
@@ -177,18 +196,18 @@ extension Alert {
     /// An alert notifying the user that their password has been exposed and or is weak.
     ///
     /// - Parameters:
-    ///   - alert: The specific alert to show.
+    ///   - alertType: The type of alert to show.
     ///   - action: The action taken if the user opts to use the password anyways.
     ///
     /// - Returns: An alert notifying the user that their password has been exposed and or is weak.
     ///
     static func passwordStrengthAlert(
-        _ alert: PasswordStrengthAlert,
+        _ alertType: PasswordStrengthAlertType,
         _ action: @escaping () async -> Void
     ) -> Alert {
         Alert(
-            title: alert.title,
-            message: alert.message,
+            title: alertType.title,
+            message: alertType.message,
             alertActions: [
                 AlertAction(title: Localizations.no, style: .cancel),
                 AlertAction(title: Localizations.yes, style: .default) { _ in

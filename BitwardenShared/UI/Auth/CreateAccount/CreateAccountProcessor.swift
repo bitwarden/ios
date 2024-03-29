@@ -114,23 +114,11 @@ class CreateAccountProcessor: StateProcessor<CreateAccountState, CreateAccountAc
                 return
             }
 
-            // If exposed, show alert
-            if breachCount > 0 {
-                coordinator.showAlert(.passwordStrengthAlert(
-                    isWeakPassword
-                        ? .exposedWeak
-                        : .exposedStrong, {
-                            await self.createAccount()
-                        }
-                ))
-                return
-            } else {
-                // If unexposed and weak
-                coordinator.showAlert(.passwordStrengthAlert(.weak) {
-                    await self.createAccount()
-                })
-                return
-            }
+            // If exposed and/or weak, show alert
+            let alertType = Alert.PasswordStrengthAlertType(isBreached: breachCount > 0, isWeak: isWeakPassword)
+            coordinator.showAlert(.passwordStrengthAlert(alertType) {
+                await self.createAccount()
+            })
         } catch {
             await createAccount()
             Logger.processor.error("HIBP network request failed: \(error)")
@@ -149,7 +137,7 @@ class CreateAccountProcessor: StateProcessor<CreateAccountState, CreateAccountAc
         if state.isCheckDataBreachesToggleOn {
             await checkForBreaches(isWeakPassword: state.isWeakPassword)
         } else {
-            if state.isWeakPassword {
+            guard !state.isWeakPassword else {
                 coordinator.showAlert(.passwordStrengthAlert(.weak) {
                     await self.createAccount()
                 })

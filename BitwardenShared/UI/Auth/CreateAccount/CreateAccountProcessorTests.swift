@@ -113,9 +113,8 @@ class CreateAccountProcessorTests: BitwardenTestCase {
         XCTAssertEqual(client.requests[0].url, URL(string: "https://api.pwnedpasswords.com/range/e6b6a"))
         XCTAssertEqual(client.requests[1].url, URL(string: "https://example.com/identity/accounts/register"))
         XCTAssertEqual(coordinator.alertShown.last, Alert(
-            title: "Weak and Exposed Master Password",
-            message: "Weak password identified and found in a data breach. Use a strong and unique password "
-                + "to protect your account. Are you sure you want to use this password?",
+            title: Localizations.weakAndExposedMasterPassword,
+            message: Localizations.weakPasswordIdentifiedAndFoundInADataBreachAlertDescription,
             alertActions: [
                 AlertAction(title: Localizations.no, style: .cancel),
                 AlertAction(title: Localizations.yes, style: .default) { _ in },
@@ -140,9 +139,8 @@ class CreateAccountProcessorTests: BitwardenTestCase {
         XCTAssertEqual(client.requests[0].url, URL(string: "https://api.pwnedpasswords.com/range/e6b6a"))
         XCTAssertEqual(client.requests[1].url, URL(string: "https://example.com/identity/accounts/register"))
         XCTAssertEqual(coordinator.alertShown.last, Alert(
-            title: "Exposed Master Password",
-            message: "Password found in a data breach. Use a unique password to protect your account. "
-                + "Are you sure you want to use an exposed password?",
+            title: Localizations.exposedMasterPassword,
+            message:  Localizations.passwordFoundInADataBreachAlertDescription,
             alertActions: [
                 AlertAction(title: Localizations.no, style: .cancel),
                 AlertAction(title: Localizations.yes, style: .default) { _ in },
@@ -171,9 +169,8 @@ class CreateAccountProcessorTests: BitwardenTestCase {
         XCTAssertEqual(client.requests.count, 1)
         XCTAssertEqual(client.requests[0].url, URL(string: "https://example.com/identity/accounts/register"))
         XCTAssertEqual(coordinator.alertShown.last, Alert(
-            title: "Weak Master Password",
-            message: "Weak password identified. Use a strong password to protect your account. "
-                + "Are you sure you want to use a weak password?",
+            title: Localizations.weakMasterPassword,
+            message: Localizations.weakPasswordIdentifiedUseAStrongPasswordToProtectYourAccount,
             alertActions: [
                 AlertAction(title: Localizations.no, style: .cancel),
                 AlertAction(title: Localizations.yes, style: .default) { _ in },
@@ -203,9 +200,8 @@ class CreateAccountProcessorTests: BitwardenTestCase {
         XCTAssertEqual(client.requests[0].url, URL(string: "https://api.pwnedpasswords.com/range/6bf92"))
         XCTAssertEqual(client.requests[1].url, URL(string: "https://example.com/identity/accounts/register"))
         XCTAssertEqual(coordinator.alertShown.last, Alert(
-            title: "Weak Master Password",
-            message: "Weak password identified. Use a strong password to protect your account. "
-                + "Are you sure you want to use a weak password?",
+            title: Localizations.weakMasterPassword,
+            message: Localizations.weakPasswordIdentifiedUseAStrongPasswordToProtectYourAccount,
             alertActions: [
                 AlertAction(title: Localizations.no, style: .cancel),
                 AlertAction(title: Localizations.yes, style: .default) { _ in },
