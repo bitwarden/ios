@@ -22,6 +22,8 @@ packages:
   Firebase:
     url: https://github.com/firebase/firebase-ios-sdk
     exactVersion: 10.19.0
+  Networking:
+    path: Networking
   SnapshotTesting:
     url: https://github.com/pointfreeco/swift-snapshot-testing
     exactVersion: 1.15.2
@@ -46,6 +48,7 @@ schemes:
       targets:
         - AuthenticatorTests
         - AuthenticatorSharedTests
+        - package: Networking/NetworkingTests
   AuthenticatorShared:
     build:
       targets:
@@ -89,6 +92,7 @@ targets:
       - path: swiftgen.yml
         buildPhase: none
     dependencies:
+      - target: AuthenticatorShared
       - package: Firebase
         product: FirebaseCrashlytics
     postCompileScripts:
@@ -126,7 +130,7 @@ targets:
     settings:
       base:
         APPLICATION_EXTENSION_API_ONLY: true
-        INFOPLIST_FILE: AuthenticatorShared/Application/Support/Info.plist
+        INFOPLIST_FILE: AuthenticatorShared/UI/Platform/Application/Support/Info.plist
     sources:
       - path: AuthenticatorShared
         excludes:
@@ -138,8 +142,21 @@ targets:
         includes:
           - "**/__Snapshots__/*"
         buildPhase: none
+      - path: AuthenticatorShared/UI/Platform/Application/Support/Generated/Assets.swift
+        optional: true
+      - path: AuthenticatorShared/UI/Platform/Application/Support/Generated/Localizations.swift
+        optional: true
     dependencies:
       - package: BitwardenSdk
+      - package: Networking
+    preBuildScripts:
+      - name: SwiftGen
+        script: |
+            mint run swiftgen config run --config "swiftgen.yml"
+        basedOnDependencyAnalysis: false
+        outputFiles:
+          - $(SRCROOT)/AuthenticatorShared/UI/Platform/Application/Support/Generated/Assets.swift
+          - $(SRCROOT)/AuthenticatorShared/UI/Platform/Application/Support/Generated/Localizations.swift
   AuthenticatorSharedTests:
     type: bundle.unit-test
     platform: iOS
@@ -147,7 +164,7 @@ targets:
       base:
         BUNDLE_LOADER: "$(TEST_HOST)"
         TEST_HOST: "$(BUILT_PRODUCTS_DIR)/Authenticator.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/Authenticator"
-        INFOPLIST_FILE: AuthenticatorShared/Application/TestHelpers/Support/Info.plist
+        INFOPLIST_FILE: AuthenticatorShared/UI/Platform/Application/TestHelpers/Support/Info.plist
     sources:
       - path: AuthenticatorShared
         includes:

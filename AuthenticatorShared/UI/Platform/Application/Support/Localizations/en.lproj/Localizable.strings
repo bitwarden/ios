@@ -1,0 +1,10 @@
+"AnErrorHasOccurred" = "An error has occurred.";
+"Dark" = "Dark";
+"Default" = "Default";
+"DefaultSystem" = "Default (System)";
+"Important" = "Important";
+"Light" = "Light";
+"MasterPassword" = "Master password";
+"Ok" = "Ok";
+"ValidationFieldRequired" = "The %1$@ field is required.";
+"YourMasterPasswordCannotBeRecoveredIfYouForgetItXCharactersMinimum" = "Your master password cannot be recovered if you forget it! %1$@ characters minimum.";

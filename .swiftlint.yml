@@ -40,9 +40,7 @@ opt_in_rules:
   - yoda_condition
 
 excluded:
-  - BitwardenShared/UI/Platform/Application/Support/Generated
-  - BitwardenWatchApp
-  - BitwardenWatchShared
+  - AuthenticatorShared/UI/Platform/Application/Support/Generated
   - build
   - vendor/bundle
 
