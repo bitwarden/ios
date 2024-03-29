@@ -91,9 +91,6 @@ class DefaultVaultTimeoutService: VaultTimeoutService {
 
     // MARK: Properties
 
-    /// The repository used to manage keychain items.
-    let keychainRepository: KeychainRepository
-
     /// The store of locked status for known accounts.
     var timeoutStore = [String: Bool]()
 
@@ -101,6 +98,9 @@ class DefaultVaultTimeoutService: VaultTimeoutService {
 
     /// The client used by the application to handle encryption and decryption setup tasks.
     private let clientCrypto: ClientCryptoProtocol
+
+    /// The repository used to manage keychain items.
+    private let keychainRepository: KeychainRepository
 
     /// The state service used by this Default Service.
     private var stateService: StateService
@@ -113,6 +113,7 @@ class DefaultVaultTimeoutService: VaultTimeoutService {
     /// Creates a new `DefaultVaultTimeoutService`.
     ///
     /// - Parameters:
+    ///   - clientCrypto: The client used by the application to handle encryption and decryption setup tasks.
     ///   - keychainRepository: The repository used to manages keychain items.
     ///   - stateService: The StateService used by DefaultVaultTimeoutService.
     ///   - timeProvider: Provides the current time.
