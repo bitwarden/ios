@@ -46,6 +46,8 @@ struct ViewItemDetailsView: View {
                 }
                 .cornerRadius(10)
             }
+            .accessibilityElement(children: .contain)
+            .accessibilityIdentifier("AttachmentsList")
         }
     }
 
@@ -129,7 +131,14 @@ struct ViewItemDetailsView: View {
     /// The item information section.
     private var itemInformationSection: some View {
         SectionView(Localizations.itemInformation, contentSpacing: 12) {
-            BitwardenTextValueField(title: Localizations.name, value: store.state.name)
+            BitwardenTextValueField(
+                title: Localizations.name,
+                titleAccessibilityIdentifier: "ItemName",
+                value: store.state.name,
+                valueAccessibilityIdentifier: "ItemValue"
+            )
+            .accessibilityElement(children: .contain)
+            .accessibilityIdentifier("ItemRow")
 
             // check for type
             switch store.state.type {
@@ -170,6 +179,8 @@ struct ViewItemDetailsView: View {
             SectionView(Localizations.notes) {
                 BitwardenTextValueField(value: store.state.notes)
             }
+            .accessibilityElement(children: .contain)
+            .accessibilityIdentifier("CipherNotesLabel")
         }
     }
 
@@ -213,7 +224,9 @@ struct ViewItemDetailsView: View {
                 ForEach(store.state.loginState.uris, id: \.self) { uri in
                     BitwardenTextValueField(
                         title: Localizations.uri,
-                        value: URL(string: uri.uri)?.host ?? uri.uri
+                        titleAccessibilityIdentifier: "ItemName",
+                        value: URL(string: uri.uri)?.host ?? uri.uri,
+                        valueAccessibilityIdentifier: "ItemValue"
                     ) {
                         if let url = URL(string: uri.uri)?.sanitized, url.hasValidURLComponents {
                             Button {
@@ -232,7 +245,10 @@ struct ViewItemDetailsView: View {
                                 .imageStyle(.accessoryIcon)
                         }
                         .accessibilityLabel(Localizations.copy)
+                        .accessibilityIdentifier("CopyValueButton")
                     }
+                    .accessibilityElement(children: .contain)
+                    .accessibilityIdentifier("UriRow")
                 }
             }
         }
@@ -277,5 +293,7 @@ struct ViewItemDetailsView: View {
             }
         }
         .background(Asset.Colors.backgroundPrimary.swiftUIColor)
+        .accessibilityElement(children: .contain)
+        .accessibilityIdentifier("CipherAttachment")
     }
 }

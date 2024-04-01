@@ -26,8 +26,12 @@ struct ViewCardItemView: View {
         if !store.state.cardholderName.isEmpty {
             BitwardenTextValueField(
                 title: Localizations.cardholderName,
-                value: store.state.cardholderName
+                titleAccessibilityIdentifier: "ItemName",
+                value: store.state.cardholderName,
+                valueAccessibilityIdentifier: "ItemValue"
             )
+            .accessibilityElement(children: .contain)
+            .accessibilityIdentifier("ItemRow")
         }
     }
 
@@ -35,7 +39,10 @@ struct ViewCardItemView: View {
         let number = store.state.cardNumber
         let isVisible: Bool = store.state.isNumberVisible
         if !number.isEmpty {
-            BitwardenField(title: Localizations.number) {
+            BitwardenField(
+                title: Localizations.number,
+                titleAccessibilityIdentifier: "ItemName"
+            ) {
                 PasswordText(password: number, isPasswordVisible: isVisible)
                     .styleGuide(.body)
                     .foregroundColor(Asset.Colors.textPrimary.swiftUIColor)
@@ -55,7 +62,10 @@ struct ViewCardItemView: View {
                         .imageStyle(.accessoryIcon)
                 }
                 .accessibilityLabel(Localizations.copy)
+                .accessibilityIdentifier("CopyValueButton")
             }
+            .accessibilityElement(children: .contain)
+            .accessibilityIdentifier("ItemRow")
         }
     }
 
@@ -63,8 +73,12 @@ struct ViewCardItemView: View {
         if case .custom = store.state.brand {
             BitwardenTextValueField(
                 title: Localizations.brand,
-                value: store.state.brandName
+                titleAccessibilityIdentifier: "ItemName",
+                value: store.state.brandName,
+                valueAccessibilityIdentifier: "ItemValue"
             )
+            .accessibilityElement(children: .contain)
+            .accessibilityIdentifier("ItemRow")
         }
     }
 
@@ -83,8 +97,12 @@ struct ViewCardItemView: View {
         if !expirationString.isEmpty {
             BitwardenTextValueField(
                 title: Localizations.expiration,
-                value: expirationString
+                titleAccessibilityIdentifier: "ItemName",
+                value: expirationString,
+                valueAccessibilityIdentifier: "ItemValue"
             )
+            .accessibilityElement(children: .contain)
+            .accessibilityIdentifier("ItemRow")
         }
     }
 
@@ -112,7 +130,10 @@ struct ViewCardItemView: View {
                         .imageStyle(.accessoryIcon)
                 }
                 .accessibilityLabel(Localizations.copy)
+                .accessibilityIdentifier("CopyValueButton")
             }
+            .accessibilityElement(children: .contain)
+            .accessibilityIdentifier("ItemRow")
         }
     }
 }
