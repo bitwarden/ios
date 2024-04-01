@@ -87,6 +87,8 @@ $ cp Scripts/pre-commit .git/hooks/
 
 ### App Dependencies
 
+The following is a list of all third-party dependencies included as part of the application.
+
 - **Firebase Crashlytics**
     - https://github.com/firebase/firebase-ios-sdk
     - Purpose: SDK for crash and non-fatal error reporting.
@@ -127,6 +129,23 @@ The following dependencies are used in the development environment only. They ar
 - **XcodeGen**
     - https://github.com/yonaskolb/XcodeGen
     - Purpose: Generates the Xcode project using the folder structure and a project spec.
+    - License: MIT
+
+### CI/CD Dependencies
+
+The following is a list of additional third-party dependencies used as part of the CI/CD workflows. These are not present in the final packaged application.
+
+- **Danger**
+    - https://github.com/danger/danger
+    - Purpose: Provides a system for enforcing common Pull Request rules.
+    - License: MIT
+- **Danger Slather**
+    - https://github.com/BrunoMazzo/Danger-Slather
+    - Purpose: A Danger plugin that show code coverage of a Xcode project and file by file using Slather.
+    - License: MIT
+- **Danger Xcode Summary**
+    - https://github.com/diogot/danger-xcode_summary
+    - Purpose: A Danger plugin that shows all build errors, warnings and unit tests results generated from xcodebuild.
     - License: MIT
 - **yeetd**
     - https://github.com/biscuitehh/yeetd
