@@ -119,7 +119,10 @@ class CreateAccountProcessorTests: BitwardenTestCase {
         XCTAssertFalse(coordinator.isLoadingOverlayShowing)
         XCTAssertEqual(
             coordinator.loadingOverlaysShown,
-            [.init(title: Localizations.creatingAccount), .init(title: Localizations.creatingAccount)]
+            [
+                LoadingOverlayState(title: Localizations.creatingAccount),
+                LoadingOverlayState(title: Localizations.creatingAccount),
+            ]
         )
     }
 
@@ -151,7 +154,10 @@ class CreateAccountProcessorTests: BitwardenTestCase {
         XCTAssertFalse(coordinator.isLoadingOverlayShowing)
         XCTAssertEqual(
             coordinator.loadingOverlaysShown,
-            [.init(title: Localizations.creatingAccount), .init(title: Localizations.creatingAccount)]
+            [
+                LoadingOverlayState(title: Localizations.creatingAccount),
+                LoadingOverlayState(title: Localizations.creatingAccount),
+            ]
         )
     }
 
@@ -183,7 +189,10 @@ class CreateAccountProcessorTests: BitwardenTestCase {
         XCTAssertFalse(coordinator.isLoadingOverlayShowing)
         XCTAssertEqual(
             coordinator.loadingOverlaysShown,
-            [.init(title: Localizations.creatingAccount), .init(title: Localizations.creatingAccount)]
+            [
+                LoadingOverlayState(title: Localizations.creatingAccount),
+                LoadingOverlayState(title: Localizations.creatingAccount),
+            ]
         )
     }
 
@@ -217,7 +226,7 @@ class CreateAccountProcessorTests: BitwardenTestCase {
         ))
 
         XCTAssertFalse(coordinator.isLoadingOverlayShowing)
-        XCTAssertEqual(coordinator.loadingOverlaysShown, [.init(title: Localizations.creatingAccount)])
+        XCTAssertEqual(coordinator.loadingOverlaysShown, [LoadingOverlayState(title: Localizations.creatingAccount)])
     }
 
     /// `perform(_:)` with `.createAccount` presents an alert when the password
@@ -253,7 +262,10 @@ class CreateAccountProcessorTests: BitwardenTestCase {
         XCTAssertFalse(coordinator.isLoadingOverlayShowing)
         XCTAssertEqual(
             coordinator.loadingOverlaysShown,
-            [.init(title: Localizations.creatingAccount), .init(title: Localizations.creatingAccount)]
+            [
+                LoadingOverlayState(title: Localizations.creatingAccount),
+                LoadingOverlayState(title: Localizations.creatingAccount),
+            ]
         )
     }
 
@@ -284,7 +296,7 @@ class CreateAccountProcessorTests: BitwardenTestCase {
         )
 
         XCTAssertFalse(coordinator.isLoadingOverlayShowing)
-        XCTAssertEqual(coordinator.loadingOverlaysShown, [.init(title: Localizations.creatingAccount)])
+        XCTAssertEqual(coordinator.loadingOverlaysShown, [LoadingOverlayState(title: Localizations.creatingAccount)])
     }
 
     /// `perform(_:)` with `.createAccount` presents an alert when the email exceeds the maximum length.
@@ -323,7 +335,7 @@ class CreateAccountProcessorTests: BitwardenTestCase {
         )
 
         XCTAssertFalse(coordinator.isLoadingOverlayShowing)
-        XCTAssertEqual(coordinator.loadingOverlaysShown, [.init(title: Localizations.creatingAccount)])
+        XCTAssertEqual(coordinator.loadingOverlaysShown, [LoadingOverlayState(title: Localizations.creatingAccount)])
     }
 
     /// `perform(_:)` with `.createAccount` presents an alert when the email field is empty.
@@ -366,7 +378,7 @@ class CreateAccountProcessorTests: BitwardenTestCase {
         XCTAssertEqual(coordinator.routes.last, .captcha(url: .example, callbackUrlScheme: "callback"))
 
         XCTAssertFalse(coordinator.isLoadingOverlayShowing)
-        XCTAssertEqual(coordinator.loadingOverlaysShown, [.init(title: Localizations.creatingAccount)])
+        XCTAssertEqual(coordinator.loadingOverlaysShown, [LoadingOverlayState(title: Localizations.creatingAccount)])
     }
 
     /// `perform(_:)` with `.createAccount` and a captcha flow error records the error.
@@ -386,7 +398,7 @@ class CreateAccountProcessorTests: BitwardenTestCase {
         XCTAssertEqual(errorReporter.errors.last as? BitwardenTestError, .example)
 
         XCTAssertFalse(coordinator.isLoadingOverlayShowing)
-        XCTAssertEqual(coordinator.loadingOverlaysShown, [.init(title: Localizations.creatingAccount)])
+        XCTAssertEqual(coordinator.loadingOverlaysShown, [LoadingOverlayState(title: Localizations.creatingAccount)])
     }
 
     /// `perform(_:)` with `.createAccount` presents an alert when the password hint is too long.
@@ -419,7 +431,7 @@ class CreateAccountProcessorTests: BitwardenTestCase {
         )
 
         XCTAssertFalse(coordinator.isLoadingOverlayShowing)
-        XCTAssertEqual(coordinator.loadingOverlaysShown, [.init(title: Localizations.creatingAccount)])
+        XCTAssertEqual(coordinator.loadingOverlaysShown, [LoadingOverlayState(title: Localizations.creatingAccount)])
     }
 
     /// `perform(_:)` with `.createAccount` presents an alert when the email is in an invalid format.
@@ -449,7 +461,7 @@ class CreateAccountProcessorTests: BitwardenTestCase {
         )
 
         XCTAssertFalse(coordinator.isLoadingOverlayShowing)
-        XCTAssertEqual(coordinator.loadingOverlaysShown, [.init(title: Localizations.creatingAccount)])
+        XCTAssertEqual(coordinator.loadingOverlaysShown, [LoadingOverlayState(title: Localizations.creatingAccount)])
     }
 
     /// `perform(_:)` with `.createAccount` presents an alert when there is no internet connection.
@@ -477,7 +489,10 @@ class CreateAccountProcessorTests: BitwardenTestCase {
         XCTAssertFalse(coordinator.isLoadingOverlayShowing)
         XCTAssertEqual(
             coordinator.loadingOverlaysShown,
-            [.init(title: Localizations.creatingAccount), .init(title: Localizations.creatingAccount)]
+            [
+                LoadingOverlayState(title: Localizations.creatingAccount),
+                LoadingOverlayState(title: Localizations.creatingAccount),
+            ]
         )
     }
 
@@ -530,7 +545,10 @@ class CreateAccountProcessorTests: BitwardenTestCase {
         XCTAssertFalse(coordinator.isLoadingOverlayShowing)
         XCTAssertEqual(
             coordinator.loadingOverlaysShown,
-            [.init(title: Localizations.creatingAccount), .init(title: Localizations.creatingAccount)]
+            [
+                LoadingOverlayState(title: Localizations.creatingAccount),
+                LoadingOverlayState(title: Localizations.creatingAccount),
+            ]
         )
     }
 
@@ -559,7 +577,7 @@ class CreateAccountProcessorTests: BitwardenTestCase {
         XCTAssertEqual(client.requests[0].url, URL(string: "https://example.com/identity/accounts/register"))
 
         XCTAssertFalse(coordinator.isLoadingOverlayShowing)
-        XCTAssertEqual(coordinator.loadingOverlaysShown, [.init(title: Localizations.creatingAccount)])
+        XCTAssertEqual(coordinator.loadingOverlaysShown, [LoadingOverlayState(title: Localizations.creatingAccount)])
     }
 
     /// `perform(_:)` with `.createAccount` and a valid email surrounded by whitespace trims the whitespace and
@@ -575,7 +593,7 @@ class CreateAccountProcessorTests: BitwardenTestCase {
         XCTAssertEqual(client.requests[0].url, URL(string: "https://example.com/identity/accounts/register"))
 
         XCTAssertFalse(coordinator.isLoadingOverlayShowing)
-        XCTAssertEqual(coordinator.loadingOverlaysShown, [.init(title: Localizations.creatingAccount)])
+        XCTAssertEqual(coordinator.loadingOverlaysShown, [LoadingOverlayState(title: Localizations.creatingAccount)])
     }
 
     /// `perform(_:)` with `.createAccount` and a valid email with uppercase characters converts the email to lowercase
@@ -591,7 +609,7 @@ class CreateAccountProcessorTests: BitwardenTestCase {
         XCTAssertEqual(client.requests[0].url, URL(string: "https://example.com/identity/accounts/register"))
 
         XCTAssertFalse(coordinator.isLoadingOverlayShowing)
-        XCTAssertEqual(coordinator.loadingOverlaysShown, [.init(title: Localizations.creatingAccount)])
+        XCTAssertEqual(coordinator.loadingOverlaysShown, [LoadingOverlayState(title: Localizations.creatingAccount)])
     }
 
     /// `perform(_:)` with `.createAccount` navigates to an error alert when the terms of service
