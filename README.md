@@ -11,8 +11,8 @@
 
 - **Minimum iOS**: 15.0
 - **Target SDK**: 15.0
-- **Device Types Supported**: iPhone
-- **Screen Sizes Supported**: iPhone SE to iPhone 15 Pro Max
+- **Device Types Supported**: iPhone, iPad
+- **Screen Sizes Supported**: iPhone SE to iPhone 15 Pro Max, iPad Mini to iPad Pro 12.9"
 - **Orientations Supported**: Portrait, Landscape
 
 ## Setup
@@ -63,6 +63,8 @@
 2. Run the app in the Simulator with the `Bitwarden` target.
 
 ### Running Tests
+
+Due to slight snapshot test variations between iOS version, the test target requires running in an iPhone 15 Pro simulator (iOS 17.0.1).
 
 1. In Xcode's toolbar, select the project and a connected device or simulator.
    - The `Generic iOS Device` used for builds will not work for testing.
