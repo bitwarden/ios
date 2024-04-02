@@ -1,4 +1,6 @@
 name: Bitwarden
+fileGroups:
+ - Configs
 configs:
   Debug: debug
   Release: release
