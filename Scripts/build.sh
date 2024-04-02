@@ -12,16 +12,15 @@ bold=$(tput -T ansi bold)
 normal=$(tput -T ansi sgr0)
 
 if [ $# -ne 5 ]; then
-  echo >&2 "Called without necessary arguments: ${bold}Project_Dir${normal} ${bold}Local_xcconfig_path${normal} ${bold}Export_options_path${normal} ${bold}Configuration${normal} {$bold}Build_Number${normal}."
-  echo >&2 "For example: \`Scripts/build.sh . resources/Local.xcconfig resources/export_options.plist Release 100\`."
+  echo >&2 "Called without necessary arguments: ${bold}Project_Dir${normal} ${bold}Local_xcconfig_path${normal} ${bold}Export_options_path${normal} {$bold}Build_Number${normal}."
+  echo >&2 "For example: \`Scripts/build.sh . resources/Local.xcconfig resources/export_options.plist 100\`."
   exit 1
 fi
 
 PROJECT_DIR=$1
 LOCAL_XCCONFIG_PATH=$2
 EXPORT_OPTIONS_PATH=$3
-CONFIGURATION=$4
-BUILD_NUMBER=$5
+BUILD_NUMBER=$4
 
 BUILD_DIR="build"
 
@@ -43,7 +42,7 @@ echo "🔨 Performing Xcode archive"
 xcrun xcodebuild archive \
   -project Bitwarden.xcodeproj \
   -scheme Bitwarden \
-  -configuration "${CONFIGURATION}" \
+  -configuration Release \
   -archivePath "${ARCHIVE_PATH}" \
   CURRENT_PROJECT_VERSION="${BUILD_NUMBER}" \
   | xcbeautify --renderer github-actions
