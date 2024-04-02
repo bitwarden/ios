@@ -194,7 +194,7 @@ targets:
     configFiles:
       Debug: Configs/BitwardenActionExtension.xcconfig
       Release: Configs/BitwardenActionExtension.xcconfig
-      Release-Beta: Configs/BitwardenActionExtension-Beta.xcconfig
+      Release-Beta: Configs/BitwardenActionExtension.xcconfig
     settings:
       base:
         INFOPLIST_FILE: BitwardenActionExtension/Application/Support/Info.plist
@@ -230,7 +230,7 @@ targets:
     configFiles:
       Debug: Configs/BitwardenAutoFillExtension.xcconfig
       Release: Configs/BitwardenAutoFillExtension.xcconfig
-      Release-Beta: Configs/BitwardenAutoFillExtension-Beta.xcconfig
+      Release-Beta: Configs/BitwardenAutoFillExtension.xcconfig
     settings:
       base:
         INFOPLIST_FILE: BitwardenAutoFillExtension/Application/Support/Info.plist
@@ -266,7 +266,7 @@ targets:
     configFiles:
       Debug: Configs/BitwardenShareExtension.xcconfig
       Release: Configs/BitwardenShareExtension.xcconfig
-      Release-Beta: Configs/BitwardenShareExtension-Beta.xcconfig
+      Release-Beta: Configs/BitwardenShareExtension.xcconfig
     settings:
       base:
         INFOPLIST_FILE: BitwardenShareExtension/Application/Support/Info.plist
