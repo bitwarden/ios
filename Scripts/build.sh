@@ -11,8 +11,8 @@ set -euo pipefail
 bold=$(tput -T ansi bold)
 normal=$(tput -T ansi sgr0)
 
-if [ $# -ne 5 ]; then
-  echo >&2 "Called without necessary arguments: ${bold}Project_Dir${normal} ${bold}Local_xcconfig_path${normal} ${bold}Export_options_path${normal} {$bold}Build_Number${normal}."
+if [ $# -ne 4 ]; then
+  echo >&2 "Called without necessary arguments: ${bold}Project_Dir${normal} ${bold}Local_xcconfig_path${normal} ${bold}Export_options_path${normal} ${bold}Build_Number${normal}."
   echo >&2 "For example: \`Scripts/build.sh . resources/Local.xcconfig resources/export_options.plist 100\`."
   exit 1
 fi

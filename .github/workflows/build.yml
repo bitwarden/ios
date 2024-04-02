@@ -186,7 +186,7 @@ jobs:
           LOCAL_XCCONFIG_PATH: ./.github/resources/Local-beta.xcconfig
         run: |
           BUILD_NUMBER=$(($GITHUB_RUN_NUMBER))
-          ./Scripts/build.sh . "${LOCAL_XCCONFIG_PATH}" "${EXPORT_OPTIONS_PATH}" Release ${{ inputs.build-number || '$BUILD_NUMBER' }}
+          ./Scripts/build.sh . "${LOCAL_XCCONFIG_PATH}" "${EXPORT_OPTIONS_PATH}" ${{ inputs.build-number || '$BUILD_NUMBER' }}
 
       - name: Validate app
         env:
