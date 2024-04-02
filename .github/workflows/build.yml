@@ -176,9 +176,9 @@ jobs:
         run: |
           mint bootstrap
 
-      - name: Generate project
+      - name: Change to beta variant
         run: |
-          mint run xcodegen xcodegen
+          ./Scripts/select_variant.sh beta
 
       - name: Build Beta iOS app
         env:
