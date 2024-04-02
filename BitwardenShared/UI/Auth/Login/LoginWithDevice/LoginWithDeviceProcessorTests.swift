@@ -1,3 +1,4 @@
+import AuthenticationServices
 import XCTest
 
 @testable import BitwardenShared
@@ -79,6 +80,13 @@ class LoginWithDeviceProcessorTests: BitwardenTestCase {
         waitFor(!coordinator.alertShown.isEmpty)
         XCTAssertEqual(coordinator.alertShown.last, .networkResponseError(BitwardenTestError.example))
         XCTAssertEqual(errorReporter.errors.last as? BitwardenTestError, .example)
+    }
+
+    /// `captchaErrored(error:)` doesn't record an error if the captcha flow was cancelled.
+    func test_captchaErrored_cancelled() {
+        let error = NSError(domain: "", code: ASWebAuthenticationSessionError.canceledLogin.rawValue)
+        subject.captchaErrored(error: error)
+        XCTAssertTrue(errorReporter.errors.isEmpty)
     }
 
     /// `checkForResponse()` shows an alert and dismisses the view if the request has been denied.

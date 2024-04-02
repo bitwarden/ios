@@ -1,3 +1,4 @@
+import AuthenticationServices
 import Networking
 import XCTest
 
@@ -14,6 +15,7 @@ class CreateAccountProcessorTests: BitwardenTestCase {
     var client: MockHTTPClient!
     var clientAuth: MockClientAuth!
     var coordinator: MockCoordinator<AuthRoute, AuthEvent>!
+    var errorReporter: MockErrorReporter!
     var subject: CreateAccountProcessor!
 
     // MARK: Setup & Teardown
@@ -25,12 +27,14 @@ class CreateAccountProcessorTests: BitwardenTestCase {
         client = MockHTTPClient()
         clientAuth = MockClientAuth()
         coordinator = MockCoordinator<AuthRoute, AuthEvent>()
+        errorReporter = MockErrorReporter()
         subject = CreateAccountProcessor(
             coordinator: coordinator.asAnyCoordinator(),
             services: ServiceContainer.withMocks(
                 authRepository: authRepository,
                 captchaService: captchaService,
                 clientService: MockClientService(clientAuth: clientAuth),
+                errorReporter: errorReporter,
                 httpClient: client
             ),
             state: CreateAccountState()
@@ -44,6 +48,7 @@ class CreateAccountProcessorTests: BitwardenTestCase {
         clientAuth = nil
         client = nil
         coordinator = nil
+        errorReporter = nil
         subject = nil
     }
 
@@ -81,6 +86,22 @@ class CreateAccountProcessorTests: BitwardenTestCase {
         XCTAssertEqual(coordinator.routes.last, .login(username: "email@example.com"))
     }
 
+    /// `captchaErrored(error:)` records an error.
+    func test_captchaErrored() {
+        subject.captchaErrored(error: BitwardenTestError.example)
+
+        waitFor(!coordinator.alertShown.isEmpty)
+        XCTAssertEqual(coordinator.alertShown.last, .networkResponseError(BitwardenTestError.example))
+        XCTAssertEqual(errorReporter.errors.last as? BitwardenTestError, .example)
+    }
+
+    /// `captchaErrored(error:)` doesn't record an error if the captcha flow was cancelled.
+    func test_captchaErrored_cancelled() {
+        let error = NSError(domain: "", code: ASWebAuthenticationSessionError.canceledLogin.rawValue)
+        subject.captchaErrored(error: error)
+        XCTAssertTrue(errorReporter.errors.isEmpty)
+    }
+
     /// `perform(_:)` with `.createAccount` will still make the `CreateAccountRequest` when the HIBP
     /// network request fails.
     func test_perform_checkPasswordAndCreateAccount_failure() async throws {
@@ -94,6 +115,15 @@ class CreateAccountProcessorTests: BitwardenTestCase {
         XCTAssertEqual(client.requests[0].url, URL(string: "https://api.pwnedpasswords.com/range/e6b6a"))
         XCTAssertEqual(client.requests[1].url, URL(string: "https://example.com/identity/accounts/register"))
         XCTAssertEqual(coordinator.routes.last, .login(username: "email@example.com"))
+
+        XCTAssertFalse(coordinator.isLoadingOverlayShowing)
+        XCTAssertEqual(
+            coordinator.loadingOverlaysShown,
+            [
+                LoadingOverlayState(title: Localizations.creatingAccount),
+                LoadingOverlayState(title: Localizations.creatingAccount),
+            ]
+        )
     }
 
     /// `perform(_:)` with `.createAccount` presents an alert when the password
@@ -120,6 +150,15 @@ class CreateAccountProcessorTests: BitwardenTestCase {
                 AlertAction(title: Localizations.yes, style: .default) { _ in },
             ]
         ))
+
+        XCTAssertFalse(coordinator.isLoadingOverlayShowing)
+        XCTAssertEqual(
+            coordinator.loadingOverlaysShown,
+            [
+                LoadingOverlayState(title: Localizations.creatingAccount),
+                LoadingOverlayState(title: Localizations.creatingAccount),
+            ]
+        )
     }
 
     /// `perform(_:)` with `.createAccount` presents an alert when the password
@@ -146,6 +185,15 @@ class CreateAccountProcessorTests: BitwardenTestCase {
                 AlertAction(title: Localizations.yes, style: .default) { _ in },
             ]
         ))
+
+        XCTAssertFalse(coordinator.isLoadingOverlayShowing)
+        XCTAssertEqual(
+            coordinator.loadingOverlaysShown,
+            [
+                LoadingOverlayState(title: Localizations.creatingAccount),
+                LoadingOverlayState(title: Localizations.creatingAccount),
+            ]
+        )
     }
 
     /// `perform(_:)` with `.createAccount` presents an alert when the password
@@ -176,6 +224,9 @@ class CreateAccountProcessorTests: BitwardenTestCase {
                 AlertAction(title: Localizations.yes, style: .default) { _ in },
             ]
         ))
+
+        XCTAssertFalse(coordinator.isLoadingOverlayShowing)
+        XCTAssertEqual(coordinator.loadingOverlaysShown, [LoadingOverlayState(title: Localizations.creatingAccount)])
     }
 
     /// `perform(_:)` with `.createAccount` presents an alert when the password
@@ -207,6 +258,15 @@ class CreateAccountProcessorTests: BitwardenTestCase {
                 AlertAction(title: Localizations.yes, style: .default) { _ in },
             ]
         ))
+
+        XCTAssertFalse(coordinator.isLoadingOverlayShowing)
+        XCTAssertEqual(
+            coordinator.loadingOverlaysShown,
+            [
+                LoadingOverlayState(title: Localizations.creatingAccount),
+                LoadingOverlayState(title: Localizations.creatingAccount),
+            ]
+        )
     }
 
     /// `perform(_:)` with `.createAccount` presents an alert when the email has already been taken.
@@ -234,6 +294,9 @@ class CreateAccountProcessorTests: BitwardenTestCase {
                 message: "Email 'j@a.com' is already taken."
             )
         )
+
+        XCTAssertFalse(coordinator.isLoadingOverlayShowing)
+        XCTAssertEqual(coordinator.loadingOverlaysShown, [LoadingOverlayState(title: Localizations.creatingAccount)])
     }
 
     /// `perform(_:)` with `.createAccount` presents an alert when the email exceeds the maximum length.
@@ -270,6 +333,9 @@ class CreateAccountProcessorTests: BitwardenTestCase {
                 message: "The field Email must be a string with a maximum length of 256."
             )
         )
+
+        XCTAssertFalse(coordinator.isLoadingOverlayShowing)
+        XCTAssertEqual(coordinator.loadingOverlaysShown, [LoadingOverlayState(title: Localizations.creatingAccount)])
     }
 
     /// `perform(_:)` with `.createAccount` presents an alert when the email field is empty.
@@ -282,6 +348,7 @@ class CreateAccountProcessorTests: BitwardenTestCase {
 
         XCTAssertEqual(client.requests.count, 0)
         XCTAssertEqual(coordinator.alertShown.last, .validationFieldRequired(fieldName: "Email"))
+        XCTAssertTrue(coordinator.loadingOverlaysShown.isEmpty)
     }
 
     /// `perform(_:)` with `.createAccount` presents an alert when the password field is empty.
@@ -294,9 +361,10 @@ class CreateAccountProcessorTests: BitwardenTestCase {
 
         XCTAssertEqual(client.requests.count, 0)
         XCTAssertEqual(coordinator.alertShown.last, .validationFieldRequired(fieldName: "Master password"))
+        XCTAssertTrue(coordinator.loadingOverlaysShown.isEmpty)
     }
 
-    /// `perform(_:)` with `.createAccount` and a captcha error occurs navigates to the `.captcha` route.
+    /// `perform(_:)` with `.createAccount` and a captcha required error occurs navigates to the `.captcha` route.
     func test_perform_createAccount_captchaError() async {
         subject.state = .fixture()
 
@@ -308,6 +376,29 @@ class CreateAccountProcessorTests: BitwardenTestCase {
         XCTAssertEqual(captchaService.callbackUrlSchemeGets, 1)
         XCTAssertEqual(captchaService.generateCaptchaSiteKey, "token")
         XCTAssertEqual(coordinator.routes.last, .captcha(url: .example, callbackUrlScheme: "callback"))
+
+        XCTAssertFalse(coordinator.isLoadingOverlayShowing)
+        XCTAssertEqual(coordinator.loadingOverlaysShown, [LoadingOverlayState(title: Localizations.creatingAccount)])
+    }
+
+    /// `perform(_:)` with `.createAccount` and a captcha flow error records the error.
+    func test_perform_createAccount_captchaFlowError() async {
+        captchaService.generateCaptchaUrlResult = .failure(BitwardenTestError.example)
+        client.result = .httpFailure(CreateAccountRequestError.captchaRequired(hCaptchaSiteCode: "token"))
+
+        subject.state.emailText = "email@example.com"
+        subject.state.passwordText = "password1234"
+        subject.state.retypePasswordText = "password1234"
+        subject.state.isTermsAndPrivacyToggleOn = true
+        subject.state.isCheckDataBreachesToggleOn = false
+
+        await subject.perform(.createAccount)
+
+        XCTAssertEqual(coordinator.alertShown.last, .networkResponseError(BitwardenTestError.example))
+        XCTAssertEqual(errorReporter.errors.last as? BitwardenTestError, .example)
+
+        XCTAssertFalse(coordinator.isLoadingOverlayShowing)
+        XCTAssertEqual(coordinator.loadingOverlaysShown, [LoadingOverlayState(title: Localizations.creatingAccount)])
     }
 
     /// `perform(_:)` with `.createAccount` presents an alert when the password hint is too long.
@@ -338,6 +429,9 @@ class CreateAccountProcessorTests: BitwardenTestCase {
                 message: "The field MasterPasswordHint must be a string with a maximum length of 50."
             )
         )
+
+        XCTAssertFalse(coordinator.isLoadingOverlayShowing)
+        XCTAssertEqual(coordinator.loadingOverlaysShown, [LoadingOverlayState(title: Localizations.creatingAccount)])
     }
 
     /// `perform(_:)` with `.createAccount` presents an alert when the email is in an invalid format.
@@ -365,6 +459,9 @@ class CreateAccountProcessorTests: BitwardenTestCase {
                 message: "The Email field is not a supported e-mail address format."
             )
         )
+
+        XCTAssertFalse(coordinator.isLoadingOverlayShowing)
+        XCTAssertEqual(coordinator.loadingOverlaysShown, [LoadingOverlayState(title: Localizations.creatingAccount)])
     }
 
     /// `perform(_:)` with `.createAccount` presents an alert when there is no internet connection.
@@ -388,6 +485,15 @@ class CreateAccountProcessorTests: BitwardenTestCase {
         XCTAssertEqual(client.requests[0].url, URL(string: "https://example.com/identity/accounts/register"))
         XCTAssertEqual(client.requests[1].url, URL(string: "https://example.com/identity/accounts/register"))
         XCTAssertEqual(coordinator.routes.last, .login(username: "email@example.com"))
+
+        XCTAssertFalse(coordinator.isLoadingOverlayShowing)
+        XCTAssertEqual(
+            coordinator.loadingOverlaysShown,
+            [
+                LoadingOverlayState(title: Localizations.creatingAccount),
+                LoadingOverlayState(title: Localizations.creatingAccount),
+            ]
+        )
     }
 
     /// `perform(_:)` with `.createAccount` presents an alert when password confirmation is incorrect.
@@ -400,6 +506,7 @@ class CreateAccountProcessorTests: BitwardenTestCase {
 
         XCTAssertEqual(client.requests.count, 0)
         XCTAssertEqual(coordinator.alertShown.last, .passwordsDontMatch)
+        XCTAssertTrue(coordinator.loadingOverlaysShown.isEmpty)
     }
 
     /// `perform(_:)` with `.createAccount` presents an alert when the password isn't long enough.
@@ -412,6 +519,7 @@ class CreateAccountProcessorTests: BitwardenTestCase {
 
         XCTAssertEqual(client.requests.count, 0)
         XCTAssertEqual(coordinator.alertShown.last, .passwordIsTooShort)
+        XCTAssertTrue(coordinator.loadingOverlaysShown.isEmpty)
     }
 
     /// `perform(_:)` with `.createAccount` presents an alert when the request times out.
@@ -433,6 +541,15 @@ class CreateAccountProcessorTests: BitwardenTestCase {
         XCTAssertEqual(client.requests[0].url, URL(string: "https://example.com/identity/accounts/register"))
         XCTAssertEqual(client.requests[1].url, URL(string: "https://example.com/identity/accounts/register"))
         XCTAssertEqual(coordinator.routes.last, .login(username: "email@example.com"))
+
+        XCTAssertFalse(coordinator.isLoadingOverlayShowing)
+        XCTAssertEqual(
+            coordinator.loadingOverlaysShown,
+            [
+                LoadingOverlayState(title: Localizations.creatingAccount),
+                LoadingOverlayState(title: Localizations.creatingAccount),
+            ]
+        )
     }
 
     /// `perform(_:)` with `.createAccount` and an invalid email navigates to an invalid email alert.
@@ -445,6 +562,7 @@ class CreateAccountProcessorTests: BitwardenTestCase {
 
         XCTAssertEqual(client.requests.count, 0)
         XCTAssertEqual(coordinator.alertShown.last, .invalidEmail)
+        XCTAssertTrue(coordinator.loadingOverlaysShown.isEmpty)
     }
 
     /// `perform(_:)` with `.createAccount` and a valid email creates the user's account.
@@ -457,6 +575,9 @@ class CreateAccountProcessorTests: BitwardenTestCase {
 
         XCTAssertEqual(client.requests.count, 1)
         XCTAssertEqual(client.requests[0].url, URL(string: "https://example.com/identity/accounts/register"))
+
+        XCTAssertFalse(coordinator.isLoadingOverlayShowing)
+        XCTAssertEqual(coordinator.loadingOverlaysShown, [LoadingOverlayState(title: Localizations.creatingAccount)])
     }
 
     /// `perform(_:)` with `.createAccount` and a valid email surrounded by whitespace trims the whitespace and
@@ -470,6 +591,9 @@ class CreateAccountProcessorTests: BitwardenTestCase {
 
         XCTAssertEqual(client.requests.count, 1)
         XCTAssertEqual(client.requests[0].url, URL(string: "https://example.com/identity/accounts/register"))
+
+        XCTAssertFalse(coordinator.isLoadingOverlayShowing)
+        XCTAssertEqual(coordinator.loadingOverlaysShown, [LoadingOverlayState(title: Localizations.creatingAccount)])
     }
 
     /// `perform(_:)` with `.createAccount` and a valid email with uppercase characters converts the email to lowercase
@@ -483,6 +607,9 @@ class CreateAccountProcessorTests: BitwardenTestCase {
 
         XCTAssertEqual(client.requests.count, 1)
         XCTAssertEqual(client.requests[0].url, URL(string: "https://example.com/identity/accounts/register"))
+
+        XCTAssertFalse(coordinator.isLoadingOverlayShowing)
+        XCTAssertEqual(coordinator.loadingOverlaysShown, [LoadingOverlayState(title: Localizations.creatingAccount)])
     }
 
     /// `perform(_:)` with `.createAccount` navigates to an error alert when the terms of service
@@ -496,6 +623,7 @@ class CreateAccountProcessorTests: BitwardenTestCase {
 
         XCTAssertEqual(client.requests.count, 0)
         XCTAssertEqual(coordinator.alertShown.last, .acceptPoliciesAlert())
+        XCTAssertTrue(coordinator.loadingOverlaysShown.isEmpty)
     }
 
     /// `receive(_:)` with `.dismiss` dismisses the view.
