@@ -74,12 +74,12 @@ extension VaultFilterType {
         }
     }
 
-    /// A filter to determine if a `VaultListItem` should be included in the vault list with the
+    /// A filter to determine if a `FolderView` should be included in the vault list with the
     /// current filter. Filters out any empty folders on the my vault and organization vault filters.
     ///
     /// - Parameters:
     ///   - folder: The `FolderView` to determine if it should be displayed in the vault list.
-    ///   - ciphers: The `CipherView`
+    ///   - ciphers: The `CipherView` objects used to determine if a folder is empty.
     /// - Returns: Whether the folder should be displayed in the vault list.
     ///
     func folderFilter(_ folder: FolderView, ciphers: [CipherView]) -> Bool {
@@ -88,7 +88,7 @@ extension VaultFilterType {
             return true
         case .myVault, .organization:
             guard let folderId = folder.id else { return false }
-            return ciphers.lazy.compactMap(\.folderId).contains(folderId)
+            return ciphers.contains { $0.folderId == folderId }
         }
     }
 }
