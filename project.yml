@@ -4,7 +4,6 @@ fileGroups:
 configs:
   Debug: debug
   Release: release
-  Release-Beta: release
 options:
   createIntermediateGroups: true
   deploymentTarget:
@@ -114,7 +113,6 @@ targets:
     configFiles:
       Debug: Configs/Bitwarden-Debug.xcconfig
       Release: Configs/Bitwarden-Release.xcconfig
-      Release-Beta: Configs/Bitwarden-Release-Beta.xcconfig
     settings:
       base:
         INFOPLIST_FILE: Bitwarden/Application/Support/Info.plist
@@ -194,7 +192,6 @@ targets:
     configFiles:
       Debug: Configs/BitwardenActionExtension.xcconfig
       Release: Configs/BitwardenActionExtension.xcconfig
-      Release-Beta: Configs/BitwardenActionExtension.xcconfig
     settings:
       base:
         CODE_SIGN_ENTITLEMENTS: BitwardenActionExtension/Application/Support/BitwardenActionExtension.entitlements
@@ -231,7 +228,6 @@ targets:
     configFiles:
       Debug: Configs/BitwardenAutoFillExtension.xcconfig
       Release: Configs/BitwardenAutoFillExtension.xcconfig
-      Release-Beta: Configs/BitwardenAutoFillExtension.xcconfig
     settings:
       base:
         CODE_SIGN_ENTITLEMENTS: BitwardenAutoFillExtension/Application/Support/BitwardenAutoFill.entitlements
@@ -268,7 +264,6 @@ targets:
     configFiles:
       Debug: Configs/BitwardenShareExtension.xcconfig
       Release: Configs/BitwardenShareExtension.xcconfig
-      Release-Beta: Configs/BitwardenShareExtension.xcconfig
     settings:
       base:
         INFOPLIST_FILE: BitwardenShareExtension/Application/Support/Info.plist
@@ -305,7 +300,6 @@ targets:
     configFiles:
       Debug: Configs/BitwardenShared.xcconfig
       Release: Configs/BitwardenShared.xcconfig
-      Release-Beta: Configs/BitwardenShared.xcconfig
     settings:
       base:
         APPLICATION_EXTENSION_API_ONLY: true
@@ -367,7 +361,6 @@ targets:
     configFiles:
       Debug: Configs/BitwardenWatchApp-Debug.xcconfig
       Release: Configs/BitwardenWatchApp-Release.xcconfig
-      Release-Beta: Configs/BitwardenWatchApp-Release-Beta.xcconfig
     settings:
       base:
         INFOPLIST_FILE: BitwardenWatchApp/Info.plist
