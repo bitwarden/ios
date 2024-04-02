@@ -29,11 +29,7 @@
     $ brew install mint
     ```
 
-    If you're using a Mac with Apple Silicon with Mint installed via Homebrew, you may see the SwiftGen build phase fail with the following error:
-
-    `line 2: mint: command not found`
-
-    If so, or if you just prefer to install Mint without `brew`, clone the Mint repo into a temporary directory and run `make`.
+    Alternatively, if you prefer to install Mint without `brew`, clone the Mint repo into a temporary directory and run `make`.
 
     ```sh
     $ git clone https://github.com/yonaskolb/Mint.git
