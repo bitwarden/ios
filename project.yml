@@ -197,6 +197,7 @@ targets:
       Release-Beta: Configs/BitwardenActionExtension.xcconfig
     settings:
       base:
+        CODE_SIGN_ENTITLEMENTS: BitwardenActionExtension/Application/Support/BitwardenActionExtension.entitlements
         INFOPLIST_FILE: BitwardenActionExtension/Application/Support/Info.plist
     sources:
       - path: BitwardenActionExtension
@@ -233,6 +234,7 @@ targets:
       Release-Beta: Configs/BitwardenAutoFillExtension.xcconfig
     settings:
       base:
+        CODE_SIGN_ENTITLEMENTS: BitwardenAutoFillExtension/Application/Support/BitwardenAutoFill.entitlements
         INFOPLIST_FILE: BitwardenAutoFillExtension/Application/Support/Info.plist
     sources:
       - path: BitwardenAutoFillExtension
@@ -282,6 +284,7 @@ targets:
     platform: iOS
     settings:
       base:
+        CODE_SIGN_ENTITLEMENTS: BitwardenShareExtension/Application/Support/BitwardenShareExtension.entitlements
         INFOPLIST_FILE: BitwardenShareExtension/Application/TestHelpers/Support/Info.plist
     sources:
       - path: BitwardenShareExtension
