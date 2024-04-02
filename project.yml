@@ -302,7 +302,7 @@ targets:
     configFiles:
       Debug: Configs/BitwardenShared.xcconfig
       Release: Configs/BitwardenShared.xcconfig
-      Release-Beta: Configs/BitwardenShared-Beta.xcconfig
+      Release-Beta: Configs/BitwardenShared.xcconfig
     settings:
       base:
         APPLICATION_EXTENSION_API_ONLY: true
