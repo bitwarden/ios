@@ -25,8 +25,8 @@ entitlements_file="Bitwarden/Application/Support/Bitwarden.entitlements"
 extension_entitlements_file="BitwardenActionExtension/Application/Support/BitwardenActionExtension.entitlements"
 autofill_entitlements_file="BitwardenAutoFillExtension/Application/Support/BitwardenAutoFill.entitlements"
 share_entitlements_file="BitwardenShareExtension/Application/Support/BitwardenShareExtension.entitlements"
-
-echo "🔏 Updating entitlements files"
+local_xcconfig_file="Configs/Local.xcconfig"
+export_options_file="Configs/export_options.plist"
 
 case $variant in
     Production)
@@ -51,18 +51,14 @@ case $variant in
         ;;
 esac
 
-echo "⚙️ Updating local config"
-
-local_xcconfig_file="Configs/Local.xcconfig"
-
 case $variant in
     Production)
-    ios_bundle_id='$(ORGANIZATION_IDENTIFIER).bitwarden'
+    ios_bundle_id='com.8bit.bitwarden'
     profile_prefix="Dist:"
     app_icon="AppIcon"
         ;;
     Beta)
-    ios_bundle_id='$(ORGANIZATION_IDENTIFIER).bitwarden.beta'
+    ios_bundle_id='com.8bit.bitwarden.beta'
     profile_prefix="Dist: Beta"
     app_icon="AppIcon-Beta"
         ;;
@@ -82,3 +78,28 @@ PROVISIONING_PROFILE_SPECIFIER_SHARE_EXTENSION = ${profile_prefix} Share Extensi
 PROVISIONING_PROFILE_SPECIFIER_WATCH_APP = ${profile_prefix} Bitwarden Watch App
 EOF
 
+cat << EOF > ${export_options_file}
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+    <key>method</key>
+    <string>app-store</string>
+    <key>provisioningProfiles</key>
+    <dict>
+        <key>${ios_bundle_id}</key>
+        <string>${profile_prefix} Bitwarden</string>
+        <key>${ios_bundle_id}.find-login-action-extension</key>
+        <string>${profile_prefix} Extension</string>
+        <key>${ios_bundle_id}.autofill</key>
+        <string>${profile_prefix} Autofill</string>
+        <key>${ios_bundle_id}.share-extension</key>
+        <string>${profile_prefix} Share Extension</string>
+        <key>${ios_bundle_id}.watchkitapp</key>
+        <string>${profile_prefix} Bitwarden Watch App</string>
+    </dict>
+    <key>manageAppVersionAndBuildNumber</key>
+    <false/>
+</dict>
+</plist>
+EOF

@@ -52,7 +52,7 @@ echo "📦 Performing Xcode archive export"
 xcrun xcodebuild -exportArchive \
   -archivePath "${ARCHIVE_PATH}" \
   -exportPath "${EXPORT_PATH}" \
-  -exportOptionsPlist "${EXPORT_OPTIONS_PATH}" \
+  -exportOptionsPlist "Configs/export_options.plist" \
   | xcbeautify --renderer github-actions
 
 echo "🎉 Build complete"
