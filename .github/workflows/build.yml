@@ -4,8 +4,12 @@ name: Build
 on:
   workflow_dispatch:
     inputs:
+      build-version:
+        description: 'Optional. Version string to use, in X.Y.Z format. Overrides default in the project.'
+        required: false
+        type: string
       build-number:
-        description: 'Build number to use. Overrides default of GitHub run number'
+        description: 'Optional. Build number to use. Overrides default of GitHub run number.'
         required: false
         type: number
 
@@ -181,7 +185,7 @@ jobs:
           EXPORT_OPTIONS_PATH: ./.github/resources/export-options-beta.plist
           LOCAL_XCCONFIG_PATH: ./.github/resources/Local-beta.xcconfig
         run: |
-          BUILD_NUMBER=$((5000 + $GITHUB_RUN_NUMBER))
+          BUILD_NUMBER=$(($GITHUB_RUN_NUMBER))
           ./Scripts/build.sh . "${LOCAL_XCCONFIG_PATH}" "${EXPORT_OPTIONS_PATH}" Release-Beta ${{ inputs.build-number || '$BUILD_NUMBER' }}
 
       - name: Validate app

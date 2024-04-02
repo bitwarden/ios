@@ -29,8 +29,11 @@ ARCHIVE_PATH="${BUILD_DIR}/Bitwarden.xcarchive"
 EXPORT_PATH="${BUILD_DIR}/Bitwarden"
 
 pushd "${PROJECT_DIR}"
-echo "Building in $(pwd)"
+echo "🧱 Building in $(pwd)"
 echo ""
+
+echo "🌱 Generating xcode project"
+mint run xcodegen xcodegen
 
 mkdir -p "${BUILD_DIR}"
 
