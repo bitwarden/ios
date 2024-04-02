@@ -14,21 +14,6 @@ on:
         type: number
 
 jobs:
-  cloc:
-    name: cloc
-    runs-on: ubuntu-22.04
-    steps:
-      - name: Check out repository
-        uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
-
-      - name: Set up cloc
-        run: |
-          sudo apt-get update
-          sudo apt-get -y install cloc
-
-      - name: Print lines of code
-        run: cloc --vcs git --include-lang Swift
-
   build:
     name: Build iOS app
     runs-on: macos-13
