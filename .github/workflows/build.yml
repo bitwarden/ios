@@ -182,7 +182,7 @@ jobs:
 
       - name: Build Beta iOS app
         env:
-          EXPORT_OPTIONS_PATH: ./.github/resources/export-options-beta.plist
+          EXPORT_OPTIONS_PATH: ./.github/resources/export-options-app-store.plist
           LOCAL_XCCONFIG_PATH: ./.github/resources/Local-beta.xcconfig
         run: |
           BUILD_NUMBER=$(($GITHUB_RUN_NUMBER))
