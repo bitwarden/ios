@@ -10,7 +10,7 @@ class AppCoordinator: Coordinator, HasRootNavigator {
     // MARK: Types
 
     /// The types of modules used by this coordinator.
-    typealias Module = VaultModule
+    typealias Module = ItemsModule
 
     // MARK: Private Properties
 
@@ -59,7 +59,7 @@ class AppCoordinator: Coordinator, HasRootNavigator {
     func handleEvent(_ event: AppEvent, context: AnyObject?) async {
         switch event {
         case .didStart:
-            showVault(route: .onboarding)
+            showItems(route: .list)
         }
     }
 
@@ -77,28 +77,22 @@ class AppCoordinator: Coordinator, HasRootNavigator {
 
     // MARK: Private Methods
 
-    /// Shows the vault route (not in a tab). This is used within the app extensions.
+    /// Shows the Token List screen.
     ///
-    /// - Parameter route: The vault route to show.
+    /// - Parameter route: The token list route to show.
     ///
-    private func showVault(route: VaultRoute) {
-        if let coordinator = childCoordinator as? AnyCoordinator<VaultRoute, AuthAction> {
+    private func showItems(route: ItemsRoute) {
+        if let coordinator = childCoordinator as? AnyCoordinator<ItemsRoute, ItemsEvent> {
             coordinator.navigate(to: route)
         } else {
             let stackNavigator = UINavigationController()
-            let coordinator = module.makeVaultCoordinator(
-                delegate: self,
+            let coordinator = module.makeItemsCoordinator(
                 stackNavigator: stackNavigator
             )
             coordinator.start()
-            coordinator.navigate(to: route)
+            coordinator.navigate(to: .list)
             childCoordinator = coordinator
             rootNavigator?.show(child: stackNavigator)
         }
     }
-}
-
-// MARK: - VaultCoordinatorDelegate
-
-extension AppCoordinator: VaultCoordinatorDelegate {
 }

@@ -42,7 +42,10 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
         let errorReporter = CrashlyticsErrorReporter()
         #endif
 
-        let services = ServiceContainer()
+        let services = ServiceContainer(
+            application: UIApplication.shared,
+            errorReporter: errorReporter
+        )
         let appModule = DefaultAppModule(services: services)
         appProcessor = AppProcessor(appModule: appModule, services: services)
         return true

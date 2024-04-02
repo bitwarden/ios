@@ -6,6 +6,5 @@ import Foundation
 public enum AuthRoute: Equatable {
     /// Dismisses the auth flow.
     case complete
-    
     case onboarding
 }

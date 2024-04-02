@@ -47,4 +47,3 @@ class MockCoordinator<Route, Event>: Coordinator {
         isStarted = true
     }
 }
-

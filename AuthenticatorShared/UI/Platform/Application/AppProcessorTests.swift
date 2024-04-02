@@ -8,6 +8,7 @@ class AppProcessorTests: AuthenticatorTestCase {
 
     var appModule: MockAppModule!
     var coordinator: MockCoordinator<AppRoute, AppEvent>!
+    var errorReporter: MockErrorReporter!
     var router: MockRouter<AuthEvent, AuthRoute>!
     var subject: AppProcessor!
     var timeProvider: MockTimeProvider!
@@ -20,11 +21,14 @@ class AppProcessorTests: AuthenticatorTestCase {
         router = MockRouter(routeForEvent: { _ in .onboarding })
         appModule = MockAppModule()
         coordinator = MockCoordinator()
+        errorReporter = MockErrorReporter()
         timeProvider = MockTimeProvider(.currentTime)
 
         subject = AppProcessor(
             appModule: appModule,
-            services: ServiceContainer()
+            services: ServiceContainer.withMocks(
+                errorReporter: errorReporter
+            )
         )
         subject.coordinator = coordinator.asAnyCoordinator()
     }

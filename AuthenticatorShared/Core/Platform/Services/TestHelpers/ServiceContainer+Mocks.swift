@@ -5,10 +5,20 @@ import Networking
 
 extension ServiceContainer {
     static func withMocks(
-        timeProvider: TimeProvider = MockTimeProvider(.currentTime)
+        application: Application? = nil,
+        clientService: ClientService = MockClientService(),
+        errorReporter: ErrorReporter = MockErrorReporter(),
+        itemRepository: ItemRepository = MockItemRepository(),
+        timeProvider: TimeProvider = MockTimeProvider(.currentTime),
+        totpService: TOTPService = MockTOTPService()
     ) -> ServiceContainer {
         ServiceContainer(
-            timeProvider: timeProvider
+            application: application,
+            clientService: clientService,
+            errorReporter: errorReporter,
+            itemRepository: itemRepository,
+            timeProvider: timeProvider,
+            totpService: totpService
         )
     }
 }
