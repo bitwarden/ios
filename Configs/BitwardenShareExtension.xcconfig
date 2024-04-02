@@ -1,6 +1,6 @@
 #include "./Common.xcconfig"
 #include? "./Local.xcconfig"
 
-PRODUCT_BUNDLE_IDENTIFIER = $(ORGANIZATION_IDENTIFIER).bitwarden.share-extension
+PRODUCT_BUNDLE_IDENTIFIER = $(BASE_BUNDLE_ID).share-extension
 PROVISIONING_PROFILE_SPECIFIER = $(PROVISIONING_PROFILE_SPECIFIER_SHARE_EXTENSION)
 CODE_SIGN_ENTITLEMENTS = BitwardenShareExtension/Application/Support/BitwardenShareExtension.entitlements

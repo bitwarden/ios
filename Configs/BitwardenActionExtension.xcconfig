@@ -1,6 +1,6 @@
 #include "./Common.xcconfig"
 #include? "./Local.xcconfig"
 
-PRODUCT_BUNDLE_IDENTIFIER = $(ORGANIZATION_IDENTIFIER).bitwarden.find-login-action-extension
+PRODUCT_BUNDLE_IDENTIFIER = $(BASE_BUNDLE_ID).find-login-action-extension
 PROVISIONING_PROFILE_SPECIFIER = $(PROVISIONING_PROFILE_SPECIFIER_ACTION_EXTENSION)
 CODE_SIGN_ENTITLEMENTS = BitwardenActionExtension/Application/Support/BitwardenActionExtension.entitlements

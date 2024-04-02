@@ -1,6 +1,6 @@
 #include "./Common.xcconfig"
 #include? "./Local.xcconfig"
 
-PRODUCT_BUNDLE_IDENTIFIER = $(ORGANIZATION_IDENTIFIER).bitwarden.autofill
+PRODUCT_BUNDLE_IDENTIFIER = $(BASE_BUNDLE_ID).autofill
 PROVISIONING_PROFILE_SPECIFIER = $(PROVISIONING_PROFILE_SPECIFIER_AUTOFILL_EXTENSION)
 CODE_SIGN_ENTITLEMENTS = BitwardenAutoFillExtension/Application/Support/BitwardenAutoFill.entitlements
