@@ -178,7 +178,7 @@ jobs:
 
       - name: Change to beta variant
         run: |
-          ./Scripts/select_variant.sh beta
+          ./Scripts/select_variant.sh Beta
 
       - name: Build Beta iOS app
         env:

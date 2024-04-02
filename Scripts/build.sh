@@ -36,7 +36,7 @@ mint run xcodegen xcodegen
 
 mkdir -p "${BUILD_DIR}"
 
-cp "${LOCAL_XCCONFIG_PATH}" "Configs/Local.xcconfig"
+# cp "${LOCAL_XCCONFIG_PATH}" "Configs/Local.xcconfig"
 
 echo "🔨 Performing Xcode archive"
 xcrun xcodebuild archive \
