@@ -1717,17 +1717,18 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
             Section: Favorites
               - Cipher: Apple
             Section: Types
-              - Group: Login (5)
+              - Group: Login (6)
               - Group: Card (1)
               - Group: Identity (1)
               - Group: Secure note (1)
             Section: Folders
+              - Group: Development (0)
               - Group: Internal (1)
               - Group: Social (2)
               - Group: No Folder (5)
             Section: Collections
               - Group: Design (2)
-              - Group: Engineering (2)
+              - Group: Engineering (3)
             Section: Trash
               - Group: Trash (1)
             """
@@ -1789,17 +1790,18 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
             Section: Favorites
               - Cipher: Apple
             Section: Types
-              - Group: Login (4)
+              - Group: Login (5)
               - Group: Card (0)
               - Group: Identity (0)
               - Group: Secure note (0)
             Section: Folders
+              - Group: Development/Artifacts (1)
               - Group: Internal (1)
               - Group: Social (1)
               - Group: No Folder (2)
             Section: Collections
               - Group: Design (2)
-              - Group: Engineering (2)
+              - Group: Engineering (3)
             Section: Trash
               - Group: Trash (0)
             """
@@ -1821,6 +1823,7 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
             """
             Section: Items
               - Cipher: Apple
+              - Cipher: Azure
               - Cipher: Facebook
               - Cipher: Figma
               - Cipher: Reddit
@@ -1868,6 +1871,7 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
             """
             Section: Items
               - Cipher: Apple
+              - Cipher: Azure
               - Cipher: Figma
               - Cipher: Reddit
               - Cipher: Zoom
@@ -1898,6 +1902,7 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
             """
             Section: Items
               - Cipher: Apple
+              - Cipher: Azure
               - Cipher: Reddit
             """
         }
