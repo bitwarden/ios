@@ -128,13 +128,13 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
         let ciphers: [Cipher] = [
             .fixture(
                 id: "1",
-                login: .fixture(uris: [LoginUri(uri: "https://bitwarden.com", match: .exact)]),
+                login: .fixture(uris: [.fixture(uri: "https://bitwarden.com", match: .exact)]),
                 name: "Bitwarden"
             ),
             .fixture(
                 creationDate: Date(year: 2024, month: 1, day: 1),
                 id: "2",
-                login: .fixture(uris: [LoginUri(uri: "https://example.com", match: .exact)]),
+                login: .fixture(uris: [.fixture(uri: "https://example.com", match: .exact)]),
                 name: "Example",
                 revisionDate: Date(year: 2024, month: 1, day: 1)
             ),
@@ -152,7 +152,7 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
                 .fixture(
                     creationDate: Date(year: 2024, month: 1, day: 1),
                     id: "2",
-                    login: .fixture(uris: [LoginUriView(uri: "https://example.com", match: .exact)]),
+                    login: .fixture(uris: [.fixture(uri: "https://example.com", match: .exact)]),
                     name: "Example",
                     revisionDate: Date(year: 2024, month: 1, day: 1)
                 ),
@@ -573,7 +573,7 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
                     username: "name",
                     password: "pwd",
                     passwordRevisionDate: nil,
-                    uris: [.init(uri: "www.domain.com", match: .domain)],
+                    uris: [.fixture(uri: "www.domain.com", match: .domain)],
                     totp: nil,
                     autofillOnPageLoad: nil,
                     fido2Credentials: nil
@@ -993,7 +993,7 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
                     username: "name",
                     password: "pwd",
                     passwordRevisionDate: nil,
-                    uris: [.init(uri: "www.domain.com", match: .domain)],
+                    uris: [.fixture(uri: "www.domain.com", match: .domain)],
                     totp: nil,
                     autofillOnPageLoad: nil,
                     fido2Credentials: nil

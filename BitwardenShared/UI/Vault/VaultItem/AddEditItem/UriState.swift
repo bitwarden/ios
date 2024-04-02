@@ -17,6 +17,9 @@ struct UriState: Equatable, Hashable, Identifiable {
     /// The string representation of this uri.
     var uri: String
 
+    /// The URI's checksum.
+    let uriChecksum: String?
+
     /// Creates a `LoginUriView` from this object.
     ///
     /// If `uri` is empty, this property returns `nil`.
@@ -30,7 +33,8 @@ struct UriState: Equatable, Hashable, Identifiable {
 
         return LoginUriView(
             uri: uri,
-            match: uriMatchType
+            match: uriMatchType,
+            uriChecksum: uriChecksum
         )
     }
 
@@ -40,15 +44,18 @@ struct UriState: Equatable, Hashable, Identifiable {
     ///   - id: The id for this uri.
     ///   - matchType: The match type for this uri.
     ///   - uri: The string representation for this uri.
+    ///   - uriChecksum: The URI's checksum.
     ///
     init(
         id: String = UUID().uuidString,
         matchType: DefaultableType<UriMatchType> = .default,
-        uri: String = ""
+        uri: String = "",
+        uriChecksum: String? = nil
     ) {
         self.id = id
         self.matchType = matchType
         self.uri = uri
+        self.uriChecksum = uriChecksum
     }
 
     /// Initialize a `UriState` from a `LoginUriView`.
@@ -64,7 +71,8 @@ struct UriState: Equatable, Hashable, Identifiable {
 
         self.init(
             matchType: matchType,
-            uri: loginUriView.uri ?? ""
+            uri: loginUriView.uri ?? "",
+            uriChecksum: loginUriView.uriChecksum
         )
     }
 }

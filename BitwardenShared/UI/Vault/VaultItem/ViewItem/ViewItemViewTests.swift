@@ -94,7 +94,7 @@ class ViewItemViewTests: BitwardenTestCase { // swiftlint:disable:this type_body
             existing: .loginFixture(
                 login: .fixture(
                     uris: [
-                        .init(uri: "www.example.com", match: nil),
+                        .fixture(uri: "www.example.com", match: nil),
                     ]
                 ),
                 name: "Name",

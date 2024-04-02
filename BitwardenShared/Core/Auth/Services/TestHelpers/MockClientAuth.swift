@@ -22,6 +22,22 @@ class MockClientAuth: ClientAuthProtocol {
         keys: RsaKeyPair(public: "public", private: "private")
     ))
 
+    var makeRegisterTdeKeysOrgPublicKey: String?
+    var makeRegisterTdeKeysRememberDevice: Bool?
+    var makeRegisterTdeKeysResult: Result<RegisterTdeKeyResponse, Error> = .success(
+        RegisterTdeKeyResponse(
+            privateKey: "privateKey",
+            publicKey: "publicKey",
+            adminReset: "adminReset",
+            deviceKey: TrustDeviceResponse(
+                deviceKey: "deviceKey",
+                protectedUserKey: "protectedUserKey",
+                protectedDevicePrivateKey: "protectedDevicePrivateKey",
+                protectedDevicePublicKey: "protectedDevicePublicKey"
+            )
+        )
+    )
+
     var newAuthRequestEmail: String?
     var newAuthRequestResult: Result<AuthRequestResponse, Error> = .success(
         AuthRequestResponse(
@@ -69,6 +85,12 @@ class MockClientAuth: ClientAuthProtocol {
         makeRegisterKeysKdf = kdf
 
         return try makeRegisterKeysResult.get()
+    }
+
+    func makeRegisterTdeKeys(orgPublicKey: String, rememberDevice: Bool) async throws -> RegisterTdeKeyResponse {
+        makeRegisterTdeKeysOrgPublicKey = orgPublicKey
+        makeRegisterTdeKeysRememberDevice = rememberDevice
+        return try makeRegisterTdeKeysResult.get()
     }
 
     func newAuthRequest(email: String) async throws -> AuthRequestResponse {

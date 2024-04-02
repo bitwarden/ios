@@ -54,7 +54,7 @@ final class LoginViewUpdateTests: BitwardenTestCase {
         XCTAssertEqual(comparison.username, loginState.username)
         XCTAssertEqual(comparison.password, loginState.password)
         XCTAssertEqual(comparison.passwordRevisionDate, subject.passwordRevisionDate)
-        XCTAssertEqual(comparison.uris, [LoginUriView(uri: "example.com", match: nil)])
+        XCTAssertEqual(comparison.uris, [LoginUriView.fixture(uri: "example.com", match: nil)])
         XCTAssertEqual(comparison.totp, subject.totp)
         XCTAssertEqual(comparison.autofillOnPageLoad, subject.autofillOnPageLoad)
     }

@@ -211,7 +211,7 @@ class VaultGroupViewTests: BitwardenTestCase {
                 totp: .fixture(
                     loginView: .fixture(
                         uris: [
-                            .init(uri: "www.example.com", match: nil),
+                            .fixture(uri: "www.example.com", match: nil),
                         ],
                         username: "email@example.com"
                     ),
