@@ -5,8 +5,6 @@
 set -e
 
 SETTINGS_BUNDLE_PATH="${CODESIGNING_FOLDER_PATH}/Settings.bundle/Root.plist"
-BUILD_VERSION=$(sed -n '/MARKETING_VERSION/{s/MARKETING_VERSION = //;s/;//;s/^[[:space:]]*//;p;q;}' "${PROJECT_FILE_PATH}/project.pbxproj")
-BUILD_NUMBER=$(sed -n '/CURRENT_PROJECT_VERSION/{s/CURRENT_PROJECT_VERSION = //;s/;//;s/^[[:space:]]*//;p;q;}' "${PROJECT_FILE_PATH}/project.pbxproj")
-BUILD_STRING="${BUILD_VERSION} (${BUILD_NUMBER})"
+BUILD_STRING="${MARKETING_VERSION} (${CURRENT_PROJECT_VERSION})"
 
 /usr/libexec/PlistBuddy -c "Set PreferenceSpecifiers:0:DefaultValue $BUILD_STRING" "${SETTINGS_BUNDLE_PATH}"
