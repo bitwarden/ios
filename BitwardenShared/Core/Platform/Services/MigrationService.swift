@@ -51,12 +51,19 @@ class DefaultMigrationService {
     ///
     /// Notes:
     /// - Migrates account tokens from UserDefaults to Keychain.
+    /// - Resets stored date values from Xamarin/Maui, which uses an incompatible format.
     ///
     private func performMigration1() async throws {
         guard var state = appSettingsStore.state else { return }
         defer { appSettingsStore.state = state }
 
         for (accountId, account) in state.accounts {
+            // Reset date values.
+            appSettingsStore.setLastActiveTime(nil, userId: accountId)
+            appSettingsStore.setLastSyncTime(nil, userId: accountId)
+            appSettingsStore.setNotificationsLastRegistrationDate(nil, userId: accountId)
+
+            // Migrate tokens to Keychain.
             let tokens = account._tokens
             state.accounts[accountId]?._tokens = nil
 

@@ -206,7 +206,8 @@ struct AddEditSendItemView: View { // swiftlint:disable:this type_body_length
                             get: \.customDeletionDate,
                             send: AddEditSendItemAction.customDeletionDateChanged
                         ),
-                        displayComponents: .hourAndMinute
+                        displayComponents: .hourAndMinute,
+                        accessibilityIdentifier: "SendCustomDeletionTimePicker"
                     )
                 }
             }
@@ -255,7 +256,8 @@ struct AddEditSendItemView: View { // swiftlint:disable:this type_body_length
                             get: \.customExpirationDate,
                             send: AddEditSendItemAction.customExpirationDateChanged
                         ),
-                        displayComponents: .hourAndMinute
+                        displayComponents: .hourAndMinute,
+                        accessibilityIdentifier: "SendCustomDeletionTimePicker"
                     )
                 }
             }
@@ -408,8 +410,7 @@ struct AddEditSendItemView: View { // swiftlint:disable:this type_body_length
                     .styleGuide(.body)
 
                 Asset.Images.downAngle.swiftUIImage
-                    .resizable()
-                    .frame(width: 16, height: 16)
+                    .imageStyle(.accessoryIcon)
                     .rotationEffect(store.state.isOptionsExpanded ? Angle(degrees: 180) : .zero)
             }
             .padding(.vertical, 12)
@@ -444,8 +445,8 @@ struct AddEditSendItemView: View { // swiftlint:disable:this type_body_length
         AsyncButton(Localizations.save) {
             await store.perform(.savePressed)
         }
+        .accessibilityIdentifier("SaveButton")
         .buttonStyle(.primary())
-        .accessibilityIdentifier("Done")
     }
 
     /// The attributes for a text type send.

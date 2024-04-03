@@ -104,9 +104,7 @@ struct PasswordHistoryListView: View {
                 store.send(.copyPassword(passwordHistory))
             } label: {
                 Image(asset: Asset.Images.copy)
-                    .resizable()
-                    .frame(width: 22, height: 22)
-                    .foregroundColor(Asset.Colors.textSecondary.swiftUIColor)
+                    .imageStyle(.rowIcon)
             }
             .accessibilityLabel(Localizations.copyPassword)
             .accessibilityIdentifier("CopyPasswordValueButton")

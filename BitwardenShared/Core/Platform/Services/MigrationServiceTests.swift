@@ -79,6 +79,11 @@ class MigrationServiceTests: BitwardenTestCase {
             ],
             activeUserId: "1"
         )
+        for userId in ["1", "2"] {
+            appSettingsStore.lastActiveTime[userId] = Date()
+            appSettingsStore.lastSyncTimeByUserId[userId] = Date()
+            appSettingsStore.notificationsLastRegistrationDates[userId] = Date()
+        }
 
         await subject.performMigrations()
 
@@ -93,6 +98,12 @@ class MigrationServiceTests: BitwardenTestCase {
         try XCTAssertEqual(keychainRepository.getValue(for: .refreshToken(userId: "1")), "REFRESH_TOKEN_1")
         try XCTAssertEqual(keychainRepository.getValue(for: .accessToken(userId: "2")), "ACCESS_TOKEN_2")
         try XCTAssertEqual(keychainRepository.getValue(for: .refreshToken(userId: "2")), "REFRESH_TOKEN_2")
+
+        for userId in ["1", "2"] {
+            XCTAssertNil(appSettingsStore.lastActiveTime(userId: userId))
+            XCTAssertNil(appSettingsStore.lastSyncTime(userId: userId))
+            XCTAssertNil(appSettingsStore.notificationsLastRegistrationDate(userId: userId))
+        }
     }
 
     /// `performMigrations()` for migration 1 handles no existing accounts.

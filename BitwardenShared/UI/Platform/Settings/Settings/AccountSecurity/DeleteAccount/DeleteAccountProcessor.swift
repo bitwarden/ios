@@ -72,9 +72,9 @@ final class DeleteAccountProcessor: StateProcessor<DeleteAccountState, DeleteAcc
             try await services.authRepository.deleteAccount(passwordText: passwordText)
             navigatePostDeletion()
         } catch {
-            coordinator.navigate(to: .alert(.networkResponseError(error) {
+            coordinator.showAlert(.networkResponseError(error) {
                 await self.deleteAccount(passwordText: passwordText)
-            }))
+            })
         }
     }
 
@@ -91,8 +91,8 @@ final class DeleteAccountProcessor: StateProcessor<DeleteAccountState, DeleteAcc
     /// Shows the master password prompt when the user is attempting to delete their account.
     ///
     private func showMasterPasswordReprompt() async {
-        coordinator.navigate(to: .alert(.masterPasswordPrompt { [weak self] passwordText in
+        coordinator.showAlert(.masterPasswordPrompt { [weak self] passwordText in
             await self?.deleteAccount(passwordText: passwordText)
-        }))
+        })
     }
 }

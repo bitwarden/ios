@@ -138,7 +138,7 @@ class OtherSettingsProcessorTests: BitwardenTestCase {
     func test_receive_giveFeedback() async throws {
         subject.receive(.giveFeedbackPressed)
 
-        let alert = try coordinator.unwrapLastRouteAsAlert()
+        let alert = try XCTUnwrap(coordinator.alertShown.last)
 
         // Tapping continue navigates the user to the web app.
         try await alert.tapAction(title: Localizations.continue)

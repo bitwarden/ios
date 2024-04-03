@@ -83,6 +83,7 @@ struct UpdateMasterPasswordView: View {
                 AsyncButton(Localizations.submit) {
                     await store.perform(.submitPressed)
                 }
+                .accessibilityIdentifier("SubmitButton")
                 .buttonStyle(.primary())
             }
             .padding(16)

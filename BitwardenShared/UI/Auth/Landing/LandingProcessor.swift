@@ -106,7 +106,7 @@ class LandingProcessor: StateProcessor<LandingState, LandingAction, LandingEffec
     private func validateEmailAndContinue() {
         let email = state.email.trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
         guard email.isValidEmail else {
-            coordinator.navigate(to: .alert(.invalidEmail))
+            coordinator.showAlert(.invalidEmail)
             return
         }
 
@@ -135,7 +135,7 @@ class LandingProcessor: StateProcessor<LandingState, LandingAction, LandingEffec
             preferredStyle: .actionSheet,
             alertActions: actions + [cancelAction]
         )
-        coordinator.navigate(to: .alert(alert))
+        coordinator.showAlert(alert)
     }
 
     /// Sets the region and the URLs to use.

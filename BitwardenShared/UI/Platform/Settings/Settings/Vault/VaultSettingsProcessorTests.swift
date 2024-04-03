@@ -62,10 +62,7 @@ class VaultSettingsProcessorTests: BitwardenTestCase {
     func test_receive_importItemsTapped() async throws {
         subject.receive(.importItemsTapped)
 
-        guard case let .alert(alert) = coordinator.routes.last else {
-            return XCTFail("Expected an `.alert` route, but found \(String(describing: coordinator.routes.last))")
-        }
-
+        let alert = try XCTUnwrap(coordinator.alertShown.last)
         try await alert.tapAction(title: Localizations.continue)
         XCTAssertEqual(subject.state.url, environmentService.importItemsURL)
     }

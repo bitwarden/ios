@@ -94,8 +94,6 @@ class CredentialProviderViewController: ASCredentialProviderViewController {
 // MARK: - AppExtensionDelegate
 
 extension CredentialProviderViewController: AppExtensionDelegate {
-    var isInAppExtension: Bool { true }
-
     var authCompletionRoute: AppRoute {
         if isConfiguring {
             AppRoute.extensionSetup(.extensionActivation(type: .autofillExtension))
@@ -103,6 +101,10 @@ extension CredentialProviderViewController: AppExtensionDelegate {
             AppRoute.vault(.autofillList)
         }
     }
+
+    var canAutofill: Bool { true }
+
+    var isInAppExtension: Bool { true }
 
     var uri: String? {
         guard let serviceIdentifier = serviceIdentifiers.first else { return nil }

@@ -562,7 +562,7 @@ class DefaultVaultRepository { // swiftlint:disable:this type_body_length
 
         let folders = try await clientVault.folders()
             .decryptList(folders: folders)
-            .filter(filter.folderFilter)
+            .filter { filter.folderFilter($0, ciphers: activeCiphers) }
             .sorted { $0.name.localizedStandardCompare($1.name) == .orderedAscending }
 
         let folderItems = folderVaultListItems(
@@ -649,9 +649,9 @@ class DefaultVaultRepository { // swiftlint:disable:this type_body_length
     /// Returns a list of the sections in the vault list from a sync response.
     ///
     /// - Parameters:
-    ///   - ciphers: The ciphers used to build the list of sections.
-    ///   - collections: The collections used to build the list of sections.
-    ///   - folders: The folders used to build the list of sections.
+    ///   - ciphers: The encrypted ciphers in the user's vault.
+    ///   - collections: The encrypted list of collections the user has access to.
+    ///   - folders: The encrypted list of folders the user has.
     ///   - filter: A filter to apply to the vault items.
     /// - Returns: A list of the sections to display in the vault list.
     ///
@@ -667,9 +667,11 @@ class DefaultVaultRepository { // swiftlint:disable:this type_body_length
         .filter(filter.cipherFilter)
         .sorted { $0.name.localizedStandardCompare($1.name) == .orderedAscending }
 
+        let activeCiphers = ciphers.filter { $0.deletedDate == nil }
+
         let folders = try await clientVault.folders()
             .decryptList(folders: folders)
-            .filter(filter.folderFilter)
+            .filter { filter.folderFilter($0, ciphers: activeCiphers) }
             .sorted { $0.name.localizedStandardCompare($1.name) == .orderedAscending }
 
         let collections = try await clientVault.collections()
@@ -678,8 +680,6 @@ class DefaultVaultRepository { // swiftlint:disable:this type_body_length
             .sorted { $0.name.localizedStandardCompare($1.name) == .orderedAscending }
 
         guard !ciphers.isEmpty else { return [] }
-
-        let activeCiphers = ciphers.filter { $0.deletedDate == nil }
 
         let ciphersFavorites = activeCiphers.filter(\.favorite).compactMap(VaultListItem.init)
         let ciphersNoFolder = activeCiphers.filter { $0.folderId == nil }.compactMap(VaultListItem.init)

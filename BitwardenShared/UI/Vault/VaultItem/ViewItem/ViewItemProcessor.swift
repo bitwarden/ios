@@ -82,7 +82,7 @@ final class ViewItemProcessor: StateProcessor<ViewItemState, ViewItemAction, Vie
             do {
                 guard let password = state.loadingState.data?.cipher.login?.password else { return }
                 let breachCount = try await services.apiService.checkDataBreaches(password: password)
-                coordinator.navigate(to: .alert(.dataBreachesCountAlert(count: breachCount)))
+                coordinator.showAlert(.dataBreachesCountAlert(count: breachCount))
             } catch {
                 services.errorReporter.log(error: error)
             }
@@ -343,7 +343,7 @@ private extension ViewItemProcessor {
             do {
                 let isValid = try await services.authRepository.validatePassword(password)
                 guard isValid else {
-                    coordinator.navigate(to: .alert(Alert.defaultAlert(title: Localizations.invalidMasterPassword)))
+                    coordinator.showAlert(.defaultAlert(title: Localizations.invalidMasterPassword))
                     return
                 }
                 state.hasVerifiedMasterPassword = true
@@ -352,7 +352,7 @@ private extension ViewItemProcessor {
                 services.errorReporter.log(error: error)
             }
         }
-        coordinator.navigate(to: .alert(alert))
+        coordinator.showAlert(alert)
     }
 
     /// Restores the item currently stored in `state`.

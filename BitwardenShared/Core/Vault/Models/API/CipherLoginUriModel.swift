@@ -10,4 +10,7 @@ struct CipherLoginUriModel: Codable, Equatable, Hashable {
 
     /// The login's URI.
     let uri: String?
+
+    /// A checksum of the URI.
+    let uriChecksum: String?
 }

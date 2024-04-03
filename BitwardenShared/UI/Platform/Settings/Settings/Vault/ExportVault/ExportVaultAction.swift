@@ -11,9 +11,18 @@ enum ExportVaultAction: Equatable {
     /// The file format type was changed.
     case fileFormatTypeChanged(ExportFormatType)
 
-    /// The password text changed.
-    case passwordTextChanged(String)
+    /// The file password text changed.
+    case filePasswordTextChanged(String)
 
-    /// The password visibility was toggled.
-    case togglePasswordVisibility(Bool)
+    /// The file password confirmation text changed.
+    case filePasswordConfirmationTextChanged(String)
+
+    /// The master password text changed.
+    case masterPasswordTextChanged(String)
+
+    /// The file password visibility was toggled.
+    case toggleFilePasswordVisibility(Bool)
+
+    /// The master password visibility was toggled.
+    case toggleMasterPasswordVisibility(Bool)
 }

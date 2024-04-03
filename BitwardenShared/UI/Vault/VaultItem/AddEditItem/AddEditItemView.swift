@@ -282,6 +282,7 @@ private extension AddEditItemView {
         AsyncButton(Localizations.save) {
             await store.perform(.savePressed)
         }
+        .accessibilityIdentifier("SaveButton")
         .buttonStyle(.primary())
     }
 }
@@ -314,8 +315,8 @@ struct AddEditItemView_Previews: PreviewProvider {
                     password: "changerdanger",
                     passwordRevisionDate: fixedDate,
                     uris: [
-                        .init(uri: "yahoo.com", match: nil),
-                        .init(uri: "account.yahoo.com", match: nil),
+                        .init(uri: "yahoo.com", match: nil, uriChecksum: nil),
+                        .init(uri: "account.yahoo.com", match: nil, uriChecksum: nil),
                     ],
                     totp: nil,
                     autofillOnPageLoad: nil,

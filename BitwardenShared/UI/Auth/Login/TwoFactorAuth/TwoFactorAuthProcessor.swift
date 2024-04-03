@@ -275,11 +275,13 @@ extension TwoFactorAuthProcessor: CaptchaFlowDelegate {
     }
 
     func captchaErrored(error: Error) {
+        guard (error as NSError).code != ASWebAuthenticationSessionError.canceledLogin.rawValue else { return }
+
         services.errorReporter.log(error: error)
 
         // Show the alert after a delay to ensure it doesn't try to display over the
         // closing captcha view.
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+        DispatchQueue.main.asyncAfter(deadline: UI.after(0.6)) {
             self.coordinator.showAlert(.networkResponseError(error))
         }
     }

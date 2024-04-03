@@ -78,6 +78,13 @@ class TwoFactorAuthProcessorTests: BitwardenTestCase { // swiftlint:disable:this
         XCTAssertEqual(errorReporter.errors.last as? BitwardenTestError, .example)
     }
 
+    /// `captchaErrored(error:)` doesn't record an error if the captcha flow was cancelled.
+    func test_captchaErrored_cancelled() {
+        let error = NSError(domain: "", code: ASWebAuthenticationSessionError.canceledLogin.rawValue)
+        subject.captchaErrored(error: error)
+        XCTAssertTrue(errorReporter.errors.isEmpty)
+    }
+
     /// `init` sets up the state correctly.
     func test_init() {
         let authMethodsData = AuthMethodsData.fixture()

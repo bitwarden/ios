@@ -7,6 +7,9 @@ import SwiftUI
 struct FormMenuField<State, T: Menuable>: Equatable, Identifiable {
     // MARK: Properties
 
+    /// The accessibility identifier to apply to the field.
+    let accessibilityIdentifier: String?
+
     /// The footer text displayed below the menu field.
     let footer: String?
 
@@ -33,18 +36,21 @@ struct FormMenuField<State, T: Menuable>: Equatable, Identifiable {
     /// Initialize a `FormMenuField`.
     ///
     /// - Parameters:
+    ///   - accessibilityIdentifier: The accessibility identifier given to the menu field.
     ///   - footer: The footer text displayed below the menu field.
     ///   - keyPath: A key path for updating the backing value for the menu field.
     ///   - options: The options displayed in the menu.
     ///   - selection: The current selection.
     ///   - title: The title of the field.
     init(
+        accessibilityIdentifier: String?,
         footer: String? = nil,
         keyPath: WritableKeyPath<State, T>,
         options: [T],
         selection: T,
         title: String
     ) {
+        self.accessibilityIdentifier = accessibilityIdentifier
         self.footer = footer
         self.keyPath = keyPath
         self.options = options
@@ -75,6 +81,7 @@ struct FormMenuFieldView<State, T: Menuable, TrailingContent: View>: View {
         BitwardenMenuField(
             title: field.title,
             footer: field.footer,
+            accessibilityIdentifier: field.accessibilityIdentifier,
             options: field.options,
             selection: Binding(get: { field.selection }, set: action),
             trailingContent: { trailingContent }

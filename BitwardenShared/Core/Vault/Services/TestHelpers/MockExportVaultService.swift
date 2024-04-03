@@ -5,6 +5,7 @@ import Foundation
 class MockExportVaultService: ExportVaultService {
     var didClearFiles = false
 
+    var exportVaultContentsFormat: ExportFileType?
     var exportVaultContentResult: Result<String, Error> = .failure(BitwardenTestError.example)
 
     var mockFileName: String = "mockExport.json"
@@ -16,7 +17,8 @@ class MockExportVaultService: ExportVaultService {
     }
 
     func exportVaultFileContents(format: BitwardenShared.ExportFileType) async throws -> String {
-        try exportVaultContentResult.get()
+        exportVaultContentsFormat = format
+        return try exportVaultContentResult.get()
     }
 
     func generateExportFileName(

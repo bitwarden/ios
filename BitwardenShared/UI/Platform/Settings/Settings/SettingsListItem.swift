@@ -19,6 +19,9 @@ struct SettingsListItem<Content: View>: View {
     /// The name of the list item.
     let name: String
 
+    /// The accessibility ID for the list item name.
+    let nameAccessibilityID: String?
+
     /// Content that appears on the trailing edge of the list item.
     let trailingContent: () -> Content?
 
@@ -32,6 +35,7 @@ struct SettingsListItem<Content: View>: View {
                 HStack {
                     Text(name)
                         .styleGuide(.body)
+                        .accessibilityIdentifier(nameAccessibilityID ?? "")
                         .foregroundColor(Asset.Colors.textPrimary.swiftUIColor)
                         .multilineTextAlignment(.leading)
                         .padding(.vertical, 19)
@@ -63,6 +67,7 @@ struct SettingsListItem<Content: View>: View {
     ///  - name: The name of the list item.
     ///  - hasDivider: Whether or not the list item should have a divider on the bottom.
     ///  - accessibilityIdentifier: The accessibility ID for the list item.
+    ///  - nameAccessibilityID: The accessibility ID for the list item name.
     ///  - action: The action to perform when the list item is tapped.
     ///  - trailingContent: Content that appears on the trailing edge of the list item.
     ///
@@ -72,12 +77,14 @@ struct SettingsListItem<Content: View>: View {
         _ name: String,
         hasDivider: Bool = true,
         accessibilityIdentifier: String? = nil,
+        nameAccessibilityID: String? = nil,
         action: @escaping () -> Void,
         @ViewBuilder trailingContent: @escaping () -> Content? = { EmptyView() }
     ) {
         self.accessibilityIdentifier = accessibilityIdentifier
         self.name = name
         self.hasDivider = hasDivider
+        self.nameAccessibilityID = nameAccessibilityID
         self.trailingContent = trailingContent
         self.action = action
     }

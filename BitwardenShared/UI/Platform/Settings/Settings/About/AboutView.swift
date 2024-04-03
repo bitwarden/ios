@@ -55,52 +55,21 @@ struct AboutView: View {
     /// The section of miscellaneous about items.
     private var miscSection: some View {
         VStack(spacing: 0) {
-            SettingsListItem(Localizations.bitwardenHelpCenter) {
-                store.send(.helpCenterTapped)
-            } trailingContent: {
-                Image(asset: Asset.Images.externalLink2)
-                    .resizable()
-                    .frame(width: 22, height: 22)
-            }
+            externalLinkRow(Localizations.bitwardenHelpCenter, action: .helpCenterTapped)
 
-            SettingsListItem(Localizations.privacyPolicy) {
-                store.send(.privacyPolicyTapped)
-            } trailingContent: {
-                Image(asset: Asset.Images.externalLink2)
-                    .resizable()
-                    .frame(width: 22, height: 22)
-            }
+            externalLinkRow(Localizations.privacyPolicy, action: .privacyPolicyTapped)
 
-            SettingsListItem(Localizations.webVault) {
-                store.send(.webVaultTapped)
-            } trailingContent: {
-                Image(asset: Asset.Images.externalLink2)
-                    .resizable()
-                    .frame(width: 22, height: 22)
-            }
+            externalLinkRow(Localizations.webVault, action: .webVaultTapped)
 
-            SettingsListItem(Localizations.learnOrg) {
-                store.send(.learnAboutOrganizationsTapped)
-            } trailingContent: {
-                Image(asset: Asset.Images.externalLink2)
-                    .resizable()
-                    .frame(width: 22, height: 22)
-            }
+            externalLinkRow(Localizations.learnOrg, action: .learnAboutOrganizationsTapped)
 
-            SettingsListItem(Localizations.rateTheApp) {
-                store.send(.rateTheAppTapped)
-            } trailingContent: {
-                Image(asset: Asset.Images.externalLink2)
-                    .resizable()
-                    .frame(width: 22, height: 22)
-            }
+            externalLinkRow(Localizations.rateTheApp, action: .rateTheAppTapped)
 
             SettingsListItem(store.state.version, hasDivider: false) {
                 store.send(.versionTapped)
             } trailingContent: {
-                Image(asset: Asset.Images.copy)
-                    .resizable()
-                    .frame(width: 22, height: 22)
+                Asset.Images.copy.swiftUIImage
+                    .imageStyle(.rowIcon)
             }
         }
         .cornerRadius(10)
@@ -117,6 +86,22 @@ struct AboutView: View {
         .toggleStyle(.bitwarden)
         .styleGuide(.body)
         .accessibilityIdentifier("SubmitCrashLogsSwitch")
+    }
+
+    /// Returns a `SettingsListItem` configured for an external web link.
+    ///
+    /// - Parameters:
+    ///   - name: The localized name of the row.
+    ///   - action: An action to send when the row is tapped.
+    /// - Returns: A `SettingsListItem` configured for an external web link.
+    ///
+    private func externalLinkRow(_ name: String, action: AboutAction) -> some View {
+        SettingsListItem(name) {
+            store.send(action)
+        } trailingContent: {
+            Asset.Images.externalLink2.swiftUIImage
+                .imageStyle(.rowIcon)
+        }
     }
 }
 

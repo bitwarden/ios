@@ -72,9 +72,9 @@ final class OtherSettingsProcessor: StateProcessor<OtherSettingsState, OtherSett
 
     /// The give feedback button was pressed.
     private func giveFeedbackPressed() {
-        coordinator.navigate(to: .alert(.giveFeedbackAlert {
+        coordinator.showAlert(.giveFeedbackAlert {
             self.state.url = ExternalLinksConstants.giveFeedback
-        }))
+        })
     }
 
     /// Load the initial values for the toggles on the view.

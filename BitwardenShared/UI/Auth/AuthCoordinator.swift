@@ -105,8 +105,6 @@ final class AuthCoordinator: NSObject, // swiftlint:disable:this type_body_lengt
 
     func navigate(to route: AuthRoute, context: AnyObject?) { // swiftlint:disable:this function_body_length
         switch route {
-        case let .alert(alert):
-            showAlert(alert)
         case let .captcha(url, callbackUrlScheme):
             showCaptcha(
                 url: url,

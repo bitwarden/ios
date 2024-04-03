@@ -155,8 +155,7 @@ struct AddEditLoginItemView: View {
                         }
                     } label: {
                         Asset.Images.gear.swiftUIImage
-                            .resizable()
-                            .frame(width: 16, height: 16)
+                            .imageStyle(.accessoryIcon)
                     }
                 }
                 .textFieldConfiguration(.url)

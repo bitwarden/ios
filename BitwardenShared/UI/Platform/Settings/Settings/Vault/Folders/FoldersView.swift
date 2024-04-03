@@ -45,6 +45,7 @@ struct FoldersView: View {
             .styleGuide(.callout)
             .multilineTextAlignment(.center)
             .frame(maxWidth: .infinity, maxHeight: .infinity)
+            .accessibilityIdentifier("NoFoldersLabel")
     }
 
     /// The section listing all the user's folders.
@@ -60,10 +61,15 @@ struct FoldersView: View {
                 },
                 id: \.id
             ) { index, folder in
-                SettingsListItem(folder.name, hasDivider: index < (store.state.folders.count - 1)) {
+                SettingsListItem(
+                    folder.name,
+                    hasDivider: index < (store.state.folders.count - 1),
+                    nameAccessibilityID: "FolderName"
+                ) {
                     guard let id = folder.id else { return }
                     store.send(.folderTapped(id: id))
                 }
+                .accessibilityIdentifier("FolderCell")
             }
         }
         .clipShape(RoundedRectangle(cornerRadius: 10))

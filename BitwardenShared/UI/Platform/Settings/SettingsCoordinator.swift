@@ -130,8 +130,6 @@ final class SettingsCoordinator: Coordinator, HasStackNavigator { // swiftlint:d
             showAccountSecurity()
         case let .addEditFolder(folder):
             showAddEditFolder(folder, delegate: context as? AddEditFolderDelegate)
-        case let .alert(alert):
-            stackNavigator?.present(alert)
         case .appearance:
             showAppearance()
         case .appExtension:

@@ -15,6 +15,7 @@ extension View {
     func addToolbarButton(hidden: Bool = false, action: @escaping () -> Void) -> some View {
         toolbarButton(asset: Asset.Images.plus, label: Localizations.add, action: action)
             .hidden(hidden)
+            .accessibilityIdentifier("AddItemButton")
     }
 
     /// Returns a toolbar button configured for cancelling an operation in a view.
@@ -24,7 +25,7 @@ extension View {
     ///
     func cancelToolbarButton(action: @escaping () -> Void) -> some View {
         toolbarButton(asset: Asset.Images.cancel, label: Localizations.cancel, action: action)
-            .accessibilityIdentifier("CLOSE")
+            .accessibilityIdentifier("CancelButton")
     }
 
     /// Returns a toolbar button configured for closing a view.
@@ -34,7 +35,17 @@ extension View {
     ///
     func closeToolbarButton(action: @escaping () -> Void) -> some View {
         toolbarButton(asset: Asset.Images.cancel, label: Localizations.close, action: action)
-            .accessibilityIdentifier("CLOSE")
+            .accessibilityIdentifier("CloseButton")
+    }
+
+    /// Returns a toolbar button configured for editing an item.
+    ///
+    /// - Parameter action: The action to perform when the button is tapped.
+    /// - Returns: A `Button` configured for closing a view.
+    ///
+    func editToolbarButton(action: @escaping () -> Void) -> some View {
+        toolbarButton(Localizations.edit, action: action)
+            .accessibilityIdentifier("EditItemButton")
     }
 
     /// Returns a `Button` that displays an image for use in a toolbar.
@@ -48,9 +59,7 @@ extension View {
     func toolbarButton(asset: ImageAsset, label: String, action: @escaping () -> Void) -> some View {
         Button(action: action) {
             Image(asset: asset, label: Text(label))
-                .resizable()
-                .foregroundColor(Asset.Colors.primaryBitwarden.swiftUIColor)
-                .frame(width: 19, height: 19)
+                .imageStyle(.toolbarIcon)
         }
         // Ideally we would set both `minHeight` and `minWidth` to 44. Setting `minWidth` causes
         // padding to be applied equally on both sides of the image. This results in extra padding
@@ -86,9 +95,8 @@ extension View {
             content()
         } label: {
             Image(asset: Asset.Images.verticalKabob, label: Text(Localizations.options))
-                .resizable()
-                .frame(width: 19, height: 19)
-                .foregroundColor(Asset.Colors.primaryBitwarden.swiftUIColor)
+                .imageStyle(.toolbarIcon)
+                .accessibilityIdentifier("HeaderBarOptionsButton")
         }
         // Ideally we would set both `minHeight` and `minWidth` to 44. Setting `minWidth` causes
         // padding to be applied equally on both sides of the image. This results in extra padding
@@ -107,8 +115,7 @@ extension View {
     ///
     func addToolbarItem(hidden: Bool = false, _ action: @escaping () -> Void) -> some ToolbarContent {
         ToolbarItem(placement: .topBarTrailing) {
-            toolbarButton(asset: Asset.Images.plus, label: Localizations.add, action: action)
-                .hidden(hidden)
+            addToolbarButton(hidden: hidden, action: action)
         }
     }
 

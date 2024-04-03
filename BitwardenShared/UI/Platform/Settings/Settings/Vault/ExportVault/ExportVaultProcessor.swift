@@ -57,13 +57,20 @@ final class ExportVaultProcessor: StateProcessor<ExportVaultState, ExportVaultAc
             services.exportVaultService.clearTemporaryFiles()
             coordinator.navigate(to: .dismiss)
         case .exportVaultTapped:
-            confirmExportVault()
+            validateFieldsAndExportVault()
         case let .fileFormatTypeChanged(fileFormat):
             state.fileFormat = fileFormat
-        case let .passwordTextChanged(newValue):
-            state.passwordText = newValue
-        case let .togglePasswordVisibility(isOn):
-            state.isPasswordVisible = isOn
+        case let .filePasswordTextChanged(newValue):
+            state.filePasswordText = newValue
+            updatePasswordStrength()
+        case let .filePasswordConfirmationTextChanged(newValue):
+            state.filePasswordConfirmationText = newValue
+        case let .masterPasswordTextChanged(newValue):
+            state.masterPasswordText = newValue
+        case let .toggleFilePasswordVisibility(isOn):
+            state.isFilePasswordVisible = isOn
+        case let .toggleMasterPasswordVisibility(isOn):
+            state.isMasterPasswordVisible = isOn
         }
     }
 
@@ -73,9 +80,9 @@ final class ExportVaultProcessor: StateProcessor<ExportVaultState, ExportVaultAc
     private func confirmExportVault() {
         let encrypted = (state.fileFormat == .jsonEncrypted)
         let format = state.fileFormat
-        let password = state.passwordText
+        let password = state.filePasswordText
 
-        // She the alert to confirm exporting the vault.
+        // Show the alert to confirm exporting the vault.
         coordinator.showAlert(.confirmExportVault(encrypted: encrypted) {
             // Validate the password before exporting the vault.
             guard await self.validatePassword() else {
@@ -84,6 +91,10 @@ final class ExportVaultProcessor: StateProcessor<ExportVaultState, ExportVaultAc
 
             do {
                 try await self.exportVault(format: format, password: password)
+
+                // Clear the user's entered password so that it's required to be entered again for
+                // any subsequent exports.
+                self.state.masterPasswordText = ""
             } catch {
                 self.services.errorReporter.log(error: error)
             }
@@ -119,14 +130,58 @@ final class ExportVaultProcessor: StateProcessor<ExportVaultState, ExportVaultAc
         )
     }
 
+    /// Updates state's password strength score based on the user's entered password.
+    ///
+    private func updatePasswordStrength() {
+        guard !state.filePasswordText.isEmpty else {
+            state.filePasswordStrengthScore = nil
+            return
+        }
+        Task {
+            state.filePasswordStrengthScore = await services.authRepository.passwordStrength(
+                email: "",
+                password: state.filePasswordText
+            )
+        }
+    }
+
+    /// Validates the input fields and if they are valid, shows the alert to confirm the vault export.
+    ///
+    private func validateFieldsAndExportVault() {
+        let isEncryptedExport = state.fileFormat == .jsonEncrypted
+
+        do {
+            if isEncryptedExport {
+                try EmptyInputValidator(fieldName: Localizations.filePassword)
+                    .validate(input: state.filePasswordText)
+                try EmptyInputValidator(fieldName: Localizations.confirmFilePassword)
+                    .validate(input: state.filePasswordConfirmationText)
+
+                guard state.filePasswordText == state.filePasswordConfirmationText else {
+                    coordinator.showAlert(.passwordsDontMatch)
+                    return
+                }
+            }
+
+            try EmptyInputValidator(fieldName: Localizations.masterPassword)
+                .validate(input: state.masterPasswordText)
+
+            confirmExportVault()
+        } catch let error as InputValidationError {
+            coordinator.showAlert(.inputValidationAlert(error: error))
+        } catch {
+            coordinator.showAlert(.networkResponseError(error))
+            services.errorReporter.log(error: error)
+        }
+    }
+
     /// Validate the password.
     ///
     /// - Returns: `true` if the password is valid.
     ///
-    @MainActor
     private func validatePassword() async -> Bool {
         do {
-            return try await services.authRepository.validatePassword(state.passwordText)
+            return try await services.authRepository.validatePassword(state.masterPasswordText)
         } catch {
             services.errorReporter.log(error: error)
             return false
