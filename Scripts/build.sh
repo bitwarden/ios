@@ -4,28 +4,18 @@
 #
 # Usage:
 #
-#   $ ./build.sh <project_dir> <version number> <build number>
+#   $ ./build.sh
 
 set -euo pipefail
 
 bold=$(tput -T ansi bold)
 normal=$(tput -T ansi sgr0)
 
-if [ $# -ne 2 ]; then
-  echo >&2 "Called without necessary arguments: ${bold}Project_Dir${normal} ${bold}Build_Number${normal}."
-  echo >&2 "For example: \`Scripts/build.sh . 100\`."
-  exit 1
-fi
-
-PROJECT_DIR=$1
-BUILD_NUMBER=$2
-
 BUILD_DIR="build"
 
 ARCHIVE_PATH="${BUILD_DIR}/Bitwarden.xcarchive"
 EXPORT_PATH="${BUILD_DIR}/Bitwarden"
 
-pushd "${PROJECT_DIR}"
 echo "🧱 Building in $(pwd)"
 echo ""
 

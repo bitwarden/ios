@@ -248,16 +248,15 @@ jobs:
       - name: Build iOS app
         run: |
           BUILD_NUMBER=$(($GITHUB_RUN_NUMBER))
-          ./Scripts/build.sh . ${{ inputs.build-number || '$BUILD_NUMBER' }}
+          ./Scripts/build.sh
 
       - name: Upload IPA
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@5d5d22a31266ced268874388b861e4b58bb5c2f3 # v4.3.1
         with:
-          name: Bitwarden.ipa
+          name: Bitwarden iOS
           path: build/Bitwarden/Bitwarden.ipa
-          retention-days: 5
 
-      - name: Validate app
+      - name: Validate app with App Store Connect
         env:
           APPLE_ID_USERNAME: ${{ secrets.APPLE_ID_USERNAME }}
           APPLE_ID_PASSWORD: ${{ secrets.APPLE_ID_PASSWORD }}
