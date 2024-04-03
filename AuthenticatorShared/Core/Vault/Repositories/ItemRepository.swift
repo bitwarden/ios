@@ -65,23 +65,60 @@ class DefaultItemRepository {
         self.errorReporter = errorReporter
         self.timeProvider = timeProvider
     }
+
+    // MARK: TEMPORARY
+
+    @Published var ciphers: [CipherView] = [
+        CipherView(
+            id: UUID().uuidString,
+            organizationId: nil,
+            folderId: nil,
+            collectionIds: [],
+            key: nil,
+            name: "Amazon",
+            notes: nil,
+            type: .login,
+            login: .init(
+                username: "amazon@example.com",
+                password: nil,
+                passwordRevisionDate: nil,
+                uris: nil,
+                totp: "amazon",
+                autofillOnPageLoad: nil,
+                fido2Credentials: nil
+            ),
+            identity: nil,
+            card: nil,
+            secureNote: nil,
+            favorite: false,
+            reprompt: .none,
+            organizationUseTotp: false,
+            edit: false,
+            viewPassword: false,
+            localData: nil,
+            attachments: nil,
+            fields: nil,
+            passwordHistory: nil,
+            creationDate: .now,
+            deletedDate: nil,
+            revisionDate: .now
+        ),
+    ]
 }
 
 extension DefaultItemRepository: ItemRepository {
     // MARK: Data Methods
 
-    func addItem(_ item: BitwardenSdk.CipherView) async throws {}
-    
+    func addItem(_ item: BitwardenSdk.CipherView) async throws {
+        ciphers.append(item)
+    }
+
     func deleteItem(_ id: String) {}
-    
-    func fetchItem(withId id: String) async throws -> BitwardenSdk.CipherView? {
-        return nil
-    }
-    
-    func refreshTOTPCode(for key: TOTPKeyModel) async throws -> LoginTOTPState {
-        return .none
-    }
-    
+
+    func fetchItem(withId id: String) async throws -> BitwardenSdk.CipherView? { nil }
+
+    func refreshTOTPCode(for key: TOTPKeyModel) async throws -> LoginTOTPState { .none }
+
     func refreshTOTPCodes(for items: [VaultListItem]) async throws -> [VaultListItem] {
         await items.asyncMap { item in
             guard case let .totp(name, model) = item.itemType,
@@ -101,61 +138,63 @@ extension DefaultItemRepository: ItemRepository {
         }
         .sorted { $0.name.localizedStandardCompare($1.name) == .orderedAscending }
     }
-    
+
     func updateItem(_ item: BitwardenSdk.CipherView) async throws {}
-    
+
     // MARK: Publishers
 
     func vaultListPublisher() async throws -> AsyncThrowingPublisher<AnyPublisher<[VaultListItem], Never>> {
-        Just([
-            VaultListItem(
-                id: UUID().uuidString,
-                itemType: .totp(
-                    name: "Amazon",
-                    totpModel: VaultListTOTP(
-                        id: UUID().uuidString,
-                        loginView: .init(
-                            username: "Username",
-                            password: "Password",
-                            passwordRevisionDate: nil,
-                            uris: nil,
-                            totp: "amazon",
-                            autofillOnPageLoad: false,
-                            fido2Credentials: nil
-                        ),
-                        totpCode: TOTPCodeModel(
-                            code: "123456",
-                            codeGenerationDate: Date(),
-                            period: 30
-                        )
-                    )
-                )
-            ),
-            VaultListItem(
-                id: UUID().uuidString,
-                itemType: .totp(
-                    name: "eBay",
-                    totpModel: VaultListTOTP(
-                        id: UUID().uuidString,
-                        loginView: .init(
-                            username: "Username",
-                            password: "Password",
-                            passwordRevisionDate: nil,
-                            uris: nil,
-                            totp: "ebay",
-                            autofillOnPageLoad: false,
-                            fido2Credentials: nil
-                        ),
-                        totpCode: TOTPCodeModel(
-                            code: "123456",
-                            codeGenerationDate: Date(),
-                            period: 30
-                        )
-                    )
-                )
-            ),
-        ])
+        ciphers.publisher
+//            .asyncMap {
+//                $0.compactMap({
+//                    totpItem(for: $0)
+//                })
+//            }
+//            .asyncMap({
+//                $0.map({
+//                    VaultListItem(cipherView: $0)
+//                })
+//            })
+            .asyncCompactMap({ await self.totpItem(for: $0) })
+            .collect()
+//        await Just(ciphers.asyncMap({ await self.totpItem(for: $0)! }))
         .eraseToAnyPublisher()
         .values
+    }
+
+    /// A transform to convert a `CipherView` into a TOTP `VaultListItem`.
+    ///
+    /// - Parameter cipherView: The cipher view that may have a TOTP key.
+    /// - Returns: A `VaultListItem` if the CipherView supports TOTP.
+    ///
+    private func totpItem(for cipherView: CipherView) async -> VaultListItem? {
+        guard let id = cipherView.id,
+              let login = cipherView.login,
+              let key = login.totp else {
+            return nil
+        }
+        guard let code = try? await clientVault.generateTOTPCode(
+            for: key,
+            date: timeProvider.presentTime
+        ) else {
+            errorReporter.log(
+                error: TOTPServiceError
+                    .unableToGenerateCode("Unable to create TOTP code for key \(key) for cipher id \(id)")
+            )
+            return nil
+        }
+
+        let listModel = VaultListTOTP(
+            id: id,
+            loginView: login,
+            totpCode: code
+        )
+        return VaultListItem(
+            id: id,
+            itemType: .totp(
+                name: cipherView.name,
+                totpModel: listModel
+            )
+        )
     }
 }

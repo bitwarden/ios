@@ -1,10 +1,18 @@
 import BitwardenSdk
 
 /// The services provided by the `ServiceContainer`.
-typealias Services = HasErrorReporter
+typealias Services = HasCameraService
+    & HasErrorReporter
     & HasItemRepository
     & HasTOTPService
     & HasTimeProvider
+
+/// Protocol for an object that provides a `CameraService`.
+///
+protocol HasCameraService {
+    /// The service used by the application to query for and request camera authorization.
+    var cameraService: CameraService { get }
+}
 
 /// Protocol for an object that provides an `ErrorReporter`.
 ///

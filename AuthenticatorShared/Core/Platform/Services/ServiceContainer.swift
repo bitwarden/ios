@@ -18,6 +18,9 @@ public class ServiceContainer: Services {
     /// The application instance (i.e. `UIApplication`), if the app isn't running in an extension.
     let application: Application?
 
+    /// The service used by the application to manage camera use.
+    let cameraService: CameraService
+
     /// The service used by the application to handle encryption and decryption tasks.
     let clientService: ClientService
 
@@ -39,6 +42,7 @@ public class ServiceContainer: Services {
     ///
     /// - Parameters:
     ///   - application: The application instance.
+    ///   - cameraService: The service used by the application to manage camera use.
     ///   - clientService: The service used by the application to handle encryption and decryption tasks.
     ///   - errorReporter: The service used by the application to report non-fatal errors.
     ///   - itemRepository: The repository used by the application to manage vault data for the UI layer.
@@ -47,6 +51,7 @@ public class ServiceContainer: Services {
     ///
     init(
         application: Application?,
+        cameraService: CameraService,
         clientService: ClientService,
         errorReporter: ErrorReporter,
         itemRepository: ItemRepository,
@@ -54,6 +59,7 @@ public class ServiceContainer: Services {
         totpService: TOTPService
     ) {
         self.application = application
+        self.cameraService = cameraService
         self.clientService = clientService
         self.errorReporter = errorReporter
         self.itemRepository = itemRepository
@@ -71,19 +77,20 @@ public class ServiceContainer: Services {
         application: Application? = nil,
         errorReporter: ErrorReporter
     ) {
+        let cameraService = DefaultCameraService()
         let clientService = DefaultClientService()
-
         let timeProvider = CurrentTime()
-
         let totpService = DefaultTOTPService()
 
         let itemRepository = DefaultItemRepository(
             clientVault: clientService.clientVault(),
             errorReporter: errorReporter,
-            timeProvider: timeProvider)
+            timeProvider: timeProvider
+        )
 
         self.init(
             application: application,
+            cameraService: cameraService,
             clientService: clientService,
             errorReporter: errorReporter,
             itemRepository: itemRepository,

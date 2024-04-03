@@ -14,7 +14,7 @@ public struct VaultListItem: Equatable, Identifiable {
         /// The wrapped item is a group of items.
         case group(VaultListGroup, Int)
 
-        /// A TOTP Code Item.Vaul
+        /// A TOTP Code Item.
         ///
         /// - Parameters
         ///   - name: The name of the Cipher, used for sorting.

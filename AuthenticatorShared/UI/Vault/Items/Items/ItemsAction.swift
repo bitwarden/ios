@@ -2,10 +2,6 @@
 
 /// Actions that can be processed by a `ItemsProcessor`.
 enum ItemsAction: Equatable {
-    /// The add item button was pressed.
-    ///
-    case addItemPressed
-
     /// The url has been opened so clear the value in the state.
     case clearURL
 

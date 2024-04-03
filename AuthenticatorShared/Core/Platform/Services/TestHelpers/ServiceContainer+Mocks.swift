@@ -6,6 +6,7 @@ import Networking
 extension ServiceContainer {
     static func withMocks(
         application: Application? = nil,
+        cameraService: CameraService = MockCameraService(),
         clientService: ClientService = MockClientService(),
         errorReporter: ErrorReporter = MockErrorReporter(),
         itemRepository: ItemRepository = MockItemRepository(),
@@ -14,6 +15,7 @@ extension ServiceContainer {
     ) -> ServiceContainer {
         ServiceContainer(
             application: application,
+            cameraService: cameraService,
             clientService: clientService,
             errorReporter: errorReporter,
             itemRepository: itemRepository,

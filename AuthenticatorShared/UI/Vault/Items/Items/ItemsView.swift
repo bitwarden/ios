@@ -24,7 +24,9 @@ struct ItemsView: View {
             .background(Asset.Colors.backgroundSecondary.swiftUIColor.ignoresSafeArea())
             .toolbar {
                 addToolbarItem(hidden: !store.state.showAddToolbarItem) {
-                    store.send(.addItemPressed)
+                    Task {
+                        await store.perform(.addItemPressed)
+                    }
                 }
             }
             .task {
@@ -58,7 +60,9 @@ struct ItemsView: View {
 
                     if store.state.showAddItemButton {
                         Button(Localizations.addAnItem) {
-                            store.send(.addItemPressed)
+                            Task {
+                                await store.perform(.addItemPressed)
+                            }
                         }
                         .buttonStyle(.tertiary())
                     }
