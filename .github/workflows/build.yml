@@ -182,25 +182,25 @@ jobs:
           path: project.yml
           retention-days: 5
     
-      # - name: Build iOS app
-      #   run: |
-      #     BUILD_NUMBER=$(($GITHUB_RUN_NUMBER))
-      #     ./Scripts/build.sh . ${{ inputs.build-number || '$BUILD_NUMBER' }}
+      - name: Build iOS app
+        run: |
+          BUILD_NUMBER=$(($GITHUB_RUN_NUMBER))
+          ./Scripts/build.sh . ${{ inputs.build-number || '$BUILD_NUMBER' }}
 
-      # - name: Upload IPA
-      #   uses: actions/upload-artifact@v4
-      #   with:
-      #     name: Bitwarden.ipa
-      #     path: build/Bitwarden/Bitwarden.ipa
-      #     retention-days: 5
+      - name: Upload IPA
+        uses: actions/upload-artifact@v4
+        with:
+          name: Bitwarden.ipa
+          path: build/Bitwarden/Bitwarden.ipa
+          retention-days: 5
 
-      # - name: Validate app
-      #   env:
-      #     APPLE_ID_USERNAME: ${{ secrets.APPLE_ID_USERNAME }}
-      #     APPLE_ID_PASSWORD: ${{ secrets.APPLE_ID_PASSWORD }}
-      #   run: |
-      #     xcrun altool --validate-app \
-      #       --type ios \
-      #       --file "build/Bitwarden/Bitwarden.ipa" \
-      #       --username "$APPLE_ID_USERNAME" \
-      #       --password @env:APPLE_ID_PASSWORD
+      - name: Validate app
+        env:
+          APPLE_ID_USERNAME: ${{ secrets.APPLE_ID_USERNAME }}
+          APPLE_ID_PASSWORD: ${{ secrets.APPLE_ID_PASSWORD }}
+        run: |
+          xcrun altool --validate-app \
+            --type ios \
+            --file "build/Bitwarden/Bitwarden.ipa" \
+            --username "$APPLE_ID_USERNAME" \
+            --password @env:APPLE_ID_PASSWORD
