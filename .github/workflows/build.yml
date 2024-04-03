@@ -170,6 +170,11 @@ jobs:
         run: |
           ./Scripts/select_variant.sh Beta
 
+      - name: Update build version
+        if: ${{ inputs.build-version }}
+        run: |
+          yq -i '.settings.MARKETING_VERSION = "${{ inputs.build-version }}"' 'project.yml'
+
       - name: Update build number
         run: |
           BUILD_NUMBER=$(($GITHUB_RUN_NUMBER + 1000))

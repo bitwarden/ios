@@ -1,6 +1,6 @@
 name: Bitwarden
 fileGroups:
- - Configs
+  - Configs
 configs:
   Debug: debug
   Release: release
@@ -326,7 +326,7 @@ targets:
     preBuildScripts:
       - name: SwiftGen
         script: |
-            mint run swiftgen config run --config "swiftgen.yml"
+          mint run swiftgen config run --config "swiftgen.yml"
         basedOnDependencyAnalysis: false
         outputFiles:
           - $(SRCROOT)/BitwardenShared/UI/Platform/Application/Support/Generated/Assets.swift
