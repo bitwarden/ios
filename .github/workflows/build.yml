@@ -218,6 +218,7 @@ jobs:
           cp $WATCH_APP_EXTENSION_PROFILE_PATH "$PROFILES_DIR_PATH/$WATCH_APP_EXTENSION_UUID.mobileprovision"
 
       - name: Remove export compliance key
+        if: env.build-variant != 'Production'
         run: |
           plutil -remove ITSAppUsesNonExemptEncryption Bitwarden/Application/Support/Info.plist
           plutil -remove ITSEncryptionExportComplianceCode Bitwarden/Application/Support/Info.plist
