@@ -40,7 +40,6 @@ xcrun xcodebuild archive \
   -scheme Bitwarden \
   -configuration Release \
   -archivePath "${ARCHIVE_PATH}" \
-  CURRENT_PROJECT_VERSION="${BUILD_NUMBER}" \
   | xcbeautify --renderer github-actions
 echo ""
 

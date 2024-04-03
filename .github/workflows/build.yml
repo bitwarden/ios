@@ -170,6 +170,11 @@ jobs:
         run: |
           ./Scripts/select_variant.sh Beta
 
+      - name: Update build number
+        uses: mikefarah/yq@c35ec752e38ea0c096d3c44e13cfc0797ac394d8 # v4.43.1
+        with:
+          cmd: yq -i '.settings.CURRENT_PROJECT_VERSION = ${{ inputs.build-number || '$(($GITHUB_RUN_NUMBER + 1000))' }}' 'project.yml'
+
       - name: Build iOS app
         run: |
           BUILD_NUMBER=$(($GITHUB_RUN_NUMBER))
