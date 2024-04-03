@@ -30,7 +30,7 @@ class OtherSettingsViewTests: BitwardenTestCase {
 
     /// Tapping give feedback dispatches the `.giveFeedback` action.
     func test_giveFeedback_tapped() throws {
-        let button = try subject.inspect().find(button: "Give feedback")
+        let button = try subject.inspect().find(button: "Give Feedback")
         try button.tap()
         XCTAssertEqual(processor.dispatchedActions, [.giveFeedbackPressed])
     }
