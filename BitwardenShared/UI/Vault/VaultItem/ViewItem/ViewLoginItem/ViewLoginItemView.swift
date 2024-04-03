@@ -85,7 +85,10 @@ struct ViewLoginItemView: View {
         }
 
         if !store.state.isTOTPAvailable {
-            BitwardenField(title: Localizations.verificationCodeTotp, titleAccessibilityIdentifier: "ItemName") {
+            BitwardenField(
+                title: Localizations.verificationCodeTotp,
+                titleAccessibilityIdentifier: "ItemName"
+            ) {
                 Text(Localizations.premiumSubscriptionRequired)
                     .styleGuide(.footnote)
                     .foregroundColor(Asset.Colors.textSecondary.swiftUIColor)

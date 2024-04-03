@@ -131,12 +131,9 @@ struct ViewItemDetailsView: View {
     /// The item information section.
     private var itemInformationSection: some View {
         SectionView(Localizations.itemInformation, contentSpacing: 12) {
-            BitwardenTextValueField(
-                title: Localizations.name,
-                value: store.state.name
-            )
-            .accessibilityElement(children: .contain)
-            .accessibilityIdentifier("ItemRow")
+            BitwardenTextValueField(title: Localizations.name, value: store.state.name)
+                .accessibilityElement(children: .contain)
+                .accessibilityIdentifier("ItemRow")
 
             // check for type
             switch store.state.type {
