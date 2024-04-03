@@ -192,6 +192,13 @@ jobs:
           BUILD_NUMBER=$(($GITHUB_RUN_NUMBER))
           ./Scripts/build.sh . ${{ inputs.build-number || '$BUILD_NUMBER' }}
 
+      - name: Upload project pbx
+        uses: actions/upload-artifact@v4
+        with:
+          name: project.pbxproj
+          path: Bitwarden.xcodeproj/project.pbxproj
+          retention-days: 5
+    
       - name: Upload IPA
         uses: actions/upload-artifact@v4
         with:
