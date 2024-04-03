@@ -104,7 +104,7 @@ jobs:
               --file $HOME/secrets/$FILE --output none
           done
 
-      - name: Download beta provisioning Pprofiles
+      - name: Download beta provisioning profiles
         if: env.build-variant == 'Beta'
         env:
           ACCOUNT_NAME: bitwardenci
