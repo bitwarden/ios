@@ -28,6 +28,8 @@ struct ViewCardItemView: View {
                 title: Localizations.cardholderName,
                 value: store.state.cardholderName
             )
+            .accessibilityElement(children: .contain)
+            .accessibilityIdentifier("ItemRow")
         }
     }
 
@@ -55,7 +57,10 @@ struct ViewCardItemView: View {
                         .imageStyle(.accessoryIcon)
                 }
                 .accessibilityLabel(Localizations.copy)
+                .accessibilityIdentifier("CopyValueButton")
             }
+            .accessibilityElement(children: .contain)
+            .accessibilityIdentifier("ItemRow")
         }
     }
 
@@ -65,6 +70,8 @@ struct ViewCardItemView: View {
                 title: Localizations.brand,
                 value: store.state.brandName
             )
+            .accessibilityElement(children: .contain)
+            .accessibilityIdentifier("ItemRow")
         }
     }
 
@@ -85,6 +92,8 @@ struct ViewCardItemView: View {
                 title: Localizations.expiration,
                 value: expirationString
             )
+            .accessibilityElement(children: .contain)
+            .accessibilityIdentifier("ItemRow")
         }
     }
 
@@ -112,7 +121,10 @@ struct ViewCardItemView: View {
                         .imageStyle(.accessoryIcon)
                 }
                 .accessibilityLabel(Localizations.copy)
+                .accessibilityIdentifier("CopyValueButton")
             }
+            .accessibilityElement(children: .contain)
+            .accessibilityIdentifier("ItemRow")
         }
     }
 }
