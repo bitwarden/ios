@@ -4,6 +4,13 @@ name: Build
 on:
   workflow_dispatch:
     inputs:
+      build-variant:
+        description: 'Which variant of the app to build'
+        required: true
+        type: choice
+        options:
+          - Production
+          - Beta
       build-version:
         description: 'Optional. Version string to use, in X.Y.Z format. Overrides default in the project.'
         required: false
@@ -12,6 +19,9 @@ on:
         description: 'Optional. Build number to use. Overrides default of GitHub run number.'
         required: false
         type: number
+
+env:
+  build-variant: ${{ inputs.build-variant || 'Production' }}
 
 jobs:
   build:
@@ -73,6 +83,29 @@ jobs:
           secrets: "appcenter-ios-token"
 
       - name: Download Provisioning Profiles secrets
+        if: env.build-variant == 'Production'
+        env:
+          ACCOUNT_NAME: bitwardenci
+          CONTAINER_NAME: profiles
+        run: |
+          mkdir -p $HOME/secrets
+          profiles=(
+            "dist_autofill.mobileprovision"
+            "dist_bitwarden.mobileprovision"
+            "dist_extension.mobileprovision"
+            "dist_share_extension.mobileprovision"
+            "dist_bitwarden_watch_app.mobileprovision"
+            "dist_bitwarden_watch_app_extension.mobileprovision"
+          )
+
+          for FILE in "${profiles[@]}"
+          do
+            az storage blob download --account-name $ACCOUNT_NAME --container-name $CONTAINER_NAME --name $FILE \
+              --file $HOME/secrets/$FILE --output none
+          done
+
+      - name: Download Beta Provisioning Profiles secrets
+        if: env.build-variant == 'Beta'
         env:
           ACCOUNT_NAME: bitwardenci
           CONTAINER_NAME: profiles
@@ -122,7 +155,8 @@ jobs:
             -T /usr/bin/security
           security set-key-partition-list -S apple-tool:,apple:,codesign: -s -k $KEYCHAIN_PASSWORD build.keychain
 
-      - name: Set up provisioning profiles
+      - name: Set up beta provisioning profiles
+        if: env.build-variant == 'Beta'
         run: |
           AUTOFILL_PROFILE_PATH=$HOME/secrets/dist_beta_autofill.mobileprovision
           BITWARDEN_PROFILE_PATH=$HOME/secrets/dist_beta_bitwarden.mobileprovision
@@ -166,9 +200,9 @@ jobs:
         run: |
           mint bootstrap
 
-      - name: Change to beta variant
+      - name: Select variant
         run: |
-          ./Scripts/select_variant.sh Beta
+          ./Scripts/select_variant.sh ${{ env.build-variant }}
 
       - name: Update build version
         if: ${{ inputs.build-version }}
