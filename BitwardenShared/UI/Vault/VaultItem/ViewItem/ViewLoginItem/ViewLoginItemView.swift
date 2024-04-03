@@ -22,12 +22,7 @@ struct ViewLoginItemView: View {
     var body: some View {
         if !store.state.username.isEmpty {
             let username = store.state.username
-            BitwardenTextValueField(
-                title: Localizations.username,
-                titleAccessibilityIdentifier: "ItemName",
-                value: username,
-                valueAccessibilityIdentifier: "ItemValue"
-            ) {
+            BitwardenTextValueField(title: Localizations.username, value: username) {
                 Button {
                     store.send(.copyPressed(value: username, field: .username))
                 } label: {
@@ -43,10 +38,7 @@ struct ViewLoginItemView: View {
 
         if !store.state.password.isEmpty {
             let password = store.state.password
-            BitwardenField(
-                title: Localizations.password,
-                titleAccessibilityIdentifier: "ItemName"
-            ) {
+            BitwardenField(title: Localizations.password, titleAccessibilityIdentifier: "ItemName") {
                 PasswordText(password: password, isPasswordVisible: store.state.isPasswordVisible)
                     .styleGuide(.body)
                     .foregroundColor(Asset.Colors.textPrimary.swiftUIColor)
@@ -83,22 +75,17 @@ struct ViewLoginItemView: View {
         if let fido2Credential = store.state.fido2Credentials.first {
             BitwardenTextValueField(
                 title: Localizations.passkey,
-                titleAccessibilityIdentifier: "ItemName",
                 value: Localizations.createdXY(
                     fido2Credential.creationDate.formatted(date: .numeric, time: .omitted),
                     fido2Credential.creationDate.formatted(date: .omitted, time: .shortened)
-                ),
-                valueAccessibilityIdentifier: "ItemValue"
+                )
             )
             .accessibilityElement(children: .contain)
             .accessibilityIdentifier("ItemRow")
         }
 
         if !store.state.isTOTPAvailable {
-            BitwardenField(
-                title: Localizations.verificationCodeTotp,
-                titleAccessibilityIdentifier: "ItemName"
-            ) {
+            BitwardenField(title: Localizations.verificationCodeTotp, titleAccessibilityIdentifier: "ItemName") {
                 Text(Localizations.premiumSubscriptionRequired)
                     .styleGuide(.footnote)
                     .foregroundColor(Asset.Colors.textSecondary.swiftUIColor)

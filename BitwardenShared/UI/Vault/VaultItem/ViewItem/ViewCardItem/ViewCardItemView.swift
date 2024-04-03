@@ -26,9 +26,7 @@ struct ViewCardItemView: View {
         if !store.state.cardholderName.isEmpty {
             BitwardenTextValueField(
                 title: Localizations.cardholderName,
-                titleAccessibilityIdentifier: "ItemName",
-                value: store.state.cardholderName,
-                valueAccessibilityIdentifier: "ItemValue"
+                value: store.state.cardholderName
             )
             .accessibilityElement(children: .contain)
             .accessibilityIdentifier("ItemRow")
@@ -39,10 +37,7 @@ struct ViewCardItemView: View {
         let number = store.state.cardNumber
         let isVisible: Bool = store.state.isNumberVisible
         if !number.isEmpty {
-            BitwardenField(
-                title: Localizations.number,
-                titleAccessibilityIdentifier: "ItemName"
-            ) {
+            BitwardenField(title: Localizations.number) {
                 PasswordText(password: number, isPasswordVisible: isVisible)
                     .styleGuide(.body)
                     .foregroundColor(Asset.Colors.textPrimary.swiftUIColor)
@@ -73,9 +68,7 @@ struct ViewCardItemView: View {
         if case .custom = store.state.brand {
             BitwardenTextValueField(
                 title: Localizations.brand,
-                titleAccessibilityIdentifier: "ItemName",
-                value: store.state.brandName,
-                valueAccessibilityIdentifier: "ItemValue"
+                value: store.state.brandName
             )
             .accessibilityElement(children: .contain)
             .accessibilityIdentifier("ItemRow")
@@ -97,9 +90,7 @@ struct ViewCardItemView: View {
         if !expirationString.isEmpty {
             BitwardenTextValueField(
                 title: Localizations.expiration,
-                titleAccessibilityIdentifier: "ItemName",
-                value: expirationString,
-                valueAccessibilityIdentifier: "ItemValue"
+                value: expirationString
             )
             .accessibilityElement(children: .contain)
             .accessibilityIdentifier("ItemRow")

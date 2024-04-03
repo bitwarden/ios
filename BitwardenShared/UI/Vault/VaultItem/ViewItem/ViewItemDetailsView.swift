@@ -133,9 +133,7 @@ struct ViewItemDetailsView: View {
         SectionView(Localizations.itemInformation, contentSpacing: 12) {
             BitwardenTextValueField(
                 title: Localizations.name,
-                titleAccessibilityIdentifier: "ItemName",
-                value: store.state.name,
-                valueAccessibilityIdentifier: "ItemValue"
+                value: store.state.name
             )
             .accessibilityElement(children: .contain)
             .accessibilityIdentifier("ItemRow")
@@ -224,9 +222,7 @@ struct ViewItemDetailsView: View {
                 ForEach(store.state.loginState.uris, id: \.self) { uri in
                     BitwardenTextValueField(
                         title: Localizations.uri,
-                        titleAccessibilityIdentifier: "ItemName",
-                        value: URL(string: uri.uri)?.host ?? uri.uri,
-                        valueAccessibilityIdentifier: "ItemValue"
+                        value: URL(string: uri.uri)?.host ?? uri.uri
                     ) {
                         if let url = URL(string: uri.uri)?.sanitized, url.hasValidURLComponents {
                             Button {

@@ -51,9 +51,9 @@ struct BitwardenTextValueField<AccessoryContent>: View where AccessoryContent: V
     ///
     init(
         title: String? = nil,
-        titleAccessibilityIdentifier: String? = nil,
+        titleAccessibilityIdentifier: String? = "ItemName",
         value: String,
-        valueAccessibilityIdentifier: String? = nil,
+        valueAccessibilityIdentifier: String? = "ItemValue",
         @ViewBuilder accessoryContent: () -> AccessoryContent
     ) {
         self.title = title
@@ -75,9 +75,9 @@ extension BitwardenTextValueField where AccessoryContent == EmptyView {
     ///
     init(
         title: String? = nil,
-        titleAccessibilityIdentifier: String? = nil,
+        titleAccessibilityIdentifier: String? = "ItemName",
         value: String,
-        valueAccessibilityIdentifier: String? = nil
+        valueAccessibilityIdentifier: String? = "ItemValue"
     ) {
         self.init(
             title: title,
