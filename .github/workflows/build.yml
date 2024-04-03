@@ -152,6 +152,11 @@ jobs:
           WATCH_APP_EXTENSION_UUID=$(grep UUID -A1 -a $WATCH_APP_EXTENSION_PROFILE_PATH | grep -io "[-A-F0-9]\{36\}")
           cp $WATCH_APP_EXTENSION_PROFILE_PATH "$PROFILES_DIR_PATH/$WATCH_APP_EXTENSION_UUID.mobileprovision"
 
+      - name: Remove export compliance key
+        run: |
+          plutil -remove ITSAppUsesNonExemptEncryption Bitwarden/Application/Support/Info.plist
+          plutil -remove ITSEncryptionExportComplianceCode Bitwarden/Application/Support/Info.plist
+
       - name: Install Mint
         run: |
           brew install mint xcbeautify
@@ -165,13 +170,10 @@ jobs:
         run: |
           ./Scripts/select_variant.sh Beta
 
-      - name: Build Beta iOS app
-        env:
-          EXPORT_OPTIONS_PATH: ./.github/resources/export-options-app-store.plist
-          LOCAL_XCCONFIG_PATH: ./.github/resources/Local-beta.xcconfig
+      - name: Build iOS app
         run: |
           BUILD_NUMBER=$(($GITHUB_RUN_NUMBER))
-          ./Scripts/build.sh . "${LOCAL_XCCONFIG_PATH}" "${EXPORT_OPTIONS_PATH}" ${{ inputs.build-number || '$BUILD_NUMBER' }}
+          ./Scripts/build.sh . ${{ inputs.build-number || '$BUILD_NUMBER' }}
 
       - name: Validate app
         env:

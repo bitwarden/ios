@@ -11,16 +11,14 @@ set -euo pipefail
 bold=$(tput -T ansi bold)
 normal=$(tput -T ansi sgr0)
 
-if [ $# -ne 4 ]; then
-  echo >&2 "Called without necessary arguments: ${bold}Project_Dir${normal} ${bold}Local_xcconfig_path${normal} ${bold}Export_options_path${normal} ${bold}Build_Number${normal}."
-  echo >&2 "For example: \`Scripts/build.sh . resources/Local.xcconfig resources/export_options.plist 100\`."
+if [ $# -ne 2 ]; then
+  echo >&2 "Called without necessary arguments: ${bold}Project_Dir${normal} ${bold}Build_Number${normal}."
+  echo >&2 "For example: \`Scripts/build.sh . 100\`."
   exit 1
 fi
 
 PROJECT_DIR=$1
-LOCAL_XCCONFIG_PATH=$2
-EXPORT_OPTIONS_PATH=$3
-BUILD_NUMBER=$4
+BUILD_NUMBER=$2
 
 BUILD_DIR="build"
 
@@ -32,11 +30,9 @@ echo "🧱 Building in $(pwd)"
 echo ""
 
 echo "🌱 Generating xcode project"
-mint run xcodegen xcodegen
+mint run xcodegen
 
 mkdir -p "${BUILD_DIR}"
-
-# cp "${LOCAL_XCCONFIG_PATH}" "Configs/Local.xcconfig"
 
 echo "🔨 Performing Xcode archive"
 xcrun xcodebuild archive \
