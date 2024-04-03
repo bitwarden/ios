@@ -30,6 +30,9 @@ public class ServiceContainer: Services {
     /// The repository used by the application to manage item data for the UI layer.
     let itemRepository: ItemRepository
 
+    /// The service used by the application for sharing data with other apps.
+    let pasteboardService: PasteboardService
+
     /// Provides the present time for TOTP Code Calculation.
     let timeProvider: TimeProvider
 
@@ -46,6 +49,7 @@ public class ServiceContainer: Services {
     ///   - clientService: The service used by the application to handle encryption and decryption tasks.
     ///   - errorReporter: The service used by the application to report non-fatal errors.
     ///   - itemRepository: The repository used by the application to manage vault data for the UI layer.
+    ///   - pasteboardService: The service used by the application for sharing data with other apps.
     ///   - timeProvider: Provides the present time for TOTP Code Calculation.
     ///   - totpService: The service used by the application to validate TOTP keys and produce TOTP values.
     ///
@@ -55,6 +59,7 @@ public class ServiceContainer: Services {
         clientService: ClientService,
         errorReporter: ErrorReporter,
         itemRepository: ItemRepository,
+        pasteboardService: PasteboardService,
         timeProvider: TimeProvider,
         totpService: TOTPService
     ) {
@@ -63,6 +68,7 @@ public class ServiceContainer: Services {
         self.clientService = clientService
         self.errorReporter = errorReporter
         self.itemRepository = itemRepository
+        self.pasteboardService = pasteboardService
         self.timeProvider = timeProvider
         self.totpService = totpService
     }
@@ -87,6 +93,9 @@ public class ServiceContainer: Services {
             errorReporter: errorReporter,
             timeProvider: timeProvider
         )
+        let pasteboardService = DefaultPasteboardService(
+            errorReporter: errorReporter
+        )
 
         self.init(
             application: application,
@@ -94,6 +103,7 @@ public class ServiceContainer: Services {
             clientService: clientService,
             errorReporter: errorReporter,
             itemRepository: itemRepository,
+            pasteboardService: pasteboardService,
             timeProvider: timeProvider,
             totpService: totpService
         )

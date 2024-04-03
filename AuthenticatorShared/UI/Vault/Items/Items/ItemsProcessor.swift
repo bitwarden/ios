@@ -10,8 +10,9 @@ final class ItemsProcessor: StateProcessor<ItemsState, ItemsAction, ItemsEffect>
     typealias Services = HasCameraService
         & HasErrorReporter
         & HasItemRepository
-        & HasTimeProvider
+        & HasPasteboardService
         & HasTOTPService
+        & HasTimeProvider
 
     // MARK: Private Properties
 
@@ -68,7 +69,21 @@ final class ItemsProcessor: StateProcessor<ItemsState, ItemsAction, ItemsEffect>
         }
     }
 
-    override func receive(_ action: ItemsAction) {}
+    override func receive(_ action: ItemsAction) {
+        switch action {
+        case .clearURL:
+            break
+        case let .copyTOTPCode(code):
+            services.pasteboardService.copy(code)
+            state.toast = Toast(text: Localizations.valueHasBeenCopied(Localizations.verificationCode))
+        case .itemPressed:
+            break
+        case .morePressed:
+            break
+        case let .toastShown(newValue):
+            state.toast = newValue
+        }
+    }
 
     // MARK: Private Methods
 
@@ -216,8 +231,7 @@ extension ItemsProcessor: AuthenticatorKeyCaptureDelegate {
     func parseAndValidateCapturedAuthenticatorKey(_ key: String) {
         do {
             let authKeyModel = try services.totpService.getTOTPConfiguration(key: key)
-//            state.loginState.totpState = .key(authKeyModel)
-            let loginTotpState = LoginTOTPState.init(authKeyModel: authKeyModel)
+            let loginTotpState = LoginTOTPState(authKeyModel: authKeyModel)
             let newCipher = CipherView(
                 id: UUID().uuidString,
                 organizationId: nil,
@@ -253,7 +267,7 @@ extension ItemsProcessor: AuthenticatorKeyCaptureDelegate {
                 revisionDate: .now
             )
             Task {
-                await try services.itemRepository.addItem(newCipher)
+                try await services.itemRepository.addItem(newCipher)
                 await perform(.refresh)
             }
             state.toast = Toast(text: Localizations.authenticatorKeyAdded)

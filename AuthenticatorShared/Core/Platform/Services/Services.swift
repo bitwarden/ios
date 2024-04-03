@@ -4,6 +4,7 @@ import BitwardenSdk
 typealias Services = HasCameraService
     & HasErrorReporter
     & HasItemRepository
+    & HasPasteboardService
     & HasTOTPService
     & HasTimeProvider
 
@@ -26,6 +27,13 @@ protocol HasErrorReporter {
 protocol HasItemRepository {
     /// The repository used by the application to manage item data for the UI layer.
     var itemRepository: ItemRepository { get }
+}
+
+/// Protocol for an object that provides a `PasteboardService`.
+///
+protocol HasPasteboardService {
+    /// The service used by the application for sharing data with other apps.
+    var pasteboardService: PasteboardService { get }
 }
 
 /// Protocol for an object that provides a `TOTPService`.

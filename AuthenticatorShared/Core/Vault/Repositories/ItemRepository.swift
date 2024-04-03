@@ -47,27 +47,6 @@ class DefaultItemRepository {
     /// The service used to get the present time.
     private let timeProvider: TimeProvider
 
-    // MARK: Initialization
-
-    /// Initialize a `DefaultItemRepository`.
-    ///
-    /// - Parameters:
-    ///   - clientVault: The client used by the application to handle vault encryption and decryption tasks.
-    ///   - errorReporter: The service used by the application to report non-fatal errors.
-    ///   - timeProvider: The service used to get the present time.
-    ///
-    init(
-        clientVault: ClientVaultService,
-        errorReporter: ErrorReporter,
-        timeProvider: TimeProvider
-    ) {
-        self.clientVault = clientVault
-        self.errorReporter = errorReporter
-        self.timeProvider = timeProvider
-    }
-
-    // MARK: TEMPORARY
-
     @Published var ciphers: [CipherView] = [
         CipherView(
             id: UUID().uuidString,
@@ -104,6 +83,25 @@ class DefaultItemRepository {
             revisionDate: .now
         ),
     ]
+
+    // MARK: Initialization
+
+    /// Initialize a `DefaultItemRepository`.
+    ///
+    /// - Parameters:
+    ///   - clientVault: The client used by the application to handle vault encryption and decryption tasks.
+    ///   - errorReporter: The service used by the application to report non-fatal errors.
+    ///   - timeProvider: The service used to get the present time.
+    ///
+    init(
+        clientVault: ClientVaultService,
+        errorReporter: ErrorReporter,
+        timeProvider: TimeProvider
+    ) {
+        self.clientVault = clientVault
+        self.errorReporter = errorReporter
+        self.timeProvider = timeProvider
+    }
 }
 
 extension DefaultItemRepository: ItemRepository {
