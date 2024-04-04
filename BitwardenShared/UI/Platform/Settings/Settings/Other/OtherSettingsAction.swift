@@ -6,12 +6,6 @@ enum OtherSettingsAction: Equatable {
     /// The clear clipboard value was changed.
     case clearClipboardValueChanged(ClearClipboardValue)
 
-    /// Clears the URL.
-    case clearURL
-
-    /// The give feedback button was pressed.
-    case giveFeedbackPressed
-
     /// The toast was shown or hidden.
     case toastShown(Toast?)
 

@@ -39,6 +39,11 @@ struct AboutView: View {
             openURL(url)
             store.send(.clearAppReviewURL)
         }
+        .onChange(of: store.state.giveFeedbackUrl) { newValue in
+            guard let url = newValue else { return }
+            openURL(url)
+            store.send(.clearGiveFeedbackURL)
+        }
     }
 
     // MARK: Private views
@@ -63,7 +68,7 @@ struct AboutView: View {
 
             externalLinkRow(Localizations.learnOrg, action: .learnAboutOrganizationsTapped)
 
-            externalLinkRow(Localizations.rateTheApp, action: .rateTheAppTapped)
+            externalLinkRow(Localizations.giveFeedback, action: .giveFeedbackTapped)
 
             SettingsListItem(store.state.version, hasDivider: false) {
                 store.send(.versionTapped)
