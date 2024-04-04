@@ -32,7 +32,8 @@ struct AddEditCardItemView: View {
                 text: store.binding(
                     get: \.cardholderName,
                     send: AddEditCardItemAction.cardholderNameChanged
-                )
+                ),
+                accessibilityIdentifier: "CardholderNameEntry"
             )
             .focused($focusedField, equals: .cardholderName)
             .textContentType(.creditCardNameOrName)
@@ -43,7 +44,10 @@ struct AddEditCardItemView: View {
                 text: store.binding(
                     get: \.cardNumber,
                     send: AddEditCardItemAction.cardNumberChanged
-                ), isPasswordVisible: store.binding(
+                ),
+                accessibilityIdentifier: "CardNumberEntry",
+                passwordVisibilityAccessibilityId: "ShowCardNumberButton",
+                isPasswordVisible: store.binding(
                     get: \.isNumberVisible,
                     send: AddEditCardItemAction.toggleNumberVisibilityChanged
                 )
@@ -54,6 +58,7 @@ struct AddEditCardItemView: View {
 
             BitwardenMenuField(
                 title: Localizations.brand,
+                accessibilityIdentifier: "CardBrandPicker",
                 options: DefaultableType<CardComponent.Brand>.allCases,
                 selection: store.binding(
                     get: \.brand,
@@ -65,6 +70,7 @@ struct AddEditCardItemView: View {
 
             BitwardenMenuField(
                 title: Localizations.expirationMonth,
+                accessibilityIdentifier: "CardExpirationMonthPicker",
                 options: DefaultableType<CardComponent.Month>.allCases,
                 selection: store.binding(
                     get: \.expirationMonth,
@@ -79,7 +85,8 @@ struct AddEditCardItemView: View {
                 text: store.binding(
                     get: \.expirationYear,
                     send: AddEditCardItemAction.expirationYearChanged
-                )
+                ),
+                accessibilityIdentifier: "CardExpirationYearEntry"
             )
             .textFieldConfiguration(
                 .numeric(.creditCardExpirationYearOrDateTime)
@@ -93,6 +100,8 @@ struct AddEditCardItemView: View {
                     get: \.cardSecurityCode,
                     send: AddEditCardItemAction.cardSecurityCodeChanged
                 ),
+                accessibilityIdentifier: "CardSecurityCodeEntry",
+                passwordVisibilityAccessibilityId: "CardShowSecurityCodeButton",
                 isPasswordVisible: store.binding(
                     get: \.isCodeVisible,
                     send: AddEditCardItemAction.toggleCodeVisibilityChanged
