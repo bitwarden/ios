@@ -47,8 +47,14 @@ final class AboutProcessor: StateProcessor<AboutState, AboutAction, Void> {
         switch action {
         case .clearAppReviewURL:
             state.appReviewUrl = nil
+        case .clearGiveFeedbackURL:
+            state.giveFeedbackUrl = nil
         case .clearURL:
             state.url = nil
+        case .giveFeedbackTapped:
+            coordinator.showAlert(.giveFeedbackAlert {
+                self.state.giveFeedbackUrl = ExternalLinksConstants.giveFeedback
+            })
         case .helpCenterTapped:
             state.url = ExternalLinksConstants.helpAndFeedback
         case .learnAboutOrganizationsTapped:

@@ -32,6 +32,13 @@ class AboutViewTests: BitwardenTestCase {
 
     // MARK: Tests
 
+    /// Tapping the rate this app button dispatches the `.giveFeedbackTapped` action.
+    func test_giveFeedbackButton_tap() throws {
+        let button = try subject.inspect().find(button: Localizations.giveFeedback)
+        try button.tap()
+        XCTAssertEqual(processor.dispatchedActions.last, .giveFeedbackTapped)
+    }
+
     /// Tapping the help center button dispatches the `.helpCenterTapped` action.
     func test_helpCenterButton_tap() throws {
         let button = try subject.inspect().find(button: Localizations.bitwardenHelpCenter)
@@ -51,13 +58,6 @@ class AboutViewTests: BitwardenTestCase {
         let button = try subject.inspect().find(button: Localizations.learnOrg)
         try button.tap()
         XCTAssertEqual(processor.dispatchedActions.last, .learnAboutOrganizationsTapped)
-    }
-
-    /// Tapping the rate this app button dispatches the `.rateTheAppTapped` action.
-    func test_rateAppButton_tap() throws {
-        let button = try subject.inspect().find(button: Localizations.rateTheApp)
-        try button.tap()
-        XCTAssertEqual(processor.dispatchedActions.last, .rateTheAppTapped)
     }
 
     /// Tapping the version button dispatches the `.versionTapped` action.

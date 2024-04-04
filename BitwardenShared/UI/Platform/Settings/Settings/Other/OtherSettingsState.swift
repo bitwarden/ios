@@ -17,9 +17,6 @@ struct OtherSettingsState {
     /// The date of the last vault sync.
     var lastSyncDate: Date?
 
-    /// The URL of the feedback webpage.
-    var url: URL?
-
     /// A toast message to show in the view.
     var toast: Toast?
 }
