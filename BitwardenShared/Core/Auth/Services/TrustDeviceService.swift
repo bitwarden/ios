@@ -21,6 +21,12 @@ protocol TrustDeviceService {
     ///
     func trustDeviceIfNeeded() async throws -> TrustDeviceResponse?
 
+    ///  Stores device keys making the device trusted.
+    ///
+    /// - Parameter keys: A object containing all keys from the process of trusting a device done using the bw sdk
+    ///
+    func trustDeviceWithExistingKeys(keys: TrustDeviceResponse) async throws
+
     /// Removes device keys from the users account.
     ///
     func removeTrustedDevice() async throws
@@ -97,22 +103,7 @@ class DefaultTrustDeviceService: TrustDeviceService {
 
     func trustDevice() async throws -> BitwardenSdk.TrustDeviceResponse {
         let trustDeviceDetails = try await clientAuth.trustDevice()
-        let appId = await appIdService.getOrCreateAppId()
-        let trustedDeviceKeysRequestModel = TrustedDeviceKeysRequestModel(
-            encryptedUserKey: trustDeviceDetails.protectedUserKey,
-            encryptedPublicKey: trustDeviceDetails.protectedDevicePublicKey,
-            encryptedPrivateKey: trustDeviceDetails.protectedDevicePrivateKey
-        )
-
-        try await authAPIService.updateTrustedDeviceKeys(
-            deviceIdentifier: appId,
-            model: trustedDeviceKeysRequestModel
-        )
-
-        let activeUserId = try await stateService.getActiveAccountId()
-        try await keychainRepository.setDeviceKey(trustDeviceDetails.deviceKey, userId: activeUserId)
-
-        return trustDeviceDetails
+        return try await setDeviceAsTrusted(trustDeviceDetails)
     }
 
     func trustDeviceIfNeeded() async throws -> BitwardenSdk.TrustDeviceResponse? {
@@ -123,6 +114,10 @@ class DefaultTrustDeviceService: TrustDeviceService {
         let response = try await trustDevice()
         try await setShouldTrustDevice(false)
         return response
+    }
+
+    func trustDeviceWithExistingKeys(keys: TrustDeviceResponse) async throws {
+        _ = try await setDeviceAsTrusted(keys)
     }
 
     func removeTrustedDevice() async throws {
@@ -142,5 +137,24 @@ class DefaultTrustDeviceService: TrustDeviceService {
 
     func isDeviceTrusted() async throws -> Bool {
         try await getDeviceKey() != nil
+    }
+
+    private func setDeviceAsTrusted(_ trustDeviceDetails: TrustDeviceResponse) async throws -> TrustDeviceResponse {
+        let appId = await appIdService.getOrCreateAppId()
+        let trustedDeviceKeysRequestModel = TrustedDeviceKeysRequestModel(
+            encryptedUserKey: trustDeviceDetails.protectedUserKey,
+            encryptedPublicKey: trustDeviceDetails.protectedDevicePublicKey,
+            encryptedPrivateKey: trustDeviceDetails.protectedDevicePrivateKey
+        )
+
+        try await authAPIService.updateTrustedDeviceKeys(
+            deviceIdentifier: appId,
+            model: trustedDeviceKeysRequestModel
+        )
+
+        let activeUserId = try await stateService.getActiveAccountId()
+        try await keychainRepository.setDeviceKey(trustDeviceDetails.deviceKey, userId: activeUserId)
+
+        return trustDeviceDetails
     }
 }

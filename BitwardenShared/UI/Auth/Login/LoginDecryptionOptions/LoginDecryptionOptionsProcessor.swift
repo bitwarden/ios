@@ -114,9 +114,6 @@ class LoginDecryptionOptionsProcessor: StateProcessor<
                 rememberDevice: state.isRememberDeviceToggleOn
             )
 
-            if state.isRememberDeviceToggleOn {
-                _ = try await services.trustDeviceService.trustDevice()
-            }
             coordinator.navigate(to: .complete)
         } catch {
             coordinator.showAlert(.defaultAlert(title: Localizations.anErrorHasOccurred))

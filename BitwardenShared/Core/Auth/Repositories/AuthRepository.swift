@@ -381,6 +381,11 @@ extension DefaultAuthRepository: AuthRepository {
             ),
             userId: account.profile.userId
         )
+
+        if rememberDevice,
+           let trustDeviceResponse = registrationKeys.deviceKey {
+            try await trustDeviceService.trustDeviceWithExistingKeys(keys: trustDeviceResponse)
+        }
     }
 
     func clearPins() async throws {
