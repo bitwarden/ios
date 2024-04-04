@@ -76,8 +76,8 @@ final class ItemListProcessor: StateProcessor<ItemListState, ItemListAction, Ite
         case let .copyTOTPCode(code):
             services.pasteboardService.copy(code)
             state.toast = Toast(text: Localizations.valueHasBeenCopied(Localizations.verificationCode))
-        case .itemPressed:
-            break
+        case let .itemPressed(item):
+            coordinator.navigate(to: .viewToken(id: item.id))
         case .morePressed:
             break
         case let .toastShown(newValue):

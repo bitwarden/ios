@@ -13,6 +13,12 @@ public enum ItemListRoute: Equatable, Hashable {
 
     /// A route to the manual totp screen for setting up TOTP.
     case setupTotpManual
+
+    /// A route to the view token screen.
+    ///
+    /// - Parameter id: The id of the token to display.
+    ///
+    case viewToken(id: String)
 }
 
 enum ItemListEvent {

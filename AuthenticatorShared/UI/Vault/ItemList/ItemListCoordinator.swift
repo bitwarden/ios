@@ -9,6 +9,7 @@ final class ItemListCoordinator: Coordinator, HasStackNavigator {
     // MARK: - Types
 
     typealias Module = ItemListModule
+        & TokenModule
 
     typealias Services = HasTimeProvider
         & ItemListProcessor.Services
@@ -64,7 +65,8 @@ final class ItemListCoordinator: Coordinator, HasStackNavigator {
         case .setupTotpManual:
             guard let delegate = context as? AuthenticatorKeyCaptureDelegate else { return }
             showManualTotp(delegate: delegate)
-
+        case let .viewToken(id):
+            showToken(route: .viewToken(id: id))
         }
     }
 
@@ -113,5 +115,18 @@ final class ItemListCoordinator: Coordinator, HasStackNavigator {
             timeProvider: services.timeProvider
         )
         stackNavigator?.replace(view, animated: false)
+    }
+
+    /// Presents a token coordinator, which will navigate to the provided route.
+    ///
+    /// - Parameter route: The route to navigate to in the coordinator.
+    ///
+    private func showToken(route: TokenRoute) {
+        let navigationController = UINavigationController()
+        let coordinator = module.makeTokenCoordinator(stackNavigator: navigationController)
+        coordinator.start()
+        coordinator.navigate(to: route, context: self)
+
+        stackNavigator?.present(navigationController)
     }
 }
