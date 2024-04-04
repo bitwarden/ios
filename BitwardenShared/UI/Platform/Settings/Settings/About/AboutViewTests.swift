@@ -32,7 +32,7 @@ class AboutViewTests: BitwardenTestCase {
 
     // MARK: Tests
 
-    /// Tapping the rate this app button dispatches the `.giveFeedbackTapped` action.
+    /// Tapping the give feedback button dispatches the `.giveFeedbackTapped` action.
     func test_giveFeedbackButton_tap() throws {
         let button = try subject.inspect().find(button: Localizations.giveFeedback)
         try button.tap()
