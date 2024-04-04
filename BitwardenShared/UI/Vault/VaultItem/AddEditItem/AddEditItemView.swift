@@ -143,7 +143,8 @@ struct AddEditItemView: View {
                 text: store.binding(
                     get: \.name,
                     send: AddEditItemAction.nameChanged
-                )
+                ),
+                accessibilityIdentifier: "ItemNameEntry"
             )
 
             switch store.state.type {
