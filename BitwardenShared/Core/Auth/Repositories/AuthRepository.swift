@@ -24,6 +24,10 @@ protocol AuthRepository: AnyObject {
     ///
     func clearPins() async throws
 
+    /// Create new account for a JIT sso user .
+    ///
+    func createNewSsoUser(orgIdentifier: String, rememberDevice: Bool) async throws
+
     /// Deletes the user's account.
     ///
     /// - Parameter passwordText: The password entered by the user, which is used to verify
@@ -356,6 +360,29 @@ extension DefaultAuthRepository: AuthRepository {
         )
     }
 
+    func createNewSsoUser(orgIdentifier: String, rememberDevice: Bool) async throws {
+        let account = try await stateService.getActiveAccount()
+        let enrollStatus = try await organizationAPIService.getOrganizationAutoEnrollStatus(identifier: orgIdentifier)
+        let organizationKeys = try await organizationAPIService.getOrganizationKeys(organizationId: enrollStatus.id)
+        let registrationKeys = try await clientAuth.makeRegisterTdeKeys(
+            orgPublicKey: organizationKeys.publicKey,
+            rememberDevice: rememberDevice
+        )
+
+        try await accountAPIService.accountKeys(requestModel: KeysRequestModel(
+            encryptedPrivateKey: registrationKeys.privateKey,
+            publicKey: registrationKeys.publicKey
+        ))
+
+        try await organizationUserAPIService.organizationUserResetPasswordEnrollment(
+            organizationId: enrollStatus.id,
+            requestModel: OrganizationUserResetPasswordEnrollmentRequestModel(
+                masterPasswordHash: nil, resetPasswordKey: registrationKeys.adminReset
+            ),
+            userId: account.profile.userId
+        )
+    }
+
     func clearPins() async throws {
         try await stateService.clearPins()
     }
@@ -460,7 +487,7 @@ extension DefaultAuthRepository: AuthRepository {
         let requestModel = SetPasswordRequestModel(
             kdfConfig: kdf,
             key: keys.encryptedUserKey,
-            keys: KeysRequestModel(publicKey: keys.keys.public, encryptedPrivateKey: keys.keys.private),
+            keys: KeysRequestModel(encryptedPrivateKey: keys.keys.private, publicKey: keys.keys.public),
             masterPasswordHash: masterPasswordHash,
             masterPasswordHint: masterPasswordHint,
             orgIdentifier: organizationIdentifier

@@ -211,8 +211,8 @@ class CreateAccountProcessor: StateProcessor<CreateAccountState, CreateAccountAc
                     kdfConfig: KdfConfig(),
                     key: keys.encryptedUserKey,
                     keys: KeysRequestModel(
-                        publicKey: keys.keys.public,
-                        encryptedPrivateKey: keys.keys.private
+                        encryptedPrivateKey: keys.keys.private,
+                        publicKey: keys.keys.public
                     ),
                     masterPasswordHash: hashedPassword,
                     masterPasswordHint: state.passwordHintText

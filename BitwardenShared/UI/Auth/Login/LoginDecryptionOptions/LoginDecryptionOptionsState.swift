@@ -22,7 +22,10 @@ struct LoginDecryptionOptionsState: Equatable {
 
     /// Email of the active user to be displayed
     var email: String = ""
-    
+
     /// A toast message to show in the view.
     var toast: Toast?
+
+    /// The organization identifier being used during the single-sign process.
+    var orgIdentifier: String?
 }

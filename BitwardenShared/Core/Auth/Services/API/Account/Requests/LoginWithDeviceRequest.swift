@@ -15,7 +15,7 @@ struct LoginWithDeviceRequest: Request {
 
     /// The HTTP method for this request.
     let method: HTTPMethod = .post
-    
+
     /// The type of auth request.
     let requestType: Int
 

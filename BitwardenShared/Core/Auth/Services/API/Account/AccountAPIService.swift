@@ -7,6 +7,12 @@ import Networking
 /// A protocol for an API service used to make account requests.
 ///
 protocol AccountAPIService {
+    /// Set the account keys.
+    ///
+    ///  - Parameter requestModel: The request model containing the keys to set in the account.
+    ///
+    func accountKeys(requestModel: KeysRequestModel) async throws
+
     /// Performs the account revision date request and returns the date of the account's last revision.
     ///
     /// - Returns: The account's last revision date.
@@ -73,6 +79,10 @@ protocol AccountAPIService {
 // MARK: - APIService
 
 extension APIService: AccountAPIService {
+    func accountKeys(requestModel: KeysRequestModel) async throws {
+        _ = try await apiService.send(AccountKeysRequest(body: requestModel))
+    }
+
     func accountRevisionDate() async throws -> Date? {
         try await apiService.send(AccountRevisionDateRequest()).date
     }

@@ -14,7 +14,6 @@ class LoginDecryptionOptionsProcessor: StateProcessor<
         & HasAuthService
         & HasCaptchaService
         & HasClientAuth
-        & HasOrganizationAPIService
         & HasStateService
         & HasTrustDeviceService
 
@@ -109,7 +108,12 @@ class LoginDecryptionOptionsProcessor: StateProcessor<
     /// Creates a new SSO user
     private func createNewSsoUser() async {
         do {
-            try await services.authRepository.createNewSsoUser()
+            guard let orgIdentifier = state.orgIdentifier else { throw AuthError.missingData }
+            try await services.authRepository.createNewSsoUser(
+                orgIdentifier: orgIdentifier,
+                rememberDevice: state.isRememberDeviceToggleOn
+            )
+
             if state.isRememberDeviceToggleOn {
                 _ = try await services.trustDeviceService.trustDevice()
             }

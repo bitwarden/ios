@@ -28,7 +28,7 @@ struct SetMasterPasswordState: Equatable {
     /// The organization's ID (UUID).
     var organizationId: String?
 
-    /// THe organization's identifier.
+    /// The organization's identifier.
     var organizationIdentifier: String
 
     /// Whether the user will be automatically enrolled in reset password.

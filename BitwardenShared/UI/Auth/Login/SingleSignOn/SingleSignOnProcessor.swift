@@ -95,7 +95,7 @@ final class SingleSignOnProcessor: StateProcessor<SingleSignOnState, SingleSignO
         case AuthError.requireUpdatePassword:
             coordinator.navigate(to: .updateMasterPassword)
         case AuthError.requireDecryptionOptions:
-            coordinator.navigate(to: .showLoginDecryptionOptions)
+            coordinator.navigate(to: .showLoginDecryptionOptions(organizationIdentifier: state.identifierText))
         default:
             coordinator.showAlert(.networkResponseError(error, tryAgain))
             services.errorReporter.log(error: error)

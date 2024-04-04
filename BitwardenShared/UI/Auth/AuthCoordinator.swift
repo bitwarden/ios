@@ -132,8 +132,8 @@ final class AuthCoordinator: NSObject, // swiftlint:disable:this type_body_lengt
             showLanding()
         case let .login(username):
             showLogin(username)
-        case .showLoginDecryptionOptions:
-            showLoginDecryptionOptions()
+        case let .showLoginDecryptionOptions(organizationIdentifier):
+            showLoginDecryptionOptions(organizationIdentifier)
         case let .loginWithDevice(email, type):
             showLoginWithDevice(email: email, type: type, isAuthenticated: context is LoginDecryptionOptionsProcessor)
         case let .masterPasswordHint(username):
@@ -383,14 +383,14 @@ final class AuthCoordinator: NSObject, // swiftlint:disable:this type_body_lengt
     ///
     /// - Parameter email: The user's email.
     ///
-    private func showLoginDecryptionOptions() {
+    private func showLoginDecryptionOptions(_ organizationIdentifier: String) {
         guard let stackNavigator else { return }
         let isPresenting = stackNavigator.rootViewController?.presentedViewController != nil
 
         let processor = LoginDecryptionOptionsProcessor(
             coordinator: asAnyCoordinator(),
             services: services,
-            state: LoginDecryptionOptionsState()
+            state: LoginDecryptionOptionsState(orgIdentifier: organizationIdentifier)
         )
         let store = Store(processor: processor)
         let view = LoginDecryptionOptionsView(store: store)

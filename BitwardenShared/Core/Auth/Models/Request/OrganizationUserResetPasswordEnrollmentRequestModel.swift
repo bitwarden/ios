@@ -10,7 +10,7 @@ struct OrganizationUserResetPasswordEnrollmentRequestModel: JSONRequestBody, Equ
     // MARK: Properties
 
     /// The master password hash used to authenticate a user.
-    let masterPasswordHash: String
+    let masterPasswordHash: String?
 
     /// The organization encrypted user key used for password reset.
     let resetPasswordKey: String

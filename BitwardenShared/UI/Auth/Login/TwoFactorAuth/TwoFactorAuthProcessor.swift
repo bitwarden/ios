@@ -185,8 +185,9 @@ final class TwoFactorAuthProcessor: StateProcessor<TwoFactorAuthState, TwoFactor
                 coordinator.navigate(to: .setMasterPassword(organizationIdentifier: orgId))
             } else if authError == .requireUpdatePassword {
                 coordinator.navigate(to: .updateMasterPassword)
-            } else if authError == .requireDecryptionOptions {
-                coordinator.navigate(to: .showLoginDecryptionOptions)
+            } else if authError == .requireDecryptionOptions,
+                      let orgId = state.orgIdentifier {
+                coordinator.navigate(to: .showLoginDecryptionOptions(organizationIdentifier: orgId))
             }
         } catch {
             coordinator.showAlert(.defaultAlert(
