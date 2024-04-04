@@ -9,8 +9,8 @@ on:
         required: true
         type: choice
         options:
-          - Production
           - Beta
+          - Production
       build-version:
         description: 'Optional. Version string to use, in X.Y.Z format. Overrides default in the project.'
         required: false
