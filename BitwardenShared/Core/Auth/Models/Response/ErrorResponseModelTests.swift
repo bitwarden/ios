@@ -6,7 +6,7 @@ import XCTest
 
 class ErrorResponseModelTests: BitwardenTestCase {
     /// Tests that `singleMessage()` returns the validation error's message.
-    func testSingleMessage() throws {
+    func test_singleMessage() throws {
         let json = APITestData.createAccountAccountAlreadyExists.data
         let decoder = JSONDecoder()
         let subject = try decoder.decode(ErrorResponseModel.self, from: json)
@@ -14,7 +14,7 @@ class ErrorResponseModelTests: BitwardenTestCase {
     }
 
     /// Tests that `singleMessage()` returns an error message when there are no validation errors.
-    func testSingleMessageNilValidationErrors() throws {
+    func test_singleMessage_nilValidationErrors() throws {
         let json = APITestData.createAccountNilValidationErrors.data
         let decoder = JSONDecoder()
         let subject = try decoder.decode(ErrorResponseModel.self, from: json)

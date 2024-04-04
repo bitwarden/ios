@@ -8,7 +8,7 @@ struct VaultListItemRowView: View {
     // MARK: Properties
 
     /// The `Store` for this view.
-    var store: Store<VaultListItemRowState, VaultListItemRowAction, Void>
+    var store: Store<VaultListItemRowState, VaultListItemRowAction, VaultListItemRowEffect>
 
     /// The `TimeProvider` used to calculate TOTP expiration.
     var timeProvider: any TimeProvider
@@ -64,8 +64,8 @@ struct VaultListItemRowView: View {
 
                         Spacer()
 
-                        Button {
-                            store.send(.morePressed)
+                        AsyncButton {
+                            await store.perform(.morePressed)
                         } label: {
                             Asset.Images.horizontalKabob.swiftUIImage
                         }

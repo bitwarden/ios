@@ -144,11 +144,9 @@ class VaultItemCoordinatorTests: BitwardenTestCase { // swiftlint:disable:this t
         XCTAssertEqual(view.store.state.folderId, "12345")
     }
 
-    /// `navigate(to:)` with `.cloneItem()`  triggers the show clone item flow.
+    /// `navigate(to:)` with `.cloneItem()` triggers the show clone item flow.
     func test_navigateTo_cloneItem_nonPremium() throws {
-        vaultRepository.doesActiveAccountHavePremiumResult = .success(false)
-        subject.navigate(to: .cloneItem(cipher: .loginFixture()), context: subject)
-        waitFor(!stackNavigator.actions.isEmpty)
+        subject.navigate(to: .cloneItem(cipher: .loginFixture(), hasPremium: false), context: subject)
 
         let action = try XCTUnwrap(stackNavigator.actions.last)
         XCTAssertEqual(action.type, .replaced)
@@ -164,24 +162,6 @@ class VaultItemCoordinatorTests: BitwardenTestCase { // swiftlint:disable:this t
         XCTAssertEqual(action.type, .presented)
         let navigationController = try XCTUnwrap(action.view as? UINavigationController)
         XCTAssertTrue(navigationController.topViewController is UIHostingController<EditCollectionsView>)
-    }
-
-    /// `navigate(to:)` with `.alert` presents the provided alert on the stack navigator.
-    func test_navigate_alert() {
-        let alert = BitwardenShared.Alert(
-            title: "title",
-            message: "message",
-            preferredStyle: .alert,
-            alertActions: [
-                AlertAction(
-                    title: "alert title",
-                    style: .cancel
-                ),
-            ]
-        )
-
-        subject.navigate(to: .alert(alert))
-        XCTAssertEqual(stackNavigator.alerts.last, alert)
     }
 
     /// `navigate(to:)` with `.attachments()` navigates to the attachments view..

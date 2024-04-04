@@ -8,8 +8,14 @@ struct BitwardenField<Content, AccessoryContent>: View where Content: View, Acce
     /// The (optional) title of the field.
     var title: String?
 
+    /// The (optional) accessibility identifier to apply to the title of the field (if it exists)
+    var titleAccessibilityIdentifier: String?
+
     /// The (optional) footer to display underneath the field.
     var footer: String?
+
+    /// The (optional) accessibility identifier to apply to the fooder of the field (if it exists)
+    var footerAccessibilityIdentifier: String?
 
     /// The vertical padding to apply around `content`. Defaults to `8`.
     var verticalPadding: CGFloat
@@ -27,6 +33,7 @@ struct BitwardenField<Content, AccessoryContent>: View where Content: View, Acce
                 Text(title)
                     .styleGuide(.subheadline, weight: .semibold)
                     .foregroundColor(Asset.Colors.textSecondary.swiftUIColor)
+                    .accessibilityIdentifier(titleAccessibilityIdentifier ?? title)
             }
 
             HStack(spacing: 8) {
@@ -47,6 +54,7 @@ struct BitwardenField<Content, AccessoryContent>: View where Content: View, Acce
                 Text(footer)
                     .styleGuide(.footnote)
                     .foregroundColor(Asset.Colors.textSecondary.swiftUIColor)
+                    .accessibilityIdentifier(footerAccessibilityIdentifier ?? footer)
             }
         }
     }
@@ -57,7 +65,11 @@ struct BitwardenField<Content, AccessoryContent>: View where Content: View, Acce
     ///
     /// - Parameters:
     ///   - title: The (optional) title of the field.
+    ///   - titleAccessibilityIdentifier: The (optional) accessibility identifier to apply
+    ///     to the title of the field (if it exists)
     ///   - footer: The (optional) footer to display underneath the field.
+    ///   - footerAccessibilityIdentifier: The (optional) accessibility identifier to apply
+    ///     to the fooder of the field (if it exists)
     ///   - verticalPadding: The vertical padding to apply around `content`. Defaults to `8`.
     ///   - content: The content that should be displayed in the field.
     ///   - accessoryContent: Any accessory content that should be displayed on the trailing edge of
@@ -65,13 +77,17 @@ struct BitwardenField<Content, AccessoryContent>: View where Content: View, Acce
     ///
     init(
         title: String? = nil,
+        titleAccessibilityIdentifier: String? = nil,
         footer: String? = nil,
+        footerAccessibilityIdentifier: String? = nil,
         verticalPadding: CGFloat = 8,
         @ViewBuilder content: () -> Content,
         @ViewBuilder accessoryContent: () -> AccessoryContent
     ) {
         self.title = title
+        self.titleAccessibilityIdentifier = titleAccessibilityIdentifier
         self.footer = footer
+        self.footerAccessibilityIdentifier = footerAccessibilityIdentifier
         self.verticalPadding = verticalPadding
         self.content = content()
         self.accessoryContent = accessoryContent()
@@ -83,18 +99,26 @@ extension BitwardenField where AccessoryContent == EmptyView {
     ///
     /// - Parameters:
     ///   - title: The (optional) title of the field.
+    ///   - titleAccessibilityIdentifier: The (optional) accessibility identifier to apply
+    ///     to the title of the field (if it exists)
     ///   - footer: The (optional) footer to display underneath the field.
+    ///   - footerAccessibilityIdentifier: The (optional) accessibility identifier to apply
+    ///     to the fooder of the field (if it exists)
     ///   - verticalPadding: The vertical padding to apply around `content`. Defaults to `8`.
     ///   - content: The content that should be displayed in the field.
     ///
     init(
         title: String? = nil,
+        titleAccessibilityIdentifier: String? = nil,
         footer: String? = nil,
+        footerAccessibilityIdentifier: String? = nil,
         verticalPadding: CGFloat = 8,
         @ViewBuilder content: () -> Content
     ) {
         self.title = title
+        self.titleAccessibilityIdentifier = titleAccessibilityIdentifier
         self.footer = footer
+        self.footerAccessibilityIdentifier = footerAccessibilityIdentifier
         self.verticalPadding = verticalPadding
         self.content = content()
         accessoryContent = nil

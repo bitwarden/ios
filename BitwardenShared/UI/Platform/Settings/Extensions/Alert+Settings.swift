@@ -96,12 +96,12 @@ extension Alert {
     /// Displays the account fingerprint phrase alert.
     ///
     /// - Parameters:
-    ///   - action: The action to perform when the user selects `Learn more`.
     ///   - phrase: The user's fingerprint phrase.
+    ///   - action: The action to perform when the user selects `Learn more`.
     ///
     /// - Returns: An alert that displays the user's fingerprint phrase and prompts them to learn more about it.
     ///
-    static func displayFingerprintPhraseAlert(_ action: @escaping () async -> Void, phrase: String) -> Alert {
+    static func displayFingerprintPhraseAlert(phrase: String, action: @escaping () async -> Void) -> Alert {
         Alert(
             title: Localizations.fingerprintPhrase,
             message: "\(Localizations.yourAccountsFingerprint):\n\n\(phrase)",
@@ -139,6 +139,24 @@ extension Alert {
                     autocorrectionType: .no,
                     keyboardType: .numberPad
                 ),
+            ]
+        )
+    }
+
+    /// An alert verifying that the user wants to navigate to the web browser to submit feedback.
+    ///
+    /// - Parameter action: The action to take if the user selects `Yes`.
+    /// - Returns: An alert verifying that the user wants to navigate to the web browser to submit feedback.
+    ///
+    static func giveFeedbackAlert(action: @escaping () -> Void) -> Alert {
+        Alert(
+            title: Localizations.continueToGiveFeedback,
+            message: Localizations.continueToGiveFeedbackDescription,
+            alertActions: [
+                AlertAction(title: Localizations.cancel, style: .cancel),
+                AlertAction(title: Localizations.continue, style: .default) { _ in
+                    action()
+                },
             ]
         )
     }

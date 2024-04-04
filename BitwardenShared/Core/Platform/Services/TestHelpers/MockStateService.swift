@@ -23,7 +23,7 @@ class MockStateService: StateService { // swiftlint:disable:this type_body_lengt
     var clearClipboardResult: Result<Void, Error> = .success(())
     var connectToWatchByUserId = [String: Bool]()
     var connectToWatchResult: Result<Void, Error> = .success(())
-    var connectToWatchSubject = CurrentValueSubject<Bool, Never>(false)
+    var connectToWatchSubject = CurrentValueSubject<(String?, Bool), Never>((nil, false))
     var timeProvider = MockTimeProvider(.currentTime)
     var defaultUriMatchTypeByUserId = [String: UriMatchType]()
     var disableAutoTotpCopyByUserId = [String: Bool]()
@@ -458,7 +458,7 @@ class MockStateService: StateService { // swiftlint:disable:this type_body_lengt
         appThemeSubject.eraseToAnyPublisher()
     }
 
-    func connectToWatchPublisher() async -> AnyPublisher<Bool, Never> {
+    func connectToWatchPublisher() async -> AnyPublisher<(String?, Bool), Never> {
         connectToWatchSubject.eraseToAnyPublisher()
     }
 

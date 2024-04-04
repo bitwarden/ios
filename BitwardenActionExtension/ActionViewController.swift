@@ -75,6 +75,10 @@ extension ActionViewController: AppExtensionDelegate {
         actionExtensionHelper.authCompletionRoute
     }
 
+    var canAutofill: Bool {
+        actionExtensionHelper.canAutofill
+    }
+
     var isInAppExtension: Bool { true }
 
     var isInAppExtensionSaveLoginFlow: Bool {

@@ -19,6 +19,12 @@ struct CreateAccountState: Equatable {
     /// Whether the terms and privacy toggle is on.
     var isTermsAndPrivacyToggleOn: Bool = false
 
+    /// Whether the password is considered weak.
+    var isWeakPassword: Bool {
+        guard let passwordStrengthScore else { return false }
+        return passwordStrengthScore < 3
+    }
+
     /// The text in the password hint text field.
     var passwordHintText: String = ""
 

@@ -167,7 +167,7 @@ struct ProfileSwitcherView_Previews: PreviewProvider {
         isUnlocked: true,
         userId: "1",
         userInitials: "AA",
-        webVault: ""
+        webVault: "vault.bitwarden.com"
     )
 
     static var previews: some View {
@@ -202,7 +202,7 @@ struct ProfileSwitcherView_Previews: PreviewProvider {
                                     isUnlocked: true,
                                     userId: "2",
                                     userInitials: "BB",
-                                    webVault: ""
+                                    webVault: "vault.bitwarden.com"
                                 ),
                             ],
                             activeAccountId: selectedAccount.userId,
@@ -228,7 +228,7 @@ struct ProfileSwitcherView_Previews: PreviewProvider {
                                     isUnlocked: true,
                                     userId: "2",
                                     userInitials: "BB",
-                                    webVault: ""
+                                    webVault: "vault.bitwarden.com"
                                 ),
                                 ProfileSwitcherItem(
                                     color: .teal,
@@ -236,7 +236,7 @@ struct ProfileSwitcherView_Previews: PreviewProvider {
                                     isUnlocked: true,
                                     userId: "3",
                                     userInitials: "CC",
-                                    webVault: ""
+                                    webVault: "vault.bitwarden.com"
                                 ),
                                 ProfileSwitcherItem(
                                     color: .indigo,
@@ -244,7 +244,7 @@ struct ProfileSwitcherView_Previews: PreviewProvider {
                                     isUnlocked: true,
                                     userId: "4",
                                     userInitials: "DD",
-                                    webVault: ""
+                                    webVault: "vault.bitwarden.com"
                                 ),
                             ],
                             activeAccountId: "1",
@@ -270,7 +270,7 @@ struct ProfileSwitcherView_Previews: PreviewProvider {
                                     isUnlocked: true,
                                     userId: "2",
                                     userInitials: "BB",
-                                    webVault: ""
+                                    webVault: "vault.bitwarden.com"
                                 ),
                                 ProfileSwitcherItem(
                                     color: .teal,
@@ -278,7 +278,7 @@ struct ProfileSwitcherView_Previews: PreviewProvider {
                                     isUnlocked: true,
                                     userId: "3",
                                     userInitials: "CC",
-                                    webVault: ""
+                                    webVault: "vault.bitwarden.com"
                                 ),
                                 ProfileSwitcherItem(
                                     color: .indigo,
@@ -286,7 +286,7 @@ struct ProfileSwitcherView_Previews: PreviewProvider {
                                     isUnlocked: true,
                                     userId: "4",
                                     userInitials: "DD",
-                                    webVault: ""
+                                    webVault: "vault.bitwarden.com"
                                 ),
                                 ProfileSwitcherItem(
                                     color: .green,
@@ -294,7 +294,7 @@ struct ProfileSwitcherView_Previews: PreviewProvider {
                                     isUnlocked: false,
                                     userId: "5",
                                     userInitials: "EE",
-                                    webVault: ""
+                                    webVault: "vault.bitwarden.com"
                                 ),
                             ],
                             activeAccountId: "1",

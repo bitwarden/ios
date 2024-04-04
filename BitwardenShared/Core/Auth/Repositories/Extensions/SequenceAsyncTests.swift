@@ -4,7 +4,7 @@ import XCTest
 
 final class SequenceAsyncTests: BitwardenTestCase {
     /// `asyncMap` correctly maps each element.
-    func testAsyncMapSuccess() async {
+    func test_asyncMap_success() async {
         let input = [1, 2, 3]
         let output = await input.asyncMap { number in
             await asyncDouble(number)
@@ -13,7 +13,7 @@ final class SequenceAsyncTests: BitwardenTestCase {
     }
 
     /// `asyncMap` correctly propagates errors.
-    func testAsyncMapWithError() async {
+    func test_asyncMap_error() async {
         let input = [1, 2, 3]
         await assertAsyncThrows {
             _ = try await input.asyncMap { number in

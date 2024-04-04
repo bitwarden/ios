@@ -19,18 +19,18 @@ settings:
 packages:
   BitwardenSdk:
     url: https://github.com/bitwarden/sdk-swift
-    revision: 93ce71195a729f30b3edd48caeb7af9a39f35403
+    revision: 7d65f74a1277ccf36c9d3e748b4e4f5316c0a6e4
   Firebase:
     url: https://github.com/firebase/firebase-ios-sdk
-    exactVersion: 10.19.0
+    exactVersion: 10.23.0
   Networking:
     path: Networking
   SnapshotTesting:
     url: https://github.com/pointfreeco/swift-snapshot-testing
-    exactVersion: 1.15.2
+    exactVersion: 1.15.4
   ViewInspector:
     url: https://github.com/nalexn/ViewInspector
-    exactVersion: 0.9.9
+    exactVersion: 0.9.10
 schemes:
   Bitwarden:
     build:

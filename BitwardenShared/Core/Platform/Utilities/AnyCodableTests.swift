@@ -50,7 +50,7 @@ class AnyCodableTests: BitwardenTestCase {
     }
 
     /// `AnyCodable` can be used to encode JSON.
-    func testEncode() throws {
+    func test_encode() throws {
         let dictionary: [String: AnyCodable] = [
             "minComplexity": AnyCodable.null,
             "minLength": AnyCodable.int(12),

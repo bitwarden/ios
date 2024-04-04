@@ -93,17 +93,14 @@ struct GeneratorView: View {
                     FormMenuFieldView(field: menuField) { newValue in
                         store.send(.generatorTypeChanged(newValue))
                     }
-                    .accessibilityIdentifier("GeneratorTypePicker")
                 case let .menuPasswordGeneratorType(menuField):
                     FormMenuFieldView(field: menuField) { newValue in
                         store.send(.passwordGeneratorTypeChanged(newValue))
                     }
-                    .accessibilityIdentifier("PasswordTypePicker")
                 case let .menuUsernameForwardedEmailService(menuField):
                     FormMenuFieldView(field: menuField) { newValue in
                         store.send(.usernameForwardedEmailServiceChanged(newValue))
                     }
-                    .accessibilityIdentifier("ServiceTypePicker")
                 case let .menuUsernameGeneratorType(menuField):
                     menuUsernameGeneratorTypeView(field: menuField)
                 case let .slider(sliderField):
@@ -159,8 +156,7 @@ struct GeneratorView: View {
                 store.send(.copyGeneratedValue)
             } label: {
                 Asset.Images.copy.swiftUIImage
-                    .resizable()
-                    .frame(width: 16, height: 16)
+                    .imageStyle(.accessoryIcon)
             }
             .buttonStyle(.accessory)
             .accessibilityIdentifier("CopyValueButton")
@@ -170,8 +166,7 @@ struct GeneratorView: View {
                 store.send(.refreshGeneratedValue)
             } label: {
                 Asset.Images.restart2.swiftUIImage
-                    .resizable()
-                    .frame(width: 16, height: 16)
+                    .imageStyle(.accessoryIcon)
             }
             .buttonStyle(.accessory)
             .accessibilityIdentifier("RegenerateValueButton")
@@ -199,7 +194,6 @@ struct GeneratorView: View {
             .buttonStyle(.accessory)
             .accessibilityLabel(Localizations.learnMore)
         }
-        .accessibilityIdentifier("UsernameTypePicker")
     }
 }
 

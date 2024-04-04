@@ -128,13 +128,13 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
         let ciphers: [Cipher] = [
             .fixture(
                 id: "1",
-                login: .fixture(uris: [LoginUri(uri: "https://bitwarden.com", match: .exact)]),
+                login: .fixture(uris: [.fixture(uri: "https://bitwarden.com", match: .exact)]),
                 name: "Bitwarden"
             ),
             .fixture(
                 creationDate: Date(year: 2024, month: 1, day: 1),
                 id: "2",
-                login: .fixture(uris: [LoginUri(uri: "https://example.com", match: .exact)]),
+                login: .fixture(uris: [.fixture(uri: "https://example.com", match: .exact)]),
                 name: "Example",
                 revisionDate: Date(year: 2024, month: 1, day: 1)
             ),
@@ -152,7 +152,7 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
                 .fixture(
                     creationDate: Date(year: 2024, month: 1, day: 1),
                     id: "2",
-                    login: .fixture(uris: [LoginUriView(uri: "https://example.com", match: .exact)]),
+                    login: .fixture(uris: [.fixture(uri: "https://example.com", match: .exact)]),
                     name: "Example",
                     revisionDate: Date(year: 2024, month: 1, day: 1)
                 ),
@@ -573,7 +573,7 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
                     username: "name",
                     password: "pwd",
                     passwordRevisionDate: nil,
-                    uris: [.init(uri: "www.domain.com", match: .domain)],
+                    uris: [.fixture(uri: "www.domain.com", match: .domain)],
                     totp: nil,
                     autofillOnPageLoad: nil,
                     fido2Credentials: nil
@@ -993,7 +993,7 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
                     username: "name",
                     password: "pwd",
                     passwordRevisionDate: nil,
-                    uris: [.init(uri: "www.domain.com", match: .domain)],
+                    uris: [.fixture(uri: "www.domain.com", match: .domain)],
                     totp: nil,
                     autofillOnPageLoad: nil,
                     fido2Credentials: nil
@@ -1271,6 +1271,33 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
                 ),
             ]
         )
+    }
+
+    /// `vaultListPublisher(group:filter:)` returns a publisher for the vault list sections within
+    /// the folder group with nested folders.
+    func test_vaultListPublisher_groups_folder_nestedFolders() async throws {
+        let workCipher = Cipher.fixture(folderId: "1", id: "1")
+        let workEngineeringCipher = Cipher.fixture(folderId: "3", id: "2")
+        cipherService.ciphersSubject.send([workCipher, workEngineeringCipher])
+
+        let workFolder = Folder.fixture(id: "1", name: "Work")
+        let workDesignFolder = Folder.fixture(id: "2", name: "Work/Design")
+        let workEngineeringFolder = Folder.fixture(id: "3", name: "Work/Engineering")
+        folderService.foldersSubject.send([workFolder, workDesignFolder, workEngineeringFolder])
+
+        var iterator = try await subject.vaultListPublisher(group: .folder(id: "1", name: ""), filter: .allVaults)
+            .makeAsyncIterator()
+        let vaultListSections = try await iterator.next()
+
+        try assertInlineSnapshot(of: dumpVaultListSections(XCTUnwrap(vaultListSections)), as: .lines) {
+            """
+            Section: Folder
+              - Group: Design (0)
+              - Group: Engineering (1)
+            Section: Items
+              - Cipher: Bitwarden
+            """
+        }
     }
 
     /// `vaultListPublisher(group:filter:)` returns a publisher for the vault list items.
@@ -1671,6 +1698,44 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
     }
 
     /// `vaultListPublisher()` returns a publisher for the list of sections and items that are
+    /// displayed in the vault for a vault that contains collections and folders, with no filter.
+    func test_vaultListPublisher_withCollections_all() async throws {
+        stateService.activeAccount = .fixture()
+        let syncResponse = try JSONDecoder.defaultDecoder.decode(
+            SyncResponseModel.self,
+            from: APITestData.syncWithCiphersCollections.data
+        )
+        cipherService.ciphersSubject.send(syncResponse.ciphers.compactMap(Cipher.init))
+        collectionService.collectionsSubject.send(syncResponse.collections.compactMap(Collection.init))
+        folderService.foldersSubject.send(syncResponse.folders.compactMap(Folder.init))
+
+        var iterator = try await subject.vaultListPublisher(filter: .allVaults).makeAsyncIterator()
+        let sections = try await iterator.next()
+
+        try assertInlineSnapshot(of: dumpVaultListSections(XCTUnwrap(sections)), as: .lines) {
+            """
+            Section: Favorites
+              - Cipher: Apple
+            Section: Types
+              - Group: Login (6)
+              - Group: Card (1)
+              - Group: Identity (1)
+              - Group: Secure note (1)
+            Section: Folders
+              - Group: Development (0)
+              - Group: Internal (1)
+              - Group: Social (2)
+              - Group: No Folder (5)
+            Section: Collections
+              - Group: Design (2)
+              - Group: Engineering (3)
+            Section: Trash
+              - Group: Trash (1)
+            """
+        }
+    }
+
+    /// `vaultListPublisher()` returns a publisher for the list of sections and items that are
     /// displayed in the vault for a vault that contains collections with the my vault filter.
     func test_vaultListPublisher_withCollections_myVault() async throws {
         stateService.activeAccount = .fixture()
@@ -1725,15 +1790,18 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
             Section: Favorites
               - Cipher: Apple
             Section: Types
-              - Group: Login (2)
+              - Group: Login (5)
               - Group: Card (0)
               - Group: Identity (0)
               - Group: Secure note (0)
             Section: Folders
+              - Group: Development/Artifacts (1)
+              - Group: Internal (1)
+              - Group: Social (1)
               - Group: No Folder (2)
             Section: Collections
-              - Group: Design (1)
-              - Group: Engineering (1)
+              - Group: Design (2)
+              - Group: Engineering (3)
             Section: Trash
               - Group: Trash (0)
             """
@@ -1755,8 +1823,11 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
             """
             Section: Items
               - Cipher: Apple
+              - Cipher: Azure
               - Cipher: Facebook
               - Cipher: Figma
+              - Cipher: Reddit
+              - Cipher: Zoom
             """
         }
     }
@@ -1800,7 +1871,10 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
             """
             Section: Items
               - Cipher: Apple
+              - Cipher: Azure
               - Cipher: Figma
+              - Cipher: Reddit
+              - Cipher: Zoom
             """
         }
     }
@@ -1828,6 +1902,8 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
             """
             Section: Items
               - Cipher: Apple
+              - Cipher: Azure
+              - Cipher: Reddit
             """
         }
     }

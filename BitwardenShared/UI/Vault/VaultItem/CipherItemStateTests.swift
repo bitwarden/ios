@@ -9,7 +9,7 @@ class CipherItemStateTests: BitwardenTestCase {
 
     /// `init(cloneItem: hasPremium)` returns a cloned CipherItemState.
     func test_init_clone() {
-        let cipher = CipherView.loginFixture()
+        let cipher = CipherView.loginFixture(login: .fixture(fido2Credentials: [.fixture()]))
         let state = CipherItemState(cloneItem: cipher, hasPremium: true)
         XCTAssertEqual(state.name, "\(cipher.name) - \(Localizations.clone)")
         XCTAssertNil(state.cipher.id)
@@ -22,7 +22,8 @@ class CipherItemStateTests: BitwardenTestCase {
         XCTAssertEqual(state.identityState, cipher.identityItemState())
         XCTAssertEqual(state.isFavoriteOn, cipher.favorite)
         XCTAssertEqual(state.isMasterPasswordRePromptOn, cipher.reprompt == .password)
-        XCTAssertEqual(state.loginState, cipher.loginItemState(showTOTP: true))
+        XCTAssertEqual(state.loginState, cipher.loginItemState(excludeFido2Credentials: true, showTOTP: true))
+        XCTAssertTrue(state.loginState.fido2Credentials.isEmpty)
         XCTAssertEqual(state.notes, cipher.notes ?? "")
         XCTAssertEqual(state.type, .init(type: cipher.type))
         XCTAssertEqual(state.updatedDate, cipher.revisionDate)

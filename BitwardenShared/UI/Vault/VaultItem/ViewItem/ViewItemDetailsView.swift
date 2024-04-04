@@ -46,6 +46,8 @@ struct ViewItemDetailsView: View {
                 }
                 .cornerRadius(10)
             }
+            .accessibilityElement(children: .contain)
+            .accessibilityIdentifier("AttachmentsList")
         }
     }
 
@@ -60,9 +62,7 @@ struct ViewItemDetailsView: View {
                                 ? Asset.Images.checkSquare.swiftUIImage
                                 : Asset.Images.square.swiftUIImage
                             image
-                                .resizable()
-                                .frame(width: 16, height: 16)
-                                .foregroundColor(Asset.Colors.textSecondary.swiftUIColor)
+                                .imageStyle(.accessoryIcon(color: Asset.Colors.textSecondary.swiftUIColor))
 
                             Text(customField.name ?? "")
                                 .styleGuide(.body)
@@ -92,9 +92,7 @@ struct ViewItemDetailsView: View {
                                 if let linkedIdType = customField.linkedIdType {
                                     HStack(spacing: 8) {
                                         Asset.Images.link.swiftUIImage
-                                            .resizable()
-                                            .frame(width: 16, height: 16)
-                                            .foregroundColor(Asset.Colors.textSecondary.swiftUIColor)
+                                            .imageStyle(.accessoryIcon(color: Asset.Colors.textSecondary.swiftUIColor))
                                         Text(linkedIdType.localizedName)
                                     }
                                 }
@@ -107,19 +105,17 @@ struct ViewItemDetailsView: View {
                                         store.send(.customFieldVisibilityPressed(customField))
                                     }
                                     Button {
-                                        store.send(.copyPressed(value: value))
+                                        store.send(.copyPressed(value: value, field: .customHiddenField))
                                     } label: {
                                         Asset.Images.copy.swiftUIImage
-                                            .resizable()
-                                            .frame(width: 16, height: 16)
+                                            .imageStyle(.accessoryIcon)
                                     }
                                 case .text:
                                     Button {
-                                        store.send(.copyPressed(value: value))
+                                        store.send(.copyPressed(value: value, field: .customTextField))
                                     } label: {
                                         Asset.Images.copy.swiftUIImage
-                                            .resizable()
-                                            .frame(width: 16, height: 16)
+                                            .imageStyle(.accessoryIcon)
                                     }
                                 case .boolean, .linked:
                                     EmptyView()
@@ -136,6 +132,8 @@ struct ViewItemDetailsView: View {
     private var itemInformationSection: some View {
         SectionView(Localizations.itemInformation, contentSpacing: 12) {
             BitwardenTextValueField(title: Localizations.name, value: store.state.name)
+                .accessibilityElement(children: .contain)
+                .accessibilityIdentifier("ItemRow")
 
             // check for type
             switch store.state.type {
@@ -176,6 +174,8 @@ struct ViewItemDetailsView: View {
             SectionView(Localizations.notes) {
                 BitwardenTextValueField(value: store.state.notes)
             }
+            .accessibilityElement(children: .contain)
+            .accessibilityIdentifier("CipherNotesLabel")
         }
     }
 
@@ -226,8 +226,7 @@ struct ViewItemDetailsView: View {
                                 openURL(url)
                             } label: {
                                 Asset.Images.externalLink.swiftUIImage
-                                    .resizable()
-                                    .frame(width: 16, height: 16)
+                                    .imageStyle(.accessoryIcon)
                             }
                             .accessibilityLabel(Localizations.launch)
                         }
@@ -236,11 +235,13 @@ struct ViewItemDetailsView: View {
                             store.send(.copyPressed(value: uri.uri, field: .uri))
                         } label: {
                             Asset.Images.copy.swiftUIImage
-                                .resizable()
-                                .frame(width: 16, height: 16)
+                                .imageStyle(.accessoryIcon)
                         }
                         .accessibilityLabel(Localizations.copy)
+                        .accessibilityIdentifier("CopyValueButton")
                     }
+                    .accessibilityElement(children: .contain)
+                    .accessibilityIdentifier("UriRow")
                 }
             }
         }
@@ -273,10 +274,7 @@ struct ViewItemDetailsView: View {
                     store.send(.downloadAttachment(attachment))
                 } label: {
                     Image(uiImage: Asset.Images.download.image)
-                        .resizable()
-                        .aspectRatio(contentMode: .fit)
-                        .foregroundStyle(Asset.Colors.primaryBitwarden.swiftUIColor)
-                        .frame(width: 22, height: 22)
+                        .imageStyle(.rowIcon(color: Asset.Colors.primaryBitwarden.swiftUIColor))
                 }
                 .accessibilityLabel(Localizations.download)
             }
@@ -288,5 +286,7 @@ struct ViewItemDetailsView: View {
             }
         }
         .background(Asset.Colors.backgroundPrimary.swiftUIColor)
+        .accessibilityElement(children: .contain)
+        .accessibilityIdentifier("CipherAttachment")
     }
 }

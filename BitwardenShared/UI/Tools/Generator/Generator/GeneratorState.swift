@@ -107,6 +107,7 @@ struct GeneratorState: Equatable {
             generatorFields = [
                 generatedValueField(keyPath: \.generatedValue),
                 FormField(fieldType: .menuGeneratorType(FormMenuField(
+                    accessibilityIdentifier: "GeneratorTypePicker",
                     keyPath: \.generatorType,
                     options: GeneratorType.allCases,
                     selection: generatorType,
@@ -196,7 +197,7 @@ extension GeneratorState {
             [
                 passwordGeneratorTypeField(),
                 stepperField(
-                    accessibilityId: "NumberOfWordsLabel",
+                    accessibilityId: "NumberOfWordsStepper",
                     keyPath: \.passwordState.numberOfWords,
                     range: 3 ... 20,
                     title: Localizations.numberOfWords
@@ -284,6 +285,7 @@ extension GeneratorState {
     var usernameFormFields: [FormField<Self>] {
         var optionFields: [FormField<Self>] = [
             FormField(fieldType: .menuUsernameGeneratorType(FormMenuField(
+                accessibilityIdentifier: "UsernameTypePicker",
                 footer: usernameState.usernameGeneratorType.localizedDescription,
                 keyPath: \.usernameState.usernameGeneratorType,
                 options: UsernameGeneratorType.allCases,
@@ -313,6 +315,7 @@ extension GeneratorState {
         case .forwardedEmail:
             optionFields.append(FormField(fieldType: .menuUsernameForwardedEmailService(
                 FormMenuField(
+                    accessibilityIdentifier: "ServiceTypePicker",
                     keyPath: \.usernameState.forwardedEmailService,
                     options: ForwardedEmailServiceType.allCases,
                     selection: usernameState.forwardedEmailService,

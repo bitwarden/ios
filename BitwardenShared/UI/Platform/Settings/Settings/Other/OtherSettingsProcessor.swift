@@ -55,6 +55,10 @@ final class OtherSettingsProcessor: StateProcessor<OtherSettingsState, OtherSett
         case let .clearClipboardValueChanged(newValue):
             state.clearClipboardValue = newValue
             services.settingsRepository.clearClipboardValue = newValue
+        case .clearURL:
+            state.url = nil
+        case .giveFeedbackPressed:
+            giveFeedbackPressed()
         case let .toastShown(newValue):
             state.toast = newValue
         case let .toggleAllowSyncOnRefresh(isOn):
@@ -65,6 +69,13 @@ final class OtherSettingsProcessor: StateProcessor<OtherSettingsState, OtherSett
     }
 
     // MARK: Private
+
+    /// The give feedback button was pressed.
+    private func giveFeedbackPressed() {
+        coordinator.showAlert(.giveFeedbackAlert {
+            self.state.url = ExternalLinksConstants.giveFeedback
+        })
+    }
 
     /// Load the initial values for the toggles on the view.
     private func loadInitialValues() async {

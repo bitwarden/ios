@@ -95,6 +95,7 @@ class AddItemStateTests: XCTestCase {
                         - match: Optional<UriMatchType>.none
                         ▿ uri: Optional<String>
                           - some: "https://example.com"
+                        - uriChecksum: Optional<String>.none
                   ▿ username: Optional<String>
                     - some: "user@bitwarden.com"
               - name: "Bitwarden"

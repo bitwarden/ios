@@ -33,4 +33,18 @@ enum PolicyType: Int, Codable {
 
     /// Disable personal vault export.
     case disablePersonalVaultExport = 10
+
+    /// Activates autofill with page load on the browser extension.
+    case activateAutofill = 11
+
+    /// An unknown policy type.
+    case unknown = -1
+
+    // MARK: Initialization
+
+    init(from decoder: Decoder) throws {
+        let container = try decoder.singleValueContainer()
+        let rawValue = try container.decode(RawValue.self)
+        self = Self(rawValue: rawValue) ?? .unknown
+    }
 }

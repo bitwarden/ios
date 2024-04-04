@@ -216,13 +216,13 @@ class ViewItemProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
 
         XCTAssertEqual(client.requests.count, 1)
         XCTAssertEqual(client.requests[0].url, URL(string: "https://api.pwnedpasswords.com/range/e6b6a"))
-        XCTAssertEqual(coordinator.routes.last, .alert(Alert(
+        XCTAssertEqual(coordinator.alertShown.last, Alert(
             title: Localizations.passwordExposed(1957),
             message: nil,
             alertActions: [
                 AlertAction(title: Localizations.ok, style: .default),
             ]
-        )))
+        ))
     }
 
     /// `perform` with `.checkPasswordPressed` shows an alert notifying the user that
@@ -236,13 +236,13 @@ class ViewItemProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
 
         XCTAssertEqual(client.requests.count, 1)
         XCTAssertEqual(client.requests[0].url, URL(string: "https://api.pwnedpasswords.com/range/c3ed8"))
-        XCTAssertEqual(coordinator.routes.last, .alert(Alert(
+        XCTAssertEqual(coordinator.alertShown.last, Alert(
             title: Localizations.passwordSafe,
             message: nil,
             alertActions: [
                 AlertAction(title: Localizations.ok, style: .default),
             ]
-        )))
+        ))
     }
 
     /// `perform(_:)` with `.totpCodeExpired` updates the totp code.
@@ -336,29 +336,33 @@ class ViewItemProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
 
     /// `receive` with `.copyPressed` copies the value with the pasteboard service and shows a toast.
     func test_receive_copyPressed() {
-        subject.receive(.copyPressed(value: "value", field: .cardNumber))
-        XCTAssertEqual(pasteboardService.copiedString, "value")
+        subject.receive(.copyPressed(value: "card number", field: .cardNumber))
+        XCTAssertEqual(pasteboardService.copiedString, "card number")
         XCTAssertEqual(subject.state.toast?.text, Localizations.valueHasBeenCopied(Localizations.number))
 
-        subject.receive(.copyPressed(value: "value", field: .password))
-        XCTAssertEqual(pasteboardService.copiedString, "value")
+        subject.receive(.copyPressed(value: "hidden field value", field: .customHiddenField))
+        XCTAssertEqual(pasteboardService.copiedString, "hidden field value")
+        XCTAssertEqual(subject.state.toast?.text, Localizations.valueHasBeenCopied(Localizations.value))
+
+        subject.receive(.copyPressed(value: "text field value", field: .customTextField))
+        XCTAssertEqual(pasteboardService.copiedString, "text field value")
+        XCTAssertEqual(subject.state.toast?.text, Localizations.valueHasBeenCopied(Localizations.value))
+
+        subject.receive(.copyPressed(value: "password", field: .password))
+        XCTAssertEqual(pasteboardService.copiedString, "password")
         XCTAssertEqual(subject.state.toast?.text, Localizations.valueHasBeenCopied(Localizations.password))
 
-        subject.receive(.copyPressed(value: "value", field: .securityCode))
-        XCTAssertEqual(pasteboardService.copiedString, "value")
+        subject.receive(.copyPressed(value: "security code", field: .securityCode))
+        XCTAssertEqual(pasteboardService.copiedString, "security code")
         XCTAssertEqual(subject.state.toast?.text, Localizations.valueHasBeenCopied(Localizations.securityCode))
 
-        subject.receive(.copyPressed(value: "value", field: .totp))
-        XCTAssertEqual(pasteboardService.copiedString, "value")
+        subject.receive(.copyPressed(value: "totp", field: .totp))
+        XCTAssertEqual(pasteboardService.copiedString, "totp")
         XCTAssertEqual(subject.state.toast?.text, Localizations.valueHasBeenCopied(Localizations.totp))
 
-        subject.receive(.copyPressed(value: "value", field: .username))
-        XCTAssertEqual(pasteboardService.copiedString, "value")
+        subject.receive(.copyPressed(value: "username", field: .username))
+        XCTAssertEqual(pasteboardService.copiedString, "username")
         XCTAssertEqual(subject.state.toast?.text, Localizations.valueHasBeenCopied(Localizations.username))
-
-        subject.receive(.copyPressed(value: "valueWithoutField"))
-        XCTAssertEqual(pasteboardService.copiedString, "valueWithoutField")
-        XCTAssertEqual(subject.state.toast?.text, Localizations.valueHasBeenCopied(Localizations.value))
     }
 
     /// `receive` with `.customFieldVisibilityPressed()` toggles custom field visibility.
@@ -497,6 +501,24 @@ class ViewItemProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
             .networkResponseError(TestError())
         )
         XCTAssertEqual(errorReporter.errors.first as? TestError, TestError())
+    }
+
+    /// `perform(_:)` with `.deletePressed` reprompts the user for their master password if reprompt
+    /// is enabled prior to deleting the cipher.
+    func test_perform_deletePressed_masterPasswordReprompt() async throws {
+        subject.state = try XCTUnwrap(ViewItemState(cipherView: .fixture(reprompt: .password), hasPremium: false))
+        await subject.perform(.deletePressed)
+
+        let repromptAlert = try XCTUnwrap(coordinator.alertShown.last)
+        XCTAssertEqual(repromptAlert, .masterPasswordPrompt(completion: { _ in }))
+        repromptAlert.alertTextFields = [AlertTextField(id: "password", text: "password")]
+        try await repromptAlert.tapAction(title: Localizations.submit)
+
+        let deleteConfirmationAlert = try XCTUnwrap(coordinator.alertShown.last)
+        XCTAssertEqual(deleteConfirmationAlert, .deleteCipherConfirmation(isSoftDelete: true) {})
+        try await deleteConfirmationAlert.tapAction(title: Localizations.yes)
+
+        XCTAssertEqual(vaultRepository.softDeletedCipher.last?.id, "1")
     }
 
     /// `perform(_:)` with `.deletePressed` presents the confirmation alert before permanently
@@ -823,7 +845,40 @@ class ViewItemProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
 
         subject.receive(.morePressed(.clone))
 
-        XCTAssertEqual(coordinator.routes.last, .cloneItem(cipher: cipher))
+        waitFor(!coordinator.routes.isEmpty)
+
+        XCTAssertEqual(coordinator.routes.last, .cloneItem(cipher: cipher, hasPremium: true))
+        XCTAssertIdentical(coordinator.contexts.last as? ViewItemProcessor, subject)
+    }
+
+    /// `receive(_:)` with `.morePressed(.clone)` for a cipher with FIDO2 credentials shows an
+    /// alert confirming that the user wants to proceed without cloning the FIDO2 credential and
+    /// navigates the user to the clone item view.
+    func test_receive_morePressed_clone_fido2Credentials() throws {
+        let cipher = CipherView.loginFixture(id: "1", login: .fixture(fido2Credentials: [.fixture()]))
+        subject.state.loadingState = try .data(
+            XCTUnwrap(
+                CipherItemState(
+                    existing: cipher,
+                    hasPremium: false
+                )
+            )
+        )
+
+        subject.receive(.morePressed(.clone))
+
+        waitFor(!coordinator.alertShown.isEmpty)
+
+        let alert = try XCTUnwrap(coordinator.alertShown.last)
+        XCTAssertEqual(alert, Alert.confirmCloneExcludesFido2Credential {})
+
+        let task = Task {
+            try await alert.tapAction(title: Localizations.yes)
+        }
+        waitFor(!coordinator.routes.isEmpty)
+        task.cancel()
+
+        XCTAssertEqual(coordinator.routes.last, .cloneItem(cipher: cipher, hasPremium: true))
         XCTAssertIdentical(coordinator.contexts.last as? ViewItemProcessor, subject)
     }
 
@@ -978,7 +1033,7 @@ class ViewItemProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
         subject.state.loadingState = .data(loginState)
         subject.receive(.passwordVisibilityPressed)
 
-        XCTAssertEqual(try coordinator.unwrapLastRouteAsAlert(), .masterPasswordPrompt(completion: { _ in }))
+        XCTAssertEqual(coordinator.alertShown.last, .masterPasswordPrompt(completion: { _ in }))
     }
 
     /// `receive(_:)` with `.toastShown` with a value updates the state correctly.
@@ -1014,7 +1069,7 @@ class ViewItemProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
         subject.state.loadingState = .data(cipherState)
         subject.receive(.passwordVisibilityPressed)
 
-        let alert = try coordinator.unwrapLastRouteAsAlert()
+        let alert = try XCTUnwrap(coordinator.alertShown.last)
         XCTAssertNotNil(alert.alertTextFields.first)
         let action = try XCTUnwrap(alert.alertActions.first(where: { $0.title == Localizations.submit }))
         await action.handler?(action, [AlertTextField(id: "password", text: "password1234")])
@@ -1039,7 +1094,7 @@ class ViewItemProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
         subject.state.loadingState = .data(cipherState)
         subject.receive(.passwordVisibilityPressed)
 
-        let alert = try coordinator.unwrapLastRouteAsAlert()
+        let alert = try XCTUnwrap(coordinator.alertShown.last)
         XCTAssertNotNil(alert.alertTextFields.first)
         let action = try XCTUnwrap(alert.alertActions.first(where: { $0.title == Localizations.submit }))
         await action.handler?(action, [AlertTextField(id: "password", text: "password1234")])
@@ -1061,7 +1116,7 @@ class ViewItemProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
         subject.state.loadingState = .data(cipherState)
         subject.receive(.passwordVisibilityPressed)
 
-        let alert = try coordinator.unwrapLastRouteAsAlert()
+        let alert = try XCTUnwrap(coordinator.alertShown.last)
         XCTAssertNotNil(alert.alertTextFields.first)
         let action = try XCTUnwrap(alert.alertActions.first(where: { $0.title == Localizations.submit }))
         await action.handler?(action, [AlertTextField(id: "password", text: "password1234")])
@@ -1069,7 +1124,7 @@ class ViewItemProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
         XCTAssertEqual(authRepository.validatePasswordPasswords, ["password1234"])
         XCTAssertFalse(subject.state.hasVerifiedMasterPassword)
 
-        let invalidPasswordAlert = try coordinator.unwrapLastRouteAsAlert()
+        let invalidPasswordAlert = try XCTUnwrap(coordinator.alertShown.last)
         XCTAssertEqual(invalidPasswordAlert, .defaultAlert(title: Localizations.invalidMasterPassword))
     }
 } // swiftlint:disable:this file_length

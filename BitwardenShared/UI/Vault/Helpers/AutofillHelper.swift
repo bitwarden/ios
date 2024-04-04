@@ -95,7 +95,8 @@ class AutofillHelper {
         cipherView: CipherView,
         showToast: @escaping (String) -> Void
     ) async {
-        guard let username = cipherView.login?.username, !username.isEmpty,
+        guard appExtensionDelegate?.canAutofill ?? false,
+              let username = cipherView.login?.username, !username.isEmpty,
               let password = cipherView.login?.password, !password.isEmpty else {
             handleMissingValueForAutofill(cipherView: cipherView, showToast: showToast)
             return

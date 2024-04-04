@@ -66,6 +66,36 @@ class AutofillHelperTests: BitwardenTestCase {
         XCTAssertEqual(appExtensionDelegate.didCompleteAutofillRequestPassword, "PASSWORD")
     }
 
+    /// `handleCipherForAutofill(cipherListView:)` displays an alert for the user to copy the
+    /// login's username or password if the extension is unable to autofill the credentials.
+    func test_handleCipherForAutofill_autofillNotSupported() async throws {
+        appExtensionDelegate.canAutofill = false
+
+        vaultRepository.fetchCipherResult = .success(.fixture(
+            login: .fixture(password: "PASSWORD", username: "user@bitwarden.com")
+        ))
+
+        let cipher = CipherListView.fixture(id: "1")
+        var showToastValue: String?
+        await subject.handleCipherForAutofill(cipherListView: cipher) { showToastValue = $0 }
+
+        let alert = try XCTUnwrap(coordinator.alertShown.last)
+        XCTAssertEqual(alert.title, "Bitwarden")
+        XCTAssertEqual(alert.preferredStyle, .actionSheet)
+        XCTAssertEqual(alert.alertActions.count, 3)
+        XCTAssertEqual(alert.alertActions[0].title, Localizations.copyUsername)
+        XCTAssertEqual(alert.alertActions[1].title, Localizations.copyPassword)
+        XCTAssertEqual(alert.alertActions[2].title, Localizations.cancel)
+
+        try await alert.tapAction(title: Localizations.copyUsername)
+        XCTAssertEqual(pasteboardService.copiedString, "user@bitwarden.com")
+        XCTAssertEqual(showToastValue, Localizations.valueHasBeenCopied(Localizations.username))
+
+        try await alert.tapAction(title: Localizations.copyPassword)
+        XCTAssertEqual(pasteboardService.copiedString, "PASSWORD")
+        XCTAssertEqual(showToastValue, Localizations.valueHasBeenCopied(Localizations.password))
+    }
+
     /// `handleCipherForAutofill(cipherListView:)` copies the TOTP code for the login.
     func test_handleCipherForAutofill_copiesTOTP() async {
         vaultRepository.fetchCipherResult = .success(.fixture(

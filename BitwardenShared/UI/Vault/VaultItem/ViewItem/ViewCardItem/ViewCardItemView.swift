@@ -28,6 +28,8 @@ struct ViewCardItemView: View {
                 title: Localizations.cardholderName,
                 value: store.state.cardholderName
             )
+            .accessibilityElement(children: .contain)
+            .accessibilityIdentifier("ItemRow")
         }
     }
 
@@ -52,11 +54,13 @@ struct ViewCardItemView: View {
                     store.send(.copyPressed(value: number, field: .cardNumber))
                 } label: {
                     Asset.Images.copy.swiftUIImage
-                        .resizable()
-                        .frame(width: 16, height: 16)
+                        .imageStyle(.accessoryIcon)
                 }
                 .accessibilityLabel(Localizations.copy)
+                .accessibilityIdentifier("CopyValueButton")
             }
+            .accessibilityElement(children: .contain)
+            .accessibilityIdentifier("ItemRow")
         }
     }
 
@@ -66,6 +70,8 @@ struct ViewCardItemView: View {
                 title: Localizations.brand,
                 value: store.state.brandName
             )
+            .accessibilityElement(children: .contain)
+            .accessibilityIdentifier("ItemRow")
         }
     }
 
@@ -86,6 +92,8 @@ struct ViewCardItemView: View {
                 title: Localizations.expiration,
                 value: expirationString
             )
+            .accessibilityElement(children: .contain)
+            .accessibilityIdentifier("ItemRow")
         }
     }
 
@@ -110,11 +118,13 @@ struct ViewCardItemView: View {
                     store.send(.copyPressed(value: code, field: .securityCode))
                 } label: {
                     Asset.Images.copy.swiftUIImage
-                        .resizable()
-                        .frame(width: 16, height: 16)
+                        .imageStyle(.accessoryIcon)
                 }
                 .accessibilityLabel(Localizations.copy)
+                .accessibilityIdentifier("CopyValueButton")
             }
+            .accessibilityElement(children: .contain)
+            .accessibilityIdentifier("ItemRow")
         }
     }
 }

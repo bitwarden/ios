@@ -4,7 +4,7 @@ import XCTest
 
 class HTTPResponseTests: XCTestCase {
     /// The initializer sets the item's properties.
-    func testInit() {
+    func test_init() {
         let subject = HTTPResponse(
             url: URL(string: "https://example.com")!,
             statusCode: 200,
@@ -20,7 +20,7 @@ class HTTPResponseTests: XCTestCase {
     }
 
     /// The initializer sets the item's properties with a `HTTPURLResponse`.
-    func testInitResponse() throws {
+    func test_init_httpUrlResponse() throws {
         let subject = try HTTPResponse(
             data: "response body".data(using: .utf8)!,
             response: XCTUnwrap(HTTPURLResponse(
@@ -42,7 +42,7 @@ class HTTPResponseTests: XCTestCase {
     }
 
     /// Initializing an `HTTPResponse` with an `URLResponse` vs a `HTTPURLResponse` throws an error.
-    func testInitWithURLResponseThrowsError() {
+    func test_init_urlResponse_error() {
         let urlResponse = URLResponse(
             url: URL(string: "https://example.com")!,
             mimeType: nil,

@@ -160,14 +160,8 @@ extension CipherLoginUriModel {
     init(loginUri: BitwardenSdk.LoginUri) {
         self.init(
             match: loginUri.match.map(UriMatchType.init),
-            uri: loginUri.uri
-        )
-    }
-
-    init(loginUriView: BitwardenSdk.LoginUriView) {
-        self.init(
-            match: loginUriView.match.map(UriMatchType.init),
-            uri: loginUriView.uri
+            uri: loginUri.uri,
+            uriChecksum: loginUri.uriChecksum
         )
     }
 }
@@ -442,7 +436,8 @@ extension BitwardenSdk.LoginUri {
     init(cipherLoginUriModel model: CipherLoginUriModel) {
         self.init(
             uri: model.uri,
-            match: model.match.map(BitwardenSdk.UriMatchType.init)
+            match: model.match.map(BitwardenSdk.UriMatchType.init),
+            uriChecksum: model.uriChecksum
         )
     }
 }
@@ -566,7 +561,7 @@ extension BitwardenSdk.Folder {
     }
 }
 
-extension BitwardenSdk.FolderView: Menuable, @unchecked Sendable {
+extension BitwardenSdk.FolderView: Menuable, @unchecked Sendable, TreeNodeModel {
     static var defaultValueLocalizedName: String {
         Localizations.folderNone
     }

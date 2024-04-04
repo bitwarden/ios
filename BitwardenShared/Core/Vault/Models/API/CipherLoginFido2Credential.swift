@@ -1,5 +1,7 @@
 import Foundation
 
+// MARK: - CipherLoginFido2Credential
+
 /// API model for a login cipher's FIDO2 credential.
 ///
 struct CipherLoginFido2Credential: Codable, Equatable {

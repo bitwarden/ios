@@ -366,7 +366,7 @@ final class AddEditItemProcessor: StateProcessor<// swiftlint:disable:this type_
         defer { coordinator.hideLoadingOverlay() }
         do {
             let breachCount = try await services.apiService.checkDataBreaches(password: state.loginState.password)
-            coordinator.navigate(to: .alert(.dataBreachesCountAlert(count: breachCount)))
+            coordinator.showAlert(.dataBreachesCountAlert(count: breachCount))
         } catch {
             services.errorReporter.log(error: error)
         }
@@ -397,7 +397,7 @@ final class AddEditItemProcessor: StateProcessor<// swiftlint:disable:this type_
             preferredStyle: .actionSheet,
             alertActions: alertActions
         )
-        coordinator.navigate(to: .alert(alert))
+        coordinator.showAlert(alert)
     }
 
     /// Builds an alert to edit  name of a custom field and then routes the coordinator
@@ -415,7 +415,7 @@ final class AddEditItemProcessor: StateProcessor<// swiftlint:disable:this type_
                 )
             )
         }
-        coordinator.navigate(to: .alert(alert))
+        coordinator.showAlert(alert)
     }
 
     /// Builds an alert to name a new custom field and then routes the coordinator
@@ -426,7 +426,7 @@ final class AddEditItemProcessor: StateProcessor<// swiftlint:disable:this type_
             guard let self else { return }
             receive(.customField(.customFieldAdded(fieldType, name)))
         }
-        coordinator.navigate(to: .alert(alert))
+        coordinator.showAlert(alert)
     }
 
     /// Builds and navigates to an alert for overwriting an existing value for the specified type.
@@ -457,7 +457,7 @@ final class AddEditItemProcessor: StateProcessor<// swiftlint:disable:this type_
                 ),
             ]
         )
-        coordinator.navigate(to: .alert(alert))
+        coordinator.showAlert(alert)
     }
 
     /// Saves the item currently stored in `state`.
@@ -598,7 +598,7 @@ extension AddEditItemProcessor: AuthenticatorKeyCaptureDelegate {
             state.loginState.totpState = .key(authKeyModel)
             state.toast = Toast(text: Localizations.authenticatorKeyAdded)
         } catch {
-            coordinator.navigate(to: .alert(.totpScanFailureAlert()))
+            coordinator.showAlert(.totpScanFailureAlert())
         }
     }
 
@@ -607,7 +607,7 @@ extension AddEditItemProcessor: AuthenticatorKeyCaptureDelegate {
         let newState = LoginTOTPState(key)
         state.loginState.totpState = newState
         guard case .invalid = newState else { return }
-        coordinator.navigate(to: .alert(.totpScanFailureAlert()))
+        coordinator.showAlert(.totpScanFailureAlert())
     }
 
     func showCameraScan(

@@ -1,3 +1,4 @@
+import Networking
 import XCTest
 
 @testable import BitwardenShared
@@ -7,6 +8,7 @@ import XCTest
 class PasswordHintProcessorTests: BitwardenTestCase {
     // MARK: Properties
 
+    var errorReporter: MockErrorReporter!
     var httpClient: MockHTTPClient!
     var coordinator: MockCoordinator<AuthRoute, AuthEvent>!
     var subject: PasswordHintProcessor!
@@ -16,8 +18,9 @@ class PasswordHintProcessorTests: BitwardenTestCase {
     override func setUp() {
         super.setUp()
         coordinator = MockCoordinator()
+        errorReporter = MockErrorReporter()
         httpClient = MockHTTPClient()
-        let services = ServiceContainer.withMocks(httpClient: httpClient)
+        let services = ServiceContainer.withMocks(errorReporter: errorReporter, httpClient: httpClient)
         let state = PasswordHintState()
         subject = PasswordHintProcessor(
             coordinator: coordinator.asAnyCoordinator(),
@@ -29,11 +32,25 @@ class PasswordHintProcessorTests: BitwardenTestCase {
     override func tearDown() {
         super.tearDown()
         coordinator = nil
+        errorReporter = nil
         httpClient = nil
         subject = nil
     }
 
     // MARK: Tests
+
+    /// `perform()` with `.submitPressed` shows an alert and logs an error if the request fails.
+    func test_perform_submitPressed_error() async throws {
+        subject.state.emailAddress = "email@example.com"
+        let errorResponse = HTTPResponse.failure(statusCode: 500)
+        httpClient.result = .success(errorResponse)
+
+        await subject.perform(.submitPressed)
+
+        let responseError = ResponseValidationError(response: errorResponse)
+        XCTAssertEqual(coordinator.alertShown.last, .networkResponseError(responseError))
+        XCTAssertEqual(errorReporter.errors.last as? ResponseValidationError, responseError)
+    }
 
     /// `perform()` with `.submitPressed` submits the request for the master password hint.
     func test_perform_submitPressed_success() async throws {
@@ -41,7 +58,6 @@ class PasswordHintProcessorTests: BitwardenTestCase {
         httpClient.results = [.success(.success(statusCode: 200))]
         await subject.perform(.submitPressed)
 
-        // TODO: BIT-733 Assert password hint service calls
         XCTAssertEqual(httpClient.requests.count, 1)
         let request = try XCTUnwrap(httpClient.requests.first)
         XCTAssertEqual(request.url, URL(string: "https://example.com/api/accounts/password-hint"))
@@ -50,7 +66,7 @@ class PasswordHintProcessorTests: BitwardenTestCase {
         coordinator.loadingOverlaysShown = [LoadingOverlayState(title: Localizations.submitting)]
         XCTAssertFalse(coordinator.isLoadingOverlayShowing)
 
-        let alert = try coordinator.unwrapLastRouteAsAlert()
+        let alert = try XCTUnwrap(coordinator.alertShown.last)
         XCTAssertEqual(alert.title, "")
         XCTAssertEqual(alert.message, Localizations.passwordHintAlert)
         XCTAssertEqual(alert.alertActions.count, 1)

@@ -149,7 +149,7 @@ class AddEditItemProcessorTests: BitwardenTestCase {
     func test_receive_editCustomFieldNamePressed() async throws {
         XCTAssertEqual(subject.state.customFieldsState.customFields.last?.name, "fieldName1")
         subject.receive(.customField(.editCustomFieldNamePressed(index: 0)))
-        let alert = try coordinator.unwrapLastRouteAsAlert()
+        let alert = try XCTUnwrap(coordinator.alertShown.last)
         XCTAssertEqual(alert, .nameCustomFieldAlert { _ in })
         var textField = try XCTUnwrap(alert.alertTextFields.first)
         textField = AlertTextField(id: "name", text: "new field name")
@@ -286,7 +286,7 @@ class AddEditItemProcessorTests: BitwardenTestCase {
         subject.receive(.customField(.newCustomFieldPressed))
 
         // Validate that select custom field type action sheet is shown.
-        let alert = try coordinator.unwrapLastRouteAsAlert()
+        let alert = try XCTUnwrap(coordinator.alertShown.last)
         XCTAssertEqual(alert.alertActions.count, 5)
         XCTAssertEqual(alert.alertActions[0].title, Localizations.fieldTypeText)
         XCTAssertEqual(alert.alertActions[1].title, Localizations.fieldTypeHidden)
@@ -302,7 +302,7 @@ class AddEditItemProcessorTests: BitwardenTestCase {
         subject.receive(.customField(.newCustomFieldPressed))
 
         // Validate that select custom field type action sheet is shown.
-        let alert = try coordinator.unwrapLastRouteAsAlert()
+        let alert = try XCTUnwrap(coordinator.alertShown.last)
         XCTAssertEqual(alert.alertActions.count, 4)
         XCTAssertEqual(alert.alertActions[0].title, Localizations.fieldTypeText)
         XCTAssertEqual(alert.alertActions[1].title, Localizations.fieldTypeHidden)
@@ -377,7 +377,7 @@ class AddEditItemProcessorTests: BitwardenTestCase {
         subject.receive(.customField(.selectedCustomFieldType(.boolean)))
 
         // Validate that the new custom field name alert is shown.
-        let alert = try coordinator.unwrapLastRouteAsAlert()
+        let alert = try XCTUnwrap(coordinator.alertShown.last)
         XCTAssertEqual(alert, .nameCustomFieldAlert { _ in })
         var textField = try XCTUnwrap(alert.alertTextFields.first)
         textField = AlertTextField(id: "name", text: "field name")
@@ -464,14 +464,14 @@ class AddEditItemProcessorTests: BitwardenTestCase {
         XCTAssertNotNil(dismissAction)
         dismissAction?.action()
         XCTAssertEqual(
-            coordinator.routes.last,
-            .alert(Alert(
+            coordinator.alertShown.last,
+            Alert(
                 title: Localizations.authenticatorKeyReadError,
                 message: nil,
                 alertActions: [
                     AlertAction(title: Localizations.ok, style: .default),
                 ]
-            ))
+            )
         )
         XCTAssertNil(subject.state.loginState.authenticatorKey)
         XCTAssertNil(subject.state.toast)
@@ -554,13 +554,13 @@ class AddEditItemProcessorTests: BitwardenTestCase {
 
         XCTAssertEqual(client.requests.count, 1)
         XCTAssertEqual(client.requests[0].url, URL(string: "https://api.pwnedpasswords.com/range/e6b6a"))
-        XCTAssertEqual(coordinator.routes.last, .alert(Alert(
+        XCTAssertEqual(coordinator.alertShown.last, Alert(
             title: Localizations.passwordExposed(1957),
             message: nil,
             alertActions: [
                 AlertAction(title: Localizations.ok, style: .default),
             ]
-        )))
+        ))
     }
 
     /// `perform` with `.checkPasswordPressed` checks the password with the HIBP service.
@@ -572,13 +572,13 @@ class AddEditItemProcessorTests: BitwardenTestCase {
 
         XCTAssertEqual(client.requests.count, 1)
         XCTAssertEqual(client.requests[0].url, URL(string: "https://api.pwnedpasswords.com/range/c3ed8"))
-        XCTAssertEqual(coordinator.routes.last, .alert(Alert(
+        XCTAssertEqual(coordinator.alertShown.last, Alert(
             title: Localizations.passwordSafe,
             message: nil,
             alertActions: [
                 AlertAction(title: Localizations.ok, style: .default),
             ]
-        )))
+        ))
     }
 
     /// Tapping the copy button on the auth key row dispatches the `.copyPassword` action.
@@ -1149,7 +1149,7 @@ class AddEditItemProcessorTests: BitwardenTestCase {
         subject.state.loginState.password = "password"
         subject.receive(.generatePasswordPressed)
 
-        let alert = try coordinator.unwrapLastRouteAsAlert()
+        let alert = try XCTUnwrap(coordinator.alertShown.last)
         XCTAssertEqual(alert.title, Localizations.passwordOverrideAlert)
         XCTAssertNil(alert.message)
         XCTAssertEqual(alert.alertActions.count, 2)
@@ -1181,7 +1181,7 @@ class AddEditItemProcessorTests: BitwardenTestCase {
         subject.state.loginState.username = "username"
         subject.receive(.generateUsernamePressed)
 
-        let alert = try coordinator.unwrapLastRouteAsAlert()
+        let alert = try XCTUnwrap(coordinator.alertShown.last)
         XCTAssertEqual(alert.title, Localizations.areYouSureYouWantToOverwriteTheCurrentUsername)
         XCTAssertNil(alert.message)
         XCTAssertEqual(alert.alertActions.count, 2)
@@ -1396,8 +1396,8 @@ class AddEditItemProcessorTests: BitwardenTestCase {
 
         XCTAssertNil(subject.state.loginState.totpState.authKeyModel?.rawAuthenticatorKey)
         XCTAssertEqual(badKey, subject.state.loginState.totpState.rawAuthenticatorKeyString)
-        waitFor(!coordinator.routes.isEmpty)
-        let alert = try coordinator.unwrapLastRouteAsAlert()
+        waitFor(!coordinator.alertShown.isEmpty)
+        let alert = try XCTUnwrap(coordinator.alertShown.last)
         XCTAssertEqual(alert.title, Localizations.authenticatorKeyReadError)
         XCTAssertNil(alert.message)
         XCTAssertEqual(

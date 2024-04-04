@@ -82,12 +82,16 @@ final class ViewItemProcessor: StateProcessor<ViewItemState, ViewItemAction, Vie
             do {
                 guard let password = state.loadingState.data?.cipher.login?.password else { return }
                 let breachCount = try await services.apiService.checkDataBreaches(password: password)
-                coordinator.navigate(to: .alert(.dataBreachesCountAlert(count: breachCount)))
+                coordinator.showAlert(.dataBreachesCountAlert(count: breachCount))
             } catch {
                 services.errorReporter.log(error: error)
             }
         case .deletePressed:
             guard case let .data(cipherState) = state.loadingState else { return }
+            guard !state.isMasterPasswordRequired else {
+                presentMasterPasswordRepromptAlert { await self.perform(effect) }
+                return
+            }
             if cipherState.cipher.deletedDate == nil {
                 await showSoftDeleteConfirmation(cipherState.cipher)
             } else {
@@ -102,7 +106,7 @@ final class ViewItemProcessor: StateProcessor<ViewItemState, ViewItemAction, Vie
 
     override func receive(_ action: ViewItemAction) {
         guard !state.isMasterPasswordRequired || !action.requiresMasterPasswordReprompt else {
-            presentMasterPasswordRepromptAlert(for: action)
+            presentMasterPasswordRepromptAlert { self.receive(action) }
             return
         }
         switch action {
@@ -154,6 +158,22 @@ final class ViewItemProcessor: StateProcessor<ViewItemState, ViewItemAction, Vie
 private extension ViewItemProcessor {
     // MARK: Private Methods
 
+    /// Navigates to the clone item view. If the cipher contains FIDO2 credentials, an alert is
+    /// shown confirming that the user wants to proceed cloning the cipher without a FIDO2 credential.
+    ///
+    /// - Parameter cipher: The cipher to clone.
+    ///
+    private func cloneItem(_ cipher: CipherView) async {
+        let hasPremium = await (try? services.vaultRepository.doesActiveAccountHavePremium()) ?? false
+        if cipher.login?.fido2Credentials?.isEmpty == false {
+            coordinator.showAlert(.confirmCloneExcludesFido2Credential {
+                self.coordinator.navigate(to: .cloneItem(cipher: cipher, hasPremium: hasPremium), context: self)
+            })
+        } else {
+            coordinator.navigate(to: .cloneItem(cipher: cipher, hasPremium: hasPremium), context: self)
+        }
+    }
+
     /// Present an alert to confirm downloading large attachments.
     ///
     /// - Parameter attachment: The attachment to download.
@@ -180,7 +200,7 @@ private extension ViewItemProcessor {
     private func copyValue(_ value: String, _ field: CopyableField?) {
         services.pasteboardService.copy(value)
 
-        let localizedFieldName = if let field { field.localizedName } else { Localizations.value }
+        let localizedFieldName = field?.localizedName ?? Localizations.value
         state.toast = Toast(text: Localizations.valueHasBeenCopied(localizedFieldName))
     }
 
@@ -300,7 +320,9 @@ private extension ViewItemProcessor {
         case .attachments:
             coordinator.navigate(to: .attachments(cipher))
         case .clone:
-            coordinator.navigate(to: .cloneItem(cipher: cipher), context: self)
+            Task {
+                await cloneItem(cipher)
+            }
         case .editCollections:
             coordinator.navigate(to: .editCollections(cipher), context: self)
         case .moveToOrganization:
@@ -311,25 +333,26 @@ private extension ViewItemProcessor {
     /// Presents the master password re-prompt alert for the specified action. This method will
     /// process the action once the master password has been verified.
     ///
-    /// - Parameter action: The action to process once the password has been verified.
+    /// - Parameter completion: A closure containing the action to perform once the password has
+    ///     been verified.
     ///
-    private func presentMasterPasswordRepromptAlert(for action: ViewItemAction) {
+    private func presentMasterPasswordRepromptAlert(completion: @escaping () async -> Void) {
         let alert = Alert.masterPasswordPrompt { [weak self] password in
             guard let self else { return }
 
             do {
                 let isValid = try await services.authRepository.validatePassword(password)
                 guard isValid else {
-                    coordinator.navigate(to: .alert(Alert.defaultAlert(title: Localizations.invalidMasterPassword)))
+                    coordinator.showAlert(.defaultAlert(title: Localizations.invalidMasterPassword))
                     return
                 }
                 state.hasVerifiedMasterPassword = true
-                receive(action)
+                await completion()
             } catch {
                 services.errorReporter.log(error: error)
             }
         }
-        coordinator.navigate(to: .alert(alert))
+        coordinator.showAlert(alert)
     }
 
     /// Restores the item currently stored in `state`.

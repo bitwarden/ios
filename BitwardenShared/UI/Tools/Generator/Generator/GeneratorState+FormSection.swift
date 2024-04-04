@@ -126,6 +126,7 @@ extension GeneratorState {
     func emailTypeField(keyPath: WritableKeyPath<GeneratorState, UsernameEmailType>) -> FormField<Self> {
         FormField(fieldType: .menuEmailType(
             FormMenuField(
+                accessibilityIdentifier: "EmailTypePicker",
                 keyPath: keyPath,
                 options: UsernameEmailType.allCases,
                 selection: self[keyPath: keyPath],
@@ -152,6 +153,7 @@ extension GeneratorState {
     func passwordGeneratorTypeField() -> FormField<Self> {
         FormField(fieldType: .menuPasswordGeneratorType(
             FormMenuField(
+                accessibilityIdentifier: "PasswordTypePicker",
                 keyPath: \.passwordState.passwordGeneratorType,
                 options: PasswordGeneratorType.allCases,
                 selection: passwordState.passwordGeneratorType,

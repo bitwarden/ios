@@ -9,7 +9,7 @@ class RequestTests: XCTestCase {
     }
 
     /// `Request` default.
-    func testRequest() {
+    func test_request() {
         let request = DefaultRequest()
         XCTAssertEqual(request.method, .get)
         XCTAssertNil(request.body)
