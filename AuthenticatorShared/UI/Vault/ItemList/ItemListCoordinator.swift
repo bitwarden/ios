@@ -1,17 +1,17 @@
 import BitwardenSdk
 import SwiftUI
 
-// MARK: - ItemsCoordinator
+// MARK: - ItemListCoordinator
 
-/// A coordinator that manages navigation on the Token List screen.
+/// A coordinator that manages navigation on the Item List screen.
 ///
-final class ItemsCoordinator: Coordinator, HasStackNavigator {
+final class ItemListCoordinator: Coordinator, HasStackNavigator {
     // MARK: - Types
 
-    typealias Module = ItemsModule
+    typealias Module = ItemListModule
 
     typealias Services = HasTimeProvider
-        & ItemsProcessor.Services
+        & ItemListProcessor.Services
 
     // MARK: - Private Properties
 
@@ -28,7 +28,7 @@ final class ItemsCoordinator: Coordinator, HasStackNavigator {
 
     // MARK: - Initialization
 
-    /// Creates a new `ItemsCoordinator`.
+    /// Creates a new `ItemListCoordinator`.
     ///
     ///  - Parameters:
     ///   - module: The module used by this coordinator to create child coordinators.
@@ -47,7 +47,7 @@ final class ItemsCoordinator: Coordinator, HasStackNavigator {
 
     // MARK: - Methods
 
-    func handleEvent(_ event: ItemsEvent, context: AnyObject?) async {
+    func handleEvent(_ event: ItemListEvent, context: AnyObject?) async {
         switch event {
         case .showScanCode:
             guard let delegate = context as? AuthenticatorKeyCaptureDelegate else { return }
@@ -55,7 +55,7 @@ final class ItemsCoordinator: Coordinator, HasStackNavigator {
         }
     }
 
-    func navigate(to route: ItemsRoute, context: AnyObject?) {
+    func navigate(to route: ItemListRoute, context: AnyObject?) {
         switch route {
         case .addItem:
             break
@@ -102,13 +102,13 @@ final class ItemsCoordinator: Coordinator, HasStackNavigator {
     }
 
     func showList() {
-        let processor = ItemsProcessor(
+        let processor = ItemListProcessor(
             coordinator: asAnyCoordinator(),
             services: services,
-            state: ItemsState()
+            state: ItemListState()
         )
         let store = Store(processor: processor)
-        let view = ItemsView(
+        let view = ItemListView(
             store: store,
             timeProvider: services.timeProvider
         )

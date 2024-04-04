@@ -1,16 +1,16 @@
 import SwiftUI
 
-// MARK: - ItemsView
+// MARK: - ItemListView
 
 /// A view that displays the items in a single vault group.
-struct ItemsView: View {
+struct ItemListView: View {
     // MARK: Properties
 
     /// An object used to open urls from this view.
     @Environment(\.openURL) private var openURL
 
     /// The `Store` for this view.
-    @ObservedObject var store: Store<ItemsState, ItemsAction, ItemsEffect>
+    @ObservedObject var store: Store<ItemListState, ItemListAction, ItemListEffect>
 
     /// The `TimeProvider` used to calculate TOTP expiration.
     var timeProvider: any TimeProvider
@@ -138,10 +138,10 @@ struct ItemsView: View {
 #if DEBUG
 #Preview("Loading") {
     NavigationView {
-        ItemsView(
+        ItemListView(
             store: Store(
                 processor: StateProcessor(
-                    state: ItemsState(
+                    state: ItemListState(
                         loadingState: .loading(nil)
                     )
                 )
@@ -153,10 +153,10 @@ struct ItemsView: View {
 
 #Preview("Tokens") {
     NavigationView {
-        ItemsView(
+        ItemListView(
             store: Store(
                 processor: StateProcessor(
-                    state: ItemsState(
+                    state: ItemListState(
                         loadingState: .data(
                             [
                                 .init(

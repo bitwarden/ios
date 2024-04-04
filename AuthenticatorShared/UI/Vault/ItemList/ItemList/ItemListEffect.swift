@@ -1,7 +1,7 @@
-// MARK: - ItemsEffect
+// MARK: - ItemListEffect
 
-/// Effects that can be handled by a `ItemsProcessor`.
-enum ItemsEffect: Equatable {
+/// Effects that can be handled by a `ItemListProcessor`.
+enum ItemListEffect: Equatable {
     /// The add item button was pressed.
     case addItemPressed
 

@@ -1,10 +1,10 @@
 import BitwardenSdk
 import Foundation
 
-// MARK: - ItemsRoute
+// MARK: - ItemListRoute
 
 /// A route to a specific screen or subscreen of the Token List
-public enum ItemsRoute: Equatable, Hashable {
+public enum ItemListRoute: Equatable, Hashable {
     /// A route to the add item screen.
     case addItem
 
@@ -15,7 +15,7 @@ public enum ItemsRoute: Equatable, Hashable {
     case setupTotpManual
 }
 
-enum ItemsEvent {
+enum ItemListEvent {
     /// When the app should show the scan code screen.
     ///  Defaults to `.setupTotpManual` if camera is unavailable.
     case showScanCode

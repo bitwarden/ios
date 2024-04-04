@@ -1,7 +1,7 @@
-// MARK: - ItemsAction
+// MARK: - ItemListAction
 
-/// Actions that can be processed by a `ItemsProcessor`.
-enum ItemsAction: Equatable {
+/// Actions that can be processed by a `ItemListProcessor`.
+enum ItemListAction: Equatable {
     /// The url has been opened so clear the value in the state.
     case clearURL
 

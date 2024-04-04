@@ -1,10 +1,10 @@
 import BitwardenSdk
 import Foundation
 
-// MARK: - ItemsProcessor
+// MARK: - ItemListProcessor
 
-/// A `Processor` that can process `ItemsAction`s and `ItemsEffect`s.
-final class ItemsProcessor: StateProcessor<ItemsState, ItemsAction, ItemsEffect> {
+/// A `Processor` that can process `ItemListAction` and `ItemListEffect` objects.
+final class ItemListProcessor: StateProcessor<ItemListState, ItemListAction, ItemListEffect> {
     // MARK: Types
 
     typealias Services = HasCameraService
@@ -17,7 +17,7 @@ final class ItemsProcessor: StateProcessor<ItemsState, ItemsAction, ItemsEffect>
     // MARK: Private Properties
 
     /// The `Coordinator` for this processor.
-    private var coordinator: any Coordinator<ItemsRoute, ItemsEvent>
+    private var coordinator: any Coordinator<ItemListRoute, ItemListEvent>
 
     /// The services for this processor.
     private var services: Services
@@ -27,7 +27,7 @@ final class ItemsProcessor: StateProcessor<ItemsState, ItemsAction, ItemsEffect>
 
     // MARK: Initialization
 
-    /// Creates a new `ItemsProcessor`.
+    /// Creates a new `ItemListProcessor`.
     ///
     /// - Parameters:
     ///   - coordinator: The `Coordinator` for this processor.
@@ -35,9 +35,9 @@ final class ItemsProcessor: StateProcessor<ItemsState, ItemsAction, ItemsEffect>
     ///   - state: The initial state of this processor.
     ///
     init(
-        coordinator: any Coordinator<ItemsRoute, ItemsEvent>,
+        coordinator: any Coordinator<ItemListRoute, ItemListEvent>,
         services: Services,
-        state: ItemsState
+        state: ItemListState
     ) {
         self.coordinator = coordinator
         self.services = services
@@ -56,7 +56,7 @@ final class ItemsProcessor: StateProcessor<ItemsState, ItemsAction, ItemsEffect>
 
     // MARK: Methods
 
-    override func perform(_ effect: ItemsEffect) async {
+    override func perform(_ effect: ItemListEffect) async {
         switch effect {
         case .addItemPressed:
             await setupTotp()
@@ -69,7 +69,7 @@ final class ItemsProcessor: StateProcessor<ItemsState, ItemsAction, ItemsEffect>
         }
     }
 
-    override func receive(_ action: ItemsAction) {
+    override func receive(_ action: ItemListAction) {
         switch action {
         case .clearURL:
             break
@@ -128,7 +128,7 @@ final class ItemsProcessor: StateProcessor<ItemsState, ItemsAction, ItemsEffect>
     }
 }
 
-/// A class to manage TOTP code expirations for the ItemsProcessor and batch refresh calls.
+/// A class to manage TOTP code expirations for the ItemListProcessor and batch refresh calls.
 ///
 private class TOTPExpirationManager {
     // MARK: Properties
@@ -217,7 +217,7 @@ private class TOTPExpirationManager {
     }
 }
 
-extension ItemsProcessor: AuthenticatorKeyCaptureDelegate {
+extension ItemListProcessor: AuthenticatorKeyCaptureDelegate {
     func didCompleteCapture(
         _ captureCoordinator: AnyCoordinator<AuthenticatorKeyCaptureRoute, AuthenticatorKeyCaptureEvent>,
         with value: String
