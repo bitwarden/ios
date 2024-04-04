@@ -217,11 +217,10 @@ jobs:
           WATCH_APP_EXTENSION_UUID=$(grep UUID -A1 -a $WATCH_APP_EXTENSION_PROFILE_PATH | grep -io "[-A-F0-9]\{36\}")
           cp $WATCH_APP_EXTENSION_PROFILE_PATH "$PROFILES_DIR_PATH/$WATCH_APP_EXTENSION_UUID.mobileprovision"
 
-      - name: Remove export compliance key
-        if: env.build-variant != 'Production'
+      - name: Update beta export compliance key
+        if: env.build-variant == 'Beta'
         run: |
-          plutil -remove ITSAppUsesNonExemptEncryption Bitwarden/Application/Support/Info.plist
-          plutil -remove ITSEncryptionExportComplianceCode Bitwarden/Application/Support/Info.plist
+          plutil -replace ITSEncryptionExportComplianceCode -string 3dd3e32f-efa6-4d99-b410-28aa28b1cb77 Bitwarden/Application/Support/Info.plist
 
       - name: Install Mint, xcbeautify, and yq
         run: |
