@@ -93,6 +93,22 @@ extension Snapshotting where Value: SwiftUI.View, Format == UIImage {
         )
     }
 
+    /// A snapshot in portrait on iPhone 13, with a fixed size, precision 1, perceptual precision
+    /// of 0.95 and in light mode.
+    ///
+    ///  - Parameter heightMultiple: Sets the height multiple of the snapshot relative to the iPhone 13 height.
+    ///
+    static func fixedSize(width: CGFloat = 390, height: CGFloat = 100) -> Snapshotting {
+        var viewImageConfig = ViewImageConfig.iPhone13(.portrait)
+        viewImageConfig.size = CGSize(width: width, height: height)
+        return .image(
+            precision: defaultPrecision,
+            perceptualPrecision: defaultPerceptualPrecision,
+            layout: .device(config: viewImageConfig),
+            traits: .init(userInterfaceStyle: .light)
+        )
+    }
+
     /// A default snapshot in portrait on iPhone 13, with precision 1, perceptual precision of 0.95
     /// and in light mode.
     ///

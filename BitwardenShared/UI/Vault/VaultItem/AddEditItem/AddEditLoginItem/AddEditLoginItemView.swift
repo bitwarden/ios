@@ -118,6 +118,7 @@ struct AddEditLoginItemView: View {
                 } label: {
                     HStack(alignment: .center, spacing: 4) {
                         Asset.Images.camera.swiftUIImage
+                            .imageStyle(.accessoryIcon(scaleWithFont: true))
                         Text(Localizations.setupTotp)
                     }
                 }

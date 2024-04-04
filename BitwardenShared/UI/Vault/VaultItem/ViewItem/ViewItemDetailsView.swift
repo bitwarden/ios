@@ -273,7 +273,7 @@ struct ViewItemDetailsView: View {
                 Button {
                     store.send(.downloadAttachment(attachment))
                 } label: {
-                    Image(uiImage: Asset.Images.download.image)
+                    Image(asset: Asset.Images.download)
                         .imageStyle(.rowIcon(color: Asset.Colors.primaryBitwarden.swiftUIColor))
                 }
                 .accessibilityLabel(Localizations.download)
