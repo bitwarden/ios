@@ -61,7 +61,7 @@ class CipherAPIServiceTests: XCTestCase { // swiftlint:disable:this type_body_le
                     password: "encrypted password",
                     passwordRevisionDate: nil,
                     totp: "totp",
-                    uris: [CipherLoginUriModel(match: nil, uri: "encrypted uri")],
+                    uris: [CipherLoginUriModel(match: nil, uri: "encrypted uri", uriChecksum: nil)],
                     username: "encrypted username"
                 ),
                 name: "encrypted name",
@@ -110,7 +110,7 @@ class CipherAPIServiceTests: XCTestCase { // swiftlint:disable:this type_body_le
                     password: "encrypted password",
                     passwordRevisionDate: nil,
                     totp: "totp",
-                    uris: [CipherLoginUriModel(match: nil, uri: "encrypted uri")],
+                    uris: [CipherLoginUriModel(match: nil, uri: "encrypted uri", uriChecksum: nil)],
                     username: "encrypted username"
                 ),
                 name: "encrypted name",
@@ -237,7 +237,7 @@ class CipherAPIServiceTests: XCTestCase { // swiftlint:disable:this type_body_le
                         password: "encrypted password",
                         passwordRevisionDate: nil,
                         totp: "totp",
-                        uris: [CipherLoginUriModel(match: nil, uri: "encrypted uri")],
+                        uris: [CipherLoginUriModel(match: nil, uri: "encrypted uri", uriChecksum: nil)],
                         username: "encrypted username"
                     ),
                     name: "encrypted name",
@@ -289,7 +289,7 @@ class CipherAPIServiceTests: XCTestCase { // swiftlint:disable:this type_body_le
                     password: "encrypted password",
                     passwordRevisionDate: nil,
                     totp: "totp",
-                    uris: [CipherLoginUriModel(match: nil, uri: "encrypted uri")],
+                    uris: [CipherLoginUriModel(match: nil, uri: "encrypted uri", uriChecksum: nil)],
                     username: "encrypted username"
                 ),
                 name: "encrypted name",

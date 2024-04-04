@@ -66,7 +66,7 @@ class VaultListItemRowViewTests: BitwardenTestCase {
     func test_snapshot_showWebIcon() {
         processor.state.iconBaseURL = .example
         processor.state.item = .fixture(cipherView: .fixture(login: .fixture(uris: [
-            .init(
+            .fixture(
                 uri: "Test",
                 match: nil
             ),

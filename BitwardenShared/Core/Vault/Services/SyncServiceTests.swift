@@ -317,7 +317,11 @@ class SyncServiceTests: BitwardenTestCase {
                         password: "encrypted password",
                         totp: "totp",
                         uris: [
-                            CipherLoginUriModel(match: nil, uri: "encrypted uri"),
+                            CipherLoginUriModel(
+                                match: nil,
+                                uri: "encrypted uri",
+                                uriChecksum: "encrypted uri checksum"
+                            ),
                         ],
                         username: "encrypted username"
                     ),

@@ -59,11 +59,11 @@ struct StepperFieldView<State>: View {
                     Text(String(field.value))
                         .styleGuide(.body, monoSpacedDigit: true)
                         .foregroundColor(Asset.Colors.textSecondary.swiftUIColor)
-                        .accessibilityIdentifier(field.accessibilityId ?? field.id)
                 }
                 .padding(.trailing, 4)
             }
             .padding(.top, 4)
+            .accessibilityIdentifier(field.accessibilityId ?? field.id)
 
             Divider()
         }

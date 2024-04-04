@@ -46,6 +46,8 @@ struct ViewItemDetailsView: View {
                 }
                 .cornerRadius(10)
             }
+            .accessibilityElement(children: .contain)
+            .accessibilityIdentifier("AttachmentsList")
         }
     }
 
@@ -130,6 +132,8 @@ struct ViewItemDetailsView: View {
     private var itemInformationSection: some View {
         SectionView(Localizations.itemInformation, contentSpacing: 12) {
             BitwardenTextValueField(title: Localizations.name, value: store.state.name)
+                .accessibilityElement(children: .contain)
+                .accessibilityIdentifier("ItemRow")
 
             // check for type
             switch store.state.type {
@@ -170,6 +174,8 @@ struct ViewItemDetailsView: View {
             SectionView(Localizations.notes) {
                 BitwardenTextValueField(value: store.state.notes)
             }
+            .accessibilityElement(children: .contain)
+            .accessibilityIdentifier("CipherNotesLabel")
         }
     }
 
@@ -232,7 +238,10 @@ struct ViewItemDetailsView: View {
                                 .imageStyle(.accessoryIcon)
                         }
                         .accessibilityLabel(Localizations.copy)
+                        .accessibilityIdentifier("CopyValueButton")
                     }
+                    .accessibilityElement(children: .contain)
+                    .accessibilityIdentifier("UriRow")
                 }
             }
         }
@@ -277,5 +286,7 @@ struct ViewItemDetailsView: View {
             }
         }
         .background(Asset.Colors.backgroundPrimary.swiftUIColor)
+        .accessibilityElement(children: .contain)
+        .accessibilityIdentifier("CipherAttachment")
     }
 }

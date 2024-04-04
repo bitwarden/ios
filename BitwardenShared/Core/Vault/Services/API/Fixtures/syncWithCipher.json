@@ -19,7 +19,8 @@
         "uris": [
           {
             "uri": "encrypted uri",
-            "match": null
+            "match": null,
+            "uriChecksum": "encrypted uri checksum"
           }
         ],
         "username": "encrypted username",

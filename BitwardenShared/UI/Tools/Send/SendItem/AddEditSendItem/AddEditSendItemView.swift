@@ -206,7 +206,8 @@ struct AddEditSendItemView: View { // swiftlint:disable:this type_body_length
                             get: \.customDeletionDate,
                             send: AddEditSendItemAction.customDeletionDateChanged
                         ),
-                        displayComponents: .hourAndMinute
+                        displayComponents: .hourAndMinute,
+                        accessibilityIdentifier: "SendCustomDeletionTimePicker"
                     )
                 }
             }
@@ -255,7 +256,8 @@ struct AddEditSendItemView: View { // swiftlint:disable:this type_body_length
                             get: \.customExpirationDate,
                             send: AddEditSendItemAction.customExpirationDateChanged
                         ),
-                        displayComponents: .hourAndMinute
+                        displayComponents: .hourAndMinute,
+                        accessibilityIdentifier: "SendCustomDeletionTimePicker"
                     )
                 }
             }

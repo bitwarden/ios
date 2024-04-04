@@ -197,7 +197,7 @@ extension GeneratorState {
             [
                 passwordGeneratorTypeField(),
                 stepperField(
-                    accessibilityId: "NumberOfWordsLabel",
+                    accessibilityId: "NumberOfWordsStepper",
                     keyPath: \.passwordState.numberOfWords,
                     range: 3 ... 20,
                     title: Localizations.numberOfWords

@@ -1,3 +1,4 @@
+import AuthenticationServices
 import BitwardenSdk
 import Combine
 import Foundation
@@ -16,9 +17,6 @@ enum CreateAccountError: Error {
 
     /// The email is invalid.
     case invalidEmail
-
-    /// The password was found in data breaches.
-    case passwordBreachesFound
 
     /// The password confirmation is not correct.
     case passwordsDontMatch
@@ -41,6 +39,7 @@ class CreateAccountProcessor: StateProcessor<CreateAccountState, CreateAccountAc
         & HasAuthRepository
         & HasCaptchaService
         & HasClientAuth
+        & HasErrorReporter
 
     // MARK: Private Properties
 
@@ -74,7 +73,7 @@ class CreateAccountProcessor: StateProcessor<CreateAccountState, CreateAccountAc
     override func perform(_ effect: CreateAccountEffect) async {
         switch effect {
         case .createAccount:
-            await checkForBreachesAndCreateAccount()
+            await checkPasswordAndCreateAccount()
         }
     }
 
@@ -102,29 +101,54 @@ class CreateAccountProcessor: StateProcessor<CreateAccountState, CreateAccountAc
 
     // MARK: Private methods
 
-    /// Checks if the user's entered password has been found in a data breach.
-    /// If it has, an alert will be presented. If not, the `CreateAccountRequest`
-    /// will be made.
+    /// Shows an alert if the user's password has been found in a data breach.
+    /// Also shows an alert if it hasn't, but the password is still weak.
     ///
-    private func checkForBreachesAndCreateAccount() async {
-        guard state.isCheckDataBreachesToggleOn else {
-            await createAccount()
-            return
-        }
-
+    /// - Parameter isWeakPassword: Whether the password is weak.
+    ///
+    private func checkForBreaches(isWeakPassword: Bool) async {
         do {
+            coordinator.showLoadingOverlay(title: Localizations.creatingAccount)
             let breachCount = try await services.accountAPIService.checkDataBreaches(password: state.passwordText)
-            guard breachCount == 0 else {
-                coordinator.showAlert(.breachesAlert {
+
+            // If unexposed and strong, create the account
+            guard breachCount > 0 || isWeakPassword else {
+                await createAccount()
+                return
+            }
+
+            // If exposed and/or weak, show alert
+            coordinator.hideLoadingOverlay()
+            let alertType = Alert.PasswordStrengthAlertType(isBreached: breachCount > 0, isWeak: isWeakPassword)
+            coordinator.showAlert(.passwordStrengthAlert(alertType) {
+                await self.createAccount()
+            })
+        } catch {
+            await createAccount()
+            Logger.processor.error("HIBP network request failed: \(error)")
+        }
+    }
+
+    /// Checks the password strength and conditionally checks the password against data breaches.
+    ///
+    /// An alert is shown if the password:
+    /// - Is exposed and weak
+    /// - is exposed and strong
+    /// - is unexposed and weak
+    /// - is unchecked against breaches and weak
+    ///
+    private func checkPasswordAndCreateAccount() async {
+        if state.isCheckDataBreachesToggleOn {
+            await checkForBreaches(isWeakPassword: state.isWeakPassword)
+        } else {
+            guard !state.isWeakPassword else {
+                coordinator.showAlert(.passwordStrengthAlert(.weak) {
                     await self.createAccount()
                 })
                 return
             }
-        } catch {
-            Logger.processor.error("HIBP network request failed: \(error)")
+            await createAccount()
         }
-
-        await createAccount()
     }
 
     /// Creates the user's account with their provided credentials.
@@ -132,7 +156,11 @@ class CreateAccountProcessor: StateProcessor<CreateAccountState, CreateAccountAc
     /// - Parameter captchaToken: The token returned when the captcha flow has completed.
     ///
     private func createAccount(captchaToken: String? = nil) async {
-        // swiftlint:disable:previous function_body_length cyclomatic_complexity
+        // swiftlint:disable:previous function_body_length
+
+        // Hide the loading overlay when exiting this method, in case it hasn't been hidden yet.
+        defer { coordinator.hideLoadingOverlay() }
+
         do {
             let email = state.emailText.trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
             guard !email.isEmpty else {
@@ -158,6 +186,8 @@ class CreateAccountProcessor: StateProcessor<CreateAccountState, CreateAccountAc
             guard state.isTermsAndPrivacyToggleOn else {
                 throw CreateAccountError.acceptPoliciesError
             }
+
+            coordinator.showLoadingOverlay(title: Localizations.creatingAccount)
 
             let kdf: Kdf = .pbkdf2(iterations: NonZeroU32(KdfConfig().kdfIterations))
 
@@ -189,20 +219,10 @@ class CreateAccountProcessor: StateProcessor<CreateAccountState, CreateAccountAc
                 )
             )
             coordinator.navigate(to: .login(username: email))
-        } catch CreateAccountError.acceptPoliciesError {
-            coordinator.showAlert(.acceptPoliciesAlert())
-        } catch CreateAccountError.emailEmpty {
-            coordinator.showAlert(.validationFieldRequired(fieldName: Localizations.email))
-        } catch CreateAccountError.invalidEmail {
-            coordinator.showAlert(.invalidEmail)
-        } catch CreateAccountError.passwordsDontMatch {
-            coordinator.showAlert(.passwordsDontMatch)
-        } catch CreateAccountError.passwordEmpty {
-            coordinator.showAlert(.validationFieldRequired(fieldName: Localizations.masterPassword))
-        } catch CreateAccountError.passwordIsTooShort {
-            coordinator.showAlert(.passwordIsTooShort)
         } catch let CreateAccountRequestError.captchaRequired(hCaptchaSiteCode: siteCode) {
             launchCaptchaFlow(with: siteCode)
+        } catch let error as CreateAccountError {
+            showCreateAccountErrorAlert(error)
         } catch {
             coordinator.showAlert(.networkResponseError(error) {
                 await self.createAccount(captchaToken: captchaToken)
@@ -227,8 +247,29 @@ class CreateAccountProcessor: StateProcessor<CreateAccountState, CreateAccountAc
                 context: self
             )
         } catch {
-            // TODO: BIT-887 Show alert for when hCaptcha fails
-            print(error)
+            coordinator.showAlert(.networkResponseError(error))
+            services.errorReporter.log(error: error)
+        }
+    }
+
+    /// Shows a `CreateAccountError` alert.
+    ///
+    /// - Parameter error: The error that occurred.
+    ///
+    private func showCreateAccountErrorAlert(_ error: CreateAccountError) {
+        switch error {
+        case .acceptPoliciesError:
+            coordinator.showAlert(.acceptPoliciesAlert())
+        case .emailEmpty:
+            coordinator.showAlert(.validationFieldRequired(fieldName: Localizations.email))
+        case .invalidEmail:
+            coordinator.showAlert(.invalidEmail)
+        case .passwordsDontMatch:
+            coordinator.showAlert(.passwordsDontMatch)
+        case .passwordEmpty:
+            coordinator.showAlert(.validationFieldRequired(fieldName: Localizations.masterPassword))
+        case .passwordIsTooShort:
+            coordinator.showAlert(.passwordIsTooShort)
         }
     }
 
@@ -258,7 +299,14 @@ extension CreateAccountProcessor: CaptchaFlowDelegate {
     }
 
     func captchaErrored(error: Error) {
-        // TODO: BIT-681
-        print(error)
+        guard (error as NSError).code != ASWebAuthenticationSessionError.canceledLogin.rawValue else { return }
+
+        services.errorReporter.log(error: error)
+
+        // Show the alert after a delay to ensure it doesn't try to display over the
+        // closing captcha view.
+        DispatchQueue.main.asyncAfter(deadline: UI.after(0.6)) {
+            self.coordinator.showAlert(.networkResponseError(error))
+        }
     }
 }

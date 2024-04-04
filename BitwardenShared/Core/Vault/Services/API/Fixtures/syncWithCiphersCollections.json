@@ -161,6 +161,90 @@
       ],
       "edit": true,
       "creationDate": "2023-12-01T15:49:55Z"
+    },
+    {
+      "favorite": false,
+      "id": "21b18415-caf2-44c7-8dee-9d28d69710d9",
+      "name": "Reddit",
+      "viewPassword": true,
+      "reprompt": 0,
+      "login": {
+        "password": "reddit1234asdf",
+        "uris": [
+          {
+            "match": 0,
+            "uri": "reddit.com"
+          }
+        ],
+        "username": "engineering@bitwarden.com",
+        "autofillOnPageLoad": true
+      },
+      "type": 1,
+      "folderId": "3270afb7-e3d7-495a-8867-c66cf272f795",
+      "organizationId": "ba756e34-4650-4e8a-8cbb-6e98bfae9abf",
+      "organizationUseTotp": false,
+      "revisionDate": "2023-12-01T15:49:55Z",
+      "collectionIds": [
+        "f96de98e-618a-4886-b396-66b92a385325"
+      ],
+      "edit": true,
+      "creationDate": "2023-12-01T15:49:55Z"
+    },
+    {
+      "favorite": false,
+      "id": "2febd4e6-3e74-42a6-bc7b-f4e0faffa5d2",
+      "name": "Zoom",
+      "viewPassword": true,
+      "reprompt": 0,
+      "login": {
+        "password": "zoom1234asdf",
+        "uris": [
+          {
+            "match": 0,
+            "uri": "zoom.com"
+          }
+        ],
+        "username": "zoom@bitwarden.com",
+        "autofillOnPageLoad": true
+      },
+      "type": 1,
+      "folderId": "2f6e9cda-b12a-4b16-8db1-c7c2e4dc32d5",
+      "organizationId": "ba756e34-4650-4e8a-8cbb-6e98bfae9abf",
+      "organizationUseTotp": false,
+      "revisionDate": "2023-12-01T15:49:55Z",
+      "collectionIds": [
+        "a468e453-7141-49cf-bb15-58448c2b27b9"
+      ],
+      "edit": true,
+      "creationDate": "2023-12-01T15:49:55Z"
+    },
+    {
+      "favorite": false,
+      "id": "6421cd2d-53fe-4ac7-b57f-e20cb1c5081b",
+      "name": "Azure",
+      "viewPassword": true,
+      "reprompt": 0,
+      "login": {
+        "password": "azure1234asdf",
+        "uris": [
+          {
+            "match": 0,
+            "uri": "azure.microsoft.com"
+          }
+        ],
+        "username": "azure@bitwarden.com",
+        "autofillOnPageLoad": true
+      },
+      "type": 1,
+      "folderId": "277a9102-7d8c-41bc-b66e-dd0981481489",
+      "organizationId": "ba756e34-4650-4e8a-8cbb-6e98bfae9abf",
+      "organizationUseTotp": false,
+      "revisionDate": "2023-12-01T15:49:55Z",
+      "collectionIds": [
+        "f96de98e-618a-4886-b396-66b92a385325"
+      ],
+      "edit": true,
+      "creationDate": "2023-12-01T15:49:55Z"
     }
   ],
   "collections": [
@@ -190,6 +274,22 @@
       "id": "3270afb7-e3d7-495a-8867-c66cf272f795",
       "name": "Social",
       "revisionDate": "2023-10-09T03:44:59Z"
+    },
+    {
+      "id": "2f6e9cda-b12a-4b16-8db1-c7c2e4dc32d5",
+      "name": "Internal",
+      "revisionDate": "2023-10-09T03:44:59Z"
+    },
+    {
+      "id": "4eb7cf7c-b930-44e9-bfa9-0add0c912f4a",
+      "name": "Development",
+      "revisionDate": "2023-10-09T03:44:59Z"
+    },
+    {
+      "id": "277a9102-7d8c-41bc-b66e-dd0981481489",
+      "name": "Development/Artifacts",
+      "revisionDate": "2023-10-09T03:44:59Z"
     }
+
   ]
 }

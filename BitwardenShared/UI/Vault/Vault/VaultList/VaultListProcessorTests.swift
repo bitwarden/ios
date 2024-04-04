@@ -223,7 +223,7 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
         let loginWithData = CipherView.loginFixture(
             login: .fixture(
                 password: "secretPassword",
-                uris: [.init(uri: URL.example.relativeString, match: nil)],
+                uris: [.fixture(uri: URL.example.relativeString, match: nil)],
                 username: "username"
             ),
             reprompt: .password
@@ -267,7 +267,7 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
         let loginWithData = CipherView.loginFixture(
             login: .fixture(
                 password: "password",
-                uris: [.init(uri: URL.example.relativeString, match: nil)],
+                uris: [.fixture(uri: URL.example.relativeString, match: nil)],
                 username: "username"
             ),
             reprompt: .password
@@ -387,7 +387,7 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
 
         let loginWithData = CipherView.loginFixture(login: .fixture(
             password: "password",
-            uris: [.init(uri: URL.example.relativeString, match: nil)],
+            uris: [.fixture(uri: URL.example.relativeString, match: nil)],
             username: "username",
             totp: "totpKey"
         ))

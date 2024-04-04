@@ -28,7 +28,7 @@ class SyncAPIServiceTests: BitwardenTestCase {
     // MARK: Tests
 
     /// `getSync()` successfully decodes a response with ciphers.
-    func test_sync_withCiphers() async throws {
+    func test_sync_withCiphers() async throws { // swiftlint:disable:this function_body_length
         client.result = .httpSuccess(testData: .syncWithCipher)
 
         let response = try await subject.getSync()
@@ -63,7 +63,11 @@ class SyncAPIServiceTests: BitwardenTestCase {
                             password: "encrypted password",
                             totp: "totp",
                             uris: [
-                                CipherLoginUriModel(match: nil, uri: "encrypted uri"),
+                                CipherLoginUriModel(
+                                    match: nil,
+                                    uri: "encrypted uri",
+                                    uriChecksum: "encrypted uri checksum"
+                                ),
                             ],
                             username: "encrypted username"
                         ),

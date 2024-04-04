@@ -3,6 +3,64 @@ import Foundation
 // MARK: - Alert+Auth
 
 extension Alert {
+    // MARK: - PasswordStrengthAlertType
+
+    /// An enumeration of password strength related alert types.
+    ///
+    enum PasswordStrengthAlertType: CaseIterable {
+        /// An exposed but strong password.
+        case exposedStrong
+
+        /// An exposed and weak password.
+        case exposedWeak
+
+        /// A weak password unchecked against breaches.
+        case weak
+
+        /// The title of the alert.
+        var title: String {
+            switch self {
+            case .exposedStrong:
+                Localizations.exposedMasterPassword
+            case .exposedWeak:
+                Localizations.weakAndExposedMasterPassword
+            case .weak:
+                Localizations.weakMasterPassword
+            }
+        }
+
+        /// The alert's message.
+        var message: String {
+            switch self {
+            case .exposedStrong:
+                Localizations.passwordFoundInADataBreachAlertDescription
+            case .exposedWeak:
+                Localizations.weakPasswordIdentifiedAndFoundInADataBreachAlertDescription
+            case .weak:
+                Localizations.weakPasswordIdentifiedUseAStrongPasswordToProtectYourAccount
+            }
+        }
+
+        // MARK: Initialization
+
+        /// Initializes a `PasswordStrengthAlertType`.
+        ///
+        /// - Parameters:
+        ///   - isBreached: Whether the password is breached.
+        ///   - isWeak: Whether the password is weak.
+        ///
+        init(isBreached: Bool, isWeak: Bool) {
+            switch (isBreached, isWeak) {
+            case (true, true):
+                self = .exposedWeak
+            case (true, false):
+                self = .exposedStrong
+            default:
+                self = .weak
+            }
+        }
+    }
+
     // MARK: Methods
 
     /// An alert notifying the user that they haven't agreed to the terms of service and privacy policy.
@@ -60,28 +118,6 @@ extension Alert {
             message: nil,
             preferredStyle: .actionSheet,
             alertActions: alertActions + [AlertAction(title: Localizations.cancel, style: .cancel)]
-        )
-    }
-
-    /// An alert notifying the user, upon creating an account, that their entered password has been found
-    /// in a data breach.
-    ///
-    /// - Parameter action: The action to perform when the user taps `Yes`, opting to use the password anyways.
-    ///
-    /// - Returns: An alert notifying the user that their entered password has been found in a data breach.
-    ///
-    static func breachesAlert(
-        _ action: @escaping () async -> Void
-    ) -> Alert {
-        Alert(
-            title: Localizations.weakAndExposedMasterPassword,
-            message: Localizations.weakPasswordIdentifiedAndFoundInADataBreachAlertDescription,
-            alertActions: [
-                AlertAction(title: Localizations.no, style: .cancel),
-                AlertAction(title: Localizations.yes, style: .default) { _ in
-                    await action()
-                },
-            ]
         )
     }
 
@@ -154,6 +190,30 @@ extension Alert {
         defaultAlert(
             title: Localizations.masterPasswordPolicyValidationTitle,
             message: Localizations.masterPasswordPolicyValidationMessage
+        )
+    }
+
+    /// An alert notifying the user that their password has been exposed and or is weak.
+    ///
+    /// - Parameters:
+    ///   - alertType: The type of alert to show.
+    ///   - action: The action taken if the user opts to use the password anyways.
+    ///
+    /// - Returns: An alert notifying the user that their password has been exposed and or is weak.
+    ///
+    static func passwordStrengthAlert(
+        _ alertType: PasswordStrengthAlertType,
+        _ action: @escaping () async -> Void
+    ) -> Alert {
+        Alert(
+            title: alertType.title,
+            message: alertType.message,
+            alertActions: [
+                AlertAction(title: Localizations.no, style: .cancel),
+                AlertAction(title: Localizations.yes, style: .default) { _ in
+                    await action()
+                },
+            ]
         )
     }
 }
