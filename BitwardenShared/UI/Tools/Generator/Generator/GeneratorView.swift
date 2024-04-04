@@ -31,6 +31,7 @@ struct GeneratorView: View {
                         store.send(.selectButtonPressed)
                     }
                     .buttonStyle(.primary())
+                    .accessibilityIdentifier("SelectButton")
                 }
             }
             .padding(16)

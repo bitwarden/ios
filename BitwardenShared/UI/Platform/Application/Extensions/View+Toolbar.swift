@@ -24,7 +24,7 @@ extension View {
     ///
     func cancelToolbarButton(action: @escaping () -> Void) -> some View {
         toolbarButton(asset: Asset.Images.cancel, label: Localizations.cancel, action: action)
-            .accessibilityIdentifier("CLOSE")
+            .accessibilityIdentifier("CancelButton")
     }
 
     /// Returns a toolbar button configured for closing a view.
