@@ -30,6 +30,7 @@ xcrun xcodebuild archive \
   -scheme Bitwarden \
   -configuration Release \
   -archivePath "${ARCHIVE_PATH}" \
+  -derivedDataPath build/DerivedData \
   | xcbeautify --renderer github-actions
 echo ""
 
