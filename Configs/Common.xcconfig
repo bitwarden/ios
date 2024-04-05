@@ -11,6 +11,8 @@ APPICON_NAME = AppIcon
 //
 //    DEVELOPMENT_TEAM = <Your team ID>
 //    ORGANIZATION_IDENTIFIER = <Your reversed domain name>
+//    BASE_BUNDLE_ID = <Your bundle ID>
+//    APPICON_NAME = <Your App Icon's Name in the asset catalogue>
 //    PROVISIONING_PROFILE_SPECIFIER = <Optional provisioning profile specifier for the main app>
 //    PROVISIONING_PROFILE_SPECIFIER_ACTION_EXTENSION = <Optional provisioning profile specifier for the action extension>
 //    PROVISIONING_PROFILE_SPECIFIER_AUTOFILL_EXTENSION = <Optional provisioning profile specifier for the autofill extension>

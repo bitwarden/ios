@@ -4,11 +4,11 @@
 <dict>
 	<key>com.apple.security.application-groups</key>
 	<array>
-		<string>group.$(ORGANIZATION_IDENTIFIER).bitwarden</string>
+		<string>group.$(BASE_BUNDLE_ID)</string>
 	</array>
 	<key>keychain-access-groups</key>
 	<array>
-		<string>$(AppIdentifierPrefix)$(ORGANIZATION_IDENTIFIER).bitwarden</string>
+		<string>$(AppIdentifierPrefix)$(BASE_BUNDLE_ID)</string>
 	</array>
 </dict>
 </plist>
