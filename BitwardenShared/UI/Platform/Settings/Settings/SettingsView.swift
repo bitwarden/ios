@@ -24,7 +24,7 @@ struct SettingsView: View {
     private var chevron: some View {
         Image(asset: Asset.Images.rightAngle)
             .resizable()
-            .frame(width: 12, height: 12)
+            .scaledFrame(width: 12, height: 12)
             .foregroundColor(Color(asset: Asset.Colors.textSecondary))
     }
 

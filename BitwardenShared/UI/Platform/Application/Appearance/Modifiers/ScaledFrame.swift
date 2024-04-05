@@ -53,6 +53,23 @@ struct ScaledFrame: ViewModifier {
 // MARK: View
 
 extension View {
+    /// Sets the frame of a `View` to width/height values that can optionally be scaled with
+    /// dynamic font size.
+    ///
+    /// - Parameters:
+    ///   - width: The width of the view before scaling.
+    ///   - height: The height of the view before scaling.
+    ///   - scaleWithFont: Whether to scale the frame with dynamic font size.
+    ///
+    @ViewBuilder
+    func frame(width: CGFloat, height: CGFloat, scaleWithFont: Bool) -> some View {
+        if scaleWithFont {
+            scaledFrame(width: width, height: height)
+        } else {
+            frame(width: width, height: height)
+        }
+    }
+
     /// Set the frame of a `View` to width/height values that will scale with dynamic font size.
     ///
     /// - Parameters:

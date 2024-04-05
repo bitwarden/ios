@@ -38,6 +38,7 @@ struct SearchVaultFilterRowView: View {
                         }
                     } label: {
                         Asset.Images.horizontalKabob.swiftUIImage
+                            .imageStyle(.rowIcon)
                             .frame(width: 44, height: 44, alignment: .trailing)
                             .contentShape(Rectangle())
                     }
@@ -46,6 +47,7 @@ struct SearchVaultFilterRowView: View {
                     .foregroundColor(Asset.Colors.textSecondary.swiftUIColor)
                 }
                 .padding(.horizontal, 16)
+                .padding(.vertical, 9)
                 .frame(minHeight: 60)
                 .accessibilityIdentifier(accessibilityID ?? "")
                 .background(Asset.Colors.backgroundPrimary.swiftUIColor)

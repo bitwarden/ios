@@ -15,8 +15,7 @@ struct DeleteAccountView: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 24) {
             Image(asset: Asset.Images.exclamationTriangle)
-                .resizable()
-                .frame(width: 24, height: 24)
+                .scaledFrame(width: 24, height: 24)
                 .foregroundColor(Color(asset: Asset.Colors.loadingRed))
 
             Text(Localizations.deletingYourAccountIsPermanent)

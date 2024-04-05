@@ -136,7 +136,7 @@ struct AttachmentsView: View {
                 Button {
                     store.send(.deletePressed(attachment))
                 } label: {
-                    Image(uiImage: Asset.Images.trash.image)
+                    Image(asset: Asset.Images.trash)
                         .imageStyle(.rowIcon(color: Asset.Colors.primaryBitwarden.swiftUIColor))
                 }
                 .accessibilityLabel(Localizations.delete)
