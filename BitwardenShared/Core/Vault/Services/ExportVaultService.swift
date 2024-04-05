@@ -100,13 +100,16 @@ class DefultExportVaultService: ExportVaultService {
     private let cipherService: CipherService
 
     /// The client exporters used by this service.
-    private let clientExporters: ClientExportersProtocol
+    private let clientService: ClientService
 
     /// The error reporter used by this service.
     private let errorReporter: ErrorReporter
 
     /// The folder service used by this service.
     private let folderService: FolderService
+
+    /// The state service used by this Default Service.
+    private var stateService: StateService
 
     /// The time provider used by this service.
     private let timeProvider: TimeProvider
@@ -127,15 +130,17 @@ class DefultExportVaultService: ExportVaultService {
     ///
     init(
         cipherService: CipherService,
-        clientExporters: ClientExportersProtocol,
+        clientService: ClientService,
         errorReporter: ErrorReporter,
         folderService: FolderService,
+        stateService: StateService,
         timeProvider: TimeProvider
     ) {
         self.cipherService = cipherService
-        self.clientExporters = clientExporters
+        self.clientService = clientService
         self.errorReporter = errorReporter
         self.folderService = folderService
+        self.stateService = stateService
         self.timeProvider = timeProvider
     }
 
@@ -155,6 +160,7 @@ class DefultExportVaultService: ExportVaultService {
     }
 
     func exportVaultFileContents(format: ExportFileType) async throws -> String {
+        let userId = try await stateService.getActiveAccountId()
         var exportFormat: BitwardenSdk.ExportFormat
         let folders = try await folderService.fetchAllFolders()
         var ciphers = try await cipherService.fetchAllCiphers()
@@ -175,7 +181,7 @@ class DefultExportVaultService: ExportVaultService {
         }
 
         // A string representing the file contents
-        return try await clientExporters.exportVault(
+        return try await clientService.clientExporters(for: userId).exportVault(
             folders: folders,
             ciphers: ciphers,
             format: exportFormat

@@ -14,7 +14,7 @@ final class AccountSecurityProcessor: StateProcessor<
 
     typealias Services = HasAuthRepository
         & HasBiometricsRepository
-        & HasClientAuth
+//        & HasClientAuth
         & HasErrorReporter
         & HasPolicyService
         & HasSettingsRepository

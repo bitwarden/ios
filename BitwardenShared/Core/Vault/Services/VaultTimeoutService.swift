@@ -96,12 +96,6 @@ class DefaultVaultTimeoutService: VaultTimeoutService {
 
     // MARK: Private properties
 
-    /// The client used by the application to handle encryption and decryption setup tasks.
-    private let clientCrypto: ClientCryptoProtocol
-
-    /// The repository used to manage keychain items.
-    private let keychainRepository: KeychainRepository
-
     /// The state service used by this Default Service.
     private var stateService: StateService
 
@@ -119,13 +113,9 @@ class DefaultVaultTimeoutService: VaultTimeoutService {
     ///   - timeProvider: Provides the current time.
     ///
     init(
-        clientCrypto: ClientCryptoProtocol,
-        keychainRepository: KeychainRepository,
         stateService: StateService,
         timeProvider: TimeProvider
     ) {
-        self.clientCrypto = clientCrypto
-        self.keychainRepository = keychainRepository
         self.stateService = stateService
         self.timeProvider = timeProvider
     }
@@ -177,15 +167,7 @@ class DefaultVaultTimeoutService: VaultTimeoutService {
 
     func unlockVault(userId: String?) async throws {
         guard let id = try? await stateService.getAccountIdOrActiveId(userId: userId) else { return }
-        defer { timeoutStore[id] = false }
-        do {
-            try await keychainRepository.setUserAuthKey(
-                for: .neverLock(userId: id),
-                value: clientCrypto.getUserEncryptionKey()
-            )
-        } catch {
-            throw VaultTimeoutServiceError.setAuthKeyFailed
-        }
+        timeoutStore[id] = false
     }
 
     func sessionTimeoutValue(userId: String?) async throws -> SessionTimeoutValue {

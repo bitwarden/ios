@@ -89,11 +89,8 @@ protocol SettingsRepository: AnyObject {
 class DefaultSettingsRepository {
     // MARK: Properties
 
-    /// The client used by the application to handle auth related encryption and decryption tasks.
-    private let clientAuth: ClientAuthProtocol
-
-    /// The client used by the application to handle vault encryption and decryption tasks.
-    private let clientVault: ClientVaultService
+    /// The service that handles common client functionality such as encryption and decryption.
+    private let clientService: ClientService
 
     /// The service used to manage syncing and updates to the user's folders.
     private let folderService: FolderService
@@ -124,16 +121,14 @@ class DefaultSettingsRepository {
     ///   - vaultTimeoutService: The service used to manage vault access.
     ///
     init(
-        clientAuth: ClientAuthProtocol,
-        clientVault: ClientVaultService,
+        clientService: ClientService,
         folderService: FolderService,
         pasteboardService: PasteboardService,
         stateService: StateService,
         syncService: SyncService,
         vaultTimeoutService: VaultTimeoutService
     ) {
-        self.clientAuth = clientAuth
-        self.clientVault = clientVault
+        self.clientService = clientService
         self.folderService = folderService
         self.pasteboardService = pasteboardService
         self.stateService = stateService
@@ -151,8 +146,9 @@ extension DefaultSettingsRepository: SettingsRepository {
     }
 
     func addFolder(name: String) async throws {
+        let userId = try await stateService.getActiveAccountId()
         let folderView = FolderView(id: nil, name: name, revisionDate: Date.now)
-        let folder = try await clientVault.folders().encrypt(folder: folderView)
+        let folder = try await clientService.clientVault(for: userId).folders().encrypt(folder: folderView)
         try await folderService.addFolderWithServer(name: folder.name)
     }
 
@@ -161,9 +157,11 @@ extension DefaultSettingsRepository: SettingsRepository {
     }
 
     func editFolder(withID id: String, name: String) async throws {
+        let userId = try await stateService.getActiveAccountId()
+
         // Encrypt the folder then save the new data.
         let folderView = FolderView(id: id, name: name, revisionDate: Date.now)
-        let folder = try await clientVault.folders().encrypt(folder: folderView)
+        let folder = try await clientService.clientVault(for: userId).folders().encrypt(folder: folderView)
         try await folderService.editFolderWithServer(id: id, name: folder.name)
     }
 
@@ -210,9 +208,10 @@ extension DefaultSettingsRepository: SettingsRepository {
     // MARK: Publishers
 
     func foldersListPublisher() async throws -> AsyncThrowingPublisher<AnyPublisher<[FolderView], Error>> {
-        try await folderService.foldersPublisher()
+        let userId = try await stateService.getActiveAccountId()
+        return try await folderService.foldersPublisher()
             .asyncTryMap { folders in
-                try await self.clientVault.folders().decryptList(folders: folders)
+                try await self.clientService.clientVault(for: userId).folders().decryptList(folders: folders)
             }
             .eraseToAnyPublisher()
             .values

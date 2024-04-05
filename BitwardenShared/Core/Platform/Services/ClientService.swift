@@ -4,29 +4,35 @@ import BitwardenSdk
 /// decryption.
 ///
 protocol ClientService {
+    var userClientArray: [[String?: Client]] { get }
+
+    func assignUserClient(userId: String)
+
+    func clientForUser(userId: String) -> Client
+
     /// Returns a `ClientAuthProtocol` for auth data tasks.
     ///
-    func clientAuth() -> ClientAuthProtocol
+    func clientAuth(for userId: String) -> ClientAuthProtocol
 
     /// Returns a `ClientCryptoProtocol` for crypto data tasks.
     ///
-    func clientCrypto() -> ClientCryptoProtocol
+    func clientCrypto(for userId: String) -> ClientCryptoProtocol
 
     /// Returns a `ClientExportersProtocol` for vault export data tasks.
     ///
-    func clientExporters() -> ClientExportersProtocol
+    func clientExporters(for userId: String) -> ClientExportersProtocol
 
     /// Returns a `ClientGeneratorsProtocol` for generator data tasks.
     ///
-    func clientGenerator() -> ClientGeneratorsProtocol
+    func clientGenerator(for userId: String) -> ClientGeneratorsProtocol
 
     /// Returns a `ClientPlatformProtocol` for client platform tasks.
     ///
-    func clientPlatform() -> ClientPlatformProtocol
+    func clientPlatform(for userId: String) -> ClientPlatformProtocol
 
     /// Returns a `ClientVaultService` for vault data tasks.
     ///
-    func clientVault() -> ClientVaultService
+    func clientVault(for userId: String) -> ClientVaultService
 }
 
 // MARK: - DefaultClientService
@@ -40,6 +46,8 @@ class DefaultClientService: ClientService {
     /// The `Client` instance used to access `BitwardenSdk`.
     private let client: Client
 
+    var userClientArray = [[String?: Client]]()
+
     // MARK: Initialization
 
     /// Initialize a `DefaultClientService`.
@@ -52,27 +60,42 @@ class DefaultClientService: ClientService {
 
     // MARK: Methods
 
-    func clientAuth() -> ClientAuthProtocol {
-        client.auth()
+    func assignUserClient(userId: String) {
+        userClientArray.append([userId: client])
     }
 
-    func clientCrypto() -> ClientCryptoProtocol {
-        client.crypto()
+    func clientForUser(userId: String) -> Client {
+        for dictionary in userClientArray {
+            for (id, client) in dictionary {
+                if let id, id == userId {
+                    return client
+                }
+            }
+        }
+        return client
     }
 
-    func clientExporters() -> ClientExportersProtocol {
-        client.exporters()
+    func clientAuth(for userId: String) -> ClientAuthProtocol {
+        clientForUser(userId: userId).auth()
     }
 
-    func clientGenerator() -> ClientGeneratorsProtocol {
-        client.generators()
+    func clientCrypto(for userId: String) -> ClientCryptoProtocol {
+        clientForUser(userId: userId).crypto()
     }
 
-    func clientPlatform() -> ClientPlatformProtocol {
-        client.platform()
+    func clientExporters(for userId: String) -> ClientExportersProtocol {
+        clientForUser(userId: userId).exporters()
     }
 
-    func clientVault() -> ClientVaultService {
-        client.vault()
+    func clientGenerator(for userId: String) -> ClientGeneratorsProtocol {
+        clientForUser(userId: userId).generators()
+    }
+
+    func clientPlatform(for userId: String) -> ClientPlatformProtocol {
+        clientForUser(userId: userId).platform()
+    }
+
+    func clientVault(for userId: String) -> ClientVaultService {
+        clientForUser(userId: userId).vault()
     }
 }

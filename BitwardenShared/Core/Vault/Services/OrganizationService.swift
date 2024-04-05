@@ -21,7 +21,7 @@ protocol OrganizationService {
     ///
     /// - Parameter organizations: The user's organizations.
     ///
-    func initializeOrganizationCrypto(organizations: [Organization]) async
+    func initializeOrganizationCrypto(organizations: [Organization]) async throws
 
     /// Replaces the persisted list of organizations for the user.
     ///
@@ -46,7 +46,7 @@ class DefaultOrganizationService: OrganizationService {
     // MARK: Properties
 
     /// The client used by the application to handle encryption and decryption setup tasks.
-    let clientCrypto: ClientCryptoProtocol
+    let clientService: DefaultClientService
 
     /// The service used by the application to report non-fatal errors.
     let errorReporter: ErrorReporter
@@ -68,12 +68,12 @@ class DefaultOrganizationService: OrganizationService {
     ///   - stateService: The service used by the application to manage account state.
     ///
     init(
-        clientCrypto: ClientCryptoProtocol,
+        clientService: DefaultClientService,
         errorReporter: ErrorReporter,
         organizationDataStore: OrganizationDataStore,
         stateService: StateService
     ) {
-        self.clientCrypto = clientCrypto
+        self.clientService = clientService
         self.errorReporter = errorReporter
         self.organizationDataStore = organizationDataStore
         self.stateService = stateService
@@ -90,14 +90,15 @@ extension DefaultOrganizationService {
         try await initializeOrganizationCrypto(organizations: fetchAllOrganizations())
     }
 
-    func initializeOrganizationCrypto(organizations: [Organization]) async {
+    func initializeOrganizationCrypto(organizations: [Organization]) async throws {
+        let userId = try await stateService.getActiveAccountId()
         let organizationKeysById = organizations
             .reduce(into: [String: String]()) { result, organization in
                 guard let key = organization.key else { return }
                 result[organization.id] = key
             }
         do {
-            try await clientCrypto.initializeOrgCrypto(
+            try await clientService.clientCrypto(for: userId).initializeOrgCrypto(
                 req: InitOrgCryptoRequest(organizationKeys: organizationKeysById)
             )
         } catch {

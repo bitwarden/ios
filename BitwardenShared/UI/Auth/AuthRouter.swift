@@ -6,6 +6,7 @@ final class AuthRouter: NSObject, Router {
     // MARK: Types
 
     typealias Services = HasAuthRepository
+//        & HasClientAuth
         & HasErrorReporter
         & HasStateService
         & HasVaultTimeoutService

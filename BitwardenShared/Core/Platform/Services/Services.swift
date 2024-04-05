@@ -11,8 +11,7 @@ typealias Services = HasAPIService
     & HasBiometricsRepository
     & HasCameraService
     & HasCaptchaService
-    & HasClientAuth
-    & HasClientExporters
+    & HasClientService
     & HasDeviceAPIService
     & HasEnvironmentService
     & HasErrorReporter
@@ -118,6 +117,11 @@ protocol HasClientAuth {
 protocol HasClientExporters {
     /// The client used by the application to handle auth related encryption and decryption tasks.
     var clientExporters: ClientExportersProtocol { get }
+}
+
+protocol HasClientService {
+    /// The client used by the application to handle auth related encryption and decryption tasks.
+    var clientService: ClientService { get }
 }
 
 /// Protocol for an object that provides a `DeviceAPIService`.

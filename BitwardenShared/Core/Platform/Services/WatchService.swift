@@ -19,7 +19,7 @@ class DefaultWatchService: NSObject, WatchService {
     private let cipherService: CipherService
 
     /// The client used by the application to handle vault encryption and decryption tasks.
-    private let clientVault: ClientVaultService
+    private let client: DefaultClientService
 
     /// The service used by the application to manage the environment settings.
     private let environmentService: EnvironmentService
@@ -54,14 +54,14 @@ class DefaultWatchService: NSObject, WatchService {
     ///
     init(
         cipherService: CipherService,
-        clientVault: ClientVaultService,
+        client: DefaultClientService,
         environmentService: EnvironmentService,
         errorReporter: ErrorReporter,
         organizationService: OrganizationService,
         stateService: StateService
     ) {
         self.cipherService = cipherService
-        self.clientVault = clientVault
+        self.client = client
         self.environmentService = environmentService
         self.errorReporter = errorReporter
         self.organizationService = organizationService
@@ -92,8 +92,9 @@ class DefaultWatchService: NSObject, WatchService {
     /// - Returns: The decrypted, filtered, and sorted `CipherDTO` objects.
     ///
     private func decryptCiphers(_ ciphers: [Cipher]) async throws -> [CipherDTO] {
+        let userId = try await stateService.getActiveAccountId()
         let decryptedCiphers = try await ciphers.asyncMap { cipher in
-            try await self.clientVault.ciphers().decrypt(cipher: cipher)
+            try await self.client.clientVault(for: userId).ciphers().decrypt(cipher: cipher)
         }
 
         return decryptedCiphers.filter { cipher in
