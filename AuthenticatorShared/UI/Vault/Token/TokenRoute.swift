@@ -4,7 +4,7 @@ import SwiftUI
 // MARK: - TokenRoute
 
 /// A route to a screen for a specific token.
-enum TokenRoute: Equatable, Hashable {
+enum TokenRoute: Equatable {
     /// A route to display the specified alert.
     ///
     /// - Parameter alert: The alert to display.
@@ -16,6 +16,11 @@ enum TokenRoute: Equatable, Hashable {
     /// - Parameter action: The action to perform on dismiss.
     ///
     case dismiss(_ action: DismissAction? = nil)
+
+    /// A route to edit a token.
+    ///
+    /// - Parameter token: the `Token` to edit
+    case editToken(_ token: Token)
 
     /// A route to the view token screen.
     ///

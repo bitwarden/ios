@@ -25,8 +25,17 @@ struct TokenItemState: Equatable {
 
     // MARK: Properties
 
+    /// The account of the token
+    var account: String
+
     /// The Add or Existing Configuration.
     let configuration: Configuration
+
+    /// A flag indicating if the key field is visible
+    var isKeyVisible: Bool = false
+
+    /// The issuer of the token
+    var issuer: String
 
     /// The name of this item.
     var name: String
@@ -47,6 +56,8 @@ struct TokenItemState: Equatable {
         self.configuration = configuration
         self.name = name
         self.totpState = totpState
+        account = "Fixme"
+        issuer = "Fixme"
     }
 
     init?(existing token: Token) {
@@ -55,6 +66,12 @@ struct TokenItemState: Equatable {
             name: token.name,
             totpState: LoginTOTPState(token.key.base32Key)
         )
+    }
+}
+
+extension TokenItemState: EditTokenState {
+    var editState: EditTokenState {
+        self
     }
 }
 

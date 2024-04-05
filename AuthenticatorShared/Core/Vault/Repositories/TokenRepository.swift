@@ -15,6 +15,8 @@ public protocol TokenRepository: AnyObject {
 
     func refreshTotpCode(for key: TOTPKeyModel) async throws -> TOTPCodeModel
 
+    func updateToken(_ token: Token) async throws
+
     // MARK: Publishers
 
     func tokenPublisher() async throws -> AsyncThrowingPublisher<AnyPublisher<[Token], Never>>
@@ -83,5 +85,12 @@ extension DefaultTokenRepository: TokenRepository {
             .collect()
             .eraseToAnyPublisher()
             .values
+    }
+
+    func updateToken(_ token: Token) async throws {
+        try await Task.sleep(nanoseconds: 1_000_000_000)
+        guard let tokenIndex = tokens.firstIndex(where: { $0.id == token.id })
+        else { return }
+        tokens[tokenIndex] = token
     }
 }

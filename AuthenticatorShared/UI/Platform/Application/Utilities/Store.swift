@@ -32,7 +32,7 @@ open class Store<State: Sendable, Action: Sendable, Effect: Sendable>: Observabl
     /// - Parameter processor: The `Processor` that will receive actions from the store and update
     ///     the store's state.
     ///
-    public init<P: Processor>(processor: P) where P.Action == Action, P.State == State, P.Effect == Effect {
+    public init<P: Processor>(processor: P) where P.Action == Action, P.Effect == Effect, P.State == State {
         state = processor.state
         receive = { processor.receive($0) }
         perform = { await processor.perform($0) }
@@ -49,12 +49,18 @@ open class Store<State: Sendable, Action: Sendable, Effect: Sendable>: Observabl
     public init<ParentState, ParentAction, ParentEffect>(
         parentStore: Store<ParentState, ParentAction, ParentEffect>,
         state parentToChildState: @escaping (ParentState) -> State,
-        mapAction: @escaping (Action) -> ParentAction,
-        mapEffect: @escaping (Effect) -> ParentEffect
+        mapAction: ((Action) -> ParentAction)?,
+        mapEffect: ((Effect) -> ParentEffect)?
     ) {
         state = parentToChildState(parentStore.state)
-        receive = { parentStore.send(mapAction($0)) }
-        perform = { await parentStore.perform(mapEffect($0)) }
+        receive = { action in
+            guard let mapAction else { return }
+            parentStore.send(mapAction(action))
+        }
+        perform = { effect in
+            guard let mapEffect else { return }
+            await parentStore.perform(mapEffect(effect))
+        }
         cancellable = parentStore.$state.sink { [weak self] in self?.state = parentToChildState($0) }
     }
 
@@ -90,8 +96,8 @@ open class Store<State: Sendable, Action: Sendable, Effect: Sendable>: Observabl
     ///
     open func child<ChildState, ChildAction, ChildEffect>(
         state: @escaping (State) -> ChildState,
-        mapAction: @escaping (ChildAction) -> Action,
-        mapEffect: @escaping (ChildEffect) -> Effect
+        mapAction: ((ChildAction) -> Action)?,
+        mapEffect: ((ChildEffect) -> Effect)?
     ) -> Store<ChildState, ChildAction, ChildEffect> {
         Store<ChildState, ChildAction, ChildEffect>(
             parentStore: self,
@@ -119,6 +125,30 @@ open class Store<State: Sendable, Action: Sendable, Effect: Sendable>: Observabl
             get: { get(self.state) },
             set: { value, _ in
                 self.send(stateToAction(value))
+            }
+        )
+    }
+
+    /// Creates a `Binding` whose value is set from the store's state asynchronously. When the value is changed,
+    /// the specified effect is sent to the store so that the processor can update its state.
+    ///
+    /// - Parameters:
+    ///   - get: A closure that provides a value for the binding from the store's state.
+    ///   - stateToEffect: A closure that provides a mapping from the binding's value to an effect
+    ///     that is sent to the store when the value changes.
+    /// - Returns: A `Binding` whose value is set from the store's state which triggers an effect
+    ///     to be sent back to the store when the value changes.
+    ///
+    open func bindingAsync<LocalState>(
+        get: @escaping (State) -> LocalState,
+        perform stateToEffect: @escaping (LocalState) -> Effect
+    ) -> Binding<LocalState> {
+        Binding(
+            get: { get(self.state) },
+            set: { value, _ in
+                Task {
+                    await self.perform(stateToEffect(value))
+                }
             }
         )
     }

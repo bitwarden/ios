@@ -69,7 +69,7 @@ final class ViewTokenProcessor: StateProcessor<
             services.pasteboardService.copy(value)
             state.toast = Toast(text: Localizations.valueHasBeenCopied(Localizations.verificationCode))
         case .editPressed:
-            break
+            editItem()
         }
     }
 }
@@ -77,26 +77,15 @@ final class ViewTokenProcessor: StateProcessor<
 private extension ViewTokenProcessor {
     // MARK: Private Methods
 
-    /// Updates the TOTP code for the view.
-    func updateTOTPCode() async {
-        guard case let .data(tokenItemState) = state.loadingState,
-              let calculationKey = tokenItemState.totpState.authKeyModel
-        else { return }
-        do {
-            let code = try await services.tokenRepository.refreshTotpCode(for: calculationKey)
-
-            guard case let .data(tokenItemState) = state.loadingState else { return }
-
-            let newTotpState = LoginTOTPState(
-                authKeyModel: calculationKey,
-                codeModel: code
-            )
-
-            var newState = tokenItemState
-            newState.totpState = newTotpState
-            state.loadingState = .data(newState)
-        } catch {
-            services.errorReporter.log(error: error)
+    /// Triggers the edit state for the item currently stored in `state`.
+    ///
+    private func editItem() {
+        guard case let .data(tokenState) = state.loadingState,
+              case let .existing(token) = tokenState.configuration else {
+            return
+        }
+        Task {
+            coordinator.navigate(to: .editToken(token), context: self)
         }
     }
 
@@ -117,6 +106,29 @@ private extension ViewTokenProcessor {
                 newTokenState.loadingState = .data(tokenState)
             }
             state = newTokenState
+        } catch {
+            services.errorReporter.log(error: error)
+        }
+    }
+
+    /// Updates the TOTP code for the view.
+    func updateTOTPCode() async {
+        guard case let .data(tokenItemState) = state.loadingState,
+              let calculationKey = tokenItemState.totpState.authKeyModel
+        else { return }
+        do {
+            let code = try await services.tokenRepository.refreshTotpCode(for: calculationKey)
+
+            guard case let .data(tokenItemState) = state.loadingState else { return }
+
+            let newTotpState = LoginTOTPState(
+                authKeyModel: calculationKey,
+                codeModel: code
+            )
+
+            var newState = tokenItemState
+            newState.totpState = newTotpState
+            state.loadingState = .data(newState)
         } catch {
             services.errorReporter.log(error: error)
         }

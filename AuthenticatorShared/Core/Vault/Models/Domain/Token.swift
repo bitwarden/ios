@@ -13,11 +13,15 @@ public struct Token: Equatable, Sendable {
 
     // MARK: Initialization
 
-    init?(name: String, authenticatorKey: String) {
+    init?(
+        id: String = UUID().uuidString,
+        name: String,
+        authenticatorKey: String
+    ) {
         guard let keyModel = TOTPKeyModel(authenticatorKey: authenticatorKey)
         else { return nil }
 
-        id = UUID().uuidString
+        self.id = id
         self.name = name
         key = keyModel
     }

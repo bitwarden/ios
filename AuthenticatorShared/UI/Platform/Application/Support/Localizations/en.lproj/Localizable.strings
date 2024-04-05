@@ -879,3 +879,4 @@
 "LaunchWebAuthn" = "Launch WebAuthn";
 "Duo" = "Duo";
 "DuoUnsupported" = "Duo not yet supported.";
+"Issuer" = "Issuer";
