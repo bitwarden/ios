@@ -259,13 +259,13 @@ jobs:
             --username "$APPLE_ID_USERNAME" \
             --password @env:APPLE_ID_PASSWORD
 
-      # - name: Upload app to TestFlight
-      #   env:
-      #     APPLE_ID_USERNAME: ${{ secrets.APPLE_ID_USERNAME }}
-      #     APPLE_ID_PASSWORD: ${{ secrets.APPLE_ID_PASSWORD }}
-      #   run: |
-      #     xcrun altool --upload-app \
-      #       --type ios \
-      #       --file "build/Bitwarden/Bitwarden.ipa" \
-      #       --username "$APPLE_ID_USERNAME" \
-      #       --password @env:APPLE_ID_PASSWORD
+      - name: Upload app to TestFlight
+        env:
+          APPLE_ID_USERNAME: ${{ secrets.APPLE_ID_USERNAME }}
+          APPLE_ID_PASSWORD: ${{ secrets.APPLE_ID_PASSWORD }}
+        run: |
+          xcrun altool --upload-app \
+            --type ios \
+            --file "build/Bitwarden/Bitwarden.ipa" \
+            --username "$APPLE_ID_USERNAME" \
+            --password @env:APPLE_ID_PASSWORD
