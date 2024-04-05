@@ -157,7 +157,10 @@ class AuthCoordinatorTests: BitwardenTestCase { // swiftlint:disable:this type_b
 
     /// `navigate(to:)` with `.loginWithDevice` pushes the login with device view onto the stack navigator.
     func test_navigate_loginWithDevice() throws {
-        subject.navigate(to: .loginWithDevice(email: "example@email.com"))
+        subject.navigate(to: .loginWithDevice(
+            email: "example@email.com",
+            authRequestType: AuthRequestType.authenticateAndUnlock
+        ))
 
         XCTAssertEqual(stackNavigator.actions.last?.type, .presented)
         let navigationController = try XCTUnwrap(stackNavigator.actions.last?.view as? UINavigationController)
@@ -250,7 +253,7 @@ class AuthCoordinatorTests: BitwardenTestCase { // swiftlint:disable:this type_b
 
     /// `navigate(to:)` with `.twoFactor` shows the two factor auth view.
     func test_navigate_twoFactor() throws {
-        subject.navigate(to: .twoFactor("", .password(""), AuthMethodsData.fixture()))
+        subject.navigate(to: .twoFactor("", .password(""), AuthMethodsData.fixture(), nil))
 
         XCTAssertEqual(stackNavigator.actions.last?.type, .presented)
         let navigationController = try XCTUnwrap(stackNavigator.actions.last?.view as? UINavigationController)

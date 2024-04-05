@@ -2,7 +2,7 @@ import BitwardenSdk
 
 // MARK: PendingAdminLoginRequest
 
-struct PendingAdminLoginRequest: Codable, Equatable, Hashable {
+public struct PendingAdminLoginRequest: Codable, Equatable, Hashable {
     // MARK: Properties
 
     /// Access code

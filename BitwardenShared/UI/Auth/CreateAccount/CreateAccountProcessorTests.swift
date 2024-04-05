@@ -70,8 +70,8 @@ class CreateAccountProcessorTests: BitwardenTestCase {
             kdfConfig: KdfConfig(),
             key: "encryptedUserKey",
             keys: KeysRequestModel(
-                publicKey: "public",
-                encryptedPrivateKey: "private"
+                encryptedPrivateKey: "private",
+                publicKey: "public"
             ),
             masterPasswordHash: "hashed password",
             masterPasswordHint: ""

@@ -156,7 +156,8 @@ class LoginWithDeviceProcessorTests: BitwardenTestCase {
                     masterPasswordHash: "reallyLongMasterPasswordHash",
                     privateKey: "PRIVATE_KEY"
                 ),
-                AuthMethodsData()
+                AuthMethodsData(),
+                nil
             )
         )
     }

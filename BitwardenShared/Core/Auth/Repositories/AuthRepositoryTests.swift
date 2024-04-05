@@ -20,6 +20,7 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
     var subject: DefaultAuthRepository!
     var stateService: MockStateService!
     var vaultTimeoutService: MockVaultTimeoutService!
+    var trustDeviceService: MockTrustDeviceService!
 
     let anneAccount = Account
         .fixture(
@@ -93,6 +94,7 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         keychainService = MockKeychainRepository()
         organizationService = MockOrganizationService()
         stateService = MockStateService()
+        trustDeviceService = MockTrustDeviceService()
         vaultTimeoutService = MockVaultTimeoutService()
 
         subject = DefaultAuthRepository(
@@ -108,6 +110,7 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
             organizationService: organizationService,
             organizationUserAPIService: APIService(client: client),
             stateService: stateService,
+            trustDeviceService: trustDeviceService,
             vaultTimeoutService: vaultTimeoutService
         )
     }

@@ -176,7 +176,7 @@ class AccountAPIServiceTests: BitwardenTestCase {
         let requestModel = SetPasswordRequestModel(
             kdfConfig: KdfConfig(),
             key: "KEY",
-            keys: KeysRequestModel(publicKey: "PUBLIC_KEY", encryptedPrivateKey: "ENCRYPTED_PRIVATE_KEY"),
+            keys: KeysRequestModel(encryptedPrivateKey: "ENCRYPTED_PRIVATE_KEY", publicKey: "PUBLIC_KEY"),
             masterPasswordHash: "MASTER_PASSWORD_HASH",
             masterPasswordHint: "MASTER_PASSWORD_HINT",
             orgIdentifier: "ORG_ID"

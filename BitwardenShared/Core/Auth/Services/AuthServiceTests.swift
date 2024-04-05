@@ -21,6 +21,7 @@ class AuthServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body_
     var policyService: MockPolicyService!
     var subject: DefaultAuthService!
     var systemDevice: MockSystemDevice!
+    var trustDeviceService: MockTrustDeviceService!
 
     // MARK: Setup & Teardown
 
@@ -39,6 +40,7 @@ class AuthServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body_
         policyService = MockPolicyService()
         stateService = MockStateService()
         systemDevice = MockSystemDevice()
+        trustDeviceService = MockTrustDeviceService()
 
         subject = DefaultAuthService(
             accountAPIService: accountAPIService,
@@ -51,7 +53,8 @@ class AuthServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body_
             keychainRepository: keychainRepository,
             policyService: policyService,
             stateService: stateService,
-            systemDevice: systemDevice
+            systemDevice: systemDevice,
+            trustDeviceService: trustDeviceService
         )
     }
 
@@ -108,7 +111,10 @@ class AuthServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body_
             fingerprint: "fingerprint",
             accessCode: "accessCode"
         ))
-        let request = try await subject.initiateLoginWithDevice(email: "email@example.com")
+        let request = try await subject.initiateLoginWithDevice(
+            email: "email@example.com",
+            type: AuthRequestType.authenticateAndUnlock
+        )
 
         // Check the pending login request.
         let updatedRequest = try await subject.checkPendingLoginRequest(withId: request.requestId)
@@ -197,7 +203,10 @@ class AuthServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body_
         clientAuth.newAuthRequestResult = .success(authRequestResponse)
 
         // Test.
-        let result = try await subject.initiateLoginWithDevice(email: "email@example.com")
+        let result = try await subject.initiateLoginWithDevice(
+            email: "email@example.com",
+            type: AuthRequestType.authenticateAndUnlock
+        )
 
         // Verify the results.
         XCTAssertEqual(client.requests.count, 1)
@@ -221,7 +230,10 @@ class AuthServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body_
             fingerprint: "fingerprint",
             accessCode: "accessCode"
         ))
-        _ = try await subject.initiateLoginWithDevice(email: "email@example.com")
+        _ = try await subject.initiateLoginWithDevice(
+            email: "email@example.com",
+            type: AuthRequestType.authenticateAndUnlock
+        )
 
         // Attempt to log in.
         _ = try await subject.loginWithDevice(.fixture(), email: "email@example.com", captchaToken: nil)
