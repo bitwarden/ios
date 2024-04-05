@@ -24,7 +24,7 @@
 	</array>
 	<key>keychain-access-groups</key>
 	<array>
-		<string>$(AppIdentifierPrefix)</string>
+		<string>$(AppIdentifierPrefix)$(BASE_BUNDLE_ID)</string>
 	</array>
 </dict>
 </plist>
