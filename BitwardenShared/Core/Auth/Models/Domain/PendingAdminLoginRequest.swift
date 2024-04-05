@@ -5,6 +5,12 @@ import BitwardenSdk
 struct PendingAdminLoginRequest: Codable, Equatable, Hashable {
     // MARK: Properties
 
+    /// Access code
+    let accessCode: String
+
+    /// Fingerprint of the public key
+    let fingerprint: String
+
     /// The id of the login request.
     let id: String
 
@@ -14,17 +20,11 @@ struct PendingAdminLoginRequest: Codable, Equatable, Hashable {
     /// Base64 encoded public key
     let publicKey: String
 
-    /// Fingerprint of the public key
-    let fingerprint: String
-
-    /// Access code
-    let accessCode: String
-
     init(id: String, authRequestResponse: AuthRequestResponse) {
         self.id = id
+        accessCode = authRequestResponse.accessCode
+        fingerprint = authRequestResponse.fingerprint
         privateKey = authRequestResponse.privateKey
         publicKey = authRequestResponse.publicKey
-        fingerprint = authRequestResponse.fingerprint
-        accessCode = authRequestResponse.accessCode
     }
 }

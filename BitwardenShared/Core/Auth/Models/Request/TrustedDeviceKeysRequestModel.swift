@@ -10,12 +10,12 @@ struct TrustedDeviceKeysRequestModel: JSONRequestBody, Equatable {
 
     static var encoder = JSONEncoder()
 
-    /// The encrypted user key used in a `TrustedDeviceKeysRequest`.
-    let encryptedUserKey: String
+    /// The encrypted private key used in a `TrustedDeviceKeysRequest`.
+    let encryptedPrivateKey: String
 
     /// The encrypted public key used in a `TrustedDeviceKeysRequest`.
     let encryptedPublicKey: String
 
-    /// The encrypted private key used in a `TrustedDeviceKeysRequest`.
-    let encryptedPrivateKey: String
+    /// The encrypted user key used in a `TrustedDeviceKeysRequest`.
+    let encryptedUserKey: String
 }

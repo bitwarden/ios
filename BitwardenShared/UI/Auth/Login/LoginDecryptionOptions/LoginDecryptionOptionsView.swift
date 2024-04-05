@@ -47,9 +47,8 @@ struct LoginDecryptionOptionsView: View {
             }
         }
         .padding(.bottom, 24)
-        .accessibilityIdentifier("CheckExposedMasterPasswordToggle")
+        .accessibilityIdentifier("RememberThisDeviceToggle")
         .toggleStyle(.bitwarden)
-        .id(ViewIdentifier.CreateAccount.checkBreaches)
     }
 
     /// Continue button that will create a JIT user
@@ -58,6 +57,7 @@ struct LoginDecryptionOptionsView: View {
             await store.perform(.continuePressed)
         }
         .buttonStyle(.primary())
+        .accessibilityIdentifier("ContinueButton")
     }
 
     /// Button to approve with other device
@@ -66,6 +66,7 @@ struct LoginDecryptionOptionsView: View {
             await store.perform(.approveWithOtherDevicePressed)
         }
         .buttonStyle(.primary())
+        .accessibilityIdentifier("ApproveWithOtherDeviceButton")
     }
 
     /// Button to request admin approval
@@ -74,6 +75,7 @@ struct LoginDecryptionOptionsView: View {
             await store.perform(.requestAdminApprovalPressed)
         }
         .buttonStyle(.secondary())
+        .accessibilityIdentifier("RequestAdminApprovalButton")
     }
 
     /// Button to approve with master password
@@ -82,6 +84,7 @@ struct LoginDecryptionOptionsView: View {
             await store.perform(.approveWithMasterPasswordPressed)
         }
         .buttonStyle(.secondary())
+        .accessibilityIdentifier("ApproveWithMasterPasswordButton")
     }
 
     /// Show decryption method buttons based on user configurations
@@ -115,7 +118,7 @@ struct LoginDecryptionOptionsView: View {
             AsyncButton(Localizations.notYou) {
                 await store.perform(.notYouPressed)
             }
-            .accessibilityIdentifier("NotYouLabel")
+            .accessibilityIdentifier("NotYouButton")
             .foregroundColor(Asset.Colors.primaryBitwarden.swiftUIColor)
         }
         .styleGuide(.footnote)

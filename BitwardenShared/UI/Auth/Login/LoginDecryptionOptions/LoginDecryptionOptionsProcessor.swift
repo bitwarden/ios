@@ -31,7 +31,7 @@ class LoginDecryptionOptionsProcessor: StateProcessor<
 
     // MARK: Initialization
 
-    /// Creates a new `CreateAccountProcessor`.
+    /// Creates a new `LoginDecryptionOptionsProcessor`.
     ///
     /// - Parameters:
     ///   - coordinator: The coordinator that handles navigation.
@@ -165,7 +165,6 @@ class LoginDecryptionOptionsProcessor: StateProcessor<
                 coordinator.navigate(to: .complete)
             }
         } catch {
-            // TODO: handle errors with correct messages
             coordinator.showAlert(.defaultAlert(title: Localizations.anErrorHasOccurred))
         }
     }

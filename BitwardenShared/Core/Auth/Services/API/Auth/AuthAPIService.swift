@@ -70,13 +70,12 @@ protocol AuthAPIService {
     ///
     func resendEmailCode(_ model: ResendEmailCodeRequestModel) async throws
 
-    /// Sends the request to email the user another verification code.
+    /// Sends the trusted device keys to the server.
     ///
     /// - Parameters:
     ///   - deviceIdentifier: The user's device ID.
     ///   - model: The data needed to send the request.
     ///
-    /// - Returns: The new pending login requests.
     func updateTrustedDeviceKeys(deviceIdentifier: String, model: TrustedDeviceKeysRequestModel) async throws
 }
 

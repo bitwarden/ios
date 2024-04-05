@@ -1,7 +1,7 @@
 import Foundation
 import Networking
 
-// MARK: - CreateAccountRequest
+// MARK: - AccountKeysRequest
 
 /// The API request sent when submitting the account keys.
 ///
@@ -18,7 +18,7 @@ struct AccountKeysRequest: Request {
     /// The URL path for this request.
     var path: String = "/accounts/keys"
 
-    /// Creates a new `CreateAccountRequest` instance.
+    /// Creates a new `AccountKeysRequest` instance.
     ///
     /// - Parameter body: The body of the request.
     ///
