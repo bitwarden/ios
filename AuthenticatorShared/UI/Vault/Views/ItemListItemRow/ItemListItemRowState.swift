@@ -10,7 +10,7 @@ struct ItemListItemRowState {
     var iconBaseURL: URL?
 
     /// The item displayed in this row.
-    var item: VaultListItem
+    var item: ItemListItem
 
     /// A flag indicating if this row should display a divider on the bottom edge.
     var hasDivider: Bool

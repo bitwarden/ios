@@ -15,7 +15,7 @@ struct ItemListState: Equatable {
     var iconBaseURL: URL?
 
     /// The current loading state.
-    var loadingState: LoadingState<[VaultListItem]> = .loading(nil)
+    var loadingState: LoadingState<[ItemListItem]> = .loading(nil)
 
     /// The string to use in the empty view.
     var noItemsString: String {

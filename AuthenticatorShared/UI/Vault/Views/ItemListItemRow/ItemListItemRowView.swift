@@ -4,7 +4,6 @@ import SwiftUI
 // MARK: - ItemListItemRowView
 
 /// A view that displays information about an `ItemListItem` as a row in a list.
-/// Currently uses `VaultListItem` as a placeholder
 struct ItemListItemRowView: View {
     // MARK: Properties
 
@@ -28,63 +27,7 @@ struct ItemListItemRowView: View {
                 .accessibilityHidden(true)
 
                 HStack {
-                    switch store.state.item.itemType {
-                    case let .cipher(cipherItem):
-                        VStack(alignment: .leading, spacing: 0) {
-                            HStack(spacing: 8) {
-                                Text(cipherItem.name)
-                                    .styleGuide(.body)
-                                    .foregroundColor(Asset.Colors.textPrimary.swiftUIColor)
-                                    .lineLimit(1)
-                                    .accessibilityIdentifier("CipherNameLabel")
-
-                                if cipherItem.organizationId != nil {
-                                    Asset.Images.collections.swiftUIImage
-                                        .foregroundColor(Asset.Colors.textSecondary.swiftUIColor)
-                                        .accessibilityLabel(Localizations.shared)
-                                        .accessibilityIdentifier("CipherInCollectionIcon")
-                                }
-
-                                if cipherItem.attachments?.isEmpty == false {
-                                    Asset.Images.paperclip.swiftUIImage
-                                        .foregroundColor(Asset.Colors.textSecondary.swiftUIColor)
-                                        .accessibilityLabel(Localizations.attachments)
-                                        .accessibilityIdentifier("CipherWithAttachmentsIcon")
-                                }
-                            }
-
-                            if let subTitle = store.state.item.subtitle, !subTitle.isEmpty {
-                                Text(subTitle)
-                                    .styleGuide(.subheadline)
-                                    .foregroundColor(Asset.Colors.textSecondary.swiftUIColor)
-                                    .lineLimit(1)
-                                    .accessibilityIdentifier("CipherSubTitleLabel")
-                            }
-                        }
-                        .accessibilityElement(children: .combine)
-
-                        Spacer()
-
-                        Button {
-                            store.send(.morePressed)
-                        } label: {
-                            Asset.Images.horizontalKabob.swiftUIImage
-                        }
-                        .foregroundColor(Asset.Colors.textSecondary.swiftUIColor)
-                        .accessibilityLabel(Localizations.more)
-                        .accessibilityIdentifier("CipherOptionsButton")
-
-                    case let .group(group, count):
-                        Text(group.name)
-                            .styleGuide(.body)
-                            .foregroundColor(Asset.Colors.textPrimary.swiftUIColor)
-                        Spacer()
-                        Text("\(count)")
-                            .styleGuide(.body)
-                            .foregroundColor(Asset.Colors.textSecondary.swiftUIColor)
-                    case let .totp(name, model):
-                        totpCodeRow(name, model)
-                    }
+                    totpCodeRow(store.state.item.name, store.state.item.totpCode)
                 }
                 .padding(.vertical, 9)
             }
@@ -107,25 +50,8 @@ struct ItemListItemRowView: View {
     ///   - showWebIcons: Whether to download the web icons.
     ///
     @ViewBuilder
-    private func decorativeImage(_ item: VaultListItem, iconBaseURL: URL?, showWebIcons: Bool) -> some View {
-        if showWebIcons, let loginView = item.loginView, let iconBaseURL {
-            AsyncImage(
-                url: IconImageHelper.getIconImage(
-                    for: loginView,
-                    from: iconBaseURL
-                ),
-                content: { image in
-                    image
-                        .resizable()
-                        .scaledToFit()
-                },
-                placeholder: {
-                    placeholderDecorativeImage(item.icon)
-                }
-            )
-        } else {
-            placeholderDecorativeImage(item.icon)
-        }
+    private func decorativeImage(_ item: ItemListItem, iconBaseURL: URL?, showWebIcons: Bool) -> some View {
+        placeholderDecorativeImage(Asset.Images.clock)
     }
 
     /// The placeholder image for the decorative image.
@@ -137,7 +63,7 @@ struct ItemListItemRowView: View {
 
     /// The row showing the totp code.
     @ViewBuilder
-    private func totpCodeRow(_ name: String, _ model: VaultListTOTP) -> some View {
+    private func totpCodeRow(_ name: String, _ model: TOTPCodeModel) -> some View {
         VStack(alignment: .leading, spacing: 0) {
             Text(name)
                 .styleGuide(.headline)
@@ -147,15 +73,15 @@ struct ItemListItemRowView: View {
         Spacer()
         TOTPCountdownTimerView(
             timeProvider: timeProvider,
-            totpCode: model.totpCode,
+            totpCode: model,
             onExpiration: nil
         )
-        Text(model.totpCode.displayCode)
+        Text(model.displayCode)
             .styleGuide(.bodyMonospaced, weight: .regular, monoSpacedDigit: true)
             .foregroundColor(Asset.Colors.textPrimary.swiftUIColor)
         Button {
             Task { @MainActor in
-                store.send(.copyTOTPCode(model.totpCode.code))
+                store.send(.copyTOTPCode(model.code))
             }
         } label: {
             Asset.Images.copy.swiftUIImage
@@ -170,27 +96,17 @@ struct ItemListItemRowView: View {
         store: Store(
             processor: StateProcessor(
                 state: ItemListItemRowState(
-                    item: VaultListItem(
+                    item: ItemListItem(
                         id: UUID().uuidString,
-                        itemType: .totp(
-                            name: "Name",
-                            totpModel: VaultListTOTP(
-                                id: UUID().uuidString,
-                                loginView: .init(
-                                    username: "email@example.com",
-                                    password: nil,
-                                    passwordRevisionDate: nil,
-                                    uris: nil,
-                                    totp: "asdf",
-                                    autofillOnPageLoad: nil,
-                                    fido2Credentials: nil
-                                ),
-                                totpCode: TOTPCodeModel(
-                                    code: "123456",
-                                    codeGenerationDate: Date(),
-                                    period: 30
-                                )
-                            )
+                        name: "Example",
+                        token: Token(
+                            name: "Example",
+                            authenticatorKey: "Example"
+                        )!,
+                        totpCode: TOTPCodeModel(
+                            code: "123456",
+                            codeGenerationDate: Date(),
+                            period: 30
                         )
                     ),
                     hasDivider: true,

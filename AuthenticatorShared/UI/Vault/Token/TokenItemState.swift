@@ -14,12 +14,12 @@ struct TokenItemState: Equatable {
         case add
 
         /// We are viewing or editing an existing token.
-        case existing(cipherView: CipherView)
+        case existing(token: Token)
 
         /// The existing `CipherView` if the configuration is `existing`.
-        var existingCipherView: CipherView? {
-            guard case let .existing(cipherView) = self else { return nil }
-            return cipherView
+        var existingToken: Token? {
+            guard case let .existing(token) = self else { return nil }
+            return token
         }
     }
 
@@ -49,12 +49,11 @@ struct TokenItemState: Equatable {
         self.totpState = totpState
     }
 
-    init?(existing cipherView: CipherView) {
-        guard let totp = cipherView.login?.totp else { return nil }
+    init?(existing token: Token) {
         self.init(
-            configuration: .existing(cipherView: cipherView),
-            name: cipherView.name,
-            totpState: LoginTOTPState(totp)
+            configuration: .existing(token: token),
+            name: token.name,
+            totpState: LoginTOTPState(token.key.base32Key)
         )
     }
 }
@@ -64,12 +63,12 @@ extension TokenItemState: ViewTokenItemState {
         totpState.rawAuthenticatorKeyString
     }
 
-    var cipher: BitwardenSdk.CipherView {
+    var token: Token {
         switch configuration {
-        case let .existing(cipherView: view):
-            return view
+        case let .existing(token):
+            return token
         case .add:
-            return newCipherView()
+            return newToken()
         }
     }
 
@@ -79,42 +78,9 @@ extension TokenItemState: ViewTokenItemState {
 }
 
 extension TokenItemState {
-    /// Returns a `CipherView` based on the properties of the `TokenItemState`.
+    /// Returns a `Token` based on the properties of the `TokenItemState`.
     ///
-    func newCipherView(creationDate: Date = .now) -> CipherView {
-        CipherView(
-            id: nil,
-            organizationId: nil,
-            folderId: nil,
-            collectionIds: [],
-            key: nil,
-            name: name,
-            notes: nil,
-            type: .login,
-            login: .init(
-                username: nil,
-                password: nil,
-                passwordRevisionDate: nil,
-                uris: nil,
-                totp: totpState.rawAuthenticatorKeyString,
-                autofillOnPageLoad: nil,
-                fido2Credentials: nil
-            ),
-            identity: nil,
-            card: nil,
-            secureNote: nil,
-            favorite: false,
-            reprompt: .none,
-            organizationUseTotp: false,
-            edit: false,
-            viewPassword: false,
-            localData: nil,
-            attachments: nil,
-            fields: nil,
-            passwordHistory: nil,
-            creationDate: creationDate,
-            deletedDate: nil,
-            revisionDate: creationDate
-        )
+    func newToken() -> Token {
+        Token(name: name, authenticatorKey: totpState.rawAuthenticatorKeyString!)!
     }
 }

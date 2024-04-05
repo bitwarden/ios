@@ -12,10 +12,10 @@ final class ViewTokenProcessor: StateProcessor<
     // MARK: Types
 
     typealias Services = HasErrorReporter
-        & HasItemRepository
         & HasPasteboardService
         & HasTOTPService
         & HasTimeProvider
+        & HasTokenRepository
 
     // MARK: Properties
 
@@ -83,36 +83,40 @@ private extension ViewTokenProcessor {
               let calculationKey = tokenItemState.totpState.authKeyModel
         else { return }
         do {
-            let newLoginTotp = try await services.itemRepository.refreshTOTPCode(for: calculationKey)
+            let code = try await services.tokenRepository.refreshTotpCode(for: calculationKey)
 
             guard case let .data(tokenItemState) = state.loadingState else { return }
 
+            let newTotpState = LoginTOTPState(
+                authKeyModel: calculationKey,
+                codeModel: code
+            )
+
             var newState = tokenItemState
-            newState.totpState = newLoginTotp
+            newState.totpState = newTotpState
             state.loadingState = .data(newState)
         } catch {
             services.errorReporter.log(error: error)
         }
     }
 
-    /// Stream the cipher details.
+    /// Stream the token details.
     private func streamTokenDetails() async {
         do {
-            guard let token = try await services.itemRepository.fetchItem(withId: itemId)
+            guard let token = try await services.tokenRepository.fetchToken(withId: itemId)
             else { return }
 
-            var totpState = LoginTOTPState(token.login?.totp)
-            if let key = totpState.authKeyModel,
-               let updatedState = try? await services.itemRepository.refreshTOTPCode(for: key) {
-                totpState = updatedState
-            }
-
-            guard var newState = ViewTokenState(cipherView: token) else { return }
-            if case var .data(tokenState) = newState.loadingState {
+            let code = try await services.tokenRepository.refreshTotpCode(for: token.key)
+            guard var newTokenState = ViewTokenState(token: token) else { return }
+            if case var .data(tokenState) = newTokenState.loadingState {
+                let totpState = LoginTOTPState(
+                    authKeyModel: token.key,
+                    codeModel: code
+                )
                 tokenState.totpState = totpState
-                newState.loadingState = .data(tokenState)
+                newTokenState.loadingState = .data(tokenState)
             }
-            state = newState
+            state = newTokenState
         } catch {
             services.errorReporter.log(error: error)
         }

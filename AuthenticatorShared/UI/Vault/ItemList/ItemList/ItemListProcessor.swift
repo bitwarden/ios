@@ -9,10 +9,10 @@ final class ItemListProcessor: StateProcessor<ItemListState, ItemListAction, Ite
 
     typealias Services = HasCameraService
         & HasErrorReporter
-        & HasItemRepository
         & HasPasteboardService
         & HasTOTPService
         & HasTimeProvider
+        & HasTokenRepository
 
     // MARK: Private Properties
 
@@ -89,15 +89,25 @@ final class ItemListProcessor: StateProcessor<ItemListState, ItemListAction, Ite
 
     /// Refreshes the vault group's TOTP Codes.
     ///
-    private func refreshTOTPCodes(for items: [VaultListItem]) async {
+    private func refreshTOTPCodes(for items: [ItemListItem]) async {
         guard case .data = state.loadingState else { return }
-        do {
-            let refreshedItems = try await services.itemRepository.refreshTOTPCodes(for: items)
-            groupTotpExpirationManager?.configureTOTPRefreshScheduling(for: refreshedItems)
-            state.loadingState = .data(refreshedItems)
-        } catch {
-            services.errorReporter.log(error: error)
+        let refreshedItems = await items.asyncMap { item in
+            do {
+                let refreshedCode = try await services.tokenRepository.refreshTotpCode(for: item.token.key)
+                return ItemListItem(
+                    id: item.id,
+                    name: item.name,
+                    token: item.token,
+                    totpCode: refreshedCode
+                )
+            } catch {
+                services.errorReporter.log(error: TOTPServiceError
+                    .unableToGenerateCode("Unable to refresh TOTP code for list view item: \(item.id)"))
+                return item
+            }
         }
+        groupTotpExpirationManager?.configureTOTPRefreshScheduling(for: refreshedItems)
+        state.loadingState = .data(refreshedItems)
     }
 
     /// Kicks off the TOTP setup flow.
@@ -118,9 +128,13 @@ final class ItemListProcessor: StateProcessor<ItemListState, ItemListAction, Ite
     /// Stream the items list.
     private func streamItemList() async {
         do {
-            for try await vaultList in try await services.itemRepository.vaultListPublisher() {
-                groupTotpExpirationManager?.configureTOTPRefreshScheduling(for: vaultList)
-                state.loadingState = .data(vaultList)
+            for try await tokenList in try await services.tokenRepository.tokenPublisher() {
+                let itemList = try await tokenList.asyncMap { token in
+                    let code = try await services.tokenRepository.refreshTotpCode(for: token.key)
+                    return ItemListItem(id: token.id, name: token.name, token: token, totpCode: code)
+                }
+                groupTotpExpirationManager?.configureTOTPRefreshScheduling(for: itemList)
+                state.loadingState = .data(itemList)
             }
         } catch {
             services.errorReporter.log(error: error)
@@ -135,13 +149,13 @@ private class TOTPExpirationManager {
 
     /// A closure to call on expiration
     ///
-    var onExpiration: (([VaultListItem]) -> Void)?
+    var onExpiration: (([ItemListItem]) -> Void)?
 
     // MARK: Private Properties
 
     /// All items managed by the object, grouped by TOTP period.
     ///
-    private(set) var itemsByInterval = [UInt32: [VaultListItem]]()
+    private(set) var itemsByInterval = [UInt32: [ItemListItem]]()
 
     /// A model to provide time to calculate the countdown.
     ///
@@ -160,7 +174,7 @@ private class TOTPExpirationManager {
     ///
     init(
         timeProvider: any TimeProvider,
-        onExpiration: (([VaultListItem]) -> Void)?
+        onExpiration: (([ItemListItem]) -> Void)?
     ) {
         self.timeProvider = timeProvider
         self.onExpiration = onExpiration
@@ -184,11 +198,10 @@ private class TOTPExpirationManager {
     ///
     /// - Parameter items: The vault list items that may require code expiration tracking.
     ///
-    func configureTOTPRefreshScheduling(for items: [VaultListItem]) {
-        var newItemsByInterval = [UInt32: [VaultListItem]]()
+    func configureTOTPRefreshScheduling(for items: [ItemListItem]) {
+        var newItemsByInterval = [UInt32: [ItemListItem]]()
         items.forEach { item in
-            guard case let .totp(_, model) = item.itemType else { return }
-            newItemsByInterval[model.totpCode.period, default: []].append(item)
+            newItemsByInterval[item.totpCode.period, default: []].append(item)
         }
         itemsByInterval = newItemsByInterval
     }
@@ -201,10 +214,10 @@ private class TOTPExpirationManager {
     }
 
     private func checkForExpirations() {
-        var expired = [VaultListItem]()
-        var notExpired = [UInt32: [VaultListItem]]()
+        var expired = [ItemListItem]()
+        var notExpired = [UInt32: [ItemListItem]]()
         itemsByInterval.forEach { period, items in
-            let sortedItems: [Bool: [VaultListItem]] = TOTPExpirationCalculator.listItemsByExpiration(
+            let sortedItems: [Bool: [ItemListItem]] = TOTPExpirationCalculator.listItemsByExpiration(
                 items,
                 timeProvider: timeProvider
             )
@@ -232,42 +245,11 @@ extension ItemListProcessor: AuthenticatorKeyCaptureDelegate {
         do {
             let authKeyModel = try services.totpService.getTOTPConfiguration(key: key)
             let loginTotpState = LoginTOTPState(authKeyModel: authKeyModel)
-            let newCipher = CipherView(
-                id: UUID().uuidString,
-                organizationId: nil,
-                folderId: nil,
-                collectionIds: [],
-                key: nil,
-                name: "Example",
-                notes: nil,
-                type: .login,
-                login: .init(
-                    username: nil,
-                    password: nil,
-                    passwordRevisionDate: nil,
-                    uris: nil,
-                    totp: loginTotpState.rawAuthenticatorKeyString,
-                    autofillOnPageLoad: nil,
-                    fido2Credentials: nil
-                ),
-                identity: nil,
-                card: nil,
-                secureNote: nil,
-                favorite: false,
-                reprompt: .none,
-                organizationUseTotp: false,
-                edit: true,
-                viewPassword: true,
-                localData: nil,
-                attachments: nil,
-                fields: nil,
-                passwordHistory: nil,
-                creationDate: .now,
-                deletedDate: nil,
-                revisionDate: .now
-            )
+            guard let key = loginTotpState.rawAuthenticatorKeyString,
+                  let newToken = Token(name: "Example", authenticatorKey: key)
+            else { return }
             Task {
-                try await services.itemRepository.addItem(newCipher)
+                try await services.tokenRepository.addToken(newToken)
                 await perform(.refresh)
             }
             state.toast = Toast(text: Localizations.authenticatorKeyAdded)

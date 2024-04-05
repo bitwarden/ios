@@ -9,8 +9,9 @@ extension ServiceContainer {
         cameraService: CameraService = MockCameraService(),
         clientService: ClientService = MockClientService(),
         errorReporter: ErrorReporter = MockErrorReporter(),
-        itemRepository: ItemRepository = MockItemRepository(),
+        pasteboardService: PasteboardService = MockPasteboardService(),
         timeProvider: TimeProvider = MockTimeProvider(.currentTime),
+        tokenRepository: TokenRepository = MockTokenRepository(),
         totpService: TOTPService = MockTOTPService()
     ) -> ServiceContainer {
         ServiceContainer(
@@ -18,8 +19,9 @@ extension ServiceContainer {
             cameraService: cameraService,
             clientService: clientService,
             errorReporter: errorReporter,
-            itemRepository: itemRepository,
-            timeProvider: timeProvider,
+            pasteboardService: pasteboardService,
+            timeProvider: timeProvider, 
+            tokenRepository: tokenRepository,
             totpService: totpService
         )
     }

@@ -23,9 +23,9 @@ extension ViewTokenState {
     /// - Parameters:
     ///   - cipherView: The `CipherView` to create this state with.
     ///
-    init?(cipherView: CipherView) {
+    init?(token: Token) {
         guard let tokenItemState = TokenItemState(
-            existing: cipherView
+            existing: token
         ) else { return nil }
         self.init(loadingState: .data(tokenItemState))
     }

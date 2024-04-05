@@ -33,7 +33,7 @@ enum TOTPExpirationCalculator {
         return hasCodeExpired
     }
 
-    /// Sorts a list of `VaultListItem` by expiration state
+    /// Sorts a list of `ItemListItem` by expiration state
     ///
     /// - Parameters:
     ///   - items: An array of list items that may be expired.
@@ -43,12 +43,11 @@ enum TOTPExpirationCalculator {
     /// - Returns: A dictionary with the items sorted by a `Bool` flag indicating expiration.
     ///
     static func listItemsByExpiration(
-        _ items: [VaultListItem],
+        _ items: [ItemListItem],
         timeProvider: any TimeProvider
-    ) -> [Bool: [VaultListItem]] {
-        let sortedItems: [Bool: [VaultListItem]] = Dictionary(grouping: items, by: { item in
-            guard case let .totp(_, model) = item.itemType else { return false }
-            return hasCodeExpired(model.totpCode, timeProvider: timeProvider)
+    ) -> [Bool: [ItemListItem]] {
+        let sortedItems: [Bool: [ItemListItem]] = Dictionary(grouping: items, by: { item in
+            hasCodeExpired(item.totpCode, timeProvider: timeProvider)
         })
         return sortedItems
     }

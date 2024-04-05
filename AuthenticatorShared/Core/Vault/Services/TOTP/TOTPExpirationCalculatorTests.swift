@@ -65,22 +65,18 @@ final class TOTPExpirationCalculatorTests: AuthenticatorTestCase {
     }
 
     func test_listItemsByExpiration() {
-        let expired = VaultListItem.fixtureTOTP(
-            totp: .fixture(
-                totpCode: .init(
-                    code: "",
-                    codeGenerationDate: Date(year: 2024, month: 1, day: 1, second: 29),
-                    period: 30
-                )
+        let expired = ItemListItem.fixture(
+            totpCode: .init(
+                code: "",
+                codeGenerationDate: Date(year: 2024, month: 1, day: 1, second: 29),
+                period: 30
             )
         )
-        let current = VaultListItem.fixtureTOTP(
-            totp: .fixture(
-                totpCode: .init(
-                    code: "",
-                    codeGenerationDate: Date(year: 2024, month: 1, day: 1, second: 31),
-                    period: 30
-                )
+        let current = ItemListItem.fixture(
+            totpCode: .init(
+                code: "",
+                codeGenerationDate: Date(year: 2024, month: 1, day: 1, second: 31),
+                period: 30
             )
         )
         let expectation = [
