@@ -351,6 +351,11 @@ class SyncServiceTests: BitwardenTestCase {
                     organizationId: "ba756e34-4650-4e8a-8cbb-6e98bfae9abf"
                 ),
                 CollectionDetailsResponseModel.fixture(
+                    id: "1a102336-fbfd-4d63-bd7b-8a953a1bcdb3",
+                    name: "Engineering/Apple",
+                    organizationId: "ba756e34-4650-4e8a-8cbb-6e98bfae9abf"
+                ),
+                CollectionDetailsResponseModel.fixture(
                     id: "a468e453-7141-49cf-bb15-58448c2b27b9",
                     name: "Design",
                     organizationId: "ba756e34-4650-4e8a-8cbb-6e98bfae9abf"
