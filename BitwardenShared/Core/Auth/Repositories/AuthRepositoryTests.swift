@@ -597,7 +597,7 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         )
         XCTAssertEqual(
             requests[1].url.absoluteString,
-            "https://example.com/api/organizations/1234/keys"
+            "https://example.com/api/organizations/1234/public-key"
         )
         XCTAssertEqual(
             requests[2].url.absoluteString,

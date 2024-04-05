@@ -29,7 +29,7 @@ class LoginWithDeviceProcessorTests: BitwardenTestCase {
                 authService: authService,
                 errorReporter: errorReporter
             ),
-            state: LoginWithDeviceState()
+            state: LoginWithDeviceState(requestType: AuthRequestType.authenticateAndUnlock)
         )
     }
 
