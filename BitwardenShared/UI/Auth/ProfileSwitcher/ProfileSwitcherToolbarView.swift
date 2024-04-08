@@ -30,7 +30,7 @@ struct ProfileSwitcherToolbarView: View {
             }
             .frame(minWidth: 50)
         }
-        .accessibilityIdentifier("AccountIconButton")
+        .accessibilityIdentifier("CurrentActiveAccount")
         .accessibilityLabel(Localizations.account)
         .hidden(!store.state.showPlaceholderToolbarIcon && store.state.accounts.isEmpty)
     }

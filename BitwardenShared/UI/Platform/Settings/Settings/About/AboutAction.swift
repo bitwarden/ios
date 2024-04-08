@@ -6,8 +6,14 @@ enum AboutAction: Equatable {
     /// Clears the app review URL.
     case clearAppReviewURL
 
+    /// Clears the give feedback URL.
+    case clearGiveFeedbackURL
+
     /// The url has been opened so clear the value in the state.
     case clearURL
+
+    /// The give feedback button was tapped.
+    case giveFeedbackTapped
 
     /// The help center button was tapped.
     case helpCenterTapped

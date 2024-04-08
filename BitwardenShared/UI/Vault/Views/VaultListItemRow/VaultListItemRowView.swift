@@ -21,8 +21,7 @@ struct VaultListItemRowView: View {
                     iconBaseURL: store.state.iconBaseURL,
                     showWebIcons: store.state.showWebIcons
                 )
-                .frame(width: 22, height: 22)
-                .foregroundColor(Asset.Colors.textSecondary.swiftUIColor)
+                .imageStyle(.rowIcon)
                 .padding(.vertical, 19)
                 .accessibilityHidden(true)
 
@@ -39,14 +38,20 @@ struct VaultListItemRowView: View {
 
                                 if cipherItem.organizationId != nil {
                                     Asset.Images.collections.swiftUIImage
-                                        .foregroundColor(Asset.Colors.textSecondary.swiftUIColor)
+                                        .imageStyle(.accessoryIcon(
+                                            color: Asset.Colors.textSecondary.swiftUIColor,
+                                            scaleWithFont: true
+                                        ))
                                         .accessibilityLabel(Localizations.shared)
                                         .accessibilityIdentifier("CipherInCollectionIcon")
                                 }
 
                                 if cipherItem.attachments?.isEmpty == false {
                                     Asset.Images.paperclip.swiftUIImage
-                                        .foregroundColor(Asset.Colors.textSecondary.swiftUIColor)
+                                        .imageStyle(.accessoryIcon(
+                                            color: Asset.Colors.textSecondary.swiftUIColor,
+                                            scaleWithFont: true
+                                        ))
                                         .accessibilityLabel(Localizations.attachments)
                                         .accessibilityIdentifier("CipherWithAttachmentsIcon")
                                 }
@@ -68,8 +73,8 @@ struct VaultListItemRowView: View {
                             await store.perform(.morePressed)
                         } label: {
                             Asset.Images.horizontalKabob.swiftUIImage
+                                .imageStyle(.rowIcon)
                         }
-                        .foregroundColor(Asset.Colors.textSecondary.swiftUIColor)
                         .accessibilityLabel(Localizations.more)
                         .accessibilityIdentifier("CipherOptionsButton")
 
@@ -87,6 +92,7 @@ struct VaultListItemRowView: View {
                 }
                 .padding(.vertical, 9)
             }
+            .multilineTextAlignment(.leading)
             .padding(.horizontal, 16)
 
             if store.state.hasDivider {

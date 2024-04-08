@@ -24,8 +24,6 @@ struct OtherSettingsView: View {
             clearClipboard
 
             connectToWatch
-
-            giveFeedback
         }
         .scrollView()
         .navigationBar(title: Localizations.other, titleDisplayMode: .inline)
@@ -33,11 +31,6 @@ struct OtherSettingsView: View {
             get: \.toast,
             send: OtherSettingsAction.toastShown
         ))
-        .onChange(of: store.state.url) { newValue in
-            guard let url = newValue else { return }
-            openURL(url)
-            store.send(.clearURL)
-        }
         .task {
             await store.perform(.streamLastSyncTime)
         }
@@ -102,18 +95,6 @@ struct OtherSettingsView: View {
         .toggleStyle(.bitwarden)
         .styleGuide(.body)
         .padding(.top, 8)
-    }
-
-    /// A link that redirects users to a feedback form.
-    private var giveFeedback: some View {
-        SettingsListItem(Localizations.giveFeedback, hasDivider: false) {
-            store.send(.giveFeedbackPressed)
-        } trailingContent: {
-            Image(asset: Asset.Images.externalLink2)
-                .resizable()
-                .frame(width: 22, height: 22)
-        }
-        .cornerRadius(10)
     }
 
     /// The sync now button and last synced description.

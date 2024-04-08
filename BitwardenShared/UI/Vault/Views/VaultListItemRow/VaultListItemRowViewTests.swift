@@ -59,7 +59,7 @@ class VaultListItemRowViewTests: BitwardenTestCase {
 
     /// Test that the default view renders correctly.
     func test_snapshot_default() {
-        assertSnapshot(of: subject, as: .sizeThatFits)
+        assertSnapshot(of: subject, as: .fixedSize())
     }
 
     /// Test that the view renders correctly with a custom icon.
@@ -71,6 +71,6 @@ class VaultListItemRowViewTests: BitwardenTestCase {
                 match: nil
             ),
         ])))
-        assertSnapshot(of: subject, as: .sizeThatFits)
+        assertSnapshot(of: subject, as: .fixedSize())
     }
 }
