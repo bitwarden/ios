@@ -21,7 +21,7 @@ struct LoginWithDeviceRequest: Request {
 
     /// The URL path for this request.
     var path: String {
-        requestType == AuthRequestType.adminApproval ? "auth-requests/admin-request" : "auth-requests"
+        requestType == AuthRequestType.adminApproval ? "/auth-requests/admin-request" : "/auth-requests"
     }
 
     /// Creates a new `LoginWithDeviceRequest`.
