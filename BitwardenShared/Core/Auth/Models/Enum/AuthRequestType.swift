@@ -2,7 +2,7 @@
 
 /// The type of auth request.
 ///
-public enum AuthRequestType: Int {
+public enum AuthRequestType: Int, Codable {
     /// Login with device request
     case authenticateAndUnlock = 0
 

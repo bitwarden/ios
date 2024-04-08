@@ -355,11 +355,13 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
 
         let totpService = DefaultTOTPService()
 
-        let trustDeviceService = DefaultTrustDeviceService(appIdService: appIdService,
-                                                           authAPIService: apiService,
-                                                           clientAuth: clientService.clientAuth(),
-                                                           keychainRepository: keychainRepository,
-                                                           stateService: stateService)
+        let trustDeviceService = DefaultTrustDeviceService(
+            appIdService: appIdService,
+            authAPIService: apiService,
+            clientAuth: clientService.clientAuth(),
+            keychainRepository: keychainRepository,
+            stateService: stateService
+        )
 
         let twoStepLoginService = DefaultTwoStepLoginService(environmentService: environmentService)
         let vaultTimeoutService = DefaultVaultTimeoutService(stateService: stateService, timeProvider: timeProvider)

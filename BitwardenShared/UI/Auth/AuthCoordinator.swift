@@ -134,8 +134,8 @@ final class AuthCoordinator: NSObject, // swiftlint:disable:this type_body_lengt
             showLogin(username)
         case let .showLoginDecryptionOptions(organizationIdentifier):
             showLoginDecryptionOptions(organizationIdentifier)
-        case let .loginWithDevice(email, type):
-            showLoginWithDevice(email: email, type: type, isAuthenticated: context is LoginDecryptionOptionsProcessor)
+        case let .loginWithDevice(email, type, isAuthenticated):
+            showLoginWithDevice(email: email, type: type, isAuthenticated: isAuthenticated)
         case let .masterPasswordHint(username):
             showMasterPasswordHint(for: username)
         case let .selfHosted(region):
@@ -150,7 +150,12 @@ final class AuthCoordinator: NSObject, // swiftlint:disable:this type_body_lengt
                 url: url
             )
         case let .twoFactor(email, unlockMethod, authMethodsData, orgIdentifier):
-            showTwoFactorAuth(email: email, unlockMethod: unlockMethod, authMethodsData: authMethodsData, orgIdentifier: orgIdentifier)
+            showTwoFactorAuth(
+                email: email,
+                unlockMethod: unlockMethod,
+                authMethodsData: authMethodsData,
+                orgIdentifier: orgIdentifier
+            )
         case .updateMasterPassword:
             showUpdateMasterPassword()
         case let .webAuthn(rpId, challenge, allowCredentialIds, userVerificationPreference):
@@ -370,7 +375,7 @@ final class AuthCoordinator: NSObject, // swiftlint:disable:this type_body_lengt
         let processor = LoginWithDeviceProcessor(
             coordinator: asAnyCoordinator(),
             services: services,
-            state: LoginWithDeviceState(email: email, requestType: type, isAuthenticated: isAuthenticated)
+            state: LoginWithDeviceState(email: email, isAuthenticated: isAuthenticated, requestType: type)
         )
         let store = Store(processor: processor)
         let view = LoginWithDeviceView(store: store)
@@ -518,6 +523,7 @@ final class AuthCoordinator: NSObject, // swiftlint:disable:this type_body_lengt
     ///   - email: The user's email.
     ///   - unlockMethod: The method used to unlock the vault after two-factor completes successfully.
     ///   - authMethodsData: The data required for the two-factor flow.
+    ///   - orgIdentifier: The identifier for the organization used in the SSO flow
     ///
     private func showTwoFactorAuth(
         email: String,

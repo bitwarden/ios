@@ -6,13 +6,13 @@ struct LoginDecryptionOptionsState: Equatable {
     // MARK: Properties
 
     /// Whether the approve with master password button is enabled.
-    var approveWithMasterPasswordEnabled: Bool = false
+    var shouldShowApproveMasterPasswordButton: Bool = false
 
     /// Whether the approve with other device button is enabled.
-    var approveWithOtherDeviceEnabled: Bool = false
+    var shouldShowApproveWithOtherDeviceButton: Bool = false
 
     /// Whether the continue button is enabled.
-    var continueButtonEnabled: Bool = false
+    var shouldShowContinueButton: Bool = false
 
     /// Email of the active user to be displayed
     var email: String = ""
@@ -24,7 +24,7 @@ struct LoginDecryptionOptionsState: Equatable {
     var orgIdentifier: String?
 
     /// Whether the request admin approval button is enabled.
-    var requestAdminApprovalEnabled: Bool = false
+    var shouldShowAdminApprovalButton: Bool = false
 
     /// A toast message to show in the view.
     var toast: Toast?

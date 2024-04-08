@@ -103,7 +103,7 @@ extension APIService: AuthAPIService {
 
     func initiateLoginWithDevice(_ requestModel: LoginWithDeviceRequestModel) async throws -> LoginRequest {
         let request = LoginWithDeviceRequest(body: requestModel)
-        if request.requestType == AuthRequestType.adminApproval.rawValue {
+        if request.requestType == AuthRequestType.adminApproval {
             return try await apiService.send(request)
         } else {
             return try await apiUnauthenticatedService.send(request)

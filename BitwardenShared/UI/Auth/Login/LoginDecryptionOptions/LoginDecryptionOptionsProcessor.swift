@@ -12,9 +12,6 @@ class LoginDecryptionOptionsProcessor: StateProcessor<
     typealias Services = HasAccountAPIService
         & HasAuthRepository
         & HasAuthService
-        & HasCaptchaService
-        & HasClientAuth
-        & HasStateService
         & HasTrustDeviceService
 
     // MARK: Private Properties
@@ -24,10 +21,6 @@ class LoginDecryptionOptionsProcessor: StateProcessor<
 
     /// The services used by the processor.
     private let services: Services
-
-    private var userAccount: Account?
-
-    private var userDecryptionOptions: UserDecryptionOptions?
 
     // MARK: Initialization
 
@@ -52,25 +45,27 @@ class LoginDecryptionOptionsProcessor: StateProcessor<
 
     override func perform(_ effect: LoginDecryptionOptionsEffect) async {
         switch effect {
-        case .loadLoginDecryptionOptions:
-            await loadUserDecryptionOptions()
+        case .approveWithMasterPasswordPressed:
+            await approveWithMasterPassword()
         case .approveWithOtherDevicePressed:
             await setTrustAndNavigate(route: .loginWithDevice(
                 email: state.email,
-                authRequestType: AuthRequestType.authenticateAndUnlock
+                authRequestType: AuthRequestType.authenticateAndUnlock,
+                isAuthenticated: true
             ))
-        case .requestAdminApprovalPressed:
-            await setTrustAndNavigate(route: .loginWithDevice(
-                email: state.email,
-                authRequestType: AuthRequestType.adminApproval
-            ))
-        case .approveWithMasterPasswordPressed:
-            await approveWithMasterPassword()
         case .continuePressed:
             await createNewSsoUser()
+        case .loadLoginDecryptionOptions:
+            await loadUserDecryptionOptions()
         case .notYouPressed:
             coordinator.navigate(to: .dismiss)
             await coordinator.handleEvent(.action(.logout(userId: nil, userInitiated: true)))
+        case .requestAdminApprovalPressed:
+            await setTrustAndNavigate(route: .loginWithDevice(
+                email: state.email,
+                authRequestType: AuthRequestType.adminApproval,
+                isAuthenticated: true
+            ))
         }
     }
 
@@ -88,11 +83,8 @@ class LoginDecryptionOptionsProcessor: StateProcessor<
     /// Approves user vault decryption with master password
     private func approveWithMasterPassword() async {
         do {
-            userAccount = try await services.authRepository.getAccount()
-            guard let userAccount else {
-                coordinator.showAlert(.defaultAlert(title: Localizations.anErrorHasOccurred))
-                return
-            }
+            let userAccount = try await services.authRepository.getAccount()
+
             await setTrustAndNavigate(route: .vaultUnlock(
                 userAccount,
                 animated: true,
@@ -146,19 +138,15 @@ class LoginDecryptionOptionsProcessor: StateProcessor<
     /// Loads user decryption option used to show/hide buttons on screen
     private func loadUserDecryptionOptions() async {
         do {
-            userAccount = try await services.authRepository.getAccount()
-            guard let userAccount else {
-                coordinator.showAlert(.defaultAlert(title: Localizations.anErrorHasOccurred))
-                return
-            }
-
-            state.email = userAccount.profile.email
-            userDecryptionOptions = userAccount.profile.userDecryptionOptions
+            let userAccount = try await services.authRepository.getAccount()
+            let userDecryptionOptions = userAccount.profile.userDecryptionOptions
             let trustedDeviceOption = userDecryptionOptions?.trustedDeviceOption
-            state.requestAdminApprovalEnabled = trustedDeviceOption?.hasAdminApproval ?? false
-            state.approveWithMasterPasswordEnabled = userDecryptionOptions?.hasMasterPassword ?? false
-            state.approveWithOtherDeviceEnabled = trustedDeviceOption?.hasLoginApprovingDevice ?? false
-            state.continueButtonEnabled = !state.requestAdminApprovalEnabled && !state.approveWithMasterPasswordEnabled
+            state.email = userAccount.profile.email
+            state.shouldShowAdminApprovalButton = trustedDeviceOption?.hasAdminApproval ?? false
+            state.shouldShowApproveMasterPasswordButton = userDecryptionOptions?.hasMasterPassword ?? false
+            state.shouldShowApproveWithOtherDeviceButton = trustedDeviceOption?.hasLoginApprovingDevice ?? false
+            state.shouldShowContinueButton = !state.shouldShowAdminApprovalButton
+                && !state.shouldShowApproveMasterPasswordButton
 
             if try await hasApprovedPendingAdminRequest() {
                 state.toast = Toast(text: Localizations.loginApproved)
@@ -173,9 +161,9 @@ class LoginDecryptionOptionsProcessor: StateProcessor<
     /// - Parameter route: route to navigate the user after setting if device should be trusted
     ///
     private func setTrustAndNavigate(route: AuthRoute) async {
-        coordinator.navigate(to: route, context: self)
         do {
             try await services.trustDeviceService.setShouldTrustDevice(state.isRememberDeviceToggleOn)
+            coordinator.navigate(to: route, context: self)
         } catch {
             coordinator.showAlert(.defaultAlert(title: Localizations.anErrorHasOccurred))
         }

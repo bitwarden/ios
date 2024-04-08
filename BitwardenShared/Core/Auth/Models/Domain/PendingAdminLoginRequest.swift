@@ -2,6 +2,9 @@ import BitwardenSdk
 
 // MARK: PendingAdminLoginRequest
 
+/// The admin request that is waiting for approval
+/// Saved in state for future reference
+///
 public struct PendingAdminLoginRequest: Codable, Equatable, Hashable {
     // MARK: Properties
 

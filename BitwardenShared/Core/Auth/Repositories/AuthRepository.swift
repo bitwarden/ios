@@ -369,7 +369,7 @@ extension DefaultAuthRepository: AuthRepository {
             rememberDevice: rememberDevice
         )
 
-        try await accountAPIService.accountKeys(requestModel: KeysRequestModel(
+        try await accountAPIService.setAccountKeys(requestModel: KeysRequestModel(
             encryptedPrivateKey: registrationKeys.privateKey,
             publicKey: registrationKeys.publicKey
         ))
@@ -597,8 +597,8 @@ extension DefaultAuthRepository: AuthRepository {
 
         try await unlockVault(method: .deviceKey(
             deviceKey: deviceKey,
-            protectedDevicePrivateKey: protectedDevicePrivateKey as EncString,
-            deviceProtectedUserKey: deviceProtectedUserKey as AsymmetricEncString
+            protectedDevicePrivateKey: protectedDevicePrivateKey,
+            deviceProtectedUserKey: deviceProtectedUserKey
         ))
     }
 
@@ -794,9 +794,6 @@ extension DefaultAuthRepository: AuthRepository {
                     newMasterPasswordHash: updatePasswordResponse.passwordHash
                 )
             )
-        case .tdeUserWithoutPasswordHasPasswordResetPermission:
-            // not applicable here since this is a SetPassword and not an UpdatePassword
-            break
         }
 
         try await stateService.setAccountEncryptionKeys(newEncryptionKeys)

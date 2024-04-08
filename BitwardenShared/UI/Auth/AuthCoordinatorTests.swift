@@ -159,7 +159,8 @@ class AuthCoordinatorTests: BitwardenTestCase { // swiftlint:disable:this type_b
     func test_navigate_loginWithDevice() throws {
         subject.navigate(to: .loginWithDevice(
             email: "example@email.com",
-            authRequestType: AuthRequestType.authenticateAndUnlock
+            authRequestType: AuthRequestType.authenticateAndUnlock,
+            isAuthenticated: false
         ))
 
         XCTAssertEqual(stackNavigator.actions.last?.type, .presented)

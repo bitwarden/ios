@@ -85,8 +85,10 @@ final class LoginWithDeviceProcessor: StateProcessor<
             coordinator.showLoadingOverlay(title: Localizations.loading)
             guard let authRequestType = state.requestType else { throw AuthError.missingData }
 
-            let result = try await services.authService.initiateLoginWithDevice(email: state.email,
-                                                                                type: authRequestType)
+            let result = try await services.authService.initiateLoginWithDevice(
+                email: state.email,
+                type: authRequestType
+            )
             state.fingerprintPhrase = result.authRequestResponse.fingerprint
             state.requestId = result.requestId
             authRequestResponse = result.authRequestResponse

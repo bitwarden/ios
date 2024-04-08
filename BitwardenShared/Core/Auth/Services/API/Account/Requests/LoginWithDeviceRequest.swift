@@ -17,11 +17,11 @@ struct LoginWithDeviceRequest: Request {
     let method: HTTPMethod = .post
 
     /// The type of auth request.
-    let requestType: Int
+    let requestType: AuthRequestType
 
     /// The URL path for this request.
     var path: String {
-        requestType == AuthRequestType.adminApproval.rawValue ? "auth-requests/admin-request" : "auth-requests"
+        requestType == AuthRequestType.adminApproval ? "auth-requests/admin-request" : "auth-requests"
     }
 
     /// Creates a new `LoginWithDeviceRequest`.

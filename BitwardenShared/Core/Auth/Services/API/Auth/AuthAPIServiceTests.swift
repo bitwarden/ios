@@ -119,7 +119,7 @@ class AuthAPIServiceTests: BitwardenTestCase {
             publicKey: "",
             deviceIdentifier: "",
             accessCode: "",
-            type: 1,
+            type: AuthRequestType.authenticateAndUnlock,
             fingerprintPhrase: ""
         ))
 

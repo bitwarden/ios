@@ -1,11 +1,11 @@
 import Foundation
 import Networking
 
-// MARK: - AccountKeysRequest
+// MARK: - SetAccountKeysRequest
 
 /// The API request sent when submitting the account keys.
 ///
-struct AccountKeysRequest: Request {
+struct SetAccountKeysRequest: Request {
     typealias Response = EmptyResponse
     typealias Body = KeysRequestModel
 

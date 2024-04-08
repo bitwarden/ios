@@ -474,7 +474,7 @@ class DefaultAuthService: AuthService { // swiftlint:disable:this type_body_leng
             publicKey: loginWithDeviceData.publicKey,
             deviceIdentifier: appId,
             accessCode: loginWithDeviceData.accessCode,
-            type: type.rawValue,
+            type: type,
             fingerprintPhrase: loginWithDeviceData.fingerprint
         ))
 
@@ -558,27 +558,32 @@ class DefaultAuthService: AuthService { // swiftlint:disable:this type_body_leng
         }
     }
 
+    /// Check TDE user decryption options to see if can unlock with trusted deviceKey or needs further actions
     private func canUnlockWithDeviceKey(_ response: IdentityTokenResponseModel) async throws -> Bool {
         if let decryptionOptions = response.userDecryptionOptions,
            let trustedDeviceOption = decryptionOptions.trustedDeviceOption {
             if try await trustDeviceService.isDeviceTrusted() {
+                // Server keys were deleted, remove local device as trusted locally
                 if trustedDeviceOption.encryptedPrivateKey == nil,
                    trustedDeviceOption.encryptedUserKey == nil {
                     try await trustDeviceService.removeTrustedDevice()
                     throw AuthError.requireDecryptionOptions
                 }
 
+                // User need to update password
                 if response.forcePasswordReset {
                     throw AuthError.requireUpdatePassword
                 }
 
+                // User privileges were elevated and needs to set a password
                 if !decryptionOptions.hasMasterPassword,
                    trustedDeviceOption.hasManageResetPasswordPermission {
-                    try await stateService.setForcePasswordResetReason(
-                        ForcePasswordResetReason.tdeUserWithoutPasswordHasPasswordResetPermission
-                    )
+                    // TODO: PM-7340 Set password reason
+                    // try await stateService.setForcePasswordResetReason(
+                    // ForcePasswordResetReason.tdeUserWithoutPasswordHasPasswordResetPermission
+                    // )
                 }
-
+                // Device is trusted and user unlock with device key
                 return true
             }
 

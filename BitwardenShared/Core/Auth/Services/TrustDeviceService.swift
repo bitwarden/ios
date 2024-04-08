@@ -2,6 +2,8 @@ import BitwardenSdk
 import CryptoKit
 import Foundation
 
+/// A protocol for a service used to handle the trusted device encryption logic.
+///
 protocol TrustDeviceService {
     /// Gets the current device key if device is trusted.
     ///
@@ -139,6 +141,11 @@ class DefaultTrustDeviceService: TrustDeviceService {
         try await getDeviceKey() != nil
     }
 
+    /// Updates server and local device keys making the device trusted.
+    ///
+    /// - Parameter trustDeviceDetails object containing all keys to trust a device
+    /// - Returns: A object containing all keys from the process of trusting a device
+    ///
     private func setDeviceAsTrusted(_ trustDeviceDetails: TrustDeviceResponse) async throws -> TrustDeviceResponse {
         let appId = await appIdService.getOrCreateAppId()
         let trustedDeviceKeysRequestModel = TrustedDeviceKeysRequestModel(

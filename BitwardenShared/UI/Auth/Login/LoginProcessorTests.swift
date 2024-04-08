@@ -284,7 +284,8 @@ class LoginProcessorTests: BitwardenTestCase {
         subject.receive(.loginWithDevicePressed)
         XCTAssertEqual(coordinator.routes.last, .loginWithDevice(
             email: "example@email.com",
-            authRequestType: AuthRequestType.authenticateAndUnlock
+            authRequestType: AuthRequestType.authenticateAndUnlock,
+            isAuthenticated: false
         ))
     }
 

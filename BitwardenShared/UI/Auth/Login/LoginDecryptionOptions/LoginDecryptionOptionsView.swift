@@ -89,19 +89,19 @@ struct LoginDecryptionOptionsView: View {
 
     /// Show decryption method buttons based on user configurations
     @ViewBuilder var decryptMethodButtons: some View {
-        if store.state.continueButtonEnabled {
+        if store.state.shouldShowContinueButton {
             continueButton
         }
 
-        if store.state.approveWithOtherDeviceEnabled {
+        if store.state.shouldShowApproveWithOtherDeviceButton {
             approveWithOtherDeviceButton
         }
 
-        if store.state.requestAdminApprovalEnabled {
+        if store.state.shouldShowAdminApprovalButton {
             requestAdminApprovalButton
         }
 
-        if store.state.approveWithMasterPasswordEnabled {
+        if store.state.shouldShowApproveMasterPasswordButton {
             approveWithMasterPasswordButton
         }
     }

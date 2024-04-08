@@ -188,6 +188,8 @@ final class TwoFactorAuthProcessor: StateProcessor<TwoFactorAuthState, TwoFactor
             } else if authError == .requireDecryptionOptions,
                       let orgId = state.orgIdentifier {
                 coordinator.navigate(to: .showLoginDecryptionOptions(organizationIdentifier: orgId))
+            } else {
+                coordinator.showAlert(.defaultAlert(title: Localizations.anErrorHasOccurred))
             }
         } catch {
             coordinator.showAlert(.defaultAlert(

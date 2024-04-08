@@ -7,12 +7,6 @@ import Networking
 /// A protocol for an API service used to make account requests.
 ///
 protocol AccountAPIService {
-    /// Set the account keys.
-    ///
-    ///  - Parameter requestModel: The request model containing the keys to set in the account.
-    ///
-    func accountKeys(requestModel: KeysRequestModel) async throws
-
     /// Performs the account revision date request and returns the date of the account's last revision.
     ///
     /// - Returns: The account's last revision date.
@@ -56,6 +50,12 @@ protocol AccountAPIService {
     ///
     func requestPasswordHint(for email: String) async throws
 
+    /// Set the account keys.
+    ///
+    ///  - Parameter requestModel: The request model containing the keys to set in the account.
+    ///
+    func setAccountKeys(requestModel: KeysRequestModel) async throws
+
     /// Performs the API request to set the user's password.
     ///
     /// - Parameter requestModel: The request model containing the details needed to set the user's
@@ -79,10 +79,6 @@ protocol AccountAPIService {
 // MARK: - APIService
 
 extension APIService: AccountAPIService {
-    func accountKeys(requestModel: KeysRequestModel) async throws {
-        _ = try await apiService.send(AccountKeysRequest(body: requestModel))
-    }
-
     func accountRevisionDate() async throws -> Date? {
         try await apiService.send(AccountRevisionDateRequest()).date
     }
@@ -125,6 +121,10 @@ extension APIService: AccountAPIService {
     func requestPasswordHint(for email: String) async throws {
         let request = PasswordHintRequest(body: PasswordHintRequestModel(email: email))
         _ = try await apiUnauthenticatedService.send(request)
+    }
+
+    func setAccountKeys(requestModel: KeysRequestModel) async throws {
+        _ = try await apiService.send(SetAccountKeysRequest(body: requestModel))
     }
 
     func setPassword(_ requestModel: SetPasswordRequestModel) async throws {

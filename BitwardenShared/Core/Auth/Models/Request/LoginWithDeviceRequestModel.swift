@@ -24,7 +24,7 @@ struct LoginWithDeviceRequestModel: JSONRequestBody, Equatable {
     var accessCode: String
 
     /// The type of request being made.
-    var type: Int
+    var type: AuthRequestType
 
     /// The fingerprint phrase used in the request.
     var fingerprintPhrase: String
