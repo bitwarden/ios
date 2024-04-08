@@ -99,15 +99,19 @@ struct AddEditLoginItemView: View {
                     send: AddEditItemAction.totpKeyChanged
                 ),
                 accessibilityIdentifier: "LoginTotpEntry",
+                canViewPassword: store.state.canViewPassword,
                 trailingContent: {
-                    AccessoryButton(asset: Asset.Images.copy, accessibilityLabel: Localizations.copyTotp) {
-                        await store.perform(.copyTotpPressed)
+                    if store.state.canViewPassword {
+                        AccessoryButton(asset: Asset.Images.copy, accessibilityLabel: Localizations.copyTotp) {
+                            await store.perform(.copyTotpPressed)
+                        }
                     }
                     AccessoryButton(asset: Asset.Images.camera, accessibilityLabel: Localizations.setupTotp) {
                         await store.perform(.setupTotpPressed)
                     }
                 }
             )
+            .disabled(!store.state.canViewPassword)
             .focused($focusedField, equals: .totp)
             .onSubmit {
                 store.send(.totpFieldLeftFocus)
