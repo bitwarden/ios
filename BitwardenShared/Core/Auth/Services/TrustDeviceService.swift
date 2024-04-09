@@ -98,7 +98,7 @@ class DefaultTrustDeviceService: TrustDeviceService {
         do {
             return try await keychainRepository.getDeviceKey(
                 userId: activeUserId)
-        } catch KeychainServiceError.osStatusError(errSecItemNotFound) {
+        } catch {
             return nil
         }
     }

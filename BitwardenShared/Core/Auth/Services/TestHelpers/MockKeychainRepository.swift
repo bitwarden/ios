@@ -27,7 +27,6 @@ class MockKeychainRepository: KeychainRepository {
     var setPendingAdminLoginRequestResult: Result<Void, Error> = .success(())
 
     func deleteDeviceKey(userId: String) async throws {
-        try deleteResult.get()
         let formattedKey = formattedKey(for: .deviceKey(userId: userId))
         mockStorage = mockStorage.filter { $0.key != formattedKey }
     }
@@ -49,7 +48,7 @@ class MockKeychainRepository: KeychainRepository {
     }
 
     func getDeviceKey(userId: String) async throws -> String? {
-        try getDeviceKeyResult.get()
+        try getValue(for: .deviceKey(userId: userId))
     }
 
     func getRefreshToken(userId: String) async throws -> String {
@@ -91,7 +90,6 @@ class MockKeychainRepository: KeychainRepository {
     }
 
     func setDeviceKey(_ value: String, userId: String) async throws {
-        try setDeviceKeyResult.get()
         mockStorage[formattedKey(for: .deviceKey(userId: userId))] = value
     }
 
