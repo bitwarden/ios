@@ -214,6 +214,10 @@ jobs:
         run: |
           plutil -replace ITSEncryptionExportComplianceCode -string 3dd3e32f-efa6-4d99-b410-28aa28b1cb77 Bitwarden/Application/Support/Info.plist
 
+      - name: Update entitlements for production APNS
+        run: |
+          plutil -replace aps-environment -string production Bitwarden/Application/Support/Bitwarden.entitlements
+
       - name: Install Mint, xcbeautify, and yq
         run: |
           brew install mint xcbeautify yq
