@@ -3,7 +3,7 @@
 <plist version="1.0">
 <dict>
 	<key>BitwardenAppIdentifier</key>
-	<string>$(ORGANIZATION_IDENTIFIER).bitwarden</string>
+	<string>$(BASE_BUNDLE_ID)</string>
 	<key>CFBundleDisplayName</key>
 	<string>Autofill with Bitwarden</string>
 	<key>CFBundleName</key>
