@@ -58,7 +58,6 @@ class LoginDecryptionOptionsProcessor: StateProcessor<
         case .loadLoginDecryptionOptions:
             await loadUserDecryptionOptions()
         case .notYouPressed:
-            coordinator.navigate(to: .dismiss)
             await coordinator.handleEvent(.action(.logout(userId: nil, userInitiated: true)))
         case .requestAdminApprovalPressed:
             await setTrustAndNavigate(route: .loginWithDevice(
@@ -71,8 +70,6 @@ class LoginDecryptionOptionsProcessor: StateProcessor<
 
     override func receive(_ action: LoginDecryptionOptionsAction) {
         switch action {
-        case .dismiss:
-            coordinator.navigate(to: .dismiss)
         case let .toggleRememberDevice(newValue):
             state.isRememberDeviceToggleOn = newValue
         }
@@ -91,7 +88,6 @@ class LoginDecryptionOptionsProcessor: StateProcessor<
                 attemptAutomaticBiometricUnlock: false,
                 didSwitchAccountAutomatically: false
             ))
-            coordinator.navigate(to: .dismiss)
         } catch {
             coordinator.showAlert(.defaultAlert(title: Localizations.anErrorHasOccurred))
         }

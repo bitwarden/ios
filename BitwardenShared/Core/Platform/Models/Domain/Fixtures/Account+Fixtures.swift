@@ -25,7 +25,13 @@ extension Account {
                 userDecryptionOptions: UserDecryptionOptions(
                     hasMasterPassword: true,
                     keyConnectorOption: nil,
-                    trustedDeviceOption: nil
+                    trustedDeviceOption: TrustedDeviceUserDecryptionOption(
+                        encryptedPrivateKey: "PRIVATE_KEY",
+                        encryptedUserKey: "USER_KEY",
+                        hasAdminApproval: true,
+                        hasLoginApprovingDevice: true,
+                        hasManageResetPasswordPermission: false
+                    )
                 ),
                 userId: "13512467-9cfe-43b0-969f-07534084764b"
             ),
@@ -51,7 +57,17 @@ extension Account.AccountProfile {
         name: String? = nil,
         orgIdentifier: String? = nil,
         stamp: String? = "stamp",
-        userDecryptionOptions: UserDecryptionOptions? = nil,
+        userDecryptionOptions: UserDecryptionOptions? = UserDecryptionOptions(
+            hasMasterPassword: true,
+            keyConnectorOption: nil,
+            trustedDeviceOption: TrustedDeviceUserDecryptionOption(
+                encryptedPrivateKey: "PRIVATE_KEY",
+                encryptedUserKey: "USER_KEY",
+                hasAdminApproval: true,
+                hasLoginApprovingDevice: true,
+                hasManageResetPasswordPermission: false
+            )
+        ),
         userId: String = "1"
     ) -> Account.AccountProfile {
         Account.AccountProfile(
