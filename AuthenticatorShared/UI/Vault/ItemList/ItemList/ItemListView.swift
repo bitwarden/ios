@@ -162,27 +162,29 @@ struct ItemListView: View {
                                 ItemListItem(
                                     id: "One",
                                     name: "One",
-                                    token: Token(
-                                        name: "One",
-                                        authenticatorKey: "One"
-                                    )!,
-                                    totpCode: TOTPCodeModel(
-                                        code: "123456",
-                                        codeGenerationDate: Date(),
-                                        period: 30
+                                    itemType: .totp(
+                                        model: ItemListTotpItem(
+                                            itemView: AuthenticatorItemView.fixture(),
+                                            totpCode: TOTPCodeModel(
+                                                code: "123456",
+                                                codeGenerationDate: Date(),
+                                                period: 30
+                                            )
+                                        )
                                     )
                                 ),
                                 ItemListItem(
                                     id: "Two",
                                     name: "Two",
-                                    token: Token(
-                                        name: "Two",
-                                        authenticatorKey: "Two"
-                                    )!,
-                                    totpCode: TOTPCodeModel(
-                                        code: "123456",
-                                        codeGenerationDate: Date(),
-                                        period: 30
+                                    itemType: .totp(
+                                        model: ItemListTotpItem(
+                                            itemView: AuthenticatorItemView.fixture(),
+                                            totpCode: TOTPCodeModel(
+                                                code: "123456",
+                                                codeGenerationDate: Date(),
+                                                period: 30
+                                            )
+                                        )
                                     )
                                 ),
                             ]

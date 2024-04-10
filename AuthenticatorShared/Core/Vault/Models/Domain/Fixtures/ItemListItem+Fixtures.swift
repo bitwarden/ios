@@ -7,16 +7,25 @@ extension ItemListItem {
     static func fixture(
         id: String = "123",
         name: String = "Name",
-        token: Token = Token(
-            name: "Name",
-            authenticatorKey: "example"
-        )!,
+        totp: ItemListTotpItem
+    ) -> ItemListItem {
+        ItemListItem(
+            id: id,
+            name: name,
+            itemType: .totp(model: totp)
+        )
+    }
+}
+
+extension ItemListTotpItem {
+    static func fixture(
+        itemView: AuthenticatorItemView = .fixture(),
         totpCode: TOTPCodeModel = TOTPCodeModel(
             code: "123456",
-            codeGenerationDate: .now,
+            codeGenerationDate: Date(),
             period: 30
         )
-    ) -> ItemListItem {
-        ItemListItem(id: id, name: name, token: token, totpCode: totpCode)
+    ) -> ItemListTotpItem {
+        ItemListTotpItem(itemView: itemView, totpCode: totpCode)
     }
 }

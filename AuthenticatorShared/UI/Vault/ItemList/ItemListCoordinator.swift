@@ -1,4 +1,4 @@
-import BitwardenSdk
+import OSLog
 import SwiftUI
 
 // MARK: - ItemListCoordinator
@@ -8,8 +8,8 @@ import SwiftUI
 final class ItemListCoordinator: Coordinator, HasStackNavigator {
     // MARK: - Types
 
-    typealias Module = ItemListModule
-        & TokenModule
+    typealias Module = AuthenticatorItemModule
+        & ItemListModule
 
     typealias Services = HasTimeProvider
         & ItemListProcessor.Services
@@ -65,7 +65,8 @@ final class ItemListCoordinator: Coordinator, HasStackNavigator {
         case .setupTotpManual:
             guard let delegate = context as? AuthenticatorKeyCaptureDelegate else { return }
             showManualTotp(delegate: delegate)
-        case let .viewToken(id):
+        case let .viewItem(id):
+            Logger.application.log("View token \(id)")
             showToken(route: .viewToken(id: id))
         }
     }
@@ -121,9 +122,9 @@ final class ItemListCoordinator: Coordinator, HasStackNavigator {
     ///
     /// - Parameter route: The route to navigate to in the coordinator.
     ///
-    private func showToken(route: TokenRoute) {
+    private func showToken(route: AuthenticatorItemRoute) {
         let navigationController = UINavigationController()
-        let coordinator = module.makeTokenCoordinator(stackNavigator: navigationController)
+        let coordinator = module.makeAuthenticatorItemCoordinator(stackNavigator: navigationController)
         coordinator.start()
         coordinator.navigate(to: route, context: self)
 

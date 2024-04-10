@@ -27,7 +27,10 @@ struct ItemListItemRowView: View {
                 .accessibilityHidden(true)
 
                 HStack {
-                    totpCodeRow(store.state.item.name, store.state.item.totpCode)
+                    switch store.state.item.itemType {
+                    case let .totp(model):
+                        totpCodeRow(store.state.item.name, model.totpCode)
+                    }
                 }
                 .padding(.vertical, 9)
             }
@@ -91,6 +94,7 @@ struct ItemListItemRowView: View {
     }
 }
 
+#if DEBUG
 #Preview {
     ItemListItemRowView(
         store: Store(
@@ -99,14 +103,15 @@ struct ItemListItemRowView: View {
                     item: ItemListItem(
                         id: UUID().uuidString,
                         name: "Example",
-                        token: Token(
-                            name: "Example",
-                            authenticatorKey: "Example"
-                        )!,
-                        totpCode: TOTPCodeModel(
-                            code: "123456",
-                            codeGenerationDate: Date(),
-                            period: 30
+                        itemType: .totp(
+                            model: ItemListTotpItem(
+                                itemView: AuthenticatorItemView.fixture(),
+                                totpCode: TOTPCodeModel(
+                                    code: "123456",
+                                    codeGenerationDate: Date(),
+                                    period: 30
+                                )
+                            )
                         )
                     ),
                     hasDivider: true,
@@ -117,3 +122,4 @@ struct ItemListItemRowView: View {
         timeProvider: PreviewTimeProvider()
     )
 }
+#endif

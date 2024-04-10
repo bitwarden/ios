@@ -1,4 +1,3 @@
-import BitwardenSdk
 import Foundation
 
 // MARK: - ItemListProcessor
@@ -7,12 +6,12 @@ import Foundation
 final class ItemListProcessor: StateProcessor<ItemListState, ItemListAction, ItemListEffect> {
     // MARK: Types
 
-    typealias Services = HasCameraService
+    typealias Services = HasAuthenticatorItemRepository
+        & HasCameraService
         & HasErrorReporter
         & HasPasteboardService
         & HasTOTPService
         & HasTimeProvider
-        & HasTokenRepository
 
     // MARK: Private Properties
 
@@ -77,7 +76,7 @@ final class ItemListProcessor: StateProcessor<ItemListState, ItemListAction, Ite
             services.pasteboardService.copy(code)
             state.toast = Toast(text: Localizations.valueHasBeenCopied(Localizations.verificationCode))
         case let .itemPressed(item):
-            coordinator.navigate(to: .viewToken(id: item.id))
+            coordinator.navigate(to: .viewItem(id: item.id))
         case .morePressed:
             break
         case let .toastShown(newValue):
@@ -92,19 +91,22 @@ final class ItemListProcessor: StateProcessor<ItemListState, ItemListAction, Ite
     private func refreshTOTPCodes(for items: [ItemListItem]) async {
         guard case .data = state.loadingState else { return }
         let refreshedItems = await items.asyncMap { item in
-            do {
-                let refreshedCode = try await services.tokenRepository.refreshTotpCode(for: item.token.key)
-                return ItemListItem(
-                    id: item.id,
-                    name: item.name,
-                    token: item.token,
-                    totpCode: refreshedCode
-                )
-            } catch {
+            guard case let .totp(model) = item.itemType,
+                  let key = model.itemView.totpKey,
+                  let keyModel = TOTPKeyModel(authenticatorKey: key),
+                  let code = try? await services.totpService.getTotpCode(for: keyModel)
+            else {
                 services.errorReporter.log(error: TOTPServiceError
                     .unableToGenerateCode("Unable to refresh TOTP code for list view item: \(item.id)"))
                 return item
             }
+            var updatedModel = model
+            updatedModel.totpCode = code
+            return ItemListItem(
+                id: item.id,
+                name: item.name,
+                itemType: .totp(model: updatedModel)
+            )
         }
         groupTotpExpirationManager?.configureTOTPRefreshScheduling(for: refreshedItems)
         state.loadingState = .data(refreshedItems)
@@ -128,10 +130,17 @@ final class ItemListProcessor: StateProcessor<ItemListState, ItemListAction, Ite
     /// Stream the items list.
     private func streamItemList() async {
         do {
-            for try await tokenList in try await services.tokenRepository.tokenPublisher() {
-                let itemList = try await tokenList.asyncMap { token in
-                    let code = try await services.tokenRepository.refreshTotpCode(for: token.key)
-                    return ItemListItem(id: token.id, name: token.name, token: token, totpCode: code)
+            for try await value in try await services.authenticatorItemRepository.itemListPublisher() {
+                guard let items = value.first?.items else { return }
+                let itemList = try await items.asyncMap { item in
+                    guard case let .totp(model) = item.itemType,
+                          let key = model.itemView.totpKey,
+                          let keyModel = TOTPKeyModel(authenticatorKey: key)
+                    else { return item }
+                    let code = try await services.totpService.getTotpCode(for: keyModel)
+                    var updatedModel = model
+                    updatedModel.totpCode = code
+                    return ItemListItem(id: item.id, name: item.name, itemType: .totp(model: updatedModel))
                 }
                 groupTotpExpirationManager?.configureTOTPRefreshScheduling(for: itemList)
                 state.loadingState = .data(itemList)
@@ -201,7 +210,8 @@ private class TOTPExpirationManager {
     func configureTOTPRefreshScheduling(for items: [ItemListItem]) {
         var newItemsByInterval = [UInt32: [ItemListItem]]()
         items.forEach { item in
-            newItemsByInterval[item.totpCode.period, default: []].append(item)
+            guard case let .totp(model) = item.itemType else { return }
+            newItemsByInterval[model.totpCode.period, default: []].append(item)
         }
         itemsByInterval = newItemsByInterval
     }
@@ -245,11 +255,11 @@ extension ItemListProcessor: AuthenticatorKeyCaptureDelegate {
         do {
             let authKeyModel = try services.totpService.getTOTPConfiguration(key: key)
             let loginTotpState = LoginTOTPState(authKeyModel: authKeyModel)
-            guard let key = loginTotpState.rawAuthenticatorKeyString,
-                  let newToken = Token(name: "Example", authenticatorKey: key)
+            guard let key = loginTotpState.rawAuthenticatorKeyString
             else { return }
             Task {
-                try await services.tokenRepository.addToken(newToken)
+                let newItem = AuthenticatorItemView(id: UUID().uuidString, name: "Example", totpKey: key)
+                try await services.authenticatorItemRepository.addAuthenticatorItem(newItem)
                 await perform(.refresh)
             }
             state.toast = Toast(text: Localizations.authenticatorKeyAdded)

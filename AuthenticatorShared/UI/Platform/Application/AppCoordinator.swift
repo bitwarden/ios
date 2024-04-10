@@ -77,9 +77,9 @@ class AppCoordinator: Coordinator, HasRootNavigator {
 
     // MARK: Private Methods
 
-    /// Shows the Token List screen.
+    /// Shows the Item List screen.
     ///
-    /// - Parameter route: The token list route to show.
+    /// - Parameter route: The item list route to show.
     ///
     private func showItemList(route: ItemListRoute) {
         if let coordinator = childCoordinator as? AnyCoordinator<ItemListRoute, ItemListEvent> {

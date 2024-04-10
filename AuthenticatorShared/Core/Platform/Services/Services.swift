@@ -1,18 +1,33 @@
 import BitwardenSdk
 
 /// The services provided by the `ServiceContainer`.
-typealias Services = HasCameraService
+typealias Services = HasAuthenticatorItemRepository
+    & HasCameraService
+    & HasCryptographyService
     & HasErrorReporter
     & HasPasteboardService
     & HasTOTPService
     & HasTimeProvider
-    & HasTokenRepository
+
+/// Protocol for an object that provides an `AuthenticatorItemRepository`
+///
+protocol HasAuthenticatorItemRepository {
+    /// The service used to interact with the data layer for items
+    var authenticatorItemRepository: AuthenticatorItemRepository { get }
+}
 
 /// Protocol for an object that provides a `CameraService`.
 ///
 protocol HasCameraService {
     /// The service used by the application to query for and request camera authorization.
     var cameraService: CameraService { get }
+}
+
+/// Protocol for an object that provides a `CryptographyService`
+///
+protocol HasCryptographyService {
+    /// The service used by the application to encrypt and decrypt items
+    var cryptographyService: CryptographyService { get }
 }
 
 /// Protocol for an object that provides an `ErrorReporter`.
@@ -41,9 +56,4 @@ protocol HasTOTPService {
 protocol HasTimeProvider {
     /// Provides the present time for TOTP Code Calculation.
     var timeProvider: TimeProvider { get }
-}
-
-protocol HasTokenRepository {
-    /// The service that interacts with the data layer for tokens
-    var tokenRepository: TokenRepository { get }
 }
