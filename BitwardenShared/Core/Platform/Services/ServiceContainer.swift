@@ -254,7 +254,6 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
         )
         let appIdService = AppIdService(appSettingStore: appSettingsStore)
 
-        let clientService = DefaultClientService()
         let dataStore = DataStore(errorReporter: errorReporter)
 
         let keychainService = DefaultKeychainService()
@@ -266,6 +265,8 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
         let timeProvider = CurrentTime()
 
         let stateService = DefaultStateService(appSettingsStore: appSettingsStore, dataStore: dataStore)
+
+        let clientService = DefaultClientService(stateService: stateService)
 
         let biometricsService = DefaultBiometricsService()
         let biometricsRepository = DefaultBiometricsRepository(
@@ -289,7 +290,7 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
         )
 
         let organizationService = DefaultOrganizationService(
-            clientCrypto: clientService.clientCrypto(),
+            clientService: clientService,
             errorReporter: errorReporter,
             organizationDataStore: dataStore,
             stateService: stateService
@@ -310,7 +311,7 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
 
         let exportVaultService = DefultExportVaultService(
             cipherService: cipherService,
-            clientExporters: clientService.clientExporters(),
+            clientService: clientService,
             errorReporter: errorReporter,
             folderService: folderService,
             timeProvider: timeProvider
@@ -325,7 +326,7 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
 
         let watchService = DefaultWatchService(
             cipherService: cipherService,
-            clientVault: clientService.clientVault(),
+            clientService: clientService,
             environmentService: environmentService,
             errorReporter: errorReporter,
             organizationService: organizationService,
@@ -335,7 +336,7 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
         let syncService = DefaultSyncService(
             accountAPIService: apiService,
             cipherService: cipherService,
-            clientVault: clientService.clientVault(),
+            clientService: clientService,
             collectionService: collectionService,
             folderService: folderService,
             organizationService: organizationService,
@@ -361,9 +362,7 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
             accountAPIService: apiService,
             appIdService: appIdService,
             authAPIService: apiService,
-            clientAuth: clientService.clientAuth(),
-            clientGenerators: clientService.clientGenerator(),
-            clientPlatform: clientService.clientPlatform(),
+            clientService: clientService,
             environmentService: environmentService,
             keychainRepository: keychainRepository,
             policyService: policyService,
@@ -375,9 +374,7 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
             accountAPIService: apiService,
             authService: authService,
             biometricsRepository: biometricsRepository,
-            clientAuth: clientService.clientAuth(),
-            clientCrypto: clientService.clientCrypto(),
-            clientPlatform: clientService.clientPlatform(),
+            clientService: clientService,
             environmentService: environmentService,
             keychainService: keychainRepository,
             organizationAPIService: apiService,
@@ -404,14 +401,13 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
         )
 
         let generatorRepository = DefaultGeneratorRepository(
-            clientGenerators: clientService.clientGenerator(),
-            clientVaultService: clientService.clientVault(),
+            clientService: clientService,
             dataStore: dataStore,
             stateService: stateService
         )
 
         let sendRepository = DefaultSendRepository(
-            clientVault: clientService.clientVault(),
+            clientService: clientService,
             environmentService: environmentService,
             organizationService: organizationService,
             sendService: sendService,
@@ -420,8 +416,7 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
         )
 
         let settingsRepository = DefaultSettingsRepository(
-            clientAuth: clientService.clientAuth(),
-            clientVault: clientService.clientVault(),
+            clientService: clientService,
             folderService: folderService,
             pasteboardService: pasteboardService,
             stateService: stateService,
@@ -432,9 +427,7 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
         let vaultRepository = DefaultVaultRepository(
             cipherAPIService: apiService,
             cipherService: cipherService,
-            clientAuth: clientService.clientAuth(),
-            clientCrypto: clientService.clientCrypto(),
-            clientVault: clientService.clientVault(),
+            clientService: clientService,
             collectionService: collectionService,
             environmentService: environmentService,
             errorReporter: errorReporter,
@@ -502,22 +495,6 @@ extension ServiceContainer {
 
     var fileAPIService: FileAPIService {
         apiService
-    }
-
-    var clientAuth: ClientAuthProtocol {
-        clientService.clientAuth()
-    }
-
-    var clientCrypto: ClientCryptoProtocol {
-        clientService.clientCrypto()
-    }
-
-    var clientExporters: ClientExportersProtocol {
-        clientService.clientExporters()
-    }
-
-    var clientPlatform: ClientPlatformProtocol {
-        clientService.clientPlatform()
     }
 
     var organizationAPIService: OrganizationAPIService {

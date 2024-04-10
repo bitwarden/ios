@@ -99,8 +99,7 @@ class DefultExportVaultService: ExportVaultService {
     /// The cipher service used by this service.
     private let cipherService: CipherService
 
-    /// The client exporters used by this service.
-    private let clientExporters: ClientExportersProtocol
+    private let clientService: ClientService
 
     /// The error reporter used by this service.
     private let errorReporter: ErrorReporter
@@ -127,13 +126,13 @@ class DefultExportVaultService: ExportVaultService {
     ///
     init(
         cipherService: CipherService,
-        clientExporters: ClientExportersProtocol,
+        clientService: ClientService,
         errorReporter: ErrorReporter,
         folderService: FolderService,
         timeProvider: TimeProvider
     ) {
         self.cipherService = cipherService
-        self.clientExporters = clientExporters
+        self.clientService = clientService
         self.errorReporter = errorReporter
         self.folderService = folderService
         self.timeProvider = timeProvider
@@ -175,7 +174,7 @@ class DefultExportVaultService: ExportVaultService {
         }
 
         // A string representing the file contents
-        return try await clientExporters.exportVault(
+        return try await clientService.clientExporters().exportVault(
             folders: folders,
             ciphers: ciphers,
             format: exportFormat

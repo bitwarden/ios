@@ -192,14 +192,7 @@ class DefaultAuthService: AuthService { // swiftlint:disable:this type_body_leng
     /// The callback url scheme for this application.
     let callbackUrlScheme = "bitwarden"
 
-    /// The client used by the application to handle auth related encryption and decryption tasks.
-    private let clientAuth: ClientAuthProtocol
-
-    /// The client used for generating passwords and passphrases.
-    private let clientGenerators: ClientGeneratorsProtocol
-
-    /// The client used by the application to handle account fingerprint phrase generation.
-    private let clientPlatform: ClientPlatformProtocol
+    private let clientService: ClientService
 
     /// The code verifier used to login after receiving the code from the WebAuth.
     private var codeVerifier = ""
@@ -254,9 +247,7 @@ class DefaultAuthService: AuthService { // swiftlint:disable:this type_body_leng
         accountAPIService: AccountAPIService,
         appIdService: AppIdService,
         authAPIService: AuthAPIService,
-        clientAuth: ClientAuthProtocol,
-        clientGenerators: ClientGeneratorsProtocol,
-        clientPlatform: ClientPlatformProtocol,
+        clientService: ClientService,
         environmentService: EnvironmentService,
         keychainRepository: KeychainRepository,
         policyService: PolicyService,
@@ -266,9 +257,7 @@ class DefaultAuthService: AuthService { // swiftlint:disable:this type_body_leng
         self.accountAPIService = accountAPIService
         self.appIdService = appIdService
         self.authAPIService = authAPIService
-        self.clientAuth = clientAuth
-        self.clientGenerators = clientGenerators
-        self.clientPlatform = clientPlatform
+        self.clientService = clientService
         self.environmentService = environmentService
         self.keychainRepository = keychainRepository
         self.policyService = policyService
@@ -283,7 +272,7 @@ class DefaultAuthService: AuthService { // swiftlint:disable:this type_body_leng
 
         // Encrypt the login request's public key.
         let publicKey = loginRequest.publicKey
-        let encodedKey = try await clientAuth.approveAuthRequest(publicKey: publicKey)
+        let encodedKey = try await clientService.clientAuth().approveAuthRequest(publicKey: publicKey)
 
         // Send the API request.
         let requestModel = AnswerLoginRequestRequestModel(
@@ -329,12 +318,12 @@ class DefaultAuthService: AuthService { // swiftlint:disable:this type_body_leng
             minNumber: 1,
             minSpecial: 0
         )
-        codeVerifier = try await clientGenerators.password(settings: passwordSettings)
+        codeVerifier = try await clientService.clientGenerator().password(settings: passwordSettings)
         let codeChallenge = Data(codeVerifier.utf8)
             .generatedHashBase64Encoded(using: SHA256.self)
             .urlEncoded()
 
-        let state = try await clientGenerators.password(settings: passwordSettings)
+        let state = try await clientService.clientGenerator().password(settings: passwordSettings)
 
         let queryItems = [
             URLQueryItem(name: "client_id", value: Constants.clientType),
@@ -377,7 +366,7 @@ class DefaultAuthService: AuthService { // swiftlint:disable:this type_body_leng
 
     func hashPassword(password: String, purpose: HashPurpose) async throws -> String {
         let account = try await stateService.getActiveAccount()
-        return try await clientAuth.hashPassword(
+        return try await clientService.clientAuth().hashPassword(
             email: account.profile.email,
             password: password,
             kdfParams: account.kdf.sdkKdf,
@@ -392,7 +381,7 @@ class DefaultAuthService: AuthService { // swiftlint:disable:this type_body_leng
         let appId = await appIdService.getOrCreateAppId()
 
         // Initiate the login request and cache the result.
-        let loginWithDeviceData = try await clientAuth.newAuthRequest(email: email)
+        let loginWithDeviceData = try await clientService.clientAuth().newAuthRequest(email: email)
         let loginRequest = try await authAPIService.initiateLoginWithDevice(
             accessCode: loginWithDeviceData.accessCode,
             deviceIdentifier: appId,
@@ -437,7 +426,7 @@ class DefaultAuthService: AuthService { // swiftlint:disable:this type_body_leng
         let response = try await accountAPIService.preLogin(email: username)
 
         // Get the identity token to log in to Bitwarden.
-        let hashedPassword = try await clientAuth.hashPassword(
+        let hashedPassword = try await clientService.clientAuth().hashPassword(
             email: username,
             password: masterPassword,
             kdfParams: response.sdkKdf,
@@ -534,14 +523,14 @@ class DefaultAuthService: AuthService { // swiftlint:disable:this type_body_leng
         }
 
         // Calculate the strength of the user email and password
-        let strength = await clientAuth.passwordStrength(
+        let strength = try await clientService.clientAuth().passwordStrength(
             password: masterPassword,
             email: email,
             additionalInputs: []
         )
 
         // Check if master password meets the master password policy.
-        let satisfyPolicy = await clientAuth.satisfiesPolicy(
+        let satisfyPolicy = try await clientService.clientAuth().satisfiesPolicy(
             password: masterPassword,
             strength: strength,
             policy: masterPasswordPolicy
@@ -566,7 +555,7 @@ class DefaultAuthService: AuthService { // swiftlint:disable:this type_body_leng
     /// - Returns: The fingerprint phrase.
     ///
     private func getFingerprintPhrase(from publicKey: String, email: String) async throws -> String {
-        try await clientPlatform.fingerprint(req: .init(
+        try await clientService.clientPlatform().fingerprint(req: .init(
             fingerprintMaterial: email,
             publicKey: publicKey.urlDecoded()
         ))

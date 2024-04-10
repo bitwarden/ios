@@ -4,29 +4,71 @@ import BitwardenSdk
 /// decryption.
 ///
 protocol ClientService {
+    var userClientDictionary: [String?: Client] { get }
+
+    func clientForUser(userId: String) async throws -> Client
+
     /// Returns a `ClientAuthProtocol` for auth data tasks.
     ///
-    func clientAuth() -> ClientAuthProtocol
+    func clientAuth(for userId: String?) async throws -> ClientAuthProtocol
 
     /// Returns a `ClientCryptoProtocol` for crypto data tasks.
     ///
-    func clientCrypto() -> ClientCryptoProtocol
+    func clientCrypto(for userId: String?) async throws -> ClientCryptoProtocol
 
     /// Returns a `ClientExportersProtocol` for vault export data tasks.
     ///
-    func clientExporters() -> ClientExportersProtocol
+    func clientExporters(for userId: String?) async throws -> ClientExportersProtocol
 
     /// Returns a `ClientGeneratorsProtocol` for generator data tasks.
     ///
-    func clientGenerator() -> ClientGeneratorsProtocol
+    func clientGenerator(for userId: String?) async throws -> ClientGeneratorsProtocol
 
     /// Returns a `ClientPlatformProtocol` for client platform tasks.
     ///
-    func clientPlatform() -> ClientPlatformProtocol
+    func clientPlatform(for userId: String?) async throws -> ClientPlatformProtocol
 
     /// Returns a `ClientVaultService` for vault data tasks.
     ///
-    func clientVault() -> ClientVaultService
+    func clientVault(for userId: String?) async throws -> ClientVaultService
+}
+
+extension ClientService {
+    /// Returns a `ClientAuthProtocol` for auth data tasks.
+    ///
+    func clientAuth() async throws -> ClientAuthProtocol {
+        try await clientAuth(for: nil)
+    }
+
+    /// Returns a `ClientCryptoProtocol` for crypto data tasks.
+    ///
+    func clientCrypto() async throws -> ClientCryptoProtocol {
+        try await clientCrypto(for: nil)
+    }
+
+    /// Returns a `ClientExportersProtocol` for vault export data tasks.
+    ///
+    func clientExporters() async throws -> ClientExportersProtocol {
+        try await clientExporters(for: nil)
+    }
+
+    /// Returns a `ClientGeneratorsProtocol` for generator data tasks.
+    ///
+    func clientGenerator() async throws -> ClientGeneratorsProtocol {
+        try await clientGenerator(for: nil)
+    }
+
+    /// Returns a `ClientPlatformProtocol` for client platform tasks.
+    ///
+    func clientPlatform() async throws -> ClientPlatformProtocol {
+        try await clientPlatform(for: nil)
+    }
+
+    /// Returns a `ClientVaultService` for vault data tasks.
+    ///
+    func clientVault() async throws -> ClientVaultService {
+        try await clientVault(for: nil)
+    }
 }
 
 // MARK: - DefaultClientService
@@ -35,10 +77,11 @@ protocol ClientService {
 /// it can be swapped to a mock instance during tests.
 ///
 class DefaultClientService: ClientService {
+    var userClientDictionary = [String?: Client]()
+
     // MARK: Properties
 
-    /// The `Client` instance used to access `BitwardenSdk`.
-    private let client: Client
+    private let stateService: StateService
 
     // MARK: Initialization
 
@@ -46,33 +89,51 @@ class DefaultClientService: ClientService {
     ///
     /// - Parameter settings: The settings to apply to the client. Defaults to `nil`.
     ///
-    init(settings: ClientSettings? = nil) {
-        client = Client(settings: settings)
+    init(stateService: StateService) {
+        self.stateService = stateService
     }
 
     // MARK: Methods
 
-    func clientAuth() -> ClientAuthProtocol {
-        client.auth()
+    func clientAuth(for userId: String?) async throws -> ClientAuthProtocol {
+        let userId = try await stateService.getAccountIdOrActiveId(userId: userId)
+        return clientForUser(userId: userId).auth()
     }
 
-    func clientCrypto() -> ClientCryptoProtocol {
-        client.crypto()
+    func clientCrypto(for userId: String?) async throws -> ClientCryptoProtocol {
+        let userId = try await stateService.getAccountIdOrActiveId(userId: userId)
+        return clientForUser(userId: userId).crypto()
     }
 
-    func clientExporters() -> ClientExportersProtocol {
-        client.exporters()
+    func clientExporters(for userId: String?) async throws -> ClientExportersProtocol {
+        let userId = try await stateService.getAccountIdOrActiveId(userId: userId)
+        return clientForUser(userId: userId).exporters()
     }
 
-    func clientGenerator() -> ClientGeneratorsProtocol {
-        client.generators()
+    func clientGenerator(for userId: String?) async throws -> ClientGeneratorsProtocol {
+        let userId = try await stateService.getAccountIdOrActiveId(userId: userId)
+        return clientForUser(userId: userId).generators()
     }
 
-    func clientPlatform() -> ClientPlatformProtocol {
-        client.platform()
+    func clientPlatform(for userId: String?) async throws -> ClientPlatformProtocol {
+        let userId = try await stateService.getAccountIdOrActiveId(userId: userId)
+        return clientForUser(userId: userId).platform()
     }
 
-    func clientVault() -> ClientVaultService {
-        client.vault()
+    func clientVault(for userId: String?) async throws -> ClientVaultService {
+        let userId = try await stateService.getAccountIdOrActiveId(userId: userId)
+        return clientForUser(userId: userId).vault()
+    }
+
+    func clientForUser(userId: String) -> Client {
+        for _ in userClientDictionary {
+            if let client = userClientDictionary[userId] {
+                return client
+            }
+        }
+
+        let client = Client(settings: nil)
+        userClientDictionary.updateValue(client, forKey: userId)
+        return client
     }
 }
