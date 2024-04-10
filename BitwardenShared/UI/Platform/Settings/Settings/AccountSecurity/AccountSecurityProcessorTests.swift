@@ -409,7 +409,10 @@ class AccountSecurityProcessorTests: BitwardenTestCase { // swiftlint:disable:th
 
         subject.receive(.sessionTimeoutValueChanged(.fourHours))
 
-        waitFor(authRepository.vaultTimeout["1"] == .oneMinute)
+        waitFor(!coordinator.alertShown.isEmpty)
+
+        XCTAssertEqual(authRepository.vaultTimeout["1"], .oneMinute)
+        XCTAssertEqual(coordinator.alertShown, [.timeoutExceedsPolicyLengthAlert()])
     }
 
     /// `receive(_:)` with `sessionTimeoutValueChanged(:)` shows an alert when the user

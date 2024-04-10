@@ -208,9 +208,9 @@ extension AppProcessor {
     ///
     func loadFlags() async {
         do {
-            let userId = try await services.stateService.getActiveAccountId()
-            try await services.clientService.clientPlatform(for: userId)
-                .loadFlags(flags: [FeatureFlagsConstants.enableCipherKeyEncryption: true])
+            try await services.clientService.clientPlatform().loadFlags(
+                flags: [FeatureFlagsConstants.enableCipherKeyEncryption: true]
+            )
         } catch {
             services.errorReporter.log(error: error)
         }

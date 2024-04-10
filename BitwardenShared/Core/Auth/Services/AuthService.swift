@@ -192,7 +192,6 @@ class DefaultAuthService: AuthService { // swiftlint:disable:this type_body_leng
     /// The callback url scheme for this application.
     let callbackUrlScheme = "bitwarden"
 
-    /// The service that handles common client functionality such as encryption and decryption.
     private let clientService: ClientService
 
     /// The code verifier used to login after receiving the code from the WebAuth.
@@ -270,11 +269,10 @@ class DefaultAuthService: AuthService { // swiftlint:disable:this type_body_leng
 
     func answerLoginRequest(_ loginRequest: LoginRequest, approve: Bool) async throws {
         let appID = await appIdService.getOrCreateAppId()
-        let userId = try await stateService.getActiveAccountId()
 
         // Encrypt the login request's public key.
         let publicKey = loginRequest.publicKey
-        let encodedKey = try await clientService.clientAuth(for: userId).approveAuthRequest(publicKey: publicKey)
+        let encodedKey = try await clientService.clientAuth().approveAuthRequest(publicKey: publicKey)
 
         // Send the API request.
         let requestModel = AnswerLoginRequestRequestModel(
@@ -302,8 +300,6 @@ class DefaultAuthService: AuthService { // swiftlint:disable:this type_body_leng
     }
 
     func generateSingleSignOnUrl(from organizationIdentifier: String) async throws -> (url: URL, state: String) {
-        let userId = try await stateService.getActiveAccountId()
-
         // First pre-validate the organization identifier and get the resulting token.
         let response = try await authAPIService.preValidateSingleSignOn(
             organizationIdentifier: organizationIdentifier
@@ -322,12 +318,11 @@ class DefaultAuthService: AuthService { // swiftlint:disable:this type_body_leng
             minNumber: 1,
             minSpecial: 0
         )
-        codeVerifier = try await clientService.clientGenerator(for: userId).password(settings: passwordSettings)
+        codeVerifier = try await clientService.clientGenerator().password(settings: passwordSettings)
         let codeChallenge = Data(codeVerifier.utf8)
             .generatedHashBase64Encoded(using: SHA256.self)
             .urlEncoded()
-
-        let state = try await clientService.clientGenerator(for: userId).password(settings: passwordSettings)
+        let state = try await clientService.clientGenerator().password(settings: passwordSettings)
 
         let queryItems = [
             URLQueryItem(name: "client_id", value: Constants.clientType),
@@ -370,7 +365,7 @@ class DefaultAuthService: AuthService { // swiftlint:disable:this type_body_leng
 
     func hashPassword(password: String, purpose: HashPurpose) async throws -> String {
         let account = try await stateService.getActiveAccount()
-        return try await clientService.clientAuth(for: account.profile.userId).hashPassword(
+        return try await clientService.clientAuth().hashPassword(
             email: account.profile.email,
             password: password,
             kdfParams: account.kdf.sdkKdf,
@@ -383,10 +378,9 @@ class DefaultAuthService: AuthService { // swiftlint:disable:this type_body_leng
     ) async throws -> (authRequestResponse: AuthRequestResponse, requestId: String) {
         // Get the app's id.
         let appId = await appIdService.getOrCreateAppId()
-        let userId = try await stateService.getActiveAccountId()
 
         // Initiate the login request and cache the result.
-        let loginWithDeviceData = try await clientService.clientAuth(for: userId).newAuthRequest(email: email)
+        let loginWithDeviceData = try await clientService.clientAuth().newAuthRequest(email: email)
         let loginRequest = try await authAPIService.initiateLoginWithDevice(
             accessCode: loginWithDeviceData.accessCode,
             deviceIdentifier: appId,
@@ -429,10 +423,9 @@ class DefaultAuthService: AuthService { // swiftlint:disable:this type_body_leng
     func loginWithMasterPassword(_ masterPassword: String, username: String, captchaToken: String?) async throws {
         // Complete the pre-login steps.
         let response = try await accountAPIService.preLogin(email: username)
-        let userId = try await stateService.getActiveAccountId()
 
         // Get the identity token to log in to Bitwarden.
-        let hashedPassword = try await clientService.clientAuth(for: userId).hashPassword(
+        let hashedPassword = try await clientService.clientAuth().hashPassword(
             email: username,
             password: masterPassword,
             kdfParams: response.sdkKdf,
@@ -527,17 +520,16 @@ class DefaultAuthService: AuthService { // swiftlint:disable:this type_body_leng
               masterPasswordPolicy.enforceOnLogin else {
             return false
         }
-        let userId = try await stateService.getActiveAccountId()
 
         // Calculate the strength of the user email and password
-        let strength = await clientService.clientAuth(for: userId).passwordStrength(
+        let strength = try await clientService.clientAuth().passwordStrength(
             password: masterPassword,
             email: email,
             additionalInputs: []
         )
 
         // Check if master password meets the master password policy.
-        let satisfyPolicy = await clientService.clientAuth(for: userId).satisfiesPolicy(
+        let satisfyPolicy = try await clientService.clientAuth().satisfiesPolicy(
             password: masterPassword,
             strength: strength,
             policy: masterPasswordPolicy
@@ -562,8 +554,7 @@ class DefaultAuthService: AuthService { // swiftlint:disable:this type_body_leng
     /// - Returns: The fingerprint phrase.
     ///
     private func getFingerprintPhrase(from publicKey: String, email: String) async throws -> String {
-        let userId = try await stateService.getActiveAccountId()
-        return try await clientService.clientPlatform(for: userId).fingerprint(req: .init(
+        try await clientService.clientPlatform().fingerprint(req: .init(
             fingerprintMaterial: email,
             publicKey: publicKey.urlDecoded()
         ))

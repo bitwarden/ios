@@ -2,6 +2,8 @@ import Foundation
 import OSLog
 import UniformTypeIdentifiers
 
+// swiftlint:disable file_length
+
 // MARK: - ActionExtensionHelper
 
 /// A helper class for processing the input items of the action extension.
@@ -29,6 +31,18 @@ public class ActionExtensionHelper { // swiftlint:disable:this type_body_length
         } else {
             AppRoute.vault(.autofillList)
         }
+    }
+
+    /// Whether the app extension can autofill credentials.
+    public var canAutofill: Bool {
+        guard context.providerType == Constants.UTType.appExtensionFillBrowserAction ||
+            context.providerType == Constants.UTType.appExtensionFillWebViewAction ||
+            context.providerType == UTType.propertyList.identifier ||
+            context.providerType == UTType.url.identifier
+        else {
+            return false
+        }
+        return context.pageDetails?.hasPasswordField ?? false
     }
 
     /// Whether the app extension setup provider was included in the input items.

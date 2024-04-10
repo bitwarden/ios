@@ -54,7 +54,7 @@ struct PendingRequestsView: View {
                 Spacer()
 
                 Image(decorative: Asset.Images.trash)
-                    .frame(width: 16, height: 16)
+                    .imageStyle(.accessoryIcon(scaleWithFont: true))
 
                 Text(Localizations.declineAllRequests)
 

@@ -293,7 +293,8 @@ extension LoginUri {
     init(loginUriView: LoginUriView) {
         self.init(
             uri: loginUriView.uri,
-            match: loginUriView.match
+            match: loginUriView.match,
+            uriChecksum: loginUriView.uriChecksum
         )
     }
 }
@@ -302,7 +303,8 @@ extension LoginUriView {
     init(loginUri: LoginUri) {
         self.init(
             uri: loginUri.uri,
-            match: loginUri.match
+            match: loginUri.match,
+            uriChecksum: loginUri.uriChecksum
         )
     }
 }

@@ -121,8 +121,9 @@ class DefaultGeneratorRepository {
         guard let mostRecentEncrypted = try? await dataStore.fetchPasswordHistoryMostRecent(userId: userId) else {
             return false
         }
-        let mostRecent = try await clientService.clientVault(for: userId)
-            .passwordHistory().decryptList(list: [mostRecentEncrypted]).first
+        let mostRecent = try await clientService.clientVault().passwordHistory().decryptList(
+            list: [mostRecentEncrypted]
+        ).first
         return mostRecent?.password == passwordHistory.password
     }
 }
@@ -138,7 +139,7 @@ extension DefaultGeneratorRepository: GeneratorRepository {
         // Prevent adding a duplicate at the top of the list.
         guard try await !isDuplicateOfMostRecent(passwordHistory: passwordHistory, userId: userId) else { return }
 
-        let encryptedPasswordHistory = try await clientService.clientVault(for: userId).passwordHistory().encrypt(
+        let encryptedPasswordHistory = try await clientService.clientVault().passwordHistory().encrypt(
             passwordHistory: passwordHistory
         )
         try await dataStore.insertPasswordHistory(userId: userId, passwordHistory: encryptedPasswordHistory)
@@ -156,7 +157,7 @@ extension DefaultGeneratorRepository: GeneratorRepository {
         let userId = try await stateService.getActiveAccountId()
         return dataStore.passwordHistoryPublisher(userId: userId)
             .asyncTryMap { passwordHistory in
-                try await self.clientService.clientVault(for: userId).passwordHistory()
+                try await self.clientService.clientVault().passwordHistory()
                     .decryptList(list: passwordHistory)
             }
             .eraseToAnyPublisher()
@@ -166,18 +167,15 @@ extension DefaultGeneratorRepository: GeneratorRepository {
     // MARK: Generator
 
     func generatePassphrase(settings: PassphraseGeneratorRequest) async throws -> String {
-        let userId = try await stateService.getActiveAccountId()
-        return try await clientService.clientGenerator(for: userId).passphrase(settings: settings)
+        try await clientService.clientGenerator().passphrase(settings: settings)
     }
 
     func generatePassword(settings: PasswordGeneratorRequest) async throws -> String {
-        let userId = try await stateService.getActiveAccountId()
-        return try await clientService.clientGenerator(for: userId).password(settings: settings)
+        try await clientService.clientGenerator().password(settings: settings)
     }
 
     func generateUsername(settings: UsernameGeneratorRequest) async throws -> String {
-        let userId = try await stateService.getActiveAccountId()
-        return try await clientService.clientGenerator(for: userId).username(settings: settings)
+        try await clientService.clientGenerator().username(settings: settings)
     }
 
     func getPasswordGenerationOptions() async throws -> PasswordGenerationOptions {

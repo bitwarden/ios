@@ -28,6 +28,7 @@ struct PasswordVisibilityButton: View {
             .resizable()
             .frame(width: size, height: size)
         }
+        .accessibilityIdentifier("ShowValueButton")
     }
 
     /// Creates a new `PasswordVisibilityButton`.

@@ -1,8 +1,9 @@
 name: Bitwarden
+fileGroups:
+  - Configs
 configs:
   Debug: debug
   Release: release
-  Release-Beta: release
 options:
   createIntermediateGroups: true
   deploymentTarget:
@@ -13,12 +14,12 @@ options:
   indentWidth: 4
   tabWidth: 4
 settings:
-  MARKETING_VERSION: 2024.03.0    # Bump this for a new version update.
+  MARKETING_VERSION: 2024.04.0    # Bump this for a new version update.
   CURRENT_PROJECT_VERSION: 1
 packages:
   BitwardenSdk:
     url: https://github.com/bitwarden/sdk-swift
-    revision: 93ce71195a729f30b3edd48caeb7af9a39f35403
+    revision: 7d65f74a1277ccf36c9d3e748b4e4f5316c0a6e4
   Firebase:
     url: https://github.com/firebase/firebase-ios-sdk
     exactVersion: 10.23.0
@@ -112,7 +113,6 @@ targets:
     configFiles:
       Debug: Configs/Bitwarden-Debug.xcconfig
       Release: Configs/Bitwarden-Release.xcconfig
-      Release-Beta: Configs/Bitwarden-Release-Beta.xcconfig
     settings:
       base:
         INFOPLIST_FILE: Bitwarden/Application/Support/Info.plist
@@ -151,14 +151,22 @@ targets:
           - $(SRCROOT)/Bitwarden/Application/Support/Settings.bundle/Acknowledgements.latest_results.txt
           - $(SRCROOT)/Bitwarden/Application/Support/Settings.bundle/Acknowledgements
     postCompileScripts:
-      - script: mint run swiftlint
+      - script: |
+          if [[ ! "$PATH" =~ "/opt/homebrew/bin" ]]; then
+            PATH="/opt/homebrew/bin:$PATH"
+          fi
+          mint run swiftlint
         name: Swiftlint
         basedOnDependencyAnalysis: false
-      - script: mint run swiftformat --lint --lenient .
+      - script: |
+          if [[ ! "$PATH" =~ "/opt/homebrew/bin" ]]; then
+            PATH="/opt/homebrew/bin:$PATH"
+          fi
+          mint run swiftformat --lint --lenient .
         name: SwiftFormat Lint
         basedOnDependencyAnalysis: false
     postBuildScripts:
-      - script: Scripts/update_settings_version_number.sh
+      - path: Scripts/update_settings_version_number.sh
         name: "Settings.bundle: Update Version Number"
         basedOnDependencyAnalysis: false
       - path: Scripts/firebase_crashlytics_run.sh
@@ -192,7 +200,6 @@ targets:
     configFiles:
       Debug: Configs/BitwardenActionExtension.xcconfig
       Release: Configs/BitwardenActionExtension.xcconfig
-      Release-Beta: Configs/BitwardenActionExtension.xcconfig
     settings:
       base:
         CODE_SIGN_ENTITLEMENTS: BitwardenActionExtension/Application/Support/BitwardenActionExtension.entitlements
@@ -229,7 +236,6 @@ targets:
     configFiles:
       Debug: Configs/BitwardenAutoFillExtension.xcconfig
       Release: Configs/BitwardenAutoFillExtension.xcconfig
-      Release-Beta: Configs/BitwardenAutoFillExtension.xcconfig
     settings:
       base:
         CODE_SIGN_ENTITLEMENTS: BitwardenAutoFillExtension/Application/Support/BitwardenAutoFill.entitlements
@@ -266,10 +272,8 @@ targets:
     configFiles:
       Debug: Configs/BitwardenShareExtension.xcconfig
       Release: Configs/BitwardenShareExtension.xcconfig
-      Release-Beta: Configs/BitwardenShareExtension.xcconfig
     settings:
       base:
-        CODE_SIGN_ENTITLEMENTS: BitwardenShareExtension/Application/Support/BitwardenShareExtension.entitlements
         INFOPLIST_FILE: BitwardenShareExtension/Application/Support/Info.plist
     sources:
       - path: BitwardenShareExtension
@@ -283,6 +287,7 @@ targets:
     platform: iOS
     settings:
       base:
+        CODE_SIGN_ENTITLEMENTS: BitwardenShareExtension/Application/Support/BitwardenShareExtension.entitlements
         INFOPLIST_FILE: BitwardenShareExtension/Application/TestHelpers/Support/Info.plist
     sources:
       - path: BitwardenShareExtension
@@ -303,7 +308,6 @@ targets:
     configFiles:
       Debug: Configs/BitwardenShared.xcconfig
       Release: Configs/BitwardenShared.xcconfig
-      Release-Beta: Configs/BitwardenShared.xcconfig
     settings:
       base:
         APPLICATION_EXTENSION_API_ONLY: true
@@ -330,7 +334,10 @@ targets:
     preBuildScripts:
       - name: SwiftGen
         script: |
-            mint run swiftgen config run --config "swiftgen.yml"
+          if [[ ! "$PATH" =~ "/opt/homebrew/bin" ]]; then
+            PATH="/opt/homebrew/bin:$PATH"
+          fi
+          mint run swiftgen config run --config "swiftgen.yml"
         basedOnDependencyAnalysis: false
         outputFiles:
           - $(SRCROOT)/BitwardenShared/UI/Platform/Application/Support/Generated/Assets.swift
@@ -365,7 +372,6 @@ targets:
     configFiles:
       Debug: Configs/BitwardenWatchApp-Debug.xcconfig
       Release: Configs/BitwardenWatchApp-Release.xcconfig
-      Release-Beta: Configs/BitwardenWatchApp-Release-Beta.xcconfig
     settings:
       base:
         INFOPLIST_FILE: BitwardenWatchApp/Info.plist

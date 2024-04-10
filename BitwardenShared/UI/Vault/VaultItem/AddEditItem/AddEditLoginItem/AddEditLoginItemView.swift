@@ -28,7 +28,8 @@ struct AddEditLoginItemView: View {
             text: store.binding(
                 get: \.username,
                 send: AddEditItemAction.usernameChanged
-            )
+            ),
+            accessibilityIdentifier: "LoginUsernameEntry"
         ) {
             AccessoryButton(
                 asset: Asset.Images.restart2,
@@ -48,6 +49,8 @@ struct AddEditLoginItemView: View {
                 get: \.password,
                 send: AddEditItemAction.passwordChanged
             ),
+            accessibilityIdentifier: "LoginPasswordEntry",
+            passwordVisibilityAccessibilityId: "ViewPasswordButton",
             canViewPassword: store.state.canViewPassword,
             isPasswordVisible: store.binding(
                 get: \.isPasswordVisible,
@@ -58,9 +61,11 @@ struct AddEditLoginItemView: View {
                 AccessoryButton(asset: Asset.Images.roundCheck, accessibilityLabel: Localizations.checkPassword) {
                     await store.perform(.checkPasswordPressed)
                 }
+                .accessibilityIdentifier("CheckPasswordButton")
                 AccessoryButton(asset: Asset.Images.restart2, accessibilityLabel: Localizations.generatePassword) {
                     store.send(.generatePasswordPressed)
                 }
+                .accessibilityIdentifier("RegeneratePasswordButton")
             }
         }
         .disabled(!store.state.canViewPassword)
@@ -93,15 +98,20 @@ struct AddEditLoginItemView: View {
                     get: { _ in key },
                     send: AddEditItemAction.totpKeyChanged
                 ),
+                accessibilityIdentifier: "LoginTotpEntry",
+                canViewPassword: store.state.canViewPassword,
                 trailingContent: {
-                    AccessoryButton(asset: Asset.Images.copy, accessibilityLabel: Localizations.copyTotp) {
-                        await store.perform(.copyTotpPressed)
+                    if store.state.canViewPassword {
+                        AccessoryButton(asset: Asset.Images.copy, accessibilityLabel: Localizations.copyTotp) {
+                            await store.perform(.copyTotpPressed)
+                        }
                     }
                     AccessoryButton(asset: Asset.Images.camera, accessibilityLabel: Localizations.setupTotp) {
                         await store.perform(.setupTotpPressed)
                     }
                 }
             )
+            .disabled(!store.state.canViewPassword)
             .focused($focusedField, equals: .totp)
             .onSubmit {
                 store.send(.totpFieldLeftFocus)
@@ -118,10 +128,12 @@ struct AddEditLoginItemView: View {
                 } label: {
                     HStack(alignment: .center, spacing: 4) {
                         Asset.Images.camera.swiftUIImage
+                            .imageStyle(.accessoryIcon(scaleWithFont: true))
                         Text(Localizations.setupTotp)
                     }
                 }
                 .buttonStyle(.tertiary())
+                .accessibilityIdentifier("SetupTotpButton")
             }
         }
     }
@@ -135,7 +147,8 @@ struct AddEditLoginItemView: View {
                     text: store.binding(
                         get: { _ in uriState.uri },
                         send: { AddEditItemAction.uriChanged($0, index: index) }
-                    )
+                    ),
+                    accessibilityIdentifier: "LoginUriEntry"
                 ) {
                     Menu {
                         Menu(Localizations.matchDetection) {
@@ -157,6 +170,7 @@ struct AddEditLoginItemView: View {
                         Asset.Images.gear.swiftUIImage
                             .imageStyle(.accessoryIcon)
                     }
+                    .accessibilityIdentifier("LoginUriOptionsButton")
                 }
                 .textFieldConfiguration(.url)
             }
@@ -167,6 +181,7 @@ struct AddEditLoginItemView: View {
                 }
             }
             .buttonStyle(.tertiary())
+            .accessibilityIdentifier("LoginAddNewUriButton")
         }
     }
 }

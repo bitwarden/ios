@@ -254,7 +254,6 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
         )
         let appIdService = AppIdService(appSettingStore: appSettingsStore)
 
-        let clientService = DefaultClientService()
         let dataStore = DataStore(errorReporter: errorReporter)
 
         let keychainService = DefaultKeychainService()
@@ -266,6 +265,8 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
         let timeProvider = CurrentTime()
 
         let stateService = DefaultStateService(appSettingsStore: appSettingsStore, dataStore: dataStore)
+
+        let clientService = DefaultClientService(stateService: stateService)
 
         let biometricsService = DefaultBiometricsService()
         let biometricsRepository = DefaultBiometricsRepository(
@@ -326,7 +327,7 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
 
         let watchService = DefaultWatchService(
             cipherService: cipherService,
-            client: clientService,
+            clientService: clientService,
             environmentService: environmentService,
             errorReporter: errorReporter,
             organizationService: organizationService,

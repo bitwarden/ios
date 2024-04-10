@@ -1,4 +1,5 @@
 // swiftlint:disable:this file_name
+// swiftlint:disable file_length
 
 import BitwardenSdk
 import Foundation
@@ -371,6 +372,34 @@ extension BitwardenSdk.LoginView {
             totp: totp,
             autofillOnPageLoad: autofillOnPageLoad,
             fido2Credentials: fido2Credentials
+        )
+    }
+}
+
+extension BitwardenSdk.LoginUri {
+    static func fixture(
+        uri: String? = "https://example.com",
+        match: BitwardenSdk.UriMatchType? = nil,
+        uriChecksum: String? = nil
+    ) -> LoginUri {
+        LoginUri(
+            uri: uri,
+            match: match,
+            uriChecksum: uriChecksum
+        )
+    }
+}
+
+extension BitwardenSdk.LoginUriView {
+    static func fixture(
+        uri: String? = "https://example.com",
+        match: BitwardenSdk.UriMatchType? = nil,
+        uriChecksum: String? = nil
+    ) -> LoginUriView {
+        LoginUriView(
+            uri: uri,
+            match: match,
+            uriChecksum: uriChecksum
         )
     }
 }

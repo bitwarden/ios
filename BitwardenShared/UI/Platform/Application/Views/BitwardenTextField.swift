@@ -88,7 +88,7 @@ struct BitwardenTextField<TrailingContent: View>: View {
     private var textField: some View {
         HStack(spacing: 8) {
             ZStack {
-                let isPassword = isPasswordVisible != nil
+                let isPassword = isPasswordVisible != nil || canViewPassword == false
                 let isPasswordVisible = isPasswordVisible?.wrappedValue ?? false
 
                 TextField(placeholder, text: $text)

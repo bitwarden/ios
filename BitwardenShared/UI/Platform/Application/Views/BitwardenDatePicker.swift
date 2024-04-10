@@ -95,7 +95,14 @@ struct BitwardenDatePicker: View {
             }
         }
         .onChange(of: nonNilSelection, perform: { newValue in
-            selection = newValue
+            if selection != newValue {
+                selection = newValue
+            }
+        })
+        .onChange(of: selection, perform: { newValue in
+            if let newValue, newValue != nonNilSelection {
+                nonNilSelection = newValue
+            }
         })
     }
 

@@ -502,7 +502,7 @@ protocol StateService: AnyObject {
     ///
     /// - Returns: A publisher for the connect to watch value.
     ///
-    func connectToWatchPublisher() async -> AnyPublisher<Bool, Never>
+    func connectToWatchPublisher() async -> AnyPublisher<(String?, Bool), Never>
 
     /// A publisher for the last sync time for the active account.
     ///
@@ -1322,16 +1322,17 @@ actor DefaultStateService: StateService { // swiftlint:disable:this type_body_le
         appThemeSubject.eraseToAnyPublisher()
     }
 
-    func connectToWatchPublisher() async -> AnyPublisher<Bool, Never> {
+    func connectToWatchPublisher() async -> AnyPublisher<(String?, Bool), Never> {
         activeAccountIdPublisher().flatMap { userId in
             self.connectToWatchByUserIdSubject.map { values in
-                if let userId {
+                let userValue = if let userId {
                     // Get the user's setting, if they're logged in.
                     values[userId] ?? self.appSettingsStore.connectToWatch(userId: userId)
                 } else {
                     // Otherwise, use the last known value for the previous user.
                     self.appSettingsStore.lastUserShouldConnectToWatch
                 }
+                return (userId, userValue)
             }
         }
         .eraseToAnyPublisher()

@@ -99,7 +99,6 @@ class DefultExportVaultService: ExportVaultService {
     /// The cipher service used by this service.
     private let cipherService: CipherService
 
-    /// The client exporters used by this service.
     private let clientService: ClientService
 
     /// The error reporter used by this service.
@@ -160,7 +159,6 @@ class DefultExportVaultService: ExportVaultService {
     }
 
     func exportVaultFileContents(format: ExportFileType) async throws -> String {
-        let userId = try await stateService.getActiveAccountId()
         var exportFormat: BitwardenSdk.ExportFormat
         let folders = try await folderService.fetchAllFolders()
         var ciphers = try await cipherService.fetchAllCiphers()
@@ -181,7 +179,7 @@ class DefultExportVaultService: ExportVaultService {
         }
 
         // A string representing the file contents
-        return try await clientService.clientExporters(for: userId).exportVault(
+        return try await clientService.clientExporters().exportVault(
             folders: folders,
             ciphers: ciphers,
             format: exportFormat

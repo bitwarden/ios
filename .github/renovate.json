@@ -12,26 +12,23 @@
     "schedule:weekends",
     ":separateMajorReleases"
   ],
-  "enabledManagers": ["cargo", "github-actions", "npm", "nuget"],
+  "enabledManagers": ["github-actions", "mint", "swift"],
+  "commitMessagePrefix": "[deps]:",
+  "commitMessageTopic": "{{depName}}",
   "packageRules": [
-    {
-      "groupName": "cargo minor",
-      "matchManagers": ["cargo"],
-      "matchUpdateTypes": ["minor", "patch"]
-    },
     {
       "groupName": "gh minor",
       "matchManagers": ["github-actions"],
       "matchUpdateTypes": ["minor", "patch"]
     },
     {
-      "groupName": "npm minor",
-      "matchManagers": ["npm"],
+      "groupName": "mint minor",
+      "matchManagers": ["mint"],
       "matchUpdateTypes": ["minor", "patch"]
     },
     {
-      "groupName": "nuget minor",
-      "matchManagers": ["nuget"],
+      "groupName": "swift minor",
+      "matchManagers": ["swift"],
       "matchUpdateTypes": ["minor", "patch"]
     }
   ]

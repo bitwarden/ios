@@ -113,9 +113,7 @@ struct ProfileSwitcherRow: View {
             .accessibilityLabel(Localizations.account)
         case .addAccount:
             Asset.Images.plus.swiftUIImage
-                .resizable()
-                .frame(width: 19, height: 19)
-                .foregroundColor(Asset.Colors.primaryBitwarden.swiftUIColor)
+                .imageStyle(.rowIcon(color: Asset.Colors.primaryBitwarden.swiftUIColor))
                 .padding(4)
         }
     }

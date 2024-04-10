@@ -28,13 +28,6 @@ class OtherSettingsViewTests: BitwardenTestCase {
 
     // MARK: Tests
 
-    /// Tapping give feedback dispatches the `.giveFeedback` action.
-    func test_giveFeedback_tapped() throws {
-        let button = try subject.inspect().find(button: "Give feedback")
-        try button.tap()
-        XCTAssertEqual(processor.dispatchedActions, [.giveFeedbackPressed])
-    }
-
     /// Tapping the sync now button performs the `.syncNow` effect.
     func test_syncNow_tapped() async throws {
         let button = try subject.inspect().find(asyncButton: Localizations.syncNow)

@@ -45,8 +45,7 @@ protocol OrganizationService {
 class DefaultOrganizationService: OrganizationService {
     // MARK: Properties
 
-    /// The client used by the application to handle encryption and decryption setup tasks.
-    let clientService: DefaultClientService
+    let clientService: ClientService
 
     /// The service used by the application to report non-fatal errors.
     let errorReporter: ErrorReporter
@@ -68,7 +67,7 @@ class DefaultOrganizationService: OrganizationService {
     ///   - stateService: The service used by the application to manage account state.
     ///
     init(
-        clientService: DefaultClientService,
+        clientService: ClientService,
         errorReporter: ErrorReporter,
         organizationDataStore: OrganizationDataStore,
         stateService: StateService
@@ -91,14 +90,13 @@ extension DefaultOrganizationService {
     }
 
     func initializeOrganizationCrypto(organizations: [Organization]) async throws {
-        let userId = try await stateService.getActiveAccountId()
         let organizationKeysById = organizations
             .reduce(into: [String: String]()) { result, organization in
                 guard let key = organization.key else { return }
                 result[organization.id] = key
             }
         do {
-            try await clientService.clientCrypto(for: userId).initializeOrgCrypto(
+            try await clientService.clientCrypto().initializeOrgCrypto(
                 req: InitOrgCryptoRequest(organizationKeys: organizationKeysById)
             )
         } catch {

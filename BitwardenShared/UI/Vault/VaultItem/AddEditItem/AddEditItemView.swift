@@ -143,7 +143,8 @@ struct AddEditItemView: View {
                 text: store.binding(
                     get: \.name,
                     send: AddEditItemAction.nameChanged
-                )
+                ),
+                accessibilityIdentifier: "ItemNameEntry"
             )
 
             switch store.state.type {
@@ -315,8 +316,8 @@ struct AddEditItemView_Previews: PreviewProvider {
                     password: "changerdanger",
                     passwordRevisionDate: fixedDate,
                     uris: [
-                        .init(uri: "yahoo.com", match: nil),
-                        .init(uri: "account.yahoo.com", match: nil),
+                        .init(uri: "yahoo.com", match: nil, uriChecksum: nil),
+                        .init(uri: "account.yahoo.com", match: nil, uriChecksum: nil),
                     ],
                     totp: nil,
                     autofillOnPageLoad: nil,

@@ -59,18 +59,18 @@ class VaultListItemRowViewTests: BitwardenTestCase {
 
     /// Test that the default view renders correctly.
     func test_snapshot_default() {
-        assertSnapshot(of: subject, as: .sizeThatFits)
+        assertSnapshot(of: subject, as: .fixedSize())
     }
 
     /// Test that the view renders correctly with a custom icon.
     func test_snapshot_showWebIcon() {
         processor.state.iconBaseURL = .example
         processor.state.item = .fixture(cipherView: .fixture(login: .fixture(uris: [
-            .init(
+            .fixture(
                 uri: "Test",
                 match: nil
             ),
         ])))
-        assertSnapshot(of: subject, as: .sizeThatFits)
+        assertSnapshot(of: subject, as: .fixedSize())
     }
 }

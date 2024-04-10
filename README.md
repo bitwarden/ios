@@ -11,8 +11,8 @@
 
 - **Minimum iOS**: 15.0
 - **Target SDK**: 15.0
-- **Device Types Supported**: iPhone
-- **Screen Sizes Supported**: iPhone SE to iPhone 15 Pro Max
+- **Device Types Supported**: iPhone, iPad
+- **Screen Sizes Supported**: iPhone SE to iPhone 15 Pro Max, iPad Mini to iPad Pro 12.9"
 - **Orientations Supported**: Portrait, Landscape
 
 ## Setup
@@ -29,11 +29,7 @@
     $ brew install mint
     ```
 
-    If you're using a Mac with Apple Silicon with Mint installed via Homebrew, you may see the SwiftGen build phase fail with the following error:
-
-    `line 2: mint: command not found`
-
-    If so, or if you just prefer to install Mint without `brew`, clone the Mint repo into a temporary directory and run `make`.
+    Alternatively, if you prefer to install Mint without `brew`, clone the Mint repo into a temporary directory and run `make`.
 
     ```sh
     $ git clone https://github.com/yonaskolb/Mint.git
@@ -64,6 +60,8 @@
 
 ### Running Tests
 
+Due to slight snapshot test variations between iOS version, the test target requires running in an iPhone 15 Pro simulator (iOS 17.0.1).
+
 1. In Xcode's toolbar, select the project and a connected device or simulator.
    - The `Generic iOS Device` used for builds will not work for testing.
 
@@ -86,6 +84,8 @@ $ cp Scripts/pre-commit .git/hooks/
 - The icons used in the app are all custom. No additional licensing is required.
 
 ### App Dependencies
+
+The following is a list of all third-party dependencies included as part of the application.
 
 - **Firebase Crashlytics**
     - https://github.com/firebase/firebase-ios-sdk
@@ -127,6 +127,23 @@ The following dependencies are used in the development environment only. They ar
 - **XcodeGen**
     - https://github.com/yonaskolb/XcodeGen
     - Purpose: Generates the Xcode project using the folder structure and a project spec.
+    - License: MIT
+
+### CI/CD Dependencies
+
+The following is a list of additional third-party dependencies used as part of the CI/CD workflows. These are not present in the final packaged application.
+
+- **Danger**
+    - https://github.com/danger/danger
+    - Purpose: Provides a system for enforcing common Pull Request rules.
+    - License: MIT
+- **Danger Slather**
+    - https://github.com/BrunoMazzo/Danger-Slather
+    - Purpose: A Danger plugin that show code coverage of a Xcode project and file by file using Slather.
+    - License: MIT
+- **Danger Xcode Summary**
+    - https://github.com/diogot/danger-xcode_summary
+    - Purpose: A Danger plugin that shows all build errors, warnings and unit tests results generated from xcodebuild.
     - License: MIT
 - **yeetd**
     - https://github.com/biscuitehh/yeetd

@@ -91,6 +91,7 @@ struct LoginView: View {
                 } label: {
                     HStack(spacing: 8) {
                         Image(decorative: Asset.Images.mobile)
+                            .imageStyle(.accessoryIcon(scaleWithFont: true))
                         Text(Localizations.logInWithDevice)
                     }
                 }
@@ -103,6 +104,7 @@ struct LoginView: View {
             } label: {
                 HStack(spacing: 8) {
                     Image(decorative: Asset.Images.bwiProvider)
+                        .imageStyle(.accessoryIcon(scaleWithFont: true))
                     Text(Localizations.logInSso)
                 }
             }

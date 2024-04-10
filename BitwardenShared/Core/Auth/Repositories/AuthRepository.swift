@@ -52,7 +52,7 @@ protocol AuthRepository: AnyObject {
 
     /// Checks the locked status of a user vault by user id.
     ///
-    ///  - Parameter userId: The userId of the account
+    ///  - Parameter userId: The userId of the account.
     ///  - Returns: A bool, true if locked, false if unlocked.
     ///
     func isLocked(userId: String?) async throws -> Bool
@@ -306,7 +306,7 @@ class DefaultAuthRepository {
         accountAPIService: AccountAPIService,
         authService: AuthService,
         biometricsRepository: BiometricsRepository,
-        clientService: DefaultClientService,
+        clientService: ClientService,
         environmentService: EnvironmentService,
         keychainService: KeychainRepository,
         organizationAPIService: OrganizationAPIService,
@@ -333,9 +333,8 @@ class DefaultAuthRepository {
 
 extension DefaultAuthRepository: AuthRepository {
     func allowBioMetricUnlock(_ enabled: Bool) async throws {
-        let userId = try await stateService.getActiveAccountId()
         try await biometricsRepository.setBiometricUnlockKey(
-            authKey: enabled ? clientService.clientCrypto(for: userId).getUserEncryptionKey() : nil
+            authKey: enabled ? clientService.clientCrypto().getUserEncryptionKey() : nil
         )
     }
 
@@ -360,7 +359,7 @@ extension DefaultAuthRepository: AuthRepository {
 
     func getFingerprintPhrase() async throws -> String {
         let userId = try await stateService.getActiveAccountId()
-        return try await clientService.clientPlatform(for: userId).userFingerprint(fingerprintMaterial: userId)
+        return try await clientService.clientPlatform().userFingerprint(fingerprintMaterial: userId)
     }
 
     func getProfilesState(
@@ -403,12 +402,7 @@ extension DefaultAuthRepository: AuthRepository {
     }
 
     func passwordStrength(email: String, password: String) async throws -> UInt8 {
-        let userId = try await stateService.getActiveAccountId()
-        return await clientService.clientAuth(for: userId).passwordStrength(
-            password: password,
-            email: email,
-            additionalInputs: []
-        )
+        try await clientService.clientAuth().passwordStrength(password: password, email: email, additionalInputs: [])
     }
 
     func sessionTimeoutValue(userId: String?) async throws -> SessionTimeoutValue {
@@ -432,13 +426,13 @@ extension DefaultAuthRepository: AuthRepository {
         let email = account.profile.email
         let kdf = account.kdf
 
-        let keys = try await clientService.clientAuth(for: account.profile.userId).makeRegisterKeys(
+        let keys = try await clientService.clientAuth().makeRegisterKeys(
             email: email,
             password: password,
             kdf: kdf.sdkKdf
         )
 
-        let masterPasswordHash = try await clientService.clientAuth(for: account.profile.userId).hashPassword(
+        let masterPasswordHash = try await clientService.clientAuth().hashPassword(
             email: email,
             password: password,
             kdfParams: kdf.sdkKdf,
@@ -466,9 +460,7 @@ extension DefaultAuthRepository: AuthRepository {
                 organizationId: organizationId
             )
 
-            let resetPasswordKey = try await clientService.clientCrypto(
-                for: account.profile.userId
-            ).enrollAdminPasswordReset(
+            let resetPasswordKey = try await clientService.clientCrypto().enrollAdminPasswordReset(
                 publicKey: organizationKeys.publicKey
             )
 
@@ -486,8 +478,7 @@ extension DefaultAuthRepository: AuthRepository {
     }
 
     func setPins(_ pin: String, requirePasswordAfterRestart: Bool) async throws {
-        let userId = try await stateService.getActiveAccountId()
-        let pinKey = try await clientService.clientCrypto(for: userId).derivePinKey(pin: pin)
+        let pinKey = try await clientService.clientCrypto().derivePinKey(pin: pin)
         try await stateService.setPinKeys(
             pinKeyEncryptedUserKey: pinKey.encryptedPin,
             pinProtectedUserKey: pinKey.pinProtectedUserKey,
@@ -503,7 +494,7 @@ extension DefaultAuthRepository: AuthRepository {
         if case .never = newValue {
             try await keychainService.setUserAuthKey(
                 for: .neverLock(userId: id),
-                value: clientService.clientCrypto(for: id).getUserEncryptionKey()
+                value: clientService.clientCrypto().getUserEncryptionKey()
             )
         } else if currentValue == .never {
             // If there is a key, delete. If not, no worries.
@@ -560,16 +551,12 @@ extension DefaultAuthRepository: AuthRepository {
     }
 
     func validatePassword(_ password: String) async throws -> Bool {
-        let userId = try await stateService.getActiveAccountId()
         if let passwordHash = try await stateService.getMasterPasswordHash() {
-            return try await clientService.clientAuth(for: userId).validatePassword(
-                password: password,
-                passwordHash: passwordHash
-            )
+            return try await clientService.clientAuth().validatePassword(password: password, passwordHash: passwordHash)
         } else {
             let encryptionKeys = try await stateService.getAccountEncryptionKeys()
             do {
-                let passwordHash = try await clientService.clientAuth(for: userId).validatePasswordUserKey(
+                let passwordHash = try await clientService.clientAuth().validatePasswordUserKey(
                     password: password,
                     encryptedUserKey: encryptionKeys.encryptedUserKey
                 )
@@ -639,7 +626,7 @@ extension DefaultAuthRepository: AuthRepository {
         let account = try await stateService.getActiveAccount()
         let encryptionKeys = try await stateService.getAccountEncryptionKeys()
 
-        try await clientService.clientCrypto(for: account.profile.userId).initializeUserCrypto(
+        try await clientService.clientCrypto().initializeUserCrypto(
             req: InitUserCryptoRequest(
                 kdfParams: account.kdf.sdkKdf,
                 email: account.profile.email,
@@ -667,9 +654,9 @@ extension DefaultAuthRepository: AuthRepository {
             // If the user has a pin, but requires master password after restart, set the pin
             // protected user key in memory for future unlocks prior to app restart.
             if let pinKeyEncryptedUserKey = try await stateService.pinKeyEncryptedUserKey() {
-                let pinProtectedUserKey = try await clientService.clientCrypto(
-                    for: account.profile.userId
-                ).derivePinUserKey(encryptedPin: pinKeyEncryptedUserKey)
+                let pinProtectedUserKey = try await clientService.clientCrypto().derivePinUserKey(
+                    encryptedPin: pinKeyEncryptedUserKey
+                )
                 try await stateService.setPinProtectedUserKeyToMemory(pinProtectedUserKey)
             }
 
@@ -679,7 +666,7 @@ extension DefaultAuthRepository: AuthRepository {
             case .available(_, true, false):
                 try await biometricsRepository.configureBiometricIntegrity()
                 try await biometricsRepository.setBiometricUnlockKey(
-                    authKey: clientService.clientCrypto(for: account.profile.userId).getUserEncryptionKey()
+                    authKey: clientService.clientCrypto().getUserEncryptionKey()
                 )
             default:
                 break
@@ -691,7 +678,6 @@ extension DefaultAuthRepository: AuthRepository {
 
         try await vaultTimeoutService.unlockVault(userId: account.profile.userId)
         try await organizationService.initializeOrganizationCrypto()
-        clientService.assignUserClient(userId: account.profile.userId)
     }
 
     func updateMasterPassword(
@@ -701,13 +687,9 @@ extension DefaultAuthRepository: AuthRepository {
         reason: ForcePasswordResetReason
     ) async throws {
         let account = try await stateService.getActiveAccount()
-        let updatePasswordResponse = try await clientService.clientCrypto(
-            for: account.profile.userId
-        ).updatePassword(newPassword: newPassword)
+        let updatePasswordResponse = try await clientService.clientCrypto().updatePassword(newPassword: newPassword)
 
-        let masterPasswordHash = try await clientService.clientAuth(
-            for: account.profile.userId
-        ).hashPassword(
+        let masterPasswordHash = try await clientService.clientAuth().hashPassword(
             email: account.profile.email,
             password: currentPassword,
             kdfParams: account.kdf.sdkKdf,

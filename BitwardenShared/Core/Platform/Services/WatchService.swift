@@ -18,8 +18,7 @@ class DefaultWatchService: NSObject, WatchService {
     /// The service used to manage syncing and updates to the user's ciphers.
     private let cipherService: CipherService
 
-    /// The client used by the application to handle vault encryption and decryption tasks.
-    private let client: DefaultClientService
+    private let clientService: ClientService
 
     /// The service used by the application to manage the environment settings.
     private let environmentService: EnvironmentService
@@ -54,14 +53,14 @@ class DefaultWatchService: NSObject, WatchService {
     ///
     init(
         cipherService: CipherService,
-        client: DefaultClientService,
+        clientService: ClientService,
         environmentService: EnvironmentService,
         errorReporter: ErrorReporter,
         organizationService: OrganizationService,
         stateService: StateService
     ) {
         self.cipherService = cipherService
-        self.client = client
+        self.clientService = clientService
         self.environmentService = environmentService
         self.errorReporter = errorReporter
         self.organizationService = organizationService
@@ -70,14 +69,8 @@ class DefaultWatchService: NSObject, WatchService {
 
         // Listen for changes in the settings and data that would require syncing with the watch.
         Task {
-            let jointPublisher = await Publishers.CombineLatest(
-                self.stateService.activeAccountIdPublisher(),
-                self.stateService.connectToWatchPublisher()
-            )
-            .values
-
-            for await values in jointPublisher {
-                syncWithWatch(userId: values.0, shouldConnect: values.1)
+            for await (userId, shouldConnect) in await self.stateService.connectToWatchPublisher().values {
+                syncWithWatch(userId: userId, shouldConnect: shouldConnect)
             }
         }
     }
@@ -92,9 +85,8 @@ class DefaultWatchService: NSObject, WatchService {
     /// - Returns: The decrypted, filtered, and sorted `CipherDTO` objects.
     ///
     private func decryptCiphers(_ ciphers: [Cipher]) async throws -> [CipherDTO] {
-        let userId = try await stateService.getActiveAccountId()
         let decryptedCiphers = try await ciphers.asyncMap { cipher in
-            try await self.client.clientVault(for: userId).ciphers().decrypt(cipher: cipher)
+            try await self.clientService.clientVault().ciphers().decrypt(cipher: cipher)
         }
 
         return decryptedCiphers.filter { cipher in

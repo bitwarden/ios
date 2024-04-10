@@ -90,7 +90,6 @@ class DefaultSyncService: SyncService {
     /// The service for managing the ciphers for the user.
     private let cipherService: CipherService
 
-    /// The client used by the application to handle vault encryption and decryption tasks.
     private let clientService: ClientService
 
     /// The service for managing the collections for the user.
@@ -266,9 +265,9 @@ extension DefaultSyncService {
         try await folderService.deleteFolderWithLocalStorage(id: data.id)
 
         let updatedCiphers = try await cipherService.fetchAllCiphers()
-            .asyncMap { try await clientService.clientVault(for: userId).ciphers().decrypt(cipher: $0) }
+            .asyncMap { try await clientService.clientVault().ciphers().decrypt(cipher: $0) }
             .map { $0.update(folderId: nil) }
-            .asyncMap { try await clientService.clientVault(for: userId).ciphers().encrypt(cipherView: $0) }
+            .asyncMap { try await clientService.clientVault().ciphers().encrypt(cipherView: $0) }
 
         for cipher in updatedCiphers {
             try await cipherService.updateCipherWithLocalStorage(cipher)
