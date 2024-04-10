@@ -306,6 +306,22 @@ class AuthCoordinatorTests: BitwardenTestCase { // swiftlint:disable:this type_b
         )
     }
 
+    /// `navigate(to:)` with `.showLoginDecryptionOptions` replaces the current view with 
+    /// the show decryption options view.
+    func test_navigate_showLoginDecryptionOptions() throws {
+        subject.navigate(to: .showLoginDecryptionOptions(organizationIdentifier: "Bitwarden"))
+
+        XCTAssertEqual(stackNavigator.actions.last?.type, .pushed)
+        let viewController = try XCTUnwrap(
+            stackNavigator.actions.last?.view as? UIHostingController<LoginDecryptionOptionsView>
+        )
+        XCTAssertTrue(viewController.navigationItem.hidesBackButton)
+
+        let view = viewController.rootView
+        let state = view.store.state
+        XCTAssertEqual(state.orgIdentifier, "Bitwarden")
+    }
+
     /// `rootNavigator` uses a weak reference and does not retain a value once the root navigator has been erased.
     func test_rootNavigator_resetWeakReference() {
         var rootNavigator: MockRootNavigator? = MockRootNavigator()
