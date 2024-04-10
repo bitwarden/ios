@@ -101,7 +101,7 @@ class LoginDecryptionOptionsProcessorTests: BitwardenTestCase {
 
     /// `perform(_:)` with `.loadLoginDecryptionOptions` load user decryption options.
     func test_perform_loadLoginDecryptionOptions() async throws {
-        authRepository.activeAccount = .fixture()
+        authRepository.activeAccount = .fixtureWithTDE()
 
         await subject.perform(.loadLoginDecryptionOptions)
 
@@ -116,7 +116,7 @@ class LoginDecryptionOptionsProcessorTests: BitwardenTestCase {
     /// `perform(_:)` with `.loadLoginDecryptionOptions` load user decryption options.
     ///  has a pending admin request approved.
     func test_perform_loadLoginDecryptionOptions_approvedPendingAdminRequest() async throws {
-        authRepository.activeAccount = .fixture()
+        authRepository.activeAccount = .fixtureWithTDE()
         authService.getPendingAdminLoginRequestResult = .success(.fixture())
         authService.getPendingLoginRequestResult = .success([.fixture(key: "KEY", requestApproved: true)])
         authRepository.unlockVaultFromLoginWithDeviceResult = .success(())

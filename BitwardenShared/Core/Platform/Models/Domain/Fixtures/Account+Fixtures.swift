@@ -25,6 +25,23 @@ extension Account {
                 userDecryptionOptions: UserDecryptionOptions(
                     hasMasterPassword: true,
                     keyConnectorOption: nil,
+                    trustedDeviceOption: nil
+                ),
+                userId: "13512467-9cfe-43b0-969f-07534084764b"
+            ),
+            settings: Account.AccountSettings(
+                environmentUrls: EnvironmentUrlData(base: URL(string: "https://vault.bitwarden.com")!)
+            ),
+            tokens: nil
+        )
+    }
+
+    static func fixtureWithTDE() -> Account {
+        Account.fixture(
+            profile: Account.AccountProfile.fixture(
+                userDecryptionOptions: UserDecryptionOptions(
+                    hasMasterPassword: true,
+                    keyConnectorOption: nil,
                     trustedDeviceOption: TrustedDeviceUserDecryptionOption(
                         encryptedPrivateKey: "PRIVATE_KEY",
                         encryptedUserKey: "USER_KEY",
@@ -32,12 +49,9 @@ extension Account {
                         hasLoginApprovingDevice: true,
                         hasManageResetPasswordPermission: false
                     )
-                ),
-                userId: "13512467-9cfe-43b0-969f-07534084764b"
+                )
             ),
-            settings: Account.AccountSettings(
-                environmentUrls: EnvironmentUrlData(base: URL(string: "https://vault.bitwarden.com")!)
-            ),
+            settings: .fixture(),
             tokens: nil
         )
     }
@@ -57,17 +71,7 @@ extension Account.AccountProfile {
         name: String? = nil,
         orgIdentifier: String? = nil,
         stamp: String? = "stamp",
-        userDecryptionOptions: UserDecryptionOptions? = UserDecryptionOptions(
-            hasMasterPassword: true,
-            keyConnectorOption: nil,
-            trustedDeviceOption: TrustedDeviceUserDecryptionOption(
-                encryptedPrivateKey: "PRIVATE_KEY",
-                encryptedUserKey: "USER_KEY",
-                hasAdminApproval: true,
-                hasLoginApprovingDevice: true,
-                hasManageResetPasswordPermission: false
-            )
-        ),
+        userDecryptionOptions: UserDecryptionOptions? = nil,
         userId: String = "1"
     ) -> Account.AccountProfile {
         Account.AccountProfile(
