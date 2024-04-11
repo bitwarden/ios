@@ -101,39 +101,63 @@ class DefaultClientService: ClientService {
     // MARK: Methods
 
     func clientAuth(for userId: String?) async throws -> ClientAuthProtocol {
-        let userId = try await stateService.getAccountIdOrActiveId(userId: userId)
-        let client = clientForUser(userId: userId) ?? client
-        return client.auth()
+        do {
+            let userId = try await stateService.getAccountIdOrActiveId(userId: userId)
+            let client = clientForUser(userId: userId) ?? client
+            return client.auth()
+        } catch StateServiceError.noAccounts {
+            return client.auth()
+        }
     }
 
     func clientCrypto(for userId: String?) async throws -> ClientCryptoProtocol {
-        let userId = try await stateService.getAccountIdOrActiveId(userId: userId)
-        let client = clientForUser(userId: userId) ?? client
-        return client.crypto()
+        do {
+            let userId = try await stateService.getAccountIdOrActiveId(userId: userId)
+            let client = clientForUser(userId: userId) ?? client
+            return client.crypto()
+        } catch StateServiceError.noAccounts {
+            return client.crypto()
+        }
     }
 
     func clientExporters(for userId: String?) async throws -> ClientExportersProtocol {
-        let userId = try await stateService.getAccountIdOrActiveId(userId: userId)
-        let client = clientForUser(userId: userId) ?? client
-        return client.exporters()
+        do {
+            let userId = try await stateService.getAccountIdOrActiveId(userId: userId)
+            let client = clientForUser(userId: userId) ?? client
+            return client.exporters()
+        } catch StateServiceError.noAccounts {
+            return client.exporters()
+        }
     }
 
     func clientGenerator(for userId: String?) async throws -> ClientGeneratorsProtocol {
-        let userId = try await stateService.getAccountIdOrActiveId(userId: userId)
-        let client = clientForUser(userId: userId) ?? client
-        return client.generators()
+        do {
+            let userId = try await stateService.getAccountIdOrActiveId(userId: userId)
+            let client = clientForUser(userId: userId) ?? client
+            return client.generators()
+        } catch StateServiceError.noAccounts {
+            return client.generators()
+        }
     }
 
     func clientPlatform(for userId: String?) async throws -> ClientPlatformProtocol {
-        let userId = try await stateService.getAccountIdOrActiveId(userId: userId)
-        let client = clientForUser(userId: userId) ?? client
-        return client.platform()
+        do {
+            let userId = try await stateService.getAccountIdOrActiveId(userId: userId)
+            let client = clientForUser(userId: userId) ?? client
+            return client.platform()
+        } catch StateServiceError.noAccounts {
+            return client.platform()
+        }
     }
 
     func clientVault(for userId: String?) async throws -> ClientVaultService {
-        let userId = try await stateService.getAccountIdOrActiveId(userId: userId)
-        let client = clientForUser(userId: userId) ?? client
-        return client.vault()
+        do {
+            let userId = try await stateService.getAccountIdOrActiveId(userId: userId)
+            let client = clientForUser(userId: userId) ?? client
+            return client.vault()
+        } catch StateServiceError.noAccounts {
+            return client.vault()
+        }
     }
 
     func clientForUser(userId: String) -> Client? {
