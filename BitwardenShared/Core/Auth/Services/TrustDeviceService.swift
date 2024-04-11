@@ -149,9 +149,9 @@ class DefaultTrustDeviceService: TrustDeviceService {
     private func setDeviceAsTrusted(_ trustDeviceDetails: TrustDeviceResponse) async throws -> TrustDeviceResponse {
         let appId = await appIdService.getOrCreateAppId()
         let trustedDeviceKeysRequestModel = TrustedDeviceKeysRequestModel(
-            encryptedPrivateKey: trustDeviceDetails.protectedUserKey,
+            encryptedPrivateKey: trustDeviceDetails.protectedDevicePrivateKey,
             encryptedPublicKey: trustDeviceDetails.protectedDevicePublicKey,
-            encryptedUserKey: trustDeviceDetails.protectedDevicePrivateKey
+            encryptedUserKey: trustDeviceDetails.protectedUserKey
         )
 
         try await authAPIService.updateTrustedDeviceKeys(
