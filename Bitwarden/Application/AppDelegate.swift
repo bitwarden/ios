@@ -56,13 +56,18 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
     /// Successfully registered for push notifications.
     func application(_: UIApplication, didRegisterForRemoteNotificationsWithDeviceToken deviceToken: Data) {
         let token = deviceToken.map { String(format: "%02.2hhx", $0) }.joined()
-        Logger.application.log("Did Register with device token \(token)")
+        Logger.application.log("Did Register with device token \(token, privacy: .public)")
         appProcessor?.didRegister(withToken: deviceToken)
+    }
+
+    func application(_ application: UIApplication, didReceiveRemoteNotification userInfo: [AnyHashable : Any]) async -> UIBackgroundFetchResult {
+        Logger.application.log("Did recieve fetch notification \(userInfo, privacy: .public)")
+        return .noData
     }
 
     /// Record an error if registering for push notifications failed.
     func application(_: UIApplication, didFailToRegisterForRemoteNotificationsWithError error: Error) {
-        Logger.application.log("Failed to register remote notifications with error \(error)")
+        Logger.application.log("Failed to register remote notifications with error \(error, privacy: .public)")
         appProcessor?.failedToRegister(error)
     }
 
@@ -71,7 +76,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
         _: UNUserNotificationCenter,
         didReceive response: UNNotificationResponse
     ) async {
-        Logger.application.log("Did receive notification \(response)")
+        Logger.application.log("Did receive notification \(response, privacy: .public)")
         await appProcessor?.messageReceived(
             response.notification.request.content.userInfo,
             notificationDismissed: response.actionIdentifier == UNNotificationDismissActionIdentifier,
@@ -84,7 +89,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
         _: UNUserNotificationCenter,
         willPresent notification: UNNotification
     ) async -> UNNotificationPresentationOptions {
-        Logger.application.log("Did receive message \(notification))")
+        Logger.application.log("Did receive message \(notification, privacy: .public))")
         await appProcessor?.messageReceived(notification.request.content.userInfo)
         return .banner
     }
