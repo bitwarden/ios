@@ -19,7 +19,7 @@ struct ItemListView: View {
 
     var body: some View {
         content
-            .navigationTitle("Item List")
+            .navigationTitle(Localizations.verificationCodes)
             .navigationBarTitleDisplayMode(.inline)
             .background(Asset.Colors.backgroundSecondary.swiftUIColor.ignoresSafeArea())
             .toolbar {
