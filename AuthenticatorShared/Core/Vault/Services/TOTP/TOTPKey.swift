@@ -44,7 +44,7 @@ enum TOTPKey: Equatable {
              let .steamUri(key):
             return key
         case let .otpAuthUri(model):
-            return model.keyB32
+            return model.secret
         }
     }
 
@@ -73,7 +73,7 @@ enum TOTPKey: Equatable {
         if key.uppercased().isBase32 {
             self = .base32(key: key)
         } else if key.hasOTPAuthPrefix,
-                  let otpAuthModel = OTPAuthModel(otpAuthKey: key) {
+                  let otpAuthModel = OTPAuthModel(otpAuthUri: key) {
             self = .otpAuthUri(otpAuthModel)
         } else if let keyIndexOffset = key.steamURIKeyIndexOffset {
             let steamKey = String(key.suffix(from: keyIndexOffset))

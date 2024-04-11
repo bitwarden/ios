@@ -40,7 +40,7 @@ final class TOTPCodeConfigTests: AuthenticatorTestCase {
         XCTAssertNotNil(subject)
         XCTAssertEqual(
             subject?.base32Key,
-            .base32Key.lowercased()
+            .base32Key
         )
     }
 
@@ -52,7 +52,7 @@ final class TOTPCodeConfigTests: AuthenticatorTestCase {
         XCTAssertNotNil(subject)
         XCTAssertEqual(
             subject?.base32Key,
-            .base32Key.lowercased()
+            .base32Key
         )
     }
 
@@ -64,7 +64,7 @@ final class TOTPCodeConfigTests: AuthenticatorTestCase {
         XCTAssertNotNil(subject)
         XCTAssertEqual(
             subject?.base32Key,
-            .base32Key.lowercased()
+            .base32Key
         )
     }
 
