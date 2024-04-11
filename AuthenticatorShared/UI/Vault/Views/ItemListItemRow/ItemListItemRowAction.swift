@@ -4,6 +4,4 @@
 enum ItemListItemRowAction: Equatable {
     /// The copy TOTP Code button was pressed.
     case copyTOTPCode(_ code: String)
-
-    case morePressed
 }

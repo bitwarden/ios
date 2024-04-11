@@ -32,6 +32,10 @@ struct ItemListView: View {
             .task {
                 await store.perform(.appeared)
             }
+            .toast(store.binding(
+                get: \.toast,
+                send: ItemListAction.toastShown
+            ))
     }
 
     // MARK: Private
@@ -122,11 +126,14 @@ struct ItemListView: View {
                     switch action {
                     case let .copyTOTPCode(code):
                         return .copyTOTPCode(code)
+                    }
+                },
+                mapEffect: { effect in
+                    switch effect {
                     case .morePressed:
                         return .morePressed(item)
                     }
-                },
-                mapEffect: { .appeared }
+                }
             ),
             timeProvider: timeProvider
         )

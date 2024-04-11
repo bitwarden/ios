@@ -92,13 +92,13 @@ private extension ViewTokenProcessor {
     /// Stream the item details.
     private func streamItemDetails() async {
         do {
-            guard let authenticatorItemView = try await services.authenticatorItemRepository.fetchAuthenticatorItem(withId: itemId),
-                  let key = authenticatorItemView.totpKey,
+            guard let item = try await services.authenticatorItemRepository.fetchAuthenticatorItem(withId: itemId),
+                  let key = item.totpKey,
                   let model = TOTPKeyModel(authenticatorKey: key)
             else { return }
 
             let code = try await services.totpService.getTotpCode(for: model)
-            guard var newAuthenticatorItemState = ViewTokenState(authenticatorItemView: authenticatorItemView)
+            guard var newAuthenticatorItemState = ViewTokenState(authenticatorItemView: item)
             else { return }
 
             if case var .data(authenticatorItemState) = newAuthenticatorItemState.loadingState {

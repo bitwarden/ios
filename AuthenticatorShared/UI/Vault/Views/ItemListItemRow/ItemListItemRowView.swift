@@ -8,7 +8,11 @@ struct ItemListItemRowView: View {
     // MARK: Properties
 
     /// The `Store` for this view.
-    var store: Store<ItemListItemRowState, ItemListItemRowAction, Void>
+    var store: Store<
+        ItemListItemRowState,
+        ItemListItemRowAction,
+        ItemListItemRowEffect
+    >
 
     /// The `TimeProvider` used to calculate TOTP expiration.
     var timeProvider: any TimeProvider
@@ -82,12 +86,12 @@ struct ItemListItemRowView: View {
         Text(model.displayCode)
             .styleGuide(.bodyMonospaced, weight: .regular, monoSpacedDigit: true)
             .foregroundColor(Asset.Colors.textPrimary.swiftUIColor)
-        Button {
-            Task { @MainActor in
-                store.send(.copyTOTPCode(model.code))
+        AsyncButton {
+            Task {
+                await store.perform(.morePressed)
             }
         } label: {
-            Asset.Images.copy.swiftUIImage
+            Asset.Images.horizontalKabob.swiftUIImage
         }
         .foregroundColor(Asset.Colors.primaryBitwarden.swiftUIColor)
         .accessibilityLabel(Localizations.copyTotp)

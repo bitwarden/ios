@@ -15,12 +15,6 @@ enum ItemListAction: Equatable {
     ///
     case itemPressed(_ item: ItemListItem)
 
-    /// The more button on an item in the vault group was tapped.
-    ///
-    /// - Parameter item: The item associated with the more button that was tapped.
-    ///
-    case morePressed(_ item: ItemListItem)
-
     /// The toast was shown or hidden.
     case toastShown(Toast?)
 }

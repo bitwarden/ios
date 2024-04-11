@@ -4,7 +4,6 @@ import Foundation
 @testable import AuthenticatorShared
 
 class MockAuthenticatorItemRepository: AuthenticatorItemRepository {
-
     // MARK: Properties
 
     var addAuthenticatorItemAuthenticatorItems = [AuthenticatorItemView]()
@@ -42,7 +41,7 @@ class MockAuthenticatorItemRepository: AuthenticatorItemRepository {
     }
 
     func fetchAllAuthenticatorItems() async throws -> [AuthenticatorShared.AuthenticatorItemView] {
-        return try fetchAllAuthenticatorItemsResult.get()
+        try fetchAllAuthenticatorItemsResult.get()
     }
 
     func fetchAuthenticatorItem(withId id: String) async throws -> AuthenticatorItemView? {

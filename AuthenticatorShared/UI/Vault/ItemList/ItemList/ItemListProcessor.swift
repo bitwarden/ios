@@ -16,7 +16,7 @@ final class ItemListProcessor: StateProcessor<ItemListState, ItemListAction, Ite
     // MARK: Private Properties
 
     /// The `Coordinator` for this processor.
-    private var coordinator: any Coordinator<ItemListRoute, ItemListEvent>
+    private var coordinator: AnyCoordinator<ItemListRoute, ItemListEvent>
 
     /// The services for this processor.
     private var services: Services
@@ -34,7 +34,7 @@ final class ItemListProcessor: StateProcessor<ItemListState, ItemListAction, Ite
     ///   - state: The initial state of this processor.
     ///
     init(
-        coordinator: any Coordinator<ItemListRoute, ItemListEvent>,
+        coordinator: AnyCoordinator<ItemListRoute, ItemListEvent>,
         services: Services,
         state: ItemListState
     ) {
@@ -61,9 +61,11 @@ final class ItemListProcessor: StateProcessor<ItemListState, ItemListAction, Ite
             await setupTotp()
         case .appeared:
             await streamItemList()
+        case let .morePressed(item):
+            await showMoreOptionsAlert(for: item)
         case .refresh:
             await streamItemList()
-        case .streamVaultList:
+        case .streamItemList:
             await streamItemList()
         }
     }
@@ -76,15 +78,51 @@ final class ItemListProcessor: StateProcessor<ItemListState, ItemListAction, Ite
             services.pasteboardService.copy(code)
             state.toast = Toast(text: Localizations.valueHasBeenCopied(Localizations.verificationCode))
         case let .itemPressed(item):
-            coordinator.navigate(to: .viewItem(id: item.id))
-        case .morePressed:
-            break
+            switch item.itemType {
+            case let .totp(model):
+                services.pasteboardService.copy(model.totpCode.code)
+                state.toast = Toast(text: Localizations.valueHasBeenCopied(Localizations.verificationCode))
+            }
         case let .toastShown(newValue):
             state.toast = newValue
         }
     }
 
     // MARK: Private Methods
+
+    /// Confirm that the user wants to delete the item then delete it if so
+    private func confirmDeleteItem(_ id: String) {
+        coordinator.showAlert(.confirmDeleteItem {
+            await self.deleteItem(id)
+        })
+    }
+
+    /// Delete the item
+    private func deleteItem(_ id: String) async {
+        defer { coordinator.hideLoadingOverlay() }
+        do {
+            coordinator.showLoadingOverlay(title: Localizations.deleting)
+            try await services.authenticatorItemRepository.deleteAuthenticatorItem(id)
+            state.toast = Toast(text: Localizations.itemDeleted)
+        } catch {
+            services.errorReporter.log(error: error)
+        }
+    }
+
+    /// Generates and copies a TOTP code for the cipher's TOTP key.
+    ///
+    /// - Parameter totpKey: The TOTP key used to generate a TOTP code.
+    ///
+    private func generateAndCopyTotpCode(totpKey: TOTPKeyModel) async {
+        do {
+            let code = try await services.totpService.getTotpCode(for: totpKey)
+            services.pasteboardService.copy(code.code)
+            state.toast = Toast(text: Localizations.valueHasBeenCopied(Localizations.verificationCodeTotp))
+        } catch {
+            coordinator.showAlert(.defaultAlert(title: Localizations.anErrorHasOccurred))
+            services.errorReporter.log(error: error)
+        }
+    }
 
     /// Refreshes the vault group's TOTP Codes.
     ///
@@ -124,6 +162,39 @@ final class ItemListProcessor: StateProcessor<ItemListState, ItemListAction, Ite
             await coordinator.handleEvent(.showScanCode, context: self)
         } else {
             coordinator.navigate(to: .setupTotpManual, context: self)
+        }
+    }
+
+    /// Show the more options alert for the selected item.
+    ///
+    /// - Parameter item: The selected item to show the options for.
+    ///
+    private func showMoreOptionsAlert(for item: ItemListItem) async {
+        guard case let .totp(model) = item.itemType else { return }
+
+        coordinator.showAlert(
+            .moreOptions(
+                authenticatorItemView: model.itemView,
+                id: item.id,
+                action: handleMoreOptionsAction
+            )
+        )
+    }
+
+    /// Handle the result of the selected option on the More Options alert.
+    ///
+    /// - Parameter action: The selected action.
+    ///
+    private func handleMoreOptionsAction(_ action: MoreOptionsAction) async {
+        switch action {
+        case let .copyTotp(totpKey):
+            await generateAndCopyTotpCode(totpKey: totpKey)
+        case let .delete(id):
+            confirmDeleteItem(id)
+        case let .edit(item):
+            coordinator.navigate(to: .editItem(item: item))
+        case let .view(id):
+            coordinator.navigate(to: .viewItem(id: id))
         }
     }
 
@@ -290,4 +361,21 @@ extension ItemListProcessor: AuthenticatorKeyCaptureDelegate {
         })
         captureCoordinator.navigate(to: .dismiss(dismissAction))
     }
+}
+
+// MARK: - MoreOptionsAction
+
+/// The actions available from the More Options alert.
+enum MoreOptionsAction: Equatable {
+    /// Generate and copy the TOTP code for the given `totpKey`.
+    case copyTotp(totpKey: TOTPKeyModel)
+
+    /// Delete the item with the given `id`
+    case delete(id: String)
+
+    /// Navigate to the view to edit the `AuthenticatorItemView`.
+    case edit(authenticatorItemView: AuthenticatorItemView)
+
+    /// Navigate to view the item with the given `id`.
+    case view(id: String)
 }
