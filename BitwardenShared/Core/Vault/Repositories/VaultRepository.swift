@@ -541,6 +541,59 @@ class DefaultVaultRepository { // swiftlint:disable:this type_body_length
         )
     }
 
+    /// Returns a `VaultListSection` for the collection section, if one exists.
+    ///
+    /// - Parameters:
+    ///   - activeCiphers: The list of active (non-deleted) ciphers, used to determine the count of
+    ///     ciphers within a collection.
+    ///   - collections: The list of all collections.
+    ///   - filter: A filter to apply to the vault items.
+    ///   - nestedCollectionId: An optional collection ID of a nested collection to create the list
+    ///     items from the children of that collection. Defaults to `nil` which will return the list
+    ///     of collections at the root of the tree.
+    /// - Returns: A `VaultListSection` for the collection section, if one exists.
+    ///
+    private func vaultListCollectionSection(
+        activeCiphers: [CipherView],
+        collections: [Collection],
+        filter: VaultFilterType,
+        nestedCollectionId: String? = nil
+    ) async throws -> VaultListSection? {
+        let decryptedCollections = try await clientVault.collections()
+            .decryptList(collections: collections)
+            .filter(filter.collectionFilter)
+            .sorted { $0.name.localizedStandardCompare($1.name) == .orderedAscending }
+        let collectionTree = decryptedCollections.asNestedNodes()
+
+        let nestedCollections = if let nestedCollectionId {
+            collectionTree.getTreeNodeObject(with: nestedCollectionId)?.children
+        } else {
+            collectionTree.rootNodes
+        }
+
+        guard let nestedCollections else { return nil }
+
+        let collectionItems: [VaultListItem] = nestedCollections.compactMap { collectionNode in
+            let collection = collectionNode.node
+            guard let collectionId = collection.id else {
+                self.errorReporter.log(
+                    error: BitwardenError.dataError("Received a collection from the API with a missing ID.")
+                )
+                return nil
+            }
+            let collectionCount = activeCiphers.lazy.filter { $0.collectionIds.contains(collectionId) }.count
+            return VaultListItem(
+                id: collectionId,
+                itemType: .group(
+                    .collection(id: collectionId, name: collectionNode.name, organizationId: collection.organizationId),
+                    collectionCount
+                )
+            )
+        }
+
+        return VaultListSection(id: "Collections", items: collectionItems, name: Localizations.collections)
+    }
+
     /// Returns a `VaultListSection` for the folder section, if one exists.
     ///
     /// - Parameters:
@@ -578,32 +631,21 @@ class DefaultVaultRepository { // swiftlint:disable:this type_body_length
         )
     }
 
-    /// Returns a list of sections containing the items that are grouped together in the vault list
-    /// from a list of encrypted ciphers.
+    /// Returns a `VaultListSection` for the vault items section.
     ///
     /// - Parameters:
+    ///   - activeCiphers: The list of active (non-deleted) ciphers.
+    ///   - deletedCiphers: The list of deleted ciphers.
     ///   - group: The group of items to get.
     ///   - filter: A filter to apply to the vault items.
-    ///   - ciphers: The ciphers to build the list of items.
-    ///   - folders: The list of all folders. This is used to show any nested folders within a
-    ///     folder group.
-    /// - Returns: A list of items for the group in the vault list.
+    /// - Returns: A `VaultListSection` for the vault items section.
     ///
-    private func vaultListItems(
+    private func vaultListItemsSection(
+        activeCiphers: [CipherView],
+        deletedCiphers: [CipherView],
         group: VaultListGroup,
-        filter: VaultFilterType,
-        ciphers: [Cipher],
-        folders: [Folder] = []
-    ) async throws -> [VaultListSection] {
-        let ciphers = try await ciphers.asyncMap { cipher in
-            try await self.clientVault.ciphers().decrypt(cipher: cipher)
-        }
-        .filter(filter.cipherFilter)
-        .sorted { $0.name.localizedStandardCompare($1.name) == .orderedAscending }
-
-        let activeCiphers = ciphers.filter { $0.deletedDate == nil }
-        let deletedCiphers = ciphers.filter { $0.deletedDate != nil }
-
+        filter: VaultFilterType
+    ) async throws -> VaultListSection {
         let items: [VaultListItem]
         switch group {
         case .card:
@@ -626,10 +668,40 @@ class DefaultVaultRepository { // swiftlint:disable:this type_body_length
                 items = []
                 break
             }
-            items = await totpListItems(from: ciphers, filter: filter)
+            items = await totpListItems(from: activeCiphers, filter: filter)
         case .trash:
             items = deletedCiphers.compactMap(VaultListItem.init)
         }
+
+        return VaultListSection(id: "Items", items: items, name: Localizations.items)
+    }
+
+    /// Returns a list of sections containing the items that are grouped together in the vault list
+    /// from a list of encrypted ciphers.
+    ///
+    /// - Parameters:
+    ///   - group: The group of items to get.
+    ///   - filter: A filter to apply to the vault items.
+    ///   - ciphers: The ciphers to build the list of items.
+    ///   - folders: The list of all folders. This is used to show any nested folders within a
+    ///     folder group.
+    /// - Returns: A list of items for the group in the vault list.
+    ///
+    private func vaultListItems(
+        group: VaultListGroup,
+        filter: VaultFilterType,
+        ciphers: [Cipher],
+        collections: [Collection],
+        folders: [Folder] = []
+    ) async throws -> [VaultListSection] {
+        let ciphers = try await ciphers.asyncMap { cipher in
+            try await self.clientVault.ciphers().decrypt(cipher: cipher)
+        }
+        .filter(filter.cipherFilter)
+        .sorted { $0.name.localizedStandardCompare($1.name) == .orderedAscending }
+
+        let activeCiphers = ciphers.filter { $0.deletedDate == nil }
+        let deletedCiphers = ciphers.filter { $0.deletedDate != nil }
 
         let folderSection = try await vaultListFolderSection(
             activeCiphers: activeCiphers,
@@ -638,9 +710,28 @@ class DefaultVaultRepository { // swiftlint:disable:this type_body_length
             folders: folders
         )
 
+        let collectionSection: VaultListSection? = if let collectionId = group.collectionId {
+            try await vaultListCollectionSection(
+                activeCiphers: activeCiphers,
+                collections: collections,
+                filter: filter,
+                nestedCollectionId: collectionId
+            )
+        } else {
+            nil
+        }
+
+        let itemsSection = try await vaultListItemsSection(
+            activeCiphers: activeCiphers,
+            deletedCiphers: deletedCiphers,
+            group: group,
+            filter: filter
+        )
+
         return [
             folderSection,
-            VaultListSection(id: "Items", items: items, name: Localizations.items),
+            collectionSection,
+            itemsSection,
         ]
         .compactMap { $0 }
         .filter { !$0.items.isEmpty }
@@ -674,11 +765,6 @@ class DefaultVaultRepository { // swiftlint:disable:this type_body_length
             .filter { filter.folderFilter($0, ciphers: activeCiphers) }
             .sorted { $0.name.localizedStandardCompare($1.name) == .orderedAscending }
 
-        let collections = try await clientVault.collections()
-            .decryptList(collections: collections)
-            .filter(filter.collectionFilter)
-            .sorted { $0.name.localizedStandardCompare($1.name) == .orderedAscending }
-
         guard !ciphers.isEmpty else { return [] }
 
         let ciphersFavorites = activeCiphers.filter(\.favorite).compactMap(VaultListItem.init)
@@ -686,8 +772,6 @@ class DefaultVaultRepository { // swiftlint:disable:this type_body_length
 
         let ciphersTrashCount = ciphers.lazy.filter { $0.deletedDate != nil }.count
         let ciphersTrashItem = VaultListItem(id: "Trash", itemType: .group(.trash, ciphersTrashCount))
-
-        let showNoFolderCipherGroup = collections.isEmpty && ciphersNoFolder.count < Constants.noFolderListSize
 
         // Add TOTP items for premium accounts.
         var totpItems = [VaultListItem]()
@@ -705,34 +789,25 @@ class DefaultVaultRepository { // swiftlint:disable:this type_body_length
             ] : []
         }
 
+        let collectionSection = try await vaultListCollectionSection(
+            activeCiphers: activeCiphers,
+            collections: collections,
+            filter: filter
+        )
+
         var folderItems = folderVaultListItems(
             activeCiphers: activeCiphers,
             folderTree: folders.asNestedNodes()
         )
 
         // Add no folder to folders item if needed.
+        let showNoFolderCipherGroup = (collectionSection?.items.isEmpty ?? false)
+            && ciphersNoFolder.count < Constants.noFolderListSize
         if !showNoFolderCipherGroup {
             folderItems.append(
                 VaultListItem(
                     id: "NoFolderFolderItem",
                     itemType: .group(.noFolder, ciphersNoFolder.count)
-                )
-            )
-        }
-
-        let collectionItems: [VaultListItem] = collections.compactMap { collection in
-            guard let collectionId = collection.id else {
-                self.errorReporter.log(
-                    error: BitwardenError.dataError("Received a collection from the API with a missing ID.")
-                )
-                return nil
-            }
-            let collectionCount = activeCiphers.lazy.filter { $0.collectionIds.contains(collectionId) }.count
-            return VaultListItem(
-                id: collectionId,
-                itemType: .group(
-                    .collection(id: collectionId, name: collection.name, organizationId: collection.organizationId),
-                    collectionCount
                 )
             )
         }
@@ -759,9 +834,11 @@ class DefaultVaultRepository { // swiftlint:disable:this type_body_length
                 items: showNoFolderCipherGroup ? ciphersNoFolder : [],
                 name: Localizations.folderNone
             ),
-            VaultListSection(id: "Collections", items: collectionItems, name: Localizations.collections),
+            collectionSection,
             VaultListSection(id: "Trash", items: [ciphersTrashItem], name: Localizations.trash),
-        ].filter { !$0.items.isEmpty }
+        ]
+        .compactMap { $0 }
+        .filter { !$0.items.isEmpty }
     }
 }
 
@@ -1129,12 +1206,19 @@ extension DefaultVaultRepository: VaultRepository {
         group: VaultListGroup,
         filter: VaultFilterType
     ) async throws -> AsyncThrowingPublisher<AnyPublisher<[VaultListSection], Error>> {
-        try await Publishers.CombineLatest(
+        try await Publishers.CombineLatest3(
             cipherService.ciphersPublisher(),
+            collectionService.collectionsPublisher(),
             folderService.foldersPublisher()
         )
-        .asyncTryMap { ciphers, folders in
-            try await self.vaultListItems(group: group, filter: filter, ciphers: ciphers, folders: folders)
+        .asyncTryMap { ciphers, collections, folders in
+            try await self.vaultListItems(
+                group: group,
+                filter: filter,
+                ciphers: ciphers,
+                collections: collections,
+                folders: folders
+            )
         }
         .eraseToAnyPublisher()
         .values
