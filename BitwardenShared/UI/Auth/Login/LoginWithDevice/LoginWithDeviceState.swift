@@ -26,7 +26,9 @@ struct LoginWithDeviceState: Equatable {
         case .adminApproval:
             Localizations.yourRequestHasBeenSentToYourAdmin
         case .authenticateAndUnlock:
-            Localizations.aNotificationHasBeenSentToYourDevice + .newLine + Localizations.pleaseMakeSureYourVaultIsUnlockedAndTheFingerprintPhraseMatchesOnTheOtherDevice
+            Localizations.aNotificationHasBeenSentToYourDevice +
+                .newLine +
+                Localizations.pleaseMakeSureYourVaultIsUnlockedAndTheFingerprintPhraseMatchesOnTheOtherDevice
         }
     }
 
