@@ -100,6 +100,19 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
         XCTAssertTrue(vaultRepository.fetchSyncCalled)
     }
 
+    /// `perform(_:)` with `.appeared` doesn't show an alert or log an error if the request was cancelled.
+    func test_perform_appeared_cancelled() async {
+        stateService.activeAccount = .fixture()
+        notificationService.authorizationStatus = .authorized
+        vaultRepository.fetchSyncResult = .failure(URLError(.cancelled))
+
+        await subject.perform(.appeared)
+
+        XCTAssertTrue(vaultRepository.fetchSyncCalled)
+        XCTAssertTrue(coordinator.alertShown.isEmpty)
+        XCTAssertTrue(errorReporter.errors.isEmpty)
+    }
+
     /// `perform(_:)` with `.appeared` handles any pending login requests for the user to address.
     func test_perform_appeared_checkPendingLoginRequests() async {
         // Set up the mock data.
