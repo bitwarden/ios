@@ -25,7 +25,7 @@ struct LoginWithDeviceView: View {
             allLoginOptionsView
         }
         .scrollView()
-        .navigationBar(title: Localizations.logInWithDevice, titleDisplayMode: .inline)
+        .navigationBar(title: store.state.navBarText, titleDisplayMode: .inline)
         .toolbar {
             cancelToolbarItem {
                 store.send(.dismiss)
@@ -56,14 +56,10 @@ struct LoginWithDeviceView: View {
 
     /// The explanation text.
     private var explanationText: some View {
-        Text(
-            Localizations.aNotificationHasBeenSentToYourDevice +
-                .newLine +
-                Localizations.pleaseMakeSureYourVaultIsUnlockedAndTheFingerprintPhraseMatchesOnTheOtherDevice
-        )
-        .styleGuide(.body)
-        .foregroundStyle(Asset.Colors.textPrimary.swiftUIColor)
-        .multilineTextAlignment(.leading)
+        Text(store.state.explanationText)
+            .styleGuide(.body)
+            .foregroundStyle(Asset.Colors.textPrimary.swiftUIColor)
+            .multilineTextAlignment(.leading)
     }
 
     /// The fingerprint phrase title and display.
@@ -83,18 +79,20 @@ struct LoginWithDeviceView: View {
     }
 
     /// The button to resend the login notification.
-    private var resendNotificationButton: some View {
-        AsyncButton(Localizations.resendNotification) {
-            await store.perform(.resendNotification)
+    @ViewBuilder private var resendNotificationButton: some View {
+        if store.state.isResendNotificationVisible {
+            AsyncButton(Localizations.resendNotification) {
+                await store.perform(.resendNotification)
+            }
+            .styleGuide(.body)
+            .foregroundStyle(Asset.Colors.primaryBitwarden.swiftUIColor)
+            .accessibilityIdentifier("ResendNotificationButton")
         }
-        .styleGuide(.body)
-        .foregroundStyle(Asset.Colors.primaryBitwarden.swiftUIColor)
-        .accessibilityIdentifier("ResendNotificationButton")
     }
 
     /// The title text.
     private var titleText: some View {
-        Text(Localizations.logInInitiated)
+        Text(store.state.titleText)
             .styleGuide(.title, weight: .bold)
             .foregroundStyle(Asset.Colors.textPrimary.swiftUIColor)
             .frame(maxWidth: .infinity, alignment: .leading)

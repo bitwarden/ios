@@ -306,7 +306,7 @@ class AuthCoordinatorTests: BitwardenTestCase { // swiftlint:disable:this type_b
         )
     }
 
-    /// `navigate(to:)` with `.showLoginDecryptionOptions` replaces the current view with 
+    /// `navigate(to:)` with `.showLoginDecryptionOptions` replaces the current view with
     /// the show decryption options view.
     func test_navigate_showLoginDecryptionOptions() throws {
         subject.navigate(to: .showLoginDecryptionOptions(organizationIdentifier: "Bitwarden"))
