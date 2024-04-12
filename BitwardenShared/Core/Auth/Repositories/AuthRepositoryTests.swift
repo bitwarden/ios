@@ -817,7 +817,9 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
     func test_setPins() async throws {
         let account = Account.fixture()
         stateService.activeAccount = account
-        clientService.clientCryptoService.derivePinKeyResult = .success(DerivePinKeyResponse(pinProtectedUserKey: "12", encryptedPin: "34"))
+        clientService.clientCryptoService.derivePinKeyResult = .success(
+            DerivePinKeyResponse(pinProtectedUserKey: "12", encryptedPin: "34")
+        )
 
         let userId = account.profile.userId
         try await subject.setPins("123", requirePasswordAfterRestart: true)

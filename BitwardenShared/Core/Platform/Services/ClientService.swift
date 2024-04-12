@@ -1,14 +1,9 @@
 import BitwardenSdk
 
-/// A protocol for service that handles common client functionality such as encryption and
+/// A protocol for the service that handles common client functionality such as encryption and
 /// decryption.
 ///
 protocol ClientService {
-    // MARK: Properties
-
-    /// A dictionary mapping a user ID to a client and the client's lock status.
-    var userClientDictionary: [String: (client: Client, isLocked: Bool)] { get set }
-
     // MARK: Methods
 
     /// Returns a `ClientAuthProtocol` for auth data tasks.
@@ -52,6 +47,27 @@ protocol ClientService {
     /// - Returns: A `ClientVaultService` for vault data tasks.
     ///
     func clientVault(for userId: String?) async throws -> ClientVaultService
+
+    /// Whether or not the client is locked.
+    ///
+    /// - Parameter userId: The user's ID.
+    /// - Returns: Whether or not the client is locked.
+    ///
+    func isLocked(userId: String) -> Bool
+
+    /// Removes the client from the dictionary.
+    ///
+    /// - Parameter userId: The user's ID.
+    ///
+    func removeClient(userId: String)
+
+    /// Updates the locked status of the user's client.
+    ///
+    /// - Parameters:
+    ///   - userId: The user's ID.
+    ///   - isLocked: Whether or not to lock the client.
+    ///
+    func updateClientLockedStatus(userId: String, isLocked: Bool)
 }
 
 // MARK: Extension
@@ -102,12 +118,11 @@ extension ClientService {
 class DefaultClientService: ClientService {
     // MARK: Properties
 
-    var userClientDictionary = [String: (client: Client, isLocked: Bool)]()
+    var userClientDictionary = [String: (client: BitwardenSdkClient, isLocked: Bool)]()
 
     // MARK: Private properties
 
-    /// The `Client` instance used to access `BitwardenSdk`.
-    private let client: Client
+    private let clientBuilder: ClientBuilder
 
     /// The service used by the application to report non-fatal errors.
     private let errorReporter: ErrorReporter
@@ -128,18 +143,18 @@ class DefaultClientService: ClientService {
     ///   - stateService: The service used by the application to manage account state.
     ///
     init(
+        clientBuilder: ClientBuilder,
         errorReporter: ErrorReporter,
         settings: ClientSettings? = nil,
         stateService: StateService
     ) {
+        self.clientBuilder = clientBuilder
         self.errorReporter = errorReporter
         self.settings = settings
         self.stateService = stateService
 
-        client = Client(settings: settings)
-
         Task {
-            await loadFlags(client: client)
+            await loadFlags(client: clientBuilder.buildClient())
         }
     }
 
@@ -180,24 +195,21 @@ class DefaultClientService: ClientService {
     /// - Parameter userId: A user ID for which a `Client` is mapped to or will be mapped to.
     /// - Returns: A user's client.
     ///
-    private func client(for userId: String?) async throws -> Client {
+    private func client(for userId: String?) async throws -> BitwardenSdkClient {
         do {
             let userId = try await stateService.getAccountIdOrActiveId(userId: userId)
 
             // If the user has a client, return it.
-            for _ in userClientDictionary {
-                if let client = userClientDictionary[userId] {
-                    return client.client
-                }
+            guard let client = userClientDictionary[userId] else {
+                // If not, create one, map it to the user, then return it.
+                let newClient = await createAndMapClient(for: userId)
+                return newClient
             }
-
-            // If not, create one, map it to the user, then return it.
-            let newClient = await createAndMapClient(for: userId)
-            return newClient
+            return client.client
         } catch StateServiceError.noAccounts, StateServiceError.noActiveAccount {
             // If there is no active account, or if no accounts exist,
             // return the original client.
-            return client
+            return clientBuilder.buildClient()
         }
     }
 
@@ -205,8 +217,8 @@ class DefaultClientService: ClientService {
     ///
     /// - Parameter userId: A user ID that the new client is being mapped to.
     ///
-    private func createAndMapClient(for userId: String) async -> Client {
-        let client = Client(settings: settings)
+    private func createAndMapClient(for userId: String) async -> BitwardenSdkClient {
+        let client = clientBuilder.buildClient()
 
         // Load feature flags for the new client.
         await loadFlags(client: client)
@@ -219,7 +231,7 @@ class DefaultClientService: ClientService {
     ///
     /// - Parameter client: The client that feature flags are applied to.
     ///
-    private func loadFlags(client: Client) async {
+    private func loadFlags(client: BitwardenSdkClient) async {
         do {
             try await client.platform().loadFlags(
                 flags: [FeatureFlagsConstants.enableCipherKeyEncryption: true]
@@ -227,5 +239,112 @@ class DefaultClientService: ClientService {
         } catch {
             errorReporter.log(error: error)
         }
+    }
+
+    func isLocked(userId: String) -> Bool {
+        guard let client = userClientDictionary[userId] else {
+            return true
+        }
+        return client.isLocked
+    }
+
+    func removeClient(userId: String) {
+        userClientDictionary.removeValue(forKey: userId)
+    }
+
+    func updateClientLockedStatus(userId: String, isLocked: Bool) {
+        guard let client = userClientDictionary[userId] else { return }
+        userClientDictionary.updateValue((client.client, isLocked), forKey: userId)
+    }
+}
+
+// MARK: - ClientBuilder
+
+/// A protocol for creating a new `BitwardenSdkClient`.
+///
+protocol ClientBuilder {
+    /// Creates a `BitwardenSdkClient`.
+    ///
+    /// - Returns: A new `BitwardenSdkClient`.
+    ///
+    func buildClient() -> BitwardenSdkClient
+}
+
+// MARK: DefaultClientBuilder
+
+/// A default `ClientBuilder` implementation.
+///
+class DefaultClientBuilder: ClientBuilder {
+    // MARK: Properties
+
+    /// The client that will be returned.
+    private let client: Client
+
+    // MARK: Initialization
+
+    /// Initializes a new client.
+    ///
+    /// - Parameter settings: The settings applied to the client.
+    ///
+    init(settings: ClientSettings? = nil) {
+        client = Client(settings: settings)
+    }
+
+    // MARK: Methods
+
+    func buildClient() -> BitwardenSdkClient {
+        client
+    }
+}
+
+// MARK: - BitwardenSdkClient
+
+/// A protocol that exposed the SDK `ClientProtocol` methods.
+///
+protocol BitwardenSdkClient {
+    /// Returns auth operations.
+    func auth() -> ClientAuthProtocol
+
+    /// Returns crypto operations.
+    func crypto() -> ClientCryptoProtocol
+
+    ///  Returns exporters.
+    func exporters() -> ClientExportersProtocol
+
+    /// Returns generator operations.
+    func generators() -> ClientGeneratorsProtocol
+
+    /// Returns platform operations.
+    func platform() -> ClientPlatformProtocol
+
+    /// Returns vault operations.
+    func vault() -> ClientVaultService
+}
+
+// MARK: BitwardenSdkClient Extension
+
+extension Client: BitwardenSdkClient {
+    func auth() -> ClientAuthProtocol {
+        auth() as ClientAuth
+    }
+
+    func crypto() -> ClientCryptoProtocol {
+        crypto() as ClientCrypto
+    }
+
+    func exporters() -> ClientExportersProtocol {
+        exporters() as ClientExporters
+    }
+
+    func generators() -> ClientGeneratorsProtocol {
+        generators() as ClientGenerators
+    }
+
+    func platform() -> ClientPlatformProtocol {
+        platform() as ClientPlatform
+    }
+
+    func vault() -> ClientVaultService {
+        vault() as ClientVault
     }
 }

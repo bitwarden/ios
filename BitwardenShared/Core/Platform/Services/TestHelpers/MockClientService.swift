@@ -9,7 +9,8 @@ class MockClientService: ClientService {
     var clientGeneratorService: MockClientGenerators
     var clientPlatformService: MockClientPlatform
     var clientVaultService: MockClientVaultService
-    var userClientDictionary = [String: (client: Client, isLocked: Bool)]()
+    var isLockedResult: [String: Bool] = ["": true]
+    var removeClientCalled = false
 
     init(
         clientAuth: MockClientAuth = MockClientAuth(),
@@ -49,5 +50,18 @@ class MockClientService: ClientService {
 
     func clientVault(for userId: String?) -> ClientVaultService {
         clientVaultService
+    }
+
+    func isLocked(userId: String) -> Bool {
+        isLockedResult[userId] ?? true
+    }
+
+    func removeClient(userId: String) {
+        removeClientCalled = true
+        isLockedResult[userId] = true
+    }
+
+    func updateClientLockedStatus(userId: String, isLocked: Bool) {
+        isLockedResult[userId] = isLocked
     }
 }

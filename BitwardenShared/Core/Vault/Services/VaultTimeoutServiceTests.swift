@@ -4,7 +4,7 @@ import XCTest
 
 @testable import BitwardenShared
 
-final class VaultTimeoutServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body_length
+final class VaultTimeoutServiceTests: BitwardenTestCase {
     // MARK: Properties
 
     var cancellables: Set<AnyCancellable>!
@@ -80,7 +80,8 @@ final class VaultTimeoutServiceTests: BitwardenTestCase { // swiftlint:disable:t
         let account = Account.fixtureAccountLogin()
         let userId = account.profile.userId
 
-        XCTAssertNil(clientService.userClientDictionary[userId])
+        clientService.isLockedResult[userId] = true
+
         XCTAssertTrue(subject.isLocked(userId: userId))
     }
 
@@ -88,9 +89,8 @@ final class VaultTimeoutServiceTests: BitwardenTestCase { // swiftlint:disable:t
     func test_isLocked_false() async throws {
         let account = Account.fixtureAccountLogin()
         let userId = account.profile.userId
-        let client = Client(settings: nil)
 
-        clientService.userClientDictionary.updateValue((client, false), forKey: userId)
+        clientService.updateClientLockedStatus(userId: userId, isLocked: false)
 
         try await subject.unlockVault(userId: userId)
         XCTAssertFalse(subject.isLocked(userId: userId))
@@ -100,9 +100,8 @@ final class VaultTimeoutServiceTests: BitwardenTestCase { // swiftlint:disable:t
     func test_lockVault() async {
         let account = Account.fixtureAccountLogin()
         let userId = account.profile.userId
-        let client = Client(settings: nil)
 
-        clientService.userClientDictionary.updateValue((client, false), forKey: userId)
+        clientService.updateClientLockedStatus(userId: userId, isLocked: false)
 
         XCTAssertFalse(subject.isLocked(userId: userId))
 
@@ -114,9 +113,8 @@ final class VaultTimeoutServiceTests: BitwardenTestCase { // swiftlint:disable:t
     func test_lock_unlocked() async {
         let account = Account.fixtureAccountLogin()
         let userId = account.profile.userId
-        let client = Client(settings: nil)
 
-        clientService.userClientDictionary.updateValue((client, false), forKey: userId)
+        clientService.updateClientLockedStatus(userId: userId, isLocked: false)
 
         XCTAssertFalse(subject.isLocked(userId: userId))
 
@@ -126,10 +124,8 @@ final class VaultTimeoutServiceTests: BitwardenTestCase { // swiftlint:disable:t
 
     /// `lockVault(userId:)` preserves the lock status of a previously locked account.
     func test_lock_previously_locked() async {
-        let client = Client(settings: nil)
-
-        clientService.userClientDictionary.updateValue((client, true), forKey: "1")
-        clientService.userClientDictionary.updateValue((client, false), forKey: "2")
+        clientService.updateClientLockedStatus(userId: "1", isLocked: true)
+        clientService.updateClientLockedStatus(userId: "2", isLocked: false)
 
         await subject.lockVault(userId: "2")
 
@@ -139,10 +135,8 @@ final class VaultTimeoutServiceTests: BitwardenTestCase { // swiftlint:disable:t
 
     /// `lockVault(userId:)` preserves the lock status of a previously unlocked account.
     func test_lock_previously_unlocked() async {
-        let client = Client(settings: nil)
-
-        clientService.userClientDictionary.updateValue((client, false), forKey: "1")
-        clientService.userClientDictionary.updateValue((client, false), forKey: "2")
+        clientService.updateClientLockedStatus(userId: "1", isLocked: false)
+        clientService.updateClientLockedStatus(userId: "2", isLocked: false)
 
         await subject.lockVault(userId: "2")
 
@@ -154,35 +148,32 @@ final class VaultTimeoutServiceTests: BitwardenTestCase { // swiftlint:disable:t
     func test_remove_unlocked() async {
         let account = Account.fixtureAccountLogin()
         let userId = account.profile.userId
-        let client = Client(settings: nil)
 
-        clientService.userClientDictionary.updateValue((client, false), forKey: userId)
+        clientService.updateClientLockedStatus(userId: userId, isLocked: false)
 
         await subject.remove(userId: userId)
 
-        XCTAssertTrue(clientService.userClientDictionary.isEmpty)
+        XCTAssertTrue(clientService.removeClientCalled)
     }
 
     /// `remove(userId:)` should remove a locked account.
     func test_remove_locked() async {
         let account = Account.fixtureAccountLogin()
         let userId = account.profile.userId
-        let client = Client(settings: nil)
 
-        clientService.userClientDictionary.updateValue((client, true), forKey: userId)
+        clientService.updateClientLockedStatus(userId: userId, isLocked: true)
 
         await subject.remove(userId: userId)
 
-        XCTAssertTrue(clientService.userClientDictionary.isEmpty)
+        XCTAssertTrue(clientService.removeClientCalled)
     }
 
     /// `remove(userId:)`preserves state when no account matches.
     func test_remove_notFound() async {
         let account = Account.fixtureAccountLogin()
         let userId = account.profile.userId
-        let client = Client(settings: nil)
 
-        clientService.userClientDictionary.updateValue((client, true), forKey: userId)
+        clientService.updateClientLockedStatus(userId: userId, isLocked: true)
 
         await subject.remove(userId: "random id")
 
@@ -229,11 +220,11 @@ final class VaultTimeoutServiceTests: BitwardenTestCase { // swiftlint:disable:t
     func test_unlock_nil_active() async throws {
         let account = Account.fixtureAccountLogin()
         let userId = account.profile.userId
-        let client = Client(settings: nil)
 
         stateService.activeAccount = account
         stateService.accounts = [account]
-        clientService.userClientDictionary.updateValue((client, true), forKey: userId)
+
+        clientService.updateClientLockedStatus(userId: userId, isLocked: true)
 
         try await subject.unlockVault(userId: nil)
 
@@ -244,22 +235,22 @@ final class VaultTimeoutServiceTests: BitwardenTestCase { // swiftlint:disable:t
     func test_unlock_nil_noActive() async throws {
         let account = Account.fixtureAccountLogin()
         let userId = account.profile.userId
-        let client = Client(settings: nil)
 
+        clientService.updateClientLockedStatus(userId: userId, isLocked: true)
         stateService.activeAccount = nil
         stateService.accounts = []
 
-        XCTAssertTrue(clientService.userClientDictionary.isEmpty)
+        try await subject.unlockVault(userId: nil)
+
+        XCTAssertTrue(clientService.isLocked(userId: userId))
     }
 
     /// `unlockVault(userId:)` preserves the unlocked status of an unlocked account.
     func test_unlock_unlocked() async throws {
-        let client = Client(settings: nil)
+        clientService.updateClientLockedStatus(userId: "1", isLocked: true)
+        clientService.updateClientLockedStatus(userId: "2", isLocked: false)
 
-        clientService.userClientDictionary.updateValue((client, false), forKey: "1")
-        clientService.userClientDictionary.updateValue((client, false), forKey: "2")
-
-        try await subject.unlockVault(userId: "2")
+        try await subject.unlockVault(userId: "1")
 
         XCTAssertFalse(subject.isLocked(userId: "1"))
         XCTAssertFalse(subject.isLocked(userId: "2"))
@@ -267,9 +258,7 @@ final class VaultTimeoutServiceTests: BitwardenTestCase { // swiftlint:disable:t
 
     /// `unlockVault(userId:)` should unlock a locked account.
     func test_unlock_locked() async throws {
-        let client = Client(settings: nil)
-
-        clientService.userClientDictionary.updateValue((client, true), forKey: "1")
+        clientService.updateClientLockedStatus(userId: "1", isLocked: false)
 
         try await subject.unlockVault(userId: "1")
 

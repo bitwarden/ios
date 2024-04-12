@@ -129,18 +129,17 @@ class DefaultVaultTimeoutService: VaultTimeoutService {
     }
 
     func isLocked(userId: String) -> Bool {
-        guard let client = clientService.userClientDictionary[userId] else { return true }
-        return client.isLocked
+        clientService.isLocked(userId: userId)
     }
 
     func lockVault(userId: String?) async {
         guard let id = try? await stateService.getAccountIdOrActiveId(userId: userId) else { return }
-        clientService.userClientDictionary.removeValue(forKey: id)
+        clientService.removeClient(userId: id)
     }
 
     func remove(userId: String?) async {
         guard let id = try? await stateService.getAccountIdOrActiveId(userId: userId) else { return }
-        clientService.userClientDictionary.removeValue(forKey: id)
+        clientService.removeClient(userId: id)
     }
 
     func setLastActiveTime(userId: String) async throws {
@@ -153,8 +152,7 @@ class DefaultVaultTimeoutService: VaultTimeoutService {
 
     func unlockVault(userId: String?) async throws {
         guard let id = try? await stateService.getAccountIdOrActiveId(userId: userId) else { return }
-        guard let client = clientService.userClientDictionary[id] else { return }
-        clientService.userClientDictionary.updateValue((client.client, false), forKey: id)
+        clientService.updateClientLockedStatus(userId: id, isLocked: false)
     }
 
     func sessionTimeoutValue(userId: String?) async throws -> SessionTimeoutValue {
