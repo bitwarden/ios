@@ -199,7 +199,7 @@ extension AppProcessor: SyncServiceDelegate {
         try? await services.authRepository.logout(userId: userId)
         await coordinator?.handleEvent(.didLogout(userId: userId, userInitiated: false))
     }
-    
+
     func setMasterPassword(orgIdentifier: String) async {
         DispatchQueue.main.async { [self] in
             coordinator?.navigate(to: .auth(.setMasterPassword(organizationIdentifier: orgIdentifier)))
