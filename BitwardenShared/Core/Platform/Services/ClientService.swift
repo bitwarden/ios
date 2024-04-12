@@ -7,7 +7,7 @@ protocol ClientService {
     // MARK: Properties
 
     /// A dictionary mapping a user ID to a client and the client's lock status.
-    var userClientDictionary: [String: (client: Client, isUnlocked: Bool)] { get set }
+    var userClientDictionary: [String: (client: Client, isLocked: Bool)] { get set }
 
     // MARK: Methods
 
@@ -102,7 +102,7 @@ extension ClientService {
 class DefaultClientService: ClientService {
     // MARK: Properties
 
-    var userClientDictionary = [String: (client: Client, isUnlocked: Bool)]()
+    var userClientDictionary = [String: (client: Client, isLocked: Bool)]()
 
     // MARK: Private properties
 
@@ -211,7 +211,7 @@ class DefaultClientService: ClientService {
         // Load feature flags for the new client.
         await loadFlags(client: client)
 
-        userClientDictionary.updateValue((client, false), forKey: userId)
+        userClientDictionary.updateValue((client, true), forKey: userId)
         return client
     }
 

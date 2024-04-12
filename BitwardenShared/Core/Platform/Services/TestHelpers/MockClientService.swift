@@ -9,7 +9,7 @@ class MockClientService: ClientService {
     var clientGeneratorService: MockClientGenerators
     var clientPlatformService: MockClientPlatform
     var clientVaultService: MockClientVaultService
-    var userClientDictionary = [String: (client: BitwardenSdk.Client, isUnlocked: Bool)]()
+    var userClientDictionary = [String: (client: Client, isLocked: Bool)]()
 
     init(
         clientAuth: MockClientAuth = MockClientAuth(),

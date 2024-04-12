@@ -1,3 +1,4 @@
+import BitwardenSdk
 import Combine
 import XCTest
 
@@ -74,77 +75,118 @@ final class VaultTimeoutServiceTests: BitwardenTestCase { // swiftlint:disable:t
         XCTAssertTrue(shouldTimeout)
     }
 
-    /// `isLocked(userId:)` should return true for a locked account.
-    func test_isLocked_true() async {
+    /// `isLocked(userId:)` should return true if the user has no client.
+    func test_isLocked_true() {
         let account = Account.fixtureAccountLogin()
-        
+        let userId = account.profile.userId
+
+        XCTAssertNil(clientService.userClientDictionary[userId])
+        XCTAssertTrue(subject.isLocked(userId: userId))
     }
 
-    /// `isLocked(userId:)` should return false for an unlocked account.
-    func test_isLocked_false() async {
+    /// `isLocked(userId:)` should return false if the user has a client.
+    func test_isLocked_false() async throws {
         let account = Account.fixtureAccountLogin()
+        let userId = account.profile.userId
+        let client = Client(settings: nil)
 
-    }
+        clientService.userClientDictionary.updateValue((client, false), forKey: userId)
 
-    /// `isLocked(userId:)` should return true when no account is found.
-    func test_isLocked_notFound() async {
-        XCTAssertTrue(subject.isLocked(userId: "123"))
+        try await subject.unlockVault(userId: userId)
+        XCTAssertFalse(subject.isLocked(userId: userId))
     }
 
     /// `lockVault(userId: nil)` should lock the active account.
-    func test_lock_nil_active() async {
+    func test_lockVault() async {
         let account = Account.fixtureAccountLogin()
-        stateService.activeAccount = account
-        stateService.accounts = [account]
+        let userId = account.profile.userId
+        let client = Client(settings: nil)
 
-    }
+        clientService.userClientDictionary.updateValue((client, false), forKey: userId)
 
-    /// `lockVault(userId: nil)` should do nothing for no active account.
-    func test_lock_nil_noActive() async {
-        stateService.activeAccount = nil
-        stateService.accounts = []
+        XCTAssertFalse(subject.isLocked(userId: userId))
 
+        await subject.lockVault(userId: userId)
+        XCTAssertTrue(subject.isLocked(userId: userId))
     }
 
     /// `lockVault(userId:)` should lock an unlocked account.
     func test_lock_unlocked() async {
         let account = Account.fixtureAccountLogin()
-        stateService.accounts = [account]
+        let userId = account.profile.userId
+        let client = Client(settings: nil)
 
+        clientService.userClientDictionary.updateValue((client, false), forKey: userId)
+
+        XCTAssertFalse(subject.isLocked(userId: userId))
+
+        await subject.lockVault(userId: userId)
+        XCTAssertTrue(subject.isLocked(userId: userId))
     }
 
-    /// `lockVault(userId:)` preserves the lock status of a locked account.
-    func test_lock_locked() async {
-        let account = Account.fixtureAccountLogin()
-        stateService.accounts = [account]
+    /// `lockVault(userId:)` preserves the lock status of a previously locked account.
+    func test_lock_previously_locked() async {
+        let client = Client(settings: nil)
 
+        clientService.userClientDictionary.updateValue((client, true), forKey: "1")
+        clientService.userClientDictionary.updateValue((client, false), forKey: "2")
+
+        await subject.lockVault(userId: "2")
+
+        XCTAssertTrue(subject.isLocked(userId: "1"))
+        XCTAssertTrue(subject.isLocked(userId: "2"))
     }
 
-    /// `lockVault(userId:)` should lock an unknown account.
-    func test_lock_notFound() async {
-        let account = Account.fixtureAccountLogin()
+    /// `lockVault(userId:)` preserves the lock status of a previously unlocked account.
+    func test_lock_previously_unlocked() async {
+        let client = Client(settings: nil)
 
+        clientService.userClientDictionary.updateValue((client, false), forKey: "1")
+        clientService.userClientDictionary.updateValue((client, false), forKey: "2")
+
+        await subject.lockVault(userId: "2")
+
+        XCTAssertFalse(subject.isLocked(userId: "1"))
+        XCTAssertTrue(subject.isLocked(userId: "2"))
     }
 
     /// `remove(userId:)` should remove an unlocked account.
     func test_remove_unlocked() async {
         let account = Account.fixtureAccountLogin()
-        stateService.accounts = [account]
+        let userId = account.profile.userId
+        let client = Client(settings: nil)
 
+        clientService.userClientDictionary.updateValue((client, false), forKey: userId)
+
+        await subject.remove(userId: userId)
+
+        XCTAssertTrue(clientService.userClientDictionary.isEmpty)
     }
 
     /// `remove(userId:)` should remove a locked account.
     func test_remove_locked() async {
         let account = Account.fixtureAccountLogin()
-        stateService.accounts = [account]
+        let userId = account.profile.userId
+        let client = Client(settings: nil)
 
+        clientService.userClientDictionary.updateValue((client, true), forKey: userId)
+
+        await subject.remove(userId: userId)
+
+        XCTAssertTrue(clientService.userClientDictionary.isEmpty)
     }
 
     /// `remove(userId:)`preserves state when no account matches.
     func test_remove_notFound() async {
         let account = Account.fixtureAccountLogin()
-        stateService.accounts = [account]
+        let userId = account.profile.userId
+        let client = Client(settings: nil)
 
+        clientService.userClientDictionary.updateValue((client, true), forKey: userId)
+
+        await subject.remove(userId: "random id")
+
+        XCTAssertTrue(subject.isLocked(userId: userId))
     }
 
     /// `.setLastActiveTime(userId:)` sets the user's last active time.
@@ -186,39 +228,51 @@ final class VaultTimeoutServiceTests: BitwardenTestCase { // swiftlint:disable:t
     /// `unlockVault(userId: nil)` should unock the active account.
     func test_unlock_nil_active() async throws {
         let account = Account.fixtureAccountLogin()
+        let userId = account.profile.userId
+        let client = Client(settings: nil)
+
         stateService.activeAccount = account
         stateService.accounts = [account]
+        clientService.userClientDictionary.updateValue((client, true), forKey: userId)
 
+        try await subject.unlockVault(userId: nil)
+
+        XCTAssertFalse(subject.isLocked(userId: userId))
     }
 
     /// `unlockVault(userId: nil)` should do nothing for no active account.
     func test_unlock_nil_noActive() async throws {
+        let account = Account.fixtureAccountLogin()
+        let userId = account.profile.userId
+        let client = Client(settings: nil)
+
         stateService.activeAccount = nil
         stateService.accounts = []
 
+        XCTAssertTrue(clientService.userClientDictionary.isEmpty)
     }
 
     /// `unlockVault(userId:)` preserves the unlocked status of an unlocked account.
     func test_unlock_unlocked() async throws {
-        let account = Account.fixtureAccountLogin()
+        let client = Client(settings: nil)
 
+        clientService.userClientDictionary.updateValue((client, false), forKey: "1")
+        clientService.userClientDictionary.updateValue((client, false), forKey: "2")
+
+        try await subject.unlockVault(userId: "2")
+
+        XCTAssertFalse(subject.isLocked(userId: "1"))
+        XCTAssertFalse(subject.isLocked(userId: "2"))
     }
 
     /// `unlockVault(userId:)` should unlock a locked account.
     func test_unlock_locked() async throws {
-        let account = Account.fixtureAccountLogin()
-        stateService.accounts = [account]
+        let client = Client(settings: nil)
 
-    }
+        clientService.userClientDictionary.updateValue((client, true), forKey: "1")
 
-    /// `unlockVault(userId:)` should unlock an unknown account.
-    func test_unlock_notFound() async throws {
-        let account = Account.fixtureAccountLogin()
-        stateService.accounts = [account]
+        try await subject.unlockVault(userId: "1")
 
-    }
-
-    /// `unlockVault(userId:)` keeps the previously unlocked vaults unlocked.
-    func test_unlock_locksAlternates() async throws {
+        XCTAssertFalse(subject.isLocked(userId: "1"))
     }
 }
