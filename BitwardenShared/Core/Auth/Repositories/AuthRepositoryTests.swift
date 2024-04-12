@@ -497,53 +497,40 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
     func test_setMasterPassword() async throws {
         let account = Account.fixture()
         client.result = .httpSuccess(testData: .emptyResponse)
-        stateService.activeAccount = account
+        clientCrypto.updatePasswordResult = .success(
+            UpdatePasswordResponse(passwordHash: "NEW_PASSWORD_HASH", newKey: "NEW_KEY")
+        )
+        stateService.accountEncryptionKeys["1"] = AccountEncryptionKeys(
+            encryptedPrivateKey: "PRIVATE_KEY",
+            encryptedUserKey: "KEY"
+        )
+        stateService.activeAccount = .fixture()
 
         try await subject.setMasterPassword(
-            "PASSWORD",
+            "NEW_PASSWORD",
             masterPasswordHint: "HINT",
             organizationId: "1234",
             organizationIdentifier: "ORG_ID",
             resetPasswordAutoEnroll: false
         )
 
-        XCTAssertEqual(clientAuth.makeRegisterKeysKdf, account.kdf.sdkKdf)
-        XCTAssertEqual(clientAuth.makeRegisterKeysEmail, account.profile.email)
-        XCTAssertEqual(clientAuth.makeRegisterKeysPassword, "PASSWORD")
+        XCTAssertEqual(clientCrypto.updatePasswordNewPassword, "NEW_PASSWORD")
 
-        XCTAssertEqual(clientAuth.hashPasswordEmail, account.profile.email)
-        XCTAssertEqual(clientAuth.hashPasswordKdfParams, account.kdf.sdkKdf)
-        XCTAssertEqual(clientAuth.hashPasswordPassword, "PASSWORD")
-        XCTAssertEqual(clientAuth.hashPasswordPurpose, .serverAuthorization)
-
-        let requests = client.requests
-        XCTAssertEqual(requests.count, 1)
-
-        XCTAssertEqual(requests[0].url.absoluteString, "https://example.com/api/accounts/set-password")
+        XCTAssertEqual(client.requests.count, 1)
+        XCTAssertNotNil(client.requests[0].body)
+        XCTAssertEqual(client.requests[0].method, .post)
+        XCTAssertEqual(client.requests[0].url.absoluteString, "https://example.com/api/accounts/set-password")
 
         XCTAssertEqual(
             stateService.accountEncryptionKeys["1"],
-            AccountEncryptionKeys(
-                encryptedPrivateKey: "private",
-                encryptedUserKey: "encryptedUserKey"
-            )
-        )
-
-        XCTAssertEqual(
-            clientCrypto.initializeUserCryptoRequest,
-            InitUserCryptoRequest(
-                kdfParams: account.kdf.sdkKdf,
-                email: account.profile.email,
-                privateKey: "private",
-                method: .password(password: "PASSWORD", userKey: "encryptedUserKey")
-            )
+            AccountEncryptionKeys(encryptedPrivateKey: "PRIVATE_KEY", encryptedUserKey: "NEW_KEY")
         )
     }
 
     /// `setMasterPassword()` throws an error if one occurs.
     func test_setMasterPassword_error() async {
         let account = Account.fixture()
-        client.result = .httpFailure(BitwardenTestError.example)
+        clientCrypto.updatePasswordResult = .failure(BitwardenTestError.example)
         stateService.activeAccount = account
 
         await assertAsyncThrows(error: BitwardenTestError.example) {
@@ -560,31 +547,34 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
     /// `setMasterPassword()` sets the user's master password, saves their encryption keys, enrolls
     /// the user in password reset and unlocks the vault.
     func test_setMasterPassword_resetPasswordEnrollment() async throws {
-        // swiftlint:disable:previous function_body_length
         let account = Account.fixture()
         client.results = [
             .httpSuccess(testData: .emptyResponse),
             .httpSuccess(testData: .organizationKeys),
             .httpSuccess(testData: .emptyResponse),
         ]
+        clientCrypto.updatePasswordResult = .success(
+            UpdatePasswordResponse(passwordHash: "NEW_PASSWORD_HASH", newKey: "NEW_KEY")
+        )
+        stateService.accountEncryptionKeys["1"] = AccountEncryptionKeys(
+            encryptedPrivateKey: "PRIVATE_KEY",
+            encryptedUserKey: "KEY"
+        )
         stateService.activeAccount = account
 
         try await subject.setMasterPassword(
-            "PASSWORD",
+            "NEW_PASSWORD",
             masterPasswordHint: "HINT",
             organizationId: "1234",
             organizationIdentifier: "ORG_ID",
             resetPasswordAutoEnroll: true
         )
 
-        XCTAssertEqual(clientAuth.makeRegisterKeysKdf, account.kdf.sdkKdf)
-        XCTAssertEqual(clientAuth.makeRegisterKeysEmail, account.profile.email)
-        XCTAssertEqual(clientAuth.makeRegisterKeysPassword, "PASSWORD")
-
-        XCTAssertEqual(clientAuth.hashPasswordEmail, account.profile.email)
-        XCTAssertEqual(clientAuth.hashPasswordKdfParams, account.kdf.sdkKdf)
-        XCTAssertEqual(clientAuth.hashPasswordPassword, "PASSWORD")
-        XCTAssertEqual(clientAuth.hashPasswordPurpose, .serverAuthorization)
+        XCTAssertEqual(clientCrypto.updatePasswordNewPassword, "NEW_PASSWORD")
+        XCTAssertEqual(
+            stateService.accountEncryptionKeys["1"],
+            AccountEncryptionKeys(encryptedPrivateKey: "PRIVATE_KEY", encryptedUserKey: "NEW_KEY")
+        )
 
         XCTAssertEqual(clientCrypto.enrollAdminPasswordPublicKey, "MIIBIjAN...2QIDAQAB")
 
@@ -602,24 +592,6 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         XCTAssertEqual(
             requests[2].url.absoluteString,
             "https://example.com/api/organizations/1234/users/1/reset-password-enrollment"
-        )
-
-        XCTAssertEqual(
-            stateService.accountEncryptionKeys["1"],
-            AccountEncryptionKeys(
-                encryptedPrivateKey: "private",
-                encryptedUserKey: "encryptedUserKey"
-            )
-        )
-
-        XCTAssertEqual(
-            clientCrypto.initializeUserCryptoRequest,
-            InitUserCryptoRequest(
-                kdfParams: account.kdf.sdkKdf,
-                email: account.profile.email,
-                privateKey: "private",
-                method: .password(password: "PASSWORD", userKey: "encryptedUserKey")
-            )
         )
     }
 

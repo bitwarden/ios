@@ -653,9 +653,16 @@ class SyncServiceTests: BitwardenTestCase {
 class MockSyncServiceDelegate: SyncServiceDelegate {
     var securityStampChangedCalled = false
     var securityStampChangedUserId: String?
+    var setMasterPasswordCalled = false
+    var setMasterPasswordOrgId: String?
 
     func securityStampChanged(userId: String) async {
         securityStampChangedCalled = true
         securityStampChangedUserId = userId
+    }
+
+    func setMasterPassword(orgIdentifier: String) async {
+        setMasterPasswordCalled = true
+        setMasterPasswordOrgId = orgIdentifier
     }
 } // swiftlint:disable:this file_length

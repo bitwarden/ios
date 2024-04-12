@@ -76,6 +76,10 @@ protocol SyncServiceDelegate: AnyObject {
     ///
     func securityStampChanged(userId: String) async
 
+    /// The user's profile changed and needs to set password.
+    ///
+    /// - Parameter orgIdentifier: The organization Identifier the user belongs to.
+    ///
     func setMasterPassword(orgIdentifier: String) async
 }
 
@@ -405,4 +409,4 @@ extension DefaultSyncService {
             await delegate?.setMasterPassword(orgIdentifier: userOrgId)
         }
     }
-}
+} // swiftlint:disable:this file_length
