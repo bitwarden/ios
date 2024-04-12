@@ -6,8 +6,7 @@ import XCTest
 class GeneratorRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_body_length
     // MARK: Properties
 
-    var clientGenerators: MockClientGenerators!
-    var clientVaultService: MockClientVaultService!
+    var clientService: MockClientService!
     var generatorDataStore: DataStore!
     var subject: GeneratorRepository!
     var stateService: MockStateService!
@@ -17,14 +16,12 @@ class GeneratorRepositoryTests: BitwardenTestCase { // swiftlint:disable:this ty
     override func setUp() {
         super.setUp()
 
-        clientGenerators = MockClientGenerators()
-        clientVaultService = MockClientVaultService()
+        clientService = MockClientService()
         generatorDataStore = DataStore(errorReporter: MockErrorReporter(), storeType: .memory)
         stateService = MockStateService()
 
         subject = DefaultGeneratorRepository(
-            clientGenerators: clientGenerators,
-            clientVaultService: clientVaultService,
+            clientService: clientService,
             dataStore: generatorDataStore,
             stateService: stateService
         )
@@ -33,8 +30,7 @@ class GeneratorRepositoryTests: BitwardenTestCase { // swiftlint:disable:this ty
     override func tearDown() {
         super.tearDown()
 
-        clientGenerators = nil
-        clientVaultService = nil
+        clientService = nil
         generatorDataStore = nil
         subject = nil
         stateService = nil
@@ -63,7 +59,7 @@ class GeneratorRepositoryTests: BitwardenTestCase { // swiftlint:disable:this ty
             [passwordHistory1, passwordHistory2, passwordHistory3].map(PasswordHistory.init)
         )
         XCTAssertEqual(
-            clientVaultService.clientPasswordHistory.encryptedPasswordHistory,
+            clientService.clientVaultService.clientPasswordHistory.encryptedPasswordHistory,
             [passwordHistory1, passwordHistory2, passwordHistory3]
         )
     }
@@ -168,7 +164,7 @@ class GeneratorRepositoryTests: BitwardenTestCase { // swiftlint:disable:this ty
     func test_generatePassphrase_error() async {
         struct GeneratePassphraseError: Error, Equatable {}
 
-        clientGenerators.passphraseResult = .failure(GeneratePassphraseError())
+        clientService.clientGeneratorService.passphraseResult = .failure(GeneratePassphraseError())
 
         await assertAsyncThrows(error: GeneratePassphraseError()) {
             _ = try await subject.generatePassphrase(
@@ -206,7 +202,7 @@ class GeneratorRepositoryTests: BitwardenTestCase { // swiftlint:disable:this ty
     func test_generatePassword_error() async {
         struct GeneratePasswordError: Error, Equatable {}
 
-        clientGenerators.passwordResult = .failure(GeneratePasswordError())
+        clientService.clientGeneratorService.passwordResult = .failure(GeneratePasswordError())
 
         await assertAsyncThrows(error: GeneratePasswordError()) {
             _ = try await subject.generatePassword(
@@ -239,7 +235,7 @@ class GeneratorRepositoryTests: BitwardenTestCase { // swiftlint:disable:this ty
     func test_generateUsername_error() async {
         struct GenerateUsernameError: Error, Equatable {}
 
-        clientGenerators.usernameResult = .failure(GenerateUsernameError())
+        clientService.clientGeneratorService.usernameResult = .failure(GenerateUsernameError())
 
         await assertAsyncThrows(error: GenerateUsernameError()) {
             _ = try await subject.generateUsername(

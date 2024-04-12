@@ -11,9 +11,7 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
     var authService: MockAuthService!
     var biometricsRepository: MockBiometricsRepository!
     var client: MockHTTPClient!
-    var clientAuth: MockClientAuth!
-    var clientCrypto: MockClientCrypto!
-    var clientPlatform: MockClientPlatform!
+    var clientService: MockClientService!
     var environmentService: MockEnvironmentService!
     var keychainService: MockKeychainRepository!
     var organizationService: MockOrganizationService!
@@ -83,12 +81,10 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         super.setUp()
 
         client = MockHTTPClient()
-        clientAuth = MockClientAuth()
+        clientService = MockClientService()
         accountAPIService = APIService(client: client)
         authService = MockAuthService()
         biometricsRepository = MockBiometricsRepository()
-        clientCrypto = MockClientCrypto()
-        clientPlatform = MockClientPlatform()
         environmentService = MockEnvironmentService()
         keychainService = MockKeychainRepository()
         organizationService = MockOrganizationService()
@@ -99,9 +95,7 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
             accountAPIService: accountAPIService,
             authService: authService,
             biometricsRepository: biometricsRepository,
-            clientAuth: clientAuth,
-            clientCrypto: clientCrypto,
-            clientPlatform: clientPlatform,
+            clientService: clientService,
             environmentService: environmentService,
             keychainService: keychainService,
             organizationAPIService: APIService(client: client),
@@ -119,9 +113,7 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         authService = nil
         biometricsRepository = nil
         client = nil
-        clientAuth = nil
-        clientCrypto = nil
-        clientPlatform = nil
+        clientService = nil
         environmentService = nil
         keychainService = nil
         organizationService = nil
@@ -174,7 +166,7 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
     func test_allowBioMetricUnlock_cryptoError() async throws {
         biometricsRepository.setBiometricUnlockKeyError = nil
         struct ClientError: Error, Equatable {}
-        clientCrypto.getUserEncryptionKeyResult = .failure(ClientError())
+        clientService.clientCryptoService.getUserEncryptionKeyResult = .failure(ClientError())
         await assertAsyncThrows(error: ClientError()) {
             try await subject.allowBioMetricUnlock(true)
         }
@@ -185,7 +177,7 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         stateService.activeAccount = .fixture()
         biometricsRepository.setBiometricUnlockKeyError = nil
         let key = "userKey"
-        clientCrypto.getUserEncryptionKeyResult = .success(key)
+        clientService.clientCryptoService.getUserEncryptionKeyResult = .success(key)
         try await subject.allowBioMetricUnlock(true)
         XCTAssertEqual(biometricsRepository.capturedUserAuthKey, key)
     }
@@ -195,7 +187,7 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         stateService.activeAccount = .fixture()
         biometricsRepository.setBiometricUnlockKeyError = nil
         let key = "userKey"
-        clientCrypto.getUserEncryptionKeyResult = .success(key)
+        clientService.clientCryptoService.getUserEncryptionKeyResult = .success(key)
         try await subject.allowBioMetricUnlock(false)
         XCTAssertNil(biometricsRepository.capturedUserAuthKey)
     }
@@ -203,7 +195,7 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
     /// `allowBioMetricUnlock(:)` throws an error if required.
     func test_allowBioMetricUnlock_false_success_biometricsRepositoryError() async throws {
         biometricsRepository.setBiometricUnlockKeyError = nil
-        clientCrypto.getUserEncryptionKeyResult = .failure(BiometricsServiceError.getAuthKeyFailed)
+        clientService.clientCryptoService.getUserEncryptionKeyResult = .failure(BiometricsServiceError.getAuthKeyFailed)
         try await subject.allowBioMetricUnlock(false)
         XCTAssertNil(biometricsRepository.capturedUserAuthKey)
     }
@@ -399,8 +391,8 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         ))
 
         let phrase = try await subject.getFingerprintPhrase()
-        XCTAssertEqual(clientPlatform.fingerprintMaterialString, account.profile.userId)
-        XCTAssertEqual(try clientPlatform.fingerprintResult.get(), phrase)
+        XCTAssertEqual(clientService.clientPlatformService.fingerprintMaterialString, account.profile.userId)
+        XCTAssertEqual(try clientService.clientPlatformService.fingerprintResult.get(), phrase)
     }
 
     /// `getFingerprintPhrase()` throws an error if there is no active account.
@@ -504,14 +496,14 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
             resetPasswordAutoEnroll: false
         )
 
-        XCTAssertEqual(clientAuth.makeRegisterKeysKdf, account.kdf.sdkKdf)
-        XCTAssertEqual(clientAuth.makeRegisterKeysEmail, account.profile.email)
-        XCTAssertEqual(clientAuth.makeRegisterKeysPassword, "PASSWORD")
+        XCTAssertEqual(clientService.clientAuthService.makeRegisterKeysKdf, account.kdf.sdkKdf)
+        XCTAssertEqual(clientService.clientAuthService.makeRegisterKeysEmail, account.profile.email)
+        XCTAssertEqual(clientService.clientAuthService.makeRegisterKeysPassword, "PASSWORD")
 
-        XCTAssertEqual(clientAuth.hashPasswordEmail, account.profile.email)
-        XCTAssertEqual(clientAuth.hashPasswordKdfParams, account.kdf.sdkKdf)
-        XCTAssertEqual(clientAuth.hashPasswordPassword, "PASSWORD")
-        XCTAssertEqual(clientAuth.hashPasswordPurpose, .serverAuthorization)
+        XCTAssertEqual(clientService.clientAuthService.hashPasswordEmail, account.profile.email)
+        XCTAssertEqual(clientService.clientAuthService.hashPasswordKdfParams, account.kdf.sdkKdf)
+        XCTAssertEqual(clientService.clientAuthService.hashPasswordPassword, "PASSWORD")
+        XCTAssertEqual(clientService.clientAuthService.hashPasswordPurpose, .serverAuthorization)
 
         let requests = client.requests
         XCTAssertEqual(requests.count, 1)
@@ -527,7 +519,7 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         )
 
         XCTAssertEqual(
-            clientCrypto.initializeUserCryptoRequest,
+            clientService.clientCryptoService.initializeUserCryptoRequest,
             InitUserCryptoRequest(
                 kdfParams: account.kdf.sdkKdf,
                 email: account.profile.email,
@@ -574,16 +566,16 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
             resetPasswordAutoEnroll: true
         )
 
-        XCTAssertEqual(clientAuth.makeRegisterKeysKdf, account.kdf.sdkKdf)
-        XCTAssertEqual(clientAuth.makeRegisterKeysEmail, account.profile.email)
-        XCTAssertEqual(clientAuth.makeRegisterKeysPassword, "PASSWORD")
+        XCTAssertEqual(clientService.clientAuthService.makeRegisterKeysKdf, account.kdf.sdkKdf)
+        XCTAssertEqual(clientService.clientAuthService.makeRegisterKeysEmail, account.profile.email)
+        XCTAssertEqual(clientService.clientAuthService.makeRegisterKeysPassword, "PASSWORD")
 
-        XCTAssertEqual(clientAuth.hashPasswordEmail, account.profile.email)
-        XCTAssertEqual(clientAuth.hashPasswordKdfParams, account.kdf.sdkKdf)
-        XCTAssertEqual(clientAuth.hashPasswordPassword, "PASSWORD")
-        XCTAssertEqual(clientAuth.hashPasswordPurpose, .serverAuthorization)
+        XCTAssertEqual(clientService.clientAuthService.hashPasswordEmail, account.profile.email)
+        XCTAssertEqual(clientService.clientAuthService.hashPasswordKdfParams, account.kdf.sdkKdf)
+        XCTAssertEqual(clientService.clientAuthService.hashPasswordPassword, "PASSWORD")
+        XCTAssertEqual(clientService.clientAuthService.hashPasswordPurpose, .serverAuthorization)
 
-        XCTAssertEqual(clientCrypto.enrollAdminPasswordPublicKey, "MIIBIjAN...2QIDAQAB")
+        XCTAssertEqual(clientService.clientCryptoService.enrollAdminPasswordPublicKey, "MIIBIjAN...2QIDAQAB")
 
         let requests = client.requests
         XCTAssertEqual(requests.count, 3)
@@ -610,7 +602,7 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         )
 
         XCTAssertEqual(
-            clientCrypto.initializeUserCryptoRequest,
+            clientService.clientCryptoService.initializeUserCryptoRequest,
             InitUserCryptoRequest(
                 kdfParams: account.kdf.sdkKdf,
                 email: account.profile.email,
@@ -639,7 +631,7 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
     func test_setVaultTimeout_never_cryptoError() async throws {
         let active = Account.fixture()
         stateService.activeAccount = active
-        clientCrypto.getUserEncryptionKeyResult = .failure(BitwardenTestError.example)
+        clientService.clientCryptoService.getUserEncryptionKeyResult = .failure(BitwardenTestError.example)
         await assertAsyncThrows(error: BitwardenTestError.example) {
             try await subject.setVaultTimeout(value: .never)
         }
@@ -681,7 +673,7 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
     func test_setVaultTimeout_never_success() async throws {
         let active = Account.fixture()
         stateService.activeAccount = active
-        clientCrypto.getUserEncryptionKeyResult = .success("pasta")
+        clientService.clientCryptoService.getUserEncryptionKeyResult = .success("pasta")
         try await subject.setVaultTimeout(value: .never)
         XCTAssertEqual(vaultTimeoutService.vaultTimeout[active.profile.userId], .never)
         XCTAssertEqual(
@@ -712,8 +704,8 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
                 encryptedUserKey: "recipe"
             ),
         ]
-        clientCrypto.getUserEncryptionKeyResult = .success("sauce")
-        clientCrypto.initializeUserCryptoResult = .success(())
+        clientService.clientCryptoService.getUserEncryptionKeyResult = .success("sauce")
+        clientService.clientCryptoService.initializeUserCryptoResult = .success(())
         await assertAsyncThrows(error: StateServiceError.noActiveAccount) {
             try await subject.unlockVaultWithNeverlockKey()
         }
@@ -737,8 +729,8 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
                 encryptedUserKey: "recipe"
             ),
         ]
-        clientCrypto.getUserEncryptionKeyResult = .success("sauce")
-        clientCrypto.initializeUserCryptoResult = .success(())
+        clientService.clientCryptoService.getUserEncryptionKeyResult = .success("sauce")
+        clientService.clientCryptoService.initializeUserCryptoResult = .success(())
         await assertAsyncDoesNotThrow {
             try await subject.unlockVaultWithNeverlockKey()
         }
@@ -751,22 +743,22 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
     }
 
     /// `passwordStrength(email:password)` returns the calculated password strength.
-    func test_passwordStrength() async {
-        clientAuth.passwordStrengthResult = 0
-        let weakPasswordStrength = await subject.passwordStrength(email: "user@bitwarden.com", password: "password")
+    func test_passwordStrength() async throws {
+        clientService.clientAuthService.passwordStrengthResult = 0
+        let weakPasswordStrength = try await subject.passwordStrength(email: "user@bitwarden.com", password: "password")
         XCTAssertEqual(weakPasswordStrength, 0)
-        XCTAssertEqual(clientAuth.passwordStrengthEmail, "user@bitwarden.com")
-        XCTAssertEqual(clientAuth.passwordStrengthPassword, "password")
+        XCTAssertEqual(clientService.clientAuthService.passwordStrengthEmail, "user@bitwarden.com")
+        XCTAssertEqual(clientService.clientAuthService.passwordStrengthPassword, "password")
 
-        clientAuth.passwordStrengthResult = 4
-        let strongPasswordStrength = await subject.passwordStrength(
+        clientService.clientAuthService.passwordStrengthResult = 4
+        let strongPasswordStrength = try await subject.passwordStrength(
             email: "user@bitwarden.com",
             password: "ghu65zQ0*TjP@ij74g*&FykWss#Kgv8L8j8XmC03"
         )
         XCTAssertEqual(strongPasswordStrength, 4)
-        XCTAssertEqual(clientAuth.passwordStrengthEmail, "user@bitwarden.com")
+        XCTAssertEqual(clientService.clientAuthService.passwordStrengthEmail, "user@bitwarden.com")
         XCTAssertEqual(
-            clientAuth.passwordStrengthPassword,
+            clientService.clientAuthService.passwordStrengthPassword,
             "ghu65zQ0*TjP@ij74g*&FykWss#Kgv8L8j8XmC03"
         )
     }
@@ -825,7 +817,7 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
     func test_setPins() async throws {
         let account = Account.fixture()
         stateService.activeAccount = account
-        clientCrypto.derivePinKeyResult = .success(DerivePinKeyResponse(pinProtectedUserKey: "12", encryptedPin: "34"))
+        clientService.clientCryptoService.derivePinKeyResult = .success(DerivePinKeyResponse(pinProtectedUserKey: "12", encryptedPin: "34"))
 
         let userId = account.profile.userId
         try await subject.setPins("123", requirePasswordAfterRestart: true)
@@ -849,7 +841,7 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         }
 
         XCTAssertEqual(
-            clientCrypto.initializeUserCryptoRequest,
+            clientService.clientCryptoService.initializeUserCryptoRequest,
             InitUserCryptoRequest(
                 kdfParams: .pbkdf2(iterations: UInt32(Constants.pbkdf2Iterations)),
                 email: "user@bitwarden.com",
@@ -882,7 +874,7 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         }
 
         XCTAssertEqual(
-            clientCrypto.initializeUserCryptoRequest,
+            clientService.clientCryptoService.initializeUserCryptoRequest,
             InitUserCryptoRequest(
                 kdfParams: .pbkdf2(iterations: UInt32(Constants.pbkdf2Iterations)),
                 email: "user@bitwarden.com",
@@ -907,7 +899,7 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         ]
         stateService.activeAccount = .fixture()
         struct CryptoError: Error, Equatable {}
-        clientCrypto.initializeUserCryptoResult = .failure(CryptoError())
+        clientService.clientCryptoService.initializeUserCryptoResult = .failure(CryptoError())
         await assertAsyncThrows(error: CryptoError()) {
             _ = try await subject.unlockVaultWithBiometrics()
         }
@@ -936,7 +928,7 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         stateService.activeAccount = .fixture()
         stateService.accountEncryptionKeys = [:]
         biometricsRepository.getUserAuthKeyResult = .success("UserKey")
-        clientCrypto.initializeUserCryptoResult = .success(())
+        clientService.clientCryptoService.initializeUserCryptoResult = .success(())
         organizationService.initializeOrganizationCryptoError = nil
         await assertAsyncThrows(error: StateServiceError.noActiveAccount) {
             _ = try await subject.unlockVaultWithBiometrics()
@@ -953,7 +945,7 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
             ),
         ]
         biometricsRepository.getUserAuthKeyResult = .success("UserKey")
-        clientCrypto.initializeUserCryptoResult = .success(())
+        clientService.clientCryptoService.initializeUserCryptoResult = .success(())
         struct OrgError: Error, Equatable {}
         organizationService.initializeOrganizationCryptoError = OrgError()
         await assertAsyncThrows(error: OrgError()) {
@@ -985,7 +977,7 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
             ),
         ]
         stateService.activeAccount = .fixture()
-        clientCrypto.initializeUserCryptoResult = .success(())
+        clientService.clientCryptoService.initializeUserCryptoResult = .success(())
         await assertAsyncDoesNotThrow {
             try await subject.unlockVaultWithBiometrics()
         }
@@ -1049,7 +1041,7 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         )
 
         XCTAssertEqual(
-            clientCrypto.initializeUserCryptoRequest,
+            clientService.clientCryptoService.initializeUserCryptoRequest,
             InitUserCryptoRequest(
                 kdfParams: .pbkdf2(iterations: UInt32(Constants.pbkdf2Iterations)),
                 email: "user@bitwarden.com",
@@ -1077,7 +1069,7 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         )
 
         XCTAssertEqual(
-            clientCrypto.initializeUserCryptoRequest,
+            clientService.clientCryptoService.initializeUserCryptoRequest,
             InitUserCryptoRequest(
                 kdfParams: .pbkdf2(iterations: UInt32(Constants.pbkdf2Iterations)),
                 email: "user@bitwarden.com",
@@ -1107,7 +1099,7 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         }
 
         XCTAssertEqual(
-            clientCrypto.initializeUserCryptoRequest,
+            clientService.clientCryptoService.initializeUserCryptoRequest,
             InitUserCryptoRequest(
                 kdfParams: .pbkdf2(iterations: UInt32(Constants.pbkdf2Iterations)),
                 email: "user@bitwarden.com",
@@ -1128,7 +1120,7 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
 
     /// `updateMasterPassword()` rethrows an error if an error occurs.
     func test_updateMasterPassword_error() async throws {
-        clientCrypto.updatePasswordResult = .failure(BitwardenTestError.example)
+        clientService.clientCryptoService.updatePasswordResult = .failure(BitwardenTestError.example)
         stateService.activeAccount = .fixture()
 
         await assertAsyncThrows(error: BitwardenTestError.example) {
@@ -1144,7 +1136,7 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
     /// `updateMasterPassword()` performs the API request to update the user's password.
     func test_updateMasterPassword_weakMasterPasswordOnLogin() async throws {
         client.result = .httpSuccess(testData: .emptyResponse)
-        clientCrypto.updatePasswordResult = .success(
+        clientService.clientCryptoService.updatePasswordResult = .success(
             UpdatePasswordResponse(passwordHash: "NEW_PASSWORD_HASH", newKey: "NEW_KEY")
         )
         stateService.accountEncryptionKeys["1"] = AccountEncryptionKeys(
@@ -1162,7 +1154,7 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
             reason: .weakMasterPasswordOnLogin
         )
 
-        XCTAssertEqual(clientCrypto.updatePasswordNewPassword, "NEW_PASSWORD")
+        XCTAssertEqual(clientService.clientCryptoService.updatePasswordNewPassword, "NEW_PASSWORD")
 
         XCTAssertEqual(client.requests.count, 1)
         XCTAssertNotNil(client.requests[0].body)
@@ -1181,13 +1173,13 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
     func test_validatePassword() async throws {
         stateService.activeAccount = .fixture(profile: .fixture(userId: "1"))
         stateService.masterPasswordHashes["1"] = "wxyz4321"
-        clientAuth.validatePasswordResult = true
+        clientService.clientAuthService.validatePasswordResult = true
 
         let isValid = try await subject.validatePassword("test1234")
 
         XCTAssertTrue(isValid)
-        XCTAssertEqual(clientAuth.validatePasswordPassword, "test1234")
-        XCTAssertEqual(clientAuth.validatePasswordPasswordHash, "wxyz4321")
+        XCTAssertEqual(clientService.clientAuthService.validatePasswordPassword, "test1234")
+        XCTAssertEqual(clientService.clientAuthService.validatePasswordPasswordHash, "wxyz4321")
     }
 
     /// `validatePassword(_:)` validates the password with the user key and sets the master password
@@ -1198,13 +1190,13 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
             encryptedPrivateKey: "PRIVATE_KEY",
             encryptedUserKey: "KEY"
         )
-        clientAuth.validatePasswordUserKeyResult = .success("MASTER_PASSWORD_HASH")
+        clientService.clientAuthService.validatePasswordUserKeyResult = .success("MASTER_PASSWORD_HASH")
 
         let isValid = try await subject.validatePassword("test1234")
 
         XCTAssertTrue(isValid)
-        XCTAssertEqual(clientAuth.validatePasswordUserKeyPassword, "test1234")
-        XCTAssertEqual(clientAuth.validatePasswordUserKeyEncryptedUserKey, "KEY")
+        XCTAssertEqual(clientService.clientAuthService.validatePasswordUserKeyPassword, "test1234")
+        XCTAssertEqual(clientService.clientAuthService.validatePasswordUserKeyEncryptedUserKey, "KEY")
         XCTAssertEqual(stateService.masterPasswordHashes["1"], "MASTER_PASSWORD_HASH")
     }
 
@@ -1215,13 +1207,13 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
             encryptedPrivateKey: "PRIVATE_KEY",
             encryptedUserKey: "KEY"
         )
-        clientAuth.validatePasswordUserKeyResult = .failure(BitwardenTestError.example)
+        clientService.clientAuthService.validatePasswordUserKeyResult = .failure(BitwardenTestError.example)
 
         let isValid = try await subject.validatePassword("not the password")
 
         XCTAssertFalse(isValid)
-        XCTAssertEqual(clientAuth.validatePasswordUserKeyPassword, "not the password")
-        XCTAssertEqual(clientAuth.validatePasswordUserKeyEncryptedUserKey, "KEY")
+        XCTAssertEqual(clientService.clientAuthService.validatePasswordUserKeyPassword, "not the password")
+        XCTAssertEqual(clientService.clientAuthService.validatePasswordUserKeyEncryptedUserKey, "KEY")
         XCTAssertNil(stateService.masterPasswordHashes["1"])
     }
 
@@ -1229,7 +1221,7 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
     func test_validatePassword_notValid() async throws {
         stateService.activeAccount = .fixture(profile: .fixture(userId: "1"))
         stateService.masterPasswordHashes["1"] = "wxyz4321"
-        clientAuth.validatePasswordResult = false
+        clientService.clientAuthService.validatePasswordResult = false
 
         let isValid = try await subject.validatePassword("not the password")
 

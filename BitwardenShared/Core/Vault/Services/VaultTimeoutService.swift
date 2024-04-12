@@ -9,10 +9,6 @@ import Foundation
 enum VaultTimeoutServiceError: Error {
     /// There are no known accounts.
     case noAccountFound
-
-    /// An error for when saving an auth key to the keychain fails.
-    ///
-    case setAuthKeyFailed
 }
 
 // MARK: - VaultTimeoutService
@@ -100,7 +96,6 @@ class DefaultVaultTimeoutService: VaultTimeoutService {
     ///
     /// - Parameters:
     ///   - clientCrypto: The client used by the application to handle encryption and decryption setup tasks.
-    ///   - keychainRepository: The repository used to manages keychain items.
     ///   - stateService: The StateService used by DefaultVaultTimeoutService.
     ///   - timeProvider: Provides the current time.
     ///
