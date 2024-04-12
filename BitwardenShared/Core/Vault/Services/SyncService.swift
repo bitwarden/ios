@@ -75,6 +75,8 @@ protocol SyncServiceDelegate: AnyObject {
     /// - Parameter userId: The user ID of the user who's security stamp changed.
     ///
     func securityStampChanged(userId: String) async
+
+    func setMasterPassword(orgIdentifier: String) async
 }
 
 // MARK: - DefaultSyncService
@@ -236,6 +238,7 @@ extension DefaultSyncService {
                 organizations: organizations.compactMap(Organization.init)
             )
             try await organizationService.replaceOrganizations(organizations, userId: userId)
+            try await checkTdeUserNeedsToSetPassword(account, organizations)
         }
 
         if let profile = response.profile {
@@ -381,5 +384,25 @@ extension DefaultSyncService {
         }
 
         try await stateService.setTimeoutAction(action: action ?? timeoutAction)
+    }
+
+    /// Checks if TDE user needs to set a master password
+    ///
+    /// TDE users can only have one organization
+    ///
+    private func checkTdeUserNeedsToSetPassword(
+        _ account: Account,
+        _ organizations: [ProfileOrganizationResponseModel]
+    ) async throws {
+        if organizations.contains(where: {
+            $0.type == OrganizationUserType.admin ||
+                $0.type == OrganizationUserType.owner ||
+                $0.permissions?.manageResetPassword == true
+        }),
+            organizations.count == 1,
+            let userOrgId = organizations.first?.identifier,
+            account.profile.userDecryptionOptions?.hasMasterPassword == false {
+            await delegate?.setMasterPassword(orgIdentifier: userOrgId)
+        }
     }
 }

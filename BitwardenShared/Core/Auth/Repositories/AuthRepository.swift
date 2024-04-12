@@ -473,37 +473,27 @@ extension DefaultAuthRepository: AuthRepository {
         resetPasswordAutoEnroll: Bool
     ) async throws {
         let account = try await stateService.getActiveAccount()
-        let email = account.profile.email
         let kdf = account.kdf
-
-        let keys = try await clientAuth.makeRegisterKeys(
-            email: email,
-            password: password,
-            kdf: kdf.sdkKdf
-        )
-
-        let masterPasswordHash = try await clientAuth.hashPassword(
-            email: email,
-            password: password,
-            kdfParams: kdf.sdkKdf,
-            purpose: .serverAuthorization
-        )
-
+        let passwordResult = try await clientCrypto.updatePassword(newPassword: password)
+        let accountKeys = try await stateService.getAccountEncryptionKeys()
         let requestModel = SetPasswordRequestModel(
             kdfConfig: kdf,
-            key: keys.encryptedUserKey,
-            keys: KeysRequestModel(encryptedPrivateKey: keys.keys.private, publicKey: keys.keys.public),
-            masterPasswordHash: masterPasswordHash,
+            key: passwordResult.newKey,
+            keys: nil,
+            masterPasswordHash: passwordResult.passwordHash,
             masterPasswordHint: masterPasswordHint,
             orgIdentifier: organizationIdentifier
         )
+
         try await accountAPIService.setPassword(requestModel)
 
         let accountEncryptionKeys = AccountEncryptionKeys(
-            encryptedPrivateKey: keys.keys.private,
-            encryptedUserKey: keys.encryptedUserKey
+            encryptedPrivateKey: accountKeys.encryptedPrivateKey,
+            encryptedUserKey: passwordResult.newKey
         )
+
         try await stateService.setAccountEncryptionKeys(accountEncryptionKeys)
+        try await stateService.setUserHasMasterPassword()
 
         if resetPasswordAutoEnroll {
             let organizationKeys = try await organizationAPIService.getOrganizationKeys(
@@ -517,7 +507,7 @@ extension DefaultAuthRepository: AuthRepository {
             try await organizationUserAPIService.organizationUserResetPasswordEnrollment(
                 organizationId: organizationId,
                 requestModel: OrganizationUserResetPasswordEnrollmentRequestModel(
-                    masterPasswordHash: masterPasswordHash,
+                    masterPasswordHash: passwordResult.passwordHash,
                     resetPasswordKey: resetPasswordKey
                 ),
                 userId: account.profile.userId

@@ -88,7 +88,6 @@ class SetMasterPasswordProcessor: StateProcessor<
             state.organizationId = response.id
             state.resetPasswordAutoEnroll = response.resetPasswordEnabled
 
-            try await services.settingsRepository.fetchSync()
             if let policy = try await services.policyService.getMasterPasswordPolicyOptions() {
                 state.masterPasswordPolicy = policy
             }

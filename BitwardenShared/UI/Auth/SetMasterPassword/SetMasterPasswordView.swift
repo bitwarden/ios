@@ -13,7 +13,7 @@ struct SetMasterPasswordView: View {
     var body: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 16) {
-                Text(Localizations.yourOrganizationRequiresYouToSetAMasterPassword)
+                Text(Localizations.yourOrganizationPermissionsWereUpdatedRequeringYouToSetAMasterPassword)
                     .foregroundStyle(Asset.Colors.textPrimary.swiftUIColor)
                     .styleGuide(.callout)
                     .multilineTextAlignment(.leading)
@@ -80,13 +80,6 @@ struct SetMasterPasswordView: View {
         .background(Asset.Colors.backgroundSecondary.swiftUIColor)
         .navigationTitle(Localizations.setMasterPassword)
         .navigationBarTitleDisplayMode(.inline)
-        .toolbar {
-            cancelToolbarItem {
-                Task {
-                    await store.perform(.cancelPressed)
-                }
-            }
-        }
         .task {
             await store.perform(.appeared)
         }
