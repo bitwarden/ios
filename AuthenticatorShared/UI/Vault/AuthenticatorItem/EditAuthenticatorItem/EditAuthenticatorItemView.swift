@@ -30,8 +30,14 @@ struct EditAuthenticatorItemView: View {
 
     private var content: some View {
         ScrollView {
-            VStack(spacing: 20) {
+            VStack(alignment: .leading, spacing: 20) {
                 informationSection
+                advancedButton
+
+                if store.state.isAdvancedExpanded {
+                    advancedOptions
+                }
+
                 saveButton
             }
             .padding(16)
@@ -57,16 +63,79 @@ struct EditAuthenticatorItemView: View {
             BitwardenTextField(
                 title: Localizations.authenticatorKey,
                 text: store.binding(
-                    get: \.totpState.rawAuthenticatorKeyString!,
-                    send: EditAuthenticatorItemAction.keyChanged
+                    get: \.secret,
+                    send: EditAuthenticatorItemAction.secretChanged
                 ),
                 isPasswordVisible: store.binding(
-                    get: \.isKeyVisible,
-                    send: EditAuthenticatorItemAction.toggleKeyVisibilityChanged
+                    get: \.isSecretVisible,
+                    send: EditAuthenticatorItemAction.toggleSecretVisibilityChanged
                 )
             )
             .textFieldConfiguration(.password)
+
+            BitwardenTextField(
+                title: "Account name",
+                text: store.binding(
+                    get: \.accountName,
+                    send: EditAuthenticatorItemAction.accountNameChanged
+                )
+            )
+
+            BitwardenTextField(
+                title: Localizations.issuer,
+                text: store.binding(
+                    get: \.issuer,
+                    send: EditAuthenticatorItemAction.issuerChanged
+                )
+            )
         }
+    }
+
+    private var advancedButton: some View {
+        Button {
+            store.send(.advancedPressed)
+        } label: {
+            HStack(spacing: 8) {
+                Text(Localizations.advanced)
+                    .styleGuide(.body)
+
+                Asset.Images.downAngle.swiftUIImage
+                    .imageStyle(.accessoryIcon)
+                    .rotationEffect(store.state.isAdvancedExpanded ? Angle(degrees: 180) : .zero)
+            }
+            .padding(.vertical, 12)
+            .foregroundStyle(Asset.Colors.primaryBitwarden.swiftUIColor)
+        }
+        .accessibilityIdentifier("EditShowHideAdvancedButton")
+    }
+
+    @ViewBuilder private var advancedOptions: some View {
+        BitwardenMenuField(
+            title: "Algorithm",
+            options: TOTPCryptoHashAlgorithm.allCases,
+            selection: store.binding(
+                get: \.algorithm,
+                send: EditAuthenticatorItemAction.algorithmChanged
+            )
+        )
+
+        BitwardenMenuField(
+            title: "Refresh period",
+            options: TotpPeriodOptions.allCases,
+            selection: store.binding(
+                get: \.period,
+                send: EditAuthenticatorItemAction.periodChanged
+            )
+        )
+
+        BitwardenMenuField(
+            title: "Number of digits",
+            options: TotpDigitsOptions.allCases,
+            selection: store.binding(
+                get: \.digits,
+                send: EditAuthenticatorItemAction.digitsChanged
+            )
+        )
     }
 
     private var saveButton: some View {
@@ -92,6 +161,12 @@ struct EditAuthenticatorItemView: View {
                         )
                     ),
                     name: "Example",
+                    accountName: "Account",
+                    algorithm: .sha1,
+                    digits: .six,
+                    issuer: "Issuer",
+                    period: .thirty,
+                    secret: "example",
                     totpState: LoginTOTPState(
                         authKeyModel: TOTPKeyModel(authenticatorKey: "example")!,
                         codeModel: TOTPCodeModel(

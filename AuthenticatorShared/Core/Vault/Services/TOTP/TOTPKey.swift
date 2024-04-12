@@ -12,6 +12,13 @@ enum TOTPKey: Equatable {
 
     // MARK: Properties
 
+    /// The account name for the TOTP code.
+    /// Only works for `otpAuthUri` types.
+    var accountName: String? {
+        guard case let .otpAuthUri(model) = self else { return nil }
+        return model.accountName
+    }
+
     /// The hash algorithm used for the TOTP code.
     /// For `otpAuthUri`, it extracts the algorithm from the model.
     /// Defaults to SHA1 for other types.
@@ -34,6 +41,14 @@ enum TOTPKey: Equatable {
             return 5
         }
     }
+
+    /// The issuer for the TOTP code.
+    /// Only works for `otpAuthUri` types.
+    var issuer: String? {
+        guard case let .otpAuthUri(model) = self else { return nil }
+        return model.issuer
+    }
+
 
     /// The key used for generating the TOTP code.
     /// Directly returns the key for base32 and Steam URI.

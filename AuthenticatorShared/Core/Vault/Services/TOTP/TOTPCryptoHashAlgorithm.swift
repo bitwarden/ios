@@ -1,6 +1,6 @@
 /// Defines the hash algorithms supported for TOTP.
 ///
-enum TOTPCryptoHashAlgorithm: String {
+enum TOTPCryptoHashAlgorithm: String, Menuable, CaseIterable {
     case sha1 = "SHA1"
     case sha256 = "SHA256"
     case sha512 = "SHA512"
@@ -17,5 +17,9 @@ enum TOTPCryptoHashAlgorithm: String {
         default: // Default to SHA1 if not specified or unrecognized
             self = .sha1
         }
+    }
+
+    var localizedName: String {
+        rawValue
     }
 }

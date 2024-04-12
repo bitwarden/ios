@@ -3,6 +3,9 @@
 public struct TOTPKeyModel: Equatable, Sendable {
     // MARK: Properties
 
+    /// The account name of the TOTP code.
+    let accountName: String?
+
     /// The hash algorithm used for the TOTP code.
     ///
     let algorithm: TOTPCryptoHashAlgorithm
@@ -15,6 +18,9 @@ public struct TOTPKeyModel: Equatable, Sendable {
     /// The number of digits in the TOTP code.
     ///
     let digits: Int
+
+    /// The issuer of the TOTP code.
+    let issuer: String?
 
     /// The time period (in seconds) for which the TOTP code is valid.
     ///
@@ -31,12 +37,15 @@ public struct TOTPKeyModel: Equatable, Sendable {
     /// Initializes a new configuration from an authenticator key.
     ///
     /// - Parameter authenticatorKey: A string representing the TOTP key.
-    init?(authenticatorKey: String) {
-        guard let keyType = TOTPKey(authenticatorKey) else { return nil }
+    init?(authenticatorKey: String?) {
+        guard let authenticatorKey = authenticatorKey,
+              let keyType = TOTPKey(authenticatorKey) else { return nil }
         rawAuthenticatorKey = authenticatorKey
         totpKey = keyType
-        period = keyType.period
-        digits = keyType.digits
+        accountName = keyType.accountName
         algorithm = keyType.algorithm
+        digits = keyType.digits
+        issuer = keyType.issuer
+        period = keyType.period
     }
 }

@@ -436,6 +436,8 @@
 "TenSeconds" = "10 seconds";
 "ThirtySeconds" = "30 seconds";
 "TwentySeconds" = "20 seconds";
+"SixtySeconds" = "60 seconds";
+"NinetySeconds" = "90 seconds";
 "TwoMinutes" = "2 minutes";
 "ClearClipboard" = "Clear clipboard";
 "ClearClipboardDescription" = "Automatically clear copied values from your clipboard.";
@@ -880,3 +882,4 @@
 "Duo" = "Duo";
 "DuoUnsupported" = "Duo not yet supported.";
 "Issuer" = "Issuer";
+"Advanced" = "Advanced";

@@ -1,5 +1,5 @@
-import BitwardenSdk
 import Foundation
+import OSLog
 
 /// The processor used to manage state and handle actions/effects for the edit item screen
 final class EditAuthenticatorItemProcessor: StateProcessor<
@@ -53,16 +53,26 @@ final class EditAuthenticatorItemProcessor: StateProcessor<
 
     override func receive(_ action: EditAuthenticatorItemAction) {
         switch action {
-        case let .accountChanged(account):
-            state.account = account
+        case let .accountNameChanged(accountName):
+            state.accountName = accountName
+        case .advancedPressed:
+            state.isAdvancedExpanded.toggle()
+        case let .algorithmChanged(algorithm):
+            state.algorithm = algorithm
+        case let .digitsChanged(digits):
+            state.digits = digits
         case .dismissPressed:
             coordinator.navigate(to: .dismiss())
-        case let .keyChanged(key):
-            state.totpState = LoginTOTPState(key)
+        case let .issuerChanged(issuer):
+            state.issuer = issuer
         case let .nameChanged(newValue):
             state.name = newValue
-        case let .toggleKeyVisibilityChanged(isVisible):
-            state.isKeyVisible = isVisible
+        case let .periodChanged(period):
+            state.period = period
+        case let .secretChanged(secret):
+            state.totpState = LoginTOTPState(secret)
+        case let .toggleSecretVisibilityChanged(isVisible):
+            state.isSecretVisible = isVisible
         case let .toastShown(toast):
             state.toast = toast
         }
@@ -91,10 +101,20 @@ final class EditAuthenticatorItemProcessor: StateProcessor<
             case .add:
                 return
             case let .existing(authenticatorItemView: authenticatorItemView):
+                guard let secret = state.totpState.authKeyModel?.base32Key else { return }
+                let newOtpUri = OTPAuthModel(
+                    accountName: state.accountName.nilIfEmpty,
+                    algorithm: state.algorithm,
+                    digits: state.digits.rawValue,
+                    issuer: state.issuer.nilIfEmpty,
+                    period: state.period.rawValue,
+                    secret: secret
+                )
+
                 let newAuthenticatorItemView = AuthenticatorItemView(
                     id: authenticatorItemView.id,
-                    name: authenticatorItemView.name,
-                    totpKey: state.totpState.rawAuthenticatorKeyString
+                    name: state.name,
+                    totpKey: newOtpUri.otpAuthUri
                 )
                 try await updateAuthenticatorItem(authenticatorItem: newAuthenticatorItemView)
             }

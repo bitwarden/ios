@@ -25,20 +25,35 @@ struct AuthenticatorItemState: Equatable {
 
     // MARK: Properties
 
-    /// The account of the item
-    var account: String
+    /// The account name of the item
+    var accountName: String
+
+    /// The algorithm of the item
+    var algorithm: TOTPCryptoHashAlgorithm
 
     /// The Add or Existing Configuration.
     let configuration: Configuration
 
-    /// A flag indicating if the key field is visible
-    var isKeyVisible: Bool = false
+    /// The number of digits in the OTP
+    var digits: TotpDigitsOptions
+
+    /// A flag indicating if the advanced section is expanded.
+    var isAdvancedExpanded: Bool = false
+
+    /// A flag indicating if the secret field is visible
+    var isSecretVisible: Bool = false
 
     /// The issuer of the item
     var issuer: String
 
     /// The name of this item.
     var name: String
+
+    /// The period for the OTP
+    var period: TotpPeriodOptions
+
+    /// The secret of the OTP
+    var secret: String
 
     /// A toast for views
     var toast: Toast?
@@ -51,19 +66,38 @@ struct AuthenticatorItemState: Equatable {
     init(
         configuration: Configuration,
         name: String,
+        accountName: String,
+        algorithm: TOTPCryptoHashAlgorithm,
+        digits: TotpDigitsOptions,
+        issuer: String,
+        period: TotpPeriodOptions,
+        secret: String,
         totpState: LoginTOTPState
     ) {
         self.configuration = configuration
         self.name = name
         self.totpState = totpState
-        account = "Fixme"
-        issuer = "Fixme"
+        self.accountName = accountName
+        self.algorithm = algorithm
+        self.issuer = issuer
+        self.digits = digits
+        self.period = period
+        self.secret = secret
     }
 
     init?(existing authenticatorItemView: AuthenticatorItemView) {
+        guard let keyModel = TOTPKeyModel(authenticatorKey: authenticatorItemView.totpKey) else {
+            return nil
+        }
         self.init(
             configuration: .existing(authenticatorItemView: authenticatorItemView),
             name: authenticatorItemView.name,
+            accountName: keyModel.accountName ?? "",
+            algorithm: keyModel.algorithm,
+            digits: TotpDigitsOptions(rawValue: keyModel.digits) ?? .six,
+            issuer: keyModel.issuer ?? "",
+            period: TotpPeriodOptions(rawValue: keyModel.period) ?? .thirty,
+            secret: keyModel.base32Key,
             totpState: LoginTOTPState(authenticatorItemView.totpKey)
         )
     }
@@ -87,3 +121,32 @@ extension AuthenticatorItemState {
         )
     }
 }
+
+enum TotpDigitsOptions: Int, Menuable, CaseIterable {
+    case six = 6
+    case eight = 8
+    case ten = 10
+    case twelve = 12
+
+    var localizedName: String {
+        "\(rawValue)"
+    }
+}
+
+enum TotpPeriodOptions: Int, Menuable, CaseIterable {
+    case thirty = 30
+    case sixty = 60
+    case ninety = 90
+
+    var localizedName: String {
+        switch self {
+        case .thirty:
+            Localizations.thirtySeconds
+        case .sixty:
+            Localizations.sixtySeconds
+        case .ninety:
+            Localizations.ninetySeconds
+        }
+    }
+}
+
