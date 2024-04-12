@@ -21,12 +21,6 @@ enum AuthenticatorItemRoute: Equatable {
     ///
     /// - Parameter authenticatorItemView: the `AuthenticatorItemView` to edit
     case editAuthenticatorItem(_ authenticatorItemView: AuthenticatorItemView)
-
-    /// A route to the view token screen.
-    ///
-    /// - Parameter id: The id of the token to display.
-    ///
-    case viewToken(id: String)
 }
 
 enum AuthenticatorItemEvent {}

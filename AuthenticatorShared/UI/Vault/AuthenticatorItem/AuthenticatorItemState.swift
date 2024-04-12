@@ -75,25 +75,6 @@ extension AuthenticatorItemState: EditAuthenticatorItemState {
     }
 }
 
-extension AuthenticatorItemState: ViewAuthenticatorItemState {
-    var authenticatorKey: String? {
-        totpState.rawAuthenticatorKeyString
-    }
-
-    var authenticatorItemView: AuthenticatorItemView {
-        switch configuration {
-        case let .existing(authenticatorItemView):
-            return authenticatorItemView
-        case .add:
-            return newAuthenticatorItemView()
-        }
-    }
-
-    var totpCode: TOTPCodeModel? {
-        totpState.codeModel
-    }
-}
-
 extension AuthenticatorItemState {
     /// Returns an `AuthenticatorItemView` based on the
     /// properties of the `AuthenticatorItemState`.

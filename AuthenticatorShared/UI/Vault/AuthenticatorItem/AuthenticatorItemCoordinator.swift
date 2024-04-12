@@ -10,9 +10,9 @@ class AuthenticatorItemCoordinator: NSObject, Coordinator, HasStackNavigator {
 
     typealias Module = AuthenticatorItemModule
 
-    typealias Services = HasErrorReporter
+    typealias Services = HasAuthenticatorItemRepository
+        & HasErrorReporter
         & HasTimeProvider
-        & ViewTokenProcessor.Services
 
     // MARK: - Private Properties
 
@@ -61,9 +61,6 @@ class AuthenticatorItemCoordinator: NSObject, Coordinator, HasStackNavigator {
         case let .editAuthenticatorItem(authenticatorItemView):
             Logger.application.log("Edit item \(authenticatorItemView.id)")
             showEditAuthenticatorItem(for: authenticatorItemView)
-        case let .viewToken(id):
-            Logger.application.log("View token \(id)")
-            showViewToken(id: id)
         }
     }
 
@@ -112,26 +109,5 @@ class AuthenticatorItemCoordinator: NSObject, Coordinator, HasStackNavigator {
                 context: self
             )
         }
-    }
-
-    /// Shows the view token screen.
-    ///
-    /// - Parameters:
-    ///   - id: The id of the token to show.
-    ///   - delegate: The delegate.
-    ///
-    private func showViewToken(id: String) {
-        let processor = ViewTokenProcessor(
-            coordinator: asAnyCoordinator(),
-            itemId: id,
-            services: services,
-            state: ViewTokenState()
-        )
-        let store = Store(processor: processor)
-        let view = ViewTokenView(
-            store: store,
-            timeProvider: services.timeProvider
-        )
-        stackNavigator?.replace(view)
     }
 }

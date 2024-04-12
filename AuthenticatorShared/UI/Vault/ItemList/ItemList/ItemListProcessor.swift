@@ -193,8 +193,6 @@ final class ItemListProcessor: StateProcessor<ItemListState, ItemListAction, Ite
             confirmDeleteItem(id)
         case let .edit(item):
             coordinator.navigate(to: .editItem(item: item))
-        case let .view(id):
-            coordinator.navigate(to: .viewItem(id: id))
         }
     }
 
@@ -375,7 +373,4 @@ enum MoreOptionsAction: Equatable {
 
     /// Navigate to the view to edit the `AuthenticatorItemView`.
     case edit(authenticatorItemView: AuthenticatorItemView)
-
-    /// Navigate to view the item with the given `id`.
-    case view(id: String)
 }
