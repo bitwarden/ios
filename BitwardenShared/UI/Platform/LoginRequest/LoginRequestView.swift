@@ -153,19 +153,11 @@ struct LoginRequestView: View {
 
 #if DEBUG
 #Preview {
-    LoginRequestView(store: Store(processor: StateProcessor(state: LoginRequestState(request: .init(
-        creationDate: Date(),
-        fingerprintPhrase: "which-ninja-turtle-is-the-best",
-        id: "1",
-        key: nil,
-        masterPasswordHash: nil,
-        origin: "vault.bitwarden.com",
-        publicKey: "key",
-        requestAccessCode: nil,
-        requestApproved: nil,
-        requestDeviceType: "iOS",
-        requestIpAddress: "11.22.333.444",
-        responseDate: nil
-    )))))
+    LoginRequestView(store: Store(processor: StateProcessor(state: LoginRequestState(
+        request: .fixture(
+            creationDate: .now,
+            fingerprintPhrase: "which-ninja-turtle-is-the-best"
+        )
+    ))))
 }
 #endif

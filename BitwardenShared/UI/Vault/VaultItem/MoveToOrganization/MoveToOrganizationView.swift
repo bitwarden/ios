@@ -87,38 +87,14 @@ struct MoveToOrganizationView: View {
 
 // MARK: - Previews
 
+#if DEBUG
 #Preview("Empty Organizations") {
     NavigationView {
         MoveToOrganizationView(
             store: Store(
                 processor: StateProcessor(
                     state: MoveToOrganizationState(
-                        cipher: CipherView(
-                            id: nil,
-                            organizationId: nil,
-                            folderId: nil,
-                            collectionIds: [],
-                            key: nil,
-                            name: "",
-                            notes: nil,
-                            type: .login,
-                            login: nil,
-                            identity: nil,
-                            card: nil,
-                            secureNote: nil,
-                            favorite: false,
-                            reprompt: .none,
-                            organizationUseTotp: false,
-                            edit: true,
-                            viewPassword: true,
-                            localData: nil,
-                            attachments: nil,
-                            fields: nil,
-                            passwordHistory: nil,
-                            creationDate: Date(),
-                            deletedDate: nil,
-                            revisionDate: Date()
-                        )
+                        cipher: .fixture()
                     )
                 )
             )
@@ -132,48 +108,17 @@ struct MoveToOrganizationView: View {
             store: Store(
                 processor: StateProcessor(
                     state: MoveToOrganizationState(
-                        cipher: CipherView(
-                            id: nil,
-                            organizationId: nil,
-                            folderId: nil,
-                            collectionIds: [],
-                            key: nil,
-                            name: "",
-                            notes: nil,
-                            type: .login,
-                            login: nil,
-                            identity: nil,
-                            card: nil,
-                            secureNote: nil,
-                            favorite: false,
-                            reprompt: .none,
-                            organizationUseTotp: false,
-                            edit: true,
-                            viewPassword: true,
-                            localData: nil,
-                            attachments: nil,
-                            fields: nil,
-                            passwordHistory: nil,
-                            creationDate: Date(),
-                            deletedDate: nil,
-                            revisionDate: Date()
-                        ),
+                        cipher: .fixture(),
                         collections: [
-                            CollectionView(
+                            .fixture(
                                 id: "1",
-                                organizationId: "1",
                                 name: "Design",
-                                externalId: nil,
-                                hidePasswords: false,
-                                readOnly: false
+                                organizationId: "1"
                             ),
-                            CollectionView(
+                            .fixture(
                                 id: "2",
-                                organizationId: "1",
                                 name: "Engineering",
-                                externalId: nil,
-                                hidePasswords: false,
-                                readOnly: false
+                                organizationId: "1"
                             ),
                         ],
                         organizationId: "1",
@@ -184,3 +129,4 @@ struct MoveToOrganizationView: View {
         )
     }
 }
+#endif

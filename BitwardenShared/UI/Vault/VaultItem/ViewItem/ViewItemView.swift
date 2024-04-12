@@ -137,56 +137,23 @@ class PreviewTimeProvider: TimeProvider {
 }
 
 struct ViewItemView_Previews: PreviewProvider {
-    static var cipher = CipherView(
-        id: "123",
-        organizationId: nil,
-        folderId: nil,
-        collectionIds: [],
-        key: nil,
-        name: "",
-        notes: nil,
-        type: .login,
-        login: .init(
-            username: nil,
-            password: nil,
-            passwordRevisionDate: nil,
-            uris: nil,
-            totp: nil,
-            autofillOnPageLoad: nil,
-            fido2Credentials: nil
-        ),
-        identity: nil,
-        card: nil,
-        secureNote: nil,
-        favorite: false,
-        reprompt: .none,
-        organizationUseTotp: false,
-        edit: false,
-        viewPassword: false,
-        localData: nil,
+    static var cipher = CipherView.fixture(
         attachments: [
-            .init(
-                id: "1",
-                url: nil,
-                size: nil,
-                sizeName: "11.2 MB",
+            .fixture(
                 fileName: "selfieWithACat.png",
-                key: nil
+                id: "1",
+                sizeName: "11.2 MB"
             ),
-            .init(
-                id: "2",
-                url: nil,
-                size: nil,
-                sizeName: "18.7 MB",
+            .fixture(
                 fileName: "selfieWithAPotato.png",
-                key: nil
+                id: "2",
+                sizeName: "18.7 MB"
             ),
         ],
-        fields: nil,
-        passwordHistory: nil,
-        creationDate: .now,
-        deletedDate: nil,
-        revisionDate: .now
+        id: "123",
+        login: .fixture(),
+        type: .login,
+        viewPassword: false
     )
 
     static var cardState: CipherItemState {
@@ -227,21 +194,7 @@ struct ViewItemView_Previews: PreviewProvider {
         state.name = "Example"
         state.notes = "This is a long note so that it goes to the next line!"
         state.loginState.fido2Credentials = [
-            Fido2Credential(
-                credentialId: "1",
-                keyType: "",
-                keyAlgorithm: "",
-                keyCurve: "",
-                keyValue: "",
-                rpId: "",
-                userHandle: nil,
-                userName: nil,
-                counter: "",
-                rpName: nil,
-                userDisplayName: nil,
-                discoverable: "",
-                creationDate: Date(timeIntervalSince1970: 1_710_494_110)
-            ),
+            .fixture(creationDate: Date(timeIntervalSince1970: 1_710_494_110)),
         ]
         state.loginState.password = "Password1!"
         state.updatedDate = .init(timeIntervalSince1970: 1_695_000_000)

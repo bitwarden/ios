@@ -161,28 +161,12 @@ struct ProfileSwitcherView: View {
 
 #if DEBUG
 struct ProfileSwitcherView_Previews: PreviewProvider {
-    static let selectedAccount = ProfileSwitcherItem(
-        color: .purple,
-        email: "anne.account@bitwarden.com",
-        isUnlocked: true,
-        userId: "1",
-        userInitials: "AA",
-        webVault: "vault.bitwarden.com"
-    )
-
     static var previews: some View {
         NavigationView {
             ProfileSwitcherView(
                 store: Store(
                     processor: StateProcessor(
-                        state: ProfileSwitcherState(
-                            accounts: [
-                                selectedAccount,
-                            ],
-                            activeAccountId: selectedAccount.userId,
-                            allowLockAndLogout: true,
-                            isVisible: true
-                        )
+                        state: .singleAccount
                     )
                 )
             )
@@ -193,22 +177,7 @@ struct ProfileSwitcherView_Previews: PreviewProvider {
             ProfileSwitcherView(
                 store: Store(
                     processor: StateProcessor(
-                        state: ProfileSwitcherState(
-                            accounts: [
-                                selectedAccount,
-                                ProfileSwitcherItem(
-                                    color: .green,
-                                    email: "bonus.bridge@bitwarde.com",
-                                    isUnlocked: true,
-                                    userId: "2",
-                                    userInitials: "BB",
-                                    webVault: "vault.bitwarden.com"
-                                ),
-                            ],
-                            activeAccountId: selectedAccount.userId,
-                            allowLockAndLogout: true,
-                            isVisible: true
-                        )
+                        state: .dualAccounts
                     )
                 )
             )
@@ -219,38 +188,7 @@ struct ProfileSwitcherView_Previews: PreviewProvider {
             ProfileSwitcherView(
                 store: Store(
                     processor: StateProcessor(
-                        state: ProfileSwitcherState(
-                            accounts: [
-                                selectedAccount,
-                                ProfileSwitcherItem(
-                                    color: .yellow,
-                                    email: "bonus.bridge@bitwarden.com",
-                                    isUnlocked: true,
-                                    userId: "2",
-                                    userInitials: "BB",
-                                    webVault: "vault.bitwarden.com"
-                                ),
-                                ProfileSwitcherItem(
-                                    color: .teal,
-                                    email: "concurrent.claim@bitarden.com",
-                                    isUnlocked: true,
-                                    userId: "3",
-                                    userInitials: "CC",
-                                    webVault: "vault.bitwarden.com"
-                                ),
-                                ProfileSwitcherItem(
-                                    color: .indigo,
-                                    email: "double.dip@bitwarde.com",
-                                    isUnlocked: true,
-                                    userId: "4",
-                                    userInitials: "DD",
-                                    webVault: "vault.bitwarden.com"
-                                ),
-                            ],
-                            activeAccountId: "1",
-                            allowLockAndLogout: true,
-                            isVisible: true
-                        )
+                        state: .subMaximumAccounts
                     )
                 )
             )
@@ -261,46 +199,7 @@ struct ProfileSwitcherView_Previews: PreviewProvider {
             ProfileSwitcherView(
                 store: Store(
                     processor: StateProcessor(
-                        state: ProfileSwitcherState(
-                            accounts: [
-                                selectedAccount,
-                                ProfileSwitcherItem(
-                                    color: .yellow,
-                                    email: "bonus.bridge@bitwarden.com",
-                                    isUnlocked: true,
-                                    userId: "2",
-                                    userInitials: "BB",
-                                    webVault: "vault.bitwarden.com"
-                                ),
-                                ProfileSwitcherItem(
-                                    color: .teal,
-                                    email: "concurrent.claim@bitarden.com",
-                                    isUnlocked: true,
-                                    userId: "3",
-                                    userInitials: "CC",
-                                    webVault: "vault.bitwarden.com"
-                                ),
-                                ProfileSwitcherItem(
-                                    color: .indigo,
-                                    email: "double.dip@bitwarde.com",
-                                    isUnlocked: true,
-                                    userId: "4",
-                                    userInitials: "DD",
-                                    webVault: "vault.bitwarden.com"
-                                ),
-                                ProfileSwitcherItem(
-                                    color: .green,
-                                    email: "extra.edition@bitwarden.com",
-                                    isUnlocked: false,
-                                    userId: "5",
-                                    userInitials: "EE",
-                                    webVault: "vault.bitwarden.com"
-                                ),
-                            ],
-                            activeAccountId: "1",
-                            allowLockAndLogout: true,
-                            isVisible: true
-                        )
+                        state: .maximumAccounts
                     )
                 )
             )

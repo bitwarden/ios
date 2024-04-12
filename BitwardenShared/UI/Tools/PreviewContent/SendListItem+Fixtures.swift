@@ -1,7 +1,6 @@
 import BitwardenSdk
 
-@testable import BitwardenShared
-
+#if DEBUG
 extension SendListItem {
     static func fixture(
         sendView: SendView = .fixture()
@@ -17,3 +16,4 @@ extension SendListItem {
         SendListItem(id: id, itemType: .group(sendType, count))
     }
 }
+#endif
