@@ -86,7 +86,7 @@ public class AppProcessor {
             }
         }
 
-        await loadFlags()
+//        await loadFlags()
         await services.migrationService.performMigrations()
         await services.environmentService.loadURLsForActiveAccount()
 

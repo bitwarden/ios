@@ -4,11 +4,12 @@ import BitwardenSdk
 /// decryption.
 ///
 protocol ClientService {
-    var userClientDictionary: [String?: Client] { get set }
+    // MARK: Properties
 
-    func createClientForUser(userId: String)
+    /// A dictionary mapping a user ID to their `Client` and the client's locked status.
+    var userClientDictionary: [String: (client: Client, isUnlocked: Bool)] { get set }
 
-    func clientForUser(userId: String) async throws -> Client?
+    // MARK: Methods
 
     /// Returns a `ClientAuthProtocol` for auth data tasks.
     ///
@@ -33,6 +34,14 @@ protocol ClientService {
     /// Returns a `ClientVaultService` for vault data tasks.
     ///
     func clientVault(for userId: String?) async throws -> ClientVaultService
+
+    /// Returns a user's `Client` if one exists. If a user doesn't have a client, one is created and
+    /// mapped to their user ID in the `userClientDictionary`.
+    ///
+    /// - Parameter userId: The user ID for which a client belongs to/will belong to.
+    /// - Returns: The user's client and its locked status.
+    ///
+    func userClient(userId: String) async throws -> (client: Client, isUnlocked: Bool)
 }
 
 extension ClientService {
@@ -79,13 +88,17 @@ extension ClientService {
 /// it can be swapped to a mock instance during tests.
 ///
 class DefaultClientService: ClientService {
-    var userClientDictionary = [String?: Client]()
-
     // MARK: Properties
 
-    private let stateService: StateService
+    var userClientDictionary = [String: (client: Client, isUnlocked: Bool)]()
 
-    private let client: Client
+    // MARK: Private properties
+
+    private let errorReporter: ErrorReporter
+
+    private let settings: ClientSettings?
+
+    private let stateService: StateService
 
     // MARK: Initialization
 
@@ -93,8 +106,13 @@ class DefaultClientService: ClientService {
     ///
     /// - Parameter settings: The settings to apply to the client. Defaults to `nil`.
     ///
-    init(stateService: StateService) {
-        client = Client(settings: nil)
+    init(
+        errorReporter: ErrorReporter,
+        settings: ClientSettings? = nil,
+        stateService: StateService
+    ) {
+        self.errorReporter = errorReporter
+        self.settings = settings
         self.stateService = stateService
     }
 
@@ -103,74 +121,85 @@ class DefaultClientService: ClientService {
     func clientAuth(for userId: String?) async throws -> ClientAuthProtocol {
         do {
             let userId = try await stateService.getAccountIdOrActiveId(userId: userId)
-            let client = clientForUser(userId: userId) ?? client
-            return client.auth()
+            return await userClient(userId: userId).client.auth()
         } catch StateServiceError.noAccounts {
-            return client.auth()
+            return newClient().auth()
         }
     }
 
     func clientCrypto(for userId: String?) async throws -> ClientCryptoProtocol {
         do {
             let userId = try await stateService.getAccountIdOrActiveId(userId: userId)
-            let client = clientForUser(userId: userId) ?? client
-            return client.crypto()
+            return await userClient(userId: userId).client.crypto()
         } catch StateServiceError.noAccounts {
-            return client.crypto()
+            return newClient().crypto()
         }
     }
 
     func clientExporters(for userId: String?) async throws -> ClientExportersProtocol {
         do {
             let userId = try await stateService.getAccountIdOrActiveId(userId: userId)
-            let client = clientForUser(userId: userId) ?? client
-            return client.exporters()
+            return await userClient(userId: userId).client.exporters()
         } catch StateServiceError.noAccounts {
-            return client.exporters()
+            return newClient().exporters()
         }
     }
 
     func clientGenerator(for userId: String?) async throws -> ClientGeneratorsProtocol {
         do {
             let userId = try await stateService.getAccountIdOrActiveId(userId: userId)
-            let client = clientForUser(userId: userId) ?? client
-            return client.generators()
+            return await userClient(userId: userId).client.generators()
         } catch StateServiceError.noAccounts {
-            return client.generators()
+            return newClient().generators()
         }
     }
 
     func clientPlatform(for userId: String?) async throws -> ClientPlatformProtocol {
         do {
             let userId = try await stateService.getAccountIdOrActiveId(userId: userId)
-            let client = clientForUser(userId: userId) ?? client
-            return client.platform()
+            return await userClient(userId: userId).client.platform()
         } catch StateServiceError.noAccounts {
-            return client.platform()
+            return newClient().platform()
         }
     }
 
     func clientVault(for userId: String?) async throws -> ClientVaultService {
         do {
             let userId = try await stateService.getAccountIdOrActiveId(userId: userId)
-            let client = clientForUser(userId: userId) ?? client
-            return client.vault()
+            return await userClient(userId: userId).client.vault()
         } catch StateServiceError.noAccounts {
-            return client.vault()
+            return newClient().vault()
         }
     }
 
-    func clientForUser(userId: String) -> Client? {
+    func userClient(userId: String) async -> (client: Client, isUnlocked: Bool) {
         for _ in userClientDictionary {
             if let client = userClientDictionary[userId] {
+                await loadFlags(client: client.client)
                 return client
             }
         }
-        return nil
+        let client = Client(settings: settings)
+        await loadFlags(client: client)
+        userClientDictionary.updateValue((client, false), forKey: userId)
+        return (client, false)
     }
 
-    func createClientForUser(userId: String) {
-        let client = Client(settings: nil)
-        userClientDictionary.updateValue(client, forKey: userId)
+    // MARK: Private methods
+
+    private func newClient() -> Client {
+        Client(settings: settings)
+    }
+
+    /// Loads feature flags.
+    ///
+    private func loadFlags(client: Client) async {
+        do {
+            try await client.platform().loadFlags(
+                flags: [FeatureFlagsConstants.enableCipherKeyEncryption: true]
+            )
+        } catch {
+            errorReporter.log(error: error)
+        }
     }
 }

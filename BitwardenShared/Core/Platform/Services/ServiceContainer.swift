@@ -266,7 +266,10 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
 
         let stateService = DefaultStateService(appSettingsStore: appSettingsStore, dataStore: dataStore)
 
-        let clientService = DefaultClientService(stateService: stateService)
+        let clientService = DefaultClientService(
+            errorReporter: errorReporter,
+            stateService: stateService
+        )
 
         let biometricsService = DefaultBiometricsService()
         let biometricsRepository = DefaultBiometricsRepository(
