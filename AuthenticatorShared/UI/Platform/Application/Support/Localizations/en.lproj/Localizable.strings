@@ -886,3 +886,7 @@
 "NoCodes" = "You don’t have any codes to display";
 "AddANewCodeToSecure" = "Add a new code to secure your accounts.";
 "AddCode" = "Add code";
+"AccountName" = "Account name";
+"Algorithm" = "Algorithm";
+"RefreshPeriod" = "Refresh period";
+"NumberOfDigits" = "Number of digits";

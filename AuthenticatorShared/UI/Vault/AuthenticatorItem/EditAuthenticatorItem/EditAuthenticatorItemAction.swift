@@ -12,7 +12,7 @@ enum EditAuthenticatorItemAction: Equatable {
     case algorithmChanged(TOTPCryptoHashAlgorithm)
 
     /// The digits field was changed.
-    case digitsChanged(TotpDigitsOptions)
+    case digitsChanged(Int)
 
     /// The dismiss button was pressed.
     case dismissPressed

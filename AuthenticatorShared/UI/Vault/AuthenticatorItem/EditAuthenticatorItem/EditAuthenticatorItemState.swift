@@ -16,7 +16,7 @@ protocol EditAuthenticatorItemState: Sendable {
     var configuration: AuthenticatorItemState.Configuration { get }
 
     /// The number of digits in the OTP
-    var digits: TotpDigitsOptions { get set }
+    var digits: Int { get set }
 
     /// A flag indicating if the advanced section is expanded.
     var isAdvancedExpanded: Bool { get set }

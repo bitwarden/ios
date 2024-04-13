@@ -35,7 +35,7 @@ struct AuthenticatorItemState: Equatable {
     let configuration: Configuration
 
     /// The number of digits in the OTP
-    var digits: TotpDigitsOptions
+    var digits: Int
 
     /// A flag indicating if the advanced section is expanded.
     var isAdvancedExpanded: Bool = false
@@ -68,11 +68,12 @@ struct AuthenticatorItemState: Equatable {
         name: String,
         accountName: String,
         algorithm: TOTPCryptoHashAlgorithm,
-        digits: TotpDigitsOptions,
+        digits: Int,
         issuer: String,
         period: TotpPeriodOptions,
         secret: String,
-        totpState: LoginTOTPState
+        totpState: LoginTOTPState,
+        isAdvancedExpanded: Bool = false
     ) {
         self.configuration = configuration
         self.name = name
@@ -83,6 +84,7 @@ struct AuthenticatorItemState: Equatable {
         self.digits = digits
         self.period = period
         self.secret = secret
+        self.isAdvancedExpanded = isAdvancedExpanded
     }
 
     init?(existing authenticatorItemView: AuthenticatorItemView) {
@@ -94,7 +96,7 @@ struct AuthenticatorItemState: Equatable {
             name: authenticatorItemView.name,
             accountName: keyModel.accountName ?? "",
             algorithm: keyModel.algorithm,
-            digits: TotpDigitsOptions(rawValue: keyModel.digits) ?? .six,
+            digits: keyModel.digits,
             issuer: keyModel.issuer ?? "",
             period: TotpPeriodOptions(rawValue: keyModel.period) ?? .thirty,
             secret: keyModel.base32Key,
@@ -119,17 +121,6 @@ extension AuthenticatorItemState {
             name: name,
             totpKey: totpState.rawAuthenticatorKeyString
         )
-    }
-}
-
-enum TotpDigitsOptions: Int, Menuable, CaseIterable {
-    case six = 6
-    case eight = 8
-    case ten = 10
-    case twelve = 12
-
-    var localizedName: String {
-        "\(rawValue)"
     }
 }
 

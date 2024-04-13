@@ -105,7 +105,7 @@ final class EditAuthenticatorItemProcessor: StateProcessor<
                 let newOtpUri = OTPAuthModel(
                     accountName: state.accountName.nilIfEmpty,
                     algorithm: state.algorithm,
-                    digits: state.digits.rawValue,
+                    digits: state.digits,
                     issuer: state.issuer.nilIfEmpty,
                     period: state.period.rawValue,
                     secret: secret

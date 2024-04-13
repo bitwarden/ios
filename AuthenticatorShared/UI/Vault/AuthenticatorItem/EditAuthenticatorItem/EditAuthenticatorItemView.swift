@@ -74,7 +74,7 @@ struct EditAuthenticatorItemView: View {
             .textFieldConfiguration(.password)
 
             BitwardenTextField(
-                title: "Account name",
+                title: Localizations.accountName,
                 text: store.binding(
                     get: \.accountName,
                     send: EditAuthenticatorItemAction.accountNameChanged
@@ -111,7 +111,7 @@ struct EditAuthenticatorItemView: View {
 
     @ViewBuilder private var advancedOptions: some View {
         BitwardenMenuField(
-            title: "Algorithm",
+            title: Localizations.algorithm,
             options: TOTPCryptoHashAlgorithm.allCases,
             selection: store.binding(
                 get: \.algorithm,
@@ -120,7 +120,7 @@ struct EditAuthenticatorItemView: View {
         )
 
         BitwardenMenuField(
-            title: "Refresh period",
+            title: Localizations.refreshPeriod,
             options: TotpPeriodOptions.allCases,
             selection: store.binding(
                 get: \.period,
@@ -128,13 +128,17 @@ struct EditAuthenticatorItemView: View {
             )
         )
 
-        BitwardenMenuField(
-            title: "Number of digits",
-            options: TotpDigitsOptions.allCases,
-            selection: store.binding(
-                get: \.digits,
-                send: EditAuthenticatorItemAction.digitsChanged
-            )
+        StepperFieldView(
+            field: StepperField<EditAuthenticatorItemState>(
+                accessibilityId: nil,
+                keyPath: \.digits,
+                range: 5 ... 10,
+                title: Localizations.numberOfDigits,
+                value: store.state.digits
+            ),
+            action: { newValue in
+                store.send(.digitsChanged(newValue))
+            }
         )
     }
 
@@ -148,7 +152,7 @@ struct EditAuthenticatorItemView: View {
 }
 
 #if DEBUG
-#Preview("Edit") {
+#Preview("Advanced Closed") {
     EditAuthenticatorItemView(
         store: Store(
             processor: StateProcessor(
@@ -163,7 +167,7 @@ struct EditAuthenticatorItemView: View {
                     name: "Example",
                     accountName: "Account",
                     algorithm: .sha1,
-                    digits: .six,
+                    digits: 6,
                     issuer: "Issuer",
                     period: .thirty,
                     secret: "example",
@@ -175,6 +179,41 @@ struct EditAuthenticatorItemView: View {
                             period: 30
                         )
                     )
+                )
+                .editState
+            )
+        )
+    )
+}
+
+#Preview("Advanced Open") {
+    EditAuthenticatorItemView(
+        store: Store(
+            processor: StateProcessor(
+                state: AuthenticatorItemState(
+                    configuration: .existing(
+                        authenticatorItemView: AuthenticatorItemView(
+                            id: "Example",
+                            name: "Example",
+                            totpKey: "example"
+                        )
+                    ),
+                    name: "Example",
+                    accountName: "Account",
+                    algorithm: .sha1,
+                    digits: 6,
+                    issuer: "Issuer",
+                    period: .thirty,
+                    secret: "example",
+                    totpState: LoginTOTPState(
+                        authKeyModel: TOTPKeyModel(authenticatorKey: "example")!,
+                        codeModel: TOTPCodeModel(
+                            code: "123456",
+                            codeGenerationDate: Date(timeIntervalSinceReferenceDate: 0),
+                            period: 30
+                        )
+                    ),
+                    isAdvancedExpanded: true
                 )
                 .editState
             )
