@@ -192,7 +192,7 @@ final class ItemListProcessor: StateProcessor<ItemListState, ItemListAction, Ite
         case let .delete(id):
             confirmDeleteItem(id)
         case let .edit(item):
-            coordinator.navigate(to: .editItem(item: item))
+            coordinator.navigate(to: .editItem(item: item), context: self)
         }
     }
 
@@ -373,4 +373,12 @@ enum MoreOptionsAction: Equatable {
 
     /// Navigate to the view to edit the `AuthenticatorItemView`.
     case edit(authenticatorItemView: AuthenticatorItemView)
+}
+
+// MARK: - EditAuthenticatorItemViewDelegate
+
+extension ItemListProcessor: AuthenticatorItemOperationDelegate {
+    func itemDeleted() {
+        state.toast = Toast(text: Localizations.itemDeleted)
+    }
 }

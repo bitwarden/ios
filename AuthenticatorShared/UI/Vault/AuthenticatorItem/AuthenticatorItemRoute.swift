@@ -17,7 +17,7 @@ enum AuthenticatorItemRoute: Equatable {
     ///
     case dismiss(_ action: DismissAction? = nil)
 
-    /// A route to edit a token.
+    /// A route to edit an item.
     ///
     /// - Parameter authenticatorItemView: the `AuthenticatorItemView` to edit
     case editAuthenticatorItem(_ authenticatorItemView: AuthenticatorItemView)

@@ -2,7 +2,7 @@ import Foundation
 
 // MARK: - ItemListModule
 
-/// An object that builds coordinators for the Token List screen.
+/// An object that builds coordinators for the Item List screen.
 @MainActor
 protocol ItemListModule {
     /// Initializes a coordinator for navigating between `ItemListRoute` objects

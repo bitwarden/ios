@@ -17,7 +17,7 @@ struct AuthenticatorItemState: Equatable {
         case existing(authenticatorItemView: AuthenticatorItemView)
 
         /// The existing `AuthenticatorItemView` if the configuration is `existing`.
-        var existingToken: AuthenticatorItemView? {
+        var existingItem: AuthenticatorItemView? {
             guard case let .existing(authenticatorItemView) = self else { return nil }
             return authenticatorItemView
         }
@@ -36,6 +36,9 @@ struct AuthenticatorItemState: Equatable {
 
     /// The number of digits in the OTP
     var digits: Int
+
+    /// The id of the item
+    var id: String
 
     /// A flag indicating if the advanced section is expanded.
     var isAdvancedExpanded: Bool = false
@@ -64,27 +67,29 @@ struct AuthenticatorItemState: Equatable {
     // MARK: Initialization
 
     init(
-        configuration: Configuration,
-        name: String,
         accountName: String,
         algorithm: TOTPCryptoHashAlgorithm,
+        configuration: Configuration,
         digits: Int,
+        id: String,
+        isAdvancedExpanded: Bool = false,
         issuer: String,
+        name: String,
         period: TotpPeriodOptions,
         secret: String,
-        totpState: LoginTOTPState,
-        isAdvancedExpanded: Bool = false
+        totpState: LoginTOTPState
     ) {
-        self.configuration = configuration
-        self.name = name
-        self.totpState = totpState
         self.accountName = accountName
         self.algorithm = algorithm
-        self.issuer = issuer
+        self.configuration = configuration
         self.digits = digits
+        self.id = id
+        self.isAdvancedExpanded = isAdvancedExpanded
+        self.issuer = issuer
+        self.name = name
         self.period = period
         self.secret = secret
-        self.isAdvancedExpanded = isAdvancedExpanded
+        self.totpState = totpState
     }
 
     init?(existing authenticatorItemView: AuthenticatorItemView) {
@@ -92,12 +97,13 @@ struct AuthenticatorItemState: Equatable {
             return nil
         }
         self.init(
-            configuration: .existing(authenticatorItemView: authenticatorItemView),
-            name: authenticatorItemView.name,
             accountName: keyModel.accountName ?? "",
             algorithm: keyModel.algorithm,
+            configuration: .existing(authenticatorItemView: authenticatorItemView),
             digits: keyModel.digits,
+            id: authenticatorItemView.id,
             issuer: keyModel.issuer ?? "",
+            name: authenticatorItemView.name,
             period: TotpPeriodOptions(rawValue: keyModel.period) ?? .thirty,
             secret: keyModel.base32Key,
             totpState: LoginTOTPState(authenticatorItemView.totpKey)

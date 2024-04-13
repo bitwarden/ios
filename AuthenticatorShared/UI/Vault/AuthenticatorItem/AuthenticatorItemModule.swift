@@ -2,7 +2,7 @@ import Foundation
 
 // MARK: - AuthenticatorItemModule
 
-/// An object that builds coordinators for the token views.
+/// An object that builds coordinators for the item views.
 @MainActor
 protocol AuthenticatorItemModule {
     /// Initializes a coordinator for navigating between `AuthenticatorItemRoute` objects.

@@ -18,6 +18,9 @@ protocol EditAuthenticatorItemState: Sendable {
     /// The number of digits in the OTP
     var digits: Int { get set }
 
+    /// The ID of the item
+    var id: String { get }
+
     /// A flag indicating if the advanced section is expanded.
     var isAdvancedExpanded: Bool { get set }
 

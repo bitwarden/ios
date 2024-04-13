@@ -180,7 +180,7 @@ struct ItemListView: View {
     }
 }
 
-#Preview("Tokens") {
+#Preview("Items") {
     NavigationView {
         ItemListView(
             store: Store(

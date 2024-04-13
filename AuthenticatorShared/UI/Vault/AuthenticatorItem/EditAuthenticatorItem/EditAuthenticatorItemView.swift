@@ -32,13 +32,15 @@ struct EditAuthenticatorItemView: View {
         ScrollView {
             VStack(alignment: .leading, spacing: 20) {
                 informationSection
-                advancedButton
 
+                advancedButton
                 if store.state.isAdvancedExpanded {
                     advancedOptions
                 }
 
                 saveButton
+
+                deleteButton
             }
             .padding(16)
         }
@@ -149,6 +151,14 @@ struct EditAuthenticatorItemView: View {
         .accessibilityIdentifier("SaveButton")
         .buttonStyle(.primary())
     }
+
+    private var deleteButton: some View {
+        AsyncButton(Localizations.delete) {
+            await store.perform(.deletePressed)
+        }
+        .accessibilityIdentifier("DeleteButton")
+        .buttonStyle(.tertiary(isDestructive: true))
+    }
 }
 
 #if DEBUG
@@ -157,6 +167,8 @@ struct EditAuthenticatorItemView: View {
         store: Store(
             processor: StateProcessor(
                 state: AuthenticatorItemState(
+                    accountName: "Account",
+                    algorithm: .sha1,
                     configuration: .existing(
                         authenticatorItemView: AuthenticatorItemView(
                             id: "Example",
@@ -164,11 +176,10 @@ struct EditAuthenticatorItemView: View {
                             totpKey: "example"
                         )
                     ),
-                    name: "Example",
-                    accountName: "Account",
-                    algorithm: .sha1,
                     digits: 6,
+                    id: "1",
                     issuer: "Issuer",
+                    name: "Example",
                     period: .thirty,
                     secret: "example",
                     totpState: LoginTOTPState(
@@ -191,6 +202,8 @@ struct EditAuthenticatorItemView: View {
         store: Store(
             processor: StateProcessor(
                 state: AuthenticatorItemState(
+                    accountName: "Account",
+                    algorithm: .sha1,
                     configuration: .existing(
                         authenticatorItemView: AuthenticatorItemView(
                             id: "Example",
@@ -198,11 +211,11 @@ struct EditAuthenticatorItemView: View {
                             totpKey: "example"
                         )
                     ),
-                    name: "Example",
-                    accountName: "Account",
-                    algorithm: .sha1,
                     digits: 6,
+                    id: "1",
+                    isAdvancedExpanded: true,
                     issuer: "Issuer",
+                    name: "Example",
                     period: .thirty,
                     secret: "example",
                     totpState: LoginTOTPState(
@@ -212,8 +225,7 @@ struct EditAuthenticatorItemView: View {
                             codeGenerationDate: Date(timeIntervalSinceReferenceDate: 0),
                             period: 30
                         )
-                    ),
-                    isAdvancedExpanded: true
+                    )
                 )
                 .editState
             )

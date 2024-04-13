@@ -1,6 +1,17 @@
 import Foundation
 import OSLog
 
+// MARK: - EditAuthenticatorItemDelegate
+
+/// An object that is notified about editing events to an item
+///
+protocol AuthenticatorItemOperationDelegate: AnyObject {
+    /// Called when the authenticator item is deleted
+    func itemDeleted()
+}
+
+// MARK: - EditAuthenticatorItemProcessor
+
 /// The processor used to manage state and handle actions/effects for the edit item screen
 final class EditAuthenticatorItemProcessor: StateProcessor<
     EditAuthenticatorItemState,
@@ -17,6 +28,9 @@ final class EditAuthenticatorItemProcessor: StateProcessor<
     /// The `Coordinator` that handles navigation.
     private var coordinator: AnyCoordinator<AuthenticatorItemRoute, AuthenticatorItemEvent>
 
+    /// The delegate that is notified when and item has been deleted.
+    private weak var delegate: AuthenticatorItemOperationDelegate?
+
     /// The services required by this processor.
     private let services: Services
 
@@ -31,10 +45,12 @@ final class EditAuthenticatorItemProcessor: StateProcessor<
     ///
     init(
         coordinator: AnyCoordinator<AuthenticatorItemRoute, AuthenticatorItemEvent>,
+        delegate: AuthenticatorItemOperationDelegate?,
         services: Services,
         state: EditAuthenticatorItemState
     ) {
         self.coordinator = coordinator
+        self.delegate = delegate
         self.services = services
 
         super.init(state: state)
@@ -48,6 +64,11 @@ final class EditAuthenticatorItemProcessor: StateProcessor<
             break
         case .savePressed:
             await saveItem()
+        case .deletePressed:
+            let alert = Alert.confirmDeleteItem { [weak self] in
+                await self?.deleteItem()
+            }
+            coordinator.showAlert(alert)
         }
     }
 
@@ -87,6 +108,19 @@ final class EditAuthenticatorItemProcessor: StateProcessor<
     ///
     private func handleDismiss(didAddItem: Bool = false) {
         coordinator.navigate(to: .dismiss())
+    }
+
+    /// Deletes the item currently stored in `state`.
+    ///
+    private func deleteItem() async {
+        do {
+            try await services.authenticatorItemRepository.deleteAuthenticatorItem(state.id)
+            coordinator.navigate(to: .dismiss(DismissAction(action: { [weak self] in
+                self?.delegate?.itemDeleted()
+            })))
+        } catch {
+            services.errorReporter.log(error: error)
+        }
     }
 
     /// Saves the item currently stored in `state`.
