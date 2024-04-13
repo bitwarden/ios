@@ -100,6 +100,16 @@ class TOTPCountdownTimer: ObservableObject {
         timer = nil
     }
 
+    /// The preferred color of the timer based on the amount remaining
+    ///
+    func timerColor() -> SwiftUI.Color {
+        if secondsRemaining <= 7 {
+            Asset.Colors.loadingRed.swiftUIColor
+        } else {
+            Asset.Colors.primaryBitwarden.swiftUIColor
+        }
+    }
+
     /// Updates the countdown timer value.
     ///
     private func updateCountdown() {

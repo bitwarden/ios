@@ -34,7 +34,7 @@ struct TOTPCountdownTimerView: View {
         .background {
             CircularProgressShape(progress: timer.remainingFraction, clockwise: true)
                 .stroke(lineWidth: 3)
-                .foregroundColor(Asset.Colors.primaryBitwarden.swiftUIColor)
+                .foregroundColor(timer.timerColor())
                 .animation(
                     .smooth(
                         duration: TOTPCountdownTimerView.timerInterval
