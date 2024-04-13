@@ -149,4 +149,3 @@ enum TotpPeriodOptions: Int, Menuable, CaseIterable {
         }
     }
 }
-

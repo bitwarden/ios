@@ -89,11 +89,28 @@ public class ServiceContainer: Services {
         application: Application? = nil,
         errorReporter: ErrorReporter
     ) {
+        let appSettingsStore = DefaultAppSettingsStore(
+            userDefaults: UserDefaults(suiteName: Bundle.main.groupIdentifier)!
+        )
+        let appIdService = AppIdService(appSettingStore: appSettingsStore)
+
         let cameraService = DefaultCameraService()
         let clientService = DefaultClientService()
-        let cryptographyService = DefaultCryptographyService()
         let dataStore = DataStore(errorReporter: errorReporter)
+        let keychainService = DefaultKeychainService()
+        let keychainRepository = DefaultKeychainRepository(
+            appIdService: appIdService,
+            keychainService: keychainService
+        )
         let timeProvider = CurrentTime()
+
+        let cryptographyKeyService = CryptographyKeyService(
+            keychainRepository: keychainRepository
+        )
+
+        let cryptographyService = DefaultCryptographyService(
+            cryptographyKeyService: cryptographyKeyService
+        )
 
         let totpService = DefaultTOTPService(
             clientVault: clientService.clientVault(),

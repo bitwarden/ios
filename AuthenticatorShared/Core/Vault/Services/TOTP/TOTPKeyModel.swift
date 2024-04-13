@@ -38,9 +38,9 @@ public struct TOTPKeyModel: Equatable, Sendable {
     ///
     /// - Parameter authenticatorKey: A string representing the TOTP key.
     init?(authenticatorKey: String?) {
-        guard let authenticatorKey = authenticatorKey,
-              let keyType = TOTPKey(authenticatorKey) else { return nil }
-        rawAuthenticatorKey = authenticatorKey
+        guard let key = authenticatorKey,
+              let keyType = TOTPKey(key) else { return nil }
+        rawAuthenticatorKey = key
         totpKey = keyType
         accountName = keyType.accountName
         algorithm = keyType.algorithm

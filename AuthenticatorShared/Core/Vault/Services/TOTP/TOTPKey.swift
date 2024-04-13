@@ -49,7 +49,6 @@ enum TOTPKey: Equatable {
         return model.issuer
     }
 
-
     /// The key used for generating the TOTP code.
     /// Directly returns the key for base32 and Steam URI.
     /// For `otpAuthUri`, extracts the key from the model.

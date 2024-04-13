@@ -5,6 +5,10 @@ enum TOTPCryptoHashAlgorithm: String, Menuable, CaseIterable {
     case sha256 = "SHA256"
     case sha512 = "SHA512"
 
+    var localizedName: String {
+        rawValue
+    }
+
     /// Initializes the algorithm from a given string value.
     /// - Parameter rawValue: An optional `String`.
     ///
@@ -17,9 +21,5 @@ enum TOTPCryptoHashAlgorithm: String, Menuable, CaseIterable {
         default: // Default to SHA1 if not specified or unrecognized
             self = .sha1
         }
-    }
-
-    var localizedName: String {
-        rawValue
     }
 }
