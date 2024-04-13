@@ -65,8 +65,7 @@ public class AppProcessor {
             }
         }
 
-        // TODO: Migration service
-        //        await services.migrationService.performMigrations()
+        await services.migrationService.performMigrations()
 
         if let initialRoute {
             coordinator.navigate(to: initialRoute)

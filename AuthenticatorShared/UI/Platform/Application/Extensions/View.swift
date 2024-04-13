@@ -3,6 +3,15 @@ import SwiftUI
 /// Helper functions extended off the `View` protocol.
 ///
 extension View {
+    @ViewBuilder var navStackWrapped: some View {
+        if #available(iOSApplicationExtension 16.0, *) {
+            NavigationStack { self }
+        } else {
+            NavigationView { self }
+                .navigationViewStyle(.stack)
+        }
+    }
+
     /// On iOS 16+, configures the scroll view to dismiss the keyboard immediately.
     ///
     func dismissKeyboardImmediately() -> some View {

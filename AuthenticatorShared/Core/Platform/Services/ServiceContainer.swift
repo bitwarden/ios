@@ -36,6 +36,9 @@ public class ServiceContainer: Services {
     /// The service used by the application to report non-fatal errors.
     let errorReporter: ErrorReporter
 
+    /// The serviced used to perform app data migrations.
+    let migrationService: MigrationService
+
     /// The service used by the application for sharing data with other apps.
     let pasteboardService: PasteboardService
 
@@ -60,6 +63,7 @@ public class ServiceContainer: Services {
     ///   - clientService: The service used by the application to handle encryption and decryption tasks.
     ///   - cryptographyService: The service used by the application to encrypt and decrypt items
     ///   - errorReporter: The service used by the application to report non-fatal errors.
+    ///   - migrationService: The service to do data migrations
     ///   - pasteboardService: The service used by the application for sharing data with other apps.
     ///   - stateService: The service for managing account state.
     ///   - timeProvider: Provides the present time for TOTP Code Calculation.
@@ -73,6 +77,7 @@ public class ServiceContainer: Services {
         cryptographyService: CryptographyService,
         clientService: ClientService,
         errorReporter: ErrorReporter,
+        migrationService: MigrationService,
         pasteboardService: PasteboardService,
         stateService: StateService,
         timeProvider: TimeProvider,
@@ -85,6 +90,7 @@ public class ServiceContainer: Services {
         self.clientService = clientService
         self.cryptographyService = cryptographyService
         self.errorReporter = errorReporter
+        self.migrationService = migrationService
         self.pasteboardService = pasteboardService
         self.timeProvider = timeProvider
         self.stateService = stateService
@@ -97,7 +103,7 @@ public class ServiceContainer: Services {
     ///   - application: The application instance.
     ///   - errorReporter: The service used by the application to report non-fatal errors.
     ///
-    public convenience init(
+    public convenience init( // swiftlint:disable:this function_body_length
         application: Application? = nil,
         errorReporter: ErrorReporter
     ) {
@@ -125,6 +131,12 @@ public class ServiceContainer: Services {
             cryptographyKeyService: cryptographyKeyService
         )
 
+        let migrationService = DefaultMigrationService(
+            appSettingsStore: appSettingsStore,
+            errorReporter: errorReporter,
+            keychainRepository: keychainRepository
+        )
+
         let totpService = DefaultTOTPService(
             clientVault: clientService.clientVault(),
             errorReporter: errorReporter,
@@ -150,6 +162,7 @@ public class ServiceContainer: Services {
             cryptographyService: cryptographyService,
             clientService: clientService,
             errorReporter: errorReporter,
+            migrationService: migrationService,
             pasteboardService: pasteboardService,
             stateService: stateService,
             timeProvider: timeProvider,

@@ -21,6 +21,9 @@ protocol AppSettingsStore: AnyObject {
     /// The user ID for the local user
     var localUserId: String { get }
 
+    /// The app's last data migration version.
+    var migrationVersion: Int { get set }
+
     /// Gets the time after which the clipboard should be cleared.
     ///
     /// - Parameter userId: The user ID associated with the clipboard clearing time.
@@ -157,8 +160,9 @@ extension DefaultAppSettingsStore: AppSettingsStore {
         case appId
         case appLocale
         case appTheme
-        case disableWebIcons
         case clearClipboardValue(userId: String)
+        case disableWebIcons
+        case migrationVersion
 
         /// Returns the key used to store the data under for retrieving it later.
         var storageKey: String {
@@ -174,6 +178,8 @@ extension DefaultAppSettingsStore: AppSettingsStore {
                 key = "clearClipboard_\(userId)"
             case .disableWebIcons:
                 key = "disableFavicon"
+            case .migrationVersion:
+                key = "migrationVersion"
             }
             return "bwaPreferencesStorage:\(key)"
         }
@@ -205,6 +211,11 @@ extension DefaultAppSettingsStore: AppSettingsStore {
             return value
         }
         return .never
+    }
+
+    var migrationVersion: Int {
+        get { fetch(for: .migrationVersion) }
+        set { store(newValue, for: .migrationVersion) }
     }
 
     func setClearClipboardValue(_ clearClipboardValue: ClearClipboardValue?, userId: String) {

@@ -4,9 +4,11 @@
 
 class MockAppModule:
     AppModule,
-    ItemListModule {
+    ItemListModule,
+    TabModule {
     var appCoordinator = MockCoordinator<AppRoute, AppEvent>()
     var itemListCoordinator = MockCoordinator<ItemListRoute, ItemListEvent>()
+    var tabCoordinator = MockCoordinator<TabRoute, Void>()
 
     func makeAppCoordinator(
         appContext _: AppContext,
@@ -19,5 +21,13 @@ class MockAppModule:
         stackNavigator _: AuthenticatorShared.StackNavigator
     ) -> AnyCoordinator<ItemListRoute, ItemListEvent> {
         itemListCoordinator.asAnyCoordinator()
+    }
+
+    func makeTabCoordinator(
+        errorReporter _: ErrorReporter,
+        rootNavigator _: RootNavigator,
+        tabNavigator _: TabNavigator
+    ) -> AnyCoordinator<TabRoute, Void> {
+        tabCoordinator.asAnyCoordinator()
     }
 }
