@@ -11,6 +11,7 @@ class AppCoordinator: Coordinator, HasRootNavigator {
 
     /// The types of modules used by this coordinator.
     typealias Module = ItemListModule
+        & TabModule
 
     // MARK: Private Properties
 
@@ -59,7 +60,8 @@ class AppCoordinator: Coordinator, HasRootNavigator {
     func handleEvent(_ event: AppEvent, context: AnyObject?) async {
         switch event {
         case .didStart:
-            showItemList(route: .list)
+            showTab(route: .itemList(.list))
+//            showItemList(route: .list)
         }
     }
 
@@ -67,6 +69,8 @@ class AppCoordinator: Coordinator, HasRootNavigator {
         switch route {
         case .onboarding:
             break
+        case let .tab(tabRoute):
+            showTab(route: tabRoute)
         }
     }
 
@@ -93,6 +97,27 @@ class AppCoordinator: Coordinator, HasRootNavigator {
             coordinator.navigate(to: .list)
             childCoordinator = coordinator
             rootNavigator?.show(child: stackNavigator)
+        }
+    }
+
+    /// Shows the tab route.
+    ///
+    /// - Parameter route: The tab route to show.
+    ///
+    private func showTab(route: TabRoute) {
+        if let coordinator = childCoordinator as? AnyCoordinator<TabRoute, Void> {
+            coordinator.navigate(to: route)
+        } else {
+            guard let rootNavigator else { return }
+            let tabNavigator = UITabBarController()
+            let coordinator = module.makeTabCoordinator(
+                errorReporter: services.errorReporter,
+                rootNavigator: rootNavigator,
+                tabNavigator: tabNavigator
+            )
+            coordinator.start()
+            coordinator.navigate(to: route)
+            childCoordinator = coordinator
         }
     }
 }

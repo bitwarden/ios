@@ -8,6 +8,36 @@ import OSLog
 protocol AppSettingsStore: AnyObject {
     /// The app's unique identifier.
     var appId: String? { get set }
+
+    /// The app's locale.
+    var appLocale: String? { get set }
+
+    /// The app's theme.
+    var appTheme: String? { get set }
+
+    /// Whether to disable the website icons.
+    var disableWebIcons: Bool { get set }
+
+    /// The user ID for the local user
+    var localUserId: String { get }
+
+    /// Gets the time after which the clipboard should be cleared.
+    ///
+    /// - Parameter userId: The user ID associated with the clipboard clearing time.
+    ///
+    /// - Returns: The time after which the clipboard should be cleared.
+    ///
+    func clearClipboardValue(userId: String) -> ClearClipboardValue
+
+    /// Sets the time after which the clipboard should be cleared.
+    ///
+    /// - Parameters:
+    ///   - clearClipboardValue: The time after which the clipboard should be cleared.
+    ///   - userId: The user ID associated with the clipboard clearing time.
+    ///
+    /// - Returns: The time after which the clipboard should be cleared.
+    ///
+    func setClearClipboardValue(_ clearClipboardValue: ClearClipboardValue?, userId: String)
 }
 
 // MARK: - DefaultAppSettingsStore
@@ -16,6 +46,8 @@ protocol AppSettingsStore: AnyObject {
 ///
 class DefaultAppSettingsStore {
     // MARK: Properties
+
+    let localUserId = "local"
 
     /// The `UserDefauls` instance to persist settings.
     let userDefaults: UserDefaults
@@ -123,6 +155,10 @@ extension DefaultAppSettingsStore: AppSettingsStore {
     ///
     enum Keys {
         case appId
+        case appLocale
+        case appTheme
+        case disableWebIcons
+        case clearClipboardValue(userId: String)
 
         /// Returns the key used to store the data under for retrieving it later.
         var storageKey: String {
@@ -130,6 +166,14 @@ extension DefaultAppSettingsStore: AppSettingsStore {
             switch self {
             case .appId:
                 key = "appId"
+            case .appLocale:
+                key = "appLocale"
+            case .appTheme:
+                key = "theme"
+            case let .clearClipboardValue(userId):
+                key = "clearClipboard_\(userId)"
+            case .disableWebIcons:
+                key = "disableFavicon"
             }
             return "bwaPreferencesStorage:\(key)"
         }
@@ -138,5 +182,32 @@ extension DefaultAppSettingsStore: AppSettingsStore {
     var appId: String? {
         get { fetch(for: .appId) }
         set { store(newValue, for: .appId) }
+    }
+
+    var appLocale: String? {
+        get { fetch(for: .appLocale) }
+        set { store(newValue, for: .appLocale) }
+    }
+
+    var appTheme: String? {
+        get { fetch(for: .appTheme) }
+        set { store(newValue, for: .appTheme) }
+    }
+
+    var disableWebIcons: Bool {
+        get { fetch(for: .disableWebIcons) }
+        set { store(newValue, for: .disableWebIcons) }
+    }
+
+    func clearClipboardValue(userId: String) -> ClearClipboardValue {
+        if let rawValue: Int = fetch(for: .clearClipboardValue(userId: userId)),
+           let value = ClearClipboardValue(rawValue: rawValue) {
+            return value
+        }
+        return .never
+    }
+
+    func setClearClipboardValue(_ clearClipboardValue: ClearClipboardValue?, userId: String) {
+        store(clearClipboardValue?.rawValue, for: .clearClipboardValue(userId: userId))
     }
 }

@@ -6,6 +6,7 @@ typealias Services = HasAuthenticatorItemRepository
     & HasCryptographyService
     & HasErrorReporter
     & HasPasteboardService
+    & HasStateService
     & HasTOTPService
     & HasTimeProvider
 
@@ -42,6 +43,13 @@ protocol HasErrorReporter {
 protocol HasPasteboardService {
     /// The service used by the application for sharing data with other apps.
     var pasteboardService: PasteboardService { get }
+}
+
+/// Protocol for an object that provides a `StateService`.
+///
+protocol HasStateService {
+    /// The service used by the application to manage account state.
+    var stateService: StateService { get }
 }
 
 /// Protocol for an object that provides a `TOTPService`.

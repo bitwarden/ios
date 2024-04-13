@@ -33,6 +33,7 @@ public class AppProcessor {
         self.appModule = appModule
         self.services = services
 
+        UI.initialLanguageCode = services.appSettingsStore.appLocale ?? Locale.current.languageCode
         UI.applyDefaultAppearances()
     }
 
@@ -56,6 +57,16 @@ public class AppProcessor {
         let coordinator = appModule.makeAppCoordinator(appContext: appContext, navigator: navigator)
         coordinator.start()
         self.coordinator = coordinator
+
+        Task {
+            for await appTheme in await services.stateService.appThemePublisher().values {
+                navigator.appTheme = appTheme
+                window?.overrideUserInterfaceStyle = appTheme.userInterfaceStyle
+            }
+        }
+
+        // TODO: Migration service
+        //        await services.migrationService.performMigrations()
 
         if let initialRoute {
             coordinator.navigate(to: initialRoute)

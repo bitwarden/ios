@@ -4,7 +4,7 @@ import Foundation
 // MARK: - ItemListRoute
 
 /// A route to a specific screen or subscreen of the Item List
-enum ItemListRoute: Equatable {
+public enum ItemListRoute: Equatable, Hashable {
     /// A route to the add item screen.
     case addItem
 

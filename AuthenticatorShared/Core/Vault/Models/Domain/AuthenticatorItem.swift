@@ -39,7 +39,7 @@ extension AuthenticatorItem {
 
 /// Data model for an unencrypted item
 ///
-struct AuthenticatorItemView: Equatable, Sendable {
+public struct AuthenticatorItemView: Equatable, Sendable, Hashable {
     let id: String
     let name: String
     let totpKey: String?
