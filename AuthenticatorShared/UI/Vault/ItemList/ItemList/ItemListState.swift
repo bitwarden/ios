@@ -17,11 +17,6 @@ struct ItemListState: Equatable {
     /// The current loading state.
     var loadingState: LoadingState<[ItemListItem]> = .loading(nil)
 
-    /// The string to use in the empty view.
-    var noItemsString: String {
-        Localizations.noItems
-    }
-
     /// Whether to show the add item button in the view.
     var showAddItemButton: Bool {
         // Don't show if there is data.

@@ -883,3 +883,6 @@
 "DuoUnsupported" = "Duo not yet supported.";
 "Issuer" = "Issuer";
 "Advanced" = "Advanced";
+"NoCodes" = "You don’t have any codes to display";
+"AddANewCodeToSecure" = "Add a new code to secure your accounts.";
+"AddCode" = "Add code";

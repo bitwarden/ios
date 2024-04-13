@@ -54,21 +54,28 @@ struct ItemListView: View {
     @ViewBuilder private var emptyView: some View {
         GeometryReader { reader in
             ScrollView {
-                VStack(spacing: 24) {
+                VStack(spacing: 16) {
                     Spacer()
 
-                    Text(store.state.noItemsString)
+                    Image(decorative: Asset.Images.emptyVault)
+
+                    Text(Localizations.noCodes)
+                        .multilineTextAlignment(.center)
+                        .styleGuide(.headline)
+                        .foregroundColor(Asset.Colors.textPrimary.swiftUIColor)
+
+                    Text(Localizations.addANewCodeToSecure)
                         .multilineTextAlignment(.center)
                         .styleGuide(.callout)
                         .foregroundColor(Asset.Colors.textPrimary.swiftUIColor)
 
                     if store.state.showAddItemButton {
-                        Button(Localizations.addAnItem) {
+                        Button(Localizations.addCode) {
                             Task {
                                 await store.perform(.addItemPressed)
                             }
                         }
-                        .buttonStyle(.tertiary())
+                        .buttonStyle(.primary())
                     }
 
                     Spacer()
@@ -150,6 +157,21 @@ struct ItemListView: View {
                 processor: StateProcessor(
                     state: ItemListState(
                         loadingState: .loading(nil)
+                    )
+                )
+            ),
+            timeProvider: PreviewTimeProvider()
+        )
+    }
+}
+
+#Preview("Empty") {
+    NavigationView {
+        ItemListView(
+            store: Store(
+                processor: StateProcessor(
+                    state: ItemListState(
+                        loadingState: .data([])
                     )
                 )
             ),
