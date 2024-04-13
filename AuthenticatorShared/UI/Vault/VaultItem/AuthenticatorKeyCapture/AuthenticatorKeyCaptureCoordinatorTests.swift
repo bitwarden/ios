@@ -49,10 +49,12 @@ class AuthenticatorKeyCaptureCoordinatorTests: AuthenticatorTestCase {
     /// `navigate(to:)` with `.addManual` instructs the delegate that the capture flow has
     /// completed.
     func test_navigateTo_addManual() {
+        let name = "manual name"
         let entry = "manuallyManagedMagic"
-        subject.navigate(to: .addManual(entry: entry))
+        subject.navigate(to: .addManual(key: entry, name: name))
         XCTAssertTrue(delegate.didCompleteCaptureCalled)
-        XCTAssertEqual(delegate.didCompleteCaptureValue, entry)
+        XCTAssertEqual(delegate.didCompleteCaptureKey, entry)
+        XCTAssertEqual(delegate.didCompleteCaptureName, name)
         XCTAssertNotNil(delegate.capturedCaptureCoordinator)
     }
 
@@ -62,7 +64,8 @@ class AuthenticatorKeyCaptureCoordinatorTests: AuthenticatorTestCase {
         let result = ScanResult(content: "example.com", codeType: .qr)
         subject.navigate(to: .complete(value: result))
         XCTAssertTrue(delegate.didCompleteCaptureCalled)
-        XCTAssertEqual(delegate.didCompleteCaptureValue, "example.com")
+        XCTAssertEqual(delegate.didCompleteCaptureKey, "example.com")
+        XCTAssertNil(delegate.didCompleteCaptureName)
     }
 
     /// `navigate(to:)` with `.dismiss` dismisses the view.
@@ -225,7 +228,8 @@ class MockAuthenticatorKeyCaptureDelegate: AuthenticatorKeyCaptureDelegate {
     var didCancelScanCalled = false
 
     var didCompleteCaptureCalled = false
-    var didCompleteCaptureValue: String?
+    var didCompleteCaptureKey: String?
+    var didCompleteCaptureName: String?
 
     /// A flag to capture a `showCameraScan` call.
     var didRequestCamera: Bool = false
@@ -239,11 +243,13 @@ class MockAuthenticatorKeyCaptureDelegate: AuthenticatorKeyCaptureDelegate {
 
     func didCompleteCapture(
         _ captureCoordinator: AnyCoordinator<AuthenticatorKeyCaptureRoute, AuthenticatorKeyCaptureEvent>,
-        with value: String
+        key: String,
+        name: String?
     ) {
         didCompleteCaptureCalled = true
         capturedCaptureCoordinator = captureCoordinator
-        didCompleteCaptureValue = value
+        didCompleteCaptureKey = key
+        didCompleteCaptureName = name
     }
 
     func showCameraScan(

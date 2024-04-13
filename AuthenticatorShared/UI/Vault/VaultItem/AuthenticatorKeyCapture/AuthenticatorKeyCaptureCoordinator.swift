@@ -16,7 +16,8 @@ protocol AuthenticatorKeyCaptureDelegate: AnyObject {
     ///
     func didCompleteCapture(
         _ captureCoordinator: AnyCoordinator<AuthenticatorKeyCaptureRoute, AuthenticatorKeyCaptureEvent>,
-        with value: String
+        key: String,
+        name: String?
     )
 
     /// Called when the scan flow requests the scan code screen.
@@ -97,16 +98,18 @@ final class AuthenticatorKeyCaptureCoordinator: Coordinator, HasStackNavigator {
         case let .complete(value):
             delegate?.didCompleteCapture(
                 asAnyCoordinator(),
-                with: value.content
+                key: value.content,
+                name: nil
             )
         case let .dismiss(onDismiss):
             stackNavigator?.dismiss(completion: {
                 onDismiss?.action()
             })
-        case let .addManual(entry: authKey):
+        case let .addManual(key: authKey, name: name):
             delegate?.didCompleteCapture(
                 asAnyCoordinator(),
-                with: authKey
+                key: authKey,
+                name: name
             )
         case .manualKeyEntry:
             guard let stackNavigator else { return }

@@ -4,7 +4,7 @@
 ///
 public enum AuthenticatorKeyCaptureRoute: Equatable, Hashable {
     /// A route to complete the scan with a manual entry
-    case addManual(entry: String)
+    case addManual(key: String, name: String)
 
     /// A route to complete the scan with the provided value
     case complete(value: ScanResult)

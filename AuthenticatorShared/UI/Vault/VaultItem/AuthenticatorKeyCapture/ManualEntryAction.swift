@@ -3,11 +3,13 @@
 /// Actions that can be processed by a `ScanCodeProcessor`.
 ///
 enum ManualEntryAction: Equatable {
-    /// The Add Key CTA was pressed with a value.
+    /// The Add TOTP button was pressed.
     ///
-    /// - Parameter code: The code entered by the user.
+    /// - Parameters:
+    ///   - code: The code entered by the user.
+    ///   - name: The name of the item given by the user
     ///
-    case addPressed(code: String)
+    case addPressed(code: String, name: String)
 
     /// The user updated the entered key
     /// - Parameter `String`: The code entered by the user.
@@ -16,6 +18,10 @@ enum ManualEntryAction: Equatable {
 
     /// The dismiss button was pressed.
     case dismissPressed
+
+    /// The user updated the entered name
+    ///
+    case nameChanged(String)
 }
 
 // MARK: - ManualEntryEffect

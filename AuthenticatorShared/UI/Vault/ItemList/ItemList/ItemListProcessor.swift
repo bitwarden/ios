@@ -312,29 +312,30 @@ private class TOTPExpirationManager {
 extension ItemListProcessor: AuthenticatorKeyCaptureDelegate {
     func didCompleteCapture(
         _ captureCoordinator: AnyCoordinator<AuthenticatorKeyCaptureRoute, AuthenticatorKeyCaptureEvent>,
-        with value: String
+        key: String,
+        name: String?
     ) {
         let dismissAction = DismissAction(action: { [weak self] in
-            self?.parseAndValidateCapturedAuthenticatorKey(value)
+            self?.parseAndValidateCapturedAuthenticatorKey(key, name: name)
         })
         captureCoordinator.navigate(to: .dismiss(dismissAction))
     }
 
-    func parseAndValidateCapturedAuthenticatorKey(_ key: String) {
+    func parseAndValidateCapturedAuthenticatorKey(_ key: String, name: String?) {
         do {
             let authKeyModel = try services.totpService.getTOTPConfiguration(key: key)
             let loginTotpState = LoginTOTPState(authKeyModel: authKeyModel)
             guard let key = loginTotpState.rawAuthenticatorKeyString
             else { return }
             Task {
-                let newItem = AuthenticatorItemView(id: UUID().uuidString, name: "Example", totpKey: key)
+                let itemName = name ?? authKeyModel.issuer ?? authKeyModel.accountName ?? ""
+                let newItem = AuthenticatorItemView(id: UUID().uuidString, name: itemName, totpKey: key)
                 try await services.authenticatorItemRepository.addAuthenticatorItem(newItem)
                 await perform(.refresh)
             }
             state.toast = Toast(text: Localizations.authenticatorKeyAdded)
         } catch {
-            // Replace with better alerts later
-//            coordinator.navigate(to: .alert(.totpScanFailureAlert()))
+            coordinator.showAlert(.totpScanFailureAlert())
         }
     }
 

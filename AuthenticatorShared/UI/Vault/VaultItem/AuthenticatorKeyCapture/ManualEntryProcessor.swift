@@ -50,10 +50,30 @@ final class ManualEntryProcessor: StateProcessor<ManualEntryState, ManualEntryAc
         switch action {
         case .dismissPressed:
             coordinator.navigate(to: .dismiss())
-        case let .addPressed(code: authKey):
-            coordinator.navigate(to: .addManual(entry: authKey))
+        case let .addPressed(code: authKey, name: name):
+            addItem(key: authKey, name: name)
         case let .authenticatorKeyChanged(newKey):
             state.authenticatorKey = newKey
+        case let .nameChanged(newName):
+            state.name = newName
+        }
+    }
+
+    /// Adds the item
+    ///
+    private func addItem(key: String, name: String) {
+        do {
+            try EmptyInputValidator(fieldName: Localizations.service)
+                .validate(input: state.name)
+            try EmptyInputValidator(fieldName: Localizations.authenticatorKey)
+                .validate(input: state.authenticatorKey)
+            coordinator.navigate(to: .addManual(key: key, name: name))
+        } catch let error as InputValidationError {
+            coordinator.showAlert(Alert.inputValidationAlert(error: error))
+            return
+        } catch {
+            coordinator.showAlert(.networkResponseError(error))
+            services.errorReporter.log(error: error)
         }
     }
 }

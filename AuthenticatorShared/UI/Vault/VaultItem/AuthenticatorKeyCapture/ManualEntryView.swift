@@ -28,7 +28,10 @@ struct ManualEntryView: View {
     private var addButton: some View {
         Button(Localizations.addTotp) {
             store.send(
-                ManualEntryAction.addPressed(code: store.state.authenticatorKey)
+                ManualEntryAction.addPressed(
+                    code: store.state.authenticatorKey,
+                    name: store.state.name
+                )
             )
         }
         .buttonStyle(.tertiary())
@@ -40,6 +43,14 @@ struct ManualEntryView: View {
         VStack(alignment: .leading, spacing: 16.0) {
             Text(Localizations.enterKeyManually)
                 .styleGuide(.title2, weight: .bold)
+            BitwardenTextField(
+                title: Localizations.service,
+                text: store.binding(
+                    get: \.name,
+                    send: ManualEntryAction.nameChanged
+                )
+            )
+
             BitwardenTextField(
                 title: Localizations.authenticatorKeyScanner,
                 text: store.binding(
@@ -97,6 +108,8 @@ struct ManualEntryView_Previews: PreviewProvider {
         var manualEntryState: ManualEntryState {
             self
         }
+
+        var name: String = ""
     }
 
     static var previews: some View {
@@ -123,7 +136,8 @@ struct ManualEntryView_Previews: PreviewProvider {
                 store: Store(
                     processor: StateProcessor(
                         state: PreviewState(
-                            authenticatorKey: "manualEntry"
+                            authenticatorKey: "manualEntry",
+                            name: "Amazon"
                         ).manualEntryState
                     )
                 )
