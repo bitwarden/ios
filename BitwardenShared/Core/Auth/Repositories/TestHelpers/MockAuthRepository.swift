@@ -5,6 +5,9 @@ class MockAuthRepository: AuthRepository {
     var allowBiometricUnlockResult: Result<Void, Error> = .success(())
     var accountForItemResult: Result<Account, Error> = .failure(StateServiceError.noAccounts)
     var clearPinsCalled = false
+    var createNewSsoUserRememberDevice: Bool = false
+    var createNewSsoUserOrgIdentifier: String = ""
+    var createNewSsoUserResult: Result<Void, Error> = .success(())
     var deleteAccountCalled = false
     var deviceId: String = ""
     var email: String = ""
@@ -44,6 +47,7 @@ class MockAuthRepository: AuthRepository {
 
     var unlockVaultResult: Result<Void, Error> = .success(())
     var unlockVaultWithBiometricsResult: Result<Void, Error> = .success(())
+    var unlockVaultWithDeviceKeyResult: Result<Void, Error> = .success(())
     var unlockVaultWithNeverlockResult: Result<Void, Error> = .success(())
 
     var allAccounts: [Account] {
@@ -69,6 +73,12 @@ class MockAuthRepository: AuthRepository {
 
     func clearPins() async throws {
         clearPinsCalled = true
+    }
+
+    func createNewSsoUser(orgIdentifier: String, rememberDevice: Bool) async throws {
+        createNewSsoUserOrgIdentifier = orgIdentifier
+        createNewSsoUserRememberDevice = rememberDevice
+        try createNewSsoUserResult.get()
     }
 
     func deleteAccount(passwordText _: String) async throws {
@@ -199,6 +209,10 @@ class MockAuthRepository: AuthRepository {
         unlockVaultFromLoginWithDevicePrivateKey = privateKey
         unlockVaultFromLoginWithDeviceMasterPasswordHash = masterPasswordHash
         try unlockVaultFromLoginWithDeviceResult.get()
+    }
+
+    func unlockVaultWithDeviceKey() async throws {
+        try unlockVaultWithDeviceKeyResult.get()
     }
 
     func unlockVaultWithPIN(pin: String) async throws {

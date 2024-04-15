@@ -24,6 +24,10 @@ protocol AuthRepository: AnyObject {
     ///
     func clearPins() async throws
 
+    /// Create new account for a JIT sso user .
+    ///
+    func createNewSsoUser(orgIdentifier: String, rememberDevice: Bool) async throws
+
     /// Deletes the user's account.
     ///
     /// - Parameter passwordText: The password entered by the user, which is used to verify
@@ -152,6 +156,10 @@ protocol AuthRepository: AnyObject {
     /// Attempts to unlock the user's vault with biometrics.
     ///
     func unlockVaultWithBiometrics() async throws
+
+    /// Attempts to unlock the user's vault with the stored device key.
+    ///
+    func unlockVaultWithDeviceKey() async throws
 
     /// Attempts to unlock the user's vault with the stored neverlock key.
     ///
@@ -283,6 +291,9 @@ class DefaultAuthRepository {
     /// The service used by the application to manage account state.
     private let stateService: StateService
 
+    /// The service used by the application to manage trust device information.
+    private let trustDeviceService: TrustDeviceService
+
     /// The service used by the application to manage vault access.
     private let vaultTimeoutService: VaultTimeoutService
 
@@ -304,6 +315,7 @@ class DefaultAuthRepository {
     ///   - organizationUserAPIService: The service used by the application to make organization
     ///     user-related API requests.
     ///   - stateService: The service used by the application to manage account state.
+    ///   - trustDeviceService: The service used by the application to manage trust device information.
     ///   - vaultTimeoutService: The service used by the application to manage vault access.
     ///
     init(
@@ -319,6 +331,7 @@ class DefaultAuthRepository {
         organizationService: OrganizationService,
         organizationUserAPIService: OrganizationUserAPIService,
         stateService: StateService,
+        trustDeviceService: TrustDeviceService,
         vaultTimeoutService: VaultTimeoutService
     ) {
         self.accountAPIService = accountAPIService
@@ -333,6 +346,7 @@ class DefaultAuthRepository {
         self.organizationService = organizationService
         self.organizationUserAPIService = organizationUserAPIService
         self.stateService = stateService
+        self.trustDeviceService = trustDeviceService
         self.vaultTimeoutService = vaultTimeoutService
     }
 }
@@ -344,6 +358,34 @@ extension DefaultAuthRepository: AuthRepository {
         try await biometricsRepository.setBiometricUnlockKey(
             authKey: enabled ? clientCrypto.getUserEncryptionKey() : nil
         )
+    }
+
+    func createNewSsoUser(orgIdentifier: String, rememberDevice: Bool) async throws {
+        let account = try await stateService.getActiveAccount()
+        let enrollStatus = try await organizationAPIService.getOrganizationAutoEnrollStatus(identifier: orgIdentifier)
+        let organizationKeys = try await organizationAPIService.getOrganizationKeys(organizationId: enrollStatus.id)
+        let registrationKeys = try await clientAuth.makeRegisterTdeKeys(
+            orgPublicKey: organizationKeys.publicKey,
+            rememberDevice: rememberDevice
+        )
+
+        try await accountAPIService.setAccountKeys(requestModel: KeysRequestModel(
+            encryptedPrivateKey: registrationKeys.privateKey,
+            publicKey: registrationKeys.publicKey
+        ))
+
+        try await organizationUserAPIService.organizationUserResetPasswordEnrollment(
+            organizationId: enrollStatus.id,
+            requestModel: OrganizationUserResetPasswordEnrollmentRequestModel(
+                masterPasswordHash: nil, resetPasswordKey: registrationKeys.adminReset
+            ),
+            userId: account.profile.userId
+        )
+
+        if rememberDevice,
+           let trustDeviceResponse = registrationKeys.deviceKey {
+            try await trustDeviceService.trustDeviceWithExistingKeys(keys: trustDeviceResponse)
+        }
     }
 
     func clearPins() async throws {
@@ -450,7 +492,7 @@ extension DefaultAuthRepository: AuthRepository {
         let requestModel = SetPasswordRequestModel(
             kdfConfig: kdf,
             key: keys.encryptedUserKey,
-            keys: KeysRequestModel(publicKey: keys.keys.public, encryptedPrivateKey: keys.keys.private),
+            keys: KeysRequestModel(encryptedPrivateKey: keys.keys.private, publicKey: keys.keys.public),
             masterPasswordHash: masterPasswordHash,
             masterPasswordHint: masterPasswordHint,
             orgIdentifier: organizationIdentifier
@@ -519,12 +561,14 @@ extension DefaultAuthRepository: AuthRepository {
     }
 
     func unlockVaultFromLoginWithDevice(privateKey: String, key: String, masterPasswordHash: String?) async throws {
-        let encryptionKeys = try await stateService.getAccountEncryptionKeys()
-        let method: AuthRequestMethod = if masterPasswordHash != nil {
-            AuthRequestMethod.masterKey(protectedMasterKey: key, authRequestKey: encryptionKeys.encryptedUserKey)
-        } else {
-            AuthRequestMethod.userKey(protectedUserKey: key)
-        }
+        let method: AuthRequestMethod =
+            if masterPasswordHash != nil,
+            let encUserKey = try await stateService.getAccountEncryptionKeys().encryptedUserKey {
+                AuthRequestMethod.masterKey(protectedMasterKey: key, authRequestKey: encUserKey)
+            } else {
+                AuthRequestMethod.userKey(protectedUserKey: key)
+            }
+
         try await unlockVault(
             method: .authRequest(
                 requestPrivateKey: privateKey,
@@ -538,6 +582,26 @@ extension DefaultAuthRepository: AuthRepository {
         try await unlockVault(method: .decryptedKey(decryptedUserKey: decryptedUserKey))
     }
 
+    func unlockVaultWithDeviceKey() async throws {
+        let id = try await stateService.getActiveAccountId()
+        let decryptionOption = try await stateService.getActiveAccount().profile.userDecryptionOptions
+
+        guard let deviceKey = try await keychainService.getDeviceKey(userId: id) else {
+            throw AuthError.missingDeviceKey
+        }
+
+        guard let protectedDevicePrivateKey = decryptionOption?.trustedDeviceOption?.encryptedPrivateKey,
+              let deviceProtectedUserKey = decryptionOption?.trustedDeviceOption?.encryptedUserKey else {
+            throw AuthError.missingUserDecryptionOptions
+        }
+
+        try await unlockVault(method: .deviceKey(
+            deviceKey: deviceKey,
+            protectedDevicePrivateKey: protectedDevicePrivateKey,
+            deviceProtectedUserKey: deviceProtectedUserKey
+        ))
+    }
+
     func unlockVaultWithNeverlockKey() async throws {
         let id = try await stateService.getActiveAccountId()
         let key = KeychainItem.neverLock(userId: id)
@@ -548,7 +612,8 @@ extension DefaultAuthRepository: AuthRepository {
     func unlockVaultWithPassword(password: String) async throws {
         let account = try await stateService.getActiveAccount()
         let encryptionKeys = try await stateService.getAccountEncryptionKeys(userId: account.profile.userId)
-        try await unlockVault(method: .password(password: password, userKey: encryptionKeys.encryptedUserKey))
+        guard let encUserKey = encryptionKeys.encryptedUserKey else { throw StateServiceError.noEncUserKey }
+        try await unlockVault(method: .password(password: password, userKey: encUserKey))
     }
 
     func unlockVaultWithPIN(pin: String) async throws {
@@ -563,10 +628,11 @@ extension DefaultAuthRepository: AuthRepository {
             return try await clientAuth.validatePassword(password: password, passwordHash: passwordHash)
         } else {
             let encryptionKeys = try await stateService.getAccountEncryptionKeys()
+            guard let encUserKey = encryptionKeys.encryptedUserKey else { throw StateServiceError.noEncUserKey }
             do {
                 let passwordHash = try await clientAuth.validatePasswordUserKey(
                     password: password,
-                    encryptedUserKey: encryptionKeys.encryptedUserKey
+                    encryptedUserKey: encUserKey
                 )
                 try await stateService.setMasterPasswordHash(passwordHash)
                 return true
@@ -645,7 +711,8 @@ extension DefaultAuthRepository: AuthRepository {
 
         switch method {
         case .authRequest:
-            break
+            // Remove admin pending login request if exists
+            try await authService.setPendingAdminLoginRequest(nil, userId: nil)
         case .decryptedKey:
             // No-op: nothing extra to do for decryptedKey.
             break
@@ -682,6 +749,7 @@ extension DefaultAuthRepository: AuthRepository {
             break
         }
 
+        _ = try await trustDeviceService.trustDeviceIfNeeded()
         await vaultTimeoutService.unlockVault(userId: account.profile.userId)
         try await organizationService.initializeOrganizationCrypto()
     }

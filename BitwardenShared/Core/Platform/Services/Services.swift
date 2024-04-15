@@ -31,6 +31,7 @@ typealias Services = HasAPIService
     & HasSystemDevice
     & HasTOTPService
     & HasTimeProvider
+    & HasTrustDeviceService
     & HasTwoStepLoginService
     & HasVaultRepository
     & HasVaultTimeoutService
@@ -244,6 +245,13 @@ protocol HasTimeProvider {
 protocol HasTOTPService {
     /// A service used to validate authentication keys and generate TOTP codes.
     var totpService: TOTPService { get }
+}
+
+/// Protocol for an object that provides a `TrustDeviceService`.
+///
+protocol HasTrustDeviceService {
+    /// A service used to handle device trust.
+    var trustDeviceService: TrustDeviceService { get }
 }
 
 /// Protocol for an object that provides a `TwoStepLoginService`.

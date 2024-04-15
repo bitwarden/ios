@@ -9,6 +9,12 @@ struct LoginWithDeviceState: Equatable {
     /// The fingerprint phrase.
     var fingerprintPhrase: String?
 
+    /// If user comes from SSO flow and is already authenticated
+    var isAuthenticated: Bool = false
+
     /// The id of the login request.
     var requestId: String?
+
+    /// The id of the login request.
+    var requestType: AuthRequestType?
 }

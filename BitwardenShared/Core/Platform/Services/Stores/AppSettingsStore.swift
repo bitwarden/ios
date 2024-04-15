@@ -310,6 +310,12 @@ protocol AppSettingsStore: AnyObject {
     ///
     func setPinProtectedUserKey(key: String?, userId: String)
 
+    /// Set whether to trust the device.
+    ///
+    /// - Parameter shouldTrustDevice: Whether to trust the device.
+    ///
+    func setShouldTrustDevice(shouldTrustDevice: Bool?, userId: String)
+
     /// Sets the user's timeout action.
     ///
     /// - Parameters:
@@ -356,6 +362,12 @@ protocol AppSettingsStore: AnyObject {
     /// - Returns: The  user's session timeout action.
     ///
     func timeoutAction(userId: String) -> Int?
+
+    /// Get whether the device should be trusted.
+    ///
+    /// - Returns: Whether to trust the device.
+    ///
+    func shouldTrustDevice(userId: String) -> Bool?
 
     /// Get the two-factor token associated with a user's email..
     ///
@@ -537,6 +549,7 @@ extension DefaultAppSettingsStore: AppSettingsStore {
         case preAuthEnvironmentUrls
         case rememberedEmail
         case rememberedOrgIdentifier
+        case shouldTrustDevice(userId: String)
         case state
         case twoFactorToken(email: String)
         case unsuccessfulUnlockAttempts(userId: String)
@@ -604,6 +617,8 @@ extension DefaultAppSettingsStore: AppSettingsStore {
                 key = "rememberedEmail"
             case .rememberedOrgIdentifier:
                 key = "rememberedOrgIdentifier"
+            case let .shouldTrustDevice(userId):
+                key = "shouldTrustDevice_\(userId)"
             case .state:
                 key = "state"
             case let .twoFactorToken(email):
@@ -835,6 +850,10 @@ extension DefaultAppSettingsStore: AppSettingsStore {
         store(key, for: .pinProtectedUserKey(userId: userId))
     }
 
+    func setShouldTrustDevice(shouldTrustDevice: Bool?, userId: String) {
+        store(shouldTrustDevice, for: .shouldTrustDevice(userId: userId))
+    }
+
     func setTimeoutAction(key: SessionTimeoutAction, userId: String) {
         store(key, for: .vaultTimeoutAction(userId: userId))
     }
@@ -877,5 +896,9 @@ extension DefaultAppSettingsStore: AppSettingsStore {
 
     func activeAccountIdPublisher() -> AnyPublisher<String?, Never> {
         activeAccountIdSubject.eraseToAnyPublisher()
+    }
+
+    func shouldTrustDevice(userId: String) -> Bool? {
+        fetch(for: .shouldTrustDevice(userId: userId))
     }
 }

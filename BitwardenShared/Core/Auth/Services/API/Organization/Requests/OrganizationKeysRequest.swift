@@ -16,5 +16,5 @@ struct OrganizationKeysRequest: Request {
     var method: HTTPMethod { .get }
 
     /// The URL path for this request.
-    var path: String { "/organizations/\(id)/keys" }
+    var path: String { "/organizations/\(id)/public-key" }
 }

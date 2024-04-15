@@ -85,7 +85,11 @@ class LoginProcessor: StateProcessor<LoginState, LoginAction, LoginEffect> {
         case .getMasterPasswordHintPressed:
             coordinator.navigate(to: .masterPasswordHint(username: state.username))
         case .loginWithDevicePressed:
-            coordinator.navigate(to: .loginWithDevice(email: state.username))
+            coordinator.navigate(to: .loginWithDevice(
+                email: state.username,
+                authRequestType: AuthRequestType.authenticateAndUnlock,
+                isAuthenticated: false
+            ))
         case let .masterPasswordChanged(newValue):
             state.masterPassword = newValue
         case .notYouPressed:
@@ -151,7 +155,7 @@ class LoginProcessor: StateProcessor<LoginState, LoginAction, LoginEffect> {
                 launchCaptchaFlow(with: hCaptchaSiteCode)
             case let .twoFactorRequired(authMethodsData, _, _):
                 coordinator.navigate(
-                    to: .twoFactor(state.username, .password(state.masterPassword), authMethodsData)
+                    to: .twoFactor(state.username, .password(state.masterPassword), authMethodsData, nil)
                 )
             }
         } catch {

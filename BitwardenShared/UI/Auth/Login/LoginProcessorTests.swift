@@ -259,7 +259,7 @@ class LoginProcessorTests: BitwardenTestCase {
 
         await subject.perform(.loginWithMasterPasswordPressed)
 
-        XCTAssertEqual(coordinator.routes.last, .twoFactor("", .password("Test"), AuthMethodsData()))
+        XCTAssertEqual(coordinator.routes.last, .twoFactor("", .password("Test"), AuthMethodsData(), nil))
         XCTAssertFalse(coordinator.isLoadingOverlayShowing)
         XCTAssertEqual(coordinator.loadingOverlaysShown, [.init(title: Localizations.loggingIn)])
     }
@@ -282,7 +282,11 @@ class LoginProcessorTests: BitwardenTestCase {
     func test_receive_loginWithDevicePressed() {
         subject.state.username = "example@email.com"
         subject.receive(.loginWithDevicePressed)
-        XCTAssertEqual(coordinator.routes.last, .loginWithDevice(email: "example@email.com"))
+        XCTAssertEqual(coordinator.routes.last, .loginWithDevice(
+            email: "example@email.com",
+            authRequestType: AuthRequestType.authenticateAndUnlock,
+            isAuthenticated: false
+        ))
     }
 
     /// `receive(_:)` with `.masterPasswordChanged` updates the state to reflect the changes.

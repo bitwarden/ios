@@ -20,6 +20,7 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
     var subject: DefaultAuthRepository!
     var stateService: MockStateService!
     var vaultTimeoutService: MockVaultTimeoutService!
+    var trustDeviceService: MockTrustDeviceService!
 
     let anneAccount = Account
         .fixture(
@@ -93,6 +94,7 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         keychainService = MockKeychainRepository()
         organizationService = MockOrganizationService()
         stateService = MockStateService()
+        trustDeviceService = MockTrustDeviceService()
         vaultTimeoutService = MockVaultTimeoutService()
 
         subject = DefaultAuthRepository(
@@ -108,6 +110,7 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
             organizationService: organizationService,
             organizationUserAPIService: APIService(client: client),
             stateService: stateService,
+            trustDeviceService: trustDeviceService,
             vaultTimeoutService: vaultTimeoutService
         )
     }
@@ -145,6 +148,65 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         XCTAssertNil(stateService.pinProtectedUserKeyValue[userId])
         XCTAssertNil(stateService.pinKeyEncryptedUserKeyValue[userId])
         XCTAssertNil(stateService.accountVolatileData[userId]?.pinProtectedUserKey)
+    }
+
+    /// `createNewSsoUser()` creates a new account for sso JIT user and trust device.
+    func test_createNewSsoUser_remember() async throws {
+        let registerTdeInput = RegisterTdeKeyResponse(
+            privateKey: "privateKey",
+            publicKey: "publicKey",
+            adminReset: "adminReset",
+            deviceKey: TrustDeviceResponse(
+                deviceKey: "deviceKey",
+                protectedUserKey: "protectedUserKey",
+                protectedDevicePrivateKey: "protectedDevicePrivateKey",
+                protectedDevicePublicKey: "protectedDevicePublicKey"
+            )
+        )
+        stateService.activeAccount = Account.fixture()
+        client.results = [
+            .httpSuccess(testData: .organizationAutoEnrollStatus),
+            .httpSuccess(testData: .organizationKeys),
+            .httpSuccess(testData: .emptyResponse),
+            .httpSuccess(testData: .emptyResponse),
+        ]
+        clientAuth.makeRegisterTdeKeysResult = .success(registerTdeInput)
+        trustDeviceService.trustDeviceWithExistingKeysResult = .success(())
+
+        try await subject.createNewSsoUser(orgIdentifier: "Bitwarden", rememberDevice: true)
+
+        XCTAssertEqual(trustDeviceService.trustDeviceWithExistingKeysValue, registerTdeInput.deviceKey)
+        XCTAssertEqual(clientAuth.makeRegisterTdeKeysOrgPublicKey, "MIIBIjAN...2QIDAQAB")
+        XCTAssertEqual(clientAuth.makeRegisterTdeKeysRememberDevice, true)
+    }
+
+    /// `createNewSsoUser()` creates a new account for sso JIT user and don't trust device.
+    func test_createNewSsoUser_notRemember() async throws {
+        let registerTdeInput = RegisterTdeKeyResponse(
+            privateKey: "privateKey",
+            publicKey: "publicKey",
+            adminReset: "adminReset",
+            deviceKey: TrustDeviceResponse(
+                deviceKey: "deviceKey",
+                protectedUserKey: "protectedUserKey",
+                protectedDevicePrivateKey: "protectedDevicePrivateKey",
+                protectedDevicePublicKey: "protectedDevicePublicKey"
+            )
+        )
+        stateService.activeAccount = Account.fixture()
+        client.results = [
+            .httpSuccess(testData: .organizationAutoEnrollStatus),
+            .httpSuccess(testData: .organizationKeys),
+            .httpSuccess(testData: .emptyResponse),
+            .httpSuccess(testData: .emptyResponse),
+        ]
+        clientAuth.makeRegisterTdeKeysResult = .success(registerTdeInput)
+
+        try await subject.createNewSsoUser(orgIdentifier: "Bitwarden", rememberDevice: false)
+
+        XCTAssertNil(trustDeviceService.trustDeviceWithExistingKeysValue)
+        XCTAssertEqual(clientAuth.makeRegisterTdeKeysOrgPublicKey, "MIIBIjAN...2QIDAQAB")
+        XCTAssertEqual(clientAuth.makeRegisterTdeKeysRememberDevice, false)
     }
 
     /// `deleteAccount()` deletes the active account and removes it from the state.
@@ -594,7 +656,7 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         )
         XCTAssertEqual(
             requests[1].url.absoluteString,
-            "https://example.com/api/organizations/1234/keys"
+            "https://example.com/api/organizations/1234/public-key"
         )
         XCTAssertEqual(
             requests[2].url.absoluteString,
@@ -741,6 +803,56 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         clientCrypto.initializeUserCryptoResult = .success(())
         await assertAsyncDoesNotThrow {
             try await subject.unlockVaultWithNeverlockKey()
+        }
+    }
+
+    /// `test_unlockVaultWithDeviceKey` attempts to unlock the vault using the device key from the keychain.
+    func test_unlockVaultWithDeviceKey_success() async throws {
+        let active = Account.fixtureWithTDE()
+        stateService.activeAccount = active
+        keychainService.mockStorage = [
+            keychainService.formattedKey(
+                for: KeychainItem.deviceKey(
+                    userId: active.profile.userId
+                )
+            ):
+                "pasta",
+        ]
+        stateService.accountEncryptionKeys = [
+            active.profile.userId: .init(
+                encryptedPrivateKey: "secret",
+                encryptedUserKey: "recipe"
+            ),
+        ]
+        clientCrypto.getUserEncryptionKeyResult = .success("sauce")
+        clientCrypto.initializeUserCryptoResult = .success(())
+        await assertAsyncDoesNotThrow {
+            try await subject.unlockVaultWithDeviceKey()
+        }
+    }
+
+    /// `test_unlockVaultWithDeviceKey` attempts to unlock the vault using the device key from the keychain.
+    func test_unlockVaultWithDeviceKey_error() async throws {
+        let active = Account.fixture()
+        stateService.activeAccount = active
+        keychainService.mockStorage = [
+            keychainService.formattedKey(
+                for: KeychainItem.deviceKey(
+                    userId: active.profile.userId
+                )
+            ):
+                "pasta",
+        ]
+        stateService.accountEncryptionKeys = [
+            active.profile.userId: .init(
+                encryptedPrivateKey: "secret",
+                encryptedUserKey: "recipe"
+            ),
+        ]
+        clientCrypto.getUserEncryptionKeyResult = .success("sauce")
+        clientCrypto.initializeUserCryptoResult = .success(())
+        await assertAsyncThrows(error: AuthError.missingUserDecryptionOptions) {
+            try await subject.unlockVaultWithDeviceKey()
         }
     }
 

@@ -10,6 +10,12 @@ enum AuthError: Error {
     /// The request that should've been cached is somehow missing.
     case missingData
 
+    /// The device key from trusting the device is missing.
+    case missingDeviceKey
+
+    /// The device key from trusting the device is missing.
+    case missingUserDecryptionOptions
+
     /// The data that should have been cached for the login with device method was missing.
     case missingLoginWithDeviceData
 
@@ -21,6 +27,12 @@ enum AuthError: Error {
 
     /// The user doesn't have a master password set; one needs to be set before continuing.
     case requireSetPassword
+
+    /// The user needs to update the temporary password; one needs to be set before continuing.
+    case requireUpdatePassword
+
+    /// The user needs to choose a decryption option before continuing to vault.
+    case requireDecryptionOptions
 
     /// There was a problem extracting the code from the Duo WebAuth response.
     case unableToDecodeDuoResponse
@@ -73,6 +85,13 @@ protocol AuthService {
     ///
     func generateSingleSignOnUrl(from organizationIdentifier: String) async throws -> (url: URL, state: String)
 
+    /// Gets the pending admin login request for a user ID.
+    ///
+    /// - Parameter userId: The user ID associated with the pending admin login request.
+    /// - Returns: The pending admin login request.
+    ///
+    func getPendingAdminLoginRequest(userId: String?) async throws -> PendingAdminLoginRequest?
+
     /// Get a specific login request, or all the pending login requests if the id is `nil`.
     ///
     func getPendingLoginRequest(withId id: String?) async throws -> [LoginRequest]
@@ -89,13 +108,16 @@ protocol AuthService {
 
     /// Initiates the login with device process.
     ///
-    /// - Parameters email: The user's email.
+    /// - Parameters:
+    ///  - email: The user's email.
+    ///  - type: The auth request type.
     ///
     /// - Returns: The auth request response containing the fingerprint for the new login request
     ///     and the id of the login request, used to check for a response.
     ///
     func initiateLoginWithDevice(
-        email: String
+        email: String,
+        type: AuthRequestType
     ) async throws -> (authRequestResponse: AuthRequestResponse, requestId: String)
 
     /// Login with the response received from a login with device request.
@@ -104,10 +126,15 @@ protocol AuthService {
     ///   - loginRequest: The approved login request.
     ///   - email: The user's email.
     ///   - captchaToken: An optional captcha token value to add to the token request.
+    ///   - isAuthenticated: If the user came from sso and is already authenticated
     /// - Returns: A tuple containing the private key from the auth request and the encrypted user key.
     ///
-    func loginWithDevice(_ loginRequest: LoginRequest, email: String, captchaToken: String?) async throws
-        -> (String, String)
+    func loginWithDevice(
+        _ loginRequest: LoginRequest,
+        email: String,
+        isAuthenticated: Bool,
+        captchaToken: String?
+    ) async throws -> (String, String)
 
     /// Login with the master password.
     ///
@@ -145,7 +172,7 @@ protocol AuthService {
         method: TwoFactorAuthMethod,
         remember: Bool,
         captchaToken: String?
-    ) async throws -> Account
+    ) async throws -> Account?
 
     /// Evaluates the supplied master password against the master password policy provided by the Identity response.
     /// - Parameters:
@@ -163,6 +190,14 @@ protocol AuthService {
 
     /// Resend the email with the user's verification code.
     func resendVerificationCodeEmail() async throws
+
+    /// Sets the pending admin login request for a user ID.
+    ///
+    /// - Parameters:
+    ///   - adminLoginRequest: The user's pending admin login request.
+    ///   - userId: The user ID associated with the pending admin login request.
+    ///
+    func setPendingAdminLoginRequest(_ adminLoginRequest: PendingAdminLoginRequest?, userId: String?) async throws
 }
 
 extension AuthService {
@@ -225,6 +260,9 @@ class DefaultAuthService: AuthService { // swiftlint:disable:this type_body_leng
     /// The object used by the application to retrieve information about this device.
     private let systemDevice: SystemDevice
 
+    /// The service used by the application to manage trust device information.
+    private let trustDeviceService: TrustDeviceService
+
     /// The two-factor request, which is cached after the original login request fails and then
     /// reused with the code once the user has entered it.
     private var twoFactorRequest: IdentityTokenRequestModel?
@@ -249,6 +287,7 @@ class DefaultAuthService: AuthService { // swiftlint:disable:this type_body_leng
     ///   - policyService: The service used by the application to manage the policy.
     ///   - stateService: The object used by the application to retrieve information about this device.
     ///   - systemDevice: The object used by the application to retrieve information about this device.
+    ///   - trustDeviceService: The service used by the application to manage trust device information.
     ///
     init(
         accountAPIService: AccountAPIService,
@@ -261,7 +300,8 @@ class DefaultAuthService: AuthService { // swiftlint:disable:this type_body_leng
         keychainRepository: KeychainRepository,
         policyService: PolicyService,
         stateService: StateService,
-        systemDevice: SystemDevice
+        systemDevice: SystemDevice,
+        trustDeviceService: TrustDeviceService
     ) {
         self.accountAPIService = accountAPIService
         self.appIdService = appIdService
@@ -274,6 +314,7 @@ class DefaultAuthService: AuthService { // swiftlint:disable:this type_body_leng
         self.policyService = policyService
         self.stateService = stateService
         self.systemDevice = systemDevice
+        self.trustDeviceService = trustDeviceService
     }
 
     // MARK: Methods
@@ -357,6 +398,19 @@ class DefaultAuthService: AuthService { // swiftlint:disable:this type_body_leng
         return (url, state)
     }
 
+    func getPendingAdminLoginRequest(userId: String?) async throws -> PendingAdminLoginRequest? {
+        let activeUserId = try await stateService.getAccountIdOrActiveId(userId: userId)
+        do {
+            if let jsonString = try await keychainRepository.getPendingAdminLoginRequest(userId: activeUserId),
+               let jsonData = jsonString.data(using: .utf8) {
+                return try JSONDecoder().decode(PendingAdminLoginRequest.self, from: jsonData)
+            }
+            return nil
+        } catch KeychainServiceError.osStatusError(errSecItemNotFound) {
+            return nil
+        }
+    }
+
     func getPendingLoginRequest(withId id: String?) async throws -> [LoginRequest] {
         // Get the pending login requests.
         var loginRequests = if let id {
@@ -386,21 +440,53 @@ class DefaultAuthService: AuthService { // swiftlint:disable:this type_body_leng
     }
 
     func initiateLoginWithDevice(
-        email: String
+        email: String,
+        type: AuthRequestType
     ) async throws -> (authRequestResponse: AuthRequestResponse, requestId: String) {
+        // Check for a valid pending admin login request
+        if type == AuthRequestType.adminApproval {
+            if let savedRequest = try await getPendingAdminLoginRequest(userId: nil),
+               let updatedRequest = try await getPendingLoginRequest(withId: savedRequest.id).first,
+               updatedRequest.isAnswered == false,
+               updatedRequest.isExpired == false {
+                let loginData = AuthRequestResponse(
+                    privateKey: savedRequest.privateKey,
+                    publicKey: savedRequest.publicKey,
+                    fingerprint: savedRequest.fingerprint,
+                    accessCode: savedRequest.accessCode
+                )
+
+                self.loginWithDeviceData = loginData
+                // Return existing data to continue waiting for the response
+                return (authRequestResponse: loginData, requestId: savedRequest.id)
+            } else {
+                try await setPendingAdminLoginRequest(nil, userId: nil)
+            }
+        }
+
         // Get the app's id.
         let appId = await appIdService.getOrCreateAppId()
 
         // Initiate the login request and cache the result.
         let loginWithDeviceData = try await clientAuth.newAuthRequest(email: email)
-        let loginRequest = try await authAPIService.initiateLoginWithDevice(
-            accessCode: loginWithDeviceData.accessCode,
-            deviceIdentifier: appId,
+        let loginRequest = try await authAPIService.initiateLoginWithDevice(LoginWithDeviceRequestModel(
             email: email,
-            fingerPrint: loginWithDeviceData.fingerprint,
-            publicKey: loginWithDeviceData.publicKey
-        )
+            publicKey: loginWithDeviceData.publicKey,
+            deviceIdentifier: appId,
+            accessCode: loginWithDeviceData.accessCode,
+            type: type,
+            fingerprintPhrase: loginWithDeviceData.fingerprint
+        ))
+
         self.loginWithDeviceData = loginWithDeviceData
+
+        // Save request for future use if necessary
+        if type == AuthRequestType.adminApproval {
+            try await setPendingAdminLoginRequest(PendingAdminLoginRequest(
+                id: loginRequest.id,
+                authRequestResponse: loginWithDeviceData
+            ), userId: nil)
+        }
 
         // Return the auth request response and the request id.
         return (
@@ -412,21 +498,24 @@ class DefaultAuthService: AuthService { // swiftlint:disable:this type_body_leng
     func loginWithDevice(
         _ loginRequest: LoginRequest,
         email: String,
+        isAuthenticated: Bool = false,
         captchaToken: String?
     ) async throws -> (String, String) {
         guard let loginWithDeviceData else { throw AuthError.missingLoginWithDeviceData }
         guard let key = loginRequest.key else { throw AuthError.missingLoginWithDeviceKey }
 
-        // Get the identity token to log in to Bitwarden.
-        _ = try await getIdentityTokenResponse(
-            authenticationMethod: .password(
-                username: email,
-                password: loginWithDeviceData.accessCode
-            ),
-            email: email,
-            captchaToken: captchaToken,
-            loginRequestId: loginRequest.id
-        )
+        if !isAuthenticated {
+            // Get the identity token to log in to Bitwarden.
+            _ = try await getIdentityTokenResponse(
+                authenticationMethod: .password(
+                    username: email,
+                    password: loginWithDeviceData.accessCode
+                ),
+                email: email,
+                captchaToken: captchaToken,
+                loginRequestId: loginRequest.id
+            )
+        }
 
         // Return the information necessary to unlock the vault.
         return (loginWithDeviceData.privateKey, key)
@@ -469,6 +558,46 @@ class DefaultAuthService: AuthService { // swiftlint:disable:this type_body_leng
         }
     }
 
+    /// Check TDE user decryption options to see if can unlock with trusted deviceKey or needs further actions
+    private func canUnlockWithDeviceKey(_ response: IdentityTokenResponseModel) async throws -> Bool {
+        if let decryptionOptions = response.userDecryptionOptions,
+           let trustedDeviceOption = decryptionOptions.trustedDeviceOption {
+            if try await trustDeviceService.isDeviceTrusted() {
+                // Server keys were deleted, remove local device as trusted locally
+                if trustedDeviceOption.encryptedPrivateKey == nil,
+                   trustedDeviceOption.encryptedUserKey == nil {
+                    try await trustDeviceService.removeTrustedDevice()
+                    throw AuthError.requireDecryptionOptions
+                }
+
+                // User need to update password
+                if response.forcePasswordReset {
+                    throw AuthError.requireUpdatePassword
+                }
+
+                // User privileges were elevated and needs to set a password
+                if !decryptionOptions.hasMasterPassword,
+                   trustedDeviceOption.hasManageResetPasswordPermission {
+                    // TODO: PM-7340 Set password reason
+                    // try await stateService.setForcePasswordResetReason(
+                    // ForcePasswordResetReason.tdeUserWithoutPasswordHasPasswordResetPermission
+                    // )
+                }
+                // Device is trusted and user unlock with device key
+                return true
+            }
+
+            throw AuthError.requireDecryptionOptions
+        }
+
+        if response.userDecryptionOptions?.hasMasterPassword == false,
+           response.userDecryptionOptions?.keyConnectorOption == nil {
+            throw AuthError.requireSetPassword
+        }
+
+        return false
+    }
+
     func loginWithSingleSignOn(code: String, email: String) async throws -> Account? {
         // Get the identity token to log in to Bitwarden.
         let response = try await getIdentityTokenResponse(
@@ -480,8 +609,8 @@ class DefaultAuthService: AuthService { // swiftlint:disable:this type_body_leng
             email: email
         )
 
-        if response.userDecryptionOptions?.hasMasterPassword == false {
-            throw AuthError.requireSetPassword
+        if try await canUnlockWithDeviceKey(response) {
+            return nil
         }
 
         // Return the account if the vault still needs to be unlocked and nil otherwise.
@@ -495,7 +624,7 @@ class DefaultAuthService: AuthService { // swiftlint:disable:this type_body_leng
         method: TwoFactorAuthMethod,
         remember: Bool,
         captchaToken: String? = nil
-    ) async throws -> Account {
+    ) async throws -> Account? {
         guard var twoFactorRequest else { throw AuthError.missingTwoFactorRequest }
 
         // Add the two factor information to the request.
@@ -507,7 +636,7 @@ class DefaultAuthService: AuthService { // swiftlint:disable:this type_body_leng
         if let captchaToken { twoFactorRequest.captchaToken = captchaToken }
 
         // Get the identity token to log in to Bitwarden.
-        _ = try await getIdentityTokenResponse(email: email, request: twoFactorRequest)
+        let response = try await getIdentityTokenResponse(email: email, request: twoFactorRequest)
 
         // Save the master password hash.
         if case let .password(_, password) = twoFactorRequest.authenticationMethod {
@@ -517,6 +646,10 @@ class DefaultAuthService: AuthService { // swiftlint:disable:this type_body_leng
         // Remove the cached request after successfully logging in.
         self.twoFactorRequest = nil
         resendEmailModel = nil
+
+        if try await canUnlockWithDeviceKey(response) {
+            return nil
+        }
 
         // Return the account if the vault still needs to be unlocked.
         return try await stateService.getActiveAccount()
@@ -553,6 +686,21 @@ class DefaultAuthService: AuthService { // swiftlint:disable:this type_body_leng
     func resendVerificationCodeEmail() async throws {
         guard let resendEmailModel else { throw AuthError.unableToResendEmail }
         try await authAPIService.resendEmailCode(resendEmailModel)
+    }
+
+    func setPendingAdminLoginRequest(_ adminLoginRequest: PendingAdminLoginRequest?, userId: String?) async throws {
+        let activeUserId = try await stateService.getAccountIdOrActiveId(userId: userId)
+        do {
+            if let adminLoginRequest {
+                let jsonData = try JSONEncoder().encode(adminLoginRequest)
+                guard let jsonString = String(data: jsonData, encoding: .utf8) else { throw AuthError.missingData }
+                try await keychainRepository.setPendingAdminLoginRequest(jsonString, userId: activeUserId)
+            } else {
+                try await keychainRepository.deletePendingAdminLoginRequest(userId: activeUserId)
+            }
+        } catch KeychainServiceError.osStatusError(errSecItemNotFound) {
+            return
+        }
     }
 
     // MARK: Private Methods

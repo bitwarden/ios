@@ -35,11 +35,20 @@ public enum AuthRoute: Equatable {
     ///
     case login(username: String)
 
+    /// A route to the login decryption options screen.
+    ///
+    /// - Parameter organizationIdentifier: The organization's identifier.
+    ///
+    case showLoginDecryptionOptions(organizationIdentifier: String)
+
     /// A route to the login with device screen.
     ///
-    /// - Parameter email: The user's email.
+    /// - Parameters:
+    ///    - email: The user's email.
+    ///    - authRequestType: The auth request type.
+    ///    - isAuthenticated: If the user came from sso and is already authenticated
     ///
-    case loginWithDevice(email: String)
+    case loginWithDevice(email: String, authRequestType: AuthRequestType, isAuthenticated: Bool)
 
     /// A route to the master password hint screen for the provided username.
     ///
@@ -72,11 +81,13 @@ public enum AuthRoute: Equatable {
     ///   - email: The user's email address.
     ///   - unlockMethod: The method used to unlock the vault after two-factor completes successfully.
     ///   - authMethodsData: The data on the available auth methods.
+    ///   - orgIdentifier: The identifier for the organization used in the SSO flow
     ///
     case twoFactor(
         _ email: String,
         _ unlockMethod: TwoFactorUnlockMethod?,
-        _ authMethodsData: AuthMethodsData
+        _ authMethodsData: AuthMethodsData,
+        _ orgIdentifier: String?
     )
 
     /// A route to the update master password view.

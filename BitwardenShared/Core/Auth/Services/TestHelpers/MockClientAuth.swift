@@ -65,6 +65,15 @@ class MockClientAuth: ClientAuthProtocol {
     var validatePasswordUserKeyPassword: String?
     var validatePasswordUserKeyResult: Result<String, Error> = .success("MASTER_PASSWORD_HASH")
 
+    var trustDeviceResult: Result<TrustDeviceResponse, Error> = .success(
+        TrustDeviceResponse(
+            deviceKey: "DEVICE_KEY",
+            protectedUserKey: "USER_KEY",
+            protectedDevicePrivateKey: "DEVICE_PRIVATE_KEY",
+            protectedDevicePublicKey: "DEVICE_PUBLIC_KEY"
+        )
+    )
+
     func approveAuthRequest(publicKey: String) async throws -> AsymmetricEncString {
         approveAuthRequestPublicKey = publicKey
         return try approveAuthRequestResult.get()
@@ -115,8 +124,7 @@ class MockClientAuth: ClientAuthProtocol {
     }
 
     func trustDevice() async throws -> BitwardenSdk.TrustDeviceResponse {
-        // Nothing yet.
-        throw BitwardenTestError.example
+        try trustDeviceResult.get()
     }
 
     func validatePassword(password: String, passwordHash: String) async throws -> Bool {

@@ -35,6 +35,26 @@ extension Account {
             tokens: nil
         )
     }
+
+    static func fixtureWithTDE() -> Account {
+        Account.fixture(
+            profile: Account.AccountProfile.fixture(
+                userDecryptionOptions: UserDecryptionOptions(
+                    hasMasterPassword: true,
+                    keyConnectorOption: nil,
+                    trustedDeviceOption: TrustedDeviceUserDecryptionOption(
+                        encryptedPrivateKey: "PRIVATE_KEY",
+                        encryptedUserKey: "USER_KEY",
+                        hasAdminApproval: true,
+                        hasLoginApprovingDevice: true,
+                        hasManageResetPasswordPermission: false
+                    )
+                )
+            ),
+            settings: .fixture(),
+            tokens: nil
+        )
+    }
 }
 
 extension Account.AccountProfile {
