@@ -8,6 +8,7 @@ class AppProcessorTests: BitwardenTestCase {
 
     var appModule: MockAppModule!
     var authRepository: MockAuthRepository!
+    var clientService: MockClientService!
     var coordinator: MockCoordinator<AppRoute, AppEvent>!
     var errorReporter: MockErrorReporter!
     var migrationService: MockMigrationService!
@@ -28,6 +29,7 @@ class AppProcessorTests: BitwardenTestCase {
         router = MockRouter(routeForEvent: { _ in .landing })
         appModule = MockAppModule()
         authRepository = MockAuthRepository()
+        clientService = MockClientService()
         coordinator = MockCoordinator()
         appModule.authRouter = router
         appModule.appCoordinator = coordinator
@@ -44,6 +46,7 @@ class AppProcessorTests: BitwardenTestCase {
             appModule: appModule,
             services: ServiceContainer.withMocks(
                 authRepository: authRepository,
+                clientService: clientService,
                 errorReporter: errorReporter,
                 migrationService: migrationService,
                 notificationService: notificationService,
@@ -61,6 +64,7 @@ class AppProcessorTests: BitwardenTestCase {
 
         appModule = nil
         authRepository = nil
+        clientService = nil
         coordinator = nil
         errorReporter = nil
         migrationService = nil
@@ -145,7 +149,14 @@ class AppProcessorTests: BitwardenTestCase {
     func test_shouldSessionTimeout_navigateTo_didTimeout() throws {
         let rootNavigator = MockRootNavigator()
         let account = Account.fixture()
+        let account2 = Account.fixture()
+        let account2Id = account2.profile.userId
+
+        clientService.updateClientLockedStatus(userId: account2Id, isLocked: false)
+        XCTAssertFalse(clientService.isLocked(userId: account2Id))
+
         stateService.activeAccount = account
+        stateService.accounts = [account, account2]
 
         let task = Task {
             await subject.start(appContext: .mainApp, navigator: rootNavigator, window: nil)
@@ -159,6 +170,7 @@ class AppProcessorTests: BitwardenTestCase {
         waitFor(vaultTimeoutService.shouldSessionTimeout[account.profile.userId] == true)
 
         waitFor(coordinator.events.count > 1)
+        waitFor(clientService.isLocked(userId: account2Id))
         XCTAssertEqual(
             coordinator.events,
             [

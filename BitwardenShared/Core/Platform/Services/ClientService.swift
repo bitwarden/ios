@@ -277,8 +277,8 @@ protocol ClientBuilder {
 class DefaultClientBuilder: ClientBuilder {
     // MARK: Properties
 
-    /// The client that will be returned.
-    private let client: Client
+    /// The settings applied to the client.
+    private let settings: ClientSettings?
 
     // MARK: Initialization
 
@@ -287,13 +287,13 @@ class DefaultClientBuilder: ClientBuilder {
     /// - Parameter settings: The settings applied to the client.
     ///
     init(settings: ClientSettings? = nil) {
-        client = Client(settings: settings)
+        self.settings = settings
     }
 
     // MARK: Methods
 
     func buildClient() -> BitwardenSdkClient {
-        client
+        Client(settings: settings)
     }
 }
 
