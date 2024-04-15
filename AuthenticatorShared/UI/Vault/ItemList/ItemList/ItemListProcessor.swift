@@ -65,6 +65,8 @@ final class ItemListProcessor: StateProcessor<ItemListState, ItemListAction, Ite
             await showMoreOptionsAlert(for: item)
         case .refresh:
             await streamItemList()
+        case let .search(text):
+            state.searchResults = await searchItems(for: text)
         case .streamItemList:
             await streamItemList()
         }
@@ -83,6 +85,14 @@ final class ItemListProcessor: StateProcessor<ItemListState, ItemListAction, Ite
                 services.pasteboardService.copy(model.totpCode.code)
                 state.toast = Toast(text: Localizations.valueHasBeenCopied(Localizations.verificationCode))
             }
+        case let .searchStateChanged(isSearching: isSearching):
+            guard isSearching else {
+                state.searchText = ""
+                state.searchResults = []
+                return
+            }
+        case let .searchTextChanged(newValue):
+            state.searchText = newValue
         case let .toastShown(newValue):
             state.toast = newValue
         }
@@ -194,6 +204,29 @@ final class ItemListProcessor: StateProcessor<ItemListState, ItemListAction, Ite
         case let .edit(item):
             coordinator.navigate(to: .editItem(item: item), context: self)
         }
+    }
+
+    /// Searches items using the provided string, and returns any matching results.
+    ///
+    /// - Parameters:
+    ///   - searchText: The string to use when searching items.
+    /// - Returns: An array of `ItemListItem` objects. If no results can be found, an empty array will be returned.
+    ///
+    private func searchItems(for searchText: String) async -> [ItemListItem] {
+        guard !searchText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else {
+            return []
+        }
+        do {
+            let result = try await services.authenticatorItemRepository.searchItemListPublisher(
+                searchText: searchText
+            )
+            for try await items in result {
+                return items
+            }
+        } catch {
+            services.errorReporter.log(error: error)
+        }
+        return []
     }
 
     /// Stream the items list.

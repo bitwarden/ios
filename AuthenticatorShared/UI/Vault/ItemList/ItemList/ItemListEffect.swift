@@ -18,6 +18,9 @@ enum ItemListEffect: Equatable {
     /// The refresh control was triggered.
     case refresh
 
+    /// Searches based on the keyword.
+    case search(String)
+
     /// Stream the vault list for the user.
     case streamItemList
 }

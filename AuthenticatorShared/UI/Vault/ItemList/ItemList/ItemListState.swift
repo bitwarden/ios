@@ -17,6 +17,12 @@ struct ItemListState: Equatable {
     /// The current loading state.
     var loadingState: LoadingState<[ItemListItem]> = .loading(nil)
 
+    /// An array of results matching the `searchText`.
+    var searchResults = [ItemListItem]()
+
+    /// The text that the user is currently searching for.
+    var searchText = ""
+
     /// Whether to show the add item button in the view.
     var showAddItemButton: Bool {
         // Don't show if there is data.

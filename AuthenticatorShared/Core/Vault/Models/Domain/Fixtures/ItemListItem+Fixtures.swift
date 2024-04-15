@@ -7,7 +7,7 @@ extension ItemListItem {
     static func fixture(
         id: String = "123",
         name: String = "Name",
-        totp: ItemListTotpItem
+        totp: ItemListTotpItem = .fixture()
     ) -> ItemListItem {
         ItemListItem(
             id: id,

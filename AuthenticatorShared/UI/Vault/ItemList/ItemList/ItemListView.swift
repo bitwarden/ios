@@ -1,10 +1,15 @@
+// swiftlint:disable file_length
+
 import SwiftUI
 
-// MARK: - ItemListView
+// MARK: - SearchableItemListView
 
 /// A view that displays the items in a single vault group.
-struct ItemListView: View {
+private struct SearchableItemListView: View {
     // MARK: Properties
+
+    /// A flag indicating if the search bar is focused.
+    @Environment(\.isSearching) private var isSearching
 
     /// An object used to open urls from this view.
     @Environment(\.openURL) private var openURL
@@ -18,24 +23,42 @@ struct ItemListView: View {
     // MARK: View
 
     var body: some View {
-        content
-            .navigationTitle(Localizations.verificationCodes)
-            .navigationBarTitleDisplayMode(.inline)
-            .background(Asset.Colors.backgroundSecondary.swiftUIColor.ignoresSafeArea())
-            .toolbar {
-                addToolbarItem(hidden: !store.state.showAddToolbarItem) {
-                    Task {
-                        await store.perform(.addItemPressed)
-                    }
-                }
-            }
-            .task {
-                await store.perform(.appeared)
-            }
-            .toast(store.binding(
-                get: \.toast,
-                send: ItemListAction.toastShown
-            ))
+        // A ZStack with hidden children is used here so that opening and closing the
+        // search interface does not reset the scroll position for the main vault
+        // view, as would happen if we used an `if else` block here.
+        //
+        // Additionally, we cannot use an `.overlay()` on the main vault view to contain
+        // the search interface since VoiceOver still reads the elements below the overlay,
+        // which is not ideal.
+
+        ZStack {
+            let isSearching = isSearching
+                || !store.state.searchText.isEmpty
+                || !store.state.searchResults.isEmpty
+
+            content
+                .hidden(isSearching)
+
+            search
+                .hidden(!isSearching)
+        }
+        .background(Asset.Colors.backgroundSecondary.swiftUIColor.ignoresSafeArea())
+        .toast(store.binding(
+            get: \.toast,
+            send: ItemListAction.toastShown
+        ))
+        .onChange(of: isSearching) { newValue in
+            store.send(.searchStateChanged(isSearching: newValue))
+        }
+        .toast(store.binding(
+            get: \.toast,
+            send: ItemListAction.toastShown
+        ))
+        .animation(.default, value: isSearching)
+        .toast(store.binding(
+            get: \.toast,
+            send: ItemListAction.toastShown
+        ))
     }
 
     // MARK: Private
@@ -70,10 +93,8 @@ struct ItemListView: View {
                         .foregroundColor(Asset.Colors.textPrimary.swiftUIColor)
 
                     if store.state.showAddItemButton {
-                        Button(Localizations.addCode) {
-                            Task {
-                                await store.perform(.addItemPressed)
-                            }
+                        AsyncButton(Localizations.addCode) {
+                            await store.perform(.addItemPressed)
                         }
                         .buttonStyle(.primary())
                     }
@@ -83,6 +104,31 @@ struct ItemListView: View {
                 .padding(.horizontal, 16)
                 .frame(minWidth: reader.size.width, minHeight: reader.size.height)
             }
+        }
+    }
+
+    /// A view that displays the search interface, including search results, an empty search
+    /// interface, and a message indicating that no results were found.
+    @ViewBuilder private var search: some View {
+        if store.state.searchText.isEmpty || !store.state.searchResults.isEmpty {
+            ScrollView {
+                LazyVStack(spacing: 0) {
+                    ForEach(store.state.searchResults) { item in
+                        Button {
+                            store.send(.itemPressed(item))
+                        } label: {
+                            vaultItemRow(
+                                for: item,
+                                isLastInSection: store.state.searchResults.last == item
+                            )
+                            .background(Asset.Colors.backgroundPrimary.swiftUIColor)
+                        }
+                        .accessibilityIdentifier("ItemCell")
+                    }
+                }
+            }
+        } else {
+            SearchNoResultsView()
         }
     }
 
@@ -147,47 +193,178 @@ struct ItemListView: View {
     }
 }
 
+// MARK: - ItemListView
+
+/// The main view of the item list
+struct ItemListView: View {
+    // MARK: Properties
+
+    /// The `Store` for this view.
+    @ObservedObject var store: Store<ItemListState, ItemListAction, ItemListEffect>
+
+    /// The `TimeProvider` used to calculate TOTP expiration.
+    var timeProvider: any TimeProvider
+
+    var body: some View {
+        ZStack {
+            SearchableItemListView(
+                store: store,
+                timeProvider: timeProvider
+            )
+            .searchable(
+                text: store.binding(
+                    get: \.searchText,
+                    send: ItemListAction.searchTextChanged
+                ),
+                placement: .navigationBarDrawer(displayMode: .always),
+                prompt: Localizations.search
+            )
+            .task(id: store.state.searchText) {
+                await store.perform(.search(store.state.searchText))
+            }
+            .refreshable {
+                await store.perform(.refresh)
+            }
+        }
+        .navigationTitle(Localizations.verificationCodes)
+        .navigationBarTitleDisplayMode(.inline)
+        .toolbar {
+            addToolbarItem(hidden: !store.state.showAddToolbarItem) {
+                Task {
+                    await store.perform(.addItemPressed)
+                }
+            }
+        }
+        .task {
+            await store.perform(.appeared)
+        }
+    }
+}
+
 // MARK: Previews
 
 #if DEBUG
-#Preview("Loading") {
-    NavigationView {
-        ItemListView(
-            store: Store(
-                processor: StateProcessor(
-                    state: ItemListState(
-                        loadingState: .loading(nil)
+struct ItemListView_Previews: PreviewProvider {
+    static var previews: some View {
+        NavigationView {
+            ItemListView(
+                store: Store(
+                    processor: StateProcessor(
+                        state: ItemListState(
+                            loadingState: .loading(nil)
+                        )
                     )
-                )
-            ),
-            timeProvider: PreviewTimeProvider()
-        )
-    }
-}
+                ),
+                timeProvider: PreviewTimeProvider()
+            )
+        }.previewDisplayName("Loading")
 
-#Preview("Empty") {
-    NavigationView {
-        ItemListView(
-            store: Store(
-                processor: StateProcessor(
-                    state: ItemListState(
-                        loadingState: .data([])
+        NavigationView {
+            ItemListView(
+                store: Store(
+                    processor: StateProcessor(
+                        state: ItemListState(
+                            loadingState: .data([])
+                        )
                     )
-                )
-            ),
-            timeProvider: PreviewTimeProvider()
-        )
-    }
-}
+                ),
+                timeProvider: PreviewTimeProvider()
+            )
+        }.previewDisplayName("Empty")
 
-#Preview("Items") {
-    NavigationView {
-        ItemListView(
-            store: Store(
-                processor: StateProcessor(
-                    state: ItemListState(
-                        loadingState: .data(
-                            [
+        NavigationView {
+            ItemListView(
+                store: Store(
+                    processor: StateProcessor(
+                        state: ItemListState(
+                            loadingState: .data(
+                                [
+                                    ItemListItem(
+                                        id: "One",
+                                        name: "One",
+                                        itemType: .totp(
+                                            model: ItemListTotpItem(
+                                                itemView: AuthenticatorItemView.fixture(),
+                                                totpCode: TOTPCodeModel(
+                                                    code: "123456",
+                                                    codeGenerationDate: Date(),
+                                                    period: 30
+                                                )
+                                            )
+                                        )
+                                    ),
+                                    ItemListItem(
+                                        id: "Two",
+                                        name: "Two",
+                                        itemType: .totp(
+                                            model: ItemListTotpItem(
+                                                itemView: AuthenticatorItemView.fixture(),
+                                                totpCode: TOTPCodeModel(
+                                                    code: "123456",
+                                                    codeGenerationDate: Date(),
+                                                    period: 30
+                                                )
+                                            )
+                                        )
+                                    ),
+                                ]
+                            )
+                        )
+                    )
+                ),
+                timeProvider: PreviewTimeProvider()
+            )
+        }.previewDisplayName("Items")
+
+        NavigationView {
+            ItemListView(
+                store: Store(
+                    processor: StateProcessor(
+                        state: ItemListState(
+                            searchResults: [],
+                            searchText: "Example"
+                        )
+                    )
+                ),
+                timeProvider: PreviewTimeProvider()
+            )
+        }.previewDisplayName("0 Search Results")
+
+        NavigationView {
+            ItemListView(
+                store: Store(
+                    processor: StateProcessor(
+                        state: ItemListState(
+                            searchResults: [
+                                ItemListItem(
+                                    id: "One",
+                                    name: "One",
+                                    itemType: .totp(
+                                        model: ItemListTotpItem(
+                                            itemView: AuthenticatorItemView.fixture(),
+                                            totpCode: TOTPCodeModel(
+                                                code: "123456",
+                                                codeGenerationDate: Date(),
+                                                period: 30
+                                            )
+                                        )
+                                    )
+                                ),
+                            ],
+                            searchText: "One"
+                        )
+                    )
+                ),
+                timeProvider: PreviewTimeProvider()
+            )
+        }.previewDisplayName("1 Search Result")
+
+        NavigationView {
+            ItemListView(
+                store: Store(
+                    processor: StateProcessor(
+                        state: ItemListState(
+                            searchResults: [
                                 ItemListItem(
                                     id: "One",
                                     name: "One",
@@ -204,7 +381,7 @@ struct ItemListView: View {
                                 ),
                                 ItemListItem(
                                     id: "Two",
-                                    name: "Two",
+                                    name: "One Direction",
                                     itemType: .totp(
                                         model: ItemListTotpItem(
                                             itemView: AuthenticatorItemView.fixture(),
@@ -216,13 +393,28 @@ struct ItemListView: View {
                                         )
                                     )
                                 ),
-                            ]
+                                ItemListItem(
+                                    id: "Three",
+                                    name: "One Song",
+                                    itemType: .totp(
+                                        model: ItemListTotpItem(
+                                            itemView: AuthenticatorItemView.fixture(),
+                                            totpCode: TOTPCodeModel(
+                                                code: "123456",
+                                                codeGenerationDate: Date(),
+                                                period: 30
+                                            )
+                                        )
+                                    )
+                                ),
+                            ],
+                            searchText: "One"
                         )
                     )
-                )
-            ),
-            timeProvider: PreviewTimeProvider()
-        )
+                ),
+                timeProvider: PreviewTimeProvider()
+            )
+        }.previewDisplayName("3 Search Results")
     }
 }
 #endif

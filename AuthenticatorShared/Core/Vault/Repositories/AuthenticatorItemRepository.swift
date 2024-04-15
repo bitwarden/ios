@@ -62,6 +62,16 @@ protocol AuthenticatorItemRepository: AnyObject {
     /// - Returns: A publisher for the list of a user's items
     ///
     func itemListPublisher() async throws -> AsyncThrowingPublisher<AnyPublisher<[ItemListSection], Error>>
+
+    /// A publisher for searching a user's cipher objects based on the specified search text and filter type.
+    ///
+    /// - Parameters:
+    ///   - searchText: The search text to filter the cipher list.
+    /// - Returns: A publisher searching for the user's ciphers.
+    ///
+    func searchItemListPublisher(
+        searchText: String
+    ) async throws -> AsyncThrowingPublisher<AnyPublisher<[ItemListItem], Error>>
 }
 
 // MARK: - DefaultAuthenticatorItemRepository
@@ -115,6 +125,38 @@ class DefaultAuthenticatorItemRepository {
             ),
         ]
     }
+
+    /// A publisher for searching a user's items based on the specified search text and filter type.
+    ///
+    /// - Parameters:
+    ///   - searchText: The search text to filter the item list.
+    /// - Returns: A publisher searching for the user's ciphers.
+    ///
+    private func searchPublisher(
+        searchText: String
+    ) async throws -> AnyPublisher<[AuthenticatorItemView], Error> {
+        let query = searchText.trimmingCharacters(in: .whitespacesAndNewlines)
+            .lowercased()
+            .folding(options: .diacriticInsensitive, locale: .current)
+
+        return try await authenticatorItemService.authenticatorItemsPublisher()
+            .asyncTryMap { items -> [AuthenticatorItemView] in
+                var matchedItems: [AuthenticatorItem] = []
+
+                items.forEach { item in
+                    if item.name.lowercased()
+                        .folding(options: .diacriticInsensitive, locale: nil)
+                        .contains(query) {
+                        matchedItems.append(item)
+                    }
+                }
+
+                return try await matchedItems.asyncMap { item in
+                    try await self.cryptographyService.decrypt(item)
+                }
+                .sorted { $0.name.localizedStandardCompare($1.name) == .orderedAscending }
+            }.eraseToAnyPublisher()
+    }
 }
 
 extension DefaultAuthenticatorItemRepository: AuthenticatorItemRepository {
@@ -147,6 +189,8 @@ extension DefaultAuthenticatorItemRepository: AuthenticatorItemRepository {
         try await authenticatorItemService.updateAuthenticatorItem(item)
     }
 
+    // MARK: Publishers
+
     func authenticatorItemDetailsPublisher(
         id: String
     ) async throws -> AsyncThrowingPublisher<AnyPublisher<AuthenticatorItemView?, Error>> {
@@ -166,5 +210,17 @@ extension DefaultAuthenticatorItemRepository: AuthenticatorItemRepository {
             }
             .eraseToAnyPublisher()
             .values
+    }
+
+    func searchItemListPublisher(
+        searchText: String
+    ) async throws -> AsyncThrowingPublisher<AnyPublisher<[ItemListItem], Error>> {
+        try await searchPublisher(
+            searchText: searchText
+        ).asyncTryMap { items in
+            items.compactMap(ItemListItem.init)
+        }
+        .eraseToAnyPublisher()
+        .values
     }
 }
