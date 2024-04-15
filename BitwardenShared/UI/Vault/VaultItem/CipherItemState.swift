@@ -58,6 +58,9 @@ struct CipherItemState: Equatable {
     /// The list of all folders that the item could be added to.
     var folders: [DefaultableType<FolderView>]
 
+    /// If master password reprompt toggle should be shown
+    var showMasterPasswordReprompt: Bool 
+
     /// The state for a identity type item.
     var identityState: IdentityItemState
 
@@ -169,6 +172,7 @@ struct CipherItemState: Equatable {
         collections = []
         customFieldsState = AddEditCustomFieldsState(cipherType: type, customFields: customFields)
         self.folderId = folderId
+        showMasterPasswordReprompt = true
         self.identityState = identityState
         self.isFavoriteOn = isFavoriteOn
         self.isMasterPasswordRePromptOn = isMasterPasswordRePromptOn

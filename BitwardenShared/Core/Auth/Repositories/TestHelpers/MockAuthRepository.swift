@@ -16,6 +16,7 @@ class MockAuthRepository: AuthRepository {
     var activeAccount: Account?
     var altAccounts = [Account]()
     var getAccountError: Error?
+    var hasMasterPassword: Bool = true
     var isLockedResult: Result<Bool, Error> = .success(true)
     var isPinUnlockAvailable = false
     var lockVaultUserId: String?
@@ -125,6 +126,10 @@ class MockAuthRepository: AuthRepository {
         return .empty(
             shouldAlwaysHideAddAccount: shouldAlwaysHideAddAccount
         )
+    }
+
+    func hasMasterPassword() async throws -> Bool {
+        hasMasterPassword
     }
 
     func isLocked(userId: String?) async throws -> Bool {

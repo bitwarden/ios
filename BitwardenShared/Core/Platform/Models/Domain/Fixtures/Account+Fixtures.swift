@@ -55,6 +55,26 @@ extension Account {
             tokens: nil
         )
     }
+
+    static func fixtureWithTdeNoPassword() -> Account {
+        Account.fixture(
+            profile: Account.AccountProfile.fixture(
+                userDecryptionOptions: UserDecryptionOptions(
+                    hasMasterPassword: false,
+                    keyConnectorOption: nil,
+                    trustedDeviceOption: TrustedDeviceUserDecryptionOption(
+                        encryptedPrivateKey: "PRIVATE_KEY",
+                        encryptedUserKey: "USER_KEY",
+                        hasAdminApproval: true,
+                        hasLoginApprovingDevice: true,
+                        hasManageResetPasswordPermission: false
+                    )
+                )
+            ),
+            settings: .fixture(),
+            tokens: nil
+        )
+    }
 }
 
 extension Account.AccountProfile {
