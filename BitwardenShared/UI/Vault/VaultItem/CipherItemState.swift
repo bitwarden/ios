@@ -59,7 +59,7 @@ struct CipherItemState: Equatable {
     var folders: [DefaultableType<FolderView>]
 
     /// If master password reprompt toggle should be shown
-    var showMasterPasswordReprompt: Bool 
+    var showMasterPasswordReprompt: Bool
 
     /// The state for a identity type item.
     var identityState: IdentityItemState
