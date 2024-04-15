@@ -90,8 +90,6 @@ final class AccountSecurityProcessor: StateProcessor<
             setTimeoutAction(newValue)
         case let .sessionTimeoutValueChanged(newValue):
             setVaultTimeout(value: newValue)
-        case let .toggleApproveLoginRequestsToggle(isOn):
-            confirmTogglingApproveLoginRequests(isOn)
         case let .toggleUnlockWithPINCode(isOn):
             toggleUnlockWithPIN(isOn)
         case .twoStepLoginPressed:
@@ -124,26 +122,10 @@ final class AccountSecurityProcessor: StateProcessor<
         }
     }
 
-    /// Show an alert to confirm enabling approving login requests.
-    ///
-    /// - Parameter isOn: Whether or not the toggle value is true or false.
-    ///
-    private func confirmTogglingApproveLoginRequests(_ isOn: Bool) {
-        // If the user is attempting to turn the toggle on, show an alert to confirm first.
-        if isOn {
-            coordinator.showAlert(.confirmApproveLoginRequests {
-                await self.toggleApproveLoginRequests(isOn)
-            })
-        } else {
-            Task { await toggleApproveLoginRequests(isOn) }
-        }
-    }
-
     /// Load any initial data for the view.
     private func loadData() async {
         do {
             state.biometricUnlockStatus = await loadBiometricUnlockPreference()
-            state.isApproveLoginRequestsToggleOn = try await services.stateService.getApproveLoginRequests()
 
             if try await services.authRepository.isPinUnlockAvailable() {
                 state.isUnlockWithPINCodeOn = true
@@ -278,19 +260,6 @@ final class AccountSecurityProcessor: StateProcessor<
                 try await services.biometricsRepository.configureBiometricIntegrity()
                 state.biometricUnlockStatus = try await services.biometricsRepository.getBiometricUnlockStatus()
             }
-        } catch {
-            services.errorReporter.log(error: error)
-        }
-    }
-
-    /// Update the value of the approve login requests setting in the state and the cached data.
-    ///
-    /// - Parameter isOn: Whether or not the toggle value is true or false.
-    ///
-    private func toggleApproveLoginRequests(_ isOn: Bool) async {
-        do {
-            try await services.stateService.setApproveLoginRequests(isOn)
-            state.isApproveLoginRequestsToggleOn = isOn
         } catch {
             services.errorReporter.log(error: error)
         }

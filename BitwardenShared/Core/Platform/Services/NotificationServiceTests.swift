@@ -380,7 +380,6 @@ class NotificationServiceTests: BitwardenTestCase { // swiftlint:disable:this ty
         stateService.setIsAuthenticated()
         stateService.accounts = [.fixture(), .fixture(profile: .fixture(userId: "differentUser"))]
         appSettingsStore.appId = "10"
-        stateService.approveLoginRequestsByUserId["1"] = true
         authService.getPendingLoginRequestResult = .success([.fixture()])
         let loginRequestNotification = LoginRequestNotification(id: "requestId", userId: "differentUser")
         let notificationData = try JSONEncoder().encode(loginRequestNotification)
@@ -410,7 +409,6 @@ class NotificationServiceTests: BitwardenTestCase { // swiftlint:disable:this ty
         stateService.setIsAuthenticated()
         stateService.accounts = [.fixture()]
         appSettingsStore.appId = "10"
-        stateService.approveLoginRequestsByUserId["1"] = true
         authService.getPendingLoginRequestResult = .success([.fixture()])
         let loginRequestNotification = LoginRequestNotification(id: "requestId", userId: "1")
         let notificationData = try JSONEncoder().encode(loginRequestNotification)

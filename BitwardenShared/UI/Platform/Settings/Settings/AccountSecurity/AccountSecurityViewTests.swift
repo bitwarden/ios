@@ -81,7 +81,6 @@ class AccountSecurityViewTests: BitwardenTestCase {
 
     /// Tapping the pending login requests button dispatches the `.pendingLoginRequestsTapped` action.
     func test_pendingRequestsButton_tap() throws {
-        processor.state.isApproveLoginRequestsToggleOn = true
         let button = try subject.inspect().find(button: Localizations.pendingLogInRequests)
         try button.tap()
         XCTAssertEqual(processor.dispatchedActions.last, .pendingLoginRequestsTapped)
@@ -124,7 +123,6 @@ class AccountSecurityViewTests: BitwardenTestCase {
                             enabled: false,
                             hasValidIntegrity: true
                         ),
-                        isApproveLoginRequestsToggleOn: true,
                         sessionTimeoutValue: .custom(60)
                     )
                 )
@@ -144,7 +142,6 @@ class AccountSecurityViewTests: BitwardenTestCase {
                             enabled: true,
                             hasValidIntegrity: true
                         ),
-                        isApproveLoginRequestsToggleOn: true,
                         sessionTimeoutValue: .custom(60)
                     )
                 )
@@ -164,7 +161,6 @@ class AccountSecurityViewTests: BitwardenTestCase {
                             enabled: true,
                             hasValidIntegrity: false
                         ),
-                        isApproveLoginRequestsToggleOn: true,
                         sessionTimeoutValue: .custom(60)
                     )
                 )
@@ -178,10 +174,7 @@ class AccountSecurityViewTests: BitwardenTestCase {
         let subject = AccountSecurityView(
             store: Store(
                 processor: StateProcessor(
-                    state: AccountSecurityState(
-                        isApproveLoginRequestsToggleOn: true,
-                        sessionTimeoutValue: .custom(60)
-                    )
+                    state: AccountSecurityState(sessionTimeoutValue: .custom(60))
                 )
             )
         )
@@ -194,7 +187,6 @@ class AccountSecurityViewTests: BitwardenTestCase {
             store: Store(
                 processor: StateProcessor(
                     state: AccountSecurityState(
-                        isApproveLoginRequestsToggleOn: true,
                         isTimeoutPolicyEnabled: true,
                         sessionTimeoutValue: .custom(60)
                     )

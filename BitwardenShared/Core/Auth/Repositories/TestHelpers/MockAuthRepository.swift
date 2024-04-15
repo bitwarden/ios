@@ -17,7 +17,7 @@ class MockAuthRepository: AuthRepository {
     var altAccounts = [Account]()
     var getAccountError: Error?
     var isLockedResult: Result<Bool, Error> = .success(true)
-    var isPinUnlockAvailable = false
+    var isPinUnlockAvailableResult: Result<Bool, Error> = .success(false)
     var lockVaultUserId: String?
     var logoutCalled = false
     var logoutUserId: String?
@@ -132,7 +132,7 @@ class MockAuthRepository: AuthRepository {
     }
 
     func isPinUnlockAvailable() async throws -> Bool {
-        isPinUnlockAvailable
+        try isPinUnlockAvailableResult.get()
     }
 
     func passwordStrength(email: String, password: String) async -> UInt8 {
