@@ -77,6 +77,20 @@ final class KeychainRepositoryTests: BitwardenTestCase { // swiftlint:disable:th
         )
     }
 
+    /// `deleteDeviceKey` succeeds quietly.
+    ///
+    func test_deleteDeviceKey_success() async throws {
+        let item = KeychainItem.deviceKey(userId: "1")
+        keychainService.deleteResult = .success(())
+        let expectedQuery = await subject.keychainQueryValues(for: item)
+
+        try await subject.deleteDeviceKey(userId: "1")
+        XCTAssertEqual(
+            keychainService.deleteQuery,
+            expectedQuery
+        )
+    }
+
     /// The service should generate a storage key for a` KeychainItem`.
     ///
     func test_formattedKey_biometrics() async {

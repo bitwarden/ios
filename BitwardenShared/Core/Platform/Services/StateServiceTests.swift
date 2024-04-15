@@ -884,6 +884,13 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
         XCTAssertEqual(appSettingsStore.rememberedOrgIdentifier, "AndImOk")
     }
 
+    /// `getShouldTrustDevice` gets the value as expected.
+    func test_getShouldTrustDevice() async {
+        appSettingsStore.shouldTrustDevice["1"] = true
+        let result = await subject.getShouldTrustDevice(userId: "1")
+        XCTAssertTrue(result == true)
+    }
+
     /// `setAccountEncryptionKeys(_:userId:)` sets the encryption keys for the user account.
     func test_setAccountEncryptionKeys() async throws {
         await subject.addAccount(.fixture(profile: .fixture(userId: "1")))
@@ -1160,6 +1167,12 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
         let urls = EnvironmentUrlData(base: .example)
         await subject.setPreAuthEnvironmentUrls(urls)
         XCTAssertEqual(appSettingsStore.preAuthEnvironmentUrls, urls)
+    }
+
+    /// `setShouldTrustDevice` saves the should trust device value.
+    func test_setShouldTrustDevice() async {
+        await subject.setShouldTrustDevice(true, userId: "1")
+        XCTAssertTrue(appSettingsStore.shouldTrustDevice["1"] == true)
     }
 
     /// `setShowWebIcons` saves the show web icons value..
