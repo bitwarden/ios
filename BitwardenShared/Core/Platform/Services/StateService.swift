@@ -81,14 +81,6 @@ protocol StateService: AnyObject {
     ///
     func getAllowSyncOnRefresh(userId: String?) async throws -> Bool
 
-    /// Gets whether the user has decided to allow the device to approve login requests.
-    ///
-    /// - Parameter userId: The user ID associated with the setting. Defaults to the active account if `nil`.
-    ///
-    /// - Returns: Whether the user has decided to allow the device to approve login requests.
-    ///
-    func getApproveLoginRequests(userId: String?) async throws -> Bool
-
     /// Get the app theme.
     ///
     /// - Returns: The app theme.
@@ -297,14 +289,6 @@ protocol StateService: AnyObject {
     ///   - userId: The user ID of the account. Defaults to the active account if `nil`.
     ///
     func setAllowSyncOnRefresh(_ allowSyncOnRefresh: Bool, userId: String?) async throws
-
-    /// Sets whether the user has decided to allow the device to approve login requests.
-    ///
-    /// - Parameters:
-    ///   - approveLoginRequests: Whether the user has decided to allow the device to approve login requests.
-    ///   - userId: The user ID associated with the setting. Defaults to the active account if `nil`.
-    ///
-    func setApproveLoginRequests(_ approveLoginRequests: Bool, userId: String?) async throws
 
     /// Sets the app theme.
     ///
@@ -577,16 +561,6 @@ extension StateService {
         try await getAllowSyncOnRefresh(userId: nil)
     }
 
-    /// Gets whether the current user has decided to allow the device to approve login requests.
-    ///
-    /// - Parameter userId: The user ID associated with the setting. Defaults to the active account if `nil`.
-    ///
-    /// - Returns: Whether the current user has decided to allow the device to approve login requests.
-    ///
-    func getApproveLoginRequests() async throws -> Bool {
-        try await getApproveLoginRequests(userId: nil)
-    }
-
     /// Gets the clear clipboard value for the active account.
     ///
     /// - Returns: The clear clipboard value.
@@ -749,14 +723,6 @@ extension StateService {
     ///
     func setAllowSyncOnRefresh(_ allowSyncOnRefresh: Bool) async throws {
         try await setAllowSyncOnRefresh(allowSyncOnRefresh, userId: nil)
-    }
-
-    /// Sets whether the current user has decided to allow the device to approve login requests.
-    ///
-    /// - Parameter approveLoginRequests: Whether the user has decided to allow the device to approve login requests.
-    ///
-    func setApproveLoginRequests(_ approveLoginRequests: Bool) async throws {
-        try await setApproveLoginRequests(approveLoginRequests, userId: nil)
     }
 
     /// Sets the clear clipboard value for the active account.
@@ -1018,11 +984,6 @@ actor DefaultStateService: StateService { // swiftlint:disable:this type_body_le
         return appSettingsStore.allowSyncOnRefresh(userId: userId)
     }
 
-    func getApproveLoginRequests(userId: String?) async throws -> Bool {
-        let userId = try userId ?? getActiveAccountUserId()
-        return appSettingsStore.approveLoginRequests(userId: userId)
-    }
-
     func getAppTheme() async -> AppTheme {
         AppTheme(appSettingsStore.appTheme)
     }
@@ -1184,11 +1145,6 @@ actor DefaultStateService: StateService { // swiftlint:disable:this type_body_le
     func setAllowSyncOnRefresh(_ allowSyncOnRefresh: Bool, userId: String?) async throws {
         let userId = try userId ?? getActiveAccountUserId()
         appSettingsStore.setAllowSyncOnRefresh(allowSyncOnRefresh, userId: userId)
-    }
-
-    func setApproveLoginRequests(_ approveLoginRequests: Bool, userId: String?) async throws {
-        let userId = try userId ?? getActiveAccountUserId()
-        appSettingsStore.setApproveLoginRequests(approveLoginRequests, userId: userId)
     }
 
     func setAppTheme(_ appTheme: AppTheme) async {

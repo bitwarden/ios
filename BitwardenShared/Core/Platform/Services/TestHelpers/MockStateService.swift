@@ -14,7 +14,6 @@ class MockStateService: StateService { // swiftlint:disable:this type_body_lengt
     var addSitePromptShown = false
     var allowSyncOnRefresh = [String: Bool]()
     var appLanguage: LanguageOption = .default
-    var approveLoginRequestsByUserId = [String: Bool]()
     var appTheme: AppTheme?
     var biometricsEnabled = [String: Bool]()
     var biometricIntegrityStates = [String: String?]()
@@ -129,11 +128,6 @@ class MockStateService: StateService { // swiftlint:disable:this type_body_lengt
 
     func getAddSitePromptShown() async -> Bool {
         addSitePromptShown
-    }
-
-    func getApproveLoginRequests(userId: String?) async throws -> Bool {
-        let userId = try unwrapUserId(userId)
-        return approveLoginRequestsByUserId[userId] ?? false
     }
 
     func getAppTheme() async -> AppTheme {
@@ -274,11 +268,6 @@ class MockStateService: StateService { // swiftlint:disable:this type_body_lengt
     func setAllowSyncOnRefresh(_ allowSyncOnRefresh: Bool, userId: String?) async throws {
         let userId = try unwrapUserId(userId)
         self.allowSyncOnRefresh[userId] = allowSyncOnRefresh
-    }
-
-    func setApproveLoginRequests(_ approveLoginRequests: Bool, userId: String?) async throws {
-        let userId = try unwrapUserId(userId)
-        approveLoginRequestsByUserId[userId] = approveLoginRequests
     }
 
     func setAppTheme(_ appTheme: AppTheme) async {

@@ -17,7 +17,7 @@ struct AccountSecurityView: View {
 
     var body: some View {
         VStack(spacing: 20) {
-            approveLoginRequestsSection
+            pendingLoginRequests
 
             unlockOptionsSection
 
@@ -46,33 +46,6 @@ struct AccountSecurityView: View {
     }
 
     // MARK: Private views
-
-    /// The approve login requests section.
-    private var approveLoginRequestsSection: some View {
-        VStack(alignment: .leading) {
-            SectionHeaderView(Localizations.approveLoginRequests)
-
-            Toggle(isOn: store.binding(
-                get: \.isApproveLoginRequestsToggleOn,
-                send: AccountSecurityAction.toggleApproveLoginRequestsToggle
-            )) {
-                Text(Localizations.useThisDeviceToApproveLoginRequestsMadeFromOtherDevices)
-            }
-            .toggleStyle(.bitwarden)
-            .accessibilityIdentifier("ApproveLoginRequestsSwitch")
-
-            if store.state.isApproveLoginRequestsToggleOn {
-                SettingsListItem(
-                    Localizations.pendingLogInRequests,
-                    hasDivider: false,
-                    accessibilityIdentifier: "PendingLogInRequestsLabel"
-                ) {
-                    store.send(.pendingLoginRequestsTapped)
-                }
-                .cornerRadius(10)
-            }
-        }
-    }
 
     /// The other section.
     private var otherSection: some View {
@@ -122,6 +95,22 @@ struct AccountSecurityView: View {
                 ) {
                     store.send(.deleteAccountPressed)
                 }
+            }
+            .cornerRadius(10)
+        }
+    }
+
+    /// The pending login requests section.
+    private var pendingLoginRequests: some View {
+        VStack(alignment: .leading) {
+            SectionHeaderView(Localizations.approveLoginRequests)
+
+            SettingsListItem(
+                Localizations.pendingLogInRequests,
+                hasDivider: false,
+                accessibilityIdentifier: "PendingLogInRequestsLabel"
+            ) {
+                store.send(.pendingLoginRequestsTapped)
             }
             .cornerRadius(10)
         }

@@ -29,9 +29,6 @@ enum AccountSecurityAction: Equatable {
     /// Sets the custom session timeout value.
     case customTimeoutValueChanged(Int)
 
-    /// Approve login requests was toggled.
-    case toggleApproveLoginRequestsToggle(Bool)
-
     /// Unlock with pin code was toggled.
     case toggleUnlockWithPINCode(Bool)
 
