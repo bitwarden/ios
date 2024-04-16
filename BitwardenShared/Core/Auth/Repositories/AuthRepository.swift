@@ -598,8 +598,7 @@ extension DefaultAuthRepository: AuthRepository {
     ///
     private func profileItem(from account: Account) async -> ProfileSwitcherItem {
         let isLocked = await (try? isLocked(userId: account.profile.userId)) ?? true
-        let hasNeverLock = await (try? stateService
-            .getVaultTimeout(userId: account.profile.userId)) == .never
+        let hasNeverLock = await (try? stateService.getVaultTimeout(userId: account.profile.userId)) == .never
         let displayAsUnlocked = !isLocked || hasNeverLock
 
         let color = if let avatarColor = account.profile.avatarColor {
