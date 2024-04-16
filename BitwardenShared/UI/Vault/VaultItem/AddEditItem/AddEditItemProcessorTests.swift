@@ -11,6 +11,7 @@ import XCTest
 class AddEditItemProcessorTests: BitwardenTestCase {
     // MARK: Properties
 
+    var authRepository: MockAuthRepository!
     var appExtensionDelegate: MockAppExtensionDelegate!
     var cameraService: MockCameraService!
     var client: MockHTTPClient!
@@ -29,6 +30,7 @@ class AddEditItemProcessorTests: BitwardenTestCase {
     override func setUp() {
         super.setUp()
 
+        authRepository = MockAuthRepository()
         appExtensionDelegate = MockAppExtensionDelegate()
         cameraService = MockCameraService()
         client = MockHTTPClient()
@@ -45,6 +47,7 @@ class AddEditItemProcessorTests: BitwardenTestCase {
             coordinator: coordinator.asAnyCoordinator(),
             delegate: delegate,
             services: ServiceContainer.withMocks(
+                authRepository: authRepository,
                 cameraService: cameraService,
                 errorReporter: errorReporter,
                 httpClient: client,
@@ -69,6 +72,7 @@ class AddEditItemProcessorTests: BitwardenTestCase {
 
     override func tearDown() {
         super.tearDown()
+        authRepository = nil
         appExtensionDelegate = nil
         cameraService = nil
         client = nil
@@ -543,6 +547,20 @@ class AddEditItemProcessorTests: BitwardenTestCase {
         await subject.perform(.appeared)
         XCTAssertEqual(coordinator.alertShown.last, .passwordAutofillInformation())
         XCTAssertTrue(stateService.addSitePromptShown)
+    }
+
+    /// `perform(_:)` with `.appeared` checks if user has masterpassword.
+    func test_perform_appeared_checkUserHasMasterPassword_true() async {
+        authRepository.hasMasterPassword = true
+        await subject.perform(.appeared)
+        XCTAssertTrue(subject.state.showMasterPasswordReprompt)
+    }
+
+    /// `perform(_:)` with `.appeared` checks if user has masterpassword.
+    func test_perform_appeared_checkUserHasMasterPassword_false() async {
+        authRepository.hasMasterPassword = false
+        await subject.perform(.appeared)
+        XCTAssertFalse(subject.state.showMasterPasswordReprompt)
     }
 
     /// `perform` with `.checkPasswordPressed` checks the password with the HIBP service.

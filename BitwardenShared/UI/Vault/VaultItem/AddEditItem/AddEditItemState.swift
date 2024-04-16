@@ -69,6 +69,9 @@ protocol AddEditItemState: Sendable {
     /// The list of ownership options to allow the user to select from.
     var ownershipOptions: [CipherOwner] { get set }
 
+    /// If master password reprompt toggle should be shown
+    var showMasterPasswordReprompt: Bool { get set }
+
     /// A toast message to show in the view.
     var toast: Toast? { get set }
 
