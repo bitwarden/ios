@@ -1210,6 +1210,19 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
         XCTAssertEqual(appSettingsStore.usernameGenerationOptions["2"], options2)
     }
 
+    /// `.setsetUserHasMasterPassword()` sets the user has having master password set .
+    func test_setUserHasMasterPassword() async throws {
+        let account1 = Account.fixtureWithTdeNoPassword()
+        await subject.addAccount(account1)
+
+        XCTAssertFalse(appSettingsStore.state?.accounts["1"]?.profile.userDecryptionOptions?.hasMasterPassword ?? false)
+
+        try await subject.setUserHasMasterPassword()
+
+        XCTAssertNotEqual(appSettingsStore.state?.accounts["1"], account1)
+        XCTAssertTrue(appSettingsStore.state?.accounts["1"]?.profile.userDecryptionOptions?.hasMasterPassword ?? false)
+    }
+
     /// `.setActiveAccount(userId:)` sets the action that occurs when there's a session timeout.
     func test_setTimeoutAction() async throws {
         let account = Account.fixture()
