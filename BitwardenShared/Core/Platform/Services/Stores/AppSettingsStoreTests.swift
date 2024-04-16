@@ -106,22 +106,6 @@ class AppSettingsStoreTests: BitwardenTestCase { // swiftlint:disable:this type_
         XCTAssertNil(userDefaults.string(forKey: "bwPreferencesStorage:appLocale"))
     }
 
-    /// `approveLoginRequests(userId:)` returns `false` if there isn't a previously stored value.
-    func test_approveLoginRequests_isInitiallyFalse() {
-        XCTAssertFalse(subject.approveLoginRequests(userId: "-1"))
-    }
-
-    /// `approveLoginRequests(userId:)` can be used to get the approve login requests setting for a user.
-    func test_approveLoginRequests_withValue() {
-        subject.setApproveLoginRequests(true, userId: "1")
-        subject.setApproveLoginRequests(false, userId: "2")
-
-        XCTAssertTrue(subject.approveLoginRequests(userId: "1"))
-        XCTAssertFalse(subject.approveLoginRequests(userId: "2"))
-        XCTAssertTrue(userDefaults.bool(forKey: "bwPreferencesStorage:approvePasswordlessLogins_1"))
-        XCTAssertFalse(userDefaults.bool(forKey: "bwPreferencesStorage:approvePasswordlessLogins_2"))
-    }
-
     /// `appTheme` returns `nil` if there isn't a previously stored value.
     func test_appTheme_isInitiallyNil() {
         XCTAssertNil(subject.appTheme)

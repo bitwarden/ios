@@ -21,23 +21,6 @@ extension Alert {
         )
     }
 
-    /// Confirm allowing the device to approve login requests.
-    ///
-    /// - Parameter action: The action to perform if the user selects yes.
-    ///
-    /// - Returns: An alert confirming allowing the device to approve login requests.
-    ///
-    static func confirmApproveLoginRequests(action: @escaping () async -> Void) -> Alert {
-        Alert(
-            title: Localizations.approveLoginRequests,
-            message: Localizations.useThisDeviceToApproveLoginRequestsMadeFromOtherDevices,
-            alertActions: [
-                AlertAction(title: Localizations.no, style: .cancel),
-                AlertAction(title: Localizations.yes, style: .default) { _ in await action() },
-            ]
-        )
-    }
-
     /// Confirm deleting the folder.
     ///
     /// - Parameter action: The action to perform if the user selects yes.

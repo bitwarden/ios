@@ -274,10 +274,7 @@ class DefaultNotificationService: NotificationService {
     ///   - userId: The user's id.
     ///
     private func handleLoginRequest(_ notificationData: PushNotificationData, userId: String) async throws {
-        let approveLoginRequests = try await stateService.getApproveLoginRequests()
-        guard let data: LoginRequestNotification = notificationData.data(),
-              approveLoginRequests == true
-        else { return }
+        guard let data: LoginRequestNotification = notificationData.data() else { return }
 
         // Save the notification data.
         await stateService.setLoginRequest(data)

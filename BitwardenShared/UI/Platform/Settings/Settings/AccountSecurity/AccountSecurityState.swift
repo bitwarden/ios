@@ -190,9 +190,6 @@ struct AccountSecurityState: Equatable {
     /// The URL for account fingerprint phrase external link.
     var fingerprintPhraseUrl: URL?
 
-    /// Whether the approve login requests toggle is on.
-    var isApproveLoginRequestsToggleOn: Bool = false
-
     /// Whether or not the custom session timeout field is shown.
     var isShowingCustomTimeout: Bool {
         guard case .custom = sessionTimeoutValue else { return false }
