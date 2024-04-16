@@ -72,6 +72,7 @@ class AddEditItemProcessorTests: BitwardenTestCase {
 
     override func tearDown() {
         super.tearDown()
+        authRepository = nil
         appExtensionDelegate = nil
         cameraService = nil
         client = nil

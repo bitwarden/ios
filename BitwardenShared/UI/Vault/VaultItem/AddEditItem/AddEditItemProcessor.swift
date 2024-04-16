@@ -539,7 +539,7 @@ final class AddEditItemProcessor: StateProcessor<// swiftlint:disable:this type_
         do {
             state.showMasterPasswordReprompt = try await services.authRepository.hasMasterPassword()
         } catch {
-            return
+            services.errorReporter.log(error: error)
         }
     }
 

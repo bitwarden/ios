@@ -58,9 +58,6 @@ struct CipherItemState: Equatable {
     /// The list of all folders that the item could be added to.
     var folders: [DefaultableType<FolderView>]
 
-    /// If master password reprompt toggle should be shown
-    var showMasterPasswordReprompt: Bool
-
     /// The state for a identity type item.
     var identityState: IdentityItemState
 
@@ -87,6 +84,9 @@ struct CipherItemState: Equatable {
 
     /// The list of ownership options that can be selected for the cipher.
     var ownershipOptions: [CipherOwner]
+
+    /// If master password reprompt toggle should be shown
+    var showMasterPasswordReprompt: Bool
 
     /// A toast for the AddEditItemView
     var toast: Toast?
@@ -172,7 +172,6 @@ struct CipherItemState: Equatable {
         collections = []
         customFieldsState = AddEditCustomFieldsState(cipherType: type, customFields: customFields)
         self.folderId = folderId
-        showMasterPasswordReprompt = true
         self.identityState = identityState
         self.isFavoriteOn = isFavoriteOn
         self.isMasterPasswordRePromptOn = isMasterPasswordRePromptOn
@@ -183,6 +182,7 @@ struct CipherItemState: Equatable {
         self.notes = notes
         self.organizationId = organizationId
         ownershipOptions = []
+        showMasterPasswordReprompt = true
         self.type = type
         self.updatedDate = updatedDate
         self.configuration = configuration
