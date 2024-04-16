@@ -197,19 +197,14 @@ struct VaultUnlockView: View {
 // MARK: - Previews
 
 #if DEBUG
-#Preview {
+#Preview("Vault Unlock") {
     NavigationView {
         VaultUnlockView(
             store: Store(
                 processor: StateProcessor(
                     state: VaultUnlockState(
                         email: "user@bitwarden.com",
-                        profileSwitcherState: .init(
-                            accounts: [],
-                            activeAccountId: nil,
-                            allowLockAndLogout: true,
-                            isVisible: false
-                        ),
+                        profileSwitcherState: .empty(),
                         unlockMethod: .password,
                         webVaultHost: "vault.bitwarden.com"
                     )
@@ -219,27 +214,14 @@ struct VaultUnlockView: View {
     }
 }
 
-#Preview {
+#Preview("Profiles Closed") {
     NavigationView {
         VaultUnlockView(
             store: Store(
                 processor: StateProcessor(
                     state: VaultUnlockState(
                         email: "user@bitwarden.com",
-                        profileSwitcherState: ProfileSwitcherState(
-                            accounts: [
-                                ProfileSwitcherItem(
-                                    email: "max.protecc@bitwarden.com",
-                                    isUnlocked: false,
-                                    userId: "123",
-                                    userInitials: "MP",
-                                    webVault: ""
-                                ),
-                            ],
-                            activeAccountId: "123",
-                            allowLockAndLogout: true,
-                            isVisible: false
-                        ),
+                        profileSwitcherState: .singleAccountHidden,
                         unlockMethod: .pin,
                         webVaultHost: "vault.bitwarden.com"
                     )
@@ -247,30 +229,16 @@ struct VaultUnlockView: View {
             )
         )
     }
-    .previewDisplayName("Profiles Closed")
 }
 
-#Preview {
+#Preview("Profiles Open") {
     NavigationView {
         VaultUnlockView(
             store: Store(
                 processor: StateProcessor(
                     state: VaultUnlockState(
                         email: "user@bitwarden.com",
-                        profileSwitcherState: ProfileSwitcherState(
-                            accounts: [
-                                ProfileSwitcherItem(
-                                    email: "max.protecc@bitwarden.com",
-                                    isUnlocked: false,
-                                    userId: "123",
-                                    userInitials: "MP",
-                                    webVault: ""
-                                ),
-                            ],
-                            activeAccountId: "123",
-                            allowLockAndLogout: true,
-                            isVisible: true
-                        ),
+                        profileSwitcherState: .singleAccount,
                         unlockMethod: .password,
                         webVaultHost: "vault.bitwarden.com"
                     )
@@ -278,6 +246,5 @@ struct VaultUnlockView: View {
             )
         )
     }
-    .previewDisplayName("Profiles Open")
 }
 #endif

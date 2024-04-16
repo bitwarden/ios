@@ -1,7 +1,6 @@
 import SwiftUI
 
-@testable import BitwardenShared
-
+#if DEBUG
 extension ProfileSwitcherItem {
     static let anneAccount = ProfileSwitcherItem.fixture(
         color: .purple,
@@ -31,6 +30,35 @@ extension ProfileSwitcherItem {
 }
 
 extension ProfileSwitcherState {
+    static let dualAccounts = ProfileSwitcherState(
+        accounts: [
+            .anneAccount,
+            .fixture(
+                color: .yellow,
+                email: "bonus.bridge@bitwarden.com",
+                isUnlocked: true,
+                userInitials: "BB"
+            ),
+        ],
+        activeAccountId: ProfileSwitcherItem.anneAccount.userId,
+        allowLockAndLogout: true,
+        isVisible: true
+    )
+
+    static let singleAccount = ProfileSwitcherState(
+        accounts: [.anneAccount],
+        activeAccountId: ProfileSwitcherItem.anneAccount.userId,
+        allowLockAndLogout: true,
+        isVisible: true
+    )
+
+    static let singleAccountHidden = ProfileSwitcherState(
+        accounts: [.anneAccount],
+        activeAccountId: ProfileSwitcherItem.anneAccount.userId,
+        allowLockAndLogout: true,
+        isVisible: false
+    )
+
     static let subMaximumAccounts = ProfileSwitcherState(
         accounts: [
             .anneAccount,
@@ -91,3 +119,4 @@ extension ProfileSwitcherState {
         isVisible: true
     )
 }
+#endif

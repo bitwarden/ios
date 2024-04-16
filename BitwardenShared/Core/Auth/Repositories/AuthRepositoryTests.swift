@@ -472,6 +472,27 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         }
     }
 
+    /// `hasMasterPassword` returns if user has masterpassword.
+    func test_hasMasterPassword_true_normal_user() async throws {
+        stateService.activeAccount = Account.fixture()
+        let result = try await subject.hasMasterPassword()
+        XCTAssertTrue(result)
+    }
+
+    /// `hasMasterPassword` returns if user has masterpassword.
+    func test_hasMasterPassword_tde_password() async throws {
+        stateService.activeAccount = Account.fixtureWithTDE()
+        let result = try await subject.hasMasterPassword()
+        XCTAssertTrue(result)
+    }
+
+    /// `hasMasterPassword` returns if user has masterpassword.
+    func test_hasMasterPassword_tde_no_password() async throws {
+        stateService.activeAccount = Account.fixtureWithTdeNoPassword()
+        let result = try await subject.hasMasterPassword()
+        XCTAssertFalse(result)
+    }
+
     /// `isLocked` returns the lock state of an active user.
     func test_isLocked_noUser() async {
         await assertAsyncThrows(error: StateServiceError.noActiveAccount) {

@@ -72,18 +72,7 @@ extension View {
 // MARK: Previews
 
 #if DEBUG
-extension ProfileSwitcherItem {
-    static let previewSelectedAccount = ProfileSwitcherItem(
-        color: .purple,
-        email: "anne.account@bitwarden.com",
-        isUnlocked: true,
-        userId: "1",
-        userInitials: "AA",
-        webVault: ""
-    )
-}
-
-#Preview {
+#Preview("Empty") {
     NavigationView {
         Spacer()
             .toolbar {
@@ -98,10 +87,9 @@ extension ProfileSwitcherItem {
                 }
             }
     }
-    .previewDisplayName("Empty")
 }
 
-#Preview {
+#Preview("No Active") {
     NavigationView {
         Spacer()
             .toolbar {
@@ -110,7 +98,7 @@ extension ProfileSwitcherItem {
                         store: Store(
                             processor: StateProcessor(
                                 state: .init(
-                                    accounts: [.previewSelectedAccount],
+                                    accounts: [.anneAccount],
                                     activeAccountId: nil,
                                     allowLockAndLogout: true,
                                     isVisible: false
@@ -121,10 +109,26 @@ extension ProfileSwitcherItem {
                 }
             }
     }
-    .previewDisplayName("No Active")
 }
 
-#Preview {
+#Preview("Single Account") {
+    NavigationView {
+        Spacer()
+            .toolbar {
+                ToolbarItem(placement: .topBarLeading) {
+                    ProfileSwitcherToolbarView(
+                        store: Store(
+                            processor: StateProcessor(
+                                state: .singleAccount
+                            )
+                        )
+                    )
+                }
+            }
+    }
+}
+
+#Preview("Dual Account") {
     NavigationView {
         Spacer()
             .toolbar {
@@ -134,9 +138,10 @@ extension ProfileSwitcherItem {
                             processor: StateProcessor(
                                 state: ProfileSwitcherState(
                                     accounts: [
-                                        .previewSelectedAccount,
+                                        .anneAccount,
+                                        .fixture(color: .green, userId: "1", userInitials: "BB"),
                                     ],
-                                    activeAccountId: ProfileSwitcherItem.previewSelectedAccount.userId,
+                                    activeAccountId: "1",
                                     allowLockAndLogout: true,
                                     isVisible: false
                                 )
@@ -146,39 +151,5 @@ extension ProfileSwitcherItem {
                 }
             }
     }
-    .previewDisplayName("Single Account")
-}
-
-#Preview {
-    NavigationView {
-        Spacer()
-            .toolbar {
-                ToolbarItem(placement: .topBarLeading) {
-                    ProfileSwitcherToolbarView(
-                        store: Store(
-                            processor: StateProcessor(
-                                state: ProfileSwitcherState(
-                                    accounts: [
-                                        .previewSelectedAccount,
-                                        ProfileSwitcherItem(
-                                            color: .green,
-                                            email: "bonus.bridge@bitwarde.com",
-                                            isUnlocked: true,
-                                            userId: "123",
-                                            userInitials: "BB",
-                                            webVault: ""
-                                        ),
-                                    ],
-                                    activeAccountId: "123",
-                                    allowLockAndLogout: true,
-                                    isVisible: false
-                                )
-                            )
-                        )
-                    )
-                }
-            }
-    }
-    .previewDisplayName("Dual Account")
 }
 #endif

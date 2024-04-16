@@ -27,6 +27,7 @@ final class AddEditItemProcessor: StateProcessor<// swiftlint:disable:this type_
     // MARK: Types
 
     typealias Services = HasAPIService
+        & HasAuthRepository
         & HasCameraService
         & HasErrorReporter
         & HasPasteboardService
@@ -81,6 +82,7 @@ final class AddEditItemProcessor: StateProcessor<// swiftlint:disable:this type_
         switch effect {
         case .appeared:
             await showPasswordAutofillAlertIfNeeded()
+            await checkIfUserHasMasterPassword()
         case .checkPasswordPressed:
             await checkPassword()
         case .copyTotpPressed:
@@ -529,6 +531,16 @@ final class AddEditItemProcessor: StateProcessor<// swiftlint:disable:this type_
         }
         coordinator.showAlert(.passwordAutofillInformation())
         await services.stateService.setAddSitePromptShown(true)
+    }
+
+    /// Check if the user has a master password and set showMasterPasswordReprompt accordingly
+    ///
+    private func checkIfUserHasMasterPassword() async {
+        do {
+            state.showMasterPasswordReprompt = try await services.authRepository.hasMasterPassword()
+        } catch {
+            services.errorReporter.log(error: error)
+        }
     }
 
     /// Shows a soft delete cipher confirmation alert.

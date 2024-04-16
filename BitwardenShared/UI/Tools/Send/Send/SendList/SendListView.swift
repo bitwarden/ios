@@ -245,6 +245,7 @@ struct SendListView: View {
 
 // MARK: Previews
 
+#if DEBUG
 #Preview("Empty") {
     NavigationView {
         SendListView(
@@ -283,69 +284,31 @@ struct SendListView: View {
                                 id: "2",
                                 isCountDisplayed: true,
                                 items: [
-                                    SendListItem(
-                                        sendView: .init(
-                                            id: "21",
-                                            accessId: "21",
-                                            name: "File Send",
-                                            notes: nil,
-                                            key: "",
-                                            newPassword: nil,
-                                            hasPassword: false,
-                                            type: .file,
-                                            file: nil,
-                                            text: nil,
-                                            maxAccessCount: nil,
-                                            accessCount: 0,
-                                            disabled: false,
-                                            hideEmail: false,
-                                            revisionDate: Date(),
-                                            deletionDate: Date().advanced(by: 100),
-                                            expirationDate: Date().advanced(by: 100)
-                                        )
-                                    )!,
-                                    SendListItem(
-                                        sendView: .init(
-                                            id: "22",
-                                            accessId: "22",
-                                            name: "Text Send",
-                                            notes: nil,
-                                            key: "",
-                                            newPassword: nil,
-                                            hasPassword: false,
-                                            type: .text,
-                                            file: nil,
-                                            text: nil,
-                                            maxAccessCount: nil,
-                                            accessCount: 0,
-                                            disabled: false,
-                                            hideEmail: false,
-                                            revisionDate: Date(),
-                                            deletionDate: Date().advanced(by: 100),
-                                            expirationDate: Date().advanced(by: 100)
-                                        )
-                                    )!,
-                                    SendListItem(
-                                        sendView: .init(
-                                            id: "23",
-                                            accessId: "23",
-                                            name: "All Statuses",
-                                            notes: nil,
-                                            key: "",
-                                            newPassword: nil,
-                                            hasPassword: true,
-                                            type: .text,
-                                            file: nil,
-                                            text: nil,
-                                            maxAccessCount: 1,
-                                            accessCount: 1,
-                                            disabled: true,
-                                            hideEmail: true,
-                                            revisionDate: Date(),
-                                            deletionDate: Date(),
-                                            expirationDate: Date().advanced(by: -1)
-                                        )
-                                    )!,
+                                    SendListItem(sendView: .fixture(
+                                        id: "21",
+                                        name: "File Send",
+                                        type: .file,
+                                        deletionDate: Date().advanced(by: 100),
+                                        expirationDate: Date().advanced(by: 100)
+                                    ))!,
+                                    SendListItem(sendView: .fixture(
+                                        id: "22",
+                                        name: "Text Send",
+                                        type: .text,
+                                        deletionDate: Date().advanced(by: 100),
+                                        expirationDate: Date().advanced(by: 100)
+                                    ))!,
+                                    SendListItem(sendView: .fixture(
+                                        id: "23",
+                                        name: "All Statuses",
+                                        hasPassword: true,
+                                        type: .text,
+                                        maxAccessCount: 1,
+                                        accessCount: 1,
+                                        disabled: true,
+                                        deletionDate: Date(),
+                                        expirationDate: Date().advanced(by: -1)
+                                    ))!,
                                 ],
                                 name: "All sends"
                             ),
@@ -380,52 +343,28 @@ struct SendListView: View {
                     state: SendListState(
                         searchText: "Searching",
                         searchResults: [
-                            SendListItem(
-                                sendView: .init(
-                                    id: "22",
-                                    accessId: "22",
-                                    name: "Text Send",
-                                    notes: nil,
-                                    key: "",
-                                    newPassword: nil,
-                                    hasPassword: false,
-                                    type: .text,
-                                    file: nil,
-                                    text: nil,
-                                    maxAccessCount: nil,
-                                    accessCount: 0,
-                                    disabled: false,
-                                    hideEmail: false,
-                                    revisionDate: Date(),
-                                    deletionDate: Date().advanced(by: 100),
-                                    expirationDate: Date().advanced(by: 100)
-                                )
-                            )!,
-                            SendListItem(
-                                sendView: .init(
-                                    id: "23",
-                                    accessId: "23",
-                                    name: "All Statuses",
-                                    notes: nil,
-                                    key: "",
-                                    newPassword: nil,
-                                    hasPassword: true,
-                                    type: .text,
-                                    file: nil,
-                                    text: nil,
-                                    maxAccessCount: 1,
-                                    accessCount: 1,
-                                    disabled: true,
-                                    hideEmail: true,
-                                    revisionDate: Date(),
-                                    deletionDate: Date(),
-                                    expirationDate: Date().advanced(by: -1)
-                                )
-                            )!,
+                            SendListItem(sendView: .fixture(
+                                id: "22",
+                                name: "Text Send",
+                                deletionDate: Date().advanced(by: 100),
+                                expirationDate: Date().advanced(by: 100)
+                            ))!,
+                            SendListItem(sendView: .fixture(
+                                id: "23",
+                                name: "All Statuses",
+                                hasPassword: true,
+                                type: .text,
+                                maxAccessCount: 1,
+                                accessCount: 1,
+                                disabled: true,
+                                deletionDate: Date(),
+                                expirationDate: Date().advanced(by: -1)
+                            ))!,
                         ]
                     )
                 )
             )
         )
     }
-} // swiftlint:disable:this file_length
+}
+#endif

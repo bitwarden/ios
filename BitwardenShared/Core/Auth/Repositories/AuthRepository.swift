@@ -48,6 +48,10 @@ protocol AuthRepository: AnyObject {
     ///
     func getFingerprintPhrase() async throws -> String
 
+    /// Check if the user has a master password
+    ///
+    func hasMasterPassword() async throws -> Bool
+
     /// Whether pin unlock is available.
     ///
     /// - Returns: Whether pin unlock is available.
@@ -429,6 +433,12 @@ extension DefaultAuthRepository: AuthRepository {
             shouldAlwaysHideAddAccount: shouldAlwaysHideAddAccount,
             showPlaceholderToolbarIcon: showPlaceholderToolbarIcon
         )
+    }
+
+    func hasMasterPassword() async throws -> Bool {
+        let account = try await getAccount()
+        guard let decryptionOptions = account.profile.userDecryptionOptions else { return true }
+        return decryptionOptions.hasMasterPassword
     }
 
     func isLocked(userId: String?) async throws -> Bool {

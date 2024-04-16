@@ -85,6 +85,9 @@ struct CipherItemState: Equatable {
     /// The list of ownership options that can be selected for the cipher.
     var ownershipOptions: [CipherOwner]
 
+    /// If master password reprompt toggle should be shown
+    var showMasterPasswordReprompt: Bool
+
     /// A toast for the AddEditItemView
     var toast: Toast?
 
@@ -179,6 +182,7 @@ struct CipherItemState: Equatable {
         self.notes = notes
         self.organizationId = organizationId
         ownershipOptions = []
+        showMasterPasswordReprompt = true
         self.type = type
         self.updatedDate = updatedDate
         self.configuration = configuration
