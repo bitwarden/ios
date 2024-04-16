@@ -17,7 +17,6 @@ class MockAppSettingsStore: AppSettingsStore {
     var rememberedEmail: String?
     var rememberedOrgIdentifier: String?
 
-    var approveLoginRequestsByUserId = [String: Bool]()
     var biometricAuthenticationEnabled = [String: Bool?]()
     var biometricIntegrityStates = [String: String?]()
     var clearClipboardValues = [String: ClearClipboardValue]()
@@ -50,10 +49,6 @@ class MockAppSettingsStore: AppSettingsStore {
 
     func allowSyncOnRefresh(userId: String) -> Bool {
         allowSyncOnRefreshes[userId] ?? false
-    }
-
-    func approveLoginRequests(userId: String) -> Bool {
-        approveLoginRequestsByUserId[userId] ?? false
     }
 
     func clearClipboardValue(userId: String) -> ClearClipboardValue {
@@ -114,10 +109,6 @@ class MockAppSettingsStore: AppSettingsStore {
 
     func setAllowSyncOnRefresh(_ allowSyncOnRefresh: Bool?, userId: String) {
         allowSyncOnRefreshes[userId] = allowSyncOnRefresh
-    }
-
-    func setApproveLoginRequests(_ approveLoginRequests: Bool, userId: String) {
-        approveLoginRequestsByUserId[userId] = approveLoginRequests
     }
 
     func setClearClipboardValue(_ clearClipboardValue: ClearClipboardValue?, userId: String) {
