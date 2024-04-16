@@ -82,11 +82,18 @@ class SetMasterPasswordProcessor: StateProcessor<
         defer { coordinator.hideLoadingOverlay() }
 
         do {
+            let account = try await services.stateService.getActiveAccount()
+            state.isPrivilegeElevation = account.profile.userDecryptionOptions != nil
+
             let response = try await services.organizationAPIService.getOrganizationAutoEnrollStatus(
                 identifier: state.organizationIdentifier
             )
             state.organizationId = response.id
             state.resetPasswordAutoEnroll = response.resetPasswordEnabled
+
+            if !state.isPrivilegeElevation {
+                try await services.settingsRepository.fetchSync()
+            }
 
             if let policy = try await services.policyService.getMasterPasswordPolicyOptions() {
                 state.masterPasswordPolicy = policy
