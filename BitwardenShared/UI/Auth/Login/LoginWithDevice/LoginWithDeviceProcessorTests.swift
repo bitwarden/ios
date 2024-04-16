@@ -73,6 +73,31 @@ class LoginWithDeviceProcessorTests: BitwardenTestCase {
         XCTAssertEqual(coordinator.events, [.didCompleteAuth])
     }
 
+    /// `textBasedOnRequestType(adminApproval:)` labels should changed based on request type
+    func test_textBasedOnRequestType_adminApproval() {
+        subject.state.requestType = AuthRequestType.adminApproval
+
+        XCTAssertFalse(subject.state.isResendNotificationVisible)
+        XCTAssertEqual(subject.state.explanationText, Localizations.yourRequestHasBeenSentToYourAdmin)
+        XCTAssertEqual(subject.state.navBarText, Localizations.logInInitiated)
+        XCTAssertEqual(subject.state.titleText, Localizations.adminApprovalRequested)
+    }
+
+    /// `textBasedOnRequestType(authenticateAndUnlock:)` labels should changed based on request type
+    func test_textBasedOnRequestType_authenticateAndUnlock() {
+        subject.state.requestType = AuthRequestType.authenticateAndUnlock
+
+        XCTAssertTrue(subject.state.isResendNotificationVisible)
+        XCTAssertEqual(
+            subject.state.explanationText,
+            Localizations.aNotificationHasBeenSentToYourDevice +
+                .newLine +
+                Localizations.pleaseMakeSureYourVaultIsUnlockedAndTheFingerprintPhraseMatchesOnTheOtherDevice
+        )
+        XCTAssertEqual(subject.state.navBarText, Localizations.logInWithDevice)
+        XCTAssertEqual(subject.state.titleText, Localizations.logInInitiated)
+    }
+
     /// `captchaErrored(error:)` records an error.
     func test_captchaErrored() {
         subject.captchaErrored(error: BitwardenTestError.example)

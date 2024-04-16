@@ -83,11 +83,10 @@ final class LoginWithDeviceProcessor: StateProcessor<
         defer { coordinator.hideLoadingOverlay() }
         do {
             coordinator.showLoadingOverlay(title: Localizations.loading)
-            guard let authRequestType = state.requestType else { throw AuthError.missingData }
 
             let result = try await services.authService.initiateLoginWithDevice(
                 email: state.email,
-                type: authRequestType
+                type: state.requestType
             )
             state.fingerprintPhrase = result.authRequestResponse.fingerprint
             state.requestId = result.requestId
