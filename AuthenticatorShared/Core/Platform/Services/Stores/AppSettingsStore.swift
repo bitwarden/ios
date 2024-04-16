@@ -18,6 +18,9 @@ protocol AppSettingsStore: AnyObject {
     /// Whether to disable the website icons.
     var disableWebIcons: Bool { get set }
 
+    /// Whether the user has seen the welcome tutorial.
+    var hasSeenWelcomeTutorial: Bool { get set }
+
     /// The user ID for the local user
     var localUserId: String { get }
 
@@ -162,6 +165,7 @@ extension DefaultAppSettingsStore: AppSettingsStore {
         case appTheme
         case clearClipboardValue(userId: String)
         case disableWebIcons
+        case hasSeenWelcomeTutorial
         case migrationVersion
 
         /// Returns the key used to store the data under for retrieving it later.
@@ -178,6 +182,8 @@ extension DefaultAppSettingsStore: AppSettingsStore {
                 key = "clearClipboard_\(userId)"
             case .disableWebIcons:
                 key = "disableFavicon"
+            case .hasSeenWelcomeTutorial:
+                key = "hasSeenWelcomeTutorial"
             case .migrationVersion:
                 key = "migrationVersion"
             }
@@ -203,6 +209,11 @@ extension DefaultAppSettingsStore: AppSettingsStore {
     var disableWebIcons: Bool {
         get { fetch(for: .disableWebIcons) }
         set { store(newValue, for: .disableWebIcons) }
+    }
+
+    var hasSeenWelcomeTutorial: Bool {
+        get { fetch(for: .hasSeenWelcomeTutorial) }
+        set { store(newValue, for: .hasSeenWelcomeTutorial) }
     }
 
     func clearClipboardValue(userId: String) -> ClearClipboardValue {

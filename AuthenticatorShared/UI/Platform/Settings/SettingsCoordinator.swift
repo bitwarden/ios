@@ -9,7 +9,7 @@ final class SettingsCoordinator: Coordinator, HasStackNavigator {
     // MARK: Types
 
     /// The module types required by this coordinator for creating child coordinators.
-    typealias Module = DefaultAppModule
+    typealias Module = TutorialModule
 
     typealias Services = HasErrorReporter
         & HasPasteboardService
@@ -65,6 +65,8 @@ final class SettingsCoordinator: Coordinator, HasStackNavigator {
             showSelectLanguage(currentLanguage: currentLanguage, delegate: context as? SelectLanguageDelegate)
         case .settings:
             showSettings()
+        case .tutorial:
+            showTutorial()
         }
     }
 
@@ -127,5 +129,16 @@ final class SettingsCoordinator: Coordinator, HasStackNavigator {
         )
         let view = SettingsView(store: Store(processor: processor))
         stackNavigator?.push(view)
+    }
+
+    /// Shows the welcome tutorial.
+    ///
+    private func showTutorial() {
+        let navigationController = UINavigationController()
+        let coordinator = module.makeTutorialCoordinator(
+            stackNavigator: navigationController
+        )
+        coordinator.start()
+        stackNavigator?.present(navigationController, overFullscreen: true)
     }
 }

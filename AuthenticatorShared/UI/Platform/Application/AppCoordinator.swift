@@ -12,6 +12,7 @@ class AppCoordinator: Coordinator, HasRootNavigator {
     /// The types of modules used by this coordinator.
     typealias Module = ItemListModule
         & TabModule
+        & TutorialModule
 
     // MARK: Private Properties
 
@@ -61,14 +62,14 @@ class AppCoordinator: Coordinator, HasRootNavigator {
         switch event {
         case .didStart:
             showTab(route: .itemList(.list))
-//            showItemList(route: .list)
+            if (!services.stateService.hasSeenWelcomeTutorial) {
+                showTutorial()
+            }
         }
     }
 
     func navigate(to route: AppRoute, context _: AnyObject?) {
         switch route {
-        case .onboarding:
-            break
         case let .tab(tabRoute):
             showTab(route: tabRoute)
         }
@@ -80,25 +81,6 @@ class AppCoordinator: Coordinator, HasRootNavigator {
     }
 
     // MARK: Private Methods
-
-    /// Shows the Item List screen.
-    ///
-    /// - Parameter route: The item list route to show.
-    ///
-    private func showItemList(route: ItemListRoute) {
-        if let coordinator = childCoordinator as? AnyCoordinator<ItemListRoute, ItemListEvent> {
-            coordinator.navigate(to: route)
-        } else {
-            let stackNavigator = UINavigationController()
-            let coordinator = module.makeItemListCoordinator(
-                stackNavigator: stackNavigator
-            )
-            coordinator.start()
-            coordinator.navigate(to: .list)
-            childCoordinator = coordinator
-            rootNavigator?.show(child: stackNavigator)
-        }
-    }
 
     /// Shows the tab route.
     ///
@@ -119,5 +101,18 @@ class AppCoordinator: Coordinator, HasRootNavigator {
             coordinator.navigate(to: route)
             childCoordinator = coordinator
         }
+    }
+
+    /// Shows the welcome tutorial.
+    ///
+    private func showTutorial() {
+        let navigationController = UINavigationController()
+        let coordinator = module.makeTutorialCoordinator(
+            stackNavigator: navigationController
+        )
+        coordinator.start()
+
+        navigationController.modalPresentationStyle = .overFullScreen
+        rootNavigator?.rootViewController?.present(navigationController, animated: false)
     }
 }

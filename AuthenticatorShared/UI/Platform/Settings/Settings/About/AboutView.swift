@@ -70,6 +70,10 @@ struct AboutView: View {
 
             externalLinkRow(Localizations.giveFeedback, action: .giveFeedbackTapped)
 
+            SettingsListItem(Localizations.launchTutorial) {
+                store.send(.tutorialTapped)
+            }
+
             SettingsListItem(store.state.version, hasDivider: false) {
                 store.send(.versionTapped)
             } trailingContent: {

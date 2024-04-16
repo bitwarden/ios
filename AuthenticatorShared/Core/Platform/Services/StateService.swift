@@ -29,6 +29,10 @@ protocol StateService: AnyObject {
     ///
     func getShowWebIcons() async -> Bool
 
+    /// Whether the user has seen the welcome tutorial.
+    ///
+    var hasSeenWelcomeTutorial: Bool { get set }
+
     /// Sets the app theme.
     ///
     /// - Parameter appTheme: The new app theme.
@@ -75,6 +79,11 @@ actor DefaultStateService: StateService {
     nonisolated var appLanguage: LanguageOption {
         get { LanguageOption(appSettingsStore.appLocale) }
         set { appSettingsStore.appLocale = newValue.value }
+    }
+
+    nonisolated var hasSeenWelcomeTutorial: Bool {
+        get { appSettingsStore.hasSeenWelcomeTutorial }
+        set { appSettingsStore.hasSeenWelcomeTutorial = newValue }
     }
 
     // MARK: Private Properties

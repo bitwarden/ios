@@ -73,6 +73,8 @@ final class AboutProcessor: StateProcessor<AboutState, AboutAction, Void> {
         case let .toggleSubmitCrashLogs(isOn):
             state.isSubmitCrashLogsToggleOn = isOn
             services.errorReporter.isEnabled = isOn
+        case .tutorialTapped:
+            coordinator.navigate(to: .tutorial)
         case .versionTapped:
             handleVersionTapped()
         case .webVaultTapped:

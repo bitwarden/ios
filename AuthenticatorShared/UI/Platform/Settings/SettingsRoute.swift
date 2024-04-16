@@ -21,4 +21,7 @@ public enum SettingsRoute: Equatable, Hashable {
 
     /// A route to the settings screen.
     case settings
+
+    /// A route to show the tutorial.
+    case tutorial
 }

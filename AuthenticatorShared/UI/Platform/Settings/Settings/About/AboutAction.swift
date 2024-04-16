@@ -33,6 +33,9 @@ enum AboutAction: Equatable {
     /// The submit crash logs toggle value changed.
     case toggleSubmitCrashLogs(Bool)
 
+    /// The tutorial button was tapped
+    case tutorialTapped
+
     /// The version was tapped.
     case versionTapped
 

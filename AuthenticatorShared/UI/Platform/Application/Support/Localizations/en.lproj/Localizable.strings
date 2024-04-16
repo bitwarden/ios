@@ -890,3 +890,13 @@
 "Algorithm" = "Algorithm";
 "RefreshPeriod" = "Refresh period";
 "NumberOfDigits" = "Number of digits";
+"BitwardenAuthenticator" = "Bitwarden Authenticator";
+"Skip" = "Skip";
+"SecureYourAssetsWithBitwardenAuthenticator" = "Secure your accounts with Bitwarden Authenticator";
+"GetVerificationCodesForAllYourAccounts" = "Get verification codes for all your accounts using 2-step verification.";
+"UseYourDeviceCameraToScanCodes" = "Use your device camera to scan codes";
+"ScanTheQRCodeInYourSettings" = "Scan the QR code in your 2-step verification settings for any account.";
+"SignInUsingUniqueCodes" = "Sign in using unique codes";
+"WhenUsingTwoStepVerification" = "When using 2-step verification, you’ll enter your username and password and a code generated in this app.";
+"GetStarted" = "Get started";
+"LaunchTutorial" = "Launch tutorial";
