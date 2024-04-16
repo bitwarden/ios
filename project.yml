@@ -22,7 +22,7 @@ packages:
     revision: 7d65f74a1277ccf36c9d3e748b4e4f5316c0a6e4
   Firebase:
     url: https://github.com/firebase/firebase-ios-sdk
-    exactVersion: 10.23.0
+    exactVersion: 10.24.0
   Networking:
     path: Networking
   SnapshotTesting:
