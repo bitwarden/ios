@@ -253,8 +253,8 @@ class DefaultClientService: ClientService {
     }
 
     func updateClientLockedStatus(userId: String, isLocked: Bool) {
-        guard let client = self.userClientDictionary[userId] else { return }
-        self.userClientDictionary.updateValue((client.client, isLocked), forKey: userId)
+        guard let client = userClientDictionary[userId] else { return }
+        userClientDictionary.updateValue((client.client, isLocked), forKey: userId)
     }
 }
 
