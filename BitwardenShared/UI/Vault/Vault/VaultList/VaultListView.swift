@@ -439,65 +439,15 @@ struct VaultListView_Previews: PreviewProvider {
                                 VaultListSection(
                                     id: "1",
                                     items: [
-                                        .init(cipherView: .init(
+                                        .init(cipherView: .fixture(
                                             id: UUID().uuidString,
-                                            organizationId: nil,
-                                            folderId: nil,
-                                            collectionIds: [],
-                                            key: nil,
-                                            name: "Example",
-                                            notes: nil,
-                                            type: .login,
-                                            login: .init(
-                                                username: "email@example.com",
-                                                password: nil,
-                                                passwordRevisionDate: nil,
-                                                uris: nil,
-                                                totp: nil,
-                                                autofillOnPageLoad: nil,
-                                                fido2Credentials: nil
-                                            ),
-                                            identity: nil,
-                                            card: nil,
-                                            secureNote: nil,
-                                            favorite: true,
-                                            reprompt: .none,
-                                            organizationUseTotp: false,
-                                            edit: false,
-                                            viewPassword: true,
-                                            localData: nil,
-                                            attachments: nil,
-                                            fields: nil,
-                                            passwordHistory: nil,
-                                            creationDate: Date(),
-                                            deletedDate: nil,
-                                            revisionDate: Date()
+                                            login: .fixture(username: "email@example.com"),
+                                            name: "Example"
                                         ))!,
-                                        .init(cipherView: .init(
+                                        .init(cipherView: .fixture(
                                             id: UUID().uuidString,
-                                            organizationId: nil,
-                                            folderId: nil,
-                                            collectionIds: [],
-                                            key: nil,
                                             name: "Example 2",
-                                            notes: nil,
-                                            type: .secureNote,
-                                            login: nil,
-                                            identity: nil,
-                                            card: nil,
-                                            secureNote: nil,
-                                            favorite: true,
-                                            reprompt: .none,
-                                            organizationUseTotp: false,
-                                            edit: false,
-                                            viewPassword: true,
-                                            localData: nil,
-                                            attachments: nil,
-                                            fields: nil,
-                                            passwordHistory: nil,
-                                            creationDate: Date(),
-                                            deletedDate: nil,
-                                            revisionDate: Date()
+                                            type: .secureNote
                                         ))!,
                                     ],
                                     name: "Favorites"
@@ -562,39 +512,11 @@ struct VaultListView_Previews: PreviewProvider {
                                 VaultListSection(
                                     id: "CollectionItems",
                                     items: [
-                                        .init(cipherView: .init(
+                                        .init(cipherView: .fixture(
                                             id: UUID().uuidString,
-                                            organizationId: "1",
-                                            folderId: nil,
-                                            collectionIds: [],
-                                            key: nil,
+                                            login: .fixture(username: "email@example.com"),
                                             name: "Example",
-                                            notes: nil,
-                                            type: .login,
-                                            login: .init(
-                                                username: "email@example.com",
-                                                password: nil,
-                                                passwordRevisionDate: nil,
-                                                uris: nil,
-                                                totp: nil,
-                                                autofillOnPageLoad: nil,
-                                                fido2Credentials: nil
-                                            ),
-                                            identity: nil,
-                                            card: nil,
-                                            secureNote: nil,
-                                            favorite: true,
-                                            reprompt: .none,
-                                            organizationUseTotp: false,
-                                            edit: false,
-                                            viewPassword: true,
-                                            localData: nil,
-                                            attachments: nil,
-                                            fields: nil,
-                                            passwordHistory: nil,
-                                            creationDate: Date(),
-                                            deletedDate: nil,
-                                            revisionDate: Date()
+                                            organizationId: "1"
                                         ))!,
                                     ],
                                     name: "Items"
@@ -633,39 +555,10 @@ struct VaultListView_Previews: PreviewProvider {
                                 isVisible: false
                             ),
                             searchResults: [
-                                .init(cipherView: .init(
+                                .init(cipherView: .fixture(
                                     id: UUID().uuidString,
-                                    organizationId: nil,
-                                    folderId: nil,
-                                    collectionIds: [],
-                                    key: nil,
-                                    name: "Example",
-                                    notes: nil,
-                                    type: .login,
-                                    login: .init(
-                                        username: "email@example.com",
-                                        password: nil,
-                                        passwordRevisionDate: nil,
-                                        uris: nil,
-                                        totp: nil,
-                                        autofillOnPageLoad: nil,
-                                        fido2Credentials: nil
-                                    ),
-                                    identity: nil,
-                                    card: nil,
-                                    secureNote: nil,
-                                    favorite: true,
-                                    reprompt: .none,
-                                    organizationUseTotp: false,
-                                    edit: false,
-                                    viewPassword: true,
-                                    localData: nil,
-                                    attachments: nil,
-                                    fields: nil,
-                                    passwordHistory: nil,
-                                    creationDate: Date(),
-                                    deletedDate: nil,
-                                    revisionDate: Date()
+                                    login: .fixture(username: "email@example.com"),
+                                    name: "Example"
                                 ))!,
                             ],
                             searchText: "Exam"
@@ -683,107 +576,20 @@ struct VaultListView_Previews: PreviewProvider {
                     processor: StateProcessor(
                         state: VaultListState(
                             searchResults: [
-                                .init(cipherView: .init(
+                                .init(cipherView: .fixture(
                                     id: UUID().uuidString,
-                                    organizationId: nil,
-                                    folderId: nil,
-                                    collectionIds: [],
-                                    key: nil,
-                                    name: "Example",
-                                    notes: nil,
-                                    type: .login,
-                                    login: .init(
-                                        username: "email@example.com",
-                                        password: nil,
-                                        passwordRevisionDate: nil,
-                                        uris: nil,
-                                        totp: nil,
-                                        autofillOnPageLoad: nil,
-                                        fido2Credentials: nil
-                                    ),
-                                    identity: nil,
-                                    card: nil,
-                                    secureNote: nil,
-                                    favorite: true,
-                                    reprompt: .none,
-                                    organizationUseTotp: false,
-                                    edit: false,
-                                    viewPassword: true,
-                                    localData: nil,
-                                    attachments: nil,
-                                    fields: nil,
-                                    passwordHistory: nil,
-                                    creationDate: Date(),
-                                    deletedDate: nil,
-                                    revisionDate: Date()
+                                    login: .fixture(username: "email@example.com"),
+                                    name: "Example"
                                 ))!,
-                                .init(cipherView: .init(
+                                .init(cipherView: .fixture(
                                     id: UUID().uuidString,
-                                    organizationId: nil,
-                                    folderId: nil,
-                                    collectionIds: [],
-                                    key: nil,
-                                    name: "Example 2",
-                                    notes: nil,
-                                    type: .login,
-                                    login: .init(
-                                        username: "email2@example.com",
-                                        password: nil,
-                                        passwordRevisionDate: nil,
-                                        uris: nil,
-                                        totp: nil,
-                                        autofillOnPageLoad: nil,
-                                        fido2Credentials: nil
-                                    ),
-                                    identity: nil,
-                                    card: nil,
-                                    secureNote: nil,
-                                    favorite: true,
-                                    reprompt: .none,
-                                    organizationUseTotp: false,
-                                    edit: false,
-                                    viewPassword: true,
-                                    localData: nil,
-                                    attachments: nil,
-                                    fields: nil,
-                                    passwordHistory: nil,
-                                    creationDate: Date(),
-                                    deletedDate: nil,
-                                    revisionDate: Date()
+                                    login: .fixture(username: "email2@example.com"),
+                                    name: "Example 2"
                                 ))!,
-                                .init(cipherView: .init(
+                                .init(cipherView: .fixture(
                                     id: UUID().uuidString,
-                                    organizationId: nil,
-                                    folderId: nil,
-                                    collectionIds: [],
-                                    key: nil,
-                                    name: "Example 3",
-                                    notes: nil,
-                                    type: .login,
-                                    login: .init(
-                                        username: "email3@example.com",
-                                        password: nil,
-                                        passwordRevisionDate: nil,
-                                        uris: nil,
-                                        totp: nil,
-                                        autofillOnPageLoad: nil,
-                                        fido2Credentials: nil
-                                    ),
-                                    identity: nil,
-                                    card: nil,
-                                    secureNote: nil,
-                                    favorite: true,
-                                    reprompt: .none,
-                                    organizationUseTotp: false,
-                                    edit: false,
-                                    viewPassword: true,
-                                    localData: nil,
-                                    attachments: nil,
-                                    fields: nil,
-                                    passwordHistory: nil,
-                                    creationDate: Date(),
-                                    deletedDate: nil,
-                                    revisionDate: Date()
+                                    login: .fixture(username: "email3@example.com"),
+                                    name: "Example 3"
                                 ))!,
                             ],
                             searchText: "Exam"
@@ -816,7 +622,7 @@ struct VaultListView_Previews: PreviewProvider {
                     processor: StateProcessor(
                         state: VaultListState(
                             loadingState: .data([]),
-                            profileSwitcherState: singleAccountState
+                            profileSwitcherState: .singleAccount
                         )
                     )
                 ),
@@ -831,7 +637,7 @@ struct VaultListView_Previews: PreviewProvider {
                     processor: StateProcessor(
                         state: VaultListState(
                             loadingState: .data([]),
-                            profileSwitcherState: dualAccountState
+                            profileSwitcherState: .dualAccounts
                         )
                     )
                 ),

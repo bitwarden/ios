@@ -294,6 +294,9 @@ struct SendListItemIcon: Hashable {
     }
 }
 
+// MARK: Previews
+
+#if DEBUG
 #Preview {
     VStack {
         SendListItemRowView(
@@ -322,22 +325,14 @@ struct SendListItemIcon: Hashable {
                     state: SendListItemRowState(
                         item: SendListItem(
                             id: "3",
-                            itemType: .send(.init(
+                            itemType: .send(.fixture(
                                 id: "3",
-                                accessId: "3",
                                 name: "All Statuses",
-                                notes: nil,
-                                key: "",
-                                newPassword: nil,
                                 hasPassword: true,
                                 type: .text,
-                                file: nil,
-                                text: nil,
                                 maxAccessCount: 1,
                                 accessCount: 1,
                                 disabled: true,
-                                hideEmail: true,
-                                revisionDate: Date(),
                                 deletionDate: Date(),
                                 expirationDate: Date().advanced(by: -1)
                             ))
@@ -353,22 +348,9 @@ struct SendListItemIcon: Hashable {
                     state: SendListItemRowState(
                         item: SendListItem(
                             id: "4",
-                            itemType: .send(.init(
+                            itemType: .send(.fixture(
                                 id: "4",
-                                accessId: "4",
                                 name: "No Status",
-                                notes: nil,
-                                key: "",
-                                newPassword: nil,
-                                hasPassword: false,
-                                type: .text,
-                                file: nil,
-                                text: nil,
-                                maxAccessCount: nil,
-                                accessCount: 0,
-                                disabled: false,
-                                hideEmail: false,
-                                revisionDate: Date(),
                                 deletionDate: Date().advanced(by: 100),
                                 expirationDate: Date().advanced(by: 100)
                             ))
@@ -380,3 +362,4 @@ struct SendListItemIcon: Hashable {
         )
     }
 }
+#endif

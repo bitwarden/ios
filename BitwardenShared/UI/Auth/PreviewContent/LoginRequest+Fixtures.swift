@@ -1,7 +1,6 @@
 import Foundation
 
-@testable import BitwardenShared
-
+#if DEBUG
 extension LoginRequest {
     static func fixture(
         creationDate: Date = Date(year: 3000, month: 1, day: 1),
@@ -33,3 +32,4 @@ extension LoginRequest {
         )
     }
 }
+#endif

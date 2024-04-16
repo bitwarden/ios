@@ -147,7 +147,7 @@ struct LandingView: View {
 // MARK: - Previews
 
 #if DEBUG
-#Preview {
+#Preview("Empty Email") {
     NavigationView {
         LandingView(
             store: Store(
@@ -160,10 +160,9 @@ struct LandingView: View {
             )
         )
     }
-    .previewDisplayName("Empty Email")
 }
 
-#Preview {
+#Preview("Example Email") {
     NavigationView {
         LandingView(
             store: Store(
@@ -176,10 +175,9 @@ struct LandingView: View {
             )
         )
     }
-    .previewDisplayName("Example Email")
 }
 
-#Preview {
+#Preview("Profiles Closed") {
     NavigationView {
         LandingView(
             store: Store(
@@ -187,29 +185,15 @@ struct LandingView: View {
                     state: LandingState(
                         email: "",
                         isRememberMeOn: false,
-                        profileSwitcherState: ProfileSwitcherState(
-                            accounts: [
-                                ProfileSwitcherItem(
-                                    email: "max.protecc@bitwarden.com",
-                                    isUnlocked: false,
-                                    userId: "123",
-                                    userInitials: "MP",
-                                    webVault: ""
-                                ),
-                            ],
-                            activeAccountId: "123",
-                            allowLockAndLogout: true,
-                            isVisible: false
-                        )
+                        profileSwitcherState: ProfileSwitcherState.singleAccountHidden
                     )
                 )
             )
         )
     }
-    .previewDisplayName("Profiles Closed")
 }
 
-#Preview {
+#Preview("Profiles Open") {
     NavigationView {
         LandingView(
             store: Store(
@@ -217,25 +201,11 @@ struct LandingView: View {
                     state: LandingState(
                         email: "",
                         isRememberMeOn: false,
-                        profileSwitcherState: ProfileSwitcherState(
-                            accounts: [
-                                ProfileSwitcherItem(
-                                    email: "max.protecc@bitwarden.com",
-                                    isUnlocked: false,
-                                    userId: "123",
-                                    userInitials: "MP",
-                                    webVault: ""
-                                ),
-                            ],
-                            activeAccountId: "123",
-                            allowLockAndLogout: true,
-                            isVisible: true
-                        )
+                        profileSwitcherState: ProfileSwitcherState.singleAccount
                     )
                 )
             )
         )
     }
-    .previewDisplayName("Profiles Open")
 }
 #endif

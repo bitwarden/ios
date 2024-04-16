@@ -159,33 +159,15 @@ struct PendingRequestsView: View {
     PendingRequestsView(store: Store(processor: StateProcessor(state: PendingRequestsState(
         loadingState: .data(
             [
-                LoginRequest(
-                    creationDate: Date(),
+                .fixture(
+                    creationDate: .now,
                     fingerprintPhrase: "pineapple-on-pizza-is-the-best",
-                    id: "1",
-                    key: nil,
-                    masterPasswordHash: nil,
-                    origin: "",
-                    publicKey: "",
-                    requestAccessCode: nil,
-                    requestApproved: nil,
-                    requestDeviceType: "iOS",
-                    requestIpAddress: "11-22-333-444",
-                    responseDate: nil
+                    id: "1"
                 ),
-                LoginRequest(
-                    creationDate: Date(),
+                .fixture(
+                    creationDate: .now,
                     fingerprintPhrase: "coconuts-are-underrated",
-                    id: "2",
-                    key: nil,
-                    masterPasswordHash: nil,
-                    origin: "",
-                    publicKey: "",
-                    requestAccessCode: nil,
-                    requestApproved: nil,
-                    requestDeviceType: "iOS",
-                    requestIpAddress: "11-22-333-444",
-                    responseDate: nil
+                    id: "2"
                 ),
             ]
         )
