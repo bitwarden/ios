@@ -296,64 +296,25 @@ private let multilineText =
     """
 
 struct AddEditItemView_Previews: PreviewProvider {
-    static var fixedDate: Date {
-        .init(timeIntervalSince1970: 1_695_000_000)
-    }
-
     static var cipherState: CipherItemState {
         var state = CipherItemState(
-            existing: .init(
-                id: .init(),
-                organizationId: nil,
-                folderId: nil,
-                collectionIds: [],
-                key: .init(),
-                name: "Edit Em",
-                notes: nil,
-                type: .login,
-                login: .init(
-                    username: "EddyEddity",
-                    password: "changerdanger",
-                    passwordRevisionDate: fixedDate,
-                    uris: [
-                        .init(uri: "yahoo.com", match: nil, uriChecksum: nil),
-                        .init(uri: "account.yahoo.com", match: nil, uriChecksum: nil),
-                    ],
-                    totp: nil,
-                    autofillOnPageLoad: nil,
+            existing: .fixture(
+                favorite: true,
+                login: .fixture(
                     fido2Credentials: [
-                        Fido2Credential(
-                            credentialId: "1",
-                            keyType: "",
-                            keyAlgorithm: "",
-                            keyCurve: "",
-                            keyValue: "",
-                            rpId: "",
-                            userHandle: nil,
-                            userName: nil,
-                            counter: "",
-                            rpName: nil,
-                            userDisplayName: nil,
-                            discoverable: "",
+                        .fixture(
                             creationDate: Date(timeIntervalSince1970: 1_710_494_110)
                         ),
-                    ]
+                    ],
+                    password: "changerdanger",
+                    uris: [
+                        .fixture(uri: "yahoo.com"),
+                        .fixture(uri: "account.yahoo.com"),
+                    ],
+                    username: "EddyEddity"
                 ),
-                identity: nil,
-                card: nil,
-                secureNote: nil,
-                favorite: true,
-                reprompt: .none,
-                organizationUseTotp: false,
-                edit: true,
-                viewPassword: true,
-                localData: nil,
-                attachments: nil,
-                fields: nil,
-                passwordHistory: nil,
-                creationDate: fixedDate,
-                deletedDate: nil,
-                revisionDate: fixedDate
+                name: "Edit Em",
+                type: .login
             ),
             hasPremium: true
         )!

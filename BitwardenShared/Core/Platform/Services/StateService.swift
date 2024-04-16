@@ -201,6 +201,12 @@ protocol StateService: AnyObject {
     ///
     func getPreAuthEnvironmentUrls() async -> EnvironmentUrlData?
 
+    /// Get whether the device should be trusted.
+    ///
+    /// - Returns: Whether to trust the device.
+    ///
+    func getShouldTrustDevice(userId: String) async -> Bool?
+
     /// Get whether to show the website icons.
     ///
     /// - Returns: Whether to show the website icons.
@@ -430,6 +436,12 @@ protocol StateService: AnyObject {
     /// - Parameter urls: The environment URLs used prior to user authentication.
     ///
     func setPreAuthEnvironmentUrls(_ urls: EnvironmentUrlData) async
+
+    /// Set whether to trust the device.
+    ///
+    /// - Parameter shouldTrustDevice: Whether to trust the device.
+    ///
+    func setShouldTrustDevice(_ shouldTrustDevice: Bool?, userId: String) async
 
     /// Set whether to show the website icons.
     ///
@@ -873,6 +885,9 @@ enum StateServiceError: Error {
 
     /// The user has no pin protected user key.
     case noPinProtectedUserKey
+
+    /// The user has no user key.
+    case noEncUserKey
 }
 
 // MARK: - DefaultStateService
@@ -971,14 +986,12 @@ actor DefaultStateService: StateService { // swiftlint:disable:this type_body_le
 
     func getAccountEncryptionKeys(userId: String?) async throws -> AccountEncryptionKeys {
         let userId = try userId ?? getActiveAccountUserId()
-        guard let encryptedPrivateKey = appSettingsStore.encryptedPrivateKey(userId: userId),
-              let encryptedUserKey = appSettingsStore.encryptedUserKey(userId: userId)
-        else {
+        guard let encryptedPrivateKey = appSettingsStore.encryptedPrivateKey(userId: userId) else {
             throw StateServiceError.noActiveAccount
         }
         return AccountEncryptionKeys(
             encryptedPrivateKey: encryptedPrivateKey,
-            encryptedUserKey: encryptedUserKey
+            encryptedUserKey: appSettingsStore.encryptedUserKey(userId: userId)
         )
     }
 
@@ -1074,6 +1087,10 @@ actor DefaultStateService: StateService { // swiftlint:disable:this type_body_le
 
     func getPreAuthEnvironmentUrls() async -> EnvironmentUrlData? {
         appSettingsStore.preAuthEnvironmentUrls
+    }
+
+    func getShouldTrustDevice(userId: String) async -> Bool? {
+        appSettingsStore.shouldTrustDevice(userId: userId)
     }
 
     func getShowWebIcons() async -> Bool {
@@ -1266,6 +1283,10 @@ actor DefaultStateService: StateService { // swiftlint:disable:this type_body_le
 
     func setPreAuthEnvironmentUrls(_ urls: EnvironmentUrlData) async {
         appSettingsStore.preAuthEnvironmentUrls = urls
+    }
+
+    func setShouldTrustDevice(_ shouldTrustDevice: Bool?, userId: String) {
+        appSettingsStore.setShouldTrustDevice(shouldTrustDevice: shouldTrustDevice, userId: userId)
     }
 
     func setShowWebIcons(_ showWebIcons: Bool) async {

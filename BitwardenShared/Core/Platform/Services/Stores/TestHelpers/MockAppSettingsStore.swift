@@ -33,6 +33,7 @@ class MockAppSettingsStore: AppSettingsStore {
     var passwordGenerationOptions = [String: PasswordGenerationOptions]()
     var pinKeyEncryptedUserKey = [String: String]()
     var pinProtectedUserKey = [String: String]()
+    var shouldTrustDevice = [String: Bool?]()
     var timeoutAction = [String: Int]()
     var twoFactorTokens = [String: String]()
     var vaultTimeout = [String: Int?]()
@@ -183,6 +184,10 @@ class MockAppSettingsStore: AppSettingsStore {
         pinProtectedUserKey[userId] = key
     }
 
+    func setShouldTrustDevice(shouldTrustDevice: Bool?, userId: String) {
+        self.shouldTrustDevice[userId] = shouldTrustDevice
+    }
+
     func setTimeoutAction(key: SessionTimeoutAction, userId: String) {
         timeoutAction[userId] = key.rawValue
     }
@@ -205,6 +210,10 @@ class MockAppSettingsStore: AppSettingsStore {
 
     func setVaultTimeout(key: Int, userId: String) {
         vaultTimeout[userId] = key
+    }
+
+    func shouldTrustDevice(userId: String) -> Bool? {
+        shouldTrustDevice[userId] ?? false
     }
 
     func timeoutAction(userId: String) -> Int? {

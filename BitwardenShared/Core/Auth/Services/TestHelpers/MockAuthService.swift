@@ -19,6 +19,9 @@ class MockAuthService: AuthService {
     var generateSingleSignOnUrlResult: Result<(URL, String), Error> = .success((url: .example, state: "state"))
     var generateSingleSignOnOrgIdentifier: String?
 
+    var getPendingAdminLoginRequestUserId: String?
+    var getPendingAdminLoginRequestResult: Result<PendingAdminLoginRequest, Error> = .success(.fixture())
+
     var getPendingLoginRequestCalled = false
     var getPendingLoginRequestId: String?
     var getPendingLoginRequestResult: Result<[LoginRequest], Error> = .success([])
@@ -27,6 +30,7 @@ class MockAuthService: AuthService {
     var hashPasswordResult: Result<String, Error> = .success("hashed")
 
     var initiateLoginWithDeviceEmail: String?
+    var initiateLoginWithDeviceType: AuthRequestType?
     var initiateLoginWithDeviceResult: Result<
         (authRequestResponse: AuthRequestResponse, requestId: String), Error
     > = .success((.fixture(), ""))
@@ -34,6 +38,7 @@ class MockAuthService: AuthService {
     var loginWithDeviceRequest: LoginRequest?
     var loginWithDeviceEmail: String?
     var loginWithDeviceCaptchaToken: String?
+    var loginWithDeviceIsAuthenticated: Bool?
     var loginWithDeviceResult: Result<(String, String), Error> = .success(("", ""))
 
     var loginWithMasterPasswordPassword: String?
@@ -54,6 +59,9 @@ class MockAuthService: AuthService {
     var requirePasswordChangeResult: Result<Bool, Error> = .success(false)
     var resendVerificationCodeEmailResult: Result<Void, Error> = .success(())
     var sentVerificationEmail = false
+
+    var setPendingAdminLoginRequest: PendingAdminLoginRequest?
+    var setPendingAdminLoginRequestResult: Result<Void, Error> = .success(())
 
     func answerLoginRequest(_ request: LoginRequest, approve: Bool) async throws {
         answerLoginRequestRequest = request
@@ -76,6 +84,11 @@ class MockAuthService: AuthService {
         return try generateSingleSignOnUrlResult.get()
     }
 
+    func getPendingAdminLoginRequest(userId: String?) async throws -> PendingAdminLoginRequest? {
+        getPendingAdminLoginRequestUserId = userId
+        return try getPendingAdminLoginRequestResult.get()
+    }
+
     func getPendingLoginRequest(withId id: String?) async throws -> [LoginRequest] {
         getPendingLoginRequestCalled = true
         getPendingLoginRequestId = id
@@ -88,19 +101,23 @@ class MockAuthService: AuthService {
     }
 
     func initiateLoginWithDevice(
-        email: String
+        email: String,
+        type: AuthRequestType
     ) async throws -> (authRequestResponse: AuthRequestResponse, requestId: String) {
         initiateLoginWithDeviceEmail = email
+        initiateLoginWithDeviceType = type
         return try initiateLoginWithDeviceResult.get()
     }
 
     func loginWithDevice(
         _ loginRequest: LoginRequest,
         email: String,
+        isAuthenticated: Bool,
         captchaToken: String?
     ) async throws -> (String, String) {
         loginWithDeviceRequest = loginRequest
         loginWithDeviceEmail = email
+        loginWithDeviceIsAuthenticated = isAuthenticated
         loginWithDeviceCaptchaToken = captchaToken
         return try loginWithDeviceResult.get()
     }
@@ -123,7 +140,7 @@ class MockAuthService: AuthService {
         method: TwoFactorAuthMethod,
         remember: Bool,
         captchaToken: String?
-    ) async throws -> Account {
+    ) async throws -> Account? {
         loginWithTwoFactorCodeEmail = email
         loginWithTwoFactorCodeCode = code
         loginWithTwoFactorCodeMethod = method
@@ -143,5 +160,10 @@ class MockAuthService: AuthService {
     func resendVerificationCodeEmail() async throws {
         sentVerificationEmail = true
         try resendVerificationCodeEmailResult.get()
+    }
+
+    func setPendingAdminLoginRequest(_ adminLoginRequest: PendingAdminLoginRequest?, userId: String?) async throws {
+        setPendingAdminLoginRequest = adminLoginRequest
+        try setPendingAdminLoginRequestResult.get()
     }
 }

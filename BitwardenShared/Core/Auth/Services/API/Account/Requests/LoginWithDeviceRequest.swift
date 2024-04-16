@@ -16,8 +16,13 @@ struct LoginWithDeviceRequest: Request {
     /// The HTTP method for this request.
     let method: HTTPMethod = .post
 
+    /// The type of auth request.
+    let requestType: AuthRequestType
+
     /// The URL path for this request.
-    let path: String = "/auth-requests"
+    var path: String {
+        requestType == AuthRequestType.adminApproval ? "/auth-requests/admin-request" : "/auth-requests"
+    }
 
     /// Creates a new `LoginWithDeviceRequest`.
     ///
@@ -25,6 +30,7 @@ struct LoginWithDeviceRequest: Request {
     ///
     init(body: LoginWithDeviceRequestModel) {
         self.body = body
+        requestType = body.type
         headers = ["Device-Identifier": body.deviceIdentifier]
     }
 }

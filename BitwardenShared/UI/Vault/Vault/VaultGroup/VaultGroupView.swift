@@ -296,73 +296,15 @@ struct VaultGroupView: View {
                                 .init(
                                     id: "Items",
                                     items: [
-                                        .init(cipherView: .init(
-                                            id: UUID().uuidString,
-                                            organizationId: nil,
-                                            folderId: nil,
-                                            collectionIds: [],
-                                            key: nil,
-                                            name: "Example",
-                                            notes: nil,
-                                            type: .login,
-                                            login: .init(
-                                                username: "email@example.com",
-                                                password: nil,
-                                                passwordRevisionDate: nil,
-                                                uris: nil,
-                                                totp: nil,
-                                                autofillOnPageLoad: nil,
-                                                fido2Credentials: nil
-                                            ),
-                                            identity: nil,
-                                            card: nil,
-                                            secureNote: nil,
-                                            favorite: true,
-                                            reprompt: .none,
-                                            organizationUseTotp: false,
-                                            edit: false,
-                                            viewPassword: true,
-                                            localData: nil,
-                                            attachments: [],
-                                            fields: [],
-                                            passwordHistory: [],
-                                            creationDate: Date(),
-                                            deletedDate: nil,
-                                            revisionDate: Date()
+                                        .init(cipherView: .fixture(
+                                            id: "1",
+                                            login: .fixture(username: "email@example.com"),
+                                            name: "Example"
                                         ))!,
-                                        .init(cipherView: .init(
-                                            id: UUID().uuidString,
-                                            organizationId: nil,
-                                            folderId: nil,
-                                            collectionIds: [],
-                                            key: nil,
-                                            name: "Example 2",
-                                            notes: nil,
-                                            type: .login,
-                                            login: .init(
-                                                username: "email2@example.com",
-                                                password: nil,
-                                                passwordRevisionDate: nil,
-                                                uris: nil,
-                                                totp: nil,
-                                                autofillOnPageLoad: nil,
-                                                fido2Credentials: nil
-                                            ),
-                                            identity: nil,
-                                            card: nil,
-                                            secureNote: nil,
-                                            favorite: true,
-                                            reprompt: .none,
-                                            organizationUseTotp: false,
-                                            edit: false,
-                                            viewPassword: true,
-                                            localData: nil,
-                                            attachments: [],
-                                            fields: [],
-                                            passwordHistory: [],
-                                            creationDate: Date(),
-                                            deletedDate: nil,
-                                            revisionDate: Date()
+                                        .init(cipherView: .fixture(
+                                            id: "2",
+                                            login: .fixture(username: "email2@example.com"),
+                                            name: "Example 2"
                                         ))!,
                                     ],
                                     name: "Items"

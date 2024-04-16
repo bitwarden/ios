@@ -262,6 +262,16 @@
       "readOnly": false,
       "hidePasswords": false,
       "manage": false,
+      "id": "1a102336-fbfd-4d63-bd7b-8a953a1bcdb3",
+      "organizationId": "ba756e34-4650-4e8a-8cbb-6e98bfae9abf",
+      "name": "Engineering/Apple",
+      "externalId": null,
+      "object": "collectionDetails"
+    },
+    {
+      "readOnly": false,
+      "hidePasswords": false,
+      "manage": false,
       "id": "a468e453-7141-49cf-bb15-58448c2b27b9",
       "organizationId": "ba756e34-4650-4e8a-8cbb-6e98bfae9abf",
       "name": "Design",

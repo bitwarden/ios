@@ -186,6 +186,8 @@ extension VaultListProcessor {
                 filter: state.vaultFilterType
             ) else { return }
             state.loadingState = .data(sections)
+        } catch URLError.cancelled {
+            // No-op: don't log or alert for cancellation errors.
         } catch {
             coordinator.showAlert(.networkResponseError(error))
             services.errorReporter.log(error: error)

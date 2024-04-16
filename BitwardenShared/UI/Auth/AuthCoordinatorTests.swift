@@ -157,7 +157,11 @@ class AuthCoordinatorTests: BitwardenTestCase { // swiftlint:disable:this type_b
 
     /// `navigate(to:)` with `.loginWithDevice` pushes the login with device view onto the stack navigator.
     func test_navigate_loginWithDevice() throws {
-        subject.navigate(to: .loginWithDevice(email: "example@email.com"))
+        subject.navigate(to: .loginWithDevice(
+            email: "example@email.com",
+            authRequestType: AuthRequestType.authenticateAndUnlock,
+            isAuthenticated: false
+        ))
 
         XCTAssertEqual(stackNavigator.actions.last?.type, .presented)
         let navigationController = try XCTUnwrap(stackNavigator.actions.last?.view as? UINavigationController)
@@ -251,7 +255,7 @@ class AuthCoordinatorTests: BitwardenTestCase { // swiftlint:disable:this type_b
 
     /// `navigate(to:)` with `.twoFactor` shows the two factor auth view.
     func test_navigate_twoFactor() throws {
-        subject.navigate(to: .twoFactor("", .password(""), AuthMethodsData.fixture()))
+        subject.navigate(to: .twoFactor("", .password(""), AuthMethodsData.fixture(), nil))
 
         XCTAssertEqual(stackNavigator.actions.last?.type, .presented)
         let navigationController = try XCTUnwrap(stackNavigator.actions.last?.view as? UINavigationController)
@@ -301,6 +305,22 @@ class AuthCoordinatorTests: BitwardenTestCase { // swiftlint:disable:this type_b
             view.store.state.toast?.text,
             Localizations.accountSwitchedAutomatically
         )
+    }
+
+    /// `navigate(to:)` with `.showLoginDecryptionOptions` replaces the current view with
+    /// the show decryption options view.
+    func test_navigate_showLoginDecryptionOptions() throws {
+        subject.navigate(to: .showLoginDecryptionOptions(organizationIdentifier: "Bitwarden"))
+
+        XCTAssertEqual(stackNavigator.actions.last?.type, .pushed)
+        let viewController = try XCTUnwrap(
+            stackNavigator.actions.last?.view as? UIHostingController<LoginDecryptionOptionsView>
+        )
+        XCTAssertTrue(viewController.navigationItem.hidesBackButton)
+
+        let view = viewController.rootView
+        let state = view.store.state
+        XCTAssertEqual(state.orgIdentifier, "Bitwarden")
     }
 
     /// `rootNavigator` uses a weak reference and does not retain a value once the root navigator has been erased.

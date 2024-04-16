@@ -64,54 +64,24 @@ struct EditCollectionsView: View {
 
 // MARK: - Previews
 
+#if DEBUG
 #Preview("Collections") {
     NavigationView {
         EditCollectionsView(
             store: Store(
                 processor: StateProcessor(
                     state: EditCollectionsState(
-                        cipher: CipherView(
-                            id: nil,
-                            organizationId: nil,
-                            folderId: nil,
-                            collectionIds: [],
-                            key: nil,
-                            name: "",
-                            notes: nil,
-                            type: .login,
-                            login: nil,
-                            identity: nil,
-                            card: nil,
-                            secureNote: nil,
-                            favorite: false,
-                            reprompt: .none,
-                            organizationUseTotp: false,
-                            edit: true,
-                            viewPassword: true,
-                            localData: nil,
-                            attachments: nil,
-                            fields: nil,
-                            passwordHistory: nil,
-                            creationDate: Date(),
-                            deletedDate: nil,
-                            revisionDate: Date()
-                        ),
+                        cipher: .fixture(),
                         collections: [
-                            CollectionView(
+                            .fixture(
                                 id: "1",
-                                organizationId: "1",
                                 name: "Design",
-                                externalId: nil,
-                                hidePasswords: false,
-                                readOnly: false
+                                organizationId: "1"
                             ),
-                            CollectionView(
+                            .fixture(
                                 id: "2",
-                                organizationId: "1",
                                 name: "Engineering",
-                                externalId: nil,
-                                hidePasswords: false,
-                                readOnly: false
+                                organizationId: "1"
                             ),
                         ]
                     )
@@ -120,3 +90,4 @@ struct EditCollectionsView: View {
         )
     }
 }
+#endif

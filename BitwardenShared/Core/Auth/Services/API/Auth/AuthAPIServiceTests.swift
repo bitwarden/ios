@@ -114,13 +114,14 @@ class AuthAPIServiceTests: BitwardenTestCase {
     func test_initiateLoginWithDevice() async throws {
         client.result = .httpSuccess(testData: .authRequestSuccess)
 
-        let response = try await subject.initiateLoginWithDevice(
-            accessCode: "",
-            deviceIdentifier: "",
+        let response = try await subject.initiateLoginWithDevice(LoginWithDeviceRequestModel(
             email: "",
-            fingerPrint: "",
-            publicKey: ""
-        )
+            publicKey: "",
+            deviceIdentifier: "",
+            accessCode: "",
+            type: AuthRequestType.authenticateAndUnlock,
+            fingerprintPhrase: ""
+        ))
 
         XCTAssertEqual(response, .fixture())
     }

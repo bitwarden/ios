@@ -36,6 +36,6 @@ class OrganizationKeysRequestTests: BitwardenTestCase {
 
     /// `path` returns the path of the request.
     func test_path() {
-        XCTAssertEqual(subject.path, "/organizations/ORGANIZATION_ID/keys")
+        XCTAssertEqual(subject.path, "/organizations/ORGANIZATION_ID/public-key")
     }
 }

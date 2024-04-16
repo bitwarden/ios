@@ -172,7 +172,7 @@ class SingleSignOnProcessorTests: BitwardenTestCase {
         await subject.perform(.loginTapped)
 
         // Verify the results.
-        XCTAssertEqual(coordinator.routes.last, .twoFactor("", nil, AuthMethodsData()))
+        XCTAssertEqual(coordinator.routes.last, .twoFactor("", nil, AuthMethodsData(), "BestOrganization"))
     }
 
     /// `singleSignOnCompleted(code:)` navigates to the set password screen if the user needs

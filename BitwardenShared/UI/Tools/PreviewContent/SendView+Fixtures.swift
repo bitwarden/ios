@@ -1,6 +1,7 @@
 import BitwardenSdk
 import Foundation
 
+#if DEBUG
 extension SendView {
     static func fixture(
         id: String = "id",
@@ -10,7 +11,7 @@ extension SendView {
         key: String = "key",
         newPassword: String? = nil,
         hasPassword: Bool = false,
-        type: SendType = .text,
+        type: BitwardenSdk.SendType = .text,
         file: SendFileView? = nil,
         text: SendTextView? = nil,
         maxAccessCount: UInt32? = nil,
@@ -70,3 +71,4 @@ extension SendTextView {
         )
     }
 }
+#endif

@@ -185,6 +185,7 @@ private struct VaultAutofillListSearchableView: View {
 
 // MARK: - Previews
 
+#if DEBUG
 #Preview("Empty") {
     NavigationView {
         VaultAutofillListView(store: Store(processor: StateProcessor(state: VaultAutofillListState())))
@@ -198,99 +199,19 @@ private struct VaultAutofillListSearchableView: View {
                 processor: StateProcessor(
                     state: VaultAutofillListState(
                         ciphersForAutofill: [
-                            CipherView(
+                            .fixture(
                                 id: "1",
-                                organizationId: nil,
-                                folderId: nil,
-                                collectionIds: [],
-                                key: nil,
-                                name: "Apple",
-                                notes: nil,
-                                type: .login,
-                                login: BitwardenSdk.LoginView(
-                                    username: "user@bitwarden.com",
-                                    password: nil,
-                                    passwordRevisionDate: nil,
-                                    uris: nil,
-                                    totp: nil,
-                                    autofillOnPageLoad: nil,
-                                    fido2Credentials: nil
-                                ),
-                                identity: nil,
-                                card: nil,
-                                secureNote: nil,
-                                favorite: false,
-                                reprompt: .none,
-                                organizationUseTotp: false,
-                                edit: true,
-                                viewPassword: true,
-                                localData: nil,
-                                attachments: nil,
-                                fields: nil,
-                                passwordHistory: nil,
-                                creationDate: Date(),
-                                deletedDate: nil,
-                                revisionDate: Date()
+                                login: .fixture(username: "user@bitwarden.com"),
+                                name: "Apple"
                             ),
-                            CipherView(
+                            .fixture(
                                 id: "2",
-                                organizationId: nil,
-                                folderId: nil,
-                                collectionIds: [],
-                                key: nil,
-                                name: "Bitwarden",
-                                notes: nil,
-                                type: .login,
-                                login: BitwardenSdk.LoginView(
-                                    username: "user@bitwarden.com",
-                                    password: nil,
-                                    passwordRevisionDate: nil,
-                                    uris: nil,
-                                    totp: nil,
-                                    autofillOnPageLoad: nil,
-                                    fido2Credentials: nil
-                                ),
-                                identity: nil,
-                                card: nil,
-                                secureNote: nil,
-                                favorite: false,
-                                reprompt: .none,
-                                organizationUseTotp: false,
-                                edit: true,
-                                viewPassword: true,
-                                localData: nil,
-                                attachments: nil,
-                                fields: nil,
-                                passwordHistory: nil,
-                                creationDate: Date(),
-                                deletedDate: nil,
-                                revisionDate: Date()
+                                login: .fixture(username: "user@bitwarden.com"),
+                                name: "Bitwarden"
                             ),
-                            CipherView(
+                            .fixture(
                                 id: "3",
-                                organizationId: nil,
-                                folderId: nil,
-                                collectionIds: [],
-                                key: nil,
-                                name: "Company XYZ",
-                                notes: nil,
-                                type: .login,
-                                login: nil,
-                                identity: nil,
-                                card: nil,
-                                secureNote: nil,
-                                favorite: false,
-                                reprompt: .none,
-                                organizationUseTotp: false,
-                                edit: true,
-                                viewPassword: true,
-                                localData: nil,
-                                attachments: nil,
-                                fields: nil,
-                                passwordHistory: nil,
-                                creationDate: Date(),
-                                deletedDate: nil,
-                                revisionDate: Date()
+                                name: "Company XYZ"
                             ),
                         ]
                     )
@@ -299,3 +220,4 @@ private struct VaultAutofillListSearchableView: View {
         )
     }
 }
+#endif

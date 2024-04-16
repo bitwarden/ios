@@ -168,56 +168,24 @@ struct AttachmentsView: View {
             store: Store(
                 processor: StateProcessor(
                     state: AttachmentsState(
-                        cipher: .init(
-                            id: nil,
-                            organizationId: nil,
-                            folderId: nil,
-                            collectionIds: [],
-                            key: nil,
-                            name: "",
-                            notes: nil,
-                            type: .secureNote,
-                            login: nil,
-                            identity: nil,
-                            card: nil,
-                            secureNote: nil,
-                            favorite: true,
-                            reprompt: .none,
-                            organizationUseTotp: false,
-                            edit: false,
-                            viewPassword: false,
-                            localData: nil,
+                        cipher: .fixture(
                             attachments: [
-                                .init(
-                                    id: "1",
-                                    url: nil,
-                                    size: nil,
-                                    sizeName: "10 MB",
+                                .fixture(
                                     fileName: "selfieWithACat.png",
-                                    key: nil
+                                    id: "1",
+                                    sizeName: "10 MB"
                                 ),
-                                .init(
-                                    id: "2",
-                                    url: nil,
-                                    size: nil,
-                                    sizeName: "11.2 MB",
+                                .fixture(
                                     fileName: "selfieWithADog.png",
-                                    key: nil
+                                    id: "2",
+                                    sizeName: "11.2 MB"
                                 ),
-                                .init(
-                                    id: "3",
-                                    url: nil,
-                                    size: nil,
-                                    sizeName: "201.2 MB",
+                                .fixture(
                                     fileName: "selfieWithAPotato.png",
-                                    key: nil
+                                    id: "3",
+                                    sizeName: "201.2 MB"
                                 ),
-                            ],
-                            fields: nil,
-                            passwordHistory: nil,
-                            creationDate: Date(),
-                            deletedDate: nil,
-                            revisionDate: Date()
+                            ]
                         )
                     )
                 )

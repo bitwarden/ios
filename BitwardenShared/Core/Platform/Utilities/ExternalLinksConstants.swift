@@ -23,10 +23,7 @@ enum ExternalLinksConstants {
     static let giveFeedback = URL(string: "https://livefrontinc.typeform.com/to/irgrRu4a")
 
     /// A link to Bitwarden's general help and feedback page.
-    static let helpAndFeedback = URL(string: "http://bitwarden.com/help/")!
-
-    /// A link to Bitwarden's import items help webpage.
-    static let importItems = URL(string: "http://bitwarden.com/help/import-data/")!
+    static let helpAndFeedback = URL(string: "https://bitwarden.com/help/")!
 
     /// A markdown link to Bitwarden's privacy policy.
     static let privacyPolicy = URL(string: "https://bitwarden.com/privacy/")!

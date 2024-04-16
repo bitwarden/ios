@@ -26,7 +26,8 @@ protocol SingleSignOnFlowDelegate: AnyObject {
 final class SingleSignOnProcessor: StateProcessor<SingleSignOnState, SingleSignOnAction, SingleSignOnEffect> {
     // MARK: Types
 
-    typealias Services = HasAuthService
+    typealias Services = HasAuthRepository
+        & HasAuthService
         & HasErrorReporter
         & HasOrganizationAPIService
         & HasStateService
@@ -88,9 +89,13 @@ final class SingleSignOnProcessor: StateProcessor<SingleSignOnState, SingleSignO
         case ASWebAuthenticationSessionError.canceledLogin:
             break
         case let IdentityTokenRequestError.twoFactorRequired(authMethodsData, _, _):
-            coordinator.navigate(to: .twoFactor(state.email, nil, authMethodsData))
+            coordinator.navigate(to: .twoFactor(state.email, nil, authMethodsData, state.identifierText))
         case AuthError.requireSetPassword:
             coordinator.navigate(to: .setMasterPassword(organizationIdentifier: state.identifierText))
+        case AuthError.requireUpdatePassword:
+            coordinator.navigate(to: .updateMasterPassword)
+        case AuthError.requireDecryptionOptions:
+            coordinator.navigate(to: .showLoginDecryptionOptions(organizationIdentifier: state.identifierText))
         default:
             coordinator.showAlert(.networkResponseError(error, tryAgain))
             services.errorReporter.log(error: error)
@@ -177,6 +182,8 @@ extension SingleSignOnProcessor: SingleSignOnFlowDelegate {
                         )
                     )
                 } else {
+                    // Attempt to unlock the vault with tde.
+                    try await services.authRepository.unlockVaultWithDeviceKey()
                     coordinator.navigate(to: .complete)
                 }
                 coordinator.navigate(to: .dismiss)

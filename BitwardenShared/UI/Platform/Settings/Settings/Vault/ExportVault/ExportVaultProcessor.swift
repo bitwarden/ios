@@ -94,6 +94,9 @@ final class ExportVaultProcessor: StateProcessor<ExportVaultState, ExportVaultAc
 
                 // Clear the user's entered password so that it's required to be entered again for
                 // any subsequent exports.
+                self.state.filePasswordText = ""
+                self.state.filePasswordConfirmationText = ""
+                self.state.filePasswordStrengthScore = nil
                 self.state.masterPasswordText = ""
             } catch {
                 self.services.errorReporter.log(error: error)
