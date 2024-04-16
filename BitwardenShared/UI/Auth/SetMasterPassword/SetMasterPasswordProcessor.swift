@@ -82,7 +82,7 @@ class SetMasterPasswordProcessor: StateProcessor<
         defer { coordinator.hideLoadingOverlay() }
 
         do {
-            let account = try await services.stateService.getActiveAccount()
+            let account = try await services.authRepository.getAccount()
             state.isPrivilegeElevation = account.profile.userDecryptionOptions != nil
 
             let response = try await services.organizationAPIService.getOrganizationAutoEnrollStatus(
