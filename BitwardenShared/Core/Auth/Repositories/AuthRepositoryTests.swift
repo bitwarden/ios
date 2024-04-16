@@ -575,7 +575,6 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
     /// `setMasterPassword()` sets the user's master password, saves their encryption keys and
     /// unlocks the vault.
     func test_setMasterPassword() async throws {
-        let account = Account.fixture()
         client.result = .httpSuccess(testData: .emptyResponse)
         clientCrypto.updatePasswordResult = .success(
             UpdatePasswordResponse(passwordHash: "NEW_PASSWORD_HASH", newKey: "NEW_KEY")
@@ -609,9 +608,8 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
 
     /// `setMasterPassword()` throws an error if one occurs.
     func test_setMasterPassword_error() async {
-        let account = Account.fixture()
         clientCrypto.updatePasswordResult = .failure(BitwardenTestError.example)
-        stateService.activeAccount = account
+        stateService.activeAccount = Account.fixture()
 
         await assertAsyncThrows(error: BitwardenTestError.example) {
             try await subject.setMasterPassword(
@@ -627,7 +625,6 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
     /// `setMasterPassword()` sets the user's master password, saves their encryption keys, enrolls
     /// the user in password reset and unlocks the vault.
     func test_setMasterPassword_resetPasswordEnrollment() async throws {
-        let account = Account.fixture()
         client.results = [
             .httpSuccess(testData: .emptyResponse),
             .httpSuccess(testData: .organizationKeys),
@@ -640,7 +637,7 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
             encryptedPrivateKey: "PRIVATE_KEY",
             encryptedUserKey: "KEY"
         )
-        stateService.activeAccount = account
+        stateService.activeAccount = Account.fixture()
 
         try await subject.setMasterPassword(
             "NEW_PASSWORD",
