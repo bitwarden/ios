@@ -23,6 +23,12 @@ protocol StateService: AnyObject {
     ///
     func getClearClipboardValue(userId: String?) async throws -> ClearClipboardValue
 
+    /// Gets the user's encryption secret key.
+    ///
+    /// - Returns: The user's encryption secret key.
+    ///
+    func getSecretKey(userId: String?) async throws -> String?
+
     /// Get whether to show website icons.
     ///
     /// - Returns: Whether to show the website icons.
@@ -46,6 +52,13 @@ protocol StateService: AnyObject {
     ///   - userId: The user ID of the account. Defaults to the active account if `nil`.
     ///
     func setClearClipboardValue(_ clearClipboardValue: ClearClipboardValue?, userId: String?) async throws
+
+    /// Sets the user's encryption secreet key.
+    ///
+    /// - Parameters:
+    ///   - key: The key to set
+    ///
+    func setSecretKey(_ key: String, userId: String?) async throws
 
     /// Set whether to show the website icons.
     ///
@@ -130,6 +143,11 @@ actor DefaultStateService: StateService {
         return appSettingsStore.clearClipboardValue(userId: userId)
     }
 
+    func getSecretKey(userId: String?) async throws -> String? {
+        let userId = try userId ?? getActiveAccountUserId()
+        return appSettingsStore.secretKey(userId: userId)
+    }
+
     func getShowWebIcons() async -> Bool {
         !appSettingsStore.disableWebIcons
     }
@@ -142,6 +160,11 @@ actor DefaultStateService: StateService {
     func setClearClipboardValue(_ clearClipboardValue: ClearClipboardValue?, userId: String?) async throws {
         let userId = try userId ?? getActiveAccountUserId()
         appSettingsStore.setClearClipboardValue(clearClipboardValue, userId: userId)
+    }
+
+    func setSecretKey(_ key: String, userId: String?) async throws {
+        let userId = try userId ?? getActiveAccountUserId()
+        appSettingsStore.setSecretKey(key, userId: userId)
     }
 
     func setShowWebIcons(_ showWebIcons: Bool) async {

@@ -35,6 +35,13 @@ protocol AppSettingsStore: AnyObject {
     ///
     func clearClipboardValue(userId: String) -> ClearClipboardValue
 
+    /// Gets the user's secret encryption key.
+    ///
+    /// - Parameters:
+    ///   - userId: The user ID
+    ///
+    func secretKey(userId: String) -> String?
+
     /// Sets the time after which the clipboard should be cleared.
     ///
     /// - Parameters:
@@ -44,6 +51,14 @@ protocol AppSettingsStore: AnyObject {
     /// - Returns: The time after which the clipboard should be cleared.
     ///
     func setClearClipboardValue(_ clearClipboardValue: ClearClipboardValue?, userId: String)
+
+    /// Sets the user's secret encryption key.
+    ///
+    /// - Parameters:
+    ///   - key: The key to set
+    ///   - userId: The user ID
+    ///
+    func setSecretKey(_ key: String, userId: String)
 }
 
 // MARK: - DefaultAppSettingsStore
@@ -167,6 +182,7 @@ extension DefaultAppSettingsStore: AppSettingsStore {
         case disableWebIcons
         case hasSeenWelcomeTutorial
         case migrationVersion
+        case secretKey(userId: String)
 
         /// Returns the key used to store the data under for retrieving it later.
         var storageKey: String {
@@ -186,6 +202,8 @@ extension DefaultAppSettingsStore: AppSettingsStore {
                 key = "hasSeenWelcomeTutorial"
             case .migrationVersion:
                 key = "migrationVersion"
+            case let .secretKey(userId):
+                key = "secretKey_\(userId)"
             }
             return "bwaPreferencesStorage:\(key)"
         }
@@ -224,6 +242,10 @@ extension DefaultAppSettingsStore: AppSettingsStore {
         return .never
     }
 
+    func secretKey(userId: String) -> String? {
+        return fetch(for: .secretKey(userId: userId))
+    }
+
     var migrationVersion: Int {
         get { fetch(for: .migrationVersion) }
         set { store(newValue, for: .migrationVersion) }
@@ -231,5 +253,9 @@ extension DefaultAppSettingsStore: AppSettingsStore {
 
     func setClearClipboardValue(_ clearClipboardValue: ClearClipboardValue?, userId: String) {
         store(clearClipboardValue?.rawValue, for: .clearClipboardValue(userId: userId))
+    }
+
+    func setSecretKey(_ key: String, userId: String) {
+        store(key, for: .secretKey(userId: userId))
     }
 }

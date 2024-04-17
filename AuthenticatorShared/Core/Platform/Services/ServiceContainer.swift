@@ -124,7 +124,7 @@ public class ServiceContainer: Services {
         let timeProvider = CurrentTime()
 
         let cryptographyKeyService = CryptographyKeyService(
-            keychainRepository: keychainRepository
+            stateService: stateService
         )
 
         let cryptographyService = DefaultCryptographyService(

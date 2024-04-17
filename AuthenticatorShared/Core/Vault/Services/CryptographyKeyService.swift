@@ -8,17 +8,17 @@ actor CryptographyKeyService {
 
     /// A repository to provide the encryption secret key
     ///
-    let keychainRepository: KeychainRepository
+    let stateService: StateService
 
     // MARK: Initialization
 
     /// Initialize a `CryptographyKeyService`
     ///
     /// - Parameters:
-    ///   - keychainRepository: The repository for the keychain
+    ///   - stateService: The state service for UserDefaults
     ///
-    init(keychainRepository: KeychainRepository) {
-        self.keychainRepository = keychainRepository
+    init(stateService: StateService) {
+        self.stateService = stateService
     }
 
     // MARK: Methods
@@ -31,14 +31,14 @@ actor CryptographyKeyService {
     ///
     func getOrCreateSecretKey(userId: String) async throws -> SymmetricKey {
         do {
-            let secretKey = try await keychainRepository.getSecretKey(userId: userId)
-            guard let key = SymmetricKey(base64EncodedString: secretKey) else {
+            guard let secretKey = try await stateService.getSecretKey(userId: userId),
+                  let key = SymmetricKey(base64EncodedString: secretKey) else {
                 throw CryptographyError.unableToParseSecretKey
             }
             return key
         } catch {
             let key = SymmetricKey(size: .bits256)
-            try await keychainRepository.setSecretKey(
+            try await stateService.setSecretKey(
                 key.base64EncodedString(),
                 userId: userId
             )
