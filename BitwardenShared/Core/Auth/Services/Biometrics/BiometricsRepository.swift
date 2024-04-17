@@ -9,6 +9,16 @@ enum BiometricsUnlockStatus: Equatable {
 
     /// Biometric Unlock is not available.
     case notAvailable
+
+    // MARK: Computed Properties
+
+    /// Whether biometric unlock is both available and enabled.
+    var isEnabled: Bool {
+        guard case let .available(_, enabled, _) = self else {
+            return false
+        }
+        return enabled
+    }
 }
 
 // MARK: - BiometricsRepository

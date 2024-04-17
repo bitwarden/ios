@@ -904,6 +904,65 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         )
     }
 
+    /// `sessionTimeoutAction()` returns the session timeout action for a user.
+    func test_sessionTimeoutAction() async throws {
+        stateService.activeAccount = .fixture(profile: .fixture(userId: "1"))
+        stateService.accounts = [.fixture(profile: .fixture(userId: "2"))]
+        stateService.timeoutAction["1"] = .lock
+        stateService.timeoutAction["2"] = .logout
+
+        var timeoutAction = try await subject.sessionTimeoutAction()
+        XCTAssertEqual(timeoutAction, .lock)
+
+        timeoutAction = try await subject.sessionTimeoutAction(userId: "2")
+        XCTAssertEqual(timeoutAction, .logout)
+    }
+
+    /// `sessionTimeoutAction()` defaults to logout if the user doesn't have a master password and
+    /// hasn't enabled pin or biometrics unlock.
+    func test_sessionTimeoutAction_noMasterPassword() async throws {
+        stateService.activeAccount = .fixture(profile: .fixture(userId: "1"))
+        stateService.timeoutAction["1"] = .lock
+        stateService.userHasMasterPassword["1"] = false
+
+        let timeoutAction = try await subject.sessionTimeoutAction()
+        XCTAssertEqual(timeoutAction, .logout)
+    }
+
+    /// `sessionTimeoutAction()` allows lock or logout if the user doesn't have a master password
+    /// and has biometrics unlock enabled.
+    func test_sessionTimeoutAction_noMasterPassword_biometricsEnabled() async throws {
+        stateService.activeAccount = .fixture(profile: .fixture(userId: "1"))
+        stateService.timeoutAction["1"] = .lock
+        stateService.userHasMasterPassword["1"] = false
+        biometricsRepository.biometricUnlockStatus = .success(
+            .available(.faceID, enabled: true, hasValidIntegrity: true)
+        )
+
+        var timeoutAction = try await subject.sessionTimeoutAction()
+        XCTAssertEqual(timeoutAction, .lock)
+
+        stateService.timeoutAction["1"] = .logout
+        timeoutAction = try await subject.sessionTimeoutAction()
+        XCTAssertEqual(timeoutAction, .logout)
+    }
+
+    /// `sessionTimeoutAction()` allows lock or logout if the user doesn't have a master password
+    /// and has pin unlock enabled.
+    func test_sessionTimeoutAction_noMasterPassword_pinEnabled() async throws {
+        stateService.activeAccount = .fixture(profile: .fixture(userId: "1"))
+        stateService.pinProtectedUserKeyValue["1"] = "KEY"
+        stateService.timeoutAction["1"] = .lock
+        stateService.userHasMasterPassword["1"] = false
+
+        var timeoutAction = try await subject.sessionTimeoutAction()
+        XCTAssertEqual(timeoutAction, .lock)
+
+        stateService.timeoutAction["1"] = .logout
+        timeoutAction = try await subject.sessionTimeoutAction()
+        XCTAssertEqual(timeoutAction, .logout)
+    }
+
     /// `setActiveAccount(userId: )` loads the environment URLs for the active account.
     func test_setActiveAccount_loadsEnvironmentUrls() async throws {
         let urls = EnvironmentUrlData(base: .example)

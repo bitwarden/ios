@@ -72,12 +72,14 @@ struct AccountSecurityView: View {
                         .imageStyle(.rowIcon)
                 }
 
-                SettingsListItem(
-                    Localizations.lockNow,
-                    accessibilityIdentifier: "LockNowLabel"
-                ) {
-                    Task {
-                        await store.perform(.lockVault)
+                if store.state.isLockNowVisible {
+                    SettingsListItem(
+                        Localizations.lockNow,
+                        accessibilityIdentifier: "LockNowLabel"
+                    ) {
+                        Task {
+                            await store.perform(.lockVault)
+                        }
                     }
                 }
 
@@ -166,6 +168,7 @@ struct AccountSecurityView: View {
                         send: AccountSecurityAction.sessionTimeoutActionChanged
                     )
                 )
+                .disabled(store.state.isSessionTimeoutDisabled)
             }
             .clipShape(RoundedRectangle(cornerRadius: 10))
         }

@@ -114,8 +114,9 @@ final class AccountSecurityProcessor: StateProcessor<
                 state.isTimeoutPolicyEnabled = true
             }
 
+            state.hasMasterPassword = try await services.stateService.getUserHasMasterPassword()
             state.sessionTimeoutValue = try await services.stateService.getVaultTimeout()
-            state.sessionTimeoutAction = try await services.stateService.getTimeoutAction()
+            state.sessionTimeoutAction = try await services.authRepository.sessionTimeoutAction()
         } catch {
             coordinator.showAlert(.defaultAlert(title: Localizations.anErrorHasOccurred))
             services.errorReporter.log(error: error)
@@ -146,6 +147,17 @@ final class AccountSecurityProcessor: StateProcessor<
         } catch {
             Logger.application.debug("Error loading biometric preferences: \(error)")
             return .notAvailable
+        }
+    }
+
+    /// Refreshes the vault timeout action in case the user doesn't have a password.
+    ///
+    /// This should be called whenever biometrics or pin unlock are disabled to ensure the timeout
+    /// action is updated in the event that the user doesn't have a password.
+    ///
+    private func refreshVaultTimeoutAction() async {
+        if let sessionTimeoutAction = try? await services.authRepository.sessionTimeoutAction() {
+            state.sessionTimeoutAction = sessionTimeoutAction
         }
     }
 
@@ -260,6 +272,10 @@ final class AccountSecurityProcessor: StateProcessor<
                 try await services.biometricsRepository.configureBiometricIntegrity()
                 state.biometricUnlockStatus = try await services.biometricsRepository.getBiometricUnlockStatus()
             }
+
+            // Refresh vault timeout action in case the user doesn't have a password and biometric
+            // unlock was disabled.
+            await refreshVaultTimeoutAction()
         } catch {
             services.errorReporter.log(error: error)
         }
@@ -313,6 +329,9 @@ final class AccountSecurityProcessor: StateProcessor<
                 do {
                     try await self.services.authRepository.clearPins()
                     state.isUnlockWithPINCodeOn = isOn
+
+                    // Refresh vault timeout action in case the user doesn't have a password and the pin was disabled.
+                    await refreshVaultTimeoutAction()
                 } catch {
                     self.coordinator.showAlert(.defaultAlert(title: Localizations.anErrorHasOccurred))
                 }
