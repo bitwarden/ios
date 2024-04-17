@@ -192,13 +192,13 @@ class CreateAccountProcessor: StateProcessor<CreateAccountState, CreateAccountAc
 
             let kdf: Kdf = .pbkdf2(iterations: NonZeroU32(KdfConfig().kdfIterations))
 
-            let keys = try await services.clientService.clientAuth().makeRegisterKeys(
+            let keys = try await services.clientService.auth().makeRegisterKeys(
                 email: email,
                 password: state.passwordText,
                 kdf: kdf
             )
 
-            let hashedPassword = try await services.clientService.clientAuth().hashPassword(
+            let hashedPassword = try await services.clientService.auth().hashPassword(
                 email: email,
                 password: state.passwordText,
                 kdfParams: kdf,

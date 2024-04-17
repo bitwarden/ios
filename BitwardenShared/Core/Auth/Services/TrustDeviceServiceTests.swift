@@ -75,7 +75,7 @@ class TrustDeviceServiceTests: BitwardenTestCase {
             protectedDevicePublicKey: "DEVICE_PUBLIC_KEY"
         )
         client.results = [.httpSuccess(testData: .emptyResponse)]
-        clientService.clientAuthService.trustDeviceResult = .success(trustDeviceResponse)
+        clientService.mockAuth.trustDeviceResult = .success(trustDeviceResponse)
         appSettingsStore.appId = "App id"
 
         // Test.
@@ -100,7 +100,7 @@ class TrustDeviceServiceTests: BitwardenTestCase {
             protectedDevicePrivateKey: "DEVICE_PRIVATE_KEY",
             protectedDevicePublicKey: "DEVICE_PUBLIC_KEY"
         )
-        clientService.clientAuthService.trustDeviceResult = .success(trustDeviceResponse)
+        clientService.mockAuth.trustDeviceResult = .success(trustDeviceResponse)
         stateService.shouldTrustDevice[userId] = true
         appSettingsStore.appId = "App id"
 

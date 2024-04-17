@@ -45,6 +45,7 @@ protocol OrganizationService {
 class DefaultOrganizationService: OrganizationService {
     // MARK: Properties
 
+    /// The service that handles common client functionality such as encryption and decryption.
     let clientService: ClientService
 
     /// The service used by the application to report non-fatal errors.
@@ -61,7 +62,7 @@ class DefaultOrganizationService: OrganizationService {
     /// Initialize a `DefaultOrganizationService`.
     ///
     /// - Parameters:
-    ///   - clientCrypto: The client used by the application to handle encryption and decryption setup tasks.
+    ///   - clientService: The service that handles common client functionality such as encryption and decryption.
     ///   - errorReporter: The service used by the application to report non-fatal errors.
     ///   - organizationDataStore: The data store for managing the persisted organizations for the user.
     ///   - stateService: The service used by the application to manage account state.
@@ -96,7 +97,7 @@ extension DefaultOrganizationService {
                 result[organization.id] = key
             }
         do {
-            try await clientService.clientCrypto().initializeOrgCrypto(
+            try await clientService.crypto().initializeOrgCrypto(
                 req: InitOrgCryptoRequest(organizationKeys: organizationKeysById)
             )
         } catch {

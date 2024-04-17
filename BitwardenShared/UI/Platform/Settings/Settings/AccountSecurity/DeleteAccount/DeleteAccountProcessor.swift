@@ -9,7 +9,6 @@ final class DeleteAccountProcessor: StateProcessor<DeleteAccountState, DeleteAcc
 
     typealias Services = HasAccountAPIService
         & HasAuthRepository
-//        & HasClientAuth
         & HasStateService
 
     // MARK: Properties

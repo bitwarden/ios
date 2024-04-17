@@ -5,6 +5,7 @@ import Foundation
 
 class MockVaultTimeoutService: VaultTimeoutService {
     var account: Account = .fixture()
+    var client = MockClient()
     var lastActiveTime = [String: Date]()
     var shouldSessionTimeout = [String: Bool]()
     var timeProvider = MockTimeProvider(.currentTime)
@@ -20,21 +21,18 @@ class MockVaultTimeoutService: VaultTimeoutService {
     /// ids set as unlocked
     var unlockedIds = [String?]()
 
-    /// The store of locked status for known accounts
-    var timeoutStore = [String: Bool]()
+    /// A dictionary that mapps the user ID to their client and it's locked status.
+    var userClientDictionary = [String: (client: BitwardenSdkClient, isLocked: Bool)]()
 
     func isLocked(userId: String) -> Bool {
-        guard let pair = timeoutStore.first(where: { $0.key == userId }) else {
-            timeoutStore[userId] = true
-            return true
-        }
-        return pair.value
+        guard let client = userClientDictionary[userId] else { return true }
+        return client.isLocked
     }
 
     func lockVault(userId: String?) async {
         lockedIds.append(userId)
         guard let userId else { return }
-        timeoutStore[userId] = true
+        userClientDictionary.updateValue((client: client, isLocked: true), forKey: userId)
     }
 
     func setLastActiveTime(userId: String) async throws {
@@ -52,13 +50,13 @@ class MockVaultTimeoutService: VaultTimeoutService {
     func unlockVault(userId: String?) async throws {
         unlockedIds.append(userId)
         guard let userId else { return }
-        timeoutStore[userId] = false
+        userClientDictionary.updateValue((client: client, isLocked: false), forKey: userId)
     }
 
     func remove(userId: String?) async {
         removedIds.append(userId)
         guard let userId else { return }
-        timeoutStore = timeoutStore.filter { $0.key != userId }
+        userClientDictionary.removeValue(forKey: userId)
     }
 
     func sessionTimeoutValue(userId: String?) async throws -> BitwardenShared.SessionTimeoutValue {

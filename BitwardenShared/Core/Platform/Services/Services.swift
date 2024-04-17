@@ -106,20 +106,8 @@ protocol HasCaptchaService {
     var captchaService: CaptchaService { get }
 }
 
-/// Protocol for an object that provides a `ClientAuth`.
+/// Protocol for an object that provides a `ClientService`.
 ///
-protocol HasClientAuth {
-    /// The client used by the application to handle auth related encryption and decryption tasks.
-    var clientAuth: ClientAuthProtocol { get }
-}
-
-/// Protocol for an object that provides a `ClientExportersProtocol`.
-///
-protocol HasClientExporters {
-    /// The client used by the application to handle auth related encryption and decryption tasks.
-    var clientExporters: ClientExportersProtocol { get }
-}
-
 protocol HasClientService {
     /// The client used by the application to handle auth related encryption and decryption tasks.
     var clientService: ClientService { get }

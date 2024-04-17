@@ -104,7 +104,7 @@ class DefaultTrustDeviceService: TrustDeviceService {
     }
 
     func trustDevice() async throws -> BitwardenSdk.TrustDeviceResponse {
-        let trustDeviceDetails = try await clientService.clientAuth().trustDevice()
+        let trustDeviceDetails = try await clientService.auth().trustDevice()
         return try await setDeviceAsTrusted(trustDeviceDetails)
     }
 

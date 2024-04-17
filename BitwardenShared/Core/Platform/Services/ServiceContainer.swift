@@ -272,7 +272,7 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
 
         let stateService = DefaultStateService(appSettingsStore: appSettingsStore, dataStore: dataStore)
 
-        let clientBuilder = DefaultClientBuilder()
+        let clientBuilder = DefaultClientBuilder(errorReporter: errorReporter)
         let clientService = DefaultClientService(
             clientBuilder: clientBuilder,
             errorReporter: errorReporter,

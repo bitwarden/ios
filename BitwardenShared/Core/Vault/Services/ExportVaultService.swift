@@ -99,6 +99,7 @@ class DefultExportVaultService: ExportVaultService {
     /// The cipher service used by this service.
     private let cipherService: CipherService
 
+    /// The service that handles common client functionality such as encryption and decryption.
     private let clientService: ClientService
 
     /// The error reporter used by this service.
@@ -107,7 +108,7 @@ class DefultExportVaultService: ExportVaultService {
     /// The folder service used by this service.
     private let folderService: FolderService
 
-    /// The state service used by this Default Service.
+    /// The service used by the application to manage account state.
     private var stateService: StateService
 
     /// The time provider used by this service.
@@ -122,9 +123,10 @@ class DefultExportVaultService: ExportVaultService {
     ///
     /// - Parameters:
     ///   - cipherService: The service for managing ciphers.
-    ///   - clientExporters: The component for formatting data into exportable files.
+    ///   - clientService: The service that handles common client functionality such as encryption and decryption.
     ///   - errorReporter: The service for handling errors.
     ///   - folderService: The service for managing folders.
+    ///   - stateService: The service used by the application to manage account state.
     ///   - timeProvider: The provider for current time, used in file naming and data timestamps.
     ///
     init(
@@ -179,7 +181,7 @@ class DefultExportVaultService: ExportVaultService {
         }
 
         // A string representing the file contents
-        return try await clientService.clientExporters().exportVault(
+        return try await clientService.exporters().exportVault(
             folders: folders,
             ciphers: ciphers,
             format: exportFormat

@@ -82,6 +82,7 @@ class DefaultVaultTimeoutService: VaultTimeoutService {
 
     // MARK: Private properties
 
+    /// The service that handles common client functionality such as encryption and decryption.
     private var clientService: ClientService
 
     /// The state service used by this Default Service.
@@ -90,12 +91,15 @@ class DefaultVaultTimeoutService: VaultTimeoutService {
     /// Provides the current time.
     private var timeProvider: TimeProvider
 
+    /// A dictionary that mapps the user ID to their client and it's locked status.
+    private var userClientDictionary = [String: (client: BitwardenSdkClient, isLocked: Bool)]()
+
     // MARK: Initialization
 
     /// Creates a new `DefaultVaultTimeoutService`.
     ///
     /// - Parameters:
-    ///   - clientCrypto: The client used by the application to handle encryption and decryption setup tasks.
+    ///   - clientService: The service that handles common client functionality such as encryption and decryption.
     ///   - stateService: The StateService used by DefaultVaultTimeoutService.
     ///   - timeProvider: Provides the current time.
     ///
@@ -129,17 +133,20 @@ class DefaultVaultTimeoutService: VaultTimeoutService {
     }
 
     func isLocked(userId: String) -> Bool {
-        clientService.isLocked(userId: userId)
+        guard let client = userClientDictionary[userId] else { return true }
+        return client.isLocked
     }
 
     func lockVault(userId: String?) async {
         guard let id = try? await stateService.getAccountIdOrActiveId(userId: userId) else { return }
-        clientService.removeClient(userId: id)
+        guard let client = clientService.userClientArray[id] else { return }
+        userClientDictionary.updateValue((client: client, isLocked: true), forKey: id)
     }
 
     func remove(userId: String?) async {
         guard let id = try? await stateService.getAccountIdOrActiveId(userId: userId) else { return }
-        clientService.removeClient(userId: id)
+        userClientDictionary.removeValue(forKey: id)
+        clientService.userClientArray.removeValue(forKey: id)
     }
 
     func setLastActiveTime(userId: String) async throws {
@@ -152,7 +159,8 @@ class DefaultVaultTimeoutService: VaultTimeoutService {
 
     func unlockVault(userId: String?) async throws {
         guard let id = try? await stateService.getAccountIdOrActiveId(userId: userId) else { return }
-        clientService.updateClientLockedStatus(userId: id, isLocked: false)
+        guard let client = clientService.userClientArray[id] else { return }
+        userClientDictionary.updateValue((client: client, isLocked: false), forKey: id)
     }
 
     func sessionTimeoutValue(userId: String?) async throws -> SessionTimeoutValue {

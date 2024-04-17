@@ -148,15 +148,13 @@ class AppProcessorTests: BitwardenTestCase {
     /// Upon a session timeout on app foreground, send the user to the `.didTimeout` route.
     func test_shouldSessionTimeout_navigateTo_didTimeout() throws {
         let rootNavigator = MockRootNavigator()
-        let account = Account.fixture()
-        let account2 = Account.fixture()
-        let account2Id = account2.profile.userId
+        let user = Account.fixture()
+        let userId = user.profile.userId
+        let user2 = Account.fixture()
+        let user2Id = user2.profile.userId
 
-        clientService.updateClientLockedStatus(userId: account2Id, isLocked: false)
-        XCTAssertFalse(clientService.isLocked(userId: account2Id))
-
-        stateService.activeAccount = account
-        stateService.accounts = [account, account2]
+        stateService.activeAccount = user
+        stateService.accounts = [user, user2]
 
         let task = Task {
             await subject.start(appContext: .mainApp, navigator: rootNavigator, window: nil)
@@ -164,18 +162,18 @@ class AppProcessorTests: BitwardenTestCase {
         waitFor(coordinator.events == [.didStart])
         task.cancel()
 
-        vaultTimeoutService.shouldSessionTimeout[account.profile.userId] = true
-
+        vaultTimeoutService.shouldSessionTimeout[userId] = true
         notificationCenterService.willEnterForegroundSubject.send()
-        waitFor(vaultTimeoutService.shouldSessionTimeout[account.profile.userId] == true)
 
+        waitFor(vaultTimeoutService.shouldSessionTimeout[userId] == true)
         waitFor(coordinator.events.count > 1)
-        waitFor(clientService.isLocked(userId: account2Id))
+        waitFor(vaultTimeoutService.isLocked(userId: user2Id))
+
         XCTAssertEqual(
             coordinator.events,
             [
                 .didStart,
-                .didTimeout(userId: account.profile.userId),
+                .didTimeout(userId: userId),
             ]
         )
     }

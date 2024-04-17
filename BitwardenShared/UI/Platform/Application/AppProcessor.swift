@@ -47,13 +47,13 @@ public class AppProcessor {
                     let userId = account.profile.userId
                     let shouldTimeout = try await services.vaultTimeoutService.hasPassedSessionTimeout(userId: userId)
                     if shouldTimeout {
-                        self.services.clientService.updateClientLockedStatus(userId: userId, isLocked: true)
-                    }
-                }
+                        await self.services.vaultTimeoutService.lockVault(userId: userId)
 
-                if try await services.vaultTimeoutService.hasPassedSessionTimeout(userId: activeUserId) {
-                    // Allow the AuthCoordinator to handle the timeout.
-                    await coordinator?.handleEvent(.didTimeout(userId: activeUserId))
+                        if userId == activeUserId {
+                            // Allow the AuthCoordinator to handle the timeout.
+                            await coordinator?.handleEvent(.didTimeout(userId: activeUserId))
+                        }
+                    }
                 }
             }
         }

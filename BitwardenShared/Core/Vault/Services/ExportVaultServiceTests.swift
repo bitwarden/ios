@@ -153,7 +153,7 @@ final class ExportVaultServiceTests: BitwardenTestCase {
         clientService = MockClientService()
         folderService = MockFolderService()
         stateService = MockStateService()
-        clientService.clientExportersService.exportVaultResult = .success("success")
+        clientService.mockExporters.exportVaultResult = .success("success")
         folderService.fetchAllFoldersResult = .success(
             [
                 folder,
@@ -196,11 +196,11 @@ final class ExportVaultServiceTests: BitwardenTestCase {
     ///
     func test_fileContent_csv() async throws {
         let fileType = ExportFileType.csv
-        clientService.clientExportersService.exportVaultResult = .success("success")
+        clientService.mockExporters.exportVaultResult = .success("success")
         _ = try await subject.exportVaultFileContents(format: fileType)
-        XCTAssertEqual(clientService.clientExportersService.folders, [folder])
+        XCTAssertEqual(clientService.mockExporters.folders, [folder])
         XCTAssertEqual(
-            clientService.clientExportersService.ciphers,
+            clientService.mockExporters.ciphers,
             [
                 loginCipher,
                 secureNoteCipher,
@@ -212,11 +212,11 @@ final class ExportVaultServiceTests: BitwardenTestCase {
     ///
     func test_fileContent_encryptedJSON() async throws {
         let fileType = ExportFileType.encryptedJson(password: "1234")
-        clientService.clientExportersService.exportVaultResult = .success("success")
+        clientService.mockExporters.exportVaultResult = .success("success")
         _ = try await subject.exportVaultFileContents(format: fileType)
-        XCTAssertEqual(clientService.clientExportersService.folders, [folder])
+        XCTAssertEqual(clientService.mockExporters.folders, [folder])
         XCTAssertEqual(
-            Set(clientService.clientExportersService.ciphers),
+            Set(clientService.mockExporters.ciphers),
             Set([
                 cardCipher,
                 loginCipher,
@@ -238,7 +238,7 @@ final class ExportVaultServiceTests: BitwardenTestCase {
     /// Test the exporter throws on an export error.
     ///
     func test_fileContent_error_export() async throws {
-        clientService.clientExportersService.exportVaultResult = .failure(BitwardenTestError.example)
+        clientService.mockExporters.exportVaultResult = .failure(BitwardenTestError.example)
         await assertAsyncThrows(error: BitwardenTestError.example) {
             _ = try await subject.exportVaultFileContents(format: .csv)
         }
@@ -257,11 +257,11 @@ final class ExportVaultServiceTests: BitwardenTestCase {
     ///
     func test_fileContent_json() async throws {
         let fileType = ExportFileType.json
-        clientService.clientExportersService.exportVaultResult = .success("success")
+        clientService.mockExporters.exportVaultResult = .success("success")
         _ = try await subject.exportVaultFileContents(format: fileType)
-        XCTAssertEqual(clientService.clientExportersService.folders, [folder])
+        XCTAssertEqual(clientService.mockExporters.folders, [folder])
         XCTAssertEqual(
-            clientService.clientExportersService.ciphers,
+            clientService.mockExporters.ciphers,
             [
                 cardCipher,
                 identityCipher,

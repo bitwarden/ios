@@ -78,6 +78,7 @@ protocol GeneratorRepository: AnyObject {
 class DefaultGeneratorRepository {
     // MARK: Properties
 
+    /// The service that handles common client functionality such as encryption and decryption.
     let clientService: ClientService
 
     /// The data store that handles performing data requests for the generator.
@@ -91,9 +92,7 @@ class DefaultGeneratorRepository {
     /// Initialize a `DefaultGeneratorRepository`
     ///
     /// - Parameters:
-    ///   - clientGenerators: The client used for generating passwords and passphrases.
-    ///   - clientVaultService: The client used by the application to handle vault encryption and
-    ///     decryption tasks.
+    ///   - clientService: The service that handles common client functionality such as encryption and decryption.
     ///   - dataStore: The data store that handles performing data requests for the generator.
     ///   - stateService: The service used by the application to manage account state.
     ///
@@ -117,11 +116,10 @@ class DefaultGeneratorRepository {
     /// - Returns: Whether the password is a duplicate of the most recent password in the history.
     ///
     private func isDuplicateOfMostRecent(passwordHistory: PasswordHistoryView, userId: String) async throws -> Bool {
-        let userId = try await stateService.getActiveAccountId()
         guard let mostRecentEncrypted = try? await dataStore.fetchPasswordHistoryMostRecent(userId: userId) else {
             return false
         }
-        let mostRecent = try await clientService.clientVault().passwordHistory().decryptList(
+        let mostRecent = try await clientService.vault().passwordHistory().decryptList(
             list: [mostRecentEncrypted]
         ).first
         return mostRecent?.password == passwordHistory.password
@@ -139,7 +137,7 @@ extension DefaultGeneratorRepository: GeneratorRepository {
         // Prevent adding a duplicate at the top of the list.
         guard try await !isDuplicateOfMostRecent(passwordHistory: passwordHistory, userId: userId) else { return }
 
-        let encryptedPasswordHistory = try await clientService.clientVault().passwordHistory().encrypt(
+        let encryptedPasswordHistory = try await clientService.vault().passwordHistory().encrypt(
             passwordHistory: passwordHistory
         )
         try await dataStore.insertPasswordHistory(userId: userId, passwordHistory: encryptedPasswordHistory)
@@ -157,7 +155,7 @@ extension DefaultGeneratorRepository: GeneratorRepository {
         let userId = try await stateService.getActiveAccountId()
         return dataStore.passwordHistoryPublisher(userId: userId)
             .asyncTryMap { passwordHistory in
-                try await self.clientService.clientVault().passwordHistory()
+                try await self.clientService.vault().passwordHistory()
                     .decryptList(list: passwordHistory)
             }
             .eraseToAnyPublisher()
@@ -167,15 +165,15 @@ extension DefaultGeneratorRepository: GeneratorRepository {
     // MARK: Generator
 
     func generatePassphrase(settings: PassphraseGeneratorRequest) async throws -> String {
-        try await clientService.clientGenerator().passphrase(settings: settings)
+        try await clientService.generators().passphrase(settings: settings)
     }
 
     func generatePassword(settings: PasswordGeneratorRequest) async throws -> String {
-        try await clientService.clientGenerator().password(settings: settings)
+        try await clientService.generators().password(settings: settings)
     }
 
     func generateUsername(settings: UsernameGeneratorRequest) async throws -> String {
-        try await clientService.clientGenerator().username(settings: settings)
+        try await clientService.generators().username(settings: settings)
     }
 
     func getPasswordGenerationOptions() async throws -> PasswordGenerationOptions {

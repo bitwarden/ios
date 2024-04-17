@@ -3,65 +3,51 @@ import BitwardenSdk
 @testable import BitwardenShared
 
 class MockClientService: ClientService {
-    var clientAuthService: MockClientAuth
-    var clientCryptoService: MockClientCrypto
-    var clientExportersService: MockClientExporters
-    var clientGeneratorService: MockClientGenerators
-    var clientPlatformService: MockClientPlatform
-    var clientVaultService: MockClientVaultService
-    var isLockedResult: [String: Bool] = ["": true]
-    var removeClientCalled = false
+    var mockAuth: MockClientAuth
+    var mockCrypto: MockClientCrypto
+    var mockExporters: MockClientExporters
+    var mockGenerators: MockClientGenerators
+    var mockPlatform: MockClientPlatform
+    var mockVault: MockClientVaultService
+    var userClientArray = [String: BitwardenSdkClient]()
 
     init(
-        clientAuth: MockClientAuth = MockClientAuth(),
-        clientCrypto: MockClientCrypto = MockClientCrypto(),
-        clientExporters: MockClientExporters = MockClientExporters(),
-        clientGenerators: MockClientGenerators = MockClientGenerators(),
-        clientPlatform: MockClientPlatform = MockClientPlatform(),
-        clientVault: MockClientVaultService = MockClientVaultService()
+        auth: MockClientAuth = MockClientAuth(),
+        crypto: MockClientCrypto = MockClientCrypto(),
+        exporters: MockClientExporters = MockClientExporters(),
+        generators: MockClientGenerators = MockClientGenerators(),
+        platform: MockClientPlatform = MockClientPlatform(),
+        vault: MockClientVaultService = MockClientVaultService()
     ) {
-        clientAuthService = clientAuth
-        clientCryptoService = clientCrypto
-        clientExportersService = clientExporters
-        clientGeneratorService = clientGenerators
-        clientPlatformService = clientPlatform
-        clientVaultService = clientVault
+        mockAuth = auth
+        mockCrypto = crypto
+        mockExporters = exporters
+        mockGenerators = generators
+        mockPlatform = platform
+        mockVault = vault
     }
 
-    func clientAuth(for userId: String?) -> ClientAuthProtocol {
-        clientAuthService
+    func auth(for userId: String?) -> ClientAuthProtocol {
+        mockAuth
     }
 
-    func clientCrypto(for userId: String?) -> ClientCryptoProtocol {
-        clientCryptoService
+    func crypto(for userId: String?) -> ClientCryptoProtocol {
+        mockCrypto
     }
 
-    func clientExporters(for userId: String?) -> ClientExportersProtocol {
-        clientExportersService
+    func exporters(for userId: String?) -> ClientExportersProtocol {
+        mockExporters
     }
 
-    func clientGenerator(for userId: String?) -> ClientGeneratorsProtocol {
-        clientGeneratorService
+    func generators(for userId: String?) -> ClientGeneratorsProtocol {
+        mockGenerators
     }
 
-    func clientPlatform(for userId: String?) -> ClientPlatformProtocol {
-        clientPlatformService
+    func platform(for userId: String?) -> ClientPlatformProtocol {
+        mockPlatform
     }
 
-    func clientVault(for userId: String?) -> ClientVaultService {
-        clientVaultService
-    }
-
-    func isLocked(userId: String) -> Bool {
-        isLockedResult[userId] ?? true
-    }
-
-    func removeClient(userId: String) {
-        removeClientCalled = true
-        isLockedResult[userId] = true
-    }
-
-    func updateClientLockedStatus(userId: String, isLocked: Bool) {
-        isLockedResult[userId] = isLocked
+    func vault(for userId: String?) -> ClientVaultService {
+        mockVault
     }
 }

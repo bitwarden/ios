@@ -59,7 +59,7 @@ class GeneratorRepositoryTests: BitwardenTestCase { // swiftlint:disable:this ty
             [passwordHistory1, passwordHistory2, passwordHistory3].map(PasswordHistory.init)
         )
         XCTAssertEqual(
-            clientService.clientVaultService.clientPasswordHistory.encryptedPasswordHistory,
+            clientService.mockVault.clientPasswordHistory.encryptedPasswordHistory,
             [passwordHistory1, passwordHistory2, passwordHistory3]
         )
     }
@@ -164,7 +164,7 @@ class GeneratorRepositoryTests: BitwardenTestCase { // swiftlint:disable:this ty
     func test_generatePassphrase_error() async {
         struct GeneratePassphraseError: Error, Equatable {}
 
-        clientService.clientGeneratorService.passphraseResult = .failure(GeneratePassphraseError())
+        clientService.mockGenerators.passphraseResult = .failure(GeneratePassphraseError())
 
         await assertAsyncThrows(error: GeneratePassphraseError()) {
             _ = try await subject.generatePassphrase(
@@ -202,7 +202,7 @@ class GeneratorRepositoryTests: BitwardenTestCase { // swiftlint:disable:this ty
     func test_generatePassword_error() async {
         struct GeneratePasswordError: Error, Equatable {}
 
-        clientService.clientGeneratorService.passwordResult = .failure(GeneratePasswordError())
+        clientService.mockGenerators.passwordResult = .failure(GeneratePasswordError())
 
         await assertAsyncThrows(error: GeneratePasswordError()) {
             _ = try await subject.generatePassword(
@@ -235,7 +235,7 @@ class GeneratorRepositoryTests: BitwardenTestCase { // swiftlint:disable:this ty
     func test_generateUsername_error() async {
         struct GenerateUsernameError: Error, Equatable {}
 
-        clientService.clientGeneratorService.usernameResult = .failure(GenerateUsernameError())
+        clientService.mockGenerators.usernameResult = .failure(GenerateUsernameError())
 
         await assertAsyncThrows(error: GenerateUsernameError()) {
             _ = try await subject.generateUsername(

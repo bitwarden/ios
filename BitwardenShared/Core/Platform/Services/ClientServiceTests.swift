@@ -8,26 +8,32 @@ final class ClientServiceTests: BitwardenTestCase {
     var errorReporter: MockErrorReporter!
     var stateService: MockStateService!
     var subject: DefaultClientService!
+    var vaultTimeoutService: MockVaultTimeoutService!
 
     // MARK: Setup and Teardown
 
     override func setUp() {
+        super.setUp()
+
         clientBuilder = MockClientBuilder()
         errorReporter = MockErrorReporter()
         stateService = MockStateService()
-
         subject = DefaultClientService(
             clientBuilder: clientBuilder,
             errorReporter: errorReporter,
             stateService: stateService
         )
+        vaultTimeoutService = MockVaultTimeoutService()
     }
 
     override func tearDown() {
+        super.tearDown()
+
         clientBuilder = nil
         errorReporter = nil
         stateService = nil
         subject = nil
+        vaultTimeoutService = nil
     }
 
     // MARK: Tests
@@ -37,114 +43,61 @@ final class ClientServiceTests: BitwardenTestCase {
         let account = Account.fixtureAccountLogin()
         let userId = account.profile.userId
         let client = clientBuilder.buildClient()
-
-        stateService.activeAccount = account
-        subject.userClientDictionary.updateValue((client, true), forKey: userId)
-
-        let clientPlatform = try await subject.clientPlatform(for: userId)
+        let clientPlatform = try await subject.platform(for: userId)
 
         XCTAssertIdentical(clientPlatform, client.platform())
     }
 
-    /// `client(for:)` creates a client if the user does not have one.
+    /// `client(for:)` creates a client if the user does not have one,
+    /// or if there is no active account/if there are no accounts.
     func test_client_nonExistent_client() async throws {
         let account = Account.fixtureAccountLogin()
         let userId = account.profile.userId
 
-        stateService.activeAccount = account
+        XCTAssertNil(subject.userClientArray[userId])
 
-        XCTAssertNil(subject.userClientDictionary[userId])
+        _ = try await subject.auth(for: userId)
 
-        _ = try await subject.clientAuth(for: userId)
-
-        XCTAssertNotNil(subject.userClientDictionary[userId])
+        XCTAssertNotNil(subject.userClientArray[userId])
     }
 
-    /// `client(for:)` returns a new client if there is no active account or
-    /// if there are no accounts.
-    func test_client_noAccount() async throws {
-        let account = Account.fixtureAccountLogin()
-        let userId = account.profile.userId
-
-        XCTAssertNil(subject.userClientDictionary[userId])
-
-        let clientCrypto = try await subject.clientCrypto()
-        XCTAssertNotNil(clientCrypto)
-    }
-
-    /// `clientAuth(for:)` returns a `ClientAuthProtocol`.
-    func test_clientAuth() async throws {
-        let account = Account.fixtureAccountLogin()
-
-        stateService.activeAccount = account
-        let clientAuth = try await subject.clientAuth()
+    /// `auth(for:)` returns a `ClientAuthProtocol`.
+    func test_auth() async throws {
+        let clientAuth = try await subject.auth()
 
         XCTAssertNotNil(clientAuth)
     }
 
-    /// `clientCrypto(for:)` returns a `ClientCryptoProtocol`.
-    func test_clientCrypto() async throws {
-        let account = Account.fixtureAccountLogin()
-
-        stateService.activeAccount = account
-        let clientCrypto = try await subject.clientCrypto()
-
-        XCTAssertNotNil(clientCrypto)
+    /// `crypto(for:)` returns a `ClientCryptoProtocol`.
+    func test_crypto() async throws {
+        await assertAsyncDoesNotThrow { _ = try await subject.crypto() }
     }
 
-    /// `clientExporters(for:)` returns a `ClientExportersProtocol`.
-    func test_clientExporters() async throws {
-        let account = Account.fixtureAccountLogin()
-
-        stateService.activeAccount = account
-        let clientExporters = try await subject.clientExporters()
+    /// `exporters(for:)` returns a `ClientExportersProtocol`.
+    func test_exporters() async throws {
+        let clientExporters = try await subject.exporters()
 
         XCTAssertNotNil(clientExporters)
     }
 
-    /// `clientGenerators(for:)` returns a `ClientGeneratorsProtocol`.
-    func test_clientGenerators() async throws {
-        let account = Account.fixtureAccountLogin()
-
-        stateService.activeAccount = account
-        let clientGenerators = try await subject.clientGenerator()
+    /// `generators(for:)` returns a `ClientGeneratorsProtocol`.
+    func test_generators() async throws {
+        let clientGenerators = try await subject.generators()
 
         XCTAssertNotNil(clientGenerators)
     }
 
-    /// `clientPlatform(for:)` returns a `ClientPlatformProtocol`.
-    func test_clientPlatform() async throws {
-        let account = Account.fixtureAccountLogin()
-
-        stateService.activeAccount = account
-        let clientPlatform = try await subject.clientPlatform()
+    /// `platform(for:)` returns a `ClientPlatformProtocol`.
+    func test_platform() async throws {
+        let clientPlatform = try await subject.platform()
 
         XCTAssertNotNil(clientPlatform)
     }
 
-    /// `clientVault(for:)` returns a `ClientVaultProtocol`.
-    func test_clientVault() async throws {
-        let account = Account.fixtureAccountLogin()
-
-        stateService.activeAccount = account
-        let clientVault = try await subject.clientVault()
+    /// `vault(for:)` returns a `ClientVaultProtocol`.
+    func test_vault() async throws {
+        let clientVault = try await subject.vault()
 
         XCTAssertNotNil(clientVault)
-    }
-
-    /// `isLocked(userId:)` returns whether or not the client is locked.
-    func test_isLocked() async throws {
-        let account = Account.fixtureAccountLogin()
-        let userId = account.profile.userId
-
-        _ = try await subject.clientAuth(for: userId)
-
-        subject.updateClientLockedStatus(userId: userId, isLocked: true)
-
-        XCTAssertTrue(subject.isLocked(userId: userId))
-
-        subject.updateClientLockedStatus(userId: userId, isLocked: false)
-
-        XCTAssertFalse(subject.isLocked(userId: userId))
     }
 }

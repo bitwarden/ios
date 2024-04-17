@@ -54,7 +54,7 @@ class SettingsRepositoryTests: BitwardenTestCase {
     func test_addFolder() async throws {
         let folderName = "Test folder name"
         try await subject.addFolder(name: folderName)
-        XCTAssertEqual(clientService.clientVaultService.clientFolders.encryptedFolders.first?.name, folderName)
+        XCTAssertEqual(clientService.mockVault.clientFolders.encryptedFolders.first?.name, folderName)
         XCTAssertEqual(folderService.addedFolderName, folderName)
     }
 
@@ -77,7 +77,7 @@ class SettingsRepositoryTests: BitwardenTestCase {
     func test_editFolder() async throws {
         let folderName = "Test folder name"
         try await subject.editFolder(withID: "123456789", name: folderName)
-        XCTAssertEqual(clientService.clientVaultService.clientFolders.encryptedFolders.first?.name, folderName)
+        XCTAssertEqual(clientService.mockVault.clientFolders.encryptedFolders.first?.name, folderName)
         XCTAssertEqual(folderService.editedFolderName, folderName)
     }
 
@@ -164,7 +164,7 @@ class SettingsRepositoryTests: BitwardenTestCase {
         try XCTAssertEqual(XCTUnwrap(publisherValue), [folderView])
 
         // Ensure the folders were decrypted by the client vault.
-        XCTAssertEqual(clientService.clientVaultService.clientFolders.decryptedFolders, [folder])
+        XCTAssertEqual(clientService.mockVault.clientFolders.decryptedFolders, [folder])
     }
 
     /// `lastSyncTimePublisher` returns a publisher of the user's last sync time.

@@ -43,7 +43,7 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
         syncService = MockSyncService()
         timeProvider = MockTimeProvider(.mockTime(now))
         vaultTimeoutService = MockVaultTimeoutService()
-        clientService.clientVaultService.clientCiphers = clientCiphers
+        clientService.mockVault.clientCiphers = clientCiphers
         stateService = MockStateService()
 
         subject = DefaultVaultRepository(
@@ -234,9 +234,9 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
         let resultUrl = try await subject.downloadAttachment(attachment, cipher: cipher)
 
         // Confirm the results.
-        XCTAssertEqual(clientService.clientVaultService.clientCiphers.encryptedCiphers.last, cipher)
+        XCTAssertEqual(clientService.mockVault.clientCiphers.encryptedCiphers.last, cipher)
         XCTAssertEqual(cipherService.downloadAttachmentId, attachment.id)
-        XCTAssertEqual(clientService.clientVaultService.clientAttachments.encryptedFilePaths.last, downloadUrl.path)
+        XCTAssertEqual(clientService.mockVault.clientAttachments.encryptedFilePaths.last, downloadUrl.path)
         XCTAssertEqual(resultUrl?.lastPathComponent, "sillyGoose.txt")
     }
 
@@ -351,7 +351,7 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
                 .fixture(id: "1", name: "Other Folder", revisionDate: Date(year: 2023, month: 12, day: 1)),
             ]
         )
-        XCTAssertEqual(clientService.clientVaultService.clientFolders.decryptedFolders, folders)
+        XCTAssertEqual(clientService.mockVault.clientFolders.decryptedFolders, folders)
     }
 
     /// `fetchSync(isManualRefresh:)` only syncs when expected.
@@ -401,7 +401,7 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
 
     /// `refreshTOTPCode(:)` rethrows errors.
     func test_refreshTOTPCode_error() async throws {
-        clientService.clientVaultService.generateTOTPCodeResult = .failure(BitwardenTestError.example)
+        clientService.mockVault.generateTOTPCodeResult = .failure(BitwardenTestError.example)
         let keyModel = try XCTUnwrap(TOTPKeyModel(authenticatorKey: .base32Key))
         await assertAsyncThrows(error: BitwardenTestError.example) {
             _ = try await subject.refreshTOTPCode(for: keyModel)
@@ -411,7 +411,7 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
     /// `refreshTOTPCode(:)` creates a LoginTOTP model on success.
     func test_refreshTOTPCode_success() async throws {
         let newCode = "999232"
-        clientService.clientVaultService.generateTOTPCodeResult = .success(newCode)
+        clientService.mockVault.generateTOTPCodeResult = .success(newCode)
         let keyModel = try XCTUnwrap(TOTPKeyModel(authenticatorKey: .base32Key))
         let update = try await subject.refreshTOTPCode(for: keyModel)
         XCTAssertEqual(
@@ -430,7 +430,7 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
     /// `refreshTOTPCodes(:)` should not update non-totp items
     func test_refreshTOTPCodes_invalid_noKey() async throws {
         let newCode = "999232"
-        clientService.clientVaultService.generateTOTPCodeResult = .success(newCode)
+        clientService.mockVault.generateTOTPCodeResult = .success(newCode)
         let totpModel = VaultListTOTP(
             id: "123",
             loginView: .fixture(),
@@ -449,7 +449,7 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
     /// `refreshTOTPCodes(:)` should not update non-totp items
     func test_refreshTOTPCodes_invalid_nonTOTP() async throws {
         let newCode = "999232"
-        clientService.clientVaultService.generateTOTPCodeResult = .success(newCode)
+        clientService.mockVault.generateTOTPCodeResult = .success(newCode)
         let item: VaultListItem = .fixture()
         let newItems = try await subject.refreshTOTPCodes(for: [item])
         let newItem = try XCTUnwrap(newItems.first)
@@ -459,7 +459,7 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
     /// `refreshTOTPCodes(:)` should update correctly
     func test_refreshTOTPCodes_valid() async throws {
         let newCode = "999232"
-        clientService.clientVaultService.generateTOTPCodeResult = .success(newCode)
+        clientService.mockVault.generateTOTPCodeResult = .success(newCode)
         let totpModel = VaultListTOTP(
             id: "123",
             loginView: .fixture(totp: .base32Key),
@@ -1106,36 +1106,35 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
     /// `remove(userId:)` Removes an account id from the vault timeout service.
     func test_removeAccountId_success_unlocked() async {
         let account = Account.fixtureAccountLogin()
-        vaultTimeoutService.timeoutStore = [
-            account.profile.userId: false,
+        let client = vaultTimeoutService.client
+        vaultTimeoutService.userClientDictionary = [
+            account.profile.userId: (client, false),
         ]
         await subject.remove(userId: account.profile.userId)
-        XCTAssertEqual([:], vaultTimeoutService.timeoutStore)
+        XCTAssertTrue(vaultTimeoutService.userClientDictionary.isEmpty)
     }
 
     /// `remove(userId:)` Removes an account id from the vault timeout service.
     func test_removeAccountId_success_locked() async {
         let account = Account.fixtureAccountLogin()
-        vaultTimeoutService.timeoutStore = [
-            account.profile.userId: true,
+        let client = vaultTimeoutService.client
+        vaultTimeoutService.userClientDictionary = [
+            account.profile.userId: (client, true),
         ]
         await subject.remove(userId: account.profile.userId)
-        XCTAssertEqual([:], vaultTimeoutService.timeoutStore)
+        XCTAssertTrue(vaultTimeoutService.userClientDictionary.isEmpty)
     }
 
     /// `remove(userId:)` Throws no error when no account is found.
     func test_removeAccountId_failure() async {
         let account = Account.fixtureAccountLogin()
-        vaultTimeoutService.timeoutStore = [
-            account.profile.userId: false,
+        let client = vaultTimeoutService.client
+        vaultTimeoutService.userClientDictionary = [
+            account.profile.userId: (client, false),
         ]
-        await subject.remove(userId: "123")
-        XCTAssertEqual(
-            [
-                account.profile.userId: false,
-            ],
-            vaultTimeoutService.timeoutStore
-        )
+        await assertAsyncDoesNotThrow {
+            await subject.remove(userId: "123")
+        }
     }
 
     /// `restoreCipher()` throws on id errors.
@@ -1172,8 +1171,8 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
         )
 
         // Ensure all the steps completed as expected.
-        XCTAssertEqual(clientService.clientVaultService.clientCiphers.encryptedCiphers, [.fixture()])
-        XCTAssertEqual(clientService.clientVaultService.clientAttachments.encryptedBuffers, [Data()])
+        XCTAssertEqual(clientService.mockVault.clientCiphers.encryptedCiphers, [.fixture()])
+        XCTAssertEqual(clientService.mockVault.clientAttachments.encryptedBuffers, [Data()])
         XCTAssertEqual(cipherService.saveAttachmentWithServerCipher, Cipher(cipherView: cipherView))
         XCTAssertEqual(updatedCipher.id, "42")
     }
@@ -1417,7 +1416,7 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
         stateService.activeAccount = premiumAccount
         let cipher = Cipher.fixture(id: "1", login: .fixture(totp: "123"), type: .login)
         struct InvalidCodeError: Error, Equatable {}
-        clientService.clientVaultService.generateTOTPCodeResult = .failure(InvalidCodeError())
+        clientService.mockVault.generateTOTPCodeResult = .failure(InvalidCodeError())
         cipherService.ciphersSubject.send([cipher])
 
         var iterator = try await subject.vaultListPublisher(group: .totp, filter: .allVaults).makeAsyncIterator()

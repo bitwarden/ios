@@ -197,9 +197,10 @@ class AuthCoordinatorTests: BitwardenTestCase { // swiftlint:disable:this type_b
 
     /// `handleEvent()` with `.switchAccount` with an locked account navigates to vault unlock
     func test_navigate_switchAccount_locked() {
+        let client = vaultTimeoutService.client
         let account = Account.fixture()
         authRepository.altAccounts = [account]
-        vaultTimeoutService.timeoutStore = [account.profile.userId: true]
+        vaultTimeoutService.userClientDictionary = [account.profile.userId: (client, true)]
         stateService.activeAccount = account
 
         let task = Task {
