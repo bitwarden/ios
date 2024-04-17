@@ -220,10 +220,10 @@ jobs:
 
       - name: Fastlane Creds
         env:
-          FASTLANE_USER: ${{ secrets.APPLE_ID_USERNAME }}
-          FASTLANE_PASSWORD: ${{ secrets.APPLE_ID_PASSWORD }}
+          APPLE_ID_USERNAME: ${{ secrets.APPLE_ID_USERNAME }}
+          APPLE_ID_PASSWORD: ${{ secrets.APPLE_ID_PASSWORD }}
         run: |
-          fastlane fastlane-credentials add
+          fastlane fastlane-credentials add --username $APPLE_ID_USERNAME --password $APPLE_ID_PASSWORD
 
       - name: Install Mint packages
         if: steps.mint-cache.outputs.cache-hit != 'true'
