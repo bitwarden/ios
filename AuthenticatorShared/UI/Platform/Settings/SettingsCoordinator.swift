@@ -55,10 +55,6 @@ final class SettingsCoordinator: Coordinator, HasStackNavigator {
 
     func navigate(to route: SettingsRoute, context: AnyObject?) {
         switch route {
-        case .about:
-            showAbout()
-        case .appearance:
-            showAppearance()
         case .dismiss:
             stackNavigator?.dismiss()
         case let .selectLanguage(currentLanguage: currentLanguage):
@@ -75,36 +71,6 @@ final class SettingsCoordinator: Coordinator, HasStackNavigator {
     }
 
     // MARK: Private Methods
-
-    /// Shows the about screen.
-    ///
-    private func showAbout() {
-        let processor = AboutProcessor(
-            coordinator: asAnyCoordinator(),
-            services: services,
-            state: AboutState()
-        )
-
-        let view = AboutView(store: Store(processor: processor))
-        let viewController = UIHostingController(rootView: view)
-        viewController.navigationItem.largeTitleDisplayMode = .never
-        stackNavigator?.push(viewController, navigationTitle: Localizations.about)
-    }
-
-    /// Shows the appearance screen.
-    ///
-    private func showAppearance() {
-        let processor = AppearanceProcessor(
-            coordinator: asAnyCoordinator(),
-            services: services,
-            state: AppearanceState()
-        )
-
-        let view = AppearanceView(store: Store(processor: processor))
-        let viewController = UIHostingController(rootView: view)
-        viewController.navigationItem.largeTitleDisplayMode = .never
-        stackNavigator?.push(viewController, navigationTitle: Localizations.appearance)
-    }
 
     /// Shows the select language screen.
     ///
@@ -125,6 +91,7 @@ final class SettingsCoordinator: Coordinator, HasStackNavigator {
     private func showSettings() {
         let processor = SettingsProcessor(
             coordinator: asAnyCoordinator(),
+            services: services,
             state: SettingsState()
         )
         let view = SettingsView(store: Store(processor: processor))
