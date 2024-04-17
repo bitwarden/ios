@@ -11,6 +11,7 @@ import XCTest
 class TwoFactorAuthProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_body_length
     // MARK: Properties
 
+    var appSettingsStore: MockAppSettingsStore!
     var authRepository: MockAuthRepository!
     var authService: MockAuthService!
     var captchaService: MockCaptchaService!
@@ -24,6 +25,7 @@ class TwoFactorAuthProcessorTests: BitwardenTestCase { // swiftlint:disable:this
     override func setUp() {
         super.setUp()
 
+        appSettingsStore = MockAppSettingsStore()
         authRepository = MockAuthRepository()
         authService = MockAuthService()
         captchaService = MockCaptchaService()
@@ -34,6 +36,7 @@ class TwoFactorAuthProcessorTests: BitwardenTestCase { // swiftlint:disable:this
         subject = TwoFactorAuthProcessor(
             coordinator: coordinator.asAnyCoordinator(),
             services: ServiceContainer.withMocks(
+                appSettingsStore: appSettingsStore,
                 authRepository: authRepository,
                 authService: authService,
                 captchaService: captchaService,
@@ -47,6 +50,7 @@ class TwoFactorAuthProcessorTests: BitwardenTestCase { // swiftlint:disable:this
     override func tearDown() {
         super.tearDown()
 
+        appSettingsStore = nil
         authRepository = nil
         authService = nil
         captchaService = nil
@@ -519,10 +523,12 @@ class TwoFactorAuthProcessorTests: BitwardenTestCase { // swiftlint:disable:this
 
     /// `receive(_:)` with `.authMethodSelected` opens the url for the recover code.
     func test_receive_authMethodSelected_recoveryCode() {
+        let baseUrl = URL(string: "example.com")!
+        subject.state.baseUrl = baseUrl
         subject.state.authMethod = .email
         subject.receive(.authMethodSelected(.recoveryCode))
         XCTAssertEqual(subject.state.authMethod, .email)
-        XCTAssertEqual(subject.state.url, ExternalLinksConstants.recoveryCode)
+        XCTAssertEqual(subject.state.url, URL(string: "\(baseUrl)" + "\(ExternalLinksConstants.recoveryCode)"))
     }
 
     /// `receive(_:)` with `.clearURL` clears the URL in the state.

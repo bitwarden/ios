@@ -96,7 +96,8 @@ final class TwoFactorAuthProcessor: StateProcessor<TwoFactorAuthState, TwoFactor
     private func handleAuthMethodSelected(_ authMethod: TwoFactorAuthMethod) {
         switch authMethod {
         case .recoveryCode:
-            state.url = ExternalLinksConstants.recoveryCode
+            guard let baseUrl = state.baseUrl else { return }
+            state.url = URL(string: "\(baseUrl)" + "\(ExternalLinksConstants.recoveryCode)")
         case .email:
             Task { await resendEmail() }
             state.authMethod = authMethod

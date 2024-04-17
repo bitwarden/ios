@@ -2,7 +2,7 @@ import SwiftUI
 
 // MARK: - TwoFactorAuthView
 
-/// A view that prompts the user for a two-factor authentication code..
+/// A view that prompts the user for a two-factor authentication code.
 ///
 struct TwoFactorAuthView: View {
     // MARK: Properties
