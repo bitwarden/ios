@@ -86,15 +86,6 @@ struct ItemListItemRowView: View {
         Text(model.displayCode)
             .styleGuide(.bodyMonospaced, weight: .regular, monoSpacedDigit: true)
             .foregroundColor(Asset.Colors.textPrimary.swiftUIColor)
-        AsyncButton {
-            Task {
-                await store.perform(.morePressed)
-            }
-        } label: {
-            Asset.Images.horizontalKabob.swiftUIImage
-        }
-        .foregroundColor(Asset.Colors.primaryBitwarden.swiftUIColor)
-        .accessibilityLabel(Localizations.copyTotp)
     }
 }
 

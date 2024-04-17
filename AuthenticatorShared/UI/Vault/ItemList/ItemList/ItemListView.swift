@@ -141,13 +141,48 @@ private struct SearchableItemListView: View {
         ScrollView {
             LazyVStack(alignment: .leading, spacing: 7) {
                 ForEach(items) { item in
-                    Button {
-                        store.send(.itemPressed(item))
+                    Menu {
+                        AsyncButton {
+                            await store.perform(.copyPressed(item))
+                        } label: {
+                            HStack(spacing: 4) {
+                                Text(Localizations.copy)
+                                Spacer()
+                                Image(decorative: Asset.Images.copy)
+                                    .imageStyle(.accessoryIcon(scaleWithFont: true))
+                            }
+                        }
+
+                        Button {
+                            store.send(.editPressed(item))
+                        } label: {
+                            HStack(spacing: 4) {
+                                Text(Localizations.edit)
+                                Spacer()
+                                Image(decorative: Asset.Images.pencil)
+                                    .imageStyle(.accessoryIcon(scaleWithFont: true))
+                            }
+                        }
+
+                        Divider()
+
+                        Button(role: .destructive) {
+                            store.send(.deletePressed(item))
+                        } label: {
+                            HStack(spacing: 4) {
+                                Text(Localizations.delete)
+                                Spacer()
+                                Image(decorative: Asset.Images.trash)
+                                    .imageStyle(.accessoryIcon(scaleWithFont: true))
+                            }
+                        }
                     } label: {
                         vaultItemRow(
                             for: item,
                             isLastInSection: true
                         )
+                    } primaryAction: {
+                        store.send(.itemPressed(item))
                     }
                 }
                 .background(Asset.Colors.backgroundPrimary.swiftUIColor)
@@ -175,18 +210,8 @@ private struct SearchableItemListView: View {
                         showWebIcons: state.showWebIcons
                     )
                 },
-                mapAction: { action in
-                    switch action {
-                    case let .copyTOTPCode(code):
-                        return .copyTOTPCode(code)
-                    }
-                },
-                mapEffect: { effect in
-                    switch effect {
-                    case .morePressed:
-                        return .morePressed(item)
-                    }
-                }
+                mapAction: nil,
+                mapEffect: nil
             ),
             timeProvider: timeProvider
         )

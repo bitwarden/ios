@@ -5,9 +5,13 @@ enum ItemListAction: Equatable {
     /// The url has been opened so clear the value in the state.
     case clearURL
 
-    /// The copy TOTP Code button was pressed.
+    /// The delete item button was pressed.
     ///
-    case copyTOTPCode(_ code: String)
+    case deletePressed(_ item: ItemListItem)
+
+    /// The edit item button was pressed.
+    ///
+    case editPressed(_ item: ItemListItem)
 
     /// An item in the vault group was tapped.
     ///

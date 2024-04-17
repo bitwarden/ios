@@ -61,8 +61,14 @@ final class ItemListProcessor: StateProcessor<ItemListState, ItemListAction, Ite
             await setupTotp()
         case .appeared:
             await streamItemList()
-        case let .morePressed(item):
-            await showMoreOptionsAlert(for: item)
+        case let .copyPressed(item):
+            switch item.itemType {
+            case let .totp(model):
+                guard let key = model.itemView.totpKey,
+                      let totpKey = TOTPKeyModel(authenticatorKey: key)
+                else { return }
+                await generateAndCopyTotpCode(totpKey: totpKey)
+            }
         case .refresh:
             await streamItemList()
         case let .search(text):
@@ -76,9 +82,11 @@ final class ItemListProcessor: StateProcessor<ItemListState, ItemListAction, Ite
         switch action {
         case .clearURL:
             break
-        case let .copyTOTPCode(code):
-            services.pasteboardService.copy(code)
-            state.toast = Toast(text: Localizations.valueHasBeenCopied(Localizations.verificationCode))
+        case let .deletePressed(item):
+            confirmDeleteItem(item.id)
+        case let .editPressed(item):
+            guard case let .totp(model) = item.itemType else { return }
+            coordinator.navigate(to: .editItem(item: model.itemView), context: self)
         case let .itemPressed(item):
             switch item.itemType {
             case let .totp(model):
@@ -109,9 +117,7 @@ final class ItemListProcessor: StateProcessor<ItemListState, ItemListAction, Ite
 
     /// Delete the item
     private func deleteItem(_ id: String) async {
-        defer { coordinator.hideLoadingOverlay() }
         do {
-            coordinator.showLoadingOverlay(title: Localizations.deleting)
             try await services.authenticatorItemRepository.deleteAuthenticatorItem(id)
             state.toast = Toast(text: Localizations.itemDeleted)
         } catch {
@@ -127,7 +133,7 @@ final class ItemListProcessor: StateProcessor<ItemListState, ItemListAction, Ite
         do {
             let code = try await services.totpService.getTotpCode(for: totpKey)
             services.pasteboardService.copy(code.code)
-            state.toast = Toast(text: Localizations.valueHasBeenCopied(Localizations.verificationCodeTotp))
+            state.toast = Toast(text: Localizations.valueHasBeenCopied(Localizations.verificationCode))
         } catch {
             coordinator.showAlert(.defaultAlert(title: Localizations.anErrorHasOccurred))
             services.errorReporter.log(error: error)
@@ -173,22 +179,6 @@ final class ItemListProcessor: StateProcessor<ItemListState, ItemListAction, Ite
         } else {
             coordinator.navigate(to: .setupTotpManual, context: self)
         }
-    }
-
-    /// Show the more options alert for the selected item.
-    ///
-    /// - Parameter item: The selected item to show the options for.
-    ///
-    private func showMoreOptionsAlert(for item: ItemListItem) async {
-        guard case let .totp(model) = item.itemType else { return }
-
-        coordinator.showAlert(
-            .moreOptions(
-                authenticatorItemView: model.itemView,
-                id: item.id,
-                action: handleMoreOptionsAction
-            )
-        )
     }
 
     /// Handle the result of the selected option on the More Options alert.
