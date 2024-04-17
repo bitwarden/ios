@@ -2,7 +2,6 @@ name: Authenticator
 configs:
   Debug: debug
   Release: release
-  Release-Beta: release
 options:
   createIntermediateGroups: true
   deploymentTarget:
@@ -13,7 +12,7 @@ options:
   indentWidth: 4
   tabWidth: 4
 settings:
-  MARKETING_VERSION: 2024.03.0    # Bump this for a new version update.
+  MARKETING_VERSION: 2023.5.0
   CURRENT_PROJECT_VERSION: 1
 packages:
   BitwardenSdk:
@@ -70,7 +69,6 @@ targets:
     configFiles:
       Debug: Configs/Authenticator-Debug.xcconfig
       Release: Configs/Authenticator-Release.xcconfig
-      Release-Beta: Configs/Authenticator-Release-Beta.xcconfig
     settings:
       base:
         INFOPLIST_FILE: Authenticator/Application/Support/Info.plist
@@ -126,7 +124,6 @@ targets:
     configFiles:
       Debug: Configs/AuthenticatorShared.xcconfig
       Release: Configs/AuthenticatorShared.xcconfig
-      Release-Beta: Configs/AuthenticatorShared-Beta.xcconfig
     settings:
       base:
         APPLICATION_EXTENSION_API_ONLY: true

@@ -1,3 +1,6 @@
+// Prevents Xcodegen from overriding the CODE_SIGN_IDENTITY value from an included xcconfig.
+CODE_SIGN_IDENTITY = Apple Development
+
 #include "./Common.xcconfig"
 #include? "./Local.xcconfig"
 
