@@ -227,6 +227,13 @@ protocol StateService: AnyObject {
     ///
     func getUnsuccessfulUnlockAttempts(userId: String?) async throws -> Int
 
+    /// Gets whether a user has a master password.
+    ///
+    /// - Parameter userId: The user ID of the user to determine whether they have a master password.
+    /// - Returns: Whether the user has a master password.
+    ///
+    func getUserHasMasterPassword(userId: String?) async throws -> Bool
+
     /// Gets the username generation options for a user ID.
     ///
     /// - Parameter userId: The user ID associated with the username generation options.
@@ -662,6 +669,14 @@ extension StateService {
         return 0
     }
 
+    /// Gets whether a user has a master password.
+    ///
+    /// - Returns: Whether the user has a master password.
+    ///
+    func getUserHasMasterPassword() async throws -> Bool {
+        try await getUserHasMasterPassword(userId: nil)
+    }
+
     /// Gets the username generation options for the active account.
     ///
     /// - Returns: The username generation options for the user ID.
@@ -1074,6 +1089,10 @@ actor DefaultStateService: StateService { // swiftlint:disable:this type_body_le
     func getUnsuccessfulUnlockAttempts(userId: String?) async throws -> Int {
         let userId = try userId ?? getActiveAccountUserId()
         return appSettingsStore.unsuccessfulUnlockAttempts(userId: userId)
+    }
+
+    func getUserHasMasterPassword(userId: String?) async throws -> Bool {
+        try getAccount(userId: userId).profile.userDecryptionOptions?.hasMasterPassword ?? true
     }
 
     func getUsernameGenerationOptions(userId: String?) async throws -> UsernameGenerationOptions? {

@@ -53,6 +53,7 @@ class MockStateService: StateService { // swiftlint:disable:this type_body_lengt
     var unsuccessfulUnlockAttempts = [String: Int]()
     var updateProfileResponse: ProfileResponseModel?
     var updateProfileUserId: String?
+    var userHasMasterPassword = [String: Bool]()
     var usernameGenerationOptions = [String: UsernameGenerationOptions]()
     var vaultTimeout = [String: SessionTimeoutValue]()
 
@@ -219,6 +220,11 @@ class MockStateService: StateService { // swiftlint:disable:this type_body_lengt
     func getUnsuccessfulUnlockAttempts(userId: String?) async throws -> Int {
         let userId = try unwrapUserId(userId)
         return unsuccessfulUnlockAttempts[userId] ?? 0
+    }
+
+    func getUserHasMasterPassword(userId: String?) async throws -> Bool {
+        let userId = try unwrapUserId(userId)
+        return userHasMasterPassword[userId] ?? true
     }
 
     func getUsernameGenerationOptions(userId: String?) async throws -> UsernameGenerationOptions? {

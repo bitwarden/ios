@@ -458,6 +458,7 @@ class AccountSecurityProcessorTests: BitwardenTestCase { // swiftlint:disable:th
     /// `receive(_:)` with `.toggleUnlockWithPINCode` displays an alert and updates the state when submit has been
     /// pressed.
     func test_receive_toggleUnlockWithPINCode_toggleOn() async throws {
+        stateService.activeAccount = .fixture()
         subject.state.isUnlockWithPINCodeOn = false
         subject.receive(.toggleUnlockWithPINCode(true))
 
@@ -466,6 +467,40 @@ class AccountSecurityProcessorTests: BitwardenTestCase { // swiftlint:disable:th
 
         alert = try XCTUnwrap(coordinator.alertShown.last)
         try await alert.tapAction(title: Localizations.yes)
+        XCTAssertTrue(subject.state.isUnlockWithPINCodeOn)
+    }
+
+    /// `receive(_:)` with `.toggleUnlockWithPINCode` displays an error if one occurs while setting
+    /// the user's pin.
+    func test_receive_toggleUnlockWithPINCode_toggleOn_error() async throws {
+        authRepository.setPinsResult = .failure(BitwardenTestError.example)
+        stateService.activeAccount = .fixture()
+        subject.state.isUnlockWithPINCodeOn = false
+
+        subject.receive(.toggleUnlockWithPINCode(true))
+
+        let enterPinAlert = try XCTUnwrap(coordinator.alertShown.last)
+        try await enterPinAlert.tapAction(title: Localizations.submit)
+
+        let requireMasterPasswordAlert = try XCTUnwrap(coordinator.alertShown.last)
+        try await requireMasterPasswordAlert.tapAction(title: Localizations.no)
+
+        let errorAlert = try XCTUnwrap(coordinator.alertShown.last)
+        XCTAssertEqual(errorAlert, .defaultAlert(title: Localizations.anErrorHasOccurred))
+        XCTAssertEqual(errorReporter.errors as? [BitwardenTestError], [.example])
+    }
+
+    /// `receive(_:)` with `.toggleUnlockWithPINCode` displays an alert and updates the state when
+    /// submit has been pressed without displaying the master password prompt alert.
+    func test_receive_toggleUnlockWithPINCode_toggleOn_userWithoutMasterPassword() async throws {
+        stateService.activeAccount = .fixture()
+        stateService.userHasMasterPassword["1"] = false
+        subject.state.isUnlockWithPINCodeOn = false
+        subject.receive(.toggleUnlockWithPINCode(true))
+
+        let alert = try XCTUnwrap(coordinator.alertShown.last)
+        try await alert.tapAction(title: Localizations.submit)
+
         XCTAssertTrue(subject.state.isUnlockWithPINCodeOn)
     }
 
@@ -482,6 +517,21 @@ class AccountSecurityProcessorTests: BitwardenTestCase { // swiftlint:disable:th
         waitFor(!subject.state.isUnlockWithPINCodeOn)
         task.cancel()
         XCTAssertTrue(authRepository.clearPinsCalled)
+    }
+
+    /// `receive(_:)` with `.toggleUnlockWithPINCode` displays an error if one occurs while getting
+    /// whether the user has a master password.
+    func test_receive_toggleUnlockWithPINCode_userHasMasterPasswordError() async throws {
+        subject.state.isUnlockWithPINCodeOn = false
+
+        subject.receive(.toggleUnlockWithPINCode(true))
+
+        let enterPinAlert = try XCTUnwrap(coordinator.alertShown.last)
+        try await enterPinAlert.tapAction(title: Localizations.submit)
+
+        let errorAlert = try XCTUnwrap(coordinator.alertShown.last)
+        XCTAssertEqual(errorAlert, .defaultAlert(title: Localizations.anErrorHasOccurred))
+        XCTAssertEqual(errorReporter.errors as? [StateServiceError], [StateServiceError.noActiveAccount])
     }
 
     /// `perform(_:)` with `.loadData` updates the state.
