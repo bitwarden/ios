@@ -76,6 +76,8 @@ public enum UI {
         UITextView.appearance().backgroundColor = .clear
         UITextView.appearance().textContainerInset = .zero
         UITextView.appearance().textContainer.lineFragmentPadding = 0
+
+        UIPageControl.appearance().currentPageIndicatorTintColor = Asset.Colors.primaryBitwarden.color
     }
 
     /// Override SwiftGen's lookup function in order to determine the language manually.
