@@ -26,10 +26,12 @@ final class ManualEntryProcessorTests: AuthenticatorTestCase {
     }
 
     /// `receive()` with `.addPressed(:)` navigates to `.addManual(:)`.
-//    func test_receive_addPressed() async {
-//        subject.receive(.addPressed(code: "YouNeedUniqueNewYork", name: "NewYork"))
-//        XCTAssertEqual(coordinator.routes, [.addManual(key: "YouNeedUniqueNewYork", name: "NewYork")])
-//    }
+    func test_receive_addPressed() async {
+        subject.state.authenticatorKey = "YouNeedUniqueNewYork"
+        subject.state.name = "NewYork"
+        subject.receive(.addPressed(code: "YouNeedUniqueNewYork", name: "NewYork"))
+        XCTAssertEqual(coordinator.routes, [.addManual(key: "YouNeedUniqueNewYork", name: "NewYork")])
+    }
 
     /// `receive()` with `.authenticatorKeyChanged(:)` updates the state.
     func test_receive_authenticatorKeyChanged() async {

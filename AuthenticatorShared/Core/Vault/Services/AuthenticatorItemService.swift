@@ -56,7 +56,6 @@ protocol AuthenticatorItemService {
 class DefaultAuthenticatorItemService {
     // MARK: Properties
 
-    // TODO: Generate this user ID and store it in the keychain?
     private let defaultUserId = "local"
 
     /// The data store for persisted items

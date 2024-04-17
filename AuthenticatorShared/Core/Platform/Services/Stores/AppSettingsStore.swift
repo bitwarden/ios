@@ -234,6 +234,11 @@ extension DefaultAppSettingsStore: AppSettingsStore {
         set { store(newValue, for: .hasSeenWelcomeTutorial) }
     }
 
+    var migrationVersion: Int {
+        get { fetch(for: .migrationVersion) }
+        set { store(newValue, for: .migrationVersion) }
+    }
+
     func clearClipboardValue(userId: String) -> ClearClipboardValue {
         if let rawValue: Int = fetch(for: .clearClipboardValue(userId: userId)),
            let value = ClearClipboardValue(rawValue: rawValue) {
@@ -243,12 +248,7 @@ extension DefaultAppSettingsStore: AppSettingsStore {
     }
 
     func secretKey(userId: String) -> String? {
-        return fetch(for: .secretKey(userId: userId))
-    }
-
-    var migrationVersion: Int {
-        get { fetch(for: .migrationVersion) }
-        set { store(newValue, for: .migrationVersion) }
+        fetch(for: .secretKey(userId: userId))
     }
 
     func setClearClipboardValue(_ clearClipboardValue: ClearClipboardValue?, userId: String) {

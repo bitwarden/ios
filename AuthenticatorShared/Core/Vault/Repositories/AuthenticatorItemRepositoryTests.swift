@@ -54,6 +54,4 @@ class AuthenticatorItemRepositoryTests: AuthenticatorTestCase {
             try await subject.addAuthenticatorItem(.fixture())
         }
     }
-
-    // TODO: Backfill tests
 }

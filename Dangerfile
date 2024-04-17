@@ -1,15 +1,12 @@
 xcode_summary.ignored_files = '**/SourcePackages/*'
-xcode_summary.report 'build/BitwardenTests.xcresult'
+xcode_summary.report 'build/SuthenticatorTests.xcresult'
 
 slather.configure(
-  'Bitwarden.xcodeproj', 'Bitwarden',
+  'Authenticator.xcodeproj', 'Authenticator',
   options: {
     binary_basename: [
-      'Bitwarden',
-      #'BitwardenActionExtension', -- Can't add this until the target has some lines of code or slather throws an error.
-      'BitwardenAutoFillExtension',
-      'BitwardenShareExtension',
-      'BitwardenShared',
+      'Authenticator',
+      'BitwardenAuthenticatorShared',
       'Networking',
     ],
     build_directory: 'build/DerivedData',
