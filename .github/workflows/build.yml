@@ -216,7 +216,7 @@ jobs:
 
       - name: Install Mint, xcbeautify, and yq
         run: |
-          brew install mint xcbeautify yq fastlane
+          brew install mint xcbeautify yq
 
       - name: Install Mint packages
         if: steps.mint-cache.outputs.cache-hit != 'true'
@@ -261,10 +261,12 @@ jobs:
       
       - name: Upload app to TestFlight with Fastlane
         env:
-          APPLE_ID_USERNAME: ${{ secrets.APPLE_ID_USERNAME }}
-          APPLE_ID_PASSWORD: ${{ secrets.APPLE_ID_PASSWORD }}
+          FASTLANE_USERNAME: ${{ secrets.APPLE_ID_USERNAME }}
+          FASTLANE_PASSWORD: ${{ secrets.APPLE_ID_PASSWORD }}
         run: |
-          fastlane pilot upload --skip_submission --changelog "Test"
+          bundle exec fastlane pilot upload \
+            --skip_submission \
+            --changelog "Test"
 
       # - name: Upload app to TestFlight
       #   env:
