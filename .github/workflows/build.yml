@@ -218,6 +218,13 @@ jobs:
         run: |
           brew install mint xcbeautify yq fastlane
 
+      - name: Fastlane Creds
+        env:
+          FASTLANE_USER: ${{ secrets.APPLE_ID_USERNAME }}
+          FASTLANE_PASSWORD: ${{ secrets.APPLE_ID_PASSWORD }}
+        run: |
+          fastlane fastlane-credentials add
+
       - name: Install Mint packages
         if: steps.mint-cache.outputs.cache-hit != 'true'
         run: |
