@@ -267,10 +267,13 @@ jobs:
             --password @env:APPLE_ID_PASSWORD
       
       - name: Upload app to TestFlight with Fastlane
+        env:
+          APPLE_ID_USERNAME: ${{ secrets.APPLE_ID_USERNAME }}
         run: |
           fastlane pilot upload \
             --skip_submission \
-            --changelog "Test"
+            --changelog "Test" \
+            --username "$APPLE_ID_USERNAME"
 
       # - name: Upload app to TestFlight
       #   env:
