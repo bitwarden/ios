@@ -1,0 +1,43 @@
+---
+name: Cache Dependencies
+
+on:
+  push:
+    branches:
+      - main
+
+env:
+  DEVELOPER_DIR: /Applications/Xcode_15.0.1.app/Contents/Developer
+  MINT_LINK_PATH: .mint/bin
+  MINT_PATH: .mint/lib
+
+jobs:
+  cache-dependencies:
+    name: Cache Dependencies
+    runs-on: macos-13
+    steps:
+      - name: Checkout
+        uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
+
+      - name: Setup Ruby
+        uses: ruby/setup-ruby@5f19ec79cedfadb78ab837f95b87734d0003c899 # v1.173.0
+        with:
+          bundler-cache: true
+          ruby-version: 3.2.2
+
+      - name: Cache Mint Packages
+        uses: actions/cache@0c45773b623bea8c8e75f6c82b208c3cf94ea4f9 # v4.0.2
+        with:
+          path: .mint
+          key: ${{ runner.os }}-mint-${{ hashFiles('**/Mintfile') }}
+          restore-keys: |
+            ${{ runner.os }}-mint-
+
+      - name: Install Mint
+        run: |
+          brew install mint
+
+      - name: Install Mint packages
+        if: steps.mint-cache.outputs.cache-hit != 'true'
+        run: |
+          mint bootstrap
