@@ -543,6 +543,18 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         XCTAssertTrue(value)
     }
 
+    /// `requestOtp()` makes an API request to request an OTP code for the user.
+    func test_requestOtp() async throws {
+        client.result = .httpSuccess(testData: .emptyResponse)
+
+        try await subject.requestOtp()
+
+        XCTAssertEqual(client.requests.count, 1)
+        XCTAssertNil(client.requests[0].body)
+        XCTAssertEqual(client.requests[0].method, .post)
+        XCTAssertEqual(client.requests[0].url.absoluteString, "https://example.com/api/accounts/request-otp")
+    }
+
     /// `setVaultTimeout` correctly configures the user's timeout value.
     func test_sessionTimeoutValue_active_noUser() async {
         vaultTimeoutService.sessionTimeoutValueError = StateServiceError.noActiveAccount
@@ -1367,5 +1379,17 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         let isValid = try await subject.validatePassword("not the password")
 
         XCTAssertFalse(isValid)
+    }
+
+    /// `verifyOtp(_:)` makes an API request to verify an OTP code.
+    func test_verifyOtp() async throws {
+        client.result = .httpSuccess(testData: .emptyResponse)
+
+        try await subject.verifyOtp("OTP")
+
+        XCTAssertEqual(client.requests.count, 1)
+        XCTAssertNotNil(client.requests[0].body)
+        XCTAssertEqual(client.requests[0].method, .post)
+        XCTAssertEqual(client.requests[0].url.absoluteString, "https://example.com/api/accounts/verify-otp")
     }
 } // swiftlint:disable:this file_length

@@ -98,20 +98,28 @@ class ExportVaultViewTests: BitwardenTestCase {
 
     /// Updating the text in the master password field sends the `.masterPasswordTextChanged()` action.
     func test_masterPasswordField_updateValue() throws {
-        processor.state.isMasterPasswordVisible = true
+        processor.state.isMasterPasswordOrOtpVisible = true
         let textfield = try subject.inspect().find(viewWithId: Localizations.masterPassword).textField()
         try textfield.setInput("text")
-        XCTAssertEqual(processor.dispatchedActions.last, .masterPasswordTextChanged("text"))
+        XCTAssertEqual(processor.dispatchedActions.last, .masterPasswordOrOtpTextChanged("text"))
     }
 
     /// Tapping the master password visibility icon changes whether or not the password is visible.
     func test_masterPasswordVisibility_tap() throws {
-        processor.state.isMasterPasswordVisible = false
+        processor.state.isMasterPasswordOrOtpVisible = false
         let visibilityIcon = try subject.inspect().find(
             viewWithAccessibilityLabel: Localizations.passwordIsNotVisibleTapToShow
         ).button()
         try visibilityIcon.tap()
-        XCTAssertEqual(processor.dispatchedActions.last, .toggleMasterPasswordVisibility(true))
+        XCTAssertEqual(processor.dispatchedActions.last, .toggleMasterPasswordOrOtpVisibility(true))
+    }
+
+    /// Tapping the send code button performs the `.sendCodeTapped` effect.
+    func test_sendCode_tap() async throws {
+        processor.state.hasMasterPassword = false
+        let sendCodeButton = try subject.inspect().find(asyncButton: Localizations.sendCode)
+        try await sendCodeButton.tap()
+        XCTAssertEqual(processor.effects.last, .sendCodeTapped)
     }
 
     // MARK: Snapshots
@@ -123,7 +131,7 @@ class ExportVaultViewTests: BitwardenTestCase {
 
     /// The populated view renders correctly.
     func test_snapshot_populated() {
-        processor.state.masterPasswordText = "password"
+        processor.state.masterPasswordOrOtpText = "password"
         assertSnapshots(of: subject, as: [.defaultPortrait, .defaultPortraitDark, .defaultPortraitAX5])
     }
 
@@ -136,6 +144,12 @@ class ExportVaultViewTests: BitwardenTestCase {
     /// The JSON encrypted view renders correctly.
     func test_snapshot_jsonEncrypted() {
         processor.state.fileFormat = .jsonEncrypted
+        assertSnapshots(of: subject, as: [.defaultPortrait, .defaultPortraitDark, .defaultPortraitAX5])
+    }
+
+    /// The view for exporting the vault without a master password renders correctly.
+    func test_snapshot_noMasterPassword() {
+        processor.state.hasMasterPassword = false
         assertSnapshots(of: subject, as: [.defaultPortrait, .defaultPortraitDark, .defaultPortraitAX5])
     }
 }

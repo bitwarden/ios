@@ -2,7 +2,7 @@ import XCTest
 
 @testable import BitwardenShared
 
-class ExportVaultProcessorTests: BitwardenTestCase {
+class ExportVaultProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_body_length
     // MARK: Properties
 
     var authRepository: MockAuthRepository!
@@ -51,7 +51,7 @@ class ExportVaultProcessorTests: BitwardenTestCase {
     /// Test that an alert is displayed if the user tries to export with an invalid password.
     func test_invalidPassword() async throws {
         authRepository.validatePasswordResult = .success(false)
-        subject.state.masterPasswordText = "password"
+        subject.state.masterPasswordOrOtpText = "password"
 
         subject.receive(.exportVaultTapped)
         let exportAction = try XCTUnwrap(coordinator.alertShown.last?.alertActions.first)
@@ -63,7 +63,7 @@ class ExportVaultProcessorTests: BitwardenTestCase {
     /// Test that an error is recorded if there was an error validating the password.
     func test_invalidPassword_error() async throws {
         authRepository.validatePasswordResult = .failure(BitwardenTestError.example)
-        subject.state.masterPasswordText = "password"
+        subject.state.masterPasswordOrOtpText = "password"
 
         subject.receive(.exportVaultTapped)
         let exportAction = try XCTUnwrap(coordinator.alertShown.last?.alertActions.first)
@@ -80,6 +80,28 @@ class ExportVaultProcessorTests: BitwardenTestCase {
         policyService.policyAppliesToUserResult[.disablePersonalVaultExport] = true
         await subject.perform(.loadData)
         XCTAssertTrue(subject.state.disableIndividualVaultExport)
+    }
+
+    /// `perform()` with `.sendCodeTapped` requests an OTP code for the user.
+    func test_perform_sendCodeTapped() async {
+        await subject.perform(.sendCodeTapped)
+
+        XCTAssertFalse(coordinator.isLoadingOverlayShowing)
+        XCTAssertEqual(coordinator.loadingOverlaysShown, [LoadingOverlayState(title: Localizations.sendingCode)])
+        XCTAssertTrue(authRepository.requestOtpCalled)
+        XCTAssertTrue(subject.state.isSendCodeButtonDisabled)
+        XCTAssertEqual(subject.state.toast?.text, Localizations.codeSent)
+    }
+
+    /// `perform()` with `.sendCodeTapped` records an error and displays an alert if requesting the
+    /// OTP code fails.
+    func test_perform_sendCodeTapped_error() async {
+        authRepository.requestOtpResult = .failure(BitwardenTestError.example)
+
+        await subject.perform(.sendCodeTapped)
+
+        XCTAssertEqual(coordinator.alertShown, [.networkResponseError(BitwardenTestError.example)])
+        XCTAssertEqual(errorReporter.errors as? [BitwardenTestError], [.example])
     }
 
     /// `.receive()` with `.dismiss` dismisses the view and clears any files.
@@ -99,7 +121,7 @@ class ExportVaultProcessorTests: BitwardenTestCase {
         subject.state.fileFormat = .jsonEncrypted
         subject.state.filePasswordText = "file password"
         subject.state.filePasswordConfirmationText = "file password"
-        subject.state.masterPasswordText = "password"
+        subject.state.masterPasswordOrOtpText = "password"
         subject.receive(.exportVaultTapped)
 
         // Confirm that the correct alert is displayed.
@@ -121,7 +143,7 @@ class ExportVaultProcessorTests: BitwardenTestCase {
         subject.state.fileFormat = .jsonEncrypted
         subject.state.filePasswordText = "file password"
         subject.state.filePasswordConfirmationText = "file password"
-        subject.state.masterPasswordText = "password"
+        subject.state.masterPasswordOrOtpText = "password"
         subject.receive(.exportVaultTapped)
 
         // Select the alert action to export.
@@ -195,7 +217,7 @@ class ExportVaultProcessorTests: BitwardenTestCase {
     /// `.receive()` with `.exportVaultTapped` shows the confirm alert for unencrypted formats.
     func test_receive_exportVaultTapped_unencrypted() {
         subject.state.fileFormat = .json
-        subject.state.masterPasswordText = "password"
+        subject.state.masterPasswordOrOtpText = "password"
         subject.receive(.exportVaultTapped)
 
         // Confirm that the correct alert is displayed.
@@ -206,7 +228,7 @@ class ExportVaultProcessorTests: BitwardenTestCase {
     func test_receive_exportVaultTapped_unencrypted_error() throws {
         exportService.exportVaultContentResult = .failure(BitwardenTestError.example)
         subject.state.fileFormat = .csv
-        subject.state.masterPasswordText = "password"
+        subject.state.masterPasswordOrOtpText = "password"
         subject.receive(.exportVaultTapped)
 
         // Select the alert action to export.
@@ -225,7 +247,7 @@ class ExportVaultProcessorTests: BitwardenTestCase {
         exportService.exportVaultContentResult = .success("")
         exportService.writeToFileResult = .success(testURL)
         subject.state.fileFormat = .json
-        subject.state.masterPasswordText = "password"
+        subject.state.masterPasswordOrOtpText = "password"
         subject.receive(.exportVaultTapped)
 
         // Select the alert action to export.
@@ -247,7 +269,7 @@ class ExportVaultProcessorTests: BitwardenTestCase {
         subject.state.fileFormat = .jsonEncrypted
         subject.state.filePasswordText = "file password"
         subject.state.filePasswordConfirmationText = "file password"
-        subject.state.masterPasswordText = "password"
+        subject.state.masterPasswordOrOtpText = "password"
 
         subject.receive(.exportVaultTapped)
 
@@ -258,7 +280,45 @@ class ExportVaultProcessorTests: BitwardenTestCase {
         XCTAssertTrue(subject.state.filePasswordText.isEmpty)
         XCTAssertTrue(subject.state.filePasswordConfirmationText.isEmpty)
         XCTAssertNil(subject.state.filePasswordStrengthScore)
-        XCTAssertTrue(subject.state.masterPasswordText.isEmpty)
+        XCTAssertTrue(subject.state.masterPasswordOrOtpText.isEmpty)
+    }
+
+    /// `receive()` with `.exportVaultTapped` verifies the user's OTP code and exports the vault if
+    /// the user doesn't have a master password.
+    func test_receive_exportVaultTapped_noMasterPassword_success() async throws {
+        let testURL = URL(string: "www.bitwarden.com")!
+        exportService.exportVaultContentResult = .success("")
+        exportService.writeToFileResult = .success(testURL)
+        subject.state.hasMasterPassword = false
+        subject.state.masterPasswordOrOtpText = "otp"
+
+        subject.receive(.exportVaultTapped)
+
+        XCTAssertEqual(coordinator.alertShown.last, .confirmExportVault(encrypted: false, action: {}))
+        try await coordinator.alertShown.last?.tapAction(title: Localizations.exportVault)
+
+        XCTAssertEqual(coordinator.routes.last, .shareExportedVault(testURL))
+        XCTAssertTrue(subject.state.masterPasswordOrOtpText.isEmpty)
+        XCTAssertEqual(authRepository.verifyOtpOpt, "otp")
+    }
+
+    /// `receive()` with `.exportVaultTapped` displays an alert if OTP verification fails.
+    func test_receive_exportVaultTapped_noMasterPassword_otpVerificationFailure() async throws {
+        authRepository.verifyOtpResult = .failure(
+            ServerError.error(
+                errorResponse: ErrorResponseModel(validationErrors: nil, message: "")
+            )
+        )
+        subject.state.hasMasterPassword = false
+        subject.state.masterPasswordOrOtpText = "otp"
+
+        subject.receive(.exportVaultTapped)
+
+        XCTAssertEqual(coordinator.alertShown.last, .confirmExportVault(encrypted: false, action: {}))
+        try await coordinator.alertShown.last?.tapAction(title: Localizations.exportVault)
+
+        XCTAssertEqual(coordinator.alertShown.last, .defaultAlert(title: Localizations.invalidVerificationCode))
+        XCTAssertTrue(coordinator.routes.isEmpty)
     }
 
     /// `.receive()` with `.fileFormatTypeChanged()` updates the file format.
@@ -300,11 +360,21 @@ class ExportVaultProcessorTests: BitwardenTestCase {
         XCTAssertEqual(subject.state.filePasswordConfirmationText, "file password")
     }
 
-    /// `.receive()` with `.masterPasswordTextChanged()` updates the master password text.
-    func test_receive_masterPasswordTextChanged() {
-        subject.receive(.masterPasswordTextChanged("password"))
+    /// `.receive()` with `.masterPasswordOrOtpTextChanged()` updates the master password/OTP text.
+    func test_receive_masterPasswordOrOtpTextChanged() {
+        subject.receive(.masterPasswordOrOtpTextChanged("password"))
 
-        XCTAssertEqual(subject.state.masterPasswordText, "password")
+        XCTAssertEqual(subject.state.masterPasswordOrOtpText, "password")
+    }
+
+    /// `receive(_:)` with `.toastShown` updates the state's toast value.
+    func test_receive_toastShown() {
+        let toast = Toast(text: "toast!")
+        subject.receive(.toastShown(toast))
+        XCTAssertEqual(subject.state.toast, toast)
+
+        subject.receive(.toastShown(nil))
+        XCTAssertNil(subject.state.toast)
     }
 
     /// `.receive()` with `.toggleFilePasswordVisibility()` toggles the file password visibility.
@@ -316,12 +386,12 @@ class ExportVaultProcessorTests: BitwardenTestCase {
         XCTAssertFalse(subject.state.isFilePasswordVisible)
     }
 
-    /// `.receive()` with `.toggleMasterPasswordVisibility()` toggles the master password visibility.
-    func test_receive_toggleMasterPasswordVisibility() {
-        subject.receive(.toggleMasterPasswordVisibility(true))
-        XCTAssertTrue(subject.state.isMasterPasswordVisible)
+    /// `.receive()` with `.toggleMasterPasswordOrOtpVisibility()` toggles the master password/OTP visibility.
+    func test_receive_toggleMasterPasswordOrOtpVisibility() {
+        subject.receive(.toggleMasterPasswordOrOtpVisibility(true))
+        XCTAssertTrue(subject.state.isMasterPasswordOrOtpVisible)
 
-        subject.receive(.toggleMasterPasswordVisibility(false))
-        XCTAssertFalse(subject.state.isMasterPasswordVisible)
+        subject.receive(.toggleMasterPasswordOrOtpVisibility(false))
+        XCTAssertFalse(subject.state.isMasterPasswordOrOtpVisible)
     }
 }

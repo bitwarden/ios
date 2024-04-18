@@ -28,6 +28,8 @@ class MockAuthRepository: AuthRepository {
     var passwordStrengthResult: UInt8 = 0
     var pinProtectedUserKey = "123"
     var profileSwitcherState: ProfileSwitcherState?
+    var requestOtpCalled = false
+    var requestOtpResult: Result<Void, Error> = .success(())
     var setActiveAccountId: String?
     var setActiveAccountError: Error?
     var setMasterPasswordHint: String?
@@ -51,6 +53,8 @@ class MockAuthRepository: AuthRepository {
     var unlockVaultWithBiometricsResult: Result<Void, Error> = .success(())
     var unlockVaultWithDeviceKeyResult: Result<Void, Error> = .success(())
     var unlockVaultWithNeverlockResult: Result<Void, Error> = .success(())
+    var verifyOtpOpt: String?
+    var verifyOtpResult: Result<Void, Error> = .success(())
 
     var allAccounts: [Account] {
         let combined = [activeAccount] + altAccounts
@@ -159,6 +163,11 @@ class MockAuthRepository: AuthRepository {
     func logout() async throws {
         logoutCalled = true
         try logoutResult.get()
+    }
+
+    func requestOtp() async throws {
+        requestOtpCalled = true
+        try requestOtpResult.get()
     }
 
     func setActiveAccount(userId: String) async throws -> Account {
@@ -270,5 +279,10 @@ class MockAuthRepository: AuthRepository {
     func validatePassword(_ password: String) async throws -> Bool {
         validatePasswordPasswords.append(password)
         return try validatePasswordResult.get()
+    }
+
+    func verifyOtp(_ otp: String) async throws {
+        verifyOtpOpt = otp
+        try verifyOtpResult.get()
     }
 }

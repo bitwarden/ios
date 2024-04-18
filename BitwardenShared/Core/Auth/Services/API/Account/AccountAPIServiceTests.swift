@@ -169,6 +169,18 @@ class AccountAPIServiceTests: BitwardenTestCase {
         XCTAssertNil(response.kdfParallelism)
     }
 
+    /// `requestOtp()` performs a request to request a one-time password for the user.
+    func test_requestOtp() async throws {
+        client.result = .httpSuccess(testData: .emptyResponse)
+
+        try await subject.requestOtp()
+
+        XCTAssertEqual(client.requests.count, 1)
+        XCTAssertNil(client.requests[0].body)
+        XCTAssertEqual(client.requests[0].method, .post)
+        XCTAssertEqual(client.requests[0].url.absoluteString, "https://example.com/api/accounts/request-otp")
+    }
+
     /// `setPassword(_:)` performs the request to set the user's password.
     func test_setPassword() async throws {
         client.result = .httpSuccess(testData: .emptyResponse)
@@ -222,5 +234,17 @@ class AccountAPIServiceTests: BitwardenTestCase {
         XCTAssertNotNil(client.requests[0].body)
         XCTAssertEqual(client.requests[0].method, .put)
         XCTAssertEqual(client.requests[0].url.absoluteString, "https://example.com/api/accounts/update-temp-password")
+    }
+
+    /// `verifyOtp()` performs a request to verify a one-time password for the user.
+    func test_verifyOtp() async throws {
+        client.result = .httpSuccess(testData: .emptyResponse)
+
+        try await subject.verifyOtp("OTP")
+
+        XCTAssertEqual(client.requests.count, 1)
+        XCTAssertNotNil(client.requests[0].body)
+        XCTAssertEqual(client.requests[0].method, .post)
+        XCTAssertEqual(client.requests[0].url.absoluteString, "https://example.com/api/accounts/verify-otp")
     }
 }
