@@ -1106,32 +1106,23 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
     /// `remove(userId:)` Removes an account id from the vault timeout service.
     func test_removeAccountId_success_unlocked() async {
         let account = Account.fixtureAccountLogin()
-        let client = vaultTimeoutService.client
-        vaultTimeoutService.userClientDictionary = [
-            account.profile.userId: (client, false),
-        ]
+        vaultTimeoutService.isClientLocked = [account.profile.userId: false]
         await subject.remove(userId: account.profile.userId)
-        XCTAssertTrue(vaultTimeoutService.userClientDictionary.isEmpty)
+        XCTAssertTrue(vaultTimeoutService.removedIds.contains(account.profile.userId))
     }
 
     /// `remove(userId:)` Removes an account id from the vault timeout service.
     func test_removeAccountId_success_locked() async {
         let account = Account.fixtureAccountLogin()
-        let client = vaultTimeoutService.client
-        vaultTimeoutService.userClientDictionary = [
-            account.profile.userId: (client, true),
-        ]
+        vaultTimeoutService.isClientLocked[account.profile.userId] = true
         await subject.remove(userId: account.profile.userId)
-        XCTAssertTrue(vaultTimeoutService.userClientDictionary.isEmpty)
+        XCTAssertTrue(vaultTimeoutService.removedIds.contains(account.profile.userId))
     }
 
     /// `remove(userId:)` Throws no error when no account is found.
     func test_removeAccountId_failure() async {
         let account = Account.fixtureAccountLogin()
-        let client = vaultTimeoutService.client
-        vaultTimeoutService.userClientDictionary = [
-            account.profile.userId: (client, false),
-        ]
+        vaultTimeoutService.isClientLocked[account.profile.userId] = false
         await assertAsyncDoesNotThrow {
             await subject.remove(userId: "123")
         }

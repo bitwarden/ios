@@ -283,7 +283,14 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
             shortEmail,
             shortName,
         ]
-
+        vaultTimeoutService.isClientLocked = [
+            anneAccount.profile.userId: true,
+            beeAccount.profile.userId: true,
+            claimedAccount.profile.userId: true,
+            empty.profile.userId: true,
+            shortEmail.profile.userId: true,
+            shortName.profile.userId: true,
+        ]
         let accounts = await subject.getProfilesState(
             allowLockAndLogout: true,
             isVisible: true,
@@ -348,7 +355,6 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
 
     /// `getProfilesState()` can return locked accounts correctly.
     func test_getProfilesState_locked() async {
-        let client = vaultTimeoutService.client
         stateService.accounts = [
             anneAccount,
             beeAccount,
@@ -356,11 +362,12 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
             shortEmail,
             shortName,
         ]
-        vaultTimeoutService.userClientDictionary = [
-            anneAccount.profile.userId: (client, true),
-            beeAccount.profile.userId: (client, false),
-            shortEmail.profile.userId: (client, true),
-            shortName.profile.userId: (client, false),
+        vaultTimeoutService.isClientLocked = [
+            anneAccount.profile.userId: true,
+            beeAccount.profile.userId: false,
+            empty.profile.userId: true,
+            shortEmail.profile.userId: true,
+            shortName.profile.userId: false,
         ]
         let profiles = await subject.getProfilesState(
             allowLockAndLogout: true,
@@ -474,17 +481,18 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
 
     /// `isLocked` returns the lock state of an active user.
     func test_isLocked_noHistory() async throws {
-        stateService.activeAccount = .fixture()
+        let account: Account = .fixture()
+        stateService.activeAccount = account
+        vaultTimeoutService.isClientLocked[account.profile.userId] = true
         let isLocked = try await subject.isLocked()
         XCTAssertTrue(isLocked)
     }
 
     /// `isLocked` returns the lock state of an active user.
     func test_isLocked_value() async throws {
-        let client = vaultTimeoutService.client
         stateService.activeAccount = .fixture(profile: .fixture(userId: "1"))
-        vaultTimeoutService.userClientDictionary = [
-            "1": (client, false),
+        vaultTimeoutService.isClientLocked = [
+            "1": false,
         ]
 
         let isLocked = try await subject.isLocked()
@@ -853,7 +861,7 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
     /// `lockVault(userId:)` locks the vault for the specified user id.
     func test_lockVault() async {
         await subject.lockVault(userId: "10")
-        XCTAssertEqual(vaultTimeoutService.lockedIds, ["10"])
+        XCTAssertTrue(vaultTimeoutService.isLocked(userId: "10"))
     }
 
     /// `passwordStrength(email:password)` returns the calculated password strength.
@@ -965,9 +973,7 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
                 method: .password(password: "password", userKey: "USER_KEY")
             )
         )
-        XCTAssertTrue(vaultTimeoutService.userClientDictionary.contains(where: { value in
-            value.key == "1"
-        }))
+        XCTAssertFalse(vaultTimeoutService.isLocked(userId: "1"))
         XCTAssertTrue(organizationService.initializeOrganizationCryptoCalled)
         XCTAssertEqual(authService.hashPasswordPassword, "password")
         XCTAssertEqual(stateService.masterPasswordHashes["1"], "hashed")
@@ -1000,9 +1006,7 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
                 method: .password(password: "password", userKey: "USER_KEY")
             )
         )
-        XCTAssertTrue(vaultTimeoutService.userClientDictionary.contains(where: { value in
-            value.key == "1"
-        }))
+        XCTAssertFalse(vaultTimeoutService.isLocked(userId: "1"))
         XCTAssertTrue(organizationService.initializeOrganizationCryptoCalled)
         XCTAssertEqual(authService.hashPasswordPassword, "password")
         XCTAssertEqual(stateService.masterPasswordHashes["1"], "hashed")
@@ -1125,10 +1129,9 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
     /// `logout` successfully logs out a user.
     func test_logout_success() {
         let account = Account.fixture()
-        let client = vaultTimeoutService.client
         stateService.accounts = [account]
         stateService.activeAccount = account
-        vaultTimeoutService.userClientDictionary = [account.profile.userId: (client, false)]
+        vaultTimeoutService.isClientLocked[account.profile.userId] = false
         biometricsRepository.capturedUserAuthKey = "Value"
         biometricsRepository.setBiometricUnlockKeyError = nil
         let task = Task {
@@ -1228,9 +1231,7 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
                 method: .pin(pin: "123", pinProtectedUserKey: "123")
             )
         )
-        XCTAssertTrue(vaultTimeoutService.userClientDictionary.contains(where: { value in
-            value.key == "1"
-        }))
+        XCTAssertFalse(vaultTimeoutService.isLocked(userId: "1"))
     }
 
     /// `unlockVaultWithPIN(_:)` throws an error if there's no pin.

@@ -5,34 +5,25 @@ import Foundation
 
 class MockVaultTimeoutService: VaultTimeoutService {
     var account: Account = .fixture()
-    var client = MockClient()
     var lastActiveTime = [String: Date]()
     var shouldSessionTimeout = [String: Bool]()
     var timeProvider = MockTimeProvider(.currentTime)
     var sessionTimeoutValueError: Error?
     var vaultTimeout = [String: SessionTimeoutValue]()
 
-    /// ids set as locked
-    var lockedIds = [String?]()
-
-    /// ids removed
+    /// IDs removed.
     var removedIds = [String?]()
 
-    /// ids set as unlocked
-    var unlockedIds = [String?]()
-
-    /// A dictionary that mapps the user ID to their client and it's locked status.
-    var userClientDictionary = [String: (client: BitwardenSdkClient, isLocked: Bool)]()
+    /// Whether or not a user's client is locked.
+    var isClientLocked = [String: Bool]()
 
     func isLocked(userId: String) -> Bool {
-        guard let client = userClientDictionary[userId] else { return true }
-        return client.isLocked
+        isClientLocked[userId] == true
     }
 
     func lockVault(userId: String?) async {
-        lockedIds.append(userId)
         guard let userId else { return }
-        userClientDictionary.updateValue((client: client, isLocked: true), forKey: userId)
+        isClientLocked[userId] = true
     }
 
     func setLastActiveTime(userId: String) async throws {
@@ -48,15 +39,12 @@ class MockVaultTimeoutService: VaultTimeoutService {
     }
 
     func unlockVault(userId: String?) async throws {
-        unlockedIds.append(userId)
         guard let userId else { return }
-        userClientDictionary.updateValue((client: client, isLocked: false), forKey: userId)
+        isClientLocked[userId] = false
     }
 
     func remove(userId: String?) async {
         removedIds.append(userId)
-        guard let userId else { return }
-        userClientDictionary.removeValue(forKey: userId)
     }
 
     func sessionTimeoutValue(userId: String?) async throws -> BitwardenShared.SessionTimeoutValue {

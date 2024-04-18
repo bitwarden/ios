@@ -91,7 +91,7 @@ class DefaultVaultTimeoutService: VaultTimeoutService {
     /// Provides the current time.
     private var timeProvider: TimeProvider
 
-    /// Whether or not the client is locked.
+    /// Whether or not a user's client is locked.
     private var isClientLocked = [String: Bool]()
 
     // MARK: Initialization
@@ -146,6 +146,7 @@ class DefaultVaultTimeoutService: VaultTimeoutService {
     func remove(userId: String?) async {
         guard let id = try? await stateService.getAccountIdOrActiveId(userId: userId) else { return }
         try? await clientService.removeClient(for: id)
+        isClientLocked.removeValue(forKey: id)
     }
 
     func setLastActiveTime(userId: String) async throws {
