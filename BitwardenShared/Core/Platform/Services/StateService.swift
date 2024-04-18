@@ -458,9 +458,6 @@ protocol StateService: AnyObject {
 
     /// Sets user has master password to true.
     ///
-    /// - Parameters:
-    ///   - userId: The id of the user this updated belongs to.
-    ///
     func setUserHasMasterPassword() async throws
 
     /// Sets the username generation options for a user ID.

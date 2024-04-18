@@ -398,14 +398,10 @@ extension DefaultSyncService {
         _ account: Account,
         _ organizations: [ProfileOrganizationResponseModel]
     ) async throws {
-        if organizations.contains(where: {
-            $0.type == OrganizationUserType.admin ||
-                $0.type == OrganizationUserType.owner ||
-                $0.permissions?.manageResetPassword == true
-        }),
-            organizations.count == 1,
-            let userOrgId = organizations.first?.identifier,
-            account.profile.userDecryptionOptions?.hasMasterPassword == false {
+        if organizations.count == 1,
+           organizations.contains(where: \.passwordRequired),
+           let userOrgId = organizations.first?.identifier,
+           account.profile.userDecryptionOptions?.hasMasterPassword == false {
             await delegate?.setMasterPassword(orgIdentifier: userOrgId)
         }
     }
