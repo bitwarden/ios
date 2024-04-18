@@ -76,7 +76,7 @@ struct EditAuthenticatorItemView: View {
             .textFieldConfiguration(.password)
 
             BitwardenTextField(
-                title: Localizations.accountName,
+                title: Localizations.username,
                 text: store.binding(
                     get: \.accountName,
                     send: EditAuthenticatorItemAction.accountNameChanged
