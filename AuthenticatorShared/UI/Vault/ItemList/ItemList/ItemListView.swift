@@ -307,6 +307,7 @@ struct ItemListView_Previews: PreviewProvider {
                                     ItemListItem(
                                         id: "One",
                                         name: "One",
+                                        accountName: nil,
                                         itemType: .totp(
                                             model: ItemListTotpItem(
                                                 itemView: AuthenticatorItemView.fixture(),
@@ -314,13 +315,15 @@ struct ItemListView_Previews: PreviewProvider {
                                                     code: "123456",
                                                     codeGenerationDate: Date(),
                                                     period: 30
-                                                )
+                                                ),
+                                                totpKey: TOTPKeyModel(authenticatorKey: "example")!
                                             )
                                         )
                                     ),
                                     ItemListItem(
                                         id: "Two",
                                         name: "Two",
+                                        accountName: nil,
                                         itemType: .totp(
                                             model: ItemListTotpItem(
                                                 itemView: AuthenticatorItemView.fixture(),
@@ -328,7 +331,8 @@ struct ItemListView_Previews: PreviewProvider {
                                                     code: "123456",
                                                     codeGenerationDate: Date(),
                                                     period: 30
-                                                )
+                                                ),
+                                                totpKey: TOTPKeyModel(authenticatorKey: "example")!
                                             )
                                         )
                                     ),
@@ -364,6 +368,7 @@ struct ItemListView_Previews: PreviewProvider {
                                 ItemListItem(
                                     id: "One",
                                     name: "One",
+                                    accountName: "person@example.com",
                                     itemType: .totp(
                                         model: ItemListTotpItem(
                                             itemView: AuthenticatorItemView.fixture(),
@@ -371,7 +376,8 @@ struct ItemListView_Previews: PreviewProvider {
                                                 code: "123456",
                                                 codeGenerationDate: Date(),
                                                 period: 30
-                                            )
+                                            ),
+                                            totpKey: TOTPKeyModel(authenticatorKey: "example")!
                                         )
                                     )
                                 ),
@@ -393,6 +399,7 @@ struct ItemListView_Previews: PreviewProvider {
                                 ItemListItem(
                                     id: "One",
                                     name: "One",
+                                    accountName: "person@example.com",
                                     itemType: .totp(
                                         model: ItemListTotpItem(
                                             itemView: AuthenticatorItemView.fixture(),
@@ -400,13 +407,15 @@ struct ItemListView_Previews: PreviewProvider {
                                                 code: "123456",
                                                 codeGenerationDate: Date(),
                                                 period: 30
-                                            )
+                                            ),
+                                            totpKey: TOTPKeyModel(authenticatorKey: "example")!
                                         )
                                     )
                                 ),
                                 ItemListItem(
                                     id: "Two",
                                     name: "One Direction",
+                                    accountName: nil,
                                     itemType: .totp(
                                         model: ItemListTotpItem(
                                             itemView: AuthenticatorItemView.fixture(),
@@ -414,13 +423,15 @@ struct ItemListView_Previews: PreviewProvider {
                                                 code: "123456",
                                                 codeGenerationDate: Date(),
                                                 period: 30
-                                            )
+                                            ),
+                                            totpKey: TOTPKeyModel(authenticatorKey: "example")!
                                         )
                                     )
                                 ),
                                 ItemListItem(
                                     id: "Three",
                                     name: "One Song",
+                                    accountName: "person@example.com",
                                     itemType: .totp(
                                         model: ItemListTotpItem(
                                             itemView: AuthenticatorItemView.fixture(),
@@ -428,7 +439,8 @@ struct ItemListView_Previews: PreviewProvider {
                                                 code: "123456",
                                                 codeGenerationDate: Date(),
                                                 period: 30
-                                            )
+                                            ),
+                                            totpKey: TOTPKeyModel(authenticatorKey: "example")!
                                         )
                                     )
                                 ),

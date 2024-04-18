@@ -21,6 +21,9 @@ public struct ItemListItem: Equatable, Identifiable {
     /// The name to display for the item.
     public let name: String
 
+    /// The account name of the item.
+    public let accountName: String?
+
     /// The type of item being displayed by this item
     public let itemType: ItemType
 }
@@ -32,10 +35,12 @@ extension ItemListItem {
     ///   - authenticatorItemView: The `AuthenticatorItemView` used to initialize the `ItemListItem`
     ///
     init?(authenticatorItemView: AuthenticatorItemView) {
+        guard let totpKey = TOTPKeyModel(authenticatorKey: authenticatorItemView.totpKey) else { return nil }
         let totpCode = TOTPCodeModel(code: "123456", codeGenerationDate: .now, period: 30)
-        let totpModel = ItemListTotpItem(itemView: authenticatorItemView, totpCode: totpCode)
+        let totpModel = ItemListTotpItem(itemView: authenticatorItemView, totpCode: totpCode, totpKey: totpKey)
         self.init(id: authenticatorItemView.id,
                   name: authenticatorItemView.name,
+                  accountName: totpKey.accountName,
                   itemType: .totp(model: totpModel))
     }
 }
@@ -46,4 +51,7 @@ public struct ItemListTotpItem: Equatable {
 
     /// The current TOTP code for the item
     var totpCode: TOTPCodeModel
+
+    /// The original TOTP key for this item.
+    var totpKey: TOTPKeyModel
 }

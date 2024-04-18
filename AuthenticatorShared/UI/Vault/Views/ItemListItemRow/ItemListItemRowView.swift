@@ -33,7 +33,11 @@ struct ItemListItemRowView: View {
                 HStack {
                     switch store.state.item.itemType {
                     case let .totp(model):
-                        totpCodeRow(store.state.item.name, model.totpCode)
+                        totpCodeRow(
+                            name: store.state.item.name,
+                            accountName: store.state.item.accountName,
+                            model: model.totpCode
+                        )
                     }
                 }
                 .padding(.vertical, 9)
@@ -70,12 +74,19 @@ struct ItemListItemRowView: View {
 
     /// The row showing the totp code.
     @ViewBuilder
-    private func totpCodeRow(_ name: String, _ model: TOTPCodeModel) -> some View {
+    private func totpCodeRow(name: String, accountName: String?, model: TOTPCodeModel) -> some View {
         VStack(alignment: .leading, spacing: 0) {
             Text(name)
                 .styleGuide(.headline)
                 .lineLimit(1)
                 .foregroundColor(Asset.Colors.textPrimary.swiftUIColor)
+            if let accountName = accountName {
+                Text(accountName)
+                    .styleGuide(.subheadline)
+                    .lineLimit(1)
+                    .foregroundColor(
+                        Asset.Colors.textSecondary.swiftUIColor)
+            }
         }
         Spacer()
         TOTPCountdownTimerView(
@@ -90,7 +101,7 @@ struct ItemListItemRowView: View {
 }
 
 #if DEBUG
-#Preview {
+#Preview("With account name") {
     ItemListItemRowView(
         store: Store(
             processor: StateProcessor(
@@ -98,6 +109,7 @@ struct ItemListItemRowView: View {
                     item: ItemListItem(
                         id: UUID().uuidString,
                         name: "Example",
+                        accountName: "person@example.com",
                         itemType: .totp(
                             model: ItemListTotpItem(
                                 itemView: AuthenticatorItemView.fixture(),
@@ -105,7 +117,38 @@ struct ItemListItemRowView: View {
                                     code: "123456",
                                     codeGenerationDate: Date(),
                                     period: 30
-                                )
+                                ),
+                                totpKey: TOTPKeyModel(authenticatorKey: "example")!
+                            )
+                        )
+                    ),
+                    hasDivider: true,
+                    showWebIcons: true
+                )
+            )
+        ),
+        timeProvider: PreviewTimeProvider()
+    )
+}
+
+#Preview("Without account name") {
+    ItemListItemRowView(
+        store: Store(
+            processor: StateProcessor(
+                state: ItemListItemRowState(
+                    item: ItemListItem(
+                        id: UUID().uuidString,
+                        name: "Example",
+                        accountName: nil,
+                        itemType: .totp(
+                            model: ItemListTotpItem(
+                                itemView: AuthenticatorItemView.fixture(),
+                                totpCode: TOTPCodeModel(
+                                    code: "123456",
+                                    codeGenerationDate: Date(),
+                                    period: 30
+                                ),
+                                totpKey: TOTPKeyModel(authenticatorKey: "example")!
                             )
                         )
                     ),

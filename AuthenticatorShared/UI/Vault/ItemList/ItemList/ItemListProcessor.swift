@@ -159,6 +159,7 @@ final class ItemListProcessor: StateProcessor<ItemListState, ItemListAction, Ite
             return ItemListItem(
                 id: item.id,
                 name: item.name,
+                accountName: keyModel.accountName,
                 itemType: .totp(model: updatedModel)
             )
         }
@@ -232,7 +233,12 @@ final class ItemListProcessor: StateProcessor<ItemListState, ItemListAction, Ite
                     let code = try await services.totpService.getTotpCode(for: keyModel)
                     var updatedModel = model
                     updatedModel.totpCode = code
-                    return ItemListItem(id: item.id, name: item.name, itemType: .totp(model: updatedModel))
+                    return ItemListItem(
+                        id: item.id,
+                        name: item.name,
+                        accountName: keyModel.accountName,
+                        itemType: .totp(model: updatedModel)
+                    )
                 }
                 groupTotpExpirationManager?.configureTOTPRefreshScheduling(for: itemList)
                 state.loadingState = .data(itemList)
