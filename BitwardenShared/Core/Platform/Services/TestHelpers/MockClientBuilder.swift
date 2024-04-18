@@ -3,10 +3,12 @@ import BitwardenSdk
 @testable import BitwardenShared
 
 final class MockClientBuilder: ClientBuilder {
-    var client = MockClient()
+    var clients = [MockClient]()
 
     func buildClient() -> BitwardenSdkClient {
-        client
+        let client = MockClient()
+        clients.append(client)
+        return client
     }
 }
 
