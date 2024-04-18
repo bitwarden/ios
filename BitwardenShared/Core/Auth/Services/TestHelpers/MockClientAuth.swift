@@ -22,6 +22,7 @@ class MockClientAuth: ClientAuthProtocol {
         keys: RsaKeyPair(public: "public", private: "private")
     ))
 
+    var makeRegisterTdeKeysEmail: String?
     var makeRegisterTdeKeysOrgPublicKey: String?
     var makeRegisterTdeKeysRememberDevice: Bool?
     var makeRegisterTdeKeysResult: Result<RegisterTdeKeyResponse, Error> = .success(
@@ -96,7 +97,12 @@ class MockClientAuth: ClientAuthProtocol {
         return try makeRegisterKeysResult.get()
     }
 
-    func makeRegisterTdeKeys(orgPublicKey: String, rememberDevice: Bool) async throws -> RegisterTdeKeyResponse {
+    func makeRegisterTdeKeys(
+        email: String,
+        orgPublicKey: String,
+        rememberDevice: Bool
+    ) async throws -> BitwardenSdk.RegisterTdeKeyResponse {
+        makeRegisterTdeKeysEmail = email
         makeRegisterTdeKeysOrgPublicKey = orgPublicKey
         makeRegisterTdeKeysRememberDevice = rememberDevice
         return try makeRegisterTdeKeysResult.get()

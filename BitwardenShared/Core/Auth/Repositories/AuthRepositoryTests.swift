@@ -176,6 +176,7 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         try await subject.createNewSsoUser(orgIdentifier: "Bitwarden", rememberDevice: true)
 
         XCTAssertEqual(trustDeviceService.trustDeviceWithExistingKeysValue, registerTdeInput.deviceKey)
+        XCTAssertEqual(clientAuth.makeRegisterTdeKeysEmail, "user@bitwarden.com")
         XCTAssertEqual(clientAuth.makeRegisterTdeKeysOrgPublicKey, "MIIBIjAN...2QIDAQAB")
         XCTAssertEqual(clientAuth.makeRegisterTdeKeysRememberDevice, true)
     }

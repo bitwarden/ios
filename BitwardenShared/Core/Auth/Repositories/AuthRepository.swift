@@ -369,7 +369,7 @@ extension DefaultAuthRepository: AuthRepository {
         let enrollStatus = try await organizationAPIService.getOrganizationAutoEnrollStatus(identifier: orgIdentifier)
         let organizationKeys = try await organizationAPIService.getOrganizationKeys(organizationId: enrollStatus.id)
         let registrationKeys = try await clientAuth.makeRegisterTdeKeys(
-            email: account.profile.email, 
+            email: account.profile.email,
             orgPublicKey: organizationKeys.publicKey,
             rememberDevice: rememberDevice
         )
