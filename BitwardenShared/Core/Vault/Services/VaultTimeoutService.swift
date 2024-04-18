@@ -91,8 +91,8 @@ class DefaultVaultTimeoutService: VaultTimeoutService {
     /// Provides the current time.
     private var timeProvider: TimeProvider
 
-    /// A dictionary that mapps the user ID to their client and it's locked status.
-    private var userClientDictionary = [String: (client: BitwardenSdkClient, isLocked: Bool)]()
+    /// Whether or not the client is locked.
+    private var isClientLocked = [String: Bool]()
 
     // MARK: Initialization
 
@@ -133,20 +133,19 @@ class DefaultVaultTimeoutService: VaultTimeoutService {
     }
 
     func isLocked(userId: String) -> Bool {
-        guard let client = userClientDictionary[userId] else { return true }
-        return client.isLocked
+        guard let isLocked = isClientLocked[userId] else { return true }
+        return isLocked
     }
 
     func lockVault(userId: String?) async {
         guard let id = try? await stateService.getAccountIdOrActiveId(userId: userId) else { return }
-        guard let client = clientService.userClientArray[id] else { return }
-        userClientDictionary.updateValue((client: client, isLocked: true), forKey: id)
+        try? await clientService.removeClient(for: id)
+        isClientLocked[id] = true
     }
 
     func remove(userId: String?) async {
         guard let id = try? await stateService.getAccountIdOrActiveId(userId: userId) else { return }
-        userClientDictionary.removeValue(forKey: id)
-        clientService.userClientArray.removeValue(forKey: id)
+        try? await clientService.removeClient(for: id)
     }
 
     func setLastActiveTime(userId: String) async throws {
@@ -159,8 +158,7 @@ class DefaultVaultTimeoutService: VaultTimeoutService {
 
     func unlockVault(userId: String?) async throws {
         guard let id = try? await stateService.getAccountIdOrActiveId(userId: userId) else { return }
-        guard let client = clientService.userClientArray[id] else { return }
-        userClientDictionary.updateValue((client: client, isLocked: false), forKey: id)
+        isClientLocked[id] = false
     }
 
     func sessionTimeoutValue(userId: String?) async throws -> SessionTimeoutValue {

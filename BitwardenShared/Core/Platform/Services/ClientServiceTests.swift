@@ -38,66 +38,69 @@ final class ClientServiceTests: BitwardenTestCase {
 
     // MARK: Tests
 
-    /// `client(for:)` returns the user's client if they aleady have one.
-    func test_client_existing_client() async throws {
-        let account = Account.fixtureAccountLogin()
-        let userId = account.profile.userId
-        let client = clientBuilder.buildClient()
-        let clientPlatform = try await subject.platform(for: userId)
-
-        XCTAssertIdentical(clientPlatform, client.platform())
-    }
-
-    /// `client(for:)` creates a client if the user does not have one,
-    /// or if there is no active account/if there are no accounts.
-    func test_client_nonExistent_client() async throws {
-        let account = Account.fixtureAccountLogin()
-        let userId = account.profile.userId
-
-        XCTAssertNil(subject.userClientArray[userId])
-
-        _ = try await subject.auth(for: userId)
-
-        XCTAssertNotNil(subject.userClientArray[userId])
-    }
-
-    /// `auth(for:)` returns a `ClientAuthProtocol`.
+    /// `auth(for:)` returns a new `ClientAuthProtocol` for every user.
     func test_auth() async throws {
-        let clientAuth = try await subject.auth()
+        let auth = try await subject.auth()
+        XCTAssertIdentical(auth, clientBuilder.client.auth())
 
-        XCTAssertNotNil(clientAuth)
+        clientBuilder.client = MockClient()
+
+        let user2Auth = try await subject.auth(for: "1")
+        XCTAssertNotIdentical(auth, user2Auth)
     }
 
-    /// `crypto(for:)` returns a `ClientCryptoProtocol`.
+    /// `crypto(for:)` returns a new `ClientCryptoProtocol` for every user.
     func test_crypto() async throws {
-        await assertAsyncDoesNotThrow { _ = try await subject.crypto() }
+        let crypto = try await subject.crypto()
+        XCTAssertIdentical(crypto, clientBuilder.client.crypto())
+
+        clientBuilder.client = MockClient()
+
+        let user2Crypto = try await subject.crypto(for: "1")
+        XCTAssertNotIdentical(crypto, user2Crypto)
     }
 
-    /// `exporters(for:)` returns a `ClientExportersProtocol`.
+    /// `exporters(for:)` returns a new `ClientExportersProtocol` for every user.
     func test_exporters() async throws {
-        let clientExporters = try await subject.exporters()
+        let exporters = try await subject.exporters()
+        XCTAssertIdentical(exporters, clientBuilder.client.exporters())
 
-        XCTAssertNotNil(clientExporters)
+        clientBuilder.client = MockClient()
+
+        let user2Exporters = try await subject.exporters(for: "1")
+        XCTAssertNotIdentical(exporters, user2Exporters)
     }
 
-    /// `generators(for:)` returns a `ClientGeneratorsProtocol`.
+    /// `generators(for:)` returns a new `ClientGeneratorsProtocol` for every user.
     func test_generators() async throws {
-        let clientGenerators = try await subject.generators()
+        let generators = try await subject.generators()
+        XCTAssertIdentical(generators, clientBuilder.client.generators())
 
-        XCTAssertNotNil(clientGenerators)
+        clientBuilder.client = MockClient()
+
+        let user2Generators = try await subject.generators(for: "1")
+        XCTAssertNotIdentical(generators, user2Generators)
     }
 
-    /// `platform(for:)` returns a `ClientPlatformProtocol`.
+    /// `platform(for:)` returns a new `ClientPlatformProtocol` for every user.
     func test_platform() async throws {
-        let clientPlatform = try await subject.platform()
+        let platform = try await subject.platform()
+        XCTAssertIdentical(platform, clientBuilder.client.platform())
 
-        XCTAssertNotNil(clientPlatform)
+        clientBuilder.client = MockClient()
+
+        let user2Platform = try await subject.platform(for: "1")
+        XCTAssertNotIdentical(platform, user2Platform)
     }
 
-    /// `vault(for:)` returns a `ClientVaultProtocol`.
+    /// `vault(for:)` returns a new `ClientVaultProtocol` for every user.
     func test_vault() async throws {
-        let clientVault = try await subject.vault()
+        let vault = try await subject.vault()
+        XCTAssertIdentical(vault, clientBuilder.client.vault())
 
-        XCTAssertNotNil(clientVault)
+        clientBuilder.client = MockClient()
+
+        let user2Vault = try await subject.vault(for: "1")
+        XCTAssertNotIdentical(vault, user2Vault)
     }
 }

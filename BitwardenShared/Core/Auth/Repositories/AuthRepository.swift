@@ -422,9 +422,7 @@ extension DefaultAuthRepository: AuthRepository {
     }
 
     func isLocked(userId: String?) async throws -> Bool {
-        try await vaultTimeoutService.isLocked(
-            userId: userIdOrActive(userId)
-        )
+        try await vaultTimeoutService.isLocked(userId: userIdOrActive(userId))
     }
 
     func isPinUnlockAvailable() async throws -> Bool {

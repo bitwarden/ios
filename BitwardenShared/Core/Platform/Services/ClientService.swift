@@ -4,11 +4,6 @@ import BitwardenSdk
 /// decryption.
 ///
 protocol ClientService {
-    // MARK: Properties
-
-    /// An array of user IDs and their associated client.
-    var userClientArray: [String: BitwardenSdkClient] { get set }
-
     // MARK: Methods
 
     /// Returns a `ClientAuthProtocol` for auth data tasks.
@@ -45,6 +40,12 @@ protocol ClientService {
     /// - Returns: A `ClientPlatformProtocol` for client platform tasks.
     ///
     func platform(for userId: String?) async throws -> ClientPlatformProtocol
+
+    /// Removes the user's client from memory.
+    ///
+    /// - Parameter userId: The user's ID.
+    ///
+    func removeClient(for userId: String?) async throws
 
     /// Returns a `ClientVaultService` for vault data tasks.
     ///
@@ -87,6 +88,12 @@ extension ClientService {
         try await platform(for: nil)
     }
 
+    /// Removes the active user's client from memory.
+    ///
+    func removeClient() async throws {
+        try await removeClient(for: nil)
+    }
+
     /// Returns a `ClientVaultService` for vault data tasks.
     ///
     func vault() async throws -> ClientVaultService {
@@ -100,11 +107,6 @@ extension ClientService {
 /// it can be swapped to a mock instance during tests.
 ///
 class DefaultClientService: ClientService {
-    // MARK: Properties
-
-    /// An array of user IDs and their associated client.
-    var userClientArray = [String: BitwardenSdkClient]()
-
     // MARK: Private properties
 
     /// A helper object that builds a Bitwarden SDK `Client`.
@@ -118,6 +120,9 @@ class DefaultClientService: ClientService {
 
     /// The service used by the application to manage account state.
     private let stateService: StateService
+
+    /// An array of user IDs and their associated client.
+    private var userClientArray = [String: BitwardenSdkClient]()
 
     // MARK: Initialization
 
@@ -161,6 +166,11 @@ class DefaultClientService: ClientService {
 
     func platform(for userId: String?) async throws -> ClientPlatformProtocol {
         try await client(for: userId).platform()
+    }
+
+    func removeClient(for userId: String?) async throws {
+        let userId = try await stateService.getAccountIdOrActiveId(userId: userId)
+        userClientArray.removeValue(forKey: userId)
     }
 
     func vault(for userId: String?) async throws -> ClientVaultService {

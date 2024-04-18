@@ -326,7 +326,6 @@ extension AuthRouter {
     ) async -> AuthRoute {
         let userId = activeAccount.profile.userId
         do {
-            // Check if the vault is currently locked or has already been unlocked.
             let isLocked = try? await services.authRepository.isLocked(userId: userId)
             let vaultTimeout = try? await services.vaultTimeoutService.sessionTimeoutValue(userId: userId)
 

@@ -47,6 +47,11 @@ class MockClientService: ClientService {
         mockPlatform
     }
 
+    func removeClient(for userId: String?) async throws {
+        guard let userId else { return }
+        userClientArray.removeValue(forKey: userId)
+    }
+
     func vault(for userId: String?) -> ClientVaultService {
         mockVault
     }
