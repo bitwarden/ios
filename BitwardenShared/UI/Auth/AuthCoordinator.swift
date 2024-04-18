@@ -531,10 +531,8 @@ final class AuthCoordinator: NSObject, // swiftlint:disable:this type_body_lengt
         authMethodsData: AuthMethodsData,
         orgIdentifier: String?
     ) {
-        let preAuthEnvironmentUrls = services.appSettingsStore.preAuthEnvironmentUrls ?? EnvironmentUrlData()
         let state = TwoFactorAuthState(
             authMethodsData: authMethodsData,
-            baseUrl: preAuthEnvironmentUrls.base,
             email: email,
             orgIdentifier: orgIdentifier,
             unlockMethod: unlockMethod

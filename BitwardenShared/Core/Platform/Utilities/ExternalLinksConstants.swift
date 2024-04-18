@@ -33,9 +33,6 @@ enum ExternalLinksConstants {
         string: "https://bitwarden.com/help/managing-items/#protect-individual-items"
     )!
 
-    /// The suffix appended to the user's base URL which links to Bitwarden's recovery code help page.
-    static let recoveryCode = URL(string: "/#/recover-2fa")!
-
     /// A link to Bitwarden's product page for Sends.
     static let sendInfo = URL(string: "https://bitwarden.com/products/send/")!
 

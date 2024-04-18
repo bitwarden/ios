@@ -15,9 +15,6 @@ struct TwoFactorAuthState: Equatable {
     /// The available auth methods for the user.
     var availableAuthMethods = [TwoFactorAuthMethod]()
 
-    /// The base URL used in opening Bitwarden's recovery code help page.
-    var baseUrl: URL?
-
     /// Whether the continue button is enabled.
     var continueEnabled = false
 
