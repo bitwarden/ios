@@ -9,6 +9,10 @@ protocol StateService: AnyObject {
     /// The language option currently selected for the app.
     var appLanguage: LanguageOption { get set }
 
+    /// Whether the user has seen the welcome tutorial.
+    ///
+    var hasSeenWelcomeTutorial: Bool { get set }
+
     /// Get the app theme.
     ///
     /// - Returns: The app theme.
@@ -34,10 +38,6 @@ protocol StateService: AnyObject {
     /// - Returns: Whether to show the website icons.
     ///
     func getShowWebIcons() async -> Bool
-
-    /// Whether the user has seen the welcome tutorial.
-    ///
-    var hasSeenWelcomeTutorial: Bool { get set }
 
     /// Sets the app theme.
     ///

@@ -5,10 +5,12 @@
 class MockAppModule:
     AppModule,
     ItemListModule,
+    TutorialModule,
     TabModule {
     var appCoordinator = MockCoordinator<AppRoute, AppEvent>()
     var itemListCoordinator = MockCoordinator<ItemListRoute, ItemListEvent>()
     var tabCoordinator = MockCoordinator<TabRoute, Void>()
+    var tutorialCoordinator = MockCoordinator<TutorialRoute, TutorialEvent>()
 
     func makeAppCoordinator(
         appContext _: AppContext,
@@ -29,5 +31,11 @@ class MockAppModule:
         tabNavigator _: TabNavigator
     ) -> AnyCoordinator<TabRoute, Void> {
         tabCoordinator.asAnyCoordinator()
+    }
+
+    func makeTutorialCoordinator(
+        stackNavigator: StackNavigator
+    ) -> AnyCoordinator<TutorialRoute, TutorialEvent> {
+        tutorialCoordinator.asAnyCoordinator()
     }
 }

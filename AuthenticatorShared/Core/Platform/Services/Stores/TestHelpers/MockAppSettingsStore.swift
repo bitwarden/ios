@@ -4,12 +4,14 @@ import Foundation
 @testable import AuthenticatorShared
 
 class MockAppSettingsStore: AppSettingsStore {
+
     var addSitePromptShown = false
     var allowSyncOnRefreshes = [String: Bool]()
     var appId: String?
     var appLocale: String?
     var appTheme: String?
     var disableWebIcons = false
+    var hasSeenWelcomeTutorial = false
     var lastUserShouldConnectToWatch = false
     var localUserId: String = "localtest"
     var migrationVersion = 0
@@ -30,6 +32,7 @@ class MockAppSettingsStore: AppSettingsStore {
     var notificationsLastRegistrationDates = [String: Date]()
     var pinKeyEncryptedUserKey = [String: String]()
     var pinProtectedUserKey = [String: String]()
+    var secretKeys = [String: String]()
     var timeoutAction = [String: Int]()
     var twoFactorTokens = [String: String]()
     var vaultTimeout = [String: Int?]()
@@ -42,5 +45,13 @@ class MockAppSettingsStore: AppSettingsStore {
 
     func setClearClipboardValue(_ clearClipboardValue: ClearClipboardValue?, userId: String) {
         clearClipboardValues[userId] = clearClipboardValue
+    }
+
+    func secretKey(userId: String) -> String? {
+        secretKeys[userId]
+    }
+
+    func setSecretKey(_ key: String, userId: String) {
+        secretKeys[userId] = key
     }
 }

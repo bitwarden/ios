@@ -9,7 +9,7 @@ import XCTest
 class CryptographyServiceTests: AuthenticatorTestCase {
     // MARK: Properties
 
-    var keychainRepository: MockKeychainRepository!
+    var stateService: MockStateService!
     var subject: DefaultCryptographyService!
 
     // MARK: Setup & Teardown
@@ -17,11 +17,11 @@ class CryptographyServiceTests: AuthenticatorTestCase {
     override func setUp() {
         super.setUp()
 
-        keychainRepository = MockKeychainRepository()
+        stateService = MockStateService()
 
         subject = DefaultCryptographyService(
             cryptographyKeyService: CryptographyKeyService(
-                keychainRepository: keychainRepository
+                stateService: stateService
             )
         )
     }
@@ -29,7 +29,7 @@ class CryptographyServiceTests: AuthenticatorTestCase {
     override func tearDown() {
         super.tearDown()
 
-        keychainRepository = nil
+        stateService = nil
         subject = nil
     }
 
@@ -39,7 +39,7 @@ class CryptographyServiceTests: AuthenticatorTestCase {
 
     /// `encrypt(_:)` encrypts the TOTP key, and `decrypt(_:)` decrypts it
     func test_encrypt_decrypt() async throws {
-        keychainRepository.getSecretKeyResult = .success(SymmetricKey(size: .bits256).base64EncodedString())
+        stateService.getSecretKeyResult = .success(SymmetricKey(size: .bits256).base64EncodedString())
 
         let item = AuthenticatorItemView(
             id: "ID",

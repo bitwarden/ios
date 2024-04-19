@@ -16,6 +16,7 @@ class SettingsProcessorTests: AuthenticatorTestCase {
         coordinator = MockCoordinator()
         subject = SettingsProcessor(
             coordinator: coordinator.asAnyCoordinator(),
+            services: ServiceContainer.withMocks(),
             state: SettingsState()
         )
     }
@@ -28,18 +29,4 @@ class SettingsProcessorTests: AuthenticatorTestCase {
     }
 
     // MARK: Tests
-
-    /// Receiving `.aboutPressed` navigates to the about screen.
-    func test_receive_aboutPressed() {
-        subject.receive(.aboutPressed)
-
-        XCTAssertEqual(coordinator.routes.last, .about)
-    }
-
-    /// Receiving `.appearancePressed` navigates to the appearance screen.
-    func test_receive_appearancePressed() {
-        subject.receive(.appearancePressed)
-
-        XCTAssertEqual(coordinator.routes.last, .appearance)
-    }
 }

@@ -4,10 +4,15 @@ import Foundation
 @testable import AuthenticatorShared
 
 class MockStateService: StateService {
+    var appId: String = "mockAppId"
     var appLanguage: LanguageOption = .default
+    var hasSeenWelcomeTutorial: Bool = false
     var appTheme: AppTheme?
     var clearClipboardValues = [String: ClearClipboardValue]()
     var clearClipboardResult: Result<Void, Error> = .success(())
+    var getSecretKeyResult: Result<String, Error> = .success("qwerty")
+    var setSecretKeyResult: Result<Void, Error> = .success(())
+    var secretKeyValues = [String: String]()
     var timeProvider = MockTimeProvider(.currentTime)
     var showWebIcons = true
     var showWebIconsSubject = CurrentValueSubject<Bool, Never>(true)
@@ -44,6 +49,15 @@ class MockStateService: StateService {
 
     func appThemePublisher() async -> AnyPublisher<AppTheme, Never> {
         appThemeSubject.eraseToAnyPublisher()
+    }
+
+    func getSecretKey(userId: String?) async throws -> String? {
+        try getSecretKeyResult.get()
+    }
+
+    func setSecretKey(_ key: String, userId: String?) async throws {
+        try setSecretKeyResult.get()
+        secretKeyValues[userId ?? "local"] = key
     }
 
     func showWebIconsPublisher() async -> AnyPublisher<Bool, Never> {

@@ -35,8 +35,8 @@ class AnyCoordinatorTests: AuthenticatorTestCase {
 
     /// `navigate(to:context:)` calls the `navigate(to:context:)` method on the wrapped coordinator.
     func test_navigate_onboarding() {
-        subject.navigate(to: .onboarding, context: "🤖" as NSString)
+        subject.navigate(to: .tab(.itemList(.list)), context: "🤖" as NSString)
         XCTAssertEqual(coordinator.contexts as? [NSString], ["🤖" as NSString])
-        XCTAssertEqual(coordinator.routes, [.onboarding])
+        XCTAssertEqual(coordinator.routes, [.tab(.itemList(.list))])
     }
 }

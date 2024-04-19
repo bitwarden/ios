@@ -8,7 +8,7 @@ import XCTest
 class SettingsViewTests: AuthenticatorTestCase {
     // MARK: Properties
 
-    var processor: MockProcessor<SettingsState, SettingsAction, Void>!
+    var processor: MockProcessor<SettingsState, SettingsAction, SettingsEffect>!
     var subject: SettingsView!
 
     // MARK: Setup & Teardown
@@ -30,20 +30,6 @@ class SettingsViewTests: AuthenticatorTestCase {
     }
 
     // MARK: Tests
-
-    /// Tapping the about button dispatches the `.aboutPressed` action.
-    func test_aboutButton_tap() throws {
-        let button = try subject.inspect().find(button: Localizations.about)
-        try button.tap()
-        XCTAssertEqual(processor.dispatchedActions.last, .aboutPressed)
-    }
-
-    /// Tapping the appearance button dispatches the `.appearancePressed` action.
-    func test_appearanceButton_tap() throws {
-        let button = try subject.inspect().find(button: Localizations.appearance)
-        try button.tap()
-        XCTAssertEqual(processor.dispatchedActions.last, .appearancePressed)
-    }
 
     /// Tests the view renders correctly.
     func test_viewRender() {
