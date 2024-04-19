@@ -67,7 +67,7 @@ class EnvironmentUrlsTests: BitwardenTestCase {
                 iconsURL: URL(string: "https://icons.bitwarden.net")!,
                 identityURL: URL(string: "https://identity.bitwarden.com")!,
                 importItemsURL: URL(string: "https://vault.bitwarden.com/#/tools/import")!,
-                recoveryCodeURL: URL(string: "https://example.com/#/recover-2fa")!,
+                recoveryCodeURL: URL(string: "https://vault.bitwarden.com/#/recover-2fa")!,
                 sendShareURL: URL(string: "https://send.bitwarden.com/#")!,
                 settingsURL: URL(string: "https://vault.bitwarden.com")!,
                 webVaultURL: URL(string: "https://vault.bitwarden.com")!
