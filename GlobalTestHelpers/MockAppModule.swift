@@ -18,7 +18,7 @@ class MockAppModule:
     VaultItemModule {
     var appCoordinator = MockCoordinator<AppRoute, AppEvent>()
     var authCoordinator = MockCoordinator<AuthRoute, AuthEvent>()
-    var authRouter = MockRouter<AuthEvent, AuthRoute>.init(routeForEvent: { _ in .landing })
+    var authRouter = MockRouter<AuthEvent, AuthRoute>(routeForEvent: { _ in .landing })
     var extensionSetupCoordinator = MockCoordinator<ExtensionSetupRoute, Void>()
     var fileSelectionDelegate: FileSelectionDelegate?
     var fileSelectionCoordinator = MockCoordinator<FileSelectionRoute, Void>()
