@@ -59,8 +59,8 @@ class DefaultTrustDeviceService: TrustDeviceService {
     /// The API service used to make calls related to the auth process.
     private let authAPIService: AuthAPIService
 
-    /// The client used by the application to handle auth related encryption and decryption tasks.
-    private let clientAuth: ClientAuthProtocol
+    /// The service that handles common client functionality such as encryption and decryption.
+    private let clientService: ClientService
 
     /// The repository used to manages keychain items.
     private let keychainRepository: KeychainRepository
@@ -75,20 +75,20 @@ class DefaultTrustDeviceService: TrustDeviceService {
     /// - Parameters:
     ///   - appIdService: The service used by the application to manage the app's ID.
     ///   - authAPIService: The API service used to make calls related to the auth process.
-    ///   - clientAuth: The client used by the application to handle auth related encryption and decryption tasks.
+    ///   - clientService: The service that handles common client functionality such as encryption and decryption.
     ///   - keychainRepository: The repository used to manages keychain items.
     ///   - stateService: The object used by the application to retrieve information about this device.
     ///
     init(
         appIdService: AppIdService,
         authAPIService: AuthAPIService,
-        clientAuth: ClientAuthProtocol,
+        clientService: ClientService,
         keychainRepository: KeychainRepository,
         stateService: StateService
     ) {
         self.appIdService = appIdService
         self.authAPIService = authAPIService
-        self.clientAuth = clientAuth
+        self.clientService = clientService
         self.keychainRepository = keychainRepository
         self.stateService = stateService
     }
@@ -104,7 +104,7 @@ class DefaultTrustDeviceService: TrustDeviceService {
     }
 
     func trustDevice() async throws -> BitwardenSdk.TrustDeviceResponse {
-        let trustDeviceDetails = try await clientAuth.trustDevice()
+        let trustDeviceDetails = try await clientService.auth().trustDevice()
         return try await setDeviceAsTrusted(trustDeviceDetails)
     }
 

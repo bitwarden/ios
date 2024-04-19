@@ -11,7 +11,7 @@ class TrustDeviceServiceTests: BitwardenTestCase {
     var appIdService: AppIdService!
     var appSettingsStore: MockAppSettingsStore!
     var authAPIService: AuthAPIService!
-    var clientAuth: MockClientAuth!
+    var clientService: MockClientService!
     var keychainRepository: MockKeychainRepository!
     var stateService: MockStateService!
     var subject: DefaultTrustDeviceService!
@@ -26,14 +26,14 @@ class TrustDeviceServiceTests: BitwardenTestCase {
         appSettingsStore = MockAppSettingsStore()
         appIdService = AppIdService(appSettingStore: appSettingsStore)
         authAPIService = APIService(client: client)
-        clientAuth = MockClientAuth()
+        clientService = MockClientService()
         keychainRepository = MockKeychainRepository()
         stateService = MockStateService()
 
         subject = DefaultTrustDeviceService(
             appIdService: appIdService,
             authAPIService: authAPIService,
-            clientAuth: clientAuth,
+            clientService: clientService,
             keychainRepository: keychainRepository,
             stateService: stateService
         )
@@ -45,7 +45,7 @@ class TrustDeviceServiceTests: BitwardenTestCase {
         appIdService = nil
         authAPIService = nil
         client = nil
-        clientAuth = nil
+        clientService = nil
         keychainRepository = nil
         stateService = nil
         subject = nil
@@ -75,7 +75,7 @@ class TrustDeviceServiceTests: BitwardenTestCase {
             protectedDevicePublicKey: "DEVICE_PUBLIC_KEY"
         )
         client.results = [.httpSuccess(testData: .emptyResponse)]
-        clientAuth.trustDeviceResult = .success(trustDeviceResponse)
+        clientService.mockAuth.trustDeviceResult = .success(trustDeviceResponse)
         appSettingsStore.appId = "App id"
 
         // Test.
@@ -100,7 +100,7 @@ class TrustDeviceServiceTests: BitwardenTestCase {
             protectedDevicePrivateKey: "DEVICE_PRIVATE_KEY",
             protectedDevicePublicKey: "DEVICE_PUBLIC_KEY"
         )
-        clientAuth.trustDeviceResult = .success(trustDeviceResponse)
+        clientService.mockAuth.trustDeviceResult = .success(trustDeviceResponse)
         stateService.shouldTrustDevice[userId] = true
         appSettingsStore.appId = "App id"
 

@@ -3,44 +3,56 @@ import BitwardenSdk
 @testable import BitwardenShared
 
 class MockClientService: ClientService {
-    var clientAuthService: MockClientAuth
-    var clientExportersService: MockClientExporters
-    var clientPlatformService: MockClientPlatform
-    var clientVaultService: MockClientVaultService
+    var mockAuth: MockClientAuth
+    var mockCrypto: MockClientCrypto
+    var mockExporters: MockClientExporters
+    var mockGenerators: MockClientGenerators
+    var mockPlatform: MockClientPlatform
+    var mockVault: MockClientVaultService
+    var userClientArray = [String: BitwardenSdkClient]()
 
     init(
-        clientAuth: MockClientAuth = MockClientAuth(),
-        clientExporters: MockClientExporters = MockClientExporters(),
-        clientPlatform: MockClientPlatform = MockClientPlatform(),
-        clientVault: MockClientVaultService = MockClientVaultService()
+        auth: MockClientAuth = MockClientAuth(),
+        crypto: MockClientCrypto = MockClientCrypto(),
+        exporters: MockClientExporters = MockClientExporters(),
+        generators: MockClientGenerators = MockClientGenerators(),
+        platform: MockClientPlatform = MockClientPlatform(),
+        vault: MockClientVaultService = MockClientVaultService()
     ) {
-        clientAuthService = clientAuth
-        clientExportersService = clientExporters
-        clientPlatformService = clientPlatform
-        clientVaultService = clientVault
+        mockAuth = auth
+        mockCrypto = crypto
+        mockExporters = exporters
+        mockGenerators = generators
+        mockPlatform = platform
+        mockVault = vault
     }
 
-    func clientAuth() -> ClientAuthProtocol {
-        clientAuthService
+    func auth(for userId: String?) -> ClientAuthProtocol {
+        mockAuth
     }
 
-    func clientCrypto() -> ClientCryptoProtocol {
-        fatalError("Not implemented yet")
+    func crypto(for userId: String?) -> ClientCryptoProtocol {
+        mockCrypto
     }
 
-    func clientExporters() -> BitwardenSdk.ClientExportersProtocol {
-        clientExportersService
+    func exporters(for userId: String?) -> ClientExportersProtocol {
+        mockExporters
     }
 
-    func clientGenerator() -> ClientGeneratorsProtocol {
-        fatalError("Not implemented yet")
+    func generators(for userId: String?) -> ClientGeneratorsProtocol {
+        mockGenerators
     }
 
-    func clientPlatform() -> ClientPlatformProtocol {
-        clientPlatformService
+    func platform(for userId: String?) -> ClientPlatformProtocol {
+        mockPlatform
     }
 
-    func clientVault() -> ClientVaultService {
-        clientVaultService
+    func removeClient(for userId: String?) async throws {
+        guard let userId else { return }
+        userClientArray.removeValue(forKey: userId)
+    }
+
+    func vault(for userId: String?) -> ClientVaultService {
+        mockVault
     }
 }

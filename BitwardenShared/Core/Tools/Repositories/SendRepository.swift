@@ -114,8 +114,8 @@ extension SendRepository {
 class DefaultSendRepository: SendRepository {
     // MARK: Properties
 
-    /// The client used by the application to handle vault encryption and decryption tasks.
-    let clientVault: ClientVaultService
+    /// The service that handles common client functionality such as encryption and decryption.
+    let clientService: ClientService
 
     /// The service used to retrieve urls for the active account's environment.
     let environmentService: EnvironmentService
@@ -137,7 +137,7 @@ class DefaultSendRepository: SendRepository {
     /// Initialize a `DefaultSendRepository`.
     ///
     /// - Parameters:
-    ///   - clientVault: The client used by the application to handle vault encryption and decryption tasks.
+    ///   - clientService: The service that handles common client functionality such as encryption and decryption.
     ///   - environmentService: The service used to retrieve urls for the active account's environment.
     ///   - organizationService: The service used to manage syncing and updates to the user's organizations.
     ///   - sendService: The service used to sync and store sends.
@@ -145,14 +145,14 @@ class DefaultSendRepository: SendRepository {
     ///   - syncService: The service used to handle syncing vault data with the API.
     ///
     init(
-        clientVault: ClientVaultService,
+        clientService: ClientService,
         environmentService: EnvironmentService,
         organizationService: OrganizationService,
         sendService: SendService,
         stateService: StateService,
         syncService: SyncService
     ) {
-        self.clientVault = clientVault
+        self.clientService = clientService
         self.environmentService = environmentService
         self.organizationService = organizationService
         self.sendService = sendService
@@ -183,27 +183,27 @@ class DefaultSendRepository: SendRepository {
     // MARK: Data Methods
 
     func addFileSend(_ sendView: SendView, data: Data) async throws -> SendView {
-        let send = try await clientVault.sends().encrypt(send: sendView)
-        let file = try await clientVault.sends().encryptBuffer(send: send, buffer: data)
+        let send = try await clientService.vault().sends().encrypt(send: sendView)
+        let file = try await clientService.vault().sends().encryptBuffer(send: send, buffer: data)
         let newSend = try await sendService.addFileSend(send, data: file)
-        return try await clientVault.sends().decrypt(send: newSend)
+        return try await clientService.vault().sends().decrypt(send: newSend)
     }
 
     func addTextSend(_ sendView: SendView) async throws -> SendView {
-        let send = try await clientVault.sends().encrypt(send: sendView)
+        let send = try await clientService.vault().sends().encrypt(send: sendView)
         let newSend = try await sendService.addTextSend(send)
-        return try await clientVault.sends().decrypt(send: newSend)
+        return try await clientService.vault().sends().decrypt(send: newSend)
     }
 
     func deleteSend(_ sendView: SendView) async throws {
-        let send = try await clientVault.sends().encrypt(send: sendView)
+        let send = try await clientService.vault().sends().encrypt(send: sendView)
         try await sendService.deleteSend(send)
     }
 
     func removePassword(from sendView: SendView) async throws -> SendView {
-        let send = try await clientVault.sends().encrypt(send: sendView)
+        let send = try await clientService.vault().sends().encrypt(send: sendView)
         let newSend = try await sendService.removePasswordFromSend(send)
-        return try await clientVault.sends().decrypt(send: newSend)
+        return try await clientService.vault().sends().decrypt(send: newSend)
     }
 
     func shareURL(for sendView: SendView) async throws -> URL? {
@@ -214,9 +214,9 @@ class DefaultSendRepository: SendRepository {
     }
 
     func updateSend(_ sendView: SendView) async throws -> SendView {
-        let send = try await clientVault.sends().encrypt(send: sendView)
+        let send = try await clientService.vault().sends().encrypt(send: sendView)
         let newSend = try await sendService.updateSend(send)
-        return try await clientVault.sends().decrypt(send: newSend)
+        return try await clientService.vault().sends().decrypt(send: newSend)
     }
 
     // MARK: API Methods
@@ -241,7 +241,7 @@ class DefaultSendRepository: SendRepository {
         return try await sendService.sendsPublisher().asyncTryMap { sends -> [SendListItem] in
             // Convert the Sends to SendViews and filter appropriately.
             var activeSends = try await sends.asyncMap { send in
-                try await self.clientVault.sends().decrypt(send: send)
+                try await self.clientService.vault().sends().decrypt(send: send)
             }
 
             if let type {
@@ -302,7 +302,7 @@ class DefaultSendRepository: SendRepository {
     ///
     private func sendListSections(from sends: [Send]) async throws -> [SendListSection] {
         let sends = try await sends
-            .asyncMap { try await clientVault.sends().decrypt(send: $0) }
+            .asyncMap { try await clientService.vault().sends().decrypt(send: $0) }
             .sorted { $0.name.localizedStandardCompare($1.name) == .orderedAscending }
 
         guard !sends.isEmpty else {
@@ -353,7 +353,7 @@ class DefaultSendRepository: SendRepository {
     ) async throws -> [SendListItem] {
         let sendType = BitwardenSdk.SendType(type: type)
         let sends = try await sends.asyncMap { send in
-            try await self.clientVault.sends().decrypt(send: send)
+            try await self.clientService.vault().sends().decrypt(send: send)
         }
         .filter { $0.type == sendType }
         .sorted { $0.name.localizedStandardCompare($1.name) == .orderedAscending }
