@@ -547,6 +547,52 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
         XCTAssertEqual(unsuccessfulUnlockAttempts, 4)
     }
 
+    /// `getUserHasMasterPassword(userId:)` gets whether a user has a master password for a user
+    /// with a master password.
+    func test_getUserHasMasterPassword() async throws {
+        await subject.addAccount(.fixture(profile: .fixture(userId: "1")))
+        let userHasMasterPassword = try await subject.getUserHasMasterPassword()
+        XCTAssertTrue(userHasMasterPassword)
+    }
+
+    /// `getUserHasMasterPassword(userId:)` gets whether a user has a master password for a TDE user
+    /// without a master password.
+    func test_getUserHasMasterPassword_tdeUserNoPassword() async throws {
+        await subject.addAccount(
+            .fixture(
+                profile: .fixture(
+                    userDecryptionOptions: UserDecryptionOptions(
+                        hasMasterPassword: false,
+                        keyConnectorOption: nil,
+                        trustedDeviceOption: nil
+                    ),
+                    userId: "2"
+                )
+            )
+        )
+        let userHasMasterPassword = try await subject.getUserHasMasterPassword()
+        XCTAssertFalse(userHasMasterPassword)
+    }
+
+    /// `getUserHasMasterPassword(userId:)` gets whether a user has a master password for a TDE user
+    /// with a master password.
+    func test_getUserHasMasterPassword_tdeUserWithPassword() async throws {
+        await subject.addAccount(
+            .fixture(
+                profile: .fixture(
+                    userDecryptionOptions: UserDecryptionOptions(
+                        hasMasterPassword: true,
+                        keyConnectorOption: nil,
+                        trustedDeviceOption: nil
+                    ),
+                    userId: "2"
+                )
+            )
+        )
+        let userHasMasterPassword = try await subject.getUserHasMasterPassword()
+        XCTAssertTrue(userHasMasterPassword)
+    }
+
     /// `getUsernameGenerationOptions()` gets the saved username generation options for the account.
     func test_getUsernameGenerationOptions() async throws {
         let options1 = UsernameGenerationOptions(plusAddressedEmail: "user@bitwarden.com")
