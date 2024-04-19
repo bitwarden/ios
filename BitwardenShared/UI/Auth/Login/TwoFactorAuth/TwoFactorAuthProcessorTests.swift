@@ -11,7 +11,6 @@ import XCTest
 class TwoFactorAuthProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_body_length
     // MARK: Properties
 
-    var appSettingsStore: MockAppSettingsStore!
     var authRepository: MockAuthRepository!
     var authService: MockAuthService!
     var captchaService: MockCaptchaService!
@@ -26,7 +25,6 @@ class TwoFactorAuthProcessorTests: BitwardenTestCase { // swiftlint:disable:this
     override func setUp() {
         super.setUp()
 
-        appSettingsStore = MockAppSettingsStore()
         authRepository = MockAuthRepository()
         authService = MockAuthService()
         captchaService = MockCaptchaService()
@@ -38,7 +36,6 @@ class TwoFactorAuthProcessorTests: BitwardenTestCase { // swiftlint:disable:this
         subject = TwoFactorAuthProcessor(
             coordinator: coordinator.asAnyCoordinator(),
             services: ServiceContainer.withMocks(
-                appSettingsStore: appSettingsStore,
                 authRepository: authRepository,
                 authService: authService,
                 captchaService: captchaService,
@@ -53,7 +50,6 @@ class TwoFactorAuthProcessorTests: BitwardenTestCase { // swiftlint:disable:this
     override func tearDown() {
         super.tearDown()
 
-        appSettingsStore = nil
         authRepository = nil
         authService = nil
         captchaService = nil
