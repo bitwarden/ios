@@ -62,7 +62,7 @@ class AppCoordinator: Coordinator, HasRootNavigator {
         switch event {
         case .didStart:
             showTab(route: .itemList(.list))
-            if (!services.stateService.hasSeenWelcomeTutorial) {
+            if !services.stateService.hasSeenWelcomeTutorial {
                 showTutorial()
             }
         }

@@ -3,6 +3,16 @@ import Foundation
 
 @testable import AuthenticatorShared
 
+extension ItemListSection {
+    static func fixture() -> ItemListSection {
+        ItemListSection(
+            id: "example",
+            items: [ItemListItem.fixture()],
+            name: "Section"
+        )
+    }
+}
+
 extension ItemListItem {
     static func fixture(
         id: String = "123",
@@ -26,15 +36,11 @@ extension ItemListTotpItem {
             code: "123456",
             codeGenerationDate: Date(),
             period: 30
-        ),
-        totpKey: TOTPKeyModel = TOTPKeyModel(
-            authenticatorKey: "example"
-        )!
+        )
     ) -> ItemListTotpItem {
         ItemListTotpItem(
             itemView: itemView,
-            totpCode: totpCode,
-            totpKey: totpKey
+            totpCode: totpCode
         )
     }
 }

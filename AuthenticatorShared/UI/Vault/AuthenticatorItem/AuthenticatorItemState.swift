@@ -103,7 +103,7 @@ struct AuthenticatorItemState: Equatable {
             digits: keyModel.digits,
             id: authenticatorItemView.id,
             issuer: keyModel.issuer ?? "",
-            name: authenticatorItemView.name,
+            name: keyModel.issuer ?? authenticatorItemView.name,
             period: TotpPeriodOptions(rawValue: keyModel.period) ?? .thirty,
             secret: keyModel.base32Key,
             totpState: LoginTOTPState(authenticatorItemView.totpKey)
@@ -124,7 +124,7 @@ extension AuthenticatorItemState {
     func newAuthenticatorItemView() -> AuthenticatorItemView {
         AuthenticatorItemView(
             id: UUID().uuidString,
-            name: name,
+            name: issuer,
             totpKey: totpState.rawAuthenticatorKeyString
         )
     }

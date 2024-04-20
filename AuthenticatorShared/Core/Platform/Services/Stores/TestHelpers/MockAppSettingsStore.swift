@@ -4,7 +4,6 @@ import Foundation
 @testable import AuthenticatorShared
 
 class MockAppSettingsStore: AppSettingsStore {
-
     var addSitePromptShown = false
     var allowSyncOnRefreshes = [String: Bool]()
     var appId: String?

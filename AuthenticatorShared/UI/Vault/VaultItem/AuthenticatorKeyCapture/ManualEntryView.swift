@@ -44,7 +44,7 @@ struct ManualEntryView: View {
             Text(Localizations.enterKeyManually)
                 .styleGuide(.title2, weight: .bold)
             BitwardenTextField(
-                title: Localizations.service,
+                title: Localizations.name,
                 text: store.binding(
                     get: \.name,
                     send: ManualEntryAction.nameChanged
@@ -137,7 +137,7 @@ struct ManualEntryView_Previews: PreviewProvider {
                     processor: StateProcessor(
                         state: PreviewState(
                             authenticatorKey: "manualEntry",
-                            name: "Amazon"
+                            name: "Manual Name"
                         ).manualEntryState
                     )
                 )

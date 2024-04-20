@@ -125,4 +125,20 @@ struct OTPAuthModel: Equatable {
             secret: secret
         )
     }
+
+    /// Initializes a new instance of `OTPAuthModel` by necessary components
+    ///
+    /// - Parameters:
+    ///   - issuer: The provider or service of the account
+    ///   - secret: The key value, encoded in Base 32
+    init(issuer: String, secret: String) {
+        self.init(
+            accountName: nil,
+            algorithm: .sha1,
+            digits: 6,
+            issuer: issuer,
+            period: 30,
+            secret: secret
+        )
+    }
 }

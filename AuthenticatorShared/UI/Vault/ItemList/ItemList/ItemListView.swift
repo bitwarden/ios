@@ -315,8 +315,7 @@ struct ItemListView_Previews: PreviewProvider {
                                                     code: "123456",
                                                     codeGenerationDate: Date(),
                                                     period: 30
-                                                ),
-                                                totpKey: TOTPKeyModel(authenticatorKey: "example")!
+                                                )
                                             )
                                         )
                                     ),
@@ -331,8 +330,7 @@ struct ItemListView_Previews: PreviewProvider {
                                                     code: "123456",
                                                     codeGenerationDate: Date(),
                                                     period: 30
-                                                ),
-                                                totpKey: TOTPKeyModel(authenticatorKey: "example")!
+                                                )
                                             )
                                         )
                                     ),
@@ -376,8 +374,7 @@ struct ItemListView_Previews: PreviewProvider {
                                                 code: "123456",
                                                 codeGenerationDate: Date(),
                                                 period: 30
-                                            ),
-                                            totpKey: TOTPKeyModel(authenticatorKey: "example")!
+                                            )
                                         )
                                     )
                                 ),
@@ -407,8 +404,7 @@ struct ItemListView_Previews: PreviewProvider {
                                                 code: "123456",
                                                 codeGenerationDate: Date(),
                                                 period: 30
-                                            ),
-                                            totpKey: TOTPKeyModel(authenticatorKey: "example")!
+                                            )
                                         )
                                     )
                                 ),
@@ -423,8 +419,7 @@ struct ItemListView_Previews: PreviewProvider {
                                                 code: "123456",
                                                 codeGenerationDate: Date(),
                                                 period: 30
-                                            ),
-                                            totpKey: TOTPKeyModel(authenticatorKey: "example")!
+                                            )
                                         )
                                     )
                                 ),
@@ -439,8 +434,7 @@ struct ItemListView_Previews: PreviewProvider {
                                                 code: "123456",
                                                 codeGenerationDate: Date(),
                                                 period: 30
-                                            ),
-                                            totpKey: TOTPKeyModel(authenticatorKey: "example")!
+                                            )
                                         )
                                     )
                                 ),

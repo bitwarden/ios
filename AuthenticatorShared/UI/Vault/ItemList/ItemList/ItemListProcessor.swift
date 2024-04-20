@@ -1,5 +1,7 @@
 import Foundation
 
+// swiftlint:disable file_length
+
 // MARK: - ItemListProcessor
 
 /// A `Processor` that can process `ItemListAction` and `ItemListEffect` objects.
@@ -339,29 +341,70 @@ private class TOTPExpirationManager {
 }
 
 extension ItemListProcessor: AuthenticatorKeyCaptureDelegate {
-    func didCompleteCapture(
+    func didCompleteAutomaticCapture(
         _ captureCoordinator: AnyCoordinator<AuthenticatorKeyCaptureRoute, AuthenticatorKeyCaptureEvent>,
-        key: String,
-        name: String?
+        key: String
     ) {
         let dismissAction = DismissAction(action: { [weak self] in
-            self?.parseAndValidateCapturedAuthenticatorKey(key, name: name)
+            Task {
+                await self?.parseAndValidateAutomaticCaptureKey(key)
+            }
         })
         captureCoordinator.navigate(to: .dismiss(dismissAction))
     }
 
-    func parseAndValidateCapturedAuthenticatorKey(_ key: String, name: String?) {
+    func parseAndValidateAutomaticCaptureKey(_ key: String) async {
         do {
             let authKeyModel = try services.totpService.getTOTPConfiguration(key: key)
             let loginTotpState = LoginTOTPState(authKeyModel: authKeyModel)
+
             guard let key = loginTotpState.rawAuthenticatorKeyString
             else { return }
+
+            let itemName = authKeyModel.issuer ?? authKeyModel.accountName ?? ""
+            let newItem = AuthenticatorItemView(id: UUID().uuidString, name: itemName, totpKey: key)
+            try await services.authenticatorItemRepository.addAuthenticatorItem(newItem)
+            await perform(.refresh)
+            state.toast = Toast(text: Localizations.authenticatorKeyAdded)
+        } catch {
+            coordinator.showAlert(.totpScanFailureAlert())
+        }
+    }
+
+    func didCompleteManualCapture(
+        _ captureCoordinator: AnyCoordinator<AuthenticatorKeyCaptureRoute, AuthenticatorKeyCaptureEvent>,
+        key: String,
+        name: String
+    ) {
+        let dismissAction = DismissAction(action: { [weak self] in
             Task {
-                let itemName = name ?? authKeyModel.issuer ?? authKeyModel.accountName ?? ""
-                let newItem = AuthenticatorItemView(id: UUID().uuidString, name: itemName, totpKey: key)
-                try await services.authenticatorItemRepository.addAuthenticatorItem(newItem)
-                await perform(.refresh)
+                await self?.parseAndValidateManualKey(key: key, name: name)
             }
+        })
+        captureCoordinator.navigate(to: .dismiss(dismissAction))
+    }
+
+    func parseAndValidateManualKey(key: String, name: String) async {
+        do {
+            let authKeyModel = try services.totpService.getTOTPConfiguration(key: key)
+            let loginTotpState: LoginTOTPState
+            switch authKeyModel.totpKey {
+            case let .base32(key):
+                let newOtpAuthUri = OTPAuthModel(issuer: name, secret: key)
+                let newKeyModel = try services.totpService.getTOTPConfiguration(key: newOtpAuthUri.otpAuthUri)
+                loginTotpState = LoginTOTPState(authKeyModel: newKeyModel)
+            case .otpAuthUri, .steamUri:
+                loginTotpState = LoginTOTPState(authKeyModel: authKeyModel)
+            }
+
+            guard let key = loginTotpState.rawAuthenticatorKeyString
+            else { return }
+
+            let itemName = name
+            let newItem = AuthenticatorItemView(id: UUID().uuidString, name: itemName, totpKey: key)
+            try await services.authenticatorItemRepository.addAuthenticatorItem(newItem)
+            await perform(.refresh)
+
             state.toast = Toast(text: Localizations.authenticatorKeyAdded)
         } catch {
             coordinator.showAlert(.totpScanFailureAlert())

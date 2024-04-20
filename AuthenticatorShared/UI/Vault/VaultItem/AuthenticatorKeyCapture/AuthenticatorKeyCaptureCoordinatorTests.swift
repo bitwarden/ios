@@ -52,9 +52,9 @@ class AuthenticatorKeyCaptureCoordinatorTests: AuthenticatorTestCase {
         let name = "manual name"
         let entry = "manuallyManagedMagic"
         subject.navigate(to: .addManual(key: entry, name: name))
-        XCTAssertTrue(delegate.didCompleteCaptureCalled)
-        XCTAssertEqual(delegate.didCompleteCaptureKey, entry)
-        XCTAssertEqual(delegate.didCompleteCaptureName, name)
+        XCTAssertTrue(delegate.didCompleteManualCaptureCalled)
+        XCTAssertEqual(delegate.didCompleteManualCaptureKey, entry)
+        XCTAssertEqual(delegate.didCompleteManualCaptureName, name)
         XCTAssertNotNil(delegate.capturedCaptureCoordinator)
     }
 
@@ -63,8 +63,8 @@ class AuthenticatorKeyCaptureCoordinatorTests: AuthenticatorTestCase {
     func test_navigateTo_complete() {
         let result = ScanResult(content: "example.com", codeType: .qr)
         subject.navigate(to: .complete(value: result))
-        XCTAssertTrue(delegate.didCompleteCaptureCalled)
-        XCTAssertEqual(delegate.didCompleteCaptureKey, "example.com")
+        XCTAssertTrue(delegate.didCompleteAutomaticCaptureCalled)
+        XCTAssertEqual(delegate.didCompleteAutomaticCaptureKey, "example.com")
         XCTAssertNil(delegate.didCompleteCaptureName)
     }
 
@@ -231,6 +231,13 @@ class MockAuthenticatorKeyCaptureDelegate: AuthenticatorKeyCaptureDelegate {
     var didCompleteCaptureKey: String?
     var didCompleteCaptureName: String?
 
+    var didCompleteAutomaticCaptureCalled = false
+    var didCompleteAutomaticCaptureKey: String?
+
+    var didCompleteManualCaptureCalled = false
+    var didCompleteManualCaptureKey: String?
+    var didCompleteManualCaptureName: String?
+
     /// A flag to capture a `showCameraScan` call.
     var didRequestCamera: Bool = false
 
@@ -250,6 +257,26 @@ class MockAuthenticatorKeyCaptureDelegate: AuthenticatorKeyCaptureDelegate {
         capturedCaptureCoordinator = captureCoordinator
         didCompleteCaptureKey = key
         didCompleteCaptureName = name
+    }
+
+    func didCompleteAutomaticCapture(
+        _ captureCoordinator: AnyCoordinator<AuthenticatorKeyCaptureRoute, AuthenticatorKeyCaptureEvent>,
+        key: String
+    ) {
+        didCompleteAutomaticCaptureCalled = true
+        capturedCaptureCoordinator = captureCoordinator
+        didCompleteAutomaticCaptureKey = key
+    }
+
+    func didCompleteManualCapture(
+        _ captureCoordinator: AnyCoordinator<AuthenticatorKeyCaptureRoute, AuthenticatorKeyCaptureEvent>,
+        key: String,
+        name: String
+    ) {
+        didCompleteManualCaptureCalled = true
+        capturedCaptureCoordinator = captureCoordinator
+        didCompleteManualCaptureKey = key
+        didCompleteManualCaptureName = name
     }
 
     func showCameraScan(

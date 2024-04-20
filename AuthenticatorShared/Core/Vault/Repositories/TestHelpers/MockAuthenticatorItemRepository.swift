@@ -6,7 +6,7 @@ import Foundation
 class MockAuthenticatorItemRepository: AuthenticatorItemRepository {
     // MARK: Properties
 
-    var addAuthenticatorItemAuthenticatorItems = [AuthenticatorItemView]()
+    var addAuthItemAuthItems = [AuthenticatorItemView]()
     var addAuthenticatorItemResult: Result<Void, Error> = .success(())
 
     var deletedAuthenticatorItem = [String]()
@@ -33,7 +33,7 @@ class MockAuthenticatorItemRepository: AuthenticatorItemRepository {
     // MARK: Methods
 
     func addAuthenticatorItem(_ authenticatorItem: AuthenticatorItemView) async throws {
-        addAuthenticatorItemAuthenticatorItems.append(authenticatorItem)
+        addAuthItemAuthItems.append(authenticatorItem)
         try addAuthenticatorItemResult.get()
     }
 
