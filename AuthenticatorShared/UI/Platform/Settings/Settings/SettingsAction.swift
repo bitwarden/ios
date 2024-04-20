@@ -7,6 +7,9 @@ enum SettingsAction: Equatable {
     /// The url has been opened so clear the value in the state.
     case clearURL
 
+    /// The export items button was tapped.
+    case exportItemsTapped
+
     /// The help center button was tapped.
     case helpCenterTapped
 

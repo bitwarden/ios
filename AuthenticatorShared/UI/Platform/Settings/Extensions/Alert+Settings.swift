@@ -72,22 +72,18 @@ extension Alert {
         )
     }
 
-    /// Confirm that the user wants to export their vault.
+    /// Confirm that the user wants to export their items.
     ///
     /// - Parameters:
-    ///   - encrypted: Whether the user is attempting to export their vault encrypted or not.
-    ///   - action: The action performed when they select export vault.
+    ///   - action: The action performed when they select export items.
+    /// - Returns: An alert confirming that the user wants to export their items unencrypted.
     ///
-    /// - Returns: An alert confirming that the user wants to export their vault unencrypted.
-    ///
-    static func confirmExportVault(encrypted: Bool, action: @escaping () async -> Void) -> Alert {
+    static func confirmExportItems(action: @escaping () async -> Void) -> Alert {
         Alert(
-            title: Localizations.exportVaultConfirmationTitle,
-            message: encrypted ?
-                (Localizations.encExportKeyWarning + .newLine + Localizations.encExportAccountWarning) :
-                Localizations.exportVaultWarning,
+            title: Localizations.exportItemsConfirmationTitle,
+            message: Localizations.exportItemsWarning,
             alertActions: [
-                AlertAction(title: Localizations.exportVault, style: .default) { _ in await action() },
+                AlertAction(title: Localizations.exportItems, style: .default) { _ in await action() },
                 AlertAction(title: Localizations.cancel, style: .cancel),
             ]
         )

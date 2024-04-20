@@ -39,6 +39,6 @@ final class CircularProgressShapeTests: AuthenticatorTestCase {
             .frame(width: 30, height: 30)
         }
 
-        assertSnapshot(matching: stack, as: .portrait(heightMultiple: 0.1))
+        assertSnapshot(of: stack, as: .portrait(heightMultiple: 0.1))
     }
 }

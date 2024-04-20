@@ -10,7 +10,7 @@ final class StyleGuideFontTests: AuthenticatorTestCase {
     func test_snapshot_styleGuideFont() {
         for preview in StyleGuideFont_Previews._allPreviews {
             assertSnapshots(
-                matching: preview.content,
+                of: preview.content,
                 as: [.defaultPortrait]
             )
         }
@@ -20,7 +20,7 @@ final class StyleGuideFontTests: AuthenticatorTestCase {
     func test_snapshot_styleGuideFont_largeText() {
         for preview in StyleGuideFont_Previews._allPreviews {
             assertSnapshots(
-                matching: preview.content,
+                of: preview.content,
                 as: [.defaultPortraitAX5]
             )
         }

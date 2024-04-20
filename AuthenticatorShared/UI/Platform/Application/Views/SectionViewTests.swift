@@ -10,7 +10,7 @@ class SectionViewTests: AuthenticatorTestCase {
     func test_snapshot_sectionView() {
         for preview in SectionView_Previews._allPreviews {
             assertSnapshots(
-                matching: preview.content,
+                of: preview.content,
                 as: [.defaultPortrait]
             )
         }

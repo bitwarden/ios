@@ -47,18 +47,11 @@ class SelectLanguageViewTests: AuthenticatorTestCase {
 
     // MARK: Snapshots
 
-    /// Test that the default view renders correctly.
-    func test_snapshot_default() {
-        assertSnapshot(of: subject.navStackWrapped, as: .defaultPortrait)
-    }
-
-    /// Test that the default view renders correctly.
-    func test_snapshot_default_dark() {
-        assertSnapshot(of: subject.navStackWrapped, as: .defaultPortraitDark)
-    }
-
-    /// Test that the default view renders correctly.
-    func test_snapshot_default_large() {
-        assertSnapshot(of: subject.navStackWrapped, as: .tallPortraitAX5())
+    /// Test that the view renders correctly.
+    func test_viewRender() {
+        assertSnapshots(
+            of: subject.navStackWrapped,
+            as: [.defaultPortrait, .defaultPortraitDark, .tallPortraitAX5()]
+        )
     }
 }

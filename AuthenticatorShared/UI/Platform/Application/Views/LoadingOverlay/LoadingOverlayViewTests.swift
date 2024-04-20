@@ -9,7 +9,7 @@ class LoadingOverlayViewTests: AuthenticatorTestCase {
     /// Test a snapshot of the loading overlay.
     func test_snapshot_loadingOverlay() {
         assertSnapshots(
-            matching: LoadingOverlayView(state: .init(title: "Loading...")),
+            of: LoadingOverlayView(state: .init(title: "Loading...")),
             as: [.defaultPortrait, .defaultPortraitDark]
         )
     }

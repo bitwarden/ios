@@ -59,25 +59,15 @@ class AlertSettingsTests: AuthenticatorTestCase {
         XCTAssertEqual(subject.alertActions.last?.style, .default)
     }
 
-    /// `confirmExportVault(encrypted:action:)` constructs an `Alert` with the title, message, and Yes and Export vault
-    /// buttons.
+    /// `confirmExportItems(action:)` constructs an `Alert`
+    ///  with the title, message, and Yes and Export items buttons.
     func test_confirmExportVault() {
-        var subject = Alert.confirmExportVault(encrypted: true) {}
+        let subject = Alert.confirmExportItems {}
 
         XCTAssertEqual(subject.alertActions.count, 2)
         XCTAssertEqual(subject.preferredStyle, .alert)
-        XCTAssertEqual(subject.title, Localizations.exportVaultConfirmationTitle)
-        XCTAssertEqual(
-            subject.message,
-            Localizations.encExportKeyWarning + .newLine + Localizations.encExportAccountWarning
-        )
-
-        subject = Alert.confirmExportVault(encrypted: false) {}
-
-        XCTAssertEqual(subject.alertActions.count, 2)
-        XCTAssertEqual(subject.preferredStyle, .alert)
-        XCTAssertEqual(subject.title, Localizations.exportVaultConfirmationTitle)
-        XCTAssertEqual(subject.message, Localizations.exportVaultWarning)
+        XCTAssertEqual(subject.title, Localizations.exportItemsConfirmationTitle)
+        XCTAssertEqual(subject.message, Localizations.exportItemsWarning)
     }
 
     /// `displayFingerprintPhraseAlert(encrypted:action:)` constructs an `Alert`

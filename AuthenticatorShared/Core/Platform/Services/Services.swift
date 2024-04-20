@@ -5,6 +5,7 @@ typealias Services = HasAuthenticatorItemRepository
     & HasCameraService
     & HasCryptographyService
     & HasErrorReporter
+    & HasExportItemsService
     & HasPasteboardService
     & HasStateService
     & HasTOTPService
@@ -36,6 +37,13 @@ protocol HasCryptographyService {
 protocol HasErrorReporter {
     /// The service used by the application to report non-fatal errors.
     var errorReporter: ErrorReporter { get }
+}
+
+/// Protocol for an object that provides an `ExportItemsService`.
+///
+protocol HasExportItemsService {
+    /// The service used to export items.
+    var exportItemsService: ExportItemsService { get }
 }
 
 /// Protocol for an object that provides a `PasteboardService`.

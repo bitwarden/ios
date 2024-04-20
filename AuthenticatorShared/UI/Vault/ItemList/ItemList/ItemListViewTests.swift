@@ -42,7 +42,7 @@ class ItemListViewTests: AuthenticatorTestCase {
     func test_snapshot_ItemListView_previews() {
         for preview in ItemListView_Previews._allPreviews {
             assertSnapshots(
-                matching: preview.content,
+                of: preview.content,
                 as: [.defaultPortrait]
             )
         }

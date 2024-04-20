@@ -36,7 +36,10 @@ public class ServiceContainer: Services {
     /// The service used by the application to report non-fatal errors.
     let errorReporter: ErrorReporter
 
-    /// The serviced used to perform app data migrations.
+    /// The service used to export items.
+    let exportItemsService: ExportItemsService
+
+    /// The service used to perform app data migrations.
     let migrationService: MigrationService
 
     /// The service used by the application for sharing data with other apps.
@@ -63,6 +66,7 @@ public class ServiceContainer: Services {
     ///   - clientService: The service used by the application to handle encryption and decryption tasks.
     ///   - cryptographyService: The service used by the application to encrypt and decrypt items
     ///   - errorReporter: The service used by the application to report non-fatal errors.
+    ///   - exportItemsService: The service to export items.
     ///   - migrationService: The service to do data migrations
     ///   - pasteboardService: The service used by the application for sharing data with other apps.
     ///   - stateService: The service for managing account state.
@@ -77,6 +81,7 @@ public class ServiceContainer: Services {
         cryptographyService: CryptographyService,
         clientService: ClientService,
         errorReporter: ErrorReporter,
+        exportItemsService: ExportItemsService,
         migrationService: MigrationService,
         pasteboardService: PasteboardService,
         stateService: StateService,
@@ -90,6 +95,7 @@ public class ServiceContainer: Services {
         self.clientService = clientService
         self.cryptographyService = cryptographyService
         self.errorReporter = errorReporter
+        self.exportItemsService = exportItemsService
         self.migrationService = migrationService
         self.pasteboardService = pasteboardService
         self.timeProvider = timeProvider
@@ -110,17 +116,24 @@ public class ServiceContainer: Services {
         let appSettingsStore = DefaultAppSettingsStore(
             userDefaults: UserDefaults(suiteName: Bundle.main.groupIdentifier)!
         )
+
         let appIdService = AppIdService(appSettingStore: appSettingsStore)
 
         let cameraService = DefaultCameraService()
         let clientService = DefaultClientService()
         let dataStore = DataStore(errorReporter: errorReporter)
         let keychainService = DefaultKeychainService()
+
         let keychainRepository = DefaultKeychainRepository(
             appIdService: appIdService,
             keychainService: keychainService
         )
-        let stateService = DefaultStateService(appSettingsStore: appSettingsStore, dataStore: dataStore)
+
+        let stateService = DefaultStateService(
+            appSettingsStore: appSettingsStore,
+            dataStore: dataStore
+        )
+
         let timeProvider = CurrentTime()
 
         let cryptographyKeyService = CryptographyKeyService(
@@ -146,12 +159,20 @@ public class ServiceContainer: Services {
         let pasteboardService = DefaultPasteboardService(
             errorReporter: errorReporter
         )
+
         let authenticatorItemService = DefaultAuthenticatorItemService(
             authenticatorItemDataStore: dataStore
         )
+
         let authenticatorItemRepository = DefaultAuthenticatorItemRepository(
             authenticatorItemService: authenticatorItemService,
             cryptographyService: cryptographyService
+        )
+
+        let exportItemsService = DefaultExportItemsService(
+            authenticatorItemRepository: authenticatorItemRepository,
+            errorReporter: errorReporter,
+            timeProvider: timeProvider
         )
 
         self.init(
@@ -162,6 +183,7 @@ public class ServiceContainer: Services {
             cryptographyService: cryptographyService,
             clientService: clientService,
             errorReporter: errorReporter,
+            exportItemsService: exportItemsService,
             migrationService: migrationService,
             pasteboardService: pasteboardService,
             stateService: stateService,

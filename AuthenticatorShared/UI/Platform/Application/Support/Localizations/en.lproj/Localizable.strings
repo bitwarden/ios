@@ -901,3 +901,7 @@
 "GetStarted" = "Get started";
 "LaunchTutorial" = "Launch tutorial";
 "Help" = "Help";
+"ExportItemsConfirmationTitle" = "Confirm items export";
+"ExportItems" = "Export items";
+"ExportItemsWarning" = "This export contains your item data in an unencrypted format. You should not store or send the exported file over unsecure channels (such as email). Delete it immediately after you are done using it.";
+"Export" = "Export";

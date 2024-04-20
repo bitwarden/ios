@@ -74,6 +74,13 @@ struct SettingsView: View {
     /// The settings items.
     private var settingsItems: some View {
         VStack(spacing: 0) {
+            SectionView(Localizations.vault) {
+                SettingsListItem(Localizations.export) {
+                    store.send(.exportItemsTapped)
+                }
+            }
+            .padding(.bottom, 32)
+
             SectionView(Localizations.appearance) {
                 language
                 theme

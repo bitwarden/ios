@@ -10,7 +10,7 @@ final class ToastViewTests: AuthenticatorTestCase {
     func test_snapshot_toastView_previews() {
         for preview in ToastView_Previews._allPreviews {
             assertSnapshots(
-                matching: preview.content,
+                of: preview.content,
                 as: [.defaultPortrait, .defaultPortraitDark, .defaultPortraitAX5]
             )
         }

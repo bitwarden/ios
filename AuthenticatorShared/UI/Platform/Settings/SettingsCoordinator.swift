@@ -12,6 +12,7 @@ final class SettingsCoordinator: Coordinator, HasStackNavigator {
     typealias Module = TutorialModule
 
     typealias Services = HasErrorReporter
+        & HasExportItemsService
         & HasPasteboardService
         & HasStateService
         & HasTimeProvider
@@ -61,6 +62,8 @@ final class SettingsCoordinator: Coordinator, HasStackNavigator {
             showSelectLanguage(currentLanguage: currentLanguage, delegate: context as? SelectLanguageDelegate)
         case .settings:
             showSettings()
+        case let .shareExportedItems(fileUrl):
+            showExportedItemsUrl(fileUrl)
         case .tutorial:
             showTutorial()
         }
@@ -71,6 +74,13 @@ final class SettingsCoordinator: Coordinator, HasStackNavigator {
     }
 
     // MARK: Private Methods
+
+    /// Presents an activity controller for an exported items file URL.
+    ///
+    private func showExportedItemsUrl(_ fileUrl: URL) {
+        let activityVC = UIActivityViewController(activityItems: [fileUrl], applicationActivities: nil)
+        stackNavigator?.present(activityVC)
+    }
 
     /// Shows the select language screen.
     ///

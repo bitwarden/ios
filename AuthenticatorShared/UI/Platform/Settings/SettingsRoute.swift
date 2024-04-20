@@ -16,6 +16,9 @@ public enum SettingsRoute: Equatable, Hashable {
     /// A route to the settings screen.
     case settings
 
+    /// A route to the share sheet for an exported items URL.
+    case shareExportedItems(URL)
+
     /// A route to show the tutorial.
     case tutorial
 }
