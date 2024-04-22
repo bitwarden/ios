@@ -627,7 +627,7 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
     /// `perform(_:)` with `.requestedProfileSwitcher(visible:)` updates the state correctly.
     func test_perform_requestedProfileSwitcher() async {
         let annAccount = ProfileSwitcherItem.anneAccount
-        var beeAccount = ProfileSwitcherItem.beeAccount
+        let beeAccount = ProfileSwitcherItem.beeAccount
 
         subject.state.profileSwitcherState.accounts = [annAccount, beeAccount]
         subject.state.profileSwitcherState.isVisible = false
