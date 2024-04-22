@@ -628,19 +628,16 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
     func test_perform_requestedProfileSwitcher() async {
         let annAccount = ProfileSwitcherItem.anneAccount
         var beeAccount = ProfileSwitcherItem.beeAccount
-        beeAccount.isUnlocked = true
 
         subject.state.profileSwitcherState.accounts = [annAccount, beeAccount]
         subject.state.profileSwitcherState.isVisible = false
 
-        XCTAssertTrue(beeAccount.isUnlocked)
-
-        beeAccount.isUnlocked = false
-        authRepository.profileSwitcherState?.accounts = [annAccount, beeAccount]
+        authRepository.profileSwitcherState = ProfileSwitcherState.maximumAccounts
         await subject.perform(.profileSwitcher(.requestedProfileSwitcher(visible: true)))
 
+        // Ensure that the profile switcher state is updated
+        waitFor(subject.state.profileSwitcherState == authRepository.profileSwitcherState)
         XCTAssertTrue(subject.state.profileSwitcherState.isVisible)
-        XCTAssertFalse(beeAccount.isUnlocked)
     }
 
     /// `perform(.profileSwitcher(.rowAppeared))` should not update the state for add Account
