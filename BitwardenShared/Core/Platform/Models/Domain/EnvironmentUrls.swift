@@ -23,6 +23,9 @@ struct EnvironmentUrls: Equatable {
     /// The URL for importing items.
     let importItemsURL: URL
 
+    /// The URL for the recovery code help page.
+    let recoveryCodeURL: URL
+
     /// The URL for sharing a send.
     let sendShareURL: URL
 
@@ -55,6 +58,9 @@ extension EnvironmentUrls {
             webVaultURL = environmentUrlData.webVault ?? URL(string: "https://vault.bitwarden.com")!
         }
         importItemsURL = environmentUrlData.importItemsURL ?? URL(string: "https://vault.bitwarden.com/#/tools/import")!
+        recoveryCodeURL = environmentUrlData.recoveryCodeUrl ?? URL(
+            string: "https://vault.bitwarden.com/#/recover-2fa"
+        )!
         sendShareURL = environmentUrlData.sendShareURL ?? URL(string: "https://send.bitwarden.com/#")!
         settingsURL = environmentUrlData.settingsURL ?? webVaultURL
     }
