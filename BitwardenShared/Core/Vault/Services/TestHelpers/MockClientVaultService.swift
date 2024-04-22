@@ -94,6 +94,10 @@ class MockClientCiphers: ClientCiphersProtocol {
     var encryptError: Error?
     var encryptedCiphers = [CipherView]()
 
+    var moveToOrganizationCipher: CipherView?
+    var moveToOrganizationOrganizationId: Uuid?
+    var moveToOrganizationResult: Result<CipherView, Error> = .failure(BitwardenTestError.example)
+
     func decrypt(cipher: Cipher) async throws -> CipherView {
         CipherView(cipher: cipher)
     }
@@ -108,6 +112,15 @@ class MockClientCiphers: ClientCiphersProtocol {
             throw encryptError
         }
         return Cipher(cipherView: cipherView)
+    }
+
+    func moveToOrganization(
+        cipher: BitwardenSdk.CipherView,
+        organizationId: BitwardenSdk.Uuid
+    ) async throws -> BitwardenSdk.CipherView {
+        moveToOrganizationCipher = cipher
+        moveToOrganizationOrganizationId = organizationId
+        return try moveToOrganizationResult.get()
     }
 }
 
