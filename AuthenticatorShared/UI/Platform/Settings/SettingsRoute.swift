@@ -7,6 +7,9 @@ public enum SettingsRoute: Equatable, Hashable {
     /// A route that dismisses the current view.
     case dismiss
 
+    /// A route to the export items view.
+    case exportItems
+
     /// A route to view the select language view.
     ///
     /// - Parameter currentLanguage: The currently selected language option.

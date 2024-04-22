@@ -44,6 +44,31 @@ final class ExportItemsServiceTests: AuthenticatorTestCase {
 
     // MARK: Tests
 
+    /// `exportFileContents` handles the CSV export
+    ///
+    func test_exportFileContents_csv() async throws {
+        let fileType = ExportFileType.csv
+        let items = [
+            AuthenticatorItemView(
+                id: "One",
+                name: "Name",
+                totpKey: "otpauth://totp/Bitwarden:person@example.com?secret=EXAMPLE&issuer=Bitwarden"
+            ),
+        ]
+        authItemRepository.fetchAllAuthenticatorItemsResult = .success(items)
+
+        let exported = try await subject.exportFileContents(format: fileType)
+
+        // swiftlint:disable line_length
+        let expected =
+            """
+            folder,favorite,type,name,notes,fields,reprompt,login_uri,login_username,login_password,login_totp
+            ,,login,Name,,,0,,person@example.com,,otpauth://totp/Bitwarden:person@example.com?secret=EXAMPLE&issuer=Bitwarden\n
+            """
+        // swiftlint:enable line_length
+        XCTAssertEqual(exported, expected)
+    }
+
     /// `exportFileContents` handles the JSON export
     ///
     func test_exportFileContents_json() async throws {
@@ -60,8 +85,9 @@ final class ExportItemsServiceTests: AuthenticatorTestCase {
         let exported = try await subject.exportFileContents(format: fileType)
 
         let decoder = JSONDecoder()
-        let actual = try decoder.decode([AuthenticatorItemView].self, from: exported.data(using: .utf8)!)
-        XCTAssertEqual(items, actual)
+        let actual = try decoder.decode(VaultLike.self, from: exported.data(using: .utf8)!)
+        let expected = VaultLike(encrypted: false, items: items.compactMap(CipherLike.init))
+        XCTAssertEqual(actual, expected)
     }
 
     /// `generateExportFileName` handles the JSON extension

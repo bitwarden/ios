@@ -58,6 +58,8 @@ final class SettingsCoordinator: Coordinator, HasStackNavigator {
         switch route {
         case .dismiss:
             stackNavigator?.dismiss()
+        case .exportItems:
+            showExportItems()
         case let .selectLanguage(currentLanguage: currentLanguage):
             showSelectLanguage(currentLanguage: currentLanguage, delegate: context as? SelectLanguageDelegate)
         case .settings:
@@ -80,6 +82,18 @@ final class SettingsCoordinator: Coordinator, HasStackNavigator {
     private func showExportedItemsUrl(_ fileUrl: URL) {
         let activityVC = UIActivityViewController(activityItems: [fileUrl], applicationActivities: nil)
         stackNavigator?.present(activityVC)
+    }
+
+    /// Shows the export vault screen.
+    ///
+    private func showExportItems() {
+        let processor = ExportItemsProcessor(
+            coordinator: asAnyCoordinator(),
+            services: services
+        )
+        let view = ExportItemsView(store: Store(processor: processor))
+        let navController = UINavigationController(rootViewController: UIHostingController(rootView: view))
+        stackNavigator?.present(navController)
     }
 
     /// Shows the select language screen.

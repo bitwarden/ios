@@ -114,15 +114,15 @@ class DefaultExportItemsService: ExportItemsService {
 
     func exportFileContents(format: ExportFileType) async throws -> String {
         let items = try await authenticatorItemRepository.fetchAllAuthenticatorItems()
+            .compactMap(CipherLike.init)
         let sortedItems = items.sorted { $0.name.localizedStandardCompare($1.name) == .orderedAscending }
 
-        let encoder = JSONEncoder()
-        encoder.outputFormatting = .sortedKeys
-        let data = try encoder.encode(sortedItems)
-        guard let contents = String(data: data, encoding: .utf8) else {
-            throw ExportItemsError.unableToSerializeData
+        switch format {
+        case .csv:
+            return exportCsv(sortedItems)
+        case .json:
+            return try exportJson(sortedItems)
         }
-        return contents
     }
 
     func writeToFile(
@@ -147,6 +147,54 @@ class DefaultExportItemsService: ExportItemsService {
         // Write the content to the file.
         try fileContent.write(to: fileURL, atomically: true, encoding: .utf8)
         return fileURL
+    }
+
+    // MARK: Private Methods
+
+    /// Produces an exportable CSV string that should be compatible with PM import/export
+    ///
+    /// - Parameters:
+    ///   - items: An array of `CipherLike` objects to export
+    ///
+    private func exportCsv(_ items: [CipherLike]) -> String {
+        // swiftlint:disable:next line_length
+        let header = "folder,favorite,type,name,notes,fields,reprompt,login_uri,login_username,login_password,login_totp\n"
+        let rows = items.map { item in
+            [
+                item.folderId ?? "",
+                item.favorite ? "1" : "",
+                "login",
+                item.name,
+                item.notes ?? "",
+                "",
+                "0",
+                "",
+                item.login?.username ?? "",
+                "",
+                item.login?.totp ?? "",
+            ]
+            .joined(separator: ",")
+            .appending("\n")
+        }
+        .joined(separator: "\n")
+
+        return header.appending(rows)
+    }
+
+    /// Produces an exportable JSON string that should be compatible with PM import/export
+    ///
+    /// - Parameters:
+    ///   - items: An array of `CipherLike` objects to export
+    ///
+    private func exportJson(_ items: [CipherLike]) throws -> String {
+        let vault = VaultLike(encrypted: false, items: items)
+        let encoder = JSONEncoder()
+        encoder.outputFormatting = [.sortedKeys, .withoutEscapingSlashes]
+        let data = try encoder.encode(vault)
+        guard let contents = String(data: data, encoding: .utf8) else {
+            throw ExportItemsError.unableToSerializeData
+        }
+        return contents
     }
 }
 

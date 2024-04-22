@@ -57,7 +57,7 @@ final class SettingsProcessor: StateProcessor<SettingsState, SettingsAction, Set
         case .clearURL:
             state.url = nil
         case .exportItemsTapped:
-            confirmExportItems()
+            coordinator.navigate(to: .exportItems)
         case .helpCenterTapped:
             state.url = ExternalLinksConstants.helpAndFeedback
         case .languageTapped:
@@ -77,18 +77,6 @@ final class SettingsProcessor: StateProcessor<SettingsState, SettingsAction, Set
     }
 
     // MARK: - Private Methods
-
-    /// Shows the alert to confirm the items export.
-    private func confirmExportItems() {
-        coordinator.showAlert(.confirmExportItems {
-            do {
-                let fileUrl = try await self.services.exportItemsService.exportItems(format: .json)
-                self.coordinator.navigate(to: .shareExportedItems(fileUrl))
-            } catch {
-                self.services.errorReporter.log(error: error)
-            }
-        })
-    }
 
     /// Prepare the text to be copied.
     private func handleVersionTapped() {

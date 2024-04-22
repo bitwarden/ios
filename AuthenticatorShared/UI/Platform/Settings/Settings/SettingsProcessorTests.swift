@@ -29,4 +29,11 @@ class SettingsProcessorTests: AuthenticatorTestCase {
     }
 
     // MARK: Tests
+
+    /// Receiving `.exportItemsTapped` navigates to the export vault screen.
+    func test_receive_exportVaultTapped() {
+        subject.receive(.exportItemsTapped)
+
+        XCTAssertEqual(coordinator.routes.last, .exportItems)
+    }
 }
