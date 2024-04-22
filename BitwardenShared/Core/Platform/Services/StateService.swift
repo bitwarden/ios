@@ -227,6 +227,13 @@ protocol StateService: AnyObject {
     ///
     func getUnsuccessfulUnlockAttempts(userId: String?) async throws -> Int
 
+    /// Gets whether a user has a master password.
+    ///
+    /// - Parameter userId: The user ID of the user to determine whether they have a master password.
+    /// - Returns: Whether the user has a master password.
+    ///
+    func getUserHasMasterPassword(userId: String?) async throws -> Bool
+
     /// Gets the username generation options for a user ID.
     ///
     /// - Parameter userId: The user ID associated with the username generation options.
@@ -666,6 +673,14 @@ extension StateService {
         return 0
     }
 
+    /// Gets whether a user has a master password.
+    ///
+    /// - Returns: Whether the user has a master password.
+    ///
+    func getUserHasMasterPassword() async throws -> Bool {
+        try await getUserHasMasterPassword(userId: nil)
+    }
+
     /// Gets the username generation options for the active account.
     ///
     /// - Returns: The username generation options for the user ID.
@@ -1080,6 +1095,10 @@ actor DefaultStateService: StateService { // swiftlint:disable:this type_body_le
         return appSettingsStore.unsuccessfulUnlockAttempts(userId: userId)
     }
 
+    func getUserHasMasterPassword(userId: String?) async throws -> Bool {
+        try getAccount(userId: userId).profile.userDecryptionOptions?.hasMasterPassword ?? true
+    }
+
     func getUsernameGenerationOptions(userId: String?) async throws -> UsernameGenerationOptions? {
         let userId = try userId ?? getActiveAccountUserId()
         return appSettingsStore.usernameGenerationOptions(userId: userId)
@@ -1137,8 +1156,9 @@ actor DefaultStateService: StateService { // swiftlint:disable:this type_body_le
         guard var state = appSettingsStore.state else { return }
         defer { appSettingsStore.state = state }
 
-        guard state.accounts
-            .contains(where: { $0.key == userId }) else { throw StateServiceError.noAccounts }
+        guard state.accounts.contains(where: { $0.key == userId }) else {
+            throw StateServiceError.noAccounts
+        }
         state.activeUserId = userId
     }
 

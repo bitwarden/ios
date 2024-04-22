@@ -33,7 +33,7 @@ class CreateAccountProcessorTests: BitwardenTestCase {
             services: ServiceContainer.withMocks(
                 authRepository: authRepository,
                 captchaService: captchaService,
-                clientService: MockClientService(clientAuth: clientAuth),
+                clientService: MockClientService(auth: clientAuth),
                 errorReporter: errorReporter,
                 httpClient: client
             ),

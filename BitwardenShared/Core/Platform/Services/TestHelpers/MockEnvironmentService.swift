@@ -12,6 +12,7 @@ class MockEnvironmentService: EnvironmentService {
     var iconsURL = URL(string: "https://example.com/icons")!
     var identityURL = URL(string: "https://example.com/identity")!
     var importItemsURL = URL(string: "https://example.com/#/tools/import")!
+    var recoveryCodeURL = URL(string: "https://example.com/#/recover-2fa")!
     var sendShareURL = URL(string: "https://example.com/#/send")!
     var settingsURL = URL(string: "https://example.com/#/settings")!
     var webVaultURL = URL(string: "https://example.com")!

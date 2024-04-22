@@ -21,7 +21,7 @@ protocol OrganizationService {
     ///
     /// - Parameter organizations: The user's organizations.
     ///
-    func initializeOrganizationCrypto(organizations: [Organization]) async
+    func initializeOrganizationCrypto(organizations: [Organization]) async throws
 
     /// Replaces the persisted list of organizations for the user.
     ///
@@ -45,8 +45,8 @@ protocol OrganizationService {
 class DefaultOrganizationService: OrganizationService {
     // MARK: Properties
 
-    /// The client used by the application to handle encryption and decryption setup tasks.
-    let clientCrypto: ClientCryptoProtocol
+    /// The service that handles common client functionality such as encryption and decryption.
+    let clientService: ClientService
 
     /// The service used by the application to report non-fatal errors.
     let errorReporter: ErrorReporter
@@ -62,18 +62,18 @@ class DefaultOrganizationService: OrganizationService {
     /// Initialize a `DefaultOrganizationService`.
     ///
     /// - Parameters:
-    ///   - clientCrypto: The client used by the application to handle encryption and decryption setup tasks.
+    ///   - clientService: The service that handles common client functionality such as encryption and decryption.
     ///   - errorReporter: The service used by the application to report non-fatal errors.
     ///   - organizationDataStore: The data store for managing the persisted organizations for the user.
     ///   - stateService: The service used by the application to manage account state.
     ///
     init(
-        clientCrypto: ClientCryptoProtocol,
+        clientService: ClientService,
         errorReporter: ErrorReporter,
         organizationDataStore: OrganizationDataStore,
         stateService: StateService
     ) {
-        self.clientCrypto = clientCrypto
+        self.clientService = clientService
         self.errorReporter = errorReporter
         self.organizationDataStore = organizationDataStore
         self.stateService = stateService
@@ -90,14 +90,14 @@ extension DefaultOrganizationService {
         try await initializeOrganizationCrypto(organizations: fetchAllOrganizations())
     }
 
-    func initializeOrganizationCrypto(organizations: [Organization]) async {
+    func initializeOrganizationCrypto(organizations: [Organization]) async throws {
         let organizationKeysById = organizations
             .reduce(into: [String: String]()) { result, organization in
                 guard let key = organization.key else { return }
                 result[organization.id] = key
             }
         do {
-            try await clientCrypto.initializeOrgCrypto(
+            try await clientService.crypto().initializeOrgCrypto(
                 req: InitOrgCryptoRequest(organizationKeys: organizationKeysById)
             )
         } catch {

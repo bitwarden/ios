@@ -14,7 +14,6 @@ final class AccountSecurityProcessor: StateProcessor<
 
     typealias Services = HasAuthRepository
         & HasBiometricsRepository
-        & HasClientAuth
         & HasErrorReporter
         & HasPolicyService
         & HasSettingsRepository
@@ -265,6 +264,28 @@ final class AccountSecurityProcessor: StateProcessor<
         }
     }
 
+    /// Sets the user's pin.
+    ///
+    /// - Parameters:
+    ///   - pin: The user's pin.
+    ///   - requirePasswordAfterRestart: Whether the user's master password should be required after
+    ///     an app restart.
+    ///
+    private func setPin(_ pin: String, requirePasswordAfterRestart: Bool) async {
+        do {
+            try await services.authRepository.setPins(
+                pin,
+                requirePasswordAfterRestart: requirePasswordAfterRestart
+            )
+            state.isUnlockWithPINCodeOn = true
+        } catch {
+            services.errorReporter.log(error: error)
+            coordinator.showAlert(.defaultAlert(
+                title: Localizations.anErrorHasOccurred
+            ))
+        }
+    }
+
     /// Shows an alert prompting the user to enter their PIN. If set successfully, the toggle will be turned on.
     ///
     /// - Parameter isOn: Whether or not the toggle value is true or false.
@@ -272,19 +293,19 @@ final class AccountSecurityProcessor: StateProcessor<
     private func toggleUnlockWithPIN(_ isOn: Bool) {
         if isOn {
             coordinator.showAlert(.enterPINCode(completion: { pin in
-                self.coordinator.showAlert(.unlockWithPINCodeAlert { requirePassword in
-                    do {
-                        try await self.services.authRepository.setPins(
-                            pin,
-                            requirePasswordAfterRestart: requirePassword
-                        )
-                        self.state.isUnlockWithPINCodeOn = isOn
-                    } catch {
-                        self.coordinator.showAlert(.defaultAlert(
-                            title: Localizations.anErrorHasOccurred
-                        ))
+                do {
+                    let userHasMasterPassword = try await self.services.stateService.getUserHasMasterPassword()
+                    if userHasMasterPassword {
+                        self.coordinator.showAlert(.unlockWithPINCodeAlert { requirePassword in
+                            await self.setPin(pin, requirePasswordAfterRestart: requirePassword)
+                        })
+                    } else {
+                        await self.setPin(pin, requirePasswordAfterRestart: false)
                     }
-                })
+                } catch {
+                    self.services.errorReporter.log(error: error)
+                    self.coordinator.showAlert(.defaultAlert(title: Localizations.anErrorHasOccurred))
+                }
             }))
         } else {
             Task {

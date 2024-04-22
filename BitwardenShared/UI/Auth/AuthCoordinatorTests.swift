@@ -199,7 +199,7 @@ class AuthCoordinatorTests: BitwardenTestCase { // swiftlint:disable:this type_b
     func test_navigate_switchAccount_locked() {
         let account = Account.fixture()
         authRepository.altAccounts = [account]
-        vaultTimeoutService.timeoutStore = [account.profile.userId: true]
+        vaultTimeoutService.isClientLocked[account.profile.userId] = true
         stateService.activeAccount = account
 
         let task = Task {
@@ -215,6 +215,7 @@ class AuthCoordinatorTests: BitwardenTestCase { // swiftlint:disable:this type_b
         let account = Account.fixture()
         authRepository.altAccounts = [account]
         authRepository.isLockedResult = .success(false)
+        authRepository.unlockVaultWithNeverlockResult = .success(())
         stateService.activeAccount = account
 
         let task = Task {

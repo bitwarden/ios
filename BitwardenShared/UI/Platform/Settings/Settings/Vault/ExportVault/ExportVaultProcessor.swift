@@ -141,7 +141,7 @@ final class ExportVaultProcessor: StateProcessor<ExportVaultState, ExportVaultAc
             return
         }
         Task {
-            state.filePasswordStrengthScore = await services.authRepository.passwordStrength(
+            state.filePasswordStrengthScore = try? await services.authRepository.passwordStrength(
                 email: "",
                 password: state.filePasswordText
             )

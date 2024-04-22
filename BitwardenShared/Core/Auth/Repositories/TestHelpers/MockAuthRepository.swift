@@ -36,6 +36,7 @@ class MockAuthRepository: AuthRepository {
     var setMasterPasswordOrganizationIdentifier: String?
     var setMasterPasswordResetPasswordAutoEnroll: Bool?
     var setMasterPasswordResult: Result<Void, Error> = .success(())
+    var setPinsResult: Result<Void, Error> = .success(())
     var setVaultTimeoutError: Error?
     var unlockVaultFromLoginWithDeviceKey: String?
     var unlockVaultFromLoginWithDeviceMasterPasswordHash: String? // swiftlint:disable:this identifier_name
@@ -176,6 +177,7 @@ class MockAuthRepository: AuthRepository {
     func setPins(_ pin: String, requirePasswordAfterRestart _: Bool) async throws {
         encryptedPin = pin
         pinProtectedUserKey = pin
+        try setPinsResult.get()
     }
 
     func sessionTimeoutValue(userId: String?) async throws -> BitwardenShared.SessionTimeoutValue {

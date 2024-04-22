@@ -99,14 +99,17 @@ class DefultExportVaultService: ExportVaultService {
     /// The cipher service used by this service.
     private let cipherService: CipherService
 
-    /// The client exporters used by this service.
-    private let clientExporters: ClientExportersProtocol
+    /// The service that handles common client functionality such as encryption and decryption.
+    private let clientService: ClientService
 
     /// The error reporter used by this service.
     private let errorReporter: ErrorReporter
 
     /// The folder service used by this service.
     private let folderService: FolderService
+
+    /// The service used by the application to manage account state.
+    private var stateService: StateService
 
     /// The time provider used by this service.
     private let timeProvider: TimeProvider
@@ -120,22 +123,25 @@ class DefultExportVaultService: ExportVaultService {
     ///
     /// - Parameters:
     ///   - cipherService: The service for managing ciphers.
-    ///   - clientExporters: The component for formatting data into exportable files.
+    ///   - clientService: The service that handles common client functionality such as encryption and decryption.
     ///   - errorReporter: The service for handling errors.
     ///   - folderService: The service for managing folders.
+    ///   - stateService: The service used by the application to manage account state.
     ///   - timeProvider: The provider for current time, used in file naming and data timestamps.
     ///
     init(
         cipherService: CipherService,
-        clientExporters: ClientExportersProtocol,
+        clientService: ClientService,
         errorReporter: ErrorReporter,
         folderService: FolderService,
+        stateService: StateService,
         timeProvider: TimeProvider
     ) {
         self.cipherService = cipherService
-        self.clientExporters = clientExporters
+        self.clientService = clientService
         self.errorReporter = errorReporter
         self.folderService = folderService
+        self.stateService = stateService
         self.timeProvider = timeProvider
     }
 
@@ -175,7 +181,7 @@ class DefultExportVaultService: ExportVaultService {
         }
 
         // A string representing the file contents
-        return try await clientExporters.exportVault(
+        return try await clientService.exporters().exportVault(
             folders: folders,
             ciphers: ciphers,
             format: exportFormat

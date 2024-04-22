@@ -9,10 +9,8 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
 
     var cipherService: MockCipherService!
     var client: MockHTTPClient!
-    var clientAuth: MockClientAuth!
     var clientCiphers: MockClientCiphers!
-    var clientCrypto: MockClientCrypto!
-    var clientVault: MockClientVaultService!
+    var clientService: MockClientService!
     var collectionService: MockCollectionService!
     var environmentService: MockEnvironmentService!
     var errorReporter: MockErrorReporter!
@@ -34,10 +32,8 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
 
         cipherService = MockCipherService()
         client = MockHTTPClient()
-        clientAuth = MockClientAuth()
         clientCiphers = MockClientCiphers()
-        clientCrypto = MockClientCrypto()
-        clientVault = MockClientVaultService()
+        clientService = MockClientService()
         collectionService = MockCollectionService()
         environmentService = MockEnvironmentService()
         errorReporter = MockErrorReporter()
@@ -47,15 +43,13 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
         syncService = MockSyncService()
         timeProvider = MockTimeProvider(.mockTime(now))
         vaultTimeoutService = MockVaultTimeoutService()
-        clientVault.clientCiphers = clientCiphers
+        clientService.mockVault.clientCiphers = clientCiphers
         stateService = MockStateService()
 
         subject = DefaultVaultRepository(
             cipherAPIService: APIService(client: client),
             cipherService: cipherService,
-            clientAuth: clientAuth,
-            clientCrypto: clientCrypto,
-            clientVault: clientVault,
+            clientService: clientService,
             collectionService: collectionService,
             environmentService: environmentService,
             errorReporter: errorReporter,
@@ -74,10 +68,8 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
 
         cipherService = nil
         client = nil
-        clientAuth = nil
         clientCiphers = nil
-        clientCrypto = nil
-        clientVault = nil
+        clientService = nil
         collectionService = nil
         environmentService = nil
         errorReporter = nil
@@ -242,9 +234,9 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
         let resultUrl = try await subject.downloadAttachment(attachment, cipher: cipher)
 
         // Confirm the results.
-        XCTAssertEqual(clientVault.clientCiphers.encryptedCiphers.last, cipher)
+        XCTAssertEqual(clientService.mockVault.clientCiphers.encryptedCiphers.last, cipher)
         XCTAssertEqual(cipherService.downloadAttachmentId, attachment.id)
-        XCTAssertEqual(clientVault.clientAttachments.encryptedFilePaths.last, downloadUrl.path)
+        XCTAssertEqual(clientService.mockVault.clientAttachments.encryptedFilePaths.last, downloadUrl.path)
         XCTAssertEqual(resultUrl?.lastPathComponent, "sillyGoose.txt")
     }
 
@@ -359,7 +351,7 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
                 .fixture(id: "1", name: "Other Folder", revisionDate: Date(year: 2023, month: 12, day: 1)),
             ]
         )
-        XCTAssertEqual(clientVault.clientFolders.decryptedFolders, folders)
+        XCTAssertEqual(clientService.mockVault.clientFolders.decryptedFolders, folders)
     }
 
     /// `fetchSync(isManualRefresh:)` only syncs when expected.
@@ -409,7 +401,7 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
 
     /// `refreshTOTPCode(:)` rethrows errors.
     func test_refreshTOTPCode_error() async throws {
-        clientVault.generateTOTPCodeResult = .failure(BitwardenTestError.example)
+        clientService.mockVault.generateTOTPCodeResult = .failure(BitwardenTestError.example)
         let keyModel = try XCTUnwrap(TOTPKeyModel(authenticatorKey: .base32Key))
         await assertAsyncThrows(error: BitwardenTestError.example) {
             _ = try await subject.refreshTOTPCode(for: keyModel)
@@ -419,7 +411,7 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
     /// `refreshTOTPCode(:)` creates a LoginTOTP model on success.
     func test_refreshTOTPCode_success() async throws {
         let newCode = "999232"
-        clientVault.generateTOTPCodeResult = .success(newCode)
+        clientService.mockVault.generateTOTPCodeResult = .success(newCode)
         let keyModel = try XCTUnwrap(TOTPKeyModel(authenticatorKey: .base32Key))
         let update = try await subject.refreshTOTPCode(for: keyModel)
         XCTAssertEqual(
@@ -438,7 +430,7 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
     /// `refreshTOTPCodes(:)` should not update non-totp items
     func test_refreshTOTPCodes_invalid_noKey() async throws {
         let newCode = "999232"
-        clientVault.generateTOTPCodeResult = .success(newCode)
+        clientService.mockVault.generateTOTPCodeResult = .success(newCode)
         let totpModel = VaultListTOTP(
             id: "123",
             loginView: .fixture(),
@@ -449,7 +441,7 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
             )
         )
         let item: VaultListItem = .fixtureTOTP(totp: totpModel)
-        let newItems = await subject.refreshTOTPCodes(for: [item])
+        let newItems = try await subject.refreshTOTPCodes(for: [item])
         let newItem = try XCTUnwrap(newItems.first)
         XCTAssertEqual(newItem, item)
     }
@@ -457,9 +449,9 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
     /// `refreshTOTPCodes(:)` should not update non-totp items
     func test_refreshTOTPCodes_invalid_nonTOTP() async throws {
         let newCode = "999232"
-        clientVault.generateTOTPCodeResult = .success(newCode)
+        clientService.mockVault.generateTOTPCodeResult = .success(newCode)
         let item: VaultListItem = .fixture()
-        let newItems = await subject.refreshTOTPCodes(for: [item])
+        let newItems = try await subject.refreshTOTPCodes(for: [item])
         let newItem = try XCTUnwrap(newItems.first)
         XCTAssertEqual(newItem, item)
     }
@@ -467,7 +459,7 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
     /// `refreshTOTPCodes(:)` should update correctly
     func test_refreshTOTPCodes_valid() async throws {
         let newCode = "999232"
-        clientVault.generateTOTPCodeResult = .success(newCode)
+        clientService.mockVault.generateTOTPCodeResult = .success(newCode)
         let totpModel = VaultListTOTP(
             id: "123",
             loginView: .fixture(totp: .base32Key),
@@ -478,7 +470,7 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
             )
         )
         let item: VaultListItem = .fixtureTOTP(totp: totpModel)
-        let newItems = await subject.refreshTOTPCodes(for: [item])
+        let newItems = try await subject.refreshTOTPCodes(for: [item])
         let newItem = try XCTUnwrap(newItems.first)
         switch newItem.itemType {
         case let .totp(_, model):
@@ -1114,36 +1106,26 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
     /// `remove(userId:)` Removes an account id from the vault timeout service.
     func test_removeAccountId_success_unlocked() async {
         let account = Account.fixtureAccountLogin()
-        vaultTimeoutService.timeoutStore = [
-            account.profile.userId: false,
-        ]
+        vaultTimeoutService.isClientLocked = [account.profile.userId: false]
         await subject.remove(userId: account.profile.userId)
-        XCTAssertEqual([:], vaultTimeoutService.timeoutStore)
+        XCTAssertTrue(vaultTimeoutService.removedIds.contains(account.profile.userId))
     }
 
     /// `remove(userId:)` Removes an account id from the vault timeout service.
     func test_removeAccountId_success_locked() async {
         let account = Account.fixtureAccountLogin()
-        vaultTimeoutService.timeoutStore = [
-            account.profile.userId: true,
-        ]
+        vaultTimeoutService.isClientLocked[account.profile.userId] = true
         await subject.remove(userId: account.profile.userId)
-        XCTAssertEqual([:], vaultTimeoutService.timeoutStore)
+        XCTAssertTrue(vaultTimeoutService.removedIds.contains(account.profile.userId))
     }
 
     /// `remove(userId:)` Throws no error when no account is found.
     func test_removeAccountId_failure() async {
         let account = Account.fixtureAccountLogin()
-        vaultTimeoutService.timeoutStore = [
-            account.profile.userId: false,
-        ]
-        await subject.remove(userId: "123")
-        XCTAssertEqual(
-            [
-                account.profile.userId: false,
-            ],
-            vaultTimeoutService.timeoutStore
-        )
+        vaultTimeoutService.isClientLocked[account.profile.userId] = false
+        await assertAsyncDoesNotThrow {
+            await subject.remove(userId: "123")
+        }
     }
 
     /// `restoreCipher()` throws on id errors.
@@ -1180,8 +1162,8 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
         )
 
         // Ensure all the steps completed as expected.
-        XCTAssertEqual(clientVault.clientCiphers.encryptedCiphers, [.fixture()])
-        XCTAssertEqual(clientVault.clientAttachments.encryptedBuffers, [Data()])
+        XCTAssertEqual(clientService.mockVault.clientCiphers.encryptedCiphers, [.fixture()])
+        XCTAssertEqual(clientService.mockVault.clientAttachments.encryptedBuffers, [Data()])
         XCTAssertEqual(cipherService.saveAttachmentWithServerCipher, Cipher(cipherView: cipherView))
         XCTAssertEqual(updatedCipher.id, "42")
     }
@@ -1425,7 +1407,7 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
         stateService.activeAccount = premiumAccount
         let cipher = Cipher.fixture(id: "1", login: .fixture(totp: "123"), type: .login)
         struct InvalidCodeError: Error, Equatable {}
-        clientVault.generateTOTPCodeResult = .failure(InvalidCodeError())
+        clientService.mockVault.generateTOTPCodeResult = .failure(InvalidCodeError())
         cipherService.ciphersSubject.send([cipher])
 
         var iterator = try await subject.vaultListPublisher(group: .totp, filter: .allVaults).makeAsyncIterator()

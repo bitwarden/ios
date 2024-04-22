@@ -19,6 +19,7 @@ class EnvironmentUrlsTests: BitwardenTestCase {
                 iconsURL: URL(string: "https://example.com/icons")!,
                 identityURL: URL(string: "https://example.com/identity")!,
                 importItemsURL: URL(string: "https://example.com/#/tools/import")!,
+                recoveryCodeURL: URL(string: "https://example.com/#/recover-2fa")!,
                 sendShareURL: URL(string: "https://example.com/#/send")!,
                 settingsURL: URL(string: "https://example.com/#/settings")!,
                 webVaultURL: URL(string: "https://example.com")!
@@ -46,6 +47,7 @@ class EnvironmentUrlsTests: BitwardenTestCase {
                 iconsURL: URL(string: "https://icons.example.com")!,
                 identityURL: URL(string: "https://identity.example.com")!,
                 importItemsURL: URL(string: "https://example.com/#/tools/import")!,
+                recoveryCodeURL: URL(string: "https://example.com/#/recover-2fa")!,
                 sendShareURL: URL(string: "https://example.com/#/send")!,
                 settingsURL: URL(string: "https://example.com/#/settings")!,
                 webVaultURL: URL(string: "https://example.com")!
@@ -65,6 +67,7 @@ class EnvironmentUrlsTests: BitwardenTestCase {
                 iconsURL: URL(string: "https://icons.bitwarden.net")!,
                 identityURL: URL(string: "https://identity.bitwarden.com")!,
                 importItemsURL: URL(string: "https://vault.bitwarden.com/#/tools/import")!,
+                recoveryCodeURL: URL(string: "https://vault.bitwarden.com/#/recover-2fa")!,
                 sendShareURL: URL(string: "https://send.bitwarden.com/#")!,
                 settingsURL: URL(string: "https://vault.bitwarden.com")!,
                 webVaultURL: URL(string: "https://vault.bitwarden.com")!

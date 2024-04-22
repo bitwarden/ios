@@ -8,7 +8,7 @@ class AppProcessorTests: BitwardenTestCase {
 
     var appModule: MockAppModule!
     var authRepository: MockAuthRepository!
-    var clientPlatform: MockClientPlatform!
+    var clientService: MockClientService!
     var coordinator: MockCoordinator<AppRoute, AppEvent>!
     var errorReporter: MockErrorReporter!
     var migrationService: MockMigrationService!
@@ -29,7 +29,7 @@ class AppProcessorTests: BitwardenTestCase {
         router = MockRouter(routeForEvent: { _ in .landing })
         appModule = MockAppModule()
         authRepository = MockAuthRepository()
-        clientPlatform = MockClientPlatform()
+        clientService = MockClientService()
         coordinator = MockCoordinator()
         appModule.authRouter = router
         appModule.appCoordinator = coordinator
@@ -46,7 +46,7 @@ class AppProcessorTests: BitwardenTestCase {
             appModule: appModule,
             services: ServiceContainer.withMocks(
                 authRepository: authRepository,
-                clientService: MockClientService(clientPlatform: clientPlatform),
+                clientService: clientService,
                 errorReporter: errorReporter,
                 migrationService: migrationService,
                 notificationService: notificationService,
@@ -64,6 +64,7 @@ class AppProcessorTests: BitwardenTestCase {
 
         appModule = nil
         authRepository = nil
+        clientService = nil
         coordinator = nil
         errorReporter = nil
         migrationService = nil
@@ -117,12 +118,6 @@ class AppProcessorTests: BitwardenTestCase {
         XCTAssertIdentical(syncService.delegate, subject)
     }
 
-    /// `.loadFlags()` loads the feature flags.
-    func test_loadFlags() async {
-        await subject.loadFlags()
-        XCTAssertEqual(clientPlatform.featureFlags, ["enableCipherKeyEncryption": true])
-    }
-
     /// `messageReceived(_:notificationDismissed:notificationTapped)` passes the data to the notification service.
     func test_messageReceived() async {
         let message: [AnyHashable: Any] = ["knock knock": "who's there?"]
@@ -153,8 +148,13 @@ class AppProcessorTests: BitwardenTestCase {
     /// Upon a session timeout on app foreground, send the user to the `.didTimeout` route.
     func test_shouldSessionTimeout_navigateTo_didTimeout() throws {
         let rootNavigator = MockRootNavigator()
-        let account = Account.fixture()
-        stateService.activeAccount = account
+        let user = Account.fixture()
+        let userId = user.profile.userId
+        let user2 = Account.fixture()
+        let user2Id = user2.profile.userId
+
+        stateService.activeAccount = user
+        stateService.accounts = [user, user2]
 
         let task = Task {
             await subject.start(appContext: .mainApp, navigator: rootNavigator, window: nil)
@@ -162,17 +162,18 @@ class AppProcessorTests: BitwardenTestCase {
         waitFor(coordinator.events == [.didStart])
         task.cancel()
 
-        vaultTimeoutService.shouldSessionTimeout[account.profile.userId] = true
-
+        vaultTimeoutService.shouldSessionTimeout[userId] = true
         notificationCenterService.willEnterForegroundSubject.send()
-        waitFor(vaultTimeoutService.shouldSessionTimeout[account.profile.userId] == true)
 
+        waitFor(vaultTimeoutService.shouldSessionTimeout[userId] == true)
         waitFor(coordinator.events.count > 1)
+        waitFor(vaultTimeoutService.isLocked(userId: user2Id))
+
         XCTAssertEqual(
             coordinator.events,
             [
                 .didStart,
-                .didTimeout(userId: account.profile.userId),
+                .didTimeout(userId: userId),
             ]
         )
     }

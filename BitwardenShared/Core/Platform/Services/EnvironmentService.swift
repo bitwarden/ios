@@ -21,6 +21,9 @@ protocol EnvironmentService {
     /// The URL for importing items.
     var importItemsURL: URL { get }
 
+    /// The URL for the recovery code help page.
+    var recoveryCodeURL: URL { get }
+
     /// The URL for sharing a send.
     var sendShareURL: URL { get }
 
@@ -109,6 +112,10 @@ extension DefaultEnvironmentService {
 
     var importItemsURL: URL {
         environmentUrls.importItemsURL
+    }
+
+    var recoveryCodeURL: URL {
+        environmentUrls.recoveryCodeURL
     }
 
     var sendShareURL: URL {

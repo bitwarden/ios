@@ -126,9 +126,10 @@ final class ExportVaultServiceTests: BitwardenTestCase {
     )
 
     var cipherService: MockCipherService!
+    var clientService: MockClientService!
     var errorReporter: MockErrorReporter!
-    var exporters: MockClientExporters!
     var folderService: MockFolderService!
+    var stateService: MockStateService!
     var subject: ExportVaultService!
     var timeProvider: MockTimeProvider!
 
@@ -149,9 +150,10 @@ final class ExportVaultServiceTests: BitwardenTestCase {
             ]
         )
         errorReporter = MockErrorReporter()
-        exporters = MockClientExporters()
-        exporters.exportVaultResult = .success("success")
+        clientService = MockClientService()
         folderService = MockFolderService()
+        stateService = MockStateService()
+        clientService.mockExporters.exportVaultResult = .success("success")
         folderService.fetchAllFoldersResult = .success(
             [
                 folder,
@@ -168,9 +170,10 @@ final class ExportVaultServiceTests: BitwardenTestCase {
         )
         subject = DefultExportVaultService(
             cipherService: cipherService,
-            clientExporters: exporters,
+            clientService: clientService,
             errorReporter: errorReporter,
             folderService: folderService,
+            stateService: stateService,
             timeProvider: timeProvider
         )
     }
@@ -178,11 +181,12 @@ final class ExportVaultServiceTests: BitwardenTestCase {
     override func tearDown() {
         super.tearDown()
 
-        exporters = nil
+        clientService = nil
+        cipherService = nil
         errorReporter = nil
         folderService = nil
-        cipherService = nil
         timeProvider = nil
+        stateService = nil
         subject = nil
     }
 
@@ -192,11 +196,11 @@ final class ExportVaultServiceTests: BitwardenTestCase {
     ///
     func test_fileContent_csv() async throws {
         let fileType = ExportFileType.csv
-        exporters.exportVaultResult = .success("success")
+        clientService.mockExporters.exportVaultResult = .success("success")
         _ = try await subject.exportVaultFileContents(format: fileType)
-        XCTAssertEqual(exporters.folders, [folder])
+        XCTAssertEqual(clientService.mockExporters.folders, [folder])
         XCTAssertEqual(
-            exporters.ciphers,
+            clientService.mockExporters.ciphers,
             [
                 loginCipher,
                 secureNoteCipher,
@@ -208,11 +212,11 @@ final class ExportVaultServiceTests: BitwardenTestCase {
     ///
     func test_fileContent_encryptedJSON() async throws {
         let fileType = ExportFileType.encryptedJson(password: "1234")
-        exporters.exportVaultResult = .success("success")
+        clientService.mockExporters.exportVaultResult = .success("success")
         _ = try await subject.exportVaultFileContents(format: fileType)
-        XCTAssertEqual(exporters.folders, [folder])
+        XCTAssertEqual(clientService.mockExporters.folders, [folder])
         XCTAssertEqual(
-            Set(exporters.ciphers),
+            Set(clientService.mockExporters.ciphers),
             Set([
                 cardCipher,
                 loginCipher,
@@ -234,7 +238,7 @@ final class ExportVaultServiceTests: BitwardenTestCase {
     /// Test the exporter throws on an export error.
     ///
     func test_fileContent_error_export() async throws {
-        exporters.exportVaultResult = .failure(BitwardenTestError.example)
+        clientService.mockExporters.exportVaultResult = .failure(BitwardenTestError.example)
         await assertAsyncThrows(error: BitwardenTestError.example) {
             _ = try await subject.exportVaultFileContents(format: .csv)
         }
@@ -253,11 +257,11 @@ final class ExportVaultServiceTests: BitwardenTestCase {
     ///
     func test_fileContent_json() async throws {
         let fileType = ExportFileType.json
-        exporters.exportVaultResult = .success("success")
+        clientService.mockExporters.exportVaultResult = .success("success")
         _ = try await subject.exportVaultFileContents(format: fileType)
-        XCTAssertEqual(exporters.folders, [folder])
+        XCTAssertEqual(clientService.mockExporters.folders, [folder])
         XCTAssertEqual(
-            exporters.ciphers,
+            clientService.mockExporters.ciphers,
             [
                 cardCipher,
                 identityCipher,
