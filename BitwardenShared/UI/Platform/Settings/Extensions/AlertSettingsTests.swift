@@ -208,6 +208,33 @@ class AlertSettingsTests: BitwardenTestCase {
         XCTAssertEqual(subject.message, Localizations.pinRequireMasterPasswordRestart)
     }
 
+    /// `verificationCodePrompt(completion:)` constructs an `Alert` used to ask the user to entered
+    /// the verification code that was sent to their email.
+    ///
+    func test_verificationCodePrompt() async throws {
+        var enteredOtp: String?
+        let subject = Alert.verificationCodePrompt { otp in
+            enteredOtp = otp
+        }
+
+        XCTAssertEqual(subject.preferredStyle, .alert)
+        XCTAssertEqual(subject.title, Localizations.verificationCode)
+        XCTAssertEqual(subject.message, Localizations.enterTheVerificationCodeThatWasSentToYourEmail)
+        XCTAssertEqual(subject.alertActions.count, 2)
+        XCTAssertEqual(subject.alertActions.first?.title, Localizations.submit)
+        XCTAssertEqual(subject.alertActions.first?.style, .default)
+        XCTAssertEqual(subject.alertActions.last?.title, Localizations.cancel)
+        XCTAssertEqual(subject.alertActions.last?.style, .cancel)
+
+        var textField = try XCTUnwrap(subject.alertTextFields.first)
+        textField = AlertTextField(id: "otp", text: "otp")
+
+        let action = try XCTUnwrap(subject.alertActions.first(where: { $0.title == Localizations.submit }))
+        await action.handler?(action, [textField])
+
+        XCTAssertEqual(enteredOtp, "otp")
+    }
+
     /// `webVaultAlert(encrypted:action:)` constructs an `Alert`
     /// with the correct title, message, and Cancel and Continue buttons.
     func test_webVaultAlert() {

@@ -30,10 +30,12 @@ protocol AuthRepository: AnyObject {
 
     /// Deletes the user's account.
     ///
-    /// - Parameter passwordText: The password entered by the user, which is used to verify
-    /// their identify before deleting the account.
+    /// - Parameters:
+    ///   - otp: The user's one-time password, if they don't have a master password.
+    ///   - passwordText: The password entered by the user, which is used to verify
+    ///     their identify before deleting the account.
     ///
-    func deleteAccount(passwordText: String) async throws
+    func deleteAccount(otp: String?, passwordText: String?) async throws
 
     /// Gets the account for a user id.
     ///
@@ -410,11 +412,18 @@ extension DefaultAuthRepository: AuthRepository {
         try await stateService.clearPins()
     }
 
-    func deleteAccount(passwordText: String) async throws {
-        let hashedPassword = try await authService.hashPassword(password: passwordText, purpose: .serverAuthorization)
+    func deleteAccount(otp: String?, passwordText: String?) async throws {
+        let hashedPassword: String? = if let passwordText {
+            try await authService.hashPassword(password: passwordText, purpose: .serverAuthorization)
+        } else {
+            nil
+        }
 
         _ = try await accountAPIService.deleteAccount(
-            body: DeleteAccountRequestModel(masterPasswordHash: hashedPassword)
+            body: DeleteAccountRequestModel(
+                masterPasswordHash: hashedPassword,
+                otp: otp
+            )
         )
 
         try await stateService.deleteAccount()

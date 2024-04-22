@@ -5,6 +5,7 @@ import XCTest
 class DeleteAccountProcessorTests: BitwardenTestCase {
     // MARK: Properties
 
+    var authRepository: MockAuthRepository!
     var coordinator: MockCoordinator<SettingsRoute, SettingsEvent>!
     var errorReporter: MockErrorReporter!
     var stateService: MockStateService!
@@ -15,12 +16,15 @@ class DeleteAccountProcessorTests: BitwardenTestCase {
     override func setUp() {
         super.setUp()
 
+        authRepository = MockAuthRepository()
         coordinator = MockCoordinator<SettingsRoute, SettingsEvent>()
         errorReporter = MockErrorReporter()
         stateService = MockStateService()
         subject = DeleteAccountProcessor(
             coordinator: coordinator.asAnyCoordinator(),
             services: ServiceContainer.withMocks(
+                authRepository: authRepository,
+                errorReporter: errorReporter,
                 stateService: stateService
             ),
             state: DeleteAccountState()
@@ -30,6 +34,7 @@ class DeleteAccountProcessorTests: BitwardenTestCase {
     override func tearDown() {
         super.tearDown()
 
+        authRepository = nil
         coordinator = nil
         errorReporter = nil
         stateService = nil
@@ -90,5 +95,46 @@ class DeleteAccountProcessorTests: BitwardenTestCase {
         await action.handler?(action, [textField])
 
         XCTAssertEqual(stateService.activeAccount, account2)
+    }
+
+    /// Perform with `.deleteAccount` presents the OTP code verification alert for users without a
+    /// master password. Pressing submit on the alert deletes the user's account.
+    func test_perform_deleteAccount_submitPressed_noMasterPassword() async throws {
+        authRepository.hasMasterPassword = false
+        stateService.activeAccount = Account.fixtureWithTdeNoPassword()
+
+        await subject.perform(.deleteAccount)
+
+        let alert = try XCTUnwrap(coordinator.alertShown.last)
+        XCTAssertEqual(alert, .verificationCodePrompt { _ in })
+        XCTAssertFalse(coordinator.isLoadingOverlayShowing)
+        XCTAssertEqual(coordinator.loadingOverlaysShown, [LoadingOverlayState(title: Localizations.sendingCode)])
+        XCTAssertTrue(authRepository.requestOtpCalled)
+        coordinator.loadingOverlaysShown.removeAll()
+
+        var textField = try XCTUnwrap(alert.alertTextFields.first)
+        textField = AlertTextField(id: "otp", text: "otp")
+        let action = try XCTUnwrap(alert.alertActions.first(where: { $0.title == Localizations.submit }))
+        await action.handler?(action, [textField])
+
+        XCTAssertFalse(coordinator.isLoadingOverlayShowing)
+        XCTAssertEqual(
+            coordinator.loadingOverlaysShown,
+            [LoadingOverlayState(title: Localizations.deletingYourAccount)]
+        )
+        XCTAssertTrue(authRepository.deleteAccountCalled)
+    }
+
+    /// Perform with `.deleteAccount` presents the OTP code verification alert for users without a
+    /// master password. If an error occurs it's logged and an alert is shown.
+    func test_perform_deleteAccount_submitPressed_noMasterPassword_error() async throws {
+        authRepository.hasMasterPassword = false
+        authRepository.requestOtpResult = .failure(BitwardenTestError.example)
+        stateService.activeAccount = Account.fixtureWithTdeNoPassword()
+
+        await subject.perform(.deleteAccount)
+
+        XCTAssertEqual(coordinator.alertShown, [.networkResponseError(BitwardenTestError.example)])
+        XCTAssertEqual(errorReporter.errors as? [BitwardenTestError], [.example])
     }
 }
