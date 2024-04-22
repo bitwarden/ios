@@ -27,13 +27,13 @@ struct ExportVaultState: Equatable {
     /// Whether the file password field is visible.
     var isFilePasswordVisible = false
 
-    /// Whether the master password field is visible.
+    /// Whether the master password/OTP field is visible.
     var isMasterPasswordOrOtpVisible = false
 
     /// Whether the send code button is disabled.
     var isSendCodeButtonDisabled = false
 
-    /// The master password text.
+    /// The master password/OTP text.
     var masterPasswordOrOtpText = ""
 
     /// A toast message to show in the view.

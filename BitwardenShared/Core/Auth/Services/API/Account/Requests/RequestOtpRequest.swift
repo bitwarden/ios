@@ -1,5 +1,7 @@
 import Networking
 
+// MARK: - RequestOtpRequest
+
 /// An API request to request a one-time password for the user.
 ///
 struct RequestOtpRequest: Request {
