@@ -484,26 +484,55 @@ extension DefaultAuthRepository: AuthRepository {
         resetPasswordAutoEnroll: Bool
     ) async throws {
         let account = try await stateService.getActiveAccount()
+        let email = account.profile.email
         let kdf = account.kdf
-        let passwordResult = try await clientCrypto.updatePassword(newPassword: password)
-        let accountKeys = try await stateService.getAccountEncryptionKeys()
+        let requestUserKey: String
+        let requestKeys: KeysRequestModel?
+        let requestPasswordHash: String
+        let encryptedPrivateKey: String
+
+        // TDE user
+        if account.profile.userDecryptionOptions?.trustedDeviceOption != nil {
+            let passwordResult = try await clientCrypto.updatePassword(newPassword: password)
+            let accountKeys = try await stateService.getAccountEncryptionKeys()
+            requestPasswordHash = passwordResult.passwordHash
+            requestUserKey = passwordResult.newKey
+            requestKeys = nil
+            encryptedPrivateKey = accountKeys.encryptedPrivateKey
+        } else {
+            let keys = try await clientAuth.makeRegisterKeys(
+                email: email,
+                password: password,
+                kdf: kdf.sdkKdf
+            )
+            requestPasswordHash = try await clientAuth.hashPassword(
+                email: email,
+                password: password,
+                kdfParams: kdf.sdkKdf,
+                purpose: .serverAuthorization
+            )
+            requestUserKey = keys.encryptedUserKey
+            requestKeys = KeysRequestModel(
+                encryptedPrivateKey: keys.keys.private,
+                publicKey: keys.keys.public
+            )
+            encryptedPrivateKey = keys.keys.private
+        }
+
         let requestModel = SetPasswordRequestModel(
             kdfConfig: kdf,
-            key: passwordResult.newKey,
-            keys: nil,
-            masterPasswordHash: passwordResult.passwordHash,
+            key: requestUserKey,
+            keys: requestKeys,
+            masterPasswordHash: requestPasswordHash,
             masterPasswordHint: masterPasswordHint,
             orgIdentifier: organizationIdentifier
         )
 
         try await accountAPIService.setPassword(requestModel)
-
-        let accountEncryptionKeys = AccountEncryptionKeys(
-            encryptedPrivateKey: accountKeys.encryptedPrivateKey,
-            encryptedUserKey: passwordResult.newKey
-        )
-
-        try await stateService.setAccountEncryptionKeys(accountEncryptionKeys)
+        try await stateService.setAccountEncryptionKeys(AccountEncryptionKeys(
+            encryptedPrivateKey: encryptedPrivateKey,
+            encryptedUserKey: requestUserKey
+        ))
         try await stateService.setUserHasMasterPassword()
 
         if resetPasswordAutoEnroll {
@@ -518,7 +547,7 @@ extension DefaultAuthRepository: AuthRepository {
             try await organizationUserAPIService.organizationUserResetPasswordEnrollment(
                 organizationId: organizationId,
                 requestModel: OrganizationUserResetPasswordEnrollmentRequestModel(
-                    masterPasswordHash: passwordResult.passwordHash,
+                    masterPasswordHash: requestPasswordHash,
                     resetPasswordKey: resetPasswordKey
                 ),
                 userId: account.profile.userId

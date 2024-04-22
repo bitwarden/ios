@@ -83,7 +83,7 @@ class SetMasterPasswordProcessor: StateProcessor<
 
         do {
             let account = try await services.authRepository.getAccount()
-            state.isPrivilegeElevation = account.profile.userDecryptionOptions != nil
+            state.isPrivilegeElevation = account.profile.userDecryptionOptions?.trustedDeviceOption != nil
 
             let response = try await services.organizationAPIService.getOrganizationAutoEnrollStatus(
                 identifier: state.organizationIdentifier
