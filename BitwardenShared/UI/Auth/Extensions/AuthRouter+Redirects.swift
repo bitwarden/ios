@@ -132,7 +132,7 @@ extension AuthRouter {
         )
     }
 
-    /// Handles the `.logout()`action and redirects the user to the correct screen.
+    /// Handles the `.logout()` action and redirects the user to the correct screen.
     ///
     ///   - Parameter userId: The id of the user that should be logged out.
     ///   - Returns: A redirect to either `.landing` or `prepareAndRedirect(.vaultUnlock)`.
@@ -207,12 +207,14 @@ extension AuthRouter {
             // If no account can be set to active, go to the landing screen.
             return .landing
         }
-        // Check for the `onAppRestart` timeout condition.
-        let vaultTimeout = try? await services.vaultTimeoutService
-            .sessionTimeoutValue(userId: activeAccount.profile.userId)
-        if vaultTimeout == .onAppRestart {
+
+        // Check for a `logout` timeout action.
+        let timeoutAction = try? await services.authRepository
+            .sessionTimeoutAction(userId: activeAccount.profile.userId)
+        if timeoutAction == .logout {
             return await handleAndRoute(.didTimeout(userId: activeAccount.profile.userId))
         }
+
         // Setup the unlock route for the active account.
         let event = AuthEvent.accountBecameActive(
             activeAccount,
@@ -234,7 +236,7 @@ extension AuthRouter {
             // Ensure the timeout interval isn't `.never` and that the user has a timeout action.
             let vaultTimeoutInterval = try await services.vaultTimeoutService.sessionTimeoutValue(userId: userId)
             guard vaultTimeoutInterval != .never,
-                  let action = try? await services.stateService.getTimeoutAction(userId: userId) else {
+                  let action = try? await services.authRepository.sessionTimeoutAction(userId: userId) else {
                 // If we have timed out a user with `.never` as a timeout or no timeout action,
                 // no redirect is needed.
                 return .complete

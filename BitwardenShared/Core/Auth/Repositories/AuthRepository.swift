@@ -103,6 +103,12 @@ protocol AuthRepository: AnyObject {
         showPlaceholderToolbarIcon: Bool
     ) async -> ProfileSwitcherState
 
+    /// Gets the `SessionTimeoutAction` for a user.
+    ///
+    ///  - Parameter userId: The userId of the account. Defaults to the active user if nil.
+    ///
+    func sessionTimeoutAction(userId: String?) async throws -> SessionTimeoutAction
+
     /// Gets the `SessionTimeoutValue` for a user.
     ///
     ///  - Parameter userId: The userId of the account.
@@ -235,6 +241,12 @@ extension AuthRepository {
     ///
     func logout() async throws {
         try await logout(userId: nil)
+    }
+
+    /// Gets the `SessionTimeoutAction` for the active account.
+    ///
+    func sessionTimeoutAction() async throws -> SessionTimeoutAction {
+        try await sessionTimeoutAction(userId: nil)
     }
 
     /// Gets the `SessionTimeoutValue` for the active user.
@@ -451,6 +463,23 @@ extension DefaultAuthRepository: AuthRepository {
 
     func passwordStrength(email: String, password: String) async throws -> UInt8 {
         try await clientService.auth().passwordStrength(password: password, email: email, additionalInputs: [])
+    }
+
+    func sessionTimeoutAction(userId: String?) async throws -> SessionTimeoutAction {
+        let hasMasterPassword = try await stateService.getUserHasMasterPassword(userId: userId)
+        let timeoutAction = try await stateService.getTimeoutAction(userId: userId)
+        guard hasMasterPassword else {
+            let isBiometricsEnabled = try await biometricsRepository.getBiometricUnlockStatus().isEnabled
+            let isPinEnabled = try await isPinUnlockAvailable()
+            if isPinEnabled || isBiometricsEnabled {
+                return timeoutAction
+            } else {
+                // If the user doesn't have a master password and hasn't enabled a pin or
+                // biometrics, their timeout action needs to be logout.
+                return .logout
+            }
+        }
+        return timeoutAction
     }
 
     func sessionTimeoutValue(userId: String?) async throws -> SessionTimeoutValue {

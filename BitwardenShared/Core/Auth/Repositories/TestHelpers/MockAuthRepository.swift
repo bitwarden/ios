@@ -28,6 +28,7 @@ class MockAuthRepository: AuthRepository {
     var passwordStrengthResult: UInt8 = 0
     var pinProtectedUserKey = "123"
     var profileSwitcherState: ProfileSwitcherState?
+    var sessionTimeoutAction = [String: SessionTimeoutAction]()
     var setActiveAccountId: String?
     var setActiveAccountError: Error?
     var setMasterPasswordHint: String?
@@ -178,6 +179,11 @@ class MockAuthRepository: AuthRepository {
         encryptedPin = pin
         pinProtectedUserKey = pin
         try setPinsResult.get()
+    }
+
+    func sessionTimeoutAction(userId: String?) async throws -> SessionTimeoutAction {
+        let userId = try unwrapUserId(userId)
+        return sessionTimeoutAction[userId] ?? .lock
     }
 
     func sessionTimeoutValue(userId: String?) async throws -> BitwardenShared.SessionTimeoutValue {
