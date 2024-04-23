@@ -89,14 +89,6 @@ final class DeleteAccountProcessor: StateProcessor<DeleteAccountState, DeleteAcc
         }
     }
 
-    /// Shows the master password prompt when the user is attempting to delete their account.
-    ///
-    private func showMasterPasswordReprompt() async {
-        coordinator.showAlert(.masterPasswordPrompt { [weak self] passwordText in
-            await self?.deleteAccount(otp: nil, passwordText: passwordText)
-        })
-    }
-
     /// Shows an alert for account verification. This will either require the user to enter their
     /// master password or a one-time password that was emailed to them depending on if they have a
     /// master password or not.
