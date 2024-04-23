@@ -88,7 +88,7 @@ class MockAuthRepository: AuthRepository {
         try createNewSsoUserResult.get()
     }
 
-    func deleteAccount(passwordText _: String) async throws {
+    func deleteAccount(otp: String?, passwordText _: String?) async throws {
         deleteAccountCalled = true
     }
 

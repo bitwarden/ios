@@ -306,6 +306,36 @@ extension Alert {
         )
     }
 
+    /// An alert asking the user to enter the verification code that was sent to their email.
+    ///
+    /// - Parameter completion: The action to occur when submit is tapped.
+    /// - Returns: An alert asking the user to enter the verification code that was sent to their email.
+    ///
+    static func verificationCodePrompt(completion: @MainActor @escaping (String) async -> Void) -> Alert {
+        Alert(
+            title: Localizations.verificationCode,
+            message: Localizations.enterTheVerificationCodeThatWasSentToYourEmail,
+            alertActions: [
+                AlertAction(
+                    title: Localizations.submit,
+                    style: .default
+                ) { _, alertTextFields in
+                    guard let password = alertTextFields.first(where: { $0.id == "otp" })?.text else { return }
+                    await completion(password)
+                },
+                AlertAction(title: Localizations.cancel, style: .cancel),
+            ],
+            alertTextFields: [
+                AlertTextField(
+                    id: "otp",
+                    autocapitalizationType: .none,
+                    autocorrectionType: .no,
+                    isSecureTextEntry: true
+                ),
+            ]
+        )
+    }
+
     /// An alert that asks if the user wants to navigate to the web vault in a browser.
     ///
     /// - Parameter action: The action taken if they select continue.

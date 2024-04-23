@@ -209,7 +209,7 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
 
         client.result = .httpSuccess(testData: APITestData(data: Data()))
 
-        try await subject.deleteAccount(passwordText: "12345")
+        try await subject.deleteAccount(otp: nil, passwordText: "12345")
         let accounts = try await stateService.getAccounts()
 
         XCTAssertEqual(accounts.count, 1)
