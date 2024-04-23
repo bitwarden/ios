@@ -517,7 +517,7 @@ extension DefaultAuthRepository: AuthRepository {
         return try await stateService.getActiveAccount()
     }
 
-    func setMasterPassword(
+    func setMasterPassword( // swiftlint:disable:this function_body_length
         _ password: String,
         masterPasswordHint: String,
         organizationId: String,
