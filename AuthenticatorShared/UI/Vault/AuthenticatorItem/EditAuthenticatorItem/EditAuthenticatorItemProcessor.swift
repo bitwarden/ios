@@ -91,6 +91,7 @@ final class EditAuthenticatorItemProcessor: StateProcessor<
         case let .periodChanged(period):
             state.period = period
         case let .secretChanged(secret):
+            state.secret = secret
             state.totpState = LoginTOTPState(secret)
         case let .toggleSecretVisibilityChanged(isVisible):
             state.isSecretVisible = isVisible
@@ -130,6 +131,8 @@ final class EditAuthenticatorItemProcessor: StateProcessor<
         do {
             try EmptyInputValidator(fieldName: Localizations.name)
                 .validate(input: state.issuer)
+            try EmptyInputValidator(fieldName: Localizations.authenticatorKey)
+                .validate(input: state.secret)
             coordinator.showLoadingOverlay(title: Localizations.saving)
             switch state.configuration {
             case .add:
