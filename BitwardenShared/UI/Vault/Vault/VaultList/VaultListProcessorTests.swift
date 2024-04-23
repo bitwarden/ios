@@ -624,6 +624,74 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
         XCTAssertEqual(profile1, subject.state.profileSwitcherState.activeAccountProfile)
     }
 
+    /// `perform(_:)` with `.requestedProfileSwitcher(visible:)` updates the state correctly.
+    func test_perform_requestedProfileSwitcher() async {
+        let annAccount = ProfileSwitcherItem.anneAccount
+        let beeAccount = ProfileSwitcherItem.beeAccount
+
+        subject.state.profileSwitcherState.accounts = [annAccount, beeAccount]
+        subject.state.profileSwitcherState.isVisible = false
+
+        authRepository.profileSwitcherState = ProfileSwitcherState.maximumAccounts
+        await subject.perform(.profileSwitcher(.requestedProfileSwitcher(visible: true)))
+
+        // Ensure that the profile switcher state is updated
+        waitFor(subject.state.profileSwitcherState == authRepository.profileSwitcherState)
+        XCTAssertTrue(subject.state.profileSwitcherState.isVisible)
+    }
+
+    /// `perform(.profileSwitcher(.rowAppeared))` should not update the state for add Account
+    func test_perform_rowAppeared_add() async {
+        let profile = ProfileSwitcherItem.fixture()
+        let alternate = ProfileSwitcherItem.fixture()
+        subject.state.profileSwitcherState = ProfileSwitcherState(
+            accounts: [profile, alternate],
+            activeAccountId: profile.userId,
+            allowLockAndLogout: true,
+            isVisible: true
+        )
+
+        await subject.perform(.profileSwitcher(.rowAppeared(.addAccount)))
+
+        XCTAssertFalse(subject.state.profileSwitcherState.hasSetAccessibilityFocus)
+    }
+
+    /// `perform(.profileSwitcher(.rowAppeared))` should not update the state for alternate account
+    func test_perform_rowAppeared_alternate() async {
+        let profile = ProfileSwitcherItem.fixture()
+        let alternate = ProfileSwitcherItem.fixture()
+        subject.state.profileSwitcherState = ProfileSwitcherState(
+            accounts: [profile, alternate],
+            activeAccountId: profile.userId,
+            allowLockAndLogout: true,
+            isVisible: true
+        )
+
+        await subject.perform(.profileSwitcher(.rowAppeared(.alternate(alternate))))
+
+        XCTAssertFalse(subject.state.profileSwitcherState.hasSetAccessibilityFocus)
+    }
+
+    /// `perform(.profileSwitcher(.rowAppeared))` should update the state for active account
+    func test_perform_rowAppeared_active() {
+        let profile = ProfileSwitcherItem.fixture()
+        let alternate = ProfileSwitcherItem.fixture()
+        subject.state.profileSwitcherState = ProfileSwitcherState(
+            accounts: [profile, alternate],
+            activeAccountId: profile.userId,
+            allowLockAndLogout: true,
+            isVisible: true
+        )
+
+        let task = Task {
+            await subject.perform(.profileSwitcher(.rowAppeared(.active(profile))))
+        }
+
+        waitFor(subject.state.profileSwitcherState.hasSetAccessibilityFocus, timeout: 0.5)
+        task.cancel()
+        XCTAssertTrue(subject.state.profileSwitcherState.hasSetAccessibilityFocus)
+    }
+
     /// `perform(.search)` with a keyword should update search results in state.
     func test_perform_search() async {
         let searchResult: [CipherView] = [.fixture(name: "example")]
@@ -972,58 +1040,6 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
         XCTAssertEqual(coordinator.routes.last, .addAccount)
     }
 
-    /// `perform(.profileSwitcher(.rowAppeared))` should not update the state for add Account
-    func test_perform_rowAppeared_add() async {
-        let profile = ProfileSwitcherItem.fixture()
-        let alternate = ProfileSwitcherItem.fixture()
-        subject.state.profileSwitcherState = ProfileSwitcherState(
-            accounts: [profile, alternate],
-            activeAccountId: profile.userId,
-            allowLockAndLogout: true,
-            isVisible: true
-        )
-
-        await subject.perform(.profileSwitcher(.rowAppeared(.addAccount)))
-
-        XCTAssertFalse(subject.state.profileSwitcherState.hasSetAccessibilityFocus)
-    }
-
-    /// `perform(.profileSwitcher(.rowAppeared))` should not update the state for alternate account
-    func test_perform_rowAppeared_alternate() async {
-        let profile = ProfileSwitcherItem.fixture()
-        let alternate = ProfileSwitcherItem.fixture()
-        subject.state.profileSwitcherState = ProfileSwitcherState(
-            accounts: [profile, alternate],
-            activeAccountId: profile.userId,
-            allowLockAndLogout: true,
-            isVisible: true
-        )
-
-        await subject.perform(.profileSwitcher(.rowAppeared(.alternate(alternate))))
-
-        XCTAssertFalse(subject.state.profileSwitcherState.hasSetAccessibilityFocus)
-    }
-
-    /// `perform(.profileSwitcher(.rowAppeared))` should update the state for active account
-    func test_perform_rowAppeared_active() {
-        let profile = ProfileSwitcherItem.fixture()
-        let alternate = ProfileSwitcherItem.fixture()
-        subject.state.profileSwitcherState = ProfileSwitcherState(
-            accounts: [profile, alternate],
-            activeAccountId: profile.userId,
-            allowLockAndLogout: true,
-            isVisible: true
-        )
-
-        let task = Task {
-            await subject.perform(.profileSwitcher(.rowAppeared(.active(profile))))
-        }
-
-        waitFor(subject.state.profileSwitcherState.hasSetAccessibilityFocus, timeout: 0.5)
-        task.cancel()
-        XCTAssertTrue(subject.state.profileSwitcherState.hasSetAccessibilityFocus)
-    }
-
     /// `receive(_:)` with `.addItemPressed` navigates to the `.addItem` route.
     func test_receive_addItemPressed() {
         subject.receive(.addItemPressed)
@@ -1142,14 +1158,6 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
         subject.receive(.totpCodeExpired(.fixture()))
 
         XCTAssertEqual(subject.state, initialState)
-    }
-
-    /// `receive(_:)` with `.toggleProfilesViewVisibility` updates the state correctly.
-    func test_receive_toggleProfilesViewVisibility() {
-        subject.state.profileSwitcherState.isVisible = false
-        subject.receive(.profileSwitcher(.requestedProfileSwitcher(visible: true)))
-
-        XCTAssertTrue(subject.state.profileSwitcherState.isVisible)
     }
 
     /// `receive(_:)` with `.vaultFilterChanged` updates the state correctly.

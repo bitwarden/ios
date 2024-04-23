@@ -76,8 +76,6 @@ extension ProfileSwitcherHandler {
             }
         case .backgroundPressed:
             profileSwitcherState.isVisible = false
-        case let .requestedProfileSwitcher(visible: isVisible):
-            profileSwitcherState.isVisible = isVisible
         case let .scrollOffsetChanged(newOffset):
             profileSwitcherState.scrollOffset = newOffset
         }
@@ -99,6 +97,11 @@ extension ProfileSwitcherHandler {
         case .addAccountPressed:
             profileSwitcherState.isVisible = false
             showAddAccount()
+        case let .requestedProfileSwitcher(isVisible):
+            if isVisible {
+                await refreshProfileState()
+            }
+            profileSwitcherState.isVisible = isVisible
         case let .rowAppeared(rowType):
             await rowAppeared(rowType)
         }

@@ -126,6 +126,14 @@ class VaultAutofillListProcessorTests: BitwardenTestCase {
         XCTAssertTrue(subject.state.profileSwitcherState.isVisible)
     }
 
+    /// `perform(_:)` with `.profileSwitcher(.requestedProfileSwitcher(visible:))` updates the state correctly.
+    func test_perform_profileSwitcher_toggleProfilesViewVisibility() async {
+        subject.state.profileSwitcherState.isVisible = false
+        await subject.perform(.profileSwitcher(.requestedProfileSwitcher(visible: true)))
+
+        XCTAssertTrue(subject.state.profileSwitcherState.isVisible)
+    }
+
     /// `perform(_:)` with `.search()` performs a cipher search and updates the state with the results.
     func test_perform_search() {
         let ciphers: [CipherView] = [.fixture(id: "1"), .fixture(id: "2"), .fixture(id: "3")]
@@ -254,14 +262,6 @@ class VaultAutofillListProcessorTests: BitwardenTestCase {
         subject.state.profileSwitcherState.scrollOffset = .zero
         subject.receive(.profileSwitcher(.scrollOffsetChanged(CGPoint(x: 10, y: 10))))
         XCTAssertEqual(subject.state.profileSwitcherState.scrollOffset, CGPoint(x: 10, y: 10))
-    }
-
-    /// `receive(_:)` with `.profileSwitcher(.toggleProfilesViewVisibility)` updates the state correctly.
-    func test_receive_profileSwitcher_toggleProfilesViewVisibility() {
-        subject.state.profileSwitcherState.isVisible = false
-        subject.receive(.profileSwitcher(.requestedProfileSwitcher(visible: true)))
-
-        XCTAssertTrue(subject.state.profileSwitcherState.isVisible)
     }
 
     /// `receive(_:)` with `.searchStateChanged` updates the state when the search state changes.
