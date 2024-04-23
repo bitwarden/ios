@@ -10,7 +10,7 @@ class SendRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
     // MARK: Properties
 
     var client: MockHTTPClient!
-    var clientVaultService: MockClientVaultService!
+    var clientService: MockClientService!
     var environmentService: MockEnvironmentService!
     var organizationService: MockOrganizationService!
     var clientSends: MockClientSends!
@@ -25,15 +25,15 @@ class SendRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         super.setUp()
         client = MockHTTPClient()
         clientSends = MockClientSends()
-        clientVaultService = MockClientVaultService()
+        clientService = MockClientService()
         environmentService = MockEnvironmentService()
         organizationService = MockOrganizationService()
-        clientVaultService.clientSends = clientSends
+        clientService.mockVault.clientSends = clientSends
         sendService = MockSendService()
         stateService = MockStateService()
         syncService = MockSyncService()
         subject = DefaultSendRepository(
-            clientVault: clientVaultService,
+            clientService: clientService,
             environmentService: environmentService,
             organizationService: organizationService,
             sendService: sendService,
@@ -46,7 +46,7 @@ class SendRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         super.tearDown()
         client = nil
         clientSends = nil
-        clientVaultService = nil
+        clientService = nil
         organizationService = nil
         sendService = nil
         stateService = nil

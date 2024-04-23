@@ -15,6 +15,7 @@ class TwoFactorAuthProcessorTests: BitwardenTestCase { // swiftlint:disable:this
     var authService: MockAuthService!
     var captchaService: MockCaptchaService!
     var coordinator: MockCoordinator<AuthRoute, AuthEvent>!
+    var environmentService: MockEnvironmentService!
     var errorReporter: MockErrorReporter!
     var nfcReaderService: MockNFCReaderService!
     var subject: TwoFactorAuthProcessor!
@@ -28,6 +29,7 @@ class TwoFactorAuthProcessorTests: BitwardenTestCase { // swiftlint:disable:this
         authService = MockAuthService()
         captchaService = MockCaptchaService()
         coordinator = MockCoordinator<AuthRoute, AuthEvent>()
+        environmentService = MockEnvironmentService()
         errorReporter = MockErrorReporter()
         nfcReaderService = MockNFCReaderService()
 
@@ -37,6 +39,7 @@ class TwoFactorAuthProcessorTests: BitwardenTestCase { // swiftlint:disable:this
                 authRepository: authRepository,
                 authService: authService,
                 captchaService: captchaService,
+                environmentService: environmentService,
                 errorReporter: errorReporter,
                 nfcReaderService: nfcReaderService
             ),
@@ -51,6 +54,7 @@ class TwoFactorAuthProcessorTests: BitwardenTestCase { // swiftlint:disable:this
         authService = nil
         captchaService = nil
         coordinator = nil
+        environmentService = nil
         errorReporter = nil
         nfcReaderService = nil
         subject = nil
@@ -522,7 +526,7 @@ class TwoFactorAuthProcessorTests: BitwardenTestCase { // swiftlint:disable:this
         subject.state.authMethod = .email
         subject.receive(.authMethodSelected(.recoveryCode))
         XCTAssertEqual(subject.state.authMethod, .email)
-        XCTAssertEqual(subject.state.url, ExternalLinksConstants.recoveryCode)
+        XCTAssertEqual(subject.state.url, URL(string: "\(environmentService.recoveryCodeURL)"))
     }
 
     /// `receive(_:)` with `.clearURL` clears the URL in the state.

@@ -1,3 +1,4 @@
+import BitwardenSdk
 import Combine
 import Foundation
 
@@ -61,7 +62,7 @@ protocol VaultTimeoutService: AnyObject {
     /// - Parameter userId: The userId of the account to unlock.
     ///     Defaults to the active account if nil
     ///
-    func unlockVault(userId: String?) async
+    func unlockVault(userId: String?) async throws
 
     /// Gets the `SessionTimeoutValue` for a user.
     ///
@@ -74,10 +75,15 @@ protocol VaultTimeoutService: AnyObject {
 // MARK: - DefaultVaultTimeoutService
 
 class DefaultVaultTimeoutService: VaultTimeoutService {
-    // MARK: Properties
+    // MARK: Publishers
 
     /// A subject containing the active account id.
     var activeAccountIdSubject = CurrentValueSubject<String?, Never>(nil)
+
+    // MARK: Private properties
+
+    /// The service that handles common client functionality such as encryption and decryption.
+    private var clientService: ClientService
 
     /// The state service used by this Default Service.
     private var stateService: StateService
@@ -85,21 +91,24 @@ class DefaultVaultTimeoutService: VaultTimeoutService {
     /// Provides the current time.
     private var timeProvider: TimeProvider
 
-    /// The store of locked status for known accounts
-    var timeoutStore = [String: Bool]()
-
-    /// A String to track the last known active account id.
-    var lastKnownActiveAccountId: String?
+    /// Whether or not a user's client is locked.
+    private var isClientLocked = [String: Bool]()
 
     // MARK: Initialization
 
     /// Creates a new `DefaultVaultTimeoutService`.
     ///
     /// - Parameters:
+    ///   - clientService: The service that handles common client functionality such as encryption and decryption.
     ///   - stateService: The StateService used by DefaultVaultTimeoutService.
     ///   - timeProvider: Provides the current time.
     ///
-    init(stateService: StateService, timeProvider: TimeProvider) {
+    init(
+        clientService: ClientService,
+        stateService: StateService,
+        timeProvider: TimeProvider
+    ) {
+        self.clientService = clientService
         self.stateService = stateService
         self.timeProvider = timeProvider
     }
@@ -124,21 +133,20 @@ class DefaultVaultTimeoutService: VaultTimeoutService {
     }
 
     func isLocked(userId: String) -> Bool {
-        guard let isLocked = timeoutStore[userId] else {
-            timeoutStore[userId] = true
-            return true
-        }
+        guard let isLocked = isClientLocked[userId] else { return true }
         return isLocked
     }
 
     func lockVault(userId: String?) async {
         guard let id = try? await stateService.getAccountIdOrActiveId(userId: userId) else { return }
-        timeoutStore[id] = true
+        try? await clientService.removeClient(for: id)
+        isClientLocked[id] = true
     }
 
     func remove(userId: String?) async {
         guard let id = try? await stateService.getAccountIdOrActiveId(userId: userId) else { return }
-        timeoutStore = timeoutStore.filter { $0.key != id }
+        try? await clientService.removeClient(for: id)
+        isClientLocked.removeValue(forKey: id)
     }
 
     func setLastActiveTime(userId: String) async throws {
@@ -149,11 +157,9 @@ class DefaultVaultTimeoutService: VaultTimeoutService {
         try await stateService.setVaultTimeout(value: value, userId: userId)
     }
 
-    func unlockVault(userId: String?) async {
+    func unlockVault(userId: String?) async throws {
         guard let id = try? await stateService.getAccountIdOrActiveId(userId: userId) else { return }
-        var updatedStore = timeoutStore.mapValues { _ in true }
-        updatedStore[id] = false
-        timeoutStore = updatedStore
+        isClientLocked[id] = false
     }
 
     func sessionTimeoutValue(userId: String?) async throws -> SessionTimeoutValue {

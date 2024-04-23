@@ -77,6 +77,11 @@ extension EnvironmentUrlData {
             && webVault == nil
     }
 
+    /// The URL for the recovery code help page.
+    var recoveryCodeUrl: URL? {
+        subpageUrl(additionalPath: "recover-2fa")
+    }
+
     /// The base url for send sharing.
     var sendShareURL: URL? {
         subpageUrl(additionalPath: "send")

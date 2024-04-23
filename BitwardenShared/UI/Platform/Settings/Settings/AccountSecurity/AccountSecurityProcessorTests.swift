@@ -70,7 +70,8 @@ class AccountSecurityProcessorTests: BitwardenTestCase { // swiftlint:disable:th
         let account: Account = .fixture()
         let userId = account.profile.userId
         stateService.activeAccount = account
-        stateService.timeoutAction[userId] = .logout
+        authRepository.activeAccount = account
+        authRepository.sessionTimeoutAction[userId] = .logout
 
         await subject.perform(.appeared)
         XCTAssertEqual(subject.state.sessionTimeoutAction, .logout)
@@ -633,6 +634,44 @@ class AccountSecurityProcessorTests: BitwardenTestCase { // swiftlint:disable:th
         try await alert.tapAction(title: Localizations.yes)
 
         XCTAssertNotNil(subject.state.twoStepLoginUrl)
+    }
+
+    /// The vault timeout action is refreshed after turning off pin unlock to handle users without
+    /// a master password when a lock timeout action may not be available.
+    func test_refreshVaultTimeoutAction_withoutMasterPassword_pinOff() {
+        authRepository.activeAccount = .fixtureWithTdeNoPassword()
+        authRepository.sessionTimeoutAction["1"] = .lock
+        subject.state.isUnlockWithPINCodeOn = true
+
+        let task = Task {
+            await subject.perform(.appeared)
+        }
+        waitFor { subject.state.sessionTimeoutAction == .lock }
+        task.cancel()
+
+        authRepository.sessionTimeoutAction["1"] = .logout
+
+        subject.receive(.toggleUnlockWithPINCode(false))
+        waitFor { subject.state.sessionTimeoutAction == .logout }
+
+        XCTAssertEqual(subject.state.sessionTimeoutAction, .logout)
+    }
+
+    /// The vault timeout action is refreshed after turning off biometrics unlock to handle users
+    /// without a master password when a lock timeout action may not be available.
+    func test_refreshVaultTimeoutAction_withoutMasterPassword_biometricsOff() async {
+        authRepository.activeAccount = .fixtureWithTdeNoPassword()
+        authRepository.sessionTimeoutAction["1"] = .lock
+        subject.state.biometricUnlockStatus = .available(.faceID, enabled: true, hasValidIntegrity: true)
+
+        await subject.perform(.appeared)
+        waitFor { subject.state.sessionTimeoutAction == .lock }
+
+        authRepository.sessionTimeoutAction["1"] = .logout
+
+        await subject.perform(.toggleUnlockWithBiometrics(false))
+
+        XCTAssertEqual(subject.state.sessionTimeoutAction, .logout)
     }
 
     /// `state.twoStepLoginUrl` is initialized with the correct value.

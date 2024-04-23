@@ -181,6 +181,21 @@ class AccountSecurityViewTests: BitwardenTestCase {
         assertSnapshot(of: subject, as: .defaultPortrait)
     }
 
+    /// The view renders correctly when the user doesn't have a master password.
+    func test_snapshot_noMasterPassword() {
+        let subject = AccountSecurityView(
+            store: Store(
+                processor: StateProcessor(
+                    state: AccountSecurityState(
+                        hasMasterPassword: false,
+                        sessionTimeoutAction: .logout
+                    )
+                )
+            )
+        )
+        assertSnapshot(of: subject, as: .defaultPortrait)
+    }
+
     /// The view renders correctly when the timeout policy is enabled.
     func test_snapshot_timeoutPolicy() {
         let subject = AccountSecurityView(
