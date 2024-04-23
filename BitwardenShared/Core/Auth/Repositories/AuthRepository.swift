@@ -103,6 +103,10 @@ protocol AuthRepository: AnyObject {
         showPlaceholderToolbarIcon: Bool
     ) async -> ProfileSwitcherState
 
+    /// Requests a one-time password to be sent to the user.
+    ///
+    func requestOtp() async throws
+
     /// Gets the `SessionTimeoutAction` for a user.
     ///
     ///  - Parameter userId: The userId of the account. Defaults to the active user if nil.
@@ -210,6 +214,12 @@ protocol AuthRepository: AnyObject {
     /// - Returns: Whether the hash of the password matches the stored hash.
     ///
     func validatePassword(_ password: String) async throws -> Bool
+
+    /// Verifies that the entered one-time password matches the one sent to the user.
+    ///
+    /// - Parameter otp: The user's one-time password to verify.
+    ///
+    func verifyOtp(_ otp: String) async throws
 }
 
 extension AuthRepository {
@@ -484,6 +494,10 @@ extension DefaultAuthRepository: AuthRepository {
         return timeoutAction
     }
 
+    func requestOtp() async throws {
+        try await accountAPIService.requestOtp()
+    }
+
     func sessionTimeoutValue(userId: String?) async throws -> SessionTimeoutValue {
         try await vaultTimeoutService.sessionTimeoutValue(userId: userId)
     }
@@ -689,6 +703,10 @@ extension DefaultAuthRepository: AuthRepository {
                 return false
             }
         }
+    }
+
+    func verifyOtp(_ otp: String) async throws {
+        try await accountAPIService.verifyOtp(otp)
     }
 
     // MARK: Private

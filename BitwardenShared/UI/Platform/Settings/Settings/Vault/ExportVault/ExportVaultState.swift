@@ -21,12 +21,33 @@ struct ExportVaultState: Equatable {
     /// The file password text.
     var filePasswordText = ""
 
+    /// Whether the user has a master password.
+    var hasMasterPassword = true
+
     /// Whether the file password field is visible.
     var isFilePasswordVisible = false
 
-    /// Whether the master password field is visible.
-    var isMasterPasswordVisible = false
+    /// Whether the master password/OTP field is visible.
+    var isMasterPasswordOrOtpVisible = false
 
-    /// The master password text.
-    var masterPasswordText = ""
+    /// Whether the send code button is disabled.
+    var isSendCodeButtonDisabled = false
+
+    /// The master password/OTP text.
+    var masterPasswordOrOtpText = ""
+
+    /// A toast message to show in the view.
+    var toast: Toast?
+
+    // MARK: Computed Properties
+
+    /// The footer to display below the master password/OTP text field.
+    var masterPasswordOrOtpFooter: String {
+        hasMasterPassword ? Localizations.exportVaultMasterPasswordDescription : Localizations.confirmYourIdentity
+    }
+
+    /// The title for the master password/OTP text field.
+    var masterPasswordOrOtpTitle: String {
+        hasMasterPassword ? Localizations.masterPassword : Localizations.verificationCode
+    }
 }

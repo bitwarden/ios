@@ -42,6 +42,10 @@ protocol AccountAPIService {
     ///
     func preLogin(email: String) async throws -> PreLoginResponseModel
 
+    /// Requests a one-time password to be sent to the user.
+    ///
+    func requestOtp() async throws
+
     /// Requests that the password hint for an account tied to the provided email address be sent to
     /// the user. If this method does not throw an error, than the password hint has been sent to
     /// the user successfully.
@@ -74,6 +78,12 @@ protocol AccountAPIService {
     /// - Parameter requestModel: The request model used to send the request.
     ///
     func updateTempPassword(_ requestModel: UpdateTempPasswordRequestModel) async throws
+
+    /// Verifies that the entered one-time password matches the one sent to the user.
+    ///
+    /// - Parameter otp: The user's one-time password to verify.
+    ///
+    func verifyOtp(_ otp: String) async throws
 }
 
 // MARK: - APIService
@@ -118,6 +128,10 @@ extension APIService: AccountAPIService {
         return response
     }
 
+    func requestOtp() async throws {
+        _ = try await apiService.send(RequestOtpRequest())
+    }
+
     func requestPasswordHint(for email: String) async throws {
         let request = PasswordHintRequest(body: PasswordHintRequestModel(email: email))
         _ = try await apiUnauthenticatedService.send(request)
@@ -137,5 +151,9 @@ extension APIService: AccountAPIService {
 
     func updateTempPassword(_ requestModel: UpdateTempPasswordRequestModel) async throws {
         _ = try await apiService.send(UpdateTempPasswordRequest(requestModel: requestModel))
+    }
+
+    func verifyOtp(_ otp: String) async throws {
+        _ = try await apiService.send(VerifyOtpRequest(requestModel: VerifyOtpRequestModel(otp: otp)))
     }
 }

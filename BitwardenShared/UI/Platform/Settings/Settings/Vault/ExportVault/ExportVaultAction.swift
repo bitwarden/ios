@@ -17,12 +17,15 @@ enum ExportVaultAction: Equatable {
     /// The file password confirmation text changed.
     case filePasswordConfirmationTextChanged(String)
 
-    /// The master password text changed.
-    case masterPasswordTextChanged(String)
+    /// The master password/OTP text changed.
+    case masterPasswordOrOtpTextChanged(String)
+
+    /// The toast was shown or hidden.
+    case toastShown(Toast?)
 
     /// The file password visibility was toggled.
     case toggleFilePasswordVisibility(Bool)
 
-    /// The master password visibility was toggled.
-    case toggleMasterPasswordVisibility(Bool)
+    /// The master password/OTP visibility was toggled.
+    case toggleMasterPasswordOrOtpVisibility(Bool)
 }
