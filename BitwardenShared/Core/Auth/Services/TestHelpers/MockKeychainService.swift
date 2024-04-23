@@ -9,7 +9,7 @@ class MockKeychainService {
     var accessControlResult: Result<SecAccessControl, KeychainServiceError> = .failure(.accessControlFailed(nil))
     var addAttributes: CFDictionary?
     var addResult: Result<Void, KeychainServiceError> = .success(())
-    var deleteQuery: CFDictionary?
+    var deleteQueries = [CFDictionary]()
     var deleteResult: Result<Void, KeychainServiceError> = .success(())
     var searchQuery: CFDictionary?
     var searchResult: Result<AnyObject?, KeychainServiceError> = .success(nil)
@@ -29,7 +29,7 @@ extension MockKeychainService: KeychainService {
     }
 
     func delete(query: CFDictionary) throws {
-        deleteQuery = query
+        deleteQueries.append(query)
         try deleteResult.get()
     }
 

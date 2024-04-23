@@ -477,9 +477,15 @@ extension DefaultAuthRepository: AuthRepository {
     }
 
     func logout(userId: String?) async throws {
-        try? await biometricsRepository.setBiometricUnlockKey(authKey: nil)
-        await vaultTimeoutService.remove(userId: userId)
+        let userId = try await stateService.getAccountIdOrActiveId(userId: userId)
+
+        // Clear all user data.
+        try await biometricsRepository.setBiometricUnlockKey(authKey: nil)
+        try await keychainService.deleteItems(for: userId)
         try await stateService.logoutAccount(userId: userId)
+
+        // Remove the user from the timeout service and their SDK client.
+        await vaultTimeoutService.remove(userId: userId)
     }
 
     func passwordStrength(email: String, password: String) async throws -> UInt8 {

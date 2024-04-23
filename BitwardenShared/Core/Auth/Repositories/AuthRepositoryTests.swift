@@ -1225,6 +1225,7 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
 
         XCTAssertEqual([account.profile.userId], stateService.accountsLoggedOut)
         XCTAssertNil(biometricsRepository.capturedUserAuthKey)
+        XCTAssertEqual(keychainService.deleteItemsForUserIds, ["1"])
     }
 
     /// `unlockVault(password:)` throws an error if the vault is unable to be unlocked.

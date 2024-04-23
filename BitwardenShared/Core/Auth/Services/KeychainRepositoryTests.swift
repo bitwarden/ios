@@ -2,6 +2,8 @@ import XCTest
 
 @testable import BitwardenShared
 
+// swiftlint:disable file_length
+
 // MARK: - KeychainRepositoryTests
 
 final class KeychainRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_body_length
@@ -72,8 +74,42 @@ final class KeychainRepositoryTests: BitwardenTestCase { // swiftlint:disable:th
 
         try await subject.deleteUserAuthKey(for: item)
         XCTAssertEqual(
-            keychainService.deleteQuery,
-            expectedQuery
+            keychainService.deleteQueries,
+            [expectedQuery]
+        )
+    }
+
+    /// `deleteAllItems` deletes items for all classes.
+    func test_deleteAllItems() async throws {
+        try await subject.deleteAllItems()
+
+        XCTAssertEqual(
+            keychainService.deleteQueries,
+            [
+                [kSecClass: kSecClassGenericPassword] as CFDictionary,
+                [kSecClass: kSecClassInternetPassword] as CFDictionary,
+                [kSecClass: kSecClassCertificate] as CFDictionary,
+                [kSecClass: kSecClassKey] as CFDictionary,
+                [kSecClass: kSecClassIdentity] as CFDictionary,
+            ]
+        )
+    }
+
+    /// `deleteItems(for:)` deletes items for a specific user.
+    func test_deleteItems_forUserId() async throws {
+        try await subject.deleteItems(for: "1")
+
+        let expectedQueries = await [
+            subject.keychainQueryValues(for: .accessToken(userId: "1")),
+            subject.keychainQueryValues(for: .biometrics(userId: "1")),
+            subject.keychainQueryValues(for: .neverLock(userId: "1")),
+            subject.keychainQueryValues(for: .pendingAdminLoginRequest(userId: "1")),
+            subject.keychainQueryValues(for: .refreshToken(userId: "1")),
+        ]
+
+        XCTAssertEqual(
+            keychainService.deleteQueries,
+            expectedQueries
         )
     }
 
@@ -86,8 +122,8 @@ final class KeychainRepositoryTests: BitwardenTestCase { // swiftlint:disable:th
 
         try await subject.deleteDeviceKey(userId: "1")
         XCTAssertEqual(
-            keychainService.deleteQuery,
-            expectedQuery
+            keychainService.deleteQueries,
+            [expectedQuery]
         )
     }
 
