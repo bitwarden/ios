@@ -14,6 +14,9 @@ struct SettingsMenuField<T>: View where T: Menuable {
     /// Whether the menu field should have a bottom divider.
     let hasDivider: Bool
 
+    /// Whether the view allows user interaction.
+    @Environment(\.isEnabled) var isEnabled: Bool
+
     /// The selection chosen from the menu.
     @Binding var selection: T
 
@@ -42,7 +45,9 @@ struct SettingsMenuField<T>: View where T: Menuable {
                 HStack {
                     Text(title)
                         .multilineTextAlignment(.leading)
-                        .foregroundColor(Asset.Colors.textPrimary.swiftUIColor)
+                        .foregroundColor(
+                            (isEnabled ? Asset.Colors.textPrimary : Asset.Colors.textSecondary).swiftUIColor
+                        )
                         .padding(.vertical, 19)
                         .fixedSize(horizontal: false, vertical: true)
 
@@ -125,6 +130,7 @@ private enum MenuPreviewOptions: CaseIterable, Menuable {
                 hasDivider: false,
                 selection: .constant(.dog)
             )
+            .disabled(true)
         }
         .padding(8)
     }

@@ -325,7 +325,7 @@ extension DefaultSyncService {
         let userId = try await stateService.getActiveAccountId()
         guard userId == data.userId else { return }
 
-        // If the local data is more recent than the nofication, skip the sync.
+        // If the local data is more recent than the notification, skip the sync.
         let localFolder = try await folderService.fetchFolder(id: data.id)
         if let localFolder, let revisionDate = data.revisionDate, localFolder.revisionDate >= revisionDate {
             return
@@ -344,7 +344,7 @@ extension DefaultSyncService {
         let userId = try await stateService.getActiveAccountId()
         guard userId == data.userId else { return }
 
-        // If the local data is more recent than the nofication, skip the sync.
+        // If the local data is more recent than the notification, skip the sync.
         let localSend = try await sendService.fetchSend(id: data.id)
         if let localSend, let revisionDate = data.revisionDate, localSend.revisionDate >= revisionDate {
             return
