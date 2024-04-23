@@ -189,6 +189,40 @@ class VaultUnlockProcessorTests: BitwardenTestCase { // swiftlint:disable:this t
         XCTAssertTrue(subject.state.profileSwitcherState.showsAddAccount)
     }
 
+    /// `perform(_:)` with `.requestedProfileSwitcher(visible:)` updates the state to reflect the changes.
+    func test_perform_requestedProfileSwitcherVisible_false() async {
+        let active = ProfileSwitcherItem.fixture()
+        subject.state.profileSwitcherState = ProfileSwitcherState(
+            accounts: [active],
+            activeAccountId: active.userId,
+            allowLockAndLogout: true,
+            isVisible: true
+        )
+
+        await subject.perform(.profileSwitcher(.requestedProfileSwitcher(visible: false)))
+        waitFor(!subject.state.profileSwitcherState.isVisible)
+
+        XCTAssertNotNil(subject.state.profileSwitcherState)
+        XCTAssertFalse(subject.state.profileSwitcherState.isVisible)
+    }
+
+    /// `perform(_:)` with `.requestedProfileSwitcher(visible:)` updates the state to reflect the changes.
+    func test_perform_requestedProfileSwitcherVisible_true() async {
+        let active = ProfileSwitcherItem.fixture()
+        subject.state.profileSwitcherState = ProfileSwitcherState(
+            accounts: [active],
+            activeAccountId: active.userId,
+            allowLockAndLogout: true,
+            isVisible: false
+        )
+
+        await subject.perform(.profileSwitcher(.requestedProfileSwitcher(visible: true)))
+        waitFor(subject.state.profileSwitcherState.isVisible)
+
+        XCTAssertNotNil(subject.state.profileSwitcherState)
+        XCTAssertTrue(subject.state.profileSwitcherState.isVisible)
+    }
+
     /// `perform(.profileSwitcher(.rowAppeared))` should not update the state for add Account
     func test_perform_rowAppeared_add() async {
         let profile = ProfileSwitcherItem.fixture()
@@ -1053,46 +1087,6 @@ class VaultUnlockProcessorTests: BitwardenTestCase { // swiftlint:disable:this t
         subject.receive(.cancelPressed)
 
         XCTAssertTrue(appExtensionDelegate.didCancelCalled)
-    }
-
-    /// `receive(_:)` with `.requestedProfileSwitcher(visible:)` updates the state to reflect the changes.
-    func test_receive_requestedProfileSwitcherVisible_false() {
-        let active = ProfileSwitcherItem.fixture()
-        subject.state.profileSwitcherState = ProfileSwitcherState(
-            accounts: [active],
-            activeAccountId: active.userId,
-            allowLockAndLogout: true,
-            isVisible: true
-        )
-
-        let task = Task {
-            subject.receive(.profileSwitcher(.requestedProfileSwitcher(visible: false)))
-        }
-        waitFor(!subject.state.profileSwitcherState.isVisible)
-        task.cancel()
-
-        XCTAssertNotNil(subject.state.profileSwitcherState)
-        XCTAssertFalse(subject.state.profileSwitcherState.isVisible)
-    }
-
-    /// `receive(_:)` with `.requestedProfileSwitcher(visible:)` updates the state to reflect the changes.
-    func test_receive_requestedProfileSwitcherVisible_true() {
-        let active = ProfileSwitcherItem.fixture()
-        subject.state.profileSwitcherState = ProfileSwitcherState(
-            accounts: [active],
-            activeAccountId: active.userId,
-            allowLockAndLogout: true,
-            isVisible: false
-        )
-
-        let task = Task {
-            subject.receive(.profileSwitcher(.requestedProfileSwitcher(visible: true)))
-        }
-        waitFor(subject.state.profileSwitcherState.isVisible)
-        task.cancel()
-
-        XCTAssertNotNil(subject.state.profileSwitcherState)
-        XCTAssertTrue(subject.state.profileSwitcherState.isVisible)
     }
 
     /// `receive(_:)` with `.profileSwitcher(.scrollOffset)` updates the state to reflect the changes.

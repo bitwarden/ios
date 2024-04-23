@@ -26,6 +26,10 @@ enum ProfileSwitcherEffect: Equatable {
     /// The add account row was pressed.
     case addAccountPressed
 
+    /// An effect to toggle the visibility of the profile switcher view and optionally
+    /// refresh the profile switcher state.
+    case requestedProfileSwitcher(visible: Bool)
+
     /// A row appeared.
     case rowAppeared(ProfileSwitcherRowState.RowType)
 }

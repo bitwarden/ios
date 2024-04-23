@@ -14,8 +14,8 @@ struct ProfileSwitcherToolbarView: View {
 
     /// The Toolbar item for the profile switcher view
     @ViewBuilder var profileSwitcherToolbarItem: some View {
-        Button {
-            store.send(.requestedProfileSwitcher(visible: !store.state.isVisible))
+        AsyncButton {
+            await store.perform(.requestedProfileSwitcher(visible: !store.state.isVisible))
         } label: {
             HStack {
                 profileSwitcherIcon(
