@@ -168,6 +168,7 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         try await subject.createNewSsoUser(orgIdentifier: "Bitwarden", rememberDevice: true)
 
         XCTAssertEqual(trustDeviceService.trustDeviceWithExistingKeysValue, registerTdeInput.deviceKey)
+        XCTAssertEqual(clientService.mockAuth.makeRegisterTdeKeysEmail, "user@bitwarden.com")
         XCTAssertEqual(clientService.mockAuth.makeRegisterTdeKeysOrgPublicKey, "MIIBIjAN...2QIDAQAB")
         XCTAssertEqual(clientService.mockAuth.makeRegisterTdeKeysRememberDevice, true)
     }
@@ -579,10 +580,17 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
     func test_setMasterPassword() async throws {
         let account = Account.fixture()
         client.result = .httpSuccess(testData: .emptyResponse)
+        clientService.mockCrypto.updatePasswordResult = .success(
+            UpdatePasswordResponse(passwordHash: "NEW_PASSWORD_HASH", newKey: "NEW_KEY")
+        )
+        stateService.accountEncryptionKeys["1"] = AccountEncryptionKeys(
+            encryptedPrivateKey: "PRIVATE_KEY",
+            encryptedUserKey: "KEY"
+        )
         stateService.activeAccount = account
 
         try await subject.setMasterPassword(
-            "PASSWORD",
+            "NEW_PASSWORD",
             masterPasswordHint: "HINT",
             organizationId: "1234",
             organizationIdentifier: "ORG_ID",
@@ -591,11 +599,11 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
 
         XCTAssertEqual(clientService.mockAuth.makeRegisterKeysKdf, account.kdf.sdkKdf)
         XCTAssertEqual(clientService.mockAuth.makeRegisterKeysEmail, account.profile.email)
-        XCTAssertEqual(clientService.mockAuth.makeRegisterKeysPassword, "PASSWORD")
+        XCTAssertEqual(clientService.mockAuth.makeRegisterKeysPassword, "NEW_PASSWORD")
 
         XCTAssertEqual(clientService.mockAuth.hashPasswordEmail, account.profile.email)
         XCTAssertEqual(clientService.mockAuth.hashPasswordKdfParams, account.kdf.sdkKdf)
-        XCTAssertEqual(clientService.mockAuth.hashPasswordPassword, "PASSWORD")
+        XCTAssertEqual(clientService.mockAuth.hashPasswordPassword, "NEW_PASSWORD")
         XCTAssertEqual(clientService.mockAuth.hashPasswordPurpose, .serverAuthorization)
 
         let requests = client.requests
@@ -617,16 +625,15 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
                 kdfParams: account.kdf.sdkKdf,
                 email: account.profile.email,
                 privateKey: "private",
-                method: .password(password: "PASSWORD", userKey: "encryptedUserKey")
+                method: .password(password: "NEW_PASSWORD", userKey: "encryptedUserKey")
             )
         )
     }
 
     /// `setMasterPassword()` throws an error if one occurs.
     func test_setMasterPassword_error() async {
-        let account = Account.fixture()
-        client.result = .httpFailure(BitwardenTestError.example)
-        stateService.activeAccount = account
+        clientService.mockCrypto.updatePasswordResult = .failure(BitwardenTestError.example)
+        stateService.activeAccount = Account.fixtureWithTdeNoPassword()
 
         await assertAsyncThrows(error: BitwardenTestError.example) {
             try await subject.setMasterPassword(
@@ -642,31 +649,33 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
     /// `setMasterPassword()` sets the user's master password, saves their encryption keys, enrolls
     /// the user in password reset and unlocks the vault.
     func test_setMasterPassword_resetPasswordEnrollment() async throws {
-        // swiftlint:disable:previous function_body_length
-        let account = Account.fixture()
         client.results = [
             .httpSuccess(testData: .emptyResponse),
             .httpSuccess(testData: .organizationKeys),
             .httpSuccess(testData: .emptyResponse),
         ]
-        stateService.activeAccount = account
+        clientService.mockCrypto.updatePasswordResult = .success(
+            UpdatePasswordResponse(passwordHash: "NEW_PASSWORD_HASH", newKey: "NEW_KEY")
+        )
+        stateService.accountEncryptionKeys["1"] = AccountEncryptionKeys(
+            encryptedPrivateKey: "PRIVATE_KEY",
+            encryptedUserKey: "KEY"
+        )
+        stateService.activeAccount = Account.fixtureWithTdeNoPassword()
 
         try await subject.setMasterPassword(
-            "PASSWORD",
+            "NEW_PASSWORD",
             masterPasswordHint: "HINT",
             organizationId: "1234",
             organizationIdentifier: "ORG_ID",
             resetPasswordAutoEnroll: true
         )
 
-        XCTAssertEqual(clientService.mockAuth.makeRegisterKeysKdf, account.kdf.sdkKdf)
-        XCTAssertEqual(clientService.mockAuth.makeRegisterKeysEmail, account.profile.email)
-        XCTAssertEqual(clientService.mockAuth.makeRegisterKeysPassword, "PASSWORD")
-
-        XCTAssertEqual(clientService.mockAuth.hashPasswordEmail, account.profile.email)
-        XCTAssertEqual(clientService.mockAuth.hashPasswordKdfParams, account.kdf.sdkKdf)
-        XCTAssertEqual(clientService.mockAuth.hashPasswordPassword, "PASSWORD")
-        XCTAssertEqual(clientService.mockAuth.hashPasswordPurpose, .serverAuthorization)
+        XCTAssertEqual(clientService.mockCrypto.updatePasswordNewPassword, "NEW_PASSWORD")
+        XCTAssertEqual(
+            stateService.accountEncryptionKeys["1"],
+            AccountEncryptionKeys(encryptedPrivateKey: "PRIVATE_KEY", encryptedUserKey: "NEW_KEY")
+        )
 
         XCTAssertEqual(clientService.mockCrypto.enrollAdminPasswordPublicKey, "MIIBIjAN...2QIDAQAB")
 
@@ -684,24 +693,6 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         XCTAssertEqual(
             requests[2].url.absoluteString,
             "https://example.com/api/organizations/1234/users/1/reset-password-enrollment"
-        )
-
-        XCTAssertEqual(
-            stateService.accountEncryptionKeys["1"],
-            AccountEncryptionKeys(
-                encryptedPrivateKey: "private",
-                encryptedUserKey: "encryptedUserKey"
-            )
-        )
-
-        XCTAssertEqual(
-            clientService.mockCrypto.initializeUserCryptoRequest,
-            InitUserCryptoRequest(
-                kdfParams: account.kdf.sdkKdf,
-                email: account.profile.email,
-                privateKey: "private",
-                method: .password(password: "PASSWORD", userKey: "encryptedUserKey")
-            )
         )
     }
 

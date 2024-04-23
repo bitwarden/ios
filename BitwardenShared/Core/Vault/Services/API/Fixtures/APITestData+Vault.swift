@@ -10,5 +10,6 @@ extension APITestData {
     static let syncWithPolicies = loadFromJsonBundle(resource: "syncWithPolicies")
     static let syncWithProfile = loadFromJsonBundle(resource: "syncWithProfile")
     static let syncWithProfileOrganizations = loadFromJsonBundle(resource: "syncWithProfileOrganizations")
+    static let syncWithProfileSingleOrg = loadFromJsonBundle(resource: "syncWithProfileSingleOrg")
     static let syncWithSends = loadFromJsonBundle(resource: "syncWithSends")
 }

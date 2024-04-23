@@ -121,7 +121,7 @@ extension Account {
         var stamp: String?
 
         /// User decryption options for the account.
-        let userDecryptionOptions: UserDecryptionOptions?
+        var userDecryptionOptions: UserDecryptionOptions?
 
         /// The user's identifier.
         let userId: String

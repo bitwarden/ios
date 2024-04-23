@@ -23,7 +23,7 @@ struct SetPasswordRequestModel: JSONRequestBody {
     let key: String
 
     /// The user's encryption keys.
-    let keys: KeysRequestModel
+    let keys: KeysRequestModel?
 
     /// The master password hash used to authenticate a user.
     let masterPasswordHash: String
@@ -49,7 +49,7 @@ struct SetPasswordRequestModel: JSONRequestBody {
     init(
         kdfConfig: KdfConfig,
         key: String,
-        keys: KeysRequestModel,
+        keys: KeysRequestModel?,
         masterPasswordHash: String,
         masterPasswordHint: String?,
         orgIdentifier: String

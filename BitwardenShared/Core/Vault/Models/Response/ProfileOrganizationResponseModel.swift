@@ -134,3 +134,14 @@ struct ProfileOrganizationResponseModel: Codable, Equatable {
     /// Whether the profile organization's users get premium.
     let usersGetPremium: Bool
 }
+
+extension ProfileOrganizationResponseModel {
+    // MARK: Computed Properties
+
+    /// Whether the user can manage policies for the organization.
+    var passwordRequired: Bool {
+        type == OrganizationUserType.admin ||
+            type == OrganizationUserType.owner ||
+            permissions?.manageResetPassword == true
+    }
+}

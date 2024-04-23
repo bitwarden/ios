@@ -102,7 +102,7 @@ class MockClientAuth: ClientAuthProtocol {
         orgPublicKey: String,
         rememberDevice: Bool
     ) async throws -> BitwardenSdk.RegisterTdeKeyResponse {
-        makeRegisterKeysEmail = email
+        makeRegisterTdeKeysEmail = email
         makeRegisterTdeKeysOrgPublicKey = orgPublicKey
         makeRegisterTdeKeysRememberDevice = rememberDevice
         return try makeRegisterTdeKeysResult.get()

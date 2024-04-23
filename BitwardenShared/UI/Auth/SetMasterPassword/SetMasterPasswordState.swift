@@ -13,6 +13,9 @@ struct SetMasterPasswordState: Equatable {
     /// A flag indicating if the new master password should be revealed or not.
     var isMasterPasswordRevealed: Bool = false
 
+    /// Indicates if the reason to set password was privelege elevation.
+    var isPrivilegeElevation: Bool = false
+
     /// The new master password provided by the user.
     var masterPassword: String = ""
 
@@ -33,4 +36,15 @@ struct SetMasterPasswordState: Equatable {
 
     /// Whether the user will be automatically enrolled in reset password.
     var resetPasswordAutoEnroll = false
+
+    // MARK: Computed Properties
+
+    /// The explanation text based on requestType
+    var explanationText: String {
+        if isPrivilegeElevation {
+            Localizations.yourOrganizationPermissionsWereUpdatedRequeringYouToSetAMasterPassword
+        } else {
+            Localizations.yourOrganizationRequiresYouToSetAMasterPassword
+        }
+    }
 }

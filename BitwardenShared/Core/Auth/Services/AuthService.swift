@@ -562,14 +562,6 @@ class DefaultAuthService: AuthService { // swiftlint:disable:this type_body_leng
                     throw AuthError.requireUpdatePassword
                 }
 
-                // User privileges were elevated and needs to set a password
-                if !decryptionOptions.hasMasterPassword,
-                   trustedDeviceOption.hasManageResetPasswordPermission {
-                    // TODO: PM-7340 Set password reason
-                    // try await stateService.setForcePasswordResetReason(
-                    // ForcePasswordResetReason.tdeUserWithoutPasswordHasPasswordResetPermission
-                    // )
-                }
                 // Device is trusted and user unlock with device key
                 return true
             }

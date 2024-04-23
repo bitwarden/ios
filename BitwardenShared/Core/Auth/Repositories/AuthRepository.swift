@@ -370,6 +370,7 @@ extension DefaultAuthRepository: AuthRepository {
         let account = try await stateService.getActiveAccount()
         let enrollStatus = try await organizationAPIService.getOrganizationAutoEnrollStatus(identifier: orgIdentifier)
         let organizationKeys = try await organizationAPIService.getOrganizationKeys(organizationId: enrollStatus.id)
+
         let registrationKeys = try await clientService.auth().makeRegisterTdeKeys(
             email: account.profile.email,
             orgPublicKey: organizationKeys.publicKey,
@@ -503,35 +504,54 @@ extension DefaultAuthRepository: AuthRepository {
         let account = try await stateService.getActiveAccount()
         let email = account.profile.email
         let kdf = account.kdf
+        let requestUserKey: String
+        let requestKeys: KeysRequestModel?
+        let requestPasswordHash: String
+        let encryptedPrivateKey: String
 
-        let keys = try await clientService.auth().makeRegisterKeys(
-            email: email,
-            password: password,
-            kdf: kdf.sdkKdf
-        )
-
-        let masterPasswordHash = try await clientService.auth().hashPassword(
-            email: email,
-            password: password,
-            kdfParams: kdf.sdkKdf,
-            purpose: .serverAuthorization
-        )
+        // TDE user
+        if account.profile.userDecryptionOptions?.trustedDeviceOption != nil {
+            let passwordResult = try await clientService.crypto().updatePassword(newPassword: password)
+            let accountKeys = try await stateService.getAccountEncryptionKeys()
+            requestPasswordHash = passwordResult.passwordHash
+            requestUserKey = passwordResult.newKey
+            requestKeys = nil
+            encryptedPrivateKey = accountKeys.encryptedPrivateKey
+        } else {
+            let keys = try await clientService.auth().makeRegisterKeys(
+                email: email,
+                password: password,
+                kdf: kdf.sdkKdf
+            )
+            requestPasswordHash = try await clientService.auth().hashPassword(
+                email: email,
+                password: password,
+                kdfParams: kdf.sdkKdf,
+                purpose: .serverAuthorization
+            )
+            requestUserKey = keys.encryptedUserKey
+            requestKeys = KeysRequestModel(
+                encryptedPrivateKey: keys.keys.private,
+                publicKey: keys.keys.public
+            )
+            encryptedPrivateKey = keys.keys.private
+        }
 
         let requestModel = SetPasswordRequestModel(
             kdfConfig: kdf,
-            key: keys.encryptedUserKey,
-            keys: KeysRequestModel(encryptedPrivateKey: keys.keys.private, publicKey: keys.keys.public),
-            masterPasswordHash: masterPasswordHash,
+            key: requestUserKey,
+            keys: requestKeys,
+            masterPasswordHash: requestPasswordHash,
             masterPasswordHint: masterPasswordHint,
             orgIdentifier: organizationIdentifier
         )
-        try await accountAPIService.setPassword(requestModel)
 
-        let accountEncryptionKeys = AccountEncryptionKeys(
-            encryptedPrivateKey: keys.keys.private,
-            encryptedUserKey: keys.encryptedUserKey
-        )
-        try await stateService.setAccountEncryptionKeys(accountEncryptionKeys)
+        try await accountAPIService.setPassword(requestModel)
+        try await stateService.setAccountEncryptionKeys(AccountEncryptionKeys(
+            encryptedPrivateKey: encryptedPrivateKey,
+            encryptedUserKey: requestUserKey
+        ))
+        try await stateService.setUserHasMasterPassword()
 
         if resetPasswordAutoEnroll {
             let organizationKeys = try await organizationAPIService.getOrganizationKeys(
@@ -545,7 +565,7 @@ extension DefaultAuthRepository: AuthRepository {
             try await organizationUserAPIService.organizationUserResetPasswordEnrollment(
                 organizationId: organizationId,
                 requestModel: OrganizationUserResetPasswordEnrollmentRequestModel(
-                    masterPasswordHash: masterPasswordHash,
+                    masterPasswordHash: requestPasswordHash,
                     resetPasswordKey: resetPasswordKey
                 ),
                 userId: account.profile.userId

@@ -36,6 +36,12 @@ class SetMasterPasswordViewTests: BitwardenTestCase {
         XCTAssertEqual(processor.effects.last, .cancelPressed)
     }
 
+    /// Cancel button should be hidden for tde privilege elevation.
+    func test_cancel_hidden() throws {
+        processor.state.isPrivilegeElevation = true
+        XCTAssertThrowsError(try subject.inspect().find(button: Localizations.cancel))
+    }
+
     /// Tapping the current master password visibility icon changes whether the master passwords are visible.
     func test_masterPasswordVisibility_tap() throws {
         processor.state.isMasterPasswordRevealed = false
@@ -88,6 +94,23 @@ class SetMasterPasswordViewTests: BitwardenTestCase {
 
     /// A snapshot of the view with all filled values fields.
     func test_snapshot_setPassword_filled() {
+        processor.state.masterPassword = "password123"
+        processor.state.masterPasswordRetype = "password123"
+        processor.state.masterPasswordHint = "hint hint"
+        processor.state.resetPasswordAutoEnroll = true
+        assertSnapshots(
+            of: subject,
+            as: [
+                "portrait": .portrait(),
+                "portraitDark": .portraitDark(),
+                "tallPortraitAX5": .tallPortraitAX5(),
+            ]
+        )
+    }
+
+    /// A snapshot of the view for privilege elevation.
+    func test_snapshot_setPassword_privilege_elevation() {
+        processor.state.isPrivilegeElevation = true
         processor.state.masterPassword = "password123"
         processor.state.masterPasswordRetype = "password123"
         processor.state.masterPasswordHint = "hint hint"
