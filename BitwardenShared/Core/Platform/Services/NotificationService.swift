@@ -163,23 +163,31 @@ class DefaultNotificationService: NotificationService {
         notificationDismissed: Bool?,
         notificationTapped: Bool?
     ) async {
-        Logger.application.log("Message received: \(message)")
+        Logger.application.log("Message received: \(message, privacy: .public)")
         do {
             // First attempt to decode the message as a response.
             if await handleLoginRequestResponse(
                 message,
                 notificationDismissed: notificationDismissed,
                 notificationTapped: notificationTapped
-            ) { return }
+            ) {
+                Logger.application.log("Handling as login request")
+                return
+            }
 
             // Proceed to treat the message as new notification.
             guard await stateService.isAuthenticated(),
                   let notificationData = try await decodePayload(message),
                   let type = notificationData.type
-            else { return }
+            else {
+                Logger.application.log("Unable to decode payload")
+                return
+            }
+
+            Logger.application.log("Message received: \(message, privacy: .public)")
             let userId = try await stateService.getActiveAccountId()
 
-            Logger.application.log("Notification received: \(message)")
+            Logger.application.log("Notification received: \(message, privacy: .public)")
 
             // Handle the notification according to the type of data.
             switch type {
@@ -243,7 +251,7 @@ class DefaultNotificationService: NotificationService {
                 break
             }
         } catch {
-            Logger.application.log("Error: \(error)")
+            Logger.application.log("Error: \(error, privacy: .public)")
             errorReporter.log(error: error)
         }
     }
@@ -268,15 +276,24 @@ class DefaultNotificationService: NotificationService {
         // Decode the content of the message.
         guard let messageData = message["aps"] as? [AnyHashable: Any],
               let messageContent = messageData["data"] as? [AnyHashable: Any]
-        else { return nil }
+        else {
+            Logger.application.log("Unable to get message data and content")
+            return nil
+        }
+        Logger.application.log("Message Content: \(messageContent, privacy: .public)")
+        Logger.application.log("Message Data: \(messageData, privacy: .public)")
         let jsonData = try JSONSerialization.data(withJSONObject: messageContent)
         let notificationData = try JSONDecoder().decode(PushNotificationData.self, from: jsonData)
 
         // Verify that the payload is not empty and that the context is correct.
         let appId = await appIdService.getOrCreateAppId()
+        Logger.application.log("App ID: \(appId, privacy: .public)")
         guard notificationData.payload?.isEmpty == false,
               notificationData.contextId != appId
-        else { return nil }
+        else {
+            Logger.application.log("Payload is empty or context ID == appId")
+            return nil
+        }
         return notificationData
     }
 
