@@ -448,7 +448,7 @@
 "PINRequireMasterPasswordRestart" = "Pretende exigir o desbloqueio com a sua palavra-passe mestra quando a aplicação é reiniciada?";
 "Black" = "Preto";
 "Nord" = "Nord";
-"SolarizedDark" = "Solarized Dark";
+"SolarizedDark" = "Solarized (escuro)";
 "AutofillBlockedUris" = "Preencher automaticamente URIs bloqueados";
 "AskToAddLogin" = "Pedir para adicionar credencial";
 "AskToAddLoginDescription" = "Pedir para adicionar um item se não o encontrar no seu cofre.";
@@ -849,7 +849,7 @@
 "ContinueToContactSupport" = "Continuar a contactar o apoio ao cliente?";
 "ContinueToPrivacyPolicy" = "Continuar para a política de privacidade?";
 "ContinueToAppStore" = "Continuar para a loja de aplicações?";
-"TwoStepLoginDescriptionLong" = "Torne a sua conta mais segura configurando a verificação em dois passos na aplicação Web Bitwarden.";
+"TwoStepLoginDescriptionLong" = "Torne a sua conta mais segura configurando a verificação de dois passos na aplicação Web Bitwarden.";
 "ChangeMasterPasswordDescriptionLong" = "Pode alterar a sua palavra-passe mestra na aplicação Web Bitwarden.";
 "YouCanImportDataToYourVaultOnX" = "Pode importar dados para o seu cofre em %1$@.";
 "LearnMoreAboutHowToUseBitwardenOnTheHelpCenter" = "Saiba mais sobre como utilizar o Bitwarden no Centro de ajuda.";
@@ -865,3 +865,10 @@
 "YourOrganizationPermissionsWereUpdatedRequeringYouToSetAMasterPassword" = "As permissões da sua organização foram atualizadas, exigindo a definição de uma palavra-passe mestra.";
 "YourOrganizationRequiresYouToSetAMasterPassword" = "A sua organização exige a definição de uma palavra-passe mestra.";
 "SetUpAnUnlockOptionToChangeYourVaultTimeoutAction" = "Configure uma opção de desbloqueio para alterar a ação de tempo limite do seu cofre.";
+"DuoTwoStepLoginIsRequiredForYourAccount" = "A verificação de dois passos Duo é necessária para a sua conta.";
+"FollowTheStepsFromDuoToFinishLoggingIn" = "Siga os passos do Duo para concluir o início de sessão.";
+"LaunchDuo" = "Iniciar o Duo";
+"OrganizationUnassignedItemsMessageUSEUDescriptionLong" = "Os itens da organização não atribuídos já não são visíveis na vista Todos os cofres e só são acessíveis através da consola de administração. Atribua estes itens a uma coleção a partir da Consola de administração para os tornar visíveis.";
+"OrganizationUnassignedItemsMessageSelfHost041624DescriptionLong" = "A 16 de maio de 2024, os itens da organização não atribuídos deixarão de estar visíveis na vista Todos os cofres e só estarão acessíveis através da Consola de administração. Atribua estes itens a uma coleção a partir da Consola de administração para os tornar visíveis.";
+"RemindMeLater" = "Lembrar-me mais tarde";
+"Notice" = "Aviso";

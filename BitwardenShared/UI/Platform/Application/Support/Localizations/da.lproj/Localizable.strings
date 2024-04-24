@@ -236,7 +236,7 @@
 "Camera" = "Kamera";
 "Photos" = "Billeder";
 "CopyTotp" = "Kopiér TOTP";
-"CopyTotpAutomaticallyDescription" = "Har et login en godkendelsesnøgle, så kopiér TOTP-bekræftelseskoden til udklipsholderen, når login auto-udfyldes.";
+"CopyTotpAutomaticallyDescription" = "Har et login en godkendelsesnøgle, kopiér da TOTP-bekræftelseskoden til udklipsholderen, når login autoudfyldes.";
 "CopyTotpAutomatically" = "Kopiér TOTP automatisk";
 "PremiumRequired" = "Premium-medlemskab kræves for at anvende denne funktion.";
 "AttachementAdded" = "Vedhæftning tilføjet";
@@ -620,7 +620,7 @@
 "Fido2ReturnToApp" = "Vend tilbage til app";
 "Fido2CheckBrowser" = "Sørg for, at standardbrowseren understøtter WebAuthn og forsøg igen.";
 "ResetPasswordAutoEnrollInviteWarning" = "Denne organisation har en virksomhedspolitik, der automatisk tilmelder dig til nulstilling af adgangskode. Tilmelding giver organisationsadministratorer mulighed for at skifte din hovedadgangskode.";
-"VaultTimeoutPolicyInEffect" = "Dine organisationspolitikker påvirker din boks-timeout. Maksimum tilladte boks-timeout er %1$@ time(r) og %2$@ minut(ter)";
+"VaultTimeoutPolicyInEffect" = "Organisationspolitikkerne har sat den maksimalt tilladte bokstimeout til %1$@ tim(er) og %2$@ minut(ter).";
 "VaultTimeoutPolicyWithActionInEffect" = "Organisationspolitikkerne påvirker boks-timeout. Maks. tilladt boks-timeout er %1$@ time(r) og %2$@ minut(ter). Boks-timeout er pt. sat til %3$@.";
 "VaultTimeoutActionPolicyInEffect" = "Organisationspolitikker har sat boks-timeouthandlingen til %1$@.";
 "VaultTimeoutToLarge" = "Timeout for din boks overskrider de begrænsninger, der er angivet af din organisation.";
@@ -695,7 +695,7 @@
 "LogInAccepted" = "Login bekræftet";
 "LogInDenied" = "Login afvist";
 "ApproveLoginRequests" = "Godkend loginanmodninger";
-"UseThisDeviceToApproveLoginRequestsMadeFromOtherDevices" = "Brug denne enhed til at godkende loginanmodninger fra andre enheder.";
+"UseThisDeviceToApproveLoginRequestsMadeFromOtherDevices" = "Brug denne enhed til at godkende loginanmodninger fra andre enheder";
 "AllowNotifications" = "Tillad notifikationer";
 "ReceivePushNotificationsForNewLoginRequests" = "Modtag push-notifikationer om nye login-anmodninger";
 "NoThanks" = "Nej tak";
@@ -797,7 +797,7 @@
 "CopyApplication" = "Kopiér applikation";
 "AvailableForTwoStepLogin" = "Tilgængelig for totrins-login";
 "MasterPasswordRePromptHelp" = "Hjælp til genanmodning om hovedadgangskode";
-"UnlockingMayFailDueToInsufficientMemoryDecreaseYourKDFMemorySettingsToResolve" = "Unlocking may fail due to insufficient memory. Decrease your KDF memory settings or set up biometric unlock to resolve.";
+"UnlockingMayFailDueToInsufficientMemoryDecreaseYourKDFMemorySettingsToResolve" = "Oplåsning kan fejle grundet utilstrækkelig hukommelse. Reducér KDF-hukommelsesindstillinger eller opsæt biometrisk oplåsning for at afhjælpe.";
 "InvalidAPIKey" = "Ugyldig API-nøgle";
 "InvalidAPIToken" = "Ugyldigt API-token";
 "AdminApprovalRequested" = "Admin-godkendelse udbedt";
@@ -865,3 +865,10 @@
 "YourOrganizationPermissionsWereUpdatedRequeringYouToSetAMasterPassword" = "Organisationstilladelserne er blevet opdateret, og der kræves nu oprettelse af en hovedadgangskode.";
 "YourOrganizationRequiresYouToSetAMasterPassword" = "Organisationen kræver, at der oprettes en hovedadgangskode.";
 "SetUpAnUnlockOptionToChangeYourVaultTimeoutAction" = "Opsæt en oplåsningsmetode for at ændre Bokstimeouthandlingen.";
+"DuoTwoStepLoginIsRequiredForYourAccount" = "Duo-totrinsindlogning kræves for kontoen.";
+"FollowTheStepsFromDuoToFinishLoggingIn" = "Følg trinnene fra Duo for at færdiggøre indlogningen.";
+"LaunchDuo" = "Start Duo";
+"OrganizationUnassignedItemsMessageUSEUDescriptionLong" = "Utildelte organisationsemner er ikke længere synlige i Alle Bokse-visningen og er kun tilgængelige via Admin-konsollen. Føj disse emner til en samling fra Admin-konsollen for at gøre dem synlige.";
+"OrganizationUnassignedItemsMessageSelfHost041624DescriptionLong" = "Pr. 16. maj 2024 vil utildelte organisationsemner ikke længere være synlige i Alle Bokse-visningen og vil kun være tilgængelige via Admin-konsollen. Tildel disse emner til en samling via Admin-konsollen for at gøre dem synlige.";
+"RemindMeLater" = "Påmind senere";
+"Notice" = "Varsling";

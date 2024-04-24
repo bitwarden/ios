@@ -865,3 +865,10 @@
 "YourOrganizationPermissionsWereUpdatedRequeringYouToSetAMasterPassword" = "Kuruluş izinleriniz güncellendi ve bir ana parola belirlemeniz gerekiyor.";
 "YourOrganizationRequiresYouToSetAMasterPassword" = "Kuruluşunuz bir ana parola belirlemenizi gerektiriyor.";
 "SetUpAnUnlockOptionToChangeYourVaultTimeoutAction" = "Kasa zaman aşımı eyleminizi değiştirmek için bir kilit açma yöntemi ayarlayın.";
+"DuoTwoStepLoginIsRequiredForYourAccount" = "Hesabınız için Duo'ya iki adımlı giriş yapmanız gerekiyor.";
+"FollowTheStepsFromDuoToFinishLoggingIn" = "Oturum açmayı tamamlamak için Duo'daki adımları izleyin.";
+"LaunchDuo" = "Duo'yu başlat";
+"OrganizationUnassignedItemsMessageUSEUDescriptionLong" = "Unassigned organization items are no longer visible in the All Vaults view and only accessible via the Admin Console. Assign these items to a collection from the Admin Console to make them visible.";
+"OrganizationUnassignedItemsMessageSelfHost041624DescriptionLong" = "On May 16, 2024, unassigned organization items will no longer be visible in the All Vaults view and only accessible via the Admin Console. Assign these items to a collection from the Admin Console to make them visible.";
+"RemindMeLater" = "Remind me later";
+"Notice" = "Notice";

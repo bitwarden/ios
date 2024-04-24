@@ -129,7 +129,7 @@
 "VaultTimeoutAction" = "Holvin aikakatkaisutoiminto";
 "VaultTimeoutLogOutConfirmation" = "Uloskirjautuminen estää pääsyn holviisi ja vaatii ajan umpeuduttua todennuksen Internet-yhteyden välityksellä. Haluatko varmasti käyttää asetusta?";
 "LoggingIn" = "Kirjaudutaan sisään…";
-"LoginOrCreateNewAccount" = "Käytä salattua holviasi kirjautumalla sisään tai tai luo uusi tili.";
+"LoginOrCreateNewAccount" = "Käytä salattua holviasi kirjautumalla sisään tai luo uusi tili.";
 "Manage" = "Hallinta";
 "MasterPasswordConfirmationValMessage" = "Salasanan vahvistus ei täsmää.";
 "MasterPasswordDescription" = "Pääsalasanalla pääset käsiksi holviisi. On erittäin tärkeää, että muistat pääsalasanasi, koska sen palautus ei ole mahdollista, jos unohdat sen.";
@@ -865,3 +865,10 @@
 "YourOrganizationPermissionsWereUpdatedRequeringYouToSetAMasterPassword" = "Organisaatiosi käyttöoikeuksia muutettiin ja tämän seurauksena sinun on asetettava pääsalasana.";
 "YourOrganizationRequiresYouToSetAMasterPassword" = "Organisaatiosi edellyttää, että asetat pääsalasanan.";
 "SetUpAnUnlockOptionToChangeYourVaultTimeoutAction" = "Muuta holvisi aikakatkaisutoimintoa määrittämällä lukituksen avaustapa.";
+"DuoTwoStepLoginIsRequiredForYourAccount" = "Tilillesi kirjautuminen vaatii Duo-vahvistuksen.";
+"FollowTheStepsFromDuoToFinishLoggingIn" = "Viimeistele kirjautuminen seuraamalla Duon ohjeita.";
+"LaunchDuo" = "Avaa Duo";
+"OrganizationUnassignedItemsMessageUSEUDescriptionLong" = "Organisaatioiden kokoelmiin määrittämättömät kohteet eivät enää näy laitteiden \"Kaikki holvit\" -näkymissä, vaan ne ovat nähtävissä vain Hallintapaneelista. Määritä kohteet kokoelmiin Hallintapaneelista, jotta ne ovat jatkossakin käytettävissä kaikilta laitteilta.";
+"OrganizationUnassignedItemsMessageSelfHost041624DescriptionLong" = "16.5.2024 alkaen kokoelmiin määrittämättömät organisaatioiden kohteet eivät enää näy laitteiden \"Kaikki holvit\" -näkymissä, vaan ne ovat nähtävissä vain Hallintapaneelista. Määritä kohteet kokoelmiin Hallintapaneelista, jotta ne ovat jatkossakin käytettävissä kaikilta laitteilta.";
+"RemindMeLater" = "Muistuta myöhemmin";
+"Notice" = "Huomautus";
