@@ -9,9 +9,9 @@ struct ConfigResponseModel: Equatable, JSONResponse {
     // MARK: Properties
 
     let version: String
-    
+
     let gitHash: String
-    
+
     let server: ThirdPartyConfigResponseModel?
 
     let environment: EnvironmentServerConfigResponse?
