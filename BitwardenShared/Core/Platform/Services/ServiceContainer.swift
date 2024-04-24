@@ -516,6 +516,10 @@ extension ServiceContainer {
         apiService
     }
 
+    var configAPIService: ConfigAPIService {
+        apiService
+    }
+
     var deviceAPIService: DeviceAPIService {
         apiService
     }

@@ -12,6 +12,7 @@ typealias Services = HasAPIService
     & HasCameraService
     & HasCaptchaService
     & HasClientService
+    & HasConfigAPIService
     & HasDeviceAPIService
     & HasEnvironmentService
     & HasErrorReporter
@@ -111,6 +112,13 @@ protocol HasCaptchaService {
 protocol HasClientService {
     /// The client used by the application to handle auth related encryption and decryption tasks.
     var clientService: ClientService { get }
+}
+
+/// Protocol for an object that provides a `ConfigAPIService`.
+///
+protocol HasConfigAPIService {
+    /// The service to make config-related API requests.
+    var configAPIService: ConfigAPIService { get }
 }
 
 /// Protocol for an object that provides a `DeviceAPIService`.
