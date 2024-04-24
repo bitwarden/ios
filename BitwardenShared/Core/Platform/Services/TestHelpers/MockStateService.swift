@@ -20,6 +20,7 @@ class MockStateService: StateService { // swiftlint:disable:this type_body_lengt
     var capturedUserId: String?
     var clearClipboardValues = [String: ClearClipboardValue]()
     var clearClipboardResult: Result<Void, Error> = .success(())
+    var config: ConfigResponseModel?
     var connectToWatchByUserId = [String: Bool]()
     var connectToWatchResult: Result<Void, Error> = .success(())
     var connectToWatchSubject = CurrentValueSubject<(String?, Bool), Never>((nil, false))
@@ -144,6 +145,10 @@ class MockStateService: StateService { // swiftlint:disable:this type_body_lengt
         try clearClipboardResult.get()
         let userId = try unwrapUserId(userId)
         return clearClipboardValues[userId] ?? .never
+    }
+
+    func getConfig() async -> ConfigResponseModel? {
+        config
     }
 
     func getConnectToWatch(userId: String?) async throws -> Bool {
@@ -284,6 +289,10 @@ class MockStateService: StateService { // swiftlint:disable:this type_body_lengt
         try clearClipboardResult.get()
         let userId = try unwrapUserId(userId)
         clearClipboardValues[userId] = clearClipboardValue
+    }
+
+    func setConfig(_ configModel: ConfigResponseModel?) async {
+        config = configModel
     }
 
     func setConnectToWatch(_ connectToWatch: Bool, userId: String?) async throws {

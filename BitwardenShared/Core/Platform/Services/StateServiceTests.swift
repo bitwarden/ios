@@ -297,6 +297,20 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
         XCTAssertEqual(value, .twoMinutes)
     }
 
+    /// `getConfig()` returns the config values
+    func test_getConfig() async {
+        let model = ConfigResponseModel(
+            version: "1.2.3",
+            gitHash: "1234",
+            server: nil,
+            environment: nil,
+            featureStates: [:]
+        )
+        appSettingsStore.config = model
+        let value = await subject.getConfig()
+        XCTAssertEqual(value, model)
+    }
+
     /// `getBiometricAuthenticationEnabled(:)` returns biometric unlock preference of the active user.
     func test_getBiometricAuthenticationEnabled_default() async throws {
         await subject.addAccount(.fixture())
@@ -1050,6 +1064,19 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
 
         try await subject.setClearClipboardValue(.thirtySeconds)
         XCTAssertEqual(appSettingsStore.clearClipboardValues["1"], .thirtySeconds)
+    }
+
+    /// `setConfig(_:)` sets the config values.
+    func test_setConfig() async {
+        let model = ConfigResponseModel(
+            version: "1.2.3.4",
+            gitHash: "1234",
+            server: nil,
+            environment: nil,
+            featureStates: [:]
+        )
+        await subject.setConfig(model)
+        XCTAssertEqual(appSettingsStore.config, model)
     }
 
     /// `setConnectToWatch(_:userId:)` sets the connect to watch value for a user.

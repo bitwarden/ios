@@ -109,6 +109,12 @@ protocol StateService: AnyObject {
     ///
     func getClearClipboardValue(userId: String?) async throws -> ClearClipboardValue
 
+    /// Gets the config values set by the server.
+    ///
+    /// - Returns: The config values from the server.
+    ///
+    func getConfig() async -> ConfigResponseModel?
+
     /// Gets the connect to watch value for an account.
     ///
     /// - Parameter userId: The user ID associated with the connect to watch value. Defaults to the active
@@ -324,6 +330,13 @@ protocol StateService: AnyObject {
     ///   - userId: The user ID of the account. Defaults to the active account if `nil`.
     ///
     func setClearClipboardValue(_ clearClipboardValue: ClearClipboardValue?, userId: String?) async throws
+
+    /// Sets the config values.
+    ///
+    /// - Parameters:
+    ///   - configModel: The config values to set.
+    ///
+    func setConfig(_ configModel: ConfigResponseModel?) async
 
     /// Sets the connect to watch value for an account.
     ///
@@ -1012,6 +1025,10 @@ actor DefaultStateService: StateService { // swiftlint:disable:this type_body_le
         return appSettingsStore.clearClipboardValue(userId: userId)
     }
 
+    func getConfig() async -> ConfigResponseModel? {
+        appSettingsStore.config
+    }
+
     func getConnectToWatch(userId: String?) async throws -> Bool {
         let userId = try userId ?? getActiveAccountUserId()
         return appSettingsStore.connectToWatch(userId: userId)
@@ -1179,6 +1196,10 @@ actor DefaultStateService: StateService { // swiftlint:disable:this type_body_le
     func setClearClipboardValue(_ clearClipboardValue: ClearClipboardValue?, userId: String?) async throws {
         let userId = try userId ?? getActiveAccountUserId()
         appSettingsStore.setClearClipboardValue(clearClipboardValue, userId: userId)
+    }
+
+    func setConfig(_ configModel: ConfigResponseModel?) async {
+        appSettingsStore.config = configModel
     }
 
     func setConnectToWatch(_ connectToWatch: Bool, userId: String?) async throws {
