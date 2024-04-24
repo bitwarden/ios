@@ -75,9 +75,12 @@ struct SettingsView: View {
     private var settingsItems: some View {
         VStack(spacing: 0) {
             SectionView(Localizations.vault) {
-                SettingsListItem(Localizations.export) {
-                    store.send(.exportItemsTapped)
+                VStack(spacing: 0) {
+                    SettingsListItem(Localizations.export, hasDivider: false) {
+                        store.send(.exportItemsTapped)
+                    }
                 }
+                .cornerRadius(10)
             }
             .padding(.bottom, 32)
 
@@ -88,23 +91,29 @@ struct SettingsView: View {
             .padding(.bottom, 32)
 
             SectionView(Localizations.help, contentSpacing: 0) {
-                SettingsListItem(Localizations.launchTutorial) {
-                    store.send(.tutorialTapped)
-                }
+                VStack(spacing: 0) {
+                    SettingsListItem(Localizations.launchTutorial) {
+                        store.send(.tutorialTapped)
+                    }
 
-                externalLinkRow(Localizations.bitwardenHelpCenter, action: .helpCenterTapped, hasDivider: false)
+                    externalLinkRow(Localizations.bitwardenHelpCenter, action: .helpCenterTapped, hasDivider: false)
+                }
+                .cornerRadius(10)
             }
             .padding(.bottom, 32)
 
             SectionView(Localizations.about, contentSpacing: 0) {
-                externalLinkRow(Localizations.privacyPolicy, action: .privacyPolicyTapped)
+                VStack(spacing: 0) {
+                    externalLinkRow(Localizations.privacyPolicy, action: .privacyPolicyTapped)
 
-                SettingsListItem(store.state.version, hasDivider: false) {
-                    store.send(.versionTapped)
-                } trailingContent: {
-                    Asset.Images.copy.swiftUIImage
-                        .imageStyle(.rowIcon)
+                    SettingsListItem(store.state.version, hasDivider: false) {
+                        store.send(.versionTapped)
+                    } trailingContent: {
+                        Asset.Images.copy.swiftUIImage
+                            .imageStyle(.rowIcon)
+                    }
                 }
+                .cornerRadius(10)
             }
             .padding(.bottom, 16)
 
