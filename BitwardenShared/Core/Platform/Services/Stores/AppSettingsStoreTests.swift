@@ -158,6 +158,46 @@ class AppSettingsStoreTests: BitwardenTestCase { // swiftlint:disable:this type_
         XCTAssertEqual(userDefaults.integer(forKey: "bwPreferencesStorage:clearClipboard_2"), -1)
     }
 
+    /// `config` is initially `nil`
+    func test_config_isInitiallyNil() {
+        XCTAssertNil(subject.config)
+    }
+
+    /// `appconfig` can be used to get and set the persisted value in user defaults.
+    func test_config_withValue() {
+        let config = ConfigResponseModel(
+            version: "version",
+            gitHash: "hash",
+            server: ThirdPartyConfigResponseModel(
+                name: "Name",
+                url: "Url"
+            ),
+            environment: EnvironmentServerConfigResponse(
+                cloudRegion: "US",
+                vault: "https://vault.bitwarden.com",
+                api: "https://vault.bitwarden.com",
+                identity: "https://vault.bitwarden.com",
+                notifications: "https://vault.bitwarden.com",
+                sso: "https://vault.bitwarden.com"
+            ),
+            featureStates: ["feature": .bool(true)]
+        )
+        subject.config = config
+
+        XCTAssertEqual(subject.config, config)
+        try XCTAssertEqual(
+            JSONDecoder().decode(
+                ConfigResponseModel.self,
+                from: XCTUnwrap(
+                    userDefaults
+                        .string(forKey: "bwPreferencesStorage:config")?
+                        .data(using: .utf8)
+                )
+            ),
+            config
+        )
+    }
+
     /// `connectToWatch(userId:)` returns false if there isn't a previously stored value.
     func test_connectToWatch_isInitiallyFalse() {
         XCTAssertFalse(subject.connectToWatch(userId: "0"))

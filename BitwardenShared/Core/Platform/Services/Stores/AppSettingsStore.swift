@@ -21,6 +21,9 @@ protocol AppSettingsStore: AnyObject {
     /// The app's theme.
     var appTheme: String? { get set }
 
+    /// The app's configuration
+    var config: ConfigResponseModel? { get set }
+
     /// Whether to disable the website icons.
     var disableWebIcons: Bool { get set }
 
@@ -510,6 +513,7 @@ extension DefaultAppSettingsStore: AppSettingsStore {
         case appId
         case appLocale
         case appTheme
+        case config
         case biometricAuthEnabled(userId: String)
         case biometricIntegrityState(userId: String, bundleId: String)
         case clearClipboardValue(userId: String)
@@ -562,6 +566,8 @@ extension DefaultAppSettingsStore: AppSettingsStore {
                 key = "clearClipboard_\(userId)"
             case let .connectToWatch(userId):
                 key = "shouldConnectToWatch_\(userId)"
+            case .config:
+                key = "config"
             case let .defaultUriMatch(userId):
                 key = "defaultUriMatch_\(userId)"
             case let .disableAutoTotpCopy(userId):
@@ -635,6 +641,11 @@ extension DefaultAppSettingsStore: AppSettingsStore {
     var appTheme: String? {
         get { fetch(for: .appTheme) }
         set { store(newValue, for: .appTheme) }
+    }
+
+    var config: ConfigResponseModel? {
+        get { fetch(for: .config) }
+        set { store(newValue, for: .config) }
     }
 
     var disableWebIcons: Bool {

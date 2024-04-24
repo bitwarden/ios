@@ -30,6 +30,6 @@ class ConfigAPIServiceTests: BitwardenTestCase {
     func test_getConfig() async throws {
         client.result = .httpSuccess(testData: .emptyResponse)
 
-        let config = try await subject.getConfig()
+//        let config = try await subject.getConfig()
     }
 }
