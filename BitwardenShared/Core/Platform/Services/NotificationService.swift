@@ -274,16 +274,18 @@ class DefaultNotificationService: NotificationService {
     ///
     private func decodePayload(_ message: [AnyHashable: Any]) async throws -> PushNotificationData? {
         // Decode the content of the message.
-        guard let messageData = message["aps"] as? [AnyHashable: Any],
-              let messageContent = messageData["data"] as? [AnyHashable: Any]
+        guard let messageContent = message["data"] as? [AnyHashable: Any]
         else {
             Logger.application.log("Unable to get message data and content")
             return nil
         }
         Logger.application.log("Message Content: \(messageContent, privacy: .public)")
-        Logger.application.log("Message Data: \(messageData, privacy: .public)")
         let jsonData = try JSONSerialization.data(withJSONObject: messageContent)
         let notificationData = try JSONDecoder().decode(PushNotificationData.self, from: jsonData)
+        Logger.application.log("NotificationDataType: \(notificationData.type.debugDescription, privacy: .public)")
+        Logger.application.log(
+            "NotificationDataPayload: \(notificationData.payload.debugDescription, privacy: .public)"
+        )
 
         // Verify that the payload is not empty and that the context is correct.
         let appId = await appIdService.getOrCreateAppId()
