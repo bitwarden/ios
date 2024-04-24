@@ -52,9 +52,15 @@ class DefaultMigrationService {
     /// Notes:
     /// - Migrates account tokens from UserDefaults to Keychain.
     /// - Resets stored date values from Xamarin/Maui, which uses an incompatible format.
+    /// - Clears all keychain values on a fresh app install.
     ///
     private func performMigration1() async throws {
-        guard var state = appSettingsStore.state else { return }
+        guard var state = appSettingsStore.state else {
+            // If state doesn't exist, this is a fresh install. Remove any persisted values in the
+            // keychain from the previous install.
+            try await keychainRepository.deleteAllItems()
+            return
+        }
         defer { appSettingsStore.state = state }
 
         for (accountId, account) in state.accounts {

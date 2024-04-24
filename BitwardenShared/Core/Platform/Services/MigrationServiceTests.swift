@@ -104,6 +104,8 @@ class MigrationServiceTests: BitwardenTestCase {
             XCTAssertNil(appSettingsStore.lastSyncTime(userId: userId))
             XCTAssertNil(appSettingsStore.notificationsLastRegistrationDate(userId: userId))
         }
+
+        XCTAssertFalse(keychainRepository.deleteAllItemsCalled)
     }
 
     /// `performMigrations()` for migration 1 handles no existing accounts.
@@ -115,5 +117,6 @@ class MigrationServiceTests: BitwardenTestCase {
 
         XCTAssertEqual(appSettingsStore.migrationVersion, 1)
         XCTAssertNil(appSettingsStore.state)
+        XCTAssertTrue(keychainRepository.deleteAllItemsCalled)
     }
 }

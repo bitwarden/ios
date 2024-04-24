@@ -15,11 +15,11 @@ enum KeychainItem: Equatable {
     /// The keychain item for the neverLock user auth key.
     case neverLock(userId: String)
 
+    /// The keychain item for a user's pending login request.
+    case pendingAdminLoginRequest(userId: String)
+
     /// The keychain item for a user's refresh token.
     case refreshToken(userId: String)
-
-    /// The keychain item for a user's peding login request.
-    case pendingAdminLoginRequest(userId: String)
 
     /// The `SecAccessControlCreateFlags` protection level for this keychain item.
     ///     If `nil`, no extra protection is applied.
@@ -49,10 +49,10 @@ enum KeychainItem: Equatable {
             "device_key_" + id
         case let .neverLock(userId: id):
             "userKeyAutoUnlock_" + id
-        case let .refreshToken(userId):
-            "refreshToken_\(userId)"
         case let .pendingAdminLoginRequest(userId):
             "pendingAdminLoginRequest_\(userId)"
+        case let .refreshToken(userId):
+            "refreshToken_\(userId)"
         }
     }
 }
@@ -60,6 +60,16 @@ enum KeychainItem: Equatable {
 // MARK: - KeychainRepository
 
 protocol KeychainRepository: AnyObject {
+    /// Deletes all items stored in the keychain.
+    ///
+    func deleteAllItems() async throws
+
+    /// Deletes items stored in the keychain for a specific user.
+    ///
+    /// - Parameter userId: The user ID associated with the keychain items to delete.
+    ///
+    func deleteItems(for userId: String) async throws
+
     /// Attempts to delete the userAuthKey from the keychain.
     ///
     /// - Parameter item: The KeychainItem to be deleted.
@@ -299,6 +309,33 @@ class DefaultKeychainRepository: KeychainRepository {
 }
 
 extension DefaultKeychainRepository {
+    func deleteAllItems() async throws {
+        let itemClasses = [
+            kSecClassGenericPassword,
+            kSecClassInternetPassword,
+            kSecClassCertificate,
+            kSecClassKey,
+            kSecClassIdentity,
+        ]
+        for itemClass in itemClasses {
+            try keychainService.delete(query: [kSecClass: itemClass] as CFDictionary)
+        }
+    }
+
+    func deleteItems(for userId: String) async throws {
+        let keychainItems: [KeychainItem] = [
+            .accessToken(userId: userId),
+            .biometrics(userId: userId),
+            // Exclude `deviceKey` since it is used to log back into an account.
+            .neverLock(userId: userId),
+            .pendingAdminLoginRequest(userId: userId),
+            .refreshToken(userId: userId),
+        ]
+        for keychainItem in keychainItems {
+            try await keychainService.delete(query: keychainQueryValues(for: keychainItem))
+        }
+    }
+
     func deleteUserAuthKey(for item: KeychainItem) async throws {
         try await keychainService.delete(
             query: keychainQueryValues(for: item)
