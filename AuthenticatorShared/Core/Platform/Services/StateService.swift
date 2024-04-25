@@ -13,11 +13,31 @@ protocol StateService: AnyObject {
     ///
     var hasSeenWelcomeTutorial: Bool { get set }
 
+    /// Gets the active account id.
+    ///
+    /// - Returns: The active user account id.
+    ///
+    func getActiveAccountId() async throws -> String
+
     /// Get the app theme.
     ///
     /// - Returns: The app theme.
     ///
     func getAppTheme() async -> AppTheme
+
+    /// Get the active user's Biometric Authentication Preference.
+    ///
+    /// - Returns: A `Bool` indicating the user's preference for using biometric authentication.
+    ///     If `true`, the device should attempt biometric authentication for authorization events.
+    ///     If `false`, the device should not attempt biometric authentication for authorization events.
+    ///
+    func getBiometricAuthenticationEnabled() async throws -> Bool
+
+    /// Gets the BiometricIntegrityState for the active user.
+    ///
+    /// - Returns: An optional base64 string encoding of the BiometricIntegrityState `Data` as last stored for the user.
+    ///
+    func getBiometricIntegrityState() async throws -> String?
 
     /// Gets the clear clipboard value for an account.
     ///
@@ -44,6 +64,20 @@ protocol StateService: AnyObject {
     /// - Parameter appTheme: The new app theme.
     ///
     func setAppTheme(_ appTheme: AppTheme) async
+
+    /// Sets the user's Biometric Authentication Preference.
+    ///
+    /// - Parameter isEnabled: A `Bool` indicating the user's preference for using biometric authentication.
+    ///     If `true`, the device should attempt biometric authentication for authorization events.
+    ///     If `false`, the device should not attempt biometric authentication for authorization events.
+    ///
+    func setBiometricAuthenticationEnabled(_ isEnabled: Bool?) async throws
+
+    /// Sets the BiometricIntegrityState for the active user.
+    ///
+    /// - Parameter base64State: A base64 string encoding of the BiometricIntegrityState `Data`.
+    ///
+    func setBiometricIntegrityState(_ base64State: String?) async throws
 
     /// Sets the clear clipboard value for an account.
     ///
@@ -79,6 +113,24 @@ protocol StateService: AnyObject {
     /// - Returns: A publisher for whether or not to show the web icons.
     ///
     func showWebIconsPublisher() async -> AnyPublisher<Bool, Never>
+}
+
+// MARK: - StateServiceError
+
+/// The errors thrown from a `StateService`.
+///
+enum StateServiceError: Error {
+    /// There are no known accounts.
+    case noAccounts
+
+    /// There isn't an active account.
+    case noActiveAccount
+
+    /// The user has no pin protected user key.
+    case noPinProtectedUserKey
+
+    /// The user has no user key.
+    case noEncUserKey
 }
 
 // MARK: - DefaultStateService
@@ -133,6 +185,10 @@ actor DefaultStateService: StateService {
     }
 
     // MARK: Methods
+
+    func getActiveAccountId() async throws -> String {
+        appSettingsStore.localUserId
+    }
 
     func getAppTheme() async -> AppTheme {
         AppTheme(appSettingsStore.appTheme)
@@ -190,5 +246,29 @@ actor DefaultStateService: StateService {
     ///
     private func getActiveAccountUserId() throws -> String {
         appSettingsStore.localUserId
+    }
+}
+
+// MARK: Biometrics
+
+extension DefaultStateService {
+    func getBiometricAuthenticationEnabled() async throws -> Bool {
+        let userId = try getActiveAccountUserId()
+        return appSettingsStore.isBiometricAuthenticationEnabled(userId: userId)
+    }
+
+    func getBiometricIntegrityState() async throws -> String? {
+        let userId = try getActiveAccountUserId()
+        return appSettingsStore.biometricIntegrityState(userId: userId)
+    }
+
+    func setBiometricAuthenticationEnabled(_ isEnabled: Bool?) async throws {
+        let userId = try getActiveAccountUserId()
+        appSettingsStore.setBiometricAuthenticationEnabled(isEnabled, for: userId)
+    }
+
+    func setBiometricIntegrityState(_ base64State: String?) async throws {
+        let userId = try getActiveAccountUserId()
+        appSettingsStore.setBiometricIntegrityState(base64State, userId: userId)
     }
 }

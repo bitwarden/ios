@@ -10,7 +10,8 @@ class AppCoordinator: Coordinator, HasRootNavigator {
     // MARK: Types
 
     /// The types of modules used by this coordinator.
-    typealias Module = ItemListModule
+    typealias Module = AuthModule
+        & ItemListModule
         & TabModule
         & TutorialModule
 
@@ -61,9 +62,14 @@ class AppCoordinator: Coordinator, HasRootNavigator {
     func handleEvent(_ event: AppEvent, context: AnyObject?) async {
         switch event {
         case .didStart:
-            showTab(route: .itemList(.list))
-            if !services.stateService.hasSeenWelcomeTutorial {
-                showTutorial()
+            let isEnabled = (try? await services.biometricsRepository.getBiometricUnlockStatus().isEnabled) ?? false
+            if isEnabled {
+                showAuth(.vaultUnlock)
+            } else {
+                showTab(route: .itemList(.list))
+                if !services.stateService.hasSeenWelcomeTutorial {
+                    showTutorial()
+                }
             }
         }
     }
@@ -81,6 +87,29 @@ class AppCoordinator: Coordinator, HasRootNavigator {
     }
 
     // MARK: Private Methods
+
+    /// Shows the auth route.
+    ///
+    /// - Parameter route: The auth route to show.
+    ///
+    private func showAuth(_ authRoute: AuthRoute) {
+        if let coordinator = childCoordinator as? AnyCoordinator<AuthRoute, AuthEvent> {
+            coordinator.navigate(to: authRoute)
+        } else {
+            guard let rootNavigator else { return }
+            let navigationController = UINavigationController()
+            let coordinator = module.makeAuthCoordinator(
+                delegate: self,
+                rootNavigator: rootNavigator,
+                stackNavigator: navigationController
+            )
+
+            coordinator.start()
+            navigationController.modalPresentationStyle = .overFullScreen
+            navigationController.isNavigationBarHidden = true
+            rootNavigator.rootViewController?.present(navigationController, animated: false)
+        }
+    }
 
     /// Shows the tab route.
     ///
@@ -100,6 +129,9 @@ class AppCoordinator: Coordinator, HasRootNavigator {
             coordinator.start()
             coordinator.navigate(to: route)
             childCoordinator = coordinator
+            if rootNavigator.isPresenting {
+                rootNavigator.rootViewController?.dismiss(animated: true)
+            }
         }
     }
 
@@ -114,5 +146,13 @@ class AppCoordinator: Coordinator, HasRootNavigator {
 
         navigationController.modalPresentationStyle = .overFullScreen
         rootNavigator?.rootViewController?.present(navigationController, animated: false)
+    }
+}
+
+// MARK: - AuthCoordinatorDelegate
+
+extension AppCoordinator: AuthCoordinatorDelegate {
+    func didCompleteAuth() {
+        showTab(route: .itemList(.list))
     }
 }

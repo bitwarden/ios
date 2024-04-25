@@ -15,7 +15,7 @@ class AnyRouterTests: AuthenticatorTestCase {
 
     override func setUp() {
         super.setUp()
-        router = MockRouter(routeForEvent: { _ in .onboarding })
+        router = MockRouter(routeForEvent: { _ in .vaultUnlock })
         subject = router.asAnyRouter()
     }
 
@@ -31,7 +31,7 @@ class AnyRouterTests: AuthenticatorTestCase {
     func test_handleAndRoute() async {
         var didStart = false
         router.routeForEvent = { event in
-            guard case .didStart = event else { return .onboarding }
+            guard case .didStart = event else { return .vaultUnlock }
             didStart = true
             return .complete
         }

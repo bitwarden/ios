@@ -4,10 +4,13 @@
 
 class MockAppModule:
     AppModule,
+    AuthModule,
     ItemListModule,
     TutorialModule,
     TabModule {
     var appCoordinator = MockCoordinator<AppRoute, AppEvent>()
+    var authCoordinator = MockCoordinator<AuthRoute, AuthEvent>()
+    var authRouter = MockRouter<AuthEvent, AuthRoute>(routeForEvent: { _ in .vaultUnlock })
     var itemListCoordinator = MockCoordinator<ItemListRoute, ItemListEvent>()
     var tabCoordinator = MockCoordinator<TabRoute, Void>()
     var tutorialCoordinator = MockCoordinator<TutorialRoute, TutorialEvent>()
@@ -17,6 +20,18 @@ class MockAppModule:
         navigator _: RootNavigator
     ) -> AnyCoordinator<AppRoute, AppEvent> {
         appCoordinator.asAnyCoordinator()
+    }
+
+    func makeAuthCoordinator(
+        delegate _: AuthCoordinatorDelegate,
+        rootNavigator _: RootNavigator,
+        stackNavigator _: StackNavigator
+    ) -> AnyCoordinator<AuthRoute, AuthEvent> {
+        authCoordinator.asAnyCoordinator()
+    }
+
+    func makeAuthRouter() -> AnyRouter<AuthEvent, AuthRoute> {
+        authRouter.asAnyRouter()
     }
 
     func makeItemListCoordinator(

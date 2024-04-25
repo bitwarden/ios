@@ -8,16 +8,26 @@ class MockStateService: StateService {
     var appLanguage: LanguageOption = .default
     var hasSeenWelcomeTutorial: Bool = false
     var appTheme: AppTheme?
+    var biometricsEnabled = [String: Bool]()
+    var biometricIntegrityStates = [String: String?]()
     var clearClipboardValues = [String: ClearClipboardValue]()
     var clearClipboardResult: Result<Void, Error> = .success(())
+    var getBiometricAuthenticationEnabledResult: Result<Void, Error> = .success(())
+    var getBiometricIntegrityStateError: Error?
     var getSecretKeyResult: Result<String, Error> = .success("qwerty")
-    var setSecretKeyResult: Result<Void, Error> = .success(())
     var secretKeyValues = [String: String]()
+    var setBiometricAuthenticationEnabledResult: Result<Void, Error> = .success(())
+    var setBiometricIntegrityStateError: Error?
+    var setSecretKeyResult: Result<Void, Error> = .success(())
     var timeProvider = MockTimeProvider(.currentTime)
     var showWebIcons = true
     var showWebIconsSubject = CurrentValueSubject<Bool, Never>(true)
 
     lazy var appThemeSubject = CurrentValueSubject<AppTheme, Never>(self.appTheme ?? .default)
+
+    func getActiveAccountId() async throws -> String {
+        "localtest"
+    }
 
     func getAppTheme() async -> AppTheme {
         appTheme ?? .default
@@ -57,7 +67,7 @@ class MockStateService: StateService {
 
     func setSecretKey(_ key: String, userId: String?) async throws {
         try setSecretKeyResult.get()
-        secretKeyValues[userId ?? "local"] = key
+        secretKeyValues[userId ?? "localtest"] = key
     }
 
     func showWebIconsPublisher() async -> AnyPublisher<Bool, Never> {
@@ -74,5 +84,33 @@ class MockStateService: StateService {
         } else {
             throw AuthenticatorTestError.example
         }
+    }
+}
+
+// MARK: Biometrics
+
+extension MockStateService {
+    func getBiometricAuthenticationEnabled() async throws -> Bool {
+        try getBiometricAuthenticationEnabledResult.get()
+        return biometricsEnabled["localtest"] ?? false
+    }
+
+    func getBiometricIntegrityState() async throws -> String? {
+        if let getBiometricIntegrityStateError {
+            throw getBiometricIntegrityStateError
+        }
+        return biometricIntegrityStates["localtest"] ?? nil
+    }
+
+    func setBiometricAuthenticationEnabled(_ isEnabled: Bool?) async throws {
+        try setBiometricAuthenticationEnabledResult.get()
+        biometricsEnabled["localtest"] = isEnabled
+    }
+
+    func setBiometricIntegrityState(_ base64EncodedState: String?) async throws {
+        if let setBiometricIntegrityStateError {
+            throw setBiometricIntegrityStateError
+        }
+        biometricIntegrityStates["localtest"] = base64EncodedState
     }
 }

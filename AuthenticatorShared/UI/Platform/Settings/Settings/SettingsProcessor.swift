@@ -1,3 +1,5 @@
+import OSLog
+
 // MARK: - SettingsProcessor
 
 /// The processor used to manage state and handle actions for the settings screen.
@@ -5,7 +7,8 @@
 final class SettingsProcessor: StateProcessor<SettingsState, SettingsAction, SettingsEffect> {
     // MARK: Types
 
-    typealias Services = HasErrorReporter
+    typealias Services = HasBiometricsRepository
+        & HasErrorReporter
         & HasExportItemsService
         & HasPasteboardService
         & HasStateService
@@ -42,8 +45,9 @@ final class SettingsProcessor: StateProcessor<SettingsState, SettingsAction, Set
     override func perform(_ effect: SettingsEffect) async {
         switch effect {
         case .loadData:
-            state.currentLanguage = services.stateService.appLanguage
-            state.appTheme = await services.stateService.getAppTheme()
+            await loadData()
+        case let .toggleUnlockWithBiometrics(isOn):
+            await setBiometricAuth(isOn)
         }
     }
 
@@ -84,6 +88,45 @@ final class SettingsProcessor: StateProcessor<SettingsState, SettingsAction, Set
         let text = "Bitwarden Authenticator\n\n" + state.copyrightText + "\n\n" + state.version
         services.pasteboardService.copy(text)
         state.toast = Toast(text: Localizations.valueHasBeenCopied(Localizations.appInfo))
+    }
+
+    /// Loads the state of the user's biometric unlock preferences.
+    ///
+    /// - Returns: The `BiometricsUnlockStatus` for the user.
+    ///
+    private func loadBiometricUnlockPreference() async -> BiometricsUnlockStatus {
+        do {
+            let biometricsStatus = try await services.biometricsRepository.getBiometricUnlockStatus()
+            return biometricsStatus
+        } catch {
+            Logger.application.debug("Error loading biometric preferences: \(error)")
+            return .notAvailable
+        }
+    }
+
+    /// Load any initial data for the view.
+    private func loadData() async {
+        state.currentLanguage = services.stateService.appLanguage
+        state.appTheme = await services.stateService.getAppTheme()
+        state.biometricUnlockStatus = await loadBiometricUnlockPreference()
+    }
+
+    /// Sets the user's biometric auth
+    ///
+    /// - Parameter enabled: Whether or not the the user wants biometric auth enabled.
+    ///
+    private func setBiometricAuth(_ enabled: Bool) async {
+        do {
+            try await services.biometricsRepository.setBiometricUnlockKey(authKey: enabled ? "key" : nil)
+            state.biometricUnlockStatus = try await services.biometricsRepository.getBiometricUnlockStatus()
+            // Set biometric integrity if needed.
+            if case .available(_, true, false) = state.biometricUnlockStatus {
+                try await services.biometricsRepository.configureBiometricIntegrity()
+                state.biometricUnlockStatus = try await services.biometricsRepository.getBiometricUnlockStatus()
+            }
+        } catch {
+            services.errorReporter.log(error: error)
+        }
     }
 }
 

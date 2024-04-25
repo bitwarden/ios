@@ -27,6 +27,14 @@ protocol AppSettingsStore: AnyObject {
     /// The app's last data migration version.
     var migrationVersion: Int { get set }
 
+    /// The system biometric integrity state `Data`, base64 encoded.
+    ///
+    /// - Parameter userId: The user ID associated with the Biometric Integrity State.
+    /// - Returns: A base64 encoded `String`
+    ///  representing the last known Biometric Integrity State `Data` for the userID.
+    ///
+    func biometricIntegrityState(userId: String) -> String?
+
     /// Gets the time after which the clipboard should be cleared.
     ///
     /// - Parameter userId: The user ID associated with the clipboard clearing time.
@@ -35,12 +43,40 @@ protocol AppSettingsStore: AnyObject {
     ///
     func clearClipboardValue(userId: String) -> ClearClipboardValue
 
+    /// Get the user's Biometric Authentication Preference.
+    ///
+    /// - Parameter userId: The user ID associated with the biometric authentication preference.
+    ///
+    /// - Returns: A `Bool` indicating the user's preference for using biometric authentication.
+    ///     If `true`, the device should attempt biometric authentication for authorization events.
+    ///     If `false`, the device should not attempt biometric authentication for authorization events.
+    ///
+    func isBiometricAuthenticationEnabled(userId: String) -> Bool
+
     /// Gets the user's secret encryption key.
     ///
     /// - Parameters:
     ///   - userId: The user ID
     ///
     func secretKey(userId: String) -> String?
+
+    /// Sets the user's Biometric Authentication Preference.
+    ///
+    /// - Parameters:
+    ///   - isEnabled: A `Bool` indicating the user's preference for using biometric authentication.
+    ///     If `true`, the device should attempt biometric authentication for authorization events.
+    ///     If `false`, the device should not attempt biometric authentication for authorization events.
+    ///   - userId: The user ID associated with the biometric authentication preference.
+    ///
+    func setBiometricAuthenticationEnabled(_ isEnabled: Bool?, for userId: String)
+
+    /// Sets a biometric integrity state `Data` as a base64 encoded `String`.
+    ///
+    /// - Parameters:
+    ///   - base64EncodedIntegrityState: The biometric integrity state `Data`, encoded as a base64 `String`.
+    ///   - userId: The user ID associated with the Biometric Integrity State.
+    ///
+    func setBiometricIntegrityState(_ base64EncodedIntegrityState: String?, userId: String)
 
     /// Sets the time after which the clipboard should be cleared.
     ///
@@ -178,6 +214,8 @@ extension DefaultAppSettingsStore: AppSettingsStore {
         case appId
         case appLocale
         case appTheme
+        case biometricAuthEnabled(userId: String)
+        case biometricIntegrityState(userId: String, bundleId: String)
         case clearClipboardValue(userId: String)
         case disableWebIcons
         case hasSeenWelcomeTutorial
@@ -194,6 +232,10 @@ extension DefaultAppSettingsStore: AppSettingsStore {
                 key = "appLocale"
             case .appTheme:
                 key = "theme"
+            case let .biometricAuthEnabled(userId):
+                key = "biometricUnlock_\(userId)"
+            case let .biometricIntegrityState(userId, bundleId):
+                key = "biometricIntegritySource_\(userId)_\(bundleId)"
             case let .clearClipboardValue(userId):
                 key = "clearClipboard_\(userId)"
             case .disableWebIcons:
@@ -239,6 +281,15 @@ extension DefaultAppSettingsStore: AppSettingsStore {
         set { store(newValue, for: .migrationVersion) }
     }
 
+    func biometricIntegrityState(userId: String) -> String? {
+        fetch(
+            for: .biometricIntegrityState(
+                userId: userId,
+                bundleId: bundleId
+            )
+        )
+    }
+
     func clearClipboardValue(userId: String) -> ClearClipboardValue {
         if let rawValue: Int = fetch(for: .clearClipboardValue(userId: userId)),
            let value = ClearClipboardValue(rawValue: rawValue) {
@@ -247,8 +298,26 @@ extension DefaultAppSettingsStore: AppSettingsStore {
         return .never
     }
 
+    func isBiometricAuthenticationEnabled(userId: String) -> Bool {
+        fetch(for: .biometricAuthEnabled(userId: userId))
+    }
+
     func secretKey(userId: String) -> String? {
         fetch(for: .secretKey(userId: userId))
+    }
+
+    func setBiometricAuthenticationEnabled(_ isEnabled: Bool?, for userId: String) {
+        store(isEnabled, for: .biometricAuthEnabled(userId: userId))
+    }
+
+    func setBiometricIntegrityState(_ base64EncodedIntegrityState: String?, userId: String) {
+        store(
+            base64EncodedIntegrityState,
+            for: .biometricIntegrityState(
+                userId: userId,
+                bundleId: bundleId
+            )
+        )
     }
 
     func setClearClipboardValue(_ clearClipboardValue: ClearClipboardValue?, userId: String) {

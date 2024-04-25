@@ -8,6 +8,9 @@ struct SettingsState: Equatable {
     /// The selected app theme.
     var appTheme: AppTheme = .default
 
+    /// The biometric auth status for the user.
+    var biometricUnlockStatus: BiometricsUnlockStatus = .notAvailable
+
     /// The copyright text.
     var copyrightText = "© Bitwarden Inc. 2015-\(Calendar.current.component(.year, from: Date.now))"
 

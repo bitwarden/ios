@@ -3,6 +3,9 @@ import Foundation
 // MARK: - KeychainItem
 
 enum KeychainItem: Equatable {
+    /// The keychain item for biometrics protected user auth key.
+    case biometrics(userId: String)
+
     /// The keychain item for a user's encryption secret key.
     case secretKey(userId: String)
 
@@ -11,6 +14,8 @@ enum KeychainItem: Equatable {
     ///
     var protection: SecAccessControlCreateFlags? {
         switch self {
+        case .biometrics:
+            .biometryCurrentSet
         case .secretKey:
             nil
         }
@@ -20,6 +25,8 @@ enum KeychainItem: Equatable {
     ///
     var unformattedKey: String {
         switch self {
+        case let .biometrics(userId: id):
+            "biometric_key_" + id
         case let .secretKey(userId):
             "secretKey_\(userId)"
         }
@@ -29,6 +36,12 @@ enum KeychainItem: Equatable {
 // MARK: - KeychainRepository
 
 protocol KeychainRepository: AnyObject {
+    /// Attempts to delete the userAuthKey from the keychain.
+    ///
+    /// - Parameter item: The KeychainItem to be deleted.
+    ///
+    func deleteUserAuthKey(for item: KeychainItem) async throws
+
     /// Gets the stored secret key for a user from the keychain.
     ///
     /// - Parameters:
@@ -37,6 +50,13 @@ protocol KeychainRepository: AnyObject {
     ///
     func getSecretKey(userId: String) async throws -> String
 
+    /// Gets a user auth key value.
+    ///
+    /// - Parameter item: The storage key of the user auth key.
+    /// - Returns: A string representing the user auth key.
+    ///
+    func getUserAuthKeyValue(for item: KeychainItem) async throws -> String
+
     /// Stores the secret key for a user in the keychain
     ///
     /// - Parameters:
@@ -44,6 +64,14 @@ protocol KeychainRepository: AnyObject {
     ///   - userId: The user's ID
     ///
     func setSecretKey(_ value: String, userId: String) async throws
+
+    /// Sets a user auth key/value pair.
+    ///
+    /// - Parameters:
+    ///    - item: The storage key for this auth key.
+    ///    - value: A `String` representing the user auth key.
+    ///
+    func setUserAuthKey(for item: KeychainItem, value: String) async throws
 }
 
 extension KeychainRepository {
@@ -191,11 +219,25 @@ class DefaultKeychainRepository: KeychainRepository {
 }
 
 extension DefaultKeychainRepository {
+    func deleteUserAuthKey(for item: KeychainItem) async throws {
+        try await keychainService.delete(
+            query: keychainQueryValues(for: item)
+        )
+    }
+
     func getSecretKey(userId: String) async throws -> String {
         try await getValue(for: .secretKey(userId: userId))
     }
 
+    func getUserAuthKeyValue(for item: KeychainItem) async throws -> String {
+        try await getValue(for: item)
+    }
+
     func setSecretKey(_ value: String, userId: String) async throws {
         try await setValue(value, for: .secretKey(userId: userId))
+    }
+
+    func setUserAuthKey(for item: KeychainItem, value: String) async throws {
+        try await setValue(value, for: item)
     }
 }

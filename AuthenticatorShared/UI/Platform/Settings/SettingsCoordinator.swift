@@ -11,7 +11,8 @@ final class SettingsCoordinator: Coordinator, HasStackNavigator {
     /// The module types required by this coordinator for creating child coordinators.
     typealias Module = TutorialModule
 
-    typealias Services = HasErrorReporter
+    typealias Services = HasBiometricsRepository
+        & HasErrorReporter
         & HasExportItemsService
         & HasPasteboardService
         & HasStateService

@@ -18,7 +18,7 @@ class AppProcessorTests: AuthenticatorTestCase {
     override func setUp() {
         super.setUp()
 
-        router = MockRouter(routeForEvent: { _ in .onboarding })
+        router = MockRouter(routeForEvent: { _ in .vaultUnlock })
         appModule = MockAppModule()
         coordinator = MockCoordinator()
         errorReporter = MockErrorReporter()

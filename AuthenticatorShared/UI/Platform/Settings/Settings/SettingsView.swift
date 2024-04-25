@@ -35,6 +35,22 @@ struct SettingsView: View {
 
     // MARK: Private views
 
+    /// A view for the user's biometrics setting
+    ///
+    @ViewBuilder private var biometricsSetting: some View {
+        switch store.state.biometricUnlockStatus {
+        case let .available(type, enabled: enabled, _):
+            SectionView(Localizations.security) {
+                VStack(spacing: 0) {
+                    biometricUnlockToggle(enabled: enabled, type: type)
+                }
+            }
+            .padding(.bottom, 32)
+        default:
+            EmptyView()
+        }
+    }
+
     /// The chevron shown in the settings list item.
     private var chevron: some View {
         Image(asset: Asset.Images.rightAngle)
@@ -74,6 +90,8 @@ struct SettingsView: View {
     /// The settings items.
     private var settingsItems: some View {
         VStack(spacing: 0) {
+            biometricsSetting
+
             SectionView(Localizations.vault) {
                 VStack(spacing: 0) {
                     SettingsListItem(Localizations.export, hasDivider: false) {
@@ -143,6 +161,32 @@ struct SettingsView: View {
         }
     }
 
+    /// A toggle for the user's biometric unlock preference.
+    ///
+    @ViewBuilder
+    private func biometricUnlockToggle(enabled: Bool, type: BiometricAuthenticationType) -> some View {
+        let toggleText = biometricsToggleText(type)
+        Toggle(isOn: store.bindingAsync(
+            get: { _ in enabled },
+            perform: SettingsEffect.toggleUnlockWithBiometrics
+        )) {
+            Text(toggleText)
+        }
+        .padding(.trailing, 3)
+        .accessibilityIdentifier("UnlockWithBiometricsSwitch")
+        .accessibilityLabel(toggleText)
+        .toggleStyle(.bitwarden)
+    }
+
+    private func biometricsToggleText(_ biometryType: BiometricAuthenticationType) -> String {
+        switch biometryType {
+        case .faceID:
+            return Localizations.unlockWith(Localizations.faceID)
+        case .touchID:
+            return Localizations.unlockWith(Localizations.touchID)
+        }
+    }
+
     /// Returns a `SettingsListItem` configured for an external web link.
     ///
     /// - Parameters:
@@ -169,7 +213,19 @@ struct SettingsView: View {
 #if DEBUG
 #Preview {
     NavigationView {
-        SettingsView(store: Store(processor: StateProcessor(state: SettingsState())))
+        SettingsView(
+            store: Store(
+                processor: StateProcessor(
+                    state: SettingsState(
+                        biometricUnlockStatus: .available(
+                            .faceID,
+                            enabled: false,
+                            hasValidIntegrity: true
+                        )
+                    )
+                )
+            )
+        )
     }
 }
 #endif

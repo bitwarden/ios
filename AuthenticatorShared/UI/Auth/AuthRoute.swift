@@ -6,5 +6,7 @@ import Foundation
 public enum AuthRoute: Equatable {
     /// Dismisses the auth flow.
     case complete
-    case onboarding
+
+    /// A route to the unlock screen.
+    case vaultUnlock
 }

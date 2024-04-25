@@ -24,6 +24,12 @@ public class ServiceContainer: Services {
     /// The service used for managing items
     let authenticatorItemRepository: AuthenticatorItemRepository
 
+    /// The repository to manage biometric unlock policies and access controls the user.
+    let biometricsRepository: BiometricsRepository
+
+    /// The service used to obtain device biometrics status & data.
+    let biometricsService: BiometricsService
+
     /// The service used by the application to manage camera use.
     let cameraService: CameraService
 
@@ -62,6 +68,9 @@ public class ServiceContainer: Services {
     ///   - application: The application instance.
     ///   - appSettingsStore: The service for persisting app settings
     ///   - authenticatorItemRepository: The service to manage items
+    ///   - biometricsRepository: The repository to manage biometric unlock policies
+    ///         and access controls for the user.
+    ///   - biometricsService: The service used to obtain device biometrics status & data.
     ///   - cameraService: The service used by the application to manage camera use.
     ///   - clientService: The service used by the application to handle encryption and decryption tasks.
     ///   - cryptographyService: The service used by the application to encrypt and decrypt items
@@ -77,6 +86,8 @@ public class ServiceContainer: Services {
         application: Application?,
         appSettingsStore: AppSettingsStore,
         authenticatorItemRepository: AuthenticatorItemRepository,
+        biometricsRepository: BiometricsRepository,
+        biometricsService: BiometricsService,
         cameraService: CameraService,
         cryptographyService: CryptographyService,
         clientService: ClientService,
@@ -91,6 +102,8 @@ public class ServiceContainer: Services {
         self.application = application
         self.appSettingsStore = appSettingsStore
         self.authenticatorItemRepository = authenticatorItemRepository
+        self.biometricsRepository = biometricsRepository
+        self.biometricsService = biometricsService
         self.cameraService = cameraService
         self.clientService = clientService
         self.cryptographyService = cryptographyService
@@ -118,7 +131,7 @@ public class ServiceContainer: Services {
         )
 
         let appIdService = AppIdService(appSettingStore: appSettingsStore)
-
+        let biometricsService = DefaultBiometricsService()
         let cameraService = DefaultCameraService()
         let clientService = DefaultClientService()
         let dataStore = DataStore(errorReporter: errorReporter)
@@ -135,6 +148,12 @@ public class ServiceContainer: Services {
         )
 
         let timeProvider = CurrentTime()
+
+        let biometricsRepository = DefaultBiometricsRepository(
+            biometricsService: biometricsService,
+            keychainService: keychainRepository,
+            stateService: stateService
+        )
 
         let cryptographyKeyService = CryptographyKeyService(
             stateService: stateService
@@ -179,6 +198,8 @@ public class ServiceContainer: Services {
             application: application,
             appSettingsStore: appSettingsStore,
             authenticatorItemRepository: authenticatorItemRepository,
+            biometricsRepository: biometricsRepository,
+            biometricsService: biometricsService,
             cameraService: cameraService,
             cryptographyService: cryptographyService,
             clientService: clientService,

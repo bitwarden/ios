@@ -5,4 +5,7 @@
 public enum AuthEvent: Equatable {
     /// When the app starts
     case didStart
+
+    /// When the user successfully authorized
+    case didCompleteAuth
 }
