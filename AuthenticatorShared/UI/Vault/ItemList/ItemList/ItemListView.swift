@@ -252,7 +252,7 @@ struct ItemListView: View {
             }
         }
         .navigationTitle(Localizations.verificationCodes)
-        .navigationBarTitleDisplayMode(.inline)
+        .navigationBarTitleDisplayMode(.large)
         .toolbar {
             addToolbarItem(hidden: !store.state.showAddToolbarItem) {
                 Task {
