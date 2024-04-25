@@ -59,7 +59,8 @@ struct TutorialView: View {
     private var intoSlide: some View {
         VStack(spacing: 24) {
             Asset.Images.recoveryCodes.swiftUIImage
-                .frame(height: 140)
+                .resizable()
+                .frame(width:140, height: 140)
 
             Text(Localizations.secureYourAssetsWithBitwardenAuthenticator)
                 .styleGuide(.title2)
