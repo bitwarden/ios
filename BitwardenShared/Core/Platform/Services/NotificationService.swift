@@ -176,7 +176,6 @@ class DefaultNotificationService: NotificationService {
                   let notificationData = try await decodePayload(message),
                   let type = notificationData.type
             else { return }
-
             let userId = try await stateService.getActiveAccountId()
 
             Logger.application.debug("Notification received: \(message)")
