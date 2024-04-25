@@ -163,67 +163,52 @@ class DefaultNotificationService: NotificationService {
         notificationDismissed: Bool?,
         notificationTapped: Bool?
     ) async {
-        Logger.application.log("Message received: \(message, privacy: .public)")
         do {
             // First attempt to decode the message as a response.
             if await handleLoginRequestResponse(
                 message,
                 notificationDismissed: notificationDismissed,
                 notificationTapped: notificationTapped
-            ) {
-                Logger.application.log("Handling as login request")
-                return
-            }
+            ) { return }
 
             // Proceed to treat the message as new notification.
             guard await stateService.isAuthenticated(),
                   let notificationData = try await decodePayload(message),
                   let type = notificationData.type
-            else {
-                Logger.application.log("Unable to decode payload")
-                return
-            }
+            else { return }
 
-            Logger.application.log("Message received: \(message, privacy: .public)")
             let userId = try await stateService.getActiveAccountId()
 
-            Logger.application.log("Notification received: \(message, privacy: .public)")
+            Logger.application.debug("Notification received: \(message)")
 
             // Handle the notification according to the type of data.
             switch type {
             case .syncCipherCreate,
                  .syncCipherUpdate:
-                Logger.application.log("Sync Cipher Create/Update")
                 if let data: SyncCipherNotification = notificationData.data(), data.userId == userId {
                     try await syncService.fetchUpsertSyncCipher(data: data)
                 }
             case .syncFolderCreate,
                  .syncFolderUpdate:
-                Logger.application.log("Sync Folder Create/Update")
                 if let data: SyncFolderNotification = notificationData.data(), data.userId == userId {
                     try await syncService.fetchUpsertSyncFolder(data: data)
                 }
             case .syncCipherDelete,
                  .syncLoginDelete:
-                Logger.application.log("Sync Cipher/Login Delete")
                 if let data: SyncCipherNotification = notificationData.data(), data.userId == userId {
                     try await syncService.deleteCipher(data: data)
                 }
             case .syncFolderDelete:
-                Logger.application.log("Sync Folder Delete")
                 if let data: SyncFolderNotification = notificationData.data(), data.userId == userId {
                     try await syncService.deleteFolder(data: data)
                 }
             case .syncCiphers,
                  .syncSettings,
                  .syncVault:
-                Logger.application.log("Sync Ciphers/Settings/Vault")
                 try await syncService.fetchSync(forceSync: false)
             case .syncOrgKeys:
-                Logger.application.log("Sync Org Keys")
                 try await syncService.fetchSync(forceSync: true)
             case .logOut:
-                Logger.application.log("Log Out")
                 guard let data: UserNotification = notificationData.data() else { return }
                 try await authRepository.logout(userId: data.userId)
                 // Only route to landing page if the current active user was logged out.
@@ -232,26 +217,21 @@ class DefaultNotificationService: NotificationService {
                 }
             case .syncSendCreate,
                  .syncSendUpdate:
-                Logger.application.log("Sync Send Create/Update")
                 if let data: SyncSendNotification = notificationData.data(), data.userId == userId {
                     try await syncService.fetchUpsertSyncSend(data: data)
                 }
             case .syncSendDelete:
-                Logger.application.log("Sync Send Delete")
                 if let data: SyncSendNotification = notificationData.data(), data.userId == userId {
                     try await syncService.deleteSend(data: data)
                 }
             case .authRequest:
-                Logger.application.log("Auth Request")
                 try await handleLoginRequest(notificationData, userId: userId)
             case .authRequestResponse:
-                Logger.application.log("Auth Request Response")
                 // No action necessary, since the LoginWithDeviceProcessor already checks for updates
                 // every few seconds.
                 break
             }
         } catch {
-            Logger.application.log("Error: \(error, privacy: .public)")
             errorReporter.log(error: error)
         }
     }
@@ -275,27 +255,16 @@ class DefaultNotificationService: NotificationService {
     private func decodePayload(_ message: [AnyHashable: Any]) async throws -> PushNotificationData? {
         // Decode the content of the message.
         guard let messageContent = message["data"] as? [AnyHashable: Any]
-        else {
-            Logger.application.log("Unable to get message data and content")
-            return nil
-        }
+        else { return nil }
         Logger.application.log("Message Content: \(messageContent, privacy: .public)")
         let jsonData = try JSONSerialization.data(withJSONObject: messageContent)
         let notificationData = try JSONDecoder().decode(PushNotificationData.self, from: jsonData)
-        Logger.application.log("NotificationDataType: \(notificationData.type.debugDescription, privacy: .public)")
-        Logger.application.log(
-            "NotificationDataPayload: \(notificationData.payload.debugDescription, privacy: .public)"
-        )
 
         // Verify that the payload is not empty and that the context is correct.
         let appId = await appIdService.getOrCreateAppId()
-        Logger.application.log("App ID: \(appId, privacy: .public)")
         guard notificationData.payload?.isEmpty == false,
               notificationData.contextId != appId
-        else {
-            Logger.application.log("Payload is empty or context ID == appId")
-            return nil
-        }
+        else { return nil }
         return notificationData
     }
 
