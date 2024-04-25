@@ -256,7 +256,6 @@ class DefaultNotificationService: NotificationService {
         // Decode the content of the message.
         guard let messageContent = message["data"] as? [AnyHashable: Any]
         else { return nil }
-        Logger.application.log("Message Content: \(messageContent, privacy: .public)")
         let jsonData = try JSONSerialization.data(withJSONObject: messageContent)
         let notificationData = try JSONDecoder().decode(PushNotificationData.self, from: jsonData)
 
