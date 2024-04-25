@@ -71,6 +71,10 @@ final class MockStackNavigator: StackNavigator {
         alerts.append(alert)
     }
 
+    func present(_ alert: BitwardenShared.Alert, onDismissed: (() -> Void)?) {
+        alerts.append(alert)
+    }
+
     func present<Content: View>(
         _ view: Content,
         animated: Bool,

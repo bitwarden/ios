@@ -61,6 +61,20 @@ class AlertTests: BitwardenTestCase {
         XCTAssertEqual(alertController.preferredAction?.title, "OK")
     }
 
+    /// `createAlertController` sets an `onDismissed` closure that's called when the alert is dismissed.
+    func test_createAlertController_onDismissed() {
+        var dismissedCalled = false
+        let alertController = subject.createAlertController { dismissedCalled = true }
+        let rootViewController = UIViewController()
+        setKeyWindowRoot(viewController: rootViewController)
+
+        rootViewController.present(alertController, animated: false)
+        XCTAssertFalse(dismissedCalled)
+        rootViewController.dismiss(animated: false)
+        waitFor(rootViewController.presentedViewController == nil)
+        XCTAssertTrue(dismissedCalled)
+    }
+
     /// `debugDescription` contains the alert's properties
     func test_debugDescription() {
         XCTAssertEqual(

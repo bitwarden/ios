@@ -139,40 +139,33 @@ final class LoginWithDeviceProcessor: StateProcessor<
                 guard let requestId = self.state.requestId else { throw AuthError.missingData }
                 let request = try await self.services.authService.checkPendingLoginRequest(withId: requestId)
 
-                guard let timer = self.checkTimer, timer.isValid else { return }
-
-                // Show an alert and dismiss the view if the request has expired.
-                guard !request.isExpired else {
-                    // Remove admin pending login request if exists
-                    try await services.authService.setPendingAdminLoginRequest(nil, userId: nil)
-
-                    self.checkTimer?.invalidate()
-                    return coordinator.showAlert(.requestExpired {
-                        self.coordinator.navigate(to: .dismiss)
-                    })
+                guard request.requestApproved == true else {
+                    if !request.isAnswered {
+                        // Keep waiting and schedule the next timer if the request hasn't been
+                        // answered and approved yet.
+                        setCheckTimer()
+                    }
+                    return
                 }
-
-                // Keep waiting if the request hasn't been answered yet.
-                guard request.isAnswered else { return }
 
                 // Remove admin pending login request if exists
-                try await services.authService.setPendingAdminLoginRequest(nil, userId: nil)
+                try? await services.authService.setPendingAdminLoginRequest(nil, userId: nil)
 
-                // If the request has been denied, show an alert and dismiss the view.
-                if request.requestApproved == false {
-                    self.checkTimer?.invalidate()
-                    coordinator.showAlert(.requestDenied {
-                        self.coordinator.navigate(to: .dismiss)
-                    })
-                    return
-                } else if request.requestApproved == true {
-                    // Otherwise, if the request has been approved, stop the update timer
-                    // and attempt to authenticate.
-                    self.checkTimer?.invalidate()
-                    await self.attemptLogin(with: request)
-                }
+                // Otherwise, if the request has been approved, stop the update timer
+                // and attempt to authenticate.
+                self.checkTimer?.invalidate()
+                await self.attemptLogin(with: request)
+            } catch CheckLoginRequestError.expired {
+                // If the request has expired, stop the timer but don't alert the user and remain
+                // on the view.
+                self.checkTimer?.invalidate()
             } catch {
-                self.coordinator.showAlert(.networkResponseError(error))
+                // For any other errors, stop the timer while the alert is being shown and resume it
+                // when it's dismissed.
+                self.checkTimer?.invalidate()
+                self.coordinator.showAlert(.networkResponseError(error)) {
+                    self.setCheckTimer()
+                }
                 self.services.errorReporter.log(error: error)
             }
         }
@@ -232,7 +225,7 @@ final class LoginWithDeviceProcessor: StateProcessor<
         checkTimer?.invalidate()
 
         // Set the timer to auto-check for a response every four seconds.
-        checkTimer = Timer.scheduledTimer(withTimeInterval: UI.duration(4), repeats: true) { [weak self] _ in
+        checkTimer = Timer.scheduledTimer(withTimeInterval: UI.duration(4), repeats: false) { [weak self] _ in
             self?.checkForResponse()
         }
     }
