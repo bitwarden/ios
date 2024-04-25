@@ -9,7 +9,7 @@ struct ConfigResponseModel: Equatable, JSONResponse {
     // MARK: Properties
 
     /// The environment URLs of the server.
-    let environment: EnvironmentServerConfigResponse?
+    let environment: EnvironmentServerConfigResponseModel?
 
     /// Feature flags to configure the client.
     let featureStates: [String: AnyCodable]
@@ -34,7 +34,7 @@ struct ThirdPartyConfigResponseModel: Equatable, JSONResponse {
 }
 
 /// API response model for the environment URLs in a configuration response.
-struct EnvironmentServerConfigResponse: Equatable, JSONResponse {
+struct EnvironmentServerConfigResponseModel: Equatable, JSONResponse {
     /// The API URL.
     let api: String
 

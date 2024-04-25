@@ -166,7 +166,7 @@ class AppSettingsStoreTests: BitwardenTestCase { // swiftlint:disable:this type_
     /// `appconfig` can be used to get and set the persisted value in user defaults.
     func test_config_withValue() {
         let config = ConfigResponseModel(
-            environment: EnvironmentServerConfigResponse(
+            environment: EnvironmentServerConfigResponseModel(
                 api: "https://vault.bitwarden.com",
                 cloudRegion: "US",
                 identity: "https://vault.bitwarden.com",
