@@ -277,7 +277,8 @@ jobs:
         run: |
           fastlane upload_build \
             api_key_path:"$HOME/secrets/appstoreconnect-fastlane.json" \
-            changelog:"Test"
+            changelog:"Test" \
+            ipa_path:"build/Bitwarden/Bitwarden.ipa"
 
       # - name: Upload app to TestFlight
       #   env:

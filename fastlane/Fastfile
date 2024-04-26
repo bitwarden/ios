@@ -22,7 +22,8 @@ platform :ios do
         skip_submission: true,
         changelog: options[:changelog],
         skip_waiting_for_build_processing: true,
-        api_key_path: options[:api_key_path]
+        api_key_path: options[:api_key_path],
+        ipa: options[:ipa_path]
     )
     end
 end
