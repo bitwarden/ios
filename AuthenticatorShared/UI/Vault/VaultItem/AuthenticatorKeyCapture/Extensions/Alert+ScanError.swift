@@ -5,7 +5,7 @@ extension Alert {
     ///
     static func totpScanFailureAlert() -> Alert {
         Alert(
-            title: Localizations.authenticatorKeyReadError,
+            title: Localizations.keyReadError,
             message: nil,
             alertActions: [
                 AlertAction(title: Localizations.ok, style: .default),

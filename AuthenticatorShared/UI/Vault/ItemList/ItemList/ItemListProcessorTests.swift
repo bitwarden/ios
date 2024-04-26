@@ -55,7 +55,7 @@ class ItemListProcessorTests: AuthenticatorTestCase {
         XCTAssertEqual(
             coordinator.alertShown.last,
             Alert(
-                title: Localizations.authenticatorKeyReadError,
+                title: Localizations.keyReadError,
                 message: nil,
                 alertActions: [
                     AlertAction(title: Localizations.ok, style: .default),

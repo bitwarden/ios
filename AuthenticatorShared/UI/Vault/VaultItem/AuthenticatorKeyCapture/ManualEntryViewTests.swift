@@ -33,7 +33,7 @@ class ManualEntryViewTests: AuthenticatorTestCase {
 
     /// Tapping the add button dispatches the `.addPressed(:)` action.
     func test_addButton_tap_empty() throws {
-        let button = try subject.inspect().find(button: Localizations.addTotp)
+        let button = try subject.inspect().find(button: Localizations.addCode)
         try button.tap()
         XCTAssertEqual(processor.dispatchedActions.last, .addPressed(code: "", name: ""))
     }
@@ -42,7 +42,7 @@ class ManualEntryViewTests: AuthenticatorTestCase {
     func test_addButton_tap_new() throws {
         processor.state.name = "wayne"
         processor.state.authenticatorKey = "pasta-batman"
-        let button = try subject.inspect().find(button: Localizations.addTotp)
+        let button = try subject.inspect().find(button: Localizations.addCode)
         try button.tap()
         XCTAssertEqual(processor.dispatchedActions.last, .addPressed(code: "pasta-batman", name: "wayne"))
     }

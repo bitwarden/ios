@@ -63,7 +63,7 @@ struct EditAuthenticatorItemView: View {
             )
 
             BitwardenTextField(
-                title: Localizations.authenticatorKey,
+                title: Localizations.key,
                 text: store.binding(
                     get: \.secret,
                     send: EditAuthenticatorItemAction.secretChanged

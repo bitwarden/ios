@@ -372,7 +372,7 @@ extension ItemListProcessor: AuthenticatorKeyCaptureDelegate {
             )
             try await services.authenticatorItemRepository.addAuthenticatorItem(newItem)
             await perform(.refresh)
-            state.toast = Toast(text: Localizations.authenticatorKeyAdded)
+            state.toast = Toast(text: Localizations.keyAdded)
         } catch {
             coordinator.showAlert(.totpScanFailureAlert())
         }
@@ -418,7 +418,7 @@ extension ItemListProcessor: AuthenticatorKeyCaptureDelegate {
             try await services.authenticatorItemRepository.addAuthenticatorItem(newItem)
             await perform(.refresh)
 
-            state.toast = Toast(text: Localizations.authenticatorKeyAdded)
+            state.toast = Toast(text: Localizations.keyAdded)
         } catch {
             coordinator.showAlert(.totpScanFailureAlert())
         }

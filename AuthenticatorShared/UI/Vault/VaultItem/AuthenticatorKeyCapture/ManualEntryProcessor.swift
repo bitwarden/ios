@@ -65,7 +65,7 @@ final class ManualEntryProcessor: StateProcessor<ManualEntryState, ManualEntryAc
         do {
             try EmptyInputValidator(fieldName: Localizations.service)
                 .validate(input: state.name)
-            try EmptyInputValidator(fieldName: Localizations.authenticatorKey)
+            try EmptyInputValidator(fieldName: Localizations.key)
                 .validate(input: state.authenticatorKey)
             coordinator.navigate(to: .addManual(key: key, name: name))
         } catch let error as InputValidationError {

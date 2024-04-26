@@ -13,7 +13,7 @@ struct ManualEntryView: View {
     var body: some View {
         content
             .navigationBar(
-                title: Localizations.authenticatorKeyScanner,
+                title: Localizations.key,
                 titleDisplayMode: .inline
             )
             .toolbar {
@@ -26,7 +26,7 @@ struct ManualEntryView: View {
     /// A button to trigger an `.addPressed(:)` action.
     ///
     private var addButton: some View {
-        Button(Localizations.addTotp) {
+        Button(Localizations.addCode) {
             store.send(
                 ManualEntryAction.addPressed(
                     code: store.state.authenticatorKey,
@@ -52,7 +52,7 @@ struct ManualEntryView: View {
             )
 
             BitwardenTextField(
-                title: Localizations.authenticatorKeyScanner,
+                title: Localizations.key,
                 text: store.binding(
                     get: \.authenticatorKey,
                     send: ManualEntryAction.authenticatorKeyChanged
@@ -72,7 +72,7 @@ struct ManualEntryView: View {
     ///
     private var footer: some View {
         Group {
-            Text(Localizations.onceTheKeyIsSuccessfullyEntered)
+            Text(Localizations.onceTheKeyIsSuccessfullyEnteredAddCode)
                 .styleGuide(.callout)
             footerButtonContainer
         }
@@ -83,7 +83,7 @@ struct ManualEntryView: View {
     @ViewBuilder private var footerButtonContainer: some View {
         if store.state.deviceSupportsCamera {
             VStack(alignment: .leading, spacing: 0.0, content: {
-                Text(Localizations.cannotAddAuthenticatorKey)
+                Text(Localizations.cannotAddKey)
                     .styleGuide(.callout)
                 AsyncButton {
                     await store.perform(.scanCodePressed)
