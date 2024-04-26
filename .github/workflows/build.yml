@@ -134,6 +134,16 @@ jobs:
           az keyvault secret show --id https://bitwarden-ci.vault.azure.net/certificates/ios-distribution |
             jq -r .value | base64 -d > $HOME/certificates/ios-distribution.p12
 
+      - name: Download Fastlane credentials
+        env:
+          ACCOUNT_NAME: bitwardenci
+          CONTAINER_NAME: mobile
+          FILE: appstoreconnect-fastlane.json
+        run: |
+          mkdir -p $HOME/secrets
+          az storage blob download --account-name $ACCOUNT_NAME --container-name $CONTAINER_NAME --name $FILE \
+            --file $HOME/secrets/$FILE --output none
+
       - name: Set up Keychain
         env:
           KEYCHAIN_PASSWORD: ${{ secrets.IOS_KEYCHAIN_PASSWORD }}
@@ -274,7 +284,8 @@ jobs:
           fastlane pilot upload \
             --verbose \
             --skip_submission \
-            --changelog "Test"
+            --changelog "Test" \
+            --api_key_path secrets/appstoreconnect-fastlane.json
 
       # - name: Upload app to TestFlight
       #   env:
