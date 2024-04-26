@@ -280,6 +280,7 @@ jobs:
             --skip_submission \
             --changelog "Test" \
             --api_key_path $HOME/secrets/appstoreconnect-fastlane.json
+            --app_identifier "com.8bit.bitwarden"
 
       # - name: Upload app to TestFlight
       #   env:
