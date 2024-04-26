@@ -229,11 +229,6 @@ jobs:
         run: |
           brew install mint xcbeautify yq fastlane
 
-      - name: Fastlane list builds
-        run: |
-          fastlane pilot builds --api_key_path $HOME/secrets/appstoreconnect-fastlane.json
-          exit 1
-
       - name: Install Mint packages
         if: steps.mint-cache.outputs.cache-hit != 'true'
         run: |
@@ -284,7 +279,7 @@ jobs:
             --verbose \
             --skip_submission \
             --changelog "Test" \
-            --api_key_path secrets/appstoreconnect-fastlane.json
+            --api_key_path $HOME/secrets/appstoreconnect-fastlane.json
 
       # - name: Upload app to TestFlight
       #   env:
