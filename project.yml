@@ -1,6 +1,7 @@
 name: Bitwarden
 fileGroups:
   - Configs
+  - Docs
 configs:
   Debug: debug
   Release: release
