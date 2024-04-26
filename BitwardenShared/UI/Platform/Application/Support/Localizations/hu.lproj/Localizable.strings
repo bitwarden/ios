@@ -865,3 +865,10 @@
 "YourOrganizationPermissionsWereUpdatedRequeringYouToSetAMasterPassword" = "A szervezeti jogosultságok frissítésre kerültek, ezért be kell állítani egy mesterjelszót.";
 "YourOrganizationRequiresYouToSetAMasterPassword" = "A szervezet megköveteli egy mesterjelszó beállítását.";
 "SetUpAnUnlockOptionToChangeYourVaultTimeoutAction" = "Állítsunk be egy feloldási módot a széf időkifutási műveletének módosításához.";
+"DuoTwoStepLoginIsRequiredForYourAccount" = "DUO kétlépéses bejelentkezés szükséges a fiókhoz.";
+"FollowTheStepsFromDuoToFinishLoggingIn" = "Kövessük a Duo lépéseit a bejelentkezés befejezéséhez.";
+"LaunchDuo" = "Duo indítása";
+"OrganizationUnassignedItemsMessageUSEUDescriptionLong" = "Megjegyzés: A nem hozzá nem rendelt szervezeti elemek már nem láthatók az Összes széf nézetben és csak az Adminisztrátori konzolon keresztül érhetők el. Rendeljük ezeket az elemeket egy gyűjteményhez az Adminisztrátor konzolból, hogy láthatóvá tegyük azokat.";
+"OrganizationUnassignedItemsMessageSelfHost041624DescriptionLong" = "2024. május 16-tól a nem hozzá rendelt szervezeti elemek többé nem lesznek láthatók az Összes széf nézetben és csak az Adminisztrátori konzolon keresztül érhetők el. Rendeljük ezeket az elemeket egy gyűjteményhez az Adminisztrátori konzolból, hogy láthatóvá tegyük azokat.";
+"RemindMeLater" = "Emlékeztetés később";
+"Notice" = "Megjegyzés";

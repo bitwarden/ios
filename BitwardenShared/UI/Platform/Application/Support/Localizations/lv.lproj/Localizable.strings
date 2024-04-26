@@ -865,3 +865,10 @@
 "YourOrganizationPermissionsWereUpdatedRequeringYouToSetAMasterPassword" = "Apvienības atļaujas tika atjauninātas, un tās pieprasa iestatīt galveno paroli.";
 "YourOrganizationRequiresYouToSetAMasterPassword" = "Apvienība pieprasa iestatīt galveno paroli.";
 "SetUpAnUnlockOptionToChangeYourVaultTimeoutAction" = "Jāuzstāda atslēgšanas iespēja, lai mainītu glabātavas noildzes darbību.";
+"DuoTwoStepLoginIsRequiredForYourAccount" = "Kontam ir nepieciešama Duo divpakāpju pieteikšanās.";
+"FollowTheStepsFromDuoToFinishLoggingIn" = "Jāseko Duo norādēm, lai pabeigtu pieteikšanos.";
+"LaunchDuo" = "Palaist Duo";
+"OrganizationUnassignedItemsMessageUSEUDescriptionLong" = "Nepiešķirti apvienības vienumi vairs nav redzami skatā \"Visas glabātavas\" un ir sasniedzami tikai no pārvaldības konsoles, kur šie vienumi jāpiešķir krājumam, lai padarītu tos redzamus.";
+"OrganizationUnassignedItemsMessageSelfHost041624DescriptionLong" = "No 2024. gada 16. maija nepiešķirti apvienības vienumi vairs nebūs redzami skatā \"Visas glabātavas\" un būs sasniedzami tikai no pārvaldības konsoles, kur šie vienumi jāpiešķir krājumam, lai padarītu tos redzamus.";
+"RemindMeLater" = "Atgādināt man vēlāk";
+"Notice" = "Jāņem vērā";
