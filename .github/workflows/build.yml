@@ -145,11 +145,6 @@ jobs:
             --file $HOME/secrets/$FILE --output none
           ls -al $HOME/secrets
 
-      - name: Fastlane list builds
-        run: |
-          fastlane pilot builds --api_key_path $HOME/secrets/appstoreconnect-fastlane.json
-          exit 1
-
       - name: Set up Keychain
         env:
           KEYCHAIN_PASSWORD: ${{ secrets.IOS_KEYCHAIN_PASSWORD }}
@@ -233,6 +228,11 @@ jobs:
       - name: Install Mint, xcbeautify, and yq
         run: |
           brew install mint xcbeautify yq fastlane
+
+      - name: Fastlane list builds
+        run: |
+          fastlane pilot builds --api_key_path $HOME/secrets/appstoreconnect-fastlane.json
+          exit 1
 
       - name: Install Mint packages
         if: steps.mint-cache.outputs.cache-hit != 'true'
