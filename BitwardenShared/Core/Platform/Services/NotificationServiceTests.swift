@@ -96,11 +96,9 @@ class NotificationServiceTests: BitwardenTestCase { // swiftlint:disable:this ty
         stateService.setIsAuthenticated()
         appSettingsStore.appId = "10"
         let message: [AnyHashable: Any] = [
-            "aps": [
-                "data": [
-                    "type": "malformed",
-                    "payload": "anything",
-                ],
+            "data": [
+                "type": "malformed",
+                "payload": "anything",
             ],
         ]
 
@@ -111,17 +109,37 @@ class NotificationServiceTests: BitwardenTestCase { // swiftlint:disable:this ty
         XCTAssertFalse(errorReporter.errors.isEmpty)
     }
 
+    /// `messageReceived(_:notificationDismissed:notificationTapped:)` handles nil objects in the payload.
+    func test_messageReceived_nil() async throws {
+        // Set up the mock data.
+        stateService.setIsAuthenticated()
+        appSettingsStore.appId = "10"
+        // swiftlint:disable line_length
+        let message: [AnyHashable: Any] = [
+            "data": [
+                "type": 1,
+                "payload": "{\"Id\":\"CIPHER ID\",\"UserId\":\"1\",\"OrganizationId\":null,\"CollectionIds\":null,\"RevisionDate\":\"2024-04-24T20:22:09.7593112Z\"}",
+            ],
+        ]
+        // swiftlint:enable line_length
+
+        // Test.
+        await subject.messageReceived(message, notificationDismissed: nil, notificationTapped: nil)
+
+        // Confirm the results.
+        XCTAssertEqual(syncService.fetchUpsertSyncCipherData?.id, "CIPHER ID")
+        XCTAssertEqual(syncService.fetchUpsertSyncCipherData?.userId, "1")
+    }
+
     /// `messageReceived(_:notificationDismissed:notificationTapped:)` handles messages appropriately.
     func test_messageReceived_syncCipherCreate() async throws {
         // Set up the mock data.
         stateService.setIsAuthenticated()
         appSettingsStore.appId = "10"
         let message: [AnyHashable: Any] = [
-            "aps": [
-                "data": [
-                    "type": NotificationType.syncCipherCreate.rawValue,
-                    "payload": "{\"Id\":\"CIPHER ID\",\"UserId\":\"1\"}",
-                ],
+            "data": [
+                "type": NotificationType.syncCipherCreate.rawValue,
+                "payload": "{\"Id\":\"CIPHER ID\",\"UserId\":\"1\"}",
             ],
         ]
 
@@ -139,11 +157,9 @@ class NotificationServiceTests: BitwardenTestCase { // swiftlint:disable:this ty
         stateService.setIsAuthenticated()
         appSettingsStore.appId = "10"
         let message: [AnyHashable: Any] = [
-            "aps": [
-                "data": [
-                    "type": NotificationType.syncCipherUpdate.rawValue,
-                    "payload": "{\"Id\":\"CIPHER ID\",\"UserId\":\"1\"}",
-                ],
+            "data": [
+                "type": NotificationType.syncCipherUpdate.rawValue,
+                "payload": "{\"Id\":\"CIPHER ID\",\"UserId\":\"1\"}",
             ],
         ]
 
@@ -161,11 +177,9 @@ class NotificationServiceTests: BitwardenTestCase { // swiftlint:disable:this ty
         stateService.setIsAuthenticated()
         appSettingsStore.appId = "10"
         let message: [AnyHashable: Any] = [
-            "aps": [
-                "data": [
-                    "type": NotificationType.syncFolderCreate.rawValue,
-                    "payload": "{\"Id\":\"FOLDER ID\",\"UserId\":\"1\"}",
-                ],
+            "data": [
+                "type": NotificationType.syncFolderCreate.rawValue,
+                "payload": "{\"Id\":\"FOLDER ID\",\"UserId\":\"1\"}",
             ],
         ]
 
@@ -183,11 +197,9 @@ class NotificationServiceTests: BitwardenTestCase { // swiftlint:disable:this ty
         stateService.setIsAuthenticated()
         appSettingsStore.appId = "10"
         let message: [AnyHashable: Any] = [
-            "aps": [
-                "data": [
-                    "type": NotificationType.syncFolderUpdate.rawValue,
-                    "payload": "{\"Id\":\"FOLDER ID\",\"UserId\":\"1\"}",
-                ],
+            "data": [
+                "type": NotificationType.syncFolderUpdate.rawValue,
+                "payload": "{\"Id\":\"FOLDER ID\",\"UserId\":\"1\"}",
             ],
         ]
 
@@ -205,11 +217,9 @@ class NotificationServiceTests: BitwardenTestCase { // swiftlint:disable:this ty
         stateService.setIsAuthenticated()
         appSettingsStore.appId = "10"
         let message: [AnyHashable: Any] = [
-            "aps": [
-                "data": [
-                    "type": NotificationType.syncCipherDelete.rawValue,
-                    "payload": "{\"Id\":\"CIPHER ID\",\"UserId\":\"1\"}",
-                ],
+            "data": [
+                "type": NotificationType.syncCipherDelete.rawValue,
+                "payload": "{\"Id\":\"CIPHER ID\",\"UserId\":\"1\"}",
             ],
         ]
 
@@ -227,11 +237,9 @@ class NotificationServiceTests: BitwardenTestCase { // swiftlint:disable:this ty
         stateService.setIsAuthenticated()
         appSettingsStore.appId = "10"
         let message: [AnyHashable: Any] = [
-            "aps": [
-                "data": [
-                    "type": NotificationType.syncLoginDelete.rawValue,
-                    "payload": "{\"Id\":\"CIPHER ID\",\"UserId\":\"1\"}",
-                ],
+            "data": [
+                "type": NotificationType.syncLoginDelete.rawValue,
+                "payload": "{\"Id\":\"CIPHER ID\",\"UserId\":\"1\"}",
             ],
         ]
 
@@ -249,11 +257,9 @@ class NotificationServiceTests: BitwardenTestCase { // swiftlint:disable:this ty
         stateService.setIsAuthenticated()
         appSettingsStore.appId = "10"
         let message: [AnyHashable: Any] = [
-            "aps": [
-                "data": [
-                    "type": NotificationType.syncFolderDelete.rawValue,
-                    "payload": "{\"Id\":\"FOLDER ID\",\"UserId\":\"1\"}",
-                ],
+            "data": [
+                "type": NotificationType.syncFolderDelete.rawValue,
+                "payload": "{\"Id\":\"FOLDER ID\",\"UserId\":\"1\"}",
             ],
         ]
 
@@ -271,11 +277,9 @@ class NotificationServiceTests: BitwardenTestCase { // swiftlint:disable:this ty
         stateService.setIsAuthenticated()
         appSettingsStore.appId = "10"
         let message: [AnyHashable: Any] = [
-            "aps": [
-                "data": [
-                    "type": NotificationType.syncSendCreate.rawValue,
-                    "payload": "{\"Id\":\"SEND ID\",\"UserId\":\"1\"}",
-                ],
+            "data": [
+                "type": NotificationType.syncSendCreate.rawValue,
+                "payload": "{\"Id\":\"SEND ID\",\"UserId\":\"1\"}",
             ],
         ]
 
@@ -293,11 +297,9 @@ class NotificationServiceTests: BitwardenTestCase { // swiftlint:disable:this ty
         stateService.setIsAuthenticated()
         appSettingsStore.appId = "10"
         let message: [AnyHashable: Any] = [
-            "aps": [
-                "data": [
-                    "type": NotificationType.syncSendUpdate.rawValue,
-                    "payload": "{\"Id\":\"SEND ID\",\"UserId\":\"1\"}",
-                ],
+            "data": [
+                "type": NotificationType.syncSendUpdate.rawValue,
+                "payload": "{\"Id\":\"SEND ID\",\"UserId\":\"1\"}",
             ],
         ]
 
@@ -315,11 +317,9 @@ class NotificationServiceTests: BitwardenTestCase { // swiftlint:disable:this ty
         stateService.setIsAuthenticated()
         appSettingsStore.appId = "10"
         let message: [AnyHashable: Any] = [
-            "aps": [
-                "data": [
-                    "type": NotificationType.syncSendDelete.rawValue,
-                    "payload": "{\"Id\":\"SEND ID\",\"UserId\":\"1\"}",
-                ],
+            "data": [
+                "type": NotificationType.syncSendDelete.rawValue,
+                "payload": "{\"Id\":\"SEND ID\",\"UserId\":\"1\"}",
             ],
         ]
 
@@ -337,11 +337,9 @@ class NotificationServiceTests: BitwardenTestCase { // swiftlint:disable:this ty
         stateService.setIsAuthenticated()
         appSettingsStore.appId = "10"
         let message: [AnyHashable: Any] = [
-            "aps": [
-                "data": [
-                    "type": NotificationType.syncOrgKeys.rawValue,
-                    "payload": "anything",
-                ],
+            "data": [
+                "type": NotificationType.syncOrgKeys.rawValue,
+                "payload": "anything",
             ],
         ]
 
@@ -358,11 +356,9 @@ class NotificationServiceTests: BitwardenTestCase { // swiftlint:disable:this ty
         stateService.setIsAuthenticated()
         appSettingsStore.appId = "10"
         let message: [AnyHashable: Any] = [
-            "aps": [
-                "data": [
-                    "type": NotificationType.syncVault.rawValue,
-                    "payload": "anything",
-                ],
+            "data": [
+                "type": NotificationType.syncVault.rawValue,
+                "payload": "anything",
             ],
         ]
 
@@ -384,11 +380,9 @@ class NotificationServiceTests: BitwardenTestCase { // swiftlint:disable:this ty
         let loginRequestNotification = LoginRequestNotification(id: "requestId", userId: "differentUser")
         let notificationData = try JSONEncoder().encode(loginRequestNotification)
         let message: [AnyHashable: Any] = [
-            "aps": [
-                "data": [
-                    "type": NotificationType.authRequest.rawValue,
-                    "payload": String(data: notificationData, encoding: .utf8) ?? "",
-                ],
+            "data": [
+                "type": NotificationType.authRequest.rawValue,
+                "payload": String(data: notificationData, encoding: .utf8) ?? "",
             ],
         ]
 
@@ -413,11 +407,9 @@ class NotificationServiceTests: BitwardenTestCase { // swiftlint:disable:this ty
         let loginRequestNotification = LoginRequestNotification(id: "requestId", userId: "1")
         let notificationData = try JSONEncoder().encode(loginRequestNotification)
         let message: [AnyHashable: Any] = [
-            "aps": [
-                "data": [
-                    "type": NotificationType.authRequest.rawValue,
-                    "payload": String(data: notificationData, encoding: .utf8) ?? "",
-                ],
+            "data": [
+                "type": NotificationType.authRequest.rawValue,
+                "payload": String(data: notificationData, encoding: .utf8) ?? "",
             ],
         ]
 
@@ -439,11 +431,9 @@ class NotificationServiceTests: BitwardenTestCase { // swiftlint:disable:this ty
         stateService.accounts = [activeAccount, nonActiveAccount]
 
         let message: [AnyHashable: Any] = [
-            "aps": [
-                "data": [
-                    "type": NotificationType.logOut.rawValue,
-                    "payload": "{\"UserId\":\"\(nonActiveAccount.profile.userId)\"}",
-                ],
+            "data": [
+                "type": NotificationType.logOut.rawValue,
+                "payload": "{\"UserId\":\"\(nonActiveAccount.profile.userId)\"}",
             ],
         ]
 
@@ -463,11 +453,9 @@ class NotificationServiceTests: BitwardenTestCase { // swiftlint:disable:this ty
         stateService.accounts = [activeAccount, nonActiveAccount]
 
         let message: [AnyHashable: Any] = [
-            "aps": [
-                "data": [
-                    "type": NotificationType.logOut.rawValue,
-                    "payload": "{\"UserId\":\"\(activeAccount.profile.userId)\"}",
-                ],
+            "data": [
+                "type": NotificationType.logOut.rawValue,
+                "payload": "{\"UserId\":\"\(activeAccount.profile.userId)\"}",
             ],
         ]
 
