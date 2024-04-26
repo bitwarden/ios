@@ -15,7 +15,7 @@ enum KeychainItem: Equatable {
     var protection: SecAccessControlCreateFlags? {
         switch self {
         case .biometrics:
-            .biometryCurrentSet
+            .userPresence
         case .secretKey:
             nil
         }
