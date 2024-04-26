@@ -10,6 +10,9 @@ struct TutorialView: View {
     /// The `Store` for this view.
     @ObservedObject var store: Store<TutorialState, TutorialAction, TutorialEffect>
 
+    /// The vertical size class to determine if we're in landscape mode.
+    @Environment(\.verticalSizeClass) var verticalSizeClass
+
     // MARK: View
 
     var body: some View {
@@ -21,16 +24,32 @@ struct TutorialView: View {
 
     private var content: some View {
         VStack(spacing: 24) {
-            Spacer()
+            if verticalSizeClass == .regular {
+                Spacer()
+            }
             TabView(
                 selection: store.binding(
                     get: \.page,
                     send: TutorialAction.pageChanged
                 )
             ) {
-                intoSlide.tag(TutorialPage.intro)
-                qrScannerSlide.tag(TutorialPage.qrScanner)
-                uniqueCodesSlide.tag(TutorialPage.uniqueCodes)
+                slide(
+                    image: Asset.Images.recoveryCodesBig,
+                    titleText: Localizations.secureYourAssetsWithBitwardenAuthenticator,
+                    bodyText: Localizations.getVerificationCodesForAllYourAccounts
+                ).tag(TutorialPage.intro)
+
+                slide(
+                    image: Asset.Images.qrIllustration,
+                    titleText: Localizations.useYourDeviceCameraToScanCodes,
+                    bodyText: Localizations.scanTheQRCodeInYourSettings
+                ).tag(TutorialPage.qrScanner)
+
+                slide(
+                    image: Asset.Images.verificationCode,
+                    titleText: Localizations.signInUsingUniqueCodes,
+                    bodyText: Localizations.whenUsingTwoStepVerification
+                ).tag(TutorialPage.uniqueCodes)
             }
             .tabViewStyle(.page(indexDisplayMode: .always))
             .indexViewStyle(.page(backgroundDisplayMode: .always))
@@ -43,74 +62,88 @@ struct TutorialView: View {
             }
             .buttonStyle(.primary())
 
-            Button {
-                store.send(.skipTapped)
-            } label: {
-                Text(Localizations.skip)
-                    .foregroundColor(Asset.Colors.primaryBitwarden.swiftUIColor)
+            if verticalSizeClass == .regular {
+                Button {
+                    store.send(.skipTapped)
+                } label: {
+                    Text(Localizations.skip)
+                        .foregroundColor(Asset.Colors.primaryBitwarden.swiftUIColor)
+                }
+                .buttonStyle(InlineButtonStyle())
+                .hidden(store.state.isLastPage)
             }
-            .buttonStyle(InlineButtonStyle())
-            .hidden(store.state.isLastPage)
         }
         .padding(16)
         .background(Asset.Colors.backgroundSecondary.swiftUIColor.ignoresSafeArea())
     }
 
-    private var intoSlide: some View {
-        VStack(spacing: 24) {
-            Asset.Images.recoveryCodes.swiftUIImage
-                .resizable()
-                .frame(width:140, height: 140)
+    @ViewBuilder
+    private func slide(image: ImageAsset, titleText: String, bodyText: String) -> some View {
+        if verticalSizeClass == .regular {
+            VStack(spacing: 24) {
+                Image(decorative: image)
+                    .frame(height: 146)
 
-            Text(Localizations.secureYourAssetsWithBitwardenAuthenticator)
-                .styleGuide(.title2)
+                Text(titleText)
+                    .styleGuide(.title2)
 
-            Text(Localizations.getVerificationCodesForAllYourAccounts)
+                Text(bodyText)
 
-            Spacer()
+                Spacer()
+            }
+            .multilineTextAlignment(.center)
+            .scrollView()
+        } else {
+            HStack(alignment: .top, spacing: 24) {
+                Image(decorative: image)
+                    .frame(height: 146)
+
+                VStack(alignment: .leading, spacing: 24) {
+                    Text(titleText)
+                        .styleGuide(.title2)
+
+                    Text(bodyText)
+
+                    Spacer()
+                }
+                .scrollView()
+            }
         }
-        .multilineTextAlignment(.center)
-    }
-
-    private var qrScannerSlide: some View {
-        VStack(spacing: 24) {
-            Asset.Images.qrIllustration.swiftUIImage
-                .frame(height: 140)
-
-            Text(Localizations.useYourDeviceCameraToScanCodes)
-                .styleGuide(.title2)
-
-            Text(Localizations.scanTheQRCodeInYourSettings)
-
-            Spacer()
-        }
-        .multilineTextAlignment(.center)
-    }
-
-    private var uniqueCodesSlide: some View {
-        VStack(spacing: 24) {
-            Asset.Images.uniqueCodes.swiftUIImage
-                .frame(height: 140)
-
-            Text(Localizations.signInUsingUniqueCodes)
-                .styleGuide(.title2)
-
-            Text(Localizations.whenUsingTwoStepVerification)
-
-            Spacer()
-        }
-        .multilineTextAlignment(.center)
     }
 }
 
-#Preview("Tutorial") {
-    NavigationView {
-        TutorialView(
-            store: Store(
-                processor: StateProcessor(
-                    state: TutorialState()
+#if DEBUG
+struct TutorialView_Previews: PreviewProvider {
+    static var previews: some View {
+        NavigationView {
+            TutorialView(
+                store: Store(
+                    processor: StateProcessor(
+                        state: TutorialState(page: .intro)
+                    )
                 )
             )
-        )
+        }.previewDisplayName("Intro")
+
+        NavigationView {
+            TutorialView(
+                store: Store(
+                    processor: StateProcessor(
+                        state: TutorialState(page: .qrScanner)
+                    )
+                )
+            )
+        }.previewDisplayName("QR Scanner")
+
+        NavigationView {
+            TutorialView(
+                store: Store(
+                    processor: StateProcessor(
+                        state: TutorialState(page: .uniqueCodes)
+                    )
+                )
+            )
+        }.previewDisplayName("Unique Codes")
     }
 }
+#endif

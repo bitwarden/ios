@@ -3,6 +3,15 @@
     {
       "filename" : "recovery-codes.pdf",
       "idiom" : "universal"
+    },
+    {
+      "appearances" : [
+        {
+          "appearance" : "luminosity",
+          "value" : "dark"
+        }
+      ],
+      "idiom" : "universal"
     }
   ],
   "info" : {

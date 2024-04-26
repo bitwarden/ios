@@ -18,6 +18,31 @@ extension Snapshotting where Value: SwiftUI.View, Format == UIImage {
         )
     }
 
+    /// A default snapshot in landscape on iPhone 13, with precision 1 and perceptual precision of 0.95.
+    /// This also sets the preferred content size category to AX5.
+    static var defaultLandscapeAX5: Snapshotting {
+        .image(
+            precision: defaultPrecision,
+            perceptualPrecision: defaultPerceptualPrecision,
+            layout: .device(config: .iPhone13(.landscape)),
+            traits: UITraitCollection(traitsFrom: [
+                UITraitCollection(userInterfaceStyle: .light),
+                UITraitCollection(preferredContentSizeCategory: .accessibilityExtraExtraExtraLarge),
+            ])
+        )
+    }
+
+    /// A default snapshot in landscape on iPhone 13, with precision 1 and perceptual precision of 0.95
+    /// and in dark mode.
+    static var defaultLandscapeDark: Snapshotting {
+        .image(
+            precision: defaultPrecision,
+            perceptualPrecision: defaultPerceptualPrecision,
+            layout: .device(config: .iPhone13(.landscape)),
+            traits: UITraitCollection(userInterfaceStyle: .dark)
+        )
+    }
+
     /// A default snapshot in portrait on iPhone 13, with precision 1 and perceptual precision of 0.95.
     static var defaultPortrait: Snapshotting {
         .image(
