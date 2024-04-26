@@ -3,9 +3,11 @@
 extension AuthenticatorItem {
     init(authenticatorItemView: AuthenticatorItemView) {
         self.init(
+            favorite: authenticatorItemView.favorite,
             id: authenticatorItemView.id,
             name: authenticatorItemView.name,
-            totpKey: authenticatorItemView.totpKey
+            totpKey: authenticatorItemView.totpKey,
+            username: authenticatorItemView.username
         )
     }
 }
@@ -13,9 +15,11 @@ extension AuthenticatorItem {
 extension AuthenticatorItemView {
     init(authenticatorItem: AuthenticatorItem) {
         self.init(
+            favorite: authenticatorItem.favorite,
             id: authenticatorItem.id,
             name: authenticatorItem.name,
-            totpKey: authenticatorItem.totpKey
+            totpKey: authenticatorItem.totpKey,
+            username: authenticatorItem.username
         )
     }
 }

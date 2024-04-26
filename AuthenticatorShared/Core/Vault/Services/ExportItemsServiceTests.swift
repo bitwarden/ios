@@ -50,9 +50,11 @@ final class ExportItemsServiceTests: AuthenticatorTestCase {
         let fileType = ExportFileType.csv
         let items = [
             AuthenticatorItemView(
+                favorite: false,
                 id: "One",
                 name: "Name",
-                totpKey: "otpauth://totp/Bitwarden:person@example.com?secret=EXAMPLE&issuer=Bitwarden"
+                totpKey: "otpauth://totp/Bitwarden:person@example.com?secret=EXAMPLE&issuer=Bitwarden",
+                username: "person@example.com"
             ),
         ]
         authItemRepository.fetchAllAuthenticatorItemsResult = .success(items)
@@ -75,9 +77,11 @@ final class ExportItemsServiceTests: AuthenticatorTestCase {
         let fileType = ExportFileType.json
         let items = [
             AuthenticatorItemView(
+                favorite: false,
                 id: "One",
                 name: "Name",
-                totpKey: "otpauth://totp/Bitwarden:person@example.com?secret=EXAMPLE&issuer=Bitwarden"
+                totpKey: "otpauth://totp/Bitwarden:person@example.com?secret=EXAMPLE&issuer=Bitwarden",
+                username: "person@example.com"
             ),
         ]
         authItemRepository.fetchAllAuthenticatorItemsResult = .success(items)

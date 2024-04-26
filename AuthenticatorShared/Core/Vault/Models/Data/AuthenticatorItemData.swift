@@ -68,14 +68,41 @@ extension AuthenticatorItemData {
 }
 
 struct AuthenticatorItemDataModel: Codable {
+    // MARK: Types
+
+    enum CodingKeys: String, CodingKey {
+        case favorite
+        case id
+        case name
+        case totpKey
+        case username
+    }
+
+    // MARK: Properties
+
+    let favorite: Bool
     let id: String
     let name: String
     let totpKey: String?
+    let username: String?
+
+    // MARK: Initialization
 
     init(item: AuthenticatorItem) throws {
+        favorite = item.favorite
         id = item.id
         name = item.name
         totpKey = item.totpKey
+        username = item.username
+    }
+
+    init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        favorite = (try? container.decode(Bool.self, forKey: .favorite)) ?? false
+        id = try container.decode(String.self, forKey: .id)
+        name = try container.decode(String.self, forKey: .name)
+        totpKey = try container.decodeIfPresent(String.self, forKey: .totpKey)
+        username = try container.decodeIfPresent(String.self, forKey: .username)
     }
 }
 

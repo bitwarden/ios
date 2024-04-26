@@ -123,9 +123,11 @@ extension AuthenticatorItemState {
     ///
     func newAuthenticatorItemView() -> AuthenticatorItemView {
         AuthenticatorItemView(
+            favorite: false,
             id: UUID().uuidString,
             name: issuer,
-            totpKey: totpState.rawAuthenticatorKeyString
+            totpKey: totpState.rawAuthenticatorKeyString,
+            username: accountName
         )
     }
 }

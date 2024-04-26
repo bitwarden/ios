@@ -24,7 +24,7 @@ struct CipherLike: Codable, Equatable {
         collectionIds = nil
         notes = nil
         type = 1
-        favorite = false
+        favorite = item.favorite
         login = LoginLike(item)
     }
 }

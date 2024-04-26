@@ -149,9 +149,11 @@ final class EditAuthenticatorItemProcessor: StateProcessor<
                 )
 
                 let newAuthenticatorItemView = AuthenticatorItemView(
+                    favorite: authenticatorItemView.favorite,
                     id: authenticatorItemView.id,
                     name: state.issuer,
-                    totpKey: newOtpUri.otpAuthUri
+                    totpKey: newOtpUri.otpAuthUri,
+                    username: state.accountName
                 )
                 try await updateAuthenticatorItem(authenticatorItem: newAuthenticatorItemView)
             }
