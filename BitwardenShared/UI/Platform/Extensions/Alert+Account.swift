@@ -29,22 +29,6 @@ extension Alert {
         )
     }
 
-    /// An alert notifying the user that a pending login request has been denied.
-    ///
-    /// - Parameter action: The action to perform when the user exits the alert.
-    ///
-    /// - Returns: An alert notifying the user that a pending login request has been denied.
-    ///
-    static func requestDenied(action: @escaping () async -> Void) -> Alert {
-        Alert(
-            title: Localizations.logInDenied,
-            message: nil,
-            alertActions: [
-                AlertAction(title: Localizations.ok, style: .default) { _, _ in await action() },
-            ]
-        )
-    }
-
     /// An alert notifying the user that a pending login request has expired.
     ///
     /// - Parameter action: The action to perform when the user exits the alert.

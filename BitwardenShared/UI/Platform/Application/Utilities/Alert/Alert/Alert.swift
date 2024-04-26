@@ -94,11 +94,13 @@ public class Alert {
 
     /// Creates a `UIAlertController` from the `Alert` that can be presented in the view.
     ///
+    /// - Parameter onDismissed: An optional closure that is called when the alert is dismissed.
     /// - Returns An initialized `UIAlertController` that has the `AlertAction`s added.
     ///
     @MainActor
-    func createAlertController() -> UIAlertController {
-        let alert = UIAlertController(title: title, message: message, preferredStyle: preferredStyle)
+    func createAlertController(onDismissed: (() -> Void)? = nil) -> UIAlertController {
+        let alert = AlertController(title: title, message: message, preferredStyle: preferredStyle)
+        alert.onDismissed = onDismissed
         alertTextFields.forEach { alertTextField in
             alert.addTextField { textField in
                 textField.placeholder = alertTextField.placeholder
@@ -164,5 +166,24 @@ extension Alert: Hashable {
         hasher.combine(preferredAction)
         hasher.combine(preferredStyle)
         hasher.combine(title)
+    }
+}
+
+// MARK: - AlertController
+
+/// An `UIAlertController` subclass that allows for setting a closure to be notified when the alert
+/// controller is dismissed.
+///
+private class AlertController: UIAlertController {
+    // MARK: Properties
+
+    /// A closure that is called when the alert controller has been dismissed.
+    var onDismissed: (() -> Void)?
+
+    // MARK: UIViewController
+
+    override func viewDidDisappear(_ animated: Bool) {
+        super.viewDidDisappear(animated)
+        onDismissed?()
     }
 }

@@ -34,6 +34,14 @@ public protocol Coordinator<Route, Event>: AnyObject {
     ///
     func showAlert(_ alert: Alert)
 
+    /// Shows the alert.
+    ///
+    /// - Parameters:
+    ///   - alert: The alert to show.
+    ///   - onDismissed: An optional closure that is called when the alert is dismissed.
+    ///
+    func showAlert(_ alert: Alert, onDismissed: (() -> Void)?)
+
     /// Shows the loading overlay view.
     ///
     /// - Parameter state: The state for configuring the loading overlay.
@@ -118,6 +126,14 @@ public extension Coordinator {
     func navigate(to route: Route) {
         navigate(to: route, context: nil)
     }
+
+    /// Shows the provided alert on the `stackNavigator`.
+    ///
+    /// - Parameter alert: The alert to show.
+    ///
+    func showAlert(_ alert: Alert) {
+        showAlert(alert, onDismissed: nil)
+    }
 }
 
 extension Coordinator where Self.Event == Void {
@@ -137,10 +153,12 @@ extension Coordinator where Self: HasNavigator {
 
     /// Shows the provided alert on the `stackNavigator`.
     ///
-    /// - Parameter alert: The alert to show.
+    /// - Parameters:
+    ///   - alert: The alert to show.
+    ///   - onDismissed: An optional closure that is called when the alert is dismissed.
     ///
-    func showAlert(_ alert: Alert) {
-        navigator?.present(alert)
+    func showAlert(_ alert: Alert, onDismissed: (() -> Void)? = nil) {
+        navigator?.present(alert, onDismissed: onDismissed)
     }
 
     /// Shows the loading overlay view.
