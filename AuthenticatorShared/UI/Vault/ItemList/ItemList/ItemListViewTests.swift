@@ -43,7 +43,7 @@ class ItemListViewTests: AuthenticatorTestCase {
         for preview in ItemListView_Previews._allPreviews {
             assertSnapshots(
                 of: preview.content,
-                as: [.defaultPortrait]
+                as: [.defaultPortrait, .defaultPortraitDark, .defaultPortraitAX5]
             )
         }
     }

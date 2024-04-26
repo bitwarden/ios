@@ -1,7 +1,27 @@
 {
   "images" : [
     {
-      "filename" : "empty vault.svg",
+      "filename" : "empty-vault-light 1.pdf",
+      "idiom" : "universal"
+    },
+    {
+      "appearances" : [
+        {
+          "appearance" : "luminosity",
+          "value" : "light"
+        }
+      ],
+      "filename" : "empty-vault-light.pdf",
+      "idiom" : "universal"
+    },
+    {
+      "appearances" : [
+        {
+          "appearance" : "luminosity",
+          "value" : "dark"
+        }
+      ],
+      "filename" : "empty-vault-dark.pdf",
       "idiom" : "universal"
     }
   ],
