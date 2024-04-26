@@ -144,6 +144,10 @@ jobs:
           az storage blob download --account-name $ACCOUNT_NAME --container-name $CONTAINER_NAME --name $FILE \
             --file $HOME/secrets/$FILE --output none
           ls -al $HOME/secrets
+
+      - name: Fastlane list builds
+        run: |
+          fastlane pilot builds --api_key_path $HOME/secrets/appstoreconnect-fastlane.json
           exit 1
 
       - name: Set up Keychain
