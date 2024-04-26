@@ -275,7 +275,9 @@ jobs:
           FASTLANE_APPLE_ID: ${{ secrets.APPLE_ID_USERNAME }}
           FASTLANE_APPLE_APPLICATION_SPECIFIC_PASSWORD: ${{ secrets.APPLE_ID_PASSWORD }}
         run: |
-          fastlane upload_build
+          fastlane upload_build \
+            api_key_path:"$HOME/secrets/appstoreconnect-fastlane.json" \
+            changelog:"Test"
 
       # - name: Upload app to TestFlight
       #   env:

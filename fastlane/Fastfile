@@ -16,13 +16,13 @@
 default_platform(:ios)
 
 platform :ios do
-    desc “Push a new build to TestFlight”
-    lane :upload_build do
+    desc "Push a new build to TestFlight"
+    lane :upload_build do |options|
     upload_to_testflight(
         skip_submission: true,
-        changelog: "Test",
+        changelog: options[:changelog],
         skip_waiting_for_build_processing: true,
-        api_key_path: "./secrets/appstoreconnect-fastlane.json"
+        api_key_path: options[:api_key_path]
     )
     end
 end
