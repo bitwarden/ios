@@ -10,6 +10,8 @@ struct VaultUnlockView: View {
     /// The `Store` for this view.
     @ObservedObject var store: Store<VaultUnlockState, VaultUnlockAction, VaultUnlockEffect>
 
+    @Environment(\.colorScheme) private var colorScheme
+
     var body: some View {
         content
             .task {
@@ -22,11 +24,22 @@ struct VaultUnlockView: View {
     }
 
     private var content: some View {
-        VStack(spacing: 48) {
-            Image(decorative: Asset.Images.logo)
+        ZStack {
+            if colorScheme == .light {
+                Asset.Colors.primaryBitwarden.swiftUIColor
+            } else {
+                Asset.Colors.backgroundSecondary.swiftUIColor
+            }
+
+            Image(decorative: Asset.Images.authenticatorLogo)
+                .resizable()
+                .frame(width: 232, height: 63)
+
             biometricAuthButton
+                .offset(y: 63 + 48)
+                .padding(16)
         }
-        .padding(16)
+        .ignoresSafeArea()
     }
 
     /// A button to trigger a biometric auth unlock.
@@ -37,7 +50,14 @@ struct VaultUnlockView: View {
             } label: {
                 biometricUnlockText(biometryType)
             }
-            .buttonStyle(.primary(shouldFillWidth: true))
+            .if(colorScheme == .light) { view in
+                view.buttonStyle(.secondary(shouldFillWidth: true))
+                    .background(Asset.Colors.backgroundPrimary.swiftUIColor)
+                    .clipShape(RoundedRectangle(cornerRadius: 12))
+            }
+            .if(colorScheme == .dark) { view in
+                view.buttonStyle(.primary(shouldFillWidth: true))
+            }
         }
     }
 
@@ -54,21 +74,55 @@ struct VaultUnlockView: View {
 // MARK: - Previews
 
 #if DEBUG
-#Preview("Unlock") {
-    NavigationView {
-        VaultUnlockView(
-            store: Store(
-                processor: StateProcessor(
-                    state: VaultUnlockState(
-                        biometricUnlockStatus: .available(
-                            .faceID,
-                            enabled: true,
-                            hasValidIntegrity: true
+struct VaultUnlockView_Previews: PreviewProvider {
+    static var previews: some View {
+        NavigationView {
+            VaultUnlockView(
+                store: Store(
+                    processor: StateProcessor(
+                        state: VaultUnlockState(
+                            biometricUnlockStatus: .available(
+                                .faceID,
+                                enabled: false,
+                                hasValidIntegrity: false
+                            )
                         )
                     )
                 )
             )
-        )
+        }.previewDisplayName("No Button")
+
+        NavigationView {
+            VaultUnlockView(
+                store: Store(
+                    processor: StateProcessor(
+                        state: VaultUnlockState(
+                            biometricUnlockStatus: .available(
+                                .faceID,
+                                enabled: true,
+                                hasValidIntegrity: true
+                            )
+                        )
+                    )
+                )
+            )
+        }.previewDisplayName("Face ID Button")
+
+        NavigationView {
+            VaultUnlockView(
+                store: Store(
+                    processor: StateProcessor(
+                        state: VaultUnlockState(
+                            biometricUnlockStatus: .available(
+                                .touchID,
+                                enabled: true,
+                                hasValidIntegrity: true
+                            )
+                        )
+                    )
+                )
+            )
+        }.previewDisplayName("Touch ID Button")
     }
 }
 #endif

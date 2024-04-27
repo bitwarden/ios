@@ -91,7 +91,7 @@ class VaultUnlockProcessor: StateProcessor<
         }
 
         do {
-            let key = try await services.biometricsRepository.getUserAuthKey()
+            _ = try await services.biometricsRepository.getUserAuthKey()
             await coordinator.handleEvent(.didCompleteAuth)
         } catch let error as BiometricsServiceError {
             Logger.processor.error("BiometricsServiceError unlocking vault with biometrics: \(error)")
