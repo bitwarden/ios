@@ -13,7 +13,7 @@ struct ManualEntryView: View {
     var body: some View {
         content
             .navigationBar(
-                title: Localizations.key,
+                title: Localizations.createVerificationCode,
                 titleDisplayMode: .inline
             )
             .toolbar {

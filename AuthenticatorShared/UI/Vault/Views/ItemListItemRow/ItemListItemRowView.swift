@@ -62,7 +62,7 @@ struct ItemListItemRowView: View {
     ///
     @ViewBuilder
     private func decorativeImage(_ item: ItemListItem, iconBaseURL: URL?, showWebIcons: Bool) -> some View {
-        placeholderDecorativeImage(Asset.Images.clock)
+        placeholderDecorativeImage(Asset.Images.globe)
     }
 
     /// The placeholder image for the decorative image.

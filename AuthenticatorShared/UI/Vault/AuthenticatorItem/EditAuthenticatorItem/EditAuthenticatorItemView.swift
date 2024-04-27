@@ -108,7 +108,7 @@ struct EditAuthenticatorItemView: View {
 
     @ViewBuilder private var advancedOptions: some View {
         BitwardenMenuField(
-            title: Localizations.otpAuthentication,
+            title: Localizations.otpType,
             options: TotpTypeOptions.allCases,
             selection: store.binding(
                 get: \.totpType,
