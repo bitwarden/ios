@@ -64,8 +64,6 @@ struct StepperFieldView<State>: View {
             }
             .padding(.top, 4)
             .accessibilityIdentifier(field.accessibilityId ?? field.id)
-
-            Divider()
         }
     }
 

@@ -38,9 +38,21 @@ extension ItemListItem {
         guard let totpKey = TOTPKeyModel(authenticatorKey: authenticatorItemView.totpKey) else { return nil }
         let totpCode = TOTPCodeModel(code: "123456", codeGenerationDate: .now, period: 30)
         let totpModel = ItemListTotpItem(itemView: authenticatorItemView, totpCode: totpCode)
+        let name: String
+        let username: String?
+        switch totpKey.totpKey {
+        case .base32,
+             .steamUri:
+            name = authenticatorItemView.name
+            username = authenticatorItemView.username
+        case .otpAuthUri:
+            name = totpKey.issuer ?? ""
+            username = totpKey.accountName
+        }
+
         self.init(id: authenticatorItemView.id,
-                  name: totpKey.issuer ?? "",
-                  accountName: totpKey.accountName,
+                  name: name,
+                  accountName: username,
                   itemType: .totp(model: totpModel))
     }
 }

@@ -64,6 +64,9 @@ struct AuthenticatorItemState: Equatable {
     /// The TOTP key/code state.
     var totpState: LoginTOTPState
 
+    /// The TOTP type.
+    var totpType: TotpTypeOptions
+
     // MARK: Initialization
 
     init(
@@ -77,7 +80,8 @@ struct AuthenticatorItemState: Equatable {
         name: String,
         period: TotpPeriodOptions,
         secret: String,
-        totpState: LoginTOTPState
+        totpState: LoginTOTPState,
+        totpType: TotpTypeOptions
     ) {
         self.accountName = accountName
         self.algorithm = algorithm
@@ -90,23 +94,33 @@ struct AuthenticatorItemState: Equatable {
         self.period = period
         self.secret = secret
         self.totpState = totpState
+        self.totpType = totpType
     }
 
     init?(existing authenticatorItemView: AuthenticatorItemView) {
         guard let keyModel = TOTPKeyModel(authenticatorKey: authenticatorItemView.totpKey) else {
             return nil
         }
+        let type: TotpTypeOptions
+        switch keyModel.totpKey {
+        case .base32, .otpAuthUri:
+            type = .totp
+        case .steamUri:
+            type = .steam
+        }
+
         self.init(
-            accountName: keyModel.accountName ?? "",
+            accountName: keyModel.accountName ?? authenticatorItemView.username ?? "",
             algorithm: keyModel.algorithm,
             configuration: .existing(authenticatorItemView: authenticatorItemView),
             digits: keyModel.digits,
             id: authenticatorItemView.id,
-            issuer: keyModel.issuer ?? "",
+            issuer: keyModel.issuer ?? authenticatorItemView.name,
             name: keyModel.issuer ?? authenticatorItemView.name,
             period: TotpPeriodOptions(rawValue: keyModel.period) ?? .thirty,
             secret: keyModel.base32Key,
-            totpState: LoginTOTPState(authenticatorItemView.totpKey)
+            totpState: LoginTOTPState(authenticatorItemView.totpKey),
+            totpType: type
         )
     }
 }
@@ -145,6 +159,20 @@ enum TotpPeriodOptions: Int, Menuable, CaseIterable {
             Localizations.sixtySeconds
         case .ninety:
             Localizations.ninetySeconds
+        }
+    }
+}
+
+enum TotpTypeOptions: Menuable, CaseIterable {
+    case steam
+    case totp
+
+    var localizedName: String {
+        switch self {
+        case .steam:
+            Localizations.steam
+        case .totp:
+            Localizations.totp
         }
     }
 }

@@ -59,7 +59,6 @@ class AuthenticatorItemCoordinator: NSObject, Coordinator, HasStackNavigator {
                 onDismiss?.action()
             })
         case let .editAuthenticatorItem(authenticatorItemView):
-            Logger.application.log("Edit item \(authenticatorItemView.id)")
             showEditAuthenticatorItem(
                 for: authenticatorItemView,
                 delegate: context as? AuthenticatorItemOperationDelegate

@@ -1,6 +1,8 @@
 import BitwardenSdk
 import Foundation
 
+// MARK: - EditAuthenticatorItemState
+
 /// The state of an `EditAuthenticatorItemView`
 /// and `EditAdvancedAuthenticatorItemView`
 protocol EditAuthenticatorItemState: Sendable {
@@ -44,4 +46,7 @@ protocol EditAuthenticatorItemState: Sendable {
 
     /// The TOTP key/code state.
     var totpState: LoginTOTPState { get set }
+
+    /// The currently selected TOTP type.
+    var totpType: TotpTypeOptions { get set }
 }

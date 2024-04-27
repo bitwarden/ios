@@ -161,7 +161,7 @@ final class ItemListProcessor: StateProcessor<ItemListState, ItemListAction, Ite
             return ItemListItem(
                 id: item.id,
                 name: item.name,
-                accountName: keyModel.accountName,
+                accountName: item.accountName,
                 itemType: .totp(model: updatedModel)
             )
         }
@@ -238,7 +238,7 @@ final class ItemListProcessor: StateProcessor<ItemListState, ItemListAction, Ite
                     return ItemListItem(
                         id: item.id,
                         name: item.name,
-                        accountName: keyModel.accountName,
+                        accountName: item.accountName,
                         itemType: .totp(model: updatedModel)
                     )
                 }

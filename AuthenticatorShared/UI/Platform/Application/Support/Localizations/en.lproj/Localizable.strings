@@ -910,3 +910,5 @@
 "KeyReadError" = "Cannot read key.";
 "CannotAddKey" = "Cannot add key?";
 "OnceTheKeyIsSuccessfullyEnteredAddCode" = "Once the key is successfully entered,\nselect Add code to store the key safely";
+"Steam" = "Steam";
+"OtpAuthentication" = "OTP Authentication";

@@ -34,4 +34,7 @@ enum EditAuthenticatorItemAction: Equatable {
 
     /// The toggle secret visibility button was changed.
     case toggleSecretVisibilityChanged(Bool)
+
+    /// The OTP type was changed.
+    case totpTypeChanged(TotpTypeOptions)
 }
