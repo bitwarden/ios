@@ -14,6 +14,7 @@ class ViewItemProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
     var delegate: MockCipherItemOperationDelegate!
     var errorReporter: MockErrorReporter!
     var pasteboardService: MockPasteboardService!
+    var stateService: MockStateService!
     var subject: ViewItemProcessor!
     var vaultRepository: MockVaultRepository!
 
@@ -27,12 +28,14 @@ class ViewItemProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
         delegate = MockCipherItemOperationDelegate()
         errorReporter = MockErrorReporter()
         pasteboardService = MockPasteboardService()
+        stateService = MockStateService()
         vaultRepository = MockVaultRepository()
         let services = ServiceContainer.withMocks(
             authRepository: authRepository,
             errorReporter: errorReporter,
             httpClient: client,
             pasteboardService: pasteboardService,
+            stateService: stateService,
             vaultRepository: vaultRepository
         )
         subject = ViewItemProcessor(
@@ -51,6 +54,7 @@ class ViewItemProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
         coordinator = nil
         errorReporter = nil
         pasteboardService = nil
+        stateService = nil
         subject = nil
         vaultRepository = nil
     }
@@ -80,7 +84,11 @@ class ViewItemProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
 
     /// `perform(_:)` with `.appeared` starts listening for updates with the vault repository.
     func test_perform_appeared() {
+        let account = Account.fixture()
+        stateService.activeAccount = account
+        stateService.userHasMasterPassword = [account.profile.userId: true]
         vaultRepository.doesActiveAccountHavePremiumResult = .success(true)
+
         let cipherItem = CipherView.fixture(
             id: "id",
             login: LoginView(
@@ -111,6 +119,7 @@ class ViewItemProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
         )!
 
         XCTAssertTrue(subject.state.hasPremiumFeatures)
+        XCTAssertTrue(subject.state.hasMasterPassword)
         XCTAssertEqual(subject.state.loadingState, .data(expectedState))
         XCTAssertFalse(vaultRepository.fetchSyncCalled)
     }
@@ -149,6 +158,10 @@ class ViewItemProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
 
     /// `perform(_:)` with `.appeared` observe the premium status of a user.
     func test_perform_appeared_nonPremium() {
+        let account = Account.fixture()
+        stateService.activeAccount = account
+        stateService.userHasMasterPassword = [account.profile.userId: true]
+
         let cipherItem = CipherView.loginFixture(
             id: "id"
         )
@@ -167,12 +180,17 @@ class ViewItemProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
             hasPremium: false
         )!
 
+        XCTAssertTrue(subject.state.hasMasterPassword)
         XCTAssertEqual(subject.state.loadingState, .data(expectedState))
         XCTAssertFalse(vaultRepository.fetchSyncCalled)
     }
 
     /// `perform(_:)` with `.appeared` observe the premium status of a user.
     func test_perform_appeared_unknownPremium() {
+        let account = Account.fixture()
+        stateService.activeAccount = account
+        stateService.userHasMasterPassword = [account.profile.userId: true]
+
         let cipherItem = CipherView.loginFixture(
             id: "id"
         )
@@ -191,6 +209,7 @@ class ViewItemProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
             hasPremium: false
         )!
 
+        XCTAssertTrue(subject.state.hasMasterPassword)
         XCTAssertEqual(subject.state.loadingState, .data(expectedState))
         XCTAssertFalse(vaultRepository.fetchSyncCalled)
     }
@@ -818,6 +837,26 @@ class ViewItemProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
         waitFor(!coordinator.routes.isEmpty)
 
         XCTAssertEqual(coordinator.routes, [.editItem(cipherView, true)])
+    }
+
+    /// Tests that the despite a cipher having a `.password` re-prompt property, a
+    /// re-prompt will not be shown for a user that has no password.
+    func test_receive_editPressed_noPassword() {
+        subject.state.hasMasterPassword = false
+
+        // Although the cipher calls for a password reprompt, it won't be shown
+        // because the user has no password.
+        let cipherView = CipherView.fixture(reprompt: .password)
+        let loginState = CipherItemState(
+            existing: cipherView,
+            hasPremium: true
+        )!
+        subject.state.loadingState = .data(loginState)
+
+        subject.receive(.editPressed)
+        waitFor(!coordinator.routes.isEmpty)
+        XCTAssertEqual(coordinator.routes, [.editItem(cipherView, true)])
+        XCTAssertFalse(subject.state.hasMasterPassword)
     }
 
     /// `receive(_:)` with `.morePressed(.attachments)` navigates the user to attachments view.

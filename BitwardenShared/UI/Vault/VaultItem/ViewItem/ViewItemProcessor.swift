@@ -12,6 +12,7 @@ final class ViewItemProcessor: StateProcessor<ViewItemState, ViewItemAction, Vie
         & HasAuthRepository
         & HasErrorReporter
         & HasPasteboardService
+        & HasStateService
         & HasVaultRepository
 
     // MARK: Subtypes
@@ -105,9 +106,11 @@ final class ViewItemProcessor: StateProcessor<ViewItemState, ViewItemAction, Vie
     }
 
     override func receive(_ action: ViewItemAction) {
-        guard !state.isMasterPasswordRequired || !action.requiresMasterPasswordReprompt else {
-            presentMasterPasswordRepromptAlert { self.receive(action) }
-            return
+        if state.hasMasterPassword {
+            guard !state.isMasterPasswordRequired || !action.requiresMasterPasswordReprompt else {
+                presentMasterPasswordRepromptAlert { self.receive(action) }
+                return
+            }
         }
         switch action {
         case let .cardItemAction(cardAction):
@@ -421,8 +424,8 @@ private extension ViewItemProcessor {
             for try await cipher in try await services.vaultRepository.cipherDetailsPublisher(id: itemId) {
                 guard let cipher else { continue }
 
-                let hasPremium = await (try? services.vaultRepository.doesActiveAccountHavePremium())
-                    ?? false
+                let hasPremium = await (try? services.vaultRepository.doesActiveAccountHavePremium()) ?? false
+                let hasMasterPassword = try await services.stateService.getUserHasMasterPassword()
 
                 var totpState = LoginTOTPState(cipher.login?.totp)
                 if let key = totpState.authKeyModel,
@@ -436,6 +439,7 @@ private extension ViewItemProcessor {
                     newState.loadingState = .data(itemState)
                 }
                 newState.hasVerifiedMasterPassword = state.hasVerifiedMasterPassword
+                newState.hasMasterPassword = hasMasterPassword
                 state = newState
             }
         } catch {

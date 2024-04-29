@@ -143,9 +143,16 @@ class VaultGroupProcessorTests: BitwardenTestCase { // swiftlint:disable:this ty
     func test_perform_morePressed_card() async throws {
         var item = try XCTUnwrap(VaultListItem(cipherView: .fixture(type: .card)))
 
+        let account = Account.fixture()
+        stateService.activeAccount = account
+        stateService.userHasMasterPassword = [account.profile.userId: true]
+
         // If the card item has no number or code, only the view and add buttons should display.
         vaultRepository.fetchCipherResult = .success(.cardFixture())
+
         await subject.perform(.morePressed(item))
+        XCTAssertTrue(subject.state.hasMasterPassword)
+
         var alert = try XCTUnwrap(coordinator.alertShown.last)
         XCTAssertEqual(alert.title, "Bitwarden")
         XCTAssertEqual(alert.alertActions.count, 3)
@@ -204,6 +211,10 @@ class VaultGroupProcessorTests: BitwardenTestCase { // swiftlint:disable:this ty
 
     /// `perform(_:)` with `.morePressed` and press `copyPassword` presents master password re-prompt alert.
     func test_perform_morePressed_copyPassword_rePromptMasterPassword() async throws {
+        let account = Account.fixture()
+        stateService.activeAccount = account
+        stateService.userHasMasterPassword = [account.profile.userId: true]
+
         // A login with data should show the copy and launch actions.
         let loginWithData = CipherView.loginFixture(
             login: .fixture(
@@ -214,7 +225,10 @@ class VaultGroupProcessorTests: BitwardenTestCase { // swiftlint:disable:this ty
             reprompt: .password
         )
         let item = try XCTUnwrap(VaultListItem(cipherView: loginWithData))
+
         await subject.perform(.morePressed(item))
+        XCTAssertTrue(subject.state.hasMasterPassword)
+
         var alert = try XCTUnwrap(coordinator.alertShown.last)
         XCTAssertEqual(alert.title, "Bitwarden")
         XCTAssertEqual(alert.alertActions.count, 6)
@@ -248,6 +262,10 @@ class VaultGroupProcessorTests: BitwardenTestCase { // swiftlint:disable:this ty
     /// `perform(_:)` with `.morePressed` and press `copyPassword` presents master password re-prompt alert,
     ///  entering wrong password should not allow to copy password.
     func test_perform_morePressed_copyPassword_passwordReprompt_invalidPassword() async throws {
+        let account = Account.fixture()
+        stateService.activeAccount = account
+        stateService.userHasMasterPassword = [account.profile.userId: true]
+
         // A login with data should show the copy and launch actions.
         let loginWithData = CipherView.loginFixture(
             login: .fixture(
@@ -258,7 +276,10 @@ class VaultGroupProcessorTests: BitwardenTestCase { // swiftlint:disable:this ty
             reprompt: .password
         )
         let item = try XCTUnwrap(VaultListItem(cipherView: loginWithData))
+
         await subject.perform(.morePressed(item))
+        XCTAssertTrue(subject.state.hasMasterPassword)
+
         var alert = try XCTUnwrap(coordinator.alertShown.last)
         XCTAssertEqual(alert.title, "Bitwarden")
         XCTAssertEqual(alert.alertActions.count, 6)
@@ -293,6 +314,10 @@ class VaultGroupProcessorTests: BitwardenTestCase { // swiftlint:disable:this ty
     /// `perform(_:)` with `.morePressed` and press `copyTotp` presents master password re-prompt
     /// alert and copies the TOTP code when the master password is confirmed.
     func test_perform_morePressed_copyTotp_passwordReprompt() async throws {
+        let account = Account.fixture()
+        stateService.activeAccount = account
+        stateService.userHasMasterPassword = [account.profile.userId: true]
+
         vaultRepository.refreshTOTPCodeResult = .success(
             LoginTOTPState(
                 authKeyModel: TOTPKeyModel(authenticatorKey: .base32Key)!,
@@ -310,6 +335,7 @@ class VaultGroupProcessorTests: BitwardenTestCase { // swiftlint:disable:this ty
         )
 
         await subject.perform(.morePressed(item))
+        XCTAssertTrue(subject.state.hasMasterPassword)
 
         authRepository.validatePasswordResult = .success(true)
 
@@ -330,6 +356,10 @@ class VaultGroupProcessorTests: BitwardenTestCase { // swiftlint:disable:this ty
     /// `perform(_:)` with `.morePressed` and press `copyTotp` presents master password re-prompt
     /// alert and displays an alert if the entered master password doesn't match.
     func test_perform_morePressed_copyTotp_passwordReprompt_invalidPassword() async throws {
+        let account = Account.fixture()
+        stateService.activeAccount = account
+        stateService.userHasMasterPassword = [account.profile.userId: true]
+
         vaultRepository.refreshTOTPCodeResult = .success(
             LoginTOTPState(
                 authKeyModel: TOTPKeyModel(authenticatorKey: .base32Key)!,
@@ -347,6 +377,7 @@ class VaultGroupProcessorTests: BitwardenTestCase { // swiftlint:disable:this ty
         )
 
         await subject.perform(.morePressed(item))
+        XCTAssertTrue(subject.state.hasMasterPassword)
 
         authRepository.validatePasswordResult = .success(false)
 
@@ -363,6 +394,10 @@ class VaultGroupProcessorTests: BitwardenTestCase { // swiftlint:disable:this ty
 
     /// `perform(_:)` with `.morePressed` shows the appropriate more options alert for a login cipher.
     func test_perform_morePressed_login_full() async throws {
+        let account = Account.fixture()
+        stateService.activeAccount = account
+        stateService.userHasMasterPassword = [account.profile.userId: true]
+
         vaultRepository.refreshTOTPCodeResult = .success(
             LoginTOTPState(
                 authKeyModel: TOTPKeyModel(authenticatorKey: .base32Key)!,
@@ -378,7 +413,10 @@ class VaultGroupProcessorTests: BitwardenTestCase { // swiftlint:disable:this ty
         ))
         let item = try XCTUnwrap(VaultListItem(cipherView: loginWithData))
         subject.state.group = .login
+
         await subject.perform(.morePressed(item))
+        XCTAssertTrue(subject.state.hasMasterPassword)
+
         let alert = try XCTUnwrap(coordinator.alertShown.last)
         XCTAssertEqual(alert.title, "Bitwarden")
         XCTAssertEqual(alert.alertActions.count, 7)
@@ -425,11 +463,18 @@ class VaultGroupProcessorTests: BitwardenTestCase { // swiftlint:disable:this ty
 
     /// `perform(_:)` with `.morePressed` shows the appropriate more options alert for a login cipher.
     func test_perform_morePressed_login_minimal() async throws {
+        let account = Account.fixture()
+        stateService.activeAccount = account
+        stateService.userHasMasterPassword = [account.profile.userId: true]
+
         let item = try XCTUnwrap(VaultListItem(cipherView: .fixture(type: .login)))
 
         // If the login item has no username, password, or url, only the view and add buttons should display.
         vaultRepository.fetchCipherResult = .success(.loginFixture())
+
         await subject.perform(.morePressed(item))
+        XCTAssertTrue(subject.state.hasMasterPassword)
+
         var alert = try XCTUnwrap(coordinator.alertShown.last)
         XCTAssertEqual(alert.title, "Bitwarden")
         XCTAssertEqual(alert.alertActions.count, 3)
@@ -449,12 +494,19 @@ class VaultGroupProcessorTests: BitwardenTestCase { // swiftlint:disable:this ty
 
     /// `perform(_:)` with `.morePressed` shows the appropriate more options alert for an identity cipher.
     func test_perform_morePressed_identity() async throws {
+        let account = Account.fixture()
+        stateService.activeAccount = account
+        stateService.userHasMasterPassword = [account.profile.userId: true]
+
         let item = try XCTUnwrap(VaultListItem(cipherView: .fixture(type: .identity)))
 
         // If the item is in the trash, the edit option should not display.
         vaultRepository.fetchCipherResult = .success(.fixture())
         subject.state.group = .trash
+
         await subject.perform(.morePressed(item))
+        XCTAssertTrue(subject.state.hasMasterPassword)
+
         var alert = try XCTUnwrap(coordinator.alertShown.last)
         XCTAssertEqual(alert.title, "Bitwarden")
         XCTAssertEqual(alert.alertActions.count, 2)
@@ -484,8 +536,40 @@ class VaultGroupProcessorTests: BitwardenTestCase { // swiftlint:disable:this ty
         XCTAssertEqual(coordinator.routes.last, .editItem(.fixture(type: .identity)))
     }
 
+    /// `perform(_:)` with `.morePressed` does not show the password re-prompt alert when the user has no password.
+    func test_perform_morePressed_noPassword() async throws {
+        let account = Account.fixture()
+        stateService.activeAccount = account
+        stateService.userHasMasterPassword = [account.profile.userId: false]
+
+        // Although the cipher calls for a password reprompt, it won't be shown
+        // because the user has no password.
+        let login = CipherView.loginFixture(reprompt: .password)
+        let item = try XCTUnwrap(VaultListItem(cipherView: login))
+        subject.state.group = .login
+
+        await subject.perform(.morePressed(item))
+        XCTAssertFalse(subject.state.hasMasterPassword)
+
+        let alert = try XCTUnwrap(coordinator.alertShown.last)
+        XCTAssertEqual(alert.title, "Bitwarden")
+        XCTAssertEqual(alert.alertActions.count, 3)
+        XCTAssertEqual(alert.alertActions[0].title, Localizations.view)
+        XCTAssertEqual(alert.alertActions[1].title, Localizations.edit)
+        XCTAssertEqual(alert.alertActions[2].title, Localizations.cancel)
+
+        // Edit navigates to the edit view without showing the password re-prompt alert.
+        let editAction = try XCTUnwrap(alert.alertActions[1])
+        await editAction.handler?(editAction, [])
+        XCTAssertEqual(coordinator.routes.last, .editItem(login))
+    }
+
     /// `perform(_:)` with `.morePressed` shows the appropriate more options alert for a secure note cipher.
     func test_perform_morePressed_secureNote() async throws {
+        let account = Account.fixture()
+        stateService.activeAccount = account
+        stateService.userHasMasterPassword = [account.profile.userId: true]
+
         var item = try XCTUnwrap(VaultListItem(cipherView: .fixture(type: .secureNote)))
 
         // If the secure note has no value, only the view and add buttons should display.
@@ -500,7 +584,10 @@ class VaultGroupProcessorTests: BitwardenTestCase { // swiftlint:disable:this ty
 
         // If the item is in the trash, the edit option should not display.
         subject.state.group = .trash
+
         await subject.perform(.morePressed(item))
+        XCTAssertTrue(subject.state.hasMasterPassword)
+
         alert = try XCTUnwrap(coordinator.alertShown.last)
         XCTAssertEqual(alert.title, "Bitwarden")
         XCTAssertEqual(alert.alertActions.count, 2)

@@ -21,6 +21,9 @@ struct ViewItemState: Equatable {
     /// appropriate internal state.
     var loadingState: LoadingState<CipherItemState> = .loading(nil)
 
+    /// Whether the user has a master password.
+    var hasMasterPassword = true
+
     /// A flag indicating if the user has premium features.
     var hasPremiumFeatures = false
 

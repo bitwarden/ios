@@ -285,18 +285,23 @@ extension VaultListProcessor {
     /// - Parameter item: The selected item to show the options for.
     ///
     private func showMoreOptionsAlert(for item: VaultListItem) async {
-        // Only ciphers have more options.
-        guard case let .cipher(cipherView) = item.itemType else { return }
+        do {
+            // Only ciphers have more options.
+            guard case let .cipher(cipherView) = item.itemType else { return }
 
-        let hasPremium = await (try? services.vaultRepository.doesActiveAccountHavePremium()) ?? false
+            let hasPremium = await (try? services.vaultRepository.doesActiveAccountHavePremium()) ?? false
+            state.hasMasterPassword = try await services.stateService.getUserHasMasterPassword()
 
-        coordinator.showAlert(.moreOptions(
-            cipherView: cipherView,
-            hasPremium: hasPremium,
-            id: item.id,
-            showEdit: true,
-            action: handleMoreOptionsAction
-        ))
+            coordinator.showAlert(.moreOptions(
+                cipherView: cipherView,
+                hasPremium: hasPremium,
+                id: item.id,
+                showEdit: true,
+                action: handleMoreOptionsAction
+            ))
+        } catch {
+            services.errorReporter.log(error: error)
+        }
     }
 
     /// Handle the result of the selected option on the More Options alert..
@@ -306,7 +311,7 @@ extension VaultListProcessor {
     private func handleMoreOptionsAction(_ action: MoreOptionsAction) async {
         switch action {
         case let .copy(toast, value, requiresMasterPasswordReprompt):
-            if requiresMasterPasswordReprompt {
+            if requiresMasterPasswordReprompt, state.hasMasterPassword {
                 presentMasterPasswordRepromptAlert {
                     self.services.pasteboardService.copy(value)
                     self.state.toast = Toast(text: Localizations.valueHasBeenCopied(toast))
@@ -316,7 +321,7 @@ extension VaultListProcessor {
                 state.toast = Toast(text: Localizations.valueHasBeenCopied(toast))
             }
         case let .copyTotp(totpKey, requiresMasterPasswordReprompt):
-            if requiresMasterPasswordReprompt {
+            if requiresMasterPasswordReprompt, state.hasMasterPassword {
                 presentMasterPasswordRepromptAlert {
                     await self.generateAndCopyTotpCode(totpKey: totpKey)
                 }
@@ -324,7 +329,7 @@ extension VaultListProcessor {
                 await generateAndCopyTotpCode(totpKey: totpKey)
             }
         case let .edit(cipherView):
-            if cipherView.reprompt == .password {
+            if cipherView.reprompt == .password, state.hasMasterPassword {
                 presentMasterPasswordRepromptAlert {
                     self.coordinator.navigate(to: .editItem(cipherView), context: self)
                 }

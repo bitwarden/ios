@@ -6,7 +6,11 @@ import Foundation
 // MARK: - VaultGroupProcessor
 
 /// A `Processor` that can process `VaultGroupAction`s and `VaultGroupEffect`s.
-final class VaultGroupProcessor: StateProcessor<VaultGroupState, VaultGroupAction, VaultGroupEffect> {
+final class VaultGroupProcessor: StateProcessor<// swiftlint:disable:this type_body_length
+    VaultGroupState,
+    VaultGroupAction,
+    VaultGroupEffect
+> {
     // MARK: Types
 
     typealias Services = HasAuthRepository
@@ -231,18 +235,23 @@ final class VaultGroupProcessor: StateProcessor<VaultGroupState, VaultGroupActio
     /// - Parameter item: The selected item to show the options for.
     ///
     private func showMoreOptionsAlert(for item: VaultListItem) async {
-        // Only ciphers have more options.
-        guard case let .cipher(cipherView) = item.itemType else { return }
+        do {
+            // Only ciphers have more options.
+            guard case let .cipher(cipherView) = item.itemType else { return }
 
-        let hasPremium = await (try? services.vaultRepository.doesActiveAccountHavePremium()) ?? false
+            let hasPremium = await (try? services.vaultRepository.doesActiveAccountHavePremium()) ?? false
+            state.hasMasterPassword = try await services.stateService.getUserHasMasterPassword()
 
-        coordinator.showAlert(.moreOptions(
-            cipherView: cipherView,
-            hasPremium: hasPremium,
-            id: item.id,
-            showEdit: state.group != .trash,
-            action: handleMoreOptionsAction
-        ))
+            coordinator.showAlert(.moreOptions(
+                cipherView: cipherView,
+                hasPremium: hasPremium,
+                id: item.id,
+                showEdit: state.group != .trash,
+                action: handleMoreOptionsAction
+            ))
+        } catch {
+            services.errorReporter.log(error: error)
+        }
     }
 
     /// Streams the user's organizations.
@@ -278,7 +287,7 @@ final class VaultGroupProcessor: StateProcessor<VaultGroupState, VaultGroupActio
     private func handleMoreOptionsAction(_ action: MoreOptionsAction) async {
         switch action {
         case let .copy(toast, value, requiresMasterPasswordReprompt):
-            if requiresMasterPasswordReprompt {
+            if requiresMasterPasswordReprompt, state.hasMasterPassword {
                 presentMasterPasswordRepromptAlert {
                     self.services.pasteboardService.copy(value)
                     self.state.toast = Toast(text: Localizations.valueHasBeenCopied(toast))
@@ -288,7 +297,7 @@ final class VaultGroupProcessor: StateProcessor<VaultGroupState, VaultGroupActio
                 state.toast = Toast(text: Localizations.valueHasBeenCopied(toast))
             }
         case let .copyTotp(totpKey, requiresMasterPasswordReprompt):
-            if requiresMasterPasswordReprompt {
+            if requiresMasterPasswordReprompt, state.hasMasterPassword {
                 presentMasterPasswordRepromptAlert {
                     await self.generateAndCopyTotpCode(totpKey: totpKey)
                 }
@@ -296,7 +305,7 @@ final class VaultGroupProcessor: StateProcessor<VaultGroupState, VaultGroupActio
                 await generateAndCopyTotpCode(totpKey: totpKey)
             }
         case let .edit(cipherView):
-            if cipherView.reprompt == .password {
+            if cipherView.reprompt == .password, state.hasMasterPassword {
                 presentMasterPasswordRepromptAlert {
                     self.coordinator.navigate(to: .editItem(cipherView), context: self)
                 }
