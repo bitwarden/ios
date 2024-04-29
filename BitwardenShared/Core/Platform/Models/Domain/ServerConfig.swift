@@ -25,7 +25,7 @@ struct ServerConfig: Equatable, Codable {
     /// The version of the server.
     let version: String
 
-    init(responseModel: ConfigResponseModel, date: Date) {
+    init(date: Date, responseModel: ConfigResponseModel) {
         environment = EnvironmentServerConfig(responseModel: responseModel.environment)
         self.date = date
         featureStates = responseModel.featureStates

@@ -10,8 +10,9 @@ protocol ConfigService {
     ///
     /// - Parameters:
     ///   - forceRefresh: If true, forces refreshing the configuration from the server.
+    /// - Returns: A server configuration if able.
     ///
-    func getConfig(forceRefresh: Bool) async -> ServerConfig
+    func getConfig(forceRefresh: Bool) async -> ServerConfig?
 
     /// Retrieves a boolean feature flag.
     ///
@@ -29,24 +30,64 @@ protocol ConfigService {
 class DefaultConfigService: ConfigService {
     // MARK: Properties
 
+    /// The API service to make config requests.
+    private let configApiService: ConfigAPIService
+
+    /// The service used by the application to report non-fatal errors.
+    private let errorReporter: ErrorReporter
+
     /// The service used by the application to manage account state.
-    let stateService: StateService
+    private let stateService: StateService
+
+    /// The service used to get the present time.
+    private let timeProvider: TimeProvider
 
     // MARK: Initialization
 
     /// Initialize a `DefaultEnvironmentService`.
     ///
     /// - Parameters:
+    ///   - configApiService: The API service to make config requests.
+    ///   - errorReporter: The service used by the application to report non-fatal errors.
     ///   - stateService: The service used by the application to manage account state.
+    ///   - timeProvider: The services used to get the present time.
     ///
-    init(stateService: StateService) {
+    init(
+        configApiService: ConfigAPIService,
+        errorReporter: ErrorReporter,
+        stateService: StateService,
+        timeProvider: TimeProvider
+    ) {
+        self.configApiService = configApiService
+        self.errorReporter = errorReporter
         self.stateService = stateService
+        self.timeProvider = timeProvider
     }
 
     // MARK: Methods
 
-    func getConfig(forceRefresh: Bool) async -> ServerConfig {
-        ServerConfig(responseModel: ConfigResponseModel(environment: nil, featureStates: [:], gitHash: "", server: nil, version: ""), date: Date())
+    func getConfig(forceRefresh: Bool) async -> ServerConfig? {
+        let localConfig = await stateService.getConfig()
+
+        let localConfigExpired = localConfig?.date.addingTimeInterval(Constants.minimumConfigSyncInterval)
+            ?? Date.distantPast
+            < timeProvider.presentTime
+
+        if forceRefresh || localConfig == nil || localConfigExpired {
+            do {
+                let configResponse = try await configApiService.getConfig()
+                return ServerConfig(
+                    date: timeProvider.presentTime,
+                    responseModel: configResponse
+                )
+            } catch {
+                errorReporter.log(error: error)
+            }
+        }
+
+        // If we are unable to retrieve a configuration from the server,
+        // fall back to the local configuration.
+        return localConfig
     }
 
     func getFeatureFlag(_ flag: FeatureFlag, defaultValue: Bool = false, forceRefresh: Bool = false) async -> Bool {

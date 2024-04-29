@@ -1,0 +1,36 @@
+{
+    "version": "2024.4.2",
+    "gitHash": "75238191",
+    "server": null,
+    "environment": {
+        "cloudRegion": "US",
+        "vault": "https://vault.qa.bitwarden.pw",
+        "api": "https://api.qa.bitwarden.pw",
+        "identity": "https://identity.qa.bitwarden.pw",
+        "notifications": "https://notifications.qa.bitwarden.pw",
+        "sso": "https://sso.qa.bitwarden.pw"
+    },
+    "featureStates": {
+        "display-eu-environment": true,
+        "display-kdf-iteration-warning": false,
+        "passwordless-login": true,
+        "trusted-device-encryption": true,
+        "fido2-vault-credentials": true,
+        "vault-onboarding": true,
+        "browser-fileless-import": true,
+        "flexible-collections-v-1": false,
+        "key-rotation-improvements": true,
+        "duo-redirect": true,
+        "flexible-collections-signup": true,
+        "flexible-collections-migration": true,
+        "PM-5766-automatic-tax": true,
+        "PM-5864-dollar-threshold": false,
+        "show-payment-method-warning-banners": false,
+        "AC-2101-update-trial-initiation-email": true,
+        "enable-consolidated-billing": false,
+        "AC-1795_updated-subscription-status-section": true,
+        "unassigned-items-banner": true,
+        "AC-1218-delete-provider": false
+    },
+    "object": "config"
+}

@@ -300,15 +300,13 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
     /// `getConfig()` returns the config values
     func test_getConfig() async {
         let model = ServerConfig(
+            date: Date(timeIntervalSince1970: 100),
             responseModel: ConfigResponseModel(
                 environment: nil,
                 featureStates: [:],
                 gitHash: "1234",
                 server: nil,
                 version: "1.2.3"
-            ),
-            date: Date(
-                timeIntervalSince1970: 100
             )
         )
         appSettingsStore.config = model
@@ -1074,15 +1072,13 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
     /// `setConfig(_:)` sets the config values.
     func test_setConfig() async {
         let model = ServerConfig(
+            date: Date(timeIntervalSince1970: 100),
             responseModel: ConfigResponseModel(
                 environment: nil,
                 featureStates: [:],
                 gitHash: "1234",
                 server: nil,
                 version: "1.2.3.4"
-            ),
-            date: Date(
-                timeIntervalSince1970: 100
             )
         )
         await subject.setConfig(model)
