@@ -11,7 +11,7 @@ protocol ConfigService {
     /// - Parameters:
     ///   - forceRefresh: If true, forces refreshing the configuration from the server.
     ///
-    func getConfig(forceRefresh: Bool) async -> ConfigResponseModel
+    func getConfig(forceRefresh: Bool) async -> ServerConfig
 
     /// Retrieves a boolean feature flag.
     ///
@@ -32,10 +32,6 @@ class DefaultConfigService: ConfigService {
     /// The service used by the application to manage account state.
     let stateService: StateService
 
-    // MARK: Private Properties
-
-    let retrievalInterval = 3_600_000 // 1 hour
-
     // MARK: Initialization
 
     /// Initialize a `DefaultEnvironmentService`.
@@ -49,8 +45,8 @@ class DefaultConfigService: ConfigService {
 
     // MARK: Methods
 
-    func getConfig(forceRefresh: Bool) async -> ConfigResponseModel {
-        ConfigResponseModel(environment: nil, featureStates: [:], gitHash: "", server: nil, version: "")
+    func getConfig(forceRefresh: Bool) async -> ServerConfig {
+        ServerConfig(responseModel: ConfigResponseModel(environment: nil, featureStates: [:], gitHash: "", server: nil, version: ""), date: Date())
     }
 
     func getFeatureFlag(_ flag: FeatureFlag, defaultValue: Bool = false, forceRefresh: Bool = false) async -> Bool {

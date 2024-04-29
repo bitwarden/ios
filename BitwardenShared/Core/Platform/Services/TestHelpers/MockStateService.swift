@@ -20,7 +20,7 @@ class MockStateService: StateService { // swiftlint:disable:this type_body_lengt
     var capturedUserId: String?
     var clearClipboardValues = [String: ClearClipboardValue]()
     var clearClipboardResult: Result<Void, Error> = .success(())
-    var config: ConfigResponseModel?
+    var config: ServerConfig?
     var connectToWatchByUserId = [String: Bool]()
     var connectToWatchResult: Result<Void, Error> = .success(())
     var connectToWatchSubject = CurrentValueSubject<(String?, Bool), Never>((nil, false))
@@ -147,7 +147,7 @@ class MockStateService: StateService { // swiftlint:disable:this type_body_lengt
         return clearClipboardValues[userId] ?? .never
     }
 
-    func getConfig() async -> ConfigResponseModel? {
+    func getConfig() async -> ServerConfig? {
         config
     }
 
@@ -291,7 +291,7 @@ class MockStateService: StateService { // swiftlint:disable:this type_body_lengt
         clearClipboardValues[userId] = clearClipboardValue
     }
 
-    func setConfig(_ configModel: ConfigResponseModel?) async {
+    func setConfig(_ configModel: ServerConfig?) async {
         config = configModel
     }
 

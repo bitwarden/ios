@@ -22,7 +22,7 @@ protocol AppSettingsStore: AnyObject {
     var appTheme: String? { get set }
 
     /// The app's configuration
-    var config: ConfigResponseModel? { get set }
+    var config: ServerConfig? { get set }
 
     /// Whether to disable the website icons.
     var disableWebIcons: Bool { get set }
@@ -643,7 +643,7 @@ extension DefaultAppSettingsStore: AppSettingsStore {
         set { store(newValue, for: .appTheme) }
     }
 
-    var config: ConfigResponseModel? {
+    var config: ServerConfig? {
         get { fetch(for: .config) }
         set { store(newValue, for: .config) }
     }

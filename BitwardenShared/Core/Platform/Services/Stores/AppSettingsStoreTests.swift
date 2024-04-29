@@ -165,29 +165,32 @@ class AppSettingsStoreTests: BitwardenTestCase { // swiftlint:disable:this type_
 
     /// `appconfig` can be used to get and set the persisted value in user defaults.
     func test_config_withValue() {
-        let config = ConfigResponseModel(
-            environment: EnvironmentServerConfigResponseModel(
-                api: "https://vault.bitwarden.com",
-                cloudRegion: "US",
-                identity: "https://vault.bitwarden.com",
-                notifications: "https://vault.bitwarden.com",
-                sso: "https://vault.bitwarden.com",
-                vault: "https://vault.bitwarden.com"
+        let config = ServerConfig(
+            responseModel: ConfigResponseModel(
+                environment: EnvironmentServerConfigResponseModel(
+                    api: "https://vault.bitwarden.com",
+                    cloudRegion: "US",
+                    identity: "https://vault.bitwarden.com",
+                    notifications: "https://vault.bitwarden.com",
+                    sso: "https://vault.bitwarden.com",
+                    vault: "https://vault.bitwarden.com"
+                ),
+                featureStates: ["feature": .bool(true)],
+                gitHash: "hash",
+                server: ThirdPartyConfigResponseModel(
+                    name: "Name",
+                    url: "Url"
+                ),
+                version: "version"
             ),
-            featureStates: ["feature": .bool(true)],
-            gitHash: "hash",
-            server: ThirdPartyConfigResponseModel(
-                name: "Name",
-                url: "Url"
-            ),
-            version: "version"
+            date: Date(timeIntervalSince1970: 100)
         )
         subject.config = config
 
         XCTAssertEqual(subject.config, config)
         try XCTAssertEqual(
             JSONDecoder().decode(
-                ConfigResponseModel.self,
+                ServerConfig.self,
                 from: XCTUnwrap(
                     userDefaults
                         .string(forKey: "bwPreferencesStorage:config")?

@@ -113,7 +113,7 @@ protocol StateService: AnyObject {
     ///
     /// - Returns: The config values from the server.
     ///
-    func getConfig() async -> ConfigResponseModel?
+    func getConfig() async -> ServerConfig?
 
     /// Gets the connect to watch value for an account.
     ///
@@ -336,7 +336,7 @@ protocol StateService: AnyObject {
     /// - Parameters:
     ///   - configModel: The config values to set.
     ///
-    func setConfig(_ configModel: ConfigResponseModel?) async
+    func setConfig(_ configModel: ServerConfig?) async
 
     /// Sets the connect to watch value for an account.
     ///
@@ -1025,7 +1025,7 @@ actor DefaultStateService: StateService { // swiftlint:disable:this type_body_le
         return appSettingsStore.clearClipboardValue(userId: userId)
     }
 
-    func getConfig() async -> ConfigResponseModel? {
+    func getConfig() async -> ServerConfig? {
         appSettingsStore.config
     }
 
@@ -1198,7 +1198,7 @@ actor DefaultStateService: StateService { // swiftlint:disable:this type_body_le
         appSettingsStore.setClearClipboardValue(clearClipboardValue, userId: userId)
     }
 
-    func setConfig(_ configModel: ConfigResponseModel?) async {
+    func setConfig(_ configModel: ServerConfig?) async {
         appSettingsStore.config = configModel
     }
 

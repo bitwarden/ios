@@ -9,7 +9,7 @@ class MockAppSettingsStore: AppSettingsStore {
     var appId: String?
     var appLocale: String?
     var appTheme: String?
-    var config: ConfigResponseModel?
+    var config: ServerConfig?
     var disableWebIcons = false
     var lastUserShouldConnectToWatch = false
     var loginRequest: LoginRequestNotification?

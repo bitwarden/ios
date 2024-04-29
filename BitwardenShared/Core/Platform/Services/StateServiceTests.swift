@@ -299,12 +299,17 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
 
     /// `getConfig()` returns the config values
     func test_getConfig() async {
-        let model = ConfigResponseModel(
-            environment: nil,
-            featureStates: [:],
-            gitHash: "1234",
-            server: nil,
-            version: "1.2.3"
+        let model = ServerConfig(
+            responseModel: ConfigResponseModel(
+                environment: nil,
+                featureStates: [:],
+                gitHash: "1234",
+                server: nil,
+                version: "1.2.3"
+            ),
+            date: Date(
+                timeIntervalSince1970: 100
+            )
         )
         appSettingsStore.config = model
         let value = await subject.getConfig()
@@ -1068,12 +1073,17 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
 
     /// `setConfig(_:)` sets the config values.
     func test_setConfig() async {
-        let model = ConfigResponseModel(
-            environment: nil,
-            featureStates: [:],
-            gitHash: "1234",
-            server: nil,
-            version: "1.2.3.4"
+        let model = ServerConfig(
+            responseModel: ConfigResponseModel(
+                environment: nil,
+                featureStates: [:],
+                gitHash: "1234",
+                server: nil,
+                version: "1.2.3.4"
+            ),
+            date: Date(
+                timeIntervalSince1970: 100
+            )
         )
         await subject.setConfig(model)
         XCTAssertEqual(appSettingsStore.config, model)
