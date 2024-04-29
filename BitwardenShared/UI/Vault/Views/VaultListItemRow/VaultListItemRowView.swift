@@ -23,7 +23,6 @@ struct VaultListItemRowView: View {
                 )
                 .imageStyle(.rowIcon)
                 .padding(.vertical, 19)
-                .accessibilityHidden(true)
 
                 HStack {
                     switch store.state.item.itemType {
@@ -113,24 +112,32 @@ struct VaultListItemRowView: View {
     ///
     @ViewBuilder
     private func decorativeImage(_ item: VaultListItem, iconBaseURL: URL?, showWebIcons: Bool) -> some View {
-        if showWebIcons, let loginView = item.loginView, let iconBaseURL {
-            AsyncImage(
-                url: IconImageHelper.getIconImage(
-                    for: loginView,
-                    from: iconBaseURL
-                ),
-                content: { image in
-                    image
-                        .resizable()
-                        .scaledToFit()
-                },
-                placeholder: {
-                    placeholderDecorativeImage(item.icon)
-                }
-            )
-        } else {
-            placeholderDecorativeImage(item.icon)
+        // The Group is needed so `.accessibilityHidden(false)` can be applied to this image wrapper.
+        // This allows automated tests to detect the image's accessibility ID even though the image itself
+        // is excluded from the accessibility tree.
+        Group {
+            if showWebIcons, let loginView = item.loginView, let iconBaseURL {
+                AsyncImage(
+                    url: IconImageHelper.getIconImage(
+                        for: loginView,
+                        from: iconBaseURL
+                    ),
+                    content: { image in
+                        image
+                            .resizable()
+                            .scaledToFit()
+                            .accessibilityHidden(true)
+                    },
+                    placeholder: {
+                        placeholderDecorativeImage(item.icon)
+                    }
+                )
+            } else {
+                placeholderDecorativeImage(item.icon)
+            }
         }
+        .accessibilityLabel(item.iconAccessibilityId)
+        .accessibilityHidden(false)
     }
 
     /// The placeholder image for the decorative image.
@@ -138,6 +145,7 @@ struct VaultListItemRowView: View {
         Image(decorative: icon)
             .resizable()
             .scaledToFit()
+            .accessibilityHidden(true)
     }
 
     /// The row showing the totp code.
