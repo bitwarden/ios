@@ -24,7 +24,7 @@ struct ConfigResponseModel: Equatable, JSONResponse {
     let version: String
 }
 
-/// API response model for third party configuration in a configuration response.
+/// API response model for third-party configuration in a configuration response.
 struct ThirdPartyConfigResponseModel: Equatable, JSONResponse {
     /// The name of the third party configuration.
     let name: String
