@@ -14,7 +14,7 @@ struct ServerConfig: Equatable, Codable {
     let date: Date
 
     /// Feature flags to configure the client.
-    let featureStates: [String: AnyCodable]
+    let featureStates: [FeatureFlag: AnyCodable]
 
     /// The git hash of the server.
     let gitHash: String
@@ -28,7 +28,13 @@ struct ServerConfig: Equatable, Codable {
     init(date: Date, responseModel: ConfigResponseModel) {
         environment = EnvironmentServerConfig(responseModel: responseModel.environment)
         self.date = date
-        featureStates = responseModel.featureStates
+        let features: [(FeatureFlag, AnyCodable)]
+        features = responseModel.featureStates.compactMap { key, value in
+            guard let flag = FeatureFlag(rawValue: key) else { return nil }
+            return (flag, value)
+        }
+        featureStates = Dictionary(uniqueKeysWithValues: features)
+
         gitHash = responseModel.gitHash
         server = ThirdPartyServerConfig(responseModel: responseModel.server)
         version = responseModel.version

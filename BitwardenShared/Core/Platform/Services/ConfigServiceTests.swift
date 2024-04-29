@@ -101,5 +101,6 @@ final class ConfigServiceTests: BitwardenTestCase {
         let response = await subject.getConfig(forceRefresh: false)
         XCTAssertEqual(client.requests.count, 1)
         XCTAssertEqual(response?.gitHash, "75238191")
+        XCTAssertEqual(response?.featureStates[.unassignedItemsBanner], .bool(true))
     }
 }
