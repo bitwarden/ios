@@ -6,7 +6,10 @@ import OSLog
 /// A protocol for a `ConfigService` that manages the app's config.
 ///
 protocol ConfigService {
-    /// Retrieves the current configuration.
+    /// Retrieves the current configuration. This will return the on-disk configuration if available,
+    /// or will retrieve it from the server if not. It will also retrieve the configuration from
+    /// the server if it is outdated or if the `forceRefresh` argument is `true`. Configurations
+    /// retrieved from the server are saved to disk.
     ///
     /// - Parameters:
     ///   - forceRefresh: If true, forces refreshing the configuration from the server.
@@ -14,12 +17,37 @@ protocol ConfigService {
     ///
     func getConfig(forceRefresh: Bool) async -> ServerConfig?
 
-    /// Retrieves a boolean feature flag.
+    /// Retrieves a boolean feature flag. This will use the on-disk configuration if available,
+    /// or will retrieve it from the server if not. It will also retrieve the configuration from
+    /// the server if it is outdated or if the `forceRefresh` argument is `true`.
     ///
+    /// - Parameters:
+    ///   - flag: The feature flag to retrieve
+    ///   - defaultValue: The default value to use if the flag is not in the server configuration
+    ///   - forceRefresh: If true, forces refreshing the configuration from the server before retrieval
+    /// - Returns: The value for the feature flag
     func getFeatureFlag(_ flag: FeatureFlag, defaultValue: Bool, forceRefresh: Bool) async -> Bool
 
+    /// Retrieves an integer feature flag. This will use the on-disk configuration if available,
+    /// or will retrieve it from the server if not. It will also retrieve the configuration from
+    /// the server if it is outdated or if the `forceRefresh` argument is `true`.
+    ///
+    /// - Parameters:
+    ///   - flag: The feature flag to retrieve
+    ///   - defaultValue: The default value to use if the flag is not in the server configuration
+    ///   - forceRefresh: If true, forces refreshing the configuration from the server before retrieval
+    /// - Returns: The value for the feature flag
     func getFeatureFlag(_ flag: FeatureFlag, defaultValue: Int, forceRefresh: Bool) async -> Int
 
+    /// Retrieves a string feature flag. This will use the on-disk configuration if available,
+    /// or will retrieve it from the server if not. It will also retrieve the configuration from
+    /// the server if it is outdated or if the `forceRefresh` argument is `true`.
+    ///
+    /// - Parameters:
+    ///   - flag: The feature flag to retrieve
+    ///   - defaultValue: The default value to use if the flag is not in the server configuration
+    ///   - forceRefresh: If true, forces refreshing the configuration from the server before retrieval
+    /// - Returns: The value for the feature flag
     func getFeatureFlag(_ flag: FeatureFlag, defaultValue: String?, forceRefresh: Bool) async -> String?
 }
 
