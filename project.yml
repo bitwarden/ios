@@ -12,7 +12,7 @@ options:
   indentWidth: 4
   tabWidth: 4
 settings:
-  MARKETING_VERSION: 2023.5.0
+  MARKETING_VERSION: 2024.5.0
   CURRENT_PROJECT_VERSION: 1
 packages:
   BitwardenSdk:
