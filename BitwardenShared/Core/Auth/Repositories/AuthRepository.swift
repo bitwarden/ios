@@ -394,6 +394,13 @@ extension DefaultAuthRepository: AuthRepository {
             publicKey: registrationKeys.publicKey
         ))
 
+        try await stateService.setAccountEncryptionKeys(
+            AccountEncryptionKeys(
+                encryptedPrivateKey: registrationKeys.privateKey,
+                encryptedUserKey: nil
+            )
+        )
+
         try await organizationUserAPIService.organizationUserResetPasswordEnrollment(
             organizationId: enrollStatus.id,
             requestModel: OrganizationUserResetPasswordEnrollmentRequestModel(
