@@ -6,8 +6,10 @@
   - [Data Stores](#data-stores)
   - [Services](#services)
   - [Repositories](#repositories)
+  - [Dependency Injection](#dependency-injection)
 - [UI Layer](#ui-layer)
   - [Coordinator](#coordinator)
+  - [Routes and Events](#routes-and-events)
   - [Processor](#processor)
   - [State](#state)
   - [View](#view)
@@ -60,7 +62,11 @@ The models are roughly organized based on their use and type:
 
 ### Data Stores
 
-Data stores are responsible for persisting data to Core Data or UserDefaults.
+Data stores are responsible for persisting data to Core Data, Keychain, and UserDefaults. This is implemented by the following:
+
+- [AppSettingStore](../BitwardenShared/Core/Platform/Services/Stores/AppSettingsStore.swift): UserDefaults persistence.
+- [DataStore](../BitwardenShared/Core/Platform/Services/Stores/DataStore.swift): CoreData persistence.
+- [KeychainRepository](../BitwardenShared/Core/Auth/Services/KeychainRepository.swift): Keychain persistence.
 
 ### Services
 
@@ -68,7 +74,51 @@ Services represent the middle layer of the core layer. While some services may d
 
 ### Repositories
 
-Repositories are at the outermost layer of the core layer. Repositories are usually composed of one or more services, and in rare cases other repositories. Repositories are meant to be exposed directly to the UI layer. They synthesize data from multiple sources and combine various asynchronous requests as necessary to expose data to the UI layer in a more appropriate form. These classes tend to have broad responsibilities that generally cover a major domain of the app, such as authentication ([AuthRepository](../BitwardenShared/Core/Auth/Repositories/AuthRepository.swift)) or vault access ([VaultRepository](../BitwardenShared/Core/Vault/Repositories/VaultRepository.swift)). 
+Repositories are at the outermost layer of the core layer. Repositories are usually composed of one or more services, and in rare cases other repositories. Repositories are meant to be exposed directly to the UI layer. They synthesize data from multiple sources and combine various asynchronous requests as necessary to expose data to the UI layer in a more appropriate form. These classes tend to have broad responsibilities that generally cover a major domain of the app, such as authentication ([AuthRepository](../BitwardenShared/Core/Auth/Repositories/AuthRepository.swift)) or vault access ([VaultRepository](../BitwardenShared/Core/Vault/Repositories/VaultRepository.swift)).
+
+### Dependency Injection
+
+All services are contained within the [ServiceContainer](../BitwardenShared/Core/Platform/Services/ServiceContainer.swift). This allows services to be passed around the app and injected into the UI layer with minimal changes when a new dependency is added.
+
+To make it clearer which coordinators and processors are using which dependencies, there is a [Services](../BitwardenShared/Core/Platform/Services/Services.swift) typealias that the `ServiceContainer` conforms to. This typealias uses protocol composition to declare the list of dependencies in the `ServiceContainer` that may be used in the UI layer. These protocols use a naming pattern of `Has<Service>`. The `Services` typealias only needs to contain the dependencies that need to be accessed outside of the data layer (e.g. A store may only need to be accessed by services or repositories in the core layer and wouldn't need to be exposed to the UI layer in the `Services` typealias. It would still be contained within the service container and injected directly into services or repositories at initialization.).
+
+ Components in the UI layer can declare a similar `Services` typealias containing the list of dependencies that need to be injected into the component. This allows a single service container instance to be passed around the UI layer but limits components to accessing the predefined list of dependencies. 
+
+The following example shows a `Services` typealias using protocol composition that the `ServiceContainer` conforms to. The types that are used within `Services` and `ServiceContainer` (e.g. `ExampleRepository`, `ExampleStore`, and `ExampleService`) should be protocols so they can be mocked for testing.
+
+<details>
+<summary>Show example</summary>
+
+```swift
+typealias Services = HasExampleRepository
+    & HasExampleService
+
+protocol HasExampleRepository {
+    var exampleRepository: ExampleRepository { get }
+}
+
+protocol HasExampleService {
+    var exampleService: ExampleService { get }
+}
+
+final class ServiceContainer: Services {
+    let exampleService: ExampleService
+    let exampleStore: ExampleStore
+    let exampleRepository: ExampleRepository
+}
+
+final class ExampleCoordinator: Coordinator {
+    typealias Services = HasExampleRepository
+    
+    private let services: Services
+    
+    init(services: Services) {
+        self.services = services
+    }
+}
+```
+
+</details>
 
 ## UI Layer
 
@@ -81,6 +131,14 @@ Coordinators create processors and views to facilitate navigation between views 
 Occasionally, a single coordinator can manage the navigation within an entire feature flow (e.g. [AuthCoordinator](../BitwardenShared/UI/Auth/AuthCoordinator.swift) handles the navigation between authentication views). Once a flow becomes complex enough, or the container view controller changes (e.g. a `UINavigationController` is presented which has its own set of flows), the coordinator can create and display a child coordinator. An example of this is how [VaultCoordinator](../BitwardenShared/UI/Vault/Vault/VaultCoordinator.swift) handles navigation within the vault tab and [VaultItemCoordinator](../BitwardenShared/UI/Vault/VaultItem/VaultItemCoordinator.swift) handles navigation for viewing, adding, or editing vault items in a presented `UINavigationController`.
 
 Coordinators should remain free of business logic. Logic should be handled in the processor prior to navigation or in the new processor after navigation occurs. In rare cases where there is a lot of logic around what view should come next, a router can be implemented to work alongside the coordinator. An example of this is [AuthRouter](../BitwardenShared/UI/Auth/AuthRouter.swift), which makes decisions around which route should be navigated to next within the authentication flow.
+
+### Routes and Events
+
+Coordinators operate on a set of routes and, optionally, events.
+
+Routes are implemented as an enumeration and define the set of screens that the coordinator can navigate to. Most routes will correspond to a specific view in the app, but routes can also be a more generic action that that coordinator needs to take (e.g. dismissing a presented coordinator flow when the flow completes).
+
+Events define a set of actions that occur in a processor that requires navigation, but without the processor prescribing the specific screen that the coordinator navigates to. These will commonly be used in combination with a router and allows the router to determine the next screen that should be shown before any navigation occurs. Some examples of events are app startup (which screen should be shown first?), switching accounts (does the vault need to be unlocked first?), and logout (are there other accounts to switch to after logout?). Events are also implemented as an enumeration.
 
 ### Processor
 
@@ -120,6 +178,11 @@ The following example demonstrates the above components in the architecture.
 <summary>Show example</summary>
 
 ```swift
+enum ExampleRoute {
+    case example
+    case nextExample
+}
+
 final class ExampleCoordinator: Coordinator, HasStackNavigator {
     typealias Event = Void
     typealias Services = HasExampleRepository
