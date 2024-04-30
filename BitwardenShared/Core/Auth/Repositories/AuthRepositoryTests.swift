@@ -171,6 +171,10 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         XCTAssertEqual(clientService.mockAuth.makeRegisterTdeKeysEmail, "user@bitwarden.com")
         XCTAssertEqual(clientService.mockAuth.makeRegisterTdeKeysOrgPublicKey, "MIIBIjAN...2QIDAQAB")
         XCTAssertEqual(clientService.mockAuth.makeRegisterTdeKeysRememberDevice, true)
+        XCTAssertEqual(
+            stateService.accountEncryptionKeys["1"],
+            AccountEncryptionKeys(encryptedPrivateKey: "privateKey", encryptedUserKey: nil)
+        )
     }
 
     /// `createNewSsoUser()` creates a new account for sso JIT user and don't trust device.
@@ -200,6 +204,10 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         XCTAssertNil(trustDeviceService.trustDeviceWithExistingKeysValue)
         XCTAssertEqual(clientService.mockAuth.makeRegisterTdeKeysOrgPublicKey, "MIIBIjAN...2QIDAQAB")
         XCTAssertEqual(clientService.mockAuth.makeRegisterTdeKeysRememberDevice, false)
+        XCTAssertEqual(
+            stateService.accountEncryptionKeys["1"],
+            AccountEncryptionKeys(encryptedPrivateKey: "privateKey", encryptedUserKey: nil)
+        )
     }
 
     /// `deleteAccount()` deletes the active account and removes it from the state.
