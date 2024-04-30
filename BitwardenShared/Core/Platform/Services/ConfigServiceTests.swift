@@ -103,4 +103,36 @@ final class ConfigServiceTests: BitwardenTestCase {
         XCTAssertEqual(response?.gitHash, "75238191")
         XCTAssertEqual(response?.featureStates[.unassignedItemsBanner], .bool(true))
     }
+
+    /// `getFeatureFlag(:)` can return a boolean if it's in the configuration
+    func test_getFeatureFlag_bool_exists() async {
+        stateService.config = ServerConfig(
+            date: Date(year: 2024, month: 2, day: 14, hour: 7, minute: 50, second: 0),
+            responseModel: ConfigResponseModel(
+                environment: nil,
+                featureStates: ["unassigned-items-banner": .bool(true)],
+                gitHash: "75238191",
+                server: nil,
+                version: "2024.4.0"
+            )
+        )
+        let value = await subject.getFeatureFlag(.unassignedItemsBanner, defaultValue: false, forceRefresh: false)
+        XCTAssertTrue(value)
+    }
+
+    /// `getFeatureFlag(:)` returns the default value for booleans
+    func test_getFeatureFlag_bool_fallback() async {
+        stateService.config = ServerConfig(
+            date: Date(year: 2024, month: 2, day: 14, hour: 7, minute: 50, second: 0),
+            responseModel: ConfigResponseModel(
+                environment: nil,
+                featureStates: [:],
+                gitHash: "75238191",
+                server: nil,
+                version: "2024.4.0"
+            )
+        )
+        let value = await subject.getFeatureFlag(.unassignedItemsBanner, defaultValue: true, forceRefresh: false)
+        XCTAssertTrue(value)
+    }
 }

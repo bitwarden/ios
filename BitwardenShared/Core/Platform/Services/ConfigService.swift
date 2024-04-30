@@ -91,22 +91,17 @@ class DefaultConfigService: ConfigService {
     }
 
     func getFeatureFlag(_ flag: FeatureFlag, defaultValue: Bool = false, forceRefresh: Bool = false) async -> Bool {
-        defaultValue
+        let configuration = await getConfig(forceRefresh: forceRefresh)
+        return configuration?.featureStates[flag]?.boolValue ?? defaultValue
     }
 
     func getFeatureFlag(_ flag: FeatureFlag, defaultValue: Int = 0, forceRefresh: Bool = false) async -> Int {
-        defaultValue
+        let configuration = await getConfig(forceRefresh: forceRefresh)
+        return configuration?.featureStates[flag]?.intValue ?? defaultValue
     }
 
     func getFeatureFlag(_ flag: FeatureFlag, defaultValue: String? = nil, forceRefresh: Bool = false) async -> String? {
-        defaultValue
+        let configuration = await getConfig(forceRefresh: forceRefresh)
+        return configuration?.featureStates[flag]?.stringValue ?? defaultValue
     }
-
-    // MARK: Private Methods
-
-//    private func getFeatureFlag<T>(_ flag: FeatureFlag, defaultValue: T, forceRefresh: Bool = false) async -> T {
-//        defaultValue
-//    }
-
-//    func getFeatureFlag(_ flag: FeatureFlag, defaultValue: AnyCodable)
 }
