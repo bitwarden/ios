@@ -222,11 +222,6 @@ final class VaultCoordinator: Coordinator, HasStackNavigator {
     /// Shows the vault list screen.
     ///
     private func showList() {
-        Task {
-            let foo = try await services.configAPIService.getConfig()
-            dump(foo)
-        }
-
         let processor = VaultListProcessor(
             coordinator: asAnyCoordinator(),
             services: services,
