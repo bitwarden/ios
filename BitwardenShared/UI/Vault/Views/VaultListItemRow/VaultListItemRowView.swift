@@ -136,7 +136,7 @@ struct VaultListItemRowView: View {
                 placeholderDecorativeImage(item.icon)
             }
         }
-        .accessibilityLabel(item.iconAccessibilityId)
+        .accessibilityIdentifier(item.iconAccessibilityId)
         .accessibilityHidden(false)
     }
 
