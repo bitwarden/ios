@@ -436,6 +436,7 @@ private extension ViewItemProcessor {
                 guard var newState = ViewItemState(cipherView: cipher, hasPremium: hasPremium) else { continue }
                 if case var .data(itemState) = newState.loadingState {
                     itemState.loginState.totpState = totpState
+                    itemState.loginState.canViewTotp = !hasMasterPassword
                     newState.loadingState = .data(itemState)
                 }
                 newState.hasVerifiedMasterPassword = state.hasVerifiedMasterPassword

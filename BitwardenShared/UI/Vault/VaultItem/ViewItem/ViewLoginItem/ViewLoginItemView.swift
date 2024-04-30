@@ -21,10 +21,52 @@ struct ViewLoginItemView: View {
 
     var body: some View {
         if !store.state.username.isEmpty {
-            let username = store.state.username
-            BitwardenTextValueField(title: Localizations.username, value: username) {
+            usernameRow
+        }
+
+        if !store.state.password.isEmpty {
+            passwordRow
+        }
+
+        if let fido2Credential = store.state.fido2Credentials.first {
+            passkeyRow(fido2Credential)
+        }
+
+        if !store.state.isTOTPAvailable {
+            premiumSubscriptionRequired
+        } else if let totpModel = store.state.totpCode {
+            totpRow(totpModel)
+        }
+    }
+
+    // MARK: Private views
+
+    /// The password row.
+    ///
+    @ViewBuilder private var passwordRow: some View {
+        let password = store.state.password
+        BitwardenField(title: Localizations.password, titleAccessibilityIdentifier: "ItemName") {
+            PasswordText(password: password, isPasswordVisible: store.state.isPasswordVisible)
+                .styleGuide(.body)
+                .foregroundColor(Asset.Colors.textPrimary.swiftUIColor)
+                .accessibilityIdentifier("ItemValue")
+        } accessoryContent: {
+            if store.state.canViewPassword {
+                PasswordVisibilityButton(isPasswordVisible: store.state.isPasswordVisible) {
+                    store.send(.passwordVisibilityPressed)
+                }
+
+                AsyncButton {
+                    await store.perform(.checkPasswordPressed)
+                } label: {
+                    Asset.Images.roundCheck.swiftUIImage
+                        .imageStyle(.accessoryIcon)
+                }
+                .accessibilityLabel(Localizations.checkPassword)
+                .accessibilityIdentifier("CheckPasswordButton")
+
                 Button {
-                    store.send(.copyPressed(value: username, field: .username))
+                    store.send(.copyPressed(value: password, field: .password))
                 } label: {
                     Asset.Images.copy.swiftUIImage
                         .imageStyle(.accessoryIcon)
@@ -32,103 +74,103 @@ struct ViewLoginItemView: View {
                 .accessibilityLabel(Localizations.copy)
                 .accessibilityIdentifier("CopyValueButton")
             }
-            .accessibilityElement(children: .contain)
-            .accessibilityIdentifier("ItemRow")
         }
+        .accessibilityElement(children: .contain)
+        .accessibilityIdentifier("ItemRow")
+    }
 
-        if !store.state.password.isEmpty {
-            let password = store.state.password
-            BitwardenField(title: Localizations.password, titleAccessibilityIdentifier: "ItemName") {
-                PasswordText(password: password, isPasswordVisible: store.state.isPasswordVisible)
-                    .styleGuide(.body)
-                    .foregroundColor(Asset.Colors.textPrimary.swiftUIColor)
-                    .accessibilityIdentifier("ItemValue")
-            } accessoryContent: {
-                if store.state.canViewPassword {
-                    PasswordVisibilityButton(isPasswordVisible: store.state.isPasswordVisible) {
-                        store.send(.passwordVisibilityPressed)
-                    }
+    /// Row signifying that premium subscription is required for TOTP.
+    ///
+    @ViewBuilder private var premiumSubscriptionRequired: some View {
+        BitwardenField(
+            title: Localizations.verificationCodeTotp,
+            titleAccessibilityIdentifier: "ItemName"
+        ) {
+            Text(Localizations.premiumSubscriptionRequired)
+                .styleGuide(.footnote)
+                .foregroundColor(Asset.Colors.textSecondary.swiftUIColor)
+                .accessibilityIdentifier("ItemValue")
+        }
+        .accessibilityElement(children: .contain)
+        .accessibilityIdentifier("ItemRow")
+    }
 
-                    AsyncButton {
-                        await store.perform(.checkPasswordPressed)
-                    } label: {
-                        Asset.Images.roundCheck.swiftUIImage
-                            .imageStyle(.accessoryIcon)
-                    }
-                    .accessibilityLabel(Localizations.checkPassword)
-                    .accessibilityIdentifier("CheckPasswordButton")
-
-                    Button {
-                        store.send(.copyPressed(value: password, field: .password))
-                    } label: {
-                        Asset.Images.copy.swiftUIImage
-                            .imageStyle(.accessoryIcon)
-                    }
-                    .accessibilityLabel(Localizations.copy)
-                    .accessibilityIdentifier("CopyValueButton")
-                }
+    /// The username field.
+    ///
+    @ViewBuilder private var usernameRow: some View {
+        let username = store.state.username
+        BitwardenTextValueField(title: Localizations.username, value: username) {
+            Button {
+                store.send(.copyPressed(value: username, field: .username))
+            } label: {
+                Asset.Images.copy.swiftUIImage
+                    .imageStyle(.accessoryIcon)
             }
-            .accessibilityElement(children: .contain)
-            .accessibilityIdentifier("ItemRow")
+            .accessibilityLabel(Localizations.copy)
+            .accessibilityIdentifier("CopyValueButton")
         }
+        .accessibilityElement(children: .contain)
+        .accessibilityIdentifier("ItemRow")
+    }
 
-        if let fido2Credential = store.state.fido2Credentials.first {
-            BitwardenTextValueField(
-                title: Localizations.passkey,
-                value: Localizations.createdXY(
-                    fido2Credential.creationDate.formatted(date: .numeric, time: .omitted),
-                    fido2Credential.creationDate.formatted(date: .omitted, time: .shortened)
-                )
+    // MARK: Methods
+
+    /// The passkey row.
+    ///
+    private func passkeyRow(_ fido2Credential: Fido2Credential) -> some View {
+        BitwardenTextValueField(
+            title: Localizations.passkey,
+            value: Localizations.createdXY(
+                fido2Credential.creationDate.formatted(date: .numeric, time: .omitted),
+                fido2Credential.creationDate.formatted(date: .omitted, time: .shortened)
             )
-            .accessibilityElement(children: .contain)
-            .accessibilityIdentifier("ItemRow")
-        }
+        )
+        .accessibilityElement(children: .contain)
+        .accessibilityIdentifier("ItemRow")
+    }
 
-        if !store.state.isTOTPAvailable {
-            BitwardenField(
-                title: Localizations.verificationCodeTotp,
-                titleAccessibilityIdentifier: "ItemName"
-            ) {
-                Text(Localizations.premiumSubscriptionRequired)
-                    .styleGuide(.footnote)
-                    .foregroundColor(Asset.Colors.textSecondary.swiftUIColor)
-                    .accessibilityIdentifier("ItemValue")
-            }
-            .accessibilityElement(children: .contain)
-            .accessibilityIdentifier("ItemRow")
-        } else if let totpModel = store.state.totpCode {
-            BitwardenField(
-                title: Localizations.verificationCodeTotp,
-                titleAccessibilityIdentifier: "ItemName",
-                content: {
-                    Text(totpModel.displayCode)
+    /// The TOTP row.
+    ///
+    /// - Parameter model: The TOTP code model.
+    /// - Returns: The TOTP code row.
+    ///
+    private func totpRow(_ model: TOTPCodeModel) -> some View {
+        BitwardenField(
+            title: Localizations.verificationCodeTotp,
+            titleAccessibilityIdentifier: "ItemName",
+            content: {
+                if store.state.canViewTotp {
+                    Text(model.displayCode)
                         .styleGuide(.bodyMonospaced)
                         .multilineTextAlignment(.leading)
                         .foregroundColor(Asset.Colors.textPrimary.swiftUIColor)
                         .accessibilityIdentifier("ItemValue")
-                },
-                accessoryContent: {
-                    TOTPCountdownTimerView(
-                        timeProvider: timeProvider,
-                        totpCode: totpModel,
-                        onExpiration: {
-                            Task {
-                                await store.perform(.totpCodeExpired)
-                            }
-                        }
-                    )
-                    Button {
-                        store.send(.copyPressed(value: totpModel.code, field: .totp))
-                    } label: {
-                        Asset.Images.copy.swiftUIImage
-                            .imageStyle(.accessoryIcon)
-                    }
-                    .accessibilityLabel(Localizations.copy)
-                    .accessibilityIdentifier("CopyValueButton")
+                } else {
+                    PasswordText(password: model.displayCode, isPasswordVisible: false)
+                        .accessibilityIdentifier("ItemValue")
                 }
-            )
-            .accessibilityElement(children: .contain)
-            .accessibilityIdentifier("ItemRow")
-        }
+            },
+            accessoryContent: {
+                TOTPCountdownTimerView(
+                    timeProvider: timeProvider,
+                    totpCode: model,
+                    onExpiration: {
+                        Task {
+                            await store.perform(.totpCodeExpired)
+                        }
+                    }
+                )
+                Button {
+                    store.send(.copyPressed(value: model.code, field: .totp))
+                } label: {
+                    Asset.Images.copy.swiftUIImage
+                        .imageStyle(.accessoryIcon)
+                }
+                .accessibilityLabel(Localizations.copy)
+                .accessibilityIdentifier("CopyValueButton")
+            }
+        )
+        .accessibilityElement(children: .contain)
+        .accessibilityIdentifier("ItemRow")
     }
 }

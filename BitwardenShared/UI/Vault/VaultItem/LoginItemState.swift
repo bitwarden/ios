@@ -10,6 +10,9 @@ struct LoginItemState: Equatable {
     /// Whether the user has permissions to view the cipher's password.
     var canViewPassword: Bool = true
 
+    /// Whether the user can see the TOTP code.
+    var canViewTotp: Bool = false
+
     /// The FIDO2 credentials for the login.
     var fido2Credentials: [Fido2Credential] = []
 

@@ -5,16 +5,18 @@ import SwiftUI
 /// A standardized view used to wrap some content into a row of a list. This is commonly used in
 /// forms.
 struct BitwardenField<Content, AccessoryContent>: View where Content: View, AccessoryContent: View {
+    // MARK: Properties
+
     /// The (optional) title of the field.
     var title: String?
 
-    /// The (optional) accessibility identifier to apply to the title of the field (if it exists)
+    /// The (optional) accessibility identifier to apply to the title of the field (if it exists).
     var titleAccessibilityIdentifier: String?
 
     /// The (optional) footer to display underneath the field.
     var footer: String?
 
-    /// The (optional) accessibility identifier to apply to the fooder of the field (if it exists)
+    /// The (optional) accessibility identifier to apply to the fooder of the field (if it exists).
     var footerAccessibilityIdentifier: String?
 
     /// The vertical padding to apply around `content`. Defaults to `8`.
@@ -26,6 +28,8 @@ struct BitwardenField<Content, AccessoryContent>: View where Content: View, Acce
     /// Any accessory content that should be displayed on the trailing edge of the field. This
     /// content automatically has the `AccessoryButtonStyle` applied to it.
     var accessoryContent: AccessoryContent?
+
+    // MARK: View
 
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
