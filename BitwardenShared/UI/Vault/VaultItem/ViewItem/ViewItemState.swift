@@ -22,7 +22,7 @@ struct ViewItemState: Equatable {
     var loadingState: LoadingState<CipherItemState> = .loading(nil)
 
     /// Whether the user has a master password.
-    var hasMasterPassword = true
+    var userHasMasterPassword = true
 
     /// A flag indicating if the user has premium features.
     var hasPremiumFeatures = false
@@ -41,6 +41,9 @@ struct ViewItemState: Equatable {
         }
     }
 
+    /// Whether the TOTP code is visible.
+    var isTOTPCodeVisible: Bool = false
+
     /// The password history of the item.
     var passwordHistory: [PasswordHistoryView]?
 
@@ -55,15 +58,22 @@ extension ViewItemState {
     ///
     /// - Parameters:
     ///   - cipherView: The `CipherView` to create this state with.
+    ///   - hasMasterPassword: Whether the account has a master password.
     ///   - hasPremium: Does the account have premium features.
     ///
-    init?(cipherView: CipherView, hasPremium: Bool) {
+    init?(
+        cipherView: CipherView,
+        hasMasterPassword: Bool,
+        hasPremium: Bool
+    ) {
         guard let cipherItemState = CipherItemState(
             existing: cipherView,
+            hasMasterPassword: hasMasterPassword,
             hasPremium: hasPremium
         ) else { return nil }
         self.init(loadingState: .data(cipherItemState))
         hasPremiumFeatures = cipherItemState.accountHasPremium
+        isTOTPCodeVisible = cipherItemState.isTOTPCodeVisible
         passwordHistory = cipherView.passwordHistory
     }
 }

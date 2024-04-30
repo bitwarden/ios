@@ -180,8 +180,8 @@ class ViewItemViewTests: BitwardenTestCase { // swiftlint:disable:this type_body
 
     func loginState( // swiftlint:disable:this function_body_length
         canViewPassword: Bool = true,
-        canViewTotp: Bool = true,
         isPasswordVisible: Bool = true,
+        isTOTPCodeVisible: Bool = true,
         hasPremium: Bool = true
     ) -> CipherItemState {
         var cipherState = CipherItemState(
@@ -197,9 +197,9 @@ class ViewItemViewTests: BitwardenTestCase { // swiftlint:disable:this type_body
         cipherState.notes = "This is a long note so that it goes to the next line!"
         cipherState.updatedDate = Date(year: 2023, month: 11, day: 11, hour: 9, minute: 41)
         cipherState.loginState.canViewPassword = canViewPassword
-        cipherState.loginState.canViewTotp = canViewTotp
         cipherState.loginState.fido2Credentials = [.fixture()]
         cipherState.loginState.isPasswordVisible = isPasswordVisible
+        cipherState.loginState.isTOTPCodeVisible = isTOTPCodeVisible
         cipherState.loginState.password = "Password1234!"
         cipherState.loginState.passwordHistoryCount = 4
         cipherState.loginState.passwordUpdatedDate = Date(year: 2023, month: 11, day: 11, hour: 9, minute: 41)
@@ -294,7 +294,7 @@ class ViewItemViewTests: BitwardenTestCase { // swiftlint:disable:this type_body
     }
 
     func test_snapshot_login_hiddenTotp() {
-        processor.state.loadingState = .data(loginState(canViewTotp: false))
+        processor.state.loadingState = .data(loginState(isTOTPCodeVisible: false))
         assertSnapshot(of: subject, as: .tallPortrait)
     }
 

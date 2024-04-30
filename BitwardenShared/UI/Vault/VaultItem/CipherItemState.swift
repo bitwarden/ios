@@ -31,6 +31,9 @@ struct CipherItemState: Equatable {
 
     // MARK: Properties
 
+    /// Whether the account has a master password.
+    var accountHasMasterPassword: Bool
+
     /// A flag indicating if this account has premium features.
     var accountHasPremium: Bool
 
@@ -123,6 +126,12 @@ struct CipherItemState: Equatable {
         }
     }
 
+    /// Whether the TOTP code is visible.
+    var isTOTPCodeVisible: Bool {
+        guard accountHasPremium else { return false }
+        return !(accountHasMasterPassword && isMasterPasswordRePromptOn)
+    }
+
     /// The owner of the cipher.
     var owner: CipherOwner? {
         get {
@@ -147,6 +156,7 @@ struct CipherItemState: Equatable {
     // MARK: Initialization
 
     private init(
+        accountHasMasterPassword: Bool,
         accountHasPremium: Bool,
         allowTypeSelection: Bool,
         cardState: CardItemState,
@@ -165,6 +175,7 @@ struct CipherItemState: Equatable {
         type: CipherType,
         updatedDate: Date
     ) {
+        self.accountHasMasterPassword = accountHasMasterPassword
         self.accountHasPremium = accountHasPremium
         self.allowTypeSelection = allowTypeSelection
         cardItemState = cardState
@@ -203,6 +214,7 @@ struct CipherItemState: Equatable {
         username: String? = nil
     ) {
         self.init(
+            accountHasMasterPassword: true,
             accountHasPremium: hasPremium,
             allowTypeSelection: allowTypeSelection,
             cardState: .init(),
@@ -231,6 +243,7 @@ struct CipherItemState: Equatable {
 
     init(cloneItem cipherView: CipherView, hasPremium: Bool) {
         self.init(
+            accountHasMasterPassword: true,
             accountHasPremium: hasPremium,
             allowTypeSelection: false,
             cardState: cipherView.cardItemState(),
@@ -251,9 +264,14 @@ struct CipherItemState: Equatable {
         )
     }
 
-    init?(existing cipherView: CipherView, hasPremium: Bool) {
+    init?(
+        existing cipherView: CipherView,
+        hasMasterPassword: Bool = true,
+        hasPremium: Bool
+    ) {
         guard cipherView.id != nil else { return nil }
         self.init(
+            accountHasMasterPassword: hasMasterPassword,
             accountHasPremium: hasPremium,
             allowTypeSelection: false,
             cardState: cipherView.cardItemState(),
@@ -265,7 +283,10 @@ struct CipherItemState: Equatable {
             isFavoriteOn: cipherView.favorite,
             isMasterPasswordRePromptOn: cipherView.reprompt == .password,
             isPersonalOwnershipDisabled: false,
-            loginState: cipherView.loginItemState(showTOTP: hasPremium),
+            loginState: cipherView.loginItemState(
+                isTOTPCodeVisible: !(hasMasterPassword && cipherView.reprompt == .password),
+                showTOTP: hasPremium
+            ),
             name: cipherView.name,
             notes: cipherView.notes ?? "",
             organizationId: cipherView.organizationId,

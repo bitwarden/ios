@@ -139,7 +139,7 @@ struct ViewLoginItemView: View {
             title: Localizations.verificationCodeTotp,
             titleAccessibilityIdentifier: "ItemName",
             content: {
-                if store.state.canViewTotp {
+                if store.state.isTOTPCodeVisible {
                     Text(model.displayCode)
                         .styleGuide(.bodyMonospaced)
                         .multilineTextAlignment(.leading)

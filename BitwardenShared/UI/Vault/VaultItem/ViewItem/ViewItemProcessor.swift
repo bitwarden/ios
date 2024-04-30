@@ -106,7 +106,7 @@ final class ViewItemProcessor: StateProcessor<ViewItemState, ViewItemAction, Vie
     }
 
     override func receive(_ action: ViewItemAction) {
-        if state.hasMasterPassword {
+        if state.userHasMasterPassword {
             guard !state.isMasterPasswordRequired || !action.requiresMasterPasswordReprompt else {
                 presentMasterPasswordRepromptAlert { self.receive(action) }
                 return
@@ -433,14 +433,17 @@ private extension ViewItemProcessor {
                     totpState = updatedState
                 }
 
-                guard var newState = ViewItemState(cipherView: cipher, hasPremium: hasPremium) else { continue }
+                guard var newState = ViewItemState(
+                    cipherView: cipher,
+                    hasMasterPassword: hasMasterPassword,
+                    hasPremium: hasPremium
+                ) else { continue }
+
                 if case var .data(itemState) = newState.loadingState {
                     itemState.loginState.totpState = totpState
-                    itemState.loginState.canViewTotp = !hasMasterPassword
                     newState.loadingState = .data(itemState)
                 }
                 newState.hasVerifiedMasterPassword = state.hasVerifiedMasterPassword
-                newState.hasMasterPassword = hasMasterPassword
                 state = newState
             }
         } catch {

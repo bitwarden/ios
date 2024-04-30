@@ -12,14 +12,14 @@ protocol ViewLoginItemState: Sendable {
     /// Whether the user has permissions to view the cipher's password.
     var canViewPassword: Bool { get }
 
-    /// Whether the user can see the TOTP code.
-    var canViewTotp: Bool { get }
-
     /// The FIDO2 credentials for the login.
     var fido2Credentials: [Fido2Credential] { get }
 
     /// A flag indicating if the TOTP feature is available.
     var isTOTPAvailable: Bool { get }
+
+    /// Whether the TOTP code is visible.
+    var isTOTPCodeVisible: Bool { get }
 
     /// A flag indicating if the password field is visible.
     var isPasswordVisible: Bool { get }

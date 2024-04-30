@@ -119,7 +119,6 @@ class ViewItemProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
         )!
 
         XCTAssertTrue(subject.state.hasPremiumFeatures)
-        XCTAssertTrue(subject.state.hasMasterPassword)
         XCTAssertEqual(subject.state.loadingState, .data(expectedState))
         XCTAssertFalse(vaultRepository.fetchSyncCalled)
     }
@@ -180,7 +179,6 @@ class ViewItemProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
             hasPremium: false
         )!
 
-        XCTAssertTrue(subject.state.hasMasterPassword)
         XCTAssertEqual(subject.state.loadingState, .data(expectedState))
         XCTAssertFalse(vaultRepository.fetchSyncCalled)
     }
@@ -209,7 +207,6 @@ class ViewItemProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
             hasPremium: false
         )!
 
-        XCTAssertTrue(subject.state.hasMasterPassword)
         XCTAssertEqual(subject.state.loadingState, .data(expectedState))
         XCTAssertFalse(vaultRepository.fetchSyncCalled)
     }
@@ -525,7 +522,13 @@ class ViewItemProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
     /// `perform(_:)` with `.deletePressed` reprompts the user for their master password if reprompt
     /// is enabled prior to deleting the cipher.
     func test_perform_deletePressed_masterPasswordReprompt() async throws {
-        subject.state = try XCTUnwrap(ViewItemState(cipherView: .fixture(reprompt: .password), hasPremium: false))
+        subject.state = try XCTUnwrap(
+            ViewItemState(
+                cipherView: .fixture(reprompt: .password),
+                hasMasterPassword: true,
+                hasPremium: false
+            )
+        )
         await subject.perform(.deletePressed)
 
         let repromptAlert = try XCTUnwrap(coordinator.alertShown.last)
@@ -842,7 +845,7 @@ class ViewItemProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
     /// Tests that the despite a cipher having a `.password` re-prompt property, a
     /// re-prompt will not be shown for a user that has no password.
     func test_receive_editPressed_noPassword() {
-        subject.state.hasMasterPassword = false
+        subject.state.userHasMasterPassword = false
 
         // Although the cipher calls for a password reprompt, it won't be shown
         // because the user has no password.
@@ -856,7 +859,7 @@ class ViewItemProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
         subject.receive(.editPressed)
         waitFor(!coordinator.routes.isEmpty)
         XCTAssertEqual(coordinator.routes, [.editItem(cipherView, true)])
-        XCTAssertFalse(subject.state.hasMasterPassword)
+        XCTAssertFalse(subject.state.userHasMasterPassword)
     }
 
     /// `receive(_:)` with `.morePressed(.attachments)` navigates the user to attachments view.

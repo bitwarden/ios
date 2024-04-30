@@ -90,6 +90,7 @@ extension CipherView {
     ///
     /// - Parameters:
     ///   - excludeFido2Credentials: Whether to exclude copying any FIDO2 credentials from the login item.
+    ///   - isTOTPCodeVisible: Whether the TOTP code is visible.
     ///   - showPassword: A Boolean value indicating whether the password should be visible.
     ///   - showTOTP: A Boolean value indicating whether TOTP should be visible.
     ///
@@ -97,6 +98,7 @@ extension CipherView {
     ///
     func loginItemState(
         excludeFido2Credentials: Bool = false,
+        isTOTPCodeVisible: Bool = false,
         showPassword: Bool = false,
         showTOTP: Bool
     ) -> LoginItemState {
@@ -105,6 +107,7 @@ extension CipherView {
             fido2Credentials: excludeFido2Credentials ? [] : login?.fido2Credentials ?? [],
             isPasswordVisible: showPassword,
             isTOTPAvailable: showTOTP,
+            isTOTPCodeVisible: isTOTPCodeVisible,
             password: login?.password ?? "",
             passwordHistoryCount: passwordHistory?.count,
             passwordUpdatedDate: login?.passwordRevisionDate,
