@@ -330,7 +330,8 @@ extension Alert {
                     id: "otp",
                     autocapitalizationType: .none,
                     autocorrectionType: .no,
-                    isSecureTextEntry: true
+                    isSecureTextEntry: true,
+                    keyboardType: .numberPad
                 ),
             ]
         )
