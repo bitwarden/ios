@@ -35,7 +35,7 @@ struct ViewItemState: Equatable {
         guard !hasVerifiedMasterPassword else { return false }
         return switch loadingState {
         case let .data(state):
-            state.isMasterPasswordRePromptOn
+            state.isMasterPasswordRePromptOn && hasMasterPassword
         case .loading:
             false
         }

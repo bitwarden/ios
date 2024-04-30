@@ -240,10 +240,11 @@ final class VaultGroupProcessor: StateProcessor<// swiftlint:disable:this type_b
             guard case let .cipher(cipherView) = item.itemType else { return }
 
             let hasPremium = await (try? services.vaultRepository.doesActiveAccountHavePremium()) ?? false
-            state.hasMasterPassword = try await services.stateService.getUserHasMasterPassword()
+            let hasMasterPassword = try await services.stateService.getUserHasMasterPassword()
 
             coordinator.showAlert(.moreOptions(
                 cipherView: cipherView,
+                hasMasterPassword: hasMasterPassword,
                 hasPremium: hasPremium,
                 id: item.id,
                 showEdit: state.group != .trash,
@@ -287,7 +288,7 @@ final class VaultGroupProcessor: StateProcessor<// swiftlint:disable:this type_b
     private func handleMoreOptionsAction(_ action: MoreOptionsAction) async {
         switch action {
         case let .copy(toast, value, requiresMasterPasswordReprompt):
-            if requiresMasterPasswordReprompt, state.hasMasterPassword {
+            if requiresMasterPasswordReprompt {
                 presentMasterPasswordRepromptAlert {
                     self.services.pasteboardService.copy(value)
                     self.state.toast = Toast(text: Localizations.valueHasBeenCopied(toast))
@@ -297,15 +298,15 @@ final class VaultGroupProcessor: StateProcessor<// swiftlint:disable:this type_b
                 state.toast = Toast(text: Localizations.valueHasBeenCopied(toast))
             }
         case let .copyTotp(totpKey, requiresMasterPasswordReprompt):
-            if requiresMasterPasswordReprompt, state.hasMasterPassword {
+            if requiresMasterPasswordReprompt {
                 presentMasterPasswordRepromptAlert {
                     await self.generateAndCopyTotpCode(totpKey: totpKey)
                 }
             } else {
                 await generateAndCopyTotpCode(totpKey: totpKey)
             }
-        case let .edit(cipherView):
-            if cipherView.reprompt == .password, state.hasMasterPassword {
+        case let .edit(cipherView, requiresMasterPasswordReprompt):
+            if requiresMasterPasswordReprompt {
                 presentMasterPasswordRepromptAlert {
                     self.coordinator.navigate(to: .editItem(cipherView), context: self)
                 }

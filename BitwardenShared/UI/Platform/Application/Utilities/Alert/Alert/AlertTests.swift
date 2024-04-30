@@ -133,6 +133,7 @@ class AlertTests: BitwardenTestCase {
         )
         let alert = Alert.moreOptions(
             cipherView: cipher,
+            hasMasterPassword: false,
             hasPremium: false,
             id: cipher.id!,
             showEdit: true,
@@ -155,7 +156,7 @@ class AlertTests: BitwardenTestCase {
         await second.handler?(second, [])
         XCTAssertEqual(
             capturedAction,
-            .edit(cipherView: cipher)
+            .edit(cipherView: cipher, requiresMasterPasswordReprompt: false)
         )
         capturedAction = nil
 
@@ -212,6 +213,7 @@ class AlertTests: BitwardenTestCase {
         )
         let alert = Alert.moreOptions(
             cipherView: cipher,
+            hasMasterPassword: false,
             hasPremium: false,
             id: cipher.id!,
             showEdit: true,
@@ -234,7 +236,7 @@ class AlertTests: BitwardenTestCase {
         await second.handler?(second, [])
         XCTAssertEqual(
             capturedAction,
-            .edit(cipherView: cipher)
+            .edit(cipherView: cipher, requiresMasterPasswordReprompt: false)
         )
         capturedAction = nil
 

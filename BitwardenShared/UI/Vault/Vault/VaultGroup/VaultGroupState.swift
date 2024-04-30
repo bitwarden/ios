@@ -14,9 +14,6 @@ struct VaultGroupState: Equatable {
     /// The `VaultListGroup` being displayed.
     var group: VaultListGroup = .login
 
-    /// Whether the user has a master password.
-    var hasMasterPassword: Bool = true
-
     /// The base url used to fetch icons.
     var iconBaseURL: URL?
 
