@@ -227,6 +227,7 @@ class AlertSettingsTests: BitwardenTestCase {
         XCTAssertEqual(subject.alertActions.last?.style, .cancel)
 
         var textField = try XCTUnwrap(subject.alertTextFields.first)
+        XCTAssertEqual(textField.keyboardType, .numberPad)
         textField = AlertTextField(id: "otp", text: "otp")
 
         let action = try XCTUnwrap(subject.alertActions.first(where: { $0.title == Localizations.submit }))
