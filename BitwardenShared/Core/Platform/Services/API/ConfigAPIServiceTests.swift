@@ -28,8 +28,13 @@ class ConfigAPIServiceTests: BitwardenTestCase {
 
     /// `getConfig()` performs the config request.
     func test_getConfig() async throws {
-        client.result = .httpSuccess(testData: .emptyResponse)
+        client.result = .httpSuccess(testData: .validServerConfig)
 
-//        let config = try await subject.getConfig()
+        _ = try await subject.getConfig()
+
+        let request = try XCTUnwrap(client.requests.last)
+        XCTAssertEqual(request.method, .get)
+        XCTAssertEqual(request.url.absoluteString, "https://example.com/api/config")
+        XCTAssertNil(request.body)
     }
 }
