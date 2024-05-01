@@ -1043,10 +1043,6 @@ actor DefaultStateService: StateService { // swiftlint:disable:this type_body_le
         return appSettingsStore.clearClipboardValue(userId: userId)
     }
 
-    func getConfig() async -> ServerConfig? {
-        appSettingsStore.config
-    }
-
     func getConnectToWatch(userId: String?) async throws -> Bool {
         let userId = try userId ?? getActiveAccountUserId()
         return appSettingsStore.connectToWatch(userId: userId)
@@ -1219,10 +1215,6 @@ actor DefaultStateService: StateService { // swiftlint:disable:this type_body_le
     func setClearClipboardValue(_ clearClipboardValue: ClearClipboardValue?, userId: String?) async throws {
         let userId = try userId ?? getActiveAccountUserId()
         appSettingsStore.setClearClipboardValue(clearClipboardValue, userId: userId)
-    }
-
-    func setConfig(_ configModel: ServerConfig?) async {
-        appSettingsStore.config = configModel
     }
 
     func setConnectToWatch(_ connectToWatch: Bool, userId: String?) async throws {

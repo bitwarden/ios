@@ -297,23 +297,6 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
         XCTAssertEqual(value, .twoMinutes)
     }
 
-    /// `getConfig()` returns the config values
-    func test_getConfig() async {
-        let model = ServerConfig(
-            date: Date(timeIntervalSince1970: 100),
-            responseModel: ConfigResponseModel(
-                environment: nil,
-                featureStates: [:],
-                gitHash: "1234",
-                server: nil,
-                version: "1.2.3"
-            )
-        )
-        appSettingsStore.config = model
-        let value = await subject.getConfig()
-        XCTAssertEqual(value, model)
-    }
-
     /// `getBiometricAuthenticationEnabled(:)` returns biometric unlock preference of the active user.
     func test_getBiometricAuthenticationEnabled_default() async throws {
         await subject.addAccount(.fixture())
@@ -528,6 +511,24 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
     func test_getPreAuthEnvironmentUrls_notSet() async {
         let urls = await subject.getPreAuthEnvironmentUrls()
         XCTAssertNil(urls)
+    }
+
+    /// `getServerConfig(:)` returns the config values
+    func test_getServerConfig() async throws {
+        await subject.addAccount(.fixture())
+        let model = ServerConfig(
+            date: Date(timeIntervalSince1970: 100),
+            responseModel: ConfigResponseModel(
+                environment: nil,
+                featureStates: [:],
+                gitHash: "1234",
+                server: nil,
+                version: "1.2.3"
+            )
+        )
+        appSettingsStore.serverConfig["1"] = model
+        let value = try await subject.getServerConfig()
+        XCTAssertEqual(value, model)
     }
 
     /// `getShowWebIcons` gets the show web icons value.
@@ -1069,22 +1070,6 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
         XCTAssertEqual(appSettingsStore.clearClipboardValues["1"], .thirtySeconds)
     }
 
-    /// `setConfig(_:)` sets the config values.
-    func test_setConfig() async {
-        let model = ServerConfig(
-            date: Date(timeIntervalSince1970: 100),
-            responseModel: ConfigResponseModel(
-                environment: nil,
-                featureStates: [:],
-                gitHash: "1234",
-                server: nil,
-                version: "1.2.3.4"
-            )
-        )
-        await subject.setConfig(model)
-        XCTAssertEqual(appSettingsStore.config, model)
-    }
-
     /// `setConnectToWatch(_:userId:)` sets the connect to watch value for a user.
     func test_setConnectToWatch() async throws {
         await subject.addAccount(.fixture())
@@ -1230,6 +1215,23 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
         let urls = EnvironmentUrlData(base: .example)
         await subject.setPreAuthEnvironmentUrls(urls)
         XCTAssertEqual(appSettingsStore.preAuthEnvironmentUrls, urls)
+    }
+
+    /// `setServerConfig(_:)` sets the config values.
+    func test_setServerConfig() async throws {
+        await subject.addAccount(.fixture())
+        let model = ServerConfig(
+            date: Date(timeIntervalSince1970: 100),
+            responseModel: ConfigResponseModel(
+                environment: nil,
+                featureStates: [:],
+                gitHash: "1234",
+                server: nil,
+                version: "1.2.3.4"
+            )
+        )
+        try await subject.setServerConfig(model)
+        XCTAssertEqual(appSettingsStore.serverConfig["1"], model)
     }
 
     /// `setShouldTrustDevice` saves the should trust device value.
