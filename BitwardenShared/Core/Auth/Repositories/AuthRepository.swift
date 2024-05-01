@@ -297,6 +297,9 @@ class DefaultAuthRepository {
     /// The service that handles common client functionality such as encryption and decryption.
     private let clientService: ClientService
 
+    /// The services to get server-specified configuration.
+    private let configService: ConfigService
+
     /// The service used by the application to manage the environment settings.
     private let environmentService: EnvironmentService
 
@@ -330,6 +333,7 @@ class DefaultAuthRepository {
     ///   - authService: The service used that handles some of the auth logic.
     ///   - biometricsRepository: The service to use system Biometrics for vault unlock.
     ///   - clientService: The service that handles common client functionality such as encryption and decryption.
+    ///   - configService: The service to get server-specified configuration.
     ///   - environmentService: The service used by the application to manage the environment settings.
     ///   - keychainService: The keychain service used by the application.
     ///   - organizationAPIService: The service used by the application to make organization-related API requests.
@@ -345,6 +349,7 @@ class DefaultAuthRepository {
         authService: AuthService,
         biometricsRepository: BiometricsRepository,
         clientService: ClientService,
+        configService: ConfigService,
         environmentService: EnvironmentService,
         keychainService: KeychainRepository,
         organizationAPIService: OrganizationAPIService,
@@ -358,6 +363,7 @@ class DefaultAuthRepository {
         self.authService = authService
         self.biometricsRepository = biometricsRepository
         self.clientService = clientService
+        self.configService = configService
         self.environmentService = environmentService
         self.keychainService = keychainService
         self.organizationAPIService = organizationAPIService
@@ -520,6 +526,7 @@ extension DefaultAuthRepository: AuthRepository {
     func setActiveAccount(userId: String) async throws -> Account {
         try await stateService.setActiveAccount(userId: userId)
         await environmentService.loadURLsForActiveAccount()
+        _ = await configService.getConfig()
         return try await stateService.getActiveAccount()
     }
 

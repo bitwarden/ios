@@ -51,6 +51,12 @@ protocol ConfigService {
     func getFeatureFlag(_ flag: FeatureFlag, defaultValue: String?, forceRefresh: Bool) async -> String?
 }
 
+extension ConfigService {
+    func getConfig() async -> ServerConfig? {
+        await getConfig(forceRefresh: false)
+    }
+}
+
 // MARK: - DefaultConfigService
 
 /// A default implementation of a `ConfigService` that manages the app's config.

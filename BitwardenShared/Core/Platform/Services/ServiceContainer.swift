@@ -413,6 +413,7 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
             authService: authService,
             biometricsRepository: biometricsRepository,
             clientService: clientService,
+            configService: configService,
             environmentService: environmentService,
             keychainService: keychainRepository,
             organizationAPIService: apiService,
