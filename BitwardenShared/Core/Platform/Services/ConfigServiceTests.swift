@@ -30,6 +30,8 @@ final class ConfigServiceTests: BitwardenTestCase {
             stateService: stateService,
             timeProvider: timeProvider
         )
+        let account = Account.fixture(profile: Account.AccountProfile.fixture(userId: "1"))
+        stateService.activeAccount = account
     }
 
     override func tearDown() {
@@ -43,7 +45,7 @@ final class ConfigServiceTests: BitwardenTestCase {
 
     /// `getConfig(:)` gets the configuration from the server if `forceRefresh` is true
     func test_getConfig_local_forceRefresh() async {
-        stateService.config = ServerConfig(
+        stateService.serverConfig["1"] = ServerConfig(
             date: Date(year: 2024, month: 2, day: 14, hour: 7, minute: 50, second: 0),
             responseModel: ConfigResponseModel(
                 environment: nil,
@@ -61,7 +63,7 @@ final class ConfigServiceTests: BitwardenTestCase {
 
     /// `getConfig(:)` uses the local configuration if it is expired
     func test_getConfig_local_expired() async {
-        stateService.config = ServerConfig(
+        stateService.serverConfig["1"] = ServerConfig(
             date: Date(year: 2024, month: 2, day: 10, hour: 8, minute: 0, second: 0),
             responseModel: ConfigResponseModel(
                 environment: nil,
@@ -79,7 +81,7 @@ final class ConfigServiceTests: BitwardenTestCase {
 
     /// `getConfig(:)` uses the local configuration if it's not expired
     func test_getConfig_local_notExpired() async {
-        stateService.config = ServerConfig(
+        stateService.serverConfig["1"] = ServerConfig(
             date: Date(year: 2024, month: 2, day: 14, hour: 7, minute: 50, second: 0),
             responseModel: ConfigResponseModel(
                 environment: nil,
@@ -96,7 +98,6 @@ final class ConfigServiceTests: BitwardenTestCase {
 
     /// `getConfig(:)` gets the configuration from the server if there is no local configuration
     func test_getConfig_noLocal() async {
-        stateService.config = nil
         client.result = .httpSuccess(testData: .validServerConfig)
         let response = await subject.getConfig(forceRefresh: false)
         XCTAssertEqual(client.requests.count, 1)
@@ -106,7 +107,7 @@ final class ConfigServiceTests: BitwardenTestCase {
 
     /// `getFeatureFlag(:)` can return a boolean if it's in the configuration
     func test_getFeatureFlag_bool_exists() async {
-        stateService.config = ServerConfig(
+        stateService.serverConfig["1"] = ServerConfig(
             date: Date(year: 2024, month: 2, day: 14, hour: 7, minute: 50, second: 0),
             responseModel: ConfigResponseModel(
                 environment: nil,
@@ -122,7 +123,7 @@ final class ConfigServiceTests: BitwardenTestCase {
 
     /// `getFeatureFlag(:)` returns the default value for booleans
     func test_getFeatureFlag_bool_fallback() async {
-        stateService.config = ServerConfig(
+        stateService.serverConfig["1"] = ServerConfig(
             date: Date(year: 2024, month: 2, day: 14, hour: 7, minute: 50, second: 0),
             responseModel: ConfigResponseModel(
                 environment: nil,

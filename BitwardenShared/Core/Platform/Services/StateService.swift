@@ -109,12 +109,6 @@ protocol StateService: AnyObject {
     ///
     func getClearClipboardValue(userId: String?) async throws -> ClearClipboardValue
 
-    /// Gets the config values set by the server.
-    ///
-    /// - Returns: The config values from the server.
-    ///
-    func getConfig() async -> ServerConfig?
-
     /// Gets the connect to watch value for an account.
     ///
     /// - Parameter userId: The user ID associated with the connect to watch value. Defaults to the active
@@ -198,6 +192,13 @@ protocol StateService: AnyObject {
     /// - Returns: The environment URLs used prior to user authentication.
     ///
     func getPreAuthEnvironmentUrls() async -> EnvironmentUrlData?
+
+    /// Gets the server config for a user ID, as set by the server.
+    ///
+    /// - Parameter userId: The user ID associated with the server config. Defaults to the active account if `nil`.
+    /// - Returns: The user's server config.
+    ///
+    func getServerConfig(userId: String?) async throws -> ServerConfig?
 
     /// Get whether the device should be trusted.
     ///
@@ -331,13 +332,6 @@ protocol StateService: AnyObject {
     ///
     func setClearClipboardValue(_ clearClipboardValue: ClearClipboardValue?, userId: String?) async throws
 
-    /// Sets the config values.
-    ///
-    /// - Parameters:
-    ///   - configModel: The config values to set.
-    ///
-    func setConfig(_ configModel: ServerConfig?) async
-
     /// Sets the connect to watch value for an account.
     ///
     /// - Parameters:
@@ -440,6 +434,14 @@ protocol StateService: AnyObject {
     /// - Parameter urls: The environment URLs used prior to user authentication.
     ///
     func setPreAuthEnvironmentUrls(_ urls: EnvironmentUrlData) async
+
+    /// Sets the server configuration as provided by a server for a user ID.
+    ///
+    /// - Parameters:
+    ///   - configModel: The config values to set as provided by the server.
+    ///   - userId: The user ID associated with the server config.
+    ///
+    func setServerConfig(_ config: ServerConfig?, userId: String?) async throws
 
     /// Set whether to trust the device.
     ///
@@ -667,6 +669,14 @@ extension StateService {
         try await getPasswordGenerationOptions(userId: nil)
     }
 
+    /// Gets the server config for the active account.
+    ///
+    /// - Returns: The server config sent by the server for the active account.
+    ///
+    func getServerConfig() async throws -> ServerConfig? {
+        try await getServerConfig(userId: nil)
+    }
+
     /// Gets the session timeout action.
     ///
     /// - Returns: The action to perform when a session timeout occurs.
@@ -835,6 +845,14 @@ extension StateService {
     ///
     func setPasswordGenerationOptions(_ options: PasswordGenerationOptions?) async throws {
         try await setPasswordGenerationOptions(options, userId: nil)
+    }
+
+    /// Sets the server config for the active account.
+    ///
+    /// - Parameter config: The server config.
+    ///
+    func setServerConfig(_ config: ServerConfig?) async throws {
+        try await setServerConfig(config, userId: nil)
     }
 
     /// Sets the session timeout action.
@@ -1086,6 +1104,11 @@ actor DefaultStateService: StateService { // swiftlint:disable:this type_body_le
         appSettingsStore.preAuthEnvironmentUrls
     }
 
+    func getServerConfig(userId: String?) async throws -> ServerConfig? {
+        let userId = try userId ?? getActiveAccountUserId()
+        return appSettingsStore.serverConfig(userId: userId)
+    }
+
     func getShouldTrustDevice(userId: String) async -> Bool? {
         appSettingsStore.shouldTrustDevice(userId: userId)
     }
@@ -1283,6 +1306,11 @@ actor DefaultStateService: StateService { // swiftlint:disable:this type_body_le
 
     func setPreAuthEnvironmentUrls(_ urls: EnvironmentUrlData) async {
         appSettingsStore.preAuthEnvironmentUrls = urls
+    }
+
+    func setServerConfig(_ config: ServerConfig?, userId: String?) async throws {
+        let userId = try userId ?? getActiveAccountUserId()
+        appSettingsStore.setServerConfig(config: config, userId: userId)
     }
 
     func setShouldTrustDevice(_ shouldTrustDevice: Bool?, userId: String) {

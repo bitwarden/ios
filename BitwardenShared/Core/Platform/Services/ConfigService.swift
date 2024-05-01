@@ -72,7 +72,7 @@ class DefaultConfigService: ConfigService {
 
     // MARK: Initialization
 
-    /// Initialize a `DefaultEnvironmentService`.
+    /// Initialize a `DefaultConfigService`.
     ///
     /// - Parameters:
     ///   - configApiService: The API service to make config requests.
@@ -95,7 +95,7 @@ class DefaultConfigService: ConfigService {
     // MARK: Methods
 
     func getConfig(forceRefresh: Bool) async -> ServerConfig? {
-        let localConfig = await stateService.getConfig()
+        let localConfig = try? await stateService.getServerConfig()
 
         let localConfigExpired = localConfig?.date.addingTimeInterval(Constants.minimumConfigSyncInterval)
             ?? Date.distantPast
@@ -104,10 +104,12 @@ class DefaultConfigService: ConfigService {
         if forceRefresh || localConfig == nil || localConfigExpired {
             do {
                 let configResponse = try await configApiService.getConfig()
-                return ServerConfig(
+                let serverConfig = ServerConfig(
                     date: timeProvider.presentTime,
                     responseModel: configResponse
                 )
+                try await stateService.setServerConfig(serverConfig)
+                return serverConfig
             } catch {
                 errorReporter.log(error: error)
             }

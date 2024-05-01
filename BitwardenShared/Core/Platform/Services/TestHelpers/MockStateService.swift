@@ -47,6 +47,7 @@ class MockStateService: StateService { // swiftlint:disable:this type_body_lengt
     var showWebIcons = true
     var showWebIconsSubject = CurrentValueSubject<Bool, Never>(true)
     var timeoutAction = [String: SessionTimeoutAction]()
+    var serverConfig = [String: ServerConfig]()
     var setBiometricAuthenticationEnabledResult: Result<Void, Error> = .success(())
     var setBiometricIntegrityStateError: Error?
     var shouldTrustDevice = [String: Bool?]()
@@ -203,6 +204,11 @@ class MockStateService: StateService { // swiftlint:disable:this type_body_lengt
 
     func getPreAuthEnvironmentUrls() async -> EnvironmentUrlData? {
         preAuthEnvironmentUrls
+    }
+
+    func getServerConfig(userId: String?) async throws -> ServerConfig? {
+        let userId = try unwrapUserId(userId)
+        return serverConfig[userId]
     }
 
     func getShouldTrustDevice(userId: String) async -> Bool? {
@@ -391,6 +397,11 @@ class MockStateService: StateService { // swiftlint:disable:this type_body_lengt
 
     func setPreAuthEnvironmentUrls(_ urls: BitwardenShared.EnvironmentUrlData) async {
         preAuthEnvironmentUrls = urls
+    }
+
+    func setServerConfig(_ config: ServerConfig?, userId: String?) async throws {
+        let userId = try unwrapUserId(userId)
+        serverConfig[userId] = config
     }
 
     func setShouldTrustDevice(_ shouldTrustDevice: Bool?, userId: String) async {
