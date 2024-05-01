@@ -865,3 +865,10 @@
 "YourOrganizationPermissionsWereUpdatedRequeringYouToSetAMasterPassword" = "Les autorisations de votre organisation ont été mises à jour, vous obligeant à définir un mot de passe principal.";
 "YourOrganizationRequiresYouToSetAMasterPassword" = "Votre organisation vous demande de définir un mot de passe principal.";
 "SetUpAnUnlockOptionToChangeYourVaultTimeoutAction" = "Configurez une méthode de déverrouillage pour modifier l'action après délai d'expiration de votre coffre.";
+"DuoTwoStepLoginIsRequiredForYourAccount" = "L'authentification à deux facteurs Duo est requise pour votre compte.";
+"FollowTheStepsFromDuoToFinishLoggingIn" = "Suivez les étapes à partir de Duo pour terminer la connexion.";
+"LaunchDuo" = "Lancer Duo";
+"OrganizationUnassignedItemsMessageUSEUDescriptionLong" = "Les éléments d'organisation non assignés ne sont plus visibles dans la vue de Tous les coffres et sont uniquement accessibles via la Console d'administration. Assignez ces éléments à une collection à partir de la Console d'administration pour les rendre visibles.";
+"OrganizationUnassignedItemsMessageSelfHost041624DescriptionLong" = "Au 2 mai 2024, les éléments d'organisation non assignés ne sont plus visibles dans la vue de Tous les coffres et sont uniquement accessibles via la Console d'administration. Assignez ces éléments à une collection à partir de la Console d'administration pour les rendre visibles.";
+"RemindMeLater" = "Me le rappeler plus tard";
+"Notice" = "Remarque";

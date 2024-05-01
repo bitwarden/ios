@@ -865,3 +865,10 @@
 "YourOrganizationPermissionsWereUpdatedRequeringYouToSetAMasterPassword" = "Your organization permissions were updated, requiring you to set a master password.";
 "YourOrganizationRequiresYouToSetAMasterPassword" = "Your organization requires you to set a master password.";
 "SetUpAnUnlockOptionToChangeYourVaultTimeoutAction" = "Set up an unlock option to change your vault timeout action.";
+"DuoTwoStepLoginIsRequiredForYourAccount" = "Duo two-step login is required for your account.";
+"FollowTheStepsFromDuoToFinishLoggingIn" = "Follow the steps from Duo to finish logging in.";
+"LaunchDuo" = "Launch Duo";
+"OrganizationUnassignedItemsMessageUSEUDescriptionLong" = "Unassigned organization items are no longer visible in the All Vaults view and only accessible via the Admin Console. Assign these items to a collection from the Admin Console to make them visible.";
+"OrganizationUnassignedItemsMessageSelfHost041624DescriptionLong" = "On May 16, 2024, unassigned organization items will no longer be visible in the All Vaults view and only accessible via the Admin Console. Assign these items to a collection from the Admin Console to make them visible.";
+"RemindMeLater" = "Remind me later";
+"Notice" = "Notice";

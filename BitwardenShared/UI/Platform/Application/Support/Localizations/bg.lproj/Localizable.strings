@@ -865,3 +865,10 @@
 "YourOrganizationPermissionsWereUpdatedRequeringYouToSetAMasterPassword" = "Правата Ви в организацията бяха променени, необходимо е да зададете главна парола.";
 "YourOrganizationRequiresYouToSetAMasterPassword" = "Организацията Ви изисква да зададете главна парола.";
 "SetUpAnUnlockOptionToChangeYourVaultTimeoutAction" = "Задайте начин за отключване, за да може да промените действието при изтичане на времето за достъп до трезора.";
+"DuoTwoStepLoginIsRequiredForYourAccount" = "Вашата регистрация изисква двустепенно удостоверяване чрез Duo.";
+"FollowTheStepsFromDuoToFinishLoggingIn" = "Следвайте стъпките от Duo, за да завършите вписването.";
+"LaunchDuo" = "Стартиране на Duo";
+"OrganizationUnassignedItemsMessageUSEUDescriptionLong" = "Неразпределените елементи на организацията вече не се виждат в изгледа с „Всички трезори“, а са достъпни само през Административната конзола. Добавете тези елементи към някоя колекция в Административната конзола, за да станат видими.";
+"OrganizationUnassignedItemsMessageSelfHost041624DescriptionLong" = "От 16 май 2024г. неразпределените елементи на организациите вече няма се виждат в изгледа с „Всички трезори“, а ще бъдат достъпни само през Административната конзола. Добавете тези елементи към някоя колекция в Административната конзола, за да станат видими.";
+"RemindMeLater" = "Напомнете ми по-късно";
+"Notice" = "Известие";

@@ -26,7 +26,7 @@ env:
 jobs:
   build:
     name: Build iOS app
-    runs-on: macos-13
+    runs-on: macos-14
     env:
       MINT_PATH: .mint/lib
       MINT_LINK_PATH: .mint/bin
@@ -213,6 +213,10 @@ jobs:
         if: env.build-variant == 'Beta'
         run: |
           plutil -replace ITSEncryptionExportComplianceCode -string 3dd3e32f-efa6-4d99-b410-28aa28b1cb77 Bitwarden/Application/Support/Info.plist
+
+      - name: Update APNS entitlements
+        run: |
+          plutil -replace aps-environment -string production Bitwarden/Application/Support/Bitwarden.entitlements
 
       - name: Install Mint, xcbeautify, and yq
         run: |

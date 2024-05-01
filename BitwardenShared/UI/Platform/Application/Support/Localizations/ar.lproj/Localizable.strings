@@ -42,7 +42,7 @@
 "LogInNoun" = "تسجيل الدخول";
 "LogOut" = "تسجيل الخروج";
 "LogoutConfirmation" = "هل أنت متأكد من أنك تريد تسجيل الخروج؟";
-"RemoveAccount" = "إزالة الحساب";
+"RemoveAccount" = "أزِل الحساب";
 "RemoveAccountConfirmation" = "هل أنت متأكد من أنك تريد إزالة هذا الحساب؟";
 "AccountAlreadyAdded" = "تمت إضافة الحساب بالفعل";
 "SwitchToAlreadyAddedAccountConfirmation" = "هل ترغب في التبديل إليه الآن؟";
@@ -847,14 +847,14 @@
 "ContinueToX" = "الإستمرار إلى %1$@؟";
 "ContinueToHelpCenter" = "هل تريد المتابعة إلى مركز المساعدة؟";
 "ContinueToContactSupport" = "مواصلة الاتصال بالدعم؟";
-"ContinueToPrivacyPolicy" = "Continue to privacy policy?";
+"ContinueToPrivacyPolicy" = "هل تريد المتابعة إلى سياسة الخصوصية؟";
 "ContinueToAppStore" = "هل تريد المتابعة إلى متجر التطبيقات؟";
 "TwoStepLoginDescriptionLong" = "اجعل حسابك أكثر أمنا من خلال إعداد تسجيل الدخول بخطوتين في تطبيق Bitwarden على شبكة الإنترنت.";
 "ChangeMasterPasswordDescriptionLong" = "يمكنك تغيير كلمة المرور الرئيسية الخاصة بك على تطبيق ويب Bitwarden.";
 "YouCanImportDataToYourVaultOnX" = "يمكنك استيراد البيانات إلى خزانتك على %1$@.";
 "LearnMoreAboutHowToUseBitwardenOnTheHelpCenter" = "تعرف على المزيد حول كيفية استخدام Bitwarden في مركز المساعدة.";
 "ContactSupportDescriptionLong" = "لا يمكن العثور على ما تبحث عنه؟ قم بالتواصل مع دعم Bitwarden على bitwarden.com.";
-"PrivacyPolicyDescriptionLong" = "Check out our privacy policy on bitwarden.com.";
+"PrivacyPolicyDescriptionLong" = "اطلع على سياستنا للخصوصية على bitwarden.com.";
 "ExploreMoreFeaturesOfYourBitwardenAccountOnTheWebApp" = "استكشف المزيد من الميزات لحساب Bitwarden الخاص بك على تطبيق الويب.";
 "LearnAboutOrganizationsDescriptionLong" = "يتيح لك Bitwarden مشاركة عناصر خزنتك مع الآخرين باستخدام حساب المؤسسة. تعرف على المزيد على موقع bitwarden.com على شبكة الإنترنت.";
 "RateAppDescriptionLong" = "ساعد الآخرين في معرفة ما إذا كان Bitwarden مناسبا لهم. قم بزيارة متجر التطبيقات وترك التقييم الآن.";
@@ -865,3 +865,10 @@
 "YourOrganizationPermissionsWereUpdatedRequeringYouToSetAMasterPassword" = "تم تحديث أذونات مؤسستك ، مما يتطلب عليك تعيين كلمة مرور رئيسية.";
 "YourOrganizationRequiresYouToSetAMasterPassword" = "تتطلب مؤسستك تعيين كلمة مرور رئيسية.";
 "SetUpAnUnlockOptionToChangeYourVaultTimeoutAction" = "أعدنّ ميزة إلغاء القُفْل لتغيير إجراء مهلة المخزن الخاص بك.";
+"DuoTwoStepLoginIsRequiredForYourAccount" = "تسجيل الدخول لـ Duo من خطوتين مطلوب لحسابك.";
+"FollowTheStepsFromDuoToFinishLoggingIn" = "اتبع الخطوات من Duo لإنهاء تسجيل الدخول.";
+"LaunchDuo" = "تشغيل Duo";
+"OrganizationUnassignedItemsMessageUSEUDescriptionLong" = "Unassigned organization items are no longer visible in the All Vaults view and only accessible via the Admin Console. Assign these items to a collection from the Admin Console to make them visible.";
+"OrganizationUnassignedItemsMessageSelfHost041624DescriptionLong" = "On May 16, 2024, unassigned organization items will no longer be visible in the All Vaults view and only accessible via the Admin Console. Assign these items to a collection from the Admin Console to make them visible.";
+"RemindMeLater" = "Remind me later";
+"Notice" = "Notice";

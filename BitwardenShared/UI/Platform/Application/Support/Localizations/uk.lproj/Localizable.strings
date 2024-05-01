@@ -724,7 +724,7 @@
 "EmailType" = "Тип е-пошти";
 "WebsiteRequired" = "Вебсайт (обов'язково)";
 "UnknownXErrorMessage" = "Сталася невідома помилка %1$@.";
-"PlusAddressedEmailDescription" = "Використовуйте розширені можливості адрес вашого постачальника електронної пошти";
+"PlusAddressedEmailDescription" = "Використовуйте розширені можливості адрес вашого провайдера електронної пошти";
 "CatchAllEmailDescription" = "Використовуйте свою скриньку вхідних Catch-All власного домену.";
 "ForwardedEmailDescription" = "Згенеруйте псевдонім е-пошти зі стороннім сервісом пересилання.";
 "Random" = "Випадково";
@@ -865,3 +865,10 @@
 "YourOrganizationPermissionsWereUpdatedRequeringYouToSetAMasterPassword" = "Оновлено дозволи вашої організації – вимагається встановлення головного пароля.";
 "YourOrganizationRequiresYouToSetAMasterPassword" = "Ваша організація вимагає, щоб ви встановили головний пароль.";
 "SetUpAnUnlockOptionToChangeYourVaultTimeoutAction" = "Налаштуйте спосіб розблокування, щоб змінити час очікування сховища.";
+"DuoTwoStepLoginIsRequiredForYourAccount" = "Для вашого облікового запису необхідна двоетапна перевірка з Duo.";
+"FollowTheStepsFromDuoToFinishLoggingIn" = "Виконайте дії з Duo для завершення входу.";
+"LaunchDuo" = "Запустити Duo";
+"OrganizationUnassignedItemsMessageUSEUDescriptionLong" = "Непризначені елементи організації більше не видимі у поданні \"Усі сховища\" і доступні лише в консолі адміністратора. Щоб зробити їх видимими, призначте ці елементи збірці в консолі адміністратора.";
+"OrganizationUnassignedItemsMessageSelfHost041624DescriptionLong" = "16 травня 2024 року, непризначені елементи організації більше не будуть видимі в поданні \"Усі сховища\", і доступні лише через консоль адміністратора. Щоб зробити їх видимими, призначте ці елементи збірці в консолі адміністратора.";
+"RemindMeLater" = "Нагадати пізніше";
+"Notice" = "Сповіщення";
