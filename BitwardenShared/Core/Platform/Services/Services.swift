@@ -12,7 +12,7 @@ typealias Services = HasAPIService
     & HasCameraService
     & HasCaptchaService
     & HasClientService
-    & HasConfigAPIService
+    & HasConfigService
     & HasDeviceAPIService
     & HasEnvironmentService
     & HasErrorReporter
@@ -114,11 +114,11 @@ protocol HasClientService {
     var clientService: ClientService { get }
 }
 
-/// Protocol for an object that provides a `ConfigAPIService`.
+/// Protocol for an object that provides a `ConfigService`.
 ///
-protocol HasConfigAPIService {
-    /// The service to make config-related API requests.
-    var configAPIService: ConfigAPIService { get }
+protocol HasConfigService {
+    /// The service to get server-specified configuration.
+    var configService: ConfigService { get }
 }
 
 /// Protocol for an object that provides a `DeviceAPIService`.
