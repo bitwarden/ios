@@ -5,7 +5,7 @@
 
 <a href="https://apps.apple.com/app/bitwarden-authenticator/id6497335175" target="_blank"><img src="https://imgur.com/GdGqPMY.png" width="135" height="40"></a>
 
-The Bitwarden Authenticator iOS application is written in Swift.
+Bitwarden Authenticator allows you easily store and generate two-factor authentication codes on your device. The Bitwarden Authenticator iOS application is written in Swift.
 
 <img src="https://raw.githubusercontent.com/bitwarden/brand/master/screenshots/authenticator-ios-codes.png" alt="" width="300" height="650" />
 
