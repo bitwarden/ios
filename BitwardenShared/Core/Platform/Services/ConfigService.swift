@@ -114,7 +114,7 @@ class DefaultConfigService: ConfigService {
                     date: timeProvider.presentTime,
                     responseModel: configResponse
                 )
-                try await stateService.setServerConfig(serverConfig)
+                try? await stateService.setServerConfig(serverConfig)
                 return serverConfig
             } catch {
                 errorReporter.log(error: error)

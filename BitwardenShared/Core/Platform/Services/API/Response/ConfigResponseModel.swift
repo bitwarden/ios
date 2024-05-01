@@ -36,20 +36,20 @@ struct ThirdPartyConfigResponseModel: Equatable, JSONResponse {
 /// API response model for the environment URLs in a configuration response.
 struct EnvironmentServerConfigResponseModel: Equatable, JSONResponse {
     /// The API URL.
-    let api: String
+    let api: String?
 
     /// The Cloud Region (e.g. "US")
-    let cloudRegion: String
+    let cloudRegion: String?
 
     /// The Identity URL.
-    let identity: String
+    let identity: String?
 
     /// The Notifications URL.
-    let notifications: String
+    let notifications: String?
 
     /// The SSO URL.
-    let sso: String
+    let sso: String?
 
     /// The Vault URL.
-    let vault: String
+    let vault: String?
 }

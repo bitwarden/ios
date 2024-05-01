@@ -10,6 +10,6 @@ protocol ConfigAPIService {
 
 extension APIService: ConfigAPIService {
     func getConfig() async throws -> ConfigResponseModel {
-        try await apiService.send(ConfigRequest())
+        try await apiUnauthenticatedService.send(ConfigRequest())
     }
 }
