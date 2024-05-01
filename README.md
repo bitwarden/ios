@@ -1,13 +1,13 @@
-# Bitwarden Authenticator iOS
+[![Github Workflow build on main](https://github.com/bitwarden/authenticator-ios/actions/workflows/build.yml/badge.svg?branch=main)](https://github.com/bitwarden/authenticator-ios/actions/workflows/build.yml?query=branch:main)
+[![Join the chat at https://gitter.im/bitwarden/Lobby](https://badges.gitter.im/bitwarden/Lobby.svg)](https://gitter.im/bitwarden/Lobby)
 
-This repository serves as a template for others and establishes very basic structure and tooling setup for later customization.
+# Bitwarden Authenticator iOS App
 
-## Contents
+<a href="https://apps.apple.com/app/bitwarden-authenticator/id6497335175" target="_blank"><img src="https://imgur.com/GdGqPMY.png" width="135" height="40"></a>
 
-- [Compatibility](#compatibility)
-- [Dependencies](#dependencies)
-- [Setup](#setup)
-- [Project Structure](#project-structure)
+The Bitwarden Authenticator iOS application is written in Swift.
+
+<img src="https://raw.githubusercontent.com/bitwarden/brand/master/screenshots/authenticator-ios-codes.png" alt="" width="300" height="650" />
 
 ## Compatibility
 
@@ -16,28 +16,6 @@ This repository serves as a template for others and establishes very basic struc
 - **Device Types Supported**: iPhone
 - **Screen Sizes Supported**: iPhone SE to iPhone 14 Pro Max
 - **Orientations Supported**: Portrait, Landscape
-
-## Dependencies
-
-### Icons
-- The icons used in the app are all custom. No additional licensing is required.
-
-### App Dependencies
-
-- [Firebase Crashlytics](https://github.com/firebase/firebase-ios-sdk) (Apache License) - SDK for crash and non-fatal error reporting.
-
-### Development Dependencies
-
-The following dependencies are used in the development environment only. They are not present in deployed code.
-
-- [LicensePlist](https://github.com/mono0926/LicensePlist) (MIT License) - A tool to generate a list of third-party software licenses displayed in app settings.
-- [Mint](https://github.com/yonaskolb/mint) (MIT License) - A package manager that installs and runs Swift command line tool packages.
-- [SnapshotTesting](https://github.com/pointfreeco/swift-snapshot-testing) (MIT License) - Allow a snapshot test case which renders a UI component, takes a snapshot, then compares it to a reference snapshot file stored alongside the test.
-- [SwiftGen](https://github.com/SwiftGen/SwiftGen) (MIT License) - A tool to automatically generate Swift code for project resources (like images, localized strings, etc), to make them type-safe to use.
-- [SwiftFormat](https://github.com/nicklockwood/SwiftFormat) (MIT License) - A tool used to reformat Swift code to automatically adjust for some style conventions.
-- [SwiftLint](https://github.com/realm/SwiftLint) (MIT License) - A tool to enforce Swift style and conventions.
-- [ViewInspector](https://github.com/nalexn/ViewInspector) (MIT License) - A tool used to unit test SwiftUI views.
-- [XcodeGen](https://github.com/yonaskolb/XcodeGen) (MIT License) - Generates the Xcode project using the folder structure and a project spec.
 
 ## Setup
 
@@ -113,3 +91,9 @@ This project's structure is split into separate sections to support sharing as m
 ### GlobalTestHelpers
 
 `GlobalTestHelpers` is a directory that contains helper files used in all test targets. This directory is included in each target that is defined in the `project.yml` file.
+
+## Contribute
+
+Code contributions are welcome! Please commit any pull requests against the `main` branch. Learn more about how to contribute by reading the [Contributing Guidelines](https://contributing.bitwarden.com/contributing/). Check out the [Contributing Documentation](https://contributing.bitwarden.com/) for how to get started with your first contribution.
+
+Security audits and feedback are welcome. Please open an issue or email us privately if the report is sensitive in nature. You can read our security policy in the [`SECURITY.md`](SECURITY.md) file.
