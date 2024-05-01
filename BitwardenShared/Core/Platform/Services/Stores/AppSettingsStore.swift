@@ -21,9 +21,6 @@ protocol AppSettingsStore: AnyObject {
     /// The app's theme.
     var appTheme: String? { get set }
 
-    /// The app's configuration
-    var config: ServerConfig? { get set }
-
     /// Whether to disable the website icons.
     var disableWebIcons: Bool { get set }
 
@@ -309,7 +306,7 @@ protocol AppSettingsStore: AnyObject {
     ///   - config: The server config for the user
     ///   - userId: The user ID.
     ///
-    func setServerConfig(config: ServerConfig?, userId: String)
+    func setServerConfig(_ config: ServerConfig?, userId: String)
 
     /// Set whether to trust the device.
     ///
@@ -527,7 +524,6 @@ extension DefaultAppSettingsStore: AppSettingsStore {
         case appId
         case appLocale
         case appTheme
-        case config
         case biometricAuthEnabled(userId: String)
         case biometricIntegrityState(userId: String, bundleId: String)
         case clearClipboardValue(userId: String)
@@ -581,8 +577,6 @@ extension DefaultAppSettingsStore: AppSettingsStore {
                 key = "clearClipboard_\(userId)"
             case let .connectToWatch(userId):
                 key = "shouldConnectToWatch_\(userId)"
-            case .config:
-                key = "config"
             case let .defaultUriMatch(userId):
                 key = "defaultUriMatch_\(userId)"
             case let .disableAutoTotpCopy(userId):
@@ -658,11 +652,6 @@ extension DefaultAppSettingsStore: AppSettingsStore {
     var appTheme: String? {
         get { fetch(for: .appTheme) }
         set { store(newValue, for: .appTheme) }
-    }
-
-    var config: ServerConfig? {
-        get { fetch(for: .config) }
-        set { store(newValue, for: .config) }
     }
 
     var disableWebIcons: Bool {
@@ -855,7 +844,7 @@ extension DefaultAppSettingsStore: AppSettingsStore {
         store(key, for: .pinProtectedUserKey(userId: userId))
     }
 
-    func setServerConfig(config: ServerConfig?, userId: String) {
+    func setServerConfig(_ config: ServerConfig?, userId: String) {
         store(config, for: .serverConfig(userId: userId))
     }
 

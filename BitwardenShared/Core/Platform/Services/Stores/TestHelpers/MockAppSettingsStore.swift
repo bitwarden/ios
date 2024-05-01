@@ -181,7 +181,7 @@ class MockAppSettingsStore: AppSettingsStore {
         pinProtectedUserKey[userId] = key
     }
 
-    func setServerConfig(config: ServerConfig?, userId: String) {
+    func setServerConfig(_ config: ServerConfig?, userId: String) {
         serverConfig[userId] = config
     }
 

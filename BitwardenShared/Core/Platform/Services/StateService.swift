@@ -1302,7 +1302,7 @@ actor DefaultStateService: StateService { // swiftlint:disable:this type_body_le
 
     func setServerConfig(_ config: ServerConfig?, userId: String?) async throws {
         let userId = try userId ?? getActiveAccountUserId()
-        appSettingsStore.setServerConfig(config: config, userId: userId)
+        appSettingsStore.setServerConfig(config, userId: userId)
     }
 
     func setShouldTrustDevice(_ shouldTrustDevice: Bool?, userId: String) {
