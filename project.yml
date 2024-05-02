@@ -97,9 +97,9 @@ targets:
       - path: Scripts/update_acknowledgements.sh
         name: "Settings.bundle: Update Acknowledgements"
         outputFiles:
-          - $(SRCROOT)/Bitwarden/Application/Support/Settings.bundle/Acknowledgements.plist
-          - $(SRCROOT)/Bitwarden/Application/Support/Settings.bundle/Acknowledgements.latest_results.txt
-          - $(SRCROOT)/Bitwarden/Application/Support/Settings.bundle/Acknowledgements
+          - $(SRCROOT)/Authenticator/Application/Support/Settings.bundle/Acknowledgements.plist
+          - $(SRCROOT)/Authenticator/Application/Support/Settings.bundle/Acknowledgements.latest_results.txt
+          - $(SRCROOT)/Authenticator/Application/Support/Settings.bundle/Acknowledgements
     postCompileScripts:
       - script: |
           if [[ ! "$PATH" =~ "/opt/homebrew/bin" ]]; then

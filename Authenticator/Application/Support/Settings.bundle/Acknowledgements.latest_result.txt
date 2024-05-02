@@ -1,6 +1,6 @@
 name: LicensePlist, nameSpecified: , owner: mono0926, version: 3.25.1, source: https://github.com/mono0926/LicensePlist
 
-name: SwiftFormat, nameSpecified: , owner: nicklockwood, version: 0.53.7, source: https://github.com/nicklockwood/SwiftFormat
+name: SwiftFormat, nameSpecified: , owner: nicklockwood, version: 0.53.8, source: https://github.com/nicklockwood/SwiftFormat
 
 name: SwiftGen, nameSpecified: , owner: SwiftGen, version: 6.6.3, source: https://github.com/SwiftGen/SwiftGen
 
@@ -8,19 +8,19 @@ name: SwiftLint, nameSpecified: , owner: realm, version: 0.54.0, source: https:/
 
 name: xcodegen, nameSpecified: , owner: yonaskolb, version: 2.40.1, source: https://github.com/yonaskolb/xcodegen
 
-name: abseil-cpp-binary, nameSpecified: abseil, owner: google, version: 1.2024011601.1, source: https://github.com/google/abseil-cpp-binary
+name: abseil-cpp-binary, nameSpecified: abseil, owner: google, version: 1.2022062300.1, source: https://github.com/google/abseil-cpp-binary
 
 name: app-check, nameSpecified: AppCheck, owner: google, version: 10.19.0, source: https://github.com/google/app-check
 
-name: firebase-ios-sdk, nameSpecified: Firebase, owner: firebase, version: 10.24.0, source: https://github.com/firebase/firebase-ios-sdk
+name: firebase-ios-sdk, nameSpecified: Firebase, owner: firebase, version: 10.19.0, source: https://github.com/firebase/firebase-ios-sdk
 
-name: GoogleAppMeasurement, nameSpecified: GoogleAppMeasurement, owner: google, version: 10.24.0, source: https://github.com/google/GoogleAppMeasurement
+name: GoogleAppMeasurement, nameSpecified: GoogleAppMeasurement, owner: google, version: 10.17.0, source: https://github.com/google/GoogleAppMeasurement
 
 name: GoogleDataTransport, nameSpecified: GoogleDataTransport, owner: google, version: 9.4.0, source: https://github.com/google/GoogleDataTransport
 
-name: GoogleUtilities, nameSpecified: GoogleUtilities, owner: google, version: 7.13.1, source: https://github.com/google/GoogleUtilities
+name: GoogleUtilities, nameSpecified: GoogleUtilities, owner: google, version: 7.13.2, source: https://github.com/google/GoogleUtilities
 
-name: grpc-binary, nameSpecified: gRPC, owner: google, version: 1.62.2, source: https://github.com/google/grpc-binary
+name: grpc-binary, nameSpecified: gRPC, owner: google, version: 1.49.2, source: https://github.com/google/grpc-binary
 
 name: gtm-session-fetcher, nameSpecified: gtm-session-fetcher, owner: google, version: 3.4.1, source: https://github.com/google/gtm-session-fetcher
 
@@ -28,17 +28,17 @@ name: interop-ios-for-google-sdks, nameSpecified: InteropForGoogle, owner: googl
 
 name: leveldb, nameSpecified: leveldb, owner: firebase, version: 1.22.5, source: https://github.com/firebase/leveldb
 
-name: nanopb, nameSpecified: nanopb, owner: firebase, version: 2.30910.0, source: https://github.com/firebase/nanopb
+name: nanopb, nameSpecified: nanopb, owner: firebase, version: 2.30909.0, source: https://github.com/firebase/nanopb
 
 name: promises, nameSpecified: Promises, owner: google, version: 2.4.0, source: https://github.com/google/promises
 
 name: swift-protobuf, nameSpecified: SwiftProtobuf, owner: apple, version: 1.26.0, source: https://github.com/apple/swift-protobuf
 
-name: swift-snapshot-testing, nameSpecified: swift-snapshot-testing, owner: pointfreeco, version: 1.15.4, source: https://github.com/pointfreeco/swift-snapshot-testing
+name: swift-snapshot-testing, nameSpecified: swift-snapshot-testing, owner: pointfreeco, version: 1.15.2, source: https://github.com/pointfreeco/swift-snapshot-testing
 
-name: swift-syntax, nameSpecified: swift-syntax, owner: apple, version: 510.0.1, source: https://github.com/apple/swift-syntax
+name: swift-syntax, nameSpecified: swift-syntax, owner: apple, version: 509.1.1, source: https://github.com/apple/swift-syntax
 
-name: ViewInspector, nameSpecified: ViewInspector, owner: nalexn, version: 0.9.10, source: https://github.com/nalexn/ViewInspector
+name: ViewInspector, nameSpecified: ViewInspector, owner: nalexn, version: 0.9.9, source: https://github.com/nalexn/ViewInspector
 
 add-version-numbers: false
 
