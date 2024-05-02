@@ -115,7 +115,10 @@ protocol HasClientService {
     var clientService: ClientService { get }
 }
 
+/// Protocol for an object that provides a `CipherAPIService`.
+///
 protocol HasCipherAPIService {
+    /// The service used by the application to make cipher-related API requests.
     var cipherAPIService: CipherAPIService { get }
 }
 
