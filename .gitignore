@@ -73,3 +73,6 @@ fastlane/README.md
 
 # Local xcconfig
 Configs/Local.xcconfig
+
+# LicensePlist
+Bitwarden/Application/Support/Settings.bundle/Acknowledgements.latest_result.txt

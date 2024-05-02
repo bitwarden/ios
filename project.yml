@@ -93,12 +93,31 @@ targets:
       - target: AuthenticatorShared
       - package: Firebase
         product: FirebaseCrashlytics
+    preBuildScripts:
+      - path: Scripts/update_acknowledgements.sh
+        name: "Settings.bundle: Update Acknowledgements"
+        outputFiles:
+          - $(SRCROOT)/Bitwarden/Application/Support/Settings.bundle/Acknowledgements.plist
+          - $(SRCROOT)/Bitwarden/Application/Support/Settings.bundle/Acknowledgements.latest_results.txt
+          - $(SRCROOT)/Bitwarden/Application/Support/Settings.bundle/Acknowledgements
     postCompileScripts:
-      - script: mint run swiftlint
+      - script: |
+          if [[ ! "$PATH" =~ "/opt/homebrew/bin" ]]; then
+            PATH="/opt/homebrew/bin:$PATH"
+          fi
+          mint run swiftlint
         name: Swiftlint
         basedOnDependencyAnalysis: false
-      - script: mint run swiftformat --lint --lenient .
+      - script: |
+          if [[ ! "$PATH" =~ "/opt/homebrew/bin" ]]; then
+            PATH="/opt/homebrew/bin:$PATH"
+          fi
+          mint run swiftformat --lint --lenient .
         name: SwiftFormat Lint
+        basedOnDependencyAnalysis: false
+    postBuildScripts:
+      - path: Scripts/update_settings_version_number.sh
+        name: "Settings.bundle: Update Version Number"
         basedOnDependencyAnalysis: false
   AuthenticatorTests:
     type: bundle.unit-test
