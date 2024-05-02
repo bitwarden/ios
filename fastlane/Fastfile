@@ -23,7 +23,12 @@ platform :ios do
         changelog: options[:changelog],
         skip_waiting_for_build_processing: true,
         api_key_path: options[:api_key_path],
-        ipa: options[:ipa_path]
+        ipa: options[:ipa_path],
+        localized_build_info: {
+            "default": {
+                whats_new: "This is what's new",
+            }
+        }
     )
     end
 end
