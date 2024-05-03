@@ -75,7 +75,6 @@ class DefaultExportItemsService: ExportItemsService {
     ///
     /// - Parameters:
     ///   - authenticatorItemRepository: The service for getting items.
-    ///   - cryptographyService: The service for cryptography tasks.
     ///   - errorReporter: The service for handling errors.
     ///   - timeProvider: The provider for current time, used in file naming and data timestamps.
     ///

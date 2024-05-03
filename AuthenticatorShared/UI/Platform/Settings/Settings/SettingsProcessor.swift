@@ -64,6 +64,8 @@ final class SettingsProcessor: StateProcessor<SettingsState, SettingsAction, Set
             coordinator.navigate(to: .exportItems)
         case .helpCenterTapped:
             state.url = ExternalLinksConstants.helpAndFeedback
+        case .importItemsTapped:
+            coordinator.navigate(to: .importItems)
         case .languageTapped:
             coordinator.navigate(to: .selectLanguage(currentLanguage: state.currentLanguage), context: self)
         case .privacyPolicyTapped:

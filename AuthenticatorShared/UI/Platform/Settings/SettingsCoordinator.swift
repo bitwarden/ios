@@ -1,4 +1,3 @@
-import BitwardenSdk
 import SwiftUI
 
 // MARK: - SettingsCoordinator
@@ -9,16 +8,22 @@ final class SettingsCoordinator: Coordinator, HasStackNavigator {
     // MARK: Types
 
     /// The module types required by this coordinator for creating child coordinators.
-    typealias Module = TutorialModule
+    typealias Module = FileSelectionModule
+        & TutorialModule
 
     typealias Services = HasBiometricsRepository
         & HasErrorReporter
         & HasExportItemsService
+        & HasImportItemsService
         & HasPasteboardService
         & HasStateService
         & HasTimeProvider
 
     // MARK: Private Properties
+
+    /// The most recent coordinator used to navigate to a `FileSelectionRoute`. Used to keep the
+    /// coordinator in memory.
+    private var fileSelectionCoordinator: AnyCoordinator<FileSelectionRoute, Void>?
 
     /// The module used to create child coordinators.
     private let module: Module
@@ -61,6 +66,11 @@ final class SettingsCoordinator: Coordinator, HasStackNavigator {
             stackNavigator?.dismiss()
         case .exportItems:
             showExportItems()
+        case .importItems:
+            showImportItems()
+        case .importItemsFileSelection:
+            guard let delegate = context as? FileSelectionDelegate else { return }
+            showImportItemsFileSelection(delegate: delegate)
         case let .selectLanguage(currentLanguage: currentLanguage):
             showSelectLanguage(currentLanguage: currentLanguage, delegate: context as? SelectLanguageDelegate)
         case .settings:
@@ -82,6 +92,11 @@ final class SettingsCoordinator: Coordinator, HasStackNavigator {
     ///
     private func showExportedItemsUrl(_ fileUrl: URL) {
         let activityVC = UIActivityViewController(activityItems: [fileUrl], applicationActivities: nil)
+        activityVC.completionWithItemsHandler = { _, completed, _, _ in
+            if completed {
+                self.showToast(Localizations.itemsExported)
+            }
+        }
         stackNavigator?.present(activityVC)
     }
 
@@ -95,6 +110,31 @@ final class SettingsCoordinator: Coordinator, HasStackNavigator {
         let view = ExportItemsView(store: Store(processor: processor))
         let navController = UINavigationController(rootViewController: UIHostingController(rootView: view))
         stackNavigator?.present(navController)
+    }
+
+    /// Presents an activity controller for importing items.
+    ///
+    private func showImportItems() {
+        let processor = ImportItemsProcessor(
+            coordinator: asAnyCoordinator(),
+            services: services
+        )
+        let view = ImportItemsView(store: Store(processor: processor))
+        let navController = UINavigationController(rootViewController: UIHostingController(rootView: view))
+        stackNavigator?.present(navController)
+    }
+
+    /// Presents an activity controller for importing items.
+    ///
+    private func showImportItemsFileSelection(delegate: FileSelectionDelegate) {
+        guard let stackNavigator else { return }
+        let coordinator = module.makeFileSelectionCoordinator(
+            delegate: delegate,
+            stackNavigator: stackNavigator
+        )
+        coordinator.start()
+        coordinator.navigate(to: .jsonFile)
+        fileSelectionCoordinator = coordinator
     }
 
     /// Shows the select language screen.

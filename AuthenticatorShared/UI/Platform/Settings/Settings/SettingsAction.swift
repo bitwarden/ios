@@ -13,6 +13,9 @@ enum SettingsAction: Equatable {
     /// The help center button was tapped.
     case helpCenterTapped
 
+    /// The import items button was tapped.
+    case importItemsTapped
+
     /// The language option was tapped.
     case languageTapped
 

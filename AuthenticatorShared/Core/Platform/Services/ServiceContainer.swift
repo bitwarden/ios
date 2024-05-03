@@ -45,6 +45,9 @@ public class ServiceContainer: Services {
     /// The service used to export items.
     let exportItemsService: ExportItemsService
 
+    /// The service used to import items.
+    let importItemsService: ImportItemsService
+
     /// The service used to perform app data migrations.
     let migrationService: MigrationService
 
@@ -76,6 +79,7 @@ public class ServiceContainer: Services {
     ///   - cryptographyService: The service used by the application to encrypt and decrypt items
     ///   - errorReporter: The service used by the application to report non-fatal errors.
     ///   - exportItemsService: The service to export items.
+    ///   - importItemsService: The service to import items.
     ///   - migrationService: The service to do data migrations
     ///   - pasteboardService: The service used by the application for sharing data with other apps.
     ///   - stateService: The service for managing account state.
@@ -93,6 +97,7 @@ public class ServiceContainer: Services {
         clientService: ClientService,
         errorReporter: ErrorReporter,
         exportItemsService: ExportItemsService,
+        importItemsService: ImportItemsService,
         migrationService: MigrationService,
         pasteboardService: PasteboardService,
         stateService: StateService,
@@ -109,6 +114,7 @@ public class ServiceContainer: Services {
         self.cryptographyService = cryptographyService
         self.errorReporter = errorReporter
         self.exportItemsService = exportItemsService
+        self.importItemsService = importItemsService
         self.migrationService = migrationService
         self.pasteboardService = pasteboardService
         self.timeProvider = timeProvider
@@ -194,6 +200,11 @@ public class ServiceContainer: Services {
             timeProvider: timeProvider
         )
 
+        let importItemsService = DefaultImportItemsService(
+            authenticatorItemRepository: authenticatorItemRepository,
+            errorReporter: errorReporter
+        )
+
         self.init(
             application: application,
             appSettingsStore: appSettingsStore,
@@ -205,6 +216,7 @@ public class ServiceContainer: Services {
             clientService: clientService,
             errorReporter: errorReporter,
             exportItemsService: exportItemsService,
+            importItemsService: importItemsService,
             migrationService: migrationService,
             pasteboardService: pasteboardService,
             stateService: stateService,
