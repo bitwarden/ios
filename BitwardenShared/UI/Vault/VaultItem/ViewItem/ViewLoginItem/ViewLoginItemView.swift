@@ -30,10 +30,10 @@ struct ViewLoginItemView: View {
                         .imageStyle(.accessoryIcon)
                 }
                 .accessibilityLabel(Localizations.copy)
-                .accessibilityIdentifier("CopyValueButton")
+                .accessibilityIdentifier("LoginCopyUsernameButton")
             }
             .accessibilityElement(children: .contain)
-            .accessibilityIdentifier("ItemRow")
+            .accessibilityIdentifier("LoginUsernameEntry")
         }
 
         if !store.state.password.isEmpty {
@@ -45,7 +45,10 @@ struct ViewLoginItemView: View {
                     .accessibilityIdentifier("ItemValue")
             } accessoryContent: {
                 if store.state.canViewPassword {
-                    PasswordVisibilityButton(isPasswordVisible: store.state.isPasswordVisible) {
+                    PasswordVisibilityButton(
+                        accessibilityIdentifier: "ViewPasswordButton",
+                        isPasswordVisible: store.state.isPasswordVisible
+                    ) {
                         store.send(.passwordVisibilityPressed)
                     }
 
@@ -56,7 +59,7 @@ struct ViewLoginItemView: View {
                             .imageStyle(.accessoryIcon)
                     }
                     .accessibilityLabel(Localizations.checkPassword)
-                    .accessibilityIdentifier("CheckPasswordButton")
+                    .accessibilityIdentifier("LoginCheckPasswordButton")
 
                     Button {
                         store.send(.copyPressed(value: password, field: .password))
@@ -65,11 +68,11 @@ struct ViewLoginItemView: View {
                             .imageStyle(.accessoryIcon)
                     }
                     .accessibilityLabel(Localizations.copy)
-                    .accessibilityIdentifier("CopyValueButton")
+                    .accessibilityIdentifier("LoginCopyPasswordButton")
                 }
             }
             .accessibilityElement(children: .contain)
-            .accessibilityIdentifier("ItemRow")
+            .accessibilityIdentifier("LoginPasswordEntry")
         }
 
         if let fido2Credential = store.state.fido2Credentials.first {
@@ -95,7 +98,7 @@ struct ViewLoginItemView: View {
                     .accessibilityIdentifier("ItemValue")
             }
             .accessibilityElement(children: .contain)
-            .accessibilityIdentifier("ItemRow")
+            .accessibilityIdentifier("LoginTotpEntry")
         } else if let totpModel = store.state.totpCode {
             BitwardenField(
                 title: Localizations.verificationCodeTotp,
@@ -128,7 +131,7 @@ struct ViewLoginItemView: View {
                 }
             )
             .accessibilityElement(children: .contain)
-            .accessibilityIdentifier("ItemRow")
+            .accessibilityIdentifier("LoginTotpEntry")
         }
     }
 }
