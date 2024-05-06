@@ -56,6 +56,9 @@ enum Constants {
     /// The maximum size of files for upload.
     static let maxFileSizeBytes = 104_857_600
 
+    /// THe minimum number of minutes before attempting a server config sync again.
+    static let minimumConfigSyncInterval: TimeInterval = 60 * 60 // 60 minutes
+
     /// A default value for the minimum number of characters required when creating a password.
     static let minimumPasswordCharacters = 12
 

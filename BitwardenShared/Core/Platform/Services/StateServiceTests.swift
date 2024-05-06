@@ -513,6 +513,24 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
         XCTAssertNil(urls)
     }
 
+    /// `getServerConfig(:)` returns the config values
+    func test_getServerConfig() async throws {
+        await subject.addAccount(.fixture())
+        let model = ServerConfig(
+            date: Date(timeIntervalSince1970: 100),
+            responseModel: ConfigResponseModel(
+                environment: nil,
+                featureStates: [:],
+                gitHash: "1234",
+                server: nil,
+                version: "1.2.3"
+            )
+        )
+        appSettingsStore.serverConfig["1"] = model
+        let value = try await subject.getServerConfig()
+        XCTAssertEqual(value, model)
+    }
+
     /// `getShowWebIcons` gets the show web icons value.
     func test_getShowWebIcons() async {
         appSettingsStore.disableWebIcons = true
@@ -1197,6 +1215,23 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
         let urls = EnvironmentUrlData(base: .example)
         await subject.setPreAuthEnvironmentUrls(urls)
         XCTAssertEqual(appSettingsStore.preAuthEnvironmentUrls, urls)
+    }
+
+    /// `setServerConfig(_:)` sets the config values.
+    func test_setServerConfig() async throws {
+        await subject.addAccount(.fixture())
+        let model = ServerConfig(
+            date: Date(timeIntervalSince1970: 100),
+            responseModel: ConfigResponseModel(
+                environment: nil,
+                featureStates: [:],
+                gitHash: "1234",
+                server: nil,
+                version: "1.2.3.4"
+            )
+        )
+        try await subject.setServerConfig(model)
+        XCTAssertEqual(appSettingsStore.serverConfig["1"], model)
     }
 
     /// `setShouldTrustDevice` saves the should trust device value.

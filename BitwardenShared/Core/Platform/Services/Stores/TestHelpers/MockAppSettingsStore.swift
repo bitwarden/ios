@@ -32,6 +32,7 @@ class MockAppSettingsStore: AppSettingsStore {
     var passwordGenerationOptions = [String: PasswordGenerationOptions]()
     var pinKeyEncryptedUserKey = [String: String]()
     var pinProtectedUserKey = [String: String]()
+    var serverConfig = [String: ServerConfig]()
     var shouldTrustDevice = [String: Bool?]()
     var timeoutAction = [String: Int]()
     var twoFactorTokens = [String: String]()
@@ -107,6 +108,10 @@ class MockAppSettingsStore: AppSettingsStore {
         twoFactorTokens[email]
     }
 
+    func serverConfig(userId: String) -> ServerConfig? {
+        serverConfig[userId]
+    }
+
     func setAllowSyncOnRefresh(_ allowSyncOnRefresh: Bool?, userId: String) {
         allowSyncOnRefreshes[userId] = allowSyncOnRefresh
     }
@@ -173,6 +178,10 @@ class MockAppSettingsStore: AppSettingsStore {
 
     func setPinProtectedUserKey(key: String?, userId: String) {
         pinProtectedUserKey[userId] = key
+    }
+
+    func setServerConfig(_ config: ServerConfig?, userId: String) {
+        serverConfig[userId] = config
     }
 
     func setShouldTrustDevice(shouldTrustDevice: Bool?, userId: String) {

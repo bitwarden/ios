@@ -162,6 +162,12 @@ protocol AppSettingsStore: AnyObject {
     ///
     func pinProtectedUserKey(userId: String) -> String?
 
+    /// The server configuration.
+    ///
+    /// - Parameter userId: The user ID associated with the server config.
+    /// - Returns: The server config for that user ID.
+    func serverConfig(userId: String) -> ServerConfig?
+
     /// Whether the vault should sync on refreshing.
     ///
     /// - Parameters:
@@ -293,6 +299,14 @@ protocol AppSettingsStore: AnyObject {
     ///   - userId: The user ID.
     ///
     func setPinProtectedUserKey(key: String?, userId: String)
+
+    /// Sets the server config.
+    ///
+    /// - Parameters:
+    ///   - config: The server config for the user
+    ///   - userId: The user ID.
+    ///
+    func setServerConfig(_ config: ServerConfig?, userId: String)
 
     /// Set whether to trust the device.
     ///
@@ -532,6 +546,7 @@ extension DefaultAppSettingsStore: AppSettingsStore {
         case preAuthEnvironmentUrls
         case rememberedEmail
         case rememberedOrgIdentifier
+        case serverConfig(userId: String)
         case shouldTrustDevice(userId: String)
         case state
         case twoFactorToken(email: String)
@@ -598,6 +613,8 @@ extension DefaultAppSettingsStore: AppSettingsStore {
                 key = "rememberedEmail"
             case .rememberedOrgIdentifier:
                 key = "rememberedOrgIdentifier"
+            case let .serverConfig(userId):
+                key = "serverConfig_\(userId)"
             case let .shouldTrustDevice(userId):
                 key = "shouldTrustDevice_\(userId)"
             case .state:
@@ -753,6 +770,10 @@ extension DefaultAppSettingsStore: AppSettingsStore {
         fetch(for: .pinProtectedUserKey(userId: userId))
     }
 
+    func serverConfig(userId: String) -> ServerConfig? {
+        fetch(for: .serverConfig(userId: userId))
+    }
+
     func setAllowSyncOnRefresh(_ allowSyncOnRefresh: Bool?, userId: String) {
         store(allowSyncOnRefresh, for: .allowSyncOnRefresh(userId: userId))
     }
@@ -821,6 +842,10 @@ extension DefaultAppSettingsStore: AppSettingsStore {
 
     func setPinProtectedUserKey(key: String?, userId: String) {
         store(key, for: .pinProtectedUserKey(userId: userId))
+    }
+
+    func setServerConfig(_ config: ServerConfig?, userId: String) {
+        store(config, for: .serverConfig(userId: userId))
     }
 
     func setShouldTrustDevice(shouldTrustDevice: Bool?, userId: String) {

@@ -96,6 +96,7 @@ public class AppProcessor {
 
         await services.migrationService.performMigrations()
         await services.environmentService.loadURLsForActiveAccount()
+        _ = await services.configService.getConfig()
 
         services.application?.registerForRemoteNotifications()
 

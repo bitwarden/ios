@@ -552,6 +552,49 @@ class AppSettingsStoreTests: BitwardenTestCase { // swiftlint:disable:this type_
         )
     }
 
+    /// `serverConfig(:)` is initially `nil`
+    func test_serverConfig_isInitiallyNil() {
+        XCTAssertNil(subject.serverConfig(userId: "1"))
+    }
+
+    /// `serverConfig(:)` can be used to get and set the persisted value in user defaults.
+    func test_serverConfig_withValue() {
+        let config = ServerConfig(
+            date: Date(timeIntervalSince1970: 100),
+            responseModel: ConfigResponseModel(
+                environment: EnvironmentServerConfigResponseModel(
+                    api: "https://vault.bitwarden.com",
+                    cloudRegion: "US",
+                    identity: "https://vault.bitwarden.com",
+                    notifications: "https://vault.bitwarden.com",
+                    sso: "https://vault.bitwarden.com",
+                    vault: "https://vault.bitwarden.com"
+                ),
+                featureStates: ["feature": .bool(true)],
+                gitHash: "hash",
+                server: ThirdPartyConfigResponseModel(
+                    name: "Name",
+                    url: "Url"
+                ),
+                version: "version"
+            )
+        )
+        subject.setServerConfig(config, userId: "1")
+
+        XCTAssertEqual(subject.serverConfig(userId: "1"), config)
+        try XCTAssertEqual(
+            JSONDecoder().decode(
+                ServerConfig.self,
+                from: XCTUnwrap(
+                    userDefaults
+                        .string(forKey: "bwPreferencesStorage:serverConfig_1")?
+                        .data(using: .utf8)
+                )
+            ),
+            config
+        )
+    }
+
     /// `twoFactorToken(email:)` returns `nil` if there isn't a previously stored value.
     func test_twoFactorToken_isInitiallyNil() {
         XCTAssertNil(subject.twoFactorToken(email: "anything@email.com"))
