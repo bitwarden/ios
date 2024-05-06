@@ -26,7 +26,7 @@ struct ServerConfig: Equatable, Codable {
     let version: String
 
     init(date: Date, responseModel: ConfigResponseModel) {
-        environment = EnvironmentServerConfig(responseModel: responseModel.environment)
+        environment = responseModel.environment.map(EnvironmentServerConfig.init)
         self.date = date
         let features: [(FeatureFlag, AnyCodable)]
         features = responseModel.featureStates.compactMap { key, value in
@@ -36,7 +36,7 @@ struct ServerConfig: Equatable, Codable {
         featureStates = Dictionary(uniqueKeysWithValues: features)
 
         gitHash = responseModel.gitHash
-        server = ThirdPartyServerConfig(responseModel: responseModel.server)
+        server = responseModel.server.map(ThirdPartyServerConfig.init)
         version = responseModel.version
     }
 }
@@ -52,8 +52,7 @@ struct ThirdPartyServerConfig: Equatable, Codable {
     /// The URL of the third party configuration.
     let url: String
 
-    init?(responseModel: ThirdPartyConfigResponseModel?) {
-        guard let responseModel else { return nil }
+    init(responseModel: ThirdPartyConfigResponseModel) {
         name = responseModel.name
         url = responseModel.url
     }
@@ -81,8 +80,7 @@ struct EnvironmentServerConfig: Equatable, Codable {
     /// The Vault URL.
     let vault: String?
 
-    init?(responseModel: EnvironmentServerConfigResponseModel?) {
-        guard let responseModel else { return nil }
+    init(responseModel: EnvironmentServerConfigResponseModel) {
         api = responseModel.api
         cloudRegion = responseModel.cloudRegion
         identity = responseModel.identity

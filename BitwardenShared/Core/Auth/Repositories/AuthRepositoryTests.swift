@@ -120,6 +120,7 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         biometricsRepository = nil
         client = nil
         clientService = nil
+        configService = nil
         environmentService = nil
         keychainService = nil
         organizationService = nil
