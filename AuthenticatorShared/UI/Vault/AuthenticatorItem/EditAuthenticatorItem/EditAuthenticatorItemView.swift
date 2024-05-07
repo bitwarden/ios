@@ -85,6 +85,13 @@ struct EditAuthenticatorItemView: View {
                 )
             )
             .textFieldConfiguration(.username)
+
+            Toggle(Localizations.favorite, isOn: store.binding(
+                get: \.isFavorited,
+                send: EditAuthenticatorItemAction.favoriteChanged
+            ))
+            .toggleStyle(.bitwarden)
+            .accessibilityIdentifier("ItemFavoriteToggle")
         }
     }
 
@@ -186,6 +193,7 @@ struct EditAuthenticatorItemView_Previews: PreviewProvider {
                             ),
                             digits: 6,
                             id: "1",
+                            isFavorited: false,
                             issuer: "Issuer",
                             name: "Example",
                             period: .thirty,
@@ -219,6 +227,7 @@ struct EditAuthenticatorItemView_Previews: PreviewProvider {
                             digits: 6,
                             id: "1",
                             isAdvancedExpanded: true,
+                            isFavorited: false,
                             issuer: "Issuer",
                             name: "Example",
                             period: .thirty,
@@ -252,6 +261,7 @@ struct EditAuthenticatorItemView_Previews: PreviewProvider {
                             digits: 6,
                             id: "1",
                             isAdvancedExpanded: true,
+                            isFavorited: false,
                             issuer: "Issuer",
                             name: "Example",
                             period: .thirty,

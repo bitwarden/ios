@@ -15,7 +15,7 @@ struct ItemListState: Equatable {
     var iconBaseURL: URL?
 
     /// The current loading state.
-    var loadingState: LoadingState<[ItemListItem]> = .loading(nil)
+    var loadingState: LoadingState<[ItemListSection]> = .loading(nil)
 
     /// An array of results matching the `searchText`.
     var searchResults = [ItemListItem]()

@@ -145,7 +145,7 @@ final class ItemListProcessor: StateProcessor<ItemListState, ItemListAction, Ite
     /// Refreshes the vault group's TOTP Codes.
     ///
     private func refreshTOTPCodes(for items: [ItemListItem]) async {
-        guard case .data = state.loadingState else { return }
+        guard case let .data(currentSections) = state.loadingState else { return }
         let refreshedItems = await items.asyncMap { item in
             guard case let .totp(model) = item.itemType,
                   let key = model.itemView.totpKey,
@@ -165,8 +165,10 @@ final class ItemListProcessor: StateProcessor<ItemListState, ItemListAction, Ite
                 itemType: .totp(model: updatedModel)
             )
         }
-        groupTotpExpirationManager?.configureTOTPRefreshScheduling(for: refreshedItems)
-        state.loadingState = .data(refreshedItems)
+        let updatedSections = currentSections.updated(with: refreshedItems)
+        let allItems = updatedSections.flatMap(\.items)
+        groupTotpExpirationManager?.configureTOTPRefreshScheduling(for: allItems)
+        state.loadingState = .data(updatedSections)
     }
 
     /// Kicks off the TOTP setup flow.
@@ -226,24 +228,26 @@ final class ItemListProcessor: StateProcessor<ItemListState, ItemListAction, Ite
     private func streamItemList() async {
         do {
             for try await value in try await services.authenticatorItemRepository.itemListPublisher() {
-                guard let items = value.first?.items else { return }
-                let itemList = try await items.asyncMap { item in
-                    guard case let .totp(model) = item.itemType,
-                          let key = model.itemView.totpKey,
-                          let keyModel = TOTPKeyModel(authenticatorKey: key)
-                    else { return item }
-                    let code = try await services.totpService.getTotpCode(for: keyModel)
-                    var updatedModel = model
-                    updatedModel.totpCode = code
-                    return ItemListItem(
-                        id: item.id,
-                        name: item.name,
-                        accountName: item.accountName,
-                        itemType: .totp(model: updatedModel)
-                    )
+                let sectionList = try await value.asyncMap { section in
+                    let itemList = try await section.items.asyncMap { item in
+                        guard case let .totp(model) = item.itemType,
+                              let key = model.itemView.totpKey,
+                              let keyModel = TOTPKeyModel(authenticatorKey: key)
+                        else { return item }
+                        let code = try await services.totpService.getTotpCode(for: keyModel)
+                        var updatedModel = model
+                        updatedModel.totpCode = code
+                        return ItemListItem(
+                            id: item.id,
+                            name: item.name,
+                            accountName: item.accountName,
+                            itemType: .totp(model: updatedModel)
+                        )
+                    }
+                    return ItemListSection(id: section.id, items: itemList, name: section.name)
                 }
-                groupTotpExpirationManager?.configureTOTPRefreshScheduling(for: itemList)
-                state.loadingState = .data(itemList)
+                groupTotpExpirationManager?.configureTOTPRefreshScheduling(for: sectionList.flatMap(\.items))
+                state.loadingState = .data(sectionList)
             }
         } catch {
             services.errorReporter.log(error: error)

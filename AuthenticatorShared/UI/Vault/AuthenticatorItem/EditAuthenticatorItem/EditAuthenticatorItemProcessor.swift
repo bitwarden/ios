@@ -84,6 +84,8 @@ final class EditAuthenticatorItemProcessor: StateProcessor<
             state.digits = digits
         case .dismissPressed:
             coordinator.navigate(to: .dismiss())
+        case let .favoriteChanged(newValue):
+            state.isFavorited = newValue
         case let .issuerChanged(issuer):
             state.issuer = issuer
         case let .nameChanged(newValue):
@@ -145,7 +147,7 @@ final class EditAuthenticatorItemProcessor: StateProcessor<
                 switch state.totpType {
                 case .steam:
                     newAuthenticatorItemView = AuthenticatorItemView(
-                        favorite: false,
+                        favorite: state.isFavorited,
                         id: authenticatorItemView.id,
                         name: state.issuer,
                         totpKey: "steam://\(secret)",
@@ -162,7 +164,7 @@ final class EditAuthenticatorItemProcessor: StateProcessor<
                     )
 
                     newAuthenticatorItemView = AuthenticatorItemView(
-                        favorite: authenticatorItemView.favorite,
+                        favorite: state.isFavorited,
                         id: authenticatorItemView.id,
                         name: state.issuer,
                         totpKey: newOtpUri.otpAuthUri,

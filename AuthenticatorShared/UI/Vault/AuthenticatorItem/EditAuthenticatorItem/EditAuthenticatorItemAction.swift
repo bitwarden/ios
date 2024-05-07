@@ -17,6 +17,9 @@ enum EditAuthenticatorItemAction: Equatable {
     /// The dismiss button was pressed.
     case dismissPressed
 
+    /// The favorite toggle was changed.
+    case favoriteChanged(Bool)
+
     /// The issuer field was changed
     case issuerChanged(String)
 

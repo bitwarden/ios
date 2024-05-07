@@ -115,15 +115,14 @@ class DefaultAuthenticatorItemRepository {
         }
         .sorted { $0.name.localizedStandardCompare($1.name) == .orderedAscending }
 
-        let allItems = items.compactMap(ItemListItem.init)
+        let favorites = items.filter(\.favorite).compactMap(ItemListItem.init)
+        let nonFavorites = items.filter { !$0.favorite }.compactMap(ItemListItem.init)
 
         return [
-            ItemListSection(
-                id: "Everything",
-                items: allItems,
-                name: Localizations.all
-            ),
+            ItemListSection(id: "Favorites", items: favorites, name: Localizations.favorites),
+            ItemListSection(id: "Unorganized", items: nonFavorites, name: ""),
         ]
+        .filter { !$0.items.isEmpty }
     }
 
     /// A publisher for searching a user's items based on the specified search text and filter type.

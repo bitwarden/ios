@@ -43,6 +43,9 @@ struct AuthenticatorItemState: Equatable {
     /// A flag indicating if the advanced section is expanded.
     var isAdvancedExpanded: Bool = false
 
+    /// A flag indicating if this item is favorited.
+    var isFavorited: Bool = false
+
     /// A flag indicating if the secret field is visible
     var isSecretVisible: Bool = false
 
@@ -76,6 +79,7 @@ struct AuthenticatorItemState: Equatable {
         digits: Int,
         id: String,
         isAdvancedExpanded: Bool = false,
+        isFavorited: Bool,
         issuer: String,
         name: String,
         period: TotpPeriodOptions,
@@ -89,6 +93,7 @@ struct AuthenticatorItemState: Equatable {
         self.digits = digits
         self.id = id
         self.isAdvancedExpanded = isAdvancedExpanded
+        self.isFavorited = isFavorited
         self.issuer = issuer
         self.name = name
         self.period = period
@@ -115,6 +120,7 @@ struct AuthenticatorItemState: Equatable {
             configuration: .existing(authenticatorItemView: authenticatorItemView),
             digits: keyModel.digits,
             id: authenticatorItemView.id,
+            isFavorited: authenticatorItemView.favorite,
             issuer: keyModel.issuer ?? authenticatorItemView.name,
             name: keyModel.issuer ?? authenticatorItemView.name,
             period: TotpPeriodOptions(rawValue: keyModel.period) ?? .thirty,

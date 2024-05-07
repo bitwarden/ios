@@ -64,11 +64,11 @@ private struct SearchableItemListView: View {
     // MARK: Private
 
     @ViewBuilder private var content: some View {
-        LoadingView(state: store.state.loadingState) { items in
-            if items.isEmpty {
+        LoadingView(state: store.state.loadingState) { sections in
+            if sections.isEmpty {
                 emptyView
             } else {
-                groupView(with: items)
+                itemListView(with: sections)
             }
         }
     }
@@ -117,7 +117,7 @@ private struct SearchableItemListView: View {
                         Button {
                             store.send(.itemPressed(item))
                         } label: {
-                            vaultItemRow(
+                            itemListItemRow(
                                 for: item,
                                 isLastInSection: store.state.searchResults.last == item
                             )
@@ -137,58 +137,81 @@ private struct SearchableItemListView: View {
     /// A view that displays a list of the sections within this vault group.
     ///
     @ViewBuilder
-    private func groupView(with items: [ItemListItem]) -> some View {
-        ScrollView {
-            LazyVStack(alignment: .leading, spacing: 7) {
-                ForEach(items) { item in
-                    Menu {
-                        AsyncButton {
-                            await store.perform(.copyPressed(item))
-                        } label: {
-                            HStack(spacing: 4) {
-                                Text(Localizations.copy)
-                                Spacer()
-                                Image(decorative: Asset.Images.copy)
-                                    .imageStyle(.accessoryIcon(scaleWithFont: true))
-                            }
-                        }
-
-                        Button {
-                            store.send(.editPressed(item))
-                        } label: {
-                            HStack(spacing: 4) {
-                                Text(Localizations.edit)
-                                Spacer()
-                                Image(decorative: Asset.Images.pencil)
-                                    .imageStyle(.accessoryIcon(scaleWithFont: true))
-                            }
-                        }
-
-                        Divider()
-
-                        Button(role: .destructive) {
-                            store.send(.deletePressed(item))
-                        } label: {
-                            HStack(spacing: 4) {
-                                Text(Localizations.delete)
-                                Spacer()
-                                Image(decorative: Asset.Images.trash)
-                                    .imageStyle(.accessoryIcon(scaleWithFont: true))
-                            }
-                        }
+    private func groupView(title: String?, items: [ItemListItem]) -> some View {
+        LazyVStack(alignment: .leading, spacing: 7) {
+            if let title = title?.nilIfEmpty {
+                SectionHeaderView(title)
+            }
+            ForEach(items) { item in
+                Menu {
+                    AsyncButton {
+                        await store.perform(.copyPressed(item))
                     } label: {
-                        vaultItemRow(
-                            for: item,
-                            isLastInSection: true
-                        )
-                    } primaryAction: {
-                        store.send(.itemPressed(item))
+                        HStack(spacing: 4) {
+                            Text(Localizations.copy)
+                            Spacer()
+                            Image(decorative: Asset.Images.copy)
+                                .imageStyle(.accessoryIcon(scaleWithFont: true))
+                        }
+                    }
+
+                    Button {
+                        store.send(.editPressed(item))
+                    } label: {
+                        HStack(spacing: 4) {
+                            Text(Localizations.edit)
+                            Spacer()
+                            Image(decorative: Asset.Images.pencil)
+                                .imageStyle(.accessoryIcon(scaleWithFont: true))
+                        }
+                    }
+
+                    Divider()
+
+                    Button(role: .destructive) {
+                        store.send(.deletePressed(item))
+                    } label: {
+                        HStack(spacing: 4) {
+                            Text(Localizations.delete)
+                            Spacer()
+                            Image(decorative: Asset.Images.trash)
+                                .imageStyle(.accessoryIcon(scaleWithFont: true))
+                        }
+                    }
+                } label: {
+                    itemListItemRow(
+                        for: item,
+                        isLastInSection: true
+                    )
+                } primaryAction: {
+                    store.send(.itemPressed(item))
+                }
+            }
+            .background(Asset.Colors.backgroundPrimary.swiftUIColor)
+            .clipShape(RoundedRectangle(cornerRadius: 10))
+        }
+    }
+
+    /// A view that displays the main list of items, split into sections
+    ///
+    /// - Parameter sections: The sections of the vault list to display.
+    @ViewBuilder
+    private func itemListView(with sections: [ItemListSection]) -> some View {
+        ScrollView {
+            if sections.count > 1 {
+                VStack(spacing: 20) {
+                    ForEach(sections) { section in
+                        groupView(title: section.name, items: section.items)
                     }
                 }
-                .background(Asset.Colors.backgroundPrimary.swiftUIColor)
-                .clipShape(RoundedRectangle(cornerRadius: 10))
+                .padding(16)
+            } else {
+                groupView(
+                    title: nil,
+                    items: sections.first?.items ?? []
+                )
+                .padding(16)
             }
-            .padding(16)
         }
     }
 
@@ -199,7 +222,7 @@ private struct SearchableItemListView: View {
     ///   - isLastInSection: A flag indicating if this item is the last one in the section.
     ///
     @ViewBuilder
-    private func vaultItemRow(for item: ItemListItem, isLastInSection: Bool = false) -> some View {
+    private func itemListItemRow(for item: ItemListItem, isLastInSection: Bool = false) -> some View {
         ItemListItemRowView(
             store: store.child(
                 state: { state in
@@ -304,35 +327,62 @@ struct ItemListView_Previews: PreviewProvider {
                         state: ItemListState(
                             loadingState: .data(
                                 [
-                                    ItemListItem(
-                                        id: "One",
-                                        name: "One",
-                                        accountName: nil,
-                                        itemType: .totp(
-                                            model: ItemListTotpItem(
-                                                itemView: AuthenticatorItemView.fixture(),
-                                                totpCode: TOTPCodeModel(
-                                                    code: "123456",
-                                                    codeGenerationDate: Date(),
-                                                    period: 30
+                                    ItemListSection(
+                                        id: "Favorites",
+                                        items: [
+                                            ItemListItem(
+                                                id: "Favorited",
+                                                name: "Favorited",
+                                                accountName: nil,
+                                                itemType: .totp(
+                                                    model: ItemListTotpItem(
+                                                        itemView: .fixture(),
+                                                        totpCode: TOTPCodeModel(
+                                                            code: "123456",
+                                                            codeGenerationDate: Date(),
+                                                            period: 30
+                                                        )
+                                                    )
                                                 )
-                                            )
-                                        )
+                                            ),
+                                        ],
+                                        name: "Favorites"
                                     ),
-                                    ItemListItem(
-                                        id: "Two",
-                                        name: "Two",
-                                        accountName: nil,
-                                        itemType: .totp(
-                                            model: ItemListTotpItem(
-                                                itemView: AuthenticatorItemView.fixture(),
-                                                totpCode: TOTPCodeModel(
-                                                    code: "123456",
-                                                    codeGenerationDate: Date(),
-                                                    period: 30
+                                    ItemListSection(
+                                        id: "Section",
+                                        items: [
+                                            ItemListItem(
+                                                id: "One",
+                                                name: "One",
+                                                accountName: nil,
+                                                itemType: .totp(
+                                                    model: ItemListTotpItem(
+                                                        itemView: AuthenticatorItemView.fixture(),
+                                                        totpCode: TOTPCodeModel(
+                                                            code: "123456",
+                                                            codeGenerationDate: Date(),
+                                                            period: 30
+                                                        )
+                                                    )
                                                 )
-                                            )
-                                        )
+                                            ),
+                                            ItemListItem(
+                                                id: "Two",
+                                                name: "Two",
+                                                accountName: nil,
+                                                itemType: .totp(
+                                                    model: ItemListTotpItem(
+                                                        itemView: AuthenticatorItemView.fixture(),
+                                                        totpCode: TOTPCodeModel(
+                                                            code: "123456",
+                                                            codeGenerationDate: Date(),
+                                                            period: 30
+                                                        )
+                                                    )
+                                                )
+                                            ),
+                                        ],
+                                        name: "Personal"
                                     ),
                                 ]
                             )
@@ -341,7 +391,59 @@ struct ItemListView_Previews: PreviewProvider {
                 ),
                 timeProvider: PreviewTimeProvider()
             )
-        }.previewDisplayName("Items")
+        }.previewDisplayName("Items with Favorite")
+
+        NavigationView {
+            ItemListView(
+                store: Store(
+                    processor: StateProcessor(
+                        state: ItemListState(
+                            loadingState: .data(
+                                [
+                                    ItemListSection(
+                                        id: "Section",
+                                        items: [
+                                            ItemListItem(
+                                                id: "One",
+                                                name: "One",
+                                                accountName: nil,
+                                                itemType: .totp(
+                                                    model: ItemListTotpItem(
+                                                        itemView: AuthenticatorItemView.fixture(),
+                                                        totpCode: TOTPCodeModel(
+                                                            code: "123456",
+                                                            codeGenerationDate: Date(),
+                                                            period: 30
+                                                        )
+                                                    )
+                                                )
+                                            ),
+                                            ItemListItem(
+                                                id: "Two",
+                                                name: "Two",
+                                                accountName: nil,
+                                                itemType: .totp(
+                                                    model: ItemListTotpItem(
+                                                        itemView: AuthenticatorItemView.fixture(),
+                                                        totpCode: TOTPCodeModel(
+                                                            code: "123456",
+                                                            codeGenerationDate: Date(),
+                                                            period: 30
+                                                        )
+                                                    )
+                                                )
+                                            ),
+                                        ],
+                                        name: ""
+                                    ),
+                                ]
+                            )
+                        )
+                    )
+                ),
+                timeProvider: PreviewTimeProvider()
+            )
+        }.previewDisplayName("Items without Favorite")
 
         NavigationView {
             ItemListView(

@@ -26,6 +26,9 @@ protocol EditAuthenticatorItemState: Sendable {
     /// A flag indicating if the advanced section is expanded.
     var isAdvancedExpanded: Bool { get set }
 
+    /// A flag indicating if this item is favorited.
+    var isFavorited: Bool { get set }
+
     /// A flag indicating if the secret is visible.
     var isSecretVisible: Bool { get set }
 
