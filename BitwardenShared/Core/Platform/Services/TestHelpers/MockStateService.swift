@@ -26,6 +26,7 @@ class MockStateService: StateService { // swiftlint:disable:this type_body_lengt
     var timeProvider = MockTimeProvider(.currentTime)
     var defaultUriMatchTypeByUserId = [String: UriMatchType]()
     var disableAutoTotpCopyByUserId = [String: Bool]()
+    var encryptedPinByUserId = [String: String]()
     var environmentUrls = [String: EnvironmentUrlData]()
     var forcePasswordResetReason = [String: ForcePasswordResetReason]()
     var lastActiveTime = [String: Date]()
@@ -39,7 +40,6 @@ class MockStateService: StateService { // swiftlint:disable:this type_body_lengt
     var masterPasswordHashes = [String: String]()
     var notificationsLastRegistrationDates = [String: Date]()
     var passwordGenerationOptions = [String: PasswordGenerationOptions]()
-    var pinKeyEncryptedUserKeyValue = [String: String]()
     var pinProtectedUserKeyValue = [String: String]()
     var preAuthEnvironmentUrls: EnvironmentUrlData?
     var rememberedOrgIdentifier: String?
@@ -70,7 +70,7 @@ class MockStateService: StateService { // swiftlint:disable:this type_body_lengt
         let userId = try unwrapUserId(nil)
         accountVolatileData.removeValue(forKey: userId)
         pinProtectedUserKeyValue[userId] = nil
-        pinKeyEncryptedUserKeyValue[userId] = nil
+        encryptedPinByUserId[userId] = nil
     }
 
     func updateProfile(from response: ProfileResponseModel, userId: String) async {
@@ -163,6 +163,11 @@ class MockStateService: StateService { // swiftlint:disable:this type_body_lengt
         return disableAutoTotpCopyByUserId[userId] ?? false
     }
 
+    func getEncryptedPin(userId: String?) async throws -> String? {
+        let userId = try unwrapUserId(userId)
+        return encryptedPinByUserId[userId] ?? nil
+    }
+
     func getEnvironmentUrls(userId: String?) async throws -> EnvironmentUrlData? {
         let userId = try unwrapUserId(userId)
         return environmentUrls[userId]
@@ -246,11 +251,6 @@ class MockStateService: StateService { // swiftlint:disable:this type_body_lengt
     func logoutAccount(userId: String?) async throws {
         let userId = try unwrapUserId(userId)
         accountsLoggedOut.append(userId)
-    }
-
-    func pinKeyEncryptedUserKey(userId: String?) async throws -> String? {
-        let userId = try unwrapUserId(userId)
-        return pinKeyEncryptedUserKeyValue[userId] ?? nil
     }
 
     func pinProtectedUserKey(userId: String?) async throws -> String? {
@@ -362,13 +362,13 @@ class MockStateService: StateService { // swiftlint:disable:this type_body_lengt
     }
 
     func setPinKeys(
-        pinKeyEncryptedUserKey: String,
+        encryptedPin: String,
         pinProtectedUserKey: String,
         requirePasswordAfterRestart: Bool
     ) async throws {
         let userId = try unwrapUserId(nil)
         pinProtectedUserKeyValue[userId] = pinProtectedUserKey
-        pinKeyEncryptedUserKeyValue[userId] = pinKeyEncryptedUserKey
+        encryptedPinByUserId[userId] = encryptedPin
 
         if requirePasswordAfterRestart {
             accountVolatileData[

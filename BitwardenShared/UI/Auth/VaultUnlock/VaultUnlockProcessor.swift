@@ -111,7 +111,7 @@ class VaultUnlockProcessor: StateProcessor<
         do {
             if try await services.authRepository.isPinUnlockAvailable() {
                 state.unlockMethod = .pin
-            } else if try await services.stateService.pinKeyEncryptedUserKey() != nil {
+            } else if try await services.stateService.getEncryptedPin() != nil {
                 state.unlockMethod = .password
             }
         } catch {

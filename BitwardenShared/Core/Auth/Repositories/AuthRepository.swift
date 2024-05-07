@@ -621,7 +621,7 @@ extension DefaultAuthRepository: AuthRepository {
     func setPins(_ pin: String, requirePasswordAfterRestart: Bool) async throws {
         let pinKey = try await clientService.crypto().derivePinKey(pin: pin)
         try await stateService.setPinKeys(
-            pinKeyEncryptedUserKey: pinKey.encryptedPin,
+            encryptedPin: pinKey.encryptedPin,
             pinProtectedUserKey: pinKey.pinProtectedUserKey,
             requirePasswordAfterRestart: requirePasswordAfterRestart
         )
@@ -822,9 +822,9 @@ extension DefaultAuthRepository: AuthRepository {
 
             // If the user has a pin, but requires master password after restart, set the pin
             // protected user key in memory for future unlocks prior to app restart.
-            if let pinKeyEncryptedUserKey = try await stateService.pinKeyEncryptedUserKey() {
+            if let encryptedPin = try await stateService.getEncryptedPin() {
                 let pinProtectedUserKey = try await clientService.crypto().derivePinUserKey(
-                    encryptedPin: pinKeyEncryptedUserKey
+                    encryptedPin: encryptedPin
                 )
                 try await stateService.setPinProtectedUserKeyToMemory(pinProtectedUserKey)
             }
