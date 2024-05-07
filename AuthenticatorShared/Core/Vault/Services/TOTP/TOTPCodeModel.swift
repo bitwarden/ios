@@ -17,7 +17,9 @@ public struct TOTPCodeModel: Equatable, Sendable {
         code.enumerated().map { index, character in
             guard (index + 1) % 3 == 0 else { return "\(character)" }
             return "\(character) "
-        }.joined()
+        }
+        .joined()
+        .trimmingCharacters(in: .whitespacesAndNewlines)
     }
 
     /// The period of the code.

@@ -548,6 +548,19 @@ struct ItemListView_Previews: PreviewProvider {
                 timeProvider: PreviewTimeProvider()
             )
         }.previewDisplayName("3 Search Results")
+
+        NavigationView {
+            ItemListView(
+                store: Store(
+                    processor: StateProcessor(
+                        state: ItemListState(
+                            loadingState: .data([ItemListSection.digitsFixture(accountNames: true)])
+                        )
+                    )
+                ),
+                timeProvider: PreviewTimeProvider()
+            )
+        }.previewDisplayName("Digits")
     }
 }
 #endif

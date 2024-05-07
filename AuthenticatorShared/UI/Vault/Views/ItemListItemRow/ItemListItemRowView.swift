@@ -197,4 +197,49 @@ struct ItemListItemRowView: View {
         timeProvider: PreviewTimeProvider()
     )
 }
+
+struct ItemListItemRow_Previews: PreviewProvider {
+    static var previews: some View {
+        NavigationView {
+            VStack(spacing: 4) {
+                ForEach(ItemListSection.digitsFixture(accountNames: false).items) { item in
+                    ItemListItemRowView(
+                        store: Store(
+                            processor: StateProcessor(
+                                state: ItemListItemRowState(
+                                    item: item,
+                                    hasDivider: true,
+                                    showWebIcons: true
+                                )
+                            )
+                        ),
+                        timeProvider: PreviewTimeProvider()
+                    )
+                }
+            }
+        }.previewDisplayName(
+            "Digits without account"
+        )
+        NavigationView {
+            VStack(spacing: 4) {
+                ForEach(ItemListSection.digitsFixture(accountNames: true).items) { item in
+                    ItemListItemRowView(
+                        store: Store(
+                            processor: StateProcessor(
+                                state: ItemListItemRowState(
+                                    item: item,
+                                    hasDivider: true,
+                                    showWebIcons: true
+                                )
+                            )
+                        ),
+                        timeProvider: PreviewTimeProvider()
+                    )
+                }
+            }
+        }.previewDisplayName(
+            "Digits with account"
+        )
+    }
+}
 #endif
