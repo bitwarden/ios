@@ -38,7 +38,7 @@ class APIService {
         tokenService: TokenService
     ) {
         let defaultHeadersRequestHandler = DefaultHeadersRequestHandler(
-            appName: Bundle.main.appName,
+            appName: "Bitwarden_Mobile",
             appVersion: Bundle.main.appVersion,
             buildNumber: Bundle.main.buildNumber,
             systemDevice: UIDevice.current
