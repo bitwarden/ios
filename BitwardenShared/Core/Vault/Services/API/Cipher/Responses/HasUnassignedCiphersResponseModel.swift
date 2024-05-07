@@ -25,5 +25,4 @@ struct HasUnassignedCiphersResponseModel: JSONResponse {
         let container = try decoder.singleValueContainer()
         hasUnassignedCiphers = try container.decode(Bool.self)
     }
-
 }

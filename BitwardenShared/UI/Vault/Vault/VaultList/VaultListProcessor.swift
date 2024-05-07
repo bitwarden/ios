@@ -16,7 +16,6 @@ final class VaultListProcessor: StateProcessor<
 
     typealias Services = HasAuthRepository
         & HasAuthService
-        & HasCipherAPIService
         & HasErrorReporter
         & HasNotificationService
         & HasPasteboardService
