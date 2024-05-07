@@ -81,7 +81,7 @@ struct ItemListItemRowView: View {
                     .styleGuide(.headline)
                     .lineLimit(1)
                     .foregroundColor(Asset.Colors.textPrimary.swiftUIColor)
-                if let accountName {
+                if let accountName = accountName?.nilIfEmpty {
                     Text(accountName)
                         .styleGuide(.subheadline)
                         .lineLimit(1)
@@ -89,7 +89,7 @@ struct ItemListItemRowView: View {
                             Asset.Colors.textSecondary.swiftUIColor)
                 }
             } else {
-                if let accountName {
+                if let accountName = accountName?.nilIfEmpty {
                     Text(accountName)
                         .styleGuide(.headline)
                         .lineLimit(1)

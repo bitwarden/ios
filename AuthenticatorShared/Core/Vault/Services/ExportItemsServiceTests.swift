@@ -9,6 +9,7 @@ final class ExportItemsServiceTests: AuthenticatorTestCase {
 
     var authItemRepository: MockAuthenticatorItemRepository!
     var errorReporter: MockErrorReporter!
+    var importService: ImportItemsService!
     var timeProvider: MockTimeProvider!
     var subject: ExportItemsService!
 
@@ -27,6 +28,11 @@ final class ExportItemsServiceTests: AuthenticatorTestCase {
                     day: 14
                 )
             )
+        )
+
+        importService = DefaultImportItemsService(
+            authenticatorItemRepository: authItemRepository,
+            errorReporter: errorReporter
         )
 
         subject = DefaultExportItemsService(
@@ -83,15 +89,24 @@ final class ExportItemsServiceTests: AuthenticatorTestCase {
                 totpKey: "otpauth://totp/Bitwarden:person@example.com?secret=EXAMPLE&issuer=Bitwarden",
                 username: "person@example.com"
             ),
+            AuthenticatorItemView(
+                favorite: true,
+                id: "Two",
+                name: "Steam",
+                totpKey: "steam://EXAMPLE",
+                username: "person@example.com"
+            ),
         ]
         authItemRepository.fetchAllAuthenticatorItemsResult = .success(items)
 
         let exported = try await subject.exportFileContents(format: fileType)
-
         let decoder = JSONDecoder()
         let actual = try decoder.decode(VaultLike.self, from: exported.data(using: .utf8)!)
         let expected = VaultLike(encrypted: false, items: items.compactMap(CipherLike.init))
         XCTAssertEqual(actual, expected)
+        try await importService.importItems(data: exported.data(using: .utf8)!, format: .json)
+        let importedItems = authItemRepository.addAuthItemAuthItems
+        XCTAssertEqual(importedItems, items)
     }
 
     /// `generateExportFileName` handles the JSON extension

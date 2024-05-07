@@ -42,7 +42,7 @@ struct LoginLike: Codable, Equatable {
         guard let key = TOTPKeyModel(authenticatorKey: item.totpKey)
         else { return nil }
         totp = key.rawAuthenticatorKey
-        username = key.accountName
+        username = key.accountName?.nilIfEmpty ?? item.username?.nilIfEmpty
     }
 }
 
