@@ -33,13 +33,17 @@ struct OTPAuthModel: Equatable {
         let issuerParameter: String
         switch (issuer, accountName) {
         case let (.some(issuer), .some(accountName)):
-            label = "\(issuer):\(accountName)"
-            issuerParameter = "&issuer=\(issuer)"
+            let encodedIssuer = issuer.percentEncoded ?? issuer
+            let encodedAccountName = accountName.percentEncoded ?? accountName
+            label = "\(encodedIssuer):\(encodedAccountName)"
+            issuerParameter = "&issuer=\(encodedIssuer)"
         case let (.some(issuer), .none):
+            let encodedIssuer = issuer.percentEncoded ?? issuer
             label = ""
-            issuerParameter = "&issuer=\(issuer)"
+            issuerParameter = "&issuer=\(encodedIssuer)"
         case let (.none, .some(accountName)):
-            label = "\(accountName)"
+            let encodedAccountName = accountName.percentEncoded ?? accountName
+            label = "\(encodedAccountName)"
             issuerParameter = ""
         case (.none, .none):
             label = ""
@@ -69,10 +73,10 @@ struct OTPAuthModel: Equatable {
         period: Int,
         secret: String
     ) {
-        self.accountName = accountName
+        self.accountName = accountName?.nilIfEmpty
         self.algorithm = algorithm
         self.digits = digits
-        self.issuer = issuer
+        self.issuer = issuer?.nilIfEmpty
         self.period = period
         self.secret = secret
     }
@@ -97,30 +101,20 @@ struct OTPAuthModel: Equatable {
         let issuer = queryItems.first { $0.name == "issuer" }?.value
         let period = queryItems.first { $0.name == "period" }?.value.flatMap(Int.init) ?? 30
 
-        let labelComponents = urlComponents.path.dropFirst().split(separator: ":")
-
         let accountName: String?
-        let labelIssuer: String?
 
-        switch labelComponents.count {
-        case 0:
-            accountName = nil
-            labelIssuer = nil
-        case 1:
-            accountName = String(labelComponents[0])
-            labelIssuer = nil
-        case 2:
-            accountName = String(labelComponents[1])
-            labelIssuer = String(labelComponents[0])
-        default:
-            return nil
+        if let issuer {
+            // Remove the leading slash and trailing colon as well
+            accountName = String(urlComponents.path.dropFirst(issuer.count + 2))
+        } else {
+            accountName = String(urlComponents.path.dropFirst())
         }
 
         self.init(
             accountName: accountName,
             algorithm: algorithm,
             digits: digits,
-            issuer: issuer ?? labelIssuer,
+            issuer: issuer,
             period: period,
             secret: secret
         )

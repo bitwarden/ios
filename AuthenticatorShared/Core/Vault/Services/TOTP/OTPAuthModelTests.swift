@@ -31,14 +31,6 @@ class OTPAuthModelTests: AuthenticatorTestCase {
         XCTAssertEqual(subject.secret, "JBSWY3DPEHPK3PXP")
     }
 
-    /// `init`parses the issuer from the label if it's not a parameter
-    func test_init_issuerFromLabel() {
-        let key = "otpauth://totp/Bitwarden:person@bitwarden.com?secret=JBSWY3DPEHPK3PXP"
-        guard let subject = OTPAuthModel(otpAuthUri: key)
-        else { XCTFail("Unable to parse auth model!"); return }
-        XCTAssertEqual(subject.issuer, "Bitwarden")
-    }
-
     /// `init` choses the issuer parameter if it differs from the label
     func test_init_issuerParameter() {
         let key = "otpauth://totp/8bit:person@bitwarden.com?secret=JBSWY3DPEHPK3PXP&issuer=Bitwarden"
@@ -62,22 +54,24 @@ class OTPAuthModelTests: AuthenticatorTestCase {
 
     /// `init` handles a percent-encoded colon for issuer and account
     func test_init_percentEncoding() {
-        let key = "otpauth://totp/Bitwarden%3Aperson@bitwarden.com?secret=JBSWY3DPEHPK3PXP"
+        let key = "otpauth://totp/Bitwarden%3Aperson@bitwarden.com?secret=JBSWY3DPEHPK3PXP&issuer=Bitwarden"
         guard let subject = OTPAuthModel(otpAuthUri: key)
         else { XCTFail("Unable to parse auth model!"); return }
         XCTAssertEqual(subject.accountName, "person@bitwarden.com")
         XCTAssertEqual(subject.issuer, "Bitwarden")
     }
 
-    // MARK: Init Failure
-
-    /// `init` returns nil if the label contains more than one colon
-    /// since account and issuer cannot have a colon in them
-    func test_init_failure_invalidLabel() {
-        let key = "otpauth://totp/Bitwarden:Engineering:person@bitwarden.com?secret=JBSWY3DPEHPK3PXP"
-        let subject = OTPAuthModel(otpAuthUri: key)
-        XCTAssertNil(subject)
+    /// `init` handles special characters in issuer and account
+    func test_init_specialCharacters() {
+        // swiftlint:disable:next line_length
+        let key = "otpauth://totp/Issuer%20Two%3A%20100%25%20the%20Sequel:person%3A2%40bitwarden%2Ecom?secret=JBSWY3DPEHPK3PXP&issuer=Issuer%20Two%3A%20100%25%20the%20Sequel"
+        guard let subject = OTPAuthModel(otpAuthUri: key)
+        else { XCTFail("Unable to parse auth model!"); return }
+        XCTAssertEqual(subject.accountName, "person:2@bitwarden.com")
+        XCTAssertEqual(subject.issuer, "Issuer Two: 100% the Sequel")
     }
+
+    // MARK: Init Failure
 
     /// `init` returns nil if the secret is not valid base 32
     func test_init_failure_invalidSecret() {
@@ -118,7 +112,8 @@ class OTPAuthModelTests: AuthenticatorTestCase {
             secret: "JBSWY3DPEHPK3PXP"
         )
         // swiftlint:disable:next line_length
-        XCTAssertEqual(subject.otpAuthUri, "otpauth://totp/Bitwarden:person@bitwarden.com?secret=JBSWY3DPEHPK3PXP&issuer=Bitwarden&algorithm=SHA1&digits=6&period=30")
+        XCTAssertEqual(subject.otpAuthUri, "otpauth://totp/Bitwarden:person%40bitwarden%2Ecom?secret=JBSWY3DPEHPK3PXP&issuer=Bitwarden&algorithm=SHA1&digits=6&period=30")
+        XCTAssertEqual(OTPAuthModel(otpAuthUri: subject.otpAuthUri), subject)
     }
 
     /// `otpAuthUri` handles having neither an issuer nor an account name
@@ -132,6 +127,7 @@ class OTPAuthModelTests: AuthenticatorTestCase {
             secret: "JBSWY3DPEHPK3PXP"
         )
         XCTAssertEqual(subject.otpAuthUri, "otpauth://totp/?secret=JBSWY3DPEHPK3PXP&algorithm=SHA1&digits=6&period=30")
+        XCTAssertEqual(OTPAuthModel(otpAuthUri: subject.otpAuthUri), subject)
     }
 
     /// `otpAuthUri` handles having an issuer but no account
@@ -146,6 +142,7 @@ class OTPAuthModelTests: AuthenticatorTestCase {
         )
         // swiftlint:disable:next line_length
         XCTAssertEqual(subject.otpAuthUri, "otpauth://totp/?secret=JBSWY3DPEHPK3PXP&issuer=Bitwarden&algorithm=SHA1&digits=6&period=30")
+        XCTAssertEqual(OTPAuthModel(otpAuthUri: subject.otpAuthUri), subject)
     }
 
     /// `otpAuthUri` handles having an account but no issuer
@@ -159,6 +156,22 @@ class OTPAuthModelTests: AuthenticatorTestCase {
             secret: "JBSWY3DPEHPK3PXP"
         )
         // swiftlint:disable:next line_length
-        XCTAssertEqual(subject.otpAuthUri, "otpauth://totp/person@bitwarden.com?secret=JBSWY3DPEHPK3PXP&algorithm=SHA1&digits=6&period=30")
+        XCTAssertEqual(subject.otpAuthUri, "otpauth://totp/person%40bitwarden%2Ecom?secret=JBSWY3DPEHPK3PXP&algorithm=SHA1&digits=6&period=30")
+        XCTAssertEqual(OTPAuthModel(otpAuthUri: subject.otpAuthUri), subject)
+    }
+
+    /// `otpAuthUri` handles special characters
+    func test_otpAuthUri_specialCharacters() {
+        let subject = OTPAuthModel(
+            accountName: "person@bitwarden.com",
+            algorithm: .sha1,
+            digits: 6,
+            issuer: "Issuer Two: 100% the Sequel",
+            period: 30,
+            secret: "JBSWY3DPEHPK3PXP"
+        )
+        // swiftlint:disable:next line_length
+        XCTAssertEqual(subject.otpAuthUri, "otpauth://totp/Issuer%20Two%3A%20100%25%20the%20Sequel:person%40bitwarden%2Ecom?secret=JBSWY3DPEHPK3PXP&issuer=Issuer%20Two%3A%20100%25%20the%20Sequel&algorithm=SHA1&digits=6&period=30")
+        XCTAssertEqual(OTPAuthModel(otpAuthUri: subject.otpAuthUri), subject)
     }
 }

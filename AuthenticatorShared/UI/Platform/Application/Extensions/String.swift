@@ -70,6 +70,13 @@ extension String {
         }
     }
 
+    /// Returns a new string that has been percent-encoded.
+    /// This is aggressive compared to the W3C recommendations and percent-encodes
+    /// all non-alphanumeric characters.
+    var percentEncoded: String? {
+        addingPercentEncoding(withAllowedCharacters: .alphanumerics)
+    }
+
     // MARK: Methods
 
     /// Returns a copy of the string, padded to the specified length on the left side with the
