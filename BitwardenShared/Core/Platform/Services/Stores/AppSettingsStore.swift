@@ -338,13 +338,13 @@ protocol AppSettingsStore: AnyObject {
     ///
     func setUnsuccessfulUnlockAttempts(_ attempts: Int, userId: String)
 
-    /// Sets the user's session timeout date.
+    /// Sets the user's session timeout, in minutes.
     ///
     /// - Parameters:
-    ///   - key: The session timeout date.
-    ///   - userId: The user ID associated with the session timeout date.
+    ///   - key: The session timeout, in minutes.
+    ///   - userId: The user ID associated with the session timeout.
     ///
-    func setVaultTimeout(key: Int, userId: String)
+    func setVaultTimeout(minutes: Int, userId: String)
 
     /// Sets the username generation options for a user ID.
     ///
@@ -388,10 +388,10 @@ protocol AppSettingsStore: AnyObject {
     ///
     func unsuccessfulUnlockAttempts(userId: String) -> Int
 
-    /// Returns the session timeout date.
+    /// Returns the session timeout in minutes.
     ///
-    /// - Parameter userId: The user ID associated with the session timeout date.
-    /// - Returns: The user's session timeout date.
+    /// - Parameter userId: The user ID associated with the session timeout.
+    /// - Returns: The user's session timeout in minutes.
     ///
     func vaultTimeout(userId: String) -> Int?
 
@@ -864,8 +864,8 @@ extension DefaultAppSettingsStore: AppSettingsStore {
         store(options, for: .usernameGenerationOptions(userId: userId))
     }
 
-    func setVaultTimeout(key: Int, userId: String) {
-        store(key, for: .vaultTimeout(userId: userId))
+    func setVaultTimeout(minutes: Int, userId: String) {
+        store(minutes, for: .vaultTimeout(userId: userId))
     }
 
     func timeoutAction(userId: String) -> Int? {

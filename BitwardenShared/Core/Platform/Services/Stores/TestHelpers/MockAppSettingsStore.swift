@@ -208,8 +208,8 @@ class MockAppSettingsStore: AppSettingsStore {
         usernameGenerationOptions[userId] = options
     }
 
-    func setVaultTimeout(key: Int, userId: String) {
-        vaultTimeout[userId] = key
+    func setVaultTimeout(minutes: Int, userId: String) {
+        vaultTimeout[userId] = minutes
     }
 
     func shouldTrustDevice(userId: String) -> Bool? {

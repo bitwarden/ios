@@ -241,7 +241,7 @@ extension DefaultPolicyService {
 
         for policy in policies {
             guard let policyTimeoutValue = policy[.minutes]?.intValue else { continue }
-            timeoutValue = policyTimeoutValue * 60
+            timeoutValue = policyTimeoutValue
 
             // If the policy's timeout action is not lock or logOut, there is no policy timeout action.
             // In that case, we would present both timeout action options to the user.
