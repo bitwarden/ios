@@ -253,7 +253,26 @@ extension AppCoordinator: AuthCoordinatorDelegate {
             navigate(to: route)
         case .mainApp:
             showTab(route: .vault(.list))
+            Task {
+                await checkUnassignedItems()
+            }
         }
+    }
+
+    private func checkUnassignedItems() async {
+        guard await services.configService.getFeatureFlag(.unassignedItemsBanner, defaultValue: false)
+        else { return }
+
+        do {
+            guard try await services.cipherAPIService.hasUnassignedCiphers()
+            else { return }
+        } catch {
+            services.errorReporter.log(error: error)
+        }
+
+        showAlert(.unassignedCiphers {
+            _ = 42
+        })
     }
 }
 
