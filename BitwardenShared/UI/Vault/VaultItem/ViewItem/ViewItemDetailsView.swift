@@ -219,7 +219,8 @@ struct ViewItemDetailsView: View {
                 ForEach(store.state.loginState.uris, id: \.self) { uri in
                     BitwardenTextValueField(
                         title: Localizations.uri,
-                        value: URL(string: uri.uri)?.host ?? uri.uri
+                        value: URL(string: uri.uri)?.host ?? uri.uri,
+                        valueAccessibilityIdentifier: "LoginUriEntry"
                     ) {
                         if let url = URL(string: uri.uri)?.sanitized, url.hasValidURLComponents {
                             Button {

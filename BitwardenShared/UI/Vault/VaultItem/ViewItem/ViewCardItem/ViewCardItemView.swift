@@ -26,10 +26,10 @@ struct ViewCardItemView: View {
         if !store.state.cardholderName.isEmpty {
             BitwardenTextValueField(
                 title: Localizations.cardholderName,
-                value: store.state.cardholderName
+                value: store.state.cardholderName,
+                valueAccessibilityIdentifier: "CardholderNameEntry"
             )
             .accessibilityElement(children: .contain)
-            .accessibilityIdentifier("CardholderNameEntry")
         }
     }
 
@@ -41,6 +41,7 @@ struct ViewCardItemView: View {
                 PasswordText(password: number, isPasswordVisible: isVisible)
                     .styleGuide(.body)
                     .foregroundColor(Asset.Colors.textPrimary.swiftUIColor)
+                    .accessibilityIdentifier("CardNumberEntry")
             } accessoryContent: {
                 PasswordVisibilityButton(
                     accessibilityIdentifier: "ShowCardNumberButton",
@@ -63,7 +64,6 @@ struct ViewCardItemView: View {
                 .accessibilityIdentifier("CopyValueButton")
             }
             .accessibilityElement(children: .contain)
-            .accessibilityIdentifier("CardNumberEntry")
         }
     }
 
@@ -93,10 +93,10 @@ struct ViewCardItemView: View {
         if !expirationString.isEmpty {
             BitwardenTextValueField(
                 title: Localizations.expiration,
-                value: expirationString
+                value: expirationString,
+                valueAccessibilityIdentifier: "CardExpirationYearEntry"
             )
             .accessibilityElement(children: .contain)
-            .accessibilityIdentifier("CardExpirationYearEntry")
         }
     }
 
@@ -108,6 +108,7 @@ struct ViewCardItemView: View {
                 PasswordText(password: code, isPasswordVisible: isVisible)
                     .styleGuide(.body)
                     .foregroundColor(Asset.Colors.textPrimary.swiftUIColor)
+                    .accessibilityIdentifier("CardSecurityCodeEntry")
             } accessoryContent: {
                 PasswordVisibilityButton(
                     accessibilityIdentifier: "CardShowSecurityCodeButton",
@@ -130,7 +131,6 @@ struct ViewCardItemView: View {
                 .accessibilityIdentifier("CopyValueButton")
             }
             .accessibilityElement(children: .contain)
-            .accessibilityIdentifier("CardSecurityCodeEntry")
         }
     }
 }
