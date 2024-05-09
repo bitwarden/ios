@@ -102,6 +102,8 @@ final class AddEditItemProcessor: StateProcessor<// swiftlint:disable:this type_
 
     override func receive(_ action: AddEditItemAction) { // swiftlint:disable:this function_body_length
         switch action {
+        case .authKeyVisibilityTapped:
+            state.loginState.isAuthKeyVisible.toggle()
         case let .cardFieldChanged(cardFieldAction):
             updateCardState(&state, for: cardFieldAction)
         case let .collectionToggleChanged(newValue, collectionId):

@@ -152,6 +152,9 @@ public struct VaultListTOTP: Equatable {
     ///
     let loginView: BitwardenSdk.LoginView
 
+    /// Whether seeing the TOTP code requires a master password.
+    let requiresMasterPassword: Bool
+
     /// The current TOTP code for the cipher.
     ///
     var totpCode: TOTPCodeModel

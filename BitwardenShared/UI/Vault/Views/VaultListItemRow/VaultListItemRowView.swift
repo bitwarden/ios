@@ -163,17 +163,19 @@ struct VaultListItemRowView: View {
             totpCode: model.totpCode,
             onExpiration: nil
         )
-        Text(model.totpCode.displayCode)
-            .styleGuide(.bodyMonospaced, weight: .regular, monoSpacedDigit: true)
-            .foregroundColor(Asset.Colors.textPrimary.swiftUIColor)
-        Button {
-            Task { @MainActor in
-                store.send(.copyTOTPCode(model.totpCode.code))
+        if !model.requiresMasterPassword {
+            Text(model.totpCode.displayCode)
+                .styleGuide(.bodyMonospaced, weight: .regular, monoSpacedDigit: true)
+                .foregroundColor(Asset.Colors.textPrimary.swiftUIColor)
+            Button {
+                Task { @MainActor in
+                    store.send(.copyTOTPCode(model.totpCode.code))
+                }
+            } label: {
+                Asset.Images.copy.swiftUIImage
             }
-        } label: {
-            Asset.Images.copy.swiftUIImage
+            .foregroundColor(Asset.Colors.primaryBitwarden.swiftUIColor)
+            .accessibilityLabel(Localizations.copyTotp)
         }
-        .foregroundColor(Asset.Colors.primaryBitwarden.swiftUIColor)
-        .accessibilityLabel(Localizations.copyTotp)
     }
 }

@@ -13,6 +13,9 @@ struct LoginItemState: Equatable {
     /// The FIDO2 credentials for the login.
     var fido2Credentials: [Fido2Credential] = []
 
+    /// Whether the auth key is visible.
+    var isAuthKeyVisible: Bool = false
+
     /// A flag indicating if the password field is visible.
     var isPasswordVisible: Bool = false
 
