@@ -131,6 +131,13 @@ protocol StateService: AnyObject {
     ///
     func getDisableAutoTotpCopy(userId: String?) async throws -> Bool
 
+    /// The user's pin protected by their user key.
+    ///
+    /// - Parameter userId: The user ID associated with the encrypted pin.
+    /// - Returns: The user's pin protected by their user key.
+    ///
+    func getEncryptedPin(userId: String?) async throws -> String?
+
     /// Gets the environment URLs for a user ID.
     ///
     /// - Parameter userId: The user ID associated with the environment URLs.
@@ -268,13 +275,6 @@ protocol StateService: AnyObject {
     ///   account if `nil`.
     ///
     func logoutAccount(userId: String?) async throws
-
-    /// The user's pin key encrypted user key.
-    ///
-    /// - Parameter userId: The user ID associated with the pin key encrypted user key.
-    /// - Returns: The user's pin key encrypted user key.
-    ///
-    func pinKeyEncryptedUserKey(userId: String?) async throws -> String?
 
     /// The pin protected user key.
     ///
@@ -429,12 +429,12 @@ protocol StateService: AnyObject {
     /// Set's the pin keys.
     ///
     /// - Parameters:
-    ///   - pinKeyEncryptedUserKey: The user's encrypted pin.
+    ///   - encryptedPin: The user's encrypted pin.
     ///   - pinProtectedUserKey: The user's pin protected user key.
     ///   - requirePasswordAfterRestart: Whether to require password after app restart.
     ///
     func setPinKeys(
-        pinKeyEncryptedUserKey: String,
+        encryptedPin: String,
         pinProtectedUserKey: String,
         requirePasswordAfterRestart: Bool
     ) async throws
@@ -635,6 +635,14 @@ extension StateService {
         try await getDisableAutoTotpCopy(userId: nil)
     }
 
+    /// The user's pin protected by their user key.
+    ///
+    /// - Returns: The user's pin protected by their user key.
+    ///
+    func getEncryptedPin() async throws -> String? {
+        try await getEncryptedPin(userId: nil)
+    }
+
     /// Gets the environment URLs for the active account.
     ///
     /// - Returns: The environment URLs for the active account.
@@ -749,14 +757,6 @@ extension StateService {
     ///
     func logoutAccount() async throws {
         try await logoutAccount(userId: nil)
-    }
-
-    /// The user's pin protected user key.
-    ///
-    /// - Returns: The pin protected user key.
-    ///
-    func pinKeyEncryptedUserKey() async throws -> String? {
-        try await pinKeyEncryptedUserKey(userId: nil)
     }
 
     /// The pin protected user key.
@@ -996,8 +996,8 @@ actor DefaultStateService: StateService { // swiftlint:disable:this type_body_le
     func clearPins() async throws {
         let userId = try getActiveAccountUserId()
         accountVolatileData.removeValue(forKey: userId)
+        appSettingsStore.setEncryptedPin(nil, userId: userId)
         appSettingsStore.setPinProtectedUserKey(key: nil, userId: userId)
-        appSettingsStore.setPinKeyEncryptedUserKey(key: nil, userId: userId)
     }
 
     func deleteAccount() async throws {
@@ -1072,6 +1072,11 @@ actor DefaultStateService: StateService { // swiftlint:disable:this type_body_le
     func getDisableAutoTotpCopy(userId: String?) async throws -> Bool {
         let userId = try userId ?? getActiveAccountUserId()
         return appSettingsStore.disableAutoTotpCopy(userId: userId)
+    }
+
+    func getEncryptedPin(userId: String?) async throws -> String? {
+        let userId = try userId ?? getActiveAccountUserId()
+        return appSettingsStore.encryptedPin(userId: userId)
     }
 
     func getEnvironmentUrls(userId: String?) async throws -> EnvironmentUrlData? {
@@ -1193,11 +1198,6 @@ actor DefaultStateService: StateService { // swiftlint:disable:this type_body_le
         try await dataStore.deleteDataForUser(userId: knownUserId)
     }
 
-    func pinKeyEncryptedUserKey(userId: String?) async throws -> String? {
-        let userId = try userId ?? getActiveAccountUserId()
-        return appSettingsStore.pinKeyEncryptedUserKey(userId: userId)
-    }
-
     func pinProtectedUserKey(userId: String?) async throws -> String? {
         let userId = try userId ?? getActiveAccountUserId()
         return accountVolatileData[userId]?.pinProtectedUserKey ?? appSettingsStore.pinProtectedUserKey(userId: userId)
@@ -1298,7 +1298,7 @@ actor DefaultStateService: StateService { // swiftlint:disable:this type_body_le
     }
 
     func setPinKeys(
-        pinKeyEncryptedUserKey: String,
+        encryptedPin: String,
         pinProtectedUserKey: String,
         requirePasswordAfterRestart: Bool
     ) async throws {
@@ -1307,7 +1307,7 @@ actor DefaultStateService: StateService { // swiftlint:disable:this type_body_le
         } else {
             try appSettingsStore.setPinProtectedUserKey(key: pinProtectedUserKey, userId: getActiveAccountUserId())
         }
-        try appSettingsStore.setPinKeyEncryptedUserKey(key: pinKeyEncryptedUserKey, userId: getActiveAccountUserId())
+        try appSettingsStore.setEncryptedPin(encryptedPin, userId: getActiveAccountUserId())
     }
 
     func setPinProtectedUserKeyToMemory(_ pinProtectedUserKey: String) async throws {

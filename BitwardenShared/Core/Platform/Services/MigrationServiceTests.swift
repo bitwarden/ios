@@ -8,6 +8,7 @@ class MigrationServiceTests: BitwardenTestCase {
     var appSettingsStore: MockAppSettingsStore!
     var errorReporter: MockErrorReporter!
     var keychainRepository: MockKeychainRepository!
+    var standardUserDefaults: UserDefaults!
     var subject: DefaultMigrationService!
 
     // MARK: Setup & Teardown
@@ -18,11 +19,15 @@ class MigrationServiceTests: BitwardenTestCase {
         appSettingsStore = MockAppSettingsStore()
         errorReporter = MockErrorReporter()
         keychainRepository = MockKeychainRepository()
+        standardUserDefaults = UserDefaults(suiteName: "test")
+
+        standardUserDefaults.removeObject(forKey: "MSAppCenterCrashesIsEnabled")
 
         subject = DefaultMigrationService(
             appSettingsStore: appSettingsStore,
             errorReporter: errorReporter,
-            keychainRepository: keychainRepository
+            keychainRepository: keychainRepository,
+            standardUserDefaults: standardUserDefaults
         )
     }
 
@@ -32,6 +37,7 @@ class MigrationServiceTests: BitwardenTestCase {
         appSettingsStore = nil
         errorReporter = nil
         keychainRepository = nil
+        standardUserDefaults = nil
         subject = nil
     }
 
@@ -106,6 +112,26 @@ class MigrationServiceTests: BitwardenTestCase {
         }
 
         XCTAssertFalse(keychainRepository.deleteAllItemsCalled)
+
+        XCTAssertTrue(errorReporter.isEnabled)
+    }
+
+    /// `performMigrations()` for migration 1 handles migrating the crashes enabled key from
+    /// AppCenter when it's set to `false`.
+    func test_performMigrations_1_withAppCenterCrashesKey_false() async throws {
+        appSettingsStore.migrationVersion = 0
+        standardUserDefaults.setValue(false, forKey: "MSAppCenterCrashesIsEnabled")
+        await subject.performMigrations()
+        XCTAssertFalse(errorReporter.isEnabled)
+    }
+
+    /// `performMigrations()` for migration 1 handles migrating the crashes enabled key from
+    /// AppCenter when it's set to `true`.
+    func test_performMigrations_1_withAppCenterCrashesKey_true() async throws {
+        appSettingsStore.migrationVersion = 0
+        standardUserDefaults.setValue(true, forKey: "MSAppCenterCrashesIsEnabled")
+        await subject.performMigrations()
+        XCTAssertTrue(errorReporter.isEnabled)
     }
 
     /// `performMigrations()` for migration 1 handles no existing accounts.
@@ -118,5 +144,6 @@ class MigrationServiceTests: BitwardenTestCase {
         XCTAssertEqual(appSettingsStore.migrationVersion, 1)
         XCTAssertNil(appSettingsStore.state)
         XCTAssertTrue(keychainRepository.deleteAllItemsCalled)
+        XCTAssertTrue(errorReporter.isEnabled)
     }
 }

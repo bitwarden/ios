@@ -26,6 +26,10 @@ class DefaultMigrationService {
     /// The repository used to manage keychain items.
     let keychainRepository: KeychainRepository
 
+    /// The shared UserDefaults instance (NOTE: this should be the standard one just for the app,
+    /// not one in the app group).
+    let standardUserDefaults: UserDefaults
+
     // MARK: Initialization
 
     /// Initialize a `DefaultMigrationService`.
@@ -34,15 +38,18 @@ class DefaultMigrationService {
     ///   - appSettingsStore: The service used by the application to persist app setting values.
     ///   - errorReporter: The service used by the application to report non-fatal errors.
     ///   - keychainRepository: The repository used to manage keychain items.
+    ///   - standardUserDefaults: The shared UserDefaults instance.
     ///
     init(
         appSettingsStore: AppSettingsStore,
         errorReporter: ErrorReporter,
-        keychainRepository: KeychainRepository
+        keychainRepository: KeychainRepository,
+        standardUserDefaults: UserDefaults = .standard
     ) {
         self.appSettingsStore = appSettingsStore
         self.errorReporter = errorReporter
         self.keychainRepository = keychainRepository
+        self.standardUserDefaults = standardUserDefaults
     }
 
     // MARK: Private
@@ -53,8 +60,13 @@ class DefaultMigrationService {
     /// - Migrates account tokens from UserDefaults to Keychain.
     /// - Resets stored date values from Xamarin/Maui, which uses an incompatible format.
     /// - Clears all keychain values on a fresh app install.
+    /// - Migrates AppCenter crash logging enabled to Crashlytics.
     ///
     private func performMigration1() async throws {
+        // Migrate AppCenter crash logging enabled to Crashlytics.
+        let isAppCenterCrashLoggingEnabled = standardUserDefaults.object(forKey: "MSAppCenterCrashesIsEnabled") as? Bool
+        errorReporter.isEnabled = isAppCenterCrashLoggingEnabled ?? true
+
         guard var state = appSettingsStore.state else {
             // If state doesn't exist, this is a fresh install. Remove any persisted values in the
             // keychain from the previous install.
