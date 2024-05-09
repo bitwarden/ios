@@ -76,11 +76,6 @@ class AppCoordinatorTests: BitwardenTestCase {
         XCTAssertEqual(module.vaultCoordinator.routes, [.autofillList])
     }
 
-    /// `didCompleteAuth()` checks for unassigned items
-    func test_didCompleteAuth_unassignedItems() {
-        
-    }
-
     /// `didDeleteAccount(otherAccounts:)` navigates to the `didDeleteAccount` route.
     func test_didDeleteAccount() {
         subject.didDeleteAccount()
