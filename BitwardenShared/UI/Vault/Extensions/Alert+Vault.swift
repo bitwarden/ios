@@ -95,6 +95,7 @@ extension Alert {
     ///
     /// - Parameters:
     ///   - cipherView: The cipher view to show.
+    ///   - hasMasterPassword: Whether the user has a master password.
     ///   - hasPremium: Whether the user has a premium account.
     ///   - id: The id of the item.
     ///   - showEdit: Whether to show the edit option (should be `false` for items in the trash).
@@ -102,8 +103,9 @@ extension Alert {
     ///
     /// - Returns: An alert presenting the user with options to select an attachment type.
     @MainActor
-    static func moreOptions( // swiftlint:disable:this function_body_length
+    static func moreOptions( // swiftlint:disable:this function_body_length function_parameter_count
         cipherView: CipherView,
+        hasMasterPassword: Bool,
         hasPremium: Bool,
         id: String,
         showEdit: Bool,
@@ -117,7 +119,10 @@ extension Alert {
         // Add the option to edit the cipher if desired.
         if showEdit {
             alertActions.append(AlertAction(title: Localizations.edit, style: .default) { _, _ in
-                await action(.edit(cipherView: cipherView))
+                await action(.edit(
+                    cipherView: cipherView,
+                    requiresMasterPasswordReprompt: cipherView.reprompt == .password && hasMasterPassword
+                ))
             })
         }
 
@@ -129,7 +134,7 @@ extension Alert {
                     await action(.copy(
                         toast: Localizations.number,
                         value: number,
-                        requiresMasterPasswordReprompt: cipherView.reprompt == .password
+                        requiresMasterPasswordReprompt: cipherView.reprompt == .password && hasMasterPassword
                     ))
                 })
             }
@@ -138,7 +143,7 @@ extension Alert {
                     await action(.copy(
                         toast: Localizations.securityCode,
                         value: code,
-                        requiresMasterPasswordReprompt: cipherView.reprompt == .password
+                        requiresMasterPasswordReprompt: cipherView.reprompt == .password && hasMasterPassword
                     ))
                 })
             }
@@ -158,7 +163,7 @@ extension Alert {
                     await action(.copy(
                         toast: Localizations.password,
                         value: password,
-                        requiresMasterPasswordReprompt: cipherView.reprompt == .password
+                        requiresMasterPasswordReprompt: cipherView.reprompt == .password && hasMasterPassword
                     ))
                 })
             }
@@ -166,7 +171,7 @@ extension Alert {
                 alertActions.append(AlertAction(title: Localizations.copyTotp, style: .default) { _, _ in
                     await action(.copyTotp(
                         totpKey: totpKey,
-                        requiresMasterPasswordReprompt: cipherView.reprompt == .password
+                        requiresMasterPasswordReprompt: cipherView.reprompt == .password && hasMasterPassword
                     ))
                 })
             }

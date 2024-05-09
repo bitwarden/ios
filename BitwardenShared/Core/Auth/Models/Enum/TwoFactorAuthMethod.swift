@@ -99,7 +99,7 @@ enum TwoFactorAuthMethod: Int {
         case .yubiKey:
             Localizations.yubiKeyInstructionIos
         case .webAuthn:
-            Localizations.continueToCompleteWebAuthnVerfication
+            Localizations.continueToCompleteWebAuthnVerification
         default:
             ""
         }

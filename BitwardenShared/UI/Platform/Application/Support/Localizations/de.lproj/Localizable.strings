@@ -865,3 +865,10 @@
 "YourOrganizationPermissionsWereUpdatedRequeringYouToSetAMasterPassword" = "Deine Organisationsberechtigungen wurden aktualisiert und verlangen, dass du ein Master-Passwort festlegen musst.";
 "YourOrganizationRequiresYouToSetAMasterPassword" = "Deine Organisation verlangt, dass du ein Master-Passwort festlegen musst.";
 "SetUpAnUnlockOptionToChangeYourVaultTimeoutAction" = "Richte eine Entsperroption ein, um deine Aktion bei Tresor-Timeout zu ändern.";
+"DuoTwoStepLoginIsRequiredForYourAccount" = "Für dein Konto ist die Duo Zwei-Faktor-Authentifizierung erforderlich.";
+"FollowTheStepsFromDuoToFinishLoggingIn" = "Folge den Schritten von Duo, um die Anmeldung abzuschließen.";
+"LaunchDuo" = "Duo starten";
+"OrganizationUnassignedItemsMessageUSEUDescriptionLong" = "Hinweis: Nicht zugeordnete Organisationseinträge sind nicht mehr in der Ansicht aller Tresore sichtbar und nur über die Administrator-Konsole zugänglich. Weise diese Einträge einer Sammlung aus der Administrator-Konsole zu, um sie sichtbar zu machen.";
+"OrganizationUnassignedItemsMessageSelfHost041624DescriptionLong" = "Ab dem 16. Mai 2024 werden nicht zugeordnete Organisationseinträge nicht mehr in der Ansicht aller Tresore sichtbar und nur über die Administrator-Konsole zugänglich sein. Weise diese Einträge einer Sammlung aus der Administrator-Konsole zu, um sie sichtbar zu machen.";
+"RemindMeLater" = "Später erinnern";
+"Notice" = "Hinweis";

@@ -279,7 +279,7 @@ class VaultUnlockProcessorTests: BitwardenTestCase { // swiftlint:disable:this t
     func test_perform_unlockVault() async throws {
         stateService.activeAccount = Account.fixture()
         stateService.pinProtectedUserKeyValue["1"] = "123"
-        stateService.pinKeyEncryptedUserKeyValue["1"] = "123"
+        stateService.encryptedPinByUserId["1"] = "123"
         subject.state.masterPassword = "password"
 
         await subject.perform(.unlockVault)

@@ -865,3 +865,10 @@
 "YourOrganizationPermissionsWereUpdatedRequeringYouToSetAMasterPassword" = "Дозволе за вашу организацију су ажуриране, што захтева да поставите главну лозинку.";
 "YourOrganizationRequiresYouToSetAMasterPassword" = "Ваша организација захтева да поставите главну лозинку.";
 "SetUpAnUnlockOptionToChangeYourVaultTimeoutAction" = "Подесите опцију откључавања да бисте променили радњу временског ограничења сефа.";
+"DuoTwoStepLoginIsRequiredForYourAccount" = "Duo пријава у два корака је потребна за ваш налог.";
+"FollowTheStepsFromDuoToFinishLoggingIn" = "Пратите кораке од Duo да завршите пријављивање.";
+"LaunchDuo" = "Покренути Duo";
+"OrganizationUnassignedItemsMessageUSEUDescriptionLong" = "Недодељене ставке организације више нису видљиве у приказу Сви сефови и доступне су само преко Админ конзоле. Доделите ове ставке колекцији са Админ конзолом да бисте их учинили видљивим.";
+"OrganizationUnassignedItemsMessageSelfHost041624DescriptionLong" = "On May 16, 2024, unassigned organization items will no longer be visible in the All Vaults view and only accessible via the Admin Console. Assign these items to a collection from the Admin Console to make them visible.";
+"RemindMeLater" = "Подсети ме касније";
+"Notice" = "Напомена";

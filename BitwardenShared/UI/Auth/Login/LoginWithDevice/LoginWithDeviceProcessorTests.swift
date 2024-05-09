@@ -114,46 +114,55 @@ class LoginWithDeviceProcessorTests: BitwardenTestCase {
         XCTAssertTrue(errorReporter.errors.isEmpty)
     }
 
-    /// `checkForResponse()` shows an alert and dismisses the view if the request has been denied.
+    /// `checkForResponse()`stops the request timer if the request has been denied.
     func test_checkForResponse_denied() throws {
-        let expiredLoginRequest = LoginRequest.fixture(requestApproved: false, responseDate: .now)
-        authService.checkPendingLoginRequestResult = .success(expiredLoginRequest)
+        let deniedLoginRequest = LoginRequest.fixture(requestApproved: false, responseDate: .now)
+        authService.checkPendingLoginRequestResult = .success(deniedLoginRequest)
 
         let task = Task {
             await self.subject.perform(.appeared)
         }
-
-        waitFor(!coordinator.alertShown.isEmpty)
+        waitFor(subject.checkTimer?.isValid == false)
         task.cancel()
 
-        XCTAssertEqual(coordinator.alertShown.last, .requestDenied(action: {}))
-        XCTAssertTrue(subject.checkTimer?.isValid == false)
-
-        let alert = try XCTUnwrap(coordinator.alertShown.last)
-        Task { try await alert.tapAction(title: Localizations.ok) }
-        waitFor(!coordinator.routes.isEmpty)
-        XCTAssertEqual(coordinator.routes, [.dismiss])
+        try XCTAssertFalse(XCTUnwrap(subject.checkTimer).isValid)
+        XCTAssertTrue(coordinator.alertShown.isEmpty)
+        XCTAssertTrue(coordinator.routes.isEmpty)
     }
 
-    /// `checkForResponse()` shows an alert and dismisses the view if the request has expired.
-    func test_checkForResponse_expired() throws {
-        let expiredLoginRequest = LoginRequest.fixture(creationDate: .distantPast)
-        authService.checkPendingLoginRequestResult = .success(expiredLoginRequest)
+    /// `checkForResponse()` stops the request timer if the request returns an error. Once the error
+    /// alert has been dismissed, requests resume again.
+    func test_checkForResponse_error() throws {
+        authService.checkPendingLoginRequestResult = .failure(BitwardenTestError.example)
 
         let task = Task {
             await self.subject.perform(.appeared)
         }
-
         waitFor(!coordinator.alertShown.isEmpty)
         task.cancel()
 
-        XCTAssertEqual(coordinator.alertShown.last, .requestExpired(action: {}))
-        XCTAssertTrue(subject.checkTimer?.isValid == false)
+        XCTAssertEqual(coordinator.alertShown, [.networkResponseError(BitwardenTestError.example)])
 
-        let alert = try XCTUnwrap(coordinator.alertShown.last)
-        Task { try await alert.tapAction(title: Localizations.ok) }
-        waitFor(!coordinator.routes.isEmpty)
-        XCTAssertEqual(coordinator.routes, [.dismiss])
+        authService.checkPendingLoginRequestResult = .success(.fixture(requestApproved: true))
+        coordinator.alertOnDismissed?()
+        waitFor(!coordinator.events.isEmpty)
+
+        XCTAssertEqual(coordinator.events, [.didCompleteAuth])
+    }
+
+    /// `checkForResponse()` stops the request timer if the request has expired.
+    func test_checkForResponse_expired() throws {
+        authService.checkPendingLoginRequestResult = .failure(CheckLoginRequestError.expired)
+
+        let task = Task {
+            await self.subject.perform(.appeared)
+        }
+        waitFor(subject.checkTimer?.isValid == false)
+        task.cancel()
+
+        try XCTAssertFalse(XCTUnwrap(subject.checkTimer).isValid)
+        XCTAssertTrue(coordinator.alertShown.isEmpty)
+        XCTAssertTrue(coordinator.routes.isEmpty)
     }
 
     /// `checkForResponse()` navigates the user to the two factor flow if it's required to complete login.

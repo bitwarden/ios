@@ -23,6 +23,7 @@ class MockAppSettingsStore: AppSettingsStore {
     var connectToWatchByUserId = [String: Bool]()
     var defaultUriMatchTypeByUserId = [String: UriMatchType]()
     var disableAutoTotpCopyByUserId = [String: Bool]()
+    var encryptedPinByUserId = [String: String]()
     var encryptedPrivateKeys = [String: String]()
     var encryptedUserKeys = [String: String]()
     var lastActiveTime = [String: Date]()
@@ -30,8 +31,8 @@ class MockAppSettingsStore: AppSettingsStore {
     var masterPasswordHashes = [String: String]()
     var notificationsLastRegistrationDates = [String: Date]()
     var passwordGenerationOptions = [String: PasswordGenerationOptions]()
-    var pinKeyEncryptedUserKey = [String: String]()
     var pinProtectedUserKey = [String: String]()
+    var serverConfig = [String: ServerConfig]()
     var shouldTrustDevice = [String: Bool?]()
     var timeoutAction = [String: Int]()
     var twoFactorTokens = [String: String]()
@@ -67,6 +68,10 @@ class MockAppSettingsStore: AppSettingsStore {
         disableAutoTotpCopyByUserId[userId] ?? false
     }
 
+    func encryptedPin(userId: String) -> String? {
+        encryptedPinByUserId[userId]
+    }
+
     func encryptedPrivateKey(userId: String) -> String? {
         encryptedPrivateKeys[userId]
     }
@@ -95,16 +100,16 @@ class MockAppSettingsStore: AppSettingsStore {
         passwordGenerationOptions[userId]
     }
 
-    func pinKeyEncryptedUserKey(userId: String) -> String? {
-        pinKeyEncryptedUserKey[userId]
-    }
-
     func pinProtectedUserKey(userId: String) -> String? {
         pinProtectedUserKey[userId]
     }
 
     func twoFactorToken(email: String) -> String? {
         twoFactorTokens[email]
+    }
+
+    func serverConfig(userId: String) -> ServerConfig? {
+        serverConfig[userId]
     }
 
     func setAllowSyncOnRefresh(_ allowSyncOnRefresh: Bool?, userId: String) {
@@ -125,6 +130,10 @@ class MockAppSettingsStore: AppSettingsStore {
 
     func setDisableAutoTotpCopy(_ disableAutoTotpCopy: Bool?, userId: String) {
         disableAutoTotpCopyByUserId[userId] = disableAutoTotpCopy
+    }
+
+    func setEncryptedPin(_ encryptedPin: String?, userId: String) {
+        encryptedPinByUserId[userId] = encryptedPin
     }
 
     func setEncryptedPrivateKey(key: String?, userId: String) {
@@ -167,12 +176,12 @@ class MockAppSettingsStore: AppSettingsStore {
         passwordGenerationOptions[userId] = options
     }
 
-    func setPinKeyEncryptedUserKey(key: String?, userId: String) {
-        pinKeyEncryptedUserKey[userId] = key
-    }
-
     func setPinProtectedUserKey(key: String?, userId: String) {
         pinProtectedUserKey[userId] = key
+    }
+
+    func setServerConfig(_ config: ServerConfig?, userId: String) {
+        serverConfig[userId] = config
     }
 
     func setShouldTrustDevice(shouldTrustDevice: Bool?, userId: String) {

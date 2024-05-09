@@ -22,7 +22,7 @@ struct ViewItemState: Equatable {
     var loadingState: LoadingState<CipherItemState> = .loading(nil)
 
     /// Whether the user has a master password.
-    var userHasMasterPassword = true
+    var hasMasterPassword = true
 
     /// A flag indicating if the user has premium features.
     var hasPremiumFeatures = false
@@ -35,7 +35,7 @@ struct ViewItemState: Equatable {
         guard !hasVerifiedMasterPassword else { return false }
         return switch loadingState {
         case let .data(state):
-            state.isMasterPasswordRePromptOn
+            state.isMasterPasswordRePromptOn && hasMasterPassword
         case .loading:
             false
         }

@@ -314,7 +314,7 @@
 "ShowWebsiteIcons" = "Hiện biểu tượng trang web";
 "ShowWebsiteIconsDescription" = "Hiện logo trang web bên cạnh mỗi đăng nhập.";
 "IconsUrl" = "Địa chỉ biểu tượng máy chủ";
-"AutofillWithBitwarden" = "Tự động điền với Bitwarden";
+"AutofillWithBitwarden" = "Tự động điền bằng Bitwarden";
 "VaultIsLocked" = "Kho đã khóa";
 "GoToMyVault" = "Đến kho của tôi";
 "Collections" = "Các Bộ Sưu Tập";
@@ -865,3 +865,10 @@
 "YourOrganizationPermissionsWereUpdatedRequeringYouToSetAMasterPassword" = "Quyền tổ chức của bạn đã được cập nhật, yêu cầu bạn đặt mật khẩu chính.";
 "YourOrganizationRequiresYouToSetAMasterPassword" = "Tổ chức của bạn yêu cầu bạn đặt mật khẩu chính.";
 "SetUpAnUnlockOptionToChangeYourVaultTimeoutAction" = "Thiết lập khóa khi hết thời gian chờ kho.";
+"DuoTwoStepLoginIsRequiredForYourAccount" = "Tài khoản của bạn bắt buộc đăng nhập 2 bước Dou.";
+"FollowTheStepsFromDuoToFinishLoggingIn" = "Làm theo các bước từ Dou để hoàn tất đăng nhập.";
+"LaunchDuo" = "Khởi động Dou";
+"OrganizationUnassignedItemsMessageUSEUDescriptionLong" = "Các mục tổ chức chưa được chỉ định sẽ không còn hiển thị trong chế độ xem Toàn Bộ, mà chỉ có thể truy cập qua Bảng điều khiển dành cho quản trị viên. Để hiện thị, chỉ định các mục này cho một thư mục từ Bảng điều khiển dành cho quản trị viên.";
+"OrganizationUnassignedItemsMessageSelfHost041624DescriptionLong" = "Vào ngày 16 tháng 5 năm 2024, các mục tổ chức chưa được chỉ định sẽ không còn hiển thị trong chế độ xem Toàn Bộ, mà chỉ có thể truy cập qua Bảng điều khiển dành cho quản trị viên. Để hiện thị, chỉ định các mục này cho một thư mục từ Bảng điều khiển dành cho quản trị viên.";
+"RemindMeLater" = "Nhắc sau";
+"Notice" = "Lưu ý";

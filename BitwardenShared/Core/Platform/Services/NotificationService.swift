@@ -253,8 +253,7 @@ class DefaultNotificationService: NotificationService {
     ///
     private func decodePayload(_ message: [AnyHashable: Any]) async throws -> PushNotificationData? {
         // Decode the content of the message.
-        guard let messageData = message["aps"] as? [AnyHashable: Any],
-              let messageContent = messageData["data"] as? [AnyHashable: Any]
+        guard let messageContent = message["data"] as? [AnyHashable: Any]
         else { return nil }
         let jsonData = try JSONSerialization.data(withJSONObject: messageContent)
         let notificationData = try JSONDecoder().decode(PushNotificationData.self, from: jsonData)

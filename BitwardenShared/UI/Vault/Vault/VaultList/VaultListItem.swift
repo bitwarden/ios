@@ -93,6 +93,25 @@ extension VaultListItem {
         }
     }
 
+    /// The accessibility ID for the ciphers icon.
+    var iconAccessibilityId: String {
+        switch itemType {
+        case let .cipher(cipherItem):
+            switch cipherItem.type {
+            case .card:
+                return "CardCipherIcon"
+            case .identity:
+                return "IdentityCipherIcon"
+            case .login:
+                return "LoginCipherIcon"
+            case .secureNote:
+                return "SecureNoteCipherIcon"
+            }
+        default:
+            return ""
+        }
+    }
+
     /// The login view containing the uri's to download the special decorative icon, if applicable.
     var loginView: BitwardenSdk.LoginView? {
         switch itemType {

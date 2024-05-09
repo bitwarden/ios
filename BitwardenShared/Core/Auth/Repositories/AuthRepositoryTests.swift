@@ -12,6 +12,7 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
     var biometricsRepository: MockBiometricsRepository!
     var client: MockHTTPClient!
     var clientService: MockClientService!
+    var configService: MockConfigService!
     var environmentService: MockEnvironmentService!
     var keychainService: MockKeychainRepository!
     var organizationService: MockOrganizationService!
@@ -86,6 +87,7 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         accountAPIService = APIService(client: client)
         authService = MockAuthService()
         biometricsRepository = MockBiometricsRepository()
+        configService = MockConfigService()
         environmentService = MockEnvironmentService()
         keychainService = MockKeychainRepository()
         organizationService = MockOrganizationService()
@@ -98,6 +100,7 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
             authService: authService,
             biometricsRepository: biometricsRepository,
             clientService: clientService,
+            configService: configService,
             environmentService: environmentService,
             keychainService: keychainService,
             organizationAPIService: APIService(client: client),
@@ -117,6 +120,7 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         biometricsRepository = nil
         client = nil
         clientService = nil
+        configService = nil
         environmentService = nil
         keychainService = nil
         organizationService = nil
@@ -133,12 +137,12 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         let userId = Account.fixture().profile.userId
 
         stateService.pinProtectedUserKeyValue[userId] = "123"
-        stateService.pinKeyEncryptedUserKeyValue[userId] = "123"
+        stateService.encryptedPinByUserId[userId] = "123"
         stateService.accountVolatileData[userId]?.pinProtectedUserKey = "123"
 
         try await subject.clearPins()
         XCTAssertNil(stateService.pinProtectedUserKeyValue[userId])
-        XCTAssertNil(stateService.pinKeyEncryptedUserKeyValue[userId])
+        XCTAssertNil(stateService.encryptedPinByUserId[userId])
         XCTAssertNil(stateService.accountVolatileData[userId]?.pinProtectedUserKey)
     }
 
@@ -171,6 +175,10 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         XCTAssertEqual(clientService.mockAuth.makeRegisterTdeKeysEmail, "user@bitwarden.com")
         XCTAssertEqual(clientService.mockAuth.makeRegisterTdeKeysOrgPublicKey, "MIIBIjAN...2QIDAQAB")
         XCTAssertEqual(clientService.mockAuth.makeRegisterTdeKeysRememberDevice, true)
+        XCTAssertEqual(
+            stateService.accountEncryptionKeys["1"],
+            AccountEncryptionKeys(encryptedPrivateKey: "privateKey", encryptedUserKey: nil)
+        )
     }
 
     /// `createNewSsoUser()` creates a new account for sso JIT user and don't trust device.
@@ -200,6 +208,10 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         XCTAssertNil(trustDeviceService.trustDeviceWithExistingKeysValue)
         XCTAssertEqual(clientService.mockAuth.makeRegisterTdeKeysOrgPublicKey, "MIIBIjAN...2QIDAQAB")
         XCTAssertEqual(clientService.mockAuth.makeRegisterTdeKeysRememberDevice, false)
+        XCTAssertEqual(
+            stateService.accountEncryptionKeys["1"],
+            AccountEncryptionKeys(encryptedPrivateKey: "privateKey", encryptedUserKey: nil)
+        )
     }
 
     /// `deleteAccount()` deletes the active account and removes it from the state.
@@ -1029,7 +1041,7 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         let userId = account.profile.userId
         try await subject.setPins("123", requirePasswordAfterRestart: true)
         XCTAssertEqual(stateService.pinProtectedUserKeyValue[userId], "12")
-        XCTAssertEqual(stateService.pinKeyEncryptedUserKeyValue[userId], "34")
+        XCTAssertEqual(stateService.encryptedPinByUserId[userId], "34")
         XCTAssertEqual(stateService.accountVolatileData[
             userId,
             default: AccountVolatileData()
@@ -1299,7 +1311,7 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
             "1": AccountEncryptionKeys(encryptedPrivateKey: "PRIVATE_KEY", encryptedUserKey: "USER_KEY"),
         ]
 
-        stateService.pinKeyEncryptedUserKeyValue[account.profile.userId] = "123"
+        stateService.encryptedPinByUserId[account.profile.userId] = "123"
         stateService.pinProtectedUserKeyValue[account.profile.userId] = "123"
 
         await assertAsyncDoesNotThrow {

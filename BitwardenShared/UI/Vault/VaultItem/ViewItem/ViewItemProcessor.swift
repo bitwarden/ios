@@ -444,6 +444,7 @@ private extension ViewItemProcessor {
                     newState.loadingState = .data(itemState)
                 }
                 newState.hasVerifiedMasterPassword = state.hasVerifiedMasterPassword
+                newState.hasMasterPassword = hasMasterPassword
                 state = newState
             }
         } catch {

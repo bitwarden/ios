@@ -240,10 +240,11 @@ final class VaultGroupProcessor: StateProcessor<// swiftlint:disable:this type_b
             guard case let .cipher(cipherView) = item.itemType else { return }
 
             let hasPremium = await (try? services.vaultRepository.doesActiveAccountHavePremium()) ?? false
-            state.hasMasterPassword = try await services.stateService.getUserHasMasterPassword()
+            let hasMasterPassword = try await services.stateService.getUserHasMasterPassword()
 
             coordinator.showAlert(.moreOptions(
                 cipherView: cipherView,
+                hasMasterPassword: hasMasterPassword,
                 hasPremium: hasPremium,
                 id: item.id,
                 showEdit: state.group != .trash,
@@ -304,8 +305,8 @@ final class VaultGroupProcessor: StateProcessor<// swiftlint:disable:this type_b
             } else {
                 await generateAndCopyTotpCode(totpKey: totpKey)
             }
-        case let .edit(cipherView):
-            if cipherView.reprompt == .password, state.hasMasterPassword {
+        case let .edit(cipherView, requiresMasterPasswordReprompt):
+            if requiresMasterPasswordReprompt {
                 presentMasterPasswordRepromptAlert {
                     self.coordinator.navigate(to: .editItem(cipherView), context: self)
                 }

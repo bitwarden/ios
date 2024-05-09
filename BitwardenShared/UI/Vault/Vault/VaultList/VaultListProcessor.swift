@@ -290,10 +290,11 @@ extension VaultListProcessor {
             guard case let .cipher(cipherView) = item.itemType else { return }
 
             let hasPremium = await (try? services.vaultRepository.doesActiveAccountHavePremium()) ?? false
-            state.hasMasterPassword = try await services.stateService.getUserHasMasterPassword()
+            let hasMasterPassword = try await services.stateService.getUserHasMasterPassword()
 
             coordinator.showAlert(.moreOptions(
                 cipherView: cipherView,
+                hasMasterPassword: hasMasterPassword,
                 hasPremium: hasPremium,
                 id: item.id,
                 showEdit: true,
@@ -328,8 +329,8 @@ extension VaultListProcessor {
             } else {
                 await generateAndCopyTotpCode(totpKey: totpKey)
             }
-        case let .edit(cipherView):
-            if cipherView.reprompt == .password, state.hasMasterPassword {
+        case let .edit(cipherView, requiresMasterPasswordReprompt):
+            if requiresMasterPasswordReprompt {
                 presentMasterPasswordRepromptAlert {
                     self.coordinator.navigate(to: .editItem(cipherView), context: self)
                 }
@@ -395,7 +396,7 @@ enum MoreOptionsAction: Equatable {
     case copyTotp(totpKey: TOTPKeyModel, requiresMasterPasswordReprompt: Bool)
 
     /// Navigate to the view to edit the `cipherView`.
-    case edit(cipherView: CipherView)
+    case edit(cipherView: CipherView, requiresMasterPasswordReprompt: Bool)
 
     /// Launch the `url` in the device's browser.
     case launch(url: URL)

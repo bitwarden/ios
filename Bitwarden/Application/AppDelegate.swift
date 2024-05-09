@@ -62,6 +62,14 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
         appProcessor?.failedToRegister(error)
     }
 
+    func application(
+        _ application: UIApplication,
+        didReceiveRemoteNotification userInfo: [AnyHashable: Any]
+    ) async -> UIBackgroundFetchResult {
+        await appProcessor?.messageReceived(userInfo)
+        return .newData
+    }
+
     /// Received a response to a push notification alert.
     func userNotificationCenter(
         _: UNUserNotificationCenter,

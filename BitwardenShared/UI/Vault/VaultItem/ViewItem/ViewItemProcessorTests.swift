@@ -119,6 +119,7 @@ class ViewItemProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
         )!
 
         XCTAssertTrue(subject.state.hasPremiumFeatures)
+        XCTAssertTrue(subject.state.hasMasterPassword)
         XCTAssertEqual(subject.state.loadingState, .data(expectedState))
         XCTAssertFalse(vaultRepository.fetchSyncCalled)
     }
@@ -179,6 +180,7 @@ class ViewItemProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
             hasPremium: false
         )!
 
+        XCTAssertTrue(subject.state.hasMasterPassword)
         XCTAssertEqual(subject.state.loadingState, .data(expectedState))
         XCTAssertFalse(vaultRepository.fetchSyncCalled)
     }
@@ -207,6 +209,7 @@ class ViewItemProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
             hasPremium: false
         )!
 
+        XCTAssertTrue(subject.state.hasMasterPassword)
         XCTAssertEqual(subject.state.loadingState, .data(expectedState))
         XCTAssertFalse(vaultRepository.fetchSyncCalled)
     }
@@ -845,7 +848,7 @@ class ViewItemProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
     /// Tests that the despite a cipher having a `.password` re-prompt property, a
     /// re-prompt will not be shown for a user that has no password.
     func test_receive_editPressed_noPassword() {
-        subject.state.userHasMasterPassword = false
+        subject.state.hasMasterPassword = false
 
         // Although the cipher calls for a password reprompt, it won't be shown
         // because the user has no password.
@@ -859,7 +862,7 @@ class ViewItemProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
         subject.receive(.editPressed)
         waitFor(!coordinator.routes.isEmpty)
         XCTAssertEqual(coordinator.routes, [.editItem(cipherView, true)])
-        XCTAssertFalse(subject.state.userHasMasterPassword)
+        XCTAssertFalse(subject.state.hasMasterPassword)
     }
 
     /// `receive(_:)` with `.morePressed(.attachments)` navigates the user to attachments view.

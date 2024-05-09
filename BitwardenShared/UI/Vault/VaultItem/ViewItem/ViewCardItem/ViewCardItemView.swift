@@ -29,7 +29,7 @@ struct ViewCardItemView: View {
                 value: store.state.cardholderName
             )
             .accessibilityElement(children: .contain)
-            .accessibilityIdentifier("ItemRow")
+            .accessibilityIdentifier("CardholderNameEntry")
         }
     }
 
@@ -42,7 +42,10 @@ struct ViewCardItemView: View {
                     .styleGuide(.body)
                     .foregroundColor(Asset.Colors.textPrimary.swiftUIColor)
             } accessoryContent: {
-                PasswordVisibilityButton(isPasswordVisible: isVisible) {
+                PasswordVisibilityButton(
+                    accessibilityIdentifier: "ShowCardNumberButton",
+                    isPasswordVisible: isVisible
+                ) {
                     store.send(
                         .cardItemAction(
                             .toggleNumberVisibilityChanged(!isVisible)
@@ -60,7 +63,7 @@ struct ViewCardItemView: View {
                 .accessibilityIdentifier("CopyValueButton")
             }
             .accessibilityElement(children: .contain)
-            .accessibilityIdentifier("ItemRow")
+            .accessibilityIdentifier("CardNumberEntry")
         }
     }
 
@@ -93,7 +96,7 @@ struct ViewCardItemView: View {
                 value: expirationString
             )
             .accessibilityElement(children: .contain)
-            .accessibilityIdentifier("ItemRow")
+            .accessibilityIdentifier("CardExpirationYearEntry")
         }
     }
 
@@ -106,7 +109,10 @@ struct ViewCardItemView: View {
                     .styleGuide(.body)
                     .foregroundColor(Asset.Colors.textPrimary.swiftUIColor)
             } accessoryContent: {
-                PasswordVisibilityButton(isPasswordVisible: isVisible) {
+                PasswordVisibilityButton(
+                    accessibilityIdentifier: "CardShowSecurityCodeButton",
+                    isPasswordVisible: isVisible
+                ) {
                     store.send(
                         .cardItemAction(
                             .toggleCodeVisibilityChanged(!isVisible)
@@ -124,7 +130,7 @@ struct ViewCardItemView: View {
                 .accessibilityIdentifier("CopyValueButton")
             }
             .accessibilityElement(children: .contain)
-            .accessibilityIdentifier("ItemRow")
+            .accessibilityIdentifier("CardSecurityCodeEntry")
         }
     }
 }

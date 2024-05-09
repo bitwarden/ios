@@ -865,3 +865,10 @@
 "YourOrganizationPermissionsWereUpdatedRequeringYouToSetAMasterPassword" = "Povolenia vašej organizácie boli aktualizované, čo si vyžaduje nastavenie hlavného hesla.";
 "YourOrganizationRequiresYouToSetAMasterPassword" = "Vaša organizácia vyžaduje, aby ste nastavili hlavné heslo.";
 "SetUpAnUnlockOptionToChangeYourVaultTimeoutAction" = "Nastavte možnosť odomknutia, aby ste zmenili akciu pri vypršaní času trezoru.";
+"DuoTwoStepLoginIsRequiredForYourAccount" = "Pre váš účet je potrebné dvojstupňové prihlásenie Duo.";
+"FollowTheStepsFromDuoToFinishLoggingIn" = "Postupujte podľa krokov z aplikácie Duo a dokončite prihlasovanie.";
+"LaunchDuo" = "Spustiť Duo";
+"OrganizationUnassignedItemsMessageUSEUDescriptionLong" = "Nepriradené položky organizácie už nie sú viditeľné v zobrazení Všetky Trezory a sú prístupné len cez administrátorskú konzolu. Aby boli viditeľné, priraďte tieto položky do kolekcie z konzoly administrátora.";
+"OrganizationUnassignedItemsMessageSelfHost041624DescriptionLong" = "16. mája nepriradené položky organizácie už nebudú viditeľné v zobrazení Všetky Trezory a budú prístupné len cez administrátorskú konzolu. Aby boli viditeľné, priraďte tieto položky do kolekcie z konzoly administrátora.";
+"RemindMeLater" = "Pripomenúť neskôr";
+"Notice" = "Upozornenie";

@@ -155,7 +155,7 @@
 "PasswordHint" = "கடவுச்சொல் குறிப்பு";
 "PasswordHintAlert" = "உங்கள் பிரதான கடவுச்சொல் குறிப்பைக் கொண்ட மின்னஞ்சலை நாங்கள் உங்களுக்கு அனுப்பியுள்ளோம்.";
 "PasswordOverrideAlert" = "தற்போதைய கடவுச்சொல்லை மேலெழுத உறுதியா?";
-"PushNotificationAlert" = "push அறிவிப்புகள் பயன்படுத்தி Bitwarden உம் பெட்டகத்தை தானாக ஒத்திசைகிறது. சிறந்த சாத்தியமான அனுபவத்திற்கு, பின்வரும் தூண்டியில் push அறிவிப்புகளை இயக்கச்சொல்லி கேட்டால் \"அனுமதி\"ஐ தேர்ந்தெடுக்கவும்.";
+"PushNotificationAlert" = "Push அறிவிப்புகள் பயன்படுத்தி Bitwarden உம் பெட்டகத்தை தானாக ஒத்திசைகிறது. சிறந்த சாத்தியமான அனுபவத்திற்கு, பின்வரும் தூண்டியில் push அறிவிப்புகளை இயக்கச்சொல்லி கேட்டால் \"அனுமதி\"ஐ தேர்ந்தெடுக்கவும்.";
 "RateTheApp" = "செயலியை மதிப்பிடுக";
 "RateTheAppDescription" = "ஒரு நல்ல விமர்சனம் மூலம் எங்களுக்கு உதவ தயவுசெய்து கருதுங்கள்!";
 "RegeneratePassword" = "கடவுச்சொல்லை மீண்டுமுருவாக்கு";
@@ -241,7 +241,7 @@
 "PremiumRequired" = "இவ்வம்சத்தை பயன்படுத்த உயர்தர உறுப்பினர் தகுதி தேவை.";
 "AttachementAdded" = "இணைப்பு சேர்க்கப்பட்டது";
 "AttachmentDeleted" = "இணைப்பு அழிக்கப்பட்டது";
-"ChooseFile" = "கோப்பை தேர்ந்தெடு";
+"ChooseFile" = "கோப்பைத் தேர்ந்தெடு";
 "File" = "கோப்பு";
 "NoFileChosen" = "எந்த கோப்பும் தேர்ந்தெடுக்கப்படவில்லை";
 "NoAttachments" = "இணைப்புகள் ஏதுமில்லை.";
@@ -276,7 +276,7 @@
 "Address3" = "முகவரி ௩";
 "April" = "ஏப்ரல்";
 "August" = "ஆகஸ்ட்";
-"Brand" = "சூட்டுக்குறி";
+"Brand" = "வணிகக்குறி";
 "CardholderName" = "அட்டைதாரரின் பெயர்";
 "CityTown" = "மாநகரம் / நகரம்";
 "Company" = "நிறுவனம்";
@@ -357,7 +357,7 @@
 "YubiKeyInstructionIos" = "தொடர, உம் யீபிகீ NEOவை சாதனத்தின் பின்புறத்திற்கெதிரே பிடித்திரு.";
 "BitwardenAutofillAccessibilityServiceDescription2" = "செயலிகள் வழக்கமான தன்னிரப்பிச்சேவையை ஆதரிக்காதபோது அணுகல்தன்மை சேவை பயன்படுத்த உதவிகரமாகவிருக்கலாம்.";
 "DatePasswordUpdated" = "கடவுச்சொல் புதுப்பிக்கப்பட்டது";
-"DateUpdated" = "புதுப்பிக்கப்பட்டது";
+"DateUpdated" = "புதுப்பித்த நேரம்";
 "AutofillActivated" = "தன்னிரப்பல் செயல்படுத்தப்பட்டது!";
 "MustLogInMainAppAutofill" = "தன்னிரப்பலை பயன்படுத்தும் முன் நீங்கள் முதன்மை Bitwarden செயலியில் உள்நுழைய வேண்டும்.";
 "AutofillSetup" = "செயலிகள் மற்றும் வலைத்தளங்களில் உள்நுழையும்போது உம் உள்நுழைவுகளை இப்போது விசைப்பலகையிலிருந்து எளிதாக அணுக இயலும்.";
@@ -463,7 +463,7 @@
 "LoginExpired" = "உம் உள்நுழைவு அமர்வு காலாவதியானது.";
 "BiometricsDirection" = "உயிரியளவுச் சரிபார்ப்பு";
 "Biometrics" = "உயிரியளவுகள்";
-"UseBiometricsToUnlock" = "உயிரியளவுகளைப் பயன்படுத்திப் பூட்டவிழ்";
+"UseBiometricsToUnlock" = "உயிரியளவுகளால் பூட்டவிழ்";
 "AccessibilityOverlayPermissionAlert" = "Bitwardenக்கு கவனம் தேவை - Bitwarden அமைப்புகளிலிருந்து \"தன்னிரப்பி அணுகல்தன்மை சேவை\" ஐப் பார்";
 "BitwardenAutofillServiceOverlayPermission" = "௩. Bitwarden-க்கான Android செயலி அமைப்புகள் திரையில், \"பிற ஆப்ஸின் மேலே காட்டு\" தெரிவுகளுக்கு (மேம்பட்டவை அடியில்) செல் மற்றும் மேலடுக்கு ஆதரவை இயக்க நிலைமாற்றியை தட்டுக.";
 "OverlayPermission" = "அனுமதி";
@@ -702,7 +702,7 @@
 "ConfimLogInAttempForX" = "%1$@-க்கான உள்நுழைவு முயற்சியை உறுதுபடுத்து";
 "AllNotifications" = "எல்லா அறிவிப்புகளும்";
 "PasswordType" = "கடவுச்சொல் வகை";
-"WhatWouldYouLikeToGenerate" = "என்ன உருவாக்க விரும்புகிறீர்?";
+"WhatWouldYouLikeToGenerate" = "எதை உருவாக்க விரும்புகிறீர்?";
 "UsernameType" = "பயனர்பெயர் வகை";
 "PlusAddressedEmail" = "Plus addressed email";
 "CatchAllEmail" = "Catch-all email";
@@ -865,3 +865,10 @@
 "YourOrganizationPermissionsWereUpdatedRequeringYouToSetAMasterPassword" = "Your organization permissions were updated, requiring you to set a master password.";
 "YourOrganizationRequiresYouToSetAMasterPassword" = "Your organization requires you to set a master password.";
 "SetUpAnUnlockOptionToChangeYourVaultTimeoutAction" = "Set up an unlock option to change your vault timeout action.";
+"DuoTwoStepLoginIsRequiredForYourAccount" = "Duo two-step login is required for your account.";
+"FollowTheStepsFromDuoToFinishLoggingIn" = "Follow the steps from Duo to finish logging in.";
+"LaunchDuo" = "Launch Duo";
+"OrganizationUnassignedItemsMessageUSEUDescriptionLong" = "Unassigned organization items are no longer visible in the All Vaults view and only accessible via the Admin Console. Assign these items to a collection from the Admin Console to make them visible.";
+"OrganizationUnassignedItemsMessageSelfHost041624DescriptionLong" = "On May 16, 2024, unassigned organization items will no longer be visible in the All Vaults view and only accessible via the Admin Console. Assign these items to a collection from the Admin Console to make them visible.";
+"RemindMeLater" = "Remind me later";
+"Notice" = "Notice";
