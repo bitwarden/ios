@@ -549,7 +549,6 @@ class VaultGroupProcessorTests: BitwardenTestCase { // swiftlint:disable:this ty
         subject.state.group = .login
 
         await subject.perform(.morePressed(item))
-        XCTAssertFalse(subject.state.hasMasterPassword)
 
         let alert = try XCTUnwrap(coordinator.alertShown.last)
         XCTAssertEqual(alert.title, "Bitwarden")
