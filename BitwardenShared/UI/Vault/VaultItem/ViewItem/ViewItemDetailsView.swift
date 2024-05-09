@@ -101,7 +101,10 @@ struct ViewItemDetailsView: View {
                             if let value = customField.value {
                                 switch customField.type {
                                 case .hidden:
-                                    PasswordVisibilityButton(isPasswordVisible: customField.isPasswordVisible) {
+                                    PasswordVisibilityButton(
+                                        accessibilityIdentifier: "HiddenCustomFieldShowValueButton",
+                                        isPasswordVisible: customField.isPasswordVisible
+                                    ) {
                                         store.send(.customFieldVisibilityPressed(customField))
                                     }
                                     Button {
@@ -110,6 +113,8 @@ struct ViewItemDetailsView: View {
                                         Asset.Images.copy.swiftUIImage
                                             .imageStyle(.accessoryIcon)
                                     }
+                                    .accessibilityIdentifier("HiddenCustomFieldCopyValueButton")
+
                                 case .text:
                                     Button {
                                         store.send(.copyPressed(value: value, field: .customTextField))
@@ -117,6 +122,7 @@ struct ViewItemDetailsView: View {
                                         Asset.Images.copy.swiftUIImage
                                             .imageStyle(.accessoryIcon)
                                     }
+                                    .accessibilityIdentifier("TextCustomFieldCopyValueButton")
                                 case .boolean, .linked:
                                     EmptyView()
                                 }
@@ -219,7 +225,8 @@ struct ViewItemDetailsView: View {
                 ForEach(store.state.loginState.uris, id: \.self) { uri in
                     BitwardenTextValueField(
                         title: Localizations.uri,
-                        value: URL(string: uri.uri)?.host ?? uri.uri
+                        value: URL(string: uri.uri)?.host ?? uri.uri,
+                        valueAccessibilityIdentifier: "LoginUriEntry"
                     ) {
                         if let url = URL(string: uri.uri)?.sanitized, url.hasValidURLComponents {
                             Button {
