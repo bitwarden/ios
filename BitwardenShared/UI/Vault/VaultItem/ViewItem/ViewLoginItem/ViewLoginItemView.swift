@@ -126,7 +126,7 @@ struct ViewLoginItemView: View {
                             .imageStyle(.accessoryIcon)
                     }
                     .accessibilityLabel(Localizations.copy)
-                    .accessibilityIdentifier("LoginCopyTotpButton")
+                    .accessibilityIdentifier("CopyTotpValueButton")
                 }
             )
             .accessibilityElement(children: .contain)

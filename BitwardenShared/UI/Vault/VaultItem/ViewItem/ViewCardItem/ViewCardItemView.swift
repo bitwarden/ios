@@ -61,7 +61,7 @@ struct ViewCardItemView: View {
                         .imageStyle(.accessoryIcon)
                 }
                 .accessibilityLabel(Localizations.copy)
-                .accessibilityIdentifier("CopyValueButton")
+                .accessibilityIdentifier("CardCopyNumberButton")
             }
             .accessibilityElement(children: .contain)
         }
@@ -128,7 +128,7 @@ struct ViewCardItemView: View {
                         .imageStyle(.accessoryIcon)
                 }
                 .accessibilityLabel(Localizations.copy)
-                .accessibilityIdentifier("CopyValueButton")
+                .accessibilityIdentifier("CardCopySecurityNumberButton")
             }
             .accessibilityElement(children: .contain)
         }
