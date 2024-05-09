@@ -261,13 +261,9 @@ extension AppCoordinator: AuthCoordinatorDelegate {
 
     private func checkUnassignedItems() async {
         do {
-            let flag = await services.configService.getFeatureFlag(.unassignedItemsBanner, defaultValue: false)
-            let saved = try await services.stateService.getShouldCheckOrganizationUnassignedItems(userId: nil)
-
-            guard flag, saved
-            else { return }
-
-            guard try await services.vaultRepository.hasUnassignedCiphers()
+            guard await services.configService.getFeatureFlag(.unassignedItemsBanner, defaultValue: false),
+                  try await services.stateService.getShouldCheckOrganizationUnassignedItems(userId: nil),
+                  try await services.vaultRepository.hasUnassignedCiphers()
             else { return }
 
             showAlert(.unassignedCiphers {
