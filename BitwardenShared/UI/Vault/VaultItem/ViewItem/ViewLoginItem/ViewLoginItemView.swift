@@ -49,7 +49,7 @@ struct ViewLoginItemView: View {
             PasswordText(password: password, isPasswordVisible: store.state.isPasswordVisible)
                 .styleGuide(.body)
                 .foregroundColor(Asset.Colors.textPrimary.swiftUIColor)
-                .accessibilityIdentifier("ItemValue")
+                .accessibilityIdentifier("LoginPasswordEntry")
         } accessoryContent: {
             if store.state.canViewPassword {
                 PasswordVisibilityButton(isPasswordVisible: store.state.isPasswordVisible) {
@@ -72,11 +72,10 @@ struct ViewLoginItemView: View {
                         .imageStyle(.accessoryIcon)
                 }
                 .accessibilityLabel(Localizations.copy)
-                .accessibilityIdentifier("CopyValueButton")
+                .accessibilityIdentifier("LoginCopyPasswordButton")
             }
         }
         .accessibilityElement(children: .contain)
-        .accessibilityIdentifier("ItemRow")
     }
 
     /// Row signifying that premium subscription is required for TOTP.
@@ -92,14 +91,17 @@ struct ViewLoginItemView: View {
                 .accessibilityIdentifier("ItemValue")
         }
         .accessibilityElement(children: .contain)
-        .accessibilityIdentifier("ItemRow")
     }
 
     /// The username field.
     ///
     @ViewBuilder private var usernameRow: some View {
         let username = store.state.username
-        BitwardenTextValueField(title: Localizations.username, value: username) {
+        BitwardenTextValueField(
+            title: Localizations.username,
+            value: username,
+            valueAccessibilityIdentifier: "LoginUsernameEntry"
+        ) {
             Button {
                 store.send(.copyPressed(value: username, field: .username))
             } label: {
@@ -107,10 +109,9 @@ struct ViewLoginItemView: View {
                     .imageStyle(.accessoryIcon)
             }
             .accessibilityLabel(Localizations.copy)
-            .accessibilityIdentifier("CopyValueButton")
+            .accessibilityIdentifier("LoginCopyUsernameButton")
         }
         .accessibilityElement(children: .contain)
-        .accessibilityIdentifier("ItemRow")
     }
 
     // MARK: Methods
@@ -126,7 +127,6 @@ struct ViewLoginItemView: View {
             )
         )
         .accessibilityElement(children: .contain)
-        .accessibilityIdentifier("ItemRow")
     }
 
     /// The TOTP row.
@@ -144,10 +144,10 @@ struct ViewLoginItemView: View {
                         .styleGuide(.bodyMonospaced)
                         .multilineTextAlignment(.leading)
                         .foregroundColor(Asset.Colors.textPrimary.swiftUIColor)
-                        .accessibilityIdentifier("ItemValue")
+                        .accessibilityIdentifier("LoginTotpEntry")
                 } else {
                     PasswordText(password: model.displayCode, isPasswordVisible: false)
-                        .accessibilityIdentifier("ItemValue")
+                        .accessibilityIdentifier("LoginTotpEntry")
                 }
             },
             accessoryContent: {
@@ -167,10 +167,9 @@ struct ViewLoginItemView: View {
                         .imageStyle(.accessoryIcon)
                 }
                 .accessibilityLabel(Localizations.copy)
-                .accessibilityIdentifier("CopyValueButton")
+                .accessibilityIdentifier("CopyTotpValueButton")
             }
         )
         .accessibilityElement(children: .contain)
-        .accessibilityIdentifier("ItemRow")
     }
 }

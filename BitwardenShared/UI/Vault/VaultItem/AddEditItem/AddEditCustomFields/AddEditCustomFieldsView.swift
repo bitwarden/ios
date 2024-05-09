@@ -31,6 +31,7 @@ struct AddEditCustomFieldsView: View {
                             get: { _ in field.value ?? "" },
                             send: { .customFieldChanged($0, index: index) }
                         ),
+                        passwordVisibilityAccessibilityId: "HiddenCustomFieldShowValueButton",
                         canViewPassword: true,
                         isPasswordVisible: store.binding(
                             get: \.customFields[index].isPasswordVisible,
