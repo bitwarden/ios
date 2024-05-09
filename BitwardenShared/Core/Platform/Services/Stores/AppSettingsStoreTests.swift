@@ -595,6 +595,19 @@ class AppSettingsStoreTests: BitwardenTestCase { // swiftlint:disable:this type_
         )
     }
 
+    /// `shouldCheckOrganizationUnassignedItems(:)` is initially nil {
+    func test_shouldCheckOrganizationUnassignedItems_isInitiallyNil() {
+        XCTAssertNil(subject.shouldCheckOrganizationUnassignedItems(userId: "1"))
+    }
+
+    /// `shouldCheckOrganizationUnassignedItems(:)` can be used to get and set the persisted value.
+    func test_shouldCheckOrganizationUnassignedItems_withValue() {
+        subject.setShouldCheckOrganizationUnassignedItems(true, userId: "1")
+        XCTAssertEqual(subject.shouldCheckOrganizationUnassignedItems(userId: "1"), true)
+        subject.setShouldCheckOrganizationUnassignedItems(false, userId: "1")
+        XCTAssertEqual(subject.shouldCheckOrganizationUnassignedItems(userId: "1"), false)
+    }
+
     /// `twoFactorToken(email:)` returns `nil` if there isn't a previously stored value.
     func test_twoFactorToken_isInitiallyNil() {
         XCTAssertNil(subject.twoFactorToken(email: "anything@email.com"))

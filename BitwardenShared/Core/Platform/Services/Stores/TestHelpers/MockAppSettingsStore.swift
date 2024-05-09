@@ -33,6 +33,7 @@ class MockAppSettingsStore: AppSettingsStore {
     var pinKeyEncryptedUserKey = [String: String]()
     var pinProtectedUserKey = [String: String]()
     var serverConfig = [String: ServerConfig]()
+    var shouldCheckOrganizationUnassignedItems = [String: Bool?]()
     var shouldTrustDevice = [String: Bool?]()
     var timeoutAction = [String: Int]()
     var twoFactorTokens = [String: String]()
@@ -184,6 +185,10 @@ class MockAppSettingsStore: AppSettingsStore {
         serverConfig[userId] = config
     }
 
+    func setShouldCheckOrganizationUnassignedItems(_ shouldCheck: Bool?, userId: String) {
+        shouldCheckOrganizationUnassignedItems[userId] = shouldCheck
+    }
+
     func setShouldTrustDevice(shouldTrustDevice: Bool?, userId: String) {
         self.shouldTrustDevice[userId] = shouldTrustDevice
     }
@@ -210,6 +215,10 @@ class MockAppSettingsStore: AppSettingsStore {
 
     func setVaultTimeout(key: Int, userId: String) {
         vaultTimeout[userId] = key
+    }
+
+    func shouldCheckOrganizationUnassignedItems(userId: String) -> Bool? {
+        shouldCheckOrganizationUnassignedItems[userId] ?? nil
     }
 
     func shouldTrustDevice(userId: String) -> Bool? {

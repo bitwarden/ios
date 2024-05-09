@@ -138,6 +138,13 @@ protocol StateService: AnyObject {
     ///
     func getEnvironmentUrls(userId: String?) async throws -> EnvironmentUrlData?
 
+    /// Gets whether we should check for unassigned items for the user.
+    ///
+    /// - Parameter userId: The user ID associated with the flag.
+    /// - Returns: `false` if the user has seen and acknowledged the unassigned items alert.
+    ///
+    func getShouldCheckOrganizationUnassignedItems(userId: String?) async throws -> Bool
+
     /// Gets the user's last active time within the app.
     /// This value is set when the app is backgrounded.
     ///
@@ -363,6 +370,15 @@ protocol StateService: AnyObject {
     ///   - userId: The user ID of the account. Defaults to the active account if `nil`.
     ///
     func setForcePasswordResetReason(_ reason: ForcePasswordResetReason?, userId: String?) async throws
+
+    /// Sets whether or not we should check for unassigned ciphers in an organization for
+    /// a particular user.
+    ///
+    /// - Parameters:
+    ///   - shouldCheck: Whether or not we should check for unassigned ciphers.
+    ///   - userId: The user ID that acknowledged the alert.
+    ///
+    func setShouldCheckOrganizationUnassignedItems(_ shouldCheck: Bool?, userId: String?) async throws
 
     /// Sets the last active time within the app.
     ///
@@ -1105,6 +1121,11 @@ actor DefaultStateService: StateService { // swiftlint:disable:this type_body_le
         return appSettingsStore.serverConfig(userId: userId)
     }
 
+    func getShouldCheckOrganizationUnassignedItems(userId: String?) async throws -> Bool {
+        let userId = try userId ?? getActiveAccountUserId()
+        return appSettingsStore.shouldCheckOrganizationUnassignedItems(userId: userId) ?? true
+    }
+
     func getShouldTrustDevice(userId: String) async -> Bool? {
         appSettingsStore.shouldTrustDevice(userId: userId)
     }
@@ -1303,6 +1324,11 @@ actor DefaultStateService: StateService { // swiftlint:disable:this type_body_le
     func setServerConfig(_ config: ServerConfig?, userId: String?) async throws {
         let userId = try userId ?? getActiveAccountUserId()
         appSettingsStore.setServerConfig(config, userId: userId)
+    }
+
+    func setShouldCheckOrganizationUnassignedItems(_ shouldCheck: Bool?, userId: String?) async throws {
+        let userId = try userId ?? getActiveAccountUserId()
+        appSettingsStore.setShouldCheckOrganizationUnassignedItems(shouldCheck, userId: userId)
     }
 
     func setShouldTrustDevice(_ shouldTrustDevice: Bool?, userId: String) {
