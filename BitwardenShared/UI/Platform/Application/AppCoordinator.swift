@@ -267,7 +267,7 @@ extension AppCoordinator: AuthCoordinatorDelegate {
             guard flag, saved
             else { return }
 
-            guard try await services.cipherAPIService.hasUnassignedCiphers()
+            guard try await services.vaultRepository.hasUnassignedCiphers()
             else { return }
 
             showAlert(.unassignedCiphers {

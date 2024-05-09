@@ -531,10 +531,6 @@ extension ServiceContainer {
         apiService
     }
 
-    var cipherAPIService: CipherAPIService {
-        apiService
-    }
-
     var configAPIService: ConfigAPIService {
         apiService
     }

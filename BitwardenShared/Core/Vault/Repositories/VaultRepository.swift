@@ -93,6 +93,12 @@ public protocol VaultRepository: AnyObject {
     ///
     func getDisableAutoTotpCopy() async throws -> Bool
 
+    /// Performs an API request to see if a user has any unassigned ciphers. This only applies
+    /// to users who are an organization owner or admin.
+    ///
+    /// - Returns: `true` if the user has any unassigned ciphers; `false` otherwise.
+    func hasUnassignedCiphers() async throws -> Bool
+
     /// Regenerates the TOTP code for a given key.
     ///
     /// - Parameter key: The key for a TOTP code.
@@ -974,6 +980,10 @@ extension DefaultVaultRepository: VaultRepository {
 
     func getDisableAutoTotpCopy() async throws -> Bool {
         try await stateService.getDisableAutoTotpCopy()
+    }
+
+    func hasUnassignedCiphers() async throws -> Bool {
+        try await cipherAPIService.hasUnassignedCiphers()
     }
 
     func needsSync() async throws -> Bool {

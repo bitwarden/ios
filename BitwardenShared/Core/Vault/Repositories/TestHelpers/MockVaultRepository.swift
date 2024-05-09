@@ -47,6 +47,8 @@ class MockVaultRepository: VaultRepository {
 
     var getDisableAutoTotpCopyResult: Result<Bool, Error> = .success(false)
 
+    var hasUnassignedCiphersResult: Result<Bool, Error> = .success(false)
+
     var needsSyncCalled = false
     var needsSyncResult: Result<Bool, Error> = .success(false)
 
@@ -176,6 +178,10 @@ class MockVaultRepository: VaultRepository {
 
     func getDisableAutoTotpCopy() async throws -> Bool {
         try getDisableAutoTotpCopyResult.get()
+    }
+
+    func hasUnassignedCiphers() async throws -> Bool {
+        try hasUnassignedCiphersResult.get()
     }
 
     func needsSync() async throws -> Bool {
