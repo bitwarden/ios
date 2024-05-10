@@ -520,6 +520,23 @@ final class AuthCoordinator: NSObject, // swiftlint:disable:this type_body_lengt
         session.start()
     }
 
+    /// Shows the start registration screen.
+    ///
+    private func showStartRegistration(delegate: StartRegistrationDelegate?) {
+        let view = StartRegistrationView(
+            store: Store(
+                processor: StartRegistrationProcessor(
+                    coordinator: asAnyCoordinator(),
+                    delegate: delegate,
+                    services: services,
+                    state: StartRegistrationState()
+                )
+            )
+        )
+        let navController = UINavigationController(rootViewController: UIHostingController(rootView: view))
+        stackNavigator?.present(navController)
+    }
+
     /// Show the two factor authentication view.
     ///
     /// - Parameters:
