@@ -36,7 +36,7 @@ class MockAppSettingsStore: AppSettingsStore {
     var shouldTrustDevice = [String: Bool?]()
     var timeoutAction = [String: Int]()
     var twoFactorTokens = [String: String]()
-    var vaultTimeout = [String: Int?]()
+    var vaultTimeout = [String: Int]()
     var state: State? {
         didSet {
             activeIdSubject.send(state?.activeUserId)
@@ -229,7 +229,7 @@ class MockAppSettingsStore: AppSettingsStore {
     }
 
     func vaultTimeout(userId: String) -> Int? {
-        vaultTimeout[userId] ?? 0
+        vaultTimeout[userId]
     }
 
     func activeAccountIdPublisher() -> AnyPublisher<String?, Never> {
