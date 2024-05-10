@@ -181,6 +181,22 @@ class AccountAPIServiceTests: BitwardenTestCase {
         XCTAssertEqual(client.requests[0].url.absoluteString, "https://example.com/api/accounts/request-otp")
     }
 
+    /// `startRegistration(_:)` performs the request to start the registration process.
+    func test_startRegistration() async throws {
+        client.result = .httpSuccess(testData: .startRegistrationSuccess)
+
+        let requestModel = StartRegistrationRequestModel(email: "email@example.com", name: "name")
+        let result = try await subject.startRegistration(requestModel: requestModel)
+
+        XCTAssertEqual(client.requests.count, 1)
+        XCTAssertNotNil(client.requests[0].body)
+        XCTAssertEqual(client.requests[0].method, .post)
+        XCTAssertEqual(
+            client.requests[0].url.absoluteString,
+            "https://example.com/api/accounts/send-verification-email"
+        )
+    }
+
     /// `setPassword(_:)` performs the request to set the user's password.
     func test_setPassword() async throws {
         client.result = .httpSuccess(testData: .emptyResponse)

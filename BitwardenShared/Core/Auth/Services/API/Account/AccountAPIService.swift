@@ -54,6 +54,12 @@ protocol AccountAPIService {
     ///
     func requestPasswordHint(for email: String) async throws
 
+    /// Start user account creation
+    /// - Parameter requestModel: The request model containing the details needed to start user account creation
+    /// - Returns: Can return a email verification token
+    ///
+    func startRegistration(requestModel: StartRegistrationRequestModel) async throws -> StartRegistrationResponseModel
+
     /// Set the account keys.
     ///
     ///  - Parameter requestModel: The request model containing the keys to set in the account.
@@ -143,6 +149,10 @@ extension APIService: AccountAPIService {
 
     func setPassword(_ requestModel: SetPasswordRequestModel) async throws {
         _ = try await apiService.send(SetPasswordRequest(requestModel: requestModel))
+    }
+
+    func startRegistration(requestModel: StartRegistrationRequestModel) async throws -> StartRegistrationResponseModel {
+        try await apiService.send(StartRegistrationRequest(body: requestModel))
     }
 
     func updatePassword(_ requestModel: UpdatePasswordRequestModel) async throws {

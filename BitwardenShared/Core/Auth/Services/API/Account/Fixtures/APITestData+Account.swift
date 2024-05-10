@@ -30,4 +30,14 @@ extension APITestData {
     // MARK: Request Password Hint
 
     static let passwordHintFailure = loadFromJsonBundle(resource: "PasswordHintFailure")
+
+    // MARK: Start Registration
+
+    static let startRegistrationEmailAlreadyExists = loadFromJsonBundle(resource: "StartRegistrationEmailAlreadyExists")
+    static let startRegistrationEmailExceedsMaxLength = loadFromJsonBundle(
+        resource: "StartRegistrationEmailExceedsMaxLength"
+    )
+    static let startRegistrationInvalidEmailFormat = loadFromJsonBundle(resource: "StartRegistrationInvalidEmailFormat")
+    static let startRegistrationCaptchaFailure = loadFromJsonBundle(resource: "StartRegistrationCaptchaFailure")
+    static let startRegistrationSuccess = loadFromJsonBundle(resource: "StartRegistrationSuccess")
 }
