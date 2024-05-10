@@ -121,8 +121,12 @@ final class AuthCoordinator: NSObject, // swiftlint:disable:this type_body_lengt
             } else {
                 delegate?.didCompleteAuth()
             }
+        case let .completeRegistration(userEmail):
+            showCompleteRegistration(userEmail: userEmail)
         case .createAccount:
             showCreateAccount()
+        case .startRegistration:
+            showStartRegistration(delegate: context as? StartRegistrationDelegate)
         case .dismiss:
             stackNavigator?.dismiss()
         case .dismissPresented:
@@ -250,6 +254,22 @@ final class AuthCoordinator: NSObject, // swiftlint:disable:this type_body_lengt
                     coordinator: asAnyCoordinator(),
                     services: services,
                     state: CreateAccountState()
+                )
+            )
+        )
+        let navController = UINavigationController(rootViewController: UIHostingController(rootView: view))
+        stackNavigator?.present(navController)
+    }
+
+    /// Shows the complete registration screen.
+    ///
+    private func showCompleteRegistration(userEmail: String) {
+        let view = CompleteRegistrationView(
+            store: Store(
+                processor: CompleteRegistrationProcessor(
+                    coordinator: asAnyCoordinator(),
+                    services: services,
+                    state: CompleteRegistrationState(userEmail: userEmail)
                 )
             )
         )

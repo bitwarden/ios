@@ -13,6 +13,11 @@ public enum AuthRoute: Equatable {
     /// A route to the create account screen.
     case createAccount
 
+    /// A route to complete registration screen.
+    /// - Parameter userEmail: The user's email.
+    ///
+    case completeRegistration(userEmail: String)
+
     /// A route that dismisses a presented sheet.
     case dismiss
 

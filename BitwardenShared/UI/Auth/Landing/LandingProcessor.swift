@@ -236,5 +236,11 @@ extension LandingProcessor: SelfHostedProcessorDelegate {
         await loadRegion()
     }
 }
+
+// MARK: - StartRegistrationDelegate
+
+extension LandingProcessor: StartRegistrationDelegate {
+    func didChangeRegion() async {
+        await loadRegion()
     }
 }
