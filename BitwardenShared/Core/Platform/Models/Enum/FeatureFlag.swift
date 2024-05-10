@@ -6,4 +6,5 @@ import Foundation
 ///
 enum FeatureFlag: String, Codable {
     case unassignedItemsBanner = "unassigned-items-banner"
+    case emailVerification = "email-verification"
 }

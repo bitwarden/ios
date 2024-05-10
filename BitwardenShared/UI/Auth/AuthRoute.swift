@@ -41,6 +41,10 @@ public enum AuthRoute: Equatable {
     ///
     case showLoginDecryptionOptions(organizationIdentifier: String)
 
+    /// A route to start registration screen.
+    ///
+    case startRegistration
+
     /// A route to the login with device screen.
     ///
     /// - Parameters:

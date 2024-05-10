@@ -10,6 +10,7 @@ class LandingProcessor: StateProcessor<LandingState, LandingAction, LandingEffec
 
     typealias Services = HasAppSettingsStore
         & HasAuthRepository
+        & HasConfigService
         & HasEnvironmentService
         & HasErrorReporter
         & HasStateService
@@ -52,6 +53,7 @@ class LandingProcessor: StateProcessor<LandingState, LandingAction, LandingEffec
     override func perform(_ effect: LandingEffect) async {
         switch effect {
         case .appeared:
+            await loadFeatureFlag()
             await loadRegion()
             await refreshProfileState()
         case let .profileSwitcher(profileEffect):
@@ -65,7 +67,11 @@ class LandingProcessor: StateProcessor<LandingState, LandingAction, LandingEffec
             updateRememberedEmail()
             validateEmailAndContinue()
         case .createAccountPressed:
-            coordinator.navigate(to: .createAccount)
+            if state.emailVerificationFeatureFlag {
+                coordinator.navigate(to: .startRegistration, context: self)
+            } else {
+                coordinator.navigate(to: .createAccount)
+            }
         case let .emailChanged(newValue):
             state.email = newValue
         case let .profileSwitcher(profileAction):
@@ -83,6 +89,16 @@ class LandingProcessor: StateProcessor<LandingState, LandingAction, LandingEffec
     }
 
     // MARK: Private Methods
+
+    /// Sets the feature flag value to be used.
+    ///
+    private func loadFeatureFlag() async {
+        state.emailVerificationFeatureFlag = await services.configService.getFeatureFlag(
+            FeatureFlag.emailVerification,
+            defaultValue: true,
+            forceRefresh: true
+        )
+    }
 
     /// Sets the region to the last used region.
     ///
@@ -217,5 +233,8 @@ extension LandingProcessor: SelfHostedProcessorDelegate {
     func didSaveEnvironment(urls: EnvironmentUrlData) async {
         await setRegion(.selfHosted, urls: urls)
         state.toast = Toast(text: Localizations.environmentSaved)
+        await loadRegion()
+    }
+}
     }
 }
