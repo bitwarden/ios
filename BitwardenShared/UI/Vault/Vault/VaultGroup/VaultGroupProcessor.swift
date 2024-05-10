@@ -288,7 +288,7 @@ final class VaultGroupProcessor: StateProcessor<// swiftlint:disable:this type_b
     private func handleMoreOptionsAction(_ action: MoreOptionsAction) async {
         switch action {
         case let .copy(toast, value, requiresMasterPasswordReprompt):
-            if requiresMasterPasswordReprompt, state.hasMasterPassword {
+            if requiresMasterPasswordReprompt {
                 presentMasterPasswordRepromptAlert {
                     self.services.pasteboardService.copy(value)
                     self.state.toast = Toast(text: Localizations.valueHasBeenCopied(toast))

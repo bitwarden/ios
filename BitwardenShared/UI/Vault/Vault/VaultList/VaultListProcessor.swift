@@ -312,7 +312,7 @@ extension VaultListProcessor {
     private func handleMoreOptionsAction(_ action: MoreOptionsAction) async {
         switch action {
         case let .copy(toast, value, requiresMasterPasswordReprompt):
-            if requiresMasterPasswordReprompt, state.hasMasterPassword {
+            if requiresMasterPasswordReprompt {
                 presentMasterPasswordRepromptAlert {
                     self.services.pasteboardService.copy(value)
                     self.state.toast = Toast(text: Localizations.valueHasBeenCopied(toast))
@@ -322,7 +322,7 @@ extension VaultListProcessor {
                 state.toast = Toast(text: Localizations.valueHasBeenCopied(toast))
             }
         case let .copyTotp(totpKey, requiresMasterPasswordReprompt):
-            if requiresMasterPasswordReprompt, state.hasMasterPassword {
+            if requiresMasterPasswordReprompt {
                 presentMasterPasswordRepromptAlert {
                     await self.generateAndCopyTotpCode(totpKey: totpKey)
                 }
