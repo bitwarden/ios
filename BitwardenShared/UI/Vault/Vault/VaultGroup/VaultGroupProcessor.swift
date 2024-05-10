@@ -298,7 +298,7 @@ final class VaultGroupProcessor: StateProcessor<// swiftlint:disable:this type_b
                 state.toast = Toast(text: Localizations.valueHasBeenCopied(toast))
             }
         case let .copyTotp(totpKey, requiresMasterPasswordReprompt):
-            if requiresMasterPasswordReprompt, state.hasMasterPassword {
+            if requiresMasterPasswordReprompt {
                 presentMasterPasswordRepromptAlert {
                     await self.generateAndCopyTotpCode(totpKey: totpKey)
                 }
