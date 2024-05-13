@@ -16,12 +16,12 @@ class AlertErrorTests: AuthenticatorTestCase {
     func test_inputValidationAlert() {
         let subject = Alert.inputValidationAlert(
             error: InputValidationError(
-                message: Localizations.validationFieldRequired(Localizations.masterPassword)
+                message: Localizations.validationFieldRequired(Localizations.accountName)
             )
         )
 
         XCTAssertEqual(subject.title, Localizations.anErrorHasOccurred)
-        XCTAssertEqual(subject.message, Localizations.validationFieldRequired(Localizations.masterPassword))
+        XCTAssertEqual(subject.message, Localizations.validationFieldRequired(Localizations.accountName))
         XCTAssertEqual(subject.alertActions, [AlertAction(title: Localizations.ok, style: .default)])
     }
 }

@@ -254,7 +254,7 @@ extension BitwardenTextField where TrailingContent == EmptyView {
         BitwardenTextField(
             title: "Title",
             text: .constant("Text field text"),
-            footer: Localizations.vaultLockedMasterPassword,
+            footer: "Text field footer",
             isPasswordVisible: .constant(false)
         ) {
             AccessoryButton(asset: Asset.Images.gear, accessibilityLabel: "") {}
