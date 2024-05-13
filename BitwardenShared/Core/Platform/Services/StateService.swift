@@ -145,13 +145,6 @@ protocol StateService: AnyObject {
     ///
     func getEnvironmentUrls(userId: String?) async throws -> EnvironmentUrlData?
 
-    /// Gets whether we should check for unassigned items for the user.
-    ///
-    /// - Parameter userId: The user ID associated with the flag.
-    /// - Returns: `false` if the user has seen and acknowledged the unassigned items alert.
-    ///
-    func getShouldCheckOrganizationUnassignedItems(userId: String?) async throws -> Bool
-
     /// Gets the user's last active time within the app.
     /// This value is set when the app is backgrounded.
     ///
@@ -213,6 +206,13 @@ protocol StateService: AnyObject {
     /// - Returns: The user's server config.
     ///
     func getServerConfig(userId: String?) async throws -> ServerConfig?
+
+    /// Gets whether we should check for unassigned items for the user.
+    ///
+    /// - Parameter userId: The user ID associated with the flag.
+    /// - Returns: `false` if the user has seen and acknowledged the unassigned items alert.
+    ///
+    func getShouldCheckOrganizationUnassignedItems(userId: String?) async throws -> Bool
 
     /// Get whether the device should be trusted.
     ///
@@ -371,15 +371,6 @@ protocol StateService: AnyObject {
     ///
     func setForcePasswordResetReason(_ reason: ForcePasswordResetReason?, userId: String?) async throws
 
-    /// Sets whether or not we should check for unassigned ciphers in an organization for
-    /// a particular user.
-    ///
-    /// - Parameters:
-    ///   - shouldCheck: Whether or not we should check for unassigned ciphers.
-    ///   - userId: The user ID that acknowledged the alert.
-    ///
-    func setShouldCheckOrganizationUnassignedItems(_ shouldCheck: Bool?, userId: String?) async throws
-
     /// Sets the last active time within the app.
     ///
     /// - Parameters:
@@ -458,6 +449,15 @@ protocol StateService: AnyObject {
     ///   - userId: The user ID associated with the server config.
     ///
     func setServerConfig(_ config: ServerConfig?, userId: String?) async throws
+
+    /// Sets whether or not we should check for unassigned ciphers in an organization for
+    /// a particular user.
+    ///
+    /// - Parameters:
+    ///   - shouldCheck: Whether or not we should check for unassigned ciphers.
+    ///   - userId: The user ID that acknowledged the alert.
+    ///
+    func setShouldCheckOrganizationUnassignedItems(_ shouldCheck: Bool?, userId: String?) async throws
 
     /// Set whether to trust the device.
     ///
