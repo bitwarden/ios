@@ -140,9 +140,13 @@ class DefaultAuthenticatorItemRepository {
 
         return try await authenticatorItemService.authenticatorItemsPublisher()
             .asyncTryMap { items -> [AuthenticatorItemView] in
-                var matchedItems: [AuthenticatorItem] = []
+                let matchingItems = try await items.asyncMap { item in
+                    try await self.cryptographyService.decrypt(item)
+                }
 
-                items.forEach { item in
+                var matchedItems: [AuthenticatorItemView] = []
+
+                matchingItems.forEach { item in
                     if item.name.lowercased()
                         .folding(options: .diacriticInsensitive, locale: nil)
                         .contains(query) {
@@ -150,10 +154,7 @@ class DefaultAuthenticatorItemRepository {
                     }
                 }
 
-                return try await matchedItems.asyncMap { item in
-                    try await self.cryptographyService.decrypt(item)
-                }
-                .sorted { $0.name.localizedStandardCompare($1.name) == .orderedAscending }
+                return matchedItems.sorted { $0.name.localizedStandardCompare($1.name) == .orderedAscending }
             }.eraseToAnyPublisher()
     }
 }
