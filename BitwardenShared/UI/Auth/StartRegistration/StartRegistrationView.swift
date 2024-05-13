@@ -43,7 +43,7 @@ struct StartRegistrationView: View {
                 }
                 .padding(.top, 8)
 
-                submitButton
+                continueButton
             }
         }.navigationBar(title: Localizations.createAccount, titleDisplayMode: .inline)
             .scrollView()
@@ -90,15 +90,15 @@ struct StartRegistrationView: View {
     }
 
     /// The button pressed when the user attempts to create the account.
-    private var submitButton: some View {
+    private var continueButton: some View {
         Button {
             Task {
                 await store.perform(.startRegistration)
             }
         } label: {
-            Text(Localizations.submit)
+            Text(Localizations.continue)
         }
-        .accessibilityIdentifier("SubmitButton")
+        .accessibilityIdentifier("ContinueButton")
         .buttonStyle(.primary())
     }
 
