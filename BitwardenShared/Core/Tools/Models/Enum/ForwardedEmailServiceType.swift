@@ -38,4 +38,14 @@ enum ForwardedEmailServiceType: Int, CaseIterable, Codable, Equatable, Menuable 
             return Localizations.simpleLogin
         }
     }
+
+    // MARK: Initialization
+
+    init(from decoder: Decoder) throws {
+        let container = try decoder.singleValueContainer()
+        let rawValue = try container.decode(RawValue.self)
+        // Handle unknown service types by defaulting to the first option (e.g. -1 for an unselected
+        // service when migrating from the legacy app).
+        self = Self(rawValue: rawValue) ?? .addyIO
+    }
 }
