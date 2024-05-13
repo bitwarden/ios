@@ -121,8 +121,8 @@ final class AuthCoordinator: NSObject, // swiftlint:disable:this type_body_lengt
             } else {
                 delegate?.didCompleteAuth()
             }
-        case let .completeRegistration(userEmail):
-            showCompleteRegistration(userEmail: userEmail)
+        case let .completeRegistration(emailVerificationToken, userEmail):
+            showCompleteRegistration(emailVerificationToken: emailVerificationToken, userEmail: userEmail)
         case .createAccount:
             showCreateAccount()
         case .startRegistration:
@@ -263,13 +263,16 @@ final class AuthCoordinator: NSObject, // swiftlint:disable:this type_body_lengt
 
     /// Shows the complete registration screen.
     ///
-    private func showCompleteRegistration(userEmail: String) {
+    private func showCompleteRegistration(emailVerificationToken: String, userEmail: String) {
         let view = CompleteRegistrationView(
             store: Store(
                 processor: CompleteRegistrationProcessor(
                     coordinator: asAnyCoordinator(),
                     services: services,
-                    state: CompleteRegistrationState(userEmail: userEmail)
+                    state: CompleteRegistrationState(
+                        emailVerificationToken: emailVerificationToken,
+                        userEmail: userEmail
+                    )
                 )
             )
         )

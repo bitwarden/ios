@@ -118,7 +118,6 @@ class StartRegistrationProcessor: StateProcessor<
     /// - Parameter captchaToken: The token returned when the captcha flow has completed.
     ///
     private func startRegistration(captchaToken: String? = nil) async {
-
         // Hide the loading overlay when exiting this method, in case it hasn't been hidden yet.
         defer { coordinator.hideLoadingOverlay() }
 
@@ -151,8 +150,11 @@ class StartRegistrationProcessor: StateProcessor<
                 )
             )
 
-            if result.emailVerificationToken != nil {
-                coordinator.navigate(to: .completeRegistration(userEmail: state.emailText))
+            if let token = result.emailVerificationToken {
+                coordinator.navigate(to: .completeRegistration(
+                    emailVerificationToken: token,
+                    userEmail: state.emailText
+                ))
             } else {
                 // TODO: PM-1528 go to email verification view
             }

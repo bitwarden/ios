@@ -166,7 +166,9 @@ struct CompleteRegistrationView: View {
 #if DEBUG
 #Preview {
     CompleteRegistrationView(store: Store(processor: StateProcessor(
-        state: CompleteRegistrationState(userEmail: "example@bitwarden.com")
-    )))
+        state: CompleteRegistrationState(
+            emailVerificationToken: "emailVerificationToken",
+            userEmail: "example@bitwarden.com"
+        ))))
 }
 #endif

@@ -6,6 +6,7 @@ import Foundation
 extension CompleteRegistrationState {
     static func fixture(
         arePasswordsVisible: Bool = false,
+        emailVerificationToken: String = "emailVerificationToken",
         isCheckDataBreachesToggleOn: Bool = false,
         passwordHintText: String = "",
         passwordText: String = "password1234",
@@ -15,6 +16,7 @@ extension CompleteRegistrationState {
     ) -> Self {
         CompleteRegistrationState(
             arePasswordsVisible: arePasswordsVisible,
+            emailVerificationToken: emailVerificationToken,
             isCheckDataBreachesToggleOn: isCheckDataBreachesToggleOn,
             passwordHintText: passwordHintText,
             passwordText: passwordText,

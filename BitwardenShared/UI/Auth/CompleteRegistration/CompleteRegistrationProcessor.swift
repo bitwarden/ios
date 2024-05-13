@@ -151,7 +151,6 @@ class CompleteRegistrationProcessor: StateProcessor<
     /// - Parameter captchaToken: The token returned when the captcha flow has completed.
     ///
     private func completeRegistration(captchaToken: String? = nil) async {
-
         // Hide the loading overlay when exiting this method, in case it hasn't been hidden yet.
         defer { coordinator.hideLoadingOverlay() }
 

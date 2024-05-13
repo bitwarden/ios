@@ -10,6 +10,9 @@ struct CompleteRegistrationState: Equatable {
     /// Whether passwords are visible in the view's text fields.
     var arePasswordsVisible: Bool = false
 
+    /// Token needed to complete registration
+    var emailVerificationToken: String
+
     /// Whether the check for data breaches toggle is on.
     var isCheckDataBreachesToggleOn: Bool = true
 
@@ -37,6 +40,6 @@ struct CompleteRegistrationState: Equatable {
     /// The text in the re-type password text field.
     var retypePasswordText: String = ""
 
-    /// The text in the email text field.
+    /// The email of the user that is creating the account.
     var userEmail: String
 }
