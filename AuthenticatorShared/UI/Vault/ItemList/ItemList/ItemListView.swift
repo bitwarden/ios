@@ -292,7 +292,7 @@ struct ItemListView: View {
 // MARK: Previews
 
 #if DEBUG
-struct ItemListView_Previews: PreviewProvider {
+struct ItemListView_Previews: PreviewProvider { // swiftlint:disable:this type_body_length
     static var previews: some View {
         NavigationView {
             ItemListView(
