@@ -12,6 +12,7 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
     var clientCiphers: MockClientCiphers!
     var clientService: MockClientService!
     var collectionService: MockCollectionService!
+    var configService: MockConfigService!
     var environmentService: MockEnvironmentService!
     var errorReporter: MockErrorReporter!
     var folderService: MockFolderService!
@@ -35,6 +36,7 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
         clientCiphers = MockClientCiphers()
         clientService = MockClientService()
         collectionService = MockCollectionService()
+        configService = MockConfigService()
         environmentService = MockEnvironmentService()
         errorReporter = MockErrorReporter()
         folderService = MockFolderService()
@@ -47,10 +49,10 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
         stateService = MockStateService()
 
         subject = DefaultVaultRepository(
-            cipherAPIService: APIService(client: client),
             cipherService: cipherService,
             clientService: clientService,
             collectionService: collectionService,
+            configService: configService,
             environmentService: environmentService,
             errorReporter: errorReporter,
             folderService: folderService,
@@ -71,6 +73,7 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
         clientCiphers = nil
         clientService = nil
         collectionService = nil
+        configService = nil
         environmentService = nil
         errorReporter = nil
         folderService = nil
@@ -1031,6 +1034,52 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
         XCTAssertEqual(clientCiphers.encryptedCiphers, [cipher])
 
         XCTAssertEqual(cipherService.shareCipherWithServerCiphers.last, Cipher(cipherView: cipher))
+    }
+
+    /// `shouldShowUnassignedCiphersAlert` is true if the feature flag is on,
+    /// we should check for this user, and the user has unassigned ciphers
+    func test_shouldShowUnassignedCiphersAlert() async {
+        stateService.activeAccount = .fixture()
+        configService.featureFlagsBool[.unassignedItemsBanner] = true
+        stateService.shouldCheckOrganizationUnassignedItems["1"] = true
+        cipherService.hasUnassignedCiphersResult = .success(true)
+        let result = await subject.shouldShowUnassignedCiphersAlert()
+        XCTAssertTrue(result)
+    }
+
+    /// `shouldShowUnassignedCiphersAlert` is false if user does not have unassigned ciphers.
+    func test_shouldShowUnassignedCiphersAlert_noUnassignedCiphers() async {
+        stateService.activeAccount = .fixture()
+        configService.featureFlagsBool[.unassignedItemsBanner] = true
+        stateService.shouldCheckOrganizationUnassignedItems["1"] = true
+        cipherService.hasUnassignedCiphersResult = .success(false)
+        let result = await subject.shouldShowUnassignedCiphersAlert()
+        XCTAssertFalse(result)
+        XCTAssertTrue(cipherService.hasUnassignedCiphersCalled)
+    }
+
+    /// `shouldShowUnassignedCiphersAlert` is false if the feature flag is off.
+    /// And does not check for unassigned ciphers.
+    func test_shouldShowUnassignedCiphersAlert_turnedOff() async {
+        stateService.activeAccount = .fixture()
+        configService.featureFlagsBool[.unassignedItemsBanner] = false
+        stateService.shouldCheckOrganizationUnassignedItems["1"] = true
+        cipherService.hasUnassignedCiphersResult = .success(true)
+        let result = await subject.shouldShowUnassignedCiphersAlert()
+        XCTAssertFalse(result)
+        XCTAssertFalse(cipherService.hasUnassignedCiphersCalled)
+    }
+
+    /// `shouldShowUnassignedCiphersAlert` is false if the user has seen and agreed to the alert before.
+    /// And does not check for unassigned ciphers.
+    func test_shouldShowUnassignedCiphersAlert_userAgreed() async {
+        stateService.activeAccount = .fixture()
+        configService.featureFlagsBool[.unassignedItemsBanner] = true
+        stateService.shouldCheckOrganizationUnassignedItems["1"] = false
+        cipherService.hasUnassignedCiphersResult = .success(true)
+        let result = await subject.shouldShowUnassignedCiphersAlert()
+        XCTAssertFalse(result)
+        XCTAssertFalse(cipherService.hasUnassignedCiphersCalled)
     }
 
     /// `updateCipherCollections()` throws an error if one occurs.

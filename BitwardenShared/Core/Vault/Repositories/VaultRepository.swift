@@ -93,12 +93,6 @@ public protocol VaultRepository: AnyObject {
     ///
     func getDisableAutoTotpCopy() async throws -> Bool
 
-    /// Performs an API request to see if a user has any unassigned ciphers. This only applies
-    /// to users who are an organization owner or admin.
-    ///
-    /// - Returns: `true` if the user has any unassigned ciphers; `false` otherwise.
-    func hasUnassignedCiphers() async throws -> Bool
-
     /// Regenerates the TOTP code for a given key.
     ///
     /// - Parameter key: The key for a TOTP code.
@@ -141,6 +135,12 @@ public protocol VaultRepository: AnyObject {
     /// - Parameter cipher: The cipher to share.
     ///
     func shareCipher(_ cipher: CipherView) async throws
+
+    /// Whether or not we should show the unassigned ciphers alert based on properties of the account.
+    ///
+    /// - Returns: `true` if we should show the unassigned ciphers alert
+    ///
+    func shouldShowUnassignedCiphersAlert() async -> Bool
 
     /// Soft delete a cipher from the user's vault.
     ///
@@ -275,14 +275,14 @@ extension VaultRepository {
 class DefaultVaultRepository { // swiftlint:disable:this type_body_length
     // MARK: Properties
 
-    /// The API service used to perform API requests for the ciphers in a user's vault.
-    private let cipherAPIService: CipherAPIService
-
     /// The service used to manage syncing and updates to the user's ciphers.
     private let cipherService: CipherService
 
     /// The service that handles common client functionality such as encryption and decryption.
     private let clientService: ClientService
+
+    /// The service to get server-specified configuration.
+    private let configService: ConfigService
 
     /// The service for managing the collections for the user.
     private let collectionService: CollectionService
@@ -319,10 +319,10 @@ class DefaultVaultRepository { // swiftlint:disable:this type_body_length
     /// Initialize a `DefaultVaultRepository`.
     ///
     /// - Parameters:
-    ///   - cipherAPIService: The API service used to perform API requests for the ciphers in a user's vault.
     ///   - cipherService: The service used to manage syncing and updates to the user's ciphers.
     ///   - clientService: The service that handles common client functionality such as encryption and decryption.
     ///   - collectionService: The service for managing the collections for the user.
+    ///   - configService: The service to get server-specified configuration.
     ///   - environmentService: The service used by the application to manage the environment settings.
     ///   - errorReporter: The service used by the application to report non-fatal errors.
     ///   - folderService: The service used to manage syncing and updates to the user's folders.
@@ -334,10 +334,10 @@ class DefaultVaultRepository { // swiftlint:disable:this type_body_length
     ///   - vaultTimeoutService: The service used by the application to manage vault access.
     ///
     init(
-        cipherAPIService: CipherAPIService,
         cipherService: CipherService,
         clientService: ClientService,
         collectionService: CollectionService,
+        configService: ConfigService,
         environmentService: EnvironmentService,
         errorReporter: ErrorReporter,
         folderService: FolderService,
@@ -348,10 +348,10 @@ class DefaultVaultRepository { // swiftlint:disable:this type_body_length
         timeProvider: TimeProvider,
         vaultTimeoutService: VaultTimeoutService
     ) {
-        self.cipherAPIService = cipherAPIService
         self.cipherService = cipherService
         self.clientService = clientService
         self.collectionService = collectionService
+        self.configService = configService
         self.environmentService = environmentService
         self.errorReporter = errorReporter
         self.folderService = folderService
@@ -982,10 +982,6 @@ extension DefaultVaultRepository: VaultRepository {
         try await stateService.getDisableAutoTotpCopy()
     }
 
-    func hasUnassignedCiphers() async throws -> Bool {
-        try await cipherAPIService.hasUnassignedCiphers()
-    }
-
     func needsSync() async throws -> Bool {
         let userId = try await stateService.getActiveAccountId()
         return try await syncService.needsSync(for: userId)
@@ -1064,6 +1060,19 @@ extension DefaultVaultRepository: VaultRepository {
     func shareCipher(_ cipher: CipherView) async throws {
         let encryptedCipher = try await clientService.vault().ciphers().encrypt(cipherView: cipher)
         try await cipherService.shareCipherWithServer(encryptedCipher)
+    }
+
+    func shouldShowUnassignedCiphersAlert() async -> Bool {
+        do {
+            guard await configService.getFeatureFlag(.unassignedItemsBanner, defaultValue: false),
+                  try await stateService.getShouldCheckOrganizationUnassignedItems(userId: nil),
+                  try await cipherService.hasUnassignedCiphers()
+            else { return false }
+            return true
+        } catch {
+            errorReporter.log(error: error)
+            return false
+        }
     }
 
     func softDeleteCipher(_ cipher: CipherView) async throws {

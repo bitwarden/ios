@@ -465,10 +465,10 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
         )
 
         let vaultRepository = DefaultVaultRepository(
-            cipherAPIService: apiService,
             cipherService: cipherService,
             clientService: clientService,
             collectionService: collectionService,
+            configService: configService,
             environmentService: environmentService,
             errorReporter: errorReporter,
             folderService: folderService,

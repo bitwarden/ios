@@ -58,6 +58,13 @@ protocol CipherService {
     ///
     func fetchAllCiphers() async throws -> [Cipher]
 
+    /// Performs an API request to see if a user has any unassigned ciphers. This only applies
+    /// to users who are an organization owner or admin.
+    ///
+    /// - Returns: `true` if the user has any unassigned ciphers; `false` otherwise.
+    ///
+    func hasUnassignedCiphers() async throws -> Bool
+
     /// Attempts to synchronize a cipher with the server.
     ///
     /// This method fetches the updated cipher value from the server and updates the value in the
@@ -243,6 +250,10 @@ extension DefaultCipherService {
     func fetchAllCiphers() async throws -> [Cipher] {
         let userId = try await stateService.getActiveAccountId()
         return try await cipherDataStore.fetchAllCiphers(userId: userId)
+    }
+
+    func hasUnassignedCiphers() async throws -> Bool {
+        try await cipherAPIService.hasUnassignedCiphers()
     }
 
     func syncCipherWithServer(withId id: String) async throws {

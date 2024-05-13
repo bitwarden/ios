@@ -82,6 +82,8 @@ class MockVaultRepository: VaultRepository {
     var shareCipherCiphers = [CipherView]()
     var shareCipherResult: Result<Void, Error> = .success(())
 
+    var shouldShowUnassignedCiphersAlert = false
+
     var softDeletedCipher = [CipherView]()
     var softDeleteCipherResult: Result<Void, Error> = .success(())
 
@@ -241,6 +243,10 @@ class MockVaultRepository: VaultRepository {
     func shareCipher(_ cipher: CipherView) async throws {
         shareCipherCiphers.append(cipher)
         try shareCipherResult.get()
+    }
+
+    func shouldShowUnassignedCiphersAlert() async -> Bool {
+        return shouldShowUnassignedCiphersAlert
     }
 
     func softDeleteCipher(_ cipher: CipherView) async throws {
