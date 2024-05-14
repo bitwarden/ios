@@ -44,7 +44,7 @@ struct CompleteRegistrationView: View {
                 }
                 .padding(.top, 8)
 
-                submitButton
+                createAccountButton
             }
         }
         .animation(.default, value: store.state.passwordStrengthScore)
@@ -148,15 +148,15 @@ struct CompleteRegistrationView: View {
     }
 
     /// The button pressed when the user attempts to create the account.
-    private var submitButton: some View {
+    private var createAccountButton: some View {
         Button {
             Task {
                 await store.perform(.completeRegistration)
             }
         } label: {
-            Text(Localizations.submit)
+            Text(Localizations.createAccount)
         }
-        .accessibilityIdentifier("SubmitButton")
+        .accessibilityIdentifier("CreateAccountButton")
         .buttonStyle(.primary())
     }
 }
