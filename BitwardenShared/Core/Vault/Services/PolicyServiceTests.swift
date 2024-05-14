@@ -321,7 +321,7 @@ class PolicyServiceTests: BitwardenTestCase { // swiftlint:disable:this type_bod
 
         let policyValues = try await subject.fetchTimeoutPolicyValues()
 
-        XCTAssertEqual(policyValues?.value, 60 * 60)
+        XCTAssertEqual(policyValues?.value, 60)
         XCTAssertEqual(policyValues?.action, .lock)
     }
 
@@ -334,7 +334,7 @@ class PolicyServiceTests: BitwardenTestCase { // swiftlint:disable:this type_bod
 
         let policyValues = try await subject.fetchTimeoutPolicyValues()
 
-        XCTAssertEqual(policyValues?.value, 60 * 60)
+        XCTAssertEqual(policyValues?.value, 60)
         XCTAssertNil(policyValues?.action)
     }
 

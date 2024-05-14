@@ -1346,7 +1346,7 @@ actor DefaultStateService: StateService { // swiftlint:disable:this type_body_le
 
     func setVaultTimeout(value: SessionTimeoutValue, userId: String?) async throws {
         let userId = try userId ?? getActiveAccountUserId()
-        appSettingsStore.setVaultTimeout(key: value.rawValue, userId: userId)
+        appSettingsStore.setVaultTimeout(minutes: value.rawValue, userId: userId)
     }
 
     func updateProfile(from response: ProfileResponseModel, userId: String) async {

@@ -144,7 +144,7 @@ class SyncServiceTests: BitwardenTestCase {
         stateService.activeAccount = .fixture()
         stateService.vaultTimeout["1"] = .never
 
-        policyService.fetchTimeoutPolicyValuesResult = .success((.lock, 15 * 60))
+        policyService.fetchTimeoutPolicyValuesResult = .success((.lock, 15))
 
         try await subject.fetchSync(forceSync: false)
 

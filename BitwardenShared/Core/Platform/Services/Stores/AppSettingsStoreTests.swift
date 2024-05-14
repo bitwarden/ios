@@ -757,7 +757,7 @@ class AppSettingsStoreTests: BitwardenTestCase { // swiftlint:disable:this type_
 
     /// `.vaultTimeout(userId:)` returns the correct vault timeout value.
     func test_vaultTimeout() throws {
-        subject.setVaultTimeout(key: 60, userId: "1")
+        subject.setVaultTimeout(minutes: 60, userId: "1")
 
         XCTAssertEqual(subject.vaultTimeout(userId: "1"), 60)
         XCTAssertEqual(userDefaults.double(forKey: "bwPreferencesStorage:vaultTimeout_1"), 60)
