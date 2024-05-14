@@ -431,13 +431,17 @@ private extension ViewItemProcessor {
                     totpState = updatedState
                 }
 
-                guard var newState = ViewItemState(cipherView: cipher, hasPremium: hasPremium) else { continue }
+                guard var newState = ViewItemState(
+                    cipherView: cipher,
+                    hasMasterPassword: hasMasterPassword,
+                    hasPremium: hasPremium
+                ) else { continue }
+
                 if case var .data(itemState) = newState.loadingState {
                     itemState.loginState.totpState = totpState
                     newState.loadingState = .data(itemState)
                 }
                 newState.hasVerifiedMasterPassword = state.hasVerifiedMasterPassword
-                newState.hasMasterPassword = hasMasterPassword
                 state = newState
             }
         } catch {

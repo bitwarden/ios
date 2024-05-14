@@ -18,6 +18,9 @@ protocol ViewLoginItemState: Sendable {
     /// A flag indicating if the TOTP feature is available.
     var isTOTPAvailable: Bool { get }
 
+    /// Whether the TOTP code is visible.
+    var isTOTPCodeVisible: Bool { get }
+
     /// A flag indicating if the password field is visible.
     var isPasswordVisible: Bool { get }
 

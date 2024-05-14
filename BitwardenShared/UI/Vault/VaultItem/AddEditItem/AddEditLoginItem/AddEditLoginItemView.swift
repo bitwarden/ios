@@ -22,27 +22,37 @@ struct AddEditLoginItemView: View {
     /// The `Store` for this view.
     @ObservedObject var store: Store<LoginItemState, AddEditItemAction, AddEditItemEffect>
 
-    var body: some View {
-        BitwardenTextField(
-            title: Localizations.username,
-            text: store.binding(
-                get: \.username,
-                send: AddEditItemAction.usernameChanged
-            ),
-            accessibilityIdentifier: "LoginUsernameEntry"
-        ) {
-            AccessoryButton(
-                asset: Asset.Images.restart2,
-                accessibilityLabel: Localizations.generateUsername
-            ) {
-                store.send(.generateUsernamePressed)
-            }
-            .accessibilityIdentifier("GenerateUsernameButton")
-        }
-        .textFieldConfiguration(.username)
-        .focused($focusedField, equals: .userName)
-        .onSubmit { focusNextField($focusedField) }
+    // MARK: View
 
+    var body: some View {
+        usernameField
+
+        passwordField
+
+        fidoField
+
+        totpView
+
+        uriSection
+    }
+
+    // MARK: Private views
+
+    /// The fido passkey field.
+    @ViewBuilder var fidoField: some View {
+        if let fido2Credential = store.state.fido2Credentials.first {
+            BitwardenTextValueField(
+                title: Localizations.passkey,
+                value: Localizations.createdXY(
+                    fido2Credential.creationDate.formatted(date: .numeric, time: .omitted),
+                    fido2Credential.creationDate.formatted(date: .omitted, time: .shortened)
+                )
+            )
+        }
+    }
+
+    /// The password field.
+    private var passwordField: some View {
         BitwardenTextField(
             title: Localizations.password,
             text: store.binding(
@@ -72,50 +82,50 @@ struct AddEditLoginItemView: View {
         .textFieldConfiguration(.password)
         .focused($focusedField, equals: .password)
         .onSubmit { focusNextField($focusedField) }
-
-        if let fido2Credential = store.state.fido2Credentials.first {
-            BitwardenTextValueField(
-                title: Localizations.passkey,
-                value: Localizations.createdXY(
-                    fido2Credential.creationDate.formatted(date: .numeric, time: .omitted),
-                    fido2Credential.creationDate.formatted(date: .omitted, time: .shortened)
-                )
-            )
-        }
-
-        totpView
-
-        uriSection
     }
 
     /// The view for TOTP authenticator key..
     @ViewBuilder private var totpView: some View {
-        if let key = store.state.authenticatorKey,
-           !key.isEmpty {
-            BitwardenTextField(
-                title: Localizations.authenticatorKey,
-                text: store.binding(
-                    get: { _ in key },
-                    send: AddEditItemAction.totpKeyChanged
-                ),
-                accessibilityIdentifier: "LoginTotpEntry",
-                canViewPassword: store.state.canViewPassword,
-                trailingContent: {
-                    if store.state.canViewPassword {
-                        AccessoryButton(asset: Asset.Images.copy, accessibilityLabel: Localizations.copyTotp) {
-                            await store.perform(.copyTotpPressed)
+        if let key = store.state.authenticatorKey, !key.isEmpty {
+            if store.state.canViewPassword {
+                BitwardenTextField(
+                    title: Localizations.authenticatorKey,
+                    text: store.binding(
+                        get: { _ in key },
+                        send: AddEditItemAction.totpKeyChanged
+                    ),
+                    accessibilityIdentifier: "LoginTotpEntry",
+                    canViewPassword: store.state.canViewPassword,
+                    isPasswordVisible: store.binding(
+                        get: \.isAuthKeyVisible,
+                        send: AddEditItemAction.authKeyVisibilityTapped
+                    ),
+                    trailingContent: {
+                        if store.state.canViewPassword {
+                            AccessoryButton(asset: Asset.Images.copy, accessibilityLabel: Localizations.copyTotp) {
+                                await store.perform(.copyTotpPressed)
+                            }
+                        }
+                        AccessoryButton(asset: Asset.Images.camera, accessibilityLabel: Localizations.setupTotp) {
+                            await store.perform(.setupTotpPressed)
                         }
                     }
-                    AccessoryButton(asset: Asset.Images.camera, accessibilityLabel: Localizations.setupTotp) {
-                        await store.perform(.setupTotpPressed)
-                    }
+                )
+                .disabled(!store.state.canViewPassword)
+                .focused($focusedField, equals: .totp)
+                .onSubmit {
+                    store.send(.totpFieldLeftFocus)
+                    focusNextField($focusedField)
                 }
-            )
-            .disabled(!store.state.canViewPassword)
-            .focused($focusedField, equals: .totp)
-            .onSubmit {
-                store.send(.totpFieldLeftFocus)
-                focusNextField($focusedField)
+            } else {
+                BitwardenField(title: Localizations.authenticatorKey) {
+                    PasswordText(password: key, isPasswordVisible: false)
+                }
+                .focused($focusedField, equals: .totp)
+                .onSubmit {
+                    store.send(.totpFieldLeftFocus)
+                    focusNextField($focusedField)
+                }
             }
         } else {
             VStack(alignment: .leading, spacing: 8) {
@@ -183,6 +193,29 @@ struct AddEditLoginItemView: View {
             .buttonStyle(.tertiary())
             .accessibilityIdentifier("LoginAddNewUriButton")
         }
+    }
+
+    /// The username field.
+    private var usernameField: some View {
+        BitwardenTextField(
+            title: Localizations.username,
+            text: store.binding(
+                get: \.username,
+                send: AddEditItemAction.usernameChanged
+            ),
+            accessibilityIdentifier: "LoginUsernameEntry"
+        ) {
+            AccessoryButton(
+                asset: Asset.Images.restart2,
+                accessibilityLabel: Localizations.generateUsername
+            ) {
+                store.send(.generateUsernamePressed)
+            }
+            .accessibilityIdentifier("GenerateUsernameButton")
+        }
+        .textFieldConfiguration(.username)
+        .focused($focusedField, equals: .userName)
+        .onSubmit { focusNextField($focusedField) }
     }
 }
 
