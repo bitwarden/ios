@@ -8,6 +8,7 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
 
     var appSettingsStore: MockAppSettingsStore!
     var dataStore: DataStore!
+    var keychainRepository: MockKeychainRepository!
     var subject: DefaultStateService!
 
     // MARK: Setup & Teardown
@@ -17,8 +18,13 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
 
         appSettingsStore = MockAppSettingsStore()
         dataStore = DataStore(errorReporter: MockErrorReporter(), storeType: .memory)
+        keychainRepository = MockKeychainRepository()
 
-        subject = DefaultStateService(appSettingsStore: appSettingsStore, dataStore: dataStore)
+        subject = DefaultStateService(
+            appSettingsStore: appSettingsStore,
+            dataStore: dataStore,
+            keychainRepository: keychainRepository
+        )
     }
 
     override func tearDown() {
@@ -26,6 +32,7 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
 
         appSettingsStore = nil
         dataStore = nil
+        keychainRepository = nil
         subject = nil
     }
 
@@ -661,6 +668,27 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
         try await subject.setVaultTimeout(value: .custom(20), userId: "1")
         let vaultTimeout = try await subject.getVaultTimeout(userId: "1")
         XCTAssertEqual(vaultTimeout, .custom(20))
+    }
+
+    /// `.getVaultTimeout(userId:)` gets the default vault timeout for the user if a value isn't set.
+    func test_getVaultTimeout_default() async throws {
+        appSettingsStore.vaultTimeout["1"] = nil
+
+        await subject.addAccount(.fixture(profile: .fixture(userId: "1")))
+
+        let vaultTimeout = try await subject.getVaultTimeout()
+        XCTAssertEqual(vaultTimeout, .fifteenMinutes)
+    }
+
+    /// `.getVaultTimeout(userId:)` gets the user's vault timeout when it's set to never lock.
+    func test_getVaultTimeout_neverLock() async throws {
+        appSettingsStore.vaultTimeout["1"] = nil
+        keychainRepository.mockStorage[keychainRepository.formattedKey(for: .neverLock(userId: "1"))] = "NEVER_LOCK_KEY"
+
+        await subject.addAccount(.fixture(profile: .fixture(userId: "1")))
+
+        let vaultTimeout = try await subject.getVaultTimeout()
+        XCTAssertEqual(vaultTimeout, .never)
     }
 
     /// `lastSyncTimePublisher()` returns a publisher for the user's last sync time.

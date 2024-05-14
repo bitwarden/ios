@@ -945,6 +945,9 @@ actor DefaultStateService: StateService { // swiftlint:disable:this type_body_le
     /// A subject containing the last sync time mapped to user ID.
     private var lastSyncTimeByUserIdSubject = CurrentValueSubject<[String: Date], Never>([:])
 
+    /// A service used to access data in the keychain.
+    private let keychainRepository: KeychainRepository
+
     /// A subject containing whether to show the website icons.
     private var showWebIconsSubject: CurrentValueSubject<Bool, Never>
 
@@ -955,13 +958,16 @@ actor DefaultStateService: StateService { // swiftlint:disable:this type_body_le
     /// - Parameters:
     ///  - appSettingsStore: The service that persists app settings.
     ///  - dataStore: The data store that handles performing data requests.
+    ///  - keychainRepository: A service used to access data in the keychain.
     ///
     init(
         appSettingsStore: AppSettingsStore,
-        dataStore: DataStore
+        dataStore: DataStore,
+        keychainRepository: KeychainRepository
     ) {
         self.appSettingsStore = appSettingsStore
         self.dataStore = dataStore
+        self.keychainRepository = keychainRepository
 
         appThemeSubject = CurrentValueSubject(AppTheme(appSettingsStore.appTheme))
         showWebIconsSubject = CurrentValueSubject(!appSettingsStore.disableWebIcons)
@@ -1148,7 +1154,8 @@ actor DefaultStateService: StateService { // swiftlint:disable:this type_body_le
     func getVaultTimeout(userId: String?) async throws -> SessionTimeoutValue {
         let userId = try getAccount(userId: userId).profile.userId
         guard let rawValue = appSettingsStore.vaultTimeout(userId: userId) else {
-            return .fifteenMinutes
+            let userAuthKey = try? await keychainRepository.getUserAuthKeyValue(for: .neverLock(userId: userId))
+            return userAuthKey == nil ? .fifteenMinutes : .never
         }
         return SessionTimeoutValue(rawValue: rawValue)
     }
