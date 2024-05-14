@@ -59,6 +59,7 @@ final class VaultListProcessor: StateProcessor<
             await requestNotificationPermissions()
             await checkPendingLoginRequests()
             await checkPersonalOwnershipPolicy()
+            await checkUnassignedCiphers()
         case let .morePressed(item):
             await showMoreOptionsAlert(for: item)
         case let .profileSwitcher(profileEffect):
@@ -154,6 +155,24 @@ extension VaultListProcessor {
     private func checkPersonalOwnershipPolicy() async {
         let isPersonalOwnershipDisabled = await services.policyService.policyAppliesToUser(.personalOwnership)
         state.isPersonalOwnershipDisabled = isPersonalOwnershipDisabled
+    }
+
+    /// Checks if we need to display the unassigned ciphers alert, and displays if necessary.
+    ///
+    private func checkUnassignedCiphers() async {
+        guard state.shouldCheckUnassignedCiphers else { return }
+        state.shouldCheckUnassignedCiphers = false
+
+        guard await services.vaultRepository.shouldShowUnassignedCiphersAlert()
+        else { return }
+
+        showAlert(.unassignedCiphers {
+            do {
+                try await self.services.stateService.setShouldCheckOrganizationUnassignedItems(false, userId: nil)
+            } catch {
+                self.services.errorReporter.log(error: error)
+            }
+        })
     }
 
     /// Generates and copies a TOTP code for the cipher's TOTP key.
