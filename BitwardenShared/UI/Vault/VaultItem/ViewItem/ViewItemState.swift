@@ -41,9 +41,6 @@ struct ViewItemState: Equatable {
         }
     }
 
-    /// Whether the TOTP code is visible.
-    var isTOTPCodeVisible: Bool = false
-
     /// The password history of the item.
     var passwordHistory: [PasswordHistoryView]?
 
@@ -73,7 +70,6 @@ extension ViewItemState {
         ) else { return nil }
         self.init(loadingState: .data(cipherItemState))
         hasPremiumFeatures = cipherItemState.accountHasPremium
-        isTOTPCodeVisible = cipherItemState.isTOTPCodeVisible
         passwordHistory = cipherView.passwordHistory
     }
 }

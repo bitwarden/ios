@@ -106,11 +106,9 @@ final class ViewItemProcessor: StateProcessor<ViewItemState, ViewItemAction, Vie
     }
 
     override func receive(_ action: ViewItemAction) {
-        if state.hasMasterPassword {
-            guard !state.isMasterPasswordRequired || !action.requiresMasterPasswordReprompt else {
-                presentMasterPasswordRepromptAlert { self.receive(action) }
-                return
-            }
+        guard !state.isMasterPasswordRequired || !action.requiresMasterPasswordReprompt else {
+            presentMasterPasswordRepromptAlert { self.receive(action) }
+            return
         }
         switch action {
         case let .cardItemAction(cardAction):
@@ -444,7 +442,6 @@ private extension ViewItemProcessor {
                     newState.loadingState = .data(itemState)
                 }
                 newState.hasVerifiedMasterPassword = state.hasVerifiedMasterPassword
-                newState.hasMasterPassword = hasMasterPassword
                 state = newState
             }
         } catch {

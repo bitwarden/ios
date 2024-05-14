@@ -126,12 +126,6 @@ struct CipherItemState: Equatable {
         }
     }
 
-    /// Whether the TOTP code is visible.
-    var isTOTPCodeVisible: Bool {
-        guard accountHasPremium else { return false }
-        return !(accountHasMasterPassword && isMasterPasswordRePromptOn)
-    }
-
     /// The owner of the cipher.
     var owner: CipherOwner? {
         get {

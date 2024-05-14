@@ -7,9 +7,6 @@ import Foundation
 struct VaultListState: Equatable {
     // MARK: Properties
 
-    /// Whether the user has a master password.
-    var hasMasterPassword: Bool = true
-
     /// The base url used to fetch icons.
     var iconBaseURL: URL?
 

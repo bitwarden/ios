@@ -189,7 +189,6 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
         vaultRepository.fetchCipherResult = .success(.cardFixture())
 
         await subject.perform(.morePressed(item))
-        XCTAssertTrue(subject.state.hasMasterPassword)
 
         var alert = try XCTUnwrap(coordinator.alertShown.last)
         XCTAssertEqual(alert.title, "Bitwarden")
@@ -255,7 +254,6 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
         let item = try XCTUnwrap(VaultListItem(cipherView: loginWithData))
 
         await subject.perform(.morePressed(item))
-        XCTAssertTrue(subject.state.hasMasterPassword)
 
         var alert = try XCTUnwrap(coordinator.alertShown.last)
         XCTAssertEqual(alert.title, "Bitwarden")
@@ -306,7 +304,6 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
         let item = try XCTUnwrap(VaultListItem(cipherView: loginWithData))
 
         await subject.perform(.morePressed(item))
-        XCTAssertTrue(subject.state.hasMasterPassword)
 
         var alert = try XCTUnwrap(coordinator.alertShown.last)
         XCTAssertEqual(alert.title, "Bitwarden")
@@ -363,7 +360,6 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
         )
 
         await subject.perform(.morePressed(item))
-        XCTAssertTrue(subject.state.hasMasterPassword)
 
         authRepository.validatePasswordResult = .success(true)
 
@@ -405,7 +401,6 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
         )
 
         await subject.perform(.morePressed(item))
-        XCTAssertTrue(subject.state.hasMasterPassword)
 
         authRepository.validatePasswordResult = .success(false)
 
@@ -442,7 +437,6 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
         let item = try XCTUnwrap(VaultListItem(cipherView: loginWithData))
 
         await subject.perform(.morePressed(item))
-        XCTAssertTrue(subject.state.hasMasterPassword)
 
         let alert = try XCTUnwrap(coordinator.alertShown.last)
         XCTAssertEqual(alert.title, "Bitwarden")
@@ -500,7 +494,6 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
         vaultRepository.fetchCipherResult = .success(.loginFixture())
 
         await subject.perform(.morePressed(item))
-        XCTAssertTrue(subject.state.hasMasterPassword)
 
         let alert = try XCTUnwrap(coordinator.alertShown.last)
         XCTAssertEqual(alert.title, "Bitwarden")
@@ -522,7 +515,6 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
         vaultRepository.fetchCipherResult = .success(.fixture(type: .identity))
 
         await subject.perform(.morePressed(item))
-        XCTAssertTrue(subject.state.hasMasterPassword)
 
         let alert = try XCTUnwrap(coordinator.alertShown.last)
         XCTAssertEqual(alert.title, "Bitwarden")
@@ -585,7 +577,6 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
         vaultRepository.fetchCipherResult = .success(.fixture(type: .secureNote))
 
         await subject.perform(.morePressed(item))
-        XCTAssertTrue(subject.state.hasMasterPassword)
 
         var alert = try XCTUnwrap(coordinator.alertShown.last)
         XCTAssertEqual(alert.title, "Bitwarden")
