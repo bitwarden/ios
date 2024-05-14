@@ -44,7 +44,7 @@ enum KeychainItem: Equatable {
         case let .accessToken(userId):
             "accessToken_\(userId)"
         case let .biometrics(userId: id):
-            "biometric_key_" + id
+            "userKeyBiometricUnlock_" + id
         case let .deviceKey(userId: id):
             "device_key_" + id
         case let .neverLock(userId: id):

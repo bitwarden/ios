@@ -431,7 +431,8 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
         let migrationService = DefaultMigrationService(
             appSettingsStore: appSettingsStore,
             errorReporter: errorReporter,
-            keychainRepository: keychainRepository
+            keychainRepository: keychainRepository,
+            keychainService: keychainService
         )
 
         let notificationService = DefaultNotificationService(
