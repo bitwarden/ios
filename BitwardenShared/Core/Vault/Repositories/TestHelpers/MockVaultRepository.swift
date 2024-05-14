@@ -246,7 +246,7 @@ class MockVaultRepository: VaultRepository {
     }
 
     func shouldShowUnassignedCiphersAlert() async -> Bool {
-        return shouldShowUnassignedCiphersAlert
+        shouldShowUnassignedCiphersAlert
     }
 
     func softDeleteCipher(_ cipher: CipherView) async throws {

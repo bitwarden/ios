@@ -1066,6 +1066,7 @@ extension DefaultVaultRepository: VaultRepository {
         do {
             guard await configService.getFeatureFlag(.unassignedItemsBanner, defaultValue: false),
                   try await stateService.getShouldCheckOrganizationUnassignedItems(userId: nil),
+                  try await !organizationService.fetchAllOrganizations().isEmpty,
                   try await cipherService.hasUnassignedCiphers()
             else { return false }
             return true
