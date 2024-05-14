@@ -26,6 +26,9 @@ class DefaultMigrationService {
     /// The repository used to manage keychain items.
     let keychainRepository: KeychainRepository
 
+    /// The service used to access & store data on the device keychain.
+    let keychainService: KeychainService
+
     /// The service name associated with the app's keychain items.
     let keychainServiceName: String
 
@@ -41,6 +44,7 @@ class DefaultMigrationService {
     ///   - appSettingsStore: The service used by the application to persist app setting values.
     ///   - errorReporter: The service used by the application to report non-fatal errors.
     ///   - keychainRepository: The repository used to manage keychain items.
+    ///   - keychainService: The service used to access & store data on the device keychain.
     ///   - keychainServiceName: The service name associated with the app's keychain items.
     ///   - standardUserDefaults: The shared UserDefaults instance.
     ///
@@ -48,12 +52,14 @@ class DefaultMigrationService {
         appSettingsStore: AppSettingsStore,
         errorReporter: ErrorReporter,
         keychainRepository: KeychainRepository,
+        keychainService: KeychainService,
         keychainServiceName: String = Bundle.main.appIdentifier,
         standardUserDefaults: UserDefaults = .standard
     ) {
         self.appSettingsStore = appSettingsStore
         self.errorReporter = errorReporter
         self.keychainRepository = keychainRepository
+        self.keychainService = keychainService
         self.keychainServiceName = keychainServiceName
         self.standardUserDefaults = standardUserDefaults
     }
@@ -87,6 +93,11 @@ class DefaultMigrationService {
             appSettingsStore.setLastSyncTime(nil, userId: accountId)
             appSettingsStore.setNotificationsLastRegistrationDate(nil, userId: accountId)
 
+            // Migrate biometrics integrity state.
+            if let biometricIntegrityState = appSettingsStore.biometricIntegrityStateLegacy {
+                appSettingsStore.setBiometricIntegrityState(biometricIntegrityState, userId: accountId)
+            }
+
             // Migrate tokens to Keychain.
             let tokens = account._tokens
             state.accounts[accountId]?._tokens = nil
@@ -95,12 +106,15 @@ class DefaultMigrationService {
             try await keychainRepository.setAccessToken(tokens.accessToken, userId: accountId)
             try await keychainRepository.setRefreshToken(tokens.refreshToken, userId: accountId)
         }
+
+        appSettingsStore.biometricIntegrityStateLegacy = nil
     }
 
     /// Performs migration 2.
     ///
     /// Notes:
-    /// - Migrate Keychain items, migrating data in kSecAttrGeneric to kSecValueData.
+    /// - Migrate Keychain items, migrating data in kSecAttrGeneric to kSecValueData and setting
+    ///     access control flags for biometric keys.
     ///
     private func performMigration2() async throws {
         let query = [
@@ -130,12 +144,20 @@ class DefaultMigrationService {
                 var attributesToUpdate: [CFString: Any] = [
                     kSecAttrAccessGroup: Bundle.main.keychainAccessGroup,
                 ]
+
+                // Migrate data from kSecAttrGeneric to kSecValueData.
                 if let genericData = itemDictionary[kSecAttrGeneric] as? Data,
                    !genericData.isEmpty,
                    itemDictionary[kSecValueData] == nil {
-                    // Migrate data from kSecAttrGeneric to kSecValueData.
                     attributesToUpdate[kSecValueData] = genericData
                     attributesToUpdate[kSecAttrGeneric] = Data()
+                }
+
+                // Set access control flags for biometric keys.
+                if let account = itemDictionary[kSecAttrAccount] as? String,
+                   account.contains("userKeyBiometricUnlock_"),
+                   let accessControl = try? keychainService.accessControl(for: .biometryCurrentSet) {
+                    attributesToUpdate[kSecAttrAccessControl] = accessControl
                 }
 
                 let status = SecItemUpdate(query, attributesToUpdate as CFDictionary)

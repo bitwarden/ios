@@ -8,6 +8,7 @@ class MigrationServiceTests: BitwardenTestCase {
     var appSettingsStore: MockAppSettingsStore!
     var errorReporter: MockErrorReporter!
     var keychainRepository: MockKeychainRepository!
+    var keychainService: MockKeychainService!
     var standardUserDefaults: UserDefaults!
     var subject: DefaultMigrationService!
 
@@ -19,6 +20,7 @@ class MigrationServiceTests: BitwardenTestCase {
         appSettingsStore = MockAppSettingsStore()
         errorReporter = MockErrorReporter()
         keychainRepository = MockKeychainRepository()
+        keychainService = MockKeychainService()
         standardUserDefaults = UserDefaults(suiteName: "test")
 
         standardUserDefaults.removeObject(forKey: "MSAppCenterCrashesIsEnabled")
@@ -28,6 +30,7 @@ class MigrationServiceTests: BitwardenTestCase {
             appSettingsStore: appSettingsStore,
             errorReporter: errorReporter,
             keychainRepository: keychainRepository,
+            keychainService: keychainService,
             keychainServiceName: "com.bitwarden.test",
             standardUserDefaults: standardUserDefaults
         )
@@ -39,6 +42,7 @@ class MigrationServiceTests: BitwardenTestCase {
         appSettingsStore = nil
         errorReporter = nil
         keychainRepository = nil
+        keychainService = nil
         standardUserDefaults = nil
         subject = nil
     }
@@ -78,6 +82,7 @@ class MigrationServiceTests: BitwardenTestCase {
 
     /// `performMigrations()` performs migration 1 and moves the user's tokens to the keychain.
     func test_performMigrations_1_withAccounts() async throws {
+        appSettingsStore.biometricIntegrityStateLegacy = "1234"
         appSettingsStore.migrationVersion = 0
         appSettingsStore.state = .fixture(
             accounts: [
@@ -117,11 +122,13 @@ class MigrationServiceTests: BitwardenTestCase {
         try XCTAssertEqual(keychainRepository.getValue(for: .refreshToken(userId: "2")), "REFRESH_TOKEN_2")
 
         for userId in ["1", "2"] {
+            XCTAssertEqual(appSettingsStore.biometricIntegrityState(userId: userId), "1234")
             XCTAssertNil(appSettingsStore.lastActiveTime(userId: userId))
             XCTAssertNil(appSettingsStore.lastSyncTime(userId: userId))
             XCTAssertNil(appSettingsStore.notificationsLastRegistrationDate(userId: userId))
         }
 
+        XCTAssertNil(appSettingsStore.biometricIntegrityStateLegacy)
         XCTAssertFalse(keychainRepository.deleteAllItemsCalled)
 
         XCTAssertTrue(errorReporter.isEnabled)

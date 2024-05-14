@@ -9,6 +9,7 @@ class MockAppSettingsStore: AppSettingsStore {
     var appId: String?
     var appLocale: String?
     var appTheme: String?
+    var biometricIntegrityStateLegacy: String?
     var disableWebIcons = false
     var lastUserShouldConnectToWatch = false
     var loginRequest: LoginRequestNotification?
