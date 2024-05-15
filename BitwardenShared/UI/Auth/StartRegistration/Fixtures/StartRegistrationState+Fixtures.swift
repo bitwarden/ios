@@ -5,7 +5,7 @@ import Foundation
 
 extension StartRegistrationState {
     static func fixture(
-        emailText: String = "email@example.com",
+        emailText: String = "example@email.com",
         isTermsAndPrivacyToggleOn: Bool = true,
         nameText: String = "name",
         region: RegionType = .unitedStates

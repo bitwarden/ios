@@ -169,37 +169,38 @@ class CompleteRegistrationProcessor: StateProcessor<
 
             coordinator.showLoadingOverlay(title: Localizations.creatingAccount)
 
-            // let kdf: Kdf = .pbkdf2(iterations: NonZeroU32(KdfConfig().kdfIterations))
+            let kdf: Kdf = .pbkdf2(iterations: NonZeroU32(KdfConfig().kdfIterations))
 
-            // TODO: Add call to complete the registration and create the account /register
-            // let keys = try await services.clientService.auth().makeRegisterKeys(
-            //    email: email,
-            //    password: state.passwordText,
-            //    kdf: kdf
-            // )
-//
-            // let hashedPassword = try await services.clientService.auth().hashPassword(
-            //    email: email,
-            //    password: state.passwordText,
-            //    kdfParams: kdf,
-            //    purpose: .serverAuthorization
-            // )
-//
-            // _ = try await services.accountAPIService.createNewAccount(
-            //    body: CompleteRegistrationRequestModel(
-            //        captchaResponse: captchaToken,
-            //        email: email,
-            //        kdfConfig: KdfConfig(),
-            //        key: keys.encryptedUserKey,
-            //        keys: KeysRequestModel(
-            //            encryptedPrivateKey: keys.keys.private,
-            //            publicKey: keys.keys.public
-            //        ),
-            //        masterPasswordHash: hashedPassword,
-            //        masterPasswordHint: state.passwordHintText
-            //    )
-            // )
-            // coordinator.navigate(to: .login(username: email))
+            let keys = try await services.clientService.auth().makeRegisterKeys(
+                email: state.userEmail,
+                password: state.passwordText,
+                kdf: kdf
+            )
+
+            let hashedPassword = try await services.clientService.auth().hashPassword(
+                email: state.userEmail,
+                password: state.passwordText,
+                kdfParams: kdf,
+                purpose: .serverAuthorization
+            )
+            // TODO: PM-5090 Add call to complete the registration and create the account /register
+
+            _ = try await services.accountAPIService.createNewAccount(
+                body: CreateAccountRequestModel(
+                    captchaResponse: captchaToken,
+                    email: state.userEmail,
+                    kdfConfig: KdfConfig(),
+                    key: keys.encryptedUserKey,
+                    keys: KeysRequestModel(
+                        encryptedPrivateKey: keys.keys.private,
+                        publicKey: keys.keys.public
+                    ),
+                    masterPasswordHash: hashedPassword,
+                    masterPasswordHint: state.passwordHintText
+                )
+            )
+
+            coordinator.navigate(to: .login(username: state.userEmail))
         } catch let CreateAccountRequestError.captchaRequired(hCaptchaSiteCode: siteCode) {
             launchCaptchaFlow(with: siteCode)
         } catch let error as CompleteRegistrationError {
