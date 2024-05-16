@@ -20,7 +20,6 @@ platform :ios do
     lane :upload_build do |options|
     upload_to_testflight(
         skip_submission: true,
-        changelog: "This is the changelog",
         skip_waiting_for_build_processing: false,
         api_key_path: options[:api_key_path],
         ipa: options[:ipa_path],
@@ -28,9 +27,6 @@ platform :ios do
             "default": {
                 whats_new: "This is what's new",
             }
-        },
-        beta_app_review_info: {
-            notes: "These are notes"
         }
     )
     end
