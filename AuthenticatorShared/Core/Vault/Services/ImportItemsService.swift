@@ -11,7 +11,7 @@ protocol ImportItemsService: AnyObject {
     ///   - data: The data to import.
     ///   - format: The format of the file to import.
     ///
-    func importItems(data: Data, format: ImportFileType) async throws
+    func importItems(data: Data, format: ImportFileFormat) async throws
 }
 
 extension ImportItemsService {
@@ -21,7 +21,7 @@ extension ImportItemsService {
     ///   - url: The URL of the file to import.
     ///   - format: The format of the file to import.
     ///
-    func importItems(url: URL, format: ImportFileType) async throws {
+    func importItems(url: URL, format: ImportFileFormat) async throws {
         let data = try Data(contentsOf: url)
         try await importItems(data: data, format: format)
     }
@@ -56,29 +56,16 @@ class DefaultImportItemsService: ImportItemsService {
 
     // MARK: Methods
 
-    func importItems(data: Data, format: ImportFileType) async throws {
-        let items: [CipherLike]
+    func importItems(data: Data, format: ImportFileFormat) async throws {
+        let items: [AuthenticatorItemView]
         switch format {
-        case .json:
-            items = try importJson(data)
+        case .bitwardenJson:
+            items = try BitwardenImporter.importItems(data: data)
+        case .raivoJson:
+            items = try RaivoImporter.importItems(data: data)
         }
-        try await items.asyncForEach { cipherLike in
-            let item = AuthenticatorItemView(
-                favorite: cipherLike.favorite,
-                id: cipherLike.id,
-                name: cipherLike.name,
-                totpKey: cipherLike.login?.totp,
-                username: cipherLike.login?.username
-            )
+        try await items.asyncForEach { item in
             try await authenticatorItemRepository.addAuthenticatorItem(item)
         }
-    }
-
-    // MARK: Private Methods
-
-    private func importJson(_ data: Data) throws -> [CipherLike] {
-        let decoder = JSONDecoder()
-        let vaultLike = try decoder.decode(VaultLike.self, from: data)
-        return vaultLike.items
     }
 }

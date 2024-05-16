@@ -60,12 +60,7 @@ final class ImportItemsProcessor: StateProcessor<ImportItemsState, ImportItemsAc
 
     /// Show the dialog to select file to import.
     private func showImportItemsFileSelection() {
-        let importFormat: ImportFileType
-        switch state.fileFormat {
-        case .bitwardenJson:
-            importFormat = .json
-        }
-        coordinator.navigate(to: .importItemsFileSelection(type: importFormat), context: self)
+        coordinator.navigate(to: .importItemsFileSelection(route: state.fileFormat.fileSelectionRoute), context: self)
     }
 }
 
@@ -73,7 +68,14 @@ extension ImportItemsProcessor: FileSelectionDelegate {
     func fileSelectionCompleted(fileName: String, data: Data) {
         Task {
             do {
-                try await services.importItemsService.importItems(data: data, format: .json)
+                let importFileFormat: ImportFileFormat
+                switch state.fileFormat {
+                case .bitwardenJson:
+                    importFileFormat = .bitwardenJson
+                case .raivoJson:
+                    importFileFormat = .raivoJson
+                }
+                try await services.importItemsService.importItems(data: data, format: importFileFormat)
                 state.toast = Toast(text: Localizations.itemsImported)
             } catch {
                 services.errorReporter.log(error: error)

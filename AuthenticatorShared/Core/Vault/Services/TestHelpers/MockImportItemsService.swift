@@ -5,14 +5,14 @@ import Foundation
 class MockImportItemsService: ImportItemsService {
     var importItemsData: Data?
     var importItemsUrl: URL?
-    var importItemsFormat: ImportFileType?
+    var importItemsFormat: ImportFileFormat?
 
-    func importItems(data: Data, format: ImportFileType) async throws {
+    func importItems(data: Data, format: ImportFileFormat) async throws {
         importItemsData = data
         importItemsFormat = format
     }
 
-    func importItems(url: URL, format: ImportFileType) async throws {
+    func importItems(url: URL, format: ImportFileFormat) async throws {
         importItemsUrl = url
         importItemsFormat = format
     }

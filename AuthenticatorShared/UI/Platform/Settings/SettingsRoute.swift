@@ -14,7 +14,7 @@ public enum SettingsRoute: Equatable, Hashable {
     case importItems
 
     /// A route to the import file selection
-    case importItemsFileSelection(type: ImportFileType)
+    case importItemsFileSelection(route: FileSelectionRoute)
 
     /// A route to view the select language view.
     ///

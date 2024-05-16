@@ -68,9 +68,9 @@ final class SettingsCoordinator: Coordinator, HasStackNavigator {
             showExportItems()
         case .importItems:
             showImportItems()
-        case .importItemsFileSelection:
+        case let .importItemsFileSelection(route):
             guard let delegate = context as? FileSelectionDelegate else { return }
-            showImportItemsFileSelection(delegate: delegate)
+            showImportItemsFileSelection(route: route, delegate: delegate)
         case let .selectLanguage(currentLanguage: currentLanguage):
             showSelectLanguage(currentLanguage: currentLanguage, delegate: context as? SelectLanguageDelegate)
         case .settings:
@@ -126,14 +126,14 @@ final class SettingsCoordinator: Coordinator, HasStackNavigator {
 
     /// Presents an activity controller for importing items.
     ///
-    private func showImportItemsFileSelection(delegate: FileSelectionDelegate) {
+    private func showImportItemsFileSelection(route: FileSelectionRoute, delegate: FileSelectionDelegate) {
         guard let stackNavigator else { return }
         let coordinator = module.makeFileSelectionCoordinator(
             delegate: delegate,
             stackNavigator: stackNavigator
         )
         coordinator.start()
-        coordinator.navigate(to: .jsonFile)
+        coordinator.navigate(to: route)
         fileSelectionCoordinator = coordinator
     }
 

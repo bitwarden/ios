@@ -1,6 +1,8 @@
 // MARK: - ExportFormatType
 
 /// An enum describing the format of the items export.
+/// This is used in the UI to know if additional information (such as password)
+/// needs to be acquired before doing the export.
 ///
 enum ExportFormatType: Menuable {
     /// A CSV file.

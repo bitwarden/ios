@@ -1,6 +1,8 @@
 // MARK: - ExportFileType
 
 /// An enum describing the format of an export file.
+/// This includes additional information necessary to perform the export
+/// (such as password in the case of encrypted exports).
 ///
 enum ExportFileType: Equatable {
     /// A `.csv` file type.
