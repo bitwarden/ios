@@ -77,8 +77,8 @@ final class AccountSecurityProcessor: StateProcessor<
             state.fingerprintPhraseUrl = nil
         case .clearTwoStepLoginUrl:
             state.twoStepLoginUrl = nil
-        case let .customTimeoutValueChanged(newValue):
-            setVaultTimeout(value: .custom(newValue))
+        case let .customTimeoutValueSecondsChanged(seconds):
+            setVaultTimeout(value: .custom(seconds / 60))
         case .deleteAccountPressed:
             coordinator.navigate(to: .deleteAccount)
         case .logout:

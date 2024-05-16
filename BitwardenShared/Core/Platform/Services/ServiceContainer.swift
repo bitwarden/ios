@@ -276,7 +276,11 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
         )
         let timeProvider = CurrentTime()
 
-        let stateService = DefaultStateService(appSettingsStore: appSettingsStore, dataStore: dataStore)
+        let stateService = DefaultStateService(
+            appSettingsStore: appSettingsStore,
+            dataStore: dataStore,
+            keychainRepository: keychainRepository
+        )
 
         let clientBuilder = DefaultClientBuilder(errorReporter: errorReporter)
         let clientService = DefaultClientService(
@@ -427,7 +431,8 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
         let migrationService = DefaultMigrationService(
             appSettingsStore: appSettingsStore,
             errorReporter: errorReporter,
-            keychainRepository: keychainRepository
+            keychainRepository: keychainRepository,
+            keychainService: keychainService
         )
 
         let notificationService = DefaultNotificationService(

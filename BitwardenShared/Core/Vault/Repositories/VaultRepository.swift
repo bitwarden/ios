@@ -524,6 +524,7 @@ class DefaultVaultRepository { // swiftlint:disable:this type_body_length
         let listModel = VaultListTOTP(
             id: id,
             loginView: login,
+            requiresMasterPassword: cipherView.reprompt == .password,
             totpCode: code
         )
         return VaultListItem(

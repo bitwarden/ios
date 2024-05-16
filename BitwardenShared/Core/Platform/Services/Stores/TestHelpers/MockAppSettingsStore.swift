@@ -9,6 +9,7 @@ class MockAppSettingsStore: AppSettingsStore {
     var appId: String?
     var appLocale: String?
     var appTheme: String?
+    var biometricIntegrityStateLegacy: String?
     var disableWebIcons = false
     var lastUserShouldConnectToWatch = false
     var loginRequest: LoginRequestNotification?
@@ -37,7 +38,7 @@ class MockAppSettingsStore: AppSettingsStore {
     var shouldTrustDevice = [String: Bool?]()
     var timeoutAction = [String: Int]()
     var twoFactorTokens = [String: String]()
-    var vaultTimeout = [String: Int?]()
+    var vaultTimeout = [String: Int]()
     var state: State? {
         didSet {
             activeIdSubject.send(state?.activeUserId)
@@ -213,8 +214,8 @@ class MockAppSettingsStore: AppSettingsStore {
         usernameGenerationOptions[userId] = options
     }
 
-    func setVaultTimeout(key: Int, userId: String) {
-        vaultTimeout[userId] = key
+    func setVaultTimeout(minutes: Int, userId: String) {
+        vaultTimeout[userId] = minutes
     }
 
     func shouldCheckOrganizationUnassignedItems(userId: String) -> Bool? {
@@ -238,7 +239,7 @@ class MockAppSettingsStore: AppSettingsStore {
     }
 
     func vaultTimeout(userId: String) -> Int? {
-        vaultTimeout[userId] ?? 0
+        vaultTimeout[userId]
     }
 
     func activeAccountIdPublisher() -> AnyPublisher<String?, Never> {

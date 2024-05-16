@@ -437,6 +437,7 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
         let totpModel = VaultListTOTP(
             id: "123",
             loginView: .fixture(),
+            requiresMasterPassword: false,
             totpCode: .init(
                 code: "123456",
                 codeGenerationDate: Date(),
@@ -466,6 +467,7 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
         let totpModel = VaultListTOTP(
             id: "123",
             loginView: .fixture(totp: .base32Key),
+            requiresMasterPassword: false,
             totpCode: .init(
                 code: "123456",
                 codeGenerationDate: Date(),
@@ -938,6 +940,7 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
                     totpModel: .init(
                         id: "6",
                         loginView: XCTUnwrap(totpCipher.login),
+                        requiresMasterPassword: false,
                         totpCode: .init(
                             code: "123456",
                             codeGenerationDate: timeProvider.presentTime,

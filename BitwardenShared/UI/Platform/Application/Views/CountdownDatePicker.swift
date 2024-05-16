@@ -37,7 +37,7 @@ struct CountdownDatePicker: UIViewRepresentable {
 
     // MARK: Properties
 
-    /// The count down durration.
+    /// The count down duration, in seconds.
     @Binding var duration: Int
 
     // MARK: Methods

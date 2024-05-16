@@ -1070,6 +1070,14 @@ class AddEditItemProcessorTests: BitwardenTestCase {
         XCTAssertEqual(coordinator.routes.last, .setupTotpManual)
     }
 
+    /// `receive(_:)` with `authKeyVisibilityTapped` updates the value in the state.
+    func test_receive_authKeyVisibilityTapped() {
+        subject.state.loginState.isAuthKeyVisible = false
+        subject.receive(.authKeyVisibilityTapped(true))
+
+        XCTAssertTrue(subject.state.loginState.isAuthKeyVisible)
+    }
+
     /// `receive(_:)` with `.clearTOTPKey` clears the authenticator key.
     func test_receive_clearTOTPKey() {
         subject.state.loginState.totpState = LoginTOTPState(.base32Key)

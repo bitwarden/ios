@@ -32,4 +32,9 @@ extension Bundle {
     var groupIdentifier: String {
         "group." + appIdentifier
     }
+
+    /// Return's the app's access group identifier for storing keychain items.
+    var keychainAccessGroup: String {
+        infoDictionary?["BitwardenKeychainAccessGroup"] as? String ?? appIdentifier
+    }
 }

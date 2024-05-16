@@ -150,8 +150,8 @@ struct AccountSecurityView: View {
                         title: Localizations.custom,
                         customTimeoutValue: store.state.customTimeoutString,
                         pickerValue: store.binding(
-                            get: \.customTimeoutValue,
-                            send: AccountSecurityAction.customTimeoutValueChanged
+                            get: \.customTimeoutValueSeconds,
+                            send: AccountSecurityAction.customTimeoutValueSecondsChanged
                         ),
                         customTimeoutAccessibilityLabel: store.state.customTimeoutAccessibilityLabel
                     )
