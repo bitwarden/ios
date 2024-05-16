@@ -152,7 +152,7 @@ extension APIService: AccountAPIService {
     }
 
     func startRegistration(requestModel: StartRegistrationRequestModel) async throws -> StartRegistrationResponseModel {
-        try await apiService.send(StartRegistrationRequest(body: requestModel))
+        try await apiUnauthenticatedService.send(StartRegistrationRequest(body: requestModel))
     }
 
     func updatePassword(_ requestModel: UpdatePasswordRequestModel) async throws {
