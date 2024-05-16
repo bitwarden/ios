@@ -7,11 +7,11 @@ public enum AuthRoute: Equatable {
     /// A route to the captcha screen.
     case captcha(url: URL, callbackUrlScheme: String)
 
+    /// A route to show the check email screen.
+    case checkEmail(email: String)
+
     /// Dismisses the auth flow.
     case complete
-
-    /// A route to the create account screen.
-    case createAccount
 
     /// A route to complete registration screen.
     /// - Parameters:
@@ -19,6 +19,9 @@ public enum AuthRoute: Equatable {
     ///    - emailVerificationToken: Token needed to complete registration.
     ///
     case completeRegistration(emailVerificationToken: String, userEmail: String)
+
+    /// A route to the create account screen.
+    case createAccount
 
     /// A route that dismisses a presented sheet.
     case dismiss

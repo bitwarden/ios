@@ -887,3 +887,10 @@
 "ConfirmFilePassword" = "Confirm file password";
 "FilePasswordDescription" = "This password will be used to export and import this file";
 "CreatingOn" = "Creating on";
+"CheckYourEmail" = "Check your email";
+"FollowTheInstructionsInTheEmailSentToXToContinueCreatingYourAccount" = "Follow the instructions in the email sent to %1$@ to continue creating your account.";
+"NoEmailGoBackToEditYourEmailAddress" = "No email? Go back to edit your email address.";
+"OrLogInYouMayAlreadyHaveAnAccount." = "Or log in, you may already have an account.";
+"GoBack" = "Go back";
+"LogIn" = "log in";
+"OpenEmailApp" = "Open email app";

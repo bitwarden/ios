@@ -113,6 +113,8 @@ final class AuthCoordinator: NSObject, // swiftlint:disable:this type_body_lengt
                 callbackUrlScheme: callbackUrlScheme,
                 delegate: context as? CaptchaFlowDelegate
             )
+        case let .checkEmail(email):
+            showCheckEmail(email)
         case .complete:
             if stackNavigator?.isPresenting == true {
                 stackNavigator?.dismiss {
@@ -243,6 +245,23 @@ final class AuthCoordinator: NSObject, // swiftlint:disable:this type_body_lengt
         session.prefersEphemeralWebBrowserSession = false
         session.presentationContextProvider = self
         session.start()
+    }
+
+    /// Shows the check email screen.
+    /// - Parameter email: The user's email.
+    ///
+    private func showCheckEmail(_ email: String) {
+        let view = CheckEmailView(
+            store: Store(
+                processor: CheckEmailProcessor(
+                    coordinator: asAnyCoordinator(),
+                    services: services,
+                    state: CheckEmailState(email: email)
+                )
+            )
+        )
+        let navController = UINavigationController(rootViewController: UIHostingController(rootView: view))
+        stackNavigator?.present(navController)
     }
 
     /// Shows the create account screen.

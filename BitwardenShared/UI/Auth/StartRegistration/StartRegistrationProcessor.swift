@@ -156,7 +156,7 @@ class StartRegistrationProcessor: StateProcessor<
                     userEmail: state.emailText
                 ))
             } else {
-                // TODO: PM-1528 go to email verification view
+                coordinator.navigate(to: .checkEmail(email: state.emailText))
             }
         } catch let StartRegistrationRequestError.captchaRequired(hCaptchaSiteCode: siteCode) {
             launchCaptchaFlow(with: siteCode)
