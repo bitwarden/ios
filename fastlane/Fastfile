@@ -21,7 +21,7 @@ platform :ios do
     upload_to_testflight(
         skip_submission: true,
         changelog: "This is the changelog",
-        skip_waiting_for_build_processing: true,
+        skip_waiting_for_build_processing: false,
         api_key_path: options[:api_key_path],
         ipa: options[:ipa_path],
         localized_build_info: {
