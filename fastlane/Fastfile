@@ -19,7 +19,8 @@ platform :ios do
     desc "Push a new build to TestFlight"
     lane :upload_build do |options|
     upload_to_testflight(
-        skip_submission: true,
+        skip_submission: false,
+        changelog: "This is the changelog",
         skip_waiting_for_build_processing: false,
         api_key_path: options[:api_key_path],
         ipa: options[:ipa_path],
