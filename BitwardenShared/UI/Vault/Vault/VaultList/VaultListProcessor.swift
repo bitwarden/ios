@@ -31,6 +31,8 @@ final class VaultListProcessor: StateProcessor<
     /// The services used by this processor.
     private let services: Services
 
+    private var isShowingNotificationPermissions = false
+
     // MARK: Initialization
 
     /// Creates a new `VaultListProcessor`.
@@ -59,7 +61,9 @@ final class VaultListProcessor: StateProcessor<
             await requestNotificationPermissions()
             await checkPendingLoginRequests()
             await checkPersonalOwnershipPolicy()
-            await checkUnassignedCiphers()
+            if !isShowingNotificationPermissions {
+                await checkUnassignedCiphers()
+            }
         case let .morePressed(item):
             await showMoreOptionsAlert(for: item)
         case let .profileSwitcher(profileEffect):
@@ -219,6 +223,8 @@ extension VaultListProcessor {
         let notificationAuthorization = await services.notificationService.notificationAuthorization()
         guard notificationAuthorization == .notDetermined else { return }
 
+        isShowingNotificationPermissions = true
+
         // Show the explanation alert before asking for permissions.
         coordinator.showAlert(
             .pushNotificationsInformation { [services] in
@@ -227,6 +233,11 @@ extension VaultListProcessor {
                         .requestAuthorization(options: [.alert, .sound, .badge])
                 } catch {
                     self.services.errorReporter.log(error: error)
+                }
+            }, onDismissed: {
+                Task {
+                    self.isShowingNotificationPermissions = false
+                    await self.checkUnassignedCiphers()
                 }
             }
         )

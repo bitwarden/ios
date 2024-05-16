@@ -177,6 +177,18 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
         )
     }
 
+    /// `perform(_:)` with `.appeared` checks for unassigned ciphers.
+    func test_perform_appeared_unassignedCiphers() async throws {
+        stateService.activeAccount = .fixture()
+        notificationService.authorizationStatus = .authorized
+        vaultRepository.shouldShowUnassignedCiphersAlert = true
+
+        await subject.perform(.appeared)
+
+        let alert = try XCTUnwrap(coordinator.alertShown.last)
+        XCTAssertEqual(alert, .unassignedCiphers {})
+    }
+
     /// `perform(_:)` with `.morePressed` shows the appropriate more options alert for a card cipher.
     func test_perform_morePressed_card() async throws {
         let account = Account.fixture()

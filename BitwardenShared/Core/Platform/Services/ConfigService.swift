@@ -56,15 +56,15 @@ extension ConfigService {
         await getConfig(forceRefresh: false)
     }
 
-    func getFeatureFlag(_ flag: FeatureFlag, defaultValue: Bool) async -> Bool {
+    func getFeatureFlag(_ flag: FeatureFlag, defaultValue: Bool = false) async -> Bool {
         await getFeatureFlag(flag, defaultValue: defaultValue, forceRefresh: false)
     }
 
-    func getFeatureFlag(_ flag: FeatureFlag, defaultValue: Int) async -> Int {
+    func getFeatureFlag(_ flag: FeatureFlag, defaultValue: Int = 0) async -> Int {
         await getFeatureFlag(flag, defaultValue: defaultValue, forceRefresh: false)
     }
 
-    func getFeatureFlag(_ flag: FeatureFlag, defaultValue: String?) async -> String? {
+    func getFeatureFlag(_ flag: FeatureFlag, defaultValue: String? = nil) async -> String? {
         await getFeatureFlag(flag, defaultValue: defaultValue, forceRefresh: false)
     }
 }
