@@ -31,6 +31,9 @@ final class VaultListProcessor: StateProcessor<
     /// The services used by this processor.
     private let services: Services
 
+    /// `true` if we're currently showing notification permissions.
+    /// This is used to prevent both the notification permissions and unused ciphers alert
+    /// from appearing at the same time.
     private var isShowingNotificationPermissions = false
 
     // MARK: Initialization
