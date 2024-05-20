@@ -177,6 +177,97 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
         )
     }
 
+    /// `perform(_:)` with `.appeared` checks for unassigned ciphers
+    /// and updates state if the user taps "OK".
+    func test_perform_appeared_unassignedCiphers() async throws {
+        stateService.activeAccount = .fixture()
+        notificationService.authorizationStatus = .authorized
+        vaultRepository.shouldShowUnassignedCiphersAlert = true
+
+        await subject.perform(.appeared)
+
+        let alert = try XCTUnwrap(coordinator.alertShown.last)
+        XCTAssertEqual(alert, .unassignedCiphers {})
+
+        let requestPermissionAction = try XCTUnwrap(alert.alertActions.last)
+        await requestPermissionAction.handler?(requestPermissionAction, [])
+
+        XCTAssertTrue(errorReporter.errors.isEmpty)
+        XCTAssertEqual(stateService.shouldCheckOrganizationUnassignedItems["1"], false)
+    }
+
+    /// `perform(_:)` with `.appeared` checks for unassigned ciphers
+    /// and updates state if the user taps "OK".
+    func test_perform_appeared_requestNotifications() throws {
+        stateService.activeAccount = .fixture()
+        notificationService.authorizationStatus = .notDetermined
+        vaultRepository.shouldShowUnassignedCiphersAlert = true
+
+        Task {
+            await subject.perform(.appeared)
+
+            let pushNotificationsAlert = try XCTUnwrap(coordinator.alertShown.last)
+            XCTAssertEqual(pushNotificationsAlert, .pushNotificationsInformation {})
+
+            let requestPermissionAction = try XCTUnwrap(pushNotificationsAlert.alertActions.first)
+            await requestPermissionAction.handler?(requestPermissionAction, [])
+            if let onDismissed = coordinator.alertOnDismissed {
+                onDismissed()
+            }
+        }
+
+        waitFor(coordinator.alertShown.count == 2)
+        let unassignedCiphersAlert = try XCTUnwrap(coordinator.alertShown.last)
+        XCTAssertEqual(unassignedCiphersAlert, .unassignedCiphers {})
+    }
+
+    /// `perform(_:)` with `.appeared` checks for unassigned ciphers
+    /// and does not update state if the user taps "Remind me later".
+    func test_perform_appeared_unassignedCiphers_cancelled() async throws {
+        stateService.activeAccount = .fixture()
+        notificationService.authorizationStatus = .authorized
+        vaultRepository.shouldShowUnassignedCiphersAlert = true
+
+        await subject.perform(.appeared)
+
+        let alert = try XCTUnwrap(coordinator.alertShown.last)
+        XCTAssertEqual(alert, .unassignedCiphers {})
+
+        let requestPermissionAction = try XCTUnwrap(alert.alertActions.first)
+        await requestPermissionAction.handler?(requestPermissionAction, [])
+
+        XCTAssertTrue(errorReporter.errors.isEmpty)
+        XCTAssertEqual(stateService.shouldCheckOrganizationUnassignedItems["1"], nil)
+    }
+
+    /// `perform(_:)` with `.appeared` does not check for unassigned ciphers
+    /// when the vault repository returns false.
+    func test_perform_appeared_unassignedCiphers_shouldNot() async throws {
+        stateService.activeAccount = .fixture()
+        notificationService.authorizationStatus = .authorized
+        vaultRepository.shouldShowUnassignedCiphersAlert = false
+
+        await subject.perform(.appeared)
+
+        XCTAssertTrue(coordinator.alertShown.isEmpty)
+    }
+
+    /// `perform(_:)` with `.appeared` does not check for unassigned ciphers
+    /// on the second call.
+    func test_perform_appeared_unassignedCiphers_shouldNot_secondCall() async throws {
+        stateService.activeAccount = .fixture()
+        notificationService.authorizationStatus = .authorized
+        vaultRepository.shouldShowUnassignedCiphersAlert = true
+
+        await subject.perform(.appeared)
+
+        XCTAssertEqual(coordinator.alertShown.count, 1)
+
+        await subject.perform(.appeared)
+
+        XCTAssertEqual(coordinator.alertShown.count, 1)
+    }
+
     /// `perform(_:)` with `.morePressed` shows the appropriate more options alert for a card cipher.
     func test_perform_morePressed_card() async throws {
         let account = Account.fixture()
