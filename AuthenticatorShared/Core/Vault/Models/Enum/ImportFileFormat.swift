@@ -10,4 +10,7 @@ public enum ImportFileFormat: Equatable {
 
     /// A Raivo `.json` file type.
     case raivoJson
+
+    /// An unencrypted 2FAS `.2fas` (but actually JSON) file type
+    case twoFasJson
 }

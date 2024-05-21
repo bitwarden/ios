@@ -11,12 +11,16 @@ enum ImportFormatType: Menuable {
     /// A JSON exported from Raivo
     case raivoJson
 
+    /// A JSON exported from 2FAS
+    case twoFasJason
+
     // MARK: Type Properties
 
     /// The ordered list of options to display in the menu.
     static let allCases: [ImportFormatType] = [
         .bitwardenJson,
         .raivoJson,
+        .twoFasJason,
     ]
 
     // MARK: Properties
@@ -27,6 +31,8 @@ enum ImportFormatType: Menuable {
         case .bitwardenJson,
              .raivoJson:
             return .jsonFile
+        case .twoFasJason:
+            return .file
         }
     }
 
@@ -37,6 +43,8 @@ enum ImportFormatType: Menuable {
             "Authenticator Export (JSON)"
         case .raivoJson:
             "Raivo (JSON)"
+        case .twoFasJason:
+            "2FAS (.2fas)"
         }
     }
 }

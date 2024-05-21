@@ -1,0 +1,109 @@
+{
+    "schemaVersion": 4,
+    "services": [
+        {
+            "otp": {
+                "counter": 0,
+                "period": 30,
+                "digits": 6,
+                "account": "person@example.com",
+                "source": "manual",
+                "tokenType": "TOTP",
+                "algorithm": "SHA1"
+            },
+            "order": {
+                "position": 0
+            },
+            "updatedAt": 1713397547000,
+            "name": "Name",
+            "icon": {
+                "iconCollection": {
+                    "id": "96B374DC-C981-4E55-AF2E-9272B43455A1"
+                },
+                "label": {
+                    "backgroundColor": "Pink",
+                    "text": "AM"
+                },
+                "selected": "IconCollection"
+            },
+            "secret": "Secret1One",
+            "badge": {
+                "color": "Default"
+            }
+        },
+        {
+            "icon": {
+                "selected": "Label",
+                "label": {
+                    "text": "BI",
+                    "backgroundColor": "LightBlue"
+                },
+                "iconCollection": {
+                    "id": "6BA06A11-E5D2-493A-950B-CB0D400BC6DB"
+                }
+            },
+            "groupId": "5798ABC6-CAE0-4887-BF22-C05E73763C44",
+            "updatedAt": 1710978892000,
+            "order": {
+                "position": 0
+            },
+            "serviceTypeID": "D0EDD58D-E40A-444D-A440-E4907B0A22D6",
+            "otp": {
+                "counter": 0,
+                "period": 60,
+                "source": "link",
+                "issuer": "Issuer2",
+                "account": "",
+                "tokenType": "TOTP",
+                "algorithm": "SHA256",
+                "digits": 8,
+                "link": "otpauth:\/\/totp\/?secret=[hidden]&issuer=Issuer2"
+            },
+            "badge": {
+                "color": "Default"
+            },
+            "secret": "SecretTwo",
+            "name": "Issuer2"
+        },
+        {
+            "badge": {
+                "color": "Default"
+            },
+            "icon": {
+                "iconCollection": {
+                    "id": "D5FD5765-BC30-407A-923F-E1DFD5CEC49F"
+                },
+                "selected": "IconCollection",
+                "label": {
+                    "backgroundColor": "Pink",
+                    "text": "ST"
+                }
+            },
+            "secret": "STEAMSECRET",
+            "updatedAt": 1715963106000,
+            "name": "Steam",
+            "otp": {
+                "source": "manual",
+                "algorithm": "SHA1",
+                "account": "addl",
+                "tokenType": "STEAM",
+                "counter": 0,
+                "digits": 5,
+                "period": 30
+            },
+            "order": {
+                "position": 3
+            }
+        }
+    ],
+    "appVersionCode": 50306,
+    "groups": [
+        {
+            "id": "5798ABC6-CAE0-4887-BF22-C05E73763C44",
+            "name": "Test Folder",
+            "isExpanded": true
+        }
+    ],
+    "appVersionName": "5.3.6",
+    "appOrigin": "ios"
+}

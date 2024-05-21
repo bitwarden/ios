@@ -25,4 +25,5 @@ struct ImportTestData {
 extension ImportTestData {
     static let bitwardenJson = loadFromJsonBundle(resource: "BitwardenExport")
     static let raivoJson = loadFromJsonBundle(resource: "RaivoExport")
+    static let twoFasJson = loadFromBundle(resource: "TwoFasExport", extension: "2fas")
 }
