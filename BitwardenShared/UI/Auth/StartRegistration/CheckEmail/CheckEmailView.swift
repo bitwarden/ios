@@ -19,7 +19,7 @@ struct CheckEmailView: View {
         VStack(spacing: 16) {
             VStack(alignment: .center, spacing: 0) {
                 Image(decorative: Asset.Images.checkEmail)
-                    .foregroundColor(Asset.Colors.textPrimary.swiftUIColor)
+                    .foregroundColor(Asset.Colors.primaryBitwarden.swiftUIColor)
                     .frame(maxWidth: .infinity)
                     .padding(.vertical, 32)
 
@@ -77,17 +77,6 @@ struct CheckEmailView: View {
                 store.send(.dismissTapped)
             }
         }
-    }
-
-    // MARK: Private views
-
-    func attributedText(withString string: String, boldString: String, font: UIFont) -> NSAttributedString {
-        let attributedString = NSMutableAttributedString(string: string,
-                                                         attributes: [NSAttributedString.Key.font: font])
-        let boldFontAttribute: [NSAttributedString.Key: Any] = [NSAttributedString.Key.font: UIFont.boldSystemFont(ofSize: font.pointSize)]
-        let range = (string as NSString).range(of: boldString)
-        attributedString.addAttributes(boldFontAttribute, range: range)
-        return attributedString
     }
 }
 

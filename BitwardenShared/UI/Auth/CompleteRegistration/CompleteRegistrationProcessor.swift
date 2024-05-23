@@ -285,7 +285,7 @@ class CompleteRegistrationProcessor: StateProcessor<
         }
     }
 
-    /// Verify users email using the provided token 
+    /// Verify users email using the provided token
     ///
     private func verifyUserEmail() async {
         // Hide the loading overlay when exiting this method, in case it hasn't been hidden yet.

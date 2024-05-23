@@ -6,8 +6,7 @@ import XCTest
 
 // MARK: - StartRegistrationProcessorTests
 
-// swiftlint:disable:next type_body_length
-class StartRegistrationProcessorTests: BitwardenTestCase {
+class StartRegistrationProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_body_length
     // MARK: Properties
 
     var authRepository: MockAuthRepository!
@@ -409,7 +408,6 @@ class StartRegistrationProcessorTests: BitwardenTestCase {
         subject.receive(.toggleTermsAndPrivacy(true))
         XCTAssertTrue(subject.state.isTermsAndPrivacyToggleOn)
     }
-    // swiftlint:disable:next file_length
 }
 
 class MockStartRegistrationDelegate: StartRegistrationDelegate {
@@ -418,4 +416,4 @@ class MockStartRegistrationDelegate: StartRegistrationDelegate {
     func didChangeRegion() async {
         didChangeRegionCalled = true
     }
-}
+} // swiftlint:disable:this file_length

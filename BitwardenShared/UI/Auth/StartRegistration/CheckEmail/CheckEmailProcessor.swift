@@ -36,17 +36,13 @@ class CheckEmailProcessor: StateProcessor<CheckEmailState, CheckEmailAction, Che
 
     // MARK: Methods
 
-    override func perform(_ effect: CheckEmailEffect) async {
-        switch effect {}
-    }
+    override func perform(_ effect: CheckEmailEffect) async {}
 
     override func receive(_ action: CheckEmailAction) {
         switch action {
         case .dismissTapped,
              .logInTapped:
             coordinator.navigate(to: .dismiss)
-        case .openEmailAppTapped:
-            break
         case .goBackTapped:
             coordinator.navigate(to: .dismissPresented)
         }

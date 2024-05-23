@@ -186,7 +186,7 @@ class AccountAPIServiceTests: BitwardenTestCase {
         client.result = .httpSuccess(testData: .startRegistrationSuccess)
 
         let requestModel = StartRegistrationRequestModel(email: "email@example.com", name: "name")
-        let result = try await subject.startRegistration(requestModel: requestModel)
+        _ = try await subject.startRegistration(requestModel: requestModel)
 
         XCTAssertEqual(client.requests.count, 1)
         XCTAssertNotNil(client.requests[0].body)
@@ -205,7 +205,7 @@ class AccountAPIServiceTests: BitwardenTestCase {
             email: "example@email.com",
             emailVerificationToken: "emailVerificationToken"
         )
-        let result = try await subject.verifyUserEmail(requestModel: requestModel)
+        _ = try await subject.verifyUserEmail(requestModel: requestModel)
 
         XCTAssertEqual(client.requests.count, 1)
         XCTAssertNotNil(client.requests[0].body)

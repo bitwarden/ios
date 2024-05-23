@@ -5,9 +5,6 @@ enum CheckEmailAction: Equatable {
     /// The dismiss button was tapped.
     case dismissTapped
 
-    /// Open email application button was tapped.
-    case openEmailAppTapped
-
     /// The go back button was tapped
     case goBackTapped
 
