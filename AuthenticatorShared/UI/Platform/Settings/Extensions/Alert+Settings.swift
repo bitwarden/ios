@@ -3,6 +3,25 @@
 extension Alert {
     // MARK: Methods
 
+    /// Provide information about data backup.
+    ///
+    /// - Parameters:
+    ///   - action: The action to perform if the user selects Learn More.
+    /// - Returns: An alert for providing backup information.
+    ///
+    static func backupInformation(action: @escaping () -> Void) -> Alert {
+        Alert(
+            title: Localizations.bitwardenAuthenticatorDataIsBackedUpAndCanBeRestored,
+            message: nil,
+            alertActions: [
+                AlertAction(title: Localizations.learnMore, style: .default) { _ in
+                    action()
+                },
+                AlertAction(title: Localizations.ok, style: .default),
+            ]
+        )
+    }
+
     /// Confirm deleting the folder.
     ///
     /// - Parameter action: The action to perform if the user selects yes.

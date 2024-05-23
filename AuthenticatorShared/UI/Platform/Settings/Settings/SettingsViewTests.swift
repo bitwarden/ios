@@ -42,6 +42,13 @@ class SettingsViewTests: AuthenticatorTestCase {
         XCTAssertEqual(processor.dispatchedActions.last, .appThemeChanged(.dark))
     }
 
+    /// Tapping the backup button dispatches the `.backupTapped` action.
+    func test_backupButton_tap() throws {
+        let button = try subject.inspect().find(button: Localizations.backup)
+        try button.tap()
+        XCTAssertEqual(processor.dispatchedActions.last, .backupTapped)
+    }
+
     /// Tapping the export button dispatches the `.exportItemsTapped` action.
     func test_exportButton_tap() throws {
         let button = try subject.inspect().find(button: Localizations.export)

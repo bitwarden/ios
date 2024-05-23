@@ -58,6 +58,10 @@ final class SettingsProcessor: StateProcessor<SettingsState, SettingsAction, Set
             Task {
                 await services.stateService.setAppTheme(appTheme)
             }
+        case .backupTapped:
+            coordinator.showAlert(.backupInformation {
+                self.state.url = ExternalLinksConstants.backupInformation
+            })
         case .clearURL:
             state.url = nil
         case .exportItemsTapped:

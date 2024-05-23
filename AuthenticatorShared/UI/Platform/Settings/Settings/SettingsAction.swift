@@ -4,6 +4,9 @@ enum SettingsAction: Equatable {
     /// The default color theme was changed.
     case appThemeChanged(AppTheme)
 
+    /// The backup button was tapped.
+    case backupTapped
+
     /// The url has been opened so clear the value in the state.
     case clearURL
 

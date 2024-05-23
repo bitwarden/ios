@@ -3,6 +3,21 @@ import XCTest
 @testable import AuthenticatorShared
 
 class AlertSettingsTests: AuthenticatorTestCase {
+    /// `backupInformation(action:)` constructs an `Alert`
+    /// with the correct title, message, and buttons.
+    func test_backupInformationAlert() {
+        let subject = Alert.backupInformation {}
+
+        XCTAssertEqual(subject.preferredStyle, .alert)
+        XCTAssertEqual(subject.title, Localizations.bitwardenAuthenticatorDataIsBackedUpAndCanBeRestored)
+        XCTAssertNil(subject.message)
+        XCTAssertEqual(subject.alertActions.count, 2)
+        XCTAssertEqual(subject.alertActions.first?.title, Localizations.learnMore)
+        XCTAssertEqual(subject.alertActions.first?.style, .default)
+        XCTAssertEqual(subject.alertActions.last?.title, Localizations.ok)
+        XCTAssertEqual(subject.alertActions.last?.style, .default)
+    }
+
     /// `confirmDeleteFolder(action:)` constructs an `Alert` with the title,
     /// message, yes, and cancel buttons to confirm deleting a folder.
     func test_confirmDeleteFolder() {
@@ -37,7 +52,7 @@ class AlertSettingsTests: AuthenticatorTestCase {
         XCTAssertEqual(subject.alertActions.first?.style, .default)
     }
 
-    /// `privacyPolicyAlert(encrypted:action:)` constructs an `Alert`
+    /// `privacyPolicyAlert(action:)` constructs an `Alert`
     /// with the correct title, message, and Cancel and Continue buttons.
     func test_privacyPolicyAlert() {
         let subject = Alert.privacyPolicyAlert {}

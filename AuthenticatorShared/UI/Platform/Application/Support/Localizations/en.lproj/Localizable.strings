@@ -76,7 +76,6 @@
 "Important" = "Important";
 "YourMasterPasswordCannotBeRecoveredIfYouForgetItXCharactersMinimum" = "Your master password cannot be recovered if you forget it! %1$@ characters minimum.";
 "ThereAreNoItemsThatMatchTheSearch" = "There are no items that match the search";
-"Vault" = "Vault";
 "Appearance" = "Appearance";
 "BitwardenHelpCenter" = "Bitwarden Help Center";
 "ContinueToWebApp" = "Continue to web app?";
@@ -119,3 +118,6 @@
 "ItemsExported" = "Verification codes exported";
 "ItemsImported" = "Vertification codes imported";
 "VerificationCodeAdded" = "Verification code added";
+"Data" = "Data";
+"Backup" = "Backup";
+"BitwardenAuthenticatorDataIsBackedUpAndCanBeRestored" = "Bitwarden Authenticator data is backed up and can be restored with your regularly scheduled device backups.";
