@@ -37,9 +37,22 @@ struct CompleteRegistrationState: Equatable {
         arePasswordsVisible ? Asset.Images.hidden : Asset.Images.visible
     }
 
+    /// The region where the account should be created
+    var region: RegionType?
+
     /// The text in the re-type password text field.
     var retypePasswordText: String = ""
 
     /// The email of the user that is creating the account.
     var userEmail: String
+
+    /// A toast message to show in the view.
+    var toast: Toast?
+
+    // MARK: Computed Properties
+
+    /// Text with user email in bold
+    var headelineTextBoldEmail: String {
+        Localizations.finishCreatingYourAccountForXBySettingAPassword("**\(userEmail)**")
+    }
 }

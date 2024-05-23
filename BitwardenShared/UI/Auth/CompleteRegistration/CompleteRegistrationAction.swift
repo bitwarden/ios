@@ -15,6 +15,9 @@ enum CompleteRegistrationAction: Equatable {
     /// The user edited the re-type password text field.
     case retypePasswordTextChanged(String)
 
+    /// The toast was shown or hidden.
+    case toastShown(Toast?)
+
     /// An action to toggle the data breach check.
     case toggleCheckDataBreaches(Bool)
 

@@ -37,6 +37,7 @@ class CompleteRegistrationProcessor: StateProcessor<
         & HasAuthRepository
         & HasCaptchaService
         & HasClientService
+        & HasEnvironmentService
         & HasErrorReporter
         & HasStateService
 
@@ -71,6 +72,9 @@ class CompleteRegistrationProcessor: StateProcessor<
 
     override func perform(_ effect: CompleteRegistrationEffect) async {
         switch effect {
+        case .appeared:
+            await setRegion()
+            await verifyUserEmail()
         case .completeRegistration:
             await checkPasswordAndCompleteRegistration()
         }
@@ -87,6 +91,8 @@ class CompleteRegistrationProcessor: StateProcessor<
             updatePasswordStrength()
         case let .retypePasswordTextChanged(text):
             state.retypePasswordText = text
+        case let .toastShown(toast):
+            state.toast = toast
         case let .toggleCheckDataBreaches(newValue):
             state.isCheckDataBreachesToggleOn = newValue
         case let .togglePasswordVisibility(newValue):
@@ -183,24 +189,28 @@ class CompleteRegistrationProcessor: StateProcessor<
                 kdfParams: kdf,
                 purpose: .serverAuthorization
             )
+
             // TODO: PM-5090 Add call to complete the registration and create the account /register
+            // _ = try await services.accountAPIService.createNewAccount(
+            //    body: CreateAccountRequestModel(
+            //        captchaResponse: captchaToken,
+            //        email: state.userEmail,
+            //        kdfConfig: KdfConfig(),
+            //        key: keys.encryptedUserKey,
+            //        keys: KeysRequestModel(
+            //            encryptedPrivateKey: keys.keys.private,
+            //            publicKey: keys.keys.public
+            //        ),
+            //        masterPasswordHash: hashedPassword,
+            //        masterPasswordHint: state.passwordHintText
+            //    )
+            // )
 
-            _ = try await services.accountAPIService.createNewAccount(
-                body: CreateAccountRequestModel(
-                    captchaResponse: captchaToken,
-                    email: state.userEmail,
-                    kdfConfig: KdfConfig(),
-                    key: keys.encryptedUserKey,
-                    keys: KeysRequestModel(
-                        encryptedPrivateKey: keys.keys.private,
-                        publicKey: keys.keys.public
-                    ),
-                    masterPasswordHash: hashedPassword,
-                    masterPasswordHint: state.passwordHintText
-                )
-            )
-
-            coordinator.navigate(to: .login(username: state.userEmail))
+            coordinator.navigate(to: .dismiss)
+            // Delay to allow the modal to close completely and only after show the toast
+            DispatchQueue.main.asyncAfter(deadline: UI.after(0.6)) {
+                self.coordinator.showToast(Localizations.accountSuccessfullyCreated)
+            }
         } catch let CreateAccountRequestError.captchaRequired(hCaptchaSiteCode: siteCode) {
             launchCaptchaFlow(with: siteCode)
         } catch let error as CompleteRegistrationError {
@@ -234,6 +244,15 @@ class CompleteRegistrationProcessor: StateProcessor<
         }
     }
 
+    /// Sets the URLs to use.
+    ///
+    private func setRegion() async {
+        guard state.region != nil,
+              let urls = state.region?.defaultURLs else { return }
+
+        await services.environmentService.setPreAuthURLs(urls: urls)
+    }
+
     /// Shows a `CompleteRegistrationError` alert.
     ///
     /// - Parameter error: The error that occurred.
@@ -263,6 +282,31 @@ class CompleteRegistrationProcessor: StateProcessor<
                 email: state.userEmail,
                 password: state.passwordText
             )
+        }
+    }
+
+    /// Verify users email using the provided token 
+    ///
+    private func verifyUserEmail() async {
+        // Hide the loading overlay when exiting this method, in case it hasn't been hidden yet.
+        defer { coordinator.hideLoadingOverlay() }
+
+        do {
+            coordinator.showLoadingOverlay(title: Localizations.verifyingEmail)
+
+            // TODO: PM-5090 Add call to verify the email
+            // _ = try await services.accountAPIService.verifyUserEmail(
+            //    requestModel: VerifyUserEmailRequestModel(
+            //        email: state.userEmail,
+            //        emailVerificationToken: state.emailVerificationToken
+            //    ))
+            //
+
+            state.toast = Toast(text: Localizations.emailVerified)
+        } catch let error as CompleteRegistrationError {
+            showCompleteRegistrationErrorAlert(error)
+        } catch {
+            coordinator.showAlert(.networkResponseError(error))
         }
     }
 }

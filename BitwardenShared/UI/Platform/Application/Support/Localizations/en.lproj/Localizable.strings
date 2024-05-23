@@ -894,3 +894,8 @@
 "GoBack" = "Go back";
 "LogIn" = "log in";
 "OpenEmailApp" = "Open email app";
+"SetPassword" = "Set password";
+"FinishCreatingYourAccountForXBySettingAPassword." = "Finish creating your account for %1$@ by setting a password.";
+"VerifyingEmail" = "Verifying email";
+"EmailVerified" = "Email verified";
+"AccountSuccessfullyCreated" = "Account successfully created!";

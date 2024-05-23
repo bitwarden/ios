@@ -27,7 +27,13 @@ struct CompleteRegistrationView: View {
 
     var body: some View {
         VStack(spacing: 16) {
-            VStack(spacing: 0) {
+            VStack(alignment: .leading, spacing: 0) {
+                Text(.init(store.state.headelineTextBoldEmail))
+                    .tint(Asset.Colors.textPrimary.swiftUIColor)
+                    .multilineTextAlignment(.leading)
+                    .styleGuide(.callout)
+                    .padding(.bottom, 16)
+
                 passwordField
                     .padding(.bottom, 8)
 
@@ -48,13 +54,20 @@ struct CompleteRegistrationView: View {
             }
         }
         .animation(.default, value: store.state.passwordStrengthScore)
-        .navigationBar(title: Localizations.setMasterPassword, titleDisplayMode: .inline)
+        .navigationBar(title: Localizations.setPassword, titleDisplayMode: .inline)
         .scrollView()
         .toolbar {
             cancelToolbarItem {
                 store.send(.dismiss)
             }
         }
+        .task {
+            await store.perform(.appeared)
+        }
+        .toast(store.binding(
+            get: \.toast,
+            send: CompleteRegistrationAction.toastShown
+        ))
     }
 
     // MARK: Private views

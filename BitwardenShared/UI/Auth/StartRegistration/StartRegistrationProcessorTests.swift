@@ -352,7 +352,8 @@ class StartRegistrationProcessorTests: BitwardenTestCase {
         XCTAssertEqual(coordinator.loadingOverlaysShown, [LoadingOverlayState(title: Localizations.creatingAccount)])
     }
 
-    /// `perform(_:)` with `.startRegistration` and a valid email with uppercase characters converts the email to lowercase
+    /// `perform(_:)` with `.startRegistration` and a valid email with uppercase characters
+    /// converts the email to lowercase
     /// and creates the user's account.
     func test_perform_startRegistration_withValidEmailUppercased() async {
         subject.state = .fixture(emailText: "EMAIL@EXAMPLE.COM")

@@ -90,6 +90,12 @@ protocol AccountAPIService {
     /// - Parameter otp: The user's one-time password to verify.
     ///
     func verifyOtp(_ otp: String) async throws
+
+    /// Verifies the user's email.
+    ///
+    /// - Parameter requestModel: The request model used to send the request.
+    ///
+    func verifyUserEmail(requestModel: VerifyUserEmailRequestModel) async throws -> EmptyResponse
 }
 
 // MARK: - APIService
@@ -165,5 +171,9 @@ extension APIService: AccountAPIService {
 
     func verifyOtp(_ otp: String) async throws {
         _ = try await apiService.send(VerifyOtpRequest(requestModel: VerifyOtpRequestModel(otp: otp)))
+    }
+
+    func verifyUserEmail(requestModel: VerifyUserEmailRequestModel) async throws -> EmptyResponse {
+        try await apiUnauthenticatedService.send(VerifyUserEmailRequest(requestModel: requestModel))
     }
 }

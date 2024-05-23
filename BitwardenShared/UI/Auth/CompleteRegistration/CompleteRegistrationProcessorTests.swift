@@ -267,7 +267,8 @@ class CompleteRegistrationProcessorTests: BitwardenTestCase {
         XCTAssertTrue(coordinator.loadingOverlaysShown.isEmpty)
     }
 
-    /// `perform(_:)` with `.completeRegistration` and a captcha required error occurs navigates to the `.captcha` route.
+    /// `perform(_:)` with `.completeRegistration` and a captcha required error occurs
+    /// navigates to the `.captcha` route.
     func test_perform_completeRegistration_captchaError() async {
         subject.state = .fixture()
 

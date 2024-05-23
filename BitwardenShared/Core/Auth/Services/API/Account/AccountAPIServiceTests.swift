@@ -197,6 +197,25 @@ class AccountAPIServiceTests: BitwardenTestCase {
         )
     }
 
+    /// `verifyEmail(_:)` performs the request to verify the user's email.
+    func test_verifyEmail() async throws {
+        client.result = .httpSuccess(testData: .emptyResponse)
+
+        let requestModel = VerifyUserEmailRequestModel(
+            email: "example@email.com",
+            emailVerificationToken: "emailVerificationToken"
+        )
+        let result = try await subject.verifyUserEmail(requestModel: requestModel)
+
+        XCTAssertEqual(client.requests.count, 1)
+        XCTAssertNotNil(client.requests[0].body)
+        XCTAssertEqual(client.requests[0].method, .post)
+        XCTAssertEqual(
+            client.requests[0].url.absoluteString,
+            "https://example.com/api/accounts/verify-email"
+        )
+    }
+
     /// `setPassword(_:)` performs the request to set the user's password.
     func test_setPassword() async throws {
         client.result = .httpSuccess(testData: .emptyResponse)
