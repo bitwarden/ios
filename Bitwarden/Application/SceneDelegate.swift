@@ -51,7 +51,26 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
             )
             hideSplash()
             isStartingUp = false
+
+            if let userActivity = connectionOptions.userActivities.first,
+               userActivity.activityType == NSUserActivityTypeBrowsingWeb,
+               let incomingURL = userActivity.webpageURL {
+                appProcessor.handleAppLinks(incomingURL: incomingURL)
+            }
         }
+    }
+
+    func scene(
+        _ scene: UIScene,
+        continue userActivity: NSUserActivity
+    ) {
+        guard let appProcessor = (UIApplication.shared.delegate as? AppDelegateType)?.appProcessor,
+              userActivity.activityType == NSUserActivityTypeBrowsingWeb,
+              let incomingURL = userActivity.webpageURL else {
+            return
+        }
+
+        appProcessor.handleAppLinks(incomingURL: incomingURL)
     }
 
     func sceneWillResignActive(_ scene: UIScene) {

@@ -2,6 +2,21 @@ import Combine
 import Foundation
 import UIKit
 
+// MARK: - AppLinksError
+
+/// The errors thrown from a `AppProcessor`.
+///
+enum AppProcessorError: Error {
+    /// The received URL from AppLinks is malformed.
+    case appLinksInvalidURL
+
+    /// The received URL from AppLinks does not have the correct parameters.
+    case appLinksInvalidParametersForPath
+
+    /// The received URL from AppLinks does not have a valid path.
+    case appLinksInvalidPath
+}
+
 /// The `AppProcessor` processes actions received at the application level and contains the logic
 /// to control the top-level flow through the app.
 ///
@@ -104,6 +119,42 @@ public class AppProcessor {
             coordinator.navigate(to: initialRoute)
         } else {
             await coordinator.handleEvent(.didStart)
+        }
+    }
+
+    /// Handle incoming URL from iOS AppLinks and redirect it to the correct navigation within the App
+    ///
+    /// - Parameter incomingURL: The URL handled from AppLinks.
+    ///
+    public func handleAppLinks(incomingURL: URL) {
+        guard let components = NSURLComponents(url: incomingURL, resolvingAgainstBaseURL: true) else {
+            return
+        }
+
+        // Check for specific URL components that you need.
+        guard let path = components.path,
+              let params = components.queryItems,
+              let host = components.host else {
+            services.errorReporter.log(error: AppProcessorError.appLinksInvalidURL)
+            return
+        }
+
+        if path == "/email-verification" {
+            guard let email = params.first(where: { $0.name == "email" })?.value,
+                  let verificationToken = params.first(where: { $0.name == "verificationtoken" })?.value else {
+                services.errorReporter.log(error: AppProcessorError.appLinksInvalidParametersForPath)
+                return
+            }
+
+            coordinator?.navigate(to: AppRoute.auth(
+                AuthRoute.completeRegistrationFromAppLink(
+                    emailVerificationToken: verificationToken,
+                    userEmail: email,
+                    region: host.contains("bitwarden.eu") ? .europe : .unitedStates
+                )))
+
+        } else {
+            services.errorReporter.log(error: AppProcessorError.appLinksInvalidPath)
         }
     }
 
