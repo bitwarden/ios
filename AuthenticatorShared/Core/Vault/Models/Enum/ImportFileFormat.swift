@@ -8,6 +8,9 @@ public enum ImportFileFormat: Equatable {
     /// A Bitwarden `.json` file type.
     case bitwardenJson
 
+    /// A Lastpass `.json` file type.
+    case lastpassJson
+
     /// A Raivo `.json` file type.
     case raivoJson
 

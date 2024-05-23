@@ -61,6 +61,8 @@ class DefaultImportItemsService: ImportItemsService {
         switch format {
         case .bitwardenJson:
             items = try BitwardenImporter.importItems(data: data)
+        case .lastpassJson:
+            items = try LastpassImporter.importItems(data: data)
         case .raivoJson:
             items = try RaivoImporter.importItems(data: data)
         case .twoFasJson:
