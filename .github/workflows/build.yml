@@ -279,5 +279,5 @@ jobs:
         run: |
           fastlane upload_build \
             api_key_path:"$HOME/secrets/appstoreconnect-fastlane.json" \
-            changelog:"$GITHUB_REPOSITORY/$GITHUB_REF_NAME @ $GITHUB_SHA" \
+            changelog:"$GITHUB_REPOSITORY/$GITHUB_REF_NAME @ $GITHUB_SHA - $(git show -s --format=%s)" \
             ipa_path:"build/Bitwarden/Bitwarden.ipa"
