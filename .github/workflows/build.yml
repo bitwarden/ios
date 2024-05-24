@@ -225,6 +225,11 @@ jobs:
         run: |
           plutil -replace ITSEncryptionExportComplianceCode -string 3dd3e32f-efa6-4d99-b410-28aa28b1cb77 Bitwarden/Application/Support/Info.plist
 
+      - name: Update beta Appfile
+        if: env.build-variant == 'Beta'
+        run: |
+          echo 'app_identifier "com.8bit.bitwarden.beta"' > fastlane/Appfile
+
       - name: Install Mint, xcbeautify, and yq
         run: |
           brew install mint xcbeautify yq fastlane
@@ -271,9 +276,6 @@ jobs:
             --password @env:APPLE_ID_PASSWORD
       
       - name: Upload app to TestFlight with Fastlane
-        env:
-          FASTLANE_APPLE_ID: ${{ secrets.APPLE_ID_USERNAME }}
-          FASTLANE_APPLE_APPLICATION_SPECIFIC_PASSWORD: ${{ secrets.APPLE_ID_PASSWORD }}
         run: |
           fastlane upload_build \
             api_key_path:"$HOME/secrets/appstoreconnect-fastlane.json" \
