@@ -15,18 +15,18 @@
 
 default_platform(:ios)
 
-platform :ios do
+platform :ios do |options|
     desc "Push a new build to TestFlight"
     lane :upload_build do |options|
     upload_to_testflight(
         skip_submission: false,
-        changelog: "This is the changelog",
+        changelog: options[:changelog],
         skip_waiting_for_build_processing: false,
         api_key_path: options[:api_key_path],
         ipa: options[:ipa_path],
         localized_build_info: {
             "default": {
-                whats_new: "This is what's new",
+                whats_new: options[:changelog],
             }
         }
     )
