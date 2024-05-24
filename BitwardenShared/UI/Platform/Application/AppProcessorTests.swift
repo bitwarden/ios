@@ -118,6 +118,45 @@ class AppProcessorTests: BitwardenTestCase {
         XCTAssertIdentical(syncService.delegate, subject)
     }
 
+    /// `handleAppLinks(URL)` navigates the user based on the input URL.
+    func test_init_handleAppLinks() {
+        let url = URL(string:
+            "https://bitwarden.com/email-verification?email=example@email.com&verificationtoken=verificationtoken"
+        )
+        subject.handleAppLinks(incomingURL: url!)
+
+        XCTAssertEqual(coordinator.routes.last, .auth(.completeRegistrationFromAppLink(
+            emailVerificationToken: "verificationtoken",
+            userEmail: "example@email.com",
+            region: .unitedStates
+        )))
+    }
+
+    /// `handleAppLinks(URL)` checks error report for `.appLinksInvalidURL`.
+    func test_init_handleAppLinks_invalidURL() {
+        let url = URL(string: "https://bitwarden.com/")
+        subject.handleAppLinks(incomingURL: url!)
+        XCTAssertEqual(errorReporter.errors.last as? AppProcessorError, .appLinksInvalidURL)
+    }
+
+    /// `handleAppLinks(URL)` checks error report for `.appLinksInvalidPath`.
+    func test_init_handleAppLinks_invalidPath() {
+        let url = URL(
+            string: "https://bitwarden.com/not-valid-path?email=example@email.com&verificationtoken=verificationtoken"
+        )
+        subject.handleAppLinks(incomingURL: url!)
+        XCTAssertEqual(errorReporter.errors.last as? AppProcessorError, .appLinksInvalidPath)
+    }
+
+    /// `handleAppLinks(URL)` checks error report for `.appLinksInvalidParametersForPath`.
+    func test_init_handleAppLinks_invalidParametersForPath() {
+        let url = URL(
+            string: "https://bitwarden.com/email-verification?verificationtoken=verificationtoken"
+        )
+        subject.handleAppLinks(incomingURL: url!)
+        XCTAssertEqual(errorReporter.errors.last as? AppProcessorError, .appLinksInvalidParametersForPath)
+    }
+
     /// `messageReceived(_:notificationDismissed:notificationTapped)` passes the data to the notification service.
     func test_messageReceived() async {
         let message: [AnyHashable: Any] = ["knock knock": "who's there?"]
