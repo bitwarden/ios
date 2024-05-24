@@ -247,9 +247,16 @@ class AppCoordinator: Coordinator, HasRootNavigator {
 
 extension AppCoordinator: AuthCoordinatorDelegate {
     func didCompleteAuth() {
+        appExtensionDelegate?.didCompleteAuth()
+
         switch appContext {
         case .appExtension:
-            let route = appExtensionDelegate?.authCompletionRoute ?? .vault(.autofillList)
+            guard let appExtensionDelegate else {
+                navigate(to: .vault(.autofillList))
+                return
+            }
+
+            guard let route = appExtensionDelegate.authCompletionRoute else { return }
             navigate(to: route)
         case .mainApp:
             showTab(route: .vault(.list))

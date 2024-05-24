@@ -13,7 +13,7 @@ class ShareViewController: UIViewController {
     /// The app's theme.
     var appTheme: AppTheme = .default
 
-    var authCompletionRoute: AppRoute = .sendItem(.add(content: nil, hasPremium: false))
+    var authCompletionRoute: AppRoute? = .sendItem(.add(content: nil, hasPremium: false))
 
     /// The processor that manages application level logic.
     private var appProcessor: AppProcessor?

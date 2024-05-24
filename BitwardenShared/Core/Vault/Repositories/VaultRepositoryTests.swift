@@ -1196,6 +1196,32 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
         }
     }
 
+    /// `repromptRequiredForCipher(id:)` returns `true` if reprompt is required for a cipher.
+    func test_repromptRequiredForCipher() async throws {
+        cipherService.fetchCipherResult = .success(.fixture(reprompt: .password))
+        stateService.activeAccount = .fixture()
+        let repromptRequired = try await subject.repromptRequiredForCipher(id: "1")
+        XCTAssertTrue(repromptRequired)
+    }
+
+    /// `repromptRequiredForCipher(id:)` returns `false` if reprompt is required for a cipher but
+    /// the user doesn't have a master password.
+    func test_repromptRequiredForCipher_noMasterPassword() async throws {
+        cipherService.fetchCipherResult = .success(.fixture(reprompt: .password))
+        stateService.activeAccount = .fixture()
+        stateService.userHasMasterPassword["1"] = false
+        let repromptRequired = try await subject.repromptRequiredForCipher(id: "1")
+        XCTAssertFalse(repromptRequired)
+    }
+
+    /// `repromptRequiredForCipher(id:)` returns `false` if reprompt isn't required for a cipher.
+    func test_repromptRequiredForCipher_notRequired() async throws {
+        cipherService.fetchCipherResult = .success(.fixture())
+        stateService.activeAccount = .fixture()
+        let repromptRequired = try await subject.repromptRequiredForCipher(id: "1")
+        XCTAssertFalse(repromptRequired)
+    }
+
     /// `restoreCipher()` throws on id errors.
     func test_restoreCipher_idError_nil() async throws {
         stateService.accounts = [.fixtureAccountLogin()]

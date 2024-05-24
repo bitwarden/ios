@@ -71,7 +71,7 @@ class ActionViewController: UIViewController {
 // MARK: - AppExtensionDelegate
 
 extension ActionViewController: AppExtensionDelegate {
-    var authCompletionRoute: AppRoute {
+    var authCompletionRoute: AppRoute? {
         actionExtensionHelper.authCompletionRoute
     }
 
