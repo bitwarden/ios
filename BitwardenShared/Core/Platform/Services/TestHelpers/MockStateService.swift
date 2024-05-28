@@ -26,6 +26,7 @@ class MockStateService: StateService { // swiftlint:disable:this type_body_lengt
     var timeProvider = MockTimeProvider(.currentTime)
     var defaultUriMatchTypeByUserId = [String: UriMatchType]()
     var disableAutoTotpCopyByUserId = [String: Bool]()
+    var encryptedPinByUserId = [String: String]()
     var environmentUrls = [String: EnvironmentUrlData]()
     var forcePasswordResetReason = [String: ForcePasswordResetReason]()
     var lastActiveTime = [String: Date]()
@@ -39,20 +40,22 @@ class MockStateService: StateService { // swiftlint:disable:this type_body_lengt
     var masterPasswordHashes = [String: String]()
     var notificationsLastRegistrationDates = [String: Date]()
     var passwordGenerationOptions = [String: PasswordGenerationOptions]()
-    var pinKeyEncryptedUserKeyValue = [String: String]()
     var pinProtectedUserKeyValue = [String: String]()
     var preAuthEnvironmentUrls: EnvironmentUrlData?
     var rememberedOrgIdentifier: String?
     var showWebIcons = true
     var showWebIconsSubject = CurrentValueSubject<Bool, Never>(true)
     var timeoutAction = [String: SessionTimeoutAction]()
+    var serverConfig = [String: ServerConfig]()
     var setBiometricAuthenticationEnabledResult: Result<Void, Error> = .success(())
     var setBiometricIntegrityStateError: Error?
+    var shouldCheckOrganizationUnassignedItems = [String: Bool?]()
     var shouldTrustDevice = [String: Bool?]()
     var twoFactorTokens = [String: String]()
     var unsuccessfulUnlockAttempts = [String: Int]()
     var updateProfileResponse: ProfileResponseModel?
     var updateProfileUserId: String?
+    var userHasMasterPassword = [String: Bool]()
     var usernameGenerationOptions = [String: UsernameGenerationOptions]()
     var vaultTimeout = [String: SessionTimeoutValue]()
 
@@ -68,7 +71,7 @@ class MockStateService: StateService { // swiftlint:disable:this type_body_lengt
         let userId = try unwrapUserId(nil)
         accountVolatileData.removeValue(forKey: userId)
         pinProtectedUserKeyValue[userId] = nil
-        pinKeyEncryptedUserKeyValue[userId] = nil
+        encryptedPinByUserId[userId] = nil
     }
 
     func updateProfile(from response: ProfileResponseModel, userId: String) async {
@@ -161,6 +164,11 @@ class MockStateService: StateService { // swiftlint:disable:this type_body_lengt
         return disableAutoTotpCopyByUserId[userId] ?? false
     }
 
+    func getEncryptedPin(userId: String?) async throws -> String? {
+        let userId = try unwrapUserId(userId)
+        return encryptedPinByUserId[userId] ?? nil
+    }
+
     func getEnvironmentUrls(userId: String?) async throws -> EnvironmentUrlData? {
         let userId = try unwrapUserId(userId)
         return environmentUrls[userId]
@@ -199,6 +207,16 @@ class MockStateService: StateService { // swiftlint:disable:this type_body_lengt
         preAuthEnvironmentUrls
     }
 
+    func getServerConfig(userId: String?) async throws -> ServerConfig? {
+        let userId = try unwrapUserId(userId)
+        return serverConfig[userId]
+    }
+
+    func getShouldCheckOrganizationUnassignedItems(userId: String?) async throws -> Bool {
+        let userId = try unwrapUserId(userId)
+        return (shouldCheckOrganizationUnassignedItems[userId] ?? false) ?? false
+    }
+
     func getShouldTrustDevice(userId: String) async -> Bool? {
         shouldTrustDevice[userId] ?? false
     }
@@ -221,6 +239,11 @@ class MockStateService: StateService { // swiftlint:disable:this type_body_lengt
         return unsuccessfulUnlockAttempts[userId] ?? 0
     }
 
+    func getUserHasMasterPassword(userId: String?) async throws -> Bool {
+        let userId = try unwrapUserId(userId)
+        return userHasMasterPassword[userId] ?? true
+    }
+
     func getUsernameGenerationOptions(userId: String?) async throws -> UsernameGenerationOptions? {
         let userId = try unwrapUserId(userId)
         return usernameGenerationOptions[userId]
@@ -234,11 +257,6 @@ class MockStateService: StateService { // swiftlint:disable:this type_body_lengt
     func logoutAccount(userId: String?) async throws {
         let userId = try unwrapUserId(userId)
         accountsLoggedOut.append(userId)
-    }
-
-    func pinKeyEncryptedUserKey(userId: String?) async throws -> String? {
-        let userId = try unwrapUserId(userId)
-        return pinKeyEncryptedUserKeyValue[userId] ?? nil
     }
 
     func pinProtectedUserKey(userId: String?) async throws -> String? {
@@ -350,13 +368,13 @@ class MockStateService: StateService { // swiftlint:disable:this type_body_lengt
     }
 
     func setPinKeys(
-        pinKeyEncryptedUserKey: String,
+        encryptedPin: String,
         pinProtectedUserKey: String,
         requirePasswordAfterRestart: Bool
     ) async throws {
         let userId = try unwrapUserId(nil)
         pinProtectedUserKeyValue[userId] = pinProtectedUserKey
-        pinKeyEncryptedUserKeyValue[userId] = pinKeyEncryptedUserKey
+        encryptedPinByUserId[userId] = encryptedPin
 
         if requirePasswordAfterRestart {
             accountVolatileData[
@@ -376,6 +394,16 @@ class MockStateService: StateService { // swiftlint:disable:this type_body_lengt
 
     func setPreAuthEnvironmentUrls(_ urls: BitwardenShared.EnvironmentUrlData) async {
         preAuthEnvironmentUrls = urls
+    }
+
+    func setServerConfig(_ config: ServerConfig?, userId: String?) async throws {
+        let userId = try unwrapUserId(userId)
+        serverConfig[userId] = config
+    }
+
+    func setShouldCheckOrganizationUnassignedItems(_ shouldCheck: Bool?, userId: String?) async throws {
+        let userId = try unwrapUserId(userId)
+        shouldCheckOrganizationUnassignedItems[userId] = shouldCheck
     }
 
     func setShouldTrustDevice(_ shouldTrustDevice: Bool?, userId: String) async {
@@ -402,6 +430,11 @@ class MockStateService: StateService { // swiftlint:disable:this type_body_lengt
     func setUnsuccessfulUnlockAttempts(_ attempts: Int, userId: String?) async throws {
         let userId = try unwrapUserId(userId)
         unsuccessfulUnlockAttempts[userId] = attempts
+    }
+
+    func setUserHasMasterPassword() async throws {
+        let userId = try unwrapUserId(nil)
+        userHasMasterPassword[userId] = true
     }
 
     func setUsernameGenerationOptions(_ options: UsernameGenerationOptions?, userId: String?) async throws {

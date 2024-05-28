@@ -10,7 +10,7 @@ class SyncServiceTests: BitwardenTestCase {
 
     var cipherService: MockCipherService!
     var client: MockHTTPClient!
-    var clientVault: MockClientVaultService!
+    var clientService: MockClientService!
     var collectionService: MockCollectionService!
     var folderService: MockFolderService!
     var organizationService: MockOrganizationService!
@@ -29,7 +29,7 @@ class SyncServiceTests: BitwardenTestCase {
 
         cipherService = MockCipherService()
         client = MockHTTPClient()
-        clientVault = MockClientVaultService()
+        clientService = MockClientService()
         collectionService = MockCollectionService()
         folderService = MockFolderService()
         organizationService = MockOrganizationService()
@@ -51,7 +51,7 @@ class SyncServiceTests: BitwardenTestCase {
         subject = DefaultSyncService(
             accountAPIService: APIService(client: client),
             cipherService: cipherService,
-            clientVault: clientVault,
+            clientService: clientService,
             collectionService: collectionService,
             folderService: folderService,
             organizationService: organizationService,
@@ -70,7 +70,7 @@ class SyncServiceTests: BitwardenTestCase {
 
         cipherService = nil
         client = nil
-        clientVault = nil
+        clientService = nil
         collectionService = nil
         folderService = nil
         organizationService = nil
@@ -84,6 +84,30 @@ class SyncServiceTests: BitwardenTestCase {
     }
 
     // MARK: Tests
+
+    /// `checkTdeUserNeedsToSetPassword()` on sync check if the user needs to set a password
+    ///
+    func test_checkTdeUserNeedsToSetPassword_true() async throws {
+        client.result = .httpSuccess(testData: .syncWithProfileSingleOrg)
+        stateService.activeAccount = .fixtureWithTdeNoPassword()
+
+        try await subject.fetchSync(forceSync: false)
+
+        XCTAssertTrue(syncServiceDelegate.setMasterPasswordCalled)
+        XCTAssertEqual(syncServiceDelegate.setMasterPasswordOrgId, "org-2")
+    }
+
+    /// `checkTdeUserNeedsToSetPassword()` on sync check if the user needs to set a password
+    ///
+    func test_checkTdeUserNeedsToSetPassword_false() async throws {
+        client.result = .httpSuccess(testData: .syncWithProfileSingleOrg)
+        stateService.activeAccount = .fixtureWithTDE()
+
+        try await subject.fetchSync(forceSync: false)
+
+        XCTAssertFalse(syncServiceDelegate.setMasterPasswordCalled)
+        XCTAssertNil(syncServiceDelegate.setMasterPasswordOrgId)
+    }
 
     /// `fetchSync()` only updates the user's timeout action to match the policy's
     /// if the user's timeout value is less than the policy's.
@@ -120,7 +144,7 @@ class SyncServiceTests: BitwardenTestCase {
         stateService.activeAccount = .fixture()
         stateService.vaultTimeout["1"] = .never
 
-        policyService.fetchTimeoutPolicyValuesResult = .success((.lock, 15 * 60))
+        policyService.fetchTimeoutPolicyValuesResult = .success((.lock, 15))
 
         try await subject.fetchSync(forceSync: false)
 
@@ -653,9 +677,16 @@ class SyncServiceTests: BitwardenTestCase {
 class MockSyncServiceDelegate: SyncServiceDelegate {
     var securityStampChangedCalled = false
     var securityStampChangedUserId: String?
+    var setMasterPasswordCalled = false
+    var setMasterPasswordOrgId: String?
 
     func securityStampChanged(userId: String) async {
         securityStampChangedCalled = true
         securityStampChangedUserId = userId
+    }
+
+    func setMasterPassword(orgIdentifier: String) async {
+        setMasterPasswordCalled = true
+        setMasterPasswordOrgId = orgIdentifier
     }
 } // swiftlint:disable:this file_length

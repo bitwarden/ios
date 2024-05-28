@@ -98,25 +98,25 @@ class VaultListViewTests: BitwardenTestCase {
         XCTAssertEqual(processor.effects.last, .profileSwitcher(.addAccountPressed))
     }
 
-    /// Tapping the profile button dispatches the `.toggleProfilesViewVisibility` action.
-    func test_profileButton_tap_withProfilesViewNotVisible() throws {
+    /// Tapping the profile button dispatches the `.requestedProfileSwitcher` effect.
+    func test_profileButton_tap_withProfilesViewNotVisible() async throws {
         processor.state.profileSwitcherState.isVisible = false
-        let buttonUnselected = try subject.inspect().find(button: "AA")
-        try buttonUnselected.tap()
+        let buttonUnselected = try subject.inspect().find(asyncButton: "AA")
+        try await buttonUnselected.tap()
         XCTAssertEqual(
-            processor.dispatchedActions.last,
+            processor.effects.last,
             .profileSwitcher(.requestedProfileSwitcher(visible: true))
         )
     }
 
-    /// Tapping the profile button dispatches the `.toggleProfilesViewVisibility` action.
-    func test_profileButton_tap_withProfilesViewVisible() throws {
+    /// Tapping the profile button dispatches the `.requestedProfileSwitcher` effect.
+    func test_profileButton_tap_withProfilesViewVisible() async throws {
         processor.state.profileSwitcherState.isVisible = true
-        let buttonUnselected = try subject.inspect().find(button: "AA")
-        try buttonUnselected.tap()
+        let buttonUnselected = try subject.inspect().find(asyncButton: "AA")
+        try await buttonUnselected.tap()
 
         XCTAssertEqual(
-            processor.dispatchedActions.last,
+            processor.effects.last,
             .profileSwitcher(.requestedProfileSwitcher(visible: false))
         )
     }

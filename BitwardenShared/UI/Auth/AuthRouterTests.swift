@@ -739,27 +739,18 @@ final class AuthRouterTests: BitwardenTestCase { // swiftlint:disable:this type_
         )
     }
 
-    /// `handleAndRoute(_ :)` redirects `.didStart` to `.landing`
-    ///     when the account is set to timeout on app start with a logout action.
-    ///     System driven logouts do not trigger an account switch.
+    /// `handleAndRoute(_ :)` redirects `.didStart` to `.landing` when the account has a logout
+    /// timeout action. System driven logouts do not trigger an account switch.
     func test_handleAndRoute_didStart_timeoutOnAppRestart_logout() async {
-        let alt = Account.fixtureAccountLogin()
-        stateService.accounts = [
-            alt,
-        ]
-        stateService.activeAccount = alt
-        vaultTimeoutService.vaultTimeout = [
-            alt.profile.userId: .onAppRestart,
-        ]
-        stateService.timeoutAction = [
-            alt.profile.userId: .logout,
-        ]
+        let account = Account.fixtureAccountLogin()
+        authRepository.activeAccount = account
         authRepository.logoutResult = .success(())
+        authRepository.sessionTimeoutAction[account.profile.userId] = .logout
+
         let route = await subject.handleAndRoute(.didStart)
-        XCTAssertEqual(
-            route,
-            .landing
-        )
+
+        XCTAssertEqual(route, .landing)
+        XCTAssertTrue(authRepository.logoutCalled)
     }
 
     /// `handleAndRoute(_ :)` redirects `.didTimeout` to `.complete`

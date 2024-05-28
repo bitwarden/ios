@@ -26,7 +26,7 @@ env:
 jobs:
   build:
     name: Build iOS app
-    runs-on: macos-13
+    runs-on: macos-14
     env:
       MINT_PATH: .mint/lib
       MINT_LINK_PATH: .mint/bin
@@ -37,19 +37,19 @@ jobs:
           echo "GitHub event: $GITHUB_EVENT"
       
       - name: Check out repository
-        uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
+        uses: actions/checkout@0ad4b8fadaa221de15dcec353f45205ec38ea70b # v4.1.4
         with:
           submodules: 'true'
 
       - name: Set Up Ruby
-        uses: ruby/setup-ruby@b203567269b5bbc256dbc1c84f7495913f977353 # v1.167.0
+        uses: ruby/setup-ruby@cacc9f1c0b3f4eb8a16a6bb0ed10897b43b9de49 # v1.176.0
         with:
           bundler-cache: true
           ruby-version: 3.2.2
 
       - name: Cache Mint Packages
         id: mint-cache
-        uses: actions/cache@e12d46a63a90f2fae62d114769bbf2a179198b5c # v3.3.3
+        uses: actions/cache@0c45773b623bea8c8e75f6c82b208c3cf94ea4f9 # v4.0.2
         with:
           path: .mint
           key: ${{ runner.os }}-mint-${{ hashFiles('**/Mintfile') }}
@@ -230,6 +230,10 @@ jobs:
         run: |
           echo 'app_identifier "com.8bit.bitwarden.beta"' > fastlane/Appfile
 
+      - name: Update APNS entitlements
+        run: |
+          plutil -replace aps-environment -string production Bitwarden/Application/Support/Bitwarden.entitlements
+
       - name: Install Mint, xcbeautify, and yq
         run: |
           brew install mint xcbeautify yq fastlane
@@ -259,7 +263,7 @@ jobs:
           ./Scripts/build.sh
 
       - name: Upload IPA
-        uses: actions/upload-artifact@5d5d22a31266ced268874388b861e4b58bb5c2f3 # v4.3.1
+        uses: actions/upload-artifact@65462800fd760344b1a7b4382951275a0abb4808 # v4.3.3
         with:
           name: Bitwarden iOS
           path: build/Bitwarden/Bitwarden.ipa

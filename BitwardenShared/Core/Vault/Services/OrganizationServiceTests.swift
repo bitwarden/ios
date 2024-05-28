@@ -6,7 +6,7 @@ import XCTest
 class OrganizationServiceTests: XCTestCase {
     // MARK: Properties
 
-    var clientCrypto: MockClientCrypto!
+    var clientService: MockClientService!
     var errorReporter: MockErrorReporter!
     var organizationDataStore: MockOrganizationDataStore!
     var subject: OrganizationService!
@@ -17,13 +17,13 @@ class OrganizationServiceTests: XCTestCase {
     override func setUp() {
         super.setUp()
 
-        clientCrypto = MockClientCrypto()
+        clientService = MockClientService()
         errorReporter = MockErrorReporter()
         organizationDataStore = MockOrganizationDataStore()
         stateService = MockStateService()
 
         subject = DefaultOrganizationService(
-            clientCrypto: clientCrypto,
+            clientService: clientService,
             errorReporter: errorReporter,
             organizationDataStore: organizationDataStore,
             stateService: stateService
@@ -33,7 +33,7 @@ class OrganizationServiceTests: XCTestCase {
     override func tearDown() {
         super.tearDown()
 
-        clientCrypto = nil
+        clientService = nil
         errorReporter = nil
         organizationDataStore = nil
         subject = nil
@@ -68,7 +68,7 @@ class OrganizationServiceTests: XCTestCase {
         try await subject.initializeOrganizationCrypto()
 
         XCTAssertEqual(
-            clientCrypto.initializeOrgCryptoRequest,
+            clientService.mockCrypto.initializeOrgCryptoRequest,
             InitOrgCryptoRequest(organizationKeys: [
                 "ORG_2": "ORG_2_KEY",
                 "ORG_1": "ORG_1_KEY",
@@ -81,7 +81,7 @@ class OrganizationServiceTests: XCTestCase {
     func test_initializeOrganizationCrypto_error() async throws {
         struct InitializeOrgCryptoError: Error {}
 
-        clientCrypto.initializeOrgCryptoResult = .failure(InitializeOrgCryptoError())
+        clientService.mockCrypto.initializeOrgCryptoResult = .failure(InitializeOrgCryptoError())
         stateService.activeAccount = .fixture()
 
         try await subject.initializeOrganizationCrypto()
@@ -98,23 +98,23 @@ class OrganizationServiceTests: XCTestCase {
         try await subject.initializeOrganizationCrypto()
 
         XCTAssertEqual(
-            clientCrypto.initializeOrgCryptoRequest,
+            clientService.mockCrypto.initializeOrgCryptoRequest,
             InitOrgCryptoRequest(organizationKeys: [:])
         )
     }
 
     /// `initializeOrganizationCrypto()` initializes the SDK for decrypting organization ciphers for
     /// a given set of organizations.
-    func test_initializeOrganizationCrypto_withOrganizations() async {
+    func test_initializeOrganizationCrypto_withOrganizations() async throws {
         let organizations: [Organization] = [
             .fixture(id: "ORG_1", key: "ORG_1_KEY"),
             .fixture(id: "ORG_2", key: "ORG_2_KEY"),
         ]
 
-        await subject.initializeOrganizationCrypto(organizations: organizations)
+        try await subject.initializeOrganizationCrypto(organizations: organizations)
 
         XCTAssertEqual(
-            clientCrypto.initializeOrgCryptoRequest,
+            clientService.mockCrypto.initializeOrgCryptoRequest,
             InitOrgCryptoRequest(organizationKeys: [
                 "ORG_2": "ORG_2_KEY",
                 "ORG_1": "ORG_1_KEY",

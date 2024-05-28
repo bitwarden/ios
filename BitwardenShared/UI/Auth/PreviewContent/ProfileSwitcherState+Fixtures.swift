@@ -7,6 +7,12 @@ extension ProfileSwitcherItem {
         email: "anne.account@bitwarden.com",
         userInitials: "AA"
     )
+
+    static let beeAccount = ProfileSwitcherItem.fixture(
+        color: .yellow,
+        email: "bee.account@bitwarden.com",
+        userInitials: "BA"
+    )
 }
 
 extension ProfileSwitcherItem {

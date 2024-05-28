@@ -12,6 +12,7 @@ enum ProfileSwitcherAccessibilityEffect: Equatable {
 // MARK: - ProfileSwitcherEffect
 
 /// Effects that can be processed by a processor wrapping the ProfileSwitcherState.
+///
 enum ProfileSwitcherEffect: Equatable {
     /// An account row accessibility action was triggered.
     case accessibility(ProfileSwitcherAccessibilityEffect)
@@ -22,9 +23,13 @@ enum ProfileSwitcherEffect: Equatable {
     /// An account row item was pressed.
     case accountPressed(ProfileSwitcherItem)
 
-    /// The add account row was pressed
+    /// The add account row was pressed.
     case addAccountPressed
 
-    /// A row appeared
+    /// An effect to toggle the visibility of the profile switcher view and optionally
+    /// refresh the profile switcher state.
+    case requestedProfileSwitcher(visible: Bool)
+
+    /// A row appeared.
     case rowAppeared(ProfileSwitcherRowState.RowType)
 }

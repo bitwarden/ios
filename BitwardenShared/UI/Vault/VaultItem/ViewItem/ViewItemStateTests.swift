@@ -42,6 +42,24 @@ class ViewItemStateTests: BitwardenTestCase {
         XCTAssertFalse(subject.canClone)
     }
 
+    /// `isMasterPasswordRequired` is false when the user has no password.
+    func test_isMasterPasswordRequired_repromptOff_noPassword() {
+        let subject = ViewItemState(
+            loadingState: .data(
+                CipherItemState(
+                    existing: .fixture(
+                        id: "id",
+                        reprompt: .password
+                    ),
+                    hasPremium: true
+                )!
+            ),
+            hasMasterPassword: false,
+            hasVerifiedMasterPassword: false
+        )
+        XCTAssertFalse(subject.isMasterPasswordRequired)
+    }
+
     /// `isMasterPasswordRequired` is true when the reprompt is on and the master password has not
     /// been verified yet.
     func test_isMasterPasswordRequired_repromptOn_unverifiedPassword() {

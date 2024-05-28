@@ -13,5 +13,8 @@ struct DeleteAccountRequestModel: JSONRequestBody {
     // MARK: Properties
 
     /// The encrypted master password.
-    var masterPasswordHash: String
+    var masterPasswordHash: String?
+
+    /// The user's one-time password, if they don't have a master password.
+    var otp: String?
 }

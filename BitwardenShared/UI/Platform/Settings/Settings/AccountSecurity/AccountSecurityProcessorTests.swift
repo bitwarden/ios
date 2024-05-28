@@ -70,7 +70,8 @@ class AccountSecurityProcessorTests: BitwardenTestCase { // swiftlint:disable:th
         let account: Account = .fixture()
         let userId = account.profile.userId
         stateService.activeAccount = account
-        stateService.timeoutAction[userId] = .logout
+        authRepository.activeAccount = account
+        authRepository.sessionTimeoutAction[userId] = .logout
 
         await subject.perform(.appeared)
         XCTAssertEqual(subject.state.sessionTimeoutAction, .logout)
@@ -78,13 +79,13 @@ class AccountSecurityProcessorTests: BitwardenTestCase { // swiftlint:disable:th
 
     /// `perform(_:)` with `.appeared` sets the policy related state properties when the policy is enabled.
     func test_perform_appeared_timeoutPolicyEnabled() async throws {
-        policyService.fetchTimeoutPolicyValuesResult = .success((.logout, 3600))
+        policyService.fetchTimeoutPolicyValuesResult = .success((.logout, 60))
 
         await subject.perform(.appeared)
 
         XCTAssertEqual(subject.state.isTimeoutPolicyEnabled, true)
         XCTAssertEqual(subject.state.policyTimeoutAction, .logout)
-        XCTAssertEqual(subject.state.policyTimeoutValue, 3600)
+        XCTAssertEqual(subject.state.policyTimeoutValue, 60)
         XCTAssertEqual(subject.state.availableTimeoutActions, [.logout])
         XCTAssertEqual(subject.state.policyTimeoutHours, 1)
         XCTAssertEqual(subject.state.policyTimeoutMinutes, 0)
@@ -105,12 +106,12 @@ class AccountSecurityProcessorTests: BitwardenTestCase { // swiftlint:disable:th
     /// `perform(_:)` with `.appeared` sets the policy related state properties when the policy is enabled,
     /// but the policy doesn't return an action.
     func test_perform_appeared_timeoutPolicyEnabled_noPolicyAction() async throws {
-        policyService.fetchTimeoutPolicyValuesResult = .success((nil, 3660))
+        policyService.fetchTimeoutPolicyValuesResult = .success((nil, 61))
 
         await subject.perform(.appeared)
 
         XCTAssertEqual(subject.state.isTimeoutPolicyEnabled, true)
-        XCTAssertEqual(subject.state.policyTimeoutValue, 3660)
+        XCTAssertEqual(subject.state.policyTimeoutValue, 61)
         XCTAssertEqual(subject.state.availableTimeoutActions, [.lock, .logout])
         XCTAssertEqual(subject.state.policyTimeoutHours, 1)
         XCTAssertEqual(subject.state.policyTimeoutMinutes, 1)
@@ -130,7 +131,7 @@ class AccountSecurityProcessorTests: BitwardenTestCase { // swiftlint:disable:th
 
     /// `perform(_:)` with `.appeared` sets the policy related state properties when the policy is enabled.
     func test_perform_appeared_timeoutPolicyEnabled_oddTime() async throws {
-        policyService.fetchTimeoutPolicyValuesResult = .success((.logout, 3660))
+        policyService.fetchTimeoutPolicyValuesResult = .success((.logout, 61))
 
         await subject.perform(.appeared)
 
@@ -231,6 +232,17 @@ class AccountSecurityProcessorTests: BitwardenTestCase { // swiftlint:disable:th
 
         subject.receive(.clearTwoStepLoginUrl)
         XCTAssertNil(subject.state.twoStepLoginUrl)
+    }
+
+    /// `receive(_:)` with `customTimeoutValueSecondsChanged(_:)` updates the custom session timeout value in the state.
+    func test_receive_customTimeoutValueSecondsChanged() {
+        XCTAssertEqual(subject.state.customTimeoutValueSeconds, 60)
+
+        let account = Account.fixture()
+        authRepository.activeAccount = account
+
+        subject.receive(.customTimeoutValueSecondsChanged(120))
+        waitFor(subject.state.customTimeoutValueSeconds == 120)
     }
 
     /// `receive(_:)` with `.deleteAccountPressed` shows the `DeleteAccountView`.
@@ -405,7 +417,7 @@ class AccountSecurityProcessorTests: BitwardenTestCase { // swiftlint:disable:th
         let account = Account.fixture()
         authRepository.activeAccount = account
         subject.state.isTimeoutPolicyEnabled = true
-        subject.state.policyTimeoutValue = 60
+        subject.state.policyTimeoutValue = 1
 
         subject.receive(.sessionTimeoutValueChanged(.fourHours))
 
@@ -429,17 +441,6 @@ class AccountSecurityProcessorTests: BitwardenTestCase { // swiftlint:disable:th
         waitFor(errorReporter.errors.last as? BitwardenTestError == BitwardenTestError.example)
     }
 
-    /// `receive(_:)` with `setCustomSessionTimeoutValue(_:)` updates the custom session timeout value in the state.
-    func test_receive_setCustomSessionTimeoutValue() {
-        XCTAssertEqual(subject.state.customTimeoutValue, 60)
-
-        let account = Account.fixture()
-        authRepository.activeAccount = account
-
-        subject.receive(.customTimeoutValueChanged(120))
-        waitFor(subject.state.customTimeoutValue == 120)
-    }
-
     /// `receive(_:)` with `.toggleUnlockWithPINCode` updates the state when submit has been pressed.
     func test_receive_toggleUnlockWithPINCode_toggleOff() {
         subject.state.isUnlockWithPINCodeOn = true
@@ -458,6 +459,7 @@ class AccountSecurityProcessorTests: BitwardenTestCase { // swiftlint:disable:th
     /// `receive(_:)` with `.toggleUnlockWithPINCode` displays an alert and updates the state when submit has been
     /// pressed.
     func test_receive_toggleUnlockWithPINCode_toggleOn() async throws {
+        stateService.activeAccount = .fixture()
         subject.state.isUnlockWithPINCodeOn = false
         subject.receive(.toggleUnlockWithPINCode(true))
 
@@ -466,6 +468,40 @@ class AccountSecurityProcessorTests: BitwardenTestCase { // swiftlint:disable:th
 
         alert = try XCTUnwrap(coordinator.alertShown.last)
         try await alert.tapAction(title: Localizations.yes)
+        XCTAssertTrue(subject.state.isUnlockWithPINCodeOn)
+    }
+
+    /// `receive(_:)` with `.toggleUnlockWithPINCode` displays an error if one occurs while setting
+    /// the user's pin.
+    func test_receive_toggleUnlockWithPINCode_toggleOn_error() async throws {
+        authRepository.setPinsResult = .failure(BitwardenTestError.example)
+        stateService.activeAccount = .fixture()
+        subject.state.isUnlockWithPINCodeOn = false
+
+        subject.receive(.toggleUnlockWithPINCode(true))
+
+        let enterPinAlert = try XCTUnwrap(coordinator.alertShown.last)
+        try await enterPinAlert.tapAction(title: Localizations.submit)
+
+        let requireMasterPasswordAlert = try XCTUnwrap(coordinator.alertShown.last)
+        try await requireMasterPasswordAlert.tapAction(title: Localizations.no)
+
+        let errorAlert = try XCTUnwrap(coordinator.alertShown.last)
+        XCTAssertEqual(errorAlert, .defaultAlert(title: Localizations.anErrorHasOccurred))
+        XCTAssertEqual(errorReporter.errors as? [BitwardenTestError], [.example])
+    }
+
+    /// `receive(_:)` with `.toggleUnlockWithPINCode` displays an alert and updates the state when
+    /// submit has been pressed without displaying the master password prompt alert.
+    func test_receive_toggleUnlockWithPINCode_toggleOn_userWithoutMasterPassword() async throws {
+        stateService.activeAccount = .fixture()
+        stateService.userHasMasterPassword["1"] = false
+        subject.state.isUnlockWithPINCodeOn = false
+        subject.receive(.toggleUnlockWithPINCode(true))
+
+        let alert = try XCTUnwrap(coordinator.alertShown.last)
+        try await alert.tapAction(title: Localizations.submit)
+
         XCTAssertTrue(subject.state.isUnlockWithPINCodeOn)
     }
 
@@ -482,6 +518,21 @@ class AccountSecurityProcessorTests: BitwardenTestCase { // swiftlint:disable:th
         waitFor(!subject.state.isUnlockWithPINCodeOn)
         task.cancel()
         XCTAssertTrue(authRepository.clearPinsCalled)
+    }
+
+    /// `receive(_:)` with `.toggleUnlockWithPINCode` displays an error if one occurs while getting
+    /// whether the user has a master password.
+    func test_receive_toggleUnlockWithPINCode_userHasMasterPasswordError() async throws {
+        subject.state.isUnlockWithPINCodeOn = false
+
+        subject.receive(.toggleUnlockWithPINCode(true))
+
+        let enterPinAlert = try XCTUnwrap(coordinator.alertShown.last)
+        try await enterPinAlert.tapAction(title: Localizations.submit)
+
+        let errorAlert = try XCTUnwrap(coordinator.alertShown.last)
+        XCTAssertEqual(errorAlert, .defaultAlert(title: Localizations.anErrorHasOccurred))
+        XCTAssertEqual(errorReporter.errors as? [StateServiceError], [StateServiceError.noActiveAccount])
     }
 
     /// `perform(_:)` with `.loadData` updates the state.
@@ -583,6 +634,44 @@ class AccountSecurityProcessorTests: BitwardenTestCase { // swiftlint:disable:th
         try await alert.tapAction(title: Localizations.yes)
 
         XCTAssertNotNil(subject.state.twoStepLoginUrl)
+    }
+
+    /// The vault timeout action is refreshed after turning off pin unlock to handle users without
+    /// a master password when a lock timeout action may not be available.
+    func test_refreshVaultTimeoutAction_withoutMasterPassword_pinOff() {
+        authRepository.activeAccount = .fixtureWithTdeNoPassword()
+        authRepository.sessionTimeoutAction["1"] = .lock
+        subject.state.isUnlockWithPINCodeOn = true
+
+        let task = Task {
+            await subject.perform(.appeared)
+        }
+        waitFor { subject.state.sessionTimeoutAction == .lock }
+        task.cancel()
+
+        authRepository.sessionTimeoutAction["1"] = .logout
+
+        subject.receive(.toggleUnlockWithPINCode(false))
+        waitFor { subject.state.sessionTimeoutAction == .logout }
+
+        XCTAssertEqual(subject.state.sessionTimeoutAction, .logout)
+    }
+
+    /// The vault timeout action is refreshed after turning off biometrics unlock to handle users
+    /// without a master password when a lock timeout action may not be available.
+    func test_refreshVaultTimeoutAction_withoutMasterPassword_biometricsOff() async {
+        authRepository.activeAccount = .fixtureWithTdeNoPassword()
+        authRepository.sessionTimeoutAction["1"] = .lock
+        subject.state.biometricUnlockStatus = .available(.faceID, enabled: true, hasValidIntegrity: true)
+
+        await subject.perform(.appeared)
+        waitFor { subject.state.sessionTimeoutAction == .lock }
+
+        authRepository.sessionTimeoutAction["1"] = .logout
+
+        await subject.perform(.toggleUnlockWithBiometrics(false))
+
+        XCTAssertEqual(subject.state.sessionTimeoutAction, .logout)
     }
 
     /// `state.twoStepLoginUrl` is initialized with the correct value.

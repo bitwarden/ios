@@ -123,7 +123,7 @@ class AccountSecurityViewTests: BitwardenTestCase {
                             enabled: false,
                             hasValidIntegrity: true
                         ),
-                        sessionTimeoutValue: .custom(60)
+                        sessionTimeoutValue: .custom(1)
                     )
                 )
             )
@@ -142,7 +142,7 @@ class AccountSecurityViewTests: BitwardenTestCase {
                             enabled: true,
                             hasValidIntegrity: true
                         ),
-                        sessionTimeoutValue: .custom(60)
+                        sessionTimeoutValue: .custom(1)
                     )
                 )
             )
@@ -161,7 +161,7 @@ class AccountSecurityViewTests: BitwardenTestCase {
                             enabled: true,
                             hasValidIntegrity: false
                         ),
-                        sessionTimeoutValue: .custom(60)
+                        sessionTimeoutValue: .custom(1)
                     )
                 )
             )
@@ -174,7 +174,22 @@ class AccountSecurityViewTests: BitwardenTestCase {
         let subject = AccountSecurityView(
             store: Store(
                 processor: StateProcessor(
-                    state: AccountSecurityState(sessionTimeoutValue: .custom(60))
+                    state: AccountSecurityState(sessionTimeoutValue: .custom(1))
+                )
+            )
+        )
+        assertSnapshot(of: subject, as: .defaultPortrait)
+    }
+
+    /// The view renders correctly when the user doesn't have a master password.
+    func test_snapshot_noMasterPassword() {
+        let subject = AccountSecurityView(
+            store: Store(
+                processor: StateProcessor(
+                    state: AccountSecurityState(
+                        hasMasterPassword: false,
+                        sessionTimeoutAction: .logout
+                    )
                 )
             )
         )
@@ -188,7 +203,7 @@ class AccountSecurityViewTests: BitwardenTestCase {
                 processor: StateProcessor(
                     state: AccountSecurityState(
                         isTimeoutPolicyEnabled: true,
-                        sessionTimeoutValue: .custom(60)
+                        sessionTimeoutValue: .custom(1)
                     )
                 )
             )

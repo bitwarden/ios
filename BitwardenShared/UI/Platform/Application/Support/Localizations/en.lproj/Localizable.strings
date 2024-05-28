@@ -871,10 +871,14 @@
 "DuoTwoStepLoginIsRequiredForYourAccount" = "Duo two-step login is required for your account.";
 "FollowTheStepsFromDuoToFinishLoggingIn" = "Follow the steps from Duo to finish logging in.";
 "LaunchDuo" = "Launch Duo";
+"OrganizationUnassignedItemsMessageUSEUDescriptionLong" = "Unassigned organization items are no longer visible in the All Vaults view and only accessible via the Admin Console. Assign these items to a collection from the Admin Console to make them visible.";
+"OrganizationUnassignedItemsMessageSelfHost041624DescriptionLong" = "On May 16, 2024, unassigned organization items will no longer be visible in the All Vaults view and only accessible via the Admin Console. Assign these items to a collection from the Admin Console to make them visible.";
+"RemindMeLater" = "Remind me later";
+"Notice" = "Notice";
 "AppInfo" = "App info";
 "Browse" = "Browse";
 "SelectLanguage" = "Select language";
-"ContinueToCompleteWebAuthnVerfication" = "Continue to complete WebAuthn verfication.";
+"ContinueToCompleteWebAuthnVerification" = "Continue to complete WebAuthn verification.";
 "ThereWasAnErrorStartingWebAuthnTwoFactorAuthentication" = "There was an error starting WebAuthn two factor authentication";
 "LaunchWebAuthn" = "Launch WebAuthn";
 "Duo" = "Duo";
@@ -882,3 +886,4 @@
 "FilePassword" = "File password";
 "ConfirmFilePassword" = "Confirm file password";
 "FilePasswordDescription" = "This password will be used to export and import this file";
+"OrganizationUnassignedItemsMessageUSEUDescriptionLong" = "Unassigned organization items are no longer visible in the All Vaults view and only accessible via the Admin Console. Assign these items to a collection from the Admin Console to make them visible.";

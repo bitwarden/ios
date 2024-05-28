@@ -21,6 +21,13 @@ protocol AppSettingsStore: AnyObject {
     /// The app's theme.
     var appTheme: String? { get set }
 
+    /// The legacy system biometric integrity state `Data`, base64 encoded.
+    ///
+    /// NOTE: This is only used for migrating from the legacy app and isn't constrained to a
+    ///     specific user, `biometricIntegrityState(userId:)` should be used instead.
+    ///
+    var biometricIntegrityStateLegacy: String? { get set }
+
     /// Whether to disable the website icons.
     var disableWebIcons: Bool { get set }
 
@@ -91,6 +98,13 @@ protocol AppSettingsStore: AnyObject {
     ///
     func disableAutoTotpCopy(userId: String) -> Bool
 
+    /// The user's pin protected by their user key.
+    ///
+    /// - Parameter userId: The user ID associated with the encrypted pin.
+    /// - Returns: The user's pin protected by their user key.
+    ///
+    func encryptedPin(userId: String) -> String?
+
     /// Gets the encrypted private key for the user ID.
     ///
     /// - Parameter userId: The user ID associated with the encrypted private key.
@@ -148,19 +162,18 @@ protocol AppSettingsStore: AnyObject {
     ///
     func passwordGenerationOptions(userId: String) -> PasswordGenerationOptions?
 
-    /// The user's pin protected user key.
-    ///
-    /// - Parameter userId: The user ID associated with the pin key encrypted user key.
-    /// - Returns: The pin protected user key.
-    ///
-    func pinKeyEncryptedUserKey(userId: String) -> String?
-
     /// The pin protected user key.
     ///
     /// - Parameter userId: The user ID associated with the pin protected user key.
     /// - Returns: The pin protected user key.
     ///
     func pinProtectedUserKey(userId: String) -> String?
+
+    /// The server configuration.
+    ///
+    /// - Parameter userId: The user ID associated with the server config.
+    /// - Returns: The server config for that user ID.
+    func serverConfig(userId: String) -> ServerConfig?
 
     /// Whether the vault should sync on refreshing.
     ///
@@ -222,6 +235,14 @@ protocol AppSettingsStore: AnyObject {
     ///
     func setDisableAutoTotpCopy(_ disableAutoTotpCopy: Bool?, userId: String)
 
+    /// Sets the user's pin protected by their user key.
+    ///
+    /// - Parameters:
+    ///   - encryptedPin: The user's pin protected by their user key.
+    ///   - userId: The user ID.
+    ///
+    func setEncryptedPin(_ encryptedPin: String?, userId: String)
+
     /// Sets the encrypted private key for a user ID.
     ///
     /// - Parameters:
@@ -278,14 +299,6 @@ protocol AppSettingsStore: AnyObject {
     ///
     func setPasswordGenerationOptions(_ options: PasswordGenerationOptions?, userId: String)
 
-    /// Sets the pin key encrypted user key.
-    ///
-    /// - Parameters:
-    ///   - key: A pin key encrypted user key derived from the user's pin.
-    ///   - userId: The user ID.
-    ///
-    func setPinKeyEncryptedUserKey(key: String?, userId: String)
-
     /// Sets the pin protected user key.
     ///
     /// - Parameters:
@@ -293,6 +306,23 @@ protocol AppSettingsStore: AnyObject {
     ///   - userId: The user ID.
     ///
     func setPinProtectedUserKey(key: String?, userId: String)
+
+    /// Sets the server config.
+    ///
+    /// - Parameters:
+    ///   - config: The server config for the user
+    ///   - userId: The user ID.
+    ///
+    func setServerConfig(_ config: ServerConfig?, userId: String)
+
+    /// Sets whether or not we should check for unassigned ciphers in an organization for
+    /// a particular user.
+    ///
+    /// - Parameters:
+    ///   - shouldCheck: Whether or not we should check for unassigned ciphers.
+    ///   - userId: The user ID to track.
+    ///
+    func setShouldCheckOrganizationUnassignedItems(_ shouldCheck: Bool?, userId: String)
 
     /// Set whether to trust the device.
     ///
@@ -324,13 +354,13 @@ protocol AppSettingsStore: AnyObject {
     ///
     func setUnsuccessfulUnlockAttempts(_ attempts: Int, userId: String)
 
-    /// Sets the user's session timeout date.
+    /// Sets the user's session timeout, in minutes.
     ///
     /// - Parameters:
-    ///   - key: The session timeout date.
-    ///   - userId: The user ID associated with the session timeout date.
+    ///   - key: The session timeout, in minutes.
+    ///   - userId: The user ID associated with the session timeout.
     ///
-    func setVaultTimeout(key: Int, userId: String)
+    func setVaultTimeout(minutes: Int, userId: String)
 
     /// Sets the username generation options for a user ID.
     ///
@@ -340,12 +370,12 @@ protocol AppSettingsStore: AnyObject {
     ///
     func setUsernameGenerationOptions(_ options: UsernameGenerationOptions?, userId: String)
 
-    /// Returns the action taken upon a session timeout.
+    /// Gets whether or not we should check for unassigned ciphers in an organization for
+    /// a particular user.
     ///
-    /// - Parameter userId: The user ID associated with the session timeout action.
-    /// - Returns: The  user's session timeout action.
+    /// - Parameter userId: The user ID to check.
     ///
-    func timeoutAction(userId: String) -> Int?
+    func shouldCheckOrganizationUnassignedItems(userId: String) -> Bool?
 
     /// Get whether the device should be trusted.
     ///
@@ -353,7 +383,14 @@ protocol AppSettingsStore: AnyObject {
     ///
     func shouldTrustDevice(userId: String) -> Bool?
 
-    /// Get the two-factor token associated with a user's email..
+    /// Returns the action taken upon a session timeout.
+    ///
+    /// - Parameter userId: The user ID associated with the session timeout action.
+    /// - Returns: The  user's session timeout action.
+    ///
+    func timeoutAction(userId: String) -> Int?
+
+    /// Get the two-factor token associated with a user's email.
     ///
     /// - Parameter email: The user's email.
     /// - Returns: The two-factor token.
@@ -374,10 +411,10 @@ protocol AppSettingsStore: AnyObject {
     ///
     func unsuccessfulUnlockAttempts(userId: String) -> Int
 
-    /// Returns the session timeout date.
+    /// Returns the session timeout in minutes.
     ///
-    /// - Parameter userId: The user ID associated with the session timeout date.
-    /// - Returns: The user's session timeout date.
+    /// - Parameter userId: The user ID associated with the session timeout.
+    /// - Returns: The user's session timeout in minutes.
     ///
     func vaultTimeout(userId: String) -> Int?
 
@@ -512,11 +549,13 @@ extension DefaultAppSettingsStore: AppSettingsStore {
         case appTheme
         case biometricAuthEnabled(userId: String)
         case biometricIntegrityState(userId: String, bundleId: String)
+        case biometricIntegrityStateLegacy
         case clearClipboardValue(userId: String)
         case connectToWatch(userId: String)
         case defaultUriMatch(userId: String)
         case disableAutoTotpCopy(userId: String)
         case disableWebIcons
+        case encryptedPin(userId: String)
         case encryptedPrivateKey(userId: String)
         case encryptedUserKey(userId: String)
         case lastActiveTime(userId: String)
@@ -527,11 +566,12 @@ extension DefaultAppSettingsStore: AppSettingsStore {
         case migrationVersion
         case notificationsLastRegistrationDate(userId: String)
         case passwordGenerationOptions(userId: String)
-        case pinKeyEncryptedUserKey(userId: String)
         case pinProtectedUserKey(userId: String)
         case preAuthEnvironmentUrls
         case rememberedEmail
         case rememberedOrgIdentifier
+        case serverConfig(userId: String)
+        case shouldCheckOrganizationUnassignedItems(userId: String)
         case shouldTrustDevice(userId: String)
         case state
         case twoFactorToken(email: String)
@@ -558,6 +598,8 @@ extension DefaultAppSettingsStore: AppSettingsStore {
                 key = "biometricUnlock_\(userId)"
             case let .biometricIntegrityState(userId, bundleId):
                 key = "biometricIntegritySource_\(userId)_\(bundleId)"
+            case .biometricIntegrityStateLegacy:
+                key = "biometricIntegritySource"
             case let .clearClipboardValue(userId):
                 key = "clearClipboard_\(userId)"
             case let .connectToWatch(userId):
@@ -570,6 +612,8 @@ extension DefaultAppSettingsStore: AppSettingsStore {
                 key = "disableFavicon"
             case let .encryptedUserKey(userId):
                 key = "masterKeyEncryptedUserKey_\(userId)"
+            case let .encryptedPin(userId):
+                key = "protectedPin_\(userId)"
             case let .encryptedPrivateKey(userId):
                 key = "encPrivateKey_\(userId)"
             case let .lastActiveTime(userId):
@@ -588,16 +632,18 @@ extension DefaultAppSettingsStore: AppSettingsStore {
                 key = "pushLastRegistrationDate_\(userId)"
             case let .passwordGenerationOptions(userId):
                 key = "passwordGenerationOptions_\(userId)"
-            case let .pinKeyEncryptedUserKey(userId):
-                key = "pinKeyEncryptedUserKey_\(userId)"
             case let .pinProtectedUserKey(userId):
-                key = "pinProtectedUserKey_\(userId)"
+                key = "pinKeyEncryptedUserKey_\(userId)"
             case .preAuthEnvironmentUrls:
                 key = "preAuthEnvironmentUrls"
             case .rememberedEmail:
                 key = "rememberedEmail"
             case .rememberedOrgIdentifier:
                 key = "rememberedOrgIdentifier"
+            case let .serverConfig(userId):
+                key = "serverConfig_\(userId)"
+            case let .shouldCheckOrganizationUnassignedItems(userId):
+                key = "shouldCheckOrganizationUnassignedItems_\(userId)"
             case let .shouldTrustDevice(userId):
                 key = "shouldTrustDevice_\(userId)"
             case .state:
@@ -635,6 +681,11 @@ extension DefaultAppSettingsStore: AppSettingsStore {
     var appTheme: String? {
         get { fetch(for: .appTheme) }
         set { store(newValue, for: .appTheme) }
+    }
+
+    var biometricIntegrityStateLegacy: String? {
+        get { fetch(for: .biometricIntegrityStateLegacy) }
+        set { store(newValue, for: .biometricIntegrityStateLegacy) }
     }
 
     var disableWebIcons: Bool {
@@ -713,6 +764,10 @@ extension DefaultAppSettingsStore: AppSettingsStore {
         fetch(for: .disableAutoTotpCopy(userId: userId))
     }
 
+    func encryptedPin(userId: String) -> String? {
+        fetch(for: .encryptedPin(userId: userId))
+    }
+
     func encryptedPrivateKey(userId: String) -> String? {
         fetch(for: .encryptedPrivateKey(userId: userId))
     }
@@ -745,12 +800,12 @@ extension DefaultAppSettingsStore: AppSettingsStore {
         fetch(for: .passwordGenerationOptions(userId: userId))
     }
 
-    func pinKeyEncryptedUserKey(userId: String) -> String? {
-        fetch(for: .pinKeyEncryptedUserKey(userId: userId))
-    }
-
     func pinProtectedUserKey(userId: String) -> String? {
         fetch(for: .pinProtectedUserKey(userId: userId))
+    }
+
+    func serverConfig(userId: String) -> ServerConfig? {
+        fetch(for: .serverConfig(userId: userId))
     }
 
     func setAllowSyncOnRefresh(_ allowSyncOnRefresh: Bool?, userId: String) {
@@ -787,6 +842,10 @@ extension DefaultAppSettingsStore: AppSettingsStore {
         store(disableAutoTotpCopy, for: .disableAutoTotpCopy(userId: userId))
     }
 
+    func setEncryptedPin(_ encryptedPin: String?, userId: String) {
+        store(encryptedPin, for: .encryptedPin(userId: userId))
+    }
+
     func setEncryptedPrivateKey(key: String?, userId: String) {
         store(key, for: .encryptedPrivateKey(userId: userId))
     }
@@ -815,12 +874,16 @@ extension DefaultAppSettingsStore: AppSettingsStore {
         store(options, for: .passwordGenerationOptions(userId: userId))
     }
 
-    func setPinKeyEncryptedUserKey(key: String?, userId: String) {
-        store(key, for: .pinKeyEncryptedUserKey(userId: userId))
-    }
-
     func setPinProtectedUserKey(key: String?, userId: String) {
         store(key, for: .pinProtectedUserKey(userId: userId))
+    }
+
+    func setServerConfig(_ config: ServerConfig?, userId: String) {
+        store(config, for: .serverConfig(userId: userId))
+    }
+
+    func setShouldCheckOrganizationUnassignedItems(_ shouldCheck: Bool?, userId: String) {
+        store(shouldCheck, for: .shouldCheckOrganizationUnassignedItems(userId: userId))
     }
 
     func setShouldTrustDevice(shouldTrustDevice: Bool?, userId: String) {
@@ -839,8 +902,12 @@ extension DefaultAppSettingsStore: AppSettingsStore {
         store(options, for: .usernameGenerationOptions(userId: userId))
     }
 
-    func setVaultTimeout(key: Int, userId: String) {
-        store(key, for: .vaultTimeout(userId: userId))
+    func setVaultTimeout(minutes: Int, userId: String) {
+        store(minutes, for: .vaultTimeout(userId: userId))
+    }
+
+    func shouldCheckOrganizationUnassignedItems(userId: String) -> Bool? {
+        fetch(for: .shouldCheckOrganizationUnassignedItems(userId: userId))
     }
 
     func timeoutAction(userId: String) -> Int? {

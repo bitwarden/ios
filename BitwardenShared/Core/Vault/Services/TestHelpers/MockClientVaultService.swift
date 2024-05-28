@@ -93,6 +93,10 @@ class MockClientAttachments: ClientAttachmentsProtocol {
 class MockClientCiphers: ClientCiphersProtocol {
     var encryptError: Error?
     var encryptedCiphers = [CipherView]()
+    var moveToOrganizationCipher: CipherView?
+    var moveToOrganizationOrganizationId: String?
+    var moveToOrganizationCalled: Bool?
+    var moveToOrganizationResult: Result<CipherView, Error> = .success(.fixture())
 
     func decrypt(cipher: Cipher) async throws -> CipherView {
         CipherView(cipher: cipher)
@@ -108,6 +112,15 @@ class MockClientCiphers: ClientCiphersProtocol {
             throw encryptError
         }
         return Cipher(cipherView: cipherView)
+    }
+
+    func moveToOrganization(
+        cipher: CipherView,
+        organizationId: Uuid
+    ) async throws -> CipherView {
+        moveToOrganizationCipher = cipher
+        moveToOrganizationOrganizationId = organizationId
+        return try moveToOrganizationResult.get()
     }
 }
 

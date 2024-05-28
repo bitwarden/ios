@@ -47,6 +47,8 @@ class MockVaultRepository: VaultRepository {
 
     var getDisableAutoTotpCopyResult: Result<Bool, Error> = .success(false)
 
+    var hasUnassignedCiphersResult: Result<Bool, Error> = .success(false)
+
     var needsSyncCalled = false
     var needsSyncResult: Result<Bool, Error> = .success(false)
 
@@ -79,6 +81,8 @@ class MockVaultRepository: VaultRepository {
 
     var shareCipherCiphers = [CipherView]()
     var shareCipherResult: Result<Void, Error> = .success(())
+
+    var shouldShowUnassignedCiphersAlert = false
 
     var softDeletedCipher = [CipherView]()
     var softDeleteCipherResult: Result<Void, Error> = .success(())
@@ -178,6 +182,10 @@ class MockVaultRepository: VaultRepository {
         try getDisableAutoTotpCopyResult.get()
     }
 
+    func hasUnassignedCiphers() async throws -> Bool {
+        try hasUnassignedCiphersResult.get()
+    }
+
     func needsSync() async throws -> Bool {
         needsSyncCalled = true
         return try needsSyncResult.get()
@@ -235,6 +243,10 @@ class MockVaultRepository: VaultRepository {
     func shareCipher(_ cipher: CipherView) async throws {
         shareCipherCiphers.append(cipher)
         try shareCipherResult.get()
+    }
+
+    func shouldShowUnassignedCiphersAlert() async -> Bool {
+        shouldShowUnassignedCiphersAlert
     }
 
     func softDeleteCipher(_ cipher: CipherView) async throws {

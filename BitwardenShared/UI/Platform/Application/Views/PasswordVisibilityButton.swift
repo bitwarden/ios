@@ -6,6 +6,9 @@ import SwiftUI
 /// current password visibility.
 ///
 struct PasswordVisibilityButton: View {
+    /// The button's accessibility ID.
+    var accessibilityIdentifier: String
+
     /// The accessibility label for this button.
     var accessibilityLabel: String
 
@@ -28,12 +31,13 @@ struct PasswordVisibilityButton: View {
             .resizable()
             .frame(width: size, height: size)
         }
-        .accessibilityIdentifier("ShowValueButton")
+        .accessibilityIdentifier(accessibilityIdentifier)
     }
 
     /// Creates a new `PasswordVisibilityButton`.
     ///
     /// - Parameters:
+    ///   - accessibilityIdentifier: The button's accessibility ID.
     ///   - accessibilityLabel: The accessibility label for this button. Defaults to
     ///     `Localizations.toggleVisibility`.
     ///   - isPasswordVisible: A flag indicating if the password is visible.
@@ -41,11 +45,13 @@ struct PasswordVisibilityButton: View {
     ///   - action: The action that is triggered when the user interacts with this button.
     ///
     init(
+        accessibilityIdentifier: String = "",
         accessibilityLabel: String = Localizations.toggleVisibility,
         isPasswordVisible: Bool,
         size: CGFloat = 16,
         action: @escaping () -> Void
     ) {
+        self.accessibilityIdentifier = accessibilityIdentifier
         self.accessibilityLabel = accessibilityLabel
         self.action = action
         self.isPasswordVisible = isPasswordVisible

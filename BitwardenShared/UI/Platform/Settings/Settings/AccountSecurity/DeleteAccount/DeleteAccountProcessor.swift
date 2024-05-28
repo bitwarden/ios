@@ -9,7 +9,7 @@ final class DeleteAccountProcessor: StateProcessor<DeleteAccountState, DeleteAcc
 
     typealias Services = HasAccountAPIService
         & HasAuthRepository
-        & HasClientAuth
+        & HasErrorReporter
         & HasStateService
 
     // MARK: Properties
@@ -44,7 +44,7 @@ final class DeleteAccountProcessor: StateProcessor<DeleteAccountState, DeleteAcc
     override func perform(_ effect: DeleteAccountEffect) async {
         switch effect {
         case .deleteAccount:
-            await showMasterPasswordReprompt()
+            await showAccountVerification()
         }
     }
 
@@ -59,21 +59,22 @@ final class DeleteAccountProcessor: StateProcessor<DeleteAccountState, DeleteAcc
 
     /// Deletes the user's account.
     ///
-    /// - Parameter passwordText: The user's password.
+    /// - Parameters:
+    ///   - otp: The user's one-time password, if they don't have a master password.
+    ///   - passwordText: The user's password.
     ///
-    private func deleteAccount(passwordText: String) async {
-        guard !passwordText.isEmpty else { return }
+    private func deleteAccount(otp: String?, passwordText: String?) async {
         coordinator.showLoadingOverlay(title: Localizations.deletingYourAccount)
         defer {
             coordinator.hideLoadingOverlay()
         }
 
         do {
-            try await services.authRepository.deleteAccount(passwordText: passwordText)
+            try await services.authRepository.deleteAccount(otp: otp, passwordText: passwordText)
             navigatePostDeletion()
         } catch {
             coordinator.showAlert(.networkResponseError(error) {
-                await self.deleteAccount(passwordText: passwordText)
+                await self.deleteAccount(otp: otp, passwordText: passwordText)
             })
         }
     }
@@ -88,11 +89,31 @@ final class DeleteAccountProcessor: StateProcessor<DeleteAccountState, DeleteAcc
         }
     }
 
-    /// Shows the master password prompt when the user is attempting to delete their account.
+    /// Shows an alert for account verification. This will either require the user to enter their
+    /// master password or a one-time password that was emailed to them depending on if they have a
+    /// master password or not.
     ///
-    private func showMasterPasswordReprompt() async {
-        coordinator.showAlert(.masterPasswordPrompt { [weak self] passwordText in
-            await self?.deleteAccount(passwordText: passwordText)
-        })
+    private func showAccountVerification() async {
+        do {
+            if try await services.authRepository.hasMasterPassword() {
+                coordinator.showAlert(.masterPasswordPrompt { passwordText in
+                    await self.deleteAccount(otp: nil, passwordText: passwordText)
+                })
+            } else {
+                coordinator.showLoadingOverlay(title: Localizations.sendingCode)
+                defer {
+                    coordinator.hideLoadingOverlay()
+                }
+
+                try await services.authRepository.requestOtp()
+
+                coordinator.showAlert(.verificationCodePrompt { otp in
+                    await self.deleteAccount(otp: otp, passwordText: nil)
+                })
+            }
+        } catch {
+            coordinator.showAlert(.networkResponseError(error))
+            services.errorReporter.log(error: error)
+        }
     }
 }

@@ -31,6 +31,10 @@ struct ExportVaultView: View {
         .task {
             await store.perform(.loadData)
         }
+        .toast(store.binding(
+            get: \.toast,
+            send: ExportVaultAction.toastShown
+        ))
         .toolbar {
             cancelToolbarItem {
                 store.send(.dismiss)
@@ -110,20 +114,35 @@ struct ExportVaultView: View {
         }
     }
 
-    /// The master password text field.
-    private var masterPasswordField: some View {
+    /// The master password/OTP text field.
+    @ViewBuilder private var masterPasswordField: some View {
+        if !store.state.hasMasterPassword {
+            VStack(alignment: .leading, spacing: 8) {
+                Text(Localizations.sendVerificationCodeToEmail)
+                    .styleGuide(.subheadline, weight: .semibold)
+                    .foregroundColor(Asset.Colors.textSecondary.swiftUIColor)
+
+                AsyncButton(Localizations.sendCode) {
+                    await store.perform(.sendCodeTapped)
+                }
+                .buttonStyle(.tertiary())
+                .accessibilityIdentifier("SendTOTPCodeButton")
+                .disabled(store.state.isSendCodeButtonDisabled)
+            }
+        }
+
         BitwardenTextField(
-            title: Localizations.masterPassword,
+            title: store.state.masterPasswordOrOtpTitle,
             text: store.binding(
-                get: \.masterPasswordText,
-                send: ExportVaultAction.masterPasswordTextChanged
+                get: \.masterPasswordOrOtpText,
+                send: ExportVaultAction.masterPasswordOrOtpTextChanged
             ),
-            footer: Localizations.exportVaultMasterPasswordDescription,
+            footer: store.state.masterPasswordOrOtpFooter,
             accessibilityIdentifier: "MasterPasswordEntry",
             passwordVisibilityAccessibilityId: "PasswordVisibilityToggle",
             isPasswordVisible: store.binding(
-                get: \.isMasterPasswordVisible,
-                send: ExportVaultAction.toggleMasterPasswordVisibility
+                get: \.isMasterPasswordOrOtpVisible,
+                send: ExportVaultAction.toggleMasterPasswordOrOtpVisibility
             )
         )
         .textFieldConfiguration(.password)
@@ -132,8 +151,12 @@ struct ExportVaultView: View {
 
 // MARK: - Previews
 
-#Preview {
+#Preview("Export Vault") {
     ExportVaultView(store: Store(processor: StateProcessor(state: ExportVaultState())))
+}
+
+#Preview("Export Vault without Master Password") {
+    ExportVaultView(store: Store(processor: StateProcessor(state: ExportVaultState(hasMasterPassword: false))))
 }
 
 #Preview("Disabled Export") {

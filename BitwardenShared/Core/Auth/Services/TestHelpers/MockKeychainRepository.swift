@@ -6,6 +6,10 @@ class MockKeychainRepository: KeychainRepository {
     var appId: String = "mockAppId"
     var mockStorage = [String: String]()
     var securityType: SecAccessControlCreateFlags?
+    var deleteAllItemsCalled = false
+    var deleteAllItemsResult: Result<Void, Error> = .success(())
+    var deleteItemsForUserIds = [String]()
+    var deleteItemsForUserResult: Result<Void, Error> = .success(())
     var deleteResult: Result<Void, Error> = .success(())
     var getResult: Result<String, Error>?
     var setResult: Result<Void, Error> = .success(())
@@ -25,6 +29,18 @@ class MockKeychainRepository: KeychainRepository {
     var setRefreshTokenResult: Result<Void, Error> = .success(())
 
     var setPendingAdminLoginRequestResult: Result<Void, Error> = .success(())
+
+    func deleteAllItems() async throws {
+        deleteAllItemsCalled = true
+        mockStorage.removeAll()
+        try deleteAllItemsResult.get()
+    }
+
+    func deleteItems(for userId: String) async throws {
+        deleteItemsForUserIds.append(userId)
+        mockStorage = mockStorage.filter { !$0.key.contains(userId) }
+        try deleteItemsForUserResult.get()
+    }
 
     func deleteDeviceKey(userId: String) async throws {
         let formattedKey = formattedKey(for: .deviceKey(userId: userId))

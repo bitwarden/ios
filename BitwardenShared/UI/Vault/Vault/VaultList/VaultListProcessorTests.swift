@@ -177,13 +177,110 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
         )
     }
 
+    /// `perform(_:)` with `.appeared` checks for unassigned ciphers
+    /// and updates state if the user taps "OK".
+    func test_perform_appeared_unassignedCiphers() async throws {
+        stateService.activeAccount = .fixture()
+        notificationService.authorizationStatus = .authorized
+        vaultRepository.shouldShowUnassignedCiphersAlert = true
+
+        await subject.perform(.appeared)
+
+        let alert = try XCTUnwrap(coordinator.alertShown.last)
+        XCTAssertEqual(alert, .unassignedCiphers {})
+
+        let requestPermissionAction = try XCTUnwrap(alert.alertActions.last)
+        await requestPermissionAction.handler?(requestPermissionAction, [])
+
+        XCTAssertTrue(errorReporter.errors.isEmpty)
+        XCTAssertEqual(stateService.shouldCheckOrganizationUnassignedItems["1"], false)
+    }
+
+    /// `perform(_:)` with `.appeared` checks for unassigned ciphers
+    /// and updates state if the user taps "OK".
+    func test_perform_appeared_requestNotifications() throws {
+        stateService.activeAccount = .fixture()
+        notificationService.authorizationStatus = .notDetermined
+        vaultRepository.shouldShowUnassignedCiphersAlert = true
+
+        Task {
+            await subject.perform(.appeared)
+
+            let pushNotificationsAlert = try XCTUnwrap(coordinator.alertShown.last)
+            XCTAssertEqual(pushNotificationsAlert, .pushNotificationsInformation {})
+
+            let requestPermissionAction = try XCTUnwrap(pushNotificationsAlert.alertActions.first)
+            await requestPermissionAction.handler?(requestPermissionAction, [])
+            if let onDismissed = coordinator.alertOnDismissed {
+                onDismissed()
+            }
+        }
+
+        waitFor(coordinator.alertShown.count == 2)
+        let unassignedCiphersAlert = try XCTUnwrap(coordinator.alertShown.last)
+        XCTAssertEqual(unassignedCiphersAlert, .unassignedCiphers {})
+    }
+
+    /// `perform(_:)` with `.appeared` checks for unassigned ciphers
+    /// and does not update state if the user taps "Remind me later".
+    func test_perform_appeared_unassignedCiphers_cancelled() async throws {
+        stateService.activeAccount = .fixture()
+        notificationService.authorizationStatus = .authorized
+        vaultRepository.shouldShowUnassignedCiphersAlert = true
+
+        await subject.perform(.appeared)
+
+        let alert = try XCTUnwrap(coordinator.alertShown.last)
+        XCTAssertEqual(alert, .unassignedCiphers {})
+
+        let requestPermissionAction = try XCTUnwrap(alert.alertActions.first)
+        await requestPermissionAction.handler?(requestPermissionAction, [])
+
+        XCTAssertTrue(errorReporter.errors.isEmpty)
+        XCTAssertEqual(stateService.shouldCheckOrganizationUnassignedItems["1"], nil)
+    }
+
+    /// `perform(_:)` with `.appeared` does not check for unassigned ciphers
+    /// when the vault repository returns false.
+    func test_perform_appeared_unassignedCiphers_shouldNot() async throws {
+        stateService.activeAccount = .fixture()
+        notificationService.authorizationStatus = .authorized
+        vaultRepository.shouldShowUnassignedCiphersAlert = false
+
+        await subject.perform(.appeared)
+
+        XCTAssertTrue(coordinator.alertShown.isEmpty)
+    }
+
+    /// `perform(_:)` with `.appeared` does not check for unassigned ciphers
+    /// on the second call.
+    func test_perform_appeared_unassignedCiphers_shouldNot_secondCall() async throws {
+        stateService.activeAccount = .fixture()
+        notificationService.authorizationStatus = .authorized
+        vaultRepository.shouldShowUnassignedCiphersAlert = true
+
+        await subject.perform(.appeared)
+
+        XCTAssertEqual(coordinator.alertShown.count, 1)
+
+        await subject.perform(.appeared)
+
+        XCTAssertEqual(coordinator.alertShown.count, 1)
+    }
+
     /// `perform(_:)` with `.morePressed` shows the appropriate more options alert for a card cipher.
     func test_perform_morePressed_card() async throws {
+        let account = Account.fixture()
+        stateService.activeAccount = account
+        stateService.userHasMasterPassword = [account.profile.userId: true]
+
         var item = try XCTUnwrap(VaultListItem(cipherView: .fixture(type: .card)))
 
         // If the card item has no number or code, only the view and add buttons should display.
         vaultRepository.fetchCipherResult = .success(.cardFixture())
+
         await subject.perform(.morePressed(item))
+
         var alert = try XCTUnwrap(coordinator.alertShown.last)
         XCTAssertEqual(alert.title, "Bitwarden")
         XCTAssertEqual(alert.alertActions.count, 3)
@@ -232,6 +329,10 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
 
     /// `perform(_:)` with `.morePressed` and press `copyPassword` presents master password re-prompt alert.
     func test_perform_morePressed_copyPassword_rePromptMasterPassword() async throws {
+        let account = Account.fixture()
+        stateService.activeAccount = account
+        stateService.userHasMasterPassword = [account.profile.userId: true]
+
         // A login with data should show the copy and launch actions.
         let loginWithData = CipherView.loginFixture(
             login: .fixture(
@@ -242,7 +343,9 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
             reprompt: .password
         )
         let item = try XCTUnwrap(VaultListItem(cipherView: loginWithData))
+
         await subject.perform(.morePressed(item))
+
         var alert = try XCTUnwrap(coordinator.alertShown.last)
         XCTAssertEqual(alert.title, "Bitwarden")
         XCTAssertEqual(alert.alertActions.count, 6)
@@ -276,6 +379,10 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
     /// `perform(_:)` with `.morePressed` and press `copyPassword` presents master password re-prompt alert,
     ///  entering wrong password should not allow to copy password.
     func test_perform_morePressed_copyPassword_passwordReprompt_invalidPassword() async throws {
+        let account = Account.fixture()
+        stateService.activeAccount = account
+        stateService.userHasMasterPassword = [account.profile.userId: true]
+
         // A login with data should show the copy and launch actions.
         let loginWithData = CipherView.loginFixture(
             login: .fixture(
@@ -286,7 +393,9 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
             reprompt: .password
         )
         let item = try XCTUnwrap(VaultListItem(cipherView: loginWithData))
+
         await subject.perform(.morePressed(item))
+
         var alert = try XCTUnwrap(coordinator.alertShown.last)
         XCTAssertEqual(alert.title, "Bitwarden")
         XCTAssertEqual(alert.alertActions.count, 6)
@@ -321,6 +430,10 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
     /// `perform(_:)` with `.morePressed` and press `copyTotp` presents master password re-prompt
     /// alert and copies the TOTP code when the master password is confirmed.
     func test_perform_morePressed_copyTotp_passwordReprompt() async throws {
+        let account = Account.fixture()
+        stateService.activeAccount = account
+        stateService.userHasMasterPassword = [account.profile.userId: true]
+
         vaultRepository.refreshTOTPCodeResult = .success(
             LoginTOTPState(
                 authKeyModel: TOTPKeyModel(authenticatorKey: .base32Key)!,
@@ -358,6 +471,10 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
     /// `perform(_:)` with `.morePressed` and press `copyTotp` presents master password re-prompt
     /// alert and displays an alert if the entered master password doesn't match.
     func test_perform_morePressed_copyTotp_passwordReprompt_invalidPassword() async throws {
+        let account = Account.fixture()
+        stateService.activeAccount = account
+        stateService.userHasMasterPassword = [account.profile.userId: true]
+
         vaultRepository.refreshTOTPCodeResult = .success(
             LoginTOTPState(
                 authKeyModel: TOTPKeyModel(authenticatorKey: .base32Key)!,
@@ -391,6 +508,10 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
 
     /// `perform(_:)` with `.morePressed` shows the appropriate more options alert for a login cipher.
     func test_perform_morePressed_login_full() async throws {
+        let account = Account.fixture()
+        stateService.activeAccount = account
+        stateService.userHasMasterPassword = [account.profile.userId: true]
+
         vaultRepository.refreshTOTPCodeResult = .success(
             LoginTOTPState(
                 authKeyModel: TOTPKeyModel(authenticatorKey: .base32Key)!,
@@ -454,11 +575,17 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
 
     /// `perform(_:)` with `.morePressed` shows the appropriate more options alert for a login cipher.
     func test_perform_morePressed_login_minimal() async throws {
+        let account = Account.fixture()
+        stateService.activeAccount = account
+        stateService.userHasMasterPassword = [account.profile.userId: true]
+
         let item = try XCTUnwrap(VaultListItem(cipherView: .fixture(type: .login)))
 
         // If the login item has no username, password, or url, only the view and add buttons should display.
         vaultRepository.fetchCipherResult = .success(.loginFixture())
+
         await subject.perform(.morePressed(item))
+
         let alert = try XCTUnwrap(coordinator.alertShown.last)
         XCTAssertEqual(alert.title, "Bitwarden")
         XCTAssertEqual(alert.alertActions.count, 3)
@@ -469,11 +596,17 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
 
     /// `perform(_:)` with `.morePressed` shows the appropriate more options alert for an identity cipher.
     func test_perform_morePressed_identity() async throws {
+        let account = Account.fixture()
+        stateService.activeAccount = account
+        stateService.userHasMasterPassword = [account.profile.userId: true]
+
         let item = try XCTUnwrap(VaultListItem(cipherView: .fixture(type: .identity)))
 
         // An identity option can be viewed or edited.
         vaultRepository.fetchCipherResult = .success(.fixture(type: .identity))
+
         await subject.perform(.morePressed(item))
+
         let alert = try XCTUnwrap(coordinator.alertShown.last)
         XCTAssertEqual(alert.title, "Bitwarden")
         XCTAssertEqual(alert.alertActions.count, 3)
@@ -494,13 +627,48 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
         XCTAssertEqual(coordinator.routes.last, .editItem(.fixture(type: .identity)))
     }
 
+    /// `perform(_:)` with `.morePressed` does not show the password re-prompt alert when the user has no password.
+    func test_perform_morePressed_noPassword() async throws {
+        let account = Account.fixture()
+        stateService.activeAccount = account
+        stateService.userHasMasterPassword = [account.profile.userId: false]
+
+        // Although the cipher calls for a password reprompt, it won't be shown
+        // because the user has no password.
+        let login = CipherView.fixture(reprompt: .password)
+        let item = try XCTUnwrap(VaultListItem(cipherView: login))
+
+        // An identity option can be viewed or edited.
+        vaultRepository.fetchCipherResult = .success(.fixture(type: .identity))
+
+        await subject.perform(.morePressed(item))
+
+        let alert = try XCTUnwrap(coordinator.alertShown.last)
+        XCTAssertEqual(alert.title, "Bitwarden")
+        XCTAssertEqual(alert.alertActions.count, 3)
+        XCTAssertEqual(alert.alertActions[0].title, Localizations.view)
+        XCTAssertEqual(alert.alertActions[1].title, Localizations.edit)
+        XCTAssertEqual(alert.alertActions[2].title, Localizations.cancel)
+
+        // Edit navigates to the edit view.
+        let editAction = try XCTUnwrap(alert.alertActions[1])
+        await editAction.handler?(editAction, [])
+        XCTAssertEqual(coordinator.routes.last, .editItem(login))
+    }
+
     /// `perform(_:)` with `.morePressed` shows the appropriate more options alert for a secure note cipher.
     func test_perform_morePressed_secureNote() async throws {
+        let account = Account.fixture()
+        stateService.activeAccount = account
+        stateService.userHasMasterPassword = [account.profile.userId: true]
+
         var item = try XCTUnwrap(VaultListItem(cipherView: .fixture(type: .secureNote)))
 
         // If the secure note has no value, only the view and add buttons should display.
         vaultRepository.fetchCipherResult = .success(.fixture(type: .secureNote))
+
         await subject.perform(.morePressed(item))
+
         var alert = try XCTUnwrap(coordinator.alertShown.last)
         XCTAssertEqual(alert.title, "Bitwarden")
         XCTAssertEqual(alert.alertActions.count, 3)
@@ -622,6 +790,74 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
 
         XCTAssertEqual([profile2], subject.state.profileSwitcherState.alternateAccounts)
         XCTAssertEqual(profile1, subject.state.profileSwitcherState.activeAccountProfile)
+    }
+
+    /// `perform(_:)` with `.requestedProfileSwitcher(visible:)` updates the state correctly.
+    func test_perform_requestedProfileSwitcher() async {
+        let annAccount = ProfileSwitcherItem.anneAccount
+        let beeAccount = ProfileSwitcherItem.beeAccount
+
+        subject.state.profileSwitcherState.accounts = [annAccount, beeAccount]
+        subject.state.profileSwitcherState.isVisible = false
+
+        authRepository.profileSwitcherState = ProfileSwitcherState.maximumAccounts
+        await subject.perform(.profileSwitcher(.requestedProfileSwitcher(visible: true)))
+
+        // Ensure that the profile switcher state is updated
+        waitFor(subject.state.profileSwitcherState == authRepository.profileSwitcherState)
+        XCTAssertTrue(subject.state.profileSwitcherState.isVisible)
+    }
+
+    /// `perform(.profileSwitcher(.rowAppeared))` should not update the state for add Account
+    func test_perform_rowAppeared_add() async {
+        let profile = ProfileSwitcherItem.fixture()
+        let alternate = ProfileSwitcherItem.fixture()
+        subject.state.profileSwitcherState = ProfileSwitcherState(
+            accounts: [profile, alternate],
+            activeAccountId: profile.userId,
+            allowLockAndLogout: true,
+            isVisible: true
+        )
+
+        await subject.perform(.profileSwitcher(.rowAppeared(.addAccount)))
+
+        XCTAssertFalse(subject.state.profileSwitcherState.hasSetAccessibilityFocus)
+    }
+
+    /// `perform(.profileSwitcher(.rowAppeared))` should not update the state for alternate account
+    func test_perform_rowAppeared_alternate() async {
+        let profile = ProfileSwitcherItem.fixture()
+        let alternate = ProfileSwitcherItem.fixture()
+        subject.state.profileSwitcherState = ProfileSwitcherState(
+            accounts: [profile, alternate],
+            activeAccountId: profile.userId,
+            allowLockAndLogout: true,
+            isVisible: true
+        )
+
+        await subject.perform(.profileSwitcher(.rowAppeared(.alternate(alternate))))
+
+        XCTAssertFalse(subject.state.profileSwitcherState.hasSetAccessibilityFocus)
+    }
+
+    /// `perform(.profileSwitcher(.rowAppeared))` should update the state for active account
+    func test_perform_rowAppeared_active() {
+        let profile = ProfileSwitcherItem.fixture()
+        let alternate = ProfileSwitcherItem.fixture()
+        subject.state.profileSwitcherState = ProfileSwitcherState(
+            accounts: [profile, alternate],
+            activeAccountId: profile.userId,
+            allowLockAndLogout: true,
+            isVisible: true
+        )
+
+        let task = Task {
+            await subject.perform(.profileSwitcher(.rowAppeared(.active(profile))))
+        }
+
+        waitFor(subject.state.profileSwitcherState.hasSetAccessibilityFocus, timeout: 0.5)
+        task.cancel()
+        XCTAssertTrue(subject.state.profileSwitcherState.hasSetAccessibilityFocus)
     }
 
     /// `perform(.search)` with a keyword should update search results in state.
@@ -972,58 +1208,6 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
         XCTAssertEqual(coordinator.routes.last, .addAccount)
     }
 
-    /// `perform(.profileSwitcher(.rowAppeared))` should not update the state for add Account
-    func test_perform_rowAppeared_add() async {
-        let profile = ProfileSwitcherItem.fixture()
-        let alternate = ProfileSwitcherItem.fixture()
-        subject.state.profileSwitcherState = ProfileSwitcherState(
-            accounts: [profile, alternate],
-            activeAccountId: profile.userId,
-            allowLockAndLogout: true,
-            isVisible: true
-        )
-
-        await subject.perform(.profileSwitcher(.rowAppeared(.addAccount)))
-
-        XCTAssertFalse(subject.state.profileSwitcherState.hasSetAccessibilityFocus)
-    }
-
-    /// `perform(.profileSwitcher(.rowAppeared))` should not update the state for alternate account
-    func test_perform_rowAppeared_alternate() async {
-        let profile = ProfileSwitcherItem.fixture()
-        let alternate = ProfileSwitcherItem.fixture()
-        subject.state.profileSwitcherState = ProfileSwitcherState(
-            accounts: [profile, alternate],
-            activeAccountId: profile.userId,
-            allowLockAndLogout: true,
-            isVisible: true
-        )
-
-        await subject.perform(.profileSwitcher(.rowAppeared(.alternate(alternate))))
-
-        XCTAssertFalse(subject.state.profileSwitcherState.hasSetAccessibilityFocus)
-    }
-
-    /// `perform(.profileSwitcher(.rowAppeared))` should update the state for active account
-    func test_perform_rowAppeared_active() {
-        let profile = ProfileSwitcherItem.fixture()
-        let alternate = ProfileSwitcherItem.fixture()
-        subject.state.profileSwitcherState = ProfileSwitcherState(
-            accounts: [profile, alternate],
-            activeAccountId: profile.userId,
-            allowLockAndLogout: true,
-            isVisible: true
-        )
-
-        let task = Task {
-            await subject.perform(.profileSwitcher(.rowAppeared(.active(profile))))
-        }
-
-        waitFor(subject.state.profileSwitcherState.hasSetAccessibilityFocus, timeout: 0.5)
-        task.cancel()
-        XCTAssertTrue(subject.state.profileSwitcherState.hasSetAccessibilityFocus)
-    }
-
     /// `receive(_:)` with `.addItemPressed` navigates to the `.addItem` route.
     func test_receive_addItemPressed() {
         subject.receive(.addItemPressed)
@@ -1142,14 +1326,6 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
         subject.receive(.totpCodeExpired(.fixture()))
 
         XCTAssertEqual(subject.state, initialState)
-    }
-
-    /// `receive(_:)` with `.toggleProfilesViewVisibility` updates the state correctly.
-    func test_receive_toggleProfilesViewVisibility() {
-        subject.state.profileSwitcherState.isVisible = false
-        subject.receive(.profileSwitcher(.requestedProfileSwitcher(visible: true)))
-
-        XCTAssertTrue(subject.state.profileSwitcherState.isVisible)
     }
 
     /// `receive(_:)` with `.vaultFilterChanged` updates the state correctly.

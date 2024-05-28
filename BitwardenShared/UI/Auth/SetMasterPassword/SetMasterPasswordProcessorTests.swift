@@ -73,6 +73,7 @@ class SetMasterPasswordProcessorTests: BitwardenTestCase {
 
     /// `perform()` with `.appeared` loads the auto-enroll status for an organization which has it enabled.
     func test_perform_appeared_autoEnrollStatus_enabled() async {
+        authRepository.activeAccount = .fixture()
         httpClient.result = .httpSuccess(testData: .organizationAutoEnrollStatus)
 
         await subject.perform(.appeared)

@@ -38,8 +38,9 @@ class CreateAccountProcessor: StateProcessor<CreateAccountState, CreateAccountAc
     typealias Services = HasAccountAPIService
         & HasAuthRepository
         & HasCaptchaService
-        & HasClientAuth
+        & HasClientService
         & HasErrorReporter
+        & HasStateService
 
     // MARK: Private Properties
 
@@ -191,13 +192,13 @@ class CreateAccountProcessor: StateProcessor<CreateAccountState, CreateAccountAc
 
             let kdf: Kdf = .pbkdf2(iterations: NonZeroU32(KdfConfig().kdfIterations))
 
-            let keys = try await services.clientAuth.makeRegisterKeys(
+            let keys = try await services.clientService.auth().makeRegisterKeys(
                 email: email,
                 password: state.passwordText,
                 kdf: kdf
             )
 
-            let hashedPassword = try await services.clientAuth.hashPassword(
+            let hashedPassword = try await services.clientService.auth().hashPassword(
                 email: email,
                 password: state.passwordText,
                 kdfParams: kdf,
@@ -281,7 +282,7 @@ class CreateAccountProcessor: StateProcessor<CreateAccountState, CreateAccountAc
             return
         }
         Task {
-            state.passwordStrengthScore = await services.authRepository.passwordStrength(
+            state.passwordStrengthScore = try? await services.authRepository.passwordStrength(
                 email: state.emailText,
                 password: state.passwordText
             )

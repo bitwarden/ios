@@ -93,12 +93,12 @@ public enum SessionTimeoutValue: RawRepresentable, CaseIterable, Equatable, Menu
     public var rawValue: Int {
         switch self {
         case .immediately: 0
-        case .oneMinute: 60
-        case .fiveMinutes: 300
-        case .fifteenMinutes: 900
-        case .thirtyMinutes: 1800
-        case .oneHour: 3600
-        case .fourHours: 14400
+        case .oneMinute: 1
+        case .fiveMinutes: 5
+        case .fifteenMinutes: 15
+        case .thirtyMinutes: 30
+        case .oneHour: 60
+        case .fourHours: 240
         case .onAppRestart: -1
         case .never: -2
         case let .custom(customValue): customValue
@@ -109,17 +109,17 @@ public enum SessionTimeoutValue: RawRepresentable, CaseIterable, Equatable, Menu
         switch rawValue {
         case 0:
             self = .immediately
-        case 60:
+        case 1:
             self = .oneMinute
-        case 300:
+        case 5:
             self = .fiveMinutes
-        case 900:
+        case 15:
             self = .fifteenMinutes
-        case 1800:
+        case 30:
             self = .thirtyMinutes
-        case 3600:
+        case 60:
             self = .oneHour
-        case 14400:
+        case 240:
             self = .fourHours
         case -1:
             self = .onAppRestart
@@ -160,6 +160,8 @@ public enum SessionTimeoutAction: Int, CaseIterable, Codable, Equatable, Menuabl
 /// An object that defines the current state of the `AccountSecurityView`.
 ///
 struct AccountSecurityState: Equatable {
+    // MARK: Properties
+
     /// The timeout actions to show when the policy for maximum timeout value is in effect.
     var availableTimeoutActions: [SessionTimeoutAction] = SessionTimeoutAction.allCases
 
@@ -169,32 +171,11 @@ struct AccountSecurityState: Equatable {
     /// The biometric auth status for the user.
     var biometricUnlockStatus: BiometricsUnlockStatus = .notAvailable
 
-    /// The accessibility label used for the custom timeout value.
-    var customTimeoutAccessibilityLabel: String {
-        customTimeoutValue.timeInHoursMinutes(shouldSpellOut: true)
-    }
-
-    /// The custom session timeout value, initially set to 60 seconds.
-    var customTimeoutValue: Int {
-        guard case let .custom(customValue) = sessionTimeoutValue else {
-            return 60
-        }
-        return customValue
-    }
-
-    /// The string representation of the custom session timeout value.
-    var customTimeoutString: String {
-        customTimeoutValue.timeInHoursMinutes()
-    }
-
     /// The URL for account fingerprint phrase external link.
     var fingerprintPhraseUrl: URL?
 
-    /// Whether or not the custom session timeout field is shown.
-    var isShowingCustomTimeout: Bool {
-        guard case .custom = sessionTimeoutValue else { return false }
-        return true
-    }
+    /// Whether the user has a master password.
+    var hasMasterPassword = true
 
     /// Whether the maximum timeout value policy is in effect.
     var isTimeoutPolicyEnabled: Bool = false
@@ -210,16 +191,6 @@ struct AccountSecurityState: Equatable {
             availableTimeoutActions = SessionTimeoutAction.allCases
                 .filter { $0 == policyTimeoutAction }
         }
-    }
-
-    /// The policy's timeout value in hours.
-    var policyTimeoutHours: Int {
-        policyTimeoutValue / (60 * 60)
-    }
-
-    /// The policy's timeout value in minutes.
-    var policyTimeoutMinutes: Int {
-        policyTimeoutValue / 60 % 60
     }
 
     /// The policy's maximum vault timeout value.
@@ -242,4 +213,56 @@ struct AccountSecurityState: Equatable {
 
     /// The URL for two step login external link.
     var twoStepLoginUrl: URL?
+
+    // MARK: Computed Properties
+
+    /// The accessibility label used for the custom timeout value.
+    var customTimeoutAccessibilityLabel: String {
+        customTimeoutValueSeconds.timeInHoursMinutes(shouldSpellOut: true)
+    }
+
+    /// The custom session timeout value, in seconds, initially set to 60 seconds.
+    var customTimeoutValueSeconds: Int {
+        guard case let .custom(customValueInMinutes) = sessionTimeoutValue, customValueInMinutes > 0 else {
+            return 60
+        }
+        return customValueInMinutes * 60
+    }
+
+    /// The string representation of the custom session timeout value.
+    var customTimeoutString: String {
+        customTimeoutValueSeconds.timeInHoursMinutes()
+    }
+
+    /// Whether the user has a method to unlock the vault (master password, pin set, or biometrics
+    /// enabled).
+    var hasUnlockMethod: Bool {
+        hasMasterPassword || isUnlockWithPINCodeOn || biometricUnlockStatus.isEnabled
+    }
+
+    /// Whether the lock now button should be visible.
+    var isLockNowVisible: Bool {
+        hasUnlockMethod
+    }
+
+    /// Whether the session timeout row/picker should be disabled.
+    var isSessionTimeoutDisabled: Bool {
+        !hasUnlockMethod
+    }
+
+    /// Whether or not the custom session timeout field is shown.
+    var isShowingCustomTimeout: Bool {
+        guard case .custom = sessionTimeoutValue else { return false }
+        return true
+    }
+
+    /// The policy's timeout value in hours.
+    var policyTimeoutHours: Int {
+        policyTimeoutValue / 60
+    }
+
+    /// The policy's timeout value in minutes.
+    var policyTimeoutMinutes: Int {
+        policyTimeoutValue % 60
+    }
 }

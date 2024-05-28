@@ -85,7 +85,10 @@ class DefaultKeychainService: KeychainService {
     }
 
     func delete(query: CFDictionary) throws {
-        try resolve(SecItemDelete(query))
+        let status = SecItemDelete(query)
+        guard [errSecSuccess, errSecItemNotFound].contains(status) else {
+            throw KeychainServiceError.osStatusError(status)
+        }
     }
 
     func search(query: CFDictionary) throws -> AnyObject? {

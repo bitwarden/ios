@@ -11,30 +11,19 @@ class MockVaultTimeoutService: VaultTimeoutService {
     var sessionTimeoutValueError: Error?
     var vaultTimeout = [String: SessionTimeoutValue]()
 
-    /// ids set as locked
-    var lockedIds = [String?]()
-
-    /// ids removed
+    /// IDs removed.
     var removedIds = [String?]()
 
-    /// ids set as unlocked
-    var unlockedIds = [String?]()
-
-    /// The store of locked status for known accounts
-    var timeoutStore = [String: Bool]()
+    /// Whether or not a user's client is locked.
+    var isClientLocked = [String: Bool]()
 
     func isLocked(userId: String) -> Bool {
-        guard let pair = timeoutStore.first(where: { $0.key == userId }) else {
-            timeoutStore[userId] = true
-            return true
-        }
-        return pair.value
+        isClientLocked[userId] == true
     }
 
     func lockVault(userId: String?) async {
-        lockedIds.append(userId)
         guard let userId else { return }
-        timeoutStore[userId] = true
+        isClientLocked[userId] = true
     }
 
     func setLastActiveTime(userId: String) async throws {
@@ -49,16 +38,13 @@ class MockVaultTimeoutService: VaultTimeoutService {
         shouldSessionTimeout[userId] ?? false
     }
 
-    func unlockVault(userId: String?) async {
-        unlockedIds.append(userId)
+    func unlockVault(userId: String?) async throws {
         guard let userId else { return }
-        timeoutStore[userId] = false
+        isClientLocked[userId] = false
     }
 
     func remove(userId: String?) async {
         removedIds.append(userId)
-        guard let userId else { return }
-        timeoutStore = timeoutStore.filter { $0.key != userId }
     }
 
     func sessionTimeoutValue(userId: String?) async throws -> BitwardenShared.SessionTimeoutValue {

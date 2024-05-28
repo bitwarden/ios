@@ -9,6 +9,7 @@ class MockAppSettingsStore: AppSettingsStore {
     var appId: String?
     var appLocale: String?
     var appTheme: String?
+    var biometricIntegrityStateLegacy: String?
     var disableWebIcons = false
     var lastUserShouldConnectToWatch = false
     var loginRequest: LoginRequestNotification?
@@ -23,6 +24,7 @@ class MockAppSettingsStore: AppSettingsStore {
     var connectToWatchByUserId = [String: Bool]()
     var defaultUriMatchTypeByUserId = [String: UriMatchType]()
     var disableAutoTotpCopyByUserId = [String: Bool]()
+    var encryptedPinByUserId = [String: String]()
     var encryptedPrivateKeys = [String: String]()
     var encryptedUserKeys = [String: String]()
     var lastActiveTime = [String: Date]()
@@ -30,12 +32,13 @@ class MockAppSettingsStore: AppSettingsStore {
     var masterPasswordHashes = [String: String]()
     var notificationsLastRegistrationDates = [String: Date]()
     var passwordGenerationOptions = [String: PasswordGenerationOptions]()
-    var pinKeyEncryptedUserKey = [String: String]()
     var pinProtectedUserKey = [String: String]()
+    var serverConfig = [String: ServerConfig]()
+    var shouldCheckOrganizationUnassignedItems = [String: Bool?]()
     var shouldTrustDevice = [String: Bool?]()
     var timeoutAction = [String: Int]()
     var twoFactorTokens = [String: String]()
-    var vaultTimeout = [String: Int?]()
+    var vaultTimeout = [String: Int]()
     var state: State? {
         didSet {
             activeIdSubject.send(state?.activeUserId)
@@ -67,6 +70,10 @@ class MockAppSettingsStore: AppSettingsStore {
         disableAutoTotpCopyByUserId[userId] ?? false
     }
 
+    func encryptedPin(userId: String) -> String? {
+        encryptedPinByUserId[userId]
+    }
+
     func encryptedPrivateKey(userId: String) -> String? {
         encryptedPrivateKeys[userId]
     }
@@ -95,16 +102,16 @@ class MockAppSettingsStore: AppSettingsStore {
         passwordGenerationOptions[userId]
     }
 
-    func pinKeyEncryptedUserKey(userId: String) -> String? {
-        pinKeyEncryptedUserKey[userId]
-    }
-
     func pinProtectedUserKey(userId: String) -> String? {
         pinProtectedUserKey[userId]
     }
 
     func twoFactorToken(email: String) -> String? {
         twoFactorTokens[email]
+    }
+
+    func serverConfig(userId: String) -> ServerConfig? {
+        serverConfig[userId]
     }
 
     func setAllowSyncOnRefresh(_ allowSyncOnRefresh: Bool?, userId: String) {
@@ -125,6 +132,10 @@ class MockAppSettingsStore: AppSettingsStore {
 
     func setDisableAutoTotpCopy(_ disableAutoTotpCopy: Bool?, userId: String) {
         disableAutoTotpCopyByUserId[userId] = disableAutoTotpCopy
+    }
+
+    func setEncryptedPin(_ encryptedPin: String?, userId: String) {
+        encryptedPinByUserId[userId] = encryptedPin
     }
 
     func setEncryptedPrivateKey(key: String?, userId: String) {
@@ -167,12 +178,16 @@ class MockAppSettingsStore: AppSettingsStore {
         passwordGenerationOptions[userId] = options
     }
 
-    func setPinKeyEncryptedUserKey(key: String?, userId: String) {
-        pinKeyEncryptedUserKey[userId] = key
-    }
-
     func setPinProtectedUserKey(key: String?, userId: String) {
         pinProtectedUserKey[userId] = key
+    }
+
+    func setServerConfig(_ config: ServerConfig?, userId: String) {
+        serverConfig[userId] = config
+    }
+
+    func setShouldCheckOrganizationUnassignedItems(_ shouldCheck: Bool?, userId: String) {
+        shouldCheckOrganizationUnassignedItems[userId] = shouldCheck
     }
 
     func setShouldTrustDevice(shouldTrustDevice: Bool?, userId: String) {
@@ -199,8 +214,12 @@ class MockAppSettingsStore: AppSettingsStore {
         usernameGenerationOptions[userId] = options
     }
 
-    func setVaultTimeout(key: Int, userId: String) {
-        vaultTimeout[userId] = key
+    func setVaultTimeout(minutes: Int, userId: String) {
+        vaultTimeout[userId] = minutes
+    }
+
+    func shouldCheckOrganizationUnassignedItems(userId: String) -> Bool? {
+        shouldCheckOrganizationUnassignedItems[userId] ?? nil
     }
 
     func shouldTrustDevice(userId: String) -> Bool? {
@@ -220,7 +239,7 @@ class MockAppSettingsStore: AppSettingsStore {
     }
 
     func vaultTimeout(userId: String) -> Int? {
-        vaultTimeout[userId] ?? 0
+        vaultTimeout[userId]
     }
 
     func activeAccountIdPublisher() -> AnyPublisher<String?, Never> {

@@ -28,6 +28,9 @@ class MockAuthRepository: AuthRepository {
     var passwordStrengthResult: UInt8 = 0
     var pinProtectedUserKey = "123"
     var profileSwitcherState: ProfileSwitcherState?
+    var requestOtpCalled = false
+    var requestOtpResult: Result<Void, Error> = .success(())
+    var sessionTimeoutAction = [String: SessionTimeoutAction]()
     var setActiveAccountId: String?
     var setActiveAccountError: Error?
     var setMasterPasswordHint: String?
@@ -36,6 +39,7 @@ class MockAuthRepository: AuthRepository {
     var setMasterPasswordOrganizationIdentifier: String?
     var setMasterPasswordResetPasswordAutoEnroll: Bool?
     var setMasterPasswordResult: Result<Void, Error> = .success(())
+    var setPinsResult: Result<Void, Error> = .success(())
     var setVaultTimeoutError: Error?
     var unlockVaultFromLoginWithDeviceKey: String?
     var unlockVaultFromLoginWithDeviceMasterPasswordHash: String? // swiftlint:disable:this identifier_name
@@ -50,6 +54,8 @@ class MockAuthRepository: AuthRepository {
     var unlockVaultWithBiometricsResult: Result<Void, Error> = .success(())
     var unlockVaultWithDeviceKeyResult: Result<Void, Error> = .success(())
     var unlockVaultWithNeverlockResult: Result<Void, Error> = .success(())
+    var verifyOtpOpt: String?
+    var verifyOtpResult: Result<Void, Error> = .success(())
 
     var allAccounts: [Account] {
         let combined = [activeAccount] + altAccounts
@@ -82,7 +88,7 @@ class MockAuthRepository: AuthRepository {
         try createNewSsoUserResult.get()
     }
 
-    func deleteAccount(passwordText _: String) async throws {
+    func deleteAccount(otp: String?, passwordText _: String?) async throws {
         deleteAccountCalled = true
     }
 
@@ -160,6 +166,11 @@ class MockAuthRepository: AuthRepository {
         try logoutResult.get()
     }
 
+    func requestOtp() async throws {
+        requestOtpCalled = true
+        try requestOtpResult.get()
+    }
+
     func setActiveAccount(userId: String) async throws -> Account {
         setActiveAccountId = userId
         let priorActive = activeAccount
@@ -176,6 +187,12 @@ class MockAuthRepository: AuthRepository {
     func setPins(_ pin: String, requirePasswordAfterRestart _: Bool) async throws {
         encryptedPin = pin
         pinProtectedUserKey = pin
+        try setPinsResult.get()
+    }
+
+    func sessionTimeoutAction(userId: String?) async throws -> SessionTimeoutAction {
+        let userId = try unwrapUserId(userId)
+        return sessionTimeoutAction[userId] ?? .lock
     }
 
     func sessionTimeoutValue(userId: String?) async throws -> BitwardenShared.SessionTimeoutValue {
@@ -268,5 +285,10 @@ class MockAuthRepository: AuthRepository {
     func validatePassword(_ password: String) async throws -> Bool {
         validatePasswordPasswords.append(password)
         return try validatePasswordResult.get()
+    }
+
+    func verifyOtp(_ otp: String) async throws {
+        verifyOtpOpt = otp
+        try verifyOtpResult.get()
     }
 }

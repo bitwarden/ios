@@ -75,6 +75,12 @@ protocol SyncServiceDelegate: AnyObject {
     /// - Parameter userId: The user ID of the user who's security stamp changed.
     ///
     func securityStampChanged(userId: String) async
+
+    /// The user's profile changed and needs to set password.
+    ///
+    /// - Parameter orgIdentifier: The organization Identifier the user belongs to.
+    ///
+    func setMasterPassword(orgIdentifier: String) async
 }
 
 // MARK: - DefaultSyncService
@@ -90,8 +96,8 @@ class DefaultSyncService: SyncService {
     /// The service for managing the ciphers for the user.
     private let cipherService: CipherService
 
-    /// The client used by the application to handle vault encryption and decryption tasks.
-    private let clientVault: ClientVaultService
+    /// The service that handles common client functionality such as encryption and decryption.
+    private let clientService: ClientService
 
     /// The service for managing the collections for the user.
     private let collectionService: CollectionService
@@ -130,8 +136,7 @@ class DefaultSyncService: SyncService {
     /// - Parameters:
     ///   - accountAPIService: The services used by the application to make account related API requests.
     ///   - cipherService: The service for managing the ciphers for the user.
-    ///   - clientVault: The client used by the application to handle vault encryption and
-    ///     decryption tasks.
+    ///   - clientService: The service that handles common client functionality such as encryption and decryption.
     ///   - collectionService: The service for managing the collections for the user.
     ///   - folderService: The service for managing the folders for the user.
     ///   - organizationService: The service for managing the organizations for the user.
@@ -145,7 +150,7 @@ class DefaultSyncService: SyncService {
     init(
         accountAPIService: AccountAPIService,
         cipherService: CipherService,
-        clientVault: ClientVaultService,
+        clientService: ClientService,
         collectionService: CollectionService,
         folderService: FolderService,
         organizationService: OrganizationService,
@@ -158,7 +163,7 @@ class DefaultSyncService: SyncService {
     ) {
         self.accountAPIService = accountAPIService
         self.cipherService = cipherService
-        self.clientVault = clientVault
+        self.clientService = clientService
         self.collectionService = collectionService
         self.folderService = folderService
         self.organizationService = organizationService
@@ -232,10 +237,11 @@ extension DefaultSyncService {
         }
 
         if let organizations = response.profile?.organizations {
-            await organizationService.initializeOrganizationCrypto(
+            try await organizationService.initializeOrganizationCrypto(
                 organizations: organizations.compactMap(Organization.init)
             )
             try await organizationService.replaceOrganizations(organizations, userId: userId)
+            try await checkTdeUserNeedsToSetPassword(account, organizations)
         }
 
         if let profile = response.profile {
@@ -266,9 +272,9 @@ extension DefaultSyncService {
         try await folderService.deleteFolderWithLocalStorage(id: data.id)
 
         let updatedCiphers = try await cipherService.fetchAllCiphers()
-            .asyncMap { try await clientVault.ciphers().decrypt(cipher: $0) }
+            .asyncMap { try await clientService.vault().ciphers().decrypt(cipher: $0) }
             .map { $0.update(folderId: nil) }
-            .asyncMap { try await clientVault.ciphers().encrypt(cipherView: $0) }
+            .asyncMap { try await clientService.vault().ciphers().encrypt(cipherView: $0) }
 
         for cipher in updatedCiphers {
             try await cipherService.updateCipherWithLocalStorage(cipher)
@@ -319,7 +325,7 @@ extension DefaultSyncService {
         let userId = try await stateService.getActiveAccountId()
         guard userId == data.userId else { return }
 
-        // If the local data is more recent than the nofication, skip the sync.
+        // If the local data is more recent than the notification, skip the sync.
         let localFolder = try await folderService.fetchFolder(id: data.id)
         if let localFolder, let revisionDate = data.revisionDate, localFolder.revisionDate >= revisionDate {
             return
@@ -338,7 +344,7 @@ extension DefaultSyncService {
         let userId = try await stateService.getActiveAccountId()
         guard userId == data.userId else { return }
 
-        // If the local data is more recent than the nofication, skip the sync.
+        // If the local data is more recent than the notification, skip the sync.
         let localSend = try await sendService.fetchSend(id: data.id)
         if let localSend, let revisionDate = data.revisionDate, localSend.revisionDate >= revisionDate {
             return
@@ -382,4 +388,20 @@ extension DefaultSyncService {
 
         try await stateService.setTimeoutAction(action: action ?? timeoutAction)
     }
-}
+
+    /// Checks if TDE user needs to set a master password
+    ///
+    /// TDE users can only have one organization
+    ///
+    private func checkTdeUserNeedsToSetPassword(
+        _ account: Account,
+        _ organizations: [ProfileOrganizationResponseModel]
+    ) async throws {
+        if organizations.count == 1,
+           organizations.contains(where: \.passwordRequired),
+           let userOrgId = organizations.first?.identifier,
+           account.profile.userDecryptionOptions?.hasMasterPassword == false {
+            await delegate?.setMasterPassword(orgIdentifier: userOrgId)
+        }
+    }
+} // swiftlint:disable:this file_length

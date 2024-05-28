@@ -11,6 +11,7 @@ final class ExportVaultProcessor: StateProcessor<ExportVaultState, ExportVaultAc
         & HasErrorReporter
         & HasExportVaultService
         & HasPolicyService
+        & HasStateService
 
     // MARK: Properties
 
@@ -48,6 +49,8 @@ final class ExportVaultProcessor: StateProcessor<ExportVaultState, ExportVaultAc
         switch effect {
         case .loadData:
             await loadData()
+        case .sendCodeTapped:
+            await sendVerificationCode()
         }
     }
 
@@ -65,12 +68,14 @@ final class ExportVaultProcessor: StateProcessor<ExportVaultState, ExportVaultAc
             updatePasswordStrength()
         case let .filePasswordConfirmationTextChanged(newValue):
             state.filePasswordConfirmationText = newValue
-        case let .masterPasswordTextChanged(newValue):
-            state.masterPasswordText = newValue
+        case let .masterPasswordOrOtpTextChanged(newValue):
+            state.masterPasswordOrOtpText = newValue
+        case let .toastShown(newValue):
+            state.toast = newValue
         case let .toggleFilePasswordVisibility(isOn):
             state.isFilePasswordVisible = isOn
-        case let .toggleMasterPasswordVisibility(isOn):
-            state.isMasterPasswordVisible = isOn
+        case let .toggleMasterPasswordOrOtpVisibility(isOn):
+            state.isMasterPasswordOrOtpVisible = isOn
         }
     }
 
@@ -86,7 +91,7 @@ final class ExportVaultProcessor: StateProcessor<ExportVaultState, ExportVaultAc
         coordinator.showAlert(.confirmExportVault(encrypted: encrypted) {
             // Validate the password before exporting the vault.
             guard await self.validatePassword() else {
-                return self.coordinator.showAlert(.defaultAlert(title: Localizations.invalidMasterPassword))
+                return
             }
 
             do {
@@ -97,7 +102,8 @@ final class ExportVaultProcessor: StateProcessor<ExportVaultState, ExportVaultAc
                 self.state.filePasswordText = ""
                 self.state.filePasswordConfirmationText = ""
                 self.state.filePasswordStrengthScore = nil
-                self.state.masterPasswordText = ""
+                self.state.isSendCodeButtonDisabled = false
+                self.state.masterPasswordOrOtpText = ""
             } catch {
                 self.services.errorReporter.log(error: error)
             }
@@ -131,6 +137,29 @@ final class ExportVaultProcessor: StateProcessor<ExportVaultState, ExportVaultAc
         state.disableIndividualVaultExport = await services.policyService.policyAppliesToUser(
             .disablePersonalVaultExport
         )
+
+        do {
+            state.hasMasterPassword = try await services.stateService.getUserHasMasterPassword()
+        } catch {
+            coordinator.showAlert(.defaultAlert(title: Localizations.anErrorHasOccurred))
+            services.errorReporter.log(error: error)
+        }
+    }
+
+    /// Sends a one-time password code to the user for verification.
+    ///
+    private func sendVerificationCode() async {
+        coordinator.showLoadingOverlay(LoadingOverlayState(title: Localizations.sendingCode))
+        defer { coordinator.hideLoadingOverlay() }
+
+        do {
+            try await services.authRepository.requestOtp()
+            state.isSendCodeButtonDisabled = true
+            state.toast = Toast(text: Localizations.codeSent)
+        } catch {
+            coordinator.showAlert(.networkResponseError(error))
+            services.errorReporter.log(error: error)
+        }
     }
 
     /// Updates state's password strength score based on the user's entered password.
@@ -141,7 +170,7 @@ final class ExportVaultProcessor: StateProcessor<ExportVaultState, ExportVaultAc
             return
         }
         Task {
-            state.filePasswordStrengthScore = await services.authRepository.passwordStrength(
+            state.filePasswordStrengthScore = try? await services.authRepository.passwordStrength(
                 email: "",
                 password: state.filePasswordText
             )
@@ -166,8 +195,8 @@ final class ExportVaultProcessor: StateProcessor<ExportVaultState, ExportVaultAc
                 }
             }
 
-            try EmptyInputValidator(fieldName: Localizations.masterPassword)
-                .validate(input: state.masterPasswordText)
+            try EmptyInputValidator(fieldName: state.masterPasswordOrOtpTitle)
+                .validate(input: state.masterPasswordOrOtpText)
 
             confirmExportVault()
         } catch let error as InputValidationError {
@@ -178,14 +207,28 @@ final class ExportVaultProcessor: StateProcessor<ExportVaultState, ExportVaultAc
         }
     }
 
-    /// Validate the password.
+    /// Validate the password or OTP code.
     ///
-    /// - Returns: `true` if the password is valid.
+    /// - Returns: `true` if the password or OTP code is valid.
     ///
     private func validatePassword() async -> Bool {
         do {
-            return try await services.authRepository.validatePassword(state.masterPasswordText)
+            if state.hasMasterPassword {
+                let isValid = try await services.authRepository.validatePassword(state.masterPasswordOrOtpText)
+                guard isValid else {
+                    coordinator.showAlert(.defaultAlert(title: Localizations.invalidMasterPassword))
+                    return false
+                }
+                return true
+            } else {
+                try await services.authRepository.verifyOtp(state.masterPasswordOrOtpText)
+                return true
+            }
+        } catch ServerError.error {
+            coordinator.showAlert(.defaultAlert(title: Localizations.invalidVerificationCode))
+            return false
         } catch {
+            coordinator.showAlert(.networkResponseError(error))
             services.errorReporter.log(error: error)
             return false
         }

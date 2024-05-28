@@ -12,6 +12,7 @@ final class ViewItemProcessor: StateProcessor<ViewItemState, ViewItemAction, Vie
         & HasAuthRepository
         & HasErrorReporter
         & HasPasteboardService
+        & HasStateService
         & HasVaultRepository
 
     // MARK: Subtypes
@@ -421,8 +422,8 @@ private extension ViewItemProcessor {
             for try await cipher in try await services.vaultRepository.cipherDetailsPublisher(id: itemId) {
                 guard let cipher else { continue }
 
-                let hasPremium = await (try? services.vaultRepository.doesActiveAccountHavePremium())
-                    ?? false
+                let hasPremium = await (try? services.vaultRepository.doesActiveAccountHavePremium()) ?? false
+                let hasMasterPassword = try await services.stateService.getUserHasMasterPassword()
 
                 var totpState = LoginTOTPState(cipher.login?.totp)
                 if let key = totpState.authKeyModel,
@@ -430,7 +431,12 @@ private extension ViewItemProcessor {
                     totpState = updatedState
                 }
 
-                guard var newState = ViewItemState(cipherView: cipher, hasPremium: hasPremium) else { continue }
+                guard var newState = ViewItemState(
+                    cipherView: cipher,
+                    hasMasterPassword: hasMasterPassword,
+                    hasPremium: hasPremium
+                ) else { continue }
+
                 if case var .data(itemState) = newState.loadingState {
                     itemState.loginState.totpState = totpState
                     newState.loadingState = .data(itemState)
