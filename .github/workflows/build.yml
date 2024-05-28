@@ -277,7 +277,8 @@ jobs:
       
       - name: Upload app to TestFlight with Fastlane
         run: |
+          NEWLINE=$'\n'
           fastlane upload_build \
             api_key_path:"$HOME/secrets/appstoreconnect-fastlane.json" \
-            changelog:"$(git show -s --format=%s)\n$GITHUB_REPOSITORY/$GITHUB_REF_NAME @ $GITHUB_SHA\n$GITHUB_SERVER_URL/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID" \
+            changelog:"$(git show -s --format=%s)$NEWLINE$GITHUB_REPOSITORY/$GITHUB_REF_NAME @ $GITHUB_SHA$NEWLINE$GITHUB_SERVER_URL/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID" \
             ipa_path:"build/Bitwarden/Bitwarden.ipa"
