@@ -420,6 +420,14 @@ public enum WebAuthnError: Error {
 }
 
 extension TwoFactorAuthProcessor: WebAuthnFlowDelegate {
+    private struct WebAuthnStruct: Codable {
+        let callbackUri: URL
+        let data: String
+        let headerText: String
+        let btnText: String
+        let btnReturnText: String
+    }
+
     func webAuthnCompleted(token: String) {
         Task {
             state.verificationCode = token
@@ -447,20 +455,31 @@ extension TwoFactorAuthProcessor: WebAuthnFlowDelegate {
                let challengeUrlDecode = try? challenge.urlDecoded(),
                let challengeData = Data(base64Encoded: challengeUrlDecode),
                let allowCredentials = webAuthnProvider.allowCredentials {
-                try coordinator.navigate(
-                    to: .webAuthn(rpid: rpID,
-                                  challenge: challengeData,
-                                  allowCredentialIDs: allowCredentials.map { credential in
-                                      guard let id = credential.id,
-                                            let idUrlDecoded = try? id.urlDecoded(),
-                                            let idData = Data(base64Encoded: idUrlDecoded) else {
-                                          throw WebAuthnError.unableToDecodeCredential
-                                      }
-                                      return idData
-                                  },
-                                  userVerificationPreference: userVerificationPreference),
-                    context: self
-                )
+                if services.environmentService.region == .selfHosted {
+                    let authUrl = try webAuthnUrl(
+                        baseUrl: services.environmentService.webVaultURL,
+                        data: webAuthnProvider,
+                        headerText: Localizations.fido2Title,
+                        buttonText: Localizations.fido2AuthenticateWebAuthn,
+                        returnButtonText: Localizations.fido2ReturnToApp
+                    )
+                    coordinator.navigate(to: .webAuthnSelfHosted(authUrl), context: self)
+                } else {
+                    try coordinator.navigate(
+                        to: .webAuthn(rpid: rpID,
+                                      challenge: challengeData,
+                                      allowCredentialIDs: allowCredentials.map { credential in
+                                          guard let id = credential.id,
+                                                let idUrlDecoded = try? id.urlDecoded(),
+                                                let idData = Data(base64Encoded: idUrlDecoded) else {
+                                              throw WebAuthnError.unableToDecodeCredential
+                                          }
+                                          return idData
+                                      },
+                                      userVerificationPreference: userVerificationPreference),
+                        context: self
+                    )
+                }
             } else {
                 throw WebAuthnError.requiredParametersMissing
             }
@@ -470,6 +489,46 @@ extension TwoFactorAuthProcessor: WebAuthnFlowDelegate {
                 message: Localizations.thereWasAnErrorStartingWebAuthnTwoFactorAuthentication
             ))
             services.errorReporter.log(error: error)
+        }
+    }
+
+    /// Generates a URL to display a WebAuthn challenge for Self-Hosted vault authentication.
+    ///
+    private func webAuthnUrl(
+        baseUrl: URL,
+        data: WebAuthn,
+        headerText: String,
+        buttonText: String,
+        returnButtonText: String
+    ) throws -> URL {
+        let encoder = JSONEncoder()
+        let callbackUrlString = "bitwarden://webauthn-callback"
+        let encodedCallback = callbackUrlString.urlEncoded()
+        let webstruct = try WebAuthnStruct(
+            callbackUri: URL(string: callbackUrlString)!,
+            data: String(data: encoder.encode(data), encoding: .utf8)!,
+            headerText: headerText,
+            btnText: buttonText,
+            btnReturnText: returnButtonText
+        )
+        let jsonData = try encoder.encode(webstruct)
+        let base64string = jsonData.base64EncodedString()
+
+        if #available(iOS 16.0, iOSApplicationExtension 16.0, *) {
+            return baseUrl
+                .appending(path: "/webauthn-mobile-connector.html")
+                .appending(queryItems: [
+                    URLQueryItem(name: "data", value: base64string),
+                    URLQueryItem(name: "parent", value: encodedCallback),
+                    URLQueryItem(name: "v", value: "2"),
+                ])
+        } else {
+            let returnedString: String = baseUrl.absoluteString
+                + "/webauthn-mobile-connector.html"
+                + "?data=" + base64string
+                + "&parent=" + encodedCallback
+                + "&v=2"
+            return URL(string: returnedString)!
         }
     }
 } // swiftlint:disable:this file_length
