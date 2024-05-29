@@ -225,7 +225,7 @@ jobs:
         run: |
           plutil -replace ITSEncryptionExportComplianceCode -string 3dd3e32f-efa6-4d99-b410-28aa28b1cb77 Bitwarden/Application/Support/Info.plist
 
-      - name: Update beta Appfile
+      - name: Update beta Fastlane Appfile
         if: env.build-variant == 'Beta'
         run: |
           echo 'app_identifier "com.8bit.bitwarden.beta"' > fastlane/Appfile
@@ -234,9 +234,9 @@ jobs:
         run: |
           plutil -replace aps-environment -string production Bitwarden/Application/Support/Bitwarden.entitlements
 
-      - name: Install Mint, xcbeautify, and yq
+      - name: Install Fastlane, Mint, xcbeautify, and yq
         run: |
-          brew install mint xcbeautify yq fastlane
+          brew install fastlane mint xcbeautify yq
 
       - name: Install Mint packages
         if: steps.mint-cache.outputs.cache-hit != 'true'
