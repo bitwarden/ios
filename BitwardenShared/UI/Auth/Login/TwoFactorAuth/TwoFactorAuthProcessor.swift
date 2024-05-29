@@ -456,14 +456,18 @@ extension TwoFactorAuthProcessor: WebAuthnFlowDelegate {
                let challengeData = Data(base64Encoded: challengeUrlDecode),
                let allowCredentials = webAuthnProvider.allowCredentials {
                 if services.environmentService.region == .selfHosted {
-                    let authUrl = try webAuthnUrl(
-                        baseUrl: services.environmentService.webVaultURL,
-                        data: webAuthnProvider,
-                        headerText: Localizations.fido2Title,
-                        buttonText: Localizations.fido2AuthenticateWebAuthn,
-                        returnButtonText: Localizations.fido2ReturnToApp
+                    try coordinator.navigate(
+                        to: .webAuthnSelfHosted(
+                            webAuthnUrl(
+                                baseUrl: services.environmentService.webVaultURL,
+                                data: webAuthnProvider,
+                                headerText: Localizations.fido2Title,
+                                buttonText: Localizations.fido2AuthenticateWebAuthn,
+                                returnButtonText: Localizations.fido2ReturnToApp
+                            )
+                        ),
+                        context: self
                     )
-                    coordinator.navigate(to: .webAuthnSelfHosted(authUrl), context: self)
                 } else {
                     try coordinator.navigate(
                         to: .webAuthn(rpid: rpID,
