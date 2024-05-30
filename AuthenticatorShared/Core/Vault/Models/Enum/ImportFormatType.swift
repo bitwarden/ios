@@ -8,6 +8,9 @@ enum ImportFormatType: Menuable {
     /// A JSON exported from Bitwarden
     case bitwardenJson
 
+    /// A QR code containing protobuf-encoded data exported from Google
+    case googleQr
+
     /// A JSON exported from Lastpass
     case lastpassJson
 
@@ -22,6 +25,7 @@ enum ImportFormatType: Menuable {
     /// The ordered list of options to display in the menu.
     static let allCases: [ImportFormatType] = [
         .bitwardenJson,
+        .googleQr,
         .lastpassJson,
         .raivoJson,
         .twoFasJason,
@@ -30,12 +34,16 @@ enum ImportFormatType: Menuable {
     // MARK: Properties
 
     /// The file selection route to use for finding files of this type.
-    var fileSelectionRoute: FileSelectionRoute {
+    /// When this returns `nil`, that means some other method needs to be used
+    /// (notably probably QR code scanning)
+    var fileSelectionRoute: FileSelectionRoute? {
         switch self {
         case .bitwardenJson,
              .lastpassJson,
              .raivoJson:
             return .jsonFile
+        case .googleQr:
+            return nil
         case .twoFasJason:
             return .file
         }
@@ -46,6 +54,8 @@ enum ImportFormatType: Menuable {
         switch self {
         case .bitwardenJson:
             "Authenticator Export (JSON)"
+        case .googleQr:
+            "Google Authenticator (QR code)"
         case .lastpassJson:
             "LastPass (JSON)"
         case .raivoJson:

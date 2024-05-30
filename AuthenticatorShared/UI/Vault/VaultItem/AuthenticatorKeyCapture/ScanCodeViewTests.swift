@@ -17,7 +17,7 @@ class ScanCodeViewTests: AuthenticatorTestCase {
 
     override func setUp() {
         super.setUp()
-        processor = MockProcessor(state: .init())
+        processor = MockProcessor(state: ScanCodeState(showManualEntry: true))
         let store = Store(processor: processor)
         subject = ScanCodeView(
             cameraSession: .init(),

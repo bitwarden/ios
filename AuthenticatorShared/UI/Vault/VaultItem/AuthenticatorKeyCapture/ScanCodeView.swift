@@ -54,22 +54,24 @@ struct ScanCodeView: View {
                 .multilineTextAlignment(.center)
                 .dynamicTypeSize(...maxDynamicTypeSize)
                 .foregroundColor(.white)
-            Spacer()
-            Button(
-                action: { store.send(.manualEntryPressed) },
-                label: {
-                    Group {
-                        Text(Localizations.cannotScanQRCode + " ")
-                            .foregroundColor(.white)
-                            + Text(Localizations.enterKeyManually)
-                            .foregroundColor(Asset.Colors.primaryBitwardenDark.swiftUIColor)
+            if store.state.showManualEntry {
+                Spacer()
+                Button(
+                    action: { store.send(.manualEntryPressed) },
+                    label: {
+                        Group {
+                            Text(Localizations.cannotScanQRCode + " ")
+                                .foregroundColor(.white)
+                                + Text(Localizations.enterKeyManually)
+                                .foregroundColor(Asset.Colors.primaryBitwardenDark.swiftUIColor)
+                        }
+                        .styleGuide(.body)
+                        .multilineTextAlignment(.center)
+                        .dynamicTypeSize(...maxDynamicTypeSize)
                     }
-                    .styleGuide(.body)
-                    .multilineTextAlignment(.center)
-                    .dynamicTypeSize(...maxDynamicTypeSize)
-                }
-            )
-            .buttonStyle(InlineButtonStyle())
+                )
+                .buttonStyle(InlineButtonStyle())
+            }
         }
     }
 
@@ -147,7 +149,7 @@ struct ScanCodeView_Previews: PreviewProvider {
                 cameraSession: AVCaptureSession(),
                 store: Store(
                     processor: StateProcessor(
-                        state: ScanCodeState()
+                        state: ScanCodeState(showManualEntry: true)
                     )
                 )
             )

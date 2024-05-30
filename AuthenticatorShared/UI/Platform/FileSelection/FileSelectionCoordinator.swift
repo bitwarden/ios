@@ -60,6 +60,8 @@ class FileSelectionCoordinator: NSObject, Coordinator, HasStackNavigator {
         }
     }
 
+    func handleEvent(_ event: FileSelectionEvent, context: AnyObject?) async {}
+
     func start() {}
 
     // MARK: Private Methods

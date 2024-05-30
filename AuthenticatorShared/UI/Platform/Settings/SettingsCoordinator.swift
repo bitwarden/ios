@@ -12,6 +12,7 @@ final class SettingsCoordinator: Coordinator, HasStackNavigator {
         & TutorialModule
 
     typealias Services = HasBiometricsRepository
+        & HasCameraService
         & HasErrorReporter
         & HasExportItemsService
         & HasImportItemsService
@@ -23,7 +24,7 @@ final class SettingsCoordinator: Coordinator, HasStackNavigator {
 
     /// The most recent coordinator used to navigate to a `FileSelectionRoute`. Used to keep the
     /// coordinator in memory.
-    private var fileSelectionCoordinator: AnyCoordinator<FileSelectionRoute, Void>?
+    private var fileSelectionCoordinator: AnyCoordinator<FileSelectionRoute, FileSelectionEvent>?
 
     /// The module used to create child coordinators.
     private let module: Module
@@ -58,7 +59,13 @@ final class SettingsCoordinator: Coordinator, HasStackNavigator {
 
     // MARK: Methods
 
-    func handleEvent(_ event: SettingsEvent, context: AnyObject?) async {}
+    func handleEvent(_ event: SettingsEvent, context: AnyObject?) async {
+        switch event {
+        case .importItemsQrCode:
+            guard let delegate = context as? AuthenticatorKeyCaptureDelegate else { return }
+            await showImportItemsQrCode(delegate: delegate)
+        }
+    }
 
     func navigate(to route: SettingsRoute, context: AnyObject?) {
         switch route {
@@ -135,6 +142,20 @@ final class SettingsCoordinator: Coordinator, HasStackNavigator {
         coordinator.start()
         coordinator.navigate(to: route)
         fileSelectionCoordinator = coordinator
+    }
+
+    private func showImportItemsQrCode(delegate: AuthenticatorKeyCaptureDelegate) async {
+        let navigationController = UINavigationController()
+        let coordinator = AuthenticatorKeyCaptureCoordinator(
+            delegate: delegate,
+            services: services,
+            showManualEntry: false,
+            stackNavigator: navigationController
+        )
+        coordinator.start()
+
+        await coordinator.handleEvent(.showScanCode, context: self)
+        stackNavigator?.present(navigationController)
     }
 
     /// Shows the select language screen.

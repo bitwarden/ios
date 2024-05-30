@@ -64,6 +64,9 @@ final class AuthenticatorKeyCaptureCoordinator: Coordinator, HasStackNavigator {
     /// A delegate that responds to events in this coordinator.
     private weak var delegate: AuthenticatorKeyCaptureDelegate?
 
+    /// Whether or not to show options for manual entry
+    private let showManualEntry: Bool
+
     // MARK: Properties
 
     /// The services used by this coordinator.
@@ -84,10 +87,12 @@ final class AuthenticatorKeyCaptureCoordinator: Coordinator, HasStackNavigator {
     init(
         delegate: AuthenticatorKeyCaptureDelegate?,
         services: Services,
+        showManualEntry: Bool = true,
         stackNavigator: StackNavigator
     ) {
         self.delegate = delegate
         self.services = services
+        self.showManualEntry = showManualEntry
         self.stackNavigator = stackNavigator
     }
 
@@ -169,7 +174,7 @@ final class AuthenticatorKeyCaptureCoordinator: Coordinator, HasStackNavigator {
         let processor = ScanCodeProcessor(
             coordinator: asAnyCoordinator(),
             services: services,
-            state: .init()
+            state: ScanCodeState(showManualEntry: showManualEntry)
         )
         let store = Store(processor: processor)
         let view = ScanCodeView(
@@ -182,6 +187,7 @@ final class AuthenticatorKeyCaptureCoordinator: Coordinator, HasStackNavigator {
     /// Shows the totp manual setup screen.
     ///
     private func showManualTotp() {
+        guard showManualEntry else { return }
         let processor = ManualEntryProcessor(
             coordinator: asAnyCoordinator(),
             services: services,

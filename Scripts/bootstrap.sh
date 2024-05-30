@@ -4,4 +4,4 @@ set -euo pipefail
 
 mint bootstrap
 
-mint run xcodegen xcodegen
+mint run xcodegen --use-cache

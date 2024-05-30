@@ -130,9 +130,9 @@ jobs:
           AUTHENTICATOR_UUID=$(grep UUID -A1 -a $AUTHENTICATOR_PROFILE_PATH | grep -io "[-A-F0-9]\{36\}")
           cp $AUTHENTICATOR_PROFILE_PATH "$PROFILES_DIR_PATH/$AUTHENTICATOR_UUID.mobileprovision"
 
-      - name: Install Mint, xcbeautify, and yq
+      - name: Install Mint, protobuf, xcbeautify, and yq
         run: |
-          brew install mint xcbeautify yq
+          brew install mint swift-protobuf xcbeautify yq
 
       - name: Install Mint packages
         if: steps.mint-cache.outputs.cache-hit != 'true'

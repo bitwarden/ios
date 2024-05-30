@@ -25,7 +25,7 @@ final class ScanCodeProcessorTests: AuthenticatorTestCase {
                 cameraService: cameraService,
                 errorReporter: errorReporter
             ),
-            state: .init()
+            state: ScanCodeState(showManualEntry: true)
         )
     }
 

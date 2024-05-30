@@ -26,6 +26,9 @@ packages:
   SnapshotTesting:
     url: https://github.com/pointfreeco/swift-snapshot-testing
     exactVersion: 1.15.2
+  SwiftProtobuf:
+    url: https://github.com/apple/swift-protobuf
+    exactVersion: 1.26.0
   ViewInspector:
     url: https://github.com/nalexn/ViewInspector
     exactVersion: 0.9.9
@@ -162,17 +165,33 @@ targets:
         optional: true
       - path: AuthenticatorShared/UI/Platform/Application/Support/Generated/Localizations.swift
         optional: true
+      - path: AuthenticatorShared/Core/Vault/Services/Importers/Support/Generated/GoogleAuth.pb.swift
+        optional: true
     dependencies:
       - package: BitwardenSdk
       - package: Networking
+      - package: SwiftProtobuf
     preBuildScripts:
       - name: SwiftGen
         script: |
-            mint run swiftgen config run --config "swiftgen.yml"
+          if [[ ! "$PATH" =~ "/opt/homebrew/bin" ]]; then
+            PATH="/opt/homebrew/bin:$PATH"
+          fi
+          mint run swiftgen config run --config "swiftgen.yml"
         basedOnDependencyAnalysis: false
         outputFiles:
           - $(SRCROOT)/AuthenticatorShared/UI/Platform/Application/Support/Generated/Assets.swift
           - $(SRCROOT)/AuthenticatorShared/UI/Platform/Application/Support/Generated/Localizations.swift
+      - name: Protobuf
+        script: |
+          if [[ ! "$PATH" =~ "/opt/homebrew/bin" ]]; then
+            PATH="/opt/homebrew/bin:$PATH"
+          fi
+          protoc --proto_path=$SRCROOT/AuthenticatorShared/Core/Vault/Services/Importers/Support \
+                 --swift_out=$SRCROOT/AuthenticatorShared/Core/Vault/Services/Importers/Support/Generated \
+                 $SRCROOT/AuthenticatorShared/Core/Vault/Services/Importers/Support/GoogleAuth.proto
+        outputFiles:
+          - $(SRCROOT)/AuthenticatorShared/Core/Vault/Services/Importers/Support/Generated/GoogleAuth.pb.swift
   AuthenticatorSharedTests:
     type: bundle.unit-test
     platform: iOS

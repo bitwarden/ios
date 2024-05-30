@@ -48,7 +48,7 @@ jobs:
 
       - name: Setup
         run: |
-          brew install mint xcbeautify
+          brew install mint swift-protobuf xcbeautify
           ./Scripts/bootstrap.sh
 
       - name: Build and Test

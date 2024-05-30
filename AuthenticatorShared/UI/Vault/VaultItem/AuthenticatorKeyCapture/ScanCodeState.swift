@@ -4,4 +4,7 @@ import AVFoundation
 
 /// State to define the status of scanning a QR code.
 ///
-struct ScanCodeState: Equatable {}
+struct ScanCodeState: Equatable {
+    /// Whether or not to show an option for manual entry
+    var showManualEntry: Bool
+}
