@@ -229,11 +229,11 @@ class TwoFactorAuthProcessorTests: BitwardenTestCase { // swiftlint:disable:this
         let encoder = JSONEncoder()
         encoder.outputFormatting = .sortedKeys
         let connectorData = try TwoFactorAuthProcessor.WebAuthnConnectorData(
+            btnReturnText: Localizations.fido2ReturnToApp,
+            btnText: Localizations.fido2AuthenticateWebAuthn,
             callbackUri: URL(string: "bitwarden://webauthn-callback")!,
             data: String(data: encoder.encode(testData.webAuthn), encoding: .utf8)!,
-            headerText: Localizations.fido2Title,
-            btnText: Localizations.fido2AuthenticateWebAuthn,
-            btnReturnText: Localizations.fido2ReturnToApp
+            headerText: Localizations.fido2Title
         )
         let expectedUrl = try URL(string: "https://example.com")!
             .appending(path: "/webauthn-mobile-connector.html")

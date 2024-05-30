@@ -422,11 +422,11 @@ public enum WebAuthnError: Error {
 
 extension TwoFactorAuthProcessor: WebAuthnFlowDelegate {
     struct WebAuthnConnectorData: Codable, Equatable {
+        let btnReturnText: String
+        let btnText: String
         let callbackUri: URL
         let data: String
         let headerText: String
-        let btnText: String
-        let btnReturnText: String
     }
 
     func webAuthnCompleted(token: String) {
@@ -511,11 +511,11 @@ extension TwoFactorAuthProcessor: WebAuthnFlowDelegate {
         let callbackUrlString = "bitwarden://webauthn-callback"
         let encodedCallback = callbackUrlString.urlEncoded()
         let connectorData = try WebAuthnConnectorData(
+            btnReturnText: returnButtonText,
+            btnText: buttonText,
             callbackUri: URL(string: callbackUrlString)!,
             data: String(data: encoder.encode(data), encoding: .utf8)!,
-            headerText: headerText,
-            btnText: buttonText,
-            btnReturnText: returnButtonText
+            headerText: headerText
         )
         let jsonData = try encoder.encode(connectorData)
         let base64string = jsonData.base64EncodedString()
