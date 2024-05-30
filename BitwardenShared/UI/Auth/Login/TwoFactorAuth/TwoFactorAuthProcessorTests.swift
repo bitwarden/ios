@@ -251,24 +251,19 @@ class TwoFactorAuthProcessorTests: BitwardenTestCase { // swiftlint:disable:this
             coordinator.routes.last,
             .webAuthnSelfHosted(expectedUrl)
         )
-        if case let .webAuthnSelfHosted(actualUrl) = coordinator.routes.last {
-            let decoder = JSONDecoder()
-            let actualComponents = URLComponents(url: actualUrl, resolvingAgainstBaseURL: true)
-            guard let actualbase64String = actualComponents?.queryItems?.first(where: { $0.name == "data" })?.value,
-                  let actualData = Data(base64Encoded: actualbase64String)
-            else { XCTFail("Unable to parse data"); return }
-            let actualConnectorData = try decoder.decode(
-                TwoFactorAuthProcessor.WebAuthnConnectorData.self,
-                from: actualData
-            )
-            XCTAssertEqual(actualConnectorData, connectorData)
 
-            XCTAssertEqual(actualConnectorData.callbackUri, connectorData.callbackUri)
-            XCTAssertEqual(actualConnectorData.data, connectorData.data)
-            XCTAssertEqual(actualConnectorData.headerText, connectorData.headerText)
-            XCTAssertEqual(actualConnectorData.btnText, connectorData.btnText)
-            XCTAssertEqual(actualConnectorData.btnReturnText, connectorData.btnReturnText)
-        }
+        let decoder = JSONDecoder()
+        guard case let .webAuthnSelfHosted(actualUrl) = coordinator.routes.last,
+              let actualComponents = URLComponents(url: actualUrl, resolvingAgainstBaseURL: true),
+              let actualbase64String = actualComponents.queryItems?.first(where: { $0.name == "data" })?.value,
+              let actualData = Data(base64Encoded: actualbase64String)
+        else { XCTFail("Unable to parse WebAuthn Connector Data"); return }
+
+        let actualConnectorData = try decoder.decode(
+            TwoFactorAuthProcessor.WebAuthnConnectorData.self,
+            from: actualData
+        )
+        XCTAssertEqual(actualConnectorData, connectorData)
     }
 
     /// `perform(_:)` with `.beginWebAuthn` initates the WebAuthn auth flow.
