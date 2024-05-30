@@ -22,7 +22,7 @@ jobs:
 
   test:
     name: Test
-    runs-on: macos-14
+    runs-on: macos-14-xlarge
     needs: check-run
     permissions:
       contents: read
