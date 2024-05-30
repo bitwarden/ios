@@ -414,9 +414,10 @@ protocol WebAuthnFlowDelegate: AnyObject {
 }
 
 public enum WebAuthnError: Error {
-    case unableToDecodeCredential
-    case unableToCreateAttestationVerification
     case requiredParametersMissing
+    case unableToCreateAttestationVerification
+    case unableToDecodeCredential
+    case unableToGenerateUrl
 }
 
 extension TwoFactorAuthProcessor: WebAuthnFlowDelegate {
@@ -506,34 +507,28 @@ extension TwoFactorAuthProcessor: WebAuthnFlowDelegate {
         returnButtonText: String
     ) throws -> URL {
         let encoder = JSONEncoder()
-        encoder.outputFormatting = .sortedKeys
+        encoder.outputFormatting = .sortedKeys // for consistency
         let callbackUrlString = "bitwarden://webauthn-callback"
         let encodedCallback = callbackUrlString.urlEncoded()
-        let webstruct = try WebAuthnConnectorData(
+        let connectorData = try WebAuthnConnectorData(
             callbackUri: URL(string: callbackUrlString)!,
             data: String(data: encoder.encode(data), encoding: .utf8)!,
             headerText: headerText,
             btnText: buttonText,
             btnReturnText: returnButtonText
         )
-        let jsonData = try encoder.encode(webstruct)
+        let jsonData = try encoder.encode(connectorData)
         let base64string = jsonData.base64EncodedString()
 
-        if #available(iOS 16.0, iOSApplicationExtension 16.0, *) {
-            return baseUrl
-                .appending(path: "/webauthn-mobile-connector.html")
-                .appending(queryItems: [
-                    URLQueryItem(name: "data", value: base64string),
-                    URLQueryItem(name: "parent", value: encodedCallback),
-                    URLQueryItem(name: "v", value: "2"),
-                ])
-        } else {
-            let returnedString: String = baseUrl.absoluteString
-                + "/webauthn-mobile-connector.html"
-                + "?data=" + base64string
-                + "&parent=" + encodedCallback
-                + "&v=2"
-            return URL(string: returnedString)!
+        guard let url = baseUrl
+            .appendingPathComponent("/webauthn-mobile-connector.html")
+            .appending(queryItems: [
+                URLQueryItem(name: "data", value: base64string),
+                URLQueryItem(name: "parent", value: encodedCallback),
+                URLQueryItem(name: "v", value: "2"),
+            ]) else {
+            throw WebAuthnError.unableToGenerateUrl
         }
+        return url
     }
 } // swiftlint:disable:this file_length
