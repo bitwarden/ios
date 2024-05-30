@@ -1,22 +1,21 @@
----
 name: Build
 
 on:
   workflow_dispatch:
     inputs:
       build-variant:
-        description: 'Which variant of the app to build'
+        description: "Which variant of the app to build"
         required: true
         type: choice
         options:
           - Beta
           - Production
       build-version:
-        description: 'Optional. Version string to use, in X.Y.Z format. Overrides default in the project.'
+        description: "Optional. Version string to use, in X.Y.Z format. Overrides default in the project."
         required: false
         type: string
       build-number:
-        description: 'Optional. Build number to use. Overrides default of GitHub run number.'
+        description: "Optional. Build number to use. Overrides default of GitHub run number."
         required: false
         type: number
 
@@ -25,29 +24,17 @@ env:
 
 jobs:
   build:
-    name: Build iOS app
+    name: Build
     runs-on: macos-14
     env:
       MINT_PATH: .mint/lib
       MINT_LINK_PATH: .mint/bin
+
     steps:
-      - name: Print Environment
-        run: |
-          echo "GitHub ref: $GITHUB_REF"
-          echo "GitHub event: $GITHUB_EVENT"
-      
-      - name: Check out repository
-        uses: actions/checkout@0ad4b8fadaa221de15dcec353f45205ec38ea70b # v4.1.4
-        with:
-          submodules: 'true'
+      - name: Check out repo
+        uses: actions/checkout@a5ac7e51b41094c92402da3b24376905380afc29 # v4.1.6
 
-      - name: Set Up Ruby
-        uses: ruby/setup-ruby@cacc9f1c0b3f4eb8a16a6bb0ed10897b43b9de49 # v1.176.0
-        with:
-          bundler-cache: true
-          ruby-version: 3.2.2
-
-      - name: Cache Mint Packages
+      - name: Cache Mint packages
         id: mint-cache
         uses: actions/cache@0c45773b623bea8c8e75f6c82b208c3cf94ea4f9 # v4.0.2
         with:
@@ -62,19 +49,18 @@ jobs:
           sudo installer -pkg yeetd-normal.pkg -target /
           yeetd &
 
-      - name: Log In to Azure - CI Subscription
+      - name: Log in to Azure
         uses: Azure/login@cb79c773a3cfa27f31f25eb3f677781210c9ce3d # v1.6.1
         with:
           creds: ${{ secrets.AZURE_KV_CI_SERVICE_PRINCIPAL }}
 
       - name: Retrieve secrets
-        id: retrieve-secrets
         uses: bitwarden/gh-actions/get-keyvault-secrets@main
         with:
           keyvault: "bitwarden-ci"
           secrets: "appcenter-ios-token"
 
-      - name: Download production provisioning profiles
+      - name: Retrieve production provisioning profiles
         if: env.build-variant == 'Production'
         env:
           ACCOUNT_NAME: bitwardenci
@@ -96,7 +82,7 @@ jobs:
               --file $HOME/secrets/$FILE --output none
           done
 
-      - name: Download beta provisioning profiles
+      - name: Retrieve beta provisioning profiles
         if: env.build-variant == 'Beta'
         env:
           ACCOUNT_NAME: bitwardenci
@@ -118,7 +104,7 @@ jobs:
               --file $HOME/secrets/$FILE --output none
           done
 
-      - name: Download Google Services secret
+      - name: Retrieve Google Services secret
         env:
           ACCOUNT_NAME: bitwardenci
           CONTAINER_NAME: mobile
@@ -128,13 +114,24 @@ jobs:
           az storage blob download --account-name $ACCOUNT_NAME --container-name $CONTAINER_NAME --name $FILE \
             --file Bitwarden/Application/Support/$FILE --output none
 
-      - name: Get certificates
+      - name: Retrieve certificates
         run: |
           mkdir -p $HOME/certificates
           az keyvault secret show --id https://bitwarden-ci.vault.azure.net/certificates/ios-distribution |
             jq -r .value | base64 -d > $HOME/certificates/ios-distribution.p12
 
-      - name: Set up Keychain
+      - name: Download Fastlane credentials
+        env:
+          ACCOUNT_NAME: bitwardenci
+          CONTAINER_NAME: mobile
+          FILE: appstoreconnect-fastlane.json
+        run: |
+          mkdir -p $HOME/secrets
+          az storage blob download --account-name $ACCOUNT_NAME --container-name $CONTAINER_NAME --name $FILE \
+            --file $HOME/secrets/$FILE --output none
+          ls -al $HOME/secrets
+
+      - name: Configure Keychain Access
         env:
           KEYCHAIN_PASSWORD: ${{ secrets.IOS_KEYCHAIN_PASSWORD }}
         run: |
@@ -147,7 +144,7 @@ jobs:
             -T /usr/bin/security
           security set-key-partition-list -S apple-tool:,apple:,codesign: -s -k $KEYCHAIN_PASSWORD build.keychain
 
-      - name: Set up production provisioning profiles
+      - name: Configure production provisioning profiles
         if: env.build-variant == 'Production'
         run: |
           AUTOFILL_PROFILE_PATH=$HOME/secrets/dist_autofill.mobileprovision
@@ -178,7 +175,7 @@ jobs:
           WATCH_APP_EXTENSION_UUID=$(grep UUID -A1 -a $WATCH_APP_EXTENSION_PROFILE_PATH | grep -io "[-A-F0-9]\{36\}")
           cp $WATCH_APP_EXTENSION_PROFILE_PATH "$PROFILES_DIR_PATH/$WATCH_APP_EXTENSION_UUID.mobileprovision"
 
-      - name: Set up beta provisioning profiles
+      - name: Configure beta provisioning profiles
         if: env.build-variant == 'Beta'
         run: |
           AUTOFILL_PROFILE_PATH=$HOME/secrets/dist_beta_autofill.mobileprovision
@@ -214,13 +211,23 @@ jobs:
         run: |
           plutil -replace ITSEncryptionExportComplianceCode -string 3dd3e32f-efa6-4d99-b410-28aa28b1cb77 Bitwarden/Application/Support/Info.plist
 
+      - name: Update beta Fastlane Appfile
+        if: env.build-variant == 'Beta'
+        run: |
+          echo 'app_identifier "com.8bit.bitwarden.beta"' > fastlane/Appfile
+
       - name: Update APNS entitlements
         run: |
           plutil -replace aps-environment -string production Bitwarden/Application/Support/Bitwarden.entitlements
 
-      - name: Install Mint, xcbeautify, and yq
+      - name: Configure Ruby
+        uses: ruby/setup-ruby@0cde4689ba33c09f1b890c1725572ad96751a3fc # v1.178.0
+        with:
+          bundler-cache: true
+
+      - name: Install Fastlane, Mint, xcbeautify, and yq
         run: |
-          brew install mint xcbeautify yq
+          brew install fastlane mint xcbeautify yq
 
       - name: Install Mint packages
         if: steps.mint-cache.outputs.cache-hit != 'true'
@@ -263,13 +270,10 @@ jobs:
             --username "$APPLE_ID_USERNAME" \
             --password @env:APPLE_ID_PASSWORD
 
-      - name: Upload app to TestFlight
-        env:
-          APPLE_ID_USERNAME: ${{ secrets.APPLE_ID_USERNAME }}
-          APPLE_ID_PASSWORD: ${{ secrets.APPLE_ID_PASSWORD }}
+      - name: Upload app to TestFlight with Fastlane
         run: |
-          xcrun altool --upload-app \
-            --type ios \
-            --file "build/Bitwarden/Bitwarden.ipa" \
-            --username "$APPLE_ID_USERNAME" \
-            --password @env:APPLE_ID_PASSWORD
+          NEWLINE=$'\n'
+          fastlane upload_build \
+            api_key_path:"$HOME/secrets/appstoreconnect-fastlane.json" \
+            changelog:"$(git show -s --format=%s)$NEWLINE$GITHUB_REPOSITORY/$GITHUB_REF_NAME @ $GITHUB_SHA$NEWLINE$NEWLINE$GITHUB_SERVER_URL/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID" \
+            ipa_path:"build/Bitwarden/Bitwarden.ipa"
