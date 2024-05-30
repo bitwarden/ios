@@ -221,8 +221,59 @@ class TwoFactorAuthProcessorTests: BitwardenTestCase { // swiftlint:disable:this
         XCTAssertEqual(errorReporter.errors.last as? WebAuthnError, .unableToDecodeCredential)
     }
 
+    /// `perform(_:)` with `.beginWebAuthn` initates the WebAuthn Connector flow on self-hosted vaults.
+    @available(iOS 16.0, *)
+    func test_perform_beginWebAuthn_selfHosted() async throws {
+        environmentService.region = .selfHosted
+        let testData = AuthMethodsData.fixtureWebAuthn()
+        let encoder = JSONEncoder()
+        encoder.outputFormatting = .sortedKeys
+        let connectorData = try TwoFactorAuthProcessor.WebAuthnConnectorData(
+            callbackUri: URL(string: "bitwarden://webauthn-callback")!,
+            data: String(data: encoder.encode(testData.webAuthn), encoding: .utf8)!,
+            headerText: Localizations.fido2Title,
+            btnText: Localizations.fido2AuthenticateWebAuthn,
+            btnReturnText: Localizations.fido2ReturnToApp
+        )
+        let expectedUrl = try URL(string: "https://example.com")!
+            .appending(path: "/webauthn-mobile-connector.html")
+            .appending(queryItems: [
+                URLQueryItem(name: "data", value: encoder.encode(connectorData).base64EncodedString()),
+                URLQueryItem(name: "parent", value: "bitwarden:__webauthn-callback"),
+                URLQueryItem(name: "v", value: "2"),
+            ])!
+
+        subject.state.authMethod = .webAuthn
+        subject.state.authMethodsData = testData
+        await subject.perform(.beginWebAuthn)
+
+        XCTAssertEqual(
+            coordinator.routes.last,
+            .webAuthnSelfHosted(expectedUrl)
+        )
+        if case let .webAuthnSelfHosted(actualUrl) = coordinator.routes.last {
+            let decoder = JSONDecoder()
+            let actualComponents = URLComponents(url: actualUrl, resolvingAgainstBaseURL: true)
+            guard let actualbase64String = actualComponents?.queryItems?.first(where: { $0.name == "data" })?.value,
+                  let actualData = Data(base64Encoded: actualbase64String)
+            else { XCTFail("Unable to parse data"); return }
+            let actualConnectorData = try decoder.decode(
+                TwoFactorAuthProcessor.WebAuthnConnectorData.self,
+                from: actualData
+            )
+            XCTAssertEqual(actualConnectorData, connectorData)
+
+            XCTAssertEqual(actualConnectorData.callbackUri, connectorData.callbackUri)
+            XCTAssertEqual(actualConnectorData.data, connectorData.data)
+            XCTAssertEqual(actualConnectorData.headerText, connectorData.headerText)
+            XCTAssertEqual(actualConnectorData.btnText, connectorData.btnText)
+            XCTAssertEqual(actualConnectorData.btnReturnText, connectorData.btnReturnText)
+        }
+    }
+
     /// `perform(_:)` with `.beginWebAuthn` initates the WebAuthn auth flow.
     func test_perform_beginWebAuthn_success() async throws {
+        environmentService.region = .unitedStates
         let testData = AuthMethodsData.fixtureWebAuthn()
         let rpIdExpected = try XCTUnwrap(testData.webAuthn?.rpId)
         let userVerificationPreferenceExpected = try XCTUnwrap(testData.webAuthn?.userVerification)

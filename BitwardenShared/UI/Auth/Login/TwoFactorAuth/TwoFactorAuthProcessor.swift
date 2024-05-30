@@ -420,7 +420,7 @@ public enum WebAuthnError: Error {
 }
 
 extension TwoFactorAuthProcessor: WebAuthnFlowDelegate {
-    private struct WebAuthnStruct: Codable {
+    struct WebAuthnConnectorData: Codable, Equatable {
         let callbackUri: URL
         let data: String
         let headerText: String
@@ -506,9 +506,10 @@ extension TwoFactorAuthProcessor: WebAuthnFlowDelegate {
         returnButtonText: String
     ) throws -> URL {
         let encoder = JSONEncoder()
+        encoder.outputFormatting = .sortedKeys
         let callbackUrlString = "bitwarden://webauthn-callback"
         let encodedCallback = callbackUrlString.urlEncoded()
-        let webstruct = try WebAuthnStruct(
+        let webstruct = try WebAuthnConnectorData(
             callbackUri: URL(string: callbackUrlString)!,
             data: String(data: encoder.encode(data), encoding: .utf8)!,
             headerText: headerText,
