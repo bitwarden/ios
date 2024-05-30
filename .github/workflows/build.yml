@@ -134,6 +134,17 @@ jobs:
           az keyvault secret show --id https://bitwarden-ci.vault.azure.net/certificates/ios-distribution |
             jq -r .value | base64 -d > $HOME/certificates/ios-distribution.p12
 
+      - name: Download Fastlane credentials
+        env:
+          ACCOUNT_NAME: bitwardenci
+          CONTAINER_NAME: mobile
+          FILE: appstoreconnect-fastlane.json
+        run: |
+          mkdir -p $HOME/secrets
+          az storage blob download --account-name $ACCOUNT_NAME --container-name $CONTAINER_NAME --name $FILE \
+            --file $HOME/secrets/$FILE --output none
+          ls -al $HOME/secrets
+
       - name: Set up Keychain
         env:
           KEYCHAIN_PASSWORD: ${{ secrets.IOS_KEYCHAIN_PASSWORD }}
@@ -214,13 +225,18 @@ jobs:
         run: |
           plutil -replace ITSEncryptionExportComplianceCode -string 3dd3e32f-efa6-4d99-b410-28aa28b1cb77 Bitwarden/Application/Support/Info.plist
 
+      - name: Update beta Fastlane Appfile
+        if: env.build-variant == 'Beta'
+        run: |
+          echo 'app_identifier "com.8bit.bitwarden.beta"' > fastlane/Appfile
+
       - name: Update APNS entitlements
         run: |
           plutil -replace aps-environment -string production Bitwarden/Application/Support/Bitwarden.entitlements
 
-      - name: Install Mint, xcbeautify, and yq
+      - name: Install Fastlane, Mint, xcbeautify, and yq
         run: |
-          brew install mint xcbeautify yq
+          brew install fastlane mint xcbeautify yq
 
       - name: Install Mint packages
         if: steps.mint-cache.outputs.cache-hit != 'true'
@@ -262,14 +278,11 @@ jobs:
             --file "build/Bitwarden/Bitwarden.ipa" \
             --username "$APPLE_ID_USERNAME" \
             --password @env:APPLE_ID_PASSWORD
-
-      - name: Upload app to TestFlight
-        env:
-          APPLE_ID_USERNAME: ${{ secrets.APPLE_ID_USERNAME }}
-          APPLE_ID_PASSWORD: ${{ secrets.APPLE_ID_PASSWORD }}
+      
+      - name: Upload app to TestFlight with Fastlane
         run: |
-          xcrun altool --upload-app \
-            --type ios \
-            --file "build/Bitwarden/Bitwarden.ipa" \
-            --username "$APPLE_ID_USERNAME" \
-            --password @env:APPLE_ID_PASSWORD
+          NEWLINE=$'\n'
+          fastlane upload_build \
+            api_key_path:"$HOME/secrets/appstoreconnect-fastlane.json" \
+            changelog:"$(git show -s --format=%s)$NEWLINE$GITHUB_REPOSITORY/$GITHUB_REF_NAME @ $GITHUB_SHA$NEWLINE$NEWLINE$GITHUB_SERVER_URL/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID" \
+            ipa_path:"build/Bitwarden/Bitwarden.ipa"
