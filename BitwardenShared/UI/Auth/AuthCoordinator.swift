@@ -167,7 +167,6 @@ final class AuthCoordinator: NSObject, // swiftlint:disable:this type_body_lengt
                 userVerificationPreference: userVerificationPreference
             )
         case let .webAuthnSelfHosted(url):
-            webAuthnFlowDelegate = context as? WebAuthnFlowDelegate
             showWebAuthnSelfHosted(authURL: url, delegate: context as? WebAuthnFlowDelegate)
         case let .vaultUnlock(
             account,
@@ -645,12 +644,13 @@ final class AuthCoordinator: NSObject, // swiftlint:disable:this type_body_lengt
         authURL url: URL,
         delegate: WebAuthnFlowDelegate?
     ) {
+        guard let delegate else { return }
         let session = ASWebAuthenticationSession(
             url: url,
             callbackURLScheme: services.authService.callbackUrlScheme
         ) { callbackURL, error in
             if let error {
-                delegate?.webAuthnErrored(error: error)
+                delegate.webAuthnErrored(error: error)
                 return
             }
             guard let callbackURL,
@@ -662,11 +662,11 @@ final class AuthCoordinator: NSObject, // swiftlint:disable:this type_body_lengt
                   let token = queryItems.first(where: { component in
                       component.name == "data"
                   })?.value else {
-                delegate?.webAuthnErrored(error: WebAuthnError.unableToDecodeCredential)
+                delegate.webAuthnErrored(error: WebAuthnError.unableToDecodeCredential)
                 return
             }
 
-            delegate?.webAuthnCompleted(token: token)
+            delegate.webAuthnCompleted(token: token)
         }
 
         session.prefersEphemeralWebBrowserSession = false

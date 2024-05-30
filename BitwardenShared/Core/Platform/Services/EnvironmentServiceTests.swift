@@ -60,6 +60,26 @@ class EnvironmentServiceTests: XCTestCase {
         XCTAssertEqual(subject.webVaultURL, URL(string: "https://example.com"))
     }
 
+    /// `loadURLsForActiveAccount()` handles EU URLs
+    func test_loadURLsForActiveAccount_europe() async {
+        let urls = EnvironmentUrlData.defaultEU
+        let account = Account.fixture(settings: .fixture(environmentUrls: urls))
+        stateService.activeAccount = account
+        stateService.environmentUrls = [account.profile.userId: urls]
+
+        await subject.loadURLsForActiveAccount()
+
+        XCTAssertEqual(subject.apiURL, URL(string: "https://vault.bitwarden.eu/api"))
+        XCTAssertEqual(subject.eventsURL, URL(string: "https://vault.bitwarden.eu/events"))
+        XCTAssertEqual(subject.iconsURL, URL(string: "https://vault.bitwarden.eu/icons"))
+        XCTAssertEqual(subject.identityURL, URL(string: "https://vault.bitwarden.eu/identity"))
+        XCTAssertEqual(subject.importItemsURL, URL(string: "https://vault.bitwarden.eu/#/tools/import"))
+        XCTAssertEqual(subject.region, .europe)
+        XCTAssertEqual(subject.sendShareURL, URL(string: "https://vault.bitwarden.eu/#/send"))
+        XCTAssertEqual(subject.settingsURL, URL(string: "https://vault.bitwarden.eu/#/settings"))
+        XCTAssertEqual(subject.webVaultURL, URL(string: "https://vault.bitwarden.eu"))
+    }
+
     /// `loadURLsForActiveAccount()` loads the default URLs if there's no active account.
     func test_loadURLsForActiveAccount_noAccount() async {
         await subject.loadURLsForActiveAccount()
