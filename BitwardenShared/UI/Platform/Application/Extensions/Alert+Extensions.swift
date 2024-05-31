@@ -197,8 +197,12 @@ extension Alert {
     /// An alert to show when the user needs to confirm their master password.
     ///
     /// - Parameter completion: A block that is executed when the user interacts with the "Submit" button.
+    /// - Parameter onCancelled: A block that is executed when the user interacts with the "Cancel" button.
     ///
-    static func masterPasswordPrompt(completion: @MainActor @escaping (String) async -> Void) -> Alert {
+    static func masterPasswordPrompt(
+        completion: @MainActor @escaping (String) async -> Void,
+        onCancelled: (() -> Void)? = nil
+    ) -> Alert {
         Alert(
             title: Localizations.passwordConfirmation,
             message: Localizations.passwordConfirmationDesc,
@@ -211,7 +215,9 @@ extension Alert {
                         await completion(password)
                     }
                 ),
-                AlertAction(title: Localizations.cancel, style: .cancel),
+                AlertAction(title: Localizations.cancel, style: .cancel, handler: { _, _ in
+                    onCancelled?()
+                }),
             ],
             alertTextFields: [
                 AlertTextField(

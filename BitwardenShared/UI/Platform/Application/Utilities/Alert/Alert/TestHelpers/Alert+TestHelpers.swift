@@ -16,13 +16,14 @@ enum AlertError: LocalizedError {
 extension Alert {
     /// Simulates a user interaction with the alert action that matches the provided title.
     ///
-    /// - Parameter title: The title of the alert action to trigger.
+    /// - Parameters:
+    ///   - title: The title of the alert action to trigger.
+    ///   - alertTextFields: `AlertTextField` list to execute the action.
     /// - Throws: Throws an `AlertError` if the alert action cannot be found.
-    ///
-    func tapAction(title: String) async throws {
+    func tapAction(title: String, alertTextFields: [AlertTextField]? = nil) async throws {
         guard let alertAction = alertActions.first(where: { $0.title == title }) else {
             throw AlertError.alertActionNotFound(title: title)
         }
-        await alertAction.handler?(alertAction, alertTextFields)
+        await alertAction.handler?(alertAction, alertTextFields ?? self.alertTextFields)
     }
 }

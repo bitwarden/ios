@@ -237,4 +237,42 @@ extension Alert {
             ]
         )
     }
+
+    /// An alert that prompts the user to enter their PIN.
+    /// - Parameters:
+    ///   - completion: The code block that's executed when the user has entered their pin.
+    ///   - onCancelled: A block that is executed when the user interacts with the "Cancel" button.
+    ///   - settingUp: Whether thte message displayed to the user is to set or verify a pin
+    /// - Returns: An alert that prompts the user to enter their PIN.
+    static func enterPINCode(
+        completion: @MainActor @escaping (String) async -> Void,
+        onCancelled: (() -> Void)? = nil,
+        settingUp: Bool = true
+    ) -> Alert {
+        Alert(
+            title: Localizations.enterPIN,
+            message: settingUp ? Localizations.setPINDescription : Localizations.verifyPIN,
+            alertActions: [
+                AlertAction(
+                    title: Localizations.submit,
+                    style: .default,
+                    handler: { _, alertTextFields in
+                        guard let pin = alertTextFields.first(where: { $0.id == "pin" })?.text else { return }
+                        await completion(pin)
+                    }
+                ),
+                AlertAction(title: Localizations.cancel, style: .cancel, handler: { _, _ in
+                    onCancelled?()
+                }),
+            ],
+            alertTextFields: [
+                AlertTextField(
+                    id: "pin",
+                    autocapitalizationType: .none,
+                    autocorrectionType: .no,
+                    keyboardType: .numberPad
+                ),
+            ]
+        )
+    }
 }

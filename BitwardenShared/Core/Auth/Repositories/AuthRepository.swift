@@ -20,6 +20,11 @@ protocol AuthRepository: AnyObject {
     ///
     func allowBioMetricUnlock(_ enabled: Bool) async throws
 
+    /// Whether master password verification can be done for the active  user.
+    ///
+    /// - Returns: `True` if one can verify master password, `False` otherwise.
+    func canVerifyMasterPassword() async throws -> Bool
+
     /// Clears the pins stored on device and in memory.
     ///
     func clearPins() async throws
@@ -255,6 +260,18 @@ extension AuthRepository {
         try await logout(userId: nil)
     }
 
+    /// Whether master password reprompt should be performed.
+    ///
+    /// - Parameter reprompt: Cipher reprompt type to check
+    /// - Returns: `True` if master password reprompt should be performed, `False` otherwise.
+    func shouldPerformMasterPasswordReprompt(reprompt: BitwardenSdk.CipherRepromptType) async throws -> Bool {
+        guard reprompt == .password else {
+            return false
+        }
+
+        return try await canVerifyMasterPassword()
+    }
+
     /// Gets the `SessionTimeoutAction` for the active account.
     ///
     func sessionTimeoutAction() async throws -> SessionTimeoutAction {
@@ -382,6 +399,10 @@ extension DefaultAuthRepository: AuthRepository {
         try await biometricsRepository.setBiometricUnlockKey(
             authKey: enabled ? clientService.crypto().getUserEncryptionKey() : nil
         )
+    }
+
+    func canVerifyMasterPassword() async throws -> Bool {
+        try await stateService.getMasterPasswordHash() != nil
     }
 
     func createNewSsoUser(orgIdentifier: String, rememberDevice: Bool) async throws {
