@@ -131,6 +131,23 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
 
     // MARK: Tests
 
+    /// `.canVerifyMasterPassword()`  true when master password hash exists.
+    func test_canVerifyMasterPassword_hash_exists() async throws {
+        stateService.activeAccount = .fixture()
+        stateService.masterPasswordHashes["1"] = "MASTER_PASSWORD_HASH"
+
+        let result = try await subject.canVerifyMasterPassword()
+        XCTAssertTrue(result)
+    }
+
+    /// `.canVerifyMasterPassword()`  false when master password hash nil.
+    func test_canVerifyMasterPassword_hash_nil() async throws {
+        stateService.activeAccount = .fixture()
+
+        let result = try await subject.canVerifyMasterPassword()
+        XCTAssertFalse(result)
+    }
+
     /// `.clearPins()` clears the user's pins.
     func test_clearPins() async throws {
         stateService.activeAccount = Account.fixture()
@@ -1046,6 +1063,34 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
             userId,
             default: AccountVolatileData()
         ].pinProtectedUserKey, "12")
+    }
+
+    /// `.shouldPerformMasterPasswordReprompt(reprompt:)`  when reprompt password
+    /// and master password hash exists.
+    func test_shouldPerformMasterPasswordReprompt_true() async throws {
+        stateService.activeAccount = .fixture()
+        stateService.masterPasswordHashes["1"] = "MASTER_PASSWORD_HASH"
+
+        let result = try await subject.shouldPerformMasterPasswordReprompt(reprompt: .password)
+        XCTAssertTrue(result)
+    }
+
+    /// `.shouldPerformMasterPasswordReprompt(reprompt:)`  when reprompt password
+    /// and master password hash does not exist.
+    func test_shouldPerformMasterPasswordReprompt_false_reprompt_password() async throws {
+        stateService.activeAccount = .fixture()
+
+        let result = try await subject.shouldPerformMasterPasswordReprompt(reprompt: .password)
+        XCTAssertFalse(result)
+    }
+
+    /// `.shouldPerformMasterPasswordReprompt(reprompt:)`  when reprompt none
+    func test_shouldPerformMasterPasswordReprompt_false_reprompt_none() async throws {
+        stateService.activeAccount = .fixture()
+        stateService.masterPasswordHashes["1"] = "MASTER_PASSWORD_HASH"
+
+        let result = try await subject.shouldPerformMasterPasswordReprompt(reprompt: .none)
+        XCTAssertFalse(result)
     }
 
     /// `unlockVaultWithPassword(password:)` unlocks the vault with the user's password.
