@@ -414,12 +414,21 @@ protocol WebAuthnFlowDelegate: AnyObject {
 }
 
 public enum WebAuthnError: Error {
-    case unableToDecodeCredential
-    case unableToCreateAttestationVerification
     case requiredParametersMissing
+    case unableToCreateAttestationVerification
+    case unableToDecodeCredential
+    case unableToGenerateUrl
 }
 
 extension TwoFactorAuthProcessor: WebAuthnFlowDelegate {
+    struct WebAuthnConnectorData: Codable, Equatable {
+        let btnReturnText: String
+        let btnText: String
+        let callbackUri: URL
+        let data: String
+        let headerText: String
+    }
+
     func webAuthnCompleted(token: String) {
         Task {
             state.verificationCode = token
@@ -447,20 +456,35 @@ extension TwoFactorAuthProcessor: WebAuthnFlowDelegate {
                let challengeUrlDecode = try? challenge.urlDecoded(),
                let challengeData = Data(base64Encoded: challengeUrlDecode),
                let allowCredentials = webAuthnProvider.allowCredentials {
-                try coordinator.navigate(
-                    to: .webAuthn(rpid: rpID,
-                                  challenge: challengeData,
-                                  allowCredentialIDs: allowCredentials.map { credential in
-                                      guard let id = credential.id,
-                                            let idUrlDecoded = try? id.urlDecoded(),
-                                            let idData = Data(base64Encoded: idUrlDecoded) else {
-                                          throw WebAuthnError.unableToDecodeCredential
-                                      }
-                                      return idData
-                                  },
-                                  userVerificationPreference: userVerificationPreference),
-                    context: self
-                )
+                if services.environmentService.region == .selfHosted {
+                    try coordinator.navigate(
+                        to: .webAuthnSelfHosted(
+                            webAuthnUrl(
+                                baseUrl: services.environmentService.webVaultURL,
+                                data: webAuthnProvider,
+                                headerText: Localizations.fido2Title,
+                                buttonText: Localizations.fido2AuthenticateWebAuthn,
+                                returnButtonText: Localizations.fido2ReturnToApp
+                            )
+                        ),
+                        context: self
+                    )
+                } else {
+                    try coordinator.navigate(
+                        to: .webAuthn(rpid: rpID,
+                                      challenge: challengeData,
+                                      allowCredentialIDs: allowCredentials.map { credential in
+                                          guard let id = credential.id,
+                                                let idUrlDecoded = try? id.urlDecoded(),
+                                                let idData = Data(base64Encoded: idUrlDecoded) else {
+                                              throw WebAuthnError.unableToDecodeCredential
+                                          }
+                                          return idData
+                                      },
+                                      userVerificationPreference: userVerificationPreference),
+                        context: self
+                    )
+                }
             } else {
                 throw WebAuthnError.requiredParametersMissing
             }
@@ -471,5 +495,40 @@ extension TwoFactorAuthProcessor: WebAuthnFlowDelegate {
             ))
             services.errorReporter.log(error: error)
         }
+    }
+
+    /// Generates a URL to display a WebAuthn challenge for Self-Hosted vault authentication.
+    ///
+    private func webAuthnUrl(
+        baseUrl: URL,
+        data: WebAuthn,
+        headerText: String,
+        buttonText: String,
+        returnButtonText: String
+    ) throws -> URL {
+        let encoder = JSONEncoder()
+        encoder.outputFormatting = .sortedKeys // for consistency
+        let callbackUrlString = "bitwarden://webauthn-callback"
+        let encodedCallback = callbackUrlString.urlEncoded()
+        let connectorData = try WebAuthnConnectorData(
+            btnReturnText: returnButtonText,
+            btnText: buttonText,
+            callbackUri: URL(string: callbackUrlString)!,
+            data: String(data: encoder.encode(data), encoding: .utf8)!,
+            headerText: headerText
+        )
+        let jsonData = try encoder.encode(connectorData)
+        let base64string = jsonData.base64EncodedString()
+
+        guard let url = baseUrl
+            .appendingPathComponent("/webauthn-mobile-connector.html")
+            .appending(queryItems: [
+                URLQueryItem(name: "data", value: base64string),
+                URLQueryItem(name: "parent", value: encodedCallback),
+                URLQueryItem(name: "v", value: "2"),
+            ]) else {
+            throw WebAuthnError.unableToGenerateUrl
+        }
+        return url
     }
 } // swiftlint:disable:this file_length
