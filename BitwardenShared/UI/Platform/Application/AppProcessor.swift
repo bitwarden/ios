@@ -164,6 +164,7 @@ public class AppProcessor {
                 await completion(true)
             } catch {
                 self.services.errorReporter.log(error: error)
+                await completion(false)
             }
         }
         coordinator?.showAlert(alert)

@@ -1204,6 +1204,15 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
         XCTAssertTrue(repromptRequired)
     }
 
+    /// `repromptRequiredForCipher(id:)` returns `false` if the cipher with the specified ID doesn't exist.
+    func test_repromptRequiredForCipher_nilCipher() async throws {
+        cipherService.fetchCipherResult = .success(nil)
+        stateService.activeAccount = .fixture()
+
+        let repromptRequired = try await subject.repromptRequiredForCipher(id: "1")
+        XCTAssertFalse(repromptRequired)
+    }
+
     /// `repromptRequiredForCipher(id:)` returns `false` if reprompt is required for a cipher but
     /// the user doesn't have a master password.
     func test_repromptRequiredForCipher_noMasterPassword() async throws {

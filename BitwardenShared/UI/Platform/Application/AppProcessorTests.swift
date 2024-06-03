@@ -4,7 +4,7 @@ import XCTest
 
 @testable import BitwardenShared
 
-class AppProcessorTests: BitwardenTestCase {
+class AppProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_body_length
     // MARK: Properties
 
     var appModule: MockAppModule!
@@ -183,6 +183,34 @@ class AppProcessorTests: BitwardenTestCase {
         waitForExpectations(timeout: 1)
 
         XCTAssertEqual(masterPasswordValidated, true)
+    }
+
+    /// `repromptForCredentialIfNecessary(for:)` logs the error if one occurs.
+    func test_repromptForCredentialIfNecessary_error() throws {
+        authRepository.validatePasswordResult = .failure(BitwardenTestError.example)
+        vaultRepository.repromptRequiredForCipherResult = .success(true)
+
+        var masterPasswordValidated: Bool?
+        let expectation = expectation(description: #function)
+        Task {
+            try await subject.repromptForCredentialIfNecessary(for: "1") { validated in
+                masterPasswordValidated = validated
+                expectation.fulfill()
+            }
+        }
+        waitFor(!coordinator.alertShown.isEmpty)
+
+        XCTAssertEqual(coordinator.alertShown.count, 1)
+        let alert = try XCTUnwrap(coordinator.alertShown.last)
+        XCTAssertEqual(alert, .masterPasswordPrompt { _ in })
+        Task {
+            try await alert.tapAction(title: Localizations.submit)
+        }
+
+        waitForExpectations(timeout: 1)
+
+        XCTAssertEqual(errorReporter.errors as? [BitwardenTestError], [.example])
+        XCTAssertEqual(masterPasswordValidated, false)
     }
 
     /// `repromptForCredentialIfNecessary(for:)` displays an alert if the user enters an invalid
