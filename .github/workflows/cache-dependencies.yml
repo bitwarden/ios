@@ -1,10 +1,9 @@
----
-name: Cache Dependencies
+name: Cache
 
 on:
   push:
     branches:
-      - main
+      - "main"
 
 env:
   DEVELOPER_DIR: /Applications/Xcode_15.0.1.app/Contents/Developer
@@ -13,19 +12,18 @@ env:
 
 jobs:
   cache-dependencies:
-    name: Cache Dependencies
+    name: Cache dependencies
     runs-on: macos-14
     steps:
-      - name: Checkout
-        uses: actions/checkout@0ad4b8fadaa221de15dcec353f45205ec38ea70b # v4.1.4
+      - name: Check out repo
+        uses: actions/checkout@a5ac7e51b41094c92402da3b24376905380afc29 # v4.1.6
 
-      - name: Setup Ruby
-        uses: ruby/setup-ruby@cacc9f1c0b3f4eb8a16a6bb0ed10897b43b9de49 # v1.176.0
+      - name: Configure Ruby
+        uses: ruby/setup-ruby@0cde4689ba33c09f1b890c1725572ad96751a3fc # v1.178.0
         with:
           bundler-cache: true
-          ruby-version: 3.2.2
 
-      - name: Cache Mint Packages
+      - name: Cache Mint packages
         uses: actions/cache@0c45773b623bea8c8e75f6c82b208c3cf94ea4f9 # v4.0.2
         with:
           path: .mint
@@ -33,7 +31,7 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-mint-
 
-      - name: Cache SPM Packages
+      - name: Cache SPM packages
         uses: actions/cache@0c45773b623bea8c8e75f6c82b208c3cf94ea4f9 # v4.0.2
         with:
           path: build/DerivedData/SourcePackages
@@ -41,12 +39,12 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-spm-
 
-      - name: Setup
+      - name: Install Mint and xcbeautify
         run: |
           brew install mint xcbeautify
           ./Scripts/bootstrap.sh
 
-      - name: Update Xcode Dependencies
+      - name: Update Xcode dependencies
         run: |
           set -o pipefail && \
             xcodebuild -resolvePackageDependencies \
