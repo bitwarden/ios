@@ -172,12 +172,11 @@ class MockAuthService: AuthService {
 
     func webAuthenticationSession(
         url: URL,
-        callbackURLScheme: String?,
         completionHandler: @escaping ASWebAuthenticationSession.CompletionHandler
     ) -> ASWebAuthenticationSession {
         let mockSession = MockWebAuthenticationSession(
             url: url,
-            callbackURLScheme: callbackURLScheme,
+            callbackURLScheme: callbackUrlScheme,
             completionHandler: completionHandler
         )
         webAuthenticationSession = mockSession

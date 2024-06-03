@@ -205,7 +205,6 @@ protocol AuthService {
     ///
     func webAuthenticationSession(
         url: URL,
-        callbackURLScheme: String?,
         completionHandler: @escaping ASWebAuthenticationSession.CompletionHandler
     ) -> ASWebAuthenticationSession
 }
