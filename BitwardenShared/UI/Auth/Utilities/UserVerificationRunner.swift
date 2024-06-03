@@ -26,7 +26,7 @@ class DefaultUserVerificationRunner: UserVerificationRunner {
     func verifyWithAttempts(
         verifyFunction: () async throws -> UserVerificationResult
     ) async throws -> UserVerificationResult {
-        var attempts: Int8 = 0
+        var attempts = 0
         var result: UserVerificationResult
         repeat {
             attempts += 1
