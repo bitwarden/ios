@@ -48,65 +48,65 @@ class UserVerificationHelperTests: BitwardenTestCase {
     // MARK: Tests
 
     /// `verifyDeviceLocalAuth()` with device status not authorized.
-    func test_verifyDeviceLocalAuth_cant_perform_when_not_authorized() async throws {
+    func test_verifyDeviceLocalAuth_notAuthorized() async throws {
         localAuthService.deviceAuthenticationStatus = .notDetermined
 
-        let result = try await subject.verifyDeviceLocalAuth(because: "")
+        let result = try await subject.verifyDeviceLocalAuth(reason: "")
 
-        XCTAssertEqual(result, .cantPerform)
+        XCTAssertEqual(result, .unableToPerform)
     }
 
     /// `verifyDeviceLocalAuth()` with authorized status and verified
-    func test_verifyDeviceLocalAuth_verified_when_authorized_and_valid_evaluation() async throws {
+    func test_verifyDeviceLocalAuth_verified() async throws {
         localAuthService.deviceAuthenticationStatus = .authorized
         localAuthService.evaluateDeviceOwnerPolicyResult = .success(true)
 
-        let result = try await subject.verifyDeviceLocalAuth(because: "")
+        let result = try await subject.verifyDeviceLocalAuth(reason: "")
 
         XCTAssertEqual(result, .verified)
     }
 
     /// `verifyDeviceLocalAuth()` with authorized status and not verified
-    func test_verifyDeviceLocalAuth_not_verified_when_authorized_and_invalid_evaluation() async throws {
+    func test_verifyDeviceLocalAuth_not_verified() async throws {
         localAuthService.deviceAuthenticationStatus = .authorized
         localAuthService.evaluateDeviceOwnerPolicyResult = .success(false)
 
-        let result = try await subject.verifyDeviceLocalAuth(because: "")
+        let result = try await subject.verifyDeviceLocalAuth(reason: "")
 
         XCTAssertEqual(result, .notVerified)
     }
 
-    /// `verifyDeviceLocalAuth()`  throws cancelled when evaluation thorws `LAError.cancelled`
-    func test_verifyDeviceLocalAuth_throws_cancelled_when_authorized_and_throwing_evaluation() async throws {
+    /// `verifyDeviceLocalAuth()`  throws cancelled when evaluation throws `LAError.cancelled`
+    func test_verifyDeviceLocalAuth_throwsCancelled() async throws {
         localAuthService.deviceAuthenticationStatus = .authorized
         localAuthService.evaluateDeviceOwnerPolicyResult = .failure(LocalAuthError.cancelled)
 
         await assertAsyncThrows(error: UserVerificationError.cancelled) {
-            _ = try await subject.verifyDeviceLocalAuth(because: "")
+            _ = try await subject.verifyDeviceLocalAuth(reason: "")
         }
     }
 
-    /// `verifyDeviceLocalAuth()`  throws  what evaluation thorws when no cancelled
-    func test_verifyDeviceLocalAuth_throws_when_authorized_and_throwing_evaluation() async throws {
+    /// `verifyDeviceLocalAuth()`  throws  what evaluation throws when no cancelled
+    func test_verifyDeviceLocalAuth_throwsGeneral() async throws {
         localAuthService.deviceAuthenticationStatus = .authorized
         localAuthService.evaluateDeviceOwnerPolicyResult = .failure(BitwardenTestError.example)
 
         await assertAsyncThrows(error: BitwardenTestError.example) {
-            _ = try await subject.verifyDeviceLocalAuth(because: "")
+            _ = try await subject.verifyDeviceLocalAuth(reason: "")
         }
     }
 
-    /// `verifyMasterPassword()` can't perform when auth repository can't verify master password.
-    func test_verifyMasterPassword_cant_perform_because_auth_repo_cant_verify() async throws {
+    /// `verifyMasterPassword()` unable to perform when auth repository can't verify master password.
+    func test_verifyMasterPassword_unableToperform() async throws {
         authRepository.canVerifyMasterPasswordResult = .success(false)
 
         let result = try await subject.verifyMasterPassword()
 
-        XCTAssertEqual(result, .cantPerform)
+        XCTAssertEqual(result, .unableToPerform)
     }
 
     /// `verifyMasterPassword()` with valid master password.
-    func test_verifyMasterPassword_verified_when_validateMasterPassword_success() async throws {
+    func test_verifyMasterPassword_verified() async throws {
         authRepository.validatePasswordResult = .success(true)
 
         var result: UserVerificationResult?
@@ -127,7 +127,7 @@ class UserVerificationHelperTests: BitwardenTestCase {
     }
 
     /// `verifyMasterPassword()` with invalid master password.
-    func test_verifyMasterPassword_verified_when_validateMasterPassword_invalid() async throws {
+    func test_verifyMasterPassword_notVerified() async throws {
         authRepository.validatePasswordResult = .success(false)
 
         var result: UserVerificationResult?
@@ -161,7 +161,7 @@ class UserVerificationHelperTests: BitwardenTestCase {
     }
 
     /// `verifyMasterPassword()` with throwing master password validation.
-    func test_verifyMasterPassword_verified_when_validateMasterPassword_throws() async throws {
+    func test_verifyMasterPassword_unableToPerformWhenThrowing() async throws {
         authRepository.validatePasswordResult = .failure(BitwardenTestError.example)
 
         var result: UserVerificationResult?
@@ -179,11 +179,11 @@ class UserVerificationHelperTests: BitwardenTestCase {
         result = try await task.value
 
         XCTAssertEqual(errorReporter.errors.last as? BitwardenTestError, .example)
-        XCTAssertEqual(result, .cantPerform)
+        XCTAssertEqual(result, .unableToPerform)
     }
 
     /// `verifyMasterPassword()` with cancelled master password validation.
-    func test_verifyMasterPassword_verified_when_validateMasterPassword_is_cancelled() async throws {
+    func test_verifyMasterPassword_cancelled() async throws {
         let task = Task {
             try await self.subject.verifyMasterPassword()
         }
@@ -200,13 +200,13 @@ class UserVerificationHelperTests: BitwardenTestCase {
         }
     }
 
-    /// `verifyPin()` can't perform when auth repository pin unlock is not available.
-    func test_verifyPin_cant_perform_because_auth_repo_pin_unlock_is_not_available() async throws {
+    /// `verifyPin()` unable to perform when auth repository pin unlock is not available.
+    func test_verifyPin_unableToPerformR3c0rdables() async throws {
         authRepository.isPinUnlockAvailableResult = .success(false)
 
         let result = try await subject.verifyPin()
 
-        XCTAssertEqual(result, .cantPerform)
+        XCTAssertEqual(result, .unableToPerform)
     }
 
     // TODO: PM-8388 Add more tests for `verifyPin`

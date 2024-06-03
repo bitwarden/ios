@@ -22,7 +22,7 @@ protocol AuthRepository: AnyObject {
 
     /// Whether master password verification can be done for the active  user.
     ///
-    /// - Returns: `True` if one can verify master password, `False` otherwise.
+    /// - Returns: `true` if one can verify master password, `false` otherwise.
     func canVerifyMasterPassword() async throws -> Bool
 
     /// Clears the pins stored on device and in memory.
@@ -263,7 +263,7 @@ extension AuthRepository {
     /// Whether master password reprompt should be performed.
     ///
     /// - Parameter reprompt: Cipher reprompt type to check
-    /// - Returns: `True` if master password reprompt should be performed, `False` otherwise.
+    /// - Returns: `true` if master password reprompt should be performed, `false` otherwise.
     func shouldPerformMasterPasswordReprompt(reprompt: BitwardenSdk.CipherRepromptType) async throws -> Bool {
         guard reprompt == .password else {
             return false

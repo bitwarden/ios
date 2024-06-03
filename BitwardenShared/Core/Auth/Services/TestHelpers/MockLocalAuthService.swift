@@ -9,7 +9,7 @@ class MockLocalAuthService: LocalAuthService {
     func evaluateDeviceOwnerPolicy(
         _ suppliedContext: LAContext?,
         for deviceAuthStatus: DeviceAuthenticationStatus,
-        because localizedReason: String
+        reason localizedReason: String
     ) async throws -> Bool {
         try evaluateDeviceOwnerPolicyResult.get()
     }

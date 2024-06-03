@@ -40,7 +40,7 @@ class LocalAuthServiceTests: BitwardenTestCase {
 
     /// `getDeviceAuthStatus(suppliedContext:)`  when LAContext can't evaluate policy
     /// and its error is nil
-    func test_getDeviceAuthStatus_notDetermined_because_error_nil() {
+    func test_getDeviceAuthStatus_notDetermined() {
         laContext.canEvaluatePolicyResult = false
 
         let result = subject.getDeviceAuthStatus(laContext)
@@ -50,7 +50,7 @@ class LocalAuthServiceTests: BitwardenTestCase {
 
     /// `getDeviceAuthStatus(suppliedContext:)`  when LAContext can't evaluate policy
     /// and its error is nil
-    func test_getDeviceAuthStatus_unknown_error_because_error_is_not_LAError() {
+    func test_getDeviceAuthStatus_unknownErrorOnNotLAError() {
         laContext.canEvaluatePolicyResult = false
         laContext.canEvaluatePolicyError = BitwardenTestError.example
 
@@ -61,7 +61,7 @@ class LocalAuthServiceTests: BitwardenTestCase {
 
     /// `getDeviceAuthStatus(suppliedContext:)`  when LAContext can't evaluate policy
     /// and its error is nil
-    func test_getDeviceAuthStatus_unknown_error_because_LAError_is_not_expected() {
+    func test_getDeviceAuthStatus_unknownErrorOnLAErrorNotExpected() {
         laContext.canEvaluatePolicyResult = false
         laContext.canEvaluatePolicyError = LAError(LAError.Code.invalidContext)
 
@@ -72,7 +72,7 @@ class LocalAuthServiceTests: BitwardenTestCase {
 
     /// `getDeviceAuthStatus(suppliedContext:)`  when LAContext can't evaluate policy
     /// and its error is nil
-    func test_getDeviceAuthStatus_cancelled_because_LAError_is_userCancel() {
+    func test_getDeviceAuthStatus_cancelled() {
         laContext.canEvaluatePolicyResult = false
         laContext.canEvaluatePolicyError = LAError(LAError.Code.userCancel)
 
@@ -83,7 +83,7 @@ class LocalAuthServiceTests: BitwardenTestCase {
 
     /// `getDeviceAuthStatus(suppliedContext:)`  when LAContext can't evaluate policy
     /// and its error is nil
-    func test_getDeviceAuthStatus_passcodeNotSet_because_LAError_is_passcodeNotSet() {
+    func test_getDeviceAuthStatus_passcodeNotSet() {
         laContext.canEvaluatePolicyResult = false
         laContext.canEvaluatePolicyError = LAError(LAError.Code.passcodeNotSet)
 
@@ -94,10 +94,10 @@ class LocalAuthServiceTests: BitwardenTestCase {
 
     /// `evaluateDeviceOwnerPolicy(suppliedContext:,deviceAuthStatus:,localizedReason:)`
     /// when status is authorized
-    func test_evaluateDeviceOwnerPolicy_true_when_authorized_and_evaluates_correctly() async throws {
+    func test_evaluateDeviceOwnerPolicy_true() async throws {
         let reason = "reason"
 
-        let result = try await subject.evaluateDeviceOwnerPolicy(laContext, for: .authorized, because: reason)
+        let result = try await subject.evaluateDeviceOwnerPolicy(laContext, for: .authorized, reason: reason)
 
         XCTAssertTrue(result)
         XCTAssertEqual(reason, laContext.evaluatePolicyLocalizedReason)
@@ -105,11 +105,11 @@ class LocalAuthServiceTests: BitwardenTestCase {
 
     /// `evaluateDeviceOwnerPolicy(suppliedContext:,deviceAuthStatus:,localizedReason:)`
     /// when status is authorized but evaluates wrongly
-    func test_evaluateDeviceOwnerPolicy_false_when_authorized_and_evaluates_incorrectly() async throws {
+    func test_evaluateDeviceOwnerPolicy_falseEvaluation() async throws {
         let reason = "reason"
         laContext.evaluatePolicyResult = .success(false)
 
-        let result = try await subject.evaluateDeviceOwnerPolicy(laContext, for: .authorized, because: reason)
+        let result = try await subject.evaluateDeviceOwnerPolicy(laContext, for: .authorized, reason: reason)
 
         XCTAssertFalse(result)
         XCTAssertEqual(reason, laContext.evaluatePolicyLocalizedReason)
@@ -117,22 +117,22 @@ class LocalAuthServiceTests: BitwardenTestCase {
 
     /// `evaluateDeviceOwnerPolicy(suppliedContext:,deviceAuthStatus:,localizedReason:)`
     /// when status is authorized but evaluation throws `LAError.Code.userCancel`
-    func test_evaluateDeviceOwnerPolicy_throws_cancel_when_authorized_LAError_userCancel() async throws {
+    func test_evaluateDeviceOwnerPolicy_throwsCancel() async throws {
         let reason = "reason"
         laContext.evaluatePolicyResult = .failure(LAError(LAError.Code.userCancel))
 
         await assertAsyncThrows(error: LocalAuthError.cancelled) {
-            _ = try await subject.evaluateDeviceOwnerPolicy(laContext, for: .authorized, because: reason)
+            _ = try await subject.evaluateDeviceOwnerPolicy(laContext, for: .authorized, reason: reason)
         }
     }
 
     /// `evaluateDeviceOwnerPolicy(suppliedContext:,deviceAuthStatus:,localizedReason:)`
     /// when status is authorized but evaluation throws random error
-    func test_evaluateDeviceOwnerPolicy_false_when_authorized_random_error() async throws {
+    func test_evaluateDeviceOwnerPolicy_onRandomError() async throws {
         let reason = "reason"
         laContext.evaluatePolicyResult = .failure(BitwardenTestError.example)
 
-        let result = try await subject.evaluateDeviceOwnerPolicy(laContext, for: .authorized, because: reason)
+        let result = try await subject.evaluateDeviceOwnerPolicy(laContext, for: .authorized, reason: reason)
 
         XCTAssertFalse(result)
         XCTAssertEqual(reason, laContext.evaluatePolicyLocalizedReason)
@@ -140,32 +140,32 @@ class LocalAuthServiceTests: BitwardenTestCase {
 
     /// `evaluateDeviceOwnerPolicy(suppliedContext:,deviceAuthStatus:,localizedReason:)`
     /// when LAContext evaluates correctly and status is not determined
-    func test_evaluateDeviceOwnerPolicy_false_when_status_not_determined() async throws {
-        let result = try await subject.evaluateDeviceOwnerPolicy(laContext, for: .notDetermined, because: "")
+    func test_evaluateDeviceOwnerPolicy_statusNotDetermined() async throws {
+        let result = try await subject.evaluateDeviceOwnerPolicy(laContext, for: .notDetermined, reason: "")
 
         XCTAssertFalse(result)
     }
 
     /// `evaluateDeviceOwnerPolicy(suppliedContext:,deviceAuthStatus:,localizedReason:)`
     /// when status is passcode not set
-    func test_evaluateDeviceOwnerPolicy_false_when_status_passcodeNotSet() async throws {
-        let result = try await subject.evaluateDeviceOwnerPolicy(laContext, for: .passcodeNotSet, because: "")
+    func test_evaluateDeviceOwnerPolicy_statusPasscodeNotSet() async throws {
+        let result = try await subject.evaluateDeviceOwnerPolicy(laContext, for: .passcodeNotSet, reason: "")
 
         XCTAssertFalse(result)
     }
 
     /// `evaluateDeviceOwnerPolicy(suppliedContext:,deviceAuthStatus:,localizedReason:)`
     /// when status is cancelled
-    func test_evaluateDeviceOwnerPolicy_false_when_status_cancelled() async throws {
-        let result = try await subject.evaluateDeviceOwnerPolicy(laContext, for: .cancelled, because: "")
+    func test_evaluateDeviceOwnerPolicy_statusCancelled() async throws {
+        let result = try await subject.evaluateDeviceOwnerPolicy(laContext, for: .cancelled, reason: "")
 
         XCTAssertFalse(result)
     }
 
     /// `evaluateDeviceOwnerPolicy(suppliedContext:,deviceAuthStatus:,localizedReason:)`
     /// when status is unknown error
-    func test_evaluateDeviceOwnerPolicy_false_when_status_unknownError() async throws {
-        let result = try await subject.evaluateDeviceOwnerPolicy(laContext, for: .unknownError(""), because: "")
+    func test_evaluateDeviceOwnerPolicy_statusUknownError() async throws {
+        let result = try await subject.evaluateDeviceOwnerPolicy(laContext, for: .unknownError(""), reason: "")
 
         XCTAssertFalse(result)
     }

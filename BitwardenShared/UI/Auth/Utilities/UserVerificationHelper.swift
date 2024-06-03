@@ -2,10 +2,10 @@
 ///
 protocol UserVerificationHelper {
     /// Performs OS local auth, e.g. biometrics or pin/pattern
-    /// - Parameter because: The  reason to be displayed to the user when evaluating the policy if needed
+    /// - Parameter reason: The reason to be displayed to the user when evaluating the policy if needed
     /// - Returns: An `UserVerificationResult` with the verification result
     /// - Throws: `UserVerificationError.cancelled` if the user cancels the auth.
-    func verifyDeviceLocalAuth(because: String) async throws -> UserVerificationResult
+    func verifyDeviceLocalAuth(reason: String) async throws -> UserVerificationResult
 
     /// Shows an alert to the user to enter their master password and verifies it.
     /// - Returns: An `UserVerificationResult` with the verification result.
@@ -18,7 +18,7 @@ protocol UserVerificationHelper {
     func verifyPin() async throws -> UserVerificationResult
 }
 
-// MARK: DefaultUserVerificationHelper
+// MARK: - DefaultUserVerificationHelper
 
 /// Default implementation of `UserVerificationHelper`
 ///
@@ -54,20 +54,20 @@ class DefaultUserVerificationHelper {
     }
 }
 
-// MARK: UserVerificationHelper
+// MARK: - UserVerificationHelper
 
 extension DefaultUserVerificationHelper: UserVerificationHelper {
     typealias UserVerificationContinuation = CheckedContinuation<UserVerificationResult, Error>
 
-    func verifyDeviceLocalAuth(because: String) async throws -> UserVerificationResult {
+    func verifyDeviceLocalAuth(reason: String) async throws -> UserVerificationResult {
         let localAuthPermission = services.localAuthService.getDeviceAuthStatus()
         guard localAuthPermission == .authorized else {
-            return .cantPerform
+            return .unableToPerform
         }
 
         do {
             let isValid = try await services.localAuthService.evaluateDeviceOwnerPolicy(
-                because: because
+                reason: reason
             )
             return isValid ? .verified : .notVerified
         } catch LocalAuthError.cancelled {
@@ -77,7 +77,7 @@ extension DefaultUserVerificationHelper: UserVerificationHelper {
 
     func verifyMasterPassword() async throws -> UserVerificationResult {
         guard try await services.authRepository.canVerifyMasterPassword() else {
-            return .cantPerform
+            return .unableToPerform
         }
 
         return try await withCheckedThrowingContinuation { (continuation: UserVerificationContinuation) in
@@ -98,7 +98,7 @@ extension DefaultUserVerificationHelper: UserVerificationHelper {
                     continuation.resume(returning: .verified)
                 } catch {
                     services.errorReporter.log(error: error)
-                    continuation.resume(returning: .cantPerform)
+                    continuation.resume(returning: .unableToPerform)
                 }
 
             }, onCancelled: { () in
@@ -113,7 +113,7 @@ extension DefaultUserVerificationHelper: UserVerificationHelper {
 
     func verifyPin() async throws -> UserVerificationResult {
         guard try await services.authRepository.isPinUnlockAvailable() else {
-            return .cantPerform
+            return .unableToPerform
         }
 
         return try await withCheckedThrowingContinuation { (continuation: UserVerificationContinuation) in
@@ -131,17 +131,17 @@ extension DefaultUserVerificationHelper: UserVerificationHelper {
     }
 }
 
-// MARK: UserVerificationResult
+// MARK: - UserVerificationResult
 
 /// An enum with the possible results when verifying a user
 ///
 enum UserVerificationResult {
-    case cantPerform
+    case unableToPerform
     case verified
     case notVerified
 }
 
-// MARK: UserVerificationError
+// MARK: - UserVerificationError
 
 /// Errors corresponding to user verification flows.
 ///
@@ -149,7 +149,7 @@ public enum UserVerificationError: Error {
     case cancelled
 }
 
-// MARK: UserVerificationDelegate
+// MARK: - UserVerificationDelegate
 
 /// A protocol for an `UserVerificationHelper` which manages interaction
 /// with the user from the user verification flows

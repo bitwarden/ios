@@ -12,9 +12,9 @@ class MockUserVerificationHelper: UserVerificationHelper {
     var verifyPinCalled: Bool = false
     var verifyPinResult: Result<BitwardenShared.UserVerificationResult, Error> = .success(.verified)
 
-    func verifyDeviceLocalAuth(because: String) async throws -> UserVerificationResult {
+    func verifyDeviceLocalAuth(reason: String) async throws -> UserVerificationResult {
         verifyDeviceLocalAuthCalled = true
-        verifyDeviceLocalAuthBecauseValue = because
+        verifyDeviceLocalAuthBecauseValue = reason
         return try verifyDeviceLocalAuthResult.get()
     }
 

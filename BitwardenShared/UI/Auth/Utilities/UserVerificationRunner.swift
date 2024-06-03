@@ -18,7 +18,7 @@ protocol UserVerificationRunner {
     ) async throws -> UserVerificationResult
 }
 
-// MARK: UserVerificationRunner
+// MARK: - UserVerificationRunner
 
 /// Default implementation of `UserVerificationRunner`
 ///
@@ -41,11 +41,11 @@ class DefaultUserVerificationRunner: UserVerificationRunner {
     ) async throws -> UserVerificationResult {
         for verifyFunction in verifyFunctions {
             let result = try await verifyFunction()
-            if result != .cantPerform {
+            if result != .unableToPerform {
                 return result
             }
         }
 
-        return .cantPerform
+        return .unableToPerform
     }
 }

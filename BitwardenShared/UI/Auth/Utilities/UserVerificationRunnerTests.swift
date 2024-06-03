@@ -31,7 +31,7 @@ class UserVerificationRunnerTests: BitwardenTestCase {
     // MARK: Tests
 
     /// `verifyWithAttempts(verifyFunction:)` with `.Verified` inner function.
-    func test_verifyWithAttempts_verified_when_passed_closure_returns_verified() async throws {
+    func test_verifyWithAttempts_verified() async throws {
         let result = try await subject.verifyWithAttempts {
             .verified
         }
@@ -40,16 +40,16 @@ class UserVerificationRunnerTests: BitwardenTestCase {
     }
 
     /// `verifyWithAttempts(verifyFunction:)` with `.cantPerform` inner function.
-    func test_verifyWithAttempts_cantPerform_when_passed_closure_returns_cantPerform() async throws {
+    func test_verifyWithAttempts_cantPerform() async throws {
         let result = try await subject.verifyWithAttempts {
-            .cantPerform
+            .unableToPerform
         }
 
-        XCTAssertEqual(result, .cantPerform)
+        XCTAssertEqual(result, .unableToPerform)
     }
 
     /// `verifyWithAttempts(verifyFunction:)` with `.notVerified` inner function.
-    func test_verifyWithAttempts_notVerified_when_passed_closure_returns_notVerified_all_the_times() async throws {
+    func test_verifyWithAttempts_notVerified() async throws {
         var attempt = 0
         let result = try await subject.verifyWithAttempts {
             attempt += 1
@@ -62,7 +62,7 @@ class UserVerificationRunnerTests: BitwardenTestCase {
 
     /// `verifyWithAttempts(verifyFunction:)` with inner function returning
     /// 3 times `notVerified` and then `.verified`.
-    func test_verifyWithAttempts_verified_when_passed_closure_returns_notVerified_and_then_verified() async throws {
+    func test_verifyWithAttempts_verifiedWhenInnerNotVerifiedAndVerified() async throws {
         var attempt = 0
         let result = try await subject.verifyWithAttempts {
             attempt += 1
@@ -77,7 +77,7 @@ class UserVerificationRunnerTests: BitwardenTestCase {
     }
 
     /// `verifyWithAttempts(verifyFunction:)` throwing.
-    func test_verifyWithAttempts_throws_when_passed_closure_throws() async throws {
+    func test_verifyWithAttempts_throws() async throws {
         await assertAsyncThrows(error: UserVerificationError.cancelled) {
             _ = try await subject.verifyWithAttempts {
                 throw UserVerificationError.cancelled
@@ -86,9 +86,9 @@ class UserVerificationRunnerTests: BitwardenTestCase {
     }
 
     /// `verifyInQueue(verifyFunctions:)` with three functions, first one can't perform and then verified.
-    func test_verifyInQueue_verified_on_second_function() async throws {
+    func test_verifyInQueue_verified() async throws {
         let verify1: VerifyFunction = {
-            .cantPerform
+            .unableToPerform
         }
 
         let verify2: VerifyFunction = {
@@ -109,9 +109,9 @@ class UserVerificationRunnerTests: BitwardenTestCase {
     }
 
     /// `verifyInQueue(verifyFunctions:)` with three functions, first one can't perform and then not verified.
-    func test_verifyInQueue_not_verified_on_second_function() async throws {
+    func test_verifyInQueue_notVerified() async throws {
         let verify1: VerifyFunction = {
-            .cantPerform
+            .unableToPerform
         }
 
         let verify2: VerifyFunction = {
@@ -131,18 +131,18 @@ class UserVerificationRunnerTests: BitwardenTestCase {
         XCTAssertEqual(result, .notVerified)
     }
 
-    /// `verifyInQueue(verifyFunctions:)` with three functions that can't perform.
-    func test_verifyInQueue_cantPerform_when_none_of_the_functions_can_perform() async throws {
+    /// `verifyInQueue(verifyFunctions:)` with three functions that are unable to perform.
+    func test_verifyInQueue_unableToPerform() async throws {
         let verify1: VerifyFunction = {
-            .cantPerform
+            .unableToPerform
         }
 
         let verify2: VerifyFunction = {
-            .cantPerform
+            .unableToPerform
         }
 
         let verify3: VerifyFunction = {
-            .cantPerform
+            .unableToPerform
         }
 
         let result = try await subject.verifyInQueue(verifyFunctions: [
@@ -151,18 +151,18 @@ class UserVerificationRunnerTests: BitwardenTestCase {
             verify3,
         ])
 
-        XCTAssertEqual(result, .cantPerform)
+        XCTAssertEqual(result, .unableToPerform)
     }
 
     /// `verifyInQueue(verifyFunctions:)` with no functions.
-    func test_verifyInQueue_cantPerform_when_no_functions() async throws {
+    func test_verifyInQueue_unableToPerformWhenNoFunctions() async throws {
         let result = try await subject.verifyInQueue(verifyFunctions: [])
 
-        XCTAssertEqual(result, .cantPerform)
+        XCTAssertEqual(result, .unableToPerform)
     }
 
     /// `verifyInQueue(verifyFunctions:)` throwing.
-    func test_verifyInQueue_throws_when_passed_closure_throws() async throws {
+    func test_verifyInQueue_throws() async throws {
         let verify: VerifyFunction = {
             throw UserVerificationError.cancelled
         }

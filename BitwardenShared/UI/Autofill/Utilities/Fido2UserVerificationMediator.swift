@@ -1,6 +1,6 @@
 import BitwardenSdk
 
-// MARK: Fido2UserVerificationMediatorDelegate
+// MARK: - Fido2UserVerificationMediatorDelegate
 
 /// A protocol for an `Fido2UserVerificationMediatorDelegate` which manages interaction
 /// with the user from the user verification flows
@@ -12,7 +12,7 @@ protocol Fido2UserVerificationMediatorDelegate: UserVerificationDelegate {
     func setupPin() async throws
 }
 
-// MARK: Fido2UserVerificationMediator
+// MARK: - Fido2UserVerificationMediator
 
 /// A protocol for an `Fido2UserVerificationMediator` which manages user verification on Fido2 flows.
 ///
@@ -121,13 +121,13 @@ extension DefaultFido2UserVerificationMediator: Fido2UserVerificationMediator {
             return CheckUserResult(userPresent: true, userVerified: false)
         case .preferred:
             let result = try await userVerificationHelper.verifyDeviceLocalAuth(
-                because: Localizations.userVerificationForPasskey
+                reason: Localizations.userVerificationForPasskey
             )
             return CheckUserResult(userPresent: true, userVerified: result == .verified)
         case .required:
             let verifyDeviceLocalAuth = {
                 try await self.userVerificationHelper.verifyDeviceLocalAuth(
-                    because: Localizations.userVerificationForPasskey
+                    reason: Localizations.userVerificationForPasskey
                 )
             }
             let verifyPin = { try await self.userVerificationRunner.verifyWithAttempts(
@@ -142,7 +142,7 @@ extension DefaultFido2UserVerificationMediator: Fido2UserVerificationMediator {
                 verifyMasterPassword,
             ])
 
-            if result != .cantPerform {
+            if result != .unableToPerform {
                 return CheckUserResult(userPresent: true, userVerified: result == .verified)
             }
 

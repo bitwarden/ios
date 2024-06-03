@@ -16,7 +16,7 @@ protocol LocalAuthService: AnyObject {
     func evaluateDeviceOwnerPolicy(
         _ suppliedContext: LAContext?,
         for deviceAuthStatus: DeviceAuthenticationStatus,
-        because localizedReason: String
+        reason localizedReason: String
     ) async throws -> Bool
 
     /// Returns the status for user device authentication.
@@ -42,15 +42,15 @@ extension LocalAuthService {
     /// Evaluate's the users biometrics policy via `BiometricAuthorizationStatus`
     /// - Parameters:
     ///   - suppliedContext: The `LAContext` to use (optional).
-    ///   - localizedReason: The  reason to be displayed to the user when evaluating the policy if needed
+    ///   - reason: The  reason to be displayed to the user when evaluating the policy if needed
     /// - Returns: An evaluated status for the user's biometric authorization.
     /// - Throws: Throws `LAError.Code.userCancel` if cancelled
     func evaluateDeviceOwnerPolicy(
         _ suppliedContext: LAContext? = nil,
-        because localizedReason: String
+        reason localizedReason: String
     ) async throws -> Bool {
         let initialStatus = getDeviceAuthStatus(suppliedContext)
-        return try await evaluateDeviceOwnerPolicy(suppliedContext, for: initialStatus, because: localizedReason)
+        return try await evaluateDeviceOwnerPolicy(suppliedContext, for: initialStatus, reason: localizedReason)
     }
 }
 
@@ -74,7 +74,7 @@ class DefaultLocalAuthService: LocalAuthService {
 
             switch laError.code {
             case .userCancel:
-                Logger.application.log("User cancel authentication")
+                Logger.application.log("User canceled authentication")
                 return .cancelled
             case .passcodeNotSet:
                 Logger.application.log("Passcode not set")
@@ -91,7 +91,7 @@ class DefaultLocalAuthService: LocalAuthService {
     func evaluateDeviceOwnerPolicy(
         _ suppliedContext: LAContext?,
         for deviceAuthStatus: DeviceAuthenticationStatus,
-        because localizedReason: String
+        reason localizedReason: String
     ) async throws -> Bool {
         guard case .authorized = deviceAuthStatus else {
             return false
