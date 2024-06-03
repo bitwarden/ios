@@ -39,7 +39,7 @@ class DefaultUserVerificationHelper {
 
     // MARK: Initialization
 
-    /// Initialize a `DefaultFido2UserVerificationMediator`.
+    /// Initialize a `DefaultUserVerificationHelper`.
     ///
     /// - Parameters:
     ///   - userVerificationMediatorDelegate: The delegate to manage user interaction from the user verification flow.
