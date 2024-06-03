@@ -1,5 +1,8 @@
+import AuthenticationServices
 import SwiftUI
 import XCTest
+
+// swiftlint:disable file_length
 
 @testable import BitwardenShared
 
@@ -11,6 +14,7 @@ class AuthCoordinatorTests: BitwardenTestCase { // swiftlint:disable:this type_b
     var appSettingsStore: MockAppSettingsStore!
     var authDelegate: MockAuthDelegate!
     var authRepository: MockAuthRepository!
+    var authService: MockAuthService!
     var authRouter: AuthRouter!
     var errorReporter: MockErrorReporter!
     var rootNavigator: MockRootNavigator!
@@ -26,6 +30,7 @@ class AuthCoordinatorTests: BitwardenTestCase { // swiftlint:disable:this type_b
         appSettingsStore = MockAppSettingsStore()
         authDelegate = MockAuthDelegate()
         authRepository = MockAuthRepository()
+        authService = MockAuthService()
         errorReporter = MockErrorReporter()
         rootNavigator = MockRootNavigator()
         stackNavigator = MockStackNavigator()
@@ -34,6 +39,7 @@ class AuthCoordinatorTests: BitwardenTestCase { // swiftlint:disable:this type_b
         let services = ServiceContainer.withMocks(
             appSettingsStore: appSettingsStore,
             authRepository: authRepository,
+            authService: authService,
             errorReporter: errorReporter,
             stateService: stateService,
             vaultTimeoutService: vaultTimeoutService
@@ -54,6 +60,7 @@ class AuthCoordinatorTests: BitwardenTestCase { // swiftlint:disable:this type_b
         appSettingsStore = nil
         authDelegate = nil
         authRepository = nil
+        authService = nil
         errorReporter = nil
         rootNavigator = nil
         stackNavigator = nil
@@ -321,6 +328,65 @@ class AuthCoordinatorTests: BitwardenTestCase { // swiftlint:disable:this type_b
         let view = viewController.rootView
         let state = view.store.state
         XCTAssertEqual(state.orgIdentifier, "Bitwarden")
+    }
+
+    /// `navigate(to:)` with `.webAuthnSelfHosted` opens the WebAuthn connector web page.
+    func test_navigate_webAuthnSelfHosted() throws {
+        let delegate = MockWebAuthnFlowDelegate()
+
+        subject.navigate(to: .webAuthnSelfHosted(URL(string: "https://www.example.com")!), context: delegate)
+
+        guard let mockSession = authService.webAuthenticationSession as? MockWebAuthenticationSession else {
+            XCTFail("Did not initialize web authentication session")
+            return
+        }
+
+        let expectedToken = "token"
+        let callbackUrl = URL(string: "https://www.example.com/?data=\(expectedToken)")
+
+        XCTAssertTrue(mockSession.startCalled)
+
+        mockSession.initCompletionHandler(callbackUrl, nil)
+
+        XCTAssertEqual(delegate.completedToken, expectedToken)
+    }
+
+    /// `navigate(to:)` with `.webAuthnSelfHosted` handles errors.
+    func test_navigate_webAuthnSelfHosted_error() throws {
+        let delegate = MockWebAuthnFlowDelegate()
+
+        subject.navigate(to: .webAuthnSelfHosted(URL(string: "https://www.example.com")!), context: delegate)
+
+        guard let mockSession = authService.webAuthenticationSession as? MockWebAuthenticationSession else {
+            XCTFail("Did not initialize web authentication session")
+            return
+        }
+
+        XCTAssertTrue(mockSession.startCalled)
+
+        mockSession.initCompletionHandler(nil, BitwardenTestError.example)
+
+        XCTAssertEqual(delegate.erroredError as? BitwardenTestError, BitwardenTestError.example)
+    }
+
+    /// `navigate(to:)` with `.webAuthnSelfHosted` handles when the server sends unparseable credentials
+    func test_navigate_webAuthnSelfHosted_unableToDecode() throws {
+        let delegate = MockWebAuthnFlowDelegate()
+
+        subject.navigate(to: .webAuthnSelfHosted(URL(string: "https://www.example.com")!), context: delegate)
+
+        guard let mockSession = authService.webAuthenticationSession as? MockWebAuthenticationSession else {
+            XCTFail("Did not initialize web authentication session")
+            return
+        }
+
+        let callbackUrl = URL(string: "https://www.example.com/junk")
+
+        XCTAssertTrue(mockSession.startCalled)
+
+        mockSession.initCompletionHandler(callbackUrl, nil)
+
+        XCTAssertEqual(delegate.erroredError as? WebAuthnError, WebAuthnError.unableToDecodeCredential)
     }
 
     /// `rootNavigator` uses a weak reference and does not retain a value once the root navigator has been erased.

@@ -645,7 +645,7 @@ final class AuthCoordinator: NSObject, // swiftlint:disable:this type_body_lengt
         delegate: WebAuthnFlowDelegate?
     ) {
         guard let delegate else { return }
-        let session = ASWebAuthenticationSession(
+        let session = services.authService.webAuthenticationSession(
             url: url,
             callbackURLScheme: services.authService.callbackUrlScheme
         ) { callbackURL, error in

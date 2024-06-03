@@ -1,3 +1,4 @@
+import AuthenticationServices
 import BitwardenSdk
 import Foundation
 
@@ -62,6 +63,8 @@ class MockAuthService: AuthService {
 
     var setPendingAdminLoginRequest: PendingAdminLoginRequest?
     var setPendingAdminLoginRequestResult: Result<Void, Error> = .success(())
+
+    var webAuthenticationSession: ASWebAuthenticationSession?
 
     func answerLoginRequest(_ request: LoginRequest, approve: Bool) async throws {
         answerLoginRequestRequest = request
@@ -165,5 +168,46 @@ class MockAuthService: AuthService {
     func setPendingAdminLoginRequest(_ adminLoginRequest: PendingAdminLoginRequest?, userId: String?) async throws {
         setPendingAdminLoginRequest = adminLoginRequest
         try setPendingAdminLoginRequestResult.get()
+    }
+
+    func webAuthenticationSession(
+        url: URL,
+        callbackURLScheme: String?,
+        completionHandler: @escaping ASWebAuthenticationSession.CompletionHandler
+    ) -> ASWebAuthenticationSession {
+        let mockSession = MockWebAuthenticationSession(
+            url: url,
+            callbackURLScheme: callbackURLScheme,
+            completionHandler: completionHandler
+        )
+        webAuthenticationSession = mockSession
+        return mockSession
+    }
+}
+
+// MARK: - MockWebAuthenticationSession
+
+class MockWebAuthenticationSession: ASWebAuthenticationSession {
+    var startCalled = false
+    var startReturn = true
+
+    var initUrl: URL
+    var initCallbackURLScheme: String?
+    var initCompletionHandler: ASWebAuthenticationSession.CompletionHandler
+
+    override init(
+        url URL: URL,
+        callbackURLScheme: String?,
+        completionHandler: @escaping ASWebAuthenticationSession.CompletionHandler
+    ) {
+        initUrl = URL
+        initCallbackURLScheme = callbackURLScheme
+        initCompletionHandler = completionHandler
+        super.init(url: URL, callbackURLScheme: callbackURLScheme, completionHandler: completionHandler)
+    }
+
+    override func start() -> Bool {
+        startCalled = true
+        return startReturn
     }
 }

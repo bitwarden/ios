@@ -618,3 +618,23 @@ class TwoFactorAuthProcessorTests: BitwardenTestCase { // swiftlint:disable:this
         XCTAssertTrue(subject.state.continueEnabled)
     }
 }
+
+// MARK: - MockWebAuthnFlowDelegate
+
+class MockWebAuthnFlowDelegate: WebAuthnFlowDelegate {
+    var completedCalled = false
+    var completedToken: String?
+
+    var erroredCalled = false
+    var erroredError: Error?
+
+    func webAuthnCompleted(token: String) {
+        completedCalled = true
+        completedToken = token
+    }
+
+    func webAuthnErrored(error: Error) {
+        erroredCalled = true
+        erroredError = error
+    }
+}
