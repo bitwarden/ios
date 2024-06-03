@@ -182,8 +182,10 @@ extension DefaultAutofillCredentialService: AutofillCredentialService {
         }
 
         let disableAutoTotpCopy = try await stateService.getDisableAutoTotpCopy()
+        let accountHasPremium = try await stateService.doesActiveAccountHavePremium()
         if !disableAutoTotpCopy,
-           let totp = cipher.login?.totp {
+           let totp = cipher.login?.totp,
+           cipher.organizationUseTotp || accountHasPremium {
             let codeModel = try await clientService.vault().generateTOTPCode(for: totp, date: nil)
             pasteboardService.copy(codeModel.code)
         }

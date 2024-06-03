@@ -190,37 +190,15 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
         XCTAssertEqual(cipherService.deleteCipherId, "123")
     }
 
-    /// Tests the ability to determine if an account has premium.
-    func test_doesActiveAccountHavePremium_error() async {
-        stateService.activeAccount = nil
-
-        await assertAsyncThrows(error: StateServiceError.noActiveAccount) {
-            _ = try await subject.doesActiveAccountHavePremium()
-        }
-    }
-
-    /// Tests the ability to determine if an account has premium.
-    func test_doesActiveAccountHavePremium_false() async throws {
-        stateService.activeAccount = .fixture(
-            profile: .fixture(
-                hasPremiumPersonally: false
-            )
-        )
-
-        let hasPremium = try await subject.doesActiveAccountHavePremium()
-        XCTAssertFalse(hasPremium)
-    }
-
-    /// Tests the ability to determine if an account has premium.
-    func test_doesActiveAccountHavePremium_true() async throws {
-        stateService.activeAccount = .fixture(
-            profile: .fixture(
-                hasPremiumPersonally: true
-            )
-        )
-
-        let hasPremium = try await subject.doesActiveAccountHavePremium()
+    /// `doesActiveAccountHavePremium()` returns whether the active account has access to premium features.
+    func test_doesActiveAccountHavePremium() async throws {
+        stateService.doesActiveAccountHavePremiumResult = .success(true)
+        var hasPremium = try await subject.doesActiveAccountHavePremium()
         XCTAssertTrue(hasPremium)
+
+        stateService.doesActiveAccountHavePremiumResult = .success(false)
+        hasPremium = try await subject.doesActiveAccountHavePremium()
+        XCTAssertFalse(hasPremium)
     }
 
     /// `downloadAttachment(_:cipher:)` downloads the attachment data and saves the result to the documents directory.
@@ -1495,6 +1473,7 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
     /// `vaultListPublisher(group:filter:)` does not return TOTP items for non-premium accounts.
     func test_vaultListPublisher_groups_totp_notPremium() async throws {
         stateService.activeAccount = nonPremiumAccount
+        stateService.doesActiveAccountHavePremiumResult = .success(false)
         let cipher = Cipher.fixture(id: "1", login: .fixture(totp: "123"), type: .login)
         cipherService.ciphersSubject.send([cipher])
 
@@ -1611,6 +1590,7 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
     ///   with no TOTP items for accounts without premium.
     func test_vaultListPublisher_section_nonPremium() async throws { // swiftlint:disable:this function_body_length
         stateService.activeAccount = nonPremiumAccount
+        stateService.doesActiveAccountHavePremiumResult = .success(false)
         let ciphers: [Cipher] = [
             .fixture(folderId: "1", id: "1", type: .login),
             .fixture(id: "2", login: .fixture(totp: "123"), type: .login),
