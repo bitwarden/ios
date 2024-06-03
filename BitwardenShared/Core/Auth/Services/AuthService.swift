@@ -694,12 +694,11 @@ class DefaultAuthService: AuthService { // swiftlint:disable:this type_body_leng
 
     func webAuthenticationSession(
         url: URL,
-        callbackURLScheme: String?,
         completionHandler: @escaping ASWebAuthenticationSession.CompletionHandler
     ) -> ASWebAuthenticationSession {
         ASWebAuthenticationSession(
             url: url,
-            callbackURLScheme: callbackURLScheme,
+            callbackURLScheme: callbackUrlScheme,
             completionHandler: completionHandler
         )
     }

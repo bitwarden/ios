@@ -334,7 +334,7 @@ class AuthCoordinatorTests: BitwardenTestCase { // swiftlint:disable:this type_b
     func test_navigate_webAuthnSelfHosted() throws {
         let delegate = MockWebAuthnFlowDelegate()
 
-        subject.navigate(to: .webAuthnSelfHosted(URL(string: "https://www.example.com")!), context: delegate)
+        subject.navigate(to: .webAuthnSelfHosted(URL.example), context: delegate)
 
         guard let mockSession = authService.webAuthenticationSession as? MockWebAuthenticationSession else {
             XCTFail("Did not initialize web authentication session")
@@ -346,6 +346,9 @@ class AuthCoordinatorTests: BitwardenTestCase { // swiftlint:disable:this type_b
 
         XCTAssertTrue(mockSession.startCalled)
 
+        XCTAssertEqual(mockSession.initUrl, URL.example)
+        XCTAssertEqual(mockSession.initCallbackURLScheme, authService.callbackUrlScheme)
+
         mockSession.initCompletionHandler(callbackUrl, nil)
 
         XCTAssertEqual(delegate.completedToken, expectedToken)
@@ -355,7 +358,7 @@ class AuthCoordinatorTests: BitwardenTestCase { // swiftlint:disable:this type_b
     func test_navigate_webAuthnSelfHosted_error() throws {
         let delegate = MockWebAuthnFlowDelegate()
 
-        subject.navigate(to: .webAuthnSelfHosted(URL(string: "https://www.example.com")!), context: delegate)
+        subject.navigate(to: .webAuthnSelfHosted(URL.example), context: delegate)
 
         guard let mockSession = authService.webAuthenticationSession as? MockWebAuthenticationSession else {
             XCTFail("Did not initialize web authentication session")
@@ -363,6 +366,9 @@ class AuthCoordinatorTests: BitwardenTestCase { // swiftlint:disable:this type_b
         }
 
         XCTAssertTrue(mockSession.startCalled)
+
+        XCTAssertEqual(mockSession.initUrl, URL.example)
+        XCTAssertEqual(mockSession.initCallbackURLScheme, authService.callbackUrlScheme)
 
         mockSession.initCompletionHandler(nil, BitwardenTestError.example)
 
@@ -373,19 +379,27 @@ class AuthCoordinatorTests: BitwardenTestCase { // swiftlint:disable:this type_b
     func test_navigate_webAuthnSelfHosted_unableToDecode() throws {
         let delegate = MockWebAuthnFlowDelegate()
 
-        subject.navigate(to: .webAuthnSelfHosted(URL(string: "https://www.example.com")!), context: delegate)
+        subject.navigate(to: .webAuthnSelfHosted(URL.example), context: delegate)
 
         guard let mockSession = authService.webAuthenticationSession as? MockWebAuthenticationSession else {
             XCTFail("Did not initialize web authentication session")
             return
         }
 
-        let callbackUrl = URL(string: "https://www.example.com/junk")
-
         XCTAssertTrue(mockSession.startCalled)
 
-        mockSession.initCompletionHandler(callbackUrl, nil)
+        XCTAssertEqual(mockSession.initUrl, URL.example)
+        XCTAssertEqual(mockSession.initCallbackURLScheme, authService.callbackUrlScheme)
 
+        mockSession.initCompletionHandler(nil, nil)
+        XCTAssertEqual(delegate.erroredError as? WebAuthnError, WebAuthnError.unableToDecodeCredential)
+        delegate.erroredError = nil
+
+        mockSession.initCompletionHandler(URL(string: "https://www.example.com/junk"), nil)
+        XCTAssertEqual(delegate.erroredError as? WebAuthnError, WebAuthnError.unableToDecodeCredential)
+        delegate.erroredError = nil
+
+        mockSession.initCompletionHandler(URL(string: "https://www.example.com/?junk=token"), nil)
         XCTAssertEqual(delegate.erroredError as? WebAuthnError, WebAuthnError.unableToDecodeCredential)
     }
 
