@@ -39,7 +39,7 @@ class DefaultFido2UserVerificationMediator {
 
     // MARK: Properties
 
-    /// The delegate used to manage user interaction from the user verification flow..
+    /// The delegate used to manage user interaction from the user verification flow.
     private weak var fido2UserVerificationMediatorDelegate: Fido2UserVerificationMediatorDelegate?
 
     /// The helper to execute user verification flows.
