@@ -202,7 +202,9 @@ struct SendListView: View {
                 placement: .navigationBarDrawer(displayMode: .always),
                 prompt: Localizations.search
             )
-            .refreshable { await store.perform(.refresh) }
+            .refreshable { [weak store] in
+                await store?.perform(.refresh)
+            }
             .navigationBar(
                 title: store.state.navigationTitle,
                 titleDisplayMode: store.state.type == nil ? .large : .inline
