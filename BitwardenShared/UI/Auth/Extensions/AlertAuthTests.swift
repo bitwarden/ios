@@ -118,10 +118,10 @@ class AlertAuthTests: BitwardenTestCase {
         XCTAssertEqual(subject.message, Localizations.setPINDescription)
     }
 
-    /// `enterPINCode(completion:,settingUp:)` constructs an `Alert`
+    /// `enterPINCode(completion:settingUp:)` constructs an `Alert`
     /// with the correct title, message, Submit and Cancel buttons when verifying it.
     func test_enterPINCodeAlert_when_verifying() {
-        let subject = Alert.enterPINCode(completion: { _ in }, settingUp: false)
+        let subject = Alert.enterPINCode(settingUp: false, completion: { _ in })
 
         XCTAssertEqual(subject.alertActions.count, 2)
         XCTAssertEqual(subject.preferredStyle, .alert)
@@ -129,20 +129,17 @@ class AlertAuthTests: BitwardenTestCase {
         XCTAssertEqual(subject.message, Localizations.verifyPIN)
     }
 
-    /// `enterPINCode(completion:,settingUp:)` constructs an `Alert`
+    /// `enterPINCode(completion:settingUp:)` constructs an `Alert`
     /// with completion closure expecting pin
     func test_enterPINCodeAlert_completion_with_pin() async throws {
         let expectedPin = "myPin"
         let expectation = expectation(description: #function)
 
-        let subject = Alert.enterPINCode(
-            completion: { pin in
-                expectation.fulfill()
+        let subject = Alert.enterPINCode(settingUp: false) { pin in
+            expectation.fulfill()
 
-                XCTAssertEqual(expectedPin, pin)
-            },
-            settingUp: false
-        )
+            XCTAssertEqual(expectedPin, pin)
+        }
 
         var textField = try XCTUnwrap(subject.alertTextFields.first)
         textField = AlertTextField(id: "pin", text: expectedPin)
@@ -152,15 +149,15 @@ class AlertAuthTests: BitwardenTestCase {
         await fulfillment(of: [expectation], timeout: 3)
     }
 
-    /// `enterPINCode(completion:,settingUp:)` constructs an `Alert`
+    /// `enterPINCode(completion:settingUp:)` constructs an `Alert`
     /// with cancel closure and it gets fired when tapping on cancel
     func test_enterPINCodeAlert_cancel() async throws {
         let expectation = expectation(description: #function)
 
         let subject = Alert.enterPINCode(
-            completion: { _ in },
             onCancelled: { () in expectation.fulfill() },
-            settingUp: false
+            settingUp: false,
+            completion: { _ in }
         )
 
         try await subject.tapAction(title: Localizations.cancel)

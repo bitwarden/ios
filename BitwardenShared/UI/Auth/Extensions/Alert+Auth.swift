@@ -245,9 +245,9 @@ extension Alert {
     ///   - settingUp: Whether the message displayed to the user is to set or verify a pin
     /// - Returns: An alert that prompts the user to enter their PIN.
     static func enterPINCode(
-        completion: @MainActor @escaping (String) async -> Void,
         onCancelled: (() -> Void)? = nil,
-        settingUp: Bool = true
+        settingUp: Bool = true,
+        completion: @MainActor @escaping (String) async -> Void
     ) -> Alert {
         Alert(
             title: Localizations.enterPIN,

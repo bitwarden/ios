@@ -308,7 +308,7 @@ final class AccountSecurityProcessor: StateProcessor<
     ///
     private func toggleUnlockWithPIN(_ isOn: Bool) {
         if isOn {
-            coordinator.showAlert(.enterPINCode(completion: { pin in
+            coordinator.showAlert(.enterPINCode { pin in
                 do {
                     let userHasMasterPassword = try await self.services.stateService.getUserHasMasterPassword()
                     if userHasMasterPassword {
@@ -322,7 +322,7 @@ final class AccountSecurityProcessor: StateProcessor<
                     self.services.errorReporter.log(error: error)
                     self.coordinator.showAlert(.defaultAlert(title: Localizations.anErrorHasOccurred))
                 }
-            }))
+            })
         } else {
             Task {
                 do {

@@ -81,29 +81,31 @@ extension DefaultUserVerificationHelper: UserVerificationHelper {
         }
 
         return try await withCheckedThrowingContinuation { (continuation: UserVerificationContinuation) in
-            let alert = Alert.masterPasswordPrompt(completion: { [weak self] password in
-                guard let self else { return }
+            let alert = Alert.masterPasswordPrompt(
+                onCancelled: { () in
+                    continuation.resume(throwing: UserVerificationError.cancelled)
+                },
+                completion: { [weak self] password in
+                    guard let self else { return }
 
-                do {
-                    let isValid = try await services.authRepository.validatePassword(password)
-                    guard isValid else {
-                        userVerificationDelegate?.showAlert(
-                            .defaultAlert(title: Localizations.invalidMasterPassword),
-                            onDismissed: {
-                                continuation.resume(returning: .notVerified)
-                            }
-                        )
-                        return
+                    do {
+                        let isValid = try await services.authRepository.validatePassword(password)
+                        guard isValid else {
+                            userVerificationDelegate?.showAlert(
+                                .defaultAlert(title: Localizations.invalidMasterPassword),
+                                onDismissed: {
+                                    continuation.resume(returning: .notVerified)
+                                }
+                            )
+                            return
+                        }
+                        continuation.resume(returning: .verified)
+                    } catch {
+                        services.errorReporter.log(error: error)
+                        continuation.resume(returning: .unableToPerform)
                     }
-                    continuation.resume(returning: .verified)
-                } catch {
-                    services.errorReporter.log(error: error)
-                    continuation.resume(returning: .unableToPerform)
                 }
-
-            }, onCancelled: { () in
-                continuation.resume(throwing: UserVerificationError.cancelled)
-            })
+            )
 
             Task {
                 await self.userVerificationDelegate?.showAlert(alert)
@@ -117,12 +119,16 @@ extension DefaultUserVerificationHelper: UserVerificationHelper {
         }
 
         return try await withCheckedThrowingContinuation { (continuation: UserVerificationContinuation) in
-            let alert = Alert.enterPINCode(completion: { _ in
-                // TODO: PM-8388 Perform PIN verification when method available from SDK
-                continuation.resume(returning: .notVerified)
-            }, onCancelled: { () in
-                continuation.resume(throwing: UserVerificationError.cancelled)
-            }, settingUp: false)
+            let alert = Alert.enterPINCode(
+                onCancelled: { () in
+                    continuation.resume(throwing: UserVerificationError.cancelled)
+                },
+                settingUp: false,
+                completion: { _ in
+                    // TODO: PM-8388 Perform PIN verification when method available from SDK
+                    continuation.resume(returning: .notVerified)
+                }
+            )
 
             Task {
                 await self.userVerificationDelegate?.showAlert(alert)

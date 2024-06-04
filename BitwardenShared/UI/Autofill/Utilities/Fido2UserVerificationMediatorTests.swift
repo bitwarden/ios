@@ -62,7 +62,7 @@ class Fido2UserVerificationMediatorTests: BitwardenTestCase {
 
     // MARK: Tests
 
-    /// `checkUser(userVerificationPreference:,credential:)`  with each preference,
+    /// `checkUser(userVerificationPreference:credential:)`  with each preference,
     /// reprompt enabled and reprompt verified.
     func test_checkUser_anyPreferenceVerifiedReprompt() async throws {
         try await checkUser_verified_when_reprompt_and_reprompt_verified(.discouraged)
@@ -70,7 +70,7 @@ class Fido2UserVerificationMediatorTests: BitwardenTestCase {
         try await checkUser_verified_when_reprompt_and_reprompt_verified(.required)
     }
 
-    /// `checkUser(userVerificationPreference:,credential:)`  with each preference,
+    /// `checkUser(userVerificationPreference:credential:)`  with each preference,
     /// reprompt enabled and reprompt not verified.
     func test_checkUser_anyPreferenceNotVerifiedReprompt() async throws {
         try await checkUser_not_verified_when_reprompt_and_reprompt_not_verified(.discouraged)
@@ -78,7 +78,7 @@ class Fido2UserVerificationMediatorTests: BitwardenTestCase {
         try await checkUser_not_verified_when_reprompt_and_reprompt_not_verified(.required)
     }
 
-    /// `checkUser(userVerificationPreference:,credential:)`  with each preference,
+    /// `checkUser(userVerificationPreference:credential:)`  with each preference,
     /// reprompt enabled and reprompt throws.
     func test_checkUser_anyPreferenceThrowsReprompt() async throws {
         try await checkUser_throws_when_reprompt_and_reprompt_throws(.discouraged)
@@ -86,7 +86,7 @@ class Fido2UserVerificationMediatorTests: BitwardenTestCase {
         try await checkUser_throws_when_reprompt_and_reprompt_throws(.required)
     }
 
-    /// `checkUser(userVerificationPreference:,credential:)`  with preference discouraged,
+    /// `checkUser(userVerificationPreference:credential:)`  with preference discouraged,
     /// reprompt none.
     func test_checkUser_discouragedNotVerified() async throws {
         let cipher = CipherView.fixture()
@@ -95,7 +95,7 @@ class Fido2UserVerificationMediatorTests: BitwardenTestCase {
         XCTAssertEqual(result, CheckUserResult(userPresent: true, userVerified: false))
     }
 
-    /// `checkUser(userVerificationPreference:,credential:)`  with preference preferred,
+    /// `checkUser(userVerificationPreference:credential:)`  with preference preferred,
     /// reprompt none and verified device local auth.
     func test_checkUser_preferredVerifiedDevice() async throws {
         userVerificationHelper.verifyDeviceLocalAuthResult = .success(.verified)
@@ -110,7 +110,7 @@ class Fido2UserVerificationMediatorTests: BitwardenTestCase {
         )
     }
 
-    /// `checkUser(userVerificationPreference:,credential:)`  with preference preferred,
+    /// `checkUser(userVerificationPreference:credential:)`  with preference preferred,
     /// reprompt none and not verified device local auth.
     func test_checkUser_preferredNotVerifiedDevice() async throws {
         userVerificationHelper.verifyDeviceLocalAuthResult = .success(.notVerified)
@@ -125,7 +125,7 @@ class Fido2UserVerificationMediatorTests: BitwardenTestCase {
         )
     }
 
-    /// `checkUser(userVerificationPreference:,credential:)`  with preference required,
+    /// `checkUser(userVerificationPreference:credential:)`  with preference required,
     /// reprompt none and verified flow.
     func test_checkUser_requiredVerified() async throws {
         userVerificationRunner.verifyInQueueResult = .success(.verified)
@@ -144,7 +144,7 @@ class Fido2UserVerificationMediatorTests: BitwardenTestCase {
         )
     }
 
-    /// `checkUser(userVerificationPreference:,credential:)`  with preference required,
+    /// `checkUser(userVerificationPreference:credential:)`  with preference required,
     /// reprompt none and not verified flow.
     func test_checkUser_requiredNotVerified() async throws {
         userVerificationRunner.verifyInQueueResult = .success(.notVerified)
@@ -163,7 +163,7 @@ class Fido2UserVerificationMediatorTests: BitwardenTestCase {
         )
     }
 
-    /// `checkUser(userVerificationPreference:,credential:)`  with preference required,
+    /// `checkUser(userVerificationPreference:credential:)`  with preference required,
     /// reprompt none and unable to perform perform device local auth, pin nor master passwrod verifications.
     func test_checkUser_requiredUnableToPerform() async throws {
         userVerificationRunner.verifyInQueueResult = .success(.unableToPerform)
