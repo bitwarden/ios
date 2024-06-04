@@ -246,7 +246,7 @@ class MockVaultRepository: VaultRepository {
         return searchVaultListSubject.eraseToAnyPublisher().values
     }
 
-    func shareCipher(_ cipher: CipherView) async throws {
+    func shareCipher(_ cipher: CipherView, newOrganizationId: String, newCollectionIds: [String]) async throws {
         shareCipherCiphers.append(cipher)
         try shareCipherResult.get()
     }

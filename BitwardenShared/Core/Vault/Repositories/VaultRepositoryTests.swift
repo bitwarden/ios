@@ -1009,12 +1009,16 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
         stateService.activeAccount = .fixtureAccountLogin()
 
         let cipher = CipherView.fixture()
-        try await subject.shareCipher(cipher)
+        try await subject.shareCipher(cipher, newOrganizationId: "5", newCollectionIds: ["6", "7"])
 
-        XCTAssertEqual(cipherService.shareCipherWithServerCiphers, [Cipher(cipherView: cipher)])
-        XCTAssertEqual(clientCiphers.encryptedCiphers, [cipher])
+        let updatedCipher = cipher.update(collectionIds: ["6", "7"])
 
-        XCTAssertEqual(cipherService.shareCipherWithServerCiphers.last, Cipher(cipherView: cipher))
+        XCTAssertEqual(cipherService.shareCipherWithServerCiphers, [Cipher(cipherView: updatedCipher)])
+        XCTAssertEqual(clientCiphers.encryptedCiphers, [updatedCipher])
+        XCTAssertEqual(clientCiphers.moveToOrganizationCipher, cipher)
+        XCTAssertEqual(clientCiphers.moveToOrganizationOrganizationId, "5")
+
+        XCTAssertEqual(cipherService.shareCipherWithServerCiphers.last, Cipher(cipherView: updatedCipher))
     }
 
     /// `shouldShowUnassignedCiphersAlert` is true if the feature flag is on,

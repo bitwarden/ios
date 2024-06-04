@@ -193,25 +193,6 @@ extension CipherView {
         )
     }
 
-    /// Returns a copy of the existing cipher with an updated organization and list of collection IDs.
-    ///
-    /// - Parameters:
-    ///   - collectionIds: The identifiers of any collections containing the cipher.
-    ///   - organizationId: The identifier of the cipher's organization.
-    /// - Returns: A copy of the existing cipher, with the specified properties updated.
-    ///
-    func update(
-        collectionIds: [String],
-        organizationId: String?
-    ) -> CipherView {
-        update(
-            collectionIds: collectionIds,
-            deletedDate: deletedDate,
-            folderId: folderId,
-            organizationId: organizationId
-        )
-    }
-
     /// Returns a copy of the existing cipher with an updated deleted date.
     ///
     /// - Parameter deletedDate: The deleted date of the cipher.
