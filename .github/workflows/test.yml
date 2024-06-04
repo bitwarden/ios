@@ -14,6 +14,7 @@ env:
   MINT_LINK_PATH: .mint/bin
   MINT_PATH: .mint/lib
   SIMULATOR_DESTINATION: platform=iOS Simulator,name=iPhone 15 Pro,OS=17.0.1
+  RESULT_BUNDLE_PATH: build/AuthenticatorTests.xcresult
 
 jobs:
   check-run:
@@ -72,12 +73,15 @@ jobs:
             -scheme Authenticator \
             -configuration Debug \
             -destination "${{ env.SIMULATOR_DESTINATION }}" \
-            -resultBundlePath build/AuthenticatorTests.xcresult \
+            -resultBundlePath ${{ env.RESULT_BUNDLE_PATH }} \
             -derivedDataPath build/DerivedData \
             -enableCodeCoverage YES \
             | xcbeautify --renderer github-actions
 
       - name: Upload to codecov.io
         uses: codecov/codecov-action@ab904c41d6ece82784817410c45d8b8c02684457 # v3.1.6
+        with:
+          xcode: true
+          xcode_archive_path: ${{ env.RESULT_BUNDLE_PATH }}
         env:
           CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
