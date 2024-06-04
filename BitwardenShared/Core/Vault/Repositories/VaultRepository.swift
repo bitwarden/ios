@@ -132,9 +132,12 @@ public protocol VaultRepository: AnyObject {
 
     /// Shares a cipher with an organization.
     ///
-    /// - Parameter cipher: The cipher to share.
+    /// - Parameters:
+    ///   - cipher: The cipher to share.
+    ///   - newOrganizationId: The ID of the organization that the cipher is moving to.
+    ///   - newCollectionIds: The IDs of the collections to include the cipher in.
     ///
-    func shareCipher(_ cipher: CipherView) async throws
+    func shareCipher(_ cipher: CipherView, newOrganizationId: String, newCollectionIds: [String]) async throws
 
     /// Whether or not we should show the unassigned ciphers alert based on properties of the account.
     ///
@@ -1058,8 +1061,14 @@ extension DefaultVaultRepository: VaultRepository {
         return try await clientService.vault().ciphers().decrypt(cipher: updatedCipher)
     }
 
-    func shareCipher(_ cipher: CipherView) async throws {
-        let encryptedCipher = try await clientService.vault().ciphers().encrypt(cipherView: cipher)
+    func shareCipher(_ cipher: CipherView, newOrganizationId: String, newCollectionIds: [String]) async throws {
+        let organizationCipher = try await clientService.vault().ciphers()
+            .moveToOrganization(
+                cipher: cipher,
+                organizationId: newOrganizationId
+            )
+            .update(collectionIds: newCollectionIds) // The SDK updates the cipher's organization ID.
+        let encryptedCipher = try await clientService.vault().ciphers().encrypt(cipherView: organizationCipher)
         try await cipherService.shareCipherWithServer(encryptedCipher)
     }
 

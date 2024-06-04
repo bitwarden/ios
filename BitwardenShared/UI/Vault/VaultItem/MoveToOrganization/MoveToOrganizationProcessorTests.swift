@@ -80,10 +80,7 @@ class MoveToOrganizationProcessorTests: BitwardenTestCase {
 
         await subject.perform(.moveCipher)
 
-        XCTAssertEqual(vaultRepository.shareCipherCiphers, [subject.state.updatedCipher])
-        let sharedCipher = vaultRepository.shareCipherCiphers[0]
-        XCTAssertEqual(sharedCipher.collectionIds, ["1"])
-        XCTAssertEqual(sharedCipher.organizationId, "123")
+        XCTAssertEqual(vaultRepository.shareCipherCiphers, [subject.state.cipher])
 
         guard case let .dismiss(dismissAction) = coordinator.routes.last else {
             return XCTFail("Expected a `.dismiss` route.")

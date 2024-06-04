@@ -95,7 +95,9 @@ class MoveToOrganizationProcessor: StateProcessor<
     /// Performs the API request to move the cipher to the organization.
     ///
     private func moveCipher() async {
-        guard !state.collectionIds.isEmpty, let owner = state.owner else {
+        guard !state.collectionIds.isEmpty,
+              let owner = state.owner,
+              let organizationId = state.organizationId else {
             coordinator.showAlert(
                 .defaultAlert(
                     title: Localizations.anErrorHasOccurred,
@@ -109,7 +111,11 @@ class MoveToOrganizationProcessor: StateProcessor<
             coordinator.showLoadingOverlay(LoadingOverlayState(title: Localizations.saving))
             defer { coordinator.hideLoadingOverlay() }
 
-            try await services.vaultRepository.shareCipher(state.updatedCipher)
+            try await services.vaultRepository.shareCipher(
+                state.cipher,
+                newOrganizationId: organizationId,
+                newCollectionIds: state.collectionIds
+            )
 
             coordinator.navigate(to: .dismiss(DismissAction {
                 self.delegate?.didMoveCipher(self.state.cipher, to: owner)
