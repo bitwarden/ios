@@ -34,8 +34,8 @@ struct PendingRequestsView: View {
         .task {
             await store.perform(.loadData)
         }
-        .refreshable {
-            await store.perform(.loadData)
+        .refreshable { [weak store] in
+            await store?.perform(.loadData)
         }
         .toast(store.binding(
             get: \.toast,
