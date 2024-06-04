@@ -23,5 +23,6 @@
       "matchManagers": ["swift"],
       "matchUpdateTypes": ["minor", "patch"]
     }
-  ]
+  ],
+  "ignoreDeps": ["codecov/codecov-action"]
 }
