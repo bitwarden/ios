@@ -242,7 +242,7 @@ extension Alert {
     /// - Parameters:
     ///   - completion: The code block that's executed when the user has entered their pin.
     ///   - onCancelled: A block that is executed when the user interacts with the "Cancel" button.
-    ///   - settingUp: Whether thte message displayed to the user is to set or verify a pin
+    ///   - settingUp: Whether the message displayed to the user is to set or verify a pin
     /// - Returns: An alert that prompts the user to enter their PIN.
     static func enterPINCode(
         completion: @MainActor @escaping (String) async -> Void,
