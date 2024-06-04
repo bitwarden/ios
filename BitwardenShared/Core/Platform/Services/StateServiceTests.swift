@@ -162,7 +162,6 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
     func test_doesActiveAccountHavePremium_personalFalse_organizationTrue() async throws {
         await subject.addAccount(.fixture(profile: .fixture(hasPremiumPersonally: false)))
         try await dataStore.replaceOrganizations([.fixture(usersGetPremium: true)], userId: "1")
-        let organizations = try await dataStore.fetchAllOrganizations(userId: "1")
         let hasPremium = try await subject.doesActiveAccountHavePremium()
         XCTAssertTrue(hasPremium)
     }
@@ -190,6 +189,15 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
     func test_doesActiveAccountHavePremium_personalFalse_organizationTrueDisabled() async throws {
         await subject.addAccount(.fixture(profile: .fixture(hasPremiumPersonally: false)))
         try await dataStore.replaceOrganizations([.fixture(enabled: false, usersGetPremium: true)], userId: "1")
+        let hasPremium = try await subject.doesActiveAccountHavePremium()
+        XCTAssertFalse(hasPremium)
+    }
+
+    /// `doesActiveAccountHavePremium()` with no premium personally and an organization with premium
+    /// for a different user returns false.
+    func test_doesActiveAccountHavePremium_personalFalse_organizationTrueForOtherUser() async throws {
+        await subject.addAccount(.fixture(profile: .fixture(hasPremiumPersonally: false)))
+        try await dataStore.replaceOrganizations([.fixture(enabled: true, usersGetPremium: true)], userId: "2")
         let hasPremium = try await subject.doesActiveAccountHavePremium()
         XCTAssertFalse(hasPremium)
     }

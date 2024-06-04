@@ -181,6 +181,30 @@ class AutofillCredentialServiceTests: BitwardenTestCase {
         XCTAssertNil(pasteboardService.copiedString)
     }
 
+    /// `provideCredential(for:)` copies the cipher's TOTP code if the user doesn't have premium
+    /// but the org uses TOTP.
+    func test_provideCredential_totpCopyOrgUseTotp() async throws {
+        cipherService.fetchCipherResult = .success(
+            .fixture(
+                login: .fixture(
+                    password: "password123",
+                    username: "user@bitwarden.com",
+                    totp: "totp"
+                ),
+                organizationUseTotp: true
+            )
+        )
+        stateService.activeAccount = .fixture()
+        stateService.doesActiveAccountHavePremiumResult = .success(false)
+        vaultTimeoutService.isClientLocked["1"] = false
+
+        let credential = try await subject.provideCredential(for: "1", repromptPasswordValidated: false)
+
+        XCTAssertEqual(credential.password, "password123")
+        XCTAssertEqual(credential.user, "user@bitwarden.com")
+        XCTAssertEqual(pasteboardService.copiedString, "123456")
+    }
+
     /// `provideCredential(for:)` throws an error if the user's vault is locked.
     func test_provideCredential_vaultLocked() async {
         stateService.activeAccount = .fixture()
