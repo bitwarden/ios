@@ -74,6 +74,8 @@ class AppCoordinatorTests: BitwardenTestCase {
         subject.didCompleteAuth()
         XCTAssertTrue(module.vaultCoordinator.isStarted)
         XCTAssertEqual(module.vaultCoordinator.routes, [.autofillList])
+
+        XCTAssertTrue(appExtensionDelegate.didCompleteAuthCalled)
     }
 
     /// `didDeleteAccount(otherAccounts:)` navigates to the `didDeleteAccount` route.

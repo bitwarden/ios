@@ -232,4 +232,34 @@ final class VaultTimeoutServiceTests: BitwardenTestCase {
         XCTAssertTrue(subject.isLocked(userId: userId))
         XCTAssertFalse(subject.isLocked(userId: user2Id))
     }
+
+    /// `vaultLockStatusPublisher()` publishes the active user ID and whether their vault is locked.
+    func test_vaultLockStatusPublisher() async throws {
+        var publishedValues = [VaultLockStatus?]()
+        let publisher = await subject.vaultLockStatusPublisher()
+            .sink(receiveValue: { date in
+                publishedValues.append(date)
+            })
+        defer { publisher.cancel() }
+
+        stateService.activeIdSubject.send("1")
+        try await subject.unlockVault(userId: "1")
+        stateService.activeIdSubject.send("2")
+        try await subject.unlockVault(userId: "2")
+        await subject.lockVault(userId: "2")
+        stateService.activeIdSubject.send(nil)
+
+        XCTAssertEqual(
+            publishedValues,
+            [
+                nil,
+                VaultLockStatus(isVaultLocked: true, userId: "1"),
+                VaultLockStatus(isVaultLocked: false, userId: "1"),
+                VaultLockStatus(isVaultLocked: true, userId: "2"),
+                VaultLockStatus(isVaultLocked: false, userId: "2"),
+                VaultLockStatus(isVaultLocked: true, userId: "2"),
+                nil,
+            ]
+        )
+    }
 }

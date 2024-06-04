@@ -5,7 +5,7 @@
 --header strip
 --funcattributes prev-line
 --typeattributes prev-line
---varattributes same-line
+--varattributes preserve
 
 # file options
 --exclude **/Generated,build,vendor/bundle

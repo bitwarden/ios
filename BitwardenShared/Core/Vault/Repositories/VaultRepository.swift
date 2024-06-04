@@ -113,6 +113,13 @@ public protocol VaultRepository: AnyObject {
     ///
     func remove(userId: String?) async
 
+    /// Returns whether master password reprompt is required for a cipher.
+    ///
+    /// - Parameter id: The ID of the cipher to check if reprompt is required.
+    /// - Returns: Whether master password reprompt is required for a cipher.
+    ///
+    func repromptRequiredForCipher(id: String) async throws -> Bool
+
     /// Restores a cipher from the trash.
     ///
     /// - Parameter cipher: The cipher that the user is restoring.
@@ -930,18 +937,7 @@ extension DefaultVaultRepository: VaultRepository {
     }
 
     func doesActiveAccountHavePremium() async throws -> Bool {
-        // Check if the user has a premium account personally.
-        let account = try await stateService.getActiveAccount()
-        let hasPremiumPersonally = account.profile.hasPremiumPersonally ?? false
-        guard !hasPremiumPersonally else {
-            return true
-        }
-
-        // If not, check if any of their organizations grant them premium access.
-        let organizations = try await organizationService
-            .fetchAllOrganizations()
-            .filter { $0.enabled && $0.usersGetPremium }
-        return !organizations.isEmpty
+        try await stateService.doesActiveAccountHavePremium()
     }
 
     func downloadAttachment(_ attachment: AttachmentView, cipher: CipherView) async throws -> URL? {
@@ -1022,6 +1018,12 @@ extension DefaultVaultRepository: VaultRepository {
 
     func remove(userId: String?) async {
         await vaultTimeoutService.remove(userId: userId)
+    }
+
+    func repromptRequiredForCipher(id: String) async throws -> Bool {
+        guard try await stateService.getUserHasMasterPassword() else { return false }
+        let cipher = try await cipherService.fetchCipher(withId: id)
+        return cipher?.reprompt == .password
     }
 
     func restoreCipher(_ cipher: BitwardenSdk.CipherView) async throws {

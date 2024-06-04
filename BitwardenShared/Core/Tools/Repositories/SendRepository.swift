@@ -163,16 +163,7 @@ class DefaultSendRepository: SendRepository {
     // MARK: Methods
 
     func doesActiveAccountHavePremium() async throws -> Bool {
-        let account = try await stateService.getActiveAccount()
-        let hasPremiumPersonally = account.profile.hasPremiumPersonally ?? false
-        guard !hasPremiumPersonally else {
-            return true
-        }
-
-        let organizations = try await organizationService
-            .fetchAllOrganizations()
-            .filter { $0.enabled && $0.usersGetPremium }
-        return !organizations.isEmpty
+        try await stateService.doesActiveAccountHavePremium()
     }
 
     func doesActiveAccountHaveVerifiedEmail() async throws -> Bool {
