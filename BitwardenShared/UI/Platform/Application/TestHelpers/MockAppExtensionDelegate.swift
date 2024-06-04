@@ -1,9 +1,10 @@
 @testable import BitwardenShared
 
 class MockAppExtensionDelegate: AppExtensionDelegate {
-    var authCompletionRoute = AppRoute.vault(.autofillList)
+    var authCompletionRoute: AppRoute? = .vault(.autofillList)
     var canAutofill = true
     var didCancelCalled = false
+    var didCompleteAuthCalled = false
     var didCompleteAutofillRequestFields: [(String, String)]?
     var didCompleteAutofillRequestPassword: String?
     var didCompleteAutofillRequestUsername: String?
@@ -19,5 +20,9 @@ class MockAppExtensionDelegate: AppExtensionDelegate {
 
     func didCancel() {
         didCancelCalled = true
+    }
+
+    func didCompleteAuth() {
+        didCompleteAuthCalled = true
     }
 }

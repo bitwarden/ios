@@ -29,6 +29,12 @@ protocol StateService: AnyObject {
     ///
     func deleteAccount() async throws
 
+    /// Returns whether the active user account has access to premium features.
+    ///
+    /// - Returns: Whether the active account has access to premium features.
+    ///
+    func doesActiveAccountHavePremium() async throws -> Bool
+
     /// Gets the account for an id.
     ///
     /// - Parameter userId: The id for an account. If nil, the active account will be returned.
@@ -1008,6 +1014,19 @@ actor DefaultStateService: StateService { // swiftlint:disable:this type_body_le
 
     func deleteAccount() async throws {
         try await logoutAccount()
+    }
+
+    func doesActiveAccountHavePremium() async throws -> Bool {
+        let account = try await getActiveAccount()
+        let hasPremiumPersonally = account.profile.hasPremiumPersonally ?? false
+        guard !hasPremiumPersonally else {
+            return true
+        }
+
+        let organizations = try await dataStore
+            .fetchAllOrganizations(userId: account.profile.userId)
+            .filter { $0.enabled && $0.usersGetPremium }
+        return !organizations.isEmpty
     }
 
     func getAccount(userId: String?) throws -> Account {
