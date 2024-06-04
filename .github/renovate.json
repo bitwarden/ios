@@ -1,21 +1,13 @@
 {
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
-  "extends": [
-    "config:base",
-    "github>bitwarden/renovate-config:pin-actions",
-    ":combinePatchMinorReleases",
-    ":dependencyDashboard",
-    ":maintainLockFilesWeekly",
-    ":pinAllExceptPeerDependencies",
-    ":prConcurrentLimit10",
-    ":rebaseStalePrs",
-    "schedule:weekends",
-    ":separateMajorReleases"
-  ],
-  "enabledManagers": ["github-actions", "mint", "swift"],
-  "commitMessagePrefix": "[deps]:",
-  "commitMessageTopic": "{{depName}}",
+  "extends": ["github>bitwarden/renovate-config"],
+  "enabledManagers": ["bundler", "github-actions", "mint", "swift"],
   "packageRules": [
+    {
+      "groupName": "bundler minor",
+      "matchUpdateTypes": ["minor", "patch"],
+      "matchManagers": ["bundler"]
+    },
     {
       "groupName": "gh minor",
       "matchManagers": ["github-actions"],

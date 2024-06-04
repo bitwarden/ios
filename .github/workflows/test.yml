@@ -1,8 +1,13 @@
----
 name: Test
 
 on:
-  pull_request:
+  push:
+    branches:
+      - "main"
+      - "rc"
+      - "hotfix-rc"
+  pull_request_target:
+    types: [opened, synchronize]
 
 env:
   DEVELOPER_DIR: /Applications/Xcode_15.0.1.app/Contents/Developer
@@ -11,20 +16,31 @@ env:
   SIMULATOR_DESTINATION: platform=iOS Simulator,name=iPhone 15 Pro,OS=17.0.1
 
 jobs:
+  check-run:
+    name: Check PR run
+    uses: bitwarden/gh-actions/.github/workflows/check-run.yml@main
+
   test:
     name: Test
     runs-on: macos-14-xlarge
-    steps:
-      - name: Checkout
-        uses: actions/checkout@0ad4b8fadaa221de15dcec353f45205ec38ea70b # v4.1.4
+    needs: check-run
+    permissions:
+      contents: read
+      issues: write
+      pull-requests: write
 
-      - name: Setup Ruby
-        uses: ruby/setup-ruby@cacc9f1c0b3f4eb8a16a6bb0ed10897b43b9de49 # v1.176.0
+    steps:
+      - name: Check out repo
+        uses: actions/checkout@a5ac7e51b41094c92402da3b24376905380afc29 # v4.1.6
+        with:
+          ref: ${{  github.event.pull_request.head.sha }}
+
+      - name: Configure Ruby
+        uses: ruby/setup-ruby@0cde4689ba33c09f1b890c1725572ad96751a3fc # v1.178.0
         with:
           bundler-cache: true
-          ruby-version: 3.2.2
 
-      - name: Cache Mint Packages
+      - name: Cache Mint packages
         uses: actions/cache@0c45773b623bea8c8e75f6c82b208c3cf94ea4f9 # v4.0.2
         with:
           path: .mint
@@ -32,7 +48,7 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-mint-
 
-      - name: Cache SPM Packages
+      - name: Cache SPM packages
         uses: actions/cache@0c45773b623bea8c8e75f6c82b208c3cf94ea4f9 # v4.0.2
         with:
           path: build/DerivedData/SourcePackages
@@ -46,12 +62,12 @@ jobs:
           sudo installer -pkg yeetd-normal.pkg -target /
           yeetd &
 
-      - name: Setup
+      - name: Install Mint and xcbeautify
         run: |
           brew install mint xcbeautify
           ./Scripts/bootstrap.sh
 
-      - name: Build and Test
+      - name: Build and test
         run: |
           set -o pipefail && \
             xcodebuild test \

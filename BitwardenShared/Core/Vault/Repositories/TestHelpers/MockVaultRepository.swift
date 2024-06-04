@@ -68,6 +68,8 @@ class MockVaultRepository: VaultRepository {
 
     var removeAccountIds = [String?]()
 
+    var repromptRequiredForCipherResult: Result<Bool, Error> = .success(false)
+
     var restoredCipher = [CipherView]()
     var restoreCipherResult: Result<Void, Error> = .success(())
 
@@ -212,6 +214,10 @@ class MockVaultRepository: VaultRepository {
 
     func remove(userId: String?) async {
         removeAccountIds.append(userId)
+    }
+
+    func repromptRequiredForCipher(id: String) async throws -> Bool {
+        try repromptRequiredForCipherResult.get()
     }
 
     func restoreCipher(_ cipher: CipherView) async throws {

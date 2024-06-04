@@ -125,6 +125,83 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
         XCTAssertNil(state.activeUserId)
     }
 
+    /// `doesActiveAccountHavePremium()` with premium personally and no organizations returns true.
+    func test_doesActiveAccountHavePremium_personalTrue_noOrganization() async throws {
+        await subject.addAccount(.fixture(profile: .fixture(hasPremiumPersonally: true)))
+        let hasPremium = try await subject.doesActiveAccountHavePremium()
+        XCTAssertTrue(hasPremium)
+    }
+
+    /// `doesActiveAccountHavePremium()` with no premium personally and no organizations returns
+    /// false.
+    func test_doesActiveAccountHavePremium_personalFalse_noOrganization() async throws {
+        await subject.addAccount(.fixture(profile: .fixture(hasPremiumPersonally: false)))
+        let hasPremium = try await subject.doesActiveAccountHavePremium()
+        XCTAssertFalse(hasPremium)
+    }
+
+    /// `doesActiveAccountHavePremium()` with nil premium personally and no organizations returns
+    /// false.
+    func test_doesActiveAccountHavePremium_personalNil_noOrganization() async throws {
+        await subject.addAccount(.fixture(profile: .fixture(hasPremiumPersonally: nil)))
+        let hasPremium = try await subject.doesActiveAccountHavePremium()
+        XCTAssertFalse(hasPremium)
+    }
+
+    /// `doesActiveAccountHavePremium()` with premium personally and an organization without premium
+    /// returns true.
+    func test_doesActiveAccountHavePremium_personalTrue_organizationFalse() async throws {
+        await subject.addAccount(.fixture(profile: .fixture(hasPremiumPersonally: true)))
+        try await dataStore.replaceOrganizations([.fixture(usersGetPremium: false)], userId: "1")
+        let hasPremium = try await subject.doesActiveAccountHavePremium()
+        XCTAssertTrue(hasPremium)
+    }
+
+    /// `doesActiveAccountHavePremium()` with no premium personally and an organization with premium
+    /// returns true.
+    func test_doesActiveAccountHavePremium_personalFalse_organizationTrue() async throws {
+        await subject.addAccount(.fixture(profile: .fixture(hasPremiumPersonally: false)))
+        try await dataStore.replaceOrganizations([.fixture(usersGetPremium: true)], userId: "1")
+        let hasPremium = try await subject.doesActiveAccountHavePremium()
+        XCTAssertTrue(hasPremium)
+    }
+
+    /// `doesActiveAccountHavePremium()` with premium personally and an organization with premium
+    /// returns true.
+    func test_doesActiveAccountHavePremium_personalTrue_organizationTrue() async throws {
+        await subject.addAccount(.fixture(profile: .fixture(hasPremiumPersonally: true)))
+        try await dataStore.replaceOrganizations([.fixture(usersGetPremium: true)], userId: "1")
+        let hasPremium = try await subject.doesActiveAccountHavePremium()
+        XCTAssertTrue(hasPremium)
+    }
+
+    /// `doesActiveAccountHavePremium()` with premium personally and an organization with premium
+    /// but disabled returns true.
+    func test_doesActiveAccountHavePremium_personalTrue_organizationTrueDisabled() async throws {
+        await subject.addAccount(.fixture(profile: .fixture(hasPremiumPersonally: true)))
+        try await dataStore.replaceOrganizations([.fixture(enabled: false, usersGetPremium: true)], userId: "1")
+        let hasPremium = try await subject.doesActiveAccountHavePremium()
+        XCTAssertTrue(hasPremium)
+    }
+
+    /// `doesActiveAccountHavePremium()` with no premium personally and an organization with premium
+    /// but disabled returns false.
+    func test_doesActiveAccountHavePremium_personalFalse_organizationTrueDisabled() async throws {
+        await subject.addAccount(.fixture(profile: .fixture(hasPremiumPersonally: false)))
+        try await dataStore.replaceOrganizations([.fixture(enabled: false, usersGetPremium: true)], userId: "1")
+        let hasPremium = try await subject.doesActiveAccountHavePremium()
+        XCTAssertFalse(hasPremium)
+    }
+
+    /// `doesActiveAccountHavePremium()` with no premium personally and an organization with premium
+    /// for a different user returns false.
+    func test_doesActiveAccountHavePremium_personalFalse_organizationTrueForOtherUser() async throws {
+        await subject.addAccount(.fixture(profile: .fixture(hasPremiumPersonally: false)))
+        try await dataStore.replaceOrganizations([.fixture(enabled: true, usersGetPremium: true)], userId: "2")
+        let hasPremium = try await subject.doesActiveAccountHavePremium()
+        XCTAssertFalse(hasPremium)
+    }
+
     /// `getAccountEncryptionKeys(_:)` returns the encryption keys for the user account.
     func test_getAccountEncryptionKeys() async throws {
         appSettingsStore.encryptedPrivateKeys["1"] = "1:PRIVATE_KEY"
