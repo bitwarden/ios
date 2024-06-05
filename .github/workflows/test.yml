@@ -83,3 +83,5 @@ jobs:
         with:
           xcode: true
           xcode_archive_path: ${{ env.RESULT_BUNDLE_PATH }}
+        env:
+          CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
