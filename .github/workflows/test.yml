@@ -15,6 +15,7 @@ env:
   MINT_PATH: .mint/lib
   SIMULATOR_DESTINATION: platform=iOS Simulator,name=iPhone 15 Pro,OS=17.0.1
   RESULT_BUNDLE_PATH: build/AuthenticatorTests.xcresult
+  COVERAGE_PATH: build/coverage.xml
 
 jobs:
   check-run:
@@ -60,9 +61,9 @@ jobs:
           sudo installer -pkg yeetd-normal.pkg -target /
           yeetd &
 
-      - name: Install Mint, protobuf, and xcbeautify
+      - name: Install Mint, protobuf, xcbeautify, and xcresultparser
         run: |
-          brew install mint swift-protobuf xcbeautify
+          brew install mint swift-protobuf xcbeautify a7ex/homebrew-formulae/xcresultparser
           ./Scripts/bootstrap.sh
 
       - name: Build and test
@@ -78,10 +79,16 @@ jobs:
             -enableCodeCoverage YES \
             | xcbeautify --renderer github-actions
 
+      - name: Convert coverage to Cobertura
+        run: |
+          set -o pipefail && \
+            xcresultparser --output-format cobertura \
+            "$RESULT_BUNDLE_PATH" >"$COVERAGE_PATH"
+
       - name: Upload to codecov.io
         uses: codecov/codecov-action@125fc84a9a348dbcf27191600683ec096ec9021c # v4.4.1
         with:
           plugin: xcode
-          file: ${{ env.RESULT_BUNDLE_PATH }}
+          file: ${{ env.COVERAGE_PATH }}
         env:
           CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
