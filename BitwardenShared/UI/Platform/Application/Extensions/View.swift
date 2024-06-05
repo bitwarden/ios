@@ -3,6 +3,13 @@ import SwiftUI
 /// Helper functions extended off the `View` protocol.
 ///
 extension View {
+    /// Apply an arbitrary block of modifiers to a view. This is particularly useful
+    /// if the modifiers in question might only be available on particular versions
+    /// of iOS.
+    func apply<V: View>(@ViewBuilder _ block: (Self) -> V) -> V {
+        block(self)
+    }
+
     /// On iOS 16+, configures the scroll view to dismiss the keyboard immediately.
     ///
     func dismissKeyboardImmediately() -> some View {
