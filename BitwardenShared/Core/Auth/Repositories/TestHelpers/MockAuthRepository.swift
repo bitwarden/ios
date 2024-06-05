@@ -1,6 +1,6 @@
 @testable import BitwardenShared
 
-class MockAuthRepository: AuthRepository {
+class MockAuthRepository: AuthRepository { // swiftlint:disable:this type_body_length
     var allowBiometricUnlock: Bool?
     var allowBiometricUnlockResult: Result<Void, Error> = .success(())
     var accountForItemResult: Result<Account, Error> = .failure(StateServiceError.noAccounts)
@@ -9,6 +9,7 @@ class MockAuthRepository: AuthRepository {
     var createNewSsoUserOrgIdentifier: String = ""
     var createNewSsoUserResult: Result<Void, Error> = .success(())
     var deleteAccountCalled = false
+    var deleteAccountResult: Result<Void, Error> = .success(())
     var deviceId: String = ""
     var email: String = ""
     var encryptedPin: String = "123"
@@ -90,6 +91,7 @@ class MockAuthRepository: AuthRepository {
 
     func deleteAccount(otp: String?, passwordText _: String?) async throws {
         deleteAccountCalled = true
+        try deleteAccountResult.get()
     }
 
     func getAccount(for userId: String?) async throws -> Account {

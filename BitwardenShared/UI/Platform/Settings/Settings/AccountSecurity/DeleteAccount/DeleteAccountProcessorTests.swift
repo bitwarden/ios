@@ -57,6 +57,33 @@ class DeleteAccountProcessorTests: BitwardenTestCase {
         XCTAssertEqual(coordinator.alertShown.last, .masterPasswordPrompt(completion: { _ in }))
     }
 
+    /// Perform with `.deleteAccount` presents the master password prompt alert. If there's an
+    /// invalid password error with deleting the account, an alert is shown.
+    func test_perform_deleteAccount_serverError() async throws {
+        authRepository.deleteAccountResult = .failure(
+            ServerError.error(
+                errorResponse: ErrorResponseModel(
+                    validationErrors: nil,
+                    message: ""
+                )
+            )
+        )
+
+        await subject.perform(.deleteAccount)
+
+        var alert = try XCTUnwrap(coordinator.alertShown.last)
+        var textField = try XCTUnwrap(alert.alertTextFields.first)
+        textField = AlertTextField(id: "password", text: "password")
+
+        let action = try XCTUnwrap(alert.alertActions.first(where: { $0.title == Localizations.submit }))
+        await action.handler?(action, [textField])
+
+        XCTAssertTrue(authRepository.deleteAccountCalled)
+
+        alert = try XCTUnwrap(coordinator.alertShown.last)
+        XCTAssertEqual(alert, .defaultAlert(title: Localizations.invalidMasterPassword))
+    }
+
     /// Perform with `.deleteAccount` presents the master password prompt alert.
     /// Pressing submit on the alert deletes the user's account.
     func test_perform_deleteAccount_submitPressed_noOtherAccounts() async throws {
@@ -136,5 +163,33 @@ class DeleteAccountProcessorTests: BitwardenTestCase {
 
         XCTAssertEqual(coordinator.alertShown, [.networkResponseError(BitwardenTestError.example)])
         XCTAssertEqual(errorReporter.errors as? [BitwardenTestError], [.example])
+    }
+
+    /// Perform with `.deleteAccount` presents the OTP code verification alert. If there's an
+    /// invalid verification error error, an alert is shown.
+    func test_perform_deleteAccount_noMasterPassword_serverError() async throws {
+        authRepository.deleteAccountResult = .failure(
+            ServerError.error(
+                errorResponse: ErrorResponseModel(
+                    validationErrors: nil,
+                    message: ""
+                )
+            )
+        )
+        authRepository.hasMasterPassword = false
+
+        await subject.perform(.deleteAccount)
+
+        var alert = try XCTUnwrap(coordinator.alertShown.last)
+        var textField = try XCTUnwrap(alert.alertTextFields.first)
+        textField = AlertTextField(id: "otp", text: "otp")
+
+        let action = try XCTUnwrap(alert.alertActions.first(where: { $0.title == Localizations.submit }))
+        await action.handler?(action, [textField])
+
+        XCTAssertTrue(authRepository.deleteAccountCalled)
+
+        alert = try XCTUnwrap(coordinator.alertShown.last)
+        XCTAssertEqual(alert, .defaultAlert(title: Localizations.invalidVerificationCode))
     }
 }
