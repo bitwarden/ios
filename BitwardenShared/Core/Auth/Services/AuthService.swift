@@ -1,3 +1,4 @@
+import AuthenticationServices
 import BitwardenSdk
 import CryptoKit
 import Foundation
@@ -198,6 +199,14 @@ protocol AuthService {
     ///   - userId: The user ID associated with the pending admin login request.
     ///
     func setPendingAdminLoginRequest(_ adminLoginRequest: PendingAdminLoginRequest?, userId: String?) async throws
+
+    /// Provides a web authentication session. In practice this is a passthrough
+    /// for `ASWebAuthenticationSession.init`.
+    ///
+    func webAuthenticationSession(
+        url: URL,
+        completionHandler: @escaping ASWebAuthenticationSession.CompletionHandler
+    ) -> ASWebAuthenticationSession
 }
 
 extension AuthService {
@@ -680,6 +689,17 @@ class DefaultAuthService: AuthService { // swiftlint:disable:this type_body_leng
         } catch KeychainServiceError.osStatusError(errSecItemNotFound) {
             return
         }
+    }
+
+    func webAuthenticationSession(
+        url: URL,
+        completionHandler: @escaping ASWebAuthenticationSession.CompletionHandler
+    ) -> ASWebAuthenticationSession {
+        ASWebAuthenticationSession(
+            url: url,
+            callbackURLScheme: callbackUrlScheme,
+            completionHandler: completionHandler
+        )
     }
 
     // MARK: Private Methods

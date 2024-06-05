@@ -26,6 +26,8 @@ class MockStateService: StateService { // swiftlint:disable:this type_body_lengt
     var timeProvider = MockTimeProvider(.currentTime)
     var defaultUriMatchTypeByUserId = [String: UriMatchType]()
     var disableAutoTotpCopyByUserId = [String: Bool]()
+    var doesActiveAccountHavePremiumCalled = false
+    var doesActiveAccountHavePremiumResult: Result<Bool, Error> = .success(true)
     var encryptedPinByUserId = [String: String]()
     var environmentUrls = [String: EnvironmentUrlData]()
     var forcePasswordResetReason = [String: ForcePasswordResetReason]()
@@ -83,6 +85,11 @@ class MockStateService: StateService { // swiftlint:disable:this type_body_lengt
         accounts?.removeAll(where: { account in
             account == activeAccount
         })
+    }
+
+    func doesActiveAccountHavePremium() async throws -> Bool {
+        doesActiveAccountHavePremiumCalled = true
+        return try doesActiveAccountHavePremiumResult.get()
     }
 
     func getAccountEncryptionKeys(userId: String?) async throws -> AccountEncryptionKeys {

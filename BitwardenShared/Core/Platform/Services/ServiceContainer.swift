@@ -35,6 +35,9 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
     /// The service used by the application to handle authentication tasks.
     let authService: AuthService
 
+    /// The service which manages the ciphers exposed to the system for AutoFill suggestions.
+    let autofillCredentialService: AutofillCredentialService
+
     /// The repository to manage biometric unlock policies and access controls the user.
     let biometricsRepository: BiometricsRepository
 
@@ -139,8 +142,10 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
     ///   - appSettingsStore: The service used by the application to persist app setting values.
     ///   - authRepository: The repository used by the application to manage auth data for the UI layer.
     ///   - authService: The service used by the application to handle authentication tasks.
-    ///   - biometricsRepository: The repository to manage bioemtric unlock policies
-    ///         and access controls for the user.
+    ///   - autofillCredentialService: The service which manages the ciphers exposed to the system
+    ///     for AutoFill suggestions.
+    ///   - biometricsRepository: The repository to manage biometric unlock policies and access
+    ///     controls for the user.
     ///   - biometricsService: The service used to obtain device biometrics status & data.
     ///   - captchaService: The service used by the application to create captcha related artifacts.
     ///   - cameraService: The service used by the application to manage camera use.
@@ -178,6 +183,7 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
         appSettingsStore: AppSettingsStore,
         authRepository: AuthRepository,
         authService: AuthService,
+        autofillCredentialService: AutofillCredentialService,
         biometricsRepository: BiometricsRepository,
         biometricsService: BiometricsService,
         captchaService: CaptchaService,
@@ -216,6 +222,7 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
         self.appSettingsStore = appSettingsStore
         self.authRepository = authRepository
         self.authService = authService
+        self.autofillCredentialService = autofillCredentialService
         self.biometricsRepository = biometricsRepository
         self.biometricsService = biometricsService
         self.captchaService = captchaService
@@ -412,6 +419,15 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
             trustDeviceService: trustDeviceService
         )
 
+        let autofillCredentialService = DefaultAutofillCredentialService(
+            cipherService: cipherService,
+            clientService: clientService,
+            errorReporter: errorReporter,
+            pasteboardService: pasteboardService,
+            stateService: stateService,
+            vaultTimeoutService: vaultTimeoutService
+        )
+
         let authRepository = DefaultAuthRepository(
             accountAPIService: apiService,
             authService: authService,
@@ -492,6 +508,7 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
             appSettingsStore: appSettingsStore,
             authRepository: authRepository,
             authService: authService,
+            autofillCredentialService: autofillCredentialService,
             biometricsRepository: biometricsRepository,
             biometricsService: biometricsService,
             captchaService: captchaService,
