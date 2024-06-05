@@ -47,6 +47,13 @@ protocol ClientService {
     ///
     func removeClient(for userId: String?) async throws
 
+    /// Returns a `ClientSendsProtocol` for send data tasks.
+    ///
+    /// - Parameter userId: The user ID mapped to the client instance.
+    /// - Returns: A `ClientSendsProtocol` for vault data tasks.
+    ///
+    func sends(for userId: String?) async throws -> ClientSendsProtocol
+
     /// Returns a `ClientVaultService` for vault data tasks.
     ///
     /// - Parameter userId: The user ID mapped to the client instance.
@@ -92,6 +99,12 @@ extension ClientService {
     ///
     func removeClient() async throws {
         try await removeClient(for: nil)
+    }
+
+    /// Returns a `ClientSendsProtocol` for send data tasks.
+    ///
+    func sends() async throws -> ClientSendsProtocol {
+        try await sends(for: nil)
     }
 
     /// Returns a `ClientVaultService` for vault data tasks.
@@ -171,6 +184,10 @@ class DefaultClientService: ClientService {
     func removeClient(for userId: String?) async throws {
         let userId = try await stateService.getAccountIdOrActiveId(userId: userId)
         userClientArray.removeValue(forKey: userId)
+    }
+
+    func sends(for userId: String?) async throws -> ClientSendsProtocol {
+        try await client(for: userId).sends()
     }
 
     func vault(for userId: String?) async throws -> ClientVaultService {
@@ -302,6 +319,9 @@ protocol BitwardenSdkClient {
     /// Returns platform operations.
     func platform() -> ClientPlatformProtocol
 
+    /// Returns sends operations.
+    func sends() -> ClientSendsProtocol
+
     /// Returns vault operations.
     func vault() -> ClientVaultService
 }
@@ -327,6 +347,10 @@ extension Client: BitwardenSdkClient {
 
     func platform() -> ClientPlatformProtocol {
         platform() as ClientPlatform
+    }
+
+    func sends() -> ClientSendsProtocol {
+        sends() as ClientSends
     }
 
     func vault() -> ClientVaultService {
