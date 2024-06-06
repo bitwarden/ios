@@ -8,6 +8,10 @@ class MockClientPlatform: ClientPlatformProtocol {
     var featureFlags: [String: Bool] = ["": false]
     var userFingerprintCalled = false
 
+    func fido2() -> BitwardenSdk.ClientFido2 {
+        fatalError("Not implemented yet")
+    }
+
     func fingerprint(req: BitwardenSdk.FingerprintRequest) async throws -> String {
         try fingerprintResult.get()
     }

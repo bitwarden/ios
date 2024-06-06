@@ -33,10 +33,6 @@ protocol ClientVaultService: AnyObject {
     /// Returns an object that handles encryption and decryption for password history.
     ///
     func passwordHistory() -> ClientPasswordHistoryProtocol
-
-    /// Returns an object that handles encryption and decryption for sends.
-    ///
-    func sends() -> ClientSendsProtocol
 }
 
 // MARK: - ClientVault
@@ -70,9 +66,5 @@ extension ClientVault: ClientVaultService {
 
     func passwordHistory() -> ClientPasswordHistoryProtocol {
         passwordHistory() as ClientPasswordHistory
-    }
-
-    func sends() -> ClientSendsProtocol {
-        sends() as ClientSends
     }
 }
