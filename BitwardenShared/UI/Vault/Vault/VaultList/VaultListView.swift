@@ -218,7 +218,8 @@ private struct SearchableVaultListView: View {
                         iconBaseURL: state.iconBaseURL,
                         item: item,
                         hasDivider: !isLastInSection,
-                        showWebIcons: state.showWebIcons
+                        showWebIcons: state.showWebIcons,
+                        isFromExtension: false
                     )
                 },
                 mapAction: { action in

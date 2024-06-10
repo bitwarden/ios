@@ -2013,7 +2013,7 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
         guard !items.isEmpty else { return indent + "(empty)" }
         return items.reduce(into: "") { result, item in
             switch item.itemType {
-            case let .cipher(cipher):
+            case let .cipher(cipher, _):
                 result.append(indent + "- Cipher: \(cipher.name)")
             case let .group(group, count):
                 result.append(indent + "- Group: \(group.name) (\(count))")

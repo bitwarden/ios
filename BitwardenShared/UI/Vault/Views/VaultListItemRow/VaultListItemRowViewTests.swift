@@ -62,6 +62,23 @@ class VaultListItemRowViewTests: BitwardenTestCase {
         assertSnapshot(of: subject, as: .fixedSize())
     }
 
+    /// Test that the view renders correctly with organization icon.
+    func test_snapshot_organization() {
+        processor.state.iconBaseURL = .example
+        processor.state.item = .fixture(cipherView: .fixture(
+            login: .fixture(
+                uris: [
+                    .fixture(
+                        uri: "Test",
+                        match: nil
+                    ),
+                ]
+            ),
+            organizationId: "org"
+        ))
+        assertSnapshot(of: subject, as: .fixedSize())
+    }
+
     /// Test that the view renders correctly with a custom icon.
     func test_snapshot_showWebIcon() {
         processor.state.iconBaseURL = .example
@@ -71,6 +88,65 @@ class VaultListItemRowViewTests: BitwardenTestCase {
                 match: nil
             ),
         ])))
+        assertSnapshot(of: subject, as: .fixedSize())
+    }
+
+    /// Test that the password view with username subtitle renders correctly..
+    func test_snapshot_subtitle() {
+        processor.state.iconBaseURL = .example
+        processor.state.item = .fixture(cipherView: .fixture(login: .fixture(
+            uris: [
+                .fixture(
+                    uri: "Test",
+                    match: nil
+                ),
+            ],
+            username: "username"
+        )))
+        assertSnapshot(of: subject, as: .fixedSize())
+    }
+
+    /// Test that the Fido2 view renders correctly when Cipher name and RpId are the same.
+    func test_snapshot_fido2Subtitle() {
+        processor.state.iconBaseURL = .example
+        processor.state.item = .fixture(cipherView: .fixture(
+            login: .fixture(
+                fido2Credentials: [
+                    .fixture(rpId: "myApp.com", userName: "another user"),
+                ],
+                uris: [
+                    .fixture(
+                        uri: "Test",
+                        match: nil
+                    ),
+                ],
+                username: "username"
+            ),
+            name: "myApp.com"
+        ), asFido2Credential: true)
+        processor.state.isFromExtension = true
+        assertSnapshot(of: subject, as: .fixedSize())
+    }
+
+    /// Test that the Fido2 view renders correctly when Cipher name and RpId are different.
+    func test_snapshot_fido2RpIdAndsubtitle() {
+        processor.state.iconBaseURL = .example
+        processor.state.item = .fixture(cipherView: .fixture(
+            login: .fixture(
+                fido2Credentials: [
+                    .fixture(rpId: "myApp.com", userName: "another user"),
+                ],
+                uris: [
+                    .fixture(
+                        uri: "Test",
+                        match: nil
+                    ),
+                ],
+                username: "username"
+            ),
+            name: "MyApp"
+        ), asFido2Credential: true)
+        processor.state.isFromExtension = true
         assertSnapshot(of: subject, as: .fixedSize())
     }
 }

@@ -3,13 +3,18 @@ import Foundation
 
 /// Data model for an item displayed in the vault list.
 ///
-public struct VaultListItem: Equatable, Identifiable {
+public struct VaultListItem: Equatable, Identifiable, VaultItemWithDecorativeIcon {
     // MARK: Types
 
     /// An enumeration for the type of item being displayed by this item.
     public enum ItemType: Equatable {
         /// The wrapped item is a cipher.
-        case cipher(CipherView)
+        ///
+        /// - Parameters
+        ///   - CipherView: The cipher to wrap.
+        ///   - asFido2Credential: Whether this cipher item is a Fido2 credential and performs operations as it.
+        ///
+        case cipher(CipherView, asFido2Credential: Bool = false)
 
         /// The wrapped item is a group of items.
         case group(VaultListGroup, Int)
@@ -50,20 +55,41 @@ extension VaultListItem {
         guard let id = cipherView.id else { return nil }
         self.init(id: id, itemType: .cipher(cipherView))
     }
+
+    /// Initialize a `VaultListItem` from a `CipherView`.
+    /// - Parameters:
+    ///   - cipherView: The `CipherView` used to initialize the `VaultListItem`.
+    ///   - asFido2Credential: Whether this item acts as a Fido2 credential.
+    init?(cipherView: CipherView, asFido2Credential: Bool) {
+        guard let id = cipherView.id, cipherView.type == .login else { return nil }
+        self.init(id: id, itemType: .cipher(cipherView, asFido2Credential: asFido2Credential))
+    }
 }
 
 extension VaultListItem {
+    /// The RpId of the main Fido2 credential.
+    var fido2CredentialRpId: String? {
+        switch itemType {
+        case let .cipher(cipherView, asFido2Credential):
+            asFido2Credential ? cipherView.mainFido2Credential?.rpId : nil
+        case .group:
+            nil
+        case .totp:
+            nil
+        }
+    }
+
     /// An image asset for this item that can be used in the UI.
     var icon: ImageAsset {
         switch itemType {
-        case let .cipher(cipherItem):
+        case let .cipher(cipherItem, asFido2Credential):
             switch cipherItem.type {
             case .card:
                 Asset.Images.creditCard
             case .identity:
                 Asset.Images.id
             case .login:
-                Asset.Images.globe
+                asFido2Credential ? Asset.Images.passkey : Asset.Images.globe
             case .secureNote:
                 Asset.Images.doc
             }
@@ -96,7 +122,7 @@ extension VaultListItem {
     /// The accessibility ID for the ciphers icon.
     var iconAccessibilityId: String {
         switch itemType {
-        case let .cipher(cipherItem):
+        case let .cipher(cipherItem, _):
             switch cipherItem.type {
             case .card:
                 return "CardCipherIcon"
@@ -115,7 +141,7 @@ extension VaultListItem {
     /// The login view containing the uri's to download the special decorative icon, if applicable.
     var loginView: BitwardenSdk.LoginView? {
         switch itemType {
-        case let .cipher(cipherView):
+        case let .cipher(cipherView, _):
             cipherView.login
         case .group:
             nil
@@ -124,11 +150,26 @@ extension VaultListItem {
         }
     }
 
+    /// Whether to show or not the Fido2 credential RpId
+    var shouldShowFido2CredentialRpId: Bool {
+        switch itemType {
+        case let .cipher(cipherView, asFido2Credential):
+            guard let fido2CredentialRpId, !fido2CredentialRpId.isEmpty else {
+                return false
+            }
+            return asFido2Credential && cipherView.name != fido2CredentialRpId
+        case .group:
+            return false
+        case .totp:
+            return false
+        }
+    }
+
     /// The subtitle to show in the row.
     var subtitle: String? {
         switch itemType {
-        case let .cipher(cipherView):
-            cipherView.subtitle
+        case let .cipher(cipherView, asFido2Credential):
+            asFido2Credential ? cipherView.mainFido2CredentialUsername : cipherView.subtitle
         case .group:
             nil
         case .totp:

@@ -10,6 +10,13 @@ extension VaultListItem {
         VaultListItem(cipherView: cipherView)!
     }
 
+    static func fixture(
+        cipherView: CipherView = .fixture(),
+        asFido2Credential: Bool
+    ) -> VaultListItem {
+        VaultListItem(cipherView: cipherView, asFido2Credential: asFido2Credential)!
+    }
+
     static func fixtureGroup(
         id: String = "123",
         group: VaultListGroup = .card,
