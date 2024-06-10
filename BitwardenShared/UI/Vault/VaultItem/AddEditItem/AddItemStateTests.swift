@@ -33,7 +33,8 @@ class AddItemStateTests: XCTestCase {
               ▿ login: Optional<LoginView>
                 ▿ some: LoginView
                   - autofillOnPageLoad: Optional<Bool>.none
-                  - fido2Credentials: Optional<Array<Fido2CredentialView>>.none
+                  ▿ fido2Credentials: Optional<Array<Fido2Credential>>
+                    - some: 0 elements
                   - password: Optional<String>.none
                   - passwordRevisionDate: Optional<Date>.none
                   - totp: Optional<String>.none
@@ -84,7 +85,8 @@ class AddItemStateTests: XCTestCase {
               ▿ login: Optional<LoginView>
                 ▿ some: LoginView
                   - autofillOnPageLoad: Optional<Bool>.none
-                  - fido2Credentials: Optional<Array<Fido2CredentialView>>.none
+                  ▿ fido2Credentials: Optional<Array<Fido2Credential>>
+                    - some: 0 elements
                   ▿ password: Optional<String>
                     - some: "top secret!"
                   - passwordRevisionDate: Optional<Date>.none

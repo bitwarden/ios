@@ -345,7 +345,7 @@ extension BitwardenSdk.CipherRepromptType {
     }
 }
 
-extension BitwardenSdk.Fido2Credential: Identifiable {
+extension BitwardenSdk.Fido2Credential: Identifiable, @unchecked Sendable {
     public var id: String { credentialId }
 
     init(cipherLoginFido2Credential model: CipherLoginFido2Credential) {
@@ -366,8 +366,6 @@ extension BitwardenSdk.Fido2Credential: Identifiable {
         )
     }
 }
-
-extension BitwardenSdk.Fido2CredentialView: @unchecked Sendable {}
 
 extension BitwardenSdk.Field {
     init(cipherFieldModel model: CipherFieldModel) {

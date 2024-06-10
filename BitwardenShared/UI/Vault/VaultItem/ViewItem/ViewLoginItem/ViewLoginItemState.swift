@@ -13,7 +13,7 @@ protocol ViewLoginItemState: Sendable {
     var canViewPassword: Bool { get }
 
     /// The FIDO2 credentials for the login.
-    var fido2Credentials: [Fido2CredentialView] { get }
+    var fido2Credentials: [Fido2Credential] { get }
 
     /// A flag indicating if the TOTP feature is available.
     var isTOTPAvailable: Bool { get }
