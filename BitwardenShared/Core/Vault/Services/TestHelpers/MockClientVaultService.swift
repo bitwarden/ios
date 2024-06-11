@@ -86,6 +86,7 @@ class MockClientAttachments: ClientAttachmentsProtocol {
 // MARK: - MockClientCiphers
 
 class MockClientCiphers: ClientCiphersProtocol {
+    var encryptCipherResult: Result<Cipher, Error>?
     var encryptError: Error?
     var encryptedCiphers = [CipherView]()
     var moveToOrganizationCipher: CipherView?
@@ -106,7 +107,7 @@ class MockClientCiphers: ClientCiphersProtocol {
         if let encryptError {
             throw encryptError
         }
-        return Cipher(cipherView: cipherView)
+        return try encryptCipherResult?.get() ?? Cipher(cipherView: cipherView)
     }
 
     func moveToOrganization(
