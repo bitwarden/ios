@@ -53,7 +53,7 @@ enum ParametrizedTestRunner {
     ///   - values1: Values to pass as first parameter to the execution
     ///   - values2: Values to pass as second parameter to the execution
     ///   - values3: Values to pass as third parameter to the execution
-    ///   - values4: Values to pass as forth parameter to the execution
+    ///   - values4: Values to pass as fourth parameter to the execution
     ///   - run: Closure to run with the parameters.
     static func runCombined<T, U, V, W>(
         values1: [T],
