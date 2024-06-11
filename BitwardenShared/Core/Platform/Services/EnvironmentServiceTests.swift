@@ -58,6 +58,7 @@ class EnvironmentServiceTests: XCTestCase {
         XCTAssertEqual(subject.sendShareURL, URL(string: "https://example.com/#/send"))
         XCTAssertEqual(subject.settingsURL, URL(string: "https://example.com/#/settings"))
         XCTAssertEqual(subject.webVaultURL, URL(string: "https://example.com"))
+        XCTAssertEqual(stateService.preAuthEnvironmentUrls, urls)
     }
 
     /// `loadURLsForActiveAccount()` handles EU URLs
@@ -78,9 +79,11 @@ class EnvironmentServiceTests: XCTestCase {
         XCTAssertEqual(subject.sendShareURL, URL(string: "https://vault.bitwarden.eu/#/send"))
         XCTAssertEqual(subject.settingsURL, URL(string: "https://vault.bitwarden.eu/#/settings"))
         XCTAssertEqual(subject.webVaultURL, URL(string: "https://vault.bitwarden.eu"))
+        XCTAssertEqual(stateService.preAuthEnvironmentUrls, urls)
     }
 
-    /// `loadURLsForActiveAccount()` loads the default URLs if there's no active account.
+    /// `loadURLsForActiveAccount()` loads the default URLs if there's no active account
+    /// and no preauth URLs.
     func test_loadURLsForActiveAccount_noAccount() async {
         await subject.loadURLsForActiveAccount()
 
@@ -93,6 +96,27 @@ class EnvironmentServiceTests: XCTestCase {
         XCTAssertEqual(subject.sendShareURL, URL(string: "https://vault.bitwarden.com/#/send"))
         XCTAssertEqual(subject.settingsURL, URL(string: "https://vault.bitwarden.com/#/settings"))
         XCTAssertEqual(subject.webVaultURL, URL(string: "https://vault.bitwarden.com"))
+        XCTAssertEqual(stateService.preAuthEnvironmentUrls, .defaultUS)
+    }
+
+    /// `loadURLsForActiveAccount()` loads the preAuth URLs if there's no active account
+    /// and there are preauth URLs.
+    func test_loadURLsForActiveAccount_preAuth() async {
+        let urls = EnvironmentUrlData(base: .example)
+        stateService.preAuthEnvironmentUrls = urls
+
+        await subject.loadURLsForActiveAccount()
+
+        XCTAssertEqual(subject.apiURL, URL(string: "https://example.com/api"))
+        XCTAssertEqual(subject.eventsURL, URL(string: "https://example.com/events"))
+        XCTAssertEqual(subject.iconsURL, URL(string: "https://example.com/icons"))
+        XCTAssertEqual(subject.identityURL, URL(string: "https://example.com/identity"))
+        XCTAssertEqual(subject.importItemsURL, URL(string: "https://example.com/#/tools/import"))
+        XCTAssertEqual(subject.region, .selfHosted)
+        XCTAssertEqual(subject.sendShareURL, URL(string: "https://example.com/#/send"))
+        XCTAssertEqual(subject.settingsURL, URL(string: "https://example.com/#/settings"))
+        XCTAssertEqual(subject.webVaultURL, URL(string: "https://example.com"))
+        XCTAssertEqual(stateService.preAuthEnvironmentUrls, urls)
     }
 
     /// `setPreAuthURLs(urls:)` sets the pre-auth URLs.
