@@ -7,27 +7,39 @@ import Foundation
 protocol ClientFido2Service: AnyObject {
     /// Returns the `ClientFido2Authenticator` to perform Fido2 authenticator tasks.
     /// - Parameters:
-    ///   - userInterface: The `Fido2UserInterface` with necessary platform side logic related to UI.
-    ///   - credentialStore: The `Fido2CredentialStore` with necessary platform side logic related to credential storage.
+    ///   - userInterface: `Fido2UserInterface` with necessary platform side logic related to UI.
+    ///   - credentialStore: `Fido2CredentialStore` with necessary platform side logic related to credential storage.
     /// - Returns: Returns the `ClientFido2Authenticator` to perform Fido2 authenticator tasks
-    func authenticator(userInterface: Fido2UserInterface, credentialStore: Fido2CredentialStore)  -> ClientFido2AuthenticatorProtocol
+    func authenticator(
+        userInterface: Fido2UserInterface,
+        credentialStore: Fido2CredentialStore
+    ) -> ClientFido2AuthenticatorProtocol
 
     /// Returns the `ClientFido2Client` to perform Fido2 client tasks.
     /// - Parameters:
-    ///   - userInterface: The `Fido2UserInterface` with necessary platform side logic related to UI.
-    ///   - credentialStore: The `Fido2CredentialStore` with necessary platform side logic related to credential storage.
+    ///   - userInterface: `Fido2UserInterface` with necessary platform side logic related to UI.
+    ///   - credentialStore: `Fido2CredentialStore` with necessary platform side logic related to credential storage.
     /// - Returns: Returns the `ClientFido2Client` to perform Fido2 client tasks
-    func client(userInterface: Fido2UserInterface, credentialStore: Fido2CredentialStore)  -> ClientFido2ClientProtocol
+    func client(
+        userInterface: Fido2UserInterface,
+        credentialStore: Fido2CredentialStore
+    ) -> ClientFido2ClientProtocol
 }
 
 // MARK: ClientPlatform
 
 extension ClientFido2: ClientFido2Service {
-    func authenticator(userInterface: Fido2UserInterface, credentialStore: Fido2CredentialStore)  -> ClientFido2AuthenticatorProtocol {
+    func authenticator(
+        userInterface: Fido2UserInterface,
+        credentialStore: Fido2CredentialStore
+    ) -> ClientFido2AuthenticatorProtocol {
         authenticator(userInterface: userInterface, credentialStore: credentialStore) as ClientFido2Authenticator
     }
-    
-    func client(userInterface: Fido2UserInterface, credentialStore: Fido2CredentialStore)  -> ClientFido2ClientProtocol {
+
+    func client(
+        userInterface: Fido2UserInterface,
+        credentialStore: Fido2CredentialStore
+    ) -> ClientFido2ClientProtocol {
         client(userInterface: userInterface, credentialStore: credentialStore) as ClientFido2Client
     }
 }

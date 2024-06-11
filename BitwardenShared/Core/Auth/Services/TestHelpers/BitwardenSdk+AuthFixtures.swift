@@ -57,11 +57,12 @@ extension BitwardenSdk.GetAssertionResult {
         userHandle: Data = Data(capacity: 64),
         selectedCredential: SelectedCredential = .fixture()
     ) -> BitwardenSdk.GetAssertionResult {
-        .init(credentialId: credentialId,
-              authenticatorData: authenticatorData,
-              signature: signature,
-              userHandle: userHandle,
-              selectedCredential: selectedCredential
+        .init(
+            credentialId: credentialId,
+            authenticatorData: authenticatorData,
+            signature: signature,
+            userHandle: userHandle,
+            selectedCredential: selectedCredential
         )
     }
 }
@@ -84,7 +85,7 @@ extension BitwardenSdk.PublicKeyCredentialAuthenticatorAssertionResponse {
     static func fixture(
         id: String = "1",
         rawId: Data = Data(capacity: 16),
-        ty: String = "ty",
+        type: String = "webauthn.get",
         authenticatorAttachment: String? = nil,
         clientExtensionResults: ClientExtensionResults = .fixture(),
         response: AuthenticatorAssertionResponse = .fixture(),
@@ -93,7 +94,7 @@ extension BitwardenSdk.PublicKeyCredentialAuthenticatorAssertionResponse {
         .init(
             id: id,
             rawId: rawId,
-            ty: ty,
+            ty: type,
             authenticatorAttachment: authenticatorAttachment,
             clientExtensionResults: clientExtensionResults,
             response: response,
@@ -106,7 +107,7 @@ extension BitwardenSdk.PublicKeyCredentialAuthenticatorAttestationResponse {
     static func fixture(
         id: String = "1",
         rawId: Data = Data(capacity: 16),
-        ty: String = "ty",
+        type: String = "webauthn.create",
         authenticatorAttachment: String? = nil,
         clientExtensionResults: ClientExtensionResults = .fixture(),
         response: AuthenticatorAttestationResponse = .fixture(),
@@ -115,7 +116,7 @@ extension BitwardenSdk.PublicKeyCredentialAuthenticatorAttestationResponse {
         .init(
             id: id,
             rawId: rawId,
-            ty: ty,
+            ty: type,
             authenticatorAttachment: authenticatorAttachment,
             clientExtensionResults: clientExtensionResults,
             response: response,
