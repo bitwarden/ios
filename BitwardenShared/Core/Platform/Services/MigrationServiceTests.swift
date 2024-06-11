@@ -12,6 +12,9 @@ class MigrationServiceTests: BitwardenTestCase {
     var standardUserDefaults: UserDefaults!
     var subject: DefaultMigrationService!
 
+    /// A keychain service name to use during tests to avoid corrupting the app's keychain items.
+    private let testKeychainServiceName = "com.bitwarden.test"
+
     // MARK: Setup & Teardown
 
     override func setUp() {
@@ -24,14 +27,19 @@ class MigrationServiceTests: BitwardenTestCase {
         standardUserDefaults = UserDefaults(suiteName: "test")
 
         standardUserDefaults.removeObject(forKey: "MSAppCenterCrashesIsEnabled")
-        SecItemDelete([kSecClass: kSecClassGenericPassword] as CFDictionary)
+        SecItemDelete(
+            [
+                kSecClass: kSecClassGenericPassword,
+                kSecAttrService: testKeychainServiceName,
+            ] as CFDictionary
+        )
 
         subject = DefaultMigrationService(
             appSettingsStore: appSettingsStore,
             errorReporter: errorReporter,
             keychainRepository: keychainRepository,
             keychainService: keychainService,
-            keychainServiceName: "com.bitwarden.test",
+            keychainServiceName: testKeychainServiceName,
             standardUserDefaults: standardUserDefaults
         )
     }
@@ -176,7 +184,7 @@ class MigrationServiceTests: BitwardenTestCase {
                 [
                     kSecClass: kSecClassGenericPassword,
                     kSecAttrAccount: item.account,
-                    kSecAttrService: "com.bitwarden.test",
+                    kSecAttrService: testKeychainServiceName,
                     kSecAttrGeneric: Data(item.value.utf8),
                 ] as CFDictionary,
                 nil
@@ -189,7 +197,7 @@ class MigrationServiceTests: BitwardenTestCase {
         SecItemCopyMatching(
             [
                 kSecClass: kSecClassGenericPassword,
-                kSecAttrService: "com.bitwarden.test",
+                kSecAttrService: testKeychainServiceName,
                 kSecMatchLimit: kSecMatchLimitAll,
                 kSecReturnData: true,
                 kSecReturnAttributes: true,

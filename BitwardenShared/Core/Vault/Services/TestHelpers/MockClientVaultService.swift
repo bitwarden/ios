@@ -9,7 +9,6 @@ class MockClientVaultService: ClientVaultService {
     var clientCollections = MockClientCollections()
     var clientFolders = MockClientFolders()
     var clientPasswordHistory = MockClientPasswordHistory()
-    var clientSends = MockClientSends()
     var generateTOTPCodeResult: Result<String, Error> = .success("123456")
     var timeProvider = MockTimeProvider(.currentTime)
     var totpPeriod: UInt32 = 30
@@ -41,10 +40,6 @@ class MockClientVaultService: ClientVaultService {
 
     func passwordHistory() -> ClientPasswordHistoryProtocol {
         clientPasswordHistory
-    }
-
-    func sends() -> ClientSendsProtocol {
-        clientSends
     }
 }
 

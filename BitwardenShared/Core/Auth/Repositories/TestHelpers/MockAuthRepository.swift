@@ -10,6 +10,7 @@ class MockAuthRepository: AuthRepository { // swiftlint:disable:this type_body_l
     var createNewSsoUserOrgIdentifier: String = ""
     var createNewSsoUserResult: Result<Void, Error> = .success(())
     var deleteAccountCalled = false
+    var deleteAccountResult: Result<Void, Error> = .success(())
     var deviceId: String = ""
     var email: String = ""
     var encryptedPin: String = "123"
@@ -95,6 +96,7 @@ class MockAuthRepository: AuthRepository { // swiftlint:disable:this type_body_l
 
     func deleteAccount(otp: String?, passwordText _: String?) async throws {
         deleteAccountCalled = true
+        try deleteAccountResult.get()
     }
 
     func getAccount(for userId: String?) async throws -> Account {

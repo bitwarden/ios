@@ -302,6 +302,8 @@ extension AppCoordinator: SettingsCoordinatorDelegate {
     func didDeleteAccount() {
         Task {
             await handleAuthEvent(.didDeleteAccount)
+
+            showAlert(.accountDeletedAlert())
         }
     }
 

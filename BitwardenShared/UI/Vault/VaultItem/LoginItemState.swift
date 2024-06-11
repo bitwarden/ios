@@ -11,7 +11,7 @@ struct LoginItemState: Equatable {
     var canViewPassword: Bool = true
 
     /// The FIDO2 credentials for the login.
-    var fido2Credentials: [Fido2Credential] = []
+    var fido2Credentials: [Fido2CredentialView] = []
 
     /// Whether the auth key is visible.
     var isAuthKeyVisible: Bool = false

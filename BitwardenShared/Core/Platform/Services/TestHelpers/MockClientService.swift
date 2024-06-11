@@ -8,6 +8,7 @@ class MockClientService: ClientService {
     var mockExporters: MockClientExporters
     var mockGenerators: MockClientGenerators
     var mockPlatform: MockClientPlatform
+    var mockSends: MockClientSends
     var mockVault: MockClientVaultService
     var userClientArray = [String: BitwardenSdkClient]()
 
@@ -17,6 +18,7 @@ class MockClientService: ClientService {
         exporters: MockClientExporters = MockClientExporters(),
         generators: MockClientGenerators = MockClientGenerators(),
         platform: MockClientPlatform = MockClientPlatform(),
+        sends: MockClientSends = MockClientSends(),
         vault: MockClientVaultService = MockClientVaultService()
     ) {
         mockAuth = auth
@@ -24,6 +26,7 @@ class MockClientService: ClientService {
         mockExporters = exporters
         mockGenerators = generators
         mockPlatform = platform
+        mockSends = sends
         mockVault = vault
     }
 
@@ -50,6 +53,10 @@ class MockClientService: ClientService {
     func removeClient(for userId: String?) async throws {
         guard let userId else { return }
         userClientArray.removeValue(forKey: userId)
+    }
+
+    func sends(for userId: String?) -> ClientSendsProtocol {
+        mockSends
     }
 
     func vault(for userId: String?) -> ClientVaultService {

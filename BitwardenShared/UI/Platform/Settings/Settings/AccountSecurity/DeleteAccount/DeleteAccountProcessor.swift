@@ -72,6 +72,14 @@ final class DeleteAccountProcessor: StateProcessor<DeleteAccountState, DeleteAcc
         do {
             try await services.authRepository.deleteAccount(otp: otp, passwordText: passwordText)
             navigatePostDeletion()
+        } catch ServerError.error {
+            coordinator.showAlert(
+                .defaultAlert(
+                    title: otp != nil
+                        ? Localizations.invalidVerificationCode
+                        : Localizations.invalidMasterPassword
+                )
+            )
         } catch {
             coordinator.showAlert(.networkResponseError(error) {
                 await self.deleteAccount(otp: otp, passwordText: passwordText)
