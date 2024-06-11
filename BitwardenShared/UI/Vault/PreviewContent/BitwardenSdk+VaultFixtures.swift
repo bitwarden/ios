@@ -389,7 +389,7 @@ extension BitwardenSdk.Login {
 
 extension BitwardenSdk.LoginView {
     static func fixture(
-        fido2Credentials: [Fido2CredentialView]? = nil,
+        fido2Credentials: [Fido2Credential]? = nil,
         password: String? = nil,
         passwordRevisionDate: DateTime? = nil,
         uris: [LoginUriView]? = nil,

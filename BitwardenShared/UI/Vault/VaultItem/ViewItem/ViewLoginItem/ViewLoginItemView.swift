@@ -118,7 +118,7 @@ struct ViewLoginItemView: View {
 
     /// The passkey row.
     ///
-    private func passkeyRow(_ fido2Credential: Fido2CredentialView) -> some View {
+    private func passkeyRow(_ fido2Credential: Fido2Credential) -> some View {
         BitwardenTextValueField(
             title: Localizations.passkey,
             value: Localizations.createdXY(

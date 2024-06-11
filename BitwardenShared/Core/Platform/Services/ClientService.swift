@@ -34,12 +34,12 @@ protocol ClientService {
     ///
     func generators(for userId: String?) async throws -> ClientGeneratorsProtocol
 
-    /// Returns a `ClientPlatformProtocol` for client platform tasks.
+    /// Returns a `ClientPlatformService` for client platform tasks.
     ///
     /// - Parameter userId: The user ID mapped to the client instance.
-    /// - Returns: A `ClientPlatformProtocol` for client platform tasks.
+    /// - Returns: A `ClientPlatformService` for client platform tasks.
     ///
-    func platform(for userId: String?) async throws -> ClientPlatformProtocol
+    func platform(for userId: String?) async throws -> ClientPlatformService
 
     /// Removes the user's client from memory.
     ///
@@ -89,9 +89,9 @@ extension ClientService {
         try await generators(for: nil)
     }
 
-    /// Returns a `ClientPlatformProtocol` for client platform tasks.
+    /// Returns a `ClientPlatformService` for client platform tasks.
     ///
-    func platform() async throws -> ClientPlatformProtocol {
+    func platform() async throws -> ClientPlatformService {
         try await platform(for: nil)
     }
 
@@ -177,7 +177,7 @@ class DefaultClientService: ClientService {
         try await client(for: userId).generators()
     }
 
-    func platform(for userId: String?) async throws -> ClientPlatformProtocol {
+    func platform(for userId: String?) async throws -> ClientPlatformService {
         try await client(for: userId).platform()
     }
 
@@ -291,7 +291,7 @@ class DefaultClientBuilder: ClientBuilder {
     private func loadFlags(client: BitwardenSdkClient) async {
         do {
             try await client.platform().loadFlags(
-                flags: [FeatureFlagsConstants.enableCipherKeyEncryption: true]
+                [FeatureFlagsConstants.enableCipherKeyEncryption: true]
             )
         } catch {
             errorReporter.log(error: error)
@@ -317,7 +317,7 @@ protocol BitwardenSdkClient {
     func generators() -> ClientGeneratorsProtocol
 
     /// Returns platform operations.
-    func platform() -> ClientPlatformProtocol
+    func platform() -> ClientPlatformService
 
     /// Returns sends operations.
     func sends() -> ClientSendsProtocol
@@ -345,7 +345,7 @@ extension Client: BitwardenSdkClient {
         generators() as ClientGenerators
     }
 
-    func platform() -> ClientPlatformProtocol {
+    func platform() -> ClientPlatformService {
         platform() as ClientPlatform
     }
 
