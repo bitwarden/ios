@@ -18,7 +18,7 @@ protocol Fido2UserVerificationMediatorDelegate: UserVerificationDelegate {
 ///
 protocol Fido2UserVerificationMediator: AnyObject {
     func checkUser(
-        userVerificationPreference: Verification,
+        userVerificationPreference: BitwardenSdk.Verification,
         credential: BitwardenSdk.CipherView
     ) async throws -> CheckUserResult
 }
@@ -98,7 +98,7 @@ class DefaultFido2UserVerificationMediator {
 // MARK: - Fido2UserVerificationMediator
 
 extension DefaultFido2UserVerificationMediator: Fido2UserVerificationMediator {
-    func checkUser(userVerificationPreference: Verification,
+    func checkUser(userVerificationPreference: BitwardenSdk.Verification,
                    credential: BitwardenSdk.CipherView) async throws -> CheckUserResult {
         if try await services.authRepository.shouldPerformMasterPasswordReprompt(reprompt: credential.reprompt) {
             // TODO: PM-8360 check if user interaction is needed to restart autofill action.
@@ -155,19 +155,4 @@ extension DefaultFido2UserVerificationMediator: Fido2UserVerificationMediator {
             return CheckUserResult(userPresent: true, userVerified: true)
         }
     }
-}
-
-// MARK: Temporary until SDK update
-
-// TODO: PM-8385 Replace for BitwardenSDK.Verification when sdk reference gets updated
-enum Verification {
-    case discouraged
-    case preferred
-    case required
-}
-
-// TODO: PM-8385 Replace for BitwardenSDK.Verification when sdk reference gets updated
-struct CheckUserResult: Equatable {
-    let userPresent: Bool
-    let userVerified: Bool
 }

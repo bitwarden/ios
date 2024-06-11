@@ -402,7 +402,7 @@ extension DefaultAuthRepository: AuthRepository {
     }
 
     func canVerifyMasterPassword() async throws -> Bool {
-        try await stateService.getMasterPasswordHash() != nil
+        try await stateService.getUserHasMasterPassword()
     }
 
     func createNewSsoUser(orgIdentifier: String, rememberDevice: Bool) async throws {

@@ -131,18 +131,19 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
 
     // MARK: Tests
 
-    /// `.canVerifyMasterPassword()`  true when master password hash exists.
-    func test_canVerifyMasterPassword_hash_exists() async throws {
-        stateService.activeAccount = .fixture()
-        stateService.masterPasswordHashes["1"] = "MASTER_PASSWORD_HASH"
+    /// `.canVerifyMasterPassword()`  true when user has master password.
+    func test_canVerifyMasterPassword_hasMasterPassword() async throws {
+        stateService.activeAccount = .fixture(profile: .fixture(userId: "1"))
+        stateService.userHasMasterPassword["1"] = true
 
         let result = try await subject.canVerifyMasterPassword()
         XCTAssertTrue(result)
     }
 
-    /// `.canVerifyMasterPassword()`  false when master password hash nil.
-    func test_canVerifyMasterPassword_hash_nil() async throws {
-        stateService.activeAccount = .fixture()
+    /// `.canVerifyMasterPassword()`  false when user doesn't have master password.
+    func test_canVerifyMasterPassword_hasNotMasterPassword() async throws {
+        stateService.activeAccount = .fixture(profile: .fixture(userId: "1"))
+        stateService.userHasMasterPassword["1"] = false
 
         let result = try await subject.canVerifyMasterPassword()
         XCTAssertFalse(result)
@@ -1068,8 +1069,8 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
     /// `.shouldPerformMasterPasswordReprompt(reprompt:)`  when reprompt password
     /// and master password hash exists.
     func test_shouldPerformMasterPasswordReprompt_true() async throws {
-        stateService.activeAccount = .fixture()
-        stateService.masterPasswordHashes["1"] = "MASTER_PASSWORD_HASH"
+        stateService.activeAccount = .fixture(profile: .fixture(userId: "1"))
+        stateService.userHasMasterPassword["1"] = true
 
         let result = try await subject.shouldPerformMasterPasswordReprompt(reprompt: .password)
         XCTAssertTrue(result)
@@ -1078,7 +1079,8 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
     /// `.shouldPerformMasterPasswordReprompt(reprompt:)`  when reprompt password
     /// and master password hash does not exist.
     func test_shouldPerformMasterPasswordReprompt_false_reprompt_password() async throws {
-        stateService.activeAccount = .fixture()
+        stateService.activeAccount = .fixture(profile: .fixture(userId: "1"))
+        stateService.userHasMasterPassword["1"] = false
 
         let result = try await subject.shouldPerformMasterPasswordReprompt(reprompt: .password)
         XCTAssertFalse(result)

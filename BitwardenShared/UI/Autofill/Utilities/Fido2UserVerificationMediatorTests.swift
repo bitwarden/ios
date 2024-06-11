@@ -186,7 +186,7 @@ class Fido2UserVerificationMediatorTests: BitwardenTestCase {
     // MARK: Private
 
     private func checkUser_verified_when_reprompt_and_reprompt_verified(
-        _ userVerificationPreference: Verification
+        _ userVerificationPreference: BitwardenSdk.Verification
     ) async throws {
         authRepository.canVerifyMasterPasswordResult = .success(true)
         userVerificationHelper.verifyMasterPasswordResult = .success(.verified)
@@ -205,7 +205,7 @@ class Fido2UserVerificationMediatorTests: BitwardenTestCase {
     }
 
     private func checkUser_not_verified_when_reprompt_and_reprompt_not_verified(
-        _ userVerificationPreference: Verification
+        _ userVerificationPreference: BitwardenSdk.Verification
     ) async throws {
         authRepository.canVerifyMasterPasswordResult = .success(true)
         userVerificationHelper.verifyMasterPasswordResult = .success(.notVerified)
@@ -224,7 +224,7 @@ class Fido2UserVerificationMediatorTests: BitwardenTestCase {
     }
 
     private func checkUser_throws_when_reprompt_and_reprompt_throws(
-        _ userVerificationPreference: Verification
+        _ userVerificationPreference: BitwardenSdk.Verification
     ) async throws {
         authRepository.canVerifyMasterPasswordResult = .success(true)
         userVerificationHelper.verifyMasterPasswordResult = .failure(BitwardenTestError.example)
