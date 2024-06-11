@@ -80,7 +80,15 @@ class DefaultEnvironmentService: EnvironmentService {
     // MARK: EnvironmentService
 
     func loadURLsForActiveAccount() async {
-        let urls: EnvironmentUrlData = await (try? stateService.getEnvironmentUrls()) ?? .defaultUS
+        let urls: EnvironmentUrlData
+        if let environmentUrls = try? await stateService.getEnvironmentUrls() {
+            urls = environmentUrls
+        } else if let preAuthUrls = await stateService.getPreAuthEnvironmentUrls() {
+            urls = preAuthUrls
+        } else {
+            urls = .defaultUS
+        }
+        await setPreAuthURLs(urls: urls)
         environmentUrls = EnvironmentUrls(environmentUrlData: urls)
 
         // swiftformat:disable:next redundantSelf
