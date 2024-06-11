@@ -91,7 +91,7 @@ class VaultListItemRowViewTests: BitwardenTestCase {
         assertSnapshot(of: subject, as: .fixedSize())
     }
 
-    /// Test that the password view with username subtitle renders correctly..
+    /// Test that the password view with username subtitle renders correctly.
     func test_snapshot_subtitle() {
         processor.state.iconBaseURL = .example
         processor.state.item = .fixture(cipherView: .fixture(login: .fixture(
