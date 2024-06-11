@@ -67,7 +67,7 @@ class CipherViewFido2Tests: BitwardenTestCase {
     func test_mainFido2CredentialUsername_userDisplayName() {
         let expected = "userDisplayName"
 
-        ParametrizedTestRunner.runWithEachValue(values: [nil, "", "   "]) { fido2Username in
+        CombinatorialTestRunner.runWithEachValue(values: [nil, "", "   "]) { fido2Username in
             let subject = CipherView.fixture(
                 login: LoginView.fixture(
                     fido2Credentials: [Fido2CredentialView.fixture(userDisplayName: expected, userName: fido2Username)],
@@ -90,7 +90,7 @@ class CipherViewFido2Tests: BitwardenTestCase {
     func test_mainFido2CredentialUsername_loginUsername() {
         let expected = "loginUsername"
 
-        ParametrizedTestRunner.runCombined(
+        CombinatorialTestRunner.runCombined(
             values1: [nil, "", "   "],
             values2: [nil, "", "   "]
         ) { fido2Username, fido2UserDisplayName in
@@ -140,7 +140,7 @@ class CipherViewFido2Tests: BitwardenTestCase {
     func test_mainFido2CredentialUsername_cipherName() {
         let expected = "name"
 
-        ParametrizedTestRunner.runCombined(
+        CombinatorialTestRunner.runCombined(
             values1: [nil, "", "   "],
             values2: [nil, "", "   "],
             values3: [nil, "", "   "]
@@ -163,7 +163,7 @@ class CipherViewFido2Tests: BitwardenTestCase {
         }
 
         // no Fido2 credentials
-        ParametrizedTestRunner.runWithEachValue(values: [nil, "", "   "]) { loginUsername in
+        CombinatorialTestRunner.runWithEachValue(values: [nil, "", "   "]) { loginUsername in
             let subject = CipherView.fixture(
                 login: LoginView.fixture(
                     username: loginUsername
@@ -176,7 +176,7 @@ class CipherViewFido2Tests: BitwardenTestCase {
         }
 
         // empty Fido2 credentials
-        ParametrizedTestRunner.runWithEachValue(values: [nil, "", "   "]) { loginUsername in
+        CombinatorialTestRunner.runWithEachValue(values: [nil, "", "   "]) { loginUsername in
             let subject = CipherView.fixture(
                 login: LoginView.fixture(
                     fido2Credentials: [],
@@ -195,7 +195,7 @@ class CipherViewFido2Tests: BitwardenTestCase {
     func test_mainFido2CredentialUsername_unknownAccount() {
         let expected = Localizations.unknownAccount
 
-        ParametrizedTestRunner.runCombined(
+        CombinatorialTestRunner.runCombined(
             values1: [nil, "", "   "],
             values2: [nil, "", "   "],
             values3: [nil, "", "   "],
@@ -219,7 +219,7 @@ class CipherViewFido2Tests: BitwardenTestCase {
         }
 
         // no Fido2 credentials
-        ParametrizedTestRunner.runCombined(
+        CombinatorialTestRunner.runCombined(
             values1: [nil, "", "   "],
             values2: ["", "   "]
         ) { loginUsername, cipherName in
@@ -235,7 +235,7 @@ class CipherViewFido2Tests: BitwardenTestCase {
         }
 
         // empty Fido2 credentials
-        ParametrizedTestRunner.runCombined(
+        CombinatorialTestRunner.runCombined(
             values1: [nil, "", "   "],
             values2: ["", "   "]
         ) { loginUsername, cipherName in

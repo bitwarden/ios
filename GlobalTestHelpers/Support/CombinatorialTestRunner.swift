@@ -1,5 +1,5 @@
-/// Helper that runs parametrized tests.
-enum ParametrizedTestRunner {
+/// Helper that runs combinatorial tests.
+enum CombinatorialTestRunner {
     /// Executes `run` with each value of the `values` array.
     /// - Parameters:
     ///   - values: Values to pass as parameter to the execution
