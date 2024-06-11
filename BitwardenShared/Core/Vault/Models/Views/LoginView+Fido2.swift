@@ -13,7 +13,9 @@ extension BitwardenSdk.LoginView {
         return !fido2Credentials.isEmpty
     }
 
-    /// The main (first) FIdo2 credential which is the one we
+    /// The main (first) Fido2 credential which is the only one we may have.
+    /// Note: currently, there may be up to one Fido2 credential in the array,
+    /// so normally we should interact with the credential using this.
     var mainFido2Credential: Fido2CredentialView? {
         guard hasFido2Credentials else { return nil }
         return fido2Credentials![0]
