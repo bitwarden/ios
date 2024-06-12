@@ -12,7 +12,7 @@ class ShareCipherAttachmentRequestTests: BitwardenTestCase {
         super.setUp()
 
         subject = try? ShareCipherAttachmentRequest(
-            attachment: .fixture(id: "attachment-1"),
+            attachment: .fixture(id: "attachment-1", key: "ENCRYPTION-KEY"),
             attachmentData: Data("📜".utf8),
             cipherId: "1",
             date: Date(year: 2024, month: 6, day: 1),
@@ -38,6 +38,10 @@ class ShareCipherAttachmentRequestTests: BitwardenTestCase {
             Content-Type: application/octet-stream\r
             \r
             📜\r
+            ----BWMobileFormBoundary1717200000000.0\r
+            Content-Disposition: form-data; name="key"\r
+            \r
+            ENCRYPTION-KEY\r
             ----BWMobileFormBoundary1717200000000.0--\r
 
             """

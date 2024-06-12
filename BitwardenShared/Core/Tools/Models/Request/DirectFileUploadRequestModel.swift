@@ -22,11 +22,17 @@ struct DirectFileUploadRequestModel: MultipartFormRequestBody {
     /// Creates a new `DirectFileUploadRequestModel`.
     ///
     /// - Parameters:
+    ///   - additionalParts: Additional parts to include with the uploaded file.
     ///   - data: The data of the file being uploaded.
     ///   - date: The date to use in the `boundary` for this request.
     ///   - fileName: The name of the file being uploaded.
     ///
-    init(data: Data, date: Date = .now, fileName: String) {
+    init(
+        additionalParts: [MultipartFormPart]? = nil,
+        data: Data,
+        date: Date = .now,
+        fileName: String
+    ) {
         self.date = date
         parts = [
             .file(
@@ -34,6 +40,6 @@ struct DirectFileUploadRequestModel: MultipartFormRequestBody {
                 name: "data",
                 fileName: fileName
             ),
-        ]
+        ] + (additionalParts ?? [])
     }
 }

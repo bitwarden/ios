@@ -311,7 +311,7 @@ class CipherAPIServiceTests: XCTestCase { // swiftlint:disable:this type_body_le
         client.result = .httpSuccess(testData: .emptyResponse)
 
         _ = try await subject.shareCipherAttachment(
-            attachment: .fixture(id: "attachment-1"),
+            attachment: .fixture(id: "attachment-1", key: "ENCRYPTION-KEY"),
             attachmentData: Data("📜".utf8),
             cipherId: "1",
             organizationId: "org-1"

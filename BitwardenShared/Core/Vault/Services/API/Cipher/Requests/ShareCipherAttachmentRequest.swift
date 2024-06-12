@@ -5,6 +5,9 @@ import Networking
 /// Errors thrown by `ShareCipherAttachmentRequest`.
 ///
 enum ShareCipherAttachmentRequestError: Error {
+    /// The attachment was missing a key.
+    case missingAttachmentKey
+
     /// The attachment was missing an ID.
     case missingAttachmentId
 }
@@ -65,7 +68,15 @@ struct ShareCipherAttachmentRequest: Request {
         organizationId: String
     ) throws {
         guard let attachmentId = attachment.id else { throw ShareCipherAttachmentRequestError.missingAttachmentId }
+        guard let attachmentKey = attachment.key else { throw ShareCipherAttachmentRequestError.missingAttachmentKey }
+
         requestModel = DirectFileUploadRequestModel(
+            additionalParts: [
+                MultipartFormPart(
+                    data: Data(attachmentKey.utf8),
+                    name: "key"
+                ),
+            ],
             data: attachmentData,
             date: date,
             fileName: attachment.fileName ?? ""

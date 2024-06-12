@@ -234,7 +234,7 @@ class CipherServiceTests: BitwardenTestCase {
         client.result = .httpSuccess(testData: .emptyResponse)
 
         try await subject.shareCipherAttachment(
-            attachment: .fixture(id: "attachment-1"),
+            attachment: .fixture(id: "attachment-1", key: "ENCRYPTION-KEY"),
             attachmentData: Data("📜".utf8),
             cipherId: "1",
             organizationId: "org-1"

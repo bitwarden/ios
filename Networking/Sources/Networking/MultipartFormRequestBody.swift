@@ -18,6 +18,28 @@ public struct MultipartFormPart: Equatable {
 
     /// Name of the form part.
     public let name: String
+
+    // MARK: Initialization
+
+    /// Initialize a `MultipartFormPart`.
+    ///
+    /// - Parameters:
+    ///   - data: Data contents to include in the part.
+    ///   - fileName: An optional file name for the data.
+    ///   - mimeType: Optional mime type of the data.
+    ///   - name: Name of the form part.
+    ///
+    public init(
+        data: Data,
+        fileName: String? = nil,
+        mimeType: String? = nil,
+        name: String
+    ) {
+        self.data = data
+        self.fileName = fileName
+        self.mimeType = mimeType
+        self.name = name
+    }
 }
 
 public extension MultipartFormPart {
