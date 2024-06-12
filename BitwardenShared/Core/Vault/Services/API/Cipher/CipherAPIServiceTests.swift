@@ -306,6 +306,26 @@ class CipherAPIServiceTests: XCTestCase { // swiftlint:disable:this type_body_le
         )
     }
 
+    /// `shareCipherAttachment()` performs the share cipher attachment request.
+    func test_shareCipherAttachment() async throws {
+        client.result = .httpSuccess(testData: .emptyResponse)
+
+        _ = try await subject.shareCipherAttachment(
+            attachment: .fixture(id: "attachment-1"),
+            attachmentData: Data("📜".utf8),
+            cipherId: "1",
+            organizationId: "org-1"
+        )
+
+        XCTAssertEqual(client.requests.count, 1)
+        XCTAssertNotNil(client.requests[0].body)
+        XCTAssertEqual(client.requests[0].method, .post)
+        XCTAssertEqual(
+            client.requests[0].url.absoluteString,
+            "https://example.com/api/ciphers/1/attachment/attachment-1/share?organizationId=org-1"
+        )
+    }
+
     /// `softDeleteCipher()` performs the soft delete cipher request.
     func test_softDeleteCipher() async throws {
         client.result = .httpSuccess(testData: .emptyResponse)

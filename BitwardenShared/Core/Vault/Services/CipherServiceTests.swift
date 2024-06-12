@@ -229,6 +229,26 @@ class CipherServiceTests: BitwardenTestCase {
         }
     }
 
+    /// `shareCipherAttachment()` makes the API request to share an attachment.
+    func test_shareCipherAttachment() async throws {
+        client.result = .httpSuccess(testData: .emptyResponse)
+
+        try await subject.shareCipherAttachment(
+            attachment: .fixture(id: "attachment-1"),
+            attachmentData: Data("📜".utf8),
+            cipherId: "1",
+            organizationId: "org-1"
+        )
+
+        XCTAssertEqual(client.requests.count, 1)
+        XCTAssertNotNil(client.requests[0].body)
+        XCTAssertEqual(client.requests[0].method, .post)
+        XCTAssertEqual(
+            client.requests[0].url.absoluteString,
+            "https://example.com/api/ciphers/1/attachment/attachment-1/share?organizationId=org-1"
+        )
+    }
+
     /// `shareCipherWithServer(_:)` shares the cipher with the organization and updates the data store.
     func test_shareCipherWithServer() async throws {
         client.result = .httpSuccess(testData: .cipherResponse)

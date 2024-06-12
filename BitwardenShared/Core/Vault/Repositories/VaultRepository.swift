@@ -526,6 +526,52 @@ class DefaultVaultRepository { // swiftlint:disable:this type_body_length
         return totpItems
     }
 
+    /// Downloads and re-encrypts an attachment so that it can be shared to an organization.
+    ///
+    /// - Parameters:
+    ///   - attachment: The attachment that will be shared with the organization.
+    ///   - cipher: The cipher containing the attachment.
+    ///   - organizationId: The ID of the organization that the cipher and attachment will be shared to.
+    /// - Returns: The migrated attachment that can be moved into the organization.
+    ///
+    private func shareCipherAttachment(
+        _ attachment: AttachmentView,
+        cipher: CipherView,
+        organizationId: String
+    ) async throws -> Attachment {
+        guard let downloadUrl = try await downloadAttachment(attachment, cipher: cipher) else {
+            throw BitwardenError.dataError("Unable to download attachment")
+        }
+
+        guard let cipherId = cipher.id else { throw CipherAPIServiceError.updateMissingId }
+
+        let userId = try await stateService.getActiveAccountId()
+        let storageUrl = try FileManager.default.attachmentsUrl(for: userId).appendingPathComponent("Migration")
+        try FileManager.default.createDirectory(at: storageUrl, withIntermediateDirectories: true)
+        let encryptedUrl = storageUrl.appendingPathComponent(downloadUrl.lastPathComponent)
+
+        let encryptedCipher = try await clientService.vault().ciphers().encrypt(cipherView: cipher)
+        let attachment = try await clientService.vault().attachments().encryptFile(
+            cipher: encryptedCipher,
+            attachment: attachment,
+            decryptedFilePath: downloadUrl.absoluteString,
+            encryptedFilePath: encryptedUrl.absoluteString
+        )
+
+        let attachmentData = try Data(contentsOf: encryptedUrl)
+        try await cipherService.shareCipherAttachment(
+            attachment: attachment,
+            attachmentData: attachmentData,
+            cipherId: cipherId,
+            organizationId: organizationId
+        )
+
+        try FileManager.default.removeItem(at: downloadUrl)
+        try FileManager.default.removeItem(at: encryptedUrl)
+
+        return attachment
+    }
+
     /// A transform to convert a `CipherView` into a TOTP `VaultListItem`.
     ///
     /// - Parameter cipherView: The cipher view that may have a TOTP key.
@@ -1087,8 +1133,30 @@ extension DefaultVaultRepository: VaultRepository {
                 organizationId: newOrganizationId
             )
             .update(collectionIds: newCollectionIds) // The SDK updates the cipher's organization ID.
-        let encryptedCipher = try await clientService.vault().ciphers().encrypt(cipherView: organizationCipher)
-        try await cipherService.shareCipherWithServer(encryptedCipher)
+        var encryptedOrganizationCipher = try await clientService.vault().ciphers()
+            .encrypt(cipherView: organizationCipher)
+
+        if let attachments = organizationCipher.attachments,
+           var encryptedAttachments = encryptedOrganizationCipher.attachments {
+            for attachment in attachments where attachment.key == nil {
+                // When moving a cipher to an organization, any attachments without an encryption
+                // key need to be migrated to encrypt the attachment with the org key.
+                let updatedAttachment = try await shareCipherAttachment(
+                    attachment,
+                    cipher: organizationCipher,
+                    organizationId: newOrganizationId
+                )
+
+                guard let index = encryptedAttachments.firstIndex(where: { $0.id == updatedAttachment.id }) else {
+                    throw BitwardenError.dataError("Unable to update attachments.")
+                }
+                encryptedAttachments[index] = updatedAttachment
+            }
+
+            encryptedOrganizationCipher = encryptedOrganizationCipher.update(attachments: encryptedAttachments)
+        }
+
+        try await cipherService.shareCipherWithServer(encryptedOrganizationCipher)
     }
 
     func shouldShowUnassignedCiphersAlert() async -> Bool {

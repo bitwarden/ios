@@ -65,6 +65,21 @@ protocol CipherService {
     ///
     func hasUnassignedCiphers() async throws -> Bool
 
+    /// Performs an API request to share an attachment with an organization.
+    ///
+    /// - Parameters:
+    ///   - attachment: The attachment to share with an organization.
+    ///   - attachmentData: The attachment data.
+    ///   - cipherId: The ID of the cipher associated with the attachment.
+    ///   - organizationId: The ID of the organization that the attachment is being shared with.
+    ///
+    func shareCipherAttachment(
+        attachment: Attachment,
+        attachmentData: Data,
+        cipherId: String,
+        organizationId: String
+    ) async throws
+
     /// Attempts to synchronize a cipher with the server.
     ///
     /// This method fetches the updated cipher value from the server and updates the value in the
@@ -309,6 +324,20 @@ extension DefaultCipherService {
 
         // Return the updated cipher.
         return updatedCipher
+    }
+
+    func shareCipherAttachment(
+        attachment: Attachment,
+        attachmentData: Data,
+        cipherId: String,
+        organizationId: String
+    ) async throws {
+        try await cipherAPIService.shareCipherAttachment(
+            attachment: attachment,
+            attachmentData: attachmentData,
+            cipherId: cipherId,
+            organizationId: organizationId
+        )
     }
 
     func shareCipherWithServer(_ cipher: Cipher) async throws {

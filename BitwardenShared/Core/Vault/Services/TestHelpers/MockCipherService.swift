@@ -45,6 +45,12 @@ class MockCipherService: CipherService {
     var saveAttachmentWithServerCipher: Cipher?
     var saveAttachmentWithServerResult: Result<Cipher, Error> = .success(.fixture())
 
+    var shareCipherAttachmentAttachment: Attachment?
+    var shareCipherAttachmentAttachmentData: Data?
+    var shareCipherAttachmentCipherId: String?
+    var shareCipherAttachmentOrganizationId: String?
+    var shareCipherAttachmentResult: Result<Void, Error> = .success(())
+
     var shareCipherWithServerCiphers = [Cipher]()
     var shareCipherWithServerResult: Result<Void, Error> = .success(())
 
@@ -116,6 +122,19 @@ class MockCipherService: CipherService {
     func saveAttachmentWithServer(cipher: Cipher, attachment _: AttachmentEncryptResult) async throws -> Cipher {
         saveAttachmentWithServerCipher = cipher
         return try saveAttachmentWithServerResult.get()
+    }
+
+    func shareCipherAttachment(
+        attachment: BitwardenSdk.Attachment,
+        attachmentData: Data,
+        cipherId: String,
+        organizationId: String
+    ) async throws {
+        shareCipherAttachmentAttachment = attachment
+        shareCipherAttachmentAttachmentData = attachmentData
+        shareCipherAttachmentCipherId = cipherId
+        shareCipherAttachmentOrganizationId = organizationId
+        try shareCipherAttachmentResult.get()
     }
 
     func shareCipherWithServer(_ cipher: Cipher) async throws {

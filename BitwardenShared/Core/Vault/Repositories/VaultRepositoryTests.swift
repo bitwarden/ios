@@ -1044,6 +1044,62 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
         XCTAssertEqual(cipherService.shareCipherWithServerCiphers.last, Cipher(cipherView: updatedCipher))
     }
 
+    /// `shareCipher()` migrates any attachments without an attachment key.
+    func test_shareCipher_attachmentMigration() async throws {
+        let account = Account.fixtureAccountLogin()
+        stateService.activeAccount = account
+
+        let cipher = CipherView.fixture(
+            attachments: [
+                .fixture(fileName: "file.txt", id: "1", key: nil),
+                .fixture(fileName: "not-migrated.txt", id: "2", key: "abc"),
+            ],
+            id: "1"
+        )
+        clientService.mockVault.clientCiphers.moveToOrganizationResult = .success(cipher)
+
+        // Temporary download file (would normally be created by the network layer).
+        let downloadUrl = FileManager.default.temporaryDirectory.appendingPathComponent("file.txt")
+        try Data("📁".utf8).write(to: downloadUrl)
+
+        let migrationDirectoryUrl = try FileManager.default.attachmentsUrl(for: account.profile.userId)
+            .appendingPathComponent("Migration")
+        try FileManager.default.createDirectory(at: migrationDirectoryUrl, withIntermediateDirectories: true)
+
+        // Decrypted download file (would normally be created by the SDK when decrypting the attachment).
+        let decryptUrl = try FileManager.default.attachmentsUrl(for: account.profile.userId)
+            .appendingPathComponent("file.txt")
+        try Data("🗂️".utf8).write(to: decryptUrl)
+        cipherService.downloadAttachmentResult = .success(downloadUrl)
+
+        // Migrated encrypted file (would normally be created by the SDK when re-encrypting the attachment).
+        let migrationUrl = migrationDirectoryUrl.appendingPathComponent("file.txt")
+        try Data("🔒".utf8).write(to: migrationUrl)
+
+        try await subject.shareCipher(cipher, newOrganizationId: "5", newCollectionIds: ["6", "7"])
+
+        let updatedCipher = cipher.update(collectionIds: ["6", "7"])
+
+        XCTAssertEqual(cipherService.shareCipherWithServerCiphers, [Cipher(cipherView: updatedCipher)])
+        XCTAssertEqual(clientCiphers.encryptedCiphers.last, updatedCipher)
+        XCTAssertEqual(clientCiphers.moveToOrganizationCipher, cipher)
+        XCTAssertEqual(clientCiphers.moveToOrganizationOrganizationId, "5")
+
+        XCTAssertEqual(cipherService.shareCipherWithServerCiphers.last, Cipher(cipherView: updatedCipher))
+
+        XCTAssertEqual(
+            cipherService.shareCipherAttachmentAttachment,
+            .fixture(id: "1", fileName: "file.txt", key: nil)
+        )
+        XCTAssertEqual(cipherService.shareCipherAttachmentAttachmentData, Data("🔒".utf8))
+        XCTAssertEqual(cipherService.shareCipherAttachmentCipherId, "1")
+        XCTAssertEqual(cipherService.shareCipherAttachmentOrganizationId, "5")
+
+        XCTAssertThrowsError(try Data(contentsOf: downloadUrl))
+        XCTAssertThrowsError(try Data(contentsOf: decryptUrl))
+        XCTAssertThrowsError(try Data(contentsOf: migrationUrl))
+    }
+
     /// `shouldShowUnassignedCiphersAlert` is true if the feature flag is on,
     /// we should check for this user, the user has organizations, and the user has unassigned ciphers.
     func test_shouldShowUnassignedCiphersAlert() async {
