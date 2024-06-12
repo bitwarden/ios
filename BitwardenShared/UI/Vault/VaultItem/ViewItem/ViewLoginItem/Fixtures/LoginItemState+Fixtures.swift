@@ -6,7 +6,7 @@ import Foundation
 extension LoginItemState {
     static func fixture(
         canViewPassword: Bool = true,
-        fido2Credentials: [Fido2CredentialView] = [],
+        fido2Credentials: [Fido2Credential] = [],
         isPasswordVisible: Bool = false,
         isTOTPAvailable: Bool = true,
         password: String = "",
