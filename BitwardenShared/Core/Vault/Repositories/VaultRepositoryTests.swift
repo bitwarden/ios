@@ -1037,11 +1037,77 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
         let updatedCipher = cipher.update(collectionIds: ["6", "7"])
 
         XCTAssertEqual(cipherService.shareCipherWithServerCiphers, [Cipher(cipherView: updatedCipher)])
-        XCTAssertEqual(clientCiphers.encryptedCiphers, [updatedCipher])
+        XCTAssertEqual(clientCiphers.encryptedCiphers.last, updatedCipher)
         XCTAssertEqual(clientCiphers.moveToOrganizationCipher, cipher)
         XCTAssertEqual(clientCiphers.moveToOrganizationOrganizationId, "5")
 
         XCTAssertEqual(cipherService.shareCipherWithServerCiphers.last, Cipher(cipherView: updatedCipher))
+    }
+
+    /// `shareCipher()` migrates any attachments without an attachment key.
+    func test_shareCipher_attachmentMigration() async throws {
+        let account = Account.fixtureAccountLogin()
+        stateService.activeAccount = account
+
+        // The original cipher.
+        let cipherViewOriginal = CipherView.fixture(
+            attachments: [
+                .fixture(fileName: "file.txt", id: "1", key: nil),
+                .fixture(fileName: "existing-attachment-key.txt", id: "2", key: "abc"),
+            ],
+            id: "1"
+        )
+
+        // The cipher after saving the new attachment, encrypted with an attachment key.
+        let cipherAfterAttachmentSave = Cipher.fixture(
+            attachments: [
+                .fixture(id: "1", fileName: "file.txt", key: nil),
+                .fixture(id: "2", fileName: "existing-attachment-key.txt", key: "abc"),
+                .fixture(id: "3", fileName: "file.txt", key: "def"),
+            ],
+            id: "1"
+        )
+        cipherService.saveAttachmentWithServerResult = .success(cipherAfterAttachmentSave)
+
+        // The cipher after deleting the old attachment without an attachment key.
+        let cipherAfterAttachmentDelete = Cipher.fixture(
+            attachments: [
+                .fixture(id: "2", fileName: "existing-attachment-key.txt", key: "abc"),
+                .fixture(id: "3", fileName: "file.txt", key: "def"),
+            ],
+            id: "1"
+        )
+        cipherService.deleteAttachmentWithServerResult = .success(cipherAfterAttachmentDelete)
+        clientService.mockVault.clientCiphers.moveToOrganizationResult = .success(
+            CipherView(cipher: cipherAfterAttachmentDelete)
+        )
+
+        // Temporary download file (would normally be created by the network layer).
+        let downloadUrl = FileManager.default.temporaryDirectory.appendingPathComponent("file.txt")
+        try Data("📁".utf8).write(to: downloadUrl)
+        cipherService.downloadAttachmentResult = .success(downloadUrl)
+
+        // Decrypted download file (would normally be created by the SDK when decrypting the attachment).
+        let decryptUrl = try FileManager.default.attachmentsUrl(for: account.profile.userId)
+            .appendingPathComponent("file.txt")
+        try Data("🗂️".utf8).write(to: decryptUrl)
+
+        try await subject.shareCipher(cipherViewOriginal, newOrganizationId: "5", newCollectionIds: ["6", "7"])
+
+        let updatedCipherView = CipherView(cipher: cipherAfterAttachmentDelete).update(collectionIds: ["6", "7"])
+
+        // Attachment migration: download attachment, save updated and delete old.
+        XCTAssertEqual(cipherService.downloadAttachmentId, "1")
+        XCTAssertEqual(cipherService.saveAttachmentWithServerCipher, Cipher(cipherView: cipherViewOriginal))
+        XCTAssertEqual(cipherService.deleteAttachmentWithServerAttachmentId, "1")
+        XCTAssertThrowsError(try Data(contentsOf: downloadUrl))
+        XCTAssertThrowsError(try Data(contentsOf: decryptUrl))
+
+        // Share cipher with updated attachments.
+        XCTAssertEqual(cipherService.shareCipherWithServerCiphers, [Cipher(cipherView: updatedCipherView)])
+        XCTAssertEqual(clientCiphers.encryptedCiphers.last, updatedCipherView)
+        XCTAssertEqual(clientCiphers.moveToOrganizationCipher, CipherView(cipher: cipherAfterAttachmentDelete))
+        XCTAssertEqual(clientCiphers.moveToOrganizationOrganizationId, "5")
     }
 
     /// `shouldShowUnassignedCiphersAlert` is true if the feature flag is on,
