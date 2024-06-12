@@ -7,7 +7,7 @@ class MockClientService: ClientService {
     var mockCrypto: MockClientCrypto
     var mockExporters: MockClientExporters
     var mockGenerators: MockClientGenerators
-    var mockPlatform: MockClientPlatform
+    var mockPlatform: MockClientPlatformService
     var mockSends: MockClientSends
     var mockVault: MockClientVaultService
     var userClientArray = [String: BitwardenSdkClient]()
@@ -17,7 +17,7 @@ class MockClientService: ClientService {
         crypto: MockClientCrypto = MockClientCrypto(),
         exporters: MockClientExporters = MockClientExporters(),
         generators: MockClientGenerators = MockClientGenerators(),
-        platform: MockClientPlatform = MockClientPlatform(),
+        platform: MockClientPlatformService = MockClientPlatformService(),
         sends: MockClientSends = MockClientSends(),
         vault: MockClientVaultService = MockClientVaultService()
     ) {
@@ -46,7 +46,7 @@ class MockClientService: ClientService {
         mockGenerators
     }
 
-    func platform(for userId: String?) -> ClientPlatformProtocol {
+    func platform(for userId: String?) -> ClientPlatformService {
         mockPlatform
     }
 

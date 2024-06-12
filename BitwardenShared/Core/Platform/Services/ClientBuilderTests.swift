@@ -6,7 +6,7 @@ class ClientBuilderTests: BitwardenTestCase {
     // MARK: Properties
 
     var errorReporter: MockErrorReporter!
-    var mockPlatform: MockClientPlatform!
+    var mockPlatform: MockClientPlatformService!
     var subject: DefaultClientBuilder!
 
     // MARK: Setup and Teardown
@@ -15,7 +15,7 @@ class ClientBuilderTests: BitwardenTestCase {
         super.setUp()
 
         errorReporter = MockErrorReporter()
-        mockPlatform = MockClientPlatform()
+        mockPlatform = MockClientPlatformService()
         subject = DefaultClientBuilder(errorReporter: errorReporter)
     }
 
