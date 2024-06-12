@@ -371,16 +371,36 @@ class GeneratorProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
     }
 
     /// `perform(_:)` with `.appeared` generates a new generated value.
-    func test_perform_appear_generatesValue() async {
+    func test_perform_appear_generatesValue() {
         subject.state.generatorType = .password
         subject.state.passwordState.passwordGeneratorType = .password
 
-        await subject.perform(.appeared)
+        waitFor(subject.didLoadGeneratorOptions)
+
+        Task {
+            await subject.perform(.appeared)
+        }
+        waitFor(generatorRepository.passwordGeneratorRequest != nil)
 
         XCTAssertNotNil(generatorRepository.passwordGeneratorRequest)
     }
 
-    /// `receive(_:)` with `.copyGeneratedValue` copies the generated password to the system
+    /// `perform(_:)` with `.appeared` generates a new generated value after the options have loaded.
+    func test_perform_appear_generatesValueAfterLoadingOptions() {
+        generatorRepository.getPasswordGenerationOptionsResult = .success(
+            PasswordGenerationOptions(length: 50)
+        )
+        setUpSubject()
+
+        Task {
+            await subject.perform(.appeared)
+        }
+        waitFor(generatorRepository.passwordGeneratorRequest != nil)
+
+        XCTAssertEqual(generatorRepository.passwordGeneratorRequest?.length, 50)
+    }
+
+    /// `receive(_:)` with `.copyGeneratedValØue` copies the generated password to the system
     /// pasteboard and shows a toast.
     func test_receive_copiedGeneratedValue_password() {
         subject.state.generatorType = .password

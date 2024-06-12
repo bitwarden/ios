@@ -45,6 +45,9 @@ final class GeneratorProcessor: StateProcessor<GeneratorState, GeneratorAction, 
     /// The services used by this processor.
     private var services: Services
 
+    /// Whether a new value should be generated after loading the generator options.
+    private var shouldGenerateValueAfterLoadingOptions = false
+
     // MARK: Initialization
 
     /// Creates a new `GeneratorProcessor`.
@@ -73,6 +76,12 @@ final class GeneratorProcessor: StateProcessor<GeneratorState, GeneratorAction, 
     override func perform(_ effect: GeneratorEffect) async {
         switch effect {
         case .appeared:
+            guard didLoadGeneratorOptions else {
+                // If the generator options haven't finished loading, set a flag to generate the
+                // value after loading completes.
+                shouldGenerateValueAfterLoadingOptions = true
+                break
+            }
             await generateValue(shouldSavePassword: true)
         }
     }
@@ -264,6 +273,11 @@ final class GeneratorProcessor: StateProcessor<GeneratorState, GeneratorAction, 
             let usernameOptions = try await services.generatorRepository.getUsernameGenerationOptions()
             state.usernameState.update(with: usernameOptions)
             didLoadGeneratorOptions = true
+
+            if shouldGenerateValueAfterLoadingOptions {
+                shouldGenerateValueAfterLoadingOptions = false
+                await generateValue(shouldSavePassword: true)
+            }
         } catch {
             services.errorReporter.log(error: BitwardenError.generatorOptionsError(error: error))
         }
