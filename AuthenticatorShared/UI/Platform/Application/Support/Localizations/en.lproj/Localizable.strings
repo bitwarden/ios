@@ -121,3 +121,4 @@
 "Data" = "Data";
 "Backup" = "Backup";
 "BitwardenAuthenticatorDataIsBackedUpAndCanBeRestored" = "Bitwarden Authenticator data is backed up and can be restored with your regularly scheduled device backups.";
+"ImportingFromTwoFasPasswordProtectedNotSupported" = "Importing from 2FAS password protected files is not supported. Try again with an exported file that is not password protected.";

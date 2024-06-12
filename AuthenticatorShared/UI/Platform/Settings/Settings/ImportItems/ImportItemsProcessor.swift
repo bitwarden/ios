@@ -89,6 +89,8 @@ extension ImportItemsProcessor: FileSelectionDelegate {
                 }
                 try await services.importItemsService.importItems(data: data, format: importFileFormat)
                 state.toast = Toast(text: Localizations.itemsImported)
+            } catch TwoFasImporterError.passwordProtectedFile {
+                coordinator.showAlert(.twoFasPasswordProtected())
             } catch {
                 services.errorReporter.log(error: error)
             }

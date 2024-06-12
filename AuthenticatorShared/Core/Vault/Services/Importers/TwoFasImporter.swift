@@ -1,9 +1,14 @@
 import Foundation
 
+// MARK: - TwoFasImporter
+
 class TwoFasImporter {
     static func importItems(data: Data) throws -> [AuthenticatorItemView] {
         let decoder = JSONDecoder()
         let vault = try decoder.decode(TwoFasVault.self, from: data)
+        if vault.services.isEmpty, vault.servicesEncrypted != nil {
+            throw TwoFasImporterError.passwordProtectedFile
+        }
         return vault.services.compactMap { service in
             switch service.otp.tokenType {
             case "TOTP":
@@ -39,6 +44,7 @@ class TwoFasImporter {
 
 struct TwoFasVault: Codable {
     let services: [TwoFasService]
+    let servicesEncrypted: String?
 }
 
 struct TwoFasService: Codable {
@@ -54,4 +60,8 @@ struct TwoFasOtp: Codable {
     let issuer: String?
     let period: Int?
     let tokenType: String?
+}
+
+enum TwoFasImporterError: Error, Equatable {
+    case passwordProtectedFile
 }

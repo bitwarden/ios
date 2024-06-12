@@ -93,4 +93,19 @@ extension Alert {
             ]
         )
     }
+
+    /// An alert notifying the user that we do not currently support password-protected
+    /// files when importing from 2FAS.
+    ///
+    /// - Returns: An alert indicating we don't support password-protected 2FAS files
+    @MainActor
+    static func twoFasPasswordProtected() -> Alert {
+        Alert(
+            title: Localizations.importingFromTwoFasPasswordProtectedNotSupported,
+            message: nil,
+            alertActions: [
+                AlertAction(title: Localizations.ok, style: .default),
+            ]
+        )
+    }
 }

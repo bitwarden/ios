@@ -61,7 +61,7 @@ enum ImportFormatType: Menuable {
         case .raivoJson:
             "Raivo (JSON)"
         case .twoFasJason:
-            "2FAS (.2fas)"
+            "2FAS (no password)"
         }
     }
 }
