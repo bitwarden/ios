@@ -63,13 +63,6 @@ class SettingsViewTests: AuthenticatorTestCase {
         XCTAssertEqual(processor.dispatchedActions.last, .helpCenterTapped)
     }
 
-    /// Tapping the language button dispatches the `.languageTapped` action.
-    func test_languageButton_tap() throws {
-        let button = try subject.inspect().find(button: Localizations.language)
-        try button.tap()
-        XCTAssertEqual(processor.dispatchedActions.last, .languageTapped)
-    }
-
     /// Tapping the privacy policy button dispatches the `.privacyPolicyTapped` action.
     func test_privacyPolicyButton_tap() throws {
         let button = try subject.inspect().find(button: Localizations.privacyPolicy)
