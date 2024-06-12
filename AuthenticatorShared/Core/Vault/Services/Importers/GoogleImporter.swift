@@ -19,8 +19,9 @@ class GoogleImporter {
         return payload.otpParameters.compactMap { item in
             guard item.type == .otpTotp else { return nil }
             let secret = item.secret.base32String()
-            // Google Authenticator current ignores algorithm and period on all platforms and digits on some platforms (but not iOS).
-            // Therefore, we need to use defaults and keep the digits in a reasonable range, because Google Authenticator doesn't
+            // Google Authenticator current ignores algorithm and period on all platforms
+            // and digits on some platforms (but not iOS). Therefore, we need to use defaults
+            // and keep the digits in a reasonable range, because Google Authenticator doesn't
             // always provide a valid value.
             let otp = OTPAuthModel(
                 accountName: item.name.nilIfEmpty,

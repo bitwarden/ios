@@ -8,11 +8,11 @@ class TwoFasImporter {
             switch service.otp.tokenType {
             case "TOTP":
                 let otp = OTPAuthModel(
-                    accountName: service.otp.account.nilIfEmpty,
-                    algorithm: TOTPCryptoHashAlgorithm(rawValue: service.otp.algorithm) ?? .sha1,
-                    digits: service.otp.digits,
+                    accountName: service.otp.account,
+                    algorithm: TOTPCryptoHashAlgorithm(from: service.otp.algorithm),
+                    digits: service.otp.digits ?? 6,
                     issuer: service.otp.issuer ?? service.name,
-                    period: service.otp.period,
+                    period: service.otp.period ?? 30,
                     secret: service.secret
                 )
                 return AuthenticatorItemView(
@@ -20,7 +20,7 @@ class TwoFasImporter {
                     id: UUID().uuidString,
                     name: service.name,
                     totpKey: otp.otpAuthUri,
-                    username: service.otp.account.nilIfEmpty
+                    username: service.otp.account
                 )
             case "STEAM":
                 return AuthenticatorItemView(
@@ -28,7 +28,7 @@ class TwoFasImporter {
                     id: UUID().uuidString,
                     name: service.name,
                     totpKey: "steam://\(service.secret)",
-                    username: service.otp.account.nilIfEmpty
+                    username: service.otp.account
                 )
             default:
                 return nil
@@ -48,10 +48,10 @@ struct TwoFasService: Codable {
 }
 
 struct TwoFasOtp: Codable {
-    let account: String
-    let algorithm: String
-    let digits: Int
+    let account: String?
+    let algorithm: String?
+    let digits: Int?
     let issuer: String?
-    let period: Int
-    let tokenType: String
+    let period: Int?
+    let tokenType: String?
 }
