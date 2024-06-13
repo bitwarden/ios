@@ -129,43 +129,45 @@ struct AccountSecurityView: View {
                         .padding(16)
                 }
 
-                SettingsMenuField(
-                    title: Localizations.sessionTimeout,
-                    options: store.state.availableTimeoutOptions,
-                    accessibilityIdentifier: "VaultTimeoutChooser",
-                    selectionAccessibilityID: "SessionTimeoutStatusLabel",
-                    selection: store.binding(
-                        get: \.sessionTimeoutValue,
-                        send: AccountSecurityAction.sessionTimeoutValueChanged
+                VStack(spacing: 0) {
+                    SettingsMenuField(
+                        title: Localizations.sessionTimeout,
+                        options: store.state.availableTimeoutOptions,
+                        accessibilityIdentifier: "VaultTimeoutChooser",
+                        selectionAccessibilityID: "SessionTimeoutStatusLabel",
+                        selection: store.binding(
+                            get: \.sessionTimeoutValue,
+                            send: AccountSecurityAction.sessionTimeoutValueChanged
+                        )
                     )
-                )
 
-                if store.state.isShowingCustomTimeout {
-                    SettingsPickerField(
-                        title: Localizations.custom,
-                        customTimeoutValue: store.state.customTimeoutString,
-                        pickerValue: store.binding(
-                            get: \.customTimeoutValueSeconds,
-                            send: AccountSecurityAction.customTimeoutValueSecondsChanged
-                        ),
-                        customTimeoutAccessibilityLabel: store.state.customTimeoutAccessibilityLabel
+                    if store.state.isShowingCustomTimeout {
+                        SettingsPickerField(
+                            title: Localizations.custom,
+                            customTimeoutValue: store.state.customTimeoutString,
+                            pickerValue: store.binding(
+                                get: \.customTimeoutValueSeconds,
+                                send: AccountSecurityAction.customTimeoutValueSecondsChanged
+                            ),
+                            customTimeoutAccessibilityLabel: store.state.customTimeoutAccessibilityLabel
+                        )
+                    }
+
+                    SettingsMenuField(
+                        title: Localizations.sessionTimeoutAction,
+                        options: store.state.availableTimeoutActions,
+                        hasDivider: false,
+                        accessibilityIdentifier: "VaultTimeoutActionChooser",
+                        selectionAccessibilityID: "SessionTimeoutActionStatusLabel",
+                        selection: store.binding(
+                            get: \.sessionTimeoutAction,
+                            send: AccountSecurityAction.sessionTimeoutActionChanged
+                        )
                     )
+                    .disabled(store.state.isSessionTimeoutActionDisabled)
                 }
-
-                SettingsMenuField(
-                    title: Localizations.sessionTimeoutAction,
-                    options: store.state.availableTimeoutActions,
-                    hasDivider: false,
-                    accessibilityIdentifier: "VaultTimeoutActionChooser",
-                    selectionAccessibilityID: "SessionTimeoutActionStatusLabel",
-                    selection: store.binding(
-                        get: \.sessionTimeoutAction,
-                        send: AccountSecurityAction.sessionTimeoutActionChanged
-                    )
-                )
-                .disabled(store.state.isSessionTimeoutActionDisabled)
+                .clipShape(RoundedRectangle(cornerRadius: 10))
             }
-            .clipShape(RoundedRectangle(cornerRadius: 10))
         }
         .padding(.top, 8)
     }
