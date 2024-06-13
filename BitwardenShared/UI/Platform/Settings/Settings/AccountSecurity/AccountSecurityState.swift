@@ -177,21 +177,14 @@ struct AccountSecurityState: Equatable {
     /// Whether the user has a master password.
     var hasMasterPassword = true
 
-    /// Whether the maximum timeout value policy is in effect.
-    var isTimeoutPolicyEnabled: Bool = false
+    /// Whether the timeout policy specifies a timeout action.
+    var isTimeoutActionPolicyEnabled = false
+
+    /// Whether the timeout policy is in effect.
+    var isTimeoutPolicyEnabled = false
 
     /// Whether the unlock with pin code toggle is on.
     var isUnlockWithPINCodeOn: Bool = false
-
-    /// The maximum vault timeout policy action.
-    ///
-    /// When set, this is the only action option available to users.
-    var policyTimeoutAction: SessionTimeoutAction? = .lock {
-        didSet {
-            availableTimeoutActions = SessionTimeoutAction.allCases
-                .filter { $0 == policyTimeoutAction }
-        }
-    }
 
     /// The policy's maximum vault timeout value.
     ///
@@ -245,9 +238,9 @@ struct AccountSecurityState: Equatable {
         hasUnlockMethod
     }
 
-    /// Whether the session timeout row/picker should be disabled.
-    var isSessionTimeoutDisabled: Bool {
-        !hasUnlockMethod
+    /// Whether the session timeout action row/picker should be disabled.
+    var isSessionTimeoutActionDisabled: Bool {
+        !hasUnlockMethod || isTimeoutActionPolicyEnabled
     }
 
     /// Whether or not the custom session timeout field is shown.

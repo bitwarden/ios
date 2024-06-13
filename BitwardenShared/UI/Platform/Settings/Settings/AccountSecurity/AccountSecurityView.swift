@@ -168,7 +168,7 @@ struct AccountSecurityView: View {
                         send: AccountSecurityAction.sessionTimeoutActionChanged
                     )
                 )
-                .disabled(store.state.isSessionTimeoutDisabled)
+                .disabled(store.state.isSessionTimeoutActionDisabled)
             }
             .clipShape(RoundedRectangle(cornerRadius: 10))
         }

@@ -83,10 +83,10 @@ class AccountSecurityProcessorTests: BitwardenTestCase { // swiftlint:disable:th
 
         await subject.perform(.appeared)
 
-        XCTAssertEqual(subject.state.isTimeoutPolicyEnabled, true)
-        XCTAssertEqual(subject.state.policyTimeoutAction, .logout)
+        XCTAssertTrue(subject.state.isTimeoutPolicyEnabled)
+        XCTAssertTrue(subject.state.isTimeoutActionPolicyEnabled)
+        XCTAssertTrue(subject.state.isSessionTimeoutActionDisabled)
         XCTAssertEqual(subject.state.policyTimeoutValue, 60)
-        XCTAssertEqual(subject.state.availableTimeoutActions, [.logout])
         XCTAssertEqual(subject.state.policyTimeoutHours, 1)
         XCTAssertEqual(subject.state.policyTimeoutMinutes, 0)
         XCTAssertEqual(
@@ -110,9 +110,10 @@ class AccountSecurityProcessorTests: BitwardenTestCase { // swiftlint:disable:th
 
         await subject.perform(.appeared)
 
-        XCTAssertEqual(subject.state.isTimeoutPolicyEnabled, true)
+        XCTAssertFalse(subject.state.isTimeoutActionPolicyEnabled)
+        XCTAssertTrue(subject.state.isTimeoutPolicyEnabled)
+        XCTAssertFalse(subject.state.isSessionTimeoutActionDisabled)
         XCTAssertEqual(subject.state.policyTimeoutValue, 61)
-        XCTAssertEqual(subject.state.availableTimeoutActions, [.lock, .logout])
         XCTAssertEqual(subject.state.policyTimeoutHours, 1)
         XCTAssertEqual(subject.state.policyTimeoutMinutes, 1)
         XCTAssertEqual(
