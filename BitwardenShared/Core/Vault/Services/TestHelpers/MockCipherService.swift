@@ -51,7 +51,7 @@ class MockCipherService: CipherService {
     var syncCipherWithServerId: String?
     var syncCipherWithServerResult: Result<Void, Error> = .success(())
 
-    var updateCipherWithLocalStorageCipher: BitwardenSdk.Cipher?
+    var updateCipherWithLocalStorageCiphers = [BitwardenSdk.Cipher]()
     var updateCipherWithLocalStorageResult: Result<Void, Error> = .success(())
 
     var updateCipherWithServerCiphers = [Cipher]()
@@ -135,7 +135,7 @@ class MockCipherService: CipherService {
     }
 
     func updateCipherWithLocalStorage(_ cipher: Cipher) async throws {
-        updateCipherWithLocalStorageCipher = cipher
+        updateCipherWithLocalStorageCiphers.append(cipher)
         return try updateCipherWithLocalStorageResult.get()
     }
 
