@@ -75,6 +75,7 @@ class AccountSecurityProcessorTests: BitwardenTestCase { // swiftlint:disable:th
 
         await subject.perform(.appeared)
         XCTAssertEqual(subject.state.sessionTimeoutAction, .logout)
+        XCTAssertNil(subject.state.policyTimeoutMessage)
     }
 
     /// `perform(_:)` with `.appeared` sets the policy related state properties when the policy is enabled.
@@ -100,6 +101,10 @@ class AccountSecurityProcessorTests: BitwardenTestCase { // swiftlint:disable:th
                 .oneHour,
                 .custom(-100),
             ]
+        )
+        XCTAssertEqual(
+            subject.state.policyTimeoutMessage,
+            Localizations.vaultTimeoutPolicyWithActionInEffect(1, 0, Localizations.logOut)
         )
     }
 
@@ -128,11 +133,12 @@ class AccountSecurityProcessorTests: BitwardenTestCase { // swiftlint:disable:th
                 .custom(-100),
             ]
         )
+        XCTAssertEqual(subject.state.policyTimeoutMessage, Localizations.vaultTimeoutPolicyInEffect(1, 1))
     }
 
     /// `perform(_:)` with `.appeared` sets the policy related state properties when the policy is enabled.
     func test_perform_appeared_timeoutPolicyEnabled_oddTime() async throws {
-        policyService.fetchTimeoutPolicyValuesResult = .success((.logout, 61))
+        policyService.fetchTimeoutPolicyValuesResult = .success((.lock, 61))
 
         await subject.perform(.appeared)
 
@@ -149,6 +155,10 @@ class AccountSecurityProcessorTests: BitwardenTestCase { // swiftlint:disable:th
                 .oneHour,
                 .custom(-100),
             ]
+        )
+        XCTAssertEqual(
+            subject.state.policyTimeoutMessage,
+            Localizations.vaultTimeoutPolicyWithActionInEffect(1, 1, Localizations.lock)
         )
     }
 

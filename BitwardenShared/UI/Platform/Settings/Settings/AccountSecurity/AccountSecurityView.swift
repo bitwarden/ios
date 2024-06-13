@@ -124,14 +124,9 @@ struct AccountSecurityView: View {
             SectionHeaderView(Localizations.sessionTimeout)
 
             VStack(spacing: 0) {
-                if store.state.isTimeoutPolicyEnabled {
-                    InfoContainer(
-                        Localizations.vaultTimeoutPolicyInEffect(
-                            store.state.policyTimeoutHours,
-                            store.state.policyTimeoutMinutes
-                        )
-                    )
-                    .padding(16)
+                if let policyTimeoutMessage = store.state.policyTimeoutMessage {
+                    InfoContainer(policyTimeoutMessage)
+                        .padding(16)
                 }
 
                 SettingsMenuField(

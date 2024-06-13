@@ -20,9 +20,7 @@ class MockPolicyService: PolicyService {
 
     var isSendHideEmailDisabledByPolicy = false
 
-    var fetchTimeoutPolicyValuesResult: Result<(SessionTimeoutAction?, Int), Error> = .success(
-        (SessionTimeoutAction.lock, 60)
-    )
+    var fetchTimeoutPolicyValuesResult: Result<(SessionTimeoutAction?, Int)?, Error> = .success(nil)
 
     var policyAppliesToUserResult = [PolicyType: Bool]()
     var policyAppliesToUserPolicies = [PolicyType]()
