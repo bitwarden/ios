@@ -42,11 +42,11 @@ final class GeneratorProcessor: StateProcessor<GeneratorState, GeneratorAction, 
     /// The task used to generate a new value so it can be cancelled if needed.
     private var generateValueTask: Task<Void, Never>?
 
+    /// The task used to load the generator options.
+    private var loadGeneratorOptionsTask: Task<Void, Never>?
+
     /// The services used by this processor.
     private var services: Services
-
-    /// Whether a new value should be generated after loading the generator options.
-    private var shouldGenerateValueAfterLoadingOptions = false
 
     // MARK: Initialization
 
@@ -66,7 +66,7 @@ final class GeneratorProcessor: StateProcessor<GeneratorState, GeneratorAction, 
         self.services = services
         super.init(state: state)
 
-        Task {
+        loadGeneratorOptionsTask = Task {
             await loadGeneratorOptions()
         }
     }
@@ -76,12 +76,8 @@ final class GeneratorProcessor: StateProcessor<GeneratorState, GeneratorAction, 
     override func perform(_ effect: GeneratorEffect) async {
         switch effect {
         case .appeared:
-            guard didLoadGeneratorOptions else {
-                // If the generator options haven't finished loading, set a flag to generate the
-                // value after loading completes.
-                shouldGenerateValueAfterLoadingOptions = true
-                break
-            }
+            // Wait for the generator options to finish loading before generating a value.
+            await loadGeneratorOptionsTask?.value
             await generateValue(shouldSavePassword: true)
         }
     }
@@ -273,11 +269,6 @@ final class GeneratorProcessor: StateProcessor<GeneratorState, GeneratorAction, 
             let usernameOptions = try await services.generatorRepository.getUsernameGenerationOptions()
             state.usernameState.update(with: usernameOptions)
             didLoadGeneratorOptions = true
-
-            if shouldGenerateValueAfterLoadingOptions {
-                shouldGenerateValueAfterLoadingOptions = false
-                await generateValue(shouldSavePassword: true)
-            }
         } catch {
             services.errorReporter.log(error: BitwardenError.generatorOptionsError(error: error))
         }
