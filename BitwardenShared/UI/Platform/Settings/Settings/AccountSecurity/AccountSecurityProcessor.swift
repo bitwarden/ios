@@ -103,11 +103,7 @@ final class AccountSecurityProcessor: StateProcessor<
     private func appeared() async {
         do {
             if let policy = try await services.policyService.fetchTimeoutPolicyValues() {
-                // If the policy returns no timeout action, we present the user all timeout actions.
-                // If the policy returns a timeout action, it's the only one we show the user.
-                if policy.action != nil {
-                    state.policyTimeoutAction = policy.action
-                }
+                state.isTimeoutActionPolicyEnabled = policy.action != nil
 
                 state.policyTimeoutValue = policy.value
                 state.isTimeoutPolicyEnabled = true
