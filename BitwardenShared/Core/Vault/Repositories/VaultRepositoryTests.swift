@@ -1088,8 +1088,9 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
         cipherService.downloadAttachmentResult = .success(downloadUrl)
 
         // Decrypted download file (would normally be created by the SDK when decrypting the attachment).
-        let decryptUrl = try FileManager.default.attachmentsUrl(for: account.profile.userId)
-            .appendingPathComponent("file.txt")
+        let attachmentsUrl = try FileManager.default.attachmentsUrl(for: account.profile.userId)
+        try FileManager.default.createDirectory(at: attachmentsUrl, withIntermediateDirectories: true)
+        let decryptUrl = attachmentsUrl.appendingPathComponent("file.txt")
         try Data("🗂️".utf8).write(to: decryptUrl)
 
         try await subject.shareCipher(cipherViewOriginal, newOrganizationId: "5", newCollectionIds: ["6", "7"])
