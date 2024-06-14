@@ -50,7 +50,7 @@ class MockClientAttachments: ClientAttachmentsProtocol {
     var decryptedBuffers = [Data]()
     var encryptedBuffers = [Data]()
 
-    func decryptBuffer(cipher _: Cipher, attachment _: Attachment, buffer: Data) async throws -> Data {
+    func decryptBuffer(cipher _: Cipher, attachment _: Attachment, buffer: Data) throws -> Data {
         decryptedBuffers.append(buffer)
         return buffer
     }
@@ -60,7 +60,7 @@ class MockClientAttachments: ClientAttachmentsProtocol {
         attachment _: Attachment,
         encryptedFilePath: String,
         decryptedFilePath _: String
-    ) async throws {
+    ) throws {
         encryptedFilePaths.append(encryptedFilePath)
     }
 
@@ -68,7 +68,7 @@ class MockClientAttachments: ClientAttachmentsProtocol {
         cipher _: Cipher,
         attachment: AttachmentView,
         buffer: Data
-    ) async throws -> AttachmentEncryptResult {
+    ) throws -> AttachmentEncryptResult {
         encryptedBuffers.append(buffer)
         return AttachmentEncryptResult(attachment: Attachment(attachmentView: attachment), contents: buffer)
     }
@@ -78,7 +78,7 @@ class MockClientAttachments: ClientAttachmentsProtocol {
         attachment: AttachmentView,
         decryptedFilePath _: String,
         encryptedFilePath _: String
-    ) async throws -> Attachment {
+    ) throws -> Attachment {
         Attachment(attachmentView: attachment)
     }
 }
@@ -86,6 +86,7 @@ class MockClientAttachments: ClientAttachmentsProtocol {
 // MARK: - MockClientCiphers
 
 class MockClientCiphers: ClientCiphersProtocol {
+    var decryptFido2CredentialsResult = [BitwardenSdk.Fido2CredentialView]()
     var encryptCipherResult: Result<Cipher, Error>?
     var encryptError: Error?
     var encryptedCiphers = [CipherView]()
@@ -94,15 +95,22 @@ class MockClientCiphers: ClientCiphersProtocol {
     var moveToOrganizationCalled: Bool?
     var moveToOrganizationResult: Result<CipherView, Error> = .success(.fixture())
 
-    func decrypt(cipher: Cipher) async throws -> CipherView {
+    func decrypt(cipher: Cipher) throws -> CipherView {
         CipherView(cipher: cipher)
     }
 
-    func decryptList(ciphers: [Cipher]) async throws -> [CipherListView] {
+    func decryptFido2Credentials(cipherView: BitwardenSdk.CipherView) throws -> [BitwardenSdk.Fido2CredentialView] {
+        guard let fido2Credentials = cipherView.login?.fido2Credentials else {
+            return []
+        }
+        return decryptFido2CredentialsResult
+    }
+
+    func decryptList(ciphers: [Cipher]) throws -> [CipherListView] {
         ciphers.map(CipherListView.init)
     }
 
-    func encrypt(cipherView: CipherView) async throws -> Cipher {
+    func encrypt(cipherView: CipherView) throws -> Cipher {
         encryptedCiphers.append(cipherView)
         if let encryptError {
             throw encryptError
@@ -113,7 +121,7 @@ class MockClientCiphers: ClientCiphersProtocol {
     func moveToOrganization(
         cipher: CipherView,
         organizationId: Uuid
-    ) async throws -> CipherView {
+    ) throws -> CipherView {
         moveToOrganizationCipher = cipher
         moveToOrganizationOrganizationId = organizationId
         return try moveToOrganizationResult.get()
@@ -123,11 +131,11 @@ class MockClientCiphers: ClientCiphersProtocol {
 // MARK: - MockClientCollections
 
 class MockClientCollections: ClientCollectionsProtocol {
-    func decrypt(collection _: Collection) async throws -> CollectionView {
+    func decrypt(collection _: Collection) throws -> CollectionView {
         fatalError("Not implemented yet")
     }
 
-    func decryptList(collections: [Collection]) async throws -> [CollectionView] {
+    func decryptList(collections: [Collection]) throws -> [CollectionView] {
         collections.map(CollectionView.init)
     }
 }
@@ -139,16 +147,16 @@ class MockClientFolders: ClientFoldersProtocol {
     var encryptError: Error?
     var encryptedFolders = [FolderView]()
 
-    func decrypt(folder: Folder) async throws -> FolderView {
+    func decrypt(folder: Folder) throws -> FolderView {
         FolderView(folder: folder)
     }
 
-    func decryptList(folders: [Folder]) async throws -> [FolderView] {
+    func decryptList(folders: [Folder]) throws -> [FolderView] {
         decryptedFolders = folders
         return folders.map(FolderView.init)
     }
 
-    func encrypt(folder: FolderView) async throws -> Folder {
+    func encrypt(folder: FolderView) throws -> Folder {
         encryptedFolders.append(folder)
         if let encryptError {
             throw encryptError
@@ -162,11 +170,11 @@ class MockClientFolders: ClientFoldersProtocol {
 class MockClientPasswordHistory: ClientPasswordHistoryProtocol {
     var encryptedPasswordHistory = [PasswordHistoryView]()
 
-    func decryptList(list: [PasswordHistory]) async throws -> [PasswordHistoryView] {
+    func decryptList(list: [PasswordHistory]) throws -> [PasswordHistoryView] {
         list.map(PasswordHistoryView.init)
     }
 
-    func encrypt(passwordHistory: PasswordHistoryView) async throws -> PasswordHistory {
+    func encrypt(passwordHistory: PasswordHistoryView) throws -> PasswordHistory {
         encryptedPasswordHistory.append(passwordHistory)
         return PasswordHistory(passwordHistoryView: passwordHistory)
     }
@@ -179,34 +187,34 @@ class MockClientSends: ClientSendsProtocol {
     var encryptedSendViews: [SendView] = []
     var encryptedBuffers: [Data] = []
 
-    func decrypt(send: Send) async throws -> SendView {
+    func decrypt(send: Send) throws -> SendView {
         decryptedSends.append(send)
         return SendView(send: send)
     }
 
-    func decryptBuffer(send _: Send, buffer _: Data) async throws -> Data {
+    func decryptBuffer(send _: Send, buffer _: Data) throws -> Data {
         fatalError("Not implemented yet")
     }
 
-    func decryptFile(send _: Send, encryptedFilePath _: String, decryptedFilePath _: String) async throws {
+    func decryptFile(send _: Send, encryptedFilePath _: String, decryptedFilePath _: String) throws {
         fatalError("Not implemented yet")
     }
 
-    func decryptList(sends _: [Send]) async throws -> [BitwardenSdk.SendListView] {
+    func decryptList(sends _: [Send]) throws -> [BitwardenSdk.SendListView] {
         fatalError("Not implemented yet")
     }
 
-    func encrypt(send sendView: SendView) async throws -> Send {
+    func encrypt(send sendView: SendView) throws -> Send {
         encryptedSendViews.append(sendView)
         return Send(sendView: sendView)
     }
 
-    func encryptBuffer(send _: Send, buffer: Data) async throws -> Data {
+    func encryptBuffer(send _: Send, buffer: Data) throws -> Data {
         encryptedBuffers.append(buffer)
         return buffer
     }
 
-    func encryptFile(send _: Send, decryptedFilePath _: String, encryptedFilePath _: String) async throws {
+    func encryptFile(send _: Send, decryptedFilePath _: String, encryptedFilePath _: String) throws {
         fatalError("Not implemented yet")
     }
 }

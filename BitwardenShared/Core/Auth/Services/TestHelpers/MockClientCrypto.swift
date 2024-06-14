@@ -33,16 +33,16 @@ class MockClientCrypto: ClientCryptoProtocol {
         )
     )
 
-    func derivePinKey(pin: String) async throws -> DerivePinKeyResponse {
+    func derivePinKey(pin: String) throws -> DerivePinKeyResponse {
         derivePinKeyPin = pin
         return try derivePinKeyResult.get()
     }
 
-    func derivePinUserKey(encryptedPin: EncString) async throws -> EncString {
+    func derivePinUserKey(encryptedPin: EncString) throws -> EncString {
         try derivePinUserKeyResult.get()
     }
 
-    func enrollAdminPasswordReset(publicKey: String) async throws -> AsymmetricEncString {
+    func enrollAdminPasswordReset(publicKey: String) throws -> AsymmetricEncString {
         enrollAdminPasswordPublicKey = publicKey
         return try enrollAdminPasswordResetResult.get()
     }
@@ -61,7 +61,7 @@ class MockClientCrypto: ClientCryptoProtocol {
         return try initializeUserCryptoResult.get()
     }
 
-    func updatePassword(newPassword: String) async throws -> BitwardenSdk.UpdatePasswordResponse {
+    func updatePassword(newPassword: String) throws -> BitwardenSdk.UpdatePasswordResponse {
         updatePasswordNewPassword = newPassword
         return try updatePasswordResult.get()
     }
