@@ -1020,7 +1020,7 @@ extension DefaultVaultRepository: VaultRepository {
             guard case let .totp(name, model) = item.itemType,
                   let key = model.loginView.totp,
                   let vault = try? await clientService.vault(),
-                  let code = try? await vault.generateTOTPCode(for: key, date: timeProvider.presentTime)
+                  let code = try? vault.generateTOTPCode(for: key, date: timeProvider.presentTime)
             else {
                 errorReporter.log(error: TOTPServiceError
                     .unableToGenerateCode("Unable to refresh TOTP code for list view item: \(item.id)"))

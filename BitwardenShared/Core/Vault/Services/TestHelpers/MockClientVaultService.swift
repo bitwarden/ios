@@ -29,7 +29,7 @@ class MockClientVaultService: ClientVaultService {
         clientFolders
     }
 
-    func generateTOTPCode(for _: String, date: Date?) async throws -> BitwardenShared.TOTPCodeModel {
+    func generateTOTPCode(for _: String, date: Date?) throws -> BitwardenShared.TOTPCodeModel {
         let code = try generateTOTPCodeResult.get()
         return TOTPCodeModel(
             code: code,
@@ -100,7 +100,7 @@ class MockClientCiphers: ClientCiphersProtocol {
     }
 
     func decryptFido2Credentials(cipherView: BitwardenSdk.CipherView) throws -> [BitwardenSdk.Fido2CredentialView] {
-        guard let fido2Credentials = cipherView.login?.fido2Credentials else {
+        guard cipherView.login?.fido2Credentials != nil else {
             return []
         }
         return decryptFido2CredentialsResult

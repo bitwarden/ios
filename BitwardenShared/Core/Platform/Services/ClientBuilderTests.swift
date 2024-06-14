@@ -30,8 +30,8 @@ class ClientBuilderTests: BitwardenTestCase {
     // MARK: Tests
 
     /// `buildClient()` creates a client and loads feature flags.
-    func test_buildClient() async {
-        let client = await subject.buildClient()
+    func test_buildClient() {
+        let client = subject.buildClient()
 
         XCTAssertNotNil(client)
         XCTAssertNotNil(mockPlatform.featureFlags)
