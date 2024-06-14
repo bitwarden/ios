@@ -526,50 +526,33 @@ class DefaultVaultRepository { // swiftlint:disable:this type_body_length
         return totpItems
     }
 
-    /// Downloads and re-encrypts an attachment so that it can be shared to an organization.
+    /// Downloads and re-creates an attachment to ensure they have an attachment key
     ///
     /// - Parameters:
     ///   - attachment: The attachment that will be shared with the organization.
     ///   - cipher: The cipher containing the attachment.
-    ///   - organizationId: The ID of the organization that the cipher and attachment will be shared to.
-    /// - Returns: The migrated attachment that can be moved into the organization.
     ///
-    private func shareCipherAttachment(
+    private func fixCipherAttachment(
         _ attachment: AttachmentView,
-        cipher: CipherView,
-        organizationId: String
-    ) async throws -> Attachment {
+        cipher: CipherView
+    ) async throws -> CipherView {
         guard let downloadUrl = try await downloadAttachment(attachment, cipher: cipher) else {
             throw BitwardenError.dataError("Unable to download attachment")
         }
 
         guard let cipherId = cipher.id else { throw CipherAPIServiceError.updateMissingId }
+        guard let fileName = attachment.fileName else { throw BitwardenError.dataError("Missing filename") }
 
-        let userId = try await stateService.getActiveAccountId()
-        let storageUrl = try FileManager.default.attachmentsUrl(for: userId).appendingPathComponent("Migration")
-        try FileManager.default.createDirectory(at: storageUrl, withIntermediateDirectories: true)
-        let encryptedUrl = storageUrl.appendingPathComponent(downloadUrl.lastPathComponent)
+        let attachmentData = try Data(contentsOf: downloadUrl)
 
-        let encryptedCipher = try await clientService.vault().ciphers().encrypt(cipherView: cipher)
-        let attachment = try await clientService.vault().attachments().encryptFile(
-            cipher: encryptedCipher,
-            attachment: attachment,
-            decryptedFilePath: downloadUrl.absoluteString,
-            encryptedFilePath: encryptedUrl.absoluteString
-        )
-
-        let attachmentData = try Data(contentsOf: encryptedUrl)
-        try await cipherService.shareCipherAttachment(
-            attachment: attachment,
-            attachmentData: attachmentData,
-            cipherId: cipherId,
-            organizationId: organizationId
-        )
+        let view = try await saveAttachment(cipherView: cipher, fileData: attachmentData, fileName: fileName)
+        
+        // Delete old attachment somehow ...
+        // try await deleteAttachment(withId: attachment.id, cipherId: <#T##String#>)
 
         try FileManager.default.removeItem(at: downloadUrl)
-        try FileManager.default.removeItem(at: encryptedUrl)
 
-        return attachment
+        return view
     }
 
     /// A transform to convert a `CipherView` into a TOTP `VaultListItem`.
@@ -1127,6 +1110,25 @@ extension DefaultVaultRepository: VaultRepository {
     }
 
     func shareCipher(_ cipher: CipherView, newOrganizationId: String, newCollectionIds: [String]) async throws {
+        
+        let encryptedCipher = try await clientService.vault().ciphers()
+            .encrypt(cipherView: cipher)
+        
+        var cipher = cipher
+        
+        // Fix old attachments
+        if let attachments = cipher.attachments,
+           var encryptedAttachments = encryptedCipher.attachments {
+            for attachment in attachments where attachment.key == nil {
+                // When moving a cipher to an organization, any attachments without an encryption
+                // key need to be migrated to encrypt the attachment with the org key.
+                cipher = try await fixCipherAttachment(
+                    attachment,
+                    cipher: cipher
+                )
+            }
+        }
+        
         let organizationCipher = try await clientService.vault().ciphers()
             .moveToOrganization(
                 cipher: cipher,
@@ -1135,26 +1137,6 @@ extension DefaultVaultRepository: VaultRepository {
             .update(collectionIds: newCollectionIds) // The SDK updates the cipher's organization ID.
         var encryptedOrganizationCipher = try await clientService.vault().ciphers()
             .encrypt(cipherView: organizationCipher)
-
-        if let attachments = organizationCipher.attachments,
-           var encryptedAttachments = encryptedOrganizationCipher.attachments {
-            for attachment in attachments where attachment.key == nil {
-                // When moving a cipher to an organization, any attachments without an encryption
-                // key need to be migrated to encrypt the attachment with the org key.
-                let updatedAttachment = try await shareCipherAttachment(
-                    attachment,
-                    cipher: organizationCipher,
-                    organizationId: newOrganizationId
-                )
-
-                guard let index = encryptedAttachments.firstIndex(where: { $0.id == updatedAttachment.id }) else {
-                    throw BitwardenError.dataError("Unable to update attachments.")
-                }
-                encryptedAttachments[index] = updatedAttachment
-            }
-
-            encryptedOrganizationCipher = encryptedOrganizationCipher.update(attachments: encryptedAttachments)
-        }
 
         try await cipherService.shareCipherWithServer(encryptedOrganizationCipher)
     }
