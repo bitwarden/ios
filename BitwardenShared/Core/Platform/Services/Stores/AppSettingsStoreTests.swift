@@ -222,6 +222,14 @@ class AppSettingsStoreTests: BitwardenTestCase { // swiftlint:disable:this type_
         XCTAssertFalse(userDefaults.bool(forKey: "bwPreferencesStorage:disableFavicon"))
     }
 
+    /// `.encryptedPin(_:userId:)` can be used to get the user's encrypted pin.
+    func test_encryptedPin() {
+        let userId = Account.fixture().profile.userId
+        subject.setEncryptedPin("123", userId: userId)
+        let pin = subject.encryptedPin(userId: userId)
+        XCTAssertEqual(userDefaults.string(forKey: "bwPreferencesStorage:protectedPin_1"), pin)
+    }
+
     /// `encryptedPrivateKey(userId:)` returns `nil` if there isn't a previously stored value.
     func test_encryptedPrivateKey_isInitiallyNil() {
         XCTAssertNil(subject.encryptedPrivateKey(userId: "-1"))
@@ -500,20 +508,12 @@ class AppSettingsStoreTests: BitwardenTestCase { // swiftlint:disable:this type_
         XCTAssertEqual(subject.passwordGenerationOptions(userId: "2"), options2)
     }
 
-    /// `.pinKeyEncryptedUserKey(userId:)` can be used to get the pin key encrypted user key.
-    func test_pinKeyEncryptedUserKey() {
-        let userId = Account.fixture().profile.userId
-        subject.setPinKeyEncryptedUserKey(key: "123", userId: userId)
-        let pin = subject.pinKeyEncryptedUserKey(userId: userId)
-        XCTAssertEqual(userDefaults.string(forKey: "bwPreferencesStorage:pinKeyEncryptedUserKey_1"), pin)
-    }
-
     /// `.pinProtectedUserKey(userId:)` can be used to get the pin protected user key for a user.
     func test_pinProtectedUserKey() {
         let userId = Account.fixture().profile.userId
         subject.setPinProtectedUserKey(key: "123", userId: userId)
         let pin = subject.pinProtectedUserKey(userId: userId)
-        XCTAssertEqual(userDefaults.string(forKey: "bwPreferencesStorage:pinProtectedUserKey_1"), pin)
+        XCTAssertEqual(userDefaults.string(forKey: "bwPreferencesStorage:pinKeyEncryptedUserKey_1"), pin)
     }
 
     /// `preAuthEnvironmentUrls` returns `nil` if there isn't a previously stored value.
@@ -549,6 +549,49 @@ class AppSettingsStoreTests: BitwardenTestCase { // swiftlint:disable:this type_
                 )
             ),
             .defaultEU
+        )
+    }
+
+    /// `serverConfig(:)` is initially `nil`
+    func test_serverConfig_isInitiallyNil() {
+        XCTAssertNil(subject.serverConfig(userId: "1"))
+    }
+
+    /// `serverConfig(:)` can be used to get and set the persisted value in user defaults.
+    func test_serverConfig_withValue() {
+        let config = ServerConfig(
+            date: Date(timeIntervalSince1970: 100),
+            responseModel: ConfigResponseModel(
+                environment: EnvironmentServerConfigResponseModel(
+                    api: "https://vault.bitwarden.com",
+                    cloudRegion: "US",
+                    identity: "https://vault.bitwarden.com",
+                    notifications: "https://vault.bitwarden.com",
+                    sso: "https://vault.bitwarden.com",
+                    vault: "https://vault.bitwarden.com"
+                ),
+                featureStates: ["feature": .bool(true)],
+                gitHash: "hash",
+                server: ThirdPartyConfigResponseModel(
+                    name: "Name",
+                    url: "Url"
+                ),
+                version: "version"
+            )
+        )
+        subject.setServerConfig(config, userId: "1")
+
+        XCTAssertEqual(subject.serverConfig(userId: "1"), config)
+        try XCTAssertEqual(
+            JSONDecoder().decode(
+                ServerConfig.self,
+                from: XCTUnwrap(
+                    userDefaults
+                        .string(forKey: "bwPreferencesStorage:serverConfig_1")?
+                        .data(using: .utf8)
+                )
+            ),
+            config
         )
     }
 

@@ -843,7 +843,7 @@
 "AutofillServicesExplanationLong" = "Android Autofill Framework jest używany do uzupełniania danych logowania w innych aplikacjach na twoim urządzeniu.";
 "UseInlineAutofillExplanationLong" = "Użyj bezpośredniego autouzupełniania, jeśli wybrana klawiatura je obsługuje. W przeciwnym razie użyj domyślnej nakładki.";
 "AdditionalOptions" = "Dodatkowe opcje";
-"ContinueToWebApp" = "Kontynuować przez aplikację internetową?";
+"ContinueToWebApp" = "Kontynuować do aplikacji internetowej?";
 "ContinueToX" = "Kontynuować przez %1$@?";
 "ContinueToHelpCenter" = "Kontynuować do centrum pomocy?";
 "ContinueToContactSupport" = "Kontynuować kontakt z pomocą techniczną?";
@@ -865,3 +865,10 @@
 "YourOrganizationPermissionsWereUpdatedRequeringYouToSetAMasterPassword" = "Uprawnienia w Twojej organizacji zostały zaktualizowane, musisz teraz ustawić hasło główne.";
 "YourOrganizationRequiresYouToSetAMasterPassword" = "Twoja organizacja wymaga ustawienia hasła głównego.";
 "SetUpAnUnlockOptionToChangeYourVaultTimeoutAction" = "Ustaw opcje odblokowania, aby zmienić czas blokowania sejfu.";
+"DuoTwoStepLoginIsRequiredForYourAccount" = "Dwustopniowe logowanie Duo jest wymagane dla Twojego konta.";
+"FollowTheStepsFromDuoToFinishLoggingIn" = "Wykonaj kroki od Duo, aby zakończyć logowanie.";
+"LaunchDuo" = "Uruchom Duo";
+"OrganizationUnassignedItemsMessageUSEUDescriptionLong" = "Nieprzypisane elementy w organizacji nie są już widoczne w widoku Wszystkie sejfy i są dostępne tylko przez Konsolę Administracyjną. Przypisz te elementy do kolekcji z konsoli administracyjnej, aby były one widoczne.";
+"OrganizationUnassignedItemsMessageSelfHost041624DescriptionLong" = "16 maja 2024 r. nieprzypisane elementy w organizacji nie będą już widoczne w widoku Wszystkie sejfy i będą dostępne tylko przez Konsolę Administracyjną. Przypisz te elementy do kolekcji z konsoli administracyjnej, aby były one widoczne.";
+"RemindMeLater" = "Przypomnij mi później";
+"Notice" = "Zawiadomienie";

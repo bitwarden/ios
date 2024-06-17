@@ -865,3 +865,10 @@
 "YourOrganizationPermissionsWereUpdatedRequeringYouToSetAMasterPassword" = "Els permisos de la vostra organització s'han actualitzat, cal que establiu una contrasenya mestra.";
 "YourOrganizationRequiresYouToSetAMasterPassword" = "La vostra organització requereix que establiu una contrasenya mestra.";
 "SetUpAnUnlockOptionToChangeYourVaultTimeoutAction" = "Configura una opció de desbloqueig per canviar l'acció de temps d'espera de la caixa forta.";
+"DuoTwoStepLoginIsRequiredForYourAccount" = "Es requereix l'inici de sessió en dos passos de DUO al vostre compte.";
+"FollowTheStepsFromDuoToFinishLoggingIn" = "Seguiu els passos de Duo per acabar d'iniciar la sessió.";
+"LaunchDuo" = "Inicia DUO";
+"OrganizationUnassignedItemsMessageUSEUDescriptionLong" = "Unassigned organization items are no longer visible in the All Vaults view and only accessible via the Admin Console. Assign these items to a collection from the Admin Console to make them visible.";
+"OrganizationUnassignedItemsMessageSelfHost041624DescriptionLong" = "On May 16, 2024, unassigned organization items will no longer be visible in the All Vaults view and only accessible via the Admin Console. Assign these items to a collection from the Admin Console to make them visible.";
+"RemindMeLater" = "Remind me later";
+"Notice" = "Notice";

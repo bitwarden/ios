@@ -50,6 +50,9 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
     /// The service used by the application to handle encryption and decryption tasks.
     let clientService: ClientService
 
+    /// The service to get server-specified configuration
+    let configService: ConfigService
+
     /// The service used by the application to manage the environment settings.
     let environmentService: EnvironmentService
 
@@ -142,6 +145,7 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
     ///   - captchaService: The service used by the application to create captcha related artifacts.
     ///   - cameraService: The service used by the application to manage camera use.
     ///   - clientService: The service used by the application to handle encryption and decryption tasks.
+    ///   - configService: The service to get server-specified configuration.
     ///   - environmentService: The service used by the application to manage the environment settings.
     ///   - errorReporter: The service used by the application to report non-fatal errors.
     ///   - generatorRepository: The repository used by the application to manage generator data for the UI layer.
@@ -179,6 +183,7 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
         captchaService: CaptchaService,
         cameraService: CameraService,
         clientService: ClientService,
+        configService: ConfigService,
         environmentService: EnvironmentService,
         errorReporter: ErrorReporter,
         exportVaultService: ExportVaultService,
@@ -216,6 +221,7 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
         self.captchaService = captchaService
         self.cameraService = cameraService
         self.clientService = clientService
+        self.configService = configService
         self.environmentService = environmentService
         self.errorReporter = errorReporter
         self.exportVaultService = exportVaultService
@@ -293,6 +299,13 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
         let apiService = APIService(environmentService: environmentService, tokenService: tokenService)
         let captchaService = DefaultCaptchaService(environmentService: environmentService, stateService: stateService)
         let notificationCenterService = DefaultNotificationCenterService()
+
+        let configService = DefaultConfigService(
+            configApiService: apiService,
+            errorReporter: errorReporter,
+            stateService: stateService,
+            timeProvider: timeProvider
+        )
 
         let folderService = DefaultFolderService(
             folderAPIService: apiService,
@@ -400,6 +413,7 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
             authService: authService,
             biometricsRepository: biometricsRepository,
             clientService: clientService,
+            configService: configService,
             environmentService: environmentService,
             keychainService: keychainRepository,
             organizationAPIService: apiService,
@@ -478,6 +492,7 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
             captchaService: captchaService,
             cameraService: DefaultCameraService(),
             clientService: clientService,
+            configService: configService,
             environmentService: environmentService,
             errorReporter: errorReporter,
             exportVaultService: exportVaultService,
@@ -513,6 +528,14 @@ extension ServiceContainer {
     }
 
     var authAPIService: AuthAPIService {
+        apiService
+    }
+
+    var cipherAPIService: CipherAPIService {
+        apiService
+    }
+
+    var configAPIService: ConfigAPIService {
         apiService
     }
 

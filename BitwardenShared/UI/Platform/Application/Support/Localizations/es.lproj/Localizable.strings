@@ -847,14 +847,14 @@
 "ContinueToX" = "¿Continuar a %1$@?";
 "ContinueToHelpCenter" = "¿Continuar al centro de ayuda?";
 "ContinueToContactSupport" = "¿Continuar con el servicio de asistencia?";
-"ContinueToPrivacyPolicy" = "Continue to privacy policy?";
+"ContinueToPrivacyPolicy" = "¿Continuar a la política de privacidad?";
 "ContinueToAppStore" = "¿Continuar a la App Store?";
 "TwoStepLoginDescriptionLong" = "Haz tu cuenta más segura al configurar el inicio de sesión en dos pasos en la aplicación web de Bitwarden.";
 "ChangeMasterPasswordDescriptionLong" = "Puedes cambiar tu contraseña maestra en la aplicación web de Bitwarden.";
 "YouCanImportDataToYourVaultOnX" = "Puedes importar datos a tu caja fuerte en %1$@.";
 "LearnMoreAboutHowToUseBitwardenOnTheHelpCenter" = "Más información sobre cómo usar Bitwarden en el centro de Ayuda.";
 "ContactSupportDescriptionLong" = "¿No encuentras lo que estás buscando? Contacta con el soporte de Bitwarden en bitwarden.com.";
-"PrivacyPolicyDescriptionLong" = "Check out our privacy policy on bitwarden.com.";
+"PrivacyPolicyDescriptionLong" = "Revise nuestra política de privacidad en bitwarden.com.";
 "ExploreMoreFeaturesOfYourBitwardenAccountOnTheWebApp" = "Explora más características de tu cuenta de Bitwarden en la aplicación web.";
 "LearnAboutOrganizationsDescriptionLong" = "Bitwarden te permite compartir tus elementos de la caja fuerte con otros utilizando una organización. Más información en el sitio web de bitwarden.com.";
 "RateAppDescriptionLong" = "Ayuda a otros a averiguar si Bitwarden es correcto para ellos. Visita la tienda de aplicaciones y deja una calificación ahora.";
@@ -865,3 +865,10 @@
 "YourOrganizationPermissionsWereUpdatedRequeringYouToSetAMasterPassword" = "Los permisos de su organización han sido actualizados, requiriendo que establezca una contraseña maestra.";
 "YourOrganizationRequiresYouToSetAMasterPassword" = "Tu organización requiere que establezcas una contraseña maestra.";
 "SetUpAnUnlockOptionToChangeYourVaultTimeoutAction" = "Configura una opción de desbloqueo para cambiar tu acción de tiempo de espera de tu caja fuerte.";
+"DuoTwoStepLoginIsRequiredForYourAccount" = "Se requiere el inicio de sesión en dos pasos Duo para su cuenta.";
+"FollowTheStepsFromDuoToFinishLoggingIn" = "Siga los pasos de Duo para terminar de iniciar sesión.";
+"LaunchDuo" = "Iniciar Duo";
+"OrganizationUnassignedItemsMessageUSEUDescriptionLong" = "Unassigned organization items are no longer visible in the All Vaults view and only accessible via the Admin Console. Assign these items to a collection from the Admin Console to make them visible.";
+"OrganizationUnassignedItemsMessageSelfHost041624DescriptionLong" = "On May 16, 2024, unassigned organization items will no longer be visible in the All Vaults view and only accessible via the Admin Console. Assign these items to a collection from the Admin Console to make them visible.";
+"RemindMeLater" = "Remind me later";
+"Notice" = "Notice";
