@@ -9,6 +9,7 @@ class MockAppSettingsStore: AppSettingsStore {
     var appId: String?
     var appLocale: String?
     var appTheme: String?
+    var biometricIntegrityStateLegacy: String?
     var disableWebIcons = false
     var lastUserShouldConnectToWatch = false
     var loginRequest: LoginRequestNotification?
@@ -33,10 +34,11 @@ class MockAppSettingsStore: AppSettingsStore {
     var passwordGenerationOptions = [String: PasswordGenerationOptions]()
     var pinProtectedUserKey = [String: String]()
     var serverConfig = [String: ServerConfig]()
+    var shouldCheckOrganizationUnassignedItems = [String: Bool?]()
     var shouldTrustDevice = [String: Bool?]()
     var timeoutAction = [String: Int]()
     var twoFactorTokens = [String: String]()
-    var vaultTimeout = [String: Int?]()
+    var vaultTimeout = [String: Int]()
     var state: State? {
         didSet {
             activeIdSubject.send(state?.activeUserId)
@@ -184,6 +186,10 @@ class MockAppSettingsStore: AppSettingsStore {
         serverConfig[userId] = config
     }
 
+    func setShouldCheckOrganizationUnassignedItems(_ shouldCheck: Bool?, userId: String) {
+        shouldCheckOrganizationUnassignedItems[userId] = shouldCheck
+    }
+
     func setShouldTrustDevice(shouldTrustDevice: Bool?, userId: String) {
         self.shouldTrustDevice[userId] = shouldTrustDevice
     }
@@ -208,8 +214,12 @@ class MockAppSettingsStore: AppSettingsStore {
         usernameGenerationOptions[userId] = options
     }
 
-    func setVaultTimeout(key: Int, userId: String) {
-        vaultTimeout[userId] = key
+    func setVaultTimeout(minutes: Int, userId: String) {
+        vaultTimeout[userId] = minutes
+    }
+
+    func shouldCheckOrganizationUnassignedItems(userId: String) -> Bool? {
+        shouldCheckOrganizationUnassignedItems[userId] ?? nil
     }
 
     func shouldTrustDevice(userId: String) -> Bool? {
@@ -229,7 +239,7 @@ class MockAppSettingsStore: AppSettingsStore {
     }
 
     func vaultTimeout(userId: String) -> Int? {
-        vaultTimeout[userId] ?? 0
+        vaultTimeout[userId]
     }
 
     func activeAccountIdPublisher() -> AnyPublisher<String?, Never> {

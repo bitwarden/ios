@@ -142,6 +142,22 @@ class AppSettingsStoreTests: BitwardenTestCase { // swiftlint:disable:this type_
         XCTAssertEqual("state4", subject.biometricIntegrityState(userId: "1"))
     }
 
+    /// `biometricIntegrityStateLegacy` returns `nil` if there isn't a previously stored value.
+    func test_biometricIntegrityStateLegacy_isInitiallyNil() {
+        XCTAssertNil(subject.biometricIntegrityStateLegacy)
+    }
+
+    /// `biometricIntegrityStateLegacy` can be used to get and set the value.
+    func test_biometricIntegrityStateLegacy_withValue() {
+        subject.biometricIntegrityStateLegacy = "1"
+        XCTAssertEqual(subject.biometricIntegrityStateLegacy, "1")
+        XCTAssertEqual(userDefaults.string(forKey: "bwPreferencesStorage:biometricIntegritySource"), "1")
+
+        subject.biometricIntegrityStateLegacy = nil
+        XCTAssertNil(subject.biometricIntegrityStateLegacy)
+        XCTAssertNil(userDefaults.string(forKey: "bwPreferencesStorage:biometricIntegritySource"))
+    }
+
     /// `clearClipboardValue(userId:)` returns `.never` if there isn't a previously stored value.
     func test_clearClipboardValue_isInitiallyNever() {
         XCTAssertEqual(subject.clearClipboardValue(userId: "0"), .never)
@@ -595,6 +611,19 @@ class AppSettingsStoreTests: BitwardenTestCase { // swiftlint:disable:this type_
         )
     }
 
+    /// `shouldCheckOrganizationUnassignedItems(:)` is initially nil {
+    func test_shouldCheckOrganizationUnassignedItems_isInitiallyNil() {
+        XCTAssertNil(subject.shouldCheckOrganizationUnassignedItems(userId: "1"))
+    }
+
+    /// `shouldCheckOrganizationUnassignedItems(:)` can be used to get and set the persisted value.
+    func test_shouldCheckOrganizationUnassignedItems_withValue() {
+        subject.setShouldCheckOrganizationUnassignedItems(true, userId: "1")
+        XCTAssertEqual(subject.shouldCheckOrganizationUnassignedItems(userId: "1"), true)
+        subject.setShouldCheckOrganizationUnassignedItems(false, userId: "1")
+        XCTAssertEqual(subject.shouldCheckOrganizationUnassignedItems(userId: "1"), false)
+    }
+
     /// `twoFactorToken(email:)` returns `nil` if there isn't a previously stored value.
     func test_twoFactorToken_isInitiallyNil() {
         XCTAssertNil(subject.twoFactorToken(email: "anything@email.com"))
@@ -757,7 +786,7 @@ class AppSettingsStoreTests: BitwardenTestCase { // swiftlint:disable:this type_
 
     /// `.vaultTimeout(userId:)` returns the correct vault timeout value.
     func test_vaultTimeout() throws {
-        subject.setVaultTimeout(key: 60, userId: "1")
+        subject.setVaultTimeout(minutes: 60, userId: "1")
 
         XCTAssertEqual(subject.vaultTimeout(userId: "1"), 60)
         XCTAssertEqual(userDefaults.double(forKey: "bwPreferencesStorage:vaultTimeout_1"), 60)

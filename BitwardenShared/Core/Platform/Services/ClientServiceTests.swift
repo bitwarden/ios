@@ -106,6 +106,15 @@ final class ClientServiceTests: BitwardenTestCase {
         XCTAssertNotIdentical(platform, user2Platform)
     }
 
+    /// `sends(for:)` returns a new `ClientVaultProtocol` for every user.
+    func test_sends() async throws {
+        let sends = try await subject.sends()
+        XCTAssertIdentical(sends, clientBuilder.clients.first?.clientSends)
+
+        let user2Sends = try await subject.sends(for: "1")
+        XCTAssertNotIdentical(sends, user2Sends)
+    }
+
     /// `vault(for:)` returns a new `ClientVaultProtocol` for every user.
     func test_vault() async throws {
         let vault = try await subject.vault()

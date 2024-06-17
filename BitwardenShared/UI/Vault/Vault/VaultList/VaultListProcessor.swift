@@ -31,6 +31,11 @@ final class VaultListProcessor: StateProcessor<
     /// The services used by this processor.
     private let services: Services
 
+    /// `true` if we're currently showing notification permissions.
+    /// This is used to prevent both the notification permissions and unused ciphers alert
+    /// from appearing at the same time.
+    private var isShowingNotificationPermissions = false
+
     // MARK: Initialization
 
     /// Creates a new `VaultListProcessor`.
@@ -59,6 +64,9 @@ final class VaultListProcessor: StateProcessor<
             await requestNotificationPermissions()
             await checkPendingLoginRequests()
             await checkPersonalOwnershipPolicy()
+            if !isShowingNotificationPermissions {
+                await checkUnassignedCiphers()
+            }
         case let .morePressed(item):
             await showMoreOptionsAlert(for: item)
         case let .profileSwitcher(profileEffect):
@@ -156,6 +164,24 @@ extension VaultListProcessor {
         state.isPersonalOwnershipDisabled = isPersonalOwnershipDisabled
     }
 
+    /// Checks if we need to display the unassigned ciphers alert, and displays if necessary.
+    ///
+    private func checkUnassignedCiphers() async {
+        guard state.shouldCheckUnassignedCiphers else { return }
+        state.shouldCheckUnassignedCiphers = false
+
+        guard await services.vaultRepository.shouldShowUnassignedCiphersAlert()
+        else { return }
+
+        showAlert(.unassignedCiphers {
+            do {
+                try await self.services.stateService.setShouldCheckOrganizationUnassignedItems(false, userId: nil)
+            } catch {
+                self.services.errorReporter.log(error: error)
+            }
+        })
+    }
+
     /// Generates and copies a TOTP code for the cipher's TOTP key.
     ///
     /// - Parameter totpKey: The TOTP key used to generate a TOTP code.
@@ -200,6 +226,8 @@ extension VaultListProcessor {
         let notificationAuthorization = await services.notificationService.notificationAuthorization()
         guard notificationAuthorization == .notDetermined else { return }
 
+        isShowingNotificationPermissions = true
+
         // Show the explanation alert before asking for permissions.
         coordinator.showAlert(
             .pushNotificationsInformation { [services] in
@@ -208,6 +236,11 @@ extension VaultListProcessor {
                         .requestAuthorization(options: [.alert, .sound, .badge])
                 } catch {
                     self.services.errorReporter.log(error: error)
+                }
+            }, onDismissed: {
+                Task {
+                    self.isShowingNotificationPermissions = false
+                    await self.checkUnassignedCiphers()
                 }
             }
         )

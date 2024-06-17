@@ -1,3 +1,4 @@
+import AuthenticationServices
 import Combine
 import Foundation
 import UIKit
@@ -105,6 +106,68 @@ public class AppProcessor {
         } else {
             await coordinator.handleEvent(.didStart)
         }
+    }
+
+    // MARK: Autofill Methods
+
+    /// Returns a `ASPasswordCredential` that matches the user-requested credential which can be
+    /// used for autofill.
+    ///
+    /// - Parameters:
+    ///   - id: The identifier of the user-requested credential to return.
+    ///   - repromptPasswordValidated: `true` if master password reprompt was required for the
+    ///     cipher and the user's master password was validated.
+    /// - Returns: A `ASPasswordCredential` that matches the user-requested credential which can be
+    ///     used for autofill.
+    ///
+    public func provideCredential(
+        for id: String,
+        repromptPasswordValidated: Bool = false
+    ) async throws -> ASPasswordCredential {
+        try await services.autofillCredentialService.provideCredential(
+            for: id,
+            repromptPasswordValidated: repromptPasswordValidated
+        )
+    }
+
+    /// Reprompts the user for their master password if the cipher for the user-requested credential
+    /// requires reprompt. Once reprompt has been completed (or when it's not required), the
+    /// `completion` closure is called notifying the caller if the master password was validated
+    /// successfully for reprompt.
+    ///
+    /// - Parameters:
+    ///   - id: The identifier of the user-requested credential to return.
+    ///   - completion: A closure that is called containing a bool that identifies if the user's
+    ///     master password was validated successfully. This will be `false` if reprompt wasn't
+    ///     required or if it is required and the master password was incorrect.
+    ///
+    public func repromptForCredentialIfNecessary(
+        for id: String,
+        completion: @escaping (Bool) async -> Void
+    ) async throws {
+        guard try await services.vaultRepository.repromptRequiredForCipher(id: id) else {
+            await completion(false)
+            return
+        }
+
+        let alert = Alert.masterPasswordPrompt { password in
+            do {
+                let isValid = try await self.services.authRepository.validatePassword(password)
+                guard isValid else {
+                    self.coordinator?.showAlert(.defaultAlert(title: Localizations.invalidMasterPassword)) {
+                        Task {
+                            await completion(false)
+                        }
+                    }
+                    return
+                }
+                await completion(true)
+            } catch {
+                self.services.errorReporter.log(error: error)
+                await completion(false)
+            }
+        }
+        coordinator?.showAlert(alert)
     }
 
     // MARK: Notification Methods

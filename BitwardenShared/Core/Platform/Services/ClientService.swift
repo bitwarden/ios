@@ -34,18 +34,25 @@ protocol ClientService {
     ///
     func generators(for userId: String?) async throws -> ClientGeneratorsProtocol
 
-    /// Returns a `ClientPlatformProtocol` for client platform tasks.
+    /// Returns a `ClientPlatformService` for client platform tasks.
     ///
     /// - Parameter userId: The user ID mapped to the client instance.
-    /// - Returns: A `ClientPlatformProtocol` for client platform tasks.
+    /// - Returns: A `ClientPlatformService` for client platform tasks.
     ///
-    func platform(for userId: String?) async throws -> ClientPlatformProtocol
+    func platform(for userId: String?) async throws -> ClientPlatformService
 
     /// Removes the user's client from memory.
     ///
     /// - Parameter userId: The user's ID.
     ///
     func removeClient(for userId: String?) async throws
+
+    /// Returns a `ClientSendsProtocol` for send data tasks.
+    ///
+    /// - Parameter userId: The user ID mapped to the client instance.
+    /// - Returns: A `ClientSendsProtocol` for vault data tasks.
+    ///
+    func sends(for userId: String?) async throws -> ClientSendsProtocol
 
     /// Returns a `ClientVaultService` for vault data tasks.
     ///
@@ -82,9 +89,9 @@ extension ClientService {
         try await generators(for: nil)
     }
 
-    /// Returns a `ClientPlatformProtocol` for client platform tasks.
+    /// Returns a `ClientPlatformService` for client platform tasks.
     ///
-    func platform() async throws -> ClientPlatformProtocol {
+    func platform() async throws -> ClientPlatformService {
         try await platform(for: nil)
     }
 
@@ -92,6 +99,12 @@ extension ClientService {
     ///
     func removeClient() async throws {
         try await removeClient(for: nil)
+    }
+
+    /// Returns a `ClientSendsProtocol` for send data tasks.
+    ///
+    func sends() async throws -> ClientSendsProtocol {
+        try await sends(for: nil)
     }
 
     /// Returns a `ClientVaultService` for vault data tasks.
@@ -164,13 +177,17 @@ class DefaultClientService: ClientService {
         try await client(for: userId).generators()
     }
 
-    func platform(for userId: String?) async throws -> ClientPlatformProtocol {
+    func platform(for userId: String?) async throws -> ClientPlatformService {
         try await client(for: userId).platform()
     }
 
     func removeClient(for userId: String?) async throws {
         let userId = try await stateService.getAccountIdOrActiveId(userId: userId)
         userClientArray.removeValue(forKey: userId)
+    }
+
+    func sends(for userId: String?) async throws -> ClientSendsProtocol {
+        try await client(for: userId).sends()
     }
 
     func vault(for userId: String?) async throws -> ClientVaultService {
@@ -274,7 +291,7 @@ class DefaultClientBuilder: ClientBuilder {
     private func loadFlags(client: BitwardenSdkClient) async {
         do {
             try await client.platform().loadFlags(
-                flags: [FeatureFlagsConstants.enableCipherKeyEncryption: true]
+                [FeatureFlagsConstants.enableCipherKeyEncryption: true]
             )
         } catch {
             errorReporter.log(error: error)
@@ -300,7 +317,10 @@ protocol BitwardenSdkClient {
     func generators() -> ClientGeneratorsProtocol
 
     /// Returns platform operations.
-    func platform() -> ClientPlatformProtocol
+    func platform() -> ClientPlatformService
+
+    /// Returns sends operations.
+    func sends() -> ClientSendsProtocol
 
     /// Returns vault operations.
     func vault() -> ClientVaultService
@@ -325,8 +345,12 @@ extension Client: BitwardenSdkClient {
         generators() as ClientGenerators
     }
 
-    func platform() -> ClientPlatformProtocol {
+    func platform() -> ClientPlatformService {
         platform() as ClientPlatform
+    }
+
+    func sends() -> ClientSendsProtocol {
+        sends() as ClientSends
     }
 
     func vault() -> ClientVaultService {

@@ -29,6 +29,12 @@ protocol StateService: AnyObject {
     ///
     func deleteAccount() async throws
 
+    /// Returns whether the active user account has access to premium features.
+    ///
+    /// - Returns: Whether the active account has access to premium features.
+    ///
+    func doesActiveAccountHavePremium() async throws -> Bool
+
     /// Gets the account for an id.
     ///
     /// - Parameter userId: The id for an account. If nil, the active account will be returned.
@@ -206,6 +212,13 @@ protocol StateService: AnyObject {
     /// - Returns: The user's server config.
     ///
     func getServerConfig(userId: String?) async throws -> ServerConfig?
+
+    /// Gets whether we should check for unassigned items for the user.
+    ///
+    /// - Parameter userId: The user ID associated with the flag.
+    /// - Returns: `false` if the user has seen and acknowledged the unassigned items alert.
+    ///
+    func getShouldCheckOrganizationUnassignedItems(userId: String?) async throws -> Bool
 
     /// Get whether the device should be trusted.
     ///
@@ -442,6 +455,15 @@ protocol StateService: AnyObject {
     ///   - userId: The user ID associated with the server config.
     ///
     func setServerConfig(_ config: ServerConfig?, userId: String?) async throws
+
+    /// Sets whether or not we should check for unassigned ciphers in an organization for
+    /// a particular user.
+    ///
+    /// - Parameters:
+    ///   - shouldCheck: Whether or not we should check for unassigned ciphers.
+    ///   - userId: The user ID that acknowledged the alert.
+    ///
+    func setShouldCheckOrganizationUnassignedItems(_ shouldCheck: Bool?, userId: String?) async throws
 
     /// Set whether to trust the device.
     ///
@@ -945,6 +967,9 @@ actor DefaultStateService: StateService { // swiftlint:disable:this type_body_le
     /// A subject containing the last sync time mapped to user ID.
     private var lastSyncTimeByUserIdSubject = CurrentValueSubject<[String: Date], Never>([:])
 
+    /// A service used to access data in the keychain.
+    private let keychainRepository: KeychainRepository
+
     /// A subject containing whether to show the website icons.
     private var showWebIconsSubject: CurrentValueSubject<Bool, Never>
 
@@ -955,13 +980,16 @@ actor DefaultStateService: StateService { // swiftlint:disable:this type_body_le
     /// - Parameters:
     ///  - appSettingsStore: The service that persists app settings.
     ///  - dataStore: The data store that handles performing data requests.
+    ///  - keychainRepository: A service used to access data in the keychain.
     ///
     init(
         appSettingsStore: AppSettingsStore,
-        dataStore: DataStore
+        dataStore: DataStore,
+        keychainRepository: KeychainRepository
     ) {
         self.appSettingsStore = appSettingsStore
         self.dataStore = dataStore
+        self.keychainRepository = keychainRepository
 
         appThemeSubject = CurrentValueSubject(AppTheme(appSettingsStore.appTheme))
         showWebIconsSubject = CurrentValueSubject(!appSettingsStore.disableWebIcons)
@@ -986,6 +1014,19 @@ actor DefaultStateService: StateService { // swiftlint:disable:this type_body_le
 
     func deleteAccount() async throws {
         try await logoutAccount()
+    }
+
+    func doesActiveAccountHavePremium() async throws -> Bool {
+        let account = try await getActiveAccount()
+        let hasPremiumPersonally = account.profile.hasPremiumPersonally ?? false
+        guard !hasPremiumPersonally else {
+            return true
+        }
+
+        let organizations = try await dataStore
+            .fetchAllOrganizations(userId: account.profile.userId)
+            .filter { $0.enabled && $0.usersGetPremium }
+        return !organizations.isEmpty
     }
 
     func getAccount(userId: String?) throws -> Account {
@@ -1110,6 +1151,11 @@ actor DefaultStateService: StateService { // swiftlint:disable:this type_body_le
         return appSettingsStore.serverConfig(userId: userId)
     }
 
+    func getShouldCheckOrganizationUnassignedItems(userId: String?) async throws -> Bool {
+        let userId = try userId ?? getActiveAccountUserId()
+        return appSettingsStore.shouldCheckOrganizationUnassignedItems(userId: userId) ?? true
+    }
+
     func getShouldTrustDevice(userId: String) async -> Bool? {
         appSettingsStore.shouldTrustDevice(userId: userId)
     }
@@ -1148,7 +1194,8 @@ actor DefaultStateService: StateService { // swiftlint:disable:this type_body_le
     func getVaultTimeout(userId: String?) async throws -> SessionTimeoutValue {
         let userId = try getAccount(userId: userId).profile.userId
         guard let rawValue = appSettingsStore.vaultTimeout(userId: userId) else {
-            return .fifteenMinutes
+            let userAuthKey = try? await keychainRepository.getUserAuthKeyValue(for: .neverLock(userId: userId))
+            return userAuthKey == nil ? .fifteenMinutes : .never
         }
         return SessionTimeoutValue(rawValue: rawValue)
     }
@@ -1305,6 +1352,11 @@ actor DefaultStateService: StateService { // swiftlint:disable:this type_body_le
         appSettingsStore.setServerConfig(config, userId: userId)
     }
 
+    func setShouldCheckOrganizationUnassignedItems(_ shouldCheck: Bool?, userId: String?) async throws {
+        let userId = try userId ?? getActiveAccountUserId()
+        appSettingsStore.setShouldCheckOrganizationUnassignedItems(shouldCheck, userId: userId)
+    }
+
     func setShouldTrustDevice(_ shouldTrustDevice: Bool?, userId: String) {
         appSettingsStore.setShouldTrustDevice(shouldTrustDevice: shouldTrustDevice, userId: userId)
     }
@@ -1346,7 +1398,7 @@ actor DefaultStateService: StateService { // swiftlint:disable:this type_body_le
 
     func setVaultTimeout(value: SessionTimeoutValue, userId: String?) async throws {
         let userId = try userId ?? getActiveAccountUserId()
-        appSettingsStore.setVaultTimeout(key: value.rawValue, userId: userId)
+        appSettingsStore.setVaultTimeout(minutes: value.rawValue, userId: userId)
     }
 
     func updateProfile(from response: ProfileResponseModel, userId: String) async {

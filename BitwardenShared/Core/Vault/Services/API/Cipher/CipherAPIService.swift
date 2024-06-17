@@ -77,6 +77,7 @@ protocol CipherAPIService {
     /// to users who are an organization owner or admin.
     ///
     /// - Returns: `true` if the user has any unassigned ciphers; `false` otherwise.
+    ///
     func hasUnassignedCiphers() async throws -> Bool
 
     /// Performs an API request to restore a cipher in the user's trash.

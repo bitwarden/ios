@@ -14,12 +14,12 @@ options:
   indentWidth: 4
   tabWidth: 4
 settings:
-  MARKETING_VERSION: 2024.05.0    # Bump this for a new version update.
+  MARKETING_VERSION: 2024.6.0    # Bump this for a new version update.
   CURRENT_PROJECT_VERSION: 1
 packages:
   BitwardenSdk:
     url: https://github.com/bitwarden/sdk-swift
-    revision: 444ec3072aa3a9b9e318e52466c806226afe32a3
+    revision: 8c1a015f4bc742fb7ce7135c3174656cbf0d8d1d
   Firebase:
     url: https://github.com/firebase/firebase-ios-sdk
     exactVersion: 10.24.0

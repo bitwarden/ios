@@ -272,9 +272,8 @@ extension DefaultSyncService {
         try await folderService.deleteFolderWithLocalStorage(id: data.id)
 
         let updatedCiphers = try await cipherService.fetchAllCiphers()
-            .asyncMap { try await clientService.vault().ciphers().decrypt(cipher: $0) }
+            .filter { $0.folderId == data.id }
             .map { $0.update(folderId: nil) }
-            .asyncMap { try await clientService.vault().ciphers().encrypt(cipherView: $0) }
 
         for cipher in updatedCiphers {
             try await cipherService.updateCipherWithLocalStorage(cipher)

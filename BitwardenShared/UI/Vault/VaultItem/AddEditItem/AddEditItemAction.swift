@@ -4,6 +4,9 @@ import BitwardenSdk
 
 /// Actions that can be handled by an `AddEditItemProcessor`.
 enum AddEditItemAction: Equatable {
+    /// The auth key visibility was toggled.
+    case authKeyVisibilityTapped(Bool)
+
     /// A card field changed
     case cardFieldChanged(AddEditCardItemAction)
 

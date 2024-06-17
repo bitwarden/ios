@@ -8,8 +8,12 @@ class MigrationServiceTests: BitwardenTestCase {
     var appSettingsStore: MockAppSettingsStore!
     var errorReporter: MockErrorReporter!
     var keychainRepository: MockKeychainRepository!
+    var keychainService: MockKeychainService!
     var standardUserDefaults: UserDefaults!
     var subject: DefaultMigrationService!
+
+    /// A keychain service name to use during tests to avoid corrupting the app's keychain items.
+    private let testKeychainServiceName = "com.bitwarden.test"
 
     // MARK: Setup & Teardown
 
@@ -19,14 +23,23 @@ class MigrationServiceTests: BitwardenTestCase {
         appSettingsStore = MockAppSettingsStore()
         errorReporter = MockErrorReporter()
         keychainRepository = MockKeychainRepository()
+        keychainService = MockKeychainService()
         standardUserDefaults = UserDefaults(suiteName: "test")
 
         standardUserDefaults.removeObject(forKey: "MSAppCenterCrashesIsEnabled")
+        SecItemDelete(
+            [
+                kSecClass: kSecClassGenericPassword,
+                kSecAttrService: testKeychainServiceName,
+            ] as CFDictionary
+        )
 
         subject = DefaultMigrationService(
             appSettingsStore: appSettingsStore,
             errorReporter: errorReporter,
             keychainRepository: keychainRepository,
+            keychainService: keychainService,
+            keychainServiceName: testKeychainServiceName,
             standardUserDefaults: standardUserDefaults
         )
     }
@@ -37,11 +50,21 @@ class MigrationServiceTests: BitwardenTestCase {
         appSettingsStore = nil
         errorReporter = nil
         keychainRepository = nil
+        keychainService = nil
         standardUserDefaults = nil
         subject = nil
     }
 
     // MARK: Tests
+
+    /// `performMigrations()` performs all migrations and updates the migration version.
+    func test_performMigrations() async throws {
+        appSettingsStore.migrationVersion = 0
+
+        await subject.performMigrations()
+
+        XCTAssertEqual(appSettingsStore.migrationVersion, subject.migrations.count)
+    }
 
     /// `performMigrations()` logs an error to the error reporter if one occurs.
     func test_performMigrations_error() async throws {
@@ -67,6 +90,7 @@ class MigrationServiceTests: BitwardenTestCase {
 
     /// `performMigrations()` performs migration 1 and moves the user's tokens to the keychain.
     func test_performMigrations_1_withAccounts() async throws {
+        appSettingsStore.biometricIntegrityStateLegacy = "1234"
         appSettingsStore.migrationVersion = 0
         appSettingsStore.state = .fixture(
             accounts: [
@@ -91,7 +115,7 @@ class MigrationServiceTests: BitwardenTestCase {
             appSettingsStore.notificationsLastRegistrationDates[userId] = Date()
         }
 
-        await subject.performMigrations()
+        try await subject.performMigration(version: 1)
 
         XCTAssertEqual(appSettingsStore.migrationVersion, 1)
 
@@ -106,11 +130,13 @@ class MigrationServiceTests: BitwardenTestCase {
         try XCTAssertEqual(keychainRepository.getValue(for: .refreshToken(userId: "2")), "REFRESH_TOKEN_2")
 
         for userId in ["1", "2"] {
+            XCTAssertEqual(appSettingsStore.biometricIntegrityState(userId: userId), "1234")
             XCTAssertNil(appSettingsStore.lastActiveTime(userId: userId))
             XCTAssertNil(appSettingsStore.lastSyncTime(userId: userId))
             XCTAssertNil(appSettingsStore.notificationsLastRegistrationDate(userId: userId))
         }
 
+        XCTAssertNil(appSettingsStore.biometricIntegrityStateLegacy)
         XCTAssertFalse(keychainRepository.deleteAllItemsCalled)
 
         XCTAssertTrue(errorReporter.isEnabled)
@@ -121,7 +147,7 @@ class MigrationServiceTests: BitwardenTestCase {
     func test_performMigrations_1_withAppCenterCrashesKey_false() async throws {
         appSettingsStore.migrationVersion = 0
         standardUserDefaults.setValue(false, forKey: "MSAppCenterCrashesIsEnabled")
-        await subject.performMigrations()
+        try await subject.performMigration(version: 1)
         XCTAssertFalse(errorReporter.isEnabled)
     }
 
@@ -130,7 +156,7 @@ class MigrationServiceTests: BitwardenTestCase {
     func test_performMigrations_1_withAppCenterCrashesKey_true() async throws {
         appSettingsStore.migrationVersion = 0
         standardUserDefaults.setValue(true, forKey: "MSAppCenterCrashesIsEnabled")
-        await subject.performMigrations()
+        try await subject.performMigration(version: 1)
         XCTAssertTrue(errorReporter.isEnabled)
     }
 
@@ -139,11 +165,61 @@ class MigrationServiceTests: BitwardenTestCase {
         appSettingsStore.migrationVersion = 0
         appSettingsStore.state = nil
 
-        await subject.performMigrations()
+        try await subject.performMigration(version: 1)
 
         XCTAssertEqual(appSettingsStore.migrationVersion, 1)
         XCTAssertNil(appSettingsStore.state)
         XCTAssertTrue(keychainRepository.deleteAllItemsCalled)
         XCTAssertTrue(errorReporter.isEnabled)
+    }
+
+    /// `performMigrations()` for migration 2 migrates keychain data in kSecAttrGeneric to kSecValueData.
+    func test_performMigrations_2() async throws {
+        let itemsToAdd: [(account: String, value: String)] = [
+            ("TEST_ACCOUNT_1", "secret"),
+            ("TEST_ACCOUNT_2", "password"),
+        ]
+        for item in itemsToAdd {
+            SecItemAdd(
+                [
+                    kSecClass: kSecClassGenericPassword,
+                    kSecAttrAccount: item.account,
+                    kSecAttrService: testKeychainServiceName,
+                    kSecAttrGeneric: Data(item.value.utf8),
+                ] as CFDictionary,
+                nil
+            )
+        }
+
+        try await subject.performMigration(version: 2)
+
+        var copyResult: AnyObject?
+        SecItemCopyMatching(
+            [
+                kSecClass: kSecClassGenericPassword,
+                kSecAttrService: testKeychainServiceName,
+                kSecMatchLimit: kSecMatchLimitAll,
+                kSecReturnData: true,
+                kSecReturnAttributes: true,
+            ] as CFDictionary,
+            &copyResult
+        )
+
+        let keychainItems = try XCTUnwrap(copyResult as? [[CFString: Any]])
+        XCTAssertEqual(keychainItems.count, 2)
+
+        let item1 = try XCTUnwrap(keychainItems[0])
+        XCTAssertEqual(item1[kSecAttrAccessGroup] as? String, Bundle.main.keychainAccessGroup)
+        XCTAssertEqual(item1[kSecAttrAccount] as? String, "TEST_ACCOUNT_1")
+        XCTAssertEqual(item1[kSecAttrGeneric] as? Data, Data())
+        XCTAssertEqual(item1[kSecValueData] as? Data, Data("secret".utf8))
+
+        let item2 = try XCTUnwrap(keychainItems[1])
+        XCTAssertEqual(item2[kSecAttrAccessGroup] as? String, Bundle.main.keychainAccessGroup)
+        XCTAssertEqual(item2[kSecAttrAccount] as? String, "TEST_ACCOUNT_2")
+        XCTAssertEqual(item2[kSecAttrGeneric] as? Data, Data())
+        XCTAssertEqual(item2[kSecValueData] as? Data, Data("password".utf8))
+
+        XCTAssertEqual(appSettingsStore.migrationVersion, 2)
     }
 }

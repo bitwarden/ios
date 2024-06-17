@@ -13,11 +13,17 @@ struct LoginItemState: Equatable {
     /// The FIDO2 credentials for the login.
     var fido2Credentials: [Fido2Credential] = []
 
+    /// Whether the auth key is visible.
+    var isAuthKeyVisible: Bool = false
+
     /// A flag indicating if the password field is visible.
     var isPasswordVisible: Bool = false
 
     /// A flag indicating if the totp feature is available.
     let isTOTPAvailable: Bool
+
+    /// Whether the user can see the TOTP code.
+    var isTOTPCodeVisible: Bool = false
 
     /// The password for this item.
     var password: String = ""

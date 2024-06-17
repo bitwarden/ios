@@ -297,7 +297,7 @@ class DefaultAuthRepository {
     /// The service that handles common client functionality such as encryption and decryption.
     private let clientService: ClientService
 
-    /// The services to get server-specified configuration.
+    /// The service to get server-specified configuration.
     private let configService: ConfigService
 
     /// The service used by the application to manage the environment settings.
@@ -449,7 +449,7 @@ extension DefaultAuthRepository: AuthRepository {
 
     func getFingerprintPhrase() async throws -> String {
         let userId = try await stateService.getActiveAccountId()
-        return try await clientService.platform().userFingerprint(fingerprintMaterial: userId)
+        return try await clientService.platform().userFingerprint(material: userId)
     }
 
     func getProfilesState(

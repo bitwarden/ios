@@ -1,6 +1,7 @@
 // swiftlint:disable:this file_name
 
 import BitwardenSdk
+import Foundation
 
 extension Attachment {
     init(attachmentView: AttachmentView) {
@@ -147,6 +148,46 @@ extension CollectionView {
             externalId: collection.externalId,
             hidePasswords: collection.hidePasswords,
             readOnly: collection.readOnly
+        )
+    }
+}
+
+extension Fido2Credential {
+    init(fido2CredentialView: Fido2CredentialView) {
+        self.init(
+            credentialId: fido2CredentialView.credentialId,
+            keyType: fido2CredentialView.keyType,
+            keyAlgorithm: fido2CredentialView.keyAlgorithm,
+            keyCurve: fido2CredentialView.keyCurve,
+            keyValue: fido2CredentialView.keyValue,
+            rpId: fido2CredentialView.rpId,
+            userHandle: fido2CredentialView.userHandle.flatMap { String(bytes: $0, encoding: .utf8) },
+            userName: fido2CredentialView.userName,
+            counter: fido2CredentialView.counter,
+            rpName: fido2CredentialView.rpName,
+            userDisplayName: fido2CredentialView.userDisplayName,
+            discoverable: fido2CredentialView.discoverable,
+            creationDate: fido2CredentialView.creationDate
+        )
+    }
+}
+
+extension Fido2CredentialView {
+    init(fido2Credential: Fido2Credential) {
+        self.init(
+            credentialId: fido2Credential.credentialId,
+            keyType: fido2Credential.keyType,
+            keyAlgorithm: fido2Credential.keyAlgorithm,
+            keyCurve: fido2Credential.keyCurve,
+            keyValue: fido2Credential.keyValue,
+            rpId: fido2Credential.rpId,
+            userHandle: fido2Credential.userHandle.map { Data($0.utf8) },
+            userName: fido2Credential.userName,
+            counter: fido2Credential.counter,
+            rpName: fido2Credential.rpName,
+            userDisplayName: fido2Credential.userDisplayName,
+            discoverable: fido2Credential.discoverable,
+            creationDate: fido2Credential.creationDate
         )
     }
 }

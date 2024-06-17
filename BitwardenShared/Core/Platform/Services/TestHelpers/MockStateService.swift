@@ -26,6 +26,8 @@ class MockStateService: StateService { // swiftlint:disable:this type_body_lengt
     var timeProvider = MockTimeProvider(.currentTime)
     var defaultUriMatchTypeByUserId = [String: UriMatchType]()
     var disableAutoTotpCopyByUserId = [String: Bool]()
+    var doesActiveAccountHavePremiumCalled = false
+    var doesActiveAccountHavePremiumResult: Result<Bool, Error> = .success(true)
     var encryptedPinByUserId = [String: String]()
     var environmentUrls = [String: EnvironmentUrlData]()
     var forcePasswordResetReason = [String: ForcePasswordResetReason]()
@@ -49,6 +51,7 @@ class MockStateService: StateService { // swiftlint:disable:this type_body_lengt
     var serverConfig = [String: ServerConfig]()
     var setBiometricAuthenticationEnabledResult: Result<Void, Error> = .success(())
     var setBiometricIntegrityStateError: Error?
+    var shouldCheckOrganizationUnassignedItems = [String: Bool?]()
     var shouldTrustDevice = [String: Bool?]()
     var twoFactorTokens = [String: String]()
     var unsuccessfulUnlockAttempts = [String: Int]()
@@ -82,6 +85,11 @@ class MockStateService: StateService { // swiftlint:disable:this type_body_lengt
         accounts?.removeAll(where: { account in
             account == activeAccount
         })
+    }
+
+    func doesActiveAccountHavePremium() async throws -> Bool {
+        doesActiveAccountHavePremiumCalled = true
+        return try doesActiveAccountHavePremiumResult.get()
     }
 
     func getAccountEncryptionKeys(userId: String?) async throws -> AccountEncryptionKeys {
@@ -209,6 +217,11 @@ class MockStateService: StateService { // swiftlint:disable:this type_body_lengt
     func getServerConfig(userId: String?) async throws -> ServerConfig? {
         let userId = try unwrapUserId(userId)
         return serverConfig[userId]
+    }
+
+    func getShouldCheckOrganizationUnassignedItems(userId: String?) async throws -> Bool {
+        let userId = try unwrapUserId(userId)
+        return (shouldCheckOrganizationUnassignedItems[userId] ?? false) ?? false
     }
 
     func getShouldTrustDevice(userId: String) async -> Bool? {
@@ -393,6 +406,11 @@ class MockStateService: StateService { // swiftlint:disable:this type_body_lengt
     func setServerConfig(_ config: ServerConfig?, userId: String?) async throws {
         let userId = try unwrapUserId(userId)
         serverConfig[userId] = config
+    }
+
+    func setShouldCheckOrganizationUnassignedItems(_ shouldCheck: Bool?, userId: String?) async throws {
+        let userId = try unwrapUserId(userId)
+        shouldCheckOrganizationUnassignedItems[userId] = shouldCheck
     }
 
     func setShouldTrustDevice(_ shouldTrustDevice: Bool?, userId: String) async {

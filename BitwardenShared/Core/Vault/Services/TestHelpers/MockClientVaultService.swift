@@ -9,7 +9,6 @@ class MockClientVaultService: ClientVaultService {
     var clientCollections = MockClientCollections()
     var clientFolders = MockClientFolders()
     var clientPasswordHistory = MockClientPasswordHistory()
-    var clientSends = MockClientSends()
     var generateTOTPCodeResult: Result<String, Error> = .success("123456")
     var timeProvider = MockTimeProvider(.currentTime)
     var totpPeriod: UInt32 = 30
@@ -41,10 +40,6 @@ class MockClientVaultService: ClientVaultService {
 
     func passwordHistory() -> ClientPasswordHistoryProtocol {
         clientPasswordHistory
-    }
-
-    func sends() -> ClientSendsProtocol {
-        clientSends
     }
 }
 
@@ -91,6 +86,7 @@ class MockClientAttachments: ClientAttachmentsProtocol {
 // MARK: - MockClientCiphers
 
 class MockClientCiphers: ClientCiphersProtocol {
+    var encryptCipherResult: Result<Cipher, Error>?
     var encryptError: Error?
     var encryptedCiphers = [CipherView]()
     var moveToOrganizationCipher: CipherView?
@@ -111,7 +107,7 @@ class MockClientCiphers: ClientCiphersProtocol {
         if let encryptError {
             throw encryptError
         }
-        return Cipher(cipherView: cipherView)
+        return try encryptCipherResult?.get() ?? Cipher(cipherView: cipherView)
     }
 
     func moveToOrganization(

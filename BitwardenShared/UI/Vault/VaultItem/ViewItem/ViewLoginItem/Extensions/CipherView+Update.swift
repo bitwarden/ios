@@ -90,6 +90,7 @@ extension CipherView {
     ///
     /// - Parameters:
     ///   - excludeFido2Credentials: Whether to exclude copying any FIDO2 credentials from the login item.
+    ///   - isTOTPCodeVisible: Whether the TOTP code is visible.
     ///   - showPassword: A Boolean value indicating whether the password should be visible.
     ///   - showTOTP: A Boolean value indicating whether TOTP should be visible.
     ///
@@ -97,6 +98,7 @@ extension CipherView {
     ///
     func loginItemState(
         excludeFido2Credentials: Bool = false,
+        isTOTPCodeVisible: Bool = false,
         showPassword: Bool = false,
         showTOTP: Bool
     ) -> LoginItemState {
@@ -105,6 +107,7 @@ extension CipherView {
             fido2Credentials: excludeFido2Credentials ? [] : login?.fido2Credentials ?? [],
             isPasswordVisible: showPassword,
             isTOTPAvailable: showTOTP,
+            isTOTPCodeVisible: isTOTPCodeVisible,
             password: login?.password ?? "",
             passwordHistoryCount: passwordHistory?.count,
             passwordUpdatedDate: login?.passwordRevisionDate,
@@ -182,25 +185,6 @@ extension CipherView {
     /// - Returns: A copy of the existing cipher, with the specified properties updated.
     ///
     func update(collectionIds: [String]) -> CipherView {
-        update(
-            collectionIds: collectionIds,
-            deletedDate: deletedDate,
-            folderId: folderId,
-            organizationId: organizationId
-        )
-    }
-
-    /// Returns a copy of the existing cipher with an updated organization and list of collection IDs.
-    ///
-    /// - Parameters:
-    ///   - collectionIds: The identifiers of any collections containing the cipher.
-    ///   - organizationId: The identifier of the cipher's organization.
-    /// - Returns: A copy of the existing cipher, with the specified properties updated.
-    ///
-    func update(
-        collectionIds: [String],
-        organizationId: String?
-    ) -> CipherView {
         update(
             collectionIds: collectionIds,
             deletedDate: deletedDate,

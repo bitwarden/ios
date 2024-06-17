@@ -331,6 +331,40 @@ extension Fido2Credential {
     }
 }
 
+extension Fido2CredentialView {
+    static func fixture(
+        counter: String = "",
+        creationDate: Date = Date(year: 2024, month: 3, day: 15, hour: 9, minute: 15),
+        credentialId: String = "",
+        discoverable: String = "",
+        keyAlgorithm: String = "",
+        keyCurve: String = "",
+        keyType: String = "",
+        keyValue: String = "",
+        rpId: String = "",
+        rpName: String? = nil,
+        userDisplayName: String? = nil,
+        userHandle: Data? = nil,
+        userName: String? = nil
+    ) -> Fido2CredentialView {
+        Fido2CredentialView(
+            credentialId: credentialId,
+            keyType: keyType,
+            keyAlgorithm: keyAlgorithm,
+            keyCurve: keyCurve,
+            keyValue: keyValue,
+            rpId: rpId,
+            userHandle: userHandle,
+            userName: userName,
+            counter: counter,
+            rpName: rpName,
+            userDisplayName: userDisplayName,
+            discoverable: discoverable,
+            creationDate: creationDate
+        )
+    }
+}
+
 extension BitwardenSdk.Login {
     static func fixture(
         autofillOnPageLoad: Bool? = nil,

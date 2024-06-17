@@ -672,6 +672,7 @@ class VaultGroupProcessorTests: BitwardenTestCase { // swiftlint:disable:this ty
                 totpModel: .init(
                     id: "1",
                     loginView: loginView,
+                    requiresMasterPassword: false,
                     totpCode: .init(
                         code: "654321",
                         codeGenerationDate: timeProvider.presentTime,
@@ -695,6 +696,7 @@ class VaultGroupProcessorTests: BitwardenTestCase { // swiftlint:disable:this ty
                 totpModel: .init(
                     id: "1",
                     loginView: loginView,
+                    requiresMasterPassword: false,
                     totpCode: .init(
                         code: "098765",
                         codeGenerationDate: timeProvider.presentTime
@@ -711,6 +713,7 @@ class VaultGroupProcessorTests: BitwardenTestCase { // swiftlint:disable:this ty
                 totpModel: .init(
                     id: "1",
                     loginView: loginView,
+                    requiresMasterPassword: false,
                     totpCode: .init(
                         code: "111222",
                         codeGenerationDate: timeProvider.presentTime,
@@ -752,6 +755,7 @@ class VaultGroupProcessorTests: BitwardenTestCase { // swiftlint:disable:this ty
                 totpModel: .init(
                     id: "1",
                     loginView: loginView,
+                    requiresMasterPassword: false,
                     totpCode: .init(
                         code: "098765",
                         codeGenerationDate: timeProvider.presentTime
@@ -768,6 +772,7 @@ class VaultGroupProcessorTests: BitwardenTestCase { // swiftlint:disable:this ty
                 totpModel: .init(
                     id: "1",
                     loginView: loginView,
+                    requiresMasterPassword: false,
                     totpCode: .init(
                         code: "111222",
                         codeGenerationDate: timeProvider.presentTime,

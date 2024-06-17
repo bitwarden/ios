@@ -216,4 +216,25 @@ extension Alert {
             ]
         )
     }
+
+    /// An alert notifying the user that they have unassigned ciphers.
+    ///
+    /// - Parameters:
+    ///   - action: The action taken if the user acknowledges.
+    /// - Returns: An alert notififying the user that they have unassigned ciphers.
+    ///
+    static func unassignedCiphers(
+        _ action: @escaping () async -> Void
+    ) -> Alert {
+        Alert(
+            title: Localizations.notice,
+            message: Localizations.organizationUnassignedItemsMessageUSEUDescriptionLong,
+            alertActions: [
+                AlertAction(title: Localizations.remindMeLater, style: .default),
+                AlertAction(title: Localizations.ok, style: .default) { _ in
+                    await action()
+                },
+            ]
+        )
+    }
 }

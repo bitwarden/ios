@@ -525,7 +525,13 @@ class ViewItemProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
     /// `perform(_:)` with `.deletePressed` reprompts the user for their master password if reprompt
     /// is enabled prior to deleting the cipher.
     func test_perform_deletePressed_masterPasswordReprompt() async throws {
-        subject.state = try XCTUnwrap(ViewItemState(cipherView: .fixture(reprompt: .password), hasPremium: false))
+        subject.state = try XCTUnwrap(
+            ViewItemState(
+                cipherView: .fixture(reprompt: .password),
+                hasMasterPassword: true,
+                hasPremium: false
+            )
+        )
         await subject.perform(.deletePressed)
 
         let repromptAlert = try XCTUnwrap(coordinator.alertShown.last)
