@@ -3,7 +3,7 @@ import XCTest
 
 @testable import BitwardenShared
 
-class AutofillHelperTests: BitwardenTestCase {
+class AutofillHelperTests: BitwardenTestCase { // swiftlint:disable:this type_body_length
     // MARK: Properties
 
     var appExtensionDelegate: MockAppExtensionDelegate!
@@ -127,6 +127,18 @@ class AutofillHelperTests: BitwardenTestCase {
         await subject.handleCipherForAutofill(cipherListView: cipher) { _ in }
 
         XCTAssertNil(pasteboardService.copiedString)
+    }
+
+    /// `handleCipherForAutofill(cipherListView:)` logs an error and shows an alert if one occurs.
+    func test_handleCipherForAutofill_error() async {
+        authRepository.hasMasterPasswordResult = .failure(BitwardenTestError.example)
+        vaultRepository.fetchCipherResult = .success(.fixture(reprompt: .password))
+
+        let cipher = CipherListView.fixture(id: "1")
+        await subject.handleCipherForAutofill(cipherListView: cipher) { _ in }
+
+        XCTAssertEqual(errorReporter.errors as? [BitwardenTestError], [.example])
+        XCTAssertEqual(coordinator.alertShown, [.defaultAlert(title: Localizations.anErrorHasOccurred)])
     }
 
     /// `handleCipherForAutofill(cipherListView:)` shows an alert if fetching the cipher results in an error.
@@ -301,6 +313,23 @@ class AutofillHelperTests: BitwardenTestCase {
 
         alert = try XCTUnwrap(coordinator.alertShown.last)
         XCTAssertEqual(alert, .defaultAlert(title: Localizations.invalidMasterPassword))
+    }
+
+    /// `handleCipherForAutofill(cipherListView:)` bypasses the master password reprompt if the
+    /// user doesn't have a master password.
+    func test_handleCipherForAutofill_passwordReprompt_noMasterPassword() async throws {
+        authRepository.hasMasterPasswordResult = .success(false)
+        vaultRepository.fetchCipherResult = .success(.fixture(
+            login: .fixture(password: "PASSWORD", username: "user@bitwarden.com"),
+            name: "Bitwarden Login",
+            reprompt: .password
+        ))
+
+        let cipher = CipherListView.fixture(id: "1")
+        await subject.handleCipherForAutofill(cipherListView: cipher) { _ in }
+
+        XCTAssertEqual(appExtensionDelegate.didCompleteAutofillRequestUsername, "user@bitwarden.com")
+        XCTAssertEqual(appExtensionDelegate.didCompleteAutofillRequestPassword, "PASSWORD")
     }
 
     /// `handleCipherForAutofill(cipherListView:)` logs an error if generating the TOTP fails.
