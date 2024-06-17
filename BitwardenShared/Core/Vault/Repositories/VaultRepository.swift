@@ -392,6 +392,37 @@ class DefaultVaultRepository { // swiftlint:disable:this type_body_length
         return cipher
     }
 
+    /// Downloads, re-encrypts, and re-uploads an attachment without an attachment key so that it
+    /// can be shared to an organization.
+    ///
+    /// - Parameters:
+    ///   - attachment: The attachment that will be shared with the organization.
+    ///   - cipher: The cipher containing the attachment.
+    /// - Returns: The updated attachment with an attachment key that can be moved into the organization.
+    ///
+    private func fixCipherAttachment(
+        _ attachment: AttachmentView,
+        cipher: CipherView
+    ) async throws -> CipherView {
+        guard let downloadUrl = try await downloadAttachment(attachment, cipher: cipher) else {
+            throw BitwardenError.dataError("Unable to download attachment")
+        }
+
+        guard let cipherId = cipher.id else { throw CipherAPIServiceError.updateMissingId }
+        guard let fileName = attachment.fileName else { throw BitwardenError.dataError("Missing filename") }
+
+        let attachmentData = try Data(contentsOf: downloadUrl)
+        var updatedCipher = try await saveAttachment(cipherView: cipher, fileData: attachmentData, fileName: fileName)
+        try FileManager.default.removeItem(at: downloadUrl)
+
+        if let attachmentId = attachment.id,
+           let cipher = try await deleteAttachment(withId: attachmentId, cipherId: cipherId) {
+            updatedCipher = cipher
+        }
+
+        return updatedCipher
+    }
+
     /// Returns a list of `VaultListItem`s for the folders within a nested tree. By default, this
     /// will return the list items for the folders at the root of the tree. Specifying a
     /// `nestedFolderId` will return the list items for the children of the folder with the
@@ -1080,15 +1111,32 @@ extension DefaultVaultRepository: VaultRepository {
         return try await clientService.vault().ciphers().decrypt(cipher: updatedCipher)
     }
 
-    func shareCipher(_ cipher: CipherView, newOrganizationId: String, newCollectionIds: [String]) async throws {
+    func shareCipher(_ cipherView: CipherView, newOrganizationId: String, newCollectionIds: [String]) async throws {
+        // Ensure the cipher has a cipher key.
+        let encryptedCipher = try await encryptAndUpdateCipher(cipherView)
+        var cipherView = try await clientService.vault().ciphers().decrypt(cipher: encryptedCipher)
+
+        if let attachments = cipherView.attachments {
+            for attachment in attachments where attachment.key == nil {
+                // When moving a cipher to an organization, any attachments without an encryption
+                // key need to be re-encrypted with an attachment key.
+                cipherView = try await fixCipherAttachment(
+                    attachment,
+                    cipher: cipherView
+                )
+            }
+        }
+
         let organizationCipher = try await clientService.vault().ciphers()
             .moveToOrganization(
-                cipher: cipher,
+                cipher: cipherView,
                 organizationId: newOrganizationId
             )
             .update(collectionIds: newCollectionIds) // The SDK updates the cipher's organization ID.
-        let encryptedCipher = try await clientService.vault().ciphers().encrypt(cipherView: organizationCipher)
-        try await cipherService.shareCipherWithServer(encryptedCipher)
+
+        let encryptedOrganizationCipher = try await clientService.vault().ciphers()
+            .encrypt(cipherView: organizationCipher)
+        try await cipherService.shareCipherWithServer(encryptedOrganizationCipher)
     }
 
     func shouldShowUnassignedCiphersAlert() async -> Bool {
