@@ -83,17 +83,6 @@ class GeneratorProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
         XCTAssertFalse(subject.state.isPolicyInEffect)
     }
 
-    /// `init` loads the password generation options and logs an error if one occurs.
-    func test_init_loadsPasswordOptions_error() {
-        generatorRepository.getPasswordGenerationOptionsResult = .failure(StateServiceError.noActiveAccount)
-        setUpSubject()
-        waitFor { !errorReporter.errors.isEmpty }
-        XCTAssertEqual(
-            errorReporter.errors[0] as NSError,
-            BitwardenError.generatorOptionsError(error: StateServiceError.noActiveAccount)
-        )
-    }
-
     /// `init` loads the password generation options and updates the state
     /// based on the previously selected options.
     func test_init_loadsPasswordOptions_withValues() {
@@ -282,6 +271,22 @@ class GeneratorProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
         XCTAssertEqual(coordinator.alertShown.last, .defaultAlert(title: Localizations.anErrorHasOccurred))
     }
 
+    /// If an error occurs loading the generator options, an alert is shown and a new value isn't generated.
+    func test_generateValue_loadGeneratorOptionsError() async {
+        generatorRepository.getPasswordGenerationOptionsResult = .failure(StateServiceError.noActiveAccount)
+        setUpSubject()
+
+        await subject.perform(.appeared)
+
+        XCTAssertEqual(coordinator.alertShown, [.defaultAlert(title: Localizations.anErrorHasOccurred)])
+        XCTAssertEqual(
+            errorReporter.errors as? [StateServiceError],
+            [StateServiceError.noActiveAccount]
+        )
+        XCTAssertNil(generatorRepository.passwordGeneratorRequest)
+        XCTAssertEqual(subject.state.generatedValue, "")
+    }
+
     /// `init` loads the username generation options and doesn't change the defaults if the options
     /// are empty.
     func test_init_loadsUsernameOptions_empty() {
@@ -308,17 +313,6 @@ class GeneratorProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
                 capitalize: false,
                 includeNumber: false
             )
-        )
-    }
-
-    /// `init` loads the username generation options and logs an error if one occurs.
-    func test_init_loadsUsernameOptions_error() {
-        generatorRepository.getUsernameGenerationOptionsResult = .failure(StateServiceError.noActiveAccount)
-        setUpSubject()
-        waitFor { !errorReporter.errors.isEmpty }
-        XCTAssertEqual(
-            errorReporter.errors[0] as NSError,
-            BitwardenError.generatorOptionsError(error: StateServiceError.noActiveAccount)
         )
     }
 
