@@ -75,7 +75,7 @@ class MockClientAuth: ClientAuthProtocol {
         )
     )
 
-    func approveAuthRequest(publicKey: String) async throws -> AsymmetricEncString {
+    func approveAuthRequest(publicKey: String) throws -> AsymmetricEncString {
         approveAuthRequestPublicKey = publicKey
         return try approveAuthRequestResult.get()
     }
@@ -89,7 +89,7 @@ class MockClientAuth: ClientAuthProtocol {
         return try hashPasswordResult.get()
     }
 
-    func makeRegisterKeys(email: String, password: String, kdf: Kdf) async throws -> RegisterKeyResponse {
+    func makeRegisterKeys(email: String, password: String, kdf: Kdf) throws -> RegisterKeyResponse {
         makeRegisterKeysEmail = email
         makeRegisterKeysPassword = password
         makeRegisterKeysKdf = kdf
@@ -101,19 +101,19 @@ class MockClientAuth: ClientAuthProtocol {
         email: String,
         orgPublicKey: String,
         rememberDevice: Bool
-    ) async throws -> BitwardenSdk.RegisterTdeKeyResponse {
+    ) throws -> BitwardenSdk.RegisterTdeKeyResponse {
         makeRegisterTdeKeysEmail = email
         makeRegisterTdeKeysOrgPublicKey = orgPublicKey
         makeRegisterTdeKeysRememberDevice = rememberDevice
         return try makeRegisterTdeKeysResult.get()
     }
 
-    func newAuthRequest(email: String) async throws -> AuthRequestResponse {
+    func newAuthRequest(email: String) throws -> AuthRequestResponse {
         newAuthRequestEmail = email
         return try newAuthRequestResult.get()
     }
 
-    func passwordStrength(password: String, email: String, additionalInputs: [String]) async -> UInt8 {
+    func passwordStrength(password: String, email: String, additionalInputs: [String]) -> UInt8 {
         passwordStrengthPassword = password
         passwordStrengthEmail = email
         passwordStrengthAdditionalInputs = additionalInputs
@@ -121,7 +121,7 @@ class MockClientAuth: ClientAuthProtocol {
         return passwordStrengthResult
     }
 
-    func satisfiesPolicy(password: String, strength: UInt8, policy: MasterPasswordPolicyOptions) async -> Bool {
+    func satisfiesPolicy(password: String, strength: UInt8, policy: MasterPasswordPolicyOptions) -> Bool {
         satisfiesPolicyPassword = password
         satisfiesPolicyStrength = strength
         satisfiesPolicyPolicy = policy
@@ -129,17 +129,17 @@ class MockClientAuth: ClientAuthProtocol {
         return satisfiesPolicyResult
     }
 
-    func trustDevice() async throws -> BitwardenSdk.TrustDeviceResponse {
+    func trustDevice() throws -> BitwardenSdk.TrustDeviceResponse {
         try trustDeviceResult.get()
     }
 
-    func validatePassword(password: String, passwordHash: String) async throws -> Bool {
+    func validatePassword(password: String, passwordHash: String) throws -> Bool {
         validatePasswordPassword = password
         validatePasswordPasswordHash = passwordHash
         return validatePasswordResult
     }
 
-    func validatePasswordUserKey(password: String, encryptedUserKey: String) async throws -> String {
+    func validatePasswordUserKey(password: String, encryptedUserKey: String) throws -> String {
         validatePasswordUserKeyPassword = password
         validatePasswordUserKeyEncryptedUserKey = encryptedUserKey
         return try validatePasswordUserKeyResult.get()

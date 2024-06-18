@@ -13,15 +13,15 @@ class MockClientPlatformService: ClientPlatformService {
         fido2Mock
     }
 
-    func fingerprint(request req: BitwardenSdk.FingerprintRequest) async throws -> String {
+    func fingerprint(request req: BitwardenSdk.FingerprintRequest) throws -> String {
         try fingerprintResult.get()
     }
 
-    func loadFlags(_ flags: [String: Bool]) async throws {
+    func loadFlags(_ flags: [String: Bool]) throws {
         featureFlags = flags
     }
 
-    func userFingerprint(material fingerprintMaterial: String) async throws -> String {
+    func userFingerprint(material fingerprintMaterial: String) throws -> String {
         fingerprintMaterialString = fingerprintMaterial
         userFingerprintCalled = true
         return try fingerprintResult.get()
