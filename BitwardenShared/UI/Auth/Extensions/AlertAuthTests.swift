@@ -106,4 +106,62 @@ class AlertAuthTests: BitwardenTestCase {
         XCTAssertEqual(subject.alertActions.count, 1)
         XCTAssertEqual(subject.alertActions[0].title, Localizations.ok)
     }
+
+    /// `enterPINCode(completion:)` constructs an `Alert`
+    /// with the correct title, message, Submit and Cancel buttons when setting it up.
+    func test_enterPINCodeAlert_when_setting_it_up() {
+        let subject = Alert.enterPINCode { _ in }
+
+        XCTAssertEqual(subject.alertActions.count, 2)
+        XCTAssertEqual(subject.preferredStyle, .alert)
+        XCTAssertEqual(subject.title, Localizations.enterPIN)
+        XCTAssertEqual(subject.message, Localizations.setPINDescription)
+    }
+
+    /// `enterPINCode(completion:settingUp:)` constructs an `Alert`
+    /// with the correct title, message, Submit and Cancel buttons when verifying it.
+    func test_enterPINCodeAlert_when_verifying() {
+        let subject = Alert.enterPINCode(settingUp: false, completion: { _ in })
+
+        XCTAssertEqual(subject.alertActions.count, 2)
+        XCTAssertEqual(subject.preferredStyle, .alert)
+        XCTAssertEqual(subject.title, Localizations.enterPIN)
+        XCTAssertEqual(subject.message, Localizations.verifyPIN)
+    }
+
+    /// `enterPINCode(completion:settingUp:)` constructs an `Alert`
+    /// with completion closure expecting pin
+    func test_enterPINCodeAlert_completion_with_pin() async throws {
+        let expectedPin = "myPin"
+        let expectation = expectation(description: #function)
+
+        let subject = Alert.enterPINCode(settingUp: false) { pin in
+            expectation.fulfill()
+
+            XCTAssertEqual(expectedPin, pin)
+        }
+
+        var textField = try XCTUnwrap(subject.alertTextFields.first)
+        textField = AlertTextField(id: "pin", text: expectedPin)
+
+        try await subject.tapAction(title: Localizations.submit, alertTextFields: [textField])
+
+        await fulfillment(of: [expectation], timeout: 3)
+    }
+
+    /// `enterPINCode(completion:settingUp:)` constructs an `Alert`
+    /// with cancel closure and it gets fired when tapping on cancel
+    func test_enterPINCodeAlert_cancel() async throws {
+        let expectation = expectation(description: #function)
+
+        let subject = Alert.enterPINCode(
+            onCancelled: { () in expectation.fulfill() },
+            settingUp: false,
+            completion: { _ in }
+        )
+
+        try await subject.tapAction(title: Localizations.cancel)
+
+        await fulfillment(of: [expectation], timeout: 3)
+    }
 }
