@@ -103,7 +103,7 @@ final class AccountSecurityProcessor: StateProcessor<
     private func appeared() async {
         do {
             if let policy = try await services.policyService.fetchTimeoutPolicyValues() {
-                state.isTimeoutActionPolicyEnabled = policy.action != nil
+                state.policyTimeoutAction = policy.action
 
                 state.policyTimeoutValue = policy.value
                 state.isTimeoutPolicyEnabled = true

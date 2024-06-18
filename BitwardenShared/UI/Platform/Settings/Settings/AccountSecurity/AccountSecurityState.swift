@@ -177,9 +177,6 @@ struct AccountSecurityState: Equatable {
     /// Whether the user has a master password.
     var hasMasterPassword = true
 
-    /// Whether the timeout policy specifies a timeout action.
-    var isTimeoutActionPolicyEnabled = false
-
     /// Whether the timeout policy is in effect.
     var isTimeoutPolicyEnabled = false
 
@@ -197,6 +194,9 @@ struct AccountSecurityState: Equatable {
                 .filter { $0.rawValue <= policyTimeoutValue }
         }
     }
+
+    /// The policy's timeout action, if set.
+    var policyTimeoutAction: SessionTimeoutAction?
 
     /// The action taken when a session timeout occurs.
     var sessionTimeoutAction: SessionTimeoutAction = .lock
@@ -243,6 +243,11 @@ struct AccountSecurityState: Equatable {
         !hasUnlockMethod || isTimeoutActionPolicyEnabled
     }
 
+    /// Whether the timeout policy specifies a timeout action.
+    var isTimeoutActionPolicyEnabled: Bool {
+        policyTimeoutAction != nil
+    }
+
     /// Whether or not the custom session timeout field is shown.
     var isShowingCustomTimeout: Bool {
         guard case .custom = sessionTimeoutValue else { return false }
@@ -252,6 +257,23 @@ struct AccountSecurityState: Equatable {
     /// The policy's timeout value in hours.
     var policyTimeoutHours: Int {
         policyTimeoutValue / 60
+    }
+
+    /// The message to display if a timeout policy is in effect for the user.
+    var policyTimeoutMessage: String? {
+        guard isTimeoutPolicyEnabled else { return nil }
+        return if let policyTimeoutAction {
+            Localizations.vaultTimeoutPolicyWithActionInEffect(
+                policyTimeoutHours,
+                policyTimeoutMinutes,
+                policyTimeoutAction.localizedName
+            )
+        } else {
+            Localizations.vaultTimeoutPolicyInEffect(
+                policyTimeoutHours,
+                policyTimeoutMinutes
+            )
+        }
     }
 
     /// The policy's timeout value in minutes.
