@@ -56,6 +56,9 @@ enum Constants {
     /// The maximum size of files for upload.
     static let maxFileSizeBytes = 104_857_600
 
+    /// The maximum number of unsuccessful attempts the user can make to unlock
+    static let maxUnlockUnsuccessfulAttempts = 5
+
     /// THe minimum number of minutes before attempting a server config sync again.
     static let minimumConfigSyncInterval: TimeInterval = 60 * 60 // 60 minutes
 

@@ -4,6 +4,7 @@ class MockAuthRepository: AuthRepository { // swiftlint:disable:this type_body_l
     var allowBiometricUnlock: Bool?
     var allowBiometricUnlockResult: Result<Void, Error> = .success(())
     var accountForItemResult: Result<Account, Error> = .failure(StateServiceError.noAccounts)
+    var canVerifyMasterPasswordResult: Result<Bool, Error> = .success(true)
     var clearPinsCalled = false
     var createNewSsoUserRememberDevice: Bool = false
     var createNewSsoUserOrgIdentifier: String = ""
@@ -77,6 +78,10 @@ class MockAuthRepository: AuthRepository { // swiftlint:disable:this type_body_l
     func allowBioMetricUnlock(_ enabled: Bool) async throws {
         allowBiometricUnlock = enabled
         try allowBiometricUnlockResult.get()
+    }
+
+    func canVerifyMasterPassword() async throws -> Bool {
+        try canVerifyMasterPasswordResult.get()
     }
 
     func clearPins() async throws {

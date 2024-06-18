@@ -19,6 +19,7 @@ typealias Services = HasAPIService
     & HasExportVaultService
     & HasFileAPIService
     & HasGeneratorRepository
+    & HasLocalAuthService
     & HasNFCReaderService
     & HasNotificationCenterService
     & HasNotificationService
@@ -161,6 +162,13 @@ protocol HasFileAPIService {
 protocol HasGeneratorRepository {
     /// The repository used by the application to manage generator data for the UI layer.
     var generatorRepository: GeneratorRepository { get }
+}
+
+/// Protocol for an object that provides a `LocalAuthService`.
+///
+protocol HasLocalAuthService {
+    /// The service used by the application to evaluate local auth policies.
+    var localAuthService: LocalAuthService { get }
 }
 
 /// Protocol for an object that provides a `NFCReaderService`.
