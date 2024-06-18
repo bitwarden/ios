@@ -95,37 +95,6 @@ extension Alert {
         )
     }
 
-    /// An alert that prompts the user to enter their PIN.
-    ///
-    /// - Parameter completion: The code block that's executed when the user has entered their pin.
-    /// - Returns: An alert that prompts the user to enter their PIN.
-    ///
-    static func enterPINCode(completion: @MainActor @escaping (String) async -> Void) -> Alert {
-        Alert(
-            title: Localizations.enterPIN,
-            message: Localizations.setPINDescription,
-            alertActions: [
-                AlertAction(
-                    title: Localizations.submit,
-                    style: .default,
-                    handler: { _, alertTextFields in
-                        guard let password = alertTextFields.first(where: { $0.id == "pin" })?.text else { return }
-                        await completion(password)
-                    }
-                ),
-                AlertAction(title: Localizations.cancel, style: .cancel),
-            ],
-            alertTextFields: [
-                AlertTextField(
-                    id: "pin",
-                    autocapitalizationType: .none,
-                    autocorrectionType: .no,
-                    keyboardType: .numberPad
-                ),
-            ]
-        )
-    }
-
     /// An alert verifying that the user wants to navigate to the web browser to submit feedback.
     ///
     /// - Parameter action: The action to take if the user selects `Yes`.

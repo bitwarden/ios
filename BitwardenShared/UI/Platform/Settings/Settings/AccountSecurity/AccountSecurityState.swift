@@ -177,21 +177,11 @@ struct AccountSecurityState: Equatable {
     /// Whether the user has a master password.
     var hasMasterPassword = true
 
-    /// Whether the maximum timeout value policy is in effect.
-    var isTimeoutPolicyEnabled: Bool = false
+    /// Whether the timeout policy is in effect.
+    var isTimeoutPolicyEnabled = false
 
     /// Whether the unlock with pin code toggle is on.
     var isUnlockWithPINCodeOn: Bool = false
-
-    /// The maximum vault timeout policy action.
-    ///
-    /// When set, this is the only action option available to users.
-    var policyTimeoutAction: SessionTimeoutAction? = .lock {
-        didSet {
-            availableTimeoutActions = SessionTimeoutAction.allCases
-                .filter { $0 == policyTimeoutAction }
-        }
-    }
 
     /// The policy's maximum vault timeout value.
     ///
@@ -204,6 +194,9 @@ struct AccountSecurityState: Equatable {
                 .filter { $0.rawValue <= policyTimeoutValue }
         }
     }
+
+    /// The policy's timeout action, if set.
+    var policyTimeoutAction: SessionTimeoutAction?
 
     /// The action taken when a session timeout occurs.
     var sessionTimeoutAction: SessionTimeoutAction = .lock
@@ -245,9 +238,14 @@ struct AccountSecurityState: Equatable {
         hasUnlockMethod
     }
 
-    /// Whether the session timeout row/picker should be disabled.
-    var isSessionTimeoutDisabled: Bool {
-        !hasUnlockMethod
+    /// Whether the session timeout action row/picker should be disabled.
+    var isSessionTimeoutActionDisabled: Bool {
+        !hasUnlockMethod || isTimeoutActionPolicyEnabled
+    }
+
+    /// Whether the timeout policy specifies a timeout action.
+    var isTimeoutActionPolicyEnabled: Bool {
+        policyTimeoutAction != nil
     }
 
     /// Whether or not the custom session timeout field is shown.
@@ -259,6 +257,23 @@ struct AccountSecurityState: Equatable {
     /// The policy's timeout value in hours.
     var policyTimeoutHours: Int {
         policyTimeoutValue / 60
+    }
+
+    /// The message to display if a timeout policy is in effect for the user.
+    var policyTimeoutMessage: String? {
+        guard isTimeoutPolicyEnabled else { return nil }
+        return if let policyTimeoutAction {
+            Localizations.vaultTimeoutPolicyWithActionInEffect(
+                policyTimeoutHours,
+                policyTimeoutMinutes,
+                policyTimeoutAction.localizedName
+            )
+        } else {
+            Localizations.vaultTimeoutPolicyInEffect(
+                policyTimeoutHours,
+                policyTimeoutMinutes
+            )
+        }
     }
 
     /// The policy's timeout value in minutes.

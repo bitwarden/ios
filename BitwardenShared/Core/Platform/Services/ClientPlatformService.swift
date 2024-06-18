@@ -11,16 +11,16 @@ protocol ClientPlatformService: AnyObject {
     /// Gets the fingerprint (public key) based on `req`.
     /// - Parameter request: Request with parameters for the fingerprint.
     /// - Returns: Fingerprint pubilc key.
-    func fingerprint(request req: FingerprintRequest) async throws -> String
+    func fingerprint(request req: FingerprintRequest) throws -> String
 
     /// Load feature flags into the client.
     /// - Parameter flags: Flags to load.
-    func loadFlags(_ flags: [String: Bool]) async throws
+    func loadFlags(_ flags: [String: Bool]) throws
 
     /// Fingerprint using logged in user's public key
     /// - Parameter material: Fingerprint material to use
     /// - Returns: User fingerprint
-    func userFingerprint(material fingerprintMaterial: String) async throws -> String
+    func userFingerprint(material fingerprintMaterial: String) throws -> String
 }
 
 // MARK: ClientPlatform
@@ -30,15 +30,15 @@ extension ClientPlatform: ClientPlatformService {
         fido2() as ClientFido2
     }
 
-    func fingerprint(request req: FingerprintRequest) async throws -> String {
-        try await fingerprint(req: req)
+    func fingerprint(request req: FingerprintRequest) throws -> String {
+        try fingerprint(req: req)
     }
 
-    func loadFlags(_ flags: [String: Bool]) async throws {
-        try await loadFlags(flags: flags)
+    func loadFlags(_ flags: [String: Bool]) throws {
+        try loadFlags(flags: flags)
     }
 
-    func userFingerprint(material fingerprintMaterial: String) async throws -> String {
-        try await userFingerprint(fingerprintMaterial: fingerprintMaterial)
+    func userFingerprint(material fingerprintMaterial: String) throws -> String {
+        try userFingerprint(fingerprintMaterial: fingerprintMaterial)
     }
 }

@@ -80,16 +80,6 @@ class AlertSettingsTests: BitwardenTestCase {
         XCTAssertEqual(subject.alertActions.last?.style, .default)
     }
 
-    /// `enterPINCode(completion:)` constructs an `Alert` with the correct title, message, Submit and Cancel buttons.
-    func test_enterPINCodeAlert() {
-        let subject = Alert.enterPINCode { _ in }
-
-        XCTAssertEqual(subject.alertActions.count, 2)
-        XCTAssertEqual(subject.preferredStyle, .alert)
-        XCTAssertEqual(subject.title, Localizations.enterPIN)
-        XCTAssertEqual(subject.message, Localizations.setPINDescription)
-    }
-
     /// `importItemsAlert(vaultUrl:action:)` constructs an `Alert`
     /// with the correct title, message, and Cancel and Continue buttons.
     func test_importItemsAlert() {

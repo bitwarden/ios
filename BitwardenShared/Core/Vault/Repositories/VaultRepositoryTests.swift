@@ -228,6 +228,29 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
         }
     }
 
+    /// `downloadAttachment(_:cipher:)` updates the cipher on the server if the SDK adds a cipher key.
+    func test_downloadAttachment_updatesMigratedCipher() async throws {
+        stateService.activeAccount = .fixture()
+        let downloadUrl = FileManager.default.temporaryDirectory.appendingPathComponent("sillyGoose.txt")
+        try Data("🪿".utf8).write(to: downloadUrl)
+        cipherService.downloadAttachmentResult = .success(downloadUrl)
+        let attachment = AttachmentView.fixture(fileName: "sillyGoose.txt")
+        let cipherView = CipherView.fixture(attachments: [attachment])
+        let cipher = Cipher.fixture(
+            attachments: [Attachment(attachmentView: attachment)],
+            key: "new key"
+        )
+        clientCiphers.encryptCipherResult = .success(cipher)
+
+        let resultUrl = try await subject.downloadAttachment(attachment, cipher: cipherView)
+
+        XCTAssertEqual(clientService.mockVault.clientCiphers.encryptedCiphers.last, cipherView)
+        XCTAssertEqual(cipherService.downloadAttachmentId, attachment.id)
+        XCTAssertEqual(clientService.mockVault.clientAttachments.encryptedFilePaths.last, downloadUrl.path)
+        XCTAssertEqual(cipherService.updateCipherWithServerCiphers, [cipher])
+        XCTAssertEqual(resultUrl?.lastPathComponent, "sillyGoose.txt")
+    }
+
     /// `fetchCipher(withId:)` returns the cipher if it exists and `nil` otherwise.
     func test_fetchCipher() async throws {
         var cipher = try await subject.fetchCipher(withId: "1")
@@ -1014,11 +1037,78 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
         let updatedCipher = cipher.update(collectionIds: ["6", "7"])
 
         XCTAssertEqual(cipherService.shareCipherWithServerCiphers, [Cipher(cipherView: updatedCipher)])
-        XCTAssertEqual(clientCiphers.encryptedCiphers, [updatedCipher])
+        XCTAssertEqual(clientCiphers.encryptedCiphers.last, updatedCipher)
         XCTAssertEqual(clientCiphers.moveToOrganizationCipher, cipher)
         XCTAssertEqual(clientCiphers.moveToOrganizationOrganizationId, "5")
 
         XCTAssertEqual(cipherService.shareCipherWithServerCiphers.last, Cipher(cipherView: updatedCipher))
+    }
+
+    /// `shareCipher()` migrates any attachments without an attachment key.
+    func test_shareCipher_attachmentMigration() async throws {
+        let account = Account.fixtureAccountLogin()
+        stateService.activeAccount = account
+
+        // The original cipher.
+        let cipherViewOriginal = CipherView.fixture(
+            attachments: [
+                .fixture(fileName: "file.txt", id: "1", key: nil),
+                .fixture(fileName: "existing-attachment-key.txt", id: "2", key: "abc"),
+            ],
+            id: "1"
+        )
+
+        // The cipher after saving the new attachment, encrypted with an attachment key.
+        let cipherAfterAttachmentSave = Cipher.fixture(
+            attachments: [
+                .fixture(id: "1", fileName: "file.txt", key: nil),
+                .fixture(id: "2", fileName: "existing-attachment-key.txt", key: "abc"),
+                .fixture(id: "3", fileName: "file.txt", key: "def"),
+            ],
+            id: "1"
+        )
+        cipherService.saveAttachmentWithServerResult = .success(cipherAfterAttachmentSave)
+
+        // The cipher after deleting the old attachment without an attachment key.
+        let cipherAfterAttachmentDelete = Cipher.fixture(
+            attachments: [
+                .fixture(id: "2", fileName: "existing-attachment-key.txt", key: "abc"),
+                .fixture(id: "3", fileName: "file.txt", key: "def"),
+            ],
+            id: "1"
+        )
+        cipherService.deleteAttachmentWithServerResult = .success(cipherAfterAttachmentDelete)
+        clientService.mockVault.clientCiphers.moveToOrganizationResult = .success(
+            CipherView(cipher: cipherAfterAttachmentDelete)
+        )
+
+        // Temporary download file (would normally be created by the network layer).
+        let downloadUrl = FileManager.default.temporaryDirectory.appendingPathComponent("file.txt")
+        try Data("📁".utf8).write(to: downloadUrl)
+        cipherService.downloadAttachmentResult = .success(downloadUrl)
+
+        // Decrypted download file (would normally be created by the SDK when decrypting the attachment).
+        let attachmentsUrl = try FileManager.default.attachmentsUrl(for: account.profile.userId)
+        try FileManager.default.createDirectory(at: attachmentsUrl, withIntermediateDirectories: true)
+        let decryptUrl = attachmentsUrl.appendingPathComponent("file.txt")
+        try Data("🗂️".utf8).write(to: decryptUrl)
+
+        try await subject.shareCipher(cipherViewOriginal, newOrganizationId: "5", newCollectionIds: ["6", "7"])
+
+        let updatedCipherView = CipherView(cipher: cipherAfterAttachmentDelete).update(collectionIds: ["6", "7"])
+
+        // Attachment migration: download attachment, save updated and delete old.
+        XCTAssertEqual(cipherService.downloadAttachmentId, "1")
+        XCTAssertEqual(cipherService.saveAttachmentWithServerCipher, Cipher(cipherView: cipherViewOriginal))
+        XCTAssertEqual(cipherService.deleteAttachmentWithServerAttachmentId, "1")
+        XCTAssertThrowsError(try Data(contentsOf: downloadUrl))
+        XCTAssertThrowsError(try Data(contentsOf: decryptUrl))
+
+        // Share cipher with updated attachments.
+        XCTAssertEqual(cipherService.shareCipherWithServerCiphers, [Cipher(cipherView: updatedCipherView)])
+        XCTAssertEqual(clientCiphers.encryptedCiphers.last, updatedCipherView)
+        XCTAssertEqual(clientCiphers.moveToOrganizationCipher, CipherView(cipher: cipherAfterAttachmentDelete))
+        XCTAssertEqual(clientCiphers.moveToOrganizationOrganizationId, "5")
     }
 
     /// `shouldShowUnassignedCiphersAlert` is true if the feature flag is on,
@@ -1235,6 +1325,19 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
         XCTAssertEqual(cipherService.restoredCipherId, "123")
     }
 
+    /// `restoreCipher(_:cipher:)` updates the cipher on the server if the SDK adds a cipher key.
+    func test_restoreCipher_updatesMigratedCipher() async throws {
+        stateService.activeAccount = .fixture()
+        let cipherView = CipherView.fixture(deletedDate: .now)
+        let cipher = Cipher.fixture(key: "new key")
+        clientCiphers.encryptCipherResult = .success(cipher)
+
+        try await subject.restoreCipher(cipherView)
+
+        XCTAssertEqual(cipherService.restoredCipher, cipher)
+        XCTAssertEqual(cipherService.updateCipherWithServerCiphers, [cipher])
+    }
+
     /// `saveAttachment(cipherView:fileData:fileName:)` saves the attachment to the cipher.
     func test_saveAttachment() async throws {
         cipherService.saveAttachmentWithServerResult = .success(.fixture(id: "42"))
@@ -1250,6 +1353,25 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
         XCTAssertEqual(clientService.mockVault.clientCiphers.encryptedCiphers, [.fixture()])
         XCTAssertEqual(clientService.mockVault.clientAttachments.encryptedBuffers, [Data()])
         XCTAssertEqual(cipherService.saveAttachmentWithServerCipher, Cipher(cipherView: cipherView))
+        XCTAssertEqual(updatedCipher.id, "42")
+    }
+
+    /// `saveAttachment(cipherView:fileData:fileName:)` updates the cipher on the server if the SDK adds a cipher key.
+    func test_saveAttachment_updatesMigratedCipher() async throws {
+        cipherService.saveAttachmentWithServerResult = .success(.fixture(id: "42"))
+        let cipher = Cipher.fixture(key: "new key")
+        clientCiphers.encryptCipherResult = .success(cipher)
+
+        let updatedCipher = try await subject.saveAttachment(
+            cipherView: .fixture(),
+            fileData: Data(),
+            fileName: "Pineapple on pizza"
+        )
+
+        XCTAssertEqual(clientService.mockVault.clientCiphers.encryptedCiphers, [.fixture()])
+        XCTAssertEqual(clientService.mockVault.clientAttachments.encryptedBuffers, [Data()])
+        XCTAssertEqual(cipherService.updateCipherWithServerCiphers, [cipher])
+        XCTAssertEqual(cipherService.saveAttachmentWithServerCipher, cipher)
         XCTAssertEqual(updatedCipher.id, "42")
     }
 
@@ -1273,6 +1395,19 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
         XCTAssertNil(cipherView.deletedDate)
         XCTAssertNotNil(cipherService.softDeleteCipher?.deletedDate)
         XCTAssertEqual(cipherService.softDeleteCipherId, "123")
+    }
+
+    /// `softDeleteCipher(_:cipher:)` updates the cipher on the server if the SDK adds a cipher key.
+    func test_softDeleteCipher_updatesMigratedCipher() async throws {
+        stateService.activeAccount = .fixture()
+        let cipherView = CipherView.fixture(deletedDate: .now)
+        let cipher = Cipher.fixture(key: "new key")
+        clientCiphers.encryptCipherResult = .success(cipher)
+
+        try await subject.softDeleteCipher(cipherView)
+
+        XCTAssertEqual(cipherService.softDeleteCipher, cipher)
+        XCTAssertEqual(cipherService.updateCipherWithServerCiphers, [cipher])
     }
 
     /// `vaultListPublisher(group:filter:)` returns a publisher for the vault list items.

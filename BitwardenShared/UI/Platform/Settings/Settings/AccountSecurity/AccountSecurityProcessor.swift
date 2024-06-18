@@ -103,11 +103,7 @@ final class AccountSecurityProcessor: StateProcessor<
     private func appeared() async {
         do {
             if let policy = try await services.policyService.fetchTimeoutPolicyValues() {
-                // If the policy returns no timeout action, we present the user all timeout actions.
-                // If the policy returns a timeout action, it's the only one we show the user.
-                if policy.action != nil {
-                    state.policyTimeoutAction = policy.action
-                }
+                state.policyTimeoutAction = policy.action
 
                 state.policyTimeoutValue = policy.value
                 state.isTimeoutPolicyEnabled = true
@@ -308,7 +304,7 @@ final class AccountSecurityProcessor: StateProcessor<
     ///
     private func toggleUnlockWithPIN(_ isOn: Bool) {
         if isOn {
-            coordinator.showAlert(.enterPINCode(completion: { pin in
+            coordinator.showAlert(.enterPINCode { pin in
                 do {
                     let userHasMasterPassword = try await self.services.stateService.getUserHasMasterPassword()
                     if userHasMasterPassword {
@@ -322,7 +318,7 @@ final class AccountSecurityProcessor: StateProcessor<
                     self.services.errorReporter.log(error: error)
                     self.coordinator.showAlert(.defaultAlert(title: Localizations.anErrorHasOccurred))
                 }
-            }))
+            })
         } else {
             Task {
                 do {

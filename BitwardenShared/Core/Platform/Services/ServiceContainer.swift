@@ -74,6 +74,9 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
     /// The repository used to manage keychain items.
     let keychainRepository: KeychainRepository
 
+    /// The service used by the application to evaluate local auth policies.
+    let localAuthService: LocalAuthService
+
     /// The serviced used to perform app data migrations.
     let migrationService: MigrationService
 
@@ -156,6 +159,7 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
     ///   - generatorRepository: The repository used by the application to manage generator data for the UI layer.
     ///   - keychainRepository: The repository used to manages keychain items.
     ///   - keychainService: The service used to access & store data on the device keychain.
+    ///   - localAuthService: The service used by the application to evaluate local auth policies.
     ///   - migrationService: The serviced used to perform app data migrations.
     ///   - nfcReaderService: The service used by the application to read NFC tags.
     ///   - notificationCenterService: The service used by the application to access the system's notification center.
@@ -196,6 +200,7 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
         generatorRepository: GeneratorRepository,
         keychainRepository: KeychainRepository,
         keychainService: KeychainService,
+        localAuthService: LocalAuthService,
         migrationService: MigrationService,
         nfcReaderService: NFCReaderService,
         notificationCenterService: NotificationCenterService,
@@ -235,6 +240,7 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
         self.generatorRepository = generatorRepository
         self.keychainService = keychainService
         self.keychainRepository = keychainRepository
+        self.localAuthService = localAuthService
         self.migrationService = migrationService
         self.nfcReaderService = nfcReaderService
         self.notificationCenterService = notificationCenterService
@@ -302,6 +308,8 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
             keychainService: keychainRepository,
             stateService: stateService
         )
+
+        let localAuthService = DefaultLocalAuthService()
 
         let environmentService = DefaultEnvironmentService(stateService: stateService)
         let collectionService = DefaultCollectionService(collectionDataStore: dataStore, stateService: stateService)
@@ -521,6 +529,7 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
             generatorRepository: generatorRepository,
             keychainRepository: keychainRepository,
             keychainService: keychainService,
+            localAuthService: localAuthService,
             migrationService: migrationService,
             nfcReaderService: nfcReaderService ?? NoopNFCReaderService(),
             notificationCenterService: notificationCenterService,

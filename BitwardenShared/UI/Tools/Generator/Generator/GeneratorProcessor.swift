@@ -42,6 +42,9 @@ final class GeneratorProcessor: StateProcessor<GeneratorState, GeneratorAction, 
     /// The task used to generate a new value so it can be cancelled if needed.
     private var generateValueTask: Task<Void, Never>?
 
+    /// The task used to load the generator options.
+    private var loadGeneratorOptionsTask: Task<Void, Error>?
+
     /// The services used by this processor.
     private var services: Services
 
@@ -63,8 +66,8 @@ final class GeneratorProcessor: StateProcessor<GeneratorState, GeneratorAction, 
         self.services = services
         super.init(state: state)
 
-        Task {
-            await loadGeneratorOptions()
+        loadGeneratorOptionsTask = Task {
+            try await loadGeneratorOptions()
         }
     }
 
@@ -234,39 +237,43 @@ final class GeneratorProcessor: StateProcessor<GeneratorState, GeneratorAction, 
     ///     ignored if not generating a password.
     ///
     func generateValue(shouldSavePassword: Bool) async {
-        switch state.generatorType {
-        case .password:
-            let passwordState = await validatePasswordOptionsAndApplyPolicies()
-            switch state.passwordState.passwordGeneratorType {
-            case .passphrase:
-                await generatePassphrase(settings: passwordState.passphraseGeneratorRequest)
+        do {
+            // Wait for the generator options to finish loading before generating a value.
+            try await loadGeneratorOptionsTask?.value
+
+            switch state.generatorType {
             case .password:
-                await generatePassword(
-                    settings: passwordState.passwordGeneratorRequest,
-                    shouldSavePassword: shouldSavePassword
-                )
+                let passwordState = await validatePasswordOptionsAndApplyPolicies()
+                switch state.passwordState.passwordGeneratorType {
+                case .passphrase:
+                    await generatePassphrase(settings: passwordState.passphraseGeneratorRequest)
+                case .password:
+                    await generatePassword(
+                        settings: passwordState.passwordGeneratorRequest,
+                        shouldSavePassword: shouldSavePassword
+                    )
+                }
+            case .username:
+                await generateUsername()
             }
-        case .username:
-            await generateUsername()
+        } catch {
+            services.errorReporter.log(error: error)
+            coordinator.showAlert(.defaultAlert(title: Localizations.anErrorHasOccurred))
         }
     }
 
     /// Fetches the user's saved generator options and updates the state with the previous selections.
     ///
-    func loadGeneratorOptions() async {
-        do {
-            var passwordOptions = try await services.generatorRepository.getPasswordGenerationOptions()
-            state.isPolicyInEffect = try await services.policyService.applyPasswordGenerationPolicy(
-                options: &passwordOptions
-            )
-            state.passwordState.update(with: passwordOptions, shouldUpdateGeneratorType: true)
+    func loadGeneratorOptions() async throws {
+        var passwordOptions = try await services.generatorRepository.getPasswordGenerationOptions()
+        state.isPolicyInEffect = try await services.policyService.applyPasswordGenerationPolicy(
+            options: &passwordOptions
+        )
+        state.passwordState.update(with: passwordOptions, shouldUpdateGeneratorType: true)
 
-            let usernameOptions = try await services.generatorRepository.getUsernameGenerationOptions()
-            state.usernameState.update(with: usernameOptions)
-            didLoadGeneratorOptions = true
-        } catch {
-            services.errorReporter.log(error: BitwardenError.generatorOptionsError(error: error))
-        }
+        let usernameOptions = try await services.generatorRepository.getUsernameGenerationOptions()
+        state.usernameState.update(with: usernameOptions)
+        didLoadGeneratorOptions = true
     }
 
     /// Saves the existing generated value to the user's password history.

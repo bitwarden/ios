@@ -606,7 +606,10 @@ class SyncServiceTests: BitwardenTestCase {
     func test_deleteFolder() async throws {
         stateService.activeAccount = .fixture()
         folderService.deleteFolderWithLocalStorageResult = .success(())
-        cipherService.fetchAllCiphersResult = .success([.fixture(folderId: "id")])
+        cipherService.fetchAllCiphersResult = .success([
+            .fixture(folderId: "id", id: "1"),
+            .fixture(folderId: "other", id: "2"),
+        ])
         cipherService.updateCipherWithLocalStorageResult = .success(())
 
         let notification = SyncFolderNotification(
@@ -616,7 +619,10 @@ class SyncServiceTests: BitwardenTestCase {
         )
         try await subject.deleteFolder(data: notification)
         XCTAssertEqual(folderService.deleteFolderWithLocalStorageId, "id")
-        XCTAssertEqual(cipherService.updateCipherWithLocalStorageCipher, .fixture(folderId: nil))
+        XCTAssertEqual(
+            cipherService.updateCipherWithLocalStorageCiphers,
+            [.fixture(folderId: nil, id: "1")]
+        )
     }
 
     func test_deleteSend() async throws {

@@ -375,6 +375,54 @@ class DefaultVaultRepository { // swiftlint:disable:this type_body_length
 
     // MARK: Private
 
+    /// Encrypts the cipher. If the cipher was migrated by the SDK (e.g. added a cipher key), the
+    /// cipher will be updated locally and on the server.
+    ///
+    /// - Parameter cipherView: The cipher to encrypt.
+    /// - Returns: The encrypted cipher.
+    ///
+    private func encryptAndUpdateCipher(_ cipherView: CipherView) async throws -> Cipher {
+        let cipher = try await clientService.vault().ciphers().encrypt(cipherView: cipherView)
+
+        let didAddCipherKey = cipherView.key == nil && cipher.key != nil
+        if didAddCipherKey {
+            try await cipherService.updateCipherWithServer(cipher)
+        }
+
+        return cipher
+    }
+
+    /// Downloads, re-encrypts, and re-uploads an attachment without an attachment key so that it
+    /// can be shared to an organization.
+    ///
+    /// - Parameters:
+    ///   - attachment: The attachment that will be shared with the organization.
+    ///   - cipher: The cipher containing the attachment.
+    /// - Returns: The updated attachment with an attachment key that can be moved into the organization.
+    ///
+    private func fixCipherAttachment(
+        _ attachment: AttachmentView,
+        cipher: CipherView
+    ) async throws -> CipherView {
+        guard let downloadUrl = try await downloadAttachment(attachment, cipher: cipher) else {
+            throw BitwardenError.dataError("Unable to download attachment")
+        }
+
+        guard let cipherId = cipher.id else { throw CipherAPIServiceError.updateMissingId }
+        guard let fileName = attachment.fileName else { throw BitwardenError.dataError("Missing filename") }
+
+        let attachmentData = try Data(contentsOf: downloadUrl)
+        var updatedCipher = try await saveAttachment(cipherView: cipher, fileData: attachmentData, fileName: fileName)
+        try FileManager.default.removeItem(at: downloadUrl)
+
+        if let attachmentId = attachment.id,
+           let cipher = try await deleteAttachment(withId: attachmentId, cipherId: cipherId) {
+            updatedCipher = cipher
+        }
+
+        return updatedCipher
+    }
+
     /// Returns a list of `VaultListItem`s for the folders within a nested tree. By default, this
     /// will return the list items for the folders at the root of the tree. Specifying a
     /// `nestedFolderId` will return the list items for the children of the folder with the
@@ -952,7 +1000,7 @@ extension DefaultVaultRepository: VaultRepository {
         else { throw BitwardenError.dataError("Missing data") }
 
         // Get the encrypted cipher and attachment, then download the actual data of the attachment.
-        let encryptedCipher = try await clientService.vault().ciphers().encrypt(cipherView: cipher)
+        let encryptedCipher = try await encryptAndUpdateCipher(cipher)
         guard let attachment = encryptedCipher.attachments?.first(where: { $0.id == attachmentId }),
               let downloadedUrl = try await cipherService.downloadAttachment(withId: attachmentId, cipherId: cipherId)
         else { return nil }
@@ -1003,7 +1051,7 @@ extension DefaultVaultRepository: VaultRepository {
             guard case let .totp(name, model) = item.itemType,
                   let key = model.loginView.totp,
                   let vault = try? await clientService.vault(),
-                  let code = try? await vault.generateTOTPCode(for: key, date: timeProvider.presentTime)
+                  let code = try? vault.generateTOTPCode(for: key, date: timeProvider.presentTime)
             else {
                 errorReporter.log(error: TOTPServiceError
                     .unableToGenerateCode("Unable to refresh TOTP code for list view item: \(item.id)"))
@@ -1032,7 +1080,7 @@ extension DefaultVaultRepository: VaultRepository {
     func restoreCipher(_ cipher: BitwardenSdk.CipherView) async throws {
         guard let id = cipher.id else { throw CipherAPIServiceError.updateMissingId }
         let restoredCipher = cipher.update(deletedDate: nil)
-        let encryptCipher = try await clientService.vault().ciphers().encrypt(cipherView: restoredCipher)
+        let encryptCipher = try await encryptAndUpdateCipher(restoredCipher)
         try await cipherService.restoreCipherWithServer(id: id, encryptCipher)
     }
 
@@ -1048,7 +1096,7 @@ extension DefaultVaultRepository: VaultRepository {
         )
 
         // Encrypt the attachment.
-        let cipher = try await clientService.vault().ciphers().encrypt(cipherView: cipherView)
+        let cipher = try await encryptAndUpdateCipher(cipherView)
         let attachment = try await clientService.vault().attachments().encryptBuffer(
             cipher: cipher,
             attachment: attachmentView,
@@ -1063,15 +1111,32 @@ extension DefaultVaultRepository: VaultRepository {
         return try await clientService.vault().ciphers().decrypt(cipher: updatedCipher)
     }
 
-    func shareCipher(_ cipher: CipherView, newOrganizationId: String, newCollectionIds: [String]) async throws {
+    func shareCipher(_ cipherView: CipherView, newOrganizationId: String, newCollectionIds: [String]) async throws {
+        // Ensure the cipher has a cipher key.
+        let encryptedCipher = try await encryptAndUpdateCipher(cipherView)
+        var cipherView = try await clientService.vault().ciphers().decrypt(cipher: encryptedCipher)
+
+        if let attachments = cipherView.attachments {
+            for attachment in attachments where attachment.key == nil {
+                // When moving a cipher to an organization, any attachments without an encryption
+                // key need to be re-encrypted with an attachment key.
+                cipherView = try await fixCipherAttachment(
+                    attachment,
+                    cipher: cipherView
+                )
+            }
+        }
+
         let organizationCipher = try await clientService.vault().ciphers()
             .moveToOrganization(
-                cipher: cipher,
+                cipher: cipherView,
                 organizationId: newOrganizationId
             )
             .update(collectionIds: newCollectionIds) // The SDK updates the cipher's organization ID.
-        let encryptedCipher = try await clientService.vault().ciphers().encrypt(cipherView: organizationCipher)
-        try await cipherService.shareCipherWithServer(encryptedCipher)
+
+        let encryptedOrganizationCipher = try await clientService.vault().ciphers()
+            .encrypt(cipherView: organizationCipher)
+        try await cipherService.shareCipherWithServer(encryptedOrganizationCipher)
     }
 
     func shouldShowUnassignedCiphersAlert() async -> Bool {
@@ -1091,8 +1156,8 @@ extension DefaultVaultRepository: VaultRepository {
     func softDeleteCipher(_ cipher: CipherView) async throws {
         guard let id = cipher.id else { throw CipherAPIServiceError.updateMissingId }
         let softDeletedCipher = cipher.update(deletedDate: timeProvider.presentTime)
-        let encryptCipher = try await clientService.vault().ciphers().encrypt(cipherView: softDeletedCipher)
-        try await cipherService.softDeleteCipherWithServer(id: id, encryptCipher)
+        let encryptedCipher = try await encryptAndUpdateCipher(softDeletedCipher)
+        try await cipherService.softDeleteCipherWithServer(id: id, encryptedCipher)
     }
 
     func updateCipher(_ cipherView: CipherView) async throws {
@@ -1101,7 +1166,7 @@ extension DefaultVaultRepository: VaultRepository {
     }
 
     func updateCipherCollections(_ cipherView: CipherView) async throws {
-        let cipher = try await clientService.vault().ciphers().encrypt(cipherView: cipherView)
+        let cipher = try await encryptAndUpdateCipher(cipherView)
         try await cipherService.updateCipherCollectionsWithServer(cipher)
     }
 

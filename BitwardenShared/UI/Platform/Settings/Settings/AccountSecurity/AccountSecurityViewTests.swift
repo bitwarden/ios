@@ -208,7 +208,30 @@ class AccountSecurityViewTests: BitwardenTestCase {
                 )
             )
         )
-        assertSnapshot(of: subject, as: .defaultPortrait)
+        assertSnapshots(
+            of: subject,
+            as: [.defaultPortrait, .defaultPortraitDark, .tallPortraitAX5()]
+        )
+    }
+
+    /// The view renders correctly when the timeout policy with an action is enabled.
+    func test_snapshot_timeoutPolicyWithAction() {
+        let subject = AccountSecurityView(
+            store: Store(
+                processor: StateProcessor(
+                    state: AccountSecurityState(
+                        isTimeoutPolicyEnabled: true,
+                        policyTimeoutAction: .logout,
+                        sessionTimeoutAction: .logout,
+                        sessionTimeoutValue: .custom(1)
+                    )
+                )
+            )
+        )
+        assertSnapshots(
+            of: subject,
+            as: [.defaultPortrait, .defaultPortraitDark, .tallPortraitAX5()]
+        )
     }
 
     /// The view renders correctly.
