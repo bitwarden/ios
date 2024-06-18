@@ -69,7 +69,7 @@ class DefaultEventService: EventService {
     // MARK: Methods
 
     func collect(eventType: EventType, cipherId: String?, uploadImmediately: Bool) async throws {
-        guard await stateService.isAuthenticated() else { return }
+        guard let userId = try? await stateService.getActiveAccountId() else { return }
 
         let organizations = try await organizationService.fetchAllOrganizations().filter(\.useEvents)
 
@@ -91,6 +91,6 @@ class DefaultEventService: EventService {
             date: timeProvider.presentTime
         )
 
-        try await stateService.setEvents([newEvent], userId: "1")
+        try await stateService.setEvents([newEvent], userId: userId)
     }
 }
