@@ -17,7 +17,7 @@ class MockAuthRepository: AuthRepository { // swiftlint:disable:this type_body_l
     var activeAccount: Account?
     var altAccounts = [Account]()
     var getAccountError: Error?
-    var hasMasterPassword: Bool = true
+    var hasMasterPasswordResult = Result<Bool, Error>.success(true)
     var isLockedResult: Result<Bool, Error> = .success(true)
     var isPinUnlockAvailableResult: Result<Bool, Error> = .success(false)
     var lockVaultUserId: String?
@@ -137,7 +137,7 @@ class MockAuthRepository: AuthRepository { // swiftlint:disable:this type_body_l
     }
 
     func hasMasterPassword() async throws -> Bool {
-        hasMasterPassword
+        try hasMasterPasswordResult.get()
     }
 
     func isLocked(userId: String?) async throws -> Bool {

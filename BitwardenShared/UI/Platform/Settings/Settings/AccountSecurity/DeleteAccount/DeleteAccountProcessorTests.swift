@@ -127,7 +127,7 @@ class DeleteAccountProcessorTests: BitwardenTestCase {
     /// Perform with `.deleteAccount` presents the OTP code verification alert for users without a
     /// master password. Pressing submit on the alert deletes the user's account.
     func test_perform_deleteAccount_submitPressed_noMasterPassword() async throws {
-        authRepository.hasMasterPassword = false
+        authRepository.hasMasterPasswordResult = .success(false)
         stateService.activeAccount = Account.fixtureWithTdeNoPassword()
 
         await subject.perform(.deleteAccount)
@@ -155,7 +155,7 @@ class DeleteAccountProcessorTests: BitwardenTestCase {
     /// Perform with `.deleteAccount` presents the OTP code verification alert for users without a
     /// master password. If an error occurs it's logged and an alert is shown.
     func test_perform_deleteAccount_submitPressed_noMasterPassword_error() async throws {
-        authRepository.hasMasterPassword = false
+        authRepository.hasMasterPasswordResult = .success(false)
         authRepository.requestOtpResult = .failure(BitwardenTestError.example)
         stateService.activeAccount = Account.fixtureWithTdeNoPassword()
 
@@ -176,7 +176,7 @@ class DeleteAccountProcessorTests: BitwardenTestCase {
                 )
             )
         )
-        authRepository.hasMasterPassword = false
+        authRepository.hasMasterPasswordResult = .success(false)
 
         await subject.perform(.deleteAccount)
 

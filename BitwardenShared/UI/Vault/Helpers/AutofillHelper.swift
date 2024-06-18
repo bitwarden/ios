@@ -50,15 +50,20 @@ class AutofillHelper {
     ///   - showToast: A closure that when called will display a toast to the user.
     ///
     func handleCipherForAutofill(cipherView: CipherView, showToast: @escaping (String) -> Void) async {
-        if cipherView.reprompt == .password {
-            presentMasterPasswordRepromptAlert {
-                await self.handleCipherForAutofillAfterRepromptIfRequired(
-                    cipherView: cipherView,
-                    showToast: showToast
-                )
+        do {
+            if cipherView.reprompt == .password, try await services.authRepository.hasMasterPassword() {
+                presentMasterPasswordRepromptAlert {
+                    await self.handleCipherForAutofillAfterRepromptIfRequired(
+                        cipherView: cipherView,
+                        showToast: showToast
+                    )
+                }
+            } else {
+                await handleCipherForAutofillAfterRepromptIfRequired(cipherView: cipherView, showToast: showToast)
             }
-        } else {
-            await handleCipherForAutofillAfterRepromptIfRequired(cipherView: cipherView, showToast: showToast)
+        } catch {
+            services.errorReporter.log(error: error)
+            coordinator.showAlert(.defaultAlert(title: Localizations.anErrorHasOccurred))
         }
     }
 
