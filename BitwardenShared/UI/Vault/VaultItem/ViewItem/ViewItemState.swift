@@ -21,6 +21,9 @@ struct ViewItemState: Equatable {
     /// appropriate internal state.
     var loadingState: LoadingState<CipherItemState> = .loading(nil)
 
+    /// Whether the user has a master password.
+    var hasMasterPassword = true
+
     /// A flag indicating if the user has premium features.
     var hasPremiumFeatures = false
 
@@ -32,7 +35,7 @@ struct ViewItemState: Equatable {
         guard !hasVerifiedMasterPassword else { return false }
         return switch loadingState {
         case let .data(state):
-            state.isMasterPasswordRePromptOn
+            state.isMasterPasswordRePromptOn && hasMasterPassword
         case .loading:
             false
         }
@@ -52,11 +55,17 @@ extension ViewItemState {
     ///
     /// - Parameters:
     ///   - cipherView: The `CipherView` to create this state with.
+    ///   - hasMasterPassword: Whether the account has a master password.
     ///   - hasPremium: Does the account have premium features.
     ///
-    init?(cipherView: CipherView, hasPremium: Bool) {
+    init?(
+        cipherView: CipherView,
+        hasMasterPassword: Bool,
+        hasPremium: Bool
+    ) {
         guard let cipherItemState = CipherItemState(
             existing: cipherView,
+            hasMasterPassword: hasMasterPassword,
             hasPremium: hasPremium
         ) else { return nil }
         self.init(loadingState: .data(cipherItemState))

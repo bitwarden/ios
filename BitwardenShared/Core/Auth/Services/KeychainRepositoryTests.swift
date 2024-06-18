@@ -51,7 +51,7 @@ final class KeychainRepositoryTests: BitwardenTestCase { // swiftlint:disable:th
     ///
     func test_appSecAttrAccessGroup() {
         XCTAssertEqual(
-            Bundle.main.groupIdentifier,
+            Bundle.main.keychainAccessGroup,
             subject.appSecAttrAccessGroup
         )
     }

@@ -35,6 +35,9 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
     /// The service used by the application to handle authentication tasks.
     let authService: AuthService
 
+    /// The service which manages the ciphers exposed to the system for AutoFill suggestions.
+    let autofillCredentialService: AutofillCredentialService
+
     /// The repository to manage biometric unlock policies and access controls the user.
     let biometricsRepository: BiometricsRepository
 
@@ -49,6 +52,9 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
 
     /// The service used by the application to handle encryption and decryption tasks.
     let clientService: ClientService
+
+    /// The service to get server-specified configuration
+    let configService: ConfigService
 
     /// The service used by the application to manage the environment settings.
     let environmentService: EnvironmentService
@@ -136,12 +142,15 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
     ///   - appSettingsStore: The service used by the application to persist app setting values.
     ///   - authRepository: The repository used by the application to manage auth data for the UI layer.
     ///   - authService: The service used by the application to handle authentication tasks.
-    ///   - biometricsRepository: The repository to manage bioemtric unlock policies
-    ///         and access controls for the user.
+    ///   - autofillCredentialService: The service which manages the ciphers exposed to the system
+    ///     for AutoFill suggestions.
+    ///   - biometricsRepository: The repository to manage biometric unlock policies and access
+    ///     controls for the user.
     ///   - biometricsService: The service used to obtain device biometrics status & data.
     ///   - captchaService: The service used by the application to create captcha related artifacts.
     ///   - cameraService: The service used by the application to manage camera use.
     ///   - clientService: The service used by the application to handle encryption and decryption tasks.
+    ///   - configService: The service to get server-specified configuration.
     ///   - environmentService: The service used by the application to manage the environment settings.
     ///   - errorReporter: The service used by the application to report non-fatal errors.
     ///   - generatorRepository: The repository used by the application to manage generator data for the UI layer.
@@ -174,11 +183,13 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
         appSettingsStore: AppSettingsStore,
         authRepository: AuthRepository,
         authService: AuthService,
+        autofillCredentialService: AutofillCredentialService,
         biometricsRepository: BiometricsRepository,
         biometricsService: BiometricsService,
         captchaService: CaptchaService,
         cameraService: CameraService,
         clientService: ClientService,
+        configService: ConfigService,
         environmentService: EnvironmentService,
         errorReporter: ErrorReporter,
         exportVaultService: ExportVaultService,
@@ -211,11 +222,13 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
         self.appSettingsStore = appSettingsStore
         self.authRepository = authRepository
         self.authService = authService
+        self.autofillCredentialService = autofillCredentialService
         self.biometricsRepository = biometricsRepository
         self.biometricsService = biometricsService
         self.captchaService = captchaService
         self.cameraService = cameraService
         self.clientService = clientService
+        self.configService = configService
         self.environmentService = environmentService
         self.errorReporter = errorReporter
         self.exportVaultService = exportVaultService
@@ -270,7 +283,11 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
         )
         let timeProvider = CurrentTime()
 
-        let stateService = DefaultStateService(appSettingsStore: appSettingsStore, dataStore: dataStore)
+        let stateService = DefaultStateService(
+            appSettingsStore: appSettingsStore,
+            dataStore: dataStore,
+            keychainRepository: keychainRepository
+        )
 
         let clientBuilder = DefaultClientBuilder(errorReporter: errorReporter)
         let clientService = DefaultClientService(
@@ -293,6 +310,13 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
         let apiService = APIService(environmentService: environmentService, tokenService: tokenService)
         let captchaService = DefaultCaptchaService(environmentService: environmentService, stateService: stateService)
         let notificationCenterService = DefaultNotificationCenterService()
+
+        let configService = DefaultConfigService(
+            configApiService: apiService,
+            errorReporter: errorReporter,
+            stateService: stateService,
+            timeProvider: timeProvider
+        )
 
         let folderService = DefaultFolderService(
             folderAPIService: apiService,
@@ -395,11 +419,21 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
             trustDeviceService: trustDeviceService
         )
 
+        let autofillCredentialService = DefaultAutofillCredentialService(
+            cipherService: cipherService,
+            clientService: clientService,
+            errorReporter: errorReporter,
+            pasteboardService: pasteboardService,
+            stateService: stateService,
+            vaultTimeoutService: vaultTimeoutService
+        )
+
         let authRepository = DefaultAuthRepository(
             accountAPIService: apiService,
             authService: authService,
             biometricsRepository: biometricsRepository,
             clientService: clientService,
+            configService: configService,
             environmentService: environmentService,
             keychainService: keychainRepository,
             organizationAPIService: apiService,
@@ -413,7 +447,8 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
         let migrationService = DefaultMigrationService(
             appSettingsStore: appSettingsStore,
             errorReporter: errorReporter,
-            keychainRepository: keychainRepository
+            keychainRepository: keychainRepository,
+            keychainService: keychainService
         )
 
         let notificationService = DefaultNotificationService(
@@ -451,10 +486,10 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
         )
 
         let vaultRepository = DefaultVaultRepository(
-            cipherAPIService: apiService,
             cipherService: cipherService,
             clientService: clientService,
             collectionService: collectionService,
+            configService: configService,
             environmentService: environmentService,
             errorReporter: errorReporter,
             folderService: folderService,
@@ -473,11 +508,13 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
             appSettingsStore: appSettingsStore,
             authRepository: authRepository,
             authService: authService,
+            autofillCredentialService: autofillCredentialService,
             biometricsRepository: biometricsRepository,
             biometricsService: biometricsService,
             captchaService: captchaService,
             cameraService: DefaultCameraService(),
             clientService: clientService,
+            configService: configService,
             environmentService: environmentService,
             errorReporter: errorReporter,
             exportVaultService: exportVaultService,
@@ -513,6 +550,10 @@ extension ServiceContainer {
     }
 
     var authAPIService: AuthAPIService {
+        apiService
+    }
+
+    var configAPIService: ConfigAPIService {
         apiService
     }
 

@@ -31,6 +31,11 @@ final class VaultListProcessor: StateProcessor<
     /// The services used by this processor.
     private let services: Services
 
+    /// `true` if we're currently showing notification permissions.
+    /// This is used to prevent both the notification permissions and unused ciphers alert
+    /// from appearing at the same time.
+    private var isShowingNotificationPermissions = false
+
     // MARK: Initialization
 
     /// Creates a new `VaultListProcessor`.
@@ -59,6 +64,9 @@ final class VaultListProcessor: StateProcessor<
             await requestNotificationPermissions()
             await checkPendingLoginRequests()
             await checkPersonalOwnershipPolicy()
+            if !isShowingNotificationPermissions {
+                await checkUnassignedCiphers()
+            }
         case let .morePressed(item):
             await showMoreOptionsAlert(for: item)
         case let .profileSwitcher(profileEffect):
@@ -156,6 +164,24 @@ extension VaultListProcessor {
         state.isPersonalOwnershipDisabled = isPersonalOwnershipDisabled
     }
 
+    /// Checks if we need to display the unassigned ciphers alert, and displays if necessary.
+    ///
+    private func checkUnassignedCiphers() async {
+        guard state.shouldCheckUnassignedCiphers else { return }
+        state.shouldCheckUnassignedCiphers = false
+
+        guard await services.vaultRepository.shouldShowUnassignedCiphersAlert()
+        else { return }
+
+        showAlert(.unassignedCiphers {
+            do {
+                try await self.services.stateService.setShouldCheckOrganizationUnassignedItems(false, userId: nil)
+            } catch {
+                self.services.errorReporter.log(error: error)
+            }
+        })
+    }
+
     /// Generates and copies a TOTP code for the cipher's TOTP key.
     ///
     /// - Parameter totpKey: The TOTP key used to generate a TOTP code.
@@ -200,6 +226,8 @@ extension VaultListProcessor {
         let notificationAuthorization = await services.notificationService.notificationAuthorization()
         guard notificationAuthorization == .notDetermined else { return }
 
+        isShowingNotificationPermissions = true
+
         // Show the explanation alert before asking for permissions.
         coordinator.showAlert(
             .pushNotificationsInformation { [services] in
@@ -208,6 +236,11 @@ extension VaultListProcessor {
                         .requestAuthorization(options: [.alert, .sound, .badge])
                 } catch {
                     self.services.errorReporter.log(error: error)
+                }
+            }, onDismissed: {
+                Task {
+                    self.isShowingNotificationPermissions = false
+                    await self.checkUnassignedCiphers()
                 }
             }
         )
@@ -285,18 +318,24 @@ extension VaultListProcessor {
     /// - Parameter item: The selected item to show the options for.
     ///
     private func showMoreOptionsAlert(for item: VaultListItem) async {
-        // Only ciphers have more options.
-        guard case let .cipher(cipherView) = item.itemType else { return }
+        do {
+            // Only ciphers have more options.
+            guard case let .cipher(cipherView) = item.itemType else { return }
 
-        let hasPremium = await (try? services.vaultRepository.doesActiveAccountHavePremium()) ?? false
+            let hasPremium = await (try? services.vaultRepository.doesActiveAccountHavePremium()) ?? false
+            let hasMasterPassword = try await services.stateService.getUserHasMasterPassword()
 
-        coordinator.showAlert(.moreOptions(
-            cipherView: cipherView,
-            hasPremium: hasPremium,
-            id: item.id,
-            showEdit: true,
-            action: handleMoreOptionsAction
-        ))
+            coordinator.showAlert(.moreOptions(
+                cipherView: cipherView,
+                hasMasterPassword: hasMasterPassword,
+                hasPremium: hasPremium,
+                id: item.id,
+                showEdit: true,
+                action: handleMoreOptionsAction
+            ))
+        } catch {
+            services.errorReporter.log(error: error)
+        }
     }
 
     /// Handle the result of the selected option on the More Options alert..
@@ -323,8 +362,8 @@ extension VaultListProcessor {
             } else {
                 await generateAndCopyTotpCode(totpKey: totpKey)
             }
-        case let .edit(cipherView):
-            if cipherView.reprompt == .password {
+        case let .edit(cipherView, requiresMasterPasswordReprompt):
+            if requiresMasterPasswordReprompt {
                 presentMasterPasswordRepromptAlert {
                     self.coordinator.navigate(to: .editItem(cipherView), context: self)
                 }
@@ -390,7 +429,7 @@ enum MoreOptionsAction: Equatable {
     case copyTotp(totpKey: TOTPKeyModel, requiresMasterPasswordReprompt: Bool)
 
     /// Navigate to the view to edit the `cipherView`.
-    case edit(cipherView: CipherView)
+    case edit(cipherView: CipherView, requiresMasterPasswordReprompt: Bool)
 
     /// Launch the `url` in the device's browser.
     case launch(url: URL)

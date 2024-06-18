@@ -17,7 +17,8 @@ class MockClient: BitwardenSdkClient {
     var clientCrypto = MockClientCrypto()
     var clientExporters = MockClientExporters()
     var clientGenerators = MockClientGenerators()
-    var clientPlatform = MockClientPlatform()
+    var clientPlatform = MockClientPlatformService()
+    var clientSends = MockClientSends()
     var clientVault = MockClientVaultService()
 
     func auth() -> any ClientAuthProtocol {
@@ -40,8 +41,12 @@ class MockClient: BitwardenSdkClient {
         clientGenerators
     }
 
-    func platform() -> any ClientPlatformProtocol {
+    func platform() -> any ClientPlatformService {
         clientPlatform
+    }
+
+    func sends() -> any ClientSendsProtocol {
+        clientSends
     }
 
     func vault() -> any ClientVaultService {

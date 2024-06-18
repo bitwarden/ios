@@ -8,6 +8,7 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
 
     var appSettingsStore: MockAppSettingsStore!
     var dataStore: DataStore!
+    var keychainRepository: MockKeychainRepository!
     var subject: DefaultStateService!
 
     // MARK: Setup & Teardown
@@ -17,8 +18,13 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
 
         appSettingsStore = MockAppSettingsStore()
         dataStore = DataStore(errorReporter: MockErrorReporter(), storeType: .memory)
+        keychainRepository = MockKeychainRepository()
 
-        subject = DefaultStateService(appSettingsStore: appSettingsStore, dataStore: dataStore)
+        subject = DefaultStateService(
+            appSettingsStore: appSettingsStore,
+            dataStore: dataStore,
+            keychainRepository: keychainRepository
+        )
     }
 
     override func tearDown() {
@@ -26,6 +32,7 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
 
         appSettingsStore = nil
         dataStore = nil
+        keychainRepository = nil
         subject = nil
     }
 
@@ -99,10 +106,10 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
 
         try await subject.clearPins()
         let pinProtectedUserKey = try await subject.pinProtectedUserKey()
-        let pinKeyEncryptedUserKey = try await subject.pinKeyEncryptedUserKey()
+        let encryptedPin = try await subject.getEncryptedPin()
 
         XCTAssertNil(pinProtectedUserKey)
-        XCTAssertNil(pinKeyEncryptedUserKey)
+        XCTAssertNil(encryptedPin)
     }
 
     /// `deleteAccount()` deletes the active user's account, removing it from the state.
@@ -116,6 +123,83 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
         let state = try XCTUnwrap(appSettingsStore.state)
         XCTAssertTrue(state.accounts.isEmpty)
         XCTAssertNil(state.activeUserId)
+    }
+
+    /// `doesActiveAccountHavePremium()` with premium personally and no organizations returns true.
+    func test_doesActiveAccountHavePremium_personalTrue_noOrganization() async throws {
+        await subject.addAccount(.fixture(profile: .fixture(hasPremiumPersonally: true)))
+        let hasPremium = try await subject.doesActiveAccountHavePremium()
+        XCTAssertTrue(hasPremium)
+    }
+
+    /// `doesActiveAccountHavePremium()` with no premium personally and no organizations returns
+    /// false.
+    func test_doesActiveAccountHavePremium_personalFalse_noOrganization() async throws {
+        await subject.addAccount(.fixture(profile: .fixture(hasPremiumPersonally: false)))
+        let hasPremium = try await subject.doesActiveAccountHavePremium()
+        XCTAssertFalse(hasPremium)
+    }
+
+    /// `doesActiveAccountHavePremium()` with nil premium personally and no organizations returns
+    /// false.
+    func test_doesActiveAccountHavePremium_personalNil_noOrganization() async throws {
+        await subject.addAccount(.fixture(profile: .fixture(hasPremiumPersonally: nil)))
+        let hasPremium = try await subject.doesActiveAccountHavePremium()
+        XCTAssertFalse(hasPremium)
+    }
+
+    /// `doesActiveAccountHavePremium()` with premium personally and an organization without premium
+    /// returns true.
+    func test_doesActiveAccountHavePremium_personalTrue_organizationFalse() async throws {
+        await subject.addAccount(.fixture(profile: .fixture(hasPremiumPersonally: true)))
+        try await dataStore.replaceOrganizations([.fixture(usersGetPremium: false)], userId: "1")
+        let hasPremium = try await subject.doesActiveAccountHavePremium()
+        XCTAssertTrue(hasPremium)
+    }
+
+    /// `doesActiveAccountHavePremium()` with no premium personally and an organization with premium
+    /// returns true.
+    func test_doesActiveAccountHavePremium_personalFalse_organizationTrue() async throws {
+        await subject.addAccount(.fixture(profile: .fixture(hasPremiumPersonally: false)))
+        try await dataStore.replaceOrganizations([.fixture(usersGetPremium: true)], userId: "1")
+        let hasPremium = try await subject.doesActiveAccountHavePremium()
+        XCTAssertTrue(hasPremium)
+    }
+
+    /// `doesActiveAccountHavePremium()` with premium personally and an organization with premium
+    /// returns true.
+    func test_doesActiveAccountHavePremium_personalTrue_organizationTrue() async throws {
+        await subject.addAccount(.fixture(profile: .fixture(hasPremiumPersonally: true)))
+        try await dataStore.replaceOrganizations([.fixture(usersGetPremium: true)], userId: "1")
+        let hasPremium = try await subject.doesActiveAccountHavePremium()
+        XCTAssertTrue(hasPremium)
+    }
+
+    /// `doesActiveAccountHavePremium()` with premium personally and an organization with premium
+    /// but disabled returns true.
+    func test_doesActiveAccountHavePremium_personalTrue_organizationTrueDisabled() async throws {
+        await subject.addAccount(.fixture(profile: .fixture(hasPremiumPersonally: true)))
+        try await dataStore.replaceOrganizations([.fixture(enabled: false, usersGetPremium: true)], userId: "1")
+        let hasPremium = try await subject.doesActiveAccountHavePremium()
+        XCTAssertTrue(hasPremium)
+    }
+
+    /// `doesActiveAccountHavePremium()` with no premium personally and an organization with premium
+    /// but disabled returns false.
+    func test_doesActiveAccountHavePremium_personalFalse_organizationTrueDisabled() async throws {
+        await subject.addAccount(.fixture(profile: .fixture(hasPremiumPersonally: false)))
+        try await dataStore.replaceOrganizations([.fixture(enabled: false, usersGetPremium: true)], userId: "1")
+        let hasPremium = try await subject.doesActiveAccountHavePremium()
+        XCTAssertFalse(hasPremium)
+    }
+
+    /// `doesActiveAccountHavePremium()` with no premium personally and an organization with premium
+    /// for a different user returns false.
+    func test_doesActiveAccountHavePremium_personalFalse_organizationTrueForOtherUser() async throws {
+        await subject.addAccount(.fixture(profile: .fixture(hasPremiumPersonally: false)))
+        try await dataStore.replaceOrganizations([.fixture(enabled: true, usersGetPremium: true)], userId: "2")
+        let hasPremium = try await subject.doesActiveAccountHavePremium()
+        XCTAssertFalse(hasPremium)
     }
 
     /// `getAccountEncryptionKeys(_:)` returns the encryption keys for the user account.
@@ -380,6 +464,24 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
         XCTAssertTrue(value)
     }
 
+    /// `getEncryptedPin()` returns the user's pin encrypted by their user key.
+    func test_getEncryptedPin() async throws {
+        let account = Account.fixture()
+        await subject.addAccount(account)
+
+        try await subject.setPinKeys(
+            encryptedPin: "123",
+            pinProtectedUserKey: "321",
+            requirePasswordAfterRestart: true
+        )
+
+        let encryptedPin = try await subject.getEncryptedPin()
+        let pinProtectedUserKey = await subject.accountVolatileData["1"]?.pinProtectedUserKey
+
+        XCTAssertEqual(encryptedPin, "123")
+        XCTAssertEqual(pinProtectedUserKey, "321")
+    }
+
     /// `getEnvironmentUrls()` returns the environment URLs for the active account.
     func test_getEnvironmentUrls() async throws {
         let urls = EnvironmentUrlData(base: .example)
@@ -513,6 +615,40 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
         XCTAssertNil(urls)
     }
 
+    /// `getServerConfig(:)` returns the config values
+    func test_getServerConfig() async throws {
+        await subject.addAccount(.fixture())
+        let model = ServerConfig(
+            date: Date(timeIntervalSince1970: 100),
+            responseModel: ConfigResponseModel(
+                environment: nil,
+                featureStates: [:],
+                gitHash: "1234",
+                server: nil,
+                version: "1.2.3"
+            )
+        )
+        appSettingsStore.serverConfig["1"] = model
+        let value = try await subject.getServerConfig()
+        XCTAssertEqual(value, model)
+    }
+
+    /// `getShouldCheckOrganizationUnassignedItems` returns the config value
+    func test_getShouldCheckOrganizationUnassignedItems() async throws {
+        appSettingsStore.shouldCheckOrganizationUnassignedItems["1"] = false
+        var shouldCheck = try await subject.getShouldCheckOrganizationUnassignedItems(userId: "1")
+        XCTAssertFalse(shouldCheck)
+        appSettingsStore.shouldCheckOrganizationUnassignedItems["1"] = true
+        shouldCheck = try await subject.getShouldCheckOrganizationUnassignedItems(userId: "1")
+        XCTAssertTrue(shouldCheck)
+    }
+
+    /// `getShouldCheckOrganizationUnassignedItems` returns true if it hasn't been set
+    func test_getShouldCheckOrganizationUnassignedItems_notSet() async throws {
+        let shouldCheck = try await subject.getShouldCheckOrganizationUnassignedItems(userId: "1")
+        XCTAssertTrue(shouldCheck)
+    }
+
     /// `getShowWebIcons` gets the show web icons value.
     func test_getShowWebIcons() async {
         appSettingsStore.disableWebIcons = true
@@ -625,6 +761,27 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
         try await subject.setVaultTimeout(value: .custom(20), userId: "1")
         let vaultTimeout = try await subject.getVaultTimeout(userId: "1")
         XCTAssertEqual(vaultTimeout, .custom(20))
+    }
+
+    /// `.getVaultTimeout(userId:)` gets the default vault timeout for the user if a value isn't set.
+    func test_getVaultTimeout_default() async throws {
+        appSettingsStore.vaultTimeout["1"] = nil
+
+        await subject.addAccount(.fixture(profile: .fixture(userId: "1")))
+
+        let vaultTimeout = try await subject.getVaultTimeout()
+        XCTAssertEqual(vaultTimeout, .fifteenMinutes)
+    }
+
+    /// `.getVaultTimeout(userId:)` gets the user's vault timeout when it's set to never lock.
+    func test_getVaultTimeout_neverLock() async throws {
+        appSettingsStore.vaultTimeout["1"] = nil
+        keychainRepository.mockStorage[keychainRepository.formattedKey(for: .neverLock(userId: "1"))] = "NEVER_LOCK_KEY"
+
+        await subject.addAccount(.fixture(profile: .fixture(userId: "1")))
+
+        let vaultTimeout = try await subject.getVaultTimeout()
+        XCTAssertEqual(vaultTimeout, .never)
     }
 
     /// `lastSyncTimePublisher()` returns a publisher for the user's last sync time.
@@ -883,24 +1040,6 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
         // Additional user keys are removed.
         XCTAssertEqual(appSettingsStore.encryptedPrivateKeys, ["2": "2:PRIVATE_KEY"])
         XCTAssertEqual(appSettingsStore.encryptedUserKeys, ["2": "2:USER_KEY"])
-    }
-
-    /// `pinKeyEncryptedUserKey()` returns the pin key encrypted user key.
-    func test_pinKeyEncryptedUserKey() async throws {
-        let account = Account.fixture()
-        await subject.addAccount(account)
-
-        try await subject.setPinKeys(
-            pinKeyEncryptedUserKey: "123",
-            pinProtectedUserKey: "321",
-            requirePasswordAfterRestart: true
-        )
-
-        let pinKeyEncryptedUserKey = try await subject.pinKeyEncryptedUserKey()
-        let pinProtectedUserKey = await subject.accountVolatileData["1"]?.pinProtectedUserKey
-
-        XCTAssertEqual(pinKeyEncryptedUserKey, "123")
-        XCTAssertEqual(pinProtectedUserKey, "321")
     }
 
     /// `pinProtectedUserKey(userId:)` returns the pin protected user key.
@@ -1184,12 +1323,12 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
         await subject.addAccount(.fixture(profile: .fixture(userId: "1")))
 
         try await subject.setPinKeys(
-            pinKeyEncryptedUserKey: "123",
-            pinProtectedUserKey: "123",
+            encryptedPin: "encryptedPin",
+            pinProtectedUserKey: "pinProtectedUserKey",
             requirePasswordAfterRestart: false
         )
-        XCTAssertEqual(appSettingsStore.pinProtectedUserKey["1"], "123")
-        XCTAssertEqual(appSettingsStore.pinKeyEncryptedUserKey["1"], "123")
+        XCTAssertEqual(appSettingsStore.pinProtectedUserKey["1"], "pinProtectedUserKey")
+        XCTAssertEqual(appSettingsStore.encryptedPinByUserId["1"], "encryptedPin")
     }
 
     /// `setPreAuthEnvironmentUrls` saves the pre-auth URLs.
@@ -1197,6 +1336,29 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
         let urls = EnvironmentUrlData(base: .example)
         await subject.setPreAuthEnvironmentUrls(urls)
         XCTAssertEqual(appSettingsStore.preAuthEnvironmentUrls, urls)
+    }
+
+    /// `setServerConfig(_:)` sets the config values.
+    func test_setServerConfig() async throws {
+        await subject.addAccount(.fixture())
+        let model = ServerConfig(
+            date: Date(timeIntervalSince1970: 100),
+            responseModel: ConfigResponseModel(
+                environment: nil,
+                featureStates: [:],
+                gitHash: "1234",
+                server: nil,
+                version: "1.2.3.4"
+            )
+        )
+        try await subject.setServerConfig(model)
+        XCTAssertEqual(appSettingsStore.serverConfig["1"], model)
+    }
+
+    /// `setShouldCheckOrganizationUnassignedItems` saves the should check value.
+    func test_setShouldCheckOrganizationUnassignedItems() async throws {
+        try await subject.setShouldCheckOrganizationUnassignedItems(true, userId: "1")
+        XCTAssertEqual(appSettingsStore.shouldCheckOrganizationUnassignedItems["1"], true)
     }
 
     /// `setShouldTrustDevice` saves the should trust device value.

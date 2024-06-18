@@ -302,8 +302,8 @@ struct VaultListView: View {
             .task(id: store.state.searchVaultFilterType) {
                 await store.perform(.search(store.state.searchText))
             }
-            .refreshable {
-                await store.perform(.refreshVault)
+            .refreshable { [weak store] in
+                await store?.perform(.refreshVault)
             }
             profileSwitcher
         }

@@ -26,10 +26,10 @@ struct ViewCardItemView: View {
         if !store.state.cardholderName.isEmpty {
             BitwardenTextValueField(
                 title: Localizations.cardholderName,
-                value: store.state.cardholderName
+                value: store.state.cardholderName,
+                valueAccessibilityIdentifier: "CardholderNameEntry"
             )
             .accessibilityElement(children: .contain)
-            .accessibilityIdentifier("ItemRow")
         }
     }
 
@@ -41,8 +41,12 @@ struct ViewCardItemView: View {
                 PasswordText(password: number, isPasswordVisible: isVisible)
                     .styleGuide(.body)
                     .foregroundColor(Asset.Colors.textPrimary.swiftUIColor)
+                    .accessibilityIdentifier("CardNumberEntry")
             } accessoryContent: {
-                PasswordVisibilityButton(isPasswordVisible: isVisible) {
+                PasswordVisibilityButton(
+                    accessibilityIdentifier: "ShowCardNumberButton",
+                    isPasswordVisible: isVisible
+                ) {
                     store.send(
                         .cardItemAction(
                             .toggleNumberVisibilityChanged(!isVisible)
@@ -57,10 +61,9 @@ struct ViewCardItemView: View {
                         .imageStyle(.accessoryIcon)
                 }
                 .accessibilityLabel(Localizations.copy)
-                .accessibilityIdentifier("CopyValueButton")
+                .accessibilityIdentifier("CardCopyNumberButton")
             }
             .accessibilityElement(children: .contain)
-            .accessibilityIdentifier("ItemRow")
         }
     }
 
@@ -90,10 +93,10 @@ struct ViewCardItemView: View {
         if !expirationString.isEmpty {
             BitwardenTextValueField(
                 title: Localizations.expiration,
-                value: expirationString
+                value: expirationString,
+                valueAccessibilityIdentifier: "CardExpirationYearEntry"
             )
             .accessibilityElement(children: .contain)
-            .accessibilityIdentifier("ItemRow")
         }
     }
 
@@ -105,8 +108,12 @@ struct ViewCardItemView: View {
                 PasswordText(password: code, isPasswordVisible: isVisible)
                     .styleGuide(.body)
                     .foregroundColor(Asset.Colors.textPrimary.swiftUIColor)
+                    .accessibilityIdentifier("CardSecurityCodeEntry")
             } accessoryContent: {
-                PasswordVisibilityButton(isPasswordVisible: isVisible) {
+                PasswordVisibilityButton(
+                    accessibilityIdentifier: "CardShowSecurityCodeButton",
+                    isPasswordVisible: isVisible
+                ) {
                     store.send(
                         .cardItemAction(
                             .toggleCodeVisibilityChanged(!isVisible)
@@ -121,10 +128,9 @@ struct ViewCardItemView: View {
                         .imageStyle(.accessoryIcon)
                 }
                 .accessibilityLabel(Localizations.copy)
-                .accessibilityIdentifier("CopyValueButton")
+                .accessibilityIdentifier("CardCopySecurityNumberButton")
             }
             .accessibilityElement(children: .contain)
-            .accessibilityIdentifier("ItemRow")
         }
     }
 }

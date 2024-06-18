@@ -12,57 +12,84 @@ struct ViewIdentityItemView: View {
 
     var body: some View {
         if !store.state.identityName.isEmpty {
-            BitwardenTextValueField(title: Localizations.identityName, value: store.state.identityName)
-                .accessibilityElement(children: .contain)
-                .accessibilityIdentifier("ItemRow")
+            BitwardenTextValueField(
+                title: Localizations.identityName,
+                value: store.state.identityName,
+                valueAccessibilityIdentifier: "ItemNameEntry"
+            )
+            .accessibilityElement(children: .contain)
         }
 
         if !store.state.userName.isEmpty {
-            BitwardenTextValueField(title: Localizations.username, value: store.state.userName)
-                .accessibilityElement(children: .contain)
-                .accessibilityIdentifier("ItemRow")
+            BitwardenTextValueField(
+                title: Localizations.username,
+                value: store.state.userName,
+                valueAccessibilityIdentifier: "IdentityUsernameEntry"
+            )
+            .accessibilityElement(children: .contain)
         }
 
         if !store.state.company.isEmpty {
-            BitwardenTextValueField(title: Localizations.company, value: store.state.company)
-                .accessibilityElement(children: .contain)
-                .accessibilityIdentifier("ItemRow")
+            BitwardenTextValueField(
+                title: Localizations.company,
+                value: store.state.company,
+                valueAccessibilityIdentifier: "IdentityCompanyEntry"
+            )
+            .accessibilityElement(children: .contain)
         }
 
         if !store.state.socialSecurityNumber.isEmpty {
-            BitwardenTextValueField(title: Localizations.ssn, value: store.state.socialSecurityNumber)
-                .accessibilityElement(children: .contain)
-                .accessibilityIdentifier("ItemRow")
+            BitwardenTextValueField(
+                title: Localizations.ssn,
+                value: store.state.socialSecurityNumber,
+                valueAccessibilityIdentifier: "IdentitySsnEntry"
+            )
+            .accessibilityElement(children: .contain)
         }
 
         if !store.state.passportNumber.isEmpty {
-            BitwardenTextValueField(title: Localizations.passportNumber, value: store.state.passportNumber)
-                .accessibilityElement(children: .contain)
-                .accessibilityIdentifier("ItemRow")
+            BitwardenTextValueField(
+                title: Localizations.passportNumber,
+                value: store.state.passportNumber,
+                valueAccessibilityIdentifier: "IdentityPassportNumberEntry"
+            )
+            .accessibilityElement(children: .contain)
         }
 
         if !store.state.licenseNumber.isEmpty {
-            BitwardenTextValueField(title: Localizations.licenseNumber, value: store.state.licenseNumber)
-                .accessibilityElement(children: .contain)
-                .accessibilityIdentifier("ItemRow")
+            BitwardenTextValueField(
+                title: Localizations.licenseNumber,
+                value: store.state.licenseNumber,
+                valueAccessibilityIdentifier: "IdentityLicenseNumberEntry"
+            )
+            .accessibilityElement(children: .contain)
         }
 
         if !store.state.email.isEmpty {
-            BitwardenTextValueField(title: Localizations.email, value: store.state.email)
-                .accessibilityElement(children: .contain)
-                .accessibilityIdentifier("ItemRow")
+            BitwardenTextValueField(
+                title: Localizations.email,
+                value: store.state.email,
+                valueAccessibilityIdentifier: "IdentityEmailEntry"
+            )
+            .accessibilityElement(children: .contain)
         }
 
         if !store.state.phone.isEmpty {
-            BitwardenTextValueField(title: Localizations.phone, value: store.state.phone)
-                .accessibilityElement(children: .contain)
-                .accessibilityIdentifier("ItemRow")
+            BitwardenTextValueField(
+                title: Localizations.phone,
+                value: store.state.phone,
+                valueAccessibilityIdentifier: "IdentityPhoneEntry"
+            )
+            .accessibilityElement(children: .contain)
         }
 
         if !store.state.fullAddress.isEmpty {
-            BitwardenTextValueField(title: Localizations.address, value: store.state.fullAddress)
-                .accessibilityElement(children: .contain)
-                .accessibilityIdentifier("ItemRow")
+            BitwardenTextValueField(
+                title: Localizations.address,
+                value: store.state.fullAddress,
+                valueAccessibilityIdentifier: "IdentityAddressOneEntry"
+            )
+            .accessibilityElement(children: .contain)
         }
     }
 }

@@ -80,6 +80,18 @@ struct SliderFieldView<State>: View {
             .tint(Asset.Colors.primaryBitwarden.swiftUIColor)
             .accessibilityLabel(field.title)
             .accessibilityIdentifier(field.sliderAccessibilityId ?? field.title)
+            .apply { view in
+                if #available(iOS 17, *) {
+                    view.onKeyPress(.leftArrow) {
+                        onValueChanged(max(field.value - field.step, field.range.lowerBound))
+                        return .handled
+                    }
+                    .onKeyPress(.rightArrow) {
+                        onValueChanged(min(field.value + field.step, field.range.upperBound))
+                        return .handled
+                    }
+                }
+            }
         }
         .padding(.horizontal, 16)
         .padding(.vertical, 8)

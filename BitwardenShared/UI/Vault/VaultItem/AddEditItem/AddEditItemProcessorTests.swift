@@ -551,14 +551,14 @@ class AddEditItemProcessorTests: BitwardenTestCase {
 
     /// `perform(_:)` with `.appeared` checks if user has masterpassword.
     func test_perform_appeared_checkUserHasMasterPassword_true() async {
-        authRepository.hasMasterPassword = true
+        authRepository.hasMasterPasswordResult = .success(true)
         await subject.perform(.appeared)
         XCTAssertTrue(subject.state.showMasterPasswordReprompt)
     }
 
     /// `perform(_:)` with `.appeared` checks if user has masterpassword.
     func test_perform_appeared_checkUserHasMasterPassword_false() async {
-        authRepository.hasMasterPassword = false
+        authRepository.hasMasterPasswordResult = .success(false)
         await subject.perform(.appeared)
         XCTAssertFalse(subject.state.showMasterPasswordReprompt)
     }
@@ -1068,6 +1068,14 @@ class AddEditItemProcessorTests: BitwardenTestCase {
         await subject.perform(.setupTotpPressed)
 
         XCTAssertEqual(coordinator.routes.last, .setupTotpManual)
+    }
+
+    /// `receive(_:)` with `authKeyVisibilityTapped` updates the value in the state.
+    func test_receive_authKeyVisibilityTapped() {
+        subject.state.loginState.isAuthKeyVisible = false
+        subject.receive(.authKeyVisibilityTapped(true))
+
+        XCTAssertTrue(subject.state.loginState.isAuthKeyVisible)
     }
 
     /// `receive(_:)` with `.clearTOTPKey` clears the authenticator key.

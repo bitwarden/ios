@@ -4,6 +4,8 @@
 <dict>
 	<key>BitwardenAppIdentifier</key>
 	<string>$(BASE_BUNDLE_ID)</string>
+    <key>BitwardenKeychainAccessGroup</key>
+    <string>$(AppIdentifierPrefix)$(BASE_BUNDLE_ID)</string>
 	<key>CFBundleDisplayName</key>
 	<string>Bitwarden Share</string>
 	<key>CFBundleName</key>

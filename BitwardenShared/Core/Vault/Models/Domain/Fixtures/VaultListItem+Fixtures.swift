@@ -44,6 +44,7 @@ extension VaultListTOTP {
         loginView: BitwardenSdk.LoginView = .fixture(
             totp: .base32Key
         ),
+        requiresMasterPassword: Bool = false,
         timeProvider: TimeProvider,
         totpCode: String = "123456",
         totpPeriod: UInt32 = 30
@@ -51,6 +52,7 @@ extension VaultListTOTP {
         VaultListTOTP(
             id: id,
             loginView: loginView,
+            requiresMasterPassword: requiresMasterPassword,
             totpCode: .init(
                 code: totpCode,
                 codeGenerationDate: timeProvider.presentTime,
@@ -64,6 +66,7 @@ extension VaultListTOTP {
         loginView: BitwardenSdk.LoginView = .fixture(
             totp: .base32Key
         ),
+        requiresMasterPassword: Bool = false,
         totpCode: TOTPCodeModel = .init(
             code: "123456",
             codeGenerationDate: Date(),
@@ -73,6 +76,7 @@ extension VaultListTOTP {
         VaultListTOTP(
             id: id,
             loginView: loginView,
+            requiresMasterPassword: requiresMasterPassword,
             totpCode: totpCode
         )
     }

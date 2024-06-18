@@ -10,6 +10,7 @@ class MockVaultTimeoutService: VaultTimeoutService {
     var timeProvider = MockTimeProvider(.currentTime)
     var sessionTimeoutValueError: Error?
     var vaultTimeout = [String: SessionTimeoutValue]()
+    var vaultLockStatusSubject = CurrentValueSubject<VaultLockStatus?, Never>(nil)
 
     /// IDs removed.
     var removedIds = [String?]()
@@ -52,5 +53,9 @@ class MockVaultTimeoutService: VaultTimeoutService {
             throw sessionTimeoutValueError
         }
         return vaultTimeout[userId ?? account.profile.userId] ?? .fifteenMinutes
+    }
+
+    func vaultLockStatusPublisher() async -> AnyPublisher<VaultLockStatus?, Never> {
+        vaultLockStatusSubject.eraseToAnyPublisher()
     }
 }

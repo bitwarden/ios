@@ -70,16 +70,17 @@ protocol VaultTimeoutService: AnyObject {
     ///     Defaults to the active user if nil.
     ///
     func sessionTimeoutValue(userId: String?) async throws -> SessionTimeoutValue
+
+    /// A publisher containing the active user ID and whether their vault is locked.
+    ///
+    /// - Returns: A publisher for the active user ID whether their vault is locked.
+    ///
+    func vaultLockStatusPublisher() async -> AnyPublisher<VaultLockStatus?, Never>
 }
 
 // MARK: - DefaultVaultTimeoutService
 
 class DefaultVaultTimeoutService: VaultTimeoutService {
-    // MARK: Publishers
-
-    /// A subject containing the active account id.
-    var activeAccountIdSubject = CurrentValueSubject<String?, Never>(nil)
-
     // MARK: Private properties
 
     /// The service that handles common client functionality such as encryption and decryption.
@@ -91,8 +92,8 @@ class DefaultVaultTimeoutService: VaultTimeoutService {
     /// Provides the current time.
     private var timeProvider: TimeProvider
 
-    /// Whether or not a user's client is locked.
-    private var isClientLocked = [String: Bool]()
+    /// A subject containing the user's vault locked status mapped to their user ID.
+    private var vaultLockStatusSubject = CurrentValueSubject<[String: Bool], Never>([:])
 
     // MARK: Initialization
 
@@ -133,20 +134,20 @@ class DefaultVaultTimeoutService: VaultTimeoutService {
     }
 
     func isLocked(userId: String) -> Bool {
-        guard let isLocked = isClientLocked[userId] else { return true }
+        guard let isLocked = vaultLockStatusSubject.value[userId] else { return true }
         return isLocked
     }
 
     func lockVault(userId: String?) async {
         guard let id = try? await stateService.getAccountIdOrActiveId(userId: userId) else { return }
         try? await clientService.removeClient(for: id)
-        isClientLocked[id] = true
+        vaultLockStatusSubject.value[id] = true
     }
 
     func remove(userId: String?) async {
         guard let id = try? await stateService.getAccountIdOrActiveId(userId: userId) else { return }
         try? await clientService.removeClient(for: id)
-        isClientLocked.removeValue(forKey: id)
+        vaultLockStatusSubject.value.removeValue(forKey: id)
     }
 
     func setLastActiveTime(userId: String) async throws {
@@ -159,10 +160,24 @@ class DefaultVaultTimeoutService: VaultTimeoutService {
 
     func unlockVault(userId: String?) async throws {
         guard let id = try? await stateService.getAccountIdOrActiveId(userId: userId) else { return }
-        isClientLocked[id] = false
+        vaultLockStatusSubject.value[id] = false
     }
 
     func sessionTimeoutValue(userId: String?) async throws -> SessionTimeoutValue {
         try await stateService.getVaultTimeout(userId: userId)
+    }
+
+    func vaultLockStatusPublisher() async -> AnyPublisher<VaultLockStatus?, Never> {
+        await stateService.activeAccountIdPublisher()
+            .combineLatest(vaultLockStatusSubject)
+            .map { activeAccountId, lockStatusByAccount in
+                guard let activeAccountId else { return nil }
+                return VaultLockStatus(
+                    isVaultLocked: lockStatusByAccount[activeAccountId] ?? true,
+                    userId: activeAccountId
+                )
+            }
+            .removeDuplicates()
+            .eraseToAnyPublisher()
     }
 }

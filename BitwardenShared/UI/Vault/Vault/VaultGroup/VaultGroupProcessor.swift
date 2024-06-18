@@ -6,7 +6,11 @@ import Foundation
 // MARK: - VaultGroupProcessor
 
 /// A `Processor` that can process `VaultGroupAction`s and `VaultGroupEffect`s.
-final class VaultGroupProcessor: StateProcessor<VaultGroupState, VaultGroupAction, VaultGroupEffect> {
+final class VaultGroupProcessor: StateProcessor<// swiftlint:disable:this type_body_length
+    VaultGroupState,
+    VaultGroupAction,
+    VaultGroupEffect
+> {
     // MARK: Types
 
     typealias Services = HasAuthRepository
@@ -231,18 +235,24 @@ final class VaultGroupProcessor: StateProcessor<VaultGroupState, VaultGroupActio
     /// - Parameter item: The selected item to show the options for.
     ///
     private func showMoreOptionsAlert(for item: VaultListItem) async {
-        // Only ciphers have more options.
-        guard case let .cipher(cipherView) = item.itemType else { return }
+        do {
+            // Only ciphers have more options.
+            guard case let .cipher(cipherView) = item.itemType else { return }
 
-        let hasPremium = await (try? services.vaultRepository.doesActiveAccountHavePremium()) ?? false
+            let hasPremium = await (try? services.vaultRepository.doesActiveAccountHavePremium()) ?? false
+            let hasMasterPassword = try await services.stateService.getUserHasMasterPassword()
 
-        coordinator.showAlert(.moreOptions(
-            cipherView: cipherView,
-            hasPremium: hasPremium,
-            id: item.id,
-            showEdit: state.group != .trash,
-            action: handleMoreOptionsAction
-        ))
+            coordinator.showAlert(.moreOptions(
+                cipherView: cipherView,
+                hasMasterPassword: hasMasterPassword,
+                hasPremium: hasPremium,
+                id: item.id,
+                showEdit: state.group != .trash,
+                action: handleMoreOptionsAction
+            ))
+        } catch {
+            services.errorReporter.log(error: error)
+        }
     }
 
     /// Streams the user's organizations.
@@ -295,8 +305,8 @@ final class VaultGroupProcessor: StateProcessor<VaultGroupState, VaultGroupActio
             } else {
                 await generateAndCopyTotpCode(totpKey: totpKey)
             }
-        case let .edit(cipherView):
-            if cipherView.reprompt == .password {
+        case let .edit(cipherView, requiresMasterPasswordReprompt):
+            if requiresMasterPasswordReprompt {
                 presentMasterPasswordRepromptAlert {
                     self.coordinator.navigate(to: .editItem(cipherView), context: self)
                 }

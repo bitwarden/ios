@@ -24,6 +24,9 @@ protocol EnvironmentService {
     /// The URL for the recovery code help page.
     var recoveryCodeURL: URL { get }
 
+    /// The region of the current environment.
+    var region: RegionType { get }
+
     /// The URL for sharing a send.
     var sendShareURL: URL { get }
 
@@ -77,7 +80,15 @@ class DefaultEnvironmentService: EnvironmentService {
     // MARK: EnvironmentService
 
     func loadURLsForActiveAccount() async {
-        let urls: EnvironmentUrlData = await (try? stateService.getEnvironmentUrls()) ?? .defaultUS
+        let urls: EnvironmentUrlData
+        if let environmentUrls = try? await stateService.getEnvironmentUrls() {
+            urls = environmentUrls
+        } else if let preAuthUrls = await stateService.getPreAuthEnvironmentUrls() {
+            urls = preAuthUrls
+        } else {
+            urls = .defaultUS
+        }
+        await setPreAuthURLs(urls: urls)
         environmentUrls = EnvironmentUrls(environmentUrlData: urls)
 
         // swiftformat:disable:next redundantSelf
@@ -116,6 +127,16 @@ extension DefaultEnvironmentService {
 
     var recoveryCodeURL: URL {
         environmentUrls.recoveryCodeURL
+    }
+
+    var region: RegionType {
+        if environmentUrls.baseURL == EnvironmentUrlData.defaultUS.base {
+            return .unitedStates
+        } else if environmentUrls.baseURL == EnvironmentUrlData.defaultEU.base {
+            return .europe
+        } else {
+            return .selfHosted
+        }
     }
 
     var sendShareURL: URL {
