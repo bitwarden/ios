@@ -33,7 +33,7 @@ extension MockClientExporters: ClientExportersProtocol {
         collections: [BitwardenSdk.Collection],
         ciphers: [BitwardenSdk.Cipher],
         format: BitwardenSdk.ExportFormat
-    ) async throws -> String {
+    ) throws -> String {
         self.collections = collections
         self.ciphers = ciphers
         self.format = format
@@ -44,7 +44,7 @@ extension MockClientExporters: ClientExportersProtocol {
         folders: [BitwardenSdk.Folder],
         ciphers: [BitwardenSdk.Cipher],
         format: BitwardenSdk.ExportFormat
-    ) async throws -> String {
+    ) throws -> String {
         self.folders = folders
         self.ciphers = ciphers
         self.format = format

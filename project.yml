@@ -1,6 +1,7 @@
 name: Bitwarden
 fileGroups:
   - Configs
+  - Docs
 configs:
   Debug: debug
   Release: release
@@ -19,7 +20,7 @@ settings:
 packages:
   BitwardenSdk:
     url: https://github.com/bitwarden/sdk-swift
-    revision: c5aa003533fb4fc1823a2a560b88325f50b5623e
+    revision: 54d62781b9b52eb3d55398907bcfe1934d89ae1b
   Firebase:
     url: https://github.com/firebase/firebase-ios-sdk
     exactVersion: 10.24.0

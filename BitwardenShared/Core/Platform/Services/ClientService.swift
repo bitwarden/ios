@@ -34,12 +34,12 @@ protocol ClientService {
     ///
     func generators(for userId: String?) async throws -> ClientGeneratorsProtocol
 
-    /// Returns a `ClientPlatformProtocol` for client platform tasks.
+    /// Returns a `ClientPlatformService` for client platform tasks.
     ///
     /// - Parameter userId: The user ID mapped to the client instance.
-    /// - Returns: A `ClientPlatformProtocol` for client platform tasks.
+    /// - Returns: A `ClientPlatformService` for client platform tasks.
     ///
-    func platform(for userId: String?) async throws -> ClientPlatformProtocol
+    func platform(for userId: String?) async throws -> ClientPlatformService
 
     /// Removes the user's client from memory.
     ///
@@ -89,9 +89,9 @@ extension ClientService {
         try await generators(for: nil)
     }
 
-    /// Returns a `ClientPlatformProtocol` for client platform tasks.
+    /// Returns a `ClientPlatformService` for client platform tasks.
     ///
-    func platform() async throws -> ClientPlatformProtocol {
+    func platform() async throws -> ClientPlatformService {
         try await platform(for: nil)
     }
 
@@ -177,7 +177,7 @@ class DefaultClientService: ClientService {
         try await client(for: userId).generators()
     }
 
-    func platform(for userId: String?) async throws -> ClientPlatformProtocol {
+    func platform(for userId: String?) async throws -> ClientPlatformService {
         try await client(for: userId).platform()
     }
 
@@ -212,14 +212,14 @@ class DefaultClientService: ClientService {
             // If the user has a client, return it.
             guard let client = userClientArray[userId] else {
                 // If not, create one, map it to the user, then return it.
-                let newClient = await createAndMapClient(for: userId)
+                let newClient = createAndMapClient(for: userId)
                 return newClient
             }
             return client
         } catch StateServiceError.noAccounts, StateServiceError.noActiveAccount {
             // If there is no active account, or if no accounts exist,
             // return the original client.
-            return await clientBuilder.buildClient()
+            return clientBuilder.buildClient()
         }
     }
 
@@ -227,8 +227,8 @@ class DefaultClientService: ClientService {
     ///
     /// - Parameter userId: A user ID that the new client is being mapped to.
     ///
-    private func createAndMapClient(for userId: String) async -> BitwardenSdkClient {
-        let client = await clientBuilder.buildClient()
+    private func createAndMapClient(for userId: String) -> BitwardenSdkClient {
+        let client = clientBuilder.buildClient()
 
         userClientArray.updateValue(client, forKey: userId)
         return client
@@ -244,7 +244,7 @@ protocol ClientBuilder {
     ///
     /// - Returns: A new `BitwardenSdkClient`.
     ///
-    func buildClient() async -> BitwardenSdkClient
+    func buildClient() -> BitwardenSdkClient
 }
 
 // MARK: DefaultClientBuilder
@@ -275,9 +275,9 @@ class DefaultClientBuilder: ClientBuilder {
 
     // MARK: Methods
 
-    func buildClient() async -> BitwardenSdkClient {
+    func buildClient() -> BitwardenSdkClient {
         let client = Client(settings: settings)
-        await loadFlags(client: client)
+        loadFlags(client: client)
 
         return client
     }
@@ -288,10 +288,10 @@ class DefaultClientBuilder: ClientBuilder {
     ///
     /// - Parameter client: The client that feature flags are applied to.
     ///
-    private func loadFlags(client: BitwardenSdkClient) async {
+    private func loadFlags(client: BitwardenSdkClient) {
         do {
-            try await client.platform().loadFlags(
-                flags: [FeatureFlagsConstants.enableCipherKeyEncryption: true]
+            try client.platform().loadFlags(
+                [FeatureFlagsConstants.enableCipherKeyEncryption: true]
             )
         } catch {
             errorReporter.log(error: error)
@@ -317,7 +317,7 @@ protocol BitwardenSdkClient {
     func generators() -> ClientGeneratorsProtocol
 
     /// Returns platform operations.
-    func platform() -> ClientPlatformProtocol
+    func platform() -> ClientPlatformService
 
     /// Returns sends operations.
     func sends() -> ClientSendsProtocol
@@ -345,7 +345,7 @@ extension Client: BitwardenSdkClient {
         generators() as ClientGenerators
     }
 
-    func platform() -> ClientPlatformProtocol {
+    func platform() -> ClientPlatformService {
         platform() as ClientPlatform
     }
 

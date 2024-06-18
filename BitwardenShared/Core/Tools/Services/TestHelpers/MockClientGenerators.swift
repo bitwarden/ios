@@ -10,12 +10,12 @@ class MockClientGenerators: ClientGeneratorsProtocol {
     var usernameGeneratorRequest: UsernameGeneratorRequest?
     var usernameResult: Result<String, Error> = .success("USERNAME")
 
-    func passphrase(settings: PassphraseGeneratorRequest) async throws -> String {
+    func passphrase(settings: PassphraseGeneratorRequest) throws -> String {
         passphraseGeneratorRequest = settings
         return try passphraseResult.get()
     }
 
-    func password(settings: PasswordGeneratorRequest) async throws -> String {
+    func password(settings: PasswordGeneratorRequest) throws -> String {
         passwordGeneratorRequest = settings
         return try passwordResult.get()
     }

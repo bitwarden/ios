@@ -470,7 +470,7 @@ extension DefaultAuthRepository: AuthRepository {
 
     func getFingerprintPhrase() async throws -> String {
         let userId = try await stateService.getActiveAccountId()
-        return try await clientService.platform().userFingerprint(fingerprintMaterial: userId)
+        return try await clientService.platform().userFingerprint(material: userId)
     }
 
     func getProfilesState(
