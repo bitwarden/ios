@@ -8,6 +8,7 @@
   - [Repositories](#repositories)
   - [Dependency Injection](#dependency-injection)
 - [UI Layer](#ui-layer)
+  - [Module](#module)
   - [Coordinator](#coordinator)
   - [Routes and Events](#routes-and-events)
   - [Processor](#processor)
@@ -15,6 +16,9 @@
   - [View](#view)
   - [Actions and Effects](#actions-and-effects)
   - [Example](#example)
+- [Tests](#tests)
+  - [Overview](#overview-1)
+  - [Strategies](#strategies)
 
 ## Overview
 
@@ -123,6 +127,14 @@ final class ExampleCoordinator: Coordinator {
 ## UI Layer
 
 The UI layer utilizes a unidirectional data flow pattern that is based on coordinators and processors.
+
+### Module
+
+Modules are used to build coordinators.
+
+Each coordinator that can navigate to child coordinators will use its module to instantiate the child coordinator. A coordinator will have a module protocol that defines the child coordinators that could be built by that coordinator. The module protocols are implemented by the [DefaultAppModule](../BitwardenShared/UI/Platform/Application/AppModule.swift). The coordinator's module can be mocked during testing to test child coordinator creation.
+
+ The [DefaultAppModule](../BitwardenShared/UI/Platform/Application/AppModule.swift) provides a single entry point for creating all coordinators in the application. This allows the services in the service container to be injected into new coordinators without requiring the services to be passed throughout the coordinator hierarchy.
 
 ### Coordinator
 
@@ -297,3 +309,15 @@ struct ExampleView: View {
 ```
 
 </details>
+
+## Tests
+
+### Overview
+
+Every type containing logic should be tested. Test files should be named `<TypeToTest>Tests.swift`. A test file should exist in the same folder as the type being tested. For example, [AppProcessorTests](../BitwardenShared/UI/Platform/Application/AppProcessorTests.swift) is in the same folder as [AppProcessor](../BitwardenShared/UI/Platform/Application/AppProcessor.swift). This makes it convenient to switch between these files or open them side-by-side.
+
+### Strategies
+
+- **Unit**: Unit tests compose the majority of tests in the suite. These are written using [XCTest](https://developer.apple.com/documentation/xctest) assertions and should be used to test all logic portions within a type.
+- **View**: In a SwiftUI view test, [ViewInspector](https://github.com/nalexn/ViewInspector) is used to test any user interactions within the view. This is commonly used to assert that tapping a button sends an action or effect to the processor, but it can also be used to test other view interactions.
+- **Snapshot**: In addition to using [ViewInspector](https://github.com/nalexn/ViewInspector) to interact with a view under test, [SnapshotTesting](https://github.com/pointfreeco/swift-snapshot-testing) is used to take snapshots of the view to test for visual changes from one test run to another. The resulting snapshot images are stored in the repository and are compared against on future test runs. Any visual differences on future test runs will result in a failing test. Snapshot tests are usually recorded in light mode, dark mode, and with a large dynamic type size.
