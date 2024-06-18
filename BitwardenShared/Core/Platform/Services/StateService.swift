@@ -151,6 +151,14 @@ protocol StateService: AnyObject {
     ///
     func getEnvironmentUrls(userId: String?) async throws -> EnvironmentUrlData?
 
+    /// Gets the events stored to disk to be uploaded in the future.
+    ///
+    /// - Parameters:
+    ///   - userId: The user ID associated with the events.
+    /// - Returns: The events for the user
+    ///
+    func getEvents(userId: String?) async throws -> [EventData]
+
     /// Gets the user's last active time within the app.
     /// This value is set when the app is backgrounded.
     ///
@@ -368,6 +376,14 @@ protocol StateService: AnyObject {
     ///   - userId: The user ID of the account. Defaults to the active account if `nil`.
     ///
     func setDisableAutoTotpCopy(_ disableAutoTotpCopy: Bool, userId: String?) async throws
+
+    /// Sets the events saved to disk for future upload.
+    ///
+    /// - Parameters:
+    ///   - events: The events to save.
+    ///   - userId: The user ID of the account. Defaults to the active account if `nil`.
+    ///
+    func setEvents(_ events: [EventData], userId: String?) async throws
 
     /// Sets the force password reset reason for an account.
     ///
@@ -1109,6 +1125,11 @@ actor DefaultStateService: StateService { // swiftlint:disable:this type_body_le
         return appSettingsStore.state?.accounts[userId]?.settings.environmentUrls
     }
 
+    func getEvents(userId: String?) async throws -> [EventData] {
+        let userId = try userId ?? getActiveAccountUserId()
+        return appSettingsStore.events(userId: userId)
+    }
+
     func getLastActiveTime(userId: String?) async throws -> Date? {
         let userId = try userId ?? getActiveAccountUserId()
         return appSettingsStore.lastActiveTime(userId: userId)
@@ -1282,6 +1303,11 @@ actor DefaultStateService: StateService { // swiftlint:disable:this type_body_le
     func setDisableAutoTotpCopy(_ disableAutoTotpCopy: Bool, userId: String?) async throws {
         let userId = try userId ?? getActiveAccountUserId()
         appSettingsStore.setDisableAutoTotpCopy(disableAutoTotpCopy, userId: userId)
+    }
+
+    func setEvents(_ events: [EventData], userId: String?) async throws {
+        let userId = try userId ?? getActiveAccountUserId()
+        appSettingsStore.setEvents(events, userId: userId)
     }
 
     func setForcePasswordResetReason(_ reason: ForcePasswordResetReason?, userId: String?) async throws {
