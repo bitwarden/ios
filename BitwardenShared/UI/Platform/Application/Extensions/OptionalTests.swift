@@ -98,4 +98,54 @@ class OptionalTests: BitwardenTestCase {
 
         XCTAssertEqual(result, subject)
     }
+
+    /// `fallbackOnWhitespaceOrNil(fallback:)` returns `nil`if string and fallback are `nil`.
+    func test_fallbackOnWhitespaceOrNil_nilFallbackNil() {
+        let fallback: String? = nil
+        let subject: String? = nil
+
+        let result = subject.fallbackOnWhitespaceOrNil(fallback: fallback)
+
+        XCTAssertEqual(result, fallback)
+    }
+
+    /// `fallbackOnWhitespaceOrNil(fallback:)` returns `nil`if string is empty and fallback is `nil`.
+    func test_fallbackOnWhitespaceOrNil_emptyFallbackNil() {
+        let fallback: String? = nil
+        let subject: String? = ""
+
+        let result = subject.fallbackOnWhitespaceOrNil(fallback: fallback)
+
+        XCTAssertEqual(result, fallback)
+    }
+
+    /// `fallbackOnWhitespaceOrNil(fallback:)` returns `nil`if string is full of whitespaces and fallback is `nil`.
+    func test_fallbackOnWhitespaceOrNil_whitespacesFallbackNil() {
+        let fallback: String? = nil
+        let subject: String? = "   "
+
+        let result = subject.fallbackOnWhitespaceOrNil(fallback: fallback)
+
+        XCTAssertEqual(result, fallback)
+    }
+
+    /// `fallbackOnWhitespaceOrNil(fallback:)` returns same string if has non-empty value without full whitespaces.
+    func test_fallbackOnWhitespaceOrNil_valueFallbackNil() {
+        let fallback: String? = nil
+        let subject: String? = "value"
+
+        let result = subject.fallbackOnWhitespaceOrNil(fallback: fallback)
+
+        XCTAssertEqual(result, subject)
+    }
+
+    /// `fallbackOnWhitespaceOrNil(fallback:)` returns same string if has non-empty value with some whitespaces.
+    func test_fallbackOnWhitespaceOrNil_valueWithSomeWhitespacesFallbackNil() {
+        let fallback: String? = nil
+        let subject: String? = "   value   "
+
+        let result = subject.fallbackOnWhitespaceOrNil(fallback: fallback)
+
+        XCTAssertEqual(result, subject)
+    }
 }

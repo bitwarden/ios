@@ -12,9 +12,10 @@ public struct VaultListItem: Equatable, Identifiable, VaultItemWithDecorativeIco
         ///
         /// - Parameters
         ///   - CipherView: The cipher to wrap.
-        ///   - asFido2Credential: Whether this cipher item is a Fido2 credential and performs operations as it.
+        ///   - Fido2CredentialAutofillView: Additional data from the main Fido2 credential
+        ///   of the `CipherView` to be displayed when needed (Optional).
         ///
-        case cipher(CipherView, asFido2Credential: Bool = false)
+        case cipher(CipherView, Fido2CredentialAutofillView? = nil)
 
         /// The wrapped item is a group of items.
         case group(VaultListGroup, Int)
@@ -59,10 +60,10 @@ extension VaultListItem {
     /// Initialize a `VaultListItem` from a `CipherView`.
     /// - Parameters:
     ///   - cipherView: The `CipherView` used to initialize the `VaultListItem`.
-    ///   - asFido2Credential: Whether this item acts as a Fido2 credential.
-    init?(cipherView: CipherView, asFido2Credential: Bool) {
+    ///   - fido2CredentialAutofillView: The main Fido2 credential of the `cipherView` prepared for UI display.
+    init?(cipherView: CipherView, fido2CredentialAutofillView: Fido2CredentialAutofillView) {
         guard let id = cipherView.id, cipherView.type == .login else { return nil }
-        self.init(id: id, itemType: .cipher(cipherView, asFido2Credential: asFido2Credential))
+        self.init(id: id, itemType: .cipher(cipherView, fido2CredentialAutofillView))
     }
 }
 
@@ -70,8 +71,8 @@ extension VaultListItem {
     /// The RpId of the main Fido2 credential.
     var fido2CredentialRpId: String? {
         switch itemType {
-        case let .cipher(cipherView, asFido2Credential):
-            asFido2Credential ? cipherView.mainFido2Credential?.rpId : nil
+        case let .cipher(_, fido2CredentialAutofillView):
+            fido2CredentialAutofillView?.rpId ?? nil
         case .group:
             nil
         case .totp:
@@ -82,14 +83,14 @@ extension VaultListItem {
     /// An image asset for this item that can be used in the UI.
     var icon: ImageAsset {
         switch itemType {
-        case let .cipher(cipherItem, asFido2Credential):
+        case let .cipher(cipherItem, fido2CredentialAutofillView):
             switch cipherItem.type {
             case .card:
                 Asset.Images.creditCard
             case .identity:
                 Asset.Images.id
             case .login:
-                asFido2Credential ? Asset.Images.passkey : Asset.Images.globe
+                fido2CredentialAutofillView != nil ? Asset.Images.passkey : Asset.Images.globe
             case .secureNote:
                 Asset.Images.doc
             }
@@ -153,11 +154,11 @@ extension VaultListItem {
     /// Whether to show or not the Fido2 credential RpId
     var shouldShowFido2CredentialRpId: Bool {
         switch itemType {
-        case let .cipher(cipherView, asFido2Credential):
+        case let .cipher(cipherView, fido2CredentialAutofillView):
             guard let fido2CredentialRpId, !fido2CredentialRpId.isEmpty else {
                 return false
             }
-            return asFido2Credential && cipherView.name != fido2CredentialRpId
+            return fido2CredentialAutofillView != nil && cipherView.name != fido2CredentialRpId
         case .group:
             return false
         case .totp:
@@ -168,8 +169,8 @@ extension VaultListItem {
     /// The subtitle to show in the row.
     var subtitle: String? {
         switch itemType {
-        case let .cipher(cipherView, asFido2Credential):
-            asFido2Credential ? cipherView.mainFido2CredentialUsername : cipherView.subtitle
+        case let .cipher(cipherView, fido2CredentialAutofillView):
+            fido2CredentialAutofillView?.userNameForUi ?? cipherView.subtitle
         case .group:
             nil
         case .totp:

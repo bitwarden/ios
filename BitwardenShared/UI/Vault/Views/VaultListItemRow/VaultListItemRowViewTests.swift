@@ -112,7 +112,7 @@ class VaultListItemRowViewTests: BitwardenTestCase {
         processor.state.item = .fixture(cipherView: .fixture(
             login: .fixture(
                 fido2Credentials: [
-                    .fixture(rpId: "myApp.com", userName: "another user"),
+                    .fixture(),
                 ],
                 uris: [
                     .fixture(
@@ -123,7 +123,7 @@ class VaultListItemRowViewTests: BitwardenTestCase {
                 username: "username"
             ),
             name: "myApp.com"
-        ), asFido2Credential: true)
+        ), fido2CredentialAutofillView: .fixture(rpId: "myApp.com", userNameForUi: "another user"))
         processor.state.isFromExtension = true
         assertSnapshot(of: subject, as: .fixedSize())
     }
@@ -134,7 +134,7 @@ class VaultListItemRowViewTests: BitwardenTestCase {
         processor.state.item = .fixture(cipherView: .fixture(
             login: .fixture(
                 fido2Credentials: [
-                    .fixture(rpId: "myApp.com", userName: "another user"),
+                    .fixture(),
                 ],
                 uris: [
                     .fixture(
@@ -145,7 +145,7 @@ class VaultListItemRowViewTests: BitwardenTestCase {
                 username: "username"
             ),
             name: "MyApp"
-        ), asFido2Credential: true)
+        ), fido2CredentialAutofillView: .fixture(rpId: "myApp.com", userNameForUi: "another user"))
         processor.state.isFromExtension = true
         assertSnapshot(of: subject, as: .fixedSize())
     }

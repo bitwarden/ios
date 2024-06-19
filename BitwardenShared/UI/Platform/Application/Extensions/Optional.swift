@@ -30,4 +30,11 @@ extension String? {
     func fallbackOnWhitespaceOrNil(fallback: String?) -> String? {
         isWhitespaceOrNil ? fallback : self
     }
+
+    /// Returns the `fallback` if the value is `nil` or whitespace. Otherwise, returns the same value.
+    /// - Parameter fallback: The non-nil value to be used as a fallback when `nil` or whitespace.
+    /// - Returns: `fallback` if the value is `nil` or whitespace. Otherwise, returns the same value.
+    func fallbackOnWhitespaceOrNil(fallback: String) -> String {
+        isWhitespaceOrNil ? fallback : self!
+    }
 }

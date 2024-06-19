@@ -12,9 +12,9 @@ extension VaultListItem {
 
     static func fixture(
         cipherView: CipherView = .fixture(),
-        asFido2Credential: Bool
+        fido2CredentialAutofillView: Fido2CredentialAutofillView
     ) -> VaultListItem {
-        VaultListItem(cipherView: cipherView, asFido2Credential: asFido2Credential)!
+        VaultListItem(cipherView: cipherView, fido2CredentialAutofillView: fido2CredentialAutofillView)!
     }
 
     static func fixtureGroup(

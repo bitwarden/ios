@@ -61,8 +61,8 @@ class VaultAutofillListProcessor: StateProcessor<
         switch effect {
         case let .vaultItemTapped(vaultItem):
             switch vaultItem.itemType {
-            case let .cipher(cipher, asFido2Credential):
-                if asFido2Credential {
+            case let .cipher(cipher, fido2CredentialAutofillView):
+                if fido2CredentialAutofillView != nil {
                     // TODO: PM-8713 handle tap action depending on Fido2 autofill or creation
                 } else {
                     await autofillHelper.handleCipherForAutofill(cipherView: cipher) { [weak self] toastText in

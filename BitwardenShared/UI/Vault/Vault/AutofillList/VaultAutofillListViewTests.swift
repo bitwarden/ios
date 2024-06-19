@@ -84,23 +84,17 @@ class VaultAutofillListViewTests: BitwardenTestCase {
             .init(cipherView: .fixture(
                 id: "4",
                 login: .fixture(
-                    fido2Credentials: [
-                        .fixture(rpId: "myApp.com", userName: "myFido2Username"),
-                    ],
                     username: ""
                 ),
                 name: "App"
-            ), asFido2Credential: true)!,
+            ), fido2CredentialAutofillView: .fixture(userNameForUi: "myFido2Username"))!,
             .init(cipherView: .fixture(
                 id: "5",
                 login: .fixture(
-                    fido2Credentials: [
-                        .fixture(rpId: "myApp.com", userName: "another user"),
-                    ],
                     username: ""
                 ),
                 name: "myApp.com"
-            ), asFido2Credential: true)!,
+            ), fido2CredentialAutofillView: .fixture(userNameForUi: "another user"))!,
         ]
         assertSnapshots(
             of: subject.navStackWrapped,
