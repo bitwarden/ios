@@ -23,7 +23,7 @@ class Fido2CredentialStoreService: Fido2CredentialStore {
 
     func allCredentials() async throws -> [BitwardenSdk.CipherView] {
         try await cipherService.fetchAllCiphers()
-            .filter(\.isAciveAndHasFido2Credentials)
+            .filter(\.isAciveWithFido2Credentials)
             .asyncMap { cipher in
                 try await self.clientService.vault().ciphers().decrypt(cipher: cipher)
             }
@@ -31,7 +31,7 @@ class Fido2CredentialStoreService: Fido2CredentialStore {
 
     func findCredentials(ids: [Data]?, ripId: String) async throws -> [BitwardenSdk.CipherView] {
         let activeCiphersWithFido2Credentials = try await cipherService.fetchAllCiphers()
-            .filter(\.isAciveAndHasFido2Credentials)
+            .filter(\.isAciveWithFido2Credentials)
             .asyncMap { cipher in
                 try await self.clientService.vault().ciphers().decrypt(cipher: cipher)
             }
@@ -48,7 +48,7 @@ class Fido2CredentialStoreService: Fido2CredentialStore {
             }
 
             if let ids,
-               !ids.contains(where: { $0 == fido2CredentialAutofillView.credentialId }) {
+               !ids.contains(fido2CredentialAutofillView.credentialId) {
                 continue
             }
 
@@ -68,7 +68,7 @@ class Fido2CredentialStoreService: Fido2CredentialStore {
 
 private extension Cipher {
     /// Whether the cipher is active, is a login and has Fido2 credentials.
-    var isAciveAndHasFido2Credentials: Bool {
+    var isAciveWithFido2Credentials: Bool {
         deletedDate != nil
             && type == .login
             && login?.fido2Credentials?.isEmpty == false
