@@ -44,6 +44,8 @@ schemes:
       environmentVariables:
         TZ: UTC
       gatherCoverageData: true
+      language: en
+      region: US
       coverageTargets:
         - Bitwarden
         - BitwardenActionExtension
@@ -66,6 +68,8 @@ schemes:
       environmentVariables:
         TZ: UTC
       gatherCoverageData: true
+      language: en
+      region: US
       targets:
         - BitwardenActionExtensionTests
   BitwardenAutoFillExtension:
@@ -77,6 +81,8 @@ schemes:
       environmentVariables:
         TZ: UTC
       gatherCoverageData: true
+      language: en
+      region: US
       targets:
         - BitwardenAutoFillExtensionTests
   BitwardenShareExtension:
@@ -88,6 +94,8 @@ schemes:
       environmentVariables:
         TZ: UTC
       gatherCoverageData: true
+      language: en
+      region: US
       targets:
         - BitwardenShareExtensionTests
   BitwardenShared:
@@ -101,6 +109,8 @@ schemes:
       environmentVariables:
         TZ: UTC
       gatherCoverageData: true
+      language: en
+      region: US
       targets:
         - BitwardenSharedTests
   BitwardenWatchApp:
