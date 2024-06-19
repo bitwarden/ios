@@ -152,22 +152,17 @@ class DefaultPolicyService: PolicyService {
         type: PolicyType,
         filter: ((Policy) -> Bool)? = nil
     ) async throws -> [Policy] {
-        let policyFilter: (Policy) -> Bool = { policy in
+        let policies: [Policy]
+        if let cachedPolicies = policiesByUserId[userId] {
+            policies = cachedPolicies
+        } else {
+            policies = try await policyDataStore.fetchAllPolicies(userId: userId)
+            policiesByUserId[userId] = policies
+        }
+
+        return policies.filter { policy in
             policy.enabled && policy.type == type && filter?(policy) ?? true
         }
-
-        let policiesForUser = {
-            if let policies = self.policiesByUserId[userId] {
-                return policies
-            }
-
-            let policies = try await self.policyDataStore.fetchAllPolicies(userId: userId)
-            self.policiesByUserId[userId] = policies
-            return policies
-        }
-
-        let policies = try await policiesForUser()
-        return policies.filter(policyFilter)
     }
 }
 
