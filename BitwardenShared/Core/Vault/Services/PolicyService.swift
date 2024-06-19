@@ -108,29 +108,38 @@ class DefaultPolicyService: PolicyService {
     ///   - filter: An optional filter to apply to the list of policies.
     /// - Returns: Whether the policy applies to the user.
     ///
-    func policyAppliesToUser(_ policyType: PolicyType, filter: ((Policy) -> Bool)? = nil) async -> Bool {
+    private func policyAppliesToUser(_ policyType: PolicyType, filter: ((Policy) -> Bool)? = nil) async -> Bool {
+        await !policiesApplyingToUser(policyType, filter: filter).isEmpty
+    }
+
+    /// The list of policies for a policy type that apply to the active user.
+    ///
+    /// - Parameters:
+    ///   - policyType: The policy to check.
+    ///   - filter: An optional filter to apply to the list of policies.
+    /// - Returns: The list of policies that apply to the user.
+    ///
+    private func policiesApplyingToUser(_ policyType: PolicyType, filter: ((Policy) -> Bool)? = nil) async -> [Policy] {
         guard let userId = try? await stateService.getActiveAccountId(),
               let policies = try? await policiesForUser(userId: userId, type: policyType, filter: filter),
               let organizations = try? await organizationService.fetchAllOrganizations()
         else {
-            return false
+            return []
         }
 
-        // Determine the organizations that have this policy enabled.
-        let organizationsWithPolicy = Set(policies.map(\.organizationId))
-
-        // The policy applies if one or more organizations that the user is in are are enabled, use
-        // policies, have the policy enabled and the user is not exempt from policies.
-        return organizations.contains { organization in
-            organization.enabled &&
+        // The policy applies if the organization is enabled, uses policies, has the policy enabled,
+        // and the user is not exempt from policies.
+        return policies.filter { policy in
+            guard let organization = organizations.first(where: { $0.id == policy.organizationId })
+            else { return false }
+            return organization.enabled &&
                 (organization.status == .accepted || organization.status == .confirmed) &&
                 organization.usePolicies &&
-                !isOrganization(organization, exemptFrom: policyType) &&
-                organizationsWithPolicy.contains(organization.id)
+                !isOrganization(organization, exemptFrom: policyType)
         }
     }
 
-    /// Returns the list of policies that apply to the user.
+    /// Returns the list of policies that are assigned to the user.
     ///
     /// - Parameters:
     ///   - userId: The user ID of the user.
@@ -143,30 +152,25 @@ class DefaultPolicyService: PolicyService {
         type: PolicyType,
         filter: ((Policy) -> Bool)? = nil
     ) async throws -> [Policy] {
-        let policyFilter: (Policy) -> Bool = { policy in
+        let policies: [Policy]
+        if let cachedPolicies = policiesByUserId[userId] {
+            policies = cachedPolicies
+        } else {
+            policies = try await policyDataStore.fetchAllPolicies(userId: userId)
+            policiesByUserId[userId] = policies
+        }
+
+        return policies.filter { policy in
             policy.enabled && policy.type == type && filter?(policy) ?? true
         }
-
-        if let policies = policiesByUserId[userId] {
-            return policies.filter(policyFilter)
-        }
-
-        let policies = try await policyDataStore.fetchAllPolicies(userId: userId)
-        policiesByUserId[userId] = policies
-
-        return policies.filter(policyFilter)
     }
 }
 
 extension DefaultPolicyService {
     // swiftlint:disable:next cyclomatic_complexity
     func applyPasswordGenerationPolicy(options: inout PasswordGenerationOptions) async throws -> Bool {
-        guard let userId = try? await stateService.getActiveAccountId(),
-              let policies = try? await policiesForUser(userId: userId, type: .passwordGenerator),
-              !policies.isEmpty
-        else {
-            return false
-        }
+        let policies = await policiesApplyingToUser(.passwordGenerator)
+        guard !policies.isEmpty else { return false }
 
         // When determining the generator type, ignore the existing option's type to find the preferred
         // default type based on the policies. Then set it on `options` below.
@@ -229,12 +233,8 @@ extension DefaultPolicyService {
     }
 
     func fetchTimeoutPolicyValues() async throws -> (action: SessionTimeoutAction?, value: Int)? {
-        guard let userId = try? await stateService.getActiveAccountId(),
-              let policies = try? await policiesForUser(userId: userId, type: .maximumVaultTimeout),
-              !policies.isEmpty
-        else {
-            return nil
-        }
+        let policies = await policiesApplyingToUser(.maximumVaultTimeout)
+        guard !policies.isEmpty else { return nil }
 
         var timeoutAction: SessionTimeoutAction?
         var timeoutValue = 0
@@ -253,19 +253,10 @@ extension DefaultPolicyService {
         return (timeoutAction, timeoutValue)
     }
 
-    // swiftlint:disable:next function_body_length
     func getMasterPasswordPolicyOptions() async throws -> MasterPasswordPolicyOptions? {
-        guard let userId = try? await stateService.getActiveAccountId(),
-              let policies = try? await policiesForUser(
-                  userId: userId,
-                  type: .masterPassword
-              ).filter({ policy in
-                  policy.enabled && policy.data != nil
-              }),
-              !policies.isEmpty
-        else {
-            return nil
-        }
+        let policies = await policiesApplyingToUser(.masterPassword) { $0.data != nil }
+        guard !policies.isEmpty else { return nil }
+
         var minComplexity: UInt8 = 0
         var minLength: UInt8 = 0
         var requireUpper = false
