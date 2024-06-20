@@ -1,4 +1,5 @@
 import Foundation
+import OSLog
 
 // MARK: - EventService
 
@@ -91,6 +92,8 @@ class DefaultEventService: EventService {
             date: timeProvider.presentTime
         )
 
+        // swiftlint:disable:next line_length
+        Logger.application.info("Event collected: \(eventType.rawValue) on cipher \(cipherId ?? "(none)") at \(newEvent.date))")
         try await stateService.setEvents([newEvent], userId: userId)
     }
 }
