@@ -6,8 +6,6 @@
 "Back" = "Back";
 "Bitwarden" = "Bitwarden";
 "Cancel" = "Cancel";
-"ContinueToGiveFeedback" = "Continue to Give Feedback?";
-"ContinueToGiveFeedbackDescription" = "Select continue to give feedback on the new app!";
 "Copy" = "Copy";
 "CopyPassword" = "Copy password";
 "CopyUsername" = "Copy username";
@@ -32,7 +30,6 @@
 "FolderNone" = "No Folder";
 "Folders" = "Folders";
 "FolderUpdated" = "Folder saved";
-"GiveFeedback" = "Give Feedback";
 "GoToWebsite" = "Go to website";
 "HelpAndFeedback" = "Help and feedback";
 "Hide" = "Hide";

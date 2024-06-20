@@ -19,9 +19,6 @@ enum ExternalLinksConstants {
     /// A link to Bitwarden's help page for generating username types.
     static let generatorUsernameTypes = URL(string: "https://bitwarden.com/help/generator/#username-types")!
 
-    /// A link for beta users to provide feedback.
-    static let giveFeedback = URL(string: "https://livefrontinc.typeform.com/to/irgrRu4a")
-
     /// A link to Bitwarden's general help and feedback page.
     static let helpAndFeedback = URL(string: "https://bitwarden.com/help/")!
 

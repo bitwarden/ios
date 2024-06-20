@@ -95,24 +95,6 @@ extension Alert {
         )
     }
 
-    /// An alert verifying that the user wants to navigate to the web browser to submit feedback.
-    ///
-    /// - Parameter action: The action to take if the user selects `Yes`.
-    /// - Returns: An alert verifying that the user wants to navigate to the web browser to submit feedback.
-    ///
-    static func giveFeedbackAlert(action: @escaping () -> Void) -> Alert {
-        Alert(
-            title: Localizations.continueToGiveFeedback,
-            message: Localizations.continueToGiveFeedbackDescription,
-            alertActions: [
-                AlertAction(title: Localizations.cancel, style: .cancel),
-                AlertAction(title: Localizations.continue, style: .default) { _ in
-                    action()
-                },
-            ]
-        )
-    }
-
     /// An alert that asks if the user wants to navigate to the "import items" page in a browser.
     ///
     /// - Parameter action: The action taken if they select continue.
