@@ -11,6 +11,7 @@ final class ViewItemProcessor: StateProcessor<ViewItemState, ViewItemAction, Vie
     typealias Services = HasAPIService
         & HasAuthRepository
         & HasErrorReporter
+        & HasEventService
         & HasPasteboardService
         & HasStateService
         & HasVaultRepository
@@ -443,6 +444,7 @@ private extension ViewItemProcessor {
                 }
                 newState.hasVerifiedMasterPassword = state.hasVerifiedMasterPassword
                 state = newState
+                try await services.eventService.collect(eventType: .cipherClientViewed, cipherId: itemId)
             }
         } catch {
             services.errorReporter.log(error: error)

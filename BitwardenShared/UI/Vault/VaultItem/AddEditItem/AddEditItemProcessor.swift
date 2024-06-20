@@ -30,6 +30,7 @@ final class AddEditItemProcessor: StateProcessor<// swiftlint:disable:this type_
         & HasAuthRepository
         & HasCameraService
         & HasErrorReporter
+        & HasEventService
         & HasPasteboardService
         & HasPolicyService
         & HasStateService
@@ -217,6 +218,10 @@ final class AddEditItemProcessor: StateProcessor<// swiftlint:disable:this type_
             let folders = try await services.vaultRepository.fetchFolders()
                 .map { DefaultableType<FolderView>.custom($0) }
             state.folders = [.default] + folders
+
+            if !state.configuration.isAdding {
+                try await services.eventService.collect(eventType: .cipherClientViewed, cipherId: state.cipher.id)
+            }
         } catch {
             services.errorReporter.log(error: error)
         }
