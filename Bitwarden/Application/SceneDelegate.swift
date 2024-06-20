@@ -54,6 +54,16 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         }
     }
 
+    func scene(_ scene: UIScene, openURLContexts urlContexts: Set<UIOpenURLContext>) {
+        guard let url = urlContexts.first?.url,
+              let appProcessor = (UIApplication.shared.delegate as? AppDelegateType)?.appProcessor
+        else { return }
+
+        Task {
+            await appProcessor.openUrl(url)
+        }
+    }
+
     func sceneWillResignActive(_ scene: UIScene) {
         showSplash()
     }

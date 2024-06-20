@@ -1,5 +1,4 @@
-@testable import BitwardenShared
-
+#if DEBUG
 extension String {
     static let base32Key = "JBSWY3DPEHPK3PXP"
     // swiftlint:disable:next line_length
@@ -9,3 +8,8 @@ extension String {
     static let otpAuthUriKeySHA512 = "otpauth://totp/Example:user@bitwarden.com?secret=JBSWY3DPEHPK3PXP&algorithm=SHA512"
     static let steamUriKey = "steam://JBSWY3DPEHPK3PXP"
 }
+
+extension OTPAuthModel {
+    static let fixtureExample = OTPAuthModel(otpAuthKey: .otpAuthUriKeyComplete)!
+}
+#endif

@@ -69,6 +69,18 @@ public class AppProcessor {
 
     // MARK: Methods
 
+    /// Handles receiving a deep link URL and routing to the appropriate place in the app.
+    ///
+    /// - Parameter url: The deep link URL to handle.
+    ///
+    public func openUrl(_ url: URL) async {
+        guard let otpAuthModel = OTPAuthModel(otpAuthKey: url.absoluteString) else {
+            coordinator?.showAlert(.defaultAlert(title: Localizations.anErrorHasOccurred))
+            return
+        }
+        coordinator?.navigate(to: .tab(.vault(.vaultItemSelection(otpAuthModel))))
+    }
+
     /// Starts the application flow by navigating the user to the first flow.
     ///
     /// - Parameters:
