@@ -148,6 +148,18 @@ final class ViewItemProcessor: StateProcessor<ViewItemState, ViewItemAction, Vie
             }
             cipherState.loginState.isPasswordVisible.toggle()
             state.loadingState = .data(cipherState)
+            if cipherState.loginState.isPasswordVisible {
+                Task {
+                    do {
+                        try await services.eventService.collect(
+                            eventType: .cipherClientToggledPasswordVisible,
+                            cipherId: cipherState.cipher.id
+                        )
+                    } catch {
+                        services.errorReporter.log(error: error)
+                    }
+                }
+            }
         case .passwordHistoryPressed:
             guard let passwordHistory = state.passwordHistory else { return }
             coordinator.navigate(to: .passwordHistory(passwordHistory))

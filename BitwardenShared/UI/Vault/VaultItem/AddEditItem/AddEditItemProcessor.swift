@@ -153,6 +153,18 @@ final class AddEditItemProcessor: StateProcessor<// swiftlint:disable:this type_
             state.loginState.uris.remove(at: index)
         case let .togglePasswordVisibilityChanged(newValue):
             state.loginState.isPasswordVisible = newValue
+            if newValue, !state.configuration.isAdding {
+                Task {
+                    do {
+                        try await services.eventService.collect(
+                            eventType: .cipherClientToggledPasswordVisible,
+                            cipherId: state.cipher.id
+                        )
+                    } catch {
+                        services.errorReporter.log(error: error)
+                    }
+                }
+            }
         case let .toastShown(newValue):
             state.toast = newValue
         case .totpFieldLeftFocus:
