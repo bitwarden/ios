@@ -10,7 +10,7 @@ final class TOTPCodeConfigTests: BitwardenTestCase {
     /// Tests that a malformed string does not create a model.
     func test_init_totpCodeConfig_failure_incompletePrefix() {
         let subject = TOTPKeyModel(
-            authenticatorKey: "totp/Example:eliot@livefront.com?secret=JBSWY3DPEHPK3PXP"
+            authenticatorKey: "totp/Example:user@bitwarden.com?secret=JBSWY3DPEHPK3PXP"
         )
         XCTAssertNil(subject)
     }
@@ -18,7 +18,7 @@ final class TOTPCodeConfigTests: BitwardenTestCase {
     /// Tests that a malformed string does not create a model.
     func test_init_totpCodeConfig_failure_noSecret() {
         let subject = TOTPKeyModel(
-            authenticatorKey: "otpauth://totp/Example:eliot@livefront.com?issuer=Example&algorithm=SHA256&digits=6&period=30" // swiftlint:disable:this line_length
+            authenticatorKey: "otpauth://totp/Example:user@bitwarden.com?issuer=Example&algorithm=SHA256&digits=6&period=30" // swiftlint:disable:this line_length
         )
         XCTAssertNil(subject)
     }
@@ -40,7 +40,7 @@ final class TOTPCodeConfigTests: BitwardenTestCase {
         XCTAssertNotNil(subject)
         XCTAssertEqual(
             subject?.base32Key,
-            .base32Key.lowercased()
+            .base32Key
         )
     }
 
@@ -52,7 +52,7 @@ final class TOTPCodeConfigTests: BitwardenTestCase {
         XCTAssertNotNil(subject)
         XCTAssertEqual(
             subject?.base32Key,
-            .base32Key.lowercased()
+            .base32Key
         )
     }
 
@@ -64,7 +64,7 @@ final class TOTPCodeConfigTests: BitwardenTestCase {
         XCTAssertNotNil(subject)
         XCTAssertEqual(
             subject?.base32Key,
-            .base32Key.lowercased()
+            .base32Key
         )
     }
 
