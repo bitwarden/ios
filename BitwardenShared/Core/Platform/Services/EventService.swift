@@ -24,6 +24,21 @@ extension EventService {
     ) async throws {
         try await collect(eventType: eventType, cipherId: cipherId, uploadImmediately: uploadImmediately)
     }
+
+    /// Save an event to disk for future upload. Takes an error reporter to do the default handling of errors,
+    /// which is to log them with the error reporter.
+    func collect(
+        eventType: EventType,
+        cipherId: String? = nil,
+        uploadImmediately: Bool = false,
+        errorReporter: ErrorReporter
+    ) async {
+        do {
+            try await collect(eventType: eventType, cipherId: cipherId, uploadImmediately: uploadImmediately)
+        } catch {
+            errorReporter.log(error: error)
+        }
+    }
 }
 
 // MARK: - DefaultEventService

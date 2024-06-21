@@ -155,14 +155,11 @@ final class AddEditItemProcessor: StateProcessor<// swiftlint:disable:this type_
             state.loginState.isPasswordVisible = newValue
             if newValue, !state.configuration.isAdding {
                 Task {
-                    do {
-                        try await services.eventService.collect(
-                            eventType: .cipherClientToggledPasswordVisible,
-                            cipherId: state.cipher.id
-                        )
-                    } catch {
-                        services.errorReporter.log(error: error)
-                    }
+                    await services.eventService.collect(
+                        eventType: .cipherClientToggledPasswordVisible,
+                        cipherId: state.cipher.id,
+                        errorReporter: services.errorReporter
+                    )
                 }
             }
         case let .toastShown(newValue):

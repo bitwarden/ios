@@ -106,7 +106,7 @@ final class ViewItemProcessor: StateProcessor<ViewItemState, ViewItemAction, Vie
         }
     }
 
-    override func receive(_ action: ViewItemAction) {
+    override func receive(_ action: ViewItemAction) { // swiftlint:disable:this function_body_length
         guard !state.isMasterPasswordRequired || !action.requiresMasterPasswordReprompt else {
             presentMasterPasswordRepromptAlert { self.receive(action) }
             return
@@ -125,6 +125,15 @@ final class ViewItemProcessor: StateProcessor<ViewItemState, ViewItemAction, Vie
             }
             cipherState.togglePasswordVisibility(for: customFieldState)
             state.loadingState = .data(cipherState)
+            if !customFieldState.isPasswordVisible { // The state before we toggled it
+                Task {
+                    await services.eventService.collect(
+                        eventType: .cipherClientToggledHiddenFieldVisible,
+                        cipherId: cipherState.cipher.id,
+                        errorReporter: services.errorReporter
+                    )
+                }
+            }
         case .dismissPressed:
             coordinator.navigate(to: .dismiss())
         case let .downloadAttachment(attachment):
@@ -150,14 +159,11 @@ final class ViewItemProcessor: StateProcessor<ViewItemState, ViewItemAction, Vie
             state.loadingState = .data(cipherState)
             if cipherState.loginState.isPasswordVisible {
                 Task {
-                    do {
-                        try await services.eventService.collect(
-                            eventType: .cipherClientToggledPasswordVisible,
-                            cipherId: cipherState.cipher.id
-                        )
-                    } catch {
-                        services.errorReporter.log(error: error)
-                    }
+                    await services.eventService.collect(
+                        eventType: .cipherClientToggledPasswordVisible,
+                        cipherId: cipherState.cipher.id,
+                        errorReporter: services.errorReporter
+                    )
                 }
             }
         case .passwordHistoryPressed:
