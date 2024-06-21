@@ -47,7 +47,25 @@ class VaultItemSelectionViewTests: BitwardenTestCase {
         XCTAssertEqual(processor.dispatchedActions.last, .cancelTapped)
     }
 
+    /// In the empty state, tapping the add item button dispatches the `.addTapped` action.
+    func test_emptyState_addItemTapped() throws {
+        let button = try subject.inspect().find(button: Localizations.addAnItem)
+        try button.tap()
+        XCTAssertEqual(processor.dispatchedActions.last, .addTapped)
+    }
+
     // MARK: Snapshots
+
+    /// The empty view renders correctly.
+    func test_snapshot_cipherSelection_empty() {
+        let account = ProfileSwitcherItem.anneAccount
+        processor.state.profileSwitcherState.accounts = [account]
+        processor.state.profileSwitcherState.activeAccountId = account.userId
+        assertSnapshots(
+            of: subject.navStackWrapped,
+            as: [.defaultPortrait, .defaultPortraitDark, .defaultPortraitAX5]
+        )
+    }
 
     /// The populated view renders correctly.
     func test_snapshot_cipherSelection_populated() {

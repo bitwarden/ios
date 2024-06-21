@@ -224,11 +224,17 @@ class VaultItemSelectionProcessorTests: BitwardenTestCase {
     func test_receive_addTapped() {
         subject.receive(.addTapped)
 
-        // TODO: BIT-2350 Add OTP to new item
-        // XCTAssertEqual(
-        //     coordinator.routes.last,
-        //     .addItem(allowTypeSelection: false, group: .login, newCipherOptions: NewCipherOptions())
-        // )
+        XCTAssertEqual(
+            coordinator.routes.last,
+            .addItem(
+                allowTypeSelection: false,
+                group: .login,
+                newCipherOptions: NewCipherOptions(
+                    name: "Example",
+                    totpKey: .otpAuthUriKeyComplete
+                )
+            )
+        )
     }
 
     /// `receive(_:)` with `.addTapped` hides the profile switcher if it's visible.

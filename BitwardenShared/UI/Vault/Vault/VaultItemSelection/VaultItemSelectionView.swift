@@ -104,6 +104,7 @@ private struct VaultItemSelectionSearchableView: View {
                 get: \.toast,
                 send: VaultItemSelectionAction.toastShown
             ))
+            .background(Color(asset: Asset.Colors.backgroundSecondary).ignoresSafeArea())
     }
 
     // MARK: Private Views
@@ -111,18 +112,51 @@ private struct VaultItemSelectionSearchableView: View {
     /// The content displayed in the view.
     @ViewBuilder
     private func contentView() -> some View {
-        VStack(spacing: 0) {
-            if isSearching {
-                searchContentView()
-            } else {
-                if store.state.vaultListSections.isEmpty {
-                    // TODO: BIT-2350 Add empty view
-                } else {
-                    matchingItemsView()
+        if isSearching {
+            searchContentView()
+        } else {
+            if store.state.vaultListSections.isEmpty {
+                GeometryReader { reader in
+                    VStack(spacing: 24) {
+                        Asset.Images.openSource.swiftUIImage
+                            .resizable()
+                            .frame(width: 100, height: 100)
+                            .padding(.bottom, 8)
+
+                        Text(
+                            Localizations.thereAreNoItemsInYourVaultThatMatchX(
+                                store.state.ciphersMatchingName ?? "--"
+                            ) +
+                                "\n" +
+                                Localizations.searchForAnItemOrAddANewItem
+                        )
+                        .styleGuide(.callout)
+                        .foregroundColor(Asset.Colors.textPrimary.swiftUIColor)
+                        .multilineTextAlignment(.center)
+
+                        Button {
+                            store.send(.addTapped)
+                        } label: {
+                            HStack(spacing: 8) {
+                                Asset.Images.plus.swiftUIImage
+                                    .imageStyle(.accessoryIcon(
+                                        color: Asset.Colors.textPrimaryInverted.swiftUIColor,
+                                        scaleWithFont: true
+                                    ))
+
+                                Text(Localizations.addAnItem)
+                            }
+                        }
+                        .buttonStyle(.primary(shouldFillWidth: false))
+                    }
+                    .padding(.vertical, 16)
+                    .frame(maxWidth: .infinity, minHeight: reader.size.height)
+                    .scrollView(addVerticalPadding: false)
                 }
+            } else {
+                matchingItemsView()
             }
         }
-        .background(Color(asset: Asset.Colors.backgroundSecondary))
     }
 
     /// A view for displaying the list of items that match the OTP key.

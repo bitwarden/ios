@@ -84,6 +84,33 @@ class VaultItemCoordinatorTests: BitwardenTestCase { // swiftlint:disable:this t
         XCTAssertFalse(view.store.state.loginState.isTOTPAvailable)
     }
 
+    /// `navigate(to:)` with `.addItem` with new cipher options.
+    func test_navigateTo_addItem_withNewCipherOptions() throws {
+        let task = Task {
+            let newCipherOptions = NewCipherOptions(
+                name: "Bitwarden",
+                password: "SECRET",
+                uri: "bitwarden.com",
+                username: "user@bitwarden.com",
+                totpKey: .otpAuthUriKeyComplete
+            )
+            subject.navigate(to: .addItem(newCipherOptions: newCipherOptions))
+        }
+        waitFor(!stackNavigator.actions.isEmpty)
+        task.cancel()
+
+        let action = try XCTUnwrap(stackNavigator.actions.last)
+        XCTAssertEqual(action.type, .replaced)
+
+        let view = try XCTUnwrap(action.view as? AddEditItemView)
+        XCTAssertEqual(view.store.state.name, "Bitwarden")
+        XCTAssertEqual(view.store.state.type, .login)
+        XCTAssertEqual(view.store.state.loginState.password, "SECRET")
+        XCTAssertEqual(view.store.state.loginState.username, "user@bitwarden.com")
+        XCTAssertEqual(view.store.state.loginState.uris.map(\.uri), ["bitwarden.com"])
+        XCTAssertEqual(view.store.state.loginState.totpState, LoginTOTPState(.otpAuthUriKeyComplete))
+    }
+
     /// `navigate(to:)` with `.addItem` without a group pushes the add item view onto the stack navigator.
     func test_navigateTo_addItem_withoutGroup() throws {
         let task = Task {
