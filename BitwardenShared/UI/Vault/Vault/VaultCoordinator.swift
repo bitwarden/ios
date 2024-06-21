@@ -61,6 +61,7 @@ final class VaultCoordinator: Coordinator, HasStackNavigator {
         & HasCameraService
         & HasEnvironmentService
         & HasErrorReporter
+        & HasLocalAuthService
         & HasNotificationService
         & HasStateService
         & HasTimeProvider
@@ -139,7 +140,8 @@ final class VaultCoordinator: Coordinator, HasStackNavigator {
                         group: group,
                         hasPremium: hasPremium ?? false,
                         newCipherOptions: newCipherOptions
-                    )
+                    ),
+                    delegate: context as? CipherItemOperationDelegate
                 )
             }
         case .autofillList:
@@ -242,7 +244,7 @@ final class VaultCoordinator: Coordinator, HasStackNavigator {
     ///
     /// - Parameter route: The route to navigate to in the coordinator.
     ///
-    private func showVaultItem(route: VaultItemRoute, delegate: CipherItemOperationDelegate? = nil) {
+    private func showVaultItem(route: VaultItemRoute, delegate: CipherItemOperationDelegate?) {
         let navigationController = UINavigationController()
         let coordinator = module.makeVaultItemCoordinator(stackNavigator: navigationController)
         coordinator.start()
@@ -262,6 +264,10 @@ final class VaultCoordinator: Coordinator, HasStackNavigator {
             state: VaultItemSelectionState(
                 iconBaseURL: services.environmentService.iconsURL,
                 otpAuthModel: otpAuthModel
+            ),
+            userVerificationHelper: DefaultUserVerificationHelper(
+                userVerificationDelegate: self,
+                services: services
             )
         )
         let view = VaultItemSelectionView(store: Store(processor: processor))
@@ -269,3 +275,7 @@ final class VaultCoordinator: Coordinator, HasStackNavigator {
         stackNavigator?.present(UINavigationController(rootViewController: viewController))
     }
 }
+
+// MARK: - UserVerificationDelegate
+
+extension VaultCoordinator: UserVerificationDelegate {}

@@ -6,6 +6,13 @@ import Foundation
 /// An object that is notified when specific circumstances in the add/edit/delete item view have occurred.
 ///
 protocol CipherItemOperationDelegate: AnyObject {
+    /// Called when a new cipher item has been successfully added.
+    ///
+    /// - Returns: A boolean indicating whether the view should be dismissed. Defaults to `true`.
+    ///     If `false` is returned the delegate is responsible for dismissing the view.
+    ///
+    func itemAdded() -> Bool
+
     /// Called when the cipher item has been successfully permanently deleted.
     func itemDeleted()
 
@@ -14,6 +21,25 @@ protocol CipherItemOperationDelegate: AnyObject {
 
     /// Called when the cipher item has been successfully soft deleted.
     func itemSoftDeleted()
+
+    /// Called when a cipher item has been successfully updated.
+    ///
+    /// - Returns: A boolean indicating whether the view should be dismissed. Defaults to `true`.
+    ///     If `false` is returned the delegate is responsible for dismissing the view.
+    ///
+    func itemUpdated() -> Bool
+}
+
+extension CipherItemOperationDelegate {
+    func itemAdded() -> Bool { true }
+
+    func itemDeleted() {}
+
+    func itemRestored() {}
+
+    func itemSoftDeleted() {}
+
+    func itemUpdated() -> Bool { true }
 }
 
 // MARK: - AddEditItemProcessor
@@ -181,7 +207,10 @@ final class AddEditItemProcessor: StateProcessor<// swiftlint:disable:this type_
     ///
     private func handleDismiss(didAddItem: Bool = false) {
         guard let appExtensionDelegate, appExtensionDelegate.isInAppExtensionSaveLoginFlow else {
-            coordinator.navigate(to: .dismiss())
+            let shouldDismiss = delegate?.itemAdded() ?? true
+            if shouldDismiss {
+                coordinator.navigate(to: .dismiss())
+            }
             return
         }
 
@@ -560,7 +589,10 @@ final class AddEditItemProcessor: StateProcessor<// swiftlint:disable:this type_
     private func updateItem(cipherView: CipherView) async throws {
         try await services.vaultRepository.updateCipher(cipherView.updatedView(with: state))
         coordinator.hideLoadingOverlay()
-        coordinator.navigate(to: .dismiss())
+        let shouldDismissed = delegate?.itemUpdated() ?? true
+        if shouldDismissed {
+            coordinator.navigate(to: .dismiss())
+        }
     }
 
     /// Kicks off the TOTP setup flow.
