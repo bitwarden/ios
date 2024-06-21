@@ -71,25 +71,21 @@ struct OTPAuthModel: Equatable {
             return nil
         }
 
+        let algorithm = TOTPCryptoHashAlgorithm(from: queryItems.first { $0.name == "algorithm" }?.value)
+        let digits = queryItems.first { $0.name == "digits" }?.value.flatMap(Int.init) ?? 6
+        var issuer = queryItems.first { $0.name == "issuer" }?.value
+        let period = queryItems.first { $0.name == "period" }?.value.flatMap(Int.init) ?? 30
+
         var accountName: String?
-        var issuer: String?
         if let label = urlComponents.url?.lastPathComponent {
             let parts = label.split(separator: ":")
             if parts.count > 1 {
-                issuer = String(parts[0])
+                issuer = issuer ?? String(parts[0])
                 accountName = String(parts[1])
             } else {
                 accountName = label
             }
         }
-
-        if issuer == nil {
-            issuer = queryItems.first { $0.name == "issuer" }?.value
-        }
-
-        let period = queryItems.first { $0.name == "period" }?.value.flatMap(Int.init) ?? 30
-        let digits = queryItems.first { $0.name == "digits" }?.value.flatMap(Int.init) ?? 6
-        let algorithm = TOTPCryptoHashAlgorithm(from: queryItems.first { $0.name == "algorithm" }?.value)
 
         self.init(
             accountName: accountName,
