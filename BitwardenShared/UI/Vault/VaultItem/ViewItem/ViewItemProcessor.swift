@@ -317,9 +317,27 @@ private extension ViewItemProcessor {
         case let .toggleCodeVisibilityChanged(isVisible):
             cipherState.cardItemState.isCodeVisible = isVisible
             state.loadingState = .data(cipherState)
+            if isVisible {
+                Task {
+                    await services.eventService.collect(
+                        eventType: .cipherClientToggledCardCodeVisible,
+                        cipherId: cipherState.cipher.id,
+                        errorReporter: services.errorReporter
+                    )
+                }
+            }
         case let .toggleNumberVisibilityChanged(isVisible):
             cipherState.cardItemState.isNumberVisible = isVisible
             state.loadingState = .data(cipherState)
+            if isVisible {
+                Task {
+                    await services.eventService.collect(
+                        eventType: .cipherClientToggledCardNumberVisible,
+                        cipherId: cipherState.cipher.id,
+                        errorReporter: services.errorReporter
+                    )
+                }
+            }
         }
     }
 

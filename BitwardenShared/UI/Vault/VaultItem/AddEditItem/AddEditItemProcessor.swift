@@ -334,8 +334,28 @@ final class AddEditItemProcessor: StateProcessor<// swiftlint:disable:this type_
             state.cardItemState.expirationYear = year
         case let .toggleCodeVisibilityChanged(isVisible):
             state.cardItemState.isCodeVisible = isVisible
+            if isVisible {
+                let cipherId = state.cipher.id
+                Task {
+                    await services.eventService.collect(
+                        eventType: .cipherClientToggledCardCodeVisible,
+                        cipherId: cipherId,
+                        errorReporter: services.errorReporter
+                    )
+                }
+            }
         case let .toggleNumberVisibilityChanged(isVisible):
             state.cardItemState.isNumberVisible = isVisible
+            if isVisible {
+                let cipherId = state.cipher.id
+                Task {
+                    await services.eventService.collect(
+                        eventType: .cipherClientToggledCardNumberVisible,
+                        cipherId: cipherId,
+                        errorReporter: services.errorReporter
+                    )
+                }
+            }
         }
     }
 
