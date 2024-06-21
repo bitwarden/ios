@@ -240,7 +240,7 @@ final class AddEditItemProcessor: StateProcessor<// swiftlint:disable:this type_
     ///
     /// - Parameter action: The action that was sent from the `AddEditCustomFieldsView`.
     ///
-    private func handleCustomFieldAction(_ action: AddEditCustomFieldsAction) {
+    private func handleCustomFieldAction(_ action: AddEditCustomFieldsAction) { // swiftlint:disable:this cyclomatic_complexity function_body_length line_length
         switch action {
         case let .booleanFieldChanged(newValue, index):
             guard state.customFieldsState.customFields.indices.contains(index) else { return }
@@ -282,6 +282,15 @@ final class AddEditItemProcessor: StateProcessor<// swiftlint:disable:this type_
         case let .togglePasswordVisibilityChanged(isPasswordVisible, index):
             guard state.customFieldsState.customFields.indices.contains(index) else { return }
             state.customFieldsState.customFields[index].isPasswordVisible = isPasswordVisible
+            if isPasswordVisible {
+                Task {
+                    await services.eventService.collect(
+                        eventType: .cipherClientToggledHiddenFieldVisible,
+                        cipherId: state.cipher.id,
+                        errorReporter: services.errorReporter
+                    )
+                }
+            }
         }
     }
 
