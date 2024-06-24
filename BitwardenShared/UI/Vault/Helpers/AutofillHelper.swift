@@ -8,6 +8,7 @@ class AutofillHelper {
 
     typealias Services = HasAuthRepository
         & HasErrorReporter
+        & HasEventService
         & HasPasteboardService
         & HasVaultRepository
 
@@ -124,6 +125,14 @@ class AutofillHelper {
             return (name, value)
         }
 
+        do {
+            try await services.eventService.collect(
+                eventType: .cipherClientAutofilled,
+                cipherId: cipherView.id
+            )
+        } catch {
+            services.errorReporter.log(error: error)
+        }
         appExtensionDelegate?.completeAutofillRequest(
             username: username,
             password: password,

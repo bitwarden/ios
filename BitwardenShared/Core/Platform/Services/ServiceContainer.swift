@@ -437,6 +437,7 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
             cipherService: cipherService,
             clientService: clientService,
             errorReporter: errorReporter,
+            eventService: eventService,
             pasteboardService: pasteboardService,
             stateService: stateService,
             vaultTimeoutService: vaultTimeoutService
