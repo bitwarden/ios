@@ -74,5 +74,6 @@ jobs:
           args: >
             -Dsonar.organization=${{ github.repository_owner }}
             -Dsonar.projectKey=${{ github.repository_owner }}_${{ github.event.repository.name }}
-            -Dsonar.sources=Authenticator/,AuthenticatorShared/,Configs/,Networking/Sources/,Scripts/
-            -Dsonar.tests=GlobalTestHelpers/,Networking/Tests/
+            -Dsonar.test.inclusions=GlobalTestHelpers/,Networking/Tests/,**/*Tests.*/,**/TestHelpers/,**/Fixtures/
+            -Dsonar.tests=.
+            -Dsonar.sources=.
