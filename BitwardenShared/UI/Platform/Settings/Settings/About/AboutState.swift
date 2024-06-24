@@ -11,9 +11,6 @@ struct AboutState {
     /// The copyright text.
     var copyrightText = "© Bitwarden Inc. 2015-\(Calendar.current.component(.year, from: Date.now))"
 
-    /// The URL of the feedback webpage.
-    var giveFeedbackUrl: URL?
-
     /// Whether the submit crash logs toggle is on.
     var isSubmitCrashLogsToggleOn: Bool = false
 
