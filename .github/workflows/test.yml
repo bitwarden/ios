@@ -32,10 +32,10 @@ jobs:
 
     steps:
       - name: Check out repo
-        uses: actions/checkout@a5ac7e51b41094c92402da3b24376905380afc29 # v4.1.6
+        uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
 
       - name: Configure Ruby
-        uses: ruby/setup-ruby@d5fb7a202fc07872cb44f00ba8e6197b70cb0c55 # v1.179.0
+        uses: ruby/setup-ruby@3783f195e29b74ae398d7caca108814bbafde90e # v1.180.1
         with:
           bundler-cache: true
 
@@ -86,7 +86,7 @@ jobs:
             "$RESULT_BUNDLE_PATH" >"$COVERAGE_PATH"
 
       - name: Upload to codecov.io
-        uses: codecov/codecov-action@125fc84a9a348dbcf27191600683ec096ec9021c # v4.4.1
+        uses: codecov/codecov-action@e28ff129e5465c2c0dcc6f003fc735cb6ae0c673 # v4.5.0
         with:
           plugin: xcode
           file: ${{ env.COVERAGE_PATH }}
