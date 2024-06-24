@@ -172,16 +172,7 @@ open class BitwardenTestCase: XCTestCase {
             RunLoop.current.run(mode: RunLoop.Mode.default, before: next)
         }
 
-        // If the condition took more than 3 seconds to satisfy, add a warning to the logs to look into it.
-        let elapsed = Date().timeIntervalSince(start)
-        if elapsed > 3 {
-            let numberFormatter = NumberFormatter()
-            numberFormatter.maximumFractionDigits = 3
-            numberFormatter.minimumFractionDigits = 3
-            numberFormatter.minimumIntegerDigits = 1
-            let elapsedString: String = numberFormatter.string(from: NSNumber(value: elapsed)) ?? "nil"
-            print("warning: \(name) line \(line) `waitFor` took \(elapsedString) seconds")
-        }
+        warnIfNeeded(start: start, line: line)
 
         XCTAssert(condition(), failureMessage, file: file, line: line)
     }
@@ -212,5 +203,60 @@ open class BitwardenTestCase: XCTestCase {
             file: file,
             line: line
         )
+    }
+
+    /// Wait for a condition asynchronously to be true. The test will fail if the condition isn't met before the
+    /// specified timeout.
+    ///
+    /// - Parameters:
+    ///     - condition: Return `true` to continue or `false` to keep waiting.
+    ///     - timeout: How long to wait before failing.
+    ///     - failureMessage: Message to display when the condition fails to be met.
+    ///     - file: The file in which the failure occurred. Defaults to the file name of the test
+    ///         case in which the function was called from.
+    ///     - line: The line number in which the failure occurred. Defaults to the line number on
+    ///         which this function was called from.
+    ///
+    open func waitForAsync(
+        _ condition: @escaping () -> Bool,
+        timeout: TimeInterval = 10.0,
+        failureMessage: String = "waitForAsync condition wasn't met within the time limit",
+        file: StaticString = #file,
+        line: UInt = #line
+    ) async throws {
+        let start = Date()
+        let limit = Date(timeIntervalSinceNow: timeout)
+
+        while !condition(), limit > Date() {
+            try await Task.sleep(nanoseconds: 2 * 100_000_000)
+        }
+
+        warnIfNeeded(start: start, line: line)
+
+        XCTAssert(condition(), failureMessage, file: file, line: line)
+    }
+
+    /// Warns if `functionName` took more than `afterSeconds` to complete
+    /// - Parameters:
+    ///   - start: When `waitFor` started
+    ///   - afterSeconds: The seconds that have passed since `start` to check against
+    ///   - functionName: The function name
+    ///   - line: File line were this was originated
+    private func warnIfNeeded(
+        start: Date,
+        afterSeconds: Int = 3,
+        functionName: String = #function,
+        line: UInt = #line
+    ) {
+        // If the condition took more than 3 seconds to satisfy, add a warning to the logs to look into it.
+        let elapsed = Date().timeIntervalSince(start)
+        if elapsed > 3 {
+            let numberFormatter = NumberFormatter()
+            numberFormatter.maximumFractionDigits = 3
+            numberFormatter.minimumFractionDigits = 3
+            numberFormatter.minimumIntegerDigits = 1
+            let elapsedString: String = numberFormatter.string(from: NSNumber(value: elapsed)) ?? "nil"
+            print("warning: \(name) line \(line) `\(functionName)` took \(elapsedString) seconds")
+        }
     }
 }
