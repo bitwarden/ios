@@ -13,6 +13,7 @@ class ViewItemProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
     var coordinator: MockCoordinator<VaultItemRoute, VaultItemEvent>!
     var delegate: MockCipherItemOperationDelegate!
     var errorReporter: MockErrorReporter!
+    var eventService: MockEventService!
     var pasteboardService: MockPasteboardService!
     var stateService: MockStateService!
     var subject: ViewItemProcessor!
@@ -27,12 +28,14 @@ class ViewItemProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
         coordinator = MockCoordinator<VaultItemRoute, VaultItemEvent>()
         delegate = MockCipherItemOperationDelegate()
         errorReporter = MockErrorReporter()
+        eventService = MockEventService()
         pasteboardService = MockPasteboardService()
         stateService = MockStateService()
         vaultRepository = MockVaultRepository()
         let services = ServiceContainer.withMocks(
             authRepository: authRepository,
             errorReporter: errorReporter,
+            eventService: eventService,
             httpClient: client,
             pasteboardService: pasteboardService,
             stateService: stateService,
@@ -53,6 +56,7 @@ class ViewItemProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
         client = nil
         coordinator = nil
         errorReporter = nil
+        eventService = nil
         pasteboardService = nil
         stateService = nil
         subject = nil
@@ -369,6 +373,8 @@ class ViewItemProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
         subject.receive(.copyPressed(value: "hidden field value", field: .customHiddenField))
         XCTAssertEqual(pasteboardService.copiedString, "hidden field value")
         XCTAssertEqual(subject.state.toast?.text, Localizations.valueHasBeenCopied(Localizations.value))
+        waitFor(eventService.collectEventType == .cipherClientCopiedHiddenField)
+        XCTAssertEqual(eventService.collectCipherId, "123")
 
         subject.receive(.copyPressed(value: "text field value", field: .customTextField))
         XCTAssertEqual(pasteboardService.copiedString, "text field value")
@@ -377,10 +383,14 @@ class ViewItemProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
         subject.receive(.copyPressed(value: "password", field: .password))
         XCTAssertEqual(pasteboardService.copiedString, "password")
         XCTAssertEqual(subject.state.toast?.text, Localizations.valueHasBeenCopied(Localizations.password))
+        waitFor(eventService.collectEventType == .cipherClientCopiedPassword)
+        XCTAssertEqual(eventService.collectCipherId, "123")
 
         subject.receive(.copyPressed(value: "security code", field: .securityCode))
         XCTAssertEqual(pasteboardService.copiedString, "security code")
         XCTAssertEqual(subject.state.toast?.text, Localizations.valueHasBeenCopied(Localizations.securityCode))
+        waitFor(eventService.collectEventType == .cipherClientCopiedCardCode)
+        XCTAssertEqual(eventService.collectCipherId, "123")
 
         subject.receive(.copyPressed(value: "totp", field: .totp))
         XCTAssertEqual(pasteboardService.copiedString, "totp")
