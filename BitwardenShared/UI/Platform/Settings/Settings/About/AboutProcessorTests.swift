@@ -66,30 +66,11 @@ class AboutProcessorTests: BitwardenTestCase {
         XCTAssertNil(subject.state.appReviewUrl)
     }
 
-    /// `receive(_:)` with `.clearGiveFeedbackURL` clears the URL in the state.
-    func test_receive_clearGiveFeedbackURL() {
-        subject.state.url = URL(string: "example.com")
-        subject.receive(.clearGiveFeedbackURL)
-
-        XCTAssertNil(subject.state.giveFeedbackUrl)
-    }
-
     /// `receive(_:)` with `.clearURL` clears the URL in the state.
     func test_receive_clearURL() {
         subject.state.url = .example
         subject.receive(.clearURL)
         XCTAssertNil(subject.state.url)
-    }
-
-    /// `receive(_:)` with `.giveFeedbackTapped` populates the URL in the state.
-    func test_receive_giveFeedback() async throws {
-        subject.receive(.giveFeedbackTapped)
-
-        let alert = try XCTUnwrap(coordinator.alertShown.last)
-
-        // Tapping continue navigates the user to the web app.
-        try await alert.tapAction(title: Localizations.continue)
-        XCTAssertNotNil(subject.state.giveFeedbackUrl)
     }
 
     /// `receive(_:)` with `.helpCenterTapped` set the URL to open in the state.
