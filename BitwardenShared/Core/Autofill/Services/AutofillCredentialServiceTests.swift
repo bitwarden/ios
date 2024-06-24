@@ -48,6 +48,7 @@ class AutofillCredentialServiceTests: BitwardenTestCase {
         cipherService = nil
         clientService = nil
         errorReporter = nil
+        eventService = nil
         identityStore = nil
         pasteboardService = nil
         stateService = nil
