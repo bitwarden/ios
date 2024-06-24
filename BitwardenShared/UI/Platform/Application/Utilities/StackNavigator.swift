@@ -301,6 +301,18 @@ extension UINavigationController: StackNavigator {
         if overFullscreen {
             viewController.modalPresentationStyle = .overFullScreen
         }
+        if let popoverPresentationController = viewController.popoverPresentationController,
+           popoverPresentationController.sourceView == nil,
+           popoverPresentationController.barButtonItem == nil,
+           let parentView = availablePresenter?.view {
+            // Provide a default source view and rect when presenting a popover if one isn't
+            // already specified. This prevents a crash when presenting popovers on iPadOS.
+            viewController.popoverPresentationController?.sourceView = view
+            viewController.popoverPresentationController?.sourceRect = CGRect(
+                x: parentView.bounds.midX, y: parentView.bounds.midY, width: 0, height: 0
+            )
+            viewController.popoverPresentationController?.permittedArrowDirections = []
+        }
         availablePresenter?.present(
             viewController,
             animated: animated,
