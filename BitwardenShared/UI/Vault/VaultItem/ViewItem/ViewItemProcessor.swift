@@ -218,7 +218,7 @@ private extension ViewItemProcessor {
     ///   - field: The field being copied.
     ///
     private func copyValue(_ value: String, _ field: CopyableField?) {
-        guard case var .data(cipherState) = state.loadingState else {
+        guard case let .data(cipherState) = state.loadingState else {
             services.errorReporter.log(
                 error: ActionError.dataNotLoaded("Cannot copy value for non-loaded item.")
             )

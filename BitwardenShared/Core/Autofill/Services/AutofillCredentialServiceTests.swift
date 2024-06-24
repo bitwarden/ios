@@ -9,6 +9,7 @@ class AutofillCredentialServiceTests: BitwardenTestCase {
     var cipherService: MockCipherService!
     var clientService: MockClientService!
     var errorReporter: MockErrorReporter!
+    var eventService: MockEventService!
     var identityStore: MockCredentialIdentityStore!
     var pasteboardService: MockPasteboardService!
     var stateService: MockStateService!
@@ -23,6 +24,7 @@ class AutofillCredentialServiceTests: BitwardenTestCase {
         cipherService = MockCipherService()
         clientService = MockClientService()
         errorReporter = MockErrorReporter()
+        eventService = MockEventService()
         identityStore = MockCredentialIdentityStore()
         pasteboardService = MockPasteboardService()
         stateService = MockStateService()
@@ -32,6 +34,7 @@ class AutofillCredentialServiceTests: BitwardenTestCase {
             cipherService: cipherService,
             clientService: clientService,
             errorReporter: errorReporter,
+            eventService: eventService,
             identityStore: identityStore,
             pasteboardService: pasteboardService,
             stateService: stateService,

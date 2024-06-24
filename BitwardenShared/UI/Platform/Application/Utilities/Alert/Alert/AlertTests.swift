@@ -183,7 +183,9 @@ class AlertTests: BitwardenTestCase {
             .copy(
                 toast: Localizations.username,
                 value: "username",
-                requiresMasterPasswordReprompt: false
+                requiresMasterPasswordReprompt: false,
+                logEvent: nil,
+                cipherId: nil
             )
         )
         capturedAction = nil
@@ -197,7 +199,9 @@ class AlertTests: BitwardenTestCase {
             .copy(
                 toast: Localizations.password,
                 value: "password",
-                requiresMasterPasswordReprompt: false
+                requiresMasterPasswordReprompt: false,
+                logEvent: .cipherClientCopiedPassword,
+                cipherId: "123"
             )
         )
         capturedAction = nil

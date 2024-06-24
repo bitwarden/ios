@@ -355,6 +355,13 @@ class ViewItemProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
 
     /// `receive` with `.copyPressed` copies the value with the pasteboard service and shows a toast.
     func test_receive_copyPressed() {
+        let cipherView = CipherView.cardFixture(id: "123")
+        let cipherState = CipherItemState(
+            existing: cipherView,
+            hasPremium: true
+        )!
+        subject.state.loadingState = .data(cipherState)
+
         subject.receive(.copyPressed(value: "card number", field: .cardNumber))
         XCTAssertEqual(pasteboardService.copiedString, "card number")
         XCTAssertEqual(subject.state.toast?.text, Localizations.valueHasBeenCopied(Localizations.number))
@@ -382,6 +389,13 @@ class ViewItemProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
         subject.receive(.copyPressed(value: "username", field: .username))
         XCTAssertEqual(pasteboardService.copiedString, "username")
         XCTAssertEqual(subject.state.toast?.text, Localizations.valueHasBeenCopied(Localizations.username))
+    }
+
+    /// `recieve` with `.copyPressed` doesn't copy if the data isn't loaded.
+    func test_receive_copyPressed_notLoaded() {
+        subject.receive(.copyPressed(value: "card number", field: .cardNumber))
+        XCTAssertNil(pasteboardService.copiedString)
+        XCTAssertNil(subject.state.toast?.text)
     }
 
     /// `receive` with `.customFieldVisibilityPressed()` toggles custom field visibility.
