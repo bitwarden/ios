@@ -218,10 +218,45 @@ private extension ViewItemProcessor {
     ///   - field: The field being copied.
     ///
     private func copyValue(_ value: String, _ field: CopyableField?) {
+        guard case var .data(cipherState) = state.loadingState else {
+            services.errorReporter.log(
+                error: ActionError.dataNotLoaded("Cannot copy value for non-loaded item.")
+            )
+            return
+        }
+
         services.pasteboardService.copy(value)
 
         let localizedFieldName = field?.localizedName ?? Localizations.value
         state.toast = Toast(text: Localizations.valueHasBeenCopied(localizedFieldName))
+        switch field {
+        case .customHiddenField:
+            Task {
+                await services.eventService.collect(
+                    eventType: .cipherClientCopiedHiddenField,
+                    cipherId: cipherState.cipher.id,
+                    errorReporter: services.errorReporter
+                )
+            }
+        case .password:
+            Task {
+                await services.eventService.collect(
+                    eventType: .cipherClientCopiedPassword,
+                    cipherId: cipherState.cipher.id,
+                    errorReporter: services.errorReporter
+                )
+            }
+        case .securityCode:
+            Task {
+                await services.eventService.collect(
+                    eventType: .cipherClientCopiedCardCode,
+                    cipherId: cipherState.cipher.id,
+                    errorReporter: services.errorReporter
+                )
+            }
+        default:
+            break
+        }
     }
 
     /// Download the attachment.
