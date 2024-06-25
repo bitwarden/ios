@@ -132,7 +132,9 @@ private struct VaultItemSelectionSearchableView: View {
             InfoContainer(Localizations.addTheKeyToAnExistingOrNewItem, textAlignment: .leading)
 
             ForEach(store.state.vaultListSections) { section in
-                vaultListSectionView(section)
+                VaultListSectionView(section: section) { item in
+                    vaultListItemView(item, hasDivider: section.items.last != item)
+                }
             }
         }
         .scrollView()
@@ -153,60 +155,36 @@ private struct VaultItemSelectionSearchableView: View {
     private func searchResultItemsView() -> some View {
         ScrollView {
             LazyVStack(spacing: 0) {
-                vaultListItemsView(store.state.searchResults)
+                ForEach(store.state.searchResults) { item in
+                    vaultListItemView(item, hasDivider: store.state.searchResults.last != item)
+                }
             }
             .background(Asset.Colors.backgroundPrimary.swiftUIColor)
-        }
-    }
-
-    /// A view for displaying a list of `VaultListItem`.
-    @ViewBuilder
-    private func vaultListItemsView(_ items: [VaultListItem]) -> some View {
-        ForEach(items) { item in
-            AsyncButton {
-                await store.perform(.vaultListItemTapped(item))
-            } label: {
-                vaultListItemView(item, hasDivider: items.last != item)
-            }
         }
     }
 
     /// A view for displaying a `VaultListItem`.
     @ViewBuilder
     private func vaultListItemView(_ item: VaultListItem, hasDivider: Bool) -> some View {
-        VaultListItemRowView(
-            store: store.child(
-                state: { state in
-                    VaultListItemRowState(
-                        iconBaseURL: state.iconBaseURL,
-                        item: item,
-                        hasDivider: hasDivider,
-                        showWebIcons: state.showWebIcons
-                    )
-                },
-                mapAction: nil, // TODO: BIT-2349 Allow users to add authenticator key to existing items
-                mapEffect: nil // TODO: BIT-2349 Allow users to add authenticator key to existing items
-            ),
-            timeProvider: CurrentTime()
-        )
-        .accessibilityIdentifier("CipherCell")
-    }
-
-    /// A view for displaying a `VaultListSection`.
-    @ViewBuilder
-    private func vaultListSectionView(_ section: VaultListSection) -> some View {
-        VStack(alignment: .leading, spacing: 7) {
-            HStack(alignment: .firstTextBaseline) {
-                SectionHeaderView(section.name)
-                Spacer()
-                SectionHeaderView("\(section.items.count)")
-            }
-
-            LazyVStack(alignment: .leading, spacing: 0) {
-                vaultListItemsView(section.items)
-            }
-            .background(Asset.Colors.backgroundPrimary.swiftUIColor)
-            .clipShape(RoundedRectangle(cornerRadius: 10))
+        AsyncButton {
+            await store.perform(.vaultListItemTapped(item))
+        } label: {
+            VaultListItemRowView(
+                store: store.child(
+                    state: { state in
+                        VaultListItemRowState(
+                            iconBaseURL: state.iconBaseURL,
+                            item: item,
+                            hasDivider: hasDivider,
+                            showWebIcons: state.showWebIcons
+                        )
+                    },
+                    mapAction: nil, // TODO: BIT-2349 Allow users to add authenticator key to existing items
+                    mapEffect: nil // TODO: BIT-2349 Allow users to add authenticator key to existing items
+                ),
+                timeProvider: CurrentTime()
+            )
+            .accessibilityIdentifier("CipherCell")
         }
     }
 }

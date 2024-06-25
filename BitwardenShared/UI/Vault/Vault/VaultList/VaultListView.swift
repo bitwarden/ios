@@ -196,7 +196,13 @@ private struct SearchableVaultListView: View {
                 vaultFilterRow
 
                 ForEach(sections) { section in
-                    vaultItemSectionView(title: section.name, items: section.items)
+                    VaultListSectionView(section: section) { item in
+                        Button {
+                            store.send(.itemPressed(item: item))
+                        } label: {
+                            vaultItemRow(for: item, isLastInSection: section.items.last == item)
+                        }
+                    }
                 }
             }
             .padding(16)
@@ -237,35 +243,6 @@ private struct SearchableVaultListView: View {
             timeProvider: timeProvider
         )
         .accessibilityIdentifier("CipherCell")
-    }
-
-    /// Creates a section that appears in the vault.
-    ///
-    /// - Parameters:
-    ///   - title: The title of the section.
-    ///   - items: The `VaultListItem`s in this section.
-    ///
-    @ViewBuilder
-    private func vaultItemSectionView(title: String, items: [VaultListItem]) -> some View {
-        VStack(alignment: .leading, spacing: 7) {
-            HStack(alignment: .firstTextBaseline) {
-                SectionHeaderView(title)
-                Spacer()
-                SectionHeaderView("\(items.count)")
-            }
-
-            LazyVStack(alignment: .leading, spacing: 0) {
-                ForEach(items) { item in
-                    Button {
-                        store.send(.itemPressed(item: item))
-                    } label: {
-                        vaultItemRow(for: item, isLastInSection: items.last == item)
-                    }
-                }
-            }
-            .background(Asset.Colors.backgroundPrimary.swiftUIColor)
-            .clipShape(RoundedRectangle(cornerRadius: 10))
-        }
     }
 }
 
