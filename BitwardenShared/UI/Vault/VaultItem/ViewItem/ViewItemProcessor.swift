@@ -227,30 +227,13 @@ private extension ViewItemProcessor {
 
         let localizedFieldName = field?.localizedName ?? Localizations.value
         state.toast = Toast(text: Localizations.valueHasBeenCopied(localizedFieldName))
-        switch field {
-        case .customHiddenField:
+        if let event = field?.eventOnCopy {
             Task {
                 await services.eventService.collect(
-                    eventType: .cipherClientCopiedHiddenField,
+                    eventType: event,
                     cipherId: cipherState.cipher.id
                 )
             }
-        case .password:
-            Task {
-                await services.eventService.collect(
-                    eventType: .cipherClientCopiedPassword,
-                    cipherId: cipherState.cipher.id
-                )
-            }
-        case .securityCode:
-            Task {
-                await services.eventService.collect(
-                    eventType: .cipherClientCopiedCardCode,
-                    cipherId: cipherState.cipher.id
-                )
-            }
-        default:
-            break
         }
     }
 
