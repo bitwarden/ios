@@ -729,6 +729,41 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
         XCTAssertTrue(userHasMasterPassword)
     }
 
+    /// `getUserId(email:)` returns the user ID of the user with a matching email.
+    func test_getUserId() async {
+        appSettingsStore.state = State(
+            accounts: [
+                "1": .fixture(profile: .fixture(email: "user1@bitwarden.com", userId: "1")),
+                "2": .fixture(profile: .fixture(email: "user2@bitwarden.com", userId: "2")),
+                "3": .fixture(profile: .fixture(email: "user3@bitwarden.com", userId: "3")),
+            ]
+        )
+
+        let user1Id = await subject.getUserId(email: "user1@bitwarden.com")
+        XCTAssertEqual(user1Id, "1")
+
+        let user3Id = await subject.getUserId(email: "user3@bitwarden.com")
+        XCTAssertEqual(user3Id, "3")
+    }
+
+    /// `getUserId(email:)` returns `nil` if there isn't a user with a matching email.
+    func test_getUserId_noMatchingUser() async {
+        appSettingsStore.state = State(
+            accounts: [
+                "1": .fixture(profile: .fixture(email: "user@bitwarden.com", userId: "1")),
+            ]
+        )
+
+        let userId = await subject.getUserId(email: "user@example.com")
+        XCTAssertNil(userId)
+    }
+
+    /// `getUserId(email:)` returns `nil` if there are no other users.
+    func test_getUserId_noUsers() async {
+        let userId = await subject.getUserId(email: "user@bitwarden.com")
+        XCTAssertNil(userId)
+    }
+
     /// `getUsernameGenerationOptions()` gets the saved username generation options for the account.
     func test_getUsernameGenerationOptions() async throws {
         let options1 = UsernameGenerationOptions(plusAddressedEmail: "user@bitwarden.com")

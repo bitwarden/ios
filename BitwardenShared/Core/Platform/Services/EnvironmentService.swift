@@ -9,6 +9,9 @@ protocol EnvironmentService {
     /// The URL for the API.
     var apiURL: URL { get }
 
+    /// The environment's base URL.
+    var baseURL: URL { get }
+
     /// The URL for the events API.
     var eventsURL: URL { get }
 
@@ -107,6 +110,10 @@ class DefaultEnvironmentService: EnvironmentService {
 extension DefaultEnvironmentService {
     var apiURL: URL {
         environmentUrls.apiURL
+    }
+
+    var baseURL: URL {
+        environmentUrls.baseURL
     }
 
     var eventsURL: URL {

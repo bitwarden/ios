@@ -247,6 +247,39 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         XCTAssertEqual(client.requests[0].url, URL(string: "https://example.com/api/accounts"))
     }
 
+    /// `existingAccountUserId(email:)` returns the user ID of the existing account with the same
+    /// email and base URLs.
+    func test_existingAccountUserId() async throws {
+        environmentService.baseURL = try XCTUnwrap(EnvironmentUrlData.defaultUS.base)
+        stateService.activeAccount = .fixture(profile: .fixture(email: "user@bitwarden.com", userId: "1"))
+        stateService.environmentUrls["1"] = .defaultUS
+        stateService.userId = "1"
+
+        let userId = await subject.existingAccountUserId(email: "user@bitwarden.com")
+
+        XCTAssertEqual(userId, "1")
+    }
+
+    /// `existingAccountUserId(email:)` returns `nil` if there's an existing account with the same
+    /// email but the base URLs are different.
+    func test_existingAccountUserId_matchingAccountDifferentBaseUrl() async throws {
+        environmentService.baseURL = try XCTUnwrap(EnvironmentUrlData.defaultEU.base)
+        stateService.activeAccount = .fixture(profile: .fixture(email: "user@bitwarden.com", userId: "1"))
+        stateService.environmentUrls["1"] = .defaultUS
+        stateService.userId = "1"
+
+        let userId = await subject.existingAccountUserId(email: "user@bitwarden.com")
+
+        XCTAssertNil(userId)
+    }
+
+    /// `existingAccountUserId(email:)` returns `nil` if there isn't an account that matches the email.
+    func test_existingAccountUserId_noMatchingAccount() async throws {
+        let userId = await subject.existingAccountUserId(email: "user@bitwarden.com")
+
+        XCTAssertNil(userId)
+    }
+
     /// `allowBioMetricUnlock(:)` throws an error if required.
     func test_allowBioMetricUnlock_biometricsRepositoryError() async throws {
         biometricsRepository.setBiometricUnlockKeyError = BiometricsServiceError.setAuthKeyFailed

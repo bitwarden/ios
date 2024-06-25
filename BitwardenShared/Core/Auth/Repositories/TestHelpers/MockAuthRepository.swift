@@ -14,6 +14,8 @@ class MockAuthRepository: AuthRepository { // swiftlint:disable:this type_body_l
     var deviceId: String = ""
     var email: String = ""
     var encryptedPin: String = "123"
+    var existingAccountUserIdEmail: String?
+    var existingAccountUserIdResult: String?
     var fingerprintPhraseResult: Result<String, Error> = .success("fingerprint")
     var activeAccount: Account?
     var altAccounts = [Account]()
@@ -97,6 +99,11 @@ class MockAuthRepository: AuthRepository { // swiftlint:disable:this type_body_l
     func deleteAccount(otp: String?, passwordText _: String?) async throws {
         deleteAccountCalled = true
         try deleteAccountResult.get()
+    }
+
+    func existingAccountUserId(email: String) async -> String? {
+        existingAccountUserIdEmail = email
+        return existingAccountUserIdResult
     }
 
     func getAccount(for userId: String?) async throws -> Account {

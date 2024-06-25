@@ -261,6 +261,13 @@ protocol StateService: AnyObject {
     ///
     func getUserHasMasterPassword(userId: String?) async throws -> Bool
 
+    /// Gets the user ID for an account with the specified email.
+    ///
+    /// - Parameter email: The email of the account.
+    /// - Returns: The user ID of the account with a matching email.
+    ///
+    func getUserId(email: String) async -> String?
+
     /// Gets the username generation options for a user ID.
     ///
     /// - Parameter userId: The user ID associated with the username generation options.
@@ -1184,6 +1191,12 @@ actor DefaultStateService: StateService { // swiftlint:disable:this type_body_le
 
     func getUserHasMasterPassword(userId: String?) async throws -> Bool {
         try getAccount(userId: userId).profile.userDecryptionOptions?.hasMasterPassword ?? true
+    }
+
+    func getUserId(email: String) async -> String? {
+        guard let state = appSettingsStore.state else { return nil }
+        let account = state.accounts.values.first { $0.profile.email == email }
+        return account?.profile.userId
     }
 
     func getUsernameGenerationOptions(userId: String?) async throws -> UsernameGenerationOptions? {
