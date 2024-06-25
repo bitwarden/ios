@@ -135,10 +135,12 @@ extension BitwardenSdk.SelectedCredential {
 }
 
 extension BitwardenSdk.Fido2CredentialAutofillView {
+    static let defaultRpId = "myApp.com"
+
     static func fixture(
         credentialId: Data = Data(capacity: 16),
         cipherId: String = "1",
-        rpId: String = "myApp.com",
+        rpId: String = defaultRpId,
         userNameForUi: String? = nil,
         userHandle: Data = Data(capacity: 64)
     ) -> BitwardenSdk.Fido2CredentialAutofillView {
