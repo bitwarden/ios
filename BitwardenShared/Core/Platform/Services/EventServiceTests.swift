@@ -6,6 +6,7 @@ class EventServiceTests: XCTestCase {
     // MARK: Properties
 
     var cipherService: MockCipherService!
+    var errorReporter: MockErrorReporter!
     var organizationService: MockOrganizationService!
     var stateService: MockStateService!
     var subject: EventService!
@@ -17,11 +18,13 @@ class EventServiceTests: XCTestCase {
         super.setUp()
 
         cipherService = MockCipherService()
+        errorReporter = MockErrorReporter()
         organizationService = MockOrganizationService()
         stateService = MockStateService()
         timeProvider = MockTimeProvider(.mockTime(Date(year: 2024, month: 6, day: 28)))
         subject = DefaultEventService(
             cipherService: cipherService,
+            errorReporter: errorReporter,
             organizationService: organizationService,
             stateService: stateService,
             timeProvider: timeProvider
@@ -32,6 +35,7 @@ class EventServiceTests: XCTestCase {
         super.tearDown()
 
         cipherService = nil
+        errorReporter = nil
         organizationService = nil
         stateService = nil
         subject = nil
@@ -50,7 +54,7 @@ class EventServiceTests: XCTestCase {
             EventData(type: .cipherClientViewed, cipherId: nil, date: timeProvider.presentTime.advanced(by: -5)),
         ]
 
-        try await subject.collect(eventType: .userLoggedIn)
+        await subject.collect(eventType: .userLoggedIn)
 
         let actual = stateService.events["1"]
         XCTAssertEqual(
@@ -71,7 +75,7 @@ class EventServiceTests: XCTestCase {
         organizationService.fetchAllOrganizationsResult = .success([.fixture(id: "One", useEvents: true)])
         cipherService.fetchCipherResult = .success(.fixture(organizationId: "One"))
 
-        try await subject.collect(eventType: .userLoggedIn, cipherId: "1")
+        await subject.collect(eventType: .userLoggedIn, cipherId: "1")
 
         let actual = stateService.events["1"]
         XCTAssertEqual(
@@ -87,7 +91,7 @@ class EventServiceTests: XCTestCase {
         try await stateService.setActiveAccount(userId: "1")
         organizationService.fetchAllOrganizationsResult = .success([.fixture(useEvents: true)])
 
-        try await subject.collect(eventType: .userLoggedIn, cipherId: "1")
+        await subject.collect(eventType: .userLoggedIn, cipherId: "1")
         XCTAssertEqual(stateService.events, [:])
     }
 
@@ -99,7 +103,7 @@ class EventServiceTests: XCTestCase {
         organizationService.fetchAllOrganizationsResult = .success([.fixture(id: "One", useEvents: true)])
         cipherService.fetchCipherResult = .success(.fixture(organizationId: "Two"))
 
-        try await subject.collect(eventType: .userLoggedIn, cipherId: "1")
+        await subject.collect(eventType: .userLoggedIn, cipherId: "1")
         XCTAssertEqual(stateService.events, [:])
     }
 
@@ -109,7 +113,7 @@ class EventServiceTests: XCTestCase {
         stateService.accounts = [.fixture(profile: .fixture(userId: "1"))]
         try await stateService.setActiveAccount(userId: "1")
 
-        try await subject.collect(eventType: .userLoggedIn)
+        await subject.collect(eventType: .userLoggedIn)
         XCTAssertEqual(stateService.events, [:])
     }
 
@@ -120,14 +124,14 @@ class EventServiceTests: XCTestCase {
         try await stateService.setActiveAccount(userId: "1")
         organizationService.fetchAllOrganizationsResult = .success([.fixture(useEvents: false)])
 
-        try await subject.collect(eventType: .userLoggedIn)
+        await subject.collect(eventType: .userLoggedIn)
         XCTAssertEqual(stateService.events, [:])
     }
 
     /// `collect(eventType:cipherId:uploadImmediately:)` does not collect events
     /// if the user is not authenticated.
     func test_collect_unauthenticated() async throws {
-        try await subject.collect(eventType: .userLoggedIn)
+        await subject.collect(eventType: .userLoggedIn)
         XCTAssertEqual(stateService.events, [:])
     }
 }

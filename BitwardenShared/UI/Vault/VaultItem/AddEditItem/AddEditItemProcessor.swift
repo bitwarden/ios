@@ -157,8 +157,7 @@ final class AddEditItemProcessor: StateProcessor<// swiftlint:disable:this type_
                 Task {
                     await services.eventService.collect(
                         eventType: .cipherClientToggledPasswordVisible,
-                        cipherId: state.cipher.id,
-                        errorReporter: services.errorReporter
+                        cipherId: state.cipher.id
                     )
                 }
             }
@@ -229,7 +228,7 @@ final class AddEditItemProcessor: StateProcessor<// swiftlint:disable:this type_
             state.folders = [.default] + folders
 
             if !state.configuration.isAdding {
-                try await services.eventService.collect(eventType: .cipherClientViewed, cipherId: state.cipher.id)
+                await services.eventService.collect(eventType: .cipherClientViewed, cipherId: state.cipher.id)
             }
         } catch {
             services.errorReporter.log(error: error)
@@ -240,7 +239,7 @@ final class AddEditItemProcessor: StateProcessor<// swiftlint:disable:this type_
     ///
     /// - Parameter action: The action that was sent from the `AddEditCustomFieldsView`.
     ///
-    private func handleCustomFieldAction(_ action: AddEditCustomFieldsAction) { // swiftlint:disable:this cyclomatic_complexity function_body_length line_length
+    private func handleCustomFieldAction(_ action: AddEditCustomFieldsAction) { // swiftlint:disable:this cyclomatic_complexity line_length
         switch action {
         case let .booleanFieldChanged(newValue, index):
             guard state.customFieldsState.customFields.indices.contains(index) else { return }
@@ -286,8 +285,7 @@ final class AddEditItemProcessor: StateProcessor<// swiftlint:disable:this type_
                 Task {
                     await services.eventService.collect(
                         eventType: .cipherClientToggledHiddenFieldVisible,
-                        cipherId: state.cipher.id,
-                        errorReporter: services.errorReporter
+                        cipherId: state.cipher.id
                     )
                 }
             }
@@ -339,8 +337,7 @@ final class AddEditItemProcessor: StateProcessor<// swiftlint:disable:this type_
                 Task {
                     await services.eventService.collect(
                         eventType: .cipherClientToggledCardCodeVisible,
-                        cipherId: cipherId,
-                        errorReporter: services.errorReporter
+                        cipherId: cipherId
                     )
                 }
             }
@@ -351,8 +348,7 @@ final class AddEditItemProcessor: StateProcessor<// swiftlint:disable:this type_
                 Task {
                     await services.eventService.collect(
                         eventType: .cipherClientToggledCardNumberVisible,
-                        cipherId: cipherId,
-                        errorReporter: services.errorReporter
+                        cipherId: cipherId
                     )
                 }
             }

@@ -353,8 +353,7 @@ extension VaultListProcessor {
                     Task {
                         await self.services.eventService.collect(
                             eventType: event,
-                            cipherId: cipherId,
-                            errorReporter: self.services.errorReporter
+                            cipherId: cipherId
                         )
                     }
                 }

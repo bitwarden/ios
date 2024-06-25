@@ -7,13 +7,15 @@ import OSLog
 /// and uploading those events.
 ///
 protocol EventService {
-    /// Save an event to disk for future upload.
+    /// Save an event to disk for future upload. This does not propagate errors that might be
+    /// thrown in internal processing to avoid complexity at call sites, and instead just
+    /// logs the error.
     ///
     /// - Parameters:
     ///   - eventType: The event to track.
     ///   - cipherId: The ID of the relevant cipher for some events.
     ///   - uploadImmediately: If `true` then immediately attempts an upload after saving.
-    func collect(eventType: EventType, cipherId: String?, uploadImmediately: Bool) async throws
+    func collect(eventType: EventType, cipherId: String?, uploadImmediately: Bool) async
 }
 
 extension EventService {
@@ -21,23 +23,8 @@ extension EventService {
         eventType: EventType,
         cipherId: String? = nil,
         uploadImmediately: Bool = false
-    ) async throws {
-        try await collect(eventType: eventType, cipherId: cipherId, uploadImmediately: uploadImmediately)
-    }
-
-    /// Save an event to disk for future upload. Takes an error reporter to do the default handling of errors,
-    /// which is to log them with the error reporter.
-    func collect(
-        eventType: EventType,
-        cipherId: String? = nil,
-        uploadImmediately: Bool = false,
-        errorReporter: ErrorReporter
     ) async {
-        do {
-            try await collect(eventType: eventType, cipherId: cipherId, uploadImmediately: uploadImmediately)
-        } catch {
-            errorReporter.log(error: error)
-        }
+        await collect(eventType: eventType, cipherId: cipherId, uploadImmediately: uploadImmediately)
     }
 }
 
@@ -50,6 +37,9 @@ class DefaultEventService: EventService {
 
     /// The service used to manage ciphers.
     let cipherService: CipherService
+
+    /// The service used to report errors.
+    let errorReporter: ErrorReporter
 
     /// The service used to manage organizations.
     let organizationService: OrganizationService
@@ -66,17 +56,20 @@ class DefaultEventService: EventService {
     ///
     /// - Parameters:
     ///   - cipherService: The service used to manage ciphers.
+    ///   - errorReporter: The service used to report errors.
     ///   - organizationService: The service used to manage organizations.
     ///   - stateService: The service used to manage account state.
     ///   - timeProvider: The service used to provide time.
     ///
     init(
         cipherService: CipherService,
+        errorReporter: ErrorReporter,
         organizationService: OrganizationService,
         stateService: StateService,
         timeProvider: TimeProvider
     ) {
         self.cipherService = cipherService
+        self.errorReporter = errorReporter
         self.organizationService = organizationService
         self.stateService = stateService
         self.timeProvider = timeProvider
@@ -84,35 +77,39 @@ class DefaultEventService: EventService {
 
     // MARK: Methods
 
-    func collect(eventType: EventType, cipherId: String?, uploadImmediately: Bool) async throws {
-        guard let userId = try? await stateService.getActiveAccountId() else { return }
+    func collect(eventType: EventType, cipherId: String?, uploadImmediately: Bool) async {
+        do {
+            guard let userId = try? await stateService.getActiveAccountId() else { return }
 
-        let organizations = try await organizationService.fetchAllOrganizations().filter(\.useEvents)
+            let organizations = try await organizationService.fetchAllOrganizations().filter(\.useEvents)
 
-        guard !organizations.isEmpty else {
-            return
-        }
-
-        if let cipherId {
-            guard let cipher = try await cipherService.fetchCipher(withId: cipherId),
-                  let orgId = cipher.organizationId,
-                  organizations.map(\.id).contains(orgId) else {
+            guard !organizations.isEmpty else {
                 return
             }
+
+            if let cipherId {
+                guard let cipher = try await cipherService.fetchCipher(withId: cipherId),
+                      let orgId = cipher.organizationId,
+                      organizations.map(\.id).contains(orgId) else {
+                    return
+                }
+            }
+
+            var events = try await stateService.getEvents(userId: userId)
+
+            let newEvent = EventData(
+                type: eventType,
+                cipherId: cipherId,
+                date: timeProvider.presentTime
+            )
+
+            events.append(newEvent)
+
+            // swiftlint:disable:next line_length
+            Logger.application.info("Event collected: \(String(describing: eventType)) on cipher \(cipherId ?? "(none)", privacy: .public) at \(newEvent.date, privacy: .public))")
+            try await stateService.setEvents(events, userId: userId)
+        } catch {
+            errorReporter.log(error: error)
         }
-
-        var events = try await stateService.getEvents(userId: userId)
-
-        let newEvent = EventData(
-            type: eventType,
-            cipherId: cipherId,
-            date: timeProvider.presentTime
-        )
-
-        events.append(newEvent)
-
-        // swiftlint:disable:next line_length
-        Logger.application.info("Event collected: \(String(describing: eventType)) on cipher \(cipherId ?? "(none)", privacy: .public) at \(newEvent.date, privacy: .public))")
-        try await stateService.setEvents(events, userId: userId)
     }
 }

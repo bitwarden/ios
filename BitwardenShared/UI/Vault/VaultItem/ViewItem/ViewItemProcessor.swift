@@ -129,8 +129,7 @@ final class ViewItemProcessor: StateProcessor<ViewItemState, ViewItemAction, Vie
                 Task {
                     await services.eventService.collect(
                         eventType: .cipherClientToggledHiddenFieldVisible,
-                        cipherId: cipherState.cipher.id,
-                        errorReporter: services.errorReporter
+                        cipherId: cipherState.cipher.id
                     )
                 }
             }
@@ -161,8 +160,7 @@ final class ViewItemProcessor: StateProcessor<ViewItemState, ViewItemAction, Vie
                 Task {
                     await services.eventService.collect(
                         eventType: .cipherClientToggledPasswordVisible,
-                        cipherId: cipherState.cipher.id,
-                        errorReporter: services.errorReporter
+                        cipherId: cipherState.cipher.id
                     )
                 }
             }
@@ -234,24 +232,21 @@ private extension ViewItemProcessor {
             Task {
                 await services.eventService.collect(
                     eventType: .cipherClientCopiedHiddenField,
-                    cipherId: cipherState.cipher.id,
-                    errorReporter: services.errorReporter
+                    cipherId: cipherState.cipher.id
                 )
             }
         case .password:
             Task {
                 await services.eventService.collect(
                     eventType: .cipherClientCopiedPassword,
-                    cipherId: cipherState.cipher.id,
-                    errorReporter: services.errorReporter
+                    cipherId: cipherState.cipher.id
                 )
             }
         case .securityCode:
             Task {
                 await services.eventService.collect(
                     eventType: .cipherClientCopiedCardCode,
-                    cipherId: cipherState.cipher.id,
-                    errorReporter: services.errorReporter
+                    cipherId: cipherState.cipher.id
                 )
             }
         default:
@@ -356,8 +351,7 @@ private extension ViewItemProcessor {
                 Task {
                     await services.eventService.collect(
                         eventType: .cipherClientToggledCardCodeVisible,
-                        cipherId: cipherState.cipher.id,
-                        errorReporter: services.errorReporter
+                        cipherId: cipherState.cipher.id
                     )
                 }
             }
@@ -368,8 +362,7 @@ private extension ViewItemProcessor {
                 Task {
                     await services.eventService.collect(
                         eventType: .cipherClientToggledCardNumberVisible,
-                        cipherId: cipherState.cipher.id,
-                        errorReporter: services.errorReporter
+                        cipherId: cipherState.cipher.id
                     )
                 }
             }
@@ -515,7 +508,7 @@ private extension ViewItemProcessor {
                 }
                 newState.hasVerifiedMasterPassword = state.hasVerifiedMasterPassword
                 state = newState
-                try await services.eventService.collect(eventType: .cipherClientViewed, cipherId: itemId)
+                await services.eventService.collect(eventType: .cipherClientViewed, cipherId: itemId)
             }
         } catch {
             services.errorReporter.log(error: error)

@@ -196,7 +196,7 @@ extension DefaultAutofillCredentialService: AutofillCredentialService {
             pasteboardService.copy(codeModel.code)
         }
 
-        try await eventService.collect(
+        await eventService.collect(
             eventType: .cipherClientAutofilled,
             cipherId: cipher.id
         )
