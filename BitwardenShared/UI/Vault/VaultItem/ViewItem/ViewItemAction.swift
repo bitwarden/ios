@@ -90,6 +90,20 @@ enum CopyableField {
     /// The username field.
     case username
 
+    /// The event to collect when copying the field.
+    var eventOnCopy: EventType? {
+        switch self {
+        case .customHiddenField:
+            .cipherClientCopiedHiddenField
+        case .password:
+            .cipherClientCopiedPassword
+        case .securityCode:
+            .cipherClientCopiedCardCode
+        default:
+            nil
+        }
+    }
+
     /// Whether copying the field requires the user to be reprompted for their master password, if
     /// master password reprompt is enabled.
     var requiresMasterPasswordReprompt: Bool {
