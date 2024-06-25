@@ -331,6 +331,24 @@ extension Fido2Credential {
     }
 }
 
+extension BitwardenSdk.Fido2CredentialAutofillView {
+    static func fixture(
+        credentialId: Data = Data(capacity: 16),
+        cipherId: String = "1",
+        rpId: String = "myApp.com",
+        userNameForUi: String? = nil,
+        userHandle: Data = Data(capacity: 64)
+    ) -> BitwardenSdk.Fido2CredentialAutofillView {
+        .init(
+            credentialId: credentialId,
+            cipherId: cipherId,
+            rpId: rpId,
+            userNameForUi: userNameForUi,
+            userHandle: userHandle
+        )
+    }
+}
+
 extension Fido2CredentialView {
     static func fixture(
         counter: String = "",
