@@ -101,14 +101,18 @@ class DefaultEventService: EventService {
             }
         }
 
+        var events = try await stateService.getEvents(userId: userId)
+
         let newEvent = EventData(
             type: eventType,
             cipherId: cipherId,
             date: timeProvider.presentTime
         )
 
+        events.append(newEvent)
+
         // swiftlint:disable:next line_length
         Logger.application.info("Event collected: \(String(describing: eventType)) on cipher \(cipherId ?? "(none)", privacy: .public) at \(newEvent.date, privacy: .public))")
-        try await stateService.setEvents([newEvent], userId: userId)
+        try await stateService.setEvents(events, userId: userId)
     }
 }

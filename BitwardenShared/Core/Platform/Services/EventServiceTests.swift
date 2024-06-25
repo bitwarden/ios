@@ -46,13 +46,19 @@ class EventServiceTests: XCTestCase {
         stateService.accounts = [.fixture(profile: .fixture(userId: "1"))]
         try await stateService.setActiveAccount(userId: "1")
         organizationService.fetchAllOrganizationsResult = .success([.fixture(useEvents: true)])
+        stateService.events["1"] = [
+            EventData(type: .cipherClientViewed, cipherId: nil, date: timeProvider.presentTime.advanced(by: -5)),
+        ]
 
         try await subject.collect(eventType: .userLoggedIn)
 
         let actual = stateService.events["1"]
         XCTAssertEqual(
             actual,
-            [EventData(type: .userLoggedIn, cipherId: nil, date: timeProvider.presentTime)]
+            [
+                EventData(type: .cipherClientViewed, cipherId: nil, date: timeProvider.presentTime.advanced(by: -5)),
+                EventData(type: .userLoggedIn, cipherId: nil, date: timeProvider.presentTime),
+            ]
         )
     }
 
