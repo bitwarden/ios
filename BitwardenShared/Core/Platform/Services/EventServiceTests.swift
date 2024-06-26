@@ -44,7 +44,7 @@ class EventServiceTests: XCTestCase {
 
     // MARK: Tests
 
-    /// `collect(eventType:cipherId:uploadImmediately:)` saves events to the state service
+    /// `collect(eventType:cipherId:)` saves events to the state service
     /// if the user is authenticated, is part of organizations, and those organizations use events.
     func test_collect() async throws {
         stateService.accounts = [.fixture(profile: .fixture(userId: "1"))]
@@ -66,7 +66,7 @@ class EventServiceTests: XCTestCase {
         )
     }
 
-    /// `collect(eventType:cipherId:uploadImmediately:)` saves events to the state service
+    /// `collect(eventType:cipherId:)` saves events to the state service
     /// if the cipher ID belongs to one of the organizations the user is a member of
     /// and the organization uses events.
     func test_collect_cipher() async throws {
@@ -84,7 +84,7 @@ class EventServiceTests: XCTestCase {
         )
     }
 
-    /// `collect(eventType:cipherId:uploadImmediately:)` does not collect events
+    /// `collect(eventType:cipherId:)` does not collect events
     /// if the cipher ID refers to a cipher the user doesn't have
     func test_collect_cipher_noCipher() async throws {
         stateService.accounts = [.fixture(profile: .fixture(userId: "1"))]
@@ -95,7 +95,7 @@ class EventServiceTests: XCTestCase {
         XCTAssertEqual(stateService.events, [:])
     }
 
-    /// `collect(eventType:cipherId:uploadImmediately:)` does not collect events
+    /// `collect(eventType:cipherId:)` does not collect events
     /// if the cipher ID does not belong to one of the event-using organizations the user is a member of
     func test_collect_cipher_noOrganizations() async throws {
         stateService.accounts = [.fixture(profile: .fixture(userId: "1"))]
@@ -107,7 +107,7 @@ class EventServiceTests: XCTestCase {
         XCTAssertEqual(stateService.events, [:])
     }
 
-    /// `collect(eventType:cipherId:uploadImmediately:)` does not collect events
+    /// `collect(eventType:cipherId:)` does not collect events
     /// if the user is not in any organizations.
     func test_collect_noOrganizations() async throws {
         stateService.accounts = [.fixture(profile: .fixture(userId: "1"))]
@@ -117,7 +117,7 @@ class EventServiceTests: XCTestCase {
         XCTAssertEqual(stateService.events, [:])
     }
 
-    /// `collect(eventType:cipherId:uploadImmediately:)` does not collect events
+    /// `collect(eventType:cipherId:)` does not collect events
     /// if the user is not part of any organizations that use events.
     func test_collect_organizationDoesntUseEvents() async throws {
         stateService.accounts = [.fixture(profile: .fixture(userId: "1"))]
@@ -128,7 +128,7 @@ class EventServiceTests: XCTestCase {
         XCTAssertEqual(stateService.events, [:])
     }
 
-    /// `collect(eventType:cipherId:uploadImmediately:)` does not collect events
+    /// `collect(eventType:cipherId:)` does not collect events
     /// if the user is not authenticated.
     func test_collect_unauthenticated() async throws {
         await subject.collect(eventType: .userLoggedIn)

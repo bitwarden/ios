@@ -5,11 +5,9 @@ import Foundation
 class MockEventService: EventService {
     var collectEventType: EventType?
     var collectCipherId: String?
-    var collectUploadImmediately: Bool?
 
-    func collect(eventType: EventType, cipherId: String?, uploadImmediately: Bool) async {
+    func collect(eventType: EventType, cipherId: String?) async {
         collectEventType = eventType
         collectCipherId = cipherId
-        collectUploadImmediately = uploadImmediately
     }
 }

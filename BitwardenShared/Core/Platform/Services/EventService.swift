@@ -14,17 +14,15 @@ protocol EventService {
     /// - Parameters:
     ///   - eventType: The event to track.
     ///   - cipherId: The ID of the relevant cipher for some events.
-    ///   - uploadImmediately: If `true` then immediately attempts an upload after saving.
-    func collect(eventType: EventType, cipherId: String?, uploadImmediately: Bool) async
+    func collect(eventType: EventType, cipherId: String?) async
 }
 
 extension EventService {
     func collect(
         eventType: EventType,
-        cipherId: String? = nil,
-        uploadImmediately: Bool = false
+        cipherId: String? = nil
     ) async {
-        await collect(eventType: eventType, cipherId: cipherId, uploadImmediately: uploadImmediately)
+        await collect(eventType: eventType, cipherId: cipherId)
     }
 }
 
@@ -77,7 +75,7 @@ class DefaultEventService: EventService {
 
     // MARK: Methods
 
-    func collect(eventType: EventType, cipherId: String?, uploadImmediately: Bool) async {
+    func collect(eventType: EventType, cipherId: String?) async {
         do {
             guard let userId = try? await stateService.getActiveAccountId() else { return }
 
