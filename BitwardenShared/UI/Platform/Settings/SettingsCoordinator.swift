@@ -294,7 +294,7 @@ final class SettingsCoordinator: Coordinator, HasStackNavigator { // swiftlint:d
         stackNavigator?.present(navController)
     }
 
-    /// presents an activity contorller for an exported vault file URL.
+    /// Presents an activity controller for an exported vault file URL.
     ///
     private func showExportedVaultURL(_ fileURL: URL) {
         let activityVC = UIActivityViewController(activityItems: [fileURL], applicationActivities: nil)

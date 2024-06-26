@@ -238,7 +238,7 @@ final class VaultGroupProcessor: StateProcessor<// swiftlint:disable:this type_b
     private func showMoreOptionsAlert(for item: VaultListItem) async {
         do {
             // Only ciphers have more options.
-            guard case let .cipher(cipherView) = item.itemType else { return }
+            guard case let .cipher(cipherView, _) = item.itemType else { return }
 
             let hasPremium = await (try? services.vaultRepository.doesActiveAccountHavePremium()) ?? false
             let hasMasterPassword = try await services.stateService.getUserHasMasterPassword()

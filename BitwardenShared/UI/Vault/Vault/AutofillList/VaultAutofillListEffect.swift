@@ -5,8 +5,8 @@ import BitwardenSdk
 /// Actions that can be processed by a `VaultAutofillListProcessor`.
 ///
 enum VaultAutofillListEffect: Equatable {
-    /// A cipher in the list was tapped
-    case cipherTapped(CipherView)
+    /// A vault item in the list was tapped
+    case vaultItemTapped(VaultListItem)
 
     /// Any initial data for the view should be loaded.
     case loadData

@@ -34,7 +34,7 @@ struct VaultAutofillListView: View {
                     store: store.child(
                         state: \.profileSwitcherState,
                         mapAction: VaultAutofillListAction.profileSwitcher,
-                        mapEffect: nil
+                        mapEffect: VaultAutofillListEffect.profileSwitcher
                     )
                 )
             }
@@ -104,13 +104,13 @@ private struct VaultAutofillListSearchableView: View {
 
     /// A view for displaying a list of ciphers.
     @ViewBuilder
-    private func cipherListView(_ ciphers: [CipherView]) -> some View {
+    private func cipherListView(_ items: [VaultListItem]) -> some View {
         LazyVStack(spacing: 0) {
-            ForEach(ciphers) { cipher in
+            ForEach(items) { item in
                 AsyncButton {
-                    await store.perform(.cipherTapped(cipher))
+                    await store.perform(.vaultItemTapped(item))
                 } label: {
-                    cipherRowView(cipher, hasDivider: cipher != ciphers.last)
+                    vaultItemRow(for: item, isLastInSection: items.last == item)
                 }
             }
         }
@@ -119,33 +119,31 @@ private struct VaultAutofillListSearchableView: View {
         .scrollView()
     }
 
-    /// A view for displaying a cipher in a row in a list.
+    /// Creates a row in the list for the provided item.
+    ///
+    /// - Parameters:
+    ///   - item: The `VaultListItem` to use when creating the view.
+    ///   - isLastInSection: A flag indicating if this item is the last one in the section.
+    ///
     @ViewBuilder
-    private func cipherRowView(_ cipher: CipherView, hasDivider: Bool) -> some View {
-        VStack(spacing: 0) {
-            VStack(spacing: 0) {
-                Text(cipher.name)
-                    .frame(maxWidth: .infinity, alignment: .leading)
-                    .foregroundColor(Asset.Colors.textPrimary.swiftUIColor)
-                    .styleGuide(.body)
-
-                if let username = cipher.login?.username, !username.isEmpty {
-                    Text(username)
-                        .frame(maxWidth: .infinity, alignment: .leading)
-                        .foregroundColor(Asset.Colors.textSecondary.swiftUIColor)
-                        .styleGuide(.subheadline)
-                }
-            }
-            .lineLimit(1)
-            .padding(.horizontal, 16)
-            .padding(.vertical, 8)
-            .frame(minHeight: 60)
-
-            if hasDivider {
-                Divider()
-                    .padding(.leading, 16)
-            }
-        }
+    private func vaultItemRow(for item: VaultListItem, isLastInSection: Bool = false) -> some View {
+        VaultListItemRowView(
+            store: store.child(
+                state: { state in
+                    VaultListItemRowState(
+                        iconBaseURL: state.iconBaseURL,
+                        item: item,
+                        hasDivider: !isLastInSection,
+                        showWebIcons: state.showWebIcons,
+                        isFromExtension: true
+                    )
+                },
+                mapAction: nil,
+                mapEffect: nil
+            ),
+            timeProvider: nil
+        )
+        .accessibilityIdentifier("CipherCell")
     }
 
     /// The content displayed in the view.
@@ -199,20 +197,33 @@ private struct VaultAutofillListSearchableView: View {
                 processor: StateProcessor(
                     state: VaultAutofillListState(
                         ciphersForAutofill: [
-                            .fixture(
+                            .init(cipherView: .fixture(
                                 id: "1",
                                 login: .fixture(username: "user@bitwarden.com"),
                                 name: "Apple"
-                            ),
-                            .fixture(
+                            ))!,
+                            .init(cipherView: .fixture(
                                 id: "2",
                                 login: .fixture(username: "user@bitwarden.com"),
                                 name: "Bitwarden"
-                            ),
-                            .fixture(
+                            ))!,
+                            .init(cipherView: .fixture(
                                 id: "3",
                                 name: "Company XYZ"
-                            ),
+                            ))!,
+                            .init(cipherView: .fixture(
+                                id: "4",
+                                login: .fixture(
+                                    fido2Credentials: [
+                                        .fixture(),
+                                    ],
+                                    username: "user@bitwarden.com"
+                                ),
+                                name: "Company XYZ"
+                            ), fido2CredentialAutofillView: .fixture(
+                                rpId: "someApp",
+                                userNameForUi: "user"
+                            ))!,
                         ]
                     )
                 )

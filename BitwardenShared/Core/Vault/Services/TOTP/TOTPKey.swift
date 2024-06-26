@@ -1,6 +1,6 @@
 /// Represents different types of TOTP keys.
 ///
-enum TOTPKey: Equatable {
+enum TOTPKey: Equatable, Sendable {
     /// A base 32 string key
     case base32(key: String)
 
