@@ -99,8 +99,6 @@ public class AppProcessor {
         await services.environmentService.loadURLsForActiveAccount()
         _ = await services.configService.getConfig()
 
-        services.application?.registerForRemoteNotifications()
-
         if let initialRoute {
             coordinator.navigate(to: initialRoute)
         } else {

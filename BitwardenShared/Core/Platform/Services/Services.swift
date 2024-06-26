@@ -5,6 +5,7 @@ typealias Services = HasAPIService
     & HasAccountAPIService
     & HasAppIdService
     & HasAppSettingsStore
+    & HasApplication
     & HasAuthAPIService
     & HasAuthRepository
     & HasAuthService
@@ -63,6 +64,13 @@ protocol HasAppIdService {
 protocol HasAppSettingsStore {
     /// The service used by the application to persist app setting values.
     var appSettingsStore: AppSettingsStore { get }
+}
+
+/// Protocol for an object that provides an `Application`.
+///
+protocol HasApplication {
+    /// The application instance, if the app isn't running in an extension.
+    var application: Application? { get }
 }
 
 /// Protocol for an object that provides an `AuthAPIService`.
