@@ -473,13 +473,14 @@ extension DefaultAuthRepository: AuthRepository {
     }
 
     func existingAccountUserId(email: String) async -> String? {
-        guard let userId = await stateService.getUserId(email: email),
-              let baseUrl = try? await stateService.getEnvironmentUrls(userId: userId)?.base,
-              baseUrl == environmentService.baseURL
-        else {
-            return nil
+        let matchingUserIds = await stateService.getUserIds(email: email)
+        for userId in matchingUserIds {
+            guard let baseUrl = try? await stateService.getEnvironmentUrls(userId: userId)?.base,
+                  baseUrl == environmentService.baseURL
+            else { continue }
+            return userId
         }
-        return userId
+        return nil
     }
 
     func getAccount(for userId: String?) async throws -> Account {

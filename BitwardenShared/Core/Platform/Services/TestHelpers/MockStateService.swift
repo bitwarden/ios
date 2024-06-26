@@ -30,6 +30,7 @@ class MockStateService: StateService { // swiftlint:disable:this type_body_lengt
     var doesActiveAccountHavePremiumResult: Result<Bool, Error> = .success(true)
     var encryptedPinByUserId = [String: String]()
     var environmentUrls = [String: EnvironmentUrlData]()
+    var environmentUrlsError: Error?
     var forcePasswordResetReason = [String: ForcePasswordResetReason]()
     var lastActiveTime = [String: Date]()
     var loginRequest: LoginRequestNotification?
@@ -58,7 +59,7 @@ class MockStateService: StateService { // swiftlint:disable:this type_body_lengt
     var updateProfileResponse: ProfileResponseModel?
     var updateProfileUserId: String?
     var userHasMasterPassword = [String: Bool]()
-    var userId: String?
+    var userIds = [String]()
     var usernameGenerationOptions = [String: UsernameGenerationOptions]()
     var vaultTimeout = [String: SessionTimeoutValue]()
 
@@ -178,6 +179,9 @@ class MockStateService: StateService { // swiftlint:disable:this type_body_lengt
     }
 
     func getEnvironmentUrls(userId: String?) async throws -> EnvironmentUrlData? {
+        if let environmentUrlsError {
+            throw environmentUrlsError
+        }
         let userId = try unwrapUserId(userId)
         return environmentUrls[userId]
     }
@@ -252,8 +256,8 @@ class MockStateService: StateService { // swiftlint:disable:this type_body_lengt
         return userHasMasterPassword[userId] ?? true
     }
 
-    func getUserId(email: String) async -> String? {
-        userId
+    func getUserIds(email: String) async -> [String] {
+        userIds
     }
 
     func getUsernameGenerationOptions(userId: String?) async throws -> UsernameGenerationOptions? {

@@ -253,11 +253,23 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         environmentService.baseURL = try XCTUnwrap(EnvironmentUrlData.defaultUS.base)
         stateService.activeAccount = .fixture(profile: .fixture(email: "user@bitwarden.com", userId: "1"))
         stateService.environmentUrls["1"] = .defaultUS
-        stateService.userId = "1"
+        stateService.userIds = ["1"]
 
         let userId = await subject.existingAccountUserId(email: "user@bitwarden.com")
 
         XCTAssertEqual(userId, "1")
+    }
+
+    /// `existingAccountUserId(email:)` returns `nil` if getting the environment URLs throws an error.
+    func test_existingAccountUserId_getEnvironmentUrlsError() async throws {
+        environmentService.baseURL = try XCTUnwrap(EnvironmentUrlData.defaultUS.base)
+        stateService.activeAccount = .fixture(profile: .fixture(email: "user@bitwarden.com", userId: "1"))
+        stateService.environmentUrlsError = StateServiceError.noAccounts
+        stateService.userIds = ["1"]
+
+        let userId = await subject.existingAccountUserId(email: "user@bitwarden.com")
+
+        XCTAssertNil(userId)
     }
 
     /// `existingAccountUserId(email:)` returns `nil` if there's an existing account with the same
@@ -266,11 +278,28 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         environmentService.baseURL = try XCTUnwrap(EnvironmentUrlData.defaultEU.base)
         stateService.activeAccount = .fixture(profile: .fixture(email: "user@bitwarden.com", userId: "1"))
         stateService.environmentUrls["1"] = .defaultUS
-        stateService.userId = "1"
+        stateService.userIds = ["1"]
 
         let userId = await subject.existingAccountUserId(email: "user@bitwarden.com")
 
         XCTAssertNil(userId)
+    }
+
+    /// `existingAccountUserId(email:)` returns the matching user ID with the same base URL, if
+    /// there are multiple matches for the user's email.
+    func test_existingAccountUserId_multipleMatching() async throws {
+        stateService.activeAccount = .fixture(profile: .fixture(email: "user@bitwarden.com", userId: "1"))
+        stateService.environmentUrls["1"] = .defaultUS
+        stateService.environmentUrls["2"] = .defaultEU
+        stateService.userIds = ["1", "2"]
+
+        environmentService.baseURL = try XCTUnwrap(EnvironmentUrlData.defaultUS.base)
+        var userId = await subject.existingAccountUserId(email: "user@bitwarden.com")
+        XCTAssertEqual(userId, "1")
+
+        environmentService.baseURL = try XCTUnwrap(EnvironmentUrlData.defaultEU.base)
+        userId = await subject.existingAccountUserId(email: "user@bitwarden.com")
+        XCTAssertEqual(userId, "2")
     }
 
     /// `existingAccountUserId(email:)` returns `nil` if there isn't an account that matches the email.
