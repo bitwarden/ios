@@ -108,6 +108,17 @@ class EventServiceTests: XCTestCase {
     }
 
     /// `collect(eventType:cipherId:)` does not collect events
+    /// if an error is thrown
+    func test_collect_error() async throws {
+        stateService.accounts = [.fixture(profile: .fixture(userId: "1"))]
+        try await stateService.setActiveAccount(userId: "1")
+        organizationService.fetchAllOrganizationsResult = .failure(BitwardenTestError.example)
+
+        await subject.collect(eventType: .userLoggedIn, cipherId: "1")
+        XCTAssertEqual(errorReporter.errors as? [BitwardenTestError], [.example])
+    }
+
+    /// `collect(eventType:cipherId:)` does not collect events
     /// if the user is not in any organizations.
     func test_collect_noOrganizations() async throws {
         stateService.accounts = [.fixture(profile: .fixture(userId: "1"))]
