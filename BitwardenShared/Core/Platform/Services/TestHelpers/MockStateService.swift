@@ -41,6 +41,7 @@ class MockStateService: StateService { // swiftlint:disable:this type_body_lengt
     var lastUserShouldConnectToWatch = false
     var masterPasswordHashes = [String: String]()
     var notificationsLastRegistrationDates = [String: Date]()
+    var notificationsLastRegistrationError: Error?
     var passwordGenerationOptions = [String: PasswordGenerationOptions]()
     var pinProtectedUserKeyValue = [String: String]()
     var preAuthEnvironmentUrls: EnvironmentUrlData?
@@ -201,6 +202,9 @@ class MockStateService: StateService { // swiftlint:disable:this type_body_lengt
     }
 
     func getNotificationsLastRegistrationDate(userId: String?) async throws -> Date? {
+        if let notificationsLastRegistrationError {
+            throw notificationsLastRegistrationError
+        }
         let userId = try unwrapUserId(userId)
         return notificationsLastRegistrationDates[userId]
     }
