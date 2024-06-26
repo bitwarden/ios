@@ -34,7 +34,7 @@ struct VaultAutofillListView: View {
                     store: store.child(
                         state: \.profileSwitcherState,
                         mapAction: VaultAutofillListAction.profileSwitcher,
-                        mapEffect: nil
+                        mapEffect: VaultAutofillListEffect.profileSwitcher
                     )
                 )
             }

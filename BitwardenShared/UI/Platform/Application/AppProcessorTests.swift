@@ -136,6 +136,24 @@ class AppProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_body
         XCTAssertEqual(notificationService.messageReceivedMessage?.keys.first, "knock knock")
     }
 
+    /// `openUrl(_:)` handles receiving an OTP deep link and routing to the vault item selection screen.
+    func test_openUrl_otpKey() async throws {
+        let otpKey: String = .otpAuthUriKeyComplete
+
+        try await subject.openUrl(XCTUnwrap(URL(string: otpKey)))
+
+        let model = try XCTUnwrap(OTPAuthModel(otpAuthKey: otpKey))
+        XCTAssertEqual(coordinator.routes.last, .tab(.vault(.vaultItemSelection(model))))
+    }
+
+    /// `openUrl(_:)` handles receiving an OTP deep link if the URL isn't an OTP key.
+    func test_openUrl_otpKey_invalid() async throws {
+        try await subject.openUrl(XCTUnwrap(URL(string: "https://google.com")))
+
+        XCTAssertEqual(coordinator.alertShown, [.defaultAlert(title: Localizations.anErrorHasOccurred)])
+        XCTAssertEqual(coordinator.routes, [])
+    }
+
     /// `provideCredential(for:)` returns the credential with the specified identifier.
     func test_provideCredential() async throws {
         let credential = ASPasswordCredential(user: "user@bitwarden.com", password: "password123")
