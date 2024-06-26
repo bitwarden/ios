@@ -271,7 +271,7 @@ struct CipherItemState: Equatable {
             isPersonalOwnershipDisabled: false,
             loginState: cipherView.loginItemState(
                 isTOTPCodeVisible: !(hasMasterPassword && cipherView.reprompt == .password),
-                showTOTP: hasPremium
+                showTOTP: hasPremium || cipherView.organizationUseTotp
             ),
             name: cipherView.name,
             notes: cipherView.notes ?? "",

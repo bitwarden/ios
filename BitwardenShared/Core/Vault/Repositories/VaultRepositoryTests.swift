@@ -1622,6 +1622,39 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
         XCTAssertTrue(vaultListItems.isEmpty)
     }
 
+    /// `vaultListPublisher(group:filter:)` returns a publisher for the vault list items for premium
+    /// accounts if the organization uses TOTP.
+    func test_vaultListPublisher_groups_totp_organizationUseTotp() async throws {
+        stateService.activeAccount = nonPremiumAccount
+        stateService.doesActiveAccountHavePremiumResult = .success(false)
+        cipherService.ciphersSubject.send([
+            Cipher.fixture(
+                id: "1",
+                login: .fixture(totp: "123"),
+                name: "Org TOTP",
+                organizationUseTotp: true,
+                type: .login
+            ),
+            Cipher.fixture(
+                id: "2",
+                login: .fixture(totp: "123"),
+                name: "Non-org TOTP",
+                organizationUseTotp: false,
+                type: .login
+            ),
+        ])
+
+        var iterator = try await subject.vaultListPublisher(group: .totp, filter: .allVaults).makeAsyncIterator()
+        let vaultListSections = try await iterator.next()
+        let vaultListItems = try XCTUnwrap(vaultListSections).flatMap(\.items)
+
+        let itemNames: [String] = vaultListItems.compactMap { item in
+            guard case let .totp(name, _) = item.itemType else { return nil }
+            return name
+        }
+        XCTAssertEqual(itemNames, ["Org TOTP"])
+    }
+
     /// `vaultListPublisher(group:filter:)` filters out TOTP items with keys that
     ///      the SDK cannot parse into TOTP codes.
     func test_vaultListPublisher_groups_totp_invalidCode() async throws {
@@ -1788,6 +1821,43 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
         ]
 
         XCTAssertEqual(vaultListSections, expectedResult)
+    }
+
+    /// `vaultListPublisher(filter:)` returns a publisher for the vault list sections
+    ///  with a TOTP section if the user has ciphers where the organization uses TOTP.
+    func test_vaultListPublisher_section_nonPremiumOrganizationUseTotp() async throws {
+        stateService.activeAccount = nonPremiumAccount
+        stateService.doesActiveAccountHavePremiumResult = .success(false)
+        let ciphers: [Cipher] = [
+            .fixture(id: "1", login: .fixture(totp: "123"), type: .login),
+            .fixture(id: "2", login: .fixture(totp: "123"), organizationUseTotp: true, type: .login),
+            .fixture(
+                deletedDate: Date(),
+                id: "3",
+                login: .fixture(totp: "123"),
+                organizationUseTotp: true,
+                type: .login
+            ),
+        ]
+        let collection = Collection.fixture(id: "1")
+        let folder = Folder.fixture(id: "1")
+        cipherService.ciphersSubject.send(ciphers)
+        collectionService.collectionsSubject.send([collection])
+        folderService.foldersSubject.send([folder])
+
+        var iterator = try await subject.vaultListPublisher(filter: .allVaults).makeAsyncIterator()
+        let vaultListSections = try await iterator.next()
+        let totpSections = vaultListSections?.filter { $0.id == "TOTP" }
+        XCTAssertEqual(
+            totpSections,
+            [
+                VaultListSection(
+                    id: "TOTP",
+                    items: [.fixtureGroup(id: "Types.VerificationCodes", group: .totp, count: 1)],
+                    name: Localizations.totp
+                ),
+            ]
+        )
     }
 
     /// `vaultListPublisher(filter:)` records an error if the folder ids is nil.
