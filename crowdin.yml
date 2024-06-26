@@ -4,9 +4,9 @@ preserve_hierarchy: true
 files:
   - source: "/BitwardenShared/UI/Platform/Application/Support/Localizations/en.lproj/Localizable.strings"
     dest: "/ios/%original_file_name%"
-    translation: "/BitwardenShared/UI/Platform/Application/Support/Localizations/%osx_locale%.lproj/%original_file_name%"
+    translation: "/BitwardenShared/UI/Platform/Application/Support/Localizations/%osx_code%/%original_file_name%"
     update_option: update_as_unapproved
   - source: "/BitwardenWatchApp/Localization/en.lproj/Localizable.strings"
     dest: "/ios-watch/%original_file_name%"
-    translation: "/BitwardenWatchApp/Localization/%osx_locale%.lproj/%original_file_name%"
+    translation: "/BitwardenWatchApp/Localization/%osx_code%/%original_file_name%"
     update_option: update_as_unapproved
