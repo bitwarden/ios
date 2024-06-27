@@ -82,8 +82,8 @@ public struct OTPAuthModel: Equatable, Hashable, Sendable {
             if parts.count > 1 {
                 issuer = issuer ?? String(parts[0])
                 accountName = String(parts[1])
-            } else {
-                accountName = label
+            } else if let first = parts.first {
+                accountName = String(first)
             }
         }
 

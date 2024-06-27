@@ -67,6 +67,23 @@ class VaultItemSelectionViewTests: BitwardenTestCase {
         )
     }
 
+    /// The empty view renders correctly when there's no account or issuer.
+    func test_snapshot_cipherSelection_emptyNoAccountOrIssuer() {
+        processor = MockProcessor(state: VaultItemSelectionState(
+            iconBaseURL: nil,
+            otpAuthModel: .fixtureMinimum
+        ))
+        subject = VaultItemSelectionView(store: Store(processor: processor))
+
+        let account = ProfileSwitcherItem.anneAccount
+        processor.state.profileSwitcherState.accounts = [account]
+        processor.state.profileSwitcherState.activeAccountId = account.userId
+        assertSnapshots(
+            of: subject.navStackWrapped,
+            as: [.defaultPortrait]
+        )
+    }
+
     /// The populated view renders correctly.
     func test_snapshot_cipherSelection_populated() {
         let account = ProfileSwitcherItem.anneAccount
