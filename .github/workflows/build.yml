@@ -54,7 +54,6 @@ jobs:
           echo -e "\nCalculating next version..."
           current_year=$(date +%Y)
           current_month=$(date +%m)
-          echo "Current date is ${current_year} - ${current_month}"
 
           latest_tag_version=$(git tag --sort=committerdate --list | tail -1)
           latest_version=${latest_tag_version:1}  # remove 'v' from tag version
@@ -63,7 +62,10 @@ jobs:
           latest_minor_version=$(echo $latest_version | cut -d "." -f 2)
           latest_patch_version=$(echo $latest_version | cut -d "." -f 3)
 
-          echo "  latest_version:  $latest_version"
+          echo "  current_year:         $current_year"
+          echo "  current_month:        $current_month"
+          echo "  latest_tag_version:   $latest_tag_version"
+          echo "  latest_version:       $latest_version"
           echo "  latest_major_version: $latest_major_version"
           echo "  latest_minor_version: $latest_minor_version"
           echo "  latest_patch_version: $latest_patch_version"
