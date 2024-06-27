@@ -6,6 +6,7 @@ class EnvironmentServiceTests: XCTestCase {
     // MARK: Properties
 
     var stateService: MockStateService!
+    var standardUserDefaults: UserDefaults!
     var subject: EnvironmentService!
 
     // MARK: Setup & Teardown
@@ -14,14 +15,20 @@ class EnvironmentServiceTests: XCTestCase {
         super.setUp()
 
         stateService = MockStateService()
+        standardUserDefaults = UserDefaults(suiteName: "test")
+        standardUserDefaults.removeObject(forKey: "com.apple.configuration.managed")
 
-        subject = DefaultEnvironmentService(stateService: stateService)
+        subject = DefaultEnvironmentService(
+            stateService: stateService,
+            standardUserDefaults: standardUserDefaults
+        )
     }
 
     override func tearDown() {
         super.tearDown()
 
         stateService = nil
+        standardUserDefaults = nil
         subject = nil
     }
 
@@ -79,6 +86,55 @@ class EnvironmentServiceTests: XCTestCase {
         XCTAssertEqual(subject.sendShareURL, URL(string: "https://vault.bitwarden.eu/#/send"))
         XCTAssertEqual(subject.settingsURL, URL(string: "https://vault.bitwarden.eu/#/settings"))
         XCTAssertEqual(subject.webVaultURL, URL(string: "https://vault.bitwarden.eu"))
+        XCTAssertEqual(stateService.preAuthEnvironmentUrls, urls)
+    }
+
+    /// `loadURLsForActiveAccount()` loads the managed config URLs.
+    func test_loadURLsForActiveAccount_managedConfig() async throws {
+        standardUserDefaults.setValue(
+            ["baseEnvironmentUrl": "https://vault.example.com"],
+            forKey: "com.apple.configuration.managed"
+        )
+
+        await subject.loadURLsForActiveAccount()
+
+        let urls = try EnvironmentUrlData(base: XCTUnwrap(URL(string: "https://vault.example.com")))
+        XCTAssertEqual(subject.apiURL, URL(string: "https://vault.example.com/api"))
+        XCTAssertEqual(subject.eventsURL, URL(string: "https://vault.example.com/events"))
+        XCTAssertEqual(subject.iconsURL, URL(string: "https://vault.example.com/icons"))
+        XCTAssertEqual(subject.identityURL, URL(string: "https://vault.example.com/identity"))
+        XCTAssertEqual(subject.importItemsURL, URL(string: "https://vault.example.com/#/tools/import"))
+        XCTAssertEqual(subject.region, .selfHosted)
+        XCTAssertEqual(subject.sendShareURL, URL(string: "https://vault.example.com/#/send"))
+        XCTAssertEqual(subject.settingsURL, URL(string: "https://vault.example.com/#/settings"))
+        XCTAssertEqual(subject.webVaultURL, URL(string: "https://vault.example.com"))
+        XCTAssertEqual(stateService.preAuthEnvironmentUrls, urls)
+    }
+
+    /// `loadURLsForActiveAccount()` doesn't load the managed config URLs if there's an active
+    /// account, but sets the pre-auth URLs to the managed config URLs.
+    func test_loadURLsForActiveAccount_managedConfigActiveAccount() async throws {
+        let account = Account.fixture()
+        stateService.activeAccount = account
+        stateService.environmentUrls[account.profile.userId] = .defaultUS
+        standardUserDefaults.setValue(
+            ["baseEnvironmentUrl": "https://vault.example.com"],
+            forKey: "com.apple.configuration.managed"
+        )
+
+        await subject.loadURLsForActiveAccount()
+
+        XCTAssertEqual(subject.apiURL, URL(string: "https://vault.bitwarden.com/api"))
+        XCTAssertEqual(subject.eventsURL, URL(string: "https://vault.bitwarden.com/events"))
+        XCTAssertEqual(subject.iconsURL, URL(string: "https://vault.bitwarden.com/icons"))
+        XCTAssertEqual(subject.identityURL, URL(string: "https://vault.bitwarden.com/identity"))
+        XCTAssertEqual(subject.importItemsURL, URL(string: "https://vault.bitwarden.com/#/tools/import"))
+        XCTAssertEqual(subject.region, .unitedStates)
+        XCTAssertEqual(subject.sendShareURL, URL(string: "https://vault.bitwarden.com/#/send"))
+        XCTAssertEqual(subject.settingsURL, URL(string: "https://vault.bitwarden.com/#/settings"))
+        XCTAssertEqual(subject.webVaultURL, URL(string: "https://vault.bitwarden.com"))
+
+        let urls = try EnvironmentUrlData(base: XCTUnwrap(URL(string: "https://vault.example.com")))
         XCTAssertEqual(stateService.preAuthEnvironmentUrls, urls)
     }
 
