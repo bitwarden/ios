@@ -44,6 +44,7 @@ jobs:
             jq -r ".commit.message"
           )
           echo "Two"
+          echo "$commit_message"
           ID=$(echo "$commit_message" | head -1 | grep -o "(#.*)" | grep -o "[0-9]*")
           echo "Three"
           echo "id=$ID" >> $GITHUB_OUTPUT
