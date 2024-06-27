@@ -83,10 +83,12 @@ class VaultItemSelectionProcessor: StateProcessor<
         case let .profileSwitcher(action):
             handle(action)
         case let .searchStateChanged(isSearching: isSearching):
-            guard isSearching else { return }
-            state.searchText = ""
-            state.searchResults = []
-            state.showNoResults = false
+            guard isSearching else {
+                state.searchText = ""
+                state.searchResults = []
+                state.showNoResults = false
+                return
+            }
             state.profileSwitcherState.isVisible = false
         case let .searchTextChanged(newValue):
             state.searchText = newValue

@@ -284,7 +284,7 @@ class VaultItemSelectionProcessorTests: BitwardenTestCase {
         subject.state.searchResults = [.fixture()]
         subject.state.showNoResults = true
 
-        subject.receive(.searchStateChanged(isSearching: true))
+        subject.receive(.searchStateChanged(isSearching: false))
 
         XCTAssertTrue(subject.state.searchResults.isEmpty)
         XCTAssertTrue(subject.state.searchText.isEmpty)

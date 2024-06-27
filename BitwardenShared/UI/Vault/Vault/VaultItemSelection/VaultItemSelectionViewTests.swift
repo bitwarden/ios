@@ -105,4 +105,28 @@ class VaultItemSelectionViewTests: BitwardenTestCase {
             as: [.defaultPortrait, .defaultPortraitDark, .defaultPortraitAX5]
         )
     }
+
+    /// The search view renders correctly when there's search results.
+    func test_snapshot_cipherSelection_search() {
+        let ciphers: [CipherView] = [
+            .fixture(id: "1", login: .fixture(username: "user@bitwarden.com"), name: "Example"),
+            .fixture(id: "2", login: .fixture(username: "user@bitwarden.com"), name: "Example Co"),
+        ]
+        processor.state.searchResults = ciphers.compactMap(VaultListItem.init)
+        processor.state.searchText = "Example"
+        assertSnapshots(
+            of: subject.navStackWrapped,
+            as: [.defaultPortrait, .defaultPortraitDark, .defaultPortraitAX5]
+        )
+    }
+
+    /// The search view renders correctly when there's no search results.
+    func test_snapshot_cipherSelection_searchEmpty() {
+        processor.state.searchText = "Example"
+        processor.state.showNoResults = true
+        assertSnapshots(
+            of: subject.navStackWrapped,
+            as: [.defaultPortrait, .defaultPortraitDark, .defaultPortraitAX5]
+        )
+    }
 }
