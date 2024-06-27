@@ -96,6 +96,7 @@ struct VaultListItemRowView: View {
                         Text("\(count)")
                             .styleGuide(.body)
                             .foregroundColor(Asset.Colors.textSecondary.swiftUIColor)
+
                     case let .totp(_, model):
                         totpCodeRow(model)
                     }

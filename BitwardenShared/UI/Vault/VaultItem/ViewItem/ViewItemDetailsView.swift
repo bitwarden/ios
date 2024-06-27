@@ -114,7 +114,6 @@ struct ViewItemDetailsView: View {
                                             .imageStyle(.accessoryIcon)
                                     }
                                     .accessibilityIdentifier("HiddenCustomFieldCopyValueButton")
-
                                 case .text:
                                     Button {
                                         store.send(.copyPressed(value: value, field: .customTextField))
