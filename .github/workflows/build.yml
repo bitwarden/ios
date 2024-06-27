@@ -1,6 +1,10 @@
 name: Build
 
 on:
+  push:
+    branches:
+      - main
+      - pm-8984/automate-beta-builds
   workflow_dispatch:
     inputs:
       build-variant:
@@ -20,7 +24,7 @@ on:
         type: number
 
 env:
-  build-variant: ${{ inputs.build-variant || 'Production' }}
+  build-variant: ${{ inputs.build-variant || 'Beta' }}
 
 jobs:
   build:
