@@ -75,6 +75,13 @@ struct VaultItemSelectionView: View {
 private struct VaultItemSelectionSearchableView: View {
     // MARK: Properties
 
+    /// The message to display when there's no search results.
+    var emptyViewMessage: String {
+        Localizations.thereAreNoItemsInYourVaultThatMatchX(
+            store.state.ciphersMatchingName ?? "--"
+        ) + "\n" + Localizations.searchForAnItemOrAddANewItem
+    }
+
     /// A flag indicating if the search bar is focused.
     @Environment(\.isSearching) private var isSearching
 
@@ -116,42 +123,23 @@ private struct VaultItemSelectionSearchableView: View {
             searchContentView()
         } else {
             if store.state.vaultListSections.isEmpty {
-                GeometryReader { reader in
-                    VStack(spacing: 24) {
-                        Asset.Images.openSource.swiftUIImage
-                            .resizable()
-                            .frame(width: 100, height: 100)
-                            .padding(.bottom, 8)
-
-                        Text(
-                            Localizations.thereAreNoItemsInYourVaultThatMatchX(
-                                store.state.ciphersMatchingName ?? "--"
-                            ) +
-                                "\n" +
-                                Localizations.searchForAnItemOrAddANewItem
-                        )
-                        .styleGuide(.callout)
-                        .foregroundColor(Asset.Colors.textPrimary.swiftUIColor)
-                        .multilineTextAlignment(.center)
-
-                        Button {
-                            store.send(.addTapped)
-                        } label: {
-                            HStack(spacing: 8) {
-                                Asset.Images.plus.swiftUIImage
-                                    .imageStyle(.accessoryIcon(
-                                        color: Asset.Colors.textPrimaryInverted.swiftUIColor,
-                                        scaleWithFont: true
-                                    ))
-
-                                Text(Localizations.addAnItem)
-                            }
+                EmptyContentView(
+                    image: Asset.Images.openSource.swiftUIImage,
+                    text: emptyViewMessage
+                ) {
+                    Button {
+                        store.send(.addTapped)
+                    } label: {
+                        Label {
+                            Text(Localizations.addAnItem)
+                        } icon: {
+                            Asset.Images.plus.swiftUIImage
+                                .imageStyle(.accessoryIcon(
+                                    color: Asset.Colors.textPrimaryInverted.swiftUIColor,
+                                    scaleWithFont: true
+                                ))
                         }
-                        .buttonStyle(.primary(shouldFillWidth: false))
                     }
-                    .padding(.vertical, 16)
-                    .frame(maxWidth: .infinity, minHeight: reader.size.height)
-                    .scrollView(addVerticalPadding: false)
                 }
             } else {
                 matchingItemsView()
