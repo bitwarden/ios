@@ -34,6 +34,7 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
+          echo "One"
           commit_message=$(
             curl -s -L \
               -H "Accept: application/vnd.github+json" \
@@ -42,7 +43,9 @@ jobs:
               https://api.github.com/repos/${{ github.repository }}/commits/${{ github.sha }} | \
             jq -r ".commit.message"
           )
+          echo "Two"
           ID=$(echo "$commit_message" | head -1 | grep -o "(#.*)" | grep -o "[0-9]*")
+          echo "Three"
           echo "id=$ID" >> $GITHUB_OUTPUT
 
   version:
