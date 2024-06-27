@@ -34,7 +34,7 @@ jobs:
       - name: Check out repo
         uses: actions/checkout@a5ac7e51b41094c92402da3b24376905380afc29 # v4.1.6
         with:
-          fetch-tags: true
+          fetch-depth: 0
 
       - name: Echo environment
         run: |
@@ -278,12 +278,6 @@ jobs:
           echo "Next Version: $next_version"
           echo "version=$next_version" >> $GITHUB_OUTPUT
           yq -i '.settings.MARKETING_VERSION = "$next_version"' 'project.yml'
-
-      # - name: Update build version
-      #   if: ${{ inputs.build-version }}
-      #   run: |
-      #     build_version=${{ inputs.build-version }}
-      #     yq -i '.settings.MARKETING_VERSION = "${{ inputs.build-version }}"' 'project.yml'
 
       - name: Update build number
         run: |
