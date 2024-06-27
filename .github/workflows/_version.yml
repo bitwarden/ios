@@ -8,9 +8,6 @@
           is-release:
             type: boolean
             required: true
-          pull-request-number:
-            type: string
-            required: true
         outputs:
           version:
             description: "version to be built"
