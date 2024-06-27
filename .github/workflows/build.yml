@@ -246,7 +246,7 @@ jobs:
 
       - name: Update build version
         run: |
-          if [[ "${{ inputs.build-version }}"]]; then
+          if [[ ! -z "${{ inputs.build-version }}" ]]; then
             echo -e "\nApplying version override"
             next_version=${{ inputs.build-version }}
           else
