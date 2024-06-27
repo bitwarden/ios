@@ -245,7 +245,8 @@ jobs:
         run: |
           ./Scripts/select_variant.sh ${{ env.build-variant }}
 
-      - name: Update build version
+      - name: Calculate build version
+        id: calculate
         run: |
           if [[ ! -z "${{ inputs.build-version }}" ]]; then
             echo -e "\nApplying version override"
@@ -277,7 +278,16 @@ jobs:
           fi
 
           echo "Next Version: $next_version"
-          yq -i '.settings.MARKETING_VERSION = ${{ '$next_version' }}' 'project.yml'
+
+          # yq -i '.settings.MARKETING_VERSION = ${{ '$next_version' }}' 'project.yml'
+          # cat project.yml | grep MARKETING_VERSION
+          echo "version=$next_version" >> $GITHUB_OUTPUT
+
+      - name: Update build version
+        env:
+          build_version: ${{ steps.calculate.outputs.version }}
+        run: |
+          yq -i '.settings.MARKETING_VERSION = "${{ env.build_version }}"' 'project.yml'
           cat project.yml | grep MARKETING_VERSION
 
       - name: Update build number
