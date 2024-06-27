@@ -11,6 +11,8 @@ class VaultItemSelectionProcessorTests: BitwardenTestCase { // swiftlint:disable
     var authRepository: MockAuthRepository!
     var coordinator: MockCoordinator<VaultRoute, AuthAction>!
     var errorReporter: MockErrorReporter!
+    var pasteboardService: MockPasteboardService!
+    var stateService: MockStateService!
     var subject: VaultItemSelectionProcessor!
     var userVerificationHelper: MockUserVerificationHelper!
     var vaultRepository: MockVaultRepository!
@@ -23,6 +25,8 @@ class VaultItemSelectionProcessorTests: BitwardenTestCase { // swiftlint:disable
         authRepository = MockAuthRepository()
         coordinator = MockCoordinator()
         errorReporter = MockErrorReporter()
+        pasteboardService = MockPasteboardService()
+        stateService = MockStateService()
         userVerificationHelper = MockUserVerificationHelper()
         vaultRepository = MockVaultRepository()
 
@@ -31,6 +35,8 @@ class VaultItemSelectionProcessorTests: BitwardenTestCase { // swiftlint:disable
             services: ServiceContainer.withMocks(
                 authRepository: authRepository,
                 errorReporter: errorReporter,
+                pasteboardService: pasteboardService,
+                stateService: stateService,
                 vaultRepository: vaultRepository
             ),
             state: VaultItemSelectionState(
@@ -47,6 +53,8 @@ class VaultItemSelectionProcessorTests: BitwardenTestCase { // swiftlint:disable
         authRepository = nil
         coordinator = nil
         errorReporter = nil
+        pasteboardService = nil
+        stateService = nil
         subject = nil
         userVerificationHelper = nil
         vaultRepository = nil
@@ -91,6 +99,337 @@ class VaultItemSelectionProcessorTests: BitwardenTestCase { // swiftlint:disable
         await subject.perform(.loadData)
 
         XCTAssertEqual(subject.state.profileSwitcherState, .empty(shouldAlwaysHideAddAccount: true))
+    }
+
+    /// `perform(_:)` with `.morePressed` and press `copyPassword` presents master password re-prompt alert.
+    func test_perform_morePressed_copyPassword_rePromptMasterPassword() async throws {
+        let account = Account.fixture()
+        stateService.activeAccount = account
+        stateService.userHasMasterPassword = [account.profile.userId: true]
+
+        // A login with data should show the copy and launch actions.
+        let loginWithData = CipherView.loginFixture(
+            login: .fixture(
+                password: "secretPassword",
+                uris: [.fixture(uri: URL.example.relativeString, match: nil)],
+                username: "username"
+            ),
+            reprompt: .password
+        )
+        let item = try XCTUnwrap(VaultListItem(cipherView: loginWithData))
+
+        await subject.perform(.morePressed(item))
+
+        var alert = try XCTUnwrap(coordinator.alertShown.last)
+        XCTAssertEqual(alert.title, "Bitwarden")
+        XCTAssertEqual(alert.alertActions.count, 6)
+        XCTAssertEqual(alert.alertActions[3].title, Localizations.copyPassword)
+
+        // Test the functionality of the copy user name and password buttons.
+
+        // Copy username copies the username.
+        let copyUsernameAction = try XCTUnwrap(alert.alertActions[2])
+        await copyUsernameAction.handler?(copyUsernameAction, [])
+        XCTAssertEqual(pasteboardService.copiedString, "username")
+
+        // Copy password copies the user's password.
+        let copyPasswordAction = try XCTUnwrap(alert.alertActions[3])
+        await copyPasswordAction.handler?(copyPasswordAction, [])
+
+        // mock the master password
+        authRepository.validatePasswordResult = .success(true)
+
+        // Validate master password re-prompt is shown
+        alert = try XCTUnwrap(coordinator.alertShown.last)
+        XCTAssertEqual(alert, .masterPasswordPrompt { _ in })
+        var textField = try XCTUnwrap(alert.alertTextFields.first)
+        textField = AlertTextField(id: "password", text: "password")
+        let submitAction = try XCTUnwrap(alert.alertActions.first(where: { $0.title == Localizations.submit }))
+        await submitAction.handler?(submitAction, [textField])
+
+        XCTAssertEqual(pasteboardService.copiedString, "secretPassword")
+    }
+
+    /// `perform(_:)` with `.morePressed` and press `copyPassword` presents master password re-prompt alert,
+    ///  entering wrong password should not allow to copy password.
+    func test_perform_morePressed_copyPassword_passwordReprompt_invalidPassword() async throws {
+        let account = Account.fixture()
+        stateService.activeAccount = account
+        stateService.userHasMasterPassword = [account.profile.userId: true]
+
+        // A login with data should show the copy and launch actions.
+        let loginWithData = CipherView.loginFixture(
+            login: .fixture(
+                password: "password",
+                uris: [.fixture(uri: URL.example.relativeString, match: nil)],
+                username: "username"
+            ),
+            reprompt: .password
+        )
+        let item = try XCTUnwrap(VaultListItem(cipherView: loginWithData))
+
+        await subject.perform(.morePressed(item))
+
+        var alert = try XCTUnwrap(coordinator.alertShown.last)
+        XCTAssertEqual(alert.title, "Bitwarden")
+        XCTAssertEqual(alert.alertActions.count, 6)
+        XCTAssertEqual(alert.alertActions[3].title, Localizations.copyPassword)
+
+        // Test the functionality of the copy user name and password buttons.
+
+        // Copy username copies the username.
+        let copyUsernameAction = try XCTUnwrap(alert.alertActions[2])
+        await copyUsernameAction.handler?(copyUsernameAction, [])
+        XCTAssertEqual(pasteboardService.copiedString, "username")
+
+        // Copy password copies the user's password.
+        let copyPasswordAction = try XCTUnwrap(alert.alertActions[3])
+        await copyPasswordAction.handler?(copyPasswordAction, [])
+
+        // mock the master password
+        authRepository.validatePasswordResult = .success(false)
+
+        // Validate master password re-prompt is shown
+        alert = try XCTUnwrap(coordinator.alertShown.last)
+        XCTAssertEqual(alert, .masterPasswordPrompt { _ in })
+        try await alert.tapAction(title: Localizations.submit)
+
+        alert = try XCTUnwrap(coordinator.alertShown.last)
+        XCTAssertEqual(alert, .defaultAlert(title: Localizations.invalidMasterPassword))
+
+        XCTAssertNotEqual(pasteboardService.copiedString, "secretPassword")
+        XCTAssertEqual(pasteboardService.copiedString, "username")
+    }
+
+    /// `perform(_:)` with `.morePressed` and press `copyTotp` presents master password re-prompt
+    /// alert and copies the TOTP code when the master password is confirmed.
+    func test_perform_morePressed_copyTotp_passwordReprompt() async throws {
+        let account = Account.fixture()
+        stateService.activeAccount = account
+        stateService.userHasMasterPassword = [account.profile.userId: true]
+
+        vaultRepository.refreshTOTPCodeResult = .success(
+            LoginTOTPState(
+                authKeyModel: TOTPKeyModel(authenticatorKey: .base32Key)!,
+                codeModel: TOTPCodeModel(code: "123321", codeGenerationDate: Date(), period: 30)
+            )
+        )
+
+        let item = try XCTUnwrap(
+            VaultListItem(
+                cipherView: .fixture(
+                    login: .fixture(totp: "totpKey"),
+                    reprompt: .password
+                )
+            )
+        )
+
+        await subject.perform(.morePressed(item))
+
+        authRepository.validatePasswordResult = .success(true)
+
+        let optionsAlert = try XCTUnwrap(coordinator.alertShown.last)
+        try await optionsAlert.tapAction(title: Localizations.copyTotp)
+
+        let repromptAlert = try XCTUnwrap(coordinator.alertShown.last)
+        XCTAssertEqual(repromptAlert, .masterPasswordPrompt(completion: { _ in }))
+        try await repromptAlert.tapAction(title: Localizations.submit)
+
+        XCTAssertEqual(pasteboardService.copiedString, "123321")
+        XCTAssertEqual(
+            subject.state.toast?.text,
+            Localizations.valueHasBeenCopied(Localizations.verificationCodeTotp)
+        )
+    }
+
+    /// `perform(_:)` with `.morePressed` and press `copyTotp` presents master password re-prompt
+    /// alert and displays an alert if the entered master password doesn't match.
+    func test_perform_morePressed_copyTotp_passwordReprompt_invalidPassword() async throws {
+        let account = Account.fixture()
+        stateService.activeAccount = account
+        stateService.userHasMasterPassword = [account.profile.userId: true]
+
+        vaultRepository.refreshTOTPCodeResult = .success(
+            LoginTOTPState(
+                authKeyModel: TOTPKeyModel(authenticatorKey: .base32Key)!,
+                codeModel: TOTPCodeModel(code: "123321", codeGenerationDate: Date(), period: 30)
+            )
+        )
+
+        let item = try XCTUnwrap(
+            VaultListItem(
+                cipherView: .fixture(
+                    login: .fixture(totp: "totpKey"),
+                    reprompt: .password
+                )
+            )
+        )
+
+        await subject.perform(.morePressed(item))
+
+        authRepository.validatePasswordResult = .success(false)
+
+        let optionsAlert = try XCTUnwrap(coordinator.alertShown.last)
+        try await optionsAlert.tapAction(title: Localizations.copyTotp)
+
+        let repromptAlert = try XCTUnwrap(coordinator.alertShown.last)
+        XCTAssertEqual(repromptAlert, .masterPasswordPrompt(completion: { _ in }))
+        try await repromptAlert.tapAction(title: Localizations.submit)
+
+        let invalidPasswordAlert = try XCTUnwrap(coordinator.alertShown.last)
+        XCTAssertEqual(invalidPasswordAlert, .defaultAlert(title: Localizations.invalidMasterPassword))
+    }
+
+    /// `perform(_:)` with `.morePressed` and press `copyTotp` copies the TOTP code if the user
+    /// doesn't have premium but the organization uses TOTP.
+    func test_perform_morePressed_copyTotp_organizationUseTotp() async throws {
+        let account = Account.fixture()
+        stateService.activeAccount = account
+        stateService.doesActiveAccountHavePremiumResult = .success(false)
+        stateService.userHasMasterPassword = [account.profile.userId: true]
+        vaultRepository.refreshTOTPCodeResult = .success(
+            LoginTOTPState(
+                authKeyModel: TOTPKeyModel(authenticatorKey: .base32Key)!,
+                codeModel: TOTPCodeModel(code: "123321", codeGenerationDate: Date(), period: 30)
+            )
+        )
+
+        let item = try XCTUnwrap(
+            VaultListItem(
+                cipherView: .fixture(
+                    login: .fixture(totp: "totpKey"),
+                    organizationUseTotp: true
+                )
+            )
+        )
+
+        await subject.perform(.morePressed(item))
+
+        let optionsAlert = try XCTUnwrap(coordinator.alertShown.last)
+        try await optionsAlert.tapAction(title: Localizations.copyTotp)
+
+        XCTAssertEqual(pasteboardService.copiedString, "123321")
+        XCTAssertEqual(
+            subject.state.toast?.text,
+            Localizations.valueHasBeenCopied(Localizations.verificationCodeTotp)
+        )
+    }
+
+    /// `perform(_:)` with `.morePressed` shows the appropriate more options alert for a login cipher.
+    func test_perform_morePressed_login_full() async throws {
+        let account = Account.fixture()
+        stateService.activeAccount = account
+        stateService.userHasMasterPassword = [account.profile.userId: true]
+
+        vaultRepository.refreshTOTPCodeResult = .success(
+            LoginTOTPState(
+                authKeyModel: TOTPKeyModel(authenticatorKey: .base32Key)!,
+                codeModel: TOTPCodeModel(code: "123321", codeGenerationDate: Date(), period: 30)
+            )
+        )
+
+        let loginWithData = CipherView.loginFixture(login: .fixture(
+            password: "password",
+            uris: [.fixture(uri: URL.example.relativeString, match: nil)],
+            username: "username",
+            totp: "totpKey"
+        ))
+        let item = try XCTUnwrap(VaultListItem(cipherView: loginWithData))
+
+        await subject.perform(.morePressed(item))
+
+        let alert = try XCTUnwrap(coordinator.alertShown.last)
+        XCTAssertEqual(alert.title, "Bitwarden")
+        XCTAssertEqual(alert.alertActions.count, 7)
+        XCTAssertEqual(alert.alertActions[0].title, Localizations.view)
+        XCTAssertEqual(alert.alertActions[1].title, Localizations.edit)
+        XCTAssertEqual(alert.alertActions[2].title, Localizations.copyUsername)
+        XCTAssertEqual(alert.alertActions[3].title, Localizations.copyPassword)
+        XCTAssertEqual(alert.alertActions[4].title, Localizations.copyTotp)
+        XCTAssertEqual(alert.alertActions[5].title, Localizations.launch)
+        XCTAssertEqual(alert.alertActions[6].title, Localizations.cancel)
+
+        // Test the functionality of the buttons.
+
+        // View navigates to the view item view.
+        let viewAction = try XCTUnwrap(alert.alertActions[0])
+        await viewAction.handler?(viewAction, [])
+        XCTAssertEqual(coordinator.routes.last, .viewItem(id: item.id))
+
+        // Edit navigates to the edit view.
+        let editAction = try XCTUnwrap(alert.alertActions[1])
+        await editAction.handler?(editAction, [])
+        XCTAssertEqual(coordinator.routes.last, .editItem(loginWithData))
+
+        // Copy username copies the username.
+        let copyUsernameAction = try XCTUnwrap(alert.alertActions[2])
+        await copyUsernameAction.handler?(copyUsernameAction, [])
+        XCTAssertEqual(pasteboardService.copiedString, "username")
+
+        // Copy password copies the user's username.
+        let copyPasswordAction = try XCTUnwrap(alert.alertActions[3])
+        await copyPasswordAction.handler?(copyPasswordAction, [])
+        XCTAssertEqual(pasteboardService.copiedString, "password")
+
+        // Copy TOTP copies the user's TOTP code.
+        let copyTotpAction = try XCTUnwrap(alert.alertActions[4])
+        await copyTotpAction.handler?(copyPasswordAction, [])
+        XCTAssertEqual(pasteboardService.copiedString, "123321")
+
+        // Launch action set's the url to open.
+        let launchAction = try XCTUnwrap(alert.alertActions[5])
+        await launchAction.handler?(launchAction, [])
+        XCTAssertEqual(subject.state.url, .example)
+    }
+
+    /// `perform(_:)` with `.morePressed` shows the appropriate more options alert for a login cipher.
+    func test_perform_morePressed_login_minimal() async throws {
+        let account = Account.fixture()
+        stateService.activeAccount = account
+        stateService.userHasMasterPassword = [account.profile.userId: true]
+
+        let item = try XCTUnwrap(VaultListItem(cipherView: .fixture(type: .login)))
+
+        // If the login item has no username, password, or url, only the view and add buttons should display.
+        vaultRepository.fetchCipherResult = .success(.loginFixture())
+
+        await subject.perform(.morePressed(item))
+
+        let alert = try XCTUnwrap(coordinator.alertShown.last)
+        XCTAssertEqual(alert.title, "Bitwarden")
+        XCTAssertEqual(alert.alertActions.count, 3)
+        XCTAssertEqual(alert.alertActions[0].title, Localizations.view)
+        XCTAssertEqual(alert.alertActions[1].title, Localizations.edit)
+        XCTAssertEqual(alert.alertActions[2].title, Localizations.cancel)
+    }
+
+    /// `perform(_:)` with `.morePressed` does not show the password re-prompt alert when the user has no password.
+    func test_perform_morePressed_noPassword() async throws {
+        let account = Account.fixture()
+        stateService.activeAccount = account
+        stateService.userHasMasterPassword = [account.profile.userId: false]
+
+        // Although the cipher calls for a password reprompt, it won't be shown
+        // because the user has no password.
+        let login = CipherView.fixture(reprompt: .password)
+        let item = try XCTUnwrap(VaultListItem(cipherView: login))
+
+        // An identity option can be viewed or edited.
+        vaultRepository.fetchCipherResult = .success(.fixture(type: .identity))
+
+        await subject.perform(.morePressed(item))
+
+        let alert = try XCTUnwrap(coordinator.alertShown.last)
+        XCTAssertEqual(alert.title, "Bitwarden")
+        XCTAssertEqual(alert.alertActions.count, 3)
+        XCTAssertEqual(alert.alertActions[0].title, Localizations.view)
+        XCTAssertEqual(alert.alertActions[1].title, Localizations.edit)
+        XCTAssertEqual(alert.alertActions[2].title, Localizations.cancel)
+
+        // Edit navigates to the edit view.
+        let editAction = try XCTUnwrap(alert.alertActions[1])
+        await editAction.handler?(editAction, [])
+        XCTAssertEqual(coordinator.routes.last, .editItem(login))
     }
 
     /// `perform(_:)` with `.profileSwitcher(.accountPressed)` updates the profile switcher's
@@ -355,6 +694,13 @@ class VaultItemSelectionProcessorTests: BitwardenTestCase { // swiftlint:disable
         subject.receive(.cancelTapped)
 
         XCTAssertEqual(coordinator.routes, [.dismiss])
+    }
+
+    /// `receive(_:)` with `.clearURL` clears the url in the state.
+    func test_receive_clearURL() {
+        subject.state.url = .example
+        subject.receive(.clearURL)
+        XCTAssertNil(subject.state.url)
     }
 
     /// `receive(_:)` with `.profileSwitcher(.backgroundPressed)` turns off the Profile Switcher Visibility.
