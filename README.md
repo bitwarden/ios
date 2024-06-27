@@ -1,4 +1,7 @@
-# Bitwarden iOS
+# Bitwarden iOS (BETA)
+
+> [!TIP]
+> This repo has the new native iOS app, currently in [Beta](https://community.bitwarden.com/t/about-the-beta-program/39185). Looking for the legacy .NET MAUI apps? Head on over to [bitwarden/mobile](https://github.com/bitwarden/mobile)
 
 ## Contents
 
