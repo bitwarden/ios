@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - main
+      - pm-8984/automate-beta-builds
   workflow_dispatch:
     inputs:
       build-variant:
@@ -37,6 +38,7 @@ jobs:
       - name: Check out repo
         uses: actions/checkout@a5ac7e51b41094c92402da3b24376905380afc29 # v4.1.6
         with:
+          fetch-tags: true
           filter: tree:0
 
       - name: Cache Mint packages
