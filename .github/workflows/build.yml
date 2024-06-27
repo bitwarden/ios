@@ -277,7 +277,7 @@ jobs:
           fi
 
           echo "Next Version: $next_version"
-          yq -i ".settings.MARKETING_VERSION = $next_version" 'project.yml'
+          yq -i '.settings.MARKETING_VERSION = ${{ '$next_version' }}' 'project.yml'
           cat project.yml | grep MARKETING_VERSION
 
       - name: Update build number
