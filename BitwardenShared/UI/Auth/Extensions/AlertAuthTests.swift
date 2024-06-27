@@ -164,4 +164,25 @@ class AlertAuthTests: BitwardenTestCase {
 
         await fulfillment(of: [expectation], timeout: 3)
     }
+
+    /// `switchToExistingAccount(action:)` builds an `Alert` for switching to an existing account.
+    func test_switchToExistingAccount() async throws {
+        var actionCalled = false
+        let subject = Alert.switchToExistingAccount {
+            actionCalled = true
+        }
+
+        XCTAssertEqual(subject.title, Localizations.accountAlreadyAdded)
+        XCTAssertEqual(subject.message, Localizations.switchToAlreadyAddedAccountConfirmation)
+        XCTAssertEqual(subject.preferredStyle, .alert)
+        XCTAssertEqual(subject.alertActions.count, 2)
+        XCTAssertEqual(subject.alertActions[0].title, Localizations.cancel)
+        XCTAssertEqual(subject.alertActions[1].title, Localizations.yes)
+
+        try await subject.tapAction(title: Localizations.cancel)
+        XCTAssertFalse(actionCalled)
+
+        try await subject.tapAction(title: Localizations.yes)
+        XCTAssertTrue(actionCalled)
+    }
 }

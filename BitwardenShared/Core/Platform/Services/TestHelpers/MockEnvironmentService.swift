@@ -8,6 +8,7 @@ class MockEnvironmentService: EnvironmentService {
     var setPreAuthEnvironmentUrlsData: EnvironmentUrlData?
 
     var apiURL = URL(string: "https://example.com/api")!
+    var baseURL = URL(string: "https://example.com")!
     var eventsURL = URL(string: "https://example.com/events")!
     var iconsURL = URL(string: "https://example.com/icons")!
     var identityURL = URL(string: "https://example.com/identity")!
