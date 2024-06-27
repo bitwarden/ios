@@ -52,40 +52,43 @@ jobs:
         #   VERSION_TYPE: ${{ steps.bump-type.outputs.type }}
         run: |
           echo -e "\nCalculating next version..."
+          current_year=$(date +%Y)
+          current_month=$(date +%m)
+          echo "Current date is ${current_year} - ${current_month}"
 
           latest_tag_version=$(git tag --sort=committerdate --list | tail -1)
           latest_version=${latest_tag_version:1}  # remove 'v' from tag version
 
-          if [[ "${{ inputs.is-release }}" == "true" ]]; then
-            latest_major_version=$(echo $latest_version | cut -d "." -f 1)
-            latest_minor_version=$(echo $latest_version | cut -d "." -f 2)
-            latest_patch_version=$(echo $latest_version | cut -d "." -f 3)
+          latest_major_version=$(echo $latest_version | cut -d "." -f 1)
+          latest_minor_version=$(echo $latest_version | cut -d "." -f 2)
+          latest_patch_version=$(echo $latest_version | cut -d "." -f 3)
 
-            echo "  latest_version:  $latest_version"
-            echo "  latest_major_version: $latest_major_version"
-            echo "  latest_minor_version: $latest_minor_version"
-            echo "  latest_patch_version: $latest_patch_version"
+          echo "  latest_version:  $latest_version"
+          echo "  latest_major_version: $latest_major_version"
+          echo "  latest_minor_version: $latest_minor_version"
+          echo "  latest_patch_version: $latest_patch_version"
 
-            if [[ "$VERSION_TYPE" == "major" ]]; then
-              next_version="$(($latest_major_version + 1)).${latest_minor_version}.${latest_patch_version}"
-            elif [[ "$VERSION_TYPE" == "minor" ]]; then
-              next_version="${latest_major_version}.$(($latest_minor_version + 1)).${latest_patch_version}"
-            elif [[ "$VERSION_TYPE" == "patch" ]]; then
-              next_version="${latest_major_version}.${latest_minor_version}.$(($latest_patch_version + 1))"
-            else
-              next_version="${latest_major_version}.${latest_minor_version}.${latest_patch_version}"
-            fi
-
-            echo "Next Version: $next_version"
-            echo "version=$next_version" >> $GITHUB_OUTPUT
+          if [[ "$VERSION_TYPE" == "major" ]]; then
+            next_version="$(($latest_major_version + 1)).${latest_minor_version}.${latest_patch_version}"
+          elif [[ "$VERSION_TYPE" == "minor" ]]; then
+            next_version="${latest_major_version}.$(($latest_minor_version + 1)).${latest_patch_version}"
+          elif [[ "$VERSION_TYPE" == "patch" ]]; then
+            next_version="${latest_major_version}.${latest_minor_version}.$(($latest_patch_version + 1))"
           else
-            echo "version=$latest_version+${{ inputs.pull-request-number }}" >> $GITHUB_OUTPUT
+            next_version="${latest_major_version}.${latest_minor_version}.${latest_patch_version}"
           fi
+
+          echo "Next Version: $next_version"
+          echo "version=$next_version" >> $GITHUB_OUTPUT
 
       - name: Echo versions
         run: |
           echo "Version is ${version}"
           echo "Build version is ${build-version}"
+      
+      - name: Fail
+        run: |
+          exit 1
 
       - name: Cache Mint packages
         id: mint-cache
