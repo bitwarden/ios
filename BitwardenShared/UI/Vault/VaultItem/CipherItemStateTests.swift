@@ -28,4 +28,26 @@ class CipherItemStateTests: BitwardenTestCase {
         XCTAssertEqual(state.type, .init(type: cipher.type))
         XCTAssertEqual(state.updatedDate, cipher.revisionDate)
     }
+
+    /// `init(existing:hasPremium:)` sets `loginState.isTOTPAvailable` to false if the user doesn't
+    /// have premium and the organization doesn't use TOTP.
+    func test_init_existing_isTOTPAvailable_notAvailable() throws {
+        let cipher = CipherView.loginFixture(login: .fixture())
+        let state = try XCTUnwrap(CipherItemState(existing: cipher, hasPremium: false))
+        XCTAssertFalse(state.loginState.isTOTPAvailable)
+    }
+
+    /// `init(existing:hasPremium:)` sets `loginState.isTOTPAvailable` to true if the user has premium.
+    func test_init_existing_isTOTPAvailable_premium() throws {
+        let cipher = CipherView.loginFixture(login: .fixture())
+        let state = try XCTUnwrap(CipherItemState(existing: cipher, hasPremium: true))
+        XCTAssertTrue(state.loginState.isTOTPAvailable)
+    }
+
+    /// `init(existing:hasPremium:)` sets `loginState.isTOTPAvailable` to true if the organization uses TOTP.
+    func test_init_existing_isTOTPAvailable_organizationUseTotp() throws {
+        let cipher = CipherView.loginFixture(login: .fixture(), organizationUseTotp: true)
+        let state = try XCTUnwrap(CipherItemState(existing: cipher, hasPremium: false))
+        XCTAssertTrue(state.loginState.isTOTPAvailable)
+    }
 }

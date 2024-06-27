@@ -326,9 +326,9 @@ extension VaultListProcessor {
             let hasMasterPassword = try await services.stateService.getUserHasMasterPassword()
 
             coordinator.showAlert(.moreOptions(
+                canCopyTotp: hasPremium || cipherView.organizationUseTotp,
                 cipherView: cipherView,
                 hasMasterPassword: hasMasterPassword,
-                hasPremium: hasPremium,
                 id: item.id,
                 showEdit: true,
                 action: handleMoreOptionsAction

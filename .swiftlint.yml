@@ -3,6 +3,7 @@ analyzer_rules:
   - unused_import
 
 disabled_rules:
+  - non_optional_string_data_conversion
   - todo
   - trailing_whitespace # Covered by SwiftFormat
   - vertical_whitespace # Covered by SwiftFormat

@@ -243,9 +243,9 @@ final class VaultGroupProcessor: StateProcessor<// swiftlint:disable:this type_b
             let hasMasterPassword = try await services.stateService.getUserHasMasterPassword()
 
             coordinator.showAlert(.moreOptions(
+                canCopyTotp: hasPremium || cipherView.organizationUseTotp,
                 cipherView: cipherView,
                 hasMasterPassword: hasMasterPassword,
-                hasPremium: hasPremium,
                 id: item.id,
                 showEdit: state.group != .trash,
                 action: handleMoreOptionsAction
