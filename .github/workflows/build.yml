@@ -23,73 +23,22 @@ env:
   build-variant: ${{ inputs.build-variant || 'Production' }}
 
 jobs:
-  # version:
-  #   uses: ./.github/workflows/_version.yml
-  #   with: 
-  #     is-release: true
-# 
   build:
-    # needs:
-    #   - version
     name: Build
     runs-on: macos-14
     env:
       MINT_PATH: .mint/lib
       MINT_LINK_PATH: .mint/bin
-      # version: ${{ needs.version.outputs.version }}
 
     steps:
       - name: Check out repo
         uses: actions/checkout@a5ac7e51b41094c92402da3b24376905380afc29 # v4.1.6
         with:
-          fetch-depth: 0
+          fetch-tags: true
 
       - name: Echo environment
         run: |
           env | sort
-
-      - name: Calculate next version
-        id: calculate
-        # env:
-        #   VERSION_TYPE: ${{ steps.bump-type.outputs.type }}
-        run: |
-          echo -e "\nCalculating next version..."
-          current_year=$(date +%Y)
-          # current_month=$(date +%-m)
-          current_month=7
-
-          latest_tag_version=$(git tag --sort=committerdate --list | tail -1)
-          latest_version=${latest_tag_version:1}  # remove 'v' from tag version
-
-          latest_major_version=$(echo $latest_version | cut -d "." -f 1)
-          latest_minor_version=$(echo $latest_version | cut -d "." -f 2)
-          latest_patch_version=$(echo $latest_version | cut -d "." -f 3)
-
-          echo "  current_year:         $current_year"
-          echo "  current_month:        $current_month"
-          echo "  latest_tag_version:   $latest_tag_version"
-          echo "  latest_version:       $latest_version"
-          echo "  latest_major_version: $latest_major_version"
-          echo "  latest_minor_version: $latest_minor_version"
-          echo "  latest_patch_version: $latest_patch_version"
-
-          if [[ "$current_year" == "$latest_major_version" && "$current_month" == "$latest_minor_version" ]]; then
-            next_version="${latest_major_version}.${latest_minor_version}.$(($latest_patch_version + 1))"
-          else
-            next_version="${current_year}.${current_month}.0"
-          fi
-
-          echo "Next Version: $next_version"
-          echo "version=$next_version" >> $GITHUB_OUTPUT
-
-      - name: Echo versions
-        run: |
-          echo "Version is ${version}"
-          echo "Build version is ${build-version}"
-      
-      - name: Fail
-        run: |
-          exit 1
 
       - name: Cache Mint packages
         id: mint-cache
@@ -296,9 +245,45 @@ jobs:
           ./Scripts/select_variant.sh ${{ env.build-variant }}
 
       - name: Update build version
-        if: ${{ inputs.build-version }}
         run: |
-          yq -i '.settings.MARKETING_VERSION = "${{ inputs.build-version }}"' 'project.yml'
+          if [[ "${{ inputs.build-version }}"]]; then
+            echo -e "\nApplying version override"
+            next_version=${{ inputs.build-version }}
+          else
+            echo -e "\nCalculating next version..."
+            current_year=$(date +%Y)
+            current_month=$(date +%-m)
+
+            latest_tag_version=$(git tag --sort=committerdate --list | tail -1)
+            latest_version=${latest_tag_version:1}  # remove 'v' from tag version
+
+            latest_major_version=$(echo $latest_version | cut -d "." -f 1)
+            latest_minor_version=$(echo $latest_version | cut -d "." -f 2)
+            latest_patch_version=$(echo $latest_version | cut -d "." -f 3)
+
+            echo "  Current Year:         $current_year"
+            echo "  Current Month:        $current_month"
+            echo "  Latest Version:       $latest_version"
+            echo "  Latest Major Version: $latest_major_version"
+            echo "  Latest Minor Version: $latest_minor_version"
+            echo "  Latest Patch Version: $latest_patch_version"
+
+            if [[ "$current_year" == "$latest_major_version" && "$current_month" == "$latest_minor_version" ]]; then
+              next_version="${latest_major_version}.${latest_minor_version}.$(($latest_patch_version + 1))"
+            else
+              next_version="${current_year}.${current_month}.0"
+            fi
+          fi
+
+          echo "Next Version: $next_version"
+          echo "version=$next_version" >> $GITHUB_OUTPUT
+          yq -i '.settings.MARKETING_VERSION = "$next_version"' 'project.yml'
+
+      # - name: Update build version
+      #   if: ${{ inputs.build-version }}
+      #   run: |
+      #     build_version=${{ inputs.build-version }}
+      #     yq -i '.settings.MARKETING_VERSION = "${{ inputs.build-version }}"' 'project.yml'
 
       - name: Update build number
         run: |
