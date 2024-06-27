@@ -55,7 +55,8 @@ jobs:
         run: |
           echo -e "\nCalculating next version..."
           current_year=$(date +%Y)
-          current_month=$(date +%-m)
+          # current_month=$(date +%-m)
+          current_month=7
 
           latest_tag_version=$(git tag --sort=committerdate --list | tail -1)
           latest_version=${latest_tag_version:1}  # remove 'v' from tag version
