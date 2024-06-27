@@ -275,7 +275,6 @@ jobs:
           fi
 
           echo "Next Version: $next_version"
-          echo "version=$next_version" >> $GITHUB_OUTPUT
           yq -i '.settings.MARKETING_VERSION = "$next_version"' 'project.yml'
 
       - name: Update build number
