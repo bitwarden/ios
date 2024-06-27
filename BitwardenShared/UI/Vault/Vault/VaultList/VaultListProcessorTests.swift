@@ -506,6 +506,41 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
         XCTAssertEqual(invalidPasswordAlert, .defaultAlert(title: Localizations.invalidMasterPassword))
     }
 
+    /// `perform(_:)` with `.morePressed` and press `copyTotp` copies the TOTP code if the user
+    /// doesn't have premium but the organization uses TOTP.
+    func test_perform_morePressed_copyTotp_organizationUseTotp() async throws {
+        let account = Account.fixture()
+        stateService.activeAccount = account
+        stateService.doesActiveAccountHavePremiumResult = .success(false)
+        stateService.userHasMasterPassword = [account.profile.userId: true]
+        vaultRepository.refreshTOTPCodeResult = .success(
+            LoginTOTPState(
+                authKeyModel: TOTPKeyModel(authenticatorKey: .base32Key)!,
+                codeModel: TOTPCodeModel(code: "123321", codeGenerationDate: Date(), period: 30)
+            )
+        )
+
+        let item = try XCTUnwrap(
+            VaultListItem(
+                cipherView: .fixture(
+                    login: .fixture(totp: "totpKey"),
+                    organizationUseTotp: true
+                )
+            )
+        )
+
+        await subject.perform(.morePressed(item))
+
+        let optionsAlert = try XCTUnwrap(coordinator.alertShown.last)
+        try await optionsAlert.tapAction(title: Localizations.copyTotp)
+
+        XCTAssertEqual(pasteboardService.copiedString, "123321")
+        XCTAssertEqual(
+            subject.state.toast?.text,
+            Localizations.valueHasBeenCopied(Localizations.verificationCodeTotp)
+        )
+    }
+
     /// `perform(_:)` with `.morePressed` shows the appropriate more options alert for a login cipher.
     func test_perform_morePressed_login_full() async throws {
         let account = Account.fixture()

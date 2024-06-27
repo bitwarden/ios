@@ -533,11 +533,7 @@ class DefaultVaultRepository { // swiftlint:disable:this type_body_length
         from ciphers: [CipherView],
         filter: VaultFilterType?
     ) async throws -> [VaultListItem] {
-        // Ensure the user has premium features access
         let hasPremiumFeaturesAccess = await (try? doesActiveAccountHavePremium()) ?? false
-        guard hasPremiumFeaturesAccess else {
-            return []
-        }
 
         // Filter and sort the list.
         let activeCiphers = ciphers
@@ -546,6 +542,7 @@ class DefaultVaultRepository { // swiftlint:disable:this type_body_length
                 cipher.deletedDate == nil
                     && cipher.type == .login
                     && cipher.login?.totp != nil
+                    && (hasPremiumFeaturesAccess || cipher.organizationUseTotp)
             }
             .sorted { $0.name.localizedStandardCompare($1.name) == .orderedAscending }
 
@@ -716,11 +713,6 @@ class DefaultVaultRepository { // swiftlint:disable:this type_body_length
         case .secureNote:
             items = activeCiphers.filter { $0.type == .secureNote }.compactMap(VaultListItem.init)
         case .totp:
-            // Ensure the user has premium features access
-            guard try await doesActiveAccountHavePremium() else {
-                items = []
-                break
-            }
             items = try await totpListItems(from: activeCiphers, filter: filter)
         case .trash:
             items = deletedCiphers.compactMap(VaultListItem.init)
@@ -826,20 +818,13 @@ class DefaultVaultRepository { // swiftlint:disable:this type_body_length
         let ciphersTrashCount = ciphers.lazy.filter { $0.deletedDate != nil }.count
         let ciphersTrashItem = VaultListItem(id: "Trash", itemType: .group(.trash, ciphersTrashCount))
 
-        // Add TOTP items for premium accounts.
-        var totpItems = [VaultListItem]()
-        if try await doesActiveAccountHavePremium() {
-            let oneTimePasswordCount: Int = try await totpListItems(from: ciphers, filter: filter).count
-
-            totpItems = (oneTimePasswordCount > 0) ? [
-                VaultListItem(
-                    id: "Types.VerificationCodes",
-                    itemType: .group(
-                        .totp,
-                        oneTimePasswordCount
-                    )
-                ),
-            ] : []
+        // Add TOTP items for premium accounts (or if organization uses TOTP without premium).
+        let totpItemsCount = try await totpListItems(from: ciphers, filter: filter).count
+        let totpItems = [totpItemsCount].filter { $0 > 0 }.map { count in
+            VaultListItem(
+                id: "Types.VerificationCodes",
+                itemType: .group(.totp, count)
+            )
         }
 
         let collectionSection = try await vaultListCollectionSection(
