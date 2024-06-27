@@ -4,7 +4,6 @@ on:
   push:
     branches:
       - main
-      - pm-8984/fix-beta-build
   workflow_dispatch:
     inputs:
       build-variant:
@@ -285,7 +284,6 @@ jobs:
           build_version: ${{ steps.calculate.outputs.version }}
         run: |
           yq -i '.settings.MARKETING_VERSION = "${{ env.build_version }}"' 'project.yml'
-          cat project.yml | grep MARKETING_VERSION
 
       - name: Update build number
         run: |
