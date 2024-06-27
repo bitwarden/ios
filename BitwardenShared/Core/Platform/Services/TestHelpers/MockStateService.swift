@@ -30,6 +30,8 @@ class MockStateService: StateService { // swiftlint:disable:this type_body_lengt
     var doesActiveAccountHavePremiumResult: Result<Bool, Error> = .success(true)
     var encryptedPinByUserId = [String: String]()
     var environmentUrls = [String: EnvironmentUrlData]()
+    var eventsResult: Result<Void, Error> = .success(())
+    var events = [String: [EventData]]()
     var forcePasswordResetReason = [String: ForcePasswordResetReason]()
     var lastActiveTime = [String: Date]()
     var loginRequest: LoginRequestNotification?
@@ -181,6 +183,12 @@ class MockStateService: StateService { // swiftlint:disable:this type_body_lengt
         return environmentUrls[userId]
     }
 
+    func getEvents(userId: String?) async throws -> [EventData] {
+        try eventsResult.get()
+        let userId = try unwrapUserId(userId)
+        return events[userId] ?? []
+    }
+
     func getLastActiveTime(userId: String?) async throws -> Date? {
         let userId = try unwrapUserId(userId)
         return lastActiveTime[userId]
@@ -329,6 +337,11 @@ class MockStateService: StateService { // swiftlint:disable:this type_body_lengt
     func setEnvironmentUrls(_ environmentUrls: EnvironmentUrlData, userId: String?) async throws {
         let userId = try unwrapUserId(userId)
         self.environmentUrls[userId] = environmentUrls
+    }
+
+    func setEvents(_ events: [EventData], userId: String?) async throws {
+        let userId = try unwrapUserId(userId)
+        self.events[userId] = events
     }
 
     func setForcePasswordResetReason(_ reason: ForcePasswordResetReason?, userId: String?) async throws {

@@ -318,6 +318,21 @@ class AppSettingsStoreTests: BitwardenTestCase { // swiftlint:disable:this type_
         )
     }
 
+    /// `events(userId:)` can be used to get the events for a user.
+    func test_events() {
+        let events = [
+            EventData(type: .cipherAttachmentCreated, cipherId: "1", date: .now),
+            EventData(type: .userUpdated2fa, cipherId: nil, date: .now),
+        ]
+        subject.setEvents(events, userId: "0")
+        XCTAssertEqual(subject.events(userId: "0"), events)
+    }
+
+    /// `events(userId:)` returns an empty array if there are no events for a user.
+    func test_events_empty() {
+        XCTAssertEqual(subject.events(userId: "1"), [])
+    }
+
     /// `isBiometricAuthenticationEnabled` returns false if there is no previous value.
     func test_isBiometricAuthenticationEnabled_isInitiallyFalse() {
         XCTAssertFalse(subject.isBiometricAuthenticationEnabled(userId: "-1"))

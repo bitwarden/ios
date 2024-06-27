@@ -509,6 +509,7 @@ struct VaultListView_Previews: PreviewProvider {
                                     permissions: Permissions(),
                                     status: .confirmed,
                                     type: .user,
+                                    useEvents: false,
                                     usePolicies: true,
                                     usersGetPremium: false
                                 ),

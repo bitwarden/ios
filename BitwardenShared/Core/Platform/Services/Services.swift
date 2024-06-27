@@ -16,6 +16,7 @@ typealias Services = HasAPIService
     & HasDeviceAPIService
     & HasEnvironmentService
     & HasErrorReporter
+    & HasEventService
     & HasExportVaultService
     & HasFileAPIService
     & HasGeneratorRepository
@@ -141,6 +142,13 @@ protocol HasEnvironmentService {
 protocol HasErrorReporter {
     /// The service used by the application to report non-fatal errors.
     var errorReporter: ErrorReporter { get }
+}
+
+/// Protocol for an object that provides an `EventService`.
+///
+protocol HasEventService {
+    /// The service used by the application to record events.
+    var eventService: EventService { get }
 }
 
 /// Protocol for an object that provides a `ExportVaultService`.

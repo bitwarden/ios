@@ -105,6 +105,14 @@ protocol AppSettingsStore: AnyObject {
     ///
     func encryptedPin(userId: String) -> String?
 
+    /// The user's events to be uploaded.
+    ///
+    /// - Parameters:
+    ///   - userId: The user ID associated with the events.
+    /// - Returns: The user's events.
+    ///
+    func events(userId: String) -> [EventData]
+
     /// Gets the encrypted private key for the user ID.
     ///
     /// - Parameter userId: The user ID associated with the encrypted private key.
@@ -258,6 +266,14 @@ protocol AppSettingsStore: AnyObject {
     ///   - userId: The user ID associated with the encrypted user key.
     ///
     func setEncryptedUserKey(key: String?, userId: String)
+
+    /// Sets the user's events for a user ID.
+    ///
+    /// - Parameters:
+    ///   - events: The user's events.
+    ///   - userId: The user ID associated with the events.
+    ///
+    func setEvents(_ events: [EventData], userId: String)
 
     /// Sets the last active time within the app.
     ///
@@ -558,6 +574,7 @@ extension DefaultAppSettingsStore: AppSettingsStore {
         case encryptedPin(userId: String)
         case encryptedPrivateKey(userId: String)
         case encryptedUserKey(userId: String)
+        case events(userId: String)
         case lastActiveTime(userId: String)
         case lastSync(userId: String)
         case lastUserShouldConnectToWatch
@@ -616,6 +633,8 @@ extension DefaultAppSettingsStore: AppSettingsStore {
                 key = "protectedPin_\(userId)"
             case let .encryptedPrivateKey(userId):
                 key = "encPrivateKey_\(userId)"
+            case let .events(userId):
+                key = "events_\(userId)"
             case let .lastActiveTime(userId):
                 key = "lastActiveTime_\(userId)"
             case let .lastSync(userId):
@@ -776,6 +795,10 @@ extension DefaultAppSettingsStore: AppSettingsStore {
         fetch(for: .encryptedUserKey(userId: userId))
     }
 
+    func events(userId: String) -> [EventData] {
+        fetch(for: .events(userId: userId)) ?? []
+    }
+
     func lastActiveTime(userId: String) -> Date? {
         fetch(for: .lastActiveTime(userId: userId)).map { Date(timeIntervalSince1970: $0) }
     }
@@ -852,6 +875,10 @@ extension DefaultAppSettingsStore: AppSettingsStore {
 
     func setEncryptedUserKey(key: String?, userId: String) {
         store(key, for: .encryptedUserKey(userId: userId))
+    }
+
+    func setEvents(_ events: [EventData], userId: String) {
+        store(events, for: .events(userId: userId))
     }
 
     func setLastActiveTime(_ date: Date?, userId: String) {

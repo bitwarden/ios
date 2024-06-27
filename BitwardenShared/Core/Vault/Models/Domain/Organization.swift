@@ -24,6 +24,9 @@ public struct Organization: Equatable, Hashable {
     /// The profile's organization's type.
     let type: OrganizationUserType
 
+    /// Whether the profile's organization uses events.
+    let useEvents: Bool
+
     /// Whether the profile's organization uses policies.
     let usePolicies: Bool
 
@@ -42,6 +45,7 @@ extension Organization {
             permissions: responseModel.permissions ?? Permissions(),
             status: responseModel.status,
             type: responseModel.type,
+            useEvents: responseModel.useEvents,
             usePolicies: responseModel.usePolicies,
             usersGetPremium: responseModel.usersGetPremium
         )

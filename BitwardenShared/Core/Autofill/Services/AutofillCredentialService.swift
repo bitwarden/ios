@@ -32,6 +32,9 @@ class DefaultAutofillCredentialService {
     /// The service used by the application to report non-fatal errors.
     private let errorReporter: ErrorReporter
 
+    /// The service to manage events.
+    private let eventService: EventService
+
     /// The service used to manage the credentials available for AutoFill suggestions.
     private let identityStore: CredentialIdentityStore
 
@@ -56,6 +59,7 @@ class DefaultAutofillCredentialService {
     ///   - cipherService: The service used to manage syncing and updates to the user's ciphers.
     ///   - clientService: The service that handles common client functionality such as encryption and decryption.
     ///   - errorReporter: The service used by the application to report non-fatal errors.
+    ///   - eventService: The service to manage events.
     ///   - identityStore: The service used to manage the credentials available for AutoFill suggestions.
     ///   - pasteboardService: The service used to manage copy/pasting from the device's clipboard.
     ///   - stateService: The service used by the application to manage account state.
@@ -65,6 +69,7 @@ class DefaultAutofillCredentialService {
         cipherService: CipherService,
         clientService: ClientService,
         errorReporter: ErrorReporter,
+        eventService: EventService,
         identityStore: CredentialIdentityStore = ASCredentialIdentityStore.shared,
         pasteboardService: PasteboardService,
         stateService: StateService,
@@ -73,6 +78,7 @@ class DefaultAutofillCredentialService {
         self.cipherService = cipherService
         self.clientService = clientService
         self.errorReporter = errorReporter
+        self.eventService = eventService
         self.identityStore = identityStore
         self.pasteboardService = pasteboardService
         self.stateService = stateService
@@ -189,6 +195,11 @@ extension DefaultAutofillCredentialService: AutofillCredentialService {
             let codeModel = try await clientService.vault().generateTOTPCode(for: totp, date: nil)
             pasteboardService.copy(codeModel.code)
         }
+
+        await eventService.collect(
+            eventType: .cipherClientAutofilled,
+            cipherId: cipher.id
+        )
 
         return ASPasswordCredential(user: username, password: password)
     }

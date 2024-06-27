@@ -134,7 +134,9 @@ extension Alert {
                     await action(.copy(
                         toast: Localizations.number,
                         value: number,
-                        requiresMasterPasswordReprompt: cipherView.reprompt == .password && hasMasterPassword
+                        requiresMasterPasswordReprompt: cipherView.reprompt == .password && hasMasterPassword,
+                        logEvent: nil,
+                        cipherId: nil
                     ))
                 })
             }
@@ -143,7 +145,9 @@ extension Alert {
                     await action(.copy(
                         toast: Localizations.securityCode,
                         value: code,
-                        requiresMasterPasswordReprompt: cipherView.reprompt == .password && hasMasterPassword
+                        requiresMasterPasswordReprompt: cipherView.reprompt == .password && hasMasterPassword,
+                        logEvent: .cipherClientCopiedCardCode,
+                        cipherId: cipherView.id
                     ))
                 })
             }
@@ -153,7 +157,9 @@ extension Alert {
                     await action(.copy(
                         toast: Localizations.username,
                         value: username,
-                        requiresMasterPasswordReprompt: false
+                        requiresMasterPasswordReprompt: false,
+                        logEvent: nil,
+                        cipherId: nil
                     ))
                 })
             }
@@ -163,7 +169,9 @@ extension Alert {
                     await action(.copy(
                         toast: Localizations.password,
                         value: password,
-                        requiresMasterPasswordReprompt: cipherView.reprompt == .password && hasMasterPassword
+                        requiresMasterPasswordReprompt: cipherView.reprompt == .password && hasMasterPassword,
+                        logEvent: .cipherClientCopiedPassword,
+                        cipherId: cipherView.id
                     ))
                 })
             }
@@ -191,7 +199,9 @@ extension Alert {
                     await action(.copy(
                         toast: Localizations.notes,
                         value: notes,
-                        requiresMasterPasswordReprompt: false
+                        requiresMasterPasswordReprompt: false,
+                        logEvent: nil,
+                        cipherId: nil
                     ))
                 })
             }
