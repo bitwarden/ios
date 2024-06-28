@@ -67,17 +67,28 @@ class VaultItemSelectionProcessor: StateProcessor<
     override func receive(_ action: VaultItemSelectionAction) {
         switch action {
         case .addTapped:
-            // TODO: BIT-2350 Add OTP to new item
             state.profileSwitcherState.setIsVisible(false)
+            coordinator.navigate(
+                to: .addItem(
+                    allowTypeSelection: false,
+                    group: .login,
+                    newCipherOptions: NewCipherOptions(
+                        name: state.ciphersMatchingName,
+                        totpKey: state.otpAuthModel.uri
+                    )
+                )
+            )
         case .cancelTapped:
             coordinator.navigate(to: .dismiss)
         case let .profileSwitcher(action):
             handle(action)
         case let .searchStateChanged(isSearching: isSearching):
-            guard isSearching else { return }
-            state.searchText = ""
-            state.searchResults = []
-            state.showNoResults = false
+            guard isSearching else {
+                state.searchText = ""
+                state.searchResults = []
+                state.showNoResults = false
+                return
+            }
             state.profileSwitcherState.isVisible = false
         case let .searchTextChanged(newValue):
             state.searchText = newValue

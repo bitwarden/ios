@@ -68,6 +68,23 @@ class OTPAuthModelTests: BitwardenTestCase {
         )
     }
 
+    /// Tests that a minimally formatted OTP Auth string creates the model.
+    func test_init_otpAuthKey_success_minimum() {
+        let subject = OTPAuthModel(otpAuthKey: .otpAuthUriKeyMinimum)
+        XCTAssertEqual(
+            subject,
+            OTPAuthModel(
+                accountName: nil,
+                algorithm: .sha1,
+                digits: 6,
+                issuer: nil,
+                keyB32: "JBSWY3DPEHPK3PXP",
+                period: 30,
+                uri: .otpAuthUriKeyMinimum
+            )
+        )
+    }
+
     /// Tests that a partially formatted OTP Auth string creates the model.
     func test_init_otpAuthKey_success_partial() {
         let subject = OTPAuthModel(otpAuthKey: .otpAuthUriKeyPartial)
