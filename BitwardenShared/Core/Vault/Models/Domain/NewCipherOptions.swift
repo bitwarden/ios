@@ -14,4 +14,7 @@ public struct NewCipherOptions: Equatable, Hashable {
 
     /// The username of the new cipher.
     var username: String?
+
+    /// The TOTP key.
+    var totpKey: String?
 }
