@@ -78,6 +78,18 @@ class AppCoordinatorTests: BitwardenTestCase {
         XCTAssertTrue(appExtensionDelegate.didCompleteAuthCalled)
     }
 
+    /// `didCompleteAuth()` starts the tab coordinator and navigates to the vault list and the auth completion route.
+    func test_didCompleteAuth_authCompletionRoute() async {
+        await subject.handleEvent(.setAuthCompletionRoute(.tab(.vault(.addAccount))))
+        XCTAssertNotNil(subject.authCompletionRoute)
+
+        subject.didCompleteAuth()
+
+        XCTAssertTrue(module.tabCoordinator.isStarted)
+        XCTAssertEqual(module.tabCoordinator.routes, [.vault(.list), .vault(.addAccount)])
+        XCTAssertNil(subject.authCompletionRoute)
+    }
+
     /// `didDeleteAccount(otherAccounts:)` navigates to the `didDeleteAccount` route.
     func test_didDeleteAccount() throws {
         subject.didDeleteAccount()

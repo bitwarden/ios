@@ -26,6 +26,9 @@ class AppCoordinator: Coordinator, HasRootNavigator {
     /// A delegate used to communicate with the app extension.
     private weak var appExtensionDelegate: AppExtensionDelegate?
 
+    /// A route to navigate to after auth completes.
+    private(set) var authCompletionRoute: AppRoute?
+
     /// The coordinator currently being displayed.
     private var childCoordinator: AnyObject?
 
@@ -75,6 +78,8 @@ class AppCoordinator: Coordinator, HasRootNavigator {
             await handleAuthEvent(.didStart)
         case let .didTimeout(userId):
             await handleAuthEvent(.didTimeout(userId: userId))
+        case let .setAuthCompletionRoute(route):
+            authCompletionRoute = route
         }
     }
 
@@ -260,6 +265,11 @@ extension AppCoordinator: AuthCoordinatorDelegate {
             navigate(to: route)
         case .mainApp:
             showTab(route: .vault(.list))
+
+            if let authCompletionRoute {
+                navigate(to: authCompletionRoute)
+                self.authCompletionRoute = nil
+            }
         }
     }
 }
