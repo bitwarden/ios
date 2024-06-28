@@ -198,7 +198,8 @@
 "Off" = "כבוי";
 "On" = "פעיל";
 "Status" = "סטטוס";
-"BitwardenAutofillServiceAlert2" = "הדרך הקלה ביותר להוספת סיסמאות לכספת היא דרך שירות ההשלמה האוטומטי של Bitwarden. למד עוד אודות השימוש ביכולת ההשלמה האוטומטית של \nBitwarden בעזרת פתיחת חלון \"הגדרות\".";
+"BitwardenAutofillServiceAlert2" = "הדרך הקלה ביותר להוספת סיסמאות לכספת היא דרך שירות ההשלמה האוטומטי של Bitwarden. למד עוד אודות השימוש ביכולת ההשלמה האוטומטית של 
+Bitwarden בעזרת פתיחת חלון \"הגדרות\".";
 "Autofill" = "השלמה אוטומטית";
 "AutofillOrView" = "האם ברצונך להפעיל את ההשלמה האוטומטית או לצפות בפריט זה?";
 "BitwardenAutofillServiceMatchConfirm" = "האם אתה בטוח שברצונך לבצע השלמה אוטומטית בעזרת פריט זה? יתכן שפריט זה לא מותאם עבור \"%1$@\" במלואו.";
@@ -212,7 +213,7 @@
 "EnterVerificationCodeApp" = "הכנס את קוד האימות בן 6 הספרות מאפליקציית האימות שלך.";
 "EnterVerificationCodeEmail" = "הכנס את קוד האימות בן 6 הספרות שנשלח לכתובת המייל %1$@.";
 "LoginUnavailable" = "פרטי כניסה לא זמינים";
-"NoTwoStepAvailable" = "בחשבון זה הופעלה האפשרות לכניסה דו שלבית, אך אף אחד מהספקים עבור כניסה הדו שלבית לא נתמך במכשיר זה. אנא השתמש במכשיר אחר ו\או הוסף ספקים אחרים שנתמכים במכשירים נוספים (לדוגמא - אפליקציית אימות).";
+"NoTwoStepAvailable" = "בחשבון זה הופעלה האפשרות לכניסה דו שלבית, אך אף אחד מהספקים עבור כניסה הדו שלבית לא נתמך במכשיר זה. אנא השתמש במכשיר אחר ו\\או הוסף ספקים אחרים שנתמכים במכשירים נוספים (לדוגמא - אפליקציית אימות).";
 "RecoveryCodeTitle" = "שחזור קוד";
 "RememberMe" = "זכור אותי";
 "SendVerificationCodeAgain" = "שלח שוב קוד אימות לאימייל";
@@ -279,7 +280,7 @@
 "August" = "אוגוסט";
 "Brand" = "מותג";
 "CardholderName" = "שם בעל הכרטיס";
-"CityTown" = "עיר \ ישוב";
+"CityTown" = "עיר \\ ישוב";
 "Company" = "חברה";
 "Country" = "מדינה";
 "December" = "דצמבר";
@@ -307,7 +308,7 @@
 "Phone" = "טלפון";
 "September" = "ספטמבר";
 "SSN" = "מספר ביטוח לאומי";
-"StateProvince" = "מדינה \ מחוז";
+"StateProvince" = "מדינה \\ מחוז";
 "Title" = "תואר";
 "ZipPostalCode" = "מיקוד";
 "Address" = "כתובת";
@@ -417,7 +418,8 @@
 "NoFoldersToList" = "אין תיקיות להצגה ברשימה.";
 "FingerprintPhrase" = "סיסמת טביעת אצבע";
 "YourAccountsFingerprint" = "הסיסמה של טביעת האצבעות בחשבון שלך";
-"LearnOrgConfirmation" = "Bitwarden מאפשר לך לשתף את פריטי הכספת שלך עם אחרים באמצעות חשבון ארגוני.\nהאם תרצה לבקר באתר bitwarden.com כדי ללמוד עוד?";
+"LearnOrgConfirmation" = "Bitwarden מאפשר לך לשתף את פריטי הכספת שלך עם אחרים באמצעות חשבון ארגוני.
+האם תרצה לבקר באתר bitwarden.com כדי ללמוד עוד?";
 "ExportVault" = "יצוא כספת";
 "LockNow" = "נעל עכשיו";
 "PIN" = "קוד PIN";
@@ -484,7 +486,7 @@
 "ExportVaultConfirmationTitle" = "אישור ייצוא כספת";
 "Warning" = "אזהרה";
 "ExportVaultFailure" = "היתה בעיה ביצוא הכספת שלך. אם הבעיה נמשכת, נסה לייצא את כספת הרשת במקום זאת.";
-"ExportVaultSuccess" = "יצוא תוכן הכספת בוצע בהצלחה";
+"ExportVaultSuccess" = "יצוא תוכן הכספת בוצע בהצלחה ";
 "Clone" = "שכפול";
 "PasswordGeneratorPolicyInEffect" = "מדיניות ארגונית אחת או יותר משפיעה על הגדרות המחולל שלך";
 "Open" = "פתח";
@@ -534,7 +536,7 @@
 "Accessibility" = "השתמש בכלי נגישות";
 "AccessibilityDescription" = "השתמש בשירות הנגישות של Bitwarden עבור השלמה אוטומטית בחיבור לאתרים בתוך אפליקציות ואתרים ברשת. כשאפשרות זו מופעלת, האפליקציה תציג חלון צף ברגע בחירת שדה למילוי שם משתמש או סיסמה.";
 "AccessibilityDescription2" = "השתמש בשירות הנגישות של Bitwarden עבור השלמה אוטומטית בחיבור לאתרים בתוך אפליקציות ואתרים ברשת. (מחייב הפעלה של אופציית ציור-על = Draw-Over)";
-"AccessibilityDescription3" = "השתמש בשירות הנגישות של Bitwarden עבור הצגת מסגרת ההשלמה האוטומטית, ו\או עבור הצגת חלון צף בעזרת Draw-Over (אם אפשרות זו פועלת)";
+"AccessibilityDescription3" = "השתמש בשירות הנגישות של Bitwarden עבור הצגת מסגרת ההשלמה האוטומטית, ו\\או עבור הצגת חלון צף בעזרת Draw-Over (אם אפשרות זו פועלת)";
 "AccessibilityDescription4" = "יש להשתמש בחלון פעולה-מהירה למילוי אוטומטי, או להציג את חלון שירות המילוי האוטומטי באמצעות 'ציור מעל אפליקציות אחרות' (אם מאופשר).";
 "DrawOver" = "השתמש ב\"ציור מעל אפליקציות\"";
 "DrawOverDescription" = "כאשר מופעל, שירות הנגישות של Bitwarden יוכל להציג חלון קופץ בלחיצה על שדות שם משתמש וסיסמה.";
@@ -617,7 +619,8 @@
 "LeaveOrganization" = "עזוב ארגון";
 "LeaveOrganizationName" = "לעזוב את %1$@?";
 "Fido2Title" = "FIDO2 WebAuthn";
-"Fido2Instruction" = "כדי להמשיך, הכן את מפתח האבטחה התומך באימות אינטרנט באמצעות FIDO2.\nולאחר מכן עקוב אחר ההוראות לאחר לחיצה על 'אימות באמצעות האינטרנט' במסך הבא.";
+"Fido2Instruction" = "כדי להמשיך, הכן את מפתח האבטחה התומך באימות אינטרנט באמצעות FIDO2.
+ולאחר מכן עקוב אחר ההוראות לאחר לחיצה על 'אימות באמצעות האינטרנט' במסך הבא.";
 "Fido2Desc" = "אימות אינטרנט באמצעות FIDO2, אתה יכול לאמת באמצעות מפתח אבטחה חיצוני.";
 "Fido2AuthenticateWebAuthn" = "אימות אינטרנט";
 "Fido2ReturnToApp" = "חזור ליישום";
@@ -830,7 +833,7 @@
 "Vault" = "Vault";
 "Appearance" = "Appearance";
 "AccountSecurity" = "Account security";
-"BitwardenHelpCenter" = "Bitwarden Help Center";
+"BitwardenHelpCenter" = "Bitwarden help center";
 "ContactBitwardenSupport" = "Contact Bitwarden support";
 "CopyAppInformation" = "Copy app information";
 "SyncNow" = "Sync now";
@@ -897,13 +900,25 @@
 "ThirdDotSelectBitwardenToUseForPasswordsAndPasskeys" = "3. Select \"Bitwarden\" to use for passwords and passkeys";
 "YourPasskeyWillBeSavedToYourBitwardenVault" = "Your passkey will be saved to your Bitwarden vault";
 "YourPasskeyWillBeSavedToYourBitwardenVaultForX" = "Your passkey will be saved to your Bitwarden vault for %1$@";
-"OrganizationUnassignedItemsMessageUSEUDescriptionLong" = "Unassigned organization items are no longer visible in the All Vaults view and only accessible via the Admin Console. Assign these items to a collection from the Admin Console to make them visible.";
-"OrganizationUnassignedItemsMessageSelfHost041624DescriptionLong" = "On May 16, 2024, unassigned organization items will no longer be visible in the All Vaults view and only accessible via the Admin Console. Assign these items to a collection from the Admin Console to make them visible.";
-"RemindMeLater" = "Remind me later";
-"Notice" = "Notice";
 "PasskeysNotSupportedForThisApp" = "Passkeys not supported for this app";
 "PasskeyOperationFailedBecauseBrowserIsNotPrivileged" = "Passkey operation failed because browser is not privileged";
 "PasskeyOperationFailedBecauseBrowserSignatureDoesNotMatch" = "Passkey operation failed because browser signature does not match";
 "PasskeyOperationFailedBecauseOfMissingAssetLinks" = "Passkey operation failed because of missing asset links";
 "PasskeyOperationFailedBecauseAppNotFoundInAssetLinks" = "Passkey operation failed because app not found in asset links";
 "PasskeyOperationFailedBecauseAppCouldNotBeVerified" = "Passkey operation failed because app could not be verified";
+"RemindMeLater" = "Remind me later";
+"Notice" = "Notice";
+"AppInfo" = "App info";
+"Browse" = "Browse";
+"SelectLanguage" = "Select language";
+"ContinueToCompleteWebAuthnVerification" = "Continue to complete WebAuthn verification.";
+"ThereWasAnErrorStartingWebAuthnTwoFactorAuthentication" = "There was an error starting WebAuthn two factor authentication";
+"LaunchWebAuthn" = "Launch WebAuthn";
+"Duo" = "Duo";
+"DuoUnsupported" = "Duo not yet supported.";
+"FilePassword" = "File password";
+"ConfirmFilePassword" = "Confirm file password";
+"FilePasswordDescription" = "This password will be used to export and import this file";
+"OrganizationUnassignedItemsMessageUSEUDescriptionLong" = "Unassigned organization items are no longer visible in the All Vaults view and only accessible via the Admin Console. Assign these items to a collection from the Admin Console to make them visible.";
+"UnknownAccount" = "Unknown account";
+"UserVerificationForPasskey" = "User verification for passkey";
