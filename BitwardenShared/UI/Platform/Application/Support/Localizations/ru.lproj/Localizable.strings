@@ -844,7 +844,9 @@
 "XHoursAndYMinutes" = "%1$@ часов и %2$@ минут";
 "XHours" = "%1$@ часов";
 "PasskeyManagementExplanationLong" = "Использовать Bitwarden для сохранения новых passkeys и авторизации при помощи passkeys, хранящимися в вашем хранилище.";
-"AutofillServicesExplanationLong" = "Использовать фреймворк автозаполнения Android для заполнения информации о входе в другие приложения на устройстве\n\nФреймворк автозаполнения Android используется для ввода учетных данных в приложениях на вашем устройстве.";
+"AutofillServicesExplanationLong" = "Использовать фреймворк автозаполнения Android для заполнения информации о входе в другие приложения на устройстве
+
+Фреймворк автозаполнения Android используется для ввода учетных данных в приложениях на вашем устройстве.";
 "UseInlineAutofillExplanationLong" = "Использовать встроенное автозаполнение, если выбранная клавиатура его поддерживает. В противном случае по умолчанию используется наложение.";
 "AdditionalOptions" = "Дополнительные настройки";
 "ContinueToWebApp" = "Перейти к веб-приложению?";
@@ -897,13 +899,25 @@
 "ThirdDotSelectBitwardenToUseForPasswordsAndPasskeys" = "3. Выберите \"Bitwarden\" для использования для паролей и passkeys";
 "YourPasskeyWillBeSavedToYourBitwardenVault" = "Ваш passkey будет сохранен в вашем хранилище Bitwarden";
 "YourPasskeyWillBeSavedToYourBitwardenVaultForX" = "Ваш passkey будет сохранен в вашем хранилище Bitwarden для %1$@";
-"OrganizationUnassignedItemsMessageUSEUDescriptionLong" = "Уведомление: неприсвоенные элементы организации больше не видны в представлении \"Все хранилища\" и доступны только через консоль администратора. Назначьте эти элементы коллекции в консоли администратора, чтобы сделать их видимыми.";
-"OrganizationUnassignedItemsMessageSelfHost041624DescriptionLong" = "16 мая 2024 года неприсвоенные элементы организации больше не будут видны в представлении \"Все хранилища\" и будут доступны только через консоль администратора. Назначьте эти элементы коллекции в консоли администратора, чтобы сделать их видимыми.";
-"RemindMeLater" = "Напомнить позже";
-"Notice" = "Уведомление";
 "PasskeysNotSupportedForThisApp" = "Ваш ключ доступа будет сохранен в вашем хранилище Bitwarden";
 "PasskeyOperationFailedBecauseBrowserIsNotPrivileged" = "Операция с Passkey не удалась, поскольку браузер не имеет привилегий";
 "PasskeyOperationFailedBecauseBrowserSignatureDoesNotMatch" = "Операция с Passkey не удалась, поскольку подпись браузера не совпадает";
 "PasskeyOperationFailedBecauseOfMissingAssetLinks" = "Операция с Passkey не удалась из-за отсутствия ссылок на ресурсы";
 "PasskeyOperationFailedBecauseAppNotFoundInAssetLinks" = "Операция с Passkey не удалась, поскольку приложение не найдено в ссылках на ресурсы";
 "PasskeyOperationFailedBecauseAppCouldNotBeVerified" = "Операция с Passkey не удалась, поскольку не удалось проверить приложение";
+"RemindMeLater" = "Напомнить позже";
+"Notice" = "Уведомление";
+"AppInfo" = "App info";
+"Browse" = "Browse";
+"SelectLanguage" = "Select language";
+"ContinueToCompleteWebAuthnVerification" = "Continue to complete WebAuthn verification.";
+"ThereWasAnErrorStartingWebAuthnTwoFactorAuthentication" = "There was an error starting WebAuthn two factor authentication";
+"LaunchWebAuthn" = "Launch WebAuthn";
+"Duo" = "Duo";
+"DuoUnsupported" = "Duo not yet supported.";
+"FilePassword" = "File password";
+"ConfirmFilePassword" = "Confirm file password";
+"FilePasswordDescription" = "This password will be used to export and import this file";
+"OrganizationUnassignedItemsMessageUSEUDescriptionLong" = "Уведомление: неприсвоенные элементы организации больше не видны в представлении \"Все хранилища\" и доступны только через консоль администратора. Назначьте эти элементы коллекции в консоли администратора, чтобы сделать их видимыми.";
+"UnknownAccount" = "Неизвестный аккаунт";
+"UserVerificationForPasskey" = "User verification for passkey";

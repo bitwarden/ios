@@ -45,7 +45,7 @@
 "RemoveAccount" = "حذف حساب";
 "RemoveAccountConfirmation" = "آیا از حذف این حساب اطمینان دارید؟";
 "AccountAlreadyAdded" = "حساب قبلا اضافه شده";
-"SwitchToAlreadyAddedAccountConfirmation" = "آیا می‌خواهید همین الان تعویض کنید؟";
+"SwitchToAlreadyAddedAccountConfirmation" = " آیا می‌خواهید همین الان تعویض کنید؟";
 "MasterPassword" = "کلمه عبور اصلی";
 "More" = "بیشتر";
 "MyVault" = "گاوصندوق من";
@@ -513,7 +513,7 @@
 "SetMasterPassword" = "تنظیم کلمه عبور اصلی";
 "SetMasterPasswordSummary" = "برای پر کردن ورود به سیستم با SSO، لطفاً یک کلمه عبور اصلی برای دسترسی و محافظت از گاوصندوق خود تنظیم کنید.";
 "MasterPasswordPolicyInEffect" = "یک یا چند سیاست سازمانی برای تأمین شرایط زیر به کلمه عبور اصلی شما احتیاج دارد:";
-"PolicyInEffectMinComplexity" = "حداقل نمره پیچیدگی $SCORE$";
+"PolicyInEffectMinComplexity" = "Minimum complexity score of %1$@";
 "PolicyInEffectMinLength" = "حداقل طول %1$@";
 "PolicyInEffectUppercase" = "حاوی یک یا چند کاراکتر بزرگ";
 "PolicyInEffectLowercase" = "حاوی یک یا چند کاراکتر کوچک";
@@ -616,7 +616,8 @@
 "RemoveMasterPasswordWarning2" = "اگر نمی‌خواهید کلمه عبور اصلی خود را حذف کنید، می‌توانید این سازمان را ترک کنید.";
 "LeaveOrganization" = "ترک سازمان";
 "LeaveOrganizationName" = "%1$@ را ترک می‌کنید؟";
-"Fido2Title" = "FIDO2 WebAuthn";
+"Fido2Title" = "FIDO2 WebAuthn
+";
 "Fido2Instruction" = "برای ادامه، کلید امنیتی FIDO2 WebAuthn خود را فعال کنید و دستورالعمل ها را پس از کلیک روی \"احراز هویت WebAuthn\" در صفحه بعدی دنبال کنید.";
 "Fido2Desc" = "احراز هویت با استفاده از FIDO2 WebAuthn، می‌توانید با استفاده از یک کلید امنیتی خارجی احراز هویت کنید.";
 "Fido2AuthenticateWebAuthn" = "تأیید اعتبار در WebAuthn";
@@ -897,13 +898,25 @@
 "ThirdDotSelectBitwardenToUseForPasswordsAndPasskeys" = "3. Select \"Bitwarden\" to use for passwords and passkeys";
 "YourPasskeyWillBeSavedToYourBitwardenVault" = "Your passkey will be saved to your Bitwarden vault";
 "YourPasskeyWillBeSavedToYourBitwardenVaultForX" = "Your passkey will be saved to your Bitwarden vault for %1$@";
-"OrganizationUnassignedItemsMessageUSEUDescriptionLong" = "Unassigned organization items are no longer visible in the All Vaults view and only accessible via the Admin Console. Assign these items to a collection from the Admin Console to make them visible.";
-"OrganizationUnassignedItemsMessageSelfHost041624DescriptionLong" = "On May 16, 2024, unassigned organization items will no longer be visible in the All Vaults view and only accessible via the Admin Console. Assign these items to a collection from the Admin Console to make them visible.";
-"RemindMeLater" = "بعدا یادآوری کن";
-"Notice" = "توجه";
 "PasskeysNotSupportedForThisApp" = "Passkeys not supported for this app";
 "PasskeyOperationFailedBecauseBrowserIsNotPrivileged" = "Passkey operation failed because browser is not privileged";
 "PasskeyOperationFailedBecauseBrowserSignatureDoesNotMatch" = "Passkey operation failed because browser signature does not match";
 "PasskeyOperationFailedBecauseOfMissingAssetLinks" = "Passkey operation failed because of missing asset links";
 "PasskeyOperationFailedBecauseAppNotFoundInAssetLinks" = "Passkey operation failed because app not found in asset links";
 "PasskeyOperationFailedBecauseAppCouldNotBeVerified" = "Passkey operation failed because app could not be verified";
+"RemindMeLater" = "بعدا یادآوری کن";
+"Notice" = "توجه";
+"AppInfo" = "App info";
+"Browse" = "Browse";
+"SelectLanguage" = "Select language";
+"ContinueToCompleteWebAuthnVerification" = "Continue to complete WebAuthn verification.";
+"ThereWasAnErrorStartingWebAuthnTwoFactorAuthentication" = "There was an error starting WebAuthn two factor authentication";
+"LaunchWebAuthn" = "Launch WebAuthn";
+"Duo" = "Duo";
+"DuoUnsupported" = "Duo not yet supported.";
+"FilePassword" = "File password";
+"ConfirmFilePassword" = "Confirm file password";
+"FilePasswordDescription" = "This password will be used to export and import this file";
+"OrganizationUnassignedItemsMessageUSEUDescriptionLong" = "Unassigned organization items are no longer visible in the All Vaults view and only accessible via the Admin Console. Assign these items to a collection from the Admin Console to make them visible.";
+"UnknownAccount" = "Unknown account";
+"UserVerificationForPasskey" = "User verification for passkey";

@@ -58,7 +58,8 @@
 "Save" = "ಉಳಿಸಿ";
 "Move" = "Move";
 "Saving" = "ಉಳಿಸುತ್ತಿದೆ...";
-"Settings" = "ಸೆಟ್ಟಿಂಗ್‍ಗಳು";
+"Settings" = "ಸೆಟ್ಟಿಂಗ್‍ಗಳು
+";
 "Show" = "ತೋರಿಸಿ";
 "ItemDeleted" = "ಐಟಂ ಅಳಿಸಲಾಗಿದೆ.";
 "Submit" = "ಒಪ್ಪಿಸು";
@@ -204,7 +205,7 @@
 "BitwardenAutofillServiceMatchConfirm" = "ಈ ಐಟಂ ಅನ್ನು ಸ್ವಯಂ ತುಂಬಲು ನೀವು ಖಚಿತವಾಗಿ ಬಯಸುವಿರಾ? ಇದು \"%1$@\" ಗೆ ಸಂಪೂರ್ಣ ಹೊಂದಾಣಿಕೆಯಾಗಿಲ್ಲ.";
 "MatchingItems" = "ಹೊಂದಾಣಿಕೆಯ ವಸ್ತುಗಳು";
 "PossibleMatchingItems" = "ಹೊಂದಾಣಿಕೆಯ ವಸ್ತುಗಳು";
-"Search" = "ಹುಡುಕಿ";
+"Search" = "ಹುಡುಕಿ ";
 "BitwardenAutofillServiceSearch" = "ನೀವು \"%1$@\" ಗಾಗಿ ಸ್ವಯಂ-ಭರ್ತಿ ಐಟಂ ಅನ್ನು ಹುಡುಕುತ್ತಿದ್ದೀರಿ.";
 "LearnOrg" = "Learn about organizations";
 "CannotOpenApp" = "\"%1$@\" ಅಪ್ಲಿಕೇಶನ್ ತೆರೆಯಲು ಸಾಧ್ಯವಿಲ್ಲ.";
@@ -267,7 +268,7 @@
 "CopyNumber" = "ನಕಲು ಸಂಖ್ಯೆ";
 "CopySecurityCode" = "ಭದ್ರತಾ ಕೋಡ್ ಅನ್ನು ನಕಲಿಸಿ";
 "Number" = "ಸಂಖ್ಯೆ";
-"SecurityCode" = "ಭದ್ರತಾ ಕೋಡ್";
+"SecurityCode" = "ಭದ್ರತಾ ಕೋಡ್ ";
 "TypeCard" = "ಕಾರ್ಡ್";
 "TypeIdentity" = "ಗುರುತಿಸುವಿಕೆ";
 "TypeLogin" = "ಲಾಗಿನ್";
@@ -310,7 +311,7 @@
 "StateProvince" = "ರಾಜ್ಯ / ಪ್ರಾಂತ್ಯ";
 "Title" = "ಶೀರ್ಷಿಕೆ";
 "ZipPostalCode" = "ಪಿನ್ / ಅಂಚೆ ಕೋಡ್";
-"Address" = "ವಿಳಾಸ";
+"Address" = "ವಿಳಾಸ ";
 "Expiration" = "ಮುಕ್ತಾಯ";
 "ShowWebsiteIcons" = "Show website icons";
 "ShowWebsiteIconsDescription" = "Show a recognizable image next to each login.";
@@ -464,7 +465,7 @@
 "ToggleVisibility" = "ಗೋಚರತೆಯನ್ನು ಟಾಗಲ್ ಮಾಡಿ";
 "LoginExpired" = "ನಿಮ್ಮ ಲಾಗಿನ್ ಸೆಷನ್ ಅವಧಿ ಮೀರಿದೆ.";
 "BiometricsDirection" = "ಬಯೋಮೆಟ್ರಿಕ್ ಪರಿಶೀಲನೆ";
-"Biometrics" = "ಬಯೋಮೆಟ್ರಿಕ್";
+"Biometrics" = "ಬಯೋಮೆಟ್ರಿಕ್ ";
 "UseBiometricsToUnlock" = "ಅನ್ಲಾಕ್ ಮಾಡಲು ಬಯೋಮೆಟ್ರಿಕ್ಸ್ ಬಳಸಿ";
 "AccessibilityOverlayPermissionAlert" = "ಬಿಟ್‌ವಾರ್ಡೆನ್‌ಗೆ ಗಮನ ಬೇಕು - ಬಿಟ್‌ವಾರ್ಡೆನ್ ಸೆಟ್ಟಿಂಗ್‌ಗಳಿಂದ \"ಸ್ವಯಂ-ಭರ್ತಿ ಪ್ರವೇಶಿಸುವಿಕೆ ಸೇವೆ\" ನೋಡಿ";
 "BitwardenAutofillServiceOverlayPermission" = "3. ಬಿಟ್‌ವಾರ್ಡೆನ್‌ಗಾಗಿ ಆಂಡ್ರಾಯ್ಡ್ ಅಪ್ಲಿಕೇಶನ್ ಸೆಟ್ಟಿಂಗ್‌ಗಳ ಪರದೆಯಲ್ಲಿ, \"ಇತರ ಅಪ್ಲಿಕೇಶನ್‌ಗಳ ಮೇಲೆ ಪ್ರದರ್ಶಿಸು\" ಆಯ್ಕೆಗಳಿಗೆ (ಸುಧಾರಿತ ಅಡಿಯಲ್ಲಿ) ಹೋಗಿ ಮತ್ತು ಓವರ್‌ಲೇ ಬೆಂಬಲವನ್ನು ಸಕ್ರಿಯಗೊಳಿಸಲು ಟಾಗಲ್ ಟ್ಯಾಪ್ ಮಾಡಿ.";
@@ -830,7 +831,7 @@
 "Vault" = "Vault";
 "Appearance" = "Appearance";
 "AccountSecurity" = "Account security";
-"BitwardenHelpCenter" = "Bitwarden Help Center";
+"BitwardenHelpCenter" = "Bitwarden help center";
 "ContactBitwardenSupport" = "Contact Bitwarden support";
 "CopyAppInformation" = "Copy app information";
 "SyncNow" = "Sync now";
@@ -897,13 +898,25 @@
 "ThirdDotSelectBitwardenToUseForPasswordsAndPasskeys" = "3. Select \"Bitwarden\" to use for passwords and passkeys";
 "YourPasskeyWillBeSavedToYourBitwardenVault" = "Your passkey will be saved to your Bitwarden vault";
 "YourPasskeyWillBeSavedToYourBitwardenVaultForX" = "Your passkey will be saved to your Bitwarden vault for %1$@";
-"OrganizationUnassignedItemsMessageUSEUDescriptionLong" = "Unassigned organization items are no longer visible in the All Vaults view and only accessible via the Admin Console. Assign these items to a collection from the Admin Console to make them visible.";
-"OrganizationUnassignedItemsMessageSelfHost041624DescriptionLong" = "On May 16, 2024, unassigned organization items will no longer be visible in the All Vaults view and only accessible via the Admin Console. Assign these items to a collection from the Admin Console to make them visible.";
-"RemindMeLater" = "Remind me later";
-"Notice" = "Notice";
 "PasskeysNotSupportedForThisApp" = "Passkeys not supported for this app";
 "PasskeyOperationFailedBecauseBrowserIsNotPrivileged" = "Passkey operation failed because browser is not privileged";
 "PasskeyOperationFailedBecauseBrowserSignatureDoesNotMatch" = "Passkey operation failed because browser signature does not match";
 "PasskeyOperationFailedBecauseOfMissingAssetLinks" = "Passkey operation failed because of missing asset links";
 "PasskeyOperationFailedBecauseAppNotFoundInAssetLinks" = "Passkey operation failed because app not found in asset links";
 "PasskeyOperationFailedBecauseAppCouldNotBeVerified" = "Passkey operation failed because app could not be verified";
+"RemindMeLater" = "Remind me later";
+"Notice" = "Notice";
+"AppInfo" = "App info";
+"Browse" = "Browse";
+"SelectLanguage" = "Select language";
+"ContinueToCompleteWebAuthnVerification" = "Continue to complete WebAuthn verification.";
+"ThereWasAnErrorStartingWebAuthnTwoFactorAuthentication" = "There was an error starting WebAuthn two factor authentication";
+"LaunchWebAuthn" = "Launch WebAuthn";
+"Duo" = "Duo";
+"DuoUnsupported" = "Duo not yet supported.";
+"FilePassword" = "File password";
+"ConfirmFilePassword" = "Confirm file password";
+"FilePasswordDescription" = "This password will be used to export and import this file";
+"OrganizationUnassignedItemsMessageUSEUDescriptionLong" = "Unassigned organization items are no longer visible in the All Vaults view and only accessible via the Admin Console. Assign these items to a collection from the Admin Console to make them visible.";
+"UnknownAccount" = "Unknown account";
+"UserVerificationForPasskey" = "User verification for passkey";
