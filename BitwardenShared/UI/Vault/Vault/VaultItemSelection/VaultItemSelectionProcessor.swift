@@ -23,6 +23,9 @@ class VaultItemSelectionProcessor: StateProcessor<
     /// The services used by this processor.
     private var services: Services
 
+    /// The helper to execute user verification flows.
+    private let userVerificationHelper: UserVerificationHelper
+
     // MARK: Initialization
 
     /// Initialize a `VaultItemSelectionProcessor`.
@@ -31,14 +34,17 @@ class VaultItemSelectionProcessor: StateProcessor<
     ///   - coordinator: The coordinator that handles navigation.
     ///   - services: The services used by this processor.
     ///   - state: The initial state of the processor.
+    ///   - userVerificationHelper: The helper to execute user verification flows.
     ///
     init(
         coordinator: AnyCoordinator<VaultRoute, AuthAction>,
         services: Services,
-        state: VaultItemSelectionState
+        state: VaultItemSelectionState,
+        userVerificationHelper: UserVerificationHelper
     ) {
         self.coordinator = coordinator
         self.services = services
+        self.userVerificationHelper = userVerificationHelper
         super.init(state: state)
     }
 
@@ -58,9 +64,8 @@ class VaultItemSelectionProcessor: StateProcessor<
             }
         case .streamVaultItems:
             await streamVaultItems()
-        case .vaultListItemTapped:
-            // TODO: BIT-2349 Allow users to add authenticator key to existing items
-            break
+        case let .vaultListItemTapped(item):
+            await showEditForNewOtpKey(vaultListItem: item)
         }
     }
 
@@ -76,7 +81,8 @@ class VaultItemSelectionProcessor: StateProcessor<
                         name: state.ciphersMatchingName,
                         totpKey: state.otpAuthModel.uri
                     )
-                )
+                ),
+                context: self
             )
         case .cancelTapped:
             coordinator.navigate(to: .dismiss)
@@ -160,6 +166,37 @@ class VaultItemSelectionProcessor: StateProcessor<
         }
     }
 
+    /// Shows the edit item screen for the cipher within the specified vault list item with the OTP
+    /// key added.
+    ///
+    /// - Parameter vaultListItem: The vault list item containing a cipher which the user selected
+    ///     to add the OTP key to.
+    ///
+    private func showEditForNewOtpKey(vaultListItem: VaultListItem) async {
+        guard case let .cipher(cipherView, _) = vaultListItem.itemType,
+              cipherView.type == .login,
+              let login = cipherView.login else {
+            coordinator.showAlert(.defaultAlert(title: Localizations.anErrorHasOccurred))
+            return
+        }
+
+        do {
+            if try await services.authRepository.shouldPerformMasterPasswordReprompt(reprompt: cipherView.reprompt) {
+                guard try await userVerificationHelper.verifyMasterPassword() == .verified else {
+                    return
+                }
+            }
+
+            let updatedCipherView = cipherView.update(login: login.update(totp: state.otpAuthModel.uri))
+            coordinator.navigate(to: .editItem(updatedCipherView), context: self)
+        } catch UserVerificationError.cancelled {
+            // No-op: don't log or alert for cancellation errors.
+        } catch {
+            coordinator.showAlert(.defaultAlert(title: Localizations.anErrorHasOccurred))
+            services.errorReporter.log(error: error)
+        }
+    }
+
     /// Streams the list of vault items.
     ///
     private func streamVaultItems() async {
@@ -187,6 +224,22 @@ class VaultItemSelectionProcessor: StateProcessor<
             coordinator.showAlert(.defaultAlert(title: Localizations.anErrorHasOccurred))
             services.errorReporter.log(error: error)
         }
+    }
+}
+
+// MARK: - CipherItemOperationDelegate
+
+extension VaultItemSelectionProcessor: CipherItemOperationDelegate {
+    func itemAdded() -> Bool {
+        coordinator.navigate(to: .dismiss)
+        // Return false to notify the calling processor that the dismissal occurs here.
+        return false
+    }
+
+    func itemUpdated() -> Bool {
+        coordinator.navigate(to: .dismiss)
+        // Return false to notify the calling processor that the dismissal occurs here.
+        return false
     }
 }
 

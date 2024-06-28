@@ -3,13 +3,16 @@ import XCTest
 
 @testable import BitwardenShared
 
-class VaultItemSelectionProcessorTests: BitwardenTestCase {
+// swiftlint:disable file_length
+
+class VaultItemSelectionProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_body_length
     // MARK: Properties
 
     var authRepository: MockAuthRepository!
     var coordinator: MockCoordinator<VaultRoute, AuthAction>!
     var errorReporter: MockErrorReporter!
     var subject: VaultItemSelectionProcessor!
+    var userVerificationHelper: MockUserVerificationHelper!
     var vaultRepository: MockVaultRepository!
 
     // MARK: Setup & Teardown
@@ -20,6 +23,7 @@ class VaultItemSelectionProcessorTests: BitwardenTestCase {
         authRepository = MockAuthRepository()
         coordinator = MockCoordinator()
         errorReporter = MockErrorReporter()
+        userVerificationHelper = MockUserVerificationHelper()
         vaultRepository = MockVaultRepository()
 
         subject = VaultItemSelectionProcessor(
@@ -32,7 +36,8 @@ class VaultItemSelectionProcessorTests: BitwardenTestCase {
             state: VaultItemSelectionState(
                 iconBaseURL: nil,
                 otpAuthModel: OTPAuthModel(otpAuthKey: .otpAuthUriKeyComplete)!
-            )
+            ),
+            userVerificationHelper: userVerificationHelper
         )
     }
 
@@ -43,10 +48,27 @@ class VaultItemSelectionProcessorTests: BitwardenTestCase {
         coordinator = nil
         errorReporter = nil
         subject = nil
+        userVerificationHelper = nil
         vaultRepository = nil
     }
 
     // MARK: Tests
+
+    /// `itemAdded()` requests the coordinator dismiss the view.
+    func test_itemAdded() {
+        let shouldDismiss = subject.itemAdded()
+
+        XCTAssertEqual(coordinator.routes, [.dismiss])
+        XCTAssertFalse(shouldDismiss)
+    }
+
+    /// `itemUpdated()` requests the coordinator dismiss the view.
+    func test_itemUpdated() {
+        let shouldDismiss = subject.itemUpdated()
+
+        XCTAssertEqual(coordinator.routes, [.dismiss])
+        XCTAssertFalse(shouldDismiss)
+    }
 
     /// `perform(_:)` with `.loadData` loads the profile switcher state.
     func test_perform_loadData_profileSwitcher() async {
@@ -220,6 +242,80 @@ class VaultItemSelectionProcessorTests: BitwardenTestCase {
         XCTAssertEqual(errorReporter.errors.last as? BitwardenTestError, .example)
     }
 
+    /// `perform(_:)` with `.vaultListItemTapped` navigates to the edit item screen for the cipher
+    /// with the OTP key added.
+    func test_perform_vaultListItemTapped() async throws {
+        let cipher = CipherView.loginFixture()
+        let vaultListItem = try XCTUnwrap(VaultListItem(cipherView: cipher))
+
+        await subject.perform(.vaultListItemTapped(vaultListItem))
+
+        let updatedCipher = CipherView.loginFixture(login: .fixture(totp: .otpAuthUriKeyComplete))
+        XCTAssertEqual(coordinator.routes, [.editItem(updatedCipher)])
+        XCTAssertTrue(coordinator.contexts.last as? VaultItemSelectionProcessor === subject)
+        XCTAssertFalse(userVerificationHelper.verifyMasterPasswordCalled)
+    }
+
+    /// `perform(_:)` with `.vaultListItemTapped` displays an alert and logs an error if one occurs.
+    func test_perform_vaultListItemTapped_error() async throws {
+        let cipher = CipherView.loginFixture(reprompt: .password)
+        let vaultListItem = try XCTUnwrap(VaultListItem(cipherView: cipher))
+        userVerificationHelper.verifyMasterPasswordResult = .failure(BitwardenTestError.example)
+
+        await subject.perform(.vaultListItemTapped(vaultListItem))
+
+        XCTAssertEqual(coordinator.alertShown, [.defaultAlert(title: Localizations.anErrorHasOccurred)])
+        XCTAssertEqual(errorReporter.errors as? [BitwardenTestError], [BitwardenTestError.example])
+    }
+
+    /// `perform(_:)` with `.vaultListItemTapped` doesn't show an alert if user verification was cancelled.
+    func test_perform_vaultListItemTapped_errorCancellation() async throws {
+        let cipher = CipherView.loginFixture(reprompt: .password)
+        let vaultListItem = try XCTUnwrap(VaultListItem(cipherView: cipher))
+        userVerificationHelper.verifyMasterPasswordResult = .failure(UserVerificationError.cancelled)
+
+        await subject.perform(.vaultListItemTapped(vaultListItem))
+
+        XCTAssertTrue(coordinator.alertShown.isEmpty)
+        XCTAssertTrue(errorReporter.errors.isEmpty)
+    }
+
+    /// `perform(_:)` with `.vaultListItemTapped` reprompts the user for their master password if
+    /// necessary before navigating to the edit item screen.
+    func test_perform_vaultListItemTapped_masterPasswordReprompt() async throws {
+        let cipher = CipherView.loginFixture(reprompt: .password)
+        let vaultListItem = try XCTUnwrap(VaultListItem(cipherView: cipher))
+
+        await subject.perform(.vaultListItemTapped(vaultListItem))
+
+        XCTAssertTrue(userVerificationHelper.verifyMasterPasswordCalled)
+
+        let updatedCipher = CipherView.loginFixture(login: .fixture(totp: .otpAuthUriKeyComplete), reprompt: .password)
+        XCTAssertEqual(coordinator.routes, [.editItem(updatedCipher)])
+        XCTAssertTrue(coordinator.contexts.last as? VaultItemSelectionProcessor === subject)
+    }
+
+    /// `perform(_:)` with `.vaultListItemTapped` doesn't navigate to the edit item screen if the
+    /// user's master password couldn't be verified.
+    func test_perform_vaultListItemTapped_masterPasswordRepromptInvalid() async throws {
+        let cipher = CipherView.loginFixture(reprompt: .password)
+        let vaultListItem = try XCTUnwrap(VaultListItem(cipherView: cipher))
+        userVerificationHelper.verifyMasterPasswordResult = .success(.notVerified)
+
+        await subject.perform(.vaultListItemTapped(vaultListItem))
+
+        XCTAssertTrue(coordinator.routes.isEmpty)
+    }
+
+    /// `perform(_:)` with `.vaultListItemTapped` shows an alert if the vault list item doesn't contain a login.
+    func test_perform_vaultListItemTapped_notLogin() async throws {
+        let vaultListItem = try XCTUnwrap(VaultListItem(cipherView: .cardFixture()))
+
+        await subject.perform(.vaultListItemTapped(vaultListItem))
+
+        XCTAssertEqual(coordinator.alertShown, [.defaultAlert(title: Localizations.anErrorHasOccurred)])
+    }
+
     /// `receive(_:)` with `.addTapped` navigates to the add item view.
     func test_receive_addTapped() {
         subject.receive(.addTapped)
@@ -235,6 +331,7 @@ class VaultItemSelectionProcessorTests: BitwardenTestCase {
                 )
             )
         )
+        XCTAssertTrue(coordinator.contexts.last as? VaultItemSelectionProcessor === subject)
     }
 
     /// `receive(_:)` with `.addTapped` hides the profile switcher if it's visible.
