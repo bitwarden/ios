@@ -91,7 +91,7 @@ struct LandingView: View {
                 .textFieldConfiguration(.email)
                 .onSubmit {
                     guard store.state.isContinueButtonEnabled else { return }
-                    store.send(.continuePressed)
+                    Task { await store.perform(.continuePressed) }
                 }
 
                 Button {
@@ -121,8 +121,8 @@ struct LandingView: View {
                 .foregroundColor(Asset.Colors.textPrimary.swiftUIColor)
                 .toggleStyle(.bitwarden)
 
-                Button(Localizations.continue) {
-                    store.send(.continuePressed)
+                AsyncButton(Localizations.continue) {
+                    await store.perform(.continuePressed)
                 }
                 .accessibilityIdentifier("ContinueButton")
                 .disabled(!store.state.isContinueButtonEnabled)

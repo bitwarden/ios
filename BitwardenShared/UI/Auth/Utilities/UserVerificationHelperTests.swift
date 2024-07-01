@@ -228,6 +228,10 @@ class MockUserVerificationHelperDelegate: UserVerificationDelegate {
     var alertShown = [Alert]()
     var alertOnDismissed: (() -> Void)?
 
+    func showAlert(_ alert: Alert) {
+        alertShown.append(alert)
+    }
+
     func showAlert(_ alert: BitwardenShared.Alert, onDismissed: (() -> Void)?) {
         alertShown.append(alert)
         alertOnDismissed = onDismissed

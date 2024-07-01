@@ -217,6 +217,26 @@ extension Alert {
         )
     }
 
+    /// An alert asking the user if they want to switch to the already existing account when adding
+    /// a new account.
+    ///
+    /// - Parameter action: The action taken if the user wants to switch to the existing account.
+    /// - Returns: An alert asking the user if they want to switch to the already existing account
+    ///     when adding a new account.
+    ///
+    static func switchToExistingAccount(
+        action: @escaping () async -> Void
+    ) -> Alert {
+        Alert(
+            title: Localizations.accountAlreadyAdded,
+            message: Localizations.switchToAlreadyAddedAccountConfirmation,
+            alertActions: [
+                AlertAction(title: Localizations.cancel, style: .cancel),
+                AlertAction(title: Localizations.yes, style: .default) { _ in await action() },
+            ]
+        )
+    }
+
     /// An alert notifying the user that they have unassigned ciphers.
     ///
     /// - Parameters:

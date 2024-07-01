@@ -159,6 +159,17 @@ class VaultCoordinatorTests: BitwardenTestCase {
         XCTAssertEqual(delegate.accountTapped, ["123"])
     }
 
+    /// `.navigate(to:)` with `.vaultItemSelection` presents the vault item selection screen.
+    func test_navigateTo_vaultItemSelection() throws {
+        let otpAuthModel = try XCTUnwrap(OTPAuthModel(otpAuthKey: .otpAuthUriKeyComplete))
+        subject.navigate(to: .vaultItemSelection(otpAuthModel))
+
+        let action = try XCTUnwrap(stackNavigator.actions.last)
+        XCTAssertEqual(action.type, .presented)
+        let navigationController = try XCTUnwrap(action.view as? UINavigationController)
+        XCTAssertTrue(navigationController.topViewController is UIHostingController<VaultItemSelectionView>)
+    }
+
     /// `.navigate(to:)` with `.viewItem` presents the view item screen.
     func test_navigateTo_viewItem() throws {
         subject.navigate(to: .viewItem(id: "id"))

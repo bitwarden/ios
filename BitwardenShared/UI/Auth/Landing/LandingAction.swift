@@ -2,9 +2,6 @@
 
 /// Actions that can be processed by a `LandingProcessor`.
 enum LandingAction: Equatable {
-    /// The continue button was pressed.
-    case continuePressed
-
     /// The create account button was pressed.
     case createAccountPressed
 

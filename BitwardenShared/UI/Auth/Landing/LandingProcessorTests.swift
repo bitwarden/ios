@@ -154,6 +154,83 @@ class LandingProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_
         XCTAssertFalse(subject.state.profileSwitcherState.showsAddAccount)
     }
 
+    /// `perform(_:)` with `.continuePressed` and an invalid email shows an error alert.
+    func test_perform_continuePressed_withInvalidEmail() async {
+        appSettingsStore.rememberedEmail = nil
+        subject.state.email = "email"
+
+        await subject.perform(.continuePressed)
+        XCTAssertEqual(coordinator.alertShown.last, Alert(
+            title: Localizations.anErrorHasOccurred,
+            message: Localizations.invalidEmail,
+            alertActions: [
+                AlertAction(title: Localizations.ok, style: .default),
+            ]
+        ))
+        XCTAssertNil(appSettingsStore.rememberedEmail)
+    }
+
+    /// `perform(_:)` with `.continuePressed` and a valid email navigates to the login screen.
+    func test_perform_continuePressed_withValidEmail_isRememberMeOn_false() async {
+        appSettingsStore.rememberedEmail = nil
+        subject.state.isRememberMeOn = false
+        subject.state.email = "email@example.com"
+
+        await subject.perform(.continuePressed)
+        XCTAssertEqual(coordinator.routes.last, .login(username: "email@example.com"))
+        XCTAssertNil(appSettingsStore.rememberedEmail)
+    }
+
+    /// `perform(_:)` with `.continuePressed` and a valid email surrounded by whitespace trims the whitespace and
+    /// navigates to the login screen.
+    func test_perform_continuePressed_withValidEmailAndSpace() async {
+        subject.state.email = " email@example.com "
+
+        await subject.perform(.continuePressed)
+        XCTAssertEqual(coordinator.routes.last, .login(username: "email@example.com"))
+    }
+
+    /// `perform(_:)` with `.continuePressed` and a valid email with uppercase characters converts the email to
+    /// lowercase and navigates to the login screen.
+    func test_perform_continuePressed_withValidEmailUppercased() async {
+        subject.state.email = "EMAIL@EXAMPLE.COM"
+
+        await subject.perform(.continuePressed)
+        XCTAssertEqual(coordinator.routes.last, .login(username: "email@example.com"))
+    }
+
+    /// `perform(_:)` with `.continuePressed` and a valid email navigates to the login screen.
+    func test_perform_continuePressed_withValidEmail_isRememberMeOn_true() async {
+        appSettingsStore.rememberedEmail = nil
+        subject.state.isRememberMeOn = true
+        subject.state.email = "email@example.com"
+
+        await subject.perform(.continuePressed)
+        XCTAssertEqual(coordinator.routes.last, .login(username: "email@example.com"))
+        XCTAssertEqual(appSettingsStore.rememberedEmail, "email@example.com")
+    }
+
+    /// `perform(_:)` with `.continuePressed` when the account matches an existing account shows the
+    /// user an alert to switch to that account.
+    func test_perform_continuePressed_matchingExistingAccount() async throws {
+        appSettingsStore.rememberedEmail = nil
+        authRepository.existingAccountUserIdResult = "1"
+        subject.state.email = "email@example.com"
+
+        await subject.perform(.continuePressed)
+
+        XCTAssertEqual(authRepository.existingAccountUserIdEmail, "email@example.com")
+        XCTAssertEqual(coordinator.alertShown, [.switchToExistingAccount {}])
+        let alert = coordinator.alertShown[0]
+
+        try await alert.tapAction(title: Localizations.cancel)
+        XCTAssertTrue(coordinator.routes.isEmpty)
+
+        try await alert.tapAction(title: Localizations.yes)
+        XCTAssertEqual(coordinator.events, [.action(.switchAccount(isAutomatic: false, userId: "1"))])
+        XCTAssertTrue(coordinator.routes.isEmpty)
+    }
+
     /// `perform(.appeared)`
     /// No active account and accounts should yield a profile switcher state without an active account.
     func test_perform_refresh_profiles_single_notActive() async {
@@ -279,62 +356,6 @@ class LandingProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_
 
         XCTAssertEqual(subject.state.email, "email@example.com")
         XCTAssertTrue(subject.state.isRememberMeOn)
-    }
-
-    /// `receive(_:)` with `.continuePressed` and an invalid email shows an error alert.
-    func test_receive_continuePressed_withInvalidEmail() {
-        appSettingsStore.rememberedEmail = nil
-        subject.state.email = "email"
-
-        subject.receive(.continuePressed)
-        XCTAssertEqual(coordinator.alertShown.last, Alert(
-            title: Localizations.anErrorHasOccurred,
-            message: Localizations.invalidEmail,
-            alertActions: [
-                AlertAction(title: Localizations.ok, style: .default),
-            ]
-        ))
-        XCTAssertNil(appSettingsStore.rememberedEmail)
-    }
-
-    /// `receive(_:)` with `.continuePressed` and a valid email navigates to the login screen.
-    func test_receive_continuePressed_withValidEmail_isRememberMeOn_false() {
-        appSettingsStore.rememberedEmail = nil
-        subject.state.isRememberMeOn = false
-        subject.state.email = "email@example.com"
-
-        subject.receive(.continuePressed)
-        XCTAssertEqual(coordinator.routes.last, .login(username: "email@example.com"))
-        XCTAssertNil(appSettingsStore.rememberedEmail)
-    }
-
-    /// `receive(_:)` with `.continuePressed` and a valid email surrounded by whitespace trims the whitespace and
-    /// navigates to the login screen.
-    func test_receive_continuePressed_withValidEmailAndSpace() {
-        subject.state.email = " email@example.com "
-
-        subject.receive(.continuePressed)
-        XCTAssertEqual(coordinator.routes.last, .login(username: "email@example.com"))
-    }
-
-    /// `receive(_:)` with `.continuePressed` and a valid email with uppercase characters converts the email to
-    /// lowercase and navigates to the login screen.
-    func test_receive_continuePressed_withValidEmailUppercased() {
-        subject.state.email = "EMAIL@EXAMPLE.COM"
-
-        subject.receive(.continuePressed)
-        XCTAssertEqual(coordinator.routes.last, .login(username: "email@example.com"))
-    }
-
-    /// `receive(_:)` with `.continuePressed` and a valid email navigates to the login screen.
-    func test_receive_continuePressed_withValidEmail_isRememberMeOn_true() {
-        appSettingsStore.rememberedEmail = nil
-        subject.state.isRememberMeOn = true
-        subject.state.email = "email@example.com"
-
-        subject.receive(.continuePressed)
-        XCTAssertEqual(coordinator.routes.last, .login(username: "email@example.com"))
-        XCTAssertEqual(appSettingsStore.rememberedEmail, "email@example.com")
     }
 
     /// `receive(_:)` with `.createAccountPressed` navigates to the create account screen.

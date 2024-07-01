@@ -3,7 +3,7 @@ import Foundation
 /// Model representing the components extracted from an OTP Auth URI.
 ///
 /// This model includes the Base32-encoded key, the period, the number of digits, and the hashing algorithm.
-struct OTPAuthModel: Equatable {
+public struct OTPAuthModel: Equatable, Hashable, Sendable {
     // MARK: Properties
 
     /// The name of the account for the key.
@@ -82,8 +82,8 @@ struct OTPAuthModel: Equatable {
             if parts.count > 1 {
                 issuer = issuer ?? String(parts[0])
                 accountName = String(parts[1])
-            } else {
-                accountName = label
+            } else if let first = parts.first {
+                accountName = String(first)
             }
         }
 

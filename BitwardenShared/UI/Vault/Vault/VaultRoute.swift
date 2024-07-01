@@ -51,6 +51,9 @@ public enum VaultRoute: Equatable, Hashable {
     ///
     case switchAccount(userId: String)
 
+    /// A route to the vault item selection screen.
+    case vaultItemSelection(OTPAuthModel)
+
     /// A route to the view item screen.
     ///
     /// - Parameter id: The id of the item to display.
