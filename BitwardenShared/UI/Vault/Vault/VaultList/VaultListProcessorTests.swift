@@ -214,6 +214,34 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
     }
 
     /// `perform(_:)` with `.appeared` requests notification permissions.
+    func test_perform_appeared_requestNotifications_denied() async throws {
+        stateService.activeAccount = .fixture()
+        notificationService.authorizationStatus = .notDetermined
+        notificationService.requestAuthorizationResult = .success(false)
+        stateService.loginRequest = .init(id: "2", userId: Account.fixture().profile.userId)
+        authService.getPendingLoginRequestResult = .success([.fixture()])
+
+        // Test.
+        await subject.perform(.appeared)
+
+        // Verify the results.
+        let alert = try XCTUnwrap(coordinator.alertShown.last)
+        XCTAssertEqual(alert, .pushNotificationsInformation {})
+
+        // Trigger the request
+        let requestPermissionAction = try XCTUnwrap(alert.alertActions.first)
+        await requestPermissionAction.handler?(requestPermissionAction, [])
+
+        XCTAssertTrue(errorReporter.errors.isEmpty)
+        XCTAssertEqual(
+            [.alert, .sound, .badge],
+            notificationService.requestedOptions
+        )
+        XCTAssertFalse(application.registerForRemoteNotificationsCalled)
+        XCTAssertNil(stateService.notificationsLastRegistrationDates["1"])
+    }
+
+    /// `perform(_:)` with `.appeared` requests notification permissions.
     func test_perform_appeared_requestNotifications_error() async throws {
         stateService.activeAccount = .fixture()
         notificationService.authorizationStatus = .notDetermined
@@ -234,6 +262,8 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
 
         let error = try XCTUnwrap(errorReporter.errors.last as? BitwardenTestError)
         XCTAssertEqual(error, .example)
+        XCTAssertFalse(application.registerForRemoteNotificationsCalled)
+        XCTAssertNil(stateService.notificationsLastRegistrationDates["1"])
     }
 
     /// `perform(_:)` with `.appeared` requests notification permissions.

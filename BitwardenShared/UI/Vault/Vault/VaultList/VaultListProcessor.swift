@@ -256,9 +256,11 @@ extension VaultListProcessor {
         coordinator.showAlert(
             .pushNotificationsInformation { [services] in
                 do {
-                    _ = try await services.notificationService
+                    let authorized = try await services.notificationService
                         .requestAuthorization(options: [.alert, .sound, .badge])
-                    await self.registerForNotifications()
+                    if authorized {
+                        await self.registerForNotifications()
+                    }
                 } catch {
                     self.services.errorReporter.log(error: error)
                 }
