@@ -196,6 +196,24 @@ extension CredentialProviderViewController: AppExtensionDelegate {
     }
 }
 
+// MARK: - Fido2AppExtensionDelegate
+
+extension CredentialProviderViewController: Fido2AppExtensionDelegate {
+    @available(iOSApplicationExtension 17.0, *)
+    func completeRegistrationRequest(asPasskeyRegistrationCredential: ASPasskeyRegistrationCredential) {
+        extensionContext.completeRegistrationRequest(using: asPasskeyRegistrationCredential)
+    }
+
+    @available(iOSApplicationExtension 17.0, *)
+    func getRequestForFido2Creation() -> ASPasskeyCredentialRequest? {
+        guard let context = context as? DefaultCredentialProviderContext,
+              case let .registerFido2Credential(request) = context.extensionMode else {
+            return nil
+        }
+        return request
+    }
+}
+
 // MARK: - RootNavigator
 
 extension CredentialProviderViewController: RootNavigator {

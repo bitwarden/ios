@@ -56,6 +56,7 @@ final class AddEditItemProcessor: StateProcessor<// swiftlint:disable:this type_
         & HasAuthRepository
         & HasCameraService
         & HasErrorReporter
+        & HasFido2UserInterfaceHelper
         & HasPasteboardService
         & HasPolicyService
         & HasStateService
@@ -529,6 +530,13 @@ final class AddEditItemProcessor: StateProcessor<// swiftlint:disable:this type_
     /// Adds the item currently in `state`.
     ///
     private func addItem() async throws {
+        if #available(iOSApplicationExtension 17.0, *),
+           let fido2AppExtensionDelegate = appExtensionDelegate as? Fido2AppExtensionDelegate,
+           fido2AppExtensionDelegate.isCreatingFido2Credential {
+            services.fido2UserInterfaceHelper.pickedCredentialForCreation(cipherResult: .success(state.cipher))
+            return
+        }
+
         try await services.vaultRepository.addCipher(state.cipher)
         coordinator.hideLoadingOverlay()
         handleDismiss(didAddItem: true)

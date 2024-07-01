@@ -1,5 +1,3 @@
-import AuthenticationServices
-
 protocol CredentialProviderContext {
     var configuring: Bool { get }
 }
