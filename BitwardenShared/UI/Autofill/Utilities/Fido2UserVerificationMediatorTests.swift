@@ -15,8 +15,6 @@ class Fido2UserVerificationMediatorTests: BitwardenTestCase {
     var authRepository: MockAuthRepository!
     var errorReporter: MockErrorReporter!
     var fido2UserVerificationMediatorDelegate: MockFido2UserVerificationMediatorDelegate!
-    var localAuthService: MockLocalAuthService!
-    var stateService: MockStateService!
     var subject: Fido2UserVerificationMediator!
     var userVerificationHelper: MockUserVerificationHelper!
     var userVerificationRunner: MockUserVerificationRunner!
@@ -29,22 +27,14 @@ class Fido2UserVerificationMediatorTests: BitwardenTestCase {
         fido2UserVerificationMediatorDelegate = MockFido2UserVerificationMediatorDelegate()
         authRepository = MockAuthRepository()
         errorReporter = MockErrorReporter()
-        localAuthService = MockLocalAuthService()
-        stateService = MockStateService()
-        let services = ServiceContainer.withMocks(
-            authRepository: authRepository,
-            errorReporter: errorReporter,
-            localAuthService: localAuthService,
-            stateService: stateService
-        )
         userVerificationHelper = MockUserVerificationHelper()
         userVerificationRunner = MockUserVerificationRunner()
         subject = DefaultFido2UserVerificationMediator(
-            fido2UserVerificationMediatorDelegate: fido2UserVerificationMediatorDelegate,
-            services: services,
+            authRepository: authRepository,
             userVerificationHelper: userVerificationHelper,
             userVerificationRunner: userVerificationRunner
         )
+        subject.setupDelegate(fido2UserVerificationMediatorDelegate: fido2UserVerificationMediatorDelegate)
     }
 
     override func tearDown() {
@@ -53,8 +43,6 @@ class Fido2UserVerificationMediatorTests: BitwardenTestCase {
         authRepository = nil
         errorReporter = nil
         fido2UserVerificationMediatorDelegate = nil
-        localAuthService = nil
-        stateService = nil
         userVerificationHelper = nil
         userVerificationRunner = nil
         subject = nil
@@ -181,6 +169,15 @@ class Fido2UserVerificationMediatorTests: BitwardenTestCase {
             userVerificationHelper.verifyDeviceLocalAuthBecauseValue,
             Localizations.userVerificationForPasskey
         )
+    }
+
+    /// `isPreferredVerificationEnabled)`  verification
+    func test_isPreferredVerificationEnabled() async throws {
+        userVerificationHelper.canVerifyDeviceLocalAuthResult = true
+        XCTAssertTrue(subject.isPreferredVerificationEnabled())
+
+        userVerificationHelper.canVerifyDeviceLocalAuthResult = false
+        XCTAssertFalse(subject.isPreferredVerificationEnabled())
     }
 
     // MARK: Private

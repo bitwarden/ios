@@ -27,12 +27,12 @@ class UserVerificationHelperTests: BitwardenTestCase {
         authRepository = MockAuthRepository()
         errorReporter = MockErrorReporter()
         localAuthService = MockLocalAuthService()
-        let services = ServiceContainer.withMocks(
+        subject = DefaultUserVerificationHelper(
             authRepository: authRepository,
             errorReporter: errorReporter,
             localAuthService: localAuthService
         )
-        subject = DefaultUserVerificationHelper(userVerificationDelegate: userVerificationDelegate, services: services)
+        subject.userVerificationDelegate = userVerificationDelegate
     }
 
     override func tearDown() {
@@ -46,6 +46,24 @@ class UserVerificationHelperTests: BitwardenTestCase {
     }
 
     // MARK: Tests
+
+    /// `canVerifyDeviceLocalAuth()` verification for each status.
+    func test_canVerifyDeviceLocalAuth() {
+        localAuthService.deviceAuthenticationStatus = .authorized
+        XCTAssertTrue(subject.canVerifyDeviceLocalAuth())
+
+        localAuthService.deviceAuthenticationStatus = .notDetermined
+        XCTAssertFalse(subject.canVerifyDeviceLocalAuth())
+
+        localAuthService.deviceAuthenticationStatus = .cancelled
+        XCTAssertFalse(subject.canVerifyDeviceLocalAuth())
+
+        localAuthService.deviceAuthenticationStatus = .passcodeNotSet
+        XCTAssertFalse(subject.canVerifyDeviceLocalAuth())
+
+        localAuthService.deviceAuthenticationStatus = .unknownError("")
+        XCTAssertFalse(subject.canVerifyDeviceLocalAuth())
+    }
 
     /// `verifyDeviceLocalAuth()` with device status not authorized.
     func test_verifyDeviceLocalAuth_notAuthorized() async throws {
