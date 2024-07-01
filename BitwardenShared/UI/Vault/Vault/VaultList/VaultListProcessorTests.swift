@@ -10,6 +10,7 @@ import XCTest
 class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_body_length
     // MARK: Properties
 
+    var application: MockApplication!
     var authRepository: MockAuthRepository!
     var authService: MockAuthService!
     var coordinator: MockCoordinator<VaultRoute, AuthAction>!
@@ -18,6 +19,7 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
     var pasteboardService: MockPasteboardService!
     var stateService: MockStateService!
     var subject: VaultListProcessor!
+    var timeProvider: MockTimeProvider!
     var vaultRepository: MockVaultRepository!
 
     let profile1 = ProfileSwitcherItem.fixture()
@@ -28,6 +30,7 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
     override func setUp() {
         super.setUp()
 
+        application = MockApplication()
         authRepository = MockAuthRepository()
         authService = MockAuthService()
         errorReporter = MockErrorReporter()
@@ -36,14 +39,17 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
         notificationService = MockNotificationService()
         pasteboardService = MockPasteboardService()
         stateService = MockStateService()
+        timeProvider = MockTimeProvider(.mockTime(Date(year: 2024, month: 6, day: 28)))
         vaultRepository = MockVaultRepository()
         let services = ServiceContainer.withMocks(
+            application: application,
             authRepository: authRepository,
             authService: authService,
             errorReporter: errorReporter,
             notificationService: notificationService,
             pasteboardService: pasteboardService,
             stateService: stateService,
+            timeProvider: timeProvider,
             vaultRepository: vaultRepository
         )
 
@@ -129,6 +135,112 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
         XCTAssertNil(stateService.loginRequest)
     }
 
+    /// `perform(_:)` with `appeared` does not register the device for notifications
+    /// if the user has denied notifications
+    func test_perform_appeared_notificationRegistration_denied() async throws {
+        stateService.activeAccount = .fixture()
+        notificationService.authorizationStatus = .denied
+
+        await subject.perform(.appeared)
+
+        XCTAssertFalse(application.registerForRemoteNotificationsCalled)
+    }
+
+    /// `perform(_:)` with `appeared` does not register the device for notifications
+    /// if there is an error
+    func test_perform_appeared_notificationRegistration_errored() async throws {
+        stateService.activeAccount = .fixture()
+        notificationService.authorizationStatus = .authorized
+        stateService.notificationsLastRegistrationError = BitwardenTestError.example
+
+        await subject.perform(.appeared)
+
+        XCTAssertFalse(application.registerForRemoteNotificationsCalled)
+        XCTAssertEqual(errorReporter.errors as? [BitwardenTestError], [.example])
+    }
+
+    /// `perform(_:)` with `appeared` registers the device for notifications
+    /// if the device attempted registration exactly one day (that is, 86400 seconds) ago.
+    func test_perform_appeared_notificationRegistration_exactlyADay() async throws {
+        stateService.activeAccount = .fixture()
+        notificationService.authorizationStatus = .authorized
+        stateService.notificationsLastRegistrationDates["1"] = timeProvider.presentTime.addingTimeInterval(-86400)
+
+        await subject.perform(.appeared)
+
+        XCTAssertTrue(application.registerForRemoteNotificationsCalled)
+        XCTAssertEqual(stateService.notificationsLastRegistrationDates["1"], timeProvider.presentTime)
+    }
+
+    /// `perform(_:)` with `appeared` does not register the device for notifications
+    /// if the device attempted registration less than one day (that is, 86400 seconds) ago.
+    func test_perform_appeared_notificationRegistration_lessThanADay() async throws {
+        stateService.activeAccount = .fixture()
+        notificationService.authorizationStatus = .authorized
+        stateService.notificationsLastRegistrationDates["1"] = timeProvider.presentTime.addingTimeInterval(-86399)
+
+        await subject.perform(.appeared)
+
+        XCTAssertFalse(application.registerForRemoteNotificationsCalled)
+        XCTAssertEqual(
+            stateService.notificationsLastRegistrationDates["1"],
+            timeProvider.presentTime.addingTimeInterval(-86399)
+        )
+    }
+
+    /// `perform(_:)` with `appeared` registers the device for notifications
+    /// if the device attempted registration more than one day (that is, 86400 seconds) ago.
+    func test_perform_appeared_notificationRegistration_moreThanADay() async throws {
+        stateService.activeAccount = .fixture()
+        notificationService.authorizationStatus = .authorized
+        stateService.notificationsLastRegistrationDates["1"] = timeProvider.presentTime.addingTimeInterval(-86401)
+
+        await subject.perform(.appeared)
+
+        XCTAssertTrue(application.registerForRemoteNotificationsCalled)
+        XCTAssertEqual(stateService.notificationsLastRegistrationDates["1"], timeProvider.presentTime)
+    }
+
+    /// `perform(_:)` with `appeared` registers the device for notifications
+    /// if the user has approved notifications and we have never registered before
+    func test_perform_appeared_notificationRegistration_never() async throws {
+        stateService.activeAccount = .fixture()
+        notificationService.authorizationStatus = .authorized
+
+        await subject.perform(.appeared)
+
+        XCTAssertTrue(application.registerForRemoteNotificationsCalled)
+        XCTAssertEqual(stateService.notificationsLastRegistrationDates["1"], timeProvider.presentTime)
+    }
+
+    /// `perform(_:)` with `.appeared` requests notification permissions.
+    func test_perform_appeared_requestNotifications_denied() async throws {
+        stateService.activeAccount = .fixture()
+        notificationService.authorizationStatus = .notDetermined
+        notificationService.requestAuthorizationResult = .success(false)
+        stateService.loginRequest = .init(id: "2", userId: Account.fixture().profile.userId)
+        authService.getPendingLoginRequestResult = .success([.fixture()])
+
+        // Test.
+        await subject.perform(.appeared)
+
+        // Verify the results.
+        let alert = try XCTUnwrap(coordinator.alertShown.last)
+        XCTAssertEqual(alert, .pushNotificationsInformation {})
+
+        // Trigger the request
+        let requestPermissionAction = try XCTUnwrap(alert.alertActions.first)
+        await requestPermissionAction.handler?(requestPermissionAction, [])
+
+        XCTAssertTrue(errorReporter.errors.isEmpty)
+        XCTAssertEqual(
+            [.alert, .sound, .badge],
+            notificationService.requestedOptions
+        )
+        XCTAssertFalse(application.registerForRemoteNotificationsCalled)
+        XCTAssertNil(stateService.notificationsLastRegistrationDates["1"])
+    }
+
     /// `perform(_:)` with `.appeared` requests notification permissions.
     func test_perform_appeared_requestNotifications_error() async throws {
         stateService.activeAccount = .fixture()
@@ -150,6 +262,8 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
 
         let error = try XCTUnwrap(errorReporter.errors.last as? BitwardenTestError)
         XCTAssertEqual(error, .example)
+        XCTAssertFalse(application.registerForRemoteNotificationsCalled)
+        XCTAssertNil(stateService.notificationsLastRegistrationDates["1"])
     }
 
     /// `perform(_:)` with `.appeared` requests notification permissions.
@@ -175,6 +289,8 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
             [.alert, .sound, .badge],
             notificationService.requestedOptions
         )
+        XCTAssertTrue(application.registerForRemoteNotificationsCalled)
+        XCTAssertEqual(stateService.notificationsLastRegistrationDates["1"], timeProvider.presentTime)
     }
 
     /// `perform(_:)` with `.appeared` checks for unassigned ciphers

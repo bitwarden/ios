@@ -14,13 +14,15 @@ final class VaultListProcessor: StateProcessor<
 > {
     // MARK: Types
 
-    typealias Services = HasAuthRepository
+    typealias Services = HasApplication
+        & HasAuthRepository
         & HasAuthService
         & HasErrorReporter
         & HasNotificationService
         & HasPasteboardService
         & HasPolicyService
         & HasStateService
+        & HasTimeProvider
         & HasVaultRepository
 
     // MARK: Private Properties
@@ -61,7 +63,7 @@ final class VaultListProcessor: StateProcessor<
         switch effect {
         case .appeared:
             await refreshVault(isManualRefresh: false)
-            await requestNotificationPermissions()
+            await handleNotifications()
             await checkPendingLoginRequests()
             await checkPersonalOwnershipPolicy()
             if !isShowingNotificationPermissions {
@@ -201,6 +203,18 @@ extension VaultListProcessor {
         }
     }
 
+    /// Entry point to handling things around push notifications.
+    private func handleNotifications() async {
+        switch await services.notificationService.notificationAuthorization() {
+        case .authorized:
+            await registerForNotifications()
+        case .notDetermined:
+            await requestNotificationPermissions()
+        default:
+            break
+        }
+    }
+
     /// Refreshes the vault's contents.
     ///
     /// - Parameter isManualRefresh: Whether the sync is being performed as a manual refresh.
@@ -220,20 +234,33 @@ extension VaultListProcessor {
         }
     }
 
-    /// Request permission to send push notifications if the user hasn't granted or denied permissions before.
-    private func requestNotificationPermissions() async {
-        // Don't do anything if the user has already responded to the permission request.
-        let notificationAuthorization = await services.notificationService.notificationAuthorization()
-        guard notificationAuthorization == .notDetermined else { return }
+    /// Attempts to register the device for push notifications.
+    /// We only need to register once a day.
+    private func registerForNotifications() async {
+        do {
+            let lastReg = try await services.stateService.getNotificationsLastRegistrationDate() ?? Date.distantPast
+            if services.timeProvider.timeSince(lastReg) >= 86400 { // One day
+                services.application?.registerForRemoteNotifications()
+                try await services.stateService.setNotificationsLastRegistrationDate(services.timeProvider.presentTime)
+            }
+        } catch {
+            services.errorReporter.log(error: error)
+        }
+    }
 
+    /// Request permission to send push notifications.
+    private func requestNotificationPermissions() async {
         isShowingNotificationPermissions = true
 
         // Show the explanation alert before asking for permissions.
         coordinator.showAlert(
             .pushNotificationsInformation { [services] in
                 do {
-                    _ = try await services.notificationService
+                    let authorized = try await services.notificationService
                         .requestAuthorization(options: [.alert, .sound, .badge])
+                    if authorized {
+                        await self.registerForNotifications()
+                    }
                 } catch {
                     self.services.errorReporter.log(error: error)
                 }
