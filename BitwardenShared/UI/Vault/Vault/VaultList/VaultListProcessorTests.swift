@@ -159,6 +159,19 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
         XCTAssertEqual(errorReporter.errors as? [BitwardenTestError], [.example])
     }
 
+    /// `perform(_:)` with `appeared` registers the device for notifications
+    /// if the device attempted registration exactly one day (that is, 86400 seconds) ago.
+    func test_perform_appeared_notificationRegistration_exactlyADay() async throws {
+        stateService.activeAccount = .fixture()
+        notificationService.authorizationStatus = .authorized
+        stateService.notificationsLastRegistrationDates["1"] = timeProvider.presentTime.addingTimeInterval(-86400)
+
+        await subject.perform(.appeared)
+
+        XCTAssertTrue(application.registerForRemoteNotificationsCalled)
+        XCTAssertEqual(stateService.notificationsLastRegistrationDates["1"], timeProvider.presentTime)
+    }
+
     /// `perform(_:)` with `appeared` does not register the device for notifications
     /// if the device attempted registration less than one day (that is, 86400 seconds) ago.
     func test_perform_appeared_notificationRegistration_lessThanADay() async throws {
@@ -180,7 +193,7 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
     func test_perform_appeared_notificationRegistration_moreThanADay() async throws {
         stateService.activeAccount = .fixture()
         notificationService.authorizationStatus = .authorized
-        stateService.notificationsLastRegistrationDates["1"] = timeProvider.presentTime.addingTimeInterval(-86400)
+        stateService.notificationsLastRegistrationDates["1"] = timeProvider.presentTime.addingTimeInterval(-86401)
 
         await subject.perform(.appeared)
 
