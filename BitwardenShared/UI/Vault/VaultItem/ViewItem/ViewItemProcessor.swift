@@ -467,6 +467,7 @@ private extension ViewItemProcessor {
     /// Stream the cipher details.
     private func streamCipherDetails() async {
         do {
+            await services.eventService.collect(eventType: .cipherClientViewed, cipherId: itemId)
             for try await cipher in try await services.vaultRepository.cipherDetailsPublisher(id: itemId) {
                 guard let cipher else { continue }
 
@@ -491,7 +492,6 @@ private extension ViewItemProcessor {
                 }
                 newState.hasVerifiedMasterPassword = state.hasVerifiedMasterPassword
                 state = newState
-                await services.eventService.collect(eventType: .cipherClientViewed, cipherId: itemId)
             }
         } catch {
             services.errorReporter.log(error: error)
