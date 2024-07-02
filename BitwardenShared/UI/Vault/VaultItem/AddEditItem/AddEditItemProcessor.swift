@@ -173,6 +173,8 @@ final class AddEditItemProcessor: StateProcessor<// swiftlint:disable:this type_
             state.owner = newValue
         case let .passwordChanged(newValue):
             state.loginState.password = newValue
+        case .removePasskeyPressed:
+            state.loginState.fido2Credentials = []
         case let .removeUriPressed(index):
             guard index < state.loginState.uris.count else { return }
             state.loginState.uris.remove(at: index)

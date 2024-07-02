@@ -47,7 +47,14 @@ struct AddEditLoginItemView: View {
                     fido2Credential.creationDate.formatted(date: .numeric, time: .omitted),
                     fido2Credential.creationDate.formatted(date: .omitted, time: .shortened)
                 )
-            )
+            ) {
+                Button {
+                    store.send(.removePasskeyPressed)
+                } label: {
+                    Asset.Images.minusRound.swiftUIImage
+                        .imageStyle(.accessoryIcon)
+                }
+            }
         }
     }
 
