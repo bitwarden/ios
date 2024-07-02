@@ -94,9 +94,10 @@ extension Alert {
     /// An alert presenting the user with more options for a vault list item.
     ///
     /// - Parameters:
+    ///   - canCopyTotp: Whether the user can copy the TOTP code (because they have premium or the
+    ///     organization uses TOTP).
     ///   - cipherView: The cipher view to show.
     ///   - hasMasterPassword: Whether the user has a master password.
-    ///   - hasPremium: Whether the user has a premium account.
     ///   - id: The id of the item.
     ///   - showEdit: Whether to show the edit option (should be `false` for items in the trash).
     ///   - action: The action to perform after selecting an option.
@@ -104,9 +105,9 @@ extension Alert {
     /// - Returns: An alert presenting the user with options to select an attachment type.
     @MainActor
     static func moreOptions( // swiftlint:disable:this function_body_length function_parameter_count
+        canCopyTotp: Bool,
         cipherView: CipherView,
         hasMasterPassword: Bool,
-        hasPremium: Bool,
         id: String,
         showEdit: Bool,
         action: @escaping (_ action: MoreOptionsAction) async -> Void
@@ -175,7 +176,7 @@ extension Alert {
                     ))
                 })
             }
-            if hasPremium, let totp = cipherView.login?.totp, let totpKey = TOTPKeyModel(authenticatorKey: totp) {
+            if canCopyTotp, let totp = cipherView.login?.totp, let totpKey = TOTPKeyModel(authenticatorKey: totp) {
                 alertActions.append(AlertAction(title: Localizations.copyTotp, style: .default) { _, _ in
                     await action(.copyTotp(
                         totpKey: totpKey,

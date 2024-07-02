@@ -30,6 +30,7 @@ class MockStateService: StateService { // swiftlint:disable:this type_body_lengt
     var doesActiveAccountHavePremiumResult: Result<Bool, Error> = .success(true)
     var encryptedPinByUserId = [String: String]()
     var environmentUrls = [String: EnvironmentUrlData]()
+    var environmentUrlsError: Error?
     var eventsResult: Result<Void, Error> = .success(())
     var events = [String: [EventData]]()
     var forcePasswordResetReason = [String: ForcePasswordResetReason]()
@@ -43,6 +44,7 @@ class MockStateService: StateService { // swiftlint:disable:this type_body_lengt
     var lastUserShouldConnectToWatch = false
     var masterPasswordHashes = [String: String]()
     var notificationsLastRegistrationDates = [String: Date]()
+    var notificationsLastRegistrationError: Error?
     var passwordGenerationOptions = [String: PasswordGenerationOptions]()
     var pinProtectedUserKeyValue = [String: String]()
     var preAuthEnvironmentUrls: EnvironmentUrlData?
@@ -60,6 +62,7 @@ class MockStateService: StateService { // swiftlint:disable:this type_body_lengt
     var updateProfileResponse: ProfileResponseModel?
     var updateProfileUserId: String?
     var userHasMasterPassword = [String: Bool]()
+    var userIds = [String]()
     var usernameGenerationOptions = [String: UsernameGenerationOptions]()
     var vaultTimeout = [String: SessionTimeoutValue]()
 
@@ -179,6 +182,9 @@ class MockStateService: StateService { // swiftlint:disable:this type_body_lengt
     }
 
     func getEnvironmentUrls(userId: String?) async throws -> EnvironmentUrlData? {
+        if let environmentUrlsError {
+            throw environmentUrlsError
+        }
         let userId = try unwrapUserId(userId)
         return environmentUrls[userId]
     }
@@ -209,6 +215,9 @@ class MockStateService: StateService { // swiftlint:disable:this type_body_lengt
     }
 
     func getNotificationsLastRegistrationDate(userId: String?) async throws -> Date? {
+        if let notificationsLastRegistrationError {
+            throw notificationsLastRegistrationError
+        }
         let userId = try unwrapUserId(userId)
         return notificationsLastRegistrationDates[userId]
     }
@@ -257,6 +266,10 @@ class MockStateService: StateService { // swiftlint:disable:this type_body_lengt
     func getUserHasMasterPassword(userId: String?) async throws -> Bool {
         let userId = try unwrapUserId(userId)
         return userHasMasterPassword[userId] ?? true
+    }
+
+    func getUserIds(email: String) async -> [String] {
+        userIds
     }
 
     func getUsernameGenerationOptions(userId: String?) async throws -> UsernameGenerationOptions? {

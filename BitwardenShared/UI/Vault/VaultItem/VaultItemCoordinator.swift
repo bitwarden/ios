@@ -163,6 +163,7 @@ class VaultItemCoordinator: NSObject, Coordinator, HasStackNavigator { // swiftl
             name: newCipherOptions?.name,
             organizationId: group?.organizationId,
             password: newCipherOptions?.password,
+            totpKeyString: newCipherOptions?.totpKey,
             uri: newCipherOptions?.uri,
             username: newCipherOptions?.username
         )

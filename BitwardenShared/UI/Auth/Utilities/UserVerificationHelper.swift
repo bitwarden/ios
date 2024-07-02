@@ -162,6 +162,12 @@ public enum UserVerificationError: Error {
 ///
 @MainActor
 protocol UserVerificationDelegate: AnyObject {
+    /// Shows the provided alert to the user.
+    ///
+    /// - Parameter alert: The alert to show.
+    ///
+    func showAlert(_ alert: Alert)
+
     /// Shows an alert to the user
     ///
     /// - Parameters:
@@ -169,14 +175,4 @@ protocol UserVerificationDelegate: AnyObject {
     ///   - onDismissed: An optional closure that is called when the alert is dismissed.
     ///
     func showAlert(_ alert: Alert, onDismissed: (() -> Void)?)
-}
-
-extension UserVerificationDelegate {
-    /// Shows the provided alert to the user.
-    ///
-    /// - Parameter alert: The alert to show.
-    ///
-    func showAlert(_ alert: Alert) {
-        showAlert(alert, onDismissed: nil)
-    }
 }

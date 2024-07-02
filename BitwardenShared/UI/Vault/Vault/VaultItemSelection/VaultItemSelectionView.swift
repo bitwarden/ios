@@ -75,6 +75,13 @@ struct VaultItemSelectionView: View {
 private struct VaultItemSelectionSearchableView: View {
     // MARK: Properties
 
+    /// The message to display when there's no search results.
+    var emptyViewMessage: String {
+        Localizations.thereAreNoItemsInYourVaultThatMatchX(
+            store.state.ciphersMatchingName ?? "--"
+        ) + "\n" + Localizations.searchForAnItemOrAddANewItem
+    }
+
     /// A flag indicating if the search bar is focused.
     @Environment(\.isSearching) private var isSearching
 
@@ -84,26 +91,45 @@ private struct VaultItemSelectionSearchableView: View {
     // MARK: View
 
     var body: some View {
-        contentView()
-            .onChange(of: isSearching) { newValue in
-                store.send(.searchStateChanged(isSearching: newValue))
-            }
-            .task {
-                await store.perform(.loadData)
-            }
-            .task {
-                await store.perform(.streamShowWebIcons)
-            }
-            .task {
-                await store.perform(.streamVaultItems)
-            }
-            .task(id: store.state.searchText) {
-                await store.perform(.search(store.state.searchText))
-            }
-            .toast(store.binding(
-                get: \.toast,
-                send: VaultItemSelectionAction.toastShown
-            ))
+        // A ZStack with hidden children is used here so that opening and closing the
+        // search interface does not reset the scroll position for the main vault
+        // view, as would happen if we used an `if else` block here.
+        //
+        // Additionally, we cannot use an `.overlay()` on the main vault view to contain
+        // the search interface since VoiceOver still reads the elements below the overlay,
+        // which is not ideal.
+
+        ZStack {
+            let isSearching = isSearching
+                || !store.state.searchText.isEmpty
+                || !store.state.searchResults.isEmpty
+
+            contentView()
+                .hidden(isSearching)
+
+            searchContentView()
+                .hidden(!isSearching)
+        }
+        .onChange(of: isSearching) { newValue in
+            store.send(.searchStateChanged(isSearching: newValue))
+        }
+        .task {
+            await store.perform(.loadData)
+        }
+        .task {
+            await store.perform(.streamShowWebIcons)
+        }
+        .task {
+            await store.perform(.streamVaultItems)
+        }
+        .task(id: store.state.searchText) {
+            await store.perform(.search(store.state.searchText))
+        }
+        .toast(store.binding(
+            get: \.toast,
+            send: VaultItemSelectionAction.toastShown
+        ))
+        .background(Color(asset: Asset.Colors.backgroundSecondary).ignoresSafeArea())
     }
 
     // MARK: Private Views
@@ -111,18 +137,28 @@ private struct VaultItemSelectionSearchableView: View {
     /// The content displayed in the view.
     @ViewBuilder
     private func contentView() -> some View {
-        VStack(spacing: 0) {
-            if isSearching {
-                searchContentView()
-            } else {
-                if store.state.vaultListSections.isEmpty {
-                    // TODO: BIT-2350 Add empty view
-                } else {
-                    matchingItemsView()
+        if store.state.vaultListSections.isEmpty {
+            EmptyContentView(
+                image: Asset.Images.openSource.swiftUIImage,
+                text: emptyViewMessage
+            ) {
+                Button {
+                    store.send(.addTapped)
+                } label: {
+                    Label {
+                        Text(Localizations.addAnItem)
+                    } icon: {
+                        Asset.Images.plus.swiftUIImage
+                            .imageStyle(.accessoryIcon(
+                                color: Asset.Colors.textPrimaryInverted.swiftUIColor,
+                                scaleWithFont: true
+                            ))
+                    }
                 }
             }
+        } else {
+            matchingItemsView()
         }
-        .background(Color(asset: Asset.Colors.backgroundSecondary))
     }
 
     /// A view for displaying the list of items that match the OTP key.

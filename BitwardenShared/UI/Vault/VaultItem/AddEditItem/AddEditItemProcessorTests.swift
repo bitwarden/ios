@@ -991,6 +991,18 @@ class AddEditItemProcessorTests: BitwardenTestCase {
         XCTAssertEqual(errorReporter.errors.first as? EncryptError, EncryptError())
     }
 
+    /// `perform(_:)` with `.savePressed` notifies the delegate that the item was added and
+    /// doesn't dismiss the view if it returns `false`.
+    func test_perform_savePressed_new_shouldNotDismiss() async throws {
+        delegate.itemAddedShouldDismiss = false
+        subject.state.name = "Bitwarden"
+
+        await subject.perform(.savePressed)
+
+        XCTAssertTrue(delegate.itemAddedCalled)
+        XCTAssertTrue(coordinator.routes.isEmpty)
+    }
+
     /// `perform(_:)` with `.savePressed` forwards errors to the error reporter.
     func test_perform_savePressed_existing_error() async throws {
         let cipher = CipherView.fixture(id: "123")
@@ -1007,6 +1019,18 @@ class AddEditItemProcessorTests: BitwardenTestCase {
         await subject.perform(.savePressed)
 
         XCTAssertEqual(errorReporter.errors.first as? EncryptError, EncryptError())
+    }
+
+    /// `perform(_:)` with `.savePressed` notifies the delegate that the item was updated and
+    /// doesn't dismiss the view if it returns `false`.
+    func test_perform_savePressed_existing_shouldNotDismiss() async throws {
+        delegate.itemUpdatedShouldDismiss = false
+        subject.state = try XCTUnwrap(CipherItemState(existing: .fixture(), hasPremium: true))
+
+        await subject.perform(.savePressed)
+
+        XCTAssertTrue(delegate.itemUpdatedCalled)
+        XCTAssertTrue(coordinator.routes.isEmpty)
     }
 
     /// `perform(_:)` with `.savePressed` saves the item.
@@ -1893,9 +1917,18 @@ class AddEditItemProcessorTests: BitwardenTestCase {
 // MARK: MockCipherItemOperationDelegate
 
 class MockCipherItemOperationDelegate: CipherItemOperationDelegate {
+    var itemAddedCalled = false
+    var itemAddedShouldDismiss = true
     var itemDeletedCalled = false
     var itemRestoredCalled = false
     var itemSoftDeletedCalled = false
+    var itemUpdatedCalled = false
+    var itemUpdatedShouldDismiss = true
+
+    func itemAdded() -> Bool {
+        itemAddedCalled = true
+        return itemAddedShouldDismiss
+    }
 
     func itemDeleted() {
         itemDeletedCalled = true
@@ -1907,5 +1940,10 @@ class MockCipherItemOperationDelegate: CipherItemOperationDelegate {
 
     func itemSoftDeleted() {
         itemSoftDeletedCalled = true
+    }
+
+    func itemUpdated() -> Bool {
+        itemUpdatedCalled = true
+        return itemUpdatedShouldDismiss
     }
 }

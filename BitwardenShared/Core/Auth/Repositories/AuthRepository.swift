@@ -42,6 +42,14 @@ protocol AuthRepository: AnyObject {
     ///
     func deleteAccount(otp: String?, passwordText: String?) async throws
 
+    /// Returns the user ID of an existing account that is already logged in on the device matching
+    /// the specified email.
+    ///
+    /// - Parameter email: The email for the account to check.
+    /// - Returns: The user ID of the account that is already logged in on the device, or `nil` otherwise.
+    ///
+    func existingAccountUserId(email: String) async -> String?
+
     /// Gets the account for a user id.
     ///
     /// - Parameter userId: The user Id to be mapped to an account.
@@ -462,6 +470,17 @@ extension DefaultAuthRepository: AuthRepository {
 
         try await stateService.deleteAccount()
         await vaultTimeoutService.remove(userId: nil)
+    }
+
+    func existingAccountUserId(email: String) async -> String? {
+        let matchingUserIds = await stateService.getUserIds(email: email)
+        for userId in matchingUserIds {
+            if let baseUrl = try? await stateService.getEnvironmentUrls(userId: userId)?.base,
+               baseUrl == environmentService.baseURL {
+                return userId
+            }
+        }
+        return nil
     }
 
     func getAccount(for userId: String?) async throws -> Account {

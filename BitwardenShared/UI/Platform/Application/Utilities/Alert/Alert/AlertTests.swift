@@ -146,9 +146,9 @@ class AlertTests: BitwardenTestCase {
             viewPassword: true
         )
         let alert = Alert.moreOptions(
+            canCopyTotp: false,
             cipherView: cipher,
             hasMasterPassword: false,
-            hasPremium: false,
             id: cipher.id!,
             showEdit: true,
             action: action
@@ -230,9 +230,9 @@ class AlertTests: BitwardenTestCase {
             viewPassword: false
         )
         let alert = Alert.moreOptions(
+            canCopyTotp: false,
             cipherView: cipher,
             hasMasterPassword: false,
-            hasPremium: false,
             id: cipher.id!,
             showEdit: true,
             action: action

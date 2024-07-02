@@ -110,8 +110,10 @@ class AutofillHelper {
 
         do {
             let disableAutoTotpCopy = try await services.vaultRepository.getDisableAutoTotpCopy()
+            let accountHasPremium = try await services.vaultRepository.doesActiveAccountHavePremium()
             if !disableAutoTotpCopy,
                let totp = cipherView.login?.totp,
+               cipherView.organizationUseTotp || accountHasPremium,
                let key = TOTPKeyModel(authenticatorKey: totp),
                let codeModel = try await services.vaultRepository.refreshTOTPCode(for: key).codeModel {
                 services.pasteboardService.copy(codeModel.code)
