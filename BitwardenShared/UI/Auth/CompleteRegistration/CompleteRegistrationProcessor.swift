@@ -291,22 +291,8 @@ class CompleteRegistrationProcessor: StateProcessor<
         // Hide the loading overlay when exiting this method, in case it hasn't been hidden yet.
         defer { coordinator.hideLoadingOverlay() }
 
-        do {
-            coordinator.showLoadingOverlay(title: Localizations.verifyingEmail)
-
-            // TODO: PM-5090 Add call to verify the email
-            // _ = try await services.accountAPIService.verifyUserEmail(
-            //    requestModel: VerifyUserEmailRequestModel(
-            //        email: state.userEmail,
-            //        emailVerificationToken: state.emailVerificationToken
-            //    ))
-            //
-
+        if state.fromEmail {
             state.toast = Toast(text: Localizations.emailVerified)
-        } catch let error as CompleteRegistrationError {
-            showCompleteRegistrationErrorAlert(error)
-        } catch {
-            coordinator.showAlert(.networkResponseError(error))
         }
     }
 }
