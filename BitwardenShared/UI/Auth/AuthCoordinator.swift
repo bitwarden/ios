@@ -129,13 +129,14 @@ final class AuthCoordinator: NSObject, // swiftlint:disable:this type_body_lengt
                 userEmail: userEmail,
                 region: nil
             )
-        case let .completeRegistrationFromAppLink(emailVerificationToken, userEmail, region):
+        case let .completeRegistrationFromAppLink(emailVerificationToken, userEmail, fromEmail, region):
             // Coming from an AppLink clear the current stack
             stackNavigator?.dismiss {
                 self.showLanding()
                 self.showCompleteRegistration(
                     emailVerificationToken: emailVerificationToken,
                     userEmail: userEmail,
+                    fromEmail: fromEmail,
                     region: region
                 )
             }
@@ -296,7 +297,12 @@ final class AuthCoordinator: NSObject, // swiftlint:disable:this type_body_lengt
 
     /// Shows the complete registration screen.
     ///
-    private func showCompleteRegistration(emailVerificationToken: String, userEmail: String, region: RegionType?) {
+    private func showCompleteRegistration(
+        emailVerificationToken: String,
+        userEmail: String,
+        fromEmail: Bool = false,
+        region: RegionType?
+    ) {
         let view = CompleteRegistrationView(
             store: Store(
                 processor: CompleteRegistrationProcessor(
@@ -304,6 +310,7 @@ final class AuthCoordinator: NSObject, // swiftlint:disable:this type_body_lengt
                     services: services,
                     state: CompleteRegistrationState(
                         emailVerificationToken: emailVerificationToken,
+                        fromEmail: fromEmail,
                         region: region,
                         userEmail: userEmail
                     )

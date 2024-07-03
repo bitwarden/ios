@@ -26,7 +26,12 @@ public enum AuthRoute: Equatable {
     ///    - userEmail: The user's email.
     ///    - region: Region where the complete registration should happen.
     ///
-    case completeRegistrationFromAppLink(emailVerificationToken: String, userEmail: String, region: RegionType)
+    case completeRegistrationFromAppLink(
+        emailVerificationToken: String,
+        userEmail: String,
+        fromEmail: Bool,
+        region: RegionType
+    )
 
     /// A route to the create account screen.
     case createAccount

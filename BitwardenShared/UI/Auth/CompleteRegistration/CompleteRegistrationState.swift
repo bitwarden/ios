@@ -13,6 +13,9 @@ struct CompleteRegistrationState: Equatable {
     /// Token needed to complete registration
     var emailVerificationToken: String
 
+    /// Whether the user came from email AppLink
+    var fromEmail: Bool = false
+
     /// Whether the check for data breaches toggle is on.
     var isCheckDataBreachesToggleOn: Bool = true
 

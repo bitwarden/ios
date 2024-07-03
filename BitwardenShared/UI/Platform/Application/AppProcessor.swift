@@ -141,7 +141,9 @@ public class AppProcessor {
 
         if path == "/finish-signup" {
             guard let email = params.first(where: { $0.name == "email" })?.value,
-                  let verificationToken = params.first(where: { $0.name == "token" })?.value else {
+                  let verificationToken = params.first(where: { $0.name == "token" })?.value,
+                  let fromEmail = params.first(where: { $0.name == "fromEmail" })?.value
+            else {
                 services.errorReporter.log(error: AppProcessorError.appLinksInvalidParametersForPath)
                 return
             }
@@ -150,6 +152,7 @@ public class AppProcessor {
                 AuthRoute.completeRegistrationFromAppLink(
                     emailVerificationToken: verificationToken,
                     userEmail: email,
+                    fromEmail: Bool(fromEmail) ?? true,
                     region: host.contains("bitwarden.eu") ? .europe : .unitedStates
                 )))
 
