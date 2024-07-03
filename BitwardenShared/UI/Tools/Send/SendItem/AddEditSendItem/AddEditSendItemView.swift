@@ -11,6 +11,12 @@ struct AddEditSendItemView: View { // swiftlint:disable:this type_body_length
     /// The `Store` for this view.
     @ObservedObject var store: Store<AddEditSendItemState, AddEditSendItemAction, AddEditSendItemEffect>
 
+    ///
+    @FocusState private var isMaxAccessCountFocused: Bool
+
+    ///
+    @SwiftUI.State private var maximumAccessCountText: String = ""
+
     var body: some View {
         ZStack {
             ScrollView {
@@ -138,14 +144,42 @@ struct AddEditSendItemView: View { // swiftlint:disable:this type_body_length
                     Text(Localizations.maximumAccessCount)
                         .styleGuide(.body)
                         .foregroundStyle(Asset.Colors.textPrimary.swiftUIColor)
+                        .layoutPriority(1)
 
                     Spacer()
 
-                    if store.state.maximumAccessCount > 0 {
-                        Text("\(store.state.maximumAccessCount)")
-                            .styleGuide(.body, monoSpacedDigit: true)
-                            .foregroundStyle(Asset.Colors.textSecondary.swiftUIColor)
-                    }
+                    TextField("", text: $maximumAccessCountText)
+                        .focused($isMaxAccessCountFocused)
+                        .keyboardType(.numberPad)
+                        .styleGuide(.body)
+                        .foregroundStyle(Asset.Colors.textSecondary.swiftUIColor)
+                        .multilineTextAlignment(.trailing)
+                        .onTapGesture {
+                            isMaxAccessCountFocused = true
+                            if maximumAccessCountText == "0" {
+                                maximumAccessCountText = ""
+                            }
+                        }
+                        .onChange(of: maximumAccessCountText) { newValue in
+                            maximumAccessCountTextChanged(to: newValue)
+                        }
+                        .onChange(of: isMaxAccessCountFocused) { focused in
+                            maximumAccessCountFocusedChanged(to: focused)
+                        }
+                        .onChange(of: store.state.maximumAccessCount) { newValue in
+                            maximumAccessCountChanged(to: newValue)
+                        }
+                        .toolbar {
+                            ToolbarItemGroup(placement: .keyboard) {
+                                Spacer()
+                                Button("Done") {
+                                    isMaxAccessCountFocused = false
+                                }
+                            }
+                        }
+                        .onAppear {
+                            maximumAccessCountText = store.state.maximumAccessCountText
+                        }
                 }
             }
             .accessibilityIdentifier("SendMaxAccessCountEntry")
@@ -488,6 +522,34 @@ struct AddEditSendItemView: View { // swiftlint:disable:this type_body_length
             }
             .pickerStyle(SegmentedPickerStyle())
         }
+    }
+
+    // MARK: Private Functions
+
+    private func maximumAccessCountTextChanged(to newCountValue: String) {
+        if let count = Int(newCountValue) {
+            store.send(.maximumAccessCountChanged(count))
+        } else if newCountValue.isEmpty {
+            store.send(.maximumAccessCountChanged(0))
+        }
+    }
+
+    private func maximumAccessCountFocusedChanged(to focused: Bool) {
+        guard !maximumAccessCountText.isEmpty else { return }
+
+        if !focused {
+            store.send(
+                .maximumAccessCountChanged(
+                    Int(maximumAccessCountText) ?? 0
+                )
+            )
+        }
+    }
+
+    private func maximumAccessCountChanged(to newCount: Int) {
+        guard !maximumAccessCountText.isEmpty || newCount != 0 else { return }
+
+        maximumAccessCountText = "\(newCount)"
     }
 }
 
