@@ -10,7 +10,7 @@ class MockFido2UserInterfaceHelper: Fido2UserInterfaceHelper {
     var pickCredentialForAuthenticationResult: Result<BitwardenSdk.CipherViewWrapper, Error> = .success(
         BitwardenSdk.CipherViewWrapper(cipher: .fixture())
     )
-    var pickedCredentialForCreationCalled = false
+    var pickedCredentialForCreationMocker = InvocationMocker<Result<BitwardenSdk.CipherView, any Error>>()
     var checkAndPickCredentialForCreationResult: Result<BitwardenSdk.CipherViewWrapper, Error> = .success(
         BitwardenSdk.CipherViewWrapper(cipher: .fixture())
     )
@@ -31,7 +31,7 @@ class MockFido2UserInterfaceHelper: Fido2UserInterfaceHelper {
     }
 
     func pickedCredentialForCreation(cipherResult: Result<BitwardenSdk.CipherView, any Error>) {
-        pickedCredentialForCreationCalled = true
+        pickedCredentialForCreationMocker.invoke(param: cipherResult)
     }
 
     func checkUserAndPickCredentialForCreation(

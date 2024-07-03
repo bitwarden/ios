@@ -4,21 +4,12 @@ import Foundation
 @testable import BitwardenShared
 
 @available(iOS 17.0, *)
-class MockFido2AppExtensionDelegate: Fido2AppExtensionDelegate {
-    var completeRegistrationRequestCalled = false
-    var didCancelCalled = false
+class MockFido2AppExtensionDelegate: MockAppExtensionDelegate, Fido2AppExtensionDelegate {
+    var completeRegistrationRequestMocker = InvocationMocker<ASPasskeyRegistrationCredential>()
     var getRequestForFido2CreationResult: ASPasskeyCredentialRequest?
 
-    var authCompletionRoute: BitwardenShared.AppRoute?
-    var isInAppExtension: Bool = true
-    var uri: String?
-
     func completeRegistrationRequest(asPasskeyRegistrationCredential: ASPasskeyRegistrationCredential) {
-        completeRegistrationRequestCalled = true
-    }
-
-    func didCancel() {
-        didCancelCalled = true
+        completeRegistrationRequestMocker.invoke(param: asPasskeyRegistrationCredential)
     }
 
     func getRequestForFido2Creation() -> ASPasskeyCredentialRequest? {

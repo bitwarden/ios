@@ -8,7 +8,7 @@ enum Fido2DebuggingUtils {
     /// - Returns: Formatted string with flags values (0: `false`, 1: `true`)
     static func describeAuthDataFlags(_ authenticatorData: Data) -> String {
         let flagSubdataBytes = [UInt8](authenticatorData.subdata(in: 32 ..< 33))
-        var flagsDescribed = "Flags:"
+        var flagsDescribed = "Flags: "
 
         let flagByte = flagSubdataBytes[0]
         flagsDescribed.append("UP: \(flagByte & 0b0000_0001) - ")
@@ -21,6 +21,9 @@ enum Fido2DebuggingUtils {
         return flagsDescribed
     }
 
+    /// Describes the `MakeCredentialRequest` in a simple formatted string.
+    /// - Parameter request: The request to describe.
+    /// - Returns: The formatted string with the request description.
     static func describe(request: MakeCredentialRequest) -> String {
         var requestString = ""
         requestString.append("ClientDataHash: ")

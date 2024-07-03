@@ -81,11 +81,12 @@ class VaultAutofillListProcessor: StateProcessor<
             case .totp:
                 return
             }
-        case .loadData:
-            await refreshProfileState()
+        case .initFido2:
             if #available(iOSApplicationExtension 17.0, *) {
                 initFido2State()
             }
+        case .loadData:
+            await refreshProfileState()
         case let .profileSwitcher(profileEffect):
             await handle(profileEffect)
         case let .search(text):
@@ -175,7 +176,10 @@ class VaultAutofillListProcessor: StateProcessor<
                 do {
                     let request = MakeCredentialRequest(
                         clientDataHash: request.clientDataHash,
-                        rp: PublicKeyCredentialRpEntity(id: credentialIdentity.relyingPartyIdentifier, name: nil),
+                        rp: PublicKeyCredentialRpEntity(
+                            id: credentialIdentity.relyingPartyIdentifier,
+                            name: credentialIdentity.relyingPartyIdentifier
+                        ),
                         user: PublicKeyCredentialUserEntity(
                             id: credentialIdentity.userHandle,
                             displayName: credentialIdentity.userName,
@@ -215,7 +219,7 @@ class VaultAutofillListProcessor: StateProcessor<
     @available(iOSApplicationExtension 17.0, *)
     func onCipherForFido2CredentialPicked(cipher: CipherView) async {
         guard let fido2appExtensionDelegate = appExtensionDelegate as? Fido2AppExtensionDelegate,
-              fido2appExtensionDelegate.getRequestForFido2Creation() != nil else {
+              fido2appExtensionDelegate.isCreatingFido2Credential else {
             return
         }
         services.fido2UserInterfaceHelper.pickedCredentialForCreation(cipherResult: .success(cipher))
