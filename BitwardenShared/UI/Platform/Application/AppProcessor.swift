@@ -139,9 +139,9 @@ public class AppProcessor {
             return
         }
 
-        if path == "/email-verification" {
+        if path == "/finish-signup" {
             guard let email = params.first(where: { $0.name == "email" })?.value,
-                  let verificationToken = params.first(where: { $0.name == "verificationtoken" })?.value else {
+                  let verificationToken = params.first(where: { $0.name == "token" })?.value else {
                 services.errorReporter.log(error: AppProcessorError.appLinksInvalidParametersForPath)
                 return
             }
