@@ -2,7 +2,7 @@ import AuthenticationServices
 import BitwardenSdk
 
 extension ASAuthorizationPublicKeyCredentialUserVerificationPreference {
-    /// Maps to the Bitwarden Sdk user verification prefernece object
+    /// Maps to the Bitwarden Sdk user verification preference object
     func toSdkUserVerificationPreference() -> BitwardenSdk.Uv {
         switch self {
         case ASAuthorizationPublicKeyCredentialUserVerificationPreference.discouraged:
