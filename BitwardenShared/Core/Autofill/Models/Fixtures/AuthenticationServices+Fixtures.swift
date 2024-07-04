@@ -4,6 +4,15 @@ import AuthenticationServices
 
 @testable import BitwardenShared
 
+extension ASCredentialServiceIdentifier {
+    static func fixture(
+        identifier: String = "id",
+        type: ASCredentialServiceIdentifier.IdentifierType = ASCredentialServiceIdentifier.IdentifierType.URL
+    ) -> ASCredentialServiceIdentifier {
+        ASCredentialServiceIdentifier(identifier: identifier, type: type)
+    }
+}
+
 @available(iOS 17.0, *)
 extension ASPasskeyCredentialIdentity {
     static func fixture(
@@ -36,6 +45,20 @@ extension ASPasskeyCredentialRequest {
             clientDataHash: clientDataHash,
             userVerificationPreference: userVerificationPreference,
             supportedAlgorithms: supportedAlgorithms
+        )
+    }
+}
+
+extension ASPasswordCredentialIdentity {
+     static func fixture(
+        serviceIdentifier: ASCredentialServiceIdentifier = .fixture(),
+        user: String = "",
+        recordIdentifier: String? = nil
+    ) -> ASPasswordCredentialIdentity {
+        ASPasswordCredentialIdentity(
+            serviceIdentifier: serviceIdentifier,
+            user: user,
+            recordIdentifier: recordIdentifier
         )
     }
 }

@@ -1,30 +1,13 @@
+import AuthenticationServices
+import BitwardenShared
+
 protocol CredentialProviderContext {
+    /// The `AppRoute` depending on the `ExtensionMode`.
+    var authCompletionRoute: AppRoute? { get }
+    /// Whether the provider is being configured.
     var configuring: Bool { get }
-}
-
-struct PasswordCredentialProviderContext: CredentialProviderContext {
-    var configuring: Bool {
-        extensionMode == .configureAutofill
-    }
-
-    /// The mode that describes how the extension is being used.
-    var extensionMode = PasswordExtensionMode.configureAutofill
-
-    init(_ extensionMode: PasswordExtensionMode) {
-        self.extensionMode = extensionMode
-    }
-}
-
-@available(iOSApplicationExtension 17.0, *)
-struct DefaultCredentialProviderContext: CredentialProviderContext {
-    var configuring: Bool {
-        extensionMode == .configureAutofill
-    }
-
-    /// The mode that describes how the extension is being used.
-    var extensionMode = ExtensionMode.configureAutofill
-
-    init(_ extensionMode: ExtensionMode) {
-        self.extensionMode = extensionMode
-    }
+    /// The password credential identity of `autofillCredential(_:)`.
+    var passwordCredentialIdentity: ASPasswordCredentialIdentity? { get }
+    /// The `ASCredentialServiceIdentifier` array depending on the `ExtensionMode`.
+    var serviceIdentifiers: [ASCredentialServiceIdentifier] { get }
 }
