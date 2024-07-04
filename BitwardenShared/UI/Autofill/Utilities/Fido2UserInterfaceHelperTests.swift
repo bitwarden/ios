@@ -32,6 +32,10 @@ class Fido2UserInterfaceHelperTests: BitwardenTestCase {
     /// `checkUser(options:hint:)`
     func test_checkUser() async throws {
         //  TODO: PM-8829
+        _ = try await subject.checkUser(
+            options: CheckUserOptions(requirePresence: true, requireVerification: .discouraged),
+            hint: .informNoCredentialsFound
+        )
         throw XCTSkip("TODO: PM-8829")
     }
 
@@ -84,8 +88,9 @@ class Fido2UserInterfaceHelperTests: BitwardenTestCase {
     }
 
     /// `pickCredentialForAuthentication(availableCredentials:)`
-    func test_pickCredentialForAuthentication() throws {
+    func test_pickCredentialForAuthentication() async throws {
         //  TODO: PM-8829
+        _ = try await subject.pickCredentialForAuthentication(availableCredentials: [])
         throw XCTSkip("TODO: PM-8829")
     }
 
