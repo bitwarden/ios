@@ -71,7 +71,7 @@ class InvocationMocker<TParam> {
 /// to return the correct result.
 class InvocationMockerWithThrowingResult<TParam, TResult> {
     var called = false
-    var result: Result<TResult, Error> = .failure(InvocationMockerError.resultNotSet)
+    var result: (TParam) throws -> TResult = { _ in throw InvocationMockerError.resultNotSet }
     var verification: (TParam) -> Bool = { _ in true }
 
     /// Sets up a verification to be executed and needs to pass in order to return the result.
@@ -87,7 +87,17 @@ class InvocationMockerWithThrowingResult<TParam, TResult> {
     /// - Returns: `Self` for fluent coding
     @discardableResult
     func withResult(_ result: TResult) -> Self {
-        withResult(.success(result))
+        self.result = { _ in result }
+        return self
+    }
+
+    /// Sets up the result that will be returned if the verification passes.
+    /// - Parameter resultFunc: The result func to execute.
+    /// - Returns: `Self` for fluent coding
+    @discardableResult
+    func withResult(_ resultFunc: @escaping (TParam) throws -> TResult) -> Self {
+        result = resultFunc
+        return self
     }
 
     /// Sets up the error to throw if the verification passes.
@@ -95,15 +105,7 @@ class InvocationMockerWithThrowingResult<TParam, TResult> {
     /// - Returns: `Self` for fluent coding
     @discardableResult
     func throwing(_ error: Error) -> Self {
-        withResult(.failure(error))
-    }
-
-    /// Sets up the result that will be returned if the verification passes.
-    /// - Parameter result: The result to return.
-    /// - Returns: `Self` for fluent coding
-    @discardableResult
-    func withResult(_ result: Result<TResult, Error>) -> Self {
-        self.result = result
+        result = { _ in throw error }
         return self
     }
 
@@ -116,6 +118,6 @@ class InvocationMockerWithThrowingResult<TParam, TResult> {
             XCTFail("\(TParam.self) verification failed.")
             throw InvocationMockerError.paramVerificationFailed
         }
-        return try result.get()
+        return try result(param)
     }
 }

@@ -5,7 +5,9 @@ import BitwardenSdk
 class MockClientFido2Service: ClientFido2Service {
     var clientFido2AuthenticatorMock = MockClientFido2Authenticator()
     var clientFido2ClientMock = MockClientFido2Client()
-    var decryptFido2AutofillCredentialsResult: Result<[Fido2CredentialAutofillView], Error> = .success([])
+    var decryptFido2AutofillCredentialsMocker =
+        InvocationMockerWithThrowingResult<CipherView, [Fido2CredentialAutofillView]>()
+            .withResult([.fixture()])
 
     func authenticator(
         userInterface: any BitwardenSdk.Fido2UserInterface,
@@ -22,6 +24,6 @@ class MockClientFido2Service: ClientFido2Service {
     }
 
     func decryptFido2AutofillCredentials(cipherView: CipherView) throws -> [Fido2CredentialAutofillView] {
-        try decryptFido2AutofillCredentialsResult.get()
+        try decryptFido2AutofillCredentialsMocker.invoke(param: cipherView)
     }
 }
