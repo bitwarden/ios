@@ -190,21 +190,21 @@ class CompleteRegistrationProcessor: StateProcessor<
                 purpose: .serverAuthorization
             )
 
-            // TODO: PM-5090 Add call to complete the registration and create the account /register
-            // _ = try await services.accountAPIService.createNewAccount(
-            //    body: CreateAccountRequestModel(
-            //        captchaResponse: captchaToken,
-            //        email: state.userEmail,
-            //        kdfConfig: KdfConfig(),
-            //        key: keys.encryptedUserKey,
-            //        keys: KeysRequestModel(
-            //            encryptedPrivateKey: keys.keys.private,
-            //            publicKey: keys.keys.public
-            //        ),
-            //        masterPasswordHash: hashedPassword,
-            //        masterPasswordHint: state.passwordHintText
-            //    )
-            // )
+             _ = try await services.accountAPIService.createNewAccount(
+                body: CreateAccountRequestModel(
+                    captchaResponse: captchaToken,
+                    email: state.userEmail,
+                    emailVerificationToken: state.emailVerificationToken,
+                    kdfConfig: KdfConfig(),
+                    key: keys.encryptedUserKey,
+                    keys: KeysRequestModel(
+                        encryptedPrivateKey: keys.keys.private,
+                        publicKey: keys.keys.public
+                    ),
+                    masterPasswordHash: hashedPassword,
+                    masterPasswordHint: state.passwordHintText
+                )
+             )
 
             coordinator.navigate(to: .dismiss)
             // Delay to allow the modal to close completely and only after show the toast
