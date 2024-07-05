@@ -17,6 +17,8 @@ class StartRegistrationProcessorTests: BitwardenTestCase { // swiftlint:disable:
     var errorReporter: MockErrorReporter!
     var subject: StartRegistrationProcessor!
     var delegate: MockStartRegistrationDelegate!
+    var stateService: MockStateService!
+    var environmentService: MockEnvironmentService!
 
     // MARK: Setup & Teardown
 
@@ -27,7 +29,10 @@ class StartRegistrationProcessorTests: BitwardenTestCase { // swiftlint:disable:
         client = MockHTTPClient()
         clientAuth = MockClientAuth()
         coordinator = MockCoordinator<AuthRoute, AuthEvent>()
+        environmentService = MockEnvironmentService()
         errorReporter = MockErrorReporter()
+        stateService = MockStateService()
+
         subject = StartRegistrationProcessor(
             coordinator: coordinator.asAnyCoordinator(),
             delegate: delegate,
@@ -35,8 +40,10 @@ class StartRegistrationProcessorTests: BitwardenTestCase { // swiftlint:disable:
                 authRepository: authRepository,
                 captchaService: captchaService,
                 clientService: MockClientService(auth: clientAuth),
+                environmentService: environmentService,
                 errorReporter: errorReporter,
-                httpClient: client
+                httpClient: client,
+                stateService: stateService
             ),
             state: StartRegistrationState()
         )
@@ -393,6 +400,84 @@ class StartRegistrationProcessorTests: BitwardenTestCase { // swiftlint:disable:
 
         subject.receive(.toggleReceiveMarketing(true))
         XCTAssertTrue(subject.state.isReceiveMarketingToggleOn)
+    }
+
+    /// `didSaveEnvironment(urls:)` with URLs sets the region to self-hosted and sets the URLs in
+    /// the environment.
+    func test_didSaveEnvironment() async {
+        subject.state.region = .unitedStates
+        await subject.didSaveEnvironment(urls: EnvironmentUrlData(base: .example))
+        XCTAssertEqual(subject.state.region, .selfHosted)
+        XCTAssertEqual(subject.state.toast?.text, Localizations.environmentSaved)
+        XCTAssertEqual(
+            environmentService.setPreAuthEnvironmentUrlsData,
+            EnvironmentUrlData(base: .example)
+        )
+    }
+
+    /// `didSaveEnvironment(urls:)` with empty URLs doesn't change the region or the environment URLs.
+    func test_didSaveEnvironment_empty() async {
+        subject.state.region = .unitedStates
+        await subject.didSaveEnvironment(urls: EnvironmentUrlData())
+        XCTAssertEqual(subject.state.region, .unitedStates)
+        XCTAssertNil(environmentService.setPreAuthEnvironmentUrlsData)
+    }
+
+    /// `perform(.appeared)` with no pre-auth URLs defaults the region and URLs to the US environment.
+    func test_perform_appeared_loadsRegion_noPreAuthUrls() async {
+        await subject.perform(.appeared)
+        XCTAssertEqual(subject.state.region, .unitedStates)
+        XCTAssertEqual(environmentService.setPreAuthEnvironmentUrlsData, .defaultUS)
+    }
+
+    /// `perform(.appeared)` with EU pre-auth URLs sets the state to the EU region and sets the
+    /// environment URLs.
+    func test_perform_appeared_loadsRegion_withPreAuthUrls_europe() async {
+        stateService.preAuthEnvironmentUrls = .defaultEU
+        await subject.perform(.appeared)
+        XCTAssertEqual(subject.state.region, .europe)
+        XCTAssertEqual(environmentService.setPreAuthEnvironmentUrlsData, .defaultEU)
+    }
+
+    /// `perform(.appeared)` with self-hosted pre-auth URLs sets the state to the self-hosted region
+    /// and sets the URLs to the environment.
+    func test_perform_appeared_loadsRegion_withPreAuthUrls_selfHosted() async {
+        let urls = EnvironmentUrlData(base: .example)
+        stateService.preAuthEnvironmentUrls = urls
+        await subject.perform(.appeared)
+        XCTAssertEqual(subject.state.region, .selfHosted)
+        XCTAssertEqual(environmentService.setPreAuthEnvironmentUrlsData, urls)
+    }
+
+    /// `perform(.appeared)` with US pre-auth URLs sets the state to the US region and sets the
+    /// environment URLs.
+    func test_perform_appeared_loadsRegion_withPreAuthUrls_unitedStates() async {
+        stateService.preAuthEnvironmentUrls = .defaultUS
+        await subject.perform(.appeared)
+        XCTAssertEqual(subject.state.region, .unitedStates)
+        XCTAssertEqual(environmentService.setPreAuthEnvironmentUrlsData, .defaultUS)
+    }
+
+    /// `perform(.appeared)` with US pre-auth URLs sets the state to the US region and sets the
+    /// environment URLs.
+    /// Test if isReceiveMarketingToggle is On
+    func test_perform_appeared_loadsRegion_withPreAuthUrls_unitedStates_isReceiveMarketingToggle_on() async {
+        stateService.preAuthEnvironmentUrls = .defaultUS
+        await subject.perform(.appeared)
+        XCTAssertEqual(subject.state.region, .unitedStates)
+        XCTAssertEqual(environmentService.setPreAuthEnvironmentUrlsData, .defaultUS)
+        XCTAssertTrue(subject.state.isReceiveMarketingToggleOn)
+    }
+
+    /// `perform(.appeared)` with EU pre-auth URLs sets the state to the EU region and sets the
+    /// environment URLs.
+    /// Test if isReceiveMarketingToggle is Off
+    func test_perform_appeared_loadsRegion_withPreAuthUrls_europe_isReceiveMarketingToggle_off() async {
+        stateService.preAuthEnvironmentUrls = .defaultEU
+        await subject.perform(.appeared)
+        XCTAssertEqual(subject.state.region, .europe)
+        XCTAssertEqual(environmentService.setPreAuthEnvironmentUrlsData, .defaultEU)
+        XCTAssertFalse(subject.state.isReceiveMarketingToggleOn)
     }
 }
 

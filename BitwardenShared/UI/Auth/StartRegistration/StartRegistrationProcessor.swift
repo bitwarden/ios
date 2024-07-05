@@ -86,6 +86,7 @@ class StartRegistrationProcessor: StateProcessor<
         switch effect {
         case .appeared:
             await loadRegion()
+            state.isReceiveMarketingToggleOn = state.region == .unitedStates
         case .startRegistration:
             await startRegistration()
         }
