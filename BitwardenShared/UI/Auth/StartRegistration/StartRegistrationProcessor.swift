@@ -27,9 +27,6 @@ enum StartRegistrationError: Error {
 
     /// The email is invalid.
     case invalidEmail
-
-    /// The name field is empty.
-    case nameEmpty
 }
 
 // MARK: - StartRegistrationProcessor
@@ -102,8 +99,8 @@ class StartRegistrationProcessor: StateProcessor<
             coordinator.navigate(to: .dismiss)
         case let .nameTextChanged(text):
             state.nameText = text
-        case let .toggleTermsAndPrivacy(newValue):
-            state.isTermsAndPrivacyToggleOn = newValue
+        case let .toggleReceiveMarketing(newValue):
+            state.isReceiveMarketingToggleOn = newValue
         case .regionTapped:
             presentRegionSelectionAlert()
         case let .toastShown(toast):
@@ -128,16 +125,8 @@ class StartRegistrationProcessor: StateProcessor<
                 throw StartRegistrationError.emailEmpty
             }
 
-            guard !name.isEmpty else {
-                throw StartRegistrationError.nameEmpty
-            }
-
             guard email.isValidEmail else {
                 throw StartRegistrationError.invalidEmail
-            }
-
-            guard state.isTermsAndPrivacyToggleOn else {
-                throw StartRegistrationError.acceptPoliciesError
             }
 
             coordinator.showLoadingOverlay(title: Localizations.creatingAccount)
@@ -243,8 +232,6 @@ class StartRegistrationProcessor: StateProcessor<
             coordinator.showAlert(.acceptPoliciesAlert())
         case .emailEmpty:
             coordinator.showAlert(.validationFieldRequired(fieldName: Localizations.email))
-        case .nameEmpty:
-            coordinator.showAlert(.validationFieldRequired(fieldName: Localizations.name))
         case .invalidEmail:
             coordinator.showAlert(.invalidEmail)
         }

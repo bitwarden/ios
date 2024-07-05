@@ -899,3 +899,6 @@
 "VerifyingEmail" = "Verifying email";
 "EmailVerified" = "Email verified";
 "AccountSuccessfullyCreated" = "Account successfully created!";
+"ByContinuingYouAgreeToTheTermsOfServiceAndPrivacyPolicy" = "By continuing, you agree to the Terms of Service and Privacy Policy";
+"GetEmailsFromBitwardenForAnnouncementsAdviceAndResearchOpportunitiesUnsubscribeAtAnyTime." = "Get emails from Bitwarden for announcements, advice, and research opportunities. Unsubscribe at any time.";
+"Unsubscribe" = "Unsubscribe";

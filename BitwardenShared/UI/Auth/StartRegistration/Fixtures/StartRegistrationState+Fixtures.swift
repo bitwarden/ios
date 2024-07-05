@@ -6,13 +6,13 @@ import Foundation
 extension StartRegistrationState {
     static func fixture(
         emailText: String = "example@email.com",
-        isTermsAndPrivacyToggleOn: Bool = true,
+        isReceiveMarketingToggleOn: Bool = true,
         nameText: String = "name",
         region: RegionType = .unitedStates
     ) -> Self {
         StartRegistrationState(
             emailText: emailText,
-            isTermsAndPrivacyToggleOn: isTermsAndPrivacyToggleOn,
+            isReceiveMarketingToggleOn: isReceiveMarketingToggleOn,
             nameText: nameText,
             region: region
         )

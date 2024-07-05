@@ -121,13 +121,14 @@ class AppProcessorTests: BitwardenTestCase {
     /// `handleAppLinks(URL)` navigates the user based on the input URL.
     func test_init_handleAppLinks() {
         let url = URL(string:
-            "https://bitwarden.com/email-verification?email=example@email.com&verificationtoken=verificationtoken"
+            "https://bitwarden.com/finish-signup?email=example@email.com&token=verificationtoken&fromEmail=true"
         )
         subject.handleAppLinks(incomingURL: url!)
 
         XCTAssertEqual(coordinator.routes.last, .auth(.completeRegistrationFromAppLink(
             emailVerificationToken: "verificationtoken",
             userEmail: "example@email.com",
+            fromEmail: true,
             region: .unitedStates
         )))
     }
@@ -142,7 +143,7 @@ class AppProcessorTests: BitwardenTestCase {
     /// `handleAppLinks(URL)` checks error report for `.appLinksInvalidPath`.
     func test_init_handleAppLinks_invalidPath() {
         let url = URL(
-            string: "https://bitwarden.com/not-valid-path?email=example@email.com&verificationtoken=verificationtoken"
+            string: "https://bitwarden.com/not-valid?email=example@email.com&token=verificationtoken&fromEmail=true"
         )
         subject.handleAppLinks(incomingURL: url!)
         XCTAssertEqual(errorReporter.errors.last as? AppProcessorError, .appLinksInvalidPath)
@@ -151,7 +152,7 @@ class AppProcessorTests: BitwardenTestCase {
     /// `handleAppLinks(URL)` checks error report for `.appLinksInvalidParametersForPath`.
     func test_init_handleAppLinks_invalidParametersForPath() {
         let url = URL(
-            string: "https://bitwarden.com/email-verification?verificationtoken=verificationtoken"
+            string: "https://bitwarden.com/finish-signup?email=example@email.com"
         )
         subject.handleAppLinks(incomingURL: url!)
         XCTAssertEqual(errorReporter.errors.last as? AppProcessorError, .appLinksInvalidParametersForPath)

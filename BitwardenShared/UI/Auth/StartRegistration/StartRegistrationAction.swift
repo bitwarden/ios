@@ -19,5 +19,5 @@ enum StartRegistrationAction: Equatable {
     case toastShown(Toast?)
 
     /// An action to toggle the terms and privacy agreement.
-    case toggleTermsAndPrivacy(Bool)
+    case toggleReceiveMarketing(Bool)
 }

@@ -23,6 +23,11 @@ struct StartRegistrationView: View {
         markdown: "[\(Localizations.termsOfService),](\(ExternalLinksConstants.termsOfService))"
     )
 
+    /// The unsubscribe marketing attributed string used in navigating to Bitwarden's website.
+    let unsubscribeString: AttributedString? = try? AttributedString(
+        markdown: "[\(Localizations.unsubscribe),](\(ExternalLinksConstants.unsubscribe))"
+    )
+
     // MARK: View
 
     var body: some View {
@@ -34,16 +39,13 @@ struct StartRegistrationView: View {
                     store.send(.regionTapped)
                 }.padding(.bottom, 8)
 
-                name.padding(.bottom, 8)
-            }
+                name.padding(.bottom, 16)
 
-            VStack(spacing: 24) {
-                VStack(spacing: 24) {
-                    termsAndPrivacyToggle
-                }
-                .padding(.top, 8)
+                receiveMarketingToggle.padding(.bottom, 16)
 
-                continueButton
+                continueButton.padding(.bottom, 16)
+
+                termsAndPrivacyText.padding(.bottom, 16)
             }
         }.navigationBar(title: Localizations.createAccount, titleDisplayMode: .inline)
             .scrollView()
@@ -102,25 +104,29 @@ struct StartRegistrationView: View {
         .buttonStyle(.primary())
     }
 
+    /// The button pressed when the user attempts to create the account.
+    private var termsAndPrivacyText: some View {
+        Text(.init(store.state.termsAndPrivacyDisclaimerText))
+            .styleGuide(.footnote)
+            .tint(Asset.Colors.primaryBitwarden.swiftUIColor)
+            .padding([.bottom], 32)
+            .multilineTextAlignment(.center)
+    }
+
     /// A toggle for the terms and privacy agreement.
-    private var termsAndPrivacyToggle: some View {
+    private var receiveMarketingToggle: some View {
         Toggle(isOn: store.binding(
-            get: \.isTermsAndPrivacyToggleOn,
-            send: StartRegistrationAction.toggleTermsAndPrivacy
+            get: \.isReceiveMarketingToggleOn,
+            send: StartRegistrationAction.toggleReceiveMarketing
         )) {
-            Text("\(Localizations.acceptPolicies)\n\(termsOfServiceString ?? "") \(privacyPolicyString ?? "")")
-                .styleGuide(.footnote)
+            Text(.init(store.state.receiveMarketingEmailsText))
+                .tint(Asset.Colors.primaryBitwarden.swiftUIColor)
+                .styleGuide(.subheadline)
         }
-        .accessibilityAction(named: Localizations.termsOfService) {
-            openURL(ExternalLinksConstants.termsOfService)
-        }
-        .accessibilityAction(named: Localizations.privacyPolicy) {
-            openURL(ExternalLinksConstants.privacyPolicy)
-        }
-        .accessibilityIdentifier("AcceptPoliciesToggle")
+        .accessibilityIdentifier("ReceiveMarketingToggle")
         .foregroundColor(Color(asset: Asset.Colors.textPrimary))
         .toggleStyle(.bitwarden)
-        .id(ViewIdentifier.StartRegistration.termsAndPrivacy)
+        .id(ViewIdentifier.StartRegistration.receiveMarketing)
     }
 }
 

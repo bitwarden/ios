@@ -61,14 +61,14 @@ class StartRegistrationViewTests: BitwardenTestCase {
         XCTAssertEqual(processor.effects.last, .startRegistration)
     }
 
-    /// Tapping the terms and privacy policy toggle dispatches the `.toggleTermsAndPrivacy()` action.
-    func test_termsAndPrivacyToggle_tap() throws {
+    /// Tapping the receive marketing toggle dispatches the `.toggleReceiveMarketing()` action.
+    func test_receiveMarketingToggle_tap() throws {
         if #available(iOS 16.0, macOS 13.0, tvOS 16.0, watchOS 9.0, *) {
             throw XCTSkip("Unable to run test in iOS 16, keep an eye on ViewInspector to see if it gets updated.")
         }
-        let toggle = try subject.inspect().find(viewWithId: ViewIdentifier.StartRegistration.termsAndPrivacy).toggle()
+        let toggle = try subject.inspect().find(viewWithId: ViewIdentifier.StartRegistration.receiveMarketing).toggle()
         try toggle.tap()
-        XCTAssertEqual(processor.dispatchedActions.last, .toggleTermsAndPrivacy(true))
+        XCTAssertEqual(processor.dispatchedActions.last, .toggleReceiveMarketing(true))
     }
 
     // MARK: Snapshots
@@ -88,7 +88,7 @@ class StartRegistrationViewTests: BitwardenTestCase {
 
     /// Tests the view renders correctly when the toggles are on.
     func test_snapshot_toggles_on() throws {
-        processor.state.isTermsAndPrivacyToggleOn = true
+        processor.state.isReceiveMarketingToggleOn = true
 
         assertSnapshot(matching: subject, as: .defaultPortrait)
     }

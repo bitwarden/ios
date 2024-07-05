@@ -368,20 +368,6 @@ class StartRegistrationProcessorTests: BitwardenTestCase { // swiftlint:disable:
         XCTAssertEqual(coordinator.loadingOverlaysShown, [LoadingOverlayState(title: Localizations.creatingAccount)])
     }
 
-    /// `perform(_:)` with `.startRegistration` navigates to an error alert when the terms of service
-    /// and privacy policy toggle is off.
-    func test_perform_startRegistration_withTermsAndServicesToggle_false() async {
-        subject.state = .fixture(isTermsAndPrivacyToggleOn: false)
-
-        client.result = .httpSuccess(testData: .startRegistrationSuccess)
-
-        await subject.perform(.startRegistration)
-
-        XCTAssertEqual(client.requests.count, 0)
-        XCTAssertEqual(coordinator.alertShown.last, .acceptPoliciesAlert())
-        XCTAssertTrue(coordinator.loadingOverlaysShown.isEmpty)
-    }
-
     /// `receive(_:)` with `.dismiss` dismisses the view.
     func test_receive_dismiss() {
         subject.receive(.dismiss)
@@ -397,16 +383,16 @@ class StartRegistrationProcessorTests: BitwardenTestCase { // swiftlint:disable:
         XCTAssertTrue(subject.state.emailText == "updated email")
     }
 
-    /// `receive(_:)` with `.toggleTermsAndPrivacy(_:)` updates the state to reflect the change.
+    /// `receive(_:)` with `.toggleReceiveMarketing(_:)` updates the state to reflect the change.
     func test_receive_toggleTermsAndPrivacy() {
-        subject.receive(.toggleTermsAndPrivacy(false))
-        XCTAssertFalse(subject.state.isTermsAndPrivacyToggleOn)
+        subject.receive(.toggleReceiveMarketing(false))
+        XCTAssertFalse(subject.state.isReceiveMarketingToggleOn)
 
-        subject.receive(.toggleTermsAndPrivacy(true))
-        XCTAssertTrue(subject.state.isTermsAndPrivacyToggleOn)
+        subject.receive(.toggleReceiveMarketing(true))
+        XCTAssertTrue(subject.state.isReceiveMarketingToggleOn)
 
-        subject.receive(.toggleTermsAndPrivacy(true))
-        XCTAssertTrue(subject.state.isTermsAndPrivacyToggleOn)
+        subject.receive(.toggleReceiveMarketing(true))
+        XCTAssertTrue(subject.state.isReceiveMarketingToggleOn)
     }
 }
 
