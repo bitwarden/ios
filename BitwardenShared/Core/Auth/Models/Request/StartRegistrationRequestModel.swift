@@ -17,6 +17,9 @@ struct StartRegistrationRequestModel: Equatable {
     /// The user name.
     let name: String
 
+    /// The user name.
+    let receiveMarketingEmails: Bool
+
     // MARK: Initialization
 
     /// Initializes a `StartRegistrationRequestModel`.
@@ -29,11 +32,13 @@ struct StartRegistrationRequestModel: Equatable {
     init(
         captchaResponse: String? = nil,
         email: String,
-        name: String
+        name: String,
+        receiveMarketingEmails: Bool
     ) {
         self.captchaResponse = captchaResponse
         self.email = email
         self.name = name
+        self.receiveMarketingEmails = receiveMarketingEmails
     }
 }
 

@@ -18,7 +18,8 @@ class StartRegistrationRequestTests: BitwardenTestCase {
         subject = StartRegistrationRequest(
             body: StartRegistrationRequestModel(
                 email: "example@email.com",
-                name: "key"
+                name: "key",
+                receiveMarketingEmails: true
             )
         )
     }
@@ -36,7 +37,8 @@ class StartRegistrationRequestTests: BitwardenTestCase {
         let subject = StartRegistrationRequest(
             body: StartRegistrationRequestModel(
                 email: "example@email.com",
-                name: "key"
+                name: "key",
+                receiveMarketingEmails: true
             )
         )
         XCTAssertEqual(subject.method, .post)
@@ -47,7 +49,8 @@ class StartRegistrationRequestTests: BitwardenTestCase {
         let subject = StartRegistrationRequest(
             body: StartRegistrationRequestModel(
                 email: "example@email.com",
-                name: "key"
+                name: "key",
+                receiveMarketingEmails: true
             )
         )
         XCTAssertEqual(subject.path, "/accounts/send-verification-email")
@@ -58,7 +61,8 @@ class StartRegistrationRequestTests: BitwardenTestCase {
         let subject = StartRegistrationRequest(
             body: StartRegistrationRequestModel(
                 email: "example@email.com",
-                name: "key"
+                name: "key",
+                receiveMarketingEmails: true
             )
         )
         XCTAssertNotNil(subject.body)
@@ -136,7 +140,8 @@ class StartRegistrationRequestTests: BitwardenTestCase {
         let subject = StartRegistrationRequest(
             body: StartRegistrationRequestModel(
                 email: "example@email.com",
-                name: "key"
+                name: "key",
+                receiveMarketingEmails: true
             )
         )
         XCTAssertEqual(subject.body?.email, "example@email.com")

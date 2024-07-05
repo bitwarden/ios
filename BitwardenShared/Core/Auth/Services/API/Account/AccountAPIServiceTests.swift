@@ -185,7 +185,12 @@ class AccountAPIServiceTests: BitwardenTestCase {
     func test_startRegistration() async throws {
         client.result = .httpSuccess(testData: .startRegistrationSuccess)
 
-        let requestModel = StartRegistrationRequestModel(email: "email@example.com", name: "name")
+        let requestModel = StartRegistrationRequestModel(
+            email: "email@example.com",
+            name: "name",
+            receiveMarketingEmails: true
+        )
+
         _ = try await subject.startRegistration(requestModel: requestModel)
 
         XCTAssertEqual(client.requests.count, 1)

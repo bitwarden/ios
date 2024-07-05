@@ -136,7 +136,8 @@ class StartRegistrationProcessor: StateProcessor<
                 requestModel: StartRegistrationRequestModel(
                     captchaResponse: captchaToken,
                     email: email,
-                    name: name
+                    name: name,
+                    receiveMarketingEmails: state.isReceiveMarketingToggleOn
                 )
             )
 

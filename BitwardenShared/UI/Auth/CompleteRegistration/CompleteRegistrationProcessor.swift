@@ -190,7 +190,7 @@ class CompleteRegistrationProcessor: StateProcessor<
                 purpose: .serverAuthorization
             )
 
-             _ = try await services.accountAPIService.createNewAccount(
+            _ = try await services.accountAPIService.createNewAccount(
                 body: CreateAccountRequestModel(
                     captchaResponse: captchaToken,
                     email: state.userEmail,
@@ -204,7 +204,7 @@ class CompleteRegistrationProcessor: StateProcessor<
                     masterPasswordHash: hashedPassword,
                     masterPasswordHint: state.passwordHintText
                 )
-             )
+            )
 
             coordinator.navigate(to: .dismiss)
             // Delay to allow the modal to close completely and only after show the toast

@@ -73,7 +73,8 @@ class StartRegistrationProcessorTests: BitwardenTestCase { // swiftlint:disable:
         let startRegistrationRequest = StartRegistrationRequestModel(
             captchaResponse: "token",
             email: "example@email.com",
-            name: "name"
+            name: "name",
+            receiveMarketingEmails: true
         )
 
         waitFor(!coordinator.routes.isEmpty)
