@@ -92,4 +92,11 @@ class StartRegistrationViewTests: BitwardenTestCase {
 
         assertSnapshot(matching: subject, as: .defaultPortrait)
     }
+
+    /// Tests the view renders correctly when the marketing toggle is hidden.
+    func test_snapshot_environment_selfhosted() throws {
+        processor.state.showReceiveMarketingToggle = false
+
+        assertSnapshot(matching: subject, as: .defaultPortrait)
+    }
 }

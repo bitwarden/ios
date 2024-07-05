@@ -249,6 +249,7 @@ class StartRegistrationProcessor: StateProcessor<
         guard !urls.isEmpty else { return }
         await services.environmentService.setPreAuthURLs(urls: urls)
         state.region = region
+        state.showReceiveMarketingToggle = state.region != .selfHosted
         await delegate?.didChangeRegion()
     }
 }

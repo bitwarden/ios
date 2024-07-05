@@ -114,19 +114,21 @@ struct StartRegistrationView: View {
     }
 
     /// A toggle for the terms and privacy agreement.
-    private var receiveMarketingToggle: some View {
-        Toggle(isOn: store.binding(
-            get: \.isReceiveMarketingToggleOn,
-            send: StartRegistrationAction.toggleReceiveMarketing
-        )) {
-            Text(.init(store.state.receiveMarketingEmailsText))
-                .tint(Asset.Colors.primaryBitwarden.swiftUIColor)
-                .styleGuide(.subheadline)
+    @ViewBuilder private var receiveMarketingToggle: some View {
+        if store.state.showReceiveMarketingToggle {
+            Toggle(isOn: store.binding(
+                get: \.isReceiveMarketingToggleOn,
+                send: StartRegistrationAction.toggleReceiveMarketing
+            )) {
+                Text(.init(store.state.receiveMarketingEmailsText))
+                    .tint(Asset.Colors.primaryBitwarden.swiftUIColor)
+                    .styleGuide(.subheadline)
+            }
+            .accessibilityIdentifier("ReceiveMarketingToggle")
+            .foregroundColor(Color(asset: Asset.Colors.textPrimary))
+            .toggleStyle(.bitwarden)
+            .id(ViewIdentifier.StartRegistration.receiveMarketing)
         }
-        .accessibilityIdentifier("ReceiveMarketingToggle")
-        .foregroundColor(Color(asset: Asset.Colors.textPrimary))
-        .toggleStyle(.bitwarden)
-        .id(ViewIdentifier.StartRegistration.receiveMarketing)
     }
 }
 

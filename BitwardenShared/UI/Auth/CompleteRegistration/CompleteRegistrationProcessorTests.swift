@@ -68,8 +68,8 @@ class CompleteRegistrationProcessorTests: BitwardenTestCase {
 
         XCTAssertEqual(client.requests.count, 2)
         XCTAssertEqual(client.requests[0].url, URL(string: "https://api.pwnedpasswords.com/range/e6b6a"))
-        XCTAssertEqual(client.requests[1].url, URL(string: "https://example.com/identity/accounts/register"))
-        XCTAssertEqual(coordinator.routes.last, .login(username: "email@example.com"))
+        XCTAssertEqual(client.requests[1].url, URL(string: "https://example.com/identity/accounts/register/finish"))
+        XCTAssertEqual(coordinator.routes.last, .dismiss)
 
         XCTAssertFalse(coordinator.isLoadingOverlayShowing)
         XCTAssertEqual(
@@ -96,7 +96,7 @@ class CompleteRegistrationProcessorTests: BitwardenTestCase {
 
         XCTAssertEqual(client.requests.count, 2)
         XCTAssertEqual(client.requests[0].url, URL(string: "https://api.pwnedpasswords.com/range/e6b6a"))
-        XCTAssertEqual(client.requests[1].url, URL(string: "https://example.com/identity/accounts/register"))
+        XCTAssertEqual(client.requests[1].url, URL(string: "https://example.com/identity/accounts/register/finish"))
         XCTAssertEqual(coordinator.alertShown.last, Alert(
             title: Localizations.weakAndExposedMasterPassword,
             message: Localizations.weakPasswordIdentifiedAndFoundInADataBreachAlertDescription,
@@ -131,7 +131,7 @@ class CompleteRegistrationProcessorTests: BitwardenTestCase {
 
         XCTAssertEqual(client.requests.count, 2)
         XCTAssertEqual(client.requests[0].url, URL(string: "https://api.pwnedpasswords.com/range/e6b6a"))
-        XCTAssertEqual(client.requests[1].url, URL(string: "https://example.com/identity/accounts/register"))
+        XCTAssertEqual(client.requests[1].url, URL(string: "https://example.com/identity/accounts/register/finish"))
         XCTAssertEqual(coordinator.alertShown.last, Alert(
             title: Localizations.exposedMasterPassword,
             message: Localizations.passwordFoundInADataBreachAlertDescription,
@@ -170,7 +170,7 @@ class CompleteRegistrationProcessorTests: BitwardenTestCase {
         try await alert.tapAction(title: Localizations.yes)
 
         XCTAssertEqual(client.requests.count, 1)
-        XCTAssertEqual(client.requests[0].url, URL(string: "https://example.com/identity/accounts/register"))
+        XCTAssertEqual(client.requests[0].url, URL(string: "https://example.com/identity/accounts/register/finish"))
         XCTAssertEqual(coordinator.alertShown.last, Alert(
             title: Localizations.weakMasterPassword,
             message: Localizations.weakPasswordIdentifiedUseAStrongPasswordToProtectYourAccount,
@@ -204,7 +204,7 @@ class CompleteRegistrationProcessorTests: BitwardenTestCase {
 
         XCTAssertEqual(client.requests.count, 2)
         XCTAssertEqual(client.requests[0].url, URL(string: "https://api.pwnedpasswords.com/range/6bf92"))
-        XCTAssertEqual(client.requests[1].url, URL(string: "https://example.com/identity/accounts/register"))
+        XCTAssertEqual(client.requests[1].url, URL(string: "https://example.com/identity/accounts/register/finish"))
         XCTAssertEqual(coordinator.alertShown.last, Alert(
             title: Localizations.weakMasterPassword,
             message: Localizations.weakPasswordIdentifiedUseAStrongPasswordToProtectYourAccount,
@@ -385,9 +385,9 @@ class CompleteRegistrationProcessorTests: BitwardenTestCase {
         try await alert.tapAction(title: Localizations.tryAgain)
 
         XCTAssertEqual(client.requests.count, 2)
-        XCTAssertEqual(client.requests[0].url, URL(string: "https://example.com/identity/accounts/register"))
-        XCTAssertEqual(client.requests[1].url, URL(string: "https://example.com/identity/accounts/register"))
-        XCTAssertEqual(coordinator.routes.last, .login(username: "email@example.com"))
+        XCTAssertEqual(client.requests[0].url, URL(string: "https://example.com/identity/accounts/register/finish"))
+        XCTAssertEqual(client.requests[1].url, URL(string: "https://example.com/identity/accounts/register/finish"))
+        XCTAssertEqual(coordinator.routes.last, .dismiss)
 
         XCTAssertFalse(coordinator.isLoadingOverlayShowing)
         XCTAssertEqual(
@@ -441,9 +441,9 @@ class CompleteRegistrationProcessorTests: BitwardenTestCase {
         try await alert.tapAction(title: Localizations.tryAgain)
 
         XCTAssertEqual(client.requests.count, 2)
-        XCTAssertEqual(client.requests[0].url, URL(string: "https://example.com/identity/accounts/register"))
-        XCTAssertEqual(client.requests[1].url, URL(string: "https://example.com/identity/accounts/register"))
-        XCTAssertEqual(coordinator.routes.last, .login(username: "email@example.com"))
+        XCTAssertEqual(client.requests[0].url, URL(string: "https://example.com/identity/accounts/register/finish"))
+        XCTAssertEqual(client.requests[1].url, URL(string: "https://example.com/identity/accounts/register/finish"))
+        XCTAssertEqual(coordinator.routes.last, .dismiss)
 
         XCTAssertFalse(coordinator.isLoadingOverlayShowing)
         XCTAssertEqual(

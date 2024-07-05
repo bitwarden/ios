@@ -16,8 +16,20 @@ struct StartRegistrationState: Equatable {
     /// The text in the name text field.
     var nameText: String = ""
 
+    /// The text in the receive marketing emails toggle
+    var receiveMarketingEmailsText: String {
+        Localizations.getEmailsFromBitwardenForAnnouncementsAdviceAndResearchOpportunitiesUnsubscribeAtAnyTime
+            .replacingOccurrences(
+                of: Localizations.unsubscribe,
+                with: "**[\(Localizations.unsubscribe)](\(ExternalLinksConstants.unsubscribe))**"
+            )
+    }
+
     /// The region selected by the user.
     var region: RegionType = .europe
+
+    /// The value which determines if the toggle is shown
+    var showReceiveMarketingToggle = true
 
     /// Terms and privacy disclaimer text
     var termsAndPrivacyDisclaimerText: String {
@@ -29,14 +41,6 @@ struct StartRegistrationState: Equatable {
             .replacingOccurrences(
                 of: Localizations.privacyPolicy,
                 with: "**[\(Localizations.privacyPolicy)](\(ExternalLinksConstants.privacyPolicy))**"
-            )
-    }
-
-    var receiveMarketingEmailsText: String {
-        Localizations.getEmailsFromBitwardenForAnnouncementsAdviceAndResearchOpportunitiesUnsubscribeAtAnyTime
-            .replacingOccurrences(
-                of: Localizations.unsubscribe,
-                with: "**[\(Localizations.unsubscribe)](\(ExternalLinksConstants.unsubscribe))**"
             )
     }
 
