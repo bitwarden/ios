@@ -61,6 +61,16 @@ class StartRegistrationViewTests: BitwardenTestCase {
         XCTAssertEqual(processor.effects.last, .startRegistration)
     }
 
+    /// Tapping the region button dispatches the `.regionPressed` action.
+    func test_regionButton_tap() throws {
+        let button = try subject.inspect().find(
+            button: "\(Localizations.creatingOn): \(subject.store.state.region.baseUrlDescription)"
+        )
+        try button.tap()
+        waitFor(processor.dispatchedActions.last != nil)
+        XCTAssertEqual(processor.dispatchedActions.last, .regionTapped)
+    }
+
     /// Tapping the receive marketing toggle dispatches the `.toggleReceiveMarketing()` action.
     func test_receiveMarketingToggle_tap() throws {
         if #available(iOS 16.0, macOS 13.0, tvOS 16.0, watchOS 9.0, *) {

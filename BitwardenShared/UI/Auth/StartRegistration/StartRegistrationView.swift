@@ -35,7 +35,10 @@ struct StartRegistrationView: View {
             VStack(alignment: .leading, spacing: 0) {
                 email
 
-                RegionSelector(regionName: store.state.region.baseUrlDescription) {
+                RegionSelector(
+                    selectorLabel: Localizations.creatingOn,
+                    regionName: store.state.region.baseUrlDescription
+                ) {
                     store.send(.regionTapped)
                 }.padding(.bottom, 8)
 

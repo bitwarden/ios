@@ -72,6 +72,7 @@ class LandingViewTests: BitwardenTestCase {
             button: "\(Localizations.loggingInOn): \(RegionType.unitedStates.baseUrlDescription)"
         )
         try button.tap()
+        waitFor(processor.dispatchedActions.last != nil)
         XCTAssertEqual(processor.dispatchedActions.last, .regionPressed)
     }
 
