@@ -13,6 +13,9 @@ struct RegionSelector: View {
     /// A binding to the toast to show.
     var regionName: String
 
+    /// The text that is shown before the action text
+    var selectorLabel: String
+
     var body: some View {
         Button {
             Task {
@@ -21,7 +24,7 @@ struct RegionSelector: View {
         } label: {
             HStack(spacing: 4) {
                 Group {
-                    Text("\(Localizations.creatingOn): ")
+                    Text("\(selectorLabel): ")
                         .foregroundColor(Asset.Colors.textSecondary.swiftUIColor)
                         + Text(regionName).bold()
                         .foregroundColor(Asset.Colors.primaryBitwarden.swiftUIColor)
@@ -44,10 +47,12 @@ struct RegionSelector: View {
     ///   - action: The async action to perform when the user interacts with this selector.
     ///
     init(
+        selectorLabel: String,
         regionName: String,
         action: @escaping () async -> Void
     ) {
         self.action = action
         self.regionName = regionName
+        self.selectorLabel = selectorLabel
     }
 }

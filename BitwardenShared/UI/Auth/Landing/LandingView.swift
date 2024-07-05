@@ -94,7 +94,10 @@ struct LandingView: View {
                     store.send(.continuePressed)
                 }
 
-                RegionSelector(regionName: store.state.region.baseUrlDescription) {
+                RegionSelector(
+                    selectorLabel: Localizations.loggingInOn,
+                    regionName: store.state.region.baseUrlDescription
+                ) {
                     store.send(.regionPressed)
                 }
 
