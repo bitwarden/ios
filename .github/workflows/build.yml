@@ -126,7 +126,7 @@ jobs:
         env:
           ACCOUNT_NAME: bitwardenci
           CONTAINER_NAME: mobile
-          SOURCE_FILE: GoogleService-Info.plist
+          SOURCE_FILE: GoogleService-Info-ios-pm-beta.plist
           TARGET_FILE: GoogleService-Info.plist
         run: |
           mkdir -p $HOME/secrets
