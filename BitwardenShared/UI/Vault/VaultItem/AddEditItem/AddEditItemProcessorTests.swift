@@ -699,6 +699,74 @@ class AddEditItemProcessorTests: BitwardenTestCase {
         )
         XCTAssertEqual(subject.state.ownershipOptions, [.personal(email: "user@bitwarden.com")])
         try XCTAssertFalse(XCTUnwrap(vaultRepository.fetchCollectionsIncludeReadOnly))
+
+        XCTAssertNil(eventService.collectCipherId)
+        XCTAssertNil(eventService.collectEventType)
+    }
+
+    /// `perform(_:)` with `.fetchCipherOptions` handles errors.
+    func test_perform_fetchCipherOptions_error() async {
+        vaultRepository.fetchCipherOwnershipOptions = [.personal(email: "user@bitwarden.com")]
+        vaultRepository.fetchCollectionsResult = .failure(BitwardenTestError.example)
+        vaultRepository.fetchFoldersResult = .failure(BitwardenTestError.example)
+
+        await subject.perform(.fetchCipherOptions)
+
+        XCTAssertEqual(subject.state.collections, [])
+        XCTAssertEqual(subject.state.folders, [])
+        XCTAssertEqual(subject.state.ownershipOptions, [])
+
+        XCTAssertEqual(errorReporter.errors as? [BitwardenTestError], [.example])
+    }
+
+    /// `perform(_:)` with `.fetchCipherOptions` sends events on edit.
+    func test_perform_fetchCipherOptions_events() async {
+        subject = AddEditItemProcessor(
+            appExtensionDelegate: appExtensionDelegate,
+            coordinator: coordinator.asAnyCoordinator(),
+            delegate: delegate,
+            services: ServiceContainer.withMocks(
+                authRepository: authRepository,
+                cameraService: cameraService,
+                errorReporter: errorReporter,
+                eventService: eventService,
+                httpClient: client,
+                pasteboardService: pasteboardService,
+                policyService: policyService,
+                stateService: stateService,
+                totpService: totpService,
+                vaultRepository: vaultRepository
+            ),
+            state: CipherItemState(
+                existing: CipherView.fixture(id: "100"),
+                hasPremium: true
+            )!
+        )
+        let collections: [CollectionView] = [
+            .fixture(id: "1", name: "Design"),
+            .fixture(id: "2", name: "Engineering"),
+        ]
+        let folders: [FolderView] = [
+            .fixture(id: "1", name: "Social"),
+            .fixture(id: "2", name: "Work"),
+        ]
+
+        vaultRepository.fetchCipherOwnershipOptions = [.personal(email: "user@bitwarden.com")]
+        vaultRepository.fetchCollectionsResult = .success(collections)
+        vaultRepository.fetchFoldersResult = .success(folders)
+
+        await subject.perform(.fetchCipherOptions)
+
+        XCTAssertEqual(subject.state.collections, collections)
+        XCTAssertEqual(
+            subject.state.folders,
+            [.default] + folders.map { .custom($0) }
+        )
+        XCTAssertEqual(subject.state.ownershipOptions, [.personal(email: "user@bitwarden.com")])
+        try XCTAssertFalse(XCTUnwrap(vaultRepository.fetchCollectionsIncludeReadOnly))
+
+        XCTAssertEqual(eventService.collectCipherId, "100")
+        XCTAssertEqual(eventService.collectEventType, .cipherClientViewed)
     }
 
     /// `perform(_:)` with `.fetchCipherOptions` fetches the ownership options for a cipher and
