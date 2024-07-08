@@ -118,7 +118,7 @@ jobs:
           cp $AUTHENTICATOR_PROFILE_PATH "$PROFILES_DIR_PATH/$AUTHENTICATOR_UUID.mobileprovision"
 
       - name: Configure Ruby
-        uses: ruby/setup-ruby@3783f195e29b74ae398d7caca108814bbafde90e # v1.180.1
+        uses: ruby/setup-ruby@3a77c29278ae80936b4cb030fefc7d21c96c786f # v1.185.0
         with:
           bundler-cache: true
 
@@ -151,7 +151,7 @@ jobs:
           ./Scripts/build.sh
 
       - name: Upload IPA
-        uses: actions/upload-artifact@65462800fd760344b1a7b4382951275a0abb4808 # v4.3.3
+        uses: actions/upload-artifact@0b2256b8c012f0828dc542b3febcab082c67f72b # v4.3.4
         with:
           name: Authenticator iOS
           path: build/Authenticator/Authenticator.ipa
