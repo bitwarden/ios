@@ -1,6 +1,8 @@
 import BitwardenSdk
 import Foundation
 
+/// The Fido2 credential store implementation that the SDK needs
+/// which handles getting/saving credentials for Fido2 flows.
 class Fido2CredentialStoreService: Fido2CredentialStore {
     // MARK: Properties
 
@@ -51,32 +53,27 @@ class Fido2CredentialStoreService: Fido2CredentialStore {
     }
 
     func findCredentials(ids: [Data]?, ripId: String) async throws -> [BitwardenSdk.CipherView] {
-        do {
-            let activeCiphersWithFido2Credentials = try await allCredentials()
-            
-            var result = [BitwardenSdk.CipherView]()
-            for cipherView in activeCiphersWithFido2Credentials {
-                let fido2CredentialAutofillViews = try await clientService.platform()
-                    .fido2()
-                    .decryptFido2AutofillCredentials(cipherView: cipherView)
-                
-                guard let fido2CredentialAutofillView = fido2CredentialAutofillViews[safeIndex: 0],
-                      ripId == fido2CredentialAutofillView.rpId else {
-                    continue
-                }
-                
-                if let ids,
-                   !ids.contains(fido2CredentialAutofillView.credentialId) {
-                    continue
-                }
-                
-                result.append(cipherView)
+        let activeCiphersWithFido2Credentials = try await allCredentials()
+
+        var result = [BitwardenSdk.CipherView]()
+        for cipherView in activeCiphersWithFido2Credentials {
+            let fido2CredentialAutofillViews = try await clientService.platform()
+                .fido2()
+                .decryptFido2AutofillCredentials(cipherView: cipherView)
+
+            guard let fido2CredentialAutofillView = fido2CredentialAutofillViews[safeIndex: 0],
+                  ripId == fido2CredentialAutofillView.rpId else {
+                continue
             }
-            return result
-        } catch {
-            let err = error
-            return []
+
+            if let ids,
+               !ids.contains(fido2CredentialAutofillView.credentialId) {
+                continue
+            }
+
+            result.append(cipherView)
         }
+        return result
     }
 
     func saveCredential(cred: BitwardenSdk.Cipher) async throws {
@@ -94,5 +91,46 @@ private extension Cipher {
         deletedDate == nil
             && type == .login
             && login?.fido2Credentials?.isEmpty == false
+    }
+}
+
+/// A wrapper of a `Fido2CredentialStore` which adds debugging info for the `Fido2DebugginReportBuilder`.
+class DebuggingFido2CredentialStoreService: Fido2CredentialStore {
+    let fido2CredentialStore: Fido2CredentialStore
+
+    init(fido2CredentialStore: Fido2CredentialStore) {
+        self.fido2CredentialStore = fido2CredentialStore
+    }
+
+    func findCredentials(ids: [Data]?, ripId: String) async throws -> [BitwardenSdk.CipherView] {
+        do {
+            let result = try await fido2CredentialStore.findCredentials(ids: ids, ripId: ripId)
+            Fido2DebugginReportBuilder.builder.withFindCredentialsResult(.success(result))
+            return result
+        } catch {
+            Fido2DebugginReportBuilder.builder.withFindCredentialsResult(.failure(error))
+            throw error
+        }
+    }
+
+    func allCredentials() async throws -> [BitwardenSdk.CipherView] {
+        do {
+            let result = try await fido2CredentialStore.allCredentials()
+            Fido2DebugginReportBuilder.builder.withAllCredentialsResult(.success(result))
+            return result
+        } catch {
+            Fido2DebugginReportBuilder.builder.withFindCredentialsResult(.failure(error))
+            throw error
+        }
+    }
+
+    func saveCredential(cred: BitwardenSdk.Cipher) async throws {
+        do {
+            try await fido2CredentialStore.saveCredential(cred: cred)
+            Fido2DebugginReportBuilder.builder.withSaveCredentialCipher(.success(cred))
+        } catch {
+            Fido2DebugginReportBuilder.builder.withFindCredentialsResult(.failure(error))
+            throw error
+        }
     }
 }

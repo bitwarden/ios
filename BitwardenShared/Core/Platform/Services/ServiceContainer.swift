@@ -526,12 +526,23 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
             )
         )
 
+        #if DEBUG
+        let fido2CredentialStore = DebuggingFido2CredentialStoreService(
+            fido2CredentialStore: Fido2CredentialStoreService(
+                cipherService: cipherService,
+                clientService: clientService,
+                errorReporter: errorReporter,
+                syncService: syncService
+            )
+        )
+        #else
         let fido2CredentialStore = Fido2CredentialStoreService(
             cipherService: cipherService,
             clientService: clientService,
             errorReporter: errorReporter,
             syncService: syncService
         )
+        #endif
 
         let autofillCredentialService = DefaultAutofillCredentialService(
             cipherService: cipherService,

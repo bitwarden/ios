@@ -2,23 +2,7 @@
 import BitwardenSdk
 import Foundation
 
-struct Fido2DebuggingReport {
-    var getAssertionRequestDescription: String?
-    var getAssertionResultDescription: String?
-}
-
 enum Fido2DebuggingUtils {
-    static var enabledFido2Debugging = true
-    static var report = Fido2DebuggingReport()
-    
-    static func withGetAssertionRequest(_ request: GetAssertionRequest) {
-        report.getAssertionRequestDescription = String(describing: request)
-    }
-
-    static func withGetAssertionResult(_ result: GetAssertionResult) {
-        report.getAssertionResultDescription = String(describing: result)
-    }
-    
     /// Returns a description of the `authenticatorData` flags part
     /// - Parameter authenticatorData: Authenticator data to retrieve the flags from
     /// - Returns: Formatted string with flags values (0: `false`, 1: `true`)

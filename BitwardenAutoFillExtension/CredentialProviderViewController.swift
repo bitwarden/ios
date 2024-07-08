@@ -1,4 +1,5 @@
 import AuthenticationServices
+import BitwardenSdk
 import BitwardenShared
 import OSLog
 
@@ -166,7 +167,9 @@ class CredentialProviderViewController: ASCredentialProviderViewController {
                 )
                 await extensionContext.completeAssertionRequest(using: credential)
             } catch {
-                
+                #if DEBUG
+                var rep = Fido2DebugginReportBuilder.builder.getReport()
+                #endif
                 Logger.appExtension.error("Error providing credential without user interaction: \(error)")
                 cancel(error: error)
             }
