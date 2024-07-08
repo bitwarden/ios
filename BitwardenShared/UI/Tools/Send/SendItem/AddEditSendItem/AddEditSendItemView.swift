@@ -172,7 +172,7 @@ struct AddEditSendItemView: View { // swiftlint:disable:this type_body_length
                         .toolbar {
                             ToolbarItemGroup(placement: .keyboard) {
                                 Spacer()
-                                Button("Done") {
+                                Button(Localizations.save) {
                                     isMaxAccessCountFocused = false
                                 }
                             }
@@ -180,6 +180,7 @@ struct AddEditSendItemView: View { // swiftlint:disable:this type_body_length
                         .onAppear {
                             maximumAccessCountText = store.state.maximumAccessCountText
                         }
+                        .accessibilityIdentifier("MaxAccessCountTextField")
                 }
             }
             .accessibilityIdentifier("SendMaxAccessCountEntry")

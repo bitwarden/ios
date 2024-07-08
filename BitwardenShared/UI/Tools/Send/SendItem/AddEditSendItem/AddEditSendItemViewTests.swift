@@ -99,6 +99,16 @@ class AddEditSendItemViewTests: BitwardenTestCase {
         XCTAssertEqual(processor.dispatchedActions.last, .notesChanged("Notes"))
     }
 
+    /// Updating the max access count textfield sends the `.maximumAccessCountChanged` action.
+    func test_maxAccessCountTextField_updated() throws {
+        processor.state.isOptionsExpanded = true
+        let textField = try subject.inspect()
+            .find(viewWithAccessibilityIdentifier: "MaxAccessCountTextField")
+            .textField()
+        try textField.callOnChange(newValue: "23")
+        XCTAssertEqual(processor.dispatchedActions.last, .maximumAccessCountChanged(23))
+    }
+
     /// Tapping the options button sends the `.optionsPressed` action.
     func test_optionsButton_tap() throws {
         let button = try subject.inspect().find(button: Localizations.options)
