@@ -18,6 +18,7 @@ final class VaultListProcessor: StateProcessor<
         & HasAuthRepository
         & HasAuthService
         & HasErrorReporter
+        & HasEventService
         & HasNotificationService
         & HasPasteboardService
         & HasPolicyService
@@ -371,15 +372,23 @@ extension VaultListProcessor {
     ///
     private func handleMoreOptionsAction(_ action: MoreOptionsAction) async {
         switch action {
-        case let .copy(toast, value, requiresMasterPasswordReprompt):
-            if requiresMasterPasswordReprompt {
-                presentMasterPasswordRepromptAlert {
-                    self.services.pasteboardService.copy(value)
-                    self.state.toast = Toast(text: Localizations.valueHasBeenCopied(toast))
+        case let .copy(toast, value, requiresMasterPasswordReprompt, event, cipherId):
+            let copyBlock = {
+                self.services.pasteboardService.copy(value)
+                self.state.toast = Toast(text: Localizations.valueHasBeenCopied(toast))
+                if let event {
+                    Task {
+                        await self.services.eventService.collect(
+                            eventType: event,
+                            cipherId: cipherId
+                        )
+                    }
                 }
+            }
+            if requiresMasterPasswordReprompt {
+                presentMasterPasswordRepromptAlert(completion: copyBlock)
             } else {
-                services.pasteboardService.copy(value)
-                state.toast = Toast(text: Localizations.valueHasBeenCopied(toast))
+                copyBlock()
             }
         case let .copyTotp(totpKey, requiresMasterPasswordReprompt):
             if requiresMasterPasswordReprompt {
@@ -450,7 +459,13 @@ extension VaultListProcessor: CipherItemOperationDelegate {
 /// The actions available from the More Options alert.
 enum MoreOptionsAction: Equatable {
     /// Copy the `value` and show a toast with the `toast` string.
-    case copy(toast: String, value: String, requiresMasterPasswordReprompt: Bool)
+    case copy(
+        toast: String,
+        value: String,
+        requiresMasterPasswordReprompt: Bool,
+        logEvent: EventType?,
+        cipherId: String?
+    )
 
     /// Generate and copy the TOTP code for the given `totpKey`.
     case copyTotp(totpKey: TOTPKeyModel, requiresMasterPasswordReprompt: Bool)

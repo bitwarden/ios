@@ -11,6 +11,7 @@ class VaultAutofillListProcessor: StateProcessor<
 
     typealias Services = HasAuthRepository
         & HasErrorReporter
+        & HasEventService
         & HasPasteboardService
         & HasVaultRepository
 
