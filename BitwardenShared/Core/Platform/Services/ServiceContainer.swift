@@ -441,15 +441,6 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
             trustDeviceService: trustDeviceService
         )
 
-        let autofillCredentialService = DefaultAutofillCredentialService(
-            cipherService: cipherService,
-            clientService: clientService,
-            errorReporter: errorReporter,
-            pasteboardService: pasteboardService,
-            stateService: stateService,
-            vaultTimeoutService: vaultTimeoutService
-        )
-
         let authRepository = DefaultAuthRepository(
             accountAPIService: apiService,
             authService: authService,
@@ -537,7 +528,20 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
 
         let fido2CredentialStore = Fido2CredentialStoreService(
             cipherService: cipherService,
-            clientService: clientService
+            clientService: clientService,
+            errorReporter: errorReporter,
+            syncService: syncService
+        )
+
+        let autofillCredentialService = DefaultAutofillCredentialService(
+            cipherService: cipherService,
+            clientService: clientService,
+            errorReporter: errorReporter,
+            fido2CredentialStore: fido2CredentialStore,
+            fido2UserInterfaceHelper: fido2UserInterfaceHelper,
+            pasteboardService: pasteboardService,
+            stateService: stateService,
+            vaultTimeoutService: vaultTimeoutService
         )
 
         self.init(

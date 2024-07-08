@@ -59,6 +59,22 @@ class CredentialProviderViewController: ASCredentialProviderViewController {
         provideCredential(for: recordIdentifier)
     }
 
+    @available(iOSApplicationExtension 17.0, *)
+    override func provideCredentialWithoutUserInteraction(for credentialRequest: any ASCredentialRequest) {
+        switch credentialRequest {
+        case let passwordRequest as ASPasswordCredentialRequest:
+            provideCredentialWithoutUserInteraction(for: passwordRequest)
+        case let passkeyRequest as ASPasskeyCredentialRequest:
+            initializeApp(
+                with: DefaultCredentialProviderContext(.autofillCredential(passkeyRequest)),
+                userInteraction: false
+            )
+            provideFido2Credential(for: passkeyRequest)
+        default:
+            break
+        }
+    }
+
     // MARK: Private
 
     /// Cancels the extension request and dismisses the extension's view controller.
@@ -128,6 +144,29 @@ class CredentialProviderViewController: ASCredentialProviderViewController {
                 )
                 extensionContext.completeRequest(withSelectedCredential: credential)
             } catch {
+                Logger.appExtension.error("Error providing credential without user interaction: \(error)")
+                cancel(error: error)
+            }
+        }
+    }
+
+    /// Provides a Fido2 credential for a passkey request.
+    /// - Parameter passkeyRequest: Request to get the credential.
+    @available(iOSApplicationExtension 17.0, *)
+    private func provideFido2Credential(for passkeyRequest: ASPasskeyCredentialRequest) {
+        guard let appProcessor else {
+            cancel(error: ASExtensionError(.failed))
+            return
+        }
+
+        Task {
+            do {
+                let credential = try await appProcessor.provideFido2Credential(
+                    for: passkeyRequest
+                )
+                await extensionContext.completeAssertionRequest(using: credential)
+            } catch {
+                
                 Logger.appExtension.error("Error providing credential without user interaction: \(error)")
                 cancel(error: error)
             }

@@ -3,12 +3,14 @@ import XCTest
 
 @testable import BitwardenShared
 
-class Fido2CredentialStoreServiceTests: BitwardenTestCase {
+class Fido2CredentialStoreServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body_length
     // MARK: Properties
 
     var cipherService: MockCipherService!
     var clientService: MockClientService!
+    var errorReporter: MockErrorReporter!
     var subject: Fido2CredentialStoreService!
+    var syncService: MockSyncService!
 
     // MARK: Setup & Teardown
 
@@ -17,10 +19,14 @@ class Fido2CredentialStoreServiceTests: BitwardenTestCase {
 
         cipherService = MockCipherService()
         clientService = MockClientService()
+        errorReporter = MockErrorReporter()
+        syncService = MockSyncService()
 
         subject = Fido2CredentialStoreService(
             cipherService: cipherService,
-            clientService: clientService
+            clientService: clientService,
+            errorReporter: errorReporter,
+            syncService: syncService
         )
     }
 
@@ -30,6 +36,7 @@ class Fido2CredentialStoreServiceTests: BitwardenTestCase {
         cipherService = nil
         clientService = nil
         subject = nil
+        syncService = nil
     }
 
     // MARK: Tests
@@ -56,6 +63,7 @@ class Fido2CredentialStoreServiceTests: BitwardenTestCase {
 
         let result = try await subject.allCredentials()
 
+        XCTAssertTrue(syncService.didFetchSync)
         XCTAssertTrue(result.count == 1)
         XCTAssertTrue(result[0].id == "5")
     }
@@ -89,6 +97,16 @@ class Fido2CredentialStoreServiceTests: BitwardenTestCase {
         await assertAsyncThrows(error: BitwardenTestError.example) {
             _ = try await subject.allCredentials()
         }
+    }
+
+    /// `.allCredentials()` throws when syncing.
+    func test_allCredentials_throwsSync() async throws {
+        syncService.fetchSyncResult = .failure(BitwardenTestError.example)
+
+        _ = try await subject.allCredentials()
+
+        XCTAssertFalse(errorReporter.errors.isEmpty)
+        XCTAssertTrue(cipherService.fetchAllCiphersCalled)
     }
 
     /// `.findCredentials(ids:ripId:)` returns the login ciphers that are active, have Fido2 credentials
@@ -128,6 +146,7 @@ class Fido2CredentialStoreServiceTests: BitwardenTestCase {
 
         let result = try await subject.findCredentials(ids: credentialIds, ripId: expectedRpId)
 
+        XCTAssertTrue(syncService.didFetchSync)
         XCTAssertTrue(result.count == 1)
         XCTAssertTrue(result[0].id == expectedCipherId)
     }
