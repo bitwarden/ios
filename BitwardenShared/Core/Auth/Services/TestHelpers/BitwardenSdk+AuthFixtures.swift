@@ -70,12 +70,12 @@ extension BitwardenSdk.GetAssertionResult {
 extension BitwardenSdk.MakeCredentialResult {
     static func fixture(
         authenticatorData: Data = Data(capacity: 37),
-        attestedCredentialData: Data = Data(capacity: 37),
+        attestationObject: Data = Data(capacity: 37),
         credentialId: Data = Data(capacity: 16)
     ) -> BitwardenSdk.MakeCredentialResult {
         .init(
             authenticatorData: authenticatorData,
-            attestedCredentialData: attestedCredentialData,
+            attestationObject: attestationObject,
             credentialId: credentialId
         )
     }
