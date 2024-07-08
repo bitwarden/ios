@@ -18,6 +18,7 @@ class AddEditItemProcessorTests: BitwardenTestCase {
     var coordinator: MockCoordinator<VaultItemRoute, VaultItemEvent>!
     var delegate: MockCipherItemOperationDelegate!
     var errorReporter: MockErrorReporter!
+    var eventService: MockEventService!
     var pasteboardService: MockPasteboardService!
     var policyService: MockPolicyService!
     var stateService: MockStateService!
@@ -37,6 +38,7 @@ class AddEditItemProcessorTests: BitwardenTestCase {
         coordinator = MockCoordinator<VaultItemRoute, VaultItemEvent>()
         delegate = MockCipherItemOperationDelegate()
         errorReporter = MockErrorReporter()
+        eventService = MockEventService()
         pasteboardService = MockPasteboardService()
         policyService = MockPolicyService()
         stateService = MockStateService()
@@ -50,6 +52,7 @@ class AddEditItemProcessorTests: BitwardenTestCase {
                 authRepository: authRepository,
                 cameraService: cameraService,
                 errorReporter: errorReporter,
+                eventService: eventService,
                 httpClient: client,
                 pasteboardService: pasteboardService,
                 policyService: policyService,
@@ -78,6 +81,7 @@ class AddEditItemProcessorTests: BitwardenTestCase {
         client = nil
         coordinator = nil
         errorReporter = nil
+        eventService = nil
         pasteboardService = nil
         stateService = nil
         subject = nil
@@ -1425,6 +1429,40 @@ class AddEditItemProcessorTests: BitwardenTestCase {
 
         subject.receive(.togglePasswordVisibilityChanged(true))
         XCTAssertTrue(subject.state.loginState.isPasswordVisible)
+    }
+
+    /// `receive(_:)` with `.togglePasswordVisibilityChanged` with `true` when editing
+    ///  sends an event.
+    func test_receive_togglePasswordVisibilityChanged_withTrue_whenEditing() {
+        subject = AddEditItemProcessor(
+            appExtensionDelegate: appExtensionDelegate,
+            coordinator: coordinator.asAnyCoordinator(),
+            delegate: delegate,
+            services: ServiceContainer.withMocks(
+                authRepository: authRepository,
+                cameraService: cameraService,
+                errorReporter: errorReporter,
+                eventService: eventService,
+                httpClient: client,
+                pasteboardService: pasteboardService,
+                policyService: policyService,
+                stateService: stateService,
+                totpService: totpService,
+                vaultRepository: vaultRepository
+            ),
+            state: CipherItemState(
+                existing: CipherView.fixture(id: "100"),
+                hasPremium: true
+            )!
+        )
+        subject.state.loginState.isPasswordVisible = false
+
+        subject.receive(.togglePasswordVisibilityChanged(true))
+        XCTAssertTrue(subject.state.loginState.isPasswordVisible)
+
+        waitFor(eventService.collectCipherId != nil)
+        XCTAssertEqual(eventService.collectCipherId, "100")
+        XCTAssertEqual(eventService.collectEventType, .cipherClientToggledPasswordVisible)
     }
 
     /// `receive(_:)` with `.togglePasswordVisibilityChanged` with `false` updates the state correctly.
