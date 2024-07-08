@@ -11,10 +11,10 @@ struct AddEditSendItemView: View { // swiftlint:disable:this type_body_length
     /// The `Store` for this view.
     @ObservedObject var store: Store<AddEditSendItemState, AddEditSendItemAction, AddEditSendItemEffect>
 
-    ///
+    /// A state variable to track whether the TextField is focused
     @FocusState private var isMaxAccessCountFocused: Bool
 
-    ///
+    /// A state variable to store the text in the TextField.
     @SwiftUI.State private var maximumAccessCountText: String = ""
 
     var body: some View {
@@ -527,6 +527,7 @@ struct AddEditSendItemView: View { // swiftlint:disable:this type_body_length
 
     // MARK: Private Functions
 
+    /// Updates the maximum access count when the text field value changes.
     private func maximumAccessCountTextChanged(to newCountValue: String) {
         if let count = Int(newCountValue) {
             store.send(.maximumAccessCountChanged(count))
@@ -535,6 +536,7 @@ struct AddEditSendItemView: View { // swiftlint:disable:this type_body_length
         }
     }
 
+    /// Updates the maximum access count when the focus state of the text field changes.
     private func maximumAccessCountFocusedChanged(to focused: Bool) {
         guard !maximumAccessCountText.isEmpty else { return }
 
@@ -547,6 +549,7 @@ struct AddEditSendItemView: View { // swiftlint:disable:this type_body_length
         }
     }
 
+    /// Updates the text field value when the maximum access count changes.
     private func maximumAccessCountChanged(to newCount: Int) {
         guard !maximumAccessCountText.isEmpty || newCount != 0 else { return }
 
