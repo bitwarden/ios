@@ -38,7 +38,7 @@ jobs:
           ref: ${{  github.event.pull_request.head.sha }}
 
       - name: Configure Ruby
-        uses: ruby/setup-ruby@af43264f2b94cc8451805dc51af7408f01de6471 # v1.182.0
+        uses: ruby/setup-ruby@2a9a743e19810b9f3c38060637daf594dbd7b37f # v1.186.0
         with:
           bundler-cache: true
 
