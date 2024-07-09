@@ -42,7 +42,6 @@ class StartRegistrationProcessor: StateProcessor<
 
     typealias Services = HasAccountAPIService
         & HasAuthRepository
-        & HasCaptchaService
         & HasClientService
         & HasEnvironmentService
         & HasErrorReporter
@@ -113,9 +112,7 @@ class StartRegistrationProcessor: StateProcessor<
 
     /// Creates the user's account with their provided credentials.
     ///
-    /// - Parameter captchaToken: The token returned when the captcha flow has completed.
-    ///
-    private func startRegistration(captchaToken: String? = nil) async {
+    private func startRegistration() async {
         // Hide the loading overlay when exiting this method, in case it hasn't been hidden yet.
         defer { coordinator.hideLoadingOverlay() }
 
@@ -134,14 +131,13 @@ class StartRegistrationProcessor: StateProcessor<
 
             let result = try await services.accountAPIService.startRegistration(
                 requestModel: StartRegistrationRequestModel(
-                    captchaResponse: captchaToken,
                     email: email,
                     name: name,
                     receiveMarketingEmails: state.isReceiveMarketingToggleOn
                 )
             )
 
-            if let token = result.emailVerificationToken {
+            if let token = result.token {
                 coordinator.navigate(to: .completeRegistration(
                     emailVerificationToken: token,
                     userEmail: state.emailText
@@ -149,36 +145,12 @@ class StartRegistrationProcessor: StateProcessor<
             } else {
                 coordinator.navigate(to: .checkEmail(email: state.emailText))
             }
-        } catch let StartRegistrationRequestError.captchaRequired(hCaptchaSiteCode: siteCode) {
-            launchCaptchaFlow(with: siteCode)
         } catch let error as StartRegistrationError {
             showStartRegistrationErrorAlert(error)
         } catch {
             coordinator.showAlert(.networkResponseError(error) {
-                await self.startRegistration(captchaToken: captchaToken)
+                await self.startRegistration()
             })
-        }
-    }
-
-    /// Generates the items needed and authenticates with the captcha flow.
-    ///
-    /// - Parameter siteKey: The site key that was returned with a captcha error. The token used to authenticate
-    ///   with hCaptcha.
-    ///
-    private func launchCaptchaFlow(with siteKey: String) {
-        do {
-            let callbackUrlScheme = services.captchaService.callbackUrlScheme
-            let url = try services.captchaService.generateCaptchaUrl(with: siteKey)
-            coordinator.navigate(
-                to: .captcha(
-                    url: url,
-                    callbackUrlScheme: callbackUrlScheme
-                ),
-                context: self
-            )
-        } catch {
-            coordinator.showAlert(.networkResponseError(error))
-            services.errorReporter.log(error: error)
         }
     }
 
@@ -251,28 +223,6 @@ class StartRegistrationProcessor: StateProcessor<
         state.region = region
         state.showReceiveMarketingToggle = state.region != .selfHosted
         await delegate?.didChangeRegion()
-    }
-}
-
-// MARK: - CaptchaFlowDelegate
-
-extension StartRegistrationProcessor: CaptchaFlowDelegate {
-    func captchaCompleted(token: String) {
-        Task {
-            await startRegistration(captchaToken: token)
-        }
-    }
-
-    func captchaErrored(error: Error) {
-        guard (error as NSError).code != ASWebAuthenticationSessionError.canceledLogin.rawValue else { return }
-
-        services.errorReporter.log(error: error)
-
-        // Show the alert after a delay to ensure it doesn't try to display over the
-        // closing captcha view.
-        DispatchQueue.main.asyncAfter(deadline: UI.after(0.6)) {
-            self.coordinator.showAlert(.networkResponseError(error))
-        }
     }
 }
 

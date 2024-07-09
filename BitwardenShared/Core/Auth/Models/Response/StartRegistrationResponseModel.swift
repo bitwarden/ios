@@ -5,14 +5,16 @@ import Networking
 
 /// The response returned from the API upon creating an account.
 ///
-struct StartRegistrationResponseModel: JSONResponse {
-    static var decoder = JSONDecoder()
-
+struct StartRegistrationResponseModel: Response {
     // MARK: Properties
 
     /// The email verification token.
-    var emailVerificationToken: String?
+    var token: String?
 
     /// The captcha bypass token returned in this response.
     var captchaBypassToken: String?
+
+    init(response: HTTPResponse) {
+        token = String(bytes: response.body, encoding: .utf8)
+    }
 }

@@ -8,9 +8,6 @@ import Networking
 struct StartRegistrationRequestModel: Equatable {
     // MARK: Properties
 
-    /// The captcha response used in validating a user for this request.
-    let captchaResponse: String?
-
     /// The user's email address.
     let email: String
 
@@ -25,17 +22,15 @@ struct StartRegistrationRequestModel: Equatable {
     /// Initializes a `StartRegistrationRequestModel`.
     ///
     /// - Parameters:
-    ///   - captchaResponse: The captcha response used in validating a user for this request.
     ///   - email: The user's email address.
     ///   - name: The user's name.
+    ///   - receiveMarketingEmails: If the user wants to receive marketing emails.
     ///
     init(
-        captchaResponse: String? = nil,
         email: String,
         name: String,
         receiveMarketingEmails: Bool
     ) {
-        self.captchaResponse = captchaResponse
         self.email = email
         self.name = name
         self.receiveMarketingEmails = receiveMarketingEmails

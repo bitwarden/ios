@@ -62,46 +62,6 @@ class StartRegistrationProcessorTests: BitwardenTestCase { // swiftlint:disable:
 
     // MARK: Tests
 
-    /// `captchaCompleted()` makes the create account request again, this time with a captcha token.
-    /// Also tests that the user is then navigated to the login screen.
-    func test_captchaCompleted() throws {
-        StartRegistrationRequestModel.encoder.outputFormatting = .sortedKeys
-        subject.state = .fixture()
-        client.result = .httpSuccess(testData: .startRegistrationSuccess)
-        subject.captchaCompleted(token: "token")
-
-        let startRegistrationRequest = StartRegistrationRequestModel(
-            captchaResponse: "token",
-            email: "example@email.com",
-            name: "name",
-            receiveMarketingEmails: true
-        )
-
-        waitFor(!coordinator.routes.isEmpty)
-        XCTAssertEqual(client.requests.count, 1)
-        XCTAssertEqual(client.requests[0].body, try startRegistrationRequest.encode())
-        XCTAssertEqual(coordinator.routes.last, .completeRegistration(
-            emailVerificationToken: "emailVerificationToken",
-            userEmail: "example@email.com"
-        ))
-    }
-
-    /// `captchaErrored(error:)` records an error.
-    func test_captchaErrored() {
-        subject.captchaErrored(error: BitwardenTestError.example)
-
-        waitFor(!coordinator.alertShown.isEmpty)
-        XCTAssertEqual(coordinator.alertShown.last, .networkResponseError(BitwardenTestError.example))
-        XCTAssertEqual(errorReporter.errors.last as? BitwardenTestError, .example)
-    }
-
-    /// `captchaErrored(error:)` doesn't record an error if the captcha flow was cancelled.
-    func test_captchaErrored_cancelled() {
-        let error = NSError(domain: "", code: ASWebAuthenticationSessionError.canceledLogin.rawValue)
-        subject.captchaErrored(error: error)
-        XCTAssertTrue(errorReporter.errors.isEmpty)
-    }
-
     /// `perform(_:)` with `.startRegistration` presents an alert when the email has already been taken.
     func test_perform_startRegistration_emailExists() async {
         subject.state = .fixture()
@@ -184,39 +144,6 @@ class StartRegistrationProcessorTests: BitwardenTestCase { // swiftlint:disable:
         XCTAssertTrue(coordinator.loadingOverlaysShown.isEmpty)
     }
 
-    /// `perform(_:)` with `.startRegistration` and a captcha required error occurs navigates to the `.captcha` route.
-    func test_perform_startRegistration_captchaError() async {
-        subject.state = .fixture()
-
-        client.result = .httpFailure(StartRegistrationRequestError.captchaRequired(hCaptchaSiteCode: "token"))
-
-        await subject.perform(.startRegistration)
-
-        XCTAssertEqual(client.requests.count, 1)
-        XCTAssertEqual(captchaService.callbackUrlSchemeGets, 1)
-        XCTAssertEqual(captchaService.generateCaptchaSiteKey, "token")
-        XCTAssertEqual(coordinator.routes.last, .captcha(url: .example, callbackUrlScheme: "callback"))
-
-        XCTAssertFalse(coordinator.isLoadingOverlayShowing)
-        XCTAssertEqual(coordinator.loadingOverlaysShown, [LoadingOverlayState(title: Localizations.creatingAccount)])
-    }
-
-    /// `perform(_:)` with `.startRegistration` and a captcha flow error records the error.
-    func test_perform_startRegistration_captchaFlowError() async {
-        captchaService.generateCaptchaUrlResult = .failure(BitwardenTestError.example)
-        client.result = .httpFailure(StartRegistrationRequestError.captchaRequired(hCaptchaSiteCode: "token"))
-
-        subject.state = .fixture()
-
-        await subject.perform(.startRegistration)
-
-        XCTAssertEqual(coordinator.alertShown.last, .networkResponseError(BitwardenTestError.example))
-        XCTAssertEqual(errorReporter.errors.last as? BitwardenTestError, .example)
-
-        XCTAssertFalse(coordinator.isLoadingOverlayShowing)
-        XCTAssertEqual(coordinator.loadingOverlaysShown, [LoadingOverlayState(title: Localizations.creatingAccount)])
-    }
-
     /// `perform(_:)` with `.startRegistration` presents an alert when the email is in an invalid format.
     func test_perform_startRegistration_invalidEmailFormat() async {
         subject.state = .fixture(emailText: "∫@ø.com")
@@ -265,10 +192,16 @@ class StartRegistrationProcessorTests: BitwardenTestCase { // swiftlint:disable:
         try await alert.tapAction(title: Localizations.tryAgain)
 
         XCTAssertEqual(client.requests.count, 2)
-        XCTAssertEqual(client.requests[0].url, URL(string: "https://example.com/api/accounts/send-verification-email"))
-        XCTAssertEqual(client.requests[1].url, URL(string: "https://example.com/api/accounts/send-verification-email"))
+        XCTAssertEqual(
+            client.requests[0].url,
+            URL(string: "https://example.com/identity/accounts/register/send-verification-email")
+        )
+        XCTAssertEqual(
+            client.requests[1].url,
+            URL(string: "https://example.com/identity/accounts/register/send-verification-email")
+        )
         XCTAssertEqual(coordinator.routes.last, .completeRegistration(
-            emailVerificationToken: "emailVerificationToken",
+            emailVerificationToken: "0018A45C4D1DEF81644B54AB7F969B88D65\n",
             userEmail: "example@email.com"
         ))
 
@@ -298,10 +231,16 @@ class StartRegistrationProcessorTests: BitwardenTestCase { // swiftlint:disable:
         try await alert.tapAction(title: Localizations.tryAgain)
 
         XCTAssertEqual(client.requests.count, 2)
-        XCTAssertEqual(client.requests[0].url, URL(string: "https://example.com/api/accounts/send-verification-email"))
-        XCTAssertEqual(client.requests[1].url, URL(string: "https://example.com/api/accounts/send-verification-email"))
+        XCTAssertEqual(
+            client.requests[0].url,
+            URL(string: "https://example.com/identity/accounts/register/send-verification-email")
+        )
+        XCTAssertEqual(
+            client.requests[1].url,
+            URL(string: "https://example.com/identity/accounts/register/send-verification-email")
+        )
         XCTAssertEqual(coordinator.routes.last, .completeRegistration(
-            emailVerificationToken: "emailVerificationToken",
+            emailVerificationToken: "0018A45C4D1DEF81644B54AB7F969B88D65\n",
             userEmail: "example@email.com"
         ))
 
@@ -337,7 +276,10 @@ class StartRegistrationProcessorTests: BitwardenTestCase { // swiftlint:disable:
         await subject.perform(.startRegistration)
 
         XCTAssertEqual(client.requests.count, 1)
-        XCTAssertEqual(client.requests[0].url, URL(string: "https://example.com/api/accounts/send-verification-email"))
+        XCTAssertEqual(
+            client.requests[0].url,
+            URL(string: "https://example.com/identity/accounts/register/send-verification-email")
+        )
 
         XCTAssertFalse(coordinator.isLoadingOverlayShowing)
         XCTAssertEqual(coordinator.loadingOverlaysShown, [LoadingOverlayState(title: Localizations.creatingAccount)])
@@ -353,7 +295,7 @@ class StartRegistrationProcessorTests: BitwardenTestCase { // swiftlint:disable:
         await subject.perform(.startRegistration)
 
         XCTAssertEqual(client.requests.count, 1)
-        XCTAssertEqual(client.requests[0].url, URL(string: "https://example.com/api/accounts/send-verification-email"))
+        XCTAssertEqual(client.requests[0].url, URL(string: "https://example.com/identity/accounts/register/send-verification-email"))
 
         XCTAssertFalse(coordinator.isLoadingOverlayShowing)
         XCTAssertEqual(coordinator.loadingOverlaysShown, [LoadingOverlayState(title: Localizations.creatingAccount)])
@@ -370,8 +312,10 @@ class StartRegistrationProcessorTests: BitwardenTestCase { // swiftlint:disable:
         await subject.perform(.startRegistration)
 
         XCTAssertEqual(client.requests.count, 1)
-        XCTAssertEqual(client.requests[0].url, URL(string: "https://example.com/api/accounts/send-verification-email"))
-
+        XCTAssertEqual(
+            client.requests[0].url,
+            URL(string: "https://example.com/identity/accounts/register/send-verification-email")
+        )
         XCTAssertFalse(coordinator.isLoadingOverlayShowing)
         XCTAssertEqual(coordinator.loadingOverlaysShown, [LoadingOverlayState(title: Localizations.creatingAccount)])
     }

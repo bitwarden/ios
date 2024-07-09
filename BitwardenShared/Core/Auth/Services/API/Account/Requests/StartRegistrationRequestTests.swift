@@ -53,7 +53,7 @@ class StartRegistrationRequestTests: BitwardenTestCase {
                 receiveMarketingEmails: true
             )
         )
-        XCTAssertEqual(subject.path, "/accounts/send-verification-email")
+        XCTAssertEqual(subject.path, "/accounts/register/send-verification-email")
     }
 
     /// Validate that the body is not nil.
@@ -83,22 +83,6 @@ class StartRegistrationRequestTests: BitwardenTestCase {
         }
     }
 
-    /// `validate(_:)` with a `400` status code and captcha error in the response body throws a `.captchaRequired`
-    /// error.
-    func test_validate_with400CaptchaError() {
-        let response = HTTPResponse.failure(
-            statusCode: 400,
-            body: APITestData.startRegistrationCaptchaFailure.data
-        )
-
-        XCTAssertThrowsError(try subject.validate(response)) { error in
-            XCTAssertEqual(
-                error as? StartRegistrationRequestError,
-                .captchaRequired(hCaptchaSiteCode: "bc38c8a2-5311-4e8c-9dfc-49e99f6df417")
-            )
-        }
-    }
-
     /// `validate(_:)` with a `400` status code and an invalid email format error in the response body
     /// throws an `.invalidEmailFormat` error.
     func test_validate_with400InvalidEmailFormat() {
@@ -115,7 +99,7 @@ class StartRegistrationRequestTests: BitwardenTestCase {
     }
 
     /// `validate(_:)` with a `400` status code but no captcha error does not throw a validation error.
-    func test_validate_with400NonCaptchaError() {
+    func test_validate_with400() {
         let response = HTTPResponse.failure(
             statusCode: 400,
             body: Data("example data".utf8)
