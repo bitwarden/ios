@@ -37,6 +37,24 @@ class RootViewControllerTests: BitwardenTestCase {
         XCTAssertFalse(subject.children.contains(viewController1))
     }
 
+    /// `childViewController` dismisses a presented view controller before swapping between
+    /// different view controllers.
+    func test_childViewController_withPresentedViewController() {
+        let viewController1 = UIViewController()
+        subject.childViewController = viewController1
+        viewController1.present(UIViewController(), animated: false)
+        XCTAssertTrue(subject.children.contains(viewController1))
+        XCTAssertNotNil(viewController1.presentedViewController)
+
+        let viewController2 = UIViewController()
+        subject.childViewController = viewController2
+        XCTAssertTrue(subject.children.contains(viewController2))
+        XCTAssertFalse(subject.children.contains(viewController1))
+
+        waitFor(subject.presentedViewController == nil)
+        XCTAssertNil(subject.presentedViewController)
+    }
+
     /// `childViewController` removes the current view controller when set to `nil`.
     func test_childViewController_nil() {
         let viewController1 = UIViewController()

@@ -354,13 +354,15 @@ extension AppCoordinator: SettingsCoordinatorDelegate {
 // MARK: - VaultCoordinatorDelegate
 
 extension AppCoordinator: VaultCoordinatorDelegate {
-    func switchAccount(userId: String, isAutomatic: Bool) {
+    func switchAccount(userId: String, isAutomatic: Bool, authCompletionRoute: AppRoute?) {
         Task {
+            self.authCompletionRoute = authCompletionRoute
             await handleAuthEvent(
                 .action(
                     .switchAccount(
                         isAutomatic: isAutomatic,
-                        userId: userId
+                        userId: userId,
+                        authCompletionRoute: authCompletionRoute
                     )
                 )
             )

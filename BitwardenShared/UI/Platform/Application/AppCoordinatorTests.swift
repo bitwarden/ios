@@ -321,4 +321,23 @@ class AppCoordinatorTests: BitwardenTestCase {
 
         XCTAssertFalse(module.authCoordinator.isStarted)
     }
+
+    /// `switchAccount(userId:isAutomatic:authCompletionRoute:)` sets the auth completion route and
+    /// navigates to the appropriate route.
+    func test_switchAccount() throws {
+        let authCompletionRoute = AppRoute.tab(.vault(.vaultItemSelection(.fixtureExample)))
+        subject.switchAccount(
+            userId: "1",
+            isAutomatic: true,
+            authCompletionRoute: authCompletionRoute
+        )
+
+        waitFor(!module.authCoordinator.routes.isEmpty)
+        XCTAssertEqual(subject.authCompletionRoute, authCompletionRoute)
+        XCTAssertEqual(
+            router.events,
+            [.action(.switchAccount(isAutomatic: true, userId: "1", authCompletionRoute: authCompletionRoute))]
+        )
+        XCTAssertEqual(module.authCoordinator.routes, [AuthRoute.landing])
+    }
 }

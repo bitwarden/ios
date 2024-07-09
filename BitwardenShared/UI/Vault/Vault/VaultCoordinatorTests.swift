@@ -235,7 +235,7 @@ class MockVaultCoordinatorDelegate: VaultCoordinatorDelegate {
         presentLoginRequestRequest = loginRequest
     }
 
-    func switchAccount(userId: String, isAutomatic: Bool) {
+    func switchAccount(userId: String, isAutomatic: Bool, authCompletionRoute: AppRoute?) {
         switchedAccounts = true
     }
 }
