@@ -11,6 +11,7 @@ final class ViewItemProcessor: StateProcessor<ViewItemState, ViewItemAction, Vie
     typealias Services = HasAPIService
         & HasAuthRepository
         & HasErrorReporter
+        & HasEventService
         & HasPasteboardService
         & HasStateService
         & HasVaultRepository
@@ -105,7 +106,7 @@ final class ViewItemProcessor: StateProcessor<ViewItemState, ViewItemAction, Vie
         }
     }
 
-    override func receive(_ action: ViewItemAction) {
+    override func receive(_ action: ViewItemAction) { // swiftlint:disable:this function_body_length
         guard !state.isMasterPasswordRequired || !action.requiresMasterPasswordReprompt else {
             presentMasterPasswordRepromptAlert { self.receive(action) }
             return
@@ -124,6 +125,14 @@ final class ViewItemProcessor: StateProcessor<ViewItemState, ViewItemAction, Vie
             }
             cipherState.togglePasswordVisibility(for: customFieldState)
             state.loadingState = .data(cipherState)
+            if !customFieldState.isPasswordVisible { // The state before we toggled it
+                Task {
+                    await services.eventService.collect(
+                        eventType: .cipherClientToggledHiddenFieldVisible,
+                        cipherId: cipherState.cipher.id
+                    )
+                }
+            }
         case .dismissPressed:
             coordinator.navigate(to: .dismiss())
         case let .downloadAttachment(attachment):
@@ -147,6 +156,14 @@ final class ViewItemProcessor: StateProcessor<ViewItemState, ViewItemAction, Vie
             }
             cipherState.loginState.isPasswordVisible.toggle()
             state.loadingState = .data(cipherState)
+            if cipherState.loginState.isPasswordVisible {
+                Task {
+                    await services.eventService.collect(
+                        eventType: .cipherClientToggledPasswordVisible,
+                        cipherId: cipherState.cipher.id
+                    )
+                }
+            }
         case .passwordHistoryPressed:
             guard let passwordHistory = state.passwordHistory else { return }
             coordinator.navigate(to: .passwordHistory(passwordHistory))
@@ -199,10 +216,25 @@ private extension ViewItemProcessor {
     ///   - field: The field being copied.
     ///
     private func copyValue(_ value: String, _ field: CopyableField?) {
+        guard case let .data(cipherState) = state.loadingState else {
+            services.errorReporter.log(
+                error: ActionError.dataNotLoaded("Cannot copy value for non-loaded item.")
+            )
+            return
+        }
+
         services.pasteboardService.copy(value)
 
         let localizedFieldName = field?.localizedName ?? Localizations.value
         state.toast = Toast(text: Localizations.valueHasBeenCopied(localizedFieldName))
+        if let event = field?.eventOnCopy {
+            Task {
+                await services.eventService.collect(
+                    eventType: event,
+                    cipherId: cipherState.cipher.id
+                )
+            }
+        }
     }
 
     /// Download the attachment.
@@ -298,9 +330,25 @@ private extension ViewItemProcessor {
         case let .toggleCodeVisibilityChanged(isVisible):
             cipherState.cardItemState.isCodeVisible = isVisible
             state.loadingState = .data(cipherState)
+            if isVisible {
+                Task {
+                    await services.eventService.collect(
+                        eventType: .cipherClientToggledCardCodeVisible,
+                        cipherId: cipherState.cipher.id
+                    )
+                }
+            }
         case let .toggleNumberVisibilityChanged(isVisible):
             cipherState.cardItemState.isNumberVisible = isVisible
             state.loadingState = .data(cipherState)
+            if isVisible {
+                Task {
+                    await services.eventService.collect(
+                        eventType: .cipherClientToggledCardNumberVisible,
+                        cipherId: cipherState.cipher.id
+                    )
+                }
+            }
         }
     }
 
@@ -419,6 +467,7 @@ private extension ViewItemProcessor {
     /// Stream the cipher details.
     private func streamCipherDetails() async {
         do {
+            await services.eventService.collect(eventType: .cipherClientViewed, cipherId: itemId)
             for try await cipher in try await services.vaultRepository.cipherDetailsPublisher(id: itemId) {
                 guard let cipher else { continue }
 
