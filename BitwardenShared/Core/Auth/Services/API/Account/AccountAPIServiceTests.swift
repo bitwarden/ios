@@ -198,7 +198,7 @@ class AccountAPIServiceTests: BitwardenTestCase {
         XCTAssertEqual(client.requests[0].method, .post)
         XCTAssertEqual(
             client.requests[0].url.absoluteString,
-            "https://example.com/api/accounts/send-verification-email"
+            "https://example.com/identity/accounts/register/send-verification-email"
         )
     }
 

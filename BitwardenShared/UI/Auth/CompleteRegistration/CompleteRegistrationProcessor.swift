@@ -190,19 +190,19 @@ class CompleteRegistrationProcessor: StateProcessor<
                 purpose: .serverAuthorization
             )
 
-            _ = try await services.accountAPIService.createNewAccount(
-                body: CreateAccountRequestModel(
+            _ = try await services.accountAPIService.registerFinish(
+                body: RegisterFinishRequestModel(
                     captchaResponse: captchaToken,
                     email: state.userEmail,
                     emailVerificationToken: state.emailVerificationToken,
                     kdfConfig: KdfConfig(),
-                    key: keys.encryptedUserKey,
-                    keys: KeysRequestModel(
+                    masterPasswordHash: hashedPassword,
+                    masterPasswordHint: state.passwordHintText,
+                    userSymmetricKey: keys.encryptedUserKey,
+                    userAsymmetricKeys: KeysRequestModel(
                         encryptedPrivateKey: keys.keys.private,
                         publicKey: keys.keys.public
-                    ),
-                    masterPasswordHash: hashedPassword,
-                    masterPasswordHint: state.passwordHintText
+                    )
                 )
             )
 

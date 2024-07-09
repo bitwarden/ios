@@ -35,6 +35,13 @@ protocol AccountAPIService {
     ///
     func deleteAccount(body: DeleteAccountRequestModel) async throws -> EmptyResponse
 
+    /// Creates an API call for when the user submits the last step of the an account creation form.
+    ///
+    /// - Parameter body: The body to be included in the request.
+    /// - Returns: Data returned from the `RegisterFinishRequest`.
+    ///
+    func registerFinish(body: RegisterFinishRequestModel) async throws -> RegisterFinishResponseModel
+
     /// Sends an API call for completing the pre-login step in the auth flow.
     ///
     /// - Parameter email: The email address that the user is attempting to sign in with.
@@ -127,6 +134,10 @@ extension APIService: AccountAPIService {
         return try await apiService.send(request)
     }
 
+    func registerFinish(body: RegisterFinishRequestModel) async throws -> RegisterFinishResponseModel {
+        try await identityService.send(RegisterFinishRequest(body: body))
+    }
+
     func preLogin(email: String) async throws -> PreLoginResponseModel {
         let body = PreLoginRequestModel(email: email)
         let request = PreLoginRequest(body: body)
@@ -152,7 +163,7 @@ extension APIService: AccountAPIService {
     }
 
     func startRegistration(requestModel: StartRegistrationRequestModel) async throws -> StartRegistrationResponseModel {
-        try await apiUnauthenticatedService.send(StartRegistrationRequest(body: requestModel))
+        try await identityService.send(StartRegistrationRequest(body: requestModel))
     }
 
     func updatePassword(_ requestModel: UpdatePasswordRequestModel) async throws {

@@ -39,5 +39,5 @@ extension APITestData {
     )
     static let startRegistrationInvalidEmailFormat = loadFromJsonBundle(resource: "StartRegistrationInvalidEmailFormat")
     static let startRegistrationCaptchaFailure = loadFromJsonBundle(resource: "StartRegistrationCaptchaFailure")
-    static let startRegistrationSuccess = loadFromJsonBundle(resource: "StartRegistrationSuccess")
+    static let startRegistrationSuccess = loadFromBundle(resource: "StartRegistrationSuccess", extension: "txt")
 }
