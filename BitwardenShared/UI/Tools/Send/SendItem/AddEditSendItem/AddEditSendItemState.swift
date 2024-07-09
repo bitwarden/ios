@@ -94,9 +94,7 @@ struct AddEditSendItemState: Equatable {
     var maximumAccessCount: Int = 0
 
     /// The text representation of the maximum access count.
-    var maximumAccessCountText: String {
-        maximumAccessCount == 0 ? "" : "\(maximumAccessCount)"
-    }
+    var maximumAccessCountText: String = ""
 
     /// The mode for this view.
     var mode: Mode = .add

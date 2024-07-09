@@ -70,10 +70,10 @@ class AddEditSendItemViewTests: BitwardenTestCase {
         let stepper = try subject.inspect().find(ViewType.Stepper.self, containing: Localizations.maximumAccessCount)
 
         try stepper.increment()
-        XCTAssertEqual(processor.dispatchedActions.last, .maximumAccessCountChanged(43))
+        XCTAssertEqual(processor.dispatchedActions.last, .maximumAccessCountStepperChanged(43))
 
         try stepper.decrement()
-        XCTAssertEqual(processor.dispatchedActions.last, .maximumAccessCountChanged(41))
+        XCTAssertEqual(processor.dispatchedActions.last, .maximumAccessCountStepperChanged(41))
     }
 
     /// Updating the name textfield sends the `.nameChanged` action.
@@ -105,8 +105,8 @@ class AddEditSendItemViewTests: BitwardenTestCase {
         let textField = try subject.inspect()
             .find(viewWithAccessibilityIdentifier: "MaxAccessCountTextField")
             .textField()
-        try textField.callOnChange(newValue: "23")
-        XCTAssertEqual(processor.dispatchedActions.last, .maximumAccessCountChanged(23))
+        try textField.setInput("42")
+        XCTAssertEqual(processor.dispatchedActions.last, .maximumAccessCountTextFieldChanged("42"))
     }
 
     /// Tapping the options button sends the `.optionsPressed` action.
@@ -202,6 +202,7 @@ class AddEditSendItemViewTests: BitwardenTestCase {
         processor.state.expirationDate = .custom
         processor.state.customExpirationDate = Date(year: 2023, month: 11, day: 5, hour: 9, minute: 41)
         processor.state.maximumAccessCount = 42
+        processor.state.maximumAccessCountText = "42"
         processor.state.password = "pa$$w0rd"
         processor.state.notes = "Notes"
         processor.state.isHideMyEmailOn = true
@@ -221,6 +222,7 @@ class AddEditSendItemViewTests: BitwardenTestCase {
         processor.state.expirationDate = .custom
         processor.state.customExpirationDate = nil
         processor.state.maximumAccessCount = 420
+        processor.state.maximumAccessCountText = "420"
         processor.state.currentAccessCount = 42
         processor.state.password = "pa$$w0rd"
         processor.state.notes = "Notes"
@@ -265,6 +267,7 @@ class AddEditSendItemViewTests: BitwardenTestCase {
         processor.state.expirationDate = .custom
         processor.state.customExpirationDate = Date(year: 2023, month: 11, day: 5, hour: 9, minute: 41)
         processor.state.maximumAccessCount = 42
+        processor.state.maximumAccessCountText = "42"
         processor.state.password = "pa$$w0rd"
         processor.state.notes = "Notes with lots of text that wraps to new lines when displayed."
         processor.state.isHideMyEmailOn = true
@@ -283,6 +286,7 @@ class AddEditSendItemViewTests: BitwardenTestCase {
         processor.state.expirationDate = .custom
         processor.state.customExpirationDate = nil
         processor.state.maximumAccessCount = 420
+        processor.state.maximumAccessCountText = "420"
         processor.state.currentAccessCount = 42
         processor.state.password = "pa$$w0rd"
         processor.state.notes = "Notes"

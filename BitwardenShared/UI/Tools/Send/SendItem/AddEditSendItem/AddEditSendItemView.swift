@@ -14,9 +14,6 @@ struct AddEditSendItemView: View { // swiftlint:disable:this type_body_length
     /// A state variable to track whether the TextField is focused
     @FocusState private var isMaxAccessCountFocused: Bool
 
-    /// A state variable to store the text in the TextField.
-    @SwiftUI.State private var maximumAccessCountText: String = ""
-
     var body: some View {
         ZStack {
             ScrollView {
@@ -59,9 +56,6 @@ struct AddEditSendItemView: View { // swiftlint:disable:this type_body_length
             title: store.state.mode.navigationTitle,
             titleDisplayMode: .inline
         )
-        .task {
-            await store.perform(.loadData)
-        }
         .toolbar {
             ToolbarItem(placement: .topBarLeading) {
                 switch store.state.mode {
@@ -136,7 +130,7 @@ struct AddEditSendItemView: View { // swiftlint:disable:this type_body_length
             Stepper(
                 value: store.binding(
                     get: \.maximumAccessCount,
-                    send: AddEditSendItemAction.maximumAccessCountChanged
+                    send: AddEditSendItemAction.maximumAccessCountStepperChanged
                 ),
                 in: 0 ... Int.max
             ) {
@@ -148,39 +142,28 @@ struct AddEditSendItemView: View { // swiftlint:disable:this type_body_length
 
                     Spacer()
 
-                    TextField("", text: $maximumAccessCountText)
-                        .focused($isMaxAccessCountFocused)
-                        .keyboardType(.numberPad)
-                        .styleGuide(.body)
-                        .foregroundStyle(Asset.Colors.textSecondary.swiftUIColor)
-                        .multilineTextAlignment(.trailing)
-                        .onTapGesture {
-                            isMaxAccessCountFocused = true
-                            if maximumAccessCountText == "0" {
-                                maximumAccessCountText = ""
+                    TextField(
+                        "",
+                        text: store.binding(
+                            get: \.maximumAccessCountText,
+                            send: AddEditSendItemAction.maximumAccessCountTextFieldChanged
+                        )
+                    )
+                    .focused($isMaxAccessCountFocused)
+                    .keyboardType(.numberPad)
+                    .styleGuide(.body)
+                    .foregroundStyle(Asset.Colors.textSecondary.swiftUIColor)
+                    .multilineTextAlignment(.trailing)
+                    .textFieldStyle(.plain)
+                    .toolbar {
+                        ToolbarItemGroup(placement: .keyboard) {
+                            Spacer()
+                            Button(Localizations.save) {
+                                isMaxAccessCountFocused = false
                             }
                         }
-                        .onChange(of: maximumAccessCountText) { newValue in
-                            maximumAccessCountTextChanged(to: newValue)
-                        }
-                        .onChange(of: isMaxAccessCountFocused) { focused in
-                            maximumAccessCountFocusedChanged(to: focused)
-                        }
-                        .onChange(of: store.state.maximumAccessCount) { newValue in
-                            maximumAccessCountChanged(to: newValue)
-                        }
-                        .toolbar {
-                            ToolbarItemGroup(placement: .keyboard) {
-                                Spacer()
-                                Button(Localizations.save) {
-                                    isMaxAccessCountFocused = false
-                                }
-                            }
-                        }
-                        .onAppear {
-                            maximumAccessCountText = store.state.maximumAccessCountText
-                        }
-                        .accessibilityIdentifier("MaxAccessCountTextField")
+                    }
+                    .accessibilityIdentifier("MaxAccessCountTextField")
                 }
             }
             .accessibilityIdentifier("SendMaxAccessCountEntry")
@@ -523,37 +506,6 @@ struct AddEditSendItemView: View { // swiftlint:disable:this type_body_length
             }
             .pickerStyle(SegmentedPickerStyle())
         }
-    }
-
-    // MARK: Private Functions
-
-    /// Updates the maximum access count when the text field value changes.
-    private func maximumAccessCountTextChanged(to newCountValue: String) {
-        if let count = Int(newCountValue) {
-            store.send(.maximumAccessCountChanged(count))
-        } else if newCountValue.isEmpty {
-            store.send(.maximumAccessCountChanged(0))
-        }
-    }
-
-    /// Updates the maximum access count when the focus state of the text field changes.
-    private func maximumAccessCountFocusedChanged(to focused: Bool) {
-        guard !maximumAccessCountText.isEmpty else { return }
-
-        if !focused {
-            store.send(
-                .maximumAccessCountChanged(
-                    Int(maximumAccessCountText) ?? 0
-                )
-            )
-        }
-    }
-
-    /// Updates the text field value when the maximum access count changes.
-    private func maximumAccessCountChanged(to newCount: Int) {
-        guard !maximumAccessCountText.isEmpty || newCount != 0 else { return }
-
-        maximumAccessCountText = "\(newCount)"
     }
 }
 
