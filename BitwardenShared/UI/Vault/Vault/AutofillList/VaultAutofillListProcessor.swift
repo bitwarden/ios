@@ -84,7 +84,7 @@ class VaultAutofillListProcessor: StateProcessor<
             }
         case .initFido2:
             if #available(iOSApplicationExtension 17.0, *) {
-                initFido2State()
+                await initFido2State()
             }
         case .loadData:
             await refreshProfileState()
@@ -161,76 +161,6 @@ class VaultAutofillListProcessor: StateProcessor<
         default:
             await handleProfileSwitcherEffect(profileSwitcherEffect)
         }
-    }
-
-    @available(iOSApplicationExtension 17.0, *)
-    private func initFido2State() {
-        guard let fido2appExtensionDelegate = appExtensionDelegate as? Fido2AppExtensionDelegate else {
-            return
-        }
-
-        services.fido2UserInterfaceHelper.setupDelegate(fido2UserVerificationMediatorDelegate: self)
-
-        if let request = fido2appExtensionDelegate.getRequestForFido2Creation(),
-           let credentialIdentity = request.credentialIdentity as? ASPasskeyCredentialIdentity {
-            Task {
-                do {
-                    let request = MakeCredentialRequest(
-                        clientDataHash: request.clientDataHash,
-                        rp: PublicKeyCredentialRpEntity(
-                            id: credentialIdentity.relyingPartyIdentifier,
-                            name: credentialIdentity.relyingPartyIdentifier
-                        ),
-                        user: PublicKeyCredentialUserEntity(
-                            id: credentialIdentity.userHandle,
-                            displayName: credentialIdentity.userName,
-                            name: credentialIdentity.userName
-                        ),
-                        pubKeyCredParams: request.getPublicKeyCredentialParams(),
-                        excludeList: nil,
-                        options: Options(
-                            rk: true,
-                            uv: Uv(preference: request.userVerificationPreference)
-                        ),
-                        extensions: nil
-                    )
-                    let createdCredential = try await self.services.clientService.platform().fido2()
-                        .authenticator(
-                            userInterface: services.fido2UserInterfaceHelper,
-                            credentialStore: services.fido2CredentialStore
-                        )
-                        .makeCredential(request: request)
-
-                    fido2appExtensionDelegate.completeRegistrationRequest(
-                        asPasskeyRegistrationCredential: ASPasskeyRegistrationCredential(
-                            relyingParty: credentialIdentity.relyingPartyIdentifier,
-                            clientDataHash: request.clientDataHash,
-                            credentialID: createdCredential.credentialId,
-                            attestationObject: createdCredential.attestationObject
-                        )
-                    )
-                } catch {
-                    services.fido2UserInterfaceHelper.pickedCredentialForCreation(result: .failure(error))
-                    services.errorReporter.log(error: error)
-                }
-            }
-        }
-    }
-
-    @available(iOSApplicationExtension 17.0, *)
-    func onCipherForFido2CredentialPicked(cipher: CipherView) async {
-        guard let fido2appExtensionDelegate = appExtensionDelegate as? Fido2AppExtensionDelegate,
-              fido2appExtensionDelegate.isCreatingFido2Credential else {
-            return
-        }
-        services.fido2UserInterfaceHelper.pickedCredentialForCreation(
-            result: .success(
-                CheckUserAndPickCredentialForCreationResult(
-                    cipher: CipherViewWrapper(cipher: cipher),
-                    checkUserResult: CheckUserResult(userPresent: true, userVerified: true)
-                )
-            )
-        )
     }
 
     /// Searches the list of ciphers for those matching the search term.
@@ -331,5 +261,99 @@ extension VaultAutofillListProcessor: Fido2UserVerificationMediatorDelegate {
 
     func showAlert(_ alert: Alert, onDismissed: (() -> Void)?) {
         coordinator.showAlert(alert, onDismissed: onDismissed)
+    }
+}
+
+// MARK: - Fido2 flows
+
+@available(iOSApplicationExtension 17.0, *)
+extension VaultAutofillListProcessor {
+    // MARK: Methods
+    
+    /// Initializes Fido2 state and flows if needed.
+    private func initFido2State() async {
+        guard let fido2appExtensionDelegate = appExtensionDelegate as? Fido2AppExtensionDelegate else {
+            return
+        }
+
+        services.fido2UserInterfaceHelper.setupDelegate(fido2UserVerificationMediatorDelegate: self)
+
+        if let request = fido2appExtensionDelegate.getRequestForFido2Creation(),
+           let credentialIdentity = request.credentialIdentity as? ASPasskeyCredentialIdentity {
+            await handleFido2CredentialCreation(
+                fido2appExtensionDelegate: fido2appExtensionDelegate,
+                request: request,
+                credentialIdentity: credentialIdentity
+            )
+        }
+    }
+    
+    /// Handles Fido2 credential creation flow starting a request and completing the registration.
+    /// - Parameters:
+    ///   - fido2appExtensionDelegate: The app extension delegate from the Autofill extension.
+    ///   - request: The passkey credential request to create the Fido2 credential.
+    ///   - credentialIdentity: The passkey credential identity from the request to create the Fido2 credential.
+    func handleFido2CredentialCreation(
+        fido2appExtensionDelegate: Fido2AppExtensionDelegate,
+        request: ASPasskeyCredentialRequest,
+        credentialIdentity: ASPasskeyCredentialIdentity
+    ) async {
+        do {
+            let request = MakeCredentialRequest(
+                clientDataHash: request.clientDataHash,
+                rp: PublicKeyCredentialRpEntity(
+                    id: credentialIdentity.relyingPartyIdentifier,
+                    name: credentialIdentity.relyingPartyIdentifier
+                ),
+                user: PublicKeyCredentialUserEntity(
+                    id: credentialIdentity.userHandle,
+                    displayName: credentialIdentity.userName,
+                    name: credentialIdentity.userName
+                ),
+                pubKeyCredParams: request.getPublicKeyCredentialParams(),
+                excludeList: nil,
+                options: Options(
+                    rk: true,
+                    uv: Uv(preference: request.userVerificationPreference)
+                ),
+                extensions: nil
+            )
+            let createdCredential = try await self.services.clientService.platform().fido2()
+                .authenticator(
+                    userInterface: services.fido2UserInterfaceHelper,
+                    credentialStore: services.fido2CredentialStore
+                )
+                .makeCredential(request: request)
+
+            fido2appExtensionDelegate.completeRegistrationRequest(
+                asPasskeyRegistrationCredential: ASPasskeyRegistrationCredential(
+                    relyingParty: credentialIdentity.relyingPartyIdentifier,
+                    clientDataHash: request.clientDataHash,
+                    credentialID: createdCredential.credentialId,
+                    attestationObject: createdCredential.attestationObject
+                )
+            )
+        } catch {
+            services.fido2UserInterfaceHelper.pickedCredentialForCreation(result: .failure(error))
+            services.errorReporter.log(error: error)
+        }
+    }
+    
+    /// Picks a cipher to use for the Fido2 creation process
+    /// - Parameter cipher: Cipher to use.
+    func onCipherForFido2CredentialPicked(cipher: CipherView) async {
+        guard let fido2appExtensionDelegate = appExtensionDelegate as? Fido2AppExtensionDelegate,
+              fido2appExtensionDelegate.isCreatingFido2Credential else {
+            return
+        }
+        services.fido2UserInterfaceHelper.pickedCredentialForCreation(
+            result: .success(
+                CheckUserAndPickCredentialForCreationResult(
+                    cipher: CipherViewWrapper(cipher: cipher),
+                    // TODO: PM-8352 add user verification
+                    checkUserResult: CheckUserResult(userPresent: true, userVerified: true)
+                )
+            )
+        )
     }
 }

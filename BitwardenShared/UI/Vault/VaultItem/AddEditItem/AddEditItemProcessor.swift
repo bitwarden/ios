@@ -576,6 +576,7 @@ final class AddEditItemProcessor: StateProcessor<// swiftlint:disable:this type_
                 result: .success(
                     CheckUserAndPickCredentialForCreationResult(
                         cipher: CipherViewWrapper(cipher: state.cipher),
+                        // TODO: PM-8352 add user verification
                         checkUserResult: CheckUserResult(userPresent: true, userVerified: true)
                     )
                 )
