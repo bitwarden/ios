@@ -85,6 +85,8 @@
 		<string>com.apple.authentication-services-credential-provider-ui</string>
 		<key>NSExtensionAttributes</key>
 		<dict>
+			<key>ASCredentialProviderExtensionShowsConfigurationUI</key>
+			<true/>
 			<key>ASCredentialProviderExtensionCapabilities</key>
 			<dict>
 				<key>ProvidesPasskeys</key>
