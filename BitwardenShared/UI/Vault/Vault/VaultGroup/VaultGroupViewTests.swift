@@ -207,13 +207,10 @@ class VaultGroupViewTests: BitwardenTestCase {
         processor.state.isSearching = true
         processor.state.searchResults = [
             .fixtureTOTP(
-                name: "Example",
+                name: "Example Name",
                 totp: .fixture(
                     loginView: .fixture(
-                        uris: [
-                            .fixture(uri: "www.example.com", match: nil),
-                        ],
-                        username: "email@example.com"
+                        username: "username"
                     ),
                     totpCode: .init(
                         code: "034543",
