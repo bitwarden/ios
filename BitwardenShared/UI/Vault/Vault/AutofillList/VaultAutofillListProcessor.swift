@@ -190,7 +190,7 @@ class VaultAutofillListProcessor: StateProcessor<
                         excludeList: nil,
                         options: Options(
                             rk: true,
-                            uv: request.userVerificationPreference.toSdkUserVerificationPreference()
+                            uv: Uv(preference: request.userVerificationPreference)
                         ),
                         extensions: nil
                     )

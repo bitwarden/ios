@@ -30,4 +30,10 @@ extension Data {
         let digest = hashFunction.hash(data: self)
         return Data(digest).base64EncodedString()
     }
+
+    /// Transforms this Data in a hex formatted string.
+    /// - Returns: Hex formatted string.
+    func asHexString() -> String {
+        compactMap { String(format: "%02x", $0) }.joined()
+    }
 }
