@@ -81,7 +81,8 @@ public class AppProcessor {
 
         let vaultItemSelectionRoute = AppRoute.tab(.vault(.vaultItemSelection(otpAuthModel)))
         guard let userId = try? await services.stateService.getActiveAccountId(),
-              !services.vaultTimeoutService.isLocked(userId: userId)
+              !services.vaultTimeoutService.isLocked(userId: userId),
+              await !((try? services.vaultTimeoutService.hasPassedSessionTimeout(userId: userId)) ?? true)
         else {
             await coordinator?.handleEvent(.setAuthCompletionRoute(vaultItemSelectionRoute))
             return

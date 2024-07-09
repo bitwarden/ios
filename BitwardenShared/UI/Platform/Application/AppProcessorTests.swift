@@ -4,6 +4,8 @@ import XCTest
 
 @testable import BitwardenShared
 
+// swiftlint:disable file_length
+
 class AppProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_body_length
     // MARK: Properties
 
@@ -158,6 +160,38 @@ class AppProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_body
 
         let model = try XCTUnwrap(OTPAuthModel(otpAuthKey: otpKey))
         XCTAssertEqual(coordinator.routes.last, .tab(.vault(.vaultItemSelection(model))))
+    }
+
+    /// `openUrl(_:)` handles receiving an OTP deep link and setting an auth completion route on the
+    /// coordinator if the the user's vault is unlocked but will be timing out as the app is
+    /// foregrounded.
+    func test_openUrl_otpKey_vaultUnlockedTimeout() async throws {
+        let account = Account.fixture()
+        let otpKey: String = .otpAuthUriKeyComplete
+        stateService.activeAccount = .fixture()
+        vaultTimeoutService.isClientLocked[account.profile.userId] = false
+        vaultTimeoutService.shouldSessionTimeout[account.profile.userId] = true
+
+        try await subject.openUrl(XCTUnwrap(URL(string: otpKey)))
+
+        let model = try XCTUnwrap(OTPAuthModel(otpAuthKey: otpKey))
+        XCTAssertEqual(coordinator.events, [.setAuthCompletionRoute(.tab(.vault(.vaultItemSelection(model))))])
+    }
+
+    /// `openUrl(_:)` handles receiving an OTP deep link and setting an auth completion route on the
+    /// coordinator if the the user's vault is unlocked but will be timing out as the app is
+    /// foregrounded.
+    func test_openUrl_otpKey_vaultUnlockedTimeoutError() async throws {
+        let account = Account.fixture()
+        let otpKey: String = .otpAuthUriKeyComplete
+        stateService.activeAccount = .fixture()
+        vaultTimeoutService.isClientLocked[account.profile.userId] = false
+        vaultTimeoutService.shouldSessionTimeoutError = BitwardenTestError.example
+
+        try await subject.openUrl(XCTUnwrap(URL(string: otpKey)))
+
+        let model = try XCTUnwrap(OTPAuthModel(otpAuthKey: otpKey))
+        XCTAssertEqual(coordinator.events, [.setAuthCompletionRoute(.tab(.vault(.vaultItemSelection(model))))])
     }
 
     /// `openUrl(_:)` handles receiving an OTP deep link if the URL isn't an OTP key.
