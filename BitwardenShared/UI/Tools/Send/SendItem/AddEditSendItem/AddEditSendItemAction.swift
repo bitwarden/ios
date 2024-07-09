@@ -38,8 +38,11 @@ enum AddEditSendItemAction: Equatable {
     /// The options button was pressed.
     case optionsPressed
 
-    /// maximum access count stepper was changed.
-    case maximumAccessCountChanged(Int)
+    /// maximum access count was changed via the stepper.
+    case maximumAccessCountStepperChanged(Int)
+
+    /// maximum access count was changed via the TextField.
+    case maximumAccessCountTextFieldChanged(String)
 
     /// The name text field was changed.
     case nameChanged(String)

@@ -11,6 +11,9 @@ struct AddEditSendItemView: View { // swiftlint:disable:this type_body_length
     /// The `Store` for this view.
     @ObservedObject var store: Store<AddEditSendItemState, AddEditSendItemAction, AddEditSendItemEffect>
 
+    /// A state variable to track whether the TextField is focused
+    @FocusState private var isMaxAccessCountFocused: Bool
+
     var body: some View {
         ZStack {
             ScrollView {
@@ -53,9 +56,6 @@ struct AddEditSendItemView: View { // swiftlint:disable:this type_body_length
             title: store.state.mode.navigationTitle,
             titleDisplayMode: .inline
         )
-        .task {
-            await store.perform(.loadData)
-        }
         .toolbar {
             ToolbarItem(placement: .topBarLeading) {
                 switch store.state.mode {
@@ -130,7 +130,7 @@ struct AddEditSendItemView: View { // swiftlint:disable:this type_body_length
             Stepper(
                 value: store.binding(
                     get: \.maximumAccessCount,
-                    send: AddEditSendItemAction.maximumAccessCountChanged
+                    send: AddEditSendItemAction.maximumAccessCountStepperChanged
                 ),
                 in: 0 ... Int.max
             ) {
@@ -138,14 +138,32 @@ struct AddEditSendItemView: View { // swiftlint:disable:this type_body_length
                     Text(Localizations.maximumAccessCount)
                         .styleGuide(.body)
                         .foregroundStyle(Asset.Colors.textPrimary.swiftUIColor)
+                        .layoutPriority(1)
 
                     Spacer()
 
-                    if store.state.maximumAccessCount > 0 {
-                        Text("\(store.state.maximumAccessCount)")
-                            .styleGuide(.body, monoSpacedDigit: true)
-                            .foregroundStyle(Asset.Colors.textSecondary.swiftUIColor)
+                    TextField(
+                        "",
+                        text: store.binding(
+                            get: \.maximumAccessCountText,
+                            send: AddEditSendItemAction.maximumAccessCountTextFieldChanged
+                        )
+                    )
+                    .focused($isMaxAccessCountFocused)
+                    .keyboardType(.numberPad)
+                    .styleGuide(.body)
+                    .foregroundStyle(Asset.Colors.textSecondary.swiftUIColor)
+                    .multilineTextAlignment(.trailing)
+                    .textFieldStyle(.plain)
+                    .toolbar {
+                        ToolbarItemGroup(placement: .keyboard) {
+                            Spacer()
+                            Button(Localizations.save) {
+                                isMaxAccessCountFocused = false
+                            }
+                        }
                     }
+                    .accessibilityIdentifier("MaxAccessCountTextField")
                 }
             }
             .accessibilityIdentifier("SendMaxAccessCountEntry")
