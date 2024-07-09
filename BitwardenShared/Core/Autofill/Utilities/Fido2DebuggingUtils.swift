@@ -59,8 +59,8 @@ enum Fido2DebuggingUtils {
         resultString.append("AuthenticatorData: ")
         resultString.append(result.authenticatorData.compactMap { String(format: "%02x", $0) }.joined())
         resultString.append("\n")
-        resultString.append("AttestedCredentialData: ")
-        resultString.append(result.attestedCredentialData.compactMap { String(format: "%02x", $0) }.joined())
+        resultString.append("AttestationObject: ")
+        resultString.append(result.attestationObject.compactMap { String(format: "%02x", $0) }.joined())
         resultString.append("\n")
         return resultString
     }

@@ -100,8 +100,8 @@ class AddEditItemProcessorFido2Tests: BitwardenTestCase {
         await subject.perform(.savePressed)
 
         fido2UserInterfaceHelper.pickedCredentialForCreationMocker.assertUnwrapping { result in
-            guard case let .success(cipher) = result,
-                  cipher.id == subject.state.cipher.id else {
+            guard case let .success(pickedResult) = result,
+                  pickedResult.cipher.cipher.id == subject.state.cipher.id else {
                 return false
             }
             return true

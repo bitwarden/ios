@@ -511,6 +511,22 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
         XCTAssertNil(urls)
     }
 
+    /// `getEvents()` returns the events for the active account.
+    func test_getEvents() async throws {
+        await subject.addAccount(.fixture(profile: .fixture(userId: "1")))
+
+        let noEvents = try await subject.getEvents(userId: "1")
+        XCTAssertEqual(noEvents, [])
+
+        let events = [
+            EventData(type: .cipherAttachmentCreated, cipherId: "1", date: .now),
+            EventData(type: .userUpdated2fa, cipherId: nil, date: .now),
+        ]
+        appSettingsStore.eventsByUserId["1"] = events
+        let actual = try await subject.getEvents(userId: "1")
+        XCTAssertEqual(actual, events)
+    }
+
     /// `getLastActiveTime(userId:)` gets the user's last active time.
     func test_getLastActiveTime() async throws {
         await subject.addAccount(.fixture(profile: .fixture(userId: "1")))
@@ -1247,6 +1263,18 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
         try await subject.setConnectToWatch(true)
         XCTAssertTrue(appSettingsStore.connectToWatch(userId: "1"))
         XCTAssertTrue(appSettingsStore.lastUserShouldConnectToWatch)
+    }
+
+    /// `setEvents(_:userId:)` sets the events for a user.
+    func test_setEvents() async throws {
+        await subject.addAccount(.fixture())
+        let events = [
+            EventData(type: .cipherAttachmentCreated, cipherId: "1", date: .now),
+            EventData(type: .userUpdated2fa, cipherId: nil, date: .now),
+        ]
+
+        try await subject.setEvents(events, userId: "1")
+        XCTAssertEqual(appSettingsStore.eventsByUserId["1"], events)
     }
 
     /// `setLastSyncTime(_:userId:)` sets the last sync time for a user.

@@ -79,8 +79,8 @@ class VaultAutofillListProcessorFido2Tests: BitwardenTestCase {
         await subject.perform(.vaultItemTapped(vaultListItem))
 
         fido2UserInterfaceHelper.pickedCredentialForCreationMocker.assertUnwrapping { result in
-            guard case let .success(cipher) = result,
-                  cipher.id == expectedResult.id else {
+            guard case let .success(pickedResult) = result,
+                  pickedResult.cipher.cipher.id == expectedResult.id else {
                 return false
             }
             return true
@@ -155,7 +155,7 @@ class VaultAutofillListProcessorFido2Tests: BitwardenTestCase {
             credential.relyingParty == expectedCredentialIdentity.relyingPartyIdentifier
                 && credential.clientDataHash == expectedRequest.clientDataHash
                 && credential.credentialID == expectedResult.credentialId
-                && credential.attestationObject == expectedResult.attestedCredentialData
+                && credential.attestationObject == expectedResult.attestationObject
         }
     }
 

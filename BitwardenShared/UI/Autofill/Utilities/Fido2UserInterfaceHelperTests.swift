@@ -57,10 +57,17 @@ class Fido2UserInterfaceHelperTests: BitwardenTestCase {
         }
 
         let expectedResult = CipherView.fixture()
-        subject.pickedCredentialForCreation(cipherResult: .success(expectedResult))
+        subject.pickedCredentialForCreation(result:
+            .success(
+                CheckUserAndPickCredentialForCreationResult(
+                    cipher: CipherViewWrapper(cipher: expectedResult),
+                    checkUserResult: CheckUserResult(userPresent: true, userVerified: true)
+                )
+            )
+        )
 
         let result = try await task.value
-        XCTAssertEqual(result.cipher, expectedResult)
+        XCTAssertEqual(result.cipher.cipher, expectedResult)
     }
 
     /// `checkUserAndPickCredentialForCreation(options:newCredential:)` returns error
@@ -80,7 +87,7 @@ class Fido2UserInterfaceHelperTests: BitwardenTestCase {
             (self.subject as? DefaultFido2UserInterfaceHelper)?.credentialForCreationContinuation != nil
         }
 
-        subject.pickedCredentialForCreation(cipherResult: .failure(BitwardenTestError.example))
+        subject.pickedCredentialForCreation(result: .failure(BitwardenTestError.example))
 
         await assertAsyncThrows(error: BitwardenTestError.example) {
             _ = try await task.value

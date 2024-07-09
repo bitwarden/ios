@@ -78,12 +78,12 @@ class Fido2DebuggingUtilsTests: BitwardenTestCase {
     func test_describe_makeCredentialResult() {
         let makeCredentialMocker = MakeCredentialResult(
             authenticatorData: Data((0 ..< 40).map { _ in 1 }),
-            attestedCredentialData: Data((0 ..< 50).map { _ in 2 }),
+            attestationObject: Data((0 ..< 50).map { _ in 2 }),
             credentialId: Data((0 ..< 32).map { _ in 3 })
         )
 
         // swiftlint:disable:next line_length
-        let expectedResultDescription = "CredentialId: 0303030303030303030303030303030303030303030303030303030303030303\nAuthenticatorData: 01010101010101010101010101010101010101010101010101010101010101010101010101010101\nAttestedCredentialData: 0202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202\n"
+        let expectedResultDescription = "CredentialId: 0303030303030303030303030303030303030303030303030303030303030303\nAuthenticatorData: 01010101010101010101010101010101010101010101010101010101010101010101010101010101\nAttestationObject: 0202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202\n"
 
         let resultDescription = Fido2DebuggingUtils.describe(result: makeCredentialMocker)
         XCTAssertEqual(resultDescription, expectedResultDescription)

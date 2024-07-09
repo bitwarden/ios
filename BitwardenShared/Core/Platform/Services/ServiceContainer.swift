@@ -62,6 +62,9 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
     /// The service used by the application to report non-fatal errors.
     let errorReporter: ErrorReporter
 
+    /// The service used to record and send events.
+    let eventService: EventService
+
     /// The service used to export a vault.
     let exportVaultService: ExportVaultService
 
@@ -163,6 +166,8 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
     ///   - configService: The service to get server-specified configuration.
     ///   - environmentService: The service used by the application to manage the environment settings.
     ///   - errorReporter: The service used by the application to report non-fatal errors.
+    ///   - eventService: The service used to record and send events.
+    ///   - exportVaultService: The service used to export vaults.
     ///   - fido2UserInterfaceHelper: A helper to be used on Fido2 flows that requires user interaction
     ///   and extends the capabilities of the `Fido2UserInterface` from the SDK.
     ///   - fido2CredentialStore: A store to be used on Fido2 flows to get/save credentials.
@@ -206,6 +211,7 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
         configService: ConfigService,
         environmentService: EnvironmentService,
         errorReporter: ErrorReporter,
+        eventService: EventService,
         exportVaultService: ExportVaultService,
         fido2CredentialStore: Fido2CredentialStore,
         fido2UserInterfaceHelper: Fido2UserInterfaceHelper,
@@ -248,6 +254,7 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
         self.configService = configService
         self.environmentService = environmentService
         self.errorReporter = errorReporter
+        self.eventService = eventService
         self.exportVaultService = exportVaultService
         self.fido2CredentialStore = fido2CredentialStore
         self.fido2UserInterfaceHelper = fido2UserInterfaceHelper
@@ -366,6 +373,14 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
             stateService: stateService
         )
 
+        let eventService = DefaultEventService(
+            cipherService: cipherService,
+            errorReporter: errorReporter,
+            organizationService: organizationService,
+            stateService: stateService,
+            timeProvider: timeProvider
+        )
+
         let exportVaultService = DefultExportVaultService(
             cipherService: cipherService,
             clientService: clientService,
@@ -445,6 +460,7 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
             cipherService: cipherService,
             clientService: clientService,
             errorReporter: errorReporter,
+            eventService: eventService,
             pasteboardService: pasteboardService,
             stateService: stateService,
             vaultTimeoutService: vaultTimeoutService
@@ -556,6 +572,7 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
             configService: configService,
             environmentService: environmentService,
             errorReporter: errorReporter,
+            eventService: eventService,
             exportVaultService: exportVaultService,
             fido2CredentialStore: fido2CredentialStore,
             fido2UserInterfaceHelper: fido2UserInterfaceHelper,

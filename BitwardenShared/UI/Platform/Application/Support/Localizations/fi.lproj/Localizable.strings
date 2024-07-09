@@ -908,8 +908,8 @@
 "AppInfo" = "Sovellustiedot";
 "Browse" = "Selaa";
 "SelectLanguage" = "Valitse kieli";
-"ContinueToCompleteWebAuthnVerification" = "Continue to complete WebAuthn verification.";
-"ThereWasAnErrorStartingWebAuthnTwoFactorAuthentication" = "There was an error starting WebAuthn two factor authentication";
+"ContinueToCompleteWebAuthnVerification" = "Viimeistele WebAuthn-vahvistus jatkamalla.";
+"ThereWasAnErrorStartingWebAuthnTwoFactorAuthentication" = "Virhe aloitettaessa kaksivaiheista WebAuthn-tunnistautumista";
 "LaunchWebAuthn" = "Avaa WebAuthn";
 "Duo" = "Duo";
 "DuoUnsupported" = "Duoa ei ole vielä tueta.";

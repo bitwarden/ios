@@ -110,7 +110,8 @@ jobs:
               --file $HOME/secrets/$FILE --output none
           done
 
-      - name: Retrieve Google Services secret
+      - name: Retrieve production Google Services secret
+        if: env.build-variant == 'Production'
         env:
           ACCOUNT_NAME: bitwardenci
           CONTAINER_NAME: mobile
@@ -119,6 +120,18 @@ jobs:
           mkdir -p $HOME/secrets
           az storage blob download --account-name $ACCOUNT_NAME --container-name $CONTAINER_NAME --name $FILE \
             --file Bitwarden/Application/Support/$FILE --output none
+
+      - name: Retrieve beta Google Services secret
+        if: env.build-variant == 'Beta'
+        env:
+          ACCOUNT_NAME: bitwardenci
+          CONTAINER_NAME: mobile
+          SOURCE_FILE: GoogleService-Info-ios-pm-beta.plist
+          TARGET_FILE: GoogleService-Info.plist
+        run: |
+          mkdir -p $HOME/secrets
+          az storage blob download --account-name $ACCOUNT_NAME --container-name $CONTAINER_NAME --name $SOURCE_FILE \
+            --file Bitwarden/Application/Support/$TARGET_FILE --output none
 
       - name: Retrieve certificates
         run: |

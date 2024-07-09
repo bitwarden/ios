@@ -366,11 +366,11 @@
 "AutofillSetup2" = "Recomendamos a desativação de quaisquer outras aplicações de preenchimento automático nas Definições, se não tencionar utilizá-las.";
 "BitwardenAutofillDescription" = "Aceda ao seu cofre diretamente a partir do seu teclado para preencher rapidamente as palavras-passe automaticamente.";
 "AutofillTurnOn" = "Para configurar o preenchimento automático de palavras-passe no seu dispositivo, siga estas instruções:";
-"AutofillTurnOn1" = "1. Vá à aplicação \"Definições\" do iOS";
+"AutofillTurnOn1" = "1. Vá às Definições do iOS";
 "AutofillTurnOn2" = "2. Toque em \"Palavras-passe e contas\"";
 "AutofillTurnOn3" = "3. Toque em \"Autopreenchimento de palavras-passe\"";
 "AutofillTurnOn4" = "4. Ative o Autopreenchimento";
-"AutofillTurnOn5" = "5. Selecione \"Bitwarden\"";
+"AutofillTurnOn5" = "5. Selecione o Bitwarden";
 "PasswordAutofill" = "Preenchimento automático de palavras-passe";
 "BitwardenAutofillAlert2" = "A maneira mais fácil de adicionar novas credenciais ao seu cofre é utilizando a extensão de preenchimento automático de palavras-passe do Bitwarden. Saiba mais sobre como utilizar a extensão de preenchimento automático de palavras-passe do Bitwarden ao navegar até ao ecrã \"Definições\".";
 "InvalidEmail" = "Endereço de e-mail inválido.";
@@ -384,7 +384,7 @@
 "CheckPassword" = "Verificar se a palavra-passe foi exposta.";
 "PasswordExposed" = "Esta palavra-passe foi exposta %1$@ vez(es) em violações de dados. Deve alterá-la.";
 "PasswordSafe" = "Esta palavra-passe não foi encontrada em nenhuma violação de dados conhecida. A sua utilização deve ser segura.";
-"IdentityName" = "Nome de identidade";
+"IdentityName" = "Nome da identidade";
 "Value" = "Valor";
 "PasswordHistory" = "Histórico de palavras-passe";
 "Types" = "Tipos";
@@ -424,7 +424,7 @@
 "Unlock" = "Desbloquear";
 "UnlockVault" = "Desbloquear cofre";
 "ThirtyMinutes" = "30 minutos";
-"SetPINDescription" = "Defina o seu código PIN para desbloquear o Bitwarden. As suas definições de PIN serão redifinidas se alguma vez sair completamente da aplicação.";
+"SetPINDescription" = "Defina o seu código PIN para desbloquear o Bitwarden. As suas definições de PIN serão redefinidas se alguma vez terminar sessão por completo da aplicação.";
 "LoggedInAsOn" = "Sessão iniciada como %1$@ em %2$@.";
 "VaultLockedMasterPassword" = "O seu cofre está bloqueado. Verifique a sua palavra-passe mestra para continuar.";
 "VaultLockedPIN" = "O seu cofre está bloqueado. Verifique o seu código PIN para continuar.";
@@ -483,12 +483,12 @@
 "EncExportAccountWarning" = "As chaves de encriptação da conta são únicas para cada conta de utilizador Bitwarden, pelo que não é possível importar uma exportação encriptada para uma conta diferente.";
 "ExportVaultConfirmationTitle" = "Confirmar a exportação do cofre";
 "Warning" = "Aviso";
-"ExportVaultFailure" = "Ocorreu um problema ao exportar o seu cofre. Se o problema persistir, terá de exportar a partir do cofre web.";
+"ExportVaultFailure" = "Ocorreu um problema ao exportar o seu cofre. Se o problema persistir, terá de exportar a partir do cofre Web.";
 "ExportVaultSuccess" = "Cofre exportado com sucesso";
 "Clone" = "Duplicar";
-"PasswordGeneratorPolicyInEffect" = "Uma ou mais políticas da organização estão a afetar as suas definições do gerador.";
+"PasswordGeneratorPolicyInEffect" = "Uma ou mais políticas da organização estão a afetar as suas definições do gerador";
 "Open" = "Abrir";
-"UnableToSaveAttachment" = "Houve um problema ao guardar este anexo. Se o problema persistir, poderá guardá-lo através do cofre Web.";
+"UnableToSaveAttachment" = "Ocorreu um problema ao guardar este anexo. Se o problema persistir, poderá guardá-lo através do cofre Web.";
 "SaveAttachmentSuccess" = "Anexo guardado com sucesso";
 "AutofillTileAccessibilityRequired" = "Por favor, ative o \"Serviço de acessibilidade de preenchimento automático\" nas definições do Bitwarden para utilizar o mosaico de preenchimento automático.";
 "AutofillTileUriNotFound" = "Nenhum campo de palavra-passe detetado";
@@ -675,7 +675,7 @@
 "ScanQRCode" = "Ler código QR";
 "CannotScanQRCode" = "Não consegue ler o código QR?";
 "AuthenticatorKeyScanner" = "Chave de autenticação";
-"EnterKeyManually" = "Introduzir chave manualmente";
+"EnterKeyManually" = "Introduzir a chave manualmente";
 "AddTotp" = "Adicionar TOTP";
 "SetupTotp" = "Configurar TOTP";
 "OnceTheKeyIsSuccessfullyEntered" = "Assim que a chave for introduzida com sucesso, selecione Adicionar TOTP para guardar a chave em segurança";

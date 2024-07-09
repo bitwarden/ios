@@ -15,6 +15,7 @@ class VaultAutofillListProcessor: StateProcessor<
     typealias Services = HasAuthRepository
         & HasClientService
         & HasErrorReporter
+        & HasEventService
         & HasFido2CredentialStore
         & HasFido2UserInterfaceHelper
         & HasPasteboardService
@@ -205,11 +206,11 @@ class VaultAutofillListProcessor: StateProcessor<
                             relyingParty: credentialIdentity.relyingPartyIdentifier,
                             clientDataHash: request.clientDataHash,
                             credentialID: createdCredential.credentialId,
-                            attestationObject: createdCredential.attestedCredentialData
+                            attestationObject: createdCredential.attestationObject
                         )
                     )
                 } catch {
-                    services.fido2UserInterfaceHelper.pickedCredentialForCreation(cipherResult: .failure(error))
+                    services.fido2UserInterfaceHelper.pickedCredentialForCreation(result: .failure(error))
                     services.errorReporter.log(error: error)
                 }
             }
@@ -222,7 +223,14 @@ class VaultAutofillListProcessor: StateProcessor<
               fido2appExtensionDelegate.isCreatingFido2Credential else {
             return
         }
-        services.fido2UserInterfaceHelper.pickedCredentialForCreation(cipherResult: .success(cipher))
+        services.fido2UserInterfaceHelper.pickedCredentialForCreation(
+            result: .success(
+                CheckUserAndPickCredentialForCreationResult(
+                    cipher: CipherViewWrapper(cipher: cipher),
+                    checkUserResult: CheckUserResult(userPresent: true, userVerified: true)
+                )
+            )
+        )
     }
 
     /// Searches the list of ciphers for those matching the search term.

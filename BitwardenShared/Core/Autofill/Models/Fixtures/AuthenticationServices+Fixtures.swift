@@ -50,7 +50,7 @@ extension ASPasskeyCredentialRequest {
 }
 
 extension ASPasswordCredentialIdentity {
-     static func fixture(
+    static func fixture(
         serviceIdentifier: ASCredentialServiceIdentifier = .fixture(),
         user: String = "",
         recordIdentifier: String? = nil

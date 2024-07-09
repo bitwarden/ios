@@ -18,6 +18,7 @@ class AddEditItemProcessorTests: BitwardenTestCase {
     var coordinator: MockCoordinator<VaultItemRoute, VaultItemEvent>!
     var delegate: MockCipherItemOperationDelegate!
     var errorReporter: MockErrorReporter!
+    var eventService: MockEventService!
     var pasteboardService: MockPasteboardService!
     var policyService: MockPolicyService!
     var stateService: MockStateService!
@@ -37,6 +38,7 @@ class AddEditItemProcessorTests: BitwardenTestCase {
         coordinator = MockCoordinator<VaultItemRoute, VaultItemEvent>()
         delegate = MockCipherItemOperationDelegate()
         errorReporter = MockErrorReporter()
+        eventService = MockEventService()
         pasteboardService = MockPasteboardService()
         policyService = MockPolicyService()
         stateService = MockStateService()
@@ -50,6 +52,7 @@ class AddEditItemProcessorTests: BitwardenTestCase {
                 authRepository: authRepository,
                 cameraService: cameraService,
                 errorReporter: errorReporter,
+                eventService: eventService,
                 httpClient: client,
                 pasteboardService: pasteboardService,
                 policyService: policyService,
@@ -78,6 +81,7 @@ class AddEditItemProcessorTests: BitwardenTestCase {
         client = nil
         coordinator = nil
         errorReporter = nil
+        eventService = nil
         pasteboardService = nil
         stateService = nil
         subject = nil
@@ -695,6 +699,74 @@ class AddEditItemProcessorTests: BitwardenTestCase {
         )
         XCTAssertEqual(subject.state.ownershipOptions, [.personal(email: "user@bitwarden.com")])
         try XCTAssertFalse(XCTUnwrap(vaultRepository.fetchCollectionsIncludeReadOnly))
+
+        XCTAssertNil(eventService.collectCipherId)
+        XCTAssertNil(eventService.collectEventType)
+    }
+
+    /// `perform(_:)` with `.fetchCipherOptions` handles errors.
+    func test_perform_fetchCipherOptions_error() async {
+        vaultRepository.fetchCipherOwnershipOptions = [.personal(email: "user@bitwarden.com")]
+        vaultRepository.fetchCollectionsResult = .failure(BitwardenTestError.example)
+        vaultRepository.fetchFoldersResult = .failure(BitwardenTestError.example)
+
+        await subject.perform(.fetchCipherOptions)
+
+        XCTAssertEqual(subject.state.collections, [])
+        XCTAssertEqual(subject.state.folders, [])
+        XCTAssertEqual(subject.state.ownershipOptions, [])
+
+        XCTAssertEqual(errorReporter.errors as? [BitwardenTestError], [.example])
+    }
+
+    /// `perform(_:)` with `.fetchCipherOptions` sends events on edit.
+    func test_perform_fetchCipherOptions_events() async {
+        subject = AddEditItemProcessor(
+            appExtensionDelegate: appExtensionDelegate,
+            coordinator: coordinator.asAnyCoordinator(),
+            delegate: delegate,
+            services: ServiceContainer.withMocks(
+                authRepository: authRepository,
+                cameraService: cameraService,
+                errorReporter: errorReporter,
+                eventService: eventService,
+                httpClient: client,
+                pasteboardService: pasteboardService,
+                policyService: policyService,
+                stateService: stateService,
+                totpService: totpService,
+                vaultRepository: vaultRepository
+            ),
+            state: CipherItemState(
+                existing: CipherView.fixture(id: "100"),
+                hasPremium: true
+            )!
+        )
+        let collections: [CollectionView] = [
+            .fixture(id: "1", name: "Design"),
+            .fixture(id: "2", name: "Engineering"),
+        ]
+        let folders: [FolderView] = [
+            .fixture(id: "1", name: "Social"),
+            .fixture(id: "2", name: "Work"),
+        ]
+
+        vaultRepository.fetchCipherOwnershipOptions = [.personal(email: "user@bitwarden.com")]
+        vaultRepository.fetchCollectionsResult = .success(collections)
+        vaultRepository.fetchFoldersResult = .success(folders)
+
+        await subject.perform(.fetchCipherOptions)
+
+        XCTAssertEqual(subject.state.collections, collections)
+        XCTAssertEqual(
+            subject.state.folders,
+            [.default] + folders.map { .custom($0) }
+        )
+        XCTAssertEqual(subject.state.ownershipOptions, [.personal(email: "user@bitwarden.com")])
+        try XCTAssertFalse(XCTUnwrap(vaultRepository.fetchCollectionsIncludeReadOnly))
+
+        XCTAssertEqual(eventService.collectCipherId, "100")
+        XCTAssertEqual(eventService.collectEventType, .cipherClientViewed)
     }
 
     /// `perform(_:)` with `.fetchCipherOptions` fetches the ownership options for a cipher and
@@ -1425,6 +1497,40 @@ class AddEditItemProcessorTests: BitwardenTestCase {
 
         subject.receive(.togglePasswordVisibilityChanged(true))
         XCTAssertTrue(subject.state.loginState.isPasswordVisible)
+    }
+
+    /// `receive(_:)` with `.togglePasswordVisibilityChanged` with `true` when editing
+    ///  sends an event.
+    func test_receive_togglePasswordVisibilityChanged_withTrue_whenEditing() {
+        subject = AddEditItemProcessor(
+            appExtensionDelegate: appExtensionDelegate,
+            coordinator: coordinator.asAnyCoordinator(),
+            delegate: delegate,
+            services: ServiceContainer.withMocks(
+                authRepository: authRepository,
+                cameraService: cameraService,
+                errorReporter: errorReporter,
+                eventService: eventService,
+                httpClient: client,
+                pasteboardService: pasteboardService,
+                policyService: policyService,
+                stateService: stateService,
+                totpService: totpService,
+                vaultRepository: vaultRepository
+            ),
+            state: CipherItemState(
+                existing: CipherView.fixture(id: "100"),
+                hasPremium: true
+            )!
+        )
+        subject.state.loginState.isPasswordVisible = false
+
+        subject.receive(.togglePasswordVisibilityChanged(true))
+        XCTAssertTrue(subject.state.loginState.isPasswordVisible)
+
+        waitFor(eventService.collectCipherId != nil)
+        XCTAssertEqual(eventService.collectCipherId, "100")
+        XCTAssertEqual(eventService.collectEventType, .cipherClientToggledPasswordVisible)
     }
 
     /// `receive(_:)` with `.togglePasswordVisibilityChanged` with `false` updates the state correctly.

@@ -10,9 +10,17 @@ class MockFido2UserInterfaceHelper: Fido2UserInterfaceHelper {
     var pickCredentialForAuthenticationResult: Result<BitwardenSdk.CipherViewWrapper, Error> = .success(
         BitwardenSdk.CipherViewWrapper(cipher: .fixture())
     )
-    var pickedCredentialForCreationMocker = InvocationMocker<Result<BitwardenSdk.CipherView, any Error>>()
-    var checkAndPickCredentialForCreationResult: Result<BitwardenSdk.CipherViewWrapper, Error> = .success(
-        BitwardenSdk.CipherViewWrapper(cipher: .fixture())
+    var pickedCredentialForCreationMocker = InvocationMocker<
+        Result<CheckUserAndPickCredentialForCreationResult, any Error>
+    >()
+    var checkAndPickCredentialForCreationResult: Result<
+        BitwardenSdk.CheckUserAndPickCredentialForCreationResult,
+        Error
+    > = .success(
+        BitwardenSdk.CheckUserAndPickCredentialForCreationResult(
+            cipher: CipherViewWrapper(cipher: .fixture()),
+            checkUserResult: CheckUserResult(userPresent: true, userVerified: true)
+        )
     )
     var isVerificationEnabledResult = false
     var fido2UserVerificationMediatorDelegate: Fido2UserVerificationMediatorDelegate?
@@ -30,14 +38,16 @@ class MockFido2UserInterfaceHelper: Fido2UserInterfaceHelper {
         try pickCredentialForAuthenticationResult.get()
     }
 
-    func pickedCredentialForCreation(cipherResult: Result<BitwardenSdk.CipherView, any Error>) {
-        pickedCredentialForCreationMocker.invoke(param: cipherResult)
+    func pickedCredentialForCreation(
+        result: Result<BitwardenSdk.CheckUserAndPickCredentialForCreationResult, any Error>
+    ) {
+        pickedCredentialForCreationMocker.invoke(param: result)
     }
 
     func checkUserAndPickCredentialForCreation(
         options: BitwardenSdk.CheckUserOptions,
         newCredential: BitwardenSdk.Fido2CredentialNewView
-    ) async throws -> BitwardenSdk.CipherViewWrapper {
+    ) async throws -> BitwardenSdk.CheckUserAndPickCredentialForCreationResult {
         try checkAndPickCredentialForCreationResult.get()
     }
 

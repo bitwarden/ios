@@ -5,8 +5,8 @@ import Combine
 /// depending on user interaction.
 protocol Fido2UserInterfaceHelper: Fido2UserInterface {
     /// Sets the selected cipher as a result for credential for Fido2 creation.
-    /// - Parameter cipherResult: The result of picking a cipher with the cipher or the error.
-    func pickedCredentialForCreation(cipherResult: Result<CipherView, Error>)
+    /// - Parameter result: The result of picking a cipher with the cipher or the error.
+    func pickedCredentialForCreation(result: Result<CheckUserAndPickCredentialForCreationResult, Error>)
 
     /// Sets up the delegate to use on Fido2 user verification flows.
     /// - Parameter fido2UserVerificationMediatorDelegate: The delegate to use.
@@ -19,7 +19,7 @@ class DefaultFido2UserInterfaceHelper: Fido2UserInterfaceHelper {
     private var fido2UserVerificationMediator: Fido2UserVerificationMediator
 
     /// Continuation when picking a credential for creation.
-    var credentialForCreationContinuation: CheckedContinuation<CipherView, Error>?
+    var credentialForCreationContinuation: CheckedContinuation<CheckUserAndPickCredentialForCreationResult, Error>?
 
     /// Initializes a `DefaultFido2UserInterfaceHelper`.
     /// - Parameter fido2UserVerificationMediator: Mediator which manages user verification on Fido2 flows
@@ -44,19 +44,18 @@ class DefaultFido2UserInterfaceHelper: Fido2UserInterfaceHelper {
     func checkUserAndPickCredentialForCreation(
         options: BitwardenSdk.CheckUserOptions,
         newCredential: BitwardenSdk.Fido2CredentialNewView
-    ) async throws -> BitwardenSdk.CipherViewWrapper {
-        let cipherView = try await withCheckedThrowingContinuation { continuation in
+    ) async throws -> BitwardenSdk.CheckUserAndPickCredentialForCreationResult {
+        try await withCheckedThrowingContinuation { continuation in
             self.credentialForCreationContinuation = continuation
         }
-        return BitwardenSdk.CipherViewWrapper(cipher: cipherView)
     }
 
     func isVerificationEnabled() async -> Bool {
         fido2UserVerificationMediator.isPreferredVerificationEnabled()
     }
 
-    func pickedCredentialForCreation(cipherResult: Result<CipherView, Error>) {
-        credentialForCreationContinuation?.resume(with: cipherResult)
+    func pickedCredentialForCreation(result: Result<CheckUserAndPickCredentialForCreationResult, Error>) {
+        credentialForCreationContinuation?.resume(with: result)
     }
 
     func setupDelegate(fido2UserVerificationMediatorDelegate: Fido2UserVerificationMediatorDelegate) {
