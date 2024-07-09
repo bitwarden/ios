@@ -8,6 +8,7 @@ class AutofillHelper {
 
     typealias Services = HasAuthRepository
         & HasErrorReporter
+        & HasEventService
         & HasPasteboardService
         & HasVaultRepository
 
@@ -50,15 +51,20 @@ class AutofillHelper {
     ///   - showToast: A closure that when called will display a toast to the user.
     ///
     func handleCipherForAutofill(cipherView: CipherView, showToast: @escaping (String) -> Void) async {
-        if cipherView.reprompt == .password {
-            presentMasterPasswordRepromptAlert {
-                await self.handleCipherForAutofillAfterRepromptIfRequired(
-                    cipherView: cipherView,
-                    showToast: showToast
-                )
+        do {
+            if cipherView.reprompt == .password, try await services.authRepository.hasMasterPassword() {
+                presentMasterPasswordRepromptAlert {
+                    await self.handleCipherForAutofillAfterRepromptIfRequired(
+                        cipherView: cipherView,
+                        showToast: showToast
+                    )
+                }
+            } else {
+                await handleCipherForAutofillAfterRepromptIfRequired(cipherView: cipherView, showToast: showToast)
             }
-        } else {
-            await handleCipherForAutofillAfterRepromptIfRequired(cipherView: cipherView, showToast: showToast)
+        } catch {
+            services.errorReporter.log(error: error)
+            coordinator.showAlert(.defaultAlert(title: Localizations.anErrorHasOccurred))
         }
     }
 
@@ -104,8 +110,10 @@ class AutofillHelper {
 
         do {
             let disableAutoTotpCopy = try await services.vaultRepository.getDisableAutoTotpCopy()
+            let accountHasPremium = try await services.vaultRepository.doesActiveAccountHavePremium()
             if !disableAutoTotpCopy,
                let totp = cipherView.login?.totp,
+               cipherView.organizationUseTotp || accountHasPremium,
                let key = TOTPKeyModel(authenticatorKey: totp),
                let codeModel = try await services.vaultRepository.refreshTOTPCode(for: key).codeModel {
                 services.pasteboardService.copy(codeModel.code)
@@ -118,6 +126,11 @@ class AutofillHelper {
             guard let name = field.name, let value = field.value else { return nil }
             return (name, value)
         }
+
+        await services.eventService.collect(
+            eventType: .cipherClientAutofilled,
+            cipherId: cipherView.id
+        )
 
         appExtensionDelegate?.completeAutofillRequest(
             username: username,

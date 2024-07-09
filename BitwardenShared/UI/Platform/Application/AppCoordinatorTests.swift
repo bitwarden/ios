@@ -74,10 +74,12 @@ class AppCoordinatorTests: BitwardenTestCase {
         subject.didCompleteAuth()
         XCTAssertTrue(module.vaultCoordinator.isStarted)
         XCTAssertEqual(module.vaultCoordinator.routes, [.autofillList])
+
+        XCTAssertTrue(appExtensionDelegate.didCompleteAuthCalled)
     }
 
     /// `didDeleteAccount(otherAccounts:)` navigates to the `didDeleteAccount` route.
-    func test_didDeleteAccount() {
+    func test_didDeleteAccount() throws {
         subject.didDeleteAccount()
         waitFor(!router.events.isEmpty)
         XCTAssertEqual(
@@ -86,6 +88,9 @@ class AppCoordinatorTests: BitwardenTestCase {
                 .didDeleteAccount,
             ]
         )
+
+        let alert = try XCTUnwrap(rootNavigator.alerts.last)
+        XCTAssertEqual(alert, .accountDeletedAlert())
     }
 
     /// `lockVault(_:)` passes the lock event to the router.

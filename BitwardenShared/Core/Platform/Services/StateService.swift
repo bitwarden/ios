@@ -29,6 +29,12 @@ protocol StateService: AnyObject {
     ///
     func deleteAccount() async throws
 
+    /// Returns whether the active user account has access to premium features.
+    ///
+    /// - Returns: Whether the active account has access to premium features.
+    ///
+    func doesActiveAccountHavePremium() async throws -> Bool
+
     /// Gets the account for an id.
     ///
     /// - Parameter userId: The id for an account. If nil, the active account will be returned.
@@ -131,12 +137,27 @@ protocol StateService: AnyObject {
     ///
     func getDisableAutoTotpCopy(userId: String?) async throws -> Bool
 
+    /// The user's pin protected by their user key.
+    ///
+    /// - Parameter userId: The user ID associated with the encrypted pin.
+    /// - Returns: The user's pin protected by their user key.
+    ///
+    func getEncryptedPin(userId: String?) async throws -> String?
+
     /// Gets the environment URLs for a user ID.
     ///
     /// - Parameter userId: The user ID associated with the environment URLs.
     /// - Returns: The user's environment URLs.
     ///
     func getEnvironmentUrls(userId: String?) async throws -> EnvironmentUrlData?
+
+    /// Gets the events stored to disk to be uploaded in the future.
+    ///
+    /// - Parameters:
+    ///   - userId: The user ID associated with the events.
+    /// - Returns: The events for the user
+    ///
+    func getEvents(userId: String?) async throws -> [EventData]
 
     /// Gets the user's last active time within the app.
     /// This value is set when the app is backgrounded.
@@ -200,6 +221,13 @@ protocol StateService: AnyObject {
     ///
     func getServerConfig(userId: String?) async throws -> ServerConfig?
 
+    /// Gets whether we should check for unassigned items for the user.
+    ///
+    /// - Parameter userId: The user ID associated with the flag.
+    /// - Returns: `false` if the user has seen and acknowledged the unassigned items alert.
+    ///
+    func getShouldCheckOrganizationUnassignedItems(userId: String?) async throws -> Bool
+
     /// Get whether the device should be trusted.
     ///
     /// - Returns: Whether to trust the device.
@@ -241,6 +269,13 @@ protocol StateService: AnyObject {
     ///
     func getUserHasMasterPassword(userId: String?) async throws -> Bool
 
+    /// Gets the user ID of any accounts with the specified email.
+    ///
+    /// - Parameter email: The email of the account.
+    /// - Returns: A list of user IDs for the accounts with a matching email.
+    ///
+    func getUserIds(email: String) async -> [String]
+
     /// Gets the username generation options for a user ID.
     ///
     /// - Parameter userId: The user ID associated with the username generation options.
@@ -261,13 +296,6 @@ protocol StateService: AnyObject {
     ///   account if `nil`.
     ///
     func logoutAccount(userId: String?) async throws
-
-    /// The user's pin key encrypted user key.
-    ///
-    /// - Parameter userId: The user ID associated with the pin key encrypted user key.
-    /// - Returns: The user's pin key encrypted user key.
-    ///
-    func pinKeyEncryptedUserKey(userId: String?) async throws -> String?
 
     /// The pin protected user key.
     ///
@@ -356,6 +384,14 @@ protocol StateService: AnyObject {
     ///
     func setDisableAutoTotpCopy(_ disableAutoTotpCopy: Bool, userId: String?) async throws
 
+    /// Sets the events saved to disk for future upload.
+    ///
+    /// - Parameters:
+    ///   - events: The events to save.
+    ///   - userId: The user ID of the account. Defaults to the active account if `nil`.
+    ///
+    func setEvents(_ events: [EventData], userId: String?) async throws
+
     /// Sets the force password reset reason for an account.
     ///
     /// - Parameters:
@@ -413,12 +449,12 @@ protocol StateService: AnyObject {
     /// Set's the pin keys.
     ///
     /// - Parameters:
-    ///   - pinKeyEncryptedUserKey: The user's encrypted pin.
+    ///   - encryptedPin: The user's encrypted pin.
     ///   - pinProtectedUserKey: The user's pin protected user key.
     ///   - requirePasswordAfterRestart: Whether to require password after app restart.
     ///
     func setPinKeys(
-        pinKeyEncryptedUserKey: String,
+        encryptedPin: String,
         pinProtectedUserKey: String,
         requirePasswordAfterRestart: Bool
     ) async throws
@@ -442,6 +478,15 @@ protocol StateService: AnyObject {
     ///   - userId: The user ID associated with the server config.
     ///
     func setServerConfig(_ config: ServerConfig?, userId: String?) async throws
+
+    /// Sets whether or not we should check for unassigned ciphers in an organization for
+    /// a particular user.
+    ///
+    /// - Parameters:
+    ///   - shouldCheck: Whether or not we should check for unassigned ciphers.
+    ///   - userId: The user ID that acknowledged the alert.
+    ///
+    func setShouldCheckOrganizationUnassignedItems(_ shouldCheck: Bool?, userId: String?) async throws
 
     /// Set whether to trust the device.
     ///
@@ -619,6 +664,14 @@ extension StateService {
         try await getDisableAutoTotpCopy(userId: nil)
     }
 
+    /// The user's pin protected by their user key.
+    ///
+    /// - Returns: The user's pin protected by their user key.
+    ///
+    func getEncryptedPin() async throws -> String? {
+        try await getEncryptedPin(userId: nil)
+    }
+
     /// Gets the environment URLs for the active account.
     ///
     /// - Returns: The environment URLs for the active account.
@@ -733,14 +786,6 @@ extension StateService {
     ///
     func logoutAccount() async throws {
         try await logoutAccount(userId: nil)
-    }
-
-    /// The user's pin protected user key.
-    ///
-    /// - Returns: The pin protected user key.
-    ///
-    func pinKeyEncryptedUserKey() async throws -> String? {
-        try await pinKeyEncryptedUserKey(userId: nil)
     }
 
     /// The pin protected user key.
@@ -945,6 +990,9 @@ actor DefaultStateService: StateService { // swiftlint:disable:this type_body_le
     /// A subject containing the last sync time mapped to user ID.
     private var lastSyncTimeByUserIdSubject = CurrentValueSubject<[String: Date], Never>([:])
 
+    /// A service used to access data in the keychain.
+    private let keychainRepository: KeychainRepository
+
     /// A subject containing whether to show the website icons.
     private var showWebIconsSubject: CurrentValueSubject<Bool, Never>
 
@@ -955,13 +1003,16 @@ actor DefaultStateService: StateService { // swiftlint:disable:this type_body_le
     /// - Parameters:
     ///  - appSettingsStore: The service that persists app settings.
     ///  - dataStore: The data store that handles performing data requests.
+    ///  - keychainRepository: A service used to access data in the keychain.
     ///
     init(
         appSettingsStore: AppSettingsStore,
-        dataStore: DataStore
+        dataStore: DataStore,
+        keychainRepository: KeychainRepository
     ) {
         self.appSettingsStore = appSettingsStore
         self.dataStore = dataStore
+        self.keychainRepository = keychainRepository
 
         appThemeSubject = CurrentValueSubject(AppTheme(appSettingsStore.appTheme))
         showWebIconsSubject = CurrentValueSubject(!appSettingsStore.disableWebIcons)
@@ -980,12 +1031,25 @@ actor DefaultStateService: StateService { // swiftlint:disable:this type_body_le
     func clearPins() async throws {
         let userId = try getActiveAccountUserId()
         accountVolatileData.removeValue(forKey: userId)
+        appSettingsStore.setEncryptedPin(nil, userId: userId)
         appSettingsStore.setPinProtectedUserKey(key: nil, userId: userId)
-        appSettingsStore.setPinKeyEncryptedUserKey(key: nil, userId: userId)
     }
 
     func deleteAccount() async throws {
         try await logoutAccount()
+    }
+
+    func doesActiveAccountHavePremium() async throws -> Bool {
+        let account = try await getActiveAccount()
+        let hasPremiumPersonally = account.profile.hasPremiumPersonally ?? false
+        guard !hasPremiumPersonally else {
+            return true
+        }
+
+        let organizations = try await dataStore
+            .fetchAllOrganizations(userId: account.profile.userId)
+            .filter { $0.enabled && $0.usersGetPremium }
+        return !organizations.isEmpty
     }
 
     func getAccount(userId: String?) throws -> Account {
@@ -1058,9 +1122,19 @@ actor DefaultStateService: StateService { // swiftlint:disable:this type_body_le
         return appSettingsStore.disableAutoTotpCopy(userId: userId)
     }
 
+    func getEncryptedPin(userId: String?) async throws -> String? {
+        let userId = try userId ?? getActiveAccountUserId()
+        return appSettingsStore.encryptedPin(userId: userId)
+    }
+
     func getEnvironmentUrls(userId: String?) async throws -> EnvironmentUrlData? {
         let userId = try userId ?? getActiveAccountUserId()
         return appSettingsStore.state?.accounts[userId]?.settings.environmentUrls
+    }
+
+    func getEvents(userId: String?) async throws -> [EventData] {
+        let userId = try userId ?? getActiveAccountUserId()
+        return appSettingsStore.events(userId: userId)
     }
 
     func getLastActiveTime(userId: String?) async throws -> Date? {
@@ -1105,6 +1179,11 @@ actor DefaultStateService: StateService { // swiftlint:disable:this type_body_le
         return appSettingsStore.serverConfig(userId: userId)
     }
 
+    func getShouldCheckOrganizationUnassignedItems(userId: String?) async throws -> Bool {
+        let userId = try userId ?? getActiveAccountUserId()
+        return appSettingsStore.shouldCheckOrganizationUnassignedItems(userId: userId) ?? true
+    }
+
     func getShouldTrustDevice(userId: String) async -> Bool? {
         appSettingsStore.shouldTrustDevice(userId: userId)
     }
@@ -1135,6 +1214,12 @@ actor DefaultStateService: StateService { // swiftlint:disable:this type_body_le
         try getAccount(userId: userId).profile.userDecryptionOptions?.hasMasterPassword ?? true
     }
 
+    func getUserIds(email: String) async -> [String] {
+        guard let state = appSettingsStore.state else { return [] }
+        let userIds = state.accounts.values.filter { $0.profile.email == email }.map(\.profile.userId)
+        return userIds
+    }
+
     func getUsernameGenerationOptions(userId: String?) async throws -> UsernameGenerationOptions? {
         let userId = try userId ?? getActiveAccountUserId()
         return appSettingsStore.usernameGenerationOptions(userId: userId)
@@ -1143,7 +1228,8 @@ actor DefaultStateService: StateService { // swiftlint:disable:this type_body_le
     func getVaultTimeout(userId: String?) async throws -> SessionTimeoutValue {
         let userId = try getAccount(userId: userId).profile.userId
         guard let rawValue = appSettingsStore.vaultTimeout(userId: userId) else {
-            return .fifteenMinutes
+            let userAuthKey = try? await keychainRepository.getUserAuthKeyValue(for: .neverLock(userId: userId))
+            return userAuthKey == nil ? .fifteenMinutes : .never
         }
         return SessionTimeoutValue(rawValue: rawValue)
     }
@@ -1170,11 +1256,6 @@ actor DefaultStateService: StateService { // swiftlint:disable:this type_body_le
         appSettingsStore.setPasswordGenerationOptions(nil, userId: knownUserId)
 
         try await dataStore.deleteDataForUser(userId: knownUserId)
-    }
-
-    func pinKeyEncryptedUserKey(userId: String?) async throws -> String? {
-        let userId = try userId ?? getActiveAccountUserId()
-        return appSettingsStore.pinKeyEncryptedUserKey(userId: userId)
     }
 
     func pinProtectedUserKey(userId: String?) async throws -> String? {
@@ -1237,6 +1318,11 @@ actor DefaultStateService: StateService { // swiftlint:disable:this type_body_le
         appSettingsStore.setDisableAutoTotpCopy(disableAutoTotpCopy, userId: userId)
     }
 
+    func setEvents(_ events: [EventData], userId: String?) async throws {
+        let userId = try userId ?? getActiveAccountUserId()
+        appSettingsStore.setEvents(events, userId: userId)
+    }
+
     func setForcePasswordResetReason(_ reason: ForcePasswordResetReason?, userId: String?) async throws {
         let userId = try userId ?? getActiveAccountUserId()
         guard var state = appSettingsStore.state else {
@@ -1277,7 +1363,7 @@ actor DefaultStateService: StateService { // swiftlint:disable:this type_body_le
     }
 
     func setPinKeys(
-        pinKeyEncryptedUserKey: String,
+        encryptedPin: String,
         pinProtectedUserKey: String,
         requirePasswordAfterRestart: Bool
     ) async throws {
@@ -1286,7 +1372,7 @@ actor DefaultStateService: StateService { // swiftlint:disable:this type_body_le
         } else {
             try appSettingsStore.setPinProtectedUserKey(key: pinProtectedUserKey, userId: getActiveAccountUserId())
         }
-        try appSettingsStore.setPinKeyEncryptedUserKey(key: pinKeyEncryptedUserKey, userId: getActiveAccountUserId())
+        try appSettingsStore.setEncryptedPin(encryptedPin, userId: getActiveAccountUserId())
     }
 
     func setPinProtectedUserKeyToMemory(_ pinProtectedUserKey: String) async throws {
@@ -1303,6 +1389,11 @@ actor DefaultStateService: StateService { // swiftlint:disable:this type_body_le
     func setServerConfig(_ config: ServerConfig?, userId: String?) async throws {
         let userId = try userId ?? getActiveAccountUserId()
         appSettingsStore.setServerConfig(config, userId: userId)
+    }
+
+    func setShouldCheckOrganizationUnassignedItems(_ shouldCheck: Bool?, userId: String?) async throws {
+        let userId = try userId ?? getActiveAccountUserId()
+        appSettingsStore.setShouldCheckOrganizationUnassignedItems(shouldCheck, userId: userId)
     }
 
     func setShouldTrustDevice(_ shouldTrustDevice: Bool?, userId: String) {
@@ -1346,7 +1437,7 @@ actor DefaultStateService: StateService { // swiftlint:disable:this type_body_le
 
     func setVaultTimeout(value: SessionTimeoutValue, userId: String?) async throws {
         let userId = try userId ?? getActiveAccountUserId()
-        appSettingsStore.setVaultTimeout(key: value.rawValue, userId: userId)
+        appSettingsStore.setVaultTimeout(minutes: value.rawValue, userId: userId)
     }
 
     func updateProfile(from response: ProfileResponseModel, userId: String) async {

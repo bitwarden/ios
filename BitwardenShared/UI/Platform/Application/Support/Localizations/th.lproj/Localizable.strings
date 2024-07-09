@@ -84,9 +84,11 @@
 "AppExtension" = "แอปส่วนขยาย";
 "AutofillAccessibilityDescription" = "ใช้บริการ Bitwarden เพิ่อเข้าถึงการกรอกข้อมูลอัตโนมัติเข้าสู่ระบบผ่านแอปพลิเคชันและเว็บ";
 "AutofillService" = "บริการกรอกข้อมูลอัตโนมัติ";
+"SetBitwardenAsPasskeyManagerDescription" = "Set Bitwarden as your passkey provider in device settings.";
 "AvoidAmbiguousCharacters" = "หลีกเลี่ยงอักขระที่ไม่ชัดเจน";
 "BitwardenAppExtension" = "ส่วนขยายแอปพลิเคชัน Bitwarden";
-"BitwardenAppExtensionAlert2" = "วิธีง่ายๆที่จะเพื่มล็อกอินไปยังตู้เชฟของคุณ จากส่วนขยายของ Bitwarden ไปที่หน้าจอ \"การตั้งค่า\"";
+"BitwardenAppExtensionAlert2" = "วิธีง่ายๆที่จะเพื่มล็อกอินไปยังตู้เชฟของคุณ จากส่วนขยายของ Bitwarden ไปที่หน้าจอ \"การตั้งค่า\"
+";
 "BitwardenAppExtensionDescription" = "ใช้ Bitwarden ใน Safari และแอปอื่น ๆ ในการกรอกข้อมูลอัตโนมัติเพื่อเข้าสู่ระบบ";
 "BitwardenAutofillService" = "Bitwarden บริการกรอกข้อมูลอัตโนมัติ";
 "BitwardenAutofillAccessibilityServiceDescription" = "Use the bitwarden accessibility service to auto-fill your logins.";
@@ -127,7 +129,8 @@
 "Immediately" = "ทันที";
 "VaultTimeout" = "ระยะเวลาล็อคตู้เซฟ";
 "VaultTimeoutAction" = "การดำเนินการหลังหมดเวลาล็อคตู้เซฟ";
-"VaultTimeoutLogOutConfirmation" = "การออกจากระบบจะลบการเข้าถึงตู้เซฟของคุณทั้งหมด และต้องป้อนรหัสผ่านไม่หลังหมดเวลา คุณแน่ใจหรือไม่ว่าต้องการใช้การตั้งค่านี้";
+"VaultTimeoutLogOutConfirmation" = "การออกจากระบบจะลบการเข้าถึงตู้เซฟของคุณทั้งหมด และต้องป้อนรหัสผ่านไม่หลังหมดเวลา คุณแน่ใจหรือไม่ว่าต้องการใช้การตั้งค่านี้
+";
 "LoggingIn" = "กำลังเข้าสู่ระบบ...";
 "LoginOrCreateNewAccount" = "ลงชื่อเข้าใช้หรือสร้างบัญชีใหม่เพื่อเข้าสู่ห้องนิรภัยที่ปลอดภัยของคุณ";
 "Manage" = "จัดการ";
@@ -197,7 +200,8 @@
 "Off" = "ปิด";
 "On" = "เปิด";
 "Status" = "สถานะ";
-"BitwardenAutofillServiceAlert2" = "วิธีง่ายๆที่จะเพื่มล็อกอินไปยังตู้เชฟของคุณ จากส่วนขยายของ Bitwarden ไปที่หน้าจอ \"การตั้งค่า\"";
+"BitwardenAutofillServiceAlert2" = "วิธีง่ายๆที่จะเพื่มล็อกอินไปยังตู้เชฟของคุณ จากส่วนขยายของ Bitwarden ไปที่หน้าจอ \"การตั้งค่า\"
+";
 "Autofill" = "กรอกข้อมูลอัตโนมัติ";
 "AutofillOrView" = "คุณต้องการกรอกข้อมูลอัตโนมัติหรือดูรายการนี้หรือไม่?";
 "BitwardenAutofillServiceMatchConfirm" = "Are you sure you want to auto-fill this login? It is not a complete match for \"%1$@\".";
@@ -330,6 +334,7 @@
 "UseFaceIDToUnlock" = "ใช้ Face ID เพื่อปลดล็อก";
 "VerifyFaceID" = "ยืนยันรหัส Face ID";
 "WindowsHello" = "Windows Hello";
+"BitwardenCredentialProviderGoToSettings" = "We were unable to automatically open the Android credential provider settings menu for you. You can navigate to the credential provider settings menu manually from Android Settings > System > Passwords & accounts > Passwords, passkeys and data services.";
 "BitwardenAutofillGoToSettings" = "ไม่สามารถเปิดเมนูการตั้งค่าการป้อนอัตโนมัติของ Android ให้คุณได้โดยอัตโนมัติ, คุณสามารถไปที่เมนูการตั้งค่าการป้อนข้อมูลอัตโนมัติด้วยตนเองได้จากการตั้งค่าของ Android > ระบบ > ภาษาด้วยตนเองและป้อนข้อมูล > ขั้นสูง > บริการป้อนข้อความอัตโนมัติ";
 "CustomFieldName" = "ชื่อเขตข้อมูล ที่กำหนดเอง";
 "FieldTypeBoolean" = "ค่าบูลีน";
@@ -379,7 +384,8 @@
 "AllItems" = "รายการทั้งหมด";
 "URIs" = "URIs";
 "CheckingPassword" = "กำลังเช็กรหัสผ่าน...";
-"CheckPassword" = "ตรวจสอบว่ารหัสผ่านถูกเปิดเผยหรือไม่";
+"CheckPassword" = "ตรวจสอบว่ารหัสผ่านถูกเปิดเผยหรือไม่
+";
 "PasswordExposed" = "รหัสผ่านนี้ถูกเปิดเผย %1$@ ครั้ง คุณควรเปลี่ยนรหัสผ่าน";
 "PasswordSafe" = "This password was not found in any known data breaches. It should be safe to use.";
 "IdentityName" = "Identity name";
@@ -404,7 +410,8 @@
 "SelectOneCollection" = "คุณต้องเลือกอย่างน้อยหนึ่งคอลเลกชัน";
 "Share" = "แบ่งปัน";
 "ShareItem" = "แชร์รายการนี้";
-"MoveToOrganization" = "ย้ายไปที่องค์กร";
+"MoveToOrganization" = "ย้ายไปที่องค์กร
+";
 "NoOrgsToList" = "ยังไม่มีองค์กร";
 "MoveToOrgDesc" = "เลือกองค์กรที่คุณจะย้ายรายการนี้ไป  การย้ายไปยังองค์กรจะทำให้รายการนี้เป็นขององค์กรที่รายการนี้ถูกย้ายไป";
 "NumberOfWords" = "จำนวนคำ";
@@ -525,9 +532,10 @@
 "TermsOfService" = "เงื่อนไขการใช้บริการ";
 "PrivacyPolicy" = "นโยบายความเป็นส่วนตัว";
 "AccessibilityDrawOverPermissionAlert" = "Bitwarden needs attention - Turn on \"Draw-Over\" in \"Auto-fill Services\" from Bitwarden Settings";
+"PasskeyManagement" = "Passkey management";
 "AutofillServices" = "บริการกรอกข้อมูลอัตโนมัติ";
 "InlineAutofill" = "ใช้งานกรอกข้อมูลอัตโนมัติแบบอินไลน์";
-"InlineAutofillDescription" = "ใช้การกรอกข้อมูลอัตโนมัติแบบอินไลน์หาก IME (แป้นพิมพ์) ที่คุณเลือกรองรับ หากไม่รองรับการกำหนดค่าของคุณ (หรือปิดใช้ตัวเลือกนี้) ระบบจะใช้การวางซ้อนการป้อนอัตโนมัติเริ่มต้น";
+"InlineAutofillDescription" = "ใช้การกรอกข้อมูลอัตโนมัติแบบอินไลน์หาก IME (แป้นพิมพ์) ที่คุณเลือกรองรับ หากไม่รองรับการกำหนดค่าของคุณ (หรือปิดใช้ตัวเลือกนี้) ระบบจะใช้การวางซ้อนการป้อนอัตโนมัติเริ่มต้น ";
 "Accessibility" = "Use accessibility";
 "AccessibilityDescription" = "Use the Bitwarden Accessibility Service to auto-fill your logins across apps and the web. When set up, we'll display a popup when login fields are selected.";
 "AccessibilityDescription2" = "Use the Bitwarden Accessibility Service to auto-fill your logins across apps and the web. (Requires Draw-Over to be turned on as well)";
@@ -827,7 +835,7 @@
 "Vault" = "Vault";
 "Appearance" = "Appearance";
 "AccountSecurity" = "Account security";
-"BitwardenHelpCenter" = "Bitwarden Help Center";
+"BitwardenHelpCenter" = "Bitwarden help center";
 "ContactBitwardenSupport" = "Contact Bitwarden support";
 "CopyAppInformation" = "Copy app information";
 "SyncNow" = "Sync now";
@@ -840,6 +848,7 @@
 "XHoursAndOneMinute" = "%1$@ hours and one minute";
 "XHoursAndYMinutes" = "%1$@ hours and %2$@ minutes";
 "XHours" = "%1$@ hours";
+"PasskeyManagementExplanationLong" = "Use Bitwarden to save new passkeys and log in with passkeys stored in your vault.";
 "AutofillServicesExplanationLong" = "The Android Autofill Framework is used to assist in filling login information into other apps on your device.";
 "UseInlineAutofillExplanationLong" = "Use inline autofill if your selected keyboard supports it. Otherwise, use the default overlay.";
 "AdditionalOptions" = "Additional options";
@@ -849,6 +858,7 @@
 "ContinueToContactSupport" = "Continue to contact support?";
 "ContinueToPrivacyPolicy" = "Continue to privacy policy?";
 "ContinueToAppStore" = "Continue to app store?";
+"ContinueToDeviceSettings" = "Continue to device Settings?";
 "TwoStepLoginDescriptionLong" = "Make your account more secure by setting up two-step login in the Bitwarden web app.";
 "ChangeMasterPasswordDescriptionLong" = "You can change your master password on the Bitwarden web app.";
 "YouCanImportDataToYourVaultOnX" = "You can import data to your vault on %1$@.";
@@ -865,10 +875,52 @@
 "YourOrganizationPermissionsWereUpdatedRequeringYouToSetAMasterPassword" = "Your organization permissions were updated, requiring you to set a master password.";
 "YourOrganizationRequiresYouToSetAMasterPassword" = "Your organization requires you to set a master password.";
 "SetUpAnUnlockOptionToChangeYourVaultTimeoutAction" = "Set up an unlock option to change your vault timeout action.";
+"ChooseALoginToSaveThisPasskeyTo" = "Choose a login to save this passkey to";
+"SavePasskeyAsNewLogin" = "Save passkey as new login";
+"SavePasskey" = "Save passkey";
+"PasskeysForX" = "Passkeys for %1$@";
+"PasswordsForX" = "Passwords for %1$@";
+"OverwritePasskey" = "Overwrite passkey?";
+"ThisItemAlreadyContainsAPasskeyAreYouSureYouWantToOverwriteTheCurrentPasskey" = "This item already contains a passkey. Are you sure you want to overwrite the current passkey?";
 "DuoTwoStepLoginIsRequiredForYourAccount" = "Duo two-step login is required for your account.";
 "FollowTheStepsFromDuoToFinishLoggingIn" = "Follow the steps from Duo to finish logging in.";
 "LaunchDuo" = "Launch Duo";
-"OrganizationUnassignedItemsMessageUSEUDescriptionLong" = "Unassigned organization items are no longer visible in the All Vaults view and only accessible via the Admin Console. Assign these items to a collection from the Admin Console to make them visible.";
-"OrganizationUnassignedItemsMessageSelfHost041624DescriptionLong" = "On May 16, 2024, unassigned organization items will no longer be visible in the All Vaults view and only accessible via the Admin Console. Assign these items to a collection from the Admin Console to make them visible.";
+"VerificationRequiredByX" = "Verification required by %1$@";
+"VerificationRequiredForThisActionSetUpAnUnlockMethodInBitwardenToContinue" = "Verification required for this action. Set up an unlock method in Bitwarden to continue.";
+"ErrorCreatingPasskey" = "Error creating passkey";
+"ErrorReadingPasskey" = "Error reading passkey";
+"ThereWasAProblemCreatingAPasskeyForXTryAgainLater" = "There was a problem creating a passkey for %1$@. Try again later.";
+"ThereWasAProblemReadingAPasskeyForXTryAgainLater" = "There was a problem reading your passkey for %1$@. Try again later.";
+"VerifyingIdentityEllipsis" = "Verifying identity...";
+"Passwords" = "Passwords";
+"UnknownAccount" = "Unknown account";
+"SetUpAutofill" = "Set up auto-fill";
+"GetInstantAccessToYourPasswordsAndPasskeys" = "Get instant access to your passwords and passkeys!";
+"SetUpAutoFillDescriptionLong" = "To set up password auto-fill and passkey management, set Bitwarden as your preferred provider in the iOS Settings.";
+"FirstDotGoToYourDeviceSettingsPasswordsPasswordOptions" = "1. Go to your device's Settings > Passwords > Password Options";
+"SecondDotTurnOnAutoFill" = "2. Turn on AutoFill";
+"ThirdDotSelectBitwardenToUseForPasswordsAndPasskeys" = "3. Select \"Bitwarden\" to use for passwords and passkeys";
+"YourPasskeyWillBeSavedToYourBitwardenVault" = "Your passkey will be saved to your Bitwarden vault";
+"YourPasskeyWillBeSavedToYourBitwardenVaultForX" = "Your passkey will be saved to your Bitwarden vault for %1$@";
+"PasskeysNotSupportedForThisApp" = "Passkeys not supported for this app";
+"PasskeyOperationFailedBecauseBrowserIsNotPrivileged" = "Passkey operation failed because browser is not privileged";
+"PasskeyOperationFailedBecauseBrowserSignatureDoesNotMatch" = "Passkey operation failed because browser signature does not match";
+"PasskeyOperationFailedBecauseOfMissingAssetLinks" = "Passkey operation failed because of missing asset links";
+"PasskeyOperationFailedBecauseAppNotFoundInAssetLinks" = "Passkey operation failed because app not found in asset links";
+"PasskeyOperationFailedBecauseAppCouldNotBeVerified" = "Passkey operation failed because app could not be verified";
 "RemindMeLater" = "Remind me later";
 "Notice" = "Notice";
+"AppInfo" = "App info";
+"Browse" = "Browse";
+"SelectLanguage" = "Select language";
+"ContinueToCompleteWebAuthnVerification" = "Continue to complete WebAuthn verification.";
+"ThereWasAnErrorStartingWebAuthnTwoFactorAuthentication" = "There was an error starting WebAuthn two factor authentication";
+"LaunchWebAuthn" = "Launch WebAuthn";
+"Duo" = "Duo";
+"DuoUnsupported" = "Duo not yet supported.";
+"FilePassword" = "File password";
+"ConfirmFilePassword" = "Confirm file password";
+"FilePasswordDescription" = "This password will be used to export and import this file";
+"OrganizationUnassignedItemsMessageUSEUDescriptionLong" = "Unassigned organization items are no longer visible in the All Vaults view and only accessible via the Admin Console. Assign these items to a collection from the Admin Console to make them visible.";
+"UnknownAccount" = "Unknown account";
+"UserVerificationForPasskey" = "User verification for passkey";

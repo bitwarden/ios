@@ -19,7 +19,7 @@ extension ProfileOrganizationResponseModel {
         keyConnectorUrl: String? = nil,
         maxCollections: Int? = nil,
         maxStorageGb: Int? = nil,
-        name: String? = nil,
+        name: String? = "",
         permissions: Permissions? = nil,
         planProductType: Int? = nil,
         providerId: String? = nil,

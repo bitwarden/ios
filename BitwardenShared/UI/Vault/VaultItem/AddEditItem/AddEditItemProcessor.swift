@@ -6,6 +6,13 @@ import Foundation
 /// An object that is notified when specific circumstances in the add/edit/delete item view have occurred.
 ///
 protocol CipherItemOperationDelegate: AnyObject {
+    /// Called when a new cipher item has been successfully added.
+    ///
+    /// - Returns: A boolean indicating whether the view should be dismissed. Defaults to `true`.
+    ///     If `false` is returned the delegate is responsible for dismissing the view.
+    ///
+    func itemAdded() -> Bool
+
     /// Called when the cipher item has been successfully permanently deleted.
     func itemDeleted()
 
@@ -14,6 +21,25 @@ protocol CipherItemOperationDelegate: AnyObject {
 
     /// Called when the cipher item has been successfully soft deleted.
     func itemSoftDeleted()
+
+    /// Called when a cipher item has been successfully updated.
+    ///
+    /// - Returns: A boolean indicating whether the view should be dismissed. Defaults to `true`.
+    ///     If `false` is returned the delegate is responsible for dismissing the view.
+    ///
+    func itemUpdated() -> Bool
+}
+
+extension CipherItemOperationDelegate {
+    func itemAdded() -> Bool { true }
+
+    func itemDeleted() {}
+
+    func itemRestored() {}
+
+    func itemSoftDeleted() {}
+
+    func itemUpdated() -> Bool { true }
 }
 
 // MARK: - AddEditItemProcessor
@@ -30,6 +56,7 @@ final class AddEditItemProcessor: StateProcessor<// swiftlint:disable:this type_
         & HasAuthRepository
         & HasCameraService
         & HasErrorReporter
+        & HasEventService
         & HasPasteboardService
         & HasPolicyService
         & HasStateService
@@ -102,6 +129,8 @@ final class AddEditItemProcessor: StateProcessor<// swiftlint:disable:this type_
 
     override func receive(_ action: AddEditItemAction) { // swiftlint:disable:this function_body_length
         switch action {
+        case let .authKeyVisibilityTapped(newValue):
+            state.loginState.isAuthKeyVisible = newValue
         case let .cardFieldChanged(cardFieldAction):
             updateCardState(&state, for: cardFieldAction)
         case let .collectionToggleChanged(newValue, collectionId):
@@ -150,6 +179,14 @@ final class AddEditItemProcessor: StateProcessor<// swiftlint:disable:this type_
             state.loginState.uris.remove(at: index)
         case let .togglePasswordVisibilityChanged(newValue):
             state.loginState.isPasswordVisible = newValue
+            if newValue, !state.configuration.isAdding {
+                Task {
+                    await services.eventService.collect(
+                        eventType: .cipherClientToggledPasswordVisible,
+                        cipherId: state.cipher.id
+                    )
+                }
+            }
         case let .toastShown(newValue):
             state.toast = newValue
         case .totpFieldLeftFocus:
@@ -179,7 +216,10 @@ final class AddEditItemProcessor: StateProcessor<// swiftlint:disable:this type_
     ///
     private func handleDismiss(didAddItem: Bool = false) {
         guard let appExtensionDelegate, appExtensionDelegate.isInAppExtensionSaveLoginFlow else {
-            coordinator.navigate(to: .dismiss())
+            let shouldDismiss = delegate?.itemAdded() ?? true
+            if shouldDismiss {
+                coordinator.navigate(to: .dismiss())
+            }
             return
         }
 
@@ -215,6 +255,10 @@ final class AddEditItemProcessor: StateProcessor<// swiftlint:disable:this type_
             let folders = try await services.vaultRepository.fetchFolders()
                 .map { DefaultableType<FolderView>.custom($0) }
             state.folders = [.default] + folders
+
+            if !state.configuration.isAdding {
+                await services.eventService.collect(eventType: .cipherClientViewed, cipherId: state.cipher.id)
+            }
         } catch {
             services.errorReporter.log(error: error)
         }
@@ -224,7 +268,7 @@ final class AddEditItemProcessor: StateProcessor<// swiftlint:disable:this type_
     ///
     /// - Parameter action: The action that was sent from the `AddEditCustomFieldsView`.
     ///
-    private func handleCustomFieldAction(_ action: AddEditCustomFieldsAction) {
+    private func handleCustomFieldAction(_ action: AddEditCustomFieldsAction) { // swiftlint:disable:this cyclomatic_complexity line_length
         switch action {
         case let .booleanFieldChanged(newValue, index):
             guard state.customFieldsState.customFields.indices.contains(index) else { return }
@@ -266,6 +310,14 @@ final class AddEditItemProcessor: StateProcessor<// swiftlint:disable:this type_
         case let .togglePasswordVisibilityChanged(isPasswordVisible, index):
             guard state.customFieldsState.customFields.indices.contains(index) else { return }
             state.customFieldsState.customFields[index].isPasswordVisible = isPasswordVisible
+            if isPasswordVisible {
+                Task {
+                    await services.eventService.collect(
+                        eventType: .cipherClientToggledHiddenFieldVisible,
+                        cipherId: state.cipher.id
+                    )
+                }
+            }
         }
     }
 
@@ -309,8 +361,26 @@ final class AddEditItemProcessor: StateProcessor<// swiftlint:disable:this type_
             state.cardItemState.expirationYear = year
         case let .toggleCodeVisibilityChanged(isVisible):
             state.cardItemState.isCodeVisible = isVisible
+            if isVisible {
+                let cipherId = state.cipher.id
+                Task {
+                    await services.eventService.collect(
+                        eventType: .cipherClientToggledCardCodeVisible,
+                        cipherId: cipherId
+                    )
+                }
+            }
         case let .toggleNumberVisibilityChanged(isVisible):
             state.cardItemState.isNumberVisible = isVisible
+            if isVisible {
+                let cipherId = state.cipher.id
+                Task {
+                    await services.eventService.collect(
+                        eventType: .cipherClientToggledCardNumberVisible,
+                        cipherId: cipherId
+                    )
+                }
+            }
         }
     }
 
@@ -558,7 +628,10 @@ final class AddEditItemProcessor: StateProcessor<// swiftlint:disable:this type_
     private func updateItem(cipherView: CipherView) async throws {
         try await services.vaultRepository.updateCipher(cipherView.updatedView(with: state))
         coordinator.hideLoadingOverlay()
-        coordinator.navigate(to: .dismiss())
+        let shouldDismissed = delegate?.itemUpdated() ?? true
+        if shouldDismissed {
+            coordinator.navigate(to: .dismiss())
+        }
     }
 
     /// Kicks off the TOTP setup flow.

@@ -183,27 +183,12 @@ struct VaultGroupView: View {
         ScrollView {
             VStack(spacing: 20.0) {
                 ForEach(sections) { section in
-                    VStack(alignment: .leading, spacing: 7) {
-                        HStack(alignment: .firstTextBaseline) {
-                            SectionHeaderView(section.name)
-                            Spacer()
-                            SectionHeaderView(String(section.items.count))
+                    VaultListSectionView(section: section) { item in
+                        Button {
+                            store.send(.itemPressed(item))
+                        } label: {
+                            vaultItemRow(for: item, isLastInSection: section.items.last == item)
                         }
-
-                        LazyVStack(alignment: .leading, spacing: 0) {
-                            ForEach(section.items) { item in
-                                Button {
-                                    store.send(.itemPressed(item))
-                                } label: {
-                                    vaultItemRow(
-                                        for: item,
-                                        isLastInSection: section.items.last == item
-                                    )
-                                }
-                            }
-                        }
-                        .background(Asset.Colors.backgroundPrimary.swiftUIColor)
-                        .clipShape(RoundedRectangle(cornerRadius: 10))
                     }
                 }
             }

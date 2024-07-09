@@ -3,7 +3,7 @@ import XCTest
 
 @testable import BitwardenShared
 
-class AutofillHelperTests: BitwardenTestCase {
+class AutofillHelperTests: BitwardenTestCase { // swiftlint:disable:this type_body_length
     // MARK: Properties
 
     var appExtensionDelegate: MockAppExtensionDelegate!
@@ -96,37 +96,16 @@ class AutofillHelperTests: BitwardenTestCase {
         XCTAssertEqual(showToastValue, Localizations.valueHasBeenCopied(Localizations.password))
     }
 
-    /// `handleCipherForAutofill(cipherListView:)` copies the TOTP code for the login.
-    func test_handleCipherForAutofill_copiesTOTP() async {
-        vaultRepository.fetchCipherResult = .success(.fixture(
-            login: .fixture(password: "PASSWORD", username: "user@bitwarden.com", totp: "totp")
-        ))
-        vaultRepository.getDisableAutoTotpCopyResult = .success(false)
-        vaultRepository.refreshTOTPCodeResult = .success(
-            LoginTOTPState(
-                authKeyModel: TOTPKeyModel(authenticatorKey: .base32Key)!,
-                codeModel: TOTPCodeModel(code: "123321", codeGenerationDate: Date(), period: 30)
-            )
-        )
+    /// `handleCipherForAutofill(cipherListView:)` logs an error and shows an alert if one occurs.
+    func test_handleCipherForAutofill_error() async {
+        authRepository.hasMasterPasswordResult = .failure(BitwardenTestError.example)
+        vaultRepository.fetchCipherResult = .success(.fixture(reprompt: .password))
 
         let cipher = CipherListView.fixture(id: "1")
         await subject.handleCipherForAutofill(cipherListView: cipher) { _ in }
 
-        XCTAssertEqual(pasteboardService.copiedString, "123321")
-    }
-
-    /// `handleCipherForAutofill(cipherListView:)` doesn't copy the TOTP code for the login if the
-    /// disable auto-copy TOTP setting is set.
-    func test_handleCipherForAutofill_disableTOTPCopy() async {
-        vaultRepository.fetchCipherResult = .success(.fixture(
-            login: .fixture(password: "PASSWORD", username: "user@bitwarden.com", totp: "totp")
-        ))
-        vaultRepository.getDisableAutoTotpCopyResult = .success(true)
-
-        let cipher = CipherListView.fixture(id: "1")
-        await subject.handleCipherForAutofill(cipherListView: cipher) { _ in }
-
-        XCTAssertNil(pasteboardService.copiedString)
+        XCTAssertEqual(errorReporter.errors as? [BitwardenTestError], [.example])
+        XCTAssertEqual(coordinator.alertShown, [.defaultAlert(title: Localizations.anErrorHasOccurred)])
     }
 
     /// `handleCipherForAutofill(cipherListView:)` shows an alert if fetching the cipher results in an error.
@@ -303,6 +282,23 @@ class AutofillHelperTests: BitwardenTestCase {
         XCTAssertEqual(alert, .defaultAlert(title: Localizations.invalidMasterPassword))
     }
 
+    /// `handleCipherForAutofill(cipherListView:)` bypasses the master password reprompt if the
+    /// user doesn't have a master password.
+    func test_handleCipherForAutofill_passwordReprompt_noMasterPassword() async throws {
+        authRepository.hasMasterPasswordResult = .success(false)
+        vaultRepository.fetchCipherResult = .success(.fixture(
+            login: .fixture(password: "PASSWORD", username: "user@bitwarden.com"),
+            name: "Bitwarden Login",
+            reprompt: .password
+        ))
+
+        let cipher = CipherListView.fixture(id: "1")
+        await subject.handleCipherForAutofill(cipherListView: cipher) { _ in }
+
+        XCTAssertEqual(appExtensionDelegate.didCompleteAutofillRequestUsername, "user@bitwarden.com")
+        XCTAssertEqual(appExtensionDelegate.didCompleteAutofillRequestPassword, "PASSWORD")
+    }
+
     /// `handleCipherForAutofill(cipherListView:)` logs an error if generating the TOTP fails.
     func test_handleCipherForAutofill_generateTOTPError() async {
         vaultRepository.fetchCipherResult = .success(.fixture(
@@ -317,5 +313,74 @@ class AutofillHelperTests: BitwardenTestCase {
         XCTAssertEqual(appExtensionDelegate.didCompleteAutofillRequestUsername, "user@bitwarden.com")
         XCTAssertEqual(appExtensionDelegate.didCompleteAutofillRequestPassword, "PASSWORD")
         XCTAssertEqual(errorReporter.errors.last as? GenerateTotpError, GenerateTotpError())
+    }
+
+    /// `handleCipherForAutofill(cipherListView:)` copies the TOTP code for the login.
+    func test_handleCipherForAutofill_totpCopy() async {
+        vaultRepository.fetchCipherResult = .success(.fixture(
+            login: .fixture(password: "PASSWORD", username: "user@bitwarden.com", totp: "totp")
+        ))
+        vaultRepository.getDisableAutoTotpCopyResult = .success(false)
+        vaultRepository.refreshTOTPCodeResult = .success(
+            LoginTOTPState(
+                authKeyModel: TOTPKeyModel(authenticatorKey: .base32Key)!,
+                codeModel: TOTPCodeModel(code: "123321", codeGenerationDate: Date(), period: 30)
+            )
+        )
+
+        let cipher = CipherListView.fixture(id: "1")
+        await subject.handleCipherForAutofill(cipherListView: cipher) { _ in }
+
+        XCTAssertEqual(pasteboardService.copiedString, "123321")
+    }
+
+    /// `handleCipherForAutofill(cipherListView:)` copies the TOTP code for the login if the
+    /// organization uses TOTP.
+    func test_handleCipherForAutofill_totpCopyOrganizationUseTotp() async {
+        vaultRepository.doesActiveAccountHavePremiumResult = .success(false)
+        vaultRepository.fetchCipherResult = .success(.fixture(
+            login: .fixture(password: "PASSWORD", username: "user@bitwarden.com", totp: "totp"),
+            organizationUseTotp: true
+        ))
+        vaultRepository.getDisableAutoTotpCopyResult = .success(false)
+        vaultRepository.refreshTOTPCodeResult = .success(
+            LoginTOTPState(
+                authKeyModel: TOTPKeyModel(authenticatorKey: .base32Key)!,
+                codeModel: TOTPCodeModel(code: "123321", codeGenerationDate: Date(), period: 30)
+            )
+        )
+
+        let cipher = CipherListView.fixture(id: "1")
+        await subject.handleCipherForAutofill(cipherListView: cipher) { _ in }
+
+        XCTAssertEqual(pasteboardService.copiedString, "123321")
+    }
+
+    /// `handleCipherForAutofill(cipherListView:)` doesn't copy the TOTP code for the login if the
+    /// disable auto-copy TOTP setting is set.
+    func test_handleCipherForAutofill_totpCopyDisabled() async {
+        vaultRepository.fetchCipherResult = .success(.fixture(
+            login: .fixture(password: "PASSWORD", username: "user@bitwarden.com", totp: "totp")
+        ))
+        vaultRepository.getDisableAutoTotpCopyResult = .success(true)
+
+        let cipher = CipherListView.fixture(id: "1")
+        await subject.handleCipherForAutofill(cipherListView: cipher) { _ in }
+
+        XCTAssertNil(pasteboardService.copiedString)
+    }
+
+    /// `handleCipherForAutofill(cipherListView:)` doesn't copy the TOTP code if the user doesn't
+    /// have premium.
+    func test_handleCipherForAutofill_totpCopyWithoutPremium() async {
+        vaultRepository.fetchCipherResult = .success(.fixture(
+            login: .fixture(password: "PASSWORD", username: "user@bitwarden.com", totp: "totp")
+        ))
+        vaultRepository.doesActiveAccountHavePremiumResult = .success(false)
+
+        let cipher = CipherListView.fixture(id: "1")
+        await subject.handleCipherForAutofill(cipherListView: cipher) { _ in }
+
+        XCTAssertNil(pasteboardService.copiedString)
     }
 }

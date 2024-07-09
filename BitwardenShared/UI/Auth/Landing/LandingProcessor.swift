@@ -56,6 +56,9 @@ class LandingProcessor: StateProcessor<LandingState, LandingAction, LandingEffec
             await loadFeatureFlag()
             await loadRegion()
             await refreshProfileState()
+        case .continuePressed:
+            updateRememberedEmail()
+            await validateEmailAndContinue()
         case let .profileSwitcher(profileEffect):
             await handleProfileSwitcherEffect(profileEffect)
         }
@@ -63,9 +66,6 @@ class LandingProcessor: StateProcessor<LandingState, LandingAction, LandingEffec
 
     override func receive(_ action: LandingAction) {
         switch action {
-        case .continuePressed:
-            updateRememberedEmail()
-            validateEmailAndContinue()
         case .createAccountPressed:
             if state.emailVerificationFeatureFlag {
                 coordinator.navigate(to: .startRegistration, context: self)
@@ -119,10 +119,17 @@ class LandingProcessor: StateProcessor<LandingState, LandingAction, LandingEffec
 
     /// Validate the currently entered email address and navigate to the login screen.
     ///
-    private func validateEmailAndContinue() {
+    private func validateEmailAndContinue() async {
         let email = state.email.trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
         guard email.isValidEmail else {
             coordinator.showAlert(.invalidEmail)
+            return
+        }
+
+        if let userId = await services.authRepository.existingAccountUserId(email: email) {
+            coordinator.showAlert(.switchToExistingAccount {
+                await self.coordinator.handleEvent(.action(.switchAccount(isAutomatic: false, userId: userId)))
+            })
             return
         }
 

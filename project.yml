@@ -1,6 +1,7 @@
 name: Bitwarden
 fileGroups:
   - Configs
+  - Docs
 configs:
   Debug: debug
   Release: release
@@ -14,12 +15,12 @@ options:
   indentWidth: 4
   tabWidth: 4
 settings:
-  MARKETING_VERSION: 2024.04.0    # Bump this for a new version update.
+  MARKETING_VERSION: 2024.6.0    # Bump this for a new version update.
   CURRENT_PROJECT_VERSION: 1
 packages:
   BitwardenSdk:
     url: https://github.com/bitwarden/sdk-swift
-    revision: 444ec3072aa3a9b9e318e52466c806226afe32a3
+    revision: b0ba3818d7b7ddf0bc6b3777ed350c44de134079
   Firebase:
     url: https://github.com/firebase/firebase-ios-sdk
     exactVersion: 10.24.0
@@ -43,6 +44,8 @@ schemes:
       environmentVariables:
         TZ: UTC
       gatherCoverageData: true
+      language: en
+      region: US
       coverageTargets:
         - Bitwarden
         - BitwardenActionExtension
@@ -65,6 +68,8 @@ schemes:
       environmentVariables:
         TZ: UTC
       gatherCoverageData: true
+      language: en
+      region: US
       targets:
         - BitwardenActionExtensionTests
   BitwardenAutoFillExtension:
@@ -76,6 +81,8 @@ schemes:
       environmentVariables:
         TZ: UTC
       gatherCoverageData: true
+      language: en
+      region: US
       targets:
         - BitwardenAutoFillExtensionTests
   BitwardenShareExtension:
@@ -87,6 +94,8 @@ schemes:
       environmentVariables:
         TZ: UTC
       gatherCoverageData: true
+      language: en
+      region: US
       targets:
         - BitwardenShareExtensionTests
   BitwardenShared:
@@ -100,6 +109,8 @@ schemes:
       environmentVariables:
         TZ: UTC
       gatherCoverageData: true
+      language: en
+      region: US
       targets:
         - BitwardenSharedTests
   BitwardenWatchApp:

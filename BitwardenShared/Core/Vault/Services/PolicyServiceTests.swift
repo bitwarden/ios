@@ -86,6 +86,7 @@ class PolicyServiceTests: BitwardenTestCase { // swiftlint:disable:this type_bod
     /// options and if the existing option has a type set, the policies will override that.
     func test_applyPasswordGenerationOptions_defaultType_existingOption() async throws {
         stateService.activeAccount = .fixture()
+        organizationService.fetchAllOrganizationsResult = .success([.fixture()])
         policyDataStore.fetchPoliciesResult = .success([passwordGeneratorPolicy])
 
         var options = PasswordGenerationOptions(type: .password)
@@ -95,10 +96,23 @@ class PolicyServiceTests: BitwardenTestCase { // swiftlint:disable:this type_bod
         XCTAssertTrue(appliedPolicy)
     }
 
+    /// `applyPasswordGenerationOptions()` returns `false` if the user is exempt from policies in the organization.
+    func test_applyPasswordGenerationOptions_exemptUser() async throws {
+        stateService.activeAccount = .fixture()
+        organizationService.fetchAllOrganizationsResult = .success([.fixture(type: .owner)])
+        policyDataStore.fetchPoliciesResult = .success([passwordGeneratorPolicy])
+
+        var options = PasswordGenerationOptions(type: .password)
+        let appliedPolicy = try await subject.applyPasswordGenerationPolicy(options: &options)
+
+        XCTAssertFalse(appliedPolicy)
+    }
+
     /// `applyPasswordGenerationOptions(options:)` applies the password generation policy to the
     /// options when there's multiple policies.
     func test_applyPasswordGenerationOptions_multiplePolicies() async throws {
         stateService.activeAccount = .fixture()
+        organizationService.fetchAllOrganizationsResult = .success([.fixture()])
         policyDataStore.fetchPoliciesResult = .success(
             [
                 .fixture(
@@ -140,6 +154,7 @@ class PolicyServiceTests: BitwardenTestCase { // swiftlint:disable:this type_bod
     /// options when there's multiple policies and the password generator type should take priority.
     func test_applyPasswordGenerationOptions_multiplePolicies_differentTypes() async throws {
         stateService.activeAccount = .fixture()
+        organizationService.fetchAllOrganizationsResult = .success([.fixture()])
         policyDataStore.fetchPoliciesResult = .success(
             [
                 .fixture(
@@ -176,6 +191,7 @@ class PolicyServiceTests: BitwardenTestCase { // swiftlint:disable:this type_bod
     /// options.
     func test_applyPasswordGenerationOptions_policy() async throws {
         stateService.activeAccount = .fixture()
+        organizationService.fetchAllOrganizationsResult = .success([.fixture()])
         policyDataStore.fetchPoliciesResult = .success([passwordGeneratorPolicy])
 
         var options = PasswordGenerationOptions()
@@ -204,6 +220,7 @@ class PolicyServiceTests: BitwardenTestCase { // swiftlint:disable:this type_bod
     /// options when there's existing options.
     func test_applyPasswordGenerationOptions_policy_existingOptions() async throws {
         stateService.activeAccount = .fixture()
+        organizationService.fetchAllOrganizationsResult = .success([.fixture()])
         policyDataStore.fetchPoliciesResult = .success([passwordGeneratorPolicy])
 
         var options = PasswordGenerationOptions(
@@ -236,6 +253,17 @@ class PolicyServiceTests: BitwardenTestCase { // swiftlint:disable:this type_bod
         )
     }
 
+    /// `getMasterPasswordPolicyOptions()` returns `nil` if the user is exempt from policies in the organization.
+    func test_getMasterPasswordPolicyOptions_exemptUser() async throws {
+        stateService.activeAccount = .fixture()
+        organizationService.fetchAllOrganizationsResult = .success([.fixture(type: .owner)])
+        policyDataStore.fetchPoliciesResult = .success([masterPasswordPolicy])
+
+        let policyValues = try await subject.getMasterPasswordPolicyOptions()
+
+        XCTAssertNil(policyValues)
+    }
+
     /// `getMasterPasswordPolicyOptions()` returns `nil` if there is no master password policy type exist.
     func test_getMasterPasswordPolicyOptions_nil() async throws {
         let policy = try await subject.getMasterPasswordPolicyOptions()
@@ -246,6 +274,7 @@ class PolicyServiceTests: BitwardenTestCase { // swiftlint:disable:this type_bod
     ///  master password policy type exist.
     func test_getMasterPasswordPolicyOptions_success() async throws {
         stateService.activeAccount = .fixture()
+        organizationService.fetchAllOrganizationsResult = .success([.fixture()])
         policyDataStore.fetchPoliciesResult = .success([masterPasswordPolicy])
         let policy = try await subject.getMasterPasswordPolicyOptions()
         XCTAssertNotNil(policy)
@@ -321,8 +350,19 @@ class PolicyServiceTests: BitwardenTestCase { // swiftlint:disable:this type_bod
 
         let policyValues = try await subject.fetchTimeoutPolicyValues()
 
-        XCTAssertEqual(policyValues?.value, 60 * 60)
+        XCTAssertEqual(policyValues?.value, 60)
         XCTAssertEqual(policyValues?.action, .lock)
+    }
+
+    /// `fetchTimeoutPolicyValues()` returns `nil` if the user is exempt from policies in the organization.
+    func test_fetchTimeoutPolicyValues_exemptUser() async throws {
+        stateService.activeAccount = .fixture()
+        organizationService.fetchAllOrganizationsResult = .success([.fixture(type: .owner)])
+        policyDataStore.fetchPoliciesResult = .success([maximumTimeoutPolicy])
+
+        let policyValues = try await subject.fetchTimeoutPolicyValues()
+
+        XCTAssertNil(policyValues)
     }
 
     /// `fetchTimeoutPolicyValues()` fetches timeout values
@@ -334,7 +374,7 @@ class PolicyServiceTests: BitwardenTestCase { // swiftlint:disable:this type_bod
 
         let policyValues = try await subject.fetchTimeoutPolicyValues()
 
-        XCTAssertEqual(policyValues?.value, 60 * 60)
+        XCTAssertEqual(policyValues?.value, 60)
         XCTAssertNil(policyValues?.action)
     }
 

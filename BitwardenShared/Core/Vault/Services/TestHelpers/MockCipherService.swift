@@ -27,6 +27,9 @@ class MockCipherService: CipherService {
     var deleteCipherId: String?
     var deleteCipherWithServerResult: Result<Void, Error> = .success(())
 
+    var hasUnassignedCiphersCalled: Bool = false
+    var hasUnassignedCiphersResult: Result<Bool, Error> = .success(false)
+
     var replaceCiphersCiphers: [CipherDetailsResponseModel]?
     var replaceCiphersUserId: String?
     var replaceCiphersError: Error?
@@ -48,7 +51,7 @@ class MockCipherService: CipherService {
     var syncCipherWithServerId: String?
     var syncCipherWithServerResult: Result<Void, Error> = .success(())
 
-    var updateCipherWithLocalStorageCipher: BitwardenSdk.Cipher?
+    var updateCipherWithLocalStorageCiphers = [BitwardenSdk.Cipher]()
     var updateCipherWithLocalStorageResult: Result<Void, Error> = .success(())
 
     var updateCipherWithServerCiphers = [Cipher]()
@@ -91,6 +94,11 @@ class MockCipherService: CipherService {
         return try fetchCipherResult.get()
     }
 
+    func hasUnassignedCiphers() async throws -> Bool {
+        hasUnassignedCiphersCalled = true
+        return try hasUnassignedCiphersResult.get()
+    }
+
     func replaceCiphers(_ ciphers: [CipherDetailsResponseModel], userId: String) async throws {
         replaceCiphersCiphers = ciphers
         replaceCiphersUserId = userId
@@ -127,7 +135,7 @@ class MockCipherService: CipherService {
     }
 
     func updateCipherWithLocalStorage(_ cipher: Cipher) async throws {
-        updateCipherWithLocalStorageCipher = cipher
+        updateCipherWithLocalStorageCiphers.append(cipher)
         return try updateCipherWithLocalStorageResult.get()
     }
 

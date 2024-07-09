@@ -90,6 +90,7 @@ extension CipherView {
     ///
     /// - Parameters:
     ///   - excludeFido2Credentials: Whether to exclude copying any FIDO2 credentials from the login item.
+    ///   - isTOTPCodeVisible: Whether the TOTP code is visible.
     ///   - showPassword: A Boolean value indicating whether the password should be visible.
     ///   - showTOTP: A Boolean value indicating whether TOTP should be visible.
     ///
@@ -97,6 +98,7 @@ extension CipherView {
     ///
     func loginItemState(
         excludeFido2Credentials: Bool = false,
+        isTOTPCodeVisible: Bool = false,
         showPassword: Bool = false,
         showTOTP: Bool
     ) -> LoginItemState {
@@ -105,6 +107,7 @@ extension CipherView {
             fido2Credentials: excludeFido2Credentials ? [] : login?.fido2Credentials ?? [],
             isPasswordVisible: showPassword,
             isTOTPAvailable: showTOTP,
+            isTOTPCodeVisible: isTOTPCodeVisible,
             password: login?.password ?? "",
             passwordHistoryCount: passwordHistory?.count,
             passwordUpdatedDate: login?.passwordRevisionDate,
@@ -186,25 +189,7 @@ extension CipherView {
             collectionIds: collectionIds,
             deletedDate: deletedDate,
             folderId: folderId,
-            organizationId: organizationId
-        )
-    }
-
-    /// Returns a copy of the existing cipher with an updated organization and list of collection IDs.
-    ///
-    /// - Parameters:
-    ///   - collectionIds: The identifiers of any collections containing the cipher.
-    ///   - organizationId: The identifier of the cipher's organization.
-    /// - Returns: A copy of the existing cipher, with the specified properties updated.
-    ///
-    func update(
-        collectionIds: [String],
-        organizationId: String?
-    ) -> CipherView {
-        update(
-            collectionIds: collectionIds,
-            deletedDate: deletedDate,
-            folderId: folderId,
+            login: login,
             organizationId: organizationId
         )
     }
@@ -219,6 +204,7 @@ extension CipherView {
             collectionIds: collectionIds,
             deletedDate: deletedDate,
             folderId: folderId,
+            login: login,
             organizationId: organizationId
         )
     }
@@ -233,6 +219,22 @@ extension CipherView {
             collectionIds: collectionIds,
             deletedDate: deletedDate,
             folderId: folderId,
+            login: login,
+            organizationId: organizationId
+        )
+    }
+
+    /// Returns a copy of the existing cipher with updated login properties.
+    ///
+    /// - Parameter login: The login property to update.
+    /// - Returns: A copy of the existing cipher, with the login property updated.
+    ///
+    func update(login: BitwardenSdk.LoginView) -> CipherView {
+        update(
+            collectionIds: collectionIds,
+            deletedDate: deletedDate,
+            folderId: folderId,
+            login: login,
             organizationId: organizationId
         )
     }
@@ -243,7 +245,9 @@ extension CipherView {
     ///
     /// - Parameters:
     ///   - collectionIds: The identifiers of any collections containing the cipher.
+    ///   - deletedDate: The deleted date of the cipher.
     ///   - folderId: The identifier of the cipher's folder
+    ///   - login: Login data if the cipher is a login.
     ///   - organizationId: The identifier of the cipher's organization.
     /// - Returns: A copy of the existing cipher, with the specified properties updated.
     ///
@@ -251,6 +255,7 @@ extension CipherView {
         collectionIds: [String],
         deletedDate: Date?,
         folderId: String?,
+        login: BitwardenSdk.LoginView?,
         organizationId: String?
     ) -> CipherView {
         CipherView(
@@ -278,6 +283,25 @@ extension CipherView {
             creationDate: creationDate,
             deletedDate: deletedDate,
             revisionDate: revisionDate
+        )
+    }
+}
+
+extension BitwardenSdk.LoginView {
+    /// Returns a copy of the existing login with an updated TOTP key.
+    ///
+    /// - Parameter totp: The TOTP key to update.
+    /// - Returns: A copy of the existing login, with the specified properties updated.
+    ///
+    func update(totp: String?) -> BitwardenSdk.LoginView {
+        BitwardenSdk.LoginView(
+            username: username,
+            password: password,
+            passwordRevisionDate: passwordRevisionDate,
+            uris: uris,
+            totp: totp,
+            autofillOnPageLoad: autofillOnPageLoad,
+            fido2Credentials: fido2Credentials
         )
     }
 }

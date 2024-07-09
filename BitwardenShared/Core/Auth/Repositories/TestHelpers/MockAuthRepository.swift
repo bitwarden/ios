@@ -1,22 +1,26 @@
 @testable import BitwardenShared
 
-class MockAuthRepository: AuthRepository {
+class MockAuthRepository: AuthRepository { // swiftlint:disable:this type_body_length
     var allowBiometricUnlock: Bool?
     var allowBiometricUnlockResult: Result<Void, Error> = .success(())
     var accountForItemResult: Result<Account, Error> = .failure(StateServiceError.noAccounts)
+    var canVerifyMasterPasswordResult: Result<Bool, Error> = .success(true)
     var clearPinsCalled = false
     var createNewSsoUserRememberDevice: Bool = false
     var createNewSsoUserOrgIdentifier: String = ""
     var createNewSsoUserResult: Result<Void, Error> = .success(())
     var deleteAccountCalled = false
+    var deleteAccountResult: Result<Void, Error> = .success(())
     var deviceId: String = ""
     var email: String = ""
     var encryptedPin: String = "123"
+    var existingAccountUserIdEmail: String?
+    var existingAccountUserIdResult: String?
     var fingerprintPhraseResult: Result<String, Error> = .success("fingerprint")
     var activeAccount: Account?
     var altAccounts = [Account]()
     var getAccountError: Error?
-    var hasMasterPassword: Bool = true
+    var hasMasterPasswordResult = Result<Bool, Error>.success(true)
     var isLockedResult: Result<Bool, Error> = .success(true)
     var isPinUnlockAvailableResult: Result<Bool, Error> = .success(false)
     var lockVaultUserId: String?
@@ -78,6 +82,10 @@ class MockAuthRepository: AuthRepository {
         try allowBiometricUnlockResult.get()
     }
 
+    func canVerifyMasterPassword() async throws -> Bool {
+        try canVerifyMasterPasswordResult.get()
+    }
+
     func clearPins() async throws {
         clearPinsCalled = true
     }
@@ -90,6 +98,12 @@ class MockAuthRepository: AuthRepository {
 
     func deleteAccount(otp: String?, passwordText _: String?) async throws {
         deleteAccountCalled = true
+        try deleteAccountResult.get()
+    }
+
+    func existingAccountUserId(email: String) async -> String? {
+        existingAccountUserIdEmail = email
+        return existingAccountUserIdResult
     }
 
     func getAccount(for userId: String?) async throws -> Account {
@@ -135,7 +149,7 @@ class MockAuthRepository: AuthRepository {
     }
 
     func hasMasterPassword() async throws -> Bool {
-        hasMasterPassword
+        try hasMasterPasswordResult.get()
     }
 
     func isLocked(userId: String?) async throws -> Bool {

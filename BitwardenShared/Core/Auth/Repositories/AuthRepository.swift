@@ -20,6 +20,11 @@ protocol AuthRepository: AnyObject {
     ///
     func allowBioMetricUnlock(_ enabled: Bool) async throws
 
+    /// Whether master password verification can be done for the active  user.
+    ///
+    /// - Returns: `true` if one can verify master password, `false` otherwise.
+    func canVerifyMasterPassword() async throws -> Bool
+
     /// Clears the pins stored on device and in memory.
     ///
     func clearPins() async throws
@@ -36,6 +41,14 @@ protocol AuthRepository: AnyObject {
     ///     their identify before deleting the account.
     ///
     func deleteAccount(otp: String?, passwordText: String?) async throws
+
+    /// Returns the user ID of an existing account that is already logged in on the device matching
+    /// the specified email.
+    ///
+    /// - Parameter email: The email for the account to check.
+    /// - Returns: The user ID of the account that is already logged in on the device, or `nil` otherwise.
+    ///
+    func existingAccountUserId(email: String) async -> String?
 
     /// Gets the account for a user id.
     ///
@@ -255,6 +268,18 @@ extension AuthRepository {
         try await logout(userId: nil)
     }
 
+    /// Whether master password reprompt should be performed.
+    ///
+    /// - Parameter reprompt: Cipher reprompt type to check
+    /// - Returns: `true` if master password reprompt should be performed, `false` otherwise.
+    func shouldPerformMasterPasswordReprompt(reprompt: BitwardenSdk.CipherRepromptType) async throws -> Bool {
+        guard reprompt == .password else {
+            return false
+        }
+
+        return try await canVerifyMasterPassword()
+    }
+
     /// Gets the `SessionTimeoutAction` for the active account.
     ///
     func sessionTimeoutAction() async throws -> SessionTimeoutAction {
@@ -297,7 +322,7 @@ class DefaultAuthRepository {
     /// The service that handles common client functionality such as encryption and decryption.
     private let clientService: ClientService
 
-    /// The services to get server-specified configuration.
+    /// The service to get server-specified configuration.
     private let configService: ConfigService
 
     /// The service used by the application to manage the environment settings.
@@ -384,6 +409,10 @@ extension DefaultAuthRepository: AuthRepository {
         )
     }
 
+    func canVerifyMasterPassword() async throws -> Bool {
+        try await stateService.getUserHasMasterPassword()
+    }
+
     func createNewSsoUser(orgIdentifier: String, rememberDevice: Bool) async throws {
         let account = try await stateService.getActiveAccount()
         let enrollStatus = try await organizationAPIService.getOrganizationAutoEnrollStatus(identifier: orgIdentifier)
@@ -443,13 +472,24 @@ extension DefaultAuthRepository: AuthRepository {
         await vaultTimeoutService.remove(userId: nil)
     }
 
+    func existingAccountUserId(email: String) async -> String? {
+        let matchingUserIds = await stateService.getUserIds(email: email)
+        for userId in matchingUserIds {
+            if let baseUrl = try? await stateService.getEnvironmentUrls(userId: userId)?.base,
+               baseUrl == environmentService.baseURL {
+                return userId
+            }
+        }
+        return nil
+    }
+
     func getAccount(for userId: String?) async throws -> Account {
         try await stateService.getAccount(userId: userId)
     }
 
     func getFingerprintPhrase() async throws -> String {
         let userId = try await stateService.getActiveAccountId()
-        return try await clientService.platform().userFingerprint(fingerprintMaterial: userId)
+        return try await clientService.platform().userFingerprint(material: userId)
     }
 
     func getProfilesState(
@@ -621,7 +661,7 @@ extension DefaultAuthRepository: AuthRepository {
     func setPins(_ pin: String, requirePasswordAfterRestart: Bool) async throws {
         let pinKey = try await clientService.crypto().derivePinKey(pin: pin)
         try await stateService.setPinKeys(
-            pinKeyEncryptedUserKey: pinKey.encryptedPin,
+            encryptedPin: pinKey.encryptedPin,
             pinProtectedUserKey: pinKey.pinProtectedUserKey,
             requirePasswordAfterRestart: requirePasswordAfterRestart
         )
@@ -822,9 +862,9 @@ extension DefaultAuthRepository: AuthRepository {
 
             // If the user has a pin, but requires master password after restart, set the pin
             // protected user key in memory for future unlocks prior to app restart.
-            if let pinKeyEncryptedUserKey = try await stateService.pinKeyEncryptedUserKey() {
+            if let encryptedPin = try await stateService.getEncryptedPin() {
                 let pinProtectedUserKey = try await clientService.crypto().derivePinUserKey(
-                    encryptedPin: pinKeyEncryptedUserKey
+                    encryptedPin: encryptedPin
                 )
                 try await stateService.setPinProtectedUserKeyToMemory(pinProtectedUserKey)
             }

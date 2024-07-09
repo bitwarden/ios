@@ -190,6 +190,8 @@ final class AuthCoordinator: NSObject, // swiftlint:disable:this type_body_lengt
                 credentialIds: allowCredentialIds,
                 userVerificationPreference: userVerificationPreference
             )
+        case let .webAuthnSelfHosted(url):
+            showWebAuthnSelfHosted(authURL: url, delegate: context as? WebAuthnFlowDelegate)
         case let .vaultUnlock(
             account,
             animated,
@@ -651,6 +653,34 @@ final class AuthCoordinator: NSObject, // swiftlint:disable:this type_body_lengt
         stackNavigator?.present(navigationController)
     }
 
+    /// Shows the vault unlock view.
+    ///
+    /// - Parameters:
+    ///   - account: The active account.
+    ///   - animated: Whether to animate the transition.
+    ///   - attemptAutmaticBiometricUnlock: Whether to the processor should attempt a biometric unlock on appear.
+    ///   - didSwitchAccountAutomatically: A flag indicating if the active account was switched automatically.
+    ///
+    private func showVaultUnlock(
+        account: Account,
+        animated: Bool,
+        attemptAutmaticBiometricUnlock: Bool,
+        didSwitchAccountAutomatically: Bool
+    ) {
+        let processor = VaultUnlockProcessor(
+            appExtensionDelegate: appExtensionDelegate,
+            coordinator: asAnyCoordinator(),
+            services: services,
+            state: VaultUnlockState(account: account)
+        )
+        processor.shouldAttemptAutomaticBiometricUnlock = attemptAutmaticBiometricUnlock
+        let view = VaultUnlockView(store: Store(processor: processor))
+        stackNavigator?.replace(view, animated: animated)
+        if didSwitchAccountAutomatically {
+            processor.state.toast = Toast(text: Localizations.accountSwitchedAutomatically)
+        }
+    }
+
     /// Show the WebAuthn two factor authentication view.
     ///
     /// - Parameters:
@@ -688,32 +718,43 @@ final class AuthCoordinator: NSObject, // swiftlint:disable:this type_body_lengt
         authController.performRequests()
     }
 
-    /// Shows the vault unlock view.
+    /// Show the WebAuthn connector web page for self-hosted vaults.
     ///
     /// - Parameters:
-    ///   - account: The active account.
-    ///   - animated: Whether to animate the transition.
-    ///   - attemptAutmaticBiometricUnlock: Whether to the processor should attempt a biometric unlock on appear.
-    ///   - didSwitchAccountAutomatically: A flag indicating if the active account was switched automatically.
+    ///   - url: The URL for the single sign on web auth session.
+    ///   - delegate: A `WebAuthnFlowDelegate` object that is notified when the WebAuthn flow succeeds or fails.
     ///
-    private func showVaultUnlock(
-        account: Account,
-        animated: Bool,
-        attemptAutmaticBiometricUnlock: Bool,
-        didSwitchAccountAutomatically: Bool
+    private func showWebAuthnSelfHosted(
+        authURL url: URL,
+        delegate: WebAuthnFlowDelegate?
     ) {
-        let processor = VaultUnlockProcessor(
-            appExtensionDelegate: appExtensionDelegate,
-            coordinator: asAnyCoordinator(),
-            services: services,
-            state: VaultUnlockState(account: account)
-        )
-        processor.shouldAttemptAutomaticBiometricUnlock = attemptAutmaticBiometricUnlock
-        let view = VaultUnlockView(store: Store(processor: processor))
-        stackNavigator?.replace(view, animated: animated)
-        if didSwitchAccountAutomatically {
-            processor.state.toast = Toast(text: Localizations.accountSwitchedAutomatically)
+        guard let delegate else { return }
+        let session = services.authService.webAuthenticationSession(
+            url: url
+        ) { callbackURL, error in
+            if let error {
+                delegate.webAuthnErrored(error: error)
+                return
+            }
+            guard let callbackURL,
+                  let components = URLComponents(
+                      url: callbackURL,
+                      resolvingAgainstBaseURL: false
+                  ),
+                  let queryItems = components.queryItems,
+                  let token = queryItems.first(where: { component in
+                      component.name == "data"
+                  })?.value else {
+                delegate.webAuthnErrored(error: WebAuthnError.unableToDecodeCredential)
+                return
+            }
+
+            delegate.webAuthnCompleted(token: token)
         }
+
+        session.prefersEphemeralWebBrowserSession = false
+        session.presentationContextProvider = self
+        session.start()
     }
 }
 

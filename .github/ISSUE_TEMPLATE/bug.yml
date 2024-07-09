@@ -1,0 +1,80 @@
+name: iOS Bug Report
+description: File a bug report
+labels: [ bug ]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for taking the time to fill out this bug report!
+
+        > [!WARNING]
+        > This is the new native Bitwarden Beta app repository. For the pubicly available apps in App Store / Play Store, submit your report in [bitwarden/mobile](https://github.com/bitwarden/mobile)
+
+
+        Please do not submit feature requests. The [Community Forums](https://community.bitwarden.com) has a section for submitting, voting for, and discussing product feature requests.
+  - type: checkboxes
+    id: beta
+    attributes:
+      label: Bitwarden Beta
+      options:
+        - label: "I'm using the new native Bitwarden Beta app and I'm aware that legacy .NET app bugs should be reported in [bitwarden/mobile](https://github.com/bitwarden/mobile)"
+    validations:
+      required: true
+  - type: textarea
+    id: reproduce
+    attributes:
+      label: Steps To Reproduce
+      description: How can we reproduce the behavior.
+      value: |
+        1. Go to '...'
+        2. Tap on '...'
+        3. Scroll down to '...'
+        4. Tap on '...'
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected Result
+      description: A clear and concise description of what you expected to happen.
+    validations:
+      required: true
+  - type: textarea
+    id: actual
+    attributes:
+      label: Actual Result
+      description: A clear and concise description of what is happening.
+    validations:
+      required: true
+  - type: textarea
+    id: screenshots
+    attributes:
+      label: Screenshots or Videos
+      description: If applicable, add screenshots and/or a short video to help explain your problem.
+  - type: textarea
+    id: additional-context
+    attributes:
+      label: Additional Context
+      description: Add any other context about the problem here.
+  - type: input
+    id: version
+    attributes:
+      label: Build Version
+      description: What version of our software are you running?
+    validations:
+      required: true
+  - type: textarea
+    id: environment-details
+    attributes:
+      label: Environment Details
+      placeholder: |
+        - Device: [e.g. iPhone 15 Pro, iPad Air (5th Generation)]
+        - OS Version: [e.g. 17.4.1]
+  - type: checkboxes
+    id: issue-tracking-info
+    attributes:
+      label: Issue Tracking Info
+      description: |
+        Issue tracking information
+      options:
+        - label: I understand that work is tracked outside of Github. A PR will be linked to this issue should one be opened to address it, but Bitwarden doesn't use fields like "assigned", "milestone", or "project" to track progress.

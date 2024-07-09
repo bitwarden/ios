@@ -1,53 +1,46 @@
----
 name: Build
 
 on:
+  push:
+    branches:
+      - main
   workflow_dispatch:
     inputs:
       build-variant:
-        description: 'Which variant of the app to build'
+        description: "Which variant of the app to build"
         required: true
         type: choice
         options:
           - Beta
           - Production
       build-version:
-        description: 'Optional. Version string to use, in X.Y.Z format. Overrides default in the project.'
+        description: "Optional. Version string to use, in X.Y.Z format. Overrides default in the project."
         required: false
         type: string
       build-number:
-        description: 'Optional. Build number to use. Overrides default of GitHub run number.'
+        description: "Optional. Build number to use. Overrides default of GitHub run number."
         required: false
         type: number
 
 env:
-  build-variant: ${{ inputs.build-variant || 'Production' }}
+  build-variant: ${{ inputs.build-variant || 'Beta' }}
 
 jobs:
   build:
-    name: Build iOS app
+    name: Build
     runs-on: macos-14
     env:
       MINT_PATH: .mint/lib
       MINT_LINK_PATH: .mint/bin
+
     steps:
-      - name: Print Environment
-        run: |
-          echo "GitHub ref: $GITHUB_REF"
-          echo "GitHub event: $GITHUB_EVENT"
-      
-      - name: Check out repository
-        uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
+      - name: Check out repo
+        uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
         with:
-          submodules: 'true'
+          fetch-depth: 0
+          filter: tree:0
 
-      - name: Set Up Ruby
-        uses: ruby/setup-ruby@6bd3d993c602f6b675728ebaecb2b569ff86e99b # v1.174.0
-        with:
-          bundler-cache: true
-          ruby-version: 3.2.2
-
-      - name: Cache Mint Packages
+      - name: Cache Mint packages
         id: mint-cache
         uses: actions/cache@0c45773b623bea8c8e75f6c82b208c3cf94ea4f9 # v4.0.2
         with:
@@ -62,19 +55,18 @@ jobs:
           sudo installer -pkg yeetd-normal.pkg -target /
           yeetd &
 
-      - name: Log In to Azure - CI Subscription
+      - name: Log in to Azure
         uses: Azure/login@cb79c773a3cfa27f31f25eb3f677781210c9ce3d # v1.6.1
         with:
           creds: ${{ secrets.AZURE_KV_CI_SERVICE_PRINCIPAL }}
 
       - name: Retrieve secrets
-        id: retrieve-secrets
         uses: bitwarden/gh-actions/get-keyvault-secrets@main
         with:
           keyvault: "bitwarden-ci"
           secrets: "appcenter-ios-token"
 
-      - name: Download production provisioning profiles
+      - name: Retrieve production provisioning profiles
         if: env.build-variant == 'Production'
         env:
           ACCOUNT_NAME: bitwardenci
@@ -96,7 +88,7 @@ jobs:
               --file $HOME/secrets/$FILE --output none
           done
 
-      - name: Download beta provisioning profiles
+      - name: Retrieve beta provisioning profiles
         if: env.build-variant == 'Beta'
         env:
           ACCOUNT_NAME: bitwardenci
@@ -118,7 +110,8 @@ jobs:
               --file $HOME/secrets/$FILE --output none
           done
 
-      - name: Download Google Services secret
+      - name: Retrieve production Google Services secret
+        if: env.build-variant == 'Production'
         env:
           ACCOUNT_NAME: bitwardenci
           CONTAINER_NAME: mobile
@@ -128,13 +121,36 @@ jobs:
           az storage blob download --account-name $ACCOUNT_NAME --container-name $CONTAINER_NAME --name $FILE \
             --file Bitwarden/Application/Support/$FILE --output none
 
-      - name: Get certificates
+      - name: Retrieve beta Google Services secret
+        if: env.build-variant == 'Beta'
+        env:
+          ACCOUNT_NAME: bitwardenci
+          CONTAINER_NAME: mobile
+          SOURCE_FILE: GoogleService-Info-ios-pm-beta.plist
+          TARGET_FILE: GoogleService-Info.plist
+        run: |
+          mkdir -p $HOME/secrets
+          az storage blob download --account-name $ACCOUNT_NAME --container-name $CONTAINER_NAME --name $SOURCE_FILE \
+            --file Bitwarden/Application/Support/$TARGET_FILE --output none
+
+      - name: Retrieve certificates
         run: |
           mkdir -p $HOME/certificates
           az keyvault secret show --id https://bitwarden-ci.vault.azure.net/certificates/ios-distribution |
             jq -r .value | base64 -d > $HOME/certificates/ios-distribution.p12
 
-      - name: Set up Keychain
+      - name: Download Fastlane credentials
+        env:
+          ACCOUNT_NAME: bitwardenci
+          CONTAINER_NAME: mobile
+          FILE: appstoreconnect-fastlane.json
+        run: |
+          mkdir -p $HOME/secrets
+          az storage blob download --account-name $ACCOUNT_NAME --container-name $CONTAINER_NAME --name $FILE \
+            --file $HOME/secrets/$FILE --output none
+          ls -al $HOME/secrets
+
+      - name: Configure Keychain Access
         env:
           KEYCHAIN_PASSWORD: ${{ secrets.IOS_KEYCHAIN_PASSWORD }}
         run: |
@@ -147,7 +163,7 @@ jobs:
             -T /usr/bin/security
           security set-key-partition-list -S apple-tool:,apple:,codesign: -s -k $KEYCHAIN_PASSWORD build.keychain
 
-      - name: Set up production provisioning profiles
+      - name: Configure production provisioning profiles
         if: env.build-variant == 'Production'
         run: |
           AUTOFILL_PROFILE_PATH=$HOME/secrets/dist_autofill.mobileprovision
@@ -178,7 +194,7 @@ jobs:
           WATCH_APP_EXTENSION_UUID=$(grep UUID -A1 -a $WATCH_APP_EXTENSION_PROFILE_PATH | grep -io "[-A-F0-9]\{36\}")
           cp $WATCH_APP_EXTENSION_PROFILE_PATH "$PROFILES_DIR_PATH/$WATCH_APP_EXTENSION_UUID.mobileprovision"
 
-      - name: Set up beta provisioning profiles
+      - name: Configure beta provisioning profiles
         if: env.build-variant == 'Beta'
         run: |
           AUTOFILL_PROFILE_PATH=$HOME/secrets/dist_beta_autofill.mobileprovision
@@ -214,13 +230,23 @@ jobs:
         run: |
           plutil -replace ITSEncryptionExportComplianceCode -string 3dd3e32f-efa6-4d99-b410-28aa28b1cb77 Bitwarden/Application/Support/Info.plist
 
+      - name: Update beta Fastlane Appfile
+        if: env.build-variant == 'Beta'
+        run: |
+          echo 'app_identifier "com.8bit.bitwarden.beta"' > fastlane/Appfile
+
       - name: Update APNS entitlements
         run: |
           plutil -replace aps-environment -string production Bitwarden/Application/Support/Bitwarden.entitlements
 
-      - name: Install Mint, xcbeautify, and yq
+      - name: Configure Ruby
+        uses: ruby/setup-ruby@af43264f2b94cc8451805dc51af7408f01de6471 # v1.182.0
+        with:
+          bundler-cache: true
+
+      - name: Install Fastlane, Mint, xcbeautify, and yq
         run: |
-          brew install mint xcbeautify yq
+          brew install fastlane mint xcbeautify yq
 
       - name: Install Mint packages
         if: steps.mint-cache.outputs.cache-hit != 'true'
@@ -231,10 +257,46 @@ jobs:
         run: |
           ./Scripts/select_variant.sh ${{ env.build-variant }}
 
-      - name: Update build version
-        if: ${{ inputs.build-version }}
+      - name: Calculate build version
+        id: calculate
         run: |
-          yq -i '.settings.MARKETING_VERSION = "${{ inputs.build-version }}"' 'project.yml'
+          if [[ ! -z "${{ inputs.build-version }}" ]]; then
+            echo -e "\nApplying version override"
+            next_version=${{ inputs.build-version }}
+          else
+            echo -e "\nCalculating next version..."
+            current_year=$(date +%Y)
+            current_month=$(date +%-m)
+
+            latest_tag_version=$(git tag --sort=committerdate --list | tail -1)
+            latest_version=${latest_tag_version:1}  # remove 'v' from tag version
+
+            latest_major_version=$(echo $latest_version | cut -d "." -f 1)
+            latest_minor_version=$(echo $latest_version | cut -d "." -f 2)
+            latest_patch_version=$(echo $latest_version | cut -d "." -f 3)
+
+            echo "  Current Year:         $current_year"
+            echo "  Current Month:        $current_month"
+            echo "  Latest Version:       $latest_version"
+            echo "  Latest Major Version: $latest_major_version"
+            echo "  Latest Minor Version: $latest_minor_version"
+            echo "  Latest Patch Version: $latest_patch_version"
+
+            if [[ "$current_year" == "$latest_major_version" && "$current_month" == "$latest_minor_version" ]]; then
+              next_version="${latest_major_version}.${latest_minor_version}.$(($latest_patch_version + 1))"
+            else
+              next_version="${current_year}.${current_month}.0"
+            fi
+          fi
+
+          echo "Next Version: $next_version"
+          echo "version=$next_version" >> $GITHUB_OUTPUT
+
+      - name: Update build version
+        env:
+          build_version: ${{ steps.calculate.outputs.version }}
+        run: |
+          yq -i '.settings.MARKETING_VERSION = "${{ env.build_version }}"' 'project.yml'
 
       - name: Update build number
         run: |
@@ -247,7 +309,7 @@ jobs:
           ./Scripts/build.sh
 
       - name: Upload IPA
-        uses: actions/upload-artifact@1746f4ab65b179e0ea60a494b83293b640dd5bba # v4.3.2
+        uses: actions/upload-artifact@65462800fd760344b1a7b4382951275a0abb4808 # v4.3.3
         with:
           name: Bitwarden iOS
           path: build/Bitwarden/Bitwarden.ipa
@@ -263,13 +325,10 @@ jobs:
             --username "$APPLE_ID_USERNAME" \
             --password @env:APPLE_ID_PASSWORD
 
-      - name: Upload app to TestFlight
-        env:
-          APPLE_ID_USERNAME: ${{ secrets.APPLE_ID_USERNAME }}
-          APPLE_ID_PASSWORD: ${{ secrets.APPLE_ID_PASSWORD }}
+      - name: Upload app to TestFlight with Fastlane
         run: |
-          xcrun altool --upload-app \
-            --type ios \
-            --file "build/Bitwarden/Bitwarden.ipa" \
-            --username "$APPLE_ID_USERNAME" \
-            --password @env:APPLE_ID_PASSWORD
+          NEWLINE=$'\n'
+          fastlane upload_build \
+            api_key_path:"$HOME/secrets/appstoreconnect-fastlane.json" \
+            changelog:"$(git show -s --format=%s)$NEWLINE$GITHUB_REPOSITORY/$GITHUB_REF_NAME @ $GITHUB_SHA$NEWLINE$NEWLINE$GITHUB_SERVER_URL/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID" \
+            ipa_path:"build/Bitwarden/Bitwarden.ipa"

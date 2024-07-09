@@ -11,6 +11,7 @@ class VaultAutofillListProcessor: StateProcessor<
 
     typealias Services = HasAuthRepository
         & HasErrorReporter
+        & HasEventService
         & HasPasteboardService
         & HasVaultRepository
 
@@ -59,9 +60,20 @@ class VaultAutofillListProcessor: StateProcessor<
 
     override func perform(_ effect: VaultAutofillListEffect) async {
         switch effect {
-        case let .cipherTapped(cipher):
-            await autofillHelper.handleCipherForAutofill(cipherView: cipher) { [weak self] toastText in
-                self?.state.toast = Toast(text: toastText)
+        case let .vaultItemTapped(vaultItem):
+            switch vaultItem.itemType {
+            case let .cipher(cipher, fido2CredentialAutofillView):
+                if fido2CredentialAutofillView != nil {
+                    // TODO: PM-8713 handle tap action depending on Fido2 autofill or creation
+                } else {
+                    await autofillHelper.handleCipherForAutofill(cipherView: cipher) { [weak self] toastText in
+                        self?.state.toast = Toast(text: toastText)
+                    }
+                }
+            case .group:
+                return
+            case .totp:
+                return
             }
         case .loadData:
             await refreshProfileState()
@@ -154,7 +166,8 @@ class VaultAutofillListProcessor: StateProcessor<
                 filterType: .allVaults
             )
             for try await ciphers in searchResult {
-                state.ciphersForSearch = ciphers
+                // TODO: PM-8713 Update searchCipherAutofillPublisher with the proper item in the VaultRepository
+                state.ciphersForSearch = ciphers.compactMap { .init(cipherView: $0) }
                 state.showNoResults = ciphers.isEmpty
             }
         } catch {
@@ -171,7 +184,8 @@ class VaultAutofillListProcessor: StateProcessor<
             for try await ciphers in try await services.vaultRepository.ciphersAutofillPublisher(
                 uri: appExtensionDelegate?.uri
             ) {
-                state.ciphersForAutofill = ciphers
+                // TODO: PM-8713 Move this to a vaultAutofillListPublisher in the VaultRepository
+                state.ciphersForAutofill = ciphers.compactMap { .init(cipherView: $0) }
             }
         } catch {
             coordinator.showAlert(.defaultAlert(title: Localizations.anErrorHasOccurred))

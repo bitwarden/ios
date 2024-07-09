@@ -63,13 +63,3 @@ struct MoveToOrganizationState: Equatable {
         }
     }
 }
-
-extension MoveToOrganizationState {
-    /// The updated cipher with the assigned organization and collections.
-    var updatedCipher: CipherView {
-        cipher.update(
-            collectionIds: collectionIds,
-            organizationId: organizationId
-        )
-    }
-}

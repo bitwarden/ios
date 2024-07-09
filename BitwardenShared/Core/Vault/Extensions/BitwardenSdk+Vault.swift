@@ -367,6 +367,10 @@ extension BitwardenSdk.Fido2Credential: Identifiable, @unchecked Sendable {
     }
 }
 
+extension BitwardenSdk.Fido2CredentialView: @unchecked Sendable {}
+
+extension BitwardenSdk.Fido2CredentialAutofillView: @unchecked Sendable {}
+
 extension BitwardenSdk.Field {
     init(cipherFieldModel model: CipherFieldModel) {
         self.init(

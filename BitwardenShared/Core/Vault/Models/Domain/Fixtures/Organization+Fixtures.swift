@@ -11,6 +11,7 @@ extension Organization {
         permissions: Permissions = Permissions(),
         status: OrganizationUserStatusType = .confirmed,
         type: OrganizationUserType = .user,
+        useEvents: Bool = false,
         usePolicies: Bool = true,
         usersGetPremium: Bool = false
     ) -> Organization {
@@ -22,6 +23,7 @@ extension Organization {
             permissions: permissions,
             status: status,
             type: type,
+            useEvents: useEvents,
             usePolicies: usePolicies,
             usersGetPremium: usersGetPremium
         )

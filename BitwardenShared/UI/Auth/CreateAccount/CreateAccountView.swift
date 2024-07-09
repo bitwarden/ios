@@ -79,7 +79,7 @@ struct CreateAccountView: View {
                     get: \.emailText,
                     send: CreateAccountAction.emailTextChanged
                 ),
-                accessibilityIdentifier: "EmailAddressEntry"
+                accessibilityIdentifier: "CreateAccountEmailAddressEntry"
             )
             .textFieldConfiguration(.email)
 

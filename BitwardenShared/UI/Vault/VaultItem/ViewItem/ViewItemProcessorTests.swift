@@ -13,6 +13,7 @@ class ViewItemProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
     var coordinator: MockCoordinator<VaultItemRoute, VaultItemEvent>!
     var delegate: MockCipherItemOperationDelegate!
     var errorReporter: MockErrorReporter!
+    var eventService: MockEventService!
     var pasteboardService: MockPasteboardService!
     var stateService: MockStateService!
     var subject: ViewItemProcessor!
@@ -27,12 +28,14 @@ class ViewItemProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
         coordinator = MockCoordinator<VaultItemRoute, VaultItemEvent>()
         delegate = MockCipherItemOperationDelegate()
         errorReporter = MockErrorReporter()
+        eventService = MockEventService()
         pasteboardService = MockPasteboardService()
         stateService = MockStateService()
         vaultRepository = MockVaultRepository()
         let services = ServiceContainer.withMocks(
             authRepository: authRepository,
             errorReporter: errorReporter,
+            eventService: eventService,
             httpClient: client,
             pasteboardService: pasteboardService,
             stateService: stateService,
@@ -53,6 +56,7 @@ class ViewItemProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
         client = nil
         coordinator = nil
         errorReporter = nil
+        eventService = nil
         pasteboardService = nil
         stateService = nil
         subject = nil
@@ -355,6 +359,13 @@ class ViewItemProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
 
     /// `receive` with `.copyPressed` copies the value with the pasteboard service and shows a toast.
     func test_receive_copyPressed() {
+        let cipherView = CipherView.cardFixture(id: "123")
+        let cipherState = CipherItemState(
+            existing: cipherView,
+            hasPremium: true
+        )!
+        subject.state.loadingState = .data(cipherState)
+
         subject.receive(.copyPressed(value: "card number", field: .cardNumber))
         XCTAssertEqual(pasteboardService.copiedString, "card number")
         XCTAssertEqual(subject.state.toast?.text, Localizations.valueHasBeenCopied(Localizations.number))
@@ -362,6 +373,8 @@ class ViewItemProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
         subject.receive(.copyPressed(value: "hidden field value", field: .customHiddenField))
         XCTAssertEqual(pasteboardService.copiedString, "hidden field value")
         XCTAssertEqual(subject.state.toast?.text, Localizations.valueHasBeenCopied(Localizations.value))
+        waitFor(eventService.collectEventType == .cipherClientCopiedHiddenField)
+        XCTAssertEqual(eventService.collectCipherId, "123")
 
         subject.receive(.copyPressed(value: "text field value", field: .customTextField))
         XCTAssertEqual(pasteboardService.copiedString, "text field value")
@@ -370,10 +383,14 @@ class ViewItemProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
         subject.receive(.copyPressed(value: "password", field: .password))
         XCTAssertEqual(pasteboardService.copiedString, "password")
         XCTAssertEqual(subject.state.toast?.text, Localizations.valueHasBeenCopied(Localizations.password))
+        waitFor(eventService.collectEventType == .cipherClientCopiedPassword)
+        XCTAssertEqual(eventService.collectCipherId, "123")
 
         subject.receive(.copyPressed(value: "security code", field: .securityCode))
         XCTAssertEqual(pasteboardService.copiedString, "security code")
         XCTAssertEqual(subject.state.toast?.text, Localizations.valueHasBeenCopied(Localizations.securityCode))
+        waitFor(eventService.collectEventType == .cipherClientCopiedCardCode)
+        XCTAssertEqual(eventService.collectCipherId, "123")
 
         subject.receive(.copyPressed(value: "totp", field: .totp))
         XCTAssertEqual(pasteboardService.copiedString, "totp")
@@ -382,6 +399,13 @@ class ViewItemProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
         subject.receive(.copyPressed(value: "username", field: .username))
         XCTAssertEqual(pasteboardService.copiedString, "username")
         XCTAssertEqual(subject.state.toast?.text, Localizations.valueHasBeenCopied(Localizations.username))
+    }
+
+    /// `recieve` with `.copyPressed` doesn't copy if the data isn't loaded.
+    func test_receive_copyPressed_notLoaded() {
+        subject.receive(.copyPressed(value: "card number", field: .cardNumber))
+        XCTAssertNil(pasteboardService.copiedString)
+        XCTAssertNil(subject.state.toast?.text)
     }
 
     /// `receive` with `.customFieldVisibilityPressed()` toggles custom field visibility.
@@ -525,7 +549,13 @@ class ViewItemProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
     /// `perform(_:)` with `.deletePressed` reprompts the user for their master password if reprompt
     /// is enabled prior to deleting the cipher.
     func test_perform_deletePressed_masterPasswordReprompt() async throws {
-        subject.state = try XCTUnwrap(ViewItemState(cipherView: .fixture(reprompt: .password), hasPremium: false))
+        subject.state = try XCTUnwrap(
+            ViewItemState(
+                cipherView: .fixture(reprompt: .password),
+                hasMasterPassword: true,
+                hasPremium: false
+            )
+        )
         await subject.perform(.deletePressed)
 
         let repromptAlert = try XCTUnwrap(coordinator.alertShown.last)

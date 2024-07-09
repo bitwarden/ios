@@ -5,6 +5,7 @@ typealias Services = HasAPIService
     & HasAccountAPIService
     & HasAppIdService
     & HasAppSettingsStore
+    & HasApplication
     & HasAuthAPIService
     & HasAuthRepository
     & HasAuthService
@@ -16,9 +17,11 @@ typealias Services = HasAPIService
     & HasDeviceAPIService
     & HasEnvironmentService
     & HasErrorReporter
+    & HasEventService
     & HasExportVaultService
     & HasFileAPIService
     & HasGeneratorRepository
+    & HasLocalAuthService
     & HasNFCReaderService
     & HasNotificationCenterService
     & HasNotificationService
@@ -63,6 +66,13 @@ protocol HasAppIdService {
 protocol HasAppSettingsStore {
     /// The service used by the application to persist app setting values.
     var appSettingsStore: AppSettingsStore { get }
+}
+
+/// Protocol for an object that provides an `Application`.
+///
+protocol HasApplication {
+    /// The application instance, if the app isn't running in an extension.
+    var application: Application? { get }
 }
 
 /// Protocol for an object that provides an `AuthAPIService`.
@@ -142,6 +152,13 @@ protocol HasErrorReporter {
     var errorReporter: ErrorReporter { get }
 }
 
+/// Protocol for an object that provides an `EventService`.
+///
+protocol HasEventService {
+    /// The service used by the application to record events.
+    var eventService: EventService { get }
+}
+
 /// Protocol for an object that provides a `ExportVaultService`.
 ///
 protocol HasExportVaultService {
@@ -161,6 +178,13 @@ protocol HasFileAPIService {
 protocol HasGeneratorRepository {
     /// The repository used by the application to manage generator data for the UI layer.
     var generatorRepository: GeneratorRepository { get }
+}
+
+/// Protocol for an object that provides a `LocalAuthService`.
+///
+protocol HasLocalAuthService {
+    /// The service used by the application to evaluate local auth policies.
+    var localAuthService: LocalAuthService { get }
 }
 
 /// Protocol for an object that provides a `NFCReaderService`.

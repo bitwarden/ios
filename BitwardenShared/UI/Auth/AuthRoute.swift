@@ -153,4 +153,11 @@ public enum AuthRoute: Equatable {
         allowCredentialIDs: [Data],
         userVerificationPreference: String
     )
+
+    /// A route to the WebAuthn two-factor authentication webpage for self-hosted users.
+    /// Requires that any `context` provided to the coordinator conform to `WebAuthnFlowDelegate`.
+    ///
+    /// - Parameters:
+    ///   - authUrl: The URL of the WebAuthn Connector to open.
+    case webAuthnSelfHosted(_ authUrl: URL)
 }

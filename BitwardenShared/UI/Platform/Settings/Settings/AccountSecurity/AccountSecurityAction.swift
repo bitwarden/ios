@@ -11,6 +11,9 @@ enum AccountSecurityAction: Equatable {
     /// Clears the two step login URL after the web app has been opened.
     case clearTwoStepLoginUrl
 
+    /// Sets the custom session timeout value in seconds.
+    case customTimeoutValueSecondsChanged(Int)
+
     /// The delete account button was pressed.
     case deleteAccountPressed
 
@@ -25,9 +28,6 @@ enum AccountSecurityAction: Equatable {
 
     /// The session timeout value has changed.
     case sessionTimeoutValueChanged(SessionTimeoutValue)
-
-    /// Sets the custom session timeout value.
-    case customTimeoutValueChanged(Int)
 
     /// Unlock with pin code was toggled.
     case toggleUnlockWithPINCode(Bool)

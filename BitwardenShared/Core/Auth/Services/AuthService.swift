@@ -1,3 +1,4 @@
+import AuthenticationServices
 import BitwardenSdk
 import CryptoKit
 import Foundation
@@ -198,6 +199,14 @@ protocol AuthService {
     ///   - userId: The user ID associated with the pending admin login request.
     ///
     func setPendingAdminLoginRequest(_ adminLoginRequest: PendingAdminLoginRequest?, userId: String?) async throws
+
+    /// Provides a web authentication session. In practice this is a passthrough
+    /// for `ASWebAuthenticationSession.init`.
+    ///
+    func webAuthenticationSession(
+        url: URL,
+        completionHandler: @escaping ASWebAuthenticationSession.CompletionHandler
+    ) -> ASWebAuthenticationSession
 }
 
 extension AuthService {
@@ -682,6 +691,17 @@ class DefaultAuthService: AuthService { // swiftlint:disable:this type_body_leng
         }
     }
 
+    func webAuthenticationSession(
+        url: URL,
+        completionHandler: @escaping ASWebAuthenticationSession.CompletionHandler
+    ) -> ASWebAuthenticationSession {
+        ASWebAuthenticationSession(
+            url: url,
+            callbackURLScheme: callbackUrlScheme,
+            completionHandler: completionHandler
+        )
+    }
+
     // MARK: Private Methods
 
     /// Get the fingerprint phrase from the public key of a login request.
@@ -693,7 +713,7 @@ class DefaultAuthService: AuthService { // swiftlint:disable:this type_body_leng
     /// - Returns: The fingerprint phrase.
     ///
     private func getFingerprintPhrase(from publicKey: String, email: String) async throws -> String {
-        try await clientService.platform().fingerprint(req: .init(
+        try await clientService.platform().fingerprint(request: .init(
             fingerprintMaterial: email,
             publicKey: publicKey.urlDecoded()
         ))

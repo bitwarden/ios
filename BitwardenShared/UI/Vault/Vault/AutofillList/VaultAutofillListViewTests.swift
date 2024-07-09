@@ -62,9 +62,39 @@ class VaultAutofillListViewTests: BitwardenTestCase {
         processor.state.profileSwitcherState.accounts = [account]
         processor.state.profileSwitcherState.activeAccountId = account.userId
         processor.state.ciphersForAutofill = [
-            .fixture(id: "1", login: .fixture(username: "user@bitwarden.com"), name: "Apple"),
-            .fixture(id: "2", login: .fixture(username: "user@bitwarden.com"), name: "Bitwarden"),
-            .fixture(id: "3", login: .fixture(username: ""), name: "Company XYZ"),
+            .init(cipherView: .fixture(id: "1", login: .fixture(username: "user@bitwarden.com"), name: "Apple"))!,
+            .init(cipherView: .fixture(id: "2", login: .fixture(username: "user@bitwarden.com"), name: "Bitwarden"))!,
+            .init(cipherView: .fixture(id: "3", login: .fixture(username: ""), name: "Company XYZ"))!,
+        ]
+        assertSnapshots(
+            of: subject.navStackWrapped,
+            as: [.defaultPortrait, .defaultPortraitDark, .defaultPortraitAX5]
+        )
+    }
+
+    /// The populated view renders correctly when mixing passwords and Fido2 credentials.
+    func test_snapshot_vaultAutofillList_populatedWithFido2() {
+        let account = ProfileSwitcherItem.anneAccount
+        processor.state.profileSwitcherState.accounts = [account]
+        processor.state.profileSwitcherState.activeAccountId = account.userId
+        processor.state.ciphersForAutofill = [
+            .init(cipherView: .fixture(id: "1", login: .fixture(username: "user@bitwarden.com"), name: "Apple"))!,
+            .init(cipherView: .fixture(id: "2", login: .fixture(username: "user@bitwarden.com"), name: "Bitwarden"))!,
+            .init(cipherView: .fixture(id: "3", login: .fixture(username: ""), name: "Company XYZ"))!,
+            .init(cipherView: .fixture(
+                id: "4",
+                login: .fixture(
+                    username: ""
+                ),
+                name: "App"
+            ), fido2CredentialAutofillView: .fixture(userNameForUi: "myFido2Username"))!,
+            .init(cipherView: .fixture(
+                id: "5",
+                login: .fixture(
+                    username: ""
+                ),
+                name: "myApp.com"
+            ), fido2CredentialAutofillView: .fixture(userNameForUi: "another user"))!,
         ]
         assertSnapshots(
             of: subject.navStackWrapped,

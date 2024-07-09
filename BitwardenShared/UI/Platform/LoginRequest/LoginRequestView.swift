@@ -33,8 +33,8 @@ struct LoginRequestView: View {
             }
         }
         .scrollView()
-        .refreshable {
-            await store.perform(.reloadData)
+        .refreshable { [weak store] in
+            await store?.perform(.reloadData)
         }
         .navigationBar(title: Localizations.logInRequested, titleDisplayMode: .inline)
         .toolbar {

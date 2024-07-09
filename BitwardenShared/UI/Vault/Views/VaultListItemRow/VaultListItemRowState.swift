@@ -17,4 +17,7 @@ struct VaultListItemRowState {
 
     /// Whether to show the special web icons.
     var showWebIcons: Bool
+
+    /// Whether we are in an extension context.
+    var isFromExtension: Bool = false
 }

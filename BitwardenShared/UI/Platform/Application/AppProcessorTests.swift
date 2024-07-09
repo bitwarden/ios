@@ -1,13 +1,15 @@
+import AuthenticationServices
 import Foundation
 import XCTest
 
 @testable import BitwardenShared
 
-class AppProcessorTests: BitwardenTestCase {
+class AppProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_body_length
     // MARK: Properties
 
     var appModule: MockAppModule!
     var authRepository: MockAuthRepository!
+    var autofillCredentialService: MockAutofillCredentialService!
     var clientService: MockClientService!
     var coordinator: MockCoordinator<AppRoute, AppEvent>!
     var errorReporter: MockErrorReporter!
@@ -19,6 +21,7 @@ class AppProcessorTests: BitwardenTestCase {
     var subject: AppProcessor!
     var syncService: MockSyncService!
     var timeProvider: MockTimeProvider!
+    var vaultRepository: MockVaultRepository!
     var vaultTimeoutService: MockVaultTimeoutService!
 
     // MARK: Setup & Teardown
@@ -29,6 +32,7 @@ class AppProcessorTests: BitwardenTestCase {
         router = MockRouter(routeForEvent: { _ in .landing })
         appModule = MockAppModule()
         authRepository = MockAuthRepository()
+        autofillCredentialService = MockAutofillCredentialService()
         clientService = MockClientService()
         coordinator = MockCoordinator()
         appModule.authRouter = router
@@ -40,12 +44,14 @@ class AppProcessorTests: BitwardenTestCase {
         stateService = MockStateService()
         syncService = MockSyncService()
         timeProvider = MockTimeProvider(.currentTime)
+        vaultRepository = MockVaultRepository()
         vaultTimeoutService = MockVaultTimeoutService()
 
         subject = AppProcessor(
             appModule: appModule,
             services: ServiceContainer.withMocks(
                 authRepository: authRepository,
+                autofillCredentialService: autofillCredentialService,
                 clientService: clientService,
                 errorReporter: errorReporter,
                 migrationService: migrationService,
@@ -53,6 +59,7 @@ class AppProcessorTests: BitwardenTestCase {
                 notificationCenterService: notificationCenterService,
                 stateService: stateService,
                 syncService: syncService,
+                vaultRepository: vaultRepository,
                 vaultTimeoutService: vaultTimeoutService
             )
         )
@@ -64,6 +71,7 @@ class AppProcessorTests: BitwardenTestCase {
 
         appModule = nil
         authRepository = nil
+        autofillCredentialService = nil
         clientService = nil
         coordinator = nil
         errorReporter = nil
@@ -74,6 +82,7 @@ class AppProcessorTests: BitwardenTestCase {
         subject = nil
         syncService = nil
         timeProvider = nil
+        vaultRepository = nil
         vaultTimeoutService = nil
     }
 
@@ -165,6 +174,149 @@ class AppProcessorTests: BitwardenTestCase {
         await subject.messageReceived(message)
 
         XCTAssertEqual(notificationService.messageReceivedMessage?.keys.first, "knock knock")
+    }
+
+    /// `openUrl(_:)` handles receiving an OTP deep link and routing to the vault item selection screen.
+    func test_openUrl_otpKey() async throws {
+        let otpKey: String = .otpAuthUriKeyComplete
+
+        try await subject.openUrl(XCTUnwrap(URL(string: otpKey)))
+
+        let model = try XCTUnwrap(OTPAuthModel(otpAuthKey: otpKey))
+        XCTAssertEqual(coordinator.routes.last, .tab(.vault(.vaultItemSelection(model))))
+    }
+
+    /// `openUrl(_:)` handles receiving an OTP deep link if the URL isn't an OTP key.
+    func test_openUrl_otpKey_invalid() async throws {
+        try await subject.openUrl(XCTUnwrap(URL(string: "https://google.com")))
+
+        XCTAssertEqual(coordinator.alertShown, [.defaultAlert(title: Localizations.anErrorHasOccurred)])
+        XCTAssertEqual(coordinator.routes, [])
+    }
+
+    /// `provideCredential(for:)` returns the credential with the specified identifier.
+    func test_provideCredential() async throws {
+        let credential = ASPasswordCredential(user: "user@bitwarden.com", password: "password123")
+        autofillCredentialService.provideCredentialPasswordCredential = credential
+
+        let providedCredential = try await subject.provideCredential(for: "1")
+        XCTAssertEqual(providedCredential.user, "user@bitwarden.com")
+        XCTAssertEqual(providedCredential.password, "password123")
+    }
+
+    /// `provideCredential(for:)` throws an error if one occurs.
+    func test_provideCredential_error() async throws {
+        autofillCredentialService.provideCredentialError = ASExtensionError(.userInteractionRequired)
+
+        await assertAsyncThrows(error: ASExtensionError(.userInteractionRequired)) {
+            _ = try await subject.provideCredential(for: "1")
+        }
+    }
+
+    /// `repromptForCredentialIfNecessary(for:)` reprompts the user for their master password if
+    /// reprompt is enabled for the cipher.
+    func test_repromptForCredentialIfNecessary() throws {
+        vaultRepository.repromptRequiredForCipherResult = .success(true)
+
+        var masterPasswordValidated: Bool?
+        let expectation = expectation(description: #function)
+        Task {
+            try await subject.repromptForCredentialIfNecessary(for: "1") { validated in
+                masterPasswordValidated = validated
+                expectation.fulfill()
+            }
+        }
+        waitFor(!coordinator.alertShown.isEmpty)
+
+        XCTAssertEqual(coordinator.alertShown.count, 1)
+        let alert = try XCTUnwrap(coordinator.alertShown.last)
+        XCTAssertEqual(alert, .masterPasswordPrompt { _ in })
+        var textField = try XCTUnwrap(alert.alertTextFields.first)
+        textField = AlertTextField(id: "password", text: "password")
+        let submitAction = try XCTUnwrap(alert.alertActions.first(where: { $0.title == Localizations.submit }))
+        Task {
+            await submitAction.handler?(submitAction, [textField])
+        }
+
+        waitForExpectations(timeout: 1)
+
+        XCTAssertEqual(masterPasswordValidated, true)
+    }
+
+    /// `repromptForCredentialIfNecessary(for:)` logs the error if one occurs.
+    func test_repromptForCredentialIfNecessary_error() throws {
+        authRepository.validatePasswordResult = .failure(BitwardenTestError.example)
+        vaultRepository.repromptRequiredForCipherResult = .success(true)
+
+        var masterPasswordValidated: Bool?
+        let expectation = expectation(description: #function)
+        Task {
+            try await subject.repromptForCredentialIfNecessary(for: "1") { validated in
+                masterPasswordValidated = validated
+                expectation.fulfill()
+            }
+        }
+        waitFor(!coordinator.alertShown.isEmpty)
+
+        XCTAssertEqual(coordinator.alertShown.count, 1)
+        let alert = try XCTUnwrap(coordinator.alertShown.last)
+        XCTAssertEqual(alert, .masterPasswordPrompt { _ in })
+        Task {
+            try await alert.tapAction(title: Localizations.submit)
+        }
+
+        waitForExpectations(timeout: 1)
+
+        XCTAssertEqual(errorReporter.errors as? [BitwardenTestError], [.example])
+        XCTAssertEqual(masterPasswordValidated, false)
+    }
+
+    /// `repromptForCredentialIfNecessary(for:)` displays an alert if the user enters an invalid
+    /// password into the master password reprompt alert.
+    func test_repromptForCredentialIfNecessary_invalidPassword() throws {
+        authRepository.validatePasswordResult = .success(false)
+        vaultRepository.repromptRequiredForCipherResult = .success(true)
+
+        var masterPasswordValidated: Bool?
+        let expectation = expectation(description: #function)
+        Task {
+            try await subject.repromptForCredentialIfNecessary(for: "1") { validated in
+                masterPasswordValidated = validated
+                expectation.fulfill()
+            }
+        }
+        waitFor(!coordinator.alertShown.isEmpty)
+
+        XCTAssertEqual(coordinator.alertShown.count, 1)
+        var alert = try XCTUnwrap(coordinator.alertShown.last)
+        Task {
+            try await alert.tapAction(title: Localizations.submit)
+        }
+
+        waitFor(coordinator.alertShown.count == 2)
+        alert = try XCTUnwrap(coordinator.alertShown.last)
+        XCTAssertEqual(alert, .defaultAlert(title: Localizations.invalidMasterPassword))
+        Task {
+            try await alert.tapAction(title: Localizations.ok)
+        }
+        coordinator.alertOnDismissed?()
+
+        waitForExpectations(timeout: 1)
+
+        XCTAssertEqual(masterPasswordValidated, false)
+    }
+
+    /// `repromptForCredentialIfNecessary(for:)` calls the completion handler if reprompt isn't
+    /// required for the cipher.
+    func test_repromptForCredentialIfNecessary_repromptNotRequired() async throws {
+        vaultRepository.repromptRequiredForCipherResult = .success(false)
+
+        var masterPasswordValidated: Bool?
+        try await subject.repromptForCredentialIfNecessary(for: "1") { validated in
+            masterPasswordValidated = validated
+        }
+
+        XCTAssertEqual(masterPasswordValidated, false)
     }
 
     /// `routeToLanding(_:)` navigates to show the landing view.

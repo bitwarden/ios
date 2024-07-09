@@ -15,6 +15,7 @@ final class VaultGroupProcessor: StateProcessor<// swiftlint:disable:this type_b
 
     typealias Services = HasAuthRepository
         & HasErrorReporter
+        & HasEventService
         & HasPasteboardService
         & HasPolicyService
         & HasStateService
@@ -237,15 +238,15 @@ final class VaultGroupProcessor: StateProcessor<// swiftlint:disable:this type_b
     private func showMoreOptionsAlert(for item: VaultListItem) async {
         do {
             // Only ciphers have more options.
-            guard case let .cipher(cipherView) = item.itemType else { return }
+            guard case let .cipher(cipherView, _) = item.itemType else { return }
 
             let hasPremium = await (try? services.vaultRepository.doesActiveAccountHavePremium()) ?? false
             let hasMasterPassword = try await services.stateService.getUserHasMasterPassword()
 
             coordinator.showAlert(.moreOptions(
+                canCopyTotp: hasPremium || cipherView.organizationUseTotp,
                 cipherView: cipherView,
                 hasMasterPassword: hasMasterPassword,
-                hasPremium: hasPremium,
                 id: item.id,
                 showEdit: state.group != .trash,
                 action: handleMoreOptionsAction
@@ -281,21 +282,29 @@ final class VaultGroupProcessor: StateProcessor<// swiftlint:disable:this type_b
         }
     }
 
-    /// Handle the result of the selected option on the More Options alert..
+    /// Handle the result of the selected option on the More Options alert.
     ///
     /// - Parameter action: The selected action.
     ///
     private func handleMoreOptionsAction(_ action: MoreOptionsAction) async {
         switch action {
-        case let .copy(toast, value, requiresMasterPasswordReprompt):
-            if requiresMasterPasswordReprompt {
-                presentMasterPasswordRepromptAlert {
-                    self.services.pasteboardService.copy(value)
-                    self.state.toast = Toast(text: Localizations.valueHasBeenCopied(toast))
+        case let .copy(toast, value, requiresMasterPasswordReprompt, event, cipherId):
+            let copyBlock = {
+                self.services.pasteboardService.copy(value)
+                self.state.toast = Toast(text: Localizations.valueHasBeenCopied(toast))
+                if let event {
+                    Task {
+                        await self.services.eventService.collect(
+                            eventType: event,
+                            cipherId: cipherId
+                        )
+                    }
                 }
+            }
+            if requiresMasterPasswordReprompt {
+                presentMasterPasswordRepromptAlert(completion: copyBlock)
             } else {
-                services.pasteboardService.copy(value)
-                state.toast = Toast(text: Localizations.valueHasBeenCopied(toast))
+                copyBlock()
             }
         case let .copyTotp(totpKey, requiresMasterPasswordReprompt):
             if requiresMasterPasswordReprompt {

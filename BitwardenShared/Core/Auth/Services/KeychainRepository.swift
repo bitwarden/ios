@@ -44,9 +44,9 @@ enum KeychainItem: Equatable {
         case let .accessToken(userId):
             "accessToken_\(userId)"
         case let .biometrics(userId: id):
-            "biometric_key_" + id
+            "userKeyBiometricUnlock_" + id
         case let .deviceKey(userId: id):
-            "device_key_" + id
+            "deviceKey_" + id
         case let .neverLock(userId: id):
             "userKeyAutoUnlock_" + id
         case let .pendingAdminLoginRequest(userId):
@@ -183,18 +183,20 @@ class DefaultKeychainRepository: KeychainRepository {
     ///
     let appIdService: AppIdService
 
-    /// An identifier for this application and extensions.
-    ///   ie: "LTZ2PFU5D6.com.8bit.bitwarden"
+    /// An identifier for the keychain service used by the application and extensions.
+    ///
+    /// Example: "com.8bit.bitwarden".
     ///
     var appSecAttrService: String {
         Bundle.main.appIdentifier
     }
 
-    /// An identifier for this application group and extensions
-    ///   ie: "group.LTZ2PFU5D6.com.8bit.bitwarden"
+    /// An identifier for the keychain access group used by the application group and extensions.
+    ///
+    /// Example: "LTZ2PFU5D6.com.8bit.bitwarden"
     ///
     var appSecAttrAccessGroup: String {
-        Bundle.main.groupIdentifier
+        Bundle.main.keychainAccessGroup
     }
 
     /// The keychain service used by the repository

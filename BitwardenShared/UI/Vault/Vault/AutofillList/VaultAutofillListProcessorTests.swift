@@ -49,21 +49,25 @@ class VaultAutofillListProcessorTests: BitwardenTestCase {
 
     // MARK: Tests
 
-    /// `cipherTapped(_:)` has the autofill helper handle autofill for the cipher and completes the
+    /// `vaultItemTapped(_:)` has the autofill helper handle autofill for the cipher and completes the
     /// autofill request.
-    func test_perform_cipherTapped() async {
-        let cipher = CipherView.fixture(login: .fixture(password: "PASSWORD", username: "user@bitwarden.com"))
-        await subject.perform(.cipherTapped(cipher))
+    func test_perform_vaultItemTapped() async {
+        let vaultListItem = VaultListItem(
+            cipherView: CipherView.fixture(login: .fixture(password: "PASSWORD", username: "user@bitwarden.com"))
+        )!
+        await subject.perform(.vaultItemTapped(vaultListItem))
 
         XCTAssertEqual(appExtensionDelegate.didCompleteAutofillRequestUsername, "user@bitwarden.com")
         XCTAssertEqual(appExtensionDelegate.didCompleteAutofillRequestPassword, "PASSWORD")
     }
 
-    /// `cipherTapped(_:)` has the autofill helper handle autofill for the cipher and shows a toast
+    /// `vaultItemTapped(_:)` has the autofill helper handle autofill for the cipher and shows a toast
     /// if a cipher value was copied instead of autofilled.
-    func test_perform_cipherTapped_showToast() async throws {
-        let cipher = CipherView.fixture(login: .fixture(password: "PASSWORD", username: nil))
-        await subject.perform(.cipherTapped(cipher))
+    func test_perform_vaultItemTapped_showToast() async throws {
+        let vaultListItem = VaultListItem(
+            cipherView: CipherView.fixture(login: .fixture(password: "PASSWORD", username: nil))
+        )!
+        await subject.perform(.vaultItemTapped(vaultListItem))
 
         let alert = try XCTUnwrap(coordinator.alertShown.last)
         XCTAssertEqual(alert.title, "Bitwarden")
@@ -146,7 +150,7 @@ class VaultAutofillListProcessorTests: BitwardenTestCase {
         waitFor(!subject.state.ciphersForSearch.isEmpty)
         task.cancel()
 
-        XCTAssertEqual(subject.state.ciphersForSearch, ciphers)
+        XCTAssertEqual(subject.state.ciphersForSearch, ciphers.compactMap { VaultListItem(cipherView: $0) })
         XCTAssertFalse(subject.state.showNoResults)
     }
 
@@ -197,7 +201,7 @@ class VaultAutofillListProcessorTests: BitwardenTestCase {
         waitFor(!subject.state.ciphersForAutofill.isEmpty)
         task.cancel()
 
-        XCTAssertEqual(subject.state.ciphersForAutofill, ciphers)
+        XCTAssertEqual(subject.state.ciphersForAutofill, ciphers.compactMap { VaultListItem(cipherView: $0) })
     }
 
     /// `perform(_:)` with `.streamAutofillItems` logs an error if one occurs.

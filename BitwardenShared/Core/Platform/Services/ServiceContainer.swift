@@ -35,6 +35,9 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
     /// The service used by the application to handle authentication tasks.
     let authService: AuthService
 
+    /// The service which manages the ciphers exposed to the system for AutoFill suggestions.
+    let autofillCredentialService: AutofillCredentialService
+
     /// The repository to manage biometric unlock policies and access controls the user.
     let biometricsRepository: BiometricsRepository
 
@@ -59,6 +62,9 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
     /// The service used by the application to report non-fatal errors.
     let errorReporter: ErrorReporter
 
+    /// The service used to record and send events.
+    let eventService: EventService
+
     /// The service used to export a vault.
     let exportVaultService: ExportVaultService
 
@@ -70,6 +76,9 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
 
     /// The repository used to manage keychain items.
     let keychainRepository: KeychainRepository
+
+    /// The service used by the application to evaluate local auth policies.
+    let localAuthService: LocalAuthService
 
     /// The serviced used to perform app data migrations.
     let migrationService: MigrationService
@@ -139,8 +148,10 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
     ///   - appSettingsStore: The service used by the application to persist app setting values.
     ///   - authRepository: The repository used by the application to manage auth data for the UI layer.
     ///   - authService: The service used by the application to handle authentication tasks.
-    ///   - biometricsRepository: The repository to manage bioemtric unlock policies
-    ///         and access controls for the user.
+    ///   - autofillCredentialService: The service which manages the ciphers exposed to the system
+    ///     for AutoFill suggestions.
+    ///   - biometricsRepository: The repository to manage biometric unlock policies and access
+    ///     controls for the user.
     ///   - biometricsService: The service used to obtain device biometrics status & data.
     ///   - captchaService: The service used by the application to create captcha related artifacts.
     ///   - cameraService: The service used by the application to manage camera use.
@@ -148,9 +159,12 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
     ///   - configService: The service to get server-specified configuration.
     ///   - environmentService: The service used by the application to manage the environment settings.
     ///   - errorReporter: The service used by the application to report non-fatal errors.
+    ///   - eventService: The service used to record and send events.
+    ///   - exportVaultService: The service used to export vaults.
     ///   - generatorRepository: The repository used by the application to manage generator data for the UI layer.
     ///   - keychainRepository: The repository used to manages keychain items.
     ///   - keychainService: The service used to access & store data on the device keychain.
+    ///   - localAuthService: The service used by the application to evaluate local auth policies.
     ///   - migrationService: The serviced used to perform app data migrations.
     ///   - nfcReaderService: The service used by the application to read NFC tags.
     ///   - notificationCenterService: The service used by the application to access the system's notification center.
@@ -178,6 +192,7 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
         appSettingsStore: AppSettingsStore,
         authRepository: AuthRepository,
         authService: AuthService,
+        autofillCredentialService: AutofillCredentialService,
         biometricsRepository: BiometricsRepository,
         biometricsService: BiometricsService,
         captchaService: CaptchaService,
@@ -186,10 +201,12 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
         configService: ConfigService,
         environmentService: EnvironmentService,
         errorReporter: ErrorReporter,
+        eventService: EventService,
         exportVaultService: ExportVaultService,
         generatorRepository: GeneratorRepository,
         keychainRepository: KeychainRepository,
         keychainService: KeychainService,
+        localAuthService: LocalAuthService,
         migrationService: MigrationService,
         nfcReaderService: NFCReaderService,
         notificationCenterService: NotificationCenterService,
@@ -216,6 +233,7 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
         self.appSettingsStore = appSettingsStore
         self.authRepository = authRepository
         self.authService = authService
+        self.autofillCredentialService = autofillCredentialService
         self.biometricsRepository = biometricsRepository
         self.biometricsService = biometricsService
         self.captchaService = captchaService
@@ -224,10 +242,12 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
         self.configService = configService
         self.environmentService = environmentService
         self.errorReporter = errorReporter
+        self.eventService = eventService
         self.exportVaultService = exportVaultService
         self.generatorRepository = generatorRepository
         self.keychainService = keychainService
         self.keychainRepository = keychainRepository
+        self.localAuthService = localAuthService
         self.migrationService = migrationService
         self.nfcReaderService = nfcReaderService
         self.notificationCenterService = notificationCenterService
@@ -276,7 +296,11 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
         )
         let timeProvider = CurrentTime()
 
-        let stateService = DefaultStateService(appSettingsStore: appSettingsStore, dataStore: dataStore)
+        let stateService = DefaultStateService(
+            appSettingsStore: appSettingsStore,
+            dataStore: dataStore,
+            keychainRepository: keychainRepository
+        )
 
         let clientBuilder = DefaultClientBuilder(errorReporter: errorReporter)
         let clientService = DefaultClientService(
@@ -291,6 +315,8 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
             keychainService: keychainRepository,
             stateService: stateService
         )
+
+        let localAuthService = DefaultLocalAuthService()
 
         let environmentService = DefaultEnvironmentService(stateService: stateService)
         let collectionService = DefaultCollectionService(collectionDataStore: dataStore, stateService: stateService)
@@ -331,6 +357,14 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
             cipherDataStore: dataStore,
             fileAPIService: apiService,
             stateService: stateService
+        )
+
+        let eventService = DefaultEventService(
+            cipherService: cipherService,
+            errorReporter: errorReporter,
+            organizationService: organizationService,
+            stateService: stateService,
+            timeProvider: timeProvider
         )
 
         let exportVaultService = DefultExportVaultService(
@@ -408,6 +442,16 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
             trustDeviceService: trustDeviceService
         )
 
+        let autofillCredentialService = DefaultAutofillCredentialService(
+            cipherService: cipherService,
+            clientService: clientService,
+            errorReporter: errorReporter,
+            eventService: eventService,
+            pasteboardService: pasteboardService,
+            stateService: stateService,
+            vaultTimeoutService: vaultTimeoutService
+        )
+
         let authRepository = DefaultAuthRepository(
             accountAPIService: apiService,
             authService: authService,
@@ -427,7 +471,8 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
         let migrationService = DefaultMigrationService(
             appSettingsStore: appSettingsStore,
             errorReporter: errorReporter,
-            keychainRepository: keychainRepository
+            keychainRepository: keychainRepository,
+            keychainService: keychainService
         )
 
         let notificationService = DefaultNotificationService(
@@ -465,10 +510,10 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
         )
 
         let vaultRepository = DefaultVaultRepository(
-            cipherAPIService: apiService,
             cipherService: cipherService,
             clientService: clientService,
             collectionService: collectionService,
+            configService: configService,
             environmentService: environmentService,
             errorReporter: errorReporter,
             folderService: folderService,
@@ -487,6 +532,7 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
             appSettingsStore: appSettingsStore,
             authRepository: authRepository,
             authService: authService,
+            autofillCredentialService: autofillCredentialService,
             biometricsRepository: biometricsRepository,
             biometricsService: biometricsService,
             captchaService: captchaService,
@@ -495,10 +541,12 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
             configService: configService,
             environmentService: environmentService,
             errorReporter: errorReporter,
+            eventService: eventService,
             exportVaultService: exportVaultService,
             generatorRepository: generatorRepository,
             keychainRepository: keychainRepository,
             keychainService: keychainService,
+            localAuthService: localAuthService,
             migrationService: migrationService,
             nfcReaderService: nfcReaderService ?? NoopNFCReaderService(),
             notificationCenterService: notificationCenterService,

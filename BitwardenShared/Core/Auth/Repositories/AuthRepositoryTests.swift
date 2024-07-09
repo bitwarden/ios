@@ -131,18 +131,36 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
 
     // MARK: Tests
 
+    /// `.canVerifyMasterPassword()`  true when user has master password.
+    func test_canVerifyMasterPassword_hasMasterPassword() async throws {
+        stateService.activeAccount = .fixture(profile: .fixture(userId: "1"))
+        stateService.userHasMasterPassword["1"] = true
+
+        let result = try await subject.canVerifyMasterPassword()
+        XCTAssertTrue(result)
+    }
+
+    /// `.canVerifyMasterPassword()`  false when user doesn't have master password.
+    func test_canVerifyMasterPassword_hasNotMasterPassword() async throws {
+        stateService.activeAccount = .fixture(profile: .fixture(userId: "1"))
+        stateService.userHasMasterPassword["1"] = false
+
+        let result = try await subject.canVerifyMasterPassword()
+        XCTAssertFalse(result)
+    }
+
     /// `.clearPins()` clears the user's pins.
     func test_clearPins() async throws {
         stateService.activeAccount = Account.fixture()
         let userId = Account.fixture().profile.userId
 
         stateService.pinProtectedUserKeyValue[userId] = "123"
-        stateService.pinKeyEncryptedUserKeyValue[userId] = "123"
+        stateService.encryptedPinByUserId[userId] = "123"
         stateService.accountVolatileData[userId]?.pinProtectedUserKey = "123"
 
         try await subject.clearPins()
         XCTAssertNil(stateService.pinProtectedUserKeyValue[userId])
-        XCTAssertNil(stateService.pinKeyEncryptedUserKeyValue[userId])
+        XCTAssertNil(stateService.encryptedPinByUserId[userId])
         XCTAssertNil(stateService.accountVolatileData[userId]?.pinProtectedUserKey)
     }
 
@@ -227,6 +245,68 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         XCTAssertEqual(accounts.count, 1)
         XCTAssertEqual(client.requests.count, 1)
         XCTAssertEqual(client.requests[0].url, URL(string: "https://example.com/api/accounts"))
+    }
+
+    /// `existingAccountUserId(email:)` returns the user ID of the existing account with the same
+    /// email and base URLs.
+    func test_existingAccountUserId() async throws {
+        environmentService.baseURL = try XCTUnwrap(EnvironmentUrlData.defaultUS.base)
+        stateService.activeAccount = .fixture(profile: .fixture(email: "user@bitwarden.com", userId: "1"))
+        stateService.environmentUrls["1"] = .defaultUS
+        stateService.userIds = ["1"]
+
+        let userId = await subject.existingAccountUserId(email: "user@bitwarden.com")
+
+        XCTAssertEqual(userId, "1")
+    }
+
+    /// `existingAccountUserId(email:)` returns `nil` if getting the environment URLs throws an error.
+    func test_existingAccountUserId_getEnvironmentUrlsError() async throws {
+        environmentService.baseURL = try XCTUnwrap(EnvironmentUrlData.defaultUS.base)
+        stateService.activeAccount = .fixture(profile: .fixture(email: "user@bitwarden.com", userId: "1"))
+        stateService.environmentUrlsError = StateServiceError.noAccounts
+        stateService.userIds = ["1"]
+
+        let userId = await subject.existingAccountUserId(email: "user@bitwarden.com")
+
+        XCTAssertNil(userId)
+    }
+
+    /// `existingAccountUserId(email:)` returns `nil` if there's an existing account with the same
+    /// email but the base URLs are different.
+    func test_existingAccountUserId_matchingAccountDifferentBaseUrl() async throws {
+        environmentService.baseURL = try XCTUnwrap(EnvironmentUrlData.defaultEU.base)
+        stateService.activeAccount = .fixture(profile: .fixture(email: "user@bitwarden.com", userId: "1"))
+        stateService.environmentUrls["1"] = .defaultUS
+        stateService.userIds = ["1"]
+
+        let userId = await subject.existingAccountUserId(email: "user@bitwarden.com")
+
+        XCTAssertNil(userId)
+    }
+
+    /// `existingAccountUserId(email:)` returns the matching user ID with the same base URL, if
+    /// there are multiple matches for the user's email.
+    func test_existingAccountUserId_multipleMatching() async throws {
+        stateService.activeAccount = .fixture(profile: .fixture(email: "user@bitwarden.com", userId: "1"))
+        stateService.environmentUrls["1"] = .defaultUS
+        stateService.environmentUrls["2"] = .defaultEU
+        stateService.userIds = ["1", "2"]
+
+        environmentService.baseURL = try XCTUnwrap(EnvironmentUrlData.defaultUS.base)
+        var userId = await subject.existingAccountUserId(email: "user@bitwarden.com")
+        XCTAssertEqual(userId, "1")
+
+        environmentService.baseURL = try XCTUnwrap(EnvironmentUrlData.defaultEU.base)
+        userId = await subject.existingAccountUserId(email: "user@bitwarden.com")
+        XCTAssertEqual(userId, "2")
+    }
+
+    /// `existingAccountUserId(email:)` returns `nil` if there isn't an account that matches the email.
+    func test_existingAccountUserId_noMatchingAccount() async throws {
+        let userId = await subject.existingAccountUserId(email: "user@bitwarden.com")
+
+        XCTAssertNil(userId)
     }
 
     /// `allowBioMetricUnlock(:)` throws an error if required.
@@ -1041,11 +1121,40 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         let userId = account.profile.userId
         try await subject.setPins("123", requirePasswordAfterRestart: true)
         XCTAssertEqual(stateService.pinProtectedUserKeyValue[userId], "12")
-        XCTAssertEqual(stateService.pinKeyEncryptedUserKeyValue[userId], "34")
+        XCTAssertEqual(stateService.encryptedPinByUserId[userId], "34")
         XCTAssertEqual(stateService.accountVolatileData[
             userId,
             default: AccountVolatileData()
         ].pinProtectedUserKey, "12")
+    }
+
+    /// `.shouldPerformMasterPasswordReprompt(reprompt:)`  when reprompt password
+    /// and master password hash exists.
+    func test_shouldPerformMasterPasswordReprompt_true() async throws {
+        stateService.activeAccount = .fixture(profile: .fixture(userId: "1"))
+        stateService.userHasMasterPassword["1"] = true
+
+        let result = try await subject.shouldPerformMasterPasswordReprompt(reprompt: .password)
+        XCTAssertTrue(result)
+    }
+
+    /// `.shouldPerformMasterPasswordReprompt(reprompt:)`  when reprompt password
+    /// and master password hash does not exist.
+    func test_shouldPerformMasterPasswordReprompt_false_reprompt_password() async throws {
+        stateService.activeAccount = .fixture(profile: .fixture(userId: "1"))
+        stateService.userHasMasterPassword["1"] = false
+
+        let result = try await subject.shouldPerformMasterPasswordReprompt(reprompt: .password)
+        XCTAssertFalse(result)
+    }
+
+    /// `.shouldPerformMasterPasswordReprompt(reprompt:)`  when reprompt none
+    func test_shouldPerformMasterPasswordReprompt_false_reprompt_none() async throws {
+        stateService.activeAccount = .fixture()
+        stateService.masterPasswordHashes["1"] = "MASTER_PASSWORD_HASH"
+
+        let result = try await subject.shouldPerformMasterPasswordReprompt(reprompt: .none)
+        XCTAssertFalse(result)
     }
 
     /// `unlockVaultWithPassword(password:)` unlocks the vault with the user's password.
@@ -1311,7 +1420,7 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
             "1": AccountEncryptionKeys(encryptedPrivateKey: "PRIVATE_KEY", encryptedUserKey: "USER_KEY"),
         ]
 
-        stateService.pinKeyEncryptedUserKeyValue[account.profile.userId] = "123"
+        stateService.encryptedPinByUserId[account.profile.userId] = "123"
         stateService.pinProtectedUserKeyValue[account.profile.userId] = "123"
 
         await assertAsyncDoesNotThrow {

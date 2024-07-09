@@ -47,6 +47,8 @@ class MockVaultRepository: VaultRepository {
 
     var getDisableAutoTotpCopyResult: Result<Bool, Error> = .success(false)
 
+    var hasUnassignedCiphersResult: Result<Bool, Error> = .success(false)
+
     var needsSyncCalled = false
     var needsSyncResult: Result<Bool, Error> = .success(false)
 
@@ -66,6 +68,8 @@ class MockVaultRepository: VaultRepository {
 
     var removeAccountIds = [String?]()
 
+    var repromptRequiredForCipherResult: Result<Bool, Error> = .success(false)
+
     var restoredCipher = [CipherView]()
     var restoreCipherResult: Result<Void, Error> = .success(())
 
@@ -79,6 +83,8 @@ class MockVaultRepository: VaultRepository {
 
     var shareCipherCiphers = [CipherView]()
     var shareCipherResult: Result<Void, Error> = .success(())
+
+    var shouldShowUnassignedCiphersAlert = false
 
     var softDeletedCipher = [CipherView]()
     var softDeleteCipherResult: Result<Void, Error> = .success(())
@@ -178,6 +184,10 @@ class MockVaultRepository: VaultRepository {
         try getDisableAutoTotpCopyResult.get()
     }
 
+    func hasUnassignedCiphers() async throws -> Bool {
+        try hasUnassignedCiphersResult.get()
+    }
+
     func needsSync() async throws -> Bool {
         needsSyncCalled = true
         return try needsSyncResult.get()
@@ -206,6 +216,10 @@ class MockVaultRepository: VaultRepository {
         removeAccountIds.append(userId)
     }
 
+    func repromptRequiredForCipher(id: String) async throws -> Bool {
+        try repromptRequiredForCipherResult.get()
+    }
+
     func restoreCipher(_ cipher: CipherView) async throws {
         restoredCipher.append(cipher)
         try restoreCipherResult.get()
@@ -232,9 +246,13 @@ class MockVaultRepository: VaultRepository {
         return searchVaultListSubject.eraseToAnyPublisher().values
     }
 
-    func shareCipher(_ cipher: CipherView) async throws {
+    func shareCipher(_ cipher: CipherView, newOrganizationId: String, newCollectionIds: [String]) async throws {
         shareCipherCiphers.append(cipher)
         try shareCipherResult.get()
+    }
+
+    func shouldShowUnassignedCiphersAlert() async -> Bool {
+        shouldShowUnassignedCiphersAlert
     }
 
     func softDeleteCipher(_ cipher: CipherView) async throws {

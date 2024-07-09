@@ -216,4 +216,83 @@ extension Alert {
             ]
         )
     }
+
+    /// An alert asking the user if they want to switch to the already existing account when adding
+    /// a new account.
+    ///
+    /// - Parameter action: The action taken if the user wants to switch to the existing account.
+    /// - Returns: An alert asking the user if they want to switch to the already existing account
+    ///     when adding a new account.
+    ///
+    static func switchToExistingAccount(
+        action: @escaping () async -> Void
+    ) -> Alert {
+        Alert(
+            title: Localizations.accountAlreadyAdded,
+            message: Localizations.switchToAlreadyAddedAccountConfirmation,
+            alertActions: [
+                AlertAction(title: Localizations.cancel, style: .cancel),
+                AlertAction(title: Localizations.yes, style: .default) { _ in await action() },
+            ]
+        )
+    }
+
+    /// An alert notifying the user that they have unassigned ciphers.
+    ///
+    /// - Parameters:
+    ///   - action: The action taken if the user acknowledges.
+    /// - Returns: An alert notififying the user that they have unassigned ciphers.
+    ///
+    static func unassignedCiphers(
+        _ action: @escaping () async -> Void
+    ) -> Alert {
+        Alert(
+            title: Localizations.notice,
+            message: Localizations.organizationUnassignedItemsMessageUSEUDescriptionLong,
+            alertActions: [
+                AlertAction(title: Localizations.remindMeLater, style: .default),
+                AlertAction(title: Localizations.ok, style: .default) { _ in
+                    await action()
+                },
+            ]
+        )
+    }
+
+    /// An alert that prompts the user to enter their PIN.
+    /// - Parameters:
+    ///   - completion: The code block that's executed when the user has entered their pin.
+    ///   - onCancelled: A block that is executed when the user interacts with the "Cancel" button.
+    ///   - settingUp: Whether the message displayed to the user is to set or verify a pin
+    /// - Returns: An alert that prompts the user to enter their PIN.
+    static func enterPINCode(
+        onCancelled: (() -> Void)? = nil,
+        settingUp: Bool = true,
+        completion: @MainActor @escaping (String) async -> Void
+    ) -> Alert {
+        Alert(
+            title: Localizations.enterPIN,
+            message: settingUp ? Localizations.setPINDescription : Localizations.verifyPIN,
+            alertActions: [
+                AlertAction(
+                    title: Localizations.submit,
+                    style: .default,
+                    handler: { _, alertTextFields in
+                        guard let pin = alertTextFields.first(where: { $0.id == "pin" })?.text else { return }
+                        await completion(pin)
+                    }
+                ),
+                AlertAction(title: Localizations.cancel, style: .cancel, handler: { _, _ in
+                    onCancelled?()
+                }),
+            ],
+            alertTextFields: [
+                AlertTextField(
+                    id: "pin",
+                    autocapitalizationType: .none,
+                    autocorrectionType: .no,
+                    keyboardType: .numberPad
+                ),
+            ]
+        )
+    }
 }

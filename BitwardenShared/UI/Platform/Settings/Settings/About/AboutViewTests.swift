@@ -32,13 +32,6 @@ class AboutViewTests: BitwardenTestCase {
 
     // MARK: Tests
 
-    /// Tapping the give feedback button dispatches the `.giveFeedbackTapped` action.
-    func test_giveFeedbackButton_tap() throws {
-        let button = try subject.inspect().find(button: Localizations.giveFeedback)
-        try button.tap()
-        XCTAssertEqual(processor.dispatchedActions.last, .giveFeedbackTapped)
-    }
-
     /// Tapping the help center button dispatches the `.helpCenterTapped` action.
     func test_helpCenterButton_tap() throws {
         let button = try subject.inspect().find(button: Localizations.bitwardenHelpCenter)

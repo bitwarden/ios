@@ -1,30 +1,48 @@
----
 name: Test
 
 on:
-  pull_request:
+  push:
+    branches:
+      - "main"
+      - "rc"
+      - "hotfix-rc"
+  pull_request_target:
+    types: [opened, synchronize]
 
 env:
   DEVELOPER_DIR: /Applications/Xcode_15.0.1.app/Contents/Developer
   MINT_LINK_PATH: .mint/bin
   MINT_PATH: .mint/lib
   SIMULATOR_DESTINATION: platform=iOS Simulator,name=iPhone 15 Pro,OS=17.0.1
+  RESULT_BUNDLE_PATH: build/BitwardenTests.xcresult
+  COVERAGE_PATH: build/coverage.xml
 
 jobs:
+  check-run:
+    name: Check PR run
+    uses: bitwarden/gh-actions/.github/workflows/check-run.yml@main
+
   test:
     name: Test
     runs-on: macos-14-xlarge
-    steps:
-      - name: Checkout
-        uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
+    needs: check-run
+    permissions:
+      contents: read
+      issues: write
+      pull-requests: write
 
-      - name: Setup Ruby
-        uses: ruby/setup-ruby@6bd3d993c602f6b675728ebaecb2b569ff86e99b # v1.174.0
+    steps:
+      - name: Check out repo
+        uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
+        with:
+          ref: ${{  github.event.pull_request.head.sha }}
+
+      - name: Configure Ruby
+        uses: ruby/setup-ruby@af43264f2b94cc8451805dc51af7408f01de6471 # v1.182.0
         with:
           bundler-cache: true
-          ruby-version: 3.2.2
 
-      - name: Cache Mint Packages
+      - name: Cache Mint packages
         uses: actions/cache@0c45773b623bea8c8e75f6c82b208c3cf94ea4f9 # v4.0.2
         with:
           path: .mint
@@ -32,7 +50,7 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-mint-
 
-      - name: Cache SPM Packages
+      - name: Cache SPM packages
         uses: actions/cache@0c45773b623bea8c8e75f6c82b208c3cf94ea4f9 # v4.0.2
         with:
           path: build/DerivedData/SourcePackages
@@ -46,12 +64,12 @@ jobs:
           sudo installer -pkg yeetd-normal.pkg -target /
           yeetd &
 
-      - name: Setup
+      - name: Install Mint, xcbeautify, and xcresultparser
         run: |
-          brew install mint xcbeautify
+          brew install mint xcbeautify a7ex/homebrew-formulae/xcresultparser
           ./Scripts/bootstrap.sh
 
-      - name: Build and Test
+      - name: Build and test
         run: |
           set -o pipefail && \
             xcodebuild test \
@@ -59,11 +77,20 @@ jobs:
             -scheme Bitwarden \
             -configuration Debug \
             -destination "${{ env.SIMULATOR_DESTINATION }}" \
-            -resultBundlePath build/BitwardenTests.xcresult \
+            -resultBundlePath ${{ env.RESULT_BUNDLE_PATH }} \
             -derivedDataPath build/DerivedData \
             | xcbeautify --renderer github-actions
 
-      - name: Danger
+      - name: Convert coverage to Cobertura
+        run: |
+          set -o pipefail && \
+            xcresultparser --output-format cobertura \
+            "$RESULT_BUNDLE_PATH" >"$COVERAGE_PATH"
+
+      - name: Upload to codecov.io
+        uses: codecov/codecov-action@e28ff129e5465c2c0dcc6f003fc735cb6ae0c673 # v4.5.0
+        with:
+          plugin: xcode
+          file: ${{ env.COVERAGE_PATH }}
         env:
-          DANGER_GITHUB_API_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: bundle exec danger
+          CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}

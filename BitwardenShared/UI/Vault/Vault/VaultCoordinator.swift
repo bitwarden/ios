@@ -56,11 +56,13 @@ final class VaultCoordinator: Coordinator, HasStackNavigator {
     typealias Module = GeneratorModule
         & VaultItemModule
 
-    typealias Services = HasAuthRepository
+    typealias Services = HasApplication
+        & HasAuthRepository
         & HasAuthService
         & HasCameraService
         & HasEnvironmentService
         & HasErrorReporter
+        & HasLocalAuthService
         & HasNotificationService
         & HasStateService
         & HasTimeProvider
@@ -139,7 +141,8 @@ final class VaultCoordinator: Coordinator, HasStackNavigator {
                         group: group,
                         hasPremium: hasPremium ?? false,
                         newCipherOptions: newCipherOptions
-                    )
+                    ),
+                    delegate: context as? CipherItemOperationDelegate
                 )
             }
         case .autofillList:
@@ -160,6 +163,8 @@ final class VaultCoordinator: Coordinator, HasStackNavigator {
             showList()
         case let .loginRequest(loginRequest):
             delegate?.presentLoginRequest(loginRequest)
+        case let .vaultItemSelection(otpAuthModel):
+            showVaultItemSelection(otpAuthModel: otpAuthModel)
         case let .viewItem(id):
             showVaultItem(route: .viewItem(id: id), delegate: context as? CipherItemOperationDelegate)
         case let .switchAccount(userId: userId):
@@ -240,7 +245,7 @@ final class VaultCoordinator: Coordinator, HasStackNavigator {
     ///
     /// - Parameter route: The route to navigate to in the coordinator.
     ///
-    private func showVaultItem(route: VaultItemRoute, delegate: CipherItemOperationDelegate? = nil) {
+    private func showVaultItem(route: VaultItemRoute, delegate: CipherItemOperationDelegate?) {
         let navigationController = UINavigationController()
         let coordinator = module.makeVaultItemCoordinator(stackNavigator: navigationController)
         coordinator.start()
@@ -248,4 +253,30 @@ final class VaultCoordinator: Coordinator, HasStackNavigator {
 
         stackNavigator?.present(navigationController)
     }
+
+    /// Shows the vault item selection screen.
+    ///
+    /// - Parameter otpAuthModel: The parsed OTP data to search for matching ciphers.
+    ///
+    func showVaultItemSelection(otpAuthModel: OTPAuthModel) {
+        let processor = VaultItemSelectionProcessor(
+            coordinator: asAnyCoordinator(),
+            services: services,
+            state: VaultItemSelectionState(
+                iconBaseURL: services.environmentService.iconsURL,
+                otpAuthModel: otpAuthModel
+            ),
+            userVerificationHelper: DefaultUserVerificationHelper(
+                userVerificationDelegate: self,
+                services: services
+            )
+        )
+        let view = VaultItemSelectionView(store: Store(processor: processor))
+        let viewController = UIHostingController(rootView: view)
+        stackNavigator?.present(UINavigationController(rootViewController: viewController))
+    }
 }
+
+// MARK: - UserVerificationDelegate
+
+extension VaultCoordinator: UserVerificationDelegate {}

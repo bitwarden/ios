@@ -14,13 +14,16 @@ final class VaultListProcessor: StateProcessor<
 > {
     // MARK: Types
 
-    typealias Services = HasAuthRepository
+    typealias Services = HasApplication
+        & HasAuthRepository
         & HasAuthService
         & HasErrorReporter
+        & HasEventService
         & HasNotificationService
         & HasPasteboardService
         & HasPolicyService
         & HasStateService
+        & HasTimeProvider
         & HasVaultRepository
 
     // MARK: Private Properties
@@ -30,6 +33,11 @@ final class VaultListProcessor: StateProcessor<
 
     /// The services used by this processor.
     private let services: Services
+
+    /// `true` if we're currently showing notification permissions.
+    /// This is used to prevent both the notification permissions and unused ciphers alert
+    /// from appearing at the same time.
+    private var isShowingNotificationPermissions = false
 
     // MARK: Initialization
 
@@ -56,9 +64,12 @@ final class VaultListProcessor: StateProcessor<
         switch effect {
         case .appeared:
             await refreshVault(isManualRefresh: false)
-            await requestNotificationPermissions()
+            await handleNotifications()
             await checkPendingLoginRequests()
             await checkPersonalOwnershipPolicy()
+            if !isShowingNotificationPermissions {
+                await checkUnassignedCiphers()
+            }
         case let .morePressed(item):
             await showMoreOptionsAlert(for: item)
         case let .profileSwitcher(profileEffect):
@@ -156,6 +167,24 @@ extension VaultListProcessor {
         state.isPersonalOwnershipDisabled = isPersonalOwnershipDisabled
     }
 
+    /// Checks if we need to display the unassigned ciphers alert, and displays if necessary.
+    ///
+    private func checkUnassignedCiphers() async {
+        guard state.shouldCheckUnassignedCiphers else { return }
+        state.shouldCheckUnassignedCiphers = false
+
+        guard await services.vaultRepository.shouldShowUnassignedCiphersAlert()
+        else { return }
+
+        showAlert(.unassignedCiphers {
+            do {
+                try await self.services.stateService.setShouldCheckOrganizationUnassignedItems(false, userId: nil)
+            } catch {
+                self.services.errorReporter.log(error: error)
+            }
+        })
+    }
+
     /// Generates and copies a TOTP code for the cipher's TOTP key.
     ///
     /// - Parameter totpKey: The TOTP key used to generate a TOTP code.
@@ -172,6 +201,18 @@ extension VaultListProcessor {
         } catch {
             coordinator.showAlert(.defaultAlert(title: Localizations.anErrorHasOccurred))
             services.errorReporter.log(error: error)
+        }
+    }
+
+    /// Entry point to handling things around push notifications.
+    private func handleNotifications() async {
+        switch await services.notificationService.notificationAuthorization() {
+        case .authorized:
+            await registerForNotifications()
+        case .notDetermined:
+            await requestNotificationPermissions()
+        default:
+            break
         }
     }
 
@@ -194,20 +235,40 @@ extension VaultListProcessor {
         }
     }
 
-    /// Request permission to send push notifications if the user hasn't granted or denied permissions before.
+    /// Attempts to register the device for push notifications.
+    /// We only need to register once a day.
+    private func registerForNotifications() async {
+        do {
+            let lastReg = try await services.stateService.getNotificationsLastRegistrationDate() ?? Date.distantPast
+            if services.timeProvider.timeSince(lastReg) >= 86400 { // One day
+                services.application?.registerForRemoteNotifications()
+                try await services.stateService.setNotificationsLastRegistrationDate(services.timeProvider.presentTime)
+            }
+        } catch {
+            services.errorReporter.log(error: error)
+        }
+    }
+
+    /// Request permission to send push notifications.
     private func requestNotificationPermissions() async {
-        // Don't do anything if the user has already responded to the permission request.
-        let notificationAuthorization = await services.notificationService.notificationAuthorization()
-        guard notificationAuthorization == .notDetermined else { return }
+        isShowingNotificationPermissions = true
 
         // Show the explanation alert before asking for permissions.
         coordinator.showAlert(
             .pushNotificationsInformation { [services] in
                 do {
-                    _ = try await services.notificationService
+                    let authorized = try await services.notificationService
                         .requestAuthorization(options: [.alert, .sound, .badge])
+                    if authorized {
+                        await self.registerForNotifications()
+                    }
                 } catch {
                     self.services.errorReporter.log(error: error)
+                }
+            }, onDismissed: {
+                Task {
+                    self.isShowingNotificationPermissions = false
+                    await self.checkUnassignedCiphers()
                 }
             }
         )
@@ -287,15 +348,15 @@ extension VaultListProcessor {
     private func showMoreOptionsAlert(for item: VaultListItem) async {
         do {
             // Only ciphers have more options.
-            guard case let .cipher(cipherView) = item.itemType else { return }
+            guard case let .cipher(cipherView, _) = item.itemType else { return }
 
             let hasPremium = await (try? services.vaultRepository.doesActiveAccountHavePremium()) ?? false
             let hasMasterPassword = try await services.stateService.getUserHasMasterPassword()
 
             coordinator.showAlert(.moreOptions(
+                canCopyTotp: hasPremium || cipherView.organizationUseTotp,
                 cipherView: cipherView,
                 hasMasterPassword: hasMasterPassword,
-                hasPremium: hasPremium,
                 id: item.id,
                 showEdit: true,
                 action: handleMoreOptionsAction
@@ -311,15 +372,23 @@ extension VaultListProcessor {
     ///
     private func handleMoreOptionsAction(_ action: MoreOptionsAction) async {
         switch action {
-        case let .copy(toast, value, requiresMasterPasswordReprompt):
-            if requiresMasterPasswordReprompt {
-                presentMasterPasswordRepromptAlert {
-                    self.services.pasteboardService.copy(value)
-                    self.state.toast = Toast(text: Localizations.valueHasBeenCopied(toast))
+        case let .copy(toast, value, requiresMasterPasswordReprompt, event, cipherId):
+            let copyBlock = {
+                self.services.pasteboardService.copy(value)
+                self.state.toast = Toast(text: Localizations.valueHasBeenCopied(toast))
+                if let event {
+                    Task {
+                        await self.services.eventService.collect(
+                            eventType: event,
+                            cipherId: cipherId
+                        )
+                    }
                 }
+            }
+            if requiresMasterPasswordReprompt {
+                presentMasterPasswordRepromptAlert(completion: copyBlock)
             } else {
-                services.pasteboardService.copy(value)
-                state.toast = Toast(text: Localizations.valueHasBeenCopied(toast))
+                copyBlock()
             }
         case let .copyTotp(totpKey, requiresMasterPasswordReprompt):
             if requiresMasterPasswordReprompt {
@@ -390,7 +459,13 @@ extension VaultListProcessor: CipherItemOperationDelegate {
 /// The actions available from the More Options alert.
 enum MoreOptionsAction: Equatable {
     /// Copy the `value` and show a toast with the `toast` string.
-    case copy(toast: String, value: String, requiresMasterPasswordReprompt: Bool)
+    case copy(
+        toast: String,
+        value: String,
+        requiresMasterPasswordReprompt: Bool,
+        logEvent: EventType?,
+        cipherId: String?
+    )
 
     /// Generate and copy the TOTP code for the given `totpKey`.
     case copyTotp(totpKey: TOTPKeyModel, requiresMasterPasswordReprompt: Bool)

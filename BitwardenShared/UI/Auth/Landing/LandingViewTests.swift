@@ -45,11 +45,11 @@ class LandingViewTests: BitwardenTestCase {
     }
 
     /// Tapping the continue button dispatches the `.continuePressed` action.
-    func test_continueButton_tap() throws {
+    func test_continueButton_tap() async throws {
         processor.state.email = "email@example.com"
-        let button = try subject.inspect().find(button: Localizations.continue)
-        try button.tap()
-        XCTAssertEqual(processor.dispatchedActions.last, .continuePressed)
+        let button = try subject.inspect().find(asyncButton: Localizations.continue)
+        try await button.tap()
+        XCTAssertEqual(processor.effects.last, .continuePressed)
     }
 
     /// Tapping the create account button dispatches the `.createAccountPressed` action.
