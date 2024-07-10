@@ -90,6 +90,18 @@ class AppProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_body
 
     // MARK: Tests
 
+    /// `init()` subscribes to app background events and logs an error if one occurs when
+    /// setting the last active time.
+    func test_appBackgrounded_error() {
+        stateService.activeAccount = .fixture()
+        vaultTimeoutService.setLastActiveTimeError = BitwardenTestError.example
+
+        notificationCenterService.didEnterBackgroundSubject.send()
+
+        waitFor(!errorReporter.errors.isEmpty)
+        XCTAssertEqual(errorReporter.errors as? [BitwardenTestError], [.example])
+    }
+
     /// The user's last active time is updated when the app is backgrounded.
     func test_appBackgrounded_setLastActiveTime() {
         let account: Account = .fixture()
@@ -135,6 +147,20 @@ class AppProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_body
 
         waitFor(!coordinator.events.isEmpty)
         XCTAssertEqual(coordinator.events, [.didTimeout(userId: "1")])
+    }
+
+    /// `init()` subscribes to will enter foreground events and logs an error if one occurs when
+    /// checking timeouts.
+    func test_init_appForeground_error() {
+        let account = Account.fixture()
+        stateService.activeAccount = account
+        stateService.accounts = [account]
+        vaultTimeoutService.shouldSessionTimeoutError = BitwardenTestError.example
+
+        notificationCenterService.willEnterForegroundSubject.send()
+
+        waitFor(!errorReporter.errors.isEmpty)
+        XCTAssertEqual(errorReporter.errors as? [BitwardenTestError], [.example])
     }
 
     /// `init()` subscribes to will enter foreground events and handles an inactive user timeout.
