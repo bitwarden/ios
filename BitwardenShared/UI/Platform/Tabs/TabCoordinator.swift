@@ -116,6 +116,7 @@ final class TabCoordinator: Coordinator, HasTabNavigator {
         guard let rootNavigator, let tabNavigator, let settingsDelegate, let vaultDelegate else { return }
 
         rootNavigator.show(child: tabNavigator)
+
         let vaultNavigator = UINavigationController()
         vaultNavigator.navigationBar.prefersLargeTitles = true
         vaultCoordinator = module.makeVaultCoordinator(
