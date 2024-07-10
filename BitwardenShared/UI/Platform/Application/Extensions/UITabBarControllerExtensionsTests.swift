@@ -54,13 +54,13 @@ class UITabBarControllerTests: BitwardenTestCase {
         subject = nil
     }
 
-    /// Tests that the tab bar items are laid out correctly with valut selected (default) in light mode.
+    /// Tests that the tab bar items are laid out correctly with vault selected (default) in light mode.
     func test_snapshot_tabBarItems_vaultSelected_lightMode() {
         subject.overrideUserInterfaceStyle = .light
         assertSnapshot(of: subject, as: .image)
     }
 
-    /// Tests that the tab bar items are laid out correctly with valut selected (default) in dark mode.
+    /// Tests that the tab bar items are laid out correctly with vault selected (default) in dark mode.
     func test_snapshot_tabBarItems_vaultSelected_darkMode() {
         subject.overrideUserInterfaceStyle = .dark
         assertSnapshot(of: subject, as: .image)
