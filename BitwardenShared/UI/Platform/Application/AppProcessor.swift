@@ -78,7 +78,16 @@ public class AppProcessor {
             coordinator?.showAlert(.defaultAlert(title: Localizations.anErrorHasOccurred))
             return
         }
-        coordinator?.navigate(to: .tab(.vault(.vaultItemSelection(otpAuthModel))))
+
+        let vaultItemSelectionRoute = AppRoute.tab(.vault(.vaultItemSelection(otpAuthModel)))
+        guard let userId = try? await services.stateService.getActiveAccountId(),
+              !services.vaultTimeoutService.isLocked(userId: userId),
+              await (try? services.vaultTimeoutService.hasPassedSessionTimeout(userId: userId)) == false
+        else {
+            await coordinator?.handleEvent(.setAuthCompletionRoute(vaultItemSelectionRoute))
+            return
+        }
+        coordinator?.navigate(to: vaultItemSelectionRoute)
     }
 
     /// Starts the application flow by navigating the user to the first flow.
