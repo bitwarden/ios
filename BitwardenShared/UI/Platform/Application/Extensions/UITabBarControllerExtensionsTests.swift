@@ -41,6 +41,19 @@ class UITabBarControllerTests: BitwardenTestCase {
         coordinator.start()
     }
 
+    override func tearDown() {
+        super.tearDown()
+
+        module = nil
+        coordinator = nil
+        rootNavigator = nil
+        vaultDelegate = nil
+        settingsDelegate = nil
+        errorReporter = nil
+        vaultRepository = nil
+        subject = nil
+    }
+
     /// Tests that the tab bar items are laid out correctly with valut selected (default) in light mode.
     func test_snapshot_tabBarItems_vaultSelected_lightMode() {
         subject.overrideUserInterfaceStyle = .light
