@@ -41,6 +41,22 @@ class VaultCoordinatorTests: BitwardenTestCase {
 
     // MARK: Tests
 
+    /// `handleEvent(_:context:)` with `.switchAccount` notifies the delegate to switch to the
+    /// specified account.
+    func test_handleEvent_switchAccount() async {
+        let route = AppRoute.tab(.vault(.vaultItemSelection(.fixtureExample)))
+        await subject.handleEvent(.switchAccount(
+            isAutomatic: true,
+            userId: "1",
+            authCompletionRoute: route
+        ))
+
+        XCTAssertTrue(delegate.switchedAccounts)
+        XCTAssertEqual(delegate.switchAccountAuthCompletionRoute, route)
+        XCTAssertTrue(delegate.switchAccountIsAutomatic)
+        XCTAssertEqual(delegate.switchAccountUserId, "1")
+    }
+
     /// `navigate(to:)` with `.autofillList` replaces the stack navigator's stack with the autofill list.
     func test_navigateTo_autofillList() throws {
         subject.navigate(to: .autofillList)
@@ -210,6 +226,9 @@ class MockVaultCoordinatorDelegate: VaultCoordinatorDelegate {
     var logoutTapped = false
     var logoutUserId: String?
     var presentLoginRequestRequest: LoginRequest?
+    var switchAccountAuthCompletionRoute: AppRoute?
+    var switchAccountIsAutomatic = false
+    var switchAccountUserId: String?
     var switchedAccounts = false
     var userInitiated: Bool?
 
@@ -235,7 +254,10 @@ class MockVaultCoordinatorDelegate: VaultCoordinatorDelegate {
         presentLoginRequestRequest = loginRequest
     }
 
-    func switchAccount(userId: String, isAutomatic: Bool) {
+    func switchAccount(userId: String, isAutomatic: Bool, authCompletionRoute: AppRoute?) {
+        switchAccountAuthCompletionRoute = authCompletionRoute
+        switchAccountIsAutomatic = isAutomatic
+        switchAccountUserId = userId
         switchedAccounts = true
     }
 }

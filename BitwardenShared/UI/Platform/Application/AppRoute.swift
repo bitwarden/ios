@@ -36,4 +36,7 @@ public enum AppEvent: Equatable {
 
     /// When an account has timed out.
     case didTimeout(userId: String)
+
+    /// Allows setting a route that should be navigated to after the user's vault is unlocked.
+    case setAuthCompletionRoute(AppRoute)
 }
