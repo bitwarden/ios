@@ -99,7 +99,7 @@ final class AuthRouter: NSObject, Router {
             return await lockVaultRedirect(userId: userId)
         case let .logout(userId, userInitiated):
             return await logoutRedirect(userId: userId, userInitiated: userInitiated)
-        case let .switchAccount(isAutomatic, userId):
+        case let .switchAccount(isAutomatic, userId, _):
             return await switchAccountRedirect(
                 isAutomatic: isAutomatic,
                 userId: userId

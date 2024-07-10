@@ -7,6 +7,7 @@ class MockVaultTimeoutService: VaultTimeoutService {
     var account: Account = .fixture()
     var lastActiveTime = [String: Date]()
     var shouldSessionTimeout = [String: Bool]()
+    var shouldSessionTimeoutError: Error?
     var timeProvider = MockTimeProvider(.currentTime)
     var sessionTimeoutValueError: Error?
     var vaultTimeout = [String: SessionTimeoutValue]()
@@ -36,7 +37,10 @@ class MockVaultTimeoutService: VaultTimeoutService {
     }
 
     func hasPassedSessionTimeout(userId: String) async throws -> Bool {
-        shouldSessionTimeout[userId] ?? false
+        if let shouldSessionTimeoutError {
+            throw shouldSessionTimeoutError
+        }
+        return shouldSessionTimeout[userId] ?? false
     }
 
     func unlockVault(userId: String?) async throws {

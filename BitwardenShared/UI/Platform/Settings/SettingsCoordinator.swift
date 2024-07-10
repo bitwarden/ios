@@ -110,7 +110,7 @@ final class SettingsCoordinator: Coordinator, HasStackNavigator { // swiftlint:d
                 delegate?.lockVault(userId: userId)
             case let .logout(userId, userInitiated):
                 delegate?.logout(userId: userId, userInitiated: userInitiated)
-            case let .switchAccount(isAutomatic, userId):
+            case let .switchAccount(isAutomatic, userId, _):
                 delegate?.switchAccount(isAutomatic: isAutomatic, userId: userId)
             }
         case .didDeleteAccount:

@@ -267,6 +267,10 @@ extension VaultItemSelectionProcessor: ProfileSwitcherHandler {
         true
     }
 
+    var switchAccountAuthCompletionRoute: AppRoute? {
+        .tab(.vault(.vaultItemSelection(state.otpAuthModel)))
+    }
+
     var toast: Toast? {
         get {
             state.toast

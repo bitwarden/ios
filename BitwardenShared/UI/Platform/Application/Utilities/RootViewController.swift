@@ -18,6 +18,8 @@ public class RootViewController: UIViewController {
     ///
     public var childViewController: UIViewController? {
         didSet {
+            dismiss(animated: false)
+
             if let fromViewController = oldValue {
                 fromViewController.willMove(toParent: nil)
                 fromViewController.view.removeFromSuperview()

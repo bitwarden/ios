@@ -22,6 +22,8 @@ public enum AuthAction: Equatable {
     /// - Parameters:
     ///   - isAutomatic: Did the system trigger the account switch?
     ///   - userId: The user Id of the selected account.
+    ///   - authCompletionRoute: An optional route that should be navigated to after switching
+    ///     accounts and vault unlock
     ///
-    case switchAccount(isAutomatic: Bool, userId: String)
+    case switchAccount(isAutomatic: Bool, userId: String, authCompletionRoute: AppRoute? = nil)
 }
