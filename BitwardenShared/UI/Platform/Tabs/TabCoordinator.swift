@@ -113,49 +113,48 @@ final class TabCoordinator: Coordinator, HasTabNavigator {
     }
 
     func start() {
-        guard let rootNavigator, let tabNavigator, let settingsDelegate, let vaultDelegate else { return }
+        guard let rootNavigator, let tabNavigator else { return }
 
         rootNavigator.show(child: tabNavigator)
-
-        let vaultNavigator = UINavigationController()
-        vaultNavigator.navigationBar.prefersLargeTitles = true
-        vaultCoordinator = module.makeVaultCoordinator(
-            delegate: vaultDelegate,
-            stackNavigator: vaultNavigator
-        )
-
-        let sendNavigator = UINavigationController()
-        sendNavigator.navigationBar.prefersLargeTitles = true
-        sendCoordinator = module.makeSendCoordinator(
-            stackNavigator: sendNavigator
-        )
-        sendCoordinator?.start()
-
-        let generatorNavigator = UINavigationController()
-        generatorNavigator.navigationBar.prefersLargeTitles = true
-        generatorCoordinator = module.makeGeneratorCoordinator(
-            delegate: nil,
-            stackNavigator: generatorNavigator
-        )
-        generatorCoordinator?.start()
-
-        let settingsNavigator = UINavigationController()
-        settingsNavigator.navigationBar.prefersLargeTitles = true
-        let settingsCoordinator = module.makeSettingsCoordinator(
-            delegate: settingsDelegate,
-            stackNavigator: settingsNavigator
-        )
-        settingsCoordinator.start()
-        self.settingsCoordinator = settingsCoordinator
-
-        let tabsAndNavigators: [TabRoute: Navigator] = [
-            .vault(.list): vaultNavigator,
-            .send: sendNavigator,
-            .generator(.generator()): generatorNavigator,
-            .settings(.settings): settingsNavigator,
-        ]
-        tabNavigator.setNavigators(tabsAndNavigators)
+        setupChildCoordinators(tabNavigator: tabNavigator)
         streamOrganizations()
+    }
+
+    /// Sets up the child coordinators within the tab coordinator.
+    private func setupChildCoordinators(tabNavigator: TabNavigator) {
+        guard let settingsDelegate, let vaultDelegate else { return }
+
+        if let vaultNavigator = tabNavigator.navigator(for: TabRoute.vault(.list)) as? StackNavigator {
+            vaultCoordinator = module.makeVaultCoordinator(
+                delegate: vaultDelegate,
+                stackNavigator: vaultNavigator
+            )
+            vaultCoordinator?.start()
+        }
+
+        if let sendNavigator = tabNavigator.navigator(for: TabRoute.send) as? StackNavigator {
+            sendCoordinator = module.makeSendCoordinator(
+                stackNavigator: sendNavigator
+            )
+            sendCoordinator?.start()
+        }
+
+        if let generatorNavigator = tabNavigator.navigator(for: TabRoute.generator(.generator())) as? StackNavigator {
+            generatorCoordinator = module.makeGeneratorCoordinator(
+                delegate: nil,
+                stackNavigator: generatorNavigator
+            )
+            generatorCoordinator?.start()
+        }
+
+        if let settingsNavigator = tabNavigator.navigator(for: TabRoute.settings(.settings)) as? StackNavigator {
+            let settingsCoordinator = module.makeSettingsCoordinator(
+                delegate: settingsDelegate,
+                stackNavigator: settingsNavigator
+            )
+            settingsCoordinator.start()
+            self.settingsCoordinator = settingsCoordinator
+        }
     }
 
     /// Streams the user's organizations.
