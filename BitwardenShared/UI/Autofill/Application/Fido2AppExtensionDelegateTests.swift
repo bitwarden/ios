@@ -28,7 +28,7 @@ class Fido2AppExtensionDelegateTests: BitwardenTestCase {
     /// `getter:isCreatingFido2Credential`  returns `true`
     /// when there is a request for creation
     func test_isCreatingFido2Credential_true() async throws {
-        subject.getRequestForFido2CreationResult = .fixture()
+        subject.extensionMode = .registerFido2Credential(ASPasskeyCredentialRequest.fixture())
         XCTAssertTrue(subject.isCreatingFido2Credential)
     }
 

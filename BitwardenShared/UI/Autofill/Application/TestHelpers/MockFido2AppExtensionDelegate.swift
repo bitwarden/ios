@@ -6,13 +6,9 @@ import Foundation
 @available(iOS 17.0, *)
 class MockFido2AppExtensionDelegate: MockAppExtensionDelegate, Fido2AppExtensionDelegate {
     var completeRegistrationRequestMocker = InvocationMocker<ASPasskeyRegistrationCredential>()
-    var getRequestForFido2CreationResult: ASPasskeyCredentialRequest?
+    var extensionMode: AutofillExtensionMode = .configureAutofill
 
     func completeRegistrationRequest(asPasskeyRegistrationCredential: ASPasskeyRegistrationCredential) {
         completeRegistrationRequestMocker.invoke(param: asPasskeyRegistrationCredential)
-    }
-
-    func getRequestForFido2Creation() -> ASPasskeyCredentialRequest? {
-        getRequestForFido2CreationResult
     }
 }

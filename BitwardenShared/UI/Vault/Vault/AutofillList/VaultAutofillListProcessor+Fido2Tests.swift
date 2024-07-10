@@ -65,6 +65,27 @@ class VaultAutofillListProcessorFido2Tests: BitwardenTestCase {
         vaultRepository = nil
     }
 
+    /// `receive(_:)` with `.addTapped` navigates to the add item view
+    /// with th proper `NewCipherOptions` configuration for Fido2 creation.
+    func test_receive_addTapped() throws {
+        appExtensionDelegate.extensionMode = .registerFido2Credential(ASPasskeyCredentialRequest.fixture())
+        let fido2CredentialNewView = Fido2CredentialNewView.fixture(userName: "username", rpName: "rpName")
+        fido2UserInterfaceHelper.fido2CredentialNewView = fido2CredentialNewView
+
+        let expectedNewCipherOptions = NewCipherOptions(
+            name: fido2CredentialNewView.rpName,
+            uri: fido2CredentialNewView.rpId,
+            username: fido2CredentialNewView.userName
+        )
+
+        subject.receive(.addTapped)
+
+        XCTAssertEqual(
+            coordinator.routes.last,
+            .addItem(allowTypeSelection: false, group: .login, newCipherOptions: expectedNewCipherOptions)
+        )
+    }
+
     /// `vaultItemTapped(_:)` with Fido2 credential signals the `Fido2UserInterfaceHelper`
     /// that a cipher has been picked.
     @available(iOSApplicationExtension 17.0, *)
@@ -74,7 +95,7 @@ class VaultAutofillListProcessorFido2Tests: BitwardenTestCase {
             cipherView: expectedResult,
             fido2CredentialAutofillView: .fixture()
         )!
-        appExtensionDelegate.getRequestForFido2CreationResult = .fixture()
+        appExtensionDelegate.extensionMode = .registerFido2Credential(ASPasskeyCredentialRequest.fixture())
 
         await subject.perform(.vaultItemTapped(vaultListItem))
 
@@ -118,7 +139,7 @@ class VaultAutofillListProcessorFido2Tests: BitwardenTestCase {
             return
         }
 
-        appExtensionDelegate.getRequestForFido2CreationResult = expectedRequest
+        appExtensionDelegate.extensionMode = .registerFido2Credential(expectedRequest)
 
         let expectedResult = MakeCredentialResult.fixture()
         clientService.mockPlatform.fido2Mock
@@ -163,7 +184,7 @@ class VaultAutofillListProcessorFido2Tests: BitwardenTestCase {
     /// there is a create FIdo2 request and a credential identity in there as well and completes the registration
     /// when `makeCredential` ends successfully.
     func test_perform_initFido2_makeCredentialThrows() async throws {
-        appExtensionDelegate.getRequestForFido2CreationResult = .fixture()
+        appExtensionDelegate.extensionMode = .registerFido2Credential(ASPasskeyCredentialRequest.fixture())
 
         clientService.mockPlatform.fido2Mock
             .clientFido2AuthenticatorMock

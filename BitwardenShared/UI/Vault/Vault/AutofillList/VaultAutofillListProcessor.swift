@@ -105,7 +105,7 @@ class VaultAutofillListProcessor: StateProcessor<
                 to: .addItem(
                     allowTypeSelection: false,
                     group: .login,
-                    newCipherOptions: NewCipherOptions(uri: appExtensionDelegate?.uri)
+                    newCipherOptions: createNewCipherOptions()
                 )
             )
         case .cancelTapped:
@@ -126,6 +126,20 @@ class VaultAutofillListProcessor: StateProcessor<
     }
 
     // MARK: Private Methods
+
+    /// Creates a `NewCipherOptions` based on the context flow.
+    func createNewCipherOptions() -> NewCipherOptions {
+        if let fido2AppExtensionDelegate = appExtensionDelegate as? Fido2AppExtensionDelegate,
+           fido2AppExtensionDelegate.isCreatingFido2Credential,
+           let fido2CredentialNewView = services.fido2UserInterfaceHelper.fido2CredentialNewView {
+            return NewCipherOptions(
+                name: fido2CredentialNewView.rpName,
+                uri: fido2CredentialNewView.rpId,
+                username: fido2CredentialNewView.userName
+            )
+        }
+        return NewCipherOptions(uri: appExtensionDelegate?.uri)
+    }
 
     /// Handles receiving a `ProfileSwitcherAction`.
     ///
@@ -269,25 +283,26 @@ extension VaultAutofillListProcessor: Fido2UserVerificationMediatorDelegate {
 @available(iOSApplicationExtension 17.0, *)
 extension VaultAutofillListProcessor {
     // MARK: Methods
-    
+
     /// Initializes Fido2 state and flows if needed.
     private func initFido2State() async {
-        guard let fido2appExtensionDelegate = appExtensionDelegate as? Fido2AppExtensionDelegate else {
+        guard let fido2AppExtensionDelegate = appExtensionDelegate as? Fido2AppExtensionDelegate else {
             return
         }
 
         services.fido2UserInterfaceHelper.setupDelegate(fido2UserVerificationMediatorDelegate: self)
 
-        if let request = fido2appExtensionDelegate.getRequestForFido2Creation(),
+        if case let .registerFido2Credential(request) = fido2AppExtensionDelegate.extensionMode,
+           let request = request as? ASPasskeyCredentialRequest,
            let credentialIdentity = request.credentialIdentity as? ASPasskeyCredentialIdentity {
             await handleFido2CredentialCreation(
-                fido2appExtensionDelegate: fido2appExtensionDelegate,
+                fido2appExtensionDelegate: fido2AppExtensionDelegate,
                 request: request,
                 credentialIdentity: credentialIdentity
             )
         }
     }
-    
+
     /// Handles Fido2 credential creation flow starting a request and completing the registration.
     /// - Parameters:
     ///   - fido2appExtensionDelegate: The app extension delegate from the Autofill extension.
@@ -318,7 +333,7 @@ extension VaultAutofillListProcessor {
                 ),
                 extensions: nil
             )
-            let createdCredential = try await self.services.clientService.platform().fido2()
+            let createdCredential = try await services.clientService.platform().fido2()
                 .authenticator(
                     userInterface: services.fido2UserInterfaceHelper,
                     credentialStore: services.fido2CredentialStore
@@ -338,7 +353,7 @@ extension VaultAutofillListProcessor {
             services.errorReporter.log(error: error)
         }
     }
-    
+
     /// Picks a cipher to use for the Fido2 creation process
     /// - Parameter cipher: Cipher to use.
     func onCipherForFido2CredentialPicked(cipher: CipherView) async {

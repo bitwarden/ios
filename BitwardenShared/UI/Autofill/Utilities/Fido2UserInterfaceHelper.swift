@@ -4,6 +4,9 @@ import Combine
 /// A helper to extend `Fido2UserInterface` protocol capabilities for Fido2 flows
 /// depending on user interaction.
 protocol Fido2UserInterfaceHelper: Fido2UserInterface {
+    /// The `BitwardenSdk.Fido2CredentialNewView` the SDK provides while in FIdo2 creation flow.
+    var fido2CredentialNewView: BitwardenSdk.Fido2CredentialNewView? { get }
+
     /// Sets the selected cipher as a result for credential for Fido2 creation.
     /// - Parameter result: The result of picking a cipher with the cipher or the error.
     func pickedCredentialForCreation(result: Result<CheckUserAndPickCredentialForCreationResult, Error>)
@@ -20,6 +23,8 @@ class DefaultFido2UserInterfaceHelper: Fido2UserInterfaceHelper {
 
     /// Continuation when picking a credential for creation.
     var credentialForCreationContinuation: CheckedContinuation<CheckUserAndPickCredentialForCreationResult, Error>?
+
+    private(set) var fido2CredentialNewView: BitwardenSdk.Fido2CredentialNewView?
 
     /// Initializes a `DefaultFido2UserInterfaceHelper`.
     /// - Parameter fido2UserVerificationMediator: Mediator which manages user verification on Fido2 flows
@@ -45,7 +50,10 @@ class DefaultFido2UserInterfaceHelper: Fido2UserInterfaceHelper {
         options: BitwardenSdk.CheckUserOptions,
         newCredential: BitwardenSdk.Fido2CredentialNewView
     ) async throws -> BitwardenSdk.CheckUserAndPickCredentialForCreationResult {
-        try await withCheckedThrowingContinuation { continuation in
+        defer { fido2CredentialNewView = nil }
+        fido2CredentialNewView = newCredential
+
+        return try await withCheckedThrowingContinuation { continuation in
             self.credentialForCreationContinuation = continuation
         }
     }

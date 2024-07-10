@@ -19,7 +19,7 @@ class CredentialProviderViewController: ASCredentialProviderViewController {
     // MARK: ASCredentialProviderViewController
 
     override func prepareCredentialList(for serviceIdentifiers: [ASCredentialServiceIdentifier]) {
-        initializeApp(with: PasswordCredentialProviderContext(.autofillVaultList(serviceIdentifiers)))
+        initializeApp(with: DefaultCredentialProviderContext(.autofillVaultList(serviceIdentifiers)))
     }
 
     @available(iOSApplicationExtension 17.0, *)
@@ -27,11 +27,13 @@ class CredentialProviderViewController: ASCredentialProviderViewController {
         for serviceIdentifiers: [ASCredentialServiceIdentifier],
         requestParameters: ASPasskeyCredentialRequestParameters
     ) {
-        initializeApp(with: DefaultCredentialProviderContext(.autofillVaultList(serviceIdentifiers, requestParameters)))
+        initializeApp(with: DefaultCredentialProviderContext(
+            .autofillFido2VaultList(serviceIdentifiers, requestParameters)
+        ))
     }
 
     override func prepareInterfaceForExtensionConfiguration() {
-        initializeApp(with: PasswordCredentialProviderContext(.configureAutofill))
+        initializeApp(with: DefaultCredentialProviderContext(.configureAutofill))
     }
 
     @available(iOSApplicationExtension 17.0, *)
@@ -43,7 +45,7 @@ class CredentialProviderViewController: ASCredentialProviderViewController {
     }
 
     override func prepareInterfaceToProvideCredential(for credentialIdentity: ASPasswordCredentialIdentity) {
-        initializeApp(with: PasswordCredentialProviderContext(.autofillCredential(credentialIdentity)))
+        initializeApp(with: DefaultCredentialProviderContext(.autofillCredential(credentialIdentity)))
     }
 
     override func provideCredentialWithoutUserInteraction(for credentialIdentity: ASPasswordCredentialIdentity) {
@@ -53,7 +55,7 @@ class CredentialProviderViewController: ASCredentialProviderViewController {
         }
 
         initializeApp(
-            with: PasswordCredentialProviderContext(.autofillCredential(credentialIdentity)),
+            with: DefaultCredentialProviderContext(.autofillCredential(credentialIdentity)),
             userInteraction: false
         )
         provideCredential(for: recordIdentifier)
@@ -199,18 +201,14 @@ extension CredentialProviderViewController: AppExtensionDelegate {
 // MARK: - Fido2AppExtensionDelegate
 
 extension CredentialProviderViewController: Fido2AppExtensionDelegate {
-    @available(iOSApplicationExtension 17.0, *)
-    func completeRegistrationRequest(asPasskeyRegistrationCredential: ASPasskeyRegistrationCredential) {
-        extensionContext.completeRegistrationRequest(using: asPasskeyRegistrationCredential)
+    /// The mode in which the autofill extension is running.
+    var extensionMode: AutofillExtensionMode {
+        context?.extensionMode ?? .configureAutofill
     }
 
     @available(iOSApplicationExtension 17.0, *)
-    func getRequestForFido2Creation() -> ASPasskeyCredentialRequest? {
-        guard let context = context as? DefaultCredentialProviderContext,
-              case let .registerFido2Credential(request) = context.extensionMode else {
-            return nil
-        }
-        return request
+    func completeRegistrationRequest(asPasskeyRegistrationCredential: ASPasskeyRegistrationCredential) {
+        extensionContext.completeRegistrationRequest(using: asPasskeyRegistrationCredential)
     }
 }
 

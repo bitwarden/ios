@@ -42,14 +42,19 @@ class Fido2UserInterfaceHelperTests: BitwardenTestCase {
     /// `checkUserAndPickCredentialForCreation(options:newCredential:)` returns picked cipher
     /// after succesfully calling `pickedCredentialForCreation(cipherResult:)`.
     func test_checkUserAndPickCredentialForCreation_returnsPickedCipher() async throws {
+        let expectedFido2NewCredential = Fido2CredentialNewView.fixture()
         let task = Task {
             try await subject.checkUserAndPickCredentialForCreation(
                 options: CheckUserOptions(
                     requirePresence: true,
                     requireVerification: .discouraged
                 ),
-                newCredential: .fixture()
+                newCredential: expectedFido2NewCredential
             )
+        }
+
+        try await waitForAsync {
+            self.subject.fido2CredentialNewView == expectedFido2NewCredential
         }
 
         try await waitForAsync {

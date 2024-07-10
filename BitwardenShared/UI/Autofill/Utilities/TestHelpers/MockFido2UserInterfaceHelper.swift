@@ -7,6 +7,7 @@ class MockFido2UserInterfaceHelper: Fido2UserInterfaceHelper {
     var checkUserResult: Result<BitwardenSdk.CheckUserResult, Error> = .success(
         BitwardenSdk.CheckUserResult(userPresent: true, userVerified: true)
     )
+    var fido2CredentialNewView: BitwardenSdk.Fido2CredentialNewView?
     var pickCredentialForAuthenticationResult: Result<BitwardenSdk.CipherViewWrapper, Error> = .success(
         BitwardenSdk.CipherViewWrapper(cipher: .fixture())
     )

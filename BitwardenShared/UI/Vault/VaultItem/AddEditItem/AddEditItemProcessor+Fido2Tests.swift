@@ -1,5 +1,6 @@
 // swiftlint:disable:this file_name
 
+import AuthenticationServices
 import BitwardenSdk
 import Networking
 import XCTest
@@ -95,7 +96,7 @@ class AddEditItemProcessorFido2Tests: BitwardenTestCase {
     /// for creation in a Fido2 context where there is a Fido2 creation request.
     func test_perform_savePressed_fido2AppExtension() async {
         subject.state.name = "name"
-        appExtensionDelegate.getRequestForFido2CreationResult = .fixture()
+        appExtensionDelegate.extensionMode = .registerFido2Credential(ASPasskeyCredentialRequest.fixture())
 
         await subject.perform(.savePressed)
 
