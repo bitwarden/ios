@@ -137,7 +137,8 @@ class StartRegistrationProcessor: StateProcessor<
                 )
             )
 
-            if let token = result.token {
+            if let token = result.token,
+               !token.isEmpty {
                 coordinator.navigate(to: .completeRegistration(
                     emailVerificationToken: token,
                     userEmail: state.emailText
