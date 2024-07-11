@@ -272,7 +272,6 @@ final class AuthCoordinator: NSObject, // swiftlint:disable:this type_body_lengt
             store: Store(
                 processor: CheckEmailProcessor(
                     coordinator: asAnyCoordinator(),
-                    services: services,
                     state: CheckEmailState(email: email)
                 )
             )

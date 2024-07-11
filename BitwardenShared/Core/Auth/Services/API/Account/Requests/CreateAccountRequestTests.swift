@@ -65,22 +65,6 @@ class CreateAccountRequestTests: BitwardenTestCase {
         XCTAssertEqual(subject.path, "/accounts/register")
     }
 
-    /// Validate that the path is correct when there is an email verification token.
-    func test_path_with_token() {
-        let subject = CreateAccountRequest(
-            body: CreateAccountRequestModel(
-                email: "example@email.com",
-                emailVerificationToken: "thisisanawesometoken",
-                kdfConfig: KdfConfig(),
-                key: "key",
-                keys: KeysRequestModel(encryptedPrivateKey: "private"),
-                masterPasswordHash: "1a2b3c",
-                masterPasswordHint: "hint"
-            )
-        )
-        XCTAssertEqual(subject.path, "/accounts/register/finish")
-    }
-
     /// Validate that the body is not nil.
     func test_body() {
         let subject = CreateAccountRequest(

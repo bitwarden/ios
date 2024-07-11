@@ -1,4 +1,4 @@
-// MARK: - CreateAccoutEffect
+// MARK: - CompleteRegistrationEffect
 
 /// The enumeration of possible effects performed by the `CompleteRegistrationProcessor`.
 ///

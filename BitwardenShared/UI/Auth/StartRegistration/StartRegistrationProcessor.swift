@@ -4,7 +4,7 @@ import Combine
 import Foundation
 import OSLog
 
-// MARK: - StartRegistrationError
+// MARK: - StartRegistrationDelegate
 
 /// A delegate of `StartRegistrationProcessor` that is notified when the user changes region.
 ///
@@ -16,7 +16,7 @@ protocol StartRegistrationDelegate: AnyObject {
 
 // MARK: - StartRegistrationError
 
-/// Enumeration of errors that may occur when creating an account.
+/// Enumeration of errors that may occur when start registration.
 ///
 enum StartRegistrationError: Error {
     /// The terms of service and privacy policy have not been acknowledged.
@@ -31,7 +31,7 @@ enum StartRegistrationError: Error {
 
 // MARK: - StartRegistrationProcessor
 
-/// The processor used to manage state and handle actions for the create account screen.
+/// The processor used to manage state and handle actions for the start registration screen.
 ///
 class StartRegistrationProcessor: StateProcessor<
     StartRegistrationState,
@@ -110,7 +110,7 @@ class StartRegistrationProcessor: StateProcessor<
 
     // MARK: Private methods
 
-    /// Creates the user's account with their provided credentials.
+    /// Initiates the first step of the registration.
     ///
     private func startRegistration() async {
         // Hide the loading overlay when exiting this method, in case it hasn't been hidden yet.

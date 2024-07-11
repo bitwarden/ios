@@ -3,18 +3,10 @@
 /// The processor used to manage state and handle actions for the passwort hint screen.
 ///
 class CheckEmailProcessor: StateProcessor<CheckEmailState, CheckEmailAction, CheckEmailEffect> {
-    // MARK: Types
-
-    typealias Services = HasAccountAPIService
-        & HasErrorReporter
-
     // MARK: Private Properties
 
     /// The coordinator that handles navigation.
     private let coordinator: AnyCoordinator<AuthRoute, AuthEvent>
-
-    /// The services required by this processor.
-    private let services: Services
 
     // MARK: Initialization
 
@@ -26,11 +18,9 @@ class CheckEmailProcessor: StateProcessor<CheckEmailState, CheckEmailAction, Che
     ///
     init(
         coordinator: AnyCoordinator<AuthRoute, AuthEvent>,
-        services: Services,
         state: CheckEmailState
     ) {
         self.coordinator = coordinator
-        self.services = services
         super.init(state: state)
     }
 

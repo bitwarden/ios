@@ -18,6 +18,7 @@ class RegisterFinishRequestTests: BitwardenTestCase {
         subject = RegisterFinishRequest(
             body: RegisterFinishRequestModel(
                 email: "example@email.com",
+                emailVerificationToken: "thisisanawesometoken",
                 kdfConfig: KdfConfig(),
                 masterPasswordHash: "1a2b3c",
                 masterPasswordHint: "hint",
@@ -40,6 +41,7 @@ class RegisterFinishRequestTests: BitwardenTestCase {
         let subject = RegisterFinishRequest(
             body: RegisterFinishRequestModel(
                 email: "example@email.com",
+                emailVerificationToken: "thisisanawesometoken",
                 kdfConfig: KdfConfig(),
                 masterPasswordHash: "1a2b3c",
                 masterPasswordHint: "hint",
@@ -52,21 +54,6 @@ class RegisterFinishRequestTests: BitwardenTestCase {
 
     /// Validate that the path is correct.
     func test_path() {
-        let subject = RegisterFinishRequest(
-            body: RegisterFinishRequestModel(
-                email: "example@email.com",
-                kdfConfig: KdfConfig(),
-                masterPasswordHash: "1a2b3c",
-                masterPasswordHint: "hint",
-                userSymmetricKey: "key",
-                userAsymmetricKeys: KeysRequestModel(encryptedPrivateKey: "private")
-            )
-        )
-        XCTAssertEqual(subject.path, "/accounts/register/finish")
-    }
-
-    /// Validate that the path is correct when there is an email verification token.
-    func test_path_with_token() {
         let subject = RegisterFinishRequest(
             body: RegisterFinishRequestModel(
                 email: "example@email.com",
@@ -86,6 +73,7 @@ class RegisterFinishRequestTests: BitwardenTestCase {
         let subject = RegisterFinishRequest(
             body: RegisterFinishRequestModel(
                 email: "example@email.com",
+                emailVerificationToken: "thisisanawesometoken",
                 kdfConfig: KdfConfig(),
                 masterPasswordHash: "1a2b3c",
                 masterPasswordHint: "hint",
@@ -168,6 +156,7 @@ class RegisterFinishRequestTests: BitwardenTestCase {
         let subject = RegisterFinishRequest(
             body: RegisterFinishRequestModel(
                 email: "example@email.com",
+                emailVerificationToken: "thisisanawesometoken",
                 kdfConfig: KdfConfig(),
                 masterPasswordHash: "1a2b3c",
                 masterPasswordHint: "hint",

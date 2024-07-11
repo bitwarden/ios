@@ -19,7 +19,7 @@ struct StartRegistrationRequest: Request {
     /// The URL path for this request.
     var path: String = "/accounts/register/send-verification-email"
 
-    /// Creates a new `CreateAccountRequest` instance.
+    /// Creates a new `StartRegistrationRequest` instance.
     ///
     /// - Parameter body: The body of the request.
     ///

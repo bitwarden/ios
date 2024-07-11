@@ -3,7 +3,7 @@ import Networking
 
 // MARK: - StartRegistrationResponseModel
 
-/// The response returned from the API upon creating an account.
+/// The response returned from the API upon sending the verification email.
 ///
 struct StartRegistrationResponseModel: Response {
     // MARK: Properties

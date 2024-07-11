@@ -14,9 +14,6 @@ struct CreateAccountRequestModel: Equatable {
     /// The user's email address.
     let email: String
 
-    /// The token to verify the email address
-    let emailVerificationToken: String?
-
     /// The type of kdf for this request.
     var kdf: KdfType?
 
@@ -69,7 +66,6 @@ struct CreateAccountRequestModel: Equatable {
     init(
         captchaResponse: String? = nil,
         email: String,
-        emailVerificationToken: String? = nil,
         kdfConfig: KdfConfig,
         key: String,
         keys: KeysRequestModel,
@@ -81,7 +77,6 @@ struct CreateAccountRequestModel: Equatable {
     ) {
         self.captchaResponse = captchaResponse
         self.email = email
-        self.emailVerificationToken = emailVerificationToken
         kdf = kdfConfig.kdf
         kdfIterations = kdfConfig.kdfIterations
         kdfMemory = kdfConfig.kdfMemory

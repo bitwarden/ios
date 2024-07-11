@@ -26,7 +26,7 @@ struct CreateAccountRequest: Request {
     let method: HTTPMethod = .post
 
     /// The URL path for this request.
-    var path: String = "/accounts/register/finish"
+    var path: String = "/accounts/register"
 
     /// Creates a new `CreateAccountRequest` instance.
     ///
@@ -34,9 +34,6 @@ struct CreateAccountRequest: Request {
     ///
     init(body: CreateAccountRequestModel) {
         self.body = body
-        if body.emailVerificationToken == nil {
-            path = "/accounts/register"
-        }
     }
 
     // MARK: Methods

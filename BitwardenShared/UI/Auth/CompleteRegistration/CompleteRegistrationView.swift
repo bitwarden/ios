@@ -7,21 +7,8 @@ import SwiftUI
 struct CompleteRegistrationView: View {
     // MARK: Properties
 
-    /// An action that opens URLs.
-    @Environment(\.openURL) private var openURL
-
     /// The store used to render the view.
     @ObservedObject var store: Store<CompleteRegistrationState, CompleteRegistrationAction, CompleteRegistrationEffect>
-
-    /// The privacy policy attributed string used in navigating to Bitwarden's Privacy Policy website.
-    let privacyPolicyString: AttributedString? = try? AttributedString(
-        markdown: "[\(Localizations.privacyPolicy)](\(ExternalLinksConstants.privacyPolicy))"
-    )
-
-    /// The terms of service attributed string used in navigating to Bitwarden's Terms of Service website.
-    let termsOfServiceString: AttributedString? = try? AttributedString(
-        markdown: "[\(Localizations.termsOfService),](\(ExternalLinksConstants.termsOfService))"
-    )
 
     // MARK: View
 

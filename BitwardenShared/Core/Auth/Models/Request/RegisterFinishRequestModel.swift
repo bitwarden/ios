@@ -1,7 +1,7 @@
 import Foundation
 import Networking
 
-// MARK: - CreateAccountRequestModel
+// MARK: - RegisterFinishRequestModel
 
 /// The data to include in the body of a `RegisterFinishRequest`.
 ///
@@ -15,7 +15,7 @@ struct RegisterFinishRequestModel: Equatable {
     let email: String
 
     /// The token to verify the email address
-    let emailVerificationToken: String?
+    let emailVerificationToken: String
 
     /// The type of kdf for this request.
     var kdf: KdfType?
@@ -52,7 +52,7 @@ struct RegisterFinishRequestModel: Equatable {
 
     // MARK: Initialization
 
-    /// Initializes a `CreateAccountRequestModel`.
+    /// Initializes a `RegisterFinishRequestModel`.
     ///
     /// - Parameters:
     ///   - captchaResponse: The captcha response used in validating a user for this request.
@@ -69,7 +69,7 @@ struct RegisterFinishRequestModel: Equatable {
     init(
         captchaResponse: String? = nil,
         email: String,
-        emailVerificationToken: String? = nil,
+        emailVerificationToken: String,
         kdfConfig: KdfConfig,
         masterPasswordHash: String,
         masterPasswordHint: String?,

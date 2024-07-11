@@ -24,6 +24,7 @@ public enum AuthRoute: Equatable {
     /// - Parameters:
     ///    - emailVerificationToken: Token needed to complete registration.
     ///    - userEmail: The user's email.
+    ///    - fromEmail: The user opened the app from an email AppLink.
     ///    - region: Region where the complete registration should happen.
     ///
     case completeRegistrationFromAppLink(
