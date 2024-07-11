@@ -118,6 +118,17 @@ class AddEditSendItemProcessorTests: BitwardenTestCase { // swiftlint:disable:th
         XCTAssertTrue(subject.state.isSendHideEmailDisabled)
     }
 
+    /// `perform(_:)` with `loadData` loads the correct maximum access count in the TextField.
+    func test_perform_loadData_maximumAccessCountUpdates() async {
+        subject.state.maximumAccessCount = 42
+        await subject.perform(.loadData)
+        subject.state.maximumAccessCountText = "42"
+
+        subject.state.maximumAccessCount = 0
+        await subject.perform(.loadData)
+        subject.state.maximumAccessCountText = ""
+    }
+
     /// `perform(_:)` with `sendListItemRow(removePassword())` uses the send repository to remove
     /// the password from a send.
     func test_perform_removePassword_success() async throws {
@@ -535,9 +546,37 @@ class AddEditSendItemProcessorTests: BitwardenTestCase { // swiftlint:disable:th
     /// `receive(_:)` with `.maximumAccessCountChanged` updates the maximum access count.
     func test_receive_maximumAccessCountChanged() {
         subject.state.maximumAccessCount = 0
-        subject.receive(.maximumAccessCountChanged(42))
+        subject.receive(.maximumAccessCountStepperChanged(42))
 
         XCTAssertEqual(subject.state.maximumAccessCount, 42)
+        XCTAssertEqual(subject.state.maximumAccessCountText, "42")
+    }
+
+    /// `receive(_:)` with `.maximumAccessCountTextChanged` updates the maximum access count.
+    func test_receive_maximumAccessCountTextChanged() {
+        subject.state.maximumAccessCountText = "0"
+        subject.receive(.maximumAccessCountTextFieldChanged("32"))
+
+        XCTAssertEqual(subject.state.maximumAccessCount, 32)
+        XCTAssertEqual(subject.state.maximumAccessCountText, "32")
+    }
+
+    /// `receive(_:)` with `.maximumAccessCountTextChanged` updates the maximum access count.
+    func test_receive_maximumAccessCountTextChanged_zeroToEmptyState() {
+        subject.state.maximumAccessCountText = "0"
+        subject.receive(.maximumAccessCountTextFieldChanged(""))
+
+        XCTAssertEqual(subject.state.maximumAccessCount, 0)
+        XCTAssertEqual(subject.state.maximumAccessCountText, "")
+    }
+
+    /// `receive(_:)` with `.maximumAccessCountTextChanged` updates the maximum access count.
+    func test_receive_maximumAccessCountTextChanged_emptyToZeroState() {
+        subject.state.maximumAccessCountText = ""
+        subject.receive(.maximumAccessCountTextFieldChanged("0"))
+
+        XCTAssertEqual(subject.state.maximumAccessCount, 0)
+        XCTAssertEqual(subject.state.maximumAccessCountText, "0")
     }
 
     /// `receive(_:)` with `.nameChanged` updates the name.

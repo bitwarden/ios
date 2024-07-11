@@ -919,5 +919,6 @@
 "OrganizationUnassignedItemsMessageUSEUDescriptionLong" = "Unassigned organization items are no longer visible in the All Vaults view and only accessible via the Admin Console. Assign these items to a collection from the Admin Console to make them visible.";
 "UnknownAccount" = "Unknown account";
 "UserVerificationForPasskey" = "User verification for passkey";
+"NewItem" = "New item";
 "RemovePasskey" = "Remove passkey";
 "PasskeyRemoved" = "Passkey removed";

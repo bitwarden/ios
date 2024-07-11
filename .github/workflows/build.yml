@@ -110,7 +110,8 @@ jobs:
               --file $HOME/secrets/$FILE --output none
           done
 
-      - name: Retrieve Google Services secret
+      - name: Retrieve production Google Services secret
+        if: env.build-variant == 'Production'
         env:
           ACCOUNT_NAME: bitwardenci
           CONTAINER_NAME: mobile
@@ -119,6 +120,18 @@ jobs:
           mkdir -p $HOME/secrets
           az storage blob download --account-name $ACCOUNT_NAME --container-name $CONTAINER_NAME --name $FILE \
             --file Bitwarden/Application/Support/$FILE --output none
+
+      - name: Retrieve beta Google Services secret
+        if: env.build-variant == 'Beta'
+        env:
+          ACCOUNT_NAME: bitwardenci
+          CONTAINER_NAME: mobile
+          SOURCE_FILE: GoogleService-Info-ios-pm-beta.plist
+          TARGET_FILE: GoogleService-Info.plist
+        run: |
+          mkdir -p $HOME/secrets
+          az storage blob download --account-name $ACCOUNT_NAME --container-name $CONTAINER_NAME --name $SOURCE_FILE \
+            --file Bitwarden/Application/Support/$TARGET_FILE --output none
 
       - name: Retrieve certificates
         run: |
@@ -227,7 +240,7 @@ jobs:
           plutil -replace aps-environment -string production Bitwarden/Application/Support/Bitwarden.entitlements
 
       - name: Configure Ruby
-        uses: ruby/setup-ruby@af43264f2b94cc8451805dc51af7408f01de6471 # v1.182.0
+        uses: ruby/setup-ruby@2a9a743e19810b9f3c38060637daf594dbd7b37f # v1.186.0
         with:
           bundler-cache: true
 
@@ -296,7 +309,7 @@ jobs:
           ./Scripts/build.sh
 
       - name: Upload IPA
-        uses: actions/upload-artifact@65462800fd760344b1a7b4382951275a0abb4808 # v4.3.3
+        uses: actions/upload-artifact@0b2256b8c012f0828dc542b3febcab082c67f72b # v4.3.4
         with:
           name: Bitwarden iOS
           path: build/Bitwarden/Bitwarden.ipa

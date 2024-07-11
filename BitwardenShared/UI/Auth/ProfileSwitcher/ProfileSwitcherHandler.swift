@@ -25,6 +25,9 @@ protocol ProfileSwitcherHandler: AnyObject {
     /// Should the handler replace the toolbar icon with two dots?
     var showPlaceholderToolbarIcon: Bool { get }
 
+    /// The route that should be navigated to after switching accounts and vault unlock.
+    var switchAccountAuthCompletionRoute: AppRoute? { get }
+
     /// The `State` for a toast view.
     var toast: Toast? { get set }
 
@@ -65,6 +68,11 @@ extension ProfileSwitcherHandler {
     /// Default to non-placeholder switcher icon.
     var showPlaceholderToolbarIcon: Bool {
         false
+    }
+
+    /// Default the auth completion route after switching accounts to `nil` to navigate to the vault list.
+    var switchAccountAuthCompletionRoute: AppRoute? {
+        nil
     }
 
     func handleProfileSwitcherAction(_ action: ProfileSwitcherAction) {
@@ -221,7 +229,8 @@ private extension ProfileSwitcherHandler {
             .action(
                 .switchAccount(
                     isAutomatic: false,
-                    userId: account.userId
+                    userId: account.userId,
+                    authCompletionRoute: switchAccountAuthCompletionRoute
                 )
             )
         )

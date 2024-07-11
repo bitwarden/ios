@@ -42,8 +42,10 @@ public protocol VaultCoordinatorDelegate: AnyObject {
     /// - Parameters:
     ///   - userId: The user Id of the account.
     ///   - isAutomatic: Did the system trigger the account switch?
+    ///   - authCompletionRoute: An optional route that should be navigated to after switching
+    ///     accounts and vault unlock
     ///
-    func switchAccount(userId: String, isAutomatic: Bool)
+    func switchAccount(userId: String, isAutomatic: Bool, authCompletionRoute: AppRoute?)
 }
 
 // MARK: - VaultCoordinator
@@ -123,8 +125,12 @@ final class VaultCoordinator: Coordinator, HasStackNavigator {
             delegate?.logout(userId: userId, userInitiated: userInitiated)
         case let .lockVault(userId):
             delegate?.lockVault(userId: userId)
-        case let .switchAccount(isAutomatic, userId):
-            delegate?.switchAccount(userId: userId, isAutomatic: isAutomatic)
+        case let .switchAccount(isAutomatic, userId, authCompletionRoute):
+            delegate?.switchAccount(
+                userId: userId,
+                isAutomatic: isAutomatic,
+                authCompletionRoute: authCompletionRoute
+            )
         }
     }
 
