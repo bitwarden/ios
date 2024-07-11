@@ -48,12 +48,10 @@ struct AddEditLoginItemView: View {
                     fido2Credential.creationDate.formatted(date: .omitted, time: .shortened)
                 )
             ) {
-                Button {
+                AccessoryButton(asset: Asset.Images.minusRound, accessibilityLabel: Localizations.removePasskey) {
                     store.send(.removePasskeyPressed)
-                } label: {
-                    Asset.Images.minusRound.swiftUIImage
-                        .imageStyle(.accessoryIcon)
                 }
+                .accessibilityIdentifier("LoginRemovePasskeyButton")
             }
         }
     }
