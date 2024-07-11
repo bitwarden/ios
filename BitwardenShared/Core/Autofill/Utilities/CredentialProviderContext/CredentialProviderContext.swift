@@ -60,7 +60,7 @@ public struct DefaultCredentialProviderContext: CredentialProviderContext {
         return []
     }
 
-    /// Initilalizes the context
+    /// Initializes the context.
     /// - Parameter extensionMode: The mode of the extension.
     public init(_ extensionMode: AutofillExtensionMode) {
         self.extensionMode = extensionMode
