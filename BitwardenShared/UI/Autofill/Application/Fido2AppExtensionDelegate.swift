@@ -6,7 +6,7 @@ public protocol Fido2AppExtensionDelegate: AppExtensionDelegate {
     /// The mode in which the autofill extension is running.
     var extensionMode: AutofillExtensionMode { get }
 
-    /// Completes the registration request iwth a Fido2 credential
+    /// Completes the registration request with a Fido2 credential
     /// - Parameter asPasskeyRegistrationCredential: The passkey credential to be used to complete the registration.
     @available(iOSApplicationExtension 17.0, *)
     func completeRegistrationRequest(asPasskeyRegistrationCredential: ASPasskeyRegistrationCredential)
