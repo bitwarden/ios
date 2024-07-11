@@ -108,7 +108,14 @@ class VaultItemSelectionProcessorTests: BitwardenTestCase { // swiftlint:disable
         ]
 
         XCTAssertFalse(subject.state.profileSwitcherState.isVisible)
-        XCTAssertEqual(coordinator.events.last, .switchAccount(isAutomatic: false, userId: "1"))
+        XCTAssertEqual(
+            coordinator.events.last,
+            .switchAccount(
+                isAutomatic: false,
+                userId: "1",
+                authCompletionRoute: .tab(.vault(.vaultItemSelection(.fixtureExample)))
+            )
+        )
     }
 
     /// `perform(_:)` with `.profileSwitcher(.lock)` does nothing.

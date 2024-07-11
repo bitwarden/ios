@@ -62,6 +62,19 @@ class VaultListItemRowViewTests: BitwardenTestCase {
         assertSnapshot(of: subject, as: .fixedSize())
     }
 
+    /// Test that the TOTP type row view renders correctly with a name and username.
+    func test_snapshot_totp() {
+        processor.state.item = .fixtureTOTP(
+            totp: .fixture(
+                loginView: .fixture(
+                    username: "username",
+                    totp: .base32Key
+                )
+            )
+        )
+        assertSnapshot(of: subject, as: .fixedSize())
+    }
+
     /// Test that the view renders correctly with organization icon.
     func test_snapshot_organization() {
         processor.state.iconBaseURL = .example

@@ -111,8 +111,12 @@ class AddEditSendItemProcessor:
             state.isPasswordVisible = newValue
         case let .profileSwitcher(profileAction):
             handle(profileAction)
-        case let .maximumAccessCountChanged(newValue):
+        case let .maximumAccessCountStepperChanged(newValue):
             state.maximumAccessCount = newValue
+            state.maximumAccessCountText = "\(state.maximumAccessCount)"
+        case let .maximumAccessCountTextFieldChanged(newValue):
+            state.maximumAccessCount = Int(newValue) ?? 0
+            state.maximumAccessCountText = newValue.isEmpty ? "" : "\(state.maximumAccessCount)"
         case let .nameChanged(newValue):
             state.name = newValue
         case let .notesChanged(newValue):
@@ -168,6 +172,10 @@ class AddEditSendItemProcessor:
         state.isSendDisabled = await services.policyService.policyAppliesToUser(.disableSend)
         state.isSendHideEmailDisabled = await services.policyService.isSendHideEmailDisabledByPolicy()
         await refreshProfileState()
+
+        if state.maximumAccessCount != 0 {
+            state.maximumAccessCountText = "\(state.maximumAccessCount)"
+        }
     }
 
     /// A method to respond to a `ProfileSwitcherAction`
