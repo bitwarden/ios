@@ -19,6 +19,8 @@ typealias Services = HasAPIService
     & HasErrorReporter
     & HasEventService
     & HasExportVaultService
+    & HasFido2CredentialStore
+    & HasFido2UserInterfaceHelper
     & HasFileAPIService
     & HasGeneratorRepository
     & HasLocalAuthService
@@ -164,6 +166,21 @@ protocol HasEventService {
 protocol HasExportVaultService {
     /// The service used by the application to handle vault export tasks.
     var exportVaultService: ExportVaultService { get }
+}
+
+/// Protocol for an object that provides a `Fido2CredentialStore`.
+///
+protocol HasFido2CredentialStore {
+    /// A store to be used on Fido2 flows to get/save credentials.
+    var fido2CredentialStore: Fido2CredentialStore { get }
+}
+
+/// Protocol for an object that provides a `Fido2UserInterfaceHelper`.
+///
+protocol HasFido2UserInterfaceHelper {
+    /// A helper to be used on Fido2 flows that requires user interaction and extends the capabilities
+    /// of the `Fido2UserInterface` from the SDK.
+    var fido2UserInterfaceHelper: Fido2UserInterfaceHelper { get }
 }
 
 /// Protocol for an object that provides a `FileAPIService`.

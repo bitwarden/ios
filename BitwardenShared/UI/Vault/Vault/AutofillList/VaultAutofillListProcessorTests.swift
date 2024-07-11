@@ -8,8 +8,11 @@ class VaultAutofillListProcessorTests: BitwardenTestCase {
 
     var appExtensionDelegate: MockAppExtensionDelegate!
     var authRepository: MockAuthRepository!
+    var clientService: MockClientService!
     var coordinator: MockCoordinator<VaultRoute, AuthAction>!
     var errorReporter: MockErrorReporter!
+    var fido2CredentialStore: MockFido2CredentialStore!
+    var fido2UserInterfaceHelper: MockFido2UserInterfaceHelper!
     var subject: VaultAutofillListProcessor!
     var vaultRepository: MockVaultRepository!
 
@@ -20,8 +23,11 @@ class VaultAutofillListProcessorTests: BitwardenTestCase {
 
         appExtensionDelegate = MockAppExtensionDelegate()
         authRepository = MockAuthRepository()
+        clientService = MockClientService()
         coordinator = MockCoordinator()
         errorReporter = MockErrorReporter()
+        fido2CredentialStore = MockFido2CredentialStore()
+        fido2UserInterfaceHelper = MockFido2UserInterfaceHelper()
         vaultRepository = MockVaultRepository()
 
         subject = VaultAutofillListProcessor(
@@ -29,7 +35,10 @@ class VaultAutofillListProcessorTests: BitwardenTestCase {
             coordinator: coordinator.asAnyCoordinator(),
             services: ServiceContainer.withMocks(
                 authRepository: authRepository,
+                clientService: clientService,
                 errorReporter: errorReporter,
+                fido2CredentialStore: fido2CredentialStore,
+                fido2UserInterfaceHelper: fido2UserInterfaceHelper,
                 vaultRepository: vaultRepository
             ),
             state: VaultAutofillListState()
@@ -41,8 +50,11 @@ class VaultAutofillListProcessorTests: BitwardenTestCase {
 
         appExtensionDelegate = nil
         authRepository = nil
+        clientService = nil
         coordinator = nil
         errorReporter = nil
+        fido2CredentialStore = nil
+        fido2UserInterfaceHelper = nil
         subject = nil
         vaultRepository = nil
     }
@@ -59,6 +71,7 @@ class VaultAutofillListProcessorTests: BitwardenTestCase {
 
         XCTAssertEqual(appExtensionDelegate.didCompleteAutofillRequestUsername, "user@bitwarden.com")
         XCTAssertEqual(appExtensionDelegate.didCompleteAutofillRequestPassword, "PASSWORD")
+        XCTAssertFalse(fido2UserInterfaceHelper.pickedCredentialForCreationMocker.called)
     }
 
     /// `vaultItemTapped(_:)` has the autofill helper handle autofill for the cipher and shows a toast
@@ -308,5 +321,18 @@ class VaultAutofillListProcessorTests: BitwardenTestCase {
 
         subject.receive(.toastShown(nil))
         XCTAssertNil(subject.state.toast)
+    }
+
+    /// `setupPin()` navigates to the setup pin view.
+    func test_setupPin() async throws {
+        // TODO: PM-8362 navigate to pin setup
+        try await subject.setupPin()
+        throw XCTSkip("TODO: PM-8362 navigate to pin setup")
+    }
+
+    /// `showAlert(_:onDismissed:)` shows the alert with the coordinator.
+    func test_showAlert() async throws {
+        subject.showAlert(Alert(title: "Test", message: "testing"), onDismissed: nil)
+        XCTAssertFalse(coordinator.alertShown.isEmpty)
     }
 }

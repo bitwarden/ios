@@ -90,6 +90,18 @@ class AppProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_body
 
     // MARK: Tests
 
+    /// `init()` subscribes to app background events and logs an error if one occurs when
+    /// setting the last active time.
+    func test_appBackgrounded_error() {
+        stateService.activeAccount = .fixture()
+        vaultTimeoutService.setLastActiveTimeError = BitwardenTestError.example
+
+        notificationCenterService.didEnterBackgroundSubject.send()
+
+        waitFor(!errorReporter.errors.isEmpty)
+        XCTAssertEqual(errorReporter.errors as? [BitwardenTestError], [.example])
+    }
+
     /// The user's last active time is updated when the app is backgrounded.
     func test_appBackgrounded_setLastActiveTime() {
         let account: Account = .fixture()
@@ -121,6 +133,65 @@ class AppProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_body
     func test_failedToRegister() {
         subject.failedToRegister(BitwardenTestError.example)
         XCTAssertEqual(errorReporter.errors.last as? BitwardenTestError, .example)
+    }
+
+    /// `init()` subscribes to will enter foreground events and handles an active user timeout.
+    func test_init_appForeground_activeUserTimeout() {
+        let account1 = Account.fixture(profile: .fixture(userId: "1"))
+        let account2 = Account.fixture(profile: .fixture(userId: "2"))
+        stateService.activeAccount = account1
+        stateService.accounts = [account1, account2]
+
+        vaultTimeoutService.shouldSessionTimeout["1"] = true
+        notificationCenterService.willEnterForegroundSubject.send()
+
+        waitFor(!coordinator.events.isEmpty)
+        XCTAssertEqual(coordinator.events, [.didTimeout(userId: "1")])
+    }
+
+    /// `init()` subscribes to will enter foreground events and logs an error if one occurs when
+    /// checking timeouts.
+    func test_init_appForeground_error() {
+        let account = Account.fixture()
+        stateService.activeAccount = account
+        stateService.accounts = [account]
+        vaultTimeoutService.shouldSessionTimeoutError = BitwardenTestError.example
+
+        notificationCenterService.willEnterForegroundSubject.send()
+
+        waitFor(!errorReporter.errors.isEmpty)
+        XCTAssertEqual(errorReporter.errors as? [BitwardenTestError], [.example])
+    }
+
+    /// `init()` subscribes to will enter foreground events and handles an inactive user timeout.
+    func test_init_appForeground_inactiveUserTimeout() {
+        let account1 = Account.fixture(profile: .fixture(userId: "1"))
+        let account2 = Account.fixture(profile: .fixture(userId: "2"))
+        stateService.activeAccount = account1
+        stateService.accounts = [account1, account2]
+
+        vaultTimeoutService.shouldSessionTimeout["2"] = true
+        notificationCenterService.willEnterForegroundSubject.send()
+
+        waitFor(vaultTimeoutService.isClientLocked["2"] == true)
+        XCTAssertEqual(vaultTimeoutService.isClientLocked, ["2": true])
+    }
+
+    /// `init()` subscribes to will enter foreground events and handles an inactive user timeout
+    /// with an logout action.
+    func test_init_appForeground_inactiveUserTimeoutLogout() {
+        let account1 = Account.fixture(profile: .fixture(userId: "1"))
+        let account2 = Account.fixture(profile: .fixture(userId: "2"))
+        stateService.activeAccount = account1
+        stateService.accounts = [account1, account2]
+        authRepository.sessionTimeoutAction["2"] = .logout
+
+        vaultTimeoutService.shouldSessionTimeout["2"] = true
+        notificationCenterService.willEnterForegroundSubject.send()
+
+        waitFor(authRepository.logoutCalled)
+        XCTAssertTrue(authRepository.logoutCalled)
+        XCTAssertEqual(authRepository.logoutUserId, "2")
     }
 
     /// `init()` sets the `AppProcessor` as the delegate of any necessary services.
@@ -343,39 +414,6 @@ class AppProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_body
         XCTAssertEqual(authRepository.logoutUserId, "1")
         XCTAssertFalse(coordinator.isLoadingOverlayShowing)
         XCTAssertEqual(coordinator.events, [.didLogout(userId: "1", userInitiated: false)])
-    }
-
-    /// Upon a session timeout on app foreground, send the user to the `.didTimeout` route.
-    func test_shouldSessionTimeout_navigateTo_didTimeout() throws {
-        let rootNavigator = MockRootNavigator()
-        let user = Account.fixture()
-        let userId = user.profile.userId
-        let user2 = Account.fixture()
-        let user2Id = user2.profile.userId
-
-        stateService.activeAccount = user
-        stateService.accounts = [user, user2]
-
-        let task = Task {
-            await subject.start(appContext: .mainApp, navigator: rootNavigator, window: nil)
-        }
-        waitFor(coordinator.events == [.didStart])
-        task.cancel()
-
-        vaultTimeoutService.shouldSessionTimeout[userId] = true
-        notificationCenterService.willEnterForegroundSubject.send()
-
-        waitFor(vaultTimeoutService.shouldSessionTimeout[userId] == true)
-        waitFor(coordinator.events.count > 1)
-        waitFor(vaultTimeoutService.isLocked(userId: user2Id))
-
-        XCTAssertEqual(
-            coordinator.events,
-            [
-                .didStart,
-                .didTimeout(userId: userId),
-            ]
-        )
     }
 
     /// `showLoginRequest(_:)` navigates to show the login request view.

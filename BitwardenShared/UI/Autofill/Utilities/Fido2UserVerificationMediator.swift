@@ -17,10 +17,23 @@ protocol Fido2UserVerificationMediatorDelegate: UserVerificationDelegate {
 /// A protocol for an `Fido2UserVerificationMediator` which manages user verification on Fido2 flows.
 ///
 protocol Fido2UserVerificationMediator: AnyObject {
+    /// Verifies the user depending on the `userVerificationPreference` and `credential`.
+    /// - Parameters:
+    ///   - userVerificationPreference: The Fido2 `BitwardenSdk.Verification` from the RP.
+    ///   - credential: The selected cipher from which user needs to be verified.
+    /// - Returns: The result of the verification and whether the user is present, in this case it's always present.
     func checkUser(
         userVerificationPreference: BitwardenSdk.Verification,
         credential: BitwardenSdk.CipherView
     ) async throws -> CheckUserResult
+
+    /// Whether any verification method is enabled.
+    /// - Returns: `true` if enabled, `false` otherwise.
+    func isPreferredVerificationEnabled() -> Bool
+
+    /// Sets up the delegate to use on Fido2 user verification flows.
+    /// - Parameter fido2UserVerificationMediatorDelegate: The delegate to use.
+    func setupDelegate(fido2UserVerificationMediatorDelegate: Fido2UserVerificationMediatorDelegate)
 }
 
 // MARK: - DefaultFido2UserVerificationMediator
@@ -30,68 +43,42 @@ protocol Fido2UserVerificationMediator: AnyObject {
 class DefaultFido2UserVerificationMediator {
     // MARK: Types
 
-    typealias Services = HasAuthRepository
-        & HasErrorReporter
-        & HasLocalAuthService
-        & HasStateService
-
     typealias UserVerificationContinuation = CheckedContinuation<UserVerificationResult, Error>
 
     // MARK: Properties
+
+    /// The repository used by the application to manage auth data for the UI layer.
+    let authRepository: AuthRepository
 
     /// The delegate used to manage user interaction from the user verification flow.
     private weak var fido2UserVerificationMediatorDelegate: Fido2UserVerificationMediatorDelegate?
 
     /// The helper to execute user verification flows.
-    private let userVerificationHelper: UserVerificationHelper
+    private var userVerificationHelper: UserVerificationHelper
 
     /// The execution runner helper for user verification
     private let userVerificationRunner: UserVerificationRunner
 
-    /// The services used by this mediator.
-    private let services: Services
-
     // MARK: Initialization
 
     /// Initialize a `DefaultFido2UserVerificationMediator`.
-    ///
     /// - Parameters:
-    ///   - fido2UserVerificationMediatorDelegate: The service used by the application to manage account state.
-    ///   - services: The services used by this mediator.
+    ///   - authRepository: The repository used by the application to manage auth data for the UI layer.
     ///   - userVerificationHelper: Helper to execute user verifications.
     ///   - userVerificationRunner: The execution runner helper for user verification.
-    ///
     init(
-        fido2UserVerificationMediatorDelegate: Fido2UserVerificationMediatorDelegate?,
-        services: Services,
+        authRepository: AuthRepository,
         userVerificationHelper: UserVerificationHelper,
         userVerificationRunner: UserVerificationRunner
     ) {
-        self.fido2UserVerificationMediatorDelegate = fido2UserVerificationMediatorDelegate
-        self.services = services
+        self.authRepository = authRepository
         self.userVerificationHelper = userVerificationHelper
         self.userVerificationRunner = userVerificationRunner
     }
 
-    /// Initialize a `DefaultFido2UserVerificationMediator`
-    /// - Parameters:
-    ///   - fido2UserVerificationMediatorDelegate: The service used by the application to manage account state
-    ///   - services: The services used by this mediator
-    ///   - userVerificationRunner: The execution runner helper for user verification
-    convenience init(
-        fido2UserVerificationMediatorDelegate: Fido2UserVerificationMediatorDelegate?,
-        services: Services,
-        userVerificationRunner: UserVerificationRunner
-    ) {
-        self.init(
-            fido2UserVerificationMediatorDelegate: fido2UserVerificationMediatorDelegate,
-            services: services,
-            userVerificationHelper: DefaultUserVerificationHelper(
-                userVerificationDelegate: fido2UserVerificationMediatorDelegate,
-                services: services
-            ),
-            userVerificationRunner: userVerificationRunner
-        )
+    func setupDelegate(fido2UserVerificationMediatorDelegate: Fido2UserVerificationMediatorDelegate) {
+        self.fido2UserVerificationMediatorDelegate = fido2UserVerificationMediatorDelegate
+        userVerificationHelper.userVerificationDelegate = fido2UserVerificationMediatorDelegate
     }
 }
 
@@ -100,7 +87,7 @@ class DefaultFido2UserVerificationMediator {
 extension DefaultFido2UserVerificationMediator: Fido2UserVerificationMediator {
     func checkUser(userVerificationPreference: BitwardenSdk.Verification,
                    credential: BitwardenSdk.CipherView) async throws -> CheckUserResult {
-        if try await services.authRepository.shouldPerformMasterPasswordReprompt(reprompt: credential.reprompt) {
+        if try await authRepository.shouldPerformMasterPasswordReprompt(reprompt: credential.reprompt) {
             // TODO: PM-8360 check if user interaction is needed to restart autofill action.
 
             let mpVerificationResult = try await userVerificationRunner.verifyWithAttempts(
@@ -154,5 +141,9 @@ extension DefaultFido2UserVerificationMediator: Fido2UserVerificationMediator {
 
             return CheckUserResult(userPresent: true, userVerified: true)
         }
+    }
+
+    func isPreferredVerificationEnabled() -> Bool {
+        userVerificationHelper.canVerifyDeviceLocalAuth()
     }
 }
