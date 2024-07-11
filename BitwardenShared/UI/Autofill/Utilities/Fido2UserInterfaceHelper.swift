@@ -12,7 +12,7 @@ protocol Fido2UserInterfaceHelper: Fido2UserInterface {
     func pickedCredentialForCreation(result: Result<CheckUserAndPickCredentialForCreationResult, Error>)
 
     /// Sets up the delegate to use on Fido2 user verification flows.
-    /// - Parameter fido2UserVerificationMediatorDelegate: The delegate to use.
+    /// - Parameter fido2UserVerificationMediatorDelegate: The delegate to use
     func setupDelegate(fido2UserVerificationMediatorDelegate: Fido2UserVerificationMediatorDelegate)
 }
 

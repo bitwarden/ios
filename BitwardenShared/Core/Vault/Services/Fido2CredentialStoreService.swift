@@ -20,15 +20,24 @@ class Fido2CredentialStoreService: Fido2CredentialStore {
         self.cipherService = cipherService
         self.clientService = clientService
     }
-
+    
+    /// Gets all the active login ciphers that have Fido2 credentials.
+    /// - Returns: Array of active login ciphers that have Fido2 credentials.
     func allCredentials() async throws -> [BitwardenSdk.CipherView] {
         try await cipherService.fetchAllCiphers()
-            .filter(\.isAciveWithFido2Credentials)
+            .filter(\.isActiveWithFido2Credentials)
             .asyncMap { cipher in
                 try await self.clientService.vault().ciphers().decrypt(cipher: cipher)
             }
     }
-
+    
+    /// Finds active login ciphers that have Fido2 credentials, match the `ripId` and if `ids` is sent
+    /// then filters the one which the Fido2 `credentialId` matches some of the one in `ids`.
+    /// - Parameters:
+    ///   - ids: An array of possible `credentialId` to filter credentials that matches one of them.
+    ///   When `nil` the `credentialId` filter is not applied.
+    ///   - ripId: The `ripId` to match the Fido2 credential `rpId`.
+    /// - Returns: All the ciphers that matches the filter.
     func findCredentials(ids: [Data]?, ripId: String) async throws -> [BitwardenSdk.CipherView] {
         let activeCiphersWithFido2Credentials = try await allCredentials()
 
@@ -52,7 +61,9 @@ class Fido2CredentialStoreService: Fido2CredentialStore {
         }
         return result
     }
-
+    
+    /// Saves a cipher credential that contains a Fido2 credential, either creating it or updating it to server.
+    /// - Parameter cred: Cipher/Credential to add/update.
     func saveCredential(cred: BitwardenSdk.Cipher) async throws {
         if cred.id == nil {
             try await cipherService.addCipherWithServer(cred)
@@ -64,7 +75,7 @@ class Fido2CredentialStoreService: Fido2CredentialStore {
 
 private extension Cipher {
     /// Whether the cipher is active, is a login and has Fido2 credentials.
-    var isAciveWithFido2Credentials: Bool {
+    var isActiveWithFido2Credentials: Bool {
         deletedDate == nil
             && type == .login
             && login?.fido2Credentials?.isEmpty == false
