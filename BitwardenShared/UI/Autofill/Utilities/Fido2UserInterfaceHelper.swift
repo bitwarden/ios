@@ -43,7 +43,7 @@ class DefaultFido2UserInterfaceHelper: Fido2UserInterfaceHelper {
         availableCredentials: [BitwardenSdk.CipherView]
     ) async throws -> BitwardenSdk.CipherViewWrapper {
         // TODO: PM-8829 implement pick credential for auth
-        CipherViewWrapper(cipher: .fixture())
+        throw Fido2Error.invalidOperationError
     }
 
     func checkUserAndPickCredentialForCreation(
