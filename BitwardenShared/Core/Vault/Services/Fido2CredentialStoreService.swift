@@ -20,7 +20,7 @@ class Fido2CredentialStoreService: Fido2CredentialStore {
         self.cipherService = cipherService
         self.clientService = clientService
     }
-    
+
     /// Gets all the active login ciphers that have Fido2 credentials.
     /// - Returns: Array of active login ciphers that have Fido2 credentials.
     func allCredentials() async throws -> [BitwardenSdk.CipherView] {
@@ -30,7 +30,7 @@ class Fido2CredentialStoreService: Fido2CredentialStore {
                 try await self.clientService.vault().ciphers().decrypt(cipher: cipher)
             }
     }
-    
+
     /// Finds active login ciphers that have Fido2 credentials, match the `ripId` and if `ids` is sent
     /// then filters the one which the Fido2 `credentialId` matches some of the one in `ids`.
     /// - Parameters:
@@ -61,7 +61,7 @@ class Fido2CredentialStoreService: Fido2CredentialStore {
         }
         return result
     }
-    
+
     /// Saves a cipher credential that contains a Fido2 credential, either creating it or updating it to server.
     /// - Parameter cred: Cipher/Credential to add/update.
     func saveCredential(cred: BitwardenSdk.Cipher) async throws {

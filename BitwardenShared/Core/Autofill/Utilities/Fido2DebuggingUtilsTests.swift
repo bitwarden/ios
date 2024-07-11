@@ -12,7 +12,7 @@ class Fido2DebuggingUtilsTests: BitwardenTestCase {
     func test_describeAuthDataFlags() {
         var authData: [UInt8] = []
         // add some 32 bytes
-        let firstPart = Data((0 ..< 32).map { _ in 1 })
+        let firstPart = Data(repeating: 1, count: 32)
         authData.append(contentsOf: firstPart)
         authData.append(217)
 

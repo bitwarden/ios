@@ -95,10 +95,10 @@ class Fido2CredentialStoreServiceTests: BitwardenTestCase {
     /// and match the `ripId` and the credential `ids` if any.
     func test_findCredentials() async throws {
         let expectedRpId = Fido2CredentialAutofillView.defaultRpId
-        let expectedCredentialId = Data((0 ..< 16).map { _ in 1 })
+        let expectedCredentialId = Data(repeating: 1, count: 16)
         let credentialIds = [
             expectedCredentialId,
-            Data((0 ..< 16).map { _ in 4 }),
+            Data(repeating: 4, count: 16),
         ]
         let expectedCipherId = "4"
 
@@ -114,12 +114,12 @@ class Fido2CredentialStoreServiceTests: BitwardenTestCase {
                     .fixture(
                         credentialId: hasExpectedCredentialId
                             ? expectedCredentialId
-                            : Data((0 ..< 16).map { _ in 123 }),
+                            : Data(repeating: 123, count: 16),
                         cipherId: cipherId,
                         rpId: expectedRpId
                     ),
                     .fixture(
-                        credentialId: Data((0 ..< 16).map { _ in 123 }),
+                        credentialId: Data(repeating: 123, count: 16),
                         cipherId: cipherId,
                         rpId: "test"
                     ),
@@ -148,12 +148,12 @@ class Fido2CredentialStoreServiceTests: BitwardenTestCase {
                 }
                 return [
                     .fixture(
-                        credentialId: Data((0 ..< 16).map { _ in 1 }),
+                        credentialId: Data(repeating: 1, count: 16),
                         cipherId: cipherId,
                         rpId: expectedRpId
                     ),
                     .fixture(
-                        credentialId: Data((0 ..< 16).map { _ in 123 }),
+                        credentialId: Data(repeating: 123, count: 16),
                         cipherId: cipherId,
                         rpId: "test"
                     ),

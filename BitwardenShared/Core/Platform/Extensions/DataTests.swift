@@ -7,7 +7,7 @@ class DataTests: BitwardenTestCase {
 
     /// `asHexString()` converts the Data object into a hex formatted string.
     func test_asHexString() {
-        let subject = Data((0 ..< 32).map { _ in 1 })
+        let subject = Data(repeating: 1, count: 32)
         XCTAssertEqual(
             subject.asHexString(),
             "0101010101010101010101010101010101010101010101010101010101010101"

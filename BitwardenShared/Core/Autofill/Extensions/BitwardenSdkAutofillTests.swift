@@ -15,10 +15,10 @@ class MakeCredentialRequestTests: BitwardenTestCase {
     /// when optionals are not filled.
     func test_debugDescription_withoutOptionals() {
         let request = MakeCredentialRequest(
-            clientDataHash: Data((0 ..< 32).map { _ in 1 }),
+            clientDataHash: Data(repeating: 1, count: 32),
             rp: PublicKeyCredentialRpEntity(id: "someApp.com", name: nil),
             user: PublicKeyCredentialUserEntity(
-                id: Data((0 ..< 32).map { _ in 1 }),
+                id: Data(repeating: 1, count: 32),
                 displayName: "userDisplay",
                 name: "user"
             ),
@@ -50,10 +50,10 @@ class MakeCredentialRequestTests: BitwardenTestCase {
     /// when everything is filled
     func test_debugDescription_full() {
         let request = MakeCredentialRequest(
-            clientDataHash: Data((0 ..< 32).map { _ in 1 }),
+            clientDataHash: Data(repeating: 1, count: 32),
             rp: PublicKeyCredentialRpEntity(id: "someApp.com", name: "App name"),
             user: PublicKeyCredentialUserEntity(
-                id: Data((0 ..< 32).map { _ in 1 }),
+                id: Data(repeating: 1, count: 32),
                 displayName: "userDisplay",
                 name: "user"
             ),
@@ -61,7 +61,7 @@ class MakeCredentialRequestTests: BitwardenTestCase {
             excludeList: [
                 PublicKeyCredentialDescriptor(
                     ty: "public-key",
-                    id: Data((0 ..< 32).map { _ in 1 }),
+                    id: Data(repeating: 1, count: 32),
                     transports: ["transport"]
                 ),
             ],
@@ -98,9 +98,9 @@ class MakeCredentialResultTests: BitwardenTestCase {
     /// `debugDescription()` returns a string with the formatted description of the result.
     func test_debugDescription() {
         let result = MakeCredentialResult(
-            authenticatorData: Data((0 ..< 40).map { _ in 1 }),
-            attestationObject: Data((0 ..< 42).map { _ in 2 }),
-            credentialId: Data((0 ..< 32).map { _ in 3 })
+            authenticatorData: Data(repeating: 1, count: 40),
+            attestationObject: Data(repeating: 2, count: 42),
+            credentialId: Data(repeating: 3, count: 32)
         )
 
         let expectedResult =
