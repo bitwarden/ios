@@ -209,6 +209,10 @@ final class VaultCoordinator: Coordinator, HasStackNavigator {
                 group: group,
                 iconBaseURL: services.environmentService.iconsURL,
                 vaultFilterType: filter
+            ),
+            vaultItemMoreOptionsHelper: DefaultVaultItemMoreOptionsHelper(
+                coordinator: asAnyCoordinator(),
+                services: services
             )
         )
         let store = Store(processor: processor)
@@ -237,6 +241,10 @@ final class VaultCoordinator: Coordinator, HasStackNavigator {
             services: services,
             state: VaultListState(
                 iconBaseURL: services.environmentService.iconsURL
+            ),
+            vaultItemMoreOptionsHelper: DefaultVaultItemMoreOptionsHelper(
+                coordinator: asAnyCoordinator(),
+                services: services
             )
         )
         let store = Store(processor: processor)
@@ -274,6 +282,10 @@ final class VaultCoordinator: Coordinator, HasStackNavigator {
             ),
             userVerificationHelper: DefaultUserVerificationHelper(
                 userVerificationDelegate: self,
+                services: services
+            ),
+            vaultItemMoreOptionsHelper: DefaultVaultItemMoreOptionsHelper(
+                coordinator: asAnyCoordinator(),
                 services: services
             )
         )

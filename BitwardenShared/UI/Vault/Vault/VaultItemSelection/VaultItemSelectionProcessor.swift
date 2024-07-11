@@ -1,5 +1,3 @@
-// swiftlint:disable file_length
-
 // MARK: - VaultItemSelectionProcessor
 
 /// The processor used to manage state and handle actions for the vault item selection screen.
@@ -29,6 +27,9 @@ class VaultItemSelectionProcessor: StateProcessor<
     /// The helper to execute user verification flows.
     private let userVerificationHelper: UserVerificationHelper
 
+    /// The helper to handle the more options menu for a vault item.
+    private let vaultItemMoreOptionsHelper: VaultItemMoreOptionsHelper
+
     // MARK: Initialization
 
     /// Initialize a `VaultItemSelectionProcessor`.
@@ -38,16 +39,19 @@ class VaultItemSelectionProcessor: StateProcessor<
     ///   - services: The services used by this processor.
     ///   - state: The initial state of the processor.
     ///   - userVerificationHelper: The helper to execute user verification flows.
+    ///   - vaultItemMoreOptionsHelper: The helper to handle the more options menu for a vault item.
     ///
     init(
         coordinator: AnyCoordinator<VaultRoute, AuthAction>,
         services: Services,
         state: VaultItemSelectionState,
-        userVerificationHelper: UserVerificationHelper
+        userVerificationHelper: UserVerificationHelper,
+        vaultItemMoreOptionsHelper: VaultItemMoreOptionsHelper
     ) {
         self.coordinator = coordinator
         self.services = services
         self.userVerificationHelper = userVerificationHelper
+        self.vaultItemMoreOptionsHelper = vaultItemMoreOptionsHelper
         super.init(state: state)
     }
 
@@ -58,7 +62,15 @@ class VaultItemSelectionProcessor: StateProcessor<
         case .loadData:
             await refreshProfileState()
         case let .morePressed(item):
-            await showMoreOptionsAlert(for: item)
+            await vaultItemMoreOptionsHelper.showMoreOptionsAlert(
+                for: item,
+                handleDisplayToast: { [weak self] toast in
+                    self?.state.toast = toast
+                },
+                handleOpenURL: { [weak self] url in
+                    self?.state.url = url
+                }
+            )
         case let .profileSwitcher(profileEffect):
             await handle(profileEffect)
         case let .search(text):
@@ -109,29 +121,8 @@ class VaultItemSelectionProcessor: StateProcessor<
             state.toast = newValue
         }
     }
-}
 
-extension VaultItemSelectionProcessor {
     // MARK: Private Methods
-
-    /// Generates and copies a TOTP code for the cipher's TOTP key.
-    ///
-    /// - Parameter totpKey: The TOTP key used to generate a TOTP code.
-    ///
-    private func generateAndCopyTotpCode(totpKey: TOTPKeyModel) async {
-        do {
-            let response = try await services.vaultRepository.refreshTOTPCode(for: totpKey)
-            if let code = response.codeModel?.code {
-                services.pasteboardService.copy(code)
-                state.toast = Toast(text: Localizations.valueHasBeenCopied(Localizations.verificationCodeTotp))
-            } else {
-                coordinator.showAlert(.defaultAlert(title: Localizations.anErrorHasOccurred))
-            }
-        } catch {
-            coordinator.showAlert(.defaultAlert(title: Localizations.anErrorHasOccurred))
-            services.errorReporter.log(error: error)
-        }
-    }
 
     /// Handles receiving a `ProfileSwitcherAction`.
     ///
@@ -167,77 +158,6 @@ extension VaultItemSelectionProcessor {
         default:
             await handleProfileSwitcherEffect(profileSwitcherEffect)
         }
-    }
-
-    /// Handle the result of the selected option on the More Options alert..
-    ///
-    /// - Parameter action: The selected action.
-    ///
-    private func handleMoreOptionsAction(_ action: MoreOptionsAction) async {
-        switch action {
-        case let .copy(toast, value, requiresMasterPasswordReprompt, event, cipherId):
-            let copyBlock = {
-                self.services.pasteboardService.copy(value)
-                self.state.toast = Toast(text: Localizations.valueHasBeenCopied(toast))
-                if let event {
-                    Task {
-                        await self.services.eventService.collect(
-                            eventType: event,
-                            cipherId: cipherId
-                        )
-                    }
-                }
-            }
-            if requiresMasterPasswordReprompt {
-                presentMasterPasswordRepromptAlert(completion: copyBlock)
-            } else {
-                copyBlock()
-            }
-        case let .copyTotp(totpKey, requiresMasterPasswordReprompt):
-            if requiresMasterPasswordReprompt {
-                presentMasterPasswordRepromptAlert {
-                    await self.generateAndCopyTotpCode(totpKey: totpKey)
-                }
-            } else {
-                await generateAndCopyTotpCode(totpKey: totpKey)
-            }
-        case let .edit(cipherView, requiresMasterPasswordReprompt):
-            if requiresMasterPasswordReprompt {
-                presentMasterPasswordRepromptAlert {
-                    self.coordinator.navigate(to: .editItem(cipherView), context: self)
-                }
-            } else {
-                coordinator.navigate(to: .editItem(cipherView), context: self)
-            }
-        case let .launch(url):
-            state.url = url.sanitized
-        case let .view(id):
-            coordinator.navigate(to: .viewItem(id: id))
-        }
-    }
-
-    /// Presents the master password reprompt alert and calls the completion handler when the user's
-    /// master password has been confirmed.
-    ///
-    /// - Parameter completion: A completion handler that is called when the user's master password
-    ///     has been confirmed.
-    ///
-    private func presentMasterPasswordRepromptAlert(completion: @escaping () async -> Void) {
-        let alert = Alert.masterPasswordPrompt { [weak self] password in
-            guard let self else { return }
-
-            do {
-                let isValid = try await services.authRepository.validatePassword(password)
-                guard isValid else {
-                    coordinator.showAlert(.defaultAlert(title: Localizations.invalidMasterPassword))
-                    return
-                }
-                await completion()
-            } catch {
-                services.errorReporter.log(error: error)
-            }
-        }
-        coordinator.showAlert(alert)
     }
 
     /// Searches the list of ciphers for those matching the search term.
@@ -292,31 +212,6 @@ extension VaultItemSelectionProcessor {
             // No-op: don't log or alert for cancellation errors.
         } catch {
             coordinator.showAlert(.defaultAlert(title: Localizations.anErrorHasOccurred))
-            services.errorReporter.log(error: error)
-        }
-    }
-
-    /// Show the more options alert for the selected item.
-    ///
-    /// - Parameter item: The selected item to show the options for.
-    ///
-    private func showMoreOptionsAlert(for item: VaultListItem) async {
-        do {
-            // Only ciphers have more options.
-            guard case let .cipher(cipherView, _) = item.itemType else { return }
-
-            let hasPremium = await (try? services.vaultRepository.doesActiveAccountHavePremium()) ?? false
-            let hasMasterPassword = try await services.stateService.getUserHasMasterPassword()
-
-            coordinator.showAlert(.moreOptions(
-                canCopyTotp: hasPremium || cipherView.organizationUseTotp,
-                cipherView: cipherView,
-                hasMasterPassword: hasMasterPassword,
-                id: item.id,
-                showEdit: true,
-                action: handleMoreOptionsAction
-            ))
-        } catch {
             services.errorReporter.log(error: error)
         }
     }
