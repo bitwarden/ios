@@ -490,7 +490,7 @@ class AccountSecurityProcessorTests: BitwardenTestCase { // swiftlint:disable:th
         subject.state.isUnlockWithPINCodeOn = false
         subject.receive(.toggleUnlockWithPINCode(true))
 
-        var alert = try XCTUnwrap(coordinator.alertShown.last)
+        let alert = try XCTUnwrap(coordinator.alertShown.last)
         try await alert.tapAction(title: Localizations.submit)
 
         XCTAssertFalse(subject.state.isUnlockWithPINCodeOn)
