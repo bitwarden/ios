@@ -3,7 +3,7 @@ import XCTest
 
 @testable import BitwardenShared
 
-// MARK: - UITabBarControllerTests
+// MARK: - UITabBarControllerExtensionsTests
 
 class UITabBarControllerExtensionsTests: BitwardenTestCase {
     var module: MockAppModule!
