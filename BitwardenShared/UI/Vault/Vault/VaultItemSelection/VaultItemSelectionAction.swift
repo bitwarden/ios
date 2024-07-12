@@ -11,6 +11,9 @@ enum VaultItemSelectionAction: Equatable {
     /// The cancel button was tapped.
     case cancelTapped
 
+    /// The url has been opened so clear the value in the state.
+    case clearURL
+
     /// A forwarded profile switcher action.
     case profileSwitcher(ProfileSwitcherAction)
 

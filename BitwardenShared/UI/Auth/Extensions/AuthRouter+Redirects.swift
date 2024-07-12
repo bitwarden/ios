@@ -209,9 +209,9 @@ extension AuthRouter {
         }
 
         // Check for a `logout` timeout action.
-        let timeoutAction = try? await services.authRepository
-            .sessionTimeoutAction(userId: activeAccount.profile.userId)
-        if timeoutAction == .logout {
+        let userId = activeAccount.profile.userId
+        if await (try? services.authRepository.sessionTimeoutAction(userId: userId)) == .logout,
+           await (try? services.vaultTimeoutService.sessionTimeoutValue(userId: userId)) != .never {
             return await handleAndRoute(.didTimeout(userId: activeAccount.profile.userId))
         }
 

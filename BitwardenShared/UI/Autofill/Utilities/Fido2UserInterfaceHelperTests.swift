@@ -102,7 +102,9 @@ class Fido2UserInterfaceHelperTests: BitwardenTestCase {
     /// `pickCredentialForAuthentication(availableCredentials:)`
     func test_pickCredentialForAuthentication() async throws {
         //  TODO: PM-8829
-        _ = try await subject.pickCredentialForAuthentication(availableCredentials: [])
+        await assertAsyncThrows(error: Fido2Error.invalidOperationError) {
+            _ = try await subject.pickCredentialForAuthentication(availableCredentials: [])
+        }
         throw XCTSkip("TODO: PM-8829")
     }
 
