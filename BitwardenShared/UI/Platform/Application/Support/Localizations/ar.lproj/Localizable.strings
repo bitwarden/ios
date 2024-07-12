@@ -919,3 +919,4 @@
 "OrganizationUnassignedItemsMessageUSEUDescriptionLong" = "عناصر المؤسسة غير المعينة لم تعد مرئية في عرض جميع المستودعات ويمكن الوصول إليها فقط عن طريق لوحة التحكم. تعيين هذه العناصر لمجموعة من وحدة تحكم المدير لجعلها مرئية.";
 "UnknownAccount" = "حساب غير معروف";
 "UserVerificationForPasskey" = "User verification for passkey";
+"NewItem" = "New item";

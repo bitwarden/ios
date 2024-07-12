@@ -919,3 +919,4 @@
 "OrganizationUnassignedItemsMessageUSEUDescriptionLong" = "Nepriradené položky organizácie už nie sú viditeľné v zobrazení Všetky Trezory a sú prístupné len cez administrátorskú konzolu. Aby boli viditeľné, priraďte tieto položky do kolekcie z konzoly administrátora.";
 "UnknownAccount" = "Neznámy účet";
 "UserVerificationForPasskey" = "User verification for passkey";
+"NewItem" = "Nová položka";

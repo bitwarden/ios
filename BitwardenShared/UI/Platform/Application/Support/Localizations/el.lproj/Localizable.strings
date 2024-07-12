@@ -887,9 +887,9 @@
 "ThereWasAProblemCreatingAPasskeyForXTryAgainLater" = "There was a problem creating a passkey for %1$@. Try again later.";
 "ThereWasAProblemReadingAPasskeyForXTryAgainLater" = "There was a problem reading your passkey for %1$@. Try again later.";
 "VerifyingIdentityEllipsis" = "Verifying identity...";
-"Passwords" = "Passwords";
-"UnknownAccount" = "Unknown account";
-"SetUpAutofill" = "Set up auto-fill";
+"Passwords" = "Κωδικοί";
+"UnknownAccount" = "Άγνωστος λογαριασμός";
+"SetUpAutofill" = "Ρύθμιση αυτόματης συμπλήρωσης";
 "GetInstantAccessToYourPasswordsAndPasskeys" = "Get instant access to your passwords and passkeys!";
 "SetUpAutoFillDescriptionLong" = "To set up password auto-fill and passkey management, set Bitwarden as your preferred provider in the iOS Settings.";
 "FirstDotGoToYourDeviceSettingsPasswordsPasswordOptions" = "1. Go to your device's Settings > Passwords > Password Options";
@@ -917,5 +917,6 @@
 "ConfirmFilePassword" = "Confirm file password";
 "FilePasswordDescription" = "This password will be used to export and import this file";
 "OrganizationUnassignedItemsMessageUSEUDescriptionLong" = "Unassigned organization items are no longer visible in the All Vaults view and only accessible via the Admin Console. Assign these items to a collection from the Admin Console to make them visible.";
-"UnknownAccount" = "Unknown account";
+"UnknownAccount" = "Άγνωστος λογαριασμός";
 "UserVerificationForPasskey" = "User verification for passkey";
+"NewItem" = "New item";

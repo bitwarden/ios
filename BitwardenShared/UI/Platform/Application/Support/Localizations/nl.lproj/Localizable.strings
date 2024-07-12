@@ -919,3 +919,4 @@
 "OrganizationUnassignedItemsMessageUSEUDescriptionLong" = "Niet-toegewezen organisatie-items zijn niet meer zichtbaar in de weergave van alle kluisjes en alleen toegankelijk via de Admin Console. Je kunt deze items in het Admin Console aan een collectie toewijzen om ze zichtbaar te maken.";
 "UnknownAccount" = "Onbekend account";
 "UserVerificationForPasskey" = "User verification for passkey";
+"NewItem" = "Nieuw item";

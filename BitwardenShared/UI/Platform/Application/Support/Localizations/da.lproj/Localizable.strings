@@ -919,3 +919,4 @@
 "OrganizationUnassignedItemsMessageUSEUDescriptionLong" = "Utildelte organisationsemner er ikke længere synlige i Alle Bokse-visningen og er kun tilgængelige via Admin-konsollen. Føj disse emner til en samling fra Admin-konsollen for at gøre dem synlige.";
 "UnknownAccount" = "Ukendt konto";
 "UserVerificationForPasskey" = "Brugerbekræftelse for adgangsnøgle";
+"NewItem" = "Nyt emne";
