@@ -92,7 +92,7 @@ jobs:
       - name: Cache SPM packages
         uses: actions/cache@0c45773b623bea8c8e75f6c82b208c3cf94ea4f9 # v4.0.2
         with:
-          path: build/DerivedData/SourcePackages
+          path: build/SourcePackages
           key: ${{ runner.os }}-spm-${{ hashFiles('**/Package.resolved') }}
           restore-keys: |
             ${{ runner.os }}-spm-
@@ -110,8 +110,7 @@ jobs:
             -configuration Debug \
             -destination "${{ env.SIMULATOR_DESTINATION }}" \
             -resultBundlePath ${{ env.RESULT_BUNDLE_PATH }} \
-            -derivedDataPath build/DerivedData \
-            -clonedSourcePackagesDirPath build/DerivedData/SourcePackages \
+            -clonedSourcePackagesDirPath build/SourcePackages \
             -disableAutomaticPackageResolution \
             | xcbeautify --renderer github-actions
 
