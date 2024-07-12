@@ -73,6 +73,15 @@ jobs:
           brew install mint xcbeautify a7ex/homebrew-formulae/xcresultparser
           ./Scripts/bootstrap.sh
 
+      - name: Resolve packages
+        run: |
+          set -o pipefail && \
+            xcrun xcodebuild \
+            -project Bitwarden.xcodeproj \
+            -resolvePackageDependencies \
+            -clonedSourcePackagesDirPath build/DerivedData/SourcePackages \
+            | xcbeautify --renderer github-actions
+
       - name: Cache SPM packages
         uses: actions/cache@0c45773b623bea8c8e75f6c82b208c3cf94ea4f9 # v4.0.2
         with:
