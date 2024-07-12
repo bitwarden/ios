@@ -21,9 +21,14 @@ on:
         description: "Optional. Build number to use. Overrides default of GitHub run number."
         required: false
         type: number
+      xcode-version:
+        description: "Optional. Xcode version to use. Overrides default."
+        required: false
+        type: string
 
 env:
   build-variant: ${{ inputs.build-variant || 'Beta' }}
+  xcode-version: ${{ inputs.xcode-version || '15.0.1' }}
 
 jobs:
   build:
@@ -37,7 +42,7 @@ jobs:
       - name: Set Xcode version
         uses: maxim-lobanov/setup-xcode@60606e260d2fc5762a71e64e74b2174e8ea3c8bd # v1.6.0
         with:
-          xcode-version: 15.0.1
+          xcode-version: ${{ env.xcode-version }}
 
       - name: Check out repo
         uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
