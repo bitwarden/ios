@@ -468,8 +468,24 @@ class AccountSecurityProcessorTests: BitwardenTestCase { // swiftlint:disable:th
     }
 
     /// `receive(_:)` with `.toggleUnlockWithPINCode` displays an alert and updates the state when submit has been
-    /// pressed.
-    func test_receive_toggleUnlockWithPINCode_toggleOn() async throws {
+    /// pressed and the user has entered in a pin.
+    func test_receive_toggleUnlockWithPINCode_toggleOn_withPIN() async throws {
+        stateService.activeAccount = .fixture()
+        subject.state.isUnlockWithPINCodeOn = false
+        subject.receive(.toggleUnlockWithPINCode(true))
+
+        var alert = try XCTUnwrap(coordinator.alertShown.last)
+        try alert.setText("1234", forTextFieldWithId: "pin")
+        try await alert.tapAction(title: Localizations.submit)
+
+        alert = try XCTUnwrap(coordinator.alertShown.last)
+        try await alert.tapAction(title: Localizations.yes)
+        XCTAssertTrue(subject.state.isUnlockWithPINCodeOn)
+    }
+
+    /// `receive(_:)` with `.toggleUnlockWithPINCode` displays an alert and updates the state when submit has been
+    /// pressed but an empty pin was passed.
+    func test_receive_toggleUnlockWithPINCode_toggleOn_withEmptyPIN() async throws {
         stateService.activeAccount = .fixture()
         subject.state.isUnlockWithPINCodeOn = false
         subject.receive(.toggleUnlockWithPINCode(true))
@@ -477,9 +493,7 @@ class AccountSecurityProcessorTests: BitwardenTestCase { // swiftlint:disable:th
         var alert = try XCTUnwrap(coordinator.alertShown.last)
         try await alert.tapAction(title: Localizations.submit)
 
-        alert = try XCTUnwrap(coordinator.alertShown.last)
-        try await alert.tapAction(title: Localizations.yes)
-        XCTAssertTrue(subject.state.isUnlockWithPINCodeOn)
+        XCTAssertFalse(subject.state.isUnlockWithPINCodeOn)
     }
 
     /// `receive(_:)` with `.toggleUnlockWithPINCode` displays an error if one occurs while setting
@@ -492,6 +506,7 @@ class AccountSecurityProcessorTests: BitwardenTestCase { // swiftlint:disable:th
         subject.receive(.toggleUnlockWithPINCode(true))
 
         let enterPinAlert = try XCTUnwrap(coordinator.alertShown.last)
+        try enterPinAlert.setText("1234", forTextFieldWithId: "pin")
         try await enterPinAlert.tapAction(title: Localizations.submit)
 
         let requireMasterPasswordAlert = try XCTUnwrap(coordinator.alertShown.last)
@@ -511,6 +526,7 @@ class AccountSecurityProcessorTests: BitwardenTestCase { // swiftlint:disable:th
         subject.receive(.toggleUnlockWithPINCode(true))
 
         let alert = try XCTUnwrap(coordinator.alertShown.last)
+        try alert.setText("1234", forTextFieldWithId: "pin")
         try await alert.tapAction(title: Localizations.submit)
 
         XCTAssertTrue(subject.state.isUnlockWithPINCodeOn)
@@ -539,6 +555,7 @@ class AccountSecurityProcessorTests: BitwardenTestCase { // swiftlint:disable:th
         subject.receive(.toggleUnlockWithPINCode(true))
 
         let enterPinAlert = try XCTUnwrap(coordinator.alertShown.last)
+        try enterPinAlert.setText("1234", forTextFieldWithId: "pin")
         try await enterPinAlert.tapAction(title: Localizations.submit)
 
         let errorAlert = try XCTUnwrap(coordinator.alertShown.last)
