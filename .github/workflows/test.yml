@@ -6,12 +6,11 @@ on:
       - "main"
       - "rc"
       - "hotfix-rc"
-      - "katherine/set-xcode-version"
-  # pull_request_target:
-  #   types: [opened, synchronize]
+  pull_request_target:
+    types: [opened, synchronize]
 
 env:
-  DEVELOPER_DIR: /Applications/Xcode_15.4.app/Contents/Developer
+  DEVELOPER_DIR: /Applications/Xcode_15.0.1.app/Contents/Developer
   MINT_LINK_PATH: .mint/bin
   MINT_PATH: .mint/lib
   SIMULATOR_DESTINATION: platform=iOS Simulator,name=iPhone 15 Pro,OS=17.0.1
@@ -79,7 +78,7 @@ jobs:
       - name: Build and test
         run: |
           set -o pipefail && \
-            xcodebuild test \
+            xcrun xcodebuild test \
             -project Bitwarden.xcodeproj \
             -scheme Bitwarden \
             -configuration Debug \
