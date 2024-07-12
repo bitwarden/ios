@@ -59,6 +59,7 @@ jobs:
 
       - name: Tree
         run: |
+          brew install tree
           tree -d build
 
       - name: Cache SPM packages
@@ -81,7 +82,7 @@ jobs:
 
       - name: Install Mint, xcbeautify, and xcresultparser
         run: |
-          brew install mint xcbeautify a7ex/homebrew-formulae/xcresultparser tree
+          brew install mint xcbeautify a7ex/homebrew-formulae/xcresultparser
           ./Scripts/bootstrap.sh
 
       - name: Build and test
