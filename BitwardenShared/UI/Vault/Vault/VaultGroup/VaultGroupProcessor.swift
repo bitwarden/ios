@@ -1,12 +1,10 @@
 import BitwardenSdk
 import Foundation
 
-// swiftlint:disable file_length
-
 // MARK: - VaultGroupProcessor
 
 /// A `Processor` that can process `VaultGroupAction`s and `VaultGroupEffect`s.
-final class VaultGroupProcessor: StateProcessor<// swiftlint:disable:this type_body_length
+final class VaultGroupProcessor: StateProcessor<
     VaultGroupState,
     VaultGroupAction,
     VaultGroupEffect
@@ -38,6 +36,9 @@ final class VaultGroupProcessor: StateProcessor<// swiftlint:disable:this type_b
     /// An object to manage TOTP code expirations and batch refresh calls for search results.
     private var searchTotpExpirationManager: TOTPExpirationManager?
 
+    /// The helper to handle the more options menu for a vault item.
+    private let vaultItemMoreOptionsHelper: VaultItemMoreOptionsHelper
+
     // MARK: Initialization
 
     /// Creates a new `VaultGroupProcessor`.
@@ -46,14 +47,17 @@ final class VaultGroupProcessor: StateProcessor<// swiftlint:disable:this type_b
     ///   - coordinator: The `Coordinator` for this processor.
     ///   - services: The services for this processor.
     ///   - state: The initial state of this processor.
+    ///   - vaultItemMoreOptionsHelper: The helper to handle the more options menu for a vault item.
     ///
     init(
         coordinator: any Coordinator<VaultRoute, AuthAction>,
         services: Services,
-        state: VaultGroupState
+        state: VaultGroupState,
+        vaultItemMoreOptionsHelper: VaultItemMoreOptionsHelper
     ) {
         self.coordinator = coordinator
         self.services = services
+        self.vaultItemMoreOptionsHelper = vaultItemMoreOptionsHelper
 
         super.init(state: state)
         groupTotpExpirationManager = .init(
@@ -89,7 +93,15 @@ final class VaultGroupProcessor: StateProcessor<// swiftlint:disable:this type_b
             await checkPersonalOwnershipPolicy()
             await streamVaultList()
         case let .morePressed(item):
-            await showMoreOptionsAlert(for: item)
+            await vaultItemMoreOptionsHelper.showMoreOptionsAlert(
+                for: item,
+                handleDisplayToast: { [weak self] toast in
+                    self?.state.toast = toast
+                },
+                handleOpenURL: { [weak self] url in
+                    self?.state.url = url
+                }
+            )
         case .refresh:
             await refreshVaultGroup()
         case let .search(text):
@@ -146,25 +158,6 @@ final class VaultGroupProcessor: StateProcessor<// swiftlint:disable:this type_b
     private func checkPersonalOwnershipPolicy() async {
         let isPersonalOwnershipDisabled = await services.policyService.policyAppliesToUser(.personalOwnership)
         state.isPersonalOwnershipDisabled = isPersonalOwnershipDisabled
-    }
-
-    /// Generates and copies a TOTP code for the cipher's TOTP key.
-    ///
-    /// - Parameter totpKey: The TOTP key used to generate a TOTP code.
-    ///
-    private func generateAndCopyTotpCode(totpKey: TOTPKeyModel) async {
-        do {
-            let response = try await services.vaultRepository.refreshTOTPCode(for: totpKey)
-            if let code = response.codeModel?.code {
-                services.pasteboardService.copy(code)
-                state.toast = Toast(text: Localizations.valueHasBeenCopied(Localizations.verificationCodeTotp))
-            } else {
-                coordinator.showAlert(.defaultAlert(title: Localizations.anErrorHasOccurred))
-            }
-        } catch {
-            coordinator.showAlert(.defaultAlert(title: Localizations.anErrorHasOccurred))
-            services.errorReporter.log(error: error)
-        }
     }
 
     /// Refreshes the vault group's TOTP Codes.
@@ -231,31 +224,6 @@ final class VaultGroupProcessor: StateProcessor<// swiftlint:disable:this type_b
         return []
     }
 
-    /// Show the more options alert for the selected item.
-    ///
-    /// - Parameter item: The selected item to show the options for.
-    ///
-    private func showMoreOptionsAlert(for item: VaultListItem) async {
-        do {
-            // Only ciphers have more options.
-            guard case let .cipher(cipherView, _) = item.itemType else { return }
-
-            let hasPremium = await (try? services.vaultRepository.doesActiveAccountHavePremium()) ?? false
-            let hasMasterPassword = try await services.stateService.getUserHasMasterPassword()
-
-            coordinator.showAlert(.moreOptions(
-                canCopyTotp: hasPremium || cipherView.organizationUseTotp,
-                cipherView: cipherView,
-                hasMasterPassword: hasMasterPassword,
-                id: item.id,
-                showEdit: state.group != .trash,
-                action: handleMoreOptionsAction
-            ))
-        } catch {
-            services.errorReporter.log(error: error)
-        }
-    }
-
     /// Streams the user's organizations.
     private func streamOrganizations() async {
         do {
@@ -280,77 +248,6 @@ final class VaultGroupProcessor: StateProcessor<// swiftlint:disable:this type_b
         } catch {
             services.errorReporter.log(error: error)
         }
-    }
-
-    /// Handle the result of the selected option on the More Options alert.
-    ///
-    /// - Parameter action: The selected action.
-    ///
-    private func handleMoreOptionsAction(_ action: MoreOptionsAction) async {
-        switch action {
-        case let .copy(toast, value, requiresMasterPasswordReprompt, event, cipherId):
-            let copyBlock = {
-                self.services.pasteboardService.copy(value)
-                self.state.toast = Toast(text: Localizations.valueHasBeenCopied(toast))
-                if let event {
-                    Task {
-                        await self.services.eventService.collect(
-                            eventType: event,
-                            cipherId: cipherId
-                        )
-                    }
-                }
-            }
-            if requiresMasterPasswordReprompt {
-                presentMasterPasswordRepromptAlert(completion: copyBlock)
-            } else {
-                copyBlock()
-            }
-        case let .copyTotp(totpKey, requiresMasterPasswordReprompt):
-            if requiresMasterPasswordReprompt {
-                presentMasterPasswordRepromptAlert {
-                    await self.generateAndCopyTotpCode(totpKey: totpKey)
-                }
-            } else {
-                await generateAndCopyTotpCode(totpKey: totpKey)
-            }
-        case let .edit(cipherView, requiresMasterPasswordReprompt):
-            if requiresMasterPasswordReprompt {
-                presentMasterPasswordRepromptAlert {
-                    self.coordinator.navigate(to: .editItem(cipherView), context: self)
-                }
-            } else {
-                coordinator.navigate(to: .editItem(cipherView), context: self)
-            }
-        case let .launch(url):
-            state.url = url.sanitized
-        case let .view(id):
-            coordinator.navigate(to: .viewItem(id: id))
-        }
-    }
-
-    /// Presents the master password reprompt alert and calls the completion handler when the user's
-    /// master password has been confirmed.
-    ///
-    /// - Parameter completion: A completion handler that is called when the user's master password
-    ///     has been confirmed.
-    ///
-    private func presentMasterPasswordRepromptAlert(completion: @escaping () async -> Void) {
-        let alert = Alert.masterPasswordPrompt { [weak self] password in
-            guard let self else { return }
-
-            do {
-                let isValid = try await services.authRepository.validatePassword(password)
-                guard isValid else {
-                    coordinator.showAlert(.defaultAlert(title: Localizations.invalidMasterPassword))
-                    return
-                }
-                await completion()
-            } catch {
-                services.errorReporter.log(error: error)
-            }
-        }
-        coordinator.showAlert(alert)
     }
 }
 
