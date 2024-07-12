@@ -6,8 +6,9 @@ on:
       - "main"
       - "rc"
       - "hotfix-rc"
-  pull_request_target:
-    types: [opened, synchronize]
+      - "pm-9648/spm-caching"
+  # pull_request_target:
+  #   types: [opened, synchronize]
 
 env:
   DEVELOPER_DIR: /Applications/Xcode_15.0.1.app/Contents/Developer
@@ -72,7 +73,7 @@ jobs:
 
       - name: Install Mint, xcbeautify, and xcresultparser
         run: |
-          brew install mint xcbeautify a7ex/homebrew-formulae/xcresultparser
+          brew install mint xcbeautify a7ex/homebrew-formulae/xcresultparser tree
           ./Scripts/bootstrap.sh
 
       - name: Build and test
@@ -86,6 +87,10 @@ jobs:
             -resultBundlePath ${{ env.RESULT_BUNDLE_PATH }} \
             -derivedDataPath build/DerivedData \
             | xcbeautify --renderer github-actions
+
+      - name: Tree
+        run: |
+          tree -fd build
 
       - name: Convert coverage to Cobertura
         run: |
