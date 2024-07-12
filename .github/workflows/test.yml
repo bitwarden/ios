@@ -60,7 +60,6 @@ jobs:
       - name: Tree
         run: |
           brew install tree
-          tree -d build
 
       - name: Install yeetd
         run: |
