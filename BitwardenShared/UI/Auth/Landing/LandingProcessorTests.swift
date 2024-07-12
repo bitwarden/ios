@@ -59,6 +59,7 @@ class LandingProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_
     /// `didSaveEnvironment(urls:)` with URLs sets the region to self-hosted and sets the URLs in
     /// the environment.
     func test_didSaveEnvironment() async {
+        stateService.preAuthEnvironmentUrls = EnvironmentUrlData(base: .example)
         subject.state.region = .unitedStates
         await subject.didSaveEnvironment(urls: EnvironmentUrlData(base: .example))
         XCTAssertEqual(subject.state.region, .selfHosted)
@@ -71,6 +72,7 @@ class LandingProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_
 
     /// `didSaveEnvironment(urls:)` with empty URLs doesn't change the region or the environment URLs.
     func test_didSaveEnvironment_empty() async {
+        stateService.preAuthEnvironmentUrls = EnvironmentUrlData()
         subject.state.region = .unitedStates
         await subject.didSaveEnvironment(urls: EnvironmentUrlData())
         XCTAssertEqual(subject.state.region, .unitedStates)
@@ -358,10 +360,18 @@ class LandingProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_
         XCTAssertTrue(subject.state.isRememberMeOn)
     }
 
-    /// `receive(_:)` with `.createAccountPressed` navigates to the create account screen.
-    func test_receive_createAccountPressed() {
+    /// `receive(_:)` with `.createAccountPressed` navigates to the create account screen if feature flag is `false`.
+    func test_receive_createAccountPressed_ff_false() {
+        subject.state.emailVerificationFeatureFlag = false
         subject.receive(.createAccountPressed)
         XCTAssertEqual(coordinator.routes.last, .createAccount)
+    }
+
+    /// `receive(_:)` with `.createAccountPressed` navigates to the create account screen if feature flag is `true`.
+    func test_receive_createAccountPressed_ff_true() {
+        subject.state.emailVerificationFeatureFlag = true
+        subject.receive(.createAccountPressed)
+        XCTAssertEqual(coordinator.routes.last, .startRegistration)
     }
 
     /// `receive(_:)` with `.emailChanged` and an empty value updates the state to reflect the changes.
