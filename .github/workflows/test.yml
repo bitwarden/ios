@@ -94,7 +94,7 @@ jobs:
             -destination "${{ env.SIMULATOR_DESTINATION }}" \
             -resultBundlePath ${{ env.RESULT_BUNDLE_PATH }} \
             -derivedDataPath build/DerivedData \
-            -clonedSourcePackagesDirPath build/DerivedData/SourcePackages
+            -clonedSourcePackagesDirPath build/DerivedData/SourcePackages \
             | xcbeautify --renderer github-actions
 
       - name: Tree
