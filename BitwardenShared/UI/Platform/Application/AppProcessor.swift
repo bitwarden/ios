@@ -140,7 +140,8 @@ public class AppProcessor {
     /// - Parameter incomingURL: The URL handled from AppLinks.
     ///
     public func handleAppLinks(incomingURL: URL) {
-        guard let components = NSURLComponents(url: incomingURL, resolvingAgainstBaseURL: true) else {
+        guard let sanatizedUrl = URL(string: incomingURL.absoluteString.replacingOccurrences(of: "/#/", with: "/")),
+            let components = NSURLComponents(url: sanatizedUrl, resolvingAgainstBaseURL: true) else {
             return
         }
 
