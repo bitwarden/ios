@@ -76,5 +76,5 @@ jobs:
             -Dsonar.projectKey=${{ github.repository_owner }}_${{ github.event.repository.name }}
             -Dsonar.tests=.
             -Dsonar.sources=.
-            -Dsonar.test.inclusions=GlobalTestHelpers/,Networking/Tests/,**/*Tests.*/,**/TestHelpers/,**/Fixtures/
-            -Dsonar.exclusions=GlobalTestHelpers/,Networking/Tests/,**/*Tests.*/,**/TestHelpers/,**/Fixtures/
+            -Dsonar.test.inclusions=GlobalTestHelpers/,Networking/Tests/,**/*Tests.*,**/TestHelpers/,**/Fixtures/
+            -Dsonar.exclusions=GlobalTestHelpers/,Networking/Tests/,**/*Tests.*,**/TestHelpers/,**/Fixtures/
