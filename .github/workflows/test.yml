@@ -6,8 +6,9 @@ on:
       - "main"
       - "rc"
       - "hotfix-rc"
-  pull_request_target:
-    types: [opened, synchronize]
+      - "katherine/set-xcode-version"
+  # pull_request_target:
+  #   types: [opened, synchronize]
 
 env:
   DEVELOPER_DIR: /Applications/Xcode_15.4.app/Contents/Developer
