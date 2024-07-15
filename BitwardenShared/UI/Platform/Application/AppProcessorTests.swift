@@ -13,6 +13,7 @@ class AppProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_body
     var clientService: MockClientService!
     var coordinator: MockCoordinator<AppRoute, AppEvent>!
     var errorReporter: MockErrorReporter!
+    var eventService: MockEventService!
     var migrationService: MockMigrationService!
     var notificationCenterService: MockNotificationCenterService!
     var notificationService: MockNotificationService!
@@ -38,6 +39,7 @@ class AppProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_body
         appModule.authRouter = router
         appModule.appCoordinator = coordinator
         errorReporter = MockErrorReporter()
+        eventService = MockEventService()
         migrationService = MockMigrationService()
         notificationCenterService = MockNotificationCenterService()
         notificationService = MockNotificationService()
@@ -54,6 +56,7 @@ class AppProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_body
                 autofillCredentialService: autofillCredentialService,
                 clientService: clientService,
                 errorReporter: errorReporter,
+                eventService: eventService,
                 migrationService: migrationService,
                 notificationService: notificationService,
                 notificationCenterService: notificationCenterService,
@@ -75,9 +78,11 @@ class AppProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_body
         clientService = nil
         coordinator = nil
         errorReporter = nil
+        eventService = nil
         migrationService = nil
         notificationCenterService = nil
         notificationService = nil
+        router = nil
         stateService = nil
         subject = nil
         syncService = nil
@@ -125,6 +130,15 @@ class AppProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_body
     func test_init_setDelegates() {
         XCTAssertIdentical(notificationService.delegate, subject)
         XCTAssertIdentical(syncService.delegate, subject)
+    }
+
+    /// `init()` starts the upload-event timer and attempts to upload events.
+    func test_init_uploadEvents() {
+        XCTAssertNotNil(subject.sendEventTimer)
+        XCTAssertEqual(subject.sendEventTimer?.isValid, true)
+        subject.sendEventTimer?.fire() // Necessary because it's a 5-minute timer
+        waitFor(eventService.uploadCalled)
+        XCTAssertTrue(eventService.uploadCalled)
     }
 
     /// `messageReceived(_:notificationDismissed:notificationTapped)` passes the data to the notification service.

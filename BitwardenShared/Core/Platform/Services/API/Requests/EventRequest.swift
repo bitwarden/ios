@@ -31,7 +31,7 @@ struct EventRequest: Request {
     // MARK: Properties
 
     /// The body of the request.
-    var body: EventRequestBody? { requestBody }
+    var body: [EventRequestModel]? { requestBody.events }
 
     /// The HTTP method of the request.
     let method: HTTPMethod = .post

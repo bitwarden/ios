@@ -72,7 +72,8 @@ class APIService {
             baseUrlGetter: { environmentService.eventsURL },
             client: client,
             requestHandlers: [defaultHeadersRequestHandler],
-            responseHandlers: [responseValidationHandler]
+            responseHandlers: [responseValidationHandler],
+            tokenProvider: accountTokenProvider
         )
         hibpService = HTTPService(
             baseURL: URL(string: "https://api.pwnedpasswords.com")!,

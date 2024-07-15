@@ -170,13 +170,13 @@ class EventServiceTests: XCTestCase {
         await subject.upload()
         XCTAssertEqual(client.requests.count, 1)
         let request = try XCTUnwrap(client.requests.last)
-        let data = try XCTUnwrap(request.body)
+        let body = try XCTUnwrap(request.body)
         XCTAssertEqual(
-            try? JSONDecoder.defaultDecoder.decode(EventRequestBody.self, from: data),
-            EventRequestBody(events: [
+            try? JSONDecoder.defaultDecoder.decode([EventRequestModel].self, from: body),
+            [
                 EventRequestModel(type: .cipherClientViewed, cipherId: "1", date: date),
                 EventRequestModel(type: .cipherClientAutofilled, cipherId: "1", date: date.addingTimeInterval(1)),
-            ])
+            ]
         )
         XCTAssertEqual(stateService.events["1"], [])
     }

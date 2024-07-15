@@ -21,7 +21,7 @@ extension APIService: EventAPIService {
                 date: event.date
             )
         }
-        _ = try await apiService.send(
+        _ = try await eventsService.send(
             EventRequest(requestBody: EventRequestBody(events: models))
         )
     }

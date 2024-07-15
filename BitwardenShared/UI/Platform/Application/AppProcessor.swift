@@ -16,6 +16,9 @@ public class AppProcessor {
     /// The root coordinator of the app.
     var coordinator: AnyCoordinator<AppRoute, AppEvent>?
 
+    /// A timer to send any accumulated events every five minutes.
+    private(set) var sendEventTimer: Timer?
+
     /// The services used by the app.
     let services: ServiceContainer
 
@@ -34,6 +37,13 @@ public class AppProcessor {
         self.appModule = appModule
         self.services = services
 
+        sendEventTimer = Timer.scheduledTimer(withTimeInterval: 5 * 60, repeats: true) { _ in
+            Task {
+                await services.eventService.upload()
+            }
+        }
+        sendEventTimer?.tolerance = 10
+
         self.services.notificationService.setDelegate(self)
         self.services.syncService.delegate = self
 
@@ -42,6 +52,12 @@ public class AppProcessor {
 
         Task {
             for await _ in services.notificationCenterService.willEnterForegroundPublisher() {
+                sendEventTimer = Timer.scheduledTimer(withTimeInterval: 5 * 60, repeats: true) { _ in
+                    Task {
+                        await services.eventService.upload()
+                    }
+                }
+                sendEventTimer?.tolerance = 10
                 let accounts = try await self.services.stateService.getAccounts()
                 let activeUserId = try await self.services.stateService.getActiveAccountId()
                 for account in accounts {
@@ -61,10 +77,16 @@ public class AppProcessor {
 
         Task {
             for await _ in services.notificationCenterService.didEnterBackgroundPublisher() {
+                sendEventTimer?.fire()
+                sendEventTimer?.invalidate()
                 let userId = try await self.services.stateService.getActiveAccountId()
                 try await services.vaultTimeoutService.setLastActiveTime(userId: userId)
             }
         }
+    }
+
+    deinit {
+        sendEventTimer?.invalidate()
     }
 
     // MARK: Methods

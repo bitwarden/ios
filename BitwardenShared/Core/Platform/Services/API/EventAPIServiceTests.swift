@@ -41,13 +41,13 @@ class EventAPIServiceTests: BitwardenTestCase {
         let request = try XCTUnwrap(client.requests.last)
         let data = try XCTUnwrap(request.body)
         XCTAssertEqual(
-            try? JSONDecoder.defaultDecoder.decode(EventRequestBody.self, from: data),
-            EventRequestBody(events: [
+            try? JSONDecoder.defaultDecoder.decode([EventRequestModel].self, from: data),
+            [
                 EventRequestModel(type: .cipherClientViewed, cipherId: "1", date: date),
                 EventRequestModel(type: .cipherClientViewed, cipherId: "2", date: date.addingTimeInterval(1)),
-            ])
+            ]
         )
         XCTAssertEqual(request.method, .post)
-        XCTAssertEqual(request.url.absoluteString, "https://example.com/api/collect")
+        XCTAssertEqual(request.url.absoluteString, "https://example.com/events/collect")
     }
 }
