@@ -93,7 +93,15 @@ class StartRegistrationViewTests: BitwardenTestCase {
         processor.state.emailText = "email@example.com"
         processor.state.nameText = "user name"
 
-        assertSnapshot(matching: subject, as: .defaultPortrait)
+        assertSnapshots(matching: subject, as: [.defaultPortrait, .defaultPortraitDark, .defaultPortraitAX5])
+    }
+
+    /// Tests the view renders correctly when the text fields are all populated with long text.
+    func test_snapshot_textFields_populated_long() throws {
+        processor.state.emailText = "emailmmmmmmmmmmmmmmmmmmmmm@exammmmmmmmmmmmmmmmmmmmmmmmmmmmmmmple.com"
+        processor.state.nameText = "user name name name name name name name name name name name name name name"
+
+        assertSnapshots(matching: subject, as: [.defaultPortrait, .defaultPortraitDark, .defaultPortraitAX5])
     }
 
     /// Tests the view renders correctly when the toggles are on.
@@ -104,7 +112,7 @@ class StartRegistrationViewTests: BitwardenTestCase {
     }
 
     /// Tests the view renders correctly when the marketing toggle is hidden.
-    func test_snapshot_environment_selfhosted() throws {
+    func test_snapshot_marketingToggle_hidden() throws {
         processor.state.showReceiveMarketingToggle = false
 
         assertSnapshot(matching: subject, as: .defaultPortrait)

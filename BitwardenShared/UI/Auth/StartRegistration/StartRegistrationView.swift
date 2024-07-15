@@ -25,7 +25,7 @@ struct StartRegistrationView: View {
 
     /// The unsubscribe marketing attributed string used in navigating to Bitwarden's website.
     let unsubscribeString: AttributedString? = try? AttributedString(
-        markdown: "[\(Localizations.unsubscribe),](\(ExternalLinksConstants.unsubscribe))"
+        markdown: "[\(Localizations.unsubscribe),](\(ExternalLinksConstants.unsubscribeFromMarketingEmails))"
     )
 
     // MARK: View

@@ -97,7 +97,7 @@ class CompleteRegistrationViewTests: BitwardenTestCase {
 
     /// Tests the view renders correctly when the text fields are all empty.
     func test_snapshot_empty() {
-        assertSnapshot(matching: subject, as: .defaultPortrait)
+        assertSnapshots(matching: subject, as: [.defaultPortrait, .defaultPortraitDark, .defaultPortraitAX5])
     }
 
     /// Tests the view renders correctly when text fields are hidden.
@@ -121,7 +121,7 @@ class CompleteRegistrationViewTests: BitwardenTestCase {
         processor.state.passwordHintText = "wink wink"
         processor.state.passwordStrengthScore = 0
 
-        assertSnapshot(matching: subject, as: .defaultPortrait)
+        assertSnapshots(matching: subject, as: [.defaultPortrait, .defaultPortraitDark, .defaultPortraitAX5])
     }
 
     /// Tests the view renders correctly when the toggles are on.

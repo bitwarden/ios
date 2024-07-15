@@ -21,7 +21,7 @@ struct StartRegistrationState: Equatable {
         Localizations.getEmailsFromBitwardenForAnnouncementsAdviceAndResearchOpportunitiesUnsubscribeAtAnyTime
             .replacingOccurrences(
                 of: Localizations.unsubscribe,
-                with: "**[\(Localizations.unsubscribe)](\(ExternalLinksConstants.unsubscribe))**"
+                with: "**[\(Localizations.unsubscribe)](\(ExternalLinksConstants.unsubscribeFromMarketingEmails))**"
             )
     }
 

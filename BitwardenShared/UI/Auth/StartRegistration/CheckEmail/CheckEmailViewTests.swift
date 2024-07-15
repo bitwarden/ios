@@ -10,7 +10,7 @@ import XCTest
 class CheckEmailViewTests: BitwardenTestCase {
     // MARK: Properties
 
-    var processor: MockProcessor<CheckEmailState, CheckEmailAction, CheckEmailEffect>!
+    var processor: MockProcessor<CheckEmailState, CheckEmailAction, Void>!
     var subject: CheckEmailView!
 
     // MARK: Setup & Teardown
@@ -34,13 +34,13 @@ class CheckEmailViewTests: BitwardenTestCase {
     func test_cancelButton_tap() throws {
         let button = try subject.inspect().find(button: Localizations.cancel)
         try button.tap()
-        XCTAssertEqual(processor.dispatchedActions.last, .dismissTapped)
+        assertSnapshot(matching: subject, as: .defaultPortrait)
     }
 
     // MARK: Snapshots
 
     /// Tests the view renders correctly.
     func test_snapshot_empty() {
-        assertSnapshot(matching: subject, as: .defaultPortrait)
+        assertSnapshots(matching: subject, as: [.defaultPortrait, .defaultPortraitDark, .defaultPortraitAX5])
     }
 }

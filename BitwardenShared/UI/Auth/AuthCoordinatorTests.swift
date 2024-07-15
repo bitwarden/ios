@@ -86,6 +86,15 @@ class AuthCoordinatorTests: BitwardenTestCase { // swiftlint:disable:this type_b
         XCTAssertEqual(stackNavigator.actions.last?.type, .dismissedWithCompletionHandler)
     }
 
+    /// `navigate(to:)` with `.checkEmail` pushes the check email view onto the stack navigator.
+    func test_navigate_checkEmail() throws {
+        subject.navigate(to: .checkEmail(email: "email@example.com"))
+
+        let navigationController = try XCTUnwrap(stackNavigator.actions.last?.view as? UINavigationController)
+        XCTAssertTrue(stackNavigator.actions.last?.view is UINavigationController)
+        XCTAssertTrue(navigationController.viewControllers.first is UIHostingController<CheckEmailView>)
+    }
+
     /// `navigate(to:)` with `.createAccount` pushes the create account view onto the stack navigator.
     func test_navigate_createAccount() throws {
         subject.navigate(to: .createAccount)
@@ -95,12 +104,54 @@ class AuthCoordinatorTests: BitwardenTestCase { // swiftlint:disable:this type_b
         XCTAssertTrue(navigationController.viewControllers.first is UIHostingController<CreateAccountView>)
     }
 
-    /// `navigate(to:)` with `.dismiss` dismisses the presented view.
+    /// `navigate(to:)` with `.completeRegistration` pushes the create account view onto the stack navigator.
+    func test_navigate_completeRegistration() throws {
+        subject.navigate(to: .completeRegistration(
+            emailVerificationToken: "thisisanamazingtoken",
+            userEmail: "email@example.com"
+        ))
+
+        let navigationController = try XCTUnwrap(stackNavigator.actions.last?.view as? UINavigationController)
+        XCTAssertTrue(stackNavigator.actions.last?.view is UINavigationController)
+        XCTAssertTrue(navigationController.viewControllers.first is UIHostingController<CompleteRegistrationView>)
+    }
+
+    /// `navigate(to:)` with `.completeRegistrationFromAppLink` pushes the create account view onto the stack navigator.
+    func test_navigate_completeRegistrationFromAppLink() throws {
+        subject.navigate(to: .completeRegistrationFromAppLink(
+            emailVerificationToken: "thisisanamazingtoken",
+            userEmail: "email@example.com",
+            fromEmail: true,
+            region: .unitedStates
+        ))
+
+        let lastAction = try XCTUnwrap(stackNavigator.actions.last)
+        XCTAssertEqual(lastAction.type, .dismissedWithCompletionHandler)
+    }
+
+    /// `navigate(to:)` with `.startRegistration` pushes the start registration view onto the stack navigator.
+    func test_navigate_startRegistration() throws {
+        subject.navigate(to: .startRegistration, context: MockStartRegistrationDelegate())
+
+        let navigationController = try XCTUnwrap(stackNavigator.actions.last?.view as? UINavigationController)
+        XCTAssertTrue(stackNavigator.actions.last?.view is UINavigationController)
+        XCTAssertTrue(navigationController.viewControllers.first is UIHostingController<StartRegistrationView>)
+    }
+
+    /// `navigate(to:)` with `.dismiss` dismisses all presented view.
     func test_navigate_dismiss() throws {
         subject.navigate(to: .createAccount)
         subject.navigate(to: .dismiss)
         let lastAction = try XCTUnwrap(stackNavigator.actions.last)
         XCTAssertEqual(lastAction.type, .dismissed)
+    }
+
+    /// `navigate(to:)` with `.dismissPresented` dismisses the presented view.
+    func test_navigate_dismissPresented() throws {
+        subject.navigate(to: .checkEmail(email: "email@example.com"))
+        subject.navigate(to: .dismissPresented)
+        let lastAction = try XCTUnwrap(stackNavigator.actions.last)
+        XCTAssertEqual(lastAction.type, .presented)
     }
 
     /// `navigate(to:)` with `.enterpriseSingleSignOn` pushes the enterprise single sign-on view onto the stack
