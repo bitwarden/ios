@@ -35,7 +35,7 @@ protocol AccountAPIService {
     ///
     func deleteAccount(body: DeleteAccountRequestModel) async throws -> EmptyResponse
 
-    /// Creates an API call for when the user submits the last step of the an account creation form.
+    /// Creates an API call for when the user submits the last step of an account creation form.
     ///
     /// - Parameter body: The body to be included in the request.
     /// - Returns: Data returned from the `RegisterFinishRequest`.
