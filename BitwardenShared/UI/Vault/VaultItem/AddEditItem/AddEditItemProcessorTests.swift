@@ -490,7 +490,7 @@ class AddEditItemProcessorTests: BitwardenTestCase {
     func test_didCompleteCapture_success() throws {
         subject.state.loginState.totpState = .none
         let key = String.base32Key
-        let keyConfig = try XCTUnwrap(TOTPKeyModel(authenticatorKey: key))
+        let keyConfig = TOTPKeyModel(authenticatorKey: key)
         totpService.getTOTPConfigResult = .success(keyConfig)
         let captureCoordinator = MockCoordinator<AuthenticatorKeyCaptureRoute, AuthenticatorKeyCaptureEvent>()
         subject.didCompleteCapture(captureCoordinator.asAnyCoordinator(), with: key)
@@ -1544,23 +1544,24 @@ class AddEditItemProcessorTests: BitwardenTestCase {
         XCTAssertFalse(subject.state.loginState.isPasswordVisible)
     }
 
-    /// `receive(_:)` with `.totpFieldLeftFocus` clears the authenticator key.
-    func test_receive_totpFieldLeftFocus_invalidKey() throws {
-        let badKey = "pasta batman"
-        subject.state.loginState.totpState = LoginTOTPState(badKey)
+    /// `receive(_:)` with `.totpFieldLeftFocus` with a key with spaces.
+    func test_receive_totpFieldLeftFocus_validKey_unknownState() throws {
+        let keyWithSpaces = "pasta batman"
+        subject.state.loginState.totpState = LoginTOTPState(keyWithSpaces)
         subject.receive(.totpFieldLeftFocus)
 
-        XCTAssertNil(subject.state.loginState.totpState.authKeyModel?.rawAuthenticatorKey)
-        XCTAssertEqual(badKey, subject.state.loginState.totpState.rawAuthenticatorKeyString)
-        waitFor(!coordinator.alertShown.isEmpty)
-        let alert = try XCTUnwrap(coordinator.alertShown.last)
-        XCTAssertEqual(alert.title, Localizations.authenticatorKeyReadError)
-        XCTAssertNil(alert.message)
         XCTAssertEqual(
-            alert.alertActions,
-            [
-                AlertAction(title: Localizations.ok, style: .default),
-            ]
+            subject.state.loginState.totpState.authKeyModel?.rawAuthenticatorKey,
+            keyWithSpaces
+        )
+        XCTAssertEqual(
+            keyWithSpaces,
+            subject.state.loginState.totpState.rawAuthenticatorKeyString
+        )
+        XCTAssertTrue(coordinator.alertShown.isEmpty)
+        XCTAssertEqual(
+            subject.state.loginState.totpState.authKeyModel?.totpKey,
+            .unknown(key: keyWithSpaces)
         )
     }
 

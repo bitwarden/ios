@@ -180,7 +180,7 @@ class AutofillHelperTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         ))
         vaultRepository.refreshTOTPCodeResult = .success(
             LoginTOTPState(
-                authKeyModel: TOTPKeyModel(authenticatorKey: .base32Key)!,
+                authKeyModel: TOTPKeyModel(authenticatorKey: .base32Key),
                 codeModel: TOTPCodeModel(code: "123321", codeGenerationDate: Date(), period: 30)
             )
         )
@@ -323,7 +323,7 @@ class AutofillHelperTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         vaultRepository.getDisableAutoTotpCopyResult = .success(false)
         vaultRepository.refreshTOTPCodeResult = .success(
             LoginTOTPState(
-                authKeyModel: TOTPKeyModel(authenticatorKey: .base32Key)!,
+                authKeyModel: TOTPKeyModel(authenticatorKey: .base32Key),
                 codeModel: TOTPCodeModel(code: "123321", codeGenerationDate: Date(), period: 30)
             )
         )
@@ -345,7 +345,7 @@ class AutofillHelperTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         vaultRepository.getDisableAutoTotpCopyResult = .success(false)
         vaultRepository.refreshTOTPCodeResult = .success(
             LoginTOTPState(
-                authKeyModel: TOTPKeyModel(authenticatorKey: .base32Key)!,
+                authKeyModel: TOTPKeyModel(authenticatorKey: .base32Key),
                 codeModel: TOTPCodeModel(code: "123321", codeGenerationDate: Date(), period: 30)
             )
         )

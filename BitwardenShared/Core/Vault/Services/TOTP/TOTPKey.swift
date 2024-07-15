@@ -10,6 +10,9 @@ enum TOTPKey: Equatable, Sendable {
     /// A Steam URI
     case steamUri(key: String)
 
+    /// An unknown key type, used for keys that do not fit the other cases.
+    case unknown(key: String)
+
     // MARK: Properties
 
     /// The hash algorithm used for the TOTP code.
@@ -26,7 +29,8 @@ enum TOTPKey: Equatable, Sendable {
     ///
     var digits: Int {
         switch self {
-        case .base32:
+        case .base32,
+             .unknown:
             return 6
         case let .otpAuthUri(model):
             return model.digits
@@ -41,7 +45,8 @@ enum TOTPKey: Equatable, Sendable {
     var base32Key: String {
         switch self {
         case let .base32(key),
-             let .steamUri(key):
+             let .steamUri(key),
+             let .unknown(key):
             return key
         case let .otpAuthUri(model):
             return model.keyB32
@@ -54,7 +59,8 @@ enum TOTPKey: Equatable, Sendable {
     var period: Int {
         switch self {
         case .base32,
-             .steamUri:
+             .steamUri,
+             .unknown:
             return 30
         case let .otpAuthUri(model):
             return model.period
@@ -69,18 +75,20 @@ enum TOTPKey: Equatable, Sendable {
     /// It supports base32 keys, OTP Auth URIs, and Steam URIs.
     ///
     /// - Parameter key: A string representing the TOTP key.
-    init?(_ key: String) {
+    init(_ key: String) {
         if key.uppercased().isBase32 {
             self = .base32(key: key)
-        } else if key.hasOTPAuthPrefix,
-                  let otpAuthModel = OTPAuthModel(otpAuthKey: key) {
+        } else if key.hasOTPAuthPrefix, let otpAuthModel = OTPAuthModel(otpAuthKey: key) {
             self = .otpAuthUri(otpAuthModel)
         } else if let keyIndexOffset = key.steamURIKeyIndexOffset {
             let steamKey = String(key.suffix(from: keyIndexOffset))
-            guard steamKey.uppercased().isBase32 else { return nil }
-            self = .steamUri(key: steamKey)
+            if steamKey.uppercased().isBase32 {
+                self = .steamUri(key: steamKey)
+            } else {
+                self = .unknown(key: key)
+            }
         } else {
-            return nil
+            self = .unknown(key: key)
         }
     }
 }

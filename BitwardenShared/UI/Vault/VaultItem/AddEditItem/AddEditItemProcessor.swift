@@ -707,7 +707,6 @@ extension AddEditItemProcessor: AuthenticatorKeyCaptureDelegate {
         guard key != state.loginState.totpState.authKeyModel?.rawAuthenticatorKey else { return }
         let newState = LoginTOTPState(key)
         state.loginState.totpState = newState
-        guard case .invalid = newState else { return }
         coordinator.showAlert(.totpScanFailureAlert())
     }
 
