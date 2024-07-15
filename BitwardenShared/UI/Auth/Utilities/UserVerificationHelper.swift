@@ -133,9 +133,18 @@ extension DefaultUserVerificationHelper: UserVerificationHelper {
                     continuation.resume(throwing: UserVerificationError.cancelled)
                 },
                 settingUp: false,
-                completion: { _ in
-                    // TODO: PM-8388 Perform PIN verification when method available from SDK
-                    continuation.resume(returning: .notVerified)
+                completion: { pin in
+                    guard await self.authRepository.validatePin(pin: pin) else {
+                        self.userVerificationDelegate?.showAlert(
+                            .defaultAlert(title: Localizations.invalidPIN),
+                            onDismissed: {
+                                continuation.resume(returning: .notVerified)
+                            }
+                        )
+                        return
+                    }
+
+                    continuation.resume(returning: .verified)
                 }
             )
 

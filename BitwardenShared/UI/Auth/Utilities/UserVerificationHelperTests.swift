@@ -219,7 +219,7 @@ class UserVerificationHelperTests: BitwardenTestCase {
     }
 
     /// `verifyPin()` unable to perform when auth repository pin unlock is not available.
-    func test_verifyPin_unableToPerformR3c0rdables() async throws {
+    func test_verifyPin_unableToPerform() async throws {
         authRepository.isPinUnlockAvailableResult = .success(false)
 
         let result = try await subject.verifyPin()
@@ -227,7 +227,77 @@ class UserVerificationHelperTests: BitwardenTestCase {
         XCTAssertEqual(result, .unableToPerform)
     }
 
-    // TODO: PM-8388 Add more tests for `verifyPin`
+    /// `verifyPin()` with cancelled verification.
+    func test_verifyPin_cancelled() async throws {
+        authRepository.isPinUnlockAvailableResult = .success(true)
+        let task = Task {
+            try await self.subject.verifyPin()
+        }
+
+        try await waitForAsync {
+            !self.userVerificationDelegate.alertShown.isEmpty
+        }
+
+        let alert = try XCTUnwrap(userVerificationDelegate.alertShown.last)
+        try await alert.tapAction(title: Localizations.cancel)
+
+        await assertAsyncThrows(error: UserVerificationError.cancelled) {
+            _ = try await task.value
+        }
+    }
+
+    /// `verifyPin()` with verified PIN.
+    func test_verifyPin_verified() async throws {
+        authRepository.isPinUnlockAvailableResult = .success(true)
+        authRepository.validatePinResult = true
+
+        let task = Task {
+            try await self.subject.verifyPin()
+        }
+
+        try await waitForAsync {
+            !self.userVerificationDelegate.alertShown.isEmpty
+        }
+
+        try await enterPinInAlertAndSubmit()
+
+        let result = try await task.value
+
+        XCTAssertEqual(result, .verified)
+    }
+
+    /// `verifyPin()` with not verified PIN.
+    func test_verifyPin_notVerified() async throws {
+        authRepository.isPinUnlockAvailableResult = .success(true)
+        authRepository.validatePinResult = false
+
+        let task = Task {
+            try await self.subject.verifyPin()
+        }
+
+        try await waitForAsync {
+            !self.userVerificationDelegate.alertShown.isEmpty
+        }
+
+        try await enterPinInAlertAndSubmit()
+
+        try await waitForAsync {
+            self.userVerificationDelegate.alertShown
+                .last?.title == Localizations.invalidPIN
+        }
+
+        let alert = try XCTUnwrap(userVerificationDelegate.alertShown.last)
+
+        XCTAssertEqual(alert, .defaultAlert(title: Localizations.invalidPIN))
+
+        try await alert.tapAction(title: Localizations.ok)
+
+        userVerificationDelegate.alertOnDismissed?()
+
+        let result = try await task.value
+
+        XCTAssertEqual(result, .notVerified)
+    }
 
     // MARK: Private
 
@@ -237,6 +307,16 @@ class UserVerificationHelperTests: BitwardenTestCase {
         XCTAssertEqual(alert, .masterPasswordPrompt { _ in })
         var textField = try XCTUnwrap(alert.alertTextFields.first)
         textField = AlertTextField(id: "password", text: "password")
+
+        try await alert.tapAction(title: Localizations.submit, alertTextFields: [textField])
+    }
+
+    private func enterPinInAlertAndSubmit() async throws {
+        let alert = try XCTUnwrap(userVerificationDelegate.alertShown.last)
+
+        XCTAssertEqual(alert, .enterPINCode(settingUp: false) { _ in })
+        var textField = try XCTUnwrap(alert.alertTextFields.first)
+        textField = AlertTextField(id: "pin", text: "pin")
 
         try await alert.tapAction(title: Localizations.submit, alertTextFields: [textField])
     }

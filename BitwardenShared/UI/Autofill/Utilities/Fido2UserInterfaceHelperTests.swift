@@ -42,19 +42,21 @@ class Fido2UserInterfaceHelperTests: BitwardenTestCase {
     /// `checkUserAndPickCredentialForCreation(options:newCredential:)` returns picked cipher
     /// after succesfully calling `pickedCredentialForCreation(cipherResult:)`.
     func test_checkUserAndPickCredentialForCreation_returnsPickedCipher() async throws {
+        let expectedOptions = CheckUserOptions(
+            requirePresence: true,
+            requireVerification: .discouraged
+        )
         let expectedFido2NewCredential = Fido2CredentialNewView.fixture()
         let task = Task {
             try await subject.checkUserAndPickCredentialForCreation(
-                options: CheckUserOptions(
-                    requirePresence: true,
-                    requireVerification: .discouraged
-                ),
+                options: expectedOptions,
                 newCredential: expectedFido2NewCredential
             )
         }
 
         try await waitForAsync {
-            self.subject.fido2CredentialNewView == expectedFido2NewCredential
+            self.subject.fido2CreationOptions == expectedOptions
+                && self.subject.fido2CredentialNewView == expectedFido2NewCredential
         }
 
         try await waitForAsync {
@@ -73,6 +75,8 @@ class Fido2UserInterfaceHelperTests: BitwardenTestCase {
 
         let result = try await task.value
         XCTAssertEqual(result.cipher.cipher, expectedResult)
+        XCTAssertNil(subject.fido2CreationOptions)
+        XCTAssertNil(subject.fido2CredentialNewView)
     }
 
     /// `checkUserAndPickCredentialForCreation(options:newCredential:)` returns error

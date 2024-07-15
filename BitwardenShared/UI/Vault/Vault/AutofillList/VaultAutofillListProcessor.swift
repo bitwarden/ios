@@ -262,7 +262,7 @@ extension VaultAutofillListProcessor: ProfileSwitcherHandler {
     }
 
     func showAlert(_ alert: Alert) {
-        // No-Op for the VaultAutofillListProcessor.
+        coordinator.showAlert(alert)
     }
 }
 

@@ -230,6 +230,11 @@ protocol AuthRepository: AnyObject {
     ///
     func validatePassword(_ password: String) async throws -> Bool
 
+    /// Validates thes user's entered PIN.
+    /// - Parameter pin: Pin to validate.
+    /// - Returns: `true` if valid, `false` otherwise.
+    func validatePin(pin: String) async -> Bool
+
     /// Verifies that the entered one-time password matches the one sent to the user.
     ///
     /// - Parameter otp: The user's one-time password to verify.
@@ -774,6 +779,13 @@ extension DefaultAuthRepository: AuthRepository {
         }
     }
 
+    func validatePin(pin: String) async -> Bool {
+        guard let pinProtectedUserKey = try? await stateService.pinProtectedUserKey() else {
+            return false
+        }
+        return await validatePin(method: .pin(pin: pin, pinProtectedUserKey: pinProtectedUserKey))
+    }
+
     func verifyOtp(_ otp: String) async throws {
         try await accountAPIService.verifyOtp(otp)
     }
@@ -824,6 +836,39 @@ extension DefaultAuthRepository: AuthRepository {
             userInitials: account.initials(),
             webVault: account.settings.environmentUrls?.webVaultHost ?? ""
         )
+    }
+
+    /// Attempts to validate the pin by initializeing the user crypto.
+    ///
+    /// HACK: As the SDK doesn't provide a way to directly validate the pin yet, we have this method
+    /// which just tries to initialize the user crypto and if it succeeds then the PIN is correct, otherwise
+    /// the PIN is incorrect.
+    ///
+    /// - Parameter method: The PIN `InitUserCryptoMethod` method.
+    ///
+    private func validatePin(method: InitUserCryptoMethod) async -> Bool {
+        guard case .pin = method else {
+            return false
+        }
+
+        do {
+            let account = try await stateService.getActiveAccount()
+            let encryptionKeys = try await stateService.getAccountEncryptionKeys()
+
+            try await clientService.crypto().initializeUserCrypto(
+                req: InitUserCryptoRequest(
+                    kdfParams: account.kdf.sdkKdf,
+                    email: account.profile.email,
+                    privateKey: encryptionKeys.encryptedPrivateKey,
+                    method: method
+                )
+            )
+            try await organizationService.initializeOrganizationCrypto()
+
+            return true
+        } catch {
+            return false
+        }
     }
 
     /// Attempts to unlock the vault with a given method.
