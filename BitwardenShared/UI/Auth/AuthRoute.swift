@@ -15,8 +15,8 @@ public enum AuthRoute: Equatable {
 
     /// A route to complete registration screen.
     /// - Parameters:
-    ///    - userEmail: The user's email.
     ///    - emailVerificationToken: Token needed to complete registration.
+    ///    - userEmail: The user's email.
     ///
     case completeRegistration(emailVerificationToken: String, userEmail: String)
 
