@@ -11,9 +11,6 @@ struct StartRegistrationResponseModel: Response {
     /// The email verification token.
     var token: String?
 
-    /// The captcha bypass token returned in this response.
-    var captchaBypassToken: String?
-
     init(response: HTTPResponse) {
         token = String(bytes: response.body, encoding: .utf8)
     }

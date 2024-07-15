@@ -295,7 +295,10 @@ class StartRegistrationProcessorTests: BitwardenTestCase { // swiftlint:disable:
         await subject.perform(.startRegistration)
 
         XCTAssertEqual(client.requests.count, 1)
-        XCTAssertEqual(client.requests[0].url, URL(string: "https://example.com/identity/accounts/register/send-verification-email"))
+        XCTAssertEqual(
+            client.requests[0].url,
+            URL(string: "https://example.com/identity/accounts/register/send-verification-email")
+        )
 
         XCTAssertFalse(coordinator.isLoadingOverlayShowing)
         XCTAssertEqual(coordinator.loadingOverlaysShown, [LoadingOverlayState(title: Localizations.creatingAccount)])

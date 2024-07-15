@@ -167,7 +167,7 @@ public class AppProcessor {
                     emailVerificationToken: verificationToken,
                     userEmail: email,
                     fromEmail: Bool(fromEmail) ?? true,
-                    region: host.contains("bitwarden.eu") ? .europe : .unitedStates
+                    region: host.contains(RegionType.europe.baseUrlDescription) ? .europe : .unitedStates
                 )))
 
         } else {

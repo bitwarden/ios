@@ -11,7 +11,7 @@ struct CheckEmailView: View {
     @Environment(\.openURL) private var openURL
 
     /// The store used to render the view.
-    @ObservedObject var store: Store<CheckEmailState, CheckEmailAction, CheckEmailEffect>
+    @ObservedObject var store: Store<CheckEmailState, CheckEmailAction, Void>
 
     // MARK: View
 

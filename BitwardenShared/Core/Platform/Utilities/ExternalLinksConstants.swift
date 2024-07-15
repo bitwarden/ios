@@ -36,6 +36,6 @@ enum ExternalLinksConstants {
     /// A markdown link to Bitwarden's terms of service.
     static let termsOfService = URL(string: "https://bitwarden.com/terms/")!
 
-    /// A markdown link to Bitwarden's terms of service.
-    static let unsubscribe = URL(string: "https://bitwarden.com/email-preferences/")!
+    /// A markdown link to Bitwarden's markting email preferences.
+    static let unsubscribeFromMarketingEmails = URL(string: "https://bitwarden.com/email-preferences/")!
 }

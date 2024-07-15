@@ -6,5 +6,7 @@ import Foundation
 ///
 enum FeatureFlag: String, Codable {
     case unassignedItemsBanner = "unassigned-items-banner"
+    /// Flag to enable/disable email verification during registration
+    /// This flag introduces a new flow for account creation
     case emailVerification = "email-verification"
 }

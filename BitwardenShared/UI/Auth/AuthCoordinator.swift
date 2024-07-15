@@ -3,6 +3,15 @@ import OSLog
 import SwiftUI
 import UIKit
 
+// MARK: - AuthCoordinatorError
+
+/// The errors thrown from a `AuthCoordinator`.
+///
+enum AuthCoordinatorError: Error {
+    /// When the received delegate does not have a value.
+    case delegateIsNil
+}
+
 // MARK: - AuthCoordinatorDelegate
 
 /// An object that is signaled when specific circumstances in the auth flow have been encountered.
@@ -588,6 +597,11 @@ final class AuthCoordinator: NSObject, // swiftlint:disable:this type_body_lengt
     /// Shows the start registration screen.
     ///
     private func showStartRegistration(delegate: StartRegistrationDelegate?) {
+        guard let delegate else {
+            services.errorReporter.log(error: AuthCoordinatorError.delegateIsNil)
+            return
+        }
+
         let view = StartRegistrationView(
             store: Store(
                 processor: StartRegistrationProcessor(

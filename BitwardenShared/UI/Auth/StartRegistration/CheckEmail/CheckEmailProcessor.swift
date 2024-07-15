@@ -2,7 +2,7 @@
 
 /// The processor used to manage state and handle actions for the passwort hint screen.
 ///
-class CheckEmailProcessor: StateProcessor<CheckEmailState, CheckEmailAction, CheckEmailEffect> {
+class CheckEmailProcessor: StateProcessor<CheckEmailState, CheckEmailAction, Void> {
     // MARK: Private Properties
 
     /// The coordinator that handles navigation.
@@ -25,8 +25,6 @@ class CheckEmailProcessor: StateProcessor<CheckEmailState, CheckEmailAction, Che
     }
 
     // MARK: Methods
-
-    override func perform(_ effect: CheckEmailEffect) async {}
 
     override func receive(_ action: CheckEmailAction) {
         switch action {

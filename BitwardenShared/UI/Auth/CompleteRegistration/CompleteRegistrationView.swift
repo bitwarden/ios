@@ -75,20 +75,21 @@ struct CompleteRegistrationView: View {
 
     /// The text fields for the user's email and password.
     private var passwordField: some View {
-        VStack(spacing: 16) { BitwardenTextField(
-            title: Localizations.masterPassword,
-            text: store.binding(
-                get: \.passwordText,
-                send: CompleteRegistrationAction.passwordTextChanged
-            ),
-            accessibilityIdentifier: "MasterPasswordEntry",
-            passwordVisibilityAccessibilityId: "PasswordVisibilityToggle",
-            isPasswordVisible: store.binding(
-                get: \.arePasswordsVisible,
-                send: CompleteRegistrationAction.togglePasswordVisibility
+        VStack(spacing: 16) {
+            BitwardenTextField(
+                title: Localizations.masterPassword,
+                text: store.binding(
+                    get: \.passwordText,
+                    send: CompleteRegistrationAction.passwordTextChanged
+                ),
+                accessibilityIdentifier: "MasterPasswordEntry",
+                passwordVisibilityAccessibilityId: "PasswordVisibilityToggle",
+                isPasswordVisible: store.binding(
+                    get: \.arePasswordsVisible,
+                    send: CompleteRegistrationAction.togglePasswordVisibility
+                )
             )
-        )
-        .textFieldConfiguration(.password)
+            .textFieldConfiguration(.password)
         }
     }
 
