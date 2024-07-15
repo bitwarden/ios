@@ -367,7 +367,7 @@ class LandingProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_
         XCTAssertEqual(coordinator.routes.last, .createAccount)
     }
 
-    /// `receive(_:)` with `.createAccountPressed` navigates to the create account screen if feature flag is `true`.
+    /// `receive(_:)` with `.createAccountPressed` navigates to the start registration screen if feature flag is `true`.
     func test_receive_createAccountPressed_ff_true() {
         subject.state.emailVerificationFeatureFlag = true
         subject.receive(.createAccountPressed)
