@@ -117,9 +117,7 @@ class DefaultVaultTimeoutService: VaultTimeoutService {
     // MARK: Methods
 
     func hasPassedSessionTimeout(userId: String) async throws -> Bool {
-        guard let lastActiveTime = try await stateService.getLastActiveTime(userId: userId) else { return true }
         let vaultTimeout = try await sessionTimeoutValue(userId: userId)
-
         switch vaultTimeout {
         case .never,
              .onAppRestart:
@@ -128,8 +126,11 @@ class DefaultVaultTimeoutService: VaultTimeoutService {
             return false
         default:
             // Otherwise, calculate a timeout.
+            guard let lastActiveTime = try await stateService.getLastActiveTime(userId: userId)
+            else { return true }
+
             return timeProvider.presentTime.timeIntervalSince(lastActiveTime)
-                >= TimeInterval(vaultTimeout.rawValue)
+                >= TimeInterval(vaultTimeout.seconds)
         }
     }
 
