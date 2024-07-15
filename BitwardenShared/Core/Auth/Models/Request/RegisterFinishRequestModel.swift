@@ -47,7 +47,7 @@ struct RegisterFinishRequestModel: Equatable {
     /// The user symmetric key used for this request.
     let userSymmetricKey: String?
 
-    /// The user asymmetrickeys used for this request.
+    /// The user asymmetric keys used for this request.
     let userAsymmetricKeys: KeysRequestModel?
 
     // MARK: Initialization
