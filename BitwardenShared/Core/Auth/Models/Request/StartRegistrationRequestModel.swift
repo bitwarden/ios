@@ -14,7 +14,7 @@ struct StartRegistrationRequestModel: Equatable {
     /// The user name.
     let name: String
 
-    /// The user name.
+    /// If the user wants to receive marketing emails.
     let receiveMarketingEmails: Bool
 }
 

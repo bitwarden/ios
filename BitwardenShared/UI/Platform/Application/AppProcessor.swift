@@ -153,7 +153,10 @@ public class AppProcessor {
             return
         }
 
-        if path == "/finish-signup" {
+        guard path == "/finish-signup" else {
+            services.errorReporter.log(error: AppProcessorError.appLinksInvalidPath)
+            return
+        }
             guard let email = params.first(where: { $0.name == "email" })?.value,
                   let verificationToken = params.first(where: { $0.name == "token" })?.value,
                   let fromEmail = params.first(where: { $0.name == "fromEmail" })?.value
