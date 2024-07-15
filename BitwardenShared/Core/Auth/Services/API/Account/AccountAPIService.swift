@@ -63,7 +63,7 @@ protocol AccountAPIService {
 
     /// Start user account creation
     /// - Parameter requestModel: The request model containing the details needed to start user account creation
-    /// - Returns: Can return a email verification token
+    /// - Returns: Can return an email verification token
     ///
     func startRegistration(requestModel: StartRegistrationRequestModel) async throws -> StartRegistrationResponseModel
 
