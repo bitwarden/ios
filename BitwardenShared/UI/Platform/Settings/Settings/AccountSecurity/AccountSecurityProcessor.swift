@@ -305,6 +305,8 @@ final class AccountSecurityProcessor: StateProcessor<
     private func toggleUnlockWithPIN(_ isOn: Bool) {
         if isOn {
             coordinator.showAlert(.enterPINCode { pin in
+                guard !pin.isEmpty else { return }
+
                 do {
                     let userHasMasterPassword = try await self.services.stateService.getUserHasMasterPassword()
                     if userHasMasterPassword {
