@@ -203,7 +203,7 @@ class AppProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_body
     /// `handleAppLinks(URL)` navigates the user based on the input URL.
     func test_init_handleAppLinks() {
         let url = URL(string:
-            "https://bitwarden.com/finish-signup?email=example@email.com&token=verificationtoken&fromEmail=true"
+            "https://bitwarden.com/#/finish-signup?email=example@email.com&token=verificationtoken&fromEmail=true"
         )
         subject.handleAppLinks(incomingURL: url!)
 
@@ -215,17 +215,60 @@ class AppProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_body
         )))
     }
 
+    /// `handleAppLinks(URL)` navigates the user based on the input URL with EU region.
+    func test_init_handleAppLinks_regionEU() {
+        let url = URL(string:
+            "https://bitwarden.eu/#/finish-signup?email=example@email.com&token=verificationtoken&fromEmail=true"
+        )
+        subject.handleAppLinks(incomingURL: url!)
+
+        XCTAssertEqual(coordinator.routes.last, .auth(.completeRegistrationFromAppLink(
+            emailVerificationToken: "verificationtoken",
+            userEmail: "example@email.com",
+            fromEmail: true,
+            region: .europe
+        )))
+    }
+
+    /// `handleAppLinks(URL)` navigates the user based on the input URL with wrong fromEmail value.
+    func test_init_handleAppLinks_fromEmail_notBool() {
+        let url = URL(string:
+            "https://bitwarden.eu/#/finish-signup?email=example@email.com&token=verificationtoken&fromEmail=potato"
+        )
+        subject.handleAppLinks(incomingURL: url!)
+
+        XCTAssertEqual(coordinator.routes.last, .auth(.completeRegistrationFromAppLink(
+            emailVerificationToken: "verificationtoken",
+            userEmail: "example@email.com",
+            fromEmail: true,
+            region: .europe
+        )))
+    }
+
     /// `handleAppLinks(URL)` checks error report for `.appLinksInvalidURL`.
     func test_init_handleAppLinks_invalidURL() {
-        let url = URL(string: "https://bitwarden.com/")
-        subject.handleAppLinks(incomingURL: url!)
+        let noPathUrl = URL(string: "https://bitwarden.com/#/email=example@email.com&token=verificationtoken")
+        subject.handleAppLinks(incomingURL: noPathUrl!)
         XCTAssertEqual(errorReporter.errors.last as? AppProcessorError, .appLinksInvalidURL)
+        XCTAssertEqual(errorReporter.errors.count, 1)
+        errorReporter.errors.removeAll()
+
+        let noParamsUrl = URL(string: "https://bitwarden.com/#/finish-signup/")
+        subject.handleAppLinks(incomingURL: noParamsUrl!)
+        XCTAssertEqual(errorReporter.errors.last as? AppProcessorError, .appLinksInvalidURL)
+        XCTAssertEqual(errorReporter.errors.count, 1)
+        errorReporter.errors.removeAll()
+
+        let invalidHostUrl = URL(string: "/finish-signup?email=example@email.com")
+        subject.handleAppLinks(incomingURL: invalidHostUrl!)
+        XCTAssertEqual(errorReporter.errors.last as? AppProcessorError, .appLinksInvalidURL)
+        XCTAssertEqual(errorReporter.errors.count, 1)
     }
 
     /// `handleAppLinks(URL)` checks error report for `.appLinksInvalidPath`.
     func test_init_handleAppLinks_invalidPath() {
         let url = URL(
-            string: "https://bitwarden.com/not-valid?email=example@email.com&token=verificationtoken&fromEmail=true"
+            string: "https://bitwarden.com/#/not-valid?email=example@email.com&token=verificationtoken&fromEmail=true"
         )
         subject.handleAppLinks(incomingURL: url!)
         XCTAssertEqual(errorReporter.errors.last as? AppProcessorError, .appLinksInvalidPath)
@@ -233,11 +276,29 @@ class AppProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_body
 
     /// `handleAppLinks(URL)` checks error report for `.appLinksInvalidParametersForPath`.
     func test_init_handleAppLinks_invalidParametersForPath() {
-        let url = URL(
-            string: "https://bitwarden.com/finish-signup?email=example@email.com"
+        var url = URL(
+            string: "https://bitwarden.com/#/finish-signup?token=verificationtoken&fromEmail=true"
         )
         subject.handleAppLinks(incomingURL: url!)
         XCTAssertEqual(errorReporter.errors.last as? AppProcessorError, .appLinksInvalidParametersForPath)
+        XCTAssertEqual(errorReporter.errors.count, 1)
+        errorReporter.errors.removeAll()
+
+        url = URL(
+            string: "https://bitwarden.com/#/finish-signup?email=example@email.com&fromEmail=true"
+        )
+        subject.handleAppLinks(incomingURL: url!)
+        XCTAssertEqual(errorReporter.errors.last as? AppProcessorError, .appLinksInvalidParametersForPath)
+        XCTAssertEqual(errorReporter.errors.count, 1)
+        errorReporter.errors.removeAll()
+
+        url = URL(
+            string: "https://bitwarden.com/#/finish-signup?email=example@email.com&token=verificationtoken"
+        )
+        subject.handleAppLinks(incomingURL: url!)
+        XCTAssertEqual(errorReporter.errors.last as? AppProcessorError, .appLinksInvalidParametersForPath)
+        XCTAssertEqual(errorReporter.errors.count, 1)
+        errorReporter.errors.removeAll()
     }
 
     /// `messageReceived(_:notificationDismissed:notificationTapped)` passes the data to the notification service.

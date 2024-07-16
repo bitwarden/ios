@@ -157,25 +157,21 @@ public class AppProcessor {
             services.errorReporter.log(error: AppProcessorError.appLinksInvalidPath)
             return
         }
-            guard let email = params.first(where: { $0.name == "email" })?.value,
-                  let verificationToken = params.first(where: { $0.name == "token" })?.value,
-                  let fromEmail = params.first(where: { $0.name == "fromEmail" })?.value
-            else {
-                services.errorReporter.log(error: AppProcessorError.appLinksInvalidParametersForPath)
-                return
-            }
-
-            coordinator?.navigate(to: AppRoute.auth(
-                AuthRoute.completeRegistrationFromAppLink(
-                    emailVerificationToken: verificationToken,
-                    userEmail: email,
-                    fromEmail: Bool(fromEmail) ?? true,
-                    region: host.contains(RegionType.europe.baseUrlDescription) ? .europe : .unitedStates
-                )))
-
-        } else {
-            services.errorReporter.log(error: AppProcessorError.appLinksInvalidPath)
+        guard let email = params.first(where: { $0.name == "email" })?.value,
+              let verificationToken = params.first(where: { $0.name == "token" })?.value,
+              let fromEmail = params.first(where: { $0.name == "fromEmail" })?.value
+        else {
+            services.errorReporter.log(error: AppProcessorError.appLinksInvalidParametersForPath)
+            return
         }
+
+        coordinator?.navigate(to: AppRoute.auth(
+            AuthRoute.completeRegistrationFromAppLink(
+                emailVerificationToken: verificationToken,
+                userEmail: email,
+                fromEmail: Bool(fromEmail) ?? true,
+                region: host.contains(RegionType.europe.baseUrlDescription) ? .europe : .unitedStates
+            )))
     }
 
     // MARK: Autofill Methods
