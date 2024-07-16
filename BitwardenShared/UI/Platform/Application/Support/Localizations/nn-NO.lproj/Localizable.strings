@@ -919,3 +919,4 @@
 "OrganizationUnassignedItemsMessageUSEUDescriptionLong" = "Ikkje tildelte organisasjonselement er ikkje lenger synlege i «Alle kvelv»-visninga og er berre tilgjengelege via administrasjonskonsollen. Legg desse elementa til i ei samling frå administratorkonsollen for å gjere dei synlege.";
 "UnknownAccount" = "Unknown account";
 "UserVerificationForPasskey" = "Brukerstadfesting for passnøkkel";
+"NewItem" = "New item";

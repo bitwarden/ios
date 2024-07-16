@@ -919,3 +919,4 @@
 "OrganizationUnassignedItemsMessageUSEUDescriptionLong" = "Неразпределените елементи на организацията вече не се виждат в изгледа с „Всички трезори“, а са достъпни само през Административната конзола. Добавете тези елементи към някоя колекция в Административната конзола, за да станат видими.";
 "UnknownAccount" = "Неизвестна регистрация";
 "UserVerificationForPasskey" = "User verification for passkey";
+"NewItem" = "Нов елемент";

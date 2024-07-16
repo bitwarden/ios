@@ -919,3 +919,4 @@
 "OrganizationUnassignedItemsMessageUSEUDescriptionLong" = "Nepiešķirti apvienības vienumi vairs nav redzami skatā \"Visas glabātavas\" un ir sasniedzami tikai no pārvaldības konsoles, kur šie vienumi jāpiešķir krājumam, lai padarītu tos redzamus.";
 "UnknownAccount" = "Nezināms konts";
 "UserVerificationForPasskey" = "Lietotāja apliecināšana piekļuves atsēgai";
+"NewItem" = "Jauns vienums";

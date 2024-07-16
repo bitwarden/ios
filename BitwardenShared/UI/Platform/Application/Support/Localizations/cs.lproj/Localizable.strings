@@ -919,3 +919,4 @@
 "OrganizationUnassignedItemsMessageUSEUDescriptionLong" = "Nepřiřazené položky organizace již nejsou viditelné ve Vašem zobrazení všech trezorů a jsou nyní přístupné jen v konzoli správce. Přiřaďte tyto položky do kolekce z konzole pro správce, aby byly viditelné.";
 "UnknownAccount" = "Neznámý účet";
 "UserVerificationForPasskey" = "Ověření uživatele pro přístupový klíč";
+"NewItem" = "Nová položka";
