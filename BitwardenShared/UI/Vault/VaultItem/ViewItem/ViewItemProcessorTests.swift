@@ -270,7 +270,7 @@ class ViewItemProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
 
     /// `perform(_:)` with `.totpCodeExpired` updates the totp code.
     func test_perform_totpCodeExpired() async throws {
-        let totpKey = TOTPKeyModel(authenticatorKey: .base32Key)
+        let totpKey = TOTPKeyModel(authenticatorKey: .base32Key)!
         let cipherView = CipherView.fixture(login: .fixture(totp: totpKey.rawAuthenticatorKey))
         let cipherState = try XCTUnwrap(CipherItemState(existing: cipherView, hasPremium: true))
         subject.state.loadingState = .data(cipherState)
@@ -284,7 +284,7 @@ class ViewItemProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
 
     /// `perform(_:)` with `.totpCodeExpired` records any errors.
     func test_perform_totpCodeExpired_error() async throws {
-        let totpKey = TOTPKeyModel(authenticatorKey: .base32Key)
+        let totpKey = TOTPKeyModel(authenticatorKey: .base32Key)!
         let cipherView = CipherView.fixture(login: .fixture(totp: totpKey.rawAuthenticatorKey))
         let cipherState = try XCTUnwrap(CipherItemState(existing: cipherView, hasPremium: true))
         subject.state.loadingState = .data(cipherState)

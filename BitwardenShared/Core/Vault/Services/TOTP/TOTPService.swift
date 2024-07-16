@@ -18,10 +18,10 @@ struct DefaultTOTPService: TOTPService {
     /// - Throws: `TOTPServiceError.invalidKeyFormat` if the key format is invalid.
     /// - Returns: A `TOTPKeyModel` containing the configuration details.
     func getTOTPConfiguration(key: String?) throws -> TOTPKeyModel {
-        guard let key else {
+        guard let key,
+              let config = TOTPKeyModel(authenticatorKey: key) else {
             throw TOTPServiceError.invalidKeyFormat
         }
-
-        return TOTPKeyModel(authenticatorKey: key)
+        return config
     }
 }

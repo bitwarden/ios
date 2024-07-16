@@ -203,7 +203,7 @@ struct ViewItemView_Previews: PreviewProvider {
             UriState(matchType: .custom(.startsWith), uri: "https://www.example.com/account/login"),
         ]
         state.loginState.totpState = .init(
-            authKeyModel: .init(authenticatorKey: "JBSWY3DPEHPK3PXP"),
+            authKeyModel: .init(authenticatorKey: "JBSWY3DPEHPK3PXP")!,
             codeModel: .init(
                 code: "032823",
                 codeGenerationDate: .init(timeIntervalSinceReferenceDate: 1_695_000_000),

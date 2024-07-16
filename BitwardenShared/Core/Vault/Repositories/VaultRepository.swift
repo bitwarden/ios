@@ -1244,7 +1244,7 @@ extension DefaultVaultRepository: VaultRepository {
                 return cipher.type == .secureNote
             case .totp:
                 return cipher.type == .login
-                    && cipher.login?.totp != nil
+                    && TOTPKey(cipher.login?.totp ?? "") != nil
             case .trash:
                 return cipher.deletedDate != nil
             }

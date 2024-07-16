@@ -6,6 +6,9 @@ public enum LoginTOTPState: Equatable, Sendable {
     /// A case with a code and key pair.
     case codeKeyPair(_ code: TOTPCodeModel, key: TOTPKeyModel)
 
+    /// A case with an invalid key string.
+    case invalid(_ keyString: String)
+
     /// A case with only a key.
     case key(_ key: TOTPKeyModel)
 
@@ -19,7 +22,8 @@ public enum LoginTOTPState: Equatable, Sendable {
         case let .codeKeyPair(_, key),
              let .key(key):
             return key
-        case .none:
+        case .invalid,
+             .none:
             return nil
         }
     }
@@ -30,7 +34,8 @@ public enum LoginTOTPState: Equatable, Sendable {
         switch self {
         case let .codeKeyPair(code, _):
             return code
-        case .key,
+        case .invalid,
+             .key,
              .none:
             return nil
         }
@@ -43,6 +48,8 @@ public enum LoginTOTPState: Equatable, Sendable {
         case let .codeKeyPair(_, key),
              let .key(key):
             return key.rawAuthenticatorKey
+        case let .invalid(rawInvalidKey):
+            return rawInvalidKey
         case .none:
             return nil
         }
@@ -87,7 +94,13 @@ public enum LoginTOTPState: Equatable, Sendable {
     init(_ authKeyString: String?) {
         switch authKeyString {
         case let .some(string):
-            self = .key(TOTPKeyModel(authenticatorKey: string))
+            if let model = TOTPKeyModel(authenticatorKey: string) {
+                self = .key(model)
+            } else if !string.isEmpty {
+                self = .invalid(string)
+            } else {
+                self = .none
+            }
         case .none:
             self = .none
         }

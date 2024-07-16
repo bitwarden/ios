@@ -176,10 +176,10 @@ extension Alert {
                     ))
                 })
             }
-            if canCopyTotp, let totp = cipherView.login?.totp {
+            if canCopyTotp, let totp = cipherView.login?.totp, let totpKey = TOTPKeyModel(authenticatorKey: totp) {
                 alertActions.append(AlertAction(title: Localizations.copyTotp, style: .default) { _, _ in
                     await action(.copyTotp(
-                        totpKey: TOTPKeyModel(authenticatorKey: totp),
+                        totpKey: totpKey,
                         requiresMasterPasswordReprompt: cipherView.reprompt == .password && hasMasterPassword
                     ))
                 })
