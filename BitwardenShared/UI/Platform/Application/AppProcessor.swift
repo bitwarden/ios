@@ -48,20 +48,6 @@ public class AppProcessor {
         Task {
             for await _ in services.notificationCenterService.willEnterForegroundPublisher() {
                 startEventTimer()
-                let accounts = try await self.services.stateService.getAccounts()
-                let activeUserId = try await self.services.stateService.getActiveAccountId()
-                for account in accounts {
-                    let userId = account.profile.userId
-                    let shouldTimeout = try await services.vaultTimeoutService.hasPassedSessionTimeout(userId: userId)
-                    if shouldTimeout {
-                        await self.services.vaultTimeoutService.lockVault(userId: userId)
-
-                        if userId == activeUserId {
-                            // Allow the AuthCoordinator to handle the timeout.
-                            await coordinator?.handleEvent(.didTimeout(userId: activeUserId))
-                        }
-                    }
-                }
                 await checkAccountsForTimeout()
             }
         }
@@ -69,8 +55,6 @@ public class AppProcessor {
         Task {
             for await _ in services.notificationCenterService.didEnterBackgroundPublisher() {
                 stopEventTimer()
-                let userId = try await self.services.stateService.getActiveAccountId()
-                try await services.vaultTimeoutService.setLastActiveTime(userId: userId)
                 do {
                     let userId = try await self.services.stateService.getActiveAccountId()
                     try await services.vaultTimeoutService.setLastActiveTime(userId: userId)
