@@ -303,16 +303,16 @@ class UserVerificationHelperTests: BitwardenTestCase {
 
     private func enterMasterPasswordInAlertAndSubmit() async throws {
         let alert = try XCTUnwrap(userVerificationDelegate.alertShown.last)
-
         XCTAssertEqual(alert, .masterPasswordPrompt { _ in })
-        var textField = try XCTUnwrap(alert.alertTextFields.first)
-        textField = AlertTextField(id: "password", text: "password")
 
-        try await alert.tapAction(title: Localizations.submit, alertTextFields: [textField])
+        try alert.setText("password", forTextFieldWithId: "password")
+        try await alert.tapAction(title: Localizations.submit)
     }
 
     private func enterPinInAlertAndSubmit() async throws {
         let alert = try XCTUnwrap(userVerificationDelegate.alertShown.last)
+        XCTAssertEqual(alert, .enterPINCode(settingUp: false) { _ in })
+
         try alert.setText("pin", forTextFieldWithId: "pin")
         try await alert.tapAction(title: Localizations.submit)
     }
