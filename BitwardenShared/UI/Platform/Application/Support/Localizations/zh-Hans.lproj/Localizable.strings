@@ -919,3 +919,4 @@
 "OrganizationUnassignedItemsMessageUSEUDescriptionLong" = "未分配的组织项目在「所有密码库」视图中不再可见，只能通过管理控制台访问。通过管理控制台将这些项目分配给集合以使其可见。";
 "UnknownAccount" = "未知账户";
 "UserVerificationForPasskey" = "用于通行密钥的用户验证";
+"NewItem" = "新项目";

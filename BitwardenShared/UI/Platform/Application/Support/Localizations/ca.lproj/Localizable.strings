@@ -919,3 +919,4 @@
 "OrganizationUnassignedItemsMessageUSEUDescriptionLong" = "Els elements de l'organització no assignats ja no són visibles a la visualització Totes les caixes fortes i només s'hi poden accedir des de la Consola d'administració. Assigna aquests elements a una col·lecció des de la Consola d'administració per fer-los visibles.";
 "UnknownAccount" = "Compte desconegut";
 "UserVerificationForPasskey" = "User verification for passkey";
+"NewItem" = "New item";

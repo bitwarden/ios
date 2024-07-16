@@ -920,3 +920,4 @@ Vänligen använd en enhet som stöds och/eller lägg till fler metoder som har 
 "OrganizationUnassignedItemsMessageUSEUDescriptionLong" = "Unassigned organization items are no longer visible in the All Vaults view and only accessible via the Admin Console. Assign these items to a collection from the Admin Console to make them visible.";
 "UnknownAccount" = "Okänt konto";
 "UserVerificationForPasskey" = "User verification for passkey";
+"NewItem" = "Nytt objekt";
