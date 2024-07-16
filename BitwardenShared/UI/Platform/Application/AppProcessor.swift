@@ -37,27 +37,17 @@ public class AppProcessor {
         self.appModule = appModule
         self.services = services
 
-        sendEventTimer = Timer.scheduledTimer(withTimeInterval: 5 * 60, repeats: true) { _ in
-            Task {
-                await services.eventService.upload()
-            }
-        }
-        sendEventTimer?.tolerance = 10
-
         self.services.notificationService.setDelegate(self)
         self.services.syncService.delegate = self
+
+        startEventTimer()
 
         UI.initialLanguageCode = services.appSettingsStore.appLocale ?? Locale.current.languageCode
         UI.applyDefaultAppearances()
 
         Task {
             for await _ in services.notificationCenterService.willEnterForegroundPublisher() {
-                sendEventTimer = Timer.scheduledTimer(withTimeInterval: 5 * 60, repeats: true) { _ in
-                    Task {
-                        await services.eventService.upload()
-                    }
-                }
-                sendEventTimer?.tolerance = 10
+                startEventTimer()
                 let accounts = try await self.services.stateService.getAccounts()
                 let activeUserId = try await self.services.stateService.getActiveAccountId()
                 for account in accounts {
@@ -77,8 +67,7 @@ public class AppProcessor {
 
         Task {
             for await _ in services.notificationCenterService.didEnterBackgroundPublisher() {
-                sendEventTimer?.fire()
-                sendEventTimer?.invalidate()
+                stopEventTimer()
                 let userId = try await self.services.stateService.getActiveAccountId()
                 try await services.vaultTimeoutService.setLastActiveTime(userId: userId)
             }
@@ -239,6 +228,24 @@ public class AppProcessor {
             notificationDismissed: notificationDismissed,
             notificationTapped: notificationTapped
         )
+    }
+
+    // MARK: Private Methods
+
+    /// Starts timer to send organization events regularly
+    private func startEventTimer() {
+        sendEventTimer = Timer.scheduledTimer(withTimeInterval: 5, repeats: true) { _ in
+            Task {
+                await self.services.eventService.upload()
+            }
+        }
+        sendEventTimer?.tolerance = 10
+    }
+
+    /// Stops the timer for organization events
+    private func stopEventTimer() {
+        sendEventTimer?.fire()
+        sendEventTimer?.invalidate()
     }
 }
 
