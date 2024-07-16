@@ -13,21 +13,6 @@ struct StartRegistrationView: View {
     /// The store used to render the view.
     @ObservedObject var store: Store<StartRegistrationState, StartRegistrationAction, StartRegistrationEffect>
 
-    /// The privacy policy attributed string used in navigating to Bitwarden's Privacy Policy website.
-    let privacyPolicyString: AttributedString? = try? AttributedString(
-        markdown: "[\(Localizations.privacyPolicy)](\(ExternalLinksConstants.privacyPolicy))"
-    )
-
-    /// The terms of service attributed string used in navigating to Bitwarden's Terms of Service website.
-    let termsOfServiceString: AttributedString? = try? AttributedString(
-        markdown: "[\(Localizations.termsOfService),](\(ExternalLinksConstants.termsOfService))"
-    )
-
-    /// The unsubscribe marketing attributed string used in navigating to Bitwarden's website.
-    let unsubscribeString: AttributedString? = try? AttributedString(
-        markdown: "[\(Localizations.unsubscribe),](\(ExternalLinksConstants.unsubscribeFromMarketingEmails))"
-    )
-
     // MARK: View
 
     var body: some View {

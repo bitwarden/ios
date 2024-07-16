@@ -18,11 +18,9 @@ struct StartRegistrationState: Equatable {
 
     /// The text in the receive marketing emails toggle
     var receiveMarketingEmailsText: String {
-        Localizations.getEmailsFromBitwardenForAnnouncementsAdviceAndResearchOpportunitiesUnsubscribeAtAnyTime
-            .replacingOccurrences(
-                of: Localizations.unsubscribe,
-                with: "**[\(Localizations.unsubscribe)](\(ExternalLinksConstants.unsubscribeFromMarketingEmails))**"
-            )
+        Localizations.getEmailsFromBitwardenForAnnouncementsAdviceAndResearchOpportunitiesUnsubscribeAtAnyTime(
+            ExternalLinksConstants.unsubscribeFromMarketingEmails
+        )
     }
 
     /// The region selected by the user.
@@ -33,15 +31,10 @@ struct StartRegistrationState: Equatable {
 
     /// Terms and privacy disclaimer text
     var termsAndPrivacyDisclaimerText: String {
-        Localizations.byContinuingYouAgreeToTheTermsOfServiceAndPrivacyPolicy
-            .replacingOccurrences(
-                of: Localizations.termsOfService,
-                with: "**[\(Localizations.termsOfService)](\(ExternalLinksConstants.termsOfService))**"
-            )
-            .replacingOccurrences(
-                of: Localizations.privacyPolicy,
-                with: "**[\(Localizations.privacyPolicy)](\(ExternalLinksConstants.privacyPolicy))**"
-            )
+        Localizations.byContinuingYouAgreeToTheTermsOfServiceAndPrivacyPolicy(
+            ExternalLinksConstants.termsOfService,
+            ExternalLinksConstants.privacyPolicy
+        )
     }
 
     /// A toast message to show in the view.

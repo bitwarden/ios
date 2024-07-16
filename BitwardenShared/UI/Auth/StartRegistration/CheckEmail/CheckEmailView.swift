@@ -45,25 +45,19 @@ struct CheckEmailView: View {
                 .padding(.bottom, 32)
                 .buttonStyle(.primary())
 
-                Text(.init(store.state.goBackText))
+                Text(.init(Localizations.noEmailGoBackToEditYourEmailAddress))
                     .styleGuide(.subheadline)
                     .tint(Asset.Colors.primaryBitwarden.swiftUIColor)
                     .padding([.horizontal, .bottom], 32)
-                    .accessibilityAction(named: Localizations.goBack) {
-                        store.send(.goBackTapped)
-                    }
                     .environment(\.openURL, OpenURLAction { _ in
                         store.send(.goBackTapped)
                         return .handled
                     })
 
-                Text(.init(store.state.logInText))
+                Text(.init(Localizations.orLogInYouMayAlreadyHaveAnAccount))
                     .styleGuide(.subheadline)
                     .tint(Asset.Colors.primaryBitwarden.swiftUIColor)
                     .padding(.horizontal, 32)
-                    .accessibilityAction(named: Localizations.logIn) {
-                        store.send(.logInTapped)
-                    }
                     .environment(\.openURL, OpenURLAction { _ in
                         store.send(.logInTapped)
                         return .handled
