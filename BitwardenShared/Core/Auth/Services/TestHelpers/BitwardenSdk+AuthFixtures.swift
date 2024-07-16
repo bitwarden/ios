@@ -163,12 +163,11 @@ extension BitwardenSdk.Fido2CredentialNewView {
         keyAlgorithm: String = "",
         keyCurve: String = "",
         rpId: String = defaultRpId,
-        userHandle: Data? = nil,
+        userHandle: String? = nil,
         userName: String? = nil,
         counter: String = "0",
         rpName: String? = nil,
         userDisplayName: String? = nil,
-        discoverable: String = "",
         creationDate: DateTime = DateTime.distantPast
     ) -> BitwardenSdk.Fido2CredentialNewView {
         .init(
@@ -182,7 +181,6 @@ extension BitwardenSdk.Fido2CredentialNewView {
             counter: counter,
             rpName: rpName,
             userDisplayName: userDisplayName,
-            discoverable: discoverable,
             creationDate: creationDate
         )
     }
