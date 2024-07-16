@@ -67,10 +67,6 @@ public class AppProcessor {
         }
     }
 
-    deinit {
-        sendEventTimer?.invalidate()
-    }
-
     // MARK: Methods
 
     /// Handles receiving a deep link URL and routing to the appropriate place in the app.
