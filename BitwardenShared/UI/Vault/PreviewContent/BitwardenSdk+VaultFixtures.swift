@@ -362,7 +362,7 @@ extension Fido2CredentialView {
         rpId: String = "",
         rpName: String? = nil,
         userDisplayName: String? = nil,
-        userHandle: Data? = nil,
+        userHandle: String? = nil,
         userName: String? = nil
     ) -> Fido2CredentialView {
         Fido2CredentialView(

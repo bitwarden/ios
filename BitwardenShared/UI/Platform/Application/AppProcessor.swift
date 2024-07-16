@@ -62,6 +62,7 @@ public class AppProcessor {
                         }
                     }
                 }
+                await checkAccountsForTimeout()
             }
         }
 
@@ -70,6 +71,14 @@ public class AppProcessor {
                 stopEventTimer()
                 let userId = try await self.services.stateService.getActiveAccountId()
                 try await services.vaultTimeoutService.setLastActiveTime(userId: userId)
+                do {
+                    let userId = try await self.services.stateService.getActiveAccountId()
+                    try await services.vaultTimeoutService.setLastActiveTime(userId: userId)
+                } catch StateServiceError.noActiveAccount {
+                    // No-op: nothing to do if there's no active account.
+                } catch {
+                    services.errorReporter.log(error: error)
+                }
             }
         }
     }
@@ -89,7 +98,16 @@ public class AppProcessor {
             coordinator?.showAlert(.defaultAlert(title: Localizations.anErrorHasOccurred))
             return
         }
-        coordinator?.navigate(to: .tab(.vault(.vaultItemSelection(otpAuthModel))))
+
+        let vaultItemSelectionRoute = AppRoute.tab(.vault(.vaultItemSelection(otpAuthModel)))
+        guard let userId = try? await services.stateService.getActiveAccountId(),
+              !services.vaultTimeoutService.isLocked(userId: userId),
+              await (try? services.vaultTimeoutService.hasPassedSessionTimeout(userId: userId)) == false
+        else {
+            await coordinator?.handleEvent(.setAuthCompletionRoute(vaultItemSelectionRoute))
+            return
+        }
+        coordinator?.navigate(to: vaultItemSelectionRoute)
     }
 
     /// Starts the application flow by navigating the user to the first flow.
@@ -231,6 +249,38 @@ public class AppProcessor {
     }
 
     // MARK: Private Methods
+
+    /// Checks if any accounts have timed out.
+    ///
+    private func checkAccountsForTimeout() async {
+        do {
+            let accounts = try await services.stateService.getAccounts()
+            let activeUserId = try await services.stateService.getActiveAccountId()
+            for account in accounts {
+                let userId = account.profile.userId
+                let shouldTimeout = try await services.vaultTimeoutService.hasPassedSessionTimeout(userId: userId)
+                if shouldTimeout {
+                    if userId == activeUserId {
+                        // Allow the AuthCoordinator to handle the timeout for the active user
+                        // so any necessary routing can occur.
+                        await coordinator?.handleEvent(.didTimeout(userId: activeUserId))
+                    } else {
+                        let timeoutAction = try? await services.authRepository.sessionTimeoutAction(userId: userId)
+                        switch timeoutAction {
+                        case .lock:
+                            await services.vaultTimeoutService.lockVault(userId: userId)
+                        case .logout, .none:
+                            try await services.authRepository.logout(userId: userId)
+                        }
+                    }
+                }
+            }
+        } catch StateServiceError.noAccounts, StateServiceError.noActiveAccount {
+            // No-op: nothing to do if there's no accounts or an active account.
+        } catch {
+            services.errorReporter.log(error: error)
+        }
+    }
 
     /// Starts timer to send organization events regularly
     private func startEventTimer() {

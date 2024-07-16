@@ -85,6 +85,9 @@ private struct VaultItemSelectionSearchableView: View {
     /// A flag indicating if the search bar is focused.
     @Environment(\.isSearching) private var isSearching
 
+    /// An object used to open urls from this view.
+    @Environment(\.openURL) private var openURL
+
     /// The `Store` for this view.
     @ObservedObject var store: Store<VaultItemSelectionState, VaultItemSelectionAction, VaultItemSelectionEffect>
 
@@ -112,6 +115,11 @@ private struct VaultItemSelectionSearchableView: View {
         }
         .onChange(of: isSearching) { newValue in
             store.send(.searchStateChanged(isSearching: newValue))
+        }
+        .onChange(of: store.state.url) { newValue in
+            guard let url = newValue else { return }
+            openURL(url)
+            store.send(.clearURL)
         }
         .task {
             await store.perform(.loadData)
@@ -146,7 +154,7 @@ private struct VaultItemSelectionSearchableView: View {
                     store.send(.addTapped)
                 } label: {
                     Label {
-                        Text(Localizations.addAnItem)
+                        Text(Localizations.newItem)
                     } icon: {
                         Asset.Images.plus.swiftUIImage
                             .imageStyle(.accessoryIcon(
@@ -215,8 +223,13 @@ private struct VaultItemSelectionSearchableView: View {
                             showWebIcons: state.showWebIcons
                         )
                     },
-                    mapAction: nil, // TODO: BIT-2349 Allow users to add authenticator key to existing items
-                    mapEffect: nil // TODO: BIT-2349 Allow users to add authenticator key to existing items
+                    mapAction: nil, // No actions are supported (TOTP copy is handled by the more pressed effect).
+                    mapEffect: { effect in
+                        switch effect {
+                        case .morePressed:
+                            return .morePressed(item)
+                        }
+                    }
                 ),
                 timeProvider: CurrentTime()
             )

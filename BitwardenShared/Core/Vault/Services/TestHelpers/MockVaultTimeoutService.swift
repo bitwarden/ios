@@ -6,7 +6,9 @@ import Foundation
 class MockVaultTimeoutService: VaultTimeoutService {
     var account: Account = .fixture()
     var lastActiveTime = [String: Date]()
+    var setLastActiveTimeError: Error?
     var shouldSessionTimeout = [String: Bool]()
+    var shouldSessionTimeoutError: Error?
     var timeProvider = MockTimeProvider(.currentTime)
     var sessionTimeoutValueError: Error?
     var vaultTimeout = [String: SessionTimeoutValue]()
@@ -28,6 +30,9 @@ class MockVaultTimeoutService: VaultTimeoutService {
     }
 
     func setLastActiveTime(userId: String) async throws {
+        if let setLastActiveTimeError {
+            throw setLastActiveTimeError
+        }
         lastActiveTime[userId] = timeProvider.presentTime
     }
 
@@ -36,7 +41,10 @@ class MockVaultTimeoutService: VaultTimeoutService {
     }
 
     func hasPassedSessionTimeout(userId: String) async throws -> Bool {
-        shouldSessionTimeout[userId] ?? false
+        if let shouldSessionTimeoutError {
+            throw shouldSessionTimeoutError
+        }
+        return shouldSessionTimeout[userId] ?? false
     }
 
     func unlockVault(userId: String?) async throws {

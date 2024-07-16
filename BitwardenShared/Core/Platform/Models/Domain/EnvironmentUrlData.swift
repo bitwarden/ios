@@ -109,7 +109,7 @@ extension EnvironmentUrlData {
         // which includes the `#` symbol. Since the `#` character is a critical portion of these urls, we use String
         // concatenation to get around this limitation.
         if let baseUrl = webVault ?? base,
-           let url = URL(string: baseUrl.absoluteString.appending("/#/\(additionalPath)")) {
+           let url = URL(string: baseUrl.sanitized.absoluteString.appending("/#/\(additionalPath)")) {
             return url
         }
         return nil

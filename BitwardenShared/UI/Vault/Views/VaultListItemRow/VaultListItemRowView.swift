@@ -97,8 +97,8 @@ struct VaultListItemRowView: View {
                             .styleGuide(.body)
                             .foregroundColor(Asset.Colors.textSecondary.swiftUIColor)
 
-                    case let .totp(_, model):
-                        totpCodeRow(model)
+                    case let .totp(name, model):
+                        totpCodeRow(name, model)
                     }
                 }
                 .padding(.vertical, 9)
@@ -117,14 +117,15 @@ struct VaultListItemRowView: View {
 
     /// The row showing the totp code.
     @ViewBuilder
-    private func totpCodeRow(_ model: VaultListTOTP) -> some View {
+    private func totpCodeRow(
+        _ name: String,
+        _ model: VaultListTOTP
+    ) -> some View {
         VStack(alignment: .leading, spacing: 0) {
-            if let uri = model.loginView.uris?.first?.uri {
-                Text(uri)
-                    .styleGuide(.body)
-                    .lineLimit(1)
-                    .foregroundColor(Asset.Colors.textPrimary.swiftUIColor)
-            }
+            Text(name)
+                .styleGuide(.body)
+                .lineLimit(1)
+                .foregroundColor(Asset.Colors.textPrimary.swiftUIColor)
             if let username = model.loginView.username {
                 Text(username)
                     .styleGuide(.subheadline)

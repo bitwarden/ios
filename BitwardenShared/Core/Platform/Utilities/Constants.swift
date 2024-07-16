@@ -13,6 +13,9 @@ enum Constants {
     /// The client type corresponding to the app.
     static let clientType: ClientType = "mobile"
 
+    /// The default type for a Fido2 public key credential.
+    static let defaultFido2PublicKeyCredentialType = "public-key"
+
     /// The default generated username if there isn't enough information to generate a username.
     static let defaultGeneratedUsername = "-"
 

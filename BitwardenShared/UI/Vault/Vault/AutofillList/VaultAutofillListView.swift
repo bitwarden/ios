@@ -89,6 +89,9 @@ private struct VaultAutofillListSearchableView: View {
                 await store.perform(.loadData)
             }
             .task {
+                await store.perform(.initFido2)
+            }
+            .task {
                 await store.perform(.streamAutofillItems)
             }
             .task(id: store.state.searchText) {

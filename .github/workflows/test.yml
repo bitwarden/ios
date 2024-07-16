@@ -16,6 +16,7 @@ env:
   SIMULATOR_DESTINATION: platform=iOS Simulator,name=iPhone 15 Pro,OS=17.0.1
   RESULT_BUNDLE_PATH: build/BitwardenTests.xcresult
   COVERAGE_PATH: build/coverage.xml
+  XCODE_VERSION: 15.0.1
 
 jobs:
   check-run:
@@ -37,8 +38,13 @@ jobs:
         with:
           ref: ${{  github.event.pull_request.head.sha }}
 
+      - name: Set Xcode version
+        uses: maxim-lobanov/setup-xcode@60606e260d2fc5762a71e64e74b2174e8ea3c8bd # v1.6.0
+        with:
+          xcode-version: ${{ env.XCODE_VERSION }}
+
       - name: Configure Ruby
-        uses: ruby/setup-ruby@af43264f2b94cc8451805dc51af7408f01de6471 # v1.182.0
+        uses: ruby/setup-ruby@2a9a743e19810b9f3c38060637daf594dbd7b37f # v1.186.0
         with:
           bundler-cache: true
 
@@ -72,7 +78,7 @@ jobs:
       - name: Build and test
         run: |
           set -o pipefail && \
-            xcodebuild test \
+            xcrun xcodebuild test \
             -project Bitwarden.xcodeproj \
             -scheme Bitwarden \
             -configuration Debug \

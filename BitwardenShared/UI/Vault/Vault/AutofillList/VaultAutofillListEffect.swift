@@ -5,6 +5,9 @@ import BitwardenSdk
 /// Actions that can be processed by a `VaultAutofillListProcessor`.
 ///
 enum VaultAutofillListEffect: Equatable {
+    /// Fido2 flow should be initialized if needed..
+    case initFido2
+
     /// A vault item in the list was tapped
     case vaultItemTapped(VaultListItem)
 

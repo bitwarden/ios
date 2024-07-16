@@ -90,6 +90,12 @@ public enum SessionTimeoutValue: RawRepresentable, CaseIterable, Equatable, Menu
         }
     }
 
+    /// The session timeout value in seconds.
+    var seconds: Int {
+        rawValue * 60
+    }
+
+    /// The session timeout value in minutes.
     public var rawValue: Int {
         switch self {
         case .immediately: 0

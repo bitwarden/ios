@@ -86,6 +86,10 @@ class MockClientAttachments: ClientAttachmentsProtocol {
 // MARK: - MockClientCiphers
 
 class MockClientCiphers: ClientCiphersProtocol {
+    var decryptResult: (Cipher) throws -> CipherView = { cipher in
+        CipherView(cipher: cipher)
+    }
+
     var decryptFido2CredentialsResult = [BitwardenSdk.Fido2CredentialView]()
     var encryptCipherResult: Result<Cipher, Error>?
     var encryptError: Error?
@@ -96,7 +100,7 @@ class MockClientCiphers: ClientCiphersProtocol {
     var moveToOrganizationResult: Result<CipherView, Error> = .success(.fixture())
 
     func decrypt(cipher: Cipher) throws -> CipherView {
-        CipherView(cipher: cipher)
+        try decryptResult(cipher)
     }
 
     func decryptFido2Credentials(cipherView: BitwardenSdk.CipherView) throws -> [BitwardenSdk.Fido2CredentialView] {

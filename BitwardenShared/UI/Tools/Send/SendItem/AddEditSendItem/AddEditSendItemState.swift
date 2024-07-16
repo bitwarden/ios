@@ -93,6 +93,9 @@ struct AddEditSendItemState: Equatable {
     /// The maximum number of times this share can be accessed before being deactivated.
     var maximumAccessCount: Int = 0
 
+    /// The text representation of the maximum access count.
+    var maximumAccessCountText: String = ""
+
     /// The mode for this view.
     var mode: Mode = .add
 

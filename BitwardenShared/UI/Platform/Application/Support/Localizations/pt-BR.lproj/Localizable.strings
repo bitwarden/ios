@@ -612,8 +612,8 @@
 "UpdatingPassword" = "Atualizando senha";
 "UpdatePasswordError" = "No momento não é possível atualizar a senha";
 "RemoveMasterPassword" = "Remover senha mestra";
-"RemoveMasterPasswordWarning" = "%1$@ está usando o SSO com criptografia gerenciada pelo cliente.  Ao continuar, isso removerá sua Senha Mestra da sua conta e exigirá o SSO para acessar.";
-"RemoveMasterPasswordWarning2" = "Se não quiser remover sua Senha Mestra, você pode sair desta organização.";
+"RemoveMasterPasswordWarning" = "%1$@ está usando o SSO com criptografia gerenciada pelo cliente. Ao continuar, isso removerá sua senha mestra da sua conta e exigirá o SSO para acessar.";
+"RemoveMasterPasswordWarning2" = "Se não quiser remover sua senha mestra, você pode sair desta organização.";
 "LeaveOrganization" = "Sair da organização";
 "LeaveOrganizationName" = "Sair de %1$@?";
 "Fido2Title" = "FIDO2 WebAuthn";
@@ -763,15 +763,15 @@
 "DefaultSystem" = "Padrão (Sistema)";
 "Important" = "Importante";
 "YourMasterPasswordCannotBeRecoveredIfYouForgetItXCharactersMinimum" = "Sua senha mestra não pode ser recuperada se você esquecê-la! Mínimo de %1$@ caracteres.";
-"WeakMasterPassword" = "Senha Mestra Fraca";
+"WeakMasterPassword" = "Senha mestra fraca";
 "WeakPasswordIdentifiedUseAStrongPasswordToProtectYourAccount" = "Senha fraca identificada. Use uma senha forte para proteger a sua conta. Você tem certeza que deseja usar uma senha fraca?";
 "Weak" = "Fraca";
 "Good" = "Boa";
 "Strong" = "Forte";
 "CheckKnownDataBreachesForThisPassword" = "Verifique vazamento de dados conhecidos para esta senha";
-"ExposedMasterPassword" = "Senha Mestra Comprometida";
+"ExposedMasterPassword" = "Senha mestra comprometida";
 "PasswordFoundInADataBreachAlertDescription" = "A senha foi encontrada em um vazamento de dados. Use uma senha única e forte para proteger sua conta. Tem certeza de que deseja usar uma senha comprometida?";
-"WeakAndExposedMasterPassword" = "Senha Mestra Fraca e Comprometida";
+"WeakAndExposedMasterPassword" = "Senha mestra fraca e comprometida";
 "WeakPasswordIdentifiedAndFoundInADataBreachAlertDescription" = "Uma senha foi identificada como fraca e foi encontrada em um vazamento de dados. Use uma senha única e forte para proteger sua conta. Quer mesmo usar essa senha?";
 "OrganizationSsoIdentifierRequired" = "Identificador SSO da organização necessário.";
 "AddTheKeyToAnExistingOrNewItem" = "Adicionar a chave a um item existente ou novo";
@@ -919,3 +919,4 @@
 "OrganizationUnassignedItemsMessageUSEUDescriptionLong" = "Itens da organização não atribuídos não são mais visíveis na visualização Todos os Cofres e acessíveis apenas através da console. Atribuir estes itens a uma coleção do Console de Administração para torná-los visíveis.";
 "UnknownAccount" = "Conta desconhecida";
 "UserVerificationForPasskey" = "User verification for passkey";
+"NewItem" = "New item";

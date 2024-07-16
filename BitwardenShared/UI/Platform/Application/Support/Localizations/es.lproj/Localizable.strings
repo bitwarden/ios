@@ -920,3 +920,4 @@
 "OrganizationUnassignedItemsMessageUSEUDescriptionLong" = "Los elementos de organización sin asignar ya no están visibles en la vista Todas las cajas fuertes y solo se puede acceder a ellos a través de la consola de administrador. Asigne estos elementos a una colección desde la Consola de Administrador para hacerlos visibles.";
 "UnknownAccount" = "Cuenta desconocida";
 "UserVerificationForPasskey" = "User verification for passkey";
+"NewItem" = "New item";

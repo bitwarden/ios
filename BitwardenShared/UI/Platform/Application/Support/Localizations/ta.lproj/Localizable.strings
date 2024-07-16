@@ -852,9 +852,9 @@
 "ContinueToX" = "%1$@-க்குத் தொடரவா?";
 "ContinueToHelpCenter" = "உதவி மையத்திற்குத் தொடரவா?";
 "ContinueToContactSupport" = "ஆதரவைத் தொடர்புகொள்ளத் தொடரவா?";
-"ContinueToPrivacyPolicy" = "Continue to privacy policy?";
+"ContinueToPrivacyPolicy" = "தனியுரிமை கொள்கைக்குத் தொடரவா?";
 "ContinueToAppStore" = "Continue to app store?";
-"ContinueToDeviceSettings" = "Continue to device Settings?";
+"ContinueToDeviceSettings" = "சாதன அமைவுகளுக்குத் தொடரவா?";
 "TwoStepLoginDescriptionLong" = "Bitwarden வலைச்செயலியில் இரு-படி உள்நுழைவை அமைத்து உமது கணக்கின் பாதுகாப்பை அதிகரி.";
 "ChangeMasterPasswordDescriptionLong" = "Bitwarden வலைச்செயலியில் உமது பிரதான கடவுச்சொல்லை மாற்றலாம்.";
 "YouCanImportDataToYourVaultOnX" = "%1$@-இல் உமது பெட்டகத்திற்குத் தரவை இறக்குமதி செய்யலாம்.";
@@ -920,3 +920,4 @@
 "OrganizationUnassignedItemsMessageUSEUDescriptionLong" = "Unassigned organization items are no longer visible in the All Vaults view and only accessible via the Admin Console. Assign these items to a collection from the Admin Console to make them visible.";
 "UnknownAccount" = "அறியப்படாத கணக்கு";
 "UserVerificationForPasskey" = "User verification for passkey";
+"NewItem" = "New item";

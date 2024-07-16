@@ -5,21 +5,6 @@ import OSLog
 /// An `ASCredentialProviderViewController` that implements credential autofill.
 ///
 class CredentialProviderViewController: ASCredentialProviderViewController {
-    // MARK: Types
-
-    /// An enumeration that describes how the extension is being used.
-    ///
-    enum ExtensionMode {
-        /// The extension is autofilling a specific credential.
-        case autofillCredential(ASPasswordCredentialIdentity)
-
-        /// The extension is displaying a list of items in the vault that match a service identifier.
-        case autofillVaultList([ASCredentialServiceIdentifier])
-
-        /// The extension is being configured to set up autofill.
-        case configureAutofill
-    }
-
     // MARK: Properties
 
     /// The app's theme.
@@ -28,21 +13,39 @@ class CredentialProviderViewController: ASCredentialProviderViewController {
     /// The processor that manages application level logic.
     private var appProcessor: AppProcessor?
 
-    /// The mode that describes how the extension is being used.
-    private var extensionMode = ExtensionMode.configureAutofill
+    /// The context of the credential provider to see how the extension is being used.
+    private var context: CredentialProviderContext?
 
     // MARK: ASCredentialProviderViewController
 
     override func prepareCredentialList(for serviceIdentifiers: [ASCredentialServiceIdentifier]) {
-        initializeApp(extensionMode: .autofillVaultList(serviceIdentifiers))
+        initializeApp(with: DefaultCredentialProviderContext(.autofillVaultList(serviceIdentifiers)))
+    }
+
+    @available(iOSApplicationExtension 17.0, *)
+    override func prepareCredentialList(
+        for serviceIdentifiers: [ASCredentialServiceIdentifier],
+        requestParameters: ASPasskeyCredentialRequestParameters
+    ) {
+        initializeApp(with: DefaultCredentialProviderContext(
+            .autofillFido2VaultList(serviceIdentifiers, requestParameters)
+        ))
     }
 
     override func prepareInterfaceForExtensionConfiguration() {
-        initializeApp(extensionMode: .configureAutofill)
+        initializeApp(with: DefaultCredentialProviderContext(.configureAutofill))
+    }
+
+    @available(iOSApplicationExtension 17.0, *)
+    override func prepareInterface(forPasskeyRegistration registrationRequest: any ASCredentialRequest) {
+        guard let fido2RegistrationRequest = registrationRequest as? ASPasskeyCredentialRequest else {
+            return
+        }
+        initializeApp(with: DefaultCredentialProviderContext(.registerFido2Credential(fido2RegistrationRequest)))
     }
 
     override func prepareInterfaceToProvideCredential(for credentialIdentity: ASPasswordCredentialIdentity) {
-        initializeApp(extensionMode: .autofillCredential(credentialIdentity))
+        initializeApp(with: DefaultCredentialProviderContext(.autofillCredential(credentialIdentity)))
     }
 
     override func provideCredentialWithoutUserInteraction(for credentialIdentity: ASPasswordCredentialIdentity) {
@@ -51,7 +54,10 @@ class CredentialProviderViewController: ASCredentialProviderViewController {
             return
         }
 
-        initializeApp(extensionMode: .autofillCredential(credentialIdentity), userInteraction: false)
+        initializeApp(
+            with: DefaultCredentialProviderContext(.autofillCredential(credentialIdentity)),
+            userInteraction: false
+        )
         provideCredential(for: recordIdentifier)
     }
 
@@ -62,7 +68,7 @@ class CredentialProviderViewController: ASCredentialProviderViewController {
     /// - Parameter error: An optional error describing why the request failed.
     ///
     private func cancel(error: Error? = nil) {
-        if case .configureAutofill = extensionMode {
+        if let context, context.configuring {
             extensionContext.completeExtensionConfigurationRequest()
         } else if let error {
             extensionContext.cancelRequest(withError: error)
@@ -79,12 +85,12 @@ class CredentialProviderViewController: ASCredentialProviderViewController {
     /// Sets up and initializes the app and UI.
     ///
     /// - Parameters:
-    ///   - extensionMode: The mode that describes how the extension is being used.
+    ///   - with: The context that describes how the extension is being used.
     ///   - userInteraction: Whether user interaction is allowed or if the app needs to
     ///     start without user interaction.
     ///
-    private func initializeApp(extensionMode: ExtensionMode, userInteraction: Bool = true) {
-        self.extensionMode = extensionMode
+    private func initializeApp(with context: CredentialProviderContext, userInteraction: Bool = true) {
+        self.context = context
 
         let errorReporter = OSLogErrorReporter()
         let services = ServiceContainer(errorReporter: errorReporter)
@@ -135,14 +141,7 @@ class CredentialProviderViewController: ASCredentialProviderViewController {
 
 extension CredentialProviderViewController: AppExtensionDelegate {
     var authCompletionRoute: AppRoute? {
-        switch extensionMode {
-        case .autofillCredential:
-            nil
-        case .autofillVaultList:
-            AppRoute.vault(.autofillList)
-        case .configureAutofill:
-            AppRoute.extensionSetup(.extensionActivation(type: .autofillExtension))
-        }
+        context?.authCompletionRoute
     }
 
     var canAutofill: Bool { true }
@@ -150,7 +149,7 @@ extension CredentialProviderViewController: AppExtensionDelegate {
     var isInAppExtension: Bool { true }
 
     var uri: String? {
-        guard case let .autofillVaultList(serviceIdentifiers) = extensionMode,
+        guard let serviceIdentifiers = context?.serviceIdentifiers,
               let serviceIdentifier = serviceIdentifiers.first
         else { return nil }
 
@@ -174,7 +173,7 @@ extension CredentialProviderViewController: AppExtensionDelegate {
     }
 
     func didCompleteAuth() {
-        guard case let .autofillCredential(credential) = extensionMode else { return }
+        guard let credential = context?.passwordCredentialIdentity else { return }
 
         guard let appProcessor, let recordIdentifier = credential.recordIdentifier else {
             cancel(error: ASExtensionError(.failed))
@@ -196,6 +195,20 @@ extension CredentialProviderViewController: AppExtensionDelegate {
                 cancel(error: error)
             }
         }
+    }
+}
+
+// MARK: - Fido2AppExtensionDelegate
+
+extension CredentialProviderViewController: Fido2AppExtensionDelegate {
+    /// The mode in which the autofill extension is running.
+    var extensionMode: AutofillExtensionMode {
+        context?.extensionMode ?? .configureAutofill
+    }
+
+    @available(iOSApplicationExtension 17.0, *)
+    func completeRegistrationRequest(asPasskeyRegistrationCredential: ASPasskeyRegistrationCredential) {
+        extensionContext.completeRegistrationRequest(using: asPasskeyRegistrationCredential)
     }
 }
 
