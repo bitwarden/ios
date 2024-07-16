@@ -3,6 +3,8 @@ import XCTest
 
 @testable import BitwardenShared
 
+// swiftlint:disable file_length
+
 // MARK: - SendListProcessorTests
 
 class SendListProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_body_length
@@ -77,28 +79,60 @@ class SendListProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
 
     /// `perform(_:)` with `search(_:)` uses the send repository to perform a search and updates the
     /// state.
-    func test_perform_search_nilType() async {
+    func test_perform_search_nilType() {
         subject.state.type = nil
         subject.state.searchResults = []
         let sendListItem = SendListItem.fixture()
         sendRepository.searchSendSubject.send([sendListItem])
 
-        await subject.perform(.search("for me"))
+        let task = Task {
+            await subject.perform(.search("for me"))
+        }
+        waitFor(!subject.state.searchResults.isEmpty)
+        task.cancel()
 
         XCTAssertEqual(sendRepository.searchSendSearchText, "for me")
         XCTAssertNil(sendRepository.searchSendType)
         XCTAssertEqual(subject.state.searchResults, [sendListItem])
     }
 
+    /// `perform(_:)` with `search(_:)` uses the send repository to perform a search and subscribes
+    /// to the results in case they update.
+    func test_perform_search_subscribesToResults() {
+        subject.state.searchResults = []
+
+        let item1 = SendListItem.fixture(sendView: .fixture(id: "1"))
+        let item2 = SendListItem.fixture(sendView: .fixture(id: "1"))
+
+        let task = Task {
+            await subject.perform(.search("test"))
+        }
+
+        sendRepository.searchSendSubject.send([item1])
+        waitFor(subject.state.searchResults == [item1])
+
+        sendRepository.searchSendSubject.send([item2])
+        waitFor(subject.state.searchResults == [item2])
+        task.cancel()
+
+        XCTAssertEqual(sendRepository.searchSendSearchText, "test")
+        XCTAssertNil(sendRepository.searchSendType)
+        XCTAssertEqual(subject.state.searchResults, [item2])
+    }
+
     /// `perform(_:)` with `search(_:)` uses the send repository to perform a search and updates the
     /// state.
-    func test_perform_search_textType() async {
+    func test_perform_search_textType() {
         subject.state.type = .text
         subject.state.searchResults = []
         let sendListItem = SendListItem.fixture()
         sendRepository.searchSendSubject.send([sendListItem])
 
-        await subject.perform(.search("for me"))
+        let task = Task {
+            await subject.perform(.search("for me"))
+        }
+        waitFor(!subject.state.searchResults.isEmpty)
+        task.cancel()
 
         XCTAssertEqual(sendRepository.searchSendSearchText, "for me")
         XCTAssertEqual(sendRepository.searchSendType, .text)
