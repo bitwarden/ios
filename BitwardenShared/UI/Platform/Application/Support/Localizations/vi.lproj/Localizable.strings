@@ -919,3 +919,4 @@
 "OrganizationUnassignedItemsMessageUSEUDescriptionLong" = "Các mục tổ chức chưa được chỉ định sẽ không còn hiển thị trong chế độ xem Toàn Bộ, mà chỉ có thể truy cập qua Bảng điều khiển dành cho quản trị viên. Để hiện thị, chỉ định các mục này cho một thư mục từ Bảng điều khiển dành cho quản trị viên.";
 "UnknownAccount" = "Tài khoản không rõ";
 "UserVerificationForPasskey" = "Xác minh người dùng cho passkey";
+"NewItem" = "Mục mới";

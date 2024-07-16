@@ -27,6 +27,28 @@ class EnvironmentUrlsTests: BitwardenTestCase {
         )
     }
 
+    /// `init(environmentUrlData:)` sets the URLs from the base URL which includes a trailing slash.
+    func test_init_environmentUrlData_baseUrlWithTrailingSlash() {
+        let subject = EnvironmentUrls(
+            environmentUrlData: EnvironmentUrlData(base: URL(string: "https://example.com/")!)
+        )
+        XCTAssertEqual(
+            subject,
+            EnvironmentUrls(
+                apiURL: URL(string: "https://example.com/api")!,
+                baseURL: URL(string: "https://example.com/")!,
+                eventsURL: URL(string: "https://example.com/events")!,
+                iconsURL: URL(string: "https://example.com/icons")!,
+                identityURL: URL(string: "https://example.com/identity")!,
+                importItemsURL: URL(string: "https://example.com/#/tools/import")!,
+                recoveryCodeURL: URL(string: "https://example.com/#/recover-2fa")!,
+                sendShareURL: URL(string: "https://example.com/#/send")!,
+                settingsURL: URL(string: "https://example.com/#/settings")!,
+                webVaultURL: URL(string: "https://example.com/")!
+            )
+        )
+    }
+
     /// `init(environmentUrlData:)` sets the URLs based on the corresponding URL if there isn't a base URL.
     func test_init_environmentUrlData_custom() {
         let subject = EnvironmentUrls(
