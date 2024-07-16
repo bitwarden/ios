@@ -331,8 +331,14 @@ class VaultAutofillListProcessorTests: BitwardenTestCase {
     }
 
     /// `showAlert(_:onDismissed:)` shows the alert with the coordinator.
-    func test_showAlert() async throws {
+    func test_showAlert_withOnDismissed() async throws {
         subject.showAlert(Alert(title: "Test", message: "testing"), onDismissed: nil)
+        XCTAssertFalse(coordinator.alertShown.isEmpty)
+    }
+
+    /// `showAlert(_:)` shows the alert with the coordinator.
+    func test_showAlert() async throws {
+        subject.showAlert(Alert(title: "Test", message: "testing"))
         XCTAssertFalse(coordinator.alertShown.isEmpty)
     }
 }
