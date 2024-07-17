@@ -252,6 +252,34 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
             _ = try await subject.getAccountEncryptionKeys()
         }
     }
+    
+    /// `getAccountHasBeenUnlockedInCurrentSession()` gets the value from the active user.
+    func test_getAccountHasBeenUnlockedInCurrentSession() async throws {
+        appSettingsStore.state = State.fixture(
+            accounts: [
+                "1": Account.fixture(),
+            ],
+            activeUserId: "1"
+        )
+        try await subject.setAccountHasBeenUnlockedInCurrentSession(value: true)
+        let result = try await subject.getAccountHasBeenUnlockedInCurrentSession()
+        XCTAssertTrue(result)
+    }
+
+    /// `getAccountHasBeenUnlockedInCurrentSession(userId:)` gets the value from the given user.
+    func test_getAccountHasBeenUnlockedInCurrentSession_givenUser() async throws {
+        try await subject.setAccountHasBeenUnlockedInCurrentSession(userId: "2", value: true)
+        let result = try await subject.getAccountHasBeenUnlockedInCurrentSession(userId: "2")
+        XCTAssertTrue(result)
+    }
+
+    /// `getAccountHasBeenUnlockedInCurrentSession()` gets the value from the given user.
+    func test_getAccountHasBeenUnlockedInCurrentSession_throwsGettingTheUser() async throws {
+        appSettingsStore.state?.activeUserId = nil
+        await assertAsyncThrows(error: StateServiceError.noActiveAccount) {
+            _ = try await subject.getAccountHasBeenUnlockedInCurrentSession()
+        }
+    }
 
     /// `getActiveAccount()` returns the active account.
     func test_getActiveAccount() async throws {
@@ -1310,6 +1338,42 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
 
         try await subject.setDisableAutoTotpCopy(false, userId: "1")
         XCTAssertEqual(appSettingsStore.disableAutoTotpCopyByUserId["1"], false)
+    }
+
+    /// `setAccountHasBeenUnlockedInCurrentSession(userId:value:)` updates volatile data
+    func test_setAccountHasBeenUnlockedInCurrentSession() async throws {
+        try await subject.setAccountHasBeenUnlockedInCurrentSession(userId: "1", value: true)
+        let result = await subject.accountVolatileData["1"]?.hasBeenUnlockedInCurrentSession ?? false
+        XCTAssertTrue(result)
+    }
+
+    /// `setAccountHasBeenUnlockedInCurrentSession(userId:value:)` updates volatile data for existing user.
+    func test_setAccountHasBeenUnlockedInCurrentSession_updateExisting() async throws {
+        try await subject.setAccountHasBeenUnlockedInCurrentSession(userId: "1", value: true)
+        try await subject.setAccountHasBeenUnlockedInCurrentSession(userId: "1", value: false)
+        let result = await subject.accountVolatileData["1"]?.hasBeenUnlockedInCurrentSession ?? false
+        XCTAssertFalse(result)
+    }
+
+    /// `setAccountHasBeenUnlockedInCurrentSession(value:)` updates volatile data for current user.
+    func test_setAccountHasBeenUnlockedInCurrentSession_updateByCurrentUser() async throws {
+        appSettingsStore.state = State.fixture(
+            accounts: [
+                "1": Account.fixture(),
+            ],
+            activeUserId: "1"
+        )
+        try await subject.setAccountHasBeenUnlockedInCurrentSession(value: true)
+        let result = await subject.accountVolatileData["1"]?.hasBeenUnlockedInCurrentSession ?? false
+        XCTAssertTrue(result)
+    }
+
+    /// `setAccountHasBeenUnlockedInCurrentSession(value:)` throws if it throws when getting the user id.
+    func test_setAccountHasBeenUnlockedInCurrentSession_throwsWhenGettingUserId() async throws {
+        appSettingsStore.state?.activeUserId = nil
+        await assertAsyncThrows(error: StateServiceError.noActiveAccount) {
+            _ = try await subject.setAccountHasBeenUnlockedInCurrentSession(value: true)
+        }
     }
 
     /// `setActiveAccount(userId: )` succeeds if there is a matching account
