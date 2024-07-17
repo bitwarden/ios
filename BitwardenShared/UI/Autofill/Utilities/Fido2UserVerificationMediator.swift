@@ -107,7 +107,7 @@ extension DefaultFido2UserVerificationMediator: Fido2UserVerificationMediator {
             return CheckUserResult(userPresent: true, userVerified: true)
         }
 
-        if let hasBeenUnlocked = try? await stateService.getAccountHasBeenUnlockedInCurrentSession(),
+        if let hasBeenUnlocked = try? await stateService.getAccountHasBeenUnlockedInteractively(),
            hasBeenUnlocked {
             return CheckUserResult(userPresent: true, userVerified: true)
         }
@@ -155,7 +155,7 @@ extension DefaultFido2UserVerificationMediator: Fido2UserVerificationMediator {
     }
 
     func isPreferredVerificationEnabled() async -> Bool {
-        if let hasBeenUnlocked = try? await stateService.getAccountHasBeenUnlockedInCurrentSession(),
+        if let hasBeenUnlocked = try? await stateService.getAccountHasBeenUnlockedInteractively(),
            hasBeenUnlocked {
             return true
         }

@@ -296,15 +296,14 @@ final class VaultTimeoutServiceTests: BitwardenTestCase {
         try await subject.unlockVault(userId: user2Id, hadUserInteraction: true)
         XCTAssertTrue(subject.isLocked(userId: userId))
         XCTAssertFalse(subject.isLocked(userId: user2Id))
-        XCTAssertTrue(stateService.setAccountHasBeenUnlockedInCurrentSessionHasBeenCalled)
+        XCTAssertTrue(stateService.setAccountHasBeenUnlockedInteractivelyHasBeenCalled)
     }
 
     /// `unlockVault(userId:hadUserInteraction:)` throws when setting account has been unlocked in current session.
     func test_unlock_locked_throws() async throws {
-        let userId = "1"
         let user2Id = "2"
 
-        stateService.setAccountHasBeenUnlockedInCurrentSessionResult = .failure(BitwardenTestError.example)
+        stateService.setAccountHasBeenUnlockedInteractivelyResult = .failure(BitwardenTestError.example)
 
         await assertAsyncThrows(error: BitwardenTestError.example) {
             try await subject.unlockVault(userId: user2Id, hadUserInteraction: true)

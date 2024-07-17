@@ -46,6 +46,7 @@ class Fido2UserVerificationMediatorTests: BitwardenTestCase {
         authRepository = nil
         errorReporter = nil
         fido2UserVerificationMediatorDelegate = nil
+        stateService = nil
         userVerificationHelper = nil
         userVerificationRunner = nil
         subject = nil
@@ -184,7 +185,7 @@ class Fido2UserVerificationMediatorTests: BitwardenTestCase {
 
     /// `isPreferredVerificationEnabled)`  succeeds because user has been unlocked in the current transaction.
     func test_isPreferredVerificationEnabled_successUnlockedCurrentSession() async throws {
-        stateService.getAccountHasBeenUnlockedInCurrentSessionResult = .success(true)
+        stateService.getAccountHasBeenUnlockedInteractivelyResult = .success(true)
         let result = await subject.isPreferredVerificationEnabled()
         XCTAssertTrue(result)
     }
@@ -192,7 +193,7 @@ class Fido2UserVerificationMediatorTests: BitwardenTestCase {
     /// `isPreferredVerificationEnabled)`  succeeds because user not has been unlocked in the current transaction
     /// but can verify device local authentication
     func test_isPreferredVerificationEnabled_successCanVerifyDeviceLocalAuth() async throws {
-        stateService.getAccountHasBeenUnlockedInCurrentSessionResult = .success(false)
+        stateService.getAccountHasBeenUnlockedInteractivelyResult = .success(false)
         userVerificationHelper.canVerifyDeviceLocalAuthResult = true
         let result = await subject.isPreferredVerificationEnabled()
         XCTAssertTrue(result)
@@ -201,7 +202,7 @@ class Fido2UserVerificationMediatorTests: BitwardenTestCase {
     /// `isPreferredVerificationEnabled)`  succeeds because throws error when checking if user has been unlocked
     /// in the current transaction but can verify device local authentication
     func test_isPreferredVerificationEnabled_successCanVerifyDeviceErrorUnlockedCurrentSession() async throws {
-        stateService.getAccountHasBeenUnlockedInCurrentSessionResult = .failure(BitwardenTestError.example)
+        stateService.getAccountHasBeenUnlockedInteractivelyResult = .failure(BitwardenTestError.example)
         userVerificationHelper.canVerifyDeviceLocalAuthResult = true
         let result = await subject.isPreferredVerificationEnabled()
         XCTAssertTrue(result)
@@ -211,7 +212,7 @@ class Fido2UserVerificationMediatorTests: BitwardenTestCase {
     /// nor can verify device local authentication.
     func test_isPreferredVerificationEnabled_unlockedCurrentTransaction() async throws {
         userVerificationHelper.canVerifyDeviceLocalAuthResult = false
-        stateService.getAccountHasBeenUnlockedInCurrentSessionResult = .success(false)
+        stateService.getAccountHasBeenUnlockedInteractivelyResult = .success(false)
 
         let result = await subject.isPreferredVerificationEnabled()
         XCTAssertFalse(result)
@@ -272,7 +273,7 @@ class Fido2UserVerificationMediatorTests: BitwardenTestCase {
     private func checkUser_verified_when_unlockedCurrentTransation(
         _ userVerificationPreference: BitwardenSdk.Verification
     ) async throws {
-        stateService.getAccountHasBeenUnlockedInCurrentSessionResult = .success(true)
+        stateService.getAccountHasBeenUnlockedInteractivelyResult = .success(true)
         let cipher = CipherView.fixture()
         let result = try await subject.checkUser(
             userVerificationPreference: userVerificationPreference,

@@ -145,14 +145,14 @@ class DefaultVaultTimeoutService: VaultTimeoutService {
         guard let id = try? await stateService.getAccountIdOrActiveId(userId: userId) else { return }
         try? await clientService.removeClient(for: id)
         vaultLockStatusSubject.value[id] = true
-        try? await stateService.setAccountHasBeenUnlockedInCurrentSession(userId: id, value: false)
+        try? await stateService.setAccountHasBeenUnlockedInteractively(userId: id, value: false)
     }
 
     func remove(userId: String?) async {
         guard let id = try? await stateService.getAccountIdOrActiveId(userId: userId) else { return }
         try? await clientService.removeClient(for: id)
         vaultLockStatusSubject.value.removeValue(forKey: id)
-        try? await stateService.setAccountHasBeenUnlockedInCurrentSession(userId: id, value: false)
+        try? await stateService.setAccountHasBeenUnlockedInteractively(userId: id, value: false)
     }
 
     func setLastActiveTime(userId: String) async throws {
@@ -166,7 +166,7 @@ class DefaultVaultTimeoutService: VaultTimeoutService {
     func unlockVault(userId: String?, hadUserInteraction: Bool) async throws {
         guard let id = try? await stateService.getAccountIdOrActiveId(userId: userId) else { return }
         vaultLockStatusSubject.value[id] = false
-        try await stateService.setAccountHasBeenUnlockedInCurrentSession(userId: id, value: hadUserInteraction)
+        try await stateService.setAccountHasBeenUnlockedInteractively(userId: id, value: hadUserInteraction)
     }
 
     func sessionTimeoutValue(userId: String?) async throws -> SessionTimeoutValue {

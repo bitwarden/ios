@@ -38,7 +38,7 @@ class MockStateService: StateService { // swiftlint:disable:this type_body_lengt
     var loginRequest: LoginRequestNotification?
     var getAccountEncryptionKeysError: Error?
     // swiftlint:disable:next identifier_name
-    var getAccountHasBeenUnlockedInCurrentSessionResult: Result<Bool, Error> = .success(false)
+    var getAccountHasBeenUnlockedInteractivelyResult: Result<Bool, Error> = .success(false)
     var getBiometricAuthenticationEnabledResult: Result<Void, Error> = .success(())
     var getBiometricIntegrityStateError: Error?
     var lastSyncTimeByUserId = [String: Date]()
@@ -55,9 +55,9 @@ class MockStateService: StateService { // swiftlint:disable:this type_body_lengt
     var showWebIconsSubject = CurrentValueSubject<Bool, Never>(true)
     var timeoutAction = [String: SessionTimeoutAction]()
     var serverConfig = [String: ServerConfig]()
-    var setAccountHasBeenUnlockedInCurrentSessionHasBeenCalled = false // swiftlint:disable:this identifier_name
+    var setAccountHasBeenUnlockedInteractivelyHasBeenCalled = false // swiftlint:disable:this identifier_name
     // swiftlint:disable:next identifier_name
-    var setAccountHasBeenUnlockedInCurrentSessionResult: Result<Void, Error> = .success(())
+    var setAccountHasBeenUnlockedInteractivelyResult: Result<Void, Error> = .success(())
     var setBiometricAuthenticationEnabledResult: Result<Void, Error> = .success(())
     var setBiometricIntegrityStateError: Error?
     var shouldCheckOrganizationUnassignedItems = [String: Bool?]()
@@ -114,8 +114,8 @@ class MockStateService: StateService { // swiftlint:disable:this type_body_lengt
         return encryptionKeys
     }
 
-    func getAccountHasBeenUnlockedInCurrentSession(userId: String?) async throws -> Bool {
-        try getAccountHasBeenUnlockedInCurrentSessionResult.get()
+    func getAccountHasBeenUnlockedInteractively(userId: String?) async throws -> Bool {
+        try getAccountHasBeenUnlockedInteractivelyResult.get()
     }
 
     func getAccount(userId: String?) async throws -> BitwardenShared.Account {
@@ -306,9 +306,9 @@ class MockStateService: StateService { // swiftlint:disable:this type_body_lengt
         accountEncryptionKeys[userId] = encryptionKeys
     }
 
-    func setAccountHasBeenUnlockedInCurrentSession(userId: String?, value: Bool) async throws {
-        setAccountHasBeenUnlockedInCurrentSessionHasBeenCalled = true
-        try setAccountHasBeenUnlockedInCurrentSessionResult.get()
+    func setAccountHasBeenUnlockedInteractively(userId: String?, value: Bool) async throws {
+        setAccountHasBeenUnlockedInteractivelyHasBeenCalled = true
+        try setAccountHasBeenUnlockedInteractivelyResult.get()
     }
 
     func setActiveAccount(userId: String) async throws {
