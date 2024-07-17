@@ -10,6 +10,8 @@ class AutofillCredentialServiceTests: BitwardenTestCase {
     var clientService: MockClientService!
     var errorReporter: MockErrorReporter!
     var eventService: MockEventService!
+    var fido2CredentialStore: MockFido2CredentialStore!
+    var fido2UserInterfaceHelper: MockFido2UserInterfaceHelper!
     var identityStore: MockCredentialIdentityStore!
     var pasteboardService: MockPasteboardService!
     var stateService: MockStateService!
@@ -25,6 +27,8 @@ class AutofillCredentialServiceTests: BitwardenTestCase {
         clientService = MockClientService()
         errorReporter = MockErrorReporter()
         eventService = MockEventService()
+        fido2CredentialStore = MockFido2CredentialStore()
+        fido2UserInterfaceHelper = MockFido2UserInterfaceHelper()
         identityStore = MockCredentialIdentityStore()
         pasteboardService = MockPasteboardService()
         stateService = MockStateService()
@@ -35,6 +39,8 @@ class AutofillCredentialServiceTests: BitwardenTestCase {
             clientService: clientService,
             errorReporter: errorReporter,
             eventService: eventService,
+            fido2CredentialStore: fido2CredentialStore,
+            fido2UserInterfaceHelper: fido2UserInterfaceHelper,
             identityStore: identityStore,
             pasteboardService: pasteboardService,
             stateService: stateService,
