@@ -3,7 +3,7 @@ import Networking
 
 // MARK: - EventRequestModel
 
-/// Data model for the body of an event upload.
+/// Data model for one event in the body of an event upload.
 ///
 struct EventRequestModel: Codable, Equatable {
     /// The type of event.
@@ -16,12 +16,6 @@ struct EventRequestModel: Codable, Equatable {
     let date: Date
 }
 
-/// Data model for the body of an event upload.
-///
-struct EventRequestBody: JSONRequestBody, Codable, Equatable {
-    let events: [EventRequestModel]
-}
-
 // MARK: - EventRequest
 
 /// A request for uploading organization events.
@@ -31,7 +25,7 @@ struct EventRequest: Request {
     // MARK: Properties
 
     /// The body of the request.
-    var body: [EventRequestModel]? { requestBody.events }
+    var body: [EventRequestModel]? { requestBody }
 
     /// The HTTP method of the request.
     let method: HTTPMethod = .post
@@ -40,5 +34,5 @@ struct EventRequest: Request {
     let path = "/collect"
 
     /// The actual body of the request.
-    let requestBody: EventRequestBody
+    let requestBody: [EventRequestModel]
 }

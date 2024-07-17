@@ -7,7 +7,7 @@ protocol EventAPIService {
     /// Performs an API request to send an event to the backend.
     ///
     /// - Parameters:
-    ///   - body: The request model to send.
+    ///   - events: The events to send.
     ///
     func postEvents(_ events: [EventData]) async throws
 }
@@ -22,7 +22,7 @@ extension APIService: EventAPIService {
             )
         }
         _ = try await eventsService.send(
-            EventRequest(requestBody: EventRequestBody(events: models))
+            EventRequest(requestBody: models)
         )
     }
 }
