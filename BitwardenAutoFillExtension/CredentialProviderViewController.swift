@@ -1,4 +1,5 @@
 import AuthenticationServices
+import BitwardenSdk
 import BitwardenShared
 import OSLog
 
@@ -68,7 +69,7 @@ class CredentialProviderViewController: ASCredentialProviderViewController {
             provideCredentialWithoutUserInteraction(for: passwordRequest)
         case let passkeyRequest as ASPasskeyCredentialRequest:
             initializeApp(
-                with: DefaultCredentialProviderContext(.autofillCredential(passkeyRequest)),
+                with: DefaultCredentialProviderContext(.autofillFido2Credential(passkeyRequest)),
                 userInteraction: false
             )
             provideFido2Credential(for: passkeyRequest)
@@ -168,7 +169,6 @@ class CredentialProviderViewController: ASCredentialProviderViewController {
                 )
                 await extensionContext.completeAssertionRequest(using: credential)
             } catch {
-                
                 Logger.appExtension.error("Error providing credential without user interaction: \(error)")
                 cancel(error: error)
             }

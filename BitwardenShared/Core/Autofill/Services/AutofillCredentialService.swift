@@ -254,9 +254,9 @@ private extension CipherView {
             recordIdentifier: id
         )
     }
-    
+
     /// Whether the `ASPasswordCredentialIdentity` should be gotten.
-    ///Otherwise a passkey identity will be provided.
+    /// Otherwise a passkey identity will be provided.
     var shouldGetPasswordCredentialIdentity: Bool {
         !hasFido2Credentials || login?.password != nil
     }

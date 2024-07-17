@@ -1,6 +1,8 @@
 import BitwardenSdk
 import XCTest
 
+// swiftlint:disable file_length
+
 @testable import BitwardenShared
 
 class Fido2CredentialStoreServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body_length
@@ -324,5 +326,98 @@ class Fido2CredentialStoreServiceTests: BitwardenTestCase { // swiftlint:disable
             ),
             .fixture(id: "secureNote", type: .secureNote),
         ])
+    }
+}
+
+class DebuggingFido2CredentialStoreServiceTests: BitwardenTestCase { // swiftlint:disable:this type_name
+    // MARK: Properties
+
+    var fido2CredentialStore: MockFido2CredentialStore!
+    var subject: DebuggingFido2CredentialStoreService!
+
+    // MARK: Setup & Teardown
+
+    override func setUp() {
+        super.setUp()
+
+        fido2CredentialStore = MockFido2CredentialStore()
+
+        subject = DebuggingFido2CredentialStoreService(
+            fido2CredentialStore: fido2CredentialStore
+        )
+    }
+
+    override func tearDown() {
+        super.tearDown()
+
+        fido2CredentialStore = nil
+        subject = nil
+    }
+
+    // MARK: Tests
+
+    /// `.allCredentials()` returns all credentials and reports it.
+    func test_allCredentials() async throws {
+        fido2CredentialStore.allCredentialsResult = .success([.fixture()])
+        let result = try await subject.allCredentials()
+        XCTAssert(result.count == 1)
+        XCTAssertFalse(
+            (try? Fido2DebugginReportBuilder.builder
+                .getReport()?.allCredentialsResult?.get().isEmpty) ?? true
+        )
+    }
+
+    /// `.allCredentials()` throws and reports it.
+    func test_allCredentials_throws() async throws {
+        fido2CredentialStore.allCredentialsResult = .failure(BitwardenTestError.example)
+        await assertAsyncThrows(error: BitwardenTestError.example) {
+            _ = try await subject.allCredentials()
+        }
+        XCTAssertNil(try? Fido2DebugginReportBuilder.builder.getReport()?
+            .allCredentialsResult?.get()
+        )
+    }
+
+    /// `.findCredentials(ids:ripId:)` returns found credentials and reports it.
+    func test_findCredentials() async throws {
+        fido2CredentialStore.findCredentialsResult = .success([.fixture()])
+        let result = try await subject.findCredentials(ids: nil, ripId: "something")
+        XCTAssert(result.count == 1)
+        XCTAssertFalse(
+            (try? Fido2DebugginReportBuilder.builder
+                .getReport()?.findCredentialsResult?.get().isEmpty) ?? true
+        )
+    }
+
+    /// `.findCredentials(ids:ripId:)` throws and reports it.
+    func test_findCredentialsthrows() async throws {
+        fido2CredentialStore.findCredentialsResult = .failure(BitwardenTestError.example)
+        await assertAsyncThrows(error: BitwardenTestError.example) {
+            _ = try await subject.findCredentials(ids: nil, ripId: "something")
+        }
+        XCTAssertNil(try? Fido2DebugginReportBuilder.builder.getReport()?
+            .findCredentialsResult?.get()
+        )
+    }
+
+    /// `.saveCredential(cred:)` saves credentials and adds it to the report.
+    func test_saveCredential() async throws {
+        try await subject.saveCredential(cred: .fixture(id: "1"))
+        XCTAssertTrue(fido2CredentialStore.saveCredentialCalled)
+        XCTAssertTrue(
+            (try? Fido2DebugginReportBuilder.builder
+                .getReport()?.saveCredentialCipher?.get().id) == "1"
+        )
+    }
+
+    /// `.saveCredential(cred:)` throws and reports it.
+    func test_saveCredential_throws() async throws {
+        fido2CredentialStore.saveCredentialError = BitwardenTestError.example
+        await assertAsyncThrows(error: BitwardenTestError.example) {
+            try await subject.saveCredential(cred: .fixture(id: "1"))
+        }
+        XCTAssertNil(try? Fido2DebugginReportBuilder.builder.getReport()?
+            .saveCredentialCipher?.get()
+        )
     }
 }
