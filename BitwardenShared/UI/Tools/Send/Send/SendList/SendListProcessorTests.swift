@@ -77,6 +77,23 @@ class SendListProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
         XCTAssertNil(sendRepository.searchSendType)
     }
 
+    /// `perform(_:)` with `search(_:)` displays an alert and logs an error if one occurs.
+    func test_perform_search_error() {
+        subject.state.searchResults = []
+
+        sendRepository.searchSendSubject.send(completion: .failure(BitwardenTestError.example))
+
+        let task = Task {
+            await subject.perform(.search("send"))
+        }
+
+        waitFor(!errorReporter.errors.isEmpty)
+        task.cancel()
+
+        XCTAssertEqual(coordinator.alertShown, [.defaultAlert(title: Localizations.anErrorHasOccurred)])
+        XCTAssertEqual(errorReporter.errors as? [BitwardenTestError], [.example])
+    }
+
     /// `perform(_:)` with `search(_:)` uses the send repository to perform a search and updates the
     /// state.
     func test_perform_search_nilType() {

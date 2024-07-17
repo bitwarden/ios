@@ -215,6 +215,7 @@ final class SendListProcessor: StateProcessor<SendListState, SendListAction, Sen
                 state.searchResults = sends
             }
         } catch {
+            coordinator.showAlert(.defaultAlert(title: Localizations.anErrorHasOccurred))
             services.errorReporter.log(error: error)
         }
     }
