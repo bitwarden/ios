@@ -10,4 +10,7 @@ enum LandingEffect: Equatable {
 
     /// A Profile Switcher Effect.
     case profileSwitcher(ProfileSwitcherEffect)
+
+    /// The region button was pressed.
+    case regionPressed
 }

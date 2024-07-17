@@ -12,9 +12,6 @@ enum StartRegistrationAction: Equatable {
     /// The user edited the name text field.
     case nameTextChanged(String)
 
-    /// The user tapped the region selector button
-    case regionTapped
-
     /// The toast was shown or hidden.
     case toastShown(Toast?)
 

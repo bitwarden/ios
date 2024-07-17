@@ -67,8 +67,8 @@ class StartRegistrationViewTests: BitwardenTestCase {
             button: "\(Localizations.creatingOn): \(subject.store.state.region.baseUrlDescription)"
         )
         try button.tap()
-        waitFor(processor.dispatchedActions.last != nil)
-        XCTAssertEqual(processor.dispatchedActions.last, .regionTapped)
+        waitFor(!processor.effects.isEmpty)
+        XCTAssertEqual(processor.effects.last, .regionTapped)
     }
 
     /// Tapping the receive marketing toggle dispatches the `.toggleReceiveMarketing()` action.

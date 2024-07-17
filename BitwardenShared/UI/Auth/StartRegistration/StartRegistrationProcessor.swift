@@ -58,6 +58,9 @@ class StartRegistrationProcessor: StateProcessor<
     /// The delegate for the processor that is notified when the user closes the registration view.
     private weak var delegate: StartRegistrationDelegate?
 
+    /// Helper class with region specific functions
+    var regionHelper: RegionHelper?
+
     // MARK: Initialization
 
     /// Creates a new `StartRegistrationProcessor`.
@@ -84,8 +87,13 @@ class StartRegistrationProcessor: StateProcessor<
     override func perform(_ effect: StartRegistrationEffect) async {
         switch effect {
         case .appeared:
-            await loadRegion()
+            await regionHelper?.loadRegion()
             state.isReceiveMarketingToggleOn = state.region == .unitedStates
+        case .regionTapped:
+            await regionHelper?.presentRegionSelectorAlert(
+                title: Localizations.creatingOn,
+                currentRegion: state.region
+            )
         case .startRegistration:
             await startRegistration()
         }
@@ -101,8 +109,6 @@ class StartRegistrationProcessor: StateProcessor<
             state.nameText = text
         case let .toggleReceiveMarketing(newValue):
             state.isReceiveMarketingToggleOn = newValue
-        case .regionTapped:
-            presentRegionSelectionAlert()
         case let .toastShown(toast):
             state.toast = toast
         }
@@ -155,48 +161,6 @@ class StartRegistrationProcessor: StateProcessor<
         }
     }
 
-    /// Sets the region to the last used region.
-    ///
-    private func loadRegion() async {
-        guard let urls = await services.stateService.getPreAuthEnvironmentUrls() else {
-            await setRegion(.unitedStates, urls: .defaultUS)
-            return
-        }
-
-        if urls.base == EnvironmentUrlData.defaultUS.base {
-            await setRegion(.unitedStates, urls: urls)
-        } else if urls.base == EnvironmentUrlData.defaultEU.base {
-            await setRegion(.europe, urls: urls)
-        } else {
-            await setRegion(.selfHosted, urls: urls)
-        }
-    }
-
-    /// Builds an alert for region selection and navigates to the alert.
-    ///
-    private func presentRegionSelectionAlert() {
-        let actions = RegionType.allCases.map { region in
-            AlertAction(title: region.baseUrlDescription, style: .default) { [weak self] _ in
-                if let urls = region.defaultURLs {
-                    await self?.setRegion(region, urls: urls)
-                } else {
-                    self?.coordinator.navigate(
-                        to: .selfHosted(currentRegion: self?.state.region ?? .unitedStates),
-                        context: self
-                    )
-                }
-            }
-        }
-        let cancelAction = AlertAction(title: Localizations.cancel, style: .cancel)
-        let alert = Alert(
-            title: Localizations.loggingInOn,
-            message: nil,
-            preferredStyle: .actionSheet,
-            alertActions: actions + [cancelAction]
-        )
-        coordinator.showAlert(alert)
-    }
-
     /// Shows a `StartRegistrationError` alert.
     ///
     /// - Parameter error: The error that occurred.
@@ -211,27 +175,31 @@ class StartRegistrationProcessor: StateProcessor<
             coordinator.showAlert(.invalidEmail)
         }
     }
-
-    /// Sets the region and the URLs to use.
-    ///
-    /// - Parameters:
-    ///   - region: The region to use.
-    ///   - urls: The URLs that the app should use for the region.
-    ///
-    private func setRegion(_ region: RegionType, urls: EnvironmentUrlData) async {
-        guard !urls.isEmpty else { return }
-        await services.environmentService.setPreAuthURLs(urls: urls)
-        state.region = region
-        state.showReceiveMarketingToggle = state.region != .selfHosted
-        await delegate?.didChangeRegion()
-    }
 }
 
 // MARK: - SelfHostedProcessorDelegate
 
 extension StartRegistrationProcessor: SelfHostedProcessorDelegate {
     func didSaveEnvironment(urls: EnvironmentUrlData) async {
-        await setRegion(.selfHosted, urls: urls)
+        await setRegion(.selfHosted, urls)
         state.toast = Toast(text: Localizations.environmentSaved)
+    }
+}
+
+// MARK: - RegionDelegate
+
+extension StartRegistrationProcessor: RegionDelegate {
+    /// Sets the region and the URLs to use.
+    ///
+    /// - Parameters:
+    ///   - region: The region to use.
+    ///   - urls: The URLs that the app should use for the region.
+    ///
+    func setRegion(_ region: RegionType, _ urls: EnvironmentUrlData) async {
+        guard !urls.isEmpty else { return }
+        await services.environmentService.setPreAuthURLs(urls: urls)
+        state.region = region
+        state.showReceiveMarketingToggle = state.region != .selfHosted
+        await delegate?.didChangeRegion()
     }
 }

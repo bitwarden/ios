@@ -72,8 +72,8 @@ class LandingViewTests: BitwardenTestCase {
             button: "\(Localizations.loggingInOn): \(RegionType.unitedStates.baseUrlDescription)"
         )
         try button.tap()
-        waitFor(processor.dispatchedActions.last != nil)
-        XCTAssertEqual(processor.dispatchedActions.last, .regionPressed)
+        waitFor(processor.effects.last != nil)
+        XCTAssertEqual(processor.effects.last, .regionPressed)
     }
 
     /// Tapping the remember me toggle dispatches the `.rememberMeChanged` action.

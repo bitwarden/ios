@@ -98,7 +98,7 @@ struct LandingView: View {
                     selectorLabel: Localizations.loggingInOn,
                     regionName: store.state.region.baseUrlDescription
                 ) {
-                    store.send(.regionPressed)
+                    await store.perform(.regionPressed)
                 }
 
                 Toggle(Localizations.rememberMe, isOn: store.binding(

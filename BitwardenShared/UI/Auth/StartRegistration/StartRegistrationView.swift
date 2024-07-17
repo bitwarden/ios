@@ -24,7 +24,7 @@ struct StartRegistrationView: View {
                     selectorLabel: Localizations.creatingOn,
                     regionName: store.state.region.baseUrlDescription
                 ) {
-                    store.send(.regionTapped)
+                    await store.perform(.regionTapped)
                 }.padding(.bottom, 8)
 
                 name.padding(.bottom, 16)

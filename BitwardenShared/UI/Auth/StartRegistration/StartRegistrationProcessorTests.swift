@@ -47,6 +47,11 @@ class StartRegistrationProcessorTests: BitwardenTestCase { // swiftlint:disable:
             ),
             state: StartRegistrationState()
         )
+        subject.regionHelper = RegionHelper(
+            coordinator: coordinator.asAnyCoordinator(),
+            delegate: subject,
+            stateService: stateService
+        )
     }
 
     override func tearDown() {
@@ -56,11 +61,39 @@ class StartRegistrationProcessorTests: BitwardenTestCase { // swiftlint:disable:
         clientAuth = nil
         client = nil
         coordinator = nil
+        environmentService = nil
         errorReporter = nil
         subject = nil
+        stateService = nil
     }
 
     // MARK: Tests
+
+    /// `perform(_:)` with `.regionTapped` navigates to the region selection screen.
+    func test_perform_regionTapped() async throws {
+        await subject.perform(.regionTapped)
+
+        var alert = try XCTUnwrap(coordinator.alertShown.last)
+        XCTAssertEqual(alert.title, Localizations.creatingOn)
+        XCTAssertNil(alert.message)
+        XCTAssertEqual(alert.alertActions.count, 4)
+
+        XCTAssertEqual(alert.alertActions[0].title, "bitwarden.com")
+        try await alert.tapAction(title: "bitwarden.com")
+        XCTAssertEqual(subject.state.region, .unitedStates)
+
+        await subject.perform(.regionTapped)
+        alert = try XCTUnwrap(coordinator.alertShown.last)
+        XCTAssertEqual(alert.alertActions[1].title, "bitwarden.eu")
+        try await alert.tapAction(title: "bitwarden.eu")
+        XCTAssertEqual(subject.state.region, .europe)
+
+        await subject.perform(.regionTapped)
+        alert = try XCTUnwrap(coordinator.alertShown.last)
+        XCTAssertEqual(alert.alertActions[2].title, Localizations.selfHosted)
+        try await alert.tapAction(title: Localizations.selfHosted)
+        XCTAssertEqual(coordinator.routes.last, .selfHosted(currentRegion: .europe))
+    }
 
     /// `perform(_:)` with `.startRegistration` presents an alert when the email has already been taken.
     func test_perform_startRegistration_emailExists() async {

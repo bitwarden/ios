@@ -43,6 +43,11 @@ class LandingProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_
             services: services,
             state: state
         )
+        subject.regionHelper = RegionHelper(
+            coordinator: coordinator.asAnyCoordinator(),
+            delegate: subject,
+            stateService: stateService
+        )
     }
 
     override func tearDown() {
@@ -444,11 +449,11 @@ class LandingProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_
         XCTAssertTrue(subject.state.isContinueButtonEnabled)
     }
 
-    /// `receive(_:)` with `.regionPressed` navigates to the region selection screen.
-    func test_receive_regionPressed() async throws {
-        subject.receive(.regionPressed)
+    /// `perform(_:)` with `.regionPressed` navigates to the region selection screen.
+    func test_perform_regionPressed() async throws {
+        await subject.perform(.regionPressed)
 
-        let alert = try XCTUnwrap(coordinator.alertShown.last)
+        var alert = try XCTUnwrap(coordinator.alertShown.last)
         XCTAssertEqual(alert.title, Localizations.loggingInOn)
         XCTAssertNil(alert.message)
         XCTAssertEqual(alert.alertActions.count, 4)
@@ -457,10 +462,14 @@ class LandingProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_
         try await alert.tapAction(title: "bitwarden.com")
         XCTAssertEqual(subject.state.region, .unitedStates)
 
+        await subject.perform(.regionPressed)
+        alert = try XCTUnwrap(coordinator.alertShown.last)
         XCTAssertEqual(alert.alertActions[1].title, "bitwarden.eu")
         try await alert.tapAction(title: "bitwarden.eu")
         XCTAssertEqual(subject.state.region, .europe)
 
+        await subject.perform(.regionPressed)
+        alert = try XCTUnwrap(coordinator.alertShown.last)
         XCTAssertEqual(alert.alertActions[2].title, Localizations.selfHosted)
         try await alert.tapAction(title: Localizations.selfHosted)
         XCTAssertEqual(coordinator.routes.last, .selfHosted(currentRegion: .europe))
