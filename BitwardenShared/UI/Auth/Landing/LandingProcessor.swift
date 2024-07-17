@@ -53,7 +53,6 @@ class LandingProcessor: StateProcessor<LandingState, LandingAction, LandingEffec
     override func perform(_ effect: LandingEffect) async {
         switch effect {
         case .appeared:
-            await loadFeatureFlag()
             await loadRegion()
             await refreshProfileState()
         case .continuePressed:
@@ -95,7 +94,7 @@ class LandingProcessor: StateProcessor<LandingState, LandingAction, LandingEffec
     private func loadFeatureFlag() async {
         state.emailVerificationFeatureFlag = await services.configService.getFeatureFlag(
             FeatureFlag.emailVerification,
-            defaultValue: true,
+            defaultValue: false,
             forceRefresh: true
         )
     }
@@ -171,6 +170,10 @@ class LandingProcessor: StateProcessor<LandingState, LandingAction, LandingEffec
         guard !urls.isEmpty else { return }
         await services.environmentService.setPreAuthURLs(urls: urls)
         state.region = region
+        // After setting a new region feature flags need to be reloaded
+        Task {
+            await loadFeatureFlag()
+        }
     }
 
     /// Updates the value of `rememberedEmail` in the app settings store with the `email` value in `state`.

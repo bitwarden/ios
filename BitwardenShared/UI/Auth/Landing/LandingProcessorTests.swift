@@ -9,6 +9,7 @@ class LandingProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_
 
     var appSettingsStore: MockAppSettingsStore!
     var authRepository: MockAuthRepository!
+    var configService: MockConfigService!
     var coordinator: MockCoordinator<AuthRoute, AuthEvent>!
     var environmentService: MockEnvironmentService!
     var errorReporter: MockErrorReporter!
@@ -22,6 +23,7 @@ class LandingProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_
 
         appSettingsStore = MockAppSettingsStore()
         authRepository = MockAuthRepository()
+        configService = MockConfigService()
         coordinator = MockCoordinator<AuthRoute, AuthEvent>()
         environmentService = MockEnvironmentService()
         errorReporter = MockErrorReporter()
@@ -31,6 +33,7 @@ class LandingProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_
         let services = ServiceContainer.withMocks(
             appSettingsStore: appSettingsStore,
             authRepository: authRepository,
+            configService: configService,
             environmentService: environmentService,
             errorReporter: errorReporter,
             stateService: stateService
@@ -47,6 +50,7 @@ class LandingProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_
 
         authRepository = nil
         appSettingsStore = nil
+        configService = nil
         coordinator = nil
         environmentService = nil
         errorReporter = nil
@@ -55,6 +59,18 @@ class LandingProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_
     }
 
     // MARK: Tests
+
+    /// `didChangeRegion(urls:)` update URLs when they change on the StartRegistration modal
+    func test_didChangeRegion() async {
+        stateService.preAuthEnvironmentUrls = EnvironmentUrlData(base: .example)
+        subject.state.region = .unitedStates
+        await subject.didChangeRegion()
+        XCTAssertEqual(subject.state.region, .selfHosted)
+        XCTAssertEqual(
+            environmentService.setPreAuthEnvironmentUrlsData,
+            EnvironmentUrlData(base: .example)
+        )
+    }
 
     /// `didSaveEnvironment(urls:)` with URLs sets the region to self-hosted and sets the URLs in
     /// the environment.
@@ -112,6 +128,42 @@ class LandingProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_
         await subject.perform(.appeared)
         XCTAssertEqual(subject.state.region, .unitedStates)
         XCTAssertEqual(environmentService.setPreAuthEnvironmentUrlsData, .defaultUS)
+    }
+
+    /// `perform(.appeared)` with feature flag for .emailVerification set to true
+    func test_perform_appeared_loadsFeatureFlag_true() async {
+        configService.featureFlagsBool[.emailVerification] = true
+        subject.state.emailVerificationFeatureFlag = false
+
+        let task = Task {
+            await subject.perform(.appeared)
+        }
+        await task.value
+        XCTAssertTrue(subject.state.emailVerificationFeatureFlag)
+    }
+
+    /// `perform(.appeared)` with feature flag for .emailVerification set to false
+    func test_perform_appeared_loadsFeatureFlag_false() async {
+        configService.featureFlagsBool[.emailVerification] = false
+        subject.state.emailVerificationFeatureFlag = true
+
+        let task = Task {
+            await subject.perform(.appeared)
+        }
+        await task.value
+        XCTAssertFalse(subject.state.emailVerificationFeatureFlag)
+    }
+
+    /// `perform(.appeared)` with feature flag defaulting to false
+    func test_perform_appeared_loadsFeatureFlag_nil() async {
+        configService.featureFlagsBool[.emailVerification] = nil
+        subject.state.emailVerificationFeatureFlag = true
+
+        let task = Task {
+            await subject.perform(.appeared)
+        }
+        await task.value
+        XCTAssertFalse(subject.state.emailVerificationFeatureFlag)
     }
 
     /// `perform(.appeared)` with an active account and accounts should yield a profile switcher state.
