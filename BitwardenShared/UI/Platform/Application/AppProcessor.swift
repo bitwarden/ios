@@ -265,8 +265,8 @@ public class AppProcessor {
     /// Starts timer to send organization events regularly
     private func startEventTimer() {
         sendEventTimer = Timer.scheduledTimer(withTimeInterval: 5, repeats: true) { _ in
-            Task {
-                await self.services.eventService.upload()
+            Task { [weak self] in
+                await self?.services.eventService.upload()
             }
         }
         sendEventTimer?.tolerance = 10
