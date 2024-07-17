@@ -15,6 +15,7 @@ class Fido2UserVerificationMediatorTests: BitwardenTestCase {
     var authRepository: MockAuthRepository!
     var errorReporter: MockErrorReporter!
     var fido2UserVerificationMediatorDelegate: MockFido2UserVerificationMediatorDelegate!
+    var stateService: MockStateService!
     var subject: Fido2UserVerificationMediator!
     var userVerificationHelper: MockUserVerificationHelper!
     var userVerificationRunner: MockUserVerificationRunner!
@@ -27,10 +28,12 @@ class Fido2UserVerificationMediatorTests: BitwardenTestCase {
         fido2UserVerificationMediatorDelegate = MockFido2UserVerificationMediatorDelegate()
         authRepository = MockAuthRepository()
         errorReporter = MockErrorReporter()
+        stateService = MockStateService()
         userVerificationHelper = MockUserVerificationHelper()
         userVerificationRunner = MockUserVerificationRunner()
         subject = DefaultFido2UserVerificationMediator(
             authRepository: authRepository,
+            stateService: stateService,
             userVerificationHelper: userVerificationHelper,
             userVerificationRunner: userVerificationRunner
         )
@@ -43,6 +46,7 @@ class Fido2UserVerificationMediatorTests: BitwardenTestCase {
         authRepository = nil
         errorReporter = nil
         fido2UserVerificationMediatorDelegate = nil
+        stateService = nil
         userVerificationHelper = nil
         userVerificationRunner = nil
         subject = nil
@@ -72,6 +76,14 @@ class Fido2UserVerificationMediatorTests: BitwardenTestCase {
         try await checkUser_throws_when_reprompt_and_reprompt_throws(.discouraged)
         try await checkUser_throws_when_reprompt_and_reprompt_throws(.preferred)
         try await checkUser_throws_when_reprompt_and_reprompt_throws(.required)
+    }
+
+    /// `checkUser(userVerificationPreference:credential:)`  with each preference,
+    /// account has been unlocked in current transaction.
+    func test_checkUser_anyPreferenceUnlockedCurrentTransaction() async throws {
+        try await checkUser_verified_when_unlockedCurrentTransation(.discouraged)
+        try await checkUser_verified_when_unlockedCurrentTransation(.preferred)
+        try await checkUser_verified_when_unlockedCurrentTransation(.required)
     }
 
     /// `checkUser(userVerificationPreference:credential:)`  with preference discouraged,
@@ -171,13 +183,39 @@ class Fido2UserVerificationMediatorTests: BitwardenTestCase {
         )
     }
 
-    /// `isPreferredVerificationEnabled)`  verification
-    func test_isPreferredVerificationEnabled() async throws {
-        userVerificationHelper.canVerifyDeviceLocalAuthResult = true
-        XCTAssertTrue(subject.isPreferredVerificationEnabled())
+    /// `isPreferredVerificationEnabled)`  succeeds because user has been unlocked in the current transaction.
+    func test_isPreferredVerificationEnabled_successUnlockedCurrentSession() async throws {
+        stateService.getAccountHasBeenUnlockedInteractivelyResult = .success(true)
+        let result = await subject.isPreferredVerificationEnabled()
+        XCTAssertTrue(result)
+    }
 
+    /// `isPreferredVerificationEnabled)`  succeeds because user not has been unlocked in the current transaction
+    /// but can verify device local authentication
+    func test_isPreferredVerificationEnabled_successCanVerifyDeviceLocalAuth() async throws {
+        stateService.getAccountHasBeenUnlockedInteractivelyResult = .success(false)
+        userVerificationHelper.canVerifyDeviceLocalAuthResult = true
+        let result = await subject.isPreferredVerificationEnabled()
+        XCTAssertTrue(result)
+    }
+
+    /// `isPreferredVerificationEnabled)`  succeeds because throws error when checking if user has been unlocked
+    /// in the current transaction but can verify device local authentication
+    func test_isPreferredVerificationEnabled_successCanVerifyDeviceErrorUnlockedCurrentSession() async throws {
+        stateService.getAccountHasBeenUnlockedInteractivelyResult = .failure(BitwardenTestError.example)
+        userVerificationHelper.canVerifyDeviceLocalAuthResult = true
+        let result = await subject.isPreferredVerificationEnabled()
+        XCTAssertTrue(result)
+    }
+
+    /// `isPreferredVerificationEnabled)`  isn't enabled because user has not been unlocked in the current transaction
+    /// nor can verify device local authentication.
+    func test_isPreferredVerificationEnabled_unlockedCurrentTransaction() async throws {
         userVerificationHelper.canVerifyDeviceLocalAuthResult = false
-        XCTAssertFalse(subject.isPreferredVerificationEnabled())
+        stateService.getAccountHasBeenUnlockedInteractivelyResult = .success(false)
+
+        let result = await subject.isPreferredVerificationEnabled()
+        XCTAssertFalse(result)
     }
 
     // MARK: Private
@@ -230,6 +268,23 @@ class Fido2UserVerificationMediatorTests: BitwardenTestCase {
                 credential: cipher
             )
         }
+    }
+
+    private func checkUser_verified_when_unlockedCurrentTransation(
+        _ userVerificationPreference: BitwardenSdk.Verification
+    ) async throws {
+        stateService.getAccountHasBeenUnlockedInteractivelyResult = .success(true)
+        let cipher = CipherView.fixture()
+        let result = try await subject.checkUser(
+            userVerificationPreference: userVerificationPreference,
+            credential: cipher
+        )
+
+        XCTAssertEqual(
+            result,
+            CheckUserResult(userPresent: true, userVerified: true),
+            "Failed for preference \(userVerificationPreference)"
+        )
     }
 
     private func setup_checkUser_onVerifyFunctions() {

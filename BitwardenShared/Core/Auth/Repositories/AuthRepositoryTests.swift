@@ -922,6 +922,7 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         await assertAsyncDoesNotThrow {
             try await subject.unlockVaultWithNeverlockKey()
         }
+        XCTAssertFalse(vaultTimeoutService.unlockVaultHadUserInteraction)
     }
 
     /// `test_unlockVaultWithDeviceKey` attempts to unlock the vault using the device key from the keychain.
@@ -947,6 +948,7 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         await assertAsyncDoesNotThrow {
             try await subject.unlockVaultWithDeviceKey()
         }
+        XCTAssertTrue(vaultTimeoutService.unlockVaultHadUserInteraction)
     }
 
     /// `test_unlockVaultWithDeviceKey` attempts to unlock the vault using the device key from the keychain.
@@ -1182,6 +1184,7 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         XCTAssertEqual(authService.hashPasswordPassword, "password")
         XCTAssertEqual(stateService.masterPasswordHashes["1"], "hashed")
         XCTAssertFalse(biometricsRepository.didConfigureBiometricIntegrity)
+        XCTAssertTrue(vaultTimeoutService.unlockVaultHadUserInteraction)
     }
 
     /// `unlockVaultWithPassword(password:)` configures biometric integrity refreshes.
@@ -1309,6 +1312,7 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         await assertAsyncDoesNotThrow {
             try await subject.unlockVaultWithBiometrics()
         }
+        XCTAssertTrue(vaultTimeoutService.unlockVaultHadUserInteraction)
     }
 
     /// `logout` throws an error with no accounts.
@@ -1381,6 +1385,7 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
                 )
             )
         )
+        XCTAssertTrue(vaultTimeoutService.unlockVaultHadUserInteraction)
     }
 
     /// `unlockVaultFromLoginWithDevice()` unlocks the vault using the key returned by an approved
@@ -1409,6 +1414,7 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
                 )
             )
         )
+        XCTAssertTrue(vaultTimeoutService.unlockVaultHadUserInteraction)
     }
 
     /// `unlockVaultWithPIN(_:)` unlocks the vault with the user's PIN.
@@ -1437,6 +1443,7 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
             )
         )
         XCTAssertFalse(vaultTimeoutService.isLocked(userId: "1"))
+        XCTAssertTrue(vaultTimeoutService.unlockVaultHadUserInteraction)
     }
 
     /// `unlockVaultWithPIN(_:)` throws an error if there's no pin.

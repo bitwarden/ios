@@ -532,6 +532,7 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
         let fido2UserInterfaceHelper = DefaultFido2UserInterfaceHelper(
             fido2UserVerificationMediator: DefaultFido2UserVerificationMediator(
                 authRepository: authRepository,
+                stateService: stateService,
                 userVerificationHelper: DefaultUserVerificationHelper(
                     authRepository: authRepository,
                     errorReporter: errorReporter,

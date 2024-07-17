@@ -118,7 +118,7 @@ class DefaultFido2UserInterfaceHelper: Fido2UserInterfaceHelper {
     }
 
     func isVerificationEnabled() async -> Bool {
-        fido2UserVerificationMediator.isPreferredVerificationEnabled()
+        await fido2UserVerificationMediator.isPreferredVerificationEnabled()
     }
 
     func pickedCredentialForCreation(result: Result<CheckUserAndPickCredentialForCreationResult, Error>) {

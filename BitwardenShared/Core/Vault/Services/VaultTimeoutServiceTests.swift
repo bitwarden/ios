@@ -148,7 +148,7 @@ final class VaultTimeoutServiceTests: BitwardenTestCase {
         let account = Account.fixtureAccountLogin()
         let userId = account.profile.userId
 
-        try await subject.unlockVault(userId: userId)
+        try await subject.unlockVault(userId: userId, hadUserInteraction: false)
         XCTAssertFalse(subject.isLocked(userId: userId))
 
         await subject.lockVault(userId: userId)
@@ -160,7 +160,7 @@ final class VaultTimeoutServiceTests: BitwardenTestCase {
         let userId = "1"
         let user2Id = "2"
 
-        try await subject.unlockVault(userId: user2Id)
+        try await subject.unlockVault(userId: user2Id, hadUserInteraction: false)
 
         XCTAssertTrue(subject.isLocked(userId: userId))
         XCTAssertFalse(subject.isLocked(userId: user2Id))
@@ -176,8 +176,8 @@ final class VaultTimeoutServiceTests: BitwardenTestCase {
         let userId = "1"
         let user2Id = "2"
 
-        try await subject.unlockVault(userId: userId)
-        try await subject.unlockVault(userId: user2Id)
+        try await subject.unlockVault(userId: userId, hadUserInteraction: false)
+        try await subject.unlockVault(userId: user2Id, hadUserInteraction: false)
 
         await subject.lockVault(userId: user2Id)
 
@@ -189,7 +189,7 @@ final class VaultTimeoutServiceTests: BitwardenTestCase {
     func test_remove_unlocked() async throws {
         let userId = "1"
         clientService.userClientArray.updateValue(MockClient(), forKey: userId)
-        try await subject.unlockVault(userId: userId)
+        try await subject.unlockVault(userId: userId, hadUserInteraction: false)
 
         XCTAssertFalse(subject.isLocked(userId: userId))
         XCTAssertNotNil(clientService.userClientArray[userId])
@@ -213,7 +213,7 @@ final class VaultTimeoutServiceTests: BitwardenTestCase {
         let userId = "1"
         clientService.userClientArray.updateValue(MockClient(), forKey: userId)
 
-        try await subject.unlockVault(userId: userId)
+        try await subject.unlockVault(userId: userId, hadUserInteraction: false)
         XCTAssertFalse(subject.isLocked(userId: userId))
         XCTAssertNotNil(clientService.userClientArray[userId])
 
@@ -269,7 +269,7 @@ final class VaultTimeoutServiceTests: BitwardenTestCase {
         await subject.lockVault(userId: userId)
         XCTAssertTrue(subject.isLocked(userId: userId))
 
-        try await subject.unlockVault(userId: nil)
+        try await subject.unlockVault(userId: nil, hadUserInteraction: false)
         XCTAssertFalse(subject.isLocked(userId: userId))
     }
 
@@ -281,21 +281,33 @@ final class VaultTimeoutServiceTests: BitwardenTestCase {
         stateService.activeAccount = nil
         stateService.accounts = []
 
-        try await subject.unlockVault(userId: nil)
+        try await subject.unlockVault(userId: nil, hadUserInteraction: false)
 
         XCTAssertTrue(subject.isLocked(userId: userId))
     }
 
-    /// `unlockVault(userId:)` preserves the locked status of a locked account.
+    /// `unlockVault(userId:hadUserInteraction:)` preserves the locked status of a locked account.
     func test_unlock_locked() async throws {
         let userId = "1"
         let user2Id = "2"
 
         XCTAssertTrue(subject.isLocked(userId: userId))
 
-        try await subject.unlockVault(userId: user2Id)
+        try await subject.unlockVault(userId: user2Id, hadUserInteraction: true)
         XCTAssertTrue(subject.isLocked(userId: userId))
         XCTAssertFalse(subject.isLocked(userId: user2Id))
+        XCTAssertTrue(stateService.setAccountHasBeenUnlockedInteractivelyHasBeenCalled)
+    }
+
+    /// `unlockVault(userId:hadUserInteraction:)` throws when setting account has been unlocked in current session.
+    func test_unlock_locked_throws() async throws {
+        let user2Id = "2"
+
+        stateService.setAccountHasBeenUnlockedInteractivelyResult = .failure(BitwardenTestError.example)
+
+        await assertAsyncThrows(error: BitwardenTestError.example) {
+            try await subject.unlockVault(userId: user2Id, hadUserInteraction: true)
+        }
     }
 
     /// `vaultLockStatusPublisher()` publishes the active user ID and whether their vault is locked.
@@ -308,9 +320,9 @@ final class VaultTimeoutServiceTests: BitwardenTestCase {
         defer { publisher.cancel() }
 
         stateService.activeIdSubject.send("1")
-        try await subject.unlockVault(userId: "1")
+        try await subject.unlockVault(userId: "1", hadUserInteraction: false)
         stateService.activeIdSubject.send("2")
-        try await subject.unlockVault(userId: "2")
+        try await subject.unlockVault(userId: "2", hadUserInteraction: false)
         await subject.lockVault(userId: "2")
         stateService.activeIdSubject.send(nil)
 
