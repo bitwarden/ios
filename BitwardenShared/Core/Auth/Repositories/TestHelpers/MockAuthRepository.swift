@@ -76,6 +76,8 @@ class MockAuthRepository: AuthRepository { // swiftlint:disable:this type_body_l
     var validatePasswordPasswords = [String]()
     var validatePasswordResult: Result<Bool, Error> = .success(true)
 
+    var validatePinResult: Bool = true
+
     var vaultTimeout = [String: SessionTimeoutValue]()
 
     func allowBioMetricUnlock(_ enabled: Bool) async throws {
@@ -301,6 +303,10 @@ class MockAuthRepository: AuthRepository { // swiftlint:disable:this type_body_l
     func validatePassword(_ password: String) async throws -> Bool {
         validatePasswordPasswords.append(password)
         return try validatePasswordResult.get()
+    }
+
+    func validatePin(pin: String) async -> Bool {
+        validatePinResult
     }
 
     func verifyOtp(_ otp: String) async throws {

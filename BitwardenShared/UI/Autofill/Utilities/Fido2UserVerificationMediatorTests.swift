@@ -208,16 +208,12 @@ class Fido2UserVerificationMediatorTests: BitwardenTestCase {
         userVerificationHelper.verifyMasterPasswordResult = .success(.notVerified)
 
         let cipher = CipherView.fixture(reprompt: .password)
-        let result = try await subject.checkUser(
-            userVerificationPreference: userVerificationPreference,
-            credential: cipher
-        )
-
-        XCTAssertEqual(
-            result,
-            CheckUserResult(userPresent: true, userVerified: false),
-            "Failed for preference \(userVerificationPreference)"
-        )
+        await assertAsyncThrows(error: Fido2UserVerificationError.masterPasswordRepromptFailed) {
+            _ = try await subject.checkUser(
+                userVerificationPreference: userVerificationPreference,
+                credential: cipher
+            )
+        }
     }
 
     private func checkUser_throws_when_reprompt_and_reprompt_throws(

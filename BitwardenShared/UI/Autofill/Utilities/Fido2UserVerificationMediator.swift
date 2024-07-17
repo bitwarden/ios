@@ -22,6 +22,8 @@ protocol Fido2UserVerificationMediator: AnyObject {
     ///   - userVerificationPreference: The Fido2 `BitwardenSdk.Verification` from the RP.
     ///   - credential: The selected cipher from which user needs to be verified.
     /// - Returns: The result of the verification and whether the user is present, in this case it's always present.
+    /// - Throws: Particularly `Fido2UserVerificationError.masterPasswordRepromptFailed` when
+    /// master password reprompt was performed and failed.
     func checkUser(
         userVerificationPreference: BitwardenSdk.Verification,
         credential: BitwardenSdk.CipherView
@@ -94,7 +96,7 @@ extension DefaultFido2UserVerificationMediator: Fido2UserVerificationMediator {
                 verifyFunction: userVerificationHelper.verifyMasterPassword
             )
             guard mpVerificationResult == .verified else {
-                return CheckUserResult(userPresent: true, userVerified: false)
+                throw Fido2UserVerificationError.masterPasswordRepromptFailed
             }
             return CheckUserResult(userPresent: true, userVerified: true)
         }

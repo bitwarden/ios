@@ -7,6 +7,7 @@ class MockFido2UserInterfaceHelper: Fido2UserInterfaceHelper {
     var checkUserResult: Result<BitwardenSdk.CheckUserResult, Error> = .success(
         BitwardenSdk.CheckUserResult(userPresent: true, userVerified: true)
     )
+    var fido2CreationOptions: BitwardenSdk.CheckUserOptions?
     var fido2CredentialNewView: BitwardenSdk.Fido2CredentialNewView?
     var pickCredentialForAuthenticationResult: Result<BitwardenSdk.CipherViewWrapper, Error> = .success(
         BitwardenSdk.CipherViewWrapper(cipher: .fixture())
@@ -29,6 +30,14 @@ class MockFido2UserInterfaceHelper: Fido2UserInterfaceHelper {
     func checkUser(
         options: BitwardenSdk.CheckUserOptions,
         hint: BitwardenSdk.UiHint
+    ) async throws -> BitwardenSdk.CheckUserResult {
+        try checkUserResult.get()
+    }
+
+    func checkUser(
+        userVerificationPreference: BitwardenSdk.Verification,
+        credential: BitwardenSdk.CipherView,
+        shouldThrowEnforcingRequiredVerification: Bool
     ) async throws -> BitwardenSdk.CheckUserResult {
         try checkUserResult.get()
     }
