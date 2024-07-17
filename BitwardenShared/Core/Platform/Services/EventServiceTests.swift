@@ -40,7 +40,9 @@ class EventServiceTests: XCTestCase {
         super.tearDown()
 
         cipherService = nil
+        client = nil
         errorReporter = nil
+        eventAPIService = nil
         organizationService = nil
         stateService = nil
         subject = nil
