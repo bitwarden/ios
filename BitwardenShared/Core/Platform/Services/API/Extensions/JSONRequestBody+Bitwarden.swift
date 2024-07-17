@@ -1,9 +1,9 @@
 import Foundation
 import Networking
 
-extension JSONRequestBody {
+public extension JSONRequestBody {
     /// The encoder used by default to encode JSON request bodies for the API.
-    public static var encoder: JSONEncoder { .defaultEncoder }
+    static var encoder: JSONEncoder { .defaultEncoder }
 }
 
 // MARK: - Array + RequestBody
