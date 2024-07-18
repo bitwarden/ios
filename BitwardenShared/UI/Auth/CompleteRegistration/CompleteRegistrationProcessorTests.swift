@@ -15,6 +15,7 @@ class CompleteRegistrationProcessorTests: BitwardenTestCase {
     var client: MockHTTPClient!
     var clientAuth: MockClientAuth!
     var coordinator: MockCoordinator<AuthRoute, AuthEvent>!
+    var environmentService: MockEnvironmentService!
     var errorReporter: MockErrorReporter!
     var subject: CompleteRegistrationProcessor!
 
@@ -27,6 +28,7 @@ class CompleteRegistrationProcessorTests: BitwardenTestCase {
         client = MockHTTPClient()
         clientAuth = MockClientAuth()
         coordinator = MockCoordinator<AuthRoute, AuthEvent>()
+        environmentService = MockEnvironmentService()
         errorReporter = MockErrorReporter()
         subject = CompleteRegistrationProcessor(
             coordinator: coordinator.asAnyCoordinator(),
@@ -34,6 +36,7 @@ class CompleteRegistrationProcessorTests: BitwardenTestCase {
                 authRepository: authRepository,
                 captchaService: captchaService,
                 clientService: MockClientService(auth: clientAuth),
+                environmentService: environmentService,
                 errorReporter: errorReporter,
                 httpClient: client
             ),
@@ -56,6 +59,47 @@ class CompleteRegistrationProcessorTests: BitwardenTestCase {
     }
 
     // MARK: Tests
+
+    /// `perform(.appeared)` with EU region in state.
+    func test_perform_appeared_setRegion_europe() async {
+        subject.state.region = .europe
+        await subject.perform(.appeared)
+        XCTAssertEqual(subject.state.region, .europe)
+        XCTAssertEqual(environmentService.setPreAuthEnvironmentUrlsData, .defaultEU)
+    }
+
+    /// `perform(.appeared)` with nil region in state.
+    func test_perform_appeared_setRegion_return() async {
+        subject.state.region = nil
+        await subject.perform(.appeared)
+        XCTAssertEqual(subject.state.region, nil)
+        XCTAssertEqual(environmentService.setPreAuthEnvironmentUrlsData, nil)
+    }
+
+    /// `perform(.appeared)` verify user email show toast.
+    func test_perform_appeared_verifyuseremail_toast() async {
+        subject.state.fromEmail = true
+        await subject.perform(.appeared)
+        XCTAssertEqual(subject.state.toast?.text, Localizations.emailVerified)
+    }
+
+    /// `perform(.appeared)` verify user email show no toast.
+    func test_perform_appeared_verifyuseremail_notoast() async {
+        subject.state.fromEmail = false
+        await subject.perform(.appeared)
+        XCTAssertNil(subject.state.toast)
+    }
+
+    /// `perform(.appeared)` verify user email hide loading.
+    func test_perform_appeared_verifyuseremail_hideloading() async {
+        coordinator.isLoadingOverlayShowing = true
+        subject.state.fromEmail = true
+        await subject.perform(.appeared)
+
+        XCTAssertFalse(coordinator.isLoadingOverlayShowing)
+        XCTAssertNotNil(coordinator.loadingOverlaysShown)
+        XCTAssertEqual(subject.state.toast?.text, Localizations.emailVerified)
+    }
 
     /// `perform(_:)` with `.completeRegistration` will still make the `CompleteRegistrationRequest` when the HIBP
     /// network request fails.
@@ -535,6 +579,12 @@ class CompleteRegistrationProcessorTests: BitwardenTestCase {
 
         subject.receive(.togglePasswordVisibility(false))
         XCTAssertFalse(subject.state.arePasswordsVisible)
+    }
+
+    /// `receive(_:)` with `.showToast` show toast.
+    func test_receive_showToast() {
+        subject.receive(.toastShown(Toast(text: "example")))
+        XCTAssertEqual(subject.state.toast?.text, "example")
     }
     // swiftlint:disable:next file_length
 }
