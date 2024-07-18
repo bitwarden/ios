@@ -63,6 +63,7 @@ public enum UI {
         UITabBar.appearance().standardAppearance = tabBarAppearance
         UITabBar.appearance().tintColor = Asset.Colors.primaryBitwarden.color
 
+        UIBarButtonItem.appearance(whenContainedInInstancesOf: [UISearchBar.self]).title = Localizations.cancel
         UISearchBar.appearance().tintColor = Asset.Colors.primaryBitwarden.color
         // Explicitly tint the image so that it does not assume the tint color assigned to the entire search bar.
         let image = Asset.Images.cancelRound.image
