@@ -286,6 +286,7 @@ class AppProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_body
 
         let passkeyIdentity = ASPasskeyCredentialIdentity.fixture()
         let passkeyRequest = ASPasskeyCredentialRequest.fixture(credentialIdentity: passkeyIdentity)
+        let expectedAssertionResult = GetAssertionResult.fixture()
 
         clientService.mockPlatform.fido2Mock
             .clientFido2AuthenticatorMock
