@@ -13,6 +13,9 @@ public class AppProcessor {
     /// The root module to use to create sub-coordinators.
     let appModule: AppModule
 
+    /// The background task ID for the background process to send events on backgrounding.
+    var backgroundTaskId: UIBackgroundTaskIdentifier?
+
     /// The root coordinator of the app.
     var coordinator: AnyCoordinator<AppRoute, AppEvent>?
 
@@ -274,8 +277,25 @@ public class AppProcessor {
 
     /// Stops the timer for organization events
     private func stopEventTimer() {
+        if let taskId = backgroundTaskId {
+            services.application?.endBackgroundTask(taskId)
+            backgroundTaskId = nil
+        }
+        backgroundTaskId = services.application?.beginBackgroundTask(
+            withName: "SendEventBackgroundTask",
+            expirationHandler: { [weak self] in
+                if let backgroundTaskId = self?.backgroundTaskId {
+                    self?.services.application?.endBackgroundTask(backgroundTaskId)
+                    self?.backgroundTaskId = nil
+                }
+            }
+        )
         sendEventTimer?.fire()
         sendEventTimer?.invalidate()
+        if let taskId = backgroundTaskId {
+            services.application?.endBackgroundTask(taskId)
+            backgroundTaskId = nil
+        }
     }
 }
 
