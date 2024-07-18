@@ -1557,6 +1557,119 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         XCTAssertFalse(isValid)
     }
 
+    /// `validatePin(_:)` returns `true` if the pin is valid when initializing the user crypto.
+    func test_validatePin() async throws {
+        let account = Account.fixture()
+        stateService.activeAccount = account
+
+        stateService.accountEncryptionKeys = [
+            "1": AccountEncryptionKeys(encryptedPrivateKey: "PRIVATE_KEY", encryptedUserKey: "USER_KEY"),
+        ]
+
+        stateService.encryptedPinByUserId[account.profile.userId] = "123"
+        stateService.pinProtectedUserKeyValue[account.profile.userId] = "123"
+
+        let isPinValid = await subject.validatePin(pin: "123")
+
+        XCTAssertEqual(
+            clientService.mockCrypto.initializeUserCryptoRequest,
+            InitUserCryptoRequest(
+                kdfParams: .pbkdf2(iterations: UInt32(Constants.pbkdf2Iterations)),
+                email: "user@bitwarden.com",
+                privateKey: "PRIVATE_KEY",
+                method: .pin(pin: "123", pinProtectedUserKey: "123")
+            )
+        )
+        XCTAssertTrue(isPinValid)
+    }
+
+    /// `validatePin(_:)` returns `false` if the there is no active account.
+    func test_validatePin_noActiveAccount() async throws {
+        let account = Account.fixture()
+
+        stateService.accountEncryptionKeys = [
+            "1": AccountEncryptionKeys(encryptedPrivateKey: "PRIVATE_KEY", encryptedUserKey: "USER_KEY"),
+        ]
+
+        stateService.encryptedPinByUserId[account.profile.userId] = "123"
+
+        let isPinValid = await subject.validatePin(pin: "123")
+
+        XCTAssertNotEqual(
+            clientService.mockCrypto.initializeUserCryptoRequest,
+            InitUserCryptoRequest(
+                kdfParams: .pbkdf2(iterations: UInt32(Constants.pbkdf2Iterations)),
+                email: "user@bitwarden.com",
+                privateKey: "PRIVATE_KEY",
+                method: .pin(pin: "123", pinProtectedUserKey: "123")
+            )
+        )
+        XCTAssertFalse(isPinValid)
+    }
+
+    /// `validatePin(_:)` returns `false` if the there is no pin protected user key.
+    func test_validatePin_noPinProtectedUserKey() async throws {
+        let account = Account.fixture()
+        stateService.activeAccount = account
+
+        stateService.accountEncryptionKeys = [
+            "1": AccountEncryptionKeys(encryptedPrivateKey: "PRIVATE_KEY", encryptedUserKey: "USER_KEY"),
+        ]
+
+        stateService.encryptedPinByUserId[account.profile.userId] = "123"
+
+        let isPinValid = await subject.validatePin(pin: "123")
+
+        XCTAssertNotEqual(
+            clientService.mockCrypto.initializeUserCryptoRequest,
+            InitUserCryptoRequest(
+                kdfParams: .pbkdf2(iterations: UInt32(Constants.pbkdf2Iterations)),
+                email: "user@bitwarden.com",
+                privateKey: "PRIVATE_KEY",
+                method: .pin(pin: "123", pinProtectedUserKey: "123")
+            )
+        )
+        XCTAssertFalse(isPinValid)
+    }
+
+    /// `validatePin(_:)` returns `false` if initializing user crypto throws.
+    func test_validatePin_initializeUserCryptoThrows() async throws {
+        let account = Account.fixture()
+        stateService.activeAccount = account
+
+        stateService.accountEncryptionKeys = [
+            "1": AccountEncryptionKeys(encryptedPrivateKey: "PRIVATE_KEY", encryptedUserKey: "USER_KEY"),
+        ]
+
+        stateService.encryptedPinByUserId[account.profile.userId] = "123"
+        stateService.pinProtectedUserKeyValue[account.profile.userId] = "123"
+
+        clientService.mockCrypto.initializeUserCryptoResult = .failure(BitwardenTestError.example)
+
+        let isPinValid = await subject.validatePin(pin: "123")
+
+        XCTAssertFalse(isPinValid)
+    }
+
+    /// `validatePin(_:)` returns `false` if initializing org crypto throws.
+    func test_validatePin_initializeOrgCryptoThrows() async throws {
+        let account = Account.fixture()
+        stateService.activeAccount = account
+
+        stateService.accountEncryptionKeys = [
+            "1": AccountEncryptionKeys(encryptedPrivateKey: "PRIVATE_KEY", encryptedUserKey: "USER_KEY"),
+        ]
+
+        stateService.encryptedPinByUserId[account.profile.userId] = "123"
+        stateService.pinProtectedUserKeyValue[account.profile.userId] = "123"
+
+        organizationService.initializeOrganizationCryptoError = BitwardenTestError.example
+
+        let isPinValid = await subject.validatePin(pin: "123")
+
+        XCTAssertFalse(isPinValid)
+    }
+
     /// `verifyOtp(_:)` makes an API request to verify an OTP code.
     func test_verifyOtp() async throws {
         client.result = .httpSuccess(testData: .emptyResponse)
