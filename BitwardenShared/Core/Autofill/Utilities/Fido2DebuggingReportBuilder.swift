@@ -1,3 +1,5 @@
+#if DEBUG
+
 import BitwardenSdk
 import Foundation
 
@@ -11,20 +13,16 @@ public struct Fido2DebuggingReport {
 }
 
 /// Fido2 builder for debugging report.
-public struct Fido2DebugginReportBuilder {
+public struct Fido2DebuggingReportBuilder {
     /// Builder for Fido2 debugging report.
-    public static var builder = Fido2DebugginReportBuilder()
+    public static var builder = Fido2DebuggingReportBuilder()
 
     var report = Fido2DebuggingReport()
 
     /// Gets the report for Fido2 debugging.
     /// - Returns: Fido2 report.
     public func getReport() -> Fido2DebuggingReport? {
-        #if DEBUG
         report
-        #else
-        nil
-        #endif
     }
 
     mutating func withAllCredentialsResult(_ result: Result<[BitwardenSdk.CipherView], Error>) {
@@ -47,3 +45,5 @@ public struct Fido2DebugginReportBuilder {
         report.saveCredentialCipher = credential
     }
 }
+
+#endif
