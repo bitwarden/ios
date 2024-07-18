@@ -6,10 +6,16 @@ public protocol Fido2AppExtensionDelegate: AppExtensionDelegate {
     /// The mode in which the autofill extension is running.
     var extensionMode: AutofillExtensionMode { get }
 
+    /// Whether the current flow is being executed with user interaction.
+    var flowWithUserInteraction: Bool { get }
+
     /// Completes the registration request with a Fido2 credential
     /// - Parameter asPasskeyRegistrationCredential: The passkey credential to be used to complete the registration.
     @available(iOSApplicationExtension 17.0, *)
     func completeRegistrationRequest(asPasskeyRegistrationCredential: ASPasskeyRegistrationCredential)
+
+    /// Marks that user interaction is required.
+    func setUserInteractionRequired()
 }
 
 extension Fido2AppExtensionDelegate {
