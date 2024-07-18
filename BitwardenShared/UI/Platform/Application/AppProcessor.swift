@@ -269,7 +269,7 @@ public class AppProcessor {
     private func startEventTimer() {
         sendEventTimer = Timer.scheduledTimer(withTimeInterval: 5 * 60, repeats: true) { _ in
             Task { [weak self] in
-                await self?.services.eventService.upload()
+                await self?.uploadEvents()
             }
         }
         sendEventTimer?.tolerance = 10
@@ -277,6 +277,11 @@ public class AppProcessor {
 
     /// Stops the timer for organization events
     private func stopEventTimer() {
+        sendEventTimer?.fire()
+        sendEventTimer?.invalidate()
+    }
+
+    private func uploadEvents() async {
         if let taskId = backgroundTaskId {
             services.application?.endBackgroundTask(taskId)
             backgroundTaskId = nil
@@ -290,8 +295,7 @@ public class AppProcessor {
                 }
             }
         )
-        sendEventTimer?.fire()
-        sendEventTimer?.invalidate()
+        await services.eventService.upload()
         if let taskId = backgroundTaskId {
             services.application?.endBackgroundTask(taskId)
             backgroundTaskId = nil
