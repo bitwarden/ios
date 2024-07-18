@@ -105,6 +105,8 @@ private extension Cipher {
     }
 }
 
+#if DEBUG
+
 /// A wrapper of a `Fido2CredentialStore` which adds debugging info for the `Fido2DebugginReportBuilder`.
 class DebuggingFido2CredentialStoreService: Fido2CredentialStore {
     let fido2CredentialStore: Fido2CredentialStore
@@ -116,10 +118,10 @@ class DebuggingFido2CredentialStoreService: Fido2CredentialStore {
     func findCredentials(ids: [Data]?, ripId: String) async throws -> [BitwardenSdk.CipherView] {
         do {
             let result = try await fido2CredentialStore.findCredentials(ids: ids, ripId: ripId)
-            Fido2DebugginReportBuilder.builder.withFindCredentialsResult(.success(result))
+            Fido2DebuggingReportBuilder.builder.withFindCredentialsResult(.success(result))
             return result
         } catch {
-            Fido2DebugginReportBuilder.builder.withFindCredentialsResult(.failure(error))
+            Fido2DebuggingReportBuilder.builder.withFindCredentialsResult(.failure(error))
             throw error
         }
     }
@@ -127,10 +129,10 @@ class DebuggingFido2CredentialStoreService: Fido2CredentialStore {
     func allCredentials() async throws -> [BitwardenSdk.CipherView] {
         do {
             let result = try await fido2CredentialStore.allCredentials()
-            Fido2DebugginReportBuilder.builder.withAllCredentialsResult(.success(result))
+            Fido2DebuggingReportBuilder.builder.withAllCredentialsResult(.success(result))
             return result
         } catch {
-            Fido2DebugginReportBuilder.builder.withFindCredentialsResult(.failure(error))
+            Fido2DebuggingReportBuilder.builder.withFindCredentialsResult(.failure(error))
             throw error
         }
     }
@@ -138,10 +140,12 @@ class DebuggingFido2CredentialStoreService: Fido2CredentialStore {
     func saveCredential(cred: BitwardenSdk.Cipher) async throws {
         do {
             try await fido2CredentialStore.saveCredential(cred: cred)
-            Fido2DebugginReportBuilder.builder.withSaveCredentialCipher(.success(cred))
+            Fido2DebuggingReportBuilder.builder.withSaveCredentialCipher(.success(cred))
         } catch {
-            Fido2DebugginReportBuilder.builder.withFindCredentialsResult(.failure(error))
+            Fido2DebuggingReportBuilder.builder.withFindCredentialsResult(.failure(error))
             throw error
         }
     }
 }
+
+#endif

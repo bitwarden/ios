@@ -381,7 +381,7 @@ public extension AppProcessor {
         )
 
         #if DEBUG
-        Fido2DebugginReportBuilder.builder.withGetAssertionRequest(request)
+        Fido2DebuggingReportBuilder.builder.withGetAssertionRequest(request)
         #endif
 
         services.fido2UserInterfaceHelper.setupDelegate(fido2UserVerificationMediatorDelegate: self)
@@ -395,7 +395,7 @@ public extension AppProcessor {
                 .getAssertion(request: request)
 
             #if DEBUG
-            Fido2DebugginReportBuilder.builder.withGetAssertionResult(.success(assertionResult))
+            Fido2DebuggingReportBuilder.builder.withGetAssertionResult(.success(assertionResult))
             #endif
 
             return ASPasskeyAssertionCredential(
@@ -408,7 +408,7 @@ public extension AppProcessor {
             )
         } catch {
             #if DEBUG
-            Fido2DebugginReportBuilder.builder.withGetAssertionResult(.failure(error))
+            Fido2DebuggingReportBuilder.builder.withGetAssertionResult(.failure(error))
             #endif
             throw error
         }

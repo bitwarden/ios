@@ -37,6 +37,7 @@ class Fido2CredentialStoreServiceTests: BitwardenTestCase { // swiftlint:disable
 
         cipherService = nil
         clientService = nil
+        errorReporter = nil
         subject = nil
         syncService = nil
     }
@@ -362,7 +363,7 @@ class DebuggingFido2CredentialStoreServiceTests: BitwardenTestCase { // swiftlin
         let result = try await subject.allCredentials()
         XCTAssert(result.count == 1)
         XCTAssertFalse(
-            (try? Fido2DebugginReportBuilder.builder
+            (try? Fido2DebuggingReportBuilder.builder
                 .getReport()?.allCredentialsResult?.get().isEmpty) ?? true
         )
     }
@@ -373,7 +374,7 @@ class DebuggingFido2CredentialStoreServiceTests: BitwardenTestCase { // swiftlin
         await assertAsyncThrows(error: BitwardenTestError.example) {
             _ = try await subject.allCredentials()
         }
-        XCTAssertNil(try? Fido2DebugginReportBuilder.builder.getReport()?
+        XCTAssertNil(try? Fido2DebuggingReportBuilder.builder.getReport()?
             .allCredentialsResult?.get()
         )
     }
@@ -384,7 +385,7 @@ class DebuggingFido2CredentialStoreServiceTests: BitwardenTestCase { // swiftlin
         let result = try await subject.findCredentials(ids: nil, ripId: "something")
         XCTAssert(result.count == 1)
         XCTAssertFalse(
-            (try? Fido2DebugginReportBuilder.builder
+            (try? Fido2DebuggingReportBuilder.builder
                 .getReport()?.findCredentialsResult?.get().isEmpty) ?? true
         )
     }
@@ -395,7 +396,7 @@ class DebuggingFido2CredentialStoreServiceTests: BitwardenTestCase { // swiftlin
         await assertAsyncThrows(error: BitwardenTestError.example) {
             _ = try await subject.findCredentials(ids: nil, ripId: "something")
         }
-        XCTAssertNil(try? Fido2DebugginReportBuilder.builder.getReport()?
+        XCTAssertNil(try? Fido2DebuggingReportBuilder.builder.getReport()?
             .findCredentialsResult?.get()
         )
     }
@@ -405,7 +406,7 @@ class DebuggingFido2CredentialStoreServiceTests: BitwardenTestCase { // swiftlin
         try await subject.saveCredential(cred: .fixture(id: "1"))
         XCTAssertTrue(fido2CredentialStore.saveCredentialCalled)
         XCTAssertTrue(
-            (try? Fido2DebugginReportBuilder.builder
+            (try? Fido2DebuggingReportBuilder.builder
                 .getReport()?.saveCredentialCipher?.get().id) == "1"
         )
     }
@@ -416,7 +417,7 @@ class DebuggingFido2CredentialStoreServiceTests: BitwardenTestCase { // swiftlin
         await assertAsyncThrows(error: BitwardenTestError.example) {
             try await subject.saveCredential(cred: .fixture(id: "1"))
         }
-        XCTAssertNil(try? Fido2DebugginReportBuilder.builder.getReport()?
+        XCTAssertNil(try? Fido2DebuggingReportBuilder.builder.getReport()?
             .saveCredentialCipher?.get()
         )
     }
