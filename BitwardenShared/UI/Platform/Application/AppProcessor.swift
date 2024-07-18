@@ -281,6 +281,11 @@ public class AppProcessor {
         sendEventTimer?.invalidate()
     }
 
+    /// Sends organization events to the server. Also sets up that regular upload
+    /// as a Background Task so that it won't be canceled when the app is going
+    /// to the background. Per https://forums.developer.apple.com/forums/thread/85066
+    /// calling this for every upload (not just ones where we're backgrounding)
+    /// is fine.
     private func uploadEvents() async {
         if let taskId = backgroundTaskId {
             services.application?.endBackgroundTask(taskId)
