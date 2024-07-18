@@ -227,6 +227,7 @@ final class VaultCoordinator: Coordinator, HasStackNavigator {
         )
         let viewController = UIHostingController(rootView: view)
         let searchController = UISearchController()
+        searchController.searchBar.placeholder = Localizations.search
         searchController.searchResultsUpdater = searchHandler
 
         stackNavigator?.push(
