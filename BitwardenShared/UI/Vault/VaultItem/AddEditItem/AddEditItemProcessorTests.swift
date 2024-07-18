@@ -1546,7 +1546,7 @@ class AddEditItemProcessorTests: BitwardenTestCase {
 
     /// `receive(_:)` with `.totpFieldLeftFocus` clears the authenticator key.
     func test_receive_totpFieldLeftFocus_invalidKey() throws {
-        let badKey = "pasta batman"
+        let badKey = "112233"
         subject.state.loginState.totpState = LoginTOTPState(badKey)
         subject.receive(.totpFieldLeftFocus)
 

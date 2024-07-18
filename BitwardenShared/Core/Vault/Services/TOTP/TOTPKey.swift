@@ -70,13 +70,14 @@ enum TOTPKey: Equatable, Sendable {
     ///
     /// - Parameter key: A string representing the TOTP key.
     init?(_ key: String) {
-        if key.uppercased().isBase32 {
-            self = .base32(key: key)
-        } else if key.hasOTPAuthPrefix,
-                  let otpAuthModel = OTPAuthModel(otpAuthKey: key) {
+        let trimmedKey = key.replacingOccurrences(of: " ", with: "")
+
+        if trimmedKey.uppercased().isBase32 {
+            self = .base32(key: trimmedKey)
+        } else if trimmedKey.hasOTPAuthPrefix, let otpAuthModel = OTPAuthModel(otpAuthKey: trimmedKey) {
             self = .otpAuthUri(otpAuthModel)
-        } else if let keyIndexOffset = key.steamURIKeyIndexOffset {
-            let steamKey = String(key.suffix(from: keyIndexOffset))
+        } else if let keyIndexOffset = trimmedKey.steamURIKeyIndexOffset {
+            let steamKey = String(trimmedKey.suffix(from: keyIndexOffset))
             guard steamKey.uppercased().isBase32 else { return nil }
             self = .steamUri(key: steamKey)
         } else {

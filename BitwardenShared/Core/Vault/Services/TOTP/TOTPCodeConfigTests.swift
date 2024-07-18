@@ -32,6 +32,13 @@ final class TOTPCodeConfigTests: BitwardenTestCase {
         XCTAssertEqual(subject?.base32Key, .base32Key)
     }
 
+    /// Tests that a base32 string creates the model.
+    func test_init_totpCodeConfig_spacesPresent() {
+        let subject = TOTPKeyModel(authenticatorKey: "BIT WAR DEN")
+        XCTAssertNotNil(subject)
+        XCTAssertEqual(subject?.base32Key, "BITWARDEN")
+    }
+
     /// Tests that an otp auth string creates the model.
     func test_init_totpCodeConfig_success_full() {
         let subject = TOTPKeyModel(
