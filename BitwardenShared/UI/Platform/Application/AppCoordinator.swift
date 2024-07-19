@@ -251,7 +251,7 @@ class AppCoordinator: Coordinator, HasRootNavigator {
     private func showTransparentController() {
         guard let rootNavigator else { return }
         let navigationController = UINavigationController()
-        navigationController.setNavigationBarHidden(true, animated: true)
+        navigationController.setNavigationBarHidden(true, animated: false)
         rootNavigator.show(child: navigationController)
     }
 
