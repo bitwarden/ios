@@ -112,7 +112,8 @@ final class AuthCoordinator: NSObject, // swiftlint:disable:this type_body_lengt
                 callbackUrlScheme: callbackUrlScheme,
                 delegate: context as? CaptchaFlowDelegate
             )
-        case .complete:
+        case .complete,
+             .completeWithNeverUnlockKey:
             if stackNavigator?.isPresenting == true {
                 stackNavigator?.dismiss {
                     self.delegate?.didCompleteAuth()

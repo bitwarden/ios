@@ -336,7 +336,7 @@ extension AuthRouter {
                 // If the user has enabled Never Lock, but the vault is locked,
                 // unlock the vault and return `.complete`.
                 try await services.authRepository.unlockVaultWithNeverlockKey()
-                return .complete
+                return .completeWithNeverUnlockKey
             case (_, false):
                 return .complete
             default:
