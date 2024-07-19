@@ -35,6 +35,13 @@ class DefaultAutofillCredentialService {
     /// The service to manage events.
     private let eventService: EventService
 
+    /// A store to be used on Fido2 flows to get/save credentials.
+    let fido2CredentialStore: Fido2CredentialStore
+
+    /// A helper to be used on Fido2 flows that requires user interaction and extends the capabilities
+    /// of the `Fido2UserInterface` from the SDK.
+    let fido2UserInterfaceHelper: Fido2UserInterfaceHelper
+
     /// The service used to manage the credentials available for AutoFill suggestions.
     private let identityStore: CredentialIdentityStore
 
@@ -60,6 +67,9 @@ class DefaultAutofillCredentialService {
     ///   - clientService: The service that handles common client functionality such as encryption and decryption.
     ///   - errorReporter: The service used by the application to report non-fatal errors.
     ///   - eventService: The service to manage events.
+    ///   - fido2UserInterfaceHelper: A helper to be used on Fido2 flows that requires user interaction
+    ///   and extends the capabilities of the `Fido2UserInterface` from the SDK.
+    ///   - fido2CredentialStore: A store to be used on Fido2 flows to get/save credentials.
     ///   - identityStore: The service used to manage the credentials available for AutoFill suggestions.
     ///   - pasteboardService: The service used to manage copy/pasting from the device's clipboard.
     ///   - stateService: The service used by the application to manage account state.
@@ -70,6 +80,8 @@ class DefaultAutofillCredentialService {
         clientService: ClientService,
         errorReporter: ErrorReporter,
         eventService: EventService,
+        fido2CredentialStore: Fido2CredentialStore,
+        fido2UserInterfaceHelper: Fido2UserInterfaceHelper,
         identityStore: CredentialIdentityStore = ASCredentialIdentityStore.shared,
         pasteboardService: PasteboardService,
         stateService: StateService,
@@ -79,6 +91,8 @@ class DefaultAutofillCredentialService {
         self.clientService = clientService
         self.errorReporter = errorReporter
         self.eventService = eventService
+        self.fido2CredentialStore = fido2CredentialStore
+        self.fido2UserInterfaceHelper = fido2UserInterfaceHelper
         self.identityStore = identityStore
         self.pasteboardService = pasteboardService
         self.stateService = stateService
@@ -151,7 +165,15 @@ class DefaultAutofillCredentialService {
 
             if #available(iOS 17, *) {
                 let identities = decryptedCiphers.compactMap(\.credentialIdentity)
-                try await identityStore.replaceCredentialIdentities(identities)
+                let fido2Identities = try await clientService.platform().fido2()
+                    .authenticator(
+                        userInterface: fido2UserInterfaceHelper,
+                        credentialStore: fido2CredentialStore
+                    )
+                    .credentialsForAutofill()
+                    .compactMap { $0.toFido2CredentialIdentity() }
+
+                try await identityStore.replaceCredentialIdentities(identities + fido2Identities)
                 Logger.application.info("AutofillCredentialService: replaced \(identities.count) credential identities")
             } else {
                 let identities = decryptedCiphers.compactMap(\.passwordCredentialIdentity)
@@ -210,7 +232,10 @@ extension DefaultAutofillCredentialService: AutofillCredentialService {
 private extension CipherView {
     @available(iOS 17, *)
     var credentialIdentity: (any ASCredentialIdentity)? {
-        passwordCredentialIdentity
+        guard shouldGetPasswordCredentialIdentity else {
+            return nil
+        }
+        return passwordCredentialIdentity
     }
 
     var passwordCredentialIdentity: ASPasswordCredentialIdentity? {
@@ -227,6 +252,12 @@ private extension CipherView {
             user: username,
             recordIdentifier: id
         )
+    }
+
+    /// Whether the `ASPasswordCredentialIdentity` should be gotten.
+    /// Otherwise a passkey identity will be provided.
+    var shouldGetPasswordCredentialIdentity: Bool {
+        !hasFido2Credentials || login?.password != nil
     }
 }
 
