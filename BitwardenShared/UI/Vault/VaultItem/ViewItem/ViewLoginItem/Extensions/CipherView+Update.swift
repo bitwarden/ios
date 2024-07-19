@@ -111,7 +111,7 @@ extension CipherView {
             password: login?.password ?? "",
             passwordHistoryCount: passwordHistory?.count,
             passwordUpdatedDate: login?.passwordRevisionDate,
-            totpState: .init(login?.totp),
+            totpState: .init(login?.totp ?? ""),
             uris: login?.uris?.map(UriState.init) ?? [],
             username: login?.username ?? ""
         )

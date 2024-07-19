@@ -474,7 +474,7 @@ private extension ViewItemProcessor {
                 let hasPremium = await (try? services.vaultRepository.doesActiveAccountHavePremium()) ?? false
                 let hasMasterPassword = try await services.stateService.getUserHasMasterPassword()
 
-                var totpState = LoginTOTPState(cipher.login?.totp)
+                var totpState = LoginTOTPState(cipher.login?.totp ?? "")
                 if let key = totpState.authKeyModel,
                    let updatedState = try? await services.vaultRepository.refreshTOTPCode(for: key) {
                     totpState = updatedState

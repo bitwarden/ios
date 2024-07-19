@@ -217,7 +217,7 @@ struct CipherItemState: Equatable {
             loginState: .init(
                 isTOTPAvailable: hasPremium,
                 password: password ?? "",
-                totpState: .init(totpKeyString),
+                totpState: .init(totpKeyString ?? ""),
                 uris: [UriState(uri: uri ?? "")],
                 username: username ?? ""
             ),
