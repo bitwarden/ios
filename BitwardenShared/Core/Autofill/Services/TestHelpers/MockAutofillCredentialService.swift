@@ -3,6 +3,8 @@ import BitwardenSdk
 
 @testable import BitwardenShared
 
+// MARK: - MockAutofillCredentialService
+
 class MockAutofillCredentialService: AutofillCredentialService {
     var provideCredentialPasswordCredential: ASPasswordCredential?
     var provideCredentialError: Error?
@@ -29,10 +31,14 @@ class MockAutofillCredentialService: AutofillCredentialService {
     }
 }
 
+// MARK: - PasskeyAssertionCredential
+
 /// Protocol to bypass using @available for passkey assertion credential.
 public protocol PasskeyAssertionCredential {}
 
 @available(iOS 17.0, *)
 extension ASPasskeyAssertionCredential: PasskeyAssertionCredential {}
+
+// MARK: - MockPasskeyAssertionCredential
 
 class MockPasskeyAssertionCredential: PasskeyAssertionCredential {}

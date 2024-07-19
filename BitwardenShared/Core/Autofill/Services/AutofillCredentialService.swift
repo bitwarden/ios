@@ -82,7 +82,6 @@ class DefaultAutofillCredentialService {
     /// Initialize an `AutofillCredentialService`.
     ///
     /// - Parameters:
-    ///   - authRepository: The repository used by the application to manage auth data for the UI layer.
     ///   - cipherService: The service used to manage syncing and updates to the user's ciphers.
     ///   - clientService: The service that handles common client functionality such as encryption and decryption.
     ///   - errorReporter: The service used by the application to report non-fatal errors.

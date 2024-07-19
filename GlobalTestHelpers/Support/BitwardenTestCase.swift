@@ -79,9 +79,9 @@ open class BitwardenTestCase: XCTestCase {
     ///
     open func assertAsyncThrows<E: Error & Equatable>(
         error: E,
-        _ block: () async throws -> Void,
         file: StaticString = #file,
-        line: UInt = #line
+        line: UInt = #line,
+        _ block: () async throws -> Void
     ) async {
         do {
             try await block()
