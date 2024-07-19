@@ -164,7 +164,7 @@ class DefaultAutofillCredentialService {
                 }
 
             if #available(iOS 17, *) {
-                var identities = decryptedCiphers.compactMap(\.credentialIdentity)
+                let identities = decryptedCiphers.compactMap(\.credentialIdentity)
                 let fido2Identities = try await clientService.platform().fido2()
                     .authenticator(
                         userInterface: fido2UserInterfaceHelper,
@@ -173,8 +173,7 @@ class DefaultAutofillCredentialService {
                     .credentialsForAutofill()
                     .compactMap { $0.toFido2CredentialIdentity() }
 
-                identities.append(contentsOf: fido2Identities)
-                try await identityStore.replaceCredentialIdentities(identities)
+                try await identityStore.replaceCredentialIdentities(identities + fido2Identities)
                 Logger.application.info("AutofillCredentialService: replaced \(identities.count) credential identities")
             } else {
                 let identities = decryptedCiphers.compactMap(\.passwordCredentialIdentity)
