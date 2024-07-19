@@ -9,11 +9,11 @@ class Fido2CredentialAutofillViewExtensionsTests: BitwardenTestCase { // swiftli
     /// `toFido2CredentialIdentity()` returns the converted `ASPasskeyCredentialIdentity`.
     func test_toFido2CredentialIdentity() throws {
         let subject = Fido2CredentialAutofillView(
-            credentialId: Data((0 ..< 16).map { _ in 1 }),
+            credentialId: Data(repeating: 1, count: 16),
             cipherId: "1",
             rpId: "myApp.com",
             userNameForUi: "username",
-            userHandle: Data((0 ..< 16).map { _ in 1 })
+            userHandle: Data(repeating: 1, count: 16)
         )
         let identity = subject.toFido2CredentialIdentity()
         XCTAssertTrue(
@@ -29,11 +29,11 @@ class Fido2CredentialAutofillViewExtensionsTests: BitwardenTestCase { // swiftli
     /// when `userNameForUI` is `nil`.
     func test_toFido2CredentialIdentity_userNameForUINil() throws {
         let subject = Fido2CredentialAutofillView(
-            credentialId: Data((0 ..< 16).map { _ in 1 }),
+            credentialId: Data(repeating: 1, count: 16),
             cipherId: "1",
             rpId: "myApp.com",
             userNameForUi: nil,
-            userHandle: Data((0 ..< 16).map { _ in 1 })
+            userHandle: Data(repeating: 1, count: 16)
         )
         let identity = subject.toFido2CredentialIdentity()
         XCTAssertTrue(
