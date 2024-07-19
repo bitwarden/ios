@@ -919,4 +919,4 @@
 "OrganizationUnassignedItemsMessageUSEUDescriptionLong" = "Təyin edilməmiş təşkilat elementləri artıq Bütün Anbarlar görünüşündə görünməyəndir və yalnız Admin Konsolu vasitəsilə əlçatandır. Bu elementləri görünən etmək üçün Admin Konsolundan bir kolleksiyaya təyin edin.";
 "UnknownAccount" = "Bilinməyən hesab";
 "UserVerificationForPasskey" = "Keçid açarı üçün istifadəçi doğrulaması";
-"NewItem" = "New item";
+"NewItem" = "Yeni element";
