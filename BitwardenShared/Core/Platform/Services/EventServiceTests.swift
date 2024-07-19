@@ -6,7 +6,9 @@ class EventServiceTests: XCTestCase {
     // MARK: Properties
 
     var cipherService: MockCipherService!
+    var client: MockHTTPClient!
     var errorReporter: MockErrorReporter!
+    var eventAPIService: APIService!
     var organizationService: MockOrganizationService!
     var stateService: MockStateService!
     var subject: EventService!
@@ -18,13 +20,16 @@ class EventServiceTests: XCTestCase {
         super.setUp()
 
         cipherService = MockCipherService()
+        client = MockHTTPClient()
         errorReporter = MockErrorReporter()
+        eventAPIService = APIService(client: client)
         organizationService = MockOrganizationService()
         stateService = MockStateService()
         timeProvider = MockTimeProvider(.mockTime(Date(year: 2024, month: 6, day: 28)))
         subject = DefaultEventService(
             cipherService: cipherService,
             errorReporter: errorReporter,
+            eventAPIService: eventAPIService,
             organizationService: organizationService,
             stateService: stateService,
             timeProvider: timeProvider
@@ -35,7 +40,9 @@ class EventServiceTests: XCTestCase {
         super.tearDown()
 
         cipherService = nil
+        client = nil
         errorReporter = nil
+        eventAPIService = nil
         organizationService = nil
         stateService = nil
         subject = nil
@@ -144,5 +151,67 @@ class EventServiceTests: XCTestCase {
     func test_collect_unauthenticated() async throws {
         await subject.collect(eventType: .userLoggedIn)
         XCTAssertEqual(stateService.events, [:])
+    }
+
+    /// `upload()` sends events
+    /// if the user is authenticated and there are events to send
+    /// then clears them
+    func test_upload() async throws {
+        let date = Date(year: 2024, month: 6, day: 28)
+
+        stateService.accounts = [.fixture(profile: .fixture(userId: "1"))]
+        try await stateService.setActiveAccount(userId: "1")
+
+        stateService.events["1"] = [
+            EventData(type: .cipherClientViewed, cipherId: "1", date: date),
+            EventData(type: .cipherClientAutofilled, cipherId: "1", date: date.addingTimeInterval(1)),
+        ]
+
+        client.result = .httpSuccess(testData: .emptyResponse)
+
+        await subject.upload()
+        XCTAssertEqual(client.requests.count, 1)
+        let request = try XCTUnwrap(client.requests.last)
+        let body = try XCTUnwrap(request.body)
+        XCTAssertEqual(
+            try? JSONDecoder.defaultDecoder.decode([EventRequestModel].self, from: body),
+            [
+                EventRequestModel(type: .cipherClientViewed, cipherId: "1", date: date),
+                EventRequestModel(type: .cipherClientAutofilled, cipherId: "1", date: date.addingTimeInterval(1)),
+            ]
+        )
+        XCTAssertEqual(stateService.events["1"], [])
+    }
+
+    /// `upload()` does not send events
+    /// if an error is thrown.
+    func test_upload_error() async throws {
+        stateService.accounts = [.fixture(profile: .fixture(userId: "1"))]
+        try await stateService.setActiveAccount(userId: "1")
+
+        stateService.eventsResult = .failure(BitwardenTestError.example)
+
+        await subject.upload()
+        XCTAssertEqual(client.requests, [])
+        XCTAssertEqual(errorReporter.errors as? [BitwardenTestError], [.example])
+    }
+
+    /// `upload()` does not send events
+    /// if there are no events.
+    func test_upload_noEvents() async throws {
+        stateService.accounts = [.fixture(profile: .fixture(userId: "1"))]
+        try await stateService.setActiveAccount(userId: "1")
+
+        stateService.events["1"] = []
+
+        await subject.upload()
+        XCTAssertEqual(client.requests, [])
+    }
+
+    /// `upload()` does not send events
+    /// if the user is not authenticated.
+    func test_upload_unauthenticated() async throws {
+        await subject.upload()
+        XCTAssertEqual(client.requests, [])
     }
 }

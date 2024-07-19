@@ -376,6 +376,7 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
         let eventService = DefaultEventService(
             cipherService: cipherService,
             errorReporter: errorReporter,
+            eventAPIService: apiService,
             organizationService: organizationService,
             stateService: stateService,
             timeProvider: timeProvider
