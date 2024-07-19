@@ -2,6 +2,12 @@ import AuthenticationServices
 import BitwardenSdk
 import OSLog
 
+/// A delegate to handle autofill credential service operations.
+protocol AutofillCredentialServiceDelegate: AnyObject {
+    /// Attempts to unlock the user's vault with the stored neverlock key
+    func unlockVaultWithNeverlockKey() async throws
+}
+
 /// A service which manages the ciphers exposed to the system for AutoFill suggestions.
 ///
 protocol AutofillCredentialService: AnyObject {
@@ -20,13 +26,13 @@ protocol AutofillCredentialService: AnyObject {
     /// Provides a Fido2 credential for a passkey request
     /// - Parameters:
     ///   - passkeyRequest: Request to get the credential.
-    ///   - withUserInteraction: Whether the current flow is interactive with the user.
+    ///   - autofillCredentialServiceDelegate: Delegate for autofill credential operations.
     ///   - fido2UserVerificationMediatorDelegate: Delegate for Fido2 user verification.
     /// - Returns: The passkey credential for assertion.
     @available(iOS 17.0, *)
     func provideFido2Credential(
         for passkeyRequest: ASPasskeyCredentialRequest,
-        withUserInteraction: Bool,
+        autofillCredentialServiceDelegate: AutofillCredentialServiceDelegate,
         fido2UserVerificationMediatorDelegate: Fido2UserVerificationMediatorDelegate
     ) async throws -> ASPasskeyAssertionCredential
 }
@@ -35,9 +41,6 @@ protocol AutofillCredentialService: AnyObject {
 ///
 class DefaultAutofillCredentialService {
     // MARK: Private Properties
-
-    /// The repository used by the application to manage auth data for the UI layer.
-    private let authRepository: AuthRepository
 
     /// The service used to manage syncing and updates to the user's ciphers.
     private let cipherService: CipherService
@@ -93,7 +96,6 @@ class DefaultAutofillCredentialService {
     ///   - vaultTimeoutService: The service used to manage vault access.
     ///
     init(
-        authRepository: AuthRepository,
         cipherService: CipherService,
         clientService: ClientService,
         errorReporter: ErrorReporter,
@@ -105,7 +107,6 @@ class DefaultAutofillCredentialService {
         stateService: StateService,
         vaultTimeoutService: VaultTimeoutService
     ) {
-        self.authRepository = authRepository
         self.cipherService = cipherService
         self.clientService = clientService
         self.errorReporter = errorReporter
@@ -248,27 +249,26 @@ extension DefaultAutofillCredentialService: AutofillCredentialService {
     @available(iOS 17.0, *)
     func provideFido2Credential( // swiftlint:disable:this function_body_length
         for passkeyRequest: ASPasskeyCredentialRequest,
-        withUserInteraction: Bool,
+        autofillCredentialServiceDelegate: AutofillCredentialServiceDelegate,
         fido2UserVerificationMediatorDelegate: Fido2UserVerificationMediatorDelegate
     ) async throws -> ASPasskeyAssertionCredential {
         guard let credentialIdentiy = passkeyRequest.credentialIdentity as? ASPasskeyCredentialIdentity else {
             throw AppProcessorError.invalidOperation
         }
 
-        let isLocked = try? await authRepository.isLocked()
+        let userId = try await stateService.getActiveAccountId()
+        let isLocked = vaultTimeoutService.isLocked(userId: userId)
         let vaultTimeout = try? await vaultTimeoutService.sessionTimeoutValue(userId: nil)
 
         switch (vaultTimeout, isLocked) {
         case (.never, true):
             // If the user has enabled Never Lock, but the vault is locked,
             // unlock the vault before continuing.
-            try await authRepository.unlockVaultWithNeverlockKey()
+            try await autofillCredentialServiceDelegate.unlockVaultWithNeverlockKey()
         case (_, false):
             break
         default:
-            if !withUserInteraction {
-                throw Fido2Error.userInteractionRequired
-            }
+            throw Fido2Error.userInteractionRequired
         }
 
         fido2UserInterfaceHelper.setupDelegate(

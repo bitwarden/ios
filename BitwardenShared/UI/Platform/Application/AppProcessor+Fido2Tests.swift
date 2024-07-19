@@ -123,7 +123,7 @@ class AppProcessorFido2Tests: BitwardenTestCase {
         XCTAssertFalse(appExtensionDelegate.setUserInteractionRequiredCalled)
     }
 
-    /// `provideFido2Credential(for:withUserInteraction:)` succeeds calling
+    /// `provideFido2Credential(for:)` succeeds calling
     /// the autofill credential service.
     @available(iOS 17.0, *)
     func test_provideFido2Credential() async throws {
@@ -140,7 +140,7 @@ class AppProcessorFido2Tests: BitwardenTestCase {
 
         autofillCredentialService.provideFido2CredentialResult = .success(expectedAssertionResult)
 
-        let result = try await subject.provideFido2Credential(for: passkeyRequest, withUserInteraction: false)
+        let result = try await subject.provideFido2Credential(for: passkeyRequest)
 
         XCTAssertEqual(result.userHandle, expectedAssertionResult.userHandle)
         XCTAssertEqual(result.relyingParty, passkeyIdentity.relyingPartyIdentifier)
@@ -150,7 +150,7 @@ class AppProcessorFido2Tests: BitwardenTestCase {
         XCTAssertEqual(result.credentialID, expectedAssertionResult.credentialID)
     }
 
-    /// `provideFido2Credential(for:withUserInteraction:)` throws calling
+    /// `provideFido2Credential(for:)` throws calling
     /// the autofill credential service.
     @available(iOS 17.0, *)
     func test_provideFido2Credential_throws() async throws {
@@ -160,7 +160,7 @@ class AppProcessorFido2Tests: BitwardenTestCase {
         autofillCredentialService.provideFido2CredentialResult = .failure(BitwardenTestError.example)
 
         await assertAsyncThrows(error: BitwardenTestError.example) {
-            _ = try await subject.provideFido2Credential(for: passkeyRequest, withUserInteraction: false)
+            _ = try await subject.provideFido2Credential(for: passkeyRequest)
         }
     }
 

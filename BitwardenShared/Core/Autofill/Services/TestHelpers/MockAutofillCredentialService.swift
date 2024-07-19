@@ -18,7 +18,7 @@ class MockAutofillCredentialService: AutofillCredentialService {
     @available(iOS 17.0, *)
     func provideFido2Credential(
         for passkeyRequest: ASPasskeyCredentialRequest,
-        withUserInteraction: Bool,
+        autofillCredentialServiceDelegate: AutofillCredentialServiceDelegate,
         fido2UserVerificationMediatorDelegate: any BitwardenShared.Fido2UserVerificationMediatorDelegate
     ) async throws -> ASPasskeyAssertionCredential {
         let result = try provideFido2CredentialResult.get()

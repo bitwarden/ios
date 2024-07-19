@@ -76,7 +76,7 @@ class CredentialProviderViewController: ASCredentialProviderViewController {
                     .autofillFido2Credential(passkeyRequest, userInteraction: false)
                 )
             )
-            provideFido2Credential(for: passkeyRequest, withUserInteraction: false)
+            provideFido2Credential(for: passkeyRequest)
         default:
             break
         }
@@ -179,8 +179,7 @@ class CredentialProviderViewController: ASCredentialProviderViewController {
     ///   - withUserInteraction: Whether this is called in a flow with user interaction.
     @available(iOSApplicationExtension 17.0, *)
     private func provideFido2Credential(
-        for passkeyRequest: ASPasskeyCredentialRequest,
-        withUserInteraction: Bool
+        for passkeyRequest: ASPasskeyCredentialRequest
     ) {
         guard let appProcessor else {
             cancel(error: ASExtensionError(.failed))
@@ -190,8 +189,7 @@ class CredentialProviderViewController: ASCredentialProviderViewController {
         Task {
             do {
                 let credential = try await appProcessor.provideFido2Credential(
-                    for: passkeyRequest,
-                    withUserInteraction: withUserInteraction
+                    for: passkeyRequest
                 )
                 await extensionContext.completeAssertionRequest(using: credential)
             } catch Fido2Error.userInteractionRequired {
@@ -255,7 +253,7 @@ extension CredentialProviderViewController: AppExtensionDelegate {
                 return
             }
 
-            provideFido2Credential(for: asPasskeyRequest, withUserInteraction: true)
+            provideFido2Credential(for: asPasskeyRequest)
         default:
             return
         }

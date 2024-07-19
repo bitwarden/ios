@@ -15,11 +15,8 @@ class AppProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_body
     var clientService: MockClientService!
     var coordinator: MockCoordinator<AppRoute, AppEvent>!
     var errorReporter: MockErrorReporter!
-<<<<<<< HEAD
     var fido2UserInterfaceHelper: MockFido2UserInterfaceHelper!
-=======
     var eventService: MockEventService!
->>>>>>> main
     var migrationService: MockMigrationService!
     var notificationCenterService: MockNotificationCenterService!
     var notificationService: MockNotificationService!
@@ -45,11 +42,8 @@ class AppProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_body
         appModule.authRouter = router
         appModule.appCoordinator = coordinator
         errorReporter = MockErrorReporter()
-<<<<<<< HEAD
         fido2UserInterfaceHelper = MockFido2UserInterfaceHelper()
-=======
         eventService = MockEventService()
->>>>>>> main
         migrationService = MockMigrationService()
         notificationCenterService = MockNotificationCenterService()
         notificationService = MockNotificationService()
@@ -66,11 +60,8 @@ class AppProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_body
                 autofillCredentialService: autofillCredentialService,
                 clientService: clientService,
                 errorReporter: errorReporter,
-<<<<<<< HEAD
-                fido2UserInterfaceHelper: fido2UserInterfaceHelper,
-=======
                 eventService: eventService,
->>>>>>> main
+                fido2UserInterfaceHelper: fido2UserInterfaceHelper,
                 migrationService: migrationService,
                 notificationService: notificationService,
                 notificationCenterService: notificationCenterService,
@@ -92,11 +83,8 @@ class AppProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_body
         clientService = nil
         coordinator = nil
         errorReporter = nil
-<<<<<<< HEAD
         fido2UserInterfaceHelper = nil
-=======
         eventService = nil
->>>>>>> main
         migrationService = nil
         notificationCenterService = nil
         notificationService = nil
@@ -491,5 +479,20 @@ class AppProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_body
         XCTAssertTrue(appModule.appCoordinator.isStarted)
         XCTAssertEqual(appModule.appCoordinator.events, [.didStart])
         XCTAssertEqual(migrationService.didPerformMigrations, true)
+    }
+
+    /// `unlockVaultWithNeverlockKey()` unlocks it calling the auth repository.
+    func test_unlockVaultWithNeverlockKey() async throws {
+        try await subject.unlockVaultWithNeverlockKey()
+
+        XCTAssertTrue(authRepository.unlockVaultWithNeverlockKeyCalled)
+    }
+
+    /// `unlockVaultWithNeverlockKey()` throws because auth repository call throws.
+    func test_unlockVaultWithNeverlockKey_throws() async throws {
+        authRepository.unlockVaultWithNeverlockResult = .failure(BitwardenTestError.example)
+        await assertAsyncThrows(error: BitwardenTestError.example) {
+            try await subject.unlockVaultWithNeverlockKey()
+        }
     }
 }

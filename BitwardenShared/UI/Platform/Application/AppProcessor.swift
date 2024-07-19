@@ -389,20 +389,28 @@ public extension AppProcessor {
     /// Provides a Fido2 credential for a passkey request
     /// - Parameters:
     ///   - passkeyRequest: Request to get the credential.
-    ///   - withUserInteraction: Whether the current flow is interactive with the user.
     /// - Returns: The passkey credential for assertion.
     @available(iOS 17.0, *)
     func provideFido2Credential(
-        for passkeyRequest: ASPasskeyCredentialRequest,
-        withUserInteraction: Bool
+        for passkeyRequest: ASPasskeyCredentialRequest
     ) async throws -> ASPasskeyAssertionCredential {
         try await services.autofillCredentialService.provideFido2Credential(
             for: passkeyRequest,
-            withUserInteraction: withUserInteraction,
+            autofillCredentialServiceDelegate: self,
             fido2UserVerificationMediatorDelegate: self
         )
     }
 }
+
+// MARK: - AutofillCredentialServiceDelegate
+
+extension AppProcessor: AutofillCredentialServiceDelegate {
+    func unlockVaultWithNeverlockKey() async throws {
+        try await services.authRepository.unlockVaultWithNeverlockKey()
+    }
+}
+
+// MARK: - Fido2UserVerificationMediatorDelegate
 
 extension AppProcessor: Fido2UserVerificationMediatorDelegate {
     func onNeedsUserInteraction() async throws {
@@ -432,4 +440,4 @@ extension AppProcessor: Fido2UserVerificationMediatorDelegate {
 enum AppProcessorError: Error {
     /// The operation to execute is invalid.
     case invalidOperation
-}
+} // swiftlint:disable:this file_length
