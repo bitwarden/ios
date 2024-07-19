@@ -65,6 +65,13 @@ class VaultAutofillListProcessorFido2Tests: BitwardenTestCase {
         vaultRepository = nil
     }
 
+    /// `onNeedsUserInteraction()` doesn't throw.
+    func test_onNeedsUserInteraction() async throws {
+        await assertAsyncDoesNotThrow {
+            try await subject.onNeedsUserInteraction()
+        }
+    }
+
     /// `receive(_:)` with `.addTapped` navigates to the add item view
     /// with th proper `NewCipherOptions` configuration for Fido2 creation.
     func test_receive_addTapped() throws {

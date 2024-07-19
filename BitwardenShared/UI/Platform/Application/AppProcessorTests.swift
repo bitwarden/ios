@@ -1,5 +1,4 @@
 import AuthenticationServices
-import BitwardenSdk
 import Foundation
 import XCTest
 
@@ -214,6 +213,13 @@ class AppProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_body
         XCTAssertEqual(notificationService.messageReceivedMessage?.keys.first, "knock knock")
     }
 
+    /// `onNeedsUserInteraction()` doesn't throw when `appExtensionDelegate` is not a Fido2 one.
+    func test_onNeedsUserInteraction_flowWithUserInteraction() async {
+        await assertAsyncDoesNotThrow {
+            try await subject.onNeedsUserInteraction()
+        }
+    }
+
     /// `openUrl(_:)` handles receiving an OTP deep link and setting an auth completion route on the
     /// coordinator to handle routing to the vault item selection screen when the vault is unlocked.
     func test_openUrl_otpKey_vaultLocked() async throws {
@@ -294,47 +300,6 @@ class AppProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_body
 
         await assertAsyncThrows(error: ASExtensionError(.userInteractionRequired)) {
             _ = try await subject.provideCredential(for: "1")
-        }
-    }
-
-    /// `provideFido2Credential(for:withUserInteraction:)` succeeds calling
-    /// the autofill credential service.
-    @available(iOS 17.0, *)
-    func test_provideFido2Credential() async throws {
-        let passkeyIdentity = ASPasskeyCredentialIdentity.fixture()
-        let passkeyRequest = ASPasskeyCredentialRequest.fixture(credentialIdentity: passkeyIdentity)
-        let expectedAssertionResult = ASPasskeyAssertionCredential(
-            userHandle: Data(repeating: 1, count: 16),
-            relyingParty: passkeyIdentity.relyingPartyIdentifier,
-            signature: Data(repeating: 1, count: 32),
-            clientDataHash: passkeyRequest.clientDataHash,
-            authenticatorData: Data(repeating: 1, count: 40),
-            credentialID: Data(repeating: 1, count: 32)
-        )
-
-        autofillCredentialService.provideFido2CredentialResult = .success(expectedAssertionResult)
-
-        let result = try await subject.provideFido2Credential(for: passkeyRequest, withUserInteraction: false)
-
-        XCTAssertEqual(result.userHandle, expectedAssertionResult.userHandle)
-        XCTAssertEqual(result.relyingParty, passkeyIdentity.relyingPartyIdentifier)
-        XCTAssertEqual(result.signature, expectedAssertionResult.signature)
-        XCTAssertEqual(result.clientDataHash, passkeyRequest.clientDataHash)
-        XCTAssertEqual(result.authenticatorData, expectedAssertionResult.authenticatorData)
-        XCTAssertEqual(result.credentialID, expectedAssertionResult.credentialID)
-    }
-
-    /// `provideFido2Credential(for:withUserInteraction:)` throws calling
-    /// the autofill credential service.
-    @available(iOS 17.0, *)
-    func test_provideFido2Credential_throws() async throws {
-        let passkeyIdentity = ASPasskeyCredentialIdentity.fixture()
-        let passkeyRequest = ASPasskeyCredentialRequest.fixture(credentialIdentity: passkeyIdentity)
-
-        autofillCredentialService.provideFido2CredentialResult = .failure(BitwardenTestError.example)
-
-        await assertAsyncThrows(error: BitwardenTestError.example) {
-            _ = try await subject.provideFido2Credential(for: passkeyRequest, withUserInteraction: false)
         }
     }
 
