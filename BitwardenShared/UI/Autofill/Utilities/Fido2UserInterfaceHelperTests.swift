@@ -272,7 +272,7 @@ class Fido2UserInterfaceHelperTests: BitwardenTestCase {
 
     /// `setupDelegate(fido2UserVerificationMediatorDelegate:)`  sets up deleagte in inner mediator.
     func test_setupDelegate() async throws {
-        subject.setupDelegate(fido2UserVerificationMediatorDelegate: MockFido2UserVerificationMediatorDelegate())
+        subject.setupDelegate(fido2UserInterfaceHelperDelegate: MockFido2UserInterfaceHelperDelegate())
         XCTAssertTrue(fido2UserVerificationMediator.setupDelegateCalled)
     }
 }

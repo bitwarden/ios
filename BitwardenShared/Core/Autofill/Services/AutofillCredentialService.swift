@@ -27,13 +27,13 @@ protocol AutofillCredentialService: AnyObject {
     /// - Parameters:
     ///   - passkeyRequest: Request to get the credential.
     ///   - autofillCredentialServiceDelegate: Delegate for autofill credential operations.
-    ///   - fido2UserVerificationMediatorDelegate: Delegate for Fido2 user verification.
+    ///   - fido2UserInterfaceHelperDelegate: Delegate for Fido2 user interface interaction.
     /// - Returns: The passkey credential for assertion.
     @available(iOS 17.0, *)
     func provideFido2Credential(
         for passkeyRequest: ASPasskeyCredentialRequest,
         autofillCredentialServiceDelegate: AutofillCredentialServiceDelegate,
-        fido2UserVerificationMediatorDelegate: Fido2UserVerificationMediatorDelegate
+        fido2UserInterfaceHelperDelegate: Fido2UserInterfaceHelperDelegate
     ) async throws -> ASPasskeyAssertionCredential
 }
 
@@ -249,7 +249,7 @@ extension DefaultAutofillCredentialService: AutofillCredentialService {
     func provideFido2Credential( // swiftlint:disable:this function_body_length
         for passkeyRequest: ASPasskeyCredentialRequest,
         autofillCredentialServiceDelegate: AutofillCredentialServiceDelegate,
-        fido2UserVerificationMediatorDelegate: Fido2UserVerificationMediatorDelegate
+        fido2UserInterfaceHelperDelegate: Fido2UserInterfaceHelperDelegate
     ) async throws -> ASPasskeyAssertionCredential {
         guard let credentialIdentiy = passkeyRequest.credentialIdentity as? ASPasskeyCredentialIdentity else {
             throw AppProcessorError.invalidOperation
@@ -271,7 +271,7 @@ extension DefaultAutofillCredentialService: AutofillCredentialService {
         }
 
         fido2UserInterfaceHelper.setupDelegate(
-            fido2UserVerificationMediatorDelegate: fido2UserVerificationMediatorDelegate
+            fido2UserInterfaceHelperDelegate: fido2UserInterfaceHelperDelegate
         )
 
         let request = GetAssertionRequest(

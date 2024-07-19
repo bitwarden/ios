@@ -8,9 +8,6 @@ import Foundation
 struct VaultAutofillListState: Equatable {
     // MARK: Properties
 
-    /// The list of matching ciphers that can be used for autofill.
-    var ciphersForAutofill: [VaultListItem] = []
-
     /// The list of cipher items matching matching the `searchText`.
     var ciphersForSearch: [VaultListItem] = []
 
@@ -31,4 +28,7 @@ struct VaultAutofillListState: Equatable {
 
     /// A toast message to show in the view.
     var toast: Toast?
+    
+    /// The list of sections to display for matching vault items.
+    var vaultListSections = [VaultListSection]()
 }

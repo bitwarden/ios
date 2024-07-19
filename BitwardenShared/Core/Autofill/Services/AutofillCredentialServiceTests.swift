@@ -12,7 +12,7 @@ class AutofillCredentialServiceTests: BitwardenTestCase { // swiftlint:disable:t
     var clientService: MockClientService!
     var errorReporter: MockErrorReporter!
     var eventService: MockEventService!
-    var fido2UserVerificationMediatorDelegate: MockFido2UserVerificationMediatorDelegate!
+    var fido2UserInterfaceHelperDelegate: MockFido2UserInterfaceHelperDelegate!
     var fido2CredentialStore: MockFido2CredentialStore!
     var fido2UserInterfaceHelper: MockFido2UserInterfaceHelper!
     var identityStore: MockCredentialIdentityStore!
@@ -31,7 +31,7 @@ class AutofillCredentialServiceTests: BitwardenTestCase { // swiftlint:disable:t
         clientService = MockClientService()
         errorReporter = MockErrorReporter()
         eventService = MockEventService()
-        fido2UserVerificationMediatorDelegate = MockFido2UserVerificationMediatorDelegate()
+        fido2UserInterfaceHelperDelegate = MockFido2UserInterfaceHelperDelegate()
         fido2CredentialStore = MockFido2CredentialStore()
         fido2UserInterfaceHelper = MockFido2UserInterfaceHelper()
         identityStore = MockCredentialIdentityStore()
@@ -61,7 +61,7 @@ class AutofillCredentialServiceTests: BitwardenTestCase { // swiftlint:disable:t
         clientService = nil
         errorReporter = nil
         eventService = nil
-        fido2UserVerificationMediatorDelegate = nil
+        fido2UserInterfaceHelperDelegate = nil
         fido2CredentialStore = nil
         fido2UserInterfaceHelper = nil
         identityStore = nil
@@ -262,7 +262,7 @@ class AutofillCredentialServiceTests: BitwardenTestCase { // swiftlint:disable:t
         let result = try await subject.provideFido2Credential(
             for: passkeyRequest,
             autofillCredentialServiceDelegate: autofillCredentialServiceDelegate,
-            fido2UserVerificationMediatorDelegate: fido2UserVerificationMediatorDelegate
+            fido2UserInterfaceHelperDelegate: fido2UserInterfaceHelperDelegate
         )
 
         XCTAssertFalse(autofillCredentialServiceDelegate.unlockVaultWithNeverlockKeyCalled)
@@ -305,12 +305,12 @@ class AutofillCredentialServiceTests: BitwardenTestCase { // swiftlint:disable:t
         let result = try await subject.provideFido2Credential(
             for: passkeyRequest,
             autofillCredentialServiceDelegate: autofillCredentialServiceDelegate,
-            fido2UserVerificationMediatorDelegate: fido2UserVerificationMediatorDelegate
+            fido2UserInterfaceHelperDelegate: fido2UserInterfaceHelperDelegate
         )
 
         XCTAssertTrue(autofillCredentialServiceDelegate.unlockVaultWithNeverlockKeyCalled)
 
-        XCTAssertNotNil(fido2UserInterfaceHelper.fido2UserVerificationMediatorDelegate)
+        XCTAssertNotNil(fido2UserInterfaceHelper.fido2UserInterfaceHelperDelegate)
 
         XCTAssertEqual(result.userHandle, expectedAssertionResult.userHandle)
         XCTAssertEqual(result.relyingParty, passkeyIdentity.relyingPartyIdentifier)
@@ -349,12 +349,12 @@ class AutofillCredentialServiceTests: BitwardenTestCase { // swiftlint:disable:t
         let result = try await subject.provideFido2Credential(
             for: passkeyRequest,
             autofillCredentialServiceDelegate: autofillCredentialServiceDelegate,
-            fido2UserVerificationMediatorDelegate: fido2UserVerificationMediatorDelegate
+            fido2UserInterfaceHelperDelegate: fido2UserInterfaceHelperDelegate
         )
 
         XCTAssertFalse(autofillCredentialServiceDelegate.unlockVaultWithNeverlockKeyCalled)
 
-        XCTAssertNotNil(fido2UserInterfaceHelper.fido2UserVerificationMediatorDelegate)
+        XCTAssertNotNil(fido2UserInterfaceHelper.fido2UserInterfaceHelperDelegate)
 
         XCTAssertEqual(result.userHandle, expectedAssertionResult.userHandle)
         XCTAssertEqual(result.relyingParty, passkeyIdentity.relyingPartyIdentifier)
@@ -382,7 +382,7 @@ class AutofillCredentialServiceTests: BitwardenTestCase { // swiftlint:disable:t
             _ = try await subject.provideFido2Credential(
                 for: passkeyRequest,
                 autofillCredentialServiceDelegate: autofillCredentialServiceDelegate,
-                fido2UserVerificationMediatorDelegate: fido2UserVerificationMediatorDelegate
+                fido2UserInterfaceHelperDelegate: fido2UserInterfaceHelperDelegate
             )
         }
     }
@@ -406,7 +406,7 @@ class AutofillCredentialServiceTests: BitwardenTestCase { // swiftlint:disable:t
             _ = try await subject.provideFido2Credential(
                 for: passkeyRequest,
                 autofillCredentialServiceDelegate: autofillCredentialServiceDelegate,
-                fido2UserVerificationMediatorDelegate: fido2UserVerificationMediatorDelegate
+                fido2UserInterfaceHelperDelegate: fido2UserInterfaceHelperDelegate
             )
         }
     }
@@ -430,7 +430,7 @@ class AutofillCredentialServiceTests: BitwardenTestCase { // swiftlint:disable:t
             _ = try await subject.provideFido2Credential(
                 for: passkeyRequest,
                 autofillCredentialServiceDelegate: autofillCredentialServiceDelegate,
-                fido2UserVerificationMediatorDelegate: fido2UserVerificationMediatorDelegate
+                fido2UserInterfaceHelperDelegate: fido2UserInterfaceHelperDelegate
             )
         }
     }

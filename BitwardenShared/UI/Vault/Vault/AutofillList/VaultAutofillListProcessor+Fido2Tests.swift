@@ -133,7 +133,7 @@ class VaultAutofillListProcessorFido2Tests: BitwardenTestCase {
     func test_perform_initFido2_setupsDelegate() async {
         await subject.perform(.initFido2)
 
-        XCTAssertTrue(fido2UserInterfaceHelper.fido2UserVerificationMediatorDelegate != nil)
+        XCTAssertTrue(fido2UserInterfaceHelper.fido2UserInterfaceHelperDelegate != nil)
     }
 
     /// `perform(_:)` with `.initFido2` calls `makeCredential` from the Fido2 authenticator when

@@ -1,9 +1,23 @@
 import BitwardenSdk
 import Combine
 
+// MARK: - Fido2UserInterfaceHelperDelegate
+
+/// A protocol for an `Fido2UserInterfaceHelperDelegate` which manages interaction
+/// with the user from the user verification flows and also some information
+/// needed for the Fido2 flows.
+///
+@MainActor
+protocol Fido2UserInterfaceHelperDelegate: Fido2UserVerificationMediatorDelegate {
+    /// Whether the Fido2 flow for autofill is from credential list or not.
+    var isAutofillingFromList: Bool { get }
+}
+
 /// A helper to extend `Fido2UserInterface` protocol capabilities for Fido2 flows
 /// depending on user interaction.
 protocol Fido2UserInterfaceHelper: Fido2UserInterface {
+    /// The available credentials that can be used for authentication.
+    var availableCredentialsForAuthentication: [BitwardenSdk.CipherView]? { get }
     /// The `BitwardenSdk.CheckUserOptions` the SDK provides while in Fido2 creation flow.
     var fido2CreationOptions: BitwardenSdk.CheckUserOptions? { get }
     /// The `BitwardenSdk.Fido2CredentialNewView` the SDK provides while in FIdo2 creation flow.
@@ -31,13 +45,17 @@ protocol Fido2UserInterfaceHelper: Fido2UserInterface {
         shouldThrowEnforcingRequiredVerification: Bool
     ) async throws -> CheckUserResult
 
+    /// Sets the selected cipher as a result for credential for Fido2 authentication.
+    /// - Parameter result: The result of picking a cipher with the cipher or the error.
+    func pickedCredentialForAuthentication(result: Result<CipherView, Error>)
+
     /// Sets the selected cipher as a result for credential for Fido2 creation.
     /// - Parameter result: The result of picking a cipher with the cipher or the error.
     func pickedCredentialForCreation(result: Result<CheckUserAndPickCredentialForCreationResult, Error>)
 
-    /// Sets up the delegate to use on Fido2 user verification flows.
-    /// - Parameter fido2UserVerificationMediatorDelegate: The delegate to use
-    func setupDelegate(fido2UserVerificationMediatorDelegate: Fido2UserVerificationMediatorDelegate)
+    /// Sets up the delegate to use on Fido2 user verification flows and to get information of the FIdo2 flow.
+    /// - Parameter fido2UserInterfaceHelperDelegate: The delegate to use
+    func setupDelegate(fido2UserInterfaceHelperDelegate: Fido2UserInterfaceHelperDelegate)
 }
 
 /// Default implemenation of `Fido2UserInterfaceHelper`.
@@ -45,9 +63,15 @@ class DefaultFido2UserInterfaceHelper: Fido2UserInterfaceHelper {
     /// Mediator which manages user verification on Fido2 flows.
     private var fido2UserVerificationMediator: Fido2UserVerificationMediator
 
+    /// The delegate for the FIdo2 flows information and user verification checks.
+    private weak var fido2UserInterfaceHelperDelegate: Fido2UserInterfaceHelperDelegate?
+
+    /// Continuation when picking a credential for authentication.
+    var credentialForAuthenticationContinuation: CheckedContinuation<CipherView, Error>?
     /// Continuation when picking a credential for creation.
     var credentialForCreationContinuation: CheckedContinuation<CheckUserAndPickCredentialForCreationResult, Error>?
 
+    private(set) var availableCredentialsForAuthentication: [BitwardenSdk.CipherView]?
     private(set) var fido2CreationOptions: BitwardenSdk.CheckUserOptions?
     private(set) var fido2CredentialNewView: BitwardenSdk.Fido2CredentialNewView?
 
@@ -94,11 +118,27 @@ class DefaultFido2UserInterfaceHelper: Fido2UserInterfaceHelper {
     func pickCredentialForAuthentication(
         availableCredentials: [BitwardenSdk.CipherView]
     ) async throws -> BitwardenSdk.CipherViewWrapper {
-        if availableCredentials.count == 1 {
+        guard let fido2UserInterfaceHelperDelegate else {
+            throw Fido2Error.noDelegateSetup
+        }
+
+        let isAutofillingFromList = await fido2UserInterfaceHelperDelegate.isAutofillingFromList
+        if !isAutofillingFromList {
+            guard availableCredentials.count == 1 else {
+                throw Fido2Error.invalidOperationError
+            }
             return CipherViewWrapper(cipher: availableCredentials[0])
         }
-        // TODO: PM-8829 implement pick credential for auth
-        throw Fido2Error.invalidOperationError
+
+        defer {
+            availableCredentialsForAuthentication = nil
+        }
+
+        availableCredentialsForAuthentication = availableCredentials
+        let pickedCredential = try await withCheckedThrowingContinuation { continuation in
+            self.credentialForAuthenticationContinuation = continuation
+        }
+        return CipherViewWrapper(cipher: pickedCredential)
     }
 
     func checkUserAndPickCredentialForCreation(
@@ -121,13 +161,18 @@ class DefaultFido2UserInterfaceHelper: Fido2UserInterfaceHelper {
         await fido2UserVerificationMediator.isPreferredVerificationEnabled()
     }
 
+    func pickedCredentialForAuthentication(result: Result<CipherView, Error>) {
+        credentialForAuthenticationContinuation?.resume(with: result)
+    }
+
     func pickedCredentialForCreation(result: Result<CheckUserAndPickCredentialForCreationResult, Error>) {
         credentialForCreationContinuation?.resume(with: result)
     }
 
-    func setupDelegate(fido2UserVerificationMediatorDelegate: Fido2UserVerificationMediatorDelegate) {
+    func setupDelegate(fido2UserInterfaceHelperDelegate: Fido2UserInterfaceHelperDelegate) {
+        self.fido2UserInterfaceHelperDelegate = fido2UserInterfaceHelperDelegate
         fido2UserVerificationMediator.setupDelegate(
-            fido2UserVerificationMediatorDelegate: fido2UserVerificationMediatorDelegate
+            fido2UserVerificationMediatorDelegate: fido2UserInterfaceHelperDelegate
         )
     }
 
