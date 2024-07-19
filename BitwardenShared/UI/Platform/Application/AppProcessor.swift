@@ -14,8 +14,14 @@ public class AppProcessor {
     /// The root module to use to create sub-coordinators.
     let appModule: AppModule
 
+    /// The background task ID for the background process to send events on backgrounding.
+    var backgroundTaskId: UIBackgroundTaskIdentifier?
+
     /// The root coordinator of the app.
     var coordinator: AnyCoordinator<AppRoute, AppEvent>?
+
+    /// A timer to send any accumulated events every five minutes.
+    private(set) var sendEventTimer: Timer?
 
     /// The services used by the app.
     let services: ServiceContainer
@@ -38,17 +44,21 @@ public class AppProcessor {
         self.services.notificationService.setDelegate(self)
         self.services.syncService.delegate = self
 
+        startEventTimer()
+
         UI.initialLanguageCode = services.appSettingsStore.appLocale ?? Locale.current.languageCode
         UI.applyDefaultAppearances()
 
         Task {
             for await _ in services.notificationCenterService.willEnterForegroundPublisher() {
+                startEventTimer()
                 await checkAccountsForTimeout()
             }
         }
 
         Task {
             for await _ in services.notificationCenterService.didEnterBackgroundPublisher() {
+                stopEventTimer()
                 do {
                     let userId = try await self.services.stateService.getActiveAccountId()
                     try await services.vaultTimeoutService.setLastActiveTime(userId: userId)
@@ -253,6 +263,48 @@ public class AppProcessor {
             // No-op: nothing to do if there's no accounts or an active account.
         } catch {
             services.errorReporter.log(error: error)
+        }
+    }
+
+    /// Starts timer to send organization events regularly
+    private func startEventTimer() {
+        sendEventTimer = Timer.scheduledTimer(withTimeInterval: 5 * 60, repeats: true) { _ in
+            Task { [weak self] in
+                await self?.uploadEvents()
+            }
+        }
+        sendEventTimer?.tolerance = 10
+    }
+
+    /// Stops the timer for organization events
+    private func stopEventTimer() {
+        sendEventTimer?.fire()
+        sendEventTimer?.invalidate()
+    }
+
+    /// Sends organization events to the server. Also sets up that regular upload
+    /// as a Background Task so that it won't be canceled when the app is going
+    /// to the background. Per https://forums.developer.apple.com/forums/thread/85066
+    /// calling this for every upload (not just ones where we're backgrounding)
+    /// is fine.
+    private func uploadEvents() async {
+        if let taskId = backgroundTaskId {
+            services.application?.endBackgroundTask(taskId)
+            backgroundTaskId = nil
+        }
+        backgroundTaskId = services.application?.beginBackgroundTask(
+            withName: "SendEventBackgroundTask",
+            expirationHandler: { [weak self] in
+                if let backgroundTaskId = self?.backgroundTaskId {
+                    self?.services.application?.endBackgroundTask(backgroundTaskId)
+                    self?.backgroundTaskId = nil
+                }
+            }
+        )
+        await services.eventService.upload()
+        if let taskId = backgroundTaskId {
+            services.application?.endBackgroundTask(taskId)
+            backgroundTaskId = nil
         }
     }
 }

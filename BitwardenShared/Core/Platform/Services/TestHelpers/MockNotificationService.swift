@@ -5,7 +5,7 @@ import UserNotifications
 
 class MockNotificationService: NotificationService {
     var authorizationStatus: UNAuthorizationStatus = .notDetermined
-    var delegate: NotificationServiceDelegate?
+    weak var delegate: NotificationServiceDelegate?
     var messageReceivedMessage: [AnyHashable: Any]?
     var registrationTokenData: Data?
     var requestAuthorizationResult: Result<Bool, Error> = .success(true)
