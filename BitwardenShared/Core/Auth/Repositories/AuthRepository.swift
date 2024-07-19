@@ -742,7 +742,7 @@ extension DefaultAuthRepository: AuthRepository {
         let id = try await stateService.getActiveAccountId()
         let key = KeychainItem.neverLock(userId: id)
         let neverlockKey = try await keychainService.getUserAuthKeyValue(for: key)
-        try await unlockVault(method: .decryptedKey(decryptedUserKey: neverlockKey))
+        try await unlockVault(method: .decryptedKey(decryptedUserKey: neverlockKey), hadUserInteraction: false)
     }
 
     func unlockVaultWithPassword(password: String) async throws {
@@ -862,9 +862,11 @@ extension DefaultAuthRepository: AuthRepository {
 
     /// Attempts to unlock the vault with a given method.
     ///
-    /// - Parameter method: The unlocking `InitUserCryptoMethod` method.
-    ///
-    private func unlockVault(method: InitUserCryptoMethod) async throws {
+    /// - Parameters:
+    ///   - method: The unlocking `InitUserCryptoMethod` method
+    ///   - hadUserInteraction: If the user interacted with the app to unlock the vault
+    ///   or was unlocked using the never lock key.
+    private func unlockVault(method: InitUserCryptoMethod, hadUserInteraction: Bool = true) async throws {
         let account = try await stateService.getActiveAccount()
         let encryptionKeys = try await stateService.getAccountEncryptionKeys()
 
@@ -920,7 +922,10 @@ extension DefaultAuthRepository: AuthRepository {
         }
 
         _ = try await trustDeviceService.trustDeviceIfNeeded()
-        try await vaultTimeoutService.unlockVault(userId: account.profile.userId)
+        try await vaultTimeoutService.unlockVault(
+            userId: account.profile.userId,
+            hadUserInteraction: hadUserInteraction
+        )
         try await organizationService.initializeOrganizationCrypto()
     }
 

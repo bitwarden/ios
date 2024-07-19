@@ -413,7 +413,7 @@
 "Passphrase" = "Uzun söz";
 "WordSeparator" = "Kelime ayracı";
 "Clear" = "Temizle";
-"Generator" = "Oluşturucu";
+"Generator" = "Üreteç";
 "NoFoldersToList" = "Listelenecek klasör yok.";
 "FingerprintPhrase" = "Parmak izi ifadesi";
 "YourAccountsFingerprint" = "Hesabınızın parmak izi kelimeleri";
@@ -426,8 +426,8 @@
 "ThirtyMinutes" = "30 dakika";
 "SetPINDescription" = "Bitwarden'ı açarken kullanacağınız PIN kodunu belirleyin. Uygulamadan tamamen çıkış yaparsanız PIN ayarlarınız sıfırlanacaktır.";
 "LoggedInAsOn" = "%2$@ sitesine %1$@ olarak giriş yapıldı.";
-"VaultLockedMasterPassword" = "Kasanız kilitlendi. Devam etmek için ana parolanızı doğrulayın.";
-"VaultLockedPIN" = "Kasanız kilitlendi. Devam etmek için PIN kodunuzu doğrulayın.";
+"VaultLockedMasterPassword" = "Kasanız kilitli. Devam etmek için ana parolanızı doğrulayın.";
+"VaultLockedPIN" = "Kasanız kilitli. Devam etmek için PIN kodunuzu doğrulayın.";
 "VaultLockedIdentity" = "Kasanız kilitli. Devam etmek için kimliğinizi doğrulayın.";
 "Dark" = "Koyu";
 "Light" = "Açık";
@@ -497,7 +497,7 @@
 "Restore" = "Geri yükle";
 "Restoring" = "Geri yükleniyor...";
 "ItemRestored" = "Kayıt geri yüklendi";
-"Trash" = "Çöp Kutusu";
+"Trash" = "Çöp kutusu";
 "SearchTrash" = "Çöp kutusunda ara";
 "DoYouReallyWantToPermanentlyDeleteCipher" = "Kalıcı olarak silmek istediğinizden emin misiniz? Bu işlem geri alınamaz.";
 "DoYouReallyWantToRestoreCipher" = "Bu kaydı geri yüklemek istediğinizden emin misiniz?";
@@ -891,10 +891,10 @@
 "UnknownAccount" = "Bilinmeyen hesap";
 "SetUpAutofill" = "Otomatik doldurmayı ayarla";
 "GetInstantAccessToYourPasswordsAndPasskeys" = "Parolalarınıza ve geçiş anahtarlarınıza anında erişin!";
-"SetUpAutoFillDescriptionLong" = "Parolaları otomatik doldurmak ve anahtar yönetimi için, iOS ayarlarında Bitwarden'ı tercih edilen sağlayıcı olarak belirleyin.";
+"SetUpAutoFillDescriptionLong" = "Otomatik parola doldurma ve anahtar yönetimi için, iOS ayarlarında Bitwarden'ı tercih edilen sağlayıcı olarak belirleyin.";
 "FirstDotGoToYourDeviceSettingsPasswordsPasswordOptions" = "1. Go to your device's Settings > Passwords > Password Options";
-"SecondDotTurnOnAutoFill" = "Oto-Doldurma'yı Etkinleştir";
-"ThirdDotSelectBitwardenToUseForPasswordsAndPasskeys" = "Parolalarınızı ve geçiş anahtarlarını kullanmak için \"Bitwarden\" seçin";
+"SecondDotTurnOnAutoFill" = "2. Otomatik doldurmayı açın";
+"ThirdDotSelectBitwardenToUseForPasswordsAndPasskeys" = "Parolalar ve geçiş anahtarları için kullanılmak üzere Bitwarden'ı seçin";
 "YourPasskeyWillBeSavedToYourBitwardenVault" = "Geçiş anahtarınız Bitwarden kasasına kaydedilecektir";
 "YourPasskeyWillBeSavedToYourBitwardenVaultForX" = "%1$@ için geçiş anahtarınız Bitwarden kasasına kaydedilecektir";
 "PasskeysNotSupportedForThisApp" = "Bu uygulamada geçiş anahtarları desteklenmiyor";

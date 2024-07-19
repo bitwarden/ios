@@ -49,6 +49,10 @@ protocol StateService: AnyObject {
     ///
     func getAccountEncryptionKeys(userId: String?) async throws -> AccountEncryptionKeys
 
+    /// Gets whether the user has unlocked their account in the current session interactively.
+    /// - Parameter userId: The user ID of the account. Defaults to the active account if `nil`.
+    func getAccountHasBeenUnlockedInteractively(userId: String?) async throws -> Bool
+
     /// Gets all accounts.
     ///
     /// - Returns: The known user accounts.
@@ -311,6 +315,12 @@ protocol StateService: AnyObject {
     ///   - userId: The user ID of the account. Defaults to the active account if `nil`.
     ///
     func setAccountEncryptionKeys(_ encryptionKeys: AccountEncryptionKeys, userId: String?) async throws
+
+    /// Sets whether the user has unlocked their account in the current session  interactively.
+    /// - Parameters:
+    ///   - userId: The user ID of the account. Defaults to the active account if `nil`.
+    ///   - value: Whether the user has unlocked their account in the current session.
+    func setAccountHasBeenUnlockedInteractively(userId: String?, value: Bool) async throws
 
     /// Sets the active account.
     ///
@@ -593,6 +603,11 @@ extension StateService {
         try await getAccountEncryptionKeys(userId: nil)
     }
 
+    /// Gets whether the user has unlocked their account in the current session  interactively.
+    func getAccountHasBeenUnlockedInteractively() async throws -> Bool {
+        try await getAccountHasBeenUnlockedInteractively(userId: nil)
+    }
+
     /// Gets either a valid account id or the active account id.
     ///
     /// - Parameter userId: The possible user id.
@@ -802,6 +817,12 @@ extension StateService {
     ///
     func setAccountEncryptionKeys(_ encryptionKeys: AccountEncryptionKeys) async throws {
         try await setAccountEncryptionKeys(encryptionKeys, userId: nil)
+    }
+
+    /// Sets whether the user has unlocked their account in the current session  interactively.
+    /// - Parameter value: Whether the user has unlocked their account in the current session
+    func setAccountHasBeenUnlockedInteractively(value: Bool) async throws {
+        try await setAccountHasBeenUnlockedInteractively(userId: nil, value: value)
     }
 
     /// Sets the allow sync on refresh value for the active account.
@@ -1030,7 +1051,7 @@ actor DefaultStateService: StateService { // swiftlint:disable:this type_body_le
 
     func clearPins() async throws {
         let userId = try getActiveAccountUserId()
-        accountVolatileData.removeValue(forKey: userId)
+        accountVolatileData[userId]?.pinProtectedUserKey = nil
         appSettingsStore.setEncryptedPin(nil, userId: userId)
         appSettingsStore.setPinProtectedUserKey(key: nil, userId: userId)
     }
@@ -1073,6 +1094,11 @@ actor DefaultStateService: StateService { // swiftlint:disable:this type_body_le
             encryptedPrivateKey: encryptedPrivateKey,
             encryptedUserKey: appSettingsStore.encryptedUserKey(userId: userId)
         )
+    }
+
+    func getAccountHasBeenUnlockedInteractively(userId: String?) async throws -> Bool {
+        let userId = try userId ?? getActiveAccountUserId()
+        return accountVolatileData[userId]?.hasBeenUnlockedInteractively == true
     }
 
     func getAccounts() throws -> [Account] {
@@ -1267,6 +1293,14 @@ actor DefaultStateService: StateService { // swiftlint:disable:this type_body_le
         let userId = try userId ?? getActiveAccountUserId()
         appSettingsStore.setEncryptedPrivateKey(key: encryptionKeys.encryptedPrivateKey, userId: userId)
         appSettingsStore.setEncryptedUserKey(key: encryptionKeys.encryptedUserKey, userId: userId)
+    }
+
+    func setAccountHasBeenUnlockedInteractively(userId: String?, value: Bool) async throws {
+        let userId = try userId ?? getActiveAccountUserId()
+        accountVolatileData[
+            userId,
+            default: AccountVolatileData()
+        ].hasBeenUnlockedInteractively = value
     }
 
     func setActiveAccount(userId: String) async throws {
@@ -1513,7 +1547,10 @@ actor DefaultStateService: StateService { // swiftlint:disable:this type_body_le
 ///
 struct AccountVolatileData {
     /// The pin protected user key.
-    var pinProtectedUserKey: String = ""
+    var pinProtectedUserKey: String?
+
+    /// Whether the account has been unlocked with user interaction.
+    var hasBeenUnlockedInteractively = false
 }
 
 // MARK: Biometrics

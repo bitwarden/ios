@@ -47,8 +47,7 @@ final class SendListProcessor: StateProcessor<SendListState, SendListAction, Sen
         case .loadData:
             await loadData()
         case let .search(text):
-            let results = await searchSends(for: text)
-            state.searchResults = results
+            await searchSends(for: text)
         case .refresh:
             await refresh()
         case let .sendListItemRow(effect):
@@ -200,12 +199,11 @@ final class SendListProcessor: StateProcessor<SendListState, SendListAction, Sen
     /// Searches the sends using the provided string, and returns any matching results.
     ///
     /// - Parameter searchText: The string to use when searching the sends.
-    /// - Returns: An array of `SendListItem`s. If no results can be found, an empty array will be
-    ///   returned.
     ///
-    private func searchSends(for searchText: String) async -> [SendListItem] {
+    private func searchSends(for searchText: String) async {
         guard !searchText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else {
-            return []
+            state.searchResults = []
+            return
         }
 
         do {
@@ -214,13 +212,12 @@ final class SendListProcessor: StateProcessor<SendListState, SendListAction, Sen
                 type: state.type
             )
             for try await sends in result {
-                return sends
+                state.searchResults = sends
             }
         } catch {
+            coordinator.showAlert(.defaultAlert(title: Localizations.anErrorHasOccurred))
             services.errorReporter.log(error: error)
         }
-
-        return []
     }
 }
 

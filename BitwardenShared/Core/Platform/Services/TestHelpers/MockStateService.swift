@@ -37,6 +37,8 @@ class MockStateService: StateService { // swiftlint:disable:this type_body_lengt
     var lastActiveTime = [String: Date]()
     var loginRequest: LoginRequestNotification?
     var getAccountEncryptionKeysError: Error?
+    // swiftlint:disable:next identifier_name
+    var getAccountHasBeenUnlockedInteractivelyResult: Result<Bool, Error> = .success(false)
     var getBiometricAuthenticationEnabledResult: Result<Void, Error> = .success(())
     var getBiometricIntegrityStateError: Error?
     var lastSyncTimeByUserId = [String: Date]()
@@ -53,6 +55,9 @@ class MockStateService: StateService { // swiftlint:disable:this type_body_lengt
     var showWebIconsSubject = CurrentValueSubject<Bool, Never>(true)
     var timeoutAction = [String: SessionTimeoutAction]()
     var serverConfig = [String: ServerConfig]()
+    var setAccountHasBeenUnlockedInteractivelyHasBeenCalled = false // swiftlint:disable:this identifier_name
+    // swiftlint:disable:next identifier_name
+    var setAccountHasBeenUnlockedInteractivelyResult: Result<Void, Error> = .success(())
     var setBiometricAuthenticationEnabledResult: Result<Void, Error> = .success(())
     var setBiometricIntegrityStateError: Error?
     var shouldCheckOrganizationUnassignedItems = [String: Bool?]()
@@ -107,6 +112,10 @@ class MockStateService: StateService { // swiftlint:disable:this type_body_lengt
             throw StateServiceError.noActiveAccount
         }
         return encryptionKeys
+    }
+
+    func getAccountHasBeenUnlockedInteractively(userId: String?) async throws -> Bool {
+        try getAccountHasBeenUnlockedInteractivelyResult.get()
     }
 
     func getAccount(userId: String?) async throws -> BitwardenShared.Account {
@@ -295,6 +304,11 @@ class MockStateService: StateService { // swiftlint:disable:this type_body_lengt
     func setAccountEncryptionKeys(_ encryptionKeys: AccountEncryptionKeys, userId: String?) async throws {
         let userId = try unwrapUserId(userId)
         accountEncryptionKeys[userId] = encryptionKeys
+    }
+
+    func setAccountHasBeenUnlockedInteractively(userId: String?, value: Bool) async throws {
+        setAccountHasBeenUnlockedInteractivelyHasBeenCalled = true
+        try setAccountHasBeenUnlockedInteractivelyResult.get()
     }
 
     func setActiveAccount(userId: String) async throws {
