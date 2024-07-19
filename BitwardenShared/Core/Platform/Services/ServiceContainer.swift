@@ -561,6 +561,7 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
         #endif
 
         let autofillCredentialService = DefaultAutofillCredentialService(
+            authRepository: authRepository,
             cipherService: cipherService,
             clientService: clientService,
             errorReporter: errorReporter,

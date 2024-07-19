@@ -336,82 +336,19 @@ extension AppProcessor: SyncServiceDelegate {
 public extension AppProcessor {
     /// Provides a Fido2 credential for a passkey request
     /// - Parameters:
-    ///   - passkeyRequest: Request to get the credential
+    ///   - passkeyRequest: Request to get the credential.
+    ///   - withUserInteraction: Whether the current flow is interactive with the user.
     /// - Returns: The passkey credential for assertion.
-    @available(iOSApplicationExtension 17.0, *)
-    func provideFido2Credential( // swiftlint:disable:this function_body_length
+    @available(iOS 17.0, *)
+    func provideFido2Credential(
         for passkeyRequest: ASPasskeyCredentialRequest,
         withUserInteraction: Bool
     ) async throws -> ASPasskeyAssertionCredential {
-        guard let credentialIdentiy = passkeyRequest.credentialIdentity as? ASPasskeyCredentialIdentity else {
-            throw AppProcessorError.invalidOperation
-        }
-
-        let isLocked = try? await services.authRepository.isLocked()
-        let vaultTimeout = try? await services.vaultTimeoutService.sessionTimeoutValue(userId: nil)
-
-        switch (vaultTimeout, isLocked) {
-        case (.never, true):
-            // If the user has enabled Never Lock, but the vault is locked,
-            // unlock the vault before continuing.
-            try await services.authRepository.unlockVaultWithNeverlockKey()
-        case (_, false):
-            break
-        default:
-            if !withUserInteraction {
-                throw Fido2Error.userInteractionRequired
-            }
-        }
-
-        let request = GetAssertionRequest(
-            rpId: credentialIdentiy.relyingPartyIdentifier,
-            clientDataHash: passkeyRequest.clientDataHash,
-            allowList: [
-                PublicKeyCredentialDescriptor(
-                    ty: "public-key",
-                    id: credentialIdentiy.credentialID,
-                    transports: nil
-                ),
-            ],
-            options: Options(
-                rk: false,
-                uv: BitwardenSdk.Uv(preference: passkeyRequest.userVerificationPreference)
-            ),
-            extensions: nil
+        try await services.autofillCredentialService.provideFido2Credential(
+            for: passkeyRequest,
+            withUserInteraction: withUserInteraction,
+            fido2UserVerificationMediatorDelegate: self
         )
-
-        #if DEBUG
-        Fido2DebuggingReportBuilder.builder.withGetAssertionRequest(request)
-        #endif
-
-        services.fido2UserInterfaceHelper.setupDelegate(fido2UserVerificationMediatorDelegate: self)
-
-        do {
-            let assertionResult = try await services.clientService.platform().fido2()
-                .authenticator(
-                    userInterface: services.fido2UserInterfaceHelper,
-                    credentialStore: services.fido2CredentialStore
-                )
-                .getAssertion(request: request)
-
-            #if DEBUG
-            Fido2DebuggingReportBuilder.builder.withGetAssertionResult(.success(assertionResult))
-            #endif
-
-            return ASPasskeyAssertionCredential(
-                userHandle: assertionResult.userHandle,
-                relyingParty: credentialIdentiy.relyingPartyIdentifier,
-                signature: assertionResult.signature,
-                clientDataHash: passkeyRequest.clientDataHash,
-                authenticatorData: assertionResult.authenticatorData,
-                credentialID: assertionResult.credentialId
-            )
-        } catch {
-            #if DEBUG
-            Fido2DebuggingReportBuilder.builder.withGetAssertionResult(.failure(error))
-            #endif
-            throw error
-        }
     }
 }
 
@@ -443,4 +380,4 @@ extension AppProcessor: Fido2UserVerificationMediatorDelegate {
 enum AppProcessorError: Error {
     /// The operation to execute is invalid.
     case invalidOperation
-} // swiftlint:disable:this file_length
+}
