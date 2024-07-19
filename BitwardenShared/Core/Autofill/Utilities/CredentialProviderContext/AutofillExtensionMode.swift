@@ -3,13 +3,13 @@ import AuthenticationServices
 /// The autofill extension modes
 public enum AutofillExtensionMode {
     /// The extension is autofilling a specific password credential.
-    case autofillCredential(ASPasswordCredentialIdentity)
+    case autofillCredential(ASPasswordCredentialIdentity, userInteraction: Bool)
 
     /// The extension is displaying a list of password items in the vault that match a service identifier.
     case autofillVaultList([ASCredentialServiceIdentifier])
 
     /// The extension is autofilling a specific Fido2 credential.
-    case autofillFido2Credential(any PasskeyCredentialRequest)
+    case autofillFido2Credential(any PasskeyCredentialRequest, userInteraction: Bool)
 
     /// The extension is displaying a list of items in the vault that match a service identifier
     /// and or passkey request parameters.

@@ -7,8 +7,10 @@ import BitwardenSdk
 ///
 @MainActor
 protocol Fido2UserVerificationMediatorDelegate: UserVerificationDelegate {
+    /// Performs additional logic when user interaction is needed and throws if needed.
+    func onNeedsUserInteraction() async throws
+
     /// Set up the Bitwarden Pin for the current account
-    ///
     func setupPin() async throws
 }
 
@@ -96,7 +98,7 @@ extension DefaultFido2UserVerificationMediator: Fido2UserVerificationMediator {
     func checkUser(userVerificationPreference: BitwardenSdk.Verification,
                    credential: BitwardenSdk.CipherView) async throws -> CheckUserResult {
         if try await authRepository.shouldPerformMasterPasswordReprompt(reprompt: credential.reprompt) {
-            // TODO: PM-8360 check if user interaction is needed to restart autofill action.
+            try await fido2UserVerificationMediatorDelegate?.onNeedsUserInteraction()
 
             let mpVerificationResult = try await userVerificationRunner.verifyWithAttempts(
                 verifyFunction: userVerificationHelper.verifyMasterPassword
@@ -112,7 +114,7 @@ extension DefaultFido2UserVerificationMediator: Fido2UserVerificationMediator {
             return CheckUserResult(userPresent: true, userVerified: true)
         }
 
-        // TODO: PM-8360 check if user interaction is needed to restart autofill action.
+        try await fido2UserVerificationMediatorDelegate?.onNeedsUserInteraction()
 
         switch userVerificationPreference {
         case .discouraged:
