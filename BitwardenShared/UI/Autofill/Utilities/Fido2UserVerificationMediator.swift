@@ -22,6 +22,8 @@ protocol Fido2UserVerificationMediator: AnyObject {
     ///   - userVerificationPreference: The Fido2 `BitwardenSdk.Verification` from the RP.
     ///   - credential: The selected cipher from which user needs to be verified.
     /// - Returns: The result of the verification and whether the user is present, in this case it's always present.
+    /// - Throws: Particularly `Fido2UserVerificationError.masterPasswordRepromptFailed` when
+    /// master password reprompt was performed and failed.
     func checkUser(
         userVerificationPreference: BitwardenSdk.Verification,
         credential: BitwardenSdk.CipherView
@@ -29,7 +31,7 @@ protocol Fido2UserVerificationMediator: AnyObject {
 
     /// Whether any verification method is enabled.
     /// - Returns: `true` if enabled, `false` otherwise.
-    func isPreferredVerificationEnabled() -> Bool
+    func isPreferredVerificationEnabled() async -> Bool
 
     /// Sets up the delegate to use on Fido2 user verification flows.
     /// - Parameter fido2UserVerificationMediatorDelegate: The delegate to use.
@@ -53,6 +55,9 @@ class DefaultFido2UserVerificationMediator {
     /// The delegate used to manage user interaction from the user verification flow.
     private weak var fido2UserVerificationMediatorDelegate: Fido2UserVerificationMediatorDelegate?
 
+    /// The service used by the application to manage account state.
+    let stateService: StateService
+
     /// The helper to execute user verification flows.
     private var userVerificationHelper: UserVerificationHelper
 
@@ -64,14 +69,17 @@ class DefaultFido2UserVerificationMediator {
     /// Initialize a `DefaultFido2UserVerificationMediator`.
     /// - Parameters:
     ///   - authRepository: The repository used by the application to manage auth data for the UI layer.
+    ///   - stateService: The service used by the application to manage account state.
     ///   - userVerificationHelper: Helper to execute user verifications.
     ///   - userVerificationRunner: The execution runner helper for user verification.
     init(
         authRepository: AuthRepository,
+        stateService: StateService,
         userVerificationHelper: UserVerificationHelper,
         userVerificationRunner: UserVerificationRunner
     ) {
         self.authRepository = authRepository
+        self.stateService = stateService
         self.userVerificationHelper = userVerificationHelper
         self.userVerificationRunner = userVerificationRunner
     }
@@ -94,12 +102,15 @@ extension DefaultFido2UserVerificationMediator: Fido2UserVerificationMediator {
                 verifyFunction: userVerificationHelper.verifyMasterPassword
             )
             guard mpVerificationResult == .verified else {
-                return CheckUserResult(userPresent: true, userVerified: false)
+                throw Fido2UserVerificationError.masterPasswordRepromptFailed
             }
             return CheckUserResult(userPresent: true, userVerified: true)
         }
 
-        // TODO: PM-8361 verify if account has been unlocked in current transaction
+        if let hasBeenUnlocked = try? await stateService.getAccountHasBeenUnlockedInteractively(),
+           hasBeenUnlocked {
+            return CheckUserResult(userPresent: true, userVerified: true)
+        }
 
         // TODO: PM-8360 check if user interaction is needed to restart autofill action.
 
@@ -143,7 +154,12 @@ extension DefaultFido2UserVerificationMediator: Fido2UserVerificationMediator {
         }
     }
 
-    func isPreferredVerificationEnabled() -> Bool {
-        userVerificationHelper.canVerifyDeviceLocalAuth()
+    func isPreferredVerificationEnabled() async -> Bool {
+        if let hasBeenUnlocked = try? await stateService.getAccountHasBeenUnlockedInteractively(),
+           hasBeenUnlocked {
+            return true
+        }
+
+        return userVerificationHelper.canVerifyDeviceLocalAuth()
     }
 }

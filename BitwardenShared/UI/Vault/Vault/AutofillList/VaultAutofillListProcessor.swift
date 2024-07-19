@@ -262,7 +262,7 @@ extension VaultAutofillListProcessor: ProfileSwitcherHandler {
     }
 
     func showAlert(_ alert: Alert) {
-        // No-Op for the VaultAutofillListProcessor.
+        coordinator.showAlert(alert)
     }
 }
 
@@ -365,7 +365,7 @@ extension VaultAutofillListProcessor {
             result: .success(
                 CheckUserAndPickCredentialForCreationResult(
                     cipher: CipherViewWrapper(cipher: cipher),
-                    // TODO: PM-8352 add user verification
+                    // TODO: PM-9849 add user verification
                     checkUserResult: CheckUserResult(userPresent: true, userVerified: true)
                 )
             )

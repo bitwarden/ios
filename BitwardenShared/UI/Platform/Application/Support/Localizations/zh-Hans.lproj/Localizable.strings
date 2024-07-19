@@ -355,7 +355,7 @@
 "AutofillAndSave" = "自动填充并保存";
 "Organization" = "组织";
 "HoldYubikeyNearTop" = "把你的 Yubikey 靠近设备的顶部。";
-"TryAgain" = "再试一次";
+"TryAgain" = "请重试";
 "YubiKeyInstructionIos" = "要继续，请将您的 YubiKey NEO 靠在设备背面。";
 "BitwardenAutofillAccessibilityServiceDescription2" = "当应用程序不支持标准的自动填充服务时，无障碍服务可能会很有用。";
 "DatePasswordUpdated" = "密码更新于";
@@ -521,7 +521,7 @@
 "PolicyInEffectSpecial" = "至少包含一个以下特殊字符：%1$@";
 "MasterPasswordPolicyValidationTitle" = "无效的密码";
 "MasterPasswordPolicyValidationMessage" = "密码不符合组织要求。请检查策略信息然后重试。";
-"Loading" = "载入中";
+"Loading" = "加载中";
 "AcceptPolicies" = "激活此开关表示您同意：";
 "AcceptPoliciesError" = "尚未同意服务条款和隐私政策。";
 "TermsOfService" = "服务条款";

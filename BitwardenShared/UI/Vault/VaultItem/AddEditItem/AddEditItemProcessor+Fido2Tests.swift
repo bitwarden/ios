@@ -94,7 +94,60 @@ class AddEditItemProcessorFido2Tests: BitwardenTestCase {
 
     /// `perform(_:)` with `.savePressed` in the app extension completes picks the credential
     /// for creation in a Fido2 context where there is a Fido2 creation request.
-    func test_perform_savePressed_fido2AppExtension() async {
+    func test_perform_savePressed_fido2Succeeds() async {
+        subject.state.name = "name"
+        appExtensionDelegate.extensionMode = .registerFido2Credential(ASPasskeyCredentialRequest.fixture())
+        fido2UserInterfaceHelper.fido2CreationOptions = CheckUserOptions(
+            requirePresence: true,
+            requireVerification: .preferred
+        )
+        fido2UserInterfaceHelper.checkUserResult = .success(CheckUserResult(userPresent: true, userVerified: true))
+
+        await subject.perform(.savePressed)
+
+        fido2UserInterfaceHelper.pickedCredentialForCreationMocker.assertUnwrapping { result in
+            guard case let .success(pickedResult) = result,
+                  pickedResult.cipher.cipher.id == subject.state.cipher.id,
+                  pickedResult.checkUserResult.userPresent,
+                  pickedResult.checkUserResult.userVerified else {
+                return false
+            }
+            return true
+        }
+
+        XCTAssertTrue(vaultRepository.addCipherCiphers.isEmpty)
+    }
+
+    /// `perform(_:)` with `.savePressed` in the app extension completes pick the credential
+    /// for creation in a Fido2 context where there is a Fido2 creation request and check user fails.
+    func test_perform_savePressed_fido2FailsUV() async {
+        subject.state.name = "name"
+        appExtensionDelegate.extensionMode = .registerFido2Credential(ASPasskeyCredentialRequest.fixture())
+        fido2UserInterfaceHelper.fido2CreationOptions = CheckUserOptions(
+            requirePresence: true,
+            requireVerification: .preferred
+        )
+        fido2UserInterfaceHelper.checkUserResult = .success(CheckUserResult(userPresent: true, userVerified: false))
+
+        await subject.perform(.savePressed)
+
+        fido2UserInterfaceHelper.pickedCredentialForCreationMocker.assertUnwrapping { result in
+            guard case let .success(pickedResult) = result,
+                  pickedResult.cipher.cipher.id == subject.state.cipher.id,
+                  pickedResult.checkUserResult.userPresent,
+                  !pickedResult.checkUserResult.userVerified else {
+                return false
+            }
+            return true
+        }
+
+        XCTAssertTrue(vaultRepository.addCipherCiphers.isEmpty)
+    }
+
+    /// `perform(_:)` with `.savePressed` in the app extension completes pick the credential
+    /// for creation in a Fido2 context where there is a Fido2 creation request and no fido2 creation options
+    /// to perform check user.
+    func test_perform_savePressed_fido2NoCreationOptions() async {
         subject.state.name = "name"
         appExtensionDelegate.extensionMode = .registerFido2Credential(ASPasskeyCredentialRequest.fixture())
 
@@ -102,12 +155,49 @@ class AddEditItemProcessorFido2Tests: BitwardenTestCase {
 
         fido2UserInterfaceHelper.pickedCredentialForCreationMocker.assertUnwrapping { result in
             guard case let .success(pickedResult) = result,
-                  pickedResult.cipher.cipher.id == subject.state.cipher.id else {
+                  pickedResult.cipher.cipher.id == subject.state.cipher.id,
+                  pickedResult.checkUserResult.userPresent,
+                  !pickedResult.checkUserResult.userVerified else {
                 return false
             }
             return true
         }
 
         XCTAssertTrue(vaultRepository.addCipherCiphers.isEmpty)
+    }
+
+    /// `perform(_:)` with `.savePressed` in the app extension doesn't completes pick the credential
+    /// for creation in a Fido2 context where there is a Fido2 creation request and check user is cancelled.
+    func test_perform_savePressed_fido2Cancelled() async {
+        subject.state.name = "name"
+        appExtensionDelegate.extensionMode = .registerFido2Credential(ASPasskeyCredentialRequest.fixture())
+        fido2UserInterfaceHelper.fido2CreationOptions = CheckUserOptions(
+            requirePresence: true,
+            requireVerification: .required
+        )
+        fido2UserInterfaceHelper.checkUserResult = .failure(UserVerificationError.cancelled)
+
+        await subject.perform(.savePressed)
+
+        XCTAssertFalse(fido2UserInterfaceHelper.pickedCredentialForCreationMocker.called)
+        XCTAssertTrue(vaultRepository.addCipherCiphers.isEmpty)
+    }
+
+    /// `perform(_:)` with `.savePressed` in the app extension doesn't completes pick the credential
+    /// for creation in a Fido2 context where there is a Fido2 creation request and check user throws..
+    func test_perform_savePressed_fido2Throws() async {
+        subject.state.name = "name"
+        appExtensionDelegate.extensionMode = .registerFido2Credential(ASPasskeyCredentialRequest.fixture())
+        fido2UserInterfaceHelper.fido2CreationOptions = CheckUserOptions(
+            requirePresence: true,
+            requireVerification: .required
+        )
+        fido2UserInterfaceHelper.checkUserResult = .failure(BitwardenTestError.example)
+
+        await subject.perform(.savePressed)
+
+        XCTAssertFalse(fido2UserInterfaceHelper.pickedCredentialForCreationMocker.called)
+        XCTAssertTrue(vaultRepository.addCipherCiphers.isEmpty)
+        XCTAssertEqual(errorReporter.errors.first as? BitwardenTestError, .example)
     }
 }

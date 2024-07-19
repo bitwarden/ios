@@ -1,4 +1,5 @@
 import AuthenticationServices
+import BitwardenSdk
 import Foundation
 import XCTest
 
@@ -212,6 +213,96 @@ class AppProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_body
         subject.sendEventTimer?.fire() // Necessary because it's a 5-minute timer
         waitFor(eventService.uploadCalled)
         XCTAssertTrue(eventService.uploadCalled)
+    }
+
+    /// `provideFido2Credential(for:)` succeeds
+    @available(iOS 17.0, *)
+    func test_provideFido2Credential_succeeds() async throws {
+        authRepository.isLockedResult = .success(false)
+        let passkeyIdentity = ASPasskeyCredentialIdentity.fixture()
+        let passkeyRequest = ASPasskeyCredentialRequest.fixture(credentialIdentity: passkeyIdentity)
+        let expectedAssertionResult = GetAssertionResult.fixture()
+
+        clientService.mockPlatform.fido2Mock
+            .clientFido2AuthenticatorMock
+            .getAssertionMocker
+            .withVerification { request in
+                request.rpId == passkeyIdentity.relyingPartyIdentifier
+                    && request.clientDataHash == passkeyRequest.clientDataHash
+                    && request.allowList?[0].id == passkeyIdentity.credentialID
+                    && request.allowList?[0].ty == "public-key"
+                    && request.allowList?[0].transports == nil
+                    && !request.options.rk
+                    && request.options.uv == .discouraged
+                    && request.extensions == nil
+            }
+            .withResult(expectedAssertionResult)
+
+        let result = try await subject.provideFido2Credential(for: passkeyRequest)
+
+        XCTAssertFalse(authRepository.unlockVaultWithNeverlockKeyCalled)
+
+        XCTAssertEqual(result.userHandle, expectedAssertionResult.userHandle)
+        XCTAssertEqual(result.relyingParty, passkeyIdentity.relyingPartyIdentifier)
+        XCTAssertEqual(result.signature, expectedAssertionResult.signature)
+        XCTAssertEqual(result.clientDataHash, passkeyRequest.clientDataHash)
+        XCTAssertEqual(result.authenticatorData, expectedAssertionResult.authenticatorData)
+        XCTAssertEqual(result.credentialID, expectedAssertionResult.credentialId)
+    }
+
+    /// `provideFido2Credential(for:)` succeeds when unlocking with never key.
+    @available(iOS 17.0, *)
+    func test_provideFido2Credential_succeedsWithUnlockingNeverKey() async throws {
+        authRepository.isLockedResult = .success(true)
+        vaultTimeoutService.vaultTimeout["1"] = .never
+
+        let passkeyIdentity = ASPasskeyCredentialIdentity.fixture()
+        let passkeyRequest = ASPasskeyCredentialRequest.fixture(credentialIdentity: passkeyIdentity)
+        let expectedAssertionResult = GetAssertionResult.fixture()
+
+        clientService.mockPlatform.fido2Mock
+            .clientFido2AuthenticatorMock
+            .getAssertionMocker
+            .withVerification { request in
+                request.rpId == passkeyIdentity.relyingPartyIdentifier
+                    && request.clientDataHash == passkeyRequest.clientDataHash
+                    && request.allowList?[0].id == passkeyIdentity.credentialID
+                    && request.allowList?[0].ty == "public-key"
+                    && request.allowList?[0].transports == nil
+                    && !request.options.rk
+                    && request.options.uv == .discouraged
+                    && request.extensions == nil
+            }
+            .withResult(expectedAssertionResult)
+
+        let result = try await subject.provideFido2Credential(for: passkeyRequest)
+
+        XCTAssertTrue(authRepository.unlockVaultWithNeverlockKeyCalled)
+
+        XCTAssertEqual(result.userHandle, expectedAssertionResult.userHandle)
+        XCTAssertEqual(result.relyingParty, passkeyIdentity.relyingPartyIdentifier)
+        XCTAssertEqual(result.signature, expectedAssertionResult.signature)
+        XCTAssertEqual(result.clientDataHash, passkeyRequest.clientDataHash)
+        XCTAssertEqual(result.authenticatorData, expectedAssertionResult.authenticatorData)
+        XCTAssertEqual(result.credentialID, expectedAssertionResult.credentialId)
+    }
+
+    /// `provideFido2Credential(for:)` throws when getting assertion.
+    @available(iOS 17.0, *)
+    func test_provideFido2Credential_throws() async throws {
+        authRepository.isLockedResult = .success(false)
+
+        let passkeyIdentity = ASPasskeyCredentialIdentity.fixture()
+        let passkeyRequest = ASPasskeyCredentialRequest.fixture(credentialIdentity: passkeyIdentity)
+
+        clientService.mockPlatform.fido2Mock
+            .clientFido2AuthenticatorMock
+            .getAssertionMocker
+            .throwing(BitwardenTestError.example)
+
+        await assertAsyncThrows(error: BitwardenTestError.example) {
+            _ = try await subject.provideFido2Credential(for: passkeyRequest)
+        }
     }
 
     /// `messageReceived(_:notificationDismissed:notificationTapped)` passes the data to the notification service.
