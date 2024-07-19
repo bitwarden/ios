@@ -81,9 +81,15 @@ public enum LoginTOTPState: Equatable, Sendable {
 
     /// Initializes a LoginTOTPState model from a possible TOTP Auth Key String
     ///
-    /// - Parameter authKeyString: The optional TOTP key string.
+    /// - Parameters:
+    ///   - authKeyString: The optional TOTP key string.
     ///
-    init(_ authKeyString: String) {
-        self = .key(TOTPKeyModel(authenticatorKey: authKeyString))
+    init(_ authKeyString: String?) {
+        switch authKeyString {
+        case let .some(string):
+            self = .key(TOTPKeyModel(authenticatorKey: string))
+        case .none:
+            self = .none
+        }
     }
 }

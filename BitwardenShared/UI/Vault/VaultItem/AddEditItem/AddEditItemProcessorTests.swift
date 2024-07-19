@@ -459,6 +459,33 @@ class AddEditItemProcessorTests: BitwardenTestCase {
     }
 
     /// `didCompleteCapture` with a value updates the state with the new auth key value
+    /// and navigates to the `.dismiss` route.
+    func test_didCompleteCapture_failure() {
+        subject.state.loginState.totpState = .none
+        totpService.getTOTPConfigResult = .failure(TOTPServiceError.invalidKeyFormat)
+        let captureCoordinator = MockCoordinator<AuthenticatorKeyCaptureRoute, AuthenticatorKeyCaptureEvent>()
+        subject.didCompleteCapture(captureCoordinator.asAnyCoordinator(), with: "1234")
+        var dismissAction: DismissAction?
+        if case let .dismiss(onDismiss) = captureCoordinator.routes.last {
+            dismissAction = onDismiss
+        }
+        XCTAssertNotNil(dismissAction)
+        dismissAction?.action()
+        XCTAssertEqual(
+            coordinator.alertShown.last,
+            Alert(
+                title: Localizations.authenticatorKeyReadError,
+                message: nil,
+                alertActions: [
+                    AlertAction(title: Localizations.ok, style: .default),
+                ]
+            )
+        )
+        XCTAssertNil(subject.state.loginState.authenticatorKey)
+        XCTAssertNil(subject.state.toast)
+    }
+
+    /// `didCompleteCapture` with a value updates the state with the new auth key value
     /// and navigates to the `.dismiss()` route.
     func test_didCompleteCapture_success() throws {
         subject.state.loginState.totpState = .none
@@ -1145,6 +1172,14 @@ class AddEditItemProcessorTests: BitwardenTestCase {
         subject.receive(.authKeyVisibilityTapped(true))
 
         XCTAssertTrue(subject.state.loginState.isAuthKeyVisible)
+    }
+
+    /// `receive(_:)` with `.clearTOTPKey` clears the authenticator key.
+    func test_receive_clearTOTPKey() {
+        subject.state.loginState.totpState = LoginTOTPState(.standardTotpKey)
+        subject.receive(.totpKeyChanged(nil))
+
+        XCTAssertNil(subject.state.loginState.authenticatorKey)
     }
 
     /// `receive(_:)` with `.collectionToggleChanged` updates the selected collection IDs for the cipher.

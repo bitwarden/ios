@@ -72,7 +72,7 @@ enum AddEditItemAction: Equatable {
     ///
     /// - Parameter newValue: the updated TOTP key.
     ///
-    case totpKeyChanged(_ newValue: String)
+    case totpKeyChanged(_ newValue: String?)
 
     /// The type field was changed.
     case typeChanged(CipherType)

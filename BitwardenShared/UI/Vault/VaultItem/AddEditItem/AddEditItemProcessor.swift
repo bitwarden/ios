@@ -191,7 +191,7 @@ final class AddEditItemProcessor: StateProcessor<// swiftlint:disable:this type_
         case let .toastShown(newValue):
             state.toast = newValue
         case .totpFieldLeftFocus:
-            parseAndValidateEditedAuthenticatorKey(state.loginState.totpState.rawAuthenticatorKeyString ?? "")
+            parseAndValidateEditedAuthenticatorKey(state.loginState.totpState.rawAuthenticatorKeyString)
         case let .totpKeyChanged(newValue):
             state.loginState.totpState = .init(newValue)
         case let .typeChanged(newValue):
@@ -713,12 +713,16 @@ extension AddEditItemProcessor: AuthenticatorKeyCaptureDelegate {
     }
 
     func parseAndValidateCapturedAuthenticatorKey(_ key: String) {
-        let authKeyModel = services.totpService.getTOTPConfiguration(key: key)
-        state.loginState.totpState = .key(authKeyModel)
-        state.toast = Toast(text: Localizations.authenticatorKeyAdded)
+        do {
+            let authKeyModel = try services.totpService.getTOTPConfiguration(key: key)
+            state.loginState.totpState = .key(authKeyModel)
+            state.toast = Toast(text: Localizations.authenticatorKeyAdded)
+        } catch {
+            coordinator.showAlert(.totpScanFailureAlert())
+        }
     }
 
-    func parseAndValidateEditedAuthenticatorKey(_ key: String) {
+    func parseAndValidateEditedAuthenticatorKey(_ key: String?) {
         guard key != state.loginState.totpState.authKeyModel?.rawAuthenticatorKey else { return }
         let newState = LoginTOTPState(key)
         state.loginState.totpState = newState
