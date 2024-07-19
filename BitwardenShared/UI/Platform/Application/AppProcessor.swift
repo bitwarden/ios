@@ -11,6 +11,9 @@ import UIKit
 public class AppProcessor {
     // MARK: Properties
 
+    /// A delegate used to communicate with the app extension.
+    private(set) weak var appExtensionDelegate: AppExtensionDelegate?
+
     /// The root module to use to create sub-coordinators.
     let appModule: AppModule
 
@@ -25,13 +28,16 @@ public class AppProcessor {
     /// Initializes an `AppProcessor`.
     ///
     /// - Parameters:
+    ///   - appExtensionDelegate: A delegate used to communicate with the app extension.
     ///   - appModule: The root module to use to create sub-coordinators.
     ///   - services: The services used by the app.
     ///
     public init(
+        appExtensionDelegate: AppExtensionDelegate? = nil,
         appModule: AppModule,
         services: ServiceContainer
     ) {
+        self.appExtensionDelegate = appExtensionDelegate
         self.appModule = appModule
         self.services = services
 
@@ -328,11 +334,14 @@ extension AppProcessor: SyncServiceDelegate {
 // MARK: - Fido2 credentials
 
 public extension AppProcessor {
-    /// Provides a Fido2 credential for a passkey request.
-    /// - Parameter passkeyRequest: Request to get the credential.
+    /// Provides a Fido2 credential for a passkey request
+    /// - Parameters:
+    ///   - passkeyRequest: Request to get the credential
+    /// - Returns: The passkey credential for assertion.
     @available(iOSApplicationExtension 17.0, *)
     func provideFido2Credential( // swiftlint:disable:this function_body_length
-        for passkeyRequest: ASPasskeyCredentialRequest
+        for passkeyRequest: ASPasskeyCredentialRequest,
+        withUserInteraction: Bool
     ) async throws -> ASPasskeyAssertionCredential {
         guard let credentialIdentiy = passkeyRequest.credentialIdentity as? ASPasskeyCredentialIdentity else {
             throw AppProcessorError.invalidOperation
@@ -349,7 +358,9 @@ public extension AppProcessor {
         case (_, false):
             break
         default:
-            break
+            if !withUserInteraction {
+                throw Fido2Error.userInteractionRequired
+            }
         }
 
         let request = GetAssertionRequest(
@@ -372,6 +383,8 @@ public extension AppProcessor {
         #if DEBUG
         Fido2DebuggingReportBuilder.builder.withGetAssertionRequest(request)
         #endif
+
+        services.fido2UserInterfaceHelper.setupDelegate(fido2UserVerificationMediatorDelegate: self)
 
         do {
             let assertionResult = try await services.clientService.platform().fido2()
@@ -399,6 +412,28 @@ public extension AppProcessor {
             #endif
             throw error
         }
+    }
+}
+
+extension AppProcessor: Fido2UserVerificationMediatorDelegate {
+    func onNeedsUserInteraction() async throws {
+        if let fido2AppExtensionDelegate = appExtensionDelegate as? Fido2AppExtensionDelegate,
+           !fido2AppExtensionDelegate.flowWithUserInteraction {
+            fido2AppExtensionDelegate.setUserInteractionRequired()
+            throw Fido2Error.userInteractionRequired
+        }
+    }
+
+    func setupPin() async throws {
+        // TODO: PM-8362 navigate to pin setup
+    }
+
+    func showAlert(_ alert: Alert) {
+        coordinator?.showAlert(alert)
+    }
+
+    func showAlert(_ alert: Alert, onDismissed: (() -> Void)?) {
+        coordinator?.showAlert(alert, onDismissed: onDismissed)
     }
 }
 

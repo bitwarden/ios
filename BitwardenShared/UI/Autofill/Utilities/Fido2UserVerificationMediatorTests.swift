@@ -5,7 +5,7 @@ import XCTest
 
 // MARK: - Fido2UserVerificationMediatorTests
 
-class Fido2UserVerificationMediatorTests: BitwardenTestCase {
+class Fido2UserVerificationMediatorTests: BitwardenTestCase { // swiftlint:disable:this type_body_length
     // MARK: Types
 
     typealias VerifyFunction = () async throws -> UserVerificationResult
@@ -79,11 +79,27 @@ class Fido2UserVerificationMediatorTests: BitwardenTestCase {
     }
 
     /// `checkUser(userVerificationPreference:credential:)`  with each preference,
+    /// reprompt enabled and needs user interaction.
+    func test_checkUser_anyPreferenceRepromptThrowsNeedsUserInteraction() async throws {
+        try await checkUser_throws_when_repromptNeedsUserInteraction(.discouraged)
+        try await checkUser_throws_when_repromptNeedsUserInteraction(.preferred)
+        try await checkUser_throws_when_repromptNeedsUserInteraction(.required)
+    }
+
+    /// `checkUser(userVerificationPreference:credential:)`  with each preference,
     /// account has been unlocked in current transaction.
     func test_checkUser_anyPreferenceUnlockedCurrentTransaction() async throws {
         try await checkUser_verified_when_unlockedCurrentTransation(.discouraged)
         try await checkUser_verified_when_unlockedCurrentTransation(.preferred)
         try await checkUser_verified_when_unlockedCurrentTransation(.required)
+    }
+
+    /// `checkUser(userVerificationPreference:credential:)`  with each preference,
+    /// account has not been unlocked in current transaction but throws becuase needs user interaction.
+    func test_checkUser_anyPreferenceThrowsNeedsUserInteraction() async throws {
+        try await checkUser_throws_when_needsUserInteraction(.discouraged)
+        try await checkUser_throws_when_needsUserInteraction(.preferred)
+        try await checkUser_throws_when_needsUserInteraction(.required)
     }
 
     /// `checkUser(userVerificationPreference:credential:)`  with preference discouraged,
@@ -237,6 +253,7 @@ class Fido2UserVerificationMediatorTests: BitwardenTestCase {
             CheckUserResult(userPresent: true, userVerified: true),
             "Failed for preference \(userVerificationPreference)"
         )
+        XCTAssertTrue(fido2UserVerificationMediatorDelegate.onNeedsUserInteractionCalled)
     }
 
     private func checkUser_not_verified_when_reprompt_and_reprompt_not_verified(
@@ -252,6 +269,7 @@ class Fido2UserVerificationMediatorTests: BitwardenTestCase {
                 credential: cipher
             )
         }
+        XCTAssertTrue(fido2UserVerificationMediatorDelegate.onNeedsUserInteractionCalled)
     }
 
     private func checkUser_throws_when_reprompt_and_reprompt_throws(
@@ -268,6 +286,39 @@ class Fido2UserVerificationMediatorTests: BitwardenTestCase {
                 credential: cipher
             )
         }
+        XCTAssertTrue(fido2UserVerificationMediatorDelegate.onNeedsUserInteractionCalled)
+    }
+
+    private func checkUser_throws_when_repromptNeedsUserInteraction(
+        _ userVerificationPreference: BitwardenSdk.Verification
+    ) async throws {
+        fido2UserVerificationMediatorDelegate.onNeedsUserInteractionError = BitwardenTestError.example
+
+        let cipher = CipherView.fixture(reprompt: .password)
+
+        await assertAsyncThrows(error: BitwardenTestError.example) {
+            _ = try await subject.checkUser(
+                userVerificationPreference: userVerificationPreference,
+                credential: cipher
+            )
+        }
+        XCTAssertTrue(fido2UserVerificationMediatorDelegate.onNeedsUserInteractionCalled)
+    }
+
+    private func checkUser_throws_when_needsUserInteraction(
+        _ userVerificationPreference: BitwardenSdk.Verification
+    ) async throws {
+        fido2UserVerificationMediatorDelegate.onNeedsUserInteractionError = BitwardenTestError.example
+
+        let cipher = CipherView.fixture()
+
+        await assertAsyncThrows(error: BitwardenTestError.example) {
+            _ = try await subject.checkUser(
+                userVerificationPreference: userVerificationPreference,
+                credential: cipher
+            )
+        }
+        XCTAssertTrue(fido2UserVerificationMediatorDelegate.onNeedsUserInteractionCalled)
     }
 
     private func checkUser_verified_when_unlockedCurrentTransation(
@@ -325,7 +376,16 @@ class Fido2UserVerificationMediatorTests: BitwardenTestCase {
 class MockFido2UserVerificationMediatorDelegate: // swiftlint:disable:this type_name
     MockUserVerificationHelperDelegate,
     Fido2UserVerificationMediatorDelegate {
+    var onNeedsUserInteractionCalled = false
+    var onNeedsUserInteractionError: Error?
     var setupPinCalled = false
+
+    func onNeedsUserInteraction() async throws {
+        onNeedsUserInteractionCalled = true
+        if let onNeedsUserInteractionError {
+            throw onNeedsUserInteractionError
+        }
+    }
 
     func setupPin() async throws {
         setupPinCalled = true
