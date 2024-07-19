@@ -902,7 +902,7 @@
 "PasskeyOperationFailedBecauseBrowserSignatureDoesNotMatch" = "Darbība ar piekļuves atslēgu neizdevās, jo neatbilst pārlūka paraksts";
 "PasskeyOperationFailedBecauseOfMissingAssetLinks" = "Darbība ar piekļuves atslēgu neizdevās trūkstošu līdzekļu saišu dēļ";
 "PasskeyOperationFailedBecauseAppNotFoundInAssetLinks" = "Darbība ar piekļuves atslēgu neizdevāš, jo lietotne netika atrasta līdzekļu saitēs";
-"PasskeyOperationFailedBecauseAppCouldNotBeVerified" = "Darbība ar piekļuves atslēgu neizdevās, jo lietotni nevarēja apstiprināt";
+"PasskeyOperationFailedBecauseAppCouldNotBeVerified" = "Darbība ar piekļuves atslēgu neizdevās, jo lietotni nevarēja apliecināt";
 "RemindMeLater" = "Atgādināt man vēlāk";
 "Notice" = "Jāņem vērā";
 "AppInfo" = "Par lietotni";
