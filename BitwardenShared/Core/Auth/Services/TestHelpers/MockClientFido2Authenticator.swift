@@ -4,9 +4,8 @@ import BitwardenSdk
 
 class MockClientFido2Authenticator: ClientFido2AuthenticatorProtocol {
     var credentialsForAutofillResult: Result<[Fido2CredentialAutofillView], Error> = .success([])
-    var getAssertionResult: Result<BitwardenSdk.GetAssertionResult, Error> = .success(
-        BitwardenSdk.GetAssertionResult.fixture()
-    )
+    var getAssertionMocker = InvocationMockerWithThrowingResult<GetAssertionRequest, GetAssertionResult>()
+        .withResult(.fixture())
     var makeCredentialMocker = InvocationMockerWithThrowingResult<MakeCredentialRequest, MakeCredentialResult>()
         .withResult(.fixture())
     var silentlyDiscoverCredentialsResult: Result<[Fido2CredentialAutofillView], Error> = .success([])
@@ -16,7 +15,7 @@ class MockClientFido2Authenticator: ClientFido2AuthenticatorProtocol {
     }
 
     func getAssertion(request: BitwardenSdk.GetAssertionRequest) async throws -> BitwardenSdk.GetAssertionResult {
-        try getAssertionResult.get()
+        try getAssertionMocker.invoke(param: request)
     }
 
     func makeCredential(request: BitwardenSdk.MakeCredentialRequest) async throws -> BitwardenSdk.MakeCredentialResult {
