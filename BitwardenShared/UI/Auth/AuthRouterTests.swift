@@ -74,7 +74,7 @@ final class AuthRouterTests: BitwardenTestCase { // swiftlint:disable:this type_
         XCTAssertEqual(BitwardenTestError.example, error)
     }
 
-    /// `handleAndRoute(_ :)` redirects `.accountBecameActive()` to `.complete`
+    /// `handleAndRoute(_ :)` redirects `.accountBecameActive()` to `.completeWithNeverUnlockKey`
     ///     when `unlockVaultWithNeverlockResult` succeeds.
     func test_handleAndRoute_accountBecameActive_neverLock_success() async {
         let active = Account.fixture()
@@ -92,7 +92,7 @@ final class AuthRouterTests: BitwardenTestCase { // swiftlint:disable:this type_
                 didSwitchAccountAutomatically: false
             )
         )
-        XCTAssertEqual(route, .complete)
+        XCTAssertEqual(route, .completeWithNeverUnlockKey)
     }
 
     /// `handleAndRoute(_ :)` redirects `.accountBecameActive()` to `.complete`
@@ -711,7 +711,7 @@ final class AuthRouterTests: BitwardenTestCase { // swiftlint:disable:this type_
         )
     }
 
-    /// `handleAndRoute(_ :)` redirects `.didStart` to `.complete` and unlocks the vault if the
+    /// `handleAndRoute(_ :)` redirects `.didStart` to `.completeWithNeverUnlockKey` and unlocks the vault if the
     /// account never times out with a logout timeout action.
     func test_handleAndRoute_didStart_neverLockLogout() async {
         let account = Account.fixtureAccountLogin()
@@ -721,7 +721,7 @@ final class AuthRouterTests: BitwardenTestCase { // swiftlint:disable:this type_
 
         let route = await subject.handleAndRoute(.didStart)
 
-        XCTAssertEqual(route, .complete)
+        XCTAssertEqual(route, .completeWithNeverUnlockKey)
         XCTAssertTrue(authRepository.unlockVaultWithNeverlockKeyCalled)
     }
 
