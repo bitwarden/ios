@@ -43,11 +43,11 @@ extension EnvironmentUrls {
     ///
     init(environmentUrlData: EnvironmentUrlData) {
         if let base = environmentUrlData.base {
-            apiURL = base.appendingPathComponent("/api")
+            apiURL = base.appendingPathComponent("api")
             baseURL = base
-            eventsURL = base.appendingPathComponent("/events")
-            iconsURL = base.appendingPathComponent("/icons")
-            identityURL = base.appendingPathComponent("/identity")
+            eventsURL = base.appendingPathComponent("events")
+            iconsURL = base.appendingPathComponent("icons")
+            identityURL = base.appendingPathComponent("identity")
             webVaultURL = base
         } else {
             apiURL = environmentUrlData.api ?? URL(string: "https://api.bitwarden.com")!

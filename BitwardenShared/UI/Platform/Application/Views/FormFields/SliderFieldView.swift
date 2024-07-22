@@ -90,6 +90,8 @@ struct SliderFieldView<State>: View {
                         onValueChanged(min(field.value + field.step, field.range.upperBound))
                         return .handled
                     }
+                } else {
+                    view
                 }
             }
         }

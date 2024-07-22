@@ -212,6 +212,10 @@ final class VaultCoordinator: Coordinator, HasStackNavigator {
                 group: group,
                 iconBaseURL: services.environmentService.iconsURL,
                 vaultFilterType: filter
+            ),
+            vaultItemMoreOptionsHelper: DefaultVaultItemMoreOptionsHelper(
+                coordinator: asAnyCoordinator(),
+                services: services
             )
         )
         let store = Store(processor: processor)
@@ -223,6 +227,7 @@ final class VaultCoordinator: Coordinator, HasStackNavigator {
         )
         let viewController = UIHostingController(rootView: view)
         let searchController = UISearchController()
+        searchController.searchBar.placeholder = Localizations.search
         searchController.searchResultsUpdater = searchHandler
 
         stackNavigator?.push(
@@ -240,6 +245,10 @@ final class VaultCoordinator: Coordinator, HasStackNavigator {
             services: services,
             state: VaultListState(
                 iconBaseURL: services.environmentService.iconsURL
+            ),
+            vaultItemMoreOptionsHelper: DefaultVaultItemMoreOptionsHelper(
+                coordinator: asAnyCoordinator(),
+                services: services
             )
         )
         let store = Store(processor: processor)
@@ -282,7 +291,11 @@ final class VaultCoordinator: Coordinator, HasStackNavigator {
                 iconBaseURL: services.environmentService.iconsURL,
                 otpAuthModel: otpAuthModel
             ),
-            userVerificationHelper: userVerificationHelper
+            userVerificationHelper: userVerificationHelper,
+            vaultItemMoreOptionsHelper: DefaultVaultItemMoreOptionsHelper(
+                coordinator: asAnyCoordinator(),
+                services: services
+            )
         )
 
         let view = VaultItemSelectionView(store: Store(processor: processor))

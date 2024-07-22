@@ -22,6 +22,7 @@ class MockCipherService: CipherService {
     var fetchCipherId: String?
     var fetchCipherResult: Result<Cipher?, Error> = .success(nil)
 
+    var fetchAllCiphersCalled = false
     var fetchAllCiphersResult: Result<[Cipher], Error> = .success([])
 
     var deleteCipherId: String?
@@ -86,7 +87,8 @@ class MockCipherService: CipherService {
     }
 
     func fetchAllCiphers() async throws -> [Cipher] {
-        try fetchAllCiphersResult.get()
+        fetchAllCiphersCalled = true
+        return try fetchAllCiphersResult.get()
     }
 
     func fetchCipher(withId id: String) async throws -> Cipher? {

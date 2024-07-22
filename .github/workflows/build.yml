@@ -21,9 +21,14 @@ on:
         description: "Optional. Build number to use. Overrides default of GitHub run number."
         required: false
         type: number
+      xcode-version:
+        description: "Optional. Xcode version to use. Overrides default."
+        required: false
+        type: string
 
 env:
-  build-variant: ${{ inputs.build-variant || 'Beta' }}
+  BUILD_VARIANT: ${{ inputs.build-variant || 'Beta' }}
+  XCODE_VERSION: ${{ inputs.xcode-version || '15.0.1' }}
 
 jobs:
   build:
@@ -39,6 +44,11 @@ jobs:
         with:
           fetch-depth: 0
           filter: tree:0
+
+      - name: Set Xcode version
+        uses: maxim-lobanov/setup-xcode@60606e260d2fc5762a71e64e74b2174e8ea3c8bd # v1.6.0
+        with:
+          xcode-version: ${{ env.XCODE_VERSION }}
 
       - name: Cache Mint packages
         id: mint-cache
@@ -67,7 +77,7 @@ jobs:
           secrets: "appcenter-ios-token"
 
       - name: Retrieve production provisioning profiles
-        if: env.build-variant == 'Production'
+        if: env.BUILD_VARIANT == 'Production'
         env:
           ACCOUNT_NAME: bitwardenci
           CONTAINER_NAME: profiles
@@ -89,7 +99,7 @@ jobs:
           done
 
       - name: Retrieve beta provisioning profiles
-        if: env.build-variant == 'Beta'
+        if: env.BUILD_VARIANT == 'Beta'
         env:
           ACCOUNT_NAME: bitwardenci
           CONTAINER_NAME: profiles
@@ -111,7 +121,7 @@ jobs:
           done
 
       - name: Retrieve production Google Services secret
-        if: env.build-variant == 'Production'
+        if: env.BUILD_VARIANT == 'Production'
         env:
           ACCOUNT_NAME: bitwardenci
           CONTAINER_NAME: mobile
@@ -122,7 +132,7 @@ jobs:
             --file Bitwarden/Application/Support/$FILE --output none
 
       - name: Retrieve beta Google Services secret
-        if: env.build-variant == 'Beta'
+        if: env.BUILD_VARIANT == 'Beta'
         env:
           ACCOUNT_NAME: bitwardenci
           CONTAINER_NAME: mobile
@@ -164,7 +174,7 @@ jobs:
           security set-key-partition-list -S apple-tool:,apple:,codesign: -s -k $KEYCHAIN_PASSWORD build.keychain
 
       - name: Configure production provisioning profiles
-        if: env.build-variant == 'Production'
+        if: env.BUILD_VARIANT == 'Production'
         run: |
           AUTOFILL_PROFILE_PATH=$HOME/secrets/dist_autofill.mobileprovision
           BITWARDEN_PROFILE_PATH=$HOME/secrets/dist_bitwarden.mobileprovision
@@ -195,7 +205,7 @@ jobs:
           cp $WATCH_APP_EXTENSION_PROFILE_PATH "$PROFILES_DIR_PATH/$WATCH_APP_EXTENSION_UUID.mobileprovision"
 
       - name: Configure beta provisioning profiles
-        if: env.build-variant == 'Beta'
+        if: env.BUILD_VARIANT == 'Beta'
         run: |
           AUTOFILL_PROFILE_PATH=$HOME/secrets/dist_beta_autofill.mobileprovision
           BITWARDEN_PROFILE_PATH=$HOME/secrets/dist_beta_bitwarden.mobileprovision
@@ -226,12 +236,12 @@ jobs:
           cp $WATCH_APP_EXTENSION_PROFILE_PATH "$PROFILES_DIR_PATH/$WATCH_APP_EXTENSION_UUID.mobileprovision"
 
       - name: Update beta export compliance key
-        if: env.build-variant == 'Beta'
+        if: env.BUILD_VARIANT == 'Beta'
         run: |
           plutil -replace ITSEncryptionExportComplianceCode -string 3dd3e32f-efa6-4d99-b410-28aa28b1cb77 Bitwarden/Application/Support/Info.plist
 
       - name: Update beta Fastlane Appfile
-        if: env.build-variant == 'Beta'
+        if: env.BUILD_VARIANT == 'Beta'
         run: |
           echo 'app_identifier "com.8bit.bitwarden.beta"' > fastlane/Appfile
 
@@ -240,7 +250,7 @@ jobs:
           plutil -replace aps-environment -string production Bitwarden/Application/Support/Bitwarden.entitlements
 
       - name: Configure Ruby
-        uses: ruby/setup-ruby@2a9a743e19810b9f3c38060637daf594dbd7b37f # v1.186.0
+        uses: ruby/setup-ruby@50ba3386b050ad5b97a41fcb81240cbee1d1821f # v1.188.0
         with:
           bundler-cache: true
 
@@ -255,7 +265,7 @@ jobs:
 
       - name: Select variant
         run: |
-          ./Scripts/select_variant.sh ${{ env.build-variant }}
+          ./Scripts/select_variant.sh ${{ env.BUILD_VARIANT }}
 
       - name: Calculate build version
         id: calculate

@@ -68,14 +68,21 @@ class DefaultEnvironmentService: EnvironmentService {
     /// The app's current environment URLs.
     private var environmentUrls: EnvironmentUrls
 
+    /// The shared UserDefaults instance (NOTE: this should be the standard one just for the app,
+    /// not one in the app group).
+    private let standardUserDefaults: UserDefaults
+
     // MARK: Initialization
 
     /// Initialize a `DefaultEnvironmentService`.
     ///
-    /// - Parameter stateService: The service used by the application to manage account state.
+    /// - Parameters:
+    ///   - stateService: The service used by the application to manage account state.
+    ///   - standardUserDefaults: The shared UserDefaults instance.
     ///
-    init(stateService: StateService) {
+    init(stateService: StateService, standardUserDefaults: UserDefaults = .standard) {
         self.stateService = stateService
+        self.standardUserDefaults = standardUserDefaults
 
         environmentUrls = EnvironmentUrls(environmentUrlData: .defaultUS)
     }
@@ -84,14 +91,18 @@ class DefaultEnvironmentService: EnvironmentService {
 
     func loadURLsForActiveAccount() async {
         let urls: EnvironmentUrlData
+        let managedSettingsUrls = managedSettingsUrls()
         if let environmentUrls = try? await stateService.getEnvironmentUrls() {
             urls = environmentUrls
+        } else if let managedSettingsUrls {
+            urls = managedSettingsUrls
         } else if let preAuthUrls = await stateService.getPreAuthEnvironmentUrls() {
             urls = preAuthUrls
         } else {
             urls = .defaultUS
         }
-        await setPreAuthURLs(urls: urls)
+
+        await setPreAuthURLs(urls: managedSettingsUrls ?? urls)
         environmentUrls = EnvironmentUrls(environmentUrlData: urls)
 
         // swiftformat:disable:next redundantSelf
@@ -104,6 +115,22 @@ class DefaultEnvironmentService: EnvironmentService {
 
         // swiftformat:disable:next redundantSelf
         Logger.application.info("Setting pre-auth URLs: \(String(describing: self.environmentUrls))")
+    }
+
+    // MARK: Private
+
+    /// Returns the URLs that are specified as part of a managed app configuration.
+    ///
+    /// - Returns: The environment URLs that are specified as part of a managed app configuration.
+    ///
+    private func managedSettingsUrls() -> EnvironmentUrlData? {
+        let managedSettings = standardUserDefaults.dictionary(forKey: "com.apple.configuration.managed")
+        guard let baseUrlString = managedSettings?["baseEnvironmentUrl"] as? String,
+              let baseUrl = URL(string: baseUrlString)
+        else {
+            return nil
+        }
+        return EnvironmentUrlData(base: baseUrl)
     }
 }
 

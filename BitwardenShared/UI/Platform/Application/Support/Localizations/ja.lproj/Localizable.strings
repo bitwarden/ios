@@ -919,3 +919,4 @@
 "OrganizationUnassignedItemsMessageUSEUDescriptionLong" = "割り当てられていない組織アイテムはすべての保管庫ビューに表示されなくなり、管理コンソールからのみアクセス可能になります。 管理コンソールからコレクションにこれらのアイテムを割り当てると、表示できるようになります。";
 "UnknownAccount" = "不明なアカウント";
 "UserVerificationForPasskey" = "User verification for passkey";
+"NewItem" = "新しいアイテム";

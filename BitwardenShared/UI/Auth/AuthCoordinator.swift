@@ -124,7 +124,8 @@ final class AuthCoordinator: NSObject, // swiftlint:disable:this type_body_lengt
             )
         case let .checkEmail(email):
             showCheckEmail(email)
-        case .complete:
+        case .complete,
+             .completeWithNeverUnlockKey:
             if stackNavigator?.isPresenting == true {
                 stackNavigator?.dismiss {
                     self.delegate?.didCompleteAuth()

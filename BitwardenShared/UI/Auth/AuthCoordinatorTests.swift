@@ -95,6 +95,12 @@ class AuthCoordinatorTests: BitwardenTestCase { // swiftlint:disable:this type_b
         XCTAssertTrue(navigationController.viewControllers.first is UIHostingController<CheckEmailView>)
     }
 
+    /// `navigate(to:)` with `.completeWithNeverUnlockKey` notifies the delegate that auth has completed.
+    func test_navigate_completeWithNeverUnlockKey() {
+        subject.navigate(to: .completeWithNeverUnlockKey)
+        XCTAssertTrue(authDelegate.didCompleteAuthCalled)
+    }
+
     /// `navigate(to:)` with `.createAccount` pushes the create account view onto the stack navigator.
     func test_navigate_createAccount() throws {
         subject.navigate(to: .createAccount)

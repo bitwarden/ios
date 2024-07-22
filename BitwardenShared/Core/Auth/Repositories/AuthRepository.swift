@@ -230,6 +230,11 @@ protocol AuthRepository: AnyObject {
     ///
     func validatePassword(_ password: String) async throws -> Bool
 
+    /// Validates thes user's entered PIN.
+    /// - Parameter pin: Pin to validate.
+    /// - Returns: `true` if valid, `false` otherwise.
+    func validatePin(pin: String) async -> Bool
+
     /// Verifies that the entered one-time password matches the one sent to the user.
     ///
     /// - Parameter otp: The user's one-time password to verify.
@@ -737,7 +742,7 @@ extension DefaultAuthRepository: AuthRepository {
         let id = try await stateService.getActiveAccountId()
         let key = KeychainItem.neverLock(userId: id)
         let neverlockKey = try await keychainService.getUserAuthKeyValue(for: key)
-        try await unlockVault(method: .decryptedKey(decryptedUserKey: neverlockKey))
+        try await unlockVault(method: .decryptedKey(decryptedUserKey: neverlockKey), hadUserInteraction: false)
     }
 
     func unlockVaultWithPassword(password: String) async throws {
@@ -771,6 +776,35 @@ extension DefaultAuthRepository: AuthRepository {
                 Logger.application.log("Error validating password user key: \(error)")
                 return false
             }
+        }
+    }
+
+    func validatePin(pin: String) async -> Bool {
+        guard let pinProtectedUserKey = try? await stateService.pinProtectedUserKey() else {
+            return false
+        }
+
+        // HACK: As the SDK doesn't provide a way to directly validate the pin yet, we have this method
+        // which just tries to initialize the user crypto and if it succeeds then the PIN is correct, otherwise
+        // the PIN is incorrect.
+
+        do {
+            let account = try await stateService.getActiveAccount()
+            let encryptionKeys = try await stateService.getAccountEncryptionKeys()
+
+            try await clientService.crypto().initializeUserCrypto(
+                req: InitUserCryptoRequest(
+                    kdfParams: account.kdf.sdkKdf,
+                    email: account.profile.email,
+                    privateKey: encryptionKeys.encryptedPrivateKey,
+                    method: .pin(pin: pin, pinProtectedUserKey: pinProtectedUserKey)
+                )
+            )
+            try await organizationService.initializeOrganizationCrypto()
+
+            return true
+        } catch {
+            return false
         }
     }
 
@@ -828,9 +862,11 @@ extension DefaultAuthRepository: AuthRepository {
 
     /// Attempts to unlock the vault with a given method.
     ///
-    /// - Parameter method: The unlocking `InitUserCryptoMethod` method.
-    ///
-    private func unlockVault(method: InitUserCryptoMethod) async throws {
+    /// - Parameters:
+    ///   - method: The unlocking `InitUserCryptoMethod` method
+    ///   - hadUserInteraction: If the user interacted with the app to unlock the vault
+    ///   or was unlocked using the never lock key.
+    private func unlockVault(method: InitUserCryptoMethod, hadUserInteraction: Bool = true) async throws {
         let account = try await stateService.getActiveAccount()
         let encryptionKeys = try await stateService.getAccountEncryptionKeys()
 
@@ -886,7 +922,10 @@ extension DefaultAuthRepository: AuthRepository {
         }
 
         _ = try await trustDeviceService.trustDeviceIfNeeded()
-        try await vaultTimeoutService.unlockVault(userId: account.profile.userId)
+        try await vaultTimeoutService.unlockVault(
+            userId: account.profile.userId,
+            hadUserInteraction: hadUserInteraction
+        )
         try await organizationService.initializeOrganizationCrypto()
     }
 

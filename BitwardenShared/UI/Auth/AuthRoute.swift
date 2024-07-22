@@ -34,6 +34,9 @@ public enum AuthRoute: Equatable {
         region: RegionType
     )
 
+    /// Dismisses the auth flow becuase the vault was unlocked with the never unlock key.
+    case completeWithNeverUnlockKey
+
     /// A route to the create account screen.
     case createAccount
 

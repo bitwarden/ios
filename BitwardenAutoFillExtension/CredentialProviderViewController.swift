@@ -1,4 +1,5 @@
 import AuthenticationServices
+import BitwardenSdk
 import BitwardenShared
 import OSLog
 
@@ -45,7 +46,9 @@ class CredentialProviderViewController: ASCredentialProviderViewController {
     }
 
     override func prepareInterfaceToProvideCredential(for credentialIdentity: ASPasswordCredentialIdentity) {
-        initializeApp(with: DefaultCredentialProviderContext(.autofillCredential(credentialIdentity)))
+        initializeApp(with: DefaultCredentialProviderContext(
+            .autofillCredential(credentialIdentity, userInteraction: true)
+        ))
     }
 
     override func provideCredentialWithoutUserInteraction(for credentialIdentity: ASPasswordCredentialIdentity) {
@@ -55,10 +58,46 @@ class CredentialProviderViewController: ASCredentialProviderViewController {
         }
 
         initializeApp(
-            with: DefaultCredentialProviderContext(.autofillCredential(credentialIdentity)),
-            userInteraction: false
+            with: DefaultCredentialProviderContext(.autofillCredential(credentialIdentity, userInteraction: false))
         )
         provideCredential(for: recordIdentifier)
+    }
+
+    @available(iOSApplicationExtension 17.0, *)
+    override func provideCredentialWithoutUserInteraction(for credentialRequest: any ASCredentialRequest) {
+        switch credentialRequest {
+        case let passwordRequest as ASPasswordCredentialRequest:
+            if let passwordIdentity = passwordRequest.credentialIdentity as? ASPasswordCredentialIdentity {
+                provideCredentialWithoutUserInteraction(for: passwordIdentity)
+            }
+        case let passkeyRequest as ASPasskeyCredentialRequest:
+            initializeApp(
+                with: DefaultCredentialProviderContext(
+                    .autofillFido2Credential(passkeyRequest, userInteraction: false)
+                )
+            )
+            provideFido2Credential(for: passkeyRequest)
+        default:
+            break
+        }
+    }
+
+    @available(iOSApplicationExtension 17.0, *)
+    override func prepareInterfaceToProvideCredential(for credentialRequest: any ASCredentialRequest) {
+        switch credentialRequest {
+        case let passwordRequest as ASPasswordCredentialRequest:
+            if let passwordIdentity = passwordRequest.credentialIdentity as? ASPasswordCredentialIdentity {
+                prepareInterfaceToProvideCredential(for: passwordIdentity)
+            }
+        case let passkeyRequest as ASPasskeyCredentialRequest:
+            initializeApp(
+                with: DefaultCredentialProviderContext(
+                    .autofillFido2Credential(passkeyRequest, userInteraction: true)
+                )
+            )
+        default:
+            break
+        }
     }
 
     // MARK: Private
@@ -86,19 +125,17 @@ class CredentialProviderViewController: ASCredentialProviderViewController {
     ///
     /// - Parameters:
     ///   - with: The context that describes how the extension is being used.
-    ///   - userInteraction: Whether user interaction is allowed or if the app needs to
-    ///     start without user interaction.
     ///
-    private func initializeApp(with context: CredentialProviderContext, userInteraction: Bool = true) {
+    private func initializeApp(with context: CredentialProviderContext) {
         self.context = context
 
         let errorReporter = OSLogErrorReporter()
         let services = ServiceContainer(errorReporter: errorReporter)
         let appModule = DefaultAppModule(appExtensionDelegate: self, services: services)
-        let appProcessor = AppProcessor(appModule: appModule, services: services)
+        let appProcessor = AppProcessor(appExtensionDelegate: self, appModule: appModule, services: services)
         self.appProcessor = appProcessor
 
-        if userInteraction {
+        if context.flowWithUserInteraction {
             Task {
                 await appProcessor.start(appContext: .appExtension, navigator: self, window: nil)
             }
@@ -130,6 +167,37 @@ class CredentialProviderViewController: ASCredentialProviderViewController {
                 )
                 extensionContext.completeRequest(withSelectedCredential: credential)
             } catch {
+                Logger.appExtension.error("Error providing credential without user interaction: \(error)")
+                cancel(error: error)
+            }
+        }
+    }
+
+    /// Provides a Fido2 credential for a passkey request
+    /// - Parameters:
+    ///   - passkeyRequest: Request to get the credential
+    ///   - withUserInteraction: Whether this is called in a flow with user interaction.
+    @available(iOSApplicationExtension 17.0, *)
+    private func provideFido2Credential(
+        for passkeyRequest: ASPasskeyCredentialRequest
+    ) {
+        guard let appProcessor else {
+            cancel(error: ASExtensionError(.failed))
+            return
+        }
+
+        Task {
+            do {
+                let credential = try await appProcessor.provideFido2Credential(
+                    for: passkeyRequest
+                )
+                await extensionContext.completeAssertionRequest(using: credential)
+            } catch Fido2Error.userInteractionRequired {
+                cancel(error: ASExtensionError(.userInteractionRequired))
+            } catch {
+                if let context, context.flowFailedBecauseUserInteractionRequired {
+                    return
+                }
                 Logger.appExtension.error("Error providing credential without user interaction: \(error)")
                 cancel(error: error)
             }
@@ -173,6 +241,25 @@ extension CredentialProviderViewController: AppExtensionDelegate {
     }
 
     func didCompleteAuth() {
+        guard let context else { return }
+
+        switch context.extensionMode {
+        case .autofillCredential:
+            provideCredentialWithUserInteraction()
+        case let .autofillFido2Credential(passkeyRequest, _):
+            guard #available(iOSApplicationExtension 17.0, *),
+                  let asPasskeyRequest = passkeyRequest as? ASPasskeyCredentialRequest else {
+                cancel(error: ASExtensionError(.failed))
+                return
+            }
+
+            provideFido2Credential(for: asPasskeyRequest)
+        default:
+            return
+        }
+    }
+
+    func provideCredentialWithUserInteraction() {
         guard let credential = context?.passwordCredentialIdentity else { return }
 
         guard let appProcessor, let recordIdentifier = credential.recordIdentifier else {
@@ -206,9 +293,18 @@ extension CredentialProviderViewController: Fido2AppExtensionDelegate {
         context?.extensionMode ?? .configureAutofill
     }
 
+    var flowWithUserInteraction: Bool {
+        context?.flowWithUserInteraction ?? false
+    }
+
     @available(iOSApplicationExtension 17.0, *)
     func completeRegistrationRequest(asPasskeyRegistrationCredential: ASPasskeyRegistrationCredential) {
         extensionContext.completeRegistrationRequest(using: asPasskeyRegistrationCredential)
+    }
+
+    func setUserInteractionRequired() {
+        context?.flowFailedBecauseUserInteractionRequired = true
+        cancel(error: ASExtensionError(.userInteractionRequired))
     }
 }
 

@@ -14,6 +14,10 @@ protocol EventService {
     ///   - eventType: The event to track.
     ///   - cipherId: The ID of the relevant cipher for some events.
     func collect(eventType: EventType, cipherId: String?) async
+
+    /// Uploads events saved to disk. This does not propagate errors that might be
+    /// thrown and instead just logs the error.
+    func upload() async
 }
 
 extension EventService {
@@ -38,6 +42,9 @@ class DefaultEventService: EventService {
     /// The service used to report errors.
     let errorReporter: ErrorReporter
 
+    /// The service to send events to the backend.
+    let eventAPIService: EventAPIService
+
     /// The service used to manage organizations.
     let organizationService: OrganizationService
 
@@ -54,6 +61,7 @@ class DefaultEventService: EventService {
     /// - Parameters:
     ///   - cipherService: The service used to manage ciphers.
     ///   - errorReporter: The service used to report errors.
+    ///   - eventAPIService: The service to send events to the backend.
     ///   - organizationService: The service used to manage organizations.
     ///   - stateService: The service used to manage account state.
     ///   - timeProvider: The service used to provide time.
@@ -61,12 +69,14 @@ class DefaultEventService: EventService {
     init(
         cipherService: CipherService,
         errorReporter: ErrorReporter,
+        eventAPIService: EventAPIService,
         organizationService: OrganizationService,
         stateService: StateService,
         timeProvider: TimeProvider
     ) {
         self.cipherService = cipherService
         self.errorReporter = errorReporter
+        self.eventAPIService = eventAPIService
         self.organizationService = organizationService
         self.stateService = stateService
         self.timeProvider = timeProvider
@@ -103,6 +113,21 @@ class DefaultEventService: EventService {
             events.append(newEvent)
 
             try await stateService.setEvents(events, userId: userId)
+        } catch {
+            errorReporter.log(error: error)
+        }
+    }
+
+    func upload() async {
+        do {
+            guard let userId = try? await stateService.getActiveAccountId() else { return }
+
+            let events = try await stateService.getEvents(userId: userId)
+            guard !events.isEmpty else { return }
+
+            try await eventAPIService.postEvents(events)
+
+            try await stateService.setEvents([], userId: userId)
         } catch {
             errorReporter.log(error: error)
         }

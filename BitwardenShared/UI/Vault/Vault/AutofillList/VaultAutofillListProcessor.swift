@@ -262,13 +262,17 @@ extension VaultAutofillListProcessor: ProfileSwitcherHandler {
     }
 
     func showAlert(_ alert: Alert) {
-        // No-Op for the VaultAutofillListProcessor.
+        coordinator.showAlert(alert)
     }
 }
 
 // MARK: - Fido2UserVerificationMediatorDelegate
 
 extension VaultAutofillListProcessor: Fido2UserVerificationMediatorDelegate {
+    func onNeedsUserInteraction() async throws {
+        // No-Op for this processor.
+    }
+
     func setupPin() async throws {
         // TODO: PM-8362 navigate to pin setup
     }
@@ -365,7 +369,7 @@ extension VaultAutofillListProcessor {
             result: .success(
                 CheckUserAndPickCredentialForCreationResult(
                     cipher: CipherViewWrapper(cipher: cipher),
-                    // TODO: PM-8352 add user verification
+                    // TODO: PM-9849 add user verification
                     checkUserResult: CheckUserResult(userPresent: true, userVerified: true)
                 )
             )

@@ -32,6 +32,9 @@ struct VaultItemSelectionState: Equatable {
     /// A toast message to show in the view.
     var toast: Toast?
 
+    /// The url to open in the device's web browser.
+    var url: URL?
+
     /// The list of sections to display for matching vault items.
     var vaultListSections = [VaultListSection]()
 

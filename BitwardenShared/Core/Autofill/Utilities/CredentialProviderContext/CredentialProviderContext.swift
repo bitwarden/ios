@@ -10,6 +10,12 @@ public protocol CredentialProviderContext {
     var extensionMode: AutofillExtensionMode { get }
     /// The password credential identity of `autofillCredential(_:)`.
     var passwordCredentialIdentity: ASPasswordCredentialIdentity? { get }
+    /// Whether the flow has failed because user interaction is required.
+    /// This is a workaround because the SDK transforms the error we throw, so we need a way to tell
+    /// the caller that the error was because of user interaction required.
+    var flowFailedBecauseUserInteractionRequired: Bool { get set }
+    /// Whether the current flow is being executed with user interaction.
+    var flowWithUserInteraction: Bool { get }
     /// The `ASCredentialServiceIdentifier` array depending on the `ExtensionMode`.
     var serviceIdentifiers: [ASCredentialServiceIdentifier] { get }
 }
@@ -42,8 +48,21 @@ public struct DefaultCredentialProviderContext: CredentialProviderContext {
 
     public private(set) var extensionMode = AutofillExtensionMode.configureAutofill
 
+    public var flowFailedBecauseUserInteractionRequired: Bool = false
+
+    public var flowWithUserInteraction: Bool {
+        switch extensionMode {
+        case let .autofillCredential(_, userInteraction):
+            return userInteraction
+        case let .autofillFido2Credential(_, userInteraction):
+            return userInteraction
+        default:
+            return true
+        }
+    }
+
     public var passwordCredentialIdentity: ASPasswordCredentialIdentity? {
-        if case let .autofillCredential(credential) = extensionMode {
+        if case let .autofillCredential(credential, _) = extensionMode {
             return credential
         }
         return nil

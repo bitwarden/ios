@@ -82,6 +82,18 @@ class URLTests: BitwardenTestCase {
         )
     }
 
+    /// `sanitized` removes a trailing slash from the URL.
+    func test_sanitized_trailingSlash() {
+        XCTAssertEqual(
+            URL(string: "https://bitwarden.com/")?.sanitized,
+            URL(string: "https://bitwarden.com")
+        )
+        XCTAssertEqual(
+            URL(string: "example.com/")?.sanitized,
+            URL(string: "https://example.com")
+        )
+    }
+
     /// `sanitized` returns the URL unchanged if it's valid and contains a scheme.
     func test_sanitized_validURL() {
         XCTAssertEqual(

@@ -57,6 +57,7 @@ class MockAuthRepository: AuthRepository { // swiftlint:disable:this type_body_l
     var unlockVaultResult: Result<Void, Error> = .success(())
     var unlockVaultWithBiometricsResult: Result<Void, Error> = .success(())
     var unlockVaultWithDeviceKeyResult: Result<Void, Error> = .success(())
+    var unlockVaultWithNeverlockKeyCalled = false
     var unlockVaultWithNeverlockResult: Result<Void, Error> = .success(())
     var verifyOtpOpt: String?
     var verifyOtpResult: Result<Void, Error> = .success(())
@@ -74,6 +75,8 @@ class MockAuthRepository: AuthRepository { // swiftlint:disable:this type_body_l
 
     var validatePasswordPasswords = [String]()
     var validatePasswordResult: Result<Bool, Error> = .success(true)
+
+    var validatePinResult: Bool = true
 
     var vaultTimeout = [String: SessionTimeoutValue]()
 
@@ -266,7 +269,8 @@ class MockAuthRepository: AuthRepository { // swiftlint:disable:this type_body_l
     }
 
     func unlockVaultWithNeverlockKey() async throws {
-        try unlockVaultWithNeverlockResult.get()
+        unlockVaultWithNeverlockKeyCalled = true
+        return try unlockVaultWithNeverlockResult.get()
     }
 
     /// Attempts to convert a possible user id into a known account id.
@@ -299,6 +303,10 @@ class MockAuthRepository: AuthRepository { // swiftlint:disable:this type_body_l
     func validatePassword(_ password: String) async throws -> Bool {
         validatePasswordPasswords.append(password)
         return try validatePasswordResult.get()
+    }
+
+    func validatePin(pin: String) async -> Bool {
+        validatePinResult
     }
 
     func verifyOtp(_ otp: String) async throws {
