@@ -105,7 +105,13 @@ struct AddEditItemView: View {
         content
             .navigationTitle(Localizations.editItem)
             .toolbar {
-                ToolbarItemGroup(placement: .navigationBarTrailing) {
+                ToolbarItem(placement: .navigationBarLeading) {
+                    cancelToolbarButton {
+                        store.send(.dismissPressed)
+                    }
+                }
+
+                ToolbarItem(placement: .navigationBarTrailing) {
                     VaultItemManagementMenuView(
                         isCloneEnabled: false,
                         isCollectionsEnabled: store.state.cipher.organizationId != nil,
@@ -116,10 +122,6 @@ struct AddEditItemView: View {
                             mapEffect: { _ in .deletePressed }
                         )
                     )
-
-                    cancelToolbarButton {
-                        store.send(.dismissPressed)
-                    }
                 }
             }
     }

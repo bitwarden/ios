@@ -57,7 +57,7 @@ struct AddEditSendItemView: View { // swiftlint:disable:this type_body_length
             titleDisplayMode: .inline
         )
         .toolbar {
-            ToolbarItem(placement: .topBarLeading) {
+            ToolbarItemGroup(placement: .topBarLeading) {
                 switch store.state.mode {
                 case .add,
                      .edit:
@@ -76,6 +76,10 @@ struct AddEditSendItemView: View { // swiftlint:disable:this type_body_length
                             }
                         )
                     )
+                }
+
+                cancelToolbarButton {
+                    store.send(.dismissPressed)
                 }
             }
 
@@ -104,10 +108,6 @@ struct AddEditSendItemView: View { // swiftlint:disable:this type_body_length
                 case .add,
                      .shareExtension:
                     EmptyView()
-                }
-
-                cancelToolbarButton {
-                    store.send(.dismissPressed)
                 }
             }
         }

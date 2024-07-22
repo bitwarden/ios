@@ -125,7 +125,7 @@ extension View {
     /// - Returns: A `ToolbarItem` with a dismiss button.
     ///
     func cancelToolbarItem(_ action: @escaping () -> Void) -> some ToolbarContent {
-        ToolbarItem(placement: .topBarTrailing) {
+        ToolbarItem(placement: .topBarLeading) {
             cancelToolbarButton(action: action)
         }
     }
