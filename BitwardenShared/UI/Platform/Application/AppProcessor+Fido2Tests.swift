@@ -164,13 +164,6 @@ class AppProcessorFido2Tests: BitwardenTestCase {
         }
     }
 
-    /// `setupPin()` navigates to the setup pin view.
-    func test_setupPin() async throws {
-        // TODO: PM-8362 navigate to pin setup
-        try await subject.setupPin()
-        throw XCTSkip("TODO: PM-8362 navigate to pin setup")
-    }
-
     /// `showAlert(_:onDismissed:)` shows the alert with the coordinator.
     func test_showAlert_withOnDismissed() async throws {
         subject.showAlert(Alert(title: "Test", message: "testing"), onDismissed: nil)
