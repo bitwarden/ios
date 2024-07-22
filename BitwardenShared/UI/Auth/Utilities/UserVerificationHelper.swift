@@ -7,6 +7,9 @@ protocol UserVerificationHelper {
     /// - Returns: `true` if authorized, `false` otherwise.
     func canVerifyDeviceLocalAuth() -> Bool
 
+    /// Set up the Bitwarden Pin for the current account
+    func setupPin() async throws
+
     /// Performs OS local auth, e.g. biometrics or pin/pattern
     /// - Parameter reason: The reason to be displayed to the user when evaluating the policy if needed
     /// - Returns: An `UserVerificationResult` with the verification result
@@ -66,6 +69,29 @@ extension DefaultUserVerificationHelper: UserVerificationHelper {
 
     func canVerifyDeviceLocalAuth() -> Bool {
         localAuthService.getDeviceAuthStatus() == .authorized
+    }
+
+    @MainActor
+    func setupPin() async throws {
+        try await withCheckedThrowingContinuation { (continuation: CheckedContinuation<Void, any Error>) in
+            guard let userVerificationDelegate else {
+                continuation.resume(throwing: Fido2Error.failedToSetupPin)
+                return
+            }
+
+            userVerificationDelegate.showAlert(.enterPINCode { pin in
+                do {
+                    guard !pin.isEmpty else {
+                        throw Fido2Error.failedToSetupPin
+                    }
+
+                    try await self.authRepository.setPins(pin, requirePasswordAfterRestart: false)
+                    continuation.resume()
+                } catch {
+                    continuation.resume(throwing: error)
+                }
+            })
+        }
     }
 
     func verifyDeviceLocalAuth(reason: String) async throws -> UserVerificationResult {
