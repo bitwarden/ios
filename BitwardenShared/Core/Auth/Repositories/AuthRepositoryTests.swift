@@ -922,6 +922,7 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         await assertAsyncDoesNotThrow {
             try await subject.unlockVaultWithNeverlockKey()
         }
+        XCTAssertFalse(vaultTimeoutService.unlockVaultHadUserInteraction)
     }
 
     /// `test_unlockVaultWithDeviceKey` attempts to unlock the vault using the device key from the keychain.
@@ -947,6 +948,7 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         await assertAsyncDoesNotThrow {
             try await subject.unlockVaultWithDeviceKey()
         }
+        XCTAssertTrue(vaultTimeoutService.unlockVaultHadUserInteraction)
     }
 
     /// `test_unlockVaultWithDeviceKey` attempts to unlock the vault using the device key from the keychain.
@@ -1182,6 +1184,7 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         XCTAssertEqual(authService.hashPasswordPassword, "password")
         XCTAssertEqual(stateService.masterPasswordHashes["1"], "hashed")
         XCTAssertFalse(biometricsRepository.didConfigureBiometricIntegrity)
+        XCTAssertTrue(vaultTimeoutService.unlockVaultHadUserInteraction)
     }
 
     /// `unlockVaultWithPassword(password:)` configures biometric integrity refreshes.
@@ -1309,6 +1312,7 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         await assertAsyncDoesNotThrow {
             try await subject.unlockVaultWithBiometrics()
         }
+        XCTAssertTrue(vaultTimeoutService.unlockVaultHadUserInteraction)
     }
 
     /// `logout` throws an error with no accounts.
@@ -1381,6 +1385,7 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
                 )
             )
         )
+        XCTAssertTrue(vaultTimeoutService.unlockVaultHadUserInteraction)
     }
 
     /// `unlockVaultFromLoginWithDevice()` unlocks the vault using the key returned by an approved
@@ -1409,6 +1414,7 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
                 )
             )
         )
+        XCTAssertTrue(vaultTimeoutService.unlockVaultHadUserInteraction)
     }
 
     /// `unlockVaultWithPIN(_:)` unlocks the vault with the user's PIN.
@@ -1437,6 +1443,7 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
             )
         )
         XCTAssertFalse(vaultTimeoutService.isLocked(userId: "1"))
+        XCTAssertTrue(vaultTimeoutService.unlockVaultHadUserInteraction)
     }
 
     /// `unlockVaultWithPIN(_:)` throws an error if there's no pin.
@@ -1555,6 +1562,119 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         let isValid = try await subject.validatePassword("not the password")
 
         XCTAssertFalse(isValid)
+    }
+
+    /// `validatePin(_:)` returns `true` if the pin is valid when initializing the user crypto.
+    func test_validatePin() async throws {
+        let account = Account.fixture()
+        stateService.activeAccount = account
+
+        stateService.accountEncryptionKeys = [
+            "1": AccountEncryptionKeys(encryptedPrivateKey: "PRIVATE_KEY", encryptedUserKey: "USER_KEY"),
+        ]
+
+        stateService.encryptedPinByUserId[account.profile.userId] = "123"
+        stateService.pinProtectedUserKeyValue[account.profile.userId] = "123"
+
+        let isPinValid = await subject.validatePin(pin: "123")
+
+        XCTAssertEqual(
+            clientService.mockCrypto.initializeUserCryptoRequest,
+            InitUserCryptoRequest(
+                kdfParams: .pbkdf2(iterations: UInt32(Constants.pbkdf2Iterations)),
+                email: "user@bitwarden.com",
+                privateKey: "PRIVATE_KEY",
+                method: .pin(pin: "123", pinProtectedUserKey: "123")
+            )
+        )
+        XCTAssertTrue(isPinValid)
+    }
+
+    /// `validatePin(_:)` returns `false` if the there is no active account.
+    func test_validatePin_noActiveAccount() async throws {
+        let account = Account.fixture()
+
+        stateService.accountEncryptionKeys = [
+            "1": AccountEncryptionKeys(encryptedPrivateKey: "PRIVATE_KEY", encryptedUserKey: "USER_KEY"),
+        ]
+
+        stateService.encryptedPinByUserId[account.profile.userId] = "123"
+
+        let isPinValid = await subject.validatePin(pin: "123")
+
+        XCTAssertNotEqual(
+            clientService.mockCrypto.initializeUserCryptoRequest,
+            InitUserCryptoRequest(
+                kdfParams: .pbkdf2(iterations: UInt32(Constants.pbkdf2Iterations)),
+                email: "user@bitwarden.com",
+                privateKey: "PRIVATE_KEY",
+                method: .pin(pin: "123", pinProtectedUserKey: "123")
+            )
+        )
+        XCTAssertFalse(isPinValid)
+    }
+
+    /// `validatePin(_:)` returns `false` if the there is no pin protected user key.
+    func test_validatePin_noPinProtectedUserKey() async throws {
+        let account = Account.fixture()
+        stateService.activeAccount = account
+
+        stateService.accountEncryptionKeys = [
+            "1": AccountEncryptionKeys(encryptedPrivateKey: "PRIVATE_KEY", encryptedUserKey: "USER_KEY"),
+        ]
+
+        stateService.encryptedPinByUserId[account.profile.userId] = "123"
+
+        let isPinValid = await subject.validatePin(pin: "123")
+
+        XCTAssertNotEqual(
+            clientService.mockCrypto.initializeUserCryptoRequest,
+            InitUserCryptoRequest(
+                kdfParams: .pbkdf2(iterations: UInt32(Constants.pbkdf2Iterations)),
+                email: "user@bitwarden.com",
+                privateKey: "PRIVATE_KEY",
+                method: .pin(pin: "123", pinProtectedUserKey: "123")
+            )
+        )
+        XCTAssertFalse(isPinValid)
+    }
+
+    /// `validatePin(_:)` returns `false` if initializing user crypto throws.
+    func test_validatePin_initializeUserCryptoThrows() async throws {
+        let account = Account.fixture()
+        stateService.activeAccount = account
+
+        stateService.accountEncryptionKeys = [
+            "1": AccountEncryptionKeys(encryptedPrivateKey: "PRIVATE_KEY", encryptedUserKey: "USER_KEY"),
+        ]
+
+        stateService.encryptedPinByUserId[account.profile.userId] = "123"
+        stateService.pinProtectedUserKeyValue[account.profile.userId] = "123"
+
+        clientService.mockCrypto.initializeUserCryptoResult = .failure(BitwardenTestError.example)
+
+        let isPinValid = await subject.validatePin(pin: "123")
+
+        XCTAssertFalse(isPinValid)
+    }
+
+    /// `validatePin(_:)` returns `false` if initializing org crypto throws.
+    func test_validatePin_initializeOrgCryptoThrows() async throws {
+        let account = Account.fixture()
+        stateService.activeAccount = account
+
+        stateService.accountEncryptionKeys = [
+            "1": AccountEncryptionKeys(encryptedPrivateKey: "PRIVATE_KEY", encryptedUserKey: "USER_KEY"),
+        ]
+
+        stateService.encryptedPinByUserId[account.profile.userId] = "123"
+        stateService.pinProtectedUserKeyValue[account.profile.userId] = "123"
+
+        organizationService.initializeOrganizationCryptoError = BitwardenTestError.example
+
+        let isPinValid = await subject.validatePin(pin: "123")
+
+        XCTAssertFalse(isPinValid)
     }
 
     /// `verifyOtp(_:)` makes an API request to verify an OTP code.

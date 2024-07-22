@@ -920,3 +920,4 @@
 "OrganizationUnassignedItemsMessageUSEUDescriptionLong" = "Недодељене ставке организације више нису видљиве у приказу Сви сефови и доступне су само преко Админ конзоле. Доделите ове ставке колекцији са Админ конзолом да бисте их учинили видљивим.";
 "UnknownAccount" = "Непознат налог";
 "UserVerificationForPasskey" = "User verification for passkey";
+"NewItem" = "Нова ставка";

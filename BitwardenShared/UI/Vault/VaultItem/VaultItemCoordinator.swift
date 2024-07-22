@@ -20,6 +20,7 @@ class VaultItemCoordinator: NSObject, Coordinator, HasStackNavigator { // swiftl
         & HasAPIService
         & HasAuthRepository
         & HasEventService
+        & HasFido2UserInterfaceHelper
         & HasStateService
         & HasTOTPService
         & HasTimeProvider

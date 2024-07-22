@@ -15,6 +15,8 @@ class AppProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_body
     var clientService: MockClientService!
     var coordinator: MockCoordinator<AppRoute, AppEvent>!
     var errorReporter: MockErrorReporter!
+    var fido2UserInterfaceHelper: MockFido2UserInterfaceHelper!
+    var eventService: MockEventService!
     var migrationService: MockMigrationService!
     var notificationCenterService: MockNotificationCenterService!
     var notificationService: MockNotificationService!
@@ -40,6 +42,8 @@ class AppProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_body
         appModule.authRouter = router
         appModule.appCoordinator = coordinator
         errorReporter = MockErrorReporter()
+        fido2UserInterfaceHelper = MockFido2UserInterfaceHelper()
+        eventService = MockEventService()
         migrationService = MockMigrationService()
         notificationCenterService = MockNotificationCenterService()
         notificationService = MockNotificationService()
@@ -56,6 +60,8 @@ class AppProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_body
                 autofillCredentialService: autofillCredentialService,
                 clientService: clientService,
                 errorReporter: errorReporter,
+                eventService: eventService,
+                fido2UserInterfaceHelper: fido2UserInterfaceHelper,
                 migrationService: migrationService,
                 notificationService: notificationService,
                 notificationCenterService: notificationCenterService,
@@ -77,9 +83,12 @@ class AppProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_body
         clientService = nil
         coordinator = nil
         errorReporter = nil
+        fido2UserInterfaceHelper = nil
+        eventService = nil
         migrationService = nil
         notificationCenterService = nil
         notificationService = nil
+        router = nil
         stateService = nil
         subject = nil
         syncService = nil
@@ -200,6 +209,15 @@ class AppProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_body
         XCTAssertIdentical(syncService.delegate, subject)
     }
 
+    /// `init()` starts the upload-event timer and attempts to upload events.
+    func test_init_uploadEvents() {
+        XCTAssertNotNil(subject.sendEventTimer)
+        XCTAssertEqual(subject.sendEventTimer?.isValid, true)
+        subject.sendEventTimer?.fire() // Necessary because it's a 5-minute timer
+        waitFor(eventService.uploadCalled)
+        XCTAssertTrue(eventService.uploadCalled)
+    }
+
     /// `messageReceived(_:notificationDismissed:notificationTapped)` passes the data to the notification service.
     func test_messageReceived() async {
         let message: [AnyHashable: Any] = ["knock knock": "who's there?"]
@@ -207,6 +225,13 @@ class AppProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_body
         await subject.messageReceived(message)
 
         XCTAssertEqual(notificationService.messageReceivedMessage?.keys.first, "knock knock")
+    }
+
+    /// `onNeedsUserInteraction()` doesn't throw when `appExtensionDelegate` is not a Fido2 one.
+    func test_onNeedsUserInteraction_flowWithUserInteraction() async {
+        await assertAsyncDoesNotThrow {
+            try await subject.onNeedsUserInteraction()
+        }
     }
 
     /// `openUrl(_:)` handles receiving an OTP deep link and setting an auth completion route on the
@@ -454,5 +479,20 @@ class AppProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_body
         XCTAssertTrue(appModule.appCoordinator.isStarted)
         XCTAssertEqual(appModule.appCoordinator.events, [.didStart])
         XCTAssertEqual(migrationService.didPerformMigrations, true)
+    }
+
+    /// `unlockVaultWithNeverlockKey()` unlocks it calling the auth repository.
+    func test_unlockVaultWithNeverlockKey() async throws {
+        try await subject.unlockVaultWithNeverlockKey()
+
+        XCTAssertTrue(authRepository.unlockVaultWithNeverlockKeyCalled)
+    }
+
+    /// `unlockVaultWithNeverlockKey()` throws because auth repository call throws.
+    func test_unlockVaultWithNeverlockKey_throws() async throws {
+        authRepository.unlockVaultWithNeverlockResult = .failure(BitwardenTestError.example)
+        await assertAsyncThrows(error: BitwardenTestError.example) {
+            try await subject.unlockVaultWithNeverlockKey()
+        }
     }
 }

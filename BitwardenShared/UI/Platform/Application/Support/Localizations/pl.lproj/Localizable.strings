@@ -918,4 +918,5 @@
 "FilePasswordDescription" = "Hasło będzie używane do eksportowania i importowania pliku";
 "OrganizationUnassignedItemsMessageUSEUDescriptionLong" = "Nieprzypisane elementy w organizacji nie są już widoczne w widoku Wszystkie sejfy i są dostępne tylko przez Konsolę Administracyjną. Przypisz te elementy do kolekcji z konsoli administracyjnej, aby były one widoczne.";
 "UnknownAccount" = "Nieznane konto";
-"UserVerificationForPasskey" = "User verification for passkey";
+"UserVerificationForPasskey" = "Weryfikacja użytkownika dla passkey";
+"NewItem" = "Nowy element";

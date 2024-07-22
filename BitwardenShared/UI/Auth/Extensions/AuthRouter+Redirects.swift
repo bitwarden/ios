@@ -209,9 +209,9 @@ extension AuthRouter {
         }
 
         // Check for a `logout` timeout action.
-        let timeoutAction = try? await services.authRepository
-            .sessionTimeoutAction(userId: activeAccount.profile.userId)
-        if timeoutAction == .logout {
+        let userId = activeAccount.profile.userId
+        if await (try? services.authRepository.sessionTimeoutAction(userId: userId)) == .logout,
+           await (try? services.vaultTimeoutService.sessionTimeoutValue(userId: userId)) != .never {
             return await handleAndRoute(.didTimeout(userId: activeAccount.profile.userId))
         }
 
@@ -336,7 +336,7 @@ extension AuthRouter {
                 // If the user has enabled Never Lock, but the vault is locked,
                 // unlock the vault and return `.complete`.
                 try await services.authRepository.unlockVaultWithNeverlockKey()
-                return .complete
+                return .completeWithNeverUnlockKey
             case (_, false):
                 return .complete
             default:

@@ -11,6 +11,7 @@ class VaultItemSelectionProcessor: StateProcessor<
 
     typealias Services = HasAuthRepository
         & HasErrorReporter
+        & HasEventService
         & HasPasteboardService
         & HasStateService
         & HasVaultRepository
@@ -26,6 +27,9 @@ class VaultItemSelectionProcessor: StateProcessor<
     /// The helper to execute user verification flows.
     private let userVerificationHelper: UserVerificationHelper
 
+    /// The helper to handle the more options menu for a vault item.
+    private let vaultItemMoreOptionsHelper: VaultItemMoreOptionsHelper
+
     // MARK: Initialization
 
     /// Initialize a `VaultItemSelectionProcessor`.
@@ -35,16 +39,19 @@ class VaultItemSelectionProcessor: StateProcessor<
     ///   - services: The services used by this processor.
     ///   - state: The initial state of the processor.
     ///   - userVerificationHelper: The helper to execute user verification flows.
+    ///   - vaultItemMoreOptionsHelper: The helper to handle the more options menu for a vault item.
     ///
     init(
         coordinator: AnyCoordinator<VaultRoute, AuthAction>,
         services: Services,
         state: VaultItemSelectionState,
-        userVerificationHelper: UserVerificationHelper
+        userVerificationHelper: UserVerificationHelper,
+        vaultItemMoreOptionsHelper: VaultItemMoreOptionsHelper
     ) {
         self.coordinator = coordinator
         self.services = services
         self.userVerificationHelper = userVerificationHelper
+        self.vaultItemMoreOptionsHelper = vaultItemMoreOptionsHelper
         super.init(state: state)
     }
 
@@ -54,6 +61,16 @@ class VaultItemSelectionProcessor: StateProcessor<
         switch effect {
         case .loadData:
             await refreshProfileState()
+        case let .morePressed(item):
+            await vaultItemMoreOptionsHelper.showMoreOptionsAlert(
+                for: item,
+                handleDisplayToast: { [weak self] toast in
+                    self?.state.toast = toast
+                },
+                handleOpenURL: { [weak self] url in
+                    self?.state.url = url
+                }
+            )
         case let .profileSwitcher(profileEffect):
             await handle(profileEffect)
         case let .search(text):
@@ -86,6 +103,8 @@ class VaultItemSelectionProcessor: StateProcessor<
             )
         case .cancelTapped:
             coordinator.navigate(to: .dismiss)
+        case .clearURL:
+            state.url = nil
         case let .profileSwitcher(action):
             handle(action)
         case let .searchStateChanged(isSearching: isSearching):

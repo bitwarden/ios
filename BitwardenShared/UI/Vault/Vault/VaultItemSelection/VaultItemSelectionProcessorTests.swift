@@ -11,8 +11,11 @@ class VaultItemSelectionProcessorTests: BitwardenTestCase { // swiftlint:disable
     var authRepository: MockAuthRepository!
     var coordinator: MockCoordinator<VaultRoute, AuthAction>!
     var errorReporter: MockErrorReporter!
+    var pasteboardService: MockPasteboardService!
+    var stateService: MockStateService!
     var subject: VaultItemSelectionProcessor!
     var userVerificationHelper: MockUserVerificationHelper!
+    var vaultItemMoreOptionsHelper: MockVaultItemMoreOptionsHelper!
     var vaultRepository: MockVaultRepository!
 
     // MARK: Setup & Teardown
@@ -23,7 +26,10 @@ class VaultItemSelectionProcessorTests: BitwardenTestCase { // swiftlint:disable
         authRepository = MockAuthRepository()
         coordinator = MockCoordinator()
         errorReporter = MockErrorReporter()
+        pasteboardService = MockPasteboardService()
+        stateService = MockStateService()
         userVerificationHelper = MockUserVerificationHelper()
+        vaultItemMoreOptionsHelper = MockVaultItemMoreOptionsHelper()
         vaultRepository = MockVaultRepository()
 
         subject = VaultItemSelectionProcessor(
@@ -31,13 +37,16 @@ class VaultItemSelectionProcessorTests: BitwardenTestCase { // swiftlint:disable
             services: ServiceContainer.withMocks(
                 authRepository: authRepository,
                 errorReporter: errorReporter,
+                pasteboardService: pasteboardService,
+                stateService: stateService,
                 vaultRepository: vaultRepository
             ),
             state: VaultItemSelectionState(
                 iconBaseURL: nil,
                 otpAuthModel: OTPAuthModel(otpAuthKey: .otpAuthUriKeyComplete)!
             ),
-            userVerificationHelper: userVerificationHelper
+            userVerificationHelper: userVerificationHelper,
+            vaultItemMoreOptionsHelper: vaultItemMoreOptionsHelper
         )
     }
 
@@ -47,8 +56,11 @@ class VaultItemSelectionProcessorTests: BitwardenTestCase { // swiftlint:disable
         authRepository = nil
         coordinator = nil
         errorReporter = nil
+        pasteboardService = nil
+        stateService = nil
         subject = nil
         userVerificationHelper = nil
+        vaultItemMoreOptionsHelper = nil
         vaultRepository = nil
     }
 
@@ -91,6 +103,23 @@ class VaultItemSelectionProcessorTests: BitwardenTestCase { // swiftlint:disable
         await subject.perform(.loadData)
 
         XCTAssertEqual(subject.state.profileSwitcherState, .empty(shouldAlwaysHideAddAccount: true))
+    }
+
+    /// `perform(_:)` with `.morePressed` has the vault item more options helper display the alert.
+    func test_perform_morePressed() async throws {
+        await subject.perform(.morePressed(.fixture()))
+
+        XCTAssertTrue(vaultItemMoreOptionsHelper.showMoreOptionsAlertCalled)
+        XCTAssertNotNil(vaultItemMoreOptionsHelper.showMoreOptionsAlertHandleDisplayToast)
+        XCTAssertNotNil(vaultItemMoreOptionsHelper.showMoreOptionsAlertHandleOpenURL)
+
+        let toast = Toast(text: Localizations.valueHasBeenCopied(Localizations.password))
+        vaultItemMoreOptionsHelper.showMoreOptionsAlertHandleDisplayToast?(toast)
+        XCTAssertEqual(subject.state.toast, toast)
+
+        let url = URL.example
+        vaultItemMoreOptionsHelper.showMoreOptionsAlertHandleOpenURL?(url)
+        XCTAssertEqual(subject.state.url, url)
     }
 
     /// `perform(_:)` with `.profileSwitcher(.accountPressed)` updates the profile switcher's
@@ -355,6 +384,13 @@ class VaultItemSelectionProcessorTests: BitwardenTestCase { // swiftlint:disable
         subject.receive(.cancelTapped)
 
         XCTAssertEqual(coordinator.routes, [.dismiss])
+    }
+
+    /// `receive(_:)` with `.clearURL` clears the url in the state.
+    func test_receive_clearURL() {
+        subject.state.url = .example
+        subject.receive(.clearURL)
+        XCTAssertNil(subject.state.url)
     }
 
     /// `receive(_:)` with `.profileSwitcher(.backgroundPressed)` turns off the Profile Switcher Visibility.

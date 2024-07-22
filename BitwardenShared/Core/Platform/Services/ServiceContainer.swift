@@ -68,6 +68,13 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
     /// The service used to export a vault.
     let exportVaultService: ExportVaultService
 
+    /// A store to be used on Fido2 flows to get/save credentials.
+    let fido2CredentialStore: Fido2CredentialStore
+
+    /// A helper to be used on Fido2 flows that requires user interaction and extends the capabilities
+    /// of the `Fido2UserInterface` from the SDK.
+    let fido2UserInterfaceHelper: Fido2UserInterfaceHelper
+
     /// The repository used by the application to manage generator data for the UI layer.
     let generatorRepository: GeneratorRepository
 
@@ -161,6 +168,9 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
     ///   - errorReporter: The service used by the application to report non-fatal errors.
     ///   - eventService: The service used to record and send events.
     ///   - exportVaultService: The service used to export vaults.
+    ///   - fido2UserInterfaceHelper: A helper to be used on Fido2 flows that requires user interaction
+    ///   and extends the capabilities of the `Fido2UserInterface` from the SDK.
+    ///   - fido2CredentialStore: A store to be used on Fido2 flows to get/save credentials.
     ///   - generatorRepository: The repository used by the application to manage generator data for the UI layer.
     ///   - keychainRepository: The repository used to manages keychain items.
     ///   - keychainService: The service used to access & store data on the device keychain.
@@ -203,6 +213,8 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
         errorReporter: ErrorReporter,
         eventService: EventService,
         exportVaultService: ExportVaultService,
+        fido2CredentialStore: Fido2CredentialStore,
+        fido2UserInterfaceHelper: Fido2UserInterfaceHelper,
         generatorRepository: GeneratorRepository,
         keychainRepository: KeychainRepository,
         keychainService: KeychainService,
@@ -244,6 +256,8 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
         self.errorReporter = errorReporter
         self.eventService = eventService
         self.exportVaultService = exportVaultService
+        self.fido2CredentialStore = fido2CredentialStore
+        self.fido2UserInterfaceHelper = fido2UserInterfaceHelper
         self.generatorRepository = generatorRepository
         self.keychainService = keychainService
         self.keychainRepository = keychainRepository
@@ -362,6 +376,7 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
         let eventService = DefaultEventService(
             cipherService: cipherService,
             errorReporter: errorReporter,
+            eventAPIService: apiService,
             organizationService: organizationService,
             stateService: stateService,
             timeProvider: timeProvider
@@ -442,16 +457,6 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
             trustDeviceService: trustDeviceService
         )
 
-        let autofillCredentialService = DefaultAutofillCredentialService(
-            cipherService: cipherService,
-            clientService: clientService,
-            errorReporter: errorReporter,
-            eventService: eventService,
-            pasteboardService: pasteboardService,
-            stateService: stateService,
-            vaultTimeoutService: vaultTimeoutService
-        )
-
         let authRepository = DefaultAuthRepository(
             accountAPIService: apiService,
             authService: authService,
@@ -525,6 +530,49 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
             vaultTimeoutService: vaultTimeoutService
         )
 
+        let fido2UserInterfaceHelper = DefaultFido2UserInterfaceHelper(
+            fido2UserVerificationMediator: DefaultFido2UserVerificationMediator(
+                authRepository: authRepository,
+                stateService: stateService,
+                userVerificationHelper: DefaultUserVerificationHelper(
+                    authRepository: authRepository,
+                    errorReporter: errorReporter,
+                    localAuthService: localAuthService
+                ),
+                userVerificationRunner: DefaultUserVerificationRunner()
+            )
+        )
+
+        #if DEBUG
+        let fido2CredentialStore = DebuggingFido2CredentialStoreService(
+            fido2CredentialStore: Fido2CredentialStoreService(
+                cipherService: cipherService,
+                clientService: clientService,
+                errorReporter: errorReporter,
+                syncService: syncService
+            )
+        )
+        #else
+        let fido2CredentialStore = Fido2CredentialStoreService(
+            cipherService: cipherService,
+            clientService: clientService,
+            errorReporter: errorReporter,
+            syncService: syncService
+        )
+        #endif
+
+        let autofillCredentialService = DefaultAutofillCredentialService(
+            cipherService: cipherService,
+            clientService: clientService,
+            errorReporter: errorReporter,
+            eventService: eventService,
+            fido2CredentialStore: fido2CredentialStore,
+            fido2UserInterfaceHelper: fido2UserInterfaceHelper,
+            pasteboardService: pasteboardService,
+            stateService: stateService,
+            vaultTimeoutService: vaultTimeoutService
+        )
+
         self.init(
             apiService: apiService,
             appIdService: appIdService,
@@ -543,6 +591,8 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
             errorReporter: errorReporter,
             eventService: eventService,
             exportVaultService: exportVaultService,
+            fido2CredentialStore: fido2CredentialStore,
+            fido2UserInterfaceHelper: fido2UserInterfaceHelper,
             generatorRepository: generatorRepository,
             keychainRepository: keychainRepository,
             keychainService: keychainService,

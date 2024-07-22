@@ -153,3 +153,35 @@ extension BitwardenSdk.Fido2CredentialAutofillView {
         )
     }
 }
+
+extension BitwardenSdk.Fido2CredentialNewView {
+    static let defaultRpId = "myApp.com"
+
+    static func fixture(
+        credentialId: String = "",
+        keyType: String = "",
+        keyAlgorithm: String = "",
+        keyCurve: String = "",
+        rpId: String = defaultRpId,
+        userHandle: String? = nil,
+        userName: String? = nil,
+        counter: String = "0",
+        rpName: String? = nil,
+        userDisplayName: String? = nil,
+        creationDate: DateTime = DateTime.distantPast
+    ) -> BitwardenSdk.Fido2CredentialNewView {
+        .init(
+            credentialId: credentialId,
+            keyType: keyType,
+            keyAlgorithm: keyAlgorithm,
+            keyCurve: keyCurve,
+            rpId: rpId,
+            userHandle: userHandle,
+            userName: userName,
+            counter: counter,
+            rpName: rpName,
+            userDisplayName: userDisplayName,
+            creationDate: creationDate
+        )
+    }
+}

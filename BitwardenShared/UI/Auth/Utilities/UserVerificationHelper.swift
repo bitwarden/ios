@@ -1,6 +1,12 @@
 /// Helper for user verification flows.
 ///
 protocol UserVerificationHelper {
+    var userVerificationDelegate: UserVerificationDelegate? { get set }
+
+    /// Whether device local auth is authorized thus can be verified.
+    /// - Returns: `true` if authorized, `false` otherwise.
+    func canVerifyDeviceLocalAuth() -> Bool
+
     /// Performs OS local auth, e.g. biometrics or pin/pattern
     /// - Parameter reason: The reason to be displayed to the user when evaluating the policy if needed
     /// - Returns: An `UserVerificationResult` with the verification result
@@ -23,34 +29,33 @@ protocol UserVerificationHelper {
 /// Default implementation of `UserVerificationHelper`
 ///
 class DefaultUserVerificationHelper {
-    // MARK: Types
-
-    typealias Services = HasAuthRepository
-        & HasErrorReporter
-        & HasLocalAuthService
-
     // MARK: Properties
 
-    /// The delegate used to manage user interaction from the user verification flow..
-    private weak var userVerificationDelegate: UserVerificationDelegate?
+    /// The repository used by the application to manage auth data for the UI layer.
+    let authRepository: AuthRepository
+    /// The service used by the application to report non-fatal errors.
+    let errorReporter: ErrorReporter
+    /// The service used by the application to evaluate local auth policies.
+    let localAuthService: LocalAuthService
 
-    /// The services used by this mediator.
-    private let services: Services
+    /// The delegate used to manage user interaction from the user verification flow.
+    weak var userVerificationDelegate: UserVerificationDelegate?
 
     // MARK: Initialization
 
     /// Initialize a `DefaultUserVerificationHelper`.
-    ///
     /// - Parameters:
-    ///   - userVerificationMediatorDelegate: The delegate to manage user interaction from the user verification flow.
-    ///   - services: The services used by this mediator.
-    ///
+    ///   - authRepository: The repository used by the application to manage auth data for the UI layer.
+    ///   - errorReporter: The service used by the application to report non-fatal errors.
+    ///   - localAuthService:  The service used by the application to evaluate local auth policies.
     init(
-        userVerificationDelegate: UserVerificationDelegate?,
-        services: Services
+        authRepository: AuthRepository,
+        errorReporter: ErrorReporter,
+        localAuthService: LocalAuthService
     ) {
-        self.userVerificationDelegate = userVerificationDelegate
-        self.services = services
+        self.authRepository = authRepository
+        self.errorReporter = errorReporter
+        self.localAuthService = localAuthService
     }
 }
 
@@ -59,14 +64,18 @@ class DefaultUserVerificationHelper {
 extension DefaultUserVerificationHelper: UserVerificationHelper {
     typealias UserVerificationContinuation = CheckedContinuation<UserVerificationResult, Error>
 
+    func canVerifyDeviceLocalAuth() -> Bool {
+        localAuthService.getDeviceAuthStatus() == .authorized
+    }
+
     func verifyDeviceLocalAuth(reason: String) async throws -> UserVerificationResult {
-        let localAuthPermission = services.localAuthService.getDeviceAuthStatus()
+        let localAuthPermission = localAuthService.getDeviceAuthStatus()
         guard localAuthPermission == .authorized else {
             return .unableToPerform
         }
 
         do {
-            let isValid = try await services.localAuthService.evaluateDeviceOwnerPolicy(
+            let isValid = try await localAuthService.evaluateDeviceOwnerPolicy(
                 reason: reason
             )
             return isValid ? .verified : .notVerified
@@ -76,7 +85,7 @@ extension DefaultUserVerificationHelper: UserVerificationHelper {
     }
 
     func verifyMasterPassword() async throws -> UserVerificationResult {
-        guard try await services.authRepository.canVerifyMasterPassword() else {
+        guard try await authRepository.canVerifyMasterPassword() else {
             return .unableToPerform
         }
 
@@ -89,7 +98,7 @@ extension DefaultUserVerificationHelper: UserVerificationHelper {
                     guard let self else { return }
 
                     do {
-                        let isValid = try await services.authRepository.validatePassword(password)
+                        let isValid = try await authRepository.validatePassword(password)
                         guard isValid else {
                             userVerificationDelegate?.showAlert(
                                 .defaultAlert(title: Localizations.invalidMasterPassword),
@@ -101,7 +110,7 @@ extension DefaultUserVerificationHelper: UserVerificationHelper {
                         }
                         continuation.resume(returning: .verified)
                     } catch {
-                        services.errorReporter.log(error: error)
+                        errorReporter.log(error: error)
                         continuation.resume(returning: .unableToPerform)
                     }
                 }
@@ -114,7 +123,7 @@ extension DefaultUserVerificationHelper: UserVerificationHelper {
     }
 
     func verifyPin() async throws -> UserVerificationResult {
-        guard try await services.authRepository.isPinUnlockAvailable() else {
+        guard try await authRepository.isPinUnlockAvailable() else {
             return .unableToPerform
         }
 
@@ -124,9 +133,18 @@ extension DefaultUserVerificationHelper: UserVerificationHelper {
                     continuation.resume(throwing: UserVerificationError.cancelled)
                 },
                 settingUp: false,
-                completion: { _ in
-                    // TODO: PM-8388 Perform PIN verification when method available from SDK
-                    continuation.resume(returning: .notVerified)
+                completion: { pin in
+                    guard await self.authRepository.validatePin(pin: pin) else {
+                        self.userVerificationDelegate?.showAlert(
+                            .defaultAlert(title: Localizations.invalidPIN),
+                            onDismissed: {
+                                continuation.resume(returning: .notVerified)
+                            }
+                        )
+                        return
+                    }
+
+                    continuation.resume(returning: .verified)
                 }
             )
 

@@ -8,6 +8,9 @@ enum VaultItemSelectionEffect: Equatable {
     /// Any initial data for the view should be loaded.
     case loadData
 
+    /// The more button on an item in the vault group was tapped.
+    case morePressed(VaultListItem)
+
     /// A forwarded profile switcher effect.
     case profileSwitcher(ProfileSwitcherEffect)
 

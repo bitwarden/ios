@@ -919,3 +919,4 @@
 "OrganizationUnassignedItemsMessageUSEUDescriptionLong" = "Megjegyzés: A nem hozzá nem rendelt szervezeti elemek már nem láthatók az Összes széf nézetben és csak az Adminisztrátori konzolon keresztül érhetők el. Rendeljük ezeket az elemeket egy gyűjteményhez az Adminisztrátor konzolból, hogy láthatóvá tegyük azokat.";
 "UnknownAccount" = "Ismeretlen fiók";
 "UserVerificationForPasskey" = "User verification for passkey";
+"NewItem" = "Új elem";

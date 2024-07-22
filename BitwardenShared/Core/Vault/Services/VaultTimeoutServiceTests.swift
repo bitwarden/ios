@@ -45,37 +45,102 @@ final class VaultTimeoutServiceTests: BitwardenTestCase {
 
     // MARK: Tests
 
-    /// `.hasPassedSessionTimeout()` returns false if the user should not be timed out.
-    func test_hasPassedSessionTimeout_false() async throws {
+    /// `.hasPassedSessionTimeout()` returns true if the user should be timed out.
+    func test_hasPassedSessionTimeout() async throws {
         let account = Account.fixture()
         stateService.activeAccount = account
-        stateService.lastActiveTime[account.profile.userId] = Date()
-        stateService.vaultTimeout[account.profile.userId] = .custom(120)
+        stateService.vaultTimeout[account.profile.userId] = .fiveMinutes
+
+        let currentTime = Date(year: 2024, month: 1, day: 2, hour: 6, minute: 0)
+        timeProvider.timeConfig = .mockTime(currentTime)
+
+        // Last active 4 minutes ago, no timeout.
+        stateService.lastActiveTime[account.profile.userId] = Calendar.current
+            .date(byAdding: .minute, value: -4, to: currentTime)
+        var shouldTimeout = try await subject.hasPassedSessionTimeout(userId: account.profile.userId)
+        XCTAssertFalse(shouldTimeout)
+
+        // Last active 5 minutes ago, timeout.
+        stateService.lastActiveTime[account.profile.userId] = Calendar.current
+            .date(byAdding: .minute, value: -5, to: currentTime)
+        shouldTimeout = try await subject.hasPassedSessionTimeout(userId: account.profile.userId)
+        XCTAssertTrue(shouldTimeout)
+
+        // Last active 6 minutes ago, timeout.
+        stateService.lastActiveTime[account.profile.userId] = Calendar.current
+            .date(byAdding: .minute, value: -6, to: currentTime)
+        shouldTimeout = try await subject.hasPassedSessionTimeout(userId: account.profile.userId)
+        XCTAssertTrue(shouldTimeout)
+
+        // Last active in the distant past, timeout.
+        stateService.lastActiveTime[account.profile.userId] = .distantPast
+        shouldTimeout = try await subject.hasPassedSessionTimeout(userId: account.profile.userId)
+        XCTAssertTrue(shouldTimeout)
+    }
+
+    /// `.hasPassedSessionTimeout()` returns false for a timeout value of app restart.
+    func test_hasPassedSessionTimeout_appRestart() async throws {
+        let account = Account.fixture()
+        stateService.activeAccount = account
+        stateService.lastActiveTime[account.profile.userId] = .distantPast
+        stateService.vaultTimeout[account.profile.userId] = .onAppRestart
 
         let shouldTimeout = try await subject.hasPassedSessionTimeout(userId: account.profile.userId)
         XCTAssertFalse(shouldTimeout)
+    }
+
+    /// `.hasPassedSessionTimeout()` returns true if the user should be timed out for a custom timeout value.
+    func test_hasPassedSessionTimeout_custom() async throws {
+        let account = Account.fixture()
+        stateService.activeAccount = account
+        stateService.vaultTimeout[account.profile.userId] = .custom(120)
+
+        let currentTime = Date(year: 2024, month: 1, day: 2, hour: 6, minute: 0)
+        timeProvider.timeConfig = .mockTime(currentTime)
+
+        // Last active 119 minutes ago, no timeout.
+        stateService.lastActiveTime[account.profile.userId] = Calendar.current
+            .date(byAdding: .minute, value: -119, to: currentTime)
+        var shouldTimeout = try await subject.hasPassedSessionTimeout(userId: account.profile.userId)
+        XCTAssertFalse(shouldTimeout)
+
+        // Last active 120 minutes ago, timeout.
+        stateService.lastActiveTime[account.profile.userId] = Calendar.current
+            .date(byAdding: .minute, value: -120, to: currentTime)
+        shouldTimeout = try await subject.hasPassedSessionTimeout(userId: account.profile.userId)
+        XCTAssertTrue(shouldTimeout)
+
+        // Last active 121 minutes ago, timeout.
+        stateService.lastActiveTime[account.profile.userId] = Calendar.current
+            .date(byAdding: .minute, value: -121, to: currentTime)
+        shouldTimeout = try await subject.hasPassedSessionTimeout(userId: account.profile.userId)
+        XCTAssertTrue(shouldTimeout)
+
+        // Last active in the distant past, timeout.
+        stateService.lastActiveTime[account.profile.userId] = .distantPast
+        shouldTimeout = try await subject.hasPassedSessionTimeout(userId: account.profile.userId)
+        XCTAssertTrue(shouldTimeout)
+    }
+
+    /// `.hasPassedSessionTimeout()` returns true if there's no last active time recorded for the user.
+    func test_hasPassedSessionTimeout_noLastActiveTime() async throws {
+        let account = Account.fixture()
+        stateService.activeAccount = account
+        stateService.vaultTimeout[account.profile.userId] = .fiveMinutes
+
+        let shouldTimeout = try await subject.hasPassedSessionTimeout(userId: account.profile.userId)
+        XCTAssertTrue(shouldTimeout)
     }
 
     /// `.hasPassedSessionTimeout()` returns false if the user's vault timeout value is negative.
     func test_hasPassedSessionTimeout_never() async throws {
         let account = Account.fixture()
         stateService.activeAccount = account
-        stateService.lastActiveTime[account.profile.userId] = Date()
+        stateService.lastActiveTime[account.profile.userId] = .distantPast
         stateService.vaultTimeout[account.profile.userId] = .never
 
         let shouldTimeout = try await subject.hasPassedSessionTimeout(userId: account.profile.userId)
         XCTAssertFalse(shouldTimeout)
-    }
-
-    /// `.hasPassedSessionTimeout()` returns true if the user should be timed out.
-    func test_hasPassedSessionTimeout_true() async throws {
-        let account = Account.fixture()
-        stateService.activeAccount = account
-        stateService.lastActiveTime[account.profile.userId] = .distantPast
-        stateService.vaultTimeout[account.profile.userId] = .oneMinute
-
-        let shouldTimeout = try await subject.hasPassedSessionTimeout(userId: account.profile.userId)
-        XCTAssertTrue(shouldTimeout)
     }
 
     /// Tests that locking and unlocking the vault works correctly.
@@ -83,7 +148,7 @@ final class VaultTimeoutServiceTests: BitwardenTestCase {
         let account = Account.fixtureAccountLogin()
         let userId = account.profile.userId
 
-        try await subject.unlockVault(userId: userId)
+        try await subject.unlockVault(userId: userId, hadUserInteraction: false)
         XCTAssertFalse(subject.isLocked(userId: userId))
 
         await subject.lockVault(userId: userId)
@@ -95,7 +160,7 @@ final class VaultTimeoutServiceTests: BitwardenTestCase {
         let userId = "1"
         let user2Id = "2"
 
-        try await subject.unlockVault(userId: user2Id)
+        try await subject.unlockVault(userId: user2Id, hadUserInteraction: false)
 
         XCTAssertTrue(subject.isLocked(userId: userId))
         XCTAssertFalse(subject.isLocked(userId: user2Id))
@@ -111,8 +176,8 @@ final class VaultTimeoutServiceTests: BitwardenTestCase {
         let userId = "1"
         let user2Id = "2"
 
-        try await subject.unlockVault(userId: userId)
-        try await subject.unlockVault(userId: user2Id)
+        try await subject.unlockVault(userId: userId, hadUserInteraction: false)
+        try await subject.unlockVault(userId: user2Id, hadUserInteraction: false)
 
         await subject.lockVault(userId: user2Id)
 
@@ -124,7 +189,7 @@ final class VaultTimeoutServiceTests: BitwardenTestCase {
     func test_remove_unlocked() async throws {
         let userId = "1"
         clientService.userClientArray.updateValue(MockClient(), forKey: userId)
-        try await subject.unlockVault(userId: userId)
+        try await subject.unlockVault(userId: userId, hadUserInteraction: false)
 
         XCTAssertFalse(subject.isLocked(userId: userId))
         XCTAssertNotNil(clientService.userClientArray[userId])
@@ -148,7 +213,7 @@ final class VaultTimeoutServiceTests: BitwardenTestCase {
         let userId = "1"
         clientService.userClientArray.updateValue(MockClient(), forKey: userId)
 
-        try await subject.unlockVault(userId: userId)
+        try await subject.unlockVault(userId: userId, hadUserInteraction: false)
         XCTAssertFalse(subject.isLocked(userId: userId))
         XCTAssertNotNil(clientService.userClientArray[userId])
 
@@ -204,7 +269,7 @@ final class VaultTimeoutServiceTests: BitwardenTestCase {
         await subject.lockVault(userId: userId)
         XCTAssertTrue(subject.isLocked(userId: userId))
 
-        try await subject.unlockVault(userId: nil)
+        try await subject.unlockVault(userId: nil, hadUserInteraction: false)
         XCTAssertFalse(subject.isLocked(userId: userId))
     }
 
@@ -216,21 +281,33 @@ final class VaultTimeoutServiceTests: BitwardenTestCase {
         stateService.activeAccount = nil
         stateService.accounts = []
 
-        try await subject.unlockVault(userId: nil)
+        try await subject.unlockVault(userId: nil, hadUserInteraction: false)
 
         XCTAssertTrue(subject.isLocked(userId: userId))
     }
 
-    /// `unlockVault(userId:)` preserves the locked status of a locked account.
+    /// `unlockVault(userId:hadUserInteraction:)` preserves the locked status of a locked account.
     func test_unlock_locked() async throws {
         let userId = "1"
         let user2Id = "2"
 
         XCTAssertTrue(subject.isLocked(userId: userId))
 
-        try await subject.unlockVault(userId: user2Id)
+        try await subject.unlockVault(userId: user2Id, hadUserInteraction: true)
         XCTAssertTrue(subject.isLocked(userId: userId))
         XCTAssertFalse(subject.isLocked(userId: user2Id))
+        XCTAssertTrue(stateService.setAccountHasBeenUnlockedInteractivelyHasBeenCalled)
+    }
+
+    /// `unlockVault(userId:hadUserInteraction:)` throws when setting account has been unlocked in current session.
+    func test_unlock_locked_throws() async throws {
+        let user2Id = "2"
+
+        stateService.setAccountHasBeenUnlockedInteractivelyResult = .failure(BitwardenTestError.example)
+
+        await assertAsyncThrows(error: BitwardenTestError.example) {
+            try await subject.unlockVault(userId: user2Id, hadUserInteraction: true)
+        }
     }
 
     /// `vaultLockStatusPublisher()` publishes the active user ID and whether their vault is locked.
@@ -243,9 +320,9 @@ final class VaultTimeoutServiceTests: BitwardenTestCase {
         defer { publisher.cancel() }
 
         stateService.activeIdSubject.send("1")
-        try await subject.unlockVault(userId: "1")
+        try await subject.unlockVault(userId: "1", hadUserInteraction: false)
         stateService.activeIdSubject.send("2")
-        try await subject.unlockVault(userId: "2")
+        try await subject.unlockVault(userId: "2", hadUserInteraction: false)
         await subject.lockVault(userId: "2")
         stateService.activeIdSubject.send(nil)
 
