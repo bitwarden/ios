@@ -141,6 +141,62 @@ class VaultAutofillListProcessor: StateProcessor<
         return NewCipherOptions(uri: appExtensionDelegate?.uri)
     }
 
+    /// Creates the vault list sections from given ciphers and search text.
+    /// This is to centralize sections creation from loading and searching.
+    ///
+    /// - Parameters:
+    ///   - ciphers: The ciphers to create the sections, either load or search results.
+    ///   - searchText: The current search text.
+    ///
+    private func createVaultListSections(
+        from ciphers: [CipherView],
+        searchText: String?
+    ) async throws -> [VaultListSection] {
+        var sections = [VaultListSection]()
+        if #available(iOSApplicationExtension 17.0, *),
+           let fido2Section = try await loadFido2Section(
+               searchText: searchText,
+               searchResults: searchText != nil ? ciphers : nil
+           ) {
+            sections.append(fido2Section)
+        } else if ciphers.isEmpty {
+            return []
+        }
+
+        let sectionName = getPasswordsSectionName(searchText: searchText)
+
+        sections.append(
+            VaultListSection(
+                id: sectionName,
+                items: ciphers.compactMap { .init(cipherView: $0) },
+                name: sectionName
+            )
+        )
+        return sections
+    }
+
+    /// Gets the passwords vault list section name depending on the context.
+    ///
+    /// - Parameter searchText: The current search text.
+    ///
+    private func getPasswordsSectionName(searchText: String?) -> String {
+        if let fido2Delegate = appExtensionDelegate as? Fido2AppExtensionDelegate,
+           !fido2Delegate.isAutofillingFido2CredentialFromList,
+           !fido2Delegate.isCreatingFido2Credential {
+            return ""
+        }
+
+        if let searchText {
+            return Localizations.passwordsForX(searchText)
+        }
+
+        if let uri = appExtensionDelegate?.uri {
+            return Localizations.passwordsForX(uri)
+        }
+
+        return Localizations.passwords
+    }
+
     /// Handles receiving a `ProfileSwitcherAction`.
     ///
     /// - Parameter action: The `ProfileSwitcherAction` to handle.
@@ -191,8 +247,7 @@ class VaultAutofillListProcessor: StateProcessor<
                 filterType: .allVaults
             )
             for try await ciphers in searchResult {
-                // TODO: PM-8713 Update searchCipherAutofillPublisher with the proper item in the VaultRepository
-                state.ciphersForSearch = ciphers.compactMap { .init(cipherView: $0) }
+                state.ciphersForSearch = try await createVaultListSections(from: ciphers, searchText: searchText)
                 state.showNoResults = ciphers.isEmpty
             }
         } catch {
@@ -209,39 +264,7 @@ class VaultAutofillListProcessor: StateProcessor<
             for try await ciphers in try await services.vaultRepository.ciphersAutofillPublisher(
                 uri: appExtensionDelegate?.uri
             ) {
-                var sections = [VaultListSection]()
-                if let fido2Credentials = services.fido2UserInterfaceHelper.availableCredentialsForAuthentication,
-                   !fido2Credentials.isEmpty {
-                    let fido2ListItems = try await fido2Credentials.asyncMap { cipher in
-                        let fido2CredentialAutofillView = try await self.services.clientService
-                            .platform()
-                            .fido2()
-                            .decryptFido2AutofillCredentials(cipherView: cipher)
-
-                        return VaultListItem(
-                            cipherView: cipher,
-                            fido2CredentialAutofillView: fido2CredentialAutofillView[0]
-                        )
-                    }.compactMap { $0 }
-
-                    sections.append(
-                        VaultListSection(
-                            id: Localizations.passkeysForX(""),
-                            items: fido2ListItems,
-                            name: Localizations.passkeysForX("")
-                        )
-                    )
-                }
-
-                sections.append(
-                    VaultListSection(
-                        id: Localizations.passwordsForX(""),
-                        items: ciphers.compactMap { .init(cipherView: $0) },
-                        name: Localizations.passwordsForX("")
-                    )
-                )
-
-                state.vaultListSections = sections
+                state.vaultListSections = try await createVaultListSections(from: ciphers, searchText: nil)
             }
         } catch {
             coordinator.showAlert(.defaultAlert(title: Localizations.anErrorHasOccurred))
@@ -333,12 +356,12 @@ extension VaultAutofillListProcessor {
             return
         }
 
-        services.fido2UserInterfaceHelper.setupDelegate(fido2UserInterfaceHelperDelegate: self)
-
         switch fido2AppExtensionDelegate.extensionMode {
         case let .registerFido2Credential(request):
             if let request = request as? ASPasskeyCredentialRequest,
                let credentialIdentity = request.credentialIdentity as? ASPasskeyCredentialIdentity {
+                services.fido2UserInterfaceHelper.setupDelegate(fido2UserInterfaceHelperDelegate: self)
+
                 await handleFido2CredentialCreation(
                     fido2appExtensionDelegate: fido2AppExtensionDelegate,
                     request: request,
@@ -346,13 +369,15 @@ extension VaultAutofillListProcessor {
                 )
             }
         case let .autofillFido2VaultList(serviceIdentifiers, fido2RequestParameters):
-            if let asFido2RequestParameters = fido2RequestParameters as? ASPasskeyCredentialRequestParameters {
-                await handleFido2CredentialAutofill(
-                    fido2appExtensionDelegate: fido2AppExtensionDelegate,
-                    serviceIdentifiers: serviceIdentifiers,
-                    fido2RequestParameters: asFido2RequestParameters
-                )
-            }
+            state.isAutofillingFido2List = true
+            state.emptyViewMessage = Localizations.noItemsToList
+            services.fido2UserInterfaceHelper.setupDelegate(fido2UserInterfaceHelperDelegate: self)
+
+            await handleFido2CredentialAutofill(
+                fido2appExtensionDelegate: fido2AppExtensionDelegate,
+                serviceIdentifiers: serviceIdentifiers,
+                fido2RequestParameters: fido2RequestParameters
+            )
         default:
             break
         }
@@ -366,7 +391,7 @@ extension VaultAutofillListProcessor {
     func handleFido2CredentialAutofill(
         fido2appExtensionDelegate: Fido2AppExtensionDelegate,
         serviceIdentifiers: [ASCredentialServiceIdentifier],
-        fido2RequestParameters: ASPasskeyCredentialRequestParameters
+        fido2RequestParameters: PasskeyCredentialRequestParameters
     ) async {
         do {
             let request = GetAssertionRequest(
@@ -413,7 +438,7 @@ extension VaultAutofillListProcessor {
             #if DEBUG
             Fido2DebuggingReportBuilder.builder.withGetAssertionResult(.failure(error))
             #endif
-            services.fido2UserInterfaceHelper.pickedCredentialForCreation(result: .failure(error))
+            services.fido2UserInterfaceHelper.pickedCredentialForAuthentication(result: .failure(error))
             services.errorReporter.log(error: error)
         }
     }
@@ -467,6 +492,48 @@ extension VaultAutofillListProcessor {
             services.fido2UserInterfaceHelper.pickedCredentialForCreation(result: .failure(error))
             services.errorReporter.log(error: error)
         }
+    }
+
+    func loadFido2Section(
+        searchText: String? = nil,
+        searchResults: [CipherView]? = nil
+    ) async throws -> VaultListSection? {
+        guard let fido2Credentials = services.fido2UserInterfaceHelper.availableCredentialsForAuthentication,
+              !fido2Credentials.isEmpty,
+              let fido2Delegate = appExtensionDelegate as? Fido2AppExtensionDelegate,
+              case let .autofillFido2VaultList(_, parameters) = fido2Delegate.extensionMode else {
+            return nil
+        }
+
+        var filteredFido2Credentials = fido2Credentials
+        if let searchResults {
+            filteredFido2Credentials = filteredFido2Credentials.filter { cipher in
+                searchResults.contains(where: { $0.id == cipher.id })
+            }
+        }
+
+        guard !filteredFido2Credentials.isEmpty else {
+            return nil
+        }
+
+        let fido2ListItems = try await filteredFido2Credentials
+            .asyncMap { cipher in
+                let fido2CredentialAutofillView = try await self.services.clientService
+                    .platform()
+                    .fido2()
+                    .decryptFido2AutofillCredentials(cipherView: cipher)
+
+                return VaultListItem(
+                    cipherView: cipher,
+                    fido2CredentialAutofillView: fido2CredentialAutofillView[0]
+                )
+            }.compactMap { $0 }
+
+        return VaultListSection(
+            id: Localizations.passkeysForX(searchText ?? parameters.relyingPartyIdentifier),
+            items: fido2ListItems,
+            name: Localizations.passkeysForX(searchText ?? parameters.relyingPartyIdentifier)
+        )
     }
 
     /// Picks a cipher to use for the Fido2 process

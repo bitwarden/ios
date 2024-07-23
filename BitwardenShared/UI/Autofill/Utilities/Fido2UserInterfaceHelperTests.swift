@@ -5,9 +5,10 @@ import XCTest
 
 // MARK: - Fido2UserInterfaceHelperTests
 
-class Fido2UserInterfaceHelperTests: BitwardenTestCase {
+class Fido2UserInterfaceHelperTests: BitwardenTestCase { // swiftlint:disable:this type_body_length
     // MARK: Properties
 
+    var fido2UserInterfaceHelperDelegate: MockFido2UserInterfaceHelperDelegate!
     var fido2UserVerificationMediator: MockFido2UserVerificationMediator!
     var subject: Fido2UserInterfaceHelper!
 
@@ -16,6 +17,7 @@ class Fido2UserInterfaceHelperTests: BitwardenTestCase {
     override func setUp() {
         super.setUp()
 
+        fido2UserInterfaceHelperDelegate = MockFido2UserInterfaceHelperDelegate()
         fido2UserVerificationMediator = MockFido2UserVerificationMediator()
         subject = DefaultFido2UserInterfaceHelper(fido2UserVerificationMediator: fido2UserVerificationMediator)
     }
@@ -23,6 +25,7 @@ class Fido2UserInterfaceHelperTests: BitwardenTestCase {
     override func tearDown() {
         super.tearDown()
 
+        fido2UserInterfaceHelperDelegate = nil
         fido2UserVerificationMediator = nil
         subject = nil
     }
@@ -250,13 +253,85 @@ class Fido2UserInterfaceHelperTests: BitwardenTestCase {
         }
     }
 
-    /// `pickCredentialForAuthentication(availableCredentials:)`
-    func test_pickCredentialForAuthentication() async throws {
-        //  TODO: PM-8829
+    /// `pickCredentialForAuthentication(availableCredentials:)` not autofilling from list succeeds
+    /// with first available credential.
+    func test_pickCredentialForAuthentication_notAutofillingFromListSucceeds() async throws {
+        subject.setupDelegate(fido2UserInterfaceHelperDelegate: fido2UserInterfaceHelperDelegate)
+        fido2UserInterfaceHelperDelegate.isAutofillingFromList = false
+        let expectedCipher = CipherView.fixture()
+
+        let result = try await subject.pickCredentialForAuthentication(availableCredentials: [expectedCipher])
+
+        XCTAssertEqual(result.cipher, expectedCipher)
+    }
+
+    /// `pickCredentialForAuthentication(availableCredentials:)` autofilling from list succeeds
+    /// with picked credential.
+    func test_pickCredentialForAuthentication_autofillingFromListSucceeds() async throws {
+        subject.setupDelegate(fido2UserInterfaceHelperDelegate: fido2UserInterfaceHelperDelegate)
+        fido2UserInterfaceHelperDelegate.isAutofillingFromList = true
+        let expectedAvailableCredentials = [CipherView.fixture(id: "1"), CipherView.fixture(id: "2")]
+
+        let task = Task {
+            try await subject.pickCredentialForAuthentication(
+                availableCredentials: expectedAvailableCredentials
+            )
+        }
+
+        try await waitForAsync {
+            self.subject.availableCredentialsForAuthentication == expectedAvailableCredentials
+        }
+
+        try await waitForAsync {
+            (self.subject as? DefaultFido2UserInterfaceHelper)?.credentialForAuthenticationContinuation != nil
+        }
+
+        let expectedResult = CipherView.fixture(id: "1")
+        subject.pickedCredentialForAuthentication(result: .success(expectedResult))
+
+        let result = try await task.value
+        XCTAssertEqual(result.cipher, expectedResult)
+        XCTAssertNil(subject.availableCredentialsForAuthentication)
+    }
+
+    /// `pickCredentialForAuthentication(availableCredentials:)` autofilling from list throws
+    /// when picking credential.
+    func test_pickCredentialForAuthentication_autofillingFromListThrowsPickingCredential() async throws {
+        subject.setupDelegate(fido2UserInterfaceHelperDelegate: fido2UserInterfaceHelperDelegate)
+        fido2UserInterfaceHelperDelegate.isAutofillingFromList = true
+
+        let task = Task {
+            try await subject.pickCredentialForAuthentication(
+                availableCredentials: [CipherView.fixture(id: "1"), CipherView.fixture(id: "2")]
+            )
+        }
+
+        try await waitForAsync {
+            (self.subject as? DefaultFido2UserInterfaceHelper)?.credentialForAuthenticationContinuation != nil
+        }
+
+        subject.pickedCredentialForAuthentication(result: .failure(BitwardenTestError.example))
+
+        await assertAsyncThrows(error: BitwardenTestError.example) {
+            _ = try await task.value
+        }
+    }
+
+    /// `pickCredentialForAuthentication(availableCredentials:)` not autofilling from list throws
+    /// invalid operation error when available credentials is different from 1.
+    func test_pickCredentialForAuthentication_throwsNotAutofillingFromListNoAvailableCredentials() async throws {
+        subject.setupDelegate(fido2UserInterfaceHelperDelegate: fido2UserInterfaceHelperDelegate)
+        fido2UserInterfaceHelperDelegate.isAutofillingFromList = false
         await assertAsyncThrows(error: Fido2Error.invalidOperationError) {
             _ = try await subject.pickCredentialForAuthentication(availableCredentials: [])
         }
-        throw XCTSkip("TODO: PM-8829")
+    }
+
+    /// `pickCredentialForAuthentication(availableCredentials:)` throws when no delegate has been set up.
+    func test_pickCredentialForAuthentication_throwsNoDelegateSetup() async throws {
+        await assertAsyncThrows(error: Fido2Error.noDelegateSetup) {
+            _ = try await subject.pickCredentialForAuthentication(availableCredentials: [])
+        }
     }
 
     /// `isVerificationEnabled()`  returns what the mediator returns.

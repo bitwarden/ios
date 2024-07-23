@@ -163,7 +163,7 @@ class VaultAutofillListProcessorTests: BitwardenTestCase {
         waitFor(!subject.state.ciphersForSearch.isEmpty)
         task.cancel()
 
-        XCTAssertEqual(subject.state.ciphersForSearch, ciphers.compactMap { VaultListItem(cipherView: $0) })
+        XCTAssertEqual(subject.state.ciphersForSearch[0].items, ciphers.compactMap { VaultListItem(cipherView: $0) })
         XCTAssertFalse(subject.state.showNoResults)
     }
 
@@ -211,10 +211,10 @@ class VaultAutofillListProcessorTests: BitwardenTestCase {
             await subject.perform(.streamAutofillItems)
         }
 
-        waitFor(!subject.state.ciphersForAutofill.isEmpty)
+        waitFor(!subject.state.vaultListSections.isEmpty)
         task.cancel()
 
-        XCTAssertEqual(subject.state.ciphersForAutofill, ciphers.compactMap { VaultListItem(cipherView: $0) })
+        XCTAssertEqual(subject.state.vaultListSections[0].items, ciphers.compactMap { VaultListItem(cipherView: $0) })
     }
 
     /// `perform(_:)` with `.streamAutofillItems` logs an error if one occurs.
@@ -286,7 +286,7 @@ class VaultAutofillListProcessorTests: BitwardenTestCase {
         subject.receive(.searchStateChanged(isSearching: true))
 
         subject.receive(.searchTextChanged("Bit"))
-        subject.state.ciphersForSearch = [.fixture()]
+        subject.state.ciphersForSearch = [VaultListSection(id: "test", items: [.fixture()], name: "test")]
         subject.state.showNoResults = true
 
         subject.receive(.searchStateChanged(isSearching: true))
