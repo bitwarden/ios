@@ -335,10 +335,6 @@ extension VaultAutofillListProcessor: Fido2UserInterfaceHelperDelegate {
         // No-Op for this processor.
     }
 
-    func setupPin() async throws {
-        // TODO: PM-8362 navigate to pin setup
-    }
-
     func showAlert(_ alert: Alert, onDismissed: (() -> Void)?) {
         coordinator.showAlert(alert, onDismissed: onDismissed)
     }

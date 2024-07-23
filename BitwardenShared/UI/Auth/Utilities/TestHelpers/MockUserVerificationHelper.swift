@@ -7,6 +7,7 @@ class MockUserVerificationHelper: UserVerificationHelper {
     var userVerificationDelegate: (any BitwardenShared.UserVerificationDelegate)?
 
     var canVerifyDeviceLocalAuthResult: Bool = false
+    var setupPinCalled = false
     var verifyDeviceLocalAuthBecauseValue: String?
     var verifyDeviceLocalAuthCalled: Bool = false
     var verifyDeviceLocalAuthResult: Result<BitwardenShared.UserVerificationResult, Error> = .success(.verified)
@@ -17,6 +18,10 @@ class MockUserVerificationHelper: UserVerificationHelper {
 
     func canVerifyDeviceLocalAuth() -> Bool {
         canVerifyDeviceLocalAuthResult
+    }
+
+    func setupPin() async throws {
+        setupPinCalled = true
     }
 
     func verifyDeviceLocalAuth(reason: String) async throws -> UserVerificationResult {

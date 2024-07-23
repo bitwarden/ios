@@ -429,10 +429,6 @@ extension AppProcessor: Fido2UserInterfaceHelperDelegate {
         }
     }
 
-    func setupPin() async throws {
-        // TODO: PM-8362 navigate to pin setup
-    }
-
     func showAlert(_ alert: Alert) {
         coordinator?.showAlert(alert)
     }
