@@ -2,6 +2,8 @@ import AuthenticationServices
 import BitwardenSdk
 import OSLog
 
+// swiftlint:disable file_length
+
 /// A delegate to handle autofill credential service operations.
 protocol AutofillCredentialServiceDelegate: AnyObject {
     /// Attempts to unlock the user's vault with the stored neverlock key
@@ -16,12 +18,17 @@ protocol AutofillCredentialService: AnyObject {
     ///
     /// - Parameters:
     ///   - id: The identifier of the user-requested credential to return.
+    ///   - autofillCredentialServiceDelegate: Delegate for autofill credential operations.
     ///   - repromptPasswordValidated: `true` if master password reprompt was required for the
     ///     cipher and the user's master password was validated.
     /// - Returns: A `ASPasswordCredential` that matches the user-requested credential which can be
     ///     used for autofill.
     ///
-    func provideCredential(for id: String, repromptPasswordValidated: Bool) async throws -> ASPasswordCredential
+    func provideCredential(
+        for id: String,
+        autofillCredentialServiceDelegate: AutofillCredentialServiceDelegate,
+        repromptPasswordValidated: Bool
+    ) async throws -> ASPasswordCredential
 
     /// Provides a Fido2 credential for a passkey request
     /// - Parameters:
@@ -203,10 +210,26 @@ class DefaultAutofillCredentialService {
             errorReporter.log(error: error)
         }
     }
+
+    /// Attempts to unlock the user's vault if it can be done without user interaction (e.g. if
+    /// the user uses never lock).
+    ///
+    /// - Parameter delegate: The delegate used for autofill credential operations.
+    ///
+    private func tryUnlockVaultWithoutUserInteraction(delegate: AutofillCredentialServiceDelegate) async throws {
+        let vaultTimeout = try await vaultTimeoutService.sessionTimeoutValue(userId: stateService.getActiveAccountId())
+        guard vaultTimeout == .never else { return }
+        try await delegate.unlockVaultWithNeverlockKey()
+    }
 }
 
 extension DefaultAutofillCredentialService: AutofillCredentialService {
-    func provideCredential(for id: String, repromptPasswordValidated: Bool) async throws -> ASPasswordCredential {
+    func provideCredential(
+        for id: String,
+        autofillCredentialServiceDelegate: AutofillCredentialServiceDelegate,
+        repromptPasswordValidated: Bool
+    ) async throws -> ASPasswordCredential {
+        try await tryUnlockVaultWithoutUserInteraction(delegate: autofillCredentialServiceDelegate)
         guard try await !vaultTimeoutService.isLocked(userId: stateService.getActiveAccountId()) else {
             throw ASExtensionError(.userInteractionRequired)
         }
@@ -255,18 +278,8 @@ extension DefaultAutofillCredentialService: AutofillCredentialService {
             throw AppProcessorError.invalidOperation
         }
 
-        let userId = try await stateService.getActiveAccountId()
-        let isLocked = vaultTimeoutService.isLocked(userId: userId)
-        let vaultTimeout = try? await vaultTimeoutService.sessionTimeoutValue(userId: nil)
-
-        switch (vaultTimeout, isLocked) {
-        case (.never, true):
-            // If the user has enabled Never Lock, but the vault is locked,
-            // unlock the vault before continuing.
-            try await autofillCredentialServiceDelegate.unlockVaultWithNeverlockKey()
-        case (_, false):
-            break
-        default:
+        try await tryUnlockVaultWithoutUserInteraction(delegate: autofillCredentialServiceDelegate)
+        guard try await !vaultTimeoutService.isLocked(userId: stateService.getActiveAccountId()) else {
             throw Fido2Error.userInteractionRequired
         }
 
