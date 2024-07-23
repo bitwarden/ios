@@ -32,14 +32,29 @@ class Fido2UserInterfaceHelperTests: BitwardenTestCase { // swiftlint:disable:th
 
     // MARK: Tests
 
-    /// `checkUser(options:hint:)`
-    func test_checkUser_withHint() async throws {
-        //  TODO: PM-8829
+    /// `checkUser(options:hint:)` with hint `informExcludedCredentialFound` is not possible in iOS so far
+    /// as the OS doesn't send excluded credentials.
+    func test_checkUser_informExcludedCredentialFoundHint() async throws {
+        _ = try await subject.checkUser(
+            options: CheckUserOptions(requirePresence: true, requireVerification: .discouraged),
+            hint: .informExcludedCredentialFound(.fixture())
+        )
+        throw XCTSkip(
+            "informExcludedCredentialFound should never be invoked given iOS doesn't send excluded credentials"
+        )
+    }
+
+    /// `checkUser(options:hint:)` with hint `informNoCredentialsFound` is not possible in iOS so far
+    /// as the OS won't have Fido2 credenitals in the `ASStore` so the list that will be shown to the user for autofill
+    /// will be only for passwords.
+    func test_checkUser_informNoCredentialsFound() async throws {
         _ = try await subject.checkUser(
             options: CheckUserOptions(requirePresence: true, requireVerification: .discouraged),
             hint: .informNoCredentialsFound
         )
-        throw XCTSkip("TODO: PM-8829")
+        throw XCTSkip(
+            "informNoCredentialsFound should never be invoked given iOS the view will appear only with passwords"
+        )
     }
 
     /// `checkUser(options:hint:)` throws when mediator throws
