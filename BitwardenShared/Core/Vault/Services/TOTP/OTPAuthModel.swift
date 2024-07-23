@@ -18,7 +18,7 @@ public struct OTPAuthModel: Equatable, Hashable, Sendable {
     /// The provider or service the account is associated with.
     let issuer: String?
 
-    /// The Base32-encoded key used for generating the OTP.
+    /// The key used for generating the OTP.
     let key: String
 
     /// The time period in seconds for which the OTP is valid.
