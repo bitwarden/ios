@@ -137,7 +137,7 @@ jobs:
         env:
           ACCOUNT_NAME: bitwardenci
           CONTAINER_NAME: mobile
-          SOURCE_FILE: GoogleService-Info-watchos-pm.plist
+          SOURCE_FILE: GoogleService-Info.plist
           TARGET_FILE: GoogleService-Info.plist
         run: |
           mkdir -p $HOME/secrets
@@ -161,7 +161,8 @@ jobs:
         env:
           ACCOUNT_NAME: bitwardenci
           CONTAINER_NAME: mobile
-          FILE: GoogleService-Info-watchos-pm-beta.plist
+          SOURCE_FILE: GoogleService-Info-ios-pm-beta.plist
+          TARGET_FILE: GoogleService-Info.plist
         run: |
           mkdir -p $HOME/secrets
           az storage blob download --account-name $ACCOUNT_NAME --container-name $CONTAINER_NAME --name $FILE \
