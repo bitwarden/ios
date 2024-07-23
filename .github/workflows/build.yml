@@ -129,8 +129,8 @@ jobs:
           TARGET_FILE: GoogleService-Info.plist
         run: |
           mkdir -p $HOME/secrets
-          az storage blob download --account-name $ACCOUNT_NAME --container-name $CONTAINER_NAME --name $FILE \
-            --file Bitwarden/Application/Support/$FILE --output none
+          az storage blob download --account-name $ACCOUNT_NAME --container-name $CONTAINER_NAME --name $SOURCE_FILE \
+            --file Bitwarden/Application/Support/$TARGET_FILE --output none
 
       - name: Retrieve watch production Google Services secret
         if: env.BUILD_VARIANT == 'Production'
@@ -141,8 +141,8 @@ jobs:
           TARGET_FILE: GoogleService-Info.plist
         run: |
           mkdir -p $HOME/secrets
-          az storage blob download --account-name $ACCOUNT_NAME --container-name $CONTAINER_NAME --name $FILE \
-            --file BitwardenWatchApp/$FILE --output none
+          az storage blob download --account-name $ACCOUNT_NAME --container-name $CONTAINER_NAME --name $SOURCE_FILE \
+            --file BitwardenWatchApp/$TARGET_FILE --output none
 
       - name: Retrieve beta Google Services secret
         if: env.BUILD_VARIANT == 'Beta'
@@ -165,8 +165,8 @@ jobs:
           TARGET_FILE: GoogleService-Info.plist
         run: |
           mkdir -p $HOME/secrets
-          az storage blob download --account-name $ACCOUNT_NAME --container-name $CONTAINER_NAME --name $FILE \
-            --file BitwardenWatchApp/$FILE --output none
+          az storage blob download --account-name $ACCOUNT_NAME --container-name $CONTAINER_NAME --name $SOURCE_FILE \
+            --file BitwardenWatchApp/$TARGET_FILE --output none
 
       - name: Retrieve certificates
         run: |
