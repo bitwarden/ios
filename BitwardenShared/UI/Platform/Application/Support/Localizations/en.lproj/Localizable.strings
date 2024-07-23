@@ -928,7 +928,7 @@
 "EmailVerified" = "Email verified";
 "AccountSuccessfullyCreated" = "Account successfully created!";
 "ByContinuingYouAgreeToTheTermsOfServiceAndPrivacyPolicy" = "By continuing, you agree to the **[Terms of Service](%1$@)** and **[Privacy Policy](%2$@)**";
-"GetEmailsFromBitwardenForAnnouncementsAdviceAndResearchOpportunitiesUnsubscribeAtAnyTime." = "Get emails from Bitwarden for announcements, advice, and research opportunities. **[Unsubscribe](%1$@)** at any time.";
+"GetAdviceAnnouncementsAndResearchOpportunitiesFromBitwardenInYourInboxUnsubscribeAtAnyTime." = "Get advice, announcements, and research opportunities from Bitwarden in your inbox. **[Unsubscribe](%1$@)** at any time.";
 "OrganizationUnassignedItemsMessageUSEUDescriptionLong" = "Unassigned organization items are no longer visible in the All Vaults view and only accessible via the Admin Console. Assign these items to a collection from the Admin Console to make them visible.";
 "UnknownAccount" = "Unknown account";
 "UserVerificationForPasskey" = "User verification for passkey";
