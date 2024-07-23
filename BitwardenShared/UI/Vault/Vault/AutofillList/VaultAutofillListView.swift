@@ -33,7 +33,7 @@ struct VaultAutofillListView: View {
                 store.send(.cancelTapped)
             }
 
-            ToolbarItemGroup(placement: .navigationBarLeading) {
+            ToolbarItem(placement: .navigationBarLeading) {
                 ProfileSwitcherToolbarView(
                     store: store.child(
                         state: \.profileSwitcherState,
