@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - main
+      - "pm9368/watch-crash"
   workflow_dispatch:
     inputs:
       build-variant:
