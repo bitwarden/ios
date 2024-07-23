@@ -29,7 +29,11 @@ struct VaultAutofillListView: View {
             prompt: Localizations.search
         )
         .toolbar {
-            ToolbarItem(placement: .navigationBarLeading) {
+            cancelToolbarItem {
+                store.send(.cancelTapped)
+            }
+
+            ToolbarItemGroup(placement: .navigationBarLeading) {
                 ProfileSwitcherToolbarView(
                     store: store.child(
                         state: \.profileSwitcherState,
@@ -41,10 +45,6 @@ struct VaultAutofillListView: View {
 
             addToolbarItem {
                 store.send(.addTapped)
-            }
-
-            cancelToolbarItem {
-                store.send(.cancelTapped)
             }
         }
     }
