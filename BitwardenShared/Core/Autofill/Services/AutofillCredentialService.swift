@@ -217,8 +217,10 @@ class DefaultAutofillCredentialService {
     /// - Parameter delegate: The delegate used for autofill credential operations.
     ///
     private func tryUnlockVaultWithoutUserInteraction(delegate: AutofillCredentialServiceDelegate) async throws {
-        let vaultTimeout = try await vaultTimeoutService.sessionTimeoutValue(userId: stateService.getActiveAccountId())
-        guard vaultTimeout == .never else { return }
+        let userId = try await stateService.getActiveAccountId()
+        let isLocked = vaultTimeoutService.isLocked(userId: userId)
+        let vaultTimeout = try? await vaultTimeoutService.sessionTimeoutValue(userId: nil)
+        guard vaultTimeout == .never, isLocked else { return }
         try await delegate.unlockVaultWithNeverlockKey()
     }
 }

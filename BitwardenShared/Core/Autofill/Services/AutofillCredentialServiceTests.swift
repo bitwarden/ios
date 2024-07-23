@@ -143,11 +143,14 @@ class AutofillCredentialServiceTests: BitwardenTestCase { // swiftlint:disable:t
 
     /// `provideCredential(for:)` unlocks the user's vault if they use never lock.
     func test_provideCredential_neverLock() async throws {
+        autofillCredentialServiceDelegate.unlockVaultWithNaverlockHandler = { [weak self] in
+            self?.vaultTimeoutService.isClientLocked["1"] = false
+        }
         cipherService.fetchCipherResult = .success(
             .fixture(login: .fixture(password: "password123", username: "user@bitwarden.com"))
         )
         stateService.activeAccount = .fixture()
-        vaultTimeoutService.isClientLocked["1"] = false
+        vaultTimeoutService.isClientLocked["1"] = true
         vaultTimeoutService.vaultTimeout["1"] = .never
 
         let credential = try await subject.provideCredential(
@@ -344,8 +347,11 @@ class AutofillCredentialServiceTests: BitwardenTestCase { // swiftlint:disable:t
     /// succeeds when unlocking with never key.
     @available(iOS 17.0, *)
     func test_provideFido2Credential_succeedsWithUnlockingNeverKey() async throws {
+        autofillCredentialServiceDelegate.unlockVaultWithNaverlockHandler = { [weak self] in
+            self?.vaultTimeoutService.isClientLocked["1"] = false
+        }
         stateService.activeAccount = .fixture()
-        vaultTimeoutService.isClientLocked["1"] = false
+        vaultTimeoutService.isClientLocked["1"] = true
         vaultTimeoutService.vaultTimeout["1"] = .never
 
         let passkeyIdentity = ASPasskeyCredentialIdentity.fixture()
