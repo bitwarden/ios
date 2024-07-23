@@ -218,6 +218,11 @@ class AppProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_body
         XCTAssertTrue(eventService.uploadCalled)
     }
 
+    /// `getter:isAutofillingFromList` returns `false` when delegate is not a Fido2 one.
+    func test_isAutofillingFromList_falseNoFido2Delegate() async throws {
+        XCTAssertFalse(subject.isAutofillingFromList)
+    }
+
     /// `messageReceived(_:notificationDismissed:notificationTapped)` passes the data to the notification service.
     func test_messageReceived() async {
         let message: [AnyHashable: Any] = ["knock knock": "who's there?"]

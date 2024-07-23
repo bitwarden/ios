@@ -65,6 +65,18 @@ class VaultAutofillListProcessorFido2Tests: BitwardenTestCase { // swiftlint:dis
         vaultRepository = nil
     }
 
+    /// `getter:isAutofillingFromList` returns `true` when delegate is autofilling from list.
+    func test_isAutofillingFromList_true() async throws {
+        appExtensionDelegate.extensionMode = .autofillFido2VaultList([], MockPasskeyCredentialRequestParameters())
+        XCTAssertTrue(subject.isAutofillingFromList)
+    }
+
+    /// `getter:isAutofillingFromList` returns `false` when delegate is not autofilling from list.
+    func test_isAutofillingFromList_false() async throws {
+        appExtensionDelegate.extensionMode = .configureAutofill
+        XCTAssertFalse(subject.isAutofillingFromList)
+    }
+
     /// `onNeedsUserInteraction()` doesn't throw.
     func test_onNeedsUserInteraction() async throws {
         await assertAsyncDoesNotThrow {

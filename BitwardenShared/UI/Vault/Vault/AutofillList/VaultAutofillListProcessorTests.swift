@@ -61,6 +61,11 @@ class VaultAutofillListProcessorTests: BitwardenTestCase {
 
     // MARK: Tests
 
+    /// `getter:isAutofillingFromList` returns `false` when delegate is not a Fido2 one.
+    func test_isAutofillingFromList_falseNoFido2Delegate() async throws {
+        XCTAssertFalse(subject.isAutofillingFromList)
+    }
+
     /// `vaultItemTapped(_:)` has the autofill helper handle autofill for the cipher and completes the
     /// autofill request.
     func test_perform_vaultItemTapped() async {
