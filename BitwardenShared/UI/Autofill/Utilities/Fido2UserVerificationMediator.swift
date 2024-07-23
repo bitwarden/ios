@@ -7,9 +7,8 @@ import BitwardenSdk
 ///
 @MainActor
 protocol Fido2UserVerificationMediatorDelegate: UserVerificationDelegate {
-    /// Set up the Bitwarden Pin for the current account
-    ///
-    func setupPin() async throws
+    /// Performs additional logic when user interaction is needed and throws if needed.
+    func onNeedsUserInteraction() async throws
 }
 
 // MARK: - Fido2UserVerificationMediator
@@ -96,7 +95,7 @@ extension DefaultFido2UserVerificationMediator: Fido2UserVerificationMediator {
     func checkUser(userVerificationPreference: BitwardenSdk.Verification,
                    credential: BitwardenSdk.CipherView) async throws -> CheckUserResult {
         if try await authRepository.shouldPerformMasterPasswordReprompt(reprompt: credential.reprompt) {
-            // TODO: PM-8360 check if user interaction is needed to restart autofill action.
+            try await fido2UserVerificationMediatorDelegate?.onNeedsUserInteraction()
 
             let mpVerificationResult = try await userVerificationRunner.verifyWithAttempts(
                 verifyFunction: userVerificationHelper.verifyMasterPassword
@@ -112,7 +111,7 @@ extension DefaultFido2UserVerificationMediator: Fido2UserVerificationMediator {
             return CheckUserResult(userPresent: true, userVerified: true)
         }
 
-        // TODO: PM-8360 check if user interaction is needed to restart autofill action.
+        try await fido2UserVerificationMediatorDelegate?.onNeedsUserInteraction()
 
         switch userVerificationPreference {
         case .discouraged:
@@ -144,11 +143,7 @@ extension DefaultFido2UserVerificationMediator: Fido2UserVerificationMediator {
                 return CheckUserResult(userPresent: true, userVerified: result == .verified)
             }
 
-            guard let fido2UserVerificationMediatorDelegate else {
-                return CheckUserResult(userPresent: true, userVerified: false)
-            }
-
-            try await fido2UserVerificationMediatorDelegate.setupPin()
+            try await userVerificationHelper.setupPin()
 
             return CheckUserResult(userPresent: true, userVerified: true)
         }

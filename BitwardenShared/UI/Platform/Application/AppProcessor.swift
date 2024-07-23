@@ -11,11 +11,20 @@ import UIKit
 public class AppProcessor {
     // MARK: Properties
 
+    /// A delegate used to communicate with the app extension.
+    private(set) weak var appExtensionDelegate: AppExtensionDelegate?
+
     /// The root module to use to create sub-coordinators.
     let appModule: AppModule
 
+    /// The background task ID for the background process to send events on backgrounding.
+    var backgroundTaskId: UIBackgroundTaskIdentifier?
+
     /// The root coordinator of the app.
     var coordinator: AnyCoordinator<AppRoute, AppEvent>?
+
+    /// A timer to send any accumulated events every five minutes.
+    private(set) var sendEventTimer: Timer?
 
     /// The services used by the app.
     let services: ServiceContainer
@@ -25,30 +34,37 @@ public class AppProcessor {
     /// Initializes an `AppProcessor`.
     ///
     /// - Parameters:
+    ///   - appExtensionDelegate: A delegate used to communicate with the app extension.
     ///   - appModule: The root module to use to create sub-coordinators.
     ///   - services: The services used by the app.
     ///
     public init(
+        appExtensionDelegate: AppExtensionDelegate? = nil,
         appModule: AppModule,
         services: ServiceContainer
     ) {
+        self.appExtensionDelegate = appExtensionDelegate
         self.appModule = appModule
         self.services = services
 
         self.services.notificationService.setDelegate(self)
         self.services.syncService.delegate = self
 
+        startEventTimer()
+
         UI.initialLanguageCode = services.appSettingsStore.appLocale ?? Locale.current.languageCode
         UI.applyDefaultAppearances()
 
         Task {
             for await _ in services.notificationCenterService.willEnterForegroundPublisher() {
+                startEventTimer()
                 await checkAccountsForTimeout()
             }
         }
 
         Task {
             for await _ in services.notificationCenterService.didEnterBackgroundPublisher() {
+                stopEventTimer()
                 do {
                     let userId = try await self.services.stateService.getActiveAccountId()
                     try await services.vaultTimeoutService.setLastActiveTime(userId: userId)
@@ -255,6 +271,48 @@ public class AppProcessor {
             services.errorReporter.log(error: error)
         }
     }
+
+    /// Starts timer to send organization events regularly
+    private func startEventTimer() {
+        sendEventTimer = Timer.scheduledTimer(withTimeInterval: 5 * 60, repeats: true) { _ in
+            Task { [weak self] in
+                await self?.uploadEvents()
+            }
+        }
+        sendEventTimer?.tolerance = 10
+    }
+
+    /// Stops the timer for organization events
+    private func stopEventTimer() {
+        sendEventTimer?.fire()
+        sendEventTimer?.invalidate()
+    }
+
+    /// Sends organization events to the server. Also sets up that regular upload
+    /// as a Background Task so that it won't be canceled when the app is going
+    /// to the background. Per https://forums.developer.apple.com/forums/thread/85066
+    /// calling this for every upload (not just ones where we're backgrounding)
+    /// is fine.
+    private func uploadEvents() async {
+        if let taskId = backgroundTaskId {
+            services.application?.endBackgroundTask(taskId)
+            backgroundTaskId = nil
+        }
+        backgroundTaskId = services.application?.beginBackgroundTask(
+            withName: "SendEventBackgroundTask",
+            expirationHandler: { [weak self] in
+                if let backgroundTaskId = self?.backgroundTaskId {
+                    self?.services.application?.endBackgroundTask(backgroundTaskId)
+                    self?.backgroundTaskId = nil
+                }
+            }
+        )
+        await services.eventService.upload()
+        if let taskId = backgroundTaskId {
+            services.application?.endBackgroundTask(taskId)
+            backgroundTaskId = nil
+        }
+    }
 }
 
 // MARK: - NotificationServiceDelegate
@@ -328,77 +386,47 @@ extension AppProcessor: SyncServiceDelegate {
 // MARK: - Fido2 credentials
 
 public extension AppProcessor {
-    /// Provides a Fido2 credential for a passkey request.
-    /// - Parameter passkeyRequest: Request to get the credential.
-    @available(iOSApplicationExtension 17.0, *)
-    func provideFido2Credential( // swiftlint:disable:this function_body_length
+    /// Provides a Fido2 credential for a passkey request
+    /// - Parameters:
+    ///   - passkeyRequest: Request to get the credential.
+    /// - Returns: The passkey credential for assertion.
+    @available(iOS 17.0, *)
+    func provideFido2Credential(
         for passkeyRequest: ASPasskeyCredentialRequest
     ) async throws -> ASPasskeyAssertionCredential {
-        guard let credentialIdentiy = passkeyRequest.credentialIdentity as? ASPasskeyCredentialIdentity else {
-            throw AppProcessorError.invalidOperation
-        }
-
-        let isLocked = try? await services.authRepository.isLocked()
-        let vaultTimeout = try? await services.vaultTimeoutService.sessionTimeoutValue(userId: nil)
-
-        switch (vaultTimeout, isLocked) {
-        case (.never, true):
-            // If the user has enabled Never Lock, but the vault is locked,
-            // unlock the vault before continuing.
-            try await services.authRepository.unlockVaultWithNeverlockKey()
-        case (_, false):
-            break
-        default:
-            break
-        }
-
-        let request = GetAssertionRequest(
-            rpId: credentialIdentiy.relyingPartyIdentifier,
-            clientDataHash: passkeyRequest.clientDataHash,
-            allowList: [
-                PublicKeyCredentialDescriptor(
-                    ty: "public-key",
-                    id: credentialIdentiy.credentialID,
-                    transports: nil
-                ),
-            ],
-            options: Options(
-                rk: false,
-                uv: BitwardenSdk.Uv(preference: passkeyRequest.userVerificationPreference)
-            ),
-            extensions: nil
+        try await services.autofillCredentialService.provideFido2Credential(
+            for: passkeyRequest,
+            autofillCredentialServiceDelegate: self,
+            fido2UserVerificationMediatorDelegate: self
         )
+    }
+}
 
-        #if DEBUG
-        Fido2DebuggingReportBuilder.builder.withGetAssertionRequest(request)
-        #endif
+// MARK: - AutofillCredentialServiceDelegate
 
-        do {
-            let assertionResult = try await services.clientService.platform().fido2()
-                .authenticator(
-                    userInterface: services.fido2UserInterfaceHelper,
-                    credentialStore: services.fido2CredentialStore
-                )
-                .getAssertion(request: request)
+extension AppProcessor: AutofillCredentialServiceDelegate {
+    func unlockVaultWithNeverlockKey() async throws {
+        try await services.authRepository.unlockVaultWithNeverlockKey()
+    }
+}
 
-            #if DEBUG
-            Fido2DebuggingReportBuilder.builder.withGetAssertionResult(.success(assertionResult))
-            #endif
+// MARK: - Fido2UserVerificationMediatorDelegate
 
-            return ASPasskeyAssertionCredential(
-                userHandle: assertionResult.userHandle,
-                relyingParty: credentialIdentiy.relyingPartyIdentifier,
-                signature: assertionResult.signature,
-                clientDataHash: passkeyRequest.clientDataHash,
-                authenticatorData: assertionResult.authenticatorData,
-                credentialID: assertionResult.credentialId
-            )
-        } catch {
-            #if DEBUG
-            Fido2DebuggingReportBuilder.builder.withGetAssertionResult(.failure(error))
-            #endif
-            throw error
+extension AppProcessor: Fido2UserVerificationMediatorDelegate {
+    func onNeedsUserInteraction() async throws {
+        if let fido2AppExtensionDelegate = appExtensionDelegate as? Fido2AppExtensionDelegate,
+           !fido2AppExtensionDelegate.flowWithUserInteraction {
+            fido2AppExtensionDelegate.setUserInteractionRequired()
+            throw Fido2Error.userInteractionRequired
         }
+    }
+
+    func showAlert(_ alert: Alert) {
+        coordinator?.showAlert(alert)
+    }
+
+    func showAlert(_ alert: Alert, onDismissed: (() -> Void)?) {
+        coordinator?.showAlert(alert, onDismissed: onDismissed)
     }
 }
 

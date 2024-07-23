@@ -269,8 +269,8 @@ extension VaultAutofillListProcessor: ProfileSwitcherHandler {
 // MARK: - Fido2UserVerificationMediatorDelegate
 
 extension VaultAutofillListProcessor: Fido2UserVerificationMediatorDelegate {
-    func setupPin() async throws {
-        // TODO: PM-8362 navigate to pin setup
+    func onNeedsUserInteraction() async throws {
+        // No-Op for this processor.
     }
 
     func showAlert(_ alert: Alert, onDismissed: (() -> Void)?) {
