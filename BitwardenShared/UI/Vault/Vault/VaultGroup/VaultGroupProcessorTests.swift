@@ -143,6 +143,43 @@ class VaultGroupProcessorTests: BitwardenTestCase { // swiftlint:disable:this ty
         XCTAssertTrue(subject.state.isPersonalOwnershipDisabled)
     }
 
+    /// `perform(_:)` with `appeared` determines whether the vault filter can be shown based on
+    /// policy settings.
+    func test_perform_appeared_policyCanShowVaultFilterDisabled() {
+        vaultRepository.canShowVaultFilter = false
+        subject.state.organizations = [.fixture()]
+
+        let task = Task {
+            await subject.perform(.appeared)
+        }
+        waitFor(subject.state.loadingState == .data([]))
+        task.cancel()
+
+        XCTAssertFalse(subject.state.canShowVaultFilter)
+        XCTAssertFalse(subject.state.vaultFilterState.canShowVaultFilter)
+        XCTAssertEqual(subject.state.vaultFilterState.vaultFilterOptions, [])
+    }
+
+    /// `perform(_:)` with `appeared` determines whether the vault filter can be shown based on
+    /// policy settings.
+    func test_perform_appeared_policyCanShowVaultFilterEnabled() {
+        vaultRepository.canShowVaultFilter = true
+        subject.state.organizations = [.fixture()]
+
+        let task = Task {
+            await subject.perform(.appeared)
+        }
+        waitFor(subject.state.loadingState == .data([]))
+        task.cancel()
+
+        XCTAssertTrue(subject.state.canShowVaultFilter)
+        XCTAssertTrue(subject.state.vaultFilterState.canShowVaultFilter)
+        XCTAssertEqual(
+            subject.state.vaultFilterState.vaultFilterOptions,
+            [.allVaults, .myVault, .organization(.fixture())]
+        )
+    }
+
     /// `perform(_:)` with `.morePressed` has the vault item more options helper display the alert.
     func test_perform_morePressed() async throws {
         await subject.perform(.morePressed(.fixture()))

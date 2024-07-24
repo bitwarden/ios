@@ -167,6 +167,24 @@ class TabCoordinatorTests: BitwardenTestCase {
         XCTAssertEqual(viewController.title, Localizations.vaults)
     }
 
+    /// `start()` subscribes to the organization publisher and updates the vault navigation bar
+    /// title if the vault filter can't be shown.
+    func test_start_organizationsCanShowVaultFilterDisabled() {
+        let mockRoot = MockRootNavigator()
+        let viewController = UIViewController()
+        mockRoot.rootViewController = viewController
+        tabNavigator.navigatorForTabReturns = mockRoot
+        vaultRepository.canShowVaultFilter = false
+        vaultRepository.organizationsSubject = .init([
+            .fixture(),
+        ])
+
+        subject.start()
+
+        waitFor(viewController.title != nil)
+        XCTAssertEqual(viewController.title, Localizations.myVault)
+    }
+
     /// `start()` presents the tab navigator within the root navigator and starts the child-coordinators.
     func test_start_organizationsError() throws {
         let mockRoot = MockRootNavigator()

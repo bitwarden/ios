@@ -6,6 +6,9 @@ import Foundation
 struct VaultGroupState: Equatable {
     // MARK: Properties
 
+    /// Whether the vault filter can be shown.
+    var canShowVaultFilter = true
+
     /// Whether there is data for the vault group.
     var emptyData: Bool {
         loadingState.data.isEmptyOrNil
@@ -82,6 +85,16 @@ struct VaultGroupState: Equatable {
 
     /// The url to open in the device's web browser.
     var url: URL?
+
+    /// The state for showing the vault filter.
+    var vaultFilterState: SearchVaultFilterRowState {
+        SearchVaultFilterRowState(
+            canShowVaultFilter: canShowVaultFilter,
+            isPersonalOwnershipDisabled: isPersonalOwnershipDisabled,
+            organizations: organizations,
+            searchVaultFilterType: searchVaultFilterType
+        )
+    }
 
     /// The vault filter used to display a single or all vaults for the user.
     let vaultFilterType: VaultFilterType
