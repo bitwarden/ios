@@ -45,7 +45,7 @@ class Fido2UserInterfaceHelperTests: BitwardenTestCase { // swiftlint:disable:th
     }
 
     /// `checkUser(options:hint:)` with hint `informNoCredentialsFound` is not possible in iOS so far
-    /// as the OS won't have Fido2 credenitals in the `ASStore` so the list that will be shown to the user for autofill
+    /// as the OS won't have Fido2 credentials in the `ASStore` so the list that will be shown to the user for autofill
     /// will be only for passwords.
     func test_checkUser_informNoCredentialsFound() async throws {
         _ = try await subject.checkUser(

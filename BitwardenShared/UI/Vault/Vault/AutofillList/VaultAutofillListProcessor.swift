@@ -13,6 +13,7 @@ class VaultAutofillListProcessor: StateProcessor<
     // MARK: Types
 
     typealias Services = HasAuthRepository
+        & HasAutofillCredentialService
         & HasClientService
         & HasErrorReporter
         & HasEventService
@@ -367,7 +368,6 @@ extension VaultAutofillListProcessor {
         case let .autofillFido2VaultList(serviceIdentifiers, fido2RequestParameters):
             state.isAutofillingFido2List = true
             state.emptyViewMessage = Localizations.noItemsToList
-            services.fido2UserInterfaceHelper.setupDelegate(fido2UserInterfaceHelperDelegate: self)
 
             await handleFido2CredentialAutofill(
                 fido2appExtensionDelegate: fido2AppExtensionDelegate,
@@ -390,50 +390,13 @@ extension VaultAutofillListProcessor {
         fido2RequestParameters: PasskeyCredentialRequestParameters
     ) async {
         do {
-            let request = GetAssertionRequest(
-                rpId: fido2RequestParameters.relyingPartyIdentifier,
-                clientDataHash: fido2RequestParameters.clientDataHash,
-                allowList: fido2RequestParameters.allowedCredentials.map { credentialId in
-                    PublicKeyCredentialDescriptor(
-                        ty: "public-key",
-                        id: credentialId,
-                        transports: nil
-                    )
-                },
-                options: Options(
-                    rk: false,
-                    uv: BitwardenSdk.Uv(preference: fido2RequestParameters.userVerificationPreference)
-                ),
-                extensions: nil
+            let assertionCredential = try await services.autofillCredentialService.provideFido2Credential(
+                for: fido2RequestParameters,
+                fido2UserInterfaceHelperDelegate: self
             )
 
-            #if DEBUG
-            Fido2DebuggingReportBuilder.builder.withGetAssertionRequest(request)
-            #endif
-
-            let assertionResult = try await services.clientService.platform().fido2()
-                .authenticator(
-                    userInterface: services.fido2UserInterfaceHelper,
-                    credentialStore: services.fido2CredentialStore
-                )
-                .getAssertion(request: request)
-
-            #if DEBUG
-            Fido2DebuggingReportBuilder.builder.withGetAssertionResult(.success(assertionResult))
-            #endif
-
-            fido2appExtensionDelegate.completeAssertionRequest(assertionCredential: ASPasskeyAssertionCredential(
-                userHandle: assertionResult.userHandle,
-                relyingParty: fido2RequestParameters.relyingPartyIdentifier,
-                signature: assertionResult.signature,
-                clientDataHash: fido2RequestParameters.clientDataHash,
-                authenticatorData: assertionResult.authenticatorData,
-                credentialID: assertionResult.credentialId
-            ))
+            fido2appExtensionDelegate.completeAssertionRequest(assertionCredential: assertionCredential)
         } catch {
-            #if DEBUG
-            Fido2DebuggingReportBuilder.builder.withGetAssertionResult(.failure(error))
-            #endif
             services.fido2UserInterfaceHelper.pickedCredentialForAuthentication(result: .failure(error))
             services.errorReporter.log(error: error)
         }
@@ -512,22 +475,27 @@ extension VaultAutofillListProcessor {
             return nil
         }
 
-        let fido2ListItems = try await filteredFido2Credentials
+        let fido2ListItems: [VaultListItem?] = try await filteredFido2Credentials
             .asyncMap { cipher in
-                let fido2CredentialAutofillView = try await self.services.clientService
+                let decryptedFido2Credentials = try await self.services.clientService
                     .platform()
                     .fido2()
                     .decryptFido2AutofillCredentials(cipherView: cipher)
 
+                guard let fido2CredentialAutofillView = decryptedFido2Credentials.first else {
+                    services.errorReporter.log(error: Fido2Error.decryptFido2AutofillCredentialsEmpty)
+                    return nil
+                }
+
                 return VaultListItem(
                     cipherView: cipher,
-                    fido2CredentialAutofillView: fido2CredentialAutofillView[0]
+                    fido2CredentialAutofillView: fido2CredentialAutofillView
                 )
-            }.compactMap { $0 }
+            }
 
         return VaultListSection(
             id: Localizations.passkeysForX(searchText ?? parameters.relyingPartyIdentifier),
-            items: fido2ListItems,
+            items: fido2ListItems.compactMap { $0 },
             name: Localizations.passkeysForX(searchText ?? parameters.relyingPartyIdentifier)
         )
     }

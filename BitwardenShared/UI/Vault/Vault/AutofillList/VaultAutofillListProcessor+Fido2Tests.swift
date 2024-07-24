@@ -14,6 +14,7 @@ class VaultAutofillListProcessorFido2Tests: BitwardenTestCase { // swiftlint:dis
 
     var appExtensionDelegate: MockFido2AppExtensionDelegate!
     var authRepository: MockAuthRepository!
+    var autofillCredentialService: MockAutofillCredentialService!
     var clientService: MockClientService!
     var coordinator: MockCoordinator<VaultRoute, AuthAction>!
     var errorReporter: MockErrorReporter!
@@ -29,6 +30,7 @@ class VaultAutofillListProcessorFido2Tests: BitwardenTestCase { // swiftlint:dis
 
         appExtensionDelegate = MockFido2AppExtensionDelegate()
         authRepository = MockAuthRepository()
+        autofillCredentialService = MockAutofillCredentialService()
         clientService = MockClientService()
         coordinator = MockCoordinator()
         errorReporter = MockErrorReporter()
@@ -41,6 +43,7 @@ class VaultAutofillListProcessorFido2Tests: BitwardenTestCase { // swiftlint:dis
             coordinator: coordinator.asAnyCoordinator(),
             services: ServiceContainer.withMocks(
                 authRepository: authRepository,
+                autofillCredentialService: autofillCredentialService,
                 clientService: clientService,
                 errorReporter: errorReporter,
                 fido2CredentialStore: fido2CredentialStore,
@@ -56,6 +59,7 @@ class VaultAutofillListProcessorFido2Tests: BitwardenTestCase { // swiftlint:dis
 
         appExtensionDelegate = nil
         authRepository = nil
+        autofillCredentialService = nil
         clientService = nil
         coordinator = nil
         errorReporter = nil
@@ -141,7 +145,7 @@ class VaultAutofillListProcessorFido2Tests: BitwardenTestCase { // swiftlint:dis
         XCTAssertFalse(fido2UserInterfaceHelper.pickedCredentialForCreationMocker.called)
     }
 
-    /// `perform(_:)` with `.initFido2` calls `getAssertion` from the Fido2 authenticator when
+    /// `perform(_:)` with `.initFido2` provides Fido2 credential from the `autofillCredentialService` when
     /// is autofilling Fido2 from list completing the assertion successfully.
     func test_perform_initFido2_autofillFido2VaultList() async throws {
         let allowedCredentialId = Data(repeating: 3, count: 32)
@@ -150,23 +154,15 @@ class VaultAutofillListProcessorFido2Tests: BitwardenTestCase { // swiftlint:dis
         )
         appExtensionDelegate.extensionMode = .autofillFido2VaultList([], passkeyParameters)
 
-        let expectedResult = GetAssertionResult.fixture()
-        clientService.mockPlatform.fido2Mock
-            .clientFido2AuthenticatorMock
-            .getAssertionMocker
-            .withVerification { request in
-                request.clientDataHash == passkeyParameters.clientDataHash
-                    && request.rpId == passkeyParameters.relyingPartyIdentifier
-                    && request.allowList?.contains(where: { credDescriptor in
-                        credDescriptor.ty == "public-key"
-                            && credDescriptor.id == allowedCredentialId
-                            && credDescriptor.transports == nil
-                    }) == true
-                    && !request.options.rk
-                    && request.options.uv == .preferred
-                    && request.extensions == nil
-            }
-            .withResult(expectedResult)
+        let expectedResult = ASPasskeyAssertionCredential(
+            userHandle: Data(repeating: 1, count: 16),
+            relyingParty: passkeyParameters.relyingPartyIdentifier,
+            signature: Data(repeating: 1, count: 32),
+            clientDataHash: passkeyParameters.clientDataHash,
+            authenticatorData: Data(repeating: 1, count: 40),
+            credentialID: Data(repeating: 1, count: 32)
+        )
+        autofillCredentialService.provideFido2CredentialResult = .success(expectedResult)
 
         await subject.perform(.initFido2)
 
@@ -177,7 +173,6 @@ class VaultAutofillListProcessorFido2Tests: BitwardenTestCase { // swiftlint:dis
 
         XCTAssertTrue(errorReporter.errors.isEmpty)
 
-        XCTAssertTrue(fido2UserInterfaceHelper.fido2UserInterfaceHelperDelegate != nil)
         XCTAssertTrue(subject.state.isAutofillingFido2List)
         XCTAssertEqual(subject.state.emptyViewMessage, Localizations.noItemsToList)
 
@@ -187,20 +182,17 @@ class VaultAutofillListProcessorFido2Tests: BitwardenTestCase { // swiftlint:dis
                 && credential.signature == expectedResult.signature
                 && credential.clientDataHash == passkeyParameters.clientDataHash
                 && credential.authenticatorData == expectedResult.authenticatorData
-                && credential.credentialID == expectedResult.credentialId
+                && credential.credentialID == expectedResult.credentialID
         }
     }
 
-    /// `perform(_:)` with `.initFido2` calls `getAssertion` from the Fido2 authenticator when
+    /// `perform(_:)` with `.initFido2` provides Fido2 credential from the `autofillCredentialService` when
     /// is autofilling Fido2 from list but it throws.
     func test_perform_initFido2_autofillFido2VaultListThrows() async throws {
         let passkeyParameters = MockPasskeyCredentialRequestParameters()
         appExtensionDelegate.extensionMode = .autofillFido2VaultList([], passkeyParameters)
 
-        clientService.mockPlatform.fido2Mock
-            .clientFido2AuthenticatorMock
-            .getAssertionMocker
-            .throwing(BitwardenTestError.example)
+        autofillCredentialService.provideFido2CredentialResult = .failure(BitwardenTestError.example)
 
         await subject.perform(.initFido2)
 
@@ -219,7 +211,6 @@ class VaultAutofillListProcessorFido2Tests: BitwardenTestCase { // swiftlint:dis
             return true
         }
 
-        XCTAssertTrue(fido2UserInterfaceHelper.fido2UserInterfaceHelperDelegate != nil)
         XCTAssertTrue(subject.state.isAutofillingFido2List)
         XCTAssertEqual(subject.state.emptyViewMessage, Localizations.noItemsToList)
     }
@@ -595,12 +586,73 @@ class VaultAutofillListProcessorFido2Tests: BitwardenTestCase { // swiftlint:dis
         )
     }
 
+    /// `perform(_:)` with `.streamAutofillItems` streams the list of autofill ciphers for Fido2 when
+    /// decrypting available Fido2 credentials is empty thus logs error and skips that credential.
+    func test_perform_streamAutofillItems_onAutofillFido2VaultListDecryptFido2CredentialsEmptyError() {
+        let passkeyParameters = MockPasskeyCredentialRequestParameters()
+        appExtensionDelegate.extensionMode = .autofillFido2VaultList([], passkeyParameters)
+        let expectedUri = "https://myApp.com"
+        appExtensionDelegate.uri = expectedUri
+
+        fido2UserInterfaceHelper.availableCredentialsForAuthentication = [
+            .fixture(id: "1"),
+            .fixture(id: "2"),
+            .fixture(id: "3"),
+        ]
+        let expectedCredentialId = Data(repeating: 123, count: 16)
+        setupDefaultDecryptFido2AutofillCredentialsMocker(
+            expectedCredentialId: expectedCredentialId,
+            cipherIdToReturnEmptyFido2Credentials: "1"
+        )
+
+        let ciphers: [CipherView] = [.fixture(id: "1"), .fixture(id: "2"), .fixture(id: "3")]
+        vaultRepository.ciphersAutofillSubject.value = ciphers
+
+        let task = Task {
+            await subject.perform(.streamAutofillItems)
+        }
+
+        waitFor(!subject.state.vaultListSections.isEmpty)
+        task.cancel()
+
+        XCTAssertEqual(
+            subject.state.vaultListSections[0],
+            VaultListSection(
+                id: Localizations.passkeysForX(passkeyParameters.relyingPartyIdentifier),
+                items: ciphers.suffix(from: 1).compactMap { cipher in
+                    VaultListItem(
+                        cipherView: cipher,
+                        fido2CredentialAutofillView: .fixture(
+                            credentialId: expectedCredentialId,
+                            cipherId: cipher.id ?? "",
+                            rpId: "myApp.com"
+                        )
+                    )
+                },
+                name: Localizations.passkeysForX(passkeyParameters.relyingPartyIdentifier)
+            )
+        )
+        XCTAssertEqual(
+            subject.state.vaultListSections[1],
+            VaultListSection(
+                id: Localizations.passwordsForX(expectedUri),
+                items: ciphers.compactMap { VaultListItem(cipherView: $0) },
+                name: Localizations.passwordsForX(expectedUri)
+            )
+        )
+        XCTAssertEqual(errorReporter.errors as? [Fido2Error], [Fido2Error.decryptFido2AutofillCredentialsEmpty])
+    }
+
     // MARK: Private
 
-    private func setupDefaultDecryptFido2AutofillCredentialsMocker(expectedCredentialId: Data) {
+    private func setupDefaultDecryptFido2AutofillCredentialsMocker(
+        expectedCredentialId: Data,
+        cipherIdToReturnEmptyFido2Credentials: String? = nil
+    ) {
         clientService.mockPlatform.fido2Mock.decryptFido2AutofillCredentialsMocker
             .withResult { cipherView in
-                guard let cipherId = cipherView.id else {
+                guard let cipherId = cipherView.id,
+                      cipherId != cipherIdToReturnEmptyFido2Credentials else {
                     return []
                 }
                 return [

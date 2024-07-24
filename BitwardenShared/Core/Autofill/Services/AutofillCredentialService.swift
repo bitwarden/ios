@@ -42,6 +42,17 @@ protocol AutofillCredentialService: AnyObject {
         autofillCredentialServiceDelegate: AutofillCredentialServiceDelegate,
         fido2UserInterfaceHelperDelegate: Fido2UserInterfaceHelperDelegate
     ) async throws -> ASPasskeyAssertionCredential
+
+    /// Provides a Fido2 credential for Fido2 request parameters.
+    /// - Parameters:
+    ///   - fido2RequestParameters: The Fido2 request parameters to ge the assertion credential.
+    ///   - fido2UserInterfaceHelperDelegate: Delegate for Fido2 user interface interaction
+    /// - Returns: The passkey credential for assertion
+    @available(iOS 17.0, *)
+    func provideFido2Credential(
+        for fido2RequestParameters: PasskeyCredentialRequestParameters,
+        fido2UserInterfaceHelperDelegate: Fido2UserInterfaceHelperDelegate
+    ) async throws -> ASPasskeyAssertionCredential
 }
 
 /// A default implementation of an `AutofillCredentialService`.
@@ -271,12 +282,12 @@ extension DefaultAutofillCredentialService: AutofillCredentialService {
     }
 
     @available(iOS 17.0, *)
-    func provideFido2Credential( // swiftlint:disable:this function_body_length
+    func provideFido2Credential(
         for passkeyRequest: ASPasskeyCredentialRequest,
         autofillCredentialServiceDelegate: AutofillCredentialServiceDelegate,
         fido2UserInterfaceHelperDelegate: Fido2UserInterfaceHelperDelegate
     ) async throws -> ASPasskeyAssertionCredential {
-        guard let credentialIdentiy = passkeyRequest.credentialIdentity as? ASPasskeyCredentialIdentity else {
+        guard let credentialIdentity = passkeyRequest.credentialIdentity as? ASPasskeyCredentialIdentity else {
             throw AppProcessorError.invalidOperation
         }
 
@@ -285,25 +296,49 @@ extension DefaultAutofillCredentialService: AutofillCredentialService {
             throw Fido2Error.userInteractionRequired
         }
 
-        fido2UserInterfaceHelper.setupDelegate(
-            fido2UserInterfaceHelperDelegate: fido2UserInterfaceHelperDelegate
+        let request = GetAssertionRequest(
+            passkeyRequest: passkeyRequest, credentialIdentity: credentialIdentity
         )
 
-        let request = GetAssertionRequest(
-            rpId: credentialIdentiy.relyingPartyIdentifier,
-            clientDataHash: passkeyRequest.clientDataHash,
-            allowList: [
-                PublicKeyCredentialDescriptor(
-                    ty: "public-key",
-                    id: credentialIdentiy.credentialID,
-                    transports: nil
-                ),
-            ],
-            options: Options(
-                rk: false,
-                uv: BitwardenSdk.Uv(preference: passkeyRequest.userVerificationPreference)
-            ),
-            extensions: nil
+        return try await provideFido2Credential(
+            with: request,
+            fido2UserInterfaceHelperDelegate: fido2UserInterfaceHelperDelegate,
+            rpId: credentialIdentity.relyingPartyIdentifier,
+            clientDataHash: passkeyRequest.clientDataHash
+        )
+    }
+
+    @available(iOS 17.0, *)
+    func provideFido2Credential(
+        for fido2RequestParameters: PasskeyCredentialRequestParameters,
+        fido2UserInterfaceHelperDelegate: Fido2UserInterfaceHelperDelegate
+    ) async throws -> ASPasskeyAssertionCredential {
+        try await provideFido2Credential(
+            with: GetAssertionRequest(fido2RequestParameters: fido2RequestParameters),
+            fido2UserInterfaceHelperDelegate: fido2UserInterfaceHelperDelegate,
+            rpId: fido2RequestParameters.relyingPartyIdentifier,
+            clientDataHash: fido2RequestParameters.clientDataHash
+        )
+    }
+
+    // MARK: Private
+
+    /// Provides a Fido2 credential based for the given request.
+    /// - Parameters:
+    ///   - request: Request to get the assertion credential.
+    ///   - fido2UserInterfaceHelperDelegate: Delegate for Fido2 user interface interaction.
+    ///   - rpId: The relying party identifier of the request.
+    ///   - clientDataHash: The client data hash of the request.
+    /// - Returns: The passkey assertion credential for the request.
+    @available(iOS 17.0, *)
+    private func provideFido2Credential(
+        with request: GetAssertionRequest,
+        fido2UserInterfaceHelperDelegate: Fido2UserInterfaceHelperDelegate,
+        rpId: String,
+        clientDataHash: Data
+    ) async throws -> ASPasskeyAssertionCredential {
+        fido2UserInterfaceHelper.setupDelegate(
+            fido2UserInterfaceHelperDelegate: fido2UserInterfaceHelperDelegate
         )
 
         #if DEBUG
@@ -324,9 +359,9 @@ extension DefaultAutofillCredentialService: AutofillCredentialService {
 
             return ASPasskeyAssertionCredential(
                 userHandle: assertionResult.userHandle,
-                relyingParty: credentialIdentiy.relyingPartyIdentifier,
+                relyingParty: rpId,
                 signature: assertionResult.signature,
-                clientDataHash: passkeyRequest.clientDataHash,
+                clientDataHash: clientDataHash,
                 authenticatorData: assertionResult.authenticatorData,
                 credentialID: assertionResult.credentialId
             )

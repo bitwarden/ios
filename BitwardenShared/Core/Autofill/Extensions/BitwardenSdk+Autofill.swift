@@ -3,6 +3,55 @@
 import AuthenticationServices
 import BitwardenSdk
 
+// MARK: - GetAssertionRequest
+
+extension GetAssertionRequest {
+    /// Initializes a `GetAssertionRequest` based on `fido2RequestParameters`
+    /// - Parameter fido2RequestParameters: The Fido2 request parameters.
+    init(fido2RequestParameters: PasskeyCredentialRequestParameters) {
+        self = .init(
+            rpId: fido2RequestParameters.relyingPartyIdentifier,
+            clientDataHash: fido2RequestParameters.clientDataHash,
+            allowList: fido2RequestParameters.allowedCredentials.map { credentialId in
+                PublicKeyCredentialDescriptor(
+                    ty: "public-key",
+                    id: credentialId,
+                    transports: nil
+                )
+            },
+            options: Options(
+                rk: false,
+                uv: BitwardenSdk.Uv(preference: fido2RequestParameters.userVerificationPreference)
+            ),
+            extensions: nil
+        )
+    }
+
+    /// Initializes a `GetAssertionRequest` based on `passkeyRequest` and its `credentialIdentity`
+    /// - Parameters:
+    ///   - passkeyRequest: The `ASPasskeyCredentialRequest` of the flow.
+    ///   - credentialIdentity: The `ASPasskeyCredentialIdentity` of the request.
+    @available(iOSApplicationExtension 17.0, *)
+    init(passkeyRequest: ASPasskeyCredentialRequest, credentialIdentity: ASPasskeyCredentialIdentity) {
+        self = .init(
+            rpId: credentialIdentity.relyingPartyIdentifier,
+            clientDataHash: passkeyRequest.clientDataHash,
+            allowList: [
+                PublicKeyCredentialDescriptor(
+                    ty: "public-key",
+                    id: credentialIdentity.credentialID,
+                    transports: nil
+                ),
+            ],
+            options: Options(
+                rk: false,
+                uv: BitwardenSdk.Uv(preference: passkeyRequest.userVerificationPreference)
+            ),
+            extensions: nil
+        )
+    }
+}
+
 // MARK: - MakeCredentialRequest
 
 extension BitwardenSdk.MakeCredentialRequest: CustomDebugStringConvertible {

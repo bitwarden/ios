@@ -111,7 +111,7 @@ private struct VaultAutofillListSearchableView: View {
         if store.state.isAutofillingFido2List {
             cipherCombinedListView(sections)
         } else {
-            let items = sections[safeIndex: 0]?.items ?? []
+            let items = sections.first?.items ?? []
             cipherSimpleListView(items)
         }
     }

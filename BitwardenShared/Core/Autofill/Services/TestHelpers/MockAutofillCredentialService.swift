@@ -33,6 +33,18 @@ class MockAutofillCredentialService: AutofillCredentialService {
         }
         return credential
     }
+
+    @available(iOS 17.0, *)
+    func provideFido2Credential(
+        for fido2RequestParameters: PasskeyCredentialRequestParameters,
+        fido2UserInterfaceHelperDelegate: Fido2UserInterfaceHelperDelegate
+    ) async throws -> ASPasskeyAssertionCredential {
+        let result = try provideFido2CredentialResult.get()
+        guard let credential = result as? ASPasskeyAssertionCredential else {
+            throw Fido2Error.invalidOperationError
+        }
+        return credential
+    }
 }
 
 // MARK: - PasskeyAssertionCredential

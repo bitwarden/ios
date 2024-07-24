@@ -122,8 +122,7 @@ class DefaultFido2UserInterfaceHelper: Fido2UserInterfaceHelper {
             throw Fido2Error.noDelegateSetup
         }
 
-        let isAutofillingFromList = await fido2UserInterfaceHelperDelegate.isAutofillingFromList
-        if !isAutofillingFromList {
+        guard await fido2UserInterfaceHelperDelegate.isAutofillingFromList else {
             guard availableCredentials.count == 1 else {
                 throw Fido2Error.invalidOperationError
             }
