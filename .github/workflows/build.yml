@@ -348,13 +348,17 @@ jobs:
           brew install tree
           tree -d build
 
+      - name: Prepare IPA & dSYM files for upload to GitHub
+        run: |
+          mkdir -p export/dSYMs
+          cp build/Bitwarden/Bitwarden.ipa export
+          cp build/Bitwarden.xcarchive/dSYMs/*.dSYM export/dSYMs
+
       - name: Upload IPA & dSYM files
         uses: actions/upload-artifact@0b2256b8c012f0828dc542b3febcab082c67f72b # v4.3.4
         with:
           name: Bitwarden iOS
-          path: |
-            build/Bitwarden/Bitwarden.ipa
-            build/Bitwarden.xcarchive/dSYMs/*.dSYM
+          path: export
           if-no-files-found: error
 
       - name: Validate app with App Store Connect
@@ -364,7 +368,7 @@ jobs:
         run: |
           xcrun altool --validate-app \
             --type ios \
-            --file "build/Bitwarden/Bitwarden.ipa" \
+            --file "export/Bitwarden.ipa" \
             --username "$APPLE_ID_USERNAME" \
             --password @env:APPLE_ID_PASSWORD
 
@@ -374,4 +378,4 @@ jobs:
           fastlane upload_build \
             api_key_path:"$HOME/secrets/appstoreconnect-fastlane.json" \
             changelog:"$(git show -s --format=%s)$NEWLINE$GITHUB_REPOSITORY/$GITHUB_REF_NAME @ $GITHUB_SHA$NEWLINE$NEWLINE$GITHUB_SERVER_URL/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID" \
-            ipa_path:"build/Bitwarden/Bitwarden.ipa"
+            ipa_path:"export/Bitwarden.ipa"
