@@ -348,11 +348,14 @@ jobs:
           brew install tree
           tree -d build
 
-      - name: Upload IPA
+      - name: Upload IPA & dSYM files
         uses: actions/upload-artifact@0b2256b8c012f0828dc542b3febcab082c67f72b # v4.3.4
         with:
           name: Bitwarden iOS
-          path: build/Bitwarden/Bitwarden.ipa
+          path: |
+            build/Bitwarden/Bitwarden.ipa
+            build/Bitwarden.xcarchive/dSYMs/*.dSYM
+          if-no-files-found: error
 
       - name: Validate app with App Store Connect
         env:
