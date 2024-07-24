@@ -155,6 +155,7 @@ public class AppProcessor {
     ) async throws -> ASPasswordCredential {
         try await services.autofillCredentialService.provideCredential(
             for: id,
+            autofillCredentialServiceDelegate: self,
             repromptPasswordValidated: repromptPasswordValidated
         )
     }

@@ -10,7 +10,11 @@ class MockAutofillCredentialService: AutofillCredentialService {
     var provideCredentialError: Error?
     var provideFido2CredentialResult: Result<PasskeyAssertionCredential, Error> = .failure(BitwardenTestError.example)
 
-    func provideCredential(for id: String, repromptPasswordValidated: Bool) async throws -> ASPasswordCredential {
+    func provideCredential(
+        for id: String,
+        autofillCredentialServiceDelegate: AutofillCredentialServiceDelegate,
+        repromptPasswordValidated: Bool
+    ) async throws -> ASPasswordCredential {
         guard let provideCredentialPasswordCredential else {
             throw provideCredentialError ?? ASExtensionError(.failed)
         }

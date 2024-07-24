@@ -9,7 +9,7 @@ class OTPAuthModelTests: BitwardenTestCase {
 
     /// Tests that a malformed string does not create a model.
     func test_init_otpAuthKey_failure_base32() {
-        let subject = OTPAuthModel(otpAuthKey: .base32Key)
+        let subject = OTPAuthModel(otpAuthKey: .standardTotpKey)
         XCTAssertNil(subject)
     }
 
@@ -43,7 +43,7 @@ class OTPAuthModelTests: BitwardenTestCase {
                 algorithm: .sha256,
                 digits: 6,
                 issuer: "Example",
-                keyB32: "JBSWY3DPEHPK3PXP",
+                key: "JBSWY3DPEHPK3PXP",
                 period: 30,
                 uri: .otpAuthUriKeyComplete
             )
@@ -61,7 +61,7 @@ class OTPAuthModelTests: BitwardenTestCase {
                 algorithm: .sha1,
                 digits: 6,
                 issuer: "Bitwarden",
-                keyB32: "JBSWY3DPEHPK3PXP",
+                key: "JBSWY3DPEHPK3PXP",
                 period: 30,
                 uri: key
             )
@@ -78,7 +78,7 @@ class OTPAuthModelTests: BitwardenTestCase {
                 algorithm: .sha1,
                 digits: 6,
                 issuer: nil,
-                keyB32: "JBSWY3DPEHPK3PXP",
+                key: "JBSWY3DPEHPK3PXP",
                 period: 30,
                 uri: .otpAuthUriKeyMinimum
             )
@@ -95,7 +95,7 @@ class OTPAuthModelTests: BitwardenTestCase {
                 algorithm: .sha1,
                 digits: 6,
                 issuer: "Example",
-                keyB32: "JBSWY3DPEHPK3PXP",
+                key: "JBSWY3DPEHPK3PXP",
                 period: 30,
                 uri: .otpAuthUriKeyPartial
             )
@@ -113,7 +113,7 @@ class OTPAuthModelTests: BitwardenTestCase {
                 algorithm: .sha1,
                 digits: 6,
                 issuer: "ACME Co",
-                keyB32: "JBSWY3DPEHPK3PXP",
+                key: "JBSWY3DPEHPK3PXP",
                 period: 30,
                 uri: key
             )
@@ -131,7 +131,7 @@ class OTPAuthModelTests: BitwardenTestCase {
                 algorithm: .sha1,
                 digits: 6,
                 issuer: "Bitwarden",
-                keyB32: "JBSWY3DPEHPK3PXP",
+                key: "JBSWY3DPEHPK3PXP",
                 period: 30,
                 uri: key
             )
