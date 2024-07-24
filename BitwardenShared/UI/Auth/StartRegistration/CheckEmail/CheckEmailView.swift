@@ -30,7 +30,7 @@ struct CheckEmailView: View {
                     .frame(maxWidth: .infinity)
                     .padding([.bottom, .horizontal], 8)
 
-                Text(.init(store.state.headelineTextBoldEmail))
+                Text(LocalizedStringKey(store.state.headelineTextBoldEmail))
                     .styleGuide(.headline)
                     .multilineTextAlignment(.center)
                     .padding(.bottom, 20)
@@ -46,7 +46,7 @@ struct CheckEmailView: View {
                 .padding(.bottom, 32)
                 .buttonStyle(.primary())
 
-                Text(.init(Localizations.noEmailGoBackToEditYourEmailAddress))
+                Text(LocalizedStringKey(Localizations.noEmailGoBackToEditYourEmailAddress))
                     .styleGuide(.subheadline)
                     .tint(Asset.Colors.primaryBitwarden.swiftUIColor)
                     .padding([.horizontal, .bottom], 32)
@@ -55,7 +55,7 @@ struct CheckEmailView: View {
                         return .handled
                     })
 
-                Text(.init(Localizations.orLogInYouMayAlreadyHaveAnAccount))
+                Text(LocalizedStringKey(Localizations.orLogInYouMayAlreadyHaveAnAccount))
                     .styleGuide(.subheadline)
                     .tint(Asset.Colors.primaryBitwarden.swiftUIColor)
                     .padding(.horizontal, 32)

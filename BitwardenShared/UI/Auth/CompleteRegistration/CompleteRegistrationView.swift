@@ -15,7 +15,7 @@ struct CompleteRegistrationView: View {
     var body: some View {
         VStack(spacing: 16) {
             VStack(alignment: .leading, spacing: 0) {
-                Text(.init(store.state.headelineTextBoldEmail))
+                Text(LocalizedStringKey(store.state.headelineTextBoldEmail))
                     .tint(Asset.Colors.textPrimary.swiftUIColor)
                     .multilineTextAlignment(.leading)
                     .styleGuide(.callout)
