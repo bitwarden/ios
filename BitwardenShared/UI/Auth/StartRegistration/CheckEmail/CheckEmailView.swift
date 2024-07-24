@@ -49,6 +49,7 @@ struct CheckEmailView: View {
                 Text(LocalizedStringKey(Localizations.noEmailGoBackToEditYourEmailAddress))
                     .styleGuide(.subheadline)
                     .tint(Asset.Colors.primaryBitwarden.swiftUIColor)
+                    .foregroundColor(Asset.Colors.textPrimary.swiftUIColor)
                     .padding([.horizontal, .bottom], 32)
                     .environment(\.openURL, OpenURLAction { _ in
                         store.send(.goBackTapped)
@@ -58,6 +59,7 @@ struct CheckEmailView: View {
                 Text(LocalizedStringKey(Localizations.orLogInYouMayAlreadyHaveAnAccount))
                     .styleGuide(.subheadline)
                     .tint(Asset.Colors.primaryBitwarden.swiftUIColor)
+                    .foregroundColor(Asset.Colors.textPrimary.swiftUIColor)
                     .padding(.horizontal, 32)
                     .environment(\.openURL, OpenURLAction { _ in
                         store.send(.logInTapped)

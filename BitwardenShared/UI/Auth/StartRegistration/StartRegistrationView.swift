@@ -100,6 +100,7 @@ struct StartRegistrationView: View {
         Text(LocalizedStringKey(store.state.termsAndPrivacyDisclaimerText))
             .styleGuide(.footnote)
             .tint(Asset.Colors.primaryBitwarden.swiftUIColor)
+            .foregroundColor(Asset.Colors.textPrimary.swiftUIColor)
             .padding([.bottom], 32)
             .multilineTextAlignment(.center)
     }
@@ -113,6 +114,7 @@ struct StartRegistrationView: View {
             )) {
                 Text(LocalizedStringKey(store.state.receiveMarketingEmailsText))
                     .tint(Asset.Colors.primaryBitwarden.swiftUIColor)
+                    .foregroundColor(Asset.Colors.textPrimary.swiftUIColor)
                     .styleGuide(.subheadline)
             }
             .accessibilityIdentifier("ReceiveMarketingToggle")
