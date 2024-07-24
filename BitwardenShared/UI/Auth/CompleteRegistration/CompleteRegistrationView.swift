@@ -32,10 +32,8 @@ struct CompleteRegistrationView: View {
             passwordHint
 
             VStack(spacing: 24) {
-                VStack(spacing: 24) {
-                    checkBreachesToggle
-                }
-                .padding(.top, 8)
+                checkBreachesToggle
+                    .padding(.top, 8)
 
                 createAccountButton
             }
@@ -75,27 +73,25 @@ struct CompleteRegistrationView: View {
 
     /// The text fields for the user's email and password.
     private var passwordField: some View {
-        VStack(spacing: 16) {
-            BitwardenTextField(
-                title: Localizations.masterPassword,
-                text: store.binding(
-                    get: \.passwordText,
-                    send: CompleteRegistrationAction.passwordTextChanged
-                ),
-                accessibilityIdentifier: "MasterPasswordEntry",
-                passwordVisibilityAccessibilityId: "PasswordVisibilityToggle",
-                isPasswordVisible: store.binding(
-                    get: \.arePasswordsVisible,
-                    send: CompleteRegistrationAction.togglePasswordVisibility
-                )
+        BitwardenTextField(
+            title: Localizations.masterPassword,
+            text: store.binding(
+                get: \.passwordText,
+                send: CompleteRegistrationAction.passwordTextChanged
+            ),
+            accessibilityIdentifier: "MasterPasswordEntry",
+            passwordVisibilityAccessibilityId: "PasswordVisibilityToggle",
+            isPasswordVisible: store.binding(
+                get: \.arePasswordsVisible,
+                send: CompleteRegistrationAction.togglePasswordVisibility
             )
-            .textFieldConfiguration(.password)
-        }
+        )
+        .textFieldConfiguration(.password)
     }
 
     /// The master password hint.
     private var passwordHint: some View {
-        VStack(alignment: .leading) {
+        VStack(alignment: .leading, spacing: 8) {
             BitwardenTextField(
                 title: Localizations.masterPasswordHint,
                 text: store.binding(

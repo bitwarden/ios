@@ -25,9 +25,10 @@ struct CheckEmailView: View {
 
                 Text(Localizations.checkYourEmail)
                     .styleGuide(.title2)
+                    .multilineTextAlignment(.center)
                     .foregroundColor(Asset.Colors.textPrimary.swiftUIColor)
                     .frame(maxWidth: .infinity)
-                    .padding(.bottom, 8)
+                    .padding([.bottom, .horizontal], 8)
 
                 Text(.init(store.state.headelineTextBoldEmail))
                     .styleGuide(.headline)
@@ -78,6 +79,6 @@ struct CheckEmailView: View {
 
 #if DEBUG
 #Preview {
-    CheckEmailView(store: Store(processor: StateProcessor(state: CheckEmailState())))
+    CheckEmailView(store: Store(processor: StateProcessor(state: CheckEmailState(email: "email@example.com"))))
 }
 #endif

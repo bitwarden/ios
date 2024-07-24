@@ -38,49 +38,16 @@ class RegisterFinishRequestTests: BitwardenTestCase {
 
     /// Validate that the method is correct.
     func test_method() {
-        let subject = RegisterFinishRequest(
-            body: RegisterFinishRequestModel(
-                email: "example@email.com",
-                emailVerificationToken: "thisisanawesometoken",
-                kdfConfig: KdfConfig(),
-                masterPasswordHash: "1a2b3c",
-                masterPasswordHint: "hint",
-                userSymmetricKey: "key",
-                userAsymmetricKeys: KeysRequestModel(encryptedPrivateKey: "private")
-            )
-        )
         XCTAssertEqual(subject.method, .post)
     }
 
     /// Validate that the path is correct.
     func test_path() {
-        let subject = RegisterFinishRequest(
-            body: RegisterFinishRequestModel(
-                email: "example@email.com",
-                emailVerificationToken: "thisisanawesometoken",
-                kdfConfig: KdfConfig(),
-                masterPasswordHash: "1a2b3c",
-                masterPasswordHint: "hint",
-                userSymmetricKey: "key",
-                userAsymmetricKeys: KeysRequestModel(encryptedPrivateKey: "private")
-            )
-        )
         XCTAssertEqual(subject.path, "/accounts/register/finish")
     }
 
     /// Validate that the body is not nil.
     func test_body() {
-        let subject = RegisterFinishRequest(
-            body: RegisterFinishRequestModel(
-                email: "example@email.com",
-                emailVerificationToken: "thisisanawesometoken",
-                kdfConfig: KdfConfig(),
-                masterPasswordHash: "1a2b3c",
-                masterPasswordHint: "hint",
-                userSymmetricKey: "key",
-                userAsymmetricKeys: KeysRequestModel(encryptedPrivateKey: "private")
-            )
-        )
         XCTAssertNotNil(subject.body)
     }
 
@@ -153,17 +120,6 @@ class RegisterFinishRequestTests: BitwardenTestCase {
 
     /// Validate that the value provided to the init method is correct.
     func test_init_body() {
-        let subject = RegisterFinishRequest(
-            body: RegisterFinishRequestModel(
-                email: "example@email.com",
-                emailVerificationToken: "thisisanawesometoken",
-                kdfConfig: KdfConfig(),
-                masterPasswordHash: "1a2b3c",
-                masterPasswordHint: "hint",
-                userSymmetricKey: "key",
-                userAsymmetricKeys: KeysRequestModel(encryptedPrivateKey: "private")
-            )
-        )
         XCTAssertEqual(subject.body?.email, "example@email.com")
     }
 }

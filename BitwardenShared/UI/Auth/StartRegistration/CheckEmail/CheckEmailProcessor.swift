@@ -1,6 +1,6 @@
 // MARK: - CheckEmailProcessor
 
-/// The processor used to manage state and handle actions for the passwort hint screen.
+/// The processor used to manage state and handle actions for the check email screen.
 ///
 class CheckEmailProcessor: StateProcessor<CheckEmailState, CheckEmailAction, Void> {
     // MARK: Private Properties

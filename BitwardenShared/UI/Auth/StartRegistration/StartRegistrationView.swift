@@ -33,22 +33,25 @@ struct StartRegistrationView: View {
 
                 continueButton.padding(.bottom, 16)
 
-                termsAndPrivacyText.padding(.bottom, 16)
+                termsAndPrivacyText
+                    .frame(maxWidth: .infinity)
+                    .padding(.bottom, 16)
             }
-        }.navigationBar(title: Localizations.createAccount, titleDisplayMode: .inline)
-            .scrollView()
-            .task {
-                await store.perform(.appeared)
+        }
+        .navigationBar(title: Localizations.createAccount, titleDisplayMode: .inline)
+        .scrollView()
+        .task {
+            await store.perform(.appeared)
+        }
+        .toolbar {
+            cancelToolbarItem {
+                store.send(.dismiss)
             }
-            .toolbar {
-                cancelToolbarItem {
-                    store.send(.dismiss)
-                }
-            }
-            .toast(store.binding(
-                get: \.toast,
-                send: StartRegistrationAction.toastShown
-            ))
+        }
+        .toast(store.binding(
+            get: \.toast,
+            send: StartRegistrationAction.toastShown
+        ))
     }
 
     // MARK: Private views

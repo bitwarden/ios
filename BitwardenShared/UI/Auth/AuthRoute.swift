@@ -46,6 +46,12 @@ public enum AuthRoute: Equatable {
     /// A route that dismisses only the presented sheet.
     case dismissPresented
 
+    /// A route to dismiss the screen currently presented modally.
+    ///
+    /// - Parameter action: The action to perform on dismiss.
+    ///
+    case dismissWithAction(_ action: DismissAction? = nil)
+
     /// A route that triggers the duo 2FA flow.
     ///  Requires that any `context` provided to the coordinator conforms to `DuoAuthenticationFlowDelegate`.
     case duoAuthenticationFlow(_ authURL: URL)

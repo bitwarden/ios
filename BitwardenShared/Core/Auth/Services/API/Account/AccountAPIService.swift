@@ -35,19 +35,19 @@ protocol AccountAPIService {
     ///
     func deleteAccount(body: DeleteAccountRequestModel) async throws -> EmptyResponse
 
-    /// Creates an API call for when the user submits the last step of an account creation form.
-    ///
-    /// - Parameter body: The body to be included in the request.
-    /// - Returns: Data returned from the `RegisterFinishRequest`.
-    ///
-    func registerFinish(body: RegisterFinishRequestModel) async throws -> RegisterFinishResponseModel
-
     /// Sends an API call for completing the pre-login step in the auth flow.
     ///
     /// - Parameter email: The email address that the user is attempting to sign in with.
     /// - Returns: Information necessary to complete the next step in the auth flow.
     ///
     func preLogin(email: String) async throws -> PreLoginResponseModel
+
+    /// Creates an API call for when the user submits the last step of an account creation form.
+    ///
+    /// - Parameter body: The body to be included in the request.
+    /// - Returns: Data returned from the `RegisterFinishRequest`.
+    ///
+    func registerFinish(body: RegisterFinishRequestModel) async throws -> RegisterFinishResponseModel
 
     /// Requests a one-time password to be sent to the user.
     ///
@@ -134,15 +134,15 @@ extension APIService: AccountAPIService {
         return try await apiService.send(request)
     }
 
-    func registerFinish(body: RegisterFinishRequestModel) async throws -> RegisterFinishResponseModel {
-        try await identityService.send(RegisterFinishRequest(body: body))
-    }
-
     func preLogin(email: String) async throws -> PreLoginResponseModel {
         let body = PreLoginRequestModel(email: email)
         let request = PreLoginRequest(body: body)
         let response = try await identityService.send(request)
         return response
+    }
+
+    func registerFinish(body: RegisterFinishRequestModel) async throws -> RegisterFinishResponseModel {
+        try await identityService.send(RegisterFinishRequest(body: body))
     }
 
     func requestOtp() async throws {
