@@ -406,7 +406,7 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
     /// `refreshTOTPCode(:)` rethrows errors.
     func test_refreshTOTPCode_error() async throws {
         clientService.mockVault.generateTOTPCodeResult = .failure(BitwardenTestError.example)
-        let keyModel = try XCTUnwrap(TOTPKeyModel(authenticatorKey: .base32Key))
+        let keyModel = TOTPKeyModel(authenticatorKey: .standardTotpKey)
         await assertAsyncThrows(error: BitwardenTestError.example) {
             _ = try await subject.refreshTOTPCode(for: keyModel)
         }
@@ -416,7 +416,7 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
     func test_refreshTOTPCode_success() async throws {
         let newCode = "999232"
         clientService.mockVault.generateTOTPCodeResult = .success(newCode)
-        let keyModel = try XCTUnwrap(TOTPKeyModel(authenticatorKey: .base32Key))
+        let keyModel = TOTPKeyModel(authenticatorKey: .standardTotpKey)
         let update = try await subject.refreshTOTPCode(for: keyModel)
         XCTAssertEqual(
             update,
@@ -467,7 +467,7 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
         clientService.mockVault.generateTOTPCodeResult = .success(newCode)
         let totpModel = VaultListTOTP(
             id: "123",
-            loginView: .fixture(totp: .base32Key),
+            loginView: .fixture(totp: .standardTotpKey),
             requiresMasterPassword: false,
             totpCode: .init(
                 code: "123456",
@@ -675,7 +675,7 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
             .fixture(id: "5", name: "Café thoughts", type: .secureNote),
             .fixture(
                 id: "5",
-                login: .fixture(totp: .base32Key),
+                login: .fixture(totp: .standardTotpKey),
                 name: "one time cafefe",
                 type: .login
             ),
@@ -711,7 +711,7 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
             .fixture(id: "5", name: "Café thoughts", type: .secureNote),
             .fixture(
                 id: "5",
-                login: .fixture(totp: .base32Key),
+                login: .fixture(totp: .standardTotpKey),
                 name: "one time cafefe",
                 type: .login
             ),
@@ -752,7 +752,7 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
             .fixture(id: "5", name: "Café thoughts", type: .secureNote),
             .fixture(
                 id: "5",
-                login: .fixture(totp: .base32Key),
+                login: .fixture(totp: .standardTotpKey),
                 name: "one time cafefe",
                 type: .login
             ),
@@ -797,7 +797,7 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
             .fixture(id: "5", name: "Café thoughts", type: .secureNote),
             .fixture(
                 id: "5",
-                login: .fixture(totp: .base32Key),
+                login: .fixture(totp: .standardTotpKey),
                 name: "one time cafefe",
                 type: .login
             ),
@@ -838,7 +838,7 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
             .fixture(id: "5", name: "Café thoughts", type: .secureNote),
             .fixture(
                 id: "6",
-                login: .fixture(totp: .base32Key),
+                login: .fixture(totp: .standardTotpKey),
                 name: "one time cafefe",
                 type: .login
             ),
@@ -889,7 +889,7 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
             .fixture(id: "5", name: "Café thoughts", type: .secureNote),
             .fixture(
                 id: "6",
-                login: .fixture(totp: .base32Key),
+                login: .fixture(totp: .standardTotpKey),
                 name: "one time cafefe",
                 type: .login
             ),
@@ -927,7 +927,7 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
             .fixture(id: "5", name: "Café thoughts", type: .login),
             .fixture(
                 id: "6",
-                login: .fixture(totp: .base32Key),
+                login: .fixture(totp: .standardTotpKey),
                 name: "one time cafefe",
                 type: .login
             ),
