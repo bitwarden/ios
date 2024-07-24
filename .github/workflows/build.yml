@@ -168,6 +168,7 @@ jobs:
           mkdir -p $HOME/secrets
           az storage blob download --account-name $ACCOUNT_NAME --container-name $CONTAINER_NAME --name $SOURCE_FILE \
             --file BitwardenWatchApp/$TARGET_FILE --output none
+          plutil -replace BUNDLE_ID -string com.8bit.bitwarden.beta.watchkitapp BitwardenWatchApp/$TARGET_FILE
 
       - name: Retrieve certificates
         run: |
