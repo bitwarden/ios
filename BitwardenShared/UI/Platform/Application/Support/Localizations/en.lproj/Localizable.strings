@@ -933,3 +933,6 @@
 "UnknownAccount" = "Unknown account";
 "UserVerificationForPasskey" = "User verification for passkey";
 "NewItem" = "New item";
+"RestartRegistration" = "Restart registration";
+"ExpiredLink" = "Expired link";
+"PleaseRestartRegistrationOrTryLoggingInYouMayAlreadyHaveAnAccount" = "Please restart registration or try logging in. You may already have an account.";
