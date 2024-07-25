@@ -56,6 +56,20 @@ class VaultAutofillListViewTests: BitwardenTestCase {
         )
     }
 
+    /// The empty view renders correctly when creating Fido2 credential.
+    func test_snapshot_vaultAutofillList_emptyFido2Creation() {
+        let account = ProfileSwitcherItem.anneAccount
+        processor.state.profileSwitcherState.accounts = [account]
+        processor.state.profileSwitcherState.activeAccountId = account.userId
+        processor.state.isCreatingFido2Credential = true
+        processor.state.emptyViewMessage = Localizations.noItemsForUri("myApp.com")
+        processor.state.emptyViewButtonText = Localizations.savePasskeyAsNewLogin
+        assertSnapshots(
+            of: subject.navStackWrapped,
+            as: [.defaultPortrait, .defaultPortraitDark, .defaultPortraitAX5]
+        )
+    }
+
     /// The populated view renders correctly.
     func test_snapshot_vaultAutofillList_populated() {
         let account = ProfileSwitcherItem.anneAccount
