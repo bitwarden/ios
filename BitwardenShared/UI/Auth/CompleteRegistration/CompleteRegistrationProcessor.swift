@@ -6,7 +6,7 @@ import OSLog
 
 // MARK: - CompleteRegistrationError
 
-/// Enumeration of errors that may occur when creating an account.
+/// Enumeration of errors that may occur when completing registration for an account.
 ///
 enum CompleteRegistrationError: Error {
     /// The password confirmation is not correct.
@@ -21,7 +21,7 @@ enum CompleteRegistrationError: Error {
 
 // MARK: - CompleteRegistrationProcessor
 
-/// The processor used to manage state and handle actions for the create account screen.
+/// The processor used to manage state and handle actions for the completing registration screen.
 ///
 class CompleteRegistrationProcessor: StateProcessor<
     CompleteRegistrationState,
@@ -109,7 +109,7 @@ class CompleteRegistrationProcessor: StateProcessor<
             coordinator.showLoadingOverlay(title: Localizations.creatingAccount)
             let breachCount = try await services.accountAPIService.checkDataBreaches(password: state.passwordText)
 
-            // If unexposed and strong, create the account
+            // If unexposed and strong, complete registration
             guard breachCount > 0 || isWeakPassword else {
                 await completeRegistration()
                 return
@@ -200,13 +200,9 @@ class CompleteRegistrationProcessor: StateProcessor<
                 )
             )
 
-            coordinator.navigate(to: .dismiss)
-            // Delay to allow the modal to close completely and only after show the toast
-            DispatchQueue.main.asyncAfter(deadline: UI.after(0.6)) {
+            coordinator.navigate(to: .dismissWithAction(DismissAction {
                 self.coordinator.showToast(Localizations.accountSuccessfullyCreated)
-            }
-        } catch let CreateAccountRequestError.captchaRequired(hCaptchaSiteCode: siteCode) {
-            launchCaptchaFlow(with: siteCode)
+            }))
         } catch let error as CompleteRegistrationError {
             showCompleteRegistrationErrorAlert(error)
         } catch {

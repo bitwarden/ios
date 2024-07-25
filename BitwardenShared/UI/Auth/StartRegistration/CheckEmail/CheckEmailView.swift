@@ -25,11 +25,12 @@ struct CheckEmailView: View {
 
                 Text(Localizations.checkYourEmail)
                     .styleGuide(.title2)
+                    .multilineTextAlignment(.center)
                     .foregroundColor(Asset.Colors.textPrimary.swiftUIColor)
                     .frame(maxWidth: .infinity)
-                    .padding(.bottom, 8)
+                    .padding([.bottom, .horizontal], 8)
 
-                Text(.init(store.state.headelineTextBoldEmail))
+                Text(LocalizedStringKey(store.state.headelineTextBoldEmail))
                     .styleGuide(.headline)
                     .multilineTextAlignment(.center)
                     .padding(.bottom, 20)
@@ -45,18 +46,20 @@ struct CheckEmailView: View {
                 .padding(.bottom, 32)
                 .buttonStyle(.primary())
 
-                Text(.init(Localizations.noEmailGoBackToEditYourEmailAddress))
+                Text(LocalizedStringKey(Localizations.noEmailGoBackToEditYourEmailAddress))
                     .styleGuide(.subheadline)
                     .tint(Asset.Colors.primaryBitwarden.swiftUIColor)
+                    .foregroundColor(Asset.Colors.textPrimary.swiftUIColor)
                     .padding([.horizontal, .bottom], 32)
                     .environment(\.openURL, OpenURLAction { _ in
                         store.send(.goBackTapped)
                         return .handled
                     })
 
-                Text(.init(Localizations.orLogInYouMayAlreadyHaveAnAccount))
+                Text(LocalizedStringKey(Localizations.orLogInYouMayAlreadyHaveAnAccount))
                     .styleGuide(.subheadline)
                     .tint(Asset.Colors.primaryBitwarden.swiftUIColor)
+                    .foregroundColor(Asset.Colors.textPrimary.swiftUIColor)
                     .padding(.horizontal, 32)
                     .environment(\.openURL, OpenURLAction { _ in
                         store.send(.logInTapped)
@@ -78,6 +81,6 @@ struct CheckEmailView: View {
 
 #if DEBUG
 #Preview {
-    CheckEmailView(store: Store(processor: StateProcessor(state: CheckEmailState())))
+    CheckEmailView(store: Store(processor: StateProcessor(state: CheckEmailState(email: "email@example.com"))))
 }
 #endif

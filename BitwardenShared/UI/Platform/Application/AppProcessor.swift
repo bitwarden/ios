@@ -161,19 +161,18 @@ public class AppProcessor {
     ///
     public func handleAppLinks(incomingURL: URL) {
         guard let sanatizedUrl = URL(string: incomingURL.absoluteString.replacingOccurrences(of: "/#/", with: "/")),
-              let components = NSURLComponents(url: sanatizedUrl, resolvingAgainstBaseURL: true) else {
+              let components = URLComponents(url: sanatizedUrl, resolvingAgainstBaseURL: true) else {
             return
         }
 
         // Check for specific URL components that you need.
-        guard let path = components.path,
-              let params = components.queryItems,
+        guard let params = components.queryItems,
               let host = components.host else {
             services.errorReporter.log(error: AppProcessorError.appLinksInvalidURL)
             return
         }
 
-        guard path == "/finish-signup" else {
+        guard components.path == "/finish-signup" else {
             services.errorReporter.log(error: AppProcessorError.appLinksInvalidPath)
             return
         }

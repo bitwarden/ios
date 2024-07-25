@@ -158,6 +158,10 @@ final class AuthCoordinator: NSObject, // swiftlint:disable:this type_body_lengt
             stackNavigator?.dismiss()
         case .dismissPresented:
             stackNavigator?.rootViewController?.presentedViewController?.dismiss(animated: true)
+        case let .dismissWithAction(onDismiss):
+            stackNavigator?.dismiss(animated: true, completion: {
+                onDismiss?.action()
+            })
         case let .duoAuthenticationFlow(authURL):
             showDuo2FA(authURL: authURL, delegate: context as? DuoAuthenticationFlowDelegate)
         case let .enterpriseSingleSignOn(email):

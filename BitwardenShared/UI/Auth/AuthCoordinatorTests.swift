@@ -131,7 +131,18 @@ class AuthCoordinatorTests: BitwardenTestCase { // swiftlint:disable:this type_b
             region: .unitedStates
         ))
 
+        let landingAction = try XCTUnwrap(stackNavigator.actions[1])
+        let completeRegistrationAction = try XCTUnwrap(stackNavigator.actions[2])
+        let completeRegistrationNavigationController = try XCTUnwrap(
+            completeRegistrationAction.view as? UINavigationController
+        )
         let lastAction = try XCTUnwrap(stackNavigator.actions.last)
+
+        XCTAssertTrue(
+            completeRegistrationNavigationController.viewControllers.first
+                is UIHostingController<CompleteRegistrationView>
+        )
+        XCTAssertTrue(landingAction.view is LandingView)
         XCTAssertEqual(lastAction.type, .dismissedWithCompletionHandler)
     }
 
@@ -158,6 +169,15 @@ class AuthCoordinatorTests: BitwardenTestCase { // swiftlint:disable:this type_b
         subject.navigate(to: .dismissPresented)
         let lastAction = try XCTUnwrap(stackNavigator.actions.last)
         XCTAssertEqual(lastAction.type, .presented)
+    }
+
+    /// `navigate(to:)` with `.dismissWithAction` dismisses the presented view.
+    func test_navigate_dismissWithAction() throws {
+        var didRun = false
+        subject.navigate(to: .dismissWithAction(DismissAction(action: { didRun = true })))
+        let lastAction = try XCTUnwrap(stackNavigator.actions.last)
+        XCTAssertEqual(lastAction.type, .dismissedWithCompletionHandler)
+        XCTAssertTrue(didRun)
     }
 
     /// `navigate(to:)` with `.enterpriseSingleSignOn` pushes the enterprise single sign-on view onto the stack

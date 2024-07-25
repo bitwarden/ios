@@ -109,11 +109,16 @@ class CompleteRegistrationProcessorTests: BitwardenTestCase {
         client.results = [.httpFailure(URLError(.timedOut) as Error), .httpSuccess(testData: .createAccountRequest)]
 
         await subject.perform(.completeRegistration)
+        var dismissAction: DismissAction?
+        if case let .dismissWithAction(onDismiss) = coordinator.routes.last {
+            dismissAction = onDismiss
+        }
+        XCTAssertNotNil(dismissAction)
+        dismissAction?.action()
 
         XCTAssertEqual(client.requests.count, 2)
         XCTAssertEqual(client.requests[0].url, URL(string: "https://api.pwnedpasswords.com/range/e6b6a"))
         XCTAssertEqual(client.requests[1].url, URL(string: "https://example.com/identity/accounts/register/finish"))
-        XCTAssertEqual(coordinator.routes.last, .dismiss)
 
         XCTAssertFalse(coordinator.isLoadingOverlayShowing)
         XCTAssertEqual(
@@ -311,43 +316,6 @@ class CompleteRegistrationProcessorTests: BitwardenTestCase {
         XCTAssertTrue(coordinator.loadingOverlaysShown.isEmpty)
     }
 
-    /// `perform(_:)` with `.completeRegistration` and a captcha required error occurs
-    /// navigates to the `.captcha` route.
-    func test_perform_completeRegistration_captchaError() async {
-        subject.state = .fixture()
-
-        client.result = .httpFailure(CreateAccountRequestError.captchaRequired(hCaptchaSiteCode: "token"))
-
-        await subject.perform(.completeRegistration)
-
-        XCTAssertEqual(client.requests.count, 1)
-        XCTAssertEqual(captchaService.callbackUrlSchemeGets, 1)
-        XCTAssertEqual(captchaService.generateCaptchaSiteKey, "token")
-        XCTAssertEqual(coordinator.routes.last, .captcha(url: .example, callbackUrlScheme: "callback"))
-
-        XCTAssertFalse(coordinator.isLoadingOverlayShowing)
-        XCTAssertEqual(coordinator.loadingOverlaysShown, [LoadingOverlayState(title: Localizations.creatingAccount)])
-    }
-
-    /// `perform(_:)` with `.completeRegistration` and a captcha flow error records the error.
-    func test_perform_completeRegistration_captchaFlowError() async {
-        captchaService.generateCaptchaUrlResult = .failure(BitwardenTestError.example)
-        client.result = .httpFailure(CreateAccountRequestError.captchaRequired(hCaptchaSiteCode: "token"))
-
-        subject.state.userEmail = "email@example.com"
-        subject.state.passwordText = "password1234"
-        subject.state.retypePasswordText = "password1234"
-        subject.state.isCheckDataBreachesToggleOn = false
-
-        await subject.perform(.completeRegistration)
-
-        XCTAssertEqual(coordinator.alertShown.last, .networkResponseError(BitwardenTestError.example))
-        XCTAssertEqual(errorReporter.errors.last as? BitwardenTestError, .example)
-
-        XCTAssertFalse(coordinator.isLoadingOverlayShowing)
-        XCTAssertEqual(coordinator.loadingOverlaysShown, [LoadingOverlayState(title: Localizations.creatingAccount)])
-    }
-
     /// `perform(_:)` with `.completeRegistration` presents an alert when the password hint is too long.
     func test_perform_completeRegistration_hintTooLong() async {
         subject.state = .fixture(passwordHintText: """
@@ -428,10 +396,16 @@ class CompleteRegistrationProcessorTests: BitwardenTestCase {
 
         try await alert.tapAction(title: Localizations.tryAgain)
 
+        var dismissAction: DismissAction?
+        if case let .dismissWithAction(onDismiss) = coordinator.routes.last {
+            dismissAction = onDismiss
+        }
+        XCTAssertNotNil(dismissAction)
+        dismissAction?.action()
+
         XCTAssertEqual(client.requests.count, 2)
         XCTAssertEqual(client.requests[0].url, URL(string: "https://example.com/identity/accounts/register/finish"))
         XCTAssertEqual(client.requests[1].url, URL(string: "https://example.com/identity/accounts/register/finish"))
-        XCTAssertEqual(coordinator.routes.last, .dismiss)
 
         XCTAssertFalse(coordinator.isLoadingOverlayShowing)
         XCTAssertEqual(
@@ -484,10 +458,16 @@ class CompleteRegistrationProcessorTests: BitwardenTestCase {
 
         try await alert.tapAction(title: Localizations.tryAgain)
 
+        var dismissAction: DismissAction?
+        if case let .dismissWithAction(onDismiss) = coordinator.routes.last {
+            dismissAction = onDismiss
+        }
+        XCTAssertNotNil(dismissAction)
+        dismissAction?.action()
+
         XCTAssertEqual(client.requests.count, 2)
         XCTAssertEqual(client.requests[0].url, URL(string: "https://example.com/identity/accounts/register/finish"))
         XCTAssertEqual(client.requests[1].url, URL(string: "https://example.com/identity/accounts/register/finish"))
-        XCTAssertEqual(coordinator.routes.last, .dismiss)
 
         XCTAssertFalse(coordinator.isLoadingOverlayShowing)
         XCTAssertEqual(

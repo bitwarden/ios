@@ -19,36 +19,39 @@ struct StartRegistrationView: View {
         VStack(spacing: 16) {
             VStack(alignment: .leading, spacing: 0) {
                 email
+                    .padding(.bottom, 8)
 
                 RegionSelector(
                     selectorLabel: Localizations.creatingOn,
                     regionName: store.state.region.baseUrlDescription
                 ) {
                     await store.perform(.regionTapped)
-                }.padding(.bottom, 8)
-
-                name.padding(.bottom, 16)
-
-                receiveMarketingToggle.padding(.bottom, 16)
-
-                continueButton.padding(.bottom, 16)
-
-                termsAndPrivacyText.padding(.bottom, 16)
-            }
-        }.navigationBar(title: Localizations.createAccount, titleDisplayMode: .inline)
-            .scrollView()
-            .task {
-                await store.perform(.appeared)
-            }
-            .toolbar {
-                cancelToolbarItem {
-                    store.send(.dismiss)
                 }
             }
-            .toast(store.binding(
-                get: \.toast,
-                send: StartRegistrationAction.toastShown
-            ))
+
+            name
+
+            receiveMarketingToggle
+
+            continueButton
+
+            termsAndPrivacyText
+                .frame(maxWidth: .infinity)
+        }
+        .navigationBar(title: Localizations.createAccount, titleDisplayMode: .inline)
+        .scrollView()
+        .task {
+            await store.perform(.appeared)
+        }
+        .toolbar {
+            cancelToolbarItem {
+                store.send(.dismiss)
+            }
+        }
+        .toast(store.binding(
+            get: \.toast,
+            send: StartRegistrationAction.toastShown
+        ))
     }
 
     // MARK: Private views
@@ -63,7 +66,7 @@ struct StartRegistrationView: View {
             ),
             accessibilityIdentifier: "EmailAddressEntry"
         )
-        .textFieldConfiguration(.email).padding(.bottom, 8)
+        .textFieldConfiguration(.email)
     }
 
     /// The text fields for the user's email and password.
@@ -94,9 +97,10 @@ struct StartRegistrationView: View {
 
     /// The button pressed when the user attempts to create the account.
     private var termsAndPrivacyText: some View {
-        Text(.init(store.state.termsAndPrivacyDisclaimerText))
+        Text(LocalizedStringKey(store.state.termsAndPrivacyDisclaimerText))
             .styleGuide(.footnote)
             .tint(Asset.Colors.primaryBitwarden.swiftUIColor)
+            .foregroundColor(Asset.Colors.textPrimary.swiftUIColor)
             .padding([.bottom], 32)
             .multilineTextAlignment(.center)
     }
@@ -108,8 +112,9 @@ struct StartRegistrationView: View {
                 get: \.isReceiveMarketingToggleOn,
                 send: StartRegistrationAction.toggleReceiveMarketing
             )) {
-                Text(.init(store.state.receiveMarketingEmailsText))
+                Text(LocalizedStringKey(store.state.receiveMarketingEmailsText))
                     .tint(Asset.Colors.primaryBitwarden.swiftUIColor)
+                    .foregroundColor(Asset.Colors.textPrimary.swiftUIColor)
                     .styleGuide(.subheadline)
             }
             .accessibilityIdentifier("ReceiveMarketingToggle")

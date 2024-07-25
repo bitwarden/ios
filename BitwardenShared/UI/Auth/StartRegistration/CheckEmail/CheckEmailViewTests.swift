@@ -34,7 +34,7 @@ class CheckEmailViewTests: BitwardenTestCase {
     func test_cancelButton_tap() throws {
         let button = try subject.inspect().find(button: Localizations.cancel)
         try button.tap()
-        assertSnapshot(matching: subject, as: .defaultPortrait)
+        XCTAssertEqual(processor.dispatchedActions.last, .dismissTapped)
     }
 
     // MARK: Snapshots
