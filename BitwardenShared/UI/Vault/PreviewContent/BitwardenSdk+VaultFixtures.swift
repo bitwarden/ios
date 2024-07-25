@@ -30,7 +30,7 @@ extension Cipher {
         attachments: [Attachment]? = nil,
         card: Card? = nil,
         collectionIds: [String] = [],
-        creationDate: DateTime = Date(year: 2024, month: 1, day: 1),
+        creationDate: DateTime = Date(year: 2023, month: 11, day: 5, hour: 9, minute: 41),
         deletedDate: Date? = nil,
         edit: Bool = true,
         favorite: Bool = false,
@@ -47,7 +47,7 @@ extension Cipher {
         organizationUseTotp: Bool = false,
         passwordHistory: [PasswordHistory]? = nil,
         reprompt: BitwardenSdk.CipherRepromptType = .none,
-        revisionDate: Date = Date(year: 2024, month: 1, day: 1),
+        revisionDate: Date = Date(year: 2023, month: 11, day: 5, hour: 9, minute: 41),
         secureNote: SecureNote? = nil,
         type: BitwardenSdk.CipherType = .login,
         viewPassword: Bool = true

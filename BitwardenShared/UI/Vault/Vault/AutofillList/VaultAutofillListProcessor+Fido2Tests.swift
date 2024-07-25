@@ -312,20 +312,34 @@ class VaultAutofillListProcessorFido2Tests: BitwardenTestCase { // swiftlint:dis
 
     /// `perform(_:)` with `.search()` performs a cipher search and updates the state with the results
     /// when on autofillFido2VaulltList
-    func test_perform_search_onAutofillFido2VaultList() {
+    func test_perform_search_onAutofillFido2VaultList() { // swiftlint:disable:this function_body_length
         let passkeyParameters = MockPasskeyCredentialRequestParameters()
         appExtensionDelegate.extensionMode = .autofillFido2VaultList([], passkeyParameters)
+        let expectedCredentialId = Data(repeating: 123, count: 16)
 
         let ciphers: [CipherView] = [.fixture(id: "1"), .fixture(id: "2"), .fixture(id: "3")]
-        vaultRepository.searchCipherAutofillSubject.value = ciphers
-
-        fido2UserInterfaceHelper.availableCredentialsForAuthentication = [
-            .fixture(id: "2"),
-            .fixture(id: "3"),
-            .fixture(id: "4"),
+        let expectedSections = [
+            VaultListSection(
+                id: Localizations.passkeysForX("Bit"),
+                items: ciphers.suffix(from: 1).compactMap { cipher in
+                    VaultListItem(
+                        cipherView: cipher,
+                        fido2CredentialAutofillView: .fixture(
+                            credentialId: expectedCredentialId,
+                            cipherId: cipher.id ?? "",
+                            rpId: "myApp.com"
+                        )
+                    )
+                },
+                name: Localizations.passkeysForX("Bit")
+            ),
+            VaultListSection(
+                id: Localizations.passwordsForX("Bit"),
+                items: ciphers.compactMap { VaultListItem(cipherView: $0) },
+                name: Localizations.passwordsForX("Bit")
+            ),
         ]
-        let expectedCredentialId = Data(repeating: 123, count: 16)
-        setupDefaultDecryptFido2AutofillCredentialsMocker(expectedCredentialId: expectedCredentialId)
+        vaultRepository.searchCipherAutofillSubject.value = expectedSections
 
         let task = Task {
             await subject.perform(.search("Bit"))
@@ -362,306 +376,4 @@ class VaultAutofillListProcessorFido2Tests: BitwardenTestCase { // swiftlint:dis
 
         XCTAssertFalse(subject.state.showNoResults)
     }
-
-    /// `perform(_:)` with `.search()` performs a cipher search and updates the state with the results
-    /// when on autofillFido2VaulltList and available Fido2 credentials is empty
-    func test_perform_search_onAutofillFido2VaultListAvailableCredentialsEmpty() {
-        let passkeyParameters = MockPasskeyCredentialRequestParameters()
-        appExtensionDelegate.extensionMode = .autofillFido2VaultList([], passkeyParameters)
-
-        let ciphers: [CipherView] = [.fixture(id: "1"), .fixture(id: "2"), .fixture(id: "3")]
-        vaultRepository.searchCipherAutofillSubject.value = ciphers
-
-        fido2UserInterfaceHelper.availableCredentialsForAuthentication = []
-        let expectedCredentialId = Data(repeating: 123, count: 16)
-        setupDefaultDecryptFido2AutofillCredentialsMocker(expectedCredentialId: expectedCredentialId)
-
-        let task = Task {
-            await subject.perform(.search("Bit"))
-        }
-
-        waitFor(!subject.state.ciphersForSearch.isEmpty)
-        task.cancel()
-
-        XCTAssertEqual(
-            subject.state.ciphersForSearch.count,
-            1
-        )
-        XCTAssertEqual(
-            subject.state.ciphersForSearch[0],
-            VaultListSection(
-                id: Localizations.passwordsForX("Bit"),
-                items: ciphers.compactMap { VaultListItem(cipherView: $0) },
-                name: Localizations.passwordsForX("Bit")
-            )
-        )
-
-        XCTAssertFalse(subject.state.showNoResults)
-    }
-
-    /// `perform(_:)` with `.search()` performs a cipher search and updates the state with the results
-    /// when on autofillFido2VaulltList and search results is empty
-    func test_perform_search_onAutofillFido2VaultListWithSearchResultsEmpty() {
-        let passkeyParameters = MockPasskeyCredentialRequestParameters()
-        appExtensionDelegate.extensionMode = .autofillFido2VaultList([], passkeyParameters)
-
-        let ciphers: [CipherView] = []
-        vaultRepository.searchCipherAutofillSubject.value = ciphers
-
-        fido2UserInterfaceHelper.availableCredentialsForAuthentication = [
-            .fixture(id: "2"),
-            .fixture(id: "3"),
-            .fixture(id: "4"),
-        ]
-        let expectedCredentialId = Data(repeating: 123, count: 16)
-        setupDefaultDecryptFido2AutofillCredentialsMocker(expectedCredentialId: expectedCredentialId)
-
-        let task = Task {
-            await subject.perform(.search("Bit"))
-        }
-
-        waitFor(subject.state.showNoResults)
-        task.cancel()
-
-        XCTAssertTrue(subject.state.ciphersForSearch.isEmpty)
-    }
-
-    /// `perform(_:)` with `.search()` performs a cipher search and throws when decrypting the Fido2 credentials
-    /// which shows an alert and logs.
-    func test_perform_search_onAutofillFido2VaultListThrows() {
-        let passkeyParameters = MockPasskeyCredentialRequestParameters()
-        appExtensionDelegate.extensionMode = .autofillFido2VaultList([], passkeyParameters)
-
-        let ciphers: [CipherView] = [.fixture(id: "2")]
-        vaultRepository.searchCipherAutofillSubject.value = ciphers
-
-        fido2UserInterfaceHelper.availableCredentialsForAuthentication = [
-            .fixture(id: "2"),
-            .fixture(id: "3"),
-            .fixture(id: "4"),
-        ]
-        clientService.mockPlatform.fido2Mock.decryptFido2AutofillCredentialsMocker
-            .throwing(BitwardenTestError.example)
-
-        let task = Task {
-            await subject.perform(.search("Bit"))
-        }
-
-        waitFor(!errorReporter.errors.isEmpty)
-        task.cancel()
-
-        XCTAssertTrue(subject.state.ciphersForSearch.isEmpty)
-        XCTAssertEqual(errorReporter.errors as? [BitwardenTestError], [.example])
-        XCTAssertEqual(coordinator.alertShown.last, .defaultAlert(title: Localizations.anErrorHasOccurred))
-    }
-
-    /// `perform(_:)` with `.streamAutofillItems` streams the list of autofill ciphers for Fido2.
-    func test_perform_streamAutofillItems_onAutofillFido2VaultList() {
-        let passkeyParameters = MockPasskeyCredentialRequestParameters()
-        appExtensionDelegate.extensionMode = .autofillFido2VaultList([], passkeyParameters)
-        let expectedUri = "https://myApp.com"
-        appExtensionDelegate.uri = expectedUri
-
-        fido2UserInterfaceHelper.availableCredentialsForAuthentication = [
-            .fixture(id: "2"),
-            .fixture(id: "3"),
-        ]
-        let expectedCredentialId = Data(repeating: 123, count: 16)
-        setupDefaultDecryptFido2AutofillCredentialsMocker(expectedCredentialId: expectedCredentialId)
-
-        let ciphers: [CipherView] = [.fixture(id: "1"), .fixture(id: "2"), .fixture(id: "3")]
-        vaultRepository.ciphersAutofillSubject.value = ciphers
-
-        let task = Task {
-            await subject.perform(.streamAutofillItems)
-        }
-
-        waitFor(!subject.state.vaultListSections.isEmpty)
-        task.cancel()
-
-        XCTAssertEqual(
-            subject.state.vaultListSections[0],
-            VaultListSection(
-                id: Localizations.passkeysForX(passkeyParameters.relyingPartyIdentifier),
-                items: ciphers.suffix(from: 1).compactMap { cipher in
-                    VaultListItem(
-                        cipherView: cipher,
-                        fido2CredentialAutofillView: .fixture(
-                            credentialId: expectedCredentialId,
-                            cipherId: cipher.id ?? "",
-                            rpId: "myApp.com"
-                        )
-                    )
-                },
-                name: Localizations.passkeysForX(passkeyParameters.relyingPartyIdentifier)
-            )
-        )
-        XCTAssertEqual(
-            subject.state.vaultListSections[1],
-            VaultListSection(
-                id: Localizations.passwordsForX(expectedUri),
-                items: ciphers.compactMap { VaultListItem(cipherView: $0) },
-                name: Localizations.passwordsForX(expectedUri)
-            )
-        )
-    }
-
-    /// `perform(_:)` with `.streamAutofillItems` streams the list of autofill ciphers for Fido2 when no uri.
-    func test_perform_streamAutofillItems_onAutofillFido2VaultListNoUri() {
-        let passkeyParameters = MockPasskeyCredentialRequestParameters()
-        appExtensionDelegate.extensionMode = .autofillFido2VaultList([], passkeyParameters)
-        appExtensionDelegate.uri = nil
-
-        fido2UserInterfaceHelper.availableCredentialsForAuthentication = [
-            .fixture(id: "2"),
-            .fixture(id: "3"),
-        ]
-        let expectedCredentialId = Data(repeating: 123, count: 16)
-        setupDefaultDecryptFido2AutofillCredentialsMocker(expectedCredentialId: expectedCredentialId)
-
-        let ciphers: [CipherView] = [.fixture(id: "1"), .fixture(id: "2"), .fixture(id: "3")]
-        vaultRepository.ciphersAutofillSubject.value = ciphers
-
-        let task = Task {
-            await subject.perform(.streamAutofillItems)
-        }
-
-        waitFor(!subject.state.vaultListSections.isEmpty)
-        task.cancel()
-
-        XCTAssertEqual(
-            subject.state.vaultListSections[0],
-            VaultListSection(
-                id: Localizations.passkeysForX(passkeyParameters.relyingPartyIdentifier),
-                items: ciphers.suffix(from: 1).compactMap { cipher in
-                    VaultListItem(
-                        cipherView: cipher,
-                        fido2CredentialAutofillView: .fixture(
-                            credentialId: expectedCredentialId,
-                            cipherId: cipher.id ?? "",
-                            rpId: "myApp.com"
-                        )
-                    )
-                },
-                name: Localizations.passkeysForX(passkeyParameters.relyingPartyIdentifier)
-            )
-        )
-        XCTAssertEqual(
-            subject.state.vaultListSections[1],
-            VaultListSection(
-                id: Localizations.passwords,
-                items: ciphers.compactMap { VaultListItem(cipherView: $0) },
-                name: Localizations.passwords
-            )
-        )
-    }
-
-    /// `perform(_:)` with `.streamAutofillItems` streams the list of autofill ciphers for Fido2 when
-    /// no available Fido2 credentials.
-    func test_perform_streamAutofillItems_onAutofillFido2VaultListNoAvailableFido2Credentials() {
-        let passkeyParameters = MockPasskeyCredentialRequestParameters()
-        appExtensionDelegate.extensionMode = .autofillFido2VaultList([], passkeyParameters)
-        appExtensionDelegate.uri = nil
-
-        fido2UserInterfaceHelper.availableCredentialsForAuthentication = []
-
-        let ciphers: [CipherView] = [.fixture(id: "1"), .fixture(id: "2"), .fixture(id: "3")]
-        vaultRepository.ciphersAutofillSubject.value = ciphers
-
-        let task = Task {
-            await subject.perform(.streamAutofillItems)
-        }
-
-        waitFor(!subject.state.vaultListSections.isEmpty)
-        task.cancel()
-
-        XCTAssertEqual(subject.state.vaultListSections.count, 1)
-        XCTAssertEqual(
-            subject.state.vaultListSections[0],
-            VaultListSection(
-                id: Localizations.passwords,
-                items: ciphers.compactMap { VaultListItem(cipherView: $0) },
-                name: Localizations.passwords
-            )
-        )
-    }
-
-    /// `perform(_:)` with `.streamAutofillItems` streams the list of autofill ciphers for Fido2 when
-    /// decrypting available Fido2 credentials is empty thus logs error and skips that credential.
-    func test_perform_streamAutofillItems_onAutofillFido2VaultListDecryptFido2CredentialsEmptyError() {
-        let passkeyParameters = MockPasskeyCredentialRequestParameters()
-        appExtensionDelegate.extensionMode = .autofillFido2VaultList([], passkeyParameters)
-        let expectedUri = "https://myApp.com"
-        appExtensionDelegate.uri = expectedUri
-
-        fido2UserInterfaceHelper.availableCredentialsForAuthentication = [
-            .fixture(id: "1"),
-            .fixture(id: "2"),
-            .fixture(id: "3"),
-        ]
-        let expectedCredentialId = Data(repeating: 123, count: 16)
-        setupDefaultDecryptFido2AutofillCredentialsMocker(
-            expectedCredentialId: expectedCredentialId,
-            cipherIdToReturnEmptyFido2Credentials: "1"
-        )
-
-        let ciphers: [CipherView] = [.fixture(id: "1"), .fixture(id: "2"), .fixture(id: "3")]
-        vaultRepository.ciphersAutofillSubject.value = ciphers
-
-        let task = Task {
-            await subject.perform(.streamAutofillItems)
-        }
-
-        waitFor(!subject.state.vaultListSections.isEmpty)
-        task.cancel()
-
-        XCTAssertEqual(
-            subject.state.vaultListSections[0],
-            VaultListSection(
-                id: Localizations.passkeysForX(passkeyParameters.relyingPartyIdentifier),
-                items: ciphers.suffix(from: 1).compactMap { cipher in
-                    VaultListItem(
-                        cipherView: cipher,
-                        fido2CredentialAutofillView: .fixture(
-                            credentialId: expectedCredentialId,
-                            cipherId: cipher.id ?? "",
-                            rpId: "myApp.com"
-                        )
-                    )
-                },
-                name: Localizations.passkeysForX(passkeyParameters.relyingPartyIdentifier)
-            )
-        )
-        XCTAssertEqual(
-            subject.state.vaultListSections[1],
-            VaultListSection(
-                id: Localizations.passwordsForX(expectedUri),
-                items: ciphers.compactMap { VaultListItem(cipherView: $0) },
-                name: Localizations.passwordsForX(expectedUri)
-            )
-        )
-        XCTAssertEqual(errorReporter.errors as? [Fido2Error], [Fido2Error.decryptFido2AutofillCredentialsEmpty])
-    }
-
-    // MARK: Private
-
-    private func setupDefaultDecryptFido2AutofillCredentialsMocker(
-        expectedCredentialId: Data,
-        cipherIdToReturnEmptyFido2Credentials: String? = nil
-    ) {
-        clientService.mockPlatform.fido2Mock.decryptFido2AutofillCredentialsMocker
-            .withResult { cipherView in
-                guard let cipherId = cipherView.id,
-                      cipherId != cipherIdToReturnEmptyFido2Credentials else {
-                    return []
-                }
-                return [
-                    .fixture(
-                        credentialId: expectedCredentialId,
-                        cipherId: cipherId,
-                        rpId: "myApp.com"
-                    ),
-                ]
-            }
-    }
-} // swiftlint:disable:this file_length
+}

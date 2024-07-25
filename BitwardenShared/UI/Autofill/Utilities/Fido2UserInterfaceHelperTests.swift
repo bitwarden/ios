@@ -294,19 +294,20 @@ class Fido2UserInterfaceHelperTests: BitwardenTestCase { // swiftlint:disable:th
         }
 
         try await waitForAsync {
-            self.subject.availableCredentialsForAuthentication == expectedAvailableCredentials
-        }
-
-        try await waitForAsync {
             (self.subject as? DefaultFido2UserInterfaceHelper)?.credentialForAuthenticationContinuation != nil
         }
+
+        var publisher = subject.availableCredentialsForAuthenticationPublisher()
+            .values
+            .makeAsyncIterator()
+        let availableCredentials = try await publisher.next()
+        XCTAssertEqual(availableCredentials, expectedAvailableCredentials)
 
         let expectedResult = CipherView.fixture(id: "1")
         subject.pickedCredentialForAuthentication(result: .success(expectedResult))
 
         let result = try await task.value
         XCTAssertEqual(result.cipher, expectedResult)
-        XCTAssertNil(subject.availableCredentialsForAuthentication)
     }
 
     /// `pickCredentialForAuthentication(availableCredentials:)` autofilling from list throws

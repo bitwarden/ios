@@ -24,6 +24,18 @@ public protocol Fido2AppExtensionDelegate: AppExtensionDelegate {
 }
 
 extension Fido2AppExtensionDelegate {
+    /// Gets the mode in which the autofill list should run.
+    var autofillListMode: AutofillListMode {
+        switch extensionMode {
+        case .autofillFido2VaultList:
+            .combinedMultipleSections
+        case .registerFido2Credential:
+            .combinedSingleSection
+        default:
+            .passwords
+        }
+    }
+
     /// Whether the autofill extension is creating a Fido2 credential.
     var isCreatingFido2Credential: Bool {
         guard case .registerFido2Credential = extensionMode else {
@@ -38,5 +50,22 @@ extension Fido2AppExtensionDelegate {
             return false
         }
         return true
+    }
+
+    /// Gets the current relying party identifier depending on the extension mode.
+    var rpID: String? {
+        switch extensionMode {
+        case let .autofillFido2VaultList(_, parameters):
+            return parameters.relyingPartyIdentifier
+        case let .registerFido2Credential(passkeyRequest):
+            guard #available(iOSApplicationExtension 17.0, *),
+                  let asPasskeyRequest = passkeyRequest as? ASPasskeyCredentialRequest,
+                  let credentialIdentity = asPasskeyRequest.credentialIdentity as? ASPasskeyCredentialIdentity else {
+                return nil
+            }
+            return credentialIdentity.relyingPartyIdentifier
+        default:
+            return nil
+        }
     }
 }

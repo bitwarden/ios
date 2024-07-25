@@ -159,7 +159,12 @@ class VaultAutofillListProcessorTests: BitwardenTestCase {
     /// `perform(_:)` with `.search()` performs a cipher search and updates the state with the results.
     func test_perform_search() {
         let ciphers: [CipherView] = [.fixture(id: "1"), .fixture(id: "2"), .fixture(id: "3")]
-        vaultRepository.searchCipherAutofillSubject.value = ciphers
+        let expectedSection = VaultListSection(
+            id: "",
+            items: ciphers.compactMap { VaultListItem(cipherView: $0) },
+            name: ""
+        )
+        vaultRepository.searchCipherAutofillSubject.value = [expectedSection]
 
         let task = Task {
             await subject.perform(.search("Bit"))
@@ -168,7 +173,7 @@ class VaultAutofillListProcessorTests: BitwardenTestCase {
         waitFor(!subject.state.ciphersForSearch.isEmpty)
         task.cancel()
 
-        XCTAssertEqual(subject.state.ciphersForSearch[0].items, ciphers.compactMap { VaultListItem(cipherView: $0) })
+        XCTAssertEqual(subject.state.ciphersForSearch, [expectedSection])
         XCTAssertFalse(subject.state.showNoResults)
     }
 
@@ -210,7 +215,12 @@ class VaultAutofillListProcessorTests: BitwardenTestCase {
     /// `perform(_:)` with `.streamAutofillItems` streams the list of autofill ciphers.
     func test_perform_streamAutofillItems() {
         let ciphers: [CipherView] = [.fixture(id: "1"), .fixture(id: "2"), .fixture(id: "3")]
-        vaultRepository.ciphersAutofillSubject.value = ciphers
+        let expectedSection = VaultListSection(
+            id: "",
+            items: ciphers.compactMap { VaultListItem(cipherView: $0) },
+            name: ""
+        )
+        vaultRepository.ciphersAutofillSubject.value = [expectedSection]
 
         let task = Task {
             await subject.perform(.streamAutofillItems)
@@ -219,7 +229,7 @@ class VaultAutofillListProcessorTests: BitwardenTestCase {
         waitFor(!subject.state.vaultListSections.isEmpty)
         task.cancel()
 
-        XCTAssertEqual(subject.state.vaultListSections[0].items, ciphers.compactMap { VaultListItem(cipherView: $0) })
+        XCTAssertEqual(subject.state.vaultListSections, [expectedSection])
     }
 
     /// `perform(_:)` with `.streamAutofillItems` logs an error if one occurs.

@@ -16,12 +16,13 @@ protocol Fido2UserInterfaceHelperDelegate: Fido2UserVerificationMediatorDelegate
 /// A helper to extend `Fido2UserInterface` protocol capabilities for Fido2 flows
 /// depending on user interaction.
 protocol Fido2UserInterfaceHelper: Fido2UserInterface {
-    /// The available credentials that can be used for authentication.
-    var availableCredentialsForAuthentication: [BitwardenSdk.CipherView]? { get }
     /// The `BitwardenSdk.CheckUserOptions` the SDK provides while in Fido2 creation flow.
     var fido2CreationOptions: BitwardenSdk.CheckUserOptions? { get }
     /// The `BitwardenSdk.Fido2CredentialNewView` the SDK provides while in FIdo2 creation flow.
     var fido2CredentialNewView: BitwardenSdk.Fido2CredentialNewView? { get }
+
+    /// A publisher for the available credentials that can be used for authentication.
+    func availableCredentialsForAuthenticationPublisher() -> AnyPublisher<[BitwardenSdk.CipherView]?, Error>
 
     /// Verifies the user depending on the `userVerificationPreference` and `credential`.
     ///
@@ -71,7 +72,9 @@ class DefaultFido2UserInterfaceHelper: Fido2UserInterfaceHelper {
     /// Continuation when picking a credential for creation.
     var credentialForCreationContinuation: CheckedContinuation<CheckUserAndPickCredentialForCreationResult, Error>?
 
-    private(set) var availableCredentialsForAuthentication: [BitwardenSdk.CipherView]?
+    private var credentialsForAuthenticationSubject = CurrentValueSubject<[BitwardenSdk.CipherView]?, Error>(
+        nil
+    )
     private(set) var fido2CreationOptions: BitwardenSdk.CheckUserOptions?
     private(set) var fido2CredentialNewView: BitwardenSdk.Fido2CredentialNewView?
 
@@ -79,6 +82,11 @@ class DefaultFido2UserInterfaceHelper: Fido2UserInterfaceHelper {
     /// - Parameter fido2UserVerificationMediator: Mediator which manages user verification on Fido2 flows
     init(fido2UserVerificationMediator: Fido2UserVerificationMediator) {
         self.fido2UserVerificationMediator = fido2UserVerificationMediator
+    }
+
+    func availableCredentialsForAuthenticationPublisher() -> AnyPublisher<[BitwardenSdk.CipherView]?, Error> {
+        credentialsForAuthenticationSubject
+            .eraseToAnyPublisher()
     }
 
     func checkUser(
@@ -129,11 +137,7 @@ class DefaultFido2UserInterfaceHelper: Fido2UserInterfaceHelper {
             return CipherViewWrapper(cipher: availableCredentials[0])
         }
 
-        defer {
-            availableCredentialsForAuthentication = nil
-        }
-
-        availableCredentialsForAuthentication = availableCredentials
+        credentialsForAuthenticationSubject.send(availableCredentials)
         let pickedCredential = try await withCheckedThrowingContinuation { continuation in
             self.credentialForAuthenticationContinuation = continuation
         }
