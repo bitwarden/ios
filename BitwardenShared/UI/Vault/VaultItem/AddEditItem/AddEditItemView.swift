@@ -230,11 +230,12 @@ private extension AddEditItemView {
 
     var notesSection: some View {
         SectionView(Localizations.notes) {
-            BitwardenTextField(
+            BitwardenMultilineTextField(
                 text: store.binding(
                     get: \.notes,
                     send: AddEditItemAction.notesChanged
-                )
+                ),
+                accessibilityIdentifier: Localizations.notes
             )
             .accessibilityLabel(Localizations.notes)
         }
