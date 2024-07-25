@@ -33,7 +33,7 @@ class VaultAutofillListViewTests: BitwardenTestCase {
     func test_addItemButton_tap() throws {
         let button = try subject.inspect().find(button: Localizations.add)
         try button.tap()
-        XCTAssertEqual(processor.dispatchedActions.last, .addTapped)
+        XCTAssertEqual(processor.dispatchedActions.last, .addTapped(fromToolbar: true))
     }
 
     /// Tapping the cancel button dispatches the `.cancelTapped` action.
@@ -102,14 +102,15 @@ class VaultAutofillListViewTests: BitwardenTestCase {
         )
     }
 
-    /// The populated view renders correctly when mixing passwords and Fido2 credentials.
-    func test_snapshot_vaultAutofillList_populatedWithFido2() { // swiftlint:disable:this function_body_length
+    /// The populated view renders correctly when mixing passwords and Fido2 credentials on Fido2 creation context.
+    func test_snapshot_vaultAutofillList_fido2Creation() { // swiftlint:disable:this function_body_length
         let account = ProfileSwitcherItem.anneAccount
         processor.state.profileSwitcherState.accounts = [account]
         processor.state.profileSwitcherState.activeAccountId = account.userId
+        processor.state.isCreatingFido2Credential = true
         processor.state.vaultListSections = [
             VaultListSection(
-                id: "",
+                id: Localizations.chooseALoginToSaveThisPasskeyTo,
                 items: [
                     .init(
                         cipherView: .fixture(
@@ -163,7 +164,7 @@ class VaultAutofillListViewTests: BitwardenTestCase {
                         )
                     )!,
                 ],
-                name: ""
+                name: Localizations.chooseALoginToSaveThisPasskeyTo
             ),
         ]
         assertSnapshots(
