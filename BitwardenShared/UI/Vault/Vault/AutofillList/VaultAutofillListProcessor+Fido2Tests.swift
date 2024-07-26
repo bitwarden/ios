@@ -257,6 +257,27 @@ class VaultAutofillListProcessorFido2Tests: BitwardenTestCase { // swiftlint:dis
     }
 
     /// `vaultItemTapped(_:)` with Fido2 credential signals the `Fido2UserInterfaceHelper`
+    /// that a cipher has been picked for authentication when in `autofillFido2VaultList` mode.
+    @available(iOSApplicationExtension 17.0, *)
+    func test_perform_vaultItemTapped_fido2PickedForAuthentication() async {
+        appExtensionDelegate.extensionMode = .autofillFido2VaultList([], MockPasskeyCredentialRequestParameters())
+        let vaultListItem = VaultListItem(
+            cipherView: CipherView.fixture(),
+            fido2CredentialAutofillView: .fixture()
+        )!
+
+        await subject.perform(.vaultItemTapped(vaultListItem))
+
+        fido2UserInterfaceHelper.pickedCredentialForAuthenticationMocker.assertUnwrapping { result in
+            guard case let .success(pickedResult) = result,
+                  pickedResult.id == vaultListItem.id else {
+                return false
+            }
+            return true
+        }
+    }
+
+    /// `vaultItemTapped(_:)` with Fido2 credential signals the `Fido2UserInterfaceHelper`
     /// that a cipher has been picked when user confirms overwriting it.
     @available(iOSApplicationExtension 17.0, *)
     func test_perform_vaultItemTapped_fido2PickedForCreationWithAlreadyFido2Credential() async throws {

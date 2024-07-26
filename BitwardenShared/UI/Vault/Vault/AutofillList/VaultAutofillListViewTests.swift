@@ -36,6 +36,16 @@ class VaultAutofillListViewTests: BitwardenTestCase {
         XCTAssertEqual(processor.dispatchedActions.last, .addTapped(fromToolbar: true))
     }
 
+    /// Tapping the add an item button dispatches the `.addTapped` action.
+    func test_addItemButton_tap_fido2CreationFlowEmptyView() throws {
+        processor.state.isCreatingFido2Credential = true
+        processor.state.vaultListSections = []
+        processor.state.emptyViewButtonText = Localizations.savePasskeyAsNewLogin
+        let button = try subject.inspect().find(button: Localizations.savePasskeyAsNewLogin)
+        try button.tap()
+        XCTAssertEqual(processor.dispatchedActions.last, .addTapped(fromToolbar: false))
+    }
+
     /// Tapping the cancel button dispatches the `.cancelTapped` action.
     func test_cancelButton_tap() throws {
         let button = try subject.inspect().find(button: Localizations.cancel)
