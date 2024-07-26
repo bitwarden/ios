@@ -335,6 +335,84 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
     }
 
     /// `ciphersAutofillPublisher(availableFido2CredentialsPublisher:mode:rpID:uri:)`
+    /// returns a publisher for the list of a user's ciphers matching a URI in `.combinedSingleSection` mode
+    /// when decrypting Fido2 credentials returns empty array which logs it and ignores the cipher to be returned.
+    func test_ciphersAutofillPublisher_mode_combinedSingle_decryptFido2CredentialsEmpty() async throws {
+        // swiftlint:disable:previous function_body_length
+        let ciphers: [Cipher] = [
+            .fixture(
+                id: "1",
+                login: .fixture(
+                    fido2Credentials: [.fixture()],
+                    uris: [
+                        .fixture(
+                            uri: "https://bitwarden.com",
+                            match: .exact
+                        ),
+                    ]
+                ),
+                name: "Bitwarden"
+            ),
+            .fixture(
+                creationDate: Date(year: 2024, month: 1, day: 1),
+                id: "2",
+                login: .fixture(uris: [.fixture(uri: "https://example.com", match: .exact)]),
+                name: "Example",
+                revisionDate: Date(year: 2024, month: 1, day: 1)
+            ),
+            .fixture(
+                creationDate: Date(year: 2024, month: 1, day: 1),
+                id: "3",
+                login: .fixture(
+                    fido2Credentials: [.fixture()],
+                    uris: [
+                        .fixture(
+                            uri: "https://example.com",
+                            match: .exact
+                        ),
+                    ]
+                ),
+                name: "Example 3",
+                revisionDate: Date(year: 2024, month: 1, day: 1)
+            ),
+        ]
+        cipherService.ciphersSubject.value = ciphers
+
+        clientService.mockPlatform.fido2Mock.decryptFido2AutofillCredentialsMocker
+            .withResult([])
+
+        let expectedRpID = "myApp.com"
+        var iterator = try await subject.ciphersAutofillPublisher(
+            availableFido2CredentialsPublisher: fido2UserInterfaceHelper
+                .availableCredentialsForAuthenticationPublisher(),
+            mode: .combinedSingleSection,
+            rpID: expectedRpID,
+            uri: "https://example.com"
+        ).makeAsyncIterator()
+        let sectionsResult = try await iterator.next()
+        let sections = try XCTUnwrap(sectionsResult)
+
+        XCTAssertEqual(
+            sections[0],
+            VaultListSection(
+                id: Localizations.chooseALoginToSaveThisPasskeyTo,
+                items: [
+                    VaultListItem(
+                        cipherView: .fixture(
+                            creationDate: Date(year: 2024, month: 1, day: 1),
+                            id: "2",
+                            login: .fixture(uris: [.fixture(uri: "https://example.com", match: .exact)]),
+                            name: "Example",
+                            revisionDate: Date(year: 2024, month: 1, day: 1)
+                        )
+                    )!,
+                ],
+                name: Localizations.chooseALoginToSaveThisPasskeyTo
+            )
+        )
+    }
+
+    /// `ciphersAutofillPublisher(availableFido2CredentialsPublisher:mode:rpID:uri:)`
     /// throws when in `.combinedSingleSection` mode and decrypting Fido2 credentials throws.
     func test_ciphersAutofillPublisher_mode_combinedSingleThrowingDecryptingFido2Credentials() async throws {
         // swiftlint:disable:previous function_body_length
