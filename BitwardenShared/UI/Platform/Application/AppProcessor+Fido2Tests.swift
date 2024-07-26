@@ -100,6 +100,18 @@ class AppProcessorFido2Tests: BitwardenTestCase {
 
     // MARK: Tests
 
+    /// `getter:isAutofillingFromList` returns `true` when delegate is autofilling from list.
+    func test_isAutofillingFromList_true() async throws {
+        appExtensionDelegate.extensionMode = .autofillFido2VaultList([], MockPasskeyCredentialRequestParameters())
+        XCTAssertTrue(subject.isAutofillingFromList)
+    }
+
+    /// `getter:isAutofillingFromList` returns `false` when delegate is not autofilling from list.
+    func test_isAutofillingFromList_false() async throws {
+        appExtensionDelegate.extensionMode = .configureAutofill
+        XCTAssertFalse(subject.isAutofillingFromList)
+    }
+
     /// `onNeedsUserInteraction()` throws when flows is not with user interaction but user interaction is required.
     @available(iOS 17.0, *)
     func test_onNeedsUserInteraction_throws() async {

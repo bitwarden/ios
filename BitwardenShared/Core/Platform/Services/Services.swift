@@ -9,6 +9,7 @@ typealias Services = HasAPIService
     & HasAuthAPIService
     & HasAuthRepository
     & HasAuthService
+    & HasAutofillCredentialService
     & HasBiometricsRepository
     & HasCameraService
     & HasCaptchaService
@@ -96,6 +97,13 @@ protocol HasAuthRepository {
 protocol HasAuthService {
     /// The service used by the application to handle authentication tasks.
     var authService: AuthService { get }
+}
+
+/// Protocol for an object that provides an `AutofillCredentialService`.
+///
+protocol HasAutofillCredentialService {
+    /// /// The service which manages the ciphers exposed to the system for AutoFill suggestions..
+    var autofillCredentialService: AutofillCredentialService { get }
 }
 
 /// Protocol for obtaining the device's biometric authentication type.

@@ -298,6 +298,11 @@ extension CredentialProviderViewController: Fido2AppExtensionDelegate {
     }
 
     @available(iOSApplicationExtension 17.0, *)
+    func completeAssertionRequest(assertionCredential: ASPasskeyAssertionCredential) {
+        extensionContext.completeAssertionRequest(using: assertionCredential)
+    }
+
+    @available(iOSApplicationExtension 17.0, *)
     func completeRegistrationRequest(asPasskeyRegistrationCredential: ASPasskeyRegistrationCredential) {
         extensionContext.completeRegistrationRequest(using: asPasskeyRegistrationCredential)
     }

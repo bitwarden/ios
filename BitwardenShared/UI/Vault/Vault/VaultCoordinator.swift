@@ -61,6 +61,7 @@ final class VaultCoordinator: Coordinator, HasStackNavigator {
     typealias Services = HasApplication
         & HasAuthRepository
         & HasAuthService
+        & HasAutofillCredentialService
         & HasCameraService
         & HasClientService
         & HasEnvironmentService
