@@ -97,10 +97,6 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-spm-
 
-      - name: Look for package
-        run: |
-          find . -name "Package.resolved"
-
       - name: Build and test
         run: |
           set -o pipefail && \
