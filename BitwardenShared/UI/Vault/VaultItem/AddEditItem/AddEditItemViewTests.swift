@@ -140,7 +140,8 @@ class AddEditItemViewTests: BitwardenTestCase { // swiftlint:disable:this type_b
     /// Updating the notes text field dispatches the `.notesChanged()` action.
     func test_notesTextField_updateValue() throws {
         let textField = try subject.inspect().find(
-            bitwardenTextFieldWithAccessibilityLabel: Localizations.notes
+            type: BitwardenMultilineTextFieldType.self,
+            accessibilityLabel: Localizations.notes
         )
         try textField.inputBinding().wrappedValue = "text"
         XCTAssertEqual(processor.dispatchedActions.last, .notesChanged("text"))
@@ -459,7 +460,7 @@ class AddEditItemViewTests: BitwardenTestCase { // swiftlint:disable:this type_b
         )
         processor.state.isFavoriteOn = true
         processor.state.isMasterPasswordRePromptOn = true
-        processor.state.notes = "Notes"
+        processor.state.notes = "A long segment of notes that proves that the multiline feature is working."
         processor.state.folderId = "1"
         processor.state.folders = [.custom(.fixture(id: "1", name: "Folder"))]
 
