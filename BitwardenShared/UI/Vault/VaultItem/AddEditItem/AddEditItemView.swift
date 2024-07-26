@@ -234,8 +234,7 @@ private extension AddEditItemView {
                 text: store.binding(
                     get: \.notes,
                     send: AddEditItemAction.notesChanged
-                ),
-                accessibilityIdentifier: Localizations.notes
+                )
             )
             .accessibilityLabel(Localizations.notes)
         }

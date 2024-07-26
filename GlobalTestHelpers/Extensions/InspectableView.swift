@@ -140,18 +140,18 @@ extension InspectableView {
         try find(BitwardenTextFieldType.self, containing: title, locale: locale)
     }
 
-    /// Attempts to locate a Bitwarden text field with the provided accessibility label.
+    /// Attempts to locate a generic view with the provided accessibility label.
     ///
     /// - Parameters:
-    ///   - type: The type of the text field to locate.
+    ///   - type: The type of the view to locate.
     ///   - accessibilityLabel: The accessibility label to use while searching for the text field.
     ///   - locale: The locale for text extraction.
     /// - Returns: An `InspectableView` of the specified type, if one can be located.
     /// - Throws: Throws an error if a view was unable to be located.
     ///
     func find<T>(
-        textFieldType type: T.Type,
-        withAccessibilityLabel accessibilityLabel: String,
+        type: T.Type,
+        accessibilityLabel: String,
         locale: Locale = .testsDefault
     ) throws -> InspectableView<T> {
         try find(T.self) { view in
