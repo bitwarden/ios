@@ -46,6 +46,7 @@ enum ViewItemAction: Equatable {
         switch self {
         case .cardItemAction,
              .customFieldVisibilityPressed,
+             .downloadAttachment,
              .editPressed,
              .morePressed,
              .passwordVisibilityPressed:
@@ -53,7 +54,6 @@ enum ViewItemAction: Equatable {
         case let .copyPressed(_, field):
             field.requiresMasterPasswordReprompt
         case .dismissPressed,
-             .downloadAttachment,
              .passwordHistoryPressed,
              .toastShown:
             false
