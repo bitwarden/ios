@@ -479,8 +479,6 @@
 "CodeSent" = "Kodas išsiųstas!";
 "ConfirmYourIdentity" = "Norint tęsti, patvirtinkite tapatybę.";
 "ExportVaultWarning" = "Šiame eksporte yra jūsų saugyklos duomenys nešifruotu formatu. Neturėtumėte saugoti ar siųsti eksportuoto failo nesaugiais kanalais (pvz., el. paštu). Ištrinkite jį iš karto, kai baigsite naudoti.";
-"EncExportKeyWarning" = "Šis eksportavimas užšifruoja jūsų duomenis naudojant paskyros šifravimo raktą. Jei kada nors pakeisite paskyros šifravimo raktą, turėtumėte eksportuoti dar kartą, nes negalėsite iššifruoti šio eksporto failo.";
-"EncExportAccountWarning" = "Paskyros šifravimo raktai yra unikalūs kiekvienai „Bitwarden“ vartotojo paskyrai, todėl negalite importuoti šifruoto eksporto į kitą paskyrą.";
 "ExportVaultConfirmationTitle" = "Patvirtinkite saugyklos eksportavimą";
 "Warning" = "Įspėjimas";
 "ExportVaultFailure" = "Eksportuojant saugyklą kilo problema. Jei problema išlieka, turėsite eksportuoti iš žiniatinklio saugyklos.";
@@ -920,3 +918,4 @@
 "UnknownAccount" = "Unknown account";
 "UserVerificationForPasskey" = "User verification for passkey";
 "NewItem" = "New item";
+"ExportVaultFilePwProtectInfo" = "This file export will be password protected and require the file password to decrypt.";

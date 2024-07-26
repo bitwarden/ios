@@ -479,8 +479,6 @@
 "CodeSent" = "کد ارسال شد!";
 "ConfirmYourIdentity" = "برای ادامه، هویت خود را تأیید کنید.";
 "ExportVaultWarning" = "این برون ریزی شامل داده‌های گاوصندوق در یک قالب رمزنگاری نشده است. شما نباید آن را از طریق یک راه ارتباطی نا امن (مثل ایمیل) ذخیره یا ارسال کنید. به محض اینکه کارتان با آن تمام شد، آن را حذف کنید.";
-"EncExportKeyWarning" = "این برون ریزی با استفاده از کلید رمزگذاری حساب شما، اطلاعاتتان را رمزگذاری می کند. اگر زمانی کلید رمزگذاری حساب خود را بچرخانید، باید دوباره خروجی بگیرید، چون قادر به رمزگشایی این پرونده برون ریزی نخواهید بود.";
-"EncExportAccountWarning" = "کلیدهای رمزگذاری حساب برای هر حساب کاربری Bitwarden منحصر به فرد است، بنابراین نمی‌توانید برون ریزی رمزگذاری شده را به حساب دیگری وارد کنید.";
 "ExportVaultConfirmationTitle" = "برون ریزی گاوصندوق را تأیید کنید";
 "Warning" = "هشدار";
 "ExportVaultFailure" = "هنگام برون ریزی گاوصندوق شما مشکلی پیش آمد. اگر مشکل همچنان ادامه داشت، باید از گاوصندوق وب برون ریزی بگیرید.";
@@ -921,3 +919,4 @@
 "UnknownAccount" = "Unknown account";
 "UserVerificationForPasskey" = "User verification for passkey";
 "NewItem" = "New item";
+"ExportVaultFilePwProtectInfo" = "This file export will be password protected and require the file password to decrypt.";

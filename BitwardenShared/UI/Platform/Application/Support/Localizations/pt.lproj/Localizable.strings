@@ -441,7 +441,7 @@
 "DefaultUriMatchDetection" = "Deteção de correspondência de URI predefinida";
 "DefaultUriMatchDetectionDescription" = "Escolha a forma predefinida como a deteção de correspondência de URI é tratada para credenciais ao executar ações como o preenchimento automático.";
 "Theme" = "Tema";
-"ThemeDescription" = "Alterar o tema de cores da aplicação.";
+"ThemeDescription" = "Altere o tema de cores da aplicação.";
 "ThemeDefault" = "Predefinido (Sistema)";
 "DefaultDarkTheme" = "Tema escuro predefinido";
 "CopyNotes" = "Copiar nota";
@@ -479,8 +479,6 @@
 "CodeSent" = "Código enviado!";
 "ConfirmYourIdentity" = "Confirme a sua identidade para continuar.";
 "ExportVaultWarning" = "Esta exportação contém os dados do seu cofre num formato não encriptado. Não deve armazenar ou enviar o ficheiro exportado através de canais não seguros (como o e-mail). Elimine-o imediatamente após terminar a sua utilização.";
-"EncExportKeyWarning" = "Esta exportação encripta os seus dados utilizando a chave de encriptação da sua conta. Se alguma vez regenerar a chave de encriptação da sua conta, deve exportar novamente, uma vez que não conseguirá desencriptar este ficheiro de exportação.";
-"EncExportAccountWarning" = "As chaves de encriptação da conta são únicas para cada conta de utilizador Bitwarden, pelo que não é possível importar uma exportação encriptada para uma conta diferente.";
 "ExportVaultConfirmationTitle" = "Confirmar a exportação do cofre";
 "Warning" = "Aviso";
 "ExportVaultFailure" = "Ocorreu um problema ao exportar o seu cofre. Se o problema persistir, terá de exportar a partir do cofre Web.";
@@ -920,3 +918,4 @@
 "UnknownAccount" = "Conta desconhecida";
 "UserVerificationForPasskey" = "Verificação do utilizador para a chave de acesso";
 "NewItem" = "Novo item";
+"ExportVaultFilePwProtectInfo" = "A exportação deste ficheiro será protegida por uma palavra-passe e exigirá a palavra-passe do ficheiro para ser desencriptada.";

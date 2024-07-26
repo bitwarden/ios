@@ -479,8 +479,6 @@
 "CodeSent" = "Kode sendt!";
 "ConfirmYourIdentity" = "Bekræft din identitet for at fortsætte.";
 "ExportVaultWarning" = "Denne eksport indeholder dine boksdata i en ukrypteret form. Du bør ikke gemme eller sende den eksporterede fil via usikre kanaler (f.eks. e-mail). Slet den straks efter at du er færdig med at bruge den.";
-"EncExportKeyWarning" = "Denne eksport krypterer dine data vha. din kontos krypteringsnøgle. Roterer du på et tidspunkt denne krypteringsnøgle, skal du eksportere igen, da du ikke vil kunne dekryptere denne eksportfil.";
-"EncExportAccountWarning" = "Kontokrypteringsnøgler er unikke for hver Bitwarden-brugerkonto, så du kan ikke importere en krypteret eksport til en anden konto.";
 "ExportVaultConfirmationTitle" = "Bekræft eksport af boks";
 "Warning" = "Advarsel";
 "ExportVaultFailure" = "Der opstod et problem med at eksportere din boks. Hvis problemet fortsætter, så eksportér i stedet fra din web-boks.";
@@ -920,3 +918,4 @@
 "UnknownAccount" = "Ukendt konto";
 "UserVerificationForPasskey" = "Brugerbekræftelse for adgangsnøgle";
 "NewItem" = "Nyt emne";
+"ExportVaultFilePwProtectInfo" = "Denne fileksport adgangskodebeskyttes, og dekryptering vil kræve filadgangskoden.";

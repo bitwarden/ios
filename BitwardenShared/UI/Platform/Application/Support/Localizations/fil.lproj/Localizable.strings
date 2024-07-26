@@ -479,8 +479,6 @@
 "CodeSent" = "Ipinadala ang code!";
 "ConfirmYourIdentity" = "Kumpirmahin ang pagkakakilanlan mo para tumuloy.";
 "ExportVaultWarning" = "Naglalaman ng unencrypted vault data mo ang export na ito. Hindi mo dapat ilagay o ipadala ang file gamit ang hindi ligtas na mga paraan (tulad ng email). Burahin ito kaagad pagkagamit.";
-"EncExportKeyWarning" = "Ine-encrypt ng export na ito ang data mo gamit ang encryption key ng iyong account. Kung iro-rotate mo man ang encryption key ng iyong account, kailangan mong mag-export ulit dahil hindi mo na made-decrypt ang file na ito.";
-"EncExportAccountWarning" = "Magkaiba ang encryption key ng bawat Bitwarden user account, kaya hindi ka makakapag-import ng encrypted export sa iba pang account.";
 "ExportVaultConfirmationTitle" = "Kumpirmahin ang pag-export ng vault";
 "Warning" = "Babala";
 "ExportVaultFailure" = "Nagkaproblema sa pag-e-export ng vault mo. Kung paulit-ulit nang nagkakaproblema, sa web vault ka dapat mag-export.";
@@ -920,3 +918,4 @@
 "UnknownAccount" = "Unknown account";
 "UserVerificationForPasskey" = "User verification for passkey";
 "NewItem" = "New item";
+"ExportVaultFilePwProtectInfo" = "This file export will be password protected and require the file password to decrypt.";
