@@ -31,6 +31,10 @@ struct AddEditFolderView: View {
                 cancelToolbarItem {
                     store.send(.dismiss)
                 }
+
+                saveToolbarItem {
+                    await store.perform(.saveTapped)
+                }
             }
     }
 
@@ -39,14 +43,20 @@ struct AddEditFolderView: View {
         content
             .navigationBar(title: Localizations.editFolder, titleDisplayMode: .inline)
             .toolbar {
-                optionsToolbarItem {
-                    AsyncButton(Localizations.delete, role: .destructive) {
-                        await store.perform(.deleteTapped)
-                    }
-                }
-
                 cancelToolbarItem {
                     store.send(.dismiss)
+                }
+
+                ToolbarItemGroup(placement: .topBarTrailing) {
+                    saveToolbarButton {
+                        await store.perform(.saveTapped)
+                    }
+
+                    optionsToolbarMenu {
+                        AsyncButton(Localizations.delete, role: .destructive) {
+                            await store.perform(.deleteTapped)
+                        }
+                    }
                 }
             }
     }
@@ -55,8 +65,6 @@ struct AddEditFolderView: View {
     private var content: some View {
         VStack(alignment: .leading, spacing: 20) {
             nameEntryTextField
-
-            saveButton
         }
         .scrollView()
     }
@@ -70,14 +78,5 @@ struct AddEditFolderView: View {
                 send: AddEditFolderAction.folderNameTextChanged
             )
         )
-    }
-
-    /// The save button.
-    private var saveButton: some View {
-        AsyncButton(Localizations.save) {
-            await store.perform(.saveTapped)
-        }
-        .accessibilityIdentifier("SaveButton")
-        .buttonStyle(.primary())
     }
 }

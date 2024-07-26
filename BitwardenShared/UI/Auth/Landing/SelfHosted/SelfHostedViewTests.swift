@@ -8,6 +8,6 @@ class SelfHostedViewTests: BitwardenTestCase {
 
     /// Tests that the view renders correctly.
     func test_viewRender() {
-        assertSnapshot(of: subject, as: .defaultPortrait)
+        assertSnapshot(of: subject.navStackWrapped, as: .defaultPortrait)
     }
 }

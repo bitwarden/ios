@@ -73,19 +73,28 @@ class AddEditFolderViewTests: BitwardenTestCase {
 
     /// Tests the view renders correctly when the text field is empty.
     func test_snapshot_add_empty() {
-        assertSnapshots(matching: subject, as: [.defaultPortrait, .defaultPortraitDark, .defaultPortraitAX5])
+        assertSnapshots(
+            matching: subject.navStackWrapped,
+            as: [.defaultPortrait, .defaultPortraitDark, .defaultPortraitAX5]
+        )
     }
 
     /// Tests the view renders correctly when the text field is populated.
     func test_snapshot_add_populated() {
         processor.state.folderName = "Super cool folder name"
-        assertSnapshots(matching: subject, as: [.defaultPortrait, .defaultPortraitDark, .defaultPortraitAX5])
+        assertSnapshots(
+            matching: subject.navStackWrapped,
+            as: [.defaultPortrait, .defaultPortraitDark, .defaultPortraitAX5]
+        )
     }
 
     /// Tests the view renders correctly when the text field is populated.
     func test_snapshot_edit_populated() {
         processor.state.mode = .edit(.fixture())
         processor.state.folderName = "Super cool folder name"
-        assertSnapshots(matching: subject, as: [.defaultPortrait, .defaultPortraitDark, .defaultPortraitAX5])
+        assertSnapshots(
+            matching: subject.navStackWrapped,
+            as: [.defaultPortrait, .defaultPortraitDark, .defaultPortraitAX5]
+        )
     }
 }

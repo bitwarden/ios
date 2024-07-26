@@ -42,8 +42,6 @@ struct AddEditSendItemView: View { // swiftlint:disable:this type_body_length
                     if store.state.isOptionsExpanded {
                         options
                     }
-
-                    saveButton
                 }
                 .padding(16)
                 .disabled(store.state.isSendDisabled)
@@ -84,8 +82,12 @@ struct AddEditSendItemView: View { // swiftlint:disable:this type_body_length
             }
 
             ToolbarItemGroup(placement: .navigationBarTrailing) {
-                switch store.state.mode {
-                case .edit:
+                saveToolbarButton {
+                    await store.perform(.savePressed)
+                }
+                .disabled(store.state.isSendDisabled)
+
+                if store.state.mode == .edit {
                     optionsToolbarMenu {
                         if !store.state.isSendDisabled {
                             AsyncButton(Localizations.shareLink) {
@@ -105,9 +107,6 @@ struct AddEditSendItemView: View { // swiftlint:disable:this type_body_length
                             await store.perform(.deletePressed)
                         }
                     }
-                case .add,
-                     .shareExtension:
-                    EmptyView()
                 }
             }
         }
@@ -456,15 +455,6 @@ struct AddEditSendItemView: View { // swiftlint:disable:this type_body_length
             )
         default: EmptyView()
         }
-    }
-
-    /// The save button.
-    @ViewBuilder private var saveButton: some View {
-        AsyncButton(Localizations.save) {
-            await store.perform(.savePressed)
-        }
-        .accessibilityIdentifier("SaveButton")
-        .buttonStyle(.primary())
     }
 
     /// The attributes for a text type send.

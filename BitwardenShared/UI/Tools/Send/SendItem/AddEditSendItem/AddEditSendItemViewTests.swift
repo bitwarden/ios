@@ -164,7 +164,7 @@ class AddEditSendItemViewTests: BitwardenTestCase {
 
     func test_snapshot_file_empty() {
         processor.state.type = .file
-        assertSnapshot(of: subject, as: .defaultPortrait)
+        assertSnapshot(of: subject.navStackWrapped, as: .defaultPortrait)
     }
 
     func test_snapshot_file_withValues() {
@@ -172,7 +172,7 @@ class AddEditSendItemViewTests: BitwardenTestCase {
         processor.state.name = "Name"
         processor.state.fileName = "example_file.txt"
         processor.state.fileData = Data("example".utf8)
-        assertSnapshot(of: subject, as: .defaultPortrait)
+        assertSnapshot(of: subject.navStackWrapped, as: .defaultPortrait)
     }
 
     func test_snapshot_file_withValues_prefilled() {
@@ -181,13 +181,13 @@ class AddEditSendItemViewTests: BitwardenTestCase {
         processor.state.fileName = "example_file.txt"
         processor.state.fileData = Data("example".utf8)
         processor.state.mode = .shareExtension(.empty())
-        assertSnapshot(of: subject, as: .defaultPortrait)
+        assertSnapshot(of: subject.navStackWrapped, as: .defaultPortrait)
     }
 
     func test_snapshot_file_withOptions_empty() {
         processor.state.type = .file
         processor.state.isOptionsExpanded = true
-        assertSnapshot(of: subject, as: .tallPortrait)
+        assertSnapshot(of: subject.navStackWrapped, as: .tallPortrait)
     }
 
     func test_snapshot_file_withOptions_withValues() {
@@ -207,7 +207,7 @@ class AddEditSendItemViewTests: BitwardenTestCase {
         processor.state.notes = "Notes"
         processor.state.isHideMyEmailOn = true
         processor.state.isDeactivateThisSendOn = true
-        assertSnapshot(of: subject, as: .tallPortrait)
+        assertSnapshot(of: subject.navStackWrapped, as: .tallPortrait)
     }
 
     func test_snapshot_file_edit_withOptions_withValues() {
@@ -228,33 +228,33 @@ class AddEditSendItemViewTests: BitwardenTestCase {
         processor.state.notes = "Notes"
         processor.state.isHideMyEmailOn = true
         processor.state.isDeactivateThisSendOn = true
-        assertSnapshot(of: subject, as: .tallPortrait)
+        assertSnapshot(of: subject.navStackWrapped, as: .tallPortrait)
     }
 
     func test_snapshot_sendDisabled() {
         processor.state.isSendDisabled = true
-        assertSnapshot(of: subject, as: .defaultPortrait)
+        assertSnapshot(of: subject.navStackWrapped, as: .defaultPortrait)
     }
 
     func test_snapshot_sendHideEmailDisabled() {
         processor.state.isSendHideEmailDisabled = true
-        assertSnapshot(of: subject, as: .defaultPortrait)
+        assertSnapshot(of: subject.navStackWrapped, as: .defaultPortrait)
     }
 
     func test_snapshot_text_empty() {
-        assertSnapshot(of: subject, as: .defaultPortrait)
+        assertSnapshot(of: subject.navStackWrapped, as: .defaultPortrait)
     }
 
     func test_snapshot_text_withValues() {
         processor.state.name = "Name"
         processor.state.text = "Text"
         processor.state.isHideTextByDefaultOn = true
-        assertSnapshot(of: subject, as: .defaultPortrait)
+        assertSnapshot(of: subject.navStackWrapped, as: .defaultPortrait)
     }
 
     func test_snapshot_text_withOptions_empty() {
         processor.state.isOptionsExpanded = true
-        assertSnapshot(of: subject, as: .tallPortrait)
+        assertSnapshot(of: subject.navStackWrapped, as: .tallPortrait)
     }
 
     func test_snapshot_text_withOptions_withValues() {
@@ -272,7 +272,7 @@ class AddEditSendItemViewTests: BitwardenTestCase {
         processor.state.notes = "Notes with lots of text that wraps to new lines when displayed."
         processor.state.isHideMyEmailOn = true
         processor.state.isDeactivateThisSendOn = true
-        assertSnapshot(of: subject, as: .tallPortrait)
+        assertSnapshot(of: subject.navStackWrapped, as: .tallPortrait)
     }
 
     func test_snapshot_text_edit_withOptions_withValues() {
@@ -292,7 +292,7 @@ class AddEditSendItemViewTests: BitwardenTestCase {
         processor.state.notes = "Notes"
         processor.state.isHideMyEmailOn = true
         processor.state.isDeactivateThisSendOn = true
-        assertSnapshot(of: subject, as: .tallPortrait)
+        assertSnapshot(of: subject.navStackWrapped, as: .tallPortrait)
     }
 
     func test_snapshot_text_extension_withValues() {
