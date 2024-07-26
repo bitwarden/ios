@@ -22,7 +22,6 @@ class CipherDetailsViewModel: ObservableObject {
     }
 
     func startGeneration() {
-        fatalError("This is a test")
         timer = Timer.scheduledTimer(withTimeInterval: 1, repeats: true, block: { [weak self] t in
             guard let self else {
                 t.invalidate()
