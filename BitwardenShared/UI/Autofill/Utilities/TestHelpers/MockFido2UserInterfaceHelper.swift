@@ -5,6 +5,7 @@ import Foundation
 @testable import BitwardenShared
 
 class MockFido2UserInterfaceHelper: Fido2UserInterfaceHelper {
+    var checkUserCalled = false
     var checkUserResult: Result<BitwardenSdk.CheckUserResult, Error> = .success(
         BitwardenSdk.CheckUserResult(userPresent: true, userVerified: true)
     )
@@ -42,7 +43,8 @@ class MockFido2UserInterfaceHelper: Fido2UserInterfaceHelper {
         options: BitwardenSdk.CheckUserOptions,
         hint: BitwardenSdk.UiHint
     ) async throws -> BitwardenSdk.CheckUserResult {
-        try checkUserResult.get()
+        checkUserCalled = true
+        return try checkUserResult.get()
     }
 
     func checkUser(
@@ -50,7 +52,8 @@ class MockFido2UserInterfaceHelper: Fido2UserInterfaceHelper {
         credential: BitwardenSdk.CipherView,
         shouldThrowEnforcingRequiredVerification: Bool
     ) async throws -> BitwardenSdk.CheckUserResult {
-        try checkUserResult.get()
+        checkUserCalled = true
+        return try checkUserResult.get()
     }
 
     func pickCredentialForAuthentication(
