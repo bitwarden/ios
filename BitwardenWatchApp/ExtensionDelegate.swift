@@ -6,10 +6,5 @@ class ExtensionDelegate: NSObject, WKExtensionDelegate {
         #if !DEBUG
         FirebaseApp.configure()
         #endif
-
-        Task {
-            try await Task.sleep(nanoseconds: 5_000_000_000)
-            perform(Selector(("crash")))
-        }
     }
 }
