@@ -24,7 +24,11 @@ class LandingProcessor: StateProcessor<LandingState, LandingAction, LandingEffec
     private let services: Services
 
     /// Helper class with region specific functions
-    var regionHelper: RegionHelper?
+    private lazy var regionHelper = RegionHelper(
+        coordinator: coordinator,
+        delegate: self,
+        stateService: services.stateService
+    )
 
     // MARK: Initialization
 
@@ -55,7 +59,7 @@ class LandingProcessor: StateProcessor<LandingState, LandingAction, LandingEffec
     override func perform(_ effect: LandingEffect) async {
         switch effect {
         case .appeared:
-            await regionHelper?.loadRegion()
+            await regionHelper.loadRegion()
             await refreshProfileState()
         case .continuePressed:
             updateRememberedEmail()
@@ -63,7 +67,7 @@ class LandingProcessor: StateProcessor<LandingState, LandingAction, LandingEffec
         case let .profileSwitcher(profileEffect):
             await handleProfileSwitcherEffect(profileEffect)
         case .regionPressed:
-            await regionHelper?.presentRegionSelectorAlert(
+            await regionHelper.presentRegionSelectorAlert(
                 title: Localizations.loggingInOn,
                 currentRegion: state.region
             )
@@ -190,7 +194,7 @@ extension LandingProcessor: SelfHostedProcessorDelegate {
     func didSaveEnvironment(urls: EnvironmentUrlData) async {
         await setRegion(.selfHosted, urls)
         state.toast = Toast(text: Localizations.environmentSaved)
-        await regionHelper?.loadRegion()
+        await regionHelper.loadRegion()
     }
 }
 
@@ -198,7 +202,7 @@ extension LandingProcessor: SelfHostedProcessorDelegate {
 
 extension LandingProcessor: StartRegistrationDelegate {
     func didChangeRegion() async {
-        await regionHelper?.loadRegion()
+        await regionHelper.loadRegion()
     }
 }
 

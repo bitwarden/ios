@@ -43,11 +43,6 @@ class LandingProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_
             services: services,
             state: state
         )
-        subject.regionHelper = RegionHelper(
-            coordinator: coordinator.asAnyCoordinator(),
-            delegate: subject,
-            stateService: stateService
-        )
     }
 
     override func tearDown() {

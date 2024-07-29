@@ -406,11 +406,6 @@ final class AuthCoordinator: NSObject, // swiftlint:disable:this type_body_lengt
                 services: services,
                 state: LandingState()
             )
-            processor.regionHelper = RegionHelper(
-                coordinator: asAnyCoordinator(),
-                delegate: processor,
-                stateService: services.stateService
-            )
             let store = Store(processor: processor)
             let view = LandingView(store: store)
             stackNavigator.replace(view, animated: false)
@@ -616,11 +611,6 @@ final class AuthCoordinator: NSObject, // swiftlint:disable:this type_body_lengt
             delegate: delegate,
             services: services,
             state: StartRegistrationState()
-        )
-        processor.regionHelper = RegionHelper(
-            coordinator: asAnyCoordinator(),
-            delegate: processor,
-            stateService: services.stateService
         )
 
         let view = StartRegistrationView(

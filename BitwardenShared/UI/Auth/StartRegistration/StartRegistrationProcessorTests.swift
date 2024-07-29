@@ -47,11 +47,6 @@ class StartRegistrationProcessorTests: BitwardenTestCase { // swiftlint:disable:
             ),
             state: StartRegistrationState()
         )
-        subject.regionHelper = RegionHelper(
-            coordinator: coordinator.asAnyCoordinator(),
-            delegate: subject,
-            stateService: stateService
-        )
     }
 
     override func tearDown() {

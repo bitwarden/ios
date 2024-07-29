@@ -59,7 +59,11 @@ class StartRegistrationProcessor: StateProcessor<
     private weak var delegate: StartRegistrationDelegate?
 
     /// Helper class with region specific functions
-    var regionHelper: RegionHelper?
+    private lazy var regionHelper = RegionHelper(
+        coordinator: coordinator,
+        delegate: self,
+        stateService: services.stateService
+    )
 
     // MARK: Initialization
 
@@ -87,10 +91,10 @@ class StartRegistrationProcessor: StateProcessor<
     override func perform(_ effect: StartRegistrationEffect) async {
         switch effect {
         case .appeared:
-            await regionHelper?.loadRegion()
+            await regionHelper.loadRegion()
             state.isReceiveMarketingToggleOn = state.region == .unitedStates
         case .regionTapped:
-            await regionHelper?.presentRegionSelectorAlert(
+            await regionHelper.presentRegionSelectorAlert(
                 title: Localizations.creatingOn,
                 currentRegion: state.region
             )
