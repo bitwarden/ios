@@ -61,6 +61,11 @@ class VaultAutofillListProcessorTests: BitwardenTestCase {
 
     // MARK: Tests
 
+    /// `getter:isAutofillingFromList` returns `false` when delegate is not a Fido2 one.
+    func test_isAutofillingFromList_falseNoFido2Delegate() async throws {
+        XCTAssertFalse(subject.isAutofillingFromList)
+    }
+
     /// `vaultItemTapped(_:)` has the autofill helper handle autofill for the cipher and completes the
     /// autofill request.
     func test_perform_vaultItemTapped() async {
@@ -154,7 +159,12 @@ class VaultAutofillListProcessorTests: BitwardenTestCase {
     /// `perform(_:)` with `.search()` performs a cipher search and updates the state with the results.
     func test_perform_search() {
         let ciphers: [CipherView] = [.fixture(id: "1"), .fixture(id: "2"), .fixture(id: "3")]
-        vaultRepository.searchCipherAutofillSubject.value = ciphers
+        let expectedSection = VaultListSection(
+            id: "",
+            items: ciphers.compactMap { VaultListItem(cipherView: $0) },
+            name: ""
+        )
+        vaultRepository.searchCipherAutofillSubject.value = [expectedSection]
 
         let task = Task {
             await subject.perform(.search("Bit"))
@@ -163,7 +173,7 @@ class VaultAutofillListProcessorTests: BitwardenTestCase {
         waitFor(!subject.state.ciphersForSearch.isEmpty)
         task.cancel()
 
-        XCTAssertEqual(subject.state.ciphersForSearch, ciphers.compactMap { VaultListItem(cipherView: $0) })
+        XCTAssertEqual(subject.state.ciphersForSearch, [expectedSection])
         XCTAssertFalse(subject.state.showNoResults)
     }
 
@@ -205,16 +215,21 @@ class VaultAutofillListProcessorTests: BitwardenTestCase {
     /// `perform(_:)` with `.streamAutofillItems` streams the list of autofill ciphers.
     func test_perform_streamAutofillItems() {
         let ciphers: [CipherView] = [.fixture(id: "1"), .fixture(id: "2"), .fixture(id: "3")]
-        vaultRepository.ciphersAutofillSubject.value = ciphers
+        let expectedSection = VaultListSection(
+            id: "",
+            items: ciphers.compactMap { VaultListItem(cipherView: $0) },
+            name: ""
+        )
+        vaultRepository.ciphersAutofillSubject.value = [expectedSection]
 
         let task = Task {
             await subject.perform(.streamAutofillItems)
         }
 
-        waitFor(!subject.state.ciphersForAutofill.isEmpty)
+        waitFor(!subject.state.vaultListSections.isEmpty)
         task.cancel()
 
-        XCTAssertEqual(subject.state.ciphersForAutofill, ciphers.compactMap { VaultListItem(cipherView: $0) })
+        XCTAssertEqual(subject.state.vaultListSections, [expectedSection])
     }
 
     /// `perform(_:)` with `.streamAutofillItems` logs an error if one occurs.
@@ -286,7 +301,7 @@ class VaultAutofillListProcessorTests: BitwardenTestCase {
         subject.receive(.searchStateChanged(isSearching: true))
 
         subject.receive(.searchTextChanged("Bit"))
-        subject.state.ciphersForSearch = [.fixture()]
+        subject.state.ciphersForSearch = [VaultListSection(id: "test", items: [.fixture()], name: "test")]
         subject.state.showNoResults = true
 
         subject.receive(.searchStateChanged(isSearching: true))
@@ -321,13 +336,6 @@ class VaultAutofillListProcessorTests: BitwardenTestCase {
 
         subject.receive(.toastShown(nil))
         XCTAssertNil(subject.state.toast)
-    }
-
-    /// `setupPin()` navigates to the setup pin view.
-    func test_setupPin() async throws {
-        // TODO: PM-8362 navigate to pin setup
-        try await subject.setupPin()
-        throw XCTSkip("TODO: PM-8362 navigate to pin setup")
     }
 
     /// `showAlert(_:onDismissed:)` shows the alert with the coordinator.

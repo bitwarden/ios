@@ -11,7 +11,7 @@ class MockVaultRepository: VaultRepository {
     var addCipherResult: Result<Void, Error> = .success(())
 
     var ciphersSubject = CurrentValueSubject<[CipherListView], Error>([])
-    var ciphersAutofillSubject = CurrentValueSubject<[CipherView], Error>([])
+    var ciphersAutofillSubject = CurrentValueSubject<[BitwardenShared.VaultListSection], Error>([])
     var cipherDetailsSubject = CurrentValueSubject<CipherView?, Error>(.fixture())
 
     var clearTemporaryDownloadsCalled = false
@@ -60,9 +60,7 @@ class MockVaultRepository: VaultRepository {
     var refreshedTOTPTime: Date?
     var refreshedTOTPCodes: [VaultListItem] = []
     var refreshTOTPCodeResult: Result<LoginTOTPState, Error> = .success(
-        LoginTOTPState(
-            authKeyModel: TOTPKeyModel(authenticatorKey: .base32Key)!
-        )
+        LoginTOTPState(authKeyModel: TOTPKeyModel(authenticatorKey: .standardTotpKey))
     )
     var refreshedTOTPKeyConfig: TOTPKeyModel?
 
@@ -76,7 +74,7 @@ class MockVaultRepository: VaultRepository {
     var saveAttachmentFileName: String?
     var saveAttachmentResult: Result<CipherView, Error> = .success(.fixture())
 
-    var searchCipherAutofillSubject = CurrentValueSubject<[CipherView], Error>([])
+    var searchCipherAutofillSubject = CurrentValueSubject<[BitwardenShared.VaultListSection], Error>([])
 
     var searchVaultListSubject = CurrentValueSubject<[VaultListItem], Error>([])
     var searchVaultListFilterType: VaultFilterType?
@@ -123,8 +121,11 @@ class MockVaultRepository: VaultRepository {
     }
 
     func ciphersAutofillPublisher(
-        uri _: String?
-    ) async throws -> AsyncThrowingPublisher<AnyPublisher<[CipherView], Error>> {
+        availableFido2CredentialsPublisher: AnyPublisher<[BitwardenSdk.CipherView]?, Error>,
+        mode: BitwardenShared.AutofillListMode,
+        rpID: String?,
+        uri: String?
+    ) async throws -> AsyncThrowingPublisher<AnyPublisher<[BitwardenShared.VaultListSection], Error>> {
         ciphersAutofillSubject.eraseToAnyPublisher().values
     }
 
@@ -231,9 +232,12 @@ class MockVaultRepository: VaultRepository {
     }
 
     func searchCipherAutofillPublisher(
-        searchText _: String,
-        filterType _: VaultFilterType
-    ) async throws -> AsyncThrowingPublisher<AnyPublisher<[CipherView], Error>> {
+        availableFido2CredentialsPublisher: AnyPublisher<[BitwardenSdk.CipherView]?, Error>,
+        mode: BitwardenShared.AutofillListMode,
+        filterType: BitwardenShared.VaultFilterType,
+        rpID: String?,
+        searchText: String
+    ) async throws -> AsyncThrowingPublisher<AnyPublisher<[BitwardenShared.VaultListSection], Error>> {
         searchCipherAutofillSubject.eraseToAnyPublisher().values
     }
 

@@ -4,21 +4,24 @@ public struct TOTPKeyModel: Equatable, Sendable {
     // MARK: Properties
 
     /// The hash algorithm used for the TOTP code.
-    ///
-    let algorithm: TOTPCryptoHashAlgorithm
-
-    /// The base 32 key used to generate the TOTP code.
-    var base32Key: String {
-        totpKey.base32Key
+    var algorithm: TOTPCryptoHashAlgorithm {
+        totpKey.algorithm
     }
 
     /// The number of digits in the TOTP code.
-    ///
-    let digits: Int
+    var digits: Int {
+        totpKey.digits
+    }
+
+    /// The key used to generate the TOTP code.
+    var key: String {
+        totpKey.key
+    }
 
     /// The time period (in seconds) for which the TOTP code is valid.
-    ///
-    let period: Int
+    var period: Int {
+        totpKey.period
+    }
 
     /// The authenticatorKey used to generate the `TOTPCodeConfig`.
     let rawAuthenticatorKey: String
@@ -31,12 +34,8 @@ public struct TOTPKeyModel: Equatable, Sendable {
     /// Initializes a new configuration from an authenticator key.
     ///
     /// - Parameter authenticatorKey: A string representing the TOTP key.
-    init?(authenticatorKey: String) {
-        guard let keyType = TOTPKey(authenticatorKey) else { return nil }
+    init(authenticatorKey: String) {
         rawAuthenticatorKey = authenticatorKey
-        totpKey = keyType
-        period = keyType.period
-        digits = keyType.digits
-        algorithm = keyType.algorithm
+        totpKey = TOTPKey(authenticatorKey)
     }
 }

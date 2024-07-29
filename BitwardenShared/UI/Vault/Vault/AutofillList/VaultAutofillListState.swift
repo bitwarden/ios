@@ -8,14 +8,17 @@ import Foundation
 struct VaultAutofillListState: Equatable {
     // MARK: Properties
 
-    /// The list of matching ciphers that can be used for autofill.
-    var ciphersForAutofill: [VaultListItem] = []
+    /// The list of cipher items matching matching the `searchText` grouped in sections, if needed.
+    var ciphersForSearch: [VaultListSection] = []
 
-    /// The list of cipher items matching matching the `searchText`.
-    var ciphersForSearch: [VaultListItem] = []
+    /// The message to show the user when there are no items.
+    var emptyViewMessage: String = Localizations.noItemsTap
 
     /// The base url used to fetch icons.
     var iconBaseURL: URL?
+
+    /// Whether the extension mode is preparing for autofill from Fido2 list.
+    var isAutofillingFido2List: Bool = false
 
     /// The user's current account profile state and alternative accounts.
     var profileSwitcherState: ProfileSwitcherState = .empty(shouldAlwaysHideAddAccount: true)
@@ -31,4 +34,7 @@ struct VaultAutofillListState: Equatable {
 
     /// A toast message to show in the view.
     var toast: Toast?
+
+    /// The list of sections to display for matching vault items.
+    var vaultListSections = [VaultListSection]()
 }
