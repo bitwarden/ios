@@ -28,7 +28,7 @@ on:
 
 env:
   BUILD_VARIANT: ${{ inputs.build-variant || 'Beta' }}
-  XCODE_VERSION: ${{ inputs.xcode-version || '15.0.1' }}
+  XCODE_VERSION: ${{ inputs.xcode-version || '15.4' }}
 
 jobs:
   build:
