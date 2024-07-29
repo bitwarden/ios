@@ -179,8 +179,8 @@ final class AddEditItemProcessor: StateProcessor<// swiftlint:disable:this type_
         case .removePasskeyPressed:
             state.loginState.fido2Credentials = []
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
-            UIAccessibility.post(notification: .announcement, argument: Localizations.passkeyRemoved)
-        }
+                UIAccessibility.post(notification: .announcement, argument: Localizations.passkeyRemoved)
+            }
         case let .removeUriPressed(index):
             guard index < state.loginState.uris.count else { return }
             state.loginState.uris.remove(at: index)

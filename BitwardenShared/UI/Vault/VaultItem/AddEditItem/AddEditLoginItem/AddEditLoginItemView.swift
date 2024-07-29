@@ -48,10 +48,12 @@ struct AddEditLoginItemView: View {
                     fido2Credential.creationDate.formatted(date: .omitted, time: .shortened)
                 )
             ) {
-                AccessoryButton(asset: Asset.Images.minusRound, accessibilityLabel: Localizations.removePasskey) {
-                    store.send(.removePasskeyPressed)
+                if store.state.canViewPassword {
+                    AccessoryButton(asset: Asset.Images.minusRound, accessibilityLabel: Localizations.removePasskey) {
+                        store.send(.removePasskeyPressed)
+                    }
+                    .accessibilityIdentifier("LoginRemovePasskeyButton")
                 }
-                .accessibilityIdentifier("LoginRemovePasskeyButton")
             }
         }
     }
