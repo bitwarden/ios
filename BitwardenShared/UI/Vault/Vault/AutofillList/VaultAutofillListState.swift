@@ -14,11 +14,17 @@ struct VaultAutofillListState: Equatable {
     /// The message to show the user when there are no items.
     var emptyViewMessage: String = Localizations.noItemsTap
 
+    /// The text to be displayed in the button of the empty view.
+    var emptyViewButtonText: String = Localizations.newItem
+
     /// The base url used to fetch icons.
     var iconBaseURL: URL?
 
     /// Whether the extension mode is preparing for autofill from Fido2 list.
     var isAutofillingFido2List: Bool = false
+
+    /// Whether the extension mode is creating a Fido2 credential.
+    var isCreatingFido2Credential: Bool = false
 
     /// The user's current account profile state and alternative accounts.
     var profileSwitcherState: ProfileSwitcherState = .empty(shouldAlwaysHideAddAccount: true)
