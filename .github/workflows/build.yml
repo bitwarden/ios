@@ -345,11 +345,6 @@ jobs:
           BUILD_NUMBER=$(($GITHUB_RUN_NUMBER))
           ./Scripts/build.sh
 
-      - name: Tree
-        run: |
-          brew install tree
-          tree -d build
-
       - name: Prepare IPA & dSYM files for upload to GitHub
         run: |
           mkdir -p export/dSYMs
