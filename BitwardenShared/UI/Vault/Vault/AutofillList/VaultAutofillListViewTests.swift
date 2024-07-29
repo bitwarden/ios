@@ -33,7 +33,17 @@ class VaultAutofillListViewTests: BitwardenTestCase {
     func test_addItemButton_tap() throws {
         let button = try subject.inspect().find(button: Localizations.add)
         try button.tap()
-        XCTAssertEqual(processor.dispatchedActions.last, .addTapped)
+        XCTAssertEqual(processor.dispatchedActions.last, .addTapped(fromToolbar: true))
+    }
+
+    /// Tapping the add an item button dispatches the `.addTapped` action.
+    func test_addItemButton_tap_fido2CreationFlowEmptyView() throws {
+        processor.state.isCreatingFido2Credential = true
+        processor.state.vaultListSections = []
+        processor.state.emptyViewButtonText = Localizations.savePasskeyAsNewLogin
+        let button = try subject.inspect().find(button: Localizations.savePasskeyAsNewLogin)
+        try button.tap()
+        XCTAssertEqual(processor.dispatchedActions.last, .addTapped(fromToolbar: false))
     }
 
     /// Tapping the cancel button dispatches the `.cancelTapped` action.
@@ -56,15 +66,59 @@ class VaultAutofillListViewTests: BitwardenTestCase {
         )
     }
 
+    /// The empty view renders correctly when creating Fido2 credential.
+    func test_snapshot_vaultAutofillList_emptyFido2Creation() {
+        let account = ProfileSwitcherItem.anneAccount
+        processor.state.profileSwitcherState.accounts = [account]
+        processor.state.profileSwitcherState.activeAccountId = account.userId
+        processor.state.isCreatingFido2Credential = true
+        processor.state.emptyViewMessage = Localizations.noItemsForUri("myApp.com")
+        processor.state.emptyViewButtonText = Localizations.savePasskeyAsNewLogin
+        assertSnapshots(
+            of: subject.navStackWrapped,
+            as: [.defaultPortrait, .defaultPortraitDark, .defaultPortraitAX5]
+        )
+    }
+
     /// The populated view renders correctly.
     func test_snapshot_vaultAutofillList_populated() {
         let account = ProfileSwitcherItem.anneAccount
         processor.state.profileSwitcherState.accounts = [account]
         processor.state.profileSwitcherState.activeAccountId = account.userId
-        processor.state.ciphersForAutofill = [
-            .init(cipherView: .fixture(id: "1", login: .fixture(username: "user@bitwarden.com"), name: "Apple"))!,
-            .init(cipherView: .fixture(id: "2", login: .fixture(username: "user@bitwarden.com"), name: "Bitwarden"))!,
-            .init(cipherView: .fixture(id: "3", login: .fixture(username: ""), name: "Company XYZ"))!,
+        processor.state.vaultListSections = [
+            VaultListSection(
+                id: "",
+                items: [
+                    .init(
+                        cipherView: .fixture(
+                            id: "1",
+                            login: .fixture(
+                                username: "user@bitwarden.com"
+                            ),
+                            name: "Apple"
+                        )
+                    )!,
+                    .init(
+                        cipherView: .fixture(
+                            id: "2",
+                            login: .fixture(
+                                username: "user@bitwarden.com"
+                            ),
+                            name: "Bitwarden"
+                        )
+                    )!,
+                    .init(
+                        cipherView: .fixture(
+                            id: "3",
+                            login: .fixture(
+                                username: ""
+                            ),
+                            name: "Company XYZ"
+                        )
+                    )!,
+                ],
+                name: ""
+            ),
         ]
         assertSnapshots(
             of: subject.navStackWrapped,
@@ -72,29 +126,148 @@ class VaultAutofillListViewTests: BitwardenTestCase {
         )
     }
 
-    /// The populated view renders correctly when mixing passwords and Fido2 credentials.
-    func test_snapshot_vaultAutofillList_populatedWithFido2() {
+    /// The populated view renders correctly when mixing passwords and Fido2 credentials on Fido2 creation context.
+    func test_snapshot_vaultAutofillList_fido2Creation() { // swiftlint:disable:this function_body_length
         let account = ProfileSwitcherItem.anneAccount
         processor.state.profileSwitcherState.accounts = [account]
         processor.state.profileSwitcherState.activeAccountId = account.userId
-        processor.state.ciphersForAutofill = [
-            .init(cipherView: .fixture(id: "1", login: .fixture(username: "user@bitwarden.com"), name: "Apple"))!,
-            .init(cipherView: .fixture(id: "2", login: .fixture(username: "user@bitwarden.com"), name: "Bitwarden"))!,
-            .init(cipherView: .fixture(id: "3", login: .fixture(username: ""), name: "Company XYZ"))!,
-            .init(cipherView: .fixture(
-                id: "4",
-                login: .fixture(
-                    username: ""
-                ),
-                name: "App"
-            ), fido2CredentialAutofillView: .fixture(userNameForUi: "myFido2Username"))!,
-            .init(cipherView: .fixture(
-                id: "5",
-                login: .fixture(
-                    username: ""
-                ),
-                name: "myApp.com"
-            ), fido2CredentialAutofillView: .fixture(userNameForUi: "another user"))!,
+        processor.state.isCreatingFido2Credential = true
+        processor.state.vaultListSections = [
+            VaultListSection(
+                id: Localizations.chooseALoginToSaveThisPasskeyTo,
+                items: [
+                    .init(
+                        cipherView: .fixture(
+                            id: "1",
+                            login: .fixture(
+                                username: "user@bitwarden.com"
+                            ),
+                            name: "Apple"
+                        )
+                    )!,
+                    .init(
+                        cipherView: .fixture(
+                            id: "2",
+                            login: .fixture(
+                                username: "user@bitwarden.com"
+                            ),
+                            name: "Bitwarden"
+                        )
+                    )!,
+                    .init(
+                        cipherView: .fixture(
+                            id: "3",
+                            login: .fixture(
+                                username: ""
+                            ),
+                            name: "Company XYZ"
+                        )
+                    )!,
+                    .init(
+                        cipherView: .fixture(
+                            id: "4",
+                            login: .fixture(
+                                username: ""
+                            ),
+                            name: "App"
+                        ),
+                        fido2CredentialAutofillView: .fixture(
+                            userNameForUi: "myFido2Username"
+                        )
+                    )!,
+                    .init(
+                        cipherView: .fixture(
+                            id: "5",
+                            login: .fixture(
+                                username: ""
+                            ),
+                            name: "myApp.com"
+                        ),
+                        fido2CredentialAutofillView: .fixture(
+                            userNameForUi: "another user"
+                        )
+                    )!,
+                ],
+                name: Localizations.chooseALoginToSaveThisPasskeyTo
+            ),
+        ]
+        assertSnapshots(
+            of: subject.navStackWrapped,
+            as: [.defaultPortrait, .defaultPortraitDark, .defaultPortraitAX5]
+        )
+    }
+
+    /// The populated view renders correctly when mixing passwords and Fido2 credentials on multiple sections.
+    func test_snapshot_vaultAutofillList_populatedWithFido2_multipleSections() { // swiftlint:disable:this function_body_length
+        // swiftlint:disable:previous line_length
+        let account = ProfileSwitcherItem.anneAccount
+        processor.state.profileSwitcherState.accounts = [account]
+        processor.state.profileSwitcherState.activeAccountId = account.userId
+        processor.state.isAutofillingFido2List = true
+        processor.state.vaultListSections = [
+            VaultListSection(
+                id: "Passkeys for myApp.com",
+                items: [
+                    .init(
+                        cipherView: .fixture(
+                            id: "4",
+                            login: .fixture(
+                                username: ""
+                            ),
+                            name: "App"
+                        ),
+                        fido2CredentialAutofillView: .fixture(
+                            userNameForUi: "myFido2Username"
+                        )
+                    )!,
+                    .init(
+                        cipherView: .fixture(
+                            id: "5",
+                            login: .fixture(
+                                username: ""
+                            ),
+                            name: "myApp.com"
+                        ),
+                        fido2CredentialAutofillView: .fixture(
+                            userNameForUi: "another user"
+                        )
+                    )!,
+                ],
+                name: "Passkeys for myApp.com"
+            ),
+            VaultListSection(
+                id: "Passwords for myApp.com",
+                items: [
+                    .init(
+                        cipherView: .fixture(
+                            id: "1",
+                            login: .fixture(
+                                username: "user@bitwarden.com"
+                            ),
+                            name: "Apple"
+                        )
+                    )!,
+                    .init(
+                        cipherView: .fixture(
+                            id: "2",
+                            login: .fixture(
+                                username: "user@bitwarden.com"
+                            ),
+                            name: "Bitwarden"
+                        )
+                    )!,
+                    .init(
+                        cipherView: .fixture(
+                            id: "3",
+                            login: .fixture(
+                                username: ""
+                            ),
+                            name: "Company XYZ"
+                        )
+                    )!,
+                ],
+                name: "Passwords for myApp.com"
+            ),
         ]
         assertSnapshots(
             of: subject.navStackWrapped,

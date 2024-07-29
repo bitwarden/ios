@@ -38,7 +38,7 @@ class ViewItemActionTests: BitwardenTestCase {
 
         XCTAssertFalse(ViewItemAction.dismissPressed.requiresMasterPasswordReprompt)
 
-        XCTAssertFalse(ViewItemAction.downloadAttachment(.fixture()).requiresMasterPasswordReprompt)
+        XCTAssertTrue(ViewItemAction.downloadAttachment(.fixture()).requiresMasterPasswordReprompt)
 
         XCTAssertTrue(ViewItemAction.editPressed.requiresMasterPasswordReprompt)
 

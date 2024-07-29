@@ -39,8 +39,8 @@ struct VaultAutofillListView: View {
                 )
             }
 
-            addToolbarItem {
-                store.send(.addTapped)
+            addToolbarItem(hidden: store.state.isAutofillingFido2List) {
+                store.send(.addTapped(fromToolbar: true))
             }
 
             cancelToolbarItem {
@@ -107,7 +107,38 @@ private struct VaultAutofillListSearchableView: View {
 
     /// A view for displaying a list of ciphers.
     @ViewBuilder
-    private func cipherListView(_ items: [VaultListItem]) -> some View {
+    private func cipherListView(_ sections: [VaultListSection]) -> some View {
+        if store.state.isAutofillingFido2List || store.state.isCreatingFido2Credential {
+            cipherCombinedListView(sections)
+        } else {
+            let items = sections.first?.items ?? []
+            cipherSimpleListView(items)
+        }
+    }
+
+    /// A view for displaying a list of sections with ciphers.
+    @ViewBuilder
+    private func cipherCombinedListView(_ sections: [VaultListSection]) -> some View {
+        LazyVStack(spacing: 16) {
+            ForEach(sections) { section in
+                VaultListSectionView(
+                    section: section,
+                    showCount: !store.state.isCreatingFido2Credential
+                ) { item in
+                    AsyncButton {
+                        await store.perform(.vaultItemTapped(item))
+                    } label: {
+                        vaultItemRow(for: item, isLastInSection: section.items.last == item)
+                    }
+                }
+            }
+        }
+        .scrollView()
+    }
+
+    /// A view for displaying a list of ciphers without sections.
+    @ViewBuilder
+    private func cipherSimpleListView(_ items: [VaultListItem]) -> some View {
         LazyVStack(spacing: 0) {
             ForEach(items) { item in
                 AsyncButton {
@@ -155,20 +186,31 @@ private struct VaultAutofillListSearchableView: View {
         if isSearching {
             searchContentView()
         } else {
-            if store.state.ciphersForAutofill.isEmpty {
-                Button {
-                    store.send(.addTapped)
-                } label: {
-                    Text(Localizations.noItemsTap)
-                        .styleGuide(.body)
-                        .foregroundColor(Asset.Colors.textPrimary.swiftUIColor)
-                        .multilineTextAlignment(.center)
-                        .padding(16)
-                        .frame(maxWidth: .infinity)
+            if store.state.vaultListSections.isEmpty {
+                EmptyContentView(
+                    image: Asset.Images.openSource.swiftUIImage,
+                    text: store.state.emptyViewMessage
+                ) {
+                    if store.state.isAutofillingFido2List {
+                        EmptyView()
+                    } else {
+                        Button {
+                            store.send(.addTapped(fromToolbar: false))
+                        } label: {
+                            Label {
+                                Text(store.state.emptyViewButtonText)
+                            } icon: {
+                                Asset.Images.plus.swiftUIImage
+                                    .imageStyle(.accessoryIcon(
+                                        color: Asset.Colors.textPrimaryInverted.swiftUIColor,
+                                        scaleWithFont: true
+                                    ))
+                            }
+                        }
+                    }
                 }
-                .scrollView()
             } else {
-                cipherListView(store.state.ciphersForAutofill)
+                cipherListView(store.state.vaultListSections)
             }
         }
     }
@@ -199,34 +241,103 @@ private struct VaultAutofillListSearchableView: View {
             store: Store(
                 processor: StateProcessor(
                     state: VaultAutofillListState(
-                        ciphersForAutofill: [
-                            .init(cipherView: .fixture(
-                                id: "1",
-                                login: .fixture(username: "user@bitwarden.com"),
-                                name: "Apple"
-                            ))!,
-                            .init(cipherView: .fixture(
-                                id: "2",
-                                login: .fixture(username: "user@bitwarden.com"),
-                                name: "Bitwarden"
-                            ))!,
-                            .init(cipherView: .fixture(
-                                id: "3",
-                                name: "Company XYZ"
-                            ))!,
-                            .init(cipherView: .fixture(
-                                id: "4",
-                                login: .fixture(
-                                    fido2Credentials: [
-                                        .fixture(),
-                                    ],
-                                    username: "user@bitwarden.com"
-                                ),
-                                name: "Company XYZ"
-                            ), fido2CredentialAutofillView: .fixture(
-                                rpId: "someApp",
-                                userNameForUi: "user"
-                            ))!,
+                        vaultListSections: [
+                            VaultListSection(
+                                id: "Passwords",
+                                items: [
+                                    .init(cipherView: .fixture(
+                                        id: "1",
+                                        login: .fixture(username: "user@bitwarden.com"),
+                                        name: "Apple"
+                                    ))!,
+                                    .init(cipherView: .fixture(
+                                        id: "2",
+                                        login: .fixture(username: "user@bitwarden.com"),
+                                        name: "Bitwarden"
+                                    ))!,
+                                    .init(cipherView: .fixture(
+                                        id: "3",
+                                        name: "Company XYZ"
+                                    ))!,
+                                ],
+                                name: "Passwords"
+                            ),
+                        ]
+                    )
+                )
+            )
+        )
+    }
+}
+
+#Preview("Combined Logins") {
+    NavigationView {
+        VaultAutofillListView(
+            store: Store(
+                processor: StateProcessor(
+                    state: VaultAutofillListState(
+                        isAutofillingFido2List: true,
+                        vaultListSections: [
+                            VaultListSection(
+                                id: "Passkeys for myApp.com",
+                                items: [
+                                    .init(cipherView: .fixture(
+                                        id: "1",
+                                        login: .fixture(username: "user@bitwarden.com"),
+                                        name: "Apple"
+                                    ), fido2CredentialAutofillView: .fixture(
+                                        rpId: "apple.com",
+                                        userNameForUi: "user"
+                                    ))!,
+                                    .init(cipherView: .fixture(
+                                        id: "4",
+                                        login: .fixture(
+                                            fido2Credentials: [
+                                                .fixture(),
+                                            ],
+                                            username: "user@bitwarden.com"
+                                        ),
+                                        name: "myApp.com"
+                                    ), fido2CredentialAutofillView: .fixture(
+                                        rpId: "myApp.com",
+                                        userNameForUi: "user"
+                                    ))!,
+                                    .init(cipherView: .fixture(
+                                        id: "5",
+                                        login: .fixture(
+                                            fido2Credentials: [
+                                                .fixture(),
+                                            ],
+                                            username: "user@test.com"
+                                        ),
+                                        name: "Testing something really long to see how it looks"
+                                    ), fido2CredentialAutofillView: .fixture(
+                                        rpId: "someApp",
+                                        userNameForUi: "user"
+                                    ))!,
+                                ],
+                                name: "Passkeys for myApp.com"
+                            ),
+                            VaultListSection(
+                                id: "Passwords for myApp.com",
+                                items: [
+                                    .init(cipherView: .fixture(
+                                        id: "1",
+                                        login: .fixture(username: "user@bitwarden.com"),
+                                        name: "Apple"
+                                    ))!,
+                                    .init(cipherView: .fixture(
+                                        id: "2",
+                                        login: .fixture(username: "user@bitwarden.com"),
+                                        name: "Bitwarden"
+                                    ))!,
+                                    .init(cipherView: .fixture(
+                                        id: "3",
+                                        name: "Company XYZ"
+                                    ))!,
+                                ],
+                                name: "Passwords for myApp.com"
+                            ),
                         ]
                     )
                 )
