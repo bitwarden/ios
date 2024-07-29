@@ -64,9 +64,9 @@ struct BitwardenMultilineTextField: View {
     ///   - accessibilityIdentifier: The accessibility identifier for the text field.
     ///
     init(
-        title: String?,
+        title: String? = nil,
         text: Binding<String>,
-        footer: String?,
+        footer: String? = nil,
         accessibilityIdentifier: String? = nil
     ) {
         self.accessibilityIdentifier = accessibilityIdentifier

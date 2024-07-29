@@ -128,7 +128,7 @@
 "Immediately" = "Välittömästi";
 "VaultTimeout" = "Holvin aikakatkaisu";
 "VaultTimeoutAction" = "Holvin aikakatkaisutoiminto";
-"VaultTimeoutLogOutConfirmation" = "Uloskirjautuminen estää pääsyn holviisi ja vaatii ajan umpeuduttua todennuksen Internet-yhteyden välityksellä. Haluatko varmasti käyttää asetusta?";
+"VaultTimeoutLogOutConfirmation" = "Uloskirjautuminen estää pääsyn holviisi ja vaatii ajan umpeuduttua tunnistautumisen Internet-yhteyden välityksellä. Haluatko varmasti käyttää asetusta?";
 "LoggingIn" = "Kirjaudutaan sisään…";
 "LoginOrCreateNewAccount" = "Käytä salattua holviasi kirjautumalla sisään tai luo uusi tili.";
 "Manage" = "Hallinta";
@@ -217,7 +217,7 @@
 "RememberMe" = "Muista minut";
 "SendVerificationCodeAgain" = "Lähetä todennuskoodi sähköpostitse uudelleen";
 "TwoStepLoginOptions" = "Kaksivaiheisen kirjautumisen asetukset";
-"UseAnotherTwoStepMethod" = "Käytä eri kaksivaiheisen kirjautumisen todennusmenetelmää";
+"UseAnotherTwoStepMethod" = "Käytä vaihtoehtoista todennustapaa";
 "VerificationEmailNotSent" = "Todennussähköpostin lähetys ei onnistunut. Yritä uudelleen.";
 "VerificationEmailSent" = "Todennussähköposti lähetettiin";
 "YubiKeyInstruction" = "Jatka asettamalla YubiKey NEO -todennuslaite laitteen taustaa vasten tai kytke YubiKey-todennuslaite laitteen USB-porttiin ja paina sen painiketta.";
@@ -236,9 +236,9 @@
 "ScanQrTitle" = "Skannaa QR-koodi";
 "Camera" = "Kamera";
 "Photos" = "Kuvat";
-"CopyTotp" = "Kopioi TOTP-todennuskoodi";
-"CopyTotpAutomaticallyDescription" = "Jos kirjautumistieto sisältää kaksivaiheisen todennuksen avaimen, kopioidaan TOTP-todennuskoodi leikepöydälle kohteen automaattisen täytön yhteydessä.";
-"CopyTotpAutomatically" = "TOTP-koodin kopiointi";
+"CopyTotp" = "Kopioi TOTP-koodi";
+"CopyTotpAutomaticallyDescription" = "Jos kirjautumistieto sisältää kaksivaiheisen kirjautumisen todennusavaimen, kopioidaan TOTP-koodi leikepöydälle kohteen automaattisen täytön yhteydessä.";
+"CopyTotpAutomatically" = "Kopioi TOTP-koodi automaattisesti";
 "PremiumRequired" = "Käyttääksesi tätä toimintoa tarvitset Premium-jäsenyyden.";
 "AttachementAdded" = "Tiedostoliite lisätty";
 "AttachmentDeleted" = "Tiedostoliite poistettiin";
@@ -479,8 +479,6 @@
 "CodeSent" = "Koodi lähetettiin!";
 "ConfirmYourIdentity" = "Jatka vahvistamalla henkilöllisyytesi.";
 "ExportVaultWarning" = "Tämä vienti sisältää holvisi tiedot salaamattomassa muodossa. Sinun ei tulisi säilyttää tai lähettää vietyä tiedostoa suojaamattomien kanavien (kuten sähköpostin) välityksellä. Poista se välittömästi kun sille ei enää ole käyttöä.";
-"EncExportKeyWarning" = "Tämä vienti salaa tietosi käyttäen tilisi salausavainta. Jos joskus uudistat tilisi salausavaimen, tulisi vienti suorittaa uudelleen, koska et voi enää purkaa nyt viedyn tiedoston salausta.";
-"EncExportAccountWarning" = "Tilin salausavaimet ovat ainutlaatuisia jokaiselle Bitwarden-käyttäjätilille, joten et voi tuoda salattua vientitiedostoa toiselle tilille.";
 "ExportVaultConfirmationTitle" = "Vahvista holvin vienti";
 "Warning" = "Varoitus";
 "ExportVaultFailure" = "Holvin viennissä oli ongelma. Jos ongelma jatkuu, sinun on tehtävä vienti verkkoholvin kautta.";
@@ -678,7 +676,7 @@
 "EnterKeyManually" = "Syötä se manuaalisesti";
 "AddTotp" = "Lisää TOTP";
 "SetupTotp" = "Määritä TOTP";
-"OnceTheKeyIsSuccessfullyEntered" = "Kun koodi on syötetty oikein, tallenna avain\nturvallisesti valitsemalla \"Lisää TOTP\"";
+"OnceTheKeyIsSuccessfullyEntered" = "Kun avain on syötetty oikein, tallenna se\nturvallisesti valitsemalla \"Lisää TOTP\"";
 "NeverLockWarning" = "Käyttämällä lukitusasetusta \"Ei koskaan\"? Tallentuu holvisi salausavain laitteellesi. Jos käytät asetusta, varmista, että laite on suojattu hyvin.";
 "EnvironmentPageUrlsError" = "Yksi tai useampi syötetyistä URL-osoitteista on virheellinen. Tarkista virheet ja yritä tallennusta uudelleen.";
 "GenericErrorMessage" = "Pyyntöäsi ei voitu käsitellä. Yritä uudelleen tai ota meihin yhteyttä.";
@@ -920,3 +918,4 @@
 "UnknownAccount" = "Tuntematon tili";
 "UserVerificationForPasskey" = "Käyttäjän vahvistus suojausavaimelle";
 "NewItem" = "Uusi kohde";
+"ExportVaultFilePwProtectInfo" = "Tämä vientitiedosto suojataan salauksen purkuun tarvittavalla salasanalla.";

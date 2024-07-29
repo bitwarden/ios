@@ -190,12 +190,19 @@ public protocol VaultRepository: AnyObject {
 
     /// A publisher for the list of a user's ciphers that can be used for autofill matching a URI.
     ///
-    /// - Parameter uri: The URI used to filter ciphers that have a matching URI.
-    /// - Returns: The list of a user's ciphers that can be used for autofill.
+    /// - Parameters:
+    ///   - availableFido2CredentialsPublisher: The publisher for available Fido2 credentials for Fido2 autofill list.
+    ///   - mode: The mode in which the autofill list is presented.
+    ///   - rpID: The relying party identifier of the Fido2 request.
+    ///   - uri: The URI used to filter ciphers that have a matching URI
     ///
+    /// - Returns: The list of a user's ciphers that can be used for autofill.
     func ciphersAutofillPublisher(
+        availableFido2CredentialsPublisher: AnyPublisher<[BitwardenSdk.CipherView]?, Error>,
+        mode: AutofillListMode,
+        rpID: String?,
         uri: String?
-    ) async throws -> AsyncThrowingPublisher<AnyPublisher<[CipherView], Error>>
+    ) async throws -> AsyncThrowingPublisher<AnyPublisher<[VaultListSection], Error>>
 
     /// Determine if a full sync is necessary.
     ///
@@ -212,14 +219,20 @@ public protocol VaultRepository: AnyObject {
     /// A publisher for searching a user's cipher objects for autofill. This only includes login ciphers.
     ///
     /// - Parameters:
-    ///     - searchText:  The search text to filter the cipher list.
-    ///     - filterType: The vault filter type to apply to the cipher list.
-    /// - Returns: A publisher for searching the user's ciphers for autofill.
+    ///   - availableFido2CredentialsPublisher: The publisher for available Fido2 credentials for Fido2 autofill list.
+    ///   - mode: The mode in which the autofill list is presented.
+    ///   - filterType: The vault filter type to apply to the cipher list.
+    ///   - rpID: The relying party identifier of the Fido2 request
+    ///   - searchText: The search text to filter the cipher list.
     ///
+    /// - Returns: A publisher for searching the user's ciphers for autofill.
     func searchCipherAutofillPublisher(
-        searchText: String,
-        filterType: VaultFilterType
-    ) async throws -> AsyncThrowingPublisher<AnyPublisher<[CipherView], Error>>
+        availableFido2CredentialsPublisher: AnyPublisher<[BitwardenSdk.CipherView]?, Error>,
+        mode: AutofillListMode,
+        filterType: VaultFilterType,
+        rpID: String?,
+        searchText: String
+    ) async throws -> AsyncThrowingPublisher<AnyPublisher<[VaultListSection], Error>>
 
     /// A publisher for searching a user's cipher objects based on the specified search text and filter type.
     ///
@@ -1178,23 +1191,35 @@ extension DefaultVaultRepository: VaultRepository {
     }
 
     func ciphersAutofillPublisher(
+        availableFido2CredentialsPublisher: AnyPublisher<[BitwardenSdk.CipherView]?, Error>,
+        mode: AutofillListMode,
+        rpID: String?,
         uri: String?
-    ) async throws -> AsyncThrowingPublisher<AnyPublisher<[CipherView], Error>> {
-        try await cipherService.ciphersPublisher()
-            .asyncTryMap { ciphers in
-                try await ciphers.asyncMap { cipher in
-                    try await self.clientService.vault().ciphers().decrypt(cipher: cipher)
-                }
+    ) async throws -> AsyncThrowingPublisher<AnyPublisher<[VaultListSection], Error>> {
+        try await Publishers.CombineLatest(
+            cipherService.ciphersPublisher(),
+            availableFido2CredentialsPublisher
+        )
+        .asyncTryMap { ciphers, availableFido2Credentials in
+            let decryptedCiphers = try await ciphers.asyncMap { cipher in
+                try await self.clientService.vault().ciphers().decrypt(cipher: cipher)
             }
-            .asyncTryMap { ciphers in
-                await CipherMatchingHelper(
-                    settingsService: self.settingsService,
-                    stateService: self.stateService
-                )
-                .ciphersMatching(uri: uri, ciphers: ciphers)
-            }
-            .eraseToAnyPublisher()
-            .values
+            let matchingCiphers = await CipherMatchingHelper(
+                settingsService: self.settingsService,
+                stateService: self.stateService
+            )
+            .ciphersMatching(uri: uri, ciphers: decryptedCiphers)
+
+            return try await self.createAutofillListSections(
+                availableFido2Credentials: availableFido2Credentials,
+                from: matchingCiphers,
+                mode: mode,
+                rpID: rpID,
+                searchText: nil
+            )
+        }
+        .eraseToAnyPublisher()
+        .values
     }
 
     func organizationsPublisher() async throws -> AsyncThrowingPublisher<AnyPublisher<[Organization], Error>> {
@@ -1202,15 +1227,30 @@ extension DefaultVaultRepository: VaultRepository {
     }
 
     func searchCipherAutofillPublisher(
-        searchText: String,
-        filterType: VaultFilterType
-    ) async throws -> AsyncThrowingPublisher<AnyPublisher<[CipherView], Error>> {
-        try await searchPublisher(
-            searchText: searchText,
-            filterType: filterType,
-            isActive: true
-        ) { cipher in
-            cipher.type == .login
+        availableFido2CredentialsPublisher: AnyPublisher<[BitwardenSdk.CipherView]?, Error>,
+        mode: AutofillListMode,
+        filterType: VaultFilterType,
+        rpID: String?,
+        searchText: String
+    ) async throws -> AsyncThrowingPublisher<AnyPublisher<[VaultListSection], Error>> {
+        try await Publishers.CombineLatest(
+            searchPublisher(
+                searchText: searchText,
+                filterType: filterType,
+                isActive: true
+            ) { cipher in
+                cipher.type == .login
+            },
+            availableFido2CredentialsPublisher
+        )
+        .asyncTryMap { ciphers, availableFido2Credentials in
+            try await self.createAutofillListSections(
+                availableFido2Credentials: availableFido2Credentials,
+                from: ciphers,
+                mode: mode,
+                rpID: rpID,
+                searchText: searchText
+            )
         }
         .eraseToAnyPublisher()
         .values
@@ -1244,7 +1284,7 @@ extension DefaultVaultRepository: VaultRepository {
                 return cipher.type == .secureNote
             case .totp:
                 return cipher.type == .login
-                    && TOTPKey(cipher.login?.totp ?? "") != nil
+                    && cipher.login?.totp != nil
             case .trash:
                 return cipher.deletedDate != nil
             }
@@ -1294,5 +1334,177 @@ extension DefaultVaultRepository: VaultRepository {
         }
         .eraseToAnyPublisher()
         .values
+    }
+
+    // MARK: Private
+
+    /// Creates the vault list sections from given ciphers and search text.
+    /// This is to centralize sections creation from loading and searching.
+    ///
+    /// - Parameters:
+    ///   - availableFido2Credentials: The available Fido2 credentials for Fido2 autofill list.
+    ///   - from: The ciphers to create the sections, either load or search results.
+    ///   - mode: The mode in which the autofill list is presented.
+    ///   - rpID: The relying party identifier of the Fido2 request.
+    ///   - searchText: The current search text.
+    /// - Returns: The sections for the autofill list.
+    private func createAutofillListSections(
+        availableFido2Credentials: [CipherView]?,
+        from ciphers: [CipherView],
+        mode: AutofillListMode,
+        rpID: String?,
+        searchText: String?
+    ) async throws -> [VaultListSection] {
+        guard mode != .combinedSingleSection else {
+            guard !ciphers.isEmpty else {
+                return []
+            }
+
+            let section = try await createAutofillListCombinedSingleSection(from: ciphers)
+            return [section]
+        }
+
+        var sections = [VaultListSection]()
+        if #available(iOSApplicationExtension 17.0, *),
+           let fido2Section = try await loadAutofillFido2Section(
+               availableFido2Credentials: availableFido2Credentials,
+               mode: mode,
+               rpID: rpID,
+               searchText: searchText,
+               searchResults: searchText != nil ? ciphers : nil
+           ) {
+            sections.append(fido2Section)
+        } else if ciphers.isEmpty {
+            return []
+        }
+
+        let sectionName = getAutofillPasswordsSectionName(
+            mode: mode,
+            rpID: rpID,
+            searchText: searchText
+        )
+
+        sections.append(
+            VaultListSection(
+                id: sectionName,
+                items: ciphers.compactMap { .init(cipherView: $0) },
+                name: sectionName
+            )
+        )
+        return sections
+    }
+
+    /// Creates the single vault list section for passwords + Fido2 credentials.
+    /// - Parameter ciphers: Ciphers to load.
+    /// - Returns: The section to display passwords + Fido2 credentials.
+    private func createAutofillListCombinedSingleSection(
+        from ciphers: [CipherView]
+    ) async throws -> VaultListSection {
+        let vaultItems = try await ciphers
+            .asyncMap { cipher in
+                guard cipher.hasFido2Credentials else {
+                    return VaultListItem(cipherView: cipher)
+                }
+                return try await createFido2VaultListItem(from: cipher)
+            }
+            .compactMap { $0 }
+
+        return VaultListSection(
+            id: Localizations.chooseALoginToSaveThisPasskeyTo,
+            items: vaultItems,
+            name: Localizations.chooseALoginToSaveThisPasskeyTo
+        )
+    }
+
+    /// Creates a `VaultListItem` from a `CipherView` with Fido2 credentials.
+    /// - Parameter cipher: Cipher from which create the item.
+    /// - Returns: The `VaultListItem` with the cipher and Fido2 credentials.
+    func createFido2VaultListItem(from cipher: CipherView) async throws -> VaultListItem? {
+        let decryptedFido2Credentials = try await clientService
+            .platform()
+            .fido2()
+            .decryptFido2AutofillCredentials(cipherView: cipher)
+
+        guard let fido2CredentialAutofillView = decryptedFido2Credentials.first else {
+            errorReporter.log(error: Fido2Error.decryptFido2AutofillCredentialsEmpty)
+            return nil
+        }
+
+        return VaultListItem(
+            cipherView: cipher,
+            fido2CredentialAutofillView: fido2CredentialAutofillView
+        )
+    }
+
+    /// Gets the passwords vault list section name depending on the context.
+    ///
+    /// - Parameters:
+    ///   - mode: The mode in which the autofill list is presented.
+    ///   - rpID: The relying party identifier of the Fido2 request.
+    ///   - searchText: The current search text.
+    ///
+    private func getAutofillPasswordsSectionName(
+        mode: AutofillListMode,
+        rpID: String?,
+        searchText: String?
+    ) -> String {
+        guard mode != .passwords else {
+            return ""
+        }
+
+        if let searchText {
+            return Localizations.passwordsForX(searchText)
+        }
+
+        if let rpID {
+            return Localizations.passwordsForX(rpID)
+        }
+
+        return Localizations.passwords
+    }
+
+    /// Loads the autofill Fido2 section if needed.
+    /// - Parameters:
+    ///   - availableFido2Credentials: The available Fido2 credentials for Fido2 autofill list.
+    ///   - mode: The mode in which the autofill list is presented.
+    ///   - rpID: The relying party identifier of the Fido2 request.
+    ///   - searchText: The current search text.
+    ///   - searchResults: The search results.
+    /// - Returns: The vault list section for Fido2 autofill if needed.
+    private func loadAutofillFido2Section(
+        availableFido2Credentials: [CipherView]?,
+        mode: AutofillListMode,
+        rpID: String?,
+        searchText: String? = nil,
+        searchResults: [CipherView]? = nil
+    ) async throws -> VaultListSection? {
+        guard let fido2Credentials = availableFido2Credentials,
+              !fido2Credentials.isEmpty,
+              case .combinedMultipleSections = mode,
+              let rpID else {
+            return nil
+        }
+
+        var filteredFido2Credentials = fido2Credentials
+        if let searchResults {
+            filteredFido2Credentials = filteredFido2Credentials.filter { cipher in
+                searchResults.contains(where: { $0.id == cipher.id })
+            }
+        }
+
+        guard !filteredFido2Credentials.isEmpty else {
+            return nil
+        }
+
+        let fido2ListItems: [VaultListItem?] = try await filteredFido2Credentials
+            .asyncMap { cipher in
+                try await createFido2VaultListItem(from: cipher)
+            }
+
+        return VaultListSection(
+            id: Localizations.passkeysForX(searchText ?? rpID),
+            items: fido2ListItems.compactMap { $0 },
+            name: Localizations.passkeysForX(searchText ?? rpID)
+        )
     }
 } // swiftlint:disable:this file_length

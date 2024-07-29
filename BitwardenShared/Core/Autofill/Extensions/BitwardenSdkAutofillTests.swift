@@ -6,6 +6,67 @@ import XCTest
 
 @testable import BitwardenShared
 
+// MARK: - GetAssertionRequest
+
+class GetAssertionRequestTests: BitwardenTestCase {
+    // MARK: Tests
+
+    /// `init(fido2RequestParameters:)` initializes correctly
+    func test_init_fido2RequestParameters() {
+        let allowedCredentials = [
+            Data(repeating: 2, count: 32),
+            Data(repeating: 5, count: 32),
+        ]
+        let passkeyParameters = MockPasskeyCredentialRequestParameters(allowedCredentials: allowedCredentials)
+
+        let request = GetAssertionRequest(fido2RequestParameters: passkeyParameters)
+
+        XCTAssertEqual(request.clientDataHash, passkeyParameters.clientDataHash)
+        XCTAssertEqual(request.rpId, passkeyParameters.relyingPartyIdentifier)
+        XCTAssertFalse(request.options.rk)
+        XCTAssertEqual(request.options.uv, .preferred)
+        XCTAssertNil(request.extensions)
+        XCTAssertEqual(
+            request.allowList,
+            allowedCredentials.map { credentialId in
+                PublicKeyCredentialDescriptor(
+                    ty: "public-key",
+                    id: credentialId,
+                    transports: nil
+                )
+            }
+        )
+    }
+
+    /// `init(passkeyRequest:credentialIdentity:)` initializes correctly
+    @available(iOS 17.0, *)
+    func test_init_passkeyRequest_credentialIdentity() {
+        let passkeyRequest = ASPasskeyCredentialRequest.fixture()
+        guard let credentialIdentity = passkeyRequest.credentialIdentity as? ASPasskeyCredentialIdentity else {
+            XCTFail("Credential identity is not ASPasskeyCredentialIdentity.")
+            return
+        }
+
+        let request = GetAssertionRequest(passkeyRequest: passkeyRequest, credentialIdentity: credentialIdentity)
+
+        XCTAssertEqual(request.clientDataHash, passkeyRequest.clientDataHash)
+        XCTAssertEqual(request.rpId, credentialIdentity.relyingPartyIdentifier)
+        XCTAssertFalse(request.options.rk)
+        XCTAssertEqual(request.options.uv, .discouraged)
+        XCTAssertNil(request.extensions)
+        XCTAssertEqual(
+            request.allowList,
+            [
+                PublicKeyCredentialDescriptor(
+                    ty: "public-key",
+                    id: credentialIdentity.credentialID,
+                    transports: nil
+                ),
+            ]
+        )
+    }
+}
+
 // MARK: - MakeCredentialRequestTests
 
 class MakeCredentialRequestTests: BitwardenTestCase {

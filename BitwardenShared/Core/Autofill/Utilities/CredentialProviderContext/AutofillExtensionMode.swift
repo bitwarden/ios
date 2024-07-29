@@ -24,11 +24,6 @@ public enum AutofillExtensionMode {
 
 /// Protocol to bypass using @available for passkey requests.
 public protocol PasskeyCredentialRequest {}
-/// Protocol to bypass using @available for passkey request parameters.
-public protocol PasskeyCredentialRequestParameters {}
 
 @available(iOSApplicationExtension 17.0, *)
 extension ASPasskeyCredentialRequest: PasskeyCredentialRequest {}
-
-@available(iOSApplicationExtension 17.0, *)
-extension ASPasskeyCredentialRequestParameters: PasskeyCredentialRequestParameters {}

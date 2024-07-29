@@ -65,6 +65,55 @@ class UserVerificationHelperTests: BitwardenTestCase {
         XCTAssertFalse(subject.canVerifyDeviceLocalAuth())
     }
 
+    /// `setupPin()` shows an alert for the user to enter a pin for their account.
+    func test_setupPin() async throws {
+        userVerificationDelegate.alertShownHandler = { alert in
+            XCTAssertEqual(alert, .enterPINCode { _ in })
+            try alert.setText("1234", forTextFieldWithId: "pin")
+            try await alert.tapAction(title: Localizations.submit)
+        }
+
+        try await subject.setupPin()
+
+        XCTAssertEqual(authRepository.encryptedPin, "1234")
+    }
+
+    /// `setupPin()` throws an error if the entered pin is empty.
+    func test_setupPin_emptyPin() async throws {
+        userVerificationDelegate.alertShownHandler = { alert in
+            XCTAssertEqual(alert, .enterPINCode { _ in })
+            try await alert.tapAction(title: Localizations.submit)
+        }
+
+        await assertAsyncThrows(error: Fido2Error.failedToSetupPin) {
+            try await subject.setupPin()
+        }
+    }
+
+    /// `setupPin()` throws an error if setting the pin fails.
+    func test_setupPin_error() async throws {
+        authRepository.setPinsResult = .failure(BitwardenTestError.example)
+        userVerificationDelegate.alertShownHandler = { alert in
+            XCTAssertEqual(alert, .enterPINCode { _ in })
+            try alert.setText("1234", forTextFieldWithId: "pin")
+            try await alert.tapAction(title: Localizations.submit)
+        }
+
+        await assertAsyncThrows(error: BitwardenTestError.example) {
+            try await subject.setupPin()
+        }
+
+        XCTAssertEqual(authRepository.encryptedPin, "1234")
+    }
+
+    /// `setupPin()` throws an error if there's no delegate set up to display an alert.
+    func test_setupPin_missingDelegate() async {
+        subject.userVerificationDelegate = nil
+        await assertAsyncThrows(error: Fido2Error.failedToSetupPin) {
+            try await subject.setupPin()
+        }
+    }
+
     /// `verifyDeviceLocalAuth()` with device status not authorized.
     func test_verifyDeviceLocalAuth_notAuthorized() async throws {
         localAuthService.deviceAuthenticationStatus = .notDetermined
@@ -320,14 +369,22 @@ class UserVerificationHelperTests: BitwardenTestCase {
 
 class MockUserVerificationHelperDelegate: UserVerificationDelegate {
     var alertShown = [Alert]()
+    var alertShownHandler: ((Alert) async throws -> Void)?
     var alertOnDismissed: (() -> Void)?
 
     func showAlert(_ alert: Alert) {
         alertShown.append(alert)
+        Task {
+            do {
+                try await alertShownHandler?(alert)
+            } catch {
+                XCTFail("Error calling alert shown handler: \(error)")
+            }
+        }
     }
 
     func showAlert(_ alert: BitwardenShared.Alert, onDismissed: (() -> Void)?) {
-        alertShown.append(alert)
+        showAlert(alert)
         alertOnDismissed = onDismissed
     }
 }

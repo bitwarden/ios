@@ -479,8 +479,6 @@
 "CodeSent" = "驗證碼已傳送！";
 "ConfirmYourIdentity" = "請先確認身分後再繼續。";
 "ExportVaultWarning" = "此次匯出的密碼庫檔案為未加密格式。您不應將它存放或經由不安全的方式（例如電子郵件）傳送。用完後請立即將它刪除。";
-"EncExportKeyWarning" = "將使用您帳戶的加密金鑰來加密匯出的資料，若您更新了帳戶的加密金鑰，請重新匯出，否則將無法解密匯出的檔案。";
-"EncExportAccountWarning" = "每個 Bitwarden 使用者帳戶的帳戶加密金鑰都不相同，因此無法將已加密匯出的檔案匯入至不同帳戶中。";
 "ExportVaultConfirmationTitle" = "確認匯出密碼庫";
 "Warning" = "警告";
 "ExportVaultFailure" = "匯出您的密碼庫時發生錯誤。若問題持續發生，請改用網頁版密碼庫匯出資料。";
@@ -920,3 +918,4 @@
 "UnknownAccount" = "Unknown account";
 "UserVerificationForPasskey" = "User verification for passkey";
 "NewItem" = "New item";
+"ExportVaultFilePwProtectInfo" = "This file export will be password protected and require the file password to decrypt.";

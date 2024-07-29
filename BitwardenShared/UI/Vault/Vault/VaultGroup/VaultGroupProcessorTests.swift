@@ -209,7 +209,7 @@ class VaultGroupProcessorTests: BitwardenTestCase { // swiftlint:disable:this ty
 
     /// `perform(.search)` with a keyword should update search results in state.
     func test_perform_search_expiredTOTP() { // swiftlint:disable:this function_body_length
-        let loginView = LoginView.fixture(totp: .base32Key)
+        let loginView = LoginView.fixture(totp: .standardTotpKey)
         let refreshed = VaultListItem(
             id: "1",
             itemType: .totp(
@@ -288,7 +288,7 @@ class VaultGroupProcessorTests: BitwardenTestCase { // swiftlint:disable:this ty
 
     /// `perform(.search)` with a keyword should update search results in state.
     func test_perform_search_expiredTOTP_error() { // swiftlint:disable:this function_body_length
-        let loginView = LoginView.fixture(totp: .base32Key)
+        let loginView = LoginView.fixture(totp: .standardTotpKey)
         vaultRepository.refreshTOTPCodesResult = .failure(BitwardenTestError.example)
         let task = Task {
             await subject.perform(.search("example"))
