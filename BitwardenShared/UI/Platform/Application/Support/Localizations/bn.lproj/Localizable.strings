@@ -479,8 +479,6 @@
 "CodeSent" = "Code sent!";
 "ConfirmYourIdentity" = "Confirm your identity to continue.";
 "ExportVaultWarning" = "এই রফতানীতে একটি বিনা-এনক্রিপ্টেড করা বিন্যাসে আপনার ভল্ট তথ্য রয়েছে। আপনার রফতানিকৃত হওয়া ফাইল নিরাপত্তাহীন চ্যানেলগুলির মাধ্যমে (যেমন ইমেল) সংরক্ষণ বা প্রেরণ করা উচিত নয়। আপনি এটি ব্যবহার করে কাজ শেষ করার পর সাথে সাথে মুছে ফেলুন।";
-"EncExportKeyWarning" = "This export encrypts your data using your account's encryption key. If you ever rotate your account's encryption key you should export again since you will not be able to decrypt this export file.";
-"EncExportAccountWarning" = "Account encryption keys are unique to each Bitwarden user account, so you can't import an encrypted export into a different account.";
 "ExportVaultConfirmationTitle" = "ভল্ট রফতানির নিশ্চয়তা দিন";
 "Warning" = "সতর্কতা";
 "ExportVaultFailure" = "There was a problem exporting your vault.  If the problem persists, you'll need to export from the web vault.";
@@ -920,3 +918,4 @@
 "UnknownAccount" = "Unknown account";
 "UserVerificationForPasskey" = "User verification for passkey";
 "NewItem" = "New item";
+"ExportVaultFilePwProtectInfo" = "This file export will be password protected and require the file password to decrypt.";

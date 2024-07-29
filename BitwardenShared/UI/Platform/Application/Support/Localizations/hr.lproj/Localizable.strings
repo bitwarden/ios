@@ -479,8 +479,6 @@
 "CodeSent" = "Kôd poslan!";
 "ConfirmYourIdentity" = "Potvrdite lozinku za nastavak.";
 "ExportVaultWarning" = "Ovaj izvoz sadrži podatke trezora u nešifriranom obliku! Izvezenu datoteku se ne bi smjelo pohranjivati ili slati putem nesigurnih kanala (npr. e-poštom). Izbriši ju odmah nakon završetka korištenja.";
-"EncExportKeyWarning" = "Ovaj izvoz šifrira tvoje podatke koristeći ključ za šifriranje tvojeg računa. Ako ikada rotiraš ključ za šifriranje, potrebno je ponovno izvesti podatke, jer neće biti moguće dešifrirati ovu izvezenu datoteku.";
-"EncExportAccountWarning" = "Ključ za šifriranje jedinstven je za svakog Bitwarden korisnika, kako bi se šifrirani izvoz mogao uvesti u drugi korisnički račun.";
 "ExportVaultConfirmationTitle" = "Potvrdi izvoz trezora";
 "Warning" = "Upozorenje";
 "ExportVaultFailure" = "Dogodio se problem prilikom izvoza trezora. Ako se problem ponavlja, izvezi trezor koristeći web trezor.";
@@ -920,3 +918,4 @@
 "UnknownAccount" = "Unknown account";
 "UserVerificationForPasskey" = "User verification for passkey";
 "NewItem" = "New item";
+"ExportVaultFilePwProtectInfo" = "This file export will be password protected and require the file password to decrypt.";

@@ -479,8 +479,6 @@
 "CodeSent" = "Cod trimis!";
 "ConfirmYourIdentity" = "Confirmați-vă identitatea pentru a continua.";
 "ExportVaultWarning" = "Acest export conține datele dvs. din seif în format necriptat. Nu ar trebui să stocați sau să trimiteți fișierul pe canale nesecurizate (cum ar fi e-mail). Ștergeți-l imediat după ce nu îl mai folosiți.";
-"EncExportKeyWarning" = "Acest export criptează datele, utilizând cheia de criptare a contului. Dacă revocați vreodată cheia de criptare a contului dvs., ar trebui să exportați din nou, deoarece nu veți putea decripta acest fișier de export.";
-"EncExportAccountWarning" = "Cheile de criptare a contului sunt unice fiecărui cont de utilizator Bitwarden, astfel încât nu puteți importa un export criptat într-un cont diferit.";
 "ExportVaultConfirmationTitle" = "Confirmare export seif";
 "Warning" = "Avertisment";
 "ExportVaultFailure" = "A apărut o problemă la exportul seifului dvs. Dacă problema persistă, va trebui să exportați din seiful web.";
@@ -920,3 +918,4 @@
 "UnknownAccount" = "Unknown account";
 "UserVerificationForPasskey" = "User verification for passkey";
 "NewItem" = "New item";
+"ExportVaultFilePwProtectInfo" = "This file export will be password protected and require the file password to decrypt.";

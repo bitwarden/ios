@@ -480,8 +480,6 @@ Vänligen använd en enhet som stöds och/eller lägg till fler metoder som har 
 "CodeSent" = "Kod har skickats!";
 "ConfirmYourIdentity" = "Bekräfta din identitet för att fortsätta.";
 "ExportVaultWarning" = "Denna export innehåller ditt valv i ett okrypterat format. Du bör inte lagra eller skicka den exporterade filen över osäkra kanaler (t.ex. e-post). Radera den omedelbart när du är färdig med den.";
-"EncExportKeyWarning" = "Denna export krypterar dina data med kontots krypteringsnyckel. Om du någonsin roterar kontots krypteringsnyckel bör du exportera igen eftersom du inte kommer att kunna dekryptera denna exportfil.";
-"EncExportAccountWarning" = "Kypteringnycklar är unika för varje Bitwarden-konto, så du kan inte importera en krypterad export till ett annat konto.";
 "ExportVaultConfirmationTitle" = "Bekräfta export av valv";
 "Warning" = "Varning";
 "ExportVaultFailure" = "Det gick inte att exportera ditt valv. Om problemet kvarstår måste du exportera från webbvalvet istället.";
@@ -921,3 +919,4 @@ Vänligen använd en enhet som stöds och/eller lägg till fler metoder som har 
 "UnknownAccount" = "Okänt konto";
 "UserVerificationForPasskey" = "User verification for passkey";
 "NewItem" = "Nytt objekt";
+"ExportVaultFilePwProtectInfo" = "This file export will be password protected and require the file password to decrypt.";

@@ -479,8 +479,6 @@
 "CodeSent" = "Kood on saadetud!";
 "ConfirmYourIdentity" = "Jätkamiseks kinnita oma identiteet.";
 "ExportVaultWarning" = "Eksporditav fail sisaldab hoidla sisu, mis on krüpteeringuta. Seda faili ei tohiks kaua käidelda ning mitte mingil juhul ebaturvaliselt saata (näiteks e-postiga). Kustuta see koheselt pärast kasutamist.";
-"EncExportKeyWarning" = "Eksporditavate andmete krüpteerimiseks kasutatakse kontol olevat krüpteerimisvõtit. Kui sa peaksid seda krüpteerimise võtit roteerima, ei saa sa järgnevalt eksporditavaid andmeid enam dekrüpteerida.";
-"EncExportAccountWarning" = "Iga Bitwardeni kasutaja krüpteerimisvõti on unikaalne. Eksporditud andmeid ei saa importida teise Bitwardeni kasutajakontosse.";
 "ExportVaultConfirmationTitle" = "Hoidla eksportimise kinnitamine";
 "Warning" = "Hoiatus";
 "ExportVaultFailure" = "Hoidla eksportimisel ilmnes tõrge. Probleemi jätkumisel teosta eksportimine veebihoidla kaudu.";
@@ -920,3 +918,4 @@
 "UnknownAccount" = "Unknown account";
 "UserVerificationForPasskey" = "User verification for passkey";
 "NewItem" = "New item";
+"ExportVaultFilePwProtectInfo" = "This file export will be password protected and require the file password to decrypt.";

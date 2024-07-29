@@ -479,8 +479,6 @@
 "CodeSent" = "Kode sendt!";
 "ConfirmYourIdentity" = "Bekreft din identitet for å fortsette.";
 "ExportVaultWarning" = "Denne eksporten inneholder hvelvdataene dine i et ukryptert format. Du bør ikke lagre eller sende den eksporterte filen over usikre kanaler (for eksempel e-post). Slett den umiddelbart etter at du er ferdig med å bruke den.";
-"EncExportKeyWarning" = "Denne eksporten krypterer dataene dine ved hjelp av kontoen din sin krypteringsnøkkel. Hvis du noen gang endrer krypteringsnøkkelen til kontoen din, bør du eksportere dataene igjen, ettersom du da ikke vil kunne dekryptere denne eksportfilen.";
-"EncExportAccountWarning" = "Kontokrypteringsnøkler er unike for hver eneste Bitwarden brukerkonto, så du kan ikke importere en kryptert eksport til en annen konto.";
 "ExportVaultConfirmationTitle" = "Bekreft eksport av hvelvet";
 "Warning" = "Advarsel";
 "ExportVaultFailure" = "Det oppsto et problem med å eksportere hvelvet. Hvis problemet vedvarer, må du eksportere fra netthvelvet.";
@@ -920,3 +918,4 @@
 "UnknownAccount" = "Unknown account";
 "UserVerificationForPasskey" = "User verification for passkey";
 "NewItem" = "New item";
+"ExportVaultFilePwProtectInfo" = "This file export will be password protected and require the file password to decrypt.";

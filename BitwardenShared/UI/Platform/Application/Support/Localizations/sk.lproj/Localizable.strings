@@ -479,8 +479,6 @@
 "CodeSent" = "Kód bol odoslaný!";
 "ConfirmYourIdentity" = "Ak chcete pokračovať, potvrďte svoju identitu.";
 "ExportVaultWarning" = "Tento export obsahuje vaše dáta v nešifrovanom formáte. Nemali by ste ich ukladať, ani posielať cez nezabezpečené kanály (napr. email). Okamžite ho odstráňte, keď ho prestanete používať.";
-"EncExportKeyWarning" = "Tento export zašifruje vaše údaje pomocou šifrovacieho kľúča vášho účtu. Ak niekedy budete rotovať šifrovací kľúč svojho účtu, mali by ste exportovať znova, pretože nebudete môcť dešifrovať tento exportovaný súbor.";
-"EncExportAccountWarning" = "Šifrovacie kľúče účtu sú jedinečné pre každý používateľský účet Bitwarden, takže nemôžete importovať šifrovaný export do iného účtu.";
 "ExportVaultConfirmationTitle" = "Potvrdiť export trezoru";
 "Warning" = "Upozornenie";
 "ExportVaultFailure" = "Exportovanie trezora zlyhalo. Ak problem pretrváva, skúste exportovať z Webového trezora.";
@@ -920,3 +918,4 @@
 "UnknownAccount" = "Neznámy účet";
 "UserVerificationForPasskey" = "User verification for passkey";
 "NewItem" = "Nová položka";
+"ExportVaultFilePwProtectInfo" = "Tento exportovaný súbor bude chránený heslom a na dešifrovanie bude potrebné heslo súboru.";

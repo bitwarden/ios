@@ -479,8 +479,6 @@
 "CodeSent" = "¡Código Enviado!";
 "ConfirmYourIdentity" = "Confirme su identidad para continuar.";
 "ExportVaultWarning" = "Ésta exportación contiene sus datos de la caja fuerte en un formato no cifrado. No debería almacenar o enviar el archivo exportado por canales no seguros (como el correo electrónico). Elimínelo inmediatamente cuando termine de utilizarlo.";
-"EncExportKeyWarning" = "Esta exportación encripta sus datos usando la clave de cifrado de su cuenta. Si alguna vez gira la clave de cifrado de su cuenta debe volver a exportar, ya que no podrá descifrar este archivo de exportación.";
-"EncExportAccountWarning" = "Las claves de cifrado de cuenta son únicas para cada cuenta de usuario de Bitwarden, por lo que no puede importar una exportación cifrada a una cuenta diferente.";
 "ExportVaultConfirmationTitle" = "Confirmar exportación de la caja fuerte";
 "Warning" = "Advertencia";
 "ExportVaultFailure" = "Hubo un problema al exportar su caja fuerte. Si el problema persiste, deberá exportar desde la caja fuerte en la web.";
@@ -921,3 +919,4 @@
 "UnknownAccount" = "Cuenta desconocida";
 "UserVerificationForPasskey" = "Verificación de usuario para passkey";
 "NewItem" = "Nuevo elemento";
+"ExportVaultFilePwProtectInfo" = "This file export will be password protected and require the file password to decrypt.";
