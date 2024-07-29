@@ -180,8 +180,8 @@ targets:
       - path: Scripts/update_settings_version_number.sh
         name: "Settings.bundle: Update Version Number"
         basedOnDependencyAnalysis: false
-      - path: Scripts/firebase_crashlytics_run.sh
-        name: "Run Firebase Crashlytics"
+      - path: Scripts/upload_dsym_to_crashlytics.sh
+        name: "Upload dSYM files to Crashlytics"
         basedOnDependencyAnalysis: false
         inputFiles:
           - ${DWARF_DSYM_FOLDER_PATH}/${DWARF_DSYM_FILE_NAME}/Contents/Resources/DWARF/${TARGET_NAME}
@@ -399,8 +399,8 @@ targets:
       - package: Firebase
         product: FirebaseCrashlytics
     postBuildScripts:
-      - path: Scripts/upload_watch_dsym.sh
-        name: "Upload dSYM to Crashlytics"
+      - path: Scripts/upload_watch_dsym_to_crashlytics.sh
+        name: "Upload watch dSYM files to Crashlytics"
         basedOnDependencyAnalysis: false
         inputFiles:
           - ${DWARF_DSYM_FOLDER_PATH}/${DWARF_DSYM_FILE_NAME}/Contents/Resources/DWARF/${TARGET_NAME}
