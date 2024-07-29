@@ -92,15 +92,13 @@ class SendListViewTests: BitwardenTestCase {
     }
 
     /// The view renders correctly when there are search results.
-    func test_snapshot_search_results_light() throws {
-        throw XCTSkip("Updating XCode to 15.4, this will be updated in the next PR so tests can pass")
+    func test_snapshot_search_results_light() {
         processor.state = .hasSearchResults
         assertSnapshot(of: subject, as: .defaultPortrait)
     }
 
     /// The view renders in dark mode correctly when there are search results.
-    func test_snapshot_search_results_dark() throws {
-        throw XCTSkip("Updating XCode to 15.4, this will be updated in the next PR so tests can pass")
+    func test_snapshot_search_results_dark() {
         processor.state = .hasSearchResults
         assertSnapshot(of: subject, as: .defaultPortraitDark)
     }
@@ -112,36 +110,31 @@ class SendListViewTests: BitwardenTestCase {
     }
 
     /// The view renders in light mode correctly when there are sends.
-    func test_snapshot_values_light() throws {
-        throw XCTSkip("Updating XCode to 15.4, this will be updated in the next PR so tests can pass")
+    func test_snapshot_values_light() {
         processor.state = .content
         assertSnapshot(of: subject, as: .defaultPortrait)
     }
 
     /// The view renders in dark mode correctly when there are sends.
-    func test_snapshot_values_dark() throws {
-        throw XCTSkip("Updating XCode to 15.4, this will be updated in the next PR so tests can pass")
+    func test_snapshot_values_dark() {
         processor.state = .content
         assertSnapshot(of: subject, as: .defaultPortrait)
     }
 
     /// The view renders in large accessibility sizes correctly when there are sends.
-    func test_snapshot_values_ax5() throws {
-        throw XCTSkip("Updating XCode to 15.4, this will be updated in the next PR so tests can pass")
+    func test_snapshot_values_ax5() {
         processor.state = .content
         assertSnapshot(of: subject, as: .defaultPortrait)
     }
 
     /// The view renders in light mode correctly when there are sends.
-    func test_snapshot_textValues_light() throws {
-        throw XCTSkip("Updating XCode to 15.4, this will be updated in the next PR so tests can pass")
+    func test_snapshot_textValues_light() {
         processor.state = .contentTextType
         assertSnapshot(of: subject, as: .defaultPortrait)
     }
 
     /// The view renders in dark mode correctly when there are sends.
-    func test_snapshot_textValues_dark() throws {
-        throw XCTSkip("Updating XCode to 15.4, this will be updated in the next PR so tests can pass")
+    func test_snapshot_textValues_dark() {
         processor.state = .contentTextType
         assertSnapshot(of: subject, as: .defaultPortraitDark)
     }
