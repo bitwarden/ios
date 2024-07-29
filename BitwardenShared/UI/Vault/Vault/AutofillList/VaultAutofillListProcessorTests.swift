@@ -3,7 +3,7 @@ import XCTest
 
 @testable import BitwardenShared
 
-class VaultAutofillListProcessorTests: BitwardenTestCase {
+class VaultAutofillListProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_body_length
     // MARK: Properties
 
     var appExtensionDelegate: MockAppExtensionDelegate!
@@ -249,7 +249,7 @@ class VaultAutofillListProcessorTests: BitwardenTestCase {
 
     /// `receive(_:)` with `.addTapped` navigates to the add item view.
     func test_receive_addTapped() {
-        subject.receive(.addTapped)
+        subject.receive(.addTapped(fromToolbar: false))
 
         XCTAssertEqual(
             coordinator.routes.last,
@@ -261,7 +261,26 @@ class VaultAutofillListProcessorTests: BitwardenTestCase {
     func test_receive_addTapped_hidesProfileSwitcher() {
         subject.state.profileSwitcherState.isVisible = true
 
-        subject.receive(.addTapped)
+        subject.receive(.addTapped(fromToolbar: false))
+
+        XCTAssertFalse(subject.state.profileSwitcherState.isVisible)
+    }
+
+    /// `receive(_:)` with `.addTapped` navigates to the add item view when adding from toolbar.
+    func test_receive_addTapped_fromToolbar() {
+        subject.receive(.addTapped(fromToolbar: true))
+
+        XCTAssertEqual(
+            coordinator.routes.last,
+            .addItem(allowTypeSelection: false, group: .login, newCipherOptions: NewCipherOptions())
+        )
+    }
+
+    /// `receive(_:)` with `.addTapped` hides the profile switcher if it's visible when adding from toolbar.
+    func test_receive_addTapped_hidesProfileSwitcher_fromToolbar() {
+        subject.state.profileSwitcherState.isVisible = true
+
+        subject.receive(.addTapped(fromToolbar: true))
 
         XCTAssertFalse(subject.state.profileSwitcherState.isVisible)
     }
