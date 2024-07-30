@@ -5,7 +5,7 @@ import XCTest
 
 // MARK: - UserVerificationHelperTests
 
-class UserVerificationHelperTests: BitwardenTestCase {
+class UserVerificationHelperTests: BitwardenTestCase { // swiftlint:disable:this type_body_length
     // MARK: Types
 
     typealias VerifyFunction = () async throws -> UserVerificationResult
@@ -298,7 +298,7 @@ class UserVerificationHelperTests: BitwardenTestCase {
     /// `verifyPin()` with verified PIN.
     func test_verifyPin_verified() async throws {
         authRepository.isPinUnlockAvailableResult = .success(true)
-        authRepository.validatePinResult = true
+        authRepository.validatePinResult = .success(true)
 
         let task = Task {
             try await self.subject.verifyPin()
@@ -318,7 +318,7 @@ class UserVerificationHelperTests: BitwardenTestCase {
     /// `verifyPin()` with not verified PIN.
     func test_verifyPin_notVerified() async throws {
         authRepository.isPinUnlockAvailableResult = .success(true)
-        authRepository.validatePinResult = false
+        authRepository.validatePinResult = .success(false)
 
         let task = Task {
             try await self.subject.verifyPin()
@@ -346,6 +346,31 @@ class UserVerificationHelperTests: BitwardenTestCase {
         let result = try await task.value
 
         XCTAssertEqual(result, .notVerified)
+    }
+
+    /// `verifyPin()` with throwing pin verification returns unable to perform.
+    func test_verifyPin_throwsUnableToPerform() async throws {
+        authRepository.isPinUnlockAvailableResult = .success(true)
+        authRepository.validatePinResult = .failure(BitwardenTestError.example)
+
+        let task = Task {
+            try await self.subject.verifyPin()
+        }
+
+        try await waitForAsync {
+            !self.userVerificationDelegate.alertShown.isEmpty
+        }
+
+        try await enterPinInAlertAndSubmit()
+
+        try await waitForAsync {
+            !self.errorReporter.errors.isEmpty
+        }
+
+        let result = try await task.value
+
+        XCTAssertEqual(errorReporter.errors.last as? BitwardenTestError, .example)
+        XCTAssertEqual(result, .unableToPerform)
     }
 
     // MARK: Private
@@ -387,4 +412,4 @@ class MockUserVerificationHelperDelegate: UserVerificationDelegate {
         showAlert(alert)
         alertOnDismissed = onDismissed
     }
-}
+} // swiftlint:disable:this file_length
