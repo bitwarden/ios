@@ -61,11 +61,19 @@ class AddEditFolderViewTests: BitwardenTestCase {
         XCTAssertEqual(processor.dispatchedActions.last, .folderNameTextChanged("text"))
     }
 
-    /// Tapping the save button performs the `.saveTapped` effect.
-    func test_saveButton_tap() async throws {
+    /// Tapping the save button in add mode performs the `.saveTapped` effect.
+    func test_saveButton_tapAdd() async throws {
         let button = try subject.inspect().find(asyncButton: Localizations.save)
         try await button.tap()
 
+        XCTAssertEqual(processor.effects.last, .saveTapped)
+    }
+
+    /// Tapping the save button in edit mode performs the `.saveTapped` effect.
+    func test_saveButton_tapEdit() async throws {
+        processor.state.mode = .edit(.fixture())
+        let button = try subject.inspect().find(asyncButton: Localizations.save)
+        try await button.tap()
         XCTAssertEqual(processor.effects.last, .saveTapped)
     }
 

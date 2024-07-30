@@ -186,8 +186,17 @@ class AddEditItemViewTests: BitwardenTestCase { // swiftlint:disable:this type_b
         XCTAssertEqual(processor.dispatchedActions.last, .togglePasswordVisibilityChanged(false))
     }
 
-    /// Tapping the save button performs the `.savePressed` effect.
-    func test_saveButton_tap() async throws {
+    /// Tapping the save button performs the `.savePressed` effect when adding a new cipher.
+    func test_saveButton_tapAdd() async throws {
+        let button = try subject.inspect().find(asyncButton: Localizations.save)
+        try await button.tap()
+
+        XCTAssertEqual(processor.effects.last, .savePressed)
+    }
+
+    /// Tapping the save button performs the `.savePressed` effect when editing an existing cipher.
+    func test_saveButton_tapEdit() async throws {
+        processor.state = CipherItemState(existing: .fixture(), hasPremium: false)!
         let button = try subject.inspect().find(asyncButton: Localizations.save)
         try await button.tap()
 
