@@ -479,8 +479,6 @@
 "CodeSent" = "验证码已发送！";
 "ConfirmYourIdentity" = "请先确认您的身份后继续。";
 "ExportVaultWarning" = "导出的密码库数据包含未加密格式。您不应该通过不安全的渠道（例如电子邮件）来存储或发送导出的文件。用完后请立即将其删除。";
-"EncExportKeyWarning" = "此导出将使用您账户的加密密钥来加密您的数据。如果您曾经轮换过账户的加密密钥，您应将其重新导出，否则您将无法解密导出的文件。";
-"EncExportAccountWarning" = "每个 Bitwarden 用户账户的账户加密密钥都是唯一的，因此您无法将加密的导出导入到另一个账户。";
 "ExportVaultConfirmationTitle" = "确认密码库导出";
 "Warning" = "警告";
 "ExportVaultFailure" = "导出您的密码库时出现问题。如果问题仍然存在，您需要从网页密版码库中导出。";
@@ -920,3 +918,4 @@
 "UnknownAccount" = "未知账户";
 "UserVerificationForPasskey" = "用于通行密钥的用户验证";
 "NewItem" = "新项目";
+"ExportVaultFilePwProtectInfo" = "此文件导出将受密码保护，需要文件密码才能解密。";

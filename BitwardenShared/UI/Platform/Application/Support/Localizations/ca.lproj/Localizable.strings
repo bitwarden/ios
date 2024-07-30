@@ -479,8 +479,6 @@
 "CodeSent" = "Codi enviat!";
 "ConfirmYourIdentity" = "Confirmeu la vostra identitat per continuar.";
 "ExportVaultWarning" = "Aquesta exportació conté les dades de la vostra caixa forta en un format no xifrat. No hauríeu d'emmagatzemar o enviar el fitxer exportat a través de canals no segurs (com ara el correu electrònic). Elimineu-lo immediatament després d'haver acabat d'usar-lo.";
-"EncExportKeyWarning" = "Aquesta exportació xifra les vostres dades mitjançant la vostra clau de xifratge. Si alguna vegada gireu eixa clau, hauríeu d'exportar de nou, ja que no podreu desxifrar aquest fitxer d'exportació.";
-"EncExportAccountWarning" = "Les claus de xifratge són exclusives de cada compte d'usuari Bitwarden, de manera que no podeu importar una exportació xifrada a un compte diferent.";
 "ExportVaultConfirmationTitle" = "Confirma l'exportació de la Caixa forta";
 "Warning" = "Advertiment";
 "ExportVaultFailure" = "S'ha produït un problema en exportar la caixa forta. Si el problema continua, haureu d’exportar-la des del web.";
@@ -920,3 +918,4 @@
 "UnknownAccount" = "Compte desconegut";
 "UserVerificationForPasskey" = "User verification for passkey";
 "NewItem" = "New item";
+"ExportVaultFilePwProtectInfo" = "This file export will be password protected and require the file password to decrypt.";

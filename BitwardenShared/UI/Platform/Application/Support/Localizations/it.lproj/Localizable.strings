@@ -479,8 +479,6 @@
 "CodeSent" = "Codice inviato!";
 "ConfirmYourIdentity" = "Conferma la tua identità per continuare.";
 "ExportVaultWarning" = "Questa esportazione contiene i dati della tua cassaforte in un formato non crittografato. Non salvare o inviare il file esportato attraverso canali non protetti (come le email). Eliminalo immediatamente dopo l'utilizzo.";
-"EncExportKeyWarning" = "Questa esportazione crittografa i tuoi dati usando la chiave di crittografia del tuo account. Se cambi la chiave di crittografia del tuo account, non potrai più decifrare il file esportato e dovrai eseguire una nuova esportazione.";
-"EncExportAccountWarning" = "Le chiavi di crittografia dell'account sono uniche per ogni account Bitwarden, quindi non puoi importare un file di esportazione crittato in un account diverso.";
 "ExportVaultConfirmationTitle" = "Conferma esportazione della cassaforte";
 "Warning" = "Avviso";
 "ExportVaultFailure" = "Si è verificato un problema esportando la tua cassaforte. Se il problema persiste, esportala dalla cassaforte web.";
@@ -920,3 +918,4 @@
 "UnknownAccount" = "Account sconosciuto";
 "UserVerificationForPasskey" = "User verification for passkey";
 "NewItem" = "New item";
+"ExportVaultFilePwProtectInfo" = "This file export will be password protected and require the file password to decrypt.";

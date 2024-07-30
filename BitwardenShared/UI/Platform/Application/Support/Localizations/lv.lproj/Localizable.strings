@@ -479,8 +479,6 @@
 "CodeSent" = "Kods nosūtīts";
 "ConfirmYourIdentity" = "Jāapstiprina identitāte, lai turpinātu.";
 "ExportVaultWarning" = "Šī izguve satur glabātavas datus nešifrētā veidā. Izgūto datni nevajadzētu glabāt vai sūtīt nedrošos veidos (piemēram, e-pastā). Tā ir jāizdzēš uzreiz pēc izmantošanas.";
-"EncExportKeyWarning" = "Šī izguve šifrē datus ar konta šifrēšanas atslēgu. Ja tā jebkad tiks mainīta, izvadi vajadzētu veikt vēlreiz, jo vairs nebūs iespējams atšifrēt šo datni.";
-"EncExportAccountWarning" = "Katram Bitwarden kontam ir neatkārtojamas šifrēšanas atslēgas, tādēļ nav iespējams ievietot šifrētu izguvi citā kontā.";
 "ExportVaultConfirmationTitle" = "Apstiprināt glabātavas satura izgūšanu";
 "Warning" = "Brīdinājums";
 "ExportVaultFailure" = "Glabātavas satura izgūšanā radās sarežģījumi. Ja tie turpina pastāvēt, būs nepieciešams veikt izgūšanu tīmekļa glabātavā.";
@@ -920,3 +918,4 @@
 "UnknownAccount" = "Nezināms konts";
 "UserVerificationForPasskey" = "Lietotāja apliecināšana piekļuves atsēgai";
 "NewItem" = "Jauns vienums";
+"ExportVaultFilePwProtectInfo" = "Šī datņu izgūšana būs aizsargāta ar paroli, un būs nepieciešama datnes parole, lai to atšifrētu.";

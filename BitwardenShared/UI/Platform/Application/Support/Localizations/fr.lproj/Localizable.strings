@@ -479,8 +479,6 @@
 "CodeSent" = "Code envoyé !";
 "ConfirmYourIdentity" = "Confirmez votre identité pour continuer.";
 "ExportVaultWarning" = "Cet export contient vos données de coffre dans un format non chiffré. Vous ne devriez pas stocker ou envoyer le fichier exporté par des canaux non sécurisés (comme le courriel). Supprimez-le immédiatement dès que vous avez fini de l'utiliser.";
-"EncExportKeyWarning" = "Cet export chiffre vos données en utilisant la clé de chiffrement de votre compte. Si jamais vous modifiez la clé de chiffrement de votre compte, vous devriez exporter à nouveau car vous ne pourrez pas déchiffrer ce fichier.";
-"EncExportAccountWarning" = "Les clés de chiffrement du compte sont spécifiques à chaque utilisateur Bitwarden. Vous ne pouvez donc pas importer d'export chiffré dans un compte différent.";
 "ExportVaultConfirmationTitle" = "Confirmez l'export du coffre";
 "Warning" = "Avertissement";
 "ExportVaultFailure" = "Un problème est survenu lors de l'exportation de votre coffre. Si le problème persiste, vous devrez l'exporter depuis le coffre web.";
@@ -920,3 +918,4 @@
 "UnknownAccount" = "Unknown account";
 "UserVerificationForPasskey" = "User verification for passkey";
 "NewItem" = "New item";
+"ExportVaultFilePwProtectInfo" = "This file export will be password protected and require the file password to decrypt.";

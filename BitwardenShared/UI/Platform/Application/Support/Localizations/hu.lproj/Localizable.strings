@@ -479,8 +479,6 @@
 "CodeSent" = "A kód elküldésre került.";
 "ConfirmYourIdentity" = "A folytatáshoz meg kell erősíteni a személyazonosságot.";
 "ExportVaultWarning" = "Az exportált széfadatok titkosítatlan formátumban kerülnek elmentésre. Ne tároljuk sehol, illetve ne küldjük el senkinek a fájlt nem biztonságos felületeken (például email). Használat után azonnal töröljük.";
-"EncExportKeyWarning" = "Ez az exportálás titkosítja az adatokat a fiók titkosítási kulcsával. Ha valaha a diók forgatási kulcsa más lesz, akkor újra exportálni kell, mert nem lehet visszafejteni ezt az exportálási fájlt.";
-"EncExportAccountWarning" = "A fiók titkosítási kulcsai minden Bitwarden felhasználói fiókhoz egyediek, ezért nem importálhatunk titkosított exportálást egy másik fiókba.";
 "ExportVaultConfirmationTitle" = "Széf export megerősítése";
 "Warning" = "Figyelmeztetés";
 "ExportVaultFailure" = "Hiba lépett fel exportálás közben. Ha a hiba továbbra is fennáll, próbáluk exportálni a webes felületen.";
@@ -920,3 +918,4 @@
 "UnknownAccount" = "Ismeretlen fiók";
 "UserVerificationForPasskey" = "User verification for passkey";
 "NewItem" = "Új elem";
+"ExportVaultFilePwProtectInfo" = "This file export will be password protected and require the file password to decrypt.";

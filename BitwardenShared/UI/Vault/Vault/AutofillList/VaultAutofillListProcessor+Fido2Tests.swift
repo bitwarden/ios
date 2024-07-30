@@ -21,6 +21,7 @@ class VaultAutofillListProcessorFido2Tests: BitwardenTestCase { // swiftlint:dis
     var fido2CredentialStore: MockFido2CredentialStore!
     var fido2UserInterfaceHelper: MockFido2UserInterfaceHelper!
     var subject: VaultAutofillListProcessor!
+    var timeProvider: MockTimeProvider!
     var vaultRepository: MockVaultRepository!
 
     // MARK: Setup & Teardown
@@ -36,6 +37,7 @@ class VaultAutofillListProcessorFido2Tests: BitwardenTestCase { // swiftlint:dis
         errorReporter = MockErrorReporter()
         fido2CredentialStore = MockFido2CredentialStore()
         fido2UserInterfaceHelper = MockFido2UserInterfaceHelper()
+        timeProvider = MockTimeProvider(.mockTime(Date(year: 2024, month: 2, day: 14, hour: 8, minute: 0, second: 0)))
         vaultRepository = MockVaultRepository()
 
         subject = VaultAutofillListProcessor(
@@ -48,6 +50,7 @@ class VaultAutofillListProcessorFido2Tests: BitwardenTestCase { // swiftlint:dis
                 errorReporter: errorReporter,
                 fido2CredentialStore: fido2CredentialStore,
                 fido2UserInterfaceHelper: fido2UserInterfaceHelper,
+                timeProvider: timeProvider,
                 vaultRepository: vaultRepository
             ),
             state: VaultAutofillListState()
@@ -66,6 +69,7 @@ class VaultAutofillListProcessorFido2Tests: BitwardenTestCase { // swiftlint:dis
         fido2CredentialStore = nil
         fido2UserInterfaceHelper = nil
         subject = nil
+        timeProvider = nil
         vaultRepository = nil
     }
 
@@ -88,8 +92,8 @@ class VaultAutofillListProcessorFido2Tests: BitwardenTestCase { // swiftlint:dis
         }
     }
 
-    /// `receive(_:)` with `.addTapped` navigates to the add item view
-    /// with th proper `NewCipherOptions` configuration for Fido2 creation.
+    /// `receive(_:)` with `.addTapped` navigates to the add item view when executed from the toolbar
+    /// with the proper `NewCipherOptions` configuration for Fido2 creation.
     func test_receive_addTapped() throws {
         appExtensionDelegate.extensionMode = .registerFido2Credential(ASPasskeyCredentialRequest.fixture())
         let fido2CredentialNewView = Fido2CredentialNewView.fixture(userName: "username", rpName: "rpName")
@@ -101,7 +105,7 @@ class VaultAutofillListProcessorFido2Tests: BitwardenTestCase { // swiftlint:dis
             username: fido2CredentialNewView.userName
         )
 
-        subject.receive(.addTapped)
+        subject.receive(.addTapped(fromToolbar: true))
 
         XCTAssertEqual(
             coordinator.routes.last,
@@ -109,11 +113,246 @@ class VaultAutofillListProcessorFido2Tests: BitwardenTestCase { // swiftlint:dis
         )
     }
 
+    /// `receive(_:)` with `.addTapped` creates a new default cipher with the Fido2 credential
+    /// when executed from the empty view and in the create Fido2 credential context.
+    func test_receive_addTapped_fido2CreationEmptyView() throws {
+        appExtensionDelegate.extensionMode = .registerFido2Credential(ASPasskeyCredentialRequest.fixture())
+        let fido2CredentialNewView = Fido2CredentialNewView.fixture(userName: "username", rpName: "rpName")
+        fido2UserInterfaceHelper.fido2CredentialNewView = fido2CredentialNewView
+        fido2UserInterfaceHelper.fido2CreationOptions = CheckUserOptions(
+            requirePresence: true,
+            requireVerification: .required
+        )
+
+        fido2UserInterfaceHelper.checkUserResult = .success(CheckUserResult(userPresent: true, userVerified: true))
+
+        subject.receive(.addTapped(fromToolbar: false))
+
+        waitFor(fido2UserInterfaceHelper.pickedCredentialForCreationMocker.called)
+
+        fido2UserInterfaceHelper.pickedCredentialForCreationMocker.assertUnwrapping { result in
+            guard case let .success(pickedResult) = result,
+                  pickedResult.checkUserResult.userVerified,
+                  pickedResult.cipher.cipher.id == nil,
+                  pickedResult.cipher.cipher.type == .login,
+                  pickedResult.cipher.cipher.name == "rpName",
+                  pickedResult.cipher.cipher.login?.username == "username",
+                  pickedResult.cipher.cipher.login?.uris?.first?.uri == "myApp.com" else {
+                return false
+            }
+            return true
+        }
+    }
+
+    /// `receive(_:)` with `.addTapped` creates a new default cipher with the Fido2 credential
+    /// when executed from the empty view and in the create Fido2 credential context but user not verified.
+    func test_receive_addTapped_fido2CreationEmptyViewUserNotVerified() throws {
+        appExtensionDelegate.extensionMode = .registerFido2Credential(ASPasskeyCredentialRequest.fixture())
+        let fido2CredentialNewView = Fido2CredentialNewView.fixture(userName: "username", rpName: "rpName")
+        fido2UserInterfaceHelper.fido2CredentialNewView = fido2CredentialNewView
+        fido2UserInterfaceHelper.fido2CreationOptions = CheckUserOptions(
+            requirePresence: true,
+            requireVerification: .required
+        )
+
+        fido2UserInterfaceHelper.checkUserResult = .success(CheckUserResult(userPresent: true, userVerified: false))
+
+        subject.receive(.addTapped(fromToolbar: false))
+
+        waitFor(fido2UserInterfaceHelper.pickedCredentialForCreationMocker.called)
+
+        fido2UserInterfaceHelper.pickedCredentialForCreationMocker.assertUnwrapping { result in
+            guard case let .success(pickedResult) = result,
+                  !pickedResult.checkUserResult.userVerified,
+                  pickedResult.cipher.cipher.id == nil,
+                  pickedResult.cipher.cipher.type == .login,
+                  pickedResult.cipher.cipher.name == "rpName",
+                  pickedResult.cipher.cipher.login?.username == "username",
+                  pickedResult.cipher.cipher.login?.uris?.first?.uri == "myApp.com" else {
+                return false
+            }
+            return true
+        }
+    }
+
+    /// `receive(_:)` with `.addTapped` shows an alert and logs
+    /// when executed from the empty view and in the create Fido2 credential context but user verification throws.
+    func test_receive_addTapped_fido2CreationEmptyViewUserVerificationThrows() throws {
+        appExtensionDelegate.extensionMode = .registerFido2Credential(ASPasskeyCredentialRequest.fixture())
+        let fido2CredentialNewView = Fido2CredentialNewView.fixture(userName: "username", rpName: "rpName")
+        fido2UserInterfaceHelper.fido2CredentialNewView = fido2CredentialNewView
+        fido2UserInterfaceHelper.fido2CreationOptions = CheckUserOptions(
+            requirePresence: true,
+            requireVerification: .required
+        )
+
+        fido2UserInterfaceHelper.checkUserResult = .failure(BitwardenTestError.example)
+
+        subject.receive(.addTapped(fromToolbar: false))
+
+        waitFor(!errorReporter.errors.isEmpty)
+
+        XCTAssertEqual(coordinator.alertShown.last, .networkResponseError(BitwardenTestError.example))
+        XCTAssertEqual(errorReporter.errors as? [BitwardenTestError], [.example])
+    }
+
+    /// `receive(_:)` with `.addTapped` does nothing when executed from the empty view
+    /// and in the create Fido2 credential context but user verification cancelled.
+    func test_receive_addTapped_fido2CreationEmptyViewUserVerificationCancelled() throws {
+        appExtensionDelegate.extensionMode = .registerFido2Credential(ASPasskeyCredentialRequest.fixture())
+        let fido2CredentialNewView = Fido2CredentialNewView.fixture(userName: "username", rpName: "rpName")
+        fido2UserInterfaceHelper.fido2CredentialNewView = fido2CredentialNewView
+        fido2UserInterfaceHelper.fido2CreationOptions = CheckUserOptions(
+            requirePresence: true,
+            requireVerification: .required
+        )
+
+        fido2UserInterfaceHelper.checkUserResult = .failure(UserVerificationError.cancelled)
+
+        subject.receive(.addTapped(fromToolbar: false))
+
+        waitFor(fido2UserInterfaceHelper.checkUserCalled)
+
+        XCTAssertFalse(fido2UserInterfaceHelper.pickedCredentialForCreationMocker.called)
+    }
+
+    /// `receive(_:)` with `.addTapped` shows an alert when executed from the empty view
+    /// and in the create Fido2 credential context but without Fido2 options.
+    func test_receive_addTapped_fido2CreationEmptyViewFido2OptionsNull() throws {
+        appExtensionDelegate.extensionMode = .registerFido2Credential(ASPasskeyCredentialRequest.fixture())
+        let fido2CredentialNewView = Fido2CredentialNewView.fixture(userName: "username", rpName: "rpName")
+        fido2UserInterfaceHelper.fido2CredentialNewView = fido2CredentialNewView
+
+        subject.receive(.addTapped(fromToolbar: false))
+
+        waitFor(!coordinator.alertShown.isEmpty)
+
+        XCTAssertEqual(
+            coordinator.alertShown.last,
+            .defaultAlert(
+                title: Localizations.anErrorHasOccurred
+            )
+        )
+    }
+
+    /// `receive(_:)` with `.addTapped` shows an alert when executed from the empty view
+    /// and in the create Fido2 credential context but without Fido2 credential new view.
+    func test_receive_addTapped_fido2CreationEmptyViewFido2CredentialNewViewNull() throws {
+        appExtensionDelegate.extensionMode = .registerFido2Credential(ASPasskeyCredentialRequest.fixture())
+        fido2UserInterfaceHelper.fido2CreationOptions = CheckUserOptions(
+            requirePresence: true,
+            requireVerification: .required
+        )
+
+        subject.receive(.addTapped(fromToolbar: false))
+
+        waitFor(!coordinator.alertShown.isEmpty)
+
+        XCTAssertEqual(
+            coordinator.alertShown.last,
+            .defaultAlert(
+                title: Localizations.anErrorHasOccurred
+            )
+        )
+    }
+
     /// `vaultItemTapped(_:)` with Fido2 credential signals the `Fido2UserInterfaceHelper`
-    /// that a cipher has been picked.
+    /// that a cipher has been picked for authentication when in `autofillFido2VaultList` mode.
     @available(iOSApplicationExtension 17.0, *)
-    func test_perform_vaultItemTapped_fido2PickedForCreation() async {
-        let expectedResult = CipherView.fixture()
+    func test_perform_vaultItemTapped_fido2PickedForAuthentication() async {
+        appExtensionDelegate.extensionMode = .autofillFido2VaultList([], MockPasskeyCredentialRequestParameters())
+        let vaultListItem = VaultListItem(
+            cipherView: CipherView.fixture(),
+            fido2CredentialAutofillView: .fixture()
+        )!
+
+        await subject.perform(.vaultItemTapped(vaultListItem))
+
+        fido2UserInterfaceHelper.pickedCredentialForAuthenticationMocker.assertUnwrapping { result in
+            guard case let .success(pickedResult) = result,
+                  pickedResult.id == vaultListItem.id else {
+                return false
+            }
+            return true
+        }
+    }
+
+    /// `vaultItemTapped(_:)` with Fido2 credential signals the `Fido2UserInterfaceHelper`
+    /// that a cipher has been picked when user confirms overwriting it.
+    @available(iOSApplicationExtension 17.0, *)
+    func test_perform_vaultItemTapped_fido2PickedForCreationWithAlreadyFido2Credential() async throws {
+        let expectedResult = CipherView.fixture(
+            login: .fixture(fido2Credentials: [.fixture()])
+        )
+        let vaultListItem = VaultListItem(
+            cipherView: expectedResult,
+            fido2CredentialAutofillView: .fixture()
+        )!
+        appExtensionDelegate.extensionMode = .registerFido2Credential(ASPasskeyCredentialRequest.fixture())
+
+        fido2UserInterfaceHelper.fido2CreationOptions = CheckUserOptions(
+            requirePresence: true,
+            requireVerification: .required
+        )
+        fido2UserInterfaceHelper.checkUserResult = .success(CheckUserResult(userPresent: true, userVerified: true))
+
+        await subject.perform(.vaultItemTapped(vaultListItem))
+
+        waitFor(!coordinator.alertShown.isEmpty)
+
+        let alert = try XCTUnwrap(coordinator.alertShown.last)
+        XCTAssertEqual(
+            alert.title,
+            Localizations.thisItemAlreadyContainsAPasskeyAreYouSureYouWantToOverwriteTheCurrentPasskey
+        )
+        try await alert.tapAction(title: Localizations.yes)
+
+        fido2UserInterfaceHelper.pickedCredentialForCreationMocker.assertUnwrapping { result in
+            guard case let .success(pickedResult) = result,
+                  pickedResult.checkUserResult.userVerified,
+                  pickedResult.cipher.cipher.id == expectedResult.id else {
+                return false
+            }
+            return true
+        }
+    }
+
+    /// `vaultItemTapped(_:)` with Fido2 credential doesn't signal the `Fido2UserInterfaceHelper`
+    /// that a cipher has been picked when user denies overwriting it.
+    @available(iOSApplicationExtension 17.0, *)
+    func test_perform_vaultItemTapped_fido2PickedForCreationNoOverwrite() async throws {
+        let expectedResult = CipherView.fixture(
+            login: .fixture(fido2Credentials: [.fixture()])
+        )
+        let vaultListItem = VaultListItem(
+            cipherView: expectedResult,
+            fido2CredentialAutofillView: .fixture()
+        )!
+        appExtensionDelegate.extensionMode = .registerFido2Credential(ASPasskeyCredentialRequest.fixture())
+
+        fido2UserInterfaceHelper.fido2CreationOptions = CheckUserOptions(
+            requirePresence: true,
+            requireVerification: .required
+        )
+
+        await subject.perform(.vaultItemTapped(vaultListItem))
+
+        waitFor(!coordinator.alertShown.isEmpty)
+
+        let alert = try XCTUnwrap(coordinator.alertShown.last)
+        try await alert.tapAction(title: Localizations.cancel)
+
+        XCTAssertFalse(fido2UserInterfaceHelper.pickedCredentialForCreationMocker.called)
+        XCTAssertFalse(fido2UserInterfaceHelper.checkUserCalled)
+    }
+
+    /// `vaultItemTapped(_:)` with Fido2 credential doesn't signal the `Fido2UserInterfaceHelper`
+    /// when no Fido2 options are available and shows an error to the user.
+    @available(iOSApplicationExtension 17.0, *)
+    func test_perform_vaultItemTapped_fido2PickedForCreationNoFido2Options() async throws {
+        let expectedResult = CipherView.fixture(
+            login: .fixture(fido2Credentials: [.fixture()])
+        )
         let vaultListItem = VaultListItem(
             cipherView: expectedResult,
             fido2CredentialAutofillView: .fixture()
@@ -122,13 +361,131 @@ class VaultAutofillListProcessorFido2Tests: BitwardenTestCase { // swiftlint:dis
 
         await subject.perform(.vaultItemTapped(vaultListItem))
 
+        waitFor(!coordinator.alertShown.isEmpty)
+
+        XCTAssertEqual(
+            coordinator.alertShown.last,
+            .defaultAlert(
+                title: Localizations.anErrorHasOccurred
+            )
+        )
+        XCTAssertFalse(fido2UserInterfaceHelper.pickedCredentialForCreationMocker.called)
+        XCTAssertFalse(fido2UserInterfaceHelper.checkUserCalled)
+    }
+
+    /// `vaultItemTapped(_:)` with cipher signals the `Fido2UserInterfaceHelper`
+    /// that a cipher has been picked when in creating Fido2 credential context and user check was verified.
+    @available(iOSApplicationExtension 17.0, *)
+    func test_perform_vaultItemTapped_cipherPickedForFido2Creation() async throws {
+        let expectedResult = CipherView.fixture(
+            login: .fixture()
+        )
+        let vaultListItem = VaultListItem(
+            cipherView: expectedResult
+        )!
+        appExtensionDelegate.extensionMode = .registerFido2Credential(ASPasskeyCredentialRequest.fixture())
+
+        fido2UserInterfaceHelper.fido2CreationOptions = CheckUserOptions(
+            requirePresence: true,
+            requireVerification: .required
+        )
+        fido2UserInterfaceHelper.checkUserResult = .success(CheckUserResult(userPresent: true, userVerified: true))
+
+        await subject.perform(.vaultItemTapped(vaultListItem))
+
+        waitFor(fido2UserInterfaceHelper.pickedCredentialForCreationMocker.called)
+
         fido2UserInterfaceHelper.pickedCredentialForCreationMocker.assertUnwrapping { result in
             guard case let .success(pickedResult) = result,
+                  pickedResult.checkUserResult.userVerified,
                   pickedResult.cipher.cipher.id == expectedResult.id else {
                 return false
             }
             return true
         }
+    }
+
+    /// `vaultItemTapped(_:)` with cipher signals the `Fido2UserInterfaceHelper`
+    /// that a cipher has been picked when in creating Fido2 credential context and user check was not verified.
+    @available(iOSApplicationExtension 17.0, *)
+    func test_perform_vaultItemTapped_cipherPickedForFido2CreationUserCheckNotVerified() async throws {
+        let expectedResult = CipherView.fixture(
+            login: .fixture()
+        )
+        let vaultListItem = VaultListItem(
+            cipherView: expectedResult
+        )!
+        appExtensionDelegate.extensionMode = .registerFido2Credential(ASPasskeyCredentialRequest.fixture())
+
+        fido2UserInterfaceHelper.fido2CreationOptions = CheckUserOptions(
+            requirePresence: true,
+            requireVerification: .required
+        )
+        fido2UserInterfaceHelper.checkUserResult = .success(CheckUserResult(userPresent: true, userVerified: false))
+
+        await subject.perform(.vaultItemTapped(vaultListItem))
+
+        waitFor(fido2UserInterfaceHelper.pickedCredentialForCreationMocker.called)
+
+        fido2UserInterfaceHelper.pickedCredentialForCreationMocker.assertUnwrapping { result in
+            guard case let .success(pickedResult) = result,
+                  !pickedResult.checkUserResult.userVerified,
+                  pickedResult.cipher.cipher.id == expectedResult.id else {
+                return false
+            }
+            return true
+        }
+    }
+
+    /// `vaultItemTapped(_:)` with cipher shows alert and logs when
+    /// a cipher has been picked in creating Fido2 credential context and user check throws.
+    @available(iOSApplicationExtension 17.0, *)
+    func test_perform_vaultItemTapped_cipherPickedForFido2CreationUserCheckThrows() async throws {
+        let expectedResult = CipherView.fixture(
+            login: .fixture()
+        )
+        let vaultListItem = VaultListItem(
+            cipherView: expectedResult
+        )!
+        appExtensionDelegate.extensionMode = .registerFido2Credential(ASPasskeyCredentialRequest.fixture())
+
+        fido2UserInterfaceHelper.fido2CreationOptions = CheckUserOptions(
+            requirePresence: true,
+            requireVerification: .required
+        )
+        fido2UserInterfaceHelper.checkUserResult = .failure(BitwardenTestError.example)
+
+        await subject.perform(.vaultItemTapped(vaultListItem))
+
+        waitFor(!errorReporter.errors.isEmpty)
+
+        XCTAssertEqual(coordinator.alertShown.last, .networkResponseError(BitwardenTestError.example))
+        XCTAssertEqual(errorReporter.errors as? [BitwardenTestError], [.example])
+    }
+
+    /// `vaultItemTapped(_:)` with cipher does nothing when
+    /// a cipher has been picked in creating Fido2 credential context and user check is cancelled.
+    @available(iOSApplicationExtension 17.0, *)
+    func test_perform_vaultItemTapped_cipherPickedForFido2CreationUserCheckCancelled() async throws {
+        let expectedResult = CipherView.fixture(
+            login: .fixture()
+        )
+        let vaultListItem = VaultListItem(
+            cipherView: expectedResult
+        )!
+        appExtensionDelegate.extensionMode = .registerFido2Credential(ASPasskeyCredentialRequest.fixture())
+
+        fido2UserInterfaceHelper.fido2CreationOptions = CheckUserOptions(
+            requirePresence: true,
+            requireVerification: .required
+        )
+        fido2UserInterfaceHelper.checkUserResult = .failure(UserVerificationError.cancelled)
+
+        await subject.perform(.vaultItemTapped(vaultListItem))
+
+        waitFor(fido2UserInterfaceHelper.checkUserCalled)
+
+        XCTAssertFalse(fido2UserInterfaceHelper.pickedCredentialForCreationMocker.called)
     }
 
     /// `vaultItemTapped(_:)` with Fido2 credential doesn't call the `Fido2UserInterfaceHelper`
@@ -257,6 +614,12 @@ class VaultAutofillListProcessorFido2Tests: BitwardenTestCase { // swiftlint:dis
         }
 
         XCTAssertTrue(errorReporter.errors.isEmpty)
+        XCTAssertTrue(subject.state.isCreatingFido2Credential)
+        XCTAssertEqual(
+            subject.state.emptyViewMessage,
+            Localizations.noItemsForUri(expectedCredentialIdentity.relyingPartyIdentifier)
+        )
+        XCTAssertEqual(subject.state.emptyViewButtonText, Localizations.savePasskeyAsNewLogin)
 
         XCTAssertTrue(fido2UserInterfaceHelper.fido2UserInterfaceHelperDelegate != nil)
         appExtensionDelegate.completeRegistrationRequestMocker.assertUnwrapping { credential in
@@ -376,4 +739,29 @@ class VaultAutofillListProcessorFido2Tests: BitwardenTestCase { // swiftlint:dis
 
         XCTAssertFalse(subject.state.showNoResults)
     }
-}
+
+    /// `perform(_:)` with `.streamAutofillItems` streams the list of autofill ciphers when creating Fido2 credential.
+    func test_perform_streamAutofillItems_creatingFido2Credential() {
+        let rpId = "myApp.com"
+        appExtensionDelegate.extensionMode = .registerFido2Credential(ASPasskeyCredentialRequest.fixture(
+            credentialIdentity: .fixture(relyingPartyIdentifier: rpId)
+        ))
+        let ciphers: [CipherView] = [.fixture(id: "1"), .fixture(id: "2"), .fixture(id: "3")]
+        let expectedSection = VaultListSection(
+            id: "",
+            items: ciphers.compactMap { VaultListItem(cipherView: $0) },
+            name: ""
+        )
+        vaultRepository.ciphersAutofillSubject.value = [expectedSection]
+
+        let task = Task {
+            await subject.perform(.streamAutofillItems)
+        }
+
+        waitFor(!subject.state.vaultListSections.isEmpty)
+        task.cancel()
+
+        XCTAssertEqual(subject.state.vaultListSections, [expectedSection])
+        XCTAssertEqual(vaultRepository.ciphersAutofillPublisherUriCalled, "https://\(rpId)")
+    }
+} // swiftlint:disable:this file_length

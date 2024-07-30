@@ -479,8 +479,6 @@
 "CodeSent" = "Kodea bidalia!";
 "ConfirmYourIdentity" = "Jarraitzeko, berretsi zure identitatea.";
 "ExportVaultWarning" = "Esportazio honek kutxa gotorraren datuak zifratu gabeko formatuan biltzen ditu. Ez zenuke gorde edo kanal ez-seguruetaik (emaila, adibidez) bidali behar. Erabili eta berehala ezabatu.";
-"EncExportKeyWarning" = "Esportazio honek zure datuak zifratzen ditu zure kontuaren zifratze-gakoa erabiliz. Inoiz zure kontuko zifratze-gakoa berrituz gero, berriro esportatu beharko duzu, ezin izango baituzu fitxategi hori deszifratu.";
-"EncExportAccountWarning" = "Kontua zifratzeko gakoak Bitwarden erabiltzaile bakoitzarentzako bakarrik dira; beraz, ezin da inportatu beste kontu batean zifratutako esportazio bat.";
 "ExportVaultConfirmationTitle" = "Baieztatu kutxa gotorra esportatzea";
 "Warning" = "Kontuz";
 "ExportVaultFailure" = "Kutxa gotorra esportatzean arazo bat izan da. Arazoak bere horretan jarraitzen badu, kutxa gotorretik esportatu beharko duzu.";
@@ -920,3 +918,4 @@
 "UnknownAccount" = "Unknown account";
 "UserVerificationForPasskey" = "User verification for passkey";
 "NewItem" = "New item";
+"ExportVaultFilePwProtectInfo" = "This file export will be password protected and require the file password to decrypt.";
