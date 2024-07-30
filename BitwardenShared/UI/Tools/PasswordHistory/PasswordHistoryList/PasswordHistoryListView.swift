@@ -28,7 +28,13 @@ struct PasswordHistoryListView: View {
             send: PasswordHistoryListAction.toastShown
         ))
         .toolbar {
-            ToolbarItemGroup(placement: .navigationBarTrailing) {
+            ToolbarItem(placement: .navigationBarLeading) {
+                closeToolbarButton {
+                    store.send(.dismiss)
+                }
+            }
+
+            ToolbarItem(placement: .navigationBarTrailing) {
                 if store.state.source == .generator {
                     optionsToolbarMenu {
                         AsyncButton(Localizations.clear) {
@@ -36,10 +42,6 @@ struct PasswordHistoryListView: View {
                         }
                         .accessibilityIdentifier("ClearPasswordList")
                     }
-                }
-
-                closeToolbarButton {
-                    store.send(.dismiss)
                 }
             }
         }

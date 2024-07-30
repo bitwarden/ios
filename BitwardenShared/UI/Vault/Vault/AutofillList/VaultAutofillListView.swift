@@ -29,6 +29,10 @@ struct VaultAutofillListView: View {
             prompt: Localizations.search
         )
         .toolbar {
+            cancelToolbarItem {
+                store.send(.cancelTapped)
+            }
+
             ToolbarItem(placement: .navigationBarLeading) {
                 ProfileSwitcherToolbarView(
                     store: store.child(
@@ -41,10 +45,6 @@ struct VaultAutofillListView: View {
 
             addToolbarItem(hidden: store.state.isAutofillingFido2List) {
                 store.send(.addTapped(fromToolbar: true))
-            }
-
-            cancelToolbarItem {
-                store.send(.cancelTapped)
             }
         }
     }

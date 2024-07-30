@@ -48,16 +48,18 @@ struct GeneratorView: View {
             send: GeneratorAction.toastShown
         ))
         .toolbar {
-            ToolbarItemGroup(placement: .topBarTrailing) {
-                optionsToolbarMenu {
-                    Button(Localizations.passwordHistory) {
-                        store.send(.showPasswordHistory)
-                    }
-                }
-
+            ToolbarItem(placement: .topBarLeading) {
                 if store.state.presentationMode.isDismissButtonVisible {
                     cancelToolbarButton {
                         store.send(.dismissPressed)
+                    }
+                }
+            }
+
+            ToolbarItem(placement: .topBarTrailing) {
+                optionsToolbarMenu {
+                    Button(Localizations.passwordHistory) {
+                        store.send(.showPasswordHistory)
                     }
                 }
             }

@@ -294,4 +294,13 @@ class AddEditSendItemViewTests: BitwardenTestCase {
         processor.state.isDeactivateThisSendOn = true
         assertSnapshot(of: subject, as: .tallPortrait)
     }
+
+    func test_snapshot_text_extension_withValues() {
+        processor.state.mode = .shareExtension(.singleAccount)
+        processor.state.type = .text
+        processor.state.name = "Name"
+        processor.state.text = "Text"
+        processor.state.isHideTextByDefaultOn = true
+        assertSnapshot(of: subject.navStackWrapped, as: .defaultPortrait)
+    }
 }
