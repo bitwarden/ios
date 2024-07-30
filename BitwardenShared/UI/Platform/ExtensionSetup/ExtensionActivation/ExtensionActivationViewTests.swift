@@ -39,8 +39,7 @@ class ExtensionActivationViewTests: BitwardenTestCase {
     // MARK: Snapshots
 
     /// The autofill extension activation view renders correctly.
-    func test_snapshot_extensionActivationView_autofillExtension() throws {
-        throw XCTSkip("Updating XCode to 15.4, this will be updated in the next PR so tests can pass")
+    func test_snapshot_extensionActivationView_autofillExtension() {
         assertSnapshots(
             of: subject.navStackWrapped,
             as: [.defaultPortrait, .defaultPortraitDark, .defaultPortraitAX5]
@@ -48,8 +47,7 @@ class ExtensionActivationViewTests: BitwardenTestCase {
     }
 
     /// The app extension activation view renders correctly.
-    func test_snapshot_extensionActivationView_appExtension() throws {
-        throw XCTSkip("Updating XCode to 15.4, this will be updated in the next PR so tests can pass")
+    func test_snapshot_extensionActivationView_appExtension() {
         processor.state.extensionType = .appExtension
         assertSnapshots(
             of: subject.navStackWrapped,
