@@ -23,11 +23,8 @@ struct EditCollectionsView: View {
                     store.send(.dismissPressed)
                 }
 
-                ToolbarItem(placement: .topBarTrailing) {
-                    toolbarButton(Localizations.save) {
-                        await store.perform(.save)
-                    }
-                    .accessibilityIdentifier("SaveButton")
+                saveToolbarItem {
+                    await store.perform(.save)
                 }
             }
     }

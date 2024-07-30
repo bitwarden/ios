@@ -16,7 +16,6 @@ struct SelfHostedView: View {
         VStack(spacing: 16) {
             selfHostedEnvironment
             customEnvironment
-            saveButton
         }
         .textFieldConfiguration(.url)
         .navigationBar(title: Localizations.settings, titleDisplayMode: .inline)
@@ -24,6 +23,10 @@ struct SelfHostedView: View {
         .toolbar {
             cancelToolbarItem {
                 store.send(.dismiss)
+            }
+
+            saveToolbarItem {
+                await store.perform(.saveEnvironment)
             }
         }
     }
@@ -74,18 +77,6 @@ struct SelfHostedView: View {
                 .accessibilityIdentifier("IconsUrlEntry")
             }
         }
-        .padding(.top, 8)
-    }
-
-    /// The save button.
-    private var saveButton: some View {
-        AsyncButton {
-            await store.perform(.saveEnvironment)
-        } label: {
-            Text(Localizations.save)
-        }
-        .accessibilityIdentifier("SaveButton")
-        .buttonStyle(.primary())
         .padding(.top, 8)
     }
 
