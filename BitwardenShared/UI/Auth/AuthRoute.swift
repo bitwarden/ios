@@ -29,6 +29,9 @@ public enum AuthRoute: Equatable {
     ///
     case enterpriseSingleSignOn(email: String)
 
+    /// A route to the intro carousel.
+    case introCarousel
+
     /// A route to the landing screen.
     case landing
 

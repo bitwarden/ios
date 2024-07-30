@@ -129,6 +129,8 @@ final class AuthCoordinator: NSObject, // swiftlint:disable:this type_body_lengt
             showDuo2FA(authURL: authURL, delegate: context as? DuoAuthenticationFlowDelegate)
         case let .enterpriseSingleSignOn(email):
             showEnterpriseSingleSignOn(email: email)
+        case .introCarousel:
+            showIntroCarousel()
         case .landing:
             showLanding()
         case let .login(username):
@@ -317,6 +319,18 @@ final class AuthCoordinator: NSObject, // swiftlint:disable:this type_body_lengt
         stackNavigator?.present(navigationController)
     }
 
+    /// Shows the intro carousel screen.
+    ///
+    private func showIntroCarousel() {
+        let processor = IntroCarouselProcessor(
+            coordinator: asAnyCoordinator(),
+            state: IntroCarouselState()
+        )
+        let view = IntroCarouselView(store: Store(processor: processor))
+        stackNavigator?.setNavigationBarHidden(true, animated: false)
+        stackNavigator?.replace(view, animated: false)
+    }
+
     /// Shows the landing screen.
     ///
     private func showLanding() {
@@ -329,6 +343,7 @@ final class AuthCoordinator: NSObject, // swiftlint:disable:this type_body_lengt
             )
             let store = Store(processor: processor)
             let view = LandingView(store: store)
+            stackNavigator.setNavigationBarHidden(false, animated: false)
             stackNavigator.replace(view, animated: false)
         }
     }

@@ -919,3 +919,5 @@
 "UserVerificationForPasskey" = "User verification for passkey";
 "NewItem" = "New item";
 "ExportVaultFilePwProtectInfo" = "This file export will be password protected and require the file password to decrypt.";
+"IntroCarouselPage1Title" = "Security, prioritized";
+"IntroCarouselPage1Message" = "Save logins, cards, and identities to your secure vault. Bitwarden uses zero-knowledge, end-to-end encryption to protect what’s important to you.";
