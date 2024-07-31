@@ -76,11 +76,11 @@ struct IntroCarouselView: View {
     @ViewBuilder
     private func dynamicStackView(@ViewBuilder _ content: () -> some View) -> some View {
         if verticalSizeClass == .regular {
-            VStack(spacing: 16) {
+            VStack(spacing: 80) {
                 content()
             }
         } else {
-            HStack(alignment: .top, spacing: 16) {
+            HStack(alignment: .top, spacing: 40) {
                 content()
             }
         }
@@ -90,6 +90,11 @@ struct IntroCarouselView: View {
     @ViewBuilder
     private func pageView(_ page: IntroCarouselState.CarouselPage) -> some View {
         page.image
+            .resizable()
+            .frame(
+                width: verticalSizeClass == .regular ? 200 : 132,
+                height: verticalSizeClass == .regular ? 200 : 132
+            )
             .accessibilityHidden(true)
 
         VStack(spacing: 16) {
