@@ -21,6 +21,7 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
     var now: Date!
     var premiumAccount = Account.fixture(profile: .fixture(hasPremiumPersonally: true))
     var organizationService: MockOrganizationService!
+    var policyService: MockPolicyService!
     var stateService: MockStateService!
     var subject: DefaultVaultRepository!
     var syncService: MockSyncService!
@@ -44,6 +45,7 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
         folderService = MockFolderService()
         now = Date(year: 2024, month: 1, day: 18)
         organizationService = MockOrganizationService()
+        policyService = MockPolicyService()
         syncService = MockSyncService()
         timeProvider = MockTimeProvider(.mockTime(now))
         vaultTimeoutService = MockVaultTimeoutService()
@@ -59,6 +61,7 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
             errorReporter: errorReporter,
             folderService: folderService,
             organizationService: organizationService,
+            policyService: policyService,
             settingsService: MockSettingsService(),
             stateService: stateService,
             syncService: syncService,
@@ -81,6 +84,7 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
         fido2UserInterfaceHelper = nil
         folderService = nil
         organizationService = nil
+        policyService = nil
         now = nil
         stateService = nil
         subject = nil
@@ -107,6 +111,42 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
         await assertAsyncThrows(error: BitwardenTestError.example) {
             try await subject.addCipher(.fixture())
         }
+    }
+
+    /// `canShowVaultFilter()` returns true if only org and personal ownership policies are disabled.
+    func test_canShowVaultFilter_onlyOrgAndPersonalOwnershipDisabled() async {
+        policyService.policyAppliesToUserResult[.onlyOrg] = false
+        policyService.policyAppliesToUserResult[.personalOwnership] = false
+
+        let canShowVaultFilter = await subject.canShowVaultFilter()
+        XCTAssertTrue(canShowVaultFilter)
+    }
+
+    /// `canShowVaultFilter()` returns false if the only org and personal ownership policies are enabled.
+    func test_canShowVaultFilter_onlyOrgAndPersonalOwnershipEnabled() async {
+        policyService.policyAppliesToUserResult[.onlyOrg] = true
+        policyService.policyAppliesToUserResult[.personalOwnership] = true
+
+        let canShowVaultFilter = await subject.canShowVaultFilter()
+        XCTAssertFalse(canShowVaultFilter)
+    }
+
+    /// `canShowVaultFilter()` returns false if the only org is enabled but not personal ownership.
+    func test_canShowVaultFilter_onlyOrgEnabled() async {
+        policyService.policyAppliesToUserResult[.onlyOrg] = true
+        policyService.policyAppliesToUserResult[.personalOwnership] = false
+
+        let canShowVaultFilter = await subject.canShowVaultFilter()
+        XCTAssertTrue(canShowVaultFilter)
+    }
+
+    /// `canShowVaultFilter()` returns false if the personal ownership is enabled but not only org.
+    func test_canShowVaultFilter_personalOwnershipEnabled() async {
+        policyService.policyAppliesToUserResult[.onlyOrg] = false
+        policyService.policyAppliesToUserResult[.personalOwnership] = true
+
+        let canShowVaultFilter = await subject.canShowVaultFilter()
+        XCTAssertTrue(canShowVaultFilter)
     }
 
     /// `cipherPublisher()` returns a publisher for the list of a user's ciphers.

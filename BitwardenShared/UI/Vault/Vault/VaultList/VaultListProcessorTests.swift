@@ -17,6 +17,7 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
     var errorReporter: MockErrorReporter!
     var notificationService: MockNotificationService!
     var pasteboardService: MockPasteboardService!
+    var policyService: MockPolicyService!
     var stateService: MockStateService!
     var subject: VaultListProcessor!
     var timeProvider: MockTimeProvider!
@@ -39,6 +40,7 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
         errorReporter = MockErrorReporter()
         notificationService = MockNotificationService()
         pasteboardService = MockPasteboardService()
+        policyService = MockPolicyService()
         stateService = MockStateService()
         timeProvider = MockTimeProvider(.mockTime(Date(year: 2024, month: 6, day: 28)))
         vaultItemMoreOptionsHelper = MockVaultItemMoreOptionsHelper()
@@ -50,6 +52,7 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
             errorReporter: errorReporter,
             notificationService: notificationService,
             pasteboardService: pasteboardService,
+            policyService: policyService,
             stateService: stateService,
             timeProvider: timeProvider,
             vaultRepository: vaultRepository
@@ -71,6 +74,7 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
         coordinator = nil
         errorReporter = nil
         pasteboardService = nil
+        policyService = nil
         stateService = nil
         subject = nil
         vaultItemMoreOptionsHelper = nil
@@ -215,6 +219,45 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
 
         XCTAssertTrue(application.registerForRemoteNotificationsCalled)
         XCTAssertEqual(stateService.notificationsLastRegistrationDates["1"], timeProvider.presentTime)
+    }
+
+    /// `perform(_:)` with `.appeared` updates the state depending on if the
+    /// personal ownership policy is enabled.
+    func test_perform_appeared_personalOwnershipPolicy() async {
+        policyService.policyAppliesToUserResult[.personalOwnership] = true
+
+        await subject.perform(.appeared)
+
+        XCTAssertTrue(subject.state.isPersonalOwnershipDisabled)
+    }
+
+    /// `perform(_:)` with `appeared` determines whether the vault filter can be shown based on
+    /// policy settings.
+    func test_perform_appeared_policyCanShowVaultFilterDisabled() async {
+        vaultRepository.canShowVaultFilter = false
+        subject.state.organizations = [.fixture()]
+
+        await subject.perform(.appeared)
+
+        XCTAssertFalse(subject.state.canShowVaultFilter)
+        XCTAssertFalse(subject.state.vaultFilterState.canShowVaultFilter)
+        XCTAssertEqual(subject.state.vaultFilterState.vaultFilterOptions, [])
+    }
+
+    /// `perform(_:)` with `appeared` determines whether the vault filter can be shown based on
+    /// policy settings.
+    func test_perform_appeared_policyCanShowVaultFilterEnabled() async {
+        vaultRepository.canShowVaultFilter = true
+        subject.state.organizations = [.fixture()]
+
+        await subject.perform(.appeared)
+
+        XCTAssertTrue(subject.state.canShowVaultFilter)
+        XCTAssertTrue(subject.state.vaultFilterState.canShowVaultFilter)
+        XCTAssertEqual(
+            subject.state.vaultFilterState.vaultFilterOptions,
+            [.allVaults, .myVault, .organization(.fixture())]
+        )
     }
 
     /// `perform(_:)` with `.appeared` requests notification permissions.

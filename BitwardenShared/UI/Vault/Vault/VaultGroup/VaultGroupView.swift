@@ -156,13 +156,7 @@ struct VaultGroupView: View {
     private var searchVaultFilterRow: some View {
         SearchVaultFilterRowView(
             hasDivider: true, store: store.child(
-                state: { state in
-                    SearchVaultFilterRowState(
-                        organizations: state.organizations,
-                        searchVaultFilterType: state.searchVaultFilterType,
-                        isPersonalOwnershipDisabled: state.isPersonalOwnershipDisabled
-                    )
-                },
+                state: \.vaultFilterState,
                 mapAction: { action in
                     switch action {
                     case let .searchVaultFilterChanged(type):

@@ -45,4 +45,34 @@ class SearchVaultFilterRowStateTests: BitwardenTestCase {
             ]
         )
     }
+
+    /// `vaultFilterOptions` returns no filter options if organizations exist but the filter should be hidden.
+    func test_vaultFilterOptions_organizationsShouldNotShowVaultFilter() {
+        subject.organizations = [
+            Organization.fixture(id: "1", name: "Org 1"),
+            Organization.fixture(id: "2", name: "Test Org"),
+            Organization.fixture(id: "3", name: "ABC Org"),
+        ]
+        subject.canShowVaultFilter = false
+        XCTAssertEqual(subject.vaultFilterOptions, [])
+    }
+
+    /// `vaultFilterOptions` returns the filter organization filter options if personal ownership is disabled.
+    func test_vaultFilterOptions_personalOwnershipDisabled() {
+        subject.organizations = [
+            Organization.fixture(id: "1", name: "Org 1"),
+            Organization.fixture(id: "2", name: "Test Org"),
+            Organization.fixture(id: "3", name: "ABC Org"),
+        ]
+        subject.isPersonalOwnershipDisabled = true
+        XCTAssertEqual(
+            subject.vaultFilterOptions,
+            [
+                .allVaults,
+                .organization(Organization.fixture(id: "3", name: "ABC Org")),
+                .organization(Organization.fixture(id: "1", name: "Org 1")),
+                .organization(Organization.fixture(id: "2", name: "Test Org")),
+            ]
+        )
+    }
 }

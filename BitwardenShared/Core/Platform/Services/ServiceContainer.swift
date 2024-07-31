@@ -523,6 +523,7 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
             errorReporter: errorReporter,
             folderService: folderService,
             organizationService: organizationService,
+            policyService: policyService,
             settingsService: settingsService,
             stateService: stateService,
             syncService: syncService,

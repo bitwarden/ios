@@ -158,6 +158,7 @@ final class VaultGroupProcessor: StateProcessor<
     private func checkPersonalOwnershipPolicy() async {
         let isPersonalOwnershipDisabled = await services.policyService.policyAppliesToUser(.personalOwnership)
         state.isPersonalOwnershipDisabled = isPersonalOwnershipDisabled
+        state.canShowVaultFilter = await services.vaultRepository.canShowVaultFilter()
     }
 
     /// Refreshes the vault group's TOTP Codes.
