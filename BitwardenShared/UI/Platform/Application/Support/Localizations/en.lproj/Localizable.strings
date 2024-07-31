@@ -923,3 +923,5 @@
 "IntroCarouselPage1Message" = "Save logins, cards, and identities to your secure vault. Bitwarden uses zero-knowledge, end-to-end encryption to protect what’s important to you.";
 "IntroCarouselPage2Title" = "Quick and easy login";
 "IntroCarouselPage2Message" = "Set up biometric unlock and autofill to log into your accounts without typing a single letter.";
+"IntroCarouselPage3Title" = "Level up your logins";
+"IntroCarouselPage3Message" = "Use the generator to create and save strong, unique passwords for all your accounts.";

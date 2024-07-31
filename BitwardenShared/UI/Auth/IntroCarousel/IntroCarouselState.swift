@@ -40,5 +40,11 @@ struct IntroCarouselState: Equatable {
             message: Localizations.introCarouselPage2Message,
             title: Localizations.introCarouselPage2Title
         ),
+
+        CarouselPage(
+            image: Asset.Images.secureUser.swiftUIImage,
+            message: Localizations.introCarouselPage3Message,
+            title: Localizations.introCarouselPage3Title
+        ),
     ]
 }
