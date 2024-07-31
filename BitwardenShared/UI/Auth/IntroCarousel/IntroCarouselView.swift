@@ -23,15 +23,8 @@ struct IntroCarouselView: View {
         VStack(spacing: 0) {
             TabView(selection: $tabSelection.animation()) {
                 ForEachIndexed(store.state.pages) { index, page in
-                    GeometryReader { reader in
-                        dynamicStackView {
-                            pageView(page)
-                        }
-                        .padding(.vertical, 16)
-                        .frame(maxWidth: .infinity, minHeight: reader.size.height)
-                        .scrollView(addVerticalPadding: false)
-                    }
-                    .tag(index)
+                    pageView(page)
+                        .tag(index)
                 }
             }
             .tabViewStyle(.page(indexDisplayMode: .never))
@@ -61,7 +54,7 @@ struct IntroCarouselView: View {
                 }
                 .buttonStyle(.transparent)
             }
-            .dynamicTypeSize(...DynamicTypeSize.accessibility4)
+            .dynamicTypeSize(...DynamicTypeSize.xxxLarge)
             .padding(.horizontal, 16)
             .padding(.vertical, 12)
         }
@@ -74,14 +67,34 @@ struct IntroCarouselView: View {
     /// A dynamic stack view that lays out content vertically when in a regular vertical size class
     /// and horizontally for the compact vertical size class.
     @ViewBuilder
-    private func dynamicStackView(@ViewBuilder _ content: () -> some View) -> some View {
+    private func dynamicStackView(
+        minHeight: CGFloat,
+        @ViewBuilder imageContent: () -> some View,
+        @ViewBuilder textContent: () -> some View
+    ) -> some View {
         if verticalSizeClass == .regular {
             VStack(spacing: 80) {
-                content()
+                imageContent()
+                textContent()
             }
+            .padding(.vertical, 16)
+            .frame(maxWidth: .infinity, minHeight: minHeight)
+            .scrollView(addVerticalPadding: false)
         } else {
             HStack(alignment: .top, spacing: 40) {
-                content()
+                VStack(spacing: 0) {
+                    Spacer(minLength: 0)
+                    imageContent()
+                        .padding(.leading, 36)
+                        .padding(.vertical, 16)
+                    Spacer(minLength: 0)
+                }
+                .frame(minHeight: minHeight)
+
+                textContent()
+                    .padding(.vertical, 16)
+                    .frame(maxWidth: .infinity, minHeight: minHeight)
+                    .scrollView(addVerticalPadding: false)
             }
         }
     }
@@ -89,20 +102,24 @@ struct IntroCarouselView: View {
     /// A view that displays a carousel page.
     @ViewBuilder
     private func pageView(_ page: IntroCarouselState.CarouselPage) -> some View {
-        page.image
-            .resizable()
-            .frame(
-                width: verticalSizeClass == .regular ? 200 : 132,
-                height: verticalSizeClass == .regular ? 200 : 132
-            )
-            .accessibilityHidden(true)
+        GeometryReader { reader in
+            dynamicStackView(minHeight: reader.size.height) {
+                page.image
+                    .resizable()
+                    .frame(
+                        width: verticalSizeClass == .regular ? 200 : 132,
+                        height: verticalSizeClass == .regular ? 200 : 132
+                    )
+                    .accessibilityHidden(true)
+            } textContent: {
+                VStack(spacing: 16) {
+                    Text(page.title)
+                        .styleGuide(.title, weight: .bold)
 
-        VStack(spacing: 16) {
-            Text(page.title)
-                .styleGuide(.title, weight: .bold)
-
-            Text(page.message)
-                .styleGuide(.title3)
+                    Text(page.message)
+                        .styleGuide(.title3)
+                }
+            }
         }
     }
 }
