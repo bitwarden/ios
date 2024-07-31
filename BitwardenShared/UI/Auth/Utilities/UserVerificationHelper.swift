@@ -159,18 +159,25 @@ extension DefaultUserVerificationHelper: UserVerificationHelper {
                     continuation.resume(throwing: UserVerificationError.cancelled)
                 },
                 settingUp: false,
-                completion: { pin in
-                    guard await self.authRepository.validatePin(pin: pin) else {
-                        self.userVerificationDelegate?.showAlert(
-                            .defaultAlert(title: Localizations.invalidPIN),
-                            onDismissed: {
-                                continuation.resume(returning: .notVerified)
-                            }
-                        )
-                        return
-                    }
+                completion: { [weak self] pin in
+                    guard let self else { return }
 
-                    continuation.resume(returning: .verified)
+                    do {
+                        guard try await authRepository.validatePin(pin: pin) else {
+                            userVerificationDelegate?.showAlert(
+                                .defaultAlert(title: Localizations.invalidPIN),
+                                onDismissed: {
+                                    continuation.resume(returning: .notVerified)
+                                }
+                            )
+                            return
+                        }
+
+                        continuation.resume(returning: .verified)
+                    } catch {
+                        errorReporter.log(error: error)
+                        continuation.resume(returning: .unableToPerform)
+                    }
                 }
             )
 

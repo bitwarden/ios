@@ -19,15 +19,15 @@ struct MoveToOrganizationView: View {
             .scrollView()
             .task { await store.perform(.fetchCipherOptions) }
             .toolbar {
-                ToolbarItem(placement: .topBarLeading) {
+                cancelToolbarItem {
+                    store.send(.dismissPressed)
+                }
+
+                ToolbarItem(placement: .topBarTrailing) {
                     toolbarButton(Localizations.move) {
                         await store.perform(.moveCipher)
                     }
                     .accessibilityIdentifier("MoveButton")
-                }
-
-                cancelToolbarItem {
-                    store.send(.dismissPressed)
                 }
             }
     }

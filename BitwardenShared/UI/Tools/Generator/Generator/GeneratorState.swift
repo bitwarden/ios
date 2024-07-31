@@ -47,6 +47,14 @@ struct GeneratorState: Equatable {
             }
         }
 
+        /// A flag indicating if the options toolbar button is visible.
+        var isOptionsButtonVisible: Bool {
+            switch self {
+            case .tab: true
+            case .inPlace: false
+            }
+        }
+
         /// A flag indicating if the select button is visible.
         var isSelectButtonVisible: Bool {
             switch self {

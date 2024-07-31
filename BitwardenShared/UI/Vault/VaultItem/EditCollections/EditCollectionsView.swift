@@ -19,15 +19,12 @@ struct EditCollectionsView: View {
             .scrollView()
             .task { await store.perform(.fetchCipherOptions) }
             .toolbar {
-                ToolbarItem(placement: .topBarLeading) {
-                    toolbarButton(Localizations.save) {
-                        await store.perform(.save)
-                    }
-                    .accessibilityIdentifier("SaveButton")
-                }
-
                 cancelToolbarItem {
                     store.send(.dismissPressed)
+                }
+
+                saveToolbarItem {
+                    await store.perform(.save)
                 }
             }
     }
