@@ -492,7 +492,19 @@ class AccountSecurityProcessorTests: BitwardenTestCase { // swiftlint:disable:th
 
         let alert = try XCTUnwrap(coordinator.alertShown.last)
         try await alert.tapAction(title: Localizations.submit)
+        XCTAssertFalse(subject.state.isUnlockWithPINCodeOn)
+    }
 
+    /// `receive(_:)` with `.toggleUnlockWithPINCode` displays an alert and updates the state when submit has been
+    /// pressed but an empty pin was passed.
+    func test_receive_toggleUnlockWithPINCode_toggleOn_withWhitespacePIN() async throws {
+        stateService.activeAccount = .fixture()
+        subject.state.isUnlockWithPINCodeOn = false
+        subject.receive(.toggleUnlockWithPINCode(true))
+
+        let alert = try XCTUnwrap(coordinator.alertShown.last)
+        try alert.setText(" ", forTextFieldWithId: "pin")
+        try await alert.tapAction(title: Localizations.submit)
         XCTAssertFalse(subject.state.isUnlockWithPINCodeOn)
     }
 
