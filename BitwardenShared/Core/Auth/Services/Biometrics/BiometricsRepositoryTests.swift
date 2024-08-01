@@ -111,6 +111,18 @@ final class BiometricsRepositoryTests: BitwardenTestCase { // swiftlint:disable:
         XCTAssertEqual(key, expectedKey)
     }
 
+    /// `setBiometricUnlockKey` throws a cancelled error for `errSecAuthFailed` if the device is
+    /// locked while performing biometrics.
+    func test_getBiometricUnlockKey_authFailed() async throws {
+        stateService.activeAccount = .fixture()
+        keychainService.getResult = .failure(
+            KeychainServiceError.osStatusError(errSecAuthFailed)
+        )
+        await assertAsyncThrows(error: BiometricsServiceError.biometryCancelled) {
+            _ = try await subject.getUserAuthKey()
+        }
+    }
+
     /// `getBiometricUnlockStatus` throws an error if the user has locked biometrics.
     func test_getBiometricUnlockStatus_lockout() async throws {
         let active = Account.fixture()
