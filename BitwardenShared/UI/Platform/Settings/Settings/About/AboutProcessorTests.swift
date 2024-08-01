@@ -1,3 +1,4 @@
+import InlineSnapshotTesting
 import XCTest
 
 @testable import BitwardenShared
@@ -5,6 +6,7 @@ import XCTest
 class AboutProcessorTests: BitwardenTestCase {
     // MARK: Properties
 
+    var aboutAdditionalInfo: MockAboutAdditionalInfo!
     var coordinator: MockCoordinator<SettingsRoute, SettingsEvent>!
     var environmentService: MockEnvironmentService!
     var errorReporter: MockErrorReporter!
@@ -16,25 +18,29 @@ class AboutProcessorTests: BitwardenTestCase {
     override func setUp() {
         super.setUp()
 
+        aboutAdditionalInfo = MockAboutAdditionalInfo()
         coordinator = MockCoordinator<SettingsRoute, SettingsEvent>()
         environmentService = MockEnvironmentService()
         errorReporter = MockErrorReporter()
         pasteboardService = MockPasteboardService()
 
         subject = AboutProcessor(
+            aboutAdditionalInfo: aboutAdditionalInfo,
             coordinator: coordinator.asAnyCoordinator(),
             services: ServiceContainer.withMocks(
                 environmentService: environmentService,
                 errorReporter: errorReporter,
                 pasteboardService: pasteboardService
             ),
-            state: AboutState()
+            state: AboutState(),
+            systemDevice: MockSystemDevice()
         )
     }
 
     override func tearDown() {
         super.tearDown()
 
+        aboutAdditionalInfo = nil
         coordinator = nil
         environmentService = nil
         errorReporter = nil
@@ -49,11 +55,13 @@ class AboutProcessorTests: BitwardenTestCase {
         errorReporter.isEnabled = true
 
         subject = AboutProcessor(
+            aboutAdditionalInfo: aboutAdditionalInfo,
             coordinator: coordinator.asAnyCoordinator(),
             services: ServiceContainer.withMocks(
                 errorReporter: errorReporter
             ),
-            state: AboutState()
+            state: AboutState(),
+            systemDevice: MockSystemDevice()
         )
 
         XCTAssertTrue(subject.state.isSubmitCrashLogsToggleOn)
@@ -133,11 +141,53 @@ class AboutProcessorTests: BitwardenTestCase {
         XCTAssertTrue(errorReporter.isEnabled)
     }
 
-    /// `receive(_:)` with action `.versionTapped` copies the version string to the pasteboard.
-    func test_receive_versionTapped() {
+    /// `receive(_:)` with action `.versionTapped` copies the copyright, the version string
+    /// and device info to the pasteboard when no additional info is provided.
+    func test_receive_versionTapped_noAdditionalInfo() {
         subject.receive(.versionTapped)
-        let text = subject.state.copyrightText + "\n\n" + subject.state.version
-        XCTAssertEqual(pasteboardService.copiedString, text)
+        XCTAssertEqual(
+            pasteboardService.copiedString,
+            """
+            © Bitwarden Inc. 2015-2024
+
+            Version: 2024.6.0 (1)
+
+            -------- Device --------
+
+            Model: iPhone14,2
+            OS: iOS 16.4
+            """
+        )
+        XCTAssertEqual(subject.state.toast?.text, Localizations.valueHasBeenCopied(Localizations.appInfo))
+    }
+
+    /// `receive(_:)` with action `.versionTapped` copies the copyright, the version string,
+    /// device info and the additional info to the pasteboard when it's provided.
+    func test_receive_versionTapped_withAdditionalInfo() {
+        aboutAdditionalInfo.ciBuildInfo = [
+            "Repository": "www.github.com/bitwarden/ios",
+            "Branch": "tesBranch",
+        ]
+
+        subject.receive(.versionTapped)
+        XCTAssertEqual(
+            pasteboardService.copiedString,
+            """
+            © Bitwarden Inc. 2015-2024
+
+            Version: 2024.6.0 (1)
+
+            -------- Device --------
+
+            Model: iPhone14,2
+            OS: iOS 16.4
+
+            ------- CI Info --------
+
+            Branch: tesBranch
+            Repository: www.github.com/bitwarden/ios
+            """
+        )
         XCTAssertEqual(subject.state.toast?.text, Localizations.valueHasBeenCopied(Localizations.appInfo))
     }
 
@@ -150,4 +200,8 @@ class AboutProcessorTests: BitwardenTestCase {
         try await alert.tapAction(title: Localizations.continue)
         XCTAssertEqual(subject.state.url, environmentService.webVaultURL)
     }
+}
+
+class MockAboutAdditionalInfo: AboutAdditionalInfo {
+    var ciBuildInfo: [String: String] = [:]
 }

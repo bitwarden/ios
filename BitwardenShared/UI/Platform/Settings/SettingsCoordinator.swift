@@ -173,9 +173,11 @@ final class SettingsCoordinator: Coordinator, HasStackNavigator { // swiftlint:d
     ///
     private func showAbout() {
         let processor = AboutProcessor(
+            aboutAdditionalInfo: DefaultAboutAdditionalInfo(),
             coordinator: asAnyCoordinator(),
             services: services,
-            state: AboutState()
+            state: AboutState(),
+            systemDevice: UIDevice.current
         )
 
         let view = AboutView(store: Store(processor: processor))
