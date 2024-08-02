@@ -129,8 +129,14 @@ class AppProcessorFido2Tests: BitwardenTestCase {
     func test_onNeedsUserInteraction_flowWithUserInteraction() async {
         appExtensionDelegate.flowWithUserInteraction = true
 
-        await assertAsyncDoesNotThrow {
+        let taskResult = Task {
             try await subject.onNeedsUserInteraction()
+        }
+
+        appExtensionDelegate.didAppearPublisher.send(true)
+
+        await assertAsyncDoesNotThrow {
+            try await taskResult.value
         }
         XCTAssertFalse(appExtensionDelegate.setUserInteractionRequiredCalled)
     }
