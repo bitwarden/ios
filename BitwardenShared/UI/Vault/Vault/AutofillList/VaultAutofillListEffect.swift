@@ -22,4 +22,7 @@ enum VaultAutofillListEffect: Equatable {
 
     /// Stream the autofill items for the user.
     case streamAutofillItems
+
+    /// Stream the show web icons setting.
+    case streamShowWebIcons
 }
