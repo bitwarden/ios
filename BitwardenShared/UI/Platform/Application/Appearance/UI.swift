@@ -54,6 +54,9 @@ public enum UI {
         UINavigationBar.appearance().scrollEdgeAppearance = navigationBarAppearance
         UINavigationBar.appearance().standardAppearance = navigationBarAppearance
 
+        UIPageControl.appearance().currentPageIndicatorTintColor = Asset.Colors.textPrimary.color
+        UIPageControl.appearance().pageIndicatorTintColor = Asset.Colors.textPrimary.color.withAlphaComponent(0.3)
+
         UIBarButtonItem.appearance().tintColor = Asset.Colors.primaryBitwarden.color
 
         // Make the tab bar opaque.

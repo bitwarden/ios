@@ -27,6 +27,9 @@ struct IntroCarouselState: Equatable {
 
     // MARK: Properties
 
+    /// The index of the currently visible page in the carousel.
+    var currentPageIndex = 0
+
     /// The list of scrollable pages displayed in the carousel.
     let pages: [CarouselPage] = [
         CarouselPage(

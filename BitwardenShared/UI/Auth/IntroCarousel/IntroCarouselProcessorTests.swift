@@ -36,6 +36,18 @@ class IntroCarouselProcessorTests: BitwardenTestCase {
         XCTAssertEqual(coordinator.routes.last, .createAccount)
     }
 
+    /// `receive(_:)` with `.currentPageIndexChanged` updates the current page index.
+    func test_receive_currentPageIndexChanged() {
+        subject.receive(.currentPageIndexChanged(1))
+        XCTAssertEqual(subject.state.currentPageIndex, 1)
+
+        subject.receive(.currentPageIndexChanged(2))
+        XCTAssertEqual(subject.state.currentPageIndex, 2)
+
+        subject.receive(.currentPageIndexChanged(0))
+        XCTAssertEqual(subject.state.currentPageIndex, 0)
+    }
+
     /// `receive(_:)` with `.logIn` navigates to the landing view.
     func test_receive_logIn() {
         subject.receive(.logIn)

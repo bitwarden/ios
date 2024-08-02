@@ -45,8 +45,35 @@ class IntroCarouselViewTests: BitwardenTestCase {
 
     // MARK: Snapshots
 
-    /// The intro carousel renders correctly.
-    func test_snapshot_introCarousel() {
+    /// The intro carousel page 1 renders correctly.
+    func test_snapshot_introCarousel_page1() {
+        assertSnapshots(
+            of: subject.navStackWrapped,
+            as: [.defaultPortrait, .defaultPortraitDark, .defaultPortraitAX5, .defaultLandscape]
+        )
+    }
+
+    /// The intro carousel page 2 renders correctly.
+    func test_snapshot_introCarousel_page2() {
+        processor.state.currentPageIndex = 1
+        assertSnapshots(
+            of: subject.navStackWrapped,
+            as: [.defaultPortrait, .defaultPortraitDark, .defaultPortraitAX5, .defaultLandscape]
+        )
+    }
+
+    /// The intro carousel page 3 renders correctly.
+    func test_snapshot_introCarousel_page3() {
+        processor.state.currentPageIndex = 2
+        assertSnapshots(
+            of: subject.navStackWrapped,
+            as: [.defaultPortrait, .defaultPortraitDark, .defaultPortraitAX5, .defaultLandscape]
+        )
+    }
+
+    /// The intro carousel page 4 renders correctly.
+    func test_snapshot_introCarousel_page4() {
+        processor.state.currentPageIndex = 3
         assertSnapshots(
             of: subject.navStackWrapped,
             as: [.defaultPortrait, .defaultPortraitDark, .defaultPortraitAX5, .defaultLandscape]
