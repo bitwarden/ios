@@ -1579,8 +1579,6 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
 
     /// `validatePin(_:)` returns `false` if the there is no active account.
     func test_validatePin_noActiveAccount() async throws {
-        let account = Account.fixture()
-
         let isPinValid = try await subject.validatePin(pin: "123")
 
         XCTAssertFalse(isPinValid)
