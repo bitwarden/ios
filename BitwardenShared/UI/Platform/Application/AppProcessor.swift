@@ -2,7 +2,6 @@ import AuthenticationServices
 import BitwardenSdk
 import Combine
 import Foundation
-import OSLog
 import UIKit
 
 /// The `AppProcessor` processes actions received at the application level and contains the logic
