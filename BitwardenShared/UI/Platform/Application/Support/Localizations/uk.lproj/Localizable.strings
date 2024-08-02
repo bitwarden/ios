@@ -259,7 +259,7 @@
 "FormattedIncorrectly" = "%1$@ має неправильне форматування.";
 "IdentityUrl" = "URL-адреса сервера ідентифікації";
 "SelfHostedEnvironment" = "Середовище власного хостингу";
-"SelfHostedEnvironmentFooter" = "Вкажіть основну URL-адресу вашого локально розміщеного встановлення Bitwarden.";
+"SelfHostedEnvironmentFooter" = "Вкажіть основну URL-адресу вашого встановлення Bitwarden на власному хостингу.";
 "ServerUrl" = "URL-адреса сервера";
 "WebVaultUrl" = "URL-адреса сервера вебсховища";
 "BitwardenAutofillServiceNotificationContentOld" = "Торкніться цього сповіщення для перегляду записів з вашого сховища.";
