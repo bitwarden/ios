@@ -72,7 +72,7 @@
 "ValueHasBeenCopied" = "%1$@ wedi'i gopïo";
 "VerifyFingerprint" = "Verify fingerprint";
 "VerifyMasterPassword" = "Gwirio'r prif gyfrinair";
-"VerifyPIN" = "Verify PIN";
+"VerifyPIN" = "Gwirio'r PIN";
 "Version" = "Fersiwn";
 "View" = "Gweld";
 "VisitOurWebsite" = "Visit our website";
@@ -92,7 +92,7 @@
 "BitwardenAutofillService" = "Gwasanaeth llenwi awtomatig Bitwarden";
 "BitwardenAutofillAccessibilityServiceDescription" = "Use the Bitwarden accessibility service to auto-fill your logins.";
 "ChangeEmail" = "Newid ebost";
-"ChangeEmailConfirmation" = "You can change your email address on the bitwarden.com web vault. Do you want to visit the website now?";
+"ChangeEmailConfirmation" = "Gallwch newid eich cyfeiriad ebost yng nghell we bitwarden.com. Hoffech chi fynd i'r wefan nawr?";
 "ChangeMasterPassword" = "Newid y prif gyfrinair";
 "Close" = "Cau";
 "Continue" = "Parhau";
@@ -145,7 +145,7 @@
 "NewItemCreated" = "Eitem wedi'i hychwanegu";
 "NoFavorites" = "Does dim ffefrynnau yn eich cell.";
 "NoItems" = "Does dim eitemau yn eich cell.";
-"NoItemsTap" = "There are no items in your vault for this website/app. Tap to add one.";
+"NoItemsTap" = "Does dim eitemau yn eich cell ar gyfer y gwasanaeth hwn. Tapiwch i ychwanegu un.";
 "NoUsernamePasswordConfigured" = "Does dim enw defnyddiwr na chyfrinair i'r manylyn mewngofnodi hwn.";
 "OkGotIt" = "Iawn, deall!";
 "OptionDefaults" = "Option defaults are set from the main Bitwarden app's password generator tool.";
@@ -174,7 +174,7 @@
 "SyncingFailed" = "Methwyd â chysoni";
 "SyncVaultNow" = "Cysoni'r gell nawr";
 "TouchID" = "Touch ID";
-"TwoStepLogin" = "Mewngofnodi dau agm";
+"TwoStepLogin" = "Mewngofnodi dau gam";
 "UnlockWith" = "Datgloi â %1$@";
 "UnlockWithPIN" = "Datgloi â chod PIN";
 "Validating" = "Validating";
@@ -417,7 +417,7 @@
 "NoFoldersToList" = "Does dim ffolderi i'w rhestru.";
 "FingerprintPhrase" = "Fingerprint phrase";
 "YourAccountsFingerprint" = "Your account's fingerprint phrase";
-"LearnOrgConfirmation" = "Bitwarden allows you to share your vault items with others by using an organization account. Would you like to visit the bitwarden.com website to learn more?";
+"LearnOrgConfirmation" = "Mae Bitwarden yn caniatáu i chi rannu eitemau o'ch cell â phobl eraill drwy ddefnyddio cyfrif sefydliad. Hoffech chi fynd i wefan bitwarden.com i ddysgu mwy?";
 "ExportVault" = "Allforio'r gell";
 "LockNow" = "Cloi nawr";
 "PIN" = "PIN";
@@ -884,7 +884,7 @@
 "ErrorReadingPasskey" = "Error reading passkey";
 "ThereWasAProblemCreatingAPasskeyForXTryAgainLater" = "There was a problem creating a passkey for %1$@. Try again later.";
 "ThereWasAProblemReadingAPasskeyForXTryAgainLater" = "There was a problem reading your passkey for %1$@. Try again later.";
-"VerifyingIdentityEllipsis" = "Verifying identity...";
+"VerifyingIdentityEllipsis" = "Yn giwrio eich hunaniaeth...";
 "Passwords" = "Passwords";
 "UnknownAccount" = "Unknown account";
 "SetUpAutofill" = "Set up auto-fill";

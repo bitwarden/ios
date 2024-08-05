@@ -13,6 +13,7 @@ class VaultAutofillListProcessorTests: BitwardenTestCase { // swiftlint:disable:
     var errorReporter: MockErrorReporter!
     var fido2CredentialStore: MockFido2CredentialStore!
     var fido2UserInterfaceHelper: MockFido2UserInterfaceHelper!
+    var stateService: MockStateService!
     var subject: VaultAutofillListProcessor!
     var vaultRepository: MockVaultRepository!
 
@@ -28,6 +29,7 @@ class VaultAutofillListProcessorTests: BitwardenTestCase { // swiftlint:disable:
         errorReporter = MockErrorReporter()
         fido2CredentialStore = MockFido2CredentialStore()
         fido2UserInterfaceHelper = MockFido2UserInterfaceHelper()
+        stateService = MockStateService()
         vaultRepository = MockVaultRepository()
 
         subject = VaultAutofillListProcessor(
@@ -39,6 +41,7 @@ class VaultAutofillListProcessorTests: BitwardenTestCase { // swiftlint:disable:
                 errorReporter: errorReporter,
                 fido2CredentialStore: fido2CredentialStore,
                 fido2UserInterfaceHelper: fido2UserInterfaceHelper,
+                stateService: stateService,
                 vaultRepository: vaultRepository
             ),
             state: VaultAutofillListState()
@@ -55,6 +58,7 @@ class VaultAutofillListProcessorTests: BitwardenTestCase { // swiftlint:disable:
         errorReporter = nil
         fido2CredentialStore = nil
         fido2UserInterfaceHelper = nil
+        stateService = nil
         subject = nil
         vaultRepository = nil
     }
@@ -245,6 +249,19 @@ class VaultAutofillListProcessorTests: BitwardenTestCase { // swiftlint:disable:
         XCTAssertTrue(subject.state.ciphersForSearch.isEmpty)
         XCTAssertEqual(coordinator.alertShown.last, .defaultAlert(title: Localizations.anErrorHasOccurred))
         XCTAssertEqual(errorReporter.errors.last as? BitwardenTestError, .example)
+    }
+
+    /// `perform(_:)` with `.streamShowWebIcons` requests the value of the show
+    /// web icons parameter from the state service.
+    func test_perform_streamShowWebIcons() {
+        let task = Task {
+            await subject.perform(.streamShowWebIcons)
+        }
+
+        stateService.showWebIconsSubject.send(false)
+        waitFor(subject.state.showWebIcons == false)
+
+        task.cancel()
     }
 
     /// `receive(_:)` with `.addTapped` navigates to the add item view.

@@ -179,6 +179,7 @@ extension VaultListProcessor {
     private func checkPersonalOwnershipPolicy() async {
         let isPersonalOwnershipDisabled = await services.policyService.policyAppliesToUser(.personalOwnership)
         state.isPersonalOwnershipDisabled = isPersonalOwnershipDisabled
+        state.canShowVaultFilter = await services.vaultRepository.canShowVaultFilter()
     }
 
     /// Checks if we need to display the unassigned ciphers alert, and displays if necessary.

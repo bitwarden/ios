@@ -119,6 +119,15 @@ class AuthCoordinatorTests: BitwardenTestCase { // swiftlint:disable:this type_b
         XCTAssertTrue(navigationController.viewControllers.first is UIHostingController<SingleSignOnView>)
     }
 
+    /// `navigate(to:)` with `.introCarousel` replaces the navigation stack with the intro carousel.
+    func test_navigate_introCarousel() {
+        subject.navigate(to: .introCarousel)
+
+        XCTAssertTrue(stackNavigator.actions.last?.view is IntroCarouselView)
+        XCTAssertEqual(stackNavigator.actions.last?.type, .replaced)
+        XCTAssertTrue(stackNavigator.isNavigationBarHidden)
+    }
+
     /// `navigate(to:)` with `.landing` pushes the landing view onto the stack navigator.
     func test_navigate_landing() {
         subject.navigate(to: .landing)

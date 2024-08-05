@@ -94,6 +94,9 @@ private struct VaultAutofillListSearchableView: View {
             .task {
                 await store.perform(.streamAutofillItems)
             }
+            .task {
+                await store.perform(.streamShowWebIcons)
+            }
             .task(id: store.state.searchText) {
                 await store.perform(.search(store.state.searchText))
             }

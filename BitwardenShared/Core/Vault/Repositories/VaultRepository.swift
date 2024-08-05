@@ -27,6 +27,14 @@ public protocol VaultRepository: AnyObject {
     ///
     func addCipher(_ cipher: CipherView) async throws
 
+    /// Whether the vault filter can be shown to the user. It might not be shown to the user if the
+    /// policies are set up to disable personal vault ownership and only allow the user to be in a
+    /// single organization.
+    ///
+    /// - Returns: `true` if the vault filter can be shown.
+    ///
+    func canShowVaultFilter() async -> Bool
+
     /// Removes any temporarily downloaded attachments.
     func clearTemporaryDownloads()
 
@@ -322,6 +330,9 @@ class DefaultVaultRepository { // swiftlint:disable:this type_body_length
     /// The service used to manage syncing and updates to the user's organizations.
     private let organizationService: OrganizationService
 
+    /// The service for managing the polices for the user.
+    private let policyService: PolicyService
+
     /// The service used by the application to manage user settings.
     let settingsService: SettingsService
 
@@ -350,6 +361,7 @@ class DefaultVaultRepository { // swiftlint:disable:this type_body_length
     ///   - errorReporter: The service used by the application to report non-fatal errors.
     ///   - folderService: The service used to manage syncing and updates to the user's folders.
     ///   - organizationService: The service used to manage syncing and updates to the user's organizations.
+    ///   - policyService: The service for managing the polices for the user.
     ///   - settingsService: The service used by the application to manage user settings.
     ///   - stateService: The service used by the application to manage account state.
     ///   - syncService: The service used to handle syncing vault data with the API.
@@ -365,6 +377,7 @@ class DefaultVaultRepository { // swiftlint:disable:this type_body_length
         errorReporter: ErrorReporter,
         folderService: FolderService,
         organizationService: OrganizationService,
+        policyService: PolicyService,
         settingsService: SettingsService,
         stateService: StateService,
         syncService: SyncService,
@@ -379,6 +392,7 @@ class DefaultVaultRepository { // swiftlint:disable:this type_body_length
         self.errorReporter = errorReporter
         self.folderService = folderService
         self.organizationService = organizationService
+        self.policyService = policyService
         self.settingsService = settingsService
         self.stateService = stateService
         self.syncService = syncService
@@ -917,6 +931,12 @@ extension DefaultVaultRepository: VaultRepository {
     func addCipher(_ cipher: CipherView) async throws {
         let cipher = try await clientService.vault().ciphers().encrypt(cipherView: cipher)
         try await cipherService.addCipherWithServer(cipher)
+    }
+
+    func canShowVaultFilter() async -> Bool {
+        let disablePersonalOwnership = await policyService.policyAppliesToUser(.personalOwnership)
+        let singleOrg = await policyService.policyAppliesToUser(.onlyOrg)
+        return !(disablePersonalOwnership && singleOrg)
     }
 
     func clearTemporaryDownloads() {
