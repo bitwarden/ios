@@ -574,6 +574,8 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
             vaultTimeoutService: vaultTimeoutService
         )
 
+        authRepository.setAuthProfileSwitchDelegate(delegate: autofillCredentialService)
+
         self.init(
             apiService: apiService,
             appIdService: appIdService,

@@ -150,6 +150,10 @@ protocol AuthRepository: AnyObject {
     ///
     func setActiveAccount(userId: String) async throws -> Account
 
+    /// Sets the delegate related to profile switching logic.
+    /// - Parameter delegate: The delegate to set.
+    func setAuthProfileSwitchDelegate(delegate: AuthProfileSwitchDelegate)
+
     /// Sets the user's master password.
     ///
     /// - Parameters:
@@ -317,6 +321,9 @@ class DefaultAuthRepository {
 
     /// The services used by the application to make account related API requests.
     private let accountAPIService: AccountAPIService
+
+    /// The delegate to perform logic related to profile switching.
+    private weak var authProfileSwitchDelegate: AuthProfileSwitchDelegate?
 
     /// The service used that handles some of the auth logic.
     private let authService: AuthService
@@ -567,6 +574,10 @@ extension DefaultAuthRepository: AuthRepository {
         return timeoutAction
     }
 
+    func setAuthProfileSwitchDelegate(delegate: AuthProfileSwitchDelegate) {
+        authProfileSwitchDelegate = delegate
+    }
+
     func requestOtp() async throws {
         try await accountAPIService.requestOtp()
     }
@@ -576,9 +587,22 @@ extension DefaultAuthRepository: AuthRepository {
     }
 
     func setActiveAccount(userId: String) async throws -> Account {
+        var previousUserId: String?
+        if let active = try? await getAccount() {
+            previousUserId = active.profile.userId
+        }
+
         try await stateService.setActiveAccount(userId: userId)
         await environmentService.loadURLsForActiveAccount()
         _ = await configService.getConfig()
+
+        if previousUserId != userId {
+            try await authProfileSwitchDelegate?.onProfileSwitched(
+                oldUserId: previousUserId,
+                activeUserId: userId
+            )
+        }
+
         return try await stateService.getActiveAccount()
     }
 
@@ -959,4 +983,14 @@ extension DefaultAuthRepository: AuthRepository {
         if let maybeId { return maybeId }
         return try await stateService.getActiveAccountId()
     }
+}
+
+/// The delegate to perform logic related to profile switching.
+protocol AuthProfileSwitchDelegate: AnyObject {
+    /// This gets called when the profile has been switched to another one just after
+    /// the new user has been set as active.
+    /// - Parameters:
+    ///   - oldUserId: The previous profile user ID.
+    ///   - activeUserId: The new active user ID.
+    func onProfileSwitched(oldUserId: String?, activeUserId: String) async throws
 }

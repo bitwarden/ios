@@ -66,6 +66,43 @@ class InvocationMocker<TParam> {
     }
 }
 
+/// A mocker of a func invocation that has one parameter and can throw.
+/// This is useful for tests where we need to verify a correct parameter is passed
+/// and to throw if needed.
+class InvocationMockerWithThrowing<TParam> {
+    var called = false
+    var onInvoked: (TParam) throws -> Void = { _ in }
+    var verification: (TParam) -> Bool = { _ in true }
+
+    /// Sets up a verification to be executed and needs to pass in order to return the result.
+    /// - Parameter verification: Verification to run.
+    /// - Returns: `Self` for fluent coding.
+    func withVerification(verification: @escaping (TParam) -> Bool) -> Self {
+        self.verification = verification
+        return self
+    }
+
+    /// Sets up the error to throw if the verification passes.
+    /// - Parameter error: The error to throw.
+    /// - Returns: `Self` for fluent coding
+    @discardableResult
+    func throwing(_ error: Error) -> Self {
+        onInvoked = { _ in throw error }
+        return self
+    }
+
+    /// Executes the `verification` and if it passes calls `onInvoked`, throwing otherwise.
+    /// - Parameter param: The parameter of the function to invoke.
+    func invoke(param: TParam) throws {
+        called = true
+        guard verification(param) else {
+            XCTFail("\(TParam.self) verification failed.")
+            throw InvocationMockerError.paramVerificationFailed
+        }
+        try onInvoked(param)
+    }
+}
+
 /// A mocker of a func invocation that has one parameter, a result and can throw.
 /// This is useful for tests where we need to verify a correct parameter is passed
 /// to return the correct result.

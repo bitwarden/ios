@@ -1112,6 +1112,41 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         }
     }
 
+    /// `setActiveAccount(userId: )` calls `onProfileSwitched` when the old vs active user IDs are different.
+    func test_setActiveAccount_onProfileSwitched() async throws {
+        stateService.accounts = [
+            anneAccount,
+            beeAccount,
+        ]
+        stateService.activeAccount = anneAccount
+        let delegate = MockAuthProfileSwitchDelegate()
+        subject.setAuthProfileSwitchDelegate(delegate: delegate)
+        _ = try await subject.setActiveAccount(userId: beeAccount.profile.userId)
+        XCTAssertTrue(delegate.onProfileSwitchedMocker.called)
+        XCTAssertEqual(
+            delegate.onProfileSwitchedMocker.invokedParam?.oldUserId,
+            anneAccount.profile.userId
+        )
+        XCTAssertEqual(
+            delegate.onProfileSwitchedMocker.invokedParam?.activeUserId,
+            beeAccount.profile.userId
+        )
+    }
+
+    /// `setActiveAccount(userId: )` doesn't call `onProfileSwitched`
+    /// when the old user ID is equal to the active user ID.
+    func test_setActiveAccount_onProfileSwitchedNotCalled() async throws {
+        stateService.accounts = [
+            anneAccount,
+            beeAccount,
+        ]
+        stateService.activeAccount = anneAccount
+        let delegate = MockAuthProfileSwitchDelegate()
+        subject.setAuthProfileSwitchDelegate(delegate: delegate)
+        _ = try await subject.setActiveAccount(userId: anneAccount.profile.userId)
+        XCTAssertFalse(delegate.onProfileSwitchedMocker.called)
+    }
+
     /// `setPins(_:requirePasswordAfterRestart:)` sets the user's pins.
     func test_setPins() async throws {
         let account = Account.fixture()

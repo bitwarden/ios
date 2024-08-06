@@ -73,6 +73,42 @@ class AutofillCredentialServiceTests: BitwardenTestCase { // swiftlint:disable:t
 
     // MARK: Tests
 
+    /// `onProfileSwitched(oldUserId:activeUserId:)` removes all identities
+    /// when old user ID exists and active user is locked.
+    func test_onProfileSwitched_locked() async throws {
+        stateService.activeAccount = .fixture()
+        vaultTimeoutService.isClientLocked["1"] = true
+        try await waitAndResetRemoveAllCredentialIdentitiesCalled()
+
+        try await subject.onProfileSwitched(oldUserId: "123", activeUserId: "1")
+
+        XCTAssertTrue(identityStore.removeAllCredentialIdentitiesCalled)
+    }
+
+    /// `onProfileSwitched(oldUserId:activeUserId:)` doesn't remove all identities
+    /// when old user ID doesn't exist.
+    func test_onProfileSwitched_oldUserNil() async throws {
+        stateService.activeAccount = .fixture()
+        vaultTimeoutService.isClientLocked["1"] = true
+        try await waitAndResetRemoveAllCredentialIdentitiesCalled()
+
+        try await subject.onProfileSwitched(oldUserId: nil, activeUserId: "1")
+
+        XCTAssertFalse(identityStore.removeAllCredentialIdentitiesCalled)
+    }
+
+    /// `onProfileSwitched(oldUserId:activeUserId:)` doesn't remove all identities
+    /// when active user is not locked.
+    func test_onProfileSwitched_notLocked() async throws {
+        stateService.activeAccount = .fixture()
+        vaultTimeoutService.isClientLocked["1"] = false
+        try await waitAndResetRemoveAllCredentialIdentitiesCalled()
+
+        try await subject.onProfileSwitched(oldUserId: "123", activeUserId: "1")
+
+        XCTAssertFalse(identityStore.removeAllCredentialIdentitiesCalled)
+    }
+
     /// `provideCredential(for:)` returns the credential containing the username and password for
     /// the specified ID.
     func test_provideCredential() async throws {
@@ -669,5 +705,17 @@ class AutofillCredentialServiceTests: BitwardenTestCase { // swiftlint:disable:t
         waitFor(identityStore.replaceCredentialIdentitiesCalled)
 
         XCTAssertEqual(errorReporter.errors as? [BitwardenTestError], [.example])
+    }
+
+    // MARK: Private
+
+    /// Waits for `identityStore.removeAllCredentialIdentitiesCalled` to be `true`
+    /// and then resets it to `false` so it doesn't alter the result of the test given the
+    /// `vaultLockStatusPublisher` -> `syncIdentities` logic.
+    private func waitAndResetRemoveAllCredentialIdentitiesCalled() async throws {
+        try await waitForAsync {
+            self.identityStore.removeAllCredentialIdentitiesCalled
+        }
+        identityStore.removeAllCredentialIdentitiesCalled = false
     }
 } // swiftlint:disable:this file_length

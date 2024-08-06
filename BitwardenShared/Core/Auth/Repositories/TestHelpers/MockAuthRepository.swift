@@ -4,6 +4,7 @@ class MockAuthRepository: AuthRepository { // swiftlint:disable:this type_body_l
     var allowBiometricUnlock: Bool?
     var allowBiometricUnlockResult: Result<Void, Error> = .success(())
     var accountForItemResult: Result<Account, Error> = .failure(StateServiceError.noAccounts)
+    var authProfileSwitchDelegate: AuthProfileSwitchDelegate?
     var canVerifyMasterPasswordResult: Result<Bool, Error> = .success(true)
     var clearPinsCalled = false
     var createNewSsoUserRememberDevice: Bool = false
@@ -199,6 +200,10 @@ class MockAuthRepository: AuthRepository { // swiftlint:disable:this type_body_l
             .filter { $0.profile.userId == userId }
             + [priorActive].compactMap { $0 }
         return match
+    }
+
+    func setAuthProfileSwitchDelegate(delegate: AuthProfileSwitchDelegate) {
+        authProfileSwitchDelegate = delegate
     }
 
     func setPins(_ pin: String, requirePasswordAfterRestart _: Bool) async throws {

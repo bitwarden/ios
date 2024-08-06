@@ -374,6 +374,16 @@ extension DefaultAutofillCredentialService: AutofillCredentialService {
     }
 }
 
+// MARK: - AuthProfileSwitchDelegate
+
+extension DefaultAutofillCredentialService: AuthProfileSwitchDelegate {
+    func onProfileSwitched(oldUserId: String?, activeUserId: String) async throws {
+        if let oldUserId, vaultTimeoutService.isLocked(userId: activeUserId) {
+            await removeAllIdentities()
+        }
+    }
+}
+
 // MARK: - CipherView
 
 private extension CipherView {
