@@ -147,6 +147,7 @@ struct VaultUnlockView: View {
                 footer: nil,
                 accessibilityIdentifier: "MasterPasswordEntry",
                 passwordVisibilityAccessibilityId: "PasswordVisibilityToggle",
+                isPasswordAutoFocused: store.state.isPasswordAutoFocused,
                 isPasswordVisible: store.binding(
                     get: \.isMasterPasswordRevealed,
                     send: VaultUnlockAction.revealMasterPasswordFieldPressed
@@ -169,6 +170,7 @@ struct VaultUnlockView: View {
                 footer: nil,
                 accessibilityIdentifier: "PinEntry",
                 passwordVisibilityAccessibilityId: "PinVisibilityToggle",
+                isPasswordAutoFocused: store.state.isPasswordAutoFocused,
                 isPasswordVisible: store.binding(
                     get: \.isPinRevealed,
                     send: VaultUnlockAction.revealPinFieldPressed

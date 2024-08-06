@@ -147,7 +147,7 @@ struct BitwardenTextField<TrailingContent: View>: View {
         accessibilityIdentifier: String? = nil,
         passwordVisibilityAccessibilityId: String? = nil,
         canViewPassword: Bool = true,
-        isPasswordAutoFocused: Bool = true,
+        isPasswordAutoFocused: Bool = false,
         isPasswordVisible: Binding<Bool>? = nil,
         placeholder: String? = nil,
         @ViewBuilder trailingContent: () -> TrailingContent
@@ -186,7 +186,7 @@ extension BitwardenTextField where TrailingContent == EmptyView {
         accessibilityIdentifier: String? = nil,
         passwordVisibilityAccessibilityId: String? = nil,
         canViewPassword: Bool = true,
-        isPasswordAutoFocused: Bool = true,
+        isPasswordAutoFocused: Bool = false,
         isPasswordVisible: Binding<Bool>? = nil,
         placeholder: String? = nil
     ) {

@@ -29,6 +29,9 @@ struct VaultUnlockState: Equatable {
     /// A flag indicating if the master password should be revealed or not.
     var isMasterPasswordRevealed = false
 
+    /// A flag indicating if the password/pin text field should be auto focused.
+    var isPasswordAutoFocused = true
+
     /// Whether the pin is revealed.
     var isPinRevealed = false
 
