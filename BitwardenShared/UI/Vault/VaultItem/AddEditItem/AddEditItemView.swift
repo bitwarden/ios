@@ -1,6 +1,13 @@
 import BitwardenSdk
 import SwiftUI
 
+// MARK: ItemSectionID
+
+enum ItemSectionID: String {
+    /// The notes section id.
+    case notes
+}
+
 // MARK: - AddEditItemView
 
 /// A view that allows the user to add or edit a new item for a vault.
@@ -55,28 +62,43 @@ struct AddEditItemView: View {
     }
 
     private var content: some View {
-        ScrollView {
-            VStack(spacing: 20) {
-                if isPolicyEnabled {
-                    InfoContainer(Localizations.personalOwnershipPolicyInEffect)
-                        .accessibilityIdentifier("PersonalOwnershipPolicyLabel")
-                }
+        ScrollViewReader { proxy in
+            ScrollView {
+                VStack(spacing: 20) {
+                    if isPolicyEnabled {
+                        InfoContainer(Localizations.personalOwnershipPolicyInEffect)
+                            .accessibilityIdentifier("PersonalOwnershipPolicyLabel")
+                    }
 
-                informationSection
-                miscellaneousSection
-                notesSection
-                customSection
-                ownershipSection
+                    informationSection
+                    miscellaneousSection
+                    notesSection
+                        .onTapGesture {
+                            proxy.scrollTo(
+                                ItemSectionID.notes,
+                                anchor: .bottom
+                            )
+                        }
+                        .onChange(of: store.state.notes) { _ in
+                            proxy.scrollTo(
+                                ItemSectionID.notes,
+                                anchor: .bottom
+                            )
+                        }
+                        .id(ItemSectionID.notes)
+                    customSection
+                    ownershipSection
+                }
+                .padding(16)
             }
-            .padding(16)
+            .animation(.default, value: store.state.collectionsForOwner)
+            .dismissKeyboardImmediately()
+            .background(
+                Asset.Colors.backgroundSecondary.swiftUIColor
+                    .ignoresSafeArea()
+            )
+            .navigationBarTitleDisplayMode(.inline)
         }
-        .animation(.default, value: store.state.collectionsForOwner)
-        .dismissKeyboardImmediately()
-        .background(
-            Asset.Colors.backgroundSecondary.swiftUIColor
-                .ignoresSafeArea()
-        )
-        .navigationBarTitleDisplayMode(.inline)
     }
 
     @ViewBuilder private var cardItems: some View {
