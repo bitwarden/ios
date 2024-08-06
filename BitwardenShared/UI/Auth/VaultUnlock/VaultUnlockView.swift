@@ -9,6 +9,9 @@ struct VaultUnlockView: View {
     /// The `Store` for this view.
     @ObservedObject var store: Store<VaultUnlockState, VaultUnlockAction, VaultUnlockEffect>
 
+    /// A flag indicating if the password/pin field is currently focused.
+    @FocusState private var isTextFieldFocused
+
     /// The text to display in the footer of the password/pin text field.
     var footerText: String {
         """
@@ -147,18 +150,21 @@ struct VaultUnlockView: View {
                 footer: nil,
                 accessibilityIdentifier: "MasterPasswordEntry",
                 passwordVisibilityAccessibilityId: "PasswordVisibilityToggle",
-                isPasswordAutoFocused: store.state.isPasswordAutoFocused,
                 isPasswordVisible: store.binding(
                     get: \.isMasterPasswordRevealed,
                     send: VaultUnlockAction.revealMasterPasswordFieldPressed
                 )
             )
+            .focused($isTextFieldFocused)
             .textFieldConfiguration(.password)
             .submitLabel(.go)
             .onSubmit {
                 Task {
                     await store.perform(.unlockVault)
                 }
+            }
+            .onAppear {
+                isTextFieldFocused = true
             }
         case .pin:
             BitwardenTextField(
@@ -170,18 +176,21 @@ struct VaultUnlockView: View {
                 footer: nil,
                 accessibilityIdentifier: "PinEntry",
                 passwordVisibilityAccessibilityId: "PinVisibilityToggle",
-                isPasswordAutoFocused: store.state.isPasswordAutoFocused,
                 isPasswordVisible: store.binding(
                     get: \.isPinRevealed,
                     send: VaultUnlockAction.revealPinFieldPressed
                 )
             )
+            .focused($isTextFieldFocused)
             .textFieldConfiguration(.numeric(.password))
             .submitLabel(.go)
             .onSubmit {
                 Task {
                     await store.perform(.unlockVault)
                 }
+            }
+            .onAppear {
+                isTextFieldFocused = true
             }
         }
     }
