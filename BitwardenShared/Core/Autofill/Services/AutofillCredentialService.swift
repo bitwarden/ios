@@ -73,14 +73,17 @@ class DefaultAutofillCredentialService {
     private let eventService: EventService
 
     /// A store to be used on Fido2 flows to get/save credentials.
-    let fido2CredentialStore: Fido2CredentialStore
+    private let fido2CredentialStore: Fido2CredentialStore
 
     /// A helper to be used on Fido2 flows that requires user interaction and extends the capabilities
     /// of the `Fido2UserInterface` from the SDK.
-    let fido2UserInterfaceHelper: Fido2UserInterfaceHelper
+    private let fido2UserInterfaceHelper: Fido2UserInterfaceHelper
 
     /// The service used to manage the credentials available for AutoFill suggestions.
     private let identityStore: CredentialIdentityStore
+
+    /// The last user ID that had their identities synced.
+    private var lastSyncedUserId: String?
 
     /// The service used to manage copy/pasting from the device's clipboard.
     private let pasteboardService: PasteboardService
@@ -164,8 +167,9 @@ class DefaultAutofillCredentialService {
                 } catch {
                     errorReporter.log(error: error)
                 }
-            } else if vaultLockStatus == nil {
+            } else if shouldRemoveAllIdentities(vaultLockStatus: vaultLockStatus) {
                 await removeAllIdentities()
+                lastSyncedUserId = nil
             }
         }
     }
@@ -217,9 +221,25 @@ class DefaultAutofillCredentialService {
                 try await identityStore.replaceCredentialIdentities(with: identities)
                 Logger.application.info("AutofillCredentialService: replaced \(identities.count) credential identities")
             }
+            lastSyncedUserId = userId
         } catch {
             errorReporter.log(error: error)
         }
+    }
+
+    /// Determines whether all identities in store should be removed.
+    /// - Parameter vaultLockStatus: The vault lock status from the publisher.
+    /// - Returns: `true` if all identities should be removed, `false` otherwise.
+    private func shouldRemoveAllIdentities(vaultLockStatus: VaultLockStatus?) -> Bool {
+        guard let vaultLockStatus else {
+            return true
+        }
+
+        guard let lastSyncedUserId else {
+            return false
+        }
+
+        return vaultLockStatus.isVaultLocked && lastSyncedUserId != vaultLockStatus.userId
     }
 
     /// Attempts to unlock the user's vault if it can be done without user interaction (e.g. if
