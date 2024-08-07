@@ -82,7 +82,7 @@ class DefaultAutofillCredentialService {
     /// The service used to manage the credentials available for AutoFill suggestions.
     private let identityStore: CredentialIdentityStore
 
-    /// The last user ID that has been their identities synced.
+    /// The last user ID that had their identities synced.
     private var lastSyncedUserId: String?
 
     /// The service used to manage copy/pasting from the device's clipboard.
