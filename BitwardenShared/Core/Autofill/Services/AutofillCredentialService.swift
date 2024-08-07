@@ -73,14 +73,17 @@ class DefaultAutofillCredentialService {
     private let eventService: EventService
 
     /// A store to be used on Fido2 flows to get/save credentials.
-    let fido2CredentialStore: Fido2CredentialStore
+    private let fido2CredentialStore: Fido2CredentialStore
 
     /// A helper to be used on Fido2 flows that requires user interaction and extends the capabilities
     /// of the `Fido2UserInterface` from the SDK.
-    let fido2UserInterfaceHelper: Fido2UserInterfaceHelper
+    private let fido2UserInterfaceHelper: Fido2UserInterfaceHelper
 
     /// The service used to manage the credentials available for AutoFill suggestions.
     private let identityStore: CredentialIdentityStore
+
+    /// The last user ID that has been their identities synced.
+    private var lastSyncedUserId: String?
 
     /// The service used to manage copy/pasting from the device's clipboard.
     private let pasteboardService: PasteboardService
@@ -164,10 +167,23 @@ class DefaultAutofillCredentialService {
                 } catch {
                     errorReporter.log(error: error)
                 }
-            } else if vaultLockStatus == nil {
+            } else if shouldRemoveAllIdentities(vaultLockStatus: vaultLockStatus) {
                 await removeAllIdentities()
+                lastSyncedUserId = nil
             }
         }
+    }
+
+    private func shouldRemoveAllIdentities(vaultLockStatus: VaultLockStatus?) -> Bool {
+        guard let vaultLockStatus else {
+            return true
+        }
+
+        guard let lastSyncedUserId else {
+            return false
+        }
+
+        return vaultLockStatus.isVaultLocked && lastSyncedUserId != vaultLockStatus.userId
     }
 
     /// Removes all credential identities from the identity store.
@@ -217,6 +233,7 @@ class DefaultAutofillCredentialService {
                 try await identityStore.replaceCredentialIdentities(with: identities)
                 Logger.application.info("AutofillCredentialService: replaced \(identities.count) credential identities")
             }
+            lastSyncedUserId = userId
         } catch {
             errorReporter.log(error: error)
         }
