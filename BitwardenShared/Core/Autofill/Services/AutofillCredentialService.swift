@@ -174,18 +174,6 @@ class DefaultAutofillCredentialService {
         }
     }
 
-    private func shouldRemoveAllIdentities(vaultLockStatus: VaultLockStatus?) -> Bool {
-        guard let vaultLockStatus else {
-            return true
-        }
-
-        guard let lastSyncedUserId else {
-            return false
-        }
-
-        return vaultLockStatus.isVaultLocked && lastSyncedUserId != vaultLockStatus.userId
-    }
-
     /// Removes all credential identities from the identity store.
     ///
     private func removeAllIdentities() async {
@@ -237,6 +225,21 @@ class DefaultAutofillCredentialService {
         } catch {
             errorReporter.log(error: error)
         }
+    }
+
+    /// Determines whether all identities in store should be removed.
+    /// - Parameter vaultLockStatus: The vault lock status from the publisher.
+    /// - Returns: `true` if all identities should be removed, `false` otherwise.
+    private func shouldRemoveAllIdentities(vaultLockStatus: VaultLockStatus?) -> Bool {
+        guard let vaultLockStatus else {
+            return true
+        }
+
+        guard let lastSyncedUserId else {
+            return false
+        }
+
+        return vaultLockStatus.isVaultLocked && lastSyncedUserId != vaultLockStatus.userId
     }
 
     /// Attempts to unlock the user's vault if it can be done without user interaction (e.g. if
