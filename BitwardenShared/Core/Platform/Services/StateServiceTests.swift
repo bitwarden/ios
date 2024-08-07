@@ -567,6 +567,16 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
         XCTAssertEqual(actual, events)
     }
 
+    /// `getIntroCarouselShown()` returns whether the intro carousel screen has been shown.
+    func test_getIntroCarouselShown() async {
+        var hasShownCarousel = await subject.getIntroCarouselShown()
+        XCTAssertFalse(hasShownCarousel)
+
+        appSettingsStore.introCarouselShown = true
+        hasShownCarousel = await subject.getIntroCarouselShown()
+        XCTAssertTrue(hasShownCarousel)
+    }
+
     /// `getLastActiveTime(userId:)` gets the user's last active time.
     func test_getLastActiveTime() async throws {
         await subject.addAccount(.fixture(profile: .fixture(userId: "1")))
@@ -1315,6 +1325,15 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
 
         try await subject.setEvents(events, userId: "1")
         XCTAssertEqual(appSettingsStore.eventsByUserId["1"], events)
+    }
+
+    /// `setIntroCarouselShown(_:)` sets whether the intro carousel screen has been shown.
+    func test_setIntroCarouselShown() async {
+        await subject.setIntroCarouselShown(true)
+        XCTAssertTrue(appSettingsStore.introCarouselShown)
+
+        await subject.setIntroCarouselShown(false)
+        XCTAssertFalse(appSettingsStore.introCarouselShown)
     }
 
     /// `setLastSyncTime(_:userId:)` sets the last sync time for a user.

@@ -31,6 +31,12 @@ extension AuthRouter {
         if account.profile.forcePasswordResetReason != nil {
             return .updateMasterPassword
         } else {
+            let isCarouselEnabled: Bool = await services.configService.getFeatureFlag(.nativeCarouselFlow)
+            let introCarouselShown = await services.stateService.getIntroCarouselShown()
+            if isCarouselEnabled, !introCarouselShown {
+                await services.stateService.setIntroCarouselShown(true)
+            }
+
             return .complete
         }
     }
@@ -206,7 +212,8 @@ extension AuthRouter {
         guard let activeAccount = try? await configureActiveAccount(shouldSwitchAutomatically: true) else {
             // If no account can be set to active, go to the landing or carousel screen.
             let isCarouselEnabled: Bool = await services.configService.getFeatureFlag(.nativeCarouselFlow)
-            return isCarouselEnabled ? .introCarousel : .landing
+            let introCarouselShown = await services.stateService.getIntroCarouselShown()
+            return isCarouselEnabled && !introCarouselShown ? .introCarousel : .landing
         }
 
         // Check for a `logout` timeout action.
