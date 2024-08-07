@@ -79,18 +79,24 @@ extension DefaultUserVerificationHelper: UserVerificationHelper {
                 return
             }
 
-            userVerificationDelegate.showAlert(.enterPINCode { pin in
-                do {
-                    guard !pin.isEmpty else {
-                        throw Fido2Error.failedToSetupPin
-                    }
+            userVerificationDelegate.showAlert(.enterPINCode(
+                onCancelled: { () in
+                    continuation.resume(throwing: UserVerificationError.cancelled)
+                },
+                settingUp: true,
+                completion: { pin in
+                    do {
+                        guard !pin.isEmpty else {
+                            throw Fido2Error.failedToSetupPin
+                        }
 
-                    try await self.authRepository.setPins(pin, requirePasswordAfterRestart: false)
-                    continuation.resume()
-                } catch {
-                    continuation.resume(throwing: error)
+                        try await self.authRepository.setPins(pin, requirePasswordAfterRestart: false)
+                        continuation.resume()
+                    } catch {
+                        continuation.resume(throwing: error)
+                    }
                 }
-            })
+            ))
         }
     }
 
