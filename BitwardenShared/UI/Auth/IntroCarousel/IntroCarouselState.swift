@@ -27,12 +27,33 @@ struct IntroCarouselState: Equatable {
 
     // MARK: Properties
 
+    /// The index of the currently visible page in the carousel.
+    var currentPageIndex = 0
+
     /// The list of scrollable pages displayed in the carousel.
     let pages: [CarouselPage] = [
         CarouselPage(
             image: Asset.Images.partnership.swiftUIImage,
             message: Localizations.introCarouselPage1Message,
             title: Localizations.introCarouselPage1Title
+        ),
+
+        CarouselPage(
+            image: Asset.Images.biometricsPhone.swiftUIImage,
+            message: Localizations.introCarouselPage2Message,
+            title: Localizations.introCarouselPage2Title
+        ),
+
+        CarouselPage(
+            image: Asset.Images.secureUser.swiftUIImage,
+            message: Localizations.introCarouselPage3Message,
+            title: Localizations.introCarouselPage3Title
+        ),
+
+        CarouselPage(
+            image: Asset.Images.secureDevices.swiftUIImage,
+            message: Localizations.introCarouselPage4Message,
+            title: Localizations.introCarouselPage4Title
         ),
     ]
 }
