@@ -761,6 +761,20 @@ final class AuthRouterTests: BitwardenTestCase { // swiftlint:disable:this type_
         XCTAssertEqual(route, .landing)
     }
 
+    /// `handleAndRoute(_ :)` redirects `.didStart` to `.completeWithNeverUnlockKey` if there's an
+    /// existing account with never lock enabled and sets the intro carousel as shown.
+    func test_handleAndRoute_didStart_carouselFlow_existingAccountNeverLock() async {
+        let account = Account.fixture()
+        authRepository.activeAccount = .fixture()
+        configService.featureFlagsBool[.nativeCarouselFlow] = true
+        vaultTimeoutService.vaultTimeout[account.profile.userId] = .never
+
+        let route = await subject.handleAndRoute(.didStart)
+
+        XCTAssertEqual(route, .completeWithNeverUnlockKey)
+        XCTAssertTrue(stateService.introCarouselShown)
+    }
+
     /// `handleAndRoute(_ :)` redirects `.didStart` to `.completeWithNeverUnlockKey` and unlocks the vault if the
     /// account never times out with a logout timeout action.
     func test_handleAndRoute_didStart_neverLockLogout() async {

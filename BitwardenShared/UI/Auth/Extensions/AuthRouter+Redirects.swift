@@ -31,12 +31,7 @@ extension AuthRouter {
         if account.profile.forcePasswordResetReason != nil {
             return .updateMasterPassword
         } else {
-            let isCarouselEnabled: Bool = await services.configService.getFeatureFlag(.nativeCarouselFlow)
-            let introCarouselShown = await services.stateService.getIntroCarouselShown()
-            if isCarouselEnabled, !introCarouselShown {
-                await services.stateService.setIntroCarouselShown(true)
-            }
-
+            await setCarouselShownIfEnabled()
             return .complete
         }
     }
@@ -216,6 +211,9 @@ extension AuthRouter {
             return isCarouselEnabled && !introCarouselShown ? .introCarousel : .landing
         }
 
+        // If there's existing accounts, mark the carousel as shown.
+        await setCarouselShownIfEnabled()
+
         // Check for a `logout` timeout action.
         let userId = activeAccount.profile.userId
         if await (try? services.authRepository.sessionTimeoutAction(userId: userId)) == .logout,
@@ -365,6 +363,18 @@ extension AuthRouter {
                 attemptAutomaticBiometricUnlock: attemptAutomaticBiometricUnlock,
                 didSwitchAccountAutomatically: didSwitchAccountAutomatically
             )
+        }
+    }
+
+    /// Sets the flag indicating that the carousel was shown (or in the case of existing accounts,
+    /// that it doesn't need to be shown again). This should be called on app launch if there's
+    /// existing account or once logging in or creating an account is successful.
+    ///
+    private func setCarouselShownIfEnabled() async {
+        let isCarouselEnabled: Bool = await services.configService.getFeatureFlag(.nativeCarouselFlow)
+        let introCarouselShown = await services.stateService.getIntroCarouselShown()
+        if isCarouselEnabled, !introCarouselShown {
+            await services.stateService.setIntroCarouselShown(true)
         }
     }
 }
