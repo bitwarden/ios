@@ -9,6 +9,9 @@ struct VaultUnlockView: View {
     /// The `Store` for this view.
     @ObservedObject var store: Store<VaultUnlockState, VaultUnlockAction, VaultUnlockEffect>
 
+    /// A flag indicating if the password/pin field is currently focused.
+    @FocusState private var isTextFieldFocused
+
     /// The text to display in the footer of the password/pin text field.
     var footerText: String {
         """
@@ -58,6 +61,9 @@ struct VaultUnlockView: View {
             get: \.toast,
             send: VaultUnlockAction.toastShown
         ))
+        .onAppear {
+            isTextFieldFocused = true
+        }
     }
 
     /// the scrollable content of the view.
@@ -152,6 +158,7 @@ struct VaultUnlockView: View {
                     send: VaultUnlockAction.revealMasterPasswordFieldPressed
                 )
             )
+            .focused($isTextFieldFocused)
             .textFieldConfiguration(.password)
             .submitLabel(.go)
             .onSubmit {
@@ -174,6 +181,7 @@ struct VaultUnlockView: View {
                     send: VaultUnlockAction.revealPinFieldPressed
                 )
             )
+            .focused($isTextFieldFocused)
             .textFieldConfiguration(.numeric(.password))
             .submitLabel(.go)
             .onSubmit {
