@@ -160,6 +160,35 @@ class ViewItemProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
         XCTAssertFalse(vaultRepository.fetchSyncCalled)
     }
 
+    /// `perform(_:)` with `.appeared` observes whether or not a user has a master password.
+    func test_perform_appeared_noMasterPassword() {
+        let account = Account.fixture()
+        stateService.activeAccount = account
+        stateService.userHasMasterPassword = [account.profile.userId: false]
+
+        let cipherItem = CipherView.loginFixture(
+            id: "id"
+        )
+        vaultRepository.doesActiveAccountHavePremiumResult = .success(false)
+        vaultRepository.cipherDetailsSubject.send(cipherItem)
+
+        let task = Task {
+            await subject.perform(.appeared)
+        }
+
+        waitFor(subject.state.loadingState != .loading(nil))
+        task.cancel()
+
+        let expectedState = CipherItemState(
+            existing: cipherItem,
+            hasPremium: false
+        )!
+
+        XCTAssertFalse(subject.state.hasMasterPassword)
+        XCTAssertEqual(subject.state.loadingState, .data(expectedState))
+        XCTAssertFalse(vaultRepository.fetchSyncCalled)
+    }
+
     /// `perform(_:)` with `.appeared` observe the premium status of a user.
     func test_perform_appeared_nonPremium() {
         let account = Account.fixture()
