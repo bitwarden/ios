@@ -334,6 +334,7 @@ class AutofillCredentialServiceTests: BitwardenTestCase { // swiftlint:disable:t
         )
 
         XCTAssertFalse(autofillCredentialServiceDelegate.unlockVaultWithNeverlockKeyCalled)
+        XCTAssertEqual(fido2UserInterfaceHelper.userVerificationPreferenceSetup, .discouraged)
 
         XCTAssertEqual(result.userHandle, expectedAssertionResult.userHandle)
         XCTAssertEqual(result.relyingParty, passkeyIdentity.relyingPartyIdentifier)
@@ -382,6 +383,7 @@ class AutofillCredentialServiceTests: BitwardenTestCase { // swiftlint:disable:t
         XCTAssertTrue(autofillCredentialServiceDelegate.unlockVaultWithNeverlockKeyCalled)
 
         XCTAssertNotNil(fido2UserInterfaceHelper.fido2UserInterfaceHelperDelegate)
+        XCTAssertEqual(fido2UserInterfaceHelper.userVerificationPreferenceSetup, .discouraged)
 
         XCTAssertEqual(result.userHandle, expectedAssertionResult.userHandle)
         XCTAssertEqual(result.relyingParty, passkeyIdentity.relyingPartyIdentifier)
@@ -426,6 +428,7 @@ class AutofillCredentialServiceTests: BitwardenTestCase { // swiftlint:disable:t
         XCTAssertFalse(autofillCredentialServiceDelegate.unlockVaultWithNeverlockKeyCalled)
 
         XCTAssertNotNil(fido2UserInterfaceHelper.fido2UserInterfaceHelperDelegate)
+        XCTAssertEqual(fido2UserInterfaceHelper.userVerificationPreferenceSetup, .discouraged)
 
         XCTAssertEqual(result.userHandle, expectedAssertionResult.userHandle)
         XCTAssertEqual(result.relyingParty, passkeyIdentity.relyingPartyIdentifier)
@@ -542,6 +545,7 @@ class AutofillCredentialServiceTests: BitwardenTestCase { // swiftlint:disable:t
             for: passkeyParameters,
             fido2UserInterfaceHelperDelegate: fido2UserInterfaceHelperDelegate
         )
+        XCTAssertEqual(fido2UserInterfaceHelper.userVerificationPreferenceSetup, .preferred)
 
         XCTAssertEqual(result.userHandle, expectedAssertionResult.userHandle)
         XCTAssertEqual(result.relyingParty, passkeyParameters.relyingPartyIdentifier)
