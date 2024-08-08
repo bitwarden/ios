@@ -57,6 +57,7 @@ final class SettingsCoordinator: Coordinator, HasStackNavigator { // swiftlint:d
         & HasPolicyService
         & HasSettingsRepository
         & HasStateService
+        & HasSystemDevice
         & HasTimeProvider
         & HasTwoStepLoginService
         & HasVaultRepository
@@ -173,6 +174,7 @@ final class SettingsCoordinator: Coordinator, HasStackNavigator { // swiftlint:d
     ///
     private func showAbout() {
         let processor = AboutProcessor(
+            aboutAdditionalInfo: DefaultAboutAdditionalInfo(),
             coordinator: asAnyCoordinator(),
             services: services,
             state: AboutState()
