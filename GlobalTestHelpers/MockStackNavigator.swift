@@ -24,6 +24,7 @@ final class MockStackNavigator: StackNavigator {
     var actions: [NavigationAction] = []
     var alerts: [BitwardenShared.Alert] = []
     var isEmpty = true
+    var isNavigationBarHidden = false
     var isPresenting: Bool { actions.last?.type == .presented }
     var rootViewController: UIViewController?
 
@@ -107,6 +108,10 @@ final class MockStackNavigator: StackNavigator {
                 overFullscreen: overFullscreen
             )
         )
+    }
+
+    func setNavigationBarHidden(_ hidden: Bool, animated: Bool) {
+        isNavigationBarHidden = hidden
     }
 
     func replace<Content: View>(_ view: Content, animated: Bool) {

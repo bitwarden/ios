@@ -334,6 +334,7 @@ class AutofillCredentialServiceTests: BitwardenTestCase { // swiftlint:disable:t
         )
 
         XCTAssertFalse(autofillCredentialServiceDelegate.unlockVaultWithNeverlockKeyCalled)
+        XCTAssertEqual(fido2UserInterfaceHelper.userVerificationPreferenceSetup, .discouraged)
 
         XCTAssertEqual(result.userHandle, expectedAssertionResult.userHandle)
         XCTAssertEqual(result.relyingParty, passkeyIdentity.relyingPartyIdentifier)
@@ -382,6 +383,7 @@ class AutofillCredentialServiceTests: BitwardenTestCase { // swiftlint:disable:t
         XCTAssertTrue(autofillCredentialServiceDelegate.unlockVaultWithNeverlockKeyCalled)
 
         XCTAssertNotNil(fido2UserInterfaceHelper.fido2UserInterfaceHelperDelegate)
+        XCTAssertEqual(fido2UserInterfaceHelper.userVerificationPreferenceSetup, .discouraged)
 
         XCTAssertEqual(result.userHandle, expectedAssertionResult.userHandle)
         XCTAssertEqual(result.relyingParty, passkeyIdentity.relyingPartyIdentifier)
@@ -426,6 +428,7 @@ class AutofillCredentialServiceTests: BitwardenTestCase { // swiftlint:disable:t
         XCTAssertFalse(autofillCredentialServiceDelegate.unlockVaultWithNeverlockKeyCalled)
 
         XCTAssertNotNil(fido2UserInterfaceHelper.fido2UserInterfaceHelperDelegate)
+        XCTAssertEqual(fido2UserInterfaceHelper.userVerificationPreferenceSetup, .discouraged)
 
         XCTAssertEqual(result.userHandle, expectedAssertionResult.userHandle)
         XCTAssertEqual(result.relyingParty, passkeyIdentity.relyingPartyIdentifier)
@@ -542,6 +545,7 @@ class AutofillCredentialServiceTests: BitwardenTestCase { // swiftlint:disable:t
             for: passkeyParameters,
             fido2UserInterfaceHelperDelegate: fido2UserInterfaceHelperDelegate
         )
+        XCTAssertEqual(fido2UserInterfaceHelper.userVerificationPreferenceSetup, .preferred)
 
         XCTAssertEqual(result.userHandle, expectedAssertionResult.userHandle)
         XCTAssertEqual(result.relyingParty, passkeyParameters.relyingPartyIdentifier)
@@ -629,6 +633,70 @@ class AutofillCredentialServiceTests: BitwardenTestCase { // swiftlint:disable:t
         XCTAssertEqual(errorReporter.errors as? [BitwardenTestError], [.example])
     }
 
+    /// `syncIdentities(vaultLockStatus:)` removes identities from the store when the user switches from a previous
+    /// synced vault to another user.
+    func test_syncIdentities_removeOnSwitched() async throws {
+        try await waitAndResetRemoveAllCredentialIdentitiesCalled()
+
+        cipherService.fetchAllCiphersResult = .success([
+            .fixture(
+                id: "1",
+                login: .fixture(
+                    password: "password123",
+                    uris: [.fixture(uri: "bitwarden.com")],
+                    username: "user@bitwarden.com"
+                )
+            ),
+        ])
+
+        vaultTimeoutService.vaultLockStatusSubject.send(VaultLockStatus(isVaultLocked: false, userId: "1"))
+        try await waitForAsync {
+            self.identityStore.replaceCredentialIdentitiesIdentities != nil
+        }
+        XCTAssertEqual(identityStore.replaceCredentialIdentitiesIdentities?.count, 1)
+
+        vaultTimeoutService.vaultLockStatusSubject.send(VaultLockStatus(isVaultLocked: true, userId: "2"))
+        try await waitForAsync {
+            self.identityStore.removeAllCredentialIdentitiesCalled
+        }
+
+        XCTAssertTrue(identityStore.removeAllCredentialIdentitiesCalled)
+    }
+
+    /// `syncIdentities(vaultLockStatus:)` doesn't remove identities from the store when the user locks their vault.
+    func test_syncIdentities_dontRemoveOnSwitchedEqualUser() async throws {
+        try await waitAndResetRemoveAllCredentialIdentitiesCalled()
+
+        cipherService.fetchAllCiphersResult = .success([
+            .fixture(
+                id: "1",
+                login: .fixture(
+                    password: "password123",
+                    uris: [.fixture(uri: "bitwarden.com")],
+                    username: "user@bitwarden.com"
+                )
+            ),
+        ])
+
+        vaultTimeoutService.vaultLockStatusSubject.send(VaultLockStatus(isVaultLocked: false, userId: "1"))
+        try await waitForAsync {
+            self.identityStore.replaceCredentialIdentitiesIdentities != nil
+        }
+        XCTAssertEqual(identityStore.replaceCredentialIdentitiesIdentities?.count, 1)
+
+        vaultTimeoutService.vaultLockStatusSubject.send(VaultLockStatus(isVaultLocked: true, userId: "1"))
+        XCTAssertFalse(identityStore.removeAllCredentialIdentitiesCalled)
+    }
+
+    /// `syncIdentities(vaultLockStatus:)` doesn't remove identities from the store when it tries to sync
+    /// for the first time and it's locked (last user ID synced is `nil`).
+    func test_syncIdentities_dontRemoveOnFirstSyncLocked() async throws {
+        try await waitAndResetRemoveAllCredentialIdentitiesCalled()
+
+        vaultTimeoutService.vaultLockStatusSubject.send(VaultLockStatus(isVaultLocked: true, userId: "1"))
+        XCTAssertFalse(identityStore.removeAllCredentialIdentitiesCalled)
+    }
+
     /// `syncIdentities(vaultLockStatus:)` removes identities from the store when the user logs out.
     func test_syncIdentities_removeOnLogout() {
         cipherService.fetchAllCiphersResult = .success([
@@ -669,5 +737,18 @@ class AutofillCredentialServiceTests: BitwardenTestCase { // swiftlint:disable:t
         waitFor(identityStore.replaceCredentialIdentitiesCalled)
 
         XCTAssertEqual(errorReporter.errors as? [BitwardenTestError], [.example])
+    }
+
+    // MARK: Private
+
+    /// Waits until `identityStore.removeAllCredentialIdentitiesCalled` is `true` and then resets it
+    /// to `false`. This happens because of the first value of `vaultTimeoutService.vaultLockStatusSubject`
+    /// which is `nil` and removes all credentials when the test is setup.
+    private func waitAndResetRemoveAllCredentialIdentitiesCalled() async throws {
+        try await waitForAsync {
+            self.identityStore.removeAllCredentialIdentitiesCalled
+        }
+
+        identityStore.removeAllCredentialIdentitiesCalled = false
     }
 } // swiftlint:disable:this file_length

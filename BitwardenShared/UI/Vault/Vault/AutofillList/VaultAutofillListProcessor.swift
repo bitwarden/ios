@@ -20,6 +20,7 @@ class VaultAutofillListProcessor: StateProcessor<
         & HasFido2CredentialStore
         & HasFido2UserInterfaceHelper
         & HasPasteboardService
+        & HasStateService
         & HasTimeProvider
         & HasVaultRepository
 
@@ -110,6 +111,10 @@ class VaultAutofillListProcessor: StateProcessor<
             await searchVault(for: text)
         case .streamAutofillItems:
             await streamAutofillItems()
+        case .streamShowWebIcons:
+            for await value in await services.stateService.showWebIconsPublisher().values {
+                state.showWebIcons = value
+            }
         }
     }
 
@@ -399,6 +404,7 @@ extension VaultAutofillListProcessor {
         credentialIdentity: ASPasskeyCredentialIdentity
     ) async {
         do {
+            let userVerificationPreference = Uv(preference: request.userVerificationPreference)
             let request = MakeCredentialRequest(
                 clientDataHash: request.clientDataHash,
                 rp: PublicKeyCredentialRpEntity(
@@ -414,9 +420,12 @@ extension VaultAutofillListProcessor {
                 excludeList: nil,
                 options: Options(
                     rk: true,
-                    uv: Uv(preference: request.userVerificationPreference)
+                    uv: userVerificationPreference
                 ),
                 extensions: nil
+            )
+            services.fido2UserInterfaceHelper.setupCurrentUserVerificationPreference(
+                userVerificationPreference: userVerificationPreference
             )
             let createdCredential = try await services.clientService.platform().fido2()
                 .authenticator(

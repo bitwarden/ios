@@ -140,6 +140,61 @@ class CipherMatchingHelperTests: BitwardenTestCase { // swiftlint:disable:this t
         }
     }
 
+    /// `ciphersMatching(uri:ciphers)` returns the list of ciphers that match the URI for the base
+    /// domain match type using an equivalent domain when the uri to match doesn't have the protocol specified.
+    func test_ciphersMatching_baseDomain_equivalentDomainsNoHttpsInUri() async {
+        settingsService.fetchEquivalentDomainsResult = .success([["google.com", "youtube.com"]])
+        let ciphers = ciphersForUris(
+            [
+                ("Google", "https://google.com"),
+                ("Google Account", "https://accounts.google.com"),
+                ("Youtube", "https://youtube.com/login"),
+                ("Yahoo", "https://yahoo.com"),
+            ],
+            matchType: .domain
+        )
+
+        let matchingCiphers = await subject.ciphersMatching(uri: "google.com", ciphers: ciphers)
+        assertInlineSnapshot(
+            of: dumpMatchingCiphers(matchingCiphers),
+            as: .lines
+        ) {
+            """
+            Google
+            Google Account
+            Youtube
+            """
+        }
+    }
+
+    /// `ciphersMatching(uri:ciphers)` returns the list of ciphers that match the URI for the base
+    /// domain match type using an equivalent domain when the uri to match doesn't have the protocol specified
+    /// and the uris of the ciphers don't have protocols
+    func test_ciphersMatching_baseDomain_equivalentDomainsNoProtocols() async {
+        settingsService.fetchEquivalentDomainsResult = .success([["google.com", "youtube.com"]])
+        let ciphers = ciphersForUris(
+            [
+                ("Google", "google.com"),
+                ("Google Account", "accounts.google.com"),
+                ("Youtube", "youtube.com/login"),
+                ("Yahoo", "yahoo.com"),
+            ],
+            matchType: .domain
+        )
+
+        let matchingCiphers = await subject.ciphersMatching(uri: "google.com", ciphers: ciphers)
+        assertInlineSnapshot(
+            of: dumpMatchingCiphers(matchingCiphers),
+            as: .lines
+        ) {
+            """
+            Google
+            Google Account
+            Youtube
+            """
+        }
+    }
+
     /// `ciphersMatching(uri:ciphers)` returns the list of ciphers that match the URI using the
     /// default match type if the cipher doesn't specify a match type.
     func test_ciphersMatching_defaultMatchType() async {
@@ -363,4 +418,4 @@ class CipherMatchingHelperTests: BitwardenTestCase { // swiftlint:disable:this t
     func dumpMatchingCiphers(_ ciphers: [CipherView]) -> String {
         ciphers.map(\.name).joined(separator: "\n")
     }
-}
+} // swiftlint:disable:this file_length

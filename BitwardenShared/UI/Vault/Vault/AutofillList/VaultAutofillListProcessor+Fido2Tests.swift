@@ -622,6 +622,7 @@ class VaultAutofillListProcessorFido2Tests: BitwardenTestCase { // swiftlint:dis
         XCTAssertEqual(subject.state.emptyViewButtonText, Localizations.savePasskeyAsNewLogin)
 
         XCTAssertTrue(fido2UserInterfaceHelper.fido2UserInterfaceHelperDelegate != nil)
+        XCTAssertEqual(fido2UserInterfaceHelper.userVerificationPreferenceSetup, .discouraged)
         appExtensionDelegate.completeRegistrationRequestMocker.assertUnwrapping { credential in
             credential.relyingParty == expectedCredentialIdentity.relyingPartyIdentifier
                 && credential.clientDataHash == expectedRequest.clientDataHash

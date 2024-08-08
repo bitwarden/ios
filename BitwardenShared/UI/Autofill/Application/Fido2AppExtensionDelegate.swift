@@ -1,4 +1,5 @@
 import AuthenticationServices
+import Combine
 
 /// A delegate that is used to handle actions and retrieve information from within an Autofill extension
 /// on Fido2 flows.
@@ -18,6 +19,9 @@ public protocol Fido2AppExtensionDelegate: AppExtensionDelegate {
     /// - Parameter asPasskeyRegistrationCredential: The passkey credential to be used to complete the registration.
     @available(iOSApplicationExtension 17.0, *)
     func completeRegistrationRequest(asPasskeyRegistrationCredential: ASPasskeyRegistrationCredential)
+
+    /// Gets a publisher for when `didAppear` happens.
+    func getDidAppearPublisher() -> AsyncPublisher<AnyPublisher<Bool, Never>>
 
     /// Marks that user interaction is required.
     func setUserInteractionRequired()

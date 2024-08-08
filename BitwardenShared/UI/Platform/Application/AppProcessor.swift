@@ -423,10 +423,22 @@ extension AppProcessor: Fido2UserInterfaceHelperDelegate {
     }
 
     func onNeedsUserInteraction() async throws {
-        if let fido2AppExtensionDelegate = appExtensionDelegate as? Fido2AppExtensionDelegate,
-           !fido2AppExtensionDelegate.flowWithUserInteraction {
+        guard let fido2AppExtensionDelegate = appExtensionDelegate as? Fido2AppExtensionDelegate else {
+            return
+        }
+
+        if !fido2AppExtensionDelegate.flowWithUserInteraction {
             fido2AppExtensionDelegate.setUserInteractionRequired()
             throw Fido2Error.userInteractionRequired
+        }
+
+        // WORKAROUND: We need to wait until the view controller appears in order to perform any
+        // action that needs user interaction or it might not show the prompt to the user.
+        // E.g. without this there are certain devices that don't show the FaceID prompt
+        // and the user only sees the screen dimming a bit and failing the flow.
+        for await didAppear in fido2AppExtensionDelegate.getDidAppearPublisher() {
+            guard didAppear else { continue }
+            return
         }
     }
 
