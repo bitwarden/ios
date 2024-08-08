@@ -360,6 +360,9 @@ extension DefaultAutofillCredentialService: AutofillCredentialService {
         fido2UserInterfaceHelper.setupDelegate(
             fido2UserInterfaceHelperDelegate: fido2UserInterfaceHelperDelegate
         )
+        fido2UserInterfaceHelper.setupCurrentUserVerificationPreference(
+            userVerificationPreference: request.options.uv
+        )
 
         #if DEBUG
         Fido2DebuggingReportBuilder.builder.withGetAssertionRequest(request)

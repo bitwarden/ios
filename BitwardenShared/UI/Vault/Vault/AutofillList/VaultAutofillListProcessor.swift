@@ -404,6 +404,7 @@ extension VaultAutofillListProcessor {
         credentialIdentity: ASPasskeyCredentialIdentity
     ) async {
         do {
+            let userVerificationPreference = Uv(preference: request.userVerificationPreference)
             let request = MakeCredentialRequest(
                 clientDataHash: request.clientDataHash,
                 rp: PublicKeyCredentialRpEntity(
@@ -419,9 +420,12 @@ extension VaultAutofillListProcessor {
                 excludeList: nil,
                 options: Options(
                     rk: true,
-                    uv: Uv(preference: request.userVerificationPreference)
+                    uv: userVerificationPreference
                 ),
                 extensions: nil
+            )
+            services.fido2UserInterfaceHelper.setupCurrentUserVerificationPreference(
+                userVerificationPreference: userVerificationPreference
             )
             let createdCredential = try await services.clientService.platform().fido2()
                 .authenticator(
