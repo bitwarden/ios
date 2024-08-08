@@ -204,8 +204,9 @@ extension AuthRouter {
     ///
     func preparedStartRoute() async -> AuthRoute {
         guard let activeAccount = try? await configureActiveAccount(shouldSwitchAutomatically: true) else {
-            // If no account can be set to active, go to the landing screen.
-            return .landing
+            // If no account can be set to active, go to the landing or carousel screen.
+            let isCarouselEnabled: Bool = await services.configService.getFeatureFlag(.nativeCarouselFlow)
+            return isCarouselEnabled ? .introCarousel : .landing
         }
 
         // Check for a `logout` timeout action.
