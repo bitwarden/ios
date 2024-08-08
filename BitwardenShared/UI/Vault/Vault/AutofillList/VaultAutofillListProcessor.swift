@@ -20,6 +20,7 @@ class VaultAutofillListProcessor: StateProcessor<
         & HasFido2CredentialStore
         & HasFido2UserInterfaceHelper
         & HasPasteboardService
+        & HasStateService
         & HasTimeProvider
         & HasVaultRepository
 
@@ -110,6 +111,10 @@ class VaultAutofillListProcessor: StateProcessor<
             await searchVault(for: text)
         case .streamAutofillItems:
             await streamAutofillItems()
+        case .streamShowWebIcons:
+            for await value in await services.stateService.showWebIconsPublisher().values {
+                state.showWebIcons = value
+            }
         }
     }
 

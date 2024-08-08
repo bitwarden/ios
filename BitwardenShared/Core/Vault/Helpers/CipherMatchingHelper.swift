@@ -53,8 +53,8 @@ class CipherMatchingHelper {
         guard let uri else { return [] }
 
         let matchURL = URL(string: uri)
-        let matchDomain = matchURL?.domain
         let matchIsApp = matchURL?.isApp ?? false
+        let matchDomain = matchIsApp ? matchURL?.domain : matchURL?.sanitized.domain
         let matchAppWebURL = matchURL?.appWebURL
 
         let (matching: matchingDomains, fuzzyMatching: matchingFuzzyDomains) = await getMatchingDomains(
@@ -107,7 +107,7 @@ class CipherMatchingHelper {
         matchingDomains: Set<String>,
         matchingFuzzyDomains: Set<String>
     ) -> MatchResult {
-        let loginUriDomain = URL(string: loginUri)?.domain?.lowercased()
+        let loginUriDomain = URL(string: loginUri)?.sanitized.domain?.lowercased()
 
         if matchingDomains.contains(loginUri) {
             return .exact

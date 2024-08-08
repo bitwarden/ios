@@ -286,6 +286,7 @@ targets:
     settings:
       base:
         INFOPLIST_FILE: BitwardenShareExtension/Application/Support/Info.plist
+        CODE_SIGN_ENTITLEMENTS: BitwardenShareExtension/Application/Support/BitwardenShareExtension.entitlements
     sources:
       - path: BitwardenShareExtension
         excludes:
@@ -298,7 +299,6 @@ targets:
     platform: iOS
     settings:
       base:
-        CODE_SIGN_ENTITLEMENTS: BitwardenShareExtension/Application/Support/BitwardenShareExtension.entitlements
         INFOPLIST_FILE: BitwardenShareExtension/Application/TestHelpers/Support/Info.plist
     sources:
       - path: BitwardenShareExtension

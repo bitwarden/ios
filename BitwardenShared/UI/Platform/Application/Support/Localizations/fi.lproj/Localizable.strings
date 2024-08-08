@@ -426,9 +426,9 @@
 "ThirtyMinutes" = "30 minuuttia";
 "SetPINDescription" = "Aseta PIN-koodi Bitwardenin avaukselle. PIN-asetus tyhjentyy, jos kirjaudut kokonaan ulos sovelluksesta.";
 "LoggedInAsOn" = "Kirjautui palvelimelle %2$@ tunnuksella %1$@.";
-"VaultLockedMasterPassword" = "Holvi on lukittu. Jatka vahvistamalla pääsalasanasi.";
-"VaultLockedPIN" = "Holvi on lukittu. Jatka vahvistamalla PIN-koodisi.";
-"VaultLockedIdentity" = "Holvi on lukittu. Jatka vahvistamalla henkilöllisyytesi.";
+"VaultLockedMasterPassword" = "Holvisi on lukittu. Jatka vahvistamalla pääsalasanasi.";
+"VaultLockedPIN" = "Holvisi on lukittu. Jatka vahvistamalla PIN-koodisi.";
+"VaultLockedIdentity" = "Holvisi on lukittu. Jatka vahvistamalla henkilöllisyytesi.";
 "Dark" = "Tumma";
 "Light" = "Vaalea";
 "FiveMinutes" = "5 minuuttia";
@@ -744,7 +744,7 @@
 "LogInWithAnotherDevice" = "Laitteella kirjautuminen";
 "LogInInitiated" = "Kirjautuminen aloitettu";
 "ANotificationHasBeenSentToYourDevice" = "Laitteellesi on lähetetty ilmoitus.";
-"PleaseMakeSureYourVaultIsUnlockedAndTheFingerprintPhraseMatchesOnTheOtherDevice" = "Varmista, että holvisi on avattu ja tunnistelauseke täsmää toisella laitteella.";
+"PleaseMakeSureYourVaultIsUnlockedAndTheFingerprintPhraseMatchesOnTheOtherDevice" = "Varmista, että vahvistavan laitteen holvi on avattu ja että se näyttää saman tunnistelausekkeen.";
 "ResendNotification" = "Lähetä ilmoitus uudelleen";
 "NeedAnotherOption" = "Tarvitsetko toisen vaihtoehdon?";
 "ViewAllLoginOptions" = "Näytä kaikki kirjautumisvaihtoehdot";

@@ -85,6 +85,23 @@ class OTPAuthModelTests: BitwardenTestCase {
         )
     }
 
+    /// Tests that an OTP Auth string with a non-base32 key creates a model.
+    func test_init_otpAuthKey_success_nonbase32() {
+        let subject = OTPAuthModel(otpAuthKey: .otpAuthUriKeyNonBase32)
+        XCTAssertEqual(
+            subject,
+            OTPAuthModel(
+                accountName: nil,
+                algorithm: .sha1,
+                digits: 6,
+                issuer: nil,
+                key: "1234567890",
+                period: 30,
+                uri: .otpAuthUriKeyNonBase32
+            )
+        )
+    }
+
     /// Tests that a partially formatted OTP Auth string creates the model.
     func test_init_otpAuthKey_success_partial() {
         let subject = OTPAuthModel(otpAuthKey: .otpAuthUriKeyPartial)

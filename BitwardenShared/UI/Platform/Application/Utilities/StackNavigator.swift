@@ -94,6 +94,14 @@ public protocol StackNavigator: Navigator {
     ///   - animated: Whether the transition should be animated.
     ///
     func replace<Content: View>(_ view: Content, animated: Bool)
+
+    /// Sets whether the navigation bar should be hidden.
+    ///
+    /// - Parameters:
+    ///   - hidden: Whether the navigation bar should be hidden.
+    ///   - animated: Whether hiding or showing the navigation bar should be animated.
+    ///
+    func setNavigationBarHidden(_: Bool, animated: Bool)
 }
 
 extension StackNavigator {
