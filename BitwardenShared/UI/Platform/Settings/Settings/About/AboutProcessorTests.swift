@@ -184,7 +184,7 @@ class AboutProcessorTests: BitwardenTestCase {
 
             ------- CI Info --------
 
-            Branch: tesBranch
+            Branch: test-branch
             Repository: www.github.com/bitwarden/ios
             """
         )
