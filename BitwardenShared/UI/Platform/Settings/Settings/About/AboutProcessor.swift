@@ -8,6 +8,7 @@ final class AboutProcessor: StateProcessor<AboutState, AboutAction, Void> {
     typealias Services = HasEnvironmentService
         & HasErrorReporter
         & HasPasteboardService
+        & HasSystemDevice
 
     // MARK: Properties
 
@@ -20,9 +21,6 @@ final class AboutProcessor: StateProcessor<AboutState, AboutAction, Void> {
     /// The services used by this processor.
     private let services: Services
 
-    /// A `SystemDevice` instance used to get device details.
-    private let systemDevice: SystemDevice
-
     // MARK: Initialization
 
     /// Initializes a new `AboutProcessor`.
@@ -32,18 +30,15 @@ final class AboutProcessor: StateProcessor<AboutState, AboutAction, Void> {
     ///   - coordinator: The coordinator used to manage navigation.
     ///   - services: The services used by this processor.
     ///   - state: The initial state of the processor.
-    ///   - systemDevice: A `SystemDevice` instance used to get device details.
     init(
         aboutAdditionalInfo: AboutAdditionalInfo,
         coordinator: AnyCoordinator<SettingsRoute, SettingsEvent>,
         services: Services,
-        state: AboutState,
-        systemDevice: SystemDevice
+        state: AboutState
     ) {
         self.aboutAdditionalInfo = aboutAdditionalInfo
         self.coordinator = coordinator
         self.services = services
-        self.systemDevice = systemDevice
 
         // Set the initial value of the crash logs toggle.
         var state = state
@@ -93,11 +88,12 @@ final class AboutProcessor: StateProcessor<AboutState, AboutAction, Void> {
     /// Prepare the text to be copied.
     private func handleVersionTapped() {
         var infoParts = [
-            state.copyrightText + "\n",
+            state.copyrightText,
+            "",
             state.version,
             "\n-------- Device --------\n",
-            "Model: \(systemDevice.modelIdentifier)",
-            "OS: \(systemDevice.systemName) \(systemDevice.systemVersion)",
+            "Model: \(services.systemDevice.modelIdentifier)",
+            "OS: \(services.systemDevice.systemName) \(services.systemDevice.systemVersion)",
         ]
         if !aboutAdditionalInfo.ciBuildInfo.isEmpty {
             infoParts.append("\n------- CI Info --------\n")

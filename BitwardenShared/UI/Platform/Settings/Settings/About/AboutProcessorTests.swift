@@ -30,10 +30,10 @@ class AboutProcessorTests: BitwardenTestCase {
             services: ServiceContainer.withMocks(
                 environmentService: environmentService,
                 errorReporter: errorReporter,
-                pasteboardService: pasteboardService
+                pasteboardService: pasteboardService,
+                systemDevice: MockSystemDevice()
             ),
-            state: AboutState(),
-            systemDevice: MockSystemDevice()
+            state: AboutState()
         )
     }
 
@@ -58,10 +58,10 @@ class AboutProcessorTests: BitwardenTestCase {
             aboutAdditionalInfo: aboutAdditionalInfo,
             coordinator: coordinator.asAnyCoordinator(),
             services: ServiceContainer.withMocks(
-                errorReporter: errorReporter
+                errorReporter: errorReporter,
+                systemDevice: MockSystemDevice()
             ),
-            state: AboutState(),
-            systemDevice: MockSystemDevice()
+            state: AboutState()
         )
 
         XCTAssertTrue(subject.state.isSubmitCrashLogsToggleOn)
@@ -166,7 +166,7 @@ class AboutProcessorTests: BitwardenTestCase {
     func test_receive_versionTapped_withAdditionalInfo() {
         aboutAdditionalInfo.ciBuildInfo = [
             "Repository": "www.github.com/bitwarden/ios",
-            "Branch": "tesBranch",
+            "Branch": "test-branch",
         ]
 
         subject.receive(.versionTapped)
