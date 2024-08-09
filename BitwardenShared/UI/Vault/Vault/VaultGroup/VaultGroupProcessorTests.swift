@@ -143,43 +143,6 @@ class VaultGroupProcessorTests: BitwardenTestCase { // swiftlint:disable:this ty
         XCTAssertTrue(subject.state.isPersonalOwnershipDisabled)
     }
 
-    /// `perform(_:)` with `appeared` determines whether the vault filter can be shown based on
-    /// policy settings.
-    func test_perform_appeared_policyCanShowVaultFilterDisabled() {
-        vaultRepository.canShowVaultFilter = false
-        subject.state.organizations = [.fixture()]
-
-        let task = Task {
-            await subject.perform(.appeared)
-        }
-        waitFor(subject.state.loadingState == .data([]))
-        task.cancel()
-
-        XCTAssertFalse(subject.state.canShowVaultFilter)
-        XCTAssertFalse(subject.state.vaultFilterState.canShowVaultFilter)
-        XCTAssertEqual(subject.state.vaultFilterState.vaultFilterOptions, [])
-    }
-
-    /// `perform(_:)` with `appeared` determines whether the vault filter can be shown based on
-    /// policy settings.
-    func test_perform_appeared_policyCanShowVaultFilterEnabled() {
-        vaultRepository.canShowVaultFilter = true
-        subject.state.organizations = [.fixture()]
-
-        let task = Task {
-            await subject.perform(.appeared)
-        }
-        waitFor(subject.state.loadingState == .data([]))
-        task.cancel()
-
-        XCTAssertTrue(subject.state.canShowVaultFilter)
-        XCTAssertTrue(subject.state.vaultFilterState.canShowVaultFilter)
-        XCTAssertEqual(
-            subject.state.vaultFilterState.vaultFilterOptions,
-            [.allVaults, .myVault, .organization(.fixture())]
-        )
-    }
-
     /// `perform(_:)` with `.morePressed` has the vault item more options helper display the alert.
     func test_perform_morePressed() async throws {
         await subject.perform(.morePressed(.fixture()))
@@ -246,7 +209,7 @@ class VaultGroupProcessorTests: BitwardenTestCase { // swiftlint:disable:this ty
 
     /// `perform(.search)` with a keyword should update search results in state.
     func test_perform_search_expiredTOTP() { // swiftlint:disable:this function_body_length
-        let loginView = LoginView.fixture(totp: .standardTotpKey)
+        let loginView = LoginView.fixture(totp: .base32Key)
         let refreshed = VaultListItem(
             id: "1",
             itemType: .totp(
@@ -325,7 +288,7 @@ class VaultGroupProcessorTests: BitwardenTestCase { // swiftlint:disable:this ty
 
     /// `perform(.search)` with a keyword should update search results in state.
     func test_perform_search_expiredTOTP_error() { // swiftlint:disable:this function_body_length
-        let loginView = LoginView.fixture(totp: .standardTotpKey)
+        let loginView = LoginView.fixture(totp: .base32Key)
         vaultRepository.refreshTOTPCodesResult = .failure(BitwardenTestError.example)
         let task = Task {
             await subject.perform(.search("example"))

@@ -231,3 +231,5 @@ class CredentialProviderContextTests: BitwardenTestCase {
 }
 
 class MockPasskeyCredentialRequest: PasskeyCredentialRequest {}
+
+class MockPasskeyCredentialRequestParameters: PasskeyCredentialRequestParameters {}

@@ -42,14 +42,12 @@ struct TwoFactorAuthView: View {
                 await store.perform(.listenForNFC)
             }
             .toolbar {
-                ToolbarItem(placement: .navigationBarLeading) {
+                ToolbarItemGroup(placement: .navigationBarTrailing) {
+                    authMethodsMenu
+
                     cancelToolbarButton {
                         store.send(.dismiss)
                     }
-                }
-
-                ToolbarItem(placement: .navigationBarTrailing) {
-                    authMethodsMenu
                 }
             }
     }

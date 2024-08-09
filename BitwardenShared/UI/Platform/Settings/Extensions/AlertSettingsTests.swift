@@ -54,7 +54,7 @@ class AlertSettingsTests: BitwardenTestCase {
         XCTAssertEqual(subject.title, Localizations.exportVaultConfirmationTitle)
         XCTAssertEqual(
             subject.message,
-            Localizations.exportVaultFilePwProtectInfo
+            Localizations.encExportKeyWarning + .newLine + Localizations.encExportAccountWarning
         )
 
         subject = Alert.confirmExportVault(encrypted: false) {}

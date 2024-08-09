@@ -7,9 +7,6 @@ protocol UserVerificationHelper {
     /// - Returns: `true` if authorized, `false` otherwise.
     func canVerifyDeviceLocalAuth() -> Bool
 
-    /// Set up the Bitwarden Pin for the current account
-    func setupPin() async throws
-
     /// Performs OS local auth, e.g. biometrics or pin/pattern
     /// - Parameter reason: The reason to be displayed to the user when evaluating the policy if needed
     /// - Returns: An `UserVerificationResult` with the verification result
@@ -69,35 +66,6 @@ extension DefaultUserVerificationHelper: UserVerificationHelper {
 
     func canVerifyDeviceLocalAuth() -> Bool {
         localAuthService.getDeviceAuthStatus() == .authorized
-    }
-
-    @MainActor
-    func setupPin() async throws {
-        try await withCheckedThrowingContinuation { (continuation: CheckedContinuation<Void, any Error>) in
-            guard let userVerificationDelegate else {
-                continuation.resume(throwing: Fido2Error.failedToSetupPin)
-                return
-            }
-
-            userVerificationDelegate.showAlert(.enterPINCode(
-                onCancelled: { () in
-                    continuation.resume(throwing: UserVerificationError.cancelled)
-                },
-                settingUp: true,
-                completion: { pin in
-                    do {
-                        guard !pin.isEmpty else {
-                            throw Fido2Error.failedToSetupPin
-                        }
-
-                        try await self.authRepository.setPins(pin, requirePasswordAfterRestart: false)
-                        continuation.resume()
-                    } catch {
-                        continuation.resume(throwing: error)
-                    }
-                }
-            ))
-        }
     }
 
     func verifyDeviceLocalAuth(reason: String) async throws -> UserVerificationResult {
@@ -165,25 +133,18 @@ extension DefaultUserVerificationHelper: UserVerificationHelper {
                     continuation.resume(throwing: UserVerificationError.cancelled)
                 },
                 settingUp: false,
-                completion: { [weak self] pin in
-                    guard let self else { return }
-
-                    do {
-                        guard try await authRepository.validatePin(pin: pin) else {
-                            userVerificationDelegate?.showAlert(
-                                .defaultAlert(title: Localizations.invalidPIN),
-                                onDismissed: {
-                                    continuation.resume(returning: .notVerified)
-                                }
-                            )
-                            return
-                        }
-
-                        continuation.resume(returning: .verified)
-                    } catch {
-                        errorReporter.log(error: error)
-                        continuation.resume(returning: .unableToPerform)
+                completion: { pin in
+                    guard await self.authRepository.validatePin(pin: pin) else {
+                        self.userVerificationDelegate?.showAlert(
+                            .defaultAlert(title: Localizations.invalidPIN),
+                            onDismissed: {
+                                continuation.resume(returning: .notVerified)
+                            }
+                        )
+                        return
                     }
+
+                    continuation.resume(returning: .verified)
                 }
             )
 

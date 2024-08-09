@@ -49,7 +49,7 @@ extension VaultListTOTP {
     static func fixture(
         id: String = "123",
         loginView: BitwardenSdk.LoginView = .fixture(
-            totp: .standardTotpKey
+            totp: .base32Key
         ),
         requiresMasterPassword: Bool = false,
         timeProvider: TimeProvider,
@@ -71,7 +71,7 @@ extension VaultListTOTP {
     static func fixture(
         id: String = "123",
         loginView: BitwardenSdk.LoginView = .fixture(
-            totp: .standardTotpKey
+            totp: .base32Key
         ),
         requiresMasterPassword: Bool = false,
         totpCode: TOTPCodeModel = .init(

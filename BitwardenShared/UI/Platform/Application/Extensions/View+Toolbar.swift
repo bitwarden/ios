@@ -48,16 +48,6 @@ extension View {
             .accessibilityIdentifier("EditItemButton")
     }
 
-    /// Returns a toolbar button configured for saving an item.
-    ///
-    /// - Parameter action: The action to perform when the save button is tapped.
-    /// - Returns: A `Button` configured for saving an item.
-    ///
-    func saveToolbarButton(action: @escaping () async -> Void) -> some View {
-        toolbarButton(Localizations.save, action: action)
-            .accessibilityIdentifier("SaveButton")
-    }
-
     /// Returns a `Button` that displays an image for use in a toolbar.
     ///
     /// - Parameters:
@@ -135,7 +125,7 @@ extension View {
     /// - Returns: A `ToolbarItem` with a dismiss button.
     ///
     func cancelToolbarItem(_ action: @escaping () -> Void) -> some ToolbarContent {
-        ToolbarItem(placement: .topBarLeading) {
+        ToolbarItem(placement: .topBarTrailing) {
             cancelToolbarButton(action: action)
         }
     }
@@ -148,17 +138,6 @@ extension View {
     func optionsToolbarItem(@ViewBuilder _ content: () -> some View) -> some ToolbarContent {
         ToolbarItem(placement: .topBarTrailing) {
             optionsToolbarMenu(content: content)
-        }
-    }
-
-    /// A `ToolbarItem` for views with a save button.
-    ///
-    /// - Parameter action: The action to perform when the save button is tapped.
-    /// - Returns: A `ToolbarItem` with a save button.
-    ///
-    func saveToolbarItem(_ action: @escaping () async -> Void) -> some ToolbarContent {
-        ToolbarItem(placement: .topBarTrailing) {
-            saveToolbarButton(action: action)
         }
     }
 }

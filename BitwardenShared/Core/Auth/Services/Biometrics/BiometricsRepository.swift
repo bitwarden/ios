@@ -152,8 +152,7 @@ class DefaultBiometricsRepository: BiometricsRepository {
                 switch status {
                 case kLAErrorBiometryLockout:
                     throw BiometricsServiceError.biometryLocked
-                case errSecAuthFailed,
-                     errSecUserCanceled,
+                case errSecUserCanceled,
                      kLAErrorAppCancel,
                      kLAErrorSystemCancel,
                      kLAErrorUserCancel:

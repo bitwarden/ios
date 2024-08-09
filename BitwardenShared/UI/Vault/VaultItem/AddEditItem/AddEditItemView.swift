@@ -47,10 +47,6 @@ struct AddEditItemView: View {
                 cancelToolbarItem {
                     store.send(.dismissPressed)
                 }
-
-                saveToolbarItem {
-                    await store.perform(.savePressed)
-                }
             }
     }
 
@@ -67,6 +63,7 @@ struct AddEditItemView: View {
                 notesSection
                 customSection
                 ownershipSection
+                saveButton
             }
             .padding(16)
         }
@@ -108,15 +105,7 @@ struct AddEditItemView: View {
         content
             .navigationTitle(Localizations.editItem)
             .toolbar {
-                cancelToolbarItem {
-                    store.send(.dismissPressed)
-                }
-
                 ToolbarItemGroup(placement: .navigationBarTrailing) {
-                    saveToolbarButton {
-                        await store.perform(.savePressed)
-                    }
-
                     VaultItemManagementMenuView(
                         isCloneEnabled: false,
                         isCollectionsEnabled: store.state.cipher.organizationId != nil,
@@ -127,6 +116,10 @@ struct AddEditItemView: View {
                             mapEffect: { _ in .deletePressed }
                         )
                     )
+
+                    cancelToolbarButton {
+                        store.send(.dismissPressed)
+                    }
                 }
             }
     }
@@ -237,7 +230,7 @@ private extension AddEditItemView {
 
     var notesSection: some View {
         SectionView(Localizations.notes) {
-            BitwardenMultilineTextField(
+            BitwardenTextField(
                 text: store.binding(
                     get: \.notes,
                     send: AddEditItemAction.notesChanged
@@ -285,6 +278,14 @@ private extension AddEditItemView {
                 }
             }
         }
+    }
+
+    var saveButton: some View {
+        AsyncButton(Localizations.save) {
+            await store.perform(.savePressed)
+        }
+        .accessibilityIdentifier("SaveButton")
+        .buttonStyle(.primary())
     }
 }
 

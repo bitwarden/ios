@@ -68,7 +68,7 @@ class VaultListItemRowViewTests: BitwardenTestCase {
             totp: .fixture(
                 loginView: .fixture(
                     username: "username",
-                    totp: .standardTotpKey
+                    totp: .base32Key
                 )
             )
         )

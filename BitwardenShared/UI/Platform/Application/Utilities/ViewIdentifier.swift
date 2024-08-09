@@ -14,4 +14,18 @@ enum ViewIdentifier {
         /// An identifier for the terms and privacy toggle.
         case termsAndPrivacy
     }
+
+    /// Identifiers used on the `StartRegistrationView`.
+    ///
+    enum StartRegistration: String, Equatable, Hashable {
+        /// An identifier for the terms and privacy toggle.
+        case receiveMarketing
+    }
+
+    /// Identifiers used on the `CompleteRegistrationView`.
+    ///
+    enum CompleteRegistration: String, Equatable, Hashable {
+        /// An identifier for the check for breaches toggle.
+        case checkBreaches
+    }
 }

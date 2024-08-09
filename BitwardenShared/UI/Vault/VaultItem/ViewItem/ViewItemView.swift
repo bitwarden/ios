@@ -46,26 +46,7 @@ struct ViewItemView: View {
             send: ViewItemAction.toastShown
         ))
         .toolbar {
-            ToolbarItem(placement: .navigationBarLeading) {
-                closeToolbarButton {
-                    store.send(.dismissPressed)
-                }
-            }
-
             ToolbarItemGroup(placement: .navigationBarTrailing) {
-                if let state = store.state.loadingState.data {
-                    if state.isSoftDeleted {
-                        toolbarButton(Localizations.restore) {
-                            await store.perform(.restorePressed)
-                        }
-                        .accessibilityIdentifier("RestoreButton")
-                    } else {
-                        editToolbarButton {
-                            store.send(.editPressed)
-                        }
-                    }
-                }
-
                 VaultItemManagementMenuView(
                     isCloneEnabled: store.state.canClone,
                     isCollectionsEnabled: isCollectionsEnabled,
@@ -76,6 +57,10 @@ struct ViewItemView: View {
                         mapEffect: { _ in .deletePressed }
                     )
                 )
+
+                closeToolbarButton {
+                    store.send(.dismissPressed)
+                }
             }
         }
         .task {
@@ -107,6 +92,20 @@ struct ViewItemView: View {
                 )
             }
             .padding(16)
+        }
+        .toolbar {
+            ToolbarItem(placement: .navigationBarLeading) {
+                if state.isSoftDeleted {
+                    toolbarButton(Localizations.restore) {
+                        await store.perform(.restorePressed)
+                    }
+                    .accessibilityIdentifier("RestoreButton")
+                } else {
+                    editToolbarButton {
+                        store.send(.editPressed)
+                    }
+                }
+            }
         }
     }
 }
@@ -204,7 +203,7 @@ struct ViewItemView_Previews: PreviewProvider {
             UriState(matchType: .custom(.startsWith), uri: "https://www.example.com/account/login"),
         ]
         state.loginState.totpState = .init(
-            authKeyModel: .init(authenticatorKey: "JBSWY3DPEHPK3PXP"),
+            authKeyModel: .init(authenticatorKey: "JBSWY3DPEHPK3PXP")!,
             codeModel: .init(
                 code: "032823",
                 codeGenerationDate: .init(timeIntervalSinceReferenceDate: 1_695_000_000),

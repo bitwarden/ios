@@ -3,7 +3,7 @@ import XCTest
 
 @testable import BitwardenShared
 
-class VaultAutofillListProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_body_length
+class VaultAutofillListProcessorTests: BitwardenTestCase {
     // MARK: Properties
 
     var appExtensionDelegate: MockAppExtensionDelegate!
@@ -13,7 +13,6 @@ class VaultAutofillListProcessorTests: BitwardenTestCase { // swiftlint:disable:
     var errorReporter: MockErrorReporter!
     var fido2CredentialStore: MockFido2CredentialStore!
     var fido2UserInterfaceHelper: MockFido2UserInterfaceHelper!
-    var stateService: MockStateService!
     var subject: VaultAutofillListProcessor!
     var vaultRepository: MockVaultRepository!
 
@@ -29,7 +28,6 @@ class VaultAutofillListProcessorTests: BitwardenTestCase { // swiftlint:disable:
         errorReporter = MockErrorReporter()
         fido2CredentialStore = MockFido2CredentialStore()
         fido2UserInterfaceHelper = MockFido2UserInterfaceHelper()
-        stateService = MockStateService()
         vaultRepository = MockVaultRepository()
 
         subject = VaultAutofillListProcessor(
@@ -41,7 +39,6 @@ class VaultAutofillListProcessorTests: BitwardenTestCase { // swiftlint:disable:
                 errorReporter: errorReporter,
                 fido2CredentialStore: fido2CredentialStore,
                 fido2UserInterfaceHelper: fido2UserInterfaceHelper,
-                stateService: stateService,
                 vaultRepository: vaultRepository
             ),
             state: VaultAutofillListState()
@@ -58,17 +55,11 @@ class VaultAutofillListProcessorTests: BitwardenTestCase { // swiftlint:disable:
         errorReporter = nil
         fido2CredentialStore = nil
         fido2UserInterfaceHelper = nil
-        stateService = nil
         subject = nil
         vaultRepository = nil
     }
 
     // MARK: Tests
-
-    /// `getter:isAutofillingFromList` returns `false` when delegate is not a Fido2 one.
-    func test_isAutofillingFromList_falseNoFido2Delegate() async throws {
-        XCTAssertFalse(subject.isAutofillingFromList)
-    }
 
     /// `vaultItemTapped(_:)` has the autofill helper handle autofill for the cipher and completes the
     /// autofill request.
@@ -163,12 +154,7 @@ class VaultAutofillListProcessorTests: BitwardenTestCase { // swiftlint:disable:
     /// `perform(_:)` with `.search()` performs a cipher search and updates the state with the results.
     func test_perform_search() {
         let ciphers: [CipherView] = [.fixture(id: "1"), .fixture(id: "2"), .fixture(id: "3")]
-        let expectedSection = VaultListSection(
-            id: "",
-            items: ciphers.compactMap { VaultListItem(cipherView: $0) },
-            name: ""
-        )
-        vaultRepository.searchCipherAutofillSubject.value = [expectedSection]
+        vaultRepository.searchCipherAutofillSubject.value = ciphers
 
         let task = Task {
             await subject.perform(.search("Bit"))
@@ -177,7 +163,7 @@ class VaultAutofillListProcessorTests: BitwardenTestCase { // swiftlint:disable:
         waitFor(!subject.state.ciphersForSearch.isEmpty)
         task.cancel()
 
-        XCTAssertEqual(subject.state.ciphersForSearch, [expectedSection])
+        XCTAssertEqual(subject.state.ciphersForSearch, ciphers.compactMap { VaultListItem(cipherView: $0) })
         XCTAssertFalse(subject.state.showNoResults)
     }
 
@@ -219,21 +205,16 @@ class VaultAutofillListProcessorTests: BitwardenTestCase { // swiftlint:disable:
     /// `perform(_:)` with `.streamAutofillItems` streams the list of autofill ciphers.
     func test_perform_streamAutofillItems() {
         let ciphers: [CipherView] = [.fixture(id: "1"), .fixture(id: "2"), .fixture(id: "3")]
-        let expectedSection = VaultListSection(
-            id: "",
-            items: ciphers.compactMap { VaultListItem(cipherView: $0) },
-            name: ""
-        )
-        vaultRepository.ciphersAutofillSubject.value = [expectedSection]
+        vaultRepository.ciphersAutofillSubject.value = ciphers
 
         let task = Task {
             await subject.perform(.streamAutofillItems)
         }
 
-        waitFor(!subject.state.vaultListSections.isEmpty)
+        waitFor(!subject.state.ciphersForAutofill.isEmpty)
         task.cancel()
 
-        XCTAssertEqual(subject.state.vaultListSections, [expectedSection])
+        XCTAssertEqual(subject.state.ciphersForAutofill, ciphers.compactMap { VaultListItem(cipherView: $0) })
     }
 
     /// `perform(_:)` with `.streamAutofillItems` logs an error if one occurs.
@@ -251,22 +232,9 @@ class VaultAutofillListProcessorTests: BitwardenTestCase { // swiftlint:disable:
         XCTAssertEqual(errorReporter.errors.last as? BitwardenTestError, .example)
     }
 
-    /// `perform(_:)` with `.streamShowWebIcons` requests the value of the show
-    /// web icons parameter from the state service.
-    func test_perform_streamShowWebIcons() {
-        let task = Task {
-            await subject.perform(.streamShowWebIcons)
-        }
-
-        stateService.showWebIconsSubject.send(false)
-        waitFor(subject.state.showWebIcons == false)
-
-        task.cancel()
-    }
-
     /// `receive(_:)` with `.addTapped` navigates to the add item view.
     func test_receive_addTapped() {
-        subject.receive(.addTapped(fromToolbar: false))
+        subject.receive(.addTapped)
 
         XCTAssertEqual(
             coordinator.routes.last,
@@ -278,26 +246,7 @@ class VaultAutofillListProcessorTests: BitwardenTestCase { // swiftlint:disable:
     func test_receive_addTapped_hidesProfileSwitcher() {
         subject.state.profileSwitcherState.isVisible = true
 
-        subject.receive(.addTapped(fromToolbar: false))
-
-        XCTAssertFalse(subject.state.profileSwitcherState.isVisible)
-    }
-
-    /// `receive(_:)` with `.addTapped` navigates to the add item view when adding from toolbar.
-    func test_receive_addTapped_fromToolbar() {
-        subject.receive(.addTapped(fromToolbar: true))
-
-        XCTAssertEqual(
-            coordinator.routes.last,
-            .addItem(allowTypeSelection: false, group: .login, newCipherOptions: NewCipherOptions())
-        )
-    }
-
-    /// `receive(_:)` with `.addTapped` hides the profile switcher if it's visible when adding from toolbar.
-    func test_receive_addTapped_hidesProfileSwitcher_fromToolbar() {
-        subject.state.profileSwitcherState.isVisible = true
-
-        subject.receive(.addTapped(fromToolbar: true))
+        subject.receive(.addTapped)
 
         XCTAssertFalse(subject.state.profileSwitcherState.isVisible)
     }
@@ -337,7 +286,7 @@ class VaultAutofillListProcessorTests: BitwardenTestCase { // swiftlint:disable:
         subject.receive(.searchStateChanged(isSearching: true))
 
         subject.receive(.searchTextChanged("Bit"))
-        subject.state.ciphersForSearch = [VaultListSection(id: "test", items: [.fixture()], name: "test")]
+        subject.state.ciphersForSearch = [.fixture()]
         subject.state.showNoResults = true
 
         subject.receive(.searchStateChanged(isSearching: true))
@@ -372,6 +321,13 @@ class VaultAutofillListProcessorTests: BitwardenTestCase { // swiftlint:disable:
 
         subject.receive(.toastShown(nil))
         XCTAssertNil(subject.state.toast)
+    }
+
+    /// `setupPin()` navigates to the setup pin view.
+    func test_setupPin() async throws {
+        // TODO: PM-8362 navigate to pin setup
+        try await subject.setupPin()
+        throw XCTSkip("TODO: PM-8362 navigate to pin setup")
     }
 
     /// `showAlert(_:onDismissed:)` shows the alert with the coordinator.

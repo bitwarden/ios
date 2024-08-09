@@ -9,6 +9,9 @@ import BitwardenSdk
 protocol Fido2UserVerificationMediatorDelegate: UserVerificationDelegate {
     /// Performs additional logic when user interaction is needed and throws if needed.
     func onNeedsUserInteraction() async throws
+
+    /// Set up the Bitwarden Pin for the current account
+    func setupPin() async throws
 }
 
 // MARK: - Fido2UserVerificationMediator
@@ -143,7 +146,11 @@ extension DefaultFido2UserVerificationMediator: Fido2UserVerificationMediator {
                 return CheckUserResult(userPresent: true, userVerified: result == .verified)
             }
 
-            try await userVerificationHelper.setupPin()
+            guard let fido2UserVerificationMediatorDelegate else {
+                return CheckUserResult(userPresent: true, userVerified: false)
+            }
+
+            try await fido2UserVerificationMediatorDelegate.setupPin()
 
             return CheckUserResult(userPresent: true, userVerified: true)
         }

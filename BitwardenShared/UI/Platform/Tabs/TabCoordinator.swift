@@ -164,8 +164,7 @@ final class TabCoordinator: Coordinator, HasTabNavigator {
             do {
                 for try await organizations in try await vaultRepository.organizationsPublisher() {
                     guard let navigator = tabNavigator?.navigator(for: TabRoute.vault(.list)) else { return }
-                    let canShowVaultFilter = await vaultRepository.canShowVaultFilter()
-                    if organizations.isEmpty || !canShowVaultFilter {
+                    if organizations.isEmpty {
                         navigator.rootViewController?.title = Localizations.myVault
                     } else {
                         navigator.rootViewController?.title = Localizations.vaults

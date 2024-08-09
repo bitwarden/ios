@@ -96,10 +96,10 @@ class GeneratorViewTests: BitwardenTestCase {
     }
 
     /// Tapping the select button dispatches the `.selectButtonPressed` action.
-    func test_selectButton_tap() async throws {
+    func test_selectButton_tap() throws {
         processor.state.presentationMode = .inPlace
-        let button = try subject.inspect().find(asyncButton: Localizations.select)
-        try await button.tap()
+        let button = try subject.inspect().find(button: Localizations.select)
+        try button.tap()
         XCTAssertEqual(processor.dispatchedActions.last, .selectButtonPressed)
     }
 
@@ -180,7 +180,7 @@ class GeneratorViewTests: BitwardenTestCase {
         processor.state.generatedValue = "pa11w0rd"
         processor.state.showCopiedValueToast()
         assertSnapshot(
-            matching: subject.navStackWrapped,
+            matching: subject,
             as: .defaultPortrait
         )
     }
@@ -189,7 +189,7 @@ class GeneratorViewTests: BitwardenTestCase {
     func test_snapshot_generatorViewPassphrase() {
         processor.state.passwordState.passwordGeneratorType = .passphrase
         assertSnapshot(
-            matching: subject.navStackWrapped,
+            matching: subject,
             as: .defaultPortrait
         )
     }
@@ -198,7 +198,7 @@ class GeneratorViewTests: BitwardenTestCase {
     func test_snapshot_generatorViewPassword() {
         processor.state.passwordState.passwordGeneratorType = .password
         assertSnapshot(
-            matching: subject.navStackWrapped,
+            matching: subject,
             as: .defaultPortrait
         )
     }
@@ -207,14 +207,14 @@ class GeneratorViewTests: BitwardenTestCase {
     func test_snapshot_generatorViewPassword_inPlace() {
         processor.state.passwordState.passwordGeneratorType = .password
         processor.state.presentationMode = .inPlace
-        assertSnapshot(of: subject.navStackWrapped, as: .tallPortrait)
+        assertSnapshot(of: subject, as: .tallPortrait)
     }
 
     /// Test a snapshot of the password generation view with a policy in effect.
     func test_snapshot_generatorViewPassword_policyInEffect() {
         processor.state.isPolicyInEffect = true
         assertSnapshot(
-            matching: subject.navStackWrapped,
+            matching: subject,
             as: .defaultPortrait
         )
     }
@@ -224,7 +224,7 @@ class GeneratorViewTests: BitwardenTestCase {
         processor.state.generatorType = .username
         processor.state.usernameState.usernameGeneratorType = .catchAllEmail
         assertSnapshot(
-            matching: subject.navStackWrapped,
+            matching: subject,
             as: .defaultPortrait
         )
     }
@@ -234,7 +234,7 @@ class GeneratorViewTests: BitwardenTestCase {
         processor.state.generatorType = .username
         processor.state.usernameState.usernameGeneratorType = .forwardedEmail
         assertSnapshot(
-            matching: subject.navStackWrapped,
+            matching: subject,
             as: .defaultPortrait
         )
     }
@@ -244,7 +244,7 @@ class GeneratorViewTests: BitwardenTestCase {
         processor.state.generatorType = .username
         processor.state.usernameState.usernameGeneratorType = .plusAddressedEmail
         assertSnapshot(
-            matching: subject.navStackWrapped,
+            matching: subject,
             as: .defaultPortrait
         )
     }
@@ -254,7 +254,7 @@ class GeneratorViewTests: BitwardenTestCase {
         processor.state.generatorType = .username
         processor.state.usernameState.usernameGeneratorType = .plusAddressedEmail
         processor.state.presentationMode = .inPlace
-        assertSnapshot(matching: subject.navStackWrapped, as: .defaultPortrait)
+        assertSnapshot(matching: subject, as: .defaultPortrait)
     }
 
     /// Test a snapshot of the random word username generation view.
@@ -262,7 +262,7 @@ class GeneratorViewTests: BitwardenTestCase {
         processor.state.generatorType = .username
         processor.state.usernameState.usernameGeneratorType = .randomWord
         assertSnapshot(
-            matching: subject.navStackWrapped,
+            matching: subject,
             as: .defaultPortrait
         )
     }

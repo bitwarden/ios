@@ -128,7 +128,13 @@ private struct SearchableVaultListView: View {
     private var searchVaultFilterRow: some View {
         SearchVaultFilterRowView(
             hasDivider: true, store: store.child(
-                state: \.vaultFilterState,
+                state: { state in
+                    SearchVaultFilterRowState(
+                        organizations: state.organizations,
+                        searchVaultFilterType: state.searchVaultFilterType,
+                        isPersonalOwnershipDisabled: state.isPersonalOwnershipDisabled
+                    )
+                },
                 mapAction: { action in
                     switch action {
                     case let .searchVaultFilterChanged(type):
@@ -157,7 +163,13 @@ private struct SearchableVaultListView: View {
             hasDivider: false,
             accessibilityID: "ActiveFilterRow",
             store: store.child(
-                state: \.vaultFilterState,
+                state: { state in
+                    SearchVaultFilterRowState(
+                        organizations: state.organizations,
+                        searchVaultFilterType: state.vaultFilterType,
+                        isPersonalOwnershipDisabled: state.isPersonalOwnershipDisabled
+                    )
+                },
                 mapAction: { action in
                     switch action {
                     case let .searchVaultFilterChanged(type):

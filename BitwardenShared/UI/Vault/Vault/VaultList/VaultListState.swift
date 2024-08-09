@@ -7,9 +7,6 @@ import Foundation
 struct VaultListState: Equatable {
     // MARK: Properties
 
-    /// Whether the vault filter can be shown.
-    var canShowVaultFilter = true
-
     /// The base url used to fetch icons.
     var iconBaseURL: URL?
 
@@ -53,21 +50,11 @@ struct VaultListState: Equatable {
 
     /// The navigation title for the view.
     var navigationTitle: String {
-        if organizations.isEmpty || !canShowVaultFilter {
+        if organizations.isEmpty {
             Localizations.myVault
         } else {
             Localizations.vaults
         }
-    }
-
-    /// The state for showing the vault filter.
-    var vaultFilterState: SearchVaultFilterRowState {
-        SearchVaultFilterRowState(
-            canShowVaultFilter: canShowVaultFilter,
-            isPersonalOwnershipDisabled: isPersonalOwnershipDisabled,
-            organizations: organizations,
-            searchVaultFilterType: searchVaultFilterType
-        )
     }
 
     /// The user's initials.

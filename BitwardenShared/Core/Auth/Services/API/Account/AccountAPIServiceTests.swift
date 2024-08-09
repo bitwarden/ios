@@ -169,6 +169,69 @@ class AccountAPIServiceTests: BitwardenTestCase {
         XCTAssertNil(response.kdfParallelism)
     }
 
+    /// `registerFinish(email:masterPasswordHash)` throws an error if the request fails.
+    func test_registerFinish_httpFailure() async {
+        client.result = .httpFailure()
+
+        await assertAsyncThrows {
+            _ = try await subject.registerFinish(
+                body: RegisterFinishRequestModel(
+                    email: "example@email.com",
+                    emailVerificationToken: "thisisanawesometoken",
+                    kdfConfig: KdfConfig(),
+                    masterPasswordHash: "1a2b3c",
+                    masterPasswordHint: "hint",
+                    userSymmetricKey: "key",
+                    userAsymmetricKeys: KeysRequestModel(encryptedPrivateKey: "private")
+                )
+            )
+        }
+    }
+
+    /// `registerFinish(email:masterPasswordHash)` throws a decoding error if the response is not the expected type.
+    func test_registerFinish_failure() async throws {
+        let resultData = APITestData(data: Data("this should fail".utf8))
+        client.result = .httpSuccess(testData: resultData)
+
+        await assertAsyncThrows {
+            _ = try await subject.registerFinish(
+                body: RegisterFinishRequestModel(
+                    email: "example@email.com",
+                    emailVerificationToken: "thisisanawesometoken",
+                    kdfConfig: KdfConfig(),
+                    masterPasswordHash: "1a2b3c",
+                    masterPasswordHint: "hint",
+                    userSymmetricKey: "key",
+                    userAsymmetricKeys: KeysRequestModel(encryptedPrivateKey: "private")
+                )
+            )
+        }
+    }
+
+    /// `registerFinish(email:masterPasswordHash)` returns the correct value from the API with a successful request.
+    func test_registerFinish_success() async throws {
+        let resultData = APITestData.createAccountSuccess
+        client.result = .httpSuccess(testData: resultData)
+
+        let successfulResponse = try await subject.registerFinish(
+            body: RegisterFinishRequestModel(
+                email: "example@email.com",
+                emailVerificationToken: "thisisanawesometoken",
+                kdfConfig: KdfConfig(),
+                masterPasswordHash: "1a2b3c",
+                masterPasswordHint: "hint",
+                userSymmetricKey: "key",
+                userAsymmetricKeys: KeysRequestModel(encryptedPrivateKey: "private")
+            )
+        )
+
+        let request = try XCTUnwrap(client.requests.first)
+        XCTAssertEqual(request.method, .post)
+        XCTAssertEqual(request.url.relativePath, "/identity/accounts/register/finish")
+        XCTAssertEqual(successfulResponse.captchaBypassToken, "captchaBypassToken")
+        XCTAssertNotNil(request.body)
+    }
+
     /// `requestOtp()` performs a request to request a one-time password for the user.
     func test_requestOtp() async throws {
         client.result = .httpSuccess(testData: .emptyResponse)
@@ -179,6 +242,27 @@ class AccountAPIServiceTests: BitwardenTestCase {
         XCTAssertNil(client.requests[0].body)
         XCTAssertEqual(client.requests[0].method, .post)
         XCTAssertEqual(client.requests[0].url.absoluteString, "https://example.com/api/accounts/request-otp")
+    }
+
+    /// `startRegistration(_:)` performs the request to start the registration process.
+    func test_startRegistration() async throws {
+        client.result = .httpSuccess(testData: .startRegistrationSuccess)
+
+        let requestModel = StartRegistrationRequestModel(
+            email: "email@example.com",
+            name: "name",
+            receiveMarketingEmails: true
+        )
+
+        _ = try await subject.startRegistration(requestModel: requestModel)
+
+        XCTAssertEqual(client.requests.count, 1)
+        XCTAssertNotNil(client.requests[0].body)
+        XCTAssertEqual(client.requests[0].method, .post)
+        XCTAssertEqual(
+            client.requests[0].url.absoluteString,
+            "https://example.com/identity/accounts/register/send-verification-email"
+        )
     }
 
     /// `setPassword(_:)` performs the request to set the user's password.

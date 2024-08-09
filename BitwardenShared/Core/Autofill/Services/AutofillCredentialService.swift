@@ -2,8 +2,6 @@ import AuthenticationServices
 import BitwardenSdk
 import OSLog
 
-// swiftlint:disable file_length
-
 /// A delegate to handle autofill credential service operations.
 protocol AutofillCredentialServiceDelegate: AnyObject {
     /// Attempts to unlock the user's vault with the stored neverlock key
@@ -18,40 +16,24 @@ protocol AutofillCredentialService: AnyObject {
     ///
     /// - Parameters:
     ///   - id: The identifier of the user-requested credential to return.
-    ///   - autofillCredentialServiceDelegate: Delegate for autofill credential operations.
     ///   - repromptPasswordValidated: `true` if master password reprompt was required for the
     ///     cipher and the user's master password was validated.
     /// - Returns: A `ASPasswordCredential` that matches the user-requested credential which can be
     ///     used for autofill.
     ///
-    func provideCredential(
-        for id: String,
-        autofillCredentialServiceDelegate: AutofillCredentialServiceDelegate,
-        repromptPasswordValidated: Bool
-    ) async throws -> ASPasswordCredential
+    func provideCredential(for id: String, repromptPasswordValidated: Bool) async throws -> ASPasswordCredential
 
     /// Provides a Fido2 credential for a passkey request
     /// - Parameters:
     ///   - passkeyRequest: Request to get the credential.
     ///   - autofillCredentialServiceDelegate: Delegate for autofill credential operations.
-    ///   - fido2UserInterfaceHelperDelegate: Delegate for Fido2 user interface interaction.
+    ///   - fido2UserVerificationMediatorDelegate: Delegate for Fido2 user verification.
     /// - Returns: The passkey credential for assertion.
     @available(iOS 17.0, *)
     func provideFido2Credential(
         for passkeyRequest: ASPasskeyCredentialRequest,
         autofillCredentialServiceDelegate: AutofillCredentialServiceDelegate,
-        fido2UserInterfaceHelperDelegate: Fido2UserInterfaceHelperDelegate
-    ) async throws -> ASPasskeyAssertionCredential
-
-    /// Provides a Fido2 credential for Fido2 request parameters.
-    /// - Parameters:
-    ///   - fido2RequestParameters: The Fido2 request parameters to ge the assertion credential.
-    ///   - fido2UserInterfaceHelperDelegate: Delegate for Fido2 user interface interaction
-    /// - Returns: The passkey credential for assertion
-    @available(iOS 17.0, *)
-    func provideFido2Credential(
-        for fido2RequestParameters: PasskeyCredentialRequestParameters,
-        fido2UserInterfaceHelperDelegate: Fido2UserInterfaceHelperDelegate
+        fido2UserVerificationMediatorDelegate: Fido2UserVerificationMediatorDelegate
     ) async throws -> ASPasskeyAssertionCredential
 }
 
@@ -73,17 +55,14 @@ class DefaultAutofillCredentialService {
     private let eventService: EventService
 
     /// A store to be used on Fido2 flows to get/save credentials.
-    private let fido2CredentialStore: Fido2CredentialStore
+    let fido2CredentialStore: Fido2CredentialStore
 
     /// A helper to be used on Fido2 flows that requires user interaction and extends the capabilities
     /// of the `Fido2UserInterface` from the SDK.
-    private let fido2UserInterfaceHelper: Fido2UserInterfaceHelper
+    let fido2UserInterfaceHelper: Fido2UserInterfaceHelper
 
     /// The service used to manage the credentials available for AutoFill suggestions.
     private let identityStore: CredentialIdentityStore
-
-    /// The last user ID that had their identities synced.
-    private var lastSyncedUserId: String?
 
     /// The service used to manage copy/pasting from the device's clipboard.
     private let pasteboardService: PasteboardService
@@ -167,9 +146,8 @@ class DefaultAutofillCredentialService {
                 } catch {
                     errorReporter.log(error: error)
                 }
-            } else if shouldRemoveAllIdentities(vaultLockStatus: vaultLockStatus) {
+            } else if vaultLockStatus == nil {
                 await removeAllIdentities()
-                lastSyncedUserId = nil
             }
         }
     }
@@ -221,48 +199,14 @@ class DefaultAutofillCredentialService {
                 try await identityStore.replaceCredentialIdentities(with: identities)
                 Logger.application.info("AutofillCredentialService: replaced \(identities.count) credential identities")
             }
-            lastSyncedUserId = userId
         } catch {
             errorReporter.log(error: error)
         }
     }
-
-    /// Determines whether all identities in store should be removed.
-    /// - Parameter vaultLockStatus: The vault lock status from the publisher.
-    /// - Returns: `true` if all identities should be removed, `false` otherwise.
-    private func shouldRemoveAllIdentities(vaultLockStatus: VaultLockStatus?) -> Bool {
-        guard let vaultLockStatus else {
-            return true
-        }
-
-        guard let lastSyncedUserId else {
-            return false
-        }
-
-        return vaultLockStatus.isVaultLocked && lastSyncedUserId != vaultLockStatus.userId
-    }
-
-    /// Attempts to unlock the user's vault if it can be done without user interaction (e.g. if
-    /// the user uses never lock).
-    ///
-    /// - Parameter delegate: The delegate used for autofill credential operations.
-    ///
-    private func tryUnlockVaultWithoutUserInteraction(delegate: AutofillCredentialServiceDelegate) async throws {
-        let userId = try await stateService.getActiveAccountId()
-        let isLocked = vaultTimeoutService.isLocked(userId: userId)
-        let vaultTimeout = try? await vaultTimeoutService.sessionTimeoutValue(userId: nil)
-        guard vaultTimeout == .never, isLocked else { return }
-        try await delegate.unlockVaultWithNeverlockKey()
-    }
 }
 
 extension DefaultAutofillCredentialService: AutofillCredentialService {
-    func provideCredential(
-        for id: String,
-        autofillCredentialServiceDelegate: AutofillCredentialServiceDelegate,
-        repromptPasswordValidated: Bool
-    ) async throws -> ASPasswordCredential {
-        try await tryUnlockVaultWithoutUserInteraction(delegate: autofillCredentialServiceDelegate)
+    func provideCredential(for id: String, repromptPasswordValidated: Bool) async throws -> ASPasswordCredential {
         guard try await !vaultTimeoutService.isLocked(userId: stateService.getActiveAccountId()) else {
             throw ASExtensionError(.userInteractionRequired)
         }
@@ -302,66 +246,49 @@ extension DefaultAutofillCredentialService: AutofillCredentialService {
     }
 
     @available(iOS 17.0, *)
-    func provideFido2Credential(
+    func provideFido2Credential( // swiftlint:disable:this function_body_length
         for passkeyRequest: ASPasskeyCredentialRequest,
         autofillCredentialServiceDelegate: AutofillCredentialServiceDelegate,
-        fido2UserInterfaceHelperDelegate: Fido2UserInterfaceHelperDelegate
+        fido2UserVerificationMediatorDelegate: Fido2UserVerificationMediatorDelegate
     ) async throws -> ASPasskeyAssertionCredential {
-        guard let credentialIdentity = passkeyRequest.credentialIdentity as? ASPasskeyCredentialIdentity else {
+        guard let credentialIdentiy = passkeyRequest.credentialIdentity as? ASPasskeyCredentialIdentity else {
             throw AppProcessorError.invalidOperation
         }
 
-        try await tryUnlockVaultWithoutUserInteraction(delegate: autofillCredentialServiceDelegate)
-        guard try await !vaultTimeoutService.isLocked(userId: stateService.getActiveAccountId()) else {
+        let userId = try await stateService.getActiveAccountId()
+        let isLocked = vaultTimeoutService.isLocked(userId: userId)
+        let vaultTimeout = try? await vaultTimeoutService.sessionTimeoutValue(userId: nil)
+
+        switch (vaultTimeout, isLocked) {
+        case (.never, true):
+            // If the user has enabled Never Lock, but the vault is locked,
+            // unlock the vault before continuing.
+            try await autofillCredentialServiceDelegate.unlockVaultWithNeverlockKey()
+        case (_, false):
+            break
+        default:
             throw Fido2Error.userInteractionRequired
         }
 
-        let request = GetAssertionRequest(
-            passkeyRequest: passkeyRequest, credentialIdentity: credentialIdentity
-        )
-
-        return try await provideFido2Credential(
-            with: request,
-            fido2UserInterfaceHelperDelegate: fido2UserInterfaceHelperDelegate,
-            rpId: credentialIdentity.relyingPartyIdentifier,
-            clientDataHash: passkeyRequest.clientDataHash
-        )
-    }
-
-    @available(iOS 17.0, *)
-    func provideFido2Credential(
-        for fido2RequestParameters: PasskeyCredentialRequestParameters,
-        fido2UserInterfaceHelperDelegate: Fido2UserInterfaceHelperDelegate
-    ) async throws -> ASPasskeyAssertionCredential {
-        try await provideFido2Credential(
-            with: GetAssertionRequest(fido2RequestParameters: fido2RequestParameters),
-            fido2UserInterfaceHelperDelegate: fido2UserInterfaceHelperDelegate,
-            rpId: fido2RequestParameters.relyingPartyIdentifier,
-            clientDataHash: fido2RequestParameters.clientDataHash
-        )
-    }
-
-    // MARK: Private
-
-    /// Provides a Fido2 credential based for the given request.
-    /// - Parameters:
-    ///   - request: Request to get the assertion credential.
-    ///   - fido2UserInterfaceHelperDelegate: Delegate for Fido2 user interface interaction.
-    ///   - rpId: The relying party identifier of the request.
-    ///   - clientDataHash: The client data hash of the request.
-    /// - Returns: The passkey assertion credential for the request.
-    @available(iOS 17.0, *)
-    private func provideFido2Credential(
-        with request: GetAssertionRequest,
-        fido2UserInterfaceHelperDelegate: Fido2UserInterfaceHelperDelegate,
-        rpId: String,
-        clientDataHash: Data
-    ) async throws -> ASPasskeyAssertionCredential {
         fido2UserInterfaceHelper.setupDelegate(
-            fido2UserInterfaceHelperDelegate: fido2UserInterfaceHelperDelegate
+            fido2UserVerificationMediatorDelegate: fido2UserVerificationMediatorDelegate
         )
-        fido2UserInterfaceHelper.setupCurrentUserVerificationPreference(
-            userVerificationPreference: request.options.uv
+
+        let request = GetAssertionRequest(
+            rpId: credentialIdentiy.relyingPartyIdentifier,
+            clientDataHash: passkeyRequest.clientDataHash,
+            allowList: [
+                PublicKeyCredentialDescriptor(
+                    ty: "public-key",
+                    id: credentialIdentiy.credentialID,
+                    transports: nil
+                ),
+            ],
+            options: Options(
+                rk: false,
+                uv: BitwardenSdk.Uv(preference: passkeyRequest.userVerificationPreference)
+            ),
+            extensions: nil
         )
 
         #if DEBUG
@@ -382,9 +309,9 @@ extension DefaultAutofillCredentialService: AutofillCredentialService {
 
             return ASPasskeyAssertionCredential(
                 userHandle: assertionResult.userHandle,
-                relyingParty: rpId,
+                relyingParty: credentialIdentiy.relyingPartyIdentifier,
                 signature: assertionResult.signature,
-                clientDataHash: clientDataHash,
+                clientDataHash: passkeyRequest.clientDataHash,
                 authenticatorData: assertionResult.authenticatorData,
                 credentialID: assertionResult.credentialId
             )

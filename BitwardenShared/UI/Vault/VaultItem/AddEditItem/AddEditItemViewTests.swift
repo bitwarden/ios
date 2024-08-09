@@ -140,8 +140,7 @@ class AddEditItemViewTests: BitwardenTestCase { // swiftlint:disable:this type_b
     /// Updating the notes text field dispatches the `.notesChanged()` action.
     func test_notesTextField_updateValue() throws {
         let textField = try subject.inspect().find(
-            type: BitwardenMultilineTextFieldType.self,
-            accessibilityLabel: Localizations.notes
+            bitwardenTextFieldWithAccessibilityLabel: Localizations.notes
         )
         try textField.inputBinding().wrappedValue = "text"
         XCTAssertEqual(processor.dispatchedActions.last, .notesChanged("text"))
@@ -186,17 +185,8 @@ class AddEditItemViewTests: BitwardenTestCase { // swiftlint:disable:this type_b
         XCTAssertEqual(processor.dispatchedActions.last, .togglePasswordVisibilityChanged(false))
     }
 
-    /// Tapping the save button performs the `.savePressed` effect when adding a new cipher.
-    func test_saveButton_tapAdd() async throws {
-        let button = try subject.inspect().find(asyncButton: Localizations.save)
-        try await button.tap()
-
-        XCTAssertEqual(processor.effects.last, .savePressed)
-    }
-
-    /// Tapping the save button performs the `.savePressed` effect when editing an existing cipher.
-    func test_saveButton_tapEdit() async throws {
-        processor.state = CipherItemState(existing: .fixture(), hasPremium: false)!
+    /// Tapping the save button performs the `.savePressed` effect.
+    func test_saveButton_tap() async throws {
         let button = try subject.inspect().find(asyncButton: Localizations.save)
         try await button.tap()
 
@@ -427,7 +417,7 @@ class AddEditItemViewTests: BitwardenTestCase { // swiftlint:disable:this type_b
     // MARK: Snapshots
 
     func test_snapshot_add_empty() {
-        assertSnapshot(of: subject.navStackWrapped, as: .tallPortrait)
+        assertSnapshot(of: subject, as: .tallPortrait)
     }
 
     /// Tests the add state with identity item empty.
@@ -440,7 +430,7 @@ class AddEditItemViewTests: BitwardenTestCase { // swiftlint:disable:this type_b
         processor.state.notes = ""
         processor.state.folderId = nil
 
-        assertSnapshot(of: subject.navStackWrapped, as: .tallPortrait2)
+        assertSnapshot(of: subject, as: .tallPortrait2)
     }
 
     /// Tests the add state with identity item filled.
@@ -469,11 +459,11 @@ class AddEditItemViewTests: BitwardenTestCase { // swiftlint:disable:this type_b
         )
         processor.state.isFavoriteOn = true
         processor.state.isMasterPasswordRePromptOn = true
-        processor.state.notes = "A long segment of notes that proves that the multiline feature is working."
+        processor.state.notes = "Notes"
         processor.state.folderId = "1"
         processor.state.folders = [.custom(.fixture(id: "1", name: "Folder"))]
 
-        assertSnapshot(of: subject.navStackWrapped, as: .tallPortrait2)
+        assertSnapshot(of: subject, as: .tallPortrait2)
     }
 
     /// Tests the add state with identity item filled with large text.
@@ -506,7 +496,7 @@ class AddEditItemViewTests: BitwardenTestCase { // swiftlint:disable:this type_b
         processor.state.folderId = "1"
         processor.state.folders = [.custom(.fixture(id: "1", name: "Folder"))]
 
-        assertSnapshot(of: subject.navStackWrapped, as: .tallPortraitAX5(heightMultiple: 7))
+        assertSnapshot(of: subject, as: .tallPortraitAX5(heightMultiple: 7))
     }
 
     /// Tests the add state with the password field not visible.
@@ -529,7 +519,7 @@ class AddEditItemViewTests: BitwardenTestCase { // swiftlint:disable:this type_b
         processor.state.folderId = "1"
         processor.state.folders = [.custom(.fixture(id: "1", name: "Folder"))]
 
-        assertSnapshot(of: subject.navStackWrapped, as: .tallPortrait)
+        assertSnapshot(of: subject, as: .tallPortrait)
     }
 
     /// Tests the add state with all fields.
@@ -549,7 +539,7 @@ class AddEditItemViewTests: BitwardenTestCase { // swiftlint:disable:this type_b
 
         processor.state.loginState.isPasswordVisible = true
 
-        assertSnapshot(of: subject.navStackWrapped, as: .tallPortrait)
+        assertSnapshot(of: subject, as: .tallPortrait)
     }
 
     func test_snapshot_add_login_collections() {
@@ -561,14 +551,14 @@ class AddEditItemViewTests: BitwardenTestCase { // swiftlint:disable:this type_b
         processor.state.owner = .organization(id: "1", name: "Organization")
         processor.state.collectionIds = ["2"]
 
-        assertSnapshot(of: subject.navStackWrapped, as: .tallPortrait)
+        assertSnapshot(of: subject, as: .tallPortrait)
     }
 
     func test_snapshot_add_login_collectionsNone() {
         processor.state.ownershipOptions.append(.organization(id: "1", name: "Organization"))
         processor.state.owner = .organization(id: "1", name: "Organization")
 
-        assertSnapshot(of: subject.navStackWrapped, as: .tallPortrait)
+        assertSnapshot(of: subject, as: .tallPortrait)
     }
 
     func test_snapshot_edit_full_fieldsNotVisible() {
@@ -594,12 +584,12 @@ class AddEditItemViewTests: BitwardenTestCase { // swiftlint:disable:this type_b
         processor.state.folders = [.custom(.fixture(id: "1", name: "Folder"))]
         processor.state.ownershipOptions = [.personal(email: "user@bitwarden.com")]
 
-        assertSnapshot(of: subject.navStackWrapped, as: .tallPortrait)
+        assertSnapshot(of: subject, as: .tallPortrait)
     }
 
     func test_snapshot_add_personalOwnershipPolicy() {
         processor.state.isPersonalOwnershipDisabled = true
-        assertSnapshot(of: subject.navStackWrapped, as: .defaultPortrait)
+        assertSnapshot(of: subject, as: .defaultPortrait)
     }
 
     func test_snapshot_add_secureNote_full_fieldsVisible() {
@@ -611,7 +601,7 @@ class AddEditItemViewTests: BitwardenTestCase { // swiftlint:disable:this type_b
         processor.state.folderId = "1"
         processor.state.folders = [.custom(.fixture(id: "1", name: "Folder"))]
 
-        assertSnapshot(of: subject.navStackWrapped, as: .tallPortrait)
+        assertSnapshot(of: subject, as: .tallPortrait)
     }
 
     func test_snapshot_edit_full_disabledViewPassword() {
@@ -638,7 +628,7 @@ class AddEditItemViewTests: BitwardenTestCase { // swiftlint:disable:this type_b
         processor.state.folders = [.custom(.fixture(id: "1", name: "Folder"))]
         processor.state.ownershipOptions = [.personal(email: "user@bitwarden.com")]
 
-        assertSnapshot(of: subject.navStackWrapped, as: .tallPortrait)
+        assertSnapshot(of: subject, as: .tallPortrait)
     }
 
     func test_snapshot_edit_full_fieldsNotVisible_largeText() {
@@ -664,7 +654,7 @@ class AddEditItemViewTests: BitwardenTestCase { // swiftlint:disable:this type_b
         processor.state.folders = [.custom(.fixture(id: "1", name: "Folder"))]
         processor.state.ownershipOptions = [.personal(email: "user@bitwarden.com")]
 
-        assertSnapshot(of: subject.navStackWrapped, as: .tallPortraitAX5())
+        assertSnapshot(of: subject, as: .tallPortraitAX5())
     }
 
     func test_snapshot_edit_full_fieldsVisible() {
@@ -690,7 +680,7 @@ class AddEditItemViewTests: BitwardenTestCase { // swiftlint:disable:this type_b
         processor.state.folders = [.custom(.fixture(id: "1", name: "Folder"))]
         processor.state.ownershipOptions = [.personal(email: "user@bitwarden.com")]
 
-        assertSnapshot(of: subject.navStackWrapped, as: .tallPortrait)
+        assertSnapshot(of: subject, as: .tallPortrait)
     }
 
     func test_snapshot_edit_full_fieldsVisible_largeText() {
@@ -716,7 +706,7 @@ class AddEditItemViewTests: BitwardenTestCase { // swiftlint:disable:this type_b
         processor.state.folders = [.custom(.fixture(id: "1", name: "Folder"))]
         processor.state.ownershipOptions = [.personal(email: "user@bitwarden.com")]
 
-        assertSnapshot(of: subject.navStackWrapped, as: .tallPortraitAX5())
+        assertSnapshot(of: subject, as: .tallPortraitAX5())
     }
 
     /// Test a snapshot of the AddEditView previews.

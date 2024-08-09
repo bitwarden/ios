@@ -8,7 +8,6 @@ final class AuthRouterTests: BitwardenTestCase { // swiftlint:disable:this type_
     // MARK: Properties
 
     var authRepository: MockAuthRepository!
-    var configService: MockConfigService!
     var errorReporter: MockErrorReporter!
     var stateService: MockStateService!
     var subject: AuthRouter!
@@ -20,7 +19,6 @@ final class AuthRouterTests: BitwardenTestCase { // swiftlint:disable:this type_
         super.setUp()
 
         authRepository = MockAuthRepository()
-        configService = MockConfigService()
         errorReporter = MockErrorReporter()
         stateService = MockStateService()
         vaultTimeoutService = MockVaultTimeoutService()
@@ -28,7 +26,6 @@ final class AuthRouterTests: BitwardenTestCase { // swiftlint:disable:this type_
         subject = AuthRouter(
             services: ServiceContainer.withMocks(
                 authRepository: authRepository,
-                configService: configService,
                 errorReporter: errorReporter,
                 stateService: stateService,
                 vaultTimeoutService: vaultTimeoutService
@@ -39,8 +36,6 @@ final class AuthRouterTests: BitwardenTestCase { // swiftlint:disable:this type_
     override func tearDown() {
         super.tearDown()
 
-        authRepository = nil
-        configService = nil
         errorReporter = nil
         stateService = nil
         subject = nil
