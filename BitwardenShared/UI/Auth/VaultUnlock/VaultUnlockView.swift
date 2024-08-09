@@ -58,9 +58,6 @@ struct VaultUnlockView: View {
             get: \.toast,
             send: VaultUnlockAction.toastShown
         ))
-        .onAppear {
-            isTextFieldFocused = true
-        }
     }
 
     /// the scrollable content of the view.
@@ -163,6 +160,9 @@ struct VaultUnlockView: View {
                     await store.perform(.unlockVault)
                 }
             }
+            .onAppear {
+                isTextFieldFocused = true
+            }
         case .pin:
             BitwardenTextField(
                 title: Localizations.pin,
@@ -185,6 +185,9 @@ struct VaultUnlockView: View {
                 Task {
                     await store.perform(.unlockVault)
                 }
+            }
+            .onAppear {
+                isTextFieldFocused = true
             }
         }
     }
