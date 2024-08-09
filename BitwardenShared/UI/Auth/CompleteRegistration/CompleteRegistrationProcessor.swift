@@ -32,7 +32,6 @@ class CompleteRegistrationProcessor: StateProcessor<
 
     typealias Services = HasAccountAPIService
         & HasAuthRepository
-        & HasCaptchaService
         & HasClientService
         & HasEnvironmentService
         & HasErrorReporter
@@ -209,28 +208,6 @@ class CompleteRegistrationProcessor: StateProcessor<
             coordinator.showAlert(.networkResponseError(error) {
                 await self.completeRegistration(captchaToken: captchaToken)
             })
-        }
-    }
-
-    /// Generates the items needed and authenticates with the captcha flow.
-    ///
-    /// - Parameter siteKey: The site key that was returned with a captcha error. The token used to authenticate
-    ///   with hCaptcha.
-    ///
-    private func launchCaptchaFlow(with siteKey: String) {
-        do {
-            let callbackUrlScheme = services.captchaService.callbackUrlScheme
-            let url = try services.captchaService.generateCaptchaUrl(with: siteKey)
-            coordinator.navigate(
-                to: .captcha(
-                    url: url,
-                    callbackUrlScheme: callbackUrlScheme
-                ),
-                context: self
-            )
-        } catch {
-            coordinator.showAlert(.networkResponseError(error))
-            services.errorReporter.log(error: error)
         }
     }
 
