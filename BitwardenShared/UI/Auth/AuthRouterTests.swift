@@ -8,6 +8,7 @@ final class AuthRouterTests: BitwardenTestCase { // swiftlint:disable:this type_
     // MARK: Properties
 
     var authRepository: MockAuthRepository!
+    var configService: MockConfigService!
     var errorReporter: MockErrorReporter!
     var stateService: MockStateService!
     var subject: AuthRouter!
@@ -19,6 +20,7 @@ final class AuthRouterTests: BitwardenTestCase { // swiftlint:disable:this type_
         super.setUp()
 
         authRepository = MockAuthRepository()
+        configService = MockConfigService()
         errorReporter = MockErrorReporter()
         stateService = MockStateService()
         vaultTimeoutService = MockVaultTimeoutService()
@@ -26,6 +28,7 @@ final class AuthRouterTests: BitwardenTestCase { // swiftlint:disable:this type_
         subject = AuthRouter(
             services: ServiceContainer.withMocks(
                 authRepository: authRepository,
+                configService: configService,
                 errorReporter: errorReporter,
                 stateService: stateService,
                 vaultTimeoutService: vaultTimeoutService
@@ -36,6 +39,8 @@ final class AuthRouterTests: BitwardenTestCase { // swiftlint:disable:this type_
     override func tearDown() {
         super.tearDown()
 
+        authRepository = nil
+        configService = nil
         errorReporter = nil
         stateService = nil
         subject = nil
@@ -765,6 +770,16 @@ final class AuthRouterTests: BitwardenTestCase { // swiftlint:disable:this type_
 
         XCTAssertEqual(route, .landing)
         XCTAssertTrue(authRepository.logoutCalled)
+    }
+
+    /// `handleAndRoute(_ :)` redirects `.didStart` to `.introCarousel` if there's no accounts and
+    /// the carousel flow is enabled.
+    func test_handleAndRoute_didStart_createAccountFlow() async {
+        configService.featureFlagsBool[.nativeCarouselFlow] = true
+
+        let route = await subject.handleAndRoute(.didStart)
+
+        XCTAssertEqual(route, .introCarousel)
     }
 
     /// `handleAndRoute(_ :)` redirects `.didTimeout` to `.complete`

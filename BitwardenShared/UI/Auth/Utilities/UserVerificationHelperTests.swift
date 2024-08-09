@@ -114,6 +114,24 @@ class UserVerificationHelperTests: BitwardenTestCase { // swiftlint:disable:this
         }
     }
 
+    /// `setupPin()` with cancelled setup.
+    func test_setupPin_cancelled() async throws {
+        let task = Task {
+            try await self.subject.setupPin()
+        }
+
+        try await waitForAsync {
+            !self.userVerificationDelegate.alertShown.isEmpty
+        }
+
+        let alert = try XCTUnwrap(userVerificationDelegate.alertShown.last)
+        try await alert.tapAction(title: Localizations.cancel)
+
+        await assertAsyncThrows(error: UserVerificationError.cancelled) {
+            _ = try await task.value
+        }
+    }
+
     /// `verifyDeviceLocalAuth()` with device status not authorized.
     func test_verifyDeviceLocalAuth_notAuthorized() async throws {
         localAuthService.deviceAuthenticationStatus = .notDetermined
