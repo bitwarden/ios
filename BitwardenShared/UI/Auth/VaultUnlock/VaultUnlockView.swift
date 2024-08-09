@@ -147,7 +147,7 @@ struct VaultUnlockView: View {
                 footer: nil,
                 accessibilityIdentifier: "MasterPasswordEntry",
                 passwordVisibilityAccessibilityId: "PasswordVisibilityToggle",
-                isPasswordAutoFocused: store.state.isPasswordAutoFocused,
+                isPasswordAutoFocused: true,
                 isPasswordVisible: store.binding(
                     get: \.isMasterPasswordRevealed,
                     send: VaultUnlockAction.revealMasterPasswordFieldPressed
@@ -160,9 +160,6 @@ struct VaultUnlockView: View {
                     await store.perform(.unlockVault)
                 }
             }
-            .onAppear {
-                isTextFieldFocused = true
-            }
         case .pin:
             BitwardenTextField(
                 title: Localizations.pin,
@@ -173,7 +170,7 @@ struct VaultUnlockView: View {
                 footer: nil,
                 accessibilityIdentifier: "PinEntry",
                 passwordVisibilityAccessibilityId: "PinVisibilityToggle",
-                isPasswordAutoFocused: store.state.isPasswordAutoFocused,
+                isPasswordAutoFocused: true,
                 isPasswordVisible: store.binding(
                     get: \.isPinRevealed,
                     send: VaultUnlockAction.revealPinFieldPressed
@@ -186,12 +183,10 @@ struct VaultUnlockView: View {
                     await store.perform(.unlockVault)
                 }
             }
-            .onAppear {
-                isTextFieldFocused = true
-            }
         }
     }
 
+    
     private func biometricUnlockText(_ biometryType: BiometricAuthenticationType) -> some View {
         switch biometryType {
         case .faceID:
