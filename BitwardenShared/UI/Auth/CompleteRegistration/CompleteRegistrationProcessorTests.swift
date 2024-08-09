@@ -11,7 +11,6 @@ class CompleteRegistrationProcessorTests: BitwardenTestCase {
     // MARK: Properties
 
     var authRepository: MockAuthRepository!
-    var captchaService: MockCaptchaService!
     var client: MockHTTPClient!
     var clientAuth: MockClientAuth!
     var coordinator: MockCoordinator<AuthRoute, AuthEvent>!
@@ -24,7 +23,6 @@ class CompleteRegistrationProcessorTests: BitwardenTestCase {
     override func setUp() {
         super.setUp()
         authRepository = MockAuthRepository()
-        captchaService = MockCaptchaService()
         client = MockHTTPClient()
         clientAuth = MockClientAuth()
         coordinator = MockCoordinator<AuthRoute, AuthEvent>()
@@ -34,7 +32,6 @@ class CompleteRegistrationProcessorTests: BitwardenTestCase {
             coordinator: coordinator.asAnyCoordinator(),
             services: ServiceContainer.withMocks(
                 authRepository: authRepository,
-                captchaService: captchaService,
                 clientService: MockClientService(auth: clientAuth),
                 environmentService: environmentService,
                 errorReporter: errorReporter,
@@ -50,7 +47,6 @@ class CompleteRegistrationProcessorTests: BitwardenTestCase {
     override func tearDown() {
         super.tearDown()
         authRepository = nil
-        captchaService = nil
         clientAuth = nil
         client = nil
         coordinator = nil
