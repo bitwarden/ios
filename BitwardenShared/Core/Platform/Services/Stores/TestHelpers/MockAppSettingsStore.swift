@@ -11,6 +11,7 @@ class MockAppSettingsStore: AppSettingsStore {
     var appTheme: String?
     var biometricIntegrityStateLegacy: String?
     var disableWebIcons = false
+    var introCarouselShown = false
     var lastUserShouldConnectToWatch = false
     var loginRequest: LoginRequestNotification?
     var migrationVersion = 0
