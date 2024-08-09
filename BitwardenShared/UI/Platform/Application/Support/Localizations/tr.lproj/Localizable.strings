@@ -152,7 +152,7 @@
 "Options" = "Seçenekler";
 "Other" = "Diğer";
 "PasswordGenerated" = "Parola oluşturuldu";
-"PasswordGenerator" = "Parola üretici";
+"PasswordGenerator" = "Parola üreteci";
 "PasswordHint" = "Parola ipucu";
 "PasswordHintAlert" = "Size ana parolanızın ipucunu içeren bir e-posta gönderdik.";
 "PasswordOverrideAlert" = "Mevcut parolanın üzerine kaydetmek istediğinize emin misiniz?";
@@ -919,3 +919,11 @@
 "UserVerificationForPasskey" = "User verification for passkey";
 "NewItem" = "Yeni kayıt";
 "ExportVaultFilePwProtectInfo" = "Dışarı aktarılan bu dosya parola korumalı olacak ve dosyanın çözülmesi için parolayı girmeniz gerekecek.";
+"IntroCarouselPage1Title" = "Önce güvenlik";
+"IntroCarouselPage1Message" = "Hesaplarınızı, kartlarınızı ve kimliklerinizi güvenli kasanıza kaydedin. Bitwarden'ın sıfır bilgi ispatlı uçtan uca şifrelemesi sizin için önemli olan her şeyi korur.";
+"IntroCarouselPage2Title" = "Hızlı ve kolay giriş";
+"IntroCarouselPage2Message" = "Hesaplarınıza parola yazmadan giriş yapmak için biyometrik kilit açmayı ayarlayabilirsiniz.";
+"IntroCarouselPage3Title" = "Hesaplarınızı güçlendirin";
+"IntroCarouselPage3Message" = "Hesaplarınız için güçlü ve benzersiz parolalar oluşturmak amacıyla üreteci kullanabilirsiniz.";
+"IntroCarouselPage4Title" = "Verilerinize her zaman, her yerden ulaşın";
+"IntroCarouselPage4Message" = "Bitwarden mobil, tarayıcı ve masaüstü uygulamalarıyla istediğiniz kadar cihaza istediğiniz kadar parola kaydedebilirsiniz.";

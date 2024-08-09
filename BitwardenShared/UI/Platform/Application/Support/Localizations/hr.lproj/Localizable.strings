@@ -300,7 +300,7 @@
 "Mr" = "g.";
 "Mrs" = "gđa.";
 "Ms" = "gđica.";
-"Mx" = "Mx";
+"Mx" = "gx.";
 "November" = "studeni";
 "October" = "listopad";
 "PassportNumber" = "Broj putovnice";
@@ -919,3 +919,11 @@
 "UserVerificationForPasskey" = "Potvrda korisnika za pristupni ključ";
 "NewItem" = "Nova stavka";
 "ExportVaultFilePwProtectInfo" = "Ova izvozna datoteka biti će zaštićena lozinkom bez koje ju neće biti moguće dešifrirati.";
+"IntroCarouselPage1Title" = "Sigurnost je imperativ";
+"IntroCarouselPage1Message" = "Spremi prijave, kartice i identitete u svoj sigurni trezor. Bitwarden koristi end-to-end enkripciju bez znanja kako bi zaštitio ono što ti je važno.";
+"IntroCarouselPage2Title" = "Brza i jednostavna prijava";
+"IntroCarouselPage2Message" = "Uključi biometrijsko otključavanje i auto-ispunu za prijavu bez utipkavanja ijednog slova.";
+"IntroCarouselPage3Title" = "Podigni svoje prijave na višu razinu";
+"IntroCarouselPage3Message" = "Koristi generator za stvaranje i spremanje jakih, jedinstvenih lozinki za sve svoje račune.";
+"IntroCarouselPage4Title" = "Tvoji podaci kada god i gdje god su ti potrebni";
+"IntroCarouselPage4Message" = "Spremi neograničen broj lozinki na neograničenom broju uređaja s Bitwarden mobilnom aplikacijom, proširenjem za preglednik i aplikacijom za stolna računala.";

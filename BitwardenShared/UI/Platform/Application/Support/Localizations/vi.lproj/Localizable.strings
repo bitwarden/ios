@@ -919,3 +919,11 @@
 "UserVerificationForPasskey" = "Xác minh người dùng cho mã khoá";
 "NewItem" = "Mục mới";
 "ExportVaultFilePwProtectInfo" = "Tập tin xuất này sẽ được bảo vệ bằng mật khẩu và yêu cầu mật khẩu để giải mã.";
+"IntroCarouselPage1Title" = "Ưu tiên bảo mật";
+"IntroCarouselPage1Message" = "Lưu thông tin đăng nhập, thẻ và danh bạ vào kho lưu trữ an toàn của bạn. Bitwarden sử dụng mã hóa đầu cuối không cần kiến ​​thức để bảo vệ những gì quan trọng với bạn.";
+"IntroCarouselPage2Title" = "Đăng nhập nhanh và dễ dàng";
+"IntroCarouselPage2Message" = "Mở khóa sinh trắc học và tự động điền để đăng nhập vào tài khoản của bạn mà không cần nhập tay.";
+"IntroCarouselPage3Title" = "Nâng cấp thông tin đăng nhập của bạn";
+"IntroCarouselPage3Message" = "Tạo và lưu mật khẩu mạnh nhất, độc nhất cho mọi tài khoản của bạn.";
+"IntroCarouselPage4Title" = "Dữ liệu của bạn, có mọi lúc mọi nơi bạn cần";
+"IntroCarouselPage4Message" = "Lưu trữ mật khẩu vô hạn trên nhiều thiết bị với ứng dụng Bitwarden di động, trình duyệt và máy tính để bàn.";

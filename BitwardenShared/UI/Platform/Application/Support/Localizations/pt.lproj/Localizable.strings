@@ -919,3 +919,11 @@
 "UserVerificationForPasskey" = "Verificação do utilizador para a chave de acesso";
 "NewItem" = "Novo item";
 "ExportVaultFilePwProtectInfo" = "A exportação deste ficheiro será protegida por uma palavra-passe e exigirá a palavra-passe do ficheiro para ser desencriptada.";
+"IntroCarouselPage1Title" = "Segurança, prioridade";
+"IntroCarouselPage1Message" = "Guarde credenciais, cartões e identidades no seu cofre seguro. O Bitwarden utiliza encriptação de conhecimento zero e de ponto a ponto para proteger o que é importante para si.";
+"IntroCarouselPage2Title" = "Início de sessão rápido e fácil";
+"IntroCarouselPage2Message" = "Configure o desbloqueio biométrico e o preenchimento automático para iniciar sessão nas suas contas sem escrever uma única letra.";
+"IntroCarouselPage3Title" = "Eleve o nível das suas credenciais";
+"IntroCarouselPage3Message" = "Utilize o gerador para criar e guardar palavras-passe fortes e únicas para todas as suas contas.";
+"IntroCarouselPage4Title" = "Os seus dados, quando e onde precisar deles";
+"IntroCarouselPage4Message" = "Guarde palavras-passe ilimitadas em dispositivos ilimitados com as aplicações Bitwarden para telemóvel, navegador e computador.";

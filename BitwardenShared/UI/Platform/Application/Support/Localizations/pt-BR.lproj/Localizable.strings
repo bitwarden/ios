@@ -919,3 +919,11 @@
 "UserVerificationForPasskey" = "Verificação do usuário para a chave de acesso";
 "NewItem" = "Novo item";
 "ExportVaultFilePwProtectInfo" = "Esta arquivo será protegido por senha e precisará da mesma para ser descriptografado.";
+"IntroCarouselPage1Title" = "Segurança, priorizado";
+"IntroCarouselPage1Message" = "Salve suas credenciais, cartões e identidades no seu cofre seguro. O Bitwarden usa criptografia de zero conhecimento, de ponta a ponta para proteger o que é importante para você.";
+"IntroCarouselPage2Title" = "Login rápido e fácil";
+"IntroCarouselPage2Message" = "Configure o desbloqueio biométrico e preenchimento automático para acessar suas contas sem digitar uma única letra.";
+"IntroCarouselPage3Title" = "Melhore seus logins de nível";
+"IntroCarouselPage3Message" = "Use o gerador para criar e salvar senhas fortes e únicas para todas as suas contas.";
+"IntroCarouselPage4Title" = "Seus dados, quando e onde você precisa deles";
+"IntroCarouselPage4Message" = "Salve senhas ilimitadas em dispositivos ilimitados com o Bitwarden, navegador e aplicativos para desktop.";

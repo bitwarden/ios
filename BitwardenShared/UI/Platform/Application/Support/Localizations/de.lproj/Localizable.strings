@@ -919,3 +919,11 @@
 "UserVerificationForPasskey" = "Benutzer-Verifizierung für Passkey";
 "NewItem" = "Neuer Eintrag";
 "ExportVaultFilePwProtectInfo" = "Dieser Datei-Export ist passwortgeschützt und erfordert das Dateipasswort zum Entschlüsseln.";
+"IntroCarouselPage1Title" = "Sicherheit, priorisiert";
+"IntroCarouselPage1Message" = "Speichere Zugangsdaten, Karten und Identitäten in deinem sicheren Tresor. Bitwarden verwendet Zero-Knowledge und Ende-zu-Ende-Verschlüsselung, um das zu schützen, was für dich wichtig ist.";
+"IntroCarouselPage2Title" = "Schnelle und einfache Anmeldung";
+"IntroCarouselPage2Message" = "Richte biometrisches Entsperren und Auto-Ausfüllen ein, um dich ohne einen einzigen Buchstaben einzugeben bei deinen Konten anzumelden.";
+"IntroCarouselPage3Title" = "Optimiere deine Zugangsdaten";
+"IntroCarouselPage3Message" = "Verwende den Generator, um einzigartige Passwörter für alle deine Konten zu erstellen und zu speichern.";
+"IntroCarouselPage4Title" = "Deine Daten, wann und wo du sie brauchst";
+"IntroCarouselPage4Message" = "Speicher eine unbegrenzte Anzahl von Passwörter auf unbegrenzt vielen Geräten mit Bitwarden-Apps für Smartphones, Browser und Desktop.";

@@ -919,3 +919,11 @@
 "UserVerificationForPasskey" = "Brugerbekræftelse for adgangsnøgle";
 "NewItem" = "Nyt emne";
 "ExportVaultFilePwProtectInfo" = "Denne fileksport adgangskodebeskyttes, og dekryptering vil kræve filadgangskoden.";
+"IntroCarouselPage1Title" = "Sikkerhed, prioriteret";
+"IntroCarouselPage1Message" = "Gem logins, kort og identiteter i den sikre boks. Bitwarden bruger nul-viden, ende-til-ende kryptering til at beskytte brugerens vigtigt ting.";
+"IntroCarouselPage2Title" = "Hurtig og nem indlogning";
+"IntroCarouselPage2Message" = "Opsæt biometrisk oplåsning og autofyld for at logge ind på konti uden at skrive ét enkelt bogstav.";
+"IntroCarouselPage3Title" = "Forstærk logins";
+"IntroCarouselPage3Message" = "Brug generatoren til at oprette og gemme stærke, unikke adgangskoder til alle kontiene.";
+"IntroCarouselPage4Title" = "Egne data, når og hvor, man har brug for dem";
+"IntroCarouselPage4Message" = "Gem ubegrænsede adgangskoder på tværs af ubegrænsede enheder med Bitwarden mobil-, webbrowser- og computer-apps.";
