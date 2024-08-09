@@ -7,9 +7,6 @@
 # Default file owners.
 # * @bitwarden/tech-leads
 
-# DevOps for Actions and other workflow changes.
-# .github/workflows @bitwarden/dept-devops
-
 # Auth
 # BitwardenShared/Core/Auth @bitwarden/team-auth-dev
 # BitwardenShared/UI/Auth @bitwarden/team-auth-dev
