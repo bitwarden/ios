@@ -927,3 +927,5 @@
 "IntroCarouselPage3Message" = "Use the generator to create and save strong, unique passwords for all your accounts.";
 "IntroCarouselPage4Title" = "Your data, when and where you need it";
 "IntroCarouselPage4Message" = "Save unlimited passwords across unlimited devices with Bitwarden mobile, browser, and desktop apps.";
+"RemovePasskey" = "Remove passkey";
+"PasskeyRemoved" = "Passkey removed";
