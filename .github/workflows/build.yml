@@ -32,24 +32,11 @@ env:
   XCODE_VERSION: ${{ inputs.xcode-version || '15.4' }}
 
 jobs:
-  build:
-    name: Build
+  resolve-values:
+    name: "Resolve values"
     runs-on: macos-14
-    env:
-      MINT_PATH: .mint/lib
-      MINT_LINK_PATH: .mint/bin
 
     steps:
-      - name: Check out repo
-        uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
-        with:
-          fetch-depth: 0
-          filter: tree:0
-
-      - name: List workflows
-        run: |
-          ls .github/workflows
-
       - name: Calculate build version and number
         id: calculate
         run: |
@@ -96,13 +83,38 @@ jobs:
           echo "version=$next_version" >> $GITHUB_OUTPUT
           echo "build_number=$next_number" >> $GITHUB_OUTPUT
 
-      - name: Run build
-        uses: ./.github/workflows/_build.yml
-        with:
-          build-variant: ${{ env.BUILD_VARIANT}}
-          build-version: ${{ steps.calculate.outputs.version }}
-          build-number: ${{ steps.calculate.outputs.build_number }}
-          xcode-version: ${{ env.XCODE_VERSION }}
+  build:
+    name: Build
+    needs: resolve-values
+    uses: ./.github/workflows/_build.yml
+    with:
+      build-variant: ${{ vars.BUILD_VARIANT }}
+      build-version: ${{ needs.resolve-values.outputs.version }}
+      build-number: ${{ needs.resolve-values.outputs.build_number }}
+      xcode-version: ${{ vars.XCODE_VERSION }}
+    secrets: inherit
+
+    # runs-on: macos-14
+    # env:
+    #   MINT_PATH: .mint/lib
+    #   MINT_LINK_PATH: .mint/bin
+
+    # steps:
+    #   - name: Check out repo
+    #     uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
+    #     with:
+    #       fetch-depth: 0
+    #       filter: tree:0
+
+
+    #   - name: Run build
+    #     uses: ./.github/workflows/_build.yml@main
+    #     with:
+    #       build-variant: ${{ env.BUILD_VARIANT}}
+    #       build-version: ${{ steps.calculate.outputs.version }}
+    #       build-number: ${{ steps.calculate.outputs.build_number }}
+    #       xcode-version: ${{ env.XCODE_VERSION }}
+    #     secrets: inherit
 
       # - name: Set Xcode version
       #   uses: maxim-lobanov/setup-xcode@60606e260d2fc5762a71e64e74b2174e8ea3c8bd # v1.6.0
