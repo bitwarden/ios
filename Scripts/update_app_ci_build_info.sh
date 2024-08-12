@@ -24,9 +24,9 @@ branch=$(git branch --show-current)
 commit_hash=$(git rev-parse --verify HEAD)
 
 echo "🧱 Updating app CI Build info..."
-echo "🧱 CI Run ID: ${ci_run_id}"
-echo "🧱 CI Run Number: ${ci_run_number}"
-echo "🧱 CI Run Attempt: ${ci_run_attempt}"
+echo "🧱 CI run ID: ${ci_run_id}"
+echo "🧱 CI run number: ${ci_run_number}"
+echo "🧱 CI run attempt: ${ci_run_attempt}"
 
 cat << EOF > ${ci_build_info_file}
 enum CIBuildInfo {
