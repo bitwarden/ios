@@ -31,6 +31,9 @@ protocol AppSettingsStore: AnyObject {
     /// Whether to disable the website icons.
     var disableWebIcons: Bool { get set }
 
+    /// Whether the intro carousel screen has been shown.
+    var introCarouselShown: Bool { get set }
+
     /// The last value of the connect to watch setting, ignoring the user id. Used for
     /// sending the status to the watch if the user is logged out.
     var lastUserShouldConnectToWatch: Bool { get set }
@@ -575,6 +578,7 @@ extension DefaultAppSettingsStore: AppSettingsStore {
         case encryptedPrivateKey(userId: String)
         case encryptedUserKey(userId: String)
         case events(userId: String)
+        case introCarouselShown
         case lastActiveTime(userId: String)
         case lastSync(userId: String)
         case lastUserShouldConnectToWatch
@@ -635,6 +639,8 @@ extension DefaultAppSettingsStore: AppSettingsStore {
                 key = "encPrivateKey_\(userId)"
             case let .events(userId):
                 key = "events_\(userId)"
+            case .introCarouselShown:
+                key = "introCarouselShown"
             case let .lastActiveTime(userId):
                 key = "lastActiveTime_\(userId)"
             case let .lastSync(userId):
@@ -710,6 +716,11 @@ extension DefaultAppSettingsStore: AppSettingsStore {
     var disableWebIcons: Bool {
         get { fetch(for: .disableWebIcons) }
         set { store(newValue, for: .disableWebIcons) }
+    }
+
+    var introCarouselShown: Bool {
+        get { fetch(for: .introCarouselShown) }
+        set { store(newValue, for: .introCarouselShown) }
     }
 
     var lastUserShouldConnectToWatch: Bool {

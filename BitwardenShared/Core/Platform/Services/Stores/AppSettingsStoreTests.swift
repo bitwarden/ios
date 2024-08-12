@@ -338,6 +338,22 @@ class AppSettingsStoreTests: BitwardenTestCase { // swiftlint:disable:this type_
         XCTAssertFalse(subject.isBiometricAuthenticationEnabled(userId: "-1"))
     }
 
+    /// `introCarouselShown` returns `false` if there isn't a previously stored value.
+    func test_introCarouselShown_isInitiallyFalse() {
+        XCTAssertFalse(subject.introCarouselShown)
+    }
+
+    /// `introCarouselShown` can be used to get and set the persisted value in user defaults.
+    func test_introCarouselShown_withValue() {
+        subject.introCarouselShown = true
+        XCTAssertTrue(subject.introCarouselShown)
+        XCTAssertTrue(userDefaults.bool(forKey: "bwPreferencesStorage:introCarouselShown"))
+
+        subject.introCarouselShown = false
+        XCTAssertFalse(subject.introCarouselShown)
+        XCTAssertFalse(userDefaults.bool(forKey: "bwPreferencesStorage:introCarouselShown"))
+    }
+
     /// `isBiometricAuthenticationEnabled` can be used to get the biometric unlock preference for a user.
     func test_isBiometricAuthenticationEnabled_withValue() {
         subject.setBiometricAuthenticationEnabled(false, for: "0")

@@ -69,6 +69,7 @@ extension ViewItemState {
             hasPremium: hasPremium
         ) else { return nil }
         self.init(loadingState: .data(cipherItemState))
+        self.hasMasterPassword = hasMasterPassword
         hasPremiumFeatures = cipherItemState.accountHasPremium
         passwordHistory = cipherView.passwordHistory
     }

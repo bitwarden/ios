@@ -1,0 +1,11 @@
+{
+    "message":"The model state is invalid.",
+    "validationErrors":{
+        "":["Email 'j@a.com' is already taken."]
+
+    },
+    "exceptionMessage":null,
+    "exceptionStackTrace":null,
+    "innerExceptionMessage":null,
+    "object":"error"
+}

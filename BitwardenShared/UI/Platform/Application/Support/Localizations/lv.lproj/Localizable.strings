@@ -919,3 +919,11 @@
 "UserVerificationForPasskey" = "Lietotāja apliecināšana piekļuves atsēgai";
 "NewItem" = "Jauns vienums";
 "ExportVaultFilePwProtectInfo" = "Šī datņu izgūšana būs aizsargāta ar paroli, un būs nepieciešama datnes parole, lai to atšifrētu.";
+"IntroCarouselPage1Title" = "Drošība pirmajā vietā";
+"IntroCarouselPage1Message" = "Pieteikšanās vienumu, karšu un identitāšu glabāšana savā drošajā glabātavā. Bitwarden izmanto nulles zināšanu pilnīgu šifrēšanu, lai aizsargātu to, kas Tev ir svarīgs.";
+"IntroCarouselPage2Title" = "Ātra un vienkārša pieteikšanās";
+"IntroCarouselPage2Message" = "Iestati biometrisko atslēgšanu un automātiski aizpildi, lai pieteiktos savos kontos bez neviena burta ievadīšanas.";
+"IntroCarouselPage3Title" = "Uzlabo savu pieteikšanos";
+"IntroCarouselPage3Message" = "Veidotājs ir izmantojams, lai izveidotu un saglabātu spēcīgas, neatkārtojamas paroles visiem Taviem kontiem.";
+"IntroCarouselPage4Title" = "Tavi dati, kad un kur vien tie ir nepieciešami";
+"IntroCarouselPage4Message" = "Neierobežotu paroļu skaitu var saglabāt neierobežotā ierīdžu daudzumā ar Bitwarden mobilo, pārlūka un darbvirsmas lietotni.";

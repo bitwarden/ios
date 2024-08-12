@@ -10,6 +10,7 @@ class LandingProcessor: StateProcessor<LandingState, LandingAction, LandingEffec
 
     typealias Services = HasAppSettingsStore
         & HasAuthRepository
+        & HasConfigService
         & HasEnvironmentService
         & HasErrorReporter
         & HasStateService
@@ -21,6 +22,13 @@ class LandingProcessor: StateProcessor<LandingState, LandingAction, LandingEffec
 
     /// The services required by this processor.
     private let services: Services
+
+    /// Helper class with region specific functions
+    private lazy var regionHelper = RegionHelper(
+        coordinator: coordinator,
+        delegate: self,
+        stateService: services.stateService
+    )
 
     // MARK: Initialization
 
@@ -43,7 +51,6 @@ class LandingProcessor: StateProcessor<LandingState, LandingAction, LandingEffec
         var state = state
         state.email = rememberedEmail ?? ""
         state.isRememberMeOn = rememberedEmail != nil
-
         super.init(state: state)
     }
 
@@ -52,26 +59,33 @@ class LandingProcessor: StateProcessor<LandingState, LandingAction, LandingEffec
     override func perform(_ effect: LandingEffect) async {
         switch effect {
         case .appeared:
-            await loadRegion()
+            await regionHelper.loadRegion()
             await refreshProfileState()
         case .continuePressed:
             updateRememberedEmail()
             await validateEmailAndContinue()
         case let .profileSwitcher(profileEffect):
             await handleProfileSwitcherEffect(profileEffect)
+        case .regionPressed:
+            await regionHelper.presentRegionSelectorAlert(
+                title: Localizations.loggingInOn,
+                currentRegion: state.region
+            )
         }
     }
 
     override func receive(_ action: LandingAction) {
         switch action {
         case .createAccountPressed:
-            coordinator.navigate(to: .createAccount)
+            if state.emailVerificationFeatureFlag {
+                coordinator.navigate(to: .startRegistration, context: self)
+            } else {
+                coordinator.navigate(to: .createAccount)
+            }
         case let .emailChanged(newValue):
             state.email = newValue
         case let .profileSwitcher(profileAction):
             handleProfileSwitcherAction(profileAction)
-        case .regionPressed:
-            presentRegionSelectionAlert()
         case let .rememberMeChanged(newValue):
             state.isRememberMeOn = newValue
             if !newValue {
@@ -84,21 +98,14 @@ class LandingProcessor: StateProcessor<LandingState, LandingAction, LandingEffec
 
     // MARK: Private Methods
 
-    /// Sets the region to the last used region.
+    /// Sets the feature flag value to be used.
     ///
-    private func loadRegion() async {
-        guard let urls = await services.stateService.getPreAuthEnvironmentUrls() else {
-            await setRegion(.unitedStates, urls: .defaultUS)
-            return
-        }
-
-        if urls.base == EnvironmentUrlData.defaultUS.base {
-            await setRegion(.unitedStates, urls: urls)
-        } else if urls.base == EnvironmentUrlData.defaultEU.base {
-            await setRegion(.europe, urls: urls)
-        } else {
-            await setRegion(.selfHosted, urls: urls)
-        }
+    private func loadFeatureFlag() async {
+        state.emailVerificationFeatureFlag = await services.configService.getFeatureFlag(
+            FeatureFlag.emailVerification,
+            defaultValue: false,
+            forceRefresh: true
+        )
     }
 
     /// Validate the currently entered email address and navigate to the login screen.
@@ -118,43 +125,6 @@ class LandingProcessor: StateProcessor<LandingState, LandingAction, LandingEffec
         }
 
         coordinator.navigate(to: .login(username: email))
-    }
-
-    /// Builds an alert for region selection and navigates to the alert.
-    ///
-    private func presentRegionSelectionAlert() {
-        let actions = RegionType.allCases.map { region in
-            AlertAction(title: region.baseUrlDescription, style: .default) { [weak self] _ in
-                if let urls = region.defaultURLs {
-                    await self?.setRegion(region, urls: urls)
-                } else {
-                    self?.coordinator.navigate(
-                        to: .selfHosted(currentRegion: self?.state.region ?? .unitedStates),
-                        context: self
-                    )
-                }
-            }
-        }
-        let cancelAction = AlertAction(title: Localizations.cancel, style: .cancel)
-        let alert = Alert(
-            title: Localizations.loggingInOn,
-            message: nil,
-            preferredStyle: .actionSheet,
-            alertActions: actions + [cancelAction]
-        )
-        coordinator.showAlert(alert)
-    }
-
-    /// Sets the region and the URLs to use.
-    ///
-    /// - Parameters:
-    ///   - region: The region to use.
-    ///   - urls: The URLs that the app should use for the region.
-    ///
-    private func setRegion(_ region: RegionType, urls: EnvironmentUrlData) async {
-        guard !urls.isEmpty else { return }
-        await services.environmentService.setPreAuthURLs(urls: urls)
-        state.region = region
     }
 
     /// Updates the value of `rememberedEmail` in the app settings store with the `email` value in `state`.
@@ -222,7 +192,36 @@ extension LandingProcessor: ProfileSwitcherHandler {
 
 extension LandingProcessor: SelfHostedProcessorDelegate {
     func didSaveEnvironment(urls: EnvironmentUrlData) async {
-        await setRegion(.selfHosted, urls: urls)
+        await setRegion(.selfHosted, urls)
         state.toast = Toast(text: Localizations.environmentSaved)
+        await regionHelper.loadRegion()
+    }
+}
+
+// MARK: - StartRegistrationDelegate
+
+extension LandingProcessor: StartRegistrationDelegate {
+    func didChangeRegion() async {
+        await regionHelper.loadRegion()
+    }
+}
+
+// MARK: - RegionDelegate
+
+extension LandingProcessor: RegionDelegate {
+    /// Sets the region and the URLs to use.
+    ///
+    /// - Parameters:
+    ///   - region: The region to use.
+    ///   - urls: The URLs that the app should use for the region.
+    ///
+    func setRegion(_ region: RegionType, _ urls: EnvironmentUrlData) async {
+        guard !urls.isEmpty else { return }
+        await services.environmentService.setPreAuthURLs(urls: urls)
+        state.region = region
+        // After setting a new region, feature flags need to be reloaded
+        Task {
+            await loadFeatureFlag()
+        }
     }
 }
