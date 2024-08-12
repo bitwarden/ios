@@ -92,4 +92,25 @@ class SceneDelegateTests: BitwardenTestCase {
         subject.sceneWillResignActive(scene)
         XCTAssertEqual(subject.splashWindow?.alpha, 1)
     }
+
+    /// `scene(_:continue)` runs successfully
+    func test_sceneContinue() {
+        let appProcessor = AppProcessor(
+            appModule: appModule,
+            services: ServiceContainer(errorReporter: MockErrorReporter())
+        )
+        (UIApplication.shared.delegate as? TestingAppDelegate)?.appProcessor = appProcessor
+
+        let session = TestInstanceFactory.create(UISceneSession.self)
+        let userActivity = NSUserActivity(activityType: NSUserActivityTypeBrowsingWeb)
+        userActivity.webpageURL = URL(string: "https://example.com")
+        let scene = TestInstanceFactory.create(UIWindowScene.self, properties: [
+            "session": session,
+        ])
+        let options = TestInstanceFactory.create(UIScene.ConnectionOptions.self)
+
+        subject.scene(scene, willConnectTo: session, options: options)
+        subject.scene(scene, continue: userActivity)
+        XCTAssertEqual(subject.splashWindow?.alpha, 1)
+    }
 }

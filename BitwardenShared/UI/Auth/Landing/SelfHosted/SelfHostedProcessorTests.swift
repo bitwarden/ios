@@ -43,7 +43,7 @@ class SelfHostedProcessorTests: BitwardenTestCase {
             delegate.savedUrls,
             EnvironmentUrlData(base: URL(string: "https://vault.bitwarden.com")!)
         )
-        XCTAssertEqual(coordinator.routes.last, .dismiss)
+        XCTAssertEqual(coordinator.routes.last, .dismissPresented)
     }
 
     /// `perform(_:)` with `.saveEnvironment` notifies the delegate that the user saved the URLs.
@@ -68,7 +68,7 @@ class SelfHostedProcessorTests: BitwardenTestCase {
                 webVault: URL(string: "https://vault.bitwarden.com")!
             )
         )
-        XCTAssertEqual(coordinator.routes.last, .dismiss)
+        XCTAssertEqual(coordinator.routes.last, .dismissPresented)
     }
 
     /// `perform(_:)` with `.saveEnvironment` displays an alert if any of the URLs are invalid.
@@ -98,7 +98,7 @@ class SelfHostedProcessorTests: BitwardenTestCase {
     func test_receive_dismiss() {
         subject.receive(.dismiss)
 
-        XCTAssertEqual(coordinator.routes.last, .dismiss)
+        XCTAssertEqual(coordinator.routes.last, .dismissPresented)
     }
 
     /// Receiving `.iconsUrlChanged` updates the state.

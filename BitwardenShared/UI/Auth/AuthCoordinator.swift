@@ -3,6 +3,15 @@ import OSLog
 import SwiftUI
 import UIKit
 
+// MARK: - AuthCoordinatorError
+
+/// The errors thrown from a `AuthCoordinator`.
+///
+enum AuthCoordinatorError: Error {
+    /// When the received delegate does not have a value.
+    case delegateIsNil
+}
+
 // MARK: - AuthCoordinatorDelegate
 
 /// An object that is signaled when specific circumstances in the auth flow have been encountered.
@@ -35,6 +44,7 @@ final class AuthCoordinator: NSObject, // swiftlint:disable:this type_body_lengt
         & HasBiometricsRepository
         & HasCaptchaService
         & HasClientService
+        & HasConfigService
         & HasDeviceAPIService
         & HasEnvironmentService
         & HasErrorReporter
@@ -112,6 +122,8 @@ final class AuthCoordinator: NSObject, // swiftlint:disable:this type_body_lengt
                 callbackUrlScheme: callbackUrlScheme,
                 delegate: context as? CaptchaFlowDelegate
             )
+        case let .checkEmail(email):
+            showCheckEmail(email)
         case .complete,
              .completeWithNeverUnlockKey:
             if stackNavigator?.isPresenting == true {
@@ -121,10 +133,35 @@ final class AuthCoordinator: NSObject, // swiftlint:disable:this type_body_lengt
             } else {
                 delegate?.didCompleteAuth()
             }
+        case let .completeRegistration(emailVerificationToken, userEmail):
+            showCompleteRegistration(
+                emailVerificationToken: emailVerificationToken,
+                userEmail: userEmail,
+                region: nil
+            )
+        case let .completeRegistrationFromAppLink(emailVerificationToken, userEmail, fromEmail, region):
+            // Coming from an AppLink clear the current stack
+            stackNavigator?.dismiss {
+                self.showLanding()
+                self.showCompleteRegistration(
+                    emailVerificationToken: emailVerificationToken,
+                    userEmail: userEmail,
+                    fromEmail: fromEmail,
+                    region: region
+                )
+            }
         case .createAccount:
             showCreateAccount()
+        case .startRegistration:
+            showStartRegistration(delegate: context as? StartRegistrationDelegate)
         case .dismiss:
             stackNavigator?.dismiss()
+        case .dismissPresented:
+            stackNavigator?.rootViewController?.presentedViewController?.dismiss(animated: true)
+        case let .dismissWithAction(onDismiss):
+            stackNavigator?.dismiss(animated: true, completion: {
+                onDismiss?.action()
+            })
         case let .duoAuthenticationFlow(authURL):
             showDuo2FA(authURL: authURL, delegate: context as? DuoAuthenticationFlowDelegate)
         case let .enterpriseSingleSignOn(email):
@@ -243,6 +280,22 @@ final class AuthCoordinator: NSObject, // swiftlint:disable:this type_body_lengt
         session.start()
     }
 
+    /// Shows the check email screen.
+    /// - Parameter email: The user's email.
+    ///
+    private func showCheckEmail(_ email: String) {
+        let view = CheckEmailView(
+            store: Store(
+                processor: CheckEmailProcessor(
+                    coordinator: asAnyCoordinator(),
+                    state: CheckEmailState(email: email)
+                )
+            )
+        )
+        let navController = UINavigationController(rootViewController: UIHostingController(rootView: view))
+        stackNavigator?.present(navController)
+    }
+
     /// Shows the create account screen.
     ///
     private func showCreateAccount() {
@@ -252,6 +305,32 @@ final class AuthCoordinator: NSObject, // swiftlint:disable:this type_body_lengt
                     coordinator: asAnyCoordinator(),
                     services: services,
                     state: CreateAccountState()
+                )
+            )
+        )
+        let navController = UINavigationController(rootViewController: UIHostingController(rootView: view))
+        stackNavigator?.present(navController)
+    }
+
+    /// Shows the complete registration screen.
+    ///
+    private func showCompleteRegistration(
+        emailVerificationToken: String,
+        userEmail: String,
+        fromEmail: Bool = false,
+        region: RegionType?
+    ) {
+        let view = CompleteRegistrationView(
+            store: Store(
+                processor: CompleteRegistrationProcessor(
+                    coordinator: asAnyCoordinator(),
+                    services: services,
+                    state: CompleteRegistrationState(
+                        emailVerificationToken: emailVerificationToken,
+                        fromEmail: fromEmail,
+                        region: region,
+                        userEmail: userEmail
+                    )
                 )
             )
         )
@@ -533,6 +612,29 @@ final class AuthCoordinator: NSObject, // swiftlint:disable:this type_body_lengt
         session.prefersEphemeralWebBrowserSession = false
         session.presentationContextProvider = self
         session.start()
+    }
+
+    /// Shows the start registration screen.
+    ///
+    private func showStartRegistration(delegate: StartRegistrationDelegate?) {
+        guard let delegate else {
+            services.errorReporter.log(error: AuthCoordinatorError.delegateIsNil)
+            return
+        }
+        let processor = StartRegistrationProcessor(
+            coordinator: asAnyCoordinator(),
+            delegate: delegate,
+            services: services,
+            state: StartRegistrationState()
+        )
+
+        let view = StartRegistrationView(
+            store: Store(
+                processor: processor
+            )
+        )
+        let navController = UINavigationController(rootViewController: UIHostingController(rootView: view))
+        stackNavigator?.present(navController)
     }
 
     /// Show the two factor authentication view.
