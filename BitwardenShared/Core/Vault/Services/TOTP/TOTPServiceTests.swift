@@ -34,12 +34,14 @@ final class TOTPServiceTests: BitwardenTestCase {
 
         clientService = nil
         pasteboardService = nil
+        stateService = nil
         subject = nil
     }
 
     // MARK: Tests
 
-    /// `copyTotpIfPossible(cipher:)` successfully copies the code.
+    /// `copyTotpIfPossible(cipher:)` successfully copies the code when there's a login wihth Totp,
+    /// auto Totp copy is enabled and account is premium.
     func test_copyTotpIfPossible_succeeds() async throws {
         let cipher = CipherView.fixture(
             login: .fixture(
