@@ -348,39 +348,39 @@ jobs:
           yq -i '.settings.MARKETING_VERSION = "${{ env.build_version }}"' 'project.yml'
           yq -i '.settings.CURRENT_PROJECT_VERSION = "${{ env.build_number }}"' 'project.yml'
 
-      # - name: Build iOS app
-      #   run: |
-      #     BUILD_NUMBER=$(($GITHUB_RUN_NUMBER))
-      #     ./Scripts/build.sh
+      - name: Build iOS app
+        run: |
+          BUILD_NUMBER=$(($GITHUB_RUN_NUMBER))
+          ./Scripts/build.sh
 
-      # - name: Prepare IPA & dSYM files for upload to GitHub
-      #   run: |
-      #     mkdir -p export/dSYMs
-      #     cp build/Bitwarden/Bitwarden.ipa export
-      #     cp -rv build/Bitwarden.xcarchive/dSYMs/*.dSYM export/dSYMs
+      - name: Prepare IPA & dSYM files for upload to GitHub
+        run: |
+          mkdir -p export/dSYMs
+          cp build/Bitwarden/Bitwarden.ipa export
+          cp -rv build/Bitwarden.xcarchive/dSYMs/*.dSYM export/dSYMs
 
-      # - name: Upload IPA & dSYM files
-      #   uses: actions/upload-artifact@89ef406dd8d7e03cfd12d9e0a4a378f454709029 # v4.3.5
-      #   with:
-      #     name: Bitwarden iOS
-      #     path: export
-      #     if-no-files-found: error
+      - name: Upload IPA & dSYM files
+        uses: actions/upload-artifact@89ef406dd8d7e03cfd12d9e0a4a378f454709029 # v4.3.5
+        with:
+          name: Bitwarden iOS
+          path: export
+          if-no-files-found: error
 
-      # - name: Validate app with App Store Connect
-      #   env:
-      #     APPLE_ID_USERNAME: ${{ secrets.APPLE_ID_USERNAME }}
-      #     APPLE_ID_PASSWORD: ${{ secrets.APPLE_ID_PASSWORD }}
-      #   run: |
-      #     xcrun altool --validate-app \
-      #       --type ios \
-      #       --file "export/Bitwarden.ipa" \
-      #       --username "$APPLE_ID_USERNAME" \
-      #       --password @env:APPLE_ID_PASSWORD
+      - name: Validate app with App Store Connect
+        env:
+          APPLE_ID_USERNAME: ${{ secrets.APPLE_ID_USERNAME }}
+          APPLE_ID_PASSWORD: ${{ secrets.APPLE_ID_PASSWORD }}
+        run: |
+          xcrun altool --validate-app \
+            --type ios \
+            --file "export/Bitwarden.ipa" \
+            --username "$APPLE_ID_USERNAME" \
+            --password @env:APPLE_ID_PASSWORD
 
-      # - name: Upload app to TestFlight with Fastlane
-      #   run: |
-      #     NEWLINE=$'\n'
-      #     fastlane upload_build \
-      #       api_key_path:"$HOME/secrets/appstoreconnect-fastlane.json" \
-      #       changelog:"$(git show -s --format=%s)$NEWLINE$GITHUB_REPOSITORY/$GITHUB_REF_NAME @ $GITHUB_SHA$NEWLINE$NEWLINE$GITHUB_SERVER_URL/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID" \
-      #       ipa_path:"export/Bitwarden.ipa"
+      - name: Upload app to TestFlight with Fastlane
+        run: |
+          NEWLINE=$'\n'
+          fastlane upload_build \
+            api_key_path:"$HOME/secrets/appstoreconnect-fastlane.json" \
+            changelog:"$(git show -s --format=%s)$NEWLINE$GITHUB_REPOSITORY/$GITHUB_REF_NAME @ $GITHUB_SHA$NEWLINE$NEWLINE$GITHUB_SERVER_URL/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID" \
+            ipa_path:"export/Bitwarden.ipa"
