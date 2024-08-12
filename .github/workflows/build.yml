@@ -89,8 +89,8 @@ jobs:
     uses: ./.github/workflows/_build.yml
     with:
       build-variant: ${{ vars.BUILD_VARIANT }}
-      build-version: ${{ needs.resolve-values.outputs.version }}
-      build-number: ${{ needs.resolve-values.outputs.build_number }}
+      # build-version: ${{ needs.resolve-values.outputs.version }}
+      # build-number: ${{ needs.resolve-values.outputs.build_number }}
       xcode-version: ${{ vars.XCODE_VERSION }}
     secrets: inherit
 
