@@ -7,30 +7,27 @@ struct VaultUnlockSetupState: Equatable {
 
     /// An enumeration of the vault unlock methods.
     ///
-    enum UnlockMethod: Int, Equatable, Identifiable {
-        /// Face ID is used to unlock the vault.
-        case faceID
+    enum UnlockMethod: Equatable, Identifiable {
+        /// Biometrics is used to unlock the vault.
+        case biometrics(BiometricAuthenticationType)
 
         /// The user's pin code is used to unlock the vault.
         case pin
 
-        /// Touch ID is used to unlock the vault.
-        case touchID
-
         /// The accessibility identifier for the UI toggle.
         var accessibilityIdentifier: String {
             switch self {
-            case .faceID, .touchID:
+            case .biometrics:
                 "UnlockWithBiometricsSwitch"
             case .pin:
                 "UnlockWithPinSwitch"
             }
         }
 
-        /// A key path for getting/setting whether the unlock method is turned on in the state.
-        var keyPath: WritableKeyPath<VaultUnlockSetupState, Bool> {
+        /// A key path for getting whether the unlock method is turned on in the state.
+        var keyPath: KeyPath<VaultUnlockSetupState, Bool> {
             switch self {
-            case .faceID, .touchID:
+            case .biometrics:
                 \.isBiometricUnlockOn
             case .pin:
                 \.isPinUnlockOn
@@ -38,17 +35,32 @@ struct VaultUnlockSetupState: Equatable {
         }
 
         /// A unique identifier for the unlock method.
-        var id: Int { rawValue }
+        var id: String {
+            switch self {
+            case let .biometrics(type):
+                switch type {
+                case .faceID:
+                    "FaceID"
+                case .touchID:
+                    "TouchID"
+                }
+            case .pin:
+                "PIN"
+            }
+        }
 
         /// The localized title of the UI toggle.
         var title: String {
             switch self {
-            case .faceID:
-                Localizations.unlockWith(Localizations.faceID)
+            case let .biometrics(type):
+                switch type {
+                case .faceID:
+                    Localizations.unlockWith(Localizations.faceID)
+                case .touchID:
+                    Localizations.unlockWith(Localizations.touchID)
+                }
             case .pin:
                 Localizations.unlockWithPIN
-            case .touchID:
-                Localizations.unlockWith(Localizations.touchID)
             }
         }
     }
@@ -58,13 +70,20 @@ struct VaultUnlockSetupState: Equatable {
     /// The biometric auth status for the user.
     var biometricsStatus: BiometricsUnlockStatus?
 
-    /// Whether biometric unlock (Face ID / Touch ID) is turned on.
-    var isBiometricUnlockOn = false
-
     /// Whether pin unlock is turned on.
     var isPinUnlockOn = false
 
     // MARK: Computed Properties
+
+    /// Whether biometric unlock (Face ID / Touch ID) is turned on.
+    var isBiometricUnlockOn: Bool {
+        switch biometricsStatus {
+        case let .available(_, enabled, hasValidIntegrity):
+            return enabled && hasValidIntegrity
+        case nil, .notAvailable:
+            return false
+        }
+    }
 
     /// Whether the continue button is enabled.
     var isContinueButtonEnabled: Bool {
@@ -73,15 +92,9 @@ struct VaultUnlockSetupState: Equatable {
 
     /// The available unlock methods to show in the UI.
     var unlockMethods: [UnlockMethod] {
-        let biometricsMethod: UnlockMethod? = if case let .available(type, _, _) = biometricsStatus {
-            switch type {
-            case .faceID: .faceID
-            case .touchID: .touchID
-            }
-        } else {
-            nil
+        guard case let .available(biometricsType, _, _) = biometricsStatus else {
+            return [.pin]
         }
-
-        return [biometricsMethod, .pin].compactMap { $0 }
+        return [.biometrics(biometricsType), .pin]
     }
 }

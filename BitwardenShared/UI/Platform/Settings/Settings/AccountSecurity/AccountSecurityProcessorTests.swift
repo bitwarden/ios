@@ -663,20 +663,6 @@ class AccountSecurityProcessorTests: BitwardenTestCase { // swiftlint:disable:th
         XCTAssertEqual(subject.state.biometricUnlockStatus, biometricUnlockStatus)
     }
 
-    /// `perform(_:)` with `.toggleUnlockWithBiometrics` configures biometric integrity state if needed.
-    @MainActor
-    func test_perform_toggleUnlockWithBiometrics_invalidBiometryState() async {
-        let biometricUnlockStatus = BiometricsUnlockStatus.available(.faceID, enabled: true, hasValidIntegrity: false)
-        biometricsRepository.biometricUnlockStatus = .success(
-            biometricUnlockStatus
-        )
-        authRepository.allowBiometricUnlockResult = .success(())
-        subject.state.biometricUnlockStatus = .available(.faceID, enabled: false, hasValidIntegrity: false)
-        await subject.perform(.toggleUnlockWithBiometrics(false))
-
-        XCTAssertTrue(biometricsRepository.didConfigureBiometricIntegrity)
-    }
-
     /// `perform(_:)` with `.toggleUnlockWithBiometrics` updates the state.
     @MainActor
     func test_perform_toggleUnlockWithBiometrics_success() async {

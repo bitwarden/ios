@@ -16,7 +16,7 @@ class MockStateService: StateService { // swiftlint:disable:this type_body_lengt
     var appLanguage: LanguageOption = .default
     var appTheme: AppTheme?
     var biometricsEnabled = [String: Bool]()
-    var biometricIntegrityStates = [String: String?]()
+    var biometricIntegrityStates = [String: String]()
     var capturedUserId: String?
     var clearClipboardValues = [String: ClearClipboardValue]()
     var clearClipboardResult: Result<Void, Error> = .success(())
