@@ -46,6 +46,10 @@ jobs:
           fetch-depth: 0
           filter: tree:0
 
+      - name: List workflows
+        run: |
+          ls .github/workflows
+
       - name: Calculate build version and number
         id: calculate
         run: |
