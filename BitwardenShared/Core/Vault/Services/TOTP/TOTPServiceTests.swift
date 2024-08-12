@@ -54,7 +54,7 @@ final class TOTPServiceTests: BitwardenTestCase {
     }
 
     /// `copyTotpIfPossible(cipher:)` succeeds copying the code when account is not premium
-    /// but organization uses totp..
+    /// but organization uses totp.
     func test_copyTotpIfPossible_succeedsOrganizationUseTotp() async throws {
         let cipher = CipherView.fixture(
             login: .fixture(
