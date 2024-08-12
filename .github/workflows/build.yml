@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - main
+      - katherine/version-fix
   workflow_dispatch:
     inputs:
       build-variant:
@@ -338,7 +339,7 @@ jobs:
           echo "**Version**: $next_version" | tee -a $GITHUB_STEP_SUMMARY
           echo "**Build Number**: $next_number" | tee -a $GITHUB_STEP_SUMMARY
           echo "version=$next_version" >> $GITHUB_OUTPUT
-          echo "build_number=$number_number" >> $GITHUB_OUTPUT
+          echo "build_number=$next_number" >> $GITHUB_OUTPUT
 
       - name: Update build version and number
         env:
@@ -381,10 +382,10 @@ jobs:
             --username "$APPLE_ID_USERNAME" \
             --password @env:APPLE_ID_PASSWORD
 
-      - name: Upload app to TestFlight with Fastlane
-        run: |
-          NEWLINE=$'\n'
-          fastlane upload_build \
-            api_key_path:"$HOME/secrets/appstoreconnect-fastlane.json" \
-            changelog:"$(git show -s --format=%s)$NEWLINE$GITHUB_REPOSITORY/$GITHUB_REF_NAME @ $GITHUB_SHA$NEWLINE$NEWLINE$GITHUB_SERVER_URL/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID" \
-            ipa_path:"export/Bitwarden.ipa"
+      # - name: Upload app to TestFlight with Fastlane
+      #   run: |
+      #     NEWLINE=$'\n'
+      #     fastlane upload_build \
+      #       api_key_path:"$HOME/secrets/appstoreconnect-fastlane.json" \
+      #       changelog:"$(git show -s --format=%s)$NEWLINE$GITHUB_REPOSITORY/$GITHUB_REF_NAME @ $GITHUB_SHA$NEWLINE$NEWLINE$GITHUB_SERVER_URL/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID" \
+      #       ipa_path:"export/Bitwarden.ipa"
