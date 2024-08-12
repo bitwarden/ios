@@ -306,7 +306,7 @@
 "PassportNumber" = "护照号码";
 "Phone" = "电话";
 "September" = "九月";
-"SSN" = "社会保险号码";
+"SSN" = "社会保障号码";
 "StateProvince" = "州 / 省";
 "Title" = "称呼";
 "ZipPostalCode" = "邮编 / 邮政代码";
@@ -916,6 +916,14 @@
 "FilePasswordDescription" = "此密码将用于导出和导入此文件";
 "OrganizationUnassignedItemsMessageUSEUDescriptionLong" = "未分配的组织项目在「所有密码库」视图中不再可见，只能通过管理控制台访问。通过管理控制台将这些项目分配给集合以使其可见。";
 "UnknownAccount" = "未知账户";
-"UserVerificationForPasskey" = "用于通行密钥的用户验证";
-"NewItem" = "新项目";
+"UserVerificationForPasskey" = "通行密钥用户验证";
+"NewItem" = "新增项目";
 "ExportVaultFilePwProtectInfo" = "此文件导出将受密码保护，需要文件密码才能解密。";
+"IntroCarouselPage1Title" = "Security, prioritized";
+"IntroCarouselPage1Message" = "将登录、支付卡和身份保存到您的安全密码库。Bitwarden 使用零知识、端到端的加密来保护您的重要信息。";
+"IntroCarouselPage2Title" = "快速便捷的登录";
+"IntroCarouselPage2Message" = "设置生物识别解锁和自动填充，无需输入任何字符即可登录您的账户。";
+"IntroCarouselPage3Title" = "提升您的登录体验";
+"IntroCarouselPage3Message" = "使用生成器创建和保存强大且唯一的密码，以保护您的所有账户。";
+"IntroCarouselPage4Title" = "您的数据，无论何时何地均可用";
+"IntroCarouselPage4Message" = "使用 Bitwarden 移动端、浏览器和桌面 App 在无限制的设备上保存无限数量的密码。";

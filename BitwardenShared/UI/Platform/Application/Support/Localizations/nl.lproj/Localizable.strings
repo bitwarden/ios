@@ -919,3 +919,11 @@
 "UserVerificationForPasskey" = "User verification for passkey";
 "NewItem" = "Nieuw item";
 "ExportVaultFilePwProtectInfo" = "Deze bestandsexport wordt met een wachtwoord beveiligd en vereist het bestandswachtwoord om te decoderen.";
+"IntroCarouselPage1Title" = "Security, geprioriteerd";
+"IntroCarouselPage1Message" = "Logins, kaarten en identiteiten in je beveiligde kluis opslaan. Bitwarden gebruikt zero-knowledge, end-to-end versleuteling om te beschermen wat belangrijk voor jou is.";
+"IntroCarouselPage2Title" = "Snel en eenvoudig inloggen";
+"IntroCarouselPage2Message" = "Biometrische ontgrendelen en automatisch invullen instellen zodat je kunt inloggen op je accounts zonder één letter te typen.";
+"IntroCarouselPage3Title" = "Versterk je logins";
+"IntroCarouselPage3Message" = "Gebruik de generator voor het aanmaken en bewaren van sterke, unieke wachtwoorden voor al je accounts.";
+"IntroCarouselPage4Title" = "Jouw gegevens, wanneer en waar je ze nodig hebt";
+"IntroCarouselPage4Message" = "Onbeperkt wachtwoorden opslaan op alle apparaten met Bitwarden-apps voor mobiel, browser en desktop.";
