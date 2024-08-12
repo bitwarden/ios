@@ -11,9 +11,6 @@ enum LandingAction: Equatable {
     /// A forwarded profile switcher action.
     case profileSwitcher(ProfileSwitcherAction)
 
-    /// The region button was pressed.
-    case regionPressed
-
     /// The value for the remember me toggle was changed.
     case rememberMeChanged(Bool)
 

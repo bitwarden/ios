@@ -94,24 +94,12 @@ struct LandingView: View {
                     Task { await store.perform(.continuePressed) }
                 }
 
-                Button {
-                    store.send(.regionPressed)
-                } label: {
-                    HStack(spacing: 4) {
-                        Group {
-                            Text("\(Localizations.loggingInOn): ")
-                                .foregroundColor(Asset.Colors.textSecondary.swiftUIColor)
-                                + Text(store.state.region.baseUrlDescription)
-                                .foregroundColor(Asset.Colors.primaryBitwarden.swiftUIColor)
-                        }
-                        .styleGuide(.subheadline)
-
-                        Image(decorative: Asset.Images.downAngle)
-                            .scaledFrame(width: 12, height: 12)
-                            .foregroundColor(Asset.Colors.primaryBitwarden.swiftUIColor)
-                    }
+                RegionSelector(
+                    selectorLabel: Localizations.loggingInOn,
+                    regionName: store.state.region.baseUrlDescription
+                ) {
+                    await store.perform(.regionPressed)
                 }
-                .accessibilityIdentifier("RegionSelectorDropdown")
 
                 Toggle(Localizations.rememberMe, isOn: store.binding(
                     get: { $0.isRememberMeOn },
