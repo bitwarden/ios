@@ -2,8 +2,7 @@ import SwiftUI
 
 // MARK: - VaultUnlockSetupView
 
-/// A view that allows the user to swipe through the intro carousel and then proceed to creating an
-/// account or logging in.
+/// A view that allows the user to enable vault unlock methods when setting up their account.
 ///
 struct VaultUnlockSetupView: View {
     // MARK: Properties
