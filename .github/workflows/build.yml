@@ -292,6 +292,7 @@ jobs:
       - name: Select variant
         run: |
           ./Scripts/select_variant.sh ${{ env.BUILD_VARIANT }}
+          echo "**Variant**: ${{ env.BUILD_VARIANT }}" | tee -a $GITHUB_STEP_SUMMARY
 
       - name: Calculate build version and number
         id: calculate
@@ -334,8 +335,8 @@ jobs:
           fi
 
           echo -e "\n"
-          echo "Version:      $next_version" | tee -a $GITHUB_STEP_SUMMARY
-          echo "Build Number: $next_number" | tee -a $GITHUB_STEP_SUMMARY
+          echo "**Version**: $next_version" | tee -a $GITHUB_STEP_SUMMARY
+          echo "**Build Number**: $next_number" | tee -a $GITHUB_STEP_SUMMARY
           echo "version=$next_version" >> $GITHUB_OUTPUT
           echo "build_number=$number_number" >> $GITHUB_OUTPUT
 
