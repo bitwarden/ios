@@ -70,7 +70,7 @@ final class TOTPServiceTests: BitwardenTestCase {
         XCTAssertEqual(pasteboardService.copiedString, "123456")
     }
 
-    /// `copyTotpIfPossible(cipher:)` doesn't copy the code because cipher doesn't have login.
+    /// `copyTotpIfPossible(cipher:)` doesn't copy the code when the cipher doesn't have a login.
     func test_copyTotpIfPossible_noLogin() async throws {
         let cipher = CipherView.fixture(
             login: nil
