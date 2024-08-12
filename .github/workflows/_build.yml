@@ -1,0 +1,331 @@
+name: Build
+
+on:
+  workflow_call:
+    inputs:
+      build-variant:
+        description: "Which variant of the app to build"
+        required: true
+        type: string
+      build-version:
+        description: "Version string to use, in X.Y.Z format"
+        required: true
+        type: string
+      build-number:
+        description: "Build number to use"
+        required: true
+        type: number
+      xcode-version:
+        description: "Xcode version to use"
+        required: true
+        type: string
+
+jobs:
+  build:
+    name: Build
+    runs-on: macos-14
+    env:
+      MINT_PATH: .mint/lib
+      MINT_LINK_PATH: .mint/bin
+
+    steps:
+      - name: Check out repo
+        uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
+        with:
+          fetch-depth: 0
+          filter: tree:0
+
+      - name: Set Xcode version
+        uses: maxim-lobanov/setup-xcode@60606e260d2fc5762a71e64e74b2174e8ea3c8bd # v1.6.0
+        with:
+          xcode-version: ${{ inputs.xcode-version }}
+
+      - name: Cache Mint packages
+        id: mint-cache
+        uses: actions/cache@0c45773b623bea8c8e75f6c82b208c3cf94ea4f9 # v4.0.2
+        with:
+          path: .mint
+          key: ${{ runner.os }}-mint-${{ hashFiles('**/Mintfile') }}
+          restore-keys: |
+            ${{ runner.os }}-mint-
+
+      - name: Install yeetd
+        run: |
+          wget https://github.com/biscuitehh/yeetd/releases/download/1.0/yeetd-normal.pkg
+          sudo installer -pkg yeetd-normal.pkg -target /
+          yeetd &
+
+      - name: Log in to Azure
+        uses: Azure/login@cb79c773a3cfa27f31f25eb3f677781210c9ce3d # v1.6.1
+        with:
+          creds: ${{ secrets.AZURE_KV_CI_SERVICE_PRINCIPAL }}
+
+      - name: Retrieve secrets
+        uses: bitwarden/gh-actions/get-keyvault-secrets@main
+        with:
+          keyvault: "bitwarden-ci"
+          secrets: "appcenter-ios-token"
+
+      - name: Retrieve production provisioning profiles
+        if: inputs.xcode-version == 'Production'
+        env:
+          ACCOUNT_NAME: bitwardenci
+          CONTAINER_NAME: profiles
+        run: |
+          mkdir -p $HOME/secrets
+          profiles=(
+            "dist_autofill.mobileprovision"
+            "dist_bitwarden.mobileprovision"
+            "dist_extension.mobileprovision"
+            "dist_share_extension.mobileprovision"
+            "dist_bitwarden_watch_app.mobileprovision"
+            "dist_bitwarden_watch_app_extension.mobileprovision"
+          )
+
+          for FILE in "${profiles[@]}"
+          do
+            az storage blob download --account-name $ACCOUNT_NAME --container-name $CONTAINER_NAME --name $FILE \
+              --file $HOME/secrets/$FILE --output none
+          done
+
+      - name: Retrieve beta provisioning profiles
+        if: inputs.xcode-version == 'Beta'
+        env:
+          ACCOUNT_NAME: bitwardenci
+          CONTAINER_NAME: profiles
+        run: |
+          mkdir -p $HOME/secrets
+          profiles=(
+            "dist_beta_autofill.mobileprovision"
+            "dist_beta_bitwarden.mobileprovision"
+            "dist_beta_extension.mobileprovision"
+            "dist_beta_share_extension.mobileprovision"
+            "dist_beta_bitwarden_watch_app.mobileprovision"
+            "dist_beta_bitwarden_watch_app_extension.mobileprovision"
+          )
+
+          for FILE in "${profiles[@]}"
+          do
+            az storage blob download --account-name $ACCOUNT_NAME --container-name $CONTAINER_NAME --name $FILE \
+              --file $HOME/secrets/$FILE --output none
+          done
+
+      - name: Retrieve production Google Services secret
+        if: inputs.xcode-version == 'Production'
+        env:
+          ACCOUNT_NAME: bitwardenci
+          CONTAINER_NAME: mobile
+          SOURCE_FILE: GoogleService-Info.plist
+          TARGET_FILE: GoogleService-Info.plist
+        run: |
+          mkdir -p $HOME/secrets
+          az storage blob download --account-name $ACCOUNT_NAME --container-name $CONTAINER_NAME --name $SOURCE_FILE \
+            --file Bitwarden/Application/Support/$TARGET_FILE --output none
+
+      - name: Retrieve watch production Google Services secret
+        if: inputs.xcode-version == 'Production'
+        env:
+          ACCOUNT_NAME: bitwardenci
+          CONTAINER_NAME: mobile
+          SOURCE_FILE: GoogleService-Info.plist
+          TARGET_FILE: GoogleService-Info.plist
+        run: |
+          mkdir -p $HOME/secrets
+          az storage blob download --account-name $ACCOUNT_NAME --container-name $CONTAINER_NAME --name $SOURCE_FILE \
+            --file BitwardenWatchApp/$TARGET_FILE --output none
+          plutil -replace BUNDLE_ID -string com.8bit.bitwarden.watchkitapp BitwardenWatchApp/$TARGET_FILE
+
+      - name: Retrieve beta Google Services secret
+        if: inputs.xcode-version == 'Beta'
+        env:
+          ACCOUNT_NAME: bitwardenci
+          CONTAINER_NAME: mobile
+          SOURCE_FILE: GoogleService-Info-ios-pm-beta.plist
+          TARGET_FILE: GoogleService-Info.plist
+        run: |
+          mkdir -p $HOME/secrets
+          az storage blob download --account-name $ACCOUNT_NAME --container-name $CONTAINER_NAME --name $SOURCE_FILE \
+            --file Bitwarden/Application/Support/$TARGET_FILE --output none
+
+      - name: Retrieve watch beta Google Services secret
+        if: inputs.xcode-version == 'Beta'
+        env:
+          ACCOUNT_NAME: bitwardenci
+          CONTAINER_NAME: mobile
+          SOURCE_FILE: GoogleService-Info-ios-pm-beta.plist
+          TARGET_FILE: GoogleService-Info.plist
+        run: |
+          mkdir -p $HOME/secrets
+          az storage blob download --account-name $ACCOUNT_NAME --container-name $CONTAINER_NAME --name $SOURCE_FILE \
+            --file BitwardenWatchApp/$TARGET_FILE --output none
+          plutil -replace BUNDLE_ID -string com.8bit.bitwarden.beta.watchkitapp BitwardenWatchApp/$TARGET_FILE
+
+      - name: Retrieve certificates
+        run: |
+          mkdir -p $HOME/certificates
+          az keyvault secret show --id https://bitwarden-ci.vault.azure.net/certificates/ios-distribution |
+            jq -r .value | base64 -d > $HOME/certificates/ios-distribution.p12
+
+      - name: Download Fastlane credentials
+        env:
+          ACCOUNT_NAME: bitwardenci
+          CONTAINER_NAME: mobile
+          FILE: appstoreconnect-fastlane.json
+        run: |
+          mkdir -p $HOME/secrets
+          az storage blob download --account-name $ACCOUNT_NAME --container-name $CONTAINER_NAME --name $FILE \
+            --file $HOME/secrets/$FILE --output none
+
+      - name: Configure Keychain Access
+        env:
+          KEYCHAIN_PASSWORD: ${{ secrets.IOS_KEYCHAIN_PASSWORD }}
+        run: |
+          security create-keychain -p $KEYCHAIN_PASSWORD build.keychain
+          security default-keychain -s build.keychain
+          security unlock-keychain -p $KEYCHAIN_PASSWORD build.keychain
+          security set-keychain-settings -lut 1200 build.keychain
+
+          security import $HOME/certificates/ios-distribution.p12 -k build.keychain -P "" -T /usr/bin/codesign \
+            -T /usr/bin/security
+          security set-key-partition-list -S apple-tool:,apple:,codesign: -s -k $KEYCHAIN_PASSWORD build.keychain
+
+      - name: Configure production provisioning profiles
+        if: inputs.xcode-version == 'Production'
+        run: |
+          AUTOFILL_PROFILE_PATH=$HOME/secrets/dist_autofill.mobileprovision
+          BITWARDEN_PROFILE_PATH=$HOME/secrets/dist_bitwarden.mobileprovision
+          EXTENSION_PROFILE_PATH=$HOME/secrets/dist_extension.mobileprovision
+          SHARE_EXTENSION_PROFILE_PATH=$HOME/secrets/dist_share_extension.mobileprovision
+          WATCH_APP_PROFILE_PATH=$HOME/secrets/dist_bitwarden_watch_app.mobileprovision
+          WATCH_APP_EXTENSION_PROFILE_PATH=$HOME/secrets/dist_bitwarden_watch_app_extension.mobileprovision
+          PROFILES_DIR_PATH=$HOME/Library/MobileDevice/Provisioning\ Profiles
+
+          mkdir -p "$PROFILES_DIR_PATH"
+
+          AUTOFILL_UUID=$(grep UUID -A1 -a $AUTOFILL_PROFILE_PATH | grep -io "[-A-F0-9]\{36\}")
+          cp $AUTOFILL_PROFILE_PATH "$PROFILES_DIR_PATH/$AUTOFILL_UUID.mobileprovision"
+
+          BITWARDEN_UUID=$(grep UUID -A1 -a $BITWARDEN_PROFILE_PATH | grep -io "[-A-F0-9]\{36\}")
+          cp $BITWARDEN_PROFILE_PATH "$PROFILES_DIR_PATH/$BITWARDEN_UUID.mobileprovision"
+
+          EXTENSION_UUID=$(grep UUID -A1 -a $EXTENSION_PROFILE_PATH | grep -io "[-A-F0-9]\{36\}")
+          cp $EXTENSION_PROFILE_PATH "$PROFILES_DIR_PATH/$EXTENSION_UUID.mobileprovision"
+
+          SHARE_EXTENSION_UUID=$(grep UUID -A1 -a $SHARE_EXTENSION_PROFILE_PATH | grep -io "[-A-F0-9]\{36\}")
+          cp $SHARE_EXTENSION_PROFILE_PATH "$PROFILES_DIR_PATH/$SHARE_EXTENSION_UUID.mobileprovision"
+
+          WATCH_APP_UUID=$(grep UUID -A1 -a $WATCH_APP_PROFILE_PATH | grep -io "[-A-F0-9]\{36\}")
+          cp $WATCH_APP_PROFILE_PATH "$PROFILES_DIR_PATH/$WATCH_APP_UUID.mobileprovision"
+
+          WATCH_APP_EXTENSION_UUID=$(grep UUID -A1 -a $WATCH_APP_EXTENSION_PROFILE_PATH | grep -io "[-A-F0-9]\{36\}")
+          cp $WATCH_APP_EXTENSION_PROFILE_PATH "$PROFILES_DIR_PATH/$WATCH_APP_EXTENSION_UUID.mobileprovision"
+
+      - name: Configure beta provisioning profiles
+        if: inputs.xcode-version == 'Beta'
+        run: |
+          AUTOFILL_PROFILE_PATH=$HOME/secrets/dist_beta_autofill.mobileprovision
+          BITWARDEN_PROFILE_PATH=$HOME/secrets/dist_beta_bitwarden.mobileprovision
+          EXTENSION_PROFILE_PATH=$HOME/secrets/dist_beta_extension.mobileprovision
+          SHARE_EXTENSION_PROFILE_PATH=$HOME/secrets/dist_beta_share_extension.mobileprovision
+          WATCH_APP_PROFILE_PATH=$HOME/secrets/dist_beta_bitwarden_watch_app.mobileprovision
+          WATCH_APP_EXTENSION_PROFILE_PATH=$HOME/secrets/dist_beta_bitwarden_watch_app_extension.mobileprovision
+          PROFILES_DIR_PATH=$HOME/Library/MobileDevice/Provisioning\ Profiles
+
+          mkdir -p "$PROFILES_DIR_PATH"
+
+          AUTOFILL_UUID=$(grep UUID -A1 -a $AUTOFILL_PROFILE_PATH | grep -io "[-A-F0-9]\{36\}")
+          cp $AUTOFILL_PROFILE_PATH "$PROFILES_DIR_PATH/$AUTOFILL_UUID.mobileprovision"
+
+          BITWARDEN_UUID=$(grep UUID -A1 -a $BITWARDEN_PROFILE_PATH | grep -io "[-A-F0-9]\{36\}")
+          cp $BITWARDEN_PROFILE_PATH "$PROFILES_DIR_PATH/$BITWARDEN_UUID.mobileprovision"
+
+          EXTENSION_UUID=$(grep UUID -A1 -a $EXTENSION_PROFILE_PATH | grep -io "[-A-F0-9]\{36\}")
+          cp $EXTENSION_PROFILE_PATH "$PROFILES_DIR_PATH/$EXTENSION_UUID.mobileprovision"
+
+          SHARE_EXTENSION_UUID=$(grep UUID -A1 -a $SHARE_EXTENSION_PROFILE_PATH | grep -io "[-A-F0-9]\{36\}")
+          cp $SHARE_EXTENSION_PROFILE_PATH "$PROFILES_DIR_PATH/$SHARE_EXTENSION_UUID.mobileprovision"
+
+          WATCH_APP_UUID=$(grep UUID -A1 -a $WATCH_APP_PROFILE_PATH | grep -io "[-A-F0-9]\{36\}")
+          cp $WATCH_APP_PROFILE_PATH "$PROFILES_DIR_PATH/$WATCH_APP_UUID.mobileprovision"
+
+          WATCH_APP_EXTENSION_UUID=$(grep UUID -A1 -a $WATCH_APP_EXTENSION_PROFILE_PATH | grep -io "[-A-F0-9]\{36\}")
+          cp $WATCH_APP_EXTENSION_PROFILE_PATH "$PROFILES_DIR_PATH/$WATCH_APP_EXTENSION_UUID.mobileprovision"
+
+      - name: Update beta export compliance key
+        if: inputs.xcode-version == 'Beta'
+        run: |
+          plutil -replace ITSEncryptionExportComplianceCode -string 3dd3e32f-efa6-4d99-b410-28aa28b1cb77 Bitwarden/Application/Support/Info.plist
+
+      - name: Update beta Fastlane Appfile
+        if: inputs.xcode-version == 'Beta'
+        run: |
+          echo 'app_identifier "com.8bit.bitwarden.beta"' > fastlane/Appfile
+
+      - name: Update APNS entitlements
+        run: |
+          plutil -replace aps-environment -string production Bitwarden/Application/Support/Bitwarden.entitlements
+
+      - name: Configure Ruby
+        uses: ruby/setup-ruby@a6e6f86333f0a2523ece813039b8b4be04560854 # v1.190.0
+        with:
+          bundler-cache: true
+
+      - name: Install Fastlane, Mint, xcbeautify, and yq
+        run: |
+          brew install fastlane mint xcbeautify yq
+
+      - name: Install Mint packages
+        if: steps.mint-cache.outputs.cache-hit != 'true'
+        run: |
+          mint bootstrap
+
+      - name: Select variant
+        run: |
+          ./Scripts/select_variant.sh ${{ inputs.build-variant }}
+          echo "**Variant**: ${{ inputs.build-variant }}" | tee -a $GITHUB_STEP_SUMMARY
+
+      - name: Update build version and number
+        run: |
+          yq -i '.settings.MARKETING_VERSION = "${{ inputs.build-version }}"' 'project.yml'
+          yq -i '.settings.CURRENT_PROJECT_VERSION = "${{ inputs.build-number }}"' 'project.yml'
+
+      - name: Update app CI Build info
+        run: |
+          ./Scripts/update_app_ci_build_info.sh ${{ github.run_id }} ${{ github.run_number }} ${{ github.run_attempt }}
+
+      - name: Build iOS app
+        run: |
+          BUILD_NUMBER=$(($GITHUB_RUN_NUMBER))
+          ./Scripts/build.sh
+
+      - name: Prepare IPA & dSYM files for upload to GitHub
+        run: |
+          mkdir -p export/dSYMs
+          cp build/Bitwarden/Bitwarden.ipa export
+          cp -rv build/Bitwarden.xcarchive/dSYMs/*.dSYM export/dSYMs
+
+      - name: Upload IPA & dSYM files
+        uses: actions/upload-artifact@89ef406dd8d7e03cfd12d9e0a4a378f454709029 # v4.3.5
+        with:
+          name: Bitwarden iOS
+          path: export
+          if-no-files-found: error
+
+      - name: Validate app with App Store Connect
+        env:
+          APPLE_ID_USERNAME: ${{ secrets.APPLE_ID_USERNAME }}
+          APPLE_ID_PASSWORD: ${{ secrets.APPLE_ID_PASSWORD }}
+        run: |
+          xcrun altool --validate-app \
+            --type ios \
+            --file "export/Bitwarden.ipa" \
+            --username "$APPLE_ID_USERNAME" \
+            --password @env:APPLE_ID_PASSWORD
+
+    #   - name: Upload app to TestFlight with Fastlane
+    #     run: |
+    #       NEWLINE=$'\n'
+    #       fastlane upload_build \
+    #         api_key_path:"$HOME/secrets/appstoreconnect-fastlane.json" \
+    #         changelog:"$(git show -s --format=%s)$NEWLINE$GITHUB_REPOSITORY/$GITHUB_REF_NAME @ $GITHUB_SHA$NEWLINE$NEWLINE$GITHUB_SERVER_URL/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID" \
+    #         ipa_path:"export/Bitwarden.ipa"
