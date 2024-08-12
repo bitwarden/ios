@@ -14,34 +14,22 @@ struct IntroCarouselView: View {
     /// The `Store` for this view.
     @ObservedObject var store: Store<IntroCarouselState, IntroCarouselAction, Void>
 
-    /// The index of the currently visible page in the carousel.
-    @SwiftUI.State private var tabSelection = 0
-
     // MARK: View
 
     var body: some View {
         VStack(spacing: 0) {
-            TabView(selection: $tabSelection.animation()) {
+            TabView(selection: store.binding(
+                get: \.currentPageIndex,
+                send: IntroCarouselAction.currentPageIndexChanged
+            )) {
                 ForEachIndexed(store.state.pages) { index, page in
                     pageView(page)
                         .tag(index)
                 }
             }
-            .tabViewStyle(.page(indexDisplayMode: .never))
-
-            HStack(spacing: 8) {
-                ForEachIndexed(store.state.pages) { index, _ in
-                    Image(systemName: "circle.fill")
-                        .resizable()
-                        .frame(width: 8, height: 8)
-                        .foregroundStyle(
-                            tabSelection == index ?
-                                Asset.Colors.textPrimary.swiftUIColor :
-                                Asset.Colors.textPrimary.swiftUIColor.opacity(0.3)
-                        )
-                }
-            }
-            .padding(16)
+            .tabViewStyle(.page(indexDisplayMode: .always))
+            .indexViewStyle(.page(backgroundDisplayMode: .always))
+            .animation(.default, value: store.state.currentPageIndex)
 
             VStack(spacing: 12) {
                 Button(Localizations.createAccount) {

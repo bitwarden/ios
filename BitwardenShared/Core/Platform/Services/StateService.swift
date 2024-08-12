@@ -163,6 +163,12 @@ protocol StateService: AnyObject {
     ///
     func getEvents(userId: String?) async throws -> [EventData]
 
+    /// Gets whether the intro carousel screen has been shown.
+    ///
+    /// - Returns: Whether the intro carousel screen has been shown.
+    ///
+    func getIntroCarouselShown() async -> Bool
+
     /// Gets the user's last active time within the app.
     /// This value is set when the app is backgrounded.
     ///
@@ -409,6 +415,12 @@ protocol StateService: AnyObject {
     ///   - userId: The user ID of the account. Defaults to the active account if `nil`.
     ///
     func setForcePasswordResetReason(_ reason: ForcePasswordResetReason?, userId: String?) async throws
+
+    /// Sets whether the intro carousel screen has been shown.
+    ///
+    /// - Parameter shown: Whether the intro carousel screen has been shown.
+    ///
+    func setIntroCarouselShown(_ shown: Bool) async
 
     /// Sets the last active time within the app.
     ///
@@ -1163,6 +1175,10 @@ actor DefaultStateService: StateService { // swiftlint:disable:this type_body_le
         return appSettingsStore.events(userId: userId)
     }
 
+    func getIntroCarouselShown() async -> Bool {
+        appSettingsStore.introCarouselShown
+    }
+
     func getLastActiveTime(userId: String?) async throws -> Date? {
         let userId = try userId ?? getActiveAccountUserId()
         return appSettingsStore.lastActiveTime(userId: userId)
@@ -1364,6 +1380,10 @@ actor DefaultStateService: StateService { // swiftlint:disable:this type_body_le
         }
         defer { appSettingsStore.state = state }
         state.accounts[userId]?.profile.forcePasswordResetReason = reason
+    }
+
+    func setIntroCarouselShown(_ shown: Bool) async {
+        appSettingsStore.introCarouselShown = shown
     }
 
     func setLastActiveTime(_ date: Date?, userId: String?) async throws {

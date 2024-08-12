@@ -34,6 +34,7 @@ class MockStateService: StateService { // swiftlint:disable:this type_body_lengt
     var eventsResult: Result<Void, Error> = .success(())
     var events = [String: [EventData]]()
     var forcePasswordResetReason = [String: ForcePasswordResetReason]()
+    var introCarouselShown = false
     var lastActiveTime = [String: Date]()
     var loginRequest: LoginRequestNotification?
     var getAccountEncryptionKeysError: Error?
@@ -202,6 +203,10 @@ class MockStateService: StateService { // swiftlint:disable:this type_body_lengt
         try eventsResult.get()
         let userId = try unwrapUserId(userId)
         return events[userId] ?? []
+    }
+
+    func getIntroCarouselShown() async -> Bool {
+        introCarouselShown
     }
 
     func getLastActiveTime(userId: String?) async throws -> Date? {
@@ -374,6 +379,10 @@ class MockStateService: StateService { // swiftlint:disable:this type_body_lengt
     func setForcePasswordResetReason(_ reason: ForcePasswordResetReason?, userId: String?) async throws {
         let userId = try unwrapUserId(userId)
         forcePasswordResetReason[userId] = reason
+    }
+
+    func setIntroCarouselShown(_ shown: Bool) async {
+        introCarouselShown = shown
     }
 
     func setIsAuthenticated() {

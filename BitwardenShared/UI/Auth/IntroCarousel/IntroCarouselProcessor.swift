@@ -34,6 +34,8 @@ class IntroCarouselProcessor: StateProcessor<IntroCarouselState, IntroCarouselAc
         switch action {
         case .createAccount:
             coordinator.navigate(to: .createAccount)
+        case let .currentPageIndexChanged(newValue):
+            state.currentPageIndex = newValue
         case .logIn:
             coordinator.navigate(to: .landing)
         }
