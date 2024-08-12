@@ -339,6 +339,10 @@ jobs:
           BUILD_NUMBER=$(($GITHUB_RUN_NUMBER))
           yq -i ".settings.CURRENT_PROJECT_VERSION = ${{ inputs.build-number || '$BUILD_NUMBER' }}" 'project.yml'
 
+      - name: Update app CI Build info
+        run: |
+          ./Scripts/update_app_ci_build_info.sh ${{ github.run_id }} ${{ github.run_number }} ${{ github.run_attempt }}
+
       - name: Build iOS app
         run: |
           BUILD_NUMBER=$(($GITHUB_RUN_NUMBER))
