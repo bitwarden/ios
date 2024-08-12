@@ -32,6 +32,9 @@ struct BitwardenTextField<TrailingContent: View>: View {
     /// Whether a password in this text field is visible.
     let isPasswordVisible: Binding<Bool>?
 
+    /// If the keyboard should be presented immediately when the view appears.
+    let isPasswordAutoFocused: Bool
+
     /// The accessibility identifier for the button to toggle password visibility.
     let passwordVisibilityAccessibilityId: String?
 
@@ -117,6 +120,9 @@ struct BitwardenTextField<TrailingContent: View>: View {
             .hidden(text.isEmpty || !isFocused)
         }
         .tint(Asset.Colors.primaryBitwarden.swiftUIColor)
+        .onAppear {
+            isSecureFieldFocused = isPasswordAutoFocused
+        }
     }
 
     // MARK: Initialization
@@ -130,6 +136,7 @@ struct BitwardenTextField<TrailingContent: View>: View {
     ///   - accessibilityIdentifier: The accessibility identifier for the text field.
     ///   - passwordVisibilityAccessibilityId: The accessibility ID for the button to toggle password visibility.
     ///   - canViewPassword: Whether the password can be viewed.
+    ///   - isPasswordAutoFocused: Whether the password field shows the keyboard initially.
     ///   - isPasswordVisible: Whether the password is visible.
     ///   - placeholder: An optional placeholder to display in the text field.
     ///
@@ -140,11 +147,13 @@ struct BitwardenTextField<TrailingContent: View>: View {
         accessibilityIdentifier: String? = nil,
         passwordVisibilityAccessibilityId: String? = nil,
         canViewPassword: Bool = true,
+        isPasswordAutoFocused: Bool = false,
         isPasswordVisible: Binding<Bool>? = nil,
         placeholder: String? = nil,
         @ViewBuilder trailingContent: () -> TrailingContent
     ) {
         self.accessibilityIdentifier = accessibilityIdentifier
+        self.isPasswordAutoFocused = isPasswordAutoFocused
         self.isPasswordVisible = isPasswordVisible
         self.footer = footer
         self.canViewPassword = canViewPassword
@@ -166,6 +175,7 @@ extension BitwardenTextField where TrailingContent == EmptyView {
     ///   - accessibilityIdentifier: The accessibility identifier for the text field.
     ///   - passwordVisibilityAccessibilityId: The accessibility ID for the button to toggle password visibility.
     ///   - canViewPassword: Whether the password can be viewed.
+    ///   - isPasswordAutoFocused: Whether the password field shows the keyboard initially.
     ///   - isPasswordVisible: Whether the password is visible.
     ///   - placeholder: An optional placeholder to display in the text field.
     ///
@@ -176,12 +186,14 @@ extension BitwardenTextField where TrailingContent == EmptyView {
         accessibilityIdentifier: String? = nil,
         passwordVisibilityAccessibilityId: String? = nil,
         canViewPassword: Bool = true,
+        isPasswordAutoFocused: Bool = false,
         isPasswordVisible: Binding<Bool>? = nil,
         placeholder: String? = nil
     ) {
         self.accessibilityIdentifier = accessibilityIdentifier
         self.canViewPassword = canViewPassword
         self.footer = footer
+        self.isPasswordAutoFocused = isPasswordAutoFocused
         self.isPasswordVisible = isPasswordVisible
         self.passwordVisibilityAccessibilityId = passwordVisibilityAccessibilityId
         self.placeholder = placeholder ?? ""
