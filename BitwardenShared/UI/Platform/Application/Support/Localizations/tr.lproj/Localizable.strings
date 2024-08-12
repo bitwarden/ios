@@ -479,8 +479,6 @@
 "CodeSent" = "Kod gönderildi!";
 "ConfirmYourIdentity" = "Devam etmek için kimliğinizi doğrulayın.";
 "ExportVaultWarning" = "Dışa aktarılan dosyadaki verileriniz şifrelenmemiş olacak. Bu dosyayı güvensiz yöntemlerle (örn. e-posta) göndermemeli ve saklamamalısınız. İşiniz bittikten sonra dosyayı hemen silin.";
-"EncExportKeyWarning" = "Dışa aktardığınız bu dosyadaki verileriniz, hesabınızın şifreleme anahtarıyla şifrelenir. Hesabınızın şifreleme anahtarını değiştirirseniz bu dosyanın şifresi çözülemez hale gelir, dolayısıyla dosyayı yeniden dışa aktarmanız gerekir.";
-"EncExportAccountWarning" = "Hesap şifreleme anahtarları her Bitwarden kullanıcı hesabı için farklıdır. Dolayısıyla şifrelenmiş bir dışa aktarmayı başka bir hesapta içe aktaramazsınız.";
 "ExportVaultConfirmationTitle" = "Kasayı dışa aktarmayı onaylayın";
 "Warning" = "Uyarı";
 "ExportVaultFailure" = "Kasanızı dışa aktarırken bir sorun oluştu. Sorun devam ederse web kasasından dışa aktarmanız gerekir.";
@@ -920,3 +918,4 @@
 "UnknownAccount" = "Bilinmeyen hesap";
 "UserVerificationForPasskey" = "User verification for passkey";
 "NewItem" = "Yeni kayıt";
+"ExportVaultFilePwProtectInfo" = "Dışarı aktarılan bu dosya parola korumalı olacak ve dosyanın çözülmesi için parolayı girmeniz gerekecek.";

@@ -479,8 +479,6 @@
 "CodeSent" = "कोड भेजा गया!";
 "ConfirmYourIdentity" = "Confirm your identity to continue.";
 "ExportVaultWarning" = "This export contains your vault data in an unencrypted format. You should not store or send the exported file over unsecure channels (such as email). Delete it immediately after you are done using it.";
-"EncExportKeyWarning" = "This export encrypts your data using your account's encryption key. If you ever rotate your account's encryption key you should export again since you will not be able to decrypt this export file.";
-"EncExportAccountWarning" = "Account encryption keys are unique to each Bitwarden user account, so you can't import an encrypted export into a different account.";
 "ExportVaultConfirmationTitle" = "Confirm vault export";
 "Warning" = "खबरदार";
 "ExportVaultFailure" = "There was a problem exporting your vault.  If the problem persists, you'll need to export from the web vault.";
@@ -920,3 +918,4 @@
 "UnknownAccount" = "Unknown account";
 "UserVerificationForPasskey" = "User verification for passkey";
 "NewItem" = "New item";
+"ExportVaultFilePwProtectInfo" = "This file export will be password protected and require the file password to decrypt.";

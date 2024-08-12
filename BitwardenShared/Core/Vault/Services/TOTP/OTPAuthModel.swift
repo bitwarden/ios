@@ -18,8 +18,8 @@ public struct OTPAuthModel: Equatable, Hashable, Sendable {
     /// The provider or service the account is associated with.
     let issuer: String?
 
-    /// The Base32-encoded key used for generating the OTP.
-    let keyB32: String
+    /// The key used for generating the OTP.
+    let key: String
 
     /// The time period in seconds for which the OTP is valid.
     let period: Int
@@ -36,7 +36,7 @@ public struct OTPAuthModel: Equatable, Hashable, Sendable {
     ///   - algorithm: The hashing algorithm used for generating the OTP.
     ///   - digits: The number of digits in the OTP.
     ///   - issuer: The provider or service the account is associated with.
-    ///   - keyB32: The Base32-encoded key.
+    ///   - key: The totp key.
     ///   - period: The time period in seconds for which the OTP is valid.
     ///   - uri: The unparsed key URI.
     ///
@@ -45,7 +45,7 @@ public struct OTPAuthModel: Equatable, Hashable, Sendable {
         algorithm: TOTPCryptoHashAlgorithm,
         digits: Int,
         issuer: String? = nil,
-        keyB32: String,
+        key: String,
         period: Int,
         uri: String
     ) {
@@ -53,7 +53,7 @@ public struct OTPAuthModel: Equatable, Hashable, Sendable {
         self.algorithm = algorithm
         self.digits = digits
         self.issuer = issuer
-        self.keyB32 = keyB32
+        self.key = key
         self.period = period
         self.uri = uri
     }
@@ -66,8 +66,7 @@ public struct OTPAuthModel: Equatable, Hashable, Sendable {
         guard let urlComponents = URLComponents(string: otpAuthKey),
               urlComponents.scheme == "otpauth",
               let queryItems = urlComponents.queryItems,
-              let secret = queryItems.first(where: { $0.name == "secret" })?.value,
-              secret.uppercased().isBase32 else {
+              let secret = queryItems.first(where: { $0.name == "secret" })?.value else {
             return nil
         }
 
@@ -92,7 +91,7 @@ public struct OTPAuthModel: Equatable, Hashable, Sendable {
             algorithm: algorithm,
             digits: digits,
             issuer: issuer,
-            keyB32: secret,
+            key: secret,
             period: period,
             uri: otpAuthKey
         )

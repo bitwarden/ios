@@ -81,7 +81,7 @@ struct SetMasterPasswordView: View {
         .navigationTitle(Localizations.setMasterPassword)
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {
-            ToolbarItem(placement: .topBarTrailing) {
+            ToolbarItem(placement: .topBarLeading) {
                 if !store.state.isPrivilegeElevation {
                     cancelToolbarButton {
                         Task {

@@ -61,11 +61,19 @@ class AddEditFolderViewTests: BitwardenTestCase {
         XCTAssertEqual(processor.dispatchedActions.last, .folderNameTextChanged("text"))
     }
 
-    /// Tapping the save button performs the `.saveTapped` effect.
-    func test_saveButton_tap() async throws {
+    /// Tapping the save button in add mode performs the `.saveTapped` effect.
+    func test_saveButton_tapAdd() async throws {
         let button = try subject.inspect().find(asyncButton: Localizations.save)
         try await button.tap()
 
+        XCTAssertEqual(processor.effects.last, .saveTapped)
+    }
+
+    /// Tapping the save button in edit mode performs the `.saveTapped` effect.
+    func test_saveButton_tapEdit() async throws {
+        processor.state.mode = .edit(.fixture())
+        let button = try subject.inspect().find(asyncButton: Localizations.save)
+        try await button.tap()
         XCTAssertEqual(processor.effects.last, .saveTapped)
     }
 
@@ -73,19 +81,28 @@ class AddEditFolderViewTests: BitwardenTestCase {
 
     /// Tests the view renders correctly when the text field is empty.
     func test_snapshot_add_empty() {
-        assertSnapshots(matching: subject, as: [.defaultPortrait, .defaultPortraitDark, .defaultPortraitAX5])
+        assertSnapshots(
+            matching: subject.navStackWrapped,
+            as: [.defaultPortrait, .defaultPortraitDark, .defaultPortraitAX5]
+        )
     }
 
     /// Tests the view renders correctly when the text field is populated.
     func test_snapshot_add_populated() {
         processor.state.folderName = "Super cool folder name"
-        assertSnapshots(matching: subject, as: [.defaultPortrait, .defaultPortraitDark, .defaultPortraitAX5])
+        assertSnapshots(
+            matching: subject.navStackWrapped,
+            as: [.defaultPortrait, .defaultPortraitDark, .defaultPortraitAX5]
+        )
     }
 
     /// Tests the view renders correctly when the text field is populated.
     func test_snapshot_edit_populated() {
         processor.state.mode = .edit(.fixture())
         processor.state.folderName = "Super cool folder name"
-        assertSnapshots(matching: subject, as: [.defaultPortrait, .defaultPortraitDark, .defaultPortraitAX5])
+        assertSnapshots(
+            matching: subject.navStackWrapped,
+            as: [.defaultPortrait, .defaultPortraitDark, .defaultPortraitAX5]
+        )
     }
 }

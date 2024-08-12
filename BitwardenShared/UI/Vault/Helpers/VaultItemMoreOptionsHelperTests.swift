@@ -240,7 +240,7 @@ class VaultItemMoreOptionsHelperTests: BitwardenTestCase { // swiftlint:disable:
 
         vaultRepository.refreshTOTPCodeResult = .success(
             LoginTOTPState(
-                authKeyModel: TOTPKeyModel(authenticatorKey: .base32Key)!,
+                authKeyModel: TOTPKeyModel(authenticatorKey: .standardTotpKey),
                 codeModel: TOTPCodeModel(code: "123321", codeGenerationDate: Date(), period: 30)
             )
         )
@@ -286,7 +286,7 @@ class VaultItemMoreOptionsHelperTests: BitwardenTestCase { // swiftlint:disable:
 
         vaultRepository.refreshTOTPCodeResult = .success(
             LoginTOTPState(
-                authKeyModel: TOTPKeyModel(authenticatorKey: .base32Key)!,
+                authKeyModel: TOTPKeyModel(authenticatorKey: .standardTotpKey),
                 codeModel: TOTPCodeModel(code: "123321", codeGenerationDate: Date(), period: 30)
             )
         )
@@ -328,7 +328,7 @@ class VaultItemMoreOptionsHelperTests: BitwardenTestCase { // swiftlint:disable:
         vaultRepository.doesActiveAccountHavePremiumResult = .success(false)
         vaultRepository.refreshTOTPCodeResult = .success(
             LoginTOTPState(
-                authKeyModel: TOTPKeyModel(authenticatorKey: .base32Key)!,
+                authKeyModel: TOTPKeyModel(authenticatorKey: .standardTotpKey),
                 codeModel: TOTPCodeModel(code: "123321", codeGenerationDate: Date(), period: 30)
             )
         )
@@ -364,7 +364,7 @@ class VaultItemMoreOptionsHelperTests: BitwardenTestCase { // swiftlint:disable:
     func test_showMoreOptionsAlert_copyTotp_refreshTOTPEmpty() async throws {
         stateService.activeAccount = .fixture()
         vaultRepository.refreshTOTPCodeResult = .success(
-            LoginTOTPState(authKeyModel: TOTPKeyModel(authenticatorKey: .base32Key)!)
+            LoginTOTPState(authKeyModel: TOTPKeyModel(authenticatorKey: .standardTotpKey))
         )
 
         let cipherView = CipherView.fixture(login: .fixture(totp: "totpKey"))
@@ -543,7 +543,7 @@ class VaultItemMoreOptionsHelperTests: BitwardenTestCase { // swiftlint:disable:
 
         vaultRepository.refreshTOTPCodeResult = .success(
             LoginTOTPState(
-                authKeyModel: TOTPKeyModel(authenticatorKey: .base32Key)!,
+                authKeyModel: TOTPKeyModel(authenticatorKey: .standardTotpKey),
                 codeModel: TOTPCodeModel(code: "123321", codeGenerationDate: Date(), period: 30)
             )
         )

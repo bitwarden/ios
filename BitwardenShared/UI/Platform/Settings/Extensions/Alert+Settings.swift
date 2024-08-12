@@ -66,9 +66,7 @@ extension Alert {
     static func confirmExportVault(encrypted: Bool, action: @escaping () async -> Void) -> Alert {
         Alert(
             title: Localizations.exportVaultConfirmationTitle,
-            message: encrypted ?
-                (Localizations.encExportKeyWarning + .newLine + Localizations.encExportAccountWarning) :
-                Localizations.exportVaultWarning,
+            message: encrypted ? Localizations.exportVaultFilePwProtectInfo : Localizations.exportVaultWarning,
             alertActions: [
                 AlertAction(title: Localizations.exportVault, style: .default) { _ in await action() },
                 AlertAction(title: Localizations.cancel, style: .cancel),

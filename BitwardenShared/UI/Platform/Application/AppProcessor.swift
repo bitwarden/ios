@@ -211,6 +211,7 @@ public class AppProcessor {
     ) async throws -> ASPasswordCredential {
         try await services.autofillCredentialService.provideCredential(
             for: id,
+            autofillCredentialServiceDelegate: self,
             repromptPasswordValidated: repromptPasswordValidated
         )
     }
@@ -453,7 +454,7 @@ public extension AppProcessor {
         try await services.autofillCredentialService.provideFido2Credential(
             for: passkeyRequest,
             autofillCredentialServiceDelegate: self,
-            fido2UserVerificationMediatorDelegate: self
+            fido2UserInterfaceHelperDelegate: self
         )
     }
 }
@@ -468,17 +469,33 @@ extension AppProcessor: AutofillCredentialServiceDelegate {
 
 // MARK: - Fido2UserVerificationMediatorDelegate
 
-extension AppProcessor: Fido2UserVerificationMediatorDelegate {
+extension AppProcessor: Fido2UserInterfaceHelperDelegate {
+    var isAutofillingFromList: Bool {
+        guard let fido2AppExtensionDelegate = appExtensionDelegate as? Fido2AppExtensionDelegate,
+              fido2AppExtensionDelegate.isAutofillingFido2CredentialFromList else {
+            return false
+        }
+        return true
+    }
+
     func onNeedsUserInteraction() async throws {
-        if let fido2AppExtensionDelegate = appExtensionDelegate as? Fido2AppExtensionDelegate,
-           !fido2AppExtensionDelegate.flowWithUserInteraction {
+        guard let fido2AppExtensionDelegate = appExtensionDelegate as? Fido2AppExtensionDelegate else {
+            return
+        }
+
+        if !fido2AppExtensionDelegate.flowWithUserInteraction {
             fido2AppExtensionDelegate.setUserInteractionRequired()
             throw Fido2Error.userInteractionRequired
         }
-    }
 
-    func setupPin() async throws {
-        // TODO: PM-8362 navigate to pin setup
+        // WORKAROUND: We need to wait until the view controller appears in order to perform any
+        // action that needs user interaction or it might not show the prompt to the user.
+        // E.g. without this there are certain devices that don't show the FaceID prompt
+        // and the user only sees the screen dimming a bit and failing the flow.
+        for await didAppear in fido2AppExtensionDelegate.getDidAppearPublisher() {
+            guard didAppear else { continue }
+            return
+        }
     }
 
     func showAlert(_ alert: Alert) {

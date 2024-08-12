@@ -42,8 +42,6 @@ struct AddEditSendItemView: View { // swiftlint:disable:this type_body_length
                     if store.state.isOptionsExpanded {
                         options
                     }
-
-                    saveButton
                 }
                 .padding(16)
                 .disabled(store.state.isSendDisabled)
@@ -57,7 +55,11 @@ struct AddEditSendItemView: View { // swiftlint:disable:this type_body_length
             titleDisplayMode: .inline
         )
         .toolbar {
-            ToolbarItem(placement: .topBarLeading) {
+            ToolbarItemGroup(placement: .topBarLeading) {
+                cancelToolbarButton {
+                    store.send(.dismissPressed)
+                }
+
                 switch store.state.mode {
                 case .add,
                      .edit:
@@ -80,8 +82,12 @@ struct AddEditSendItemView: View { // swiftlint:disable:this type_body_length
             }
 
             ToolbarItemGroup(placement: .navigationBarTrailing) {
-                switch store.state.mode {
-                case .edit:
+                saveToolbarButton {
+                    await store.perform(.savePressed)
+                }
+                .disabled(store.state.isSendDisabled)
+
+                if store.state.mode == .edit {
                     optionsToolbarMenu {
                         if !store.state.isSendDisabled {
                             AsyncButton(Localizations.shareLink) {
@@ -101,13 +107,6 @@ struct AddEditSendItemView: View { // swiftlint:disable:this type_body_length
                             await store.perform(.deletePressed)
                         }
                     }
-                case .add,
-                     .shareExtension:
-                    EmptyView()
-                }
-
-                cancelToolbarButton {
-                    store.send(.dismissPressed)
                 }
             }
         }
@@ -458,15 +457,6 @@ struct AddEditSendItemView: View { // swiftlint:disable:this type_body_length
         }
     }
 
-    /// The save button.
-    @ViewBuilder private var saveButton: some View {
-        AsyncButton(Localizations.save) {
-            await store.perform(.savePressed)
-        }
-        .accessibilityIdentifier("SaveButton")
-        .buttonStyle(.primary())
-    }
-
     /// The attributes for a text type send.
     @ViewBuilder private var textSendAttributes: some View {
         BitwardenMultilineTextField(
@@ -636,4 +626,29 @@ struct AddEditSendItemView: View { // swiftlint:disable:this type_body_length
         )
     }
 }
+
+#Preview("Text - Share") {
+    NavigationView {
+        AddEditSendItemView(
+            store: Store(
+                processor: StateProcessor(
+                    state: AddEditSendItemState(
+                        currentAccessCount: 42,
+                        customDeletionDate: Date(),
+                        customExpirationDate: nil,
+                        deletionDate: .custom,
+                        expirationDate: .custom,
+                        isHideTextByDefaultOn: true,
+                        isOptionsExpanded: true,
+                        mode: .shareExtension(.singleAccount),
+                        name: "Sendy",
+                        text: "Example text",
+                        type: .text
+                    )
+                )
+            )
+        )
+    }
+}
+
 #endif // swiftlint:disable:this file_length

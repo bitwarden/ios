@@ -317,7 +317,51 @@ extension BitwardenSdk.Cipher {
 }
 
 extension BitwardenSdk.CipherListView: Identifiable {}
-extension BitwardenSdk.CipherView: Identifiable {}
+
+extension BitwardenSdk.CipherView: Identifiable {
+    /// Initializes a new `CipherView` based on a `Fido2CredentialNewView`
+    /// - Parameters:
+    ///   - fido2CredentialNewView: The `Fido2CredentialNewView` for the Fido2 creation flow
+    ///   - timeProvider: The time provider.
+    init(fido2CredentialNewView: Fido2CredentialNewView, timeProvider: TimeProvider) {
+        self = CipherView(
+            id: nil,
+            organizationId: nil,
+            folderId: nil,
+            collectionIds: [],
+            key: nil,
+            name: fido2CredentialNewView.rpName ?? fido2CredentialNewView.rpId,
+            notes: nil,
+            type: .login,
+            login: BitwardenSdk.LoginView(
+                username: fido2CredentialNewView.userName ?? "",
+                password: nil,
+                passwordRevisionDate: nil,
+                uris: [
+                    LoginUriView(uri: fido2CredentialNewView.rpId, match: nil, uriChecksum: nil),
+                ],
+                totp: nil,
+                autofillOnPageLoad: nil,
+                fido2Credentials: nil
+            ),
+            identity: nil,
+            card: nil,
+            secureNote: nil,
+            favorite: false,
+            reprompt: .none,
+            organizationUseTotp: false,
+            edit: false,
+            viewPassword: true,
+            localData: nil,
+            attachments: nil,
+            fields: nil,
+            passwordHistory: nil,
+            creationDate: timeProvider.presentTime,
+            deletedDate: nil,
+            revisionDate: timeProvider.presentTime
+        )
+    }
+}
 
 extension BitwardenSdk.CipherType {
     init(_ cipherType: CipherType) {

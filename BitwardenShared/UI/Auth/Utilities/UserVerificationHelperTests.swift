@@ -5,7 +5,7 @@ import XCTest
 
 // MARK: - UserVerificationHelperTests
 
-class UserVerificationHelperTests: BitwardenTestCase {
+class UserVerificationHelperTests: BitwardenTestCase { // swiftlint:disable:this type_body_length
     // MARK: Types
 
     typealias VerifyFunction = () async throws -> UserVerificationResult
@@ -63,6 +63,73 @@ class UserVerificationHelperTests: BitwardenTestCase {
 
         localAuthService.deviceAuthenticationStatus = .unknownError("")
         XCTAssertFalse(subject.canVerifyDeviceLocalAuth())
+    }
+
+    /// `setupPin()` shows an alert for the user to enter a pin for their account.
+    func test_setupPin() async throws {
+        userVerificationDelegate.alertShownHandler = { alert in
+            XCTAssertEqual(alert, .enterPINCode { _ in })
+            try alert.setText("1234", forTextFieldWithId: "pin")
+            try await alert.tapAction(title: Localizations.submit)
+        }
+
+        try await subject.setupPin()
+
+        XCTAssertEqual(authRepository.encryptedPin, "1234")
+    }
+
+    /// `setupPin()` throws an error if the entered pin is empty.
+    func test_setupPin_emptyPin() async throws {
+        userVerificationDelegate.alertShownHandler = { alert in
+            XCTAssertEqual(alert, .enterPINCode { _ in })
+            try await alert.tapAction(title: Localizations.submit)
+        }
+
+        await assertAsyncThrows(error: Fido2Error.failedToSetupPin) {
+            try await subject.setupPin()
+        }
+    }
+
+    /// `setupPin()` throws an error if setting the pin fails.
+    func test_setupPin_error() async throws {
+        authRepository.setPinsResult = .failure(BitwardenTestError.example)
+        userVerificationDelegate.alertShownHandler = { alert in
+            XCTAssertEqual(alert, .enterPINCode { _ in })
+            try alert.setText("1234", forTextFieldWithId: "pin")
+            try await alert.tapAction(title: Localizations.submit)
+        }
+
+        await assertAsyncThrows(error: BitwardenTestError.example) {
+            try await subject.setupPin()
+        }
+
+        XCTAssertEqual(authRepository.encryptedPin, "1234")
+    }
+
+    /// `setupPin()` throws an error if there's no delegate set up to display an alert.
+    func test_setupPin_missingDelegate() async {
+        subject.userVerificationDelegate = nil
+        await assertAsyncThrows(error: Fido2Error.failedToSetupPin) {
+            try await subject.setupPin()
+        }
+    }
+
+    /// `setupPin()` with cancelled setup.
+    func test_setupPin_cancelled() async throws {
+        let task = Task {
+            try await self.subject.setupPin()
+        }
+
+        try await waitForAsync {
+            !self.userVerificationDelegate.alertShown.isEmpty
+        }
+
+        let alert = try XCTUnwrap(userVerificationDelegate.alertShown.last)
+        try await alert.tapAction(title: Localizations.cancel)
+
+        await assertAsyncThrows(error: UserVerificationError.cancelled) {
+            _ = try await task.value
+        }
     }
 
     /// `verifyDeviceLocalAuth()` with device status not authorized.
@@ -249,7 +316,7 @@ class UserVerificationHelperTests: BitwardenTestCase {
     /// `verifyPin()` with verified PIN.
     func test_verifyPin_verified() async throws {
         authRepository.isPinUnlockAvailableResult = .success(true)
-        authRepository.validatePinResult = true
+        authRepository.validatePinResult = .success(true)
 
         let task = Task {
             try await self.subject.verifyPin()
@@ -269,7 +336,7 @@ class UserVerificationHelperTests: BitwardenTestCase {
     /// `verifyPin()` with not verified PIN.
     func test_verifyPin_notVerified() async throws {
         authRepository.isPinUnlockAvailableResult = .success(true)
-        authRepository.validatePinResult = false
+        authRepository.validatePinResult = .success(false)
 
         let task = Task {
             try await self.subject.verifyPin()
@@ -299,6 +366,31 @@ class UserVerificationHelperTests: BitwardenTestCase {
         XCTAssertEqual(result, .notVerified)
     }
 
+    /// `verifyPin()` with throwing pin verification returns unable to perform.
+    func test_verifyPin_throwsUnableToPerform() async throws {
+        authRepository.isPinUnlockAvailableResult = .success(true)
+        authRepository.validatePinResult = .failure(BitwardenTestError.example)
+
+        let task = Task {
+            try await self.subject.verifyPin()
+        }
+
+        try await waitForAsync {
+            !self.userVerificationDelegate.alertShown.isEmpty
+        }
+
+        try await enterPinInAlertAndSubmit()
+
+        try await waitForAsync {
+            !self.errorReporter.errors.isEmpty
+        }
+
+        let result = try await task.value
+
+        XCTAssertEqual(errorReporter.errors.last as? BitwardenTestError, .example)
+        XCTAssertEqual(result, .unableToPerform)
+    }
+
     // MARK: Private
 
     private func enterMasterPasswordInAlertAndSubmit() async throws {
@@ -320,14 +412,22 @@ class UserVerificationHelperTests: BitwardenTestCase {
 
 class MockUserVerificationHelperDelegate: UserVerificationDelegate {
     var alertShown = [Alert]()
+    var alertShownHandler: ((Alert) async throws -> Void)?
     var alertOnDismissed: (() -> Void)?
 
     func showAlert(_ alert: Alert) {
         alertShown.append(alert)
+        Task {
+            do {
+                try await alertShownHandler?(alert)
+            } catch {
+                XCTFail("Error calling alert shown handler: \(error)")
+            }
+        }
     }
 
     func showAlert(_ alert: BitwardenShared.Alert, onDismissed: (() -> Void)?) {
-        alertShown.append(alert)
+        showAlert(alert)
         alertOnDismissed = onDismissed
     }
-}
+} // swiftlint:disable:this file_length

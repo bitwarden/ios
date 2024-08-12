@@ -61,6 +61,7 @@ final class VaultCoordinator: Coordinator, HasStackNavigator {
     typealias Services = HasApplication
         & HasAuthRepository
         & HasAuthService
+        & HasAutofillCredentialService
         & HasCameraService
         & HasClientService
         & HasEnvironmentService
@@ -192,7 +193,9 @@ final class VaultCoordinator: Coordinator, HasStackNavigator {
             appExtensionDelegate: appExtensionDelegate,
             coordinator: asAnyCoordinator(),
             services: services,
-            state: VaultAutofillListState()
+            state: VaultAutofillListState(
+                iconBaseURL: services.environmentService.iconsURL
+            )
         )
         let view = VaultAutofillListView(store: Store(processor: processor))
         stackNavigator?.replace(view)

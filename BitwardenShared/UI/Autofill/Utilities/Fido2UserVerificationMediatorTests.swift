@@ -192,7 +192,7 @@ class Fido2UserVerificationMediatorTests: BitwardenTestCase { // swiftlint:disab
         XCTAssertTrue(userVerificationRunner.verifyInQueueCalled)
         XCTAssertTrue(userVerificationRunner.verifyWithAttemptsTimesCalled == 2)
         XCTAssertEqual(result, CheckUserResult(userPresent: true, userVerified: true))
-        XCTAssertTrue(fido2UserVerificationMediatorDelegate.setupPinCalled)
+        XCTAssertTrue(userVerificationHelper.setupPinCalled)
         XCTAssertEqual(
             userVerificationHelper.verifyDeviceLocalAuthBecauseValue,
             Localizations.userVerificationForPasskey
@@ -418,16 +418,11 @@ class MockFido2UserVerificationMediatorDelegate: // swiftlint:disable:this type_
     Fido2UserVerificationMediatorDelegate {
     var onNeedsUserInteractionCalled = false
     var onNeedsUserInteractionError: Error?
-    var setupPinCalled = false
 
     func onNeedsUserInteraction() async throws {
         onNeedsUserInteractionCalled = true
         if let onNeedsUserInteractionError {
             throw onNeedsUserInteractionError
         }
-    }
-
-    func setupPin() async throws {
-        setupPinCalled = true
     }
 } // swiftlint:disable:this file_length

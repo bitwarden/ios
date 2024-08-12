@@ -28,7 +28,7 @@ on:
 
 env:
   BUILD_VARIANT: ${{ inputs.build-variant || 'Beta' }}
-  XCODE_VERSION: ${{ inputs.xcode-version || '15.0.1' }}
+  XCODE_VERSION: ${{ inputs.xcode-version || '15.4' }}
 
 jobs:
   build:
@@ -125,11 +125,25 @@ jobs:
         env:
           ACCOUNT_NAME: bitwardenci
           CONTAINER_NAME: mobile
-          FILE: GoogleService-Info.plist
+          SOURCE_FILE: GoogleService-Info.plist
+          TARGET_FILE: GoogleService-Info.plist
         run: |
           mkdir -p $HOME/secrets
-          az storage blob download --account-name $ACCOUNT_NAME --container-name $CONTAINER_NAME --name $FILE \
-            --file Bitwarden/Application/Support/$FILE --output none
+          az storage blob download --account-name $ACCOUNT_NAME --container-name $CONTAINER_NAME --name $SOURCE_FILE \
+            --file Bitwarden/Application/Support/$TARGET_FILE --output none
+
+      - name: Retrieve watch production Google Services secret
+        if: env.BUILD_VARIANT == 'Production'
+        env:
+          ACCOUNT_NAME: bitwardenci
+          CONTAINER_NAME: mobile
+          SOURCE_FILE: GoogleService-Info.plist
+          TARGET_FILE: GoogleService-Info.plist
+        run: |
+          mkdir -p $HOME/secrets
+          az storage blob download --account-name $ACCOUNT_NAME --container-name $CONTAINER_NAME --name $SOURCE_FILE \
+            --file BitwardenWatchApp/$TARGET_FILE --output none
+          plutil -replace BUNDLE_ID -string com.8bit.bitwarden.watchkitapp BitwardenWatchApp/$TARGET_FILE
 
       - name: Retrieve beta Google Services secret
         if: env.BUILD_VARIANT == 'Beta'
@@ -142,6 +156,19 @@ jobs:
           mkdir -p $HOME/secrets
           az storage blob download --account-name $ACCOUNT_NAME --container-name $CONTAINER_NAME --name $SOURCE_FILE \
             --file Bitwarden/Application/Support/$TARGET_FILE --output none
+
+      - name: Retrieve watch beta Google Services secret
+        if: env.BUILD_VARIANT == 'Beta'
+        env:
+          ACCOUNT_NAME: bitwardenci
+          CONTAINER_NAME: mobile
+          SOURCE_FILE: GoogleService-Info-ios-pm-beta.plist
+          TARGET_FILE: GoogleService-Info.plist
+        run: |
+          mkdir -p $HOME/secrets
+          az storage blob download --account-name $ACCOUNT_NAME --container-name $CONTAINER_NAME --name $SOURCE_FILE \
+            --file BitwardenWatchApp/$TARGET_FILE --output none
+          plutil -replace BUNDLE_ID -string com.8bit.bitwarden.beta.watchkitapp BitwardenWatchApp/$TARGET_FILE
 
       - name: Retrieve certificates
         run: |
@@ -158,7 +185,6 @@ jobs:
           mkdir -p $HOME/secrets
           az storage blob download --account-name $ACCOUNT_NAME --container-name $CONTAINER_NAME --name $FILE \
             --file $HOME/secrets/$FILE --output none
-          ls -al $HOME/secrets
 
       - name: Configure Keychain Access
         env:
@@ -250,7 +276,7 @@ jobs:
           plutil -replace aps-environment -string production Bitwarden/Application/Support/Bitwarden.entitlements
 
       - name: Configure Ruby
-        uses: ruby/setup-ruby@50ba3386b050ad5b97a41fcb81240cbee1d1821f # v1.188.0
+        uses: ruby/setup-ruby@a6e6f86333f0a2523ece813039b8b4be04560854 # v1.190.0
         with:
           bundler-cache: true
 
@@ -310,7 +336,7 @@ jobs:
 
       - name: Update build number
         run: |
-          BUILD_NUMBER=$(($GITHUB_RUN_NUMBER + 1000))
+          BUILD_NUMBER=$(($GITHUB_RUN_NUMBER))
           yq -i ".settings.CURRENT_PROJECT_VERSION = ${{ inputs.build-number || '$BUILD_NUMBER' }}" 'project.yml'
 
       - name: Build iOS app
@@ -318,11 +344,18 @@ jobs:
           BUILD_NUMBER=$(($GITHUB_RUN_NUMBER))
           ./Scripts/build.sh
 
-      - name: Upload IPA
-        uses: actions/upload-artifact@0b2256b8c012f0828dc542b3febcab082c67f72b # v4.3.4
+      - name: Prepare IPA & dSYM files for upload to GitHub
+        run: |
+          mkdir -p export/dSYMs
+          cp build/Bitwarden/Bitwarden.ipa export
+          cp -rv build/Bitwarden.xcarchive/dSYMs/*.dSYM export/dSYMs
+
+      - name: Upload IPA & dSYM files
+        uses: actions/upload-artifact@89ef406dd8d7e03cfd12d9e0a4a378f454709029 # v4.3.5
         with:
           name: Bitwarden iOS
-          path: build/Bitwarden/Bitwarden.ipa
+          path: export
+          if-no-files-found: error
 
       - name: Validate app with App Store Connect
         env:
@@ -331,7 +364,7 @@ jobs:
         run: |
           xcrun altool --validate-app \
             --type ios \
-            --file "build/Bitwarden/Bitwarden.ipa" \
+            --file "export/Bitwarden.ipa" \
             --username "$APPLE_ID_USERNAME" \
             --password @env:APPLE_ID_PASSWORD
 
@@ -341,4 +374,4 @@ jobs:
           fastlane upload_build \
             api_key_path:"$HOME/secrets/appstoreconnect-fastlane.json" \
             changelog:"$(git show -s --format=%s)$NEWLINE$GITHUB_REPOSITORY/$GITHUB_REF_NAME @ $GITHUB_SHA$NEWLINE$NEWLINE$GITHUB_SERVER_URL/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID" \
-            ipa_path:"build/Bitwarden/Bitwarden.ipa"
+            ipa_path:"export/Bitwarden.ipa"

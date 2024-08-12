@@ -100,6 +100,18 @@ class AppProcessorFido2Tests: BitwardenTestCase {
 
     // MARK: Tests
 
+    /// `getter:isAutofillingFromList` returns `true` when delegate is autofilling from list.
+    func test_isAutofillingFromList_true() async throws {
+        appExtensionDelegate.extensionMode = .autofillFido2VaultList([], MockPasskeyCredentialRequestParameters())
+        XCTAssertTrue(subject.isAutofillingFromList)
+    }
+
+    /// `getter:isAutofillingFromList` returns `false` when delegate is not autofilling from list.
+    func test_isAutofillingFromList_false() async throws {
+        appExtensionDelegate.extensionMode = .configureAutofill
+        XCTAssertFalse(subject.isAutofillingFromList)
+    }
+
     /// `onNeedsUserInteraction()` throws when flows is not with user interaction but user interaction is required.
     @available(iOS 17.0, *)
     func test_onNeedsUserInteraction_throws() async {
@@ -117,8 +129,14 @@ class AppProcessorFido2Tests: BitwardenTestCase {
     func test_onNeedsUserInteraction_flowWithUserInteraction() async {
         appExtensionDelegate.flowWithUserInteraction = true
 
-        await assertAsyncDoesNotThrow {
+        let taskResult = Task {
             try await subject.onNeedsUserInteraction()
+        }
+
+        appExtensionDelegate.didAppearPublisher.send(true)
+
+        await assertAsyncDoesNotThrow {
+            try await taskResult.value
         }
         XCTAssertFalse(appExtensionDelegate.setUserInteractionRequiredCalled)
     }
@@ -162,13 +180,6 @@ class AppProcessorFido2Tests: BitwardenTestCase {
         await assertAsyncThrows(error: BitwardenTestError.example) {
             _ = try await subject.provideFido2Credential(for: passkeyRequest)
         }
-    }
-
-    /// `setupPin()` navigates to the setup pin view.
-    func test_setupPin() async throws {
-        // TODO: PM-8362 navigate to pin setup
-        try await subject.setupPin()
-        throw XCTSkip("TODO: PM-8362 navigate to pin setup")
     }
 
     /// `showAlert(_:onDismissed:)` shows the alert with the coordinator.

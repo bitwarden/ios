@@ -32,6 +32,10 @@ struct VaultItemSelectionView: View {
             prompt: Localizations.search
         )
         .toolbar {
+            cancelToolbarItem {
+                store.send(.cancelTapped)
+            }
+
             ToolbarItem(placement: .navigationBarLeading) {
                 ProfileSwitcherToolbarView(
                     store: store.child(
@@ -44,10 +48,6 @@ struct VaultItemSelectionView: View {
 
             addToolbarItem {
                 store.send(.addTapped)
-            }
-
-            cancelToolbarItem {
-                store.send(.cancelTapped)
             }
         }
     }

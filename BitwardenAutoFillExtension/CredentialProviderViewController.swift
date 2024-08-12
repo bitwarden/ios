@@ -1,6 +1,7 @@
 import AuthenticationServices
 import BitwardenSdk
 import BitwardenShared
+import Combine
 import OSLog
 
 /// An `ASCredentialProviderViewController` that implements credential autofill.
@@ -11,11 +12,20 @@ class CredentialProviderViewController: ASCredentialProviderViewController {
     /// The app's theme.
     var appTheme: AppTheme = .default
 
+    /// A subject containing whether the controller did appear.
+    private var didAppearSubject = CurrentValueSubject<Bool, Never>(false)
+
     /// The processor that manages application level logic.
     private var appProcessor: AppProcessor?
 
     /// The context of the credential provider to see how the extension is being used.
     private var context: CredentialProviderContext?
+
+    override func viewDidAppear(_ animated: Bool) {
+        super.viewDidAppear(animated)
+
+        didAppearSubject.send(true)
+    }
 
     // MARK: ASCredentialProviderViewController
 
@@ -298,8 +308,19 @@ extension CredentialProviderViewController: Fido2AppExtensionDelegate {
     }
 
     @available(iOSApplicationExtension 17.0, *)
+    func completeAssertionRequest(assertionCredential: ASPasskeyAssertionCredential) {
+        extensionContext.completeAssertionRequest(using: assertionCredential)
+    }
+
+    @available(iOSApplicationExtension 17.0, *)
     func completeRegistrationRequest(asPasskeyRegistrationCredential: ASPasskeyRegistrationCredential) {
         extensionContext.completeRegistrationRequest(using: asPasskeyRegistrationCredential)
+    }
+
+    func getDidAppearPublisher() -> AsyncPublisher<AnyPublisher<Bool, Never>> {
+        didAppearSubject
+            .eraseToAnyPublisher()
+            .values
     }
 
     func setUserInteractionRequired() {

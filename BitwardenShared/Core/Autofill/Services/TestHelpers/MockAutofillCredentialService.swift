@@ -10,7 +10,11 @@ class MockAutofillCredentialService: AutofillCredentialService {
     var provideCredentialError: Error?
     var provideFido2CredentialResult: Result<PasskeyAssertionCredential, Error> = .failure(BitwardenTestError.example)
 
-    func provideCredential(for id: String, repromptPasswordValidated: Bool) async throws -> ASPasswordCredential {
+    func provideCredential(
+        for id: String,
+        autofillCredentialServiceDelegate: AutofillCredentialServiceDelegate,
+        repromptPasswordValidated: Bool
+    ) async throws -> ASPasswordCredential {
         guard let provideCredentialPasswordCredential else {
             throw provideCredentialError ?? ASExtensionError(.failed)
         }
@@ -21,7 +25,19 @@ class MockAutofillCredentialService: AutofillCredentialService {
     func provideFido2Credential(
         for passkeyRequest: ASPasskeyCredentialRequest,
         autofillCredentialServiceDelegate: AutofillCredentialServiceDelegate,
-        fido2UserVerificationMediatorDelegate: any BitwardenShared.Fido2UserVerificationMediatorDelegate
+        fido2UserInterfaceHelperDelegate: Fido2UserInterfaceHelperDelegate
+    ) async throws -> ASPasskeyAssertionCredential {
+        let result = try provideFido2CredentialResult.get()
+        guard let credential = result as? ASPasskeyAssertionCredential else {
+            throw Fido2Error.invalidOperationError
+        }
+        return credential
+    }
+
+    @available(iOS 17.0, *)
+    func provideFido2Credential(
+        for fido2RequestParameters: PasskeyCredentialRequestParameters,
+        fido2UserInterfaceHelperDelegate: Fido2UserInterfaceHelperDelegate
     ) async throws -> ASPasskeyAssertionCredential {
         let result = try provideFido2CredentialResult.get()
         guard let credential = result as? ASPasskeyAssertionCredential else {

@@ -25,19 +25,11 @@ struct GeneratorView: View {
                 ForEach(store.state.formSections) { section in
                     sectionView(section)
                 }
-
-                if store.state.presentationMode.isSelectButtonVisible {
-                    Button(Localizations.select) {
-                        store.send(.selectButtonPressed)
-                    }
-                    .buttonStyle(.primary())
-                    .accessibilityIdentifier("SelectButton")
-                }
             }
             .padding(16)
         }
         .background(Asset.Colors.backgroundSecondary.swiftUIColor)
-        .navigationBarTitleDisplayMode(.large)
+        .navigationBarTitleDisplayMode(store.state.presentationMode == .inPlace ? .inline : .large)
         .navigationTitle(Localizations.generator)
         .task { await store.perform(.appeared) }
         .onChange(of: focusedFieldKeyPath) { newValue in
@@ -48,16 +40,27 @@ struct GeneratorView: View {
             send: GeneratorAction.toastShown
         ))
         .toolbar {
-            ToolbarItemGroup(placement: .topBarTrailing) {
-                optionsToolbarMenu {
-                    Button(Localizations.passwordHistory) {
-                        store.send(.showPasswordHistory)
-                    }
-                }
-
+            ToolbarItem(placement: .topBarLeading) {
                 if store.state.presentationMode.isDismissButtonVisible {
                     cancelToolbarButton {
                         store.send(.dismissPressed)
+                    }
+                }
+            }
+
+            ToolbarItemGroup(placement: .topBarTrailing) {
+                if store.state.presentationMode.isSelectButtonVisible {
+                    toolbarButton(Localizations.select) {
+                        store.send(.selectButtonPressed)
+                    }
+                    .accessibilityIdentifier("SelectButton")
+                }
+
+                if store.state.presentationMode.isOptionsButtonVisible {
+                    optionsToolbarMenu {
+                        Button(Localizations.passwordHistory) {
+                            store.send(.showPasswordHistory)
+                        }
                     }
                 }
             }
