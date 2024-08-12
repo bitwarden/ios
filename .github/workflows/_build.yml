@@ -33,7 +33,7 @@ jobs:
         run: |
           echo "**Variant**: ${{ inputs.build-variant }}" | tee -a $GITHUB_STEP_SUMMARY
           echo "**Version**: ${{ inputs.build-version }}" | tee -a $GITHUB_STEP_SUMMARY
-          echo "**Number**: ${{ inputs.build-build-number }}" | tee -a $GITHUB_STEP_SUMMARY
+          echo "**Number**: ${{ inputs.build-number }}" | tee -a $GITHUB_STEP_SUMMARY
           echo "**Xcode**: ${{ inputs.xcode-version }}" | tee -a $GITHUB_STEP_SUMMARY
 
       # - name: Check out repo
