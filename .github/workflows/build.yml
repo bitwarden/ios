@@ -327,7 +327,7 @@ jobs:
           fi
 
           if [[ ! -z "${{ inputs.build-number }}" ]]; then
-            echo -e "\nApplying build number overide"
+            echo -e "\nApplying build number override"
             next_number=${{ inputs.build-number }}
           else
             echo -e "\nCalculating build number..."
