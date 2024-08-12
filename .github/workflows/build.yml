@@ -338,7 +338,7 @@ jobs:
           echo "**Version**: $next_version" | tee -a $GITHUB_STEP_SUMMARY
           echo "**Build Number**: $next_number" | tee -a $GITHUB_STEP_SUMMARY
           echo "version=$next_version" >> $GITHUB_OUTPUT
-          echo "build_number=$number_number" >> $GITHUB_OUTPUT
+          echo "build_number=$next_number" >> $GITHUB_OUTPUT
 
       - name: Update build version and number
         env:
