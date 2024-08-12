@@ -39,7 +39,7 @@ final class TOTPServiceTests: BitwardenTestCase {
 
     // MARK: Tests
 
-    /// `copyTotpIfPossible(cipher:)` succeeds copying the code.
+    /// `copyTotpIfPossible(cipher:)` successfully copies the code.
     func test_copyTotpIfPossible_succeeds() async throws {
         let cipher = CipherView.fixture(
             login: .fixture(
