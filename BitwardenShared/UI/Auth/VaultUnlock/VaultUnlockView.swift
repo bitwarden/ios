@@ -186,7 +186,6 @@ struct VaultUnlockView: View {
         }
     }
 
-    
     private func biometricUnlockText(_ biometryType: BiometricAuthenticationType) -> some View {
         switch biometryType {
         case .faceID:
