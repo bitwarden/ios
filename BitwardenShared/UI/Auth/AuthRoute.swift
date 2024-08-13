@@ -93,6 +93,9 @@ public enum AuthRoute: Equatable {
     ///
     case loginWithDevice(email: String, authRequestType: AuthRequestType, isAuthenticated: Bool)
 
+    /// A route to the master password guidance view.
+    case masterPasswordGuidance
+
     /// A route to the master password hint screen for the provided username.
     ///
     /// - Parameter username: The username to display on the password hint screen.
