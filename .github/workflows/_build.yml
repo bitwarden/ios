@@ -73,42 +73,34 @@ jobs:
           keyvault: "bitwarden-ci"
           secrets: "appcenter-ios-token"
 
-      - name: Retrieve production provisioning profiles
-        if: inputs.build-variant == 'Production'
-        env:
-          ACCOUNT_NAME: bitwardenci
-          CONTAINER_NAME: profiles
+      - name: Set variables
+        id: set-variables
         run: |
-          mkdir -p $HOME/secrets
-          profiles=(
-            "dist_autofill.mobileprovision"
-            "dist_bitwarden.mobileprovision"
-            "dist_extension.mobileprovision"
-            "dist_share_extension.mobileprovision"
-            "dist_bitwarden_watch_app.mobileprovision"
-            "dist_bitwarden_watch_app_extension.mobileprovision"
-          )
+          if [[ "${{ inputs.build-variant }}" == "Beta" ]]; then
+            echo "profile_prefix=dist_beta" >> $GITHUB_OUTPUT
+          else
+            echo "profile_prefix=dist" >> $GITHUB_OUTPUT
+          fi
 
-          for FILE in "${profiles[@]}"
-          do
-            az storage blob download --account-name $ACCOUNT_NAME --container-name $CONTAINER_NAME --name $FILE \
-              --file $HOME/secrets/$FILE --output none
-          done
-
-      - name: Retrieve beta provisioning profiles
+      - name: Set beta variables
         if: inputs.build-variant == 'Beta'
+        run: |
+          echo "profile_prefix=dist_beta" >> $GITHUB_OUTPUT
+
+      - name: Retrieve provisioning profiles
         env:
           ACCOUNT_NAME: bitwardenci
           CONTAINER_NAME: profiles
+          PREFIX: ${{ steps.set-variables.outputs.profile_prefix }}
         run: |
           mkdir -p $HOME/secrets
           profiles=(
-            "dist_beta_autofill.mobileprovision"
-            "dist_beta_bitwarden.mobileprovision"
-            "dist_beta_extension.mobileprovision"
-            "dist_beta_share_extension.mobileprovision"
-            "dist_beta_bitwarden_watch_app.mobileprovision"
-            "dist_beta_bitwarden_watch_app_extension.mobileprovision"
+            "$PREFIX_autofill.mobileprovision"
+            "$PREFIX_bitwarden.mobileprovision"
+            "$PREFIX_extension.mobileprovision"
+            "$PREFIX_share_extension.mobileprovision"
+            "$PREFIX_bitwarden_watch_app.mobileprovision"
+            "$PREFIX_bitwarden_watch_app_extension.mobileprovision"
           )
 
           for FILE in "${profiles[@]}"
