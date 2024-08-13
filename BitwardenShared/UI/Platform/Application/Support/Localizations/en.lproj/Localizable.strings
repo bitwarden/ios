@@ -940,3 +940,7 @@
 "IntroCarouselPage3Message" = "Use the generator to create and save strong, unique passwords for all your accounts.";
 "IntroCarouselPage4Title" = "Your data, when and where you need it";
 "IntroCarouselPage4Message" = "Save unlimited passwords across unlimited devices with Bitwarden mobile, browser, and desktop apps.";
+"AccountSetup" = "Account setup";
+"SetUpUnlock" = "Set up unlock";
+"SetUpBiometricsOrChooseAPinCodeToQuicklyAccessYourVaultAndAutofillYourLogins" = "Set up biometrics or choose a PIN code to quickly access your vault and autofill your logins.";
+"SetUpLater" = "Set up later";
