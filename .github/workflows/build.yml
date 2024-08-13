@@ -370,27 +370,26 @@ jobs:
           yq -i '.settings.MARKETING_VERSION = "${{ env.build_version }}"' 'project.yml'
           yq -i '.settings.CURRENT_PROJECT_VERSION = "${{ env.build_number }}"' 'project.yml'
 
-      - name: Update app CI Build info
+      - name: Update CI build info
         run: |
           ./Scripts/update_app_ci_build_info.sh ${{ github.run_id }} ${{ github.run_number }} ${{ github.run_attempt }}
 
-      # - name: Build iOS app
-      #   run: |
-      #     BUILD_NUMBER=$(($GITHUB_RUN_NUMBER))
-      #     ./Scripts/build.sh
+      - name: Build iOS app
+        run: |
+          ./Scripts/build.sh
 
-      # - name: Prepare IPA & dSYM files for upload to GitHub
-      #   run: |
-      #     mkdir -p export/dSYMs
-      #     cp build/Bitwarden/Bitwarden.ipa export
-      #     cp -rv build/Bitwarden.xcarchive/dSYMs/*.dSYM export/dSYMs
+      - name: Prepare IPA & dSYM files for upload to GitHub
+        run: |
+          mkdir -p export/dSYMs
+          cp build/Bitwarden/Bitwarden.ipa export
+          cp -rv build/Bitwarden.xcarchive/dSYMs/*.dSYM export/dSYMs
 
-      # - name: Upload IPA & dSYM files
-      #   uses: actions/upload-artifact@89ef406dd8d7e03cfd12d9e0a4a378f454709029 # v4.3.5
-      #   with:
-      #     name: Bitwarden iOS
-      #     path: export
-      #     if-no-files-found: error
+      - name: Upload IPA & dSYM files
+        uses: actions/upload-artifact@89ef406dd8d7e03cfd12d9e0a4a378f454709029 # v4.3.5
+        with:
+          name: Bitwarden iOS ${{ env.BUILD_VARIANT }}
+          path: export
+          if-no-files-found: error
       
       # - name: Set up private auth key
       #   run: |
