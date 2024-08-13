@@ -63,6 +63,57 @@ jobs:
           fetch-depth: 0
           filter: tree:0
 
+      - name: Calculate build version and number
+        id: calculate
+        run: |
+          if [[ ! -z "${{ inputs.build-version }}" ]]; then
+            echo -e "\nApplying build version override"
+            next_version=${{ inputs.build-version }}
+          else
+            echo -e "\nCalculating next version..."
+            current_year=$(date +%Y)
+            current_month=$(date +%-m)
+
+            latest_tag_version=$(git tag --sort=committerdate --list | tail -1)
+            latest_version=${latest_tag_version:1}  # remove 'v' from tag version
+
+            latest_major_version=$(echo $latest_version | cut -d "." -f 1)
+            latest_minor_version=$(echo $latest_version | cut -d "." -f 2)
+            latest_patch_version=$(echo $latest_version | cut -d "." -f 3)
+
+            echo "  Current Year:         $current_year"
+            echo "  Current Month:        $current_month"
+            echo "  Latest Version:       $latest_version"
+            echo "  Latest Major Version: $latest_major_version"
+            echo "  Latest Minor Version: $latest_minor_version"
+            echo "  Latest Patch Version: $latest_patch_version"
+
+            if [[ "$current_year" == "$latest_major_version" && "$current_month" == "$latest_minor_version" ]]; then
+              next_version="${latest_major_version}.${latest_minor_version}.$(($latest_patch_version + 1))"
+            else
+              next_version="${current_year}.${current_month}.0"
+            fi
+          fi
+
+          if [[ ! -z "${{ inputs.build-number }}" ]]; then
+            echo -e "\nApplying build number override"
+            next_number=${{ inputs.build-number }}
+          else
+            echo -e "\nCalculating build number..."
+            next_number=$(($GITHUB_RUN_NUMBER))
+          fi
+
+          echo -e "\n"
+          echo "version=$next_version" >> $GITHUB_OUTPUT
+          echo "build_number=$next_number" >> $GITHUB_OUTPUT
+
+      - name: Print values
+        run: |
+          echo "**Variant**: ${{ env.BUILD_VARIANT }}" | tee -a $GITHUB_STEP_SUMMARY
+          echo "**Version**: ${{ steps.calculate.outputs.version }}" | tee -a $GITHUB_STEP_SUMMARY
+          echo "**Number**: ${{ steps.calculate.outputs.build_number }}" | tee -a $GITHUB_STEP_SUMMARY
+          echo "**Xcode**: ${{ env.XCODE_VERSION }}" | tee -a $GITHUB_STEP_SUMMARY
+
       - name: Set Xcode version
         uses: maxim-lobanov/setup-xcode@60606e260d2fc5762a71e64e74b2174e8ea3c8bd # v1.6.0
         with:
@@ -310,53 +361,6 @@ jobs:
       - name: Select variant
         run: |
           ./Scripts/select_variant.sh ${{ env.BUILD_VARIANT }}
-          echo "**Variant**: ${{ env.BUILD_VARIANT }}" | tee -a $GITHUB_STEP_SUMMARY
-
-      - name: Calculate build version and number
-        id: calculate
-        run: |
-          if [[ ! -z "${{ inputs.build-version }}" ]]; then
-            echo -e "\nApplying build version override"
-            next_version=${{ inputs.build-version }}
-          else
-            echo -e "\nCalculating next version..."
-            current_year=$(date +%Y)
-            current_month=$(date +%-m)
-
-            latest_tag_version=$(git tag --sort=committerdate --list | tail -1)
-            latest_version=${latest_tag_version:1}  # remove 'v' from tag version
-
-            latest_major_version=$(echo $latest_version | cut -d "." -f 1)
-            latest_minor_version=$(echo $latest_version | cut -d "." -f 2)
-            latest_patch_version=$(echo $latest_version | cut -d "." -f 3)
-
-            echo "  Current Year:         $current_year"
-            echo "  Current Month:        $current_month"
-            echo "  Latest Version:       $latest_version"
-            echo "  Latest Major Version: $latest_major_version"
-            echo "  Latest Minor Version: $latest_minor_version"
-            echo "  Latest Patch Version: $latest_patch_version"
-
-            if [[ "$current_year" == "$latest_major_version" && "$current_month" == "$latest_minor_version" ]]; then
-              next_version="${latest_major_version}.${latest_minor_version}.$(($latest_patch_version + 1))"
-            else
-              next_version="${current_year}.${current_month}.0"
-            fi
-          fi
-
-          if [[ ! -z "${{ inputs.build-number }}" ]]; then
-            echo -e "\nApplying build number override"
-            next_number=${{ inputs.build-number }}
-          else
-            echo -e "\nCalculating build number..."
-            next_number=$(($GITHUB_RUN_NUMBER))
-          fi
-
-          echo -e "\n"
-          echo "**Version**: $next_version" | tee -a $GITHUB_STEP_SUMMARY
-          echo "**Build Number**: $next_number" | tee -a $GITHUB_STEP_SUMMARY
-          echo "version=$next_version" >> $GITHUB_OUTPUT
-          echo "build_number=$next_number" >> $GITHUB_OUTPUT
 
       - name: Update build version and number
         env:
