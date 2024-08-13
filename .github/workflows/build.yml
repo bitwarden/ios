@@ -349,9 +349,9 @@ jobs:
         with:
           bundler-cache: true
 
-      - name: Install Fastlane, Mint, xcbeautify, and yq
+      - name: Install Fastlane, Mint
         run: |
-          brew install fastlane mint xcbeautify yq
+          brew install fastlane mint
 
       - name: Install Mint packages
         if: steps.mint-cache.outputs.cache-hit != 'true'
