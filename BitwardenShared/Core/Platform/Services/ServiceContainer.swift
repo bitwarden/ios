@@ -422,8 +422,6 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
             timeProvider: timeProvider
         )
 
-        let totpService = DefaultTOTPService()
-
         let trustDeviceService = DefaultTrustDeviceService(
             appIdService: appIdService,
             authAPIService: apiService,
@@ -441,6 +439,12 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
 
         let pasteboardService = DefaultPasteboardService(
             errorReporter: errorReporter,
+            stateService: stateService
+        )
+
+        let totpService = DefaultTOTPService(
+            clientService: clientService,
+            pasteboardService: pasteboardService,
             stateService: stateService
         )
 
@@ -571,6 +575,7 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
             fido2UserInterfaceHelper: fido2UserInterfaceHelper,
             pasteboardService: pasteboardService,
             stateService: stateService,
+            totpService: totpService,
             vaultTimeoutService: vaultTimeoutService
         )
 
