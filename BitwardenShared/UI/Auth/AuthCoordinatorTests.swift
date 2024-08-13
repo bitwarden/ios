@@ -289,6 +289,16 @@ class AuthCoordinatorTests: BitwardenTestCase { // swiftlint:disable:this type_b
         XCTAssertTrue(navigationController.viewControllers.first is UIHostingController<PasswordHintView>)
     }
 
+    /// `navigate(to:)` with `.preventAccountLock` presents the prevent account lock view.
+    @MainActor
+    func test_navigate_preventAccountLock() throws {
+        subject.navigate(to: .preventAccountLock)
+
+        XCTAssertEqual(stackNavigator.actions.last?.type, .presented)
+        let navigationController = try XCTUnwrap(stackNavigator.actions.last?.view as? UINavigationController)
+        XCTAssertTrue(navigationController.viewControllers.first is UIHostingController<PreventAccountLockView>)
+    }
+
     /// `navigate(to:)` with `.selfHosted` pushes the self-hosted view onto the stack navigator.
     @MainActor
     func test_navigate_selfHosted() throws {

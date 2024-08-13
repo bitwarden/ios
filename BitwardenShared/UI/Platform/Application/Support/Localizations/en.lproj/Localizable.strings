@@ -944,3 +944,10 @@
 "SetUpUnlock" = "Set up unlock";
 "SetUpBiometricsOrChooseAPinCodeToQuicklyAccessYourVaultAndAutofillYourLogins" = "Set up biometrics or choose a PIN code to quickly access your vault and autofill your logins.";
 "SetUpLater" = "Set up later";
+"PreventAccountLockout" = "Prevent account lockout";
+"NeverLoseAccessToYourVault" = "Never lose access to your vault";
+"TheBestWayToMakeSureYouCanAlwaysAccessYourAccountIsToSetUpSafeguardsFromTheStart" = "The best way to make sure you can always access your account is to set up safeguards from the start.";
+"CreateAHint" = "Create a hint";
+"YourHintWillBeSentToYouViaEmailWhenYouRequestIt" = "Your hint will be sent to you via email when you request it.";
+"WriteYourPasswordDown" = "Write your password down";
+"BeCarefulToKeepYourWrittenPasswordSomewhereSecretAndSafe" = "Be careful to keep your written password somewhere secret and safe.";

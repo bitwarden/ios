@@ -178,6 +178,8 @@ final class AuthCoordinator: NSObject, // swiftlint:disable:this type_body_lengt
             showLoginWithDevice(email: email, type: type, isAuthenticated: isAuthenticated)
         case let .masterPasswordHint(username):
             showMasterPasswordHint(for: username)
+        case .preventAccountLock:
+            showPreventAccountLock()
         case let .selfHosted(region):
             showSelfHostedView(delegate: context as? SelfHostedProcessorDelegate, currentRegion: region)
         case let .setMasterPassword(organizationIdentifier):
@@ -524,6 +526,17 @@ final class AuthCoordinator: NSObject, // swiftlint:disable:this type_body_lengt
         stackNavigator?.present(navigationController)
     }
 
+    /// Shows the prevent account lock screen.
+    ///
+    private func showPreventAccountLock() {
+        let processor = PreventAccountLockProcessor(coordinator: asAnyCoordinator())
+        let store = Store(processor: processor)
+        let view = PreventAccountLockView(store: store)
+        let viewController = UIHostingController(rootView: view)
+        let navigationController = UINavigationController(rootViewController: viewController)
+        stackNavigator?.present(navigationController)
+    }
+
     /// Shows the self-hosted settings view.
     ///
     /// - Parameters:
@@ -756,8 +769,8 @@ final class AuthCoordinator: NSObject, // swiftlint:disable:this type_body_lengt
                 )
             )
             platformKeyRequest.allowedCredentials.append(ASAuthorizationPlatformPublicKeyCredentialDescriptor(
-                credentialID: credentialId)
-            )
+                credentialID: credentialId
+            ))
         }
 
         let authController = ASAuthorizationController(authorizationRequests: [securityKeyRequest, platformKeyRequest])
@@ -817,7 +830,7 @@ extension AuthCoordinator: ASWebAuthenticationPresentationContextProviding {
 // MARK: ASAuthorizationControllerPresentationContextProviding
 
 extension AuthCoordinator: ASAuthorizationControllerPresentationContextProviding {
-    func presentationAnchor(for controller: ASAuthorizationController) -> ASPresentationAnchor {
+    func presentationAnchor(for _: ASAuthorizationController) -> ASPresentationAnchor {
         stackNavigator?.rootViewController?.view.window ?? UIWindow()
     }
 }
@@ -843,7 +856,7 @@ extension AuthCoordinator: ASAuthorizationControllerDelegate {
 
     /// Handle ASAuthorization flow where the attestation did complete with success
     func authorizationController(
-        controller: ASAuthorizationController,
+        controller _: ASAuthorizationController,
         didCompleteWithAuthorization authorization: ASAuthorization
     ) {
         if let credential = authorization.credential as? ASAuthorizationPublicKeyCredentialAssertion {
@@ -875,7 +888,7 @@ extension AuthCoordinator: ASAuthorizationControllerDelegate {
     }
 
     /// Handle errors during the creation of the attestation
-    func authorizationController(controller: ASAuthorizationController, didCompleteWithError error: Error) {
+    func authorizationController(controller _: ASAuthorizationController, didCompleteWithError error: Error) {
         webAuthnFlowDelegate?.webAuthnErrored(error: error)
     }
 } // swiftlint:disable:this file_length
