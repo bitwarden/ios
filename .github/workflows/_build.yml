@@ -82,11 +82,6 @@ jobs:
             echo "profile_prefix=dist" >> $GITHUB_OUTPUT
           fi
 
-      - name: Set beta variables
-        if: inputs.build-variant == 'Beta'
-        run: |
-          echo "profile_prefix=dist_beta" >> $GITHUB_OUTPUT
-
       - name: Retrieve provisioning profiles
         env:
           ACCOUNT_NAME: bitwardenci
@@ -102,6 +97,8 @@ jobs:
             "$PREFIX_bitwarden_watch_app.mobileprovision"
             "$PREFIX_bitwarden_watch_app_extension.mobileprovision"
           )
+
+          echo "${profiles[@]}"
 
           for FILE in "${profiles[@]}"
           do
