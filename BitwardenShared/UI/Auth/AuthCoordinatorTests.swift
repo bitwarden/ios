@@ -430,6 +430,7 @@ class AuthCoordinatorTests: BitwardenTestCase { // swiftlint:disable:this type_b
     }
 
     /// `navigate(to:)` with `.vaultUnlockSetup` pushes the vault unlock setup onto the navigation stack.
+    @MainActor
     func test_navigate_vaultUnlockSetup() throws {
         subject.navigate(to: .vaultUnlockSetup)
 
