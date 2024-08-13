@@ -368,40 +368,40 @@ jobs:
 
       - name: Update app CI Build info
         run: |
-          ./Scripts/update_app_ci_build_info.sh ${{ github.run_id }} ${{ github.run_number }} ${{ github.run_attempt }}
+          ./Scripts/update_app_ci_build_info.sh ${{ github.run_id }} ${{ github.run_number }} ${{ github.run_attempt }}
 
-      - name: Build iOS app
-        run: |
-          BUILD_NUMBER=$(($GITHUB_RUN_NUMBER))
-          ./Scripts/build.sh
+      # - name: Build iOS app
+      #   run: |
+      #     BUILD_NUMBER=$(($GITHUB_RUN_NUMBER))
+      #     ./Scripts/build.sh
 
-      - name: Prepare IPA & dSYM files for upload to GitHub
-        run: |
-          mkdir -p export/dSYMs
-          cp build/Bitwarden/Bitwarden.ipa export
-          cp -rv build/Bitwarden.xcarchive/dSYMs/*.dSYM export/dSYMs
+      # - name: Prepare IPA & dSYM files for upload to GitHub
+      #   run: |
+      #     mkdir -p export/dSYMs
+      #     cp build/Bitwarden/Bitwarden.ipa export
+      #     cp -rv build/Bitwarden.xcarchive/dSYMs/*.dSYM export/dSYMs
 
-      - name: Upload IPA & dSYM files
-        uses: actions/upload-artifact@89ef406dd8d7e03cfd12d9e0a4a378f454709029 # v4.3.5
-        with:
-          name: Bitwarden iOS
-          path: export
-          if-no-files-found: error
+      # - name: Upload IPA & dSYM files
+      #   uses: actions/upload-artifact@89ef406dd8d7e03cfd12d9e0a4a378f454709029 # v4.3.5
+      #   with:
+      #     name: Bitwarden iOS
+      #     path: export
+      #     if-no-files-found: error
       
-      - name: Set up private auth key
-        run: |
-          mkdir ~/private_keys
-          cat << EOF > ~/private_keys/AuthKey_J46C83CB96.p8
-          ${{ secrets.APP_STORE_CONNECT_AUTH_KEY }}
-          EOF
+      # - name: Set up private auth key
+      #   run: |
+      #     mkdir ~/private_keys
+      #     cat << EOF > ~/private_keys/AuthKey_J46C83CB96.p8
+      #     ${{ secrets.APP_STORE_CONNECT_AUTH_KEY }}
+      #     EOF
 
-      - name: Validate app with App Store Connect
-        run: |
-          xcrun altool --validate-app \
-            --type ios \
-            --file "export/Bitwarden.ipa" \
-            --apiKey "J46C83CB96" \
-            --apiIssuer "${{ secrets.APP_STORE_CONNECT_TEAM_ISSUER }}"
+      # - name: Validate app with App Store Connect
+      #   run: |
+      #     xcrun altool --validate-app \
+      #       --type ios \
+      #       --file "export/Bitwarden.ipa" \
+      #       --apiKey "J46C83CB96" \
+      #       --apiIssuer "${{ secrets.APP_STORE_CONNECT_TEAM_ISSUER }}"
 
       # - name: Upload app to TestFlight with Fastlane
       #   run: |
