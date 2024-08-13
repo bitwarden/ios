@@ -919,3 +919,11 @@
 "UserVerificationForPasskey" = "Ověření uživatele pro přístupový klíč";
 "NewItem" = "Nová položka";
 "ExportVaultFilePwProtectInfo" = "Tento soubor exportu bude chráněn heslem a k dešifrování bude vyžadovat heslo souboru.";
+"IntroCarouselPage1Title" = "Bezpečnost, nadevše";
+"IntroCarouselPage1Message" = "Uložte si přihlašovací údaje, karty a identity do zabezpečeného trezoru. Bitwarden používá šifrování end-to-end s nulovou znalostí, aby ochránil to, co je pro Vás důležité.";
+"IntroCarouselPage2Title" = "Quick and easy login";
+"IntroCarouselPage2Message" = "Set up biometric unlock and autofill to log into your accounts without typing a single letter.";
+"IntroCarouselPage3Title" = "Level up your logins";
+"IntroCarouselPage3Message" = "Use the generator to create and save strong, unique passwords for all your accounts.";
+"IntroCarouselPage4Title" = "Your data, when and where you need it";
+"IntroCarouselPage4Message" = "Save unlimited passwords across unlimited devices with Bitwarden mobile, browser, and desktop apps.";

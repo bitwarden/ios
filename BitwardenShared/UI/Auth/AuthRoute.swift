@@ -7,8 +7,32 @@ public enum AuthRoute: Equatable {
     /// A route to the captcha screen.
     case captcha(url: URL, callbackUrlScheme: String)
 
+    /// A route to show the check email screen.
+    case checkEmail(email: String)
+
     /// Dismisses the auth flow.
     case complete
+
+    /// A route to complete registration screen.
+    /// - Parameters:
+    ///    - emailVerificationToken: Token needed to complete registration.
+    ///    - userEmail: The user's email.
+    ///
+    case completeRegistration(emailVerificationToken: String, userEmail: String)
+
+    /// A route to complete registration screen.
+    /// - Parameters:
+    ///    - emailVerificationToken: Token needed to complete registration.
+    ///    - userEmail: The user's email.
+    ///    - fromEmail: The user opened the app from an email AppLink.
+    ///    - region: Region where the complete registration should happen.
+    ///
+    case completeRegistrationFromAppLink(
+        emailVerificationToken: String,
+        userEmail: String,
+        fromEmail: Bool,
+        region: RegionType
+    )
 
     /// Dismisses the auth flow becuase the vault was unlocked with the never unlock key.
     case completeWithNeverUnlockKey
@@ -18,6 +42,15 @@ public enum AuthRoute: Equatable {
 
     /// A route that dismisses a presented sheet.
     case dismiss
+
+    /// A route that dismisses only the presented sheet.
+    case dismissPresented
+
+    /// A route to dismiss the screen currently presented modally.
+    ///
+    /// - Parameter action: The action to perform on dismiss.
+    ///
+    case dismissWithAction(_ action: DismissAction? = nil)
 
     /// A route that triggers the duo 2FA flow.
     ///  Requires that any `context` provided to the coordinator conforms to `DuoAuthenticationFlowDelegate`.
@@ -46,6 +79,10 @@ public enum AuthRoute: Equatable {
     /// - Parameter organizationIdentifier: The organization's identifier.
     ///
     case showLoginDecryptionOptions(organizationIdentifier: String)
+
+    /// A route to start registration screen.
+    ///
+    case startRegistration
 
     /// A route to the login with device screen.
     ///

@@ -4,6 +4,24 @@ import Combine
 import Foundation
 import UIKit
 
+// MARK: - AppLinksError
+
+/// The errors thrown from a `AppProcessor`.
+///
+enum AppProcessorError: Error {
+    /// The received URL from AppLinks is malformed.
+    case appLinksInvalidURL
+
+    /// The received URL from AppLinks does not have the correct parameters.
+    case appLinksInvalidParametersForPath
+
+    /// The received URL from AppLinks does not have a valid path.
+    case appLinksInvalidPath
+
+    /// The operation to execute is invalid.
+    case invalidOperation
+}
+
 /// The `AppProcessor` processes actions received at the application level and contains the logic
 /// to control the top-level flow through the app.
 ///
@@ -135,6 +153,44 @@ public class AppProcessor {
         } else {
             await coordinator.handleEvent(.didStart)
         }
+    }
+
+    /// Handle incoming URL from iOS AppLinks and redirect it to the correct navigation within the App
+    ///
+    /// - Parameter incomingURL: The URL handled from AppLinks.
+    ///
+    public func handleAppLinks(incomingURL: URL) {
+        guard let sanatizedUrl = URL(string: incomingURL.absoluteString.replacingOccurrences(of: "/#/", with: "/")),
+              let components = URLComponents(url: sanatizedUrl, resolvingAgainstBaseURL: true) else {
+            return
+        }
+
+        // Check for specific URL components that you need.
+        guard let params = components.queryItems,
+              let host = components.host else {
+            services.errorReporter.log(error: AppProcessorError.appLinksInvalidURL)
+            return
+        }
+
+        guard components.path == "/finish-signup" else {
+            services.errorReporter.log(error: AppProcessorError.appLinksInvalidPath)
+            return
+        }
+        guard let email = params.first(where: { $0.name == "email" })?.value,
+              let verificationToken = params.first(where: { $0.name == "token" })?.value,
+              let fromEmail = params.first(where: { $0.name == "fromEmail" })?.value
+        else {
+            services.errorReporter.log(error: AppProcessorError.appLinksInvalidParametersForPath)
+            return
+        }
+
+        coordinator?.navigate(to: AppRoute.auth(
+            AuthRoute.completeRegistrationFromAppLink(
+                emailVerificationToken: verificationToken,
+                userEmail: email,
+                fromEmail: Bool(fromEmail) ?? true,
+                region: host.contains(RegionType.europe.baseUrlDescription) ? .europe : .unitedStates
+            )))
     }
 
     // MARK: Autofill Methods
@@ -451,10 +507,4 @@ extension AppProcessor: Fido2UserInterfaceHelperDelegate {
     }
 }
 
-// MARK: - AppProcessorError
-
-/// Errors that can happen inside the `AppProcessor`.
-enum AppProcessorError: Error {
-    /// The operation to execute is invalid.
-    case invalidOperation
-} // swiftlint:disable:this file_length
+// swiftlint:disable:this file_length

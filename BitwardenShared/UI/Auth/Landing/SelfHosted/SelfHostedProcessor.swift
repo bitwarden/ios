@@ -57,7 +57,7 @@ final class SelfHostedProcessor: StateProcessor<SelfHostedState, SelfHostedActio
         case let .apiUrlChanged(url):
             state.apiServerUrl = url
         case .dismiss:
-            coordinator.navigate(to: .dismiss)
+            coordinator.navigate(to: .dismissPresented)
         case let .iconsUrlChanged(url):
             state.iconsServerUrl = url
         case let .identityUrlChanged(url):
@@ -107,6 +107,6 @@ final class SelfHostedProcessor: StateProcessor<SelfHostedState, SelfHostedActio
             webVault: URL(string: state.webVaultServerUrl)?.sanitized
         )
         await delegate?.didSaveEnvironment(urls: urls)
-        coordinator.navigate(to: .dismiss)
+        coordinator.navigate(to: .dismissPresented)
     }
 }
