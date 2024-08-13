@@ -277,25 +277,8 @@ class DefaultClientBuilder: ClientBuilder {
 
     func buildClient() -> BitwardenSdkClient {
         let client = Client(settings: settings)
-        loadFlags(client: client)
 
         return client
-    }
-
-    // MARK: Private methods
-
-    /// Loads feature flags for a client instance.
-    ///
-    /// - Parameter client: The client that feature flags are applied to.
-    ///
-    private func loadFlags(client: BitwardenSdkClient) {
-        do {
-            try client.platform().loadFlags(
-                [FeatureFlagsConstants.enableCipherKeyEncryption: true]
-            )
-        } catch {
-            errorReporter.log(error: error)
-        }
     }
 }
 

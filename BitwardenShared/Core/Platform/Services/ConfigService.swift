@@ -88,6 +88,9 @@ class DefaultConfigService: ConfigService {
     /// The service used to get the present time.
     private let timeProvider: TimeProvider
 
+    /// The service used that handles common client functionality.
+    private let clientService: ClientService
+
     // MARK: Initialization
 
     /// Initialize a `DefaultConfigService`.
@@ -97,17 +100,20 @@ class DefaultConfigService: ConfigService {
     ///   - errorReporter: The service used by the application to report non-fatal errors.
     ///   - stateService: The service used by the application to manage account state.
     ///   - timeProvider: The services used to get the present time.
+    ///   - clientService: The service used that handles common client functionality.
     ///
     init(
         configApiService: ConfigAPIService,
         errorReporter: ErrorReporter,
         stateService: StateService,
-        timeProvider: TimeProvider
+        timeProvider: TimeProvider,
+        clientService: ClientService
     ) {
         self.configApiService = configApiService
         self.errorReporter = errorReporter
         self.stateService = stateService
         self.timeProvider = timeProvider
+        self.clientService = clientService
     }
 
     // MARK: Methods
@@ -127,6 +133,7 @@ class DefaultConfigService: ConfigService {
                     responseModel: configResponse
                 )
                 try? await stateService.setServerConfig(serverConfig)
+                await loadFlags()
                 return serverConfig
             } catch {
                 errorReporter.log(error: error)
@@ -136,6 +143,16 @@ class DefaultConfigService: ConfigService {
         // If we are unable to retrieve a configuration from the server,
         // fall back to the local configuration.
         return localConfig
+    }
+
+    func loadFlags() async {
+        do {
+            try await clientService.platform().loadFlags(
+                [FeatureFlagsConstants.enableCipherKeyEncryption: true]
+            )
+        } catch {
+            errorReporter.log(error: error)
+        }
     }
 
     func getFeatureFlag(_ flag: FeatureFlag, defaultValue: Bool = false, forceRefresh: Bool = false) async -> Bool {

@@ -344,7 +344,8 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
             configApiService: apiService,
             errorReporter: errorReporter,
             stateService: stateService,
-            timeProvider: timeProvider
+            timeProvider: timeProvider,
+            clientService: clientService
         )
 
         let folderService = DefaultFolderService(
