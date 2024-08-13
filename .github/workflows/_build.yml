@@ -90,11 +90,11 @@ jobs:
         run: |
           mkdir -p $HOME/secrets
           profiles=(
-            "$PREFIX_autofill.mobileprovision"
-            "$PREFIX_bitwarden.mobileprovision"
-            "$PREFIX_extension.mobileprovision"
-            "$PREFIX_share_extension.mobileprovision"
-            "$PREFIX_bitwarden_watch_app.mobileprovision"
+            "dist_beta_autofill.mobileprovision"
+            "dist_beta_bitwarden.mobileprovision"
+            "dist_beta_extension.mobileprovision"
+            "dist_beta_share_extension.mobileprovision"
+            "dist_beta_bitwarden_watch_app.mobileprovision"
             "$PREFIX_bitwarden_watch_app_extension.mobileprovision"
           )
 
