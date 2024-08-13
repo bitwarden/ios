@@ -3,7 +3,7 @@ name: CI - main
 on:
   push:
     branches:
-      - pm-10838/ci-main 
+      - main
   workflow_dispatch:
     inputs:
       build-version:
