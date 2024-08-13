@@ -107,28 +107,6 @@ jobs:
       xcode-version: ${{ needs.resolve-values.outputs.xcode_version }}
     secrets: inherit
 
-    # runs-on: macos-14
-    # env:
-    #   MINT_PATH: .mint/lib
-    #   MINT_LINK_PATH: .mint/bin
-
-    # steps:
-    #   - name: Check out repo
-    #     uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
-    #     with:
-    #       fetch-depth: 0
-    #       filter: tree:0
-
-
-    #   - name: Run build
-    #     uses: ./.github/workflows/_build.yml@main
-    #     with:
-    #       build-variant: ${{ env.BUILD_VARIANT}}
-    #       build-version: ${{ steps.calculate.outputs.version }}
-    #       build-number: ${{ steps.calculate.outputs.build_number }}
-    #       xcode-version: ${{ env.XCODE_VERSION }}
-    #     secrets: inherit
-
     # - name: Set Xcode version
     #   uses: maxim-lobanov/setup-xcode@60606e260d2fc5762a71e64e74b2174e8ea3c8bd # v1.6.0
     #   with:
