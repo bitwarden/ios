@@ -88,9 +88,6 @@ jobs:
       matrix:
         variant: [Beta, Production]
         xcode: [15.4]
-        include:
-          - variant: Production
-            xcode: 16.0-beta
     with:
       build-variant: ${{ matrix.variant }}
       build-version: ${{ needs.resolve-values.outputs.build_version }}
