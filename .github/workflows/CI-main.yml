@@ -3,7 +3,7 @@ name: CI - main
 on:
   push:
     branches:
-      - none
+      - pm-10838/ci-main 
   workflow_dispatch:
     inputs:
       build-version:
@@ -29,3 +29,4 @@ jobs:
         with:
           fetch-depth: 0
           filter: tree:0
+
