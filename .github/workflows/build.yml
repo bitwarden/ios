@@ -97,10 +97,10 @@ jobs:
     needs: resolve-values
     uses: ./.github/workflows/_build.yml
     with:
-      build-variant: ${{ vars.BUILD_VARIANT }}
+      build-variant: "Test"
       build-version: ${{ needs.resolve-values.outputs.build_version }}
-      build-number: ${{ needs.resolve-values.outputs.build_number }}
-      xcode-version: ${{ vars.XCODE_VERSION }}
+      build-number: 314
+      xcode-version: "15.4"
     secrets: inherit
 
     # runs-on: macos-14
