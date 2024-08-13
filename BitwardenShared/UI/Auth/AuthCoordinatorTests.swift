@@ -429,6 +429,14 @@ class AuthCoordinatorTests: BitwardenTestCase { // swiftlint:disable:this type_b
         )
     }
 
+    /// `navigate(to:)` with `.vaultUnlockSetup` pushes the vault unlock setup onto the navigation stack.
+    func test_navigate_vaultUnlockSetup() throws {
+        subject.navigate(to: .vaultUnlockSetup)
+
+        XCTAssertEqual(stackNavigator.actions.last?.type, .pushed)
+        XCTAssertTrue(stackNavigator.actions.last?.view is VaultUnlockSetupView)
+    }
+
     /// `navigate(to:)` with `.showLoginDecryptionOptions` replaces the current view with
     /// the show decryption options view.
     @MainActor

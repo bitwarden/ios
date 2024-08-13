@@ -152,6 +152,9 @@ public enum AuthRoute: Equatable {
         didSwitchAccountAutomatically: Bool
     )
 
+    /// A route to the vault unlock setup screen.
+    case vaultUnlockSetup
+
     /// A route to the WebAuthn two factor authentication.
     ///
     /// - Parameters:
