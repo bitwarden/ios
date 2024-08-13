@@ -39,6 +39,28 @@ struct ServerConfig: Equatable, Codable {
         server = responseModel.server.map(ThirdPartyServerConfig.init)
         version = responseModel.version
     }
+
+    func isServerVersionAfter() -> Bool {
+        let cleanServerVersion = version.split(separator: "-").first ?? ""
+        let cleanMinServerVersion = Constants.CipherKeyEncryptionMinServerVersion.split(separator: "-").first ?? ""
+
+        let serverVersion = cleanServerVersion.split(separator: ".").map { Int($0) ?? 0 }
+        let minServerVersion = cleanMinServerVersion.split(separator: ".").map { Int($0) ?? 0 }
+
+        if serverVersion.isEmpty || minServerVersion.isEmpty {
+            return false
+        }
+
+        for (serverV, minServerV) in zip(serverVersion, minServerVersion) {
+            if serverV < minServerV {
+                return false
+            } else if serverV > minServerV {
+                return true
+            }
+        }
+
+        return serverVersion.count >= minServerVersion.count
+    }
 }
 
 // MARK: - ThirdPartyServerConfig

@@ -79,6 +79,9 @@ enum Constants {
 
     /// The default file name when the file name cannot be determined.
     static let unknownFileName = "unknown_file_name"
+
+    /// The minimum server version required to have cipher key encryption on.
+    static let CipherKeyEncryptionMinServerVersion = "2024.2.0"
 }
 
 // MARK: Extension Constants

@@ -133,7 +133,7 @@ class DefaultConfigService: ConfigService {
                     responseModel: configResponse
                 )
                 try? await stateService.setServerConfig(serverConfig)
-                await loadFlags()
+                await loadFlags(serverConfig)
                 return serverConfig
             } catch {
                 errorReporter.log(error: error)
@@ -145,10 +145,11 @@ class DefaultConfigService: ConfigService {
         return localConfig
     }
 
-    func loadFlags() async {
+    func loadFlags(_ config: ServerConfig) async {
         do {
             try await clientService.platform().loadFlags(
-                [FeatureFlagsConstants.enableCipherKeyEncryption: true]
+                [FeatureFlagsConstants.enableCipherKeyEncryption:
+                    config.isServerVersionAfter()]
             )
         } catch {
             errorReporter.log(error: error)
