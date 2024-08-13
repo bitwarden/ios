@@ -25,6 +25,24 @@ on:
         description: "Optional. Xcode version to use. Overrides default."
         required: false
         type: string
+  workflow_call:
+    inputs:
+      build-variant:
+        description: "Which variant of the app to build"
+        required: false
+        type: string
+      build-version:
+        description: "Version string to use, in X.Y.Z format"
+        required: false
+        type: string
+      build-number:
+        description: "Build number to use"
+        required: false
+        type: string
+      xcode-version:
+        description: "Xcode version to use"
+        required: false
+        type: string
 
 env:
   BUILD_VARIANT: ${{ inputs.build-variant || 'Beta' }}

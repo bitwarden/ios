@@ -18,15 +18,10 @@ on:
 jobs:
   build:
     name: Build
-    runs-on: macos-14
-    env:
-      MINT_PATH: .mint/lib
-      MINT_LINK_PATH: .mint/bin
-
-    steps:
-      - name: Check out repo
-        uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
-        with:
-          fetch-depth: 0
-          filter: tree:0
-
+    uses: ./.github/workflows/build.yml
+    with:
+      build-variant: Beta
+      build-version: 1.2.3
+      build-number: 45
+      xcode-version: 15.4
+    secrets: inherit
