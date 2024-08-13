@@ -388,20 +388,20 @@ jobs:
           path: export
           if-no-files-found: error
       
-      # - name: Set up private auth key
-      #   run: |
-      #     mkdir ~/private_keys
-      #     cat << EOF > ~/private_keys/AuthKey_J46C83CB96.p8
-      #     ${{ secrets.APP_STORE_CONNECT_AUTH_KEY }}
-      #     EOF
+      - name: Set up private auth key
+        run: |
+          mkdir ~/private_keys
+          cat << EOF > ~/private_keys/AuthKey_J46C83CB96.p8
+          ${{ secrets.APP_STORE_CONNECT_AUTH_KEY }}
+          EOF
 
-      # - name: Validate app with App Store Connect
-      #   run: |
-      #     xcrun altool --validate-app \
-      #       --type ios \
-      #       --file "export/Bitwarden.ipa" \
-      #       --apiKey "J46C83CB96" \
-      #       --apiIssuer "${{ secrets.APP_STORE_CONNECT_TEAM_ISSUER }}"
+      - name: Validate app with App Store Connect
+        run: |
+          xcrun altool --validate-app \
+            --type ios \
+            --file "export/Bitwarden.ipa" \
+            --apiKey "J46C83CB96" \
+            --apiIssuer "${{ secrets.APP_STORE_CONNECT_TEAM_ISSUER }}"
 
       # - name: Upload app to TestFlight with Fastlane
       #   run: |
