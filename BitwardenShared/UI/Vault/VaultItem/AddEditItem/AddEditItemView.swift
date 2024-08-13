@@ -1,13 +1,6 @@
 import BitwardenSdk
 import SwiftUI
 
-// MARK: ItemSectionID
-
-enum ItemSectionID: String {
-    /// The notes section id.
-    case notes
-}
-
 // MARK: - AddEditItemView
 
 /// A view that allows the user to add or edit a new item for a vault.
@@ -23,7 +16,8 @@ struct AddEditItemView: View {
     /// The `Store` for this view.
     @ObservedObject var store: Store<AddEditItemState, AddEditItemAction, AddEditItemEffect>
 
-    @SwiftUI.State private var dynamicHeight: CGFloat = 28
+    /// The height of the notes field
+    @SwiftUI.State private var notesDynamicHeight: CGFloat = 28
 
     /// Whether to show that a policy is in effect.
     var isPolicyEnabled: Bool {
@@ -252,9 +246,9 @@ private extension AddEditItemView {
                         get: \.notes,
                         send: AddEditItemAction.notesChanged
                     ),
-                    calculatedHeight: $dynamicHeight
+                    calculatedHeight: $notesDynamicHeight
                 )
-                .frame(minHeight: dynamicHeight, maxHeight: dynamicHeight)
+                .frame(minHeight: notesDynamicHeight, maxHeight: notesDynamicHeight)
                 .accessibilityLabel(Localizations.notes)
             }
         }
