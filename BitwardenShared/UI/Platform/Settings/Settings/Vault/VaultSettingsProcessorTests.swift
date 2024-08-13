@@ -36,6 +36,7 @@ class VaultSettingsProcessorTests: BitwardenTestCase {
     // MARK: Tests
 
     /// `receive(_:)` with `.clearUrl` clears the URL in the state.
+    @MainActor
     func test_receive_clearImportItemsUrl() {
         subject.state.url = .example
         subject.receive(.clearUrl)
@@ -44,6 +45,7 @@ class VaultSettingsProcessorTests: BitwardenTestCase {
     }
 
     /// Receiving `.exportVaultTapped` navigates to the export vault screen.
+    @MainActor
     func test_receive_exportVaultTapped() {
         subject.receive(.exportVaultTapped)
 
@@ -51,6 +53,7 @@ class VaultSettingsProcessorTests: BitwardenTestCase {
     }
 
     /// `receive(_:)` with  `.foldersTapped` navigates to the folders screen.
+    @MainActor
     func test_receive_foldersTapped() {
         subject.receive(.foldersTapped)
 
@@ -59,6 +62,7 @@ class VaultSettingsProcessorTests: BitwardenTestCase {
 
     /// `receive(_:)` with `.importItemsTapped` shows an alert for navigating to the import items website.
     ///  When `Continue` is tapped on the alert, sets the URL to open in the state
+    @MainActor
     func test_receive_importItemsTapped() async throws {
         subject.receive(.importItemsTapped)
 

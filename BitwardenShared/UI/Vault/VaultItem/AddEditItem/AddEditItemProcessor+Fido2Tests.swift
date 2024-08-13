@@ -94,6 +94,7 @@ class AddEditItemProcessorFido2Tests: BitwardenTestCase {
 
     /// `perform(_:)` with `.savePressed` in the app extension completes picks the credential
     /// for creation in a Fido2 context where there is a Fido2 creation request.
+    @MainActor
     func test_perform_savePressed_fido2Succeeds() async {
         subject.state.name = "name"
         appExtensionDelegate.extensionMode = .registerFido2Credential(ASPasskeyCredentialRequest.fixture())
@@ -120,6 +121,7 @@ class AddEditItemProcessorFido2Tests: BitwardenTestCase {
 
     /// `perform(_:)` with `.savePressed` in the app extension completes pick the credential
     /// for creation in a Fido2 context where there is a Fido2 creation request and check user fails.
+    @MainActor
     func test_perform_savePressed_fido2FailsUV() async {
         subject.state.name = "name"
         appExtensionDelegate.extensionMode = .registerFido2Credential(ASPasskeyCredentialRequest.fixture())
@@ -147,6 +149,7 @@ class AddEditItemProcessorFido2Tests: BitwardenTestCase {
     /// `perform(_:)` with `.savePressed` in the app extension completes pick the credential
     /// for creation in a Fido2 context where there is a Fido2 creation request and no fido2 creation options
     /// to perform check user.
+    @MainActor
     func test_perform_savePressed_fido2NoCreationOptions() async {
         subject.state.name = "name"
         appExtensionDelegate.extensionMode = .registerFido2Credential(ASPasskeyCredentialRequest.fixture())
@@ -168,6 +171,7 @@ class AddEditItemProcessorFido2Tests: BitwardenTestCase {
 
     /// `perform(_:)` with `.savePressed` in the app extension doesn't completes pick the credential
     /// for creation in a Fido2 context where there is a Fido2 creation request and check user is cancelled.
+    @MainActor
     func test_perform_savePressed_fido2Cancelled() async {
         subject.state.name = "name"
         appExtensionDelegate.extensionMode = .registerFido2Credential(ASPasskeyCredentialRequest.fixture())
@@ -185,6 +189,7 @@ class AddEditItemProcessorFido2Tests: BitwardenTestCase {
 
     /// `perform(_:)` with `.savePressed` in the app extension doesn't completes pick the credential
     /// for creation in a Fido2 context where there is a Fido2 creation request and check user throws..
+    @MainActor
     func test_perform_savePressed_fido2Throws() async {
         subject.state.name = "name"
         appExtensionDelegate.extensionMode = .registerFido2Credential(ASPasskeyCredentialRequest.fixture())

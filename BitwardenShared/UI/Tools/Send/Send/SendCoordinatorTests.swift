@@ -46,6 +46,7 @@ class SendCoordinatorTests: BitwardenTestCase {
     // MARK: Tests
 
     /// `navigate(to:)` with `.addItem` presents the add send item screen.
+    @MainActor
     func test_navigateTo_addItem_hasPremium_withDelegate() throws {
         sendRepository.doesActivateAccountHavePremiumResult = .success(true)
         subject.navigate(to: .addItem(), context: sendItemDelegate)
@@ -61,6 +62,7 @@ class SendCoordinatorTests: BitwardenTestCase {
 
     /// `navigate(to:)` with `.addItem` and without a delegate does not present the add send item
     /// screen.
+    @MainActor
     func test_navigateTo_addItem_hasPremium_withoutDelegate() throws {
         sendRepository.doesActivateAccountHavePremiumResult = .success(true)
         subject.navigate(to: .addItem(), context: nil)
@@ -70,6 +72,7 @@ class SendCoordinatorTests: BitwardenTestCase {
     }
 
     /// `navigate(to:)` with `.addItem` presents the add send item screen.
+    @MainActor
     func test_navigateTo_addItem_notHasPremium() throws {
         sendRepository.doesActivateAccountHavePremiumResult = .success(false)
         subject.navigate(to: .addItem(), context: sendItemDelegate)
@@ -84,6 +87,7 @@ class SendCoordinatorTests: BitwardenTestCase {
     }
 
     /// `navigate(to:)` with `.addItem` presents the add send item screen.
+    @MainActor
     func test_navigateTo_addItem_hasPremiumError() throws {
         sendRepository.doesActivateAccountHavePremiumResult = .failure(BitwardenTestError.example)
         subject.navigate(to: .addItem(), context: sendItemDelegate)
@@ -98,6 +102,7 @@ class SendCoordinatorTests: BitwardenTestCase {
     }
 
     /// `navigate(to:)` with `.addItem` presents the add send item screen.
+    @MainActor
     func test_navigateTo_addItem_fileType_hasPremium_withDelegate() throws {
         sendRepository.doesActivateAccountHavePremiumResult = .success(true)
         subject.navigate(to: .addItem(type: .file), context: sendItemDelegate)
@@ -113,6 +118,7 @@ class SendCoordinatorTests: BitwardenTestCase {
 
     /// `navigate(to:)` with `.addItem` and without a delegate does not present the add send item
     /// screen.
+    @MainActor
     func test_navigateTo_addItem_fileType_hasPremium_withoutDelegate() throws {
         sendRepository.doesActivateAccountHavePremiumResult = .success(true)
         subject.navigate(to: .addItem(type: .file), context: nil)
@@ -122,6 +128,7 @@ class SendCoordinatorTests: BitwardenTestCase {
     }
 
     /// `navigate(to:)` with `.addItem` presents the add send item screen.
+    @MainActor
     func test_navigateTo_addItem_fileType_notHasPremium() throws {
         sendRepository.doesActivateAccountHavePremiumResult = .success(false)
         subject.navigate(to: .addItem(type: .file), context: sendItemDelegate)
@@ -136,6 +143,7 @@ class SendCoordinatorTests: BitwardenTestCase {
     }
 
     /// `navigate(to:)` with `.addItem` presents the add send item screen.
+    @MainActor
     func test_navigateTo_addItem_fileType_hasPremiumError() throws {
         sendRepository.doesActivateAccountHavePremiumResult = .failure(BitwardenTestError.example)
         subject.navigate(to: .addItem(type: .file), context: sendItemDelegate)
@@ -150,6 +158,7 @@ class SendCoordinatorTests: BitwardenTestCase {
     }
 
     /// `navigate(to:)` with `.dismiss` dismisses the current modally presented screen.
+    @MainActor
     func test_navigateTo_dismiss() throws {
         subject.navigate(to: .dismiss())
 
@@ -158,6 +167,7 @@ class SendCoordinatorTests: BitwardenTestCase {
     }
 
     /// `navigate(to:)` with `.editItem` presents the add send item screen.
+    @MainActor
     func test_navigateTo_editItem_hasPremium_withDelegate() throws {
         sendRepository.doesActivateAccountHavePremiumResult = .success(true)
         let sendView = SendView.fixture()
@@ -174,6 +184,7 @@ class SendCoordinatorTests: BitwardenTestCase {
 
     /// `navigate(to:)` with `.editItem` and without a delegate does not present the add send item
     /// screen.
+    @MainActor
     func test_navigateTo_editItem_hasPremium_withoutDelegate() throws {
         sendRepository.doesActivateAccountHavePremiumResult = .success(true)
         let sendView = SendView.fixture()
@@ -184,6 +195,7 @@ class SendCoordinatorTests: BitwardenTestCase {
     }
 
     /// `navigate(to:)` with `.editItem` presents the add send item screen.
+    @MainActor
     func test_navigateTo_editItem_notHasPremium() throws {
         sendRepository.doesActivateAccountHavePremiumResult = .success(false)
         let sendView = SendView.fixture()
@@ -199,6 +211,7 @@ class SendCoordinatorTests: BitwardenTestCase {
     }
 
     /// `navigate(to:)` with `.editItem` presents the add send item screen.
+    @MainActor
     func test_navigateTo_editItem_hasPremiumError() throws {
         sendRepository.doesActivateAccountHavePremiumResult = .failure(BitwardenTestError.example)
         let sendView = SendView.fixture()
@@ -214,6 +227,7 @@ class SendCoordinatorTests: BitwardenTestCase {
     }
 
     /// `navigate(to:)` with `.group` pushes the send list screen for the type onto the stack.
+    @MainActor
     func test_navigateTo_group() throws {
         subject.navigate(to: .group(.file))
 
@@ -228,6 +242,7 @@ class SendCoordinatorTests: BitwardenTestCase {
 
     /// `navigate(to:)` with `.list` replaces the stack navigator's current stack with the send list
     /// screen.
+    @MainActor
     func test_navigateTo_list() throws {
         subject.navigate(to: .list)
 
@@ -237,6 +252,7 @@ class SendCoordinatorTests: BitwardenTestCase {
     }
 
     /// `navigate(to:)` with `.share` presents the share sheet.
+    @MainActor
     func test_navigateTo_share() throws {
         subject.navigate(to: .share(url: .example))
 
@@ -246,6 +262,7 @@ class SendCoordinatorTests: BitwardenTestCase {
     }
 
     /// `start()` initializes the coordinator's state correctly.
+    @MainActor
     func test_start() throws {
         subject.start()
 

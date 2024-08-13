@@ -31,6 +31,7 @@ class StartRegistrationViewTests: BitwardenTestCase {
     // MARK: Tests
 
     /// Tapping the cancel button dispatches the `.dismiss` action.
+    @MainActor
     func test_cancelButton_tap() throws {
         let button = try subject.inspect().find(button: Localizations.cancel)
         try button.tap()
@@ -38,6 +39,7 @@ class StartRegistrationViewTests: BitwardenTestCase {
     }
 
     /// Updating the text field dispatches the `.emailTextChanged()` action.
+    @MainActor
     func test_emailField_updateValue() throws {
         let textfield = try subject.inspect().find(viewWithId: Localizations.emailAddress).textField()
         try textfield.setInput("text")
@@ -45,6 +47,7 @@ class StartRegistrationViewTests: BitwardenTestCase {
     }
 
     /// Updating the text field dispatches the `.nameTextChanged()` action.
+    @MainActor
     func test_nameField_updateValue() throws {
         let textfield = try subject.inspect().find(viewWithId: Localizations.name).textField()
         try textfield.setInput("user name")
@@ -52,6 +55,7 @@ class StartRegistrationViewTests: BitwardenTestCase {
     }
 
     /// Tapping the continue button performs the `.StartRegistration` effect.
+    @MainActor
     func test_continueButton_tap() throws {
         let button = try subject.inspect().find(button: Localizations.continue)
         try button.tap()
@@ -62,6 +66,7 @@ class StartRegistrationViewTests: BitwardenTestCase {
     }
 
     /// Tapping the region button dispatches the `.regionPressed` action.
+    @MainActor
     func test_regionButton_tap() throws {
         let button = try subject.inspect().find(
             button: "\(Localizations.creatingOn): \(subject.store.state.region.baseUrlDescription)"
@@ -72,6 +77,7 @@ class StartRegistrationViewTests: BitwardenTestCase {
     }
 
     /// Tapping the receive marketing toggle dispatches the `.toggleReceiveMarketing()` action.
+    @MainActor
     func test_receiveMarketingToggle_tap() throws {
         if #available(iOS 16.0, macOS 13.0, tvOS 16.0, watchOS 9.0, *) {
             throw XCTSkip("Unable to run test in iOS 16, keep an eye on ViewInspector to see if it gets updated.")
@@ -84,11 +90,13 @@ class StartRegistrationViewTests: BitwardenTestCase {
     // MARK: Snapshots
 
     /// Tests the view renders correctly when the text fields are all empty.
+    @MainActor
     func test_snapshot_empty() {
         assertSnapshot(matching: subject, as: .defaultPortrait)
     }
 
     /// Tests the view renders correctly when the text fields are all populated.
+    @MainActor
     func test_snapshot_textFields_populated() throws {
         processor.state.emailText = "email@example.com"
         processor.state.nameText = "user name"
@@ -97,6 +105,7 @@ class StartRegistrationViewTests: BitwardenTestCase {
     }
 
     /// Tests the view renders correctly when the text fields are all populated with long text.
+    @MainActor
     func test_snapshot_textFields_populated_long() throws {
         processor.state.emailText = "emailmmmmmmmmmmmmmmmmmmmmm@exammmmmmmmmmmmmmmmmmmmmmmmmmmmmmmple.com"
         processor.state.nameText = "user name name name name name name name name name name name name name name"
@@ -105,6 +114,7 @@ class StartRegistrationViewTests: BitwardenTestCase {
     }
 
     /// Tests the view renders correctly when the toggles are on.
+    @MainActor
     func test_snapshot_toggles_on() throws {
         processor.state.isReceiveMarketingToggleOn = true
 
@@ -112,6 +122,7 @@ class StartRegistrationViewTests: BitwardenTestCase {
     }
 
     /// Tests the view renders correctly when the marketing toggle is hidden.
+    @MainActor
     func test_snapshot_marketingToggle_hidden() throws {
         processor.state.showReceiveMarketingToggle = false
 

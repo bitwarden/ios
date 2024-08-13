@@ -41,6 +41,7 @@ class AutoFillProcessorTests: BitwardenTestCase {
     // MARK: Tests
 
     /// `perform(_:)` with `.fetchSettingValues` fetches the setting values to display and updates the state.
+    @MainActor
     func test_perform_fetchSettingValues() async {
         settingsRepository.getDefaultUriMatchTypeResult = .success(.exact)
         settingsRepository.getDisableAutoTotpCopyResult = .success(false)
@@ -56,6 +57,7 @@ class AutoFillProcessorTests: BitwardenTestCase {
     }
 
     /// `perform(_:)` with `.fetchSettingValues` logs an error and shows an alert if fetching the values fails.
+    @MainActor
     func test_perform_fetchSettingValues_error() async {
         settingsRepository.getDisableAutoTotpCopyResult = .failure(StateServiceError.noActiveAccount)
 
@@ -66,12 +68,14 @@ class AutoFillProcessorTests: BitwardenTestCase {
     }
 
     /// `receive(_:)` with `.appExtensionTapped` navigates to the app extension view.
+    @MainActor
     func test_receive_appExtensionTapped() {
         subject.receive(.appExtensionTapped)
         XCTAssertEqual(coordinator.routes.last, .appExtension)
     }
 
     /// `.receive(_:)` with `.defaultUriMatchTypeChanged` updates the state's default URI match type value.
+    @MainActor
     func test_receive_defaultUriMatchTypeChanged() {
         subject.receive(.defaultUriMatchTypeChanged(.host))
 
@@ -81,12 +85,14 @@ class AutoFillProcessorTests: BitwardenTestCase {
     }
 
     /// `.receive(_:)` with `.passwordAutoFillTapped` navigates to the password autofill view.
+    @MainActor
     func test_receive_passwordAutoFillTapped() {
         subject.receive(.passwordAutoFillTapped)
         XCTAssertEqual(coordinator.routes.last, .passwordAutoFill)
     }
 
     /// `.receive(_:)` with  `.toggleCopyTOTPToggle` updates the state.
+    @MainActor
     func test_receive_toggleCopyTOTPToggle() throws {
         subject.state.isCopyTOTPToggleOn = false
         subject.receive(.toggleCopyTOTPToggle(true))
@@ -97,6 +103,7 @@ class AutoFillProcessorTests: BitwardenTestCase {
     }
 
     /// Updating the default URI match type value logs an error and shows an alert if it fails.
+    @MainActor
     func test_updateDefaultUriMatchType_error() {
         settingsRepository.updateDefaultUriMatchTypeResult = .failure(StateServiceError.noActiveAccount)
 
@@ -108,6 +115,7 @@ class AutoFillProcessorTests: BitwardenTestCase {
     }
 
     /// Updating the disable auto-copy TOTP value logs an error and shows an alert if it fails.
+    @MainActor
     func test_updateDisableAutoTotpCopy_error() {
         settingsRepository.updateDisableAutoTotpCopyResult = .failure(StateServiceError.noActiveAccount)
 

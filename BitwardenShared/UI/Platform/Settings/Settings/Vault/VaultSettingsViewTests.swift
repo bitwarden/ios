@@ -30,6 +30,7 @@ class VaultSettingsViewTests: BitwardenTestCase {
     // MARK: Tests
 
     /// Tapping the export vault button dispatches the `.exportVaultTapped` action.
+    @MainActor
     func test_exportVaultButton_tap() throws {
         let button = try subject.inspect().find(button: Localizations.exportVault)
         try button.tap()
@@ -37,6 +38,7 @@ class VaultSettingsViewTests: BitwardenTestCase {
     }
 
     /// Tapping the folders button dispatches the `.foldersTapped` action.
+    @MainActor
     func test_foldersButton_tap() throws {
         let button = try subject.inspect().find(button: Localizations.folders)
         try button.tap()
@@ -44,6 +46,7 @@ class VaultSettingsViewTests: BitwardenTestCase {
     }
 
     /// Tapping the version button dispatches the `.importItemsTapped` action.
+    @MainActor
     func test_importItemsButton_tap() throws {
         let button = try subject.inspect().find(button: Localizations.importItems)
         try button.tap()
@@ -53,6 +56,7 @@ class VaultSettingsViewTests: BitwardenTestCase {
     // MARK: Snapshots
 
     /// The default view renders correctly.
+    @MainActor
     func test_snapshot_default() {
         assertSnapshots(of: subject, as: [.defaultPortrait, .defaultPortraitDark, .defaultPortraitAX5])
     }

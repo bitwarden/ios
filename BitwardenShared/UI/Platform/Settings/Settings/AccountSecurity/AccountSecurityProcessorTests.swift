@@ -66,6 +66,7 @@ class AccountSecurityProcessorTests: BitwardenTestCase { // swiftlint:disable:th
 
     /// `perform(_:)` with `.appeared` sets the state's timeout action
     /// using the data stored in the `AppSettingsStore`.
+    @MainActor
     func test_perform_appeared_sessionTimeoutAction() async throws {
         let account: Account = .fixture()
         let userId = account.profile.userId
@@ -79,6 +80,7 @@ class AccountSecurityProcessorTests: BitwardenTestCase { // swiftlint:disable:th
     }
 
     /// `perform(_:)` with `.appeared` sets the policy related state properties when the policy is enabled.
+    @MainActor
     func test_perform_appeared_timeoutPolicyEnabled() async throws {
         policyService.fetchTimeoutPolicyValuesResult = .success((.logout, 60))
 
@@ -110,6 +112,7 @@ class AccountSecurityProcessorTests: BitwardenTestCase { // swiftlint:disable:th
 
     /// `perform(_:)` with `.appeared` sets the policy related state properties when the policy is enabled,
     /// but the policy doesn't return an action.
+    @MainActor
     func test_perform_appeared_timeoutPolicyEnabled_noPolicyAction() async throws {
         policyService.fetchTimeoutPolicyValuesResult = .success((nil, 61))
 
@@ -137,6 +140,7 @@ class AccountSecurityProcessorTests: BitwardenTestCase { // swiftlint:disable:th
     }
 
     /// `perform(_:)` with `.appeared` sets the policy related state properties when the policy is enabled.
+    @MainActor
     func test_perform_appeared_timeoutPolicyEnabled_oddTime() async throws {
         policyService.fetchTimeoutPolicyValuesResult = .success((.lock, 61))
 
@@ -163,6 +167,7 @@ class AccountSecurityProcessorTests: BitwardenTestCase { // swiftlint:disable:th
     }
 
     /// `perform(_:)` with `.loadData` loads the initial data for the view.
+    @MainActor
     func test_perform_loadData() async {
         stateService.activeAccount = .fixture()
         authRepository.isPinUnlockAvailableResult = .success(true)
@@ -182,6 +187,7 @@ class AccountSecurityProcessorTests: BitwardenTestCase { // swiftlint:disable:th
     }
 
     /// `perform(_:)` with `.lockVault` locks the user's vault.
+    @MainActor
     func test_perform_lockVault() async {
         let account: Account = .fixture()
         stateService.activeAccount = account
@@ -194,6 +200,7 @@ class AccountSecurityProcessorTests: BitwardenTestCase { // swiftlint:disable:th
 
     /// `perform(_:)` with `.accountFingerprintPhrasePressed` navigates to the web app
     /// and clears the fingerprint phrase URL.
+    @MainActor
     func test_perform_showAccountFingerprintPhraseAlert() async throws {
         stateService.activeAccount = .fixture()
         await subject.perform(.accountFingerprintPhrasePressed)
@@ -216,6 +223,7 @@ class AccountSecurityProcessorTests: BitwardenTestCase { // swiftlint:disable:th
     }
 
     /// `perform(_:)` with `.accountFingerprintPhrasePressed` shows an alert if an error occurs.
+    @MainActor
     func test_perform_showAccountFingerprintPhraseAlert_error() async throws {
         struct FingerprintPhraseError: Error {}
 
@@ -232,6 +240,7 @@ class AccountSecurityProcessorTests: BitwardenTestCase { // swiftlint:disable:th
     }
 
     /// `receive(_:)` with `.twoStepLoginPressed` clears the two step login URL.
+    @MainActor
     func test_receive_clearTwoStepLoginUrl() async throws {
         subject.receive(.twoStepLoginPressed)
 
@@ -246,6 +255,7 @@ class AccountSecurityProcessorTests: BitwardenTestCase { // swiftlint:disable:th
     }
 
     /// `receive(_:)` with `customTimeoutValueSecondsChanged(_:)` updates the custom session timeout value in the state.
+    @MainActor
     func test_receive_customTimeoutValueSecondsChanged() {
         XCTAssertEqual(subject.state.customTimeoutValueSeconds, 60)
 
@@ -257,6 +267,7 @@ class AccountSecurityProcessorTests: BitwardenTestCase { // swiftlint:disable:th
     }
 
     /// `receive(_:)` with `.deleteAccountPressed` shows the `DeleteAccountView`.
+    @MainActor
     func test_receive_deleteAccountPressed() throws {
         subject.receive(.deleteAccountPressed)
 
@@ -264,6 +275,7 @@ class AccountSecurityProcessorTests: BitwardenTestCase { // swiftlint:disable:th
     }
 
     /// `receive(_:)` with `.logout` presents a logout confirmation alert.
+    @MainActor
     func test_receive_logout() async throws {
         subject.receive(.logout)
 
@@ -283,6 +295,7 @@ class AccountSecurityProcessorTests: BitwardenTestCase { // swiftlint:disable:th
     }
 
     /// `.receive(_:)` with `.pendingLoginRequestsTapped` navigates to the pending requests view.
+    @MainActor
     func test_receive_pendingLoginRequestsTapped() {
         subject.receive(.pendingLoginRequestsTapped)
         XCTAssertEqual(coordinator.routes.last, .pendingLoginRequests)
@@ -290,6 +303,7 @@ class AccountSecurityProcessorTests: BitwardenTestCase { // swiftlint:disable:th
 
     /// `receive(_:)` with `sessionTimeoutActionChanged(:)` presents an alert if `logout` was selected.
     /// It then updates the state if `Yes` was tapped on the alert, confirming the user's decision.
+    @MainActor
     func test_receive_sessionTimeoutActionChanged_logout() async throws {
         stateService.activeAccount = .fixture()
 
@@ -314,6 +328,7 @@ class AccountSecurityProcessorTests: BitwardenTestCase { // swiftlint:disable:th
     }
 
     /// `receive(_:)` with `sessionTimeoutActionChanged(:)` updates the state when `lock` was selected.
+    @MainActor
     func test_receive_sessionTimeoutActionChanged_lock() async throws {
         stateService.activeAccount = .fixture()
 
@@ -327,6 +342,7 @@ class AccountSecurityProcessorTests: BitwardenTestCase { // swiftlint:disable:th
     }
 
     /// `receive(_:)` with `sessionTimeoutActionChanged(:)` doesn't update the state if the value did not change.
+    @MainActor
     func test_receive_sessionTimeoutActionChanged_sameValue() async throws {
         stateService.activeAccount = .fixture()
 
@@ -347,6 +363,7 @@ class AccountSecurityProcessorTests: BitwardenTestCase { // swiftlint:disable:th
 
     /// `receive(_:)` with `sessionTimeoutValueChanged(:)` triggers an alert when selecting never lock,
     ///  and accepting the alert sets the sessionTimeoutValue.
+    @MainActor
     func test_receive_sessionTimeoutValueChanged_neverLockAlert_accept() throws {
         XCTAssertEqual(subject.state.sessionTimeoutValue, .immediately)
 
@@ -370,6 +387,7 @@ class AccountSecurityProcessorTests: BitwardenTestCase { // swiftlint:disable:th
 
     /// `receive(_:)` with `sessionTimeoutValueChanged(:)` triggers an alert when selecting never lock,
     ///  and declining the alert does not set the sessionTimeoutValue.
+    @MainActor
     func test_receive_sessionTimeoutValueChanged_neverLockAlert_cancel() throws {
         XCTAssertEqual(subject.state.sessionTimeoutValue, .immediately)
 
@@ -391,6 +409,7 @@ class AccountSecurityProcessorTests: BitwardenTestCase { // swiftlint:disable:th
 
     /// `receive(_:)` with `sessionTimeoutValueChanged(:)` triggers an alert when selecting never lock,
     ///  and any error is surfaced correctly.
+    @MainActor
     func test_receive_sessionTimeoutValueChanged_neverLockAlert_error() throws {
         XCTAssertEqual(subject.state.sessionTimeoutValue, .immediately)
 
@@ -413,6 +432,7 @@ class AccountSecurityProcessorTests: BitwardenTestCase { // swiftlint:disable:th
     }
 
     /// `receive(_:)` with `sessionTimeoutValueChanged(:)` updates the session timeout value in the state.
+    @MainActor
     func test_receive_sessionTimeoutValueChanged_noAlert() {
         XCTAssertEqual(subject.state.sessionTimeoutValue, .immediately)
 
@@ -424,6 +444,7 @@ class AccountSecurityProcessorTests: BitwardenTestCase { // swiftlint:disable:th
 
     /// `receive(_:)` with `sessionTimeoutValueChanged(:)` shows an alert when the user
     /// enters a value that exceeds the policy limit. It also sets the user's timeout to the policy limit.
+    @MainActor
     func test_receive_sessionTimeoutValueChanged_policy_exceedsLimit() throws {
         let account = Account.fixture()
         authRepository.activeAccount = account
@@ -440,6 +461,7 @@ class AccountSecurityProcessorTests: BitwardenTestCase { // swiftlint:disable:th
 
     /// `receive(_:)` with `sessionTimeoutValueChanged(:)` shows an alert when the user
     /// enters a value that exceeds the policy limit. It surfaces any error when setting the policy value.
+    @MainActor
     func test_receive_sessionTimeoutValueChanged_policy_exceedsLimit_error() throws {
         let account = Account.fixture()
         authRepository.activeAccount = account
@@ -453,6 +475,7 @@ class AccountSecurityProcessorTests: BitwardenTestCase { // swiftlint:disable:th
     }
 
     /// `receive(_:)` with `.toggleUnlockWithPINCode` updates the state when submit has been pressed.
+    @MainActor
     func test_receive_toggleUnlockWithPINCode_toggleOff() {
         subject.state.isUnlockWithPINCodeOn = true
 
@@ -469,6 +492,7 @@ class AccountSecurityProcessorTests: BitwardenTestCase { // swiftlint:disable:th
 
     /// `receive(_:)` with `.toggleUnlockWithPINCode` displays an alert and updates the state when submit has been
     /// pressed and the user has entered in a pin.
+    @MainActor
     func test_receive_toggleUnlockWithPINCode_toggleOn_withPIN() async throws {
         stateService.activeAccount = .fixture()
         subject.state.isUnlockWithPINCodeOn = false
@@ -485,6 +509,7 @@ class AccountSecurityProcessorTests: BitwardenTestCase { // swiftlint:disable:th
 
     /// `receive(_:)` with `.toggleUnlockWithPINCode` displays an alert and updates the state when submit has been
     /// pressed but an empty pin was passed.
+    @MainActor
     func test_receive_toggleUnlockWithPINCode_toggleOn_withEmptyPIN() async throws {
         stateService.activeAccount = .fixture()
         subject.state.isUnlockWithPINCodeOn = false
@@ -497,6 +522,7 @@ class AccountSecurityProcessorTests: BitwardenTestCase { // swiftlint:disable:th
 
     /// `receive(_:)` with `.toggleUnlockWithPINCode` displays an alert and updates the state when submit has been
     /// pressed but an empty pin was passed.
+    @MainActor
     func test_receive_toggleUnlockWithPINCode_toggleOn_withWhitespacePIN() async throws {
         stateService.activeAccount = .fixture()
         subject.state.isUnlockWithPINCodeOn = false
@@ -510,6 +536,7 @@ class AccountSecurityProcessorTests: BitwardenTestCase { // swiftlint:disable:th
 
     /// `receive(_:)` with `.toggleUnlockWithPINCode` displays an error if one occurs while setting
     /// the user's pin.
+    @MainActor
     func test_receive_toggleUnlockWithPINCode_toggleOn_error() async throws {
         authRepository.setPinsResult = .failure(BitwardenTestError.example)
         stateService.activeAccount = .fixture()
@@ -531,6 +558,7 @@ class AccountSecurityProcessorTests: BitwardenTestCase { // swiftlint:disable:th
 
     /// `receive(_:)` with `.toggleUnlockWithPINCode` displays an alert and updates the state when
     /// submit has been pressed without displaying the master password prompt alert.
+    @MainActor
     func test_receive_toggleUnlockWithPINCode_toggleOn_userWithoutMasterPassword() async throws {
         stateService.activeAccount = .fixture()
         stateService.userHasMasterPassword["1"] = false
@@ -545,6 +573,7 @@ class AccountSecurityProcessorTests: BitwardenTestCase { // swiftlint:disable:th
     }
 
     /// `receive(_:)` with `.toggleUnlockWithPINCode` turns the toggle off and clears the user's pins.
+    @MainActor
     func test_receive_toggleUnlockWithPINCode_off() {
         let account: Account = .fixture()
         stateService.activeAccount = account
@@ -561,6 +590,7 @@ class AccountSecurityProcessorTests: BitwardenTestCase { // swiftlint:disable:th
 
     /// `receive(_:)` with `.toggleUnlockWithPINCode` displays an error if one occurs while getting
     /// whether the user has a master password.
+    @MainActor
     func test_receive_toggleUnlockWithPINCode_userHasMasterPasswordError() async throws {
         subject.state.isUnlockWithPINCodeOn = false
 
@@ -576,6 +606,7 @@ class AccountSecurityProcessorTests: BitwardenTestCase { // swiftlint:disable:th
     }
 
     /// `perform(_:)` with `.loadData` updates the state.
+    @MainActor
     func test_perform_loadData_biometricsValue() async {
         let biometricUnlockStatus = BiometricsUnlockStatus.available(.faceID, enabled: true, hasValidIntegrity: true)
         biometricsRepository.biometricUnlockStatus = .success(
@@ -588,6 +619,7 @@ class AccountSecurityProcessorTests: BitwardenTestCase { // swiftlint:disable:th
     }
 
     /// `perform(_:)` with `.loadData` updates the state.
+    @MainActor
     func test_perform_loadData_biometricsValue_error() async {
         struct TestError: Error {}
         biometricsRepository.biometricUnlockStatus = .failure(TestError())
@@ -598,6 +630,7 @@ class AccountSecurityProcessorTests: BitwardenTestCase { // swiftlint:disable:th
     }
 
     /// `perform(_:)` with `.toggleUnlockWithBiometrics` updates the state.
+    @MainActor
     func test_perform_toggleUnlockWithBiometrics_authRepositoryFailure() async throws {
         struct TestError: Error, Equatable {}
         let biometricUnlockStatus = BiometricsUnlockStatus.available(.faceID, enabled: true, hasValidIntegrity: true)
@@ -615,6 +648,7 @@ class AccountSecurityProcessorTests: BitwardenTestCase { // swiftlint:disable:th
     }
 
     /// `perform(_:)` with `.toggleUnlockWithBiometrics` updates the state.
+    @MainActor
     func test_perform_toggleUnlockWithBiometrics_biometricsRepositoryFailure() async throws {
         struct TestError: Error, Equatable {}
         let biometricUnlockStatus = BiometricsUnlockStatus.available(.faceID, enabled: true, hasValidIntegrity: true)
@@ -630,6 +664,7 @@ class AccountSecurityProcessorTests: BitwardenTestCase { // swiftlint:disable:th
     }
 
     /// `perform(_:)` with `.toggleUnlockWithBiometrics` configures biometric integrity state if needed.
+    @MainActor
     func test_perform_toggleUnlockWithBiometrics_invalidBiometryState() async {
         let biometricUnlockStatus = BiometricsUnlockStatus.available(.faceID, enabled: true, hasValidIntegrity: false)
         biometricsRepository.biometricUnlockStatus = .success(
@@ -643,6 +678,7 @@ class AccountSecurityProcessorTests: BitwardenTestCase { // swiftlint:disable:th
     }
 
     /// `perform(_:)` with `.toggleUnlockWithBiometrics` updates the state.
+    @MainActor
     func test_perform_toggleUnlockWithBiometrics_success() async {
         let biometricUnlockStatus = BiometricsUnlockStatus.available(.faceID, enabled: false, hasValidIntegrity: true)
         biometricsRepository.biometricUnlockStatus = .success(
@@ -659,6 +695,7 @@ class AccountSecurityProcessorTests: BitwardenTestCase { // swiftlint:disable:th
     }
 
     /// `receive(_:)` with `.twoStepLoginPressed` shows the two step login alert.
+    @MainActor
     func test_receive_twoStepLoginPressed() async throws {
         subject.receive(.twoStepLoginPressed)
 
@@ -678,6 +715,7 @@ class AccountSecurityProcessorTests: BitwardenTestCase { // swiftlint:disable:th
 
     /// The vault timeout action is refreshed after turning off pin unlock to handle users without
     /// a master password when a lock timeout action may not be available.
+    @MainActor
     func test_refreshVaultTimeoutAction_withoutMasterPassword_pinOff() {
         authRepository.activeAccount = .fixtureWithTdeNoPassword()
         authRepository.sessionTimeoutAction["1"] = .lock
@@ -699,6 +737,7 @@ class AccountSecurityProcessorTests: BitwardenTestCase { // swiftlint:disable:th
 
     /// The vault timeout action is refreshed after turning off biometrics unlock to handle users
     /// without a master password when a lock timeout action may not be available.
+    @MainActor
     func test_refreshVaultTimeoutAction_withoutMasterPassword_biometricsOff() async {
         authRepository.activeAccount = .fixtureWithTdeNoPassword()
         authRepository.sessionTimeoutAction["1"] = .lock
@@ -715,6 +754,7 @@ class AccountSecurityProcessorTests: BitwardenTestCase { // swiftlint:disable:th
     }
 
     /// `state.twoStepLoginUrl` is initialized with the correct value.
+    @MainActor
     func test_twoStepLoginUrl() async throws {
         subject.receive(.twoStepLoginPressed)
 

@@ -46,6 +46,7 @@ class MoveToOrganizationProcessorTests: BitwardenTestCase {
     // MARK: Tests
 
     /// `perform(_:)` with `.fetchCipherOptions` fetches the ownership options for a cipher from the repository.
+    @MainActor
     func test_perform_fetchCipherOptions() async {
         let collections: [CollectionView] = [
             .fixture(id: "1", name: "Design"),
@@ -73,6 +74,7 @@ class MoveToOrganizationProcessorTests: BitwardenTestCase {
     }
 
     /// `perform(_:)` with `.moveCipher` shares the updated cipher.
+    @MainActor
     func test_perform_moveCipher() async {
         subject.state.ownershipOptions = [.organization(id: "123", name: "Organization")]
         subject.state.collectionIds = ["1"]
@@ -93,6 +95,7 @@ class MoveToOrganizationProcessorTests: BitwardenTestCase {
     }
 
     /// `perform(_:)` with `.moveCipher` shows an alert if an error occurs sharing the cipher.
+    @MainActor
     func test_perform_moveCipher_error() async {
         subject.state.ownershipOptions = [.organization(id: "123", name: "Organization")]
         subject.state.collectionIds = ["1"]
@@ -113,6 +116,7 @@ class MoveToOrganizationProcessorTests: BitwardenTestCase {
     }
 
     /// `perform(_:)` with `.moveCipher` shows an alert if no collections have been selected.
+    @MainActor
     func test_perform_moveCipher_errorNoCollections() async {
         await subject.perform(.moveCipher)
 
@@ -126,6 +130,7 @@ class MoveToOrganizationProcessorTests: BitwardenTestCase {
     }
 
     /// `receive(_:)` with `.collectionToggleChanged` updates the selected collection IDs for the cipher.
+    @MainActor
     func test_receive_collectionToggleChanged() {
         subject.state.collections = [
             .fixture(id: "1", name: "Design"),
@@ -143,6 +148,7 @@ class MoveToOrganizationProcessorTests: BitwardenTestCase {
     }
 
     /// `receive(_:)` with `.dismissPressed` dismisses the view.
+    @MainActor
     func test_receive_dismissPressed() {
         subject.receive(.dismissPressed)
 
@@ -150,6 +156,7 @@ class MoveToOrganizationProcessorTests: BitwardenTestCase {
     }
 
     /// `receive(_:)` with `.ownerChanged` updates the state correctly.
+    @MainActor
     func test_receive_ownerChanged() {
         let organization1 = CipherOwner.organization(id: "1", name: "Organization 1")
         let organization2 = CipherOwner.organization(id: "2", name: "Organization 2")

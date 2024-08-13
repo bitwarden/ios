@@ -40,6 +40,7 @@ class GeneratorProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
         subject = nil
     }
 
+    @MainActor
     func setUpSubject() {
         subject = GeneratorProcessor(
             coordinator: coordinator.asAnyCoordinator(),
@@ -57,6 +58,7 @@ class GeneratorProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
 
     /// `init` loads the password generation options and doesn't change the defaults if the options
     /// are empty.
+    @MainActor
     func test_init_loadsPasswordOptions_empty() {
         waitFor { subject.didLoadGeneratorOptions }
         XCTAssertTrue(generatorRepository.getPasswordGenerationOptionsCalled)
@@ -85,6 +87,7 @@ class GeneratorProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
 
     /// `init` loads the password generation options and updates the state
     /// based on the previously selected options.
+    @MainActor
     func test_init_loadsPasswordOptions_withValues() {
         generatorRepository.getPasswordGenerationOptionsResult = .success(PasswordGenerationOptions(
             allowAmbiguousChar: false,
@@ -131,6 +134,7 @@ class GeneratorProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
 
     /// `init` loads the password generation options, applies any policy options and updates the
     /// state based on the options.
+    @MainActor
     func test_init_loadsPasswordOptions_withPolicy() {
         generatorRepository.getPasswordGenerationOptionsResult = .success(PasswordGenerationOptions(
             capitalize: false,
@@ -179,6 +183,7 @@ class GeneratorProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
     }
 
     /// If an error occurs generating a password, an alert is shown.
+    @MainActor
     func test_generatePassword_error() {
         subject.state.generatorType = .password
         subject.state.passwordState.passwordGeneratorType = .password
@@ -193,6 +198,7 @@ class GeneratorProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
     }
 
     /// Generating a new password validates the password options before generating the value.
+    @MainActor
     func test_generatePassword_validatesOptions() {
         subject.state.generatorType = .password
         subject.state.passwordState.passwordGeneratorType = .password
@@ -210,6 +216,7 @@ class GeneratorProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
     }
 
     /// Generating a new password applies any policies to the options before generating the value.
+    @MainActor
     func test_generatePassword_appliesPolicies() throws {
         policyService.applyPasswordGenerationOptionsTransform = { options in
             options.length = 40
@@ -241,6 +248,7 @@ class GeneratorProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
 
     /// Generating a new password applies any policies to the options before generating the value,
     /// but doesn't override the generator type.
+    @MainActor
     func test_generatePassword_appliesPolicies_generatorTypeChange() throws {
         waitFor(subject.didLoadGeneratorOptions)
 
@@ -258,6 +266,7 @@ class GeneratorProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
     }
 
     /// If an error occurs generating an username, an alert is shown.
+    @MainActor
     func test_generateUsername_error() {
         subject.state.generatorType = .username
         subject.state.usernameState.usernameGeneratorType = .plusAddressedEmail
@@ -272,6 +281,7 @@ class GeneratorProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
     }
 
     /// If an error occurs loading the generator options, an alert is shown and a new value isn't generated.
+    @MainActor
     func test_generateValue_loadGeneratorOptionsError() async {
         generatorRepository.getPasswordGenerationOptionsResult = .failure(StateServiceError.noActiveAccount)
         setUpSubject()
@@ -289,6 +299,7 @@ class GeneratorProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
 
     /// `init` loads the username generation options and doesn't change the defaults if the options
     /// are empty.
+    @MainActor
     func test_init_loadsUsernameOptions_empty() {
         waitFor { generatorRepository.getUsernameGenerationOptionsCalled }
         XCTAssertTrue(generatorRepository.getUsernameGenerationOptionsCalled)
@@ -318,6 +329,7 @@ class GeneratorProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
 
     /// `perform(_:)` with `.appeared` loads the username generation options and updates the state
     /// based on the previously selected options.
+    @MainActor
     func test_init_loadsUsernameOptions_withValues() {
         generatorRepository.getUsernameGenerationOptionsResult = .success(UsernameGenerationOptions(
             anonAddyApiAccessToken: "ADDYIO_API_TOKEN",
@@ -365,6 +377,7 @@ class GeneratorProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
     }
 
     /// `perform(_:)` with `.appeared` generates a new generated value.
+    @MainActor
     func test_perform_appear_generatesValue() {
         subject.state.generatorType = .password
         subject.state.passwordState.passwordGeneratorType = .password
@@ -380,6 +393,7 @@ class GeneratorProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
     }
 
     /// `perform(_:)` with `.appeared` generates a new generated value after the options have loaded.
+    @MainActor
     func test_perform_appear_generatesValueAfterLoadingOptions() {
         generatorRepository.getPasswordGenerationOptionsResult = .success(
             PasswordGenerationOptions(length: 50)
@@ -396,6 +410,7 @@ class GeneratorProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
 
     /// `receive(_:)` with `.copyGeneratedValØue` copies the generated password to the system
     /// pasteboard and shows a toast.
+    @MainActor
     func test_receive_copiedGeneratedValue_password() {
         subject.state.generatorType = .password
         subject.state.passwordState.passwordGeneratorType = .password
@@ -408,6 +423,7 @@ class GeneratorProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
 
     /// `receive(_:)` with `.copyGeneratedValue` copies the generated passphrase to the system
     /// pasteboard and shows a toast.
+    @MainActor
     func test_receive_copiedGeneratedValue_passphrase() {
         subject.state.generatorType = .password
         subject.state.passwordState.passwordGeneratorType = .passphrase
@@ -420,6 +436,7 @@ class GeneratorProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
 
     /// `receive(_:)` with `.copyGeneratedValue` copies the generated username to the system
     /// pasteboard and shows a toast.
+    @MainActor
     func test_receive_copiedGeneratedValue_username() {
         subject.state.generatorType = .username
 
@@ -430,12 +447,14 @@ class GeneratorProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
     }
 
     /// `receive(_:)` with `.dismissPressed` navigates to the `.cancel` route.
+    @MainActor
     func test_receive_dismissPressed() {
         subject.receive(.dismissPressed)
         XCTAssertEqual(coordinator.routes.last, .cancel)
     }
 
     /// `receive(_:)` with `.emailTypeChanged` updates the state's catch all email type.
+    @MainActor
     func test_receive_emailTypeChanged_catchAll() {
         subject.state.usernameState.usernameGeneratorType = .catchAllEmail
 
@@ -447,6 +466,7 @@ class GeneratorProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
     }
 
     /// `receive(_:)` with `.emailTypeChanged` updates the state's plus addressed email type.
+    @MainActor
     func test_receive_emailTypeChanged_plusAddressed() {
         subject.state.usernameState.usernameGeneratorType = .plusAddressedEmail
 
@@ -458,6 +478,7 @@ class GeneratorProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
     }
 
     /// `receive(_:)` with `.generatorTypeChanged` updates the state's generator type value.
+    @MainActor
     func test_receive_generatorTypeChanged() {
         subject.receive(.generatorTypeChanged(.password))
         XCTAssertEqual(subject.state.generatorType, .password)
@@ -467,6 +488,7 @@ class GeneratorProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
     }
 
     /// `receive(_:)` with `.passwordGeneratorTypeChanged` updates the state's password generator type value.
+    @MainActor
     func test_receive_passwordGeneratorTypeChanged() {
         subject.receive(.passwordGeneratorTypeChanged(.password))
         XCTAssertEqual(subject.state.passwordState.passwordGeneratorType, .password)
@@ -476,6 +498,7 @@ class GeneratorProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
     }
 
     /// `receive(_:)` with `.refreshGeneratedValue` generates a new passphrase.
+    @MainActor
     func test_receive_refreshGeneratedValue_passphrase() throws {
         subject.state.generatorType = .password
         subject.state.passwordState.passwordGeneratorType = .passphrase
@@ -502,6 +525,7 @@ class GeneratorProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
     }
 
     /// `receive(_:)` with `.refreshGeneratedValue` generates a new password.
+    @MainActor
     func test_receive_refreshGeneratedValue_password() throws {
         subject.state.generatorType = .password
 
@@ -533,6 +557,7 @@ class GeneratorProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
     }
 
     /// `receive(_:)` with `.refreshGeneratedValue` generates a new username.
+    @MainActor
     func test_receive_refreshGeneratedValue_username() throws {
         subject.state.generatorType = .username
         subject.state.usernameState.usernameGeneratorType = .plusAddressedEmail
@@ -552,6 +577,7 @@ class GeneratorProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
     }
 
     /// `receive(_:)` with `.selectButtonPressed` navigates to the `.complete` route.
+    @MainActor
     func test_receive_selectButtonPressed() {
         subject.state.generatorType = .password
         subject.state.generatedValue = "password"
@@ -560,6 +586,7 @@ class GeneratorProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
     }
 
     /// `receive(_:)` with `.showPasswordHistory` asks the coordinator to show the password history.
+    @MainActor
     func test_receive_showPasswordHistory() {
         subject.receive(.showPasswordHistory)
 
@@ -568,6 +595,7 @@ class GeneratorProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
 
     /// `receive(_:)` with `.sliderEditingChanged` saves the previously generated value when the
     /// slider ends editing.
+    @MainActor
     func test_receive_sliderEditingChanged() {
         let field = sliderField(
             keyPath: \.passwordState.lengthDouble,
@@ -601,6 +629,7 @@ class GeneratorProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
     }
 
     /// `receive(_:)` with `.sliderValueChanged` updates the state's value for the slider field.
+    @MainActor
     func test_receive_sliderValueChanged() {
         let field = sliderField(
             keyPath: \.passwordState.lengthDouble,
@@ -617,6 +646,7 @@ class GeneratorProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
 
     /// `receive(_:)` with `.sliderValueChanged` doesn't generate a new value if the slider value is
     /// below the policy minimum.
+    @MainActor
     func test_receive_sliderValueChanged_withPolicy() {
         subject.state.policyOptions = PasswordGenerationOptions(length: 20)
 
@@ -641,6 +671,7 @@ class GeneratorProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
     }
 
     /// `receive(_:)` with `.stepperValueChanged` updates the state's value for the stepper field.
+    @MainActor
     func test_receive_stepperValueChanged() {
         let field = stepperField(
             accessibilityId: "",
@@ -656,6 +687,7 @@ class GeneratorProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
 
     /// `receive(_:)` with `.textFieldFocusChanged` updates the processor's focused key path value
     /// which is used to determine if a new value should be generated as the text field value changes.
+    @MainActor
     func test_receive_textFieldFocusChanged() {
         let field = FormTextField<GeneratorState>(
             keyPath: \.usernameState.email,
@@ -681,6 +713,7 @@ class GeneratorProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
 
     /// `receive(_:)` with `.textFieldIsPasswordVisibleChanged` updates the states value for whether
     /// the password is visible for the field.
+    @MainActor
     func test_receive_textFieldIsPasswordVisibleChanged() {
         let field = FormTextField<GeneratorState>(
             isPasswordVisible: false,
@@ -701,6 +734,7 @@ class GeneratorProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
     }
 
     /// `receive(_:)` with `.textValueChanged` updates the state's value for the text field.
+    @MainActor
     func test_receive_textValueChanged() {
         let field = textField(keyPath: \.passwordState.wordSeparator)
 
@@ -712,6 +746,7 @@ class GeneratorProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
     }
 
     /// `receive(_:)` with `.textValueChanged` for the word separator limits the value to one character.
+    @MainActor
     func test_receive_textValueChanged_wordSeparatorLimitedToOneCharacter() {
         let field = FormTextField<GeneratorState>(
             keyPath: \.passwordState.wordSeparator,
@@ -727,6 +762,7 @@ class GeneratorProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
     }
 
     /// `receive(_:)` with `.toastShown` updates the state's toast value.
+    @MainActor
     func test_receive_toastShown() {
         let toast = Toast(text: "toast!")
         subject.receive(.toastShown(toast))
@@ -737,6 +773,7 @@ class GeneratorProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
     }
 
     /// `receive(_:)` with `.toggleValueChanged` updates the state's value for the toggle field.
+    @MainActor
     func test_receive_toggleValueChanged() {
         let field = toggleField(accessibilityId: "LowercaseAtoZToggle", keyPath: \.passwordState.containsLowercase)
 
@@ -749,6 +786,7 @@ class GeneratorProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
 
     /// `receive(_:)` with `.usernameForwardedEmailServiceChanged` updates the state's username
     /// forwarded email service value.
+    @MainActor
     func test_receive_usernameForwardedEmailServiceChanged() {
         subject.receive(.usernameForwardedEmailServiceChanged(.duckDuckGo))
         XCTAssertEqual(subject.state.usernameState.forwardedEmailService, .duckDuckGo)
@@ -758,6 +796,7 @@ class GeneratorProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
     }
 
     /// `receive(_:)` with `.usernameGeneratorTypeChanged` updates the state's username generator type value.
+    @MainActor
     func test_receive_usernameGeneratorTypeChanged() {
         subject.receive(.usernameGeneratorTypeChanged(.plusAddressedEmail))
         XCTAssertEqual(subject.state.usernameState.usernameGeneratorType, .plusAddressedEmail)
@@ -767,6 +806,7 @@ class GeneratorProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
     }
 
     /// The user's password options are saved when any of the password options are changed.
+    @MainActor
     func test_saveGeneratorOptions_password() {
         // Wait for the initial loading of the generation options to complete before making changes.
         waitFor { subject.didLoadGeneratorOptions }
@@ -825,6 +865,7 @@ class GeneratorProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
     }
 
     /// Saving the password generation options logs an error if one occurs.
+    @MainActor
     func test_saveGeneratorOptions_password_error() {
         generatorRepository.setPasswordGenerationOptionsResult = .failure(StateServiceError.noActiveAccount)
 
@@ -838,6 +879,7 @@ class GeneratorProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
     }
 
     /// The user's username options are saved when any of the username options are changed.
+    @MainActor
     func test_saveGeneratorOptions_username() {
         // Wait for the initial loading of the generation options to complete before making changes.
         waitFor { generatorRepository.getUsernameGenerationOptionsCalled }
@@ -883,6 +925,7 @@ class GeneratorProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
     }
 
     /// Saving the username generation options logs an error if one occurs.
+    @MainActor
     func test_saveGeneratorOptions_username_error() {
         generatorRepository.setUsernameGenerationOptionsResult = .failure(StateServiceError.noActiveAccount)
 
@@ -898,6 +941,7 @@ class GeneratorProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
 
     /// A new value should only be generated when focus leaves a text field, and not when a text
     /// field becomes focused.
+    @MainActor
     func test_shouldGenerateNewValue_textFieldFocusChanged() {
         XCTAssertFalse(
             GeneratorAction.textFieldFocusChanged(keyPath: \.passwordState.wordSeparator)

@@ -32,6 +32,7 @@ class SelectLanguageViewTests: BitwardenTestCase {
     // MARK: Tests
 
     /// Tapping the cancel button dispatches the `.dismiss` action.
+    @MainActor
     func test_cancelButton_tap() throws {
         let button = try subject.inspect().find(button: Localizations.cancel)
         try button.tap()
@@ -39,6 +40,7 @@ class SelectLanguageViewTests: BitwardenTestCase {
     }
 
     /// Tapping a language button dispatches the `.languageTapped(_)` action.
+    @MainActor
     func test_languageButton_tap() throws {
         let button = try subject.inspect().find(button: Localizations.defaultSystem)
         try button.tap()

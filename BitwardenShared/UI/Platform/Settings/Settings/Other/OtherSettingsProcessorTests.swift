@@ -50,6 +50,7 @@ class OtherSettingsProcessorTests: BitwardenTestCase {
     }
 
     /// `perform(_:)` with `.loadInitialValues` fetches the allow sync on refresh value.
+    @MainActor
     func test_perform_loadInitialValues_success() async {
         settingsRepository.allowSyncOnRefresh = true
         settingsRepository.clearClipboardValue = .thirtySeconds
@@ -63,6 +64,7 @@ class OtherSettingsProcessorTests: BitwardenTestCase {
     }
 
     /// `perform(_:)` with `.streamLastSyncTime` updates the state's last sync time whenever it changes.
+    @MainActor
     func test_perform_streamLastSyncTime() {
         let task = Task {
             await subject.perform(.streamLastSyncTime)
@@ -88,6 +90,7 @@ class OtherSettingsProcessorTests: BitwardenTestCase {
 
     /// `perform(_:)` with `.syncNow` shows the loading overlay while syncing and then a toast if
     /// it completes successfully.
+    @MainActor
     func test_perform_syncNow() async {
         await subject.perform(.syncNow)
 
@@ -99,6 +102,7 @@ class OtherSettingsProcessorTests: BitwardenTestCase {
 
     /// `perform(_:)` with `.syncNow` shows the loading overlay while syncing and then an alert if
     /// syncing fails.
+    @MainActor
     func test_perform_syncNow_error() async throws {
         settingsRepository.fetchSyncResult = .failure(URLError(.timedOut))
 
@@ -119,6 +123,7 @@ class OtherSettingsProcessorTests: BitwardenTestCase {
     }
 
     /// `receive(_:)` with `.clearClipboardValueChanged` updates the value in the state and the repository.
+    @MainActor
     func test_receive_clearClipboardValueChanged() {
         subject.receive(.clearClipboardValueChanged(.twentySeconds))
 
@@ -127,6 +132,7 @@ class OtherSettingsProcessorTests: BitwardenTestCase {
     }
 
     /// `receive(_:)` with `.toastShown` updates the state's toast value.
+    @MainActor
     func test_receive_toastShown() {
         let toast = Toast(text: "toast!")
         subject.receive(.toastShown(toast))
@@ -138,6 +144,7 @@ class OtherSettingsProcessorTests: BitwardenTestCase {
 
     /// `receive(_:)` with `isAllowSyncOnRefreshToggleOn` updates the value in the state and records an error if it
     /// failed to update the cached data.
+    @MainActor
     func test_receive_toggleAllowSyncOnRefresh_error() {
         settingsRepository.allowSyncOnRefreshResult = .failure(BitwardenTestError.example)
 
@@ -149,6 +156,7 @@ class OtherSettingsProcessorTests: BitwardenTestCase {
     }
 
     /// `receive(_:)` with `isAllowSyncOnRefreshToggleOn` updates the value in the state and the repository.
+    @MainActor
     func test_receive_toggleAllowSyncOnRefresh_success() {
         XCTAssertFalse(subject.state.isAllowSyncOnRefreshToggleOn)
 
@@ -161,6 +169,7 @@ class OtherSettingsProcessorTests: BitwardenTestCase {
 
     /// `receive(_:)` with `toggleConnectToWatch` updates the value in the state and records an error if it
     /// failed to update the cached data.
+    @MainActor
     func test_receive_toggleConnectToWatch_error() {
         settingsRepository.connectToWatchResult = .failure(BitwardenTestError.example)
 
@@ -172,6 +181,7 @@ class OtherSettingsProcessorTests: BitwardenTestCase {
     }
 
     /// `receive(_:)` with `toggleConnectToWatch` updates the value in the state and the repository
+    @MainActor
     func test_receive_toggleConnectToWatch_success() {
         XCTAssertFalse(subject.state.isConnectToWatchToggleOn)
 

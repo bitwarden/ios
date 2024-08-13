@@ -66,6 +66,7 @@ class UserVerificationHelperTests: BitwardenTestCase { // swiftlint:disable:this
     }
 
     /// `setupPin()` shows an alert for the user to enter a pin for their account.
+    @MainActor
     func test_setupPin() async throws {
         userVerificationDelegate.alertShownHandler = { alert in
             XCTAssertEqual(alert, .enterPINCode { _ in })
@@ -79,6 +80,7 @@ class UserVerificationHelperTests: BitwardenTestCase { // swiftlint:disable:this
     }
 
     /// `setupPin()` throws an error if the entered pin is empty.
+    @MainActor
     func test_setupPin_emptyPin() async throws {
         userVerificationDelegate.alertShownHandler = { alert in
             XCTAssertEqual(alert, .enterPINCode { _ in })
@@ -91,6 +93,7 @@ class UserVerificationHelperTests: BitwardenTestCase { // swiftlint:disable:this
     }
 
     /// `setupPin()` throws an error if setting the pin fails.
+    @MainActor
     func test_setupPin_error() async throws {
         authRepository.setPinsResult = .failure(BitwardenTestError.example)
         userVerificationDelegate.alertShownHandler = { alert in
@@ -115,6 +118,7 @@ class UserVerificationHelperTests: BitwardenTestCase { // swiftlint:disable:this
     }
 
     /// `setupPin()` with cancelled setup.
+    @MainActor
     func test_setupPin_cancelled() async throws {
         let task = Task {
             try await self.subject.setupPin()
@@ -191,6 +195,7 @@ class UserVerificationHelperTests: BitwardenTestCase { // swiftlint:disable:this
     }
 
     /// `verifyMasterPassword()` with valid master password.
+    @MainActor
     func test_verifyMasterPassword_verified() async throws {
         authRepository.validatePasswordResult = .success(true)
 
@@ -212,6 +217,7 @@ class UserVerificationHelperTests: BitwardenTestCase { // swiftlint:disable:this
     }
 
     /// `verifyMasterPassword()` with invalid master password.
+    @MainActor
     func test_verifyMasterPassword_notVerified() async throws {
         authRepository.validatePasswordResult = .success(false)
 
@@ -246,6 +252,7 @@ class UserVerificationHelperTests: BitwardenTestCase { // swiftlint:disable:this
     }
 
     /// `verifyMasterPassword()` with throwing master password validation.
+    @MainActor
     func test_verifyMasterPassword_unableToPerformWhenThrowing() async throws {
         authRepository.validatePasswordResult = .failure(BitwardenTestError.example)
 
@@ -268,6 +275,7 @@ class UserVerificationHelperTests: BitwardenTestCase { // swiftlint:disable:this
     }
 
     /// `verifyMasterPassword()` with cancelled master password validation.
+    @MainActor
     func test_verifyMasterPassword_cancelled() async throws {
         let task = Task {
             try await self.subject.verifyMasterPassword()
@@ -295,6 +303,7 @@ class UserVerificationHelperTests: BitwardenTestCase { // swiftlint:disable:this
     }
 
     /// `verifyPin()` with cancelled verification.
+    @MainActor
     func test_verifyPin_cancelled() async throws {
         authRepository.isPinUnlockAvailableResult = .success(true)
         let task = Task {
@@ -314,6 +323,7 @@ class UserVerificationHelperTests: BitwardenTestCase { // swiftlint:disable:this
     }
 
     /// `verifyPin()` with verified PIN.
+    @MainActor
     func test_verifyPin_verified() async throws {
         authRepository.isPinUnlockAvailableResult = .success(true)
         authRepository.validatePinResult = .success(true)
@@ -334,6 +344,7 @@ class UserVerificationHelperTests: BitwardenTestCase { // swiftlint:disable:this
     }
 
     /// `verifyPin()` with not verified PIN.
+    @MainActor
     func test_verifyPin_notVerified() async throws {
         authRepository.isPinUnlockAvailableResult = .success(true)
         authRepository.validatePinResult = .success(false)
@@ -367,6 +378,7 @@ class UserVerificationHelperTests: BitwardenTestCase { // swiftlint:disable:this
     }
 
     /// `verifyPin()` with throwing pin verification returns unable to perform.
+    @MainActor
     func test_verifyPin_throwsUnableToPerform() async throws {
         authRepository.isPinUnlockAvailableResult = .success(true)
         authRepository.validatePinResult = .failure(BitwardenTestError.example)
@@ -393,6 +405,7 @@ class UserVerificationHelperTests: BitwardenTestCase { // swiftlint:disable:this
 
     // MARK: Private
 
+    @MainActor
     private func enterMasterPasswordInAlertAndSubmit() async throws {
         let alert = try XCTUnwrap(userVerificationDelegate.alertShown.last)
         XCTAssertEqual(alert, .masterPasswordPrompt { _ in })
@@ -401,6 +414,7 @@ class UserVerificationHelperTests: BitwardenTestCase { // swiftlint:disable:this
         try await alert.tapAction(title: Localizations.submit)
     }
 
+    @MainActor
     private func enterPinInAlertAndSubmit() async throws {
         let alert = try XCTUnwrap(userVerificationDelegate.alertShown.last)
         XCTAssertEqual(alert, .enterPINCode(settingUp: false) { _ in })

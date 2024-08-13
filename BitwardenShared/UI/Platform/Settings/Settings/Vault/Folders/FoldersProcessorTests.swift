@@ -42,6 +42,7 @@ class FoldersProcessorTests: BitwardenTestCase {
     // MARK: Tests
 
     /// `folderAdded()` delegate method shows the expected toast.
+    @MainActor
     func test_delegate_folderAdded() {
         XCTAssertNil(subject.state.toast)
 
@@ -50,6 +51,7 @@ class FoldersProcessorTests: BitwardenTestCase {
     }
 
     /// `folderDeleted()` delegate method shows the expected toast.
+    @MainActor
     func test_delegate_folderDeleted() {
         XCTAssertNil(subject.state.toast)
 
@@ -58,6 +60,7 @@ class FoldersProcessorTests: BitwardenTestCase {
     }
 
     /// `folderEdited()` delegate method shows the expected toast.
+    @MainActor
     func test_delegate_folderEdited() {
         XCTAssertNil(subject.state.toast)
 
@@ -66,6 +69,7 @@ class FoldersProcessorTests: BitwardenTestCase {
     }
 
     /// `perform(_:)` with `.streamFolders` updates the state's list of folders whenever it changes.
+    @MainActor
     func test_perform_streamFolders() {
         let task = Task {
             await subject.perform(.streamFolders)
@@ -90,6 +94,7 @@ class FoldersProcessorTests: BitwardenTestCase {
     }
 
     /// Receiving `.add` navigates to the add folder screen.
+    @MainActor
     func test_receive_add() {
         subject.receive(.add)
 
@@ -97,6 +102,7 @@ class FoldersProcessorTests: BitwardenTestCase {
     }
 
     /// Receiving `.folderTapped(id:)` navigates to the edit folder screen.
+    @MainActor
     func test_receive_folderTapped() throws {
         let folder = FolderView.fixture()
         subject.state.folders = [folder]
@@ -107,6 +113,7 @@ class FoldersProcessorTests: BitwardenTestCase {
     }
 
     /// `receive(_:)` with `.toastShown` updates the state's toast value.
+    @MainActor
     func test_receive_toastShown() {
         let toast = Toast(text: "toast!")
         subject.receive(.toastShown(toast))

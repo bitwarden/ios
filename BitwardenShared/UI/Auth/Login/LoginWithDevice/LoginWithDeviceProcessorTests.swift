@@ -47,6 +47,7 @@ class LoginWithDeviceProcessorTests: BitwardenTestCase {
 
     /// `attemptLogin()` kicks off the login flow, starts a timer to check for responses and
     /// completes login for an approved response.
+    @MainActor
     func test_attemptLogin() {
         let approvedLoginRequest = LoginRequest.fixture(requestApproved: true, responseDate: .now)
         authService.initiateLoginWithDeviceResult = .success((.fixture(fingerprint: "fingerprint"), "id"))
@@ -74,6 +75,7 @@ class LoginWithDeviceProcessorTests: BitwardenTestCase {
     }
 
     /// `textBasedOnRequestType(adminApproval:)` labels should changed based on request type
+    @MainActor
     func test_textBasedOnRequestType_adminApproval() {
         subject.state.requestType = AuthRequestType.adminApproval
 
@@ -84,6 +86,7 @@ class LoginWithDeviceProcessorTests: BitwardenTestCase {
     }
 
     /// `textBasedOnRequestType(authenticateAndUnlock:)` labels should changed based on request type
+    @MainActor
     func test_textBasedOnRequestType_authenticateAndUnlock() {
         subject.state.requestType = AuthRequestType.authenticateAndUnlock
 
@@ -99,6 +102,7 @@ class LoginWithDeviceProcessorTests: BitwardenTestCase {
     }
 
     /// `captchaErrored(error:)` records an error.
+    @MainActor
     func test_captchaErrored() {
         subject.captchaErrored(error: BitwardenTestError.example)
 
@@ -108,6 +112,7 @@ class LoginWithDeviceProcessorTests: BitwardenTestCase {
     }
 
     /// `captchaErrored(error:)` doesn't record an error if the captcha flow was cancelled.
+    @MainActor
     func test_captchaErrored_cancelled() {
         let error = NSError(domain: "", code: ASWebAuthenticationSessionError.canceledLogin.rawValue)
         subject.captchaErrored(error: error)
@@ -115,6 +120,7 @@ class LoginWithDeviceProcessorTests: BitwardenTestCase {
     }
 
     /// `checkForResponse()`stops the request timer if the request has been denied.
+    @MainActor
     func test_checkForResponse_denied() throws {
         let deniedLoginRequest = LoginRequest.fixture(requestApproved: false, responseDate: .now)
         authService.checkPendingLoginRequestResult = .success(deniedLoginRequest)
@@ -132,6 +138,7 @@ class LoginWithDeviceProcessorTests: BitwardenTestCase {
 
     /// `checkForResponse()` stops the request timer if the request returns an error. Once the error
     /// alert has been dismissed, requests resume again.
+    @MainActor
     func test_checkForResponse_error() throws {
         authService.checkPendingLoginRequestResult = .failure(BitwardenTestError.example)
 
@@ -151,6 +158,7 @@ class LoginWithDeviceProcessorTests: BitwardenTestCase {
     }
 
     /// `checkForResponse()` stops the request timer if the request has expired.
+    @MainActor
     func test_checkForResponse_expired() throws {
         authService.checkPendingLoginRequestResult = .failure(CheckLoginRequestError.expired)
 
@@ -166,6 +174,7 @@ class LoginWithDeviceProcessorTests: BitwardenTestCase {
     }
 
     /// `checkForResponse()` navigates the user to the two factor flow if it's required to complete login.
+    @MainActor
     func test_checkForResponse_twoFactorRequired() {
         let approvedLoginRequest = LoginRequest.fixture(requestApproved: true, responseDate: .now)
         authService.initiateLoginWithDeviceResult = .success((.fixture(fingerprint: "fingerprint"), "id"))
@@ -197,6 +206,7 @@ class LoginWithDeviceProcessorTests: BitwardenTestCase {
     }
 
     /// `perform(_:)` with `.appeared` sets the fingerprint phrase in the state.
+    @MainActor
     func test_perform_appeared() async {
         authService.initiateLoginWithDeviceResult = .success((.fixture(fingerprint: "fingerprint"), "id"))
         subject.state.email = "user@bitwarden.com"
@@ -209,6 +219,7 @@ class LoginWithDeviceProcessorTests: BitwardenTestCase {
     }
 
     /// `perform(_:)` with `.appeared` handles any errors.
+    @MainActor
     func test_perform_appeared_error() async {
         authService.initiateLoginWithDeviceResult = .failure(BitwardenTestError.example)
 
@@ -219,6 +230,7 @@ class LoginWithDeviceProcessorTests: BitwardenTestCase {
     }
 
     /// `perform(_:)` with `.resendNotification` updates the fingerprint phrase in the state.
+    @MainActor
     func test_perform_resendNotification() async {
         authService.initiateLoginWithDeviceResult = .success((.fixture(fingerprint: "fingerprint2"), "id"))
 
@@ -228,6 +240,7 @@ class LoginWithDeviceProcessorTests: BitwardenTestCase {
     }
 
     /// `receive(_:)` with `.dismiss` dismisses the view.
+    @MainActor
     func test_receive_dismiss() {
         subject.receive(.dismiss)
 

@@ -40,6 +40,7 @@ class PasswordHintProcessorTests: BitwardenTestCase {
     // MARK: Tests
 
     /// `perform()` with `.submitPressed` shows an alert and logs an error if the request fails.
+    @MainActor
     func test_perform_submitPressed_error() async throws {
         subject.state.emailAddress = "email@example.com"
         let errorResponse = HTTPResponse.failure(statusCode: 500)
@@ -53,6 +54,7 @@ class PasswordHintProcessorTests: BitwardenTestCase {
     }
 
     /// `perform()` with `.submitPressed` submits the request for the master password hint.
+    @MainActor
     func test_perform_submitPressed_success() async throws {
         subject.state.emailAddress = "email@example.com"
         httpClient.results = [.success(.success(statusCode: 200))]
@@ -76,6 +78,7 @@ class PasswordHintProcessorTests: BitwardenTestCase {
     }
 
     /// `receive()` with `.dismissPressed` navigates to the `.dismiss` route.
+    @MainActor
     func test_receive_dismissPressed() {
         subject.receive(.dismissPressed)
         XCTAssertEqual(coordinator.routes.last, .dismiss)
@@ -83,6 +86,7 @@ class PasswordHintProcessorTests: BitwardenTestCase {
 
     /// `receive()` with `.emailAddressChanged` and an empty value updates the state to reflect the
     /// changes.
+    @MainActor
     func test_receive_emailAddressChanged_withoutValue() {
         subject.state.emailAddress = "email@example.com"
         subject.receive(.emailAddressChanged(""))
@@ -93,6 +97,7 @@ class PasswordHintProcessorTests: BitwardenTestCase {
 
     /// `receive()` with `.emailAddressChanged` and a value updates the state to reflect the
     /// changes.
+    @MainActor
     func test_receive_emailAddressChanged_withValue() {
         subject.state.emailAddress = ""
         subject.receive(.emailAddressChanged("email@example.com"))

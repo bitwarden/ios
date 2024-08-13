@@ -74,12 +74,14 @@ class VaultAutofillListProcessorFido2Tests: BitwardenTestCase { // swiftlint:dis
     }
 
     /// `getter:isAutofillingFromList` returns `true` when delegate is autofilling from list.
+    @MainActor
     func test_isAutofillingFromList_true() async throws {
         appExtensionDelegate.extensionMode = .autofillFido2VaultList([], MockPasskeyCredentialRequestParameters())
         XCTAssertTrue(subject.isAutofillingFromList)
     }
 
     /// `getter:isAutofillingFromList` returns `false` when delegate is not autofilling from list.
+    @MainActor
     func test_isAutofillingFromList_false() async throws {
         appExtensionDelegate.extensionMode = .configureAutofill
         XCTAssertFalse(subject.isAutofillingFromList)
@@ -94,6 +96,7 @@ class VaultAutofillListProcessorFido2Tests: BitwardenTestCase { // swiftlint:dis
 
     /// `receive(_:)` with `.addTapped` navigates to the add item view when executed from the toolbar
     /// with the proper `NewCipherOptions` configuration for Fido2 creation.
+    @MainActor
     func test_receive_addTapped() throws {
         appExtensionDelegate.extensionMode = .registerFido2Credential(ASPasskeyCredentialRequest.fixture())
         let fido2CredentialNewView = Fido2CredentialNewView.fixture(userName: "username", rpName: "rpName")
@@ -115,6 +118,7 @@ class VaultAutofillListProcessorFido2Tests: BitwardenTestCase { // swiftlint:dis
 
     /// `receive(_:)` with `.addTapped` creates a new default cipher with the Fido2 credential
     /// when executed from the empty view and in the create Fido2 credential context.
+    @MainActor
     func test_receive_addTapped_fido2CreationEmptyView() throws {
         appExtensionDelegate.extensionMode = .registerFido2Credential(ASPasskeyCredentialRequest.fixture())
         let fido2CredentialNewView = Fido2CredentialNewView.fixture(userName: "username", rpName: "rpName")
@@ -146,6 +150,7 @@ class VaultAutofillListProcessorFido2Tests: BitwardenTestCase { // swiftlint:dis
 
     /// `receive(_:)` with `.addTapped` creates a new default cipher with the Fido2 credential
     /// when executed from the empty view and in the create Fido2 credential context but user not verified.
+    @MainActor
     func test_receive_addTapped_fido2CreationEmptyViewUserNotVerified() throws {
         appExtensionDelegate.extensionMode = .registerFido2Credential(ASPasskeyCredentialRequest.fixture())
         let fido2CredentialNewView = Fido2CredentialNewView.fixture(userName: "username", rpName: "rpName")
@@ -177,6 +182,7 @@ class VaultAutofillListProcessorFido2Tests: BitwardenTestCase { // swiftlint:dis
 
     /// `receive(_:)` with `.addTapped` shows an alert and logs
     /// when executed from the empty view and in the create Fido2 credential context but user verification throws.
+    @MainActor
     func test_receive_addTapped_fido2CreationEmptyViewUserVerificationThrows() throws {
         appExtensionDelegate.extensionMode = .registerFido2Credential(ASPasskeyCredentialRequest.fixture())
         let fido2CredentialNewView = Fido2CredentialNewView.fixture(userName: "username", rpName: "rpName")
@@ -198,6 +204,7 @@ class VaultAutofillListProcessorFido2Tests: BitwardenTestCase { // swiftlint:dis
 
     /// `receive(_:)` with `.addTapped` does nothing when executed from the empty view
     /// and in the create Fido2 credential context but user verification cancelled.
+    @MainActor
     func test_receive_addTapped_fido2CreationEmptyViewUserVerificationCancelled() throws {
         appExtensionDelegate.extensionMode = .registerFido2Credential(ASPasskeyCredentialRequest.fixture())
         let fido2CredentialNewView = Fido2CredentialNewView.fixture(userName: "username", rpName: "rpName")
@@ -218,6 +225,7 @@ class VaultAutofillListProcessorFido2Tests: BitwardenTestCase { // swiftlint:dis
 
     /// `receive(_:)` with `.addTapped` shows an alert when executed from the empty view
     /// and in the create Fido2 credential context but without Fido2 options.
+    @MainActor
     func test_receive_addTapped_fido2CreationEmptyViewFido2OptionsNull() throws {
         appExtensionDelegate.extensionMode = .registerFido2Credential(ASPasskeyCredentialRequest.fixture())
         let fido2CredentialNewView = Fido2CredentialNewView.fixture(userName: "username", rpName: "rpName")
@@ -237,6 +245,7 @@ class VaultAutofillListProcessorFido2Tests: BitwardenTestCase { // swiftlint:dis
 
     /// `receive(_:)` with `.addTapped` shows an alert when executed from the empty view
     /// and in the create Fido2 credential context but without Fido2 credential new view.
+    @MainActor
     func test_receive_addTapped_fido2CreationEmptyViewFido2CredentialNewViewNull() throws {
         appExtensionDelegate.extensionMode = .registerFido2Credential(ASPasskeyCredentialRequest.fixture())
         fido2UserInterfaceHelper.fido2CreationOptions = CheckUserOptions(
@@ -280,6 +289,7 @@ class VaultAutofillListProcessorFido2Tests: BitwardenTestCase { // swiftlint:dis
     /// `vaultItemTapped(_:)` with Fido2 credential signals the `Fido2UserInterfaceHelper`
     /// that a cipher has been picked when user confirms overwriting it.
     @available(iOSApplicationExtension 17.0, *)
+    @MainActor
     func test_perform_vaultItemTapped_fido2PickedForCreationWithAlreadyFido2Credential() async throws {
         let expectedResult = CipherView.fixture(
             login: .fixture(fido2Credentials: [.fixture()])
@@ -320,6 +330,7 @@ class VaultAutofillListProcessorFido2Tests: BitwardenTestCase { // swiftlint:dis
     /// `vaultItemTapped(_:)` with Fido2 credential doesn't signal the `Fido2UserInterfaceHelper`
     /// that a cipher has been picked when user denies overwriting it.
     @available(iOSApplicationExtension 17.0, *)
+    @MainActor
     func test_perform_vaultItemTapped_fido2PickedForCreationNoOverwrite() async throws {
         let expectedResult = CipherView.fixture(
             login: .fixture(fido2Credentials: [.fixture()])
@@ -349,6 +360,7 @@ class VaultAutofillListProcessorFido2Tests: BitwardenTestCase { // swiftlint:dis
     /// `vaultItemTapped(_:)` with Fido2 credential doesn't signal the `Fido2UserInterfaceHelper`
     /// when no Fido2 options are available and shows an error to the user.
     @available(iOSApplicationExtension 17.0, *)
+    @MainActor
     func test_perform_vaultItemTapped_fido2PickedForCreationNoFido2Options() async throws {
         let expectedResult = CipherView.fixture(
             login: .fixture(fido2Credentials: [.fixture()])
@@ -440,6 +452,7 @@ class VaultAutofillListProcessorFido2Tests: BitwardenTestCase { // swiftlint:dis
     /// `vaultItemTapped(_:)` with cipher shows alert and logs when
     /// a cipher has been picked in creating Fido2 credential context and user check throws.
     @available(iOSApplicationExtension 17.0, *)
+    @MainActor
     func test_perform_vaultItemTapped_cipherPickedForFido2CreationUserCheckThrows() async throws {
         let expectedResult = CipherView.fixture(
             login: .fixture()
@@ -504,6 +517,7 @@ class VaultAutofillListProcessorFido2Tests: BitwardenTestCase { // swiftlint:dis
 
     /// `perform(_:)` with `.initFido2` provides Fido2 credential from the `autofillCredentialService` when
     /// is autofilling Fido2 from list completing the assertion successfully.
+    @MainActor
     func test_perform_initFido2_autofillFido2VaultList() async throws {
         let allowedCredentialId = Data(repeating: 3, count: 32)
         let passkeyParameters = MockPasskeyCredentialRequestParameters(
@@ -545,6 +559,7 @@ class VaultAutofillListProcessorFido2Tests: BitwardenTestCase { // swiftlint:dis
 
     /// `perform(_:)` with `.initFido2` provides Fido2 credential from the `autofillCredentialService` when
     /// is autofilling Fido2 from list but it throws.
+    @MainActor
     func test_perform_initFido2_autofillFido2VaultListThrows() async throws {
         let passkeyParameters = MockPasskeyCredentialRequestParameters()
         appExtensionDelegate.extensionMode = .autofillFido2VaultList([], passkeyParameters)
@@ -575,6 +590,7 @@ class VaultAutofillListProcessorFido2Tests: BitwardenTestCase { // swiftlint:dis
     /// `perform(_:)` with `.initFido2` calls `makeCredential` from the Fido2 authenticator when
     /// there is a create FIdo2 request and a credential identity in there as well and completes the registration
     /// when `makeCredential` ends successfully.
+    @MainActor
     func test_perform_initFido2_registerFido2Credential() async throws {
         let expectedRequest = ASPasskeyCredentialRequest.fixture()
         guard let expectedCredentialIdentity = expectedRequest.credentialIdentity as? ASPasskeyCredentialIdentity else {
@@ -676,6 +692,7 @@ class VaultAutofillListProcessorFido2Tests: BitwardenTestCase { // swiftlint:dis
 
     /// `perform(_:)` with `.search()` performs a cipher search and updates the state with the results
     /// when on autofillFido2VaulltList
+    @MainActor
     func test_perform_search_onAutofillFido2VaultList() { // swiftlint:disable:this function_body_length
         let passkeyParameters = MockPasskeyCredentialRequestParameters()
         appExtensionDelegate.extensionMode = .autofillFido2VaultList([], passkeyParameters)
@@ -742,6 +759,7 @@ class VaultAutofillListProcessorFido2Tests: BitwardenTestCase { // swiftlint:dis
     }
 
     /// `perform(_:)` with `.streamAutofillItems` streams the list of autofill ciphers when creating Fido2 credential.
+    @MainActor
     func test_perform_streamAutofillItems_creatingFido2Credential() {
         let rpId = "myApp.com"
         appExtensionDelegate.extensionMode = .registerFido2Credential(ASPasskeyCredentialRequest.fixture(

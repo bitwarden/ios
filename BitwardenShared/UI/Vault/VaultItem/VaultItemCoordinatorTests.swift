@@ -52,6 +52,7 @@ class VaultItemCoordinatorTests: BitwardenTestCase { // swiftlint:disable:this t
     // MARK: Tests
 
     /// `navigate(to:)` with `.addItem` without a group pushes the add item view onto the stack navigator.
+    @MainActor
     func test_navigateTo_addItem_nonPremium() throws {
         vaultRepository.doesActiveAccountHavePremiumResult = .success(false)
         let task = Task {
@@ -68,6 +69,7 @@ class VaultItemCoordinatorTests: BitwardenTestCase { // swiftlint:disable:this t
     }
 
     /// `navigate(to:)` with `.addItem` without a group pushes the add item view onto the stack navigator.
+    @MainActor
     func test_navigateTo_addItem_unknownPremium() throws {
         struct TestError: Error {}
         vaultRepository.doesActiveAccountHavePremiumResult = .failure(TestError())
@@ -85,6 +87,7 @@ class VaultItemCoordinatorTests: BitwardenTestCase { // swiftlint:disable:this t
     }
 
     /// `navigate(to:)` with `.addItem` with new cipher options.
+    @MainActor
     func test_navigateTo_addItem_withNewCipherOptions() throws {
         let task = Task {
             let newCipherOptions = NewCipherOptions(
@@ -112,6 +115,7 @@ class VaultItemCoordinatorTests: BitwardenTestCase { // swiftlint:disable:this t
     }
 
     /// `navigate(to:)` with `.addItem` without a group pushes the add item view onto the stack navigator.
+    @MainActor
     func test_navigateTo_addItem_withoutGroup() throws {
         let task = Task {
             subject.navigate(to: .addItem())
@@ -127,6 +131,7 @@ class VaultItemCoordinatorTests: BitwardenTestCase { // swiftlint:disable:this t
     }
 
     /// `navigate(to:)` with `.addItem` with a group pushes the add item view onto the stack navigator.
+    @MainActor
     func test_navigateTo_addItem_withGroup() throws {
         let task = Task {
             subject.navigate(to: .addItem(group: .card))
@@ -144,6 +149,7 @@ class VaultItemCoordinatorTests: BitwardenTestCase { // swiftlint:disable:this t
 
     /// `navigate(to:)` with `.addItem` with a group collection pushes the add item view onto the
     /// stack navigator and sets the collection and organization's ID on the new item.
+    @MainActor
     func test_navigateTo_addItem_withGroupCollection() throws {
         subject.navigate(to: .addItem(group: .collection(id: "12345", name: "Test", organizationId: "org-12345")))
 
@@ -159,6 +165,7 @@ class VaultItemCoordinatorTests: BitwardenTestCase { // swiftlint:disable:this t
 
     /// `navigate(to:)` with `.addItem` with a group folder pushes the add item view onto the stack
     /// navigator and sets the folder's ID on the new item.
+    @MainActor
     func test_navigateTo_addItem_withGroupFolder() throws {
         subject.navigate(to: .addItem(group: .folder(id: "12345", name: "Test")))
 
@@ -172,6 +179,7 @@ class VaultItemCoordinatorTests: BitwardenTestCase { // swiftlint:disable:this t
     }
 
     /// `navigate(to:)` with `.cloneItem()` triggers the show clone item flow.
+    @MainActor
     func test_navigateTo_cloneItem_nonPremium() throws {
         subject.navigate(to: .cloneItem(cipher: .loginFixture(), hasPremium: false), context: subject)
 
@@ -182,6 +190,7 @@ class VaultItemCoordinatorTests: BitwardenTestCase { // swiftlint:disable:this t
     }
 
     /// `navigate(to:)` with `.editCollections()` triggers the edit collections flow.
+    @MainActor
     func test_navigateTo_editCollections() throws {
         subject.navigate(to: .editCollections(.fixture()))
 
@@ -192,6 +201,7 @@ class VaultItemCoordinatorTests: BitwardenTestCase { // swiftlint:disable:this t
     }
 
     /// `navigate(to:)` with `.attachments()` navigates to the attachments view..
+    @MainActor
     func test_navigateTo_attachments() throws {
         subject.navigate(to: .attachments(.fixture()))
 
@@ -203,6 +213,7 @@ class VaultItemCoordinatorTests: BitwardenTestCase { // swiftlint:disable:this t
 
     /// `navigate(to:)` with `.generator`, `.password`, and a delegate presents the generator
     /// screen.
+    @MainActor
     func test_navigateTo_generator_withPassword_withDelegate() throws {
         let delegate = MockGeneratorCoordinatorDelegate()
         subject.navigate(to: .generator(.password), context: delegate)
@@ -217,6 +228,7 @@ class VaultItemCoordinatorTests: BitwardenTestCase { // swiftlint:disable:this t
 
     /// `navigate(to:)` with `.dismiss` dismisses the top most view presented by the stack
     /// navigator.
+    @MainActor
     func test_navigate_dismiss_noAction() throws {
         subject.navigate(to: .dismiss())
         let action = try XCTUnwrap(stackNavigator.actions.last)
@@ -225,6 +237,7 @@ class VaultItemCoordinatorTests: BitwardenTestCase { // swiftlint:disable:this t
 
     /// `navigate(to:)` with `.dismiss` dismisses the top most view presented by the stack
     /// navigator.
+    @MainActor
     func test_navigate_dismiss_withAction() throws {
         var didRun = false
         subject.navigate(to: .dismiss(DismissAction(action: { didRun = true })))
@@ -234,6 +247,7 @@ class VaultItemCoordinatorTests: BitwardenTestCase { // swiftlint:disable:this t
     }
 
     /// `navigate(to:)` with `.editItem()` with a malformed cipher fails to trigger the show edit flow.
+    @MainActor
     func test_navigateTo_editItem_newCipher() throws {
         subject.navigate(to: .editItem(.fixture(id: nil), false), context: nil)
 
@@ -241,6 +255,7 @@ class VaultItemCoordinatorTests: BitwardenTestCase { // swiftlint:disable:this t
     }
 
     /// `navigate(to:)` with `.editItem()` with an existing cipher triggers the show edit flow.
+    @MainActor
     func test_navigateTo_editItem_existingCipher_withoutContext() throws {
         subject.navigate(to: .editItem(.loginFixture(), false), context: nil)
 
@@ -250,6 +265,7 @@ class VaultItemCoordinatorTests: BitwardenTestCase { // swiftlint:disable:this t
     }
 
     /// `navigate(to:)` with `.editItem()` with a non empty stack presents a new vault item coordinator.
+    @MainActor
     func test_navigateTo_editItem_presentsCoordinator() throws {
         stackNavigator.isEmpty = false
 
@@ -262,6 +278,7 @@ class VaultItemCoordinatorTests: BitwardenTestCase { // swiftlint:disable:this t
     }
 
     /// `navigate(to:)` with `.editItem()` with an existing cipher triggers the show edit flow.
+    @MainActor
     func test_navigateTo_editItem_existingCipher_withContext() throws {
         subject.navigate(to: .editItem(.loginFixture(), false), context: subject)
 
@@ -271,6 +288,7 @@ class VaultItemCoordinatorTests: BitwardenTestCase { // swiftlint:disable:this t
     }
 
     /// `navigate(to:)` with `.editItem()` with an existing cipher triggers the show edit flow.
+    @MainActor
     func test_navigateTo_editItem_existingCipher_nonPremium() throws {
         subject.navigate(to: .editItem(.loginFixture(), false), context: subject)
 
@@ -281,6 +299,7 @@ class VaultItemCoordinatorTests: BitwardenTestCase { // swiftlint:disable:this t
     }
 
     /// `navigate(to:)` with `.editItem()` with an existing cipher triggers the show edit flow.
+    @MainActor
     func test_navigateTo_editItem_existingCipher_unknownPremium() throws {
         subject.navigate(to: .editItem(.loginFixture(), false), context: subject)
 
@@ -292,6 +311,7 @@ class VaultItemCoordinatorTests: BitwardenTestCase { // swiftlint:disable:this t
 
     /// `navigate(to:)` with `.fileSelection` and without a file selection delegate does not present the
     /// file selection screen.
+    @MainActor
     func test_navigateTo_fileSelection_withoutDelegate() throws {
         subject.navigate(to: .fileSelection(.camera), context: nil)
         XCTAssertNil(stackNavigator.actions.last)
@@ -299,6 +319,7 @@ class VaultItemCoordinatorTests: BitwardenTestCase { // swiftlint:disable:this t
 
     /// `navigate(to:)` with `.fileSelection` and with a file selection delegate presents the file
     /// selection screen.
+    @MainActor
     func test_navigateTo_fileSelection_withDelegate() throws {
         let delegate = MockFileSelectionDelegate()
         subject.navigate(to: .fileSelection(.camera), context: delegate)
@@ -310,6 +331,7 @@ class VaultItemCoordinatorTests: BitwardenTestCase { // swiftlint:disable:this t
 
     /// `navigate(to:)` with `.generator`, `.password`, and without a delegate does not present the
     /// generator screen.
+    @MainActor
     func test_navigateTo_generator_withPassword_withoutDelegate() throws {
         subject.navigate(to: .generator(.password), context: nil)
 
@@ -318,6 +340,7 @@ class VaultItemCoordinatorTests: BitwardenTestCase { // swiftlint:disable:this t
 
     /// `navigate(to:)` with `.generator`, `.username`, and a delegate presents the generator
     /// screen.
+    @MainActor
     func test_navigateTo_generator_withUsername_withDelegate() throws {
         let delegate = MockGeneratorCoordinatorDelegate()
         subject.navigate(to: .generator(.username), context: delegate)
@@ -332,6 +355,7 @@ class VaultItemCoordinatorTests: BitwardenTestCase { // swiftlint:disable:this t
 
     /// `navigate(to:)` with `.generator`, `.username`, `emailWebsite` and a delegate presents the
     /// generator screen.
+    @MainActor
     func test_navigateTo_generator_withUsername_withDelegate_withEmailWebsite() throws {
         let delegate = MockGeneratorCoordinatorDelegate()
         subject.navigate(to: .generator(.username, emailWebsite: "bitwarden.com"), context: delegate)
@@ -349,6 +373,7 @@ class VaultItemCoordinatorTests: BitwardenTestCase { // swiftlint:disable:this t
 
     /// `navigate(to:)` with `.generator`, `.username`, and without a delegate does not present the
     /// generator screen.
+    @MainActor
     func test_navigateTo_generator_withUsername_withoutDelegate() throws {
         subject.navigate(to: .generator(.username), context: nil)
 
@@ -356,6 +381,7 @@ class VaultItemCoordinatorTests: BitwardenTestCase { // swiftlint:disable:this t
     }
 
     /// `navigate(to:)` with `.moveToOrganization()` triggers the move to organization flow.
+    @MainActor
     func test_navigateTo_moveToOrganization() throws {
         subject.navigate(to: .moveToOrganization(.fixture()))
 
@@ -366,6 +392,7 @@ class VaultItemCoordinatorTests: BitwardenTestCase { // swiftlint:disable:this t
     }
 
     /// `navigate(to:)` with `.passwordHistory` presents the password history view.
+    @MainActor
     func test_navigateTo_passwordHistory() throws {
         subject.navigate(to: .passwordHistory([.fixture()]))
 
@@ -378,6 +405,7 @@ class VaultItemCoordinatorTests: BitwardenTestCase { // swiftlint:disable:this t
     }
 
     /// `navigate(to:)` with `.setupTotpCamera` with context without conformance fails to present.
+    @MainActor
     func test_navigateTo_setupTotpCamera_noConformance() async throws {
         cameraService.startResult = .success(AVCaptureSession())
         cameraService.cameraAuthorizationStatus = .authorized
@@ -386,6 +414,7 @@ class VaultItemCoordinatorTests: BitwardenTestCase { // swiftlint:disable:this t
     }
 
     /// `navigate(to:)` with `.setupTotpCamera` without context fails to present.
+    @MainActor
     func test_navigateTo_setupTotpCamera_noContext() async throws {
         cameraService.startResult = .success(AVCaptureSession())
         cameraService.cameraAuthorizationStatus = .authorized
@@ -394,6 +423,7 @@ class VaultItemCoordinatorTests: BitwardenTestCase { // swiftlint:disable:this t
     }
 
     /// `navigate(to:)` with `.setupTotpCamera` presents the camera totp setup screen.
+    @MainActor
     func test_navigateTo_setupTotpCamera_success() throws {
         let mockContext = MockScanDelegateProcessor(state: ())
         cameraService.startResult = .success(AVCaptureSession())
@@ -412,6 +442,7 @@ class VaultItemCoordinatorTests: BitwardenTestCase { // swiftlint:disable:this t
     }
 
     /// `navigate(to:)` with `.setupTotpManual` with context without conformance fails to present.
+    @MainActor
     func test_navigateTo_setupTotpManual_noConformance() throws {
         cameraService.startResult = .success(AVCaptureSession())
         cameraService.cameraAuthorizationStatus = .authorized
@@ -420,6 +451,7 @@ class VaultItemCoordinatorTests: BitwardenTestCase { // swiftlint:disable:this t
     }
 
     /// `navigate(to:)` with `.setupTotpManual` without context fails to present.
+    @MainActor
     func test_navigateTo_setupTotpManual_noContext() throws {
         cameraService.startResult = .success(AVCaptureSession())
         cameraService.cameraAuthorizationStatus = .authorized
@@ -428,6 +460,7 @@ class VaultItemCoordinatorTests: BitwardenTestCase { // swiftlint:disable:this t
     }
 
     /// `navigate(to:)` with `.setupTotpManual` presents the manual totp setup screen.
+    @MainActor
     func test_navigateTo_setupTotpManual_success() throws {
         let mockContext = MockScanDelegateProcessor(state: ())
         let task = Task {
@@ -443,6 +476,7 @@ class VaultItemCoordinatorTests: BitwardenTestCase { // swiftlint:disable:this t
     }
 
     /// `.navigate(to:)` with `.viewItem` presents the view item screen.
+    @MainActor
     func test_navigateTo_viewItem() throws {
         subject.navigate(to: .viewItem(id: "id"))
 
@@ -452,6 +486,7 @@ class VaultItemCoordinatorTests: BitwardenTestCase { // swiftlint:disable:this t
     }
 
     /// `start()` has no effect.
+    @MainActor
     func test_start() {
         subject.start()
 

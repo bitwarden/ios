@@ -167,6 +167,7 @@ final class AuthRouterTests: BitwardenTestCase { // swiftlint:disable:this type_
 
     /// `handleAndRoute(_ :)` redirects`.didDeleteAccount` to another account
     ///     when there are more accounts.
+    @MainActor
     func test_handleAndRoute_didDeleteAccount_alternateAccount() {
         let alt = Account.fixtureAccountLogin()
         stateService.accounts = [
@@ -690,6 +691,7 @@ final class AuthRouterTests: BitwardenTestCase { // swiftlint:disable:this type_
     /// `handleAndRoute(_ :)` redirects `.didLogout()` to `.vaultUnlock`
     ///     by way of an account switch when the logout is user initiated
     ///     and a locked alternate is available.
+    @MainActor
     func test_handleAndRoute_didLogout_userInitiated_alternateAccount() {
         let alt = Account.fixtureAccountLogin()
         stateService.accounts = [

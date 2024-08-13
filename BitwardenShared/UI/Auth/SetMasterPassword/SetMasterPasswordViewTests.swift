@@ -29,6 +29,7 @@ class SetMasterPasswordViewTests: BitwardenTestCase {
     // MARK: Tests
 
     /// Tapping on the cancel button dispatches the `.cancelPressed` action.
+    @MainActor
     func test_cancel_tap() throws {
         let button = try subject.inspect().find(button: Localizations.cancel)
         try button.tap()
@@ -37,12 +38,14 @@ class SetMasterPasswordViewTests: BitwardenTestCase {
     }
 
     /// Cancel button should be hidden for tde privilege elevation.
+    @MainActor
     func test_cancel_hidden() throws {
         processor.state.isPrivilegeElevation = true
         XCTAssertThrowsError(try subject.inspect().find(button: Localizations.cancel))
     }
 
     /// Tapping the current master password visibility icon changes whether the master passwords are visible.
+    @MainActor
     func test_masterPasswordVisibility_tap() throws {
         processor.state.isMasterPasswordRevealed = false
         let visibilityIcon = try subject.inspect().find(
@@ -53,6 +56,7 @@ class SetMasterPasswordViewTests: BitwardenTestCase {
     }
 
     /// Editing the text in the master password text field dispatches the `.masterPasswordChanged` action.
+    @MainActor
     func test_masterPassword_change() throws {
         let textField = try subject.inspect().find(bitwardenTextField: Localizations.masterPassword)
         try textField.inputBinding().wrappedValue = "text"
@@ -60,6 +64,7 @@ class SetMasterPasswordViewTests: BitwardenTestCase {
     }
 
     /// Editing the text in the master password hint text field dispatches the `.masterPasswordHintChanged` action.
+    @MainActor
     func test_masterPasswordHint_change() throws {
         let textField = try subject.inspect().find(bitwardenTextField: Localizations.masterPasswordHint)
         try textField.inputBinding().wrappedValue = "text"
@@ -67,6 +72,7 @@ class SetMasterPasswordViewTests: BitwardenTestCase {
     }
 
     /// Editing the text in the re-type master password text field dispatches the `.masterPasswordRetypeChanged` action.
+    @MainActor
     func test_masterPasswordRetype_change() throws {
         let textField = try subject.inspect().find(bitwardenTextField: Localizations.retypeMasterPassword)
         try textField.inputBinding().wrappedValue = "text"
@@ -74,6 +80,7 @@ class SetMasterPasswordViewTests: BitwardenTestCase {
     }
 
     /// Tapping the retype password visibility toggle changes whether the password retype is visible.
+    @MainActor
     func test_masterPasswordRetypeVisibility_tap() throws {
         processor.state.isMasterPasswordRevealed = false
         let visibilityIcon = try subject.inspect().find(
@@ -84,6 +91,7 @@ class SetMasterPasswordViewTests: BitwardenTestCase {
     }
 
     /// Tapping on the submit button performs the `.submitPressed` effect.
+    @MainActor
     func test_submitButton_tap() async throws {
         let button = try subject.inspect().find(asyncButton: Localizations.submit)
         try await button.tap()
@@ -93,6 +101,7 @@ class SetMasterPasswordViewTests: BitwardenTestCase {
     // MARK: Snapshots
 
     /// A snapshot of the view with all filled values fields.
+    @MainActor
     func test_snapshot_setPassword_filled() {
         processor.state.masterPassword = "password123"
         processor.state.masterPasswordRetype = "password123"
@@ -109,6 +118,7 @@ class SetMasterPasswordViewTests: BitwardenTestCase {
     }
 
     /// A snapshot of the view for privilege elevation.
+    @MainActor
     func test_snapshot_setPassword_privilege_elevation() {
         processor.state.isPrivilegeElevation = true
         processor.state.masterPassword = "password123"

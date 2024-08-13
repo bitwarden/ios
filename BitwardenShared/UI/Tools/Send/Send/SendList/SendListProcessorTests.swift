@@ -51,6 +51,7 @@ class SendListProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
     // MARK: Tests
 
     /// `perform(_:)` with `loadData` loads the policy data for the view.
+    @MainActor
     func test_perform_loadData_policies() async {
         await subject.perform(.loadData)
         XCTAssertFalse(subject.state.isSendDisabled)
@@ -68,6 +69,7 @@ class SendListProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
     }
 
     /// `perform(_:)` with `search(_:)` and an empty search query returns early.
+    @MainActor
     func test_perform_search_empty() async {
         subject.state.searchResults = []
 
@@ -78,6 +80,7 @@ class SendListProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
     }
 
     /// `perform(_:)` with `search(_:)` displays an alert and logs an error if one occurs.
+    @MainActor
     func test_perform_search_error() {
         subject.state.searchResults = []
 
@@ -96,6 +99,7 @@ class SendListProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
 
     /// `perform(_:)` with `search(_:)` uses the send repository to perform a search and updates the
     /// state.
+    @MainActor
     func test_perform_search_nilType() {
         subject.state.type = nil
         subject.state.searchResults = []
@@ -115,6 +119,7 @@ class SendListProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
 
     /// `perform(_:)` with `search(_:)` uses the send repository to perform a search and subscribes
     /// to the results in case they update.
+    @MainActor
     func test_perform_search_subscribesToResults() {
         subject.state.searchResults = []
 
@@ -139,6 +144,7 @@ class SendListProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
 
     /// `perform(_:)` with `search(_:)` uses the send repository to perform a search and updates the
     /// state.
+    @MainActor
     func test_perform_search_textType() {
         subject.state.type = .text
         subject.state.searchResults = []
@@ -158,6 +164,7 @@ class SendListProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
 
     /// `perform(_:)` with `sendListItemRow(copyLinkPressed())` uses the send repository to generate
     /// a url and copies it to the clipboard.
+    @MainActor
     func test_perform_sendListItemRow_copyLinkPressed() async throws {
         let sendView = SendView.fixture(id: "SEND_ID")
         sendRepository.shareURLResult = .success(.example)
@@ -173,6 +180,7 @@ class SendListProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
 
     /// `perform(_:)` with `sendListItemRow(deletePressed())` uses the send repository to delete the
     /// send.
+    @MainActor
     func test_perform_sendListItemRow_deletePressed() async throws {
         let sendView = SendView.fixture(id: "SEND_ID")
         sendRepository.deleteSendResult = .success(())
@@ -188,6 +196,7 @@ class SendListProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
 
     /// `perform(_:)` with `sendListItemRow(removePassword())` uses the send repository to remove
     /// the password from a send.
+    @MainActor
     func test_perform_sendListItemRow_deletePressed_networkError() async throws {
         let sendView = SendView.fixture(id: "SEND_ID")
         sendRepository.deleteSendResult = .failure(URLError(.timedOut))
@@ -211,6 +220,7 @@ class SendListProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
 
     /// `perform(_:)` with `sendListItemRow(removePassword())` uses the send repository to remove
     /// the password from a send.
+    @MainActor
     func test_perform_sendListItemRow_removePassword_success() async throws {
         let sendView = SendView.fixture(id: "SEND_ID")
         sendRepository.removePasswordFromSendResult = .success(sendView)
@@ -229,6 +239,7 @@ class SendListProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
 
     /// `perform(_:)` with `sendListItemRow(removePassword())` uses the send repository to remove
     /// the password from a send.
+    @MainActor
     func test_perform_sendListItemRow_removePassword_networkError() async throws {
         let sendView = SendView.fixture(id: "SEND_ID")
         sendRepository.removePasswordFromSendResult = .failure(URLError(.timedOut))
@@ -252,6 +263,7 @@ class SendListProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
 
     /// `perform(_:)` with `sendListItemRow(shareLinkPressed())` uses the send repository to generate
     /// a url and navigates to the `.share` route.
+    @MainActor
     func test_perform_sendListItemRow_shareLinkPressed() async throws {
         let sendView = SendView.fixture(id: "SEND_ID")
         sendRepository.shareURLResult = .success(.example)
@@ -262,6 +274,7 @@ class SendListProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
     }
 
     /// `perform(_:)` with `.streamSendList` updates the state's send list whenever it changes.
+    @MainActor
     func test_perform_streamSendList_nilType() {
         let sendListItem = SendListItem(id: "1", itemType: .group(.file, 42))
         sendRepository.sendListSubject.send([
@@ -294,6 +307,7 @@ class SendListProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
     }
 
     /// `perform(_:)` with `.streamSendList` updates the state's send list whenever it changes.
+    @MainActor
     func test_perform_streamSendList_textType() {
         let sendListItem = SendListItem.fixture()
         sendRepository.sendTypeListSubject.send([
@@ -315,6 +329,7 @@ class SendListProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
     }
 
     /// `receive(_:)` with `.addItemPressed` navigates to the `.addItem` route.
+    @MainActor
     func test_receive_addItemPressed_nilType() {
         subject.state.type = nil
         subject.receive(.addItemPressed)
@@ -323,6 +338,7 @@ class SendListProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
     }
 
     /// `receive(_:)` with `.addItemPressed` navigates to the `.addItem` route.
+    @MainActor
     func test_receive_addItemPressed_fileType() {
         subject.state.type = .file
         subject.receive(.addItemPressed)
@@ -331,6 +347,7 @@ class SendListProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
     }
 
     /// `receive(_:)` with `.addItemPressed` navigates to the `.addItem` route.
+    @MainActor
     func test_receive_addItemPressed_textType() {
         subject.state.type = .text
         subject.receive(.addItemPressed)
@@ -339,6 +356,7 @@ class SendListProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
     }
 
     /// `receive(_:)` with `.clearInfoUrl` clears the info url.
+    @MainActor
     func test_receive_clearInfoUrl() {
         subject.state.infoUrl = .example
         subject.receive(.clearInfoUrl)
@@ -347,6 +365,7 @@ class SendListProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
     }
 
     /// `receive(_:)` with `.infoButtonPressed` sets the info url.
+    @MainActor
     func test_receive_infoButtonPressed() {
         subject.state.infoUrl = nil
         subject.receive(.infoButtonPressed)
@@ -355,6 +374,7 @@ class SendListProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
     }
 
     /// `receive(_:)` with `.searchTextChanged` updates the state correctly.
+    @MainActor
     func test_receive_searchTextChanged() {
         subject.state.searchText = ""
         subject.receive(.searchTextChanged("search"))
@@ -363,6 +383,7 @@ class SendListProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
     }
 
     /// `receive(_:)` with `.sendListItemRow(.editPressed())` navigates to the edit send route.
+    @MainActor
     func test_receive_sendListItemRow_editPressed() {
         let sendView = SendView.fixture()
         subject.receive(.sendListItemRow(.editPressed(sendView)))
@@ -371,6 +392,7 @@ class SendListProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
     }
 
     /// `receive(_:)` with `.sendListItemRow(.sendListItemPressed())` navigates to the edit send route.
+    @MainActor
     func test_receive_sendListItemRow_sendListItemPressed_withSendView() {
         let sendView = SendView.fixture()
         let item = SendListItem(sendView: sendView)!
@@ -380,6 +402,7 @@ class SendListProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
     }
 
     /// `receive(_:)` with `.sendListItemRow(.sendListItemPressed())` navigates to the group send route.
+    @MainActor
     func test_receive_sendListItemRow_sendListItemPressed_withGroup() {
         let item = SendListItem.groupFixture(sendType: .file)
         subject.receive(.sendListItemRow(.sendListItemPressed(item)))
@@ -388,6 +411,7 @@ class SendListProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
     }
 
     /// `receive(_:)` with `.toastShown` updates the toast value in the state.
+    @MainActor
     func test_receive_toastShown() {
         subject.state.toast = Toast(text: "toasty")
         subject.receive(.toastShown(nil))
@@ -395,6 +419,7 @@ class SendListProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
     }
 
     /// `sendItemCancelled()` navigates to the `.dismiss` route.
+    @MainActor
     func test_sendItemCancelled() {
         subject.sendItemCancelled()
 
@@ -402,6 +427,7 @@ class SendListProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
     }
 
     /// `sendItemCompleted()` navigates to the `.dismiss` route and then routes to the share screen.
+    @MainActor
     func test_sendItemCompleted() throws {
         sendRepository.shareURLResult = .success(.example)
         let sendView = SendView.fixture()
@@ -425,6 +451,7 @@ class SendListProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
     }
 
     /// `.sendItemDeleted()` shows a toast with the send deleted message.
+    @MainActor
     func test_sendItemDeleted() {
         subject.sendItemDeleted()
         XCTAssertEqual(subject.state.toast?.text, Localizations.sendDeleted)

@@ -40,6 +40,7 @@ class SettingsCoordinatorTests: BitwardenTestCase {
     // MARK: Tests
 
     /// `navigate(to:)` with `.about` pushes the about view onto the stack navigator.
+    @MainActor
     func test_navigateTo_about() throws {
         subject.navigate(to: .about)
 
@@ -49,6 +50,7 @@ class SettingsCoordinatorTests: BitwardenTestCase {
     }
 
     /// `navigate(to:)` with `.accountSecurity` pushes the account security view onto the stack navigator.
+    @MainActor
     func test_navigateTo_accountSecurity() throws {
         subject.navigate(to: .accountSecurity)
 
@@ -58,6 +60,7 @@ class SettingsCoordinatorTests: BitwardenTestCase {
     }
 
     /// `navigate(to:)` with `.addEditFolder` pushes the add/edit folder view onto the stack navigator.
+    @MainActor
     func test_navigateTo_addEditFolder() throws {
         subject.navigate(to: .addEditFolder(folder: nil))
 
@@ -67,6 +70,7 @@ class SettingsCoordinatorTests: BitwardenTestCase {
     }
 
     /// `navigate(to:)` with `.alert` has the stack navigator present the alert.
+    @MainActor
     func test_navigateTo_alert() throws {
         let alert = Alert.defaultAlert(
             title: Localizations.anErrorHasOccurred,
@@ -78,6 +82,7 @@ class SettingsCoordinatorTests: BitwardenTestCase {
     }
 
     /// `navigate(to:)` with `.appearance` pushes the appearance view onto the stack navigator.
+    @MainActor
     func test_navigateTo_appearance() throws {
         subject.navigate(to: .appearance)
 
@@ -87,6 +92,7 @@ class SettingsCoordinatorTests: BitwardenTestCase {
     }
 
     /// `navigate(to:)` with `.appExtension` pushes the app extension view onto the stack navigator.
+    @MainActor
     func test_navigateTo_appExtension() throws {
         subject.navigate(to: .appExtension)
 
@@ -96,6 +102,7 @@ class SettingsCoordinatorTests: BitwardenTestCase {
     }
 
     /// `navigate(to:)` with `.appExtensionSetup` pushes the app extension view onto the stack navigator.
+    @MainActor
     func test_navigateTo_appExtensionSetup() throws {
         subject.navigate(to: .appExtensionSetup)
 
@@ -105,6 +112,7 @@ class SettingsCoordinatorTests: BitwardenTestCase {
     }
 
     /// `navigate(to:)` with `.autoFill` pushes the auto-fill view onto the stack navigator.
+    @MainActor
     func test_navigateTo_autoFill() throws {
         subject.navigate(to: .autoFill)
 
@@ -114,6 +122,7 @@ class SettingsCoordinatorTests: BitwardenTestCase {
     }
 
     /// `navigate(to:)` with `.deleteAccount` presents the delete account view.
+    @MainActor
     func test_navigateTo_deleteAccount() throws {
         subject.navigate(to: .deleteAccount)
 
@@ -124,6 +133,7 @@ class SettingsCoordinatorTests: BitwardenTestCase {
 
     /// `navigate(to:)` with `.didDeleteAccount(otherAccounts:)` calls the delegate method
     /// that performs navigation post-deletion.
+    @MainActor
     func test_navigateTo_didDeleteAccount() throws {
         let task = Task {
             await subject.handleEvent(.didDeleteAccount)
@@ -137,6 +147,7 @@ class SettingsCoordinatorTests: BitwardenTestCase {
     }
 
     /// `navigate(to:)` with `.dismiss` dismisses the view.
+    @MainActor
     func test_navigate_dismiss() throws {
         subject.navigate(to: .dismiss)
 
@@ -145,6 +156,7 @@ class SettingsCoordinatorTests: BitwardenTestCase {
     }
 
     /// `navigate(to:)` with `.exportVault` presents the export vault view.
+    @MainActor
     func test_navigateTo_exportVault() throws {
         subject.navigate(to: .exportVault)
 
@@ -154,6 +166,7 @@ class SettingsCoordinatorTests: BitwardenTestCase {
     }
 
     /// `navigate(to:)` with `.lockVault` navigates the user to the login view.
+    @MainActor
     func test_navigateTo_lockVault() async throws {
         await subject.handleEvent(.authAction(.lockVault(userId: "")))
 
@@ -161,6 +174,7 @@ class SettingsCoordinatorTests: BitwardenTestCase {
     }
 
     /// `navigate(to:)` with `.loginRequest` pushes the login request view onto the stack navigator.
+    @MainActor
     func test_navigateTo_loginRequest() throws {
         subject.navigate(to: .loginRequest(.fixture()))
 
@@ -173,6 +187,7 @@ class SettingsCoordinatorTests: BitwardenTestCase {
     }
 
     /// `navigate(to:)` with `.logout` informs the delegate that the user logged out.
+    @MainActor
     func test_navigateTo_logout_userInitiated() throws {
         let task = Task {
             await subject.handleEvent(.authAction(.logout(userId: "123", userInitiated: true)))
@@ -185,6 +200,7 @@ class SettingsCoordinatorTests: BitwardenTestCase {
     }
 
     /// `navigate(to:)` with `.logout` informs the delegate that the user logged out.
+    @MainActor
     func test_navigateTo_logout_systemInitiated() throws {
         let task = Task {
             await subject.handleEvent(.authAction(.logout(userId: "123", userInitiated: false)))
@@ -197,6 +213,7 @@ class SettingsCoordinatorTests: BitwardenTestCase {
     }
 
     /// `navigate(to:)` with `.folders` pushes the folders view onto the stack navigator.
+    @MainActor
     func test_navigateTo_folders() throws {
         subject.navigate(to: .folders)
 
@@ -206,6 +223,7 @@ class SettingsCoordinatorTests: BitwardenTestCase {
     }
 
     /// `navigate(to:)` with `.other` pushes the other view onto the stack navigator.
+    @MainActor
     func test_navigateTo_other() throws {
         subject.navigate(to: .other)
 
@@ -215,6 +233,7 @@ class SettingsCoordinatorTests: BitwardenTestCase {
     }
 
     /// `navigate(to:)` with `.passwordAutoFill` pushes the password auto-fill view onto the stack navigator.
+    @MainActor
     func test_navigateTo_passwordAutoFill() throws {
         subject.navigate(to: .passwordAutoFill)
 
@@ -224,6 +243,7 @@ class SettingsCoordinatorTests: BitwardenTestCase {
     }
 
     /// `navigate(to:)` with `.pendingLoginRequests()` presents the pending login requests view.
+    @MainActor
     func test_navigateTo_pendingLoginRequests() throws {
         subject.navigate(to: .pendingLoginRequests)
 
@@ -233,6 +253,7 @@ class SettingsCoordinatorTests: BitwardenTestCase {
     }
 
     /// `navigate(to:)` with `.selectLanguage()` presents the select language view.
+    @MainActor
     func test_navigateTo_selectLanguage() throws {
         subject.navigate(to: .selectLanguage(currentLanguage: .default))
 
@@ -242,6 +263,7 @@ class SettingsCoordinatorTests: BitwardenTestCase {
     }
 
     /// `navigate(to:)` with `.settings` pushes the settings view onto the stack navigator.
+    @MainActor
     func test_navigateTo_settings() throws {
         subject.navigate(to: .settings)
 
@@ -251,6 +273,7 @@ class SettingsCoordinatorTests: BitwardenTestCase {
     }
 
     /// `navigate(to:)` with `.vault` pushes the vault settings view onto the stack navigator.
+    @MainActor
     func test_navigateTo_vault() throws {
         subject.navigate(to: .vault)
 
@@ -260,6 +283,7 @@ class SettingsCoordinatorTests: BitwardenTestCase {
     }
 
     /// `showLoadingOverlay()` and `hideLoadingOverlay()` can be used to show and hide the loading overlay.
+    @MainActor
     func test_show_hide_loadingOverlay() throws {
         stackNavigator.rootViewController = UIViewController()
         try setKeyWindowRoot(viewController: XCTUnwrap(stackNavigator.rootViewController))
@@ -275,6 +299,7 @@ class SettingsCoordinatorTests: BitwardenTestCase {
     }
 
     /// `start()` navigates to the settings view.
+    @MainActor
     func test_start() {
         subject.start()
 

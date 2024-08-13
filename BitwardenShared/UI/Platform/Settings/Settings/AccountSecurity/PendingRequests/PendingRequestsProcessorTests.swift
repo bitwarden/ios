@@ -41,6 +41,7 @@ class PendingRequestsProcessorTests: BitwardenTestCase {
     // MARK: Tests
 
     /// `loginRequestAnswered(approved:)` shows the toast and reloads the data.
+    @MainActor
     func test_loginRequestAnswered() {
         let task = Task {
             subject.loginRequestAnswered(approved: true)
@@ -52,6 +53,7 @@ class PendingRequestsProcessorTests: BitwardenTestCase {
     }
 
     /// `perform(_:)` with `.loadData` loads the pending requests for the view.
+    @MainActor
     func test_perform_loadData() async {
         authService.getPendingLoginRequestResult = .success([.fixture()])
 
@@ -62,6 +64,7 @@ class PendingRequestsProcessorTests: BitwardenTestCase {
     }
 
     /// `perform(_:)` with `.loadData` handles any errors from loading the data.
+    @MainActor
     func test_perform_loadData_error() async {
         authService.getPendingLoginRequestResult = .failure(BitwardenTestError.example)
 
@@ -75,6 +78,7 @@ class PendingRequestsProcessorTests: BitwardenTestCase {
 
     /// `.receive(_:)` with `.declineAllRequestsTapped` shows the confirmation alert
     /// and declines all the requests.
+    @MainActor
     func test_receive_declineAllRequestsTapped() async throws {
         subject.state.loadingState = .data([.fixture()])
 
@@ -92,6 +96,7 @@ class PendingRequestsProcessorTests: BitwardenTestCase {
 
     /// `.receive(_:)` with `.declineAllRequestsTapped` shows the confirmation alert
     /// and handles any errors from declining all the requests.
+    @MainActor
     func test_receive_declineAllRequestsTapped_error() async throws {
         subject.state.loadingState = .data([.fixture()])
         authService.denyAllLoginRequestsResult = .failure(BitwardenTestError.example)
@@ -110,12 +115,14 @@ class PendingRequestsProcessorTests: BitwardenTestCase {
     }
 
     /// `receive(_:)` with `.dismiss` dismisses the view
+    @MainActor
     func test_receive_dismiss() {
         subject.receive(.dismiss)
         XCTAssertEqual(coordinator.routes.last, .dismiss)
     }
 
     /// `receive(_:)` with `.requestTapped(_)` shows the login request view.
+    @MainActor
     func test_receive_requestTapped() {
         subject.receive(.requestTapped(.fixture()))
         XCTAssertEqual(coordinator.routes.last, .loginRequest(.fixture()))
@@ -123,6 +130,7 @@ class PendingRequestsProcessorTests: BitwardenTestCase {
     }
 
     /// `receive(_:)` with `.toastShown` updates the state's toast value.
+    @MainActor
     func test_receive_toastShown() {
         let toast = Toast(text: "toast!")
         subject.receive(.toastShown(toast))

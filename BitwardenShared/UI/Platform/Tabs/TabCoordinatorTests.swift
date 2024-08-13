@@ -53,18 +53,21 @@ class TabCoordinatorTests: BitwardenTestCase {
     // MARK: Tests
 
     /// `navigate(to:)` with `.generator` sets the correct selected index on tab navigator.
+    @MainActor
     func test_navigate_generator() {
         subject.navigate(to: .generator(.generator()))
         XCTAssertEqual(tabNavigator.selectedIndex, 2)
     }
 
     /// `navigate(to:)` with `.send` sets the correct selected index on tab navigator.
+    @MainActor
     func test_navigate_send() {
         subject.navigate(to: .send)
         XCTAssertEqual(tabNavigator.selectedIndex, 1)
     }
 
     /// `navigate(to:)` with `.settings` sets the correct selected index on tab navigator.
+    @MainActor
     func test_navigate_settings() {
         subject.start()
         subject.navigate(to: .settings(.settings))
@@ -73,12 +76,14 @@ class TabCoordinatorTests: BitwardenTestCase {
     }
 
     /// `navigate(to:)` with `.vault(.list)` sets the correct selected index on tab navigator.
+    @MainActor
     func test_navigate_vault() {
         subject.navigate(to: .vault(.list))
         XCTAssertEqual(tabNavigator.selectedIndex, 0)
     }
 
     /// `rootNavigator` uses a weak reference and does not retain a value once the root navigator has been erased.
+    @MainActor
     func test_rootNavigator_resetWeakReference() {
         var rootNavigator: MockRootNavigator? = MockRootNavigator()
         subject = TabCoordinator(
@@ -97,6 +102,7 @@ class TabCoordinatorTests: BitwardenTestCase {
     }
 
     /// `showLoadingOverlay()` and `hideLoadingOverlay()` can be used to show and hide the loading overlay.
+    @MainActor
     func test_show_hide_loadingOverlay() throws {
         tabNavigator.rootViewController = UIViewController()
         try setKeyWindowRoot(viewController: XCTUnwrap(subject.tabNavigator?.rootViewController))
@@ -112,6 +118,7 @@ class TabCoordinatorTests: BitwardenTestCase {
     }
 
     /// `start()` presents the tab navigator within the root navigator and starts the child-coordinators.
+    @MainActor
     func test_start_noOrganizations() {
         let mockRoot = MockRootNavigator()
         let viewController = UIViewController()
@@ -139,6 +146,7 @@ class TabCoordinatorTests: BitwardenTestCase {
     }
 
     /// `start()` presents the tab navigator within the root navigator and starts the child-coordinators.
+    @MainActor
     func test_start_organizations() {
         let mockRoot = MockRootNavigator()
         let viewController = UIViewController()
@@ -169,6 +177,7 @@ class TabCoordinatorTests: BitwardenTestCase {
 
     /// `start()` subscribes to the organization publisher and updates the vault navigation bar
     /// title if the vault filter can't be shown.
+    @MainActor
     func test_start_organizationsCanShowVaultFilterDisabled() {
         let mockRoot = MockRootNavigator()
         let viewController = UIViewController()
@@ -186,6 +195,7 @@ class TabCoordinatorTests: BitwardenTestCase {
     }
 
     /// `start()` presents the tab navigator within the root navigator and starts the child-coordinators.
+    @MainActor
     func test_start_organizationsError() throws {
         let mockRoot = MockRootNavigator()
         let viewController = UIViewController()

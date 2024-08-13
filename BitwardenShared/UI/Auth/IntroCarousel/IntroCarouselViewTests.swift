@@ -30,6 +30,7 @@ class IntroCarouselViewTests: BitwardenTestCase {
     // MARK: Tests
 
     /// Tapping the create account button dispatches the create account action.
+    @MainActor
     func test_createAccount_tap() throws {
         let button = try subject.inspect().find(button: Localizations.createAccount)
         try button.tap()
@@ -37,6 +38,7 @@ class IntroCarouselViewTests: BitwardenTestCase {
     }
 
     /// Tapping the log in button dispatches the login action.
+    @MainActor
     func test_login_tap() throws {
         let button = try subject.inspect().find(button: Localizations.logIn)
         try button.tap()
@@ -54,6 +56,7 @@ class IntroCarouselViewTests: BitwardenTestCase {
     }
 
     /// The intro carousel page 2 renders correctly.
+    @MainActor
     func test_snapshot_introCarousel_page2() {
         processor.state.currentPageIndex = 1
         assertSnapshots(
@@ -63,6 +66,7 @@ class IntroCarouselViewTests: BitwardenTestCase {
     }
 
     /// The intro carousel page 3 renders correctly.
+    @MainActor
     func test_snapshot_introCarousel_page3() {
         processor.state.currentPageIndex = 2
         assertSnapshots(
@@ -72,6 +76,7 @@ class IntroCarouselViewTests: BitwardenTestCase {
     }
 
     /// The intro carousel page 4 renders correctly.
+    @MainActor
     func test_snapshot_introCarousel_page4() {
         processor.state.currentPageIndex = 3
         assertSnapshots(

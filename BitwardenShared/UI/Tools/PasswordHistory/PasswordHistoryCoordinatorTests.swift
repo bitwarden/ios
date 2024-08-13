@@ -33,6 +33,7 @@ class PasswordHistoryCoordinatorTests: BitwardenTestCase {
 
     /// `navigate(to:)` with `.dismiss` dismisses the top most view presented by the stack
     /// navigator.
+    @MainActor
     func test_navigate_dismiss() throws {
         subject.navigate(to: .dismiss)
 
@@ -41,6 +42,7 @@ class PasswordHistoryCoordinatorTests: BitwardenTestCase {
     }
 
     /// `navigate(to:)` with `.passwordHistoryList(_)` displays the password history list view.
+    @MainActor
     func test_navigate_passwordHistoryList() throws {
         subject.navigate(to: .passwordHistoryList(.generator))
 
@@ -50,6 +52,7 @@ class PasswordHistoryCoordinatorTests: BitwardenTestCase {
     }
 
     /// `start()` has no effect.
+    @MainActor
     func test_start() {
         subject.start()
 

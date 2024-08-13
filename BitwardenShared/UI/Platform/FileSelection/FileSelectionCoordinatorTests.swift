@@ -51,6 +51,7 @@ class FileSelectionCoordinatorTests: BitwardenTestCase {
 
     /// `documentPicker(_,didPickDocumentsAt:)` reads the file at the specified URL and notifies the
     /// delegate.
+    @MainActor
     func test_documentPickerDidPickDocumentsAt_withUrl() throws {
         subject.navigate(to: .file)
 
@@ -74,6 +75,7 @@ class FileSelectionCoordinatorTests: BitwardenTestCase {
 
     /// `imagePickerController(_:,didFinishPickingMediaWithInfo:)` creates a filename for the photo
     /// and notifies the delegate for a JPG image.
+    @MainActor
     func test_imagePickerViewControllerDidFinishPickingMedia_jpg() throws {
         guard UIImagePickerController.isSourceTypeAvailable(.camera) else {
             throw XCTSkip("Unable to unit test UIImagePickerController with a camera input on CI")
@@ -96,6 +98,7 @@ class FileSelectionCoordinatorTests: BitwardenTestCase {
 
     /// `imagePickerController(_:,didFinishPickingMediaWithInfo:)` creates a filename for the photo
     /// and notifies the delegate for a PNG image.
+    @MainActor
     func test_imagePickerViewControllerDidFinishPickingMedia_png() throws {
         guard UIImagePickerController.isSourceTypeAvailable(.camera) else {
             throw XCTSkip("Unable to unit test UIImagePickerController with a camera input on CI")
@@ -117,6 +120,7 @@ class FileSelectionCoordinatorTests: BitwardenTestCase {
     }
 
     /// `navigate(to:)` with `.camera` and with camera authorization presents the camera screen.
+    @MainActor
     func test_navigateTo_camera_authorized() throws {
         guard UIImagePickerController.isSourceTypeAvailable(.camera) else {
             throw XCTSkip("Unable to unit test UIImagePickerController with a camera input on CI")
@@ -139,6 +143,7 @@ class FileSelectionCoordinatorTests: BitwardenTestCase {
 
     /// `navigate(to:)` with `.camera` and without camera authorization does not present the camera
     /// screen.
+    @MainActor
     func test_navigateTo_camera_denied() throws {
         cameraService.cameraAuthorizationStatus = .denied
         let delegate = MockFileSelectionDelegate()
@@ -148,6 +153,7 @@ class FileSelectionCoordinatorTests: BitwardenTestCase {
     }
 
     /// `navigate(to:)` with `.fileBrowser` presents the file browser screen.
+    @MainActor
     func test_navigateTo_file() throws {
         let delegate = MockFileSelectionDelegate()
         subject.navigate(to: .file, context: delegate)

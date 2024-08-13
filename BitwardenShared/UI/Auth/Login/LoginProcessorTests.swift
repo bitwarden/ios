@@ -64,6 +64,7 @@ class LoginProcessorTests: BitwardenTestCase {
     // MARK: Tests
 
     /// `captchaCompleted()` makes the login requests again, this time with a captcha token.
+    @MainActor
     func test_captchaCompleted() {
         subject.state.masterPassword = "Test"
         subject.captchaCompleted(token: "token")
@@ -77,6 +78,7 @@ class LoginProcessorTests: BitwardenTestCase {
     }
 
     /// `captchaErrored(error:)` records an error.
+    @MainActor
     func test_captchaErrored() {
         subject.captchaErrored(error: BitwardenTestError.example)
 
@@ -86,6 +88,7 @@ class LoginProcessorTests: BitwardenTestCase {
     }
 
     /// `captchaErrored(error:)` doesn't record an error if the captcha flow was cancelled.
+    @MainActor
     func test_captchaErrored_cancelled() {
         let error = NSError(domain: "", code: ASWebAuthenticationSessionError.canceledLogin.rawValue)
         subject.captchaErrored(error: error)
@@ -93,6 +96,7 @@ class LoginProcessorTests: BitwardenTestCase {
     }
 
     /// `perform(_:)` with `.appeared` and an error occurs does not update the login with button visibility.
+    @MainActor
     func test_perform_appeared_failure() async throws {
         subject.state.isLoginWithDeviceVisible = false
         client.results = [
@@ -107,6 +111,7 @@ class LoginProcessorTests: BitwardenTestCase {
     }
 
     /// `perform(_:)` with `.appeared` and a true result shows the login with device button.
+    @MainActor
     func test_perform_appeared_success_true() async throws {
         client.results = [
             .httpSuccess(testData: .knownDeviceTrue),
@@ -119,6 +124,7 @@ class LoginProcessorTests: BitwardenTestCase {
     }
 
     /// `perform(_:)` with `.appeared` and a false result hides the login with device button.
+    @MainActor
     func test_perform_appeared_success_false() async throws {
         client.results = [
             .httpSuccess(testData: .knownDeviceFalse),
@@ -131,6 +137,7 @@ class LoginProcessorTests: BitwardenTestCase {
     }
 
     /// `perform(_:)` with `.appeared` twice in a row only makes the API call once.
+    @MainActor
     func test_perform_appeared_twice() async throws {
         client.results = [
             .httpSuccess(testData: .knownDeviceTrue),
@@ -146,6 +153,7 @@ class LoginProcessorTests: BitwardenTestCase {
     }
 
     /// `perform(_:)` with `.loginWithMasterPasswordPressed` logs the user in with the provided master password.
+    @MainActor
     func test_perform_loginWithMasterPasswordPressed_success() async throws {
         subject.state.username = "email@example.com"
         subject.state.masterPassword = "Password1234!"
@@ -168,6 +176,7 @@ class LoginProcessorTests: BitwardenTestCase {
 
     /// `perform(_:)` with `.loginWithMasterPasswordPressed` logs the user in with the provided master password,
     /// presents update master password view if user's password needs to be updated.
+    @MainActor
     func test_perform_loginWithMasterPasswordPressed_updateMasterPassword() async throws {
         var account = Account.fixture()
         account.profile.forcePasswordResetReason = .adminForcePasswordReset
@@ -192,6 +201,7 @@ class LoginProcessorTests: BitwardenTestCase {
 
     /// `perform(_:)` with `.loginWithMasterPasswordPressed` and a captcha error occurs navigates to the `.captcha`
     /// route.
+    @MainActor
     func test_perform_loginWithMasterPasswordPressed_captchaError() async {
         subject.state.masterPassword = "Test"
         authService.loginWithMasterPasswordResult = .failure(
@@ -209,6 +219,7 @@ class LoginProcessorTests: BitwardenTestCase {
     }
 
     /// `perform(_:)` with `.loginWithMasterPasswordPressed` and a captcha flow error records the error.
+    @MainActor
     func test_perform_loginWithMasterPasswordPressed_captchaFlowError() async {
         subject.state.masterPassword = "Test"
         authService.loginWithMasterPasswordResult = .failure(
@@ -226,6 +237,7 @@ class LoginProcessorTests: BitwardenTestCase {
     }
 
     /// `perform(_:)` with `.loginWithMasterPasswordPressed` records non captcha errors.
+    @MainActor
     func test_perform_loginWithMasterPasswordPressed_error() async throws {
         subject.state.masterPassword = "Test"
         authService.loginWithMasterPasswordResult = .failure(BitwardenTestError.example)
@@ -239,6 +251,7 @@ class LoginProcessorTests: BitwardenTestCase {
     }
 
     /// `perform(_:)` with `.loginWithMasterPasswordPressed` shows an alert for empty login text.
+    @MainActor
     func test_perform_loginWithMasterPasswordPressed_invalidInput() async throws {
         await subject.perform(.loginWithMasterPasswordPressed)
         XCTAssertEqual(
@@ -251,6 +264,7 @@ class LoginProcessorTests: BitwardenTestCase {
 
     /// `perform(_:)` with `.loginWithMasterPasswordPressed` navigates to the `.twoFactor` route
     /// if two-factor authentication is required.
+    @MainActor
     func test_perform_loginWithMasterPasswordPressed_twoFactorError() async {
         subject.state.masterPassword = "Test"
         authService.loginWithMasterPasswordResult = .failure(
@@ -265,6 +279,7 @@ class LoginProcessorTests: BitwardenTestCase {
     }
 
     /// `receive(_:)` with `.enterpriseSingleSignOnPressed` navigates to the enterprise single sign-on screen.
+    @MainActor
     func test_receive_enterpriseSingleSignOnPressed() {
         subject.state.username = "test@example.com"
         subject.receive(.enterpriseSingleSignOnPressed)
@@ -272,6 +287,7 @@ class LoginProcessorTests: BitwardenTestCase {
     }
 
     /// `receive(_:)` with `.getMasterPasswordHintPressed` navigates to the master password hint screen.
+    @MainActor
     func test_receive_getMasterPasswordHintPressed() {
         subject.state.username = "test@example.com"
         subject.receive(.getMasterPasswordHintPressed)
@@ -279,6 +295,7 @@ class LoginProcessorTests: BitwardenTestCase {
     }
 
     /// `receive(_:)` with `.loginWithDevicePressed` navigates to the login with device screen.
+    @MainActor
     func test_receive_loginWithDevicePressed() {
         subject.state.username = "example@email.com"
         subject.receive(.loginWithDevicePressed)
@@ -290,6 +307,7 @@ class LoginProcessorTests: BitwardenTestCase {
     }
 
     /// `receive(_:)` with `.masterPasswordChanged` updates the state to reflect the changes.
+    @MainActor
     func test_receive_masterPasswordChanged() {
         subject.state.masterPassword = ""
 
@@ -298,12 +316,14 @@ class LoginProcessorTests: BitwardenTestCase {
     }
 
     /// `receive(_:)` with `.notYouPressed` navigates to the landing screen.
+    @MainActor
     func test_receive_notYouPressed() {
         subject.receive(.notYouPressed)
         XCTAssertEqual(coordinator.routes.last, .landing)
     }
 
     /// `receive(_:)` with `.revealMasterPasswordFieldPressed` updates the state to reflect the changes.
+    @MainActor
     func test_receive_revealMasterPasswordFieldPressed() {
         subject.state.isMasterPasswordRevealed = false
         subject.receive(.revealMasterPasswordFieldPressed(true))

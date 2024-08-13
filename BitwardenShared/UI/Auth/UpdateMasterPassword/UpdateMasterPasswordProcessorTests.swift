@@ -63,6 +63,7 @@ class UpdateMasterPasswordProcessorTests: BitwardenTestCase {
     // MARK: Tests
 
     /// `perform()` with `.appeared` fails to sync and move to main vault screen.
+    @MainActor
     func test_perform_appeared_fails() async throws {
         authRepository.activeAccount = .fixture()
         struct CryptoError: Error, Equatable {}
@@ -76,6 +77,7 @@ class UpdateMasterPasswordProcessorTests: BitwardenTestCase {
 
     /// `perform()` with `.appeared` syncs vault and fetches `MasterPasswordPolicyOption`
     /// updates the state.
+    @MainActor
     func test_perform_appeared_success() async throws {
         authRepository.activeAccount = .fixture()
         policyService.getMasterPasswordPolicyOptionsResult = .success(
@@ -96,6 +98,7 @@ class UpdateMasterPasswordProcessorTests: BitwardenTestCase {
 
     /// `perform()` with `.appeared` succeeds to sync but master password policy fails to load,
     /// and move to main vault screen.
+    @MainActor
     func test_perform_appeared_succeeds_policyNil() async throws {
         authRepository.activeAccount = .fixture(
             profile: .fixture(forcePasswordResetReason: .weakMasterPasswordOnLogin)
@@ -111,6 +114,7 @@ class UpdateMasterPasswordProcessorTests: BitwardenTestCase {
 
     /// `perform()` with `.appeared` succeeds to sync but doesn't navigate for account recovery with
     /// no policy.
+    @MainActor
     func test_perform_appeared_succeeds_policyNilAccountRecovery() async throws {
         authRepository.activeAccount = .fixture()
         policyService.getMasterPasswordPolicyOptionsResult = .success(nil)
@@ -121,6 +125,7 @@ class UpdateMasterPasswordProcessorTests: BitwardenTestCase {
     }
 
     /// `perform()` with `.logoutPressed` logs the user out.
+    @MainActor
     func test_perform_logoutPressed() async throws {
         await subject.perform(.logoutPressed)
 
@@ -143,6 +148,7 @@ class UpdateMasterPasswordProcessorTests: BitwardenTestCase {
     }
 
     /// `perform()` with `.submitPressed` shows an alert if an error occurs.
+    @MainActor
     func test_perform_submitPressed_error() async throws {
         authRepository.updateMasterPasswordResult = .failure(BitwardenTestError.example)
 
@@ -159,6 +165,7 @@ class UpdateMasterPasswordProcessorTests: BitwardenTestCase {
     }
 
     /// `perform()` with `.submitPressed` shows an alert if the master password field is empty.
+    @MainActor
     func test_perform_submitPressed_emptyPassword() async throws {
         subject.state.forcePasswordResetReason = .weakMasterPasswordOnLogin
 
@@ -173,6 +180,7 @@ class UpdateMasterPasswordProcessorTests: BitwardenTestCase {
     }
 
     /// `perform()` with `.submitPressed` shows an alert if the password is invalid.
+    @MainActor
     func test_perform_submitPressed_passwordInvalid() async throws {
         subject.state.forcePasswordResetReason = .weakMasterPasswordOnLogin
         subject.state.masterPassword = "NEW_PASSWORD"
@@ -184,6 +192,7 @@ class UpdateMasterPasswordProcessorTests: BitwardenTestCase {
     }
 
     /// `perform()` with `.submitPressed` shows an alert if the password doesn't satisfy the policy.
+    @MainActor
     func test_perform_submitPressed_passwordMismatch() async throws {
         authService.requirePasswordChangeResult = .success(true)
         authRepository.activeAccount = .fixture()
@@ -207,6 +216,7 @@ class UpdateMasterPasswordProcessorTests: BitwardenTestCase {
     }
 
     /// `perform()` with `.submitPressed` shows an alert if the password is too short.
+    @MainActor
     func test_perform_submitPressed_passwordTooShort() async throws {
         subject.state.forcePasswordResetReason = .weakMasterPasswordOnLogin
         subject.state.masterPassword = "ABC"
@@ -218,6 +228,7 @@ class UpdateMasterPasswordProcessorTests: BitwardenTestCase {
     }
 
     /// `perform()` with `.submitPressed` submits the request for updating the master password.
+    @MainActor
     func test_perform_submitPressed_success() async throws {
         subject.state.forcePasswordResetReason = .weakMasterPasswordOnLogin
         subject.state.currentMasterPassword = "PASSWORD"
@@ -237,6 +248,7 @@ class UpdateMasterPasswordProcessorTests: BitwardenTestCase {
     }
 
     /// `receive(_:)` with `.currentMasterPasswordChanged` updates the state to reflect the changes.
+    @MainActor
     func test_receive_currentMasterPasswordChanged() {
         subject.state.currentMasterPassword = ""
 
@@ -245,6 +257,7 @@ class UpdateMasterPasswordProcessorTests: BitwardenTestCase {
     }
 
     /// `receive(_:)` with `.masterPasswordChanged` updates the state to reflect the changes.
+    @MainActor
     func test_receive_masterPasswordChanged() {
         subject.state.masterPassword = ""
 
@@ -253,6 +266,7 @@ class UpdateMasterPasswordProcessorTests: BitwardenTestCase {
     }
 
     /// `receive(_:)` with `.masterPasswordRetypeChanged` updates the state to reflect the changes.
+    @MainActor
     func test_receive_masterPasswordRetypeChanged() {
         subject.state.masterPasswordRetype = ""
 
@@ -262,6 +276,7 @@ class UpdateMasterPasswordProcessorTests: BitwardenTestCase {
 
     /// `receive()` with `.masterPasswordHintChanged` and a value updates the state to reflect the
     /// changes.
+    @MainActor
     func test_receive_masterPasswordHintChanged() {
         subject.state.masterPasswordHint = ""
         subject.receive(.masterPasswordHintChanged("this is password hint"))
@@ -270,6 +285,7 @@ class UpdateMasterPasswordProcessorTests: BitwardenTestCase {
     }
 
     /// `receive(_:)` with `.revealCurrentMasterPasswordFieldPressed` updates the state to reflect the changes.
+    @MainActor
     func test_receive_revealCurrentMasterPasswordFieldPressed() {
         subject.state.isCurrentMasterPasswordRevealed = false
         subject.receive(.revealCurrentMasterPasswordFieldPressed(true))
@@ -280,6 +296,7 @@ class UpdateMasterPasswordProcessorTests: BitwardenTestCase {
     }
 
     /// `receive(_:)` with `.revealMasterPasswordFieldPressed` updates the state to reflect the changes.
+    @MainActor
     func test_receive_revealMasterPasswordFieldPressed() {
         subject.state.isMasterPasswordRevealed = false
         subject.receive(.revealMasterPasswordFieldPressed(true))
@@ -290,6 +307,7 @@ class UpdateMasterPasswordProcessorTests: BitwardenTestCase {
     }
 
     /// `receive(_:)` with `.revealMasterPasswordRetypeFieldPressed` updates the state to reflect the changes.
+    @MainActor
     func test_receive_revealMasterPasswordRetypeFieldPressed() {
         subject.state.isMasterPasswordRetypeRevealed = false
         subject.receive(.revealMasterPasswordRetypeFieldPressed(true))
