@@ -408,7 +408,7 @@ final class BiometricsRepositoryTests: BitwardenTestCase { // swiftlint:disable:
         XCTAssertFalse(result)
     }
 
-    /// `setBiometricUnlockKey` can remove a user key from the keychain and track the availbility in state.
+    /// `setBiometricUnlockKey` can remove a user key from the keychain and track the availability in state.
     func test_setBiometricUnlockKey_nilValue_success() async throws {
         stateService.activeAccount = .fixture()
         try? await stateService.setBiometricAuthenticationEnabled(true)
@@ -424,6 +424,7 @@ final class BiometricsRepositoryTests: BitwardenTestCase { // swiftlint:disable:
         waitFor(keychainService.mockStorage.isEmpty)
         let result = try XCTUnwrap(stateService.biometricsEnabled["1"])
         XCTAssertFalse(result)
+        XCTAssertNil(stateService.biometricIntegrityStates["1"])
     }
 
     /// `setBiometricUnlockKey` throws on a keychain error.
@@ -487,5 +488,29 @@ final class BiometricsRepositoryTests: BitwardenTestCase { // swiftlint:disable:
         let result = try XCTUnwrap(stateService.biometricsEnabled["1"])
         XCTAssertTrue(result)
         XCTAssertEqual(keychainService.securityType, .biometryCurrentSet)
+    }
+
+    /// `setBiometricUnlockKey` stores the user key and configures biometric integrity.
+    func test_setBiometricUnlockKey_withValue_success_configuresBiometricIntegrity() async throws {
+        biometricsService.biometricIntegrityState = "🔒".data(using: .utf8)
+        keychainService.setResult = .success(())
+        stateService.activeAccount = .fixture()
+        stateService.setBiometricAuthenticationEnabledResult = .success(())
+
+        try await subject.setBiometricUnlockKey(authKey: "authKey")
+
+        XCTAssertEqual(
+            keychainService.mockStorage[keychainService.formattedKey(
+                for: .biometrics(
+                    userId: "1"
+                )
+            )],
+            "authKey"
+        )
+        XCTAssertEqual(keychainService.securityType, .biometryCurrentSet)
+        XCTAssertTrue(try XCTUnwrap(stateService.biometricsEnabled["1"]))
+
+        let expectedIntegrityState = try XCTUnwrap("🔒".data(using: .utf8)?.base64EncodedString())
+        XCTAssertEqual(stateService.biometricIntegrityStates["1"], expectedIntegrityState)
     }
 }

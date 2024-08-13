@@ -262,11 +262,6 @@ final class AccountSecurityProcessor: StateProcessor<
         do {
             try await services.authRepository.allowBioMetricUnlock(enabled)
             state.biometricUnlockStatus = try await services.biometricsRepository.getBiometricUnlockStatus()
-            // Set biometric integrity if needed.
-            if case .available(_, true, false) = state.biometricUnlockStatus {
-                try await services.biometricsRepository.configureBiometricIntegrity()
-                state.biometricUnlockStatus = try await services.biometricsRepository.getBiometricUnlockStatus()
-            }
 
             // Refresh vault timeout action in case the user doesn't have a password and biometric
             // unlock was disabled.

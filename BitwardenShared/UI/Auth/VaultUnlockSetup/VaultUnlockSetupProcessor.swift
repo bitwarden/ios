@@ -5,7 +5,8 @@
 class VaultUnlockSetupProcessor: StateProcessor<VaultUnlockSetupState, VaultUnlockSetupAction, VaultUnlockSetupEffect> {
     // MARK: Types
 
-    typealias Services = HasBiometricsRepository
+    typealias Services = HasAuthRepository
+        & HasBiometricsRepository
         & HasErrorReporter
 
     // MARK: Private Properties
@@ -53,7 +54,14 @@ class VaultUnlockSetupProcessor: StateProcessor<VaultUnlockSetupState, VaultUnlo
             // TODO: PM-10270 Skip unlock setup
             break
         case let .toggleUnlockMethod(unlockMethod, newValue):
-            state[keyPath: unlockMethod.keyPath] = newValue
+            switch unlockMethod {
+            case .biometrics:
+                Task {
+                    await toggleBiometricUnlock(enabled: newValue)
+                }
+            case .pin:
+                state.isPinUnlockOn = newValue
+            }
         }
     }
 
@@ -63,6 +71,20 @@ class VaultUnlockSetupProcessor: StateProcessor<VaultUnlockSetupState, VaultUnlo
     ///
     private func loadData() async {
         do {
+            state.biometricsStatus = try await services.biometricsRepository.getBiometricUnlockStatus()
+        } catch {
+            services.errorReporter.log(error: error)
+            coordinator.showAlert(.defaultAlert(title: Localizations.anErrorHasOccurred))
+        }
+    }
+
+    /// Toggles whether unlock with biometrics is enabled.
+    ///
+    /// - Parameter enabled: Whether to enable unlock with biometrics.
+    ///
+    private func toggleBiometricUnlock(enabled: Bool) async {
+        do {
+            try await services.authRepository.allowBioMetricUnlock(enabled)
             state.biometricsStatus = try await services.biometricsRepository.getBiometricUnlockStatus()
         } catch {
             services.errorReporter.log(error: error)

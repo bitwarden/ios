@@ -102,6 +102,7 @@ class DefaultBiometricsRepository: BiometricsRepository {
         }
 
         try await setUserBiometricAuthKey(value: authKey)
+        try await configureBiometricIntegrity()
         try await stateService.setBiometricAuthenticationEnabled(true)
     }
 
