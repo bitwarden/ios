@@ -45,6 +45,7 @@ class LoginDecryptionOptionsViewTests: BitwardenTestCase {
     // MARK: Tests
 
     /// Tapping the approve with master password button dispatches the `.approveWithMasterPasswordPressed` action.
+    @MainActor
     func test_approveMasterPasswordButton_tap() async throws {
         let button = try subject.inspect().find(asyncButton: Localizations.approveWithMasterPassword)
         try await button.tap()
@@ -52,6 +53,7 @@ class LoginDecryptionOptionsViewTests: BitwardenTestCase {
     }
 
     /// Tapping the approve with my other device button dispatches the `.approveWithOtherDevicePressed` action.
+    @MainActor
     func test_approveWithOtherDeviceButton_tap() async throws {
         let button = try subject.inspect().find(asyncButton: Localizations.approveWithMyOtherDevice)
         try await button.tap()
@@ -59,6 +61,7 @@ class LoginDecryptionOptionsViewTests: BitwardenTestCase {
     }
 
     /// Tapping the request admin approval  button dispatches the `.requestAdminApprovalPressed` action.
+    @MainActor
     func test_approveAdminApprovalButton_tap() async throws {
         let button = try subject.inspect().find(asyncButton: Localizations.requestAdminApproval)
         try await button.tap()
@@ -66,6 +69,7 @@ class LoginDecryptionOptionsViewTests: BitwardenTestCase {
     }
 
     /// Tapping the continue button dispatches the `.continuePressed` action.
+    @MainActor
     func test_continueButton_tap() async throws {
         let button = try subject.inspect().find(asyncButton: Localizations.continue)
         try await button.tap()
@@ -73,6 +77,7 @@ class LoginDecryptionOptionsViewTests: BitwardenTestCase {
     }
 
     /// Tapping the not you button performs the `.notYouPressed` effect.
+    @MainActor
     func test_notYouButton_tap() async throws {
         let button = try subject.inspect().find(asyncButton: Localizations.notYou)
         try await button.tap()
@@ -80,6 +85,7 @@ class LoginDecryptionOptionsViewTests: BitwardenTestCase {
     }
 
     /// Tapping the remember this device toggle dispatches the `.toggleRememberDevice` action.
+    @MainActor
     func test_isRememberDeviceToggle_tap() throws {
         if #available(iOS 16.0, macOS 13.0, tvOS 16.0, watchOS 9.0, *) {
             throw XCTSkip("Unable to run test in iOS 16, keep an eye on ViewInspector to see if it gets updated.")

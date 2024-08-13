@@ -328,6 +328,7 @@ class GeneratorRepositoryTests: BitwardenTestCase { // swiftlint:disable:this ty
     }
 
     /// `passwordHistoryPublisher()` returns a publisher that the user's password history as it changes.
+    @MainActor
     func test_passwordHistoryPublisher() {
         stateService.activeAccount = .fixture(profile: .fixture(userId: "1"))
 

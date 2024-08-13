@@ -72,6 +72,7 @@ class AuthCoordinatorTests: BitwardenTestCase { // swiftlint:disable:this type_b
     // MARK: Tests
 
     /// `navigate(to:)` with `.complete` notifies the delegate that auth has completed.
+    @MainActor
     func test_navigate_complete() {
         subject.navigate(to: .complete)
         XCTAssertTrue(authDelegate.didCompleteAuthCalled)
@@ -79,6 +80,7 @@ class AuthCoordinatorTests: BitwardenTestCase { // swiftlint:disable:this type_b
 
     /// `navigate(to:)` with `.complete` dismisses a presented view and notifies the delegate that
     /// auth has completed.
+    @MainActor
     func test_navigate_complete_withPresented() {
         subject.navigate(to: .updateMasterPassword)
         subject.navigate(to: .complete)
@@ -87,6 +89,7 @@ class AuthCoordinatorTests: BitwardenTestCase { // swiftlint:disable:this type_b
     }
 
     /// `navigate(to:)` with `.checkEmail` pushes the check email view onto the stack navigator.
+    @MainActor
     func test_navigate_checkEmail() throws {
         subject.navigate(to: .checkEmail(email: "email@example.com"))
 
@@ -96,12 +99,14 @@ class AuthCoordinatorTests: BitwardenTestCase { // swiftlint:disable:this type_b
     }
 
     /// `navigate(to:)` with `.completeWithNeverUnlockKey` notifies the delegate that auth has completed.
+    @MainActor
     func test_navigate_completeWithNeverUnlockKey() {
         subject.navigate(to: .completeWithNeverUnlockKey)
         XCTAssertTrue(authDelegate.didCompleteAuthCalled)
     }
 
     /// `navigate(to:)` with `.createAccount` pushes the create account view onto the stack navigator.
+    @MainActor
     func test_navigate_createAccount() throws {
         subject.navigate(to: .createAccount)
 
@@ -111,6 +116,7 @@ class AuthCoordinatorTests: BitwardenTestCase { // swiftlint:disable:this type_b
     }
 
     /// `navigate(to:)` with `.completeRegistration` pushes the create account view onto the stack navigator.
+    @MainActor
     func test_navigate_completeRegistration() throws {
         subject.navigate(to: .completeRegistration(
             emailVerificationToken: "thisisanamazingtoken",
@@ -123,6 +129,7 @@ class AuthCoordinatorTests: BitwardenTestCase { // swiftlint:disable:this type_b
     }
 
     /// `navigate(to:)` with `.completeRegistrationFromAppLink` pushes the create account view onto the stack navigator.
+    @MainActor
     func test_navigate_completeRegistrationFromAppLink() throws {
         subject.navigate(to: .completeRegistrationFromAppLink(
             emailVerificationToken: "thisisanamazingtoken",
@@ -147,6 +154,7 @@ class AuthCoordinatorTests: BitwardenTestCase { // swiftlint:disable:this type_b
     }
 
     /// `navigate(to:)` with `.startRegistration` pushes the start registration view onto the stack navigator.
+    @MainActor
     func test_navigate_startRegistration() throws {
         subject.navigate(to: .startRegistration, context: MockStartRegistrationDelegate())
 
@@ -156,6 +164,7 @@ class AuthCoordinatorTests: BitwardenTestCase { // swiftlint:disable:this type_b
     }
 
     /// `navigate(to:)` with `.dismiss` dismisses all presented view.
+    @MainActor
     func test_navigate_dismiss() throws {
         subject.navigate(to: .createAccount)
         subject.navigate(to: .dismiss)
@@ -164,6 +173,7 @@ class AuthCoordinatorTests: BitwardenTestCase { // swiftlint:disable:this type_b
     }
 
     /// `navigate(to:)` with `.dismissPresented` dismisses the presented view.
+    @MainActor
     func test_navigate_dismissPresented() throws {
         subject.navigate(to: .checkEmail(email: "email@example.com"))
         subject.navigate(to: .dismissPresented)
@@ -172,6 +182,7 @@ class AuthCoordinatorTests: BitwardenTestCase { // swiftlint:disable:this type_b
     }
 
     /// `navigate(to:)` with `.dismissWithAction` dismisses the presented view.
+    @MainActor
     func test_navigate_dismissWithAction() throws {
         var didRun = false
         subject.navigate(to: .dismissWithAction(DismissAction(action: { didRun = true })))
@@ -182,6 +193,7 @@ class AuthCoordinatorTests: BitwardenTestCase { // swiftlint:disable:this type_b
 
     /// `navigate(to:)` with `.enterpriseSingleSignOn` pushes the enterprise single sign-on view onto the stack
     /// navigator.
+    @MainActor
     func test_navigate_enterpriseSingleSignOn() throws {
         subject.navigate(to: .enterpriseSingleSignOn(email: "email@example.com"))
 
@@ -191,6 +203,7 @@ class AuthCoordinatorTests: BitwardenTestCase { // swiftlint:disable:this type_b
     }
 
     /// `navigate(to:)` with `.introCarousel` replaces the navigation stack with the intro carousel.
+    @MainActor
     func test_navigate_introCarousel() {
         subject.navigate(to: .introCarousel)
 
@@ -200,12 +213,14 @@ class AuthCoordinatorTests: BitwardenTestCase { // swiftlint:disable:this type_b
     }
 
     /// `navigate(to:)` with `.landing` pushes the landing view onto the stack navigator.
+    @MainActor
     func test_navigate_landing() {
         subject.navigate(to: .landing)
         XCTAssertTrue(stackNavigator.actions.last?.view is LandingView)
     }
 
     /// `navigate(to:)` with `.landing` from `.login` pops back to the landing view.
+    @MainActor
     func test_navigate_landing_fromLogin() {
         stackNavigator.viewControllersToPop = [
             UIViewController(),
@@ -216,6 +231,7 @@ class AuthCoordinatorTests: BitwardenTestCase { // swiftlint:disable:this type_b
     }
 
     /// `navigate(to:)` with `.login` pushes the login view onto the stack navigator and hides the back button.
+    @MainActor
     func test_navigate_login() throws {
         appSettingsStore.preAuthEnvironmentUrls = EnvironmentUrlData.defaultEU
         subject.navigate(to: .login(username: "username"))
@@ -235,6 +251,7 @@ class AuthCoordinatorTests: BitwardenTestCase { // swiftlint:disable:this type_b
     /// `navigate(to:)` with `.login`, when using a self-hosted environment,
     /// pushes the login view onto the stack navigator and hides the back button.
     /// It also initializes `LoginState` with the self-hosted URL host.
+    @MainActor
     func test_navigate_login_selfHosted() async throws {
         appSettingsStore.preAuthEnvironmentUrls = EnvironmentUrlData(webVault: URL(string: "http://www.example.com")!)
         subject.navigate(to: .login(username: "username"))
@@ -249,6 +266,7 @@ class AuthCoordinatorTests: BitwardenTestCase { // swiftlint:disable:this type_b
     }
 
     /// `navigate(to:)` with `.loginWithDevice` pushes the login with device view onto the stack navigator.
+    @MainActor
     func test_navigate_loginWithDevice() throws {
         subject.navigate(to: .loginWithDevice(
             email: "example@email.com",
@@ -262,6 +280,7 @@ class AuthCoordinatorTests: BitwardenTestCase { // swiftlint:disable:this type_b
     }
 
     /// `navigate(to:)` with `.masterPasswordHint` presents the master password hint view.
+    @MainActor
     func test_navigate_masterPasswordHint() throws {
         subject.navigate(to: .masterPasswordHint(username: "email@example.com"))
 
@@ -271,6 +290,7 @@ class AuthCoordinatorTests: BitwardenTestCase { // swiftlint:disable:this type_b
     }
 
     /// `navigate(to:)` with `.selfHosted` pushes the self-hosted view onto the stack navigator.
+    @MainActor
     func test_navigate_selfHosted() throws {
         subject.navigate(to: .selfHosted(currentRegion: .unitedStates))
 
@@ -280,6 +300,7 @@ class AuthCoordinatorTests: BitwardenTestCase { // swiftlint:disable:this type_b
     }
 
     /// `navigate(to:)` with `.setMasterPassword` pushes the set master password view onto the stack navigator.
+    @MainActor
     func test_navigate_setMasterPassword() throws {
         subject.navigate(to: .setMasterPassword(organizationIdentifier: "ORG_ID"))
 
@@ -289,6 +310,7 @@ class AuthCoordinatorTests: BitwardenTestCase { // swiftlint:disable:this type_b
     }
 
     /// `handleEvent()` with `.switchAccount` with an locked account navigates to vault unlock
+    @MainActor
     func test_navigate_switchAccount_locked() {
         let account = Account.fixture()
         authRepository.altAccounts = [account]
@@ -304,6 +326,7 @@ class AuthCoordinatorTests: BitwardenTestCase { // swiftlint:disable:this type_b
     }
 
     /// `navigate(to:)` with `.switchAccount` with an unlocked account triggers completion
+    @MainActor
     func test_navigate_switchAccount_unlocked() {
         let account = Account.fixture()
         authRepository.altAccounts = [account]
@@ -321,6 +344,7 @@ class AuthCoordinatorTests: BitwardenTestCase { // swiftlint:disable:this type_b
     }
 
     /// `navigate(to:)` with `.switchAccount` with an unknown lock status account navigates to vault unlock.
+    @MainActor
     func test_navigate_switchAccount_unknownLock() {
         let account = Account.fixture()
         authRepository.altAccounts = [account]
@@ -336,6 +360,7 @@ class AuthCoordinatorTests: BitwardenTestCase { // swiftlint:disable:this type_b
     }
 
     /// `navigate(to:)` with `.switchAccount` with an invalid account navigates to landing view.
+    @MainActor
     func test_navigate_switchAccount_notFound() {
         let account = Account.fixture()
         let task = Task {
@@ -347,6 +372,7 @@ class AuthCoordinatorTests: BitwardenTestCase { // swiftlint:disable:this type_b
     }
 
     /// `navigate(to:)` with `.twoFactor` shows the two factor auth view.
+    @MainActor
     func test_navigate_twoFactor() throws {
         subject.navigate(to: .twoFactor("", .password(""), AuthMethodsData.fixture(), nil))
 
@@ -356,6 +382,7 @@ class AuthCoordinatorTests: BitwardenTestCase { // swiftlint:disable:this type_b
     }
 
     /// `navigate(to:)` with `.updateMasterPassword` pushes the update master password view onto the stack navigator.
+    @MainActor
     func test_navigate_updateMasterPassword() throws {
         subject.navigate(to: .updateMasterPassword)
 
@@ -365,6 +392,7 @@ class AuthCoordinatorTests: BitwardenTestCase { // swiftlint:disable:this type_b
     }
 
     /// `navigate(to:)` with `.vaultUnlock` replaces the current view with the vault unlock view.
+    @MainActor
     func test_navigate_vaultUnlock() throws {
         subject.navigate(
             to: .vaultUnlock(
@@ -381,6 +409,7 @@ class AuthCoordinatorTests: BitwardenTestCase { // swiftlint:disable:this type_b
     }
 
     /// `navigate(to:)` with `.vaultUnlock` replaces the current view with the vault unlock view.
+    @MainActor
     func test_navigate_vaultUnlock_withToast() throws {
         subject.navigate(
             to: .vaultUnlock(
@@ -401,6 +430,7 @@ class AuthCoordinatorTests: BitwardenTestCase { // swiftlint:disable:this type_b
     }
 
     /// `navigate(to:)` with `.vaultUnlockSetup` pushes the vault unlock setup onto the navigation stack.
+    @MainActor
     func test_navigate_vaultUnlockSetup() throws {
         subject.navigate(to: .vaultUnlockSetup)
 
@@ -410,6 +440,7 @@ class AuthCoordinatorTests: BitwardenTestCase { // swiftlint:disable:this type_b
 
     /// `navigate(to:)` with `.showLoginDecryptionOptions` replaces the current view with
     /// the show decryption options view.
+    @MainActor
     func test_navigate_showLoginDecryptionOptions() throws {
         subject.navigate(to: .showLoginDecryptionOptions(organizationIdentifier: "Bitwarden"))
 
@@ -425,6 +456,7 @@ class AuthCoordinatorTests: BitwardenTestCase { // swiftlint:disable:this type_b
     }
 
     /// `navigate(to:)` with `.webAuthnSelfHosted` opens the WebAuthn connector web page.
+    @MainActor
     func test_navigate_webAuthnSelfHosted() throws {
         let delegate = MockWebAuthnFlowDelegate()
 
@@ -449,6 +481,7 @@ class AuthCoordinatorTests: BitwardenTestCase { // swiftlint:disable:this type_b
     }
 
     /// `navigate(to:)` with `.webAuthnSelfHosted` handles errors.
+    @MainActor
     func test_navigate_webAuthnSelfHosted_error() throws {
         let delegate = MockWebAuthnFlowDelegate()
 
@@ -470,6 +503,7 @@ class AuthCoordinatorTests: BitwardenTestCase { // swiftlint:disable:this type_b
     }
 
     /// `navigate(to:)` with `.webAuthnSelfHosted` handles when the server sends unparseable credentials
+    @MainActor
     func test_navigate_webAuthnSelfHosted_unableToDecode() throws {
         let delegate = MockWebAuthnFlowDelegate()
 
@@ -498,6 +532,7 @@ class AuthCoordinatorTests: BitwardenTestCase { // swiftlint:disable:this type_b
     }
 
     /// `rootNavigator` uses a weak reference and does not retain a value once the root navigator has been erased.
+    @MainActor
     func test_rootNavigator_resetWeakReference() {
         var rootNavigator: MockRootNavigator? = MockRootNavigator()
         subject = AuthCoordinator(
@@ -515,6 +550,7 @@ class AuthCoordinatorTests: BitwardenTestCase { // swiftlint:disable:this type_b
     }
 
     /// `showLoadingOverlay()` and `hideLoadingOverlay()` can be used to show and hide the loading overlay.
+    @MainActor
     func test_show_hide_loadingOverlay() throws {
         stackNavigator.rootViewController = UIViewController()
         try setKeyWindowRoot(viewController: XCTUnwrap(subject.stackNavigator?.rootViewController))
@@ -530,6 +566,7 @@ class AuthCoordinatorTests: BitwardenTestCase { // swiftlint:disable:this type_b
     }
 
     /// `start()` presents the stack navigator within the root navigator.
+    @MainActor
     func test_start() {
         subject.start()
         XCTAssertIdentical(rootNavigator.navigatorShown, stackNavigator)

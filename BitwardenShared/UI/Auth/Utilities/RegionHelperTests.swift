@@ -37,6 +37,7 @@ class RegionHelperTests: BitwardenTestCase {
     // MARK: Tests
 
     /// `presentRegionSelectorAlert(title:currentRegion)` shows alert and tap bitwarden.com.
+    @MainActor
     func test_presentRegionSelectorAlert_us() async throws {
         await subject.presentRegionSelectorAlert(title: Localizations.creatingOn, currentRegion: .unitedStates)
 
@@ -53,6 +54,7 @@ class RegionHelperTests: BitwardenTestCase {
     }
 
     /// `presentRegionSelectorAlert(title:currentRegion)` shows alert and tap bitwarden.eu.
+    @MainActor
     func test_presentRegionSelectorAlert_eu() async throws {
         await subject.presentRegionSelectorAlert(title: Localizations.creatingOn, currentRegion: .unitedStates)
 
@@ -69,6 +71,7 @@ class RegionHelperTests: BitwardenTestCase {
     }
 
     /// `presentRegionSelectorAlert(title:currentRegion)` shows alert and tap selfhosted.
+    @MainActor
     func test_presentRegionSelectorAlert_selfHosted() async throws {
         await subject.presentRegionSelectorAlert(title: Localizations.creatingOn, currentRegion: .europe)
 
@@ -83,6 +86,7 @@ class RegionHelperTests: BitwardenTestCase {
     }
 
     /// `presentRegionSelectorAlert(title:currentRegion)` with current region as nil default to us
+    @MainActor
     func test_presentRegionSelectorAlert_nil() async throws {
         await subject.presentRegionSelectorAlert(title: Localizations.loggingInOn, currentRegion: nil)
 

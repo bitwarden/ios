@@ -42,6 +42,7 @@ class SendItemCoordinatorTests: BitwardenTestCase {
     // MARK: Tests
 
     /// `navigate(to:)` with `.add()` shows the add item screen.
+    @MainActor
     func test_navigateTo_add_noContent_hasPremium() throws {
         subject.navigate(to: .add(content: nil, hasPremium: true))
 
@@ -53,6 +54,7 @@ class SendItemCoordinatorTests: BitwardenTestCase {
     }
 
     /// `navigate(to:)` with `.addItem` shows the add send item screen.
+    @MainActor
     func test_navigateTo_add_noContent_notHasPremium() throws {
         subject.navigate(to: .add(content: nil, hasPremium: false))
 
@@ -64,6 +66,7 @@ class SendItemCoordinatorTests: BitwardenTestCase {
     }
 
     /// `navigate(to:)` with `.add()` shows the add send item screen with prefilled file content.
+    @MainActor
     func test_navigateTo_add_fileContent() throws {
         subject.navigate(
             to: .add(
@@ -87,6 +90,7 @@ class SendItemCoordinatorTests: BitwardenTestCase {
     }
 
     /// `navigate(to:)` with `.add()` shows the add item screen with prefilled text content.
+    @MainActor
     func test_navigateTo_add_textContent() throws {
         subject.navigate(
             to: .add(
@@ -110,6 +114,7 @@ class SendItemCoordinatorTests: BitwardenTestCase {
     }
 
     /// `navigate(to:)` with `.add()` shows the add send item screen with prefilled type content.
+    @MainActor
     func test_navigateTo_add_typeContent() throws {
         subject.navigate(
             to: .add(
@@ -130,6 +135,7 @@ class SendItemCoordinatorTests: BitwardenTestCase {
     }
 
     /// `navigate(to:)` with `.cancel` notifies the delegate.
+    @MainActor
     func test_navigateTo_cancel() {
         subject.navigate(to: .cancel)
 
@@ -137,6 +143,7 @@ class SendItemCoordinatorTests: BitwardenTestCase {
     }
 
     /// `navigate(to:)` with `.complete` notifies the delegate.
+    @MainActor
     func test_navigateTo_complete() {
         let sendView = SendView.fixture(id: "SEND_ID", name: "Name")
         subject.navigate(to: .complete(sendView))
@@ -146,6 +153,7 @@ class SendItemCoordinatorTests: BitwardenTestCase {
     }
 
     /// `navigate(to:)` with `.edit` shows the edit screen.
+    @MainActor
     func test_navigateTo_edit_hasPremium() throws {
         let sendView = SendView.fixture(id: "SEND_ID", name: "Name")
         subject.navigate(to: .edit(sendView, hasPremium: true))
@@ -159,6 +167,7 @@ class SendItemCoordinatorTests: BitwardenTestCase {
     }
 
     /// `navigate(to:)` with `.edit` shows the edit screen.
+    @MainActor
     func test_navigateTo_edit_notHasPremium() throws {
         let sendView = SendView.fixture(id: "SEND_ID", name: "Name")
         subject.navigate(to: .edit(sendView, hasPremium: false))
@@ -173,6 +182,7 @@ class SendItemCoordinatorTests: BitwardenTestCase {
 
     /// `navigate(to:)` with `.fileSelection` and with a file selection delegate presents the file
     /// selection screen.
+    @MainActor
     func test_navigateTo_fileSelection_withDelegate() throws {
         let delegate = MockFileSelectionDelegate()
         subject.navigate(to: .fileSelection(.camera), context: delegate)
@@ -184,6 +194,7 @@ class SendItemCoordinatorTests: BitwardenTestCase {
 
     /// `navigate(to:)` with `.fileSelection` and without a file selection delegate does not present the
     /// file selection screen.
+    @MainActor
     func test_navigateTo_fileSelection_withoutDelegate() throws {
         subject.navigate(to: .fileSelection(.camera), context: nil)
         XCTAssertNil(stackNavigator.actions.last)

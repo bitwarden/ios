@@ -61,6 +61,7 @@ class LandingProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_
     // MARK: Tests
 
     /// `didChangeRegion(urls:)` update URLs when they change on the StartRegistration modal
+    @MainActor
     func test_didChangeRegion() async {
         stateService.preAuthEnvironmentUrls = EnvironmentUrlData(base: .example)
         subject.state.region = .unitedStates
@@ -74,6 +75,7 @@ class LandingProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_
 
     /// `didSaveEnvironment(urls:)` with URLs sets the region to self-hosted and sets the URLs in
     /// the environment.
+    @MainActor
     func test_didSaveEnvironment() async {
         stateService.preAuthEnvironmentUrls = EnvironmentUrlData(base: .example)
         subject.state.region = .unitedStates
@@ -87,6 +89,7 @@ class LandingProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_
     }
 
     /// `didSaveEnvironment(urls:)` with empty URLs doesn't change the region or the environment URLs.
+    @MainActor
     func test_didSaveEnvironment_empty() async {
         stateService.preAuthEnvironmentUrls = EnvironmentUrlData()
         subject.state.region = .unitedStates
@@ -96,6 +99,7 @@ class LandingProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_
     }
 
     /// `perform(.appeared)` with no pre-auth URLs defaults the region and URLs to the US environment.
+    @MainActor
     func test_perform_appeared_loadsRegion_noPreAuthUrls() async {
         await subject.perform(.appeared)
         XCTAssertEqual(subject.state.region, .unitedStates)
@@ -104,6 +108,7 @@ class LandingProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_
 
     /// `perform(.appeared)` with EU pre-auth URLs sets the state to the EU region and sets the
     /// environment URLs.
+    @MainActor
     func test_perform_appeared_loadsRegion_withPreAuthUrls_europe() async {
         stateService.preAuthEnvironmentUrls = .defaultEU
         await subject.perform(.appeared)
@@ -113,6 +118,7 @@ class LandingProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_
 
     /// `perform(.appeared)` with self-hosted pre-auth URLs sets the state to the self-hosted region
     /// and sets the URLs to the environment.
+    @MainActor
     func test_perform_appeared_loadsRegion_withPreAuthUrls_selfHosted() async {
         let urls = EnvironmentUrlData(base: .example)
         stateService.preAuthEnvironmentUrls = urls
@@ -123,6 +129,7 @@ class LandingProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_
 
     /// `perform(.appeared)` with US pre-auth URLs sets the state to the US region and sets the
     /// environment URLs.
+    @MainActor
     func test_perform_appeared_loadsRegion_withPreAuthUrls_unitedStates() async {
         stateService.preAuthEnvironmentUrls = .defaultUS
         await subject.perform(.appeared)
@@ -131,6 +138,7 @@ class LandingProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_
     }
 
     /// `perform(.appeared)` with feature flag for .emailVerification set to true
+    @MainActor
     func test_perform_appeared_loadsFeatureFlag_true() async {
         configService.featureFlagsBool[.emailVerification] = true
         subject.state.emailVerificationFeatureFlag = false
@@ -143,6 +151,7 @@ class LandingProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_
     }
 
     /// `perform(.appeared)` with feature flag for .emailVerification set to false
+    @MainActor
     func test_perform_appeared_loadsFeatureFlag_false() async {
         configService.featureFlagsBool[.emailVerification] = false
         subject.state.emailVerificationFeatureFlag = true
@@ -155,6 +164,7 @@ class LandingProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_
     }
 
     /// `perform(.appeared)` with feature flag defaulting to false
+    @MainActor
     func test_perform_appeared_loadsFeatureFlag_nil() async {
         configService.featureFlagsBool[.emailVerification] = nil
         subject.state.emailVerificationFeatureFlag = true
@@ -167,6 +177,7 @@ class LandingProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_
     }
 
     /// `perform(.appeared)` with an active account and accounts should yield a profile switcher state.
+    @MainActor
     func test_perform_appeared_profiles_single_active() async {
         let profile = ProfileSwitcherItem.fixture()
         authRepository.profileSwitcherState = .init(
@@ -183,6 +194,7 @@ class LandingProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_
     }
 
     /// `perform(.appeared)` without profiles for the profile switcher.
+    @MainActor
     func test_perform_appeared_empty() async {
         await subject.perform(.appeared)
 
@@ -193,6 +205,7 @@ class LandingProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_
     }
 
     /// `perform(.appeared)` with an active account and accounts should yield a profile switcher state.
+    @MainActor
     func test_perform_appeared_single_active() async {
         let profile = ProfileSwitcherItem.fixture()
         authRepository.profileSwitcherState = .init(
@@ -209,6 +222,7 @@ class LandingProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_
     }
 
     /// `perform(_:)` with `.continuePressed` and an invalid email shows an error alert.
+    @MainActor
     func test_perform_continuePressed_withInvalidEmail() async {
         appSettingsStore.rememberedEmail = nil
         subject.state.email = "email"
@@ -225,6 +239,7 @@ class LandingProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_
     }
 
     /// `perform(_:)` with `.continuePressed` and a valid email navigates to the login screen.
+    @MainActor
     func test_perform_continuePressed_withValidEmail_isRememberMeOn_false() async {
         appSettingsStore.rememberedEmail = nil
         subject.state.isRememberMeOn = false
@@ -237,6 +252,7 @@ class LandingProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_
 
     /// `perform(_:)` with `.continuePressed` and a valid email surrounded by whitespace trims the whitespace and
     /// navigates to the login screen.
+    @MainActor
     func test_perform_continuePressed_withValidEmailAndSpace() async {
         subject.state.email = " email@example.com "
 
@@ -246,6 +262,7 @@ class LandingProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_
 
     /// `perform(_:)` with `.continuePressed` and a valid email with uppercase characters converts the email to
     /// lowercase and navigates to the login screen.
+    @MainActor
     func test_perform_continuePressed_withValidEmailUppercased() async {
         subject.state.email = "EMAIL@EXAMPLE.COM"
 
@@ -254,6 +271,7 @@ class LandingProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_
     }
 
     /// `perform(_:)` with `.continuePressed` and a valid email navigates to the login screen.
+    @MainActor
     func test_perform_continuePressed_withValidEmail_isRememberMeOn_true() async {
         appSettingsStore.rememberedEmail = nil
         subject.state.isRememberMeOn = true
@@ -266,6 +284,7 @@ class LandingProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_
 
     /// `perform(_:)` with `.continuePressed` when the account matches an existing account shows the
     /// user an alert to switch to that account.
+    @MainActor
     func test_perform_continuePressed_matchingExistingAccount() async throws {
         appSettingsStore.rememberedEmail = nil
         authRepository.existingAccountUserIdResult = "1"
@@ -287,6 +306,7 @@ class LandingProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_
 
     /// `perform(.appeared)`
     /// No active account and accounts should yield a profile switcher state without an active account.
+    @MainActor
     func test_perform_refresh_profiles_single_notActive() async {
         let profile = ProfileSwitcherItem.fixture()
         authRepository.profileSwitcherState = .init(
@@ -312,6 +332,7 @@ class LandingProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_
 
     /// `perform(.appeared)`:
     ///  An active account and multiple accounts should yield a profile switcher state.
+    @MainActor
     func test_perform_refresh_profiles_single_multiAccount() async {
         let profile = ProfileSwitcherItem.fixture()
         let alternate = ProfileSwitcherItem.fixture()
@@ -329,6 +350,7 @@ class LandingProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_
     }
 
     /// `perform(.profileSwitcher(.rowAppeared))` should not update the state for add Account
+    @MainActor
     func test_perform_rowAppeared_add() async {
         let profile = ProfileSwitcherItem.fixture()
         let alternate = ProfileSwitcherItem.fixture()
@@ -345,6 +367,7 @@ class LandingProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_
     }
 
     /// `perform(.profileSwitcher(.rowAppeared))` should not update the state for alternate account
+    @MainActor
     func test_perform_rowAppeared_alternate() async {
         let profile = ProfileSwitcherItem.fixture()
         let alternate = ProfileSwitcherItem.fixture()
@@ -361,6 +384,7 @@ class LandingProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_
     }
 
     /// `perform(.profileSwitcher(.rowAppeared))` should update the state for active account
+    @MainActor
     func test_perform_rowAppeared_active() {
         let profile = ProfileSwitcherItem.fixture()
         let alternate = ProfileSwitcherItem.fixture()
@@ -381,6 +405,7 @@ class LandingProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_
     }
 
     /// `init` without a remembered email in the app settings store initializes the state correctly.
+    @MainActor
     func test_init_withoutRememberedEmail() {
         appSettingsStore.rememberedEmail = nil
         let services = ServiceContainer.withMocks(
@@ -397,6 +422,7 @@ class LandingProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_
     }
 
     /// `init` with a remembered email in the app settings store initializes the state correctly.
+    @MainActor
     func test_init_withRememberedEmail() {
         appSettingsStore.rememberedEmail = "email@example.com"
         let services = ServiceContainer.withMocks(
@@ -413,6 +439,7 @@ class LandingProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_
     }
 
     /// `receive(_:)` with `.createAccountPressed` navigates to the create account screen if feature flag is `false`.
+    @MainActor
     func test_receive_createAccountPressed_ff_false() {
         subject.state.emailVerificationFeatureFlag = false
         subject.receive(.createAccountPressed)
@@ -420,6 +447,7 @@ class LandingProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_
     }
 
     /// `receive(_:)` with `.createAccountPressed` navigates to the start registration screen if feature flag is `true`.
+    @MainActor
     func test_receive_createAccountPressed_ff_true() {
         subject.state.emailVerificationFeatureFlag = true
         subject.receive(.createAccountPressed)
@@ -427,6 +455,7 @@ class LandingProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_
     }
 
     /// `receive(_:)` with `.emailChanged` and an empty value updates the state to reflect the changes.
+    @MainActor
     func test_receive_emailChanged_empty() {
         subject.state.email = "email@example.com"
 
@@ -436,6 +465,7 @@ class LandingProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_
     }
 
     /// `receive(_:)` with `.emailChanged` and an email value updates the state to reflect the changes.
+    @MainActor
     func test_receive_emailChanged_value() {
         XCTAssertEqual(subject.state.email, "")
 
@@ -445,6 +475,7 @@ class LandingProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_
     }
 
     /// `perform(_:)` with `.regionPressed` navigates to the region selection screen.
+    @MainActor
     func test_perform_regionPressed() async throws {
         await subject.perform(.regionPressed)
 
@@ -471,6 +502,7 @@ class LandingProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_
     }
 
     /// `receive(_:)` with `.rememberMeChanged(true)` updates the state to reflect the changes.
+    @MainActor
     func test_receive_rememberMeChanged_true() {
         XCTAssertFalse(subject.state.isRememberMeOn)
 
@@ -479,6 +511,7 @@ class LandingProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_
     }
 
     /// `receive(_:)` with `.rememberMeChanged(false)` updates the state to reflect the changes.
+    @MainActor
     func test_receive_rememberMeChanged_false() {
         appSettingsStore.rememberedEmail = "email@example.com"
         subject.state.isRememberMeOn = true
@@ -490,6 +523,7 @@ class LandingProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_
 
     /// `receive(_:)` with `.profileSwitcher(.accountLongPressed)` shows the alert and allows the user to
     /// lock the selected account.
+    @MainActor
     func test_receive_accountLongPressed_lock() async throws {
         // Set up the mock data.
         let activeProfile = ProfileSwitcherItem.fixture()
@@ -518,6 +552,7 @@ class LandingProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_
     }
 
     /// `receive(_:)` with `.profileSwitcher(.accountLongPressed)` records any errors from locking the account.
+    @MainActor
     func test_receive_accountLongPressed_lock_error() async throws {
         // Set up the mock data.
         let activeProfile = ProfileSwitcherItem.fixture()
@@ -543,6 +578,7 @@ class LandingProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_
 
     /// `receive(_:)` with `.profileSwitcher(.accountLongPressed)` shows the alert and allows the user to
     /// log out of the selected account.
+    @MainActor
     func test_receive_accountLongPressed_logout() async throws {
         // Set up the mock data.
         let activeProfile = ProfileSwitcherItem.fixture()
@@ -576,6 +612,7 @@ class LandingProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_
 
     /// `receive(_:)` with `.profileSwitcher(.accountLongPressed)` records any errors from logging out the
     /// account.
+    @MainActor
     func test_receive_accountLongPressed_logout_error() async throws {
         // Set up the mock data.
         let activeProfile = ProfileSwitcherItem.fixture()
@@ -605,6 +642,7 @@ class LandingProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_
 
     /// `receive(_:)` with `.profileSwitcher(.accountPressed)` with the active account
     ///  dismisses the profile switcher.
+    @MainActor
     func test_receive_accountPressed_active_unlocked() {
         let profile = ProfileSwitcherItem.fixture()
         authRepository.profileSwitcherState = .init(
@@ -638,6 +676,7 @@ class LandingProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_
 
     /// `receive(_:)` with `.profileSwitcher(.accountPressed)`  with the active account
     ///  dismisses the profile switcher.
+    @MainActor
     func test_receive_accountPressed_active_locked() {
         let profile = ProfileSwitcherItem.fixture(isUnlocked: false)
         let account = Account.fixture(profile: .fixture(
@@ -674,6 +713,7 @@ class LandingProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_
     }
 
     /// `receive(_:)` with `.profileSwitcher(.accountPressed)` updates the state to reflect the changes.
+    @MainActor
     func test_receive_accountPressed_alternateUnlocked() {
         let profile = ProfileSwitcherItem.fixture()
         let active = ProfileSwitcherItem.fixture()
@@ -711,6 +751,7 @@ class LandingProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_
     }
 
     /// `receive(_:)` with `.profileSwitcher(.accountPressed)` updates the state to reflect the changes.
+    @MainActor
     func test_receive_accountPressed_alternateLocked() {
         let profile = ProfileSwitcherItem.fixture(isUnlocked: false)
         let active = ProfileSwitcherItem.fixture()
@@ -746,6 +787,7 @@ class LandingProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_
     }
 
     /// `receive(_:)` with `.profileSwitcher(.accountPressed)` updates the state to reflect the changes.
+    @MainActor
     func test_receive_accountPressed_noMatch() {
         let profile = ProfileSwitcherItem.fixture()
         let active = ProfileSwitcherItem.fixture()
@@ -777,6 +819,7 @@ class LandingProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_
     }
 
     /// `receive(_:)` with `.profileSwitcher(.addAccountPressed)` updates the state to reflect the changes.
+    @MainActor
     func test_receive_addAccountPressed() {
         let active = ProfileSwitcherItem.fixture()
         subject.state.profileSwitcherState = ProfileSwitcherState(
@@ -798,6 +841,7 @@ class LandingProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_
     }
 
     /// `receive(_:)` with `.profileSwitcher(.backgroundPressed)` updates the state to reflect the changes.
+    @MainActor
     func test_receive_backgroundPressed() {
         let active = ProfileSwitcherItem.fixture()
         subject.state.profileSwitcherState = ProfileSwitcherState(
@@ -819,6 +863,7 @@ class LandingProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_
     }
 
     /// `receive(_:)` with `.profileSwitcher(.scrollOffset)` updates the state to reflect the changes.
+    @MainActor
     func test_receive_scrollOffset() {
         let active = ProfileSwitcherItem.fixture()
         subject.state.profileSwitcherState = ProfileSwitcherState(
@@ -838,6 +883,7 @@ class LandingProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_
     }
 
     /// `receive(_:)` with `.toastShown` updates the state's toast value.
+    @MainActor
     func test_receive_toastShown() {
         let toast = Toast(text: "toast!")
         subject.receive(.toastShown(toast))

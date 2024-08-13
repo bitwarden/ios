@@ -31,6 +31,7 @@ class ExtensionActivationProcessorTests: BitwardenTestCase {
     // MARK: Tests
 
     /// `receive(_:)` with `.cancelTapped` notifies the delegate to cancel the extension.
+    @MainActor
     func test_receive_cancelTapped() {
         subject.receive(.cancelTapped)
 

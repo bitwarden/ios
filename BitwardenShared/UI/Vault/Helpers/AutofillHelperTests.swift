@@ -68,6 +68,7 @@ class AutofillHelperTests: BitwardenTestCase { // swiftlint:disable:this type_bo
 
     /// `handleCipherForAutofill(cipherListView:)` displays an alert for the user to copy the
     /// login's username or password if the extension is unable to autofill the credentials.
+    @MainActor
     func test_handleCipherForAutofill_autofillNotSupported() async throws {
         appExtensionDelegate.canAutofill = false
 
@@ -97,6 +98,7 @@ class AutofillHelperTests: BitwardenTestCase { // swiftlint:disable:this type_bo
     }
 
     /// `handleCipherForAutofill(cipherListView:)` logs an error and shows an alert if one occurs.
+    @MainActor
     func test_handleCipherForAutofill_error() async {
         authRepository.hasMasterPasswordResult = .failure(BitwardenTestError.example)
         vaultRepository.fetchCipherResult = .success(.fixture(reprompt: .password))
@@ -109,6 +111,7 @@ class AutofillHelperTests: BitwardenTestCase { // swiftlint:disable:this type_bo
     }
 
     /// `handleCipherForAutofill(cipherListView:)` shows an alert if fetching the cipher results in an error.
+    @MainActor
     func test_handleCipherForAutofill_fetchCipherError() async {
         let cipher = CipherListView.fixture()
         await subject.handleCipherForAutofill(cipherListView: cipher) { _ in }
@@ -117,6 +120,7 @@ class AutofillHelperTests: BitwardenTestCase { // swiftlint:disable:this type_bo
     }
 
     /// `handleCipherForAutofill(cipherListView:)` shows an alert if the cipher is missing an ID.
+    @MainActor
     func test_handleCipherForAutofill_missingId() async {
         let cipher = CipherListView.fixture(id: nil)
 
@@ -126,6 +130,7 @@ class AutofillHelperTests: BitwardenTestCase { // swiftlint:disable:this type_bo
     }
 
     /// `handleCipherForAutofill(cipherListView:)` shows an alert if the cipher is missing a password.
+    @MainActor
     func test_handleCipherForAutofill_missingPassword() async throws {
         vaultRepository.fetchCipherResult = .success(.fixture(
             login: .fixture(password: nil, username: "user@bitwarden.com"),
@@ -149,6 +154,7 @@ class AutofillHelperTests: BitwardenTestCase { // swiftlint:disable:this type_bo
     }
 
     /// `handleCipherForAutofill(cipherListView:)` shows an alert if the cipher is missing an username.
+    @MainActor
     func test_handleCipherForAutofill_missingUsername() async throws {
         vaultRepository.fetchCipherResult = .success(.fixture(
             login: .fixture(password: "PASSWORD", username: nil),
@@ -173,6 +179,7 @@ class AutofillHelperTests: BitwardenTestCase { // swiftlint:disable:this type_bo
 
     /// `handleCipherForAutofill(cipherListView:)` shows an alert if the cipher is missing an
     /// username with options to copy the password and TOTP.
+    @MainActor
     func test_handleCipherForAutofill_missingValueCopyTotp() async throws {
         vaultRepository.fetchCipherResult = .success(.fixture(
             login: .fixture(password: "PASSWORD", username: nil, totp: "totp"),
@@ -208,6 +215,7 @@ class AutofillHelperTests: BitwardenTestCase { // swiftlint:disable:this type_bo
 
     /// `handleCipherForAutofill(cipherListView:)` logs an error if generating the TOTP fails from
     /// the missing value alert.
+    @MainActor
     func test_handleCipherForAutofill_missingValueCopyTotpError() async throws {
         vaultRepository.fetchCipherResult = .success(.fixture(
             login: .fixture(password: "PASSWORD", username: nil, totp: "totp"),
@@ -226,6 +234,7 @@ class AutofillHelperTests: BitwardenTestCase { // swiftlint:disable:this type_bo
 
     /// `handleCipherForAutofill(cipherListView:)` shows an alert if the cipher is missing an
     /// username and password.
+    @MainActor
     func test_handleCipherForAutofill_missingUsernameAndPassword() async throws {
         vaultRepository.fetchCipherResult = .success(.fixture(
             login: .fixture(password: nil, username: nil)
@@ -240,6 +249,7 @@ class AutofillHelperTests: BitwardenTestCase { // swiftlint:disable:this type_bo
 
     /// `handleCipherForAutofill(cipherListView:)` displays an alert if the cipher requires a master
     /// password reprompt.
+    @MainActor
     func test_handleCipherForAutofill_passwordReprompt() async throws {
         vaultRepository.fetchCipherResult = .success(.fixture(
             login: .fixture(password: "PASSWORD", username: "user@bitwarden.com"),
@@ -263,6 +273,7 @@ class AutofillHelperTests: BitwardenTestCase { // swiftlint:disable:this type_bo
 
     /// `handleCipherForAutofill(cipherListView:)` displays an alert if the password reprompt
     /// validation fails.
+    @MainActor
     func test_handleCipherForAutofill_passwordReprompt_invalidPassword() async throws {
         vaultRepository.fetchCipherResult = .success(.fixture(
             login: .fixture(password: "PASSWORD", username: "user@bitwarden.com"),

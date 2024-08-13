@@ -30,6 +30,7 @@ class MoveToOrganizationViewTests: BitwardenTestCase {
     // MARK: Tests
 
     /// Tapping the move button dispatches the `.dismissPressed` action.
+    @MainActor
     func test_cancelButton_tap() throws {
         let button = try subject.inspect().find(button: Localizations.cancel)
         try button.tap()
@@ -37,6 +38,7 @@ class MoveToOrganizationViewTests: BitwardenTestCase {
     }
 
     /// Tapping the move button dispatches the `.moveCipher` action.
+    @MainActor
     func test_moveButton_tap() async throws {
         let button = try subject.inspect().find(asyncButton: Localizations.move)
         try await button.tap()
@@ -44,6 +46,7 @@ class MoveToOrganizationViewTests: BitwardenTestCase {
     }
 
     /// Updating the organization menu owner dispatches the `.ownerChanged()` action.
+    @MainActor
     func test_organizationMenu_ownerChanged() throws {
         processor.state.ownershipOptions = [.organization(id: "1", name: "Organization")]
         processor.state.owner = CipherOwner.organization(id: "1", name: "Organization")
@@ -65,6 +68,7 @@ class MoveToOrganizationViewTests: BitwardenTestCase {
     }
 
     /// The collections view renders correctly.
+    @MainActor
     func test_snapshot_moveToOrganization_collections() {
         processor.state.collections = [
             .fixture(id: "1", name: "Design", organizationId: "1"),

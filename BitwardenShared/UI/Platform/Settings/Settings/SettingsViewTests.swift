@@ -32,6 +32,7 @@ class SettingsViewTests: BitwardenTestCase {
     // MARK: Tests
 
     /// Tapping the about button dispatches the `.aboutPressed` action.
+    @MainActor
     func test_aboutButton_tap() throws {
         let button = try subject.inspect().find(button: Localizations.about)
         try button.tap()
@@ -39,6 +40,7 @@ class SettingsViewTests: BitwardenTestCase {
     }
 
     /// Tapping the accountSecurity button dispatches the `.accountSecurityPressed` action.
+    @MainActor
     func test_accountSecurityButton_tap() throws {
         let button = try subject.inspect().find(button: Localizations.accountSecurity)
         try button.tap()
@@ -46,6 +48,7 @@ class SettingsViewTests: BitwardenTestCase {
     }
 
     /// Tapping the appearance button dispatches the `.appearancePressed` action.
+    @MainActor
     func test_appearanceButton_tap() throws {
         let button = try subject.inspect().find(button: Localizations.appearance)
         try button.tap()
@@ -53,6 +56,7 @@ class SettingsViewTests: BitwardenTestCase {
     }
 
     /// Tapping the autofill button dispatches the `.autoFillPressed` action.
+    @MainActor
     func test_autofillButton_tap() throws {
         let button = try subject.inspect().find(button: Localizations.autofill)
         try button.tap()
@@ -60,6 +64,7 @@ class SettingsViewTests: BitwardenTestCase {
     }
 
     /// Tapping the other button dispatches the `.otherPressed` action.
+    @MainActor
     func test_otherButton_tap() throws {
         let button = try subject.inspect().find(button: Localizations.other)
         try button.tap()
@@ -67,6 +72,7 @@ class SettingsViewTests: BitwardenTestCase {
     }
 
     /// Tapping the vault button dispatches the `.vaultPressed` action.
+    @MainActor
     func test_vaultButton_tap() throws {
         let button = try subject.inspect().find(button: Localizations.vault)
         try button.tap()

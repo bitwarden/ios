@@ -271,6 +271,7 @@ class Fido2UserInterfaceHelperTests: BitwardenTestCase { // swiftlint:disable:th
 
     /// `pickCredentialForAuthentication(availableCredentials:)` not autofilling from list succeeds
     /// with first available credential.
+    @MainActor
     func test_pickCredentialForAuthentication_notAutofillingFromListSucceeds() async throws {
         subject.setupDelegate(fido2UserInterfaceHelperDelegate: fido2UserInterfaceHelperDelegate)
         fido2UserInterfaceHelperDelegate.isAutofillingFromList = false
@@ -283,6 +284,7 @@ class Fido2UserInterfaceHelperTests: BitwardenTestCase { // swiftlint:disable:th
 
     /// `pickCredentialForAuthentication(availableCredentials:)` autofilling from list succeeds
     /// with picked credential.
+    @MainActor
     func test_pickCredentialForAuthentication_autofillingFromListSucceeds() async throws {
         subject.setupDelegate(fido2UserInterfaceHelperDelegate: fido2UserInterfaceHelperDelegate)
         fido2UserInterfaceHelperDelegate.isAutofillingFromList = true
@@ -313,6 +315,7 @@ class Fido2UserInterfaceHelperTests: BitwardenTestCase { // swiftlint:disable:th
 
     /// `pickCredentialForAuthentication(availableCredentials:)` autofilling from list throws
     /// when picking credential.
+    @MainActor
     func test_pickCredentialForAuthentication_autofillingFromListThrowsPickingCredential() async throws {
         subject.setupDelegate(fido2UserInterfaceHelperDelegate: fido2UserInterfaceHelperDelegate)
         fido2UserInterfaceHelperDelegate.isAutofillingFromList = true
@@ -336,6 +339,7 @@ class Fido2UserInterfaceHelperTests: BitwardenTestCase { // swiftlint:disable:th
 
     /// `pickCredentialForAuthentication(availableCredentials:)` not autofilling from list throws
     /// invalid operation error when available credentials is different from 1.
+    @MainActor
     func test_pickCredentialForAuthentication_throwsNotAutofillingFromListNoAvailableCredentials() async throws {
         subject.setupDelegate(fido2UserInterfaceHelperDelegate: fido2UserInterfaceHelperDelegate)
         fido2UserInterfaceHelperDelegate.isAutofillingFromList = false
@@ -372,6 +376,7 @@ class Fido2UserInterfaceHelperTests: BitwardenTestCase { // swiftlint:disable:th
     }
 
     /// `setupDelegate(fido2UserVerificationMediatorDelegate:)`  sets up deleagte in inner mediator.
+    @MainActor
     func test_setupDelegate() async throws {
         subject.setupDelegate(fido2UserInterfaceHelperDelegate: MockFido2UserInterfaceHelperDelegate())
         XCTAssertTrue(fido2UserVerificationMediator.setupDelegateCalled)

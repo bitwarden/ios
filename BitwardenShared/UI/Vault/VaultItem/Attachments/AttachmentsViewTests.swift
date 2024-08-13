@@ -41,6 +41,7 @@ class AttachmentsViewTests: BitwardenTestCase {
     // MARK: Tests
 
     /// Tapping the cancel button dispatches the `.dismissPressed` action.
+    @MainActor
     func test_cancelButton_tap() throws {
         let button = try subject.inspect().find(button: Localizations.cancel)
         try button.tap()
@@ -48,6 +49,7 @@ class AttachmentsViewTests: BitwardenTestCase {
     }
 
     /// Tapping the choose file button dispatches the `.chooseFilePressed` action.
+    @MainActor
     func test_chooseFileButton_tap() throws {
         let button = try subject.inspect().find(button: Localizations.chooseFile)
         try button.tap()
@@ -55,6 +57,7 @@ class AttachmentsViewTests: BitwardenTestCase {
     }
 
     /// Tapping the delete button dispatches the `.delete` action.
+    @MainActor
     func test_deleteButton_tap() throws {
         processor.state.cipher = .fixture(attachments: [.fixture()])
         let button = try subject.inspect().find(buttonWithAccessibilityLabel: Localizations.delete)
@@ -63,6 +66,7 @@ class AttachmentsViewTests: BitwardenTestCase {
     }
 
     /// Tapping the save button performs the `.savePressed` effect.
+    @MainActor
     func test_saveButton_tap() async throws {
         let button = try subject.inspect().find(asyncButton: Localizations.save)
         try await button.tap()
@@ -72,33 +76,39 @@ class AttachmentsViewTests: BitwardenTestCase {
     // MARK: Previews
 
     /// The empty view renders correctly in dark mode.
+    @MainActor
     func test_snapshot_attachments_empty_dark() {
         assertSnapshot(of: subject.navStackWrapped, as: .defaultPortraitDark)
     }
 
     /// The empty view renders correctly.
+    @MainActor
     func test_snapshot_attachments_empty_default() {
         assertSnapshot(of: subject.navStackWrapped, as: .defaultPortrait)
     }
 
     /// The empty view renders correctly with large text.
+    @MainActor
     func test_snapshot_attachments_empty_large() {
         assertSnapshot(of: subject.navStackWrapped, as: .defaultPortraitAX5)
     }
 
     /// The view with several attachments renders correctly in dark mode.
+    @MainActor
     func test_snapshot_attachments_several_dark() {
         processor.state.cipher = cipherWithAttachments
         assertSnapshot(of: subject.navStackWrapped, as: .defaultPortraitDark)
     }
 
     /// The view with several attachments renders correctly.
+    @MainActor
     func test_snapshot_attachments_several_default() {
         processor.state.cipher = cipherWithAttachments
         assertSnapshot(of: subject.navStackWrapped, as: .defaultPortrait)
     }
 
     /// The view with several attachments renders correctly with large text.
+    @MainActor
     func test_snapshot_attachments_several_large() {
         processor.state.cipher = cipherWithAttachments
         assertSnapshot(of: subject.navStackWrapped, as: .defaultPortraitAX5)

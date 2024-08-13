@@ -62,6 +62,7 @@ class AlertTests: BitwardenTestCase {
     }
 
     /// `createAlertController` sets an `onDismissed` closure that's called when the alert is dismissed.
+    @MainActor
     func test_createAlertController_onDismissed() {
         var dismissedCalled = false
         let alertController = subject.createAlertController { dismissedCalled = true }
@@ -213,6 +214,7 @@ class AlertTests: BitwardenTestCase {
         XCTAssertNil(capturedAction)
     }
 
+    @MainActor
     func test_vault_moreOptions_login_cannotViewPassword() async throws {
         var capturedAction: MoreOptionsAction?
         let action: (MoreOptionsAction) -> Void = { action in

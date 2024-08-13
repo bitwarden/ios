@@ -30,6 +30,7 @@ class PendingRequestsViewTests: BitwardenTestCase {
     // MARK: Tests
 
     /// Tapping the decline all requests button dispatches the `.declineAllRequests` action.
+    @MainActor
     func test_declineAllRequestsButton_tap() throws {
         processor.state.loadingState = .data([.fixture()])
         let button = try subject.inspect().find(buttonWithAccessibilityLabel: Localizations.declineAllRequests)
@@ -38,6 +39,7 @@ class PendingRequestsViewTests: BitwardenTestCase {
     }
 
     /// Tapping the cancel button dispatches the `.dismiss` action.
+    @MainActor
     func test_cancelButton_tap() throws {
         let button = try subject.inspect().find(button: Localizations.cancel)
         try button.tap()
@@ -47,12 +49,14 @@ class PendingRequestsViewTests: BitwardenTestCase {
     // MARK: Snapshots
 
     /// The empty view renders correctly.
+    @MainActor
     func test_snapshot_empty() {
         processor.state.loadingState = .data([])
         assertSnapshots(of: subject.navStackWrapped, as: [.defaultPortrait, .defaultPortraitDark, .defaultPortraitAX5])
     }
 
     /// The view with requests renders correctly.
+    @MainActor
     func test_snapshot_requests() {
         processor.state.loadingState = .data([
             .fixture(fingerprintPhrase: "pineapple-on-pizza-is-the-best", id: "1"),

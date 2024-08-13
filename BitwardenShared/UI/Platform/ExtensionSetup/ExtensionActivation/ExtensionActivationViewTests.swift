@@ -30,6 +30,7 @@ class ExtensionActivationViewTests: BitwardenTestCase {
     // MARK: Tests
 
     /// Tapping the cancel button dispatches the `.cancelTapped` action.
+    @MainActor
     func test_cancelButton_tap() throws {
         let button = try subject.inspect().find(button: Localizations.cancel)
         try button.tap()
@@ -47,6 +48,7 @@ class ExtensionActivationViewTests: BitwardenTestCase {
     }
 
     /// The app extension activation view renders correctly.
+    @MainActor
     func test_snapshot_extensionActivationView_appExtension() {
         processor.state.extensionType = .appExtension
         assertSnapshots(

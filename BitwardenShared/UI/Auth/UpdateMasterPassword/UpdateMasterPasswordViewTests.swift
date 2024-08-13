@@ -45,6 +45,7 @@ class UpdateMasterPasswordViewTests: BitwardenTestCase {
 
     /// Editing the text in the current master password text field dispatches the `.currentMasterPasswordChanged`
     /// action.
+    @MainActor
     func test_currentMasterPassword_change() throws {
         processor.state.forcePasswordResetReason = .weakMasterPasswordOnLogin
         let textField = try subject.inspect().find(bitwardenTextField: Localizations.currentMasterPassword)
@@ -53,6 +54,7 @@ class UpdateMasterPasswordViewTests: BitwardenTestCase {
     }
 
     /// Tapping the current master password visibility icon changes whether or not current master passwords are visible.
+    @MainActor
     func test_currentMasterPasswordVisibility_tap() throws {
         processor.state.forcePasswordResetReason = .weakMasterPasswordOnLogin
         processor.state.isCurrentMasterPasswordRevealed = false
@@ -64,6 +66,7 @@ class UpdateMasterPasswordViewTests: BitwardenTestCase {
     }
 
     /// Tapping on the dismiss button dispatches the `.dismissPressed` action.
+    @MainActor
     func test_logout_tap() async throws {
         let button = try subject.inspect().find(asyncButton: Localizations.logOut)
         try await button.tap()
@@ -71,6 +74,7 @@ class UpdateMasterPasswordViewTests: BitwardenTestCase {
     }
 
     /// Editing the text in the master password text field dispatches the `.masterPasswordChanged` action.
+    @MainActor
     func test_masterPassword_change() throws {
         let textField = try subject.inspect().find(bitwardenTextField: Localizations.masterPassword)
         try textField.inputBinding().wrappedValue = "text"
@@ -78,6 +82,7 @@ class UpdateMasterPasswordViewTests: BitwardenTestCase {
     }
 
     /// Editing the text in the master password hint text field dispatches the `.masterPasswordHintChanged` action.
+    @MainActor
     func test_masterPasswordHint_change() throws {
         let textField = try subject.inspect().find(bitwardenTextField: Localizations.masterPasswordHint)
         try textField.inputBinding().wrappedValue = "text"
@@ -85,6 +90,7 @@ class UpdateMasterPasswordViewTests: BitwardenTestCase {
     }
 
     /// Editing the text in the re-type master password text field dispatches the `.masterPasswordRetypeChanged` action.
+    @MainActor
     func test_masterPasswordRetype_change() throws {
         let textField = try subject.inspect().find(bitwardenTextField: Localizations.retypeMasterPassword)
         try textField.inputBinding().wrappedValue = "text"
@@ -92,6 +98,7 @@ class UpdateMasterPasswordViewTests: BitwardenTestCase {
     }
 
     /// Tapping the retype password visibility toggle changes whether the password retype is visible.
+    @MainActor
     func test_masterPasswordRetypeVisibility_tap() throws {
         processor.state.isMasterPasswordRetypeRevealed = false
         let visibilityIcon = try subject.inspect().find(
@@ -102,6 +109,7 @@ class UpdateMasterPasswordViewTests: BitwardenTestCase {
     }
 
     /// Tapping the new master password visibility icon changes whether or not new master passwords are visible.
+    @MainActor
     func test_masterPasswordVisibility_tap() throws {
         processor.state.isMasterPasswordRetypeRevealed = false
         let visibilityIcon = try subject.inspect().find(
@@ -112,6 +120,7 @@ class UpdateMasterPasswordViewTests: BitwardenTestCase {
     }
 
     /// Tapping on the submit button performs the `.submitPressed` effect.
+    @MainActor
     func test_submitButton_tap() async throws {
         let button = try subject.inspect().find(asyncButton: Localizations.submit)
         try await button.tap()
@@ -121,6 +130,7 @@ class UpdateMasterPasswordViewTests: BitwardenTestCase {
     // MARK: Snapshots
 
     /// A snapshot of the view with all filled values fields.
+    @MainActor
     func test_snapshot_resetPassword_withFilled_default() {
         processor.state.forcePasswordResetReason = .adminForcePasswordReset
         assertSnapshots(
@@ -130,6 +140,7 @@ class UpdateMasterPasswordViewTests: BitwardenTestCase {
     }
 
     /// A snapshot of the view with all filled values fields in a dark mode.
+    @MainActor
     func test_snapshot_resetPassword_withFilled_dark() {
         processor.state.forcePasswordResetReason = .adminForcePasswordReset
         assertSnapshots(
@@ -139,6 +150,7 @@ class UpdateMasterPasswordViewTests: BitwardenTestCase {
     }
 
     /// A snapshot of the view with all filled values fields in a large text.
+    @MainActor
     func test_snapshot_resetPassword_withFilled_large() {
         processor.state.forcePasswordResetReason = .adminForcePasswordReset
         assertSnapshots(
@@ -148,6 +160,7 @@ class UpdateMasterPasswordViewTests: BitwardenTestCase {
     }
 
     /// A snapshot of the view with all filled values fields.
+    @MainActor
     func test_snapshot_weakPassword_withFilled_default() {
         processor.state.forcePasswordResetReason = .weakMasterPasswordOnLogin
         assertSnapshots(
@@ -157,6 +170,7 @@ class UpdateMasterPasswordViewTests: BitwardenTestCase {
     }
 
     /// A snapshot of the view with all filled values fields in a dark mode.
+    @MainActor
     func test_snapshot_weakPassword_withFilled_dark() {
         processor.state.forcePasswordResetReason = .weakMasterPasswordOnLogin
         assertSnapshots(
@@ -166,6 +180,7 @@ class UpdateMasterPasswordViewTests: BitwardenTestCase {
     }
 
     /// A snapshot of the view with all filled values fields in a large text.
+    @MainActor
     func test_snapshot_weakPassword_withFilled_large() {
         processor.state.forcePasswordResetReason = .weakMasterPasswordOnLogin
         assertSnapshots(

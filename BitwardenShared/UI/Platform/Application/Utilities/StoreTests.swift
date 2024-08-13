@@ -5,7 +5,6 @@ import XCTest
 
 // MARK: - StoreTests
 
-@MainActor
 class StoreTests: BitwardenTestCase {
     // MARK: Properties
 
@@ -24,6 +23,7 @@ class StoreTests: BitwardenTestCase {
     // MARK: Tests
 
     /// `send(_:)` forwards the action to the processor for processing.
+    @MainActor
     func test_send_action() {
         subject.send(.increment)
         XCTAssertEqual(processor.dispatchedActions, [.increment])
@@ -34,12 +34,14 @@ class StoreTests: BitwardenTestCase {
     }
 
     /// `perform(_:)` forwards the effect to the processor for performing.
+    @MainActor
     func test_perform_effect() async {
         await subject.perform(.something)
         XCTAssertEqual(processor.effects, [.something])
     }
 
     /// `child(_:)` creates a child store that maps actions, state, and effects from its parent.
+    @MainActor
     func test_child() async {
         let childStore = subject.child(state: { $0.child }, mapAction: { .child($0) }, mapEffect: { .child($0) })
 
@@ -57,6 +59,7 @@ class StoreTests: BitwardenTestCase {
 
     /// `binding(get:send:)` creates a binding from a value in the state and sends an action to the
     /// processor when the binding's value changes.
+    @MainActor
     func test_binding() {
         let binding = subject.binding(get: { $0.counter }, send: { .counterChanged($0) })
 
@@ -72,6 +75,7 @@ class StoreTests: BitwardenTestCase {
 
     /// `bindingAsync(get:perform:)` creates a binding from a value in the state and performs an effect on the
     /// processor when the binding's value changes.
+    @MainActor
     func test_bindingAsync() {
         let binding = subject.bindingAsync(
             get: { $0.isToggleOn },
@@ -94,6 +98,7 @@ class StoreTests: BitwardenTestCase {
 
     /// `binding(get:)` creates a binding from a value in the state that does not update the state when the binding's
     /// value is changed.
+    @MainActor
     func test_binding_getOnly() {
         let binding = subject.binding(get: { $0.counter })
 

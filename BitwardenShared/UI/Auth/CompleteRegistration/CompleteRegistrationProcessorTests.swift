@@ -57,6 +57,7 @@ class CompleteRegistrationProcessorTests: BitwardenTestCase {
     // MARK: Tests
 
     /// `perform(.appeared)` with EU region in state.
+    @MainActor
     func test_perform_appeared_setRegion_europe() async {
         subject.state.region = .europe
         await subject.perform(.appeared)
@@ -65,6 +66,7 @@ class CompleteRegistrationProcessorTests: BitwardenTestCase {
     }
 
     /// `perform(.appeared)` with nil region in state.
+    @MainActor
     func test_perform_appeared_setRegion_return() async {
         subject.state.region = nil
         await subject.perform(.appeared)
@@ -73,6 +75,7 @@ class CompleteRegistrationProcessorTests: BitwardenTestCase {
     }
 
     /// `perform(.appeared)` verify user email show toast.
+    @MainActor
     func test_perform_appeared_verifyuseremail_toast() async {
         subject.state.fromEmail = true
         await subject.perform(.appeared)
@@ -80,6 +83,7 @@ class CompleteRegistrationProcessorTests: BitwardenTestCase {
     }
 
     /// `perform(.appeared)` verify user email show no toast.
+    @MainActor
     func test_perform_appeared_verifyuseremail_notoast() async {
         subject.state.fromEmail = false
         await subject.perform(.appeared)
@@ -87,6 +91,7 @@ class CompleteRegistrationProcessorTests: BitwardenTestCase {
     }
 
     /// `perform(.appeared)` verify user email hide loading.
+    @MainActor
     func test_perform_appeared_verifyuseremail_hideloading() async {
         coordinator.isLoadingOverlayShowing = true
         subject.state.fromEmail = true
@@ -99,6 +104,7 @@ class CompleteRegistrationProcessorTests: BitwardenTestCase {
 
     /// `perform(_:)` with `.completeRegistration` will still make the `CompleteRegistrationRequest` when the HIBP
     /// network request fails.
+    @MainActor
     func test_perform_checkPasswordAndCompleteRegistration_failure() async throws {
         subject.state = .fixture(isCheckDataBreachesToggleOn: true)
 
@@ -129,6 +135,7 @@ class CompleteRegistrationProcessorTests: BitwardenTestCase {
     /// `perform(_:)` with `.completeRegistration` presents an alert when the password
     /// is weak and exposed. This also tests that the correct alert is presented.
     /// Additionally, this tests that tapping Yes on the alert creates the account.
+    @MainActor
     func test_perform_checkPasswordAndCompleteRegistration_exposedWeak_yesTapped() async throws {
         subject.state = .fixture(isCheckDataBreachesToggleOn: true, passwordStrengthScore: 1)
 
@@ -164,6 +171,7 @@ class CompleteRegistrationProcessorTests: BitwardenTestCase {
     /// `perform(_:)` with `.completeRegistration` presents an alert when the password
     /// is strong and exposed. This also tests that the correct alert is presented.
     /// Additionally, this tests that tapping Yes on the alert creates the account.
+    @MainActor
     func test_perform_checkPasswordAndCompleteRegistration_exposedStrong_yesTapped() async throws {
         subject.state = .fixture(isCheckDataBreachesToggleOn: true, passwordStrengthScore: 3)
 
@@ -199,6 +207,7 @@ class CompleteRegistrationProcessorTests: BitwardenTestCase {
     /// `perform(_:)` with `.completeRegistration` presents an alert when the password
     /// is weak and unchecked against breaches. This also tests that the correct alert is presented.
     /// Additionally, this tests that tapping Yes on the alert creates the account.
+    @MainActor
     func test_perform_checkPasswordAndCompleteRegistration_uncheckedWeak_yesTapped() async throws {
         subject.state = .fixture(
             isCheckDataBreachesToggleOn: false,
@@ -232,6 +241,7 @@ class CompleteRegistrationProcessorTests: BitwardenTestCase {
     /// `perform(_:)` with `.completeRegistration` presents an alert when the password
     /// is weak and unexposed. This also tests that the correct alert is presented.
     /// Additionally, this tests that tapping Yes on the alert creates the account.
+    @MainActor
     func test_perform_checkPasswordAndCompleteRegistration_unexposedWeak_yesTapped() async throws {
         subject.state = .fixture(
             isCheckDataBreachesToggleOn: true,
@@ -270,6 +280,7 @@ class CompleteRegistrationProcessorTests: BitwardenTestCase {
     }
 
     /// `perform(_:)` with `.completeRegistration` presents an alert when the email has already been taken.
+    @MainActor
     func test_perform_completeRegistration_accountAlreadyExists() async {
         subject.state = .fixture()
 
@@ -300,6 +311,7 @@ class CompleteRegistrationProcessorTests: BitwardenTestCase {
     }
 
     /// `perform(_:)` with `.completeRegistration` presents an alert when the password field is empty.
+    @MainActor
     func test_perform_completeRegistration_emptyPassword() async {
         subject.state = .fixture(passwordText: "", retypePasswordText: "")
 
@@ -313,6 +325,7 @@ class CompleteRegistrationProcessorTests: BitwardenTestCase {
     }
 
     /// `perform(_:)` with `.completeRegistration` presents an alert when the password hint is too long.
+    @MainActor
     func test_perform_completeRegistration_hintTooLong() async {
         subject.state = .fixture(passwordHintText: """
         ajajajajajajajajajajajajajajajajajajajajajajajajajajajajajajajajajajaj
@@ -346,6 +359,7 @@ class CompleteRegistrationProcessorTests: BitwardenTestCase {
     }
 
     /// `perform(_:)` with `.completeRegistration` presents an alert when the email is in an invalid format.
+    @MainActor
     func test_perform_completeRegistration_invalidEmailFormat() async {
         subject.state = .fixture(userEmail: "∫@ø.com")
 
@@ -377,6 +391,7 @@ class CompleteRegistrationProcessorTests: BitwardenTestCase {
 
     /// `perform(_:)` with `.completeRegistration` presents an alert when there is no internet connection.
     /// When the user taps `Try again`, the create account request is made again.
+    @MainActor
     func test_perform_completeRegistration_noInternetConnection() async throws {
         subject.state = .fixture()
 
@@ -414,6 +429,7 @@ class CompleteRegistrationProcessorTests: BitwardenTestCase {
     }
 
     /// `perform(_:)` with `.completeRegistration` presents an alert when password confirmation is incorrect.
+    @MainActor
     func test_perform_completeRegistration_passwordsDontMatch() async {
         subject.state = .fixture(passwordText: "123456789012", retypePasswordText: "123456789000")
 
@@ -427,6 +443,7 @@ class CompleteRegistrationProcessorTests: BitwardenTestCase {
     }
 
     /// `perform(_:)` with `.completeRegistration` presents an alert when the password isn't long enough.
+    @MainActor
     func test_perform_completeRegistration_passwordsTooShort() async {
         subject.state = .fixture(passwordText: "123", retypePasswordText: "123")
 
@@ -441,6 +458,7 @@ class CompleteRegistrationProcessorTests: BitwardenTestCase {
 
     /// `perform(_:)` with `.completeRegistration` presents an alert when the request times out.
     /// When the user taps `Try again`, the create account request is made again.
+    @MainActor
     func test_perform_completeRegistration_timeout() async throws {
         subject.state = .fixture()
 
@@ -476,12 +494,14 @@ class CompleteRegistrationProcessorTests: BitwardenTestCase {
     }
 
     /// `receive(_:)` with `.dismiss` dismisses the view.
+    @MainActor
     func test_receive_dismiss() {
         subject.receive(.dismiss)
         XCTAssertEqual(coordinator.routes.last, .dismissPresented)
     }
 
     /// `receive(_:)` with `.passwordHintTextChanged(_:)` updates the state to reflect the change.
+    @MainActor
     func test_receive_passwordHintTextChanged() {
         subject.state.passwordHintText = ""
         XCTAssertTrue(subject.state.passwordHintText.isEmpty)
@@ -491,6 +511,7 @@ class CompleteRegistrationProcessorTests: BitwardenTestCase {
     }
 
     /// `receive(_:)` with `.passwordTextChanged(_:)` updates the state to reflect the change.
+    @MainActor
     func test_receive_passwordTextChanged() {
         subject.state.passwordText = ""
         XCTAssertTrue(subject.state.passwordText.isEmpty)
@@ -501,6 +522,7 @@ class CompleteRegistrationProcessorTests: BitwardenTestCase {
 
     /// `receive(_:)` with `.passwordTextChanged(_:)` updates the password strength score based on
     /// the entered password.
+    @MainActor
     func test_receive_passwordTextChanged_updatesPasswordStrength() {
         subject.state.userEmail = "user@bitwarden.com"
         subject.receive(.passwordTextChanged(""))
@@ -523,6 +545,7 @@ class CompleteRegistrationProcessorTests: BitwardenTestCase {
     }
 
     /// `receive(_:)` with `.retypePasswordTextChanged(_:)` updates the state to reflect the change.
+    @MainActor
     func test_receive_retypePasswordTextChanged() {
         subject.state.retypePasswordText = ""
         XCTAssertTrue(subject.state.retypePasswordText.isEmpty)
@@ -532,6 +555,7 @@ class CompleteRegistrationProcessorTests: BitwardenTestCase {
     }
 
     /// `receive(_:)` with `.toggleCheckDataBreaches(_:)` updates the state to reflect the change.
+    @MainActor
     func test_receive_toggleCheckDataBreaches() {
         subject.receive(.toggleCheckDataBreaches(false))
         XCTAssertFalse(subject.state.isCheckDataBreachesToggleOn)
@@ -544,6 +568,7 @@ class CompleteRegistrationProcessorTests: BitwardenTestCase {
     }
 
     /// `receive(_:)` with `.togglePasswordVisibility(_:)` updates the state to reflect the change.
+    @MainActor
     func test_receive_togglePasswordVisibility() {
         subject.state.arePasswordsVisible = false
 
@@ -558,6 +583,7 @@ class CompleteRegistrationProcessorTests: BitwardenTestCase {
     }
 
     /// `receive(_:)` with `.showToast` show toast.
+    @MainActor
     func test_receive_showToast() {
         subject.receive(.toastShown(Toast(text: "example")))
         XCTAssertEqual(subject.state.toast?.text, "example")
