@@ -74,7 +74,7 @@ jobs:
           secrets: "appcenter-ios-token"
 
       - name: Retrieve production provisioning profiles
-        if: inputs.xcode-version == 'Production'
+        if: inputs.build-variant == 'Production'
         env:
           ACCOUNT_NAME: bitwardenci
           CONTAINER_NAME: profiles
@@ -96,7 +96,7 @@ jobs:
           done
 
       - name: Retrieve beta provisioning profiles
-        if: inputs.xcode-version == 'Beta'
+        if: inputs.build-variant == 'Beta'
         env:
           ACCOUNT_NAME: bitwardenci
           CONTAINER_NAME: profiles
@@ -118,7 +118,7 @@ jobs:
           done
 
       - name: Retrieve production Google Services secret
-        if: inputs.xcode-version == 'Production'
+        if: inputs.build-variant == 'Production'
         env:
           ACCOUNT_NAME: bitwardenci
           CONTAINER_NAME: mobile
@@ -130,7 +130,7 @@ jobs:
             --file Bitwarden/Application/Support/$TARGET_FILE --output none
 
       - name: Retrieve watch production Google Services secret
-        if: inputs.xcode-version == 'Production'
+        if: inputs.build-variant == 'Production'
         env:
           ACCOUNT_NAME: bitwardenci
           CONTAINER_NAME: mobile
@@ -143,7 +143,7 @@ jobs:
           plutil -replace BUNDLE_ID -string com.8bit.bitwarden.watchkitapp BitwardenWatchApp/$TARGET_FILE
 
       - name: Retrieve beta Google Services secret
-        if: inputs.xcode-version == 'Beta'
+        if: inputs.build-variant == 'Beta'
         env:
           ACCOUNT_NAME: bitwardenci
           CONTAINER_NAME: mobile
@@ -155,7 +155,7 @@ jobs:
             --file Bitwarden/Application/Support/$TARGET_FILE --output none
 
       - name: Retrieve watch beta Google Services secret
-        if: inputs.xcode-version == 'Beta'
+        if: inputs.build-variant == 'Beta'
         env:
           ACCOUNT_NAME: bitwardenci
           CONTAINER_NAME: mobile
@@ -197,7 +197,7 @@ jobs:
           security set-key-partition-list -S apple-tool:,apple:,codesign: -s -k $KEYCHAIN_PASSWORD build.keychain
 
       - name: Configure production provisioning profiles
-        if: inputs.xcode-version == 'Production'
+        if: inputs.build-variant == 'Production'
         run: |
           AUTOFILL_PROFILE_PATH=$HOME/secrets/dist_autofill.mobileprovision
           BITWARDEN_PROFILE_PATH=$HOME/secrets/dist_bitwarden.mobileprovision
@@ -228,7 +228,7 @@ jobs:
           cp $WATCH_APP_EXTENSION_PROFILE_PATH "$PROFILES_DIR_PATH/$WATCH_APP_EXTENSION_UUID.mobileprovision"
 
       - name: Configure beta provisioning profiles
-        if: inputs.xcode-version == 'Beta'
+        if: inputs.build-variant == 'Beta'
         run: |
           AUTOFILL_PROFILE_PATH=$HOME/secrets/dist_beta_autofill.mobileprovision
           BITWARDEN_PROFILE_PATH=$HOME/secrets/dist_beta_bitwarden.mobileprovision
@@ -259,12 +259,12 @@ jobs:
           cp $WATCH_APP_EXTENSION_PROFILE_PATH "$PROFILES_DIR_PATH/$WATCH_APP_EXTENSION_UUID.mobileprovision"
 
       - name: Update beta export compliance key
-        if: inputs.xcode-version == 'Beta'
+        if: inputs.build-variant == 'Beta'
         run: |
           plutil -replace ITSEncryptionExportComplianceCode -string 3dd3e32f-efa6-4d99-b410-28aa28b1cb77 Bitwarden/Application/Support/Info.plist
 
       - name: Update beta Fastlane Appfile
-        if: inputs.xcode-version == 'Beta'
+        if: inputs.build-variant == 'Beta'
         run: |
           echo 'app_identifier "com.8bit.bitwarden.beta"' > fastlane/Appfile
 
