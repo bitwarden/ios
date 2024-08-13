@@ -220,6 +220,8 @@ final class AuthCoordinator: NSObject, // swiftlint:disable:this type_body_lengt
                 attemptAutmaticBiometricUnlock: attemptAutomaticBiometricUnlock,
                 didSwitchAccountAutomatically: didSwitch
             )
+        case .vaultUnlockSetup:
+            showVaultUnlockSetup()
         }
     }
 
@@ -713,6 +715,18 @@ final class AuthCoordinator: NSObject, // swiftlint:disable:this type_body_lengt
         if didSwitchAccountAutomatically {
             processor.state.toast = Toast(text: Localizations.accountSwitchedAutomatically)
         }
+    }
+
+    /// Shows the vault unlock setup screen.
+    ///
+    func showVaultUnlockSetup() {
+        let processor = VaultUnlockSetupProcessor(
+            coordinator: asAnyCoordinator(),
+            services: services,
+            state: VaultUnlockSetupState()
+        )
+        let view = VaultUnlockSetupView(store: Store(processor: processor))
+        stackNavigator?.push(view)
     }
 
     /// Show the WebAuthn two factor authentication view.
