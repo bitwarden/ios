@@ -19,9 +19,4 @@ jobs:
   build:
     name: Build
     uses: ./.github/workflows/build.yml
-    with:
-      build-variant: Beta
-      build-version: 1.2.3
-      build-number: 45
-      xcode-version: 15.4
     secrets: inherit
