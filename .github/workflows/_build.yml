@@ -14,7 +14,7 @@ on:
       build-number:
         description: "Build number to use"
         required: true
-        type: number
+        type: string
       xcode-version:
         description: "Xcode version to use"
         required: true
