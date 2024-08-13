@@ -23,6 +23,8 @@ struct AddEditItemView: View {
     /// The `Store` for this view.
     @ObservedObject var store: Store<AddEditItemState, AddEditItemAction, AddEditItemEffect>
 
+    @SwiftUI.State private var dynamicHeight: CGFloat = 28
+
     /// Whether to show that a policy is in effect.
     var isPolicyEnabled: Bool {
         store.state.isPersonalOwnershipDisabled && store.state.configuration == .add
@@ -62,43 +64,28 @@ struct AddEditItemView: View {
     }
 
     private var content: some View {
-        ScrollViewReader { proxy in
-            ScrollView {
-                VStack(spacing: 20) {
-                    if isPolicyEnabled {
-                        InfoContainer(Localizations.personalOwnershipPolicyInEffect)
-                            .accessibilityIdentifier("PersonalOwnershipPolicyLabel")
-                    }
-
-                    informationSection
-                    miscellaneousSection
-                    notesSection
-                        .onTapGesture {
-                            proxy.scrollTo(
-                                ItemSectionID.notes,
-                                anchor: .bottom
-                            )
-                        }
-                        .onChange(of: store.state.notes) { _ in
-                            proxy.scrollTo(
-                                ItemSectionID.notes,
-                                anchor: .bottom
-                            )
-                        }
-                        .id(ItemSectionID.notes)
-                    customSection
-                    ownershipSection
+        ScrollView {
+            VStack(spacing: 20) {
+                if isPolicyEnabled {
+                    InfoContainer(Localizations.personalOwnershipPolicyInEffect)
+                        .accessibilityIdentifier("PersonalOwnershipPolicyLabel")
                 }
-                .padding(16)
+
+                informationSection
+                miscellaneousSection
+                notesSection
+                customSection
+                ownershipSection
             }
-            .animation(.default, value: store.state.collectionsForOwner)
-            .dismissKeyboardImmediately()
-            .background(
-                Asset.Colors.backgroundSecondary.swiftUIColor
-                    .ignoresSafeArea()
-            )
-            .navigationBarTitleDisplayMode(.inline)
+            .padding(16)
         }
+        .animation(.default, value: store.state.collectionsForOwner)
+        .dismissKeyboardImmediately()
+        .background(
+            Asset.Colors.backgroundSecondary.swiftUIColor
+                .ignoresSafeArea()
+        )
+        .navigationBarTitleDisplayMode(.inline)
     }
 
     @ViewBuilder private var cardItems: some View {
@@ -259,13 +246,17 @@ private extension AddEditItemView {
 
     var notesSection: some View {
         SectionView(Localizations.notes) {
-            BitwardenMultilineTextField(
-                text: store.binding(
-                    get: \.notes,
-                    send: AddEditItemAction.notesChanged
+            BitwardenField {
+                BitwardenUITextView(
+                    text: store.binding(
+                        get: \.notes,
+                        send: AddEditItemAction.notesChanged
+                    ),
+                    calculatedHeight: $dynamicHeight
                 )
-            )
-            .accessibilityLabel(Localizations.notes)
+                .frame(minHeight: dynamicHeight, maxHeight: dynamicHeight)
+                .accessibilityLabel(Localizations.notes)
+            }
         }
     }
 

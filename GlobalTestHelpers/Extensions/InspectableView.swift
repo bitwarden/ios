@@ -47,6 +47,18 @@ struct BitwardenMultilineTextFieldType: BaseViewType {
     ]
 }
 
+/// A generic type wrapper around `BitwardenMultilineTextField` to allow `ViewInspector` to find
+/// instances of `BitwardenMultilineTextField` without needing to know the details of it's
+/// implementation.
+///
+struct BitwardenUITextViewType: BaseViewType {
+    static var typePrefix: String = "BitwardenUITextView"
+
+    static var namespacedPrefixes: [String] = [
+        "BitwardenShared.BitwardenUITextView",
+    ]
+}
+
 /// A generic type wrapper around `SettingsMenuField` to allow `ViewInspector` to find instances of
 /// `SettingsMenuField` without needing to know the details of it's implementation.
 ///
@@ -299,6 +311,22 @@ extension InspectableView where View == BitwardenTextFieldType {
 }
 
 extension InspectableView where View == BitwardenMultilineTextFieldType {
+    /// Locates the raw binding on this textfield's text value. Can be used to simulate updating the text field.
+    ///
+    func inputBinding() throws -> Binding<String> {
+        let mirror = Mirror(reflecting: self)
+        if let binding = mirror.descendant("content", "view", "_text") as? Binding<String> {
+            return binding
+        } else {
+            throw InspectionError.attributeNotFound(
+                label: "_text",
+                type: String(describing: BitwardenMultilineTextFieldType.self)
+            )
+        }
+    }
+}
+
+extension InspectableView where View == BitwardenUITextViewType {
     /// Locates the raw binding on this textfield's text value. Can be used to simulate updating the text field.
     ///
     func inputBinding() throws -> Binding<String> {
