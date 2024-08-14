@@ -779,7 +779,8 @@ final class AuthCoordinator: NSObject, // swiftlint:disable:this type_body_lengt
         let processor = VaultUnlockSetupProcessor(
             coordinator: asAnyCoordinator(),
             services: services,
-            state: VaultUnlockSetupState()
+            state: VaultUnlockSetupState(),
+            vaultUnlockSetupHelper: DefaultVaultUnlockSetupHelper(services: services)
         )
         let view = VaultUnlockSetupView(store: Store(processor: processor))
         stackNavigator?.push(view)
