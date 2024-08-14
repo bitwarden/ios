@@ -1795,68 +1795,6 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
         XCTAssertEqual(clientCiphers.moveToOrganizationOrganizationId, "5")
     }
 
-    /// `shouldShowUnassignedCiphersAlert` is true if the feature flag is on,
-    /// we should check for this user, the user has organizations, and the user has unassigned ciphers.
-    func test_shouldShowUnassignedCiphersAlert() async {
-        stateService.activeAccount = .fixture()
-        configService.featureFlagsBool[.unassignedItemsBanner] = true
-        stateService.shouldCheckOrganizationUnassignedItems["1"] = true
-        organizationService.fetchAllOrganizationsResult = .success([Organization.fixture()])
-        cipherService.hasUnassignedCiphersResult = .success(true)
-        let result = await subject.shouldShowUnassignedCiphersAlert()
-        XCTAssertTrue(result)
-    }
-
-    /// `shouldShowUnassignedCiphersAlert` is false if user does not have any organizations.
-    func test_shouldShowUnassignedCiphersAlert_noOrganizations() async {
-        stateService.activeAccount = .fixture()
-        configService.featureFlagsBool[.unassignedItemsBanner] = true
-        stateService.shouldCheckOrganizationUnassignedItems["1"] = true
-        organizationService.fetchAllOrganizationsResult = .success([])
-        cipherService.hasUnassignedCiphersResult = .success(true)
-        let result = await subject.shouldShowUnassignedCiphersAlert()
-        XCTAssertFalse(result)
-        XCTAssertFalse(cipherService.hasUnassignedCiphersCalled)
-    }
-
-    /// `shouldShowUnassignedCiphersAlert` is false if user does not have unassigned ciphers.
-    func test_shouldShowUnassignedCiphersAlert_noUnassignedCiphers() async {
-        stateService.activeAccount = .fixture()
-        configService.featureFlagsBool[.unassignedItemsBanner] = true
-        stateService.shouldCheckOrganizationUnassignedItems["1"] = true
-        organizationService.fetchAllOrganizationsResult = .success([Organization.fixture()])
-        cipherService.hasUnassignedCiphersResult = .success(false)
-        let result = await subject.shouldShowUnassignedCiphersAlert()
-        XCTAssertFalse(result)
-        XCTAssertTrue(cipherService.hasUnassignedCiphersCalled)
-    }
-
-    /// `shouldShowUnassignedCiphersAlert` is false if the feature flag is off.
-    /// And does not check for unassigned ciphers.
-    func test_shouldShowUnassignedCiphersAlert_turnedOff() async {
-        stateService.activeAccount = .fixture()
-        configService.featureFlagsBool[.unassignedItemsBanner] = false
-        stateService.shouldCheckOrganizationUnassignedItems["1"] = true
-        organizationService.fetchAllOrganizationsResult = .success([Organization.fixture()])
-        cipherService.hasUnassignedCiphersResult = .success(true)
-        let result = await subject.shouldShowUnassignedCiphersAlert()
-        XCTAssertFalse(result)
-        XCTAssertFalse(cipherService.hasUnassignedCiphersCalled)
-    }
-
-    /// `shouldShowUnassignedCiphersAlert` is false if the user has seen and agreed to the alert before.
-    /// And does not check for unassigned ciphers.
-    func test_shouldShowUnassignedCiphersAlert_userAgreed() async {
-        stateService.activeAccount = .fixture()
-        configService.featureFlagsBool[.unassignedItemsBanner] = true
-        stateService.shouldCheckOrganizationUnassignedItems["1"] = false
-        organizationService.fetchAllOrganizationsResult = .success([Organization.fixture()])
-        cipherService.hasUnassignedCiphersResult = .success(true)
-        let result = await subject.shouldShowUnassignedCiphersAlert()
-        XCTAssertFalse(result)
-        XCTAssertFalse(cipherService.hasUnassignedCiphersCalled)
-    }
-
     /// `updateCipherCollections()` throws an error if one occurs.
     func test_updateCipherCollections_error() async throws {
         cipherService.updateCipherCollectionsWithServerResult = .failure(BitwardenTestError.example)

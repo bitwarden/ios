@@ -154,12 +154,6 @@ public protocol VaultRepository: AnyObject {
     ///
     func shareCipher(_ cipher: CipherView, newOrganizationId: String, newCollectionIds: [String]) async throws
 
-    /// Whether or not we should show the unassigned ciphers alert based on properties of the account.
-    ///
-    /// - Returns: `true` if we should show the unassigned ciphers alert
-    ///
-    func shouldShowUnassignedCiphersAlert() async -> Bool
-
     /// Soft delete a cipher from the user's vault.
     ///
     /// - Parameter cipher: The cipher that the user is soft deleting.
@@ -1155,20 +1149,6 @@ extension DefaultVaultRepository: VaultRepository {
         let encryptedOrganizationCipher = try await clientService.vault().ciphers()
             .encrypt(cipherView: organizationCipher)
         try await cipherService.shareCipherWithServer(encryptedOrganizationCipher)
-    }
-
-    func shouldShowUnassignedCiphersAlert() async -> Bool {
-        do {
-            guard await configService.getFeatureFlag(.unassignedItemsBanner, defaultValue: false),
-                  try await stateService.getShouldCheckOrganizationUnassignedItems(userId: nil),
-                  try await !organizationService.fetchAllOrganizations().isEmpty,
-                  try await cipherService.hasUnassignedCiphers()
-            else { return false }
-            return true
-        } catch {
-            errorReporter.log(error: error)
-            return false
-        }
     }
 
     func softDeleteCipher(_ cipher: CipherView) async throws {
