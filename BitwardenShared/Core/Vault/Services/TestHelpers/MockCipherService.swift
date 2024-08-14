@@ -28,9 +28,6 @@ class MockCipherService: CipherService {
     var deleteCipherId: String?
     var deleteCipherWithServerResult: Result<Void, Error> = .success(())
 
-    var hasUnassignedCiphersCalled: Bool = false
-    var hasUnassignedCiphersResult: Result<Bool, Error> = .success(false)
-
     var replaceCiphersCiphers: [CipherDetailsResponseModel]?
     var replaceCiphersUserId: String?
     var replaceCiphersError: Error?
@@ -94,11 +91,6 @@ class MockCipherService: CipherService {
     func fetchCipher(withId id: String) async throws -> Cipher? {
         fetchCipherId = id
         return try fetchCipherResult.get()
-    }
-
-    func hasUnassignedCiphers() async throws -> Bool {
-        hasUnassignedCiphersCalled = true
-        return try hasUnassignedCiphersResult.get()
     }
 
     func replaceCiphers(_ ciphers: [CipherDetailsResponseModel], userId: String) async throws {
