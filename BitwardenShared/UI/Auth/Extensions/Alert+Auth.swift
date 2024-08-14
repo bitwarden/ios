@@ -217,6 +217,27 @@ extension Alert {
         )
     }
 
+    /// An alert confirming that the user wants to finish setting up their vault unlock methods
+    /// later in settings.
+    ///
+    /// - Parameter action: The action taken when the user taps on Confirm to finish setting up
+    ///     their vault unlock methods later in settings.
+    /// - Returns: An alert confirming that the user wants to finish setting up their vault unlock
+    ///     methods later in settings.
+    ///
+    static func setUpUnlockMethodLater(action: @escaping () async -> Void) -> Alert {
+        Alert(
+            title: Localizations.setUpLaterQuestion,
+            message: Localizations.youCanFinishSetupUnlockAnytime,
+            alertActions: [
+                AlertAction(title: Localizations.cancel, style: .cancel),
+                AlertAction(title: Localizations.confirm, style: .default) { _ in
+                    await action()
+                },
+            ]
+        )
+    }
+
     /// An alert asking the user if they want to switch to the already existing account when adding
     /// a new account.
     ///
