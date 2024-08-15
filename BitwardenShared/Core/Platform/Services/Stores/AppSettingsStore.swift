@@ -334,15 +334,6 @@ protocol AppSettingsStore: AnyObject {
     ///
     func setServerConfig(_ config: ServerConfig?, userId: String)
 
-    /// Sets whether or not we should check for unassigned ciphers in an organization for
-    /// a particular user.
-    ///
-    /// - Parameters:
-    ///   - shouldCheck: Whether or not we should check for unassigned ciphers.
-    ///   - userId: The user ID to track.
-    ///
-    func setShouldCheckOrganizationUnassignedItems(_ shouldCheck: Bool?, userId: String)
-
     /// Set whether to trust the device.
     ///
     /// - Parameter shouldTrustDevice: Whether to trust the device.
@@ -388,13 +379,6 @@ protocol AppSettingsStore: AnyObject {
     ///   - userId: The user ID associated with the username generation options.
     ///
     func setUsernameGenerationOptions(_ options: UsernameGenerationOptions?, userId: String)
-
-    /// Gets whether or not we should check for unassigned ciphers in an organization for
-    /// a particular user.
-    ///
-    /// - Parameter userId: The user ID to check.
-    ///
-    func shouldCheckOrganizationUnassignedItems(userId: String) -> Bool?
 
     /// Get whether the device should be trusted.
     ///
@@ -592,7 +576,6 @@ extension DefaultAppSettingsStore: AppSettingsStore {
         case rememberedEmail
         case rememberedOrgIdentifier
         case serverConfig(userId: String)
-        case shouldCheckOrganizationUnassignedItems(userId: String)
         case shouldTrustDevice(userId: String)
         case state
         case twoFactorToken(email: String)
@@ -667,8 +650,6 @@ extension DefaultAppSettingsStore: AppSettingsStore {
                 key = "rememberedOrgIdentifier"
             case let .serverConfig(userId):
                 key = "serverConfig_\(userId)"
-            case let .shouldCheckOrganizationUnassignedItems(userId):
-                key = "shouldCheckOrganizationUnassignedItems_\(userId)"
             case let .shouldTrustDevice(userId):
                 key = "shouldTrustDevice_\(userId)"
             case .state:
@@ -920,10 +901,6 @@ extension DefaultAppSettingsStore: AppSettingsStore {
         store(config, for: .serverConfig(userId: userId))
     }
 
-    func setShouldCheckOrganizationUnassignedItems(_ shouldCheck: Bool?, userId: String) {
-        store(shouldCheck, for: .shouldCheckOrganizationUnassignedItems(userId: userId))
-    }
-
     func setShouldTrustDevice(shouldTrustDevice: Bool?, userId: String) {
         store(shouldTrustDevice, for: .shouldTrustDevice(userId: userId))
     }
@@ -942,10 +919,6 @@ extension DefaultAppSettingsStore: AppSettingsStore {
 
     func setVaultTimeout(minutes: Int, userId: String) {
         store(minutes, for: .vaultTimeout(userId: userId))
-    }
-
-    func shouldCheckOrganizationUnassignedItems(userId: String) -> Bool? {
-        fetch(for: .shouldCheckOrganizationUnassignedItems(userId: userId))
     }
 
     func timeoutAction(userId: String) -> Int? {

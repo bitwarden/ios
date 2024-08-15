@@ -12,9 +12,6 @@ enum FeatureFlag: String, Codable {
     /// A feature flag for the intro carousel flow.
     case nativeCarouselFlow = "native-carousel-flow"
 
-    /// A feature flag for showing the unassigned items banner.
-    case unassignedItemsBanner = "unassigned-items-banner"
-
     // MARK: Test Flags
 
     /// A test feature flag that isn't remotely configured.
@@ -32,8 +29,7 @@ enum FeatureFlag: String, Codable {
              .nativeCarouselFlow,
              .testLocalFeatureFlag:
             false
-        case .testRemoteFeatureFlag,
-             .unassignedItemsBanner:
+        case .testRemoteFeatureFlag:
             true
         }
     }
