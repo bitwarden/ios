@@ -21,6 +21,10 @@ protocol AccountAPIService {
     ///
     func checkDataBreaches(password: String) async throws -> Int
 
+    /// Converts the user's account to use key connector.
+    ///
+    func convertToKeyConnector() async throws
+
     /// Creates an API call for when the user submits an account creation form.
     ///
     /// - Parameter body: The body to be included in the request.
@@ -73,6 +77,12 @@ protocol AccountAPIService {
     ///
     func setAccountKeys(requestModel: KeysRequestModel) async throws
 
+    /// Sets the user's key from key connector.
+    ///
+    /// - Parameter requestModel: The request model containing the user's key connector key.
+    ///
+    func setKeyConnectorKey(_ requestModel: SetKeyConnectorKeyRequestModel) async throws
+
     /// Performs the API request to set the user's password.
     ///
     /// - Parameter requestModel: The request model containing the details needed to set the user's
@@ -124,6 +134,10 @@ extension APIService: AccountAPIService {
         return response.leakedHashes[hashWithoutPrefix] ?? 0
     }
 
+    func convertToKeyConnector() async throws {
+        _ = try await apiService.send(ConvertToKeyConnectorRequest())
+    }
+
     func createNewAccount(body: CreateAccountRequestModel) async throws -> CreateAccountResponseModel {
         let request = CreateAccountRequest(body: body)
         return try await identityService.send(request)
@@ -156,6 +170,10 @@ extension APIService: AccountAPIService {
 
     func setAccountKeys(requestModel: KeysRequestModel) async throws {
         _ = try await apiService.send(SetAccountKeysRequest(body: requestModel))
+    }
+
+    func setKeyConnectorKey(_ requestModel: SetKeyConnectorKeyRequestModel) async throws {
+        _ = try await apiService.send(SetKeyConnectorKeyRequest(requestModel: requestModel))
     }
 
     func setPassword(_ requestModel: SetPasswordRequestModel) async throws {
