@@ -21,7 +21,7 @@ enum CompleteRegistrationError: Error {
 
 // MARK: - CompleteRegistrationProcessor
 
-/// The processor used to manage state and handle actions for the completing registration screen.
+/// The processor used to manage state and handle actions for the complete registration screen.
 ///
 class CompleteRegistrationProcessor: StateProcessor<
     CompleteRegistrationState,

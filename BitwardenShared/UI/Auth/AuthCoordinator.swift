@@ -48,6 +48,7 @@ final class AuthCoordinator: NSObject, // swiftlint:disable:this type_body_lengt
         & HasDeviceAPIService
         & HasEnvironmentService
         & HasErrorReporter
+        & HasGeneratorRepository
         & HasNFCReaderService
         & HasOrganizationAPIService
         & HasPolicyService
@@ -176,6 +177,8 @@ final class AuthCoordinator: NSObject, // swiftlint:disable:this type_body_lengt
             showLoginDecryptionOptions(organizationIdentifier)
         case let .loginWithDevice(email, type, isAuthenticated):
             showLoginWithDevice(email: email, type: type, isAuthenticated: isAuthenticated)
+        case .masterPasswordGenerator:
+            showMasterPasswordGenerator()
         case let .masterPasswordHint(username):
             showMasterPasswordHint(for: username)
         case let .selfHosted(region):
@@ -507,6 +510,20 @@ final class AuthCoordinator: NSObject, // swiftlint:disable:this type_body_lengt
         }
     }
 
+    /// Shows the generate master password screen.
+    ///
+    private func showMasterPasswordGenerator() {
+        let processor = MasterPasswordGeneratorProcessor(
+            coordinator: asAnyCoordinator(),
+            services: services
+        )
+        let store = Store(processor: processor)
+        let view = MasterPasswordGeneratorView(store: store)
+        let viewController = UIHostingController(rootView: view)
+        let navigationController = UINavigationController(rootViewController: viewController)
+        stackNavigator?.present(navigationController)
+    }
+
     /// Shows the master password hint screen for the provided username.
     ///
     /// - Parameter username: The username to get the password hint for.
@@ -756,8 +773,8 @@ final class AuthCoordinator: NSObject, // swiftlint:disable:this type_body_lengt
                 )
             )
             platformKeyRequest.allowedCredentials.append(ASAuthorizationPlatformPublicKeyCredentialDescriptor(
-                credentialID: credentialId)
-            )
+                credentialID: credentialId
+            ))
         }
 
         let authController = ASAuthorizationController(authorizationRequests: [securityKeyRequest, platformKeyRequest])
@@ -817,7 +834,7 @@ extension AuthCoordinator: ASWebAuthenticationPresentationContextProviding {
 // MARK: ASAuthorizationControllerPresentationContextProviding
 
 extension AuthCoordinator: ASAuthorizationControllerPresentationContextProviding {
-    func presentationAnchor(for controller: ASAuthorizationController) -> ASPresentationAnchor {
+    func presentationAnchor(for _: ASAuthorizationController) -> ASPresentationAnchor {
         stackNavigator?.rootViewController?.view.window ?? UIWindow()
     }
 }
@@ -843,7 +860,7 @@ extension AuthCoordinator: ASAuthorizationControllerDelegate {
 
     /// Handle ASAuthorization flow where the attestation did complete with success
     func authorizationController(
-        controller: ASAuthorizationController,
+        controller _: ASAuthorizationController,
         didCompleteWithAuthorization authorization: ASAuthorization
     ) {
         if let credential = authorization.credential as? ASAuthorizationPublicKeyCredentialAssertion {
@@ -875,7 +892,7 @@ extension AuthCoordinator: ASAuthorizationControllerDelegate {
     }
 
     /// Handle errors during the creation of the attestation
-    func authorizationController(controller: ASAuthorizationController, didCompleteWithError error: Error) {
+    func authorizationController(controller _: ASAuthorizationController, didCompleteWithError error: Error) {
         webAuthnFlowDelegate?.webAuthnErrored(error: error)
     }
 } // swiftlint:disable:this file_length

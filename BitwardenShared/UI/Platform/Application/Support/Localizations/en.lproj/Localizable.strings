@@ -944,3 +944,7 @@
 "SetUpUnlock" = "Set up unlock";
 "SetUpBiometricsOrChooseAPinCodeToQuicklyAccessYourVaultAndAutofillYourLogins" = "Set up biometrics or choose a PIN code to quickly access your vault and autofill your logins.";
 "SetUpLater" = "Set up later";
+"GenerateMasterPassword" = "Generate master password";
+"Generate" = "Generate";
+"WriteThisPasswordDownAndKeepItSomewhereSafe" = "Write this password down and keep it somewhere safe.";
+"LearnAboutOtherWaysToPreventAccountLockout" = "Learn about other ways to prevent account lockout";
