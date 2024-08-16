@@ -68,4 +68,27 @@ class OrganizationAPIServiceTests: BitwardenTestCase {
             SingleSignOnDetailsResponse(organizationIdentifier: "TeamLivefront", ssoAvailable: true)
         )
     }
+
+    /// `leaveOrganization(organizationId:)` removes the user from the organization.
+    func test_leaveOrganization() async throws {
+        client.result = .httpSuccess(testData: .emptyResponse)
+
+        await assertAsyncDoesNotThrow {
+            _ = try await subject.leaveOrganization(organizationId: "1")
+        }
+
+        let request = try XCTUnwrap(client.requests.first)
+        XCTAssertEqual(request.method, .post)
+        XCTAssertEqual(request.url.relativePath, "/api/organizations/1/leave")
+        XCTAssertNil(request.body)
+    }
+
+    /// `leaveOrganization(organizationId:)` throws an error if the request fails.
+    func test_leaveOrganization_httpFailure() async throws {
+        client.result = .httpFailure()
+
+        await assertAsyncThrows {
+            _ = try await subject.leaveOrganization(organizationId: "1")
+        }
+    }
 }

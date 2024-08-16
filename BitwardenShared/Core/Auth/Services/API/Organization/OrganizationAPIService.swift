@@ -22,6 +22,12 @@ protocol OrganizationAPIService {
     /// - Returns: A `SingleSignOnDetailsResponse`.
     ///
     func getSingleSignOnDetails(email: String) async throws -> SingleSignOnDetailsResponse
+
+    /// Removes the user from an organization.
+    ///
+    /// - Parameter organizationId: The organization's ID.
+    ///
+    func leaveOrganization(organizationId: String) async throws
 }
 
 extension APIService: OrganizationAPIService {
@@ -35,5 +41,9 @@ extension APIService: OrganizationAPIService {
 
     func getSingleSignOnDetails(email: String) async throws -> SingleSignOnDetailsResponse {
         try await apiUnauthenticatedService.send(SingleSignOnDetailsRequest(email: email))
+    }
+
+    func leaveOrganization(organizationId: String) async throws {
+        _ = try await apiService.send(LeaveOrganizationRequest(organizationId: organizationId))
     }
 }

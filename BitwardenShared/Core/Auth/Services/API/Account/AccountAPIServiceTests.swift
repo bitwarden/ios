@@ -4,7 +4,7 @@ import XCTest
 
 // MARK: - AccountAPIServiceTests
 
-class AccountAPIServiceTests: BitwardenTestCase {
+class AccountAPIServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body_length
     // MARK: Properties
 
     var client: MockHTTPClient!
@@ -40,6 +40,29 @@ class AccountAPIServiceTests: BitwardenTestCase {
 
         await assertAsyncThrows(error: BitwardenTestError.example) {
             _ = try await subject.accountRevisionDate()
+        }
+    }
+
+    /// `convertToKeyConnector()` converts the user's account to use key connector.
+    func test_convertToKeyConnector() async throws {
+        client.result = .httpSuccess(testData: .emptyResponse)
+
+        await assertAsyncDoesNotThrow {
+            try await subject.convertToKeyConnector()
+        }
+
+        let request = try XCTUnwrap(client.requests.first)
+        XCTAssertEqual(request.method, .post)
+        XCTAssertEqual(request.url.relativePath, "/api/accounts/convert-to-key-connector")
+        XCTAssertNil(request.body)
+    }
+
+    /// `convertToKeyConnector()` throws an error if the request fails.
+    func test_convertToKeyConnector_httpFailure() async {
+        client.result = .httpFailure()
+
+        await assertAsyncThrows {
+            try await subject.convertToKeyConnector()
         }
     }
 
@@ -242,6 +265,49 @@ class AccountAPIServiceTests: BitwardenTestCase {
         XCTAssertNil(client.requests[0].body)
         XCTAssertEqual(client.requests[0].method, .post)
         XCTAssertEqual(client.requests[0].url.absoluteString, "https://example.com/api/accounts/request-otp")
+    }
+
+    /// `setKeyConnectorKey()` sets the user's key connector key.
+    func test_setKeyConnectorKey() async throws {
+        client.result = .httpSuccess(testData: .emptyResponse)
+
+        await assertAsyncDoesNotThrow {
+            try await subject.setKeyConnectorKey(
+                SetKeyConnectorKeyRequestModel(
+                    kdfConfig: KdfConfig(),
+                    key: "key",
+                    keys: KeysRequestModel(
+                        encryptedPrivateKey: "encrypted-private-key",
+                        publicKey: "public-key"
+                    ),
+                    orgIdentifier: "org-id"
+                )
+            )
+        }
+
+        let request = try XCTUnwrap(client.requests.first)
+        XCTAssertEqual(request.method, .post)
+        XCTAssertEqual(request.url.relativePath, "/api/accounts/set-key-connector-key")
+        XCTAssertNotNil(request.body)
+    }
+
+    /// `setKeyConnectorKey()` throws an error if the request fails.
+    func test_setKeyConnectorKey_httpFailure() async {
+        client.result = .httpFailure()
+
+        await assertAsyncThrows {
+            try await subject.setKeyConnectorKey(
+                SetKeyConnectorKeyRequestModel(
+                    kdfConfig: KdfConfig(),
+                    key: "key",
+                    keys: KeysRequestModel(
+                        encryptedPrivateKey: "encrypted-private-key",
+                        publicKey: "public-key"
+                    ),
+                    orgIdentifier: "org-id"
+                )
+            )
+        }
     }
 
     /// `startRegistration(_:)` performs the request to start the registration process.
