@@ -914,6 +914,19 @@
 "FilePassword" = "Tiedoston salasana";
 "ConfirmFilePassword" = "Vahvista tiedoston salasana";
 "FilePasswordDescription" = "Tätä salasanaa käytetään tämän tiedoston viennissä ja tuonnissa";
+"CreatingOn" = "Creating on";
+"CheckYourEmail" = "Tarkasta sähköpostisi";
+"FollowTheInstructionsInTheEmailSentToXToContinueCreatingYourAccount" = "Seuraa osoitteeseen %1$@ lähetetyn sähköpostin ohjeita jatkaaksesi tilisi luomista.";
+"NoEmailGoBackToEditYourEmailAddress" = "Ei sähköpostia? **[Mene takaisin](https://)** muokataksesi sähköpostiosoitettasi.";
+"OrLogInYouMayAlreadyHaveAnAccount." = "Tai **[kirjaudu sisään](https://)**, sinulla voi olla jo tili.";
+"OpenEmailApp" = "Avaa sähköpostisovellus";
+"SetPassword" = "Aseta salasana";
+"FinishCreatingYourAccountForXBySettingAPassword." = "Viimeistele %1$@ -tilin luonti asettamalla salasana.";
+"VerifyingEmail" = "Vahvistetaan sähköpostiosoitetta";
+"EmailVerified" = "Sähköpostiosoite on vahvistettu";
+"AccountSuccessfullyCreated" = "Tilin luonti onnistui!";
+"ByContinuingYouAgreeToTheTermsOfServiceAndPrivacyPolicy" = "Jatkamalla hyväksyt **[Käyttöehdot](%1$@)** ja **[Tietosuojakäytännön](%2$@)**";
+"GetAdviceAnnouncementsAndResearchOpportunitiesFromBitwardenInYourInboxUnsubscribeAtAnyTime." = "Saat Bitwardenilta neuvoja, ilmoituksia ja tutkimusmahdollisuuksia postilaatikkoosi. **[Peru tilaus](%1$@)** milloin tahansa.";
 "OrganizationUnassignedItemsMessageUSEUDescriptionLong" = "Organisaatioiden kokoelmiin määrittämättömät kohteet eivät enää näy laitteiden \"Kaikki holvit\" -näkymissä, vaan ne ovat nähtävissä vain Hallintapaneelista. Määritä kohteet kokoelmiin Hallintapaneelista, jotta ne ovat jatkossakin käytettävissä kaikilta laitteilta.";
 "UnknownAccount" = "Tuntematon tili";
 "UserVerificationForPasskey" = "Käyttäjän vahvistus avainkoodille";
@@ -927,3 +940,7 @@
 "IntroCarouselPage3Message" = "Käytä generaattoria luodaksesi ja tallentaaksesi vahvoja, ainutlaatuisia salasanoja kaikille tileillesi.";
 "IntroCarouselPage4Title" = "Sinun tietosi, missä ja milloin tarvitset niitä";
 "IntroCarouselPage4Message" = "Tallenna rajattomasti salasanoja, rajattomalla määrällä laitteita, Bitwardenin mobiili-, selain- ja työpöytäsovelluksilla.";
+"AccountSetup" = "Tilin määritys";
+"SetUpUnlock" = "Määritä lukituksen poisto";
+"SetUpBiometricsOrChooseAPinCodeToQuicklyAccessYourVaultAndAutofillYourLogins" = "Set up biometrics or choose a PIN code to quickly access your vault and autofill your logins.";
+"SetUpLater" = "Määritä myöhemmin";

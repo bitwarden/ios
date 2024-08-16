@@ -914,6 +914,19 @@
 "FilePassword" = "Heslo súboru";
 "ConfirmFilePassword" = "Potvrdiť heslo súboru";
 "FilePasswordDescription" = "Toto heslo sa použije na export a import tohto súboru";
+"CreatingOn" = "Vytvorené na";
+"CheckYourEmail" = "Skontrolujte si svoj e-mail";
+"FollowTheInstructionsInTheEmailSentToXToContinueCreatingYourAccount" = "Na vytvorenie účtu postupujte podľa pokynov v e-maile zaslanom na %1$@.";
+"NoEmailGoBackToEditYourEmailAddress" = "Žiadny e-mail? **[Vráťte sa späť](https://)** a upravte e-mailovú adresu.";
+"OrLogInYouMayAlreadyHaveAnAccount." = "Alebo **[sa prihláste](https://)**, možno už účet máte.";
+"OpenEmailApp" = "Otvoriť emailovú aplikáciu";
+"SetPassword" = "Nastavenie hesla";
+"FinishCreatingYourAccountForXBySettingAPassword." = "Dokončite vytváranie účtu %1$@ nastavením hesla.";
+"VerifyingEmail" = "Overovanie emailu";
+"EmailVerified" = "Email bol overený";
+"AccountSuccessfullyCreated" = "Účet bol úspešne vytvorený!";
+"ByContinuingYouAgreeToTheTermsOfServiceAndPrivacyPolicy" = "Ak budete pokračovať, tak súhlasíte s **[Podmienkami používania](%1$@)** a **[Zásadami ochrany osobných údajov](%2$@)**";
+"GetAdviceAnnouncementsAndResearchOpportunitiesFromBitwardenInYourInboxUnsubscribeAtAnyTime." = "Dostávajte do schránky rady, oznámenia a príležitosti na výskum od spoločnosti Bitwarden. **[Odhlásiť](%1$@)** sa môžete kedykoľvek.";
 "OrganizationUnassignedItemsMessageUSEUDescriptionLong" = "Nepriradené položky organizácie už nie sú viditeľné v zobrazení Všetky Trezory a sú prístupné len cez administrátorskú konzolu. Aby boli viditeľné, priraďte tieto položky do kolekcie z konzoly administrátora.";
 "UnknownAccount" = "Neznámy účet";
 "UserVerificationForPasskey" = "Overenie používateľa pre prístupový kľúč";
@@ -927,3 +940,7 @@
 "IntroCarouselPage3Message" = "Pomocou generátora vytvorte a uložte silné a jedinečné heslá pre všetky svoje účty.";
 "IntroCarouselPage4Title" = "Vaše údaje, kedykoľvek a kdekoľvek ich potrebujete";
 "IntroCarouselPage4Message" = "Ukladajte neobmedzený počet hesiel na neobmedzenom počte zariadení pomocou mobilných aplikácií, prehliadačov a desktopových aplikácií Bitwardenu.";
+"AccountSetup" = "Nastavenie účtu";
+"SetUpUnlock" = "Nastaviť odomknutie";
+"SetUpBiometricsOrChooseAPinCodeToQuicklyAccessYourVaultAndAutofillYourLogins" = "Nastavte biometriu alebo PIN kód pre rýchly prístup k trezoru a automatické vypĺňanie prístupových údajov.";
+"SetUpLater" = "Nastaviť neskôr";

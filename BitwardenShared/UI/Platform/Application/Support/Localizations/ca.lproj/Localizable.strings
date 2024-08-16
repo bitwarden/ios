@@ -914,6 +914,19 @@
 "FilePassword" = "Contrasenya del fitxer";
 "ConfirmFilePassword" = "Confirma la contrasenya del fitxer";
 "FilePasswordDescription" = "Aquesta contrasenya s'utilitzarà per exportar i importar aquest fitxer";
+"CreatingOn" = "Creating on";
+"CheckYourEmail" = "Check your email";
+"FollowTheInstructionsInTheEmailSentToXToContinueCreatingYourAccount" = "Follow the instructions in the email sent to %1$@ to continue creating your account.";
+"NoEmailGoBackToEditYourEmailAddress" = "No email? **[Go back](https://)** to edit your email address.";
+"OrLogInYouMayAlreadyHaveAnAccount." = "Or **[log in](https://)**, you may already have an account.";
+"OpenEmailApp" = "Open email app";
+"SetPassword" = "Set password";
+"FinishCreatingYourAccountForXBySettingAPassword." = "Finish creating your account for %1$@ by setting a password.";
+"VerifyingEmail" = "Verifying email";
+"EmailVerified" = "Email verified";
+"AccountSuccessfullyCreated" = "Account successfully created!";
+"ByContinuingYouAgreeToTheTermsOfServiceAndPrivacyPolicy" = "By continuing, you agree to the **[Terms of Service](%1$@)** and **[Privacy Policy](%2$@)**";
+"GetAdviceAnnouncementsAndResearchOpportunitiesFromBitwardenInYourInboxUnsubscribeAtAnyTime." = "Get advice, announcements, and research opportunities from Bitwarden in your inbox. **[Unsubscribe](%1$@)** at any time.";
 "OrganizationUnassignedItemsMessageUSEUDescriptionLong" = "Els elements de l'organització no assignats ja no són visibles a la visualització Totes les caixes fortes i només s'hi poden accedir des de la Consola d'administració. Assigna aquests elements a una col·lecció des de la Consola d'administració per fer-los visibles.";
 "UnknownAccount" = "Compte desconegut";
 "UserVerificationForPasskey" = "Verificació de l'usuari per a la clau de pas";
@@ -927,3 +940,7 @@
 "IntroCarouselPage3Message" = "Utilitzeu el generador per crear i guardar contrasenyes úniques i fortes per a tots els vostres comptes.";
 "IntroCarouselPage4Title" = "Les teues dades, quan i on les necessites";
 "IntroCarouselPage4Message" = "Guardeu contrasenyes il·limitades en dispositius il·limitats amb les aplicacions per a mòbils, navegadors i escriptori de Bitwarden.";
+"AccountSetup" = "Account setup";
+"SetUpUnlock" = "Set up unlock";
+"SetUpBiometricsOrChooseAPinCodeToQuicklyAccessYourVaultAndAutofillYourLogins" = "Set up biometrics or choose a PIN code to quickly access your vault and autofill your logins.";
+"SetUpLater" = "Set up later";

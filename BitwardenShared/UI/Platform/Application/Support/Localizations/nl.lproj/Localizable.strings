@@ -914,6 +914,19 @@
 "FilePassword" = "File password";
 "ConfirmFilePassword" = "Confirm file password";
 "FilePasswordDescription" = "This password will be used to export and import this file";
+"CreatingOn" = "Aanmaken op";
+"CheckYourEmail" = "Check je e-mail";
+"FollowTheInstructionsInTheEmailSentToXToContinueCreatingYourAccount" = "Volg de instructies in de e-mail verzonden naar %1$@ om door te gaan met het aanmaken van je account.";
+"NoEmailGoBackToEditYourEmailAddress" = "Geen e-mail? **[Ga terug](https://)** om je e-mailadres te bewerken.";
+"OrLogInYouMayAlreadyHaveAnAccount." = "Of **[inloggen](https://)**, je hebt mogelijk al een account.";
+"OpenEmailApp" = "E-mail-app openen";
+"SetPassword" = "Wachtwoord instellen";
+"FinishCreatingYourAccountForXBySettingAPassword." = "Rond het aanmaken van je account voor %1$@ af met het instellen van een wachtwoord.";
+"VerifyingEmail" = "E-mailadres verifiëren";
+"EmailVerified" = "E-mailadres geverifieerd";
+"AccountSuccessfullyCreated" = "Account succesvol aangemaakt!";
+"ByContinuingYouAgreeToTheTermsOfServiceAndPrivacyPolicy" = "Door verder te gaan, gaat je akkoord met de **[Algemene voorwaarden](%1$@)** en het **[Privacybeleid](%2$@)**";
+"GetAdviceAnnouncementsAndResearchOpportunitiesFromBitwardenInYourInboxUnsubscribeAtAnyTime." = "Ontvang advies, aankondigingen en onderzoeksmogelijkheden van Bitwarden in je inbox. Je kunt je op ieder moment **[uitschrijven](%1$@)**.";
 "OrganizationUnassignedItemsMessageUSEUDescriptionLong" = "Niet-toegewezen organisatie-items zijn niet meer zichtbaar in de weergave van alle kluisjes en alleen toegankelijk via de Admin Console. Je kunt deze items in het Admin Console aan een collectie toewijzen om ze zichtbaar te maken.";
 "UnknownAccount" = "Onbekend account";
 "UserVerificationForPasskey" = "User verification for passkey";
@@ -927,3 +940,7 @@
 "IntroCarouselPage3Message" = "Gebruik de generator voor het aanmaken en bewaren van sterke, unieke wachtwoorden voor al je accounts.";
 "IntroCarouselPage4Title" = "Jouw gegevens, wanneer en waar je ze nodig hebt";
 "IntroCarouselPage4Message" = "Onbeperkt wachtwoorden opslaan op alle apparaten met Bitwarden-apps voor mobiel, browser en desktop.";
+"AccountSetup" = "Accountinstellingen";
+"SetUpUnlock" = "Ontgrendelen instellen";
+"SetUpBiometricsOrChooseAPinCodeToQuicklyAccessYourVaultAndAutofillYourLogins" = "Biometrie instellen of een pincode kiezen om snel toegang tot je kluis te krijgen en je inloggegevens automatisch in te vullen.";
+"SetUpLater" = "Later instellen";
