@@ -62,9 +62,10 @@ extension CipherListView {
             organizationId: cipher.organizationId,
             folderId: cipher.folderId,
             collectionIds: cipher.collectionIds,
+            key: cipher.key,
             name: cipher.name,
             subTitle: "",
-            type: cipher.type,
+            type: CipherListViewType(cipher: cipher),
             favorite: cipher.favorite,
             reprompt: cipher.reprompt,
             edit: cipher.edit,
@@ -74,6 +75,21 @@ extension CipherListView {
             deletedDate: cipher.deletedDate,
             revisionDate: cipher.revisionDate
         )
+    }
+}
+
+extension CipherListViewType {
+    init(cipher: Cipher) {
+        switch cipher.type {
+        case .card:
+            self = .card
+        case .identity:
+            self = .identity
+        case .login:
+            self = .login(hasFido2: cipher.login?.fido2Credentials != nil, totp: cipher.login?.totp)
+        case .secureNote:
+            self = .secureNote
+        }
     }
 }
 
