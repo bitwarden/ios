@@ -914,6 +914,19 @@
 "FilePassword" = "Dateipasswort";
 "ConfirmFilePassword" = "Dateipasswort bestätigen";
 "FilePasswordDescription" = "Dieses Passwort wird zum Exportieren und Importieren dieser Datei verwendet";
+"CreatingOn" = "Creating on";
+"CheckYourEmail" = "Überprüfe deine E-Mail";
+"FollowTheInstructionsInTheEmailSentToXToContinueCreatingYourAccount" = "Folge den Anweisungen in der an %1$@ gesendeten E-Mail, um mit der Erstellung deines Kontos fortzufahren.";
+"NoEmailGoBackToEditYourEmailAddress" = "Keine E-Mail? **[Geh zurück](https://)**, um deine E-Mail-Adresse zu bearbeiten.";
+"OrLogInYouMayAlreadyHaveAnAccount." = "Oder **[anmelden](https://)**, vielleicht hast du bereits ein Konto.";
+"OpenEmailApp" = "E-Mail-App öffnen";
+"SetPassword" = "Passwort festlegen";
+"FinishCreatingYourAccountForXBySettingAPassword." = "Schließe die Erstellung deines Kontos für %1$@ ab, indem du ein Passwort festlegst.";
+"VerifyingEmail" = "E-Mail-Adresse wird verifiziert";
+"EmailVerified" = "E-Mail-Adresse verifiziert";
+"AccountSuccessfullyCreated" = "Konto erfolgreich erstellt!";
+"ByContinuingYouAgreeToTheTermsOfServiceAndPrivacyPolicy" = "Indem du fortfährst, stimmst du den **[Nutzungsbedingungen](%1$@)** und **[Datenschutzrichtlinien](%2$@)** zu";
+"GetAdviceAnnouncementsAndResearchOpportunitiesFromBitwardenInYourInboxUnsubscribeAtAnyTime." = "Erhalte Ratschläge, Ankündigungen und Marktforschungsumfragen von Bitwarden in deinem Posteingang. **[Abbestellen](%1$@)** jederzeit möglich.";
 "OrganizationUnassignedItemsMessageUSEUDescriptionLong" = "Hinweis: Nicht zugeordnete Organisationseinträge sind nicht mehr in der Ansicht aller Tresore sichtbar und nur über die Administrator-Konsole zugänglich. Weise diese Einträge einer Sammlung aus der Administrator-Konsole zu, um sie sichtbar zu machen.";
 "UnknownAccount" = "Unbekanntes Konto";
 "UserVerificationForPasskey" = "Benutzer-Verifizierung für Passkey";
@@ -927,3 +940,7 @@
 "IntroCarouselPage3Message" = "Verwende den Generator, um einzigartige Passwörter für alle deine Konten zu erstellen und zu speichern.";
 "IntroCarouselPage4Title" = "Deine Daten, wann und wo du sie brauchst";
 "IntroCarouselPage4Message" = "Speicher eine unbegrenzte Anzahl von Passwörter auf unbegrenzt vielen Geräten mit Bitwarden-Apps für Smartphones, Browser und Desktop.";
+"AccountSetup" = "Konto-Einrichtung";
+"SetUpUnlock" = "Entsperren einrichten";
+"SetUpBiometricsOrChooseAPinCodeToQuicklyAccessYourVaultAndAutofillYourLogins" = "Richte Biometrie ein oder lege einen PIN-Code fest, um schnell auf deinen Tresor zuzugreifen und deinen Zugangsdaten automatisch auszufüllen.";
+"SetUpLater" = "Später einrichten";

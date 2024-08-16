@@ -916,6 +916,19 @@
 "FilePassword" = "Пароль к файлу";
 "ConfirmFilePassword" = "Подтвердите пароль к файлу";
 "FilePasswordDescription" = "Этот пароль будет использоваться для экспорта и импорта этого файла";
+"CreatingOn" = "Создание";
+"CheckYourEmail" = "Проверьте свою почту";
+"FollowTheInstructionsInTheEmailSentToXToContinueCreatingYourAccount" = "Следуйте инструкциям в письме, отправленном на %1$@, чтобы продолжить создание аккаунта.";
+"NoEmailGoBackToEditYourEmailAddress" = "Нет письма? **[Вернитесь](https://)**, чтобы изменить свой адрес email.";
+"OrLogInYouMayAlreadyHaveAnAccount." = "Или **[авторизуйтесь](https://)**, возможно, у вас уже есть аккаунт.";
+"OpenEmailApp" = "Открыть приложение электронной почты";
+"SetPassword" = "Задать пароль";
+"FinishCreatingYourAccountForXBySettingAPassword." = "Завершите создание аккаунта для %1$@, задав пароль.";
+"VerifyingEmail" = "Верификация email";
+"EmailVerified" = "Email подтвержден";
+"AccountSuccessfullyCreated" = "Аккаунт успешно создан!";
+"ByContinuingYouAgreeToTheTermsOfServiceAndPrivacyPolicy" = "Продолжая, вы принимаете **[Условия использования](%1$@)** и **[Политику конфиденциальности](%2$@)**";
+"GetAdviceAnnouncementsAndResearchOpportunitiesFromBitwardenInYourInboxUnsubscribeAtAnyTime." = "Получайте советы, объявления и исследования от Bitwarden в свой почтовый ящик. **[Отписаться](%1$@)** можно в любое время.";
 "OrganizationUnassignedItemsMessageUSEUDescriptionLong" = "Уведомление: неприсвоенные элементы организации больше не видны в представлении \"Все хранилища\" и доступны только через консоль администратора. Назначьте эти элементы коллекции в консоли администратора, чтобы сделать их видимыми.";
 "UnknownAccount" = "Неизвестный аккаунт";
 "UserVerificationForPasskey" = "Верификация пользователя по passskey";
@@ -929,3 +942,7 @@
 "IntroCarouselPage3Message" = "Используйте генератор для создания и сохранения надежных, уникальных паролей для всех ваших аккаунтов.";
 "IntroCarouselPage4Title" = "Ваши данные, в любое время в любом месте";
 "IntroCarouselPage4Message" = "Сохраняйте неограниченное количество паролей на неограниченном количестве устройств с помощью мобильных, браузерных и десктопных приложений Bitwarden.";
+"AccountSetup" = "Настройка аккаунта";
+"SetUpUnlock" = "Настройка разблокировки";
+"SetUpBiometricsOrChooseAPinCodeToQuicklyAccessYourVaultAndAutofillYourLogins" = "Настройте биометрию или задайте PIN-код для быстрого доступа к хранилищу и автозаполнения логинов.";
+"SetUpLater" = "Настроить позже";
