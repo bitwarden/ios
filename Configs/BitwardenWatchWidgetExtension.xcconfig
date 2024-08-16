@@ -1,0 +1,6 @@
+#include "./Common.xcconfig"
+#include "./WatchCommon.xcconfig"
+#include? "./Local.xcconfig"
+
+PRODUCT_BUNDLE_IDENTIFIER = $(BASE_WATCH_BUNDLE_ID).widget-extension
+PROVISIONING_PROFILE_SPECIFIER = $(PROVISIONING_PROFILE_SPECIFIER_WATCH_WIDGET_EXTENSION)
