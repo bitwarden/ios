@@ -626,11 +626,14 @@ class AutofillCredentialServiceTests: BitwardenTestCase { // swiftlint:disable:t
     }
 
     /// `syncIdentities(vaultLockStatus:)` doesn't remove identities if the store's state is disabled.
-    func test_syncIdentities_removeDisabled() {
+    func test_syncIdentities_removeDisabled() async throws {
+        try await waitAndResetRemoveAllCredentialIdentitiesCalled()
         identityStore.state.mockIsEnabled = false
 
         vaultTimeoutService.vaultLockStatusSubject.send(nil)
-        waitFor(identityStore.stateCalled)
+        try await waitForAsync {
+            self.identityStore.stateCalled
+        }
 
         XCTAssertFalse(identityStore.removeAllCredentialIdentitiesCalled)
     }
