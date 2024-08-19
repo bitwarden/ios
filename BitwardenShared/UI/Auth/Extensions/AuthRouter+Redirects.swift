@@ -208,8 +208,8 @@ extension AuthRouter {
             // If no account can be set to active, go to the landing or carousel screen.
             let isCarouselEnabled: Bool = await services.configService.getFeatureFlag(.nativeCarouselFlow)
             let introCarouselShown = await services.stateService.getIntroCarouselShown()
-            let shouldShowCarousel = isCarouselEnabled && !introCarouselShown
-            return shouldShowCarousel && !isInAppExtension ? .introCarousel : .landing
+            let shouldShowCarousel = isCarouselEnabled && !introCarouselShown && !isInAppExtension
+            return shouldShowCarousel ? .introCarousel : .landing
         }
 
         // If there's existing accounts, mark the carousel as shown.
