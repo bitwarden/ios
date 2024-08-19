@@ -4,11 +4,13 @@ import SwiftUI
 import ViewInspector
 import XCTest
 
+// swiftlint:disable file_length
+
 @testable import BitwardenShared
 
 // MARK: - ViewItemViewTests
 
-class ViewItemViewTests: BitwardenTestCase { // swiftlint:disable:this file_length type_body_length
+class ViewItemViewTests: BitwardenTestCase { // swiftlint:disable:this type_body_length
     // MARK: Properties
 
     var mockPresentTime = Date(year: 2023, month: 12, day: 31, minute: 0, second: 41)
