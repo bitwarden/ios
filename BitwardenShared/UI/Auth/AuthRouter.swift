@@ -22,9 +22,10 @@ final class AuthRouter: NSObject, Router {
 
     /// Creates a new `AuthRouter`.
     ///
-    /// - Parameter services: The services used by this router.
-    ///
     /// - Parameters:
+    ///   - isInAppExtension: Whether the app is running as an extension.
+    ///   - services: The services used by this router.
+    ///
     init(
         isInAppExtension: Bool,
         services: Services
