@@ -178,6 +178,8 @@ final class AuthCoordinator: NSObject, // swiftlint:disable:this type_body_lengt
             showLoginWithDevice(email: email, type: type, isAuthenticated: isAuthenticated)
         case let .masterPasswordHint(username):
             showMasterPasswordHint(for: username)
+        case let .removeMasterPassword(organizationName):
+            showRemoveMasterPassword(organizationName: organizationName)
         case let .selfHosted(region):
             showSelfHostedView(delegate: context as? SelfHostedProcessorDelegate, currentRegion: region)
         case let .setMasterPassword(organizationIdentifier):
@@ -522,6 +524,21 @@ final class AuthCoordinator: NSObject, // swiftlint:disable:this type_body_lengt
         let viewController = UIHostingController(rootView: view)
         let navigationController = UINavigationController(rootViewController: viewController)
         stackNavigator?.present(navigationController)
+    }
+
+    /// Shows the remove master password screen.
+    ///
+    /// - Parameter organizationName: The organization's name.
+    ///
+    private func showRemoveMasterPassword(organizationName: String) {
+        let processor = RemoveMasterPasswordProcessor(
+            coordinator: asAnyCoordinator(),
+            state: RemoveMasterPasswordState(
+                organizationName: organizationName
+            )
+        )
+        let view = RemoveMasterPasswordView(store: Store(processor: processor))
+        stackNavigator?.push(view)
     }
 
     /// Shows the self-hosted settings view.

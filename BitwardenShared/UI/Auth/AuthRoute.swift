@@ -98,6 +98,9 @@ public enum AuthRoute: Equatable {
     /// - Parameter username: The username to display on the password hint screen.
     case masterPasswordHint(username: String)
 
+    /// A route to the remove master password screen.
+    case removeMasterPassword(organizationName: String)
+
     /// A route to the self-hosted settings view.
     ///
     /// - Parameter currentRegion: The user's region type prior to navigating to the self-hosted view.
