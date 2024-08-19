@@ -86,7 +86,7 @@ extension CipherListViewType {
         case .identity:
             self = .identity
         case .login:
-            self = .login(hasFido2: cipher.login?.fido2Credentials != nil, totp: cipher.login?.totp)
+            self = .login(hasFido2: !(cipher.login?.fido2Credentials?.isEmpty ?? true), totp: cipher.login?.totp)
         case .secureNote:
             self = .secureNote
         }
