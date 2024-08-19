@@ -26,6 +26,7 @@ final class AuthRouterTests: BitwardenTestCase { // swiftlint:disable:this type_
         vaultTimeoutService = MockVaultTimeoutService()
 
         subject = AuthRouter(
+            isInAppExtension: false,
             services: ServiceContainer.withMocks(
                 authRepository: authRepository,
                 configService: configService,
@@ -757,6 +758,26 @@ final class AuthRouterTests: BitwardenTestCase { // swiftlint:disable:this type_
     func test_handleAndRoute_didStart_carouselFlow_carouselShown() async {
         configService.featureFlagsBool[.nativeCarouselFlow] = true
         stateService.introCarouselShown = true
+
+        let route = await subject.handleAndRoute(.didStart)
+
+        XCTAssertEqual(route, .landing)
+    }
+
+    /// `handleAndRoute(_ :)` redirects `.didStart` to `.landing` if it's running in an extension.
+    func test_handleAndRoute_didStart_carouselFlow_extension() async {
+        configService.featureFlagsBool[.nativeCarouselFlow] = true
+
+        subject = await AuthRouter(
+            isInAppExtension: true,
+            services: ServiceContainer.withMocks(
+                authRepository: authRepository,
+                configService: configService,
+                errorReporter: errorReporter,
+                stateService: stateService,
+                vaultTimeoutService: vaultTimeoutService
+            )
+        )
 
         let route = await subject.handleAndRoute(.didStart)
 
