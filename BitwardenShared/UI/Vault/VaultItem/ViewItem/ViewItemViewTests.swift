@@ -8,7 +8,7 @@ import XCTest
 
 // MARK: - ViewItemViewTests
 
-class ViewItemViewTests: BitwardenTestCase { // swiftlint:disable:this type_body_length
+class ViewItemViewTests: BitwardenTestCase { // swiftlint:disable:this file_length type_body_length
     // MARK: Properties
 
     var mockPresentTime = Date(year: 2023, month: 12, day: 31, minute: 0, second: 41)
@@ -190,7 +190,8 @@ class ViewItemViewTests: BitwardenTestCase { // swiftlint:disable:this type_body
         canViewPassword: Bool = true,
         isPasswordVisible: Bool = true,
         isTOTPCodeVisible: Bool = true,
-        hasPremium: Bool = true
+        hasPremium: Bool = true,
+        hasTotp: Bool = true
     ) -> CipherItemState {
         var cipherState = CipherItemState(
             existing: .fixture(
@@ -212,14 +213,16 @@ class ViewItemViewTests: BitwardenTestCase { // swiftlint:disable:this type_body
         cipherState.loginState.passwordHistoryCount = 4
         cipherState.loginState.passwordUpdatedDate = Date(year: 2023, month: 11, day: 11, hour: 9, minute: 41)
         cipherState.loginState.username = "email@example.com"
-        cipherState.loginState.totpState = .init(
-            authKeyModel: .init(authenticatorKey: .standardTotpKey),
-            codeModel: .init(
-                code: "032823",
-                codeGenerationDate: Date(year: 2023, month: 12, day: 31, minute: 0, second: 33),
-                period: 30
+        if hasTotp {
+            cipherState.loginState.totpState = .init(
+                authKeyModel: .init(authenticatorKey: .standardTotpKey),
+                codeModel: .init(
+                    code: "032823",
+                    codeGenerationDate: Date(year: 2023, month: 12, day: 31, minute: 0, second: 33),
+                    period: 30
+                )
             )
-        )
+        }
         cipherState.loginState.uris = [
             UriState(
                 matchType: .custom(.startsWith),
@@ -334,6 +337,13 @@ class ViewItemViewTests: BitwardenTestCase { // swiftlint:disable:this type_body
     func test_snapshot_login_withAllValues_largeText() {
         processor.state.loadingState = .data(loginState())
         assertSnapshot(of: subject, as: .tallPortraitAX5(heightMultiple: 5))
+    }
+
+    @MainActor
+    func test_snapshot_login_withAllValues_exceptTotp_noPremium() {
+        let loginState = loginState(hasPremium: false, hasTotp: false)
+        processor.state.loadingState = .data(loginState)
+        assertSnapshot(of: subject, as: .tallPortrait)
     }
 
     /// Snapshots the previews for card types.

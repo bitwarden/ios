@@ -32,10 +32,12 @@ struct ViewLoginItemView: View {
             passkeyRow(fido2Credential)
         }
 
-        if !store.state.isTOTPAvailable {
-            premiumSubscriptionRequired
-        } else if let totpModel = store.state.totpCode {
-            totpRow(totpModel)
+        if let totpModel = store.state.totpCode {
+            if store.state.isTOTPAvailable {
+                totpRow(totpModel)
+            } else {
+                premiumSubscriptionRequired
+            }
         }
     }
 
