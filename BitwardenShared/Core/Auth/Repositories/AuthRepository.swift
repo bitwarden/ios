@@ -868,6 +868,9 @@ extension DefaultAuthRepository: AuthRepository {
         case .deviceKey:
             // No-op: nothing extra (for now).
             break
+        case .keyConnector:
+            // No-op: nothing extra to do for Key Connector.
+            break
         case let .password(password, _):
             let hashedPassword = try await authService.hashPassword(
                 password: password,

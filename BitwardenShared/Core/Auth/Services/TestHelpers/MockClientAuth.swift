@@ -13,6 +13,14 @@ class MockClientAuth: ClientAuthProtocol {
     var hashPasswordPurpose: HashPurpose?
     var hashPasswordResult: Result<String, Error> = .success("hash password")
 
+    var makeKeyConnectorKeysResult: Result<KeyConnectorResponse, Error> = .success(
+        KeyConnectorResponse(
+            masterKey: "masterKey",
+            encryptedUserKey: "encryptedUserKey",
+            keys: RsaKeyPair(public: "public", private: "private")
+        )
+    )
+
     var makeRegisterKeysEmail: String?
     var makeRegisterKeysPassword: String?
     var makeRegisterKeysKdf: Kdf?
@@ -89,6 +97,10 @@ class MockClientAuth: ClientAuthProtocol {
         hashPasswordPurpose = purpose
 
         return try hashPasswordResult.get()
+    }
+
+    func makeKeyConnectorKeys() throws -> KeyConnectorResponse {
+        try makeKeyConnectorKeysResult.get()
     }
 
     func makeRegisterKeys(email: String, password: String, kdf: Kdf) throws -> RegisterKeyResponse {
