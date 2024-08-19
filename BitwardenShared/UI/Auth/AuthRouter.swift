@@ -12,6 +12,9 @@ final class AuthRouter: NSObject, Router {
         & HasStateService
         & HasVaultTimeoutService
 
+    /// Whether the app is running as an extension.
+    let isInAppExtension: Bool
+
     /// The services used by this router.
     let services: Services
 
@@ -19,10 +22,15 @@ final class AuthRouter: NSObject, Router {
 
     /// Creates a new `AuthRouter`.
     ///
-    /// - Parameter services: The services used by this router.
-    ///
     /// - Parameters:
-    init(services: Services) {
+    ///   - isInAppExtension: Whether the app is running as an extension.
+    ///   - services: The services used by this router.
+    ///
+    init(
+        isInAppExtension: Bool,
+        services: Services
+    ) {
+        self.isInAppExtension = isInAppExtension
         self.services = services
     }
 

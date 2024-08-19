@@ -44,7 +44,10 @@ class AuthCoordinatorTests: BitwardenTestCase { // swiftlint:disable:this type_b
             stateService: stateService,
             vaultTimeoutService: vaultTimeoutService
         )
-        authRouter = AuthRouter(services: services)
+        authRouter = AuthRouter(
+            isInAppExtension: false,
+            services: services
+        )
         subject = AuthCoordinator(
             appExtensionDelegate: MockAppExtensionDelegate(),
             delegate: authDelegate,
