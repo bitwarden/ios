@@ -5,6 +5,7 @@ import XCTest
 class SingleSignOnProcessorTests: BitwardenTestCase {
     // MARK: Properties
 
+    var authRepository: MockAuthRepository!
     var authService: MockAuthService!
     var client: MockHTTPClient!
     var coordinator: MockCoordinator<AuthRoute, AuthEvent>!
@@ -17,12 +18,14 @@ class SingleSignOnProcessorTests: BitwardenTestCase {
     override func setUp() {
         super.setUp()
 
+        authRepository = MockAuthRepository()
         authService = MockAuthService()
         client = MockHTTPClient()
         coordinator = MockCoordinator<AuthRoute, AuthEvent>()
         errorReporter = MockErrorReporter()
         stateService = MockStateService()
         let services = ServiceContainer.withMocks(
+            authRepository: authRepository,
             authService: authService,
             errorReporter: errorReporter,
             httpClient: client,
@@ -39,6 +42,7 @@ class SingleSignOnProcessorTests: BitwardenTestCase {
     override func tearDown() {
         super.tearDown()
 
+        authRepository = nil
         authService = nil
         client = nil
         coordinator = nil
@@ -202,7 +206,7 @@ class SingleSignOnProcessorTests: BitwardenTestCase {
     @MainActor
     func test_singleSignOnCompleted_vaultLocked() {
         // Set up the mock data.
-        authService.loginWithSingleSignOnResult = .success(.fixtureAccountLogin())
+        authService.loginWithSingleSignOnResult = .success(.masterPassword(.fixtureAccountLogin()))
         subject.state.identifierText = "BestOrganization"
 
         // Receive the completed code.
@@ -227,11 +231,11 @@ class SingleSignOnProcessorTests: BitwardenTestCase {
         )
     }
 
-    /// `singleSignOnCompleted(code:)` navigates to the complete route if the vault is unlocked.
+    /// `singleSignOnCompleted(code:)` navigates to the complete route if the user uses Key Connector.
     @MainActor
-    func test_singleSignOnCompleted_vaultUnlocked() {
+    func test_singleSignOnCompleted_vaultUnlockedKeyConnector() {
         // Set up the mock data.
-        authService.loginWithSingleSignOnResult = .success(nil)
+        authService.loginWithSingleSignOnResult = .success(.keyConnector)
         subject.state.identifierText = "BestOrganization"
 
         // Receive the completed code.
@@ -239,6 +243,26 @@ class SingleSignOnProcessorTests: BitwardenTestCase {
         waitFor(!coordinator.routes.isEmpty)
 
         // Verify the results.
+        XCTAssertTrue(authRepository.unlockVaultWithKeyConnectorKeyCalled)
+        XCTAssertEqual(authService.loginWithSingleSignOnCode, "super_cool_secret_code")
+        XCTAssertEqual(stateService.rememberedOrgIdentifier, "BestOrganization")
+        XCTAssertFalse(coordinator.isLoadingOverlayShowing)
+        XCTAssertEqual(coordinator.routes, [.complete, .dismiss])
+    }
+
+    /// `singleSignOnCompleted(code:)` navigates to the complete route if the user uses TDE.
+    @MainActor
+    func test_singleSignOnCompleted_vaultUnlockedTDE() {
+        // Set up the mock data.
+        authService.loginWithSingleSignOnResult = .success(.deviceKey)
+        subject.state.identifierText = "BestOrganization"
+
+        // Receive the completed code.
+        subject.singleSignOnCompleted(code: "super_cool_secret_code")
+        waitFor(!coordinator.routes.isEmpty)
+
+        // Verify the results.
+        XCTAssertTrue(authRepository.unlockVaultWithDeviceKeyCalled)
         XCTAssertEqual(authService.loginWithSingleSignOnCode, "super_cool_secret_code")
         XCTAssertEqual(stateService.rememberedOrgIdentifier, "BestOrganization")
         XCTAssertFalse(coordinator.isLoadingOverlayShowing)

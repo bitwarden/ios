@@ -51,6 +51,21 @@ enum AuthError: Error {
     case unableToResendEmail
 }
 
+// MARK: - LoginUnlockMethod
+
+/// An enumeration of vault unlock methods that can be used when a user is logging in.
+///
+enum LoginUnlockMethod: Equatable {
+    /// The user uses a device key to unlock the vault.
+    case deviceKey
+
+    /// The user needs to unlock their vault with their master password.
+    case masterPassword(Account)
+
+    /// The user uses key connector to unlock the vault.
+    case keyConnector
+}
+
 // MARK: - AuthService
 
 /// A protocol for a service used that handles the auth logic.
@@ -152,9 +167,9 @@ protocol AuthService {
     ///   - code: The code received from the single sign on WebAuth flow.
     ///   - email: The user's email address.
     ///
-    /// - Returns: The account to unlock the vault for, or nil if the vault does not need to be unlocked.
+    /// - Returns: The vault unlock method to use after login.
     ///
-    func loginWithSingleSignOn(code: String, email: String) async throws -> Account?
+    func loginWithSingleSignOn(code: String, email: String) async throws -> LoginUnlockMethod
 
     /// Continue the previous login attempt with the addition of the two-factor information.
     ///
@@ -165,7 +180,7 @@ protocol AuthService {
     ///   - remember: Whether to remember the two-factor code.
     ///   - captchaToken:  An optional captcha token value to add to the token request.
     ///
-    /// - Returns: The account to unlock the vault for.
+    /// - Returns: The vault unlock method to use after login.
     ///
     func loginWithTwoFactorCode(
         email: String,
@@ -173,7 +188,7 @@ protocol AuthService {
         method: TwoFactorAuthMethod,
         remember: Bool,
         captchaToken: String?
-    ) async throws -> Account?
+    ) async throws -> LoginUnlockMethod
 
     /// Evaluates the supplied master password against the master password policy provided by the Identity response.
     /// - Parameters:
@@ -554,7 +569,12 @@ class DefaultAuthService: AuthService { // swiftlint:disable:this type_body_leng
         }
     }
 
-    /// Check TDE user decryption options to see if can unlock with trusted deviceKey or needs further actions
+    /// Check TDE user decryption options to see if can unlock with trusted deviceKey or needs
+    /// further actions.
+    ///
+    /// - Parameter response: The response received from the identity token request.
+    /// - Returns: Whether the vault can be unlocked with the trusted device key.
+    ///
     private func canUnlockWithDeviceKey(_ response: IdentityTokenResponseModel) async throws -> Bool {
         if let decryptionOptions = response.userDecryptionOptions,
            let trustedDeviceOption = decryptionOptions.trustedDeviceOption {
@@ -586,7 +606,7 @@ class DefaultAuthService: AuthService { // swiftlint:disable:this type_body_leng
         return false
     }
 
-    func loginWithSingleSignOn(code: String, email: String) async throws -> Account? {
+    func loginWithSingleSignOn(code: String, email: String) async throws -> LoginUnlockMethod {
         // Get the identity token to log in to Bitwarden.
         let response = try await getIdentityTokenResponse(
             authenticationMethod: .authorizationCode(
@@ -598,12 +618,14 @@ class DefaultAuthService: AuthService { // swiftlint:disable:this type_body_leng
         )
 
         if try await canUnlockWithDeviceKey(response) {
-            return nil
+            return .deviceKey
         }
 
-        // Return the account if the vault still needs to be unlocked and nil otherwise.
-        // TODO: BIT-1392 Wait for SDK to support unlocking vault for TDE accounts.
-        return try await stateService.getActiveAccount()
+        if try await canUnlockWithKeyConnectorKey(response) {
+            return .keyConnector
+        }
+
+        return try await .masterPassword(stateService.getActiveAccount())
     }
 
     func loginWithTwoFactorCode(
@@ -612,7 +634,7 @@ class DefaultAuthService: AuthService { // swiftlint:disable:this type_body_leng
         method: TwoFactorAuthMethod,
         remember: Bool,
         captchaToken: String? = nil
-    ) async throws -> Account? {
+    ) async throws -> LoginUnlockMethod {
         guard var twoFactorRequest else { throw AuthError.missingTwoFactorRequest }
 
         // Add the two factor information to the request.
@@ -636,11 +658,14 @@ class DefaultAuthService: AuthService { // swiftlint:disable:this type_body_leng
         resendEmailModel = nil
 
         if try await canUnlockWithDeviceKey(response) {
-            return nil
+            return .deviceKey
         }
 
-        // Return the account if the vault still needs to be unlocked.
-        return try await stateService.getActiveAccount()
+        if try await canUnlockWithKeyConnectorKey(response) {
+            return .keyConnector
+        }
+
+        return try await .masterPassword(stateService.getActiveAccount())
     }
 
     func requirePasswordChange(
@@ -703,6 +728,19 @@ class DefaultAuthService: AuthService { // swiftlint:disable:this type_body_leng
     }
 
     // MARK: Private Methods
+
+    /// Check whether the user can unlock their vault with a Key Connector key.
+    ///
+    /// - Parameter response: The response received from the identity token request.
+    /// - Returns: Whether the vault can be unlocked with a Key Connector key.
+    ///
+    private func canUnlockWithKeyConnectorKey(_ response: IdentityTokenResponseModel) async throws -> Bool {
+        guard response.keyConnectorUrl != nil ||
+            response.userDecryptionOptions?.keyConnectorOption?.keyConnectorUrl != nil
+        else { return false }
+
+        return true
+    }
 
     /// Get the fingerprint phrase from the public key of a login request.
     ///

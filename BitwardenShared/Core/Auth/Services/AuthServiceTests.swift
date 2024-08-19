@@ -452,6 +452,16 @@ class AuthServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body_
         XCTAssertNil(cachedToken)
     }
 
+    /// `loginWithSingleSignOn(code:email:)` returns the key connector unlock method if the user
+    /// uses key connector.
+    func test_loginSingleSignOn_keyConnector() async throws {
+        client.result = .httpSuccess(testData: .identityTokenKeyConnector)
+
+        let unlockMethod = try await subject.loginWithSingleSignOn(code: "super_cool_secret_code", email: "")
+
+        XCTAssertEqual(unlockMethod, .keyConnector)
+    }
+
     /// `loginWithSingleSignOn(code:email:)` throws an error if the user doesn't have a master password set.
     func test_loginSingleSignOn_noMasterPassword() async {
         client.result = .httpSuccess(testData: .identityTokenNoMasterPassword)
@@ -470,7 +480,7 @@ class AuthServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body_
         systemDevice.modelIdentifier = "Model id"
 
         // Attempt to login.
-        let account = try await subject.loginWithSingleSignOn(code: "super_cool_secret_code", email: "")
+        let unlockMethod = try await subject.loginWithSingleSignOn(code: "super_cool_secret_code", email: "")
 
         // Verify the results.
         let tokenRequest = IdentityTokenRequestModel(
@@ -508,7 +518,7 @@ class AuthServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body_
             IdentityTokenResponseModel.fixture().refreshToken
         )
 
-        XCTAssertEqual(account, .fixtureAccountLogin())
+        XCTAssertEqual(unlockMethod, .masterPassword(.fixtureAccountLogin()))
     }
 
     /// `loginWithTwoFactorCode(email:code:method:remember:captchaToken:)` uses the cached request but with two factor
@@ -547,7 +557,7 @@ class AuthServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body_
         }
 
         // Login with the two-factor code.
-        let account = try await subject.loginWithTwoFactorCode(
+        let unlockMethod = try await subject.loginWithTwoFactorCode(
             email: "email@example.com",
             code: "just_a_lil_code",
             method: .email,
@@ -581,7 +591,44 @@ class AuthServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body_
             IdentityTokenResponseModel.fixture().refreshToken
         )
 
-        XCTAssertEqual(account, .fixtureAccountLogin())
+        XCTAssertEqual(unlockMethod, .masterPassword(.fixtureAccountLogin()))
+    }
+
+    /// `loginWithTwoFactorCode()` returns the key connector unlock method if the user uses key connector.
+    func test_loginWithTwoFactorCode_keyConnector() async throws {
+        client.results = [
+            .httpSuccess(testData: .preLoginSuccess),
+            .httpFailure(
+                statusCode: 400,
+                headers: [:],
+                data: APITestData.identityTokenTwoFactorError.data
+            ),
+            .httpSuccess(testData: .identityTokenKeyConnector),
+        ]
+
+        // First login with the master password so that the request will be saved.
+        let authMethodsData = AuthMethodsData.fixture()
+        await assertAsyncThrows(
+            error: IdentityTokenRequestError.twoFactorRequired(
+                authMethodsData,
+                "exampleToken",
+                "BWCaptchaBypass_ABCXYZ"
+            )
+        ) {
+            try await subject.loginWithMasterPassword(
+                "Password1234!",
+                username: "email@example.com",
+                captchaToken: nil
+            )
+        }
+
+        let unlockMethod = try await subject.loginWithTwoFactorCode(
+            email: "email@example.com",
+            code: "just_a_lil_code",
+            method: .email,
+            remember: true
+        )
+        XCTAssertEqual(unlockMethod, .keyConnector)
     }
 
     /// `requirePasswordChange(email:masterPassword:policy)` returns `false` if there

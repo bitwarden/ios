@@ -407,6 +407,11 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
             stateService: stateService
         )
 
+        let keyConnectorService = DefaultKeyConnectorService(
+            keyConnectorAPIService: apiService,
+            stateService: stateService
+        )
+
         let syncService = DefaultSyncService(
             accountAPIService: apiService,
             cipherService: cipherService,
@@ -469,6 +474,7 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
             configService: configService,
             environmentService: environmentService,
             keychainService: keychainRepository,
+            keyConnectorService: keyConnectorService,
             organizationAPIService: apiService,
             organizationService: organizationService,
             organizationUserAPIService: apiService,

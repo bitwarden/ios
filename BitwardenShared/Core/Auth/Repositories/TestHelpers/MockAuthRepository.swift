@@ -56,7 +56,9 @@ class MockAuthRepository: AuthRepository { // swiftlint:disable:this type_body_l
 
     var unlockVaultResult: Result<Void, Error> = .success(())
     var unlockVaultWithBiometricsResult: Result<Void, Error> = .success(())
+    var unlockVaultWithDeviceKeyCalled = false
     var unlockVaultWithDeviceKeyResult: Result<Void, Error> = .success(())
+    var unlockVaultWithKeyConnectorKeyCalled = false
     var unlockVaultWithKeyConnectorKeyResult: Result<Void, Error> = .success(())
     var unlockVaultWithNeverlockKeyCalled = false
     var unlockVaultWithNeverlockResult: Result<Void, Error> = .success(())
@@ -252,10 +254,12 @@ class MockAuthRepository: AuthRepository { // swiftlint:disable:this type_body_l
     }
 
     func unlockVaultWithDeviceKey() async throws {
+        unlockVaultWithDeviceKeyCalled = true
         try unlockVaultWithDeviceKeyResult.get()
     }
 
     func unlockVaultWithKeyConnectorKey() async throws {
+        unlockVaultWithKeyConnectorKeyCalled = true
         try unlockVaultWithKeyConnectorKeyResult.get()
     }
 

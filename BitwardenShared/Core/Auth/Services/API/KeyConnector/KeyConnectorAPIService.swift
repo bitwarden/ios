@@ -1,7 +1,5 @@
 import Foundation
 
-// swiftlint:disable inclusive_language
-
 // MARK: - KeyConnectorAPIService
 
 /// A protocol for an API service used to make key connector requests.
@@ -38,5 +36,3 @@ extension APIService: KeyConnectorAPIService {
         _ = try await service.send(PostKeyConnectorUserKeyRequest(body: body))
     }
 }
-
-// swiftlint:enable inclusive_language
