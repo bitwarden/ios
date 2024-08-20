@@ -4,6 +4,7 @@ import XCTest
 
 // MARK: - AccountAPIServiceTests
 
+// swiftlint:disable file_length
 class AccountAPIServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body_length
     // MARK: Properties
 
@@ -384,6 +385,36 @@ class AccountAPIServiceTests: BitwardenTestCase { // swiftlint:disable:this type
         XCTAssertNotNil(client.requests[0].body)
         XCTAssertEqual(client.requests[0].method, .put)
         XCTAssertEqual(client.requests[0].url.absoluteString, "https://example.com/api/accounts/update-temp-password")
+    }
+
+    /// `verifyEmailToken()` performs a request to verify if the verification token received by email is still valid.
+    func test_verifyEmailToken() async throws {
+        client.result = .httpSuccess(testData: .emptyResponse)
+
+        try await subject.verifyEmailToken(
+            email: "example@email.com",
+            emailVerificationToken: "verification-token"
+        )
+
+        XCTAssertEqual(client.requests.count, 1)
+        XCTAssertNotNil(client.requests[0].body)
+        XCTAssertEqual(client.requests[0].method, .post)
+        XCTAssertEqual(
+            client.requests[0].url.absoluteString,
+            "https://example.com/identity/accounts/register/verification-email-clicked"
+        )
+    }
+
+    /// `verifyEmailToken()` throws error when call fails.
+    func test_verifyEmailToken_httpFailure() async throws {
+        client.result = .httpFailure()
+
+        await assertAsyncThrows {
+            try await subject.verifyEmailToken(
+                email: "example@email.com",
+                emailVerificationToken: "verification-token"
+            )
+        }
     }
 
     /// `verifyOtp()` performs a request to verify a one-time password for the user.
