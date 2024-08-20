@@ -355,7 +355,7 @@ public class AppProcessor {
             services.application?.endBackgroundTask(taskId)
             backgroundTaskId = nil
         }
-        backgroundTaskId = services.application?.beginBackgroundTask(
+        backgroundTaskId = services.application?.startBackgroundTask(
             withName: "SendEventBackgroundTask",
             expirationHandler: { [weak self] in
                 if let backgroundTaskId = self?.backgroundTaskId {
