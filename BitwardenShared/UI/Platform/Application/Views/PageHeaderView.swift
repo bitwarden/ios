@@ -23,7 +23,7 @@ struct PageHeaderView: View {
 
     var body: some View {
         dynamicStackView {
-            Image(decorative: Asset.Images.biometricsPhone)
+            image
                 .resizable()
                 .frame(width: 100, height: 100)
 

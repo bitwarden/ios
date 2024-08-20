@@ -12,6 +12,9 @@ enum FeatureFlag: String, Codable {
     /// A feature flag for the intro carousel flow.
     case nativeCarouselFlow = "native-carousel-flow"
 
+    /// A feature flag for the create account flow.
+    case nativeCreateAccountFlow = "native-create-account-flow"
+
     // MARK: Test Flags
 
     /// A test feature flag that isn't remotely configured.
@@ -27,6 +30,7 @@ enum FeatureFlag: String, Codable {
         switch self {
         case .emailVerification,
              .nativeCarouselFlow,
+             .nativeCreateAccountFlow,
              .testLocalFeatureFlag:
             false
         case .testRemoteFeatureFlag:

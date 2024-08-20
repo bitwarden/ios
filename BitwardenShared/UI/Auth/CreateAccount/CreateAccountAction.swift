@@ -9,11 +9,17 @@ enum CreateAccountAction: Equatable {
     /// The user edited the email text field.
     case emailTextChanged(String)
 
+    /// The user tapped on learn more.
+    case learnMoreTapped
+
     /// The user edited the password hint text field.
     case passwordHintTextChanged(String)
 
     /// The user edited the master password text field.
     case passwordTextChanged(String)
+
+    /// The user tapped on prevent account lock.
+    case preventAccountLockTapped
 
     /// The user edited the re-type password text field.
     case retypePasswordTextChanged(String)

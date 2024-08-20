@@ -10,10 +10,22 @@ struct PasswordStrengthIndicator: View {
     /// The password's strength.
     let passwordStrength: PasswordStrength
 
+    /// The current count of characters in the password.
+    let passwordTextCount: Int
+
+    /// The required text count for the password
+    let requiredTextCount: Int
+
+    /// If the native-create-account feature flag is on.
+    let nativeCreateAccountFlow: Bool
+
     // MARK: View
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 0) {
+        VStack(
+            alignment: .leading,
+            spacing: nativeCreateAccountFlow ? 4 : 0
+        ) {
             GeometryReader { geometry in
                 ZStack(alignment: .leading) {
                     RoundedRectangle(cornerRadius: 2)
@@ -27,11 +39,44 @@ struct PasswordStrengthIndicator: View {
                 .frame(height: 4)
             }
 
-            if let text = passwordStrength.text {
-                Text(text)
-                    .foregroundColor(Color(asset: passwordStrength.color))
-                    .styleGuide(.footnote)
-                    .frame(maxWidth: .infinity, alignment: .leading)
+            if nativeCreateAccountFlow {
+                HStack {
+                    HStack(spacing: 4) {
+                        if passwordTextCount >= requiredTextCount {
+                            Image(asset: Asset.Images.check)
+                                .foregroundColor(Color(asset: Asset.Colors.loadingGreen))
+                                .frame(width: 10)
+                                .padding(1)
+                        } else {
+                            Circle()
+                                .stroke(Color(.separatorOpaque), lineWidth: 2)
+                                .frame(width: 10)
+                                .padding(1)
+                        }
+
+                        Text("\(requiredTextCount) \(Localizations.characters)")
+                            .foregroundColor(
+                                passwordTextCount >= requiredTextCount ?
+                                    Color(asset: Asset.Colors.loadingGreen) :
+                                    Color(asset: Asset.Colors.separatorOpaque)
+                            )
+                            .styleGuide(.footnote, weight: .bold)
+                    }
+
+                    Spacer()
+
+                    Text(passwordStrength.text ?? "")
+                        .foregroundColor(Color(asset: passwordStrength.color))
+                        .styleGuide(.footnote)
+                }
+                .frame(height: 10)
+            } else {
+                if let text = passwordStrength.text {
+                    Text(text)
+                        .foregroundColor(Color(asset: passwordStrength.color))
+                        .styleGuide(.footnote)
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                }
             }
         }
     }
@@ -43,8 +88,16 @@ struct PasswordStrengthIndicator: View {
     /// - Parameter passwordStrengthScore: The scoring metric representing the strength of the
     ///     entered password.
     ///
-    init(passwordStrengthScore: UInt8? = nil) {
+    init(
+        passwordStrengthScore: UInt8? = nil,
+        passwordTextCount: Int = 0,
+        requiredTextCount: Int = 0,
+        nativeCreateAccountFlow: Bool = false
+    ) {
         passwordStrength = PasswordStrength(score: passwordStrengthScore)
+        self.passwordTextCount = passwordTextCount
+        self.requiredTextCount = requiredTextCount
+        self.nativeCreateAccountFlow = nativeCreateAccountFlow
     }
 }
 
@@ -110,12 +163,14 @@ extension PasswordStrengthIndicator {
     ScrollView {
         VStack {
             PasswordStrengthIndicator(
-                passwordStrengthScore: nil
+                passwordStrengthScore: nil,
+                passwordTextCount: 0
             )
 
             ForEach(UInt8(0) ... UInt8(4), id: \.self) { score in
                 PasswordStrengthIndicator(
-                    passwordStrengthScore: score
+                    passwordStrengthScore: score,
+                    passwordTextCount: 0
                 )
             }
         }

@@ -4,7 +4,7 @@ import SwiftUI
 
 /// A view that allows the user to create an account.
 ///
-struct CreateAccountView: View {
+struct CreateAccountView: View { // swiftlint:disable:this type_body_length
     // MARK: Properties
 
     /// An action that opens URLs.
@@ -26,6 +26,25 @@ struct CreateAccountView: View {
     // MARK: View
 
     var body: some View {
+        VStack(spacing: 0) {
+            if store.state.nativeCreateAccountFeatureFlag {
+                newCreateAccountView
+            } else {
+                originalCreateAccountView
+                    .toolbar {
+                        cancelToolbarItem {
+                            store.send(.dismiss)
+                        }
+                    }
+            }
+        }
+        .frame(maxWidth: .infinity)
+        .animation(.default, value: store.state.passwordStrengthScore)
+        .navigationBar(title: Localizations.createAccount, titleDisplayMode: .inline)
+        .scrollView()
+    }
+
+    private var originalCreateAccountView: some View {
         VStack(spacing: 16) {
             VStack(spacing: 0) {
                 emailAndPassword
@@ -33,25 +52,131 @@ struct CreateAccountView: View {
 
                 passwordStrengthIndicator
             }
-
             retypePassword
-
             passwordHint
-
             VStack(spacing: 24) {
                 toggles
-
                 submitButton
             }
         }
-        .animation(.default, value: store.state.passwordStrengthScore)
-        .navigationBar(title: Localizations.createAccount, titleDisplayMode: .inline)
-        .scrollView()
-        .toolbar {
-            cancelToolbarItem {
-                store.send(.dismiss)
+    }
+
+    private var newCreateAccountView: some View {
+        VStack(spacing: 0) {
+            PageHeaderView(
+                image: Asset.Images.createAccountPassword,
+                title: Localizations.chooseYourMasterPassword,
+                message: Localizations.chooseYourMasterPasswordMessage
+            )
+
+            learnMoreSection
+                .padding(.vertical, 32)
+
+            VStack(spacing: 16) {
+                BitwardenTextField(
+                    title: Localizations.masterPasswordRequiredTitle,
+                    text: store.binding(
+                        get: \.passwordText,
+                        send: CreateAccountAction.passwordTextChanged
+                    ),
+                    accessibilityIdentifier: "MasterPasswordEntry",
+                    passwordVisibilityAccessibilityId: "PasswordVisibilityToggle",
+                    isPasswordVisible: store.binding(
+                        get: \.arePasswordsVisible,
+                        send: CreateAccountAction.togglePasswordVisibility
+                    )
+                )
+                .textFieldConfiguration(.password)
+
+                PasswordStrengthIndicator(
+                    passwordStrengthScore: store.state.passwordStrengthScore,
+                    passwordTextCount: store.state.passwordText.count,
+                    requiredTextCount: store.state.requiredPasswordCount,
+                    nativeCreateAccountFlow: store.state.nativeCreateAccountFeatureFlag
+                )
+
+                BitwardenTextField(
+                    title: Localizations.retypeMasterPasswordTitle,
+                    text: store.binding(
+                        get: \.retypePasswordText,
+                        send: CreateAccountAction.retypePasswordTextChanged
+                    ),
+                    accessibilityIdentifier: "ConfirmMasterPasswordEntry",
+                    passwordVisibilityAccessibilityId: "ConfirmPasswordVisibilityToggle",
+                    isPasswordVisible: store.binding(
+                        get: \.arePasswordsVisible,
+                        send: CreateAccountAction.togglePasswordVisibility
+                    )
+                )
+                .textFieldConfiguration(.password)
+
+                VStack(alignment: .leading, spacing: 8) {
+                    BitwardenTextField(
+                        title: Localizations.masterPasswordHintTitle,
+                        text: store.binding(
+                            get: \.passwordHintText,
+                            send: CreateAccountAction.passwordHintTextChanged
+                        ),
+                        accessibilityIdentifier: "MasterPasswordHintLabel"
+                    )
+
+                    VStack(alignment: .leading, spacing: 0) {
+                        Text(Localizations.bitwardenCannotResetLostPasswordMessage)
+                            .foregroundColor(Color(asset: Asset.Colors.textSecondary))
+                            .styleGuide(.footnote)
+
+                        Button {
+                            store.send(.preventAccountLockTapped)
+                        } label: {
+                            Text(Localizations.learnAboutWaysToPreventAccountLockout)
+                                .styleGuide(.footnote, weight: .bold)
+                        }
+                    }
+                }
+
+                checkBreachesToggle
+                    .frame(height: 60)
+
+                Button {
+                    Task {
+                        await store.perform(.createAccount)
+                    }
+                } label: {
+                    Text(Localizations.continue)
+                }
+                .accessibilityIdentifier("ContinueButton")
+                .buttonStyle(.primary())
+                .disabled(!store.state.continueButtonEnabled)
             }
         }
+    }
+
+    private var learnMoreSection: some View {
+        HStack(alignment: .center, spacing: 16) {
+            Image(decorative: Asset.Images.questionRound)
+                .resizable()
+                .frame(width: 24, height: 24)
+                .foregroundStyle(Asset.Colors.primaryBitwarden.swiftUIColor)
+
+            VStack(alignment: .leading, spacing: 0) {
+                Text(Localizations.whatMakesAPasswordStrong)
+                    .styleGuide(.body, weight: .semibold)
+                    .foregroundStyle(Asset.Colors.textPrimary.swiftUIColor)
+                    .multilineTextAlignment(.leading)
+
+                Button {
+                    store.send(.learnMoreTapped)
+                } label: {
+                    Text(Localizations.learnMore)
+                        .styleGuide(.subheadline)
+                        .foregroundStyle(Asset.Colors.primaryBitwarden.swiftUIColor)
+                }
+            }
+            .frame(maxWidth: .infinity, alignment: .leading)
+        }
+        .padding(16)
+        .background(Asset.Colors.backgroundTertiary.swiftUIColor)
+        .clipShape(RoundedRectangle(cornerRadius: 10))
     }
 
     // MARK: Private views
@@ -132,7 +257,8 @@ struct CreateAccountView: View {
             .padding(.bottom, 16)
 
             PasswordStrengthIndicator(
-                passwordStrengthScore: store.state.passwordStrengthScore
+                passwordStrengthScore: store.state.passwordStrengthScore,
+                passwordTextCount: store.state.passwordText.count
             )
         }
     }
