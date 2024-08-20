@@ -246,7 +246,7 @@ struct AddEditIdentityItemView: View {
 // MARK: Previews
 
 #if DEBUG
-#Preview {
+#Preview("Empty Add Edit Identity State") {
     NavigationView {
         ScrollView {
             LazyVStack(spacing: 20) {
@@ -263,6 +263,5 @@ struct AddEditIdentityItemView: View {
         .background(Asset.Colors.backgroundSecondary.swiftUIColor)
         .ignoresSafeArea()
     }
-    .previewDisplayName("Empty Add Edit Identity State")
 }
 #endif

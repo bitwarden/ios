@@ -61,22 +61,19 @@ extension ButtonStyle where Self == PrimaryButtonStyle {
 // MARK: Previews
 
 #if DEBUG
-#Preview {
+#Preview("Enabled") {
     Button("Hello World!") {}
         .buttonStyle(.primary())
-        .previewDisplayName("Enabled")
 }
 
-#Preview {
+#Preview("Disabled") {
     Button("Hello World!") {}
         .buttonStyle(.primary())
         .disabled(true)
-        .previewDisplayName("Disabled")
 }
 
-#Preview {
+#Preview("Destructive") {
     Button("Hello World!") {}
         .buttonStyle(.primary(isDestructive: true))
-        .previewDisplayName("Destructive")
 }
 #endif
