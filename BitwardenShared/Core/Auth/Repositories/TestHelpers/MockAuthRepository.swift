@@ -1,3 +1,5 @@
+import Foundation
+
 @testable import BitwardenShared
 
 class MockAuthRepository: AuthRepository { // swiftlint:disable:this type_body_length
@@ -59,6 +61,8 @@ class MockAuthRepository: AuthRepository { // swiftlint:disable:this type_body_l
     var unlockVaultWithDeviceKeyCalled = false
     var unlockVaultWithDeviceKeyResult: Result<Void, Error> = .success(())
     var unlockVaultWithKeyConnectorKeyCalled = false
+    var unlockVaultWithKeyConnectorKeyConnectorURL: URL? // swiftlint:disable:this identifier_name
+    var unlockVaultWithKeyConnectorOrgIdentifier: String?
     var unlockVaultWithKeyConnectorKeyResult: Result<Void, Error> = .success(())
     var unlockVaultWithNeverlockKeyCalled = false
     var unlockVaultWithNeverlockResult: Result<Void, Error> = .success(())
@@ -258,8 +262,10 @@ class MockAuthRepository: AuthRepository { // swiftlint:disable:this type_body_l
         try unlockVaultWithDeviceKeyResult.get()
     }
 
-    func unlockVaultWithKeyConnectorKey() async throws {
+    func unlockVaultWithKeyConnectorKey(keyConnectorURL: URL, orgIdentifier: String) async throws {
         unlockVaultWithKeyConnectorKeyCalled = true
+        unlockVaultWithKeyConnectorKeyConnectorURL = keyConnectorURL
+        unlockVaultWithKeyConnectorOrgIdentifier = orgIdentifier
         try unlockVaultWithKeyConnectorKeyResult.get()
     }
 

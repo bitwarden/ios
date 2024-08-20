@@ -438,16 +438,44 @@ class TwoFactorAuthProcessorTests: BitwardenTestCase { // swiftlint:disable:this
     }
 
     /// `perform(_:)` with `.continueTapped` logs in and unlocks the vault successfully when using
-    /// login with key connector.
+    /// login with Key Connector.
     @MainActor
     func test_perform_continueTapped_loginWithKeyConnectorKey_success() async {
-        authService.loginWithTwoFactorCodeResult = .success(.keyConnector)
+        authService.loginWithTwoFactorCodeResult = .success(.keyConnector(
+            keyConnectorURL: URL(string: "https://example.com")!
+        ))
         subject.state.verificationCode = "Test"
+        subject.state.orgIdentifier = "org-id"
 
         await subject.perform(.continueTapped)
 
         XCTAssertTrue(authRepository.unlockVaultWithKeyConnectorKeyCalled)
         XCTAssertEqual(coordinator.routes, [.complete])
+    }
+
+    /// `perform(_:)` with `.continueTapped` throws an error if the organization identifier is
+    /// missing for log in with Key Connector.
+    @MainActor
+    func test_perform_continueTapped_loginWithKeyConnectorKey_missingOrgIdentifier() async {
+        authService.loginWithTwoFactorCodeResult = .success(.keyConnector(
+            keyConnectorURL: URL(string: "https://example.com")!
+        ))
+        subject.state.verificationCode = "Test"
+
+        await subject.perform(.continueTapped)
+
+        XCTAssertFalse(authRepository.unlockVaultWithKeyConnectorKeyCalled)
+        XCTAssertEqual(
+            coordinator.alertShown,
+            [
+                .defaultAlert(
+                    title: Localizations.anErrorHasOccurred,
+                    message: Localizations.invalidVerificationCode
+                ),
+            ]
+        )
+        XCTAssertEqual(coordinator.routes, [])
+        XCTAssertEqual(errorReporter.errors as? [TwoFactorAuthError], [.missingOrgIdentifier])
     }
 
     /// `perform(_:)` with `.continueTapped` handles a two-factor error correctly.
