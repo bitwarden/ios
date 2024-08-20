@@ -302,6 +302,15 @@ class AuthCoordinatorTests: BitwardenTestCase { // swiftlint:disable:this type_b
         XCTAssertTrue(navigationController.viewControllers.first is UIHostingController<SelfHostedView>)
     }
 
+    /// `navigate(to:)` with `.removeMasterPassword` pushes the remove master password view onto the stack navigator.
+    @MainActor
+    func test_navigate_removeMasterPassword() throws {
+        subject.navigate(to: .removeMasterPassword(organizationName: "Example Org"))
+
+        XCTAssertTrue(stackNavigator.actions.last?.view is RemoveMasterPasswordView)
+        XCTAssertEqual(stackNavigator.actions.last?.type, .pushed)
+    }
+
     /// `navigate(to:)` with `.setMasterPassword` pushes the set master password view onto the stack navigator.
     @MainActor
     func test_navigate_setMasterPassword() throws {
