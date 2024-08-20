@@ -425,7 +425,20 @@ class TwoFactorAuthProcessorTests: BitwardenTestCase { // swiftlint:disable:this
     }
 
     /// `perform(_:)` with `.continueTapped` logs in and unlocks the vault successfully when using
-    /// login with device.
+    /// login with device key.
+    @MainActor
+    func test_perform_continueTapped_loginWithDeviceKey_success() async {
+        authService.loginWithTwoFactorCodeResult = .success(.deviceKey)
+        subject.state.verificationCode = "Test"
+
+        await subject.perform(.continueTapped)
+
+        XCTAssertTrue(authRepository.unlockVaultWithDeviceKeyCalled)
+        XCTAssertEqual(coordinator.routes, [.complete])
+    }
+
+    /// `perform(_:)` with `.continueTapped` logs in and unlocks the vault successfully when using
+    /// login with key connector.
     @MainActor
     func test_perform_continueTapped_loginWithKeyConnectorKey_success() async {
         authService.loginWithTwoFactorCodeResult = .success(.keyConnector)

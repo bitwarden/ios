@@ -452,6 +452,16 @@ class AuthServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body_
         XCTAssertNil(cachedToken)
     }
 
+    /// `loginWithSingleSignOn(code:email:)` returns the device key unlock method if the user
+    /// uses trusted device encryption.
+    func test_loginSingleSignOn_deviceKey() async throws {
+        client.result = .httpSuccess(testData: .identityTokenTrustedDevice)
+
+        let unlockMethod = try await subject.loginWithSingleSignOn(code: "super_cool_secret_code", email: "")
+
+        XCTAssertEqual(unlockMethod, .deviceKey)
+    }
+
     /// `loginWithSingleSignOn(code:email:)` returns the key connector unlock method if the user
     /// uses key connector.
     func test_loginSingleSignOn_keyConnector() async throws {
@@ -592,6 +602,44 @@ class AuthServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body_
         )
 
         XCTAssertEqual(unlockMethod, .masterPassword(.fixtureAccountLogin()))
+    }
+
+    /// `loginWithTwoFactorCode()` returns the device key unlock method if the user uses trusted
+    /// device encryption.
+    func test_loginWithTwoFactorCode_deviceKey() async throws {
+        client.results = [
+            .httpSuccess(testData: .preLoginSuccess),
+            .httpFailure(
+                statusCode: 400,
+                headers: [:],
+                data: APITestData.identityTokenTwoFactorError.data
+            ),
+            .httpSuccess(testData: .identityTokenTrustedDevice),
+        ]
+
+        // First login with the master password so that the request will be saved.
+        let authMethodsData = AuthMethodsData.fixture()
+        await assertAsyncThrows(
+            error: IdentityTokenRequestError.twoFactorRequired(
+                authMethodsData,
+                "exampleToken",
+                "BWCaptchaBypass_ABCXYZ"
+            )
+        ) {
+            try await subject.loginWithMasterPassword(
+                "Password1234!",
+                username: "email@example.com",
+                captchaToken: nil
+            )
+        }
+
+        let unlockMethod = try await subject.loginWithTwoFactorCode(
+            email: "email@example.com",
+            code: "just_a_lil_code",
+            method: .email,
+            remember: true
+        )
+        XCTAssertEqual(unlockMethod, .deviceKey)
     }
 
     /// `loginWithTwoFactorCode()` returns the key connector unlock method if the user uses key connector.

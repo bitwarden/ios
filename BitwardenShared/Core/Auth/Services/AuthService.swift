@@ -617,15 +617,7 @@ class DefaultAuthService: AuthService { // swiftlint:disable:this type_body_leng
             email: email
         )
 
-        if try await canUnlockWithDeviceKey(response) {
-            return .deviceKey
-        }
-
-        if try await canUnlockWithKeyConnectorKey(response) {
-            return .keyConnector
-        }
-
-        return try await .masterPassword(stateService.getActiveAccount())
+        return try await unlockMethod(for: response)
     }
 
     func loginWithTwoFactorCode(
@@ -657,15 +649,7 @@ class DefaultAuthService: AuthService { // swiftlint:disable:this type_body_leng
         self.twoFactorRequest = nil
         resendEmailModel = nil
 
-        if try await canUnlockWithDeviceKey(response) {
-            return .deviceKey
-        }
-
-        if try await canUnlockWithKeyConnectorKey(response) {
-            return .keyConnector
-        }
-
-        return try await .masterPassword(stateService.getActiveAccount())
+        return try await unlockMethod(for: response)
     }
 
     func requirePasswordChange(
@@ -735,8 +719,9 @@ class DefaultAuthService: AuthService { // swiftlint:disable:this type_body_leng
     /// - Returns: Whether the vault can be unlocked with a Key Connector key.
     ///
     private func canUnlockWithKeyConnectorKey(_ response: IdentityTokenResponseModel) async throws -> Bool {
-        guard response.keyConnectorUrl != nil ||
-            response.userDecryptionOptions?.keyConnectorOption?.keyConnectorUrl != nil
+        guard let keyConnectorUrl = response.keyConnectorUrl ??
+            response.userDecryptionOptions?.keyConnectorOption?.keyConnectorUrl,
+            !keyConnectorUrl.isEmpty
         else { return false }
 
         return true
@@ -837,6 +822,24 @@ class DefaultAuthService: AuthService { // swiftlint:disable:this type_body_leng
             // Re-throw the error.
             throw error
         }
+    }
+
+    /// Returns a `LoginUnlockMethod` based on the identity token response.
+    ///
+    /// - Parameter response: The API response for the identity token request, used to determine
+    ///     the unlock method used after login.
+    /// - Returns: The `LoginUnlockMethod` that should be used to unlock the vault after login.
+    ///
+    private func unlockMethod(for response: IdentityTokenResponseModel) async throws -> LoginUnlockMethod {
+        if try await canUnlockWithDeviceKey(response) {
+            return .deviceKey
+        }
+
+        if try await canUnlockWithKeyConnectorKey(response) {
+            return .keyConnector
+        }
+
+        return try await .masterPassword(stateService.getActiveAccount())
     }
 
     /// Saves the user's account information.
