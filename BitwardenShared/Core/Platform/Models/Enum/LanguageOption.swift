@@ -4,7 +4,7 @@ import Foundation
 
 /// An enum listing all the language options, either default (system settings) or any of the currently available
 /// localizable files.
-public enum LanguageOption: Equatable {
+public enum LanguageOption: Equatable, Sendable {
     /// Use the system settings.
     case `default`
 
