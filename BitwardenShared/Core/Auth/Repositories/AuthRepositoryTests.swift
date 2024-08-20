@@ -14,6 +14,7 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
     var clientService: MockClientService!
     var configService: MockConfigService!
     var environmentService: MockEnvironmentService!
+    var keyConnectorService: MockKeyConnectorService!
     var keychainService: MockKeychainRepository!
     var organizationService: MockOrganizationService!
     var subject: DefaultAuthRepository!
@@ -89,6 +90,7 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         biometricsRepository = MockBiometricsRepository()
         configService = MockConfigService()
         environmentService = MockEnvironmentService()
+        keyConnectorService = MockKeyConnectorService()
         keychainService = MockKeychainRepository()
         organizationService = MockOrganizationService()
         stateService = MockStateService()
@@ -103,6 +105,7 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
             configService: configService,
             environmentService: environmentService,
             keychainService: keychainService,
+            keyConnectorService: keyConnectorService,
             organizationAPIService: APIService(client: client),
             organizationService: organizationService,
             organizationUserAPIService: APIService(client: client),
@@ -1313,6 +1316,56 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
             try await subject.unlockVaultWithBiometrics()
         }
         XCTAssertTrue(vaultTimeoutService.unlockVaultHadUserInteraction)
+    }
+
+    /// `unlockVaultWithKeyConnectorKey()` unlocks the user's vault with their key connector key.
+    func test_unlockVaultWithKeyConnectorKey() async {
+        clientService.mockCrypto.initializeUserCryptoResult = .success(())
+        keyConnectorService.getMasterKeyFromKeyConnectorResult = .success("key")
+        stateService.accountEncryptionKeys = [
+            "1": AccountEncryptionKeys(
+                encryptedPrivateKey: "private",
+                encryptedUserKey: "user"
+            ),
+        ]
+        stateService.activeAccount = .fixture()
+
+        await assertAsyncDoesNotThrow {
+            try await subject.unlockVaultWithKeyConnectorKey()
+        }
+
+        XCTAssertEqual(
+            clientService.mockCrypto.initializeUserCryptoRequest,
+            InitUserCryptoRequest(
+                kdfParams: KdfConfig().sdkKdf,
+                email: "user@bitwarden.com",
+                privateKey: "private",
+                method: .keyConnector(masterKey: "key", userKey: "user")
+            )
+        )
+        XCTAssertTrue(vaultTimeoutService.unlockVaultHadUserInteraction)
+    }
+
+    /// `unlockVaultWithKeyConnectorKey()` throws an error if the user is missing an encrypted user key.
+    func test_unlockVaultWithKeyConnectorKey_missingEncryptedUserKey() async {
+        stateService.activeAccount = .fixture()
+        stateService.accountEncryptionKeys = [
+            "1": AccountEncryptionKeys(
+                encryptedPrivateKey: "private",
+                encryptedUserKey: nil
+            ),
+        ]
+
+        await assertAsyncThrows(error: StateServiceError.noEncUserKey) {
+            try await subject.unlockVaultWithKeyConnectorKey()
+        }
+    }
+
+    /// `unlockVaultWithKeyConnectorKey()` throws an error if there's no active account.
+    func test_unlockVaultWithKeyConnectorKey_noActiveAccount() async {
+        await assertAsyncThrows(error: StateServiceError.noActiveAccount) {
+            try await subject.unlockVaultWithKeyConnectorKey()
+        }
     }
 
     /// `logout` throws an error with no accounts.

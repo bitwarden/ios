@@ -115,7 +115,7 @@ class TwoFactorAuthProcessorTests: BitwardenTestCase { // swiftlint:disable:this
         subject.state.authMethod = .duo
         subject.state.verificationCode = ""
         subject.state.unlockMethod = .password("duo token")
-        authService.loginWithTwoFactorCodeResult = .success(.fixtureAccountLogin())
+        authService.loginWithTwoFactorCodeResult = .success(.masterPassword(.fixtureAccountLogin()))
 
         let task = Task {
             subject.didComplete(code: "1234")
@@ -207,7 +207,7 @@ class TwoFactorAuthProcessorTests: BitwardenTestCase { // swiftlint:disable:this
     @MainActor
     func test_webAuthnAuthenticationFlowDelegate_didComplete() {
         subject.state.authMethod = .webAuthn
-        authService.loginWithTwoFactorCodeResult = .success(.fixtureAccountLogin())
+        authService.loginWithTwoFactorCodeResult = .success(.masterPassword(.fixtureAccountLogin()))
         subject.state.unlockMethod = .password("token")
 
         let task = Task {
@@ -424,6 +424,32 @@ class TwoFactorAuthProcessorTests: BitwardenTestCase { // swiftlint:disable:this
         XCTAssertEqual(authRepository.unlockVaultFromLoginWithDeviceMasterPasswordHash, "MASTER_PASSWORD_HASH")
     }
 
+    /// `perform(_:)` with `.continueTapped` logs in and unlocks the vault successfully when using
+    /// login with device key.
+    @MainActor
+    func test_perform_continueTapped_loginWithDeviceKey_success() async {
+        authService.loginWithTwoFactorCodeResult = .success(.deviceKey)
+        subject.state.verificationCode = "Test"
+
+        await subject.perform(.continueTapped)
+
+        XCTAssertTrue(authRepository.unlockVaultWithDeviceKeyCalled)
+        XCTAssertEqual(coordinator.routes, [.complete])
+    }
+
+    /// `perform(_:)` with `.continueTapped` logs in and unlocks the vault successfully when using
+    /// login with key connector.
+    @MainActor
+    func test_perform_continueTapped_loginWithKeyConnectorKey_success() async {
+        authService.loginWithTwoFactorCodeResult = .success(.keyConnector)
+        subject.state.verificationCode = "Test"
+
+        await subject.perform(.continueTapped)
+
+        XCTAssertTrue(authRepository.unlockVaultWithKeyConnectorKeyCalled)
+        XCTAssertEqual(coordinator.routes, [.complete])
+    }
+
     /// `perform(_:)` with `.continueTapped` handles a two-factor error correctly.
     @MainActor
     func test_perform_continueTapped_twoFactorError() async {
@@ -497,7 +523,7 @@ class TwoFactorAuthProcessorTests: BitwardenTestCase { // swiftlint:disable:this
         subject.state.verificationCode = ""
         subject.state.unlockMethod = nil
         let expectedAccount = Account.fixtureAccountLogin()
-        authService.loginWithTwoFactorCodeResult = .success(expectedAccount)
+        authService.loginWithTwoFactorCodeResult = .success(.masterPassword(expectedAccount))
 
         await subject.perform(.receivedDuoToken("DuoToken"))
 
@@ -523,7 +549,7 @@ class TwoFactorAuthProcessorTests: BitwardenTestCase { // swiftlint:disable:this
         subject.state.authMethod = .duo
         subject.state.verificationCode = ""
         subject.state.unlockMethod = .password("duo token")
-        authService.loginWithTwoFactorCodeResult = .success(.fixtureAccountLogin())
+        authService.loginWithTwoFactorCodeResult = .success(.masterPassword(.fixtureAccountLogin()))
 
         await subject.perform(.receivedDuoToken("DuoToken"))
 

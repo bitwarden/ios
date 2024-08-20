@@ -192,6 +192,10 @@ protocol AuthRepository: AnyObject {
     ///
     func unlockVaultWithDeviceKey() async throws
 
+    /// Attempts to unlock the user's vault with the user's Key Connector key.
+    ///
+    func unlockVaultWithKeyConnectorKey() async throws
+
     /// Attempts to unlock the user's vault with the stored neverlock key.
     ///
     func unlockVaultWithNeverlockKey() async throws
@@ -336,6 +340,9 @@ class DefaultAuthRepository {
     /// The keychain service used by this repository.
     private let keychainService: KeychainRepository
 
+    /// The service used by the application to manage Key Connector.
+    private let keyConnectorService: KeyConnectorService
+
     /// The service used by the application to make organization-related API requests.
     private let organizationAPIService: OrganizationAPIService
 
@@ -366,6 +373,7 @@ class DefaultAuthRepository {
     ///   - configService: The service to get server-specified configuration.
     ///   - environmentService: The service used by the application to manage the environment settings.
     ///   - keychainService: The keychain service used by the application.
+    ///   - keyConnectorService: The service used by the application to manage Key Connector.
     ///   - organizationAPIService: The service used by the application to make organization-related API requests.
     ///   - organizationService: The service used to manage syncing and updates to the user's organizations.
     ///   - organizationUserAPIService: The service used by the application to make organization
@@ -382,6 +390,7 @@ class DefaultAuthRepository {
         configService: ConfigService,
         environmentService: EnvironmentService,
         keychainService: KeychainRepository,
+        keyConnectorService: KeyConnectorService,
         organizationAPIService: OrganizationAPIService,
         organizationService: OrganizationService,
         organizationUserAPIService: OrganizationUserAPIService,
@@ -396,6 +405,7 @@ class DefaultAuthRepository {
         self.configService = configService
         self.environmentService = environmentService
         self.keychainService = keychainService
+        self.keyConnectorService = keyConnectorService
         self.organizationAPIService = organizationAPIService
         self.organizationService = organizationService
         self.organizationUserAPIService = organizationUserAPIService
@@ -736,6 +746,15 @@ extension DefaultAuthRepository: AuthRepository {
             protectedDevicePrivateKey: protectedDevicePrivateKey,
             deviceProtectedUserKey: deviceProtectedUserKey
         ))
+    }
+
+    func unlockVaultWithKeyConnectorKey() async throws {
+        let account = try await stateService.getActiveAccount()
+        let encryptionKeys = try await stateService.getAccountEncryptionKeys(userId: account.profile.userId)
+        guard let encryptedUserKey = encryptionKeys.encryptedUserKey else { throw StateServiceError.noEncUserKey }
+
+        let masterKey = try await keyConnectorService.getMasterKeyFromKeyConnector()
+        try await unlockVault(method: .keyConnector(masterKey: masterKey, userKey: encryptedUserKey))
     }
 
     func unlockVaultWithNeverlockKey() async throws {

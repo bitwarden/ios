@@ -163,7 +163,10 @@ extension SingleSignOnProcessor: SingleSignOnFlowDelegate {
         Task {
             do {
                 // Use the code to authenticate the user with Bitwarden.
-                let account = try await self.services.authService.loginWithSingleSignOn(code: code, email: state.email)
+                let unlockMethod = try await self.services.authService.loginWithSingleSignOn(
+                    code: code,
+                    email: state.email
+                )
 
                 // Remember the organization identifier after successfully logging on.
                 services.stateService.rememberedOrgIdentifier = state.identifierText
@@ -172,7 +175,12 @@ extension SingleSignOnProcessor: SingleSignOnFlowDelegate {
                 coordinator.hideLoadingOverlay()
 
                 // Show the appropriate view and dismiss this sheet.
-                if let account {
+                switch unlockMethod {
+                case .deviceKey:
+                    // Attempt to unlock the vault with tde.
+                    try await services.authRepository.unlockVaultWithDeviceKey()
+                    coordinator.navigate(to: .complete)
+                case let .masterPassword(account):
                     coordinator.navigate(
                         to: .vaultUnlock(
                             account,
@@ -181,11 +189,11 @@ extension SingleSignOnProcessor: SingleSignOnFlowDelegate {
                             didSwitchAccountAutomatically: false
                         )
                     )
-                } else {
-                    // Attempt to unlock the vault with tde.
-                    try await services.authRepository.unlockVaultWithDeviceKey()
+                case .keyConnector:
+                    try await services.authRepository.unlockVaultWithKeyConnectorKey()
                     coordinator.navigate(to: .complete)
                 }
+
                 coordinator.navigate(to: .dismiss)
             } catch {
                 // The delay is necessary in order to ensure the alert displays over the WebAuth view.
