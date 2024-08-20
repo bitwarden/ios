@@ -426,6 +426,11 @@ extension AppProcessor: NotificationServiceDelegate {
 // MARK: - SyncServiceDelegate
 
 extension AppProcessor: SyncServiceDelegate {
+    func removeMasterPassword(organizationName: String) async {
+        coordinator?.hideLoadingOverlay()
+        coordinator?.navigate(to: .auth(.removeMasterPassword(organizationName: organizationName)))
+    }
+
     func securityStampChanged(userId: String) async {
         // Log the user out if their security stamp changes.
         coordinator?.hideLoadingOverlay()

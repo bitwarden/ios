@@ -738,6 +738,22 @@ class AppSettingsStoreTests: BitwardenTestCase { // swiftlint:disable:this type_
         XCTAssertNil(userDefaults.string(forKey: "bwPreferencesStorage:rememberedEmail"))
     }
 
+    /// `usesKeyConnector(userId:)` returns `false` if there isn't a previously stored value.
+    func test_usesKeyConnector_isInitiallyNil() {
+        XCTAssertFalse(subject.usesKeyConnector(userId: "-1"))
+    }
+
+    /// `usesKeyConnector(userId:)` can be used to get whether the user uses key connector.
+    func test_usesKeyConnector_withValue() {
+        subject.setUsesKeyConnector(true, userId: "1")
+        subject.setUsesKeyConnector(false, userId: "2")
+
+        XCTAssertTrue(subject.usesKeyConnector(userId: "1"))
+        XCTAssertFalse(subject.usesKeyConnector(userId: "2"))
+        XCTAssertTrue(userDefaults.bool(forKey: "bwPreferencesStorage:usesKeyConnector_1"))
+        XCTAssertFalse(userDefaults.bool(forKey: "bwPreferencesStorage:usesKeyConnector_2"))
+    }
+
     /// `rememberedOrgIdentifier` returns `nil` if there isn't a previously stored value.
     func test_rememberedOrgIdentifier_isInitiallyNil() {
         XCTAssertNil(subject.rememberedOrgIdentifier)

@@ -7,7 +7,7 @@ import XCTest
 class RemoveMasterPasswordViewTests: BitwardenTestCase {
     // MARK: Properties
 
-    var processor: MockProcessor<RemoveMasterPasswordState, RemoveMasterPasswordAction, Void>!
+    var processor: MockProcessor<RemoveMasterPasswordState, RemoveMasterPasswordAction, RemoveMasterPasswordEffect>!
     var subject: RemoveMasterPasswordView!
 
     // MARK: Setup & Teardown
@@ -15,7 +15,10 @@ class RemoveMasterPasswordViewTests: BitwardenTestCase {
     override func setUp() {
         super.setUp()
 
-        processor = MockProcessor(state: RemoveMasterPasswordState(organizationName: "Example Org"))
+        processor = MockProcessor(state: RemoveMasterPasswordState(
+            masterPassword: "password",
+            organizationName: "Example Org"
+        ))
 
         subject = RemoveMasterPasswordView(store: Store(processor: processor))
     }
@@ -31,10 +34,10 @@ class RemoveMasterPasswordViewTests: BitwardenTestCase {
 
     /// Tapping the continue button dispatches the continue flow action.
     @MainActor
-    func test_continue_tap() throws {
-        let button = try subject.inspect().find(button: Localizations.continue)
-        try button.tap()
-        XCTAssertEqual(processor.dispatchedActions.last, .continueFlow)
+    func test_continue_tap() async throws {
+        let button = try subject.inspect().find(asyncButton: Localizations.continue)
+        try await button.tap()
+        XCTAssertEqual(processor.effects.last, .continueFlow)
     }
 
     // MARK: Snapshots

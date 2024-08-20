@@ -17,12 +17,42 @@ protocol KeyConnectorService {
         orgIdentifier: String
     ) async throws
 
+    /// Returns the managing organization that requires the use of Key Connector for the user.
+    ///
+    /// - Returns: The managing organization that requires the use of Key Connector for the user.
+    ///
+    func getManagingOrganization() async throws -> Organization?
+
     /// Fetches the user's master key from Key Connector.
     ///
     /// - Parameter keyConnectorUrl: The URL to the Key Connector API.
     /// - Returns: The user's master key.
     ///
     func getMasterKeyFromKeyConnector(keyConnectorUrl: URL) async throws -> String
+
+    /// Migrates the user to use Key Connector.
+    ///
+    /// - Parameter password: The user's master password.
+    ///
+    func migrateUser(password: String) async throws
+
+    /// Returns whether the user needs to be migrated to using Key Connector.
+    ///
+    /// - Returns: Whether the user needs to be migrated to using Key Connector.
+    ///
+    func userNeedsMigration() async throws -> Bool
+}
+
+// MARK: - KeyConnectorServiceError
+
+/// The errors thrown from a `KeyConnectorService`.
+///
+enum KeyConnectorServiceError: Error {
+    /// The user's encrypted user key is missing.
+    case missingEncryptedUserKey
+
+    /// There's no organization found that uses Key Connector.
+    case missingOrganization
 }
 
 // MARK: - DefaultKeyConnectorService
@@ -41,8 +71,14 @@ class DefaultKeyConnectorService {
     /// The API service used to make key connector requests.
     private let keyConnectorAPIService: KeyConnectorAPIService
 
+    /// The service for managing the organizations for the user.
+    private let organizationService: OrganizationService
+
     /// The service used by the application to manage account state.
     private let stateService: StateService
+
+    /// The service used to get auth tokens from.
+    private let tokenService: TokenService
 
     // MARK: Initialization
 
@@ -53,18 +89,24 @@ class DefaultKeyConnectorService {
     ///   - clientService: The service that handles common client functionality such as encryption
     ///     and decryption.
     ///   - keyConnectorAPIService: The API service used to make key connector requests.
+    ///   - organizationService: The service for managing the organizations for the user.
     ///   - stateService: The service used by the application to manage account state.
+    ///   - tokenService: The service used to get auth tokens from.
     ///
     init(
         accountAPIService: AccountAPIService,
         clientService: ClientService,
         keyConnectorAPIService: KeyConnectorAPIService,
-        stateService: StateService
+        organizationService: OrganizationService,
+        stateService: StateService,
+        tokenService: TokenService
     ) {
         self.accountAPIService = accountAPIService
         self.clientService = clientService
         self.keyConnectorAPIService = keyConnectorAPIService
+        self.organizationService = organizationService
         self.stateService = stateService
+        self.tokenService = tokenService
     }
 }
 
@@ -95,7 +137,47 @@ extension DefaultKeyConnectorService: KeyConnectorService {
         )
     }
 
+    func getManagingOrganization() async throws -> Organization? {
+        try await organizationService.fetchAllOrganizations()
+            .first { $0.useKeyConnector && !$0.isAdmin }
+    }
+
     func getMasterKeyFromKeyConnector(keyConnectorUrl: URL) async throws -> String {
         try await keyConnectorAPIService.getMasterKeyFromKeyConnector(keyConnectorUrl: keyConnectorUrl)
+    }
+
+    func migrateUser(password: String) async throws {
+        guard let organization = try await getManagingOrganization(),
+              let keyConnectorUrlString = organization.keyConnectorUrl,
+              let keyConnectorUrl = URL(string: keyConnectorUrlString)
+        else {
+            throw KeyConnectorServiceError.missingOrganization
+        }
+
+        let account = try await stateService.getActiveAccount()
+        let encryptionKeys = try await stateService.getAccountEncryptionKeys(userId: account.profile.userId)
+        guard let encryptedUserKey = encryptionKeys.encryptedUserKey else {
+            throw KeyConnectorServiceError.missingEncryptedUserKey
+        }
+
+        let masterKey = try await clientService.crypto().deriveKeyConnector(request: DeriveKeyConnectorRequest(
+            userKeyEncrypted: encryptedUserKey,
+            password: password,
+            kdf: account.kdf.sdkKdf,
+            email: account.profile.email
+        ))
+
+        try await keyConnectorAPIService.postMasterKeyToKeyConnector(
+            key: masterKey,
+            keyConnectorUrl: keyConnectorUrl
+        )
+        try await accountAPIService.convertToKeyConnector()
+    }
+
+    func userNeedsMigration() async throws -> Bool {
+        let isExternal = try await tokenService.getIsExternal()
+        let usesKeyConnector = try await stateService.getUsesKeyConnector()
+        let organization = try await getManagingOrganization()
+        return isExternal && !usesKeyConnector && organization != nil
     }
 }

@@ -723,6 +723,9 @@ class DefaultAuthService: AuthService { // swiftlint:disable:this type_body_leng
     private func keyConnectorUrlForUnlock(_ response: IdentityTokenResponseModel) -> URL? {
         guard let keyConnectorUrl = response.keyConnectorUrl ??
             response.userDecryptionOptions?.keyConnectorOption?.keyConnectorUrl,
+            // If the user has a master password, they haven't been migrated to key connector yet
+            // and the master password should still be used for vault unlock.
+            response.userDecryptionOptions?.hasMasterPassword == false,
             !keyConnectorUrl.isEmpty
         else { return nil }
 

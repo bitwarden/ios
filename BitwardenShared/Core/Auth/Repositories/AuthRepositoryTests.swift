@@ -641,6 +641,26 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         XCTAssertTrue(value)
     }
 
+    /// `migrateUserToKeyConnector()` migrates the user using the key connector service.
+    func test_migrateUserToKeyConnector() async throws {
+        keyConnectorService.migrateUserResult = .success(())
+
+        await assertAsyncDoesNotThrow {
+            try await subject.migrateUserToKeyConnector(password: "password")
+        }
+        XCTAssertEqual(keyConnectorService.migrateUserPassword, "password")
+    }
+
+    /// `migrateUserToKeyConnector()` throws an error if migrating the user fails.
+    func test_migrateUserToKeyConnector_error() async throws {
+        keyConnectorService.migrateUserResult = .failure(BitwardenTestError.example)
+
+        await assertAsyncThrows(error: BitwardenTestError.example) {
+            try await subject.migrateUserToKeyConnector(password: "password")
+        }
+        XCTAssertEqual(keyConnectorService.migrateUserPassword, "password")
+    }
+
     /// `requestOtp()` makes an API request to request an OTP code for the user.
     func test_requestOtp() async throws {
         client.result = .httpSuccess(testData: .emptyResponse)

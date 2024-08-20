@@ -69,6 +69,7 @@ class MockStateService: StateService { // swiftlint:disable:this type_body_lengt
     var userHasMasterPassword = [String: Bool]()
     var userIds = [String]()
     var usernameGenerationOptions = [String: UsernameGenerationOptions]()
+    var usesKeyConnector = [String: Bool]()
     var vaultTimeout = [String: SessionTimeoutValue]()
 
     lazy var activeIdSubject = CurrentValueSubject<String?, Never>(self.activeAccount?.profile.userId)
@@ -285,6 +286,11 @@ class MockStateService: StateService { // swiftlint:disable:this type_body_lengt
         return usernameGenerationOptions[userId]
     }
 
+    func getUsesKeyConnector(userId: String?) async throws -> Bool {
+        let userId = try unwrapUserId(userId)
+        return usesKeyConnector[userId] ?? false
+    }
+
     func getVaultTimeout(userId: String?) async throws -> SessionTimeoutValue {
         let userId = try unwrapUserId(userId)
         return vaultTimeout[userId] ?? .immediately
@@ -485,6 +491,11 @@ class MockStateService: StateService { // swiftlint:disable:this type_body_lengt
     func setUsernameGenerationOptions(_ options: UsernameGenerationOptions?, userId: String?) async throws {
         let userId = try unwrapUserId(userId)
         usernameGenerationOptions[userId] = options
+    }
+
+    func setUsesKeyConnector(_ usesKeyConnector: Bool, userId: String?) async throws {
+        let userId = try unwrapUserId(userId)
+        self.usesKeyConnector[userId] = usesKeyConnector
     }
 
     func setVaultTimeout(value: SessionTimeoutValue, userId: String?) async throws {

@@ -7,6 +7,12 @@ protocol TokenService: AnyObject {
     ///
     func getAccessToken() async throws -> String
 
+    /// Returns whether the user is an external user.
+    ///
+    /// - Returns: Whether the user is an external user.
+    ///
+    func getIsExternal() async throws -> Bool
+
     /// Returns the refresh token for the current account.
     ///
     /// - Returns: The refresh token for the current account.
@@ -56,6 +62,12 @@ actor DefaultTokenService: TokenService {
     func getAccessToken() async throws -> String {
         let userId = try await stateService.getActiveAccountId()
         return try await keychainRepository.getAccessToken(userId: userId)
+    }
+
+    func getIsExternal() async throws -> Bool {
+        let accessToken = try await getAccessToken()
+        let tokenPayload = try TokenParser.parseToken(accessToken)
+        return tokenPayload.isExternal
     }
 
     func getRefreshToken() async throws -> String {

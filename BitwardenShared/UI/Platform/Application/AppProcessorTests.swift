@@ -439,6 +439,18 @@ class AppProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_body
         }
     }
 
+    /// `removeMasterPassword(organizationName:)` notifies the coordinator to show the remove
+    /// master password screen.
+    @MainActor
+    func test_removeMasterPassword() async {
+        coordinator.isLoadingOverlayShowing = true
+
+        await subject.removeMasterPassword(organizationName: "Example Org")
+
+        XCTAssertFalse(coordinator.isLoadingOverlayShowing)
+        XCTAssertEqual(coordinator.routes, [.auth(.removeMasterPassword(organizationName: "Example Org"))])
+    }
+
     /// `repromptForCredentialIfNecessary(for:)` reprompts the user for their master password if
     /// reprompt is enabled for the cipher.
     @MainActor

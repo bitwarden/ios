@@ -533,6 +533,7 @@ final class AuthCoordinator: NSObject, // swiftlint:disable:this type_body_lengt
     private func showRemoveMasterPassword(organizationName: String) {
         let processor = RemoveMasterPasswordProcessor(
             coordinator: asAnyCoordinator(),
+            services: services,
             state: RemoveMasterPasswordState(
                 organizationName: organizationName
             )

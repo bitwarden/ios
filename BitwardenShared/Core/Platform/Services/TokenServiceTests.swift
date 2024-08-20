@@ -52,6 +52,55 @@ class TokenServiceTests: BitwardenTestCase {
         }
     }
 
+    /// `getIsExternal()` returns false if the user isn't an external user.
+    func test_getIsExternal_false() async throws {
+        // swiftlint:disable:next line_length
+        let token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE2OTY5MDg4NzksInN1YiI6IjEzNTEyNDY3LTljZmUtNDNiMC05NjlmLTA3NTM0MDg0NzY0YiIsIm5hbWUiOiJCaXR3YXJkZW4gVXNlciIsImVtYWlsIjoidXNlckBiaXR3YXJkZW4uY29tIiwiZW1haWxfdmVyaWZpZWQiOnRydWUsImlhdCI6MTUxNjIzOTAyMiwicHJlbWl1bSI6ZmFsc2UsImFtciI6WyJBcHBsaWNhdGlvbiJdfQ.KDqC8kUaOAgBiUY8eeLa0a4xYWN8GmheXTFXmataFwM"
+        keychainRepository.getAccessTokenResult = .success(token)
+        stateService.activeAccount = .fixture()
+
+        let isExternal = try await subject.getIsExternal()
+        XCTAssertFalse(isExternal)
+    }
+
+    /// `getIsExternal()` returns true if the user is an external user.
+    func test_getIsExternal_true() async throws {
+        // swiftlint:disable:next line_length
+        let token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE2OTY5MDg4NzksInN1YiI6IjEzNTEyNDY3LTljZmUtNDNiMC05NjlmLTA3NTM0MDg0NzY0YiIsIm5hbWUiOiJCaXR3YXJkZW4gVXNlciIsImVtYWlsIjoidXNlckBiaXR3YXJkZW4uY29tIiwiZW1haWxfdmVyaWZpZWQiOnRydWUsImlhdCI6MTUxNjIzOTAyMiwicHJlbWl1bSI6ZmFsc2UsImFtciI6WyJleHRlcm5hbCJdfQ.POnwEWm09reMUfiHKZP-PIW_fvIl-ZzXs9pLZJVYf9A"
+        keychainRepository.getAccessTokenResult = .success(token)
+        stateService.activeAccount = .fixture()
+
+        let isExternal = try await subject.getIsExternal()
+        XCTAssertTrue(isExternal)
+    }
+
+    /// `getIsExternal()` throws an error if there's no active account.
+    func test_getIsExternal_noAccount() async throws {
+        await assertAsyncThrows(error: StateServiceError.noActiveAccount) {
+            _ = try await subject.getIsExternal()
+        }
+    }
+
+    /// `getIsExternal()` throws an error if fetching the user's access token fails.
+    func test_getIsExternal_tokenError() async throws {
+        keychainRepository.getAccessTokenResult = .failure(BitwardenTestError.example)
+        stateService.activeAccount = .fixture()
+
+        await assertAsyncThrows(error: BitwardenTestError.example) {
+            _ = try await subject.getIsExternal()
+        }
+    }
+
+    /// `getIsExternal()` throws an error if fetching the user's access token fails.
+    func test_getIsExternal_tokenParsingError() async throws {
+        keychainRepository.getAccessTokenResult = .success("token")
+        stateService.activeAccount = .fixture()
+
+        await assertAsyncThrows(error: TokenParserError.invalidToken) {
+            _ = try await subject.getIsExternal()
+        }
+    }
+
     /// `getRefreshToken()` returns the refresh token stored in the state service for the active account.
     func test_getRefreshToken() async throws {
         stateService.activeAccount = .fixture()

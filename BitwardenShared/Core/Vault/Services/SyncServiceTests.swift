@@ -13,6 +13,7 @@ class SyncServiceTests: BitwardenTestCase {
     var clientService: MockClientService!
     var collectionService: MockCollectionService!
     var folderService: MockFolderService!
+    var keyConnectorService: MockKeyConnectorService!
     var organizationService: MockOrganizationService!
     var policyService: MockPolicyService!
     var sendService: MockSendService!
@@ -32,6 +33,7 @@ class SyncServiceTests: BitwardenTestCase {
         clientService = MockClientService()
         collectionService = MockCollectionService()
         folderService = MockFolderService()
+        keyConnectorService = MockKeyConnectorService()
         organizationService = MockOrganizationService()
         policyService = MockPolicyService()
         sendService = MockSendService()
@@ -54,6 +56,7 @@ class SyncServiceTests: BitwardenTestCase {
             clientService: clientService,
             collectionService: collectionService,
             folderService: folderService,
+            keyConnectorService: keyConnectorService,
             organizationService: organizationService,
             policyService: policyService,
             sendService: sendService,
@@ -73,6 +76,7 @@ class SyncServiceTests: BitwardenTestCase {
         clientService = nil
         collectionService = nil
         folderService = nil
+        keyConnectorService = nil
         organizationService = nil
         policyService = nil
         sendService = nil
@@ -409,6 +413,34 @@ class SyncServiceTests: BitwardenTestCase {
             )
         )
         XCTAssertEqual(stateService.updateProfileUserId, "1")
+        XCTAssertEqual(stateService.usesKeyConnector["1"], false)
+    }
+
+    /// `fetchSync()` notifies the sync service delegate if the user needs to be migrated to Key
+    /// Connector.
+    func test_fetchSync_removeMasterPassword() async throws {
+        client.result = .httpSuccess(testData: .syncWithProfile)
+        keyConnectorService.getManagingOrganizationResult = .success(.fixture(name: "Example Org"))
+        keyConnectorService.userNeedsMigrationResult = .success(true)
+        stateService.activeAccount = .fixture()
+
+        try await subject.fetchSync(forceSync: false)
+
+        XCTAssertTrue(syncServiceDelegate.removeMasterPasswordCalled)
+        XCTAssertEqual(syncServiceDelegate.removeMasterPasswordOrganizationName, "Example Org")
+    }
+
+    /// `fetchSync()` throws an error if checking if the user needs to be migrated fails.
+    func test_fetchSync_removeMasterPassword_failure() async throws {
+        client.result = .httpSuccess(testData: .syncWithProfile)
+        keyConnectorService.userNeedsMigrationResult = .failure(BitwardenTestError.example)
+        stateService.activeAccount = .fixture()
+
+        await assertAsyncThrows(error: BitwardenTestError.example) {
+            try await subject.fetchSync(forceSync: false)
+        }
+
+        XCTAssertFalse(syncServiceDelegate.removeMasterPasswordCalled)
     }
 
     /// `fetchSync()` notifies the sync service delegate if the security stamp changes and doesn't
@@ -681,10 +713,17 @@ class SyncServiceTests: BitwardenTestCase {
 }
 
 class MockSyncServiceDelegate: SyncServiceDelegate {
+    var removeMasterPasswordCalled = false
+    var removeMasterPasswordOrganizationName: String?
     var securityStampChangedCalled = false
     var securityStampChangedUserId: String?
     var setMasterPasswordCalled = false
     var setMasterPasswordOrgId: String?
+
+    func removeMasterPassword(organizationName: String) async {
+        removeMasterPasswordOrganizationName = organizationName
+        removeMasterPasswordCalled = true
+    }
 
     func securityStampChanged(userId: String) async {
         securityStampChangedCalled = true
