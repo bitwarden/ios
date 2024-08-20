@@ -6,5 +6,5 @@ extension Logger {
 
     /// The OSLog subsystem passed along with logs to the logging system to identify logs from this
     /// library.
-    private static var subsystem = Bundle(for: HTTPService.self).bundleIdentifier!
+    private static let subsystem = Bundle(for: HTTPService.self).bundleIdentifier!
 }
