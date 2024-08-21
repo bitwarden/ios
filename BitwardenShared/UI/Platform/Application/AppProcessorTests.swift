@@ -451,6 +451,22 @@ class AppProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_body
         XCTAssertEqual(coordinator.routes, [.auth(.removeMasterPassword(organizationName: "Example Org"))])
     }
 
+    /// `removeMasterPassword(organizationName:)` doesn't show the remove master password screen in
+    /// the extension.
+    @MainActor
+    func test_removeMasterPassword_extension() {
+        let delegate = MockAppExtensionDelegate()
+        let subject = AppProcessor(
+            appExtensionDelegate: delegate,
+            appModule: appModule,
+            services: ServiceContainer.withMocks()
+        )
+
+        subject.removeMasterPassword(organizationName: "Example Org")
+
+        XCTAssertTrue(coordinator.routes.isEmpty)
+    }
+
     /// `repromptForCredentialIfNecessary(for:)` reprompts the user for their master password if
     /// reprompt is enabled for the cipher.
     @MainActor
