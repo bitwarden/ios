@@ -1,4 +1,4 @@
-import PhotosUI
+@preconcurrency import PhotosUI
 import UIKit
 
 // MARK: - FileSelectionCoordinator

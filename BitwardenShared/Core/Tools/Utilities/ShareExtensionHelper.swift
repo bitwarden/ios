@@ -1,4 +1,4 @@
-import Foundation
+@preconcurrency import Foundation
 import OSLog
 import UIKit
 import UniformTypeIdentifiers
