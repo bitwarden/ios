@@ -32,5 +32,5 @@ struct ErrorResponseModel: Codable, Equatable {
 // MARK: JSONResponse
 
 extension ErrorResponseModel: JSONResponse {
-    static var decoder = JSONDecoder.pascalOrSnakeCaseDecoder
+    static let decoder = JSONDecoder.pascalOrSnakeCaseDecoder
 }

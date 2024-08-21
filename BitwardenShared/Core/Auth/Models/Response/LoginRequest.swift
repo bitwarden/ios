@@ -6,7 +6,7 @@ import Networking
 /// A data structure representing a login request.
 ///
 public struct LoginRequest: JSONResponse, Equatable {
-    public static var decoder = JSONDecoder.defaultDecoder
+    public static let decoder = JSONDecoder.defaultDecoder
 
     // MARK: Properties
 
