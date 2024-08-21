@@ -155,19 +155,7 @@ final class AuthCoordinator: NSObject, // swiftlint:disable:this type_body_lengt
         case .startRegistration:
             showStartRegistration(delegate: context as? StartRegistrationDelegate)
         case .startRegistrationFromExpiredLink:
-            guard let stackNavigator else { return }
-            stackNavigator.dismiss {
-                let processor = LandingProcessor(
-                    coordinator: self.asAnyCoordinator(),
-                    services: self.services,
-                    state: LandingState()
-                )
-                let store = Store(processor: processor)
-                let view = LandingView(store: store)
-                stackNavigator.setNavigationBarHidden(false, animated: false)
-                stackNavigator.replace(view, animated: false)
-                self.showStartRegistration(delegate: processor as StartRegistrationDelegate)
-            }
+            showStartRegistrationFromExpiredLink()
         case .dismiss:
             stackNavigator?.dismiss()
         case .dismissPresented:
@@ -685,6 +673,24 @@ final class AuthCoordinator: NSObject, // swiftlint:disable:this type_body_lengt
         )
         let navController = UINavigationController(rootViewController: UIHostingController(rootView: view))
         stackNavigator?.present(navController)
+    }
+
+    /// Shows the start registration screen from expired link screen.
+    ///
+    public func showStartRegistrationFromExpiredLink() {
+        guard let stackNavigator else { return }
+        stackNavigator.dismiss {
+            let processor = LandingProcessor(
+                coordinator: self.asAnyCoordinator(),
+                services: self.services,
+                state: LandingState()
+            )
+            let store = Store(processor: processor)
+            let view = LandingView(store: store)
+            stackNavigator.setNavigationBarHidden(false, animated: false)
+            stackNavigator.replace(view, animated: false)
+            self.showStartRegistration(delegate: processor as StartRegistrationDelegate)
+        }
     }
 
     /// Show the two factor authentication view.
