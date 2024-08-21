@@ -75,7 +75,7 @@ protocol SyncServiceDelegate: AnyObject {
     /// - Parameter organizationName: The organization's name that requires Key Connector.
     ///
     @MainActor
-    func removeMasterPassword(organizationName: String) async
+    func removeMasterPassword(organizationName: String)
 
     /// The user's security stamp changed.
     ///

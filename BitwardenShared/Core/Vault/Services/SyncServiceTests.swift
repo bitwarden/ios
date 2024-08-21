@@ -720,7 +720,7 @@ class MockSyncServiceDelegate: SyncServiceDelegate {
     var setMasterPasswordCalled = false
     var setMasterPasswordOrgId: String?
 
-    func removeMasterPassword(organizationName: String) async {
+    func removeMasterPassword(organizationName: String) {
         removeMasterPasswordOrganizationName = organizationName
         removeMasterPasswordCalled = true
     }

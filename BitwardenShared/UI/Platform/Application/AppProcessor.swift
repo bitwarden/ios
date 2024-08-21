@@ -426,7 +426,7 @@ extension AppProcessor: NotificationServiceDelegate {
 // MARK: - SyncServiceDelegate
 
 extension AppProcessor: SyncServiceDelegate {
-    func removeMasterPassword(organizationName: String) async {
+    func removeMasterPassword(organizationName: String) {
         coordinator?.hideLoadingOverlay()
         coordinator?.navigate(to: .auth(.removeMasterPassword(organizationName: organizationName)))
     }
