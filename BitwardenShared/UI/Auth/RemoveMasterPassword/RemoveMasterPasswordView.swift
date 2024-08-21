@@ -8,7 +8,7 @@ struct RemoveMasterPasswordView: View {
     // MARK: Properties
 
     /// The `Store` for this view.
-    @ObservedObject var store: Store<RemoveMasterPasswordState, RemoveMasterPasswordAction, Void>
+    @ObservedObject var store: Store<RemoveMasterPasswordState, RemoveMasterPasswordAction, RemoveMasterPasswordEffect>
 
     // MARK: View
 
@@ -16,8 +16,31 @@ struct RemoveMasterPasswordView: View {
         VStack(spacing: 24) {
             Text(Localizations.removeMasterPasswordMessage(store.state.organizationName))
 
-            Button(Localizations.continue) {
-                store.send(.continueFlow)
+            BitwardenTextField(
+                title: Localizations.masterPassword,
+                text: store.binding(
+                    get: \.masterPassword,
+                    send: RemoveMasterPasswordAction.masterPasswordChanged
+                ),
+                footer: nil,
+                accessibilityIdentifier: "MasterPasswordEntry",
+                passwordVisibilityAccessibilityId: "PasswordVisibilityToggle",
+                isPasswordAutoFocused: true,
+                isPasswordVisible: store.binding(
+                    get: \.isMasterPasswordRevealed,
+                    send: RemoveMasterPasswordAction.revealMasterPasswordFieldPressed
+                )
+            )
+            .textFieldConfiguration(.password)
+            .submitLabel(.go)
+            .onSubmit {
+                Task {
+                    await store.perform(.continueFlow)
+                }
+            }
+
+            AsyncButton(Localizations.continue) {
+                await store.perform(.continueFlow)
             }
             .buttonStyle(.primary())
         }
@@ -34,6 +57,7 @@ struct RemoveMasterPasswordView: View {
         store: Store(
             processor: StateProcessor(
                 state: RemoveMasterPasswordState(
+                    masterPassword: "password",
                     organizationName: "Example Org"
                 )
             )

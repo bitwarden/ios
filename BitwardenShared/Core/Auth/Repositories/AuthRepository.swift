@@ -93,6 +93,12 @@ protocol AuthRepository: AnyObject {
     ///
     func logout(userId: String?) async throws
 
+    /// Migrates the user to Key Connector if a migration is required.
+    ///
+    /// - Parameter password: The user's master password.
+    ///
+    func migrateUserToKeyConnector(password: String) async throws
+
     /// Calculates the password strength of a password.
     ///
     /// - Parameters:
@@ -546,6 +552,10 @@ extension DefaultAuthRepository: AuthRepository {
 
     func lockVault(userId: String?) async {
         await vaultTimeoutService.lockVault(userId: userId)
+    }
+
+    func migrateUserToKeyConnector(password: String) async throws {
+        try await keyConnectorService.migrateUser(password: password)
     }
 
     func logout(userId: String?) async throws {

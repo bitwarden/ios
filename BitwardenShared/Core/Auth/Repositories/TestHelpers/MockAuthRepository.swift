@@ -29,6 +29,9 @@ class MockAuthRepository: AuthRepository { // swiftlint:disable:this type_body_l
     var logoutCalled = false
     var logoutUserId: String?
     var logoutResult: Result<Void, Error> = .success(())
+    var migrateUserToKeyConnectorCalled = false
+    var migrateUserToKeyConnectorPassword: String?
+    var migrateUserToKeyConnectorResult: Result<Void, Error> = .success(())
     var passwordStrengthEmail: String?
     var passwordStrengthPassword: String?
     var passwordStrengthResult: UInt8 = 0
@@ -188,6 +191,12 @@ class MockAuthRepository: AuthRepository { // swiftlint:disable:this type_body_l
     func logout() async throws {
         logoutCalled = true
         try logoutResult.get()
+    }
+
+    func migrateUserToKeyConnector(password: String) async throws {
+        migrateUserToKeyConnectorCalled = true
+        migrateUserToKeyConnectorPassword = password
+        return try migrateUserToKeyConnectorResult.get()
     }
 
     func requestOtp() async throws {

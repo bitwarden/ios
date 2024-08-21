@@ -860,6 +860,18 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
         XCTAssertNil(fetchedOptionsNoAccount)
     }
 
+    /// `getUsesKeyConnector()` returns whether the user uses key connector.
+    func test_getUsesKeyConnector() async throws {
+        await subject.addAccount(.fixture(profile: .fixture(userId: "1")))
+
+        var usesKeyConnector = try await subject.getUsesKeyConnector()
+        XCTAssertFalse(usesKeyConnector)
+
+        appSettingsStore.usesKeyConnector["1"] = true
+        usesKeyConnector = try await subject.getUsesKeyConnector()
+        XCTAssertTrue(usesKeyConnector)
+    }
+
     /// `.getVaultTimeout(userId:)` gets the user's vault timeout.
     func test_getVaultTimeout() async throws {
         await subject.addAccount(.fixture(profile: .fixture(userId: "1")))
@@ -1570,6 +1582,13 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
 
         XCTAssertNotEqual(appSettingsStore.state?.accounts["1"], account1)
         XCTAssertTrue(appSettingsStore.state?.accounts["1"]?.profile.userDecryptionOptions?.hasMasterPassword ?? false)
+    }
+
+    func test_setUsesKeyConnector() async throws {
+        await subject.addAccount(.fixture(profile: .fixture(userId: "1")))
+
+        try await subject.setUsesKeyConnector(true)
+        XCTAssertEqual(appSettingsStore.usesKeyConnector["1"], true)
     }
 
     /// `.setActiveAccount(userId:)` sets the action that occurs when there's a session timeout.

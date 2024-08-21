@@ -475,6 +475,25 @@ class AuthServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body_
         )
     }
 
+    // `loginWithSingleSignOn(code:email:)` returns the master password unlock method if the user
+    // could use key connector but still has a master password.
+    func test_loginSingleSignOn_keyConnectorWithMasterPassword() async throws {
+        client.result = .httpSuccess(testData: .identityTokenKeyConnectorMasterPassword)
+
+        let unlockMethod = try await subject.loginWithSingleSignOn(code: "super_cool_secret_code", email: "")
+
+        let response = try JSONDecoder.pascalOrSnakeCaseDecoder.decode(
+            IdentityTokenResponseModel.self,
+            from: APITestData.identityTokenKeyConnectorMasterPassword.data
+        )
+        let account = try Account(identityTokenResponseModel: response, environmentUrls: nil)
+
+        XCTAssertEqual(
+            unlockMethod,
+            .masterPassword(account)
+        )
+    }
+
     /// `loginWithSingleSignOn(code:email:)` throws an error if the user doesn't have a master password set.
     func test_loginSingleSignOn_noMasterPassword() async {
         client.result = .httpSuccess(testData: .identityTokenNoMasterPassword)
