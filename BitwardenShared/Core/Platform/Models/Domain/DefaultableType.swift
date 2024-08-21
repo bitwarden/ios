@@ -3,7 +3,7 @@ import Foundation
 // MARK: - DefaultableType
 
 /// A wrapper around any `CaseIterable` and `Menuable` type that can be set to a default value.
-enum DefaultableType<T: Menuable>: Menuable {
+enum DefaultableType<T: Menuable & Sendable>: Menuable, Sendable {
     // MARK: Cases
 
     /// placeholder default value of the type.

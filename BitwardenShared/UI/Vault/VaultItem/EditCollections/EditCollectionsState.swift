@@ -1,10 +1,10 @@
-import BitwardenSdk
+@preconcurrency import BitwardenSdk
 
 // MARK: - EditCollectionsState
 
 /// An object that defines the current state of a `EditCollectionsView`.
 ///
-struct EditCollectionsState: Equatable {
+struct EditCollectionsState: Equatable, Sendable {
     // MARK: Properties
 
     /// The cipher being edited.

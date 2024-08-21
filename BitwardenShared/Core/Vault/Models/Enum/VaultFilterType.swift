@@ -4,7 +4,7 @@ import BitwardenSdk
 
 /// An enum that describes the options for filtering the user's vault.
 ///
-public enum VaultFilterType: Equatable, Hashable {
+public enum VaultFilterType: Equatable, Hashable, Sendable {
     /// Show my and all organization vaults in the vault list.
     case allVaults
 
