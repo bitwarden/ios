@@ -754,8 +754,13 @@ extension DefaultAuthRepository: AuthRepository {
 
     func unlockVaultWithKeyConnectorKey(keyConnectorURL: URL, orgIdentifier: String) async throws {
         let account = try await stateService.getActiveAccount()
-        var encryptionKeys = try? await stateService.getAccountEncryptionKeys(userId: account.profile.userId)
-        if encryptionKeys?.encryptedUserKey == nil {
+
+        let encryptionKeys: AccountEncryptionKeys
+        do {
+            encryptionKeys = try await stateService.getAccountEncryptionKeys(userId: account.profile.userId)
+        } catch StateServiceError.noEncryptedPrivateKey {
+            // If the private key doesn't exist, this is a new user and we need to convert them to
+            // use key connector.
             try await keyConnectorService.convertNewUserToKeyConnector(
                 keyConnectorUrl: keyConnectorURL,
                 orgIdentifier: orgIdentifier
@@ -763,7 +768,7 @@ extension DefaultAuthRepository: AuthRepository {
             encryptionKeys = try await stateService.getAccountEncryptionKeys(userId: account.profile.userId)
         }
 
-        guard let encryptedUserKey = encryptionKeys?.encryptedUserKey else { throw StateServiceError.noEncUserKey }
+        guard let encryptedUserKey = encryptionKeys.encryptedUserKey else { throw StateServiceError.noEncUserKey }
 
         let masterKey = try await keyConnectorService.getMasterKeyFromKeyConnector(
             keyConnectorUrl: keyConnectorURL

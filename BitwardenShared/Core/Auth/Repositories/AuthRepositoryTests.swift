@@ -1359,9 +1359,11 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
                 encryptedPrivateKey: "private",
                 encryptedUserKey: "user"
             )
+            self?.stateService.getAccountEncryptionKeysError = nil
         }
         keyConnectorService.getMasterKeyFromKeyConnectorResult = .success("key")
         stateService.activeAccount = .fixture()
+        stateService.getAccountEncryptionKeysError = StateServiceError.noEncryptedPrivateKey
 
         await assertAsyncDoesNotThrow {
             try await subject.unlockVaultWithKeyConnectorKey(
