@@ -713,18 +713,20 @@ class DefaultAuthService: AuthService { // swiftlint:disable:this type_body_leng
 
     // MARK: Private Methods
 
-    /// Check whether the user can unlock their vault with a Key Connector key.
+    /// Returns the Key Connector URL if it exists in the identity token response and if it can be
+    /// used to fetch the user's Key Connector key.
     ///
     /// - Parameter response: The response received from the identity token request.
-    /// - Returns: Whether the vault can be unlocked with a Key Connector key.
+    /// - Returns: The Key Connector URL if it exists in the response and if it can be used to
+    ///     fetch the user's Key Connector key.
     ///
-    private func canUnlockWithKeyConnectorKey(_ response: IdentityTokenResponseModel) async throws -> (Bool, URL?) {
+    private func keyConnectorUrlForUnlock(_ response: IdentityTokenResponseModel) -> URL? {
         guard let keyConnectorUrl = response.keyConnectorUrl ??
             response.userDecryptionOptions?.keyConnectorOption?.keyConnectorUrl,
             !keyConnectorUrl.isEmpty
-        else { return (false, nil) }
+        else { return nil }
 
-        return (true, URL(string: keyConnectorUrl))
+        return URL(string: keyConnectorUrl)
     }
 
     /// Get the fingerprint phrase from the public key of a login request.
@@ -835,8 +837,7 @@ class DefaultAuthService: AuthService { // swiftlint:disable:this type_body_leng
             return .deviceKey
         }
 
-        if case let (true, keyConnectorUrl) = try await canUnlockWithKeyConnectorKey(response),
-           let keyConnectorUrl {
+        if let keyConnectorUrl = keyConnectorUrlForUnlock(response) {
             return .keyConnector(keyConnectorURL: keyConnectorUrl)
         }
 
