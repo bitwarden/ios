@@ -4,7 +4,7 @@ import Foundation
 
 /// An object that defines the current state of a `SendListView`.
 ///
-struct SendListState {
+struct SendListState: Sendable {
     /// The info URL to open.
     var infoUrl: URL?
 

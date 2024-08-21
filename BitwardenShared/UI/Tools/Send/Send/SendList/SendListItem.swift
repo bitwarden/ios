@@ -1,12 +1,12 @@
-import BitwardenSdk
+@preconcurrency import BitwardenSdk
 
 /// Data model for an item displayed in the vault list.
 ///
-public struct SendListItem: Equatable, Identifiable {
+public struct SendListItem: Equatable, Identifiable, Sendable {
     // MARK: Types
 
     /// An enumeration for the type of item being displayed by this item.
-    public enum ItemType: Equatable {
+    public enum ItemType: Equatable, Sendable {
         /// The wrapped item is a send.
         case send(BitwardenSdk.SendView)
 

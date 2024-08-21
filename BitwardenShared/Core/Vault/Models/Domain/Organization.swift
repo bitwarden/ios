@@ -1,6 +1,6 @@
 /// A domain model containing the details of an organization.
 ///
-public struct Organization: Equatable, Hashable {
+public struct Organization: Equatable, Hashable, Sendable {
     // MARK: Properties
 
     /// Whether the profile organization is enabled.
