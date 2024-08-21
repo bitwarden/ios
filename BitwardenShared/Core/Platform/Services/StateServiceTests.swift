@@ -244,11 +244,18 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
         )
     }
 
-    /// `getAccountEncryptionKeys(_:)` throws an error if applicable.
-    func test_getAccountEncryptionKeys_error() async throws {
+    /// `getAccountEncryptionKeys(_:)` throws an error if there's no active account.
+    func test_getAccountEncryptionKeys_noAccount() async throws {
+        await assertAsyncThrows(error: StateServiceError.noActiveAccount) {
+            _ = try await subject.getAccountEncryptionKeys()
+        }
+    }
+
+    /// `getAccountEncryptionKeys(_:)` throws an error if there's no private key.
+    func test_getAccountEncryptionKeys_noPrivateKey() async throws {
         await subject.addAccount(.fixture(profile: .fixture(userId: "1")))
 
-        await assertAsyncThrows(error: StateServiceError.noActiveAccount) {
+        await assertAsyncThrows(error: StateServiceError.noEncryptedPrivateKey) {
             _ = try await subject.getAccountEncryptionKeys()
         }
     }

@@ -189,8 +189,11 @@ extension SingleSignOnProcessor: SingleSignOnFlowDelegate {
                             didSwitchAccountAutomatically: false
                         )
                     )
-                case .keyConnector:
-                    try await services.authRepository.unlockVaultWithKeyConnectorKey()
+                case let .keyConnector(keyConnectorUrl):
+                    try await services.authRepository.unlockVaultWithKeyConnectorKey(
+                        keyConnectorURL: keyConnectorUrl,
+                        orgIdentifier: state.identifierText
+                    )
                     coordinator.navigate(to: .complete)
                 }
 

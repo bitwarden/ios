@@ -194,7 +194,11 @@ protocol AuthRepository: AnyObject {
 
     /// Attempts to unlock the user's vault with the user's Key Connector key.
     ///
-    func unlockVaultWithKeyConnectorKey() async throws
+    /// - Parameters:
+    ///   - keyConnectorUrl: The URL to the Key Connector API.
+    ///   - orgIdentifier: The text identifier for the organization.
+    ///
+    func unlockVaultWithKeyConnectorKey(keyConnectorURL: URL, orgIdentifier: String) async throws
 
     /// Attempts to unlock the user's vault with the stored neverlock key.
     ///
@@ -748,12 +752,27 @@ extension DefaultAuthRepository: AuthRepository {
         ))
     }
 
-    func unlockVaultWithKeyConnectorKey() async throws {
+    func unlockVaultWithKeyConnectorKey(keyConnectorURL: URL, orgIdentifier: String) async throws {
         let account = try await stateService.getActiveAccount()
-        let encryptionKeys = try await stateService.getAccountEncryptionKeys(userId: account.profile.userId)
+
+        let encryptionKeys: AccountEncryptionKeys
+        do {
+            encryptionKeys = try await stateService.getAccountEncryptionKeys(userId: account.profile.userId)
+        } catch StateServiceError.noEncryptedPrivateKey {
+            // If the private key doesn't exist, this is a new user and we need to convert them to
+            // use key connector.
+            try await keyConnectorService.convertNewUserToKeyConnector(
+                keyConnectorUrl: keyConnectorURL,
+                orgIdentifier: orgIdentifier
+            )
+            encryptionKeys = try await stateService.getAccountEncryptionKeys(userId: account.profile.userId)
+        }
+
         guard let encryptedUserKey = encryptionKeys.encryptedUserKey else { throw StateServiceError.noEncUserKey }
 
-        let masterKey = try await keyConnectorService.getMasterKeyFromKeyConnector()
+        let masterKey = try await keyConnectorService.getMasterKeyFromKeyConnector(
+            keyConnectorUrl: keyConnectorURL
+        )
         try await unlockVault(method: .keyConnector(masterKey: masterKey, userKey: encryptedUserKey))
     }
 

@@ -469,7 +469,10 @@ class AuthServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body_
 
         let unlockMethod = try await subject.loginWithSingleSignOn(code: "super_cool_secret_code", email: "")
 
-        XCTAssertEqual(unlockMethod, .keyConnector)
+        XCTAssertEqual(
+            unlockMethod,
+            .keyConnector(keyConnectorURL: URL(string: "https://vault.bitwarden.com/key-connector")!)
+        )
     }
 
     /// `loginWithSingleSignOn(code:email:)` throws an error if the user doesn't have a master password set.
@@ -676,7 +679,10 @@ class AuthServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body_
             method: .email,
             remember: true
         )
-        XCTAssertEqual(unlockMethod, .keyConnector)
+        XCTAssertEqual(
+            unlockMethod,
+            .keyConnector(keyConnectorURL: URL(string: "https://vault.bitwarden.com/key-connector")!)
+        )
     }
 
     /// `requirePasswordChange(email:masterPassword:policy)` returns `false` if there
