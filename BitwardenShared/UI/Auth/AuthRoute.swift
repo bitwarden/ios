@@ -52,6 +52,10 @@ public enum AuthRoute: Equatable {
     ///
     case dismissWithAction(_ action: DismissAction? = nil)
 
+    /// A route to the expired link screen.
+    ///
+    case expiredLink
+
     /// A route that triggers the duo 2FA flow.
     ///  Requires that any `context` provided to the coordinator conforms to `DuoAuthenticationFlowDelegate`.
     case duoAuthenticationFlow(_ authURL: URL)
@@ -83,6 +87,10 @@ public enum AuthRoute: Equatable {
     /// A route to start registration screen.
     ///
     case startRegistration
+
+    /// A route to start registration screen when coming from the expired link view.
+    ///
+    case startRegistrationFromExpiredLink
 
     /// A route to the login with device screen.
     ///

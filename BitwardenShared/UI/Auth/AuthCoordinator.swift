@@ -154,6 +154,20 @@ final class AuthCoordinator: NSObject, // swiftlint:disable:this type_body_lengt
             showCreateAccount()
         case .startRegistration:
             showStartRegistration(delegate: context as? StartRegistrationDelegate)
+        case .startRegistrationFromExpiredLink:
+            guard let stackNavigator else { return }
+            stackNavigator.dismiss {
+                let processor = LandingProcessor(
+                    coordinator: self.asAnyCoordinator(),
+                    services: self.services,
+                    state: LandingState()
+                )
+                let store = Store(processor: processor)
+                let view = LandingView(store: store)
+                stackNavigator.setNavigationBarHidden(false, animated: false)
+                stackNavigator.replace(view, animated: false)
+                self.showStartRegistration(delegate: processor as StartRegistrationDelegate)
+            }
         case .dismiss:
             stackNavigator?.dismiss()
         case .dismissPresented:
@@ -162,6 +176,8 @@ final class AuthCoordinator: NSObject, // swiftlint:disable:this type_body_lengt
             stackNavigator?.dismiss(animated: true, completion: {
                 onDismiss?.action()
             })
+        case .expiredLink:
+            showExpiredLink()
         case let .duoAuthenticationFlow(authURL):
             showDuo2FA(authURL: authURL, delegate: context as? DuoAuthenticationFlowDelegate)
         case let .enterpriseSingleSignOn(email):
