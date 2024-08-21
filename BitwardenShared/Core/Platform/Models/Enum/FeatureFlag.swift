@@ -4,7 +4,7 @@ import Foundation
 
 /// An enum to represent a feature flag sent by the server
 ///
-enum FeatureFlag: String, Codable {
+enum FeatureFlag: String, Codable, Sendable {
     /// Flag to enable/disable email verification during registration
     /// This flag introduces a new flow for account creation
     case emailVerification = "email-verification"
