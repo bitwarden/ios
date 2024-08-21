@@ -113,6 +113,23 @@ class SyncServiceTests: BitwardenTestCase {
         XCTAssertNil(syncServiceDelegate.setMasterPasswordOrgId)
     }
 
+    /// `checkTdeUserNeedsToSetPassword()` returns false if the user doesn't use TDE.
+    func test_checkTdeUserNeedsToSetPassword_false_nonTDE() async throws {
+        client.result = .httpSuccess(testData: .syncWithProfileSingleOrg)
+        stateService.activeAccount = .fixture(
+            profile: .fixture(
+                userDecryptionOptions: UserDecryptionOptions(
+                    hasMasterPassword: false,
+                    keyConnectorOption: KeyConnectorUserDecryptionOption(keyConnectorUrl: ""),
+                    trustedDeviceOption: nil
+                )
+            )
+        )
+
+        try await subject.fetchSync(forceSync: false)
+        XCTAssertFalse(syncServiceDelegate.setMasterPasswordCalled)
+    }
+
     /// `fetchSync()` only updates the user's timeout action to match the policy's
     /// if the user's timeout value is less than the policy's.
     func test_checkVaultTimeoutPolicy_actionOnly() async throws {
