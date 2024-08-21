@@ -29,10 +29,10 @@ class ExpiredLinkProcessor: StateProcessor<ExpiredLinkState, ExpiredLinkAction, 
     override func receive(_ action: ExpiredLinkAction) {
         switch action {
         case .dismissTapped,
-                .logInTapped:
+             .logInTapped:
             coordinator.navigate(to: .dismiss)
         case .restartRegistrationTapped:
-            coordinator.navigate(to: .dismissPresented)
+            coordinator.navigate(to: .startRegistrationFromExpiredLink)
         }
     }
 }

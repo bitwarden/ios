@@ -9,5 +9,4 @@ struct ExpiredLinkState: Equatable {
 
     /// User's email address.
     var email: String = ""
-    
 }

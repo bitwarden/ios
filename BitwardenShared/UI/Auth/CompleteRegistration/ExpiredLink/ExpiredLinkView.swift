@@ -45,7 +45,6 @@ struct ExpiredLinkView: View {
                 .padding(.horizontal, 16)
                 .padding(.bottom, 32)
                 .buttonStyle(.secondary())
-
             }
         }
         .navigationBar(title: Localizations.createAccount, titleDisplayMode: .inline)
