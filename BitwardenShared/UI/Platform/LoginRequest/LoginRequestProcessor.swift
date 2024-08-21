@@ -4,6 +4,7 @@ import Foundation
 
 /// An object that is notified when specific circumstances in the login request view have occurred.
 ///
+@MainActor
 protocol LoginRequestDelegate: AnyObject {
     /// The login request has been answered.
     ///
