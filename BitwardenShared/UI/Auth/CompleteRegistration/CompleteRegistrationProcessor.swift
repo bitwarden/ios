@@ -98,7 +98,7 @@ class CompleteRegistrationProcessor: StateProcessor<
         case .learnMoreTapped:
             break
         case .preventAccountLockTapped:
-            break
+            coordinator.navigate(to: .preventAccountLock)
         }
     }
 
