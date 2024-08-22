@@ -246,14 +246,13 @@ extension Alert {
         biometricType: BiometricAuthenticationType?,
         action: @escaping (Bool) async -> Void
     ) -> Alert {
-        var message = Localizations.pinRequireMasterPasswordRestart
-        if let biometricType {
-            switch biometricType {
-            case .faceID:
-                message = Localizations.pinRequireBioOrMasterPasswordRestart(Localizations.faceID)
-            case .touchID:
-                message = Localizations.pinRequireBioOrMasterPasswordRestart(Localizations.touchID)
-            }
+        let message = switch biometricType {
+        case .faceID:
+            Localizations.pinRequireBioOrMasterPasswordRestart(Localizations.faceID)
+        case .touchID:
+            Localizations.pinRequireBioOrMasterPasswordRestart(Localizations.touchID)
+        case nil:
+            Localizations.pinRequireMasterPasswordRestart
         }
         return Alert(
             title: Localizations.unlockWithPIN,
