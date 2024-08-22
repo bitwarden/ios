@@ -99,6 +99,7 @@ protocol HasRootNavigator: HasNavigator {
 
 /// A protocol for an object that has a `Router`.
 ///
+@MainActor
 protocol HasRouter<Event, Route> {
     associatedtype Event
     associatedtype Route

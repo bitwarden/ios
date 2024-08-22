@@ -3,6 +3,7 @@ import BitwardenSdk
 /// A delegate that is used to handle actions and configure the display for when the app runs within
 /// an app extension.
 ///
+@MainActor
 public protocol AppExtensionDelegate: AnyObject {
     /// The app's route that the app should navigate to after auth has been completed.
     var authCompletionRoute: AppRoute? { get }

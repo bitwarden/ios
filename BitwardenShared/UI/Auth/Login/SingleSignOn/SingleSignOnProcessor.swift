@@ -5,6 +5,7 @@ import Foundation
 
 /// An object that is signaled when specific circumstances in the single sign on flow have been encountered.
 ///
+@MainActor
 protocol SingleSignOnFlowDelegate: AnyObject {
     /// Called when the single sign on flow has been completed successfully.
     ///

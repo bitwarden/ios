@@ -2,6 +2,7 @@
 
 /// An object that is notified when specific circumstances in the add/edit folder view have occurred.
 ///
+@MainActor
 protocol AddEditFolderDelegate: AnyObject {
     /// Called when the folder has been successfully created.
     func folderAdded()

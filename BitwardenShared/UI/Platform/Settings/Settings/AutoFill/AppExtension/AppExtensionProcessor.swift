@@ -2,6 +2,7 @@
 
 /// A delegate of the app extension setup flow that is notified when the user enables the extension.
 ///
+@MainActor
 protocol AppExtensionSetupDelegate: AnyObject {
     /// Called when the user dismisses the app extension or the activity view controller during the
     /// extension setup process.
