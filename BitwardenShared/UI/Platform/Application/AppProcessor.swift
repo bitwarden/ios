@@ -160,8 +160,10 @@ public class AppProcessor {
     /// - Parameter incomingURL: The URL handled from AppLinks.
     ///
     public func handleAppLinks(incomingURL: URL) {
-        guard let sanatizedUrl = URL(string: incomingURL.absoluteString.replacingOccurrences(of: "/#/", with: "/")),
-              let components = URLComponents(url: sanatizedUrl, resolvingAgainstBaseURL: true) else {
+        guard let sanatizedUrl = URL(
+            string: incomingURL.absoluteString.replacingOccurrences(of: "/redirect-connector.html#", with: "/")
+        ),
+            let components = URLComponents(url: sanatizedUrl, resolvingAgainstBaseURL: true) else {
             return
         }
 
