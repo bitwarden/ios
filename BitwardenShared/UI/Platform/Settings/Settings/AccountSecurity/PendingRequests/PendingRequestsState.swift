@@ -1,7 +1,7 @@
 // MARK: - PendingRequestsState
 
 /// The state used to present the `PendingRequestsView`.
-struct PendingRequestsState: Equatable {
+struct PendingRequestsState: Equatable, Sendable {
     /// The loading state of the pending requests screen.
     var loadingState: LoadingState<[LoginRequest]> = .loading(nil)
 

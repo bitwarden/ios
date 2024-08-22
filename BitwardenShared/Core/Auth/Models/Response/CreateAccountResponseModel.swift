@@ -6,7 +6,7 @@ import Networking
 /// The response returned from the API upon creating an account.
 ///
 struct CreateAccountResponseModel: JSONResponse {
-    static var decoder = JSONDecoder()
+    static let decoder = JSONDecoder()
 
     // MARK: Properties
 

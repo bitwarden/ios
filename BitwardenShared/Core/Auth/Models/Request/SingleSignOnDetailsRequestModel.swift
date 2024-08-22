@@ -8,7 +8,7 @@ import Networking
 struct SingleSignOnDetailsRequestModel: JSONRequestBody {
     // MARK: Static Properties
 
-    static var encoder = JSONEncoder()
+    static let encoder = JSONEncoder()
 
     // MARK: Properties
 

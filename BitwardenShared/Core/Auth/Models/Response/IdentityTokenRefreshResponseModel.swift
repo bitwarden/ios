@@ -4,7 +4,7 @@ import Networking
 /// API response model for the identity token refresh request.
 ///
 struct IdentityTokenRefreshResponseModel: JSONResponse, Equatable {
-    static var decoder = JSONDecoder.snakeCaseDecoder
+    static let decoder = JSONDecoder.snakeCaseDecoder
 
     // MARK: Properties
 

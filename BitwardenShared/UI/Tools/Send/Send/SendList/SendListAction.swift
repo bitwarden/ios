@@ -2,7 +2,7 @@
 
 /// Actions that can be processed by a `SendListProcessor`.
 ///
-enum SendListAction: Equatable {
+enum SendListAction: Equatable, Sendable {
     /// The add item button was pressed.
     case addItemPressed
 

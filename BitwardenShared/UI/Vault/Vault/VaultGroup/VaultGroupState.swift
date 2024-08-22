@@ -3,7 +3,7 @@ import Foundation
 // MARK: - VaultGroupState
 
 /// The state of a `VaultGroupView`.
-struct VaultGroupState: Equatable {
+struct VaultGroupState: Equatable, Sendable {
     // MARK: Properties
 
     /// Whether the vault filter can be shown.

@@ -1,5 +1,5 @@
 import AuthenticationServices
-import BitwardenSdk
+@preconcurrency import BitwardenSdk
 import Combine
 import Foundation
 import OSLog
@@ -272,7 +272,21 @@ class CompleteRegistrationProcessor: StateProcessor<
         defer { coordinator.hideLoadingOverlay() }
 
         if state.fromEmail {
-            state.toast = Toast(text: Localizations.emailVerified)
+            coordinator.showLoadingOverlay(title: Localizations.verifying)
+
+            do {
+                try await services.accountAPIService.verifyEmailToken(
+                    email: state.userEmail,
+                    emailVerificationToken: state.emailVerificationToken
+                )
+                state.toast = Toast(text: Localizations.emailVerified)
+            } catch VerifyEmailTokenRequestError.tokenExpired {
+                coordinator.navigate(to: .expiredLink)
+            } catch {
+                coordinator.showAlert(.networkResponseError(error) {
+                    await self.verifyUserEmail()
+                })
+            }
         }
     }
 }

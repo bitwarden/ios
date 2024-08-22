@@ -29,20 +29,18 @@ extension ButtonStyle where Self == AccessoryButtonStyle {
 // MARK: Previews
 
 #if DEBUG
-#Preview {
+#Preview("Enabled") {
     Button {} label: {
         Asset.Images.bwiProvider.swiftUIImage
     }
     .buttonStyle(.accessory)
-    .previewDisplayName("Enabled")
 }
 
-#Preview {
+#Preview("Disabled") {
     Button {} label: {
         Asset.Images.bwiProvider.swiftUIImage
     }
     .buttonStyle(.accessory)
     .disabled(true)
-    .previewDisplayName("Disabled")
 }
 #endif

@@ -3,6 +3,7 @@
 /// A delegate of `EditCollectionsProcessor` that is notified when the user successfully moves
 /// the cipher between collections.
 ///
+@MainActor
 protocol EditCollectionsProcessorDelegate: AnyObject {
     /// Called when the user successfully moves the cipher between collections.
     ///

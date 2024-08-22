@@ -39,6 +39,7 @@ class MockAppSettingsStore: AppSettingsStore {
     var shouldTrustDevice = [String: Bool?]()
     var timeoutAction = [String: Int]()
     var twoFactorTokens = [String: String]()
+    var usesKeyConnector = [String: Bool]()
     var vaultTimeout = [String: Int]()
     var state: State? {
         didSet {
@@ -219,6 +220,10 @@ class MockAppSettingsStore: AppSettingsStore {
         usernameGenerationOptions[userId] = options
     }
 
+    func setUsesKeyConnector(_ usesKeyConnector: Bool, userId: String) {
+        self.usesKeyConnector[userId] = usesKeyConnector
+    }
+
     func setVaultTimeout(minutes: Int, userId: String) {
         vaultTimeout[userId] = minutes
     }
@@ -237,6 +242,10 @@ class MockAppSettingsStore: AppSettingsStore {
 
     func usernameGenerationOptions(userId: String) -> UsernameGenerationOptions? {
         usernameGenerationOptions[userId]
+    }
+
+    func usesKeyConnector(userId: String) -> Bool {
+        usesKeyConnector[userId] ?? false
     }
 
     func vaultTimeout(userId: String) -> Int? {

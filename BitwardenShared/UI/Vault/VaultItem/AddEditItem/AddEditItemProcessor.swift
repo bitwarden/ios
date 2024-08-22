@@ -1,10 +1,11 @@
-import BitwardenSdk
+@preconcurrency import BitwardenSdk
 import Foundation
 
 // MARK: - CipherItemOperationDelegate
 
 /// An object that is notified when specific circumstances in the add/edit/delete item view have occurred.
 ///
+@MainActor
 protocol CipherItemOperationDelegate: AnyObject {
     /// Called when a new cipher item has been successfully added.
     ///

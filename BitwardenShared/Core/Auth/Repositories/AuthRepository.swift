@@ -93,6 +93,12 @@ protocol AuthRepository: AnyObject {
     ///
     func logout(userId: String?) async throws
 
+    /// Migrates the user to Key Connector if a migration is required.
+    ///
+    /// - Parameter password: The user's master password.
+    ///
+    func migrateUserToKeyConnector(password: String) async throws
+
     /// Calculates the password strength of a password.
     ///
     /// - Parameters:
@@ -191,6 +197,14 @@ protocol AuthRepository: AnyObject {
     /// Attempts to unlock the user's vault with the stored device key.
     ///
     func unlockVaultWithDeviceKey() async throws
+
+    /// Attempts to unlock the user's vault with the user's Key Connector key.
+    ///
+    /// - Parameters:
+    ///   - keyConnectorUrl: The URL to the Key Connector API.
+    ///   - orgIdentifier: The text identifier for the organization.
+    ///
+    func unlockVaultWithKeyConnectorKey(keyConnectorURL: URL, orgIdentifier: String) async throws
 
     /// Attempts to unlock the user's vault with the stored neverlock key.
     ///
@@ -336,6 +350,9 @@ class DefaultAuthRepository {
     /// The keychain service used by this repository.
     private let keychainService: KeychainRepository
 
+    /// The service used by the application to manage Key Connector.
+    private let keyConnectorService: KeyConnectorService
+
     /// The service used by the application to make organization-related API requests.
     private let organizationAPIService: OrganizationAPIService
 
@@ -366,6 +383,7 @@ class DefaultAuthRepository {
     ///   - configService: The service to get server-specified configuration.
     ///   - environmentService: The service used by the application to manage the environment settings.
     ///   - keychainService: The keychain service used by the application.
+    ///   - keyConnectorService: The service used by the application to manage Key Connector.
     ///   - organizationAPIService: The service used by the application to make organization-related API requests.
     ///   - organizationService: The service used to manage syncing and updates to the user's organizations.
     ///   - organizationUserAPIService: The service used by the application to make organization
@@ -382,6 +400,7 @@ class DefaultAuthRepository {
         configService: ConfigService,
         environmentService: EnvironmentService,
         keychainService: KeychainRepository,
+        keyConnectorService: KeyConnectorService,
         organizationAPIService: OrganizationAPIService,
         organizationService: OrganizationService,
         organizationUserAPIService: OrganizationUserAPIService,
@@ -396,6 +415,7 @@ class DefaultAuthRepository {
         self.configService = configService
         self.environmentService = environmentService
         self.keychainService = keychainService
+        self.keyConnectorService = keyConnectorService
         self.organizationAPIService = organizationAPIService
         self.organizationService = organizationService
         self.organizationUserAPIService = organizationUserAPIService
@@ -532,6 +552,10 @@ extension DefaultAuthRepository: AuthRepository {
 
     func lockVault(userId: String?) async {
         await vaultTimeoutService.lockVault(userId: userId)
+    }
+
+    func migrateUserToKeyConnector(password: String) async throws {
+        try await keyConnectorService.migrateUser(password: password)
     }
 
     func logout(userId: String?) async throws {
@@ -736,6 +760,30 @@ extension DefaultAuthRepository: AuthRepository {
             protectedDevicePrivateKey: protectedDevicePrivateKey,
             deviceProtectedUserKey: deviceProtectedUserKey
         ))
+    }
+
+    func unlockVaultWithKeyConnectorKey(keyConnectorURL: URL, orgIdentifier: String) async throws {
+        let account = try await stateService.getActiveAccount()
+
+        let encryptionKeys: AccountEncryptionKeys
+        do {
+            encryptionKeys = try await stateService.getAccountEncryptionKeys(userId: account.profile.userId)
+        } catch StateServiceError.noEncryptedPrivateKey {
+            // If the private key doesn't exist, this is a new user and we need to convert them to
+            // use key connector.
+            try await keyConnectorService.convertNewUserToKeyConnector(
+                keyConnectorUrl: keyConnectorURL,
+                orgIdentifier: orgIdentifier
+            )
+            encryptionKeys = try await stateService.getAccountEncryptionKeys(userId: account.profile.userId)
+        }
+
+        guard let encryptedUserKey = encryptionKeys.encryptedUserKey else { throw StateServiceError.noEncUserKey }
+
+        let masterKey = try await keyConnectorService.getMasterKeyFromKeyConnector(
+            keyConnectorUrl: keyConnectorURL
+        )
+        try await unlockVault(method: .keyConnector(masterKey: masterKey, userKey: encryptedUserKey))
     }
 
     func unlockVaultWithNeverlockKey() async throws {

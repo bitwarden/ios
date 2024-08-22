@@ -97,7 +97,8 @@ extension Image {
 }
 
 #if DEBUG
-#Preview {
+@available(iOS 17.0, *)
+#Preview(traits: .sizeThatFitsLayout) {
     VStack {
         Image(systemName: "ruler.fill")
             .aspectRatio(contentMode: .fit)
@@ -119,6 +120,5 @@ extension Image {
             .scaledFrame(width: 24, height: 24)
             .environment(\.sizeCategory, .accessibilityExtraLarge)
     }
-    .previewLayout(.sizeThatFits)
 }
 #endif

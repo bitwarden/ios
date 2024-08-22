@@ -1,6 +1,6 @@
 /// Domain model for a user account.
 ///
-public struct Account: Codable, Equatable, Hashable {
+public struct Account: Codable, Equatable, Hashable, Sendable {
     // MARK: Types
 
     /// Key names used for encoding and decoding.

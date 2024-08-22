@@ -116,6 +116,7 @@ class AppProcessorFido2Tests: BitwardenTestCase {
 
     /// `onNeedsUserInteraction()` throws when flows is not with user interaction but user interaction is required.
     @available(iOS 17.0, *)
+    @MainActor
     func test_onNeedsUserInteraction_throws() async {
         appExtensionDelegate.flowWithUserInteraction = false
 
@@ -128,6 +129,7 @@ class AppProcessorFido2Tests: BitwardenTestCase {
     /// `onNeedsUserInteraction()` doesn't throw when flows is not with user interaction
     /// but user interaction is required.
     @available(iOS 17.0, *)
+    @MainActor
     func test_onNeedsUserInteraction_flowWithUserInteraction() async {
         appExtensionDelegate.flowWithUserInteraction = true
 

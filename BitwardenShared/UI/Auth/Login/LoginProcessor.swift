@@ -6,6 +6,7 @@ import Foundation
 
 /// An object that is signaled when specific circumstances in the captcha flow have been encountered.
 ///
+@MainActor
 protocol CaptchaFlowDelegate: AnyObject {
     /// Called when the captcha flow has been completed successfully.
     ///

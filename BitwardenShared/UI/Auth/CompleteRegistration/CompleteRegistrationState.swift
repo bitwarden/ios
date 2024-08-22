@@ -4,7 +4,7 @@ import SwiftUI
 
 /// An object that defines the current state of a `CompleteRegistrationView`.
 ///
-struct CompleteRegistrationState: Equatable {
+struct CompleteRegistrationState: Equatable, Sendable {
     // MARK: Properties
 
     /// Whether passwords are visible in the view's text fields.

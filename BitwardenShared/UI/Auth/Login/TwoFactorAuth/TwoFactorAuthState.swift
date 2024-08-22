@@ -3,7 +3,7 @@ import Foundation
 // MARK: - TwoFactorAuthState
 
 /// The state used to present the `TwoFactorAuthView`.
-struct TwoFactorAuthState: Equatable {
+struct TwoFactorAuthState: Equatable, Sendable {
     // MARK: Properties
 
     /// The selected authenticator method.

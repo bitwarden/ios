@@ -102,6 +102,13 @@ protocol AccountAPIService {
     ///
     func updateTempPassword(_ requestModel: UpdateTempPasswordRequestModel) async throws
 
+    /// Verify if the verification token received by email is still valid.
+    ///
+    /// - Parameter email: The email being used to create the account.
+    /// - Parameter emailVerificationToken: The token used to verify the email.
+    ///
+    func verifyEmailToken(email: String, emailVerificationToken: String) async throws
+
     /// Verifies that the entered one-time password matches the one sent to the user.
     ///
     /// - Parameter otp: The user's one-time password to verify.
@@ -190,6 +197,16 @@ extension APIService: AccountAPIService {
 
     func updateTempPassword(_ requestModel: UpdateTempPasswordRequestModel) async throws {
         _ = try await apiService.send(UpdateTempPasswordRequest(requestModel: requestModel))
+    }
+
+    func verifyEmailToken(email: String, emailVerificationToken: String) async throws {
+        let request = VerifyEmailTokenRequest(
+            requestModel: VerifyEmailTokenRequestModel(
+                email: email,
+                emailVerificationToken: emailVerificationToken
+            )
+        )
+        _ = try await identityService.send(request)
     }
 
     func verifyOtp(_ otp: String) async throws {
