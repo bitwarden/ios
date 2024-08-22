@@ -2,6 +2,13 @@ import AuthenticationServices
 import CryptoKit
 import Foundation
 
+/// Errors thrown by `TwoFactorAuthProcessor`.
+///
+enum TwoFactorAuthError: Error {
+    /// The organization's identifier is missing, but required for Key Connector unlock.
+    case missingOrgIdentifier
+}
+
 // MARK: - TwoFactorAuthProcessor
 
 /// The processor used to manage state and handle actions for the `TwoFactorAuthView`.
@@ -159,7 +166,7 @@ final class TwoFactorAuthProcessor: StateProcessor<TwoFactorAuthState, TwoFactor
             }
 
             // Attempt to login.
-            let account = try await services.authService.loginWithTwoFactorCode(
+            let unlockMethod = try await services.authService.loginWithTwoFactorCode(
                 email: state.email,
                 code: code,
                 method: state.authMethod,
@@ -167,7 +174,7 @@ final class TwoFactorAuthProcessor: StateProcessor<TwoFactorAuthState, TwoFactor
                 captchaToken: captchaToken
             )
 
-            try await tryToUnlockVault(account)
+            try await tryToUnlockVault(unlockMethod)
         } catch let error as InputValidationError {
             coordinator.showAlert(Alert.inputValidationAlert(error: error))
         } catch let error as IdentityTokenRequestError {
@@ -243,27 +250,37 @@ final class TwoFactorAuthProcessor: StateProcessor<TwoFactorAuthState, TwoFactor
     }
 
     /// Try to unlock the vault with the unlock method.
-    private func tryToUnlockVault(_ account: Account?) async throws {
+    private func tryToUnlockVault(_ unlockMethod: LoginUnlockMethod) async throws {
         if let unlockMethod = state.unlockMethod {
             try await unlockVaultWithMethod(unlockMethod: unlockMethod)
             coordinator.hideLoadingOverlay()
             await coordinator.handleEvent(.didCompleteAuth)
-        } else if let accountValue = account {
-            // Otherwise, navigate to the unlock vault view.
-            coordinator.hideLoadingOverlay()
-            coordinator.navigate(
-                to: .vaultUnlock(
-                    accountValue,
-                    animated: false,
-                    attemptAutomaticBiometricUnlock: true,
-                    didSwitchAccountAutomatically: false
-                )
-            )
-            coordinator.navigate(to: .dismiss)
         } else {
-            // Attempt to unlock the vault with tde.
-            try await services.authRepository.unlockVaultWithDeviceKey()
-            coordinator.navigate(to: .complete)
+            switch unlockMethod {
+            case .deviceKey:
+                try await services.authRepository.unlockVaultWithDeviceKey()
+                coordinator.navigate(to: .complete)
+            case let .masterPassword(account):
+                coordinator.hideLoadingOverlay()
+                coordinator.navigate(
+                    to: .vaultUnlock(
+                        account,
+                        animated: false,
+                        attemptAutomaticBiometricUnlock: true,
+                        didSwitchAccountAutomatically: false
+                    )
+                )
+                coordinator.navigate(to: .dismiss)
+            case let .keyConnector(keyConnectorUrl):
+                guard let orgIdentifier = state.orgIdentifier else {
+                    throw TwoFactorAuthError.missingOrgIdentifier
+                }
+                try await services.authRepository.unlockVaultWithKeyConnectorKey(
+                    keyConnectorURL: keyConnectorUrl,
+                    orgIdentifier: orgIdentifier
+                )
+                coordinator.navigate(to: .complete)
+            }
         }
     }
 

@@ -1,13 +1,13 @@
-import BitwardenSdk
+@preconcurrency import BitwardenSdk
 import Foundation
 
 /// Data model for an item displayed in the vault list.
 ///
-public struct VaultListItem: Equatable, Identifiable, VaultItemWithDecorativeIcon {
+public struct VaultListItem: Equatable, Identifiable, Sendable, VaultItemWithDecorativeIcon {
     // MARK: Types
 
     /// An enumeration for the type of item being displayed by this item.
-    public enum ItemType: Equatable {
+    public enum ItemType: Equatable, Sendable {
         /// The wrapped item is a cipher.
         ///
         /// - Parameters
@@ -204,7 +204,7 @@ extension CipherView {
     }
 }
 
-public struct VaultListTOTP: Equatable {
+public struct VaultListTOTP: Equatable, Sendable {
     /// The id of the associated Cipher.
     ///
     let id: String

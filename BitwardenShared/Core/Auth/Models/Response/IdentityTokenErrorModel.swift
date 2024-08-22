@@ -37,7 +37,7 @@ struct IdentityTokenErrorModel: Codable {
 // MARK: - AuthMethodsData
 
 /// The structure of the data returned in the two-factor authentication error.
-public struct AuthMethodsData: Codable, Equatable {
+public struct AuthMethodsData: Codable, Equatable, Sendable {
     /// Key names used for encoding and decoding.
     enum CodingKeys: String, CodingKey {
         case email = "1"
@@ -98,7 +98,7 @@ public struct Duo: Codable, Equatable {
 // MARK: - Email
 
 /// Struct with information regarding Email two factor authentication
-public struct Email: Codable, Equatable {
+public struct Email: Codable, Equatable, Sendable {
     enum CodingKeys: String, CodingKey {
         case email = "Email"
     }

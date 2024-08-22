@@ -2,8 +2,6 @@ import XCTest
 
 @testable import BitwardenShared
 
-// swiftlint:disable inclusive_language
-
 class KeyConnectorAPIServiceTests: BitwardenTestCase {
     // MARK: Properties
 
@@ -80,5 +78,3 @@ class KeyConnectorAPIServiceTests: BitwardenTestCase {
         }
     }
 }
-
-// swiftlint:enable inclusive_language

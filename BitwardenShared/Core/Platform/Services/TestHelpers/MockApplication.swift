@@ -9,7 +9,9 @@ class MockApplication: Application {
     var endBackgroundTaskIdentifier: UIBackgroundTaskIdentifier?
     var registerForRemoteNotificationsCalled = false
 
-    func beginBackgroundTask(withName: String?, expirationHandler: (() -> Void)?) -> UIBackgroundTaskIdentifier {
+    func startBackgroundTask(withName: String?, expirationHandler: (() -> Void)?) -> UIBackgroundTaskIdentifier {
+        // See note in `UIApplication+Application.swift`
+        // TODO: PM-11189
         beginBackgroundTaskName = withName
         beginBackgroundTaskHandler = expirationHandler
         return beginBackgroundTaskIdentifier

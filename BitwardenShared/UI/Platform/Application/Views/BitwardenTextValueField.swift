@@ -93,7 +93,7 @@ extension BitwardenTextValueField where AccessoryContent == EmptyView {
 // MARK: Previews
 
 #if DEBUG
-#Preview {
+#Preview("No buttons") {
     VStack {
         BitwardenTextValueField(
             title: "Title",
@@ -102,6 +102,5 @@ extension BitwardenTextValueField where AccessoryContent == EmptyView {
         .padding()
     }
     .background(Color(.systemGroupedBackground))
-    .previewDisplayName("No buttons")
 }
 #endif

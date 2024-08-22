@@ -250,7 +250,7 @@ struct ProfileSwitcherRow: View {
 
 #if DEBUG
 extension ProfileSwitcherItem {
-    static var unlockedAccountPreview = ProfileSwitcherItem(
+    static let unlockedAccountPreview = ProfileSwitcherItem(
         color: .purple,
         email: "anne.account@bitwarden.com",
         isUnlocked: true,
@@ -259,7 +259,7 @@ extension ProfileSwitcherItem {
         webVault: "bitwarden.com"
     )
 
-    static var lockedAccountPreview = ProfileSwitcherItem(
+    static let lockedAccountPreview = ProfileSwitcherItem(
         color: .purple,
         email: "anne.account@bitwarden.com",
         isUnlocked: false,

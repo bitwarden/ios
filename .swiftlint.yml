@@ -84,6 +84,7 @@ identifier_name:
 
 inclusive_language:
   override_allowed_terms:
+    - masterKey
     - masterPassword
 
 custom_rules:
