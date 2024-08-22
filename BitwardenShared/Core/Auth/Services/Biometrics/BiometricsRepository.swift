@@ -30,7 +30,7 @@ protocol BiometricsRepository: AnyObject {
     ///     Should be called following a successful launch when biometric unlock is enabled.
     func configureBiometricIntegrity() async throws
 
-    /// Returns the status for device BiometricAuthenticationType.
+    /// Returns the device BiometricAuthenticationType.
     ///
     /// - Returns: The `BiometricAuthenticationType`.
     ///
