@@ -169,7 +169,6 @@ class CompleteRegistrationProcessorTests: BitwardenTestCase {
             await subject.perform(.appeared)
         }
         await task.value
-        print(subject.state.nativeCreateAccountFeatureFlag)
         XCTAssertTrue(subject.state.nativeCreateAccountFeatureFlag)
     }
 

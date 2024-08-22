@@ -16,7 +16,6 @@ struct CompleteRegistrationState: Equatable, Sendable {
             !passwordText.isEmpty
                 && !retypePasswordText.isEmpty
                 && passwordText.count >= requiredPasswordCount
-                && passwordText == retypePasswordText
         } else {
             true
         }

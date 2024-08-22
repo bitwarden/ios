@@ -164,7 +164,9 @@ struct CompleteRegistrationView: View {
                         store.send(.preventAccountLockTapped)
                     } label: {
                         Text(Localizations.learnAboutWaysToPreventAccountLockout)
+                            .foregroundColor(Color(asset: Asset.Colors.primaryBitwardenLight))
                             .styleGuide(.footnote, weight: .bold)
+                            .multilineTextAlignment(.leading)
                     }
                 }
             } else {

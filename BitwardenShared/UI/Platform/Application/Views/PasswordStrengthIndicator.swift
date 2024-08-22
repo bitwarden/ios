@@ -51,7 +51,7 @@ struct PasswordStrengthIndicator: View {
                                 .padding(.leading, 1)
                         }
 
-                        Text("\(requiredTextCount) \(Localizations.characters)")
+                        Text(Localizations.characters(requiredTextCount))
                             .foregroundColor(
                                 passwordTextCount >= requiredTextCount ?
                                     Color(asset: Asset.Colors.loadingGreen) :
@@ -78,12 +78,15 @@ struct PasswordStrengthIndicator: View {
         }
     }
 
-    // MARK: Initialization
-
     /// Initialize a `PasswordStrengthIndicator`.
     ///
-    /// - Parameter passwordStrengthScore: The scoring metric representing the strength of the
-    ///     entered password.
+    /// - Parameters:
+    ///   - passwordStrengthScore: The scoring metric representing the strength of the
+    ///     entered password. The value's range is 0-4. Defaults to `nil`.
+    ///   - passwordTextCount: The current length of the entered password.
+    ///   - requiredTextCount: The required minimum length for the password.
+    ///   - nativeCreateAccountFlow: A feature flag indicating whether the indicator is being
+    ///     used in the native account creation flow.
     ///
     init(
         passwordStrengthScore: UInt8? = nil,

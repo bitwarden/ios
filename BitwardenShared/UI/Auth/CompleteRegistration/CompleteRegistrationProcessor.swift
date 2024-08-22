@@ -226,13 +226,10 @@ class CompleteRegistrationProcessor: StateProcessor<
         await services.environmentService.setPreAuthURLs(urls: urls)
     }
 
+    /// Sets the feature flag value to be used.
+    ///
     private func loadFeatureFlag() async {
-        state.nativeCreateAccountFeatureFlag = await services.configService.getFeatureFlag(
-            .nativeCreateAccountFlow,
-            defaultValue: false,
-            forceRefresh: true
-        )
-        print("HEY \(state.nativeCreateAccountFeatureFlag)")
+        state.nativeCreateAccountFeatureFlag = await services.configService.getFeatureFlag(.nativeCreateAccountFlow)
     }
 
     /// Shows a `CompleteRegistrationError` alert.
