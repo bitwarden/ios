@@ -418,6 +418,7 @@ extension DefaultSyncService {
         if organizations.count == 1,
            organizations.contains(where: \.passwordRequired),
            let userOrgId = organizations.first?.identifier,
+           account.profile.userDecryptionOptions?.trustedDeviceOption != nil,
            account.profile.userDecryptionOptions?.hasMasterPassword == false {
             await delegate?.setMasterPassword(orgIdentifier: userOrgId)
         }
