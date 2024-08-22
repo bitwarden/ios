@@ -304,10 +304,13 @@ final class AccountSecurityProcessor: StateProcessor<
 
                 do {
                     let userHasMasterPassword = try await self.services.stateService.getUserHasMasterPassword()
+                    let biometricType = self.services.biometricsRepository.getBiometricAuthenticationType()
                     if userHasMasterPassword {
-                        self.coordinator.showAlert(.unlockWithPINCodeAlert { requirePassword in
-                            await self.setPin(pin, requirePasswordAfterRestart: requirePassword)
-                        })
+                        self.coordinator.showAlert(
+                            .unlockWithPINCodeAlert(biometricType: biometricType) { requirePassword in
+                                await self.setPin(pin, requirePasswordAfterRestart: requirePassword)
+                            }
+                        )
                     } else {
                         await self.setPin(pin, requirePasswordAfterRestart: false)
                     }

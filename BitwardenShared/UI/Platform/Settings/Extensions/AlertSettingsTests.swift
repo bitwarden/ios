@@ -189,14 +189,37 @@ class AlertSettingsTests: BitwardenTestCase {
         XCTAssertEqual(subject.alertActions.last?.style, .default)
     }
 
-    /// `unlockWithPINCodeAlert(action)` constructs an `Alert` with the correct title, message, Yes and No buttons.
+    /// `unlockWithPINCodeAlert(action)` constructs an `Alert` with the correct title, message, Yes and No buttons
+    /// when `biometricType` is `nil`.
     func test_unlockWithPINAlert() {
-        let subject = Alert.unlockWithPINCodeAlert { _ in }
+        let subject = Alert.unlockWithPINCodeAlert(biometricType: nil) { _ in }
 
         XCTAssertEqual(subject.alertActions.count, 2)
         XCTAssertEqual(subject.preferredStyle, .alert)
         XCTAssertEqual(subject.title, Localizations.unlockWithPIN)
         XCTAssertEqual(subject.message, Localizations.pinRequireMasterPasswordRestart)
+    }
+
+    /// `unlockWithPINCodeAlert(action)` constructs an `Alert` with the correct title, message, Yes and No buttons
+    /// when `biometricType` is `faceID`.
+    func test_unlockWithPINAlert_faceID() {
+        let subject = Alert.unlockWithPINCodeAlert(biometricType: .faceID) { _ in }
+
+        XCTAssertEqual(subject.alertActions.count, 2)
+        XCTAssertEqual(subject.preferredStyle, .alert)
+        XCTAssertEqual(subject.title, Localizations.unlockWithPIN)
+        XCTAssertEqual(subject.message, Localizations.pinRequireBioOrMasterPasswordRestart(Localizations.faceID))
+    }
+
+    /// `unlockWithPINCodeAlert(action)` constructs an `Alert` with the correct title, message, Yes and No buttons
+    /// when `biometricType` is `touchID`.
+    func test_unlockWithPINAlert_touchID() {
+        let subject = Alert.unlockWithPINCodeAlert(biometricType: .touchID) { _ in }
+
+        XCTAssertEqual(subject.alertActions.count, 2)
+        XCTAssertEqual(subject.preferredStyle, .alert)
+        XCTAssertEqual(subject.title, Localizations.unlockWithPIN)
+        XCTAssertEqual(subject.message, Localizations.pinRequireBioOrMasterPasswordRestart(Localizations.touchID))
     }
 
     /// `verificationCodePrompt(completion:)` constructs an `Alert` used to ask the user to entered

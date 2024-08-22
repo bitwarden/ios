@@ -45,6 +45,14 @@ extension BiometricsService {
         let initialStatus = getBiometricAuthStatus()
         return await evaluateBiometricPolicy(nil, for: initialStatus)
     }
+
+    /// Returns the status for device BiometricAuthenticationType.
+    ///
+    /// - Returns: The `BiometricAuthenticationType`.
+    ///
+    func getBiometricAuthenticationType() -> BiometricAuthenticationType? {
+        getBiometricAuthenticationType(nil)
+    }
 }
 
 class DefaultBiometricsService: BiometricsService {
