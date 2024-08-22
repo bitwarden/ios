@@ -96,7 +96,7 @@ class CompleteRegistrationProcessor: StateProcessor<
         case let .togglePasswordVisibility(newValue):
             state.arePasswordsVisible = newValue
         case .learnMoreTapped:
-            break
+            coordinator.navigate(to: .masterPasswordGuidance)
         case .preventAccountLockTapped:
             break
         }
