@@ -191,6 +191,7 @@ class AuthCoordinatorTests: BitwardenTestCase { // swiftlint:disable:this type_b
                 is UIHostingController<StartRegistrationView>
         )
         XCTAssertTrue(landingAction.view is LandingView)
+        XCTAssertEqual(landingAction.type, .replaced)
         XCTAssertEqual(lastAction.type, .dismissedWithCompletionHandler)
     }
 

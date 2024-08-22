@@ -88,7 +88,7 @@ public enum AuthRoute: Equatable {
     ///
     case startRegistration
 
-    /// A route to start registration screen when coming from the expired link view.
+    /// A route to start registration screen when coming from the expired link screen.
     ///
     case startRegistrationFromExpiredLink
 
@@ -109,12 +109,12 @@ public enum AuthRoute: Equatable {
     /// A route to the remove master password screen.
     case removeMasterPassword(organizationName: String)
 
-    /// A route to the self-hosted settings view.
+    /// A route to the self-hosted settings screen.
     ///
-    /// - Parameter currentRegion: The user's region type prior to navigating to the self-hosted view.
+    /// - Parameter currentRegion: The user's region type prior to navigating to the self-hosted screen.
     case selfHosted(currentRegion: RegionType)
 
-    /// A route to the set master password view.
+    /// A route to the set master password screen.
     ///
     /// - Parameter organizationIdentifier: The organization's identifier.
     ///
@@ -129,7 +129,7 @@ public enum AuthRoute: Equatable {
     ///
     case singleSignOn(callbackUrlScheme: String, state: String, url: URL)
 
-    /// A route to the two-factor authentication view.
+    /// A route to the two-factor authentication screen.
     ///
     /// - Parameters:
     ///   - email: The user's email address.
@@ -144,7 +144,7 @@ public enum AuthRoute: Equatable {
         _ orgIdentifier: String?
     )
 
-    /// A route to the update master password view.
+    /// A route to the update master password screen.
     case updateMasterPassword
 
     /// A route to the unlock vault screen.
