@@ -33,6 +33,7 @@ class CompleteRegistrationProcessor: StateProcessor<
     typealias Services = HasAccountAPIService
         & HasAuthRepository
         & HasClientService
+        & HasConfigService
         & HasEnvironmentService
         & HasErrorReporter
         & HasStateService
@@ -70,6 +71,7 @@ class CompleteRegistrationProcessor: StateProcessor<
         switch effect {
         case .appeared:
             await setRegion()
+            await loadFeatureFlag()
             await verifyUserEmail()
         case .completeRegistration:
             await checkPasswordAndCompleteRegistration()
@@ -93,6 +95,10 @@ class CompleteRegistrationProcessor: StateProcessor<
             state.isCheckDataBreachesToggleOn = newValue
         case let .togglePasswordVisibility(newValue):
             state.arePasswordsVisible = newValue
+        case .learnMoreTapped:
+            break
+        case .preventAccountLockTapped:
+            break
         }
     }
 
@@ -218,6 +224,15 @@ class CompleteRegistrationProcessor: StateProcessor<
               let urls = state.region?.defaultURLs else { return }
 
         await services.environmentService.setPreAuthURLs(urls: urls)
+    }
+
+    private func loadFeatureFlag() async {
+        state.nativeCreateAccountFeatureFlag = await services.configService.getFeatureFlag(
+            .nativeCreateAccountFlow,
+            defaultValue: false,
+            forceRefresh: true
+        )
+        print("HEY \(state.nativeCreateAccountFeatureFlag)")
     }
 
     /// Shows a `CompleteRegistrationError` alert.

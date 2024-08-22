@@ -13,6 +13,7 @@ class CompleteRegistrationProcessorTests: BitwardenTestCase {
     var authRepository: MockAuthRepository!
     var client: MockHTTPClient!
     var clientAuth: MockClientAuth!
+    var configService: MockConfigService!
     var coordinator: MockCoordinator<AuthRoute, AuthEvent>!
     var environmentService: MockEnvironmentService!
     var errorReporter: MockErrorReporter!
@@ -25,6 +26,7 @@ class CompleteRegistrationProcessorTests: BitwardenTestCase {
         authRepository = MockAuthRepository()
         client = MockHTTPClient()
         clientAuth = MockClientAuth()
+        configService = MockConfigService()
         coordinator = MockCoordinator<AuthRoute, AuthEvent>()
         environmentService = MockEnvironmentService()
         errorReporter = MockErrorReporter()
@@ -33,6 +35,7 @@ class CompleteRegistrationProcessorTests: BitwardenTestCase {
             services: ServiceContainer.withMocks(
                 authRepository: authRepository,
                 clientService: MockClientService(auth: clientAuth),
+                configService: configService,
                 environmentService: environmentService,
                 errorReporter: errorReporter,
                 httpClient: client
@@ -50,6 +53,7 @@ class CompleteRegistrationProcessorTests: BitwardenTestCase {
         clientAuth = nil
         client = nil
         coordinator = nil
+        configService = nil
         errorReporter = nil
         subject = nil
     }
@@ -100,6 +104,46 @@ class CompleteRegistrationProcessorTests: BitwardenTestCase {
         XCTAssertFalse(coordinator.isLoadingOverlayShowing)
         XCTAssertNotNil(coordinator.loadingOverlaysShown)
         XCTAssertEqual(subject.state.toast?.text, Localizations.emailVerified)
+    }
+
+    /// `perform(.appeared)` with feature flag for .nativeCreateAccountFlow set to true
+    @MainActor
+    func test_perform_appeared_loadFeatureFlag_true() async {
+        configService.featureFlagsBool[.nativeCreateAccountFlow] = true
+        subject.state.nativeCreateAccountFeatureFlag = false
+
+        let task = Task {
+            await subject.perform(.appeared)
+        }
+        await task.value
+        print(subject.state.nativeCreateAccountFeatureFlag)
+        XCTAssertTrue(subject.state.nativeCreateAccountFeatureFlag)
+    }
+
+    /// `perform(.appeared)` with feature flag for .nativeCreateAccountFlow set to false
+    @MainActor
+    func test_perform_appeared_loadsFeatureFlag_false() async {
+        configService.featureFlagsBool[.nativeCreateAccountFlow] = false
+        subject.state.nativeCreateAccountFeatureFlag = true
+
+        let task = Task {
+            await subject.perform(.appeared)
+        }
+        await task.value
+        XCTAssertFalse(subject.state.nativeCreateAccountFeatureFlag)
+    }
+
+    /// `perform(.appeared)` with feature flag defaulting to false
+    @MainActor
+    func test_perform_appeared_loadsFeatureFlag_nil() async {
+        configService.featureFlagsBool[.nativeCreateAccountFlow] = nil
+        subject.state.nativeCreateAccountFeatureFlag = true
+
+        let task = Task {
+            await subject.perform(.appeared)
+        }
+        await task.value
+        XCTAssertFalse(subject.state.nativeCreateAccountFeatureFlag)
     }
 
     /// `perform(_:)` with `.completeRegistration` will still make the `CompleteRegistrationRequest` when the HIBP

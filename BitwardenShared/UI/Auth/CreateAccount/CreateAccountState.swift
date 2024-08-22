@@ -10,14 +10,6 @@ struct CreateAccountState: Equatable {
     /// Whether passwords are visible in the view's text fields.
     var arePasswordsVisible: Bool = false
 
-    /// Whether the continue button is enabled.
-    var continueButtonEnabled: Bool {
-        !passwordText.isEmpty
-            && !retypePasswordText.isEmpty
-            && passwordText.count >= requiredPasswordCount
-            && passwordText == retypePasswordText
-    }
-
     /// The text in the email text field.
     var emailText: String = ""
 
@@ -33,9 +25,6 @@ struct CreateAccountState: Equatable {
         return passwordStrengthScore < 3
     }
 
-    /// Whether the native create account feature flag is on.
-    var nativeCreateAccountFeatureFlag: Bool = false
-
     /// The text in the password hint text field.
     var passwordHintText: String = ""
 
@@ -50,9 +39,6 @@ struct CreateAccountState: Equatable {
     var passwordVisibleIcon: ImageAsset {
         arePasswordsVisible ? Asset.Images.hidden : Asset.Images.visible
     }
-
-    /// The required text count for the password strength.
-    var requiredPasswordCount = 12
 
     /// The text in the re-type password text field.
     var retypePasswordText: String = ""

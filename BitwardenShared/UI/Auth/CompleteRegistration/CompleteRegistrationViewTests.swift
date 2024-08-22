@@ -141,4 +141,64 @@ class CompleteRegistrationViewTests: BitwardenTestCase {
 
         assertSnapshot(matching: subject, as: .defaultPortrait)
     }
+
+    /// Tests the view renders correctly when the feature flag for native create account is on.
+    @MainActor
+    func test_nativeCreateAccountFlow() throws {
+        processor.state.nativeCreateAccountFeatureFlag = true
+        assertSnapshots(
+            of: subject,
+            as: [
+                .tallPortrait,
+                .portraitDark(heightMultiple: 2),
+                .tallPortraitAX5(),
+            ]
+        )
+    }
+
+    /// Tapping the continue button performs the `.createAccount` effect.
+    @MainActor
+    func test_continueButton_tap_withValidFields() throws {
+        processor.state.nativeCreateAccountFeatureFlag = true
+        processor.state.passwordText = "123456789101112"
+        processor.state.retypePasswordText = "123456789101112"
+
+        let button = try subject.inspect().find(button: Localizations.continue)
+        try button.tap()
+
+        waitFor(!processor.effects.isEmpty)
+
+        XCTAssertEqual(processor.effects.last, .completeRegistration)
+    }
+
+    /// Continue button is disabled when password requirements are not met.
+    @MainActor
+    func test_continueButton_disabled() throws {
+        processor.state.nativeCreateAccountFeatureFlag = true
+
+        let button = try subject.inspect().find(button: Localizations.continue)
+        XCTAssertTrue(button.isDisabled())
+    }
+
+    /// Tapping the learn more button will dispatch the correct action.
+    @MainActor
+    func test_learnMoreButton_tap() throws {
+        processor.state.nativeCreateAccountFeatureFlag = true
+
+        let button = try subject.inspect().find(button: Localizations.learnMore)
+        try button.tap()
+
+        XCTAssertEqual(processor.dispatchedActions.last, .learnMoreTapped)
+    }
+
+    /// Tapping the prevent account lock button will dispatch the correct action.
+    @MainActor
+    func test_preventAccountLocked_tap() throws {
+        processor.state.nativeCreateAccountFeatureFlag = true
+
+        let button = try subject.inspect().find(button: Localizations.learnAboutWaysToPreventAccountLockout)
+        try button.tap()
+
+        XCTAssertEqual(processor.dispatchedActions.last, .preventAccountLockTapped)
+    }
 }

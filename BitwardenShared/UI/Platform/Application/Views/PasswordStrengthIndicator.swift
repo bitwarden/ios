@@ -22,10 +22,7 @@ struct PasswordStrengthIndicator: View {
     // MARK: View
 
     var body: some View {
-        VStack(
-            alignment: .leading,
-            spacing: nativeCreateAccountFlow ? 4 : 0
-        ) {
+        VStack(alignment: .leading, spacing: 0) {
             GeometryReader { geometry in
                 ZStack(alignment: .leading) {
                     RoundedRectangle(cornerRadius: 2)
@@ -45,13 +42,13 @@ struct PasswordStrengthIndicator: View {
                         if passwordTextCount >= requiredTextCount {
                             Image(asset: Asset.Images.check)
                                 .foregroundColor(Color(asset: Asset.Colors.loadingGreen))
-                                .frame(width: 10)
-                                .padding(1)
+                                .frame(width: 10, height: 10)
+                                .padding(.leading, 1)
                         } else {
                             Circle()
                                 .stroke(Color(.separatorOpaque), lineWidth: 2)
-                                .frame(width: 10)
-                                .padding(1)
+                                .frame(width: 10, height: 10)
+                                .padding(.leading, 1)
                         }
 
                         Text("\(requiredTextCount) \(Localizations.characters)")
@@ -61,6 +58,7 @@ struct PasswordStrengthIndicator: View {
                                     Color(asset: Asset.Colors.separatorOpaque)
                             )
                             .styleGuide(.footnote, weight: .bold)
+                            .dynamicTypeSize(...DynamicTypeSize.accessibility3)
                     }
 
                     Spacer()
@@ -69,7 +67,6 @@ struct PasswordStrengthIndicator: View {
                         .foregroundColor(Color(asset: passwordStrength.color))
                         .styleGuide(.footnote)
                 }
-                .frame(height: 10)
             } else {
                 if let text = passwordStrength.text {
                     Text(text)
@@ -173,6 +170,19 @@ extension PasswordStrengthIndicator {
                     passwordTextCount: 0
                 )
             }
+
+            PasswordStrengthIndicator(
+                passwordStrengthScore: UInt8(4),
+                passwordTextCount: 0,
+                nativeCreateAccountFlow: true
+            )
+
+            PasswordStrengthIndicator(
+                passwordStrengthScore: UInt8(12),
+                passwordTextCount: 5,
+                requiredTextCount: 12,
+                nativeCreateAccountFlow: true
+            )
         }
         .padding()
     }

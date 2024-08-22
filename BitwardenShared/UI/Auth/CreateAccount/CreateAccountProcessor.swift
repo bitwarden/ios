@@ -84,17 +84,11 @@ class CreateAccountProcessor: StateProcessor<CreateAccountState, CreateAccountAc
             coordinator.navigate(to: .dismiss)
         case let .emailTextChanged(text):
             state.emailText = text
-        case .learnMoreTapped:
-            /// PM-10266: Master password guidance screen
-            break
         case let .passwordHintTextChanged(text):
             state.passwordHintText = text
         case let .passwordTextChanged(text):
             state.passwordText = text
             updatePasswordStrength()
-        case .preventAccountLockTapped:
-            /// PM-10286: Prevent account lock screen
-            break
         case let .retypePasswordTextChanged(text):
             state.retypePasswordText = text
         case let .toggleCheckDataBreaches(newValue):
