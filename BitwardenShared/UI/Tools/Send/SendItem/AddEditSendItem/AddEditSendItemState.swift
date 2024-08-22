@@ -1,11 +1,11 @@
-import BitwardenSdk
+@preconcurrency import BitwardenSdk
 import Foundation
 
 // MARK: - AddEditSendItemState
 
 /// An object that defines the current state of a `AddEditSendItemView`.
 ///
-struct AddEditSendItemState: Equatable {
+struct AddEditSendItemState: Equatable, Sendable {
     // MARK: Types
 
     enum Mode: Equatable {

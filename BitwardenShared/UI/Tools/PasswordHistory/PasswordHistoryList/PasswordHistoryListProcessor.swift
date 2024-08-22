@@ -1,4 +1,4 @@
-import BitwardenSdk
+@preconcurrency import BitwardenSdk
 import OSLog
 
 // MARK: - PasswordHistoryListProcessor

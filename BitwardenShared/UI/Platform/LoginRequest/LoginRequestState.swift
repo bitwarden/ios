@@ -1,7 +1,7 @@
 // MARK: - LoginRequestState
 
 /// The state used to present the `LoginRequestView`.
-struct LoginRequestState: Equatable {
+struct LoginRequestState: Equatable, Sendable {
     /// The user's email.
     var email: String?
 

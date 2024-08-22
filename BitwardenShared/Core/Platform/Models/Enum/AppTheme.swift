@@ -4,7 +4,7 @@ import UIKit
 
 /// An enum listing the display theme options.
 ///
-public enum AppTheme: String, Menuable {
+public enum AppTheme: String, Menuable, Sendable {
     /// Use the dark theme.
     case dark
 

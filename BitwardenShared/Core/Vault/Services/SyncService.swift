@@ -70,6 +70,13 @@ protocol SyncService: AnyObject {
 /// be taken outside of the service layer.
 ///
 protocol SyncServiceDelegate: AnyObject {
+    /// The user needs to remove their master password so they can be migrated to use Key Connector.
+    ///
+    /// - Parameter organizationName: The organization's name that requires Key Connector.
+    ///
+    @MainActor
+    func removeMasterPassword(organizationName: String)
+
     /// The user's security stamp changed.
     ///
     /// - Parameter userId: The user ID of the user who's security stamp changed.
@@ -105,6 +112,9 @@ class DefaultSyncService: SyncService {
     /// The service for managing the folders for the user.
     private let folderService: FolderService
 
+    /// The service used by the application to manage Key Connector.
+    private let keyConnectorService: KeyConnectorService
+
     /// The service for managing the organizations for the user.
     private let organizationService: OrganizationService
 
@@ -139,6 +149,7 @@ class DefaultSyncService: SyncService {
     ///   - clientService: The service that handles common client functionality such as encryption and decryption.
     ///   - collectionService: The service for managing the collections for the user.
     ///   - folderService: The service for managing the folders for the user.
+    ///   - keyConnectorService: The service used by the application to manage Key Connector.
     ///   - organizationService: The service for managing the organizations for the user.
     ///   - policyService: The service for managing the polices for the user.
     ///   - sendService: The service for managing the sends for the user.
@@ -153,6 +164,7 @@ class DefaultSyncService: SyncService {
         clientService: ClientService,
         collectionService: CollectionService,
         folderService: FolderService,
+        keyConnectorService: KeyConnectorService,
         organizationService: OrganizationService,
         policyService: PolicyService,
         sendService: SendService,
@@ -166,6 +178,7 @@ class DefaultSyncService: SyncService {
         self.clientService = clientService
         self.collectionService = collectionService
         self.folderService = folderService
+        self.keyConnectorService = keyConnectorService
         self.organizationService = organizationService
         self.policyService = policyService
         self.sendService = sendService
@@ -246,6 +259,7 @@ extension DefaultSyncService {
 
         if let profile = response.profile {
             await stateService.updateProfile(from: profile, userId: userId)
+            try await stateService.setUsesKeyConnector(profile.usesKeyConnector, userId: userId)
         }
 
         try await cipherService.replaceCiphers(response.ciphers, userId: userId)
@@ -256,6 +270,11 @@ extension DefaultSyncService {
         try await policyService.replacePolicies(response.policies, userId: userId)
         try await stateService.setLastSyncTime(timeProvider.presentTime, userId: userId)
         try await checkVaultTimeoutPolicy()
+
+        if try await keyConnectorService.userNeedsMigration(),
+           let organization = try await keyConnectorService.getManagingOrganization() {
+            await delegate?.removeMasterPassword(organizationName: organization.name)
+        }
     }
 
     func deleteCipher(data: SyncCipherNotification) async throws {

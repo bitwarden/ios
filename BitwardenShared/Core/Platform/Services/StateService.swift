@@ -286,6 +286,13 @@ protocol StateService: AnyObject {
     ///
     func getUsernameGenerationOptions(userId: String?) async throws -> UsernameGenerationOptions?
 
+    /// Gets whether the user uses key connector.
+    ///
+    /// - Parameter userId: The user ID to check if they use key connector.
+    /// - Returns: Whether the user uses key connector.
+    ///
+    func getUsesKeyConnector(userId: String?) async throws -> Bool
+
     /// Gets the session timeout value.
     ///
     /// - Parameter userId: The user ID for the account.
@@ -541,6 +548,14 @@ protocol StateService: AnyObject {
     ///
     func setUsernameGenerationOptions(_ options: UsernameGenerationOptions?, userId: String?) async throws
 
+    /// Sets whether the user uses key connector.
+    ///
+    /// - Parameters:
+    ///   - usesKeyConnector: Whether the user uses key connector.
+    ///   - userId: The user ID to set whether they use key connector.
+    ///
+    func setUsesKeyConnector(_ usesKeyConnector: Bool, userId: String?) async throws
+
     /// Sets the session timeout value.
     ///
     /// - Parameters:
@@ -776,6 +791,14 @@ extension StateService {
         try await getUsernameGenerationOptions(userId: nil)
     }
 
+    /// Gets whether the user uses key connector.
+    ///
+    /// - Returns: Whether the user uses key connector.
+    ///
+    func getUsesKeyConnector() async throws -> Bool {
+        try await getUsesKeyConnector(userId: nil)
+    }
+
     /// Gets the session timeout value.
     ///
     /// - Returns: The session timeout value.
@@ -941,6 +964,14 @@ extension StateService {
         try await setUsernameGenerationOptions(options, userId: nil)
     }
 
+    /// Sets whether the user uses key connector.
+    ///
+    /// - Parameter usesKeyConnector: Whether the user uses key connector.
+    ///
+    func setUsesKeyConnector(_ usesKeyConnector: Bool) async throws {
+        try await setUsesKeyConnector(usesKeyConnector, userId: nil)
+    }
+
     /// Sets the session timeout value.
     ///
     /// - Parameter value: The value that dictates how many seconds in the future a timeout should occur.
@@ -960,6 +991,9 @@ enum StateServiceError: Error {
 
     /// There isn't an active account.
     case noActiveAccount
+
+    /// The user has no private key.
+    case noEncryptedPrivateKey
 
     /// The user has no pin protected user key.
     case noPinProtectedUserKey
@@ -1084,7 +1118,7 @@ actor DefaultStateService: StateService { // swiftlint:disable:this type_body_le
     func getAccountEncryptionKeys(userId: String?) async throws -> AccountEncryptionKeys {
         let userId = try userId ?? getActiveAccountUserId()
         guard let encryptedPrivateKey = appSettingsStore.encryptedPrivateKey(userId: userId) else {
-            throw StateServiceError.noActiveAccount
+            throw StateServiceError.noEncryptedPrivateKey
         }
         return AccountEncryptionKeys(
             encryptedPrivateKey: encryptedPrivateKey,
@@ -1244,6 +1278,11 @@ actor DefaultStateService: StateService { // swiftlint:disable:this type_body_le
     func getUsernameGenerationOptions(userId: String?) async throws -> UsernameGenerationOptions? {
         let userId = try userId ?? getActiveAccountUserId()
         return appSettingsStore.usernameGenerationOptions(userId: userId)
+    }
+
+    func getUsesKeyConnector(userId: String?) async throws -> Bool {
+        let userId = try userId ?? getActiveAccountUserId()
+        return appSettingsStore.usesKeyConnector(userId: userId)
     }
 
     func getVaultTimeout(userId: String?) async throws -> SessionTimeoutValue {
@@ -1461,6 +1500,11 @@ actor DefaultStateService: StateService { // swiftlint:disable:this type_body_le
     func setUsernameGenerationOptions(_ options: UsernameGenerationOptions?, userId: String?) async throws {
         let userId = try userId ?? getActiveAccountUserId()
         appSettingsStore.setUsernameGenerationOptions(options, userId: userId)
+    }
+
+    func setUsesKeyConnector(_ usesKeyConnector: Bool, userId: String?) async throws {
+        let userId = try userId ?? getActiveAccountUserId()
+        appSettingsStore.setUsesKeyConnector(usesKeyConnector, userId: userId)
     }
 
     func setVaultTimeout(value: SessionTimeoutValue, userId: String?) async throws {

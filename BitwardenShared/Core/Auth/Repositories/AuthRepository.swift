@@ -93,6 +93,12 @@ protocol AuthRepository: AnyObject {
     ///
     func logout(userId: String?) async throws
 
+    /// Migrates the user to Key Connector if a migration is required.
+    ///
+    /// - Parameter password: The user's master password.
+    ///
+    func migrateUserToKeyConnector(password: String) async throws
+
     /// Calculates the password strength of a password.
     ///
     /// - Parameters:
@@ -194,7 +200,11 @@ protocol AuthRepository: AnyObject {
 
     /// Attempts to unlock the user's vault with the user's Key Connector key.
     ///
-    func unlockVaultWithKeyConnectorKey() async throws
+    /// - Parameters:
+    ///   - keyConnectorUrl: The URL to the Key Connector API.
+    ///   - orgIdentifier: The text identifier for the organization.
+    ///
+    func unlockVaultWithKeyConnectorKey(keyConnectorURL: URL, orgIdentifier: String) async throws
 
     /// Attempts to unlock the user's vault with the stored neverlock key.
     ///
@@ -544,6 +554,10 @@ extension DefaultAuthRepository: AuthRepository {
         await vaultTimeoutService.lockVault(userId: userId)
     }
 
+    func migrateUserToKeyConnector(password: String) async throws {
+        try await keyConnectorService.migrateUser(password: password)
+    }
+
     func logout(userId: String?) async throws {
         let userId = try await stateService.getAccountIdOrActiveId(userId: userId)
 
@@ -748,12 +762,27 @@ extension DefaultAuthRepository: AuthRepository {
         ))
     }
 
-    func unlockVaultWithKeyConnectorKey() async throws {
+    func unlockVaultWithKeyConnectorKey(keyConnectorURL: URL, orgIdentifier: String) async throws {
         let account = try await stateService.getActiveAccount()
-        let encryptionKeys = try await stateService.getAccountEncryptionKeys(userId: account.profile.userId)
+
+        let encryptionKeys: AccountEncryptionKeys
+        do {
+            encryptionKeys = try await stateService.getAccountEncryptionKeys(userId: account.profile.userId)
+        } catch StateServiceError.noEncryptedPrivateKey {
+            // If the private key doesn't exist, this is a new user and we need to convert them to
+            // use key connector.
+            try await keyConnectorService.convertNewUserToKeyConnector(
+                keyConnectorUrl: keyConnectorURL,
+                orgIdentifier: orgIdentifier
+            )
+            encryptionKeys = try await stateService.getAccountEncryptionKeys(userId: account.profile.userId)
+        }
+
         guard let encryptedUserKey = encryptionKeys.encryptedUserKey else { throw StateServiceError.noEncUserKey }
 
-        let masterKey = try await keyConnectorService.getMasterKeyFromKeyConnector()
+        let masterKey = try await keyConnectorService.getMasterKeyFromKeyConnector(
+            keyConnectorUrl: keyConnectorURL
+        )
         try await unlockVault(method: .keyConnector(masterKey: masterKey, userKey: encryptedUserKey))
     }
 

@@ -206,7 +206,7 @@ extension BitwardenTextField where TrailingContent == EmptyView {
 // MARK: Previews
 
 #if DEBUG
-#Preview {
+#Preview("No buttons") {
     VStack {
         BitwardenTextField(
             title: "Title",
@@ -216,10 +216,9 @@ extension BitwardenTextField where TrailingContent == EmptyView {
         .padding()
     }
     .background(Color(.systemGroupedBackground))
-    .previewDisplayName("No buttons")
 }
 
-#Preview {
+#Preview("Password button") {
     VStack {
         BitwardenTextField(
             title: "Title",
@@ -230,10 +229,9 @@ extension BitwardenTextField where TrailingContent == EmptyView {
         .padding()
     }
     .background(Color(.systemGroupedBackground))
-    .previewDisplayName("Password button")
 }
 
-#Preview {
+#Preview("Password revealed") {
     VStack {
         BitwardenTextField(
             title: "Title",
@@ -244,10 +242,9 @@ extension BitwardenTextField where TrailingContent == EmptyView {
         .padding()
     }
     .background(Color(.systemGroupedBackground))
-    .previewDisplayName("Password revealed")
 }
 
-#Preview {
+#Preview("Additional buttons") {
     VStack {
         BitwardenTextField(
             title: "Title",
@@ -258,10 +255,9 @@ extension BitwardenTextField where TrailingContent == EmptyView {
         .padding()
     }
     .background(Color(.systemGroupedBackground))
-    .previewDisplayName("Additional buttons")
 }
 
-#Preview {
+#Preview("Footer text") {
     VStack {
         BitwardenTextField(
             title: "Title",
@@ -274,6 +270,5 @@ extension BitwardenTextField where TrailingContent == EmptyView {
         .padding()
     }
     .background(Color(.systemGroupedBackground))
-    .previewDisplayName("Footer text")
 }
 #endif

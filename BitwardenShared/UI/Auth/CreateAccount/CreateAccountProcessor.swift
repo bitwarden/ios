@@ -1,5 +1,5 @@
 import AuthenticationServices
-import BitwardenSdk
+@preconcurrency import BitwardenSdk
 import Combine
 import Foundation
 import OSLog

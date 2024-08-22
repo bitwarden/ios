@@ -2,7 +2,7 @@ import Foundation
 
 /// A data model containing the details of an HTTP response that's been received.
 ///
-public struct HTTPResponse: Equatable {
+public struct HTTPResponse: Equatable, Sendable {
     // MARK: Properties
 
     /// Data received in the body of the response.

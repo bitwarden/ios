@@ -2,7 +2,7 @@
 
 /// An enum of actions for adding or editing a card Item in its add/edit state.
 ///
-enum AddEditCardItemAction: Equatable {
+enum AddEditCardItemAction: Equatable, Sendable {
     /// The brand of the card changed.
     case brandChanged(DefaultableType<CardComponent.Brand>)
 

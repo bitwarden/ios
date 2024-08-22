@@ -4,7 +4,7 @@ import Networking
 /// API response model for the identity token request.
 ///
 struct IdentityTokenResponseModel: Equatable, JSONResponse, KdfConfigProtocol {
-    static var decoder = JSONDecoder.pascalOrSnakeCaseDecoder
+    static let decoder = JSONDecoder.pascalOrSnakeCaseDecoder
 
     // MARK: Account Properties
 

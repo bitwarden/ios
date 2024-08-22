@@ -2,6 +2,13 @@ import AuthenticationServices
 import CryptoKit
 import Foundation
 
+/// Errors thrown by `TwoFactorAuthProcessor`.
+///
+enum TwoFactorAuthError: Error {
+    /// The organization's identifier is missing, but required for Key Connector unlock.
+    case missingOrgIdentifier
+}
+
 // MARK: - TwoFactorAuthProcessor
 
 /// The processor used to manage state and handle actions for the `TwoFactorAuthView`.
@@ -264,8 +271,14 @@ final class TwoFactorAuthProcessor: StateProcessor<TwoFactorAuthState, TwoFactor
                     )
                 )
                 coordinator.navigate(to: .dismiss)
-            case .keyConnector:
-                try await services.authRepository.unlockVaultWithKeyConnectorKey()
+            case let .keyConnector(keyConnectorUrl):
+                guard let orgIdentifier = state.orgIdentifier else {
+                    throw TwoFactorAuthError.missingOrgIdentifier
+                }
+                try await services.authRepository.unlockVaultWithKeyConnectorKey(
+                    keyConnectorURL: keyConnectorUrl,
+                    orgIdentifier: orgIdentifier
+                )
                 coordinator.navigate(to: .complete)
             }
         }

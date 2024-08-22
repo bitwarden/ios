@@ -235,7 +235,9 @@ class SingleSignOnProcessorTests: BitwardenTestCase {
     @MainActor
     func test_singleSignOnCompleted_vaultUnlockedKeyConnector() {
         // Set up the mock data.
-        authService.loginWithSingleSignOnResult = .success(.keyConnector)
+        authService.loginWithSingleSignOnResult = .success(.keyConnector(
+            keyConnectorURL: URL(string: "https://example.com")!
+        ))
         subject.state.identifierText = "BestOrganization"
 
         // Receive the completed code.
