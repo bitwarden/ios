@@ -73,7 +73,7 @@ public extension ForEachIndexed where ID == Data.Element.ID, Content: View, Data
     }
 }
 
-extension ForEachIndexed: DynamicViewContent where Content: View {}
+extension ForEachIndexed: @preconcurrency DynamicViewContent where Content: View {}
 
 /// A helper to provide an item id to `ForEachIndexed` to build a `ForEach`.
 ///
