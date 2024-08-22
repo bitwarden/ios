@@ -16,5 +16,5 @@ public extension Logger {
 
     /// The Logger subsystem passed along with logs to the logging system to identify logs from this
     /// application.
-    private static var subsystem = Bundle.main.bundleIdentifier!
+    private static let subsystem = Bundle.main.bundleIdentifier!
 }

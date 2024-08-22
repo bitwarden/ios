@@ -6,7 +6,7 @@ import Networking
 /// The response returned from the API upon pre-validating the single-sign on.
 ///
 struct PreValidateSingleSignOnResponse: JSONResponse, Equatable {
-    static var decoder = JSONDecoder()
+    static let decoder = JSONDecoder()
 
     // MARK: Properties
 

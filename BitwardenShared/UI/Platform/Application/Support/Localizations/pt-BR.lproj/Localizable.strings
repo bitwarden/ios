@@ -914,6 +914,19 @@
 "FilePassword" = "Senha do arquivo";
 "ConfirmFilePassword" = "Confirme a senha do arquivo";
 "FilePasswordDescription" = "Esta senha será usada para exportar e importar este arquivo";
+"CreatingOn" = "Creating on";
+"CheckYourEmail" = "Check your email";
+"FollowTheInstructionsInTheEmailSentToXToContinueCreatingYourAccount" = "Follow the instructions in the email sent to %1$@ to continue creating your account.";
+"NoEmailGoBackToEditYourEmailAddress" = "No email? **[Go back](https://)** to edit your email address.";
+"OrLogInYouMayAlreadyHaveAnAccount." = "Or **[log in](https://)**, you may already have an account.";
+"OpenEmailApp" = "Open email app";
+"SetPassword" = "Set password";
+"FinishCreatingYourAccountForXBySettingAPassword." = "Finish creating your account for %1$@ by setting a password.";
+"VerifyingEmail" = "Verifying email";
+"EmailVerified" = "Email verified";
+"AccountSuccessfullyCreated" = "Account successfully created!";
+"ByContinuingYouAgreeToTheTermsOfServiceAndPrivacyPolicy" = "By continuing, you agree to the **[Terms of Service](%1$@)** and **[Privacy Policy](%2$@)**";
+"GetAdviceAnnouncementsAndResearchOpportunitiesFromBitwardenInYourInboxUnsubscribeAtAnyTime." = "Get advice, announcements, and research opportunities from Bitwarden in your inbox. **[Unsubscribe](%1$@)** at any time.";
 "OrganizationUnassignedItemsMessageUSEUDescriptionLong" = "Itens da organização não atribuídos não são mais visíveis na visualização Todos os Cofres e acessíveis apenas através da console. Atribuir estes itens a uma coleção do Console de Administração para torná-los visíveis.";
 "UnknownAccount" = "Conta desconhecida";
 "UserVerificationForPasskey" = "Verificação do usuário para a chave de acesso";
@@ -927,3 +940,7 @@
 "IntroCarouselPage3Message" = "Use o gerador para criar e salvar senhas fortes e únicas para todas as suas contas.";
 "IntroCarouselPage4Title" = "Seus dados, quando e onde você precisa deles";
 "IntroCarouselPage4Message" = "Salve senhas ilimitadas em dispositivos ilimitados com o Bitwarden, navegador e aplicativos para desktop.";
+"AccountSetup" = "Account setup";
+"SetUpUnlock" = "Set up unlock";
+"SetUpBiometricsOrChooseAPinCodeToQuicklyAccessYourVaultAndAutofillYourLogins" = "Set up biometrics or choose a PIN code to quickly access your vault and autofill your logins.";
+"SetUpLater" = "Set up later";

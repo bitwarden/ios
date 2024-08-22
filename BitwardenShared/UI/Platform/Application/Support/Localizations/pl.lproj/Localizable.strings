@@ -914,6 +914,19 @@
 "FilePassword" = "Hasło do pliku";
 "ConfirmFilePassword" = "Potwierdź hasło do pliku";
 "FilePasswordDescription" = "Hasło będzie używane do eksportowania i importowania pliku";
+"CreatingOn" = "Creating on";
+"CheckYourEmail" = "Check your email";
+"FollowTheInstructionsInTheEmailSentToXToContinueCreatingYourAccount" = "Follow the instructions in the email sent to %1$@ to continue creating your account.";
+"NoEmailGoBackToEditYourEmailAddress" = "No email? **[Go back](https://)** to edit your email address.";
+"OrLogInYouMayAlreadyHaveAnAccount." = "Or **[log in](https://)**, you may already have an account.";
+"OpenEmailApp" = "Open email app";
+"SetPassword" = "Set password";
+"FinishCreatingYourAccountForXBySettingAPassword." = "Finish creating your account for %1$@ by setting a password.";
+"VerifyingEmail" = "Verifying email";
+"EmailVerified" = "Email verified";
+"AccountSuccessfullyCreated" = "Account successfully created!";
+"ByContinuingYouAgreeToTheTermsOfServiceAndPrivacyPolicy" = "By continuing, you agree to the **[Terms of Service](%1$@)** and **[Privacy Policy](%2$@)**";
+"GetAdviceAnnouncementsAndResearchOpportunitiesFromBitwardenInYourInboxUnsubscribeAtAnyTime." = "Get advice, announcements, and research opportunities from Bitwarden in your inbox. **[Unsubscribe](%1$@)** at any time.";
 "OrganizationUnassignedItemsMessageUSEUDescriptionLong" = "Nieprzypisane elementy w organizacji nie są już widoczne w widoku Wszystkie sejfy i są dostępne tylko przez Konsolę Administracyjną. Przypisz te elementy do kolekcji z konsoli administracyjnej, aby były one widoczne.";
 "UnknownAccount" = "Nieznane konto";
 "UserVerificationForPasskey" = "Weryfikacja użytkownika dla passkey";
@@ -927,3 +940,7 @@
 "IntroCarouselPage3Message" = "Użyj generatora do tworzenia i zapisywania silnyc i unikalnych haseł dla wszystkich Twoich kont.";
 "IntroCarouselPage4Title" = "Twoje dane, zawsze kiedy i gdzie ich potrzebujesz";
 "IntroCarouselPage4Message" = "Zapisuj nieograniczone ilości haseł dzięki aplikacjom Bitwarden które są dostępne na urządzenia mobilne, w przeglądarce i systemy stacjonarne.";
+"AccountSetup" = "Account setup";
+"SetUpUnlock" = "Set up unlock";
+"SetUpBiometricsOrChooseAPinCodeToQuicklyAccessYourVaultAndAutofillYourLogins" = "Set up biometrics or choose a PIN code to quickly access your vault and autofill your logins.";
+"SetUpLater" = "Set up later";

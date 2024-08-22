@@ -391,6 +391,20 @@ class PolicyServiceTests: BitwardenTestCase { // swiftlint:disable:this type_bod
         XCTAssertFalse(onlyOrgApplies)
     }
 
+    /// `policyAppliesToUser()` called concurrently only makes a single request.
+    func test_policyAppliesToUser_calledConcurrently() async {
+        stateService.activeAccount = .fixture()
+        organizationService.fetchAllOrganizationsResult = .success([.fixture()])
+        policyDataStore.fetchPoliciesResult = .success([.fixture(type: .twoFactorAuthentication)])
+
+        async let concurrentTask1 = subject.policyAppliesToUser(.twoFactorAuthentication)
+        async let concurrentTask2 = subject.policyAppliesToUser(.twoFactorAuthentication)
+
+        _ = await (concurrentTask1, concurrentTask2)
+
+        XCTAssertEqual(policyDataStore.fetchPoliciesCount, 1)
+    }
+
     /// `policyAppliesToUser(_:)` returns whether the policy applies to the user when one
     /// organization has the policy enabled but not another.
     func test_policyAppliesToUser_multipleOrganizations() async {

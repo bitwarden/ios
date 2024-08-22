@@ -1,7 +1,7 @@
 // MARK: - VaultGroupAction
 
 /// Actions that can be processed by a `VaultGroupProcessor`.
-enum VaultGroupAction: Equatable {
+enum VaultGroupAction: Equatable, Sendable {
     /// The add item button was pressed.
     ///
     case addItemPressed

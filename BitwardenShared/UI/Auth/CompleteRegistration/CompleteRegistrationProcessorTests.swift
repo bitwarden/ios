@@ -13,6 +13,7 @@ class CompleteRegistrationProcessorTests: BitwardenTestCase {
     var authRepository: MockAuthRepository!
     var client: MockHTTPClient!
     var clientAuth: MockClientAuth!
+    var configService: MockConfigService!
     var coordinator: MockCoordinator<AuthRoute, AuthEvent>!
     var environmentService: MockEnvironmentService!
     var errorReporter: MockErrorReporter!
@@ -25,6 +26,7 @@ class CompleteRegistrationProcessorTests: BitwardenTestCase {
         authRepository = MockAuthRepository()
         client = MockHTTPClient()
         clientAuth = MockClientAuth()
+        configService = MockConfigService()
         coordinator = MockCoordinator<AuthRoute, AuthEvent>()
         environmentService = MockEnvironmentService()
         errorReporter = MockErrorReporter()
@@ -33,6 +35,7 @@ class CompleteRegistrationProcessorTests: BitwardenTestCase {
             services: ServiceContainer.withMocks(
                 authRepository: authRepository,
                 clientService: MockClientService(auth: clientAuth),
+                configService: configService,
                 environmentService: environmentService,
                 errorReporter: errorReporter,
                 httpClient: client
@@ -50,6 +53,7 @@ class CompleteRegistrationProcessorTests: BitwardenTestCase {
         clientAuth = nil
         client = nil
         coordinator = nil
+        configService = nil
         errorReporter = nil
         subject = nil
     }
@@ -74,9 +78,10 @@ class CompleteRegistrationProcessorTests: BitwardenTestCase {
         XCTAssertEqual(environmentService.setPreAuthEnvironmentUrlsData, nil)
     }
 
-    /// `perform(.appeared)` verify user email show toast.
+    /// `perform(.appeared)` verify user email show toast on success.
     @MainActor
-    func test_perform_appeared_verifyuseremail_toast() async {
+    func test_perform_appeared_verifyuseremail_success() async {
+        client.results = [.httpSuccess(testData: .emptyResponse)]
         subject.state.fromEmail = true
         await subject.perform(.appeared)
         XCTAssertEqual(subject.state.toast?.text, Localizations.emailVerified)
@@ -84,7 +89,7 @@ class CompleteRegistrationProcessorTests: BitwardenTestCase {
 
     /// `perform(.appeared)` verify user email show no toast.
     @MainActor
-    func test_perform_appeared_verifyuseremail_notoast() async {
+    func test_perform_appeared_verifyuseremail_notFromEmail() async {
         subject.state.fromEmail = false
         await subject.perform(.appeared)
         XCTAssertNil(subject.state.toast)
@@ -94,12 +99,104 @@ class CompleteRegistrationProcessorTests: BitwardenTestCase {
     @MainActor
     func test_perform_appeared_verifyuseremail_hideloading() async {
         coordinator.isLoadingOverlayShowing = true
-        subject.state.fromEmail = true
+        subject.state.fromEmail = false
         await subject.perform(.appeared)
 
         XCTAssertFalse(coordinator.isLoadingOverlayShowing)
         XCTAssertNotNil(coordinator.loadingOverlaysShown)
+    }
+
+    /// `perform(.appeared)` verify user email with token expired error shows expired link screen.
+    @MainActor
+    func test_perform_appeared_verifyuseremail_tokenexpired() async {
+        client.results = [
+            .httpFailure(
+                statusCode: 400,
+                headers: [:],
+                data: APITestData.verifyEmailTokenExpiredLink.data
+            ),
+        ]
+        subject.state.fromEmail = true
+        await subject.perform(.appeared)
+        XCTAssertEqual(coordinator.routes.last, .expiredLink)
+    }
+
+    /// `perform(.appeared)` verify user email presents an alert when there is no internet connection.
+    /// When the user taps `Try again`, the verify user email request is made again.
+    @MainActor
+    func test_perform_appeared_verifyuseremail_error() async throws {
+        subject.state = .fixture()
+        subject.state.fromEmail = true
+
+        let urlError = URLError(.notConnectedToInternet) as Error
+        client.results = [.httpFailure(urlError), .httpSuccess(testData: .emptyResponse)]
+
+        await subject.perform(.appeared)
+
+        let alert = try XCTUnwrap(coordinator.alertShown.last)
+        XCTAssertEqual(alert, Alert.networkResponseError(urlError) {
+            await self.subject.perform(.appeared)
+        })
+
+        try await alert.tapAction(title: Localizations.tryAgain)
+
         XCTAssertEqual(subject.state.toast?.text, Localizations.emailVerified)
+        XCTAssertEqual(client.requests.count, 2)
+        XCTAssertEqual(client.requests[0].url, URL(
+            string: "https://example.com/identity/accounts/register/verification-email-clicked"
+        ))
+        XCTAssertEqual(client.requests[1].url, URL(
+            string: "https://example.com/identity/accounts/register/verification-email-clicked"
+        ))
+
+        XCTAssertFalse(coordinator.isLoadingOverlayShowing)
+        XCTAssertEqual(
+            coordinator.loadingOverlaysShown,
+            [
+                LoadingOverlayState(title: Localizations.verifying),
+                LoadingOverlayState(title: Localizations.verifying),
+            ]
+        )
+    }
+
+    /// `perform(.appeared)` with feature flag for .nativeCreateAccountFlow set to true
+    @MainActor
+    func test_perform_appeared_loadFeatureFlag_true() async {
+        configService.featureFlagsBool[.nativeCreateAccountFlow] = true
+        subject.state.nativeCreateAccountFeatureFlag = false
+
+        let task = Task {
+            await subject.perform(.appeared)
+        }
+        await task.value
+        print(subject.state.nativeCreateAccountFeatureFlag)
+        XCTAssertTrue(subject.state.nativeCreateAccountFeatureFlag)
+    }
+
+    /// `perform(.appeared)` with feature flag for .nativeCreateAccountFlow set to false
+    @MainActor
+    func test_perform_appeared_loadsFeatureFlag_false() async {
+        configService.featureFlagsBool[.nativeCreateAccountFlow] = false
+        subject.state.nativeCreateAccountFeatureFlag = true
+
+        let task = Task {
+            await subject.perform(.appeared)
+        }
+        await task.value
+        XCTAssertFalse(subject.state.nativeCreateAccountFeatureFlag)
+    }
+
+    /// `perform(.appeared)` with feature flag defaulting to false
+    @MainActor
+    func test_perform_appeared_loadsFeatureFlag_nil() async {
+        configService.featureFlagsBool[.nativeCreateAccountFlow] = nil
+        subject.state.nativeCreateAccountFeatureFlag = true
+
+        let task = Task {
+            await subject.perform(.appeared)
+        }
+        await task.value
+        XCTAssertFalse(subject.state.nativeCreateAccountFeatureFlag)
     }
 
     /// `perform(_:)` with `.completeRegistration` will still make the `CompleteRegistrationRequest` when the HIBP

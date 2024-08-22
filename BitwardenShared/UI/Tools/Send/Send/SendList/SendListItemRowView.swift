@@ -1,4 +1,4 @@
-import BitwardenSdk
+@preconcurrency import BitwardenSdk
 import SwiftUI
 
 // MARK: - SendListItemRowState
@@ -35,7 +35,7 @@ struct SendListItemRowState: Equatable {
 // MARK: - SendListItemRowAction
 
 /// Actions that can be sent from a `SendListItemRowView`.
-enum SendListItemRowAction: Equatable {
+enum SendListItemRowAction: Equatable, Sendable {
     /// The edit button was pressed.
     case editPressed(_ sendView: SendView)
 
@@ -45,7 +45,7 @@ enum SendListItemRowAction: Equatable {
 
 // MARK: - SendListItemRowEffect
 
-enum SendListItemRowEffect: Equatable {
+enum SendListItemRowEffect: Equatable, Sendable {
     /// The copy link button was pressed.
     case copyLinkPressed(_ sendView: SendView)
 

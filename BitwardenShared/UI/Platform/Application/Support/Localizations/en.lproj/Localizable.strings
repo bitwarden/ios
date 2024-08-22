@@ -951,3 +951,16 @@
 "YourHintWillBeSentToYouViaEmailWhenYouRequestIt" = "Your hint will be sent to you via email when you request it.";
 "WriteYourPasswordDown" = "Write your password down";
 "BeCarefulToKeepYourWrittenPasswordSomewhereSecretAndSafe" = "Be careful to keep your written password somewhere secret and safe.";
+"ChooseYourMasterPassword" = "Choose your master password";
+"ChooseYourMasterPasswordMessage" = "Choose a unique and strong password to  keep your information safe.";
+"MasterPasswordRequiredTitle" = "Master password (required)";
+"RetypeMasterPasswordTitle" = "Re-type master password (required)";
+"MasterPasswordHintTitle" = "Master password hint";
+"BitwardenCannotResetLostPasswordMessage" = "Bitwarden cannot reset a lost or forgotten master password.";
+"LearnAboutWaysToPreventAccountLockout" = "Learn about ways to prevent account lockout";
+"WhatMakesAPasswordStrong" = "What makes a password strong";
+"Characters" = "Characters";
+"RemoveMasterPasswordMessage" = "%1$@ is using SSO with a self-hosted key server. A master password is no longer required to log in for members of this organization.";
+"RestartRegistration" = "Restart registration";
+"ExpiredLink" = "Expired link";
+"PleaseRestartRegistrationOrTryLoggingInYouMayAlreadyHaveAnAccount" = "Please restart registration or try logging in. You may already have an account.";

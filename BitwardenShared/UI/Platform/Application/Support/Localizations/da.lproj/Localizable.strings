@@ -364,7 +364,7 @@
 "MustLogInMainAppAutofill" = "Du skal logge ind på den primære Bitwarden-app, før du kan bruge Autoudfyld.";
 "AutofillSetup" = "Dine logins kan nu nemt tilgås direkte fra dit tastatur, når du logger ind på apps og hjemmesider.";
 "AutofillSetup2" = "Vi anbefaler, at du deaktiverer andre Autoudfyld-apps under Indstillinger, hvis du ikke har planer om at bruge dem.";
-"BitwardenAutofillDescription" = "Få adgang til din boks direkte fra dit tastatur for hurtigt at autoudfylde adgangskoder.";
+"BitwardenAutofillDescription" = "Tilgå boksen direkte fra tastaturet for hurtigt at autoudfylde adgangskoder.";
 "AutofillTurnOn" = "Følg disse instruktioner for at aktivere autoudfyldning af adgangskoder på din enhed:";
 "AutofillTurnOn1" = "1. Åbn iOS-appen \"Indstillinger\"";
 "AutofillTurnOn2" = "2. Tryk på \"Adgangskoder\"";
@@ -914,6 +914,19 @@
 "FilePassword" = "Filadgangskode";
 "ConfirmFilePassword" = "Bekræft filadgangskode";
 "FilePasswordDescription" = "Denne adgangskode vil blive brugt ved eksport og import af denne fil";
+"CreatingOn" = "Creating on";
+"CheckYourEmail" = "Tjek indbakken";
+"FollowTheInstructionsInTheEmailSentToXToContinueCreatingYourAccount" = "Følg vejledningen i e-mailen sendt til %1$@ for at fortsætte med kontooprettelsen.";
+"NoEmailGoBackToEditYourEmailAddress" = "Ingen e-mail? **[Gå tilbage](https://)** for at redigere e-mailadressen.";
+"OrLogInYouMayAlreadyHaveAnAccount." = "Eller **[log ind](https://)**, da en konto muligvis allerede eksisterer.";
+"OpenEmailApp" = "Åbn e-mail app";
+"SetPassword" = "Indstil adgangskode";
+"FinishCreatingYourAccountForXBySettingAPassword." = "Afslut kontooprettelsen for %1$@ med at opsætte en adgangskode.";
+"VerifyingEmail" = "Bekræfter e-mail";
+"EmailVerified" = "E-mail bekræftet";
+"AccountSuccessfullyCreated" = "Kontoen er hermed oprettet!";
+"ByContinuingYouAgreeToTheTermsOfServiceAndPrivacyPolicy" = "Ved at fortsætte, accepterer du **[Vilkår for Tjeneste](%1$@)** og **[Fortrolighedspolitik](%2$@)**";
+"GetAdviceAnnouncementsAndResearchOpportunitiesFromBitwardenInYourInboxUnsubscribeAtAnyTime." = "Få råd, bekendtgørelser og forskningsmuligheder fra Bitwarden i indbakken. **[Afmeld](%1$@)** til enhver tid.";
 "OrganizationUnassignedItemsMessageUSEUDescriptionLong" = "Utildelte organisationsemner er ikke længere synlige i Alle Bokse-visningen og er kun tilgængelige via Admin-konsollen. Føj disse emner til en samling fra Admin-konsollen for at gøre dem synlige.";
 "UnknownAccount" = "Ukendt konto";
 "UserVerificationForPasskey" = "Brugerbekræftelse for adgangsnøgle";
@@ -927,3 +940,7 @@
 "IntroCarouselPage3Message" = "Brug generatoren til at oprette og gemme stærke, unikke adgangskoder til alle kontiene.";
 "IntroCarouselPage4Title" = "Egne data, når og hvor, man har brug for dem";
 "IntroCarouselPage4Message" = "Gem ubegrænsede adgangskoder på tværs af ubegrænsede enheder med Bitwarden mobil-, webbrowser- og computer-apps.";
+"AccountSetup" = "Kontoopsætning";
+"SetUpUnlock" = "Opsæt oplåsning";
+"SetUpBiometricsOrChooseAPinCodeToQuicklyAccessYourVaultAndAutofillYourLogins" = "Opsæt biometri eller vælg en PIN-kode for hurtigt at tilgå boksen og autoudfylde logins.";
+"SetUpLater" = "Opsæt senere";

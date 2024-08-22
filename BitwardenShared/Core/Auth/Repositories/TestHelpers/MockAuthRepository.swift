@@ -1,3 +1,5 @@
+import Foundation
+
 @testable import BitwardenShared
 
 class MockAuthRepository: AuthRepository { // swiftlint:disable:this type_body_length
@@ -27,6 +29,9 @@ class MockAuthRepository: AuthRepository { // swiftlint:disable:this type_body_l
     var logoutCalled = false
     var logoutUserId: String?
     var logoutResult: Result<Void, Error> = .success(())
+    var migrateUserToKeyConnectorCalled = false
+    var migrateUserToKeyConnectorPassword: String?
+    var migrateUserToKeyConnectorResult: Result<Void, Error> = .success(())
     var passwordStrengthEmail: String?
     var passwordStrengthPassword: String?
     var passwordStrengthResult: UInt8 = 0
@@ -56,7 +61,12 @@ class MockAuthRepository: AuthRepository { // swiftlint:disable:this type_body_l
 
     var unlockVaultResult: Result<Void, Error> = .success(())
     var unlockVaultWithBiometricsResult: Result<Void, Error> = .success(())
+    var unlockVaultWithDeviceKeyCalled = false
     var unlockVaultWithDeviceKeyResult: Result<Void, Error> = .success(())
+    var unlockVaultWithKeyConnectorKeyCalled = false
+    var unlockVaultWithKeyConnectorKeyConnectorURL: URL? // swiftlint:disable:this identifier_name
+    var unlockVaultWithKeyConnectorOrgIdentifier: String?
+    var unlockVaultWithKeyConnectorKeyResult: Result<Void, Error> = .success(())
     var unlockVaultWithNeverlockKeyCalled = false
     var unlockVaultWithNeverlockResult: Result<Void, Error> = .success(())
     var verifyOtpOpt: String?
@@ -183,6 +193,12 @@ class MockAuthRepository: AuthRepository { // swiftlint:disable:this type_body_l
         try logoutResult.get()
     }
 
+    func migrateUserToKeyConnector(password: String) async throws {
+        migrateUserToKeyConnectorCalled = true
+        migrateUserToKeyConnectorPassword = password
+        return try migrateUserToKeyConnectorResult.get()
+    }
+
     func requestOtp() async throws {
         requestOtpCalled = true
         try requestOtpResult.get()
@@ -251,7 +267,15 @@ class MockAuthRepository: AuthRepository { // swiftlint:disable:this type_body_l
     }
 
     func unlockVaultWithDeviceKey() async throws {
+        unlockVaultWithDeviceKeyCalled = true
         try unlockVaultWithDeviceKeyResult.get()
+    }
+
+    func unlockVaultWithKeyConnectorKey(keyConnectorURL: URL, orgIdentifier: String) async throws {
+        unlockVaultWithKeyConnectorKeyCalled = true
+        unlockVaultWithKeyConnectorKeyConnectorURL = keyConnectorURL
+        unlockVaultWithKeyConnectorOrgIdentifier = orgIdentifier
+        try unlockVaultWithKeyConnectorKeyResult.get()
     }
 
     func unlockVaultWithPIN(pin: String) async throws {

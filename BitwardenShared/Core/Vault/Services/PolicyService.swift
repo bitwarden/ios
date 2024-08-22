@@ -1,4 +1,4 @@
-import BitwardenSdk
+@preconcurrency import BitwardenSdk
 
 // MARK: - PolicyService
 
@@ -51,7 +51,7 @@ protocol PolicyService: AnyObject {
 /// A default implementation of a `PolicyService` which manages syncing and updates to the user's
 /// policies.
 ///
-class DefaultPolicyService: PolicyService {
+actor DefaultPolicyService: PolicyService {
     // MARK: Properties
 
     /// The data store for managing the persisted policies for the user.
