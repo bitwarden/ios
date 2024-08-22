@@ -54,6 +54,7 @@ class AutofillHelperTests: BitwardenTestCase { // swiftlint:disable:this type_bo
 
     /// `handleCipherForAutofill(cipherListView:)` notifies the delegate of the username and
     /// password to autofill.
+    @MainActor
     func test_handleCipherForAutofill() async {
         vaultRepository.fetchCipherResult = .success(.fixture(
             login: .fixture(password: "PASSWORD", username: "user@bitwarden.com")
@@ -295,6 +296,7 @@ class AutofillHelperTests: BitwardenTestCase { // swiftlint:disable:this type_bo
 
     /// `handleCipherForAutofill(cipherListView:)` bypasses the master password reprompt if the
     /// user doesn't have a master password.
+    @MainActor
     func test_handleCipherForAutofill_passwordReprompt_noMasterPassword() async throws {
         authRepository.hasMasterPasswordResult = .success(false)
         vaultRepository.fetchCipherResult = .success(.fixture(
@@ -311,6 +313,7 @@ class AutofillHelperTests: BitwardenTestCase { // swiftlint:disable:this type_bo
     }
 
     /// `handleCipherForAutofill(cipherListView:)` logs an error if generating the TOTP fails.
+    @MainActor
     func test_handleCipherForAutofill_generateTOTPError() async {
         vaultRepository.fetchCipherResult = .success(.fixture(
             login: .fixture(password: "PASSWORD", username: "user@bitwarden.com", totp: "totp")
