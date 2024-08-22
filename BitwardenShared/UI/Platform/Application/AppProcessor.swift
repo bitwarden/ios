@@ -355,7 +355,7 @@ public class AppProcessor {
             services.application?.endBackgroundTask(taskId)
             backgroundTaskId = nil
         }
-        backgroundTaskId = services.application?.beginBackgroundTask(
+        backgroundTaskId = services.application?.startBackgroundTask(
             withName: "SendEventBackgroundTask",
             expirationHandler: { [weak self] in
                 if let backgroundTaskId = self?.backgroundTaskId {
@@ -426,6 +426,14 @@ extension AppProcessor: NotificationServiceDelegate {
 // MARK: - SyncServiceDelegate
 
 extension AppProcessor: SyncServiceDelegate {
+    func removeMasterPassword(organizationName: String) {
+        // Don't show the remove master password screen if running in an app extension.
+        guard appExtensionDelegate?.isInAppExtension != true else { return }
+
+        coordinator?.hideLoadingOverlay()
+        coordinator?.navigate(to: .auth(.removeMasterPassword(organizationName: organizationName)))
+    }
+
     func securityStampChanged(userId: String) async {
         // Log the user out if their security stamp changes.
         coordinator?.hideLoadingOverlay()

@@ -1,6 +1,6 @@
 import Foundation
 
-public enum EventType: Int, Codable {
+public enum EventType: Int, Codable, Sendable {
     case userLoggedIn = 1000
     case userChangedPassword = 1001
     case userUpdated2fa = 1002

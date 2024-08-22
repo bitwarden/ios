@@ -334,15 +334,6 @@ protocol AppSettingsStore: AnyObject {
     ///
     func setServerConfig(_ config: ServerConfig?, userId: String)
 
-    /// Sets whether or not we should check for unassigned ciphers in an organization for
-    /// a particular user.
-    ///
-    /// - Parameters:
-    ///   - shouldCheck: Whether or not we should check for unassigned ciphers.
-    ///   - userId: The user ID to track.
-    ///
-    func setShouldCheckOrganizationUnassignedItems(_ shouldCheck: Bool?, userId: String)
-
     /// Set whether to trust the device.
     ///
     /// - Parameter shouldTrustDevice: Whether to trust the device.
@@ -373,6 +364,14 @@ protocol AppSettingsStore: AnyObject {
     ///
     func setUnsuccessfulUnlockAttempts(_ attempts: Int, userId: String)
 
+    /// Sets whether the user uses key connector.
+    ///
+    /// - Parameters:
+    ///   - usesKeyConnector: Whether the user uses key connector.
+    ///   - userId: The user ID to set whether they use key connector.
+    ///
+    func setUsesKeyConnector(_ usesKeyConnector: Bool, userId: String)
+
     /// Sets the user's session timeout, in minutes.
     ///
     /// - Parameters:
@@ -388,13 +387,6 @@ protocol AppSettingsStore: AnyObject {
     ///   - userId: The user ID associated with the username generation options.
     ///
     func setUsernameGenerationOptions(_ options: UsernameGenerationOptions?, userId: String)
-
-    /// Gets whether or not we should check for unassigned ciphers in an organization for
-    /// a particular user.
-    ///
-    /// - Parameter userId: The user ID to check.
-    ///
-    func shouldCheckOrganizationUnassignedItems(userId: String) -> Bool?
 
     /// Get whether the device should be trusted.
     ///
@@ -429,6 +421,13 @@ protocol AppSettingsStore: AnyObject {
     /// - Returns: The number of unsuccessful attempts to unlock the vault.
     ///
     func unsuccessfulUnlockAttempts(userId: String) -> Int
+
+    /// Gets whether the user uses key connector.
+    ///
+    /// - Parameter userId: The user ID to check if they use key connector.
+    /// - Returns: Whether the user uses key connector.
+    ///
+    func usesKeyConnector(userId: String) -> Bool
 
     /// Returns the session timeout in minutes.
     ///
@@ -592,12 +591,12 @@ extension DefaultAppSettingsStore: AppSettingsStore {
         case rememberedEmail
         case rememberedOrgIdentifier
         case serverConfig(userId: String)
-        case shouldCheckOrganizationUnassignedItems(userId: String)
         case shouldTrustDevice(userId: String)
         case state
         case twoFactorToken(email: String)
         case unsuccessfulUnlockAttempts(userId: String)
         case usernameGenerationOptions(userId: String)
+        case usesKeyConnector(userId: String)
         case vaultTimeout(userId: String)
         case vaultTimeoutAction(userId: String)
 
@@ -667,8 +666,6 @@ extension DefaultAppSettingsStore: AppSettingsStore {
                 key = "rememberedOrgIdentifier"
             case let .serverConfig(userId):
                 key = "serverConfig_\(userId)"
-            case let .shouldCheckOrganizationUnassignedItems(userId):
-                key = "shouldCheckOrganizationUnassignedItems_\(userId)"
             case let .shouldTrustDevice(userId):
                 key = "shouldTrustDevice_\(userId)"
             case .state:
@@ -679,6 +676,8 @@ extension DefaultAppSettingsStore: AppSettingsStore {
                 key = "invalidUnlockAttempts_\(userId)"
             case let .usernameGenerationOptions(userId):
                 key = "usernameGenerationOptions_\(userId)"
+            case let .usesKeyConnector(userId):
+                key = "usesKeyConnector_\(userId)"
             case let .vaultTimeout(userId):
                 key = "vaultTimeout_\(userId)"
             case let .vaultTimeoutAction(userId):
@@ -920,10 +919,6 @@ extension DefaultAppSettingsStore: AppSettingsStore {
         store(config, for: .serverConfig(userId: userId))
     }
 
-    func setShouldCheckOrganizationUnassignedItems(_ shouldCheck: Bool?, userId: String) {
-        store(shouldCheck, for: .shouldCheckOrganizationUnassignedItems(userId: userId))
-    }
-
     func setShouldTrustDevice(shouldTrustDevice: Bool?, userId: String) {
         store(shouldTrustDevice, for: .shouldTrustDevice(userId: userId))
     }
@@ -940,12 +935,12 @@ extension DefaultAppSettingsStore: AppSettingsStore {
         store(options, for: .usernameGenerationOptions(userId: userId))
     }
 
-    func setVaultTimeout(minutes: Int, userId: String) {
-        store(minutes, for: .vaultTimeout(userId: userId))
+    func setUsesKeyConnector(_ usesKeyConnector: Bool, userId: String) {
+        store(usesKeyConnector, for: .usesKeyConnector(userId: userId))
     }
 
-    func shouldCheckOrganizationUnassignedItems(userId: String) -> Bool? {
-        fetch(for: .shouldCheckOrganizationUnassignedItems(userId: userId))
+    func setVaultTimeout(minutes: Int, userId: String) {
+        store(minutes, for: .vaultTimeout(userId: userId))
     }
 
     func timeoutAction(userId: String) -> Int? {
@@ -966,6 +961,10 @@ extension DefaultAppSettingsStore: AppSettingsStore {
 
     func usernameGenerationOptions(userId: String) -> UsernameGenerationOptions? {
         fetch(for: .usernameGenerationOptions(userId: userId))
+    }
+
+    func usesKeyConnector(userId: String) -> Bool {
+        fetch(for: .usesKeyConnector(userId: userId))
     }
 
     func setUnsuccessfulUnlockAttempts(_ attempts: Int, userId: String) {

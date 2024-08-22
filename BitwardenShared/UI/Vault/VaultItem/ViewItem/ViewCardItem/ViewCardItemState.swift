@@ -2,7 +2,7 @@
 
 /// A protocol for an equatable type that models a Card Item in it's view state.
 ///
-protocol ViewCardItemState: Equatable {
+protocol ViewCardItemState: Equatable, Sendable {
     /// The brand of the card.
     var brand: DefaultableType<CardComponent.Brand> { get }
 

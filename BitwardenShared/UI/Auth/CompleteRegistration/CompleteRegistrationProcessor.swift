@@ -1,5 +1,5 @@
 import AuthenticationServices
-import BitwardenSdk
+@preconcurrency import BitwardenSdk
 import Combine
 import Foundation
 import OSLog
@@ -33,6 +33,7 @@ class CompleteRegistrationProcessor: StateProcessor<
     typealias Services = HasAccountAPIService
         & HasAuthRepository
         & HasClientService
+        & HasConfigService
         & HasEnvironmentService
         & HasErrorReporter
         & HasStateService
@@ -70,6 +71,7 @@ class CompleteRegistrationProcessor: StateProcessor<
         switch effect {
         case .appeared:
             await setRegion()
+            await loadFeatureFlag()
             await verifyUserEmail()
         case .completeRegistration:
             await checkPasswordAndCompleteRegistration()
@@ -93,6 +95,10 @@ class CompleteRegistrationProcessor: StateProcessor<
             state.isCheckDataBreachesToggleOn = newValue
         case let .togglePasswordVisibility(newValue):
             state.arePasswordsVisible = newValue
+        case .learnMoreTapped:
+            break
+        case .preventAccountLockTapped:
+            break
         }
     }
 
@@ -220,6 +226,15 @@ class CompleteRegistrationProcessor: StateProcessor<
         await services.environmentService.setPreAuthURLs(urls: urls)
     }
 
+    private func loadFeatureFlag() async {
+        state.nativeCreateAccountFeatureFlag = await services.configService.getFeatureFlag(
+            .nativeCreateAccountFlow,
+            defaultValue: false,
+            forceRefresh: true
+        )
+        print("HEY \(state.nativeCreateAccountFeatureFlag)")
+    }
+
     /// Shows a `CompleteRegistrationError` alert.
     ///
     /// - Parameter error: The error that occurred.
@@ -257,7 +272,21 @@ class CompleteRegistrationProcessor: StateProcessor<
         defer { coordinator.hideLoadingOverlay() }
 
         if state.fromEmail {
-            state.toast = Toast(text: Localizations.emailVerified)
+            coordinator.showLoadingOverlay(title: Localizations.verifying)
+
+            do {
+                try await services.accountAPIService.verifyEmailToken(
+                    email: state.userEmail,
+                    emailVerificationToken: state.emailVerificationToken
+                )
+                state.toast = Toast(text: Localizations.emailVerified)
+            } catch VerifyEmailTokenRequestError.tokenExpired {
+                coordinator.navigate(to: .expiredLink)
+            } catch {
+                coordinator.showAlert(.networkResponseError(error) {
+                    await self.verifyUserEmail()
+                })
+            }
         }
     }
 }

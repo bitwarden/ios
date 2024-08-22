@@ -914,6 +914,19 @@
 "FilePassword" = "Lozinka datoteke";
 "ConfirmFilePassword" = "Potvrdi lozinku datoteke";
 "FilePasswordDescription" = "Ova će se lozinka koristiti za izvoz i uvoz ove datoteke";
+"CreatingOn" = "Stvaranje na";
+"CheckYourEmail" = "Provjeri svoju e-poštu";
+"FollowTheInstructionsInTheEmailSentToXToContinueCreatingYourAccount" = "Za nastavak stvaranja svog računa, prati upute poslane na %1$@.";
+"NoEmailGoBackToEditYourEmailAddress" = "e-pošta nije stigla? **[Vrati se](https://)** na unos adrese.";
+"OrLogInYouMayAlreadyHaveAnAccount." = "Ili se, ako već imaš račun, **[prijavi](https://)** .";
+"OpenEmailApp" = "Otvori aplikaciju za e-poštu";
+"SetPassword" = "Postavi lozinku";
+"FinishCreatingYourAccountForXBySettingAPassword." = "Dovrši stvaranje svog računa za %1$@ postavljanjem lozinke.";
+"VerifyingEmail" = "Potvrda adrese e-pošte";
+"EmailVerified" = "e-pošta potvrđena";
+"AccountSuccessfullyCreated" = "Račun je uspješno stvoren!";
+"ByContinuingYouAgreeToTheTermsOfServiceAndPrivacyPolicy" = "Nastavkom, slažeš se s **[Uvjetima usluge](%1$@)** i **[Politikom privatnosti](%2$@)**";
+"GetAdviceAnnouncementsAndResearchOpportunitiesFromBitwardenInYourInboxUnsubscribeAtAnyTime." = "Primaj savjete, najave i mogućnosti istraživanja od Bitwardena u svoju Ulaznu poštu. **[Otkaži pretplatu](%1$@)** u bilo kojem trenutku.";
 "OrganizationUnassignedItemsMessageUSEUDescriptionLong" = "Nedodijeljene stavke organizacije više nisu vidljive u prikazu Svi trezori i dostupne su samo putem Administratorske konzole. Dodijelite ove stavke nekoj zbirci u Administratorskoj konzoli kako biste ih učinili vidljivima.";
 "UnknownAccount" = "Nepoznati račun";
 "UserVerificationForPasskey" = "Potvrda korisnika za pristupni ključ";
@@ -927,3 +940,7 @@
 "IntroCarouselPage3Message" = "Koristi generator za stvaranje i spremanje jakih, jedinstvenih lozinki za sve svoje račune.";
 "IntroCarouselPage4Title" = "Tvoji podaci kada god i gdje god su ti potrebni";
 "IntroCarouselPage4Message" = "Spremi neograničen broj lozinki na neograničenom broju uređaja s Bitwarden mobilnom aplikacijom, proširenjem za preglednik i aplikacijom za stolna računala.";
+"AccountSetup" = "Postavljanje računa";
+"SetUpUnlock" = "Postavi otključavanje";
+"SetUpBiometricsOrChooseAPinCodeToQuicklyAccessYourVaultAndAutofillYourLogins" = "Postavi biometriju ili odaberi PIN za brzu auto-ispunu prijava i pristup trezoru.";
+"SetUpLater" = "Postavi kasnije";

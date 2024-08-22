@@ -1,4 +1,4 @@
-import BitwardenSdk
+@preconcurrency import BitwardenSdk
 import Foundation
 
 // swiftlint:disable file_length

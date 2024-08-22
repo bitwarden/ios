@@ -1,10 +1,10 @@
-import BitwardenSdk
+@preconcurrency import BitwardenSdk
 
 // MARK: - MoveToOrganizationState
 
 /// An object that defines the current state of a `MoveToOrganizationView`.
 ///
-struct MoveToOrganizationState: Equatable {
+struct MoveToOrganizationState: Equatable, Sendable {
     // MARK: Properties
 
     /// The cipher to move to an organization.

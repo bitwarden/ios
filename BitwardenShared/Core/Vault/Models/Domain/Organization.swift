@@ -1,6 +1,6 @@
 /// A domain model containing the details of an organization.
 ///
-public struct Organization: Equatable, Hashable {
+public struct Organization: Equatable, Hashable, Sendable {
     // MARK: Properties
 
     /// Whether the profile organization is enabled.
@@ -11,6 +11,9 @@ public struct Organization: Equatable, Hashable {
 
     /// The profile organization's key.
     let key: String?
+
+    /// The key connector URL for the profile organization.
+    let keyConnectorUrl: String?
 
     /// The organization's name.
     let name: String
@@ -27,6 +30,9 @@ public struct Organization: Equatable, Hashable {
     /// Whether the profile's organization uses events.
     let useEvents: Bool
 
+    /// Whether the profile's organization uses key connector.
+    let useKeyConnector: Bool
+
     /// Whether the profile's organization uses policies.
     let usePolicies: Bool
 
@@ -41,11 +47,13 @@ extension Organization {
             enabled: responseModel.enabled,
             id: responseModel.id,
             key: responseModel.key,
+            keyConnectorUrl: responseModel.keyConnectorUrl,
             name: name,
             permissions: responseModel.permissions ?? Permissions(),
             status: responseModel.status,
             type: responseModel.type,
             useEvents: responseModel.useEvents,
+            useKeyConnector: responseModel.useKeyConnector,
             usePolicies: responseModel.usePolicies,
             usersGetPremium: responseModel.usersGetPremium
         )

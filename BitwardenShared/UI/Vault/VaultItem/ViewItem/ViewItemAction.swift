@@ -1,9 +1,9 @@
-import BitwardenSdk
+@preconcurrency import BitwardenSdk
 
 // MARK: - ViewItemAction
 
 /// Actions that can be processed by a `ViewItemProcessor`.
-enum ViewItemAction: Equatable {
+enum ViewItemAction: Equatable, Sendable {
     /// A card item action
     case cardItemAction(ViewCardItemAction)
 

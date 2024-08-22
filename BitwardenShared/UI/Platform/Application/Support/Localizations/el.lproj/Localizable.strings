@@ -914,6 +914,19 @@
 "FilePassword" = "Κωδικός πρόσβασης αρχείου";
 "ConfirmFilePassword" = "Επιβεβαίωση κωδικού πρόσβασης αρχείου";
 "FilePasswordDescription" = "Αυτός ο κωδικός πρόσβασης θα χρησιμοποιηθεί για την εξαγωγή και εισαγωγή αυτού του αρχείου";
+"CreatingOn" = "Creating on";
+"CheckYourEmail" = "Ελέγξτε το ηλ. ταχυδρομείο σας";
+"FollowTheInstructionsInTheEmailSentToXToContinueCreatingYourAccount" = "Ακολουθήστε τις οδηγίες στο μήνυμα που στάλθηκε στο %1$@ για να συνεχίσετε τη δημιουργία του λογαριασμού σας.";
+"NoEmailGoBackToEditYourEmailAddress" = "Κανένα μήνυμα ηλ. ταχυδρομείου; **[Πηγαίνετε πίσω](https://)** για να επεξεργαστείτε τη διεύθυνση ηλ. ταχυδρομείου σας.";
+"OrLogInYouMayAlreadyHaveAnAccount." = "Ή **[συνδεθείτε](https://)**, μπορεί να έχετε ήδη λογαριασμό.";
+"OpenEmailApp" = "Άνοιγμα εφαρμογής ηλ. ταχυδρομείου";
+"SetPassword" = "Ορισμός κωδικού πρόσβασης";
+"FinishCreatingYourAccountForXBySettingAPassword." = "Ολοκληρώστε τη δημιουργία του λογαριασμού σας για το %1$@ ορίζοντας έναν κωδικό πρόσβασης.";
+"VerifyingEmail" = "Επαλήθευση ηλ. ταχυδρομείου";
+"EmailVerified" = "Η διεύθυνση ηλ. ταχυδρομείου επιβεβαιώθηκε";
+"AccountSuccessfullyCreated" = "Επιτυχής δημιουργία λογαριασμού!";
+"ByContinuingYouAgreeToTheTermsOfServiceAndPrivacyPolicy" = "Συνεχίζοντας, συμφωνείτε με τους **[Όρους Χρήσης](%1$@)** και την **[Πολιτική Απορρήτου](%2$@)**";
+"GetAdviceAnnouncementsAndResearchOpportunitiesFromBitwardenInYourInboxUnsubscribeAtAnyTime." = "Λάβετε συμβουλές, ανακοινώσεις και ευκαιρίες έρευνας από το Bitwarden στα εισερχόμενά σας. **[Ακύρωση συνδρομής](%1$@)** ανά πάσα στιγμή.";
 "OrganizationUnassignedItemsMessageUSEUDescriptionLong" = "Τα μη εκχωρημένα στοιχεία του οργανισμού δεν είναι πλέον ορατά στην προβολή όλων των Κρυπτών και είναι προσβάσιμα μόνο μέσω της Κονσόλας Διαχειριστή. Αντιστοιχίστε αυτά τα στοιχεία σε μια συλλογή από την Κονσόλα διαχειριστή για να τα κάνετε ορατά.";
 "UnknownAccount" = "Άγνωστος λογαριασμός";
 "UserVerificationForPasskey" = "Επαλήθευση χρήστη για κλειδί πρόσβασης";
@@ -927,3 +940,7 @@
 "IntroCarouselPage3Message" = "Χρησιμοποιήστε τη γεννήτρια για να δημιουργήσετε και να αποθηκεύσετε ισχυρούς, μοναδικούς κωδικούς πρόσβασης για όλους τους λογαριασμούς σας.";
 "IntroCarouselPage4Title" = "Τα δεδομένα σας, όποτε και όπου τα χρειάζεστε";
 "IntroCarouselPage4Message" = "Αποθηκεύστε απεριόριστους κωδικούς πρόσβασης σε απεριόριστες συσκευές με τις εφαρμογές Bitwarden για κινητά, περιηγητές και υπολογιστές.";
+"AccountSetup" = "Ρύθμιση λογαριασμού";
+"SetUpUnlock" = "Ρύθμιση ξεκλειδώματος";
+"SetUpBiometricsOrChooseAPinCodeToQuicklyAccessYourVaultAndAutofillYourLogins" = "Ρυθμίστε τα βιομετρικά στοιχεία ή επιλέξτε έναν κωδικό PIN για γρήγορη πρόσβαση στο θησαυ/κιο και αυτόματη συμπλήρωση των συνδέσεών σας.";
+"SetUpLater" = "Ρύθμιση αργότερα";

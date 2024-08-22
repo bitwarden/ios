@@ -4,7 +4,7 @@
 
 /// The type of value to generate.
 ///
-public enum GeneratorType: CaseIterable, Equatable, Menuable {
+public enum GeneratorType: CaseIterable, Equatable, Menuable, Sendable {
     /// Generate a password or passphrase.
     case password
 

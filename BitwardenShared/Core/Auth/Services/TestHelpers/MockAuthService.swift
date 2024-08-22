@@ -48,14 +48,14 @@ class MockAuthService: AuthService {
     var loginWithMasterPasswordResult: Result<Void, Error> = .success(())
 
     var loginWithSingleSignOnCode: String?
-    var loginWithSingleSignOnResult: Result<Account?, Error> = .success(nil)
+    var loginWithSingleSignOnResult: Result<LoginUnlockMethod, Error> = .success(.masterPassword(.fixture()))
 
     var loginWithTwoFactorCodeEmail: String?
     var loginWithTwoFactorCodeCode: String?
     var loginWithTwoFactorCodeMethod: TwoFactorAuthMethod?
     var loginWithTwoFactorCodeRemember: Bool?
     var loginWithTwoFactorCodeCaptchaToken: String?
-    var loginWithTwoFactorCodeResult: Result<Account, Error> = .success(.fixture())
+    var loginWithTwoFactorCodeResult: Result<LoginUnlockMethod, Error> = .success(.masterPassword(.fixture()))
     var publicKey: String = ""
     var requirePasswordChangeResult: Result<Bool, Error> = .success(false)
     var resendVerificationCodeEmailResult: Result<Void, Error> = .success(())
@@ -132,7 +132,7 @@ class MockAuthService: AuthService {
         try loginWithMasterPasswordResult.get()
     }
 
-    func loginWithSingleSignOn(code: String, email _: String) async throws -> Account? {
+    func loginWithSingleSignOn(code: String, email _: String) async throws -> LoginUnlockMethod {
         loginWithSingleSignOnCode = code
         return try loginWithSingleSignOnResult.get()
     }
@@ -143,7 +143,7 @@ class MockAuthService: AuthService {
         method: TwoFactorAuthMethod,
         remember: Bool,
         captchaToken: String?
-    ) async throws -> Account? {
+    ) async throws -> LoginUnlockMethod {
         loginWithTwoFactorCodeEmail = email
         loginWithTwoFactorCodeCode = code
         loginWithTwoFactorCodeMethod = method

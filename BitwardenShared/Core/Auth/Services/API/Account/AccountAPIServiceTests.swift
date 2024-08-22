@@ -4,7 +4,8 @@ import XCTest
 
 // MARK: - AccountAPIServiceTests
 
-class AccountAPIServiceTests: BitwardenTestCase {
+// swiftlint:disable file_length
+class AccountAPIServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body_length
     // MARK: Properties
 
     var client: MockHTTPClient!
@@ -40,6 +41,29 @@ class AccountAPIServiceTests: BitwardenTestCase {
 
         await assertAsyncThrows(error: BitwardenTestError.example) {
             _ = try await subject.accountRevisionDate()
+        }
+    }
+
+    /// `convertToKeyConnector()` converts the user's account to use key connector.
+    func test_convertToKeyConnector() async throws {
+        client.result = .httpSuccess(testData: .emptyResponse)
+
+        await assertAsyncDoesNotThrow {
+            try await subject.convertToKeyConnector()
+        }
+
+        let request = try XCTUnwrap(client.requests.first)
+        XCTAssertEqual(request.method, .post)
+        XCTAssertEqual(request.url.relativePath, "/api/accounts/convert-to-key-connector")
+        XCTAssertNil(request.body)
+    }
+
+    /// `convertToKeyConnector()` throws an error if the request fails.
+    func test_convertToKeyConnector_httpFailure() async {
+        client.result = .httpFailure()
+
+        await assertAsyncThrows {
+            try await subject.convertToKeyConnector()
         }
     }
 
@@ -244,6 +268,49 @@ class AccountAPIServiceTests: BitwardenTestCase {
         XCTAssertEqual(client.requests[0].url.absoluteString, "https://example.com/api/accounts/request-otp")
     }
 
+    /// `setKeyConnectorKey()` sets the user's key connector key.
+    func test_setKeyConnectorKey() async throws {
+        client.result = .httpSuccess(testData: .emptyResponse)
+
+        await assertAsyncDoesNotThrow {
+            try await subject.setKeyConnectorKey(
+                SetKeyConnectorKeyRequestModel(
+                    kdfConfig: KdfConfig(),
+                    key: "key",
+                    keys: KeysRequestModel(
+                        encryptedPrivateKey: "encrypted-private-key",
+                        publicKey: "public-key"
+                    ),
+                    orgIdentifier: "org-id"
+                )
+            )
+        }
+
+        let request = try XCTUnwrap(client.requests.first)
+        XCTAssertEqual(request.method, .post)
+        XCTAssertEqual(request.url.relativePath, "/api/accounts/set-key-connector-key")
+        XCTAssertNotNil(request.body)
+    }
+
+    /// `setKeyConnectorKey()` throws an error if the request fails.
+    func test_setKeyConnectorKey_httpFailure() async {
+        client.result = .httpFailure()
+
+        await assertAsyncThrows {
+            try await subject.setKeyConnectorKey(
+                SetKeyConnectorKeyRequestModel(
+                    kdfConfig: KdfConfig(),
+                    key: "key",
+                    keys: KeysRequestModel(
+                        encryptedPrivateKey: "encrypted-private-key",
+                        publicKey: "public-key"
+                    ),
+                    orgIdentifier: "org-id"
+                )
+            )
+        }
+    }
+
     /// `startRegistration(_:)` performs the request to start the registration process.
     func test_startRegistration() async throws {
         client.result = .httpSuccess(testData: .startRegistrationSuccess)
@@ -318,6 +385,36 @@ class AccountAPIServiceTests: BitwardenTestCase {
         XCTAssertNotNil(client.requests[0].body)
         XCTAssertEqual(client.requests[0].method, .put)
         XCTAssertEqual(client.requests[0].url.absoluteString, "https://example.com/api/accounts/update-temp-password")
+    }
+
+    /// `verifyEmailToken()` performs a request to verify if the verification token received by email is still valid.
+    func test_verifyEmailToken() async throws {
+        client.result = .httpSuccess(testData: .emptyResponse)
+
+        try await subject.verifyEmailToken(
+            email: "example@email.com",
+            emailVerificationToken: "verification-token"
+        )
+
+        XCTAssertEqual(client.requests.count, 1)
+        XCTAssertNotNil(client.requests[0].body)
+        XCTAssertEqual(client.requests[0].method, .post)
+        XCTAssertEqual(
+            client.requests[0].url.absoluteString,
+            "https://example.com/identity/accounts/register/verification-email-clicked"
+        )
+    }
+
+    /// `verifyEmailToken()` throws error when call fails.
+    func test_verifyEmailToken_httpFailure() async throws {
+        client.result = .httpFailure()
+
+        await assertAsyncThrows {
+            try await subject.verifyEmailToken(
+                email: "example@email.com",
+                emailVerificationToken: "verification-token"
+            )
+        }
     }
 
     /// `verifyOtp()` performs a request to verify a one-time password for the user.

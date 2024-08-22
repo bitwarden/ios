@@ -244,11 +244,18 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
         )
     }
 
-    /// `getAccountEncryptionKeys(_:)` throws an error if applicable.
-    func test_getAccountEncryptionKeys_error() async throws {
+    /// `getAccountEncryptionKeys(_:)` throws an error if there's no active account.
+    func test_getAccountEncryptionKeys_noAccount() async throws {
+        await assertAsyncThrows(error: StateServiceError.noActiveAccount) {
+            _ = try await subject.getAccountEncryptionKeys()
+        }
+    }
+
+    /// `getAccountEncryptionKeys(_:)` throws an error if there's no private key.
+    func test_getAccountEncryptionKeys_noPrivateKey() async throws {
         await subject.addAccount(.fixture(profile: .fixture(userId: "1")))
 
-        await assertAsyncThrows(error: StateServiceError.noActiveAccount) {
+        await assertAsyncThrows(error: StateServiceError.noEncryptedPrivateKey) {
             _ = try await subject.getAccountEncryptionKeys()
         }
     }
@@ -699,22 +706,6 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
         XCTAssertEqual(value, model)
     }
 
-    /// `getShouldCheckOrganizationUnassignedItems` returns the config value
-    func test_getShouldCheckOrganizationUnassignedItems() async throws {
-        appSettingsStore.shouldCheckOrganizationUnassignedItems["1"] = false
-        var shouldCheck = try await subject.getShouldCheckOrganizationUnassignedItems(userId: "1")
-        XCTAssertFalse(shouldCheck)
-        appSettingsStore.shouldCheckOrganizationUnassignedItems["1"] = true
-        shouldCheck = try await subject.getShouldCheckOrganizationUnassignedItems(userId: "1")
-        XCTAssertTrue(shouldCheck)
-    }
-
-    /// `getShouldCheckOrganizationUnassignedItems` returns true if it hasn't been set
-    func test_getShouldCheckOrganizationUnassignedItems_notSet() async throws {
-        let shouldCheck = try await subject.getShouldCheckOrganizationUnassignedItems(userId: "1")
-        XCTAssertTrue(shouldCheck)
-    }
-
     /// `getShowWebIcons` gets the show web icons value.
     func test_getShowWebIcons() async {
         appSettingsStore.disableWebIcons = true
@@ -867,6 +858,18 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
 
         let fetchedOptionsNoAccount = try await subject.getUsernameGenerationOptions(userId: "-1")
         XCTAssertNil(fetchedOptionsNoAccount)
+    }
+
+    /// `getUsesKeyConnector()` returns whether the user uses key connector.
+    func test_getUsesKeyConnector() async throws {
+        await subject.addAccount(.fixture(profile: .fixture(userId: "1")))
+
+        var usesKeyConnector = try await subject.getUsesKeyConnector()
+        XCTAssertFalse(usesKeyConnector)
+
+        appSettingsStore.usesKeyConnector["1"] = true
+        usesKeyConnector = try await subject.getUsesKeyConnector()
+        XCTAssertTrue(usesKeyConnector)
     }
 
     /// `.getVaultTimeout(userId:)` gets the user's vault timeout.
@@ -1527,12 +1530,6 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
         XCTAssertEqual(appSettingsStore.serverConfig["1"], model)
     }
 
-    /// `setShouldCheckOrganizationUnassignedItems` saves the should check value.
-    func test_setShouldCheckOrganizationUnassignedItems() async throws {
-        try await subject.setShouldCheckOrganizationUnassignedItems(true, userId: "1")
-        XCTAssertEqual(appSettingsStore.shouldCheckOrganizationUnassignedItems["1"], true)
-    }
-
     /// `setShouldTrustDevice` saves the should trust device value.
     func test_setShouldTrustDevice() async {
         await subject.setShouldTrustDevice(true, userId: "1")
@@ -1585,6 +1582,13 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
 
         XCTAssertNotEqual(appSettingsStore.state?.accounts["1"], account1)
         XCTAssertTrue(appSettingsStore.state?.accounts["1"]?.profile.userDecryptionOptions?.hasMasterPassword ?? false)
+    }
+
+    func test_setUsesKeyConnector() async throws {
+        await subject.addAccount(.fixture(profile: .fixture(userId: "1")))
+
+        try await subject.setUsesKeyConnector(true)
+        XCTAssertEqual(appSettingsStore.usesKeyConnector["1"], true)
     }
 
     /// `.setActiveAccount(userId:)` sets the action that occurs when there's a session timeout.
