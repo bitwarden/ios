@@ -74,9 +74,10 @@ class CompleteRegistrationProcessorTests: BitwardenTestCase {
         XCTAssertEqual(environmentService.setPreAuthEnvironmentUrlsData, nil)
     }
 
-    /// `perform(.appeared)` verify user email show toast.
+    /// `perform(.appeared)` verify user email show toast on success.
     @MainActor
-    func test_perform_appeared_verifyuseremail_toast() async {
+    func test_perform_appeared_verifyuseremail_success() async {
+        client.results = [.httpSuccess(testData: .emptyResponse)]
         subject.state.fromEmail = true
         await subject.perform(.appeared)
         XCTAssertEqual(subject.state.toast?.text, Localizations.emailVerified)
@@ -84,7 +85,7 @@ class CompleteRegistrationProcessorTests: BitwardenTestCase {
 
     /// `perform(.appeared)` verify user email show no toast.
     @MainActor
-    func test_perform_appeared_verifyuseremail_notoast() async {
+    func test_perform_appeared_verifyuseremail_notFromEmail() async {
         subject.state.fromEmail = false
         await subject.perform(.appeared)
         XCTAssertNil(subject.state.toast)
@@ -94,12 +95,64 @@ class CompleteRegistrationProcessorTests: BitwardenTestCase {
     @MainActor
     func test_perform_appeared_verifyuseremail_hideloading() async {
         coordinator.isLoadingOverlayShowing = true
-        subject.state.fromEmail = true
+        subject.state.fromEmail = false
         await subject.perform(.appeared)
 
         XCTAssertFalse(coordinator.isLoadingOverlayShowing)
         XCTAssertNotNil(coordinator.loadingOverlaysShown)
+    }
+
+    /// `perform(.appeared)` verify user email with token expired error shows expired link screen.
+    @MainActor
+    func test_perform_appeared_verifyuseremail_tokenexpired() async {
+        client.results = [
+            .httpFailure(
+                statusCode: 400,
+                headers: [:],
+                data: APITestData.verifyEmailTokenExpiredLink.data
+            ),
+        ]
+        subject.state.fromEmail = true
+        await subject.perform(.appeared)
+        XCTAssertEqual(coordinator.routes.last, .expiredLink)
+    }
+
+    /// `perform(.appeared)` verify user email presents an alert when there is no internet connection.
+    /// When the user taps `Try again`, the verify user email request is made again.
+    @MainActor
+    func test_perform_appeared_verifyuseremail_error() async throws {
+        subject.state = .fixture()
+        subject.state.fromEmail = true
+
+        let urlError = URLError(.notConnectedToInternet) as Error
+        client.results = [.httpFailure(urlError), .httpSuccess(testData: .emptyResponse)]
+
+        await subject.perform(.appeared)
+
+        let alert = try XCTUnwrap(coordinator.alertShown.last)
+        XCTAssertEqual(alert, Alert.networkResponseError(urlError) {
+            await self.subject.perform(.appeared)
+        })
+
+        try await alert.tapAction(title: Localizations.tryAgain)
+
         XCTAssertEqual(subject.state.toast?.text, Localizations.emailVerified)
+        XCTAssertEqual(client.requests.count, 2)
+        XCTAssertEqual(client.requests[0].url, URL(
+            string: "https://example.com/identity/accounts/register/verification-email-clicked"
+        ))
+        XCTAssertEqual(client.requests[1].url, URL(
+            string: "https://example.com/identity/accounts/register/verification-email-clicked"
+        ))
+
+        XCTAssertFalse(coordinator.isLoadingOverlayShowing)
+        XCTAssertEqual(
+            coordinator.loadingOverlaysShown,
+            [
+                LoadingOverlayState(title: Localizations.verifying),
+                LoadingOverlayState(title: Localizations.verifying),
+            ]
+        )
     }
 
     /// `perform(_:)` with `.completeRegistration` will still make the `CompleteRegistrationRequest` when the HIBP
