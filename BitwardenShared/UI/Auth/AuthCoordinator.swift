@@ -154,6 +154,8 @@ final class AuthCoordinator: NSObject, // swiftlint:disable:this type_body_lengt
             showCreateAccount()
         case .startRegistration:
             showStartRegistration(delegate: context as? StartRegistrationDelegate)
+        case .startRegistrationFromExpiredLink:
+            showStartRegistrationFromExpiredLink()
         case .dismiss:
             stackNavigator?.dismiss()
         case .dismissPresented:
@@ -162,6 +164,8 @@ final class AuthCoordinator: NSObject, // swiftlint:disable:this type_body_lengt
             stackNavigator?.dismiss(animated: true, completion: {
                 onDismiss?.action()
             })
+        case .expiredLink:
+            showExpiredLink()
         case let .duoAuthenticationFlow(authURL):
             showDuo2FA(authURL: authURL, delegate: context as? DuoAuthenticationFlowDelegate)
         case let .enterpriseSingleSignOn(email):
@@ -293,6 +297,21 @@ final class AuthCoordinator: NSObject, // swiftlint:disable:this type_body_lengt
                 processor: CheckEmailProcessor(
                     coordinator: asAnyCoordinator(),
                     state: CheckEmailState(email: email)
+                )
+            )
+        )
+        let navController = UINavigationController(rootViewController: UIHostingController(rootView: view))
+        stackNavigator?.present(navController)
+    }
+
+    /// Shows the expired link screen.
+    ///
+    private func showExpiredLink() {
+        let view = ExpiredLinkView(
+            store: Store(
+                processor: ExpiredLinkProcessor(
+                    coordinator: asAnyCoordinator(),
+                    state: ExpiredLinkState()
                 )
             )
         )
@@ -655,6 +674,24 @@ final class AuthCoordinator: NSObject, // swiftlint:disable:this type_body_lengt
         )
         let navController = UINavigationController(rootViewController: UIHostingController(rootView: view))
         stackNavigator?.present(navController)
+    }
+
+    /// Shows the start registration screen from expired link screen.
+    ///
+    public func showStartRegistrationFromExpiredLink() {
+        guard let stackNavigator else { return }
+        stackNavigator.dismiss {
+            let processor = LandingProcessor(
+                coordinator: self.asAnyCoordinator(),
+                services: self.services,
+                state: LandingState()
+            )
+            let store = Store(processor: processor)
+            let view = LandingView(store: store)
+            stackNavigator.setNavigationBarHidden(false, animated: false)
+            stackNavigator.replace(view, animated: false)
+            self.showStartRegistration(delegate: processor as StartRegistrationDelegate)
+        }
     }
 
     /// Show the two factor authentication view.

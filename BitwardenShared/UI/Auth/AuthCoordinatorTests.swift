@@ -166,6 +166,35 @@ class AuthCoordinatorTests: BitwardenTestCase { // swiftlint:disable:this type_b
         XCTAssertTrue(navigationController.viewControllers.first is UIHostingController<StartRegistrationView>)
     }
 
+    /// `navigate(to:)` with `.startRegistrationFromExpiredLink` pushes the start registration view
+    /// onto the stack navigator from expired link.
+    @MainActor
+    func test_navigate_startRegistrationFromExpiredLink() throws {
+        subject.navigate(to: .completeRegistrationFromAppLink(
+            emailVerificationToken: "thisisanamazingtoken",
+            userEmail: "email@example.com",
+            fromEmail: true,
+            region: .unitedStates
+        ))
+        subject.navigate(to: .expiredLink)
+        subject.navigate(to: .startRegistrationFromExpiredLink)
+
+        let landingAction = try XCTUnwrap(stackNavigator.actions[5])
+        let startRegistration = try XCTUnwrap(stackNavigator.actions[6])
+        let startRegistrationNavigationController = try XCTUnwrap(
+            startRegistration.view as? UINavigationController
+        )
+        let lastAction = try XCTUnwrap(stackNavigator.actions.last)
+
+        XCTAssertTrue(
+            startRegistrationNavigationController.viewControllers.first
+                is UIHostingController<StartRegistrationView>
+        )
+        XCTAssertTrue(landingAction.view is LandingView)
+        XCTAssertEqual(landingAction.type, .replaced)
+        XCTAssertEqual(lastAction.type, .dismissedWithCompletionHandler)
+    }
+
     /// `navigate(to:)` with `.dismiss` dismisses all presented view.
     @MainActor
     func test_navigate_dismiss() throws {
@@ -192,6 +221,16 @@ class AuthCoordinatorTests: BitwardenTestCase { // swiftlint:disable:this type_b
         let lastAction = try XCTUnwrap(stackNavigator.actions.last)
         XCTAssertEqual(lastAction.type, .dismissedWithCompletionHandler)
         XCTAssertTrue(didRun)
+    }
+
+    /// `navigate(to:)` with `.expiredLink` pushes the expired link view onto the stack navigator.
+    @MainActor
+    func test_navigate_expiredLink() throws {
+        subject.navigate(to: .expiredLink)
+
+        let navigationController = try XCTUnwrap(stackNavigator.actions.last?.view as? UINavigationController)
+        XCTAssertTrue(stackNavigator.actions.last?.view is UINavigationController)
+        XCTAssertTrue(navigationController.viewControllers.first is UIHostingController<ExpiredLinkView>)
     }
 
     /// `navigate(to:)` with `.enterpriseSingleSignOn` pushes the enterprise single sign-on view onto the stack
