@@ -945,3 +945,7 @@
 "SetUpUnlock" = "Подесите откључавање";
 "SetUpBiometricsOrChooseAPinCodeToQuicklyAccessYourVaultAndAutofillYourLogins" = "Подесите биометрију или изаберите ПИН кôд да бисте брзо приступили свом сефу и аутоматски попунили своје пријаве.";
 "SetUpLater" = "Подесићу касније";
+"RemoveMasterPasswordMessage" = "%1$@ is using SSO with a self-hosted key server. A master password is no longer required to log in for members of this organization.";
+"RestartRegistration" = "Restart registration";
+"ExpiredLink" = "Expired link";
+"PleaseRestartRegistrationOrTryLoggingInYouMayAlreadyHaveAnAccount" = "Please restart registration or try logging in. You may already have an account.";

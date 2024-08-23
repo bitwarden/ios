@@ -944,3 +944,7 @@
 "SetUpUnlock" = "Nastavit odemknutí";
 "SetUpBiometricsOrChooseAPinCodeToQuicklyAccessYourVaultAndAutofillYourLogins" = "Nastavte si biometrické údaje nebo zvolte kód PIN pro rychlý přístup k trezoru a automatické vyplňování přihlašovacích údajů.";
 "SetUpLater" = "Nastavit později";
+"RemoveMasterPasswordMessage" = "%1$@ používá SSO s vlastním serverem s klíči. Hlavní heslo pro členy této organizace již není vyžadováno.";
+"RestartRegistration" = "Restartovat registraci";
+"ExpiredLink" = "Platnost odkazu vypršela";
+"PleaseRestartRegistrationOrTryLoggingInYouMayAlreadyHaveAnAccount" = "Restartujte registraci nebo se zkuste přihlásit. Možná již máte účet.";
