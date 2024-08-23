@@ -495,6 +495,7 @@ class AccountSecurityProcessorTests: BitwardenTestCase { // swiftlint:disable:th
     @MainActor
     func test_receive_toggleUnlockWithPINCode_toggleOn_withPIN() async throws {
         stateService.activeAccount = .fixture()
+        biometricsRepository.getBiometricAuthenticationTypeResult = .faceID
         subject.state.isUnlockWithPINCodeOn = false
         subject.receive(.toggleUnlockWithPINCode(true))
 
@@ -503,6 +504,7 @@ class AccountSecurityProcessorTests: BitwardenTestCase { // swiftlint:disable:th
         try await alert.tapAction(title: Localizations.submit)
 
         alert = try XCTUnwrap(coordinator.alertShown.last)
+        XCTAssertEqual(alert.message, Localizations.pinRequireBioOrMasterPasswordRestart(Localizations.faceID))
         try await alert.tapAction(title: Localizations.yes)
         XCTAssertTrue(subject.state.isUnlockWithPINCodeOn)
     }

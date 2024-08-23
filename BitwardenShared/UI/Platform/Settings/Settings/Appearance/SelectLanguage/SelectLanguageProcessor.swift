@@ -1,6 +1,7 @@
 // MARK: - SelectLanguageDelegate
 
 /// The delegate for updating the parent view after a language has been selected.
+@MainActor
 protocol SelectLanguageDelegate: AnyObject {
     /// A language has been selected.
     func languageSelected(_ languageOption: LanguageOption)

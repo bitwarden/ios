@@ -304,21 +304,6 @@ final class AuthCoordinator: NSObject, // swiftlint:disable:this type_body_lengt
         stackNavigator?.present(navController)
     }
 
-    /// Shows the expired link screen.
-    ///
-    private func showExpiredLink() {
-        let view = ExpiredLinkView(
-            store: Store(
-                processor: ExpiredLinkProcessor(
-                    coordinator: asAnyCoordinator(),
-                    state: ExpiredLinkState()
-                )
-            )
-        )
-        let navController = UINavigationController(rootViewController: UIHostingController(rootView: view))
-        stackNavigator?.present(navController)
-    }
-
     /// Shows the create account screen.
     ///
     private func showCreateAccount() {
@@ -402,6 +387,22 @@ final class AuthCoordinator: NSObject, // swiftlint:disable:this type_body_lengt
         session.prefersEphemeralWebBrowserSession = false
         session.presentationContextProvider = self
         session.start()
+    }
+
+    /// Shows the expired link screen.
+    ///
+    private func showExpiredLink() {
+        let view = ExpiredLinkView(
+            store: Store(
+                processor: ExpiredLinkProcessor(
+                    coordinator: asAnyCoordinator(),
+                    state: ExpiredLinkState()
+                )
+            )
+        )
+        let navController = UINavigationController(rootViewController: UIHostingController(rootView: view))
+        navController.isModalInPresentation = true
+        stackNavigator?.present(navController)
     }
 
     /// Shows the enterprise single sign-on screen.

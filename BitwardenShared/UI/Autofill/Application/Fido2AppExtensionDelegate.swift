@@ -3,6 +3,7 @@ import Combine
 
 /// A delegate that is used to handle actions and retrieve information from within an Autofill extension
 /// on Fido2 flows.
+@MainActor
 public protocol Fido2AppExtensionDelegate: AppExtensionDelegate {
     /// The mode in which the autofill extension is running.
     var extensionMode: AutofillExtensionMode { get }

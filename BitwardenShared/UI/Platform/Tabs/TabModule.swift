@@ -4,6 +4,7 @@ import UIKit
 
 /// An object that builds coordinators for the tab interface.
 ///
+@MainActor
 public protocol TabModule: AnyObject {
     /// Initializes a coordinator for navigating to `TabRoute`s.
     ///

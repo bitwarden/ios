@@ -139,7 +139,7 @@ extension DefaultKeyConnectorService: KeyConnectorService {
 
     func getManagingOrganization() async throws -> Organization? {
         try await organizationService.fetchAllOrganizations()
-            .first { $0.useKeyConnector && !$0.isAdmin }
+            .first { $0.keyConnectorEnabled && !$0.isAdmin }
     }
 
     func getMasterKeyFromKeyConnector(keyConnectorUrl: URL) async throws -> String {
@@ -172,6 +172,8 @@ extension DefaultKeyConnectorService: KeyConnectorService {
             keyConnectorUrl: keyConnectorUrl
         )
         try await accountAPIService.convertToKeyConnector()
+
+        try await stateService.setUserHasMasterPassword(false)
     }
 
     func userNeedsMigration() async throws -> Bool {

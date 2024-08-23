@@ -328,6 +328,7 @@ extension TwoFactorAuthProcessor: CaptchaFlowDelegate {
 
 /// An object that is signaled when specific circumstances in the web authentication on flow have been encountered.
 ///
+@MainActor
 protocol DuoAuthenticationFlowDelegate: AnyObject {
     /// Called when the web auth flow has been completed successfully.
     ///
@@ -416,6 +417,7 @@ enum DuoCallbackURLComponent: String {
 
 /// An object that is signaled when specific circumstances in the WebAuthn flow have been encountered.
 ///
+@MainActor
 protocol WebAuthnFlowDelegate: AnyObject {
     /// Called when the WebAuthn flow has been completed successfully.
     ///

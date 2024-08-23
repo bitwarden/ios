@@ -5,6 +5,7 @@ import BitwardenSdk
 /// A delegate of `MoveToOrganizationProcessor` that is notified when the user successfully moves
 /// the cipher to an organization.
 ///
+@MainActor
 protocol MoveToOrganizationProcessorDelegate: AnyObject {
     /// Called when the user successfully moves the cipher to an organization.
     ///
