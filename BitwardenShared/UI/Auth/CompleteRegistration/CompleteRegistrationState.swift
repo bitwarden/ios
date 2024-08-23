@@ -58,7 +58,7 @@ struct CompleteRegistrationState: Equatable, Sendable {
     var region: RegionType?
 
     /// The required text count for the password strength.
-    var requiredPasswordCount = 12
+    var requiredPasswordCount = Constants.minimumPasswordCharacters
 
     /// The text in the re-type password text field.
     var retypePasswordText: String = ""

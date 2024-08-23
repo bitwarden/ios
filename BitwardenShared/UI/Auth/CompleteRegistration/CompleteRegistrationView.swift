@@ -96,6 +96,7 @@ struct CompleteRegistrationView: View {
         .id(ViewIdentifier.CompleteRegistration.checkBreaches)
     }
 
+    /// The section where the user can learn more about passwords.
     private var learnMoreSection: some View {
         HStack(alignment: .center, spacing: 16) {
             Image(decorative: Asset.Images.questionRound)
