@@ -1571,14 +1571,33 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
         XCTAssertEqual(appSettingsStore.usernameGenerationOptions["2"], options2)
     }
 
-    /// `.setsetUserHasMasterPassword()` sets the user has having master password set .
-    func test_setUserHasMasterPassword() async throws {
+    /// `.setUserHasMasterPassword()` sets the user's has master password flag to `false`.
+    func test_setUserHasMasterPassword_false() async throws {
+        let account = Account.fixture(
+            profile: .fixture(
+                userDecryptionOptions: UserDecryptionOptions(
+                    hasMasterPassword: true,
+                    keyConnectorOption: nil,
+                    trustedDeviceOption: nil
+                )
+            )
+        )
+        await subject.addAccount(account)
+
+        try await subject.setUserHasMasterPassword(false)
+
+        XCTAssertNotEqual(appSettingsStore.state?.accounts["1"], account)
+        XCTAssertEqual(appSettingsStore.state?.accounts["1"]?.profile.userDecryptionOptions?.hasMasterPassword, false)
+    }
+
+    /// `setUserHasMasterPassword()` sets the user's has master password flag to `true`.
+    func test_setUserHasMasterPassword_true() async throws {
         let account1 = Account.fixtureWithTdeNoPassword()
         await subject.addAccount(account1)
 
         XCTAssertFalse(appSettingsStore.state?.accounts["1"]?.profile.userDecryptionOptions?.hasMasterPassword ?? false)
 
-        try await subject.setUserHasMasterPassword()
+        try await subject.setUserHasMasterPassword(true)
 
         XCTAssertNotEqual(appSettingsStore.state?.accounts["1"], account1)
         XCTAssertTrue(appSettingsStore.state?.accounts["1"]?.profile.userDecryptionOptions?.hasMasterPassword ?? false)
