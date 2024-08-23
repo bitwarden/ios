@@ -156,7 +156,7 @@ jobs:
             "dist_share_extension.mobileprovision"
             "dist_bitwarden_watch_app.mobileprovision"
             "dist_bitwarden_watch_app_extension.mobileprovision"
-            "dist_bitwarden_watch_app_widget_extension.mobileprovision"
+            "dist_bitwarden_watch_widget_extension.mobileprovision"
           )
 
           for FILE in "${profiles[@]}"
@@ -179,7 +179,7 @@ jobs:
             "dist_beta_share_extension.mobileprovision"
             "dist_beta_bitwarden_watch_app.mobileprovision"
             "dist_beta_bitwarden_watch_app_extension.mobileprovision"
-            "dist_beta_bitwarden_watch_app_widget_extension.mobileprovision"
+            "dist_beta_bitwarden_watch_widget_extension.mobileprovision"
           )
 
           for FILE in "${profiles[@]}"
@@ -276,7 +276,7 @@ jobs:
           SHARE_EXTENSION_PROFILE_PATH=$HOME/secrets/dist_share_extension.mobileprovision
           WATCH_APP_PROFILE_PATH=$HOME/secrets/dist_bitwarden_watch_app.mobileprovision
           WATCH_APP_EXTENSION_PROFILE_PATH=$HOME/secrets/dist_bitwarden_watch_app_extension.mobileprovision
-          WATCH_APP_WIDGET_EXTENSION_PROFILE_PATH=$HOME/secrets/dist_bitwarden_watch_app_widget_extension.mobileprovision
+          WATCH_WIDGET_EXTENSION_PROFILE_PATH=$HOME/secrets/dist_bitwarden_watch_widget_extension.mobileprovision
           PROFILES_DIR_PATH=$HOME/Library/MobileDevice/Provisioning\ Profiles
 
           mkdir -p "$PROFILES_DIR_PATH"
@@ -299,8 +299,8 @@ jobs:
           WATCH_APP_EXTENSION_UUID=$(grep UUID -A1 -a $WATCH_APP_EXTENSION_PROFILE_PATH | grep -io "[-A-F0-9]\{36\}")
           cp $WATCH_APP_EXTENSION_PROFILE_PATH "$PROFILES_DIR_PATH/$WATCH_APP_EXTENSION_UUID.mobileprovision"
 
-          WATCH_APP_WIDGET_EXTENSION_UUID=$(grep UUID -A1 -a $WATCH_APP_WIDGET_EXTENSION_PROFILE_PATH | grep -io "[-A-F0-9]\{36\}")
-          cp $WATCH_APP_WIDGET_EXTENSION_PROFILE_PATH "$PROFILES_DIR_PATH/$WATCH_APP_WIDGET_EXTENSION_UUID.mobileprovision"
+          WATCH_WIDGET_EXTENSION_UUID=$(grep UUID -A1 -a $WATCH_WIDGET_EXTENSION_PROFILE_PATH | grep -io "[-A-F0-9]\{36\}")
+          cp $WATCH_WIDGET_EXTENSION_PROFILE_PATH "$PROFILES_DIR_PATH/$WATCH_WIDGET_EXTENSION_UUID.mobileprovision"
 
       - name: Configure beta provisioning profiles
         if: env.BUILD_VARIANT == 'Beta'
@@ -311,7 +311,7 @@ jobs:
           SHARE_EXTENSION_PROFILE_PATH=$HOME/secrets/dist_beta_share_extension.mobileprovision
           WATCH_APP_PROFILE_PATH=$HOME/secrets/dist_beta_bitwarden_watch_app.mobileprovision
           WATCH_APP_EXTENSION_PROFILE_PATH=$HOME/secrets/dist_beta_bitwarden_watch_app_extension.mobileprovision
-          WATCH_APP_WIDGET_EXTENSION_PROFILE_PATH=$HOME/secrets/dist_beta_bitwarden_watch_app_extension.mobileprovision
+          WATCH_WIDGET_EXTENSION_PROFILE_PATH=$HOME/secrets/dist_beta_bitwarden_watch_widget_extension.mobileprovision
           PROFILES_DIR_PATH=$HOME/Library/MobileDevice/Provisioning\ Profiles
 
           mkdir -p "$PROFILES_DIR_PATH"
@@ -334,8 +334,8 @@ jobs:
           WATCH_APP_EXTENSION_UUID=$(grep UUID -A1 -a $WATCH_APP_EXTENSION_PROFILE_PATH | grep -io "[-A-F0-9]\{36\}")
           cp $WATCH_APP_EXTENSION_PROFILE_PATH "$PROFILES_DIR_PATH/$WATCH_APP_EXTENSION_UUID.mobileprovision"
 
-          WATCH_APP_WIDGET_EXTENSION_UUID=$(grep UUID -A1 -a $WATCH_APP_WIDGET_EXTENSION_PROFILE_PATH | grep -io "[-A-F0-9]\{36\}")
-          cp $WATCH_APP_WIDGET_EXTENSION_PROFILE_PATH "$PROFILES_DIR_PATH/$WATCH_APP_WIDGET_EXTENSION_UUID.mobileprovision"
+          WATCH_WIDGET_EXTENSION_UUID=$(grep UUID -A1 -a $WATCH_WIDGET_EXTENSION_PROFILE_PATH | grep -io "[-A-F0-9]\{36\}")
+          cp $WATCH_WIDGET_EXTENSION_PROFILE_PATH "$PROFILES_DIR_PATH/$WATCH_WIDGET_EXTENSION_UUID.mobileprovision"
 
       - name: Update beta export compliance key
         if: env.BUILD_VARIANT == 'Beta'
