@@ -149,7 +149,7 @@ class KeyConnectorServiceTests: BitwardenTestCase { // swiftlint:disable:this ty
             .httpSuccess(testData: .emptyResponse),
         ]
         organizationService.fetchAllOrganizationsResult = .success([
-            .fixture(keyConnectorUrl: "https://example.com/key-connector", useKeyConnector: true),
+            .fixture(keyConnectorEnabled: true, keyConnectorUrl: "https://example.com/key-connector"),
         ])
         stateService.activeAccount = account
         stateService.accountEncryptionKeys["1"] = AccountEncryptionKeys(
@@ -195,7 +195,7 @@ class KeyConnectorServiceTests: BitwardenTestCase { // swiftlint:disable:this ty
     /// `migrateUser()` throws an error if the encrypted user key is missing.
     func test_migrateUser_missingEncryptedUserKey() async throws {
         organizationService.fetchAllOrganizationsResult = .success([
-            .fixture(keyConnectorUrl: "https://https://example.com/key-connector", useKeyConnector: true),
+            .fixture(keyConnectorEnabled: true, keyConnectorUrl: "https://https://example.com/key-connector"),
         ])
         stateService.activeAccount = .fixture()
         stateService.accountEncryptionKeys["1"] = AccountEncryptionKeys(
@@ -214,7 +214,7 @@ class KeyConnectorServiceTests: BitwardenTestCase { // swiftlint:disable:this ty
     func test_migrateUser_deriveKeyConnectorError() async throws {
         clientService.mockCrypto.deriveKeyConnectorResult = .failure(BitwardenTestError.example)
         organizationService.fetchAllOrganizationsResult = .success([
-            .fixture(keyConnectorUrl: "https://https://example.com/key-connector", useKeyConnector: true),
+            .fixture(keyConnectorEnabled: true, keyConnectorUrl: "https://https://example.com/key-connector"),
         ])
         stateService.activeAccount = .fixture()
         stateService.accountEncryptionKeys["1"] = AccountEncryptionKeys(
@@ -236,7 +236,7 @@ class KeyConnectorServiceTests: BitwardenTestCase { // swiftlint:disable:this ty
             .httpFailure(URLError(.networkConnectionLost)),
         ]
         organizationService.fetchAllOrganizationsResult = .success([
-            .fixture(keyConnectorUrl: "https://https://example.com/key-connector", useKeyConnector: true),
+            .fixture(keyConnectorEnabled: true, keyConnectorUrl: "https://https://example.com/key-connector"),
         ])
         stateService.activeAccount = .fixture()
         stateService.accountEncryptionKeys["1"] = AccountEncryptionKeys(
@@ -255,7 +255,7 @@ class KeyConnectorServiceTests: BitwardenTestCase { // swiftlint:disable:this ty
     /// but they don't.
     func test_userNeedsMigration_true() async throws {
         organizationService.fetchAllOrganizationsResult = .success([
-            .fixture(useKeyConnector: true),
+            .fixture(keyConnectorEnabled: true),
         ])
         stateService.activeAccount = .fixture()
         stateService.usesKeyConnector["1"] = false
@@ -281,7 +281,7 @@ class KeyConnectorServiceTests: BitwardenTestCase { // swiftlint:disable:this ty
     /// `userNeedsMigration()` returns false if the user isn't an external user.
     func test_userNeedsMigration_false_notExternal() async throws {
         organizationService.fetchAllOrganizationsResult = .success([
-            .fixture(useKeyConnector: true),
+            .fixture(keyConnectorEnabled: true),
         ])
         stateService.activeAccount = .fixture()
         stateService.usesKeyConnector["1"] = false
@@ -295,7 +295,7 @@ class KeyConnectorServiceTests: BitwardenTestCase { // swiftlint:disable:this ty
     /// `userNeedsMigration()` returns false if the user is an organization admin.
     func test_userNeedsMigration_false_organizationsAdmin() async throws {
         organizationService.fetchAllOrganizationsResult = .success([
-            .fixture(type: .admin, useKeyConnector: true),
+            .fixture(keyConnectorEnabled: true, type: .admin),
         ])
         stateService.activeAccount = .fixture()
         stateService.usesKeyConnector["1"] = false
@@ -309,7 +309,7 @@ class KeyConnectorServiceTests: BitwardenTestCase { // swiftlint:disable:this ty
     /// `userNeedsMigration()` returns false if the user is an organization owner.
     func test_userNeedsMigration_false_organizationsOwner() async throws {
         organizationService.fetchAllOrganizationsResult = .success([
-            .fixture(type: .owner, useKeyConnector: true),
+            .fixture(keyConnectorEnabled: true, type: .owner),
         ])
         stateService.activeAccount = .fixture()
         stateService.usesKeyConnector["1"] = false
@@ -323,7 +323,7 @@ class KeyConnectorServiceTests: BitwardenTestCase { // swiftlint:disable:this ty
     /// `userNeedsMigration()` returns false if the user already uses Key Connector.
     func test_userNeedsMigration_false_usesKeyConnector() async throws {
         organizationService.fetchAllOrganizationsResult = .success([
-            .fixture(useKeyConnector: true),
+            .fixture(keyConnectorEnabled: true),
         ])
         stateService.activeAccount = .fixture()
         stateService.usesKeyConnector["1"] = true
