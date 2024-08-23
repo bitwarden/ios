@@ -172,6 +172,8 @@ extension DefaultKeyConnectorService: KeyConnectorService {
             keyConnectorUrl: keyConnectorUrl
         )
         try await accountAPIService.convertToKeyConnector()
+
+        try await stateService.setUserHasMasterPassword(false)
     }
 
     func userNeedsMigration() async throws -> Bool {

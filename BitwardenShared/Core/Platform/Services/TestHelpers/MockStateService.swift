@@ -483,9 +483,9 @@ class MockStateService: StateService { // swiftlint:disable:this type_body_lengt
         unsuccessfulUnlockAttempts[userId] = attempts
     }
 
-    func setUserHasMasterPassword() async throws {
+    func setUserHasMasterPassword(_ hasMasterPassword: Bool) async throws {
         let userId = try unwrapUserId(nil)
-        userHasMasterPassword[userId] = true
+        userHasMasterPassword[userId] = hasMasterPassword
     }
 
     func setUsernameGenerationOptions(_ options: UsernameGenerationOptions?, userId: String?) async throws {

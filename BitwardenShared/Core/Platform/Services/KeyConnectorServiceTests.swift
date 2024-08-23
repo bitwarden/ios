@@ -178,6 +178,7 @@ class KeyConnectorServiceTests: BitwardenTestCase { // swiftlint:disable:this ty
                 email: "user@bitwarden.com"
             )
         )
+        XCTAssertEqual(stateService.userHasMasterPassword["1"], false)
     }
 
     /// `migrateUser()` throws an error if there's no organization using key connector.
