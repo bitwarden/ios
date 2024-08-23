@@ -73,6 +73,15 @@ final class BiometricsRepositoryTests: BitwardenTestCase { // swiftlint:disable:
         )
     }
 
+    /// `getBiometricAuthenticationType()` gets the current authentication type.
+    func test_getBiometricAuthenticationType() async throws {
+        biometricsService.biometricAuthenticationType = .faceID
+        XCTAssertEqual(subject.getBiometricAuthenticationType(), .faceID)
+
+        biometricsService.biometricAuthenticationType = nil
+        XCTAssertNil(subject.getBiometricAuthenticationType())
+    }
+
     /// `setBiometricUnlockKey` throws for a no user situation.
     func test_getBiometricUnlockKey_noActiveAccount() async throws {
         stateService.activeAccount = nil
