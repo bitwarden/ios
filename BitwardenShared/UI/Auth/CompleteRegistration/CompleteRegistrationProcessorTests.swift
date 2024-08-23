@@ -165,10 +165,7 @@ class CompleteRegistrationProcessorTests: BitwardenTestCase {
         configService.featureFlagsBool[.nativeCreateAccountFlow] = true
         subject.state.nativeCreateAccountFeatureFlag = false
 
-        let task = Task {
-            await subject.perform(.appeared)
-        }
-        await task.value
+        await subject.perform(.appeared)
         XCTAssertTrue(subject.state.nativeCreateAccountFeatureFlag)
     }
 
@@ -178,10 +175,7 @@ class CompleteRegistrationProcessorTests: BitwardenTestCase {
         configService.featureFlagsBool[.nativeCreateAccountFlow] = false
         subject.state.nativeCreateAccountFeatureFlag = true
 
-        let task = Task {
-            await subject.perform(.appeared)
-        }
-        await task.value
+        await subject.perform(.appeared)
         XCTAssertFalse(subject.state.nativeCreateAccountFeatureFlag)
     }
 
@@ -191,10 +185,7 @@ class CompleteRegistrationProcessorTests: BitwardenTestCase {
         configService.featureFlagsBool[.nativeCreateAccountFlow] = nil
         subject.state.nativeCreateAccountFeatureFlag = true
 
-        let task = Task {
-            await subject.perform(.appeared)
-        }
-        await task.value
+        await subject.perform(.appeared)
         XCTAssertFalse(subject.state.nativeCreateAccountFeatureFlag)
     }
 
