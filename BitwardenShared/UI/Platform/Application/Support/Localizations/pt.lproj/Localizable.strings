@@ -944,3 +944,7 @@
 "SetUpUnlock" = "Configurar o desbloqueio";
 "SetUpBiometricsOrChooseAPinCodeToQuicklyAccessYourVaultAndAutofillYourLogins" = "Configure a biometria ou escolha um código PIN para aceder rapidamente ao seu cofre e preencher automaticamente as suas credenciais.";
 "SetUpLater" = "Configurar mais tarde";
+"RemoveMasterPasswordMessage" = "A %1$@ está a utilizar o SSO com um servidor de chaves auto-hospedado. Já não é necessária uma palavra-passe mestra para iniciar sessão para os membros desta organização.";
+"RestartRegistration" = "Reiniciar registo";
+"ExpiredLink" = "Link expirado";
+"PleaseRestartRegistrationOrTryLoggingInYouMayAlreadyHaveAnAccount" = "Por favor, reinicie o registo ou tente iniciar sessão. É possível que já tenha uma conta.";

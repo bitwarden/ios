@@ -156,6 +156,7 @@ jobs:
             "dist_share_extension.mobileprovision"
             "dist_bitwarden_watch_app.mobileprovision"
             "dist_bitwarden_watch_app_extension.mobileprovision"
+            "dist_bitwarden_watch_widget_extension.mobileprovision"
           )
 
           for FILE in "${profiles[@]}"
@@ -178,6 +179,7 @@ jobs:
             "dist_beta_share_extension.mobileprovision"
             "dist_beta_bitwarden_watch_app.mobileprovision"
             "dist_beta_bitwarden_watch_app_extension.mobileprovision"
+            "dist_beta_bitwarden_watch_widget_extension.mobileprovision"
           )
 
           for FILE in "${profiles[@]}"

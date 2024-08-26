@@ -944,3 +944,7 @@
 "SetUpUnlock" = "Entsperren einrichten";
 "SetUpBiometricsOrChooseAPinCodeToQuicklyAccessYourVaultAndAutofillYourLogins" = "Richte Biometrie ein oder lege einen PIN-Code fest, um schnell auf deinen Tresor zuzugreifen und deinen Zugangsdaten automatisch auszufüllen.";
 "SetUpLater" = "Später einrichten";
+"RemoveMasterPasswordMessage" = "%1$@ verwendet SSO mit einem selbst gehosteten Schlüsselserver. Ein Master-Passwort zum Anmelden ist für Mitglieder dieser Organisation nicht mehr erforderlich.";
+"RestartRegistration" = "Restart registration";
+"ExpiredLink" = "Expired link";
+"PleaseRestartRegistrationOrTryLoggingInYouMayAlreadyHaveAnAccount" = "Please restart registration or try logging in. You may already have an account.";

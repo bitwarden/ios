@@ -41,6 +41,7 @@ profiles=(
     "share_extension"
     "bitwarden_watch_app"
     "bitwarden_watch_app_extension"
+    "bitwarden_watch_widget_extension"
 )
 
 for file in "${profiles[@]}"

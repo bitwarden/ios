@@ -6,64 +6,94 @@ class ComplicationController: NSObject, CLKComplicationDataSource {
     func getComplicationDescriptors(handler: @escaping ([CLKComplicationDescriptor]) -> Void) {
         let descriptors = [
             CLKComplicationDescriptor(
-                identifier: "complication",
+                identifier: "bitwarden-watch-complication",
                 displayName: "Bitwarden",
-                supportedFamilies: CLKComplicationFamily.allCases
+                supportedFamilies: [
+                    CLKComplicationFamily.circularSmall,
+                    CLKComplicationFamily.graphicCircular,
+                    CLKComplicationFamily.graphicCorner,
+                    CLKComplicationFamily.utilitarianSmall,
+                ]
             ),
-            // Multiple complication support can be added here with more descriptors
         ]
 
-        // Call the handler with the currently supported complication descriptors
         handler(descriptors)
     }
 
-    func handleSharedComplicationDescriptors(_: [CLKComplicationDescriptor]) {
-        // Do any necessary work to support these newly shared complication descriptors
-    }
-
     // MARK: - Timeline Configuration
-
-    func getTimelineEndDate(for _: CLKComplication, withHandler handler: @escaping (Date?) -> Void) {
-        // Call the handler with the last entry date you can currently provide or nil if you can't support future
-        // timelines
-        handler(nil)
-    }
 
     func getPrivacyBehavior(
         for _: CLKComplication,
         withHandler handler: @escaping (CLKComplicationPrivacyBehavior) -> Void
     ) {
-        // Call the handler with your desired behavior when the device is locked
         handler(.showOnLockScreen)
     }
 
     // MARK: - Timeline Population
 
     func getCurrentTimelineEntry(
-        for _: CLKComplication,
+        for complication: CLKComplication,
         withHandler handler: @escaping (CLKComplicationTimelineEntry?) -> Void
     ) {
-        // Call the handler with the current timeline entry
-        handler(nil)
-    }
+        guard let icon = UIImage(named: "ComplicationIcon") else {
+            handler(nil)
+            return
+        }
+        let imageProvider = CLKFullColorImageProvider(fullColorImage: icon)
 
-    func getTimelineEntries(
-        for _: CLKComplication,
-        after _: Date,
-        limit _: Int,
-        withHandler handler: @escaping ([CLKComplicationTimelineEntry]?) -> Void
-    ) {
-        // Call the handler with the timeline entries after the given date
-        handler(nil)
+        switch complication.family {
+        case .circularSmall:
+            let template = CLKComplicationTemplateCircularSmallSimpleImage(
+                imageProvider: CLKImageProvider(onePieceImage: icon)
+            )
+            handler(CLKComplicationTimelineEntry(date: .now, complicationTemplate: template))
+        case .graphicCircular:
+            let template = CLKComplicationTemplateGraphicCircularImage(imageProvider: imageProvider)
+            handler(CLKComplicationTimelineEntry(date: .now, complicationTemplate: template))
+        case .graphicCorner:
+            let template = CLKComplicationTemplateGraphicCornerCircularImage(imageProvider: imageProvider)
+            handler(CLKComplicationTimelineEntry(date: .now, complicationTemplate: template))
+        case .utilitarianSmall:
+            let template = CLKComplicationTemplateUtilitarianSmallSquare(
+                imageProvider: CLKImageProvider(onePieceImage: icon)
+            )
+            handler(CLKComplicationTimelineEntry(date: .now, complicationTemplate: template))
+        default:
+            handler(nil)
+        }
     }
 
     // MARK: - Sample Templates
 
     func getLocalizableSampleTemplate(
-        for _: CLKComplication,
+        for complication: CLKComplication,
         withHandler handler: @escaping (CLKComplicationTemplate?) -> Void
     ) {
-        // This method will be called once per supported complication, and the results will be cached
-        handler(nil)
+        guard let icon = UIImage(named: "ComplicationIcon") else {
+            handler(nil)
+            return
+        }
+        let imageProvider = CLKFullColorImageProvider(fullColorImage: icon)
+
+        switch complication.family {
+        case .circularSmall:
+            let template = CLKComplicationTemplateCircularSmallSimpleImage(
+                imageProvider: CLKImageProvider(onePieceImage: icon)
+            )
+            handler(template)
+        case .graphicCircular:
+            let template = CLKComplicationTemplateGraphicCircularImage(imageProvider: imageProvider)
+            handler(template)
+        case .graphicCorner:
+            let template = CLKComplicationTemplateGraphicCornerCircularImage(imageProvider: imageProvider)
+            handler(template)
+        case .utilitarianSmall:
+            let template = CLKComplicationTemplateUtilitarianSmallSquare(
+                imageProvider: CLKImageProvider(onePieceImage: icon)
+            )
+            handler(template)
+        default:
+            handler(nil)
+        }
     }
 }
