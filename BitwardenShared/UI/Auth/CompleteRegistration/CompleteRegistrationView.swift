@@ -22,7 +22,7 @@ struct CompleteRegistrationView: View {
                 PageHeaderView(
                     image: Asset.Images.createAccountPassword,
                     title: Localizations.chooseYourMasterPassword,
-                    message: Localizations.chooseYourMasterPasswordMessage
+                    message: Localizations.chooseAUniqueAndStrongPasswordToKeepYourInformationSafe
                 )
 
                 learnMoreSection
@@ -128,7 +128,9 @@ struct CompleteRegistrationView: View {
     /// The text fields for the user's email and password.
     private var passwordField: some View {
         BitwardenTextField(
-            title: Localizations.masterPassword,
+            title: store.state.nativeCreateAccountFeatureFlag
+                ? Localizations.masterPasswordRequired
+                : Localizations.masterPassword,
             text: store.binding(
                 get: \.passwordText,
                 send: CompleteRegistrationAction.passwordTextChanged
@@ -157,7 +159,7 @@ struct CompleteRegistrationView: View {
 
             if store.state.nativeCreateAccountFeatureFlag {
                 VStack(alignment: .leading, spacing: 0) {
-                    Text(Localizations.bitwardenCannotResetLostPasswordMessage)
+                    Text(Localizations.bitwardenCannotResetALostOrForgottenMasterPassword)
                         .foregroundColor(Color(asset: Asset.Colors.textSecondary))
                         .styleGuide(.footnote)
 
@@ -209,7 +211,9 @@ struct CompleteRegistrationView: View {
     /// The text field for re-typing the master password.
     private var retypePassword: some View {
         BitwardenTextField(
-            title: Localizations.retypeMasterPassword,
+            title: store.state.nativeCreateAccountFeatureFlag ?
+                Localizations.retypeMasterPasswordRequired :
+                Localizations.retypeMasterPassword,
             text: store.binding(
                 get: \.retypePasswordText,
                 send: CompleteRegistrationAction.retypePasswordTextChanged

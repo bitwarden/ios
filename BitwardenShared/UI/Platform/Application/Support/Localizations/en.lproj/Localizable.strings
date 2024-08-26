@@ -945,11 +945,10 @@
 "SetUpBiometricsOrChooseAPinCodeToQuicklyAccessYourVaultAndAutofillYourLogins" = "Set up biometrics or choose a PIN code to quickly access your vault and autofill your logins.";
 "SetUpLater" = "Set up later";
 "ChooseYourMasterPassword" = "Choose your master password";
-"ChooseYourMasterPasswordMessage" = "Choose a unique and strong password to  keep your information safe.";
-"MasterPasswordRequiredTitle" = "Master password (required)";
-"RetypeMasterPasswordTitle" = "Re-type master password (required)";
-"MasterPasswordHintTitle" = "Master password hint";
-"BitwardenCannotResetLostPasswordMessage" = "Bitwarden cannot reset a lost or forgotten master password.";
+"ChooseAUniqueAndStrongPasswordToKeepYourInformationSafe" = "Choose a unique and strong password to keep your information safe.";
+"MasterPasswordRequired" = "Master password (required)";
+"RetypeMasterPasswordRequired" = "Re-type master password (required)";
+"BitwardenCannotResetALostOrForgottenMasterPassword" = "Bitwarden cannot reset a lost or forgotten master password.";
 "LearnAboutWaysToPreventAccountLockout" = "Learn about ways to prevent account lockout";
 "WhatMakesAPasswordStrong" = "What makes a password strong?";
 "Characters" = "%1$@ Characters";
