@@ -536,9 +536,11 @@ protocol StateService: AnyObject {
     ///
     func setUnsuccessfulUnlockAttempts(_ attempts: Int, userId: String?) async throws
 
-    /// Sets user has master password to true.
+    /// Sets whether the user has a master password.
     ///
-    func setUserHasMasterPassword() async throws
+    /// - Parameter hasMasterPassword: Whether the user has a master password.
+    ///
+    func setUserHasMasterPassword(_ hasMasterPassword: Bool) async throws
 
     /// Sets the username generation options for a user ID.
     ///
@@ -1486,13 +1488,13 @@ actor DefaultStateService: StateService { // swiftlint:disable:this type_body_le
         appSettingsStore.setUnsuccessfulUnlockAttempts(attempts, userId: userId)
     }
 
-    func setUserHasMasterPassword() async throws {
+    func setUserHasMasterPassword(_ hasMasterPassword: Bool) async throws {
         let userId = try getActiveAccountUserId()
         var state = appSettingsStore.state ?? State()
         defer { appSettingsStore.state = state }
 
         guard var profile = state.accounts[userId]?.profile else { return }
-        profile.userDecryptionOptions?.hasMasterPassword = true
+        profile.userDecryptionOptions?.hasMasterPassword = hasMasterPassword
 
         state.accounts[userId]?.profile = profile
     }

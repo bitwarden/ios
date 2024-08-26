@@ -944,3 +944,7 @@
 "SetUpUnlock" = "Opsæt oplåsning";
 "SetUpBiometricsOrChooseAPinCodeToQuicklyAccessYourVaultAndAutofillYourLogins" = "Opsæt biometri eller vælg en PIN-kode for hurtigt at tilgå boksen og autoudfylde logins.";
 "SetUpLater" = "Opsæt senere";
+"RemoveMasterPasswordMessage" = "%1$@ bruger SSO med en selv-hostet nøgleserver. Organisationsmedlemmer behøver ikke længere en hovedadgangskode for at logge ind.";
+"RestartRegistration" = "Genstart registrering";
+"ExpiredLink" = "Udløbet link";
+"PleaseRestartRegistrationOrTryLoggingInYouMayAlreadyHaveAnAccount" = "Genstart registreringen eller prøv at logge ind. En konto er muligvis allerede oprettet.";

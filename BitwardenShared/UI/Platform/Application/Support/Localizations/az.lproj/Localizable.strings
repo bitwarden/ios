@@ -925,7 +925,7 @@
 "VerifyingEmail" = "E-poçt doğrulanır";
 "EmailVerified" = "E-poçt doğrulandı";
 "AccountSuccessfullyCreated" = "Hesab uğurla yaradıldı!";
-"ByContinuingYouAgreeToTheTermsOfServiceAndPrivacyPolicy" = "Davam edərək, **[Xidmət Şərtlərini](%1$@)** və **[Gizlilik Siyasəti](%2$@)** ilə razılaşırsınız";
+"ByContinuingYouAgreeToTheTermsOfServiceAndPrivacyPolicy" = "Davam edərək, **[Xidmət Şərtləri](%1$@)** və **[Gizlilik Siyasəti](%2$@)** ilə razılaşırsınız";
 "GetAdviceAnnouncementsAndResearchOpportunitiesFromBitwardenInYourInboxUnsubscribeAtAnyTime." = "Gələn qutunuzda Bitwarden-dən məsləhət, elan və araşdırma imkanları ilə bağlı məktublar alın. İstənilən vaxt **[abunəlikdən çıxa bilərsiniz](%1$@)**.";
 "OrganizationUnassignedItemsMessageUSEUDescriptionLong" = "Təyin edilməmiş təşkilat elementləri artıq Bütün Anbarlar görünüşündə görünməyəndir və yalnız Admin Konsolu vasitəsilə əlçatandır. Bu elementləri görünən etmək üçün Admin Konsolundan bir kolleksiyaya təyin edin.";
 "UnknownAccount" = "Bilinməyən hesab";
@@ -944,3 +944,7 @@
 "SetUpUnlock" = "Kilid açmanı qur";
 "SetUpBiometricsOrChooseAPinCodeToQuicklyAccessYourVaultAndAutofillYourLogins" = "Anbarınıza cəld müraciət etmək və giriş məlumatlarınızı avto-doldurmaq üçün biometrik qurun və ya bir PIN kodu seçin.";
 "SetUpLater" = "Daha sonra qur";
+"RemoveMasterPasswordMessage" = "%1$@ is using SSO with a self-hosted key server. A master password is no longer required to log in for members of this organization.";
+"RestartRegistration" = "Restart registration";
+"ExpiredLink" = "Expired link";
+"PleaseRestartRegistrationOrTryLoggingInYouMayAlreadyHaveAnAccount" = "Please restart registration or try logging in. You may already have an account.";
