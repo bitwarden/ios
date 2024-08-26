@@ -944,3 +944,7 @@
 "SetUpUnlock" = "Iestatīt atslēgšanu";
 "SetUpBiometricsOrChooseAPinCodeToQuicklyAccessYourVaultAndAutofillYourLogins" = "Biometriju var iestatīt vai PIN kodu var izvēlēties, lai ātri piekļūtu savai glabātavai un automātiski aizpildītu pieteikšanās vienumus.";
 "SetUpLater" = "Iestatīt vēlāk";
+"RemoveMasterPasswordMessage" = "%1$@ izmanto vienoto pieteikšanos ar pašizvietotu atslēgu serveri. Tās dalībniekiem vairs nav nepieciešama galvenā parole, lai pieteiktos.";
+"RestartRegistration" = "Restart registration";
+"ExpiredLink" = "Expired link";
+"PleaseRestartRegistrationOrTryLoggingInYouMayAlreadyHaveAnAccount" = "Please restart registration or try logging in. You may already have an account.";

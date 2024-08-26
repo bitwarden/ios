@@ -946,3 +946,7 @@
 "SetUpUnlock" = "Настройка разблокировки";
 "SetUpBiometricsOrChooseAPinCodeToQuicklyAccessYourVaultAndAutofillYourLogins" = "Настройте биометрию или задайте PIN-код для быстрого доступа к хранилищу и автозаполнения логинов.";
 "SetUpLater" = "Настроить позже";
+"RemoveMasterPasswordMessage" = "%1$@ использует SSO с собственным сервером ключей. Для авторизации пользователям этой организации больше не требуется мастер-пароль.";
+"RestartRegistration" = "Перезапустить регистрацию";
+"ExpiredLink" = "Истекшая ссылка";
+"PleaseRestartRegistrationOrTryLoggingInYouMayAlreadyHaveAnAccount" = "Пожалуйста, повторите регистрацию или попробуйте авторизоваться. Возможно, у вас уже есть аккаунт.";

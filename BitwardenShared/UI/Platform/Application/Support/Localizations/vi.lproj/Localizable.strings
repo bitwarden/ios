@@ -925,7 +925,7 @@
 "VerifyingEmail" = "Đang xác minh địa chỉ email";
 "EmailVerified" = "Email đã xác minh";
 "AccountSuccessfullyCreated" = "Tạo tài khoản thành công!";
-"ByContinuingYouAgreeToTheTermsOfServiceAndPrivacyPolicy" = "Tiếp tục nghĩa là bạn đồng ý **[Điều khoản dịch vụ](%1$@)** và **[Chính sách bảo mật](%2$@)**";
+"ByContinuingYouAgreeToTheTermsOfServiceAndPrivacyPolicy" = "Nếu tiếp tục, bạn đồng ý **[Điều khoản dịch vụ](%1$@)** và **[Chính sách bảo mật](%2$@)**";
 "GetAdviceAnnouncementsAndResearchOpportunitiesFromBitwardenInYourInboxUnsubscribeAtAnyTime." = "Nhận đề xuất, thông báo và cơ hội nghiên cứu từ Bitwarden qua email. **[Hủy đăng ký](%1$@)** bất cứ lúc nào.";
 "OrganizationUnassignedItemsMessageUSEUDescriptionLong" = "Các mục tổ chức chưa được chỉ định sẽ không còn hiển thị trong chế độ xem Toàn Bộ, mà chỉ có thể truy cập qua Bảng điều khiển dành cho quản trị viên. Để hiển thị, chỉ định các mục này cho một thư mục từ Bảng điều khiển dành cho quản trị viên.";
 "UnknownAccount" = "Tài khoản không rõ";
@@ -944,3 +944,7 @@
 "SetUpUnlock" = "Thiết lập mở khóa";
 "SetUpBiometricsOrChooseAPinCodeToQuicklyAccessYourVaultAndAutofillYourLogins" = "Thiết lập sinh trắc học hoặc mã PIN để truy cập nhanh vào kho và tự động điền thông tin đăng nhập của bạn.";
 "SetUpLater" = "Thiết lập sau";
+"RemoveMasterPasswordMessage" = "%1$@ đang sử dụng SSO với khóa máy chủ tự lưu trữ. Mật khẩu chính không còn cần để đăng nhập cho các thành viên của tổ chức này.";
+"RestartRegistration" = "Restart registration";
+"ExpiredLink" = "Expired link";
+"PleaseRestartRegistrationOrTryLoggingInYouMayAlreadyHaveAnAccount" = "Please restart registration or try logging in. You may already have an account.";

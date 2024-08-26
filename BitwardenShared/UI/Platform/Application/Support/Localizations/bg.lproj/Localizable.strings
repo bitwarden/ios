@@ -944,3 +944,7 @@
 "SetUpUnlock" = "Настройте отключването";
 "SetUpBiometricsOrChooseAPinCodeToQuicklyAccessYourVaultAndAutofillYourLogins" = "Настройте достъп чрез биометрични данни или изберете ПИН код, с който лесно да отключвате трезора си и да попълвате автоматично данните си за вписване.";
 "SetUpLater" = "Настройване по-късно";
+"RemoveMasterPasswordMessage" = "%1$@ използва еднократно удостоверяване със собствен сървър за ключове. Членовете на тази организация вече нямат нужда от главна парола за вписване.";
+"RestartRegistration" = "Рестартиране на регистрацията";
+"ExpiredLink" = "Връзка с изтекла давност";
+"PleaseRestartRegistrationOrTryLoggingInYouMayAlreadyHaveAnAccount" = "Моля, рестартирайте процеса на регистрация или опитайте да се впишете. Може вече да имате регистрация.";

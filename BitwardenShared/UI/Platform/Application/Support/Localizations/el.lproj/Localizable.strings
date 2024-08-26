@@ -944,3 +944,7 @@
 "SetUpUnlock" = "Ρύθμιση ξεκλειδώματος";
 "SetUpBiometricsOrChooseAPinCodeToQuicklyAccessYourVaultAndAutofillYourLogins" = "Ρυθμίστε τα βιομετρικά στοιχεία ή επιλέξτε έναν κωδικό PIN για γρήγορη πρόσβαση στο θησαυ/κιο και αυτόματη συμπλήρωση των συνδέσεών σας.";
 "SetUpLater" = "Ρύθμιση αργότερα";
+"RemoveMasterPasswordMessage" = "%1$@ is using SSO with a self-hosted key server. A master password is no longer required to log in for members of this organization.";
+"RestartRegistration" = "Restart registration";
+"ExpiredLink" = "Expired link";
+"PleaseRestartRegistrationOrTryLoggingInYouMayAlreadyHaveAnAccount" = "Please restart registration or try logging in. You may already have an account.";
