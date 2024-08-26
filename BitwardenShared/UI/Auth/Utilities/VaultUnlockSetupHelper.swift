@@ -111,33 +111,37 @@ extension DefaultVaultUnlockSetupHelper: VaultUnlockSetupHelper {
         } catch {
             services.errorReporter.log(error: error)
             showAlert(.defaultAlert(title: Localizations.anErrorHasOccurred))
+
+            // In the case of an error, still attempt to return the unlock status. This status may
+            // be used by the UI to determine whether biometrics are available on the device.
             return try? await services.biometricsRepository.getBiometricUnlockStatus()
         }
     }
 
     func setPinUnlock(enabled: Bool, showAlert: @escaping (Alert) -> Void) async -> Bool {
         do {
-            if enabled {
-                let pin = try await showEnterPinAlert(showAlert: showAlert)
-                guard !pin.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else { return false }
-
-                let userHasMasterPassword = try await services.stateService.getUserHasMasterPassword()
-                let biometricType = services.biometricsRepository.getBiometricAuthenticationType()
-                let requirePasswordAfterRestart = if userHasMasterPassword {
-                    await showUnlockWithPinAlert(biometricType: biometricType, showAlert: showAlert)
-                } else {
-                    false
-                }
-
-                try await services.authRepository.setPins(
-                    pin,
-                    requirePasswordAfterRestart: requirePasswordAfterRestart
-                )
-            } else {
+            guard enabled else {
                 try await services.authRepository.clearPins()
+                return false
             }
 
-            return enabled
+            let pin = try await showEnterPinAlert(showAlert: showAlert)
+            guard !pin.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else { return false }
+
+            let userHasMasterPassword = try await services.stateService.getUserHasMasterPassword()
+            let biometricType = services.biometricsRepository.getBiometricAuthenticationType()
+            let requirePasswordAfterRestart = if userHasMasterPassword {
+                await showUnlockWithPinAlert(biometricType: biometricType, showAlert: showAlert)
+            } else {
+                false
+            }
+
+            try await services.authRepository.setPins(
+                pin,
+                requirePasswordAfterRestart: requirePasswordAfterRestart
+            )
+
+            return true
         } catch VaultUnlockSetupHelperError.userCancelled {
             return !enabled
         } catch {
