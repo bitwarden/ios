@@ -709,7 +709,7 @@
 "CatchAllEmail" = "Catch-all 电子邮件";
 "ForwardedEmailAlias" = "转发的电子邮件别名";
 "RandomWord" = "随机单词";
-"EmailRequiredParenthesis" = "电子邮件地址（必填）";
+"EmailRequiredParenthesis" = "电子邮箱（必填）";
 "DomainNameRequiredParenthesis" = "域名（必填）";
 "APIKeyRequiredParenthesis" = "API 密钥（必填）";
 "Service" = "服务";
@@ -917,7 +917,7 @@
 "CreatingOn" = "创建于";
 "CheckYourEmail" = "检查您的电子邮箱";
 "FollowTheInstructionsInTheEmailSentToXToContinueCreatingYourAccount" = "按照发送到 %1$@ 的电子邮件中的说明继续创建您的账户。";
-"NoEmailGoBackToEditYourEmailAddress" = "没收到电子邮件吗？**[返回](https://)** 修改您的电子邮箱地址。";
+"NoEmailGoBackToEditYourEmailAddress" = "没收到电子邮件吗？请 **[返回](https://)** 修改您的电子邮箱地址。";
 "OrLogInYouMayAlreadyHaveAnAccount." = "或者 **[登录](https://)**，您可能已经有一个账户了。";
 "OpenEmailApp" = "打开电子邮件 App";
 "SetPassword" = "设置密码";
@@ -925,8 +925,8 @@
 "VerifyingEmail" = "验证电子邮箱";
 "EmailVerified" = "电子邮箱已验证";
 "AccountSuccessfullyCreated" = "账户已成功创建！";
-"ByContinuingYouAgreeToTheTermsOfServiceAndPrivacyPolicy" = "要继续，您需要同意 **[服务条款](%1$@)** 和 **[隐私政策](%2$@)**";
-"GetAdviceAnnouncementsAndResearchOpportunitiesFromBitwardenInYourInboxUnsubscribeAtAnyTime." = "获取来自 Bitwarden 的建议、公告和调研电子邮件。可以随时 **[退订](%1$@)** 。";
+"ByContinuingYouAgreeToTheTermsOfServiceAndPrivacyPolicy" = "若继续，表示您同意 **[服务条款](%1$@)** 和 **[隐私政策](%2$@)**";
+"GetAdviceAnnouncementsAndResearchOpportunitiesFromBitwardenInYourInboxUnsubscribeAtAnyTime." = "获取来自 Bitwarden 的建议、公告和调研电子邮件。随时 **[退订](%1$@)** 。";
 "OrganizationUnassignedItemsMessageUSEUDescriptionLong" = "未分配的组织项目在「所有密码库」视图中不再可见，只能通过管理控制台访问。通过管理控制台将这些项目分配给集合以使其可见。";
 "UnknownAccount" = "未知账户";
 "UserVerificationForPasskey" = "通行密钥用户验证";
@@ -944,3 +944,7 @@
 "SetUpUnlock" = "设置解锁";
 "SetUpBiometricsOrChooseAPinCodeToQuicklyAccessYourVaultAndAutofillYourLogins" = "设置生物识别或选择一个 PIN 码来快速访问您的密码库以及自动填充登录信息。";
 "SetUpLater" = "稍后设置";
+"RemoveMasterPasswordMessage" = "%1$@ 使用自托管密钥服务器 SSO。该组织的成员不再需要主密码登录。";
+"RestartRegistration" = "重新开始注册";
+"ExpiredLink" = "失效链接";
+"PleaseRestartRegistrationOrTryLoggingInYouMayAlreadyHaveAnAccount" = "请重新注册或尝试登录。您可能已经有一个账户了。";

@@ -944,3 +944,7 @@
 "SetUpUnlock" = "Налаштувати розблокування";
 "SetUpBiometricsOrChooseAPinCodeToQuicklyAccessYourVaultAndAutofillYourLogins" = "Налаштуйте біометрію або PIN-код, щоб швидко відкривати сховище й автоматично заповнювати дані.";
 "SetUpLater" = "Налаштувати згодом";
+"RemoveMasterPasswordMessage" = "%1$@ використовує SSO з власним сервером ключів. Головний пароль для учасників цієї організації більше не вимагається.";
+"RestartRegistration" = "Перезапустити реєстрацію";
+"ExpiredLink" = "Протерміноване посилання";
+"PleaseRestartRegistrationOrTryLoggingInYouMayAlreadyHaveAnAccount" = "Перезапустіть реєстрацію або спробуйте увійти. Можливо, ви вже маєте обліковий запис.";

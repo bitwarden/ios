@@ -920,9 +920,9 @@
 "NoEmailGoBackToEditYourEmailAddress" = "Žiadny e-mail? **[Vráťte sa späť](https://)** a upravte e-mailovú adresu.";
 "OrLogInYouMayAlreadyHaveAnAccount." = "Alebo **[sa prihláste](https://)**, možno už účet máte.";
 "OpenEmailApp" = "Otvoriť emailovú aplikáciu";
-"SetPassword" = "Nastavenie hesla";
+"SetPassword" = "Nastaviť heslo";
 "FinishCreatingYourAccountForXBySettingAPassword." = "Dokončite vytváranie účtu %1$@ nastavením hesla.";
-"VerifyingEmail" = "Overovanie emailu";
+"VerifyingEmail" = "Overovanie e-mailu";
 "EmailVerified" = "Email bol overený";
 "AccountSuccessfullyCreated" = "Účet bol úspešne vytvorený!";
 "ByContinuingYouAgreeToTheTermsOfServiceAndPrivacyPolicy" = "Ak budete pokračovať, tak súhlasíte s **[Podmienkami používania](%1$@)** a **[Zásadami ochrany osobných údajov](%2$@)**";
@@ -944,3 +944,7 @@
 "SetUpUnlock" = "Nastaviť odomknutie";
 "SetUpBiometricsOrChooseAPinCodeToQuicklyAccessYourVaultAndAutofillYourLogins" = "Nastavte biometriu alebo PIN kód pre rýchly prístup k trezoru a automatické vypĺňanie prístupových údajov.";
 "SetUpLater" = "Nastaviť neskôr";
+"RemoveMasterPasswordMessage" = "%1$@ používa SSO s vlastným kľúčovým serverom. Na prihlásenie členov tejto organizácie už nie je potrebné hlavné heslo.";
+"RestartRegistration" = "Zopakovať registráciu";
+"ExpiredLink" = "Platnosť odkazu vypršala";
+"PleaseRestartRegistrationOrTryLoggingInYouMayAlreadyHaveAnAccount" = "Zopakujte registráciu alebo sa pokúste prihlásiť. Možno už máte konto.";
