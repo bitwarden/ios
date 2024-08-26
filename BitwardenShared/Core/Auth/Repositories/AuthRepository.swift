@@ -663,7 +663,7 @@ extension DefaultAuthRepository: AuthRepository {
             encryptedPrivateKey: encryptedPrivateKey,
             encryptedUserKey: requestUserKey
         ))
-        try await stateService.setUserHasMasterPassword()
+        try await stateService.setUserHasMasterPassword(true)
 
         if resetPasswordAutoEnroll {
             let organizationKeys = try await organizationAPIService.getOrganizationKeys(
