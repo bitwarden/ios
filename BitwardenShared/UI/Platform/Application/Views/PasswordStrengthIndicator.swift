@@ -51,7 +51,7 @@ struct PasswordStrengthIndicator: View {
                                 .padding(.leading, 1)
                         }
 
-                        Text(Localizations.characters(requiredTextCount))
+                        Text(Localizations.xCharacters(requiredTextCount))
                             .foregroundColor(
                                 passwordTextCount >= requiredTextCount ?
                                     Color(asset: Asset.Colors.loadingGreen) :
