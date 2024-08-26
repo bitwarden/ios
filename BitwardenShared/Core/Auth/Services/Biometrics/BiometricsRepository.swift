@@ -30,12 +30,11 @@ protocol BiometricsRepository: AnyObject {
     ///     Should be called following a successful launch when biometric unlock is enabled.
     func configureBiometricIntegrity() async throws
 
-    /// Sets the biometric unlock preference for the active user.
-    ///   If permissions have not been requested, this request should trigger the system permisisons dialog.
+    /// Returns the device BiometricAuthenticationType.
     ///
-    /// - Parameter authKey: An optional `String` representing the user auth key. If nil, Biometric Unlock is disabled.
+    /// - Returns: The `BiometricAuthenticationType`.
     ///
-    func setBiometricUnlockKey(authKey: String?) async throws
+    func getBiometricAuthenticationType() -> BiometricAuthenticationType?
 
     /// Returns the status for user BiometricAuthentication.
     ///
@@ -46,6 +45,13 @@ protocol BiometricsRepository: AnyObject {
     /// Attempts to retrieve a user's auth key with biometrics.
     ///
     func getUserAuthKey() async throws -> String
+
+    /// Sets the biometric unlock preference for the active user.
+    ///   If permissions have not been requested, this request should trigger the system permisisons dialog.
+    ///
+    /// - Parameter authKey: An optional `String` representing the user auth key. If nil, Biometric Unlock is disabled.
+    ///
+    func setBiometricUnlockKey(authKey: String?) async throws
 }
 
 // MARK: - DefaultBiometricsRepository
@@ -92,6 +98,10 @@ class DefaultBiometricsRepository: BiometricsRepository {
         }
     }
 
+    func getBiometricAuthenticationType() -> BiometricAuthenticationType? {
+        biometricsService.getBiometricAuthenticationType()
+    }
+
     func setBiometricUnlockKey(authKey: String?) async throws {
         guard let authKey,
               try await biometricsService.evaluateBiometricPolicy() else {
@@ -102,6 +112,7 @@ class DefaultBiometricsRepository: BiometricsRepository {
         }
 
         try await setUserBiometricAuthKey(value: authKey)
+        try await configureBiometricIntegrity()
         try await stateService.setBiometricAuthenticationEnabled(true)
     }
 

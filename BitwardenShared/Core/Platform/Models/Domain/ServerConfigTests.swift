@@ -12,7 +12,7 @@ final class ServerConfigTests: BitwardenTestCase {
             environment: nil,
             featureStates: [
                 "vault-onboarding": .bool(true),
-                "unassigned-items-banner": .bool(false),
+                "test-remote-feature-flag": .bool(false),
                 "not-a-real-feature-flag": .int(42),
             ],
             gitHash: "123",
@@ -21,7 +21,7 @@ final class ServerConfigTests: BitwardenTestCase {
         )
 
         let subject = ServerConfig(date: Date(), responseModel: model)
-        XCTAssertEqual(subject.featureStates, [.unassignedItemsBanner: .bool(false)])
+        XCTAssertEqual(subject.featureStates, [.testRemoteFeatureFlag: .bool(false)])
     }
 
     func test_isServerVersionAfter_equalValidVersion() {

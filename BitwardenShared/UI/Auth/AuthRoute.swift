@@ -7,8 +7,32 @@ public enum AuthRoute: Equatable {
     /// A route to the captcha screen.
     case captcha(url: URL, callbackUrlScheme: String)
 
+    /// A route to show the check email screen.
+    case checkEmail(email: String)
+
     /// Dismisses the auth flow.
     case complete
+
+    /// A route to complete registration screen.
+    /// - Parameters:
+    ///    - emailVerificationToken: Token needed to complete registration.
+    ///    - userEmail: The user's email.
+    ///
+    case completeRegistration(emailVerificationToken: String, userEmail: String)
+
+    /// A route to complete registration screen.
+    /// - Parameters:
+    ///    - emailVerificationToken: Token needed to complete registration.
+    ///    - userEmail: The user's email.
+    ///    - fromEmail: The user opened the app from an email AppLink.
+    ///    - region: Region where the complete registration should happen.
+    ///
+    case completeRegistrationFromAppLink(
+        emailVerificationToken: String,
+        userEmail: String,
+        fromEmail: Bool,
+        region: RegionType
+    )
 
     /// Dismisses the auth flow becuase the vault was unlocked with the never unlock key.
     case completeWithNeverUnlockKey
@@ -18,6 +42,19 @@ public enum AuthRoute: Equatable {
 
     /// A route that dismisses a presented sheet.
     case dismiss
+
+    /// A route that dismisses only the presented sheet.
+    case dismissPresented
+
+    /// A route to dismiss the screen currently presented modally.
+    ///
+    /// - Parameter action: The action to perform on dismiss.
+    ///
+    case dismissWithAction(_ action: DismissAction? = nil)
+
+    /// A route to the expired link screen.
+    ///
+    case expiredLink
 
     /// A route that triggers the duo 2FA flow.
     ///  Requires that any `context` provided to the coordinator conforms to `DuoAuthenticationFlowDelegate`.
@@ -47,6 +84,14 @@ public enum AuthRoute: Equatable {
     ///
     case showLoginDecryptionOptions(organizationIdentifier: String)
 
+    /// A route to start registration screen.
+    ///
+    case startRegistration
+
+    /// A route to start registration screen when coming from the expired link screen.
+    ///
+    case startRegistrationFromExpiredLink
+
     /// A route to the login with device screen.
     ///
     /// - Parameters:
@@ -61,12 +106,15 @@ public enum AuthRoute: Equatable {
     /// - Parameter username: The username to display on the password hint screen.
     case masterPasswordHint(username: String)
 
-    /// A route to the self-hosted settings view.
+    /// A route to the remove master password screen.
+    case removeMasterPassword(organizationName: String)
+
+    /// A route to the self-hosted settings screen.
     ///
-    /// - Parameter currentRegion: The user's region type prior to navigating to the self-hosted view.
+    /// - Parameter currentRegion: The user's region type prior to navigating to the self-hosted screen.
     case selfHosted(currentRegion: RegionType)
 
-    /// A route to the set master password view.
+    /// A route to the set master password screen.
     ///
     /// - Parameter organizationIdentifier: The organization's identifier.
     ///
@@ -81,7 +129,7 @@ public enum AuthRoute: Equatable {
     ///
     case singleSignOn(callbackUrlScheme: String, state: String, url: URL)
 
-    /// A route to the two-factor authentication view.
+    /// A route to the two-factor authentication screen.
     ///
     /// - Parameters:
     ///   - email: The user's email address.
@@ -96,7 +144,7 @@ public enum AuthRoute: Equatable {
         _ orgIdentifier: String?
     )
 
-    /// A route to the update master password view.
+    /// A route to the update master password screen.
     case updateMasterPassword
 
     /// A route to the unlock vault screen.
@@ -114,6 +162,9 @@ public enum AuthRoute: Equatable {
         attemptAutomaticBiometricUnlock: Bool,
         didSwitchAccountAutomatically: Bool
     )
+
+    /// A route to the vault unlock setup screen.
+    case vaultUnlockSetup
 
     /// A route to the WebAuthn two factor authentication.
     ///

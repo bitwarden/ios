@@ -42,6 +42,7 @@ class VaultUnlockViewTests: BitwardenTestCase {
     // MARK: Tests
 
     /// Tapping the cancel button in the navigation bar dispatches the `.cancelPressed` action.
+    @MainActor
     func test_cancelButton_tap() throws {
         processor.state.isInAppExtension = true
         let button = try subject.inspect().find(button: Localizations.cancel)
@@ -50,6 +51,7 @@ class VaultUnlockViewTests: BitwardenTestCase {
     }
 
     /// The secure field is visible when `isMasterPasswordRevealed` is `false`.
+    @MainActor
     func test_isMasterPasswordRevealed_false() throws {
         processor.state.isMasterPasswordRevealed = false
         XCTAssertNoThrow(try subject.inspect().find(secureField: ""))
@@ -58,6 +60,7 @@ class VaultUnlockViewTests: BitwardenTestCase {
     }
 
     /// The text field is visible when `isMasterPasswordRevealed` is `true`.
+    @MainActor
     func test_isMasterPasswordRevealed_true() {
         processor.state.isMasterPasswordRevealed = true
         XCTAssertNoThrow(try subject.inspect().find(textField: ""))
@@ -65,6 +68,7 @@ class VaultUnlockViewTests: BitwardenTestCase {
     }
 
     /// Tapping the options button in the navigation bar dispatches the `.morePressed` action.
+    @MainActor
     func test_optionsButton_logOut_tap() throws {
         let button = try subject.inspect().find(button: Localizations.logOut)
         try button.tap()
@@ -72,6 +76,7 @@ class VaultUnlockViewTests: BitwardenTestCase {
     }
 
     /// Updating the secure field dispatches the `.masterPasswordChanged()` action.
+    @MainActor
     func test_secureField_updateValue() throws {
         processor.state.isMasterPasswordRevealed = false
         let secureField = try subject.inspect().find(secureField: "")
@@ -80,6 +85,7 @@ class VaultUnlockViewTests: BitwardenTestCase {
     }
 
     /// Updating the text field dispatches the `.masterPasswordChanged()` action.
+    @MainActor
     func test_textField_updateValue() throws {
         processor.state.isMasterPasswordRevealed = true
         let textField = try subject.inspect().find(textField: "")
@@ -88,6 +94,7 @@ class VaultUnlockViewTests: BitwardenTestCase {
     }
 
     /// Tapping the vault unlock button dispatches the `.unlockVault` action.
+    @MainActor
     func test_vaultUnlockButton_tap() async throws {
         let button = try subject.inspect().find(asyncButton: Localizations.unlock)
         try await button.tap()
@@ -96,6 +103,7 @@ class VaultUnlockViewTests: BitwardenTestCase {
     }
 
     /// Tapping the vault biometric unlock button dispatches the `.unlockVaultWithBiometrics` action.
+    @MainActor
     func test_vaultUnlockWithBiometricsButton_tap() throws {
         processor.state.biometricUnlockStatus = .available(
             .faceID,
@@ -124,6 +132,7 @@ class VaultUnlockViewTests: BitwardenTestCase {
         assertSnapshot(matching: subject, as: .defaultPortrait)
     }
 
+    @MainActor
     func test_snapshot_vaultUnlock_withBiometrics_faceId() {
         processor.state.biometricUnlockStatus = .available(
             .faceID,
@@ -133,11 +142,13 @@ class VaultUnlockViewTests: BitwardenTestCase {
         assertSnapshot(matching: subject, as: .defaultPortrait)
     }
 
+    @MainActor
     func test_snapshot_vaultUnlock_withBiometrics_notAvailable() {
         processor.state.biometricUnlockStatus = .notAvailable
         assertSnapshot(matching: subject, as: .defaultLandscape)
     }
 
+    @MainActor
     func test_snapshot_vaultUnlock_withBiometrics_touchId() {
         processor.state.biometricUnlockStatus = .available(
             .touchID,
@@ -148,6 +159,7 @@ class VaultUnlockViewTests: BitwardenTestCase {
     }
 
     /// Test a snapshot of the view when the password is hidden.
+    @MainActor
     func test_snapshot_vaultUnlock_passwordHidden() {
         processor.state.masterPassword = "Password"
         processor.state.isMasterPasswordRevealed = false
@@ -155,6 +167,7 @@ class VaultUnlockViewTests: BitwardenTestCase {
     }
 
     /// Test a snapshot of the view when the password is revealed.
+    @MainActor
     func test_snapshot_vaultUnlock_passwordRevealed() {
         processor.state.masterPassword = "Password"
         processor.state.isMasterPasswordRevealed = true
@@ -162,6 +175,7 @@ class VaultUnlockViewTests: BitwardenTestCase {
     }
 
     /// Check the snapshot for the profiles visible
+    @MainActor
     func test_snapshot_profilesVisible() {
         let account = ProfileSwitcherItem.fixture(
             email: "extra.warden@bitwarden.com",
@@ -179,18 +193,21 @@ class VaultUnlockViewTests: BitwardenTestCase {
     }
 
     /// Check the snapshot for the profiles visible
+    @MainActor
     func test_snapshot_profilesVisible_max() {
         processor.state.profileSwitcherState = .maximumAccounts
         assertSnapshot(matching: subject, as: .defaultPortrait)
     }
 
     /// Check the snapshot for the profiles visible
+    @MainActor
     func test_snapshot_profilesVisible_max_largeText() {
         processor.state.profileSwitcherState = .maximumAccounts
         assertSnapshot(matching: subject, as: .defaultPortraitAX5)
     }
 
     /// Check the snapshot for the profiles closed
+    @MainActor
     func test_snapshot_profilesClosed() {
         let account = ProfileSwitcherItem.fixture(
             email: "extra.warden@bitwarden.com",

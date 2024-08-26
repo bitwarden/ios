@@ -39,6 +39,7 @@ class PasteboardServiceTests: BitwardenTestCase {
     // MARK: Tests
 
     /// Test that copying a string puts the value on the `UIPasteboard` as expected.
+    @MainActor
     func test_copy() async throws {
         try await stateService.setClearClipboardValue(.never)
         subject.copy("Test string")
@@ -56,6 +57,7 @@ class PasteboardServiceTests: BitwardenTestCase {
     }
 
     /// Test that an error from no account should use the default value without recording an error.
+    @MainActor
     func test_error_noAccount() async throws {
         stateService.activeAccount = nil
 
@@ -66,6 +68,7 @@ class PasteboardServiceTests: BitwardenTestCase {
     }
 
     /// Test that an error updating besides not being logged in should be recorded.
+    @MainActor
     func test_error_other() async throws {
         stateService.clearClipboardResult = .failure(BitwardenTestError.example)
 
@@ -76,6 +79,7 @@ class PasteboardServiceTests: BitwardenTestCase {
     }
 
     /// Test that any errors from updating the value are recorded.
+    @MainActor
     func test_error_updating() async throws {
         stateService.clearClipboardResult = .failure(BitwardenTestError.example)
 

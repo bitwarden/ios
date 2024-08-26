@@ -28,6 +28,7 @@ final class SendListSearchHandlerTests: BitwardenTestCase {
 
     /// Test that the handler relays search events.
     ///
+    @MainActor
     func test_updateSearchResults_active() {
         let searchController = UISearchController()
         searchController.searchBar.text = "The Answer"
@@ -42,6 +43,7 @@ final class SendListSearchHandlerTests: BitwardenTestCase {
 
     /// Test that the handler relays search events.
     ///
+    @MainActor
     func test_updateSearchResults_emptyText() {
         let searchController = UISearchController()
         searchController.searchBar.text = ""
@@ -56,6 +58,7 @@ final class SendListSearchHandlerTests: BitwardenTestCase {
 
     /// Test that the handler relays search events.
     ///
+    @MainActor
     func test_updateSearchResults_nilText() {
         let searchController = UISearchController()
         searchController.searchBar.text = nil

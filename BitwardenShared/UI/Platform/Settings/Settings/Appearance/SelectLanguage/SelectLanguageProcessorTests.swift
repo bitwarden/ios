@@ -44,6 +44,7 @@ class SelectLanguageProcessorTests: BitwardenTestCase {
     // MARK: Tests
 
     /// `.receive(_:)` with `.dismiss` dismisses the view.
+    @MainActor
     func test_receive_dismiss() {
         subject.receive(.dismiss)
         XCTAssertEqual(coordinator.routes.last, .dismiss)
@@ -51,6 +52,7 @@ class SelectLanguageProcessorTests: BitwardenTestCase {
 
     /// `.receive(_:)` with `.languageTapped` with a new language saves the selection and shows
     /// the confirmation alert.
+    @MainActor
     func test_receive_languageTapped() async throws {
         subject.receive(.languageTapped(.custom(languageCode: "th")))
 
@@ -67,6 +69,7 @@ class SelectLanguageProcessorTests: BitwardenTestCase {
     }
 
     /// `.receive(_:)` with `.languageTapped` with the same language has no effect.
+    @MainActor
     func test_receive_languageTapped_noChange() {
         subject.receive(.languageTapped(.default))
         XCTAssertTrue(coordinator.alertShown.isEmpty)

@@ -52,6 +52,7 @@ struct LoginView: View {
                 ),
                 accessibilityIdentifier: "MasterPasswordEntry",
                 passwordVisibilityAccessibilityId: "PasswordVisibilityToggle",
+                isPasswordAutoFocused: true,
                 isPasswordVisible: store.binding(
                     get: \.isMasterPasswordRevealed,
                     send: LoginAction.revealMasterPasswordFieldPressed
@@ -136,7 +137,7 @@ struct LoginView: View {
 // MARK: - Previews
 
 #if DEBUG
-#Preview {
+#Preview("Empty") {
     NavigationView {
         LoginView(
             store: Store(
@@ -146,10 +147,9 @@ struct LoginView: View {
             )
         )
     }
-    .previewDisplayName("Empty")
 }
 
-#Preview {
+#Preview("With Device") {
     NavigationView {
         LoginView(
             store: Store(
@@ -161,6 +161,5 @@ struct LoginView: View {
             )
         )
     }
-    .previewDisplayName("With Device")
 }
 #endif

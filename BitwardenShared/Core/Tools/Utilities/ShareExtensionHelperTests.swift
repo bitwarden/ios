@@ -26,6 +26,7 @@ class ShareExtensionHelperTests: BitwardenTestCase {
 
     /// `processInputItems(_:)` processes the input items for the extension setup and returns a
     /// `.text` type.
+    @MainActor
     func test_processInputItems_text() async {
         let extensionItem = NSExtensionItem()
         extensionItem.attachments = [
@@ -42,6 +43,7 @@ class ShareExtensionHelperTests: BitwardenTestCase {
 
     /// `processInputItems(_:)` processes the input items for the extension setup and returns a
     /// `.file` type.
+    @MainActor
     func test_processInputItems_file() async throws {
         let data = Data("example".utf8)
         let url = FileManager.default.temporaryDirectory.appendingPathComponent("example.txt")
@@ -67,6 +69,7 @@ class ShareExtensionHelperTests: BitwardenTestCase {
 
     /// `processInputItems(_:)` processes the input image for the extension setup and returns a
     /// `.file` type.
+    @MainActor
     func test_processInputItems_image() async throws {
         let data = UIImage(systemName: "star.fill")
 
@@ -84,6 +87,7 @@ class ShareExtensionHelperTests: BitwardenTestCase {
     }
 
     /// `processInputItems(_:)` processes the input items for content but does not return anything.
+    @MainActor
     func test_processInputItems_notSupportedType() async {
         let extensionItem = NSExtensionItem()
         extensionItem.attachments = [

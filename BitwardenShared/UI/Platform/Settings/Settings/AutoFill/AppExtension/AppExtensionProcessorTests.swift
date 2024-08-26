@@ -32,6 +32,7 @@ class AppExtensionProcessorTests: BitwardenTestCase {
     // MARK: Tests
 
     /// `didDismissExtensionSetup(enabled:)` sets the activated and enabled properties if it was enabled.
+    @MainActor
     func test_didDismissExtensionSetup_enabled() {
         subject.didDismissExtensionSetup(enabled: true)
 
@@ -40,6 +41,7 @@ class AppExtensionProcessorTests: BitwardenTestCase {
     }
 
     /// `didDismissExtensionSetup(enabled:)` sets the activated property if it was activated, but not enabled.
+    @MainActor
     func test_didDismissExtensionSetup_notEnabled() {
         subject.didDismissExtensionSetup(enabled: false)
 
@@ -48,6 +50,7 @@ class AppExtensionProcessorTests: BitwardenTestCase {
     }
 
     /// `didDismissExtensionSetup(enabled:)` doesn't toggle the enabled flag if the extension was reactivated.
+    @MainActor
     func test_didDismissExtensionSetup_reenabled() {
         subject.didDismissExtensionSetup(enabled: true)
         subject.didDismissExtensionSetup(enabled: false)
@@ -57,6 +60,7 @@ class AppExtensionProcessorTests: BitwardenTestCase {
     }
 
     /// `receive(_:)` with `.activateButtonTapped` navigates to the extension setup flow.
+    @MainActor
     func test_receive_activateButtonTapped() {
         subject.receive(.activateButtonTapped)
 

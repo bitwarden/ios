@@ -21,6 +21,10 @@ protocol AccountAPIService {
     ///
     func checkDataBreaches(password: String) async throws -> Int
 
+    /// Converts the user's account to use key connector.
+    ///
+    func convertToKeyConnector() async throws
+
     /// Creates an API call for when the user submits an account creation form.
     ///
     /// - Parameter body: The body to be included in the request.
@@ -42,6 +46,13 @@ protocol AccountAPIService {
     ///
     func preLogin(email: String) async throws -> PreLoginResponseModel
 
+    /// Creates an API call for when the user submits the last step of an account creation form.
+    ///
+    /// - Parameter body: The body to be included in the request.
+    /// - Returns: Data returned from the `RegisterFinishRequest`.
+    ///
+    func registerFinish(body: RegisterFinishRequestModel) async throws -> RegisterFinishResponseModel
+
     /// Requests a one-time password to be sent to the user.
     ///
     func requestOtp() async throws
@@ -54,11 +65,23 @@ protocol AccountAPIService {
     ///
     func requestPasswordHint(for email: String) async throws
 
+    /// Start user account creation
+    /// - Parameter requestModel: The request model containing the details needed to start user account creation
+    /// - Returns: Can return an email verification token
+    ///
+    func startRegistration(requestModel: StartRegistrationRequestModel) async throws -> StartRegistrationResponseModel
+
     /// Set the account keys.
     ///
     ///  - Parameter requestModel: The request model containing the keys to set in the account.
     ///
     func setAccountKeys(requestModel: KeysRequestModel) async throws
+
+    /// Sets the user's key from key connector.
+    ///
+    /// - Parameter requestModel: The request model containing the user's key connector key.
+    ///
+    func setKeyConnectorKey(_ requestModel: SetKeyConnectorKeyRequestModel) async throws
 
     /// Performs the API request to set the user's password.
     ///
@@ -78,6 +101,13 @@ protocol AccountAPIService {
     /// - Parameter requestModel: The request model used to send the request.
     ///
     func updateTempPassword(_ requestModel: UpdateTempPasswordRequestModel) async throws
+
+    /// Verify if the verification token received by email is still valid.
+    ///
+    /// - Parameter email: The email being used to create the account.
+    /// - Parameter emailVerificationToken: The token used to verify the email.
+    ///
+    func verifyEmailToken(email: String, emailVerificationToken: String) async throws
 
     /// Verifies that the entered one-time password matches the one sent to the user.
     ///
@@ -111,6 +141,10 @@ extension APIService: AccountAPIService {
         return response.leakedHashes[hashWithoutPrefix] ?? 0
     }
 
+    func convertToKeyConnector() async throws {
+        _ = try await apiService.send(ConvertToKeyConnectorRequest())
+    }
+
     func createNewAccount(body: CreateAccountRequestModel) async throws -> CreateAccountResponseModel {
         let request = CreateAccountRequest(body: body)
         return try await identityService.send(request)
@@ -128,6 +162,10 @@ extension APIService: AccountAPIService {
         return response
     }
 
+    func registerFinish(body: RegisterFinishRequestModel) async throws -> RegisterFinishResponseModel {
+        try await identityService.send(RegisterFinishRequest(body: body))
+    }
+
     func requestOtp() async throws {
         _ = try await apiService.send(RequestOtpRequest())
     }
@@ -141,8 +179,16 @@ extension APIService: AccountAPIService {
         _ = try await apiService.send(SetAccountKeysRequest(body: requestModel))
     }
 
+    func setKeyConnectorKey(_ requestModel: SetKeyConnectorKeyRequestModel) async throws {
+        _ = try await apiService.send(SetKeyConnectorKeyRequest(requestModel: requestModel))
+    }
+
     func setPassword(_ requestModel: SetPasswordRequestModel) async throws {
         _ = try await apiService.send(SetPasswordRequest(requestModel: requestModel))
+    }
+
+    func startRegistration(requestModel: StartRegistrationRequestModel) async throws -> StartRegistrationResponseModel {
+        try await identityService.send(StartRegistrationRequest(body: requestModel))
     }
 
     func updatePassword(_ requestModel: UpdatePasswordRequestModel) async throws {
@@ -151,6 +197,16 @@ extension APIService: AccountAPIService {
 
     func updateTempPassword(_ requestModel: UpdateTempPasswordRequestModel) async throws {
         _ = try await apiService.send(UpdateTempPasswordRequest(requestModel: requestModel))
+    }
+
+    func verifyEmailToken(email: String, emailVerificationToken: String) async throws {
+        let request = VerifyEmailTokenRequest(
+            requestModel: VerifyEmailTokenRequestModel(
+                email: email,
+                emailVerificationToken: emailVerificationToken
+            )
+        )
+        _ = try await identityService.send(request)
     }
 
     func verifyOtp(_ otp: String) async throws {

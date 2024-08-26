@@ -32,6 +32,7 @@ class AppearanceViewTests: BitwardenTestCase {
     // MARK: Tests
 
     /// Updating the value of the app theme sends the  `.appThemeChanged()` action.
+    @MainActor
     func test_appThemeChanged_updateValue() throws {
         processor.state.appTheme = .light
         let menuField = try subject.inspect().find(settingsMenuField: Localizations.theme)
@@ -40,6 +41,7 @@ class AppearanceViewTests: BitwardenTestCase {
     }
 
     /// Tapping the language button dispatches the `.languageTapped` action.
+    @MainActor
     func test_languageButton_tap() throws {
         let button = try subject.inspect().find(button: Localizations.language)
         try button.tap()

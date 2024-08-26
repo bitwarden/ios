@@ -34,6 +34,7 @@ class LoginRequestViewTests: BitwardenTestCase {
     // MARK: Tests
 
     /// Tapping the cancel button dispatches the `.dismiss` action.
+    @MainActor
     func test_cancelButton_tap() throws {
         let button = try subject.inspect().find(button: Localizations.cancel)
         try button.tap()
@@ -41,6 +42,7 @@ class LoginRequestViewTests: BitwardenTestCase {
     }
 
     /// Tapping the confirm button performs the `.answerRequest(approve:)` effect.
+    @MainActor
     func test_confirmButton_tap() async throws {
         let button = try subject.inspect().find(asyncButton: Localizations.confirmLogIn)
         try await button.tap()
@@ -48,6 +50,7 @@ class LoginRequestViewTests: BitwardenTestCase {
     }
 
     /// Tapping the deny button performs the `.answerRequest(approve:)` effect.
+    @MainActor
     func test_denyButton_tap() async throws {
         let button = try subject.inspect().find(asyncButton: Localizations.denyLogIn)
         try await button.tap()

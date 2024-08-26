@@ -31,6 +31,7 @@ class AccountSecurityViewTests: BitwardenTestCase {
     // MARK: Tests
 
     /// Tapping the Account fingerprint phrase button dispatches the `.accountFingerprintPhrasePressed` effect.
+    @MainActor
     func test_accountFingerprintPhrase_tap() throws {
         let button = try subject.inspect().find(button: Localizations.accountFingerprintPhrase)
         let task = Task {
@@ -41,6 +42,7 @@ class AccountSecurityViewTests: BitwardenTestCase {
     }
 
     /// The view displays a biometrics toggle.
+    @MainActor
     func test_biometricsToggle() throws {
         processor.state.biometricUnlockStatus = .available(.faceID, enabled: false, hasValidIntegrity: false)
         _ = try subject.inspect().find(
@@ -53,6 +55,7 @@ class AccountSecurityViewTests: BitwardenTestCase {
     }
 
     /// The view hides the biometrics toggle when appropriate.
+    @MainActor
     func test_biometricsToggle_hidden() throws {
         processor.state.biometricUnlockStatus = .notAvailable
         XCTAssertNil(
@@ -63,6 +66,7 @@ class AccountSecurityViewTests: BitwardenTestCase {
     }
 
     /// Tapping the delete account button dispatches the `.deleteAccountPressed` action.
+    @MainActor
     func test_deleteAccountButton_tap() throws {
         let button = try subject.inspect().find(button: Localizations.deleteAccount)
         try button.tap()
@@ -70,6 +74,7 @@ class AccountSecurityViewTests: BitwardenTestCase {
     }
 
     /// Tapping the lock now button dispatches the `.lockVault` effect.
+    @MainActor
     func test_lockNowButton_tap() throws {
         let button = try subject.inspect().find(button: Localizations.lockNow)
         let task = Task {
@@ -80,6 +85,7 @@ class AccountSecurityViewTests: BitwardenTestCase {
     }
 
     /// Tapping the pending login requests button dispatches the `.pendingLoginRequestsTapped` action.
+    @MainActor
     func test_pendingRequestsButton_tap() throws {
         let button = try subject.inspect().find(button: Localizations.pendingLogInRequests)
         try button.tap()
@@ -87,6 +93,7 @@ class AccountSecurityViewTests: BitwardenTestCase {
     }
 
     /// Tapping the log out button dispatches the `.logout` action.
+    @MainActor
     func test_logOutButton_tap() throws {
         let button = try subject.inspect().find(button: Localizations.logOut)
         try button.tap()
@@ -94,6 +101,7 @@ class AccountSecurityViewTests: BitwardenTestCase {
     }
 
     /// Tapping the two step login button dispatches the `.logout` action.
+    @MainActor
     func test_twoStepLoginButton_tap() throws {
         let button = try subject.inspect().find(button: Localizations.twoStepLogin)
         try button.tap()
@@ -101,6 +109,7 @@ class AccountSecurityViewTests: BitwardenTestCase {
     }
 
     /// Changing the unlock with pin toggle dispatches the `.toggleUnlockWithPINCode(_)` action.
+    @MainActor
     func test_unlockWithPinToggle_changed() throws {
         if #available(iOS 16.0, macOS 13.0, tvOS 16.0, watchOS 9.0, *) {
             throw XCTSkip("Unable to run test in iOS 16, keep an eye on ViewInspector to see if it gets updated.")
@@ -113,6 +122,7 @@ class AccountSecurityViewTests: BitwardenTestCase {
     // MARK: Snapshots
 
     /// The view renders correctly when biometrics are available.
+    @MainActor
     func test_snapshot_biometricsDisabled_touchID() {
         let subject = AccountSecurityView(
             store: Store(
@@ -132,6 +142,7 @@ class AccountSecurityViewTests: BitwardenTestCase {
     }
 
     /// The view renders correctly when biometrics are available.
+    @MainActor
     func test_snapshot_biometricsEnabled_faceID() {
         let subject = AccountSecurityView(
             store: Store(
@@ -151,6 +162,7 @@ class AccountSecurityViewTests: BitwardenTestCase {
     }
 
     /// The view renders correctly when biometrics are available.
+    @MainActor
     func test_snapshot_biometricsEnabled_faceID_nonValidIntegrity_dark() {
         let subject = AccountSecurityView(
             store: Store(
@@ -170,6 +182,7 @@ class AccountSecurityViewTests: BitwardenTestCase {
     }
 
     /// The view renders correctly when showing the custom session timeout field.
+    @MainActor
     func test_snapshot_customSessionTimeoutField() {
         let subject = AccountSecurityView(
             store: Store(
@@ -182,6 +195,7 @@ class AccountSecurityViewTests: BitwardenTestCase {
     }
 
     /// The view renders correctly when the user doesn't have a master password.
+    @MainActor
     func test_snapshot_noMasterPassword() {
         let subject = AccountSecurityView(
             store: Store(
@@ -197,6 +211,7 @@ class AccountSecurityViewTests: BitwardenTestCase {
     }
 
     /// The view renders correctly when the timeout policy is enabled.
+    @MainActor
     func test_snapshot_timeoutPolicy() {
         let subject = AccountSecurityView(
             store: Store(
@@ -215,6 +230,7 @@ class AccountSecurityViewTests: BitwardenTestCase {
     }
 
     /// The view renders correctly when the timeout policy with an action is enabled.
+    @MainActor
     func test_snapshot_timeoutPolicyWithAction() {
         let subject = AccountSecurityView(
             store: Store(
@@ -235,6 +251,7 @@ class AccountSecurityViewTests: BitwardenTestCase {
     }
 
     /// The view renders correctly.
+    @MainActor
     func test_view_render() {
         assertSnapshot(of: subject, as: .defaultPortrait)
     }

@@ -41,6 +41,7 @@ class AttachmentsProcessorTests: BitwardenTestCase {
     // MARK: Tests
 
     /// `fileSelectionCompleted()` updates the state with the new file values.
+    @MainActor
     func test_fileSelectionCompleted() {
         let data = Data("data".utf8)
         subject.fileSelectionCompleted(fileName: "exampleFile.txt", data: data)
@@ -49,6 +50,7 @@ class AttachmentsProcessorTests: BitwardenTestCase {
     }
 
     /// `perform(_:)` with `.loadPremiumStatus` loads the premium status and displays an alert if necessary.
+    @MainActor
     func test_perform_loadPremiumStatus() async throws {
         vaultRepository.doesActiveAccountHavePremiumResult = .success(false)
 
@@ -59,6 +61,7 @@ class AttachmentsProcessorTests: BitwardenTestCase {
     }
 
     /// `perform(_:)` with `.loadPremiumStatus` records any errors.
+    @MainActor
     func test_perform_loadPremiumStatus_error() async throws {
         vaultRepository.doesActiveAccountHavePremiumResult = .failure(BitwardenTestError.example)
 
@@ -70,6 +73,7 @@ class AttachmentsProcessorTests: BitwardenTestCase {
     }
 
     /// `perform(_:)` with `.save` saves the attachment and updates the view.
+    @MainActor
     func test_perform_save() async throws {
         subject.state.cipher = .fixture()
         subject.state.fileName = "only cool people can see this file.txt"
@@ -86,6 +90,7 @@ class AttachmentsProcessorTests: BitwardenTestCase {
     }
 
     /// `perform(_:)` with `.save` handles any errors.
+    @MainActor
     func test_perform_save_error() async throws {
         subject.state.cipher = .fixture()
         subject.state.fileName = "only cool people can see this file.txt"
@@ -100,6 +105,7 @@ class AttachmentsProcessorTests: BitwardenTestCase {
     }
 
     /// `perform(_:)` with `.save` displays an error if the user doesn't have premium.
+    @MainActor
     func test_perform_save_noFile() async throws {
         subject.state.hasPremium = false
 
@@ -112,6 +118,7 @@ class AttachmentsProcessorTests: BitwardenTestCase {
     }
 
     /// `perform(_:)` with `.save` displays an error if the user doesn't have premium.
+    @MainActor
     func test_perform_save_noPremium() async throws {
         subject.state.fileName = "only cool people can see this file.txt"
         subject.state.hasPremium = false
@@ -128,6 +135,7 @@ class AttachmentsProcessorTests: BitwardenTestCase {
     }
 
     /// `perform(_:)` with `.save` shows an alert if the file is too large.
+    @MainActor
     func test_perform_save_tooLarge() async throws {
         subject.state.fileName = "only cool people can see this file.txt"
         subject.state.fileData = Data(count: 104_857_601)
@@ -142,6 +150,7 @@ class AttachmentsProcessorTests: BitwardenTestCase {
     }
 
     /// `receive(_:)` with `.chooseFilePressed` navigates to the document browser.
+    @MainActor
     func test_receive_chooseFilePressed() async throws {
         subject.receive(.chooseFilePressed)
 
@@ -161,6 +170,7 @@ class AttachmentsProcessorTests: BitwardenTestCase {
     }
 
     /// `.receive(_:)` with `.deletePressed(_)` presents the confirm alert and deletes the attachment.
+    @MainActor
     func test_receive_deletePressed() async throws {
         subject.state.cipher = .fixture()
 
@@ -178,6 +188,7 @@ class AttachmentsProcessorTests: BitwardenTestCase {
     }
 
     /// `.receive(_:)` with `.deletePressed(_)` handles any errors.
+    @MainActor
     func test_receive_deletePressed_error() async throws {
         subject.state.cipher = .fixture()
         vaultRepository.deleteAttachmentResult = .failure(BitwardenTestError.example)
@@ -194,6 +205,7 @@ class AttachmentsProcessorTests: BitwardenTestCase {
     }
 
     /// `.receive(_:)` with `.deletePressed(_)` throws an error if either element is missing its id.
+    @MainActor
     func test_receive_deletePressed_noIdError() async throws {
         subject.state.cipher = .fixture(id: nil)
 
@@ -209,6 +221,7 @@ class AttachmentsProcessorTests: BitwardenTestCase {
     }
 
     /// `receive(_:)` with `.dismissPressed` dismisses the view.
+    @MainActor
     func test_receive_dismissPressed() {
         subject.receive(.dismissPressed)
 
@@ -216,6 +229,7 @@ class AttachmentsProcessorTests: BitwardenTestCase {
     }
 
     /// `receive(_:)` with `.toastShown` updates the state's toast value.
+    @MainActor
     func test_receive_toastShown() {
         let toast = Toast(text: "toast!")
         subject.receive(.toastShown(toast))

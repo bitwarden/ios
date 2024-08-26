@@ -40,7 +40,7 @@ extension CipherType {
 }
 
 extension CipherType: CaseIterable {
-    static var allCases: [CipherType] = [.login, .card, .identity, .secureNote]
+    static let allCases: [CipherType] = [.login, .card, .identity, .secureNote]
 }
 
 extension CipherType: Menuable {

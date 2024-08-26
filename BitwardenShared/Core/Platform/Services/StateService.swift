@@ -163,6 +163,12 @@ protocol StateService: AnyObject {
     ///
     func getEvents(userId: String?) async throws -> [EventData]
 
+    /// Gets whether the intro carousel screen has been shown.
+    ///
+    /// - Returns: Whether the intro carousel screen has been shown.
+    ///
+    func getIntroCarouselShown() async -> Bool
+
     /// Gets the user's last active time within the app.
     /// This value is set when the app is backgrounded.
     ///
@@ -225,13 +231,6 @@ protocol StateService: AnyObject {
     ///
     func getServerConfig(userId: String?) async throws -> ServerConfig?
 
-    /// Gets whether we should check for unassigned items for the user.
-    ///
-    /// - Parameter userId: The user ID associated with the flag.
-    /// - Returns: `false` if the user has seen and acknowledged the unassigned items alert.
-    ///
-    func getShouldCheckOrganizationUnassignedItems(userId: String?) async throws -> Bool
-
     /// Get whether the device should be trusted.
     ///
     /// - Returns: Whether to trust the device.
@@ -286,6 +285,13 @@ protocol StateService: AnyObject {
     /// - Returns: The username generation options for the user ID.
     ///
     func getUsernameGenerationOptions(userId: String?) async throws -> UsernameGenerationOptions?
+
+    /// Gets whether the user uses key connector.
+    ///
+    /// - Parameter userId: The user ID to check if they use key connector.
+    /// - Returns: Whether the user uses key connector.
+    ///
+    func getUsesKeyConnector(userId: String?) async throws -> Bool
 
     /// Gets the session timeout value.
     ///
@@ -410,6 +416,12 @@ protocol StateService: AnyObject {
     ///
     func setForcePasswordResetReason(_ reason: ForcePasswordResetReason?, userId: String?) async throws
 
+    /// Sets whether the intro carousel screen has been shown.
+    ///
+    /// - Parameter shown: Whether the intro carousel screen has been shown.
+    ///
+    func setIntroCarouselShown(_ shown: Bool) async
+
     /// Sets the last active time within the app.
     ///
     /// - Parameters:
@@ -489,15 +501,6 @@ protocol StateService: AnyObject {
     ///
     func setServerConfig(_ config: ServerConfig?, userId: String?) async throws
 
-    /// Sets whether or not we should check for unassigned ciphers in an organization for
-    /// a particular user.
-    ///
-    /// - Parameters:
-    ///   - shouldCheck: Whether or not we should check for unassigned ciphers.
-    ///   - userId: The user ID that acknowledged the alert.
-    ///
-    func setShouldCheckOrganizationUnassignedItems(_ shouldCheck: Bool?, userId: String?) async throws
-
     /// Set whether to trust the device.
     ///
     /// - Parameter shouldTrustDevice: Whether to trust the device.
@@ -533,9 +536,11 @@ protocol StateService: AnyObject {
     ///
     func setUnsuccessfulUnlockAttempts(_ attempts: Int, userId: String?) async throws
 
-    /// Sets user has master password to true.
+    /// Sets whether the user has a master password.
     ///
-    func setUserHasMasterPassword() async throws
+    /// - Parameter hasMasterPassword: Whether the user has a master password.
+    ///
+    func setUserHasMasterPassword(_ hasMasterPassword: Bool) async throws
 
     /// Sets the username generation options for a user ID.
     ///
@@ -544,6 +549,14 @@ protocol StateService: AnyObject {
     ///   - userId: The user ID associated with the username generation options.
     ///
     func setUsernameGenerationOptions(_ options: UsernameGenerationOptions?, userId: String?) async throws
+
+    /// Sets whether the user uses key connector.
+    ///
+    /// - Parameters:
+    ///   - usesKeyConnector: Whether the user uses key connector.
+    ///   - userId: The user ID to set whether they use key connector.
+    ///
+    func setUsesKeyConnector(_ usesKeyConnector: Bool, userId: String?) async throws
 
     /// Sets the session timeout value.
     ///
@@ -780,6 +793,14 @@ extension StateService {
         try await getUsernameGenerationOptions(userId: nil)
     }
 
+    /// Gets whether the user uses key connector.
+    ///
+    /// - Returns: Whether the user uses key connector.
+    ///
+    func getUsesKeyConnector() async throws -> Bool {
+        try await getUsesKeyConnector(userId: nil)
+    }
+
     /// Gets the session timeout value.
     ///
     /// - Returns: The session timeout value.
@@ -945,6 +966,14 @@ extension StateService {
         try await setUsernameGenerationOptions(options, userId: nil)
     }
 
+    /// Sets whether the user uses key connector.
+    ///
+    /// - Parameter usesKeyConnector: Whether the user uses key connector.
+    ///
+    func setUsesKeyConnector(_ usesKeyConnector: Bool) async throws {
+        try await setUsesKeyConnector(usesKeyConnector, userId: nil)
+    }
+
     /// Sets the session timeout value.
     ///
     /// - Parameter value: The value that dictates how many seconds in the future a timeout should occur.
@@ -964,6 +993,9 @@ enum StateServiceError: Error {
 
     /// There isn't an active account.
     case noActiveAccount
+
+    /// The user has no private key.
+    case noEncryptedPrivateKey
 
     /// The user has no pin protected user key.
     case noPinProtectedUserKey
@@ -1088,7 +1120,7 @@ actor DefaultStateService: StateService { // swiftlint:disable:this type_body_le
     func getAccountEncryptionKeys(userId: String?) async throws -> AccountEncryptionKeys {
         let userId = try userId ?? getActiveAccountUserId()
         guard let encryptedPrivateKey = appSettingsStore.encryptedPrivateKey(userId: userId) else {
-            throw StateServiceError.noActiveAccount
+            throw StateServiceError.noEncryptedPrivateKey
         }
         return AccountEncryptionKeys(
             encryptedPrivateKey: encryptedPrivateKey,
@@ -1163,6 +1195,10 @@ actor DefaultStateService: StateService { // swiftlint:disable:this type_body_le
         return appSettingsStore.events(userId: userId)
     }
 
+    func getIntroCarouselShown() async -> Bool {
+        appSettingsStore.introCarouselShown
+    }
+
     func getLastActiveTime(userId: String?) async throws -> Date? {
         let userId = try userId ?? getActiveAccountUserId()
         return appSettingsStore.lastActiveTime(userId: userId)
@@ -1205,11 +1241,6 @@ actor DefaultStateService: StateService { // swiftlint:disable:this type_body_le
         return appSettingsStore.serverConfig(userId: userId)
     }
 
-    func getShouldCheckOrganizationUnassignedItems(userId: String?) async throws -> Bool {
-        let userId = try userId ?? getActiveAccountUserId()
-        return appSettingsStore.shouldCheckOrganizationUnassignedItems(userId: userId) ?? true
-    }
-
     func getShouldTrustDevice(userId: String) async -> Bool? {
         appSettingsStore.shouldTrustDevice(userId: userId)
     }
@@ -1249,6 +1280,11 @@ actor DefaultStateService: StateService { // swiftlint:disable:this type_body_le
     func getUsernameGenerationOptions(userId: String?) async throws -> UsernameGenerationOptions? {
         let userId = try userId ?? getActiveAccountUserId()
         return appSettingsStore.usernameGenerationOptions(userId: userId)
+    }
+
+    func getUsesKeyConnector(userId: String?) async throws -> Bool {
+        let userId = try userId ?? getActiveAccountUserId()
+        return appSettingsStore.usesKeyConnector(userId: userId)
     }
 
     func getVaultTimeout(userId: String?) async throws -> SessionTimeoutValue {
@@ -1366,6 +1402,10 @@ actor DefaultStateService: StateService { // swiftlint:disable:this type_body_le
         state.accounts[userId]?.profile.forcePasswordResetReason = reason
     }
 
+    func setIntroCarouselShown(_ shown: Bool) async {
+        appSettingsStore.introCarouselShown = shown
+    }
+
     func setLastActiveTime(_ date: Date?, userId: String?) async throws {
         let userId = try userId ?? getActiveAccountUserId()
         appSettingsStore.setLastActiveTime(date, userId: userId)
@@ -1425,11 +1465,6 @@ actor DefaultStateService: StateService { // swiftlint:disable:this type_body_le
         appSettingsStore.setServerConfig(config, userId: userId)
     }
 
-    func setShouldCheckOrganizationUnassignedItems(_ shouldCheck: Bool?, userId: String?) async throws {
-        let userId = try userId ?? getActiveAccountUserId()
-        appSettingsStore.setShouldCheckOrganizationUnassignedItems(shouldCheck, userId: userId)
-    }
-
     func setShouldTrustDevice(_ shouldTrustDevice: Bool?, userId: String) {
         appSettingsStore.setShouldTrustDevice(shouldTrustDevice: shouldTrustDevice, userId: userId)
     }
@@ -1453,13 +1488,13 @@ actor DefaultStateService: StateService { // swiftlint:disable:this type_body_le
         appSettingsStore.setUnsuccessfulUnlockAttempts(attempts, userId: userId)
     }
 
-    func setUserHasMasterPassword() async throws {
+    func setUserHasMasterPassword(_ hasMasterPassword: Bool) async throws {
         let userId = try getActiveAccountUserId()
         var state = appSettingsStore.state ?? State()
         defer { appSettingsStore.state = state }
 
         guard var profile = state.accounts[userId]?.profile else { return }
-        profile.userDecryptionOptions?.hasMasterPassword = true
+        profile.userDecryptionOptions?.hasMasterPassword = hasMasterPassword
 
         state.accounts[userId]?.profile = profile
     }
@@ -1467,6 +1502,11 @@ actor DefaultStateService: StateService { // swiftlint:disable:this type_body_le
     func setUsernameGenerationOptions(_ options: UsernameGenerationOptions?, userId: String?) async throws {
         let userId = try userId ?? getActiveAccountUserId()
         appSettingsStore.setUsernameGenerationOptions(options, userId: userId)
+    }
+
+    func setUsesKeyConnector(_ usesKeyConnector: Bool, userId: String?) async throws {
+        let userId = try userId ?? getActiveAccountUserId()
+        appSettingsStore.setUsesKeyConnector(usesKeyConnector, userId: userId)
     }
 
     func setVaultTimeout(value: SessionTimeoutValue, userId: String?) async throws {

@@ -157,16 +157,19 @@ class DefaultConfigService: ConfigService {
     }
 
     func getFeatureFlag(_ flag: FeatureFlag, defaultValue: Bool = false, forceRefresh: Bool = false) async -> Bool {
+        guard flag.isRemotelyConfigured else { return defaultValue }
         let configuration = await getConfig(forceRefresh: forceRefresh)
         return configuration?.featureStates[flag]?.boolValue ?? defaultValue
     }
 
     func getFeatureFlag(_ flag: FeatureFlag, defaultValue: Int = 0, forceRefresh: Bool = false) async -> Int {
+        guard flag.isRemotelyConfigured else { return defaultValue }
         let configuration = await getConfig(forceRefresh: forceRefresh)
         return configuration?.featureStates[flag]?.intValue ?? defaultValue
     }
 
     func getFeatureFlag(_ flag: FeatureFlag, defaultValue: String? = nil, forceRefresh: Bool = false) async -> String? {
+        guard flag.isRemotelyConfigured else { return defaultValue }
         let configuration = await getConfig(forceRefresh: forceRefresh)
         return configuration?.featureStates[flag]?.stringValue ?? defaultValue
     }

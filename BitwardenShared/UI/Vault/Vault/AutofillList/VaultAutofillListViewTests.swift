@@ -30,6 +30,7 @@ class VaultAutofillListViewTests: BitwardenTestCase {
     // MARK: Tests
 
     /// Tapping the add an item button dispatches the `.addTapped` action.
+    @MainActor
     func test_addItemButton_tap() throws {
         let button = try subject.inspect().find(button: Localizations.add)
         try button.tap()
@@ -37,6 +38,7 @@ class VaultAutofillListViewTests: BitwardenTestCase {
     }
 
     /// Tapping the add an item button dispatches the `.addTapped` action.
+    @MainActor
     func test_addItemButton_tap_fido2CreationFlowEmptyView() throws {
         processor.state.isCreatingFido2Credential = true
         processor.state.vaultListSections = []
@@ -47,6 +49,7 @@ class VaultAutofillListViewTests: BitwardenTestCase {
     }
 
     /// Tapping the cancel button dispatches the `.cancelTapped` action.
+    @MainActor
     func test_cancelButton_tap() throws {
         let button = try subject.inspect().find(button: Localizations.cancel)
         try button.tap()
@@ -56,6 +59,7 @@ class VaultAutofillListViewTests: BitwardenTestCase {
     // MARK: Snapshots
 
     /// The empty view renders correctly.
+    @MainActor
     func test_snapshot_vaultAutofillList_empty() {
         let account = ProfileSwitcherItem.anneAccount
         processor.state.profileSwitcherState.accounts = [account]
@@ -67,6 +71,7 @@ class VaultAutofillListViewTests: BitwardenTestCase {
     }
 
     /// The empty view renders correctly when creating Fido2 credential.
+    @MainActor
     func test_snapshot_vaultAutofillList_emptyFido2Creation() {
         let account = ProfileSwitcherItem.anneAccount
         processor.state.profileSwitcherState.accounts = [account]
@@ -81,6 +86,7 @@ class VaultAutofillListViewTests: BitwardenTestCase {
     }
 
     /// The populated view renders correctly.
+    @MainActor
     func test_snapshot_vaultAutofillList_populated() {
         let account = ProfileSwitcherItem.anneAccount
         processor.state.profileSwitcherState.accounts = [account]
@@ -127,6 +133,7 @@ class VaultAutofillListViewTests: BitwardenTestCase {
     }
 
     /// The populated view renders correctly when mixing passwords and Fido2 credentials on Fido2 creation context.
+    @MainActor
     func test_snapshot_vaultAutofillList_fido2Creation() { // swiftlint:disable:this function_body_length
         let account = ProfileSwitcherItem.anneAccount
         processor.state.profileSwitcherState.accounts = [account]
@@ -198,6 +205,7 @@ class VaultAutofillListViewTests: BitwardenTestCase {
     }
 
     /// The populated view renders correctly when mixing passwords and Fido2 credentials on multiple sections.
+    @MainActor
     func test_snapshot_vaultAutofillList_populatedWithFido2_multipleSections() { // swiftlint:disable:this function_body_length
         // swiftlint:disable:previous line_length
         let account = ProfileSwitcherItem.anneAccount

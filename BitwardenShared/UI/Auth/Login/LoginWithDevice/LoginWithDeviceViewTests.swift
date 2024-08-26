@@ -34,6 +34,7 @@ class LoginWithDeviceViewTests: BitwardenTestCase {
     // MARK: Tests
 
     /// Tapping the cancel button dispatches the `.dismiss` action.
+    @MainActor
     func test_cancelButton_tap() throws {
         let button = try subject.inspect().find(button: Localizations.cancel)
         try button.tap()
@@ -41,6 +42,7 @@ class LoginWithDeviceViewTests: BitwardenTestCase {
     }
 
     /// Tapping the resend notification button performs the `.resendNotification` effect.
+    @MainActor
     func test_resendNotificationButton_tap() async throws {
         let button = try subject.inspect().find(asyncButton: Localizations.resendNotification)
         try await button.tap()
@@ -48,6 +50,7 @@ class LoginWithDeviceViewTests: BitwardenTestCase {
     }
 
     /// Tapping the view all login options button dispatches the `.dismiss` action.
+    @MainActor
     func test_viewAllLoginOptionsButton_tap() throws {
         let button = try subject.inspect().find(button: Localizations.viewAllLoginOptions)
         try button.tap()

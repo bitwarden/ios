@@ -1,9 +1,6 @@
 name: Build
 
 on:
-  push:
-    branches:
-      - main
   workflow_dispatch:
     inputs:
       build-variant:
@@ -25,6 +22,24 @@ on:
         description: "Optional. Xcode version to use. Overrides default."
         required: false
         type: string
+  workflow_call:
+    inputs:
+      build-variant:
+        description: "Which variant of the app to build"
+        required: false
+        type: string
+      build-version:
+        description: "Version string to use, in X.Y.Z format"
+        required: false
+        type: string
+      build-number:
+        description: "Build number to use"
+        required: false
+        type: string
+      xcode-version:
+        description: "Xcode version to use"
+        required: false
+        type: string
 
 env:
   BUILD_VARIANT: ${{ inputs.build-variant || 'Beta' }}
@@ -44,6 +59,57 @@ jobs:
         with:
           fetch-depth: 0
           filter: tree:0
+
+      - name: Calculate build version and number
+        id: calculate
+        run: |
+          if [[ ! -z "${{ inputs.build-version }}" ]]; then
+            echo -e "\nApplying build version override"
+            next_version=${{ inputs.build-version }}
+          else
+            echo -e "\nCalculating next version..."
+            current_year=$(date +%Y)
+            current_month=$(date +%-m)
+
+            latest_tag_version=$(git tag --sort=committerdate --list | tail -1)
+            latest_version=${latest_tag_version:1}  # remove 'v' from tag version
+
+            latest_major_version=$(echo $latest_version | cut -d "." -f 1)
+            latest_minor_version=$(echo $latest_version | cut -d "." -f 2)
+            latest_patch_version=$(echo $latest_version | cut -d "." -f 3)
+
+            echo "  Current Year:         $current_year"
+            echo "  Current Month:        $current_month"
+            echo "  Latest Version:       $latest_version"
+            echo "  Latest Major Version: $latest_major_version"
+            echo "  Latest Minor Version: $latest_minor_version"
+            echo "  Latest Patch Version: $latest_patch_version"
+
+            if [[ "$current_year" == "$latest_major_version" && "$current_month" == "$latest_minor_version" ]]; then
+              next_version="${latest_major_version}.${latest_minor_version}.$(($latest_patch_version + 1))"
+            else
+              next_version="${current_year}.${current_month}.0"
+            fi
+          fi
+
+          if [[ ! -z "${{ inputs.build-number }}" ]]; then
+            echo -e "\nApplying build number override"
+            next_number=${{ inputs.build-number }}
+          else
+            echo -e "\nCalculating build number..."
+            next_number=$(($GITHUB_RUN_NUMBER))
+          fi
+
+          echo -e "\n"
+          echo "version=$next_version" >> $GITHUB_OUTPUT
+          echo "build_number=$next_number" >> $GITHUB_OUTPUT
+
+      - name: Print values
+        run: |
+          echo "**Variant**: ${{ env.BUILD_VARIANT }}" | tee -a $GITHUB_STEP_SUMMARY
+          echo "**Version**: ${{ steps.calculate.outputs.version }}" | tee -a $GITHUB_STEP_SUMMARY
+          echo "**Number**: ${{ steps.calculate.outputs.build_number }}" | tee -a $GITHUB_STEP_SUMMARY
+          echo "**Xcode**: ${{ env.XCODE_VERSION }}" | tee -a $GITHUB_STEP_SUMMARY
 
       - name: Set Xcode version
         uses: maxim-lobanov/setup-xcode@60606e260d2fc5762a71e64e74b2174e8ea3c8bd # v1.6.0
@@ -280,9 +346,9 @@ jobs:
         with:
           bundler-cache: true
 
-      - name: Install Fastlane, Mint, xcbeautify, and yq
+      - name: Install Fastlane, Mint
         run: |
-          brew install fastlane mint xcbeautify yq
+          brew install fastlane mint
 
       - name: Install Mint packages
         if: steps.mint-cache.outputs.cache-hit != 'true'
@@ -293,55 +359,20 @@ jobs:
         run: |
           ./Scripts/select_variant.sh ${{ env.BUILD_VARIANT }}
 
-      - name: Calculate build version
-        id: calculate
-        run: |
-          if [[ ! -z "${{ inputs.build-version }}" ]]; then
-            echo -e "\nApplying version override"
-            next_version=${{ inputs.build-version }}
-          else
-            echo -e "\nCalculating next version..."
-            current_year=$(date +%Y)
-            current_month=$(date +%-m)
-
-            latest_tag_version=$(git tag --sort=committerdate --list | tail -1)
-            latest_version=${latest_tag_version:1}  # remove 'v' from tag version
-
-            latest_major_version=$(echo $latest_version | cut -d "." -f 1)
-            latest_minor_version=$(echo $latest_version | cut -d "." -f 2)
-            latest_patch_version=$(echo $latest_version | cut -d "." -f 3)
-
-            echo "  Current Year:         $current_year"
-            echo "  Current Month:        $current_month"
-            echo "  Latest Version:       $latest_version"
-            echo "  Latest Major Version: $latest_major_version"
-            echo "  Latest Minor Version: $latest_minor_version"
-            echo "  Latest Patch Version: $latest_patch_version"
-
-            if [[ "$current_year" == "$latest_major_version" && "$current_month" == "$latest_minor_version" ]]; then
-              next_version="${latest_major_version}.${latest_minor_version}.$(($latest_patch_version + 1))"
-            else
-              next_version="${current_year}.${current_month}.0"
-            fi
-          fi
-
-          echo "Next Version: $next_version"
-          echo "version=$next_version" >> $GITHUB_OUTPUT
-
-      - name: Update build version
+      - name: Update build version and number
         env:
           build_version: ${{ steps.calculate.outputs.version }}
+          build_number: ${{ steps.calculate.outputs.build_number }}
         run: |
           yq -i '.settings.MARKETING_VERSION = "${{ env.build_version }}"' 'project.yml'
+          yq -i '.settings.CURRENT_PROJECT_VERSION = "${{ env.build_number }}"' 'project.yml'
 
-      - name: Update build number
+      - name: Update CI build info
         run: |
-          BUILD_NUMBER=$(($GITHUB_RUN_NUMBER))
-          yq -i ".settings.CURRENT_PROJECT_VERSION = ${{ inputs.build-number || '$BUILD_NUMBER' }}" 'project.yml'
+          ./Scripts/update_app_ci_build_info.sh ${{ github.run_id }} ${{ github.run_number }} ${{ github.run_attempt }}
 
       - name: Build iOS app
         run: |
-          BUILD_NUMBER=$(($GITHUB_RUN_NUMBER))
           ./Scripts/build.sh
 
       - name: Prepare IPA & dSYM files for upload to GitHub
@@ -351,22 +382,26 @@ jobs:
           cp -rv build/Bitwarden.xcarchive/dSYMs/*.dSYM export/dSYMs
 
       - name: Upload IPA & dSYM files
-        uses: actions/upload-artifact@89ef406dd8d7e03cfd12d9e0a4a378f454709029 # v4.3.5
+        uses: actions/upload-artifact@834a144ee995460fba8ed112a2fc961b36a5ec5a # v4.3.6
         with:
-          name: Bitwarden iOS
+          name: Bitwarden iOS ${{ steps.calculate.outputs.version }} (${{ steps.calculate.outputs.build_number }}) ${{ env.BUILD_VARIANT }} ${{ env.XCODE_VERSION }}
           path: export
           if-no-files-found: error
+      
+      - name: Set up private auth key
+        run: |
+          mkdir ~/private_keys
+          cat << EOF > ~/private_keys/AuthKey_J46C83CB96.p8
+          ${{ secrets.APP_STORE_CONNECT_AUTH_KEY }}
+          EOF
 
       - name: Validate app with App Store Connect
-        env:
-          APPLE_ID_USERNAME: ${{ secrets.APPLE_ID_USERNAME }}
-          APPLE_ID_PASSWORD: ${{ secrets.APPLE_ID_PASSWORD }}
         run: |
           xcrun altool --validate-app \
             --type ios \
             --file "export/Bitwarden.ipa" \
-            --username "$APPLE_ID_USERNAME" \
-            --password @env:APPLE_ID_PASSWORD
+            --apiKey "J46C83CB96" \
+            --apiIssuer "${{ secrets.APP_STORE_CONNECT_TEAM_ISSUER }}"
 
       - name: Upload app to TestFlight with Fastlane
         run: |

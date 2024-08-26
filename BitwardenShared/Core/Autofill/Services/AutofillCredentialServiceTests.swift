@@ -18,6 +18,7 @@ class AutofillCredentialServiceTests: BitwardenTestCase { // swiftlint:disable:t
     var identityStore: MockCredentialIdentityStore!
     var pasteboardService: MockPasteboardService!
     var stateService: MockStateService!
+    var totpService: MockTOTPService!
     var subject: DefaultAutofillCredentialService!
     var vaultTimeoutService: MockVaultTimeoutService!
 
@@ -37,6 +38,7 @@ class AutofillCredentialServiceTests: BitwardenTestCase { // swiftlint:disable:t
         identityStore = MockCredentialIdentityStore()
         pasteboardService = MockPasteboardService()
         stateService = MockStateService()
+        totpService = MockTOTPService()
         vaultTimeoutService = MockVaultTimeoutService()
 
         subject = DefaultAutofillCredentialService(
@@ -49,6 +51,7 @@ class AutofillCredentialServiceTests: BitwardenTestCase { // swiftlint:disable:t
             identityStore: identityStore,
             pasteboardService: pasteboardService,
             stateService: stateService,
+            totpService: totpService,
             vaultTimeoutService: vaultTimeoutService
         )
     }
@@ -67,6 +70,7 @@ class AutofillCredentialServiceTests: BitwardenTestCase { // swiftlint:disable:t
         identityStore = nil
         pasteboardService = nil
         stateService = nil
+        totpService = nil
         subject = nil
         vaultTimeoutService = nil
     }
@@ -208,12 +212,13 @@ class AutofillCredentialServiceTests: BitwardenTestCase { // swiftlint:disable:t
 
         XCTAssertEqual(credential.password, "password123")
         XCTAssertEqual(credential.user, "user@bitwarden.com")
-        XCTAssertEqual(pasteboardService.copiedString, "123456")
+        XCTAssertTrue(totpService.copyTotpIfPossibleCalled)
     }
 
-    /// `provideCredential(for:)` doesn't copy the cipher's TOTP code if the copy TOTP code setting
-    /// has been disabled.
-    func test_provideCredential_totpCopyDisabled() async throws {
+    /// `provideCredential(for:)` attempting to copy the cipher's TOTP code when returning the credential
+    /// throws when gettning if active account has premium thus it gets logged by the reporter
+    /// but the credential is still returned.
+    func test_provideCredential_totpCopyThrows() async throws {
         cipherService.fetchCipherResult = .success(
             .fixture(login: .fixture(
                 password: "password123",
@@ -222,8 +227,8 @@ class AutofillCredentialServiceTests: BitwardenTestCase { // swiftlint:disable:t
             ))
         )
         stateService.activeAccount = .fixture()
-        stateService.disableAutoTotpCopyByUserId["1"] = true
         vaultTimeoutService.isClientLocked["1"] = false
+        totpService.copyTotpIfPossibleError = BitwardenTestError.example
 
         let credential = try await subject.provideCredential(
             for: "1",
@@ -233,59 +238,8 @@ class AutofillCredentialServiceTests: BitwardenTestCase { // swiftlint:disable:t
 
         XCTAssertEqual(credential.password, "password123")
         XCTAssertEqual(credential.user, "user@bitwarden.com")
-        XCTAssertNil(pasteboardService.copiedString)
-    }
-
-    /// `provideCredential(for:)` doesn't copy the cipher's TOTP code if the user doesn't have premium access.
-    func test_provideCredential_totpCopyNotPremium() async throws {
-        cipherService.fetchCipherResult = .success(
-            .fixture(login: .fixture(
-                password: "password123",
-                username: "user@bitwarden.com",
-                totp: "totp"
-            ))
-        )
-        stateService.activeAccount = .fixture()
-        stateService.doesActiveAccountHavePremiumResult = .success(false)
-        vaultTimeoutService.isClientLocked["1"] = false
-
-        let credential = try await subject.provideCredential(
-            for: "1",
-            autofillCredentialServiceDelegate: autofillCredentialServiceDelegate,
-            repromptPasswordValidated: false
-        )
-
-        XCTAssertEqual(credential.password, "password123")
-        XCTAssertEqual(credential.user, "user@bitwarden.com")
-        XCTAssertNil(pasteboardService.copiedString)
-    }
-
-    /// `provideCredential(for:)` copies the cipher's TOTP code if the user doesn't have premium
-    /// but the org uses TOTP.
-    func test_provideCredential_totpCopyOrgUseTotp() async throws {
-        cipherService.fetchCipherResult = .success(
-            .fixture(
-                login: .fixture(
-                    password: "password123",
-                    username: "user@bitwarden.com",
-                    totp: "totp"
-                ),
-                organizationUseTotp: true
-            )
-        )
-        stateService.activeAccount = .fixture()
-        stateService.doesActiveAccountHavePremiumResult = .success(false)
-        vaultTimeoutService.isClientLocked["1"] = false
-
-        let credential = try await subject.provideCredential(
-            for: "1",
-            autofillCredentialServiceDelegate: autofillCredentialServiceDelegate,
-            repromptPasswordValidated: false
-        )
-
-        XCTAssertEqual(credential.password, "password123")
-        XCTAssertEqual(credential.user, "user@bitwarden.com")
-        XCTAssertEqual(pasteboardService.copiedString, "123456")
+        XCTAssertTrue(totpService.copyTotpIfPossibleCalled)
+        XCTAssertEqual(errorReporter.errors as? [BitwardenTestError], [.example])
     }
 
     /// `provideCredential(for:)` throws an error if the user's vault is locked.
@@ -334,6 +288,10 @@ class AutofillCredentialServiceTests: BitwardenTestCase { // swiftlint:disable:t
         )
 
         XCTAssertFalse(autofillCredentialServiceDelegate.unlockVaultWithNeverlockKeyCalled)
+        XCTAssertEqual(fido2UserInterfaceHelper.userVerificationPreferenceSetup, .discouraged)
+
+        XCTAssertTrue(totpService.copyTotpIfPossibleCalled)
+        XCTAssertTrue(errorReporter.errors.isEmpty)
 
         XCTAssertEqual(result.userHandle, expectedAssertionResult.userHandle)
         XCTAssertEqual(result.relyingParty, passkeyIdentity.relyingPartyIdentifier)
@@ -341,6 +299,61 @@ class AutofillCredentialServiceTests: BitwardenTestCase { // swiftlint:disable:t
         XCTAssertEqual(result.clientDataHash, passkeyRequest.clientDataHash)
         XCTAssertEqual(result.authenticatorData, expectedAssertionResult.authenticatorData)
         XCTAssertEqual(result.credentialID, expectedAssertionResult.credentialId)
+    }
+
+    /// `provideFido2Credential(for:autofillCredentialServiceDelegate:fido2UserVerificationMediatorDelegate:)`
+    /// attempting to copy the cipher's TOTP code when returning the credential
+    /// throws when gettning if active account has premium thus it gets logged by the reporter
+    /// but the credential is still returned.
+    @available(iOS 17.0, *)
+    func test_provideFido2Credential_totpCopyThrows() async throws {
+        stateService.activeAccount = .fixture()
+        vaultTimeoutService.isClientLocked["1"] = false
+        let passkeyIdentity = ASPasskeyCredentialIdentity.fixture()
+        let passkeyRequest = ASPasskeyCredentialRequest.fixture(credentialIdentity: passkeyIdentity)
+        let expectedAssertionResult = GetAssertionResult.fixture(
+            selectedCredential: .fixture(
+                cipherView: .fixture(
+                    login: .fixture(
+                        totp: "totp"
+                    )
+                )
+            )
+        )
+        totpService.copyTotpIfPossibleError = BitwardenTestError.example
+
+        clientService.mockPlatform.fido2Mock
+            .clientFido2AuthenticatorMock
+            .getAssertionMocker
+            .withVerification { request in
+                request.rpId == passkeyIdentity.relyingPartyIdentifier
+                    && request.clientDataHash == passkeyRequest.clientDataHash
+                    && request.allowList?[0].id == passkeyIdentity.credentialID
+                    && request.allowList?[0].ty == "public-key"
+                    && request.allowList?[0].transports == nil
+                    && !request.options.rk
+                    && request.options.uv == .discouraged
+                    && request.extensions == nil
+            }
+            .withResult(expectedAssertionResult)
+
+        let result = try await subject.provideFido2Credential(
+            for: passkeyRequest,
+            autofillCredentialServiceDelegate: autofillCredentialServiceDelegate,
+            fido2UserInterfaceHelperDelegate: fido2UserInterfaceHelperDelegate
+        )
+
+        XCTAssertFalse(autofillCredentialServiceDelegate.unlockVaultWithNeverlockKeyCalled)
+        XCTAssertEqual(fido2UserInterfaceHelper.userVerificationPreferenceSetup, .discouraged)
+
+        XCTAssertEqual(result.userHandle, expectedAssertionResult.userHandle)
+        XCTAssertEqual(result.relyingParty, passkeyIdentity.relyingPartyIdentifier)
+        XCTAssertEqual(result.signature, expectedAssertionResult.signature)
+        XCTAssertEqual(result.clientDataHash, passkeyRequest.clientDataHash)
+        XCTAssertEqual(result.authenticatorData, expectedAssertionResult.authenticatorData)
+        XCTAssertEqual(result.credentialID, expectedAssertionResult.credentialId)
+        XCTAssertTrue(totpService.copyTotpIfPossibleCalled)
+        XCTAssertEqual(errorReporter.errors as? [BitwardenTestError], [.example])
     }
 
     /// `provideFido2Credential(for:autofillCredentialServiceDelegate:fido2UserVerificationMediatorDelegate:)`
@@ -382,6 +395,7 @@ class AutofillCredentialServiceTests: BitwardenTestCase { // swiftlint:disable:t
         XCTAssertTrue(autofillCredentialServiceDelegate.unlockVaultWithNeverlockKeyCalled)
 
         XCTAssertNotNil(fido2UserInterfaceHelper.fido2UserInterfaceHelperDelegate)
+        XCTAssertEqual(fido2UserInterfaceHelper.userVerificationPreferenceSetup, .discouraged)
 
         XCTAssertEqual(result.userHandle, expectedAssertionResult.userHandle)
         XCTAssertEqual(result.relyingParty, passkeyIdentity.relyingPartyIdentifier)
@@ -426,6 +440,7 @@ class AutofillCredentialServiceTests: BitwardenTestCase { // swiftlint:disable:t
         XCTAssertFalse(autofillCredentialServiceDelegate.unlockVaultWithNeverlockKeyCalled)
 
         XCTAssertNotNil(fido2UserInterfaceHelper.fido2UserInterfaceHelperDelegate)
+        XCTAssertEqual(fido2UserInterfaceHelper.userVerificationPreferenceSetup, .discouraged)
 
         XCTAssertEqual(result.userHandle, expectedAssertionResult.userHandle)
         XCTAssertEqual(result.relyingParty, passkeyIdentity.relyingPartyIdentifier)
@@ -542,6 +557,7 @@ class AutofillCredentialServiceTests: BitwardenTestCase { // swiftlint:disable:t
             for: passkeyParameters,
             fido2UserInterfaceHelperDelegate: fido2UserInterfaceHelperDelegate
         )
+        XCTAssertEqual(fido2UserInterfaceHelper.userVerificationPreferenceSetup, .preferred)
 
         XCTAssertEqual(result.userHandle, expectedAssertionResult.userHandle)
         XCTAssertEqual(result.relyingParty, passkeyParameters.relyingPartyIdentifier)

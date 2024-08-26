@@ -30,6 +30,7 @@ class FoldersViewTests: BitwardenTestCase {
     // MARK: Tests
 
     /// Tapping the add button dispatches the `.add` action.
+    @MainActor
     func test_addButton_tap() throws {
         let button = try subject.inspect().find(button: Localizations.add)
         try button.tap()
@@ -37,6 +38,7 @@ class FoldersViewTests: BitwardenTestCase {
     }
 
     /// Tapping on a folder button dispatches the `.folderTapped(id:)` action.
+    @MainActor
     func test_folderButton_tap() throws {
         processor.state.folders = [.fixture(id: "test", name: "Secret Folder")]
 
@@ -48,12 +50,14 @@ class FoldersViewTests: BitwardenTestCase {
     // MARK: Snapshots
 
     /// The empty view renders correctly.
+    @MainActor
     func test_snapshot_empty() {
         processor.state.folders = []
         assertSnapshot(of: subject, as: .defaultPortrait)
     }
 
     /// The folders view renders correctly.
+    @MainActor
     func test_snapshot_folders() {
         processor.state.folders = [
             .fixture(id: "test", name: "Secret Folder"),

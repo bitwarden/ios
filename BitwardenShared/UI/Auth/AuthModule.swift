@@ -45,6 +45,9 @@ extension DefaultAppModule: AuthModule {
     }
 
     func makeAuthRouter() -> AnyRouter<AuthEvent, AuthRoute> {
-        AuthRouter(services: services).asAnyRouter()
+        AuthRouter(
+            isInAppExtension: appExtensionDelegate != nil,
+            services: services
+        ).asAnyRouter()
     }
 }

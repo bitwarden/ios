@@ -30,6 +30,7 @@ class AppExtensionViewTests: BitwardenTestCase {
     // MARK: Tests
 
     /// Tapping the activate button dispatches the `.activateButtonTapped` action.
+    @MainActor
     func test_activateButton_tap() throws {
         let button = try subject.inspect().find(button: Localizations.extensionEnable)
         try button.tap()
@@ -39,6 +40,7 @@ class AppExtensionViewTests: BitwardenTestCase {
     // MARK: Snapshots
 
     /// The activate view renders correctly.
+    @MainActor
     func test_snapshot_appExtension_activate() {
         assertSnapshots(
             of: subject.navStackWrapped,
@@ -47,6 +49,7 @@ class AppExtensionViewTests: BitwardenTestCase {
     }
 
     /// The almost done view renders correctly.
+    @MainActor
     func test_snapshot_appExtension_almostDone() {
         processor.state.extensionActivated = true
         assertSnapshots(
@@ -56,6 +59,7 @@ class AppExtensionViewTests: BitwardenTestCase {
     }
 
     /// The reactivate view renders correctly.
+    @MainActor
     func test_snapshot_appExtension_reactivate() {
         processor.state.extensionActivated = true
         processor.state.extensionEnabled = true

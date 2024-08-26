@@ -56,6 +56,7 @@ final class ProfileSwitcherRowTests: BitwardenTestCase {
     }
 
     /// Snapshot test for the active account row
+    @MainActor
     func test_snapshot_active_divider() throws {
         processor.state = .init(
             shouldTakeAccessibilityFocus: false,
@@ -66,6 +67,7 @@ final class ProfileSwitcherRowTests: BitwardenTestCase {
     }
 
     /// Snapshot test for the active account row without a divider
+    @MainActor
     func test_snapshot_active_noDivider() throws {
         processor.state = .init(
             shouldTakeAccessibilityFocus: false,
@@ -76,6 +78,7 @@ final class ProfileSwitcherRowTests: BitwardenTestCase {
     }
 
     /// Snapshot test for the active account row
+    @MainActor
     func test_snapshot_alternate_unlocked() throws {
         processor.state = .init(
             shouldTakeAccessibilityFocus: false,
@@ -85,6 +88,7 @@ final class ProfileSwitcherRowTests: BitwardenTestCase {
     }
 
     /// Snapshot test for the active account row
+    @MainActor
     func test_snapshot_alternate_locked() throws {
         processor.state = .init(
             shouldTakeAccessibilityFocus: false,

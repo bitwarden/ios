@@ -5,6 +5,7 @@ class MockPolicyDataStore: PolicyDataStore {
     var deleteAllPoliciesUserId: String?
     var deleteAllPoliciesResult: Result<Void, Error> = .success(())
 
+    var fetchPoliciesCount = 0
     var fetchPoliciesResult: Result<[Policy], Error> = .success([])
 
     var replacePoliciesPolicies = [PolicyResponseModel]()
@@ -18,7 +19,8 @@ class MockPolicyDataStore: PolicyDataStore {
     }
 
     func fetchAllPolicies(userId: String) async throws -> [Policy] {
-        try fetchPoliciesResult.get()
+        fetchPoliciesCount += 1
+        return try fetchPoliciesResult.get()
     }
 
     func replacePolicies(_ policies: [PolicyResponseModel], userId: String) async throws {

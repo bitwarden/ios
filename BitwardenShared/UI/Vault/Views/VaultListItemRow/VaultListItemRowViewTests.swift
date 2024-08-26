@@ -33,6 +33,7 @@ class VaultListItemRowViewTests: BitwardenTestCase {
     // MARK: Tests
 
     /// Test that tapping the more button dispatches the `.morePressed` action.
+    @MainActor
     func test_moreButton_tap() async throws {
         let button = try subject.inspect().find(asyncButtonWithAccessibilityLabel: Localizations.more)
         try await button.tap()
@@ -40,6 +41,7 @@ class VaultListItemRowViewTests: BitwardenTestCase {
     }
 
     /// Test that tapping the totp copy button dispatches the `.copyTOTPCode` action.
+    @MainActor
     func test_totpCopyButton_tap() throws {
         let totp = VaultListTOTP.fixture()
         processor.state = VaultListItemRowState(
@@ -58,11 +60,13 @@ class VaultListItemRowViewTests: BitwardenTestCase {
     // MARK: Snapshots
 
     /// Test that the default view renders correctly.
+    @MainActor
     func test_snapshot_default() {
         assertSnapshot(of: subject, as: .fixedSize())
     }
 
     /// Test that the TOTP type row view renders correctly with a name and username.
+    @MainActor
     func test_snapshot_totp() {
         processor.state.item = .fixtureTOTP(
             totp: .fixture(
@@ -76,6 +80,7 @@ class VaultListItemRowViewTests: BitwardenTestCase {
     }
 
     /// Test that the view renders correctly with organization icon.
+    @MainActor
     func test_snapshot_organization() {
         processor.state.iconBaseURL = .example
         processor.state.item = .fixture(cipherView: .fixture(
@@ -93,6 +98,7 @@ class VaultListItemRowViewTests: BitwardenTestCase {
     }
 
     /// Test that the view renders correctly with a custom icon.
+    @MainActor
     func test_snapshot_showWebIcon() {
         processor.state.iconBaseURL = .example
         processor.state.item = .fixture(cipherView: .fixture(login: .fixture(uris: [
@@ -105,6 +111,7 @@ class VaultListItemRowViewTests: BitwardenTestCase {
     }
 
     /// Test that the password view with username subtitle renders correctly.
+    @MainActor
     func test_snapshot_subtitle() {
         processor.state.iconBaseURL = .example
         processor.state.item = .fixture(cipherView: .fixture(login: .fixture(
@@ -120,6 +127,7 @@ class VaultListItemRowViewTests: BitwardenTestCase {
     }
 
     /// Test that the Fido2 view renders correctly when Cipher name and RpId are the same.
+    @MainActor
     func test_snapshot_fido2Subtitle() {
         processor.state.iconBaseURL = .example
         processor.state.item = .fixture(cipherView: .fixture(
@@ -142,6 +150,7 @@ class VaultListItemRowViewTests: BitwardenTestCase {
     }
 
     /// Test that the Fido2 view renders correctly when Cipher name and RpId are different.
+    @MainActor
     func test_snapshot_fido2RpIdAndsubtitle() {
         processor.state.iconBaseURL = .example
         processor.state.item = .fixture(cipherView: .fixture(

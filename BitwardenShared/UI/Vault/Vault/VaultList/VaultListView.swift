@@ -493,6 +493,8 @@ struct VaultListView_Previews: PreviewProvider {
                                     enabled: true,
                                     id: "",
                                     key: nil,
+                                    keyConnectorEnabled: false,
+                                    keyConnectorUrl: nil,
                                     name: "Org",
                                     permissions: Permissions(),
                                     status: .confirmed,

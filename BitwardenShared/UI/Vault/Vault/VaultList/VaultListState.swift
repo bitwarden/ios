@@ -34,9 +34,6 @@ struct VaultListState: Equatable {
     /// The search vault filter used to display a single or all vaults for the user.
     var searchVaultFilterType: VaultFilterType = .allVaults
 
-    /// If we should check for unassigned ciphers. The check should happen once per login/unlock.
-    var shouldCheckUnassignedCiphers: Bool = true
-
     /// Whether to show the special web icons.
     var showWebIcons = true
 

@@ -18,6 +18,20 @@ class APIServiceTests: BitwardenTestCase {
         subject = nil
     }
 
+    // MARK: Tests
+
+    /// `buildKeyConnectorService(baseURL:)` builds a `HTTPService` for communicating with the key
+    /// connector API.
+    func test_buildKeyConnectorService() {
+        let service = subject.buildKeyConnectorService(baseURL: URL(string: "https://example.com/api")!)
+
+        XCTAssertEqual(service.responseHandlers.count, 1)
+        XCTAssertTrue(service.responseHandlers.contains(where: { $0 is ResponseValidationHandler }))
+        XCTAssertEqual(service.requestHandlers.count, 1)
+        XCTAssertTrue(service.requestHandlers.contains(where: { $0 is DefaultHeadersRequestHandler }))
+        XCTAssertTrue(service.tokenProvider is AccountTokenProvider)
+    }
+
     /// `init(client:)` sets the default base URLs for the HTTP services.
     func test_init_defaultURLs() {
         let apiServiceBaseURL = subject.apiService.baseURL

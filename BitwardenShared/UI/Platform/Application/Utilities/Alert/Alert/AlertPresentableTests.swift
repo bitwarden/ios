@@ -29,12 +29,14 @@ class AlertPresentableTests: BitwardenTestCase {
     // MARK: Tests
 
     /// `present(_:)` presents a `UIAlertController` on the root view controller.
+    @MainActor
     func test_present() {
         subject.present(Alert(title: "🍎", message: "🥝", preferredStyle: .alert))
         XCTAssertNotNil(rootViewController.presentedViewController as? UIAlertController)
     }
 
     /// `present(_:)` presents a `UIAlertController` and calls the `onDismissed` closure when it's been dismissed.
+    @MainActor
     func test_present_onDismissed() {
         var onDismissedCalled = false
         subject.present(Alert(title: "🍎", message: "🥝", preferredStyle: .alert)) {

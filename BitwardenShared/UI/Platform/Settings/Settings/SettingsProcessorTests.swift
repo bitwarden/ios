@@ -30,6 +30,7 @@ class SettingsProcessorTests: BitwardenTestCase {
     // MARK: Tests
 
     /// Receiving `.aboutPressed` navigates to the about screen.
+    @MainActor
     func test_receive_aboutPressed() {
         subject.receive(.aboutPressed)
 
@@ -37,6 +38,7 @@ class SettingsProcessorTests: BitwardenTestCase {
     }
 
     /// Receiving `.accountSecurityPressed` navigates to the account security screen.
+    @MainActor
     func test_receive_accountSecurityPressed() {
         subject.receive(.accountSecurityPressed)
 
@@ -44,6 +46,7 @@ class SettingsProcessorTests: BitwardenTestCase {
     }
 
     /// Receiving `.appearancePressed` navigates to the appearance screen.
+    @MainActor
     func test_receive_appearancePressed() {
         subject.receive(.appearancePressed)
 
@@ -51,6 +54,7 @@ class SettingsProcessorTests: BitwardenTestCase {
     }
 
     /// Receiving `.autoFillPressed` navigates to the auto-fill screen.
+    @MainActor
     func test_receive_autoFillPressed() {
         subject.receive(.autoFillPressed)
 
@@ -58,6 +62,7 @@ class SettingsProcessorTests: BitwardenTestCase {
     }
 
     /// Receiving `.otherPressed` navigates to the other screen.
+    @MainActor
     func test_receive_otherPressed() {
         subject.receive(.otherPressed)
 
@@ -65,6 +70,7 @@ class SettingsProcessorTests: BitwardenTestCase {
     }
 
     /// Receiving `.vaultPressed` navigates to the vault settings screen.
+    @MainActor
     func test_receive_vaultPressed() {
         subject.receive(.vaultPressed)
 

@@ -1,10 +1,10 @@
-import BitwardenSdk
+@preconcurrency import BitwardenSdk
 import Foundation
 
 // MARK: - ViewItemState
 
 /// The state of a `ViewItemProcessor`.
-struct ViewItemState: Equatable {
+struct ViewItemState: Equatable, Sendable {
     // MARK: Properties
 
     /// A flag indicating if the current cipher can be cloned.
@@ -69,6 +69,7 @@ extension ViewItemState {
             hasPremium: hasPremium
         ) else { return nil }
         self.init(loadingState: .data(cipherItemState))
+        self.hasMasterPassword = hasMasterPassword
         hasPremiumFeatures = cipherItemState.accountHasPremium
         passwordHistory = cipherView.passwordHistory
     }

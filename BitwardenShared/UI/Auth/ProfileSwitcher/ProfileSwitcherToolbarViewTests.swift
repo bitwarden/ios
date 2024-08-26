@@ -45,6 +45,7 @@ final class ProfileSwitcherToolbarViewTests: BitwardenTestCase {
     }
 
     /// Tapping the view dispatches the `.requestedProfileSwitcher` effect.
+    @MainActor
     func test_tap_currentAccount() async throws {
         let view = try subject.inspect().find(asyncButtonWithAccessibilityLabel: Localizations.account)
         try await view.tap()
@@ -57,6 +58,7 @@ final class ProfileSwitcherToolbarViewTests: BitwardenTestCase {
 
     // MARK: Snapshots
 
+    @MainActor
     func test_snapshot_empty() {
         processor.state = .empty()
         assertSnapshot(
@@ -67,6 +69,7 @@ final class ProfileSwitcherToolbarViewTests: BitwardenTestCase {
         )
     }
 
+    @MainActor
     func test_snapshot_noActive() {
         processor.state = .init(
             accounts: [ProfileSwitcherItem.anneAccount],
@@ -91,6 +94,7 @@ final class ProfileSwitcherToolbarViewTests: BitwardenTestCase {
         )
     }
 
+    @MainActor
     func test_snapshot_multi() {
         processor.state = .init(
             accounts: [
@@ -116,6 +120,7 @@ final class ProfileSwitcherToolbarViewTests: BitwardenTestCase {
         )
     }
 
+    @MainActor
     func test_snapshot_profileIconColor_black() {
         processor.state = .init(
             accounts: [
@@ -141,6 +146,7 @@ final class ProfileSwitcherToolbarViewTests: BitwardenTestCase {
         )
     }
 
+    @MainActor
     func test_snapshot_profileIconColor_blue() {
         processor.state = .init(
             accounts: [
@@ -166,6 +172,7 @@ final class ProfileSwitcherToolbarViewTests: BitwardenTestCase {
         )
     }
 
+    @MainActor
     func test_snapshot_profileIconColor_white() {
         processor.state = .init(
             accounts: [
@@ -191,6 +198,7 @@ final class ProfileSwitcherToolbarViewTests: BitwardenTestCase {
         )
     }
 
+    @MainActor
     func test_snapshot_profileIconColor_yellow() {
         processor.state = .init(
             accounts: [

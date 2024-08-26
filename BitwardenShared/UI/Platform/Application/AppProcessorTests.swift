@@ -127,6 +127,7 @@ class AppProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_body
     }
 
     /// `didRegister(withToken:)` passes the token to the notification service.
+    @MainActor
     func test_didRegister() throws {
         let tokenData = try XCTUnwrap("tokensForFree".data(using: .utf8))
 
@@ -139,12 +140,14 @@ class AppProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_body
     }
 
     /// `failedToRegister(_:)` records the error.
+    @MainActor
     func test_failedToRegister() {
         subject.failedToRegister(BitwardenTestError.example)
         XCTAssertEqual(errorReporter.errors.last as? BitwardenTestError, .example)
     }
 
     /// `init()` subscribes to will enter foreground events and handles an active user timeout.
+    @MainActor
     func test_init_appForeground_activeUserTimeout() {
         let account1 = Account.fixture(profile: .fixture(userId: "1"))
         let account2 = Account.fixture(profile: .fixture(userId: "2"))
@@ -209,7 +212,111 @@ class AppProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_body
         XCTAssertIdentical(syncService.delegate, subject)
     }
 
+    /// `handleAppLinks(URL)` navigates the user based on the input URL.
+    @MainActor
+    func test_init_handleAppLinks() {
+        // swiftlint:disable:next line_length
+        let url = URL(string: "https://bitwarden.com/redirect-connector.html#finish-signup?email=example@email.com&token=verificationtoken&fromEmail=true")
+        subject.handleAppLinks(incomingURL: url!)
+
+        XCTAssertEqual(coordinator.routes.last, .auth(.completeRegistrationFromAppLink(
+            emailVerificationToken: "verificationtoken",
+            userEmail: "example@email.com",
+            fromEmail: true,
+            region: .unitedStates
+        )))
+    }
+
+    /// `handleAppLinks(URL)` navigates the user based on the input URL with EU region.
+    @MainActor
+    func test_init_handleAppLinks_regionEU() {
+        // swiftlint:disable:next line_length
+        let url = URL(string: "https://bitwarden.eu/redirect-connector.html#finish-signup?email=example@email.com&token=verificationtoken&fromEmail=true")
+        subject.handleAppLinks(incomingURL: url!)
+
+        XCTAssertEqual(coordinator.routes.last, .auth(.completeRegistrationFromAppLink(
+            emailVerificationToken: "verificationtoken",
+            userEmail: "example@email.com",
+            fromEmail: true,
+            region: .europe
+        )))
+    }
+
+    /// `handleAppLinks(URL)` navigates the user based on the input URL with wrong fromEmail value.
+    @MainActor
+    func test_init_handleAppLinks_fromEmail_notBool() {
+        // swiftlint:disable:next line_length
+        let url = URL(string: "https://bitwarden.eu/redirect-connector.html#finish-signup?email=example@email.com&token=verificationtoken&fromEmail=potato")
+        subject.handleAppLinks(incomingURL: url!)
+
+        XCTAssertEqual(coordinator.routes.last, .auth(.completeRegistrationFromAppLink(
+            emailVerificationToken: "verificationtoken",
+            userEmail: "example@email.com",
+            fromEmail: true,
+            region: .europe
+        )))
+    }
+
+    /// `handleAppLinks(URL)` checks error report for `.appLinksInvalidURL`.
+    @MainActor
+    func test_init_handleAppLinks_invalidURL() {
+        // swiftlint:disable:next line_length
+        let noPathUrl = URL(string: "https://bitwarden.com/redirect-connector.html#email=example@email.com&token=verificationtoken")
+        subject.handleAppLinks(incomingURL: noPathUrl!)
+        XCTAssertEqual(errorReporter.errors.last as? AppProcessorError, .appLinksInvalidURL)
+        XCTAssertEqual(errorReporter.errors.count, 1)
+        errorReporter.errors.removeAll()
+
+        let noParamsUrl = URL(string: "https://bitwarden.com/redirect-connector.html#finish-signup/")
+        subject.handleAppLinks(incomingURL: noParamsUrl!)
+        XCTAssertEqual(errorReporter.errors.last as? AppProcessorError, .appLinksInvalidURL)
+        XCTAssertEqual(errorReporter.errors.count, 1)
+        errorReporter.errors.removeAll()
+
+        let invalidHostUrl = URL(string: "/finish-signup?email=example@email.com")
+        subject.handleAppLinks(incomingURL: invalidHostUrl!)
+        XCTAssertEqual(errorReporter.errors.last as? AppProcessorError, .appLinksInvalidURL)
+        XCTAssertEqual(errorReporter.errors.count, 1)
+    }
+
+    /// `handleAppLinks(URL)` checks error report for `.appLinksInvalidPath`.
+    @MainActor
+    func test_init_handleAppLinks_invalidPath() {
+        // swiftlint:disable:next line_length
+        let url = URL(string: "https://bitwarden.com/redirect-connector.html#not-valid?email=example@email.com&token=verificationtoken&fromEmail=true")
+        subject.handleAppLinks(incomingURL: url!)
+        XCTAssertEqual(errorReporter.errors.last as? AppProcessorError, .appLinksInvalidPath)
+    }
+
+    /// `handleAppLinks(URL)` checks error report for `.appLinksInvalidParametersForPath`.
+    @MainActor
+    func test_init_handleAppLinks_invalidParametersForPath() {
+        var url = URL(
+            string: "https://bitwarden.com/redirect-connector.html#finish-signup?token=verificationtoken&fromEmail=true"
+        )
+        subject.handleAppLinks(incomingURL: url!)
+        XCTAssertEqual(errorReporter.errors.last as? AppProcessorError, .appLinksInvalidParametersForPath)
+        XCTAssertEqual(errorReporter.errors.count, 1)
+        errorReporter.errors.removeAll()
+
+        url = URL(
+            string: "https://bitwarden.com/redirect-connector.html#finish-signup?email=example@email.com&fromEmail=true"
+        )
+        subject.handleAppLinks(incomingURL: url!)
+        XCTAssertEqual(errorReporter.errors.last as? AppProcessorError, .appLinksInvalidParametersForPath)
+        XCTAssertEqual(errorReporter.errors.count, 1)
+        errorReporter.errors.removeAll()
+
+        // swiftlint:disable:next line_length
+        url = URL(string: "https://bitwarden.com/redirect-connector.html#finish-signup?email=example@email.com&token=verificationtoken")
+        subject.handleAppLinks(incomingURL: url!)
+        XCTAssertEqual(errorReporter.errors.last as? AppProcessorError, .appLinksInvalidParametersForPath)
+        XCTAssertEqual(errorReporter.errors.count, 1)
+        errorReporter.errors.removeAll()
+    }
+
     /// `init()` starts the upload-event timer and attempts to upload events.
+    @MainActor
     func test_init_uploadEvents() {
         XCTAssertNotNil(subject.sendEventTimer)
         XCTAssertEqual(subject.sendEventTimer?.isValid, true)
@@ -219,6 +326,7 @@ class AppProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_body
     }
 
     /// `getter:isAutofillingFromList` returns `false` when delegate is not a Fido2 one.
+    @MainActor
     func test_isAutofillingFromList_falseNoFido2Delegate() async throws {
         XCTAssertFalse(subject.isAutofillingFromList)
     }
@@ -241,6 +349,7 @@ class AppProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_body
 
     /// `openUrl(_:)` handles receiving an OTP deep link and setting an auth completion route on the
     /// coordinator to handle routing to the vault item selection screen when the vault is unlocked.
+    @MainActor
     func test_openUrl_otpKey_vaultLocked() async throws {
         let otpKey: String = .otpAuthUriKeyComplete
 
@@ -251,6 +360,7 @@ class AppProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_body
     }
 
     /// `openUrl(_:)` handles receiving an OTP deep link and routing to the vault item selection screen.
+    @MainActor
     func test_openUrl_otpKey_vaultUnlocked() async throws {
         let account = Account.fixture()
         let otpKey: String = .otpAuthUriKeyComplete
@@ -266,6 +376,7 @@ class AppProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_body
     /// `openUrl(_:)` handles receiving an OTP deep link and setting an auth completion route on the
     /// coordinator if the the user's vault is unlocked but will be timing out as the app is
     /// foregrounded.
+    @MainActor
     func test_openUrl_otpKey_vaultUnlockedTimeout() async throws {
         let account = Account.fixture()
         let otpKey: String = .otpAuthUriKeyComplete
@@ -282,6 +393,7 @@ class AppProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_body
     /// `openUrl(_:)` handles receiving an OTP deep link and setting an auth completion route on the
     /// coordinator if the the user's vault is unlocked but will be timing out as the app is
     /// foregrounded.
+    @MainActor
     func test_openUrl_otpKey_vaultUnlockedTimeoutError() async throws {
         let account = Account.fixture()
         let otpKey: String = .otpAuthUriKeyComplete
@@ -296,6 +408,7 @@ class AppProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_body
     }
 
     /// `openUrl(_:)` handles receiving an OTP deep link if the URL isn't an OTP key.
+    @MainActor
     func test_openUrl_otpKey_invalid() async throws {
         try await subject.openUrl(XCTUnwrap(URL(string: "https://google.com")))
 
@@ -322,8 +435,37 @@ class AppProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_body
         }
     }
 
+    /// `removeMasterPassword(organizationName:)` notifies the coordinator to show the remove
+    /// master password screen.
+    @MainActor
+    func test_removeMasterPassword() {
+        coordinator.isLoadingOverlayShowing = true
+
+        subject.removeMasterPassword(organizationName: "Example Org")
+
+        XCTAssertFalse(coordinator.isLoadingOverlayShowing)
+        XCTAssertEqual(coordinator.routes, [.auth(.removeMasterPassword(organizationName: "Example Org"))])
+    }
+
+    /// `removeMasterPassword(organizationName:)` doesn't show the remove master password screen in
+    /// the extension.
+    @MainActor
+    func test_removeMasterPassword_extension() {
+        let delegate = MockAppExtensionDelegate()
+        let subject = AppProcessor(
+            appExtensionDelegate: delegate,
+            appModule: appModule,
+            services: ServiceContainer.withMocks()
+        )
+
+        subject.removeMasterPassword(organizationName: "Example Org")
+
+        XCTAssertTrue(coordinator.routes.isEmpty)
+    }
+
     /// `repromptForCredentialIfNecessary(for:)` reprompts the user for their master password if
     /// reprompt is enabled for the cipher.
+    @MainActor
     func test_repromptForCredentialIfNecessary() throws {
         vaultRepository.repromptRequiredForCipherResult = .success(true)
 
@@ -353,6 +495,7 @@ class AppProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_body
     }
 
     /// `repromptForCredentialIfNecessary(for:)` logs the error if one occurs.
+    @MainActor
     func test_repromptForCredentialIfNecessary_error() throws {
         authRepository.validatePasswordResult = .failure(BitwardenTestError.example)
         vaultRepository.repromptRequiredForCipherResult = .success(true)
@@ -382,6 +525,7 @@ class AppProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_body
 
     /// `repromptForCredentialIfNecessary(for:)` displays an alert if the user enters an invalid
     /// password into the master password reprompt alert.
+    @MainActor
     func test_repromptForCredentialIfNecessary_invalidPassword() throws {
         authRepository.validatePasswordResult = .success(false)
         vaultRepository.repromptRequiredForCipherResult = .success(true)
@@ -429,12 +573,14 @@ class AppProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_body
     }
 
     /// `routeToLanding(_:)` navigates to show the landing view.
+    @MainActor
     func test_routeToLanding() async {
         await subject.routeToLanding()
         XCTAssertEqual(coordinator.routes.last, .auth(.landing))
     }
 
     /// `securityStampChanged(userId:)` logs the user out and notifies the coordinator.
+    @MainActor
     func test_securityStampChanged() async {
         coordinator.isLoadingOverlayShowing = true
 
@@ -447,12 +593,14 @@ class AppProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_body
     }
 
     /// `showLoginRequest(_:)` navigates to show the login request view.
+    @MainActor
     func test_showLoginRequest() {
         subject.showLoginRequest(.fixture())
         XCTAssertEqual(coordinator.routes.last, .loginRequest(.fixture()))
     }
 
     /// `start(navigator:)` builds the AppCoordinator and navigates to the initial route if provided.
+    @MainActor
     func test_start_initialRoute() async {
         let rootNavigator = MockRootNavigator()
 
@@ -474,6 +622,7 @@ class AppProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_body
     }
 
     /// `start(navigator:)` builds the AppCoordinator and navigates to the `.didStart` route.
+    @MainActor
     func test_start_authRoute() async {
         let rootNavigator = MockRootNavigator()
 

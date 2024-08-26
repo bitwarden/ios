@@ -16,7 +16,7 @@ class MockStateService: StateService { // swiftlint:disable:this type_body_lengt
     var appLanguage: LanguageOption = .default
     var appTheme: AppTheme?
     var biometricsEnabled = [String: Bool]()
-    var biometricIntegrityStates = [String: String?]()
+    var biometricIntegrityStates = [String: String]()
     var capturedUserId: String?
     var clearClipboardValues = [String: ClearClipboardValue]()
     var clearClipboardResult: Result<Void, Error> = .success(())
@@ -34,6 +34,7 @@ class MockStateService: StateService { // swiftlint:disable:this type_body_lengt
     var eventsResult: Result<Void, Error> = .success(())
     var events = [String: [EventData]]()
     var forcePasswordResetReason = [String: ForcePasswordResetReason]()
+    var introCarouselShown = false
     var lastActiveTime = [String: Date]()
     var loginRequest: LoginRequestNotification?
     var getAccountEncryptionKeysError: Error?
@@ -60,7 +61,6 @@ class MockStateService: StateService { // swiftlint:disable:this type_body_lengt
     var setAccountHasBeenUnlockedInteractivelyResult: Result<Void, Error> = .success(())
     var setBiometricAuthenticationEnabledResult: Result<Void, Error> = .success(())
     var setBiometricIntegrityStateError: Error?
-    var shouldCheckOrganizationUnassignedItems = [String: Bool?]()
     var shouldTrustDevice = [String: Bool?]()
     var twoFactorTokens = [String: String]()
     var unsuccessfulUnlockAttempts = [String: Int]()
@@ -69,6 +69,7 @@ class MockStateService: StateService { // swiftlint:disable:this type_body_lengt
     var userHasMasterPassword = [String: Bool]()
     var userIds = [String]()
     var usernameGenerationOptions = [String: UsernameGenerationOptions]()
+    var usesKeyConnector = [String: Bool]()
     var vaultTimeout = [String: SessionTimeoutValue]()
 
     lazy var activeIdSubject = CurrentValueSubject<String?, Never>(self.activeAccount?.profile.userId)
@@ -204,6 +205,10 @@ class MockStateService: StateService { // swiftlint:disable:this type_body_lengt
         return events[userId] ?? []
     }
 
+    func getIntroCarouselShown() async -> Bool {
+        introCarouselShown
+    }
+
     func getLastActiveTime(userId: String?) async throws -> Date? {
         let userId = try unwrapUserId(userId)
         return lastActiveTime[userId]
@@ -245,11 +250,6 @@ class MockStateService: StateService { // swiftlint:disable:this type_body_lengt
         return serverConfig[userId]
     }
 
-    func getShouldCheckOrganizationUnassignedItems(userId: String?) async throws -> Bool {
-        let userId = try unwrapUserId(userId)
-        return (shouldCheckOrganizationUnassignedItems[userId] ?? false) ?? false
-    }
-
     func getShouldTrustDevice(userId: String) async -> Bool? {
         shouldTrustDevice[userId] ?? false
     }
@@ -284,6 +284,11 @@ class MockStateService: StateService { // swiftlint:disable:this type_body_lengt
     func getUsernameGenerationOptions(userId: String?) async throws -> UsernameGenerationOptions? {
         let userId = try unwrapUserId(userId)
         return usernameGenerationOptions[userId]
+    }
+
+    func getUsesKeyConnector(userId: String?) async throws -> Bool {
+        let userId = try unwrapUserId(userId)
+        return usesKeyConnector[userId] ?? false
     }
 
     func getVaultTimeout(userId: String?) async throws -> SessionTimeoutValue {
@@ -376,6 +381,10 @@ class MockStateService: StateService { // swiftlint:disable:this type_body_lengt
         forcePasswordResetReason[userId] = reason
     }
 
+    func setIntroCarouselShown(_ shown: Bool) async {
+        introCarouselShown = shown
+    }
+
     func setIsAuthenticated() {
         activeAccount = .fixture()
         accountEncryptionKeys["1"] = .init(encryptedPrivateKey: "", encryptedUserKey: "")
@@ -448,11 +457,6 @@ class MockStateService: StateService { // swiftlint:disable:this type_body_lengt
         serverConfig[userId] = config
     }
 
-    func setShouldCheckOrganizationUnassignedItems(_ shouldCheck: Bool?, userId: String?) async throws {
-        let userId = try unwrapUserId(userId)
-        shouldCheckOrganizationUnassignedItems[userId] = shouldCheck
-    }
-
     func setShouldTrustDevice(_ shouldTrustDevice: Bool?, userId: String) async {
         self.shouldTrustDevice[userId] = shouldTrustDevice
     }
@@ -479,14 +483,19 @@ class MockStateService: StateService { // swiftlint:disable:this type_body_lengt
         unsuccessfulUnlockAttempts[userId] = attempts
     }
 
-    func setUserHasMasterPassword() async throws {
+    func setUserHasMasterPassword(_ hasMasterPassword: Bool) async throws {
         let userId = try unwrapUserId(nil)
-        userHasMasterPassword[userId] = true
+        userHasMasterPassword[userId] = hasMasterPassword
     }
 
     func setUsernameGenerationOptions(_ options: UsernameGenerationOptions?, userId: String?) async throws {
         let userId = try unwrapUserId(userId)
         usernameGenerationOptions[userId] = options
+    }
+
+    func setUsesKeyConnector(_ usesKeyConnector: Bool, userId: String?) async throws {
+        let userId = try unwrapUserId(userId)
+        self.usesKeyConnector[userId] = usesKeyConnector
     }
 
     func setVaultTimeout(value: SessionTimeoutValue, userId: String?) async throws {

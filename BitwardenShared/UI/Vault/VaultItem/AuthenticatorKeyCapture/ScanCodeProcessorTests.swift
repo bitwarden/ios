@@ -39,6 +39,7 @@ final class ScanCodeProcessorTests: BitwardenTestCase {
     // MARK: Tests
 
     /// `perform()` with `.appeared` logs errors when starting the camera fails.
+    @MainActor
     func test_perform_appeared_failure() async {
         cameraService.deviceHasCamera = false
         await subject.perform(.appeared)
@@ -46,6 +47,7 @@ final class ScanCodeProcessorTests: BitwardenTestCase {
     }
 
     /// `perform()` with `.appeared` sets up the camera observation and responds to QR code scans
+    @MainActor
     func test_perform_appeared_qrScan() {
         let publisher = MockCameraService.ScanPublisher(nil)
         cameraService.startResult = .success(AVCaptureSession())
@@ -61,6 +63,7 @@ final class ScanCodeProcessorTests: BitwardenTestCase {
     }
 
     /// `perform()` with `.appeared` sets up the camera.
+    @MainActor
     func test_perform_appeared_noCamera() async {
         cameraService.deviceHasCamera = false
         await subject.perform(.appeared)
@@ -69,18 +72,21 @@ final class ScanCodeProcessorTests: BitwardenTestCase {
     }
 
     /// `perform()` with `.disappeared` stops the camera.
+    @MainActor
     func test_perform_disappeared_success() async {
         await subject.perform(.disappeared)
         XCTAssertTrue(cameraService.didStop)
     }
 
     /// `receive()` with `.dismissPressed` navigates to dismiss.
+    @MainActor
     func test_receive_dismissPressed() {
         subject.receive(.dismissPressed)
         XCTAssertEqual(coordinator.routes, [.dismiss()])
     }
 
     /// `receive()` with `.manualEntryPressed` navigates to `.setupTotpManual`.
+    @MainActor
     func test_receive_manualEntryPressed() async {
         subject.receive(.manualEntryPressed)
         XCTAssertEqual(coordinator.routes, [.manualKeyEntry])

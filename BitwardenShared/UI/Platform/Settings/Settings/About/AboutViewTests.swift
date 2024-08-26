@@ -33,6 +33,7 @@ class AboutViewTests: BitwardenTestCase {
     // MARK: Tests
 
     /// Tapping the help center button dispatches the `.helpCenterTapped` action.
+    @MainActor
     func test_helpCenterButton_tap() throws {
         let button = try subject.inspect().find(button: Localizations.bitwardenHelpCenter)
         try button.tap()
@@ -40,6 +41,7 @@ class AboutViewTests: BitwardenTestCase {
     }
 
     /// Tapping the privacy policy button dispatches the `.privacyPolicyTapped` action.
+    @MainActor
     func test_privacyPolicyButton_tap() throws {
         let button = try subject.inspect().find(button: Localizations.privacyPolicy)
         try button.tap()
@@ -47,6 +49,7 @@ class AboutViewTests: BitwardenTestCase {
     }
 
     /// Tapping the learn about organizations button dispatches the `.learnAboutOrganizationsTapped` action.
+    @MainActor
     func test_learnAboutOrganizationsButton_tap() throws {
         let button = try subject.inspect().find(button: Localizations.learnOrg)
         try button.tap()
@@ -54,6 +57,7 @@ class AboutViewTests: BitwardenTestCase {
     }
 
     /// Tapping the version button dispatches the `.versionTapped` action.
+    @MainActor
     func test_versionButton_tap() throws {
         let button = try subject.inspect().find(button: version)
         try button.tap()
@@ -61,6 +65,7 @@ class AboutViewTests: BitwardenTestCase {
     }
 
     /// Tapping the web vault button dispatches the `.webVaultTapped` action.
+    @MainActor
     func test_webVaultButton_tap() throws {
         let button = try subject.inspect().find(button: Localizations.webVault)
         try button.tap()
@@ -70,6 +75,7 @@ class AboutViewTests: BitwardenTestCase {
     // MARK: Snapshots
 
     /// The default view renders correctly.
+    @MainActor
     func test_snapshot_default() {
         assertSnapshots(of: subject, as: [.defaultPortrait, .defaultPortraitDark, .defaultPortraitAX5])
     }

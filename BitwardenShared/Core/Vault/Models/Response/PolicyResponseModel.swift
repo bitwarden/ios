@@ -2,7 +2,7 @@ import Foundation
 
 /// API response model for a policy.
 ///
-struct PolicyResponseModel: Codable, Equatable {
+struct PolicyResponseModel: Codable, Equatable, Sendable {
     // MARK: Properties
 
     /// Custom policy key value pairs.
