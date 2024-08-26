@@ -745,6 +745,7 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
                 encryptedUserKey: "encryptedUserKey"
             )
         )
+        XCTAssertEqual(stateService.userHasMasterPassword["1"], true)
 
         XCTAssertEqual(
             clientService.mockCrypto.initializeUserCryptoRequest,
@@ -803,6 +804,7 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
             stateService.accountEncryptionKeys["1"],
             AccountEncryptionKeys(encryptedPrivateKey: "PRIVATE_KEY", encryptedUserKey: "NEW_KEY")
         )
+        XCTAssertEqual(stateService.userHasMasterPassword["1"], true)
 
         XCTAssertEqual(clientService.mockCrypto.enrollAdminPasswordPublicKey, "MIIBIjAN...2QIDAQAB")
 

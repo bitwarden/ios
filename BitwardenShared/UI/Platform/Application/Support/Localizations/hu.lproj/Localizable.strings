@@ -944,3 +944,7 @@
 "SetUpUnlock" = "Feloldás beüzemelés";
 "SetUpBiometricsOrChooseAPinCodeToQuicklyAccessYourVaultAndAutofillYourLogins" = "Állítsunk be biometrikus adatokat vagy válasszunk egy PIN kódot a széf gyors eléréséhez és a bejelentkezések automatikus kitöltéséhez.";
 "SetUpLater" = "Beüzemelés később";
+"RemoveMasterPasswordMessage" = "%1$@ jelenleg saját tárolású aláíráskulcsú SSO szervert használ. A mesterjelszó a továbbiakban nem szükséges a szervezeti tagsági bejelentkezéshez.";
+"RestartRegistration" = "Restart registration";
+"ExpiredLink" = "Expired link";
+"PleaseRestartRegistrationOrTryLoggingInYouMayAlreadyHaveAnAccount" = "Please restart registration or try logging in. You may already have an account.";

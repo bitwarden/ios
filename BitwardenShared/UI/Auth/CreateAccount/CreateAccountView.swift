@@ -206,4 +206,3 @@ struct CreateAccountView: View {
     CreateAccountView(store: Store(processor: StateProcessor(state: CreateAccountState())))
 }
 #endif
-
