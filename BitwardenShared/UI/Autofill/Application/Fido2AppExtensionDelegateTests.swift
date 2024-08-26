@@ -26,6 +26,7 @@ class Fido2AppExtensionDelegateTests: BitwardenTestCase {
     // MARK: Tests
 
     /// `getter:autofillListMode`  returns the proper autofill list mode
+    @MainActor
     func test_autofillListMode() async throws {
         subject.extensionMode = .autofillFido2VaultList([], MockPasskeyCredentialRequestParameters())
         XCTAssertEqual(subject.autofillListMode, .combinedMultipleSections)
@@ -39,6 +40,7 @@ class Fido2AppExtensionDelegateTests: BitwardenTestCase {
 
     /// `getter:isCreatingFido2Credential`  returns `true`
     /// when there is a request for creation
+    @MainActor
     func test_isCreatingFido2Credential_true() async throws {
         subject.extensionMode = .registerFido2Credential(ASPasskeyCredentialRequest.fixture())
         XCTAssertTrue(subject.isCreatingFido2Credential)
@@ -46,11 +48,13 @@ class Fido2AppExtensionDelegateTests: BitwardenTestCase {
 
     /// `getter:isCreatingFido2Credential`  returns `false`
     /// when there is no request for creation
+    @MainActor
     func test_isCreatingFido2Credential_false() async throws {
         XCTAssertFalse(subject.isCreatingFido2Credential)
     }
 
     /// `getter:rpID`  returns the proper rpID
+    @MainActor
     func test_rpID() async throws {
         let expectedRpID = "myApp.com"
         subject.extensionMode = .autofillFido2VaultList([], MockPasskeyCredentialRequestParameters(

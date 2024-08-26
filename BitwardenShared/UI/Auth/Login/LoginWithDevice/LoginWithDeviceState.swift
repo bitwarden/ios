@@ -2,7 +2,7 @@
 
 /// An object that defines the current state of the `LoginWithDeviceView`.
 ///
-struct LoginWithDeviceState: Equatable {
+struct LoginWithDeviceState: Equatable, Sendable {
     /// The user's email.
     var email = ""
 

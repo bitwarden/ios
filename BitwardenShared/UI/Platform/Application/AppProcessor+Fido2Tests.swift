@@ -101,12 +101,14 @@ class AppProcessorFido2Tests: BitwardenTestCase {
     // MARK: Tests
 
     /// `getter:isAutofillingFromList` returns `true` when delegate is autofilling from list.
+    @MainActor
     func test_isAutofillingFromList_true() async throws {
         appExtensionDelegate.extensionMode = .autofillFido2VaultList([], MockPasskeyCredentialRequestParameters())
         XCTAssertTrue(subject.isAutofillingFromList)
     }
 
     /// `getter:isAutofillingFromList` returns `false` when delegate is not autofilling from list.
+    @MainActor
     func test_isAutofillingFromList_false() async throws {
         appExtensionDelegate.extensionMode = .configureAutofill
         XCTAssertFalse(subject.isAutofillingFromList)
@@ -114,6 +116,7 @@ class AppProcessorFido2Tests: BitwardenTestCase {
 
     /// `onNeedsUserInteraction()` throws when flows is not with user interaction but user interaction is required.
     @available(iOS 17.0, *)
+    @MainActor
     func test_onNeedsUserInteraction_throws() async {
         appExtensionDelegate.flowWithUserInteraction = false
 
@@ -126,6 +129,7 @@ class AppProcessorFido2Tests: BitwardenTestCase {
     /// `onNeedsUserInteraction()` doesn't throw when flows is not with user interaction
     /// but user interaction is required.
     @available(iOS 17.0, *)
+    @MainActor
     func test_onNeedsUserInteraction_flowWithUserInteraction() async {
         appExtensionDelegate.flowWithUserInteraction = true
 
@@ -183,12 +187,14 @@ class AppProcessorFido2Tests: BitwardenTestCase {
     }
 
     /// `showAlert(_:onDismissed:)` shows the alert with the coordinator.
+    @MainActor
     func test_showAlert_withOnDismissed() async throws {
         subject.showAlert(Alert(title: "Test", message: "testing"), onDismissed: nil)
         XCTAssertFalse(coordinator.alertShown.isEmpty)
     }
 
     /// `showAlert(_:)` shows the alert with the coordinator.
+    @MainActor
     func test_showAlert() async throws {
         subject.showAlert(Alert(title: "Test", message: "testing"))
         XCTAssertFalse(coordinator.alertShown.isEmpty)

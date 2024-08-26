@@ -46,6 +46,7 @@ class PasswordHistoryListProcessorTests: BitwardenTestCase {
     // MARK: Tests
 
     /// `perform(_:)` with `.appeared` starts streaming the password history.
+    @MainActor
     func test_perform_appeared() {
         let passwordHistory = [
             PasswordHistoryView.fixture(password: "8gr6uY8CLYQwzr#"),
@@ -79,6 +80,7 @@ class PasswordHistoryListProcessorTests: BitwardenTestCase {
     }
 
     /// `perform(_:)` with `.appeared` doesn't load anything if the password history is already set.
+    @MainActor
     func test_perform_appeared_sourceItem() async {
         let passwordHistory = [
             PasswordHistoryView.fixture(password: "8gr6uY8CLYQwzr#"),
@@ -110,6 +112,7 @@ class PasswordHistoryListProcessorTests: BitwardenTestCase {
 
     /// `receive(_:)` with `.copyPassword` copies the generated password to the system pasteboard
     /// and shows a toast.
+    @MainActor
     func test_receive_copyPassword() {
         subject.receive(.copyPassword(.fixture(password: "PASSWORD")))
         XCTAssertEqual(pasteboardService.copiedString, "PASSWORD")
@@ -117,12 +120,14 @@ class PasswordHistoryListProcessorTests: BitwardenTestCase {
     }
 
     /// `receive(_:)` with `.dismiss` dismisses the view.
+    @MainActor
     func test_receive_dismiss() {
         subject.receive(.dismiss)
         XCTAssertEqual(coordinator.routes.last, .dismiss)
     }
 
     /// `receive(_:)` with `.toastShown` updates the state's toast value.
+    @MainActor
     func test_receive_toastShown() {
         let toast = Toast(text: Localizations.valueHasBeenCopied(Localizations.password))
         subject.receive(.toastShown(toast))

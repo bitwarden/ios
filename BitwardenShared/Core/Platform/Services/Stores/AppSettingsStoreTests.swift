@@ -338,6 +338,22 @@ class AppSettingsStoreTests: BitwardenTestCase { // swiftlint:disable:this type_
         XCTAssertFalse(subject.isBiometricAuthenticationEnabled(userId: "-1"))
     }
 
+    /// `introCarouselShown` returns `false` if there isn't a previously stored value.
+    func test_introCarouselShown_isInitiallyFalse() {
+        XCTAssertFalse(subject.introCarouselShown)
+    }
+
+    /// `introCarouselShown` can be used to get and set the persisted value in user defaults.
+    func test_introCarouselShown_withValue() {
+        subject.introCarouselShown = true
+        XCTAssertTrue(subject.introCarouselShown)
+        XCTAssertTrue(userDefaults.bool(forKey: "bwPreferencesStorage:introCarouselShown"))
+
+        subject.introCarouselShown = false
+        XCTAssertFalse(subject.introCarouselShown)
+        XCTAssertFalse(userDefaults.bool(forKey: "bwPreferencesStorage:introCarouselShown"))
+    }
+
     /// `isBiometricAuthenticationEnabled` can be used to get the biometric unlock preference for a user.
     func test_isBiometricAuthenticationEnabled_withValue() {
         subject.setBiometricAuthenticationEnabled(false, for: "0")
@@ -626,19 +642,6 @@ class AppSettingsStoreTests: BitwardenTestCase { // swiftlint:disable:this type_
         )
     }
 
-    /// `shouldCheckOrganizationUnassignedItems(:)` is initially nil {
-    func test_shouldCheckOrganizationUnassignedItems_isInitiallyNil() {
-        XCTAssertNil(subject.shouldCheckOrganizationUnassignedItems(userId: "1"))
-    }
-
-    /// `shouldCheckOrganizationUnassignedItems(:)` can be used to get and set the persisted value.
-    func test_shouldCheckOrganizationUnassignedItems_withValue() {
-        subject.setShouldCheckOrganizationUnassignedItems(true, userId: "1")
-        XCTAssertEqual(subject.shouldCheckOrganizationUnassignedItems(userId: "1"), true)
-        subject.setShouldCheckOrganizationUnassignedItems(false, userId: "1")
-        XCTAssertEqual(subject.shouldCheckOrganizationUnassignedItems(userId: "1"), false)
-    }
-
     /// `twoFactorToken(email:)` returns `nil` if there isn't a previously stored value.
     func test_twoFactorToken_isInitiallyNil() {
         XCTAssertNil(subject.twoFactorToken(email: "anything@email.com"))
@@ -733,6 +736,22 @@ class AppSettingsStoreTests: BitwardenTestCase { // swiftlint:disable:this type_
         subject.rememberedEmail = nil
         XCTAssertNil(subject.rememberedEmail)
         XCTAssertNil(userDefaults.string(forKey: "bwPreferencesStorage:rememberedEmail"))
+    }
+
+    /// `usesKeyConnector(userId:)` returns `false` if there isn't a previously stored value.
+    func test_usesKeyConnector_isInitiallyNil() {
+        XCTAssertFalse(subject.usesKeyConnector(userId: "-1"))
+    }
+
+    /// `usesKeyConnector(userId:)` can be used to get whether the user uses key connector.
+    func test_usesKeyConnector_withValue() {
+        subject.setUsesKeyConnector(true, userId: "1")
+        subject.setUsesKeyConnector(false, userId: "2")
+
+        XCTAssertTrue(subject.usesKeyConnector(userId: "1"))
+        XCTAssertFalse(subject.usesKeyConnector(userId: "2"))
+        XCTAssertTrue(userDefaults.bool(forKey: "bwPreferencesStorage:usesKeyConnector_1"))
+        XCTAssertFalse(userDefaults.bool(forKey: "bwPreferencesStorage:usesKeyConnector_2"))
     }
 
     /// `rememberedOrgIdentifier` returns `nil` if there isn't a previously stored value.

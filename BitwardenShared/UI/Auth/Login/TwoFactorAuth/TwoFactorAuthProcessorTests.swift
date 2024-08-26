@@ -63,6 +63,7 @@ class TwoFactorAuthProcessorTests: BitwardenTestCase { // swiftlint:disable:this
     // MARK: Tests
 
     /// `captchaCompleted()` makes the login requests again, this time with a captcha token.
+    @MainActor
     func test_captchaCompleted() {
         subject.state.verificationCode = "Test"
         subject.captchaCompleted(token: "token")
@@ -74,6 +75,7 @@ class TwoFactorAuthProcessorTests: BitwardenTestCase { // swiftlint:disable:this
     }
 
     /// `captchaErrored(error:)` records an error.
+    @MainActor
     func test_captchaErrored() {
         subject.captchaErrored(error: BitwardenTestError.example)
 
@@ -83,6 +85,7 @@ class TwoFactorAuthProcessorTests: BitwardenTestCase { // swiftlint:disable:this
     }
 
     /// `captchaErrored(error:)` doesn't record an error if the captcha flow was cancelled.
+    @MainActor
     func test_captchaErrored_cancelled() {
         let error = NSError(domain: "", code: ASWebAuthenticationSessionError.canceledLogin.rawValue)
         subject.captchaErrored(error: error)
@@ -90,6 +93,7 @@ class TwoFactorAuthProcessorTests: BitwardenTestCase { // swiftlint:disable:this
     }
 
     /// `init` sets up the state correctly.
+    @MainActor
     func test_init() {
         let authMethodsData = AuthMethodsData.fixture()
         let state = TwoFactorAuthState(authMethodsData: authMethodsData)
@@ -106,11 +110,12 @@ class TwoFactorAuthProcessorTests: BitwardenTestCase { // swiftlint:disable:this
     }
 
     /// A `didComplete` call triggers the `.receivedDuoToken` effect.
+    @MainActor
     func test_duoAuthenticationFlowDelegate_didComplete() {
         subject.state.authMethod = .duo
         subject.state.verificationCode = ""
         subject.state.unlockMethod = .password("duo token")
-        authService.loginWithTwoFactorCodeResult = .success(.fixtureAccountLogin())
+        authService.loginWithTwoFactorCodeResult = .success(.masterPassword(.fixtureAccountLogin()))
 
         let task = Task {
             subject.didComplete(code: "1234")
@@ -124,6 +129,7 @@ class TwoFactorAuthProcessorTests: BitwardenTestCase { // swiftlint:disable:this
     }
 
     /// A `duoErrored` call presents no alert on cancel.
+    @MainActor
     func test_duoAuthenticationFlowDelegate_duoErrored_cancel() {
         coordinator.isLoadingOverlayShowing = true
         subject.state.authMethod = .duo
@@ -137,6 +143,7 @@ class TwoFactorAuthProcessorTests: BitwardenTestCase { // swiftlint:disable:this
     }
 
     /// A `duoErrored` call presents an alert on error.
+    @MainActor
     func test_duoAuthenticationFlowDelegate_duoErrored_decodeFail() {
         subject.state.authMethod = .duo
 
@@ -148,6 +155,7 @@ class TwoFactorAuthProcessorTests: BitwardenTestCase { // swiftlint:disable:this
     }
 
     /// `perform(_:)` with `.beginDuoAuth` does nothing if duo is not configured.
+    @MainActor
     func test_perform_beginDuoAuth_failure() async {
         subject.state.authMethod = .duo
         subject.state.authMethodsData = AuthMethodsData(
@@ -163,6 +171,7 @@ class TwoFactorAuthProcessorTests: BitwardenTestCase { // swiftlint:disable:this
     }
 
     /// `perform(_:)` with `.beginDuoAuth` initates the duo auth flow.
+    @MainActor
     func test_perform_beginDuoAuth_success() async {
         let expectedURL = URL(string: "bitwarden://expectedURL")!
         subject.state.authMethod = .duo
@@ -179,6 +188,7 @@ class TwoFactorAuthProcessorTests: BitwardenTestCase { // swiftlint:disable:this
     }
 
     /// `perform(_:)` with `.beginDuoAuth`  does nothing if duo is not the auth method.
+    @MainActor
     func test_perform_beginDuoAuth_wrongAuthMethod() async {
         let expectedURL = URL(string: "bitwarden://expectedURL")!
         subject.state.authMethod = .authenticatorApp
@@ -194,9 +204,10 @@ class TwoFactorAuthProcessorTests: BitwardenTestCase { // swiftlint:disable:this
     }
 
     /// A `webAuthnCompleted` call triggers a login and sets a token
+    @MainActor
     func test_webAuthnAuthenticationFlowDelegate_didComplete() {
         subject.state.authMethod = .webAuthn
-        authService.loginWithTwoFactorCodeResult = .success(.fixtureAccountLogin())
+        authService.loginWithTwoFactorCodeResult = .success(.masterPassword(.fixtureAccountLogin()))
         subject.state.unlockMethod = .password("token")
 
         let task = Task {
@@ -211,6 +222,7 @@ class TwoFactorAuthProcessorTests: BitwardenTestCase { // swiftlint:disable:this
     }
 
     /// A `webAuthnErrored` call presents an alert on error.
+    @MainActor
     func test_webAuthnAuthenticationFlowDelegate_webAuthnErrored_decodeFail() {
         subject.state.authMethod = .webAuthn
 
@@ -223,6 +235,7 @@ class TwoFactorAuthProcessorTests: BitwardenTestCase { // swiftlint:disable:this
 
     /// `perform(_:)` with `.beginWebAuthn` initates the WebAuthn Connector flow on self-hosted vaults.
     @available(iOS 16.0, *)
+    @MainActor
     func test_perform_beginWebAuthn_selfHosted() async throws {
         environmentService.region = .selfHosted
         let testData = AuthMethodsData.fixtureWebAuthn()
@@ -267,6 +280,7 @@ class TwoFactorAuthProcessorTests: BitwardenTestCase { // swiftlint:disable:this
     }
 
     /// `perform(_:)` with `.beginWebAuthn` initates the WebAuthn auth flow.
+    @MainActor
     func test_perform_beginWebAuthn_success() async throws {
         environmentService.region = .unitedStates
         let testData = AuthMethodsData.fixtureWebAuthn()
@@ -294,6 +308,7 @@ class TwoFactorAuthProcessorTests: BitwardenTestCase { // swiftlint:disable:this
     }
 
     /// `perform(_:)` with `.beginWebAuthnAuth`  does nothing if WebAuthn is not configured.
+    @MainActor
     func test_perform_beginWebAuthn_failure() async {
         subject.state.authMethod = .webAuthn
         subject.state.authMethodsData = AuthMethodsData.fixture()
@@ -302,6 +317,7 @@ class TwoFactorAuthProcessorTests: BitwardenTestCase { // swiftlint:disable:this
     }
 
     /// `perform(_:)` with `.beginWebAuthnAuth`  does nothing if WebAuthn is not the auth method.
+    @MainActor
     func test_perform_beginWebAuthn_wrongAuthMethod() async {
         subject.state.authMethod = .authenticatorApp
         subject.state.authMethodsData = AuthMethodsData.fixtureWebAuthn()
@@ -310,6 +326,7 @@ class TwoFactorAuthProcessorTests: BitwardenTestCase { // swiftlint:disable:this
     }
 
     /// `perform(_:)` with `.continueTapped` navigates to the `.captcha` route if there was a captcha error.
+    @MainActor
     func test_perform_continueTapped_captchaError() async {
         subject.state.verificationCode = "Test"
         authService.loginWithTwoFactorCodeResult = .failure(
@@ -327,6 +344,7 @@ class TwoFactorAuthProcessorTests: BitwardenTestCase { // swiftlint:disable:this
     }
 
     /// `perform(_:)` with `.continueTapped` and a captcha flow error records the error.
+    @MainActor
     func test_perform_continueTapped_captchaFlowError() async {
         subject.state.verificationCode = "Test"
         authService.loginWithTwoFactorCodeResult = .failure(
@@ -344,6 +362,7 @@ class TwoFactorAuthProcessorTests: BitwardenTestCase { // swiftlint:disable:this
     }
 
     /// `perform(_:)` with `.continueTapped` handles any errors correctly.
+    @MainActor
     func test_perform_continueTapped_error() async {
         subject.state.authMethod = .email
         subject.state.verificationCode = "Test  "
@@ -362,6 +381,7 @@ class TwoFactorAuthProcessorTests: BitwardenTestCase { // swiftlint:disable:this
     }
 
     /// `perform(_:)` with `.continueTapped` shows an alert for empty verification code text.
+    @MainActor
     func test_perform_continueTapped_invalidInput() async throws {
         await subject.perform(.continueTapped)
         XCTAssertEqual(
@@ -374,6 +394,7 @@ class TwoFactorAuthProcessorTests: BitwardenTestCase { // swiftlint:disable:this
 
     /// `perform(_:)` with `.continueTapped` logs in and unlocks the vault successfully when using
     /// a password.
+    @MainActor
     func test_perform_continueTapped_success() async {
         subject.state.unlockMethod = .password("password123")
         subject.state.verificationCode = "Test"
@@ -386,6 +407,7 @@ class TwoFactorAuthProcessorTests: BitwardenTestCase { // swiftlint:disable:this
 
     /// `perform(_:)` with `.continueTapped` logs in and unlocks the vault successfully when using
     /// login with device.
+    @MainActor
     func test_perform_continueTapped_loginWithDevice_success() async {
         subject.state.unlockMethod = .loginWithDevice(
             key: "KEY",
@@ -402,7 +424,62 @@ class TwoFactorAuthProcessorTests: BitwardenTestCase { // swiftlint:disable:this
         XCTAssertEqual(authRepository.unlockVaultFromLoginWithDeviceMasterPasswordHash, "MASTER_PASSWORD_HASH")
     }
 
+    /// `perform(_:)` with `.continueTapped` logs in and unlocks the vault successfully when using
+    /// login with device key.
+    @MainActor
+    func test_perform_continueTapped_loginWithDeviceKey_success() async {
+        authService.loginWithTwoFactorCodeResult = .success(.deviceKey)
+        subject.state.verificationCode = "Test"
+
+        await subject.perform(.continueTapped)
+
+        XCTAssertTrue(authRepository.unlockVaultWithDeviceKeyCalled)
+        XCTAssertEqual(coordinator.routes, [.complete])
+    }
+
+    /// `perform(_:)` with `.continueTapped` logs in and unlocks the vault successfully when using
+    /// login with Key Connector.
+    @MainActor
+    func test_perform_continueTapped_loginWithKeyConnectorKey_success() async {
+        authService.loginWithTwoFactorCodeResult = .success(.keyConnector(
+            keyConnectorURL: URL(string: "https://example.com")!
+        ))
+        subject.state.verificationCode = "Test"
+        subject.state.orgIdentifier = "org-id"
+
+        await subject.perform(.continueTapped)
+
+        XCTAssertTrue(authRepository.unlockVaultWithKeyConnectorKeyCalled)
+        XCTAssertEqual(coordinator.routes, [.complete])
+    }
+
+    /// `perform(_:)` with `.continueTapped` throws an error if the organization identifier is
+    /// missing for log in with Key Connector.
+    @MainActor
+    func test_perform_continueTapped_loginWithKeyConnectorKey_missingOrgIdentifier() async {
+        authService.loginWithTwoFactorCodeResult = .success(.keyConnector(
+            keyConnectorURL: URL(string: "https://example.com")!
+        ))
+        subject.state.verificationCode = "Test"
+
+        await subject.perform(.continueTapped)
+
+        XCTAssertFalse(authRepository.unlockVaultWithKeyConnectorKeyCalled)
+        XCTAssertEqual(
+            coordinator.alertShown,
+            [
+                .defaultAlert(
+                    title: Localizations.anErrorHasOccurred,
+                    message: Localizations.invalidVerificationCode
+                ),
+            ]
+        )
+        XCTAssertEqual(coordinator.routes, [])
+        XCTAssertEqual(errorReporter.errors as? [TwoFactorAuthError], [.missingOrgIdentifier])
+    }
+
     /// `perform(_:)` with `.continueTapped` handles a two-factor error correctly.
+    @MainActor
     func test_perform_continueTapped_twoFactorError() async {
         subject.state.verificationCode = "Test"
         authService.loginWithTwoFactorCodeResult = .failure(
@@ -419,6 +496,7 @@ class TwoFactorAuthProcessorTests: BitwardenTestCase { // swiftlint:disable:this
     }
 
     /// `perform(_:)` with `.listenForNFC` starts listening for NFC tags and attempts login if one is read.
+    @MainActor
     func test_perform_listenForNFC() {
         nfcReaderService.resultSubject.value = "NFC_TAG_VALUE"
         subject.state.unlockMethod = .password("password123")
@@ -440,6 +518,7 @@ class TwoFactorAuthProcessorTests: BitwardenTestCase { // swiftlint:disable:this
     }
 
     /// `perform(_:)` with `.listenForNFC` logs an error and shows an alert if listening for NFC tags fails.
+    @MainActor
     func test_perform_listenForNFC_error() async {
         nfcReaderService.resultSubject.send(completion: .failure(BitwardenTestError.example))
 
@@ -450,6 +529,7 @@ class TwoFactorAuthProcessorTests: BitwardenTestCase { // swiftlint:disable:this
     }
 
     /// `perform(_:)` with `.receivedDuoToken` handles an error correctly.
+    @MainActor
     func test_perform_receivedDuoToken_failure() async {
         subject.state.authMethod = .duo
         subject.state.verificationCode = ""
@@ -465,12 +545,13 @@ class TwoFactorAuthProcessorTests: BitwardenTestCase { // swiftlint:disable:this
     }
 
     /// `perform(_:)` with `.receivedDuoToken` handles a two-factor error correctly.
+    @MainActor
     func test_perform_receivedDuoToken_noUnlockMethod() async {
         subject.state.authMethod = .duo
         subject.state.verificationCode = ""
         subject.state.unlockMethod = nil
         let expectedAccount = Account.fixtureAccountLogin()
-        authService.loginWithTwoFactorCodeResult = .success(expectedAccount)
+        authService.loginWithTwoFactorCodeResult = .success(.masterPassword(expectedAccount))
 
         await subject.perform(.receivedDuoToken("DuoToken"))
 
@@ -491,11 +572,12 @@ class TwoFactorAuthProcessorTests: BitwardenTestCase { // swiftlint:disable:this
 
     /// `perform(_:)` with `.receivedDuoToken` logs in and unlocks the vault successfully when using
     /// a duo.
+    @MainActor
     func test_perform_receivedDuoToken_success() async {
         subject.state.authMethod = .duo
         subject.state.verificationCode = ""
         subject.state.unlockMethod = .password("duo token")
-        authService.loginWithTwoFactorCodeResult = .success(.fixtureAccountLogin())
+        authService.loginWithTwoFactorCodeResult = .success(.masterPassword(.fixtureAccountLogin()))
 
         await subject.perform(.receivedDuoToken("DuoToken"))
 
@@ -505,6 +587,7 @@ class TwoFactorAuthProcessorTests: BitwardenTestCase { // swiftlint:disable:this
     }
 
     /// `perform(_:)` with `.resendEmailTapped` handles errors correctly.
+    @MainActor
     func test_perform_resendEmailTapped_error() async {
         subject.state.authMethod = .email
         authService.resendVerificationCodeEmailResult = .failure(BitwardenTestError.example)
@@ -522,6 +605,7 @@ class TwoFactorAuthProcessorTests: BitwardenTestCase { // swiftlint:disable:this
     }
 
     /// `perform(_:)` with `.resendEmailTapped` does nothing when not required.
+    @MainActor
     func test_perform_resendEmailTapped_notRequired() async {
         subject.state.authMethod = .duo
 
@@ -533,6 +617,7 @@ class TwoFactorAuthProcessorTests: BitwardenTestCase { // swiftlint:disable:this
     }
 
     /// `perform(_:)` with `.resendEmailTapped` sends the email and displays the toast.
+    @MainActor
     func test_perform_resendEmailTapped_success() async {
         subject.state.authMethod = .email
 
@@ -544,6 +629,7 @@ class TwoFactorAuthProcessorTests: BitwardenTestCase { // swiftlint:disable:this
     }
 
     /// `perform(_:)` with `.tryAgainTapped` starts reading NFC tags.
+    @MainActor
     func test_perform_tryAgainTapped() async {
         subject.state.authMethod = .yubiKey
 
@@ -553,12 +639,14 @@ class TwoFactorAuthProcessorTests: BitwardenTestCase { // swiftlint:disable:this
     }
 
     /// `receive(_:)` with `.authMethodSelected` updates the value in the state.
+    @MainActor
     func test_receive_authMethodSelected() {
         subject.receive(.authMethodSelected(.authenticatorApp))
         XCTAssertEqual(subject.state.authMethod, .authenticatorApp)
     }
 
     /// `receive(_:)` `.authMethodSelected` with `.email` sends a code to the user's email.
+    @MainActor
     func test_receive_authMethodSelected_email() {
         authService.resendVerificationCodeEmailResult = .success(())
         subject.state.authMethod = .webAuthn
@@ -568,6 +656,7 @@ class TwoFactorAuthProcessorTests: BitwardenTestCase { // swiftlint:disable:this
     }
 
     /// `receive(_:)` with `.authMethodSelected` opens the url for the recover code.
+    @MainActor
     func test_receive_authMethodSelected_recoveryCode() {
         subject.state.authMethod = .email
         subject.receive(.authMethodSelected(.recoveryCode))
@@ -576,6 +665,7 @@ class TwoFactorAuthProcessorTests: BitwardenTestCase { // swiftlint:disable:this
     }
 
     /// `receive(_:)` with `.clearURL` clears the URL in the state.
+    @MainActor
     func test_receive_clearURL() {
         subject.state.url = .example
         subject.receive(.clearURL)
@@ -583,12 +673,14 @@ class TwoFactorAuthProcessorTests: BitwardenTestCase { // swiftlint:disable:this
     }
 
     /// `receive(_:)` with `.dismiss` dismisses the view.
+    @MainActor
     func test_receive_dismiss() {
         subject.receive(.dismiss)
         XCTAssertEqual(coordinator.routes.last, .dismiss)
     }
 
     /// `receive(_:)` with `.rememberMeToggleChanged` updates the value in the state.
+    @MainActor
     func test_receive_rememberMeToggleChanged() {
         subject.receive(.rememberMeToggleChanged(true))
         XCTAssertTrue(subject.state.isRememberMeOn)
@@ -597,6 +689,7 @@ class TwoFactorAuthProcessorTests: BitwardenTestCase { // swiftlint:disable:this
     }
 
     /// `receive(_:)` with `.toastShown` updates the state's toast value.
+    @MainActor
     func test_receive_toastShown() {
         let toast = Toast(text: "toast!")
         subject.receive(.toastShown(toast))
@@ -608,6 +701,7 @@ class TwoFactorAuthProcessorTests: BitwardenTestCase { // swiftlint:disable:this
 
     /// `receive(_:)` with `.verificationCodeChanged` updates the value in the state and enables the button if
     /// applicable.
+    @MainActor
     func test_receive_verificationCodeChanged() {
         subject.receive(.verificationCodeChanged("123"))
         XCTAssertEqual(subject.state.verificationCode, "123")

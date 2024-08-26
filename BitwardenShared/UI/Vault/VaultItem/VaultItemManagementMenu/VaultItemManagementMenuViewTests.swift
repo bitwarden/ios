@@ -37,6 +37,7 @@ class VaultItemManagementMenuViewTests: BitwardenTestCase {
     // MARK: Tests
 
     /// Tapping the attachments option dispatches the `.attachments` action.
+    @MainActor
     func test_attachmentsOption_tap() throws {
         let button = try subject.inspect().find(button: Localizations.attachments)
         try button.tap()
@@ -44,6 +45,7 @@ class VaultItemManagementMenuViewTests: BitwardenTestCase {
     }
 
     /// Tapping the attachments option dispatches the `.clone` action.
+    @MainActor
     func test_cloneOption_tap() throws {
         let button = try subject.inspect().find(button: Localizations.clone)
         try button.tap()
@@ -51,6 +53,7 @@ class VaultItemManagementMenuViewTests: BitwardenTestCase {
     }
 
     /// Tapping the attachments option dispatches the `.clone` action.
+    @MainActor
     func test_collectionsOption_tap() throws {
         let button = try subject.inspect().find(button: Localizations.collections)
         try button.tap()
@@ -58,6 +61,7 @@ class VaultItemManagementMenuViewTests: BitwardenTestCase {
     }
 
     /// Tapping the delete option performs the `.deleteItem` effect.
+    @MainActor
     func test_deleteOption_tap() async throws {
         let button = try subject.inspect().find(asyncButton: Localizations.delete)
         try await button.tap()
@@ -65,6 +69,7 @@ class VaultItemManagementMenuViewTests: BitwardenTestCase {
     }
 
     /// Tapping the move to organization option dispatches the `.moveToOrganization` action.
+    @MainActor
     func test_moveToOrgOption_tap() throws {
         let button = try subject.inspect().find(button: Localizations.moveToOrganization)
         try button.tap()

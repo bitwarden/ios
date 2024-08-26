@@ -66,6 +66,7 @@ class ViewItemProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
     // MARK: Tests
 
     /// `didMoveCipher(_:to:)` displays a toast after the cipher is moved to the organization.
+    @MainActor
     func test_didMoveCipher() {
         subject.didMoveCipher(.fixture(name: "Bitwarden Password"), to: .organization(id: "1", name: "Organization"))
 
@@ -78,6 +79,7 @@ class ViewItemProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
     }
 
     /// `didUpdateCipher()` displays a toast after the cipher is updated.
+    @MainActor
     func test_didUpdateCipher() {
         subject.didUpdateCipher()
 
@@ -87,6 +89,7 @@ class ViewItemProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
     }
 
     /// `perform(_:)` with `.appeared` starts listening for updates with the vault repository.
+    @MainActor
     func test_perform_appeared() {
         let account = Account.fixture()
         stateService.activeAccount = account
@@ -129,6 +132,7 @@ class ViewItemProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
     }
 
     /// `perform(_:)` with `.appeared` records any errors.
+    @MainActor
     func test_perform_appeared_errors() {
         vaultRepository.cipherDetailsSubject.send(completion: .failure(BitwardenTestError.example))
 
@@ -143,6 +147,7 @@ class ViewItemProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
     }
 
     /// `perform(_:)` with `.appeared` starts listening for updates with the vault repository.
+    @MainActor
     func test_perform_appeared_invalidFixture() {
         let cipherItem = CipherView.fixture(id: nil)
         vaultRepository.cipherDetailsSubject.send(cipherItem)
@@ -160,7 +165,38 @@ class ViewItemProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
         XCTAssertFalse(vaultRepository.fetchSyncCalled)
     }
 
+    /// `perform(_:)` with `.appeared` observes whether or not a user has a master password.
+    @MainActor
+    func test_perform_appeared_noMasterPassword() {
+        let account = Account.fixture()
+        stateService.activeAccount = account
+        stateService.userHasMasterPassword = [account.profile.userId: false]
+
+        let cipherItem = CipherView.loginFixture(
+            id: "id"
+        )
+        vaultRepository.doesActiveAccountHavePremiumResult = .success(false)
+        vaultRepository.cipherDetailsSubject.send(cipherItem)
+
+        let task = Task {
+            await subject.perform(.appeared)
+        }
+
+        waitFor(subject.state.loadingState != .loading(nil))
+        task.cancel()
+
+        let expectedState = CipherItemState(
+            existing: cipherItem,
+            hasPremium: false
+        )!
+
+        XCTAssertFalse(subject.state.hasMasterPassword)
+        XCTAssertEqual(subject.state.loadingState, .data(expectedState))
+        XCTAssertFalse(vaultRepository.fetchSyncCalled)
+    }
+
     /// `perform(_:)` with `.appeared` observe the premium status of a user.
+    @MainActor
     func test_perform_appeared_nonPremium() {
         let account = Account.fixture()
         stateService.activeAccount = account
@@ -190,6 +226,7 @@ class ViewItemProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
     }
 
     /// `perform(_:)` with `.appeared` observe the premium status of a user.
+    @MainActor
     func test_perform_appeared_unknownPremium() {
         let account = Account.fixture()
         stateService.activeAccount = account
@@ -219,6 +256,7 @@ class ViewItemProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
     }
 
     /// `perform` with `.checkPasswordPressed` records any errors.
+    @MainActor
     func test_perform_checkPasswordPressed_error() async throws {
         let cipher = CipherView.loginFixture(login: .fixture(password: "password1234"))
         subject.state.loadingState = try .data(XCTUnwrap(CipherItemState(existing: cipher, hasPremium: true)))
@@ -230,6 +268,7 @@ class ViewItemProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
     }
 
     /// `perform` with `.checkPasswordPressed` shows an alert if the password has been exposed.
+    @MainActor
     func test_perform_checkPasswordPressed_exposedPassword() async throws {
         let cipher = CipherView.loginFixture(login: .fixture(password: "password1234"))
         subject.state.loadingState = try .data(XCTUnwrap(CipherItemState(existing: cipher, hasPremium: true)))
@@ -250,6 +289,7 @@ class ViewItemProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
 
     /// `perform` with `.checkPasswordPressed` shows an alert notifying the user that
     /// their password has not been found in a data breach.
+    @MainActor
     func test_perform_checkPasswordPressed_safePassword() async throws {
         let cipher = CipherView.loginFixture(login: .fixture(password: "iqpeor,kmn!JO8932jldfasd"))
         subject.state.loadingState = try .data(XCTUnwrap(CipherItemState(existing: cipher, hasPremium: true)))
@@ -269,6 +309,7 @@ class ViewItemProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
     }
 
     /// `perform(_:)` with `.totpCodeExpired` updates the totp code.
+    @MainActor
     func test_perform_totpCodeExpired() async throws {
         let totpKey = TOTPKeyModel(authenticatorKey: .standardTotpKey)
         let cipherView = CipherView.fixture(login: .fixture(totp: totpKey.rawAuthenticatorKey))
@@ -283,6 +324,7 @@ class ViewItemProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
     }
 
     /// `perform(_:)` with `.totpCodeExpired` records any errors.
+    @MainActor
     func test_perform_totpCodeExpired_error() async throws {
         let totpKey = TOTPKeyModel(authenticatorKey: .standardTotpKey)
         let cipherView = CipherView.fixture(login: .fixture(totp: totpKey.rawAuthenticatorKey))
@@ -297,6 +339,7 @@ class ViewItemProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
     }
 
     /// `receive` with `.cardItemAction` while loading logs an error.
+    @MainActor
     func test_receive_cardItemAction_impossible_loading() throws {
         subject.state.loadingState = .loading(nil)
         subject.receive(.cardItemAction(.toggleCodeVisibilityChanged(true)))
@@ -307,6 +350,7 @@ class ViewItemProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
     }
 
     /// `receive` with `.cardItemAction` throws if the cipher is not of card type.
+    @MainActor
     func test_receive_cardItemAction_impossible_nonCard() throws {
         let cipherView = CipherView.fixture(
             id: "123",
@@ -329,6 +373,7 @@ class ViewItemProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
 
     /// `receive` with `.passwordVisibilityPressed` with a login state toggles the value
     /// for `isPasswordVisible`.
+    @MainActor
     func test_receive_cardItemAction_code() throws {
         let cipherView = CipherView.cardFixture(id: "123")
         var cipherState = CipherItemState(
@@ -344,6 +389,7 @@ class ViewItemProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
 
     /// `receive` with `.passwordVisibilityPressed` with a login state toggles the value
     /// for `isPasswordVisible`.
+    @MainActor
     func test_receive_cardItemAction_number() throws {
         let cipherView = CipherView.cardFixture(id: "123")
         var cipherState = CipherItemState(
@@ -358,6 +404,7 @@ class ViewItemProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
     }
 
     /// `receive` with `.copyPressed` copies the value with the pasteboard service and shows a toast.
+    @MainActor
     func test_receive_copyPressed() {
         let cipherView = CipherView.cardFixture(id: "123")
         let cipherState = CipherItemState(
@@ -402,6 +449,7 @@ class ViewItemProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
     }
 
     /// `recieve` with `.copyPressed` doesn't copy if the data isn't loaded.
+    @MainActor
     func test_receive_copyPressed_notLoaded() {
         subject.receive(.copyPressed(value: "card number", field: .cardNumber))
         XCTAssertNil(pasteboardService.copiedString)
@@ -409,6 +457,7 @@ class ViewItemProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
     }
 
     /// `receive` with `.customFieldVisibilityPressed()` toggles custom field visibility.
+    @MainActor
     func test_receive_customFieldVisiblePressed_withValidField() throws {
         let customField1 = CustomFieldState(
             isPasswordVisible: false,
@@ -459,6 +508,7 @@ class ViewItemProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
     }
 
     /// `receive` with `.customFieldVisibilityPressed()` while loading logs an error.
+    @MainActor
     func test_receive_customFieldVisiblePressed_impossible() throws {
         let customField = CustomFieldState(
             isPasswordVisible: false,
@@ -477,6 +527,7 @@ class ViewItemProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
     }
 
     /// `receive` with `.dismissPressed` navigates to the `.dismiss` route.
+    @MainActor
     func test_receive_dismissPressed() {
         subject.receive(.dismissPressed)
         XCTAssertEqual(coordinator.routes.last, .dismiss())
@@ -484,6 +535,7 @@ class ViewItemProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
 
     /// `perform(_:)` with `.deletePressed` presents the confirmation alert before delete the item and displays
     /// generic error alert if soft deleting fails.
+    @MainActor
     func test_perform_deletePressed_genericError() async throws {
         let cipherState = CipherItemState(
             existing: CipherView.loginFixture(id: "123"),
@@ -516,6 +568,7 @@ class ViewItemProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
 
     /// `perform(_:)` with `.deletePressed` presents a confirmation alert before deleting the item.
     /// On failure, a generic error alert is displayed.
+    @MainActor
     func test_perform_deletePressed_genericError_permanentDelete() async throws {
         let cipherState = CipherItemState(
             existing: CipherView.loginFixture(deletedDate: .now, id: "123"),
@@ -548,6 +601,7 @@ class ViewItemProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
 
     /// `perform(_:)` with `.deletePressed` reprompts the user for their master password if reprompt
     /// is enabled prior to deleting the cipher.
+    @MainActor
     func test_perform_deletePressed_masterPasswordReprompt() async throws {
         subject.state = try XCTUnwrap(
             ViewItemState(
@@ -572,6 +626,7 @@ class ViewItemProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
 
     /// `perform(_:)` with `.deletePressed` presents the confirmation alert before permanently
     /// deleting the item from the trash.
+    @MainActor
     func test_perform_deletePressed_showsPermanentDeleteConfirmationAlert() async throws {
         let cipherState = CipherItemState(
             existing: CipherView.loginFixture(deletedDate: .now, id: "123"),
@@ -590,6 +645,7 @@ class ViewItemProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
     }
 
     /// `perform(_:)` with `.deletePressed` presents the confirmation alert before soft deleting the item.
+    @MainActor
     func test_perform_deletePressed_showsSoftDeleteConfirmationAlert() async throws {
         let cipherState = CipherItemState(
             existing: CipherView.loginFixture(id: "123"),
@@ -609,6 +665,7 @@ class ViewItemProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
 
     /// `perform(_:)` with `.deletePressed` presents the confirmation alert before delete the item and displays
     /// toast if soft deleting succeeds.
+    @MainActor
     func test_perform_deletePressed_success() async throws {
         let cipherState = CipherItemState(
             existing: CipherView.loginFixture(id: "123"),
@@ -643,6 +700,7 @@ class ViewItemProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
 
     /// `perform(_:)` with `.deletePressed` presents the confirmation alert before delete the item and displays
     /// toast if permanently deleting succeeds.
+    @MainActor
     func test_perform_deletePressed_success_permanent_delete() async throws {
         let cipherState = CipherItemState(
             existing: CipherView.loginFixture(deletedDate: .now, id: "123"),
@@ -677,6 +735,7 @@ class ViewItemProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
 
     /// `perform(_:)` with `.restorePressed` presents the confirmation alert before restore the item and displays
     /// generic error alert if restoring fails.
+    @MainActor
     func test_perform_restorePressed_genericError() async throws {
         let cipherState = CipherItemState(
             existing: CipherView.loginFixture(deletedDate: .now, id: "123"),
@@ -710,6 +769,7 @@ class ViewItemProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
 
     /// `perform(_:)` with `.restorePressed` presents the confirmation alert before restore the item and displays
     /// toast if restoring succeeds.
+    @MainActor
     func test_perform_restorePressed_success() async throws {
         let cipherState = CipherItemState(
             existing: CipherView.loginFixture(deletedDate: .now, id: "123"),
@@ -744,6 +804,7 @@ class ViewItemProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
     }
 
     /// `.receive(_:)` with `.downloadAttachment(_)` shows an alert and downloads the attachment for large attachments.
+    @MainActor
     func test_receive_downloadAttachment() async throws {
         // Set up the mock results.
         vaultRepository.downloadAttachmentResult = .success(.example)
@@ -767,6 +828,7 @@ class ViewItemProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
     }
 
     /// `.receive(_:)` with `.downloadAttachment(_)`handles any errors.
+    @MainActor
     func test_receive_downloadAttachment_error() async throws {
         // Set up the mock results.
         vaultRepository.downloadAttachmentResult = .failure(BitwardenTestError.example)
@@ -791,6 +853,7 @@ class ViewItemProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
     }
 
     /// `.receive(_:)` with `.downloadAttachment(_)` shows an alert if the data wasn't saved to a url.
+    @MainActor
     func test_receive_downloadAttachment_nilUrl() async throws {
         // Set up the mock results.
         vaultRepository.downloadAttachmentResult = .success(nil)
@@ -814,6 +877,7 @@ class ViewItemProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
     }
 
     /// `.receive(_:)` with `.downloadAttachment(_)` skips the confirmation alert for small files..
+    @MainActor
     func test_receive_downloadAttachment_smallAttachment() throws {
         // Set up the mock results.
         vaultRepository.downloadAttachmentResult = .success(.example)
@@ -835,12 +899,14 @@ class ViewItemProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
     }
 
     /// `receive` with `.editPressed` has no change when the state is loading.
+    @MainActor
     func test_receive_editPressed_loading() {
         subject.receive(.editPressed)
         XCTAssertEqual(coordinator.routes, [])
     }
 
     /// `receive` with `.editPressed`with data navigates to the edit item route.
+    @MainActor
     func test_receive_editPressed_data() {
         let cipherView = CipherView.fixture(
             id: "123",
@@ -871,6 +937,7 @@ class ViewItemProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
 
     /// Tests that the despite a cipher having a `.password` re-prompt property, a
     /// re-prompt will not be shown for a user that has no password.
+    @MainActor
     func test_receive_editPressed_noPassword() {
         subject.state.hasMasterPassword = false
 
@@ -890,6 +957,7 @@ class ViewItemProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
     }
 
     /// `receive(_:)` with `.morePressed(.attachments)` navigates the user to attachments view.
+    @MainActor
     func test_receive_morePressed_attachments() throws {
         let cipher = CipherView.fixture(id: "1")
         subject.state.loadingState = try .data(XCTUnwrap(CipherItemState(existing: cipher, hasPremium: true)))
@@ -901,6 +969,7 @@ class ViewItemProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
 
     /// `receive(_:)` with `.morePressed(.clone)` navigates the user to the move to
     /// clone item view.
+    @MainActor
     func test_receive_morePressed_clone() throws {
         let cipher = CipherView.fixture(id: "1")
         subject.state.loadingState = try .data(
@@ -923,6 +992,7 @@ class ViewItemProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
     /// `receive(_:)` with `.morePressed(.clone)` for a cipher with FIDO2 credentials shows an
     /// alert confirming that the user wants to proceed without cloning the FIDO2 credential and
     /// navigates the user to the clone item view.
+    @MainActor
     func test_receive_morePressed_clone_fido2Credentials() throws {
         let cipher = CipherView.loginFixture(id: "1", login: .fixture(fido2Credentials: [.fixture()]))
         subject.state.loadingState = try .data(
@@ -953,6 +1023,7 @@ class ViewItemProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
 
     /// `receive(_:)` with `.morePressed(.editCollections)` navigates the user to the edit
     /// collections view.
+    @MainActor
     func test_receive_morePressed_editCollections() throws {
         let cipher = CipherView.fixture(id: "1")
         subject.state.loadingState = try .data(
@@ -971,6 +1042,7 @@ class ViewItemProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
     }
 
     /// `receive(_:)` with `.morePressed()` shows an error alert if the data is unavailable.
+    @MainActor
     func test_receive_morePressed_loading() throws {
         subject.state.loadingState = .loading(nil)
 
@@ -985,6 +1057,7 @@ class ViewItemProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
 
     /// `receive(_:)` with `.morePressed(.moveToOrganization)` navigates the user to the move to
     /// organization view.
+    @MainActor
     func test_receive_morePressed_moveToOrganization() throws {
         let cipher = CipherView.fixture(id: "1")
         subject.state.loadingState = try .data(
@@ -1003,6 +1076,7 @@ class ViewItemProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
     }
 
     /// `receive` with `.passwordHistoryPressed` navigates to the password history view.
+    @MainActor
     func test_receive_passwordHistoryPressed() {
         subject.state.passwordHistory = [.fixture(), .fixture()]
         subject.receive(.passwordHistoryPressed)
@@ -1010,6 +1084,7 @@ class ViewItemProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
     }
 
     /// `receive` with `.passwordHistoryPressed` does nothing if there's no password history.
+    @MainActor
     func test_receive_passwordHistoryPressed_noData() {
         subject.state.passwordHistory = nil
         subject.receive(.passwordHistoryPressed)
@@ -1017,6 +1092,7 @@ class ViewItemProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
     }
 
     /// `receive` with `.passwordVisibilityPressed` while loading logs an error.
+    @MainActor
     func test_receive_passwordVisibilityPressed_impossible_loading() throws {
         subject.state.loadingState = .loading(nil)
         subject.receive(.passwordVisibilityPressed)
@@ -1028,6 +1104,7 @@ class ViewItemProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
     }
 
     /// `receive` with `.passwordVisibilityPressed` while loading logs an error.
+    @MainActor
     func test_receive_passwordVisibilityPressed_impossible_nonLogin() throws {
         let cipherView = CipherView.fixture(
             id: "123",
@@ -1051,6 +1128,7 @@ class ViewItemProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
 
     /// `receive` with `.passwordVisibilityPressed` with a login state toggles the value
     /// for `isPasswordVisible`.
+    @MainActor
     func test_receive_passwordVisibilityPressed_withLoginState() {
         let cipherView = CipherView.fixture(
             id: "123",
@@ -1079,6 +1157,7 @@ class ViewItemProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
 
     /// `receive` with `.passwordVisibilityPressed` with a login state toggles the value
     /// for `isPasswordVisible`.
+    @MainActor
     func test_receive_passwordVisibilityPressed_withLoginState_withMasterPasswordReprompt() throws {
         let cipherView = CipherView.fixture(
             id: "123",
@@ -1106,6 +1185,7 @@ class ViewItemProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
     }
 
     /// `receive(_:)` with `.toastShown` with a value updates the state correctly.
+    @MainActor
     func test_receive_toastShown_withValue() {
         let toast = Toast(text: "123")
         subject.receive(.toastShown(toast))
@@ -1115,6 +1195,7 @@ class ViewItemProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
 
     /// Tapping the "Submit" button in the master password reprompt alert validates the entered
     /// password and completes the action.
+    @MainActor
     func test_masterPasswordReprompt_submitButtonPressed() async throws {
         let cipherView = CipherView.fixture(
             id: "123",
@@ -1151,6 +1232,7 @@ class ViewItemProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
     }
 
     /// If validation the user's password fails, an error is logged.
+    @MainActor
     func test_masterPasswordReprompt_submitButtonPressed_error() async throws {
         struct ValidatePasswordError: Error {}
         authRepository.validatePasswordResult = .failure(ValidatePasswordError())
@@ -1174,6 +1256,7 @@ class ViewItemProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
     }
 
     /// If the user's password validation fails, an invalid password alert is presented.
+    @MainActor
     func test_masterPasswordReprompt_submitButtonPressed_invalidPassword() async throws {
         authRepository.validatePasswordResult = .success(false)
 

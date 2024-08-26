@@ -31,12 +31,14 @@ class IntroCarouselProcessorTests: BitwardenTestCase {
     // MARK: Tests
 
     /// `receive(_:)` with `.createAccount` navigates to the create account view.
+    @MainActor
     func test_receive_createAccount() {
         subject.receive(.createAccount)
         XCTAssertEqual(coordinator.routes.last, .createAccount)
     }
 
     /// `receive(_:)` with `.currentPageIndexChanged` updates the current page index.
+    @MainActor
     func test_receive_currentPageIndexChanged() {
         subject.receive(.currentPageIndexChanged(1))
         XCTAssertEqual(subject.state.currentPageIndex, 1)
@@ -49,6 +51,7 @@ class IntroCarouselProcessorTests: BitwardenTestCase {
     }
 
     /// `receive(_:)` with `.logIn` navigates to the landing view.
+    @MainActor
     func test_receive_logIn() {
         subject.receive(.logIn)
         XCTAssertEqual(coordinator.routes.last, .landing)

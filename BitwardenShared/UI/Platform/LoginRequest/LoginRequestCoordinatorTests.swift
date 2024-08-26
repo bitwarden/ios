@@ -32,6 +32,7 @@ class LoginRequestCoordinatorTests: BitwardenTestCase {
     // MARK: Tests
 
     /// `navigate(to:)` with `.dismiss` dismisses the view.
+    @MainActor
     func test_navigate_dismiss() throws {
         subject.navigate(to: .dismiss(nil))
 
@@ -40,6 +41,7 @@ class LoginRequestCoordinatorTests: BitwardenTestCase {
     }
 
     /// `navigate(to:)` with `.loginRequest(_)` displays the login request view.
+    @MainActor
     func test_navigate_loginRequest() throws {
         subject.navigate(to: .loginRequest(.fixture()))
 
@@ -49,6 +51,7 @@ class LoginRequestCoordinatorTests: BitwardenTestCase {
     }
 
     /// `start()` has no effect.
+    @MainActor
     func test_start() {
         subject.start()
         XCTAssertTrue(stackNavigator.actions.isEmpty)

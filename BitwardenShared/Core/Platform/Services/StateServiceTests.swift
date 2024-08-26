@@ -244,11 +244,18 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
         )
     }
 
-    /// `getAccountEncryptionKeys(_:)` throws an error if applicable.
-    func test_getAccountEncryptionKeys_error() async throws {
+    /// `getAccountEncryptionKeys(_:)` throws an error if there's no active account.
+    func test_getAccountEncryptionKeys_noAccount() async throws {
+        await assertAsyncThrows(error: StateServiceError.noActiveAccount) {
+            _ = try await subject.getAccountEncryptionKeys()
+        }
+    }
+
+    /// `getAccountEncryptionKeys(_:)` throws an error if there's no private key.
+    func test_getAccountEncryptionKeys_noPrivateKey() async throws {
         await subject.addAccount(.fixture(profile: .fixture(userId: "1")))
 
-        await assertAsyncThrows(error: StateServiceError.noActiveAccount) {
+        await assertAsyncThrows(error: StateServiceError.noEncryptedPrivateKey) {
             _ = try await subject.getAccountEncryptionKeys()
         }
     }
@@ -567,6 +574,16 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
         XCTAssertEqual(actual, events)
     }
 
+    /// `getIntroCarouselShown()` returns whether the intro carousel screen has been shown.
+    func test_getIntroCarouselShown() async {
+        var hasShownCarousel = await subject.getIntroCarouselShown()
+        XCTAssertFalse(hasShownCarousel)
+
+        appSettingsStore.introCarouselShown = true
+        hasShownCarousel = await subject.getIntroCarouselShown()
+        XCTAssertTrue(hasShownCarousel)
+    }
+
     /// `getLastActiveTime(userId:)` gets the user's last active time.
     func test_getLastActiveTime() async throws {
         await subject.addAccount(.fixture(profile: .fixture(userId: "1")))
@@ -687,22 +704,6 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
         appSettingsStore.serverConfig["1"] = model
         let value = try await subject.getServerConfig()
         XCTAssertEqual(value, model)
-    }
-
-    /// `getShouldCheckOrganizationUnassignedItems` returns the config value
-    func test_getShouldCheckOrganizationUnassignedItems() async throws {
-        appSettingsStore.shouldCheckOrganizationUnassignedItems["1"] = false
-        var shouldCheck = try await subject.getShouldCheckOrganizationUnassignedItems(userId: "1")
-        XCTAssertFalse(shouldCheck)
-        appSettingsStore.shouldCheckOrganizationUnassignedItems["1"] = true
-        shouldCheck = try await subject.getShouldCheckOrganizationUnassignedItems(userId: "1")
-        XCTAssertTrue(shouldCheck)
-    }
-
-    /// `getShouldCheckOrganizationUnassignedItems` returns true if it hasn't been set
-    func test_getShouldCheckOrganizationUnassignedItems_notSet() async throws {
-        let shouldCheck = try await subject.getShouldCheckOrganizationUnassignedItems(userId: "1")
-        XCTAssertTrue(shouldCheck)
     }
 
     /// `getShowWebIcons` gets the show web icons value.
@@ -857,6 +858,18 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
 
         let fetchedOptionsNoAccount = try await subject.getUsernameGenerationOptions(userId: "-1")
         XCTAssertNil(fetchedOptionsNoAccount)
+    }
+
+    /// `getUsesKeyConnector()` returns whether the user uses key connector.
+    func test_getUsesKeyConnector() async throws {
+        await subject.addAccount(.fixture(profile: .fixture(userId: "1")))
+
+        var usesKeyConnector = try await subject.getUsesKeyConnector()
+        XCTAssertFalse(usesKeyConnector)
+
+        appSettingsStore.usesKeyConnector["1"] = true
+        usesKeyConnector = try await subject.getUsesKeyConnector()
+        XCTAssertTrue(usesKeyConnector)
     }
 
     /// `.getVaultTimeout(userId:)` gets the user's vault timeout.
@@ -1317,6 +1330,15 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
         XCTAssertEqual(appSettingsStore.eventsByUserId["1"], events)
     }
 
+    /// `setIntroCarouselShown(_:)` sets whether the intro carousel screen has been shown.
+    func test_setIntroCarouselShown() async {
+        await subject.setIntroCarouselShown(true)
+        XCTAssertTrue(appSettingsStore.introCarouselShown)
+
+        await subject.setIntroCarouselShown(false)
+        XCTAssertFalse(appSettingsStore.introCarouselShown)
+    }
+
     /// `setLastSyncTime(_:userId:)` sets the last sync time for a user.
     func test_setLastSyncTime() async throws {
         await subject.addAccount(.fixture(profile: .fixture(userId: "1")))
@@ -1508,12 +1530,6 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
         XCTAssertEqual(appSettingsStore.serverConfig["1"], model)
     }
 
-    /// `setShouldCheckOrganizationUnassignedItems` saves the should check value.
-    func test_setShouldCheckOrganizationUnassignedItems() async throws {
-        try await subject.setShouldCheckOrganizationUnassignedItems(true, userId: "1")
-        XCTAssertEqual(appSettingsStore.shouldCheckOrganizationUnassignedItems["1"], true)
-    }
-
     /// `setShouldTrustDevice` saves the should trust device value.
     func test_setShouldTrustDevice() async {
         await subject.setShouldTrustDevice(true, userId: "1")
@@ -1555,17 +1571,43 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
         XCTAssertEqual(appSettingsStore.usernameGenerationOptions["2"], options2)
     }
 
-    /// `.setsetUserHasMasterPassword()` sets the user has having master password set .
-    func test_setUserHasMasterPassword() async throws {
+    /// `.setUserHasMasterPassword()` sets the user's has master password flag to `false`.
+    func test_setUserHasMasterPassword_false() async throws {
+        let account = Account.fixture(
+            profile: .fixture(
+                userDecryptionOptions: UserDecryptionOptions(
+                    hasMasterPassword: true,
+                    keyConnectorOption: nil,
+                    trustedDeviceOption: nil
+                )
+            )
+        )
+        await subject.addAccount(account)
+
+        try await subject.setUserHasMasterPassword(false)
+
+        XCTAssertNotEqual(appSettingsStore.state?.accounts["1"], account)
+        XCTAssertEqual(appSettingsStore.state?.accounts["1"]?.profile.userDecryptionOptions?.hasMasterPassword, false)
+    }
+
+    /// `setUserHasMasterPassword()` sets the user's has master password flag to `true`.
+    func test_setUserHasMasterPassword_true() async throws {
         let account1 = Account.fixtureWithTdeNoPassword()
         await subject.addAccount(account1)
 
         XCTAssertFalse(appSettingsStore.state?.accounts["1"]?.profile.userDecryptionOptions?.hasMasterPassword ?? false)
 
-        try await subject.setUserHasMasterPassword()
+        try await subject.setUserHasMasterPassword(true)
 
         XCTAssertNotEqual(appSettingsStore.state?.accounts["1"], account1)
         XCTAssertTrue(appSettingsStore.state?.accounts["1"]?.profile.userDecryptionOptions?.hasMasterPassword ?? false)
+    }
+
+    func test_setUsesKeyConnector() async throws {
+        await subject.addAccount(.fixture(profile: .fixture(userId: "1")))
+
+        try await subject.setUsesKeyConnector(true)
+        XCTAssertEqual(appSettingsStore.usesKeyConnector["1"], true)
     }
 
     /// `.setActiveAccount(userId:)` sets the action that occurs when there's a session timeout.

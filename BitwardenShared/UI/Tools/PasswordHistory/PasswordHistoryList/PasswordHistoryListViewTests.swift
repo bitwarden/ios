@@ -34,6 +34,7 @@ class PasswordHistoryListViewTests: BitwardenTestCase {
     // MARK: Tests
 
     /// Tapping the clear button dispatches the `.clearList` action.
+    @MainActor
     func test_clear_tapped() async throws {
         let menu = try subject.inspect().find(ViewType.Menu.self, containing: Localizations.options)
         let button = try menu.find(asyncButton: Localizations.clear)
@@ -42,6 +43,7 @@ class PasswordHistoryListViewTests: BitwardenTestCase {
     }
 
     /// Tapping the close button dispatches the `.dismiss` action.
+    @MainActor
     func test_close_tapped() throws {
         let button = try subject.inspect().find(button: Localizations.close)
         try button.tap()
@@ -49,6 +51,7 @@ class PasswordHistoryListViewTests: BitwardenTestCase {
     }
 
     /// Tapping the copy button on a password history row dispatches the `.copyPassword` action.
+    @MainActor
     func test_copyPassword_tapped() throws {
         let passwordHistory = PasswordHistoryView.fixture(password: "8gr6uY8CLYQwzr#")
         processor.state.passwordHistory = [passwordHistory]
@@ -69,6 +72,7 @@ class PasswordHistoryListViewTests: BitwardenTestCase {
     }
 
     /// Test a snapshot of the generator history displaying a list of generated values.
+    @MainActor
     func test_snapshot_generatorHistoryViewList() {
         processor.state.passwordHistory = [
             PasswordHistoryView(

@@ -5,6 +5,7 @@ import XCTest
 class SingleSignOnProcessorTests: BitwardenTestCase {
     // MARK: Properties
 
+    var authRepository: MockAuthRepository!
     var authService: MockAuthService!
     var client: MockHTTPClient!
     var coordinator: MockCoordinator<AuthRoute, AuthEvent>!
@@ -17,12 +18,14 @@ class SingleSignOnProcessorTests: BitwardenTestCase {
     override func setUp() {
         super.setUp()
 
+        authRepository = MockAuthRepository()
         authService = MockAuthService()
         client = MockHTTPClient()
         coordinator = MockCoordinator<AuthRoute, AuthEvent>()
         errorReporter = MockErrorReporter()
         stateService = MockStateService()
         let services = ServiceContainer.withMocks(
+            authRepository: authRepository,
             authService: authService,
             errorReporter: errorReporter,
             httpClient: client,
@@ -39,6 +42,7 @@ class SingleSignOnProcessorTests: BitwardenTestCase {
     override func tearDown() {
         super.tearDown()
 
+        authRepository = nil
         authService = nil
         client = nil
         coordinator = nil
@@ -50,6 +54,7 @@ class SingleSignOnProcessorTests: BitwardenTestCase {
     // MARK: Tests
 
     /// `perform(_:)` with `.loadSingleSignOnDetails` records an error if the API call failed.
+    @MainActor
     func test_perform_loadSingleSignOnDetails_error() async throws {
         client.result = .failure(BitwardenTestError.example)
         stateService.rememberedOrgIdentifier = "BestOrganization"
@@ -65,6 +70,7 @@ class SingleSignOnProcessorTests: BitwardenTestCase {
 
     /// `perform(_:)` with `.loadSingleSignOnDetails` starts the login process if the API call
     /// returns a valid organization identifier.
+    @MainActor
     func test_perform_loadSingleSignOnDetails_success() async throws {
         client.result = .httpSuccess(testData: .singleSignOnDetails)
 
@@ -80,6 +86,7 @@ class SingleSignOnProcessorTests: BitwardenTestCase {
     }
 
     /// `perform(_:)` with `.loginPressed` displays an alert if organization identifier field is invalid.
+    @MainActor
     func test_perform_loginPressed_invalidIdentifier() async throws {
         subject.state.identifierText = "    "
 
@@ -97,6 +104,7 @@ class SingleSignOnProcessorTests: BitwardenTestCase {
     }
 
     /// `perform(_:)` with `.loginPressed` handles errors correctly.
+    @MainActor
     func test_perform_loginPressed_error() async throws {
         // Set up the mock data.
         authService.generateSingleSignOnUrlResult = .failure(URLError(.timedOut))
@@ -114,6 +122,7 @@ class SingleSignOnProcessorTests: BitwardenTestCase {
     }
 
     /// `perform(_:)` with `.loginPressed` attempts to login.
+    @MainActor
     func test_perform_loginPressed_success() async throws {
         // Set up the mock data.
         subject.state.identifierText = "BestOrganization"
@@ -130,6 +139,7 @@ class SingleSignOnProcessorTests: BitwardenTestCase {
     }
 
     /// `receive(_:)` with `.dismiss` dismisses the view.
+    @MainActor
     func test_receive_dismiss() {
         subject.receive(.dismiss)
 
@@ -137,6 +147,7 @@ class SingleSignOnProcessorTests: BitwardenTestCase {
     }
 
     /// `receive(_:)` with `.identifierTextChanged(_:)` updates the state.
+    @MainActor
     func test_receive_identifierTextChanged() {
         subject.state.identifierText = ""
         XCTAssertTrue(subject.state.identifierText.isEmpty)
@@ -146,6 +157,7 @@ class SingleSignOnProcessorTests: BitwardenTestCase {
     }
 
     /// `singleSignOnCompleted(code:)` handles any errors correctly.
+    @MainActor
     func test_singleSignOnCompleted_error() {
         // Set up the mock data.
         authService.loginWithSingleSignOnResult = .failure(BitwardenTestError.example)
@@ -162,6 +174,7 @@ class SingleSignOnProcessorTests: BitwardenTestCase {
     }
 
     /// `singleSignOnCompleted(code:)` navigates to the two-factor view if two-factor authentication is needed.
+    @MainActor
     func test_singleSignOnCompleted_twoFactorError() async throws {
         // Set up the mock data.
         authService.generateSingleSignOnUrlResult = .failure(
@@ -177,6 +190,7 @@ class SingleSignOnProcessorTests: BitwardenTestCase {
 
     /// `singleSignOnCompleted(code:)` navigates to the set password screen if the user needs
     /// to set a master password.
+    @MainActor
     func test_singleSignOnCompleted_requireSetPasswordError() {
         authService.loginWithSingleSignOnResult = .failure(AuthError.requireSetPassword)
         subject.state.identifierText = "BestOrganization"
@@ -189,9 +203,10 @@ class SingleSignOnProcessorTests: BitwardenTestCase {
     }
 
     /// `singleSignOnCompleted(code:)` navigates to the vault unlock view if the vault is still locked.
+    @MainActor
     func test_singleSignOnCompleted_vaultLocked() {
         // Set up the mock data.
-        authService.loginWithSingleSignOnResult = .success(.fixtureAccountLogin())
+        authService.loginWithSingleSignOnResult = .success(.masterPassword(.fixtureAccountLogin()))
         subject.state.identifierText = "BestOrganization"
 
         // Receive the completed code.
@@ -216,10 +231,13 @@ class SingleSignOnProcessorTests: BitwardenTestCase {
         )
     }
 
-    /// `singleSignOnCompleted(code:)` navigates to the complete route if the vault is unlocked.
-    func test_singleSignOnCompleted_vaultUnlocked() {
+    /// `singleSignOnCompleted(code:)` navigates to the complete route if the user uses Key Connector.
+    @MainActor
+    func test_singleSignOnCompleted_vaultUnlockedKeyConnector() {
         // Set up the mock data.
-        authService.loginWithSingleSignOnResult = .success(nil)
+        authService.loginWithSingleSignOnResult = .success(.keyConnector(
+            keyConnectorURL: URL(string: "https://example.com")!
+        ))
         subject.state.identifierText = "BestOrganization"
 
         // Receive the completed code.
@@ -227,6 +245,26 @@ class SingleSignOnProcessorTests: BitwardenTestCase {
         waitFor(!coordinator.routes.isEmpty)
 
         // Verify the results.
+        XCTAssertTrue(authRepository.unlockVaultWithKeyConnectorKeyCalled)
+        XCTAssertEqual(authService.loginWithSingleSignOnCode, "super_cool_secret_code")
+        XCTAssertEqual(stateService.rememberedOrgIdentifier, "BestOrganization")
+        XCTAssertFalse(coordinator.isLoadingOverlayShowing)
+        XCTAssertEqual(coordinator.routes, [.complete, .dismiss])
+    }
+
+    /// `singleSignOnCompleted(code:)` navigates to the complete route if the user uses TDE.
+    @MainActor
+    func test_singleSignOnCompleted_vaultUnlockedTDE() {
+        // Set up the mock data.
+        authService.loginWithSingleSignOnResult = .success(.deviceKey)
+        subject.state.identifierText = "BestOrganization"
+
+        // Receive the completed code.
+        subject.singleSignOnCompleted(code: "super_cool_secret_code")
+        waitFor(!coordinator.routes.isEmpty)
+
+        // Verify the results.
+        XCTAssertTrue(authRepository.unlockVaultWithDeviceKeyCalled)
         XCTAssertEqual(authService.loginWithSingleSignOnCode, "super_cool_secret_code")
         XCTAssertEqual(stateService.rememberedOrgIdentifier, "BestOrganization")
         XCTAssertFalse(coordinator.isLoadingOverlayShowing)
@@ -234,6 +272,7 @@ class SingleSignOnProcessorTests: BitwardenTestCase {
     }
 
     /// `singleSignOnErrored(error:)` handles the error correctly.
+    @MainActor
     func test_singleSignOnErrored() {
         subject.singleSignOnErrored(error: BitwardenTestError.example)
         waitFor(!errorReporter.errors.isEmpty)

@@ -5,7 +5,7 @@ import Foundation
 
 /// An object that defines the current state of a `VaultAutofillListView`.
 ///
-struct VaultAutofillListState: Equatable {
+struct VaultAutofillListState: Equatable, Sendable {
     // MARK: Properties
 
     /// The list of cipher items matching matching the `searchText` grouped in sections, if needed.

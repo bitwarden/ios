@@ -1,4 +1,4 @@
-import BitwardenSdk
+@preconcurrency import BitwardenSdk
 import Foundation
 import UIKit
 
@@ -6,6 +6,7 @@ import UIKit
 
 /// An object that is notified when specific circumstances in the add/edit/delete item view have occurred.
 ///
+@MainActor
 protocol CipherItemOperationDelegate: AnyObject {
     /// Called when a new cipher item has been successfully added.
     ///
@@ -199,7 +200,7 @@ final class AddEditItemProcessor: StateProcessor<// swiftlint:disable:this type_
         case .totpFieldLeftFocus:
             parseAndValidateEditedAuthenticatorKey(state.loginState.totpState.rawAuthenticatorKeyString)
         case let .totpKeyChanged(newValue):
-            state.loginState.totpState = .init(newValue)
+            state.loginState.totpState = LoginTOTPState(newValue)
         case let .typeChanged(newValue):
             state.type = newValue
             state.customFieldsState = AddEditCustomFieldsState(cipherType: newValue, customFields: [])

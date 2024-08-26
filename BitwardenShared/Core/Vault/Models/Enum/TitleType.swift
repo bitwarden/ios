@@ -59,5 +59,5 @@ enum TitleType: String, Codable, Equatable, Hashable, Menuable {
 }
 
 extension TitleType: CaseIterable {
-    static var allCases: [TitleType] = [.mr, .mrs, .ms, .mx, .dr]
+    static let allCases: [TitleType] = [.mr, .mrs, .ms, .mx, .dr]
 }

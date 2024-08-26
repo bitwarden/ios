@@ -37,6 +37,7 @@ class AddEditCustomFieldsViewTests: BitwardenTestCase {
     // MARK: Tests
 
     /// Tapping the edit option dispatches the `.editCustomFieldNamePressed(index:)` action.
+    @MainActor
     func test_edit_tap() throws {
         let button = try subject.inspect().find(button: Localizations.edit)
         try button.tap()
@@ -44,6 +45,7 @@ class AddEditCustomFieldsViewTests: BitwardenTestCase {
     }
 
     /// Tapping the move down option dispatches the `.moveDownCustomFieldPressed(index:)` action.
+    @MainActor
     func test_moveDown_tap() throws {
         let button = try subject.inspect().find(button: Localizations.moveDown)
         try button.tap()
@@ -51,6 +53,7 @@ class AddEditCustomFieldsViewTests: BitwardenTestCase {
     }
 
     /// Tapping the move up option dispatches the `.moveUpCustomFieldPressed(index:)` action.
+    @MainActor
     func test_moveUp_tap() throws {
         let button = try subject.inspect().find(button: Localizations.moveUp)
         try button.tap()
@@ -58,6 +61,7 @@ class AddEditCustomFieldsViewTests: BitwardenTestCase {
     }
 
     /// Tapping the new custom field button dispatches the `.removeCustomFieldPressed(index:)` action.
+    @MainActor
     func test_newCustomField_tap() throws {
         let button = try subject.inspect().find(button: Localizations.newCustomField)
         try button.tap()
@@ -65,6 +69,7 @@ class AddEditCustomFieldsViewTests: BitwardenTestCase {
     }
 
     /// Tapping the remove option dispatches the `.removeCustomFieldPressed(index:)` action.
+    @MainActor
     func test_remove_tap() throws {
         let button = try subject.inspect().find(button: Localizations.remove)
         try button.tap()
@@ -72,6 +77,7 @@ class AddEditCustomFieldsViewTests: BitwardenTestCase {
     }
 
     /// The view with all types of custom fields renders correctly in dark mode.
+    @MainActor
     func test_snapshot_allFields_dark() {
         for preview in AddEditCustomFieldsView_Previews._allPreviews {
             assertSnapshot(of: preview.content, as: .defaultPortraitDark)
@@ -79,6 +85,7 @@ class AddEditCustomFieldsViewTests: BitwardenTestCase {
     }
 
     /// The view with all types of custom fields renders correctly.
+    @MainActor
     func test_snapshot_allFields_default() {
         for preview in AddEditCustomFieldsView_Previews._allPreviews {
             assertSnapshot(of: preview.content, as: .defaultPortrait)
@@ -86,6 +93,7 @@ class AddEditCustomFieldsViewTests: BitwardenTestCase {
     }
 
     /// The view with all types of custom fields renders correctly with large text.
+    @MainActor
     func test_snapshot_allFields_large() {
         for preview in AddEditCustomFieldsView_Previews._allPreviews {
             assertSnapshot(of: preview.content, as: .defaultPortraitAX5)

@@ -102,7 +102,7 @@ final class ConfigServiceTests: BitwardenTestCase {
         let response = await subject.getConfig(forceRefresh: false)
         XCTAssertEqual(client.requests.count, 1)
         XCTAssertEqual(response?.gitHash, "75238191")
-        XCTAssertEqual(response?.featureStates[.unassignedItemsBanner], .bool(true))
+        XCTAssertEqual(response?.featureStates[.testRemoteFeatureFlag], .bool(true))
     }
 
     /// `getFeatureFlag(:)` can return a boolean if it's in the configuration
@@ -111,13 +111,13 @@ final class ConfigServiceTests: BitwardenTestCase {
             date: Date(year: 2024, month: 2, day: 14, hour: 7, minute: 50, second: 0),
             responseModel: ConfigResponseModel(
                 environment: nil,
-                featureStates: ["unassigned-items-banner": .bool(true)],
+                featureStates: ["test-remote-feature-flag": .bool(true)],
                 gitHash: "75238191",
                 server: nil,
                 version: "2024.4.0"
             )
         )
-        let value = await subject.getFeatureFlag(.unassignedItemsBanner, defaultValue: false, forceRefresh: false)
+        let value = await subject.getFeatureFlag(.testRemoteFeatureFlag, defaultValue: false, forceRefresh: false)
         XCTAssertTrue(value)
     }
 
@@ -133,8 +133,24 @@ final class ConfigServiceTests: BitwardenTestCase {
                 version: "2024.4.0"
             )
         )
-        let value = await subject.getFeatureFlag(.unassignedItemsBanner, defaultValue: true, forceRefresh: false)
+        let value = await subject.getFeatureFlag(.testRemoteFeatureFlag, defaultValue: true, forceRefresh: false)
         XCTAssertTrue(value)
+    }
+
+    /// `getFeatureFlag(:)` returns the default value if the feature is not remotely configurable for booleans
+    func test_getFeatureFlag_bool_notRemotelyConfigured() async {
+        stateService.serverConfig["1"] = ServerConfig(
+            date: Date(year: 2024, month: 2, day: 14, hour: 7, minute: 50, second: 0),
+            responseModel: ConfigResponseModel(
+                environment: nil,
+                featureStates: ["test-remote-feature-flag": .bool(true)],
+                gitHash: "75238191",
+                server: nil,
+                version: "2024.4.0"
+            )
+        )
+        let value = await subject.getFeatureFlag(.testLocalFeatureFlag, defaultValue: false, forceRefresh: false)
+        XCTAssertFalse(value)
     }
 
     /// `getFeatureFlag(:)` can return an integer if it's in the configuration
@@ -143,13 +159,13 @@ final class ConfigServiceTests: BitwardenTestCase {
             date: Date(year: 2024, month: 2, day: 14, hour: 7, minute: 50, second: 0),
             responseModel: ConfigResponseModel(
                 environment: nil,
-                featureStates: ["unassigned-items-banner": .int(42)],
+                featureStates: ["test-remote-feature-flag": .int(42)],
                 gitHash: "75238191",
                 server: nil,
                 version: "2024.4.0"
             )
         )
-        let value = await subject.getFeatureFlag(.unassignedItemsBanner, defaultValue: 30, forceRefresh: false)
+        let value = await subject.getFeatureFlag(.testRemoteFeatureFlag, defaultValue: 30, forceRefresh: false)
         XCTAssertEqual(value, 42)
     }
 
@@ -165,7 +181,23 @@ final class ConfigServiceTests: BitwardenTestCase {
                 version: "2024.4.0"
             )
         )
-        let value = await subject.getFeatureFlag(.unassignedItemsBanner, defaultValue: 30, forceRefresh: false)
+        let value = await subject.getFeatureFlag(.testRemoteFeatureFlag, defaultValue: 30, forceRefresh: false)
+        XCTAssertEqual(value, 30)
+    }
+
+    /// `getFeatureFlag(:)` returns the default value if the feature is not remotely configurable for integers
+    func test_getFeatureFlag_int_notRemotelyConfigured() async {
+        stateService.serverConfig["1"] = ServerConfig(
+            date: Date(year: 2024, month: 2, day: 14, hour: 7, minute: 50, second: 0),
+            responseModel: ConfigResponseModel(
+                environment: nil,
+                featureStates: ["test-remote-feature-flag": .int(42)],
+                gitHash: "75238191",
+                server: nil,
+                version: "2024.4.0"
+            )
+        )
+        let value = await subject.getFeatureFlag(.testLocalFeatureFlag, defaultValue: 30, forceRefresh: false)
         XCTAssertEqual(value, 30)
     }
 
@@ -175,17 +207,17 @@ final class ConfigServiceTests: BitwardenTestCase {
             date: Date(year: 2024, month: 2, day: 14, hour: 7, minute: 50, second: 0),
             responseModel: ConfigResponseModel(
                 environment: nil,
-                featureStates: ["unassigned-items-banner": .string("exists")],
+                featureStates: ["test-remote-feature-flag": .string("exists")],
                 gitHash: "75238191",
                 server: nil,
                 version: "2024.4.0"
             )
         )
-        let value = await subject.getFeatureFlag(.unassignedItemsBanner, defaultValue: "fallback", forceRefresh: false)
+        let value = await subject.getFeatureFlag(.testRemoteFeatureFlag, defaultValue: "fallback", forceRefresh: false)
         XCTAssertEqual(value, "exists")
     }
 
-    /// `getFeatureFlag(:)` returns the default value for booleans
+    /// `getFeatureFlag(:)` returns the default value for strings
     func test_getFeatureFlag_string_fallback() async {
         stateService.serverConfig["1"] = ServerConfig(
             date: Date(year: 2024, month: 2, day: 14, hour: 7, minute: 50, second: 0),
@@ -197,7 +229,23 @@ final class ConfigServiceTests: BitwardenTestCase {
                 version: "2024.4.0"
             )
         )
-        let value = await subject.getFeatureFlag(.unassignedItemsBanner, defaultValue: "fallback", forceRefresh: false)
+        let value = await subject.getFeatureFlag(.testRemoteFeatureFlag, defaultValue: "fallback", forceRefresh: false)
+        XCTAssertEqual(value, "fallback")
+    }
+
+    /// `getFeatureFlag(:)` returns the default value if the feature is not remotely configurable for strings
+    func test_getFeatureFlag_string_notRemotelyConfigured() async {
+        stateService.serverConfig["1"] = ServerConfig(
+            date: Date(year: 2024, month: 2, day: 14, hour: 7, minute: 50, second: 0),
+            responseModel: ConfigResponseModel(
+                environment: nil,
+                featureStates: ["test-remote-feature-flag": .string("exists")],
+                gitHash: "75238191",
+                server: nil,
+                version: "2024.4.0"
+            )
+        )
+        let value = await subject.getFeatureFlag(.testLocalFeatureFlag, defaultValue: "fallback", forceRefresh: false)
         XCTAssertEqual(value, "fallback")
     }
 }

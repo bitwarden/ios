@@ -33,6 +33,7 @@ class AddEditItemViewTests: BitwardenTestCase { // swiftlint:disable:this type_b
     // MARK: Tests
 
     /// Tapping the cancel button dispatches the `.dismissPressed` action.
+    @MainActor
     func test_cancelButton_tap() throws {
         let button = try subject.inspect().find(button: Localizations.cancel)
         try button.tap()
@@ -40,6 +41,7 @@ class AddEditItemViewTests: BitwardenTestCase { // swiftlint:disable:this type_b
     }
 
     /// Tapping the check password button performs the `.checkPassword` effect.
+    @MainActor
     func test_checkPasswordButton_tap() async throws {
         let button = try subject.inspect().find(asyncButtonWithAccessibilityLabel: Localizations.checkPassword)
         try await button.tap()
@@ -48,6 +50,7 @@ class AddEditItemViewTests: BitwardenTestCase { // swiftlint:disable:this type_b
     }
 
     /// Tapping the copy totp button performs the `.copyTotp` effect.
+    @MainActor
     func test_copyTotpButton_tap() async throws {
         processor.state.loginState.totpState = LoginTOTPState("JBSWY3DPEHPK3PXP")
 
@@ -71,6 +74,7 @@ class AddEditItemViewTests: BitwardenTestCase { // swiftlint:disable:this type_b
     }
 
     /// Tapping the dismiss button dispatches the `.dismissPressed` action.
+    @MainActor
     func test_dismissButton_tap() throws {
         processor.state = CipherItemState(
             existing: CipherView.loginFixture(),
@@ -82,6 +86,7 @@ class AddEditItemViewTests: BitwardenTestCase { // swiftlint:disable:this type_b
     }
 
     /// Tapping the favorite toggle dispatches the `.favoriteChanged(_:)` action.
+    @MainActor
     func test_favoriteToggle_tap() throws {
         if #available(iOS 16.0, macOS 13.0, tvOS 16.0, watchOS 9.0, *) {
             throw XCTSkip("Unable to run test in iOS 16, keep an eye on ViewInspector to see if it gets updated.")
@@ -93,6 +98,7 @@ class AddEditItemViewTests: BitwardenTestCase { // swiftlint:disable:this type_b
     }
 
     /// Updating the folder text field dispatches the `.folderChanged()` action.
+    @MainActor
     func test_folderTextField_updateValue() throws {
         let folder = FolderView.fixture(name: "Folder")
         let menuField = try subject.inspect().find(bitwardenMenuField: Localizations.folder)
@@ -101,6 +107,7 @@ class AddEditItemViewTests: BitwardenTestCase { // swiftlint:disable:this type_b
     }
 
     /// Tapping the generate password button dispatches the `.generatePasswordPressed` action.
+    @MainActor
     func test_generatePasswordButton_tap() throws {
         let button = try subject.inspect().find(
             buttonWithAccessibilityLabel: Localizations.generatePassword
@@ -110,6 +117,7 @@ class AddEditItemViewTests: BitwardenTestCase { // swiftlint:disable:this type_b
     }
 
     /// Tapping the generate username button dispatches the `.generateUsernamePressed` action.
+    @MainActor
     func test_generateUsernameButton_tap() throws {
         let button = try subject.inspect().find(
             buttonWithAccessibilityLabel: Localizations.generateUsername
@@ -119,6 +127,7 @@ class AddEditItemViewTests: BitwardenTestCase { // swiftlint:disable:this type_b
     }
 
     /// Tapping the master password re-prompt toggle dispatches the `.masterPasswordRePromptChanged(_:)` action.
+    @MainActor
     func test_masterPasswordRePromptToggle_tap() throws {
         if #available(iOS 16.0, macOS 13.0, tvOS 16.0, watchOS 9.0, *) {
             throw XCTSkip("Unable to run test in iOS 16, keep an eye on ViewInspector to see if it gets updated.")
@@ -130,6 +139,7 @@ class AddEditItemViewTests: BitwardenTestCase { // swiftlint:disable:this type_b
     }
 
     /// Updating the name text field dispatches the `.nameChanged()` action.
+    @MainActor
     func test_nameTextField_updateValue() throws {
         let textField = try subject.inspect().find(bitwardenTextField: Localizations.name)
         try textField.inputBinding().wrappedValue = "text"
@@ -137,6 +147,7 @@ class AddEditItemViewTests: BitwardenTestCase { // swiftlint:disable:this type_b
     }
 
     /// Tapping the new custom field button dispatches the `.newCustomFieldPressed` action.
+    @MainActor
     func test_newCustomFieldButton_tap() throws {
         let button = try subject.inspect().find(button: Localizations.newCustomField)
         try button.tap()
@@ -144,6 +155,7 @@ class AddEditItemViewTests: BitwardenTestCase { // swiftlint:disable:this type_b
     }
 
     /// Tapping the new uri button dispatches the `.newUriPressed` action.
+    @MainActor
     func test_newUriButton_tap() throws {
         let button = try subject.inspect().find(button: Localizations.newUri)
         try button.tap()
@@ -151,6 +163,7 @@ class AddEditItemViewTests: BitwardenTestCase { // swiftlint:disable:this type_b
     }
 
     /// Updating the notes text field dispatches the `.notesChanged()` action.
+    @MainActor
     func test_notesTextField_updateValue() throws {
         let textField = try subject.inspect().find(
             type: BitwardenMultilineTextFieldType.self,
@@ -161,6 +174,7 @@ class AddEditItemViewTests: BitwardenTestCase { // swiftlint:disable:this type_b
     }
 
     /// Updating the owner menu dispatches the `.ownerChanged()` action.
+    @MainActor
     func test_ownerTextField_updateValue() throws {
         let organizationOwner = CipherOwner.organization(id: "1", name: "Bitwarden Organization")
         processor.state.ownershipOptions = [
@@ -173,6 +187,7 @@ class AddEditItemViewTests: BitwardenTestCase { // swiftlint:disable:this type_b
     }
 
     /// Updating the password text field dispatches the `.passwordChanged()` action.
+    @MainActor
     func test_passwordTextField_updateValue() throws {
         let textField = try subject.inspect().find(bitwardenTextField: Localizations.password)
         try textField.inputBinding().wrappedValue = "text"
@@ -180,6 +195,7 @@ class AddEditItemViewTests: BitwardenTestCase { // swiftlint:disable:this type_b
     }
 
     /// Tapping the password visibility button dispatches the `.togglePasswordVisibilityChanged(_:)` action.
+    @MainActor
     func test_passwordVisibilityButton_tap_withPasswordNotVisible() throws {
         processor.state.loginState.isPasswordVisible = false
         let button = try subject.inspect()
@@ -190,6 +206,7 @@ class AddEditItemViewTests: BitwardenTestCase { // swiftlint:disable:this type_b
     }
 
     /// Tapping the password visibility button dispatches the `.togglePasswordVisibilityChanged(_:)` action.
+    @MainActor
     func test_passwordVisibilityButton_tap_withPasswordVisible() throws {
         processor.state.loginState.isPasswordVisible = true
         let button = try subject.inspect()
@@ -200,6 +217,7 @@ class AddEditItemViewTests: BitwardenTestCase { // swiftlint:disable:this type_b
     }
 
     /// Tapping the save button performs the `.savePressed` effect when adding a new cipher.
+    @MainActor
     func test_saveButton_tapAdd() async throws {
         let button = try subject.inspect().find(asyncButton: Localizations.save)
         try await button.tap()
@@ -208,6 +226,7 @@ class AddEditItemViewTests: BitwardenTestCase { // swiftlint:disable:this type_b
     }
 
     /// Tapping the save button performs the `.savePressed` effect when editing an existing cipher.
+    @MainActor
     func test_saveButton_tapEdit() async throws {
         processor.state = CipherItemState(existing: .fixture(), hasPremium: false)!
         let button = try subject.inspect().find(asyncButton: Localizations.save)
@@ -217,6 +236,7 @@ class AddEditItemViewTests: BitwardenTestCase { // swiftlint:disable:this type_b
     }
 
     /// Tapping the setup totp button disptaches the `.setupTotpPressed` action.
+    @MainActor
     func test_setupTotpButton_noKey_tap() async throws {
         let button = try subject.inspect().find(asyncButton: Localizations.setupTotp)
         try await button.tap()
@@ -224,6 +244,7 @@ class AddEditItemViewTests: BitwardenTestCase { // swiftlint:disable:this type_b
     }
 
     /// Tapping the setup totp button dispatches the `.setupTotpPressed` action.
+    @MainActor
     func test_setupTotpButton_withKey_tap() async throws {
         processor.state.loginState.totpState = LoginTOTPState("JBSWY3DPEHPK3PXP")
 
@@ -233,6 +254,7 @@ class AddEditItemViewTests: BitwardenTestCase { // swiftlint:disable:this type_b
         XCTAssertEqual(processor.effects.last, .setupTotpPressed)
     }
 
+    @MainActor
     func test_typeMenuField_updateValue() throws {
         processor.state.type = .login
         let menuField = try subject.inspect().find(bitwardenMenuField: Localizations.type)
@@ -242,6 +264,7 @@ class AddEditItemViewTests: BitwardenTestCase { // swiftlint:disable:this type_b
 
     /// Selecting a new value with the uri match type picker dispatches the `.uriTypeChanged` action.
     /// is selected.
+    @MainActor
     func test_uriMatchTypePicker_select() throws {
         processor.state.loginState.uris = [
             UriState(
@@ -257,6 +280,7 @@ class AddEditItemViewTests: BitwardenTestCase { // swiftlint:disable:this type_b
     }
 
     /// Tapping the uri remove button dispatches the `.removeUriPressed` action.
+    @MainActor
     func test_uriRemoveButton_tap() throws {
         processor.state.loginState.uris = [
             UriState(
@@ -272,6 +296,7 @@ class AddEditItemViewTests: BitwardenTestCase { // swiftlint:disable:this type_b
     }
 
     /// Updating the uri text field dispatches the `.uriChanged()` action.
+    @MainActor
     func test_uriTextField_updateValue() throws {
         processor.state.loginState.uris = [
             UriState(
@@ -287,6 +312,7 @@ class AddEditItemViewTests: BitwardenTestCase { // swiftlint:disable:this type_b
     }
 
     /// Updating the name text field dispatches the `.usernameChanged()` action.
+    @MainActor
     func test_usernameTextField_updateValue() throws {
         let textField = try subject.inspect().find(bitwardenTextField: Localizations.username)
         try textField.inputBinding().wrappedValue = "text"
@@ -294,6 +320,7 @@ class AddEditItemViewTests: BitwardenTestCase { // swiftlint:disable:this type_b
     }
 
     /// Updating the name text field dispatches the `.identityFieldChanged(.userNameChanged())` action.
+    @MainActor
     func test_identity_titleMenu_updateValue() throws {
         processor.state.type = .identity
         let menuField = try subject.inspect().find(bitwardenMenuField: Localizations.title)
@@ -302,6 +329,7 @@ class AddEditItemViewTests: BitwardenTestCase { // swiftlint:disable:this type_b
     }
 
     /// Updating the name text field dispatches the `.identityFieldChanged(.firstNameChanged())` action.
+    @MainActor
     func test_firstNameTextField_updateValue() throws {
         processor.state.type = .identity
         let textField = try subject.inspect().find(bitwardenTextField: Localizations.firstName)
@@ -310,6 +338,7 @@ class AddEditItemViewTests: BitwardenTestCase { // swiftlint:disable:this type_b
     }
 
     /// Updating the name text field dispatches the `.identityFieldChanged(.lastNameChanged())` action.
+    @MainActor
     func test_lastNameTextField_updateValue() throws {
         processor.state.type = .identity
         let textField = try subject.inspect().find(bitwardenTextField: Localizations.lastName)
@@ -318,6 +347,7 @@ class AddEditItemViewTests: BitwardenTestCase { // swiftlint:disable:this type_b
     }
 
     /// Updating the name text field dispatches the `.identityFieldChanged(.middleNameChanged())` action.
+    @MainActor
     func test_middleNameTextField_updateValue() throws {
         processor.state.type = .identity
         let textField = try subject.inspect().find(bitwardenTextField: Localizations.middleName)
@@ -326,6 +356,7 @@ class AddEditItemViewTests: BitwardenTestCase { // swiftlint:disable:this type_b
     }
 
     /// Updating the name text field dispatches the `.identityFieldChanged(.userNameChanged())` action.
+    @MainActor
     func test_identity_userNameTextField_updateValue() throws {
         processor.state.type = .identity
         let textField = try subject.inspect().find(bitwardenTextField: Localizations.username)
@@ -334,6 +365,7 @@ class AddEditItemViewTests: BitwardenTestCase { // swiftlint:disable:this type_b
     }
 
     /// Updating the name text field dispatches the `.identityFieldChanged(.companyChanged())` action.
+    @MainActor
     func test_companyTextField_updateValue() throws {
         processor.state.type = .identity
         let textField = try subject.inspect().find(bitwardenTextField: Localizations.company)
@@ -342,6 +374,7 @@ class AddEditItemViewTests: BitwardenTestCase { // swiftlint:disable:this type_b
     }
 
     /// Updating the name text field dispatches the `.identityFieldChanged(.socialSecurityNumberChanged())` action.
+    @MainActor
     func test_socialSecurityNumberTextField_updateValue() throws {
         processor.state.type = .identity
         let textField = try subject.inspect().find(bitwardenTextField: Localizations.ssn)
@@ -350,6 +383,7 @@ class AddEditItemViewTests: BitwardenTestCase { // swiftlint:disable:this type_b
     }
 
     /// Updating the name text field dispatches the `.identityFieldChanged(.passportNumberChanged())` action.
+    @MainActor
     func test_passportNumberTextField_updateValue() throws {
         processor.state.type = .identity
         let textField = try subject.inspect().find(bitwardenTextField: Localizations.passportNumber)
@@ -358,6 +392,7 @@ class AddEditItemViewTests: BitwardenTestCase { // swiftlint:disable:this type_b
     }
 
     /// Updating the name text field dispatches the `.identityFieldChanged(.licenseNumberChanged())` action.
+    @MainActor
     func test_licenseNumberTextField_updateValue() throws {
         processor.state.type = .identity
         let textField = try subject.inspect().find(bitwardenTextField: Localizations.licenseNumber)
@@ -366,6 +401,7 @@ class AddEditItemViewTests: BitwardenTestCase { // swiftlint:disable:this type_b
     }
 
     /// Updating the name text field dispatches the `.identityFieldChanged(.emailChanged())` action.
+    @MainActor
     func test_emailTextField_updateValue() throws {
         processor.state.type = .identity
         let textField = try subject.inspect().find(bitwardenTextField: Localizations.email)
@@ -374,6 +410,7 @@ class AddEditItemViewTests: BitwardenTestCase { // swiftlint:disable:this type_b
     }
 
     /// Updating the name text field dispatches the `.identityFieldChanged(.phoneNumberChanged())` action.
+    @MainActor
     func test_phoneTextField_updateValue() throws {
         processor.state.type = .identity
         let textField = try subject.inspect().find(bitwardenTextField: Localizations.phone)
@@ -382,6 +419,7 @@ class AddEditItemViewTests: BitwardenTestCase { // swiftlint:disable:this type_b
     }
 
     /// Updating the name text field dispatches the `.identityFieldChanged(.address1Changed())` action.
+    @MainActor
     func test_address1TextField_updateValue() throws {
         processor.state.type = .identity
         let textField = try subject.inspect().find(bitwardenTextField: Localizations.address1)
@@ -390,6 +428,7 @@ class AddEditItemViewTests: BitwardenTestCase { // swiftlint:disable:this type_b
     }
 
     /// Updating the name text field dispatches the `.identityFieldChanged(.address2Changed())` action.
+    @MainActor
     func test_address2TextField_updateValue() throws {
         processor.state.type = .identity
         let textField = try subject.inspect().find(bitwardenTextField: Localizations.address2)
@@ -398,6 +437,7 @@ class AddEditItemViewTests: BitwardenTestCase { // swiftlint:disable:this type_b
     }
 
     /// Updating the name text field dispatches the `.identityFieldChanged(.address3Changed())` action.
+    @MainActor
     func test_address3TextField_updateValue() throws {
         processor.state.type = .identity
         let textField = try subject.inspect().find(bitwardenTextField: Localizations.address3)
@@ -406,6 +446,7 @@ class AddEditItemViewTests: BitwardenTestCase { // swiftlint:disable:this type_b
     }
 
     /// Updating the name text field dispatches the `.identityFieldChanged(.cityOrTownChanged())` action.
+    @MainActor
     func test_cityOrTownTextField_updateValue() throws {
         processor.state.type = .identity
         let textField = try subject.inspect().find(bitwardenTextField: Localizations.cityTown)
@@ -414,6 +455,7 @@ class AddEditItemViewTests: BitwardenTestCase { // swiftlint:disable:this type_b
     }
 
     /// Updating the name text field dispatches the `.identityFieldChanged(.stateChanged())` action.
+    @MainActor
     func test_stateTextField_updateValue() throws {
         processor.state.type = .identity
         let textField = try subject.inspect().find(bitwardenTextField: Localizations.stateProvince)
@@ -422,6 +464,7 @@ class AddEditItemViewTests: BitwardenTestCase { // swiftlint:disable:this type_b
     }
 
     /// Updating the name text field dispatches the `.identityFieldChanged(.postalCodeChanged())` action.
+    @MainActor
     func test_postalCodeTextField_updateValue() throws {
         processor.state.type = .identity
         let textField = try subject.inspect().find(bitwardenTextField: Localizations.zipPostalCode)
@@ -430,6 +473,7 @@ class AddEditItemViewTests: BitwardenTestCase { // swiftlint:disable:this type_b
     }
 
     /// Updating the name text field dispatches the `.identityFieldChanged(.countryChanged())` action.
+    @MainActor
     func test_countryTextField_updateValue() throws {
         processor.state.type = .identity
         let textField = try subject.inspect().find(bitwardenTextField: Localizations.country)
@@ -439,11 +483,13 @@ class AddEditItemViewTests: BitwardenTestCase { // swiftlint:disable:this type_b
 
     // MARK: Snapshots
 
+    @MainActor
     func test_snapshot_add_empty() {
         assertSnapshot(of: subject.navStackWrapped, as: .tallPortrait)
     }
 
     /// Tests the add state with identity item empty.
+    @MainActor
     func test_snapshot_add_identity_full_fieldsEmpty() {
         processor.state.type = .identity
         processor.state.name = ""
@@ -457,6 +503,7 @@ class AddEditItemViewTests: BitwardenTestCase { // swiftlint:disable:this type_b
     }
 
     /// Tests the add state with identity item filled.
+    @MainActor
     func test_snapshot_add_identity_full_fieldsFilled() {
         processor.state.type = .identity
         processor.state.name = "my identity"
@@ -490,6 +537,7 @@ class AddEditItemViewTests: BitwardenTestCase { // swiftlint:disable:this type_b
     }
 
     /// Tests the add state with identity item filled with large text.
+    @MainActor
     func test_snapshot_add_identity_full_fieldsFilled_largeText() {
         processor.state.type = .identity
         processor.state.name = "my identity"
@@ -523,6 +571,7 @@ class AddEditItemViewTests: BitwardenTestCase { // swiftlint:disable:this type_b
     }
 
     /// Tests the add state with the password field not visible.
+    @MainActor
     func test_snapshot_add_login_full_fieldsNotVisible() {
         processor.state.type = .login
         processor.state.name = "Name"
@@ -546,6 +595,7 @@ class AddEditItemViewTests: BitwardenTestCase { // swiftlint:disable:this type_b
     }
 
     /// Tests the add state with all fields.
+    @MainActor
     func test_snapshot_add_login_full_fieldsVisible() {
         processor.state.type = .login
         processor.state.name = "Name"
@@ -565,6 +615,7 @@ class AddEditItemViewTests: BitwardenTestCase { // swiftlint:disable:this type_b
         assertSnapshot(of: subject.navStackWrapped, as: .tallPortrait)
     }
 
+    @MainActor
     func test_snapshot_add_login_collections() {
         processor.state.collections = [
             .fixture(id: "1", name: "Design", organizationId: "1"),
@@ -577,6 +628,7 @@ class AddEditItemViewTests: BitwardenTestCase { // swiftlint:disable:this type_b
         assertSnapshot(of: subject.navStackWrapped, as: .tallPortrait)
     }
 
+    @MainActor
     func test_snapshot_add_login_collectionsNone() {
         processor.state.ownershipOptions.append(.organization(id: "1", name: "Organization"))
         processor.state.owner = .organization(id: "1", name: "Organization")
@@ -584,6 +636,7 @@ class AddEditItemViewTests: BitwardenTestCase { // swiftlint:disable:this type_b
         assertSnapshot(of: subject.navStackWrapped, as: .tallPortrait)
     }
 
+    @MainActor
     func test_snapshot_edit_full_fieldsNotVisible() {
         processor.state = CipherItemState(
             existing: CipherView.loginFixture(),
@@ -610,11 +663,13 @@ class AddEditItemViewTests: BitwardenTestCase { // swiftlint:disable:this type_b
         assertSnapshot(of: subject.navStackWrapped, as: .tallPortrait)
     }
 
+    @MainActor
     func test_snapshot_add_personalOwnershipPolicy() {
         processor.state.isPersonalOwnershipDisabled = true
         assertSnapshot(of: subject.navStackWrapped, as: .defaultPortrait)
     }
 
+    @MainActor
     func test_snapshot_add_secureNote_full_fieldsVisible() {
         processor.state.type = .secureNote
         processor.state.name = "Secure Note Name"
@@ -627,6 +682,7 @@ class AddEditItemViewTests: BitwardenTestCase { // swiftlint:disable:this type_b
         assertSnapshot(of: subject.navStackWrapped, as: .tallPortrait)
     }
 
+    @MainActor
     func test_snapshot_edit_full_disabledViewPassword() {
         processor.state = CipherItemState(
             existing: CipherView.loginFixture(),
@@ -654,6 +710,7 @@ class AddEditItemViewTests: BitwardenTestCase { // swiftlint:disable:this type_b
         assertSnapshot(of: subject.navStackWrapped, as: .tallPortrait)
     }
 
+    @MainActor
     func test_snapshot_edit_full_fieldsNotVisible_largeText() {
         processor.state = CipherItemState(
             existing: CipherView.loginFixture(),
@@ -680,6 +737,7 @@ class AddEditItemViewTests: BitwardenTestCase { // swiftlint:disable:this type_b
         assertSnapshot(of: subject.navStackWrapped, as: .tallPortraitAX5())
     }
 
+    @MainActor
     func test_snapshot_edit_full_fieldsVisible() {
         processor.state = CipherItemState(
             existing: CipherView.loginFixture(),
@@ -706,6 +764,7 @@ class AddEditItemViewTests: BitwardenTestCase { // swiftlint:disable:this type_b
         assertSnapshot(of: subject.navStackWrapped, as: .tallPortrait)
     }
 
+    @MainActor
     func test_snapshot_edit_full_fieldsVisible_largeText() {
         processor.state = CipherItemState(
             existing: CipherView.loginFixture(),

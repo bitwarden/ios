@@ -4,7 +4,6 @@ import XCTest
 
 // MARK: - RootViewControllerTests
 
-@MainActor
 class RootViewControllerTests: BitwardenTestCase {
     // MARK: Properties
 
@@ -79,6 +78,7 @@ class RootViewControllerTests: BitwardenTestCase {
     }
 
     /// `rootViewController` returns itself, instead of the current `childViewController`.
+    @MainActor
     func test_rootViewController() {
         let viewController = UIViewController()
         subject.childViewController = viewController
@@ -86,6 +86,7 @@ class RootViewControllerTests: BitwardenTestCase {
     }
 
     /// `show(child:)` sets `childViewController` to the `rootViewController` on the child navigator.
+    @MainActor
     func test_show() {
         let navigator = MockStackNavigator()
         navigator.rootViewController = UIViewController()

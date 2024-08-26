@@ -39,6 +39,7 @@ class ProfileSwitcherViewTests: BitwardenTestCase { // swiftlint:disable:this ty
     // MARK: Tests
 
     /// Long pressing a profile row dispatches the `.accountLongPressed` action.
+    @MainActor
     func test_accountRow_longPress_currentAccount() throws {
         let accountRow = try subject.inspect().find(button: "anne.account@bitwarden.com")
         try accountRow.labelView().callOnLongPressGesture()
@@ -49,6 +50,7 @@ class ProfileSwitcherViewTests: BitwardenTestCase { // swiftlint:disable:this ty
     }
 
     /// Long pressing is disabled if lock and logout are not available.
+    @MainActor
     func test_accountRow_longPress_currentAccount_noLockOrLogout() throws {
         processor.state.allowLockAndLogout = false
         let accountRow = try subject.inspect().find(button: "anne.account@bitwarden.com")
@@ -56,6 +58,7 @@ class ProfileSwitcherViewTests: BitwardenTestCase { // swiftlint:disable:this ty
     }
 
     /// Tapping a profile row dispatches the `.accountPressed` action.
+    @MainActor
     func test_accountRow_tap_currentAccount() throws {
         let accountRow = try subject.inspect().find(button: "anne.account@bitwarden.com")
         try accountRow.labelView().callOnTapGesture()
@@ -66,6 +69,7 @@ class ProfileSwitcherViewTests: BitwardenTestCase { // swiftlint:disable:this ty
     }
 
     /// Tapping a profile row dispatches the `.accountPressed` action.
+    @MainActor
     func test_accountRow_tap_addAccount() throws {
         let addAccountRow = try subject.inspect().find(button: "Add account")
         try addAccountRow.tap()
@@ -75,6 +79,7 @@ class ProfileSwitcherViewTests: BitwardenTestCase { // swiftlint:disable:this ty
     }
 
     /// Long pressing an alternative profile row dispatches the `.accountLongPressed` action.
+    @MainActor
     func test_alternateAccountRow_longPress_alternateAccount() throws {
         let alternate = ProfileSwitcherItem.fixture(
             email: "alternate@bitwarden.com",
@@ -98,6 +103,7 @@ class ProfileSwitcherViewTests: BitwardenTestCase { // swiftlint:disable:this ty
     }
 
     /// Long pressing is disabled if lock and logout are not available.
+    @MainActor
     func test_alternateAccountRow_longPress_currentAccount_noLockOrLogout() throws {
         let alternate = ProfileSwitcherItem.fixture(
             email: "alternate@bitwarden.com",
@@ -119,6 +125,7 @@ class ProfileSwitcherViewTests: BitwardenTestCase { // swiftlint:disable:this ty
     }
 
     /// Tapping an alternative profile row dispatches the `.accountPressed` action.
+    @MainActor
     func test_alternateAccountRow_tap_alternateAccount() throws {
         let alternate = ProfileSwitcherItem.fixture(
             email: "alternate@bitwarden.com",
@@ -142,6 +149,7 @@ class ProfileSwitcherViewTests: BitwardenTestCase { // swiftlint:disable:this ty
     }
 
     /// Tapping an alternative profile row dispatches the `.accountPressed` action.
+    @MainActor
     func test_alternateAccountRows_tap_alternateEmptyAccount() throws {
         let alternate = ProfileSwitcherItem.fixture(
             email: "locked@bitwarden.com",
@@ -168,6 +176,7 @@ class ProfileSwitcherViewTests: BitwardenTestCase { // swiftlint:disable:this ty
     }
 
     /// Tapping the background triggers a `.backgroundPressed` action.
+    @MainActor
     func test_background_tap() throws {
         let view = try subject.inspect().view(ProfileSwitcherView.self)
         let background = view.first
@@ -177,12 +186,14 @@ class ProfileSwitcherViewTests: BitwardenTestCase { // swiftlint:disable:this ty
     }
 
     /// Tests the add account visibility below the maximum account limit
+    @MainActor
     func test_addAccountRow_subMaximumAccounts_showAdd() throws {
         processor.state = ProfileSwitcherState.subMaximumAccounts
         XCTAssertTrue(subject.store.state.showsAddAccount)
     }
 
     /// Tests the add account visibility below the maximum account limit
+    @MainActor
     func test_addAccountRow_subMaximumAccounts_hideAdd() throws {
         let state = ProfileSwitcherState(
             accounts: [
@@ -216,6 +227,7 @@ class ProfileSwitcherViewTests: BitwardenTestCase { // swiftlint:disable:this ty
     }
 
     /// Tests the add account visibility at the maximum account limit
+    @MainActor
     func test_addAccountRow_maximumAccounts() throws {
         processor.state = ProfileSwitcherState.maximumAccounts
         XCTAssertFalse(subject.store.state.showsAddAccount)
@@ -227,6 +239,7 @@ class ProfileSwitcherViewTests: BitwardenTestCase { // swiftlint:disable:this ty
         assertSnapshot(matching: subject, as: .defaultPortrait)
     }
 
+    @MainActor
     func test_snapshot_multiAccount_unlocked_belowMaximum() {
         processor.state = ProfileSwitcherState(
             accounts: [
@@ -257,16 +270,19 @@ class ProfileSwitcherViewTests: BitwardenTestCase { // swiftlint:disable:this ty
         assertSnapshot(matching: subject, as: .defaultPortrait)
     }
 
+    @MainActor
     func test_snapshot_multiAccount_unlocked_atMaximum() {
         processor.state = ProfileSwitcherState.maximumAccounts
         assertSnapshot(matching: subject, as: .defaultPortrait)
     }
 
+    @MainActor
     func test_snapshot_multiAccount_unlocked_atMaximum_largeText() {
         processor.state = ProfileSwitcherState.maximumAccounts
         assertSnapshot(matching: subject, as: .defaultPortraitAX5)
     }
 
+    @MainActor
     func test_snapshot_multiAccount_locked_belowMaximum() {
         processor.state = ProfileSwitcherState(
             accounts: [
@@ -297,6 +313,7 @@ class ProfileSwitcherViewTests: BitwardenTestCase { // swiftlint:disable:this ty
         assertSnapshot(matching: subject, as: .defaultPortrait)
     }
 
+    @MainActor
     func test_snapshot_multiAccount_locked_atMaximum() {
         processor.state = ProfileSwitcherState(
             accounts: [

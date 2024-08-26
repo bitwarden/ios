@@ -30,6 +30,7 @@ class PasswordHintViewTests: BitwardenTestCase {
     // MARK: Tests
 
     /// Tapping on the dismiss button dispatches the `.dismissPressed` action.
+    @MainActor
     func test_dismissButton_tap() throws {
         let button = try subject.inspect().find(button: Localizations.cancel)
         try button.tap()
@@ -38,6 +39,7 @@ class PasswordHintViewTests: BitwardenTestCase {
 
     /// Editing the text in the email address text field dispatches the `.emailAddressChanged`
     /// action.
+    @MainActor
     func test_emailAddress_change() throws {
         let textField = try subject.inspect().find(bitwardenTextField: Localizations.emailAddress)
         try textField.inputBinding().wrappedValue = "text"
@@ -45,6 +47,7 @@ class PasswordHintViewTests: BitwardenTestCase {
     }
 
     /// Tapping on the submit button performs the `.submitPressed` effect.
+    @MainActor
     func test_submitButton_tap() async throws {
         let button = try subject.inspect().find(asyncButton: Localizations.submit)
         try await button.tap()
@@ -54,12 +57,14 @@ class PasswordHintViewTests: BitwardenTestCase {
     // MARK: Snapshots
 
     /// A snapshot of the view without any values set.
+    @MainActor
     func test_snapshot_empty() {
         processor.state.emailAddress = ""
         assertSnapshot(of: subject, as: .defaultPortrait)
     }
 
     /// A snapshot of the view with a value in the email address field.
+    @MainActor
     func test_snapshot_withEmailAddress() {
         processor.state.emailAddress = "email@example.com"
         assertSnapshots(of: subject, as: [.defaultPortrait, .defaultPortraitAX5, .defaultPortraitDark])

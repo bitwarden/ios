@@ -75,6 +75,7 @@ class VaultGroupProcessorTests: BitwardenTestCase { // swiftlint:disable:this ty
     // MARK: Tests
 
     /// `itemDeleted()` delegate method shows the expected toast.
+    @MainActor
     func test_delegate_itemDeleted() {
         XCTAssertNil(subject.state.toast)
 
@@ -83,6 +84,7 @@ class VaultGroupProcessorTests: BitwardenTestCase { // swiftlint:disable:this ty
     }
 
     /// `itemSoftDeleted()` delegate method shows the expected toast.
+    @MainActor
     func test_delegate_itemSoftDeleted() {
         XCTAssertNil(subject.state.toast)
 
@@ -91,6 +93,7 @@ class VaultGroupProcessorTests: BitwardenTestCase { // swiftlint:disable:this ty
     }
 
     /// `itemRestored()` delegate method shows the expected toast.
+    @MainActor
     func test_delegate_itemRestored() {
         XCTAssertNil(subject.state.toast)
 
@@ -99,6 +102,7 @@ class VaultGroupProcessorTests: BitwardenTestCase { // swiftlint:disable:this ty
     }
 
     /// `perform(_:)` with `.appeared` starts streaming vault items.
+    @MainActor
     func test_perform_appeared() {
         let vaultListItem = VaultListItem.fixture()
         let vaultListSection = VaultListSection(id: "", items: [vaultListItem], name: "Items")
@@ -131,6 +135,7 @@ class VaultGroupProcessorTests: BitwardenTestCase { // swiftlint:disable:this ty
 
     /// `perform(_:)` with `.appeared` updates the state depending on if the
     /// personal ownership policy is enabled.
+    @MainActor
     func test_perform_appeared_personalOwnershipPolicy() {
         policyService.policyAppliesToUserResult[.personalOwnership] = true
 
@@ -145,6 +150,7 @@ class VaultGroupProcessorTests: BitwardenTestCase { // swiftlint:disable:this ty
 
     /// `perform(_:)` with `appeared` determines whether the vault filter can be shown based on
     /// policy settings.
+    @MainActor
     func test_perform_appeared_policyCanShowVaultFilterDisabled() {
         vaultRepository.canShowVaultFilter = false
         subject.state.organizations = [.fixture()]
@@ -162,6 +168,7 @@ class VaultGroupProcessorTests: BitwardenTestCase { // swiftlint:disable:this ty
 
     /// `perform(_:)` with `appeared` determines whether the vault filter can be shown based on
     /// policy settings.
+    @MainActor
     func test_perform_appeared_policyCanShowVaultFilterEnabled() {
         vaultRepository.canShowVaultFilter = true
         subject.state.organizations = [.fixture()]
@@ -181,6 +188,7 @@ class VaultGroupProcessorTests: BitwardenTestCase { // swiftlint:disable:this ty
     }
 
     /// `perform(_:)` with `.morePressed` has the vault item more options helper display the alert.
+    @MainActor
     func test_perform_morePressed() async throws {
         await subject.perform(.morePressed(.fixture()))
 
@@ -204,6 +212,7 @@ class VaultGroupProcessorTests: BitwardenTestCase { // swiftlint:disable:this ty
     }
 
     /// `perform(_:)` with `.refreshed` records an error if applicable.
+    @MainActor
     func test_perform_refreshed_error() async {
         vaultRepository.fetchSyncResult = .failure(BitwardenTestError.example)
 
@@ -215,6 +224,7 @@ class VaultGroupProcessorTests: BitwardenTestCase { // swiftlint:disable:this ty
     }
 
     /// `perform(.search)` with a keyword should update search results in state.
+    @MainActor
     func test_perform_search() async {
         let searchResult: [CipherView] = [.fixture(name: "example")]
         vaultRepository.searchVaultListSubject.value = searchResult.compactMap { VaultListItem(cipherView: $0) }
@@ -232,6 +242,7 @@ class VaultGroupProcessorTests: BitwardenTestCase { // swiftlint:disable:this ty
     }
 
     /// `perform(.search)` throws error and error is logged.
+    @MainActor
     func test_perform_search_error() async {
         vaultRepository.searchVaultListSubject.send(completion: .failure(BitwardenTestError.example))
         await subject.perform(.search("example"))
@@ -245,6 +256,7 @@ class VaultGroupProcessorTests: BitwardenTestCase { // swiftlint:disable:this ty
     }
 
     /// `perform(.search)` with a keyword should update search results in state.
+    @MainActor
     func test_perform_search_expiredTOTP() { // swiftlint:disable:this function_body_length
         let loginView = LoginView.fixture(totp: .standardTotpKey)
         let refreshed = VaultListItem(
@@ -324,6 +336,7 @@ class VaultGroupProcessorTests: BitwardenTestCase { // swiftlint:disable:this ty
     }
 
     /// `perform(.search)` with a keyword should update search results in state.
+    @MainActor
     func test_perform_search_expiredTOTP_error() { // swiftlint:disable:this function_body_length
         let loginView = LoginView.fixture(totp: .standardTotpKey)
         vaultRepository.refreshTOTPCodesResult = .failure(BitwardenTestError.example)
@@ -396,6 +409,7 @@ class VaultGroupProcessorTests: BitwardenTestCase { // swiftlint:disable:this ty
     }
 
     /// `perform(.search)` with a empty keyword should get empty search result.
+    @MainActor
     func test_perform_search_emptyString() async {
         await subject.perform(.search("   "))
         XCTAssertEqual(subject.state.searchResults.count, 0)
@@ -406,6 +420,7 @@ class VaultGroupProcessorTests: BitwardenTestCase { // swiftlint:disable:this ty
     }
 
     /// `perform(_:)` with `.streamOrganizations` updates the state's organizations whenever it changes.
+    @MainActor
     func test_perform_streamOrganizations() {
         let task = Task {
             await subject.perform(.streamOrganizations)
@@ -425,6 +440,7 @@ class VaultGroupProcessorTests: BitwardenTestCase { // swiftlint:disable:this ty
     }
 
     /// `perform(_:)` with `.streamOrganizations` records any errors.
+    @MainActor
     func test_perform_streamOrganizations_error() {
         let task = Task {
             await subject.perform(.streamOrganizations)
@@ -440,6 +456,7 @@ class VaultGroupProcessorTests: BitwardenTestCase { // swiftlint:disable:this ty
 
     /// `perform(_:)` with `.streamShowWebIcons` requests the value of the show
     /// web icons parameter from the state service.
+    @MainActor
     func test_perform_streamShowWebIcons() {
         let task = Task {
             await subject.perform(.streamShowWebIcons)
@@ -452,6 +469,7 @@ class VaultGroupProcessorTests: BitwardenTestCase { // swiftlint:disable:this ty
     }
 
     /// `receive(_:)` with `.addItemPressed` navigates to the `.addItem` route with the correct group.
+    @MainActor
     func test_receive_addItemPressed() {
         subject.state.group = .card
         subject.receive(.addItemPressed)
@@ -459,6 +477,7 @@ class VaultGroupProcessorTests: BitwardenTestCase { // swiftlint:disable:this ty
     }
 
     /// TOTP Code expiration updates the state's TOTP codes.
+    @MainActor
     func test_receive_appeared_totpExpired_single() throws {
         let result = VaultListItem.fixtureTOTP(
             totp: .fixture(
@@ -494,6 +513,7 @@ class VaultGroupProcessorTests: BitwardenTestCase { // swiftlint:disable:this ty
     }
 
     /// TOTP Code expiration updates the state's TOTP codes.
+    @MainActor
     func test_receive_appeared_totpExpired_multi() throws { // swiftlint:disable:this function_body_length
         subject = VaultGroupProcessor(
             coordinator: coordinator.asAnyCoordinator(),
@@ -625,6 +645,7 @@ class VaultGroupProcessorTests: BitwardenTestCase { // swiftlint:disable:this ty
     }
 
     /// `receive(_:)` with `.clearURL` clears the url in the state.
+    @MainActor
     func test_receive_clearURL() {
         subject.state.url = .example
         subject.receive(.clearURL)
@@ -632,6 +653,7 @@ class VaultGroupProcessorTests: BitwardenTestCase { // swiftlint:disable:this ty
     }
 
     /// `receive` with `.copyTOTPCode` copies the value with the pasteboard service.
+    @MainActor
     func test_receive_copyTOTPCode() {
         subject.receive(.copyTOTPCode("123456"))
         XCTAssertEqual(pasteboardService.copiedString, "123456")
@@ -639,18 +661,21 @@ class VaultGroupProcessorTests: BitwardenTestCase { // swiftlint:disable:this ty
     }
 
     /// `receive(_:)` with `.itemPressed` on a cipher navigates to the `.viewItem` route.
+    @MainActor
     func test_receive_itemPressed_cipher() {
         subject.receive(.itemPressed(.fixture(cipherView: .fixture(id: "id"))))
         XCTAssertEqual(coordinator.routes.last, .viewItem(id: "id"))
     }
 
     /// `receive(_:)` with `.itemPressed` on a group navigates to the `.group` route.
+    @MainActor
     func test_receive_itemPressed_group() {
         subject.receive(.itemPressed(VaultListItem(id: "1", itemType: .group(.card, 2))))
         XCTAssertEqual(coordinator.routes.last, .group(.card, filter: .allVaults))
     }
 
     /// `receive(_:)` with `.itemPressed` navigates to the `.viewItem` route.
+    @MainActor
     func test_receive_itemPressed_totp() {
         let totpItem = VaultListItem.fixtureTOTP(totp: .fixture())
         subject.receive(.itemPressed(totpItem))
@@ -658,6 +683,7 @@ class VaultGroupProcessorTests: BitwardenTestCase { // swiftlint:disable:this ty
     }
 
     /// `receive(_:)` with `.searchTextChanged` and no value sets the state correctly.
+    @MainActor
     func test_receive_searchTextChanged_withoutValue() {
         subject.state.searchText = "search"
         subject.receive(.searchTextChanged(""))
@@ -665,6 +691,7 @@ class VaultGroupProcessorTests: BitwardenTestCase { // swiftlint:disable:this ty
     }
 
     /// `receive(_:)` with `.searchTextChanged` and a value sets the state correctly.
+    @MainActor
     func test_receive_searchTextChanged_withValue() {
         subject.state.searchText = ""
         subject.receive(.searchTextChanged("search"))
@@ -672,6 +699,7 @@ class VaultGroupProcessorTests: BitwardenTestCase { // swiftlint:disable:this ty
     }
 
     /// `receive(_:)` with `.toastShown` updates the state's toast value.
+    @MainActor
     func test_receive_toastShown() {
         let toast = Toast(text: "toast!")
         subject.receive(.toastShown(toast))
@@ -682,6 +710,7 @@ class VaultGroupProcessorTests: BitwardenTestCase { // swiftlint:disable:this ty
     }
 
     /// `receive(_:)` with `.searchStateChanged(isSearching: false)` hides the profile switcher
+    @MainActor
     func test_receive_searchTextChanged_false_clearsSearch() {
         subject.state.isSearching = true
         subject.state.searchText = "text"
@@ -696,6 +725,7 @@ class VaultGroupProcessorTests: BitwardenTestCase { // swiftlint:disable:this ty
     }
 
     /// `receive(_:)` with `.searchStateChanged(isSearching: true)` hides the profile switcher
+    @MainActor
     func test_receive_searchStateChanged_true_setsSearch() {
         subject.state.isSearching = false
         subject.receive(.searchStateChanged(isSearching: true))
@@ -704,6 +734,7 @@ class VaultGroupProcessorTests: BitwardenTestCase { // swiftlint:disable:this ty
     }
 
     /// `receive(_:)` with `.searchVaultFilterChanged` updates the state correctly.
+    @MainActor
     func test_receive_searchVaultFilterChanged() {
         let organization = Organization.fixture()
 
@@ -714,6 +745,7 @@ class VaultGroupProcessorTests: BitwardenTestCase { // swiftlint:disable:this ty
     }
 
     /// `receive(_:)` with `.totpCodeExpired` handles errors.
+    @MainActor
     func test_receive_totpExpired_error() throws {
         subject = VaultGroupProcessor(
             coordinator: coordinator.asAnyCoordinator(),

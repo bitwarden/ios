@@ -28,6 +28,7 @@ class SceneDelegateTests: BitwardenTestCase {
     // MARK: Tests
 
     /// `scene(_:willConnectTo:options:)` with a `UIWindowScene` creates the app's UI.
+    @MainActor
     func test_sceneWillConnectTo_withWindowScene() throws {
         let appProcessor = AppProcessor(
             appModule: appModule,
@@ -53,6 +54,7 @@ class SceneDelegateTests: BitwardenTestCase {
     }
 
     /// `scene(_:willConnectTo:options:)` without a `UIWindowScene` fails to create the app's UI.
+    @MainActor
     func test_sceneWillConnectTo_withNonWindowScene() throws {
         let appProcessor = AppProcessor(
             appModule: appModule,
@@ -75,6 +77,7 @@ class SceneDelegateTests: BitwardenTestCase {
 
     /// `sceneWillResignActive(_:)` sets the privacy window's alpha to 1,
     /// which hides the app behind the privacy window in the app switcher.
+    @MainActor
     func test_sceneWillResignActive() {
         let appProcessor = AppProcessor(
             appModule: appModule,
@@ -90,6 +93,28 @@ class SceneDelegateTests: BitwardenTestCase {
         subject.scene(scene, willConnectTo: session, options: options)
 
         subject.sceneWillResignActive(scene)
+        XCTAssertEqual(subject.splashWindow?.alpha, 1)
+    }
+
+    /// `scene(_:continue)` runs successfully
+    @MainActor
+    func test_sceneContinue() {
+        let appProcessor = AppProcessor(
+            appModule: appModule,
+            services: ServiceContainer(errorReporter: MockErrorReporter())
+        )
+        (UIApplication.shared.delegate as? TestingAppDelegate)?.appProcessor = appProcessor
+
+        let session = TestInstanceFactory.create(UISceneSession.self)
+        let userActivity = NSUserActivity(activityType: NSUserActivityTypeBrowsingWeb)
+        userActivity.webpageURL = URL(string: "https://example.com")
+        let scene = TestInstanceFactory.create(UIWindowScene.self, properties: [
+            "session": session,
+        ])
+        let options = TestInstanceFactory.create(UIScene.ConnectionOptions.self)
+
+        subject.scene(scene, willConnectTo: session, options: options)
+        subject.scene(scene, continue: userActivity)
         XCTAssertEqual(subject.splashWindow?.alpha, 1)
     }
 }

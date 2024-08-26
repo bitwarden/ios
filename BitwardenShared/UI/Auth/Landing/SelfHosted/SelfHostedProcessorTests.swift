@@ -34,6 +34,7 @@ class SelfHostedProcessorTests: BitwardenTestCase {
     // MARK: Tests
 
     /// `perform(_:)` with `.saveEnvironment` notifies the delegate that the user saved the URLs.
+    @MainActor
     func test_perform_saveEnvironment() async throws {
         subject.state.serverUrl = "vault.bitwarden.com"
 
@@ -43,10 +44,11 @@ class SelfHostedProcessorTests: BitwardenTestCase {
             delegate.savedUrls,
             EnvironmentUrlData(base: URL(string: "https://vault.bitwarden.com")!)
         )
-        XCTAssertEqual(coordinator.routes.last, .dismiss)
+        XCTAssertEqual(coordinator.routes.last, .dismissPresented)
     }
 
     /// `perform(_:)` with `.saveEnvironment` notifies the delegate that the user saved the URLs.
+    @MainActor
     func test_perform_saveEnvironment_multipleURLs() async throws {
         subject.state.apiServerUrl = "vault.bitwarden.com/api"
         subject.state.iconsServerUrl = "icons.bitwarden.com"
@@ -68,10 +70,11 @@ class SelfHostedProcessorTests: BitwardenTestCase {
                 webVault: URL(string: "https://vault.bitwarden.com")!
             )
         )
-        XCTAssertEqual(coordinator.routes.last, .dismiss)
+        XCTAssertEqual(coordinator.routes.last, .dismissPresented)
     }
 
     /// `perform(_:)` with `.saveEnvironment` displays an alert if any of the URLs are invalid.
+    @MainActor
     func test_perform_saveEnvironment_invalidURLs() async throws {
         subject.state.serverUrl = "a<b>c"
 
@@ -88,6 +91,7 @@ class SelfHostedProcessorTests: BitwardenTestCase {
     }
 
     /// Receiving `.apiUrlChanged` updates the state.
+    @MainActor
     func test_receive_apiUrlChanged() {
         subject.receive(.apiUrlChanged("api url"))
 
@@ -95,13 +99,15 @@ class SelfHostedProcessorTests: BitwardenTestCase {
     }
 
     /// Receiving `.dismiss` dismisses the view.
+    @MainActor
     func test_receive_dismiss() {
         subject.receive(.dismiss)
 
-        XCTAssertEqual(coordinator.routes.last, .dismiss)
+        XCTAssertEqual(coordinator.routes.last, .dismissPresented)
     }
 
     /// Receiving `.iconsUrlChanged` updates the state.
+    @MainActor
     func test_receive_iconsUrlChanged() {
         subject.receive(.iconsUrlChanged("icons url"))
 
@@ -109,6 +115,7 @@ class SelfHostedProcessorTests: BitwardenTestCase {
     }
 
     /// Receiving `.identityUrlChanged` updates the state.
+    @MainActor
     func test_receive_identityUrlChanged() {
         subject.receive(.identityUrlChanged("identity url"))
 
@@ -116,6 +123,7 @@ class SelfHostedProcessorTests: BitwardenTestCase {
     }
 
     /// Receiving `.serverUrlChanged` updates the state.
+    @MainActor
     func test_receive_serverUrlChanged() {
         subject.receive(.serverUrlChanged("server url"))
 
@@ -123,6 +131,7 @@ class SelfHostedProcessorTests: BitwardenTestCase {
     }
 
     /// Receiving `.webVaultUrlChanged` updates the state.
+    @MainActor
     func test_receive_webVaultUrlChanged() {
         subject.receive(.webVaultUrlChanged("web vault url"))
 

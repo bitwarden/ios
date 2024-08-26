@@ -35,6 +35,7 @@ class SearchVaultFilterRowViewTests: BitwardenTestCase {
     // MARK: Tests
 
     /// Selecting the search vault filter option dispatches the `.searchVaultFilterChanged` action.
+    @MainActor
     func test_vaultFilterOption_tap() throws {
         let picker = try subject.inspect().find(ViewType.Picker.self)
         try picker.select(value: VaultFilterType.myVault)

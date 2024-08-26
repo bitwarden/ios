@@ -2,7 +2,7 @@ import BitwardenSdk
 
 /// An enumeration of groups of items displayed in the vault list.
 ///
-public enum VaultListGroup: Equatable, Hashable {
+public enum VaultListGroup: Equatable, Hashable, Sendable {
     // MARK: Cipher Types
 
     /// A group of card type ciphers.

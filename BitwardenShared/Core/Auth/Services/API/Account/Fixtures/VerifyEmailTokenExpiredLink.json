@@ -1,0 +1,8 @@
+{
+    "message":"Expired link. Please restart registration or try logging in. You may already have an account",
+    "validationErrors": null,
+    "exceptionMessage":null,
+    "exceptionStackTrace":null,
+    "innerExceptionMessage":null,
+    "object":"error"
+}

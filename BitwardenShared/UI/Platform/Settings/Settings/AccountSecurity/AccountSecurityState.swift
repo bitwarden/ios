@@ -19,7 +19,7 @@ public enum UnlockMethod {
 
 /// An enumeration of session timeout values to choose from.
 ///
-public enum SessionTimeoutValue: RawRepresentable, CaseIterable, Equatable, Menuable {
+public enum SessionTimeoutValue: RawRepresentable, CaseIterable, Equatable, Menuable, Sendable {
     /// Timeout immediately.
     case immediately
 
@@ -141,7 +141,7 @@ public enum SessionTimeoutValue: RawRepresentable, CaseIterable, Equatable, Menu
 
 /// The action to perform on session timeout.
 ///
-public enum SessionTimeoutAction: Int, CaseIterable, Codable, Equatable, Menuable {
+public enum SessionTimeoutAction: Int, CaseIterable, Codable, Equatable, Menuable, Sendable {
     /// Lock the vault.
     case lock = 0
 

@@ -3,7 +3,7 @@
 import BitwardenSdk
 
 /// Actions that can be handled by an `AddEditItemProcessor`.
-enum AddEditItemAction: Equatable {
+enum AddEditItemAction: Equatable, Sendable {
     /// The auth key visibility was toggled.
     case authKeyVisibilityTapped(Bool)
 

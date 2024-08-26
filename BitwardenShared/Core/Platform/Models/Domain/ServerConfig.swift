@@ -4,7 +4,7 @@ import Foundation
 
 /// Model that represents the configuration provided by the server at a particular time.
 ///
-struct ServerConfig: Equatable, Codable {
+struct ServerConfig: Equatable, Codable, Sendable {
     // MARK: Properties
 
     /// The environment URLs of the server.

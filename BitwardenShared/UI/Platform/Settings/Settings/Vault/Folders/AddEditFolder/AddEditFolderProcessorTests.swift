@@ -46,6 +46,7 @@ class AddEditFolderProcessorTests: BitwardenTestCase {
 
     /// `perform(_:)` with `.deleteTapped` presents the confirmation alert and displays an error if
     /// deleting the folder failed.
+    @MainActor
     func test_perform_deleteTapped_genericError() async throws {
         // Set up the mock data.
         subject.state.mode = .edit(.fixture(id: "testID"))
@@ -69,6 +70,7 @@ class AddEditFolderProcessorTests: BitwardenTestCase {
 
     /// `perform(_:)` with `.deleteTapped` presents the confirmation alert and displays a network error with a try again
     /// button if deleting the folder failed for a networking reason.
+    @MainActor
     func test_perform_deleteTapped_networkError() async throws {
         // Set up the mock data.
         subject.state.mode = .edit(.fixture(id: "testID"))
@@ -99,6 +101,7 @@ class AddEditFolderProcessorTests: BitwardenTestCase {
     }
 
     /// `perform(_:)` with `.deleteTapped` presents the confirmation alert and deletes the account if the user confirms.
+    @MainActor
     func test_perform_deleteTapped_success() async throws {
         // Set up the mock data.
         subject.state.mode = .edit(.fixture(id: "testID"))
@@ -120,6 +123,7 @@ class AddEditFolderProcessorTests: BitwardenTestCase {
     }
 
     /// `perform(_:)` with `.savePressed` displays an alert if name field is invalid.
+    @MainActor
     func test_perform_savePressed_invalidName() async throws {
         subject.state.folderName = "    "
 
@@ -137,6 +141,7 @@ class AddEditFolderProcessorTests: BitwardenTestCase {
     }
 
     /// `perform(_:)` with `.savePressed` displays an alert if adding a new folder fails.
+    @MainActor
     func test_perform_savePressed_genericErrorAlert_add() async throws {
         subject.state.folderName = "Folder Name"
         settingsRepository.addFolderResult = .failure(BitwardenTestError.example)
@@ -149,6 +154,7 @@ class AddEditFolderProcessorTests: BitwardenTestCase {
     }
 
     /// `perform(_:)` with `.savePressed` displays an alert if editing an existing folder fails.
+    @MainActor
     func test_perform_savePressed_genericErrorAlert_edit() async throws {
         let folderName = "FolderName"
         subject.state.mode = .edit(.fixture(name: folderName))
@@ -164,6 +170,7 @@ class AddEditFolderProcessorTests: BitwardenTestCase {
 
     /// `perform(_:)` with `.savePressed` displays a network error alert with a try again button if there was a
     /// networking error.
+    @MainActor
     func test_perform_savePressed_networkError() async throws {
         subject.state.folderName = "Folder Name"
         settingsRepository.addFolderResult = .failure(URLError(.timedOut))
@@ -184,6 +191,7 @@ class AddEditFolderProcessorTests: BitwardenTestCase {
     }
 
     /// `perform(_:)` with `.savePressed` adds the new folder.
+    @MainActor
     func test_perform_savePressed_add() async {
         let folderName = "FolderName"
         subject.state.folderName = folderName
@@ -195,6 +203,7 @@ class AddEditFolderProcessorTests: BitwardenTestCase {
     }
 
     /// `perform(_:)` with `.savePressed` edits the existing folder.
+    @MainActor
     func test_perform_savePressed_edit() async {
         let folderName = "FolderName"
         subject.state.mode = .edit(.fixture(name: folderName))
@@ -207,6 +216,7 @@ class AddEditFolderProcessorTests: BitwardenTestCase {
     }
 
     /// `receive(_:)` with `.dismiss` dismisses the view.
+    @MainActor
     func test_receive_dismiss() {
         subject.receive(.dismiss)
 
@@ -214,6 +224,7 @@ class AddEditFolderProcessorTests: BitwardenTestCase {
     }
 
     /// `receive(_:)` with `.folderNameTextChanged(_:)` updates the state to reflect the change.
+    @MainActor
     func test_receive_folderNameTextChanged() {
         subject.state.folderName = ""
         XCTAssertTrue(subject.state.folderName.isEmpty)

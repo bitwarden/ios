@@ -11,6 +11,7 @@ class MockAppSettingsStore: AppSettingsStore {
     var appTheme: String?
     var biometricIntegrityStateLegacy: String?
     var disableWebIcons = false
+    var introCarouselShown = false
     var lastUserShouldConnectToWatch = false
     var loginRequest: LoginRequestNotification?
     var migrationVersion = 0
@@ -35,10 +36,10 @@ class MockAppSettingsStore: AppSettingsStore {
     var passwordGenerationOptions = [String: PasswordGenerationOptions]()
     var pinProtectedUserKey = [String: String]()
     var serverConfig = [String: ServerConfig]()
-    var shouldCheckOrganizationUnassignedItems = [String: Bool?]()
     var shouldTrustDevice = [String: Bool?]()
     var timeoutAction = [String: Int]()
     var twoFactorTokens = [String: String]()
+    var usesKeyConnector = [String: Bool]()
     var vaultTimeout = [String: Int]()
     var state: State? {
         didSet {
@@ -195,10 +196,6 @@ class MockAppSettingsStore: AppSettingsStore {
         serverConfig[userId] = config
     }
 
-    func setShouldCheckOrganizationUnassignedItems(_ shouldCheck: Bool?, userId: String) {
-        shouldCheckOrganizationUnassignedItems[userId] = shouldCheck
-    }
-
     func setShouldTrustDevice(shouldTrustDevice: Bool?, userId: String) {
         self.shouldTrustDevice[userId] = shouldTrustDevice
     }
@@ -223,12 +220,12 @@ class MockAppSettingsStore: AppSettingsStore {
         usernameGenerationOptions[userId] = options
     }
 
-    func setVaultTimeout(minutes: Int, userId: String) {
-        vaultTimeout[userId] = minutes
+    func setUsesKeyConnector(_ usesKeyConnector: Bool, userId: String) {
+        self.usesKeyConnector[userId] = usesKeyConnector
     }
 
-    func shouldCheckOrganizationUnassignedItems(userId: String) -> Bool? {
-        shouldCheckOrganizationUnassignedItems[userId] ?? nil
+    func setVaultTimeout(minutes: Int, userId: String) {
+        vaultTimeout[userId] = minutes
     }
 
     func shouldTrustDevice(userId: String) -> Bool? {
@@ -245,6 +242,10 @@ class MockAppSettingsStore: AppSettingsStore {
 
     func usernameGenerationOptions(userId: String) -> UsernameGenerationOptions? {
         usernameGenerationOptions[userId]
+    }
+
+    func usesKeyConnector(userId: String) -> Bool {
+        usesKeyConnector[userId] ?? false
     }
 
     func vaultTimeout(userId: String) -> Int? {

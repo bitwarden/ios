@@ -52,6 +52,7 @@ class VaultUnlockProcessorTests: BitwardenTestCase { // swiftlint:disable:this t
     // MARK: Tests
 
     /// `perform(.appeared)` with a biometrics status error yields `BiometricUnlockStatus.unavailable`.
+    @MainActor
     func test_perform_appeared_biometricUnlockStatus_error() async {
         stateService.activeAccount = .fixture()
         struct FetchError: Error {}
@@ -64,6 +65,7 @@ class VaultUnlockProcessorTests: BitwardenTestCase { // swiftlint:disable:this t
     }
 
     /// `perform(.appeared)` with a biometrics status error yields `BiometricUnlockStatus.unavailable`.
+    @MainActor
     func test_perform_appeared_biometricUnlockStatus_success() async {
         stateService.activeAccount = .fixture()
         struct FetchError: Error {}
@@ -77,6 +79,7 @@ class VaultUnlockProcessorTests: BitwardenTestCase { // swiftlint:disable:this t
     }
 
     /// `perform(.appeared)` without profiles for the profile switcher.
+    @MainActor
     func test_perform_appeared_empty() async {
         await subject.perform(.appeared)
 
@@ -87,6 +90,7 @@ class VaultUnlockProcessorTests: BitwardenTestCase { // swiftlint:disable:this t
     }
 
     /// `perform(.appeared)` with an active account and accounts should yield a profile switcher state.
+    @MainActor
     func test_perform_appeared_profiles_single_active() async {
         let profile = ProfileSwitcherItem.fixture()
         authRepository.profileSwitcherState = .init(
@@ -104,6 +108,7 @@ class VaultUnlockProcessorTests: BitwardenTestCase { // swiftlint:disable:this t
 
     /// `perform(.appeared)` refreshes the profile switcher and disables add account when running
     /// in the app extension.
+    @MainActor
     func test_perform_appeared_refreshProfile_inAppExtension() async {
         let profile = ProfileSwitcherItem.fixture()
         authRepository.profileSwitcherState = .init(
@@ -129,6 +134,7 @@ class VaultUnlockProcessorTests: BitwardenTestCase { // swiftlint:disable:this t
     }
 
     /// `perform(.appeared)` sets the state property for whether the app is running in an extension.
+    @MainActor
     func test_perform_appeared_setsIsInAppExtension() async {
         appExtensionDelegate.isInAppExtension = true
         await subject.perform(.appeared)
@@ -140,6 +146,7 @@ class VaultUnlockProcessorTests: BitwardenTestCase { // swiftlint:disable:this t
     }
 
     /// `perform(.appeared)` with an active account and accounts should yield a profile switcher state.
+    @MainActor
     func test_perform_appeared_unlockAttempts() async {
         stateService.activeAccount = .fixture()
         await stateService.setUnsuccessfulUnlockAttempts(3)
@@ -150,6 +157,7 @@ class VaultUnlockProcessorTests: BitwardenTestCase { // swiftlint:disable:this t
 
     /// `perform(.appeared)`
     /// No active account and accounts should yield a profile switcher state without an active account.
+    @MainActor
     func test_perform_refresh_profiles_single_notActive() async {
         let profile = ProfileSwitcherItem.fixture()
         authRepository.profileSwitcherState = .init(
@@ -173,6 +181,7 @@ class VaultUnlockProcessorTests: BitwardenTestCase { // swiftlint:disable:this t
 
     /// `perform(.appeared)`:
     ///  An active account and multiple accounts should yield a profile switcher state.
+    @MainActor
     func test_perform_refresh_profiles_single_multiAccount() async {
         let profile = ProfileSwitcherItem.fixture()
         let alternate = ProfileSwitcherItem.fixture()
@@ -190,6 +199,7 @@ class VaultUnlockProcessorTests: BitwardenTestCase { // swiftlint:disable:this t
     }
 
     /// `perform(_:)` with `.requestedProfileSwitcher(visible:)` updates the state to reflect the changes.
+    @MainActor
     func test_perform_requestedProfileSwitcherVisible_false() async {
         let active = ProfileSwitcherItem.fixture()
         subject.state.profileSwitcherState = ProfileSwitcherState(
@@ -207,6 +217,7 @@ class VaultUnlockProcessorTests: BitwardenTestCase { // swiftlint:disable:this t
     }
 
     /// `perform(_:)` with `.requestedProfileSwitcher(visible:)` updates the state to reflect the changes.
+    @MainActor
     func test_perform_requestedProfileSwitcherVisible_true() async {
         let active = ProfileSwitcherItem.fixture()
         subject.state.profileSwitcherState = ProfileSwitcherState(
@@ -224,6 +235,7 @@ class VaultUnlockProcessorTests: BitwardenTestCase { // swiftlint:disable:this t
     }
 
     /// `perform(.profileSwitcher(.rowAppeared))` should not update the state for add Account
+    @MainActor
     func test_perform_rowAppeared_add() async {
         let profile = ProfileSwitcherItem.fixture()
         let alternate = ProfileSwitcherItem.fixture()
@@ -240,6 +252,7 @@ class VaultUnlockProcessorTests: BitwardenTestCase { // swiftlint:disable:this t
     }
 
     /// `perform(.profileSwitcher(.rowAppeared))` should not update the state for alternate account
+    @MainActor
     func test_perform_rowAppeared_alternate() async {
         let profile = ProfileSwitcherItem.fixture()
         let alternate = ProfileSwitcherItem.fixture()
@@ -256,6 +269,7 @@ class VaultUnlockProcessorTests: BitwardenTestCase { // swiftlint:disable:this t
     }
 
     /// `perform(.profileSwitcher(.rowAppeared))` should update the state for active account
+    @MainActor
     func test_perform_rowAppeared_active() {
         let profile = ProfileSwitcherItem.fixture()
         let alternate = ProfileSwitcherItem.fixture()
@@ -276,6 +290,7 @@ class VaultUnlockProcessorTests: BitwardenTestCase { // swiftlint:disable:this t
     }
 
     /// `perform(_:)` with `.unlockVault` attempts to unlock the vault with the entered password.
+    @MainActor
     func test_perform_unlockVault() async throws {
         stateService.activeAccount = Account.fixture()
         stateService.pinProtectedUserKeyValue["1"] = "123"
@@ -292,6 +307,7 @@ class VaultUnlockProcessorTests: BitwardenTestCase { // swiftlint:disable:this t
 
     /// `perform(_:)` with `.unlockVault` shows the KDF warning in an extension if the KDF memory is
     /// potentially too high.
+    @MainActor
     func test_perform_unlockVault_extensionKdfWarning() async throws {
         appExtensionDelegate.isInAppExtension = true
         stateService.activeAccount = .fixture(profile: .fixture(kdfMemory: 65, kdfType: .argon2id))
@@ -309,6 +325,7 @@ class VaultUnlockProcessorTests: BitwardenTestCase { // swiftlint:disable:this t
     }
 
     /// `perform(_:)` with `.unlockVault` shows an alert if the master password is empty.
+    @MainActor
     func test_perform_unlockVault_InputValidationError_noPassword() async throws {
         subject.state.unlockMethod = .password
         await subject.perform(.unlockVault)
@@ -323,6 +340,7 @@ class VaultUnlockProcessorTests: BitwardenTestCase { // swiftlint:disable:this t
     }
 
     /// `perform(_:)` with `.unlockVault` shows an alert if the PIN is empty.
+    @MainActor
     func test_perform_unlockVault_InputValidationError_noPIN() async throws {
         subject.state.unlockMethod = .pin
         await subject.perform(.unlockVault)
@@ -337,6 +355,7 @@ class VaultUnlockProcessorTests: BitwardenTestCase { // swiftlint:disable:this t
     }
 
     /// `perform(_:)` with `.unlockVault` shows an alert if the master password was incorrect.
+    @MainActor
     func test_perform_unlockVault_invalidPasswordError() async throws {
         subject.state.masterPassword = "password"
 
@@ -352,6 +371,7 @@ class VaultUnlockProcessorTests: BitwardenTestCase { // swiftlint:disable:this t
 
     /// `perform(_:)` with `.unlockVault` displays an alert a maximum of 5 times if the master password was incorrect.
     ///  After the 5th attempt, it logs the user out.
+    @MainActor
     func test_perform_unlockVault_invalidPassword_logout() async throws { // swiftlint:disable:this function_body_length
         subject.state.masterPassword = "password"
         stateService.activeAccount = .fixture()
@@ -419,6 +439,7 @@ class VaultUnlockProcessorTests: BitwardenTestCase { // swiftlint:disable:this t
     }
 
     /// `perform(_:)` with `.unlockVault` logs error if force logout fails after the 5th unsuccessful attempts.
+    @MainActor
     func test_perform_unlockVault_invalidPassword() async throws {
         subject.state.masterPassword = "password"
         stateService.activeAccount = .fixtureAccountLogin()
@@ -440,6 +461,7 @@ class VaultUnlockProcessorTests: BitwardenTestCase { // swiftlint:disable:this t
     }
 
     /// `perform(_:)` with `.unlockVault` successful unlocking vault resets the `unsuccessfulUnlockAttemptsCount`.
+    @MainActor
     func test_perform_unlockVault_validPassword_resetsFailedUnlockAttemptsCount() async throws {
         subject.state.masterPassword = "password"
         XCTAssertEqual(subject.state.unsuccessfulUnlockAttemptsCount, 0)
@@ -467,6 +489,7 @@ class VaultUnlockProcessorTests: BitwardenTestCase { // swiftlint:disable:this t
 
     /// `perform(_:)` with `.unlockVaultWithBiometrics` shows the KDF warning in an extension if the
     /// KDF memory is potentially too high.
+    @MainActor
     func test_perform_unlockWithBiometrics_extensionKdfWarning() async throws {
         appExtensionDelegate.isInAppExtension = true
         authRepository.unlockVaultWithBiometricsResult = .success(())
@@ -487,6 +510,7 @@ class VaultUnlockProcessorTests: BitwardenTestCase { // swiftlint:disable:this t
     }
 
     /// `perform(_:)` with `.unlockWithBiometrics` requires a set user preference.
+    @MainActor
     func test_perform_unlockWithBiometrics_noAccount() async throws {
         biometricsRepository.biometricUnlockStatus = .success(
             .available(.faceID, enabled: true, hasValidIntegrity: true)
@@ -500,6 +524,7 @@ class VaultUnlockProcessorTests: BitwardenTestCase { // swiftlint:disable:this t
     }
 
     /// `perform(_:)` with `.unlockWithBiometrics` requires a set user preference.
+    @MainActor
     func test_perform_unlockWithBiometrics_notAvailable() async throws {
         biometricsRepository.biometricUnlockStatus = .success(.notAvailable)
         authRepository.unlockVaultWithBiometricsResult = .success(())
@@ -510,6 +535,7 @@ class VaultUnlockProcessorTests: BitwardenTestCase { // swiftlint:disable:this t
     }
 
     /// `perform(_:)` with `.unlockWithBiometrics` requires a set user preference.
+    @MainActor
     func test_perform_unlockWithBiometrics_notEnabled() async throws {
         biometricsRepository.biometricUnlockStatus = .success(
             .available(.touchID, enabled: false, hasValidIntegrity: true)
@@ -522,6 +548,7 @@ class VaultUnlockProcessorTests: BitwardenTestCase { // swiftlint:disable:this t
     }
 
     /// `perform(_:)` with `.unlockWithBiometrics` requires a set user preference.
+    @MainActor
     func test_perform_unlockWithBiometrics_invalidIntegrity() async throws {
         biometricsRepository.biometricUnlockStatus = .success(
             .available(.touchID, enabled: true, hasValidIntegrity: false)
@@ -534,6 +561,7 @@ class VaultUnlockProcessorTests: BitwardenTestCase { // swiftlint:disable:this t
     }
 
     /// `perform(_:)` with `.unlockWithBiometrics` requires successful biometrics.
+    @MainActor
     func test_perform_unlockWithBiometrics_authRepoError() async throws {
         stateService.activeAccount = .fixture()
         biometricsRepository.biometricUnlockStatus = .success(
@@ -548,6 +576,7 @@ class VaultUnlockProcessorTests: BitwardenTestCase { // swiftlint:disable:this t
     }
 
     /// `perform(_:)` with `.unlockWithBiometrics` requires successful biometrics.
+    @MainActor
     func test_perform_unlockWithBiometrics_authRepoError_maxAttempts() async throws {
         stateService.activeAccount = .fixture()
         subject.state.unsuccessfulUnlockAttemptsCount = 4
@@ -568,6 +597,7 @@ class VaultUnlockProcessorTests: BitwardenTestCase { // swiftlint:disable:this t
     }
 
     /// `perform(_:)` with `.unlockWithBiometrics` requires successful biometrics.
+    @MainActor
     func test_perform_unlockWithBiometrics_authRepoError_getAuthKeyFailed() async throws {
         biometricsRepository.biometricUnlockStatus = .success(
             .available(.touchID, enabled: true, hasValidIntegrity: true)
@@ -581,6 +611,7 @@ class VaultUnlockProcessorTests: BitwardenTestCase { // swiftlint:disable:this t
     }
 
     /// `perform(_:)` with `.unlockWithBiometrics` handles user cancellation.
+    @MainActor
     func test_perform_unlockWithBiometrics_userCancelled() async throws {
         biometricsRepository.biometricUnlockStatus = .success(
             .available(.touchID, enabled: true, hasValidIntegrity: true)
@@ -594,6 +625,7 @@ class VaultUnlockProcessorTests: BitwardenTestCase { // swiftlint:disable:this t
     }
 
     /// `perform(_:)` with `.unlockWithBiometrics` requires successful biometrics.
+    @MainActor
     func test_perform_unlockWithBiometrics_success() async throws {
         subject.state.unsuccessfulUnlockAttemptsCount = 3
         biometricsRepository.biometricUnlockStatus = .success(
@@ -608,6 +640,7 @@ class VaultUnlockProcessorTests: BitwardenTestCase { // swiftlint:disable:this t
     }
 
     /// `receive(_:)` with `.masterPasswordChanged` updates the state to reflect the changes.
+    @MainActor
     func test_receive_masterPasswordChanged() {
         subject.state.masterPassword = ""
 
@@ -617,6 +650,7 @@ class VaultUnlockProcessorTests: BitwardenTestCase { // swiftlint:disable:this t
 
     /// `receive(_:)` with `.morePressed` navigates to the login options screen and allows the user
     /// to logout.
+    @MainActor
     func test_receive_morePressed_logout() async throws {
         subject.receive(.morePressed)
 
@@ -650,6 +684,7 @@ class VaultUnlockProcessorTests: BitwardenTestCase { // swiftlint:disable:this t
 
     /// `receive(_:)` with `.morePressed` navigates to the login options screen and allows the user
     /// to logout.
+    @MainActor
     func test_receive_morePressed_logout_nextAccount() async throws {
         stateService.accounts = [
             .fixture(),
@@ -687,6 +722,7 @@ class VaultUnlockProcessorTests: BitwardenTestCase { // swiftlint:disable:this t
     }
 
     /// `receive(_:)` with `.revealMasterPasswordFieldPressed` updates the state to reflect the changes.
+    @MainActor
     func test_receive_revealMasterPasswordFieldPressed() {
         subject.state.isMasterPasswordRevealed = false
         subject.receive(.revealMasterPasswordFieldPressed(true))
@@ -698,6 +734,7 @@ class VaultUnlockProcessorTests: BitwardenTestCase { // swiftlint:disable:this t
 
     /// `receive(_:)` with `.profileSwitcher(.accountLongPressed)` shows the alert and allows the user to
     /// lock the selected account.
+    @MainActor
     func test_receive_accountLongPressed_lock() async throws {
         // Set up the mock data.
         let activeProfile = ProfileSwitcherItem.fixture(userId: "1")
@@ -723,6 +760,7 @@ class VaultUnlockProcessorTests: BitwardenTestCase { // swiftlint:disable:this t
     }
 
     /// `receive(_:)` with `.profileSwitcher(.accountLongPressed)` records any errors from locking the account.
+    @MainActor
     func test_receive_accountLongPressed_lock_error() async throws {
         // Set up the mock data.
         let activeProfile = ProfileSwitcherItem.fixture()
@@ -748,6 +786,7 @@ class VaultUnlockProcessorTests: BitwardenTestCase { // swiftlint:disable:this t
 
     /// `receive(_:)` with `.profileSwitcher(.accountLongPressed)` shows the alert and allows the user to
     /// log out of the selected account, which navigates back to the landing page for the active account.
+    @MainActor
     func test_receive_accountLongPressed_logout_activeAccount() async throws {
         // Set up the mock data.
         let activeProfile = ProfileSwitcherItem.fixture()
@@ -782,6 +821,7 @@ class VaultUnlockProcessorTests: BitwardenTestCase { // swiftlint:disable:this t
 
     /// `receive(_:)` with `.profileSwitcher(.accountLongPressed)` shows the alert and allows the user to
     /// log out of the selected account, which triggers an account switch.
+    @MainActor
     func test_receive_accountLongPressed_logout_activeAccount_withAlternate() async throws {
         // Set up the mock data.
         let activeProfile = ProfileSwitcherItem.fixture()
@@ -823,6 +863,7 @@ class VaultUnlockProcessorTests: BitwardenTestCase { // swiftlint:disable:this t
 
     /// `receive(_:)` with `.profileSwitcher(.accountLongPressed)` shows the alert and allows the user to
     /// log out of the selected account, which displays a toast.
+    @MainActor
     func test_receive_accountLongPressed_logout_otherAccount() async throws {
         // Set up the mock data.
         let activeProfile = ProfileSwitcherItem.fixture()
@@ -861,6 +902,7 @@ class VaultUnlockProcessorTests: BitwardenTestCase { // swiftlint:disable:this t
 
     /// `receive(_:)` with `.profileSwitcher(.accountLongPressed)` records any errors from logging out the
     /// account.
+    @MainActor
     func test_receive_accountLongPressed_logout_error() async throws {
         // Set up the mock data.
         let activeProfile = ProfileSwitcherItem.fixture()
@@ -889,6 +931,7 @@ class VaultUnlockProcessorTests: BitwardenTestCase { // swiftlint:disable:this t
     }
 
     /// `receive(_:)` with `.profileSwitcher(.accountPressed)` updates the state to reflect the changes.
+    @MainActor
     func test_receive_accountPressed_active_unlocked() {
         let profile = ProfileSwitcherItem.fixture()
         authRepository.profileSwitcherState = .init(
@@ -917,6 +960,7 @@ class VaultUnlockProcessorTests: BitwardenTestCase { // swiftlint:disable:this t
     }
 
     /// `receive(_:)` with `.profileSwitcher(.accountPressed)` updates the state to reflect the changes.
+    @MainActor
     func test_receive_accountPressed_active_locked() {
         let profile = ProfileSwitcherItem.fixture(isUnlocked: false)
         let account = Account.fixture(profile: .fixture(
@@ -948,6 +992,7 @@ class VaultUnlockProcessorTests: BitwardenTestCase { // swiftlint:disable:this t
     }
 
     /// `receive(_:)` with `.profileSwitcher(.accountPressed)` updates the state to reflect the changes.
+    @MainActor
     func test_receive_accountPressed_alternateUnlocked() {
         let profile = ProfileSwitcherItem.fixture(isUnlocked: true)
         let active = ProfileSwitcherItem.fixture()
@@ -981,6 +1026,7 @@ class VaultUnlockProcessorTests: BitwardenTestCase { // swiftlint:disable:this t
     }
 
     /// `receive(_:)` with `.profileSwitcher(.accountPressed)` updates the state to reflect the changes.
+    @MainActor
     func test_receive_accountPressed_alternateLocked() {
         let profile = ProfileSwitcherItem.fixture(isUnlocked: false)
         let active = ProfileSwitcherItem.fixture()
@@ -1013,6 +1059,7 @@ class VaultUnlockProcessorTests: BitwardenTestCase { // swiftlint:disable:this t
     }
 
     /// `receive(_:)` with `.profileSwitcher(.accountPressed)` updates the state to reflect the changes.
+    @MainActor
     func test_receive_accountPressed_noMatch() {
         let profile = ProfileSwitcherItem.fixture()
         let active = ProfileSwitcherItem.fixture()
@@ -1041,6 +1088,7 @@ class VaultUnlockProcessorTests: BitwardenTestCase { // swiftlint:disable:this t
     }
 
     /// `receive(_:)` with `.profileSwitcher(.addAccountPressed)` updates the state to reflect the changes.
+    @MainActor
     func test_receive_addAccountPressed() {
         let active = ProfileSwitcherItem.fixture()
         subject.state.profileSwitcherState = ProfileSwitcherState(
@@ -1062,6 +1110,7 @@ class VaultUnlockProcessorTests: BitwardenTestCase { // swiftlint:disable:this t
     }
 
     /// `receive(_:)` with `.profileSwitcher(.backgroundPressed)` updates the state to reflect the changes.
+    @MainActor
     func test_receive_backgroundPressed() {
         let active = ProfileSwitcherItem.fixture()
         subject.state.profileSwitcherState = ProfileSwitcherState(
@@ -1083,6 +1132,7 @@ class VaultUnlockProcessorTests: BitwardenTestCase { // swiftlint:disable:this t
     }
 
     /// `receive(_:)` with `.cancelPressed` notifies the delegate that cancel was pressed.
+    @MainActor
     func test_receive_cancelPressed() {
         subject.receive(.cancelPressed)
 
@@ -1090,6 +1140,7 @@ class VaultUnlockProcessorTests: BitwardenTestCase { // swiftlint:disable:this t
     }
 
     /// `receive(_:)` with `.profileSwitcher(.scrollOffset)` updates the state to reflect the changes.
+    @MainActor
     func test_receive_scrollOffset() {
         let active = ProfileSwitcherItem.fixture()
         subject.state.profileSwitcherState = ProfileSwitcherState(
@@ -1109,6 +1160,7 @@ class VaultUnlockProcessorTests: BitwardenTestCase { // swiftlint:disable:this t
     }
 
     /// `receive(_:)` with `.toastShown` updates the state's toast value.
+    @MainActor
     func test_receive_toastShown() {
         let toast = Toast(text: "toast!")
         subject.receive(.toastShown(toast))

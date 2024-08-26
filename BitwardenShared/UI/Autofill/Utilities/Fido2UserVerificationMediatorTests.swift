@@ -236,6 +236,7 @@ class Fido2UserVerificationMediatorTests: BitwardenTestCase { // swiftlint:disab
 
     // MARK: Private
 
+    @MainActor
     private func checkUser_verified_when_reprompt_and_reprompt_verified(
         _ userVerificationPreference: BitwardenSdk.Verification,
         file: StaticString = #filePath,
@@ -264,6 +265,7 @@ class Fido2UserVerificationMediatorTests: BitwardenTestCase { // swiftlint:disab
         )
     }
 
+    @MainActor
     private func checkUser_not_verified_when_reprompt_and_reprompt_not_verified(
         _ userVerificationPreference: BitwardenSdk.Verification,
         file: StaticString = #filePath,
@@ -290,6 +292,7 @@ class Fido2UserVerificationMediatorTests: BitwardenTestCase { // swiftlint:disab
         )
     }
 
+    @MainActor
     private func checkUser_throws_when_reprompt_and_reprompt_throws(
         _ userVerificationPreference: BitwardenSdk.Verification,
         file: StaticString = #filePath,
@@ -313,6 +316,7 @@ class Fido2UserVerificationMediatorTests: BitwardenTestCase { // swiftlint:disab
         )
     }
 
+    @MainActor
     private func checkUser_throws_when_repromptNeedsUserInteraction(
         _ userVerificationPreference: BitwardenSdk.Verification,
         file: StaticString = #filePath,
@@ -335,6 +339,7 @@ class Fido2UserVerificationMediatorTests: BitwardenTestCase { // swiftlint:disab
         )
     }
 
+    @MainActor
     private func checkUser_throws_when_needsUserInteraction(
         _ userVerificationPreference: BitwardenSdk.Verification,
         file: StaticString = #filePath,
