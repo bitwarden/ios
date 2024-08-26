@@ -4,6 +4,7 @@ import BitwardenSdk
 typealias Services = HasAuthenticatorItemRepository
     & HasBiometricsRepository
     & HasCameraService
+    & HasConfigService
     & HasCryptographyService
     & HasErrorReporter
     & HasExportItemsService
@@ -32,6 +33,13 @@ protocol HasBiometricsRepository {
 protocol HasCameraService {
     /// The service used by the application to query for and request camera authorization.
     var cameraService: CameraService { get }
+}
+
+/// Protocol for an object that provides a `ConfigService`.
+///
+protocol HasConfigService {
+    /// The service to get server-specified configuration.
+    var configService: ConfigService { get }
 }
 
 /// Protocol for an object that provides a `CryptographyService`

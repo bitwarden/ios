@@ -36,6 +36,9 @@ public class ServiceContainer: Services {
     /// The service used by the application to handle encryption and decryption tasks.
     let clientService: ClientService
 
+    /// The service to get locally-specified configuration
+    let configService: ConfigService
+
     /// The service used by the application to encrypt and decrypt items
     let cryptographyService: CryptographyService
 
@@ -76,6 +79,7 @@ public class ServiceContainer: Services {
     ///   - biometricsService: The service used to obtain device biometrics status & data.
     ///   - cameraService: The service used by the application to manage camera use.
     ///   - clientService: The service used by the application to handle encryption and decryption tasks.
+    ///   - configService: The service to get locally-specified configuration.
     ///   - cryptographyService: The service used by the application to encrypt and decrypt items
     ///   - errorReporter: The service used by the application to report non-fatal errors.
     ///   - exportItemsService: The service to export items.
@@ -93,8 +97,9 @@ public class ServiceContainer: Services {
         biometricsRepository: BiometricsRepository,
         biometricsService: BiometricsService,
         cameraService: CameraService,
-        cryptographyService: CryptographyService,
         clientService: ClientService,
+        configService: ConfigService,
+        cryptographyService: CryptographyService,
         errorReporter: ErrorReporter,
         exportItemsService: ExportItemsService,
         importItemsService: ImportItemsService,
@@ -111,6 +116,7 @@ public class ServiceContainer: Services {
         self.biometricsService = biometricsService
         self.cameraService = cameraService
         self.clientService = clientService
+        self.configService = configService
         self.cryptographyService = cryptographyService
         self.errorReporter = errorReporter
         self.exportItemsService = exportItemsService
@@ -159,6 +165,10 @@ public class ServiceContainer: Services {
             biometricsService: biometricsService,
             keychainService: keychainRepository,
             stateService: stateService
+        )
+
+        let configService = DefaultConfigService(
+            errorReporter: errorReporter
         )
 
         let cryptographyKeyService = CryptographyKeyService(
@@ -212,8 +222,9 @@ public class ServiceContainer: Services {
             biometricsRepository: biometricsRepository,
             biometricsService: biometricsService,
             cameraService: cameraService,
-            cryptographyService: cryptographyService,
             clientService: clientService,
+            configService: configService,
+            cryptographyService: cryptographyService,
             errorReporter: errorReporter,
             exportItemsService: exportItemsService,
             importItemsService: importItemsService,
