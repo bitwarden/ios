@@ -910,7 +910,7 @@
 "ThereWasAnErrorStartingWebAuthnTwoFactorAuthentication" = "There was an error starting WebAuthn two factor authentication";
 "LaunchWebAuthn" = "Launch WebAuthn";
 "Duo" = "Duo";
-"DuoUnsupported" = "Duo not yet supported.";
+"DuoUnsupported" = "Duo henüz desteklenmiyor.";
 "FilePassword" = "Dosya parolası";
 "ConfirmFilePassword" = "Dosya parolasını onaylayın";
 "FilePasswordDescription" = "Bu parola, bu dosyayı dışa ve içe aktarmak için kullanılacaktır";
@@ -944,3 +944,7 @@
 "SetUpUnlock" = "Kilit açmayı ayarla";
 "SetUpBiometricsOrChooseAPinCodeToQuicklyAccessYourVaultAndAutofillYourLogins" = "Kasanıza hızlıca erişmek ve hesaplarınızı otomatik doldurmak için biyometrik girişi ayarlayın ve PIN kodu belirleyin.";
 "SetUpLater" = "Daha sonra ayarla";
+"RemoveMasterPasswordMessage" = "%1$@ kendi barındırdığı bir anahtar sunucusuyla SSO kullanıyor. Bu kuruluşun üyelerinin giriş yapmak için artık ana parola kullanması gerekmiyor.";
+"RestartRegistration" = "Kaydı yeniden başlat";
+"ExpiredLink" = "Bağlantının süresi dolmuş";
+"PleaseRestartRegistrationOrTryLoggingInYouMayAlreadyHaveAnAccount" = "Please restart registration or try logging in. You may already have an account.";

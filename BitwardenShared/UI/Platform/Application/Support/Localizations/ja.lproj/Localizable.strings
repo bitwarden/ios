@@ -944,3 +944,7 @@
 "SetUpUnlock" = "ロック解除を設定";
 "SetUpBiometricsOrChooseAPinCodeToQuicklyAccessYourVaultAndAutofillYourLogins" = "生体認証を設定するか、PIN コードを選択して保管庫にすばやくアクセスし、ログインを自動入力します。";
 "SetUpLater" = "後でセットアップ";
+"RemoveMasterPasswordMessage" = "%1$@ は自己ホストの鍵サーバで SSO を使用しています。この組織のメンバーのログインにマスターパスワードは必要ありません。";
+"RestartRegistration" = "Restart registration";
+"ExpiredLink" = "Expired link";
+"PleaseRestartRegistrationOrTryLoggingInYouMayAlreadyHaveAnAccount" = "Please restart registration or try logging in. You may already have an account.";
