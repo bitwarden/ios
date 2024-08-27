@@ -25,8 +25,6 @@ class PreventAccountLockProcessor: StateProcessor<
 
     // MARK: Methods
 
-    override func perform(_: Void) async {}
-
     override func receive(_ action: PreventAccountLockAction) {
         switch action {
         case .dismiss:

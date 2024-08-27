@@ -46,7 +46,7 @@ struct PreventAccountLockView: View {
                     .styleGuide(.body)
             }
             .foregroundStyle(Asset.Colors.textPrimary.swiftUIColor)
-            .padding(.all, 24)
+            .padding(24)
 
             Divider()
         }
@@ -72,7 +72,7 @@ struct PreventAccountLockView: View {
                 }
                 .frame(maxWidth: .infinity, alignment: .leading)
             }
-            .padding(.all, 16)
+            .padding(16)
 
             Divider().padding(.leading, 68)
         }
@@ -97,7 +97,7 @@ struct PreventAccountLockView: View {
             }
             .frame(maxWidth: .infinity, alignment: .leading)
         }
-        .padding(.all, 16)
+        .padding(16)
     }
 }
 
