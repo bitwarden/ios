@@ -49,6 +49,7 @@ PROVISIONING_PROFILE_SPECIFIER_ACTION_EXTENSION = ${profile_prefix} Extension
 PROVISIONING_PROFILE_SPECIFIER_AUTOFILL_EXTENSION = ${profile_prefix} Autofill
 PROVISIONING_PROFILE_SPECIFIER_SHARE_EXTENSION = ${profile_prefix} Share Extension
 PROVISIONING_PROFILE_SPECIFIER_WATCH_APP = ${profile_prefix} Bitwarden Watch App
+PROVISIONING_PROFILE_SPECIFIER_WATCH_WIDGET_EXTENSION = ${profile_prefix} Bitwarden Watch Widget Extension
 EOF
 
 cat << EOF > ${export_options_file}
@@ -70,6 +71,8 @@ cat << EOF > ${export_options_file}
         <string>${profile_prefix} Share Extension</string>
         <key>${ios_bundle_id}.watchkitapp</key>
         <string>${profile_prefix} Bitwarden Watch App</string>
+        <key>${ios_bundle_id}.watchkitapp.widget-extension</key>
+        <string>${profile_prefix} Bitwarden Watch Widget Extension</string>
     </dict>
     <key>manageAppVersionAndBuildNumber</key>
     <false/>

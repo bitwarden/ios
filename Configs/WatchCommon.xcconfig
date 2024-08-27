@@ -1,0 +1,4 @@
+#include "./Common.xcconfig"
+#include? "./Local.xcconfig"
+
+BASE_WATCH_BUNDLE_ID = $(BASE_BUNDLE_ID).watchkitapp
