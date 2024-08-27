@@ -10,6 +10,17 @@ struct CompleteRegistrationState: Equatable, Sendable {
     /// Whether passwords are visible in the view's text fields.
     var arePasswordsVisible: Bool = false
 
+    /// Whether the continue button is enabled.
+    var continueButtonEnabled: Bool {
+        if nativeCreateAccountFeatureFlag {
+            !passwordText.isEmpty
+                && !retypePasswordText.isEmpty
+                && passwordText.count >= requiredPasswordCount
+        } else {
+            true
+        }
+    }
+
     /// Token needed to complete registration
     var emailVerificationToken: String
 
@@ -24,6 +35,9 @@ struct CompleteRegistrationState: Equatable, Sendable {
         guard let passwordStrengthScore else { return false }
         return passwordStrengthScore < 3
     }
+
+    /// Whether the native create account feature flag is on.
+    var nativeCreateAccountFeatureFlag: Bool = false
 
     /// The text in the password hint text field.
     var passwordHintText: String = ""
@@ -42,6 +56,9 @@ struct CompleteRegistrationState: Equatable, Sendable {
 
     /// The region where the account should be created
     var region: RegionType?
+
+    /// The required text count for the password strength.
+    var requiredPasswordCount = Constants.minimumPasswordCharacters
 
     /// The text in the re-type password text field.
     var retypePasswordText: String = ""
