@@ -324,6 +324,47 @@ class AccountSecurityProcessorTests: BitwardenTestCase { // swiftlint:disable:th
         XCTAssertFalse(subject.state.biometricUnlockStatus.isEnabled)
     }
 
+    /// `perform(_:)` with `.toggleUnlockWithPINCode` disables pin unlock and updates the state.
+    @MainActor
+    func test_perform_toggleUnlockWithPINCode_disable() async {
+        vaultUnlockSetupHelper.setPinUnlockResult = true
+
+        await subject.perform(.toggleUnlockWithPINCode(false))
+
+        XCTAssertTrue(vaultUnlockSetupHelper.setPinUnlockCalled)
+        XCTAssertTrue(subject.state.isUnlockWithPINCodeOn)
+    }
+
+    /// `perform(_:)` with `.toggleUnlockWithPINCode` disables pin unlock and updates the state,
+    /// refreshing the user's timeout action in case the user doesn't have a password and no other
+    /// unlock method.
+    @MainActor
+    func test_perform_toggleUnlockWithPINCode_disable_noPassword() async {
+        authRepository.activeAccount = .fixtureWithTdeNoPassword()
+        authRepository.sessionTimeoutAction["1"] = .logout
+        subject.state.sessionTimeoutAction = .lock
+        vaultUnlockSetupHelper.setPinUnlockResult = true
+
+        await subject.perform(.toggleUnlockWithPINCode(false))
+
+        XCTAssertTrue(vaultUnlockSetupHelper.setPinUnlockCalled)
+        XCTAssertTrue(subject.state.isUnlockWithPINCodeOn)
+        XCTAssertEqual(subject.state.sessionTimeoutAction, .logout)
+    }
+
+    /// `perform(_:)` with `.toggleUnlockWithPINCode` enables pin unlock and updates the state.
+    @MainActor
+    func test_receive_toggleUnlockWithPINCode_enable() async {
+        subject.state.isUnlockWithPINCodeOn = true
+        vaultUnlockSetupHelper.setPinUnlockResult = false
+
+        await subject.perform(.toggleUnlockWithPINCode(true))
+        waitFor { !subject.state.isUnlockWithPINCodeOn }
+
+        XCTAssertTrue(vaultUnlockSetupHelper.setPinUnlockCalled)
+        XCTAssertFalse(subject.state.isUnlockWithPINCodeOn)
+    }
+
     /// `receive(_:)` with `.twoStepLoginPressed` clears the two step login URL.
     @MainActor
     func test_receive_clearTwoStepLoginUrl() async throws {
@@ -559,49 +600,6 @@ class AccountSecurityProcessorTests: BitwardenTestCase { // swiftlint:disable:th
         waitFor(errorReporter.errors.last as? BitwardenTestError == BitwardenTestError.example)
     }
 
-    /// `receive(_:)` with `.toggleUnlockWithPINCode` disables pin unlock and updates the state.
-    @MainActor
-    func test_receive_toggleUnlockWithPINCode_disable() {
-        vaultUnlockSetupHelper.setPinUnlockResult = true
-
-        subject.receive(.toggleUnlockWithPINCode(false))
-        waitFor { subject.state.isUnlockWithPINCodeOn }
-
-        XCTAssertTrue(vaultUnlockSetupHelper.setPinUnlockCalled)
-        XCTAssertTrue(subject.state.isUnlockWithPINCodeOn)
-    }
-
-    /// `receive(_:)` with `.toggleUnlockWithPINCode` disables pin unlock and updates the state,
-    /// refreshing the user's timeout action in case the user doesn't have a password and no other
-    /// unlock method.
-    @MainActor
-    func test_receive_toggleUnlockWithPINCode_disable_noPassword() {
-        authRepository.activeAccount = .fixtureWithTdeNoPassword()
-        authRepository.sessionTimeoutAction["1"] = .logout
-        subject.state.sessionTimeoutAction = .lock
-        vaultUnlockSetupHelper.setPinUnlockResult = true
-
-        subject.receive(.toggleUnlockWithPINCode(false))
-        waitFor { subject.state.isUnlockWithPINCodeOn && subject.state.sessionTimeoutAction == .logout }
-
-        XCTAssertTrue(vaultUnlockSetupHelper.setPinUnlockCalled)
-        XCTAssertTrue(subject.state.isUnlockWithPINCodeOn)
-        XCTAssertEqual(subject.state.sessionTimeoutAction, .logout)
-    }
-
-    /// `receive(_:)` with `.toggleUnlockWithPINCode` enables pin unlock and updates the state.
-    @MainActor
-    func test_receive_toggleUnlockWithPINCode_enable() {
-        subject.state.isUnlockWithPINCodeOn = true
-        vaultUnlockSetupHelper.setPinUnlockResult = false
-
-        subject.receive(.toggleUnlockWithPINCode(true))
-        waitFor { !subject.state.isUnlockWithPINCodeOn }
-
-        XCTAssertTrue(vaultUnlockSetupHelper.setPinUnlockCalled)
-        XCTAssertFalse(subject.state.isUnlockWithPINCodeOn)
-    }
-
     /// `receive(_:)` with `.twoStepLoginPressed` shows the two step login alert.
     @MainActor
     func test_receive_twoStepLoginPressed() async throws {
@@ -624,21 +622,16 @@ class AccountSecurityProcessorTests: BitwardenTestCase { // swiftlint:disable:th
     /// The vault timeout action is refreshed after turning off pin unlock to handle users without
     /// a master password when a lock timeout action may not be available.
     @MainActor
-    func test_refreshVaultTimeoutAction_withoutMasterPassword_pinOff() {
+    func test_refreshVaultTimeoutAction_withoutMasterPassword_pinOff() async {
         authRepository.activeAccount = .fixtureWithTdeNoPassword()
         authRepository.sessionTimeoutAction["1"] = .lock
         subject.state.isUnlockWithPINCodeOn = true
 
-        let task = Task {
-            await subject.perform(.appeared)
-        }
-        waitFor { subject.state.sessionTimeoutAction == .lock }
-        task.cancel()
+        await subject.perform(.appeared)
 
         authRepository.sessionTimeoutAction["1"] = .logout
 
-        subject.receive(.toggleUnlockWithPINCode(false))
-        waitFor { subject.state.sessionTimeoutAction == .logout }
+        await subject.perform(.toggleUnlockWithPINCode(false))
 
         XCTAssertEqual(subject.state.sessionTimeoutAction, .logout)
     }

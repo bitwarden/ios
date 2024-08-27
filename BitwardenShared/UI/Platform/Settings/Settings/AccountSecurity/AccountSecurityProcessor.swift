@@ -74,6 +74,8 @@ final class AccountSecurityProcessor: StateProcessor<
             )
         case let .toggleUnlockWithBiometrics(isOn):
             await setBioMetricAuth(isOn)
+        case let .toggleUnlockWithPINCode(isOn):
+            await toggleUnlockWithPIN(isOn)
         }
     }
 
@@ -95,10 +97,6 @@ final class AccountSecurityProcessor: StateProcessor<
             setTimeoutAction(newValue)
         case let .sessionTimeoutValueChanged(newValue):
             setVaultTimeout(value: newValue)
-        case let .toggleUnlockWithPINCode(isOn):
-            Task {
-                await toggleUnlockWithPIN(isOn)
-            }
         case .twoStepLoginPressed:
             showTwoStepLoginAlert()
         }
