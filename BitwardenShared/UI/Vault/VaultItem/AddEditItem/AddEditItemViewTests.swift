@@ -61,6 +61,7 @@ class AddEditItemViewTests: BitwardenTestCase { // swiftlint:disable:this type_b
     }
 
     /// Tapping the remove passkey button dispatches the `.removePasskeyPressed` action.
+    @MainActor
     func test_removePasskeyButton_tap() throws {
         processor.state.loginState.fido2Credentials = [
             .fixture(creationDate: Date(timeIntervalSince1970: 1_710_494_110)),

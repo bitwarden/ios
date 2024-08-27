@@ -1244,6 +1244,7 @@ class AddEditItemProcessorTests: BitwardenTestCase {
     }
 
     /// `receive(_:)` with `.removePasskeyPressed` clears the fido2Credentials.
+    @MainActor
     func test_receive_removePasskeyPressed() {
         subject.state.loginState.fido2Credentials = [
             .fixture(creationDate: Date(timeIntervalSince1970: 1_710_494_110)),
