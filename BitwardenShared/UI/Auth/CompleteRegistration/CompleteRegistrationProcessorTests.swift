@@ -675,5 +675,12 @@ class CompleteRegistrationProcessorTests: BitwardenTestCase {
         subject.receive(.toastShown(Toast(text: "example")))
         XCTAssertEqual(subject.state.toast?.text, "example")
     }
+
+    /// `receive(_:)` with `.preventAccountLockTapped` will show the prevent account lock screen.
+    @MainActor
+    func test_receive_preventAccountLock() {
+        subject.receive(.preventAccountLockTapped)
+        XCTAssertEqual(coordinator.routes.last, .preventAccountLock)
+    }
     // swiftlint:disable:next file_length
 }
