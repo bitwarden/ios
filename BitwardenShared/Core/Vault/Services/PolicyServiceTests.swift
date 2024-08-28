@@ -96,7 +96,7 @@ class PolicyServiceTests: BitwardenTestCase { // swiftlint:disable:this type_bod
         XCTAssertTrue(appliedPolicy)
     }
 
-    /// `applyPasswordGenerationOptions()` returns `false` if the user is exempt from policies in the organization.
+    /// `applyPasswordGenerationOptions()` returns `true` if the user is owner in the organization.
     func test_applyPasswordGenerationOptions_exemptUser() async throws {
         stateService.activeAccount = .fixture()
         organizationService.fetchAllOrganizationsResult = .success([.fixture(type: .owner)])
@@ -105,7 +105,7 @@ class PolicyServiceTests: BitwardenTestCase { // swiftlint:disable:this type_bod
         var options = PasswordGenerationOptions(type: .password)
         let appliedPolicy = try await subject.applyPasswordGenerationPolicy(options: &options)
 
-        XCTAssertFalse(appliedPolicy)
+        XCTAssertTrue(appliedPolicy)
     }
 
     /// `applyPasswordGenerationOptions(options:)` applies the password generation policy to the
