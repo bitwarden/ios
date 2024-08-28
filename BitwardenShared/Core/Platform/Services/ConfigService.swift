@@ -15,6 +15,7 @@ protocol ConfigService {
     ///   - forceRefresh: If true, forces refreshing the configuration from the server.
     /// - Returns: A server configuration if able.
     ///
+    @discardableResult
     func getConfig(forceRefresh: Bool) async -> ServerConfig?
 
     /// Retrieves a boolean feature flag. This will use the on-disk configuration if available,

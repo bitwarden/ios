@@ -146,7 +146,10 @@ public class AppProcessor {
 
         await services.migrationService.performMigrations()
         await services.environmentService.loadURLsForActiveAccount()
-        _ = await services.configService.getConfig()
+
+        Task {
+            await services.configService.getConfig()
+        }
 
         if let initialRoute {
             coordinator.navigate(to: initialRoute)
