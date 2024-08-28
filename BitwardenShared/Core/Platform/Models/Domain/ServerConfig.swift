@@ -42,7 +42,7 @@ struct ServerConfig: Equatable, Codable, Sendable {
 
     func isServerVersionAfter() -> Bool {
         let cleanServerVersion = version.split(separator: "-").first ?? ""
-        let cleanMinServerVersion = Constants.CipherKeyEncryptionMinServerVersion.split(separator: "-").first ?? ""
+        let cleanMinServerVersion = Constants.cipherKeyEncryptionMinServerVersion.split(separator: "-").first ?? ""
 
         let serverVersion = cleanServerVersion.split(separator: ".").map { Int($0) ?? 0 }
         let minServerVersion = cleanMinServerVersion.split(separator: ".").map { Int($0) ?? 0 }

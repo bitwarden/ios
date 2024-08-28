@@ -341,11 +341,11 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
         let notificationCenterService = DefaultNotificationCenterService()
 
         let configService = DefaultConfigService(
+            clientService: clientService,
             configApiService: apiService,
             errorReporter: errorReporter,
             stateService: stateService,
-            timeProvider: timeProvider,
-            clientService: clientService
+            timeProvider: timeProvider
         )
 
         let folderService = DefaultFolderService(

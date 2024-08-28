@@ -6,13 +6,13 @@ final class ConfigServiceTests: BitwardenTestCase {
     // MARK: Properties
 
     var client: MockHTTPClient!
+    var clientService: MockClientService!
     var configApiService: APIService!
     var errorReporter: MockErrorReporter!
     var now: Date!
     var stateService: MockStateService!
     var subject: DefaultConfigService!
     var timeProvider: MockTimeProvider!
-    var clientService: MockClientService!
 
     // MARK: Setup & Teardown
 
@@ -27,11 +27,11 @@ final class ConfigServiceTests: BitwardenTestCase {
         stateService = MockStateService()
         timeProvider = MockTimeProvider(.mockTime(now))
         subject = DefaultConfigService(
+            clientService: clientService,
             configApiService: configApiService,
             errorReporter: errorReporter,
             stateService: stateService,
-            timeProvider: timeProvider,
-            clientService: clientService
+            timeProvider: timeProvider
         )
         let account = Account.fixture(profile: Account.AccountProfile.fixture(userId: "1"))
         stateService.activeAccount = account

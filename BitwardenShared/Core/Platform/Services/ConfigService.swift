@@ -75,6 +75,9 @@ extension ConfigService {
 ///
 class DefaultConfigService: ConfigService {
     // MARK: Properties
+    
+    /// The service used that handles common client functionality.
+    private let clientService: ClientService
 
     /// The API service to make config requests.
     private let configApiService: ConfigAPIService
@@ -88,32 +91,29 @@ class DefaultConfigService: ConfigService {
     /// The service used to get the present time.
     private let timeProvider: TimeProvider
 
-    /// The service used that handles common client functionality.
-    private let clientService: ClientService
-
     // MARK: Initialization
 
     /// Initialize a `DefaultConfigService`.
     ///
     /// - Parameters:
+    ///   - clientService: The service used that handles common client functionality.
     ///   - configApiService: The API service to make config requests.
     ///   - errorReporter: The service used by the application to report non-fatal errors.
     ///   - stateService: The service used by the application to manage account state.
     ///   - timeProvider: The services used to get the present time.
-    ///   - clientService: The service used that handles common client functionality.
     ///
     init(
+        clientService: ClientService,
         configApiService: ConfigAPIService,
         errorReporter: ErrorReporter,
         stateService: StateService,
-        timeProvider: TimeProvider,
-        clientService: ClientService
+        timeProvider: TimeProvider
     ) {
+        self.clientService = clientService
         self.configApiService = configApiService
         self.errorReporter = errorReporter
         self.stateService = stateService
         self.timeProvider = timeProvider
-        self.clientService = clientService
     }
 
     // MARK: Methods
@@ -142,15 +142,17 @@ class DefaultConfigService: ConfigService {
 
         // If we are unable to retrieve a configuration from the server,
         // fall back to the local configuration.
+        if let localConfig {
+            await loadFlags(localConfig)
+        }
         return localConfig
     }
 
     func loadFlags(_ config: ServerConfig) async {
         do {
-            try await clientService.platform().loadFlags(
-                [FeatureFlagsConstants.enableCipherKeyEncryption:
-                    config.isServerVersionAfter()]
-            )
+            try await clientService.platform().loadFlags([
+                FeatureFlagsConstants.enableCipherKeyEncryption: config.isServerVersionAfter(),
+            ])
         } catch {
             errorReporter.log(error: error)
         }

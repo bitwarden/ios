@@ -9,6 +9,9 @@ typealias DeviceType = Int
 ///
 enum Constants {
     // MARK: Static Properties
+    
+    /// The minimum server version required to have cipher key encryption on.
+    static let cipherKeyEncryptionMinServerVersion = "2024.2.0"
 
     /// The client type corresponding to the app.
     static let clientType: ClientType = "mobile"
@@ -79,9 +82,6 @@ enum Constants {
 
     /// The default file name when the file name cannot be determined.
     static let unknownFileName = "unknown_file_name"
-
-    /// The minimum server version required to have cipher key encryption on.
-    static let CipherKeyEncryptionMinServerVersion = "2024.2.0"
 }
 
 // MARK: Extension Constants
