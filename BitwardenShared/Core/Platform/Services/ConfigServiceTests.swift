@@ -61,6 +61,25 @@ final class ConfigServiceTests: BitwardenTestCase {
         XCTAssertEqual(response?.gitHash, "75238191")
     }
 
+    /// `getConfig(:)` gets the configuration from the server if `forceRefresh` is true
+    func test_getConfig_local_forceRefreshServerCallThrowing() async {
+        stateService.serverConfig["1"] = ServerConfig(
+            date: Date(year: 2024, month: 2, day: 14, hour: 7, minute: 50, second: 0),
+            responseModel: ConfigResponseModel(
+                environment: nil,
+                featureStates: [:],
+                gitHash: "75238192",
+                server: nil,
+                version: "2024.4.0"
+            )
+        )
+        client.result = .failure(BitwardenTestError.example)
+        let response = await subject.getConfig(forceRefresh: true)
+        XCTAssertEqual(client.requests.count, 1)
+        XCTAssertEqual(response?.gitHash, "75238192")
+        XCTAssertEqual(errorReporter.errors as? [BitwardenTestError], [.example])
+    }
+
     /// `getConfig(:)` uses the local configuration if it is expired
     /// but updates the local config when the http request finishes.
     func test_getConfig_local_expired() async throws {
@@ -83,6 +102,30 @@ final class ConfigServiceTests: BitwardenTestCase {
         }
 
         XCTAssertEqual(stateService.serverConfig["1"]?.gitHash, "75238191")
+    }
+
+    /// `getConfig(:)` uses the local configuration if it is expired
+    /// but updates the local config when the http request finishes.
+    func test_getConfig_local_expiredAndServerCallThrowing() async throws {
+        stateService.serverConfig["1"] = ServerConfig(
+            date: Date(year: 2024, month: 2, day: 10, hour: 8, minute: 0, second: 0),
+            responseModel: ConfigResponseModel(
+                environment: nil,
+                featureStates: [:],
+                gitHash: "75238192",
+                server: nil,
+                version: "2024.4.0"
+            )
+        )
+        client.result = .failure(BitwardenTestError.example)
+        let response = await subject.getConfig(forceRefresh: false)
+        XCTAssertEqual(response?.gitHash, "75238192")
+
+        try await waitForAsync {
+            self.client.requests.count == 1
+        }
+
+        XCTAssertEqual(errorReporter.errors as? [BitwardenTestError], [.example])
     }
 
     /// `getConfig(:)` uses the local configuration if it's not expired
