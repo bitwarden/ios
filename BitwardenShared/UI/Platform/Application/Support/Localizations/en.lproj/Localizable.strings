@@ -964,3 +964,5 @@
 "RestartRegistration" = "Restart registration";
 "ExpiredLink" = "Expired link";
 "PleaseRestartRegistrationOrTryLoggingInYouMayAlreadyHaveAnAccount" = "Please restart registration or try logging in. You may already have an account.";
+"RemovePasskey" = "Remove passkey";
+"PasskeyRemoved" = "Passkey removed";

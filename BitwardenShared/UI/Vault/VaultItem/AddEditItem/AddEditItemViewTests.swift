@@ -60,6 +60,20 @@ class AddEditItemViewTests: BitwardenTestCase { // swiftlint:disable:this type_b
         XCTAssertEqual(processor.effects.last, .copyTotpPressed)
     }
 
+    /// Tapping the remove passkey button dispatches the `.removePasskeyPressed` action.
+    @MainActor
+    func test_removePasskeyButton_tap() throws {
+        processor.state.loginState.fido2Credentials = [
+            .fixture(creationDate: Date(timeIntervalSince1970: 1_710_494_110)),
+        ]
+
+        let button = try subject.inspect().find(
+            buttonWithAccessibilityLabel: Localizations.removePasskey
+        )
+        try button.tap()
+        XCTAssertEqual(processor.dispatchedActions.last, .removePasskeyPressed)
+    }
+
     /// Tapping the dismiss button dispatches the `.dismissPressed` action.
     @MainActor
     func test_dismissButton_tap() throws {

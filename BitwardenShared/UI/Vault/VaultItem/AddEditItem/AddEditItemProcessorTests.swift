@@ -1243,6 +1243,17 @@ class AddEditItemProcessorTests: BitwardenTestCase {
         XCTAssertNil(subject.state.loginState.authenticatorKey)
     }
 
+    /// `receive(_:)` with `.removePasskeyPressed` clears the fido2Credentials.
+    @MainActor
+    func test_receive_removePasskeyPressed() {
+        subject.state.loginState.fido2Credentials = [
+            .fixture(creationDate: Date(timeIntervalSince1970: 1_710_494_110)),
+        ]
+        subject.receive(.removePasskeyPressed)
+
+        XCTAssertEqual(subject.state.loginState.fido2Credentials, [])
+    }
+
     /// `receive(_:)` with `.collectionToggleChanged` updates the selected collection IDs for the cipher.
     @MainActor
     func test_receive_collectionToggleChanged() {
