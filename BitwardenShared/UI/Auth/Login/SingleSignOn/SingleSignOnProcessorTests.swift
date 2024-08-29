@@ -171,6 +171,7 @@ class SingleSignOnProcessorTests: BitwardenTestCase {
         XCTAssertFalse(coordinator.isLoadingOverlayShowing)
         XCTAssertEqual(coordinator.alertShown.last, .networkResponseError(BitwardenTestError.example))
         XCTAssertEqual(errorReporter.errors.last as? BitwardenTestError, .example)
+        XCTAssertNil(stateService.rememberedOrgIdentifier)
     }
 
     /// `singleSignOnCompleted(code:)` navigates to the two-factor view if two-factor authentication is needed.
@@ -186,6 +187,7 @@ class SingleSignOnProcessorTests: BitwardenTestCase {
 
         // Verify the results.
         XCTAssertEqual(coordinator.routes.last, .twoFactor("", nil, AuthMethodsData(), "BestOrganization"))
+        XCTAssertEqual(stateService.rememberedOrgIdentifier, "BestOrganization")
     }
 
     /// `singleSignOnCompleted(code:)` navigates to the set password screen if the user needs
@@ -200,6 +202,37 @@ class SingleSignOnProcessorTests: BitwardenTestCase {
         waitFor(!coordinator.routes.isEmpty)
 
         XCTAssertEqual(coordinator.routes, [.setMasterPassword(organizationIdentifier: "BestOrganization")])
+        XCTAssertEqual(stateService.rememberedOrgIdentifier, "BestOrganization")
+    }
+
+    /// `singleSignOnCompleted(code:)` navigates to the update password screen if the user needs
+    /// to update their master password.
+    @MainActor
+    func test_singleSignOnCompleted_requireUpdatePasswordError() {
+        authService.loginWithSingleSignOnResult = .failure(AuthError.requireUpdatePassword)
+        subject.state.identifierText = "BestOrganization"
+
+        subject.singleSignOnCompleted(code: "CODE")
+
+        waitFor(!coordinator.routes.isEmpty)
+
+        XCTAssertEqual(coordinator.routes, [.updateMasterPassword])
+        XCTAssertEqual(stateService.rememberedOrgIdentifier, "BestOrganization")
+    }
+
+    /// `singleSignOnCompleted(code:)` navigates to the show login decryption options screen if the
+    /// user needs to choose their decryption option for login.
+    @MainActor
+    func test_singleSignOnCompleted_requireDecryptionOptionsError() {
+        authService.loginWithSingleSignOnResult = .failure(AuthError.requireDecryptionOptions)
+        subject.state.identifierText = "BestOrganization"
+
+        subject.singleSignOnCompleted(code: "CODE")
+
+        waitFor(!coordinator.routes.isEmpty)
+
+        XCTAssertEqual(coordinator.routes, [.showLoginDecryptionOptions(organizationIdentifier: "BestOrganization")])
+        XCTAssertEqual(stateService.rememberedOrgIdentifier, "BestOrganization")
     }
 
     /// `singleSignOnCompleted(code:)` navigates to the vault unlock view if the vault is still locked.
