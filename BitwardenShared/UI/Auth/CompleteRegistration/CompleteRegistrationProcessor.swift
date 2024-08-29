@@ -32,6 +32,7 @@ class CompleteRegistrationProcessor: StateProcessor<
 
     typealias Services = HasAccountAPIService
         & HasAuthRepository
+        & HasAuthService
         & HasClientService
         & HasConfigService
         & HasEnvironmentService
@@ -154,6 +155,43 @@ class CompleteRegistrationProcessor: StateProcessor<
         }
     }
 
+    /// Performs an API request to create the user's account.
+    ///
+    /// - Parameter captchaToken: The token returned when the captcha flow has completed.
+    ///
+    private func createAccount(captchaToken: String?) async throws {
+        let kdfConfig = KdfConfig()
+
+        let keys = try await services.clientService.auth().makeRegisterKeys(
+            email: state.userEmail,
+            password: state.passwordText,
+            kdf: kdfConfig.sdkKdf
+        )
+
+        let hashedPassword = try await services.clientService.auth().hashPassword(
+            email: state.userEmail,
+            password: state.passwordText,
+            kdfParams: kdfConfig.sdkKdf,
+            purpose: .serverAuthorization
+        )
+
+        _ = try await services.accountAPIService.registerFinish(
+            body: RegisterFinishRequestModel(
+                captchaResponse: captchaToken,
+                email: state.userEmail,
+                emailVerificationToken: state.emailVerificationToken,
+                kdfConfig: kdfConfig,
+                masterPasswordHash: hashedPassword,
+                masterPasswordHint: state.passwordHintText,
+                userSymmetricKey: keys.encryptedUserKey,
+                userAsymmetricKeys: KeysRequestModel(
+                    encryptedPrivateKey: keys.keys.private,
+                    publicKey: keys.keys.public
+                )
+            )
+        )
+    }
+
     /// Creates the user's account with their provided credentials.
     ///
     /// - Parameter captchaToken: The token returned when the captcha flow has completed.
@@ -174,40 +212,17 @@ class CompleteRegistrationProcessor: StateProcessor<
 
             coordinator.showLoadingOverlay(title: Localizations.creatingAccount)
 
-            let kdf: Kdf = .pbkdf2(iterations: NonZeroU32(KdfConfig().kdfIterations))
+            try await createAccount(captchaToken: captchaToken)
 
-            let keys = try await services.clientService.auth().makeRegisterKeys(
-                email: state.userEmail,
-                password: state.passwordText,
-                kdf: kdf
+            try await services.authService.loginWithMasterPassword(
+                state.passwordText,
+                username: state.userEmail,
+                captchaToken: captchaToken
             )
 
-            let hashedPassword = try await services.clientService.auth().hashPassword(
-                email: state.userEmail,
-                password: state.passwordText,
-                kdfParams: kdf,
-                purpose: .serverAuthorization
-            )
+            try await services.authRepository.unlockVaultWithPassword(password: state.passwordText)
 
-            _ = try await services.accountAPIService.registerFinish(
-                body: RegisterFinishRequestModel(
-                    captchaResponse: captchaToken,
-                    email: state.userEmail,
-                    emailVerificationToken: state.emailVerificationToken,
-                    kdfConfig: KdfConfig(),
-                    masterPasswordHash: hashedPassword,
-                    masterPasswordHint: state.passwordHintText,
-                    userSymmetricKey: keys.encryptedUserKey,
-                    userAsymmetricKeys: KeysRequestModel(
-                        encryptedPrivateKey: keys.keys.private,
-                        publicKey: keys.keys.public
-                    )
-                )
-            )
-
-            coordinator.navigate(to: .dismissWithAction(DismissAction {
-                self.coordinator.showToast(Localizations.accountSuccessfullyCreated)
-            }))
+            await coordinator.handleEvent(.didCompleteAuth)
         } catch let error as CompleteRegistrationError {
             showCompleteRegistrationErrorAlert(error)
         } catch {
