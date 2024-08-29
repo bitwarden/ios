@@ -2,7 +2,7 @@ import XCTest
 
 @testable import BitwardenShared
 
-final class ConfigServiceTests: BitwardenTestCase {
+final class ConfigServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body_length
     // MARK: Properties
 
     var client: MockHTTPClient!

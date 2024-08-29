@@ -128,7 +128,7 @@ private struct SearchableVaultListView: View {
     private var searchVaultFilterRow: some View {
         SearchVaultFilterRowView(
             hasDivider: true, store: store.child(
-                state: \.vaultFilterState,
+                state: \.searchVaultFilterState,
                 mapAction: { action in
                     switch action {
                     case let .searchVaultFilterChanged(type):
