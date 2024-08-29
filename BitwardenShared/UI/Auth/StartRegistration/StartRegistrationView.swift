@@ -17,6 +17,8 @@ struct StartRegistrationView: View {
 
     var body: some View {
         VStack(spacing: 16) {
+            name
+
             VStack(alignment: .leading, spacing: 0) {
                 email
                     .padding(.bottom, 8)
@@ -28,8 +30,6 @@ struct StartRegistrationView: View {
                     await store.perform(.regionTapped)
                 }
             }
-
-            name
 
             receiveMarketingToggle
 
