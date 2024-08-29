@@ -90,13 +90,15 @@ final class SingleSignOnProcessor: StateProcessor<SingleSignOnState, SingleSignO
         case ASWebAuthenticationSessionError.canceledLogin:
             break
         case let IdentityTokenRequestError.twoFactorRequired(authMethodsData, _, _):
-            coordinator.navigate(to: .twoFactor(state.email, nil, authMethodsData, state.identifierText))
+            rememberOrgIdentifierAndNavigate(to: .twoFactor(state.email, nil, authMethodsData, state.identifierText))
         case AuthError.requireSetPassword:
-            coordinator.navigate(to: .setMasterPassword(organizationIdentifier: state.identifierText))
+            rememberOrgIdentifierAndNavigate(to: .setMasterPassword(organizationIdentifier: state.identifierText))
         case AuthError.requireUpdatePassword:
-            coordinator.navigate(to: .updateMasterPassword)
+            rememberOrgIdentifierAndNavigate(to: .updateMasterPassword)
         case AuthError.requireDecryptionOptions:
-            coordinator.navigate(to: .showLoginDecryptionOptions(organizationIdentifier: state.identifierText))
+            rememberOrgIdentifierAndNavigate(to: .showLoginDecryptionOptions(
+                organizationIdentifier: state.identifierText
+            ))
         default:
             coordinator.showAlert(.networkResponseError(error, tryAgain))
             services.errorReporter.log(error: error)
@@ -153,6 +155,15 @@ final class SingleSignOnProcessor: StateProcessor<SingleSignOnState, SingleSignO
         } catch {
             services.errorReporter.log(error: error)
         }
+    }
+
+    /// Remembers the org identifier for future logins and navigates to the specified route.
+    ///
+    /// - Parameter route: The route to navigate to after saving the org identifier.
+    ///
+    private func rememberOrgIdentifierAndNavigate(to route: AuthRoute) {
+        services.stateService.rememberedOrgIdentifier = state.identifierText
+        coordinator.navigate(to: route)
     }
 }
 
