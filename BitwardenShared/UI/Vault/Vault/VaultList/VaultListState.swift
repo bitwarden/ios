@@ -57,13 +57,23 @@ struct VaultListState: Equatable {
         }
     }
 
+    /// The state for showing the vault filter in search.
+    var searchVaultFilterState: SearchVaultFilterRowState {
+        SearchVaultFilterRowState(
+            canShowVaultFilter: canShowVaultFilter,
+            isPersonalOwnershipDisabled: isPersonalOwnershipDisabled,
+            organizations: organizations,
+            searchVaultFilterType: searchVaultFilterType
+        )
+    }
+
     /// The state for showing the vault filter.
     var vaultFilterState: SearchVaultFilterRowState {
         SearchVaultFilterRowState(
             canShowVaultFilter: canShowVaultFilter,
             isPersonalOwnershipDisabled: isPersonalOwnershipDisabled,
             organizations: organizations,
-            searchVaultFilterType: searchVaultFilterType
+            searchVaultFilterType: vaultFilterType
         )
     }
 
