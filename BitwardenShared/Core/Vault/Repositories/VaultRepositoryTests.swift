@@ -512,6 +512,93 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
         }
     }
 
+    /// `ciphersAutofillPublisher(availableFido2CredentialsPublisher:mode:rpID:uri:)`
+    /// returns a publisher for the list of a user's ciphers matching a URI in `.totp` mode.
+    func test_ciphersAutofillPublisher_mode_totp() async throws {
+        let ciphers: [Cipher] = [
+            .fixture(
+                id: "1",
+                login: .fixture(
+                    uris: [.fixture(
+                        uri: "https://bitwarden.com",
+                        match: .exact
+                    )]
+                ),
+                name: "Bitwarden"
+            ),
+            .fixture(
+                creationDate: Date(year: 2024, month: 1, day: 1),
+                id: "2",
+                login: .fixture(
+                    uris: [.fixture(
+                        uri: "https://example.com",
+                        match: .exact
+                    )],
+                    totp: "123"
+                ),
+                name: "Example",
+                revisionDate: Date(year: 2024, month: 1, day: 1)
+            ),
+        ]
+        cipherService.ciphersSubject.value = ciphers
+
+        var iterator = try await subject.ciphersAutofillPublisher(
+            availableFido2CredentialsPublisher: MockFido2UserInterfaceHelper()
+                .availableCredentialsForAuthenticationPublisher(),
+            mode: .totp,
+            rpID: nil,
+            uri: "https://example.com"
+        ).makeAsyncIterator()
+        let publishedSections = try await iterator.next()
+
+        try assertInlineSnapshot(of: dumpVaultListSections(XCTUnwrap(publishedSections)), as: .lines) {
+            """
+            Section: 
+              - TOTP: 2 Example 123 456 
+            """
+        }
+    }
+
+    /// `ciphersAutofillPublisher(availableFido2CredentialsPublisher:mode:rpID:uri:)`
+    /// doesn't return the item on `.totp` mode because of Totp generation throwing.
+    func test_ciphersAutofillPublisher_mode_totpThrowsOnGeneration() async throws {
+        let ciphers: [Cipher] = [
+            .fixture(
+                creationDate: Date(year: 2024, month: 1, day: 1),
+                id: "2",
+                login: .fixture(
+                    uris: [
+                        .fixture(
+                            uri: "https://example.com",
+                            match: .exact
+                        ),
+                    ],
+                    totp: "123"
+                ),
+                name: "Example",
+                revisionDate: Date(year: 2024, month: 1, day: 1)
+            ),
+        ]
+        cipherService.ciphersSubject.value = ciphers
+        clientService.mockVault.generateTOTPCodeResult = .failure(BitwardenTestError.example)
+
+        var iterator = try await subject.ciphersAutofillPublisher(
+            availableFido2CredentialsPublisher: MockFido2UserInterfaceHelper()
+                .availableCredentialsForAuthenticationPublisher(),
+            mode: .totp,
+            rpID: nil,
+            uri: "https://example.com"
+        ).makeAsyncIterator()
+        let publishedSections = try await iterator.next()
+        let sections = try XCTUnwrap(publishedSections)
+
+        XCTAssertTrue(sections.isEmpty)
+        XCTAssertEqual(
+            errorReporter.errors as? [TOTPServiceError],
+            [.unableToGenerateCode("Unable to create TOTP code for key 123 for cipher id 2")]
+        )
+    }
+
     /// `deleteCipher()` throws on id errors.
     func test_deleteCipher_idError_nil() async throws {
         cipherService.deleteCipherWithServerResult = .failure(CipherAPIServiceError.updateMissingId)
@@ -1286,6 +1373,86 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
             .makeAsyncIterator()
         let sections = try await iterator.next()
         XCTAssertEqual(sections, [VaultListSection(id: "", items: [VaultListItem(cipherView: cipherView)!], name: "")])
+    }
+
+    /// `searchCipherAutofillPublisher(availableFido2CredentialsPublisher:mode:filterType:rpID:searchText:)`
+    /// returns search matching cipher name in `.totp` mode.
+    func test_searchCipherAutofillPublisher_mode_totp() async throws {
+        stateService.activeAccount = .fixtureAccountLogin()
+        let ciphers = [
+            Cipher.fixture(id: "1", name: "dabcd", type: .login),
+            Cipher.fixture(id: "2", name: "qwe", type: .login),
+            Cipher.fixture(id: "3", name: "Café", type: .login),
+            Cipher.fixture(
+                id: "4",
+                login: .fixture(
+                    totp: "123"
+                ),
+                name: "Cafffffffe",
+                type: .login
+            ),
+        ]
+        cipherService.ciphersSubject.value = ciphers
+
+        var iterator = try await subject
+            .searchCipherAutofillPublisher(
+                availableFido2CredentialsPublisher: fido2UserInterfaceHelper
+                    .availableCredentialsForAuthenticationPublisher(),
+                mode: .totp,
+                filterType: .allVaults,
+                rpID: nil,
+                searchText: "caf"
+            )
+            .makeAsyncIterator()
+        let sectionsResult = try await iterator.next()
+        let sections = try XCTUnwrap(sectionsResult)
+
+        assertInlineSnapshot(of: dumpVaultListSections(sections), as: .lines) {
+            """
+            Section: 
+              - TOTP: 4 Cafffffffe 123 456 
+            """
+        }
+    }
+
+    /// `searchCipherAutofillPublisher(availableFido2CredentialsPublisher:mode:filterType:rpID:searchText:)`
+    /// returns empty items in `.totp` mode when totp generation throws.
+    func test_searchCipherAutofillPublisher_mode_totpGenerationThrows() async throws {
+        stateService.activeAccount = .fixtureAccountLogin()
+        let ciphers = [
+            Cipher.fixture(id: "1", name: "dabcd", type: .login),
+            Cipher.fixture(id: "2", name: "qwe", type: .login),
+            Cipher.fixture(id: "3", name: "Café", type: .login),
+            Cipher.fixture(
+                id: "4",
+                login: .fixture(
+                    totp: "123"
+                ),
+                name: "Cafffffffe",
+                type: .login
+            ),
+        ]
+        cipherService.ciphersSubject.value = ciphers
+        clientService.mockVault.generateTOTPCodeResult = .failure(BitwardenTestError.example)
+
+        var iterator = try await subject
+            .searchCipherAutofillPublisher(
+                availableFido2CredentialsPublisher: fido2UserInterfaceHelper
+                    .availableCredentialsForAuthenticationPublisher(),
+                mode: .totp,
+                filterType: .allVaults,
+                rpID: nil,
+                searchText: "caf"
+            )
+            .makeAsyncIterator()
+        let sectionsResult = try await iterator.next()
+        let sections = try XCTUnwrap(sectionsResult)
+
+        XCTAssertTrue(sections.isEmpty)
+        XCTAssertEqual(
+            errorReporter.errors as? [TOTPServiceError],
+            [.unableToGenerateCode("Unable to create TOTP code for key 123 for cipher id 4")]
+        )
     }
 
     /// `searchVaultListPublisher(searchText:, filterType:)` returns search matching cipher name.

@@ -481,20 +481,20 @@ extension AppProcessor: AutofillCredentialServiceDelegate {
 
 extension AppProcessor: Fido2UserInterfaceHelperDelegate {
     var isAutofillingFromList: Bool {
-        guard let fido2AppExtensionDelegate = appExtensionDelegate as? Fido2AppExtensionDelegate,
-              fido2AppExtensionDelegate.isAutofillingFido2CredentialFromList else {
+        guard let autofillAppExtensionDelegate = appExtensionDelegate as? AutofillAppExtensionDelegate,
+              autofillAppExtensionDelegate.isAutofillingFido2CredentialFromList else {
             return false
         }
         return true
     }
 
     func onNeedsUserInteraction() async throws {
-        guard let fido2AppExtensionDelegate = appExtensionDelegate as? Fido2AppExtensionDelegate else {
+        guard let autofillAppExtensionDelegate = appExtensionDelegate as? AutofillAppExtensionDelegate else {
             return
         }
 
-        if !fido2AppExtensionDelegate.flowWithUserInteraction {
-            fido2AppExtensionDelegate.setUserInteractionRequired()
+        if !autofillAppExtensionDelegate.flowWithUserInteraction {
+            autofillAppExtensionDelegate.setUserInteractionRequired()
             throw Fido2Error.userInteractionRequired
         }
 
@@ -502,7 +502,7 @@ extension AppProcessor: Fido2UserInterfaceHelperDelegate {
         // action that needs user interaction or it might not show the prompt to the user.
         // E.g. without this there are certain devices that don't show the FaceID prompt
         // and the user only sees the screen dimming a bit and failing the flow.
-        for await didAppear in fido2AppExtensionDelegate.getDidAppearPublisher() {
+        for await didAppear in autofillAppExtensionDelegate.getDidAppearPublisher() {
             guard didAppear else { continue }
             return
         }

@@ -215,6 +215,17 @@ class CredentialProviderViewController: ASCredentialProviderViewController {
     }
 }
 
+// MARK: - iOS 18
+
+#if compiler(>=6)
+extension CredentialProviderViewController {
+    @available(iOSApplicationExtension 18.0, *)
+    override func prepareOneTimeCodeCredentialList(for serviceIdentifiers: [ASCredentialServiceIdentifier]) {
+        initializeApp(with: DefaultCredentialProviderContext(.autofillOTP(serviceIdentifiers)))
+    }
+}
+#endif
+
 // MARK: - AppExtensionDelegate
 
 extension CredentialProviderViewController: AppExtensionDelegate {
@@ -223,6 +234,13 @@ extension CredentialProviderViewController: AppExtensionDelegate {
     }
 
     var canAutofill: Bool { true }
+
+    var isAutofillingOTP: Bool {
+        guard case .autofillOTP = context?.extensionMode else {
+            return false
+        }
+        return true
+    }
 
     var isInAppExtension: Bool { true }
 
@@ -245,6 +263,13 @@ extension CredentialProviderViewController: AppExtensionDelegate {
         let passwordCredential = ASPasswordCredential(user: username, password: password)
         extensionContext.completeRequest(withSelectedCredential: passwordCredential)
     }
+
+    #if compiler(>=6)
+    @available(iOSApplicationExtension 18.0, *)
+    func completeOTPRequest(code: String) {
+        extensionContext.completeOneTimeCodeRequest(using: ASOneTimeCodeCredential(code: code))
+    }
+    #endif
 
     func didCancel() {
         cancel()
@@ -295,9 +320,9 @@ extension CredentialProviderViewController: AppExtensionDelegate {
     }
 }
 
-// MARK: - Fido2AppExtensionDelegate
+// MARK: - AutofillAppExtensionDelegate
 
-extension CredentialProviderViewController: Fido2AppExtensionDelegate {
+extension CredentialProviderViewController: AutofillAppExtensionDelegate {
     /// The mode in which the autofill extension is running.
     var extensionMode: AutofillExtensionMode {
         context?.extensionMode ?? .configureAutofill

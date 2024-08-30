@@ -577,9 +577,11 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
         )
         #endif
 
+        let credentialIdentityFactory = DefaultCredentialIdentityFactory()
         let autofillCredentialService = DefaultAutofillCredentialService(
             cipherService: cipherService,
             clientService: clientService,
+            credentialIdentityFactory: credentialIdentityFactory,
             errorReporter: errorReporter,
             eventService: eventService,
             fido2CredentialStore: fido2CredentialStore,

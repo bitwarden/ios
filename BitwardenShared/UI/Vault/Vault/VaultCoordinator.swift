@@ -197,7 +197,7 @@ final class VaultCoordinator: Coordinator, HasStackNavigator {
                 iconBaseURL: services.environmentService.iconsURL
             )
         )
-        let view = VaultAutofillListView(store: Store(processor: processor))
+        let view = VaultAutofillListView(store: Store(processor: processor), timeProvider: services.timeProvider)
         stackNavigator?.replace(view)
     }
 

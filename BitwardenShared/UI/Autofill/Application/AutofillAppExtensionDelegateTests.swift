@@ -4,17 +4,17 @@ import XCTest
 @testable import BitwardenShared
 
 @available(iOS 17.0, *)
-class Fido2AppExtensionDelegateTests: BitwardenTestCase {
+class AutofillAppExtensionDelegateTests: BitwardenTestCase {
     // MARK: Properties
 
-    var subject: MockFido2AppExtensionDelegate!
+    var subject: MockAutofillAppExtensionDelegate!
 
     // MARK: Setup & Teardown
 
     override func setUp() {
         super.setUp()
 
-        subject = MockFido2AppExtensionDelegate()
+        subject = MockAutofillAppExtensionDelegate()
     }
 
     override func tearDown() {
@@ -51,6 +51,21 @@ class Fido2AppExtensionDelegateTests: BitwardenTestCase {
     @MainActor
     func test_isCreatingFido2Credential_false() async throws {
         XCTAssertFalse(subject.isCreatingFido2Credential)
+    }
+
+    /// `getter:isAutofillingOTP`  returns `true`
+    /// when there it's autofilling OTP.
+    @MainActor
+    func test_isAutofillingOTP_true() async throws {
+        subject.extensionMode = .autofillOTP([])
+        XCTAssertFalse(subject.isAutofillingOTP)
+    }
+
+    /// `getter:isAutofillingOTP`  returns `false`
+    /// when there it's not autofilling OTP.
+    @MainActor
+    func test_isAutofillingOTP_false() async throws {
+        XCTAssertFalse(subject.isAutofillingOTP)
     }
 
     /// `getter:rpID`  returns the proper rpID

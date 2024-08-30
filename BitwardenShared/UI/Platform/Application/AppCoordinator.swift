@@ -124,8 +124,8 @@ class AppCoordinator: Coordinator, HasRootNavigator {
         // To fix this we show a transparent navigation controller which makes the
         // biometric prompt work again.
         if route == .completeWithNeverUnlockKey,
-           let fido2AppExtensionDelegate = appExtensionDelegate as? Fido2AppExtensionDelegate,
-           case .autofillFido2Credential = fido2AppExtensionDelegate.extensionMode {
+           let autofillAppExtensionDelegate = appExtensionDelegate as? AutofillAppExtensionDelegate,
+           case .autofillFido2Credential = autofillAppExtensionDelegate.extensionMode {
             showTransparentController()
             didCompleteAuth()
             return

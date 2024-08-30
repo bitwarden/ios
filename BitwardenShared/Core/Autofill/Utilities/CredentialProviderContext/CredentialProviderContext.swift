@@ -26,6 +26,8 @@ public struct DefaultCredentialProviderContext: CredentialProviderContext {
         switch extensionMode {
         case .autofillCredential:
             return nil
+        case .autofillOTP:
+            return AppRoute.vault(.autofillList)
         case .autofillVaultList:
             return AppRoute.vault(.autofillList)
         case .autofillFido2Credential:
@@ -69,6 +71,10 @@ public struct DefaultCredentialProviderContext: CredentialProviderContext {
     }
 
     public var serviceIdentifiers: [ASCredentialServiceIdentifier] {
+        if case let .autofillOTP(serviceIdentifiers) = extensionMode {
+            return serviceIdentifiers
+        }
+
         if case let .autofillVaultList(serviceIdentifiers) = extensionMode {
             return serviceIdentifiers
         }

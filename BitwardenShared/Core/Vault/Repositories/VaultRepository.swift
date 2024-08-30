@@ -1196,7 +1196,11 @@ extension DefaultVaultRepository: VaultRepository {
         rpID: String?,
         uri: String?
     ) async throws -> AsyncThrowingPublisher<AnyPublisher<[VaultListSection], Error>> {
-        try await Publishers.CombineLatest(
+        if mode == .totp {
+            return try await totpCiphersAutofillPublisher()
+        }
+
+        return try await Publishers.CombineLatest(
             cipherService.ciphersPublisher(),
             availableFido2CredentialsPublisher
         )
@@ -1355,43 +1359,57 @@ extension DefaultVaultRepository: VaultRepository {
         rpID: String?,
         searchText: String?
     ) async throws -> [VaultListSection] {
-        guard mode != .combinedSingleSection else {
+        switch mode {
+        case .combinedMultipleSections, .passwords:
+            var sections = [VaultListSection]()
+            if #available(iOSApplicationExtension 17.0, *),
+               let fido2Section = try await loadAutofillFido2Section(
+                   availableFido2Credentials: availableFido2Credentials,
+                   mode: mode,
+                   rpID: rpID,
+                   searchText: searchText,
+                   searchResults: searchText != nil ? ciphers : nil
+               ) {
+                sections.append(fido2Section)
+            } else if ciphers.isEmpty {
+                return []
+            }
+
+            let sectionName = getAutofillPasswordsSectionName(
+                mode: mode,
+                rpID: rpID,
+                searchText: searchText
+            )
+
+            sections.append(
+                VaultListSection(
+                    id: sectionName,
+                    items: ciphers.compactMap { .init(cipherView: $0) },
+                    name: sectionName
+                )
+            )
+            return sections
+        case .combinedSingleSection:
             guard !ciphers.isEmpty else {
                 return []
             }
 
             let section = try await createAutofillListCombinedSingleSection(from: ciphers)
             return [section]
+        case .totp:
+            let totpVaultListItems = try await totpListItems(from: ciphers, filter: .allVaults)
+            guard !totpVaultListItems.isEmpty else {
+                return []
+            }
+
+            return [
+                VaultListSection(
+                    id: "",
+                    items: totpVaultListItems,
+                    name: ""
+                ),
+            ]
         }
-
-        var sections = [VaultListSection]()
-        if #available(iOSApplicationExtension 17.0, *),
-           let fido2Section = try await loadAutofillFido2Section(
-               availableFido2Credentials: availableFido2Credentials,
-               mode: mode,
-               rpID: rpID,
-               searchText: searchText,
-               searchResults: searchText != nil ? ciphers : nil
-           ) {
-            sections.append(fido2Section)
-        } else if ciphers.isEmpty {
-            return []
-        }
-
-        let sectionName = getAutofillPasswordsSectionName(
-            mode: mode,
-            rpID: rpID,
-            searchText: searchText
-        )
-
-        sections.append(
-            VaultListSection(
-                id: sectionName,
-                items: ciphers.compactMap { .init(cipherView: $0) },
-                name: sectionName
-            )
-        )
-        return sections
     }
 
     /// Creates the single vault list section for passwords + Fido2 credentials.
@@ -1506,5 +1524,35 @@ extension DefaultVaultRepository: VaultRepository {
             items: fido2ListItems.compactMap { $0 },
             name: Localizations.passkeysForX(searchText ?? rpID)
         )
+    }
+
+    /// Gets a publisher with Totp cipher items in a single section.
+    /// - Returns: The publisher with the vault list section with the totp items.
+    private func totpCiphersAutofillPublisher(
+    ) async throws -> AsyncThrowingPublisher<AnyPublisher<[VaultListSection], Error>> {
+        try await cipherService.ciphersPublisher()
+            .asyncTryMap { ciphers in
+                try await ciphers.filter { cipher in
+                    cipher.deletedDate == nil && cipher.login?.totp != nil
+                }
+                .asyncMap { cipher in
+                    try await self.clientService.vault().ciphers().decrypt(cipher: cipher)
+                }
+            }
+            .asyncTryMap { cipherViews in
+                let totpVaultListItems = try await self.totpListItems(from: cipherViews, filter: nil)
+                guard !totpVaultListItems.isEmpty else {
+                    return []
+                }
+                return [
+                    VaultListSection(
+                        id: "",
+                        items: totpVaultListItems,
+                        name: ""
+                    ),
+                ]
+            }
+            .eraseToAnyPublisher()
+            .values
     }
 } // swiftlint:disable:this file_length

@@ -11,11 +11,14 @@ struct VaultAutofillListView: View {
     /// The `Store` for this view.
     @ObservedObject var store: Store<VaultAutofillListState, VaultAutofillListAction, VaultAutofillListEffect>
 
+    /// The `TimeProvider` used to calculate TOTP expiration.
+    var timeProvider: any TimeProvider
+
     // MARK: View
 
     var body: some View {
         ZStack {
-            VaultAutofillListSearchableView(store: store)
+            VaultAutofillListSearchableView(store: store, timeProvider: timeProvider)
 
             profileSwitcher
         }
@@ -43,7 +46,7 @@ struct VaultAutofillListView: View {
                 )
             }
 
-            addToolbarItem(hidden: store.state.isAutofillingFido2List) {
+            addToolbarItem(hidden: !store.state.showAddItemButton) {
                 store.send(.addTapped(fromToolbar: true))
             }
         }
@@ -77,6 +80,9 @@ private struct VaultAutofillListSearchableView: View {
 
     /// The `Store` for this view.
     @ObservedObject var store: Store<VaultAutofillListState, VaultAutofillListAction, VaultAutofillListEffect>
+
+    /// The `TimeProvider` used to calculate TOTP expiration.
+    var timeProvider: any TimeProvider
 
     // MARK: View
 
@@ -169,16 +175,17 @@ private struct VaultAutofillListSearchableView: View {
                 state: { state in
                     VaultListItemRowState(
                         iconBaseURL: state.iconBaseURL,
+                        isFromExtension: true,
                         item: item,
                         hasDivider: !isLastInSection,
-                        showWebIcons: state.showWebIcons,
-                        isFromExtension: true
+                        showTotpCopyButton: false,
+                        showWebIcons: state.showWebIcons
                     )
                 },
                 mapAction: nil,
                 mapEffect: nil
             ),
-            timeProvider: nil
+            timeProvider: timeProvider
         )
         .accessibilityIdentifier("CipherCell")
     }
@@ -189,32 +196,38 @@ private struct VaultAutofillListSearchableView: View {
         if isSearching {
             searchContentView()
         } else {
-            if store.state.vaultListSections.isEmpty {
-                EmptyContentView(
-                    image: Asset.Images.openSource.swiftUIImage,
-                    text: store.state.emptyViewMessage
-                ) {
-                    if store.state.isAutofillingFido2List {
-                        EmptyView()
-                    } else {
-                        Button {
-                            store.send(.addTapped(fromToolbar: false))
-                        } label: {
-                            Label {
-                                Text(store.state.emptyViewButtonText)
-                            } icon: {
-                                Asset.Images.plus.swiftUIImage
-                                    .imageStyle(.accessoryIcon(
-                                        color: Asset.Colors.textPrimaryInverted.swiftUIColor,
-                                        scaleWithFont: true
-                                    ))
-                            }
+            vaultContentView()
+        }
+    }
+
+    /// A view for displaying the vault cipher results.
+    @ViewBuilder
+    private func vaultContentView() -> some View {
+        if store.state.vaultListSections.isEmpty {
+            EmptyContentView(
+                image: Asset.Images.openSource.swiftUIImage,
+                text: store.state.emptyViewMessage
+            ) {
+                if store.state.isAutofillingFido2List {
+                    EmptyView()
+                } else {
+                    Button {
+                        store.send(.addTapped(fromToolbar: false))
+                    } label: {
+                        Label {
+                            Text(store.state.emptyViewButtonText)
+                        } icon: {
+                            Asset.Images.plus.swiftUIImage
+                                .imageStyle(.accessoryIcon(
+                                    color: Asset.Colors.textPrimaryInverted.swiftUIColor,
+                                    scaleWithFont: true
+                                ))
                         }
                     }
                 }
-            } else {
-                cipherListView(store.state.vaultListSections)
             }
+        } else {
+            cipherListView(store.state.vaultListSections)
         }
     }
 
@@ -234,7 +247,14 @@ private struct VaultAutofillListSearchableView: View {
 #if DEBUG
 #Preview("Empty") {
     NavigationView {
-        VaultAutofillListView(store: Store(processor: StateProcessor(state: VaultAutofillListState())))
+        VaultAutofillListView(
+            store: Store(
+                processor: StateProcessor(
+                    state: VaultAutofillListState()
+                )
+            ),
+            timeProvider: PreviewTimeProvider()
+        )
     }
 }
 
@@ -268,7 +288,8 @@ private struct VaultAutofillListSearchableView: View {
                         ]
                     )
                 )
-            )
+            ),
+            timeProvider: PreviewTimeProvider()
         )
     }
 }
@@ -344,7 +365,8 @@ private struct VaultAutofillListSearchableView: View {
                         ]
                     )
                 )
-            )
+            ),
+            timeProvider: PreviewTimeProvider()
         )
     }
 }

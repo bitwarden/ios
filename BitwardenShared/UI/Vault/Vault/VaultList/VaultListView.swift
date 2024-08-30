@@ -210,10 +210,10 @@ private struct SearchableVaultListView: View {
                 state: { state in
                     VaultListItemRowState(
                         iconBaseURL: state.iconBaseURL,
+                        isFromExtension: false,
                         item: item,
                         hasDivider: !isLastInSection,
-                        showWebIcons: state.showWebIcons,
-                        isFromExtension: false
+                        showWebIcons: state.showWebIcons
                     )
                 },
                 mapAction: { action in
