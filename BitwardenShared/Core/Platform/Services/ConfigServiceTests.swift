@@ -20,8 +20,8 @@ final class ConfigServiceTests: BitwardenTestCase { // swiftlint:disable:this ty
         super.setUp()
 
         client = MockHTTPClient()
-        configApiService = APIService(client: client)
         clientService = MockClientService()
+        configApiService = APIService(client: client)
         errorReporter = MockErrorReporter()
         now = Date(year: 2024, month: 2, day: 14, hour: 8, minute: 0, second: 0)
         stateService = MockStateService()
