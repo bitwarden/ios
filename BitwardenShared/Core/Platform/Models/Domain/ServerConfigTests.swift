@@ -34,7 +34,8 @@ final class ServerConfigTests: BitwardenTestCase {
         )
 
         let subject = ServerConfig(date: Date(), responseModel: model)
-        XCTAssertEqual(subject.isServerVersionAfter(), true)
+        XCTAssertEqual(subject.isServerVersionAfter(
+            minimumVersion: ServerVersion(version: Constants.cipherKeyEncryptionMinServerVersion)), true)
     }
 
     func test_isServerVersionAfter_greaterValidVersion() {
@@ -47,7 +48,8 @@ final class ServerConfigTests: BitwardenTestCase {
         )
 
         let subject = ServerConfig(date: Date(), responseModel: model)
-        XCTAssertEqual(subject.isServerVersionAfter(), true)
+        XCTAssertEqual(subject.isServerVersionAfter(
+            minimumVersion: ServerVersion(version: Constants.cipherKeyEncryptionMinServerVersion)), true)
     }
 
     func test_isServerVersionAfter_lesserThanVersion() {
@@ -60,45 +62,7 @@ final class ServerConfigTests: BitwardenTestCase {
         )
 
         let subject = ServerConfig(date: Date(), responseModel: model)
-        XCTAssertEqual(subject.isServerVersionAfter(), false)
-    }
-
-    func test_isServerVersionAfter_legacyServerVersion() {
-        let model = ConfigResponseModel(
-            environment: nil,
-            featureStates: [:],
-            gitHash: "123",
-            server: nil,
-            version: "2022.2.0-release"
-        )
-
-        let subject = ServerConfig(date: Date(), responseModel: model)
-        XCTAssertEqual(subject.isServerVersionAfter(), false)
-    }
-
-    func test_isServerVersionAfter_empty() {
-        let model = ConfigResponseModel(
-            environment: nil,
-            featureStates: [:],
-            gitHash: "123",
-            server: nil,
-            version: ""
-        )
-
-        let subject = ServerConfig(date: Date(), responseModel: model)
-        XCTAssertEqual(subject.isServerVersionAfter(), false)
-    }
-
-    func test_isServerVersionAfter_wrongFormat() {
-        let model = ConfigResponseModel(
-            environment: nil,
-            featureStates: [:],
-            gitHash: "123",
-            server: nil,
-            version: "2024"
-        )
-
-        let subject = ServerConfig(date: Date(), responseModel: model)
-        XCTAssertEqual(subject.isServerVersionAfter(), false)
+        XCTAssertEqual(subject.isServerVersionAfter(
+            minimumVersion: ServerVersion(version: Constants.cipherKeyEncryptionMinServerVersion)), false)
     }
 }

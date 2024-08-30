@@ -7,6 +7,7 @@ class MockClientPlatformService: ClientPlatformService {
     var fingerprintMaterialString: String?
     var fingerprintResult: Result<String, Error> = .success("a-fingerprint-phrase-string-placeholder")
     var featureFlags: [String: Bool] = ["": false]
+    var loadFlagsError: Error?
     var userFingerprintCalled = false
 
     func fido2() -> ClientFido2Service {
@@ -18,6 +19,7 @@ class MockClientPlatformService: ClientPlatformService {
     }
 
     func loadFlags(_ flags: [String: Bool]) throws {
+        if let loadFlagsError { throw loadFlagsError }
         featureFlags = flags
     }
 

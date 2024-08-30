@@ -75,7 +75,7 @@ extension ConfigService {
 ///
 class DefaultConfigService: ConfigService {
     // MARK: Properties
-    
+
     /// The service used that handles common client functionality.
     private let clientService: ClientService
 
@@ -150,8 +150,10 @@ class DefaultConfigService: ConfigService {
 
     func loadFlags(_ config: ServerConfig) async {
         do {
+            let minVersion = ServerVersion(version: Constants.cipherKeyEncryptionMinServerVersion)
             try await clientService.platform().loadFlags([
-                FeatureFlagsConstants.enableCipherKeyEncryption: config.isServerVersionAfter(),
+                FeatureFlagsConstants.enableCipherKeyEncryption:
+                    config.isServerVersionAfter(minimumVersion: minVersion),
             ])
         } catch {
             errorReporter.log(error: error)

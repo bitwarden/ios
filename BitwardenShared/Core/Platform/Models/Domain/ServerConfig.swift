@@ -40,26 +40,8 @@ struct ServerConfig: Equatable, Codable, Sendable {
         version = responseModel.version
     }
 
-    func isServerVersionAfter() -> Bool {
-        let cleanServerVersion = version.split(separator: "-").first ?? ""
-        let cleanMinServerVersion = Constants.cipherKeyEncryptionMinServerVersion.split(separator: "-").first ?? ""
-
-        let serverVersion = cleanServerVersion.split(separator: ".").map { Int($0) ?? 0 }
-        let minServerVersion = cleanMinServerVersion.split(separator: ".").map { Int($0) ?? 0 }
-
-        if serverVersion.isEmpty || minServerVersion.isEmpty {
-            return false
-        }
-
-        for (serverV, minServerV) in zip(serverVersion, minServerVersion) {
-            if serverV < minServerV {
-                return false
-            } else if serverV > minServerV {
-                return true
-            }
-        }
-
-        return serverVersion.count >= minServerVersion.count
+    func isServerVersionAfter(minimumVersion: ServerVersion) -> Bool {
+        minimumVersion <= ServerVersion(version: version)
     }
 }
 

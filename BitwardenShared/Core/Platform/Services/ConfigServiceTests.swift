@@ -251,4 +251,22 @@ final class ConfigServiceTests: BitwardenTestCase {
         let value = await subject.getFeatureFlag(.testLocalFeatureFlag, defaultValue: "fallback", forceRefresh: false)
         XCTAssertEqual(value, "fallback")
     }
+
+    /// `loadFlags(_:)`
+    func test_loadFlags_error() async {
+        let serverConfig = ServerConfig(
+            date: Date(year: 2024, month: 2, day: 14, hour: 7, minute: 50, second: 0),
+            responseModel: ConfigResponseModel(
+                environment: nil,
+                featureStates: [:],
+                gitHash: "75238191",
+                server: nil,
+                version: "2024.4.0"
+            )
+        )
+        //clientService.mockPlatform.loadFlagsError = BitwardenTestError.example
+
+        await subject.loadFlags(serverConfig)
+        XCTAssertEqual(errorReporter.errors as? [BitwardenTestError], [.example])
+    }
 }
