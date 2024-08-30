@@ -86,6 +86,9 @@ enum AddEditItemAction: Equatable, Sendable {
     /// The remove uri button was pressed.
     case removeUriPressed(index: Int)
 
+    /// The remove passkey button was pressed.
+    case removePasskeyPressed
+
     /// The username field was changed.
     case usernameChanged(String)
 }

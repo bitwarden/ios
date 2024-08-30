@@ -36,22 +36,20 @@ struct ServerVersion: Comparable, Codable {
         }
         return false
     }
-    
+
     static func == (lhs: ServerVersion, rhs: ServerVersion) -> Bool {
         guard isValid(version: lhs.version), isValid(version: rhs.version) else {
-            return false // Or handle invalid cases differently
+            return false
         }
         return lhs.version == rhs.version
     }
-    
-    // Manually override <= operator
+
     static func <= (lhs: ServerVersion, rhs: ServerVersion) -> Bool {
-        return (lhs < rhs) || (lhs == rhs)
+        (lhs < rhs) || (lhs == rhs)
     }
 
-    // Manually override >= operator
     static func >= (lhs: ServerVersion, rhs: ServerVersion) -> Bool {
-        return (lhs > rhs) || (lhs == rhs)
+        (lhs > rhs) || (lhs == rhs)
     }
 
     private static func isValid(version: String) -> Bool {
