@@ -89,9 +89,11 @@ protocol AuthRepository: AnyObject {
 
     /// Logs the user out of the specified account.
     ///
-    /// - Parameter userId: The user ID of the account to log out of.
+    /// - Parameters
+    ///   - userId: The user ID of the account to log out of.
+    ///   - userInitiated: Whether the logout was user initiated or a result of a logout timeout action.
     ///
-    func logout(userId: String?) async throws
+    func logout(userId: String?, userInitiated: Bool) async throws
 
     /// Migrates the user to Key Connector if a migration is required.
     ///
@@ -283,8 +285,11 @@ extension AuthRepository {
 
     /// Logs the user out of the active account.
     ///
-    func logout() async throws {
-        try await logout(userId: nil)
+    /// - Parameter userInitiated: Whether the logout was user initiated or a result of a logout
+    ///     timeout action.
+    ///
+    func logout(userInitiated: Bool) async throws {
+        try await logout(userId: nil, userInitiated: userInitiated)
     }
 
     /// Whether master password reprompt should be performed.
@@ -500,6 +505,10 @@ extension DefaultAuthRepository: AuthRepository {
     func existingAccountUserId(email: String) async -> String? {
         let matchingUserIds = await stateService.getUserIds(email: email)
         for userId in matchingUserIds {
+            // Skip unauthenticated user accounts, since the user may be trying to log back into an
+            // account that was soft logged out.
+            guard await (try? stateService.isAuthenticated(userId: userId)) == true else { continue }
+
             if let baseUrl = try? await stateService.getEnvironmentUrls(userId: userId)?.base,
                baseUrl == environmentService.baseURL {
                 return userId
@@ -558,13 +567,13 @@ extension DefaultAuthRepository: AuthRepository {
         try await keyConnectorService.migrateUser(password: password)
     }
 
-    func logout(userId: String?) async throws {
+    func logout(userId: String?, userInitiated: Bool) async throws {
         let userId = try await stateService.getAccountIdOrActiveId(userId: userId)
 
         // Clear all user data.
         try await biometricsRepository.setBiometricUnlockKey(authKey: nil)
         try await keychainService.deleteItems(for: userId)
-        try await stateService.logoutAccount(userId: userId)
+        try await stateService.logoutAccount(userId: userId, userInitiated: userInitiated)
 
         // Remove the user from the timeout service and their SDK client.
         await vaultTimeoutService.remove(userId: userId)
@@ -868,6 +877,7 @@ extension DefaultAuthRepository: AuthRepository {
     ///
     private func profileItem(from account: Account) async -> ProfileSwitcherItem {
         let isLocked = await (try? isLocked(userId: account.profile.userId)) ?? true
+        let isAuthenticated = await (try? stateService.isAuthenticated(userId: account.profile.userId)) ?? true
         let hasNeverLock = await (try? stateService.getVaultTimeout(userId: account.profile.userId)) == .never
         let displayAsUnlocked = !isLocked || hasNeverLock
 
@@ -880,6 +890,7 @@ extension DefaultAuthRepository: AuthRepository {
         return ProfileSwitcherItem(
             color: color,
             email: account.profile.email,
+            isLoggedOut: !isAuthenticated,
             isUnlocked: displayAsUnlocked,
             userId: account.profile.userId,
             userInitials: account.initials(),

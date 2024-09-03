@@ -10,6 +10,7 @@ struct ProfileSwitcherItem: Equatable, Hashable {
         ProfileSwitcherItem(
             color: Color(asset: Asset.Colors.primaryBitwardenLight).opacity(0.12),
             email: "",
+            isLoggedOut: false,
             isUnlocked: false,
             userId: "",
             userInitials: nil,
@@ -22,6 +23,9 @@ struct ProfileSwitcherItem: Equatable, Hashable {
 
     /// The account's email.
     var email: String
+
+    /// Whether the account is soft logged out.
+    var isLoggedOut: Bool
 
     /// The the locked state of an account profile.
     var isUnlocked: Bool
