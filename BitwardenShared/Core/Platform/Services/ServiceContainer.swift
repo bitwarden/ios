@@ -489,6 +489,7 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
         )
 
         let migrationService = DefaultMigrationService(
+            appGroupUserDefaults: UserDefaults(suiteName: Bundle.main.groupIdentifier)!,
             appSettingsStore: appSettingsStore,
             errorReporter: errorReporter,
             keychainRepository: keychainRepository,
