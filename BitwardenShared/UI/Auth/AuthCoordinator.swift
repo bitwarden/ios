@@ -184,6 +184,8 @@ final class AuthCoordinator: NSObject, // swiftlint:disable:this type_body_lengt
             showMasterPasswordGuidance()
         case let .masterPasswordHint(username):
             showMasterPasswordHint(for: username)
+        case .preventAccountLock:
+            showPreventAccountLock()
         case let .removeMasterPassword(organizationName):
             showRemoveMasterPassword(organizationName: organizationName)
         case let .selfHosted(region):
@@ -554,6 +556,17 @@ final class AuthCoordinator: NSObject, // swiftlint:disable:this type_body_lengt
         )
         let store = Store(processor: processor)
         let view = PasswordHintView(store: store)
+        let viewController = UIHostingController(rootView: view)
+        let navigationController = UINavigationController(rootViewController: viewController)
+        stackNavigator?.present(navigationController)
+    }
+
+    /// Shows the prevent account lock screen.
+    ///
+    private func showPreventAccountLock() {
+        let processor = PreventAccountLockProcessor(coordinator: asAnyCoordinator())
+        let store = Store(processor: processor)
+        let view = PreventAccountLockView(store: store)
         let viewController = UIHostingController(rootView: view)
         let navigationController = UINavigationController(rootViewController: viewController)
         stackNavigator?.present(navigationController)

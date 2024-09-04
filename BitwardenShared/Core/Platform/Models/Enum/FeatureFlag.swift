@@ -28,12 +28,12 @@ enum FeatureFlag: String, Codable {
     /// Whether this feature can be enabled remotely.
     var isRemotelyConfigured: Bool {
         switch self {
-        case .nativeCarouselFlow,
+        case .emailVerification,
+             .nativeCarouselFlow,
              .nativeCreateAccountFlow,
              .testLocalFeatureFlag:
             false
-        case .emailVerification,
-             .testRemoteFeatureFlag:
+        case .testRemoteFeatureFlag:
             true
         }
     }

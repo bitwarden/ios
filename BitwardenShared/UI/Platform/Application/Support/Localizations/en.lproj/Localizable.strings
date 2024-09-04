@@ -954,6 +954,13 @@
 "TotallyDifferentFromYourOtherPasswords" = "Totally different from your other passwords";
 "UseTheGeneratorToCreateAStrongUniquePassword" = "Use the generator to create a strong, unique password";
 "TryItOut" = "Try it out";
+"PreventAccountLockout" = "Prevent account lockout";
+"NeverLoseAccessToYourVault" = "Never lose access to your vault";
+"TheBestWayToMakeSureYouCanAlwaysAccessYourAccountIsToSetUpSafeguardsFromTheStart" = "The best way to make sure you can always access your account is to set up safeguards from the start.";
+"CreateAHint" = "Create a hint";
+"YourHintWillBeSentToYouViaEmailWhenYouRequestIt" = "Your hint will be sent to you via email when you request it.";
+"WriteYourPasswordDown" = "Write your password down";
+"BeCarefulToKeepYourWrittenPasswordSomewhereSecretAndSafe" = "Be careful to keep your written password somewhere secret and safe.";
 "ChooseYourMasterPassword" = "Choose your master password";
 "ChooseAUniqueAndStrongPasswordToKeepYourInformationSafe" = "Choose a unique and strong password to keep your information safe.";
 "MasterPasswordRequired" = "Master password (required)";
@@ -966,3 +973,5 @@
 "RestartRegistration" = "Restart registration";
 "ExpiredLink" = "Expired link";
 "PleaseRestartRegistrationOrTryLoggingInYouMayAlreadyHaveAnAccount" = "Please restart registration or try logging in. You may already have an account.";
+"RemovePasskey" = "Remove passkey";
+"PasskeyRemoved" = "Passkey removed";

@@ -120,16 +120,15 @@ class DefaultConfigService: ConfigService {
             < timeProvider.presentTime
 
         if forceRefresh || localConfig == nil || localConfigExpired {
-            do {
-                let configResponse = try await configApiService.getConfig()
-                let serverConfig = ServerConfig(
-                    date: timeProvider.presentTime,
-                    responseModel: configResponse
-                )
-                try? await stateService.setServerConfig(serverConfig)
-                return serverConfig
-            } catch {
-                errorReporter.log(error: error)
+            if forceRefresh {
+                await updateConfigFromServer()
+                return try? await stateService.getServerConfig()
+            } else {
+                // if it's not forcing refresh we don't need to wait for the server call
+                // to finish and we can move it to the background.
+                Task {
+                    await updateConfigFromServer()
+                }
             }
         }
 
@@ -154,5 +153,21 @@ class DefaultConfigService: ConfigService {
         guard flag.isRemotelyConfigured else { return defaultValue }
         let configuration = await getConfig(forceRefresh: forceRefresh)
         return configuration?.featureStates[flag]?.stringValue ?? defaultValue
+    }
+
+    // MARK: Private
+
+    /// Performs a call to the server to get the latest config and updates the local value.
+    private func updateConfigFromServer() async {
+        do {
+            let configResponse = try await configApiService.getConfig()
+            let serverConfig = ServerConfig(
+                date: timeProvider.presentTime,
+                responseModel: configResponse
+            )
+            try? await stateService.setServerConfig(serverConfig)
+        } catch {
+            errorReporter.log(error: error)
+        }
     }
 }
