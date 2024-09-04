@@ -132,6 +132,7 @@ class VaultUnlockViewTests: BitwardenTestCase {
         assertSnapshot(matching: subject, as: .defaultPortrait)
     }
 
+    /// Test a snapshot of the view with face id biometrics available.
     @MainActor
     func test_snapshot_vaultUnlock_withBiometrics_faceId() {
         processor.state.biometricUnlockStatus = .available(
@@ -142,12 +143,25 @@ class VaultUnlockViewTests: BitwardenTestCase {
         assertSnapshot(matching: subject, as: .defaultPortrait)
     }
 
+    /// Tests that we show the red alert message when we don't have a valid integrity but biometrics is available.
+    @MainActor
+    func test_snapshot_vaultUnlock_withBiometrics_InvalidIntegrity() {
+        processor.state.biometricUnlockStatus = .available(
+            .faceID,
+            enabled: true,
+            hasValidIntegrity: false
+        )
+        assertSnapshot(matching: subject, as: .defaultPortrait)
+    }
+
+    /// Test a snapshot of the view with biometrics unavailable.
     @MainActor
     func test_snapshot_vaultUnlock_withBiometrics_notAvailable() {
         processor.state.biometricUnlockStatus = .notAvailable
         assertSnapshot(matching: subject, as: .defaultLandscape)
     }
 
+    /// Test a snapshot of the view with touch id biometrics available.
     @MainActor
     func test_snapshot_vaultUnlock_withBiometrics_touchId() {
         processor.state.biometricUnlockStatus = .available(
