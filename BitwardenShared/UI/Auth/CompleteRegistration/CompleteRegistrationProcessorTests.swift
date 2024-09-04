@@ -592,6 +592,13 @@ class CompleteRegistrationProcessorTests: BitwardenTestCase {
         XCTAssertEqual(coordinator.routes.last, .dismissPresented)
     }
 
+    /// `receive(_:)` with `.learnMoreTapped` launches the master password guidance view.
+    @MainActor
+    func test_receive_learnMoreTapped() {
+        subject.receive(.learnMoreTapped)
+        XCTAssertEqual(coordinator.routes.last, .masterPasswordGuidance)
+    }
+
     /// `receive(_:)` with `.passwordHintTextChanged(_:)` updates the state to reflect the change.
     @MainActor
     func test_receive_passwordHintTextChanged() {
@@ -679,13 +686,6 @@ class CompleteRegistrationProcessorTests: BitwardenTestCase {
     func test_receive_showToast() {
         subject.receive(.toastShown(Toast(text: "example")))
         XCTAssertEqual(subject.state.toast?.text, "example")
-    }
-
-    /// `receive(_:)` with `.learnMoreTapped` launches the master password guidance view.
-    @MainActor
-    func test_receive_learnMoreTapped() {
-        subject.receive(.learnMoreTapped)
-        XCTAssertEqual(coordinator.routes.last, .masterPasswordGuidance)
     }
     // swiftlint:disable:next file_length
 }

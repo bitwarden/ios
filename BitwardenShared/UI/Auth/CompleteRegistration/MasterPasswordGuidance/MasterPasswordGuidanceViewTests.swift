@@ -37,12 +37,12 @@ class MasterPasswordGuidanceViewTests: BitwardenTestCase {
         XCTAssertEqual(processor.dispatchedActions.last, .dismiss)
     }
 
-    /// Tapping the password generator button dispatches the `.dismiss` action.
+    /// Tapping the password generator button dispatches the `.generatePasswordPressed` action.
     @MainActor
     func test_passwordGeneratorButton_tap() throws {
-        let button = try subject.inspect().find(button: Localizations.cancel)
+        let button = try subject.inspect().find(button: Localizations.tryItOut)
         try button.tap()
-        XCTAssertEqual(processor.dispatchedActions.last, .dismiss)
+        XCTAssertEqual(processor.dispatchedActions.last, .generatePasswordPressed)
     }
 
     // MARK: Snapshots
