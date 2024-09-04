@@ -25,8 +25,6 @@ class MasterPasswordGuidanceProcessor: StateProcessor<
 
     // MARK: Methods
 
-    override func perform(_: Void) async {}
-
     override func receive(_ action: MasterPasswordGuidanceAction) {
         switch action {
         case .dismiss:

@@ -47,7 +47,7 @@ struct MasterPasswordGuidanceView: View {
             }
             .frame(maxWidth: .infinity, alignment: .leading)
             .foregroundStyle(Asset.Colors.textPrimary.swiftUIColor)
-            .padding(.all, 24)
+            .padding(24)
 
             Divider()
         }
