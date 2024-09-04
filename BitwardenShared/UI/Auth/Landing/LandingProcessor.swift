@@ -48,6 +48,8 @@ class LandingProcessor: StateProcessor<LandingState, LandingAction, LandingEffec
         self.services = services
 
         var state = state
+        // If the email is already set (for a soft logged out account), don't replace it with the
+        // user's remembered email.
         if state.email.isEmpty {
             let rememberedEmail = services.appSettingsStore.rememberedEmail
             state.email = rememberedEmail ?? ""
