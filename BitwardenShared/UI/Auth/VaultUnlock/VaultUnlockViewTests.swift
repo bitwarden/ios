@@ -145,7 +145,7 @@ class VaultUnlockViewTests: BitwardenTestCase {
 
     /// Tests that we show the red alert message when we don't have a valid integrity but biometrics is available.
     @MainActor
-    func test_snapshot_vaultUnlock_withBiometrics_invalidIntegrity() {
+    func test_snapshot_vaultUnlock_withBiometrics_InvalidIntegrity() {
         processor.state.biometricUnlockStatus = .available(
             .faceID,
             enabled: true,

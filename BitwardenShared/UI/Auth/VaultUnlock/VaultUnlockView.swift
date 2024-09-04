@@ -73,7 +73,7 @@ struct VaultUnlockView: View {
                         .accessibilityIdentifier("UserAndEnvironmentDataLabel")
 
                     if store.state.isBiometricsEnabledAndInvalid {
-                        Text(Localizations.accountBiometricInvalidatedExtension)
+                        Text(Localizations.autofillBiometricUnlockForAccountDisabledPendingVerificationOfMaterPassword)
                             .styleGuide(.body, weight: .bold)
                             .foregroundColor(Asset.Colors.loadingRed.swiftUIColor)
                     }
