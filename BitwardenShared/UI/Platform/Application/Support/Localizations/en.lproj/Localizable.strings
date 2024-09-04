@@ -966,4 +966,3 @@
 "PleaseRestartRegistrationOrTryLoggingInYouMayAlreadyHaveAnAccount" = "Please restart registration or try logging in. You may already have an account.";
 "RemovePasskey" = "Remove passkey";
 "PasskeyRemoved" = "Passkey removed";
-"AutofillBiometricUnlockForAccountDisabledPendingVerificationOfMaterPassword" = "Autofill biometric unlock for this account is disabled pending verification of master password";
