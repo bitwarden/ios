@@ -14,6 +14,7 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
     var clientService: MockClientService!
     var configService: MockConfigService!
     var environmentService: MockEnvironmentService!
+    var errorReporter: MockErrorReporter!
     var keyConnectorService: MockKeyConnectorService!
     var keychainService: MockKeychainRepository!
     var organizationService: MockOrganizationService!
@@ -90,6 +91,7 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         biometricsRepository = MockBiometricsRepository()
         configService = MockConfigService()
         environmentService = MockEnvironmentService()
+        errorReporter = MockErrorReporter()
         keyConnectorService = MockKeyConnectorService()
         keychainService = MockKeychainRepository()
         organizationService = MockOrganizationService()
@@ -104,6 +106,7 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
             clientService: clientService,
             configService: configService,
             environmentService: environmentService,
+            errorReporter: errorReporter,
             keychainService: keychainService,
             keyConnectorService: keyConnectorService,
             organizationAPIService: APIService(client: client),
@@ -125,6 +128,7 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         clientService = nil
         configService = nil
         environmentService = nil
+        errorReporter = nil
         keychainService = nil
         organizationService = nil
         subject = nil
@@ -275,6 +279,20 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         let userId = await subject.existingAccountUserId(email: "user@bitwarden.com")
 
         XCTAssertNil(userId)
+    }
+
+    /// `existingAccountUserId(email:)` logs an error if determining whether an account is authenticated fails.
+    func test_existingAccountUserId_isAuthenticatedError() async throws {
+        environmentService.baseURL = try XCTUnwrap(EnvironmentUrlData.defaultUS.base)
+        stateService.activeAccount = .fixture(profile: .fixture(email: "user@bitwarden.com", userId: "1"))
+        stateService.environmentUrls["1"] = .defaultUS
+        stateService.isAuthenticatedError = BitwardenTestError.example
+        stateService.userIds = ["1"]
+
+        let userId = await subject.existingAccountUserId(email: "user@bitwarden.com")
+
+        XCTAssertEqual(userId, "1")
+        XCTAssertEqual(errorReporter.errors as? [BitwardenTestError], [.example])
     }
 
     /// `existingAccountUserId(email:)` returns `nil` if there's an existing account with the same

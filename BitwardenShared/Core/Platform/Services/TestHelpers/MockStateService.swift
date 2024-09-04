@@ -36,6 +36,7 @@ class MockStateService: StateService { // swiftlint:disable:this type_body_lengt
     var forcePasswordResetReason = [String: ForcePasswordResetReason]()
     var introCarouselShown = false
     var isAuthenticated = [String: Bool]()
+    var isAuthenticatedError: Error?
     var lastActiveTime = [String: Date]()
     var loginRequest: LoginRequestNotification?
     var logoutAccountUserInitiated = false
@@ -300,6 +301,7 @@ class MockStateService: StateService { // swiftlint:disable:this type_body_lengt
 
     func isAuthenticated(userId: String?) async throws -> Bool {
         let userId = try unwrapUserId(userId)
+        if let isAuthenticatedError { throw isAuthenticatedError }
         return isAuthenticated[userId] ?? false
     }
 

@@ -350,7 +350,7 @@ extension AuthRouter {
             case (_, false):
                 return .complete
             default:
-                guard try await services.stateService.isAuthenticated(userId: userId) == true else {
+                guard try await services.stateService.isAuthenticated(userId: userId) else {
                     return .landingSoftLoggedOut(email: activeAccount.profile.email)
                 }
 

@@ -118,6 +118,36 @@ final class AuthRouterTests: BitwardenTestCase { // swiftlint:disable:this type_
         XCTAssertEqual(route, .complete)
     }
 
+    /// `handleAndRoute(_ :)` redirects `.accountBecameActive()` to `.vaultUnlock` when checking if
+    /// an account is authenticated fails.
+    func test_handleAndRoute_accountBecameActive_logout_isAuthenticatedError() async {
+        let account = Account.fixtureAccountLogin()
+        authRepository.activeAccount = account
+        authRepository.isLockedResult = .success(true)
+        authRepository.sessionTimeoutAction[account.profile.userId] = .logout
+        stateService.isAuthenticatedError = BitwardenTestError.example
+
+        let route = await subject.handleAndRoute(
+            .accountBecameActive(
+                account,
+                animated: true,
+                attemptAutomaticBiometricUnlock: true,
+                didSwitchAccountAutomatically: false
+            )
+        )
+
+        XCTAssertEqual(
+            route,
+            .vaultUnlock(
+                account,
+                animated: true,
+                attemptAutomaticBiometricUnlock: true,
+                didSwitchAccountAutomatically: false
+            )
+        )
+        XCTAssertEqual(errorReporter.errors as? [BitwardenTestError], [.example])
+    }
+
     /// `handleAndRoute(_ :)` redirects `.didCompleteAuth` to `.landing` and doesn't set the
     /// carousel shown flag if the carousel feature flag is off.
     func test_handleAndRoute_didCompleteAuth_carouselNotShown() async {
