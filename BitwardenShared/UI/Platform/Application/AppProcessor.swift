@@ -319,7 +319,7 @@ public class AppProcessor {
                         case .lock:
                             await services.vaultTimeoutService.lockVault(userId: userId)
                         case .logout, .none:
-                            try await services.authRepository.logout(userId: userId)
+                            try await services.authRepository.logout(userId: userId, userInitiated: false)
                         }
                     }
                 }
@@ -439,7 +439,7 @@ extension AppProcessor: SyncServiceDelegate {
     func securityStampChanged(userId: String) async {
         // Log the user out if their security stamp changes.
         coordinator?.hideLoadingOverlay()
-        try? await services.authRepository.logout(userId: userId)
+        try? await services.authRepository.logout(userId: userId, userInitiated: false)
         await coordinator?.handleEvent(.didLogout(userId: userId, userInitiated: false))
     }
 

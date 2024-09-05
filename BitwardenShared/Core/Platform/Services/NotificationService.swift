@@ -142,7 +142,7 @@ class DefaultNotificationService: NotificationService {
     func didRegister(withToken tokenData: Data) async {
         do {
             // Don't proceed unless the user is authenticated.
-            guard await stateService.isAuthenticated() else { return }
+            guard try await stateService.isAuthenticated() else { return }
 
             // Get the app ID.
             let appId = await appIdService.getOrCreateAppId()
@@ -172,7 +172,7 @@ class DefaultNotificationService: NotificationService {
             ) { return }
 
             // Proceed to treat the message as new notification.
-            guard await stateService.isAuthenticated(),
+            guard try await stateService.isAuthenticated(),
                   let notificationData = try await decodePayload(message),
                   let type = notificationData.type
             else { return }
@@ -209,7 +209,7 @@ class DefaultNotificationService: NotificationService {
                 try await syncService.fetchSync(forceSync: true)
             case .logOut:
                 guard let data: UserNotification = notificationData.data() else { return }
-                try await authRepository.logout(userId: data.userId)
+                try await authRepository.logout(userId: data.userId, userInitiated: true)
                 // Only route to landing page if the current active user was logged out.
                 if data.userId == userId {
                     await delegate?.routeToLanding()

@@ -152,9 +152,14 @@ struct ProfileSwitcherRow: View {
              .addAccount:
             return nil
         case let .alternate(account):
-            return account.isUnlocked
-                ? Localizations.accountUnlocked.lowercased()
-                : Localizations.accountLocked.lowercased()
+            return switch (account.isUnlocked, account.isLoggedOut) {
+            case (true, false):
+                Localizations.accountUnlocked.lowercased()
+            case (false, false):
+                Localizations.accountLocked.lowercased()
+            case (_, true):
+                Localizations.accountLoggedOut.lowercased()
+            }
         }
     }
 
@@ -249,26 +254,6 @@ struct ProfileSwitcherRow: View {
 }
 
 #if DEBUG
-extension ProfileSwitcherItem {
-    static let unlockedAccountPreview = ProfileSwitcherItem(
-        color: .purple,
-        email: "anne.account@bitwarden.com",
-        isUnlocked: true,
-        userId: "1",
-        userInitials: "AA",
-        webVault: "bitwarden.com"
-    )
-
-    static let lockedAccountPreview = ProfileSwitcherItem(
-        color: .purple,
-        email: "anne.account@bitwarden.com",
-        isUnlocked: false,
-        userId: "2",
-        userInitials: "AA",
-        webVault: "bitwarden.com"
-    )
-}
-
 #Preview("Active Unlocked Account") {
     NavigationView {
         ProfileSwitcherRow(
@@ -276,7 +261,7 @@ extension ProfileSwitcherItem {
                 processor: StateProcessor(
                     state: ProfileSwitcherRowState(
                         shouldTakeAccessibilityFocus: true,
-                        rowType: .active(.unlockedAccountPreview)
+                        rowType: .active(.fixtureUnlocked)
                     )
                 )
             )
@@ -291,7 +276,7 @@ extension ProfileSwitcherItem {
                 processor: StateProcessor(
                     state: ProfileSwitcherRowState(
                         shouldTakeAccessibilityFocus: true,
-                        rowType: .active(.lockedAccountPreview)
+                        rowType: .active(.fixtureLocked)
                     )
                 )
             )
@@ -307,7 +292,7 @@ extension ProfileSwitcherItem {
                     state: ProfileSwitcherRowState(
                         shouldTakeAccessibilityFocus: true,
                         showDivider: false,
-                        rowType: .active(.lockedAccountPreview)
+                        rowType: .active(.fixtureLocked)
                     )
                 )
             )
@@ -322,7 +307,7 @@ extension ProfileSwitcherItem {
                 processor: StateProcessor(
                     state: ProfileSwitcherRowState(
                         shouldTakeAccessibilityFocus: true,
-                        rowType: .alternate(.unlockedAccountPreview)
+                        rowType: .alternate(.fixtureUnlocked)
                     )
                 )
             )
@@ -337,7 +322,22 @@ extension ProfileSwitcherItem {
                 processor: StateProcessor(
                     state: ProfileSwitcherRowState(
                         shouldTakeAccessibilityFocus: true,
-                        rowType: .alternate(.lockedAccountPreview)
+                        rowType: .alternate(.fixtureLocked)
+                    )
+                )
+            )
+        )
+    }
+}
+
+#Preview("Alternate Logged Out Account") {
+    NavigationView {
+        ProfileSwitcherRow(
+            store: Store(
+                processor: StateProcessor(
+                    state: ProfileSwitcherRowState(
+                        shouldTakeAccessibilityFocus: true,
+                        rowType: .alternate(.fixtureLoggedOut)
                     )
                 )
             )
