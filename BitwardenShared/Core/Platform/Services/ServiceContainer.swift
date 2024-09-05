@@ -479,6 +479,7 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
             clientService: clientService,
             configService: configService,
             environmentService: environmentService,
+            errorReporter: errorReporter,
             keychainService: keychainRepository,
             keyConnectorService: keyConnectorService,
             organizationAPIService: apiService,
@@ -490,6 +491,7 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
         )
 
         let migrationService = DefaultMigrationService(
+            appGroupUserDefaults: UserDefaults(suiteName: Bundle.main.groupIdentifier)!,
             appSettingsStore: appSettingsStore,
             errorReporter: errorReporter,
             keychainRepository: keychainRepository,

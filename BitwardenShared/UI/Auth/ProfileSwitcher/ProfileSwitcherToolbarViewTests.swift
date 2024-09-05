@@ -99,13 +99,11 @@ final class ProfileSwitcherToolbarViewTests: BitwardenTestCase {
         processor.state = .init(
             accounts: [
                 ProfileSwitcherItem.anneAccount,
-                ProfileSwitcherItem(
+                ProfileSwitcherItem.fixture(
                     color: .blue,
-                    email: "",
                     isUnlocked: true,
                     userId: "123",
-                    userInitials: "OW",
-                    webVault: ""
+                    userInitials: "OW"
                 ),
             ],
             activeAccountId: "123",
@@ -125,13 +123,11 @@ final class ProfileSwitcherToolbarViewTests: BitwardenTestCase {
         processor.state = .init(
             accounts: [
                 ProfileSwitcherItem.anneAccount,
-                ProfileSwitcherItem(
+                ProfileSwitcherItem.fixture(
                     color: Color(hex: "000000"),
-                    email: "",
                     isUnlocked: true,
                     userId: "123",
-                    userInitials: "OW",
-                    webVault: ""
+                    userInitials: "OW"
                 ),
             ],
             activeAccountId: "123",
@@ -151,13 +147,11 @@ final class ProfileSwitcherToolbarViewTests: BitwardenTestCase {
         processor.state = .init(
             accounts: [
                 ProfileSwitcherItem.anneAccount,
-                ProfileSwitcherItem(
+                ProfileSwitcherItem.fixture(
                     color: Color(hex: "16cbfc"),
-                    email: "",
                     isUnlocked: true,
                     userId: "123",
-                    userInitials: "OW",
-                    webVault: ""
+                    userInitials: "OW"
                 ),
             ],
             activeAccountId: "123",
@@ -177,13 +171,11 @@ final class ProfileSwitcherToolbarViewTests: BitwardenTestCase {
         processor.state = .init(
             accounts: [
                 ProfileSwitcherItem.anneAccount,
-                ProfileSwitcherItem(
+                ProfileSwitcherItem.fixture(
                     color: Color(hex: "ffffff"),
-                    email: "",
                     isUnlocked: true,
                     userId: "123",
-                    userInitials: "OW",
-                    webVault: ""
+                    userInitials: "OW"
                 ),
             ],
             activeAccountId: "123",
@@ -203,13 +195,11 @@ final class ProfileSwitcherToolbarViewTests: BitwardenTestCase {
         processor.state = .init(
             accounts: [
                 ProfileSwitcherItem.anneAccount,
-                ProfileSwitcherItem(
+                ProfileSwitcherItem.fixture(
                     color: Color(hex: "fcff41"),
-                    email: "",
                     isUnlocked: true,
                     userId: "123",
-                    userInitials: "OW",
-                    webVault: ""
+                    userInitials: "OW"
                 ),
             ],
             activeAccountId: "123",
