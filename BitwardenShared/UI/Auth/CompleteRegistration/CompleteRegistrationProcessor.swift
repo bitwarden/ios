@@ -162,13 +162,13 @@ class CompleteRegistrationProcessor: StateProcessor<
     private func createAccount(captchaToken: String?) async throws {
         let kdfConfig = KdfConfig()
 
-        let keys = try await services.clientService.auth().makeRegisterKeys(
+        let keys = try await services.clientService.auth(isPreAuth: true).makeRegisterKeys(
             email: state.userEmail,
             password: state.passwordText,
             kdf: kdfConfig.sdkKdf
         )
 
-        let hashedPassword = try await services.clientService.auth().hashPassword(
+        let hashedPassword = try await services.clientService.auth(isPreAuth: true).hashPassword(
             email: state.userEmail,
             password: state.passwordText,
             kdfParams: kdfConfig.sdkKdf,

@@ -1113,6 +1113,9 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
             clientService.mockAuth.passwordStrengthPassword,
             "ghu65zQ0*TjP@ij74g*&FykWss#Kgv8L8j8XmC03"
         )
+
+        XCTAssertTrue(clientService.mockAuthIsPreAuth)
+        XCTAssertNil(clientService.mockAuthUserId)
     }
 
     /// `sessionTimeoutAction()` returns the session timeout action for a user.

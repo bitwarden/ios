@@ -590,7 +590,8 @@ extension DefaultAuthRepository: AuthRepository {
     }
 
     func passwordStrength(email: String, password: String) async throws -> UInt8 {
-        try await clientService.auth().passwordStrength(password: password, email: email, additionalInputs: [])
+        try await clientService.auth(isPreAuth: true)
+            .passwordStrength(password: password, email: email, additionalInputs: [])
     }
 
     func sessionTimeoutAction(userId: String?) async throws -> SessionTimeoutAction {

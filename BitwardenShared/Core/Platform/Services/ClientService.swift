@@ -8,10 +8,13 @@ protocol ClientService {
 
     /// Returns a `ClientAuthProtocol` for auth data tasks.
     ///
-    /// - Parameter userId: The user ID mapped to the client instance.
+    /// - Parameters:
+    ///   - userId: The user ID mapped to the client instance.
+    ///   - isPreAuth: Whether the client is being used for a user prior to authentication (when
+    ///     the user's ID doesn't yet exist).
     /// - Returns: A `ClientAuthProtocol` for auth data tasks.
     ///
-    func auth(for userId: String?) async throws -> ClientAuthProtocol
+    func auth(for userId: String?, isPreAuth: Bool) async throws -> ClientAuthProtocol
 
     /// Returns a `ClientCryptoProtocol` for crypto data tasks.
     ///
@@ -68,7 +71,16 @@ extension ClientService {
     /// Returns a `ClientAuthProtocol` for auth data tasks.
     ///
     func auth() async throws -> ClientAuthProtocol {
-        try await auth(for: nil)
+        try await auth(for: nil, isPreAuth: false)
+    }
+
+    /// Returns a `ClientAuthProtocol` for auth data tasks.
+    ///
+    /// - Parameter isPreAuth: Whether the client is being used for a user prior to authentication
+    ///     (when the user's ID doesn't yet exist).
+    ///
+    func auth(isPreAuth: Bool) async throws -> ClientAuthProtocol {
+        try await auth(for: nil, isPreAuth: isPreAuth)
     }
 
     /// Returns a `ClientCryptoProtocol` for crypto data tasks.
@@ -119,7 +131,7 @@ extension ClientService {
 /// A default `ClientService` implementation. This is a thin wrapper around the SDK `Client` so that
 /// it can be swapped to a mock instance during tests.
 ///
-class DefaultClientService: ClientService {
+actor DefaultClientService: ClientService {
     // MARK: Private properties
 
     /// A helper object that builds a Bitwarden SDK `Client`.
@@ -161,8 +173,8 @@ class DefaultClientService: ClientService {
 
     // MARK: Methods
 
-    func auth(for userId: String?) async throws -> ClientAuthProtocol {
-        try await client(for: userId).auth()
+    func auth(for userId: String?, isPreAuth: Bool = false) async throws -> ClientAuthProtocol {
+        try await client(for: userId, isPreAuth: isPreAuth).auth()
     }
 
     func crypto(for userId: String?) async throws -> ClientCryptoProtocol {
@@ -199,28 +211,31 @@ class DefaultClientService: ClientService {
     /// Returns a user's client if it exists. If the user has no client, create one and map it to their user ID.
     ///
     ///
-    /// If there is no active user/there are no accounts, return the original client.
+    /// If there is no active user/there are no accounts, return a new client.
     /// This could occur if the app is launched from a fresh install.
     ///
-    /// - Parameter userId: A user ID for which a `Client` is mapped to or will be mapped to.
+    /// - Parameters:
+    ///   - userId: A user ID for which a `Client` is mapped to or will be mapped to.
+    ///   - isPreAuth: Whether the client is being used for a user prior to authentication (when
+    ///     the user's ID doesn't yet exist).
     /// - Returns: A user's client.
     ///
-    private func client(for userId: String?) async throws -> BitwardenSdkClient {
-        do {
-            let userId = try await stateService.getAccountIdOrActiveId(userId: userId)
-
-            // If the user has a client, return it.
-            guard let client = userClientArray[userId] else {
-                // If not, create one, map it to the user, then return it.
-                let newClient = createAndMapClient(for: userId)
-                return newClient
-            }
-            return client
-        } catch StateServiceError.noAccounts, StateServiceError.noActiveAccount {
-            // If there is no active account, or if no accounts exist,
-            // return the original client.
+    private func client(for userId: String?, isPreAuth: Bool = false) async throws -> BitwardenSdkClient {
+        guard !isPreAuth else {
+            // If this client is being used for a new user prior to authentication, a user ID doesn't
+            // exist for the user to map the client to, so return a new client.
             return clientBuilder.buildClient()
         }
+
+        let userId = try await stateService.getAccountIdOrActiveId(userId: userId)
+
+        // If the user has a client, return it.
+        guard let client = userClientArray[userId] else {
+            // If not, create one, map it to the user, then return it.
+            let newClient = createAndMapClient(for: userId)
+            return newClient
+        }
+        return client
     }
 
     /// Creates a new client and maps it to an ID.

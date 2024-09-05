@@ -537,7 +537,7 @@ class DefaultAuthService: AuthService { // swiftlint:disable:this type_body_leng
         let response = try await accountAPIService.preLogin(email: username)
 
         // Get the identity token to log in to Bitwarden.
-        let hashedPassword = try await clientService.auth().hashPassword(
+        let hashedPassword = try await clientService.auth(isPreAuth: true).hashPassword(
             email: username,
             password: masterPassword,
             kdfParams: response.sdkKdf,
