@@ -1,6 +1,7 @@
 CODE_SIGN_STYLE = Automatic
 DEVELOPMENT_TEAM = LTZ2PFU5D6
 ORGANIZATION_IDENTIFIER = com.8bit
+SHARED_GROUP_ORGANIZATION_IDENTIFIER = com.bitwarden
 BASE_BUNDLE_ID = $(ORGANIZATION_IDENTIFIER).bitwarden
 APPICON_NAME = AppIcon
 
@@ -11,6 +12,7 @@ APPICON_NAME = AppIcon
 //
 //    DEVELOPMENT_TEAM = <Your team ID>
 //    ORGANIZATION_IDENTIFIER = <Your reversed domain name>
+//    SHARED_GROUP_ORGANIZATION_IDENTIFIER = <Your reversed domain name>
 //    BASE_BUNDLE_ID = <Your bundle ID>
 //    APPICON_NAME = <Your App Icon's Name in the asset catalogue>
 //    PROVISIONING_PROFILE_SPECIFIER = <Optional provisioning profile specifier for the main app>

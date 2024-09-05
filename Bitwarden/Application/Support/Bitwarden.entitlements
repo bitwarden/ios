@@ -26,6 +26,7 @@
 	<key>com.apple.security.application-groups</key>
 	<array>
 		<string>group.$(BASE_BUNDLE_ID)</string>
+		<string>group.$(SHARED_GROUP_ORGANIZATION_IDENTIFIER).bitwarden-authenticator</string>
 	</array>
 	<key>keychain-access-groups</key>
 	<array>
