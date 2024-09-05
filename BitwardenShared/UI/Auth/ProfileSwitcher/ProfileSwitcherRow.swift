@@ -227,16 +227,22 @@ struct ProfileSwitcherRow: View {
             await store.perform(.accessibility(.select(profileSwitcherItem)))
         }
         .conditionalAccessibilityAsyncAction(
-            if: store.state.allowLockAndLogout,
+            if: store.state.allowLockAndLogout && profileSwitcherItem.isUnlocked,
             named: Localizations.lock
         ) {
             await store.perform(.accessibility(.lock(profileSwitcherItem)))
         }
         .conditionalAccessibilityAction(
-            if: store.state.allowLockAndLogout,
+            if: store.state.allowLockAndLogout && !profileSwitcherItem.isLoggedOut,
             named: Localizations.logOut
         ) {
             store.send(.accessibility(.logout(profileSwitcherItem)))
+        }
+        .conditionalAccessibilityAction(
+            if: store.state.allowLockAndLogout && profileSwitcherItem.isLoggedOut,
+            named: Localizations.remove
+        ) {
+            store.send(.accessibility(.remove(profileSwitcherItem)))
         }
         .accessibility(
             if: isSelected,

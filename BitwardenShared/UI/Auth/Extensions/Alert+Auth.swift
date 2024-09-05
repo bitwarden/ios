@@ -77,37 +77,49 @@ extension Alert {
         )
     }
 
-    /// Display the options to log out of or lock the selected profile switcher item.
+    /// Display the options to log out of, lock, or remove the selected profile switcher item.
     ///
     /// - Parameters:
     ///   - item: The selected item from the profile switcher view.
     ///   - lockAction: The action to perform if the user chooses to lock the account.
     ///   - logoutAction: The action to perform if the user chooses to log out of the account.
+    ///   - removeAccountAction: The action to perform if the user chooses to remove the account.
     ///
     /// - Returns: An alert displaying the options for the item.
     ///
     static func accountOptions(
         _ item: ProfileSwitcherItem,
         lockAction: @escaping () async -> Void,
-        logoutAction: @escaping () async -> Void
+        logoutAction: @escaping () async -> Void,
+        removeAccountAction: @escaping () async -> Void
     ) -> Alert {
-        // All accounts have the option to log out, but only display the lock option if
-        // the account is not currently locked.
-        var alertActions = [
-            AlertAction(
-                title: Localizations.logOut,
-                style: .default,
-                handler: { _, _ in await logoutAction() }
-            ),
-        ]
+        var alertActions = [AlertAction]()
+
         if item.isUnlocked {
-            alertActions.insert(
+            alertActions.append(
                 AlertAction(
                     title: Localizations.lock,
                     style: .default,
                     handler: { _, _ in await lockAction() }
-                ),
-                at: 0
+                )
+            )
+        }
+
+        if item.isLoggedOut {
+            alertActions.append(
+                AlertAction(
+                    title: Localizations.removeAccount,
+                    style: .default,
+                    handler: { _, _ in await removeAccountAction() }
+                )
+            )
+        } else {
+            alertActions.append(
+                AlertAction(
+                    title: Localizations.logOut,
+                    style: .default,
+                    handler: { _, _ in await logoutAction() }
+                )
             )
         }
 
@@ -211,6 +223,28 @@ extension Alert {
                 AlertAction(title: Localizations.yes, style: .default) { _ in
                     await action()
                 },
+            ]
+        )
+    }
+
+    /// An alert that is displayed to confirm the user wants to remove the account.
+    ///
+    /// - Parameters:
+    ///   - profile: The profile switcher item to remove.
+    ///   - action: An action to perform when the user taps `Yes`, to confirm removing the account.
+    /// - Returns: An alert that is displayed to confirm the user wants to remove the account.
+    ///
+    static func removeAccountConfirmation(
+        _ profile: ProfileSwitcherItem,
+        action: @escaping () async -> Void
+    ) -> Alert {
+        Alert(
+            title: Localizations.removeAccount,
+            message: Localizations.removeAccountConfirmation + "\n\n"
+                + [profile.email, profile.webVault].joined(separator: "\n"),
+            alertActions: [
+                AlertAction(title: Localizations.yes, style: .default) { _ in await action() },
+                AlertAction(title: Localizations.cancel, style: .cancel),
             ]
         )
     }
