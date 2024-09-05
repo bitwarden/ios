@@ -272,6 +272,17 @@ class AuthCoordinatorTests: BitwardenTestCase { // swiftlint:disable:this type_b
         XCTAssertEqual(stackNavigator.actions.last?.type, .poppedToRoot)
     }
 
+    /// `navigate(to:)` with `.landingSoftLoggedOut` pushes the landing view onto the stack
+    /// navigator and populates the email field.
+    @MainActor
+    func test_navigate_landingSoftLoggedOut() throws {
+        subject.navigate(to: .landingSoftLoggedOut(email: "user@bitwarden.com"))
+        XCTAssertTrue(stackNavigator.actions.last?.view is LandingView)
+
+        let view = try XCTUnwrap(stackNavigator.actions.last?.view as? LandingView)
+        XCTAssertEqual(view.store.state.email, "user@bitwarden.com")
+    }
+
     /// `navigate(to:)` with `.login` pushes the login view onto the stack navigator and hides the back button.
     @MainActor
     func test_navigate_login() throws {
@@ -377,6 +388,7 @@ class AuthCoordinatorTests: BitwardenTestCase { // swiftlint:disable:this type_b
         authRepository.altAccounts = [account]
         vaultTimeoutService.isClientLocked[account.profile.userId] = true
         stateService.activeAccount = account
+        stateService.isAuthenticated[account.profile.userId] = true
 
         let task = Task {
             await subject.handleEvent(.action(.switchAccount(isAutomatic: true, userId: account.profile.userId)))
@@ -411,6 +423,7 @@ class AuthCoordinatorTests: BitwardenTestCase { // swiftlint:disable:this type_b
         authRepository.altAccounts = [account]
         authRepository.isLockedResult = .failure(VaultTimeoutServiceError.noAccountFound)
         stateService.activeAccount = account
+        stateService.isAuthenticated[account.profile.userId] = true
 
         let task = Task {
             await subject.handleEvent(.action(.switchAccount(isAutomatic: true, userId: account.profile.userId)))
