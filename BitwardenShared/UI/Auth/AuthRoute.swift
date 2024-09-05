@@ -72,6 +72,9 @@ public enum AuthRoute: Equatable {
     /// A route to the landing screen.
     case landing
 
+    /// A route to the landing screen that populates the email field for a soft logged out account.
+    case landingSoftLoggedOut(email: String)
+
     /// A route to the login screen.
     ///
     /// - Parameter username: The username to display on the login screen.
@@ -105,6 +108,9 @@ public enum AuthRoute: Equatable {
     ///
     /// - Parameter username: The username to display on the password hint screen.
     case masterPasswordHint(username: String)
+
+    /// A route to the prevent account lock view.
+    case preventAccountLock
 
     /// A route to the remove master password screen.
     case removeMasterPassword(organizationName: String)

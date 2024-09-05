@@ -1,5 +1,6 @@
 @preconcurrency import BitwardenSdk
 import Foundation
+import UIKit
 
 // MARK: - CipherItemOperationDelegate
 
@@ -176,6 +177,11 @@ final class AddEditItemProcessor: StateProcessor<// swiftlint:disable:this type_
             state.owner = newValue
         case let .passwordChanged(newValue):
             state.loginState.password = newValue
+        case .removePasskeyPressed:
+            state.loginState.fido2Credentials = []
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
+                UIAccessibility.post(notification: .announcement, argument: Localizations.passkeyRemoved)
+            }
         case let .removeUriPressed(index):
             guard index < state.loginState.uris.count else { return }
             state.loginState.uris.remove(at: index)

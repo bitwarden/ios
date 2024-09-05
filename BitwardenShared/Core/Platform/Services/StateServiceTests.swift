@@ -1011,13 +1011,35 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
 
     /// `isAuthenticated()` returns the authentication state of the user.
     func test_isAuthenticated() async throws {
-        var authenticationState = await subject.isAuthenticated()
+        await subject.addAccount(.fixture())
+
+        keychainRepository.getAccessTokenResult = .failure(
+            KeychainServiceError.osStatusError(errSecItemNotFound)
+        )
+        var authenticationState = try await subject.isAuthenticated()
         XCTAssertFalse(authenticationState)
 
-        await subject.addAccount(.fixture())
-        try await subject.setAccountEncryptionKeys(.init(encryptedPrivateKey: "", encryptedUserKey: ""))
-        authenticationState = await subject.isAuthenticated()
+        keychainRepository.getAccessTokenResult = .success("ACCESS_TOKEN")
+        authenticationState = try await subject.isAuthenticated()
         XCTAssertTrue(authenticationState)
+    }
+
+    /// `isAuthenticated()` throws an error if a keychain error occurs.
+    func test_isAuthenticated_keychainError() async throws {
+        await subject.addAccount(.fixture())
+        let error = KeychainServiceError.osStatusError(errSecParam)
+        keychainRepository.getAccessTokenResult = .failure(error)
+
+        await assertAsyncThrows(error: error) {
+            _ = try await subject.isAuthenticated()
+        }
+    }
+
+    /// `isAuthenticated()` throws an error if there's no accounts.
+    func test_isAuthenticated_noAccount() async throws {
+        await assertAsyncThrows(error: StateServiceError.noAccounts) {
+            _ = try await subject.isAuthenticated()
+        }
     }
 
     /// `logoutAccount()` clears any account data.
@@ -1059,7 +1081,7 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
             _ = try SendData(context: context, userId: "1", send: .fixture())
         }
 
-        try await subject.logoutAccount()
+        try await subject.logoutAccount(userInitiated: true)
 
         XCTAssertEqual(appSettingsStore.biometricIntegrityStates, [:])
         XCTAssertEqual(appSettingsStore.biometricAuthenticationEnabled, [:])
@@ -1090,7 +1112,7 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
             encryptedUserKey: "USER_KEY"
         ))
 
-        try await subject.logoutAccount(userId: "1")
+        try await subject.logoutAccount(userId: "1", userInitiated: true)
 
         // User is removed from the state.
         let state = try XCTUnwrap(appSettingsStore.state)
@@ -1119,7 +1141,7 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
             encryptedUserKey: "2:USER_KEY"
         ))
 
-        try await subject.logoutAccount(userId: "2")
+        try await subject.logoutAccount(userId: "2", userInitiated: true)
 
         // User is removed from the state.
         let state = try XCTUnwrap(appSettingsStore.state)
@@ -1148,7 +1170,7 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
             encryptedUserKey: "2:USER_KEY"
         ))
 
-        try await subject.logoutAccount(userId: "1")
+        try await subject.logoutAccount(userId: "1", userInitiated: true)
 
         // User is removed from the state.
         let state = try XCTUnwrap(appSettingsStore.state)
@@ -1158,6 +1180,23 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
         // Additional user keys are removed.
         XCTAssertEqual(appSettingsStore.encryptedPrivateKeys, ["2": "2:PRIVATE_KEY"])
         XCTAssertEqual(appSettingsStore.encryptedUserKeys, ["2": "2:USER_KEY"])
+    }
+
+    /// `logoutAccount(_:)` removes all account data, but leaves the account if the logout wasn't user initiated.
+    func test_logoutAccount_timeout() async throws {
+        let account = Account.fixture(profile: .fixture(userId: "1"))
+        await subject.addAccount(account)
+        try await subject.setAccountEncryptionKeys(AccountEncryptionKeys(
+            encryptedPrivateKey: "1:PRIVATE_KEY",
+            encryptedUserKey: "1:USER_KEY"
+        ))
+
+        try await subject.logoutAccount(userInitiated: false)
+
+        XCTAssertNil(appSettingsStore.encryptedPrivateKeys["1"])
+        XCTAssertNil(appSettingsStore.encryptedUserKeys["1"])
+        XCTAssertEqual(appSettingsStore.state?.accounts, ["1": account])
+        XCTAssertEqual(appSettingsStore.state?.activeUserId, "1")
     }
 
     /// `pinProtectedUserKey(userId:)` returns the pin protected user key.
@@ -1571,14 +1610,33 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
         XCTAssertEqual(appSettingsStore.usernameGenerationOptions["2"], options2)
     }
 
-    /// `.setsetUserHasMasterPassword()` sets the user has having master password set .
-    func test_setUserHasMasterPassword() async throws {
+    /// `.setUserHasMasterPassword()` sets the user's has master password flag to `false`.
+    func test_setUserHasMasterPassword_false() async throws {
+        let account = Account.fixture(
+            profile: .fixture(
+                userDecryptionOptions: UserDecryptionOptions(
+                    hasMasterPassword: true,
+                    keyConnectorOption: nil,
+                    trustedDeviceOption: nil
+                )
+            )
+        )
+        await subject.addAccount(account)
+
+        try await subject.setUserHasMasterPassword(false)
+
+        XCTAssertNotEqual(appSettingsStore.state?.accounts["1"], account)
+        XCTAssertEqual(appSettingsStore.state?.accounts["1"]?.profile.userDecryptionOptions?.hasMasterPassword, false)
+    }
+
+    /// `setUserHasMasterPassword()` sets the user's has master password flag to `true`.
+    func test_setUserHasMasterPassword_true() async throws {
         let account1 = Account.fixtureWithTdeNoPassword()
         await subject.addAccount(account1)
 
         XCTAssertFalse(appSettingsStore.state?.accounts["1"]?.profile.userDecryptionOptions?.hasMasterPassword ?? false)
 
-        try await subject.setUserHasMasterPassword()
+        try await subject.setUserHasMasterPassword(true)
 
         XCTAssertNotEqual(appSettingsStore.state?.accounts["1"], account1)
         XCTAssertTrue(appSettingsStore.state?.accounts["1"]?.profile.userDecryptionOptions?.hasMasterPassword ?? false)

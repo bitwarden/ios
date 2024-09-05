@@ -300,12 +300,20 @@ protocol StateService: AnyObject {
     ///
     func getVaultTimeout(userId: String?) async throws -> SessionTimeoutValue
 
+    /// Whether the user is authenticated.
+    ///
+    /// - Parameter userId: The user ID to check if they are authenticated.
+    /// - Returns: Whether the user is authenticated.
+    ///
+    func isAuthenticated(userId: String?) async throws -> Bool
+
     /// Logs the user out of an account.
     ///
-    /// - Parameter userId: The user ID of the account to log out of. Defaults to the active
-    ///   account if `nil`.
+    /// - Parameters:
+    ///   - userId: The user ID of the account to log out of. Defaults to the active account if `nil`.
+    ///   - userInitiated: Whether the logout was user initiated or a result of a logout timeout action.
     ///
-    func logoutAccount(userId: String?) async throws
+    func logoutAccount(userId: String?, userInitiated: Bool) async throws
 
     /// The pin protected user key.
     ///
@@ -536,9 +544,11 @@ protocol StateService: AnyObject {
     ///
     func setUnsuccessfulUnlockAttempts(_ attempts: Int, userId: String?) async throws
 
-    /// Sets user has master password to true.
+    /// Sets whether the user has a master password.
     ///
-    func setUserHasMasterPassword() async throws
+    /// - Parameter hasMasterPassword: Whether the user has a master password.
+    ///
+    func setUserHasMasterPassword(_ hasMasterPassword: Bool) async throws
 
     /// Sets the username generation options for a user ID.
     ///
@@ -807,19 +817,21 @@ extension StateService {
         try await getVaultTimeout(userId: nil)
     }
 
-    /// Whether the user is authenticated or not.
+    /// Whether the active user account is authenticated.
     ///
     /// - Returns: Whether the user is authenticated.
     ///
-    func isAuthenticated() async -> Bool {
-        let accountKeys = try? await getAccountEncryptionKeys()
-        return accountKeys != nil
+    func isAuthenticated() async throws -> Bool {
+        try await isAuthenticated(userId: nil)
     }
 
     /// Logs the user out of the active account.
     ///
-    func logoutAccount() async throws {
-        try await logoutAccount(userId: nil)
+    /// - Parameters userInitiated: Whether the logout was user initiated or a result of a logout
+    ///     timeout action.
+    ///
+    func logoutAccount(userInitiated: Bool) async throws {
+        try await logoutAccount(userId: nil, userInitiated: userInitiated)
     }
 
     /// The pin protected user key.
@@ -1087,7 +1099,7 @@ actor DefaultStateService: StateService { // swiftlint:disable:this type_body_le
     }
 
     func deleteAccount() async throws {
-        try await logoutAccount()
+        try await logoutAccount(userInitiated: true)
     }
 
     func doesActiveAccountHavePremium() async throws -> Bool {
@@ -1294,13 +1306,26 @@ actor DefaultStateService: StateService { // swiftlint:disable:this type_body_le
         return SessionTimeoutValue(rawValue: rawValue)
     }
 
-    func logoutAccount(userId: String?) async throws {
+    func isAuthenticated(userId: String?) async throws -> Bool {
+        let userId = try getAccount(userId: userId).profile.userId
+
+        do {
+            _ = try await keychainRepository.getAccessToken(userId: userId)
+            return true
+        } catch KeychainServiceError.osStatusError(errSecItemNotFound) {
+            return false
+        }
+    }
+
+    func logoutAccount(userId: String?, userInitiated: Bool) async throws {
         guard var state = appSettingsStore.state else { return }
         defer { appSettingsStore.state = state }
 
         let knownUserId: String = try userId ?? getActiveAccountUserId()
-        state.accounts.removeValue(forKey: knownUserId)
-        if state.activeUserId == knownUserId {
+        if userInitiated {
+            state.accounts.removeValue(forKey: knownUserId)
+        }
+        if state.activeUserId == knownUserId, userInitiated {
             // Find the next account to make the active account.
             state.activeUserId = state.accounts.first?.key
         }
@@ -1486,13 +1511,13 @@ actor DefaultStateService: StateService { // swiftlint:disable:this type_body_le
         appSettingsStore.setUnsuccessfulUnlockAttempts(attempts, userId: userId)
     }
 
-    func setUserHasMasterPassword() async throws {
+    func setUserHasMasterPassword(_ hasMasterPassword: Bool) async throws {
         let userId = try getActiveAccountUserId()
         var state = appSettingsStore.state ?? State()
         defer { appSettingsStore.state = state }
 
         guard var profile = state.accounts[userId]?.profile else { return }
-        profile.userDecryptionOptions?.hasMasterPassword = true
+        profile.userDecryptionOptions?.hasMasterPassword = hasMasterPassword
 
         state.accounts[userId]?.profile = profile
     }

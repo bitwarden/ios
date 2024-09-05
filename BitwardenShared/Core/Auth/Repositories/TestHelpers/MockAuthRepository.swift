@@ -28,6 +28,7 @@ class MockAuthRepository: AuthRepository { // swiftlint:disable:this type_body_l
     var lockVaultUserId: String?
     var logoutCalled = false
     var logoutUserId: String?
+    var logoutUserInitiated = false
     var logoutResult: Result<Void, Error> = .success(())
     var migrateUserToKeyConnectorCalled = false
     var migrateUserToKeyConnectorPassword: String?
@@ -184,8 +185,9 @@ class MockAuthRepository: AuthRepository { // swiftlint:disable:this type_body_l
         lockVaultUserId = userId
     }
 
-    func logout(userId: String?) async throws {
+    func logout(userId: String?, userInitiated: Bool) async throws {
         logoutUserId = userId
+        logoutUserInitiated = userInitiated
         try await logout()
     }
 

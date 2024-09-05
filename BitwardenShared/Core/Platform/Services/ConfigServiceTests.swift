@@ -2,7 +2,7 @@ import XCTest
 
 @testable import BitwardenShared
 
-final class ConfigServiceTests: BitwardenTestCase {
+final class ConfigServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body_length
     // MARK: Properties
 
     var client: MockHTTPClient!
@@ -61,8 +61,28 @@ final class ConfigServiceTests: BitwardenTestCase {
         XCTAssertEqual(response?.gitHash, "75238191")
     }
 
+    /// `getConfig(:)` gets the configuration from the server if `forceRefresh` is true
+    func test_getConfig_local_forceRefreshServerCallThrowing() async {
+        stateService.serverConfig["1"] = ServerConfig(
+            date: Date(year: 2024, month: 2, day: 14, hour: 7, minute: 50, second: 0),
+            responseModel: ConfigResponseModel(
+                environment: nil,
+                featureStates: [:],
+                gitHash: "75238192",
+                server: nil,
+                version: "2024.4.0"
+            )
+        )
+        client.result = .failure(BitwardenTestError.example)
+        let response = await subject.getConfig(forceRefresh: true)
+        XCTAssertEqual(client.requests.count, 1)
+        XCTAssertEqual(response?.gitHash, "75238192")
+        XCTAssertEqual(errorReporter.errors as? [BitwardenTestError], [.example])
+    }
+
     /// `getConfig(:)` uses the local configuration if it is expired
-    func test_getConfig_local_expired() async {
+    /// but updates the local config when the http request finishes.
+    func test_getConfig_local_expired() async throws {
         stateService.serverConfig["1"] = ServerConfig(
             date: Date(year: 2024, month: 2, day: 10, hour: 8, minute: 0, second: 0),
             responseModel: ConfigResponseModel(
@@ -75,8 +95,37 @@ final class ConfigServiceTests: BitwardenTestCase {
         )
         client.result = .httpSuccess(testData: .validServerConfig)
         let response = await subject.getConfig(forceRefresh: false)
-        XCTAssertEqual(client.requests.count, 1)
-        XCTAssertEqual(response?.gitHash, "75238191")
+        XCTAssertEqual(response?.gitHash, "75238192")
+
+        try await waitForAsync {
+            self.client.requests.count == 1
+        }
+
+        XCTAssertEqual(stateService.serverConfig["1"]?.gitHash, "75238191")
+    }
+
+    /// `getConfig(:)` uses the local configuration if it is expired
+    /// but updates the local config when the http request finishes.
+    func test_getConfig_local_expiredAndServerCallThrowing() async throws {
+        stateService.serverConfig["1"] = ServerConfig(
+            date: Date(year: 2024, month: 2, day: 10, hour: 8, minute: 0, second: 0),
+            responseModel: ConfigResponseModel(
+                environment: nil,
+                featureStates: [:],
+                gitHash: "75238192",
+                server: nil,
+                version: "2024.4.0"
+            )
+        )
+        client.result = .failure(BitwardenTestError.example)
+        let response = await subject.getConfig(forceRefresh: false)
+        XCTAssertEqual(response?.gitHash, "75238192")
+
+        try await waitForAsync {
+            self.client.requests.count == 1
+        }
+
+        XCTAssertEqual(errorReporter.errors as? [BitwardenTestError], [.example])
     }
 
     /// `getConfig(:)` uses the local configuration if it's not expired
@@ -97,12 +146,18 @@ final class ConfigServiceTests: BitwardenTestCase {
     }
 
     /// `getConfig(:)` gets the configuration from the server if there is no local configuration
-    func test_getConfig_noLocal() async {
+    ///  but in background returning nil to the caller as is the current available local config.
+    func test_getConfig_noLocal() async throws {
         client.result = .httpSuccess(testData: .validServerConfig)
         let response = await subject.getConfig(forceRefresh: false)
-        XCTAssertEqual(client.requests.count, 1)
-        XCTAssertEqual(response?.gitHash, "75238191")
-        XCTAssertEqual(response?.featureStates[.testRemoteFeatureFlag], .bool(true))
+        XCTAssertNil(response)
+
+        try await waitForAsync {
+            self.client.requests.count == 1
+        }
+
+        XCTAssertEqual(stateService.serverConfig["1"]?.gitHash, "75238191")
+        XCTAssertEqual(stateService.serverConfig["1"]?.featureStates[.testRemoteFeatureFlag], .bool(true))
     }
 
     /// `getFeatureFlag(:)` can return a boolean if it's in the configuration

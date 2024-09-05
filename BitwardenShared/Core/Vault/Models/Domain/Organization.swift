@@ -12,6 +12,9 @@ public struct Organization: Equatable, Hashable, Sendable {
     /// The profile organization's key.
     let key: String?
 
+    /// Whether key connector is enabled for the profile organization.
+    let keyConnectorEnabled: Bool
+
     /// The key connector URL for the profile organization.
     let keyConnectorUrl: String?
 
@@ -30,9 +33,6 @@ public struct Organization: Equatable, Hashable, Sendable {
     /// Whether the profile's organization uses events.
     let useEvents: Bool
 
-    /// Whether the profile's organization uses key connector.
-    let useKeyConnector: Bool
-
     /// Whether the profile's organization uses policies.
     let usePolicies: Bool
 
@@ -47,13 +47,13 @@ extension Organization {
             enabled: responseModel.enabled,
             id: responseModel.id,
             key: responseModel.key,
+            keyConnectorEnabled: responseModel.keyConnectorEnabled,
             keyConnectorUrl: responseModel.keyConnectorUrl,
             name: name,
             permissions: responseModel.permissions ?? Permissions(),
             status: responseModel.status,
             type: responseModel.type,
             useEvents: responseModel.useEvents,
-            useKeyConnector: responseModel.useKeyConnector,
             usePolicies: responseModel.usePolicies,
             usersGetPremium: responseModel.usersGetPremium
         )

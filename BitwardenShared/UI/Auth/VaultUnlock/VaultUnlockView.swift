@@ -71,6 +71,12 @@ struct VaultUnlockView: View {
                         .styleGuide(.footnote)
                         .foregroundColor(Asset.Colors.textSecondary.swiftUIColor)
                         .accessibilityIdentifier("UserAndEnvironmentDataLabel")
+
+                    if store.state.isBiometricsEnabledAndInvalid {
+                        Text(Localizations.accountBiometricInvalidatedExtension)
+                            .styleGuide(.body, weight: .bold)
+                            .foregroundColor(Asset.Colors.loadingRed.swiftUIColor)
+                    }
                 }
 
                 biometricAuthButton
@@ -241,6 +247,28 @@ struct VaultUnlockView: View {
                     state: VaultUnlockState(
                         email: "user@bitwarden.com",
                         profileSwitcherState: .singleAccount,
+                        unlockMethod: .password,
+                        webVaultHost: "vault.bitwarden.com"
+                    )
+                )
+            )
+        )
+    }
+}
+
+#Preview("Biometrics Available/Enabled") {
+    NavigationView {
+        VaultUnlockView(
+            store: Store(
+                processor: StateProcessor(
+                    state: VaultUnlockState(
+                        biometricUnlockStatus: .available(
+                            .faceID,
+                            enabled: true,
+                            hasValidIntegrity: false
+                        ),
+                        email: "user@bitwarden.com",
+                        profileSwitcherState: .empty(),
                         unlockMethod: .password,
                         webVaultHost: "vault.bitwarden.com"
                     )

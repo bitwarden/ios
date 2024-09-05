@@ -11,8 +11,10 @@ class CompleteRegistrationProcessorTests: BitwardenTestCase {
     // MARK: Properties
 
     var authRepository: MockAuthRepository!
+    var authService: MockAuthService!
     var client: MockHTTPClient!
     var clientAuth: MockClientAuth!
+    var configService: MockConfigService!
     var coordinator: MockCoordinator<AuthRoute, AuthEvent>!
     var environmentService: MockEnvironmentService!
     var errorReporter: MockErrorReporter!
@@ -23,8 +25,10 @@ class CompleteRegistrationProcessorTests: BitwardenTestCase {
     override func setUp() {
         super.setUp()
         authRepository = MockAuthRepository()
+        authService = MockAuthService()
         client = MockHTTPClient()
         clientAuth = MockClientAuth()
+        configService = MockConfigService()
         coordinator = MockCoordinator<AuthRoute, AuthEvent>()
         environmentService = MockEnvironmentService()
         errorReporter = MockErrorReporter()
@@ -32,7 +36,9 @@ class CompleteRegistrationProcessorTests: BitwardenTestCase {
             coordinator: coordinator.asAnyCoordinator(),
             services: ServiceContainer.withMocks(
                 authRepository: authRepository,
+                authService: authService,
                 clientService: MockClientService(auth: clientAuth),
+                configService: configService,
                 environmentService: environmentService,
                 errorReporter: errorReporter,
                 httpClient: client
@@ -47,9 +53,11 @@ class CompleteRegistrationProcessorTests: BitwardenTestCase {
     override func tearDown() {
         super.tearDown()
         authRepository = nil
+        authService = nil
         clientAuth = nil
         client = nil
         coordinator = nil
+        configService = nil
         errorReporter = nil
         subject = nil
     }
@@ -155,26 +163,59 @@ class CompleteRegistrationProcessorTests: BitwardenTestCase {
         )
     }
 
+    /// `perform(.appeared)` with feature flag for .nativeCreateAccountFlow set to true
+    @MainActor
+    func test_perform_appeared_loadFeatureFlag_true() async {
+        configService.featureFlagsBool[.nativeCreateAccountFlow] = true
+        subject.state.nativeCreateAccountFeatureFlag = false
+
+        await subject.perform(.appeared)
+        XCTAssertTrue(subject.state.nativeCreateAccountFeatureFlag)
+    }
+
+    /// `perform(.appeared)` with feature flag for .nativeCreateAccountFlow set to false
+    @MainActor
+    func test_perform_appeared_loadsFeatureFlag_false() async {
+        configService.featureFlagsBool[.nativeCreateAccountFlow] = false
+        subject.state.nativeCreateAccountFeatureFlag = true
+
+        await subject.perform(.appeared)
+        XCTAssertFalse(subject.state.nativeCreateAccountFeatureFlag)
+    }
+
+    /// `perform(.appeared)` with feature flag defaulting to false
+    @MainActor
+    func test_perform_appeared_loadsFeatureFlag_nil() async {
+        configService.featureFlagsBool[.nativeCreateAccountFlow] = nil
+        subject.state.nativeCreateAccountFeatureFlag = true
+
+        await subject.perform(.appeared)
+        XCTAssertFalse(subject.state.nativeCreateAccountFeatureFlag)
+    }
+
     /// `perform(_:)` with `.completeRegistration` will still make the `CompleteRegistrationRequest` when the HIBP
     /// network request fails.
     @MainActor
     func test_perform_checkPasswordAndCompleteRegistration_failure() async throws {
+        authService.loginWithMasterPasswordResult = .success(())
         subject.state = .fixture(isCheckDataBreachesToggleOn: true)
 
-        client.results = [.httpFailure(URLError(.timedOut) as Error), .httpSuccess(testData: .createAccountRequest)]
+        client.results = [
+            .httpFailure(URLError(.timedOut) as Error),
+            .httpSuccess(testData: .createAccountRequest),
+        ]
 
         await subject.perform(.completeRegistration)
-        var dismissAction: DismissAction?
-        if case let .dismissWithAction(onDismiss) = coordinator.routes.last {
-            dismissAction = onDismiss
-        }
-        XCTAssertNotNil(dismissAction)
-        dismissAction?.action()
+
+        XCTAssertEqual(authService.loginWithMasterPasswordPassword, "password1234")
+        XCTAssertNil(authService.loginWithMasterPasswordCaptchaToken)
+        XCTAssertEqual(authService.loginWithMasterPasswordUsername, "email@example.com")
 
         XCTAssertEqual(client.requests.count, 2)
         XCTAssertEqual(client.requests[0].url, URL(string: "https://api.pwnedpasswords.com/range/e6b6a"))
         XCTAssertEqual(client.requests[1].url, URL(string: "https://example.com/identity/accounts/register/finish"))
 
+        XCTAssertEqual(coordinator.events, [.didCompleteAuth])
         XCTAssertFalse(coordinator.isLoadingOverlayShowing)
         XCTAssertEqual(
             coordinator.loadingOverlaysShown,
@@ -446,6 +487,7 @@ class CompleteRegistrationProcessorTests: BitwardenTestCase {
     /// When the user taps `Try again`, the create account request is made again.
     @MainActor
     func test_perform_completeRegistration_noInternetConnection() async throws {
+        authService.loginWithMasterPasswordResult = .success(())
         subject.state = .fixture()
 
         let urlError = URLError(.notConnectedToInternet) as Error
@@ -460,17 +502,15 @@ class CompleteRegistrationProcessorTests: BitwardenTestCase {
 
         try await alert.tapAction(title: Localizations.tryAgain)
 
-        var dismissAction: DismissAction?
-        if case let .dismissWithAction(onDismiss) = coordinator.routes.last {
-            dismissAction = onDismiss
-        }
-        XCTAssertNotNil(dismissAction)
-        dismissAction?.action()
+        XCTAssertEqual(authService.loginWithMasterPasswordPassword, "password1234")
+        XCTAssertNil(authService.loginWithMasterPasswordCaptchaToken)
+        XCTAssertEqual(authService.loginWithMasterPasswordUsername, "email@example.com")
 
         XCTAssertEqual(client.requests.count, 2)
         XCTAssertEqual(client.requests[0].url, URL(string: "https://example.com/identity/accounts/register/finish"))
         XCTAssertEqual(client.requests[1].url, URL(string: "https://example.com/identity/accounts/register/finish"))
 
+        XCTAssertEqual(coordinator.events, [.didCompleteAuth])
         XCTAssertFalse(coordinator.isLoadingOverlayShowing)
         XCTAssertEqual(
             coordinator.loadingOverlaysShown,
@@ -513,6 +553,7 @@ class CompleteRegistrationProcessorTests: BitwardenTestCase {
     /// When the user taps `Try again`, the create account request is made again.
     @MainActor
     func test_perform_completeRegistration_timeout() async throws {
+        authService.loginWithMasterPasswordResult = .success(())
         subject.state = .fixture()
 
         let urlError = URLError(.timedOut) as Error
@@ -525,17 +566,15 @@ class CompleteRegistrationProcessorTests: BitwardenTestCase {
 
         try await alert.tapAction(title: Localizations.tryAgain)
 
-        var dismissAction: DismissAction?
-        if case let .dismissWithAction(onDismiss) = coordinator.routes.last {
-            dismissAction = onDismiss
-        }
-        XCTAssertNotNil(dismissAction)
-        dismissAction?.action()
+        XCTAssertEqual(authService.loginWithMasterPasswordPassword, "password1234")
+        XCTAssertNil(authService.loginWithMasterPasswordCaptchaToken)
+        XCTAssertEqual(authService.loginWithMasterPasswordUsername, "email@example.com")
 
         XCTAssertEqual(client.requests.count, 2)
         XCTAssertEqual(client.requests[0].url, URL(string: "https://example.com/identity/accounts/register/finish"))
         XCTAssertEqual(client.requests[1].url, URL(string: "https://example.com/identity/accounts/register/finish"))
 
+        XCTAssertEqual(coordinator.events, [.didCompleteAuth])
         XCTAssertFalse(coordinator.isLoadingOverlayShowing)
         XCTAssertEqual(
             coordinator.loadingOverlaysShown,
@@ -640,6 +679,13 @@ class CompleteRegistrationProcessorTests: BitwardenTestCase {
     func test_receive_showToast() {
         subject.receive(.toastShown(Toast(text: "example")))
         XCTAssertEqual(subject.state.toast?.text, "example")
+    }
+
+    /// `receive(_:)` with `.preventAccountLockTapped` will show the prevent account lock screen.
+    @MainActor
+    func test_receive_preventAccountLock() {
+        subject.receive(.preventAccountLockTapped)
+        XCTAssertEqual(coordinator.routes.last, .preventAccountLock)
     }
     // swiftlint:disable:next file_length
 }

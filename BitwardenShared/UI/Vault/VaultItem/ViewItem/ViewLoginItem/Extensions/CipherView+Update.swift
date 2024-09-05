@@ -104,6 +104,7 @@ extension CipherView {
     ) -> LoginItemState {
         LoginItemState(
             canViewPassword: viewPassword,
+            editView: edit,
             fido2Credentials: excludeFido2Credentials ? [] : login?.fido2Credentials ?? [],
             isPasswordVisible: showPassword,
             isTOTPAvailable: showTOTP,

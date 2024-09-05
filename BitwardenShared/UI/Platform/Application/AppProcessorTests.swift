@@ -204,6 +204,7 @@ class AppProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_body
         waitFor(authRepository.logoutCalled)
         XCTAssertTrue(authRepository.logoutCalled)
         XCTAssertEqual(authRepository.logoutUserId, "2")
+        XCTAssertFalse(authRepository.logoutUserInitiated)
     }
 
     /// `init()` sets the `AppProcessor` as the delegate of any necessary services.
@@ -588,6 +589,7 @@ class AppProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_body
 
         XCTAssertTrue(authRepository.logoutCalled)
         XCTAssertEqual(authRepository.logoutUserId, "1")
+        XCTAssertFalse(authRepository.logoutUserInitiated)
         XCTAssertFalse(coordinator.isLoadingOverlayShowing)
         XCTAssertEqual(coordinator.events, [.didLogout(userId: "1", userInitiated: false)])
     }

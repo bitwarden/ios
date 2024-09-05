@@ -128,7 +128,7 @@ private struct SearchableVaultListView: View {
     private var searchVaultFilterRow: some View {
         SearchVaultFilterRowView(
             hasDivider: true, store: store.child(
-                state: \.vaultFilterState,
+                state: \.searchVaultFilterState,
                 mapAction: { action in
                     switch action {
                     case let .searchVaultFilterChanged(type):
@@ -337,7 +337,7 @@ struct VaultListView: View {
 #if DEBUG
 // swiftlint:disable:next type_body_length
 struct VaultListView_Previews: PreviewProvider {
-    static let account1 = ProfileSwitcherItem(
+    static let account1 = ProfileSwitcherItem.fixture(
         color: .purple,
         email: "Anne.Account@bitwarden.com",
         isUnlocked: true,
@@ -346,7 +346,7 @@ struct VaultListView_Previews: PreviewProvider {
         webVault: "vault.bitwarden.com"
     )
 
-    static let account2 = ProfileSwitcherItem(
+    static let account2 = ProfileSwitcherItem.fixture(
         color: .green,
         email: "bonus.bridge@bitwarden.com",
         isUnlocked: true,
@@ -493,13 +493,13 @@ struct VaultListView_Previews: PreviewProvider {
                                     enabled: true,
                                     id: "",
                                     key: nil,
+                                    keyConnectorEnabled: false,
                                     keyConnectorUrl: nil,
                                     name: "Org",
                                     permissions: Permissions(),
                                     status: .confirmed,
                                     type: .user,
                                     useEvents: false,
-                                    useKeyConnector: false,
                                     usePolicies: true,
                                     usersGetPremium: false
                                 ),
