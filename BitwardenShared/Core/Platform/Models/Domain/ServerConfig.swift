@@ -40,8 +40,17 @@ struct ServerConfig: Equatable, Codable, Sendable {
         version = responseModel.version
     }
 
-    func isServerVersionAfter(minimumVersion: ServerVersion) -> Bool {
-        minimumVersion <= ServerVersion(version: version)
+    // MARK: Methods
+
+    /// Whether the server supports cipher key encryption.
+    /// - Returns: `true` if it's supported, `false` otherwise.
+    func supportsCipherKeyEncryption() -> Bool {
+        guard let minVersion = ServerVersion(Constants.cipherKeyEncryptionMinServerVersion),
+              let serverVersion = ServerVersion(version),
+              minVersion <= serverVersion else {
+            return false
+        }
+        return true
     }
 }
 

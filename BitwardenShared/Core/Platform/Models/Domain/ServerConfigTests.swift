@@ -24,7 +24,9 @@ final class ServerConfigTests: BitwardenTestCase {
         XCTAssertEqual(subject.featureStates, [.testRemoteFeatureFlag: .bool(false)])
     }
 
-    func test_isServerVersionAfter_equalValidVersion() {
+    /// `supportsCipherKeyEncryption()` returns `true` when the server version is equal
+    /// to the minimum version that supports cipher key encryption.
+    func test_supportsCipherKeyEncryption_equalValidVersion() {
         let model = ConfigResponseModel(
             environment: nil,
             featureStates: [:],
@@ -34,11 +36,12 @@ final class ServerConfigTests: BitwardenTestCase {
         )
 
         let subject = ServerConfig(date: Date(), responseModel: model)
-        XCTAssertEqual(subject.isServerVersionAfter(
-            minimumVersion: ServerVersion(version: Constants.cipherKeyEncryptionMinServerVersion)), true)
+        XCTAssertTrue(subject.supportsCipherKeyEncryption())
     }
 
-    func test_isServerVersionAfter_greaterValidVersion() {
+    /// `supportsCipherKeyEncryption()` returns `true` when the server version is greater
+    /// than the minimum version that supports cipher key encryption.
+    func test_supportsCipherKeyEncryption_greaterValidVersion() {
         let model = ConfigResponseModel(
             environment: nil,
             featureStates: [:],
@@ -48,11 +51,12 @@ final class ServerConfigTests: BitwardenTestCase {
         )
 
         let subject = ServerConfig(date: Date(), responseModel: model)
-        XCTAssertEqual(subject.isServerVersionAfter(
-            minimumVersion: ServerVersion(version: Constants.cipherKeyEncryptionMinServerVersion)), true)
+        XCTAssertTrue(subject.supportsCipherKeyEncryption())
     }
 
-    func test_isServerVersionAfter_lesserThanVersion() {
+    /// `supportsCipherKeyEncryption()` returns `false` when the server version is lesser
+    /// than the minimum version that supports cipher key encryption.
+    func test_supportsCipherKeyEncryption_lesserThanVersion() {
         let model = ConfigResponseModel(
             environment: nil,
             featureStates: [:],
@@ -62,7 +66,20 @@ final class ServerConfigTests: BitwardenTestCase {
         )
 
         let subject = ServerConfig(date: Date(), responseModel: model)
-        XCTAssertEqual(subject.isServerVersionAfter(
-            minimumVersion: ServerVersion(version: Constants.cipherKeyEncryptionMinServerVersion)), false)
+        XCTAssertFalse(subject.supportsCipherKeyEncryption())
+    }
+
+    /// `supportsCipherKeyEncryption()` returns `false` when the server version has wrong format.
+    func test_supportsCipherKeyEncryption_wrongFormat() {
+        let model = ConfigResponseModel(
+            environment: nil,
+            featureStates: [:],
+            gitHash: "123",
+            server: nil,
+            version: "20asdfasdf24.2.0"
+        )
+
+        let subject = ServerConfig(date: Date(), responseModel: model)
+        XCTAssertFalse(subject.supportsCipherKeyEncryption())
     }
 }

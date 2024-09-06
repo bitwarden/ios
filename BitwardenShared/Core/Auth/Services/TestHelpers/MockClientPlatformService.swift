@@ -19,7 +19,9 @@ class MockClientPlatformService: ClientPlatformService {
     }
 
     func loadFlags(_ flags: [String: Bool]) throws {
-        if let loadFlagsError { throw loadFlagsError }
+        if let loadFlagsError {
+            throw loadFlagsError
+        }
         featureFlags = flags
     }
 

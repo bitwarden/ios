@@ -119,40 +119,29 @@ class DefaultConfigService: ConfigService {
     // MARK: Methods
 
     func getConfig(forceRefresh: Bool) async -> ServerConfig? {
+        guard !forceRefresh else {
+            await updateConfigFromServer()
+            let serverConfig = try? await stateService.getServerConfig()
+            await loadFlags(serverConfig)
+            return serverConfig
+        }
+
         let localConfig = try? await stateService.getServerConfig()
 
         let localConfigExpired = localConfig?.date.addingTimeInterval(Constants.minimumConfigSyncInterval)
             ?? Date.distantPast
             < timeProvider.presentTime
 
-        if forceRefresh || localConfig == nil || localConfigExpired {
-            if forceRefresh {
+        // if it's not forcing refresh we don't need to wait for the server call
+        // to finish and we can move it to the background.
+        if localConfig == nil || localConfigExpired {
+            Task {
                 await updateConfigFromServer()
-                return try? await stateService.getServerConfig()
-            } else {
-                // if it's not forcing refresh we don't need to wait for the server call
-                // to finish and we can move it to the background.
-                Task {
-                    await updateConfigFromServer()
-                }
             }
         }
 
-        // If we are unable to retrieve a configuration from the server,
-        // fall back to the local configuration.
+        await loadFlags(localConfig)
         return localConfig
-    }
-
-    func loadFlags(_ config: ServerConfig) async {
-        do {
-            let minVersion = ServerVersion(version: Constants.cipherKeyEncryptionMinServerVersion)
-            try await clientService.platform().loadFlags([
-                FeatureFlagsConstants.enableCipherKeyEncryption:
-                    config.isServerVersionAfter(minimumVersion: minVersion),
-            ])
-        } catch {
-            errorReporter.log(error: error)
-        }
     }
 
     func getFeatureFlag(_ flag: FeatureFlag, defaultValue: Bool = false, forceRefresh: Bool = false) async -> Bool {
@@ -175,6 +164,22 @@ class DefaultConfigService: ConfigService {
 
     // MARK: Private
 
+    /// Loads the flags into the SDK.
+    /// - Parameter config: Config to update the flags.
+    private func loadFlags(_ config: ServerConfig?) async {
+        do {
+            guard let config else {
+                return
+            }
+
+            try await clientService.platform().loadFlags([
+                FeatureFlagsConstants.enableCipherKeyEncryption: config.supportsCipherKeyEncryption(),
+            ])
+        } catch {
+            errorReporter.log(error: error)
+        }
+    }
+
     /// Performs a call to the server to get the latest config and updates the local value.
     private func updateConfigFromServer() async {
         do {
@@ -184,7 +189,6 @@ class DefaultConfigService: ConfigService {
                 responseModel: configResponse
             )
             try? await stateService.setServerConfig(serverConfig)
-            await loadFlags(serverConfig)
         } catch {
             errorReporter.log(error: error)
         }
