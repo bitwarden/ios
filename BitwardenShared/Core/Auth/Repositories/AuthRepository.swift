@@ -1015,11 +1015,24 @@ extension DefaultAuthRepository: AuthRepository {
         try await stateService.setForcePasswordResetReason(nil)
     }
 
+    /// Returns the provided user ID if it exists, otherwise fetches the active account's ID.
+    ///
+    /// - Parameter maybeId: The optional user ID to check.
+    /// - Returns: The user ID if provided, otherwise the active account's ID.
+    /// - Throws: An error if fetching the active account ID fails.
+    ///
     private func userIdOrActive(_ maybeId: String?) async throws -> String {
         if let maybeId { return maybeId }
         return try await stateService.getActiveAccountId()
     }
 
+
+    /// This method checks the biometric unlock status, and if biometric unlock is available but not
+    /// fully configured (i.e., it doesn't have a valid integrity), it sets up biometric integrity and configures
+    /// the biometric unlock key.
+    ///
+    /// - Throws: An error if configuring biometric integrity or setting the biometric unlock key fails.
+    ///
     private func configureBiometricUnlockIfRequired() async throws {
         if case .available(_, true, false) = try? await biometricsRepository.getBiometricUnlockStatus() {
             try await biometricsRepository.configureBiometricIntegrity()
