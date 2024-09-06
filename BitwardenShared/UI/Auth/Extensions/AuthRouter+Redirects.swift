@@ -354,13 +354,18 @@ extension AuthRouter {
                     return .landingSoftLoggedOut(email: activeAccount.profile.email)
                 }
 
-                // Otherwise, return `.vaultUnlock`.
-                return .vaultUnlock(
-                    activeAccount,
-                    animated: animated,
-                    attemptAutomaticBiometricUnlock: attemptAutomaticBiometricUnlock,
-                    didSwitchAccountAutomatically: didSwitchAccountAutomatically
-                )
+                let biometricUnlockStatus = try await services.biometricsRepository.getBiometricUnlockStatus()
+
+                if case let .available(_, enabled, validIntegrity) = biometricUnlockStatus, enabled, !validIntegrity {
+                    return .enterpriseSingleSignOn(email: activeAccount.profile.email)
+                } else {
+                    return .vaultUnlock(
+                        activeAccount,
+                        animated: animated,
+                        attemptAutomaticBiometricUnlock: attemptAutomaticBiometricUnlock,
+                        didSwitchAccountAutomatically: didSwitchAccountAutomatically
+                    )
+                }
             }
         } catch {
             // In case of an error, go to `.vaultUnlock` for the active user.

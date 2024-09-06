@@ -8,6 +8,7 @@ final class AuthRouterTests: BitwardenTestCase { // swiftlint:disable:this type_
     // MARK: Properties
 
     var authRepository: MockAuthRepository!
+    var biometricsRepository: MockBiometricsRepository!
     var configService: MockConfigService!
     var errorReporter: MockErrorReporter!
     var stateService: MockStateService!
@@ -20,6 +21,7 @@ final class AuthRouterTests: BitwardenTestCase { // swiftlint:disable:this type_
         super.setUp()
 
         authRepository = MockAuthRepository()
+        biometricsRepository = MockBiometricsRepository()
         configService = MockConfigService()
         errorReporter = MockErrorReporter()
         stateService = MockStateService()
@@ -29,6 +31,7 @@ final class AuthRouterTests: BitwardenTestCase { // swiftlint:disable:this type_
             isInAppExtension: false,
             services: ServiceContainer.withMocks(
                 authRepository: authRepository,
+                biometricsRepository: biometricsRepository,
                 configService: configService,
                 errorReporter: errorReporter,
                 stateService: stateService,
@@ -41,6 +44,7 @@ final class AuthRouterTests: BitwardenTestCase { // swiftlint:disable:this type_
         super.tearDown()
 
         authRepository = nil
+        biometricsRepository = nil
         configService = nil
         errorReporter = nil
         stateService = nil
@@ -116,6 +120,30 @@ final class AuthRouterTests: BitwardenTestCase { // swiftlint:disable:this type_
             )
         )
         XCTAssertEqual(route, .complete)
+    }
+
+    /// `handleAndRoute(_ :)` redirects `.accountBecameActive()` to `.enterpriseSingleSignOn`
+    ///     when the account is unlocked.
+    func test_handleAndRoute_accountBecameActive_noMpAndTDE_withBiometricsEnabled() async {
+        let active = Account.fixture()
+        stateService.activeAccount = active
+        biometricsRepository.biometricUnlockStatus = .success(
+            .available(.faceID, enabled: true, hasValidIntegrity: false)
+        )
+        stateService.isAuthenticated = [
+            active.profile.userId: true,
+        ]
+
+        authRepository.isLockedResult = .success(true)
+        let route = await subject.handleAndRoute(
+            .accountBecameActive(
+                active,
+                animated: true,
+                attemptAutomaticBiometricUnlock: true,
+                didSwitchAccountAutomatically: false
+            )
+        )
+        XCTAssertEqual(route, .enterpriseSingleSignOn(email: "user@bitwarden.com"))
     }
 
     /// `handleAndRoute(_ :)` redirects `.accountBecameActive()` to `.vaultUnlock` when checking if
