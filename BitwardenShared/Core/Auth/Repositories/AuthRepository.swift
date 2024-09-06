@@ -1021,15 +1021,11 @@ extension DefaultAuthRepository: AuthRepository {
     }
 
     private func configureBiometricUnlockIfRequired() async throws {
-        let biometricUnlockStatus = try? await biometricsRepository.getBiometricUnlockStatus()
-        switch biometricUnlockStatus {
-        case .available(_, true, false):
+        if case .available(_, true, false) = try? await biometricsRepository.getBiometricUnlockStatus() {
             try await biometricsRepository.configureBiometricIntegrity()
             try await biometricsRepository.setBiometricUnlockKey(
                 authKey: clientService.crypto().getUserEncryptionKey()
             )
-        default:
-            break
         }
     }
 }
