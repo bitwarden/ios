@@ -272,7 +272,8 @@ class CompleteRegistrationProcessor: StateProcessor<
         Task {
             state.passwordStrengthScore = try? await services.authRepository.passwordStrength(
                 email: state.userEmail,
-                password: state.passwordText
+                password: state.passwordText,
+                isPreAuth: true
             )
         }
     }

@@ -284,7 +284,8 @@ class CreateAccountProcessor: StateProcessor<CreateAccountState, CreateAccountAc
         Task {
             state.passwordStrengthScore = try? await services.authRepository.passwordStrength(
                 email: state.emailText,
-                password: state.passwordText
+                password: state.passwordText,
+                isPreAuth: true
             )
         }
     }
