@@ -355,8 +355,9 @@ extension AuthRouter {
                 }
 
                 let biometricUnlockStatus = try await services.biometricsRepository.getBiometricUnlockStatus()
+                let hasMasterPassword = activeAccount.profile.userDecryptionOptions?.hasMasterPassword ?? false
 
-                if case let .available(_, enabled, validIntegrity) = biometricUnlockStatus, enabled, !validIntegrity {
+                if case .available(_, true, false) = biometricUnlockStatus, !hasMasterPassword {
                     return .enterpriseSingleSignOn(email: activeAccount.profile.email)
                 } else {
                     return .vaultUnlock(

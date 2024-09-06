@@ -125,8 +125,17 @@ final class AuthRouterTests: BitwardenTestCase { // swiftlint:disable:this type_
     /// `handleAndRoute(_ :)` redirects `.accountBecameActive()` to `.enterpriseSingleSignOn`
     ///     when the account is unlocked.
     func test_handleAndRoute_accountBecameActive_noMpAndTDE_withBiometricsEnabled() async {
-        let active = Account.fixture()
+        let active = Account.fixture(
+            profile: .fixture(
+                userDecryptionOptions: UserDecryptionOptions(
+                    hasMasterPassword: false,
+                    keyConnectorOption: nil,
+                    trustedDeviceOption: nil
+                )
+            )
+        )
         stateService.activeAccount = active
+
         biometricsRepository.biometricUnlockStatus = .success(
             .available(.faceID, enabled: true, hasValidIntegrity: false)
         )
