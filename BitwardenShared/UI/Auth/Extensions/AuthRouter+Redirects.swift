@@ -354,7 +354,14 @@ extension AuthRouter {
                     return .landingSoftLoggedOut(email: activeAccount.profile.email)
                 }
 
-                // Otherwise, return `.vaultUnlock`.
+                let hasMasterPassword = activeAccount.profile.userDecryptionOptions?.hasMasterPassword == true
+
+                if !hasMasterPassword {
+                    let biometricUnlockStatus = try await services.biometricsRepository.getBiometricUnlockStatus()
+                    if case .available(_, true, false) = biometricUnlockStatus {
+                        return .enterpriseSingleSignOn(email: activeAccount.profile.email)
+                    }
+                }
                 return .vaultUnlock(
                     activeAccount,
                     animated: animated,
