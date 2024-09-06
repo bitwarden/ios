@@ -7,7 +7,9 @@ import XCTest
 class ItemListProcessorTests: AuthenticatorTestCase {
     // MARK: Properties
 
+    var application: MockApplication!
     var authItemRepository: MockAuthenticatorItemRepository!
+    var configService: MockConfigService!
     var coordinator: MockCoordinator<ItemListRoute, ItemListEvent>!
     var totpService: MockTOTPService!
     var subject: ItemListProcessor!
@@ -17,12 +19,16 @@ class ItemListProcessorTests: AuthenticatorTestCase {
     override func setUp() {
         super.setUp()
 
+        application = MockApplication()
         authItemRepository = MockAuthenticatorItemRepository()
+        configService = MockConfigService()
         coordinator = MockCoordinator()
         totpService = MockTOTPService()
 
         let services = ServiceContainer.withMocks(
+            application: application,
             authenticatorItemRepository: authItemRepository,
+            configService: configService,
             totpService: totpService
         )
 
@@ -89,5 +95,42 @@ class ItemListProcessorTests: AuthenticatorTestCase {
         }
         XCTAssertEqual(item.name, "")
         XCTAssertEqual(item.totpKey, String.base32Key)
+    }
+
+    /// Tests that the `showPasswordManagerSyncCard` and `showPasswordManagerDownloadCard` are set
+    /// to false if the feature flag is turned off.
+    func test_determineItemListCardState_FeatureFlag_off() {
+        subject.state.itemListCardState = .passwordManagerSync
+        configService.featureFlagsBool = [.passwordManagerSyncEnabled: false]
+        let task = Task {
+            await self.subject.perform(.appeared)
+        }
+
+        waitFor(subject.state.itemListCardState == .none)
+        task.cancel()
+    }
+
+    /// Tests that the `itemListCardState` is set to `passwordManagerDownload` if the feature flag is turned on.
+    func test_determineItemListCardState_FeatureFlag_on_download() {
+        configService.featureFlagsBool = [.passwordManagerSyncEnabled: true]
+        application.canOpenUrlResponse = false
+        let task = Task {
+            await self.subject.perform(.appeared)
+        }
+
+        waitFor(subject.state.itemListCardState == .passwordManagerDownload)
+        task.cancel()
+    }
+
+    /// Tests that the `itemListCardState` is set to `passwordManagerSync` if the feature flag is turned on.
+    func test_determineItemListCardState_FeatureFlag_on_sync() {
+        configService.featureFlagsBool = [.passwordManagerSyncEnabled: true]
+        application.canOpenUrlResponse = true
+        let task = Task {
+            await self.subject.perform(.appeared)
+        }
+
+        waitFor(subject.state.itemListCardState == .passwordManagerSync)
+        task.cancel()
     }
 }

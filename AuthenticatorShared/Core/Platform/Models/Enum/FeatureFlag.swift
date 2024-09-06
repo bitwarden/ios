@@ -5,6 +5,11 @@ import Foundation
 /// An enum to represent a feature flag sent by the server
 ///
 enum FeatureFlag: String, Codable {
+    // MARK: Feature Flags
+
+    /// A feature flag that determines whether or not the password manager sync capability is enabled.
+    case passwordManagerSyncEnabled = "password-manager-sync-enabled"
+
     // MARK: Test Flags
 
     /// A test feature flag that has a local boolean default.
@@ -26,6 +31,7 @@ enum FeatureFlag: String, Codable {
     /// but if `isRemotelyConfigured` is false for the flag, then the value here will be used.
     /// This is a helpful way to manage local feature flags.
     static let initialLocalValues: [FeatureFlag: AnyCodable] = [
+        .passwordManagerSyncEnabled: .bool(false),
         .testLocalBoolFlag: .bool(true),
         .testLocalIntFlag: .int(42),
         .testLocalStringFlag: .string("Test String"),

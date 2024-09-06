@@ -14,6 +14,9 @@ struct ItemListState: Equatable {
     /// The base url used to fetch icons.
     var iconBaseURL: URL?
 
+    /// The state of the item list card.
+    var itemListCardState: ItemListCardState = .none
+
     /// The current loading state.
     var loadingState: LoadingState<[ItemListSection]> = .loading(nil)
 
@@ -43,4 +46,17 @@ struct ItemListState: Equatable {
 
     /// The url to open in the device's web browser.
     var url: URL?
+}
+
+/// An enumeration of possible states the item list card can be in.
+///
+enum ItemListCardState {
+    /// Show no card.
+    case none
+
+    /// Show the password manager download card.
+    case passwordManagerDownload
+
+    /// Show the password manager sync card.
+    case passwordManagerSync
 }

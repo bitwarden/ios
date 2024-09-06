@@ -63,6 +63,18 @@ private struct SearchableItemListView: View {
 
     // MARK: Private
 
+    /// The card section to display at the top of the list.
+    @ViewBuilder private var cardSection: some View {
+        switch store.state.itemListCardState {
+        case .passwordManagerSync:
+            itemListCardSync
+        case .passwordManagerDownload:
+            itemListCardPasswordManagerInstall
+        case .none:
+            EmptyView()
+        }
+    }
+
     @ViewBuilder private var content: some View {
         LoadingView(state: store.state.loadingState) { sections in
             if sections.isEmpty {
@@ -78,6 +90,8 @@ private struct SearchableItemListView: View {
         GeometryReader { reader in
             ScrollView {
                 VStack(spacing: 16) {
+                    cardSection
+
                     Spacer()
 
                     Image(decorative: Asset.Images.emptyVault)
@@ -105,6 +119,49 @@ private struct SearchableItemListView: View {
                 .frame(minWidth: reader.size.width, minHeight: reader.size.height)
             }
         }
+    }
+
+    /// The Password Manager download card definition.
+    private var itemListCardPasswordManagerInstall: some View {
+        ItemListCardView(
+            bodyText: Localizations.withTheBitwardenAppYouCanStoreAllOfYourItemsAndSyncDirectlyWithTheAuthenticator,
+            buttonText: Localizations.downloadTheBitwardenApp,
+            leftImage: {
+                Image(decorative: Asset.Images.bwLogo)
+                    .foregroundColor(Asset.Colors.primaryBitwardenLight.swiftUIColor)
+                    .frame(width: 24, height: 24)
+            },
+            titleText: Localizations.downloadTheBitwardenApp,
+            actionTapped: {
+                openURL(ExternalLinksConstants.passwordManagerLink)
+            },
+            closeTapped: {
+                // TODO: https://livefront.atlassian.net/browse/BITAU-129
+            }
+        )
+        .padding(.top, 16)
+    }
+
+    /// The Password Manager sync card definition.
+    private var itemListCardSync: some View {
+        ItemListCardView(
+            bodyText: Localizations
+                .inOrderToViewAllOfYourVerificationCodesYoullNeedToAllowForSyncingOnAllOfYourAccounts,
+            buttonText: Localizations.takeMeToTheAppSettings,
+            leftImage: {
+                Image(decorative: Asset.Images.bwLogo)
+                    .foregroundColor(Asset.Colors.primaryBitwardenLight.swiftUIColor)
+                    .frame(width: 24, height: 24)
+            },
+            titleText: Localizations.syncWithTheBitwardenApp,
+            actionTapped: {
+                openURL(ExternalLinksConstants.passwordManagerSettings)
+            },
+            closeTapped: {
+                // TODO: https://livefront.atlassian.net/browse/BITAU-129
+            }
+        )
+        .padding(.top, 16)
     }
 
     /// A view that displays the search interface, including search results, an empty search
@@ -198,6 +255,9 @@ private struct SearchableItemListView: View {
     @ViewBuilder
     private func itemListView(with sections: [ItemListSection]) -> some View {
         ScrollView {
+            cardSection
+                .padding(.horizontal, 16)
+
             if sections.count > 1 {
                 VStack(spacing: 20) {
                     ForEach(sections) { section in

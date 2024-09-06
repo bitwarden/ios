@@ -122,3 +122,8 @@
 "Backup" = "Backup";
 "BitwardenAuthenticatorDataIsBackedUpAndCanBeRestored" = "Bitwarden Authenticator data is backed up and can be restored with your regularly scheduled device backups.";
 "ImportingFromTwoFasPasswordProtectedNotSupported" = "Importing from 2FAS password protected files is not supported. Try again with an exported file that is not password protected.";
+"WithTheBitwardenAppYouCanStoreAllOfYourItemsAndSyncDirectlyWithTheAuthenticator" = "With the Bitwarden app, you can store all of your items and sync directly with the authenticator.";
+"DownloadTheBitwardenApp" = "Download the Bitwarden app";
+"InOrderToViewAllOfYourVerificationCodesYoullNeedToAllowForSyncingOnAllOfYourAccounts" = "In order to view all of your verification codes, you’ll need to allow for syncing on all of your accounts.";
+"TakeMeToTheAppSettings" = "Take me to the app settings";
+"SyncWithTheBitwardenApp" = "Sync with the Bitwarden app";

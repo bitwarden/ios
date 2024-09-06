@@ -30,6 +30,15 @@ enum ExternalLinksConstants {
     /// A link to Bitwarden's import items help webpage.
     static let importItems = URL(string: "http://bitwarden.com/help/import-data/")!
 
+    /// A link to the password manager app within the app store.
+    static let passwordManagerLink = URL(string: "https://itunes.apple.com/app/id1137397744?mt=8")!
+
+    /// The url scheme used by the password manager app
+    static let passwordManagerScheme = URL(string: "bitwarden://")!
+
+    /// A deeplink used by the password manager app to open the options menu.
+    static let passwordManagerSettings = URL(string: "bitwarden://sync_authenticator?options=true")!
+
     /// A markdown link to Bitwarden's privacy policy.
     static let privacyPolicy = URL(string: "https://bitwarden.com/privacy/")!
 

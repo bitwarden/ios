@@ -8,8 +8,10 @@ import Foundation
 final class ItemListProcessor: StateProcessor<ItemListState, ItemListAction, ItemListEffect> {
     // MARK: Types
 
-    typealias Services = HasAuthenticatorItemRepository
+    typealias Services = HasApplication
+        & HasAuthenticatorItemRepository
         & HasCameraService
+        & HasConfigService
         & HasErrorReporter
         & HasPasteboardService
         & HasTOTPService
@@ -62,6 +64,7 @@ final class ItemListProcessor: StateProcessor<ItemListState, ItemListAction, Ite
         case .addItemPressed:
             await setupTotp()
         case .appeared:
+            await determineItemListCardState()
             await streamItemList()
         case let .copyPressed(item):
             switch item.itemType {
@@ -252,6 +255,21 @@ final class ItemListProcessor: StateProcessor<ItemListState, ItemListAction, Ite
         } catch {
             services.errorReporter.log(error: error)
         }
+    }
+
+    /// Determine if the ItemListCard should be shown and which state to show.
+    ///
+    private func determineItemListCardState() async {
+        guard await services.configService.getFeatureFlag(.passwordManagerSyncEnabled) else {
+            state.itemListCardState = .none
+            return
+        }
+
+        guard services.application?.canOpenURL(ExternalLinksConstants.passwordManagerScheme) == true else {
+            state.itemListCardState = .passwordManagerDownload
+            return
+        }
+        state.itemListCardState = .passwordManagerSync
     }
 }
 
