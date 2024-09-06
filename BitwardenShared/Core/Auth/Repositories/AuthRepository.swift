@@ -106,9 +106,11 @@ protocol AuthRepository: AnyObject {
     /// - Parameters:
     ///   - email: The user's email.
     ///   - password: The user's password.
+    ///   - isPreAuth: Whether the client is being used for a user prior to authentication (when
+    ///     the user's ID doesn't yet exist).
     /// - Returns: The password strength of the password.
     ///
-    func passwordStrength(email: String, password: String) async throws -> UInt8
+    func passwordStrength(email: String, password: String, isPreAuth: Bool) async throws -> UInt8
 
     /// Gets the profiles state for a user.
     ///
@@ -589,8 +591,9 @@ extension DefaultAuthRepository: AuthRepository {
         await vaultTimeoutService.remove(userId: userId)
     }
 
-    func passwordStrength(email: String, password: String) async throws -> UInt8 {
-        try await clientService.auth().passwordStrength(password: password, email: email, additionalInputs: [])
+    func passwordStrength(email: String, password: String, isPreAuth: Bool) async throws -> UInt8 {
+        try await clientService.auth(isPreAuth: isPreAuth)
+            .passwordStrength(password: password, email: email, additionalInputs: [])
     }
 
     func sessionTimeoutAction(userId: String?) async throws -> SessionTimeoutAction {

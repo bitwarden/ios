@@ -19,6 +19,9 @@ enum BitwardenError {
 
         /// An error occurred with data from the API.
         case dataError = 3000
+
+        /// A general-purpose error.
+        case generalError = 4000
     }
 
     // MARK: Errors
@@ -31,6 +34,22 @@ enum BitwardenError {
         NSError(
             domain: "Data Error",
             code: Code.dataError.rawValue,
+            userInfo: [
+                "ErrorMessage": message,
+            ]
+        )
+    }
+
+    /// A general-purpose error.
+    ///
+    /// - Parameters:
+    ///   - type: The type of error. This is used to group the errors in the Crashlytics dashboard.
+    ///   - message: A message describing the error that occurred.
+    ///
+    static func generalError(type: String, message: String) -> NSError {
+        NSError(
+            domain: "General Error: \(type)",
+            code: Code.generalError.rawValue,
             userInfo: [
                 "ErrorMessage": message,
             ]

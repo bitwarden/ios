@@ -1130,15 +1130,21 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
     /// `passwordStrength(email:password)` returns the calculated password strength.
     func test_passwordStrength() async throws {
         clientService.mockAuth.passwordStrengthResult = 0
-        let weakPasswordStrength = try await subject.passwordStrength(email: "user@bitwarden.com", password: "password")
+        let weakPasswordStrength = try await subject.passwordStrength(
+            email: "user@bitwarden.com",
+            password: "password",
+            isPreAuth: false
+        )
         XCTAssertEqual(weakPasswordStrength, 0)
         XCTAssertEqual(clientService.mockAuth.passwordStrengthEmail, "user@bitwarden.com")
         XCTAssertEqual(clientService.mockAuth.passwordStrengthPassword, "password")
+        XCTAssertFalse(clientService.mockAuthIsPreAuth)
 
         clientService.mockAuth.passwordStrengthResult = 4
         let strongPasswordStrength = try await subject.passwordStrength(
             email: "user@bitwarden.com",
-            password: "ghu65zQ0*TjP@ij74g*&FykWss#Kgv8L8j8XmC03"
+            password: "ghu65zQ0*TjP@ij74g*&FykWss#Kgv8L8j8XmC03",
+            isPreAuth: true
         )
         XCTAssertEqual(strongPasswordStrength, 4)
         XCTAssertEqual(clientService.mockAuth.passwordStrengthEmail, "user@bitwarden.com")
@@ -1146,6 +1152,9 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
             clientService.mockAuth.passwordStrengthPassword,
             "ghu65zQ0*TjP@ij74g*&FykWss#Kgv8L8j8XmC03"
         )
+
+        XCTAssertTrue(clientService.mockAuthIsPreAuth)
+        XCTAssertNil(clientService.mockAuthUserId)
     }
 
     /// `sessionTimeoutAction()` returns the session timeout action for a user.
