@@ -227,15 +227,29 @@ actor DefaultClientService: ClientService {
             return clientBuilder.buildClient()
         }
 
-        let userId = try await stateService.getAccountIdOrActiveId(userId: userId)
+        do {
+            let userId = try await stateService.getAccountIdOrActiveId(userId: userId)
 
-        // If the user has a client, return it.
-        guard let client = userClientArray[userId] else {
-            // If not, create one, map it to the user, then return it.
-            let newClient = createAndMapClient(for: userId)
-            return newClient
+            // If the user has a client, return it.
+            guard let client = userClientArray[userId] else {
+                // If not, create one, map it to the user, then return it.
+                let newClient = createAndMapClient(for: userId)
+                return newClient
+            }
+            return client
+        } catch StateServiceError.noAccounts, StateServiceError.noActiveAccount {
+            // If there's no accounts nor an active account, `isPreAuth` should be set. But to be
+            // safe, return a new client here and log an error for the missing `isPreAuth` parameter.
+            errorReporter.log(
+                error: BitwardenError.generalError(
+                    type: "Missing isPreAuth",
+                    message: "DefaultClientService.client(for:) was called without the isPreAuth " +
+                        "flag set and there's no active account. Consider if isPreAuth should be " +
+                        "set in this scenario."
+                )
+            )
+            return clientBuilder.buildClient()
         }
-        return client
     }
 
     /// Creates a new client and maps it to an ID.

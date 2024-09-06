@@ -49,6 +49,17 @@ final class ClientServiceTests: BitwardenTestCase {
         XCTAssertNotIdentical(auth, user2Auth)
     }
 
+    /// `auth(for:)` logs an error if there's no accounts and the `isPreAuth` flag isn't set.
+    func test_auth_noAccountsNotPreAuth() async throws {
+        let auth1 = try await subject.auth()
+        let auth2 = try await subject.auth()
+        XCTAssertNotIdentical(auth1, auth2)
+
+        XCTAssertEqual(errorReporter.errors.count, 2)
+        XCTAssertEqual((errorReporter.errors[0] as NSError).domain, "General Error: Missing isPreAuth")
+        XCTAssertEqual((errorReporter.errors[1] as NSError).domain, "General Error: Missing isPreAuth")
+    }
+
     /// `client(for:)` called concurrently doesn't crash.
     func test_client_calledConcurrently() async throws {
         // Calling `client(for:)` concurrently shouldn't throw an exception due to simultaneous
