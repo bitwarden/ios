@@ -151,6 +151,6 @@
 	<key>XSAppIconAssets</key>
 	<string>Resources/Assets.xcassets/AppIcons.appiconset</string>
 	<key>BitwardenAuthenticatorSharedAppGroup</key>
-	<string>group.${SHARED_GROUP_ORGANIZATION_IDENTIFIER}.bitwarden-authenticator</string>
+	<string>${SHARED_APP_GROUP_IDENTIFIER}</string>
 </dict>
 </plist>
