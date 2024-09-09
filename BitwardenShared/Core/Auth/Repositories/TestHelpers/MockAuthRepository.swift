@@ -34,6 +34,7 @@ class MockAuthRepository: AuthRepository { // swiftlint:disable:this type_body_l
     var migrateUserToKeyConnectorPassword: String?
     var migrateUserToKeyConnectorResult: Result<Void, Error> = .success(())
     var passwordStrengthEmail: String?
+    var passwordStrengthIsPreAuth = false
     var passwordStrengthPassword: String?
     var passwordStrengthResult: UInt8 = 0
     var pinProtectedUserKey = "123"
@@ -174,9 +175,10 @@ class MockAuthRepository: AuthRepository { // swiftlint:disable:this type_body_l
         try isPinUnlockAvailableResult.get()
     }
 
-    func passwordStrength(email: String, password: String) async -> UInt8 {
+    func passwordStrength(email: String, password: String, isPreAuth: Bool) async -> UInt8 {
         passwordStrengthEmail = email
         passwordStrengthPassword = password
+        passwordStrengthIsPreAuth = isPreAuth
         return passwordStrengthResult
     }
 

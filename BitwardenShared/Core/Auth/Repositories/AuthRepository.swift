@@ -106,9 +106,11 @@ protocol AuthRepository: AnyObject {
     /// - Parameters:
     ///   - email: The user's email.
     ///   - password: The user's password.
+    ///   - isPreAuth: Whether the client is being used for a user prior to authentication (when
+    ///     the user's ID doesn't yet exist).
     /// - Returns: The password strength of the password.
     ///
-    func passwordStrength(email: String, password: String) async throws -> UInt8
+    func passwordStrength(email: String, password: String, isPreAuth: Bool) async throws -> UInt8
 
     /// Gets the profiles state for a user.
     ///
@@ -589,8 +591,9 @@ extension DefaultAuthRepository: AuthRepository {
         await vaultTimeoutService.remove(userId: userId)
     }
 
-    func passwordStrength(email: String, password: String) async throws -> UInt8 {
-        try await clientService.auth().passwordStrength(password: password, email: email, additionalInputs: [])
+    func passwordStrength(email: String, password: String, isPreAuth: Bool) async throws -> UInt8 {
+        try await clientService.auth(isPreAuth: isPreAuth)
+            .passwordStrength(password: password, email: email, additionalInputs: [])
     }
 
     func sessionTimeoutAction(userId: String?) async throws -> SessionTimeoutAction {
@@ -935,11 +938,9 @@ extension DefaultAuthRepository: AuthRepository {
             // No-op: nothing extra to do for decryptedKey.
             break
         case .deviceKey:
-            // No-op: nothing extra (for now).
-            break
+            try await configureBiometricUnlockIfRequired()
         case .keyConnector:
-            // No-op: nothing extra to do for Key Connector.
-            break
+            try await configureBiometricUnlockIfRequired()
         case let .password(password, _):
             let hashedPassword = try await authService.hashPassword(
                 password: password,
@@ -956,17 +957,7 @@ extension DefaultAuthRepository: AuthRepository {
                 try await stateService.setPinProtectedUserKeyToMemory(pinProtectedUserKey)
             }
 
-            // Re-enable biometrics, if required.
-            let biometricUnlockStatus = try? await biometricsRepository.getBiometricUnlockStatus()
-            switch biometricUnlockStatus {
-            case .available(_, true, false):
-                try await biometricsRepository.configureBiometricIntegrity()
-                try await biometricsRepository.setBiometricUnlockKey(
-                    authKey: clientService.crypto().getUserEncryptionKey()
-                )
-            default:
-                break
-            }
+            try await configureBiometricUnlockIfRequired()
         case .pin:
             // No-op: nothing extra to do for pin unlock.
             break
@@ -1027,8 +1018,30 @@ extension DefaultAuthRepository: AuthRepository {
         try await stateService.setForcePasswordResetReason(nil)
     }
 
+    /// Returns the provided user ID if it exists, otherwise fetches the active account's ID.
+    ///
+    /// - Parameter maybeId: The optional user ID to check.
+    /// - Returns: The user ID if provided, otherwise the active account's ID.
+    /// - Throws: An error if fetching the active account ID fails.
+    ///
     private func userIdOrActive(_ maybeId: String?) async throws -> String {
         if let maybeId { return maybeId }
         return try await stateService.getActiveAccountId()
+    }
+
+
+    /// This method checks the biometric unlock status, and if biometric unlock is available but not
+    /// fully configured (i.e., it doesn't have a valid integrity), it sets up biometric integrity and configures
+    /// the biometric unlock key.
+    ///
+    /// - Throws: An error if configuring biometric integrity or setting the biometric unlock key fails.
+    ///
+    private func configureBiometricUnlockIfRequired() async throws {
+        if case .available(_, true, false) = try? await biometricsRepository.getBiometricUnlockStatus() {
+            try await biometricsRepository.configureBiometricIntegrity()
+            try await biometricsRepository.setBiometricUnlockKey(
+                authKey: clientService.crypto().getUserEncryptionKey()
+            )
+        }
     }
 }

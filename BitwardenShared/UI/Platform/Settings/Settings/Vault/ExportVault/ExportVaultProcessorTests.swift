@@ -361,12 +361,14 @@ class ExportVaultProcessorTests: BitwardenTestCase { // swiftlint:disable:this t
         authRepository.passwordStrengthResult = 1
         subject.receive(.filePasswordTextChanged("file"))
         waitFor(subject.state.filePasswordStrengthScore == 1)
+        XCTAssertFalse(authRepository.passwordStrengthIsPreAuth)
         XCTAssertEqual(authRepository.passwordStrengthPassword, "file")
         XCTAssertEqual(subject.state.filePasswordStrengthScore, 1)
 
         authRepository.passwordStrengthResult = 4
         subject.receive(.filePasswordTextChanged("file password"))
         waitFor(subject.state.filePasswordStrengthScore == 4)
+        XCTAssertFalse(authRepository.passwordStrengthIsPreAuth)
         XCTAssertEqual(authRepository.passwordStrengthPassword, "file password")
         XCTAssertEqual(subject.state.filePasswordStrengthScore, 4)
 
