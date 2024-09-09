@@ -132,12 +132,12 @@ class DefaultConfigService: ConfigService {
 
     @discardableResult
     func getConfig(forceRefresh: Bool, isPreAuth: Bool) async -> ServerConfig? {
-        let localConfig = try? await getStateServerConfig(isPreAuth: isPreAuth)
-
         guard !forceRefresh else {
             await updateConfigFromServer(isPreAuth: isPreAuth)
             return try? await getStateServerConfig(isPreAuth: isPreAuth)
         }
+
+        let localConfig = try? await getStateServerConfig(isPreAuth: isPreAuth)
 
         let localConfigExpired = localConfig?.date.addingTimeInterval(Constants.minimumConfigSyncInterval)
             ?? Date.distantPast

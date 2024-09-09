@@ -254,7 +254,7 @@ actor DefaultClientService: ClientService {
                 let newClient = await createAndMapClient(for: userId)
 
                 // Get the current config and load the flags.
-                var config = await configService.getConfig()
+                let config = await configService.getConfig()
                 loadFlags(config, for: newClient)
 
                 return newClient

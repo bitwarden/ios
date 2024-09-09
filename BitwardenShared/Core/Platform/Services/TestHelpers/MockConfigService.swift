@@ -6,7 +6,7 @@ import Foundation
 class MockConfigService: ConfigService {
     // MARK: Properties
 
-    var config: ServerConfig?
+    var configMocker = InvocationMockerWithThrowingResult<(forceRefresh: Bool, isPreAuth: Bool), ServerConfig?>()
     var configSubject = CurrentValueSubject<BitwardenShared.MetaServerConfig?, Never>(nil)
     var featureFlagsBool = [FeatureFlag: Bool]()
     var featureFlagsInt = [FeatureFlag: Int]()
@@ -20,7 +20,7 @@ class MockConfigService: ConfigService {
     }
 
     func getConfig(forceRefresh: Bool, isPreAuth: Bool) async -> ServerConfig? {
-        config
+        try? configMocker.invoke(param: (forceRefresh: forceRefresh, isPreAuth: isPreAuth))
     }
 
     func getFeatureFlag(_ flag: FeatureFlag, defaultValue: Bool, forceRefresh: Bool, isPreAuth: Bool) async -> Bool {

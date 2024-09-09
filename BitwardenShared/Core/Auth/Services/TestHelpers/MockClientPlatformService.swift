@@ -6,7 +6,7 @@ class MockClientPlatformService: ClientPlatformService {
     var fido2Mock = MockClientFido2Service()
     var fingerprintMaterialString: String?
     var fingerprintResult: Result<String, Error> = .success("a-fingerprint-phrase-string-placeholder")
-    var featureFlags: [String: Bool] = ["": false]
+    var featureFlags: [String: Bool] = [:]
     var loadFlagsError: Error?
     var userFingerprintCalled = false
 
