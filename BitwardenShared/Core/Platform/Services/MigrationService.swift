@@ -17,6 +17,9 @@ protocol MigrationService: AnyObject {
 class DefaultMigrationService {
     // MARK: Properties
 
+    /// The app's app group UserDefaults instance.
+    let appGroupUserDefaults: UserDefaults
+
     /// The service used by the application to persist app setting values.
     let appSettingsStore: AppSettingsStore
 
@@ -41,6 +44,7 @@ class DefaultMigrationService {
     /// Initialize a `DefaultMigrationService`.
     ///
     /// - Parameters:
+    ///   - appGroupUserDefaults: The app's app group UserDefaults instance.
     ///   - appSettingsStore: The service used by the application to persist app setting values.
     ///   - errorReporter: The service used by the application to report non-fatal errors.
     ///   - keychainRepository: The repository used to manage keychain items.
@@ -49,6 +53,7 @@ class DefaultMigrationService {
     ///   - standardUserDefaults: The shared UserDefaults instance.
     ///
     init(
+        appGroupUserDefaults: UserDefaults = .standard,
         appSettingsStore: AppSettingsStore,
         errorReporter: ErrorReporter,
         keychainRepository: KeychainRepository,
@@ -56,6 +61,7 @@ class DefaultMigrationService {
         keychainServiceName: String = Bundle.main.appIdentifier,
         standardUserDefaults: UserDefaults = .standard
     ) {
+        self.appGroupUserDefaults = appGroupUserDefaults
         self.appSettingsStore = appSettingsStore
         self.errorReporter = errorReporter
         self.keychainRepository = keychainRepository
@@ -168,6 +174,46 @@ class DefaultMigrationService {
             }
         }
     }
+
+    /// Performs migration 3.
+    ///
+    /// Notes:
+    ///   - Migrates the integrity state values for the extensions to the new key values.
+    ///
+    private func performMigration3() async throws {
+        defer {
+            // Remove the previous values.
+            appGroupUserDefaults.removeObject(forKey: "bwPreferencesStorage:iOSAutoFillBiometricIntegritySource")
+            appGroupUserDefaults.removeObject(forKey: "bwPreferencesStorage:iOSExtensionBiometricIntegritySource")
+            appGroupUserDefaults.removeObject(forKey: "bwPreferencesStorage:iOSShareExtensionBiometricIntegritySource")
+        }
+
+        guard let state = appSettingsStore.state else { return }
+
+        for (accountId, _) in state.accounts {
+            func migrateIntegrityState(previousKey: String, newKey: String) {
+                // Don't migrate the key if a new value is set.
+                guard appGroupUserDefaults.string(forKey: newKey) == nil else { return }
+                let previousValue = appGroupUserDefaults.string(forKey: previousKey)
+                appGroupUserDefaults.set(previousValue, forKey: newKey)
+            }
+
+            let appIdentifier = Bundle.main.appIdentifier
+            migrateIntegrityState(
+                previousKey: "bwPreferencesStorage:iOSAutoFillBiometricIntegritySource",
+                newKey: "bwPreferencesStorage:biometricIntegritySource_\(accountId)_\(appIdentifier).autofill"
+            )
+            migrateIntegrityState(
+                previousKey: "bwPreferencesStorage:iOSExtensionBiometricIntegritySource",
+                newKey: "bwPreferencesStorage:biometricIntegritySource_\(accountId)_\(appIdentifier).find-login-action-extension"
+                // swiftlint:disable:previous line_length
+            )
+            migrateIntegrityState(
+                previousKey: "bwPreferencesStorage:iOSShareExtensionBiometricIntegritySource",
+                newKey: "bwPreferencesStorage:biometricIntegritySource_\(accountId)_\(appIdentifier).share-extension"
+            )
+        }
+    }
 }
 
 extension DefaultMigrationService {
@@ -176,6 +222,7 @@ extension DefaultMigrationService {
         [
             performMigration1,
             performMigration2,
+            performMigration3,
         ]
     }
 

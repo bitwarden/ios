@@ -28,11 +28,13 @@ class MockAuthRepository: AuthRepository { // swiftlint:disable:this type_body_l
     var lockVaultUserId: String?
     var logoutCalled = false
     var logoutUserId: String?
+    var logoutUserInitiated = false
     var logoutResult: Result<Void, Error> = .success(())
     var migrateUserToKeyConnectorCalled = false
     var migrateUserToKeyConnectorPassword: String?
     var migrateUserToKeyConnectorResult: Result<Void, Error> = .success(())
     var passwordStrengthEmail: String?
+    var passwordStrengthIsPreAuth = false
     var passwordStrengthPassword: String?
     var passwordStrengthResult: UInt8 = 0
     var pinProtectedUserKey = "123"
@@ -173,9 +175,10 @@ class MockAuthRepository: AuthRepository { // swiftlint:disable:this type_body_l
         try isPinUnlockAvailableResult.get()
     }
 
-    func passwordStrength(email: String, password: String) async -> UInt8 {
+    func passwordStrength(email: String, password: String, isPreAuth: Bool) async -> UInt8 {
         passwordStrengthEmail = email
         passwordStrengthPassword = password
+        passwordStrengthIsPreAuth = isPreAuth
         return passwordStrengthResult
     }
 
@@ -183,8 +186,9 @@ class MockAuthRepository: AuthRepository { // swiftlint:disable:this type_body_l
         lockVaultUserId = userId
     }
 
-    func logout(userId: String?) async throws {
+    func logout(userId: String?, userInitiated: Bool) async throws {
         logoutUserId = userId
+        logoutUserInitiated = userInitiated
         try await logout()
     }
 

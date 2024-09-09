@@ -633,6 +633,7 @@ class CompleteRegistrationProcessorTests: BitwardenTestCase {
         waitFor(subject.state.passwordStrengthScore == 0)
         XCTAssertEqual(subject.state.passwordStrengthScore, 0)
         XCTAssertEqual(authRepository.passwordStrengthEmail, "user@bitwarden.com")
+        XCTAssertTrue(authRepository.passwordStrengthIsPreAuth)
         XCTAssertEqual(authRepository.passwordStrengthPassword, "T")
 
         authRepository.passwordStrengthResult = 4
@@ -640,6 +641,7 @@ class CompleteRegistrationProcessorTests: BitwardenTestCase {
         waitFor(subject.state.passwordStrengthScore == 4)
         XCTAssertEqual(subject.state.passwordStrengthScore, 4)
         XCTAssertEqual(authRepository.passwordStrengthEmail, "user@bitwarden.com")
+        XCTAssertTrue(authRepository.passwordStrengthIsPreAuth)
         XCTAssertEqual(authRepository.passwordStrengthPassword, "TestPassword1234567890!@#")
     }
 

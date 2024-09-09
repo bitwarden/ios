@@ -1,4 +1,5 @@
 import SwiftUI
+import SwiftUIIntrospect
 
 // MARK: - BitwardenTextField
 
@@ -6,6 +7,7 @@ import SwiftUI
 /// configured to act as a password field with visibility toggling, and supports
 /// displaying additional content on the trailing edge of the text field.
 ///
+@MainActor
 struct BitwardenTextField<TrailingContent: View>: View {
     // MARK: Private Properties
 
@@ -99,6 +101,9 @@ struct BitwardenTextField<TrailingContent: View>: View {
                     .styleGuide(isPassword ? .bodyMonospaced : .body, includeLineSpacing: false)
                     .hidden(!isPasswordVisible && isPassword)
                     .id(title)
+                    .introspect(.textField, on: .iOS(.v15, .v16, .v17, .v18)) { textField in
+                        textField.smartDashesType = isPassword ? .no : .default
+                    }
                 if isPassword, !isPasswordVisible {
                     SecureField(placeholder, text: $text)
                         .focused($isSecureFieldFocused)

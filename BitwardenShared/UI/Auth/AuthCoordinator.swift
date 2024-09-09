@@ -174,6 +174,8 @@ final class AuthCoordinator: NSObject, // swiftlint:disable:this type_body_lengt
             showIntroCarousel()
         case .landing:
             showLanding()
+        case let .landingSoftLoggedOut(email):
+            showLanding(email: email)
         case let .login(username):
             showLogin(username)
         case let .showLoginDecryptionOptions(organizationIdentifier):
@@ -440,13 +442,19 @@ final class AuthCoordinator: NSObject, // swiftlint:disable:this type_body_lengt
 
     /// Shows the landing screen.
     ///
-    private func showLanding() {
+    /// - Parameter email: The user's email to populate. Defaults to `nil` which will populate the
+    ///     remembered email, if it exists.
+    ///
+    private func showLanding(email: String? = nil) {
         guard let stackNavigator else { return }
         if stackNavigator.popToRoot(animated: UI.animated).isEmpty {
             let processor = LandingProcessor(
                 coordinator: asAnyCoordinator(),
                 services: services,
-                state: LandingState()
+                state: LandingState(
+                    email: email ?? "",
+                    isRememberMeOn: email != nil
+                )
             )
             let store = Store(processor: processor)
             let view = LandingView(store: store)

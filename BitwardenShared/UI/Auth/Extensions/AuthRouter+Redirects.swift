@@ -162,7 +162,10 @@ extension AuthRouter {
             }
         }
         do {
-            try await services.authRepository.logout(userId: accountToLogOut.profile.userId)
+            try await services.authRepository.logout(
+                userId: accountToLogOut.profile.userId,
+                userInitiated: userInitiated
+            )
             if let previouslyActiveAccount,
                accountToLogOut.profile.userId != previouslyActiveAccount.profile.userId {
                 return await handleAndRoute(
@@ -270,10 +273,10 @@ extension AuthRouter {
             case .logout:
                 // If there is a timeout and the user has a logout vault action,
                 //  log out the user.
-                try await services.authRepository.logout(userId: userId)
+                try await services.authRepository.logout(userId: userId, userInitiated: false)
 
-                // Go to landing.
-                return .landing
+                let account = try await services.authRepository.getAccount()
+                return .landingSoftLoggedOut(email: account.profile.email)
             }
         } catch {
             services.errorReporter.log(error: error)
@@ -347,7 +350,18 @@ extension AuthRouter {
             case (_, false):
                 return .complete
             default:
-                // Otherwise, return `.vaultUnlock`.
+                guard try await services.stateService.isAuthenticated(userId: userId) else {
+                    return .landingSoftLoggedOut(email: activeAccount.profile.email)
+                }
+
+                let hasMasterPassword = activeAccount.profile.userDecryptionOptions?.hasMasterPassword == true
+
+                if !hasMasterPassword {
+                    let biometricUnlockStatus = try await services.biometricsRepository.getBiometricUnlockStatus()
+                    if case .available(_, true, false) = biometricUnlockStatus {
+                        return .enterpriseSingleSignOn(email: activeAccount.profile.email)
+                    }
+                }
                 return .vaultUnlock(
                     activeAccount,
                     animated: animated,

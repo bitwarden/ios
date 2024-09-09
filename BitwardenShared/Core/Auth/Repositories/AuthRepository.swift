@@ -89,9 +89,11 @@ protocol AuthRepository: AnyObject {
 
     /// Logs the user out of the specified account.
     ///
-    /// - Parameter userId: The user ID of the account to log out of.
+    /// - Parameters
+    ///   - userId: The user ID of the account to log out of.
+    ///   - userInitiated: Whether the logout was user initiated or a result of a logout timeout action.
     ///
-    func logout(userId: String?) async throws
+    func logout(userId: String?, userInitiated: Bool) async throws
 
     /// Migrates the user to Key Connector if a migration is required.
     ///
@@ -104,9 +106,11 @@ protocol AuthRepository: AnyObject {
     /// - Parameters:
     ///   - email: The user's email.
     ///   - password: The user's password.
+    ///   - isPreAuth: Whether the client is being used for a user prior to authentication (when
+    ///     the user's ID doesn't yet exist).
     /// - Returns: The password strength of the password.
     ///
-    func passwordStrength(email: String, password: String) async throws -> UInt8
+    func passwordStrength(email: String, password: String, isPreAuth: Bool) async throws -> UInt8
 
     /// Gets the profiles state for a user.
     ///
@@ -283,8 +287,11 @@ extension AuthRepository {
 
     /// Logs the user out of the active account.
     ///
-    func logout() async throws {
-        try await logout(userId: nil)
+    /// - Parameter userInitiated: Whether the logout was user initiated or a result of a logout
+    ///     timeout action.
+    ///
+    func logout(userInitiated: Bool) async throws {
+        try await logout(userId: nil, userInitiated: userInitiated)
     }
 
     /// Whether master password reprompt should be performed.
@@ -347,6 +354,9 @@ class DefaultAuthRepository {
     /// The service used by the application to manage the environment settings.
     private let environmentService: EnvironmentService
 
+    /// The service used by the application to report non-fatal errors.
+    private let errorReporter: ErrorReporter
+
     /// The keychain service used by this repository.
     private let keychainService: KeychainRepository
 
@@ -382,6 +392,7 @@ class DefaultAuthRepository {
     ///   - clientService: The service that handles common client functionality such as encryption and decryption.
     ///   - configService: The service to get server-specified configuration.
     ///   - environmentService: The service used by the application to manage the environment settings.
+    ///   - errorReporter: The service used by the application to report non-fatal errors.
     ///   - keychainService: The keychain service used by the application.
     ///   - keyConnectorService: The service used by the application to manage Key Connector.
     ///   - organizationAPIService: The service used by the application to make organization-related API requests.
@@ -399,6 +410,7 @@ class DefaultAuthRepository {
         clientService: ClientService,
         configService: ConfigService,
         environmentService: EnvironmentService,
+        errorReporter: ErrorReporter,
         keychainService: KeychainRepository,
         keyConnectorService: KeyConnectorService,
         organizationAPIService: OrganizationAPIService,
@@ -414,6 +426,7 @@ class DefaultAuthRepository {
         self.clientService = clientService
         self.configService = configService
         self.environmentService = environmentService
+        self.errorReporter = errorReporter
         self.keychainService = keychainService
         self.keyConnectorService = keyConnectorService
         self.organizationAPIService = organizationAPIService
@@ -500,6 +513,14 @@ extension DefaultAuthRepository: AuthRepository {
     func existingAccountUserId(email: String) async -> String? {
         let matchingUserIds = await stateService.getUserIds(email: email)
         for userId in matchingUserIds {
+            // Skip unauthenticated user accounts, since the user may be trying to log back into an
+            // account that was soft logged out.
+            do {
+                guard try await stateService.isAuthenticated(userId: userId) else { continue }
+            } catch {
+                errorReporter.log(error: error)
+            }
+
             if let baseUrl = try? await stateService.getEnvironmentUrls(userId: userId)?.base,
                baseUrl == environmentService.baseURL {
                 return userId
@@ -558,20 +579,21 @@ extension DefaultAuthRepository: AuthRepository {
         try await keyConnectorService.migrateUser(password: password)
     }
 
-    func logout(userId: String?) async throws {
+    func logout(userId: String?, userInitiated: Bool) async throws {
         let userId = try await stateService.getAccountIdOrActiveId(userId: userId)
 
         // Clear all user data.
         try await biometricsRepository.setBiometricUnlockKey(authKey: nil)
         try await keychainService.deleteItems(for: userId)
-        try await stateService.logoutAccount(userId: userId)
+        try await stateService.logoutAccount(userId: userId, userInitiated: userInitiated)
 
         // Remove the user from the timeout service and their SDK client.
         await vaultTimeoutService.remove(userId: userId)
     }
 
-    func passwordStrength(email: String, password: String) async throws -> UInt8 {
-        try await clientService.auth().passwordStrength(password: password, email: email, additionalInputs: [])
+    func passwordStrength(email: String, password: String, isPreAuth: Bool) async throws -> UInt8 {
+        try await clientService.auth(isPreAuth: isPreAuth)
+            .passwordStrength(password: password, email: email, additionalInputs: [])
     }
 
     func sessionTimeoutAction(userId: String?) async throws -> SessionTimeoutAction {
@@ -868,6 +890,7 @@ extension DefaultAuthRepository: AuthRepository {
     ///
     private func profileItem(from account: Account) async -> ProfileSwitcherItem {
         let isLocked = await (try? isLocked(userId: account.profile.userId)) ?? true
+        let isAuthenticated = await (try? stateService.isAuthenticated(userId: account.profile.userId)) == true
         let hasNeverLock = await (try? stateService.getVaultTimeout(userId: account.profile.userId)) == .never
         let displayAsUnlocked = !isLocked || hasNeverLock
 
@@ -880,6 +903,7 @@ extension DefaultAuthRepository: AuthRepository {
         return ProfileSwitcherItem(
             color: color,
             email: account.profile.email,
+            isLoggedOut: !isAuthenticated,
             isUnlocked: displayAsUnlocked,
             userId: account.profile.userId,
             userInitials: account.initials(),
@@ -914,11 +938,9 @@ extension DefaultAuthRepository: AuthRepository {
             // No-op: nothing extra to do for decryptedKey.
             break
         case .deviceKey:
-            // No-op: nothing extra (for now).
-            break
+            try await configureBiometricUnlockIfRequired()
         case .keyConnector:
-            // No-op: nothing extra to do for Key Connector.
-            break
+            try await configureBiometricUnlockIfRequired()
         case let .password(password, _):
             let hashedPassword = try await authService.hashPassword(
                 password: password,
@@ -935,17 +957,7 @@ extension DefaultAuthRepository: AuthRepository {
                 try await stateService.setPinProtectedUserKeyToMemory(pinProtectedUserKey)
             }
 
-            // Re-enable biometrics, if required.
-            let biometricUnlockStatus = try? await biometricsRepository.getBiometricUnlockStatus()
-            switch biometricUnlockStatus {
-            case .available(_, true, false):
-                try await biometricsRepository.configureBiometricIntegrity()
-                try await biometricsRepository.setBiometricUnlockKey(
-                    authKey: clientService.crypto().getUserEncryptionKey()
-                )
-            default:
-                break
-            }
+            try await configureBiometricUnlockIfRequired()
         case .pin:
             // No-op: nothing extra to do for pin unlock.
             break
@@ -1006,8 +1018,30 @@ extension DefaultAuthRepository: AuthRepository {
         try await stateService.setForcePasswordResetReason(nil)
     }
 
+    /// Returns the provided user ID if it exists, otherwise fetches the active account's ID.
+    ///
+    /// - Parameter maybeId: The optional user ID to check.
+    /// - Returns: The user ID if provided, otherwise the active account's ID.
+    /// - Throws: An error if fetching the active account ID fails.
+    ///
     private func userIdOrActive(_ maybeId: String?) async throws -> String {
         if let maybeId { return maybeId }
         return try await stateService.getActiveAccountId()
+    }
+
+
+    /// This method checks the biometric unlock status, and if biometric unlock is available but not
+    /// fully configured (i.e., it doesn't have a valid integrity), it sets up biometric integrity and configures
+    /// the biometric unlock key.
+    ///
+    /// - Throws: An error if configuring biometric integrity or setting the biometric unlock key fails.
+    ///
+    private func configureBiometricUnlockIfRequired() async throws {
+        if case .available(_, true, false) = try? await biometricsRepository.getBiometricUnlockStatus() {
+            try await biometricsRepository.configureBiometricIntegrity()
+            try await biometricsRepository.setBiometricUnlockKey(
+                authKey: clientService.crypto().getUserEncryptionKey()
+            )
+        }
     }
 }
