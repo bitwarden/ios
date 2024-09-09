@@ -8,10 +8,10 @@ import OSLog
 struct ServerVersion: Comparable, Codable {
     // MARK: - Constants
 
-    /// The separator between version and a suffix..
+    /// The separator between version and a suffix.
     private static let suffixSeparator: Character = "-"
 
-    /// The separator between version's components.
+    /// The separator between a version's components.
     private static let versionSeparator: Character = "."
 
     // MARK: Parameters
@@ -22,7 +22,7 @@ struct ServerVersion: Comparable, Codable {
     // MARK: Init
 
     /// Initializes a `SeverVersion` with the `version` if it's valid, otherwise returns `nil`.
-    /// - Parameter version: The string`version` to use.
+    /// - Parameter version: The `version` string to parse.
     init?(_ version: String) {
         let trimmedVersion = version.trimmingCharacters(in: .whitespacesAndNewlines)
         guard Self.isValid(version: trimmedVersion) else {
@@ -69,7 +69,7 @@ struct ServerVersion: Comparable, Codable {
         // where X, Y, Z are non-negative integers without leading zeros
         // and X cannot be only zeros
         // and an optional hyphen followed by alphanumeric metadata
-        let regexPattern = "^[1-9][0-9]{3}\\.[0-9]+\\.[0-9]+(-[a-zA-Z0-9]+)*$"
+        let regexPattern = "^[1-9][0-9]*\\.[0-9]+\\.[0-9]+(-[a-zA-Z0-9]+)*$"
 
         // Check if the trimmed version matches the regex pattern
         let regex = try? NSRegularExpression(pattern: regexPattern)

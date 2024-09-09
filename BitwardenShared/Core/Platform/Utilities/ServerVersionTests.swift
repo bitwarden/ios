@@ -11,7 +11,6 @@ class ServerVersionTests: BitwardenTestCase {
         XCTAssertNil(ServerVersion(""))
         XCTAssertNil(ServerVersion("2024"))
         XCTAssertNil(ServerVersion("2024.2.0.1"))
-        XCTAssertNil(ServerVersion("1.2.2024"))
         XCTAssertNil(ServerVersion("2024..2..0"))
         XCTAssertNil(ServerVersion("x.y.z-2024.2.0"))
         XCTAssertNil(ServerVersion("2024;2-0#metadata"))

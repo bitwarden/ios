@@ -1029,7 +1029,6 @@ extension DefaultAuthRepository: AuthRepository {
         return try await stateService.getActiveAccountId()
     }
 
-
     /// This method checks the biometric unlock status, and if biometric unlock is available but not
     /// fully configured (i.e., it doesn't have a valid integrity), it sets up biometric integrity and configures
     /// the biometric unlock key.

@@ -405,4 +405,4 @@ extension Client: BitwardenSdkClient {
     func vault() -> ClientVaultService {
         vault() as ClientVault
     }
-}
+} // swiftlint:disable:this file_length

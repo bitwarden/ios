@@ -7,7 +7,7 @@ import OSLog
 /// A protocol for a `ConfigService` that manages the app's config.
 ///
 protocol ConfigService {
-    /// A publisher that publishes a new value when a new server config has been gotten.
+    /// A publisher that updates with a new value when a new server configuration is received.
     func configPublisher() async throws -> AsyncThrowingPublisher<AnyPublisher<MetaServerConfig?, Never>>
 
     /// Retrieves the current configuration. This will return the on-disk configuration if available,
@@ -17,7 +17,7 @@ protocol ConfigService {
     ///
     /// - Parameters:
     ///   - forceRefresh: If true, forces refreshing the configuration from the server.
-    ///   - isPreAuth: If true, the call is coming before the user is auth or when adding a new account.
+    ///   - isPreAuth: If true, the call is coming before the user is authenticated or when adding a new account.
     /// - Returns: A server configuration if able.
     ///
     @discardableResult
@@ -31,7 +31,7 @@ protocol ConfigService {
     ///   - flag: The feature flag to retrieve
     ///   - defaultValue: The default value to use if the flag is not in the server configuration
     ///   - forceRefresh: If true, forces refreshing the configuration from the server before retrieval
-    ///   - isPreAuth: If true, the call is coming before the user is auth or when adding a new account.
+    ///   - isPreAuth: If true, the call is coming before the user is authenticated or when adding a new account.
     /// - Returns: The value for the feature flag
     func getFeatureFlag(_ flag: FeatureFlag, defaultValue: Bool, forceRefresh: Bool, isPreAuth: Bool) async -> Bool
 
@@ -43,7 +43,7 @@ protocol ConfigService {
     ///   - flag: The feature flag to retrieve
     ///   - defaultValue: The default value to use if the flag is not in the server configuration
     ///   - forceRefresh: If true, forces refreshing the configuration from the server before retrieval
-    ///   - isPreAuth: If true, the call is coming before the user is auth or when adding a new account.
+    ///   - isPreAuth: If true, the call is coming before the user is authenticated or when adding a new account.
     /// - Returns: The value for the feature flag
     func getFeatureFlag(_ flag: FeatureFlag, defaultValue: Int, forceRefresh: Bool, isPreAuth: Bool) async -> Int
 
@@ -55,7 +55,7 @@ protocol ConfigService {
     ///   - flag: The feature flag to retrieve
     ///   - defaultValue: The default value to use if the flag is not in the server configuration
     ///   - forceRefresh: If true, forces refreshing the configuration from the server before retrieval
-    ///   - isPreAuth: If true, the call is coming before the user is auth or when adding a new account.
+    ///   - isPreAuth: If true, the call is coming before the user is authenticated or when adding a new account.
     /// - Returns: The value for the feature flag
     func getFeatureFlag(
         _ flag: FeatureFlag,
@@ -192,7 +192,7 @@ class DefaultConfigService: ConfigService {
     /// Gets the server config in state depending on if the call is being done before authentication.
     /// - Parameters:
     ///   - config: Config to set
-    ///   - isPreAuth: If true, the call is coming before the user is auth or when adding a new account
+    ///   - isPreAuth: If true, the call is coming before the user is authenticated or when adding a new account
     func getStateServerConfig(isPreAuth: Bool) async throws -> ServerConfig? {
         guard !isPreAuth else {
             return await stateService.getPreAuthServerConfig()
@@ -207,7 +207,7 @@ class DefaultConfigService: ConfigService {
     /// Sets the server config in state depending on if the call is being done before authentication.
     /// - Parameters:
     ///   - config: Config to set
-    ///   - isPreAuth: If true, the call is coming before the user is auth or when adding a new account
+    ///   - isPreAuth: If true, the call is coming before the user is authenticated or when adding a new account
     ///   - userId: The userId to set the server config to.
     func setStateServerConfig(_ config: ServerConfig, isPreAuth: Bool, userId: String? = nil) async throws {
         guard !isPreAuth else {
@@ -218,7 +218,7 @@ class DefaultConfigService: ConfigService {
     }
 
     /// Performs a call to the server to get the latest config and updates the local value.
-    /// - Parameter isPreAuth: If true, the call is coming before the user is auth or when adding a new account
+    /// - Parameter isPreAuth: If true, the call is coming before the user is authenticated or when adding a new account
     private func updateConfigFromServer(isPreAuth: Bool) async {
         // The userId is needed here so we know which user trigger getting the config
         // which helps if this is done in background and the user somehow changes the user
@@ -256,7 +256,7 @@ class DefaultConfigService: ConfigService {
 /// like whether it comes from pre-auth and the user ID it belongs to.
 /// This is useful for getting the config on background and establishing which was the original context.
 struct MetaServerConfig {
-    /// If true, the call is coming before the user is auth or when adding a new account
+    /// If true, the call is coming before the user is authenticated or when adding a new account
     let isPreAuth: Bool
     /// The user ID the requested the server config.
     let userId: String?
