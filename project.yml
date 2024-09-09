@@ -26,6 +26,9 @@ packages:
     exactVersion: 10.24.0
   Networking:
     path: Networking
+  SwiftUIIntrospect:
+    url: https://github.com/siteline/SwiftUI-Introspect
+    exactVersion: 1.3.0
   SnapshotTesting:
     url: https://github.com/pointfreeco/swift-snapshot-testing
     exactVersion: 1.15.4
@@ -350,6 +353,7 @@ targets:
     dependencies:
       - package: BitwardenSdk
       - package: Networking
+      - package: SwiftUIIntrospect
     preBuildScripts:
       - name: SwiftGen
         script: |
