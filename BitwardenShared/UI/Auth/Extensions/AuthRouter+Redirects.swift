@@ -209,7 +209,10 @@ extension AuthRouter {
     func preparedStartRoute() async -> AuthRoute {
         guard let activeAccount = try? await configureActiveAccount(shouldSwitchAutomatically: true) else {
             // If no account can be set to active, go to the landing or carousel screen.
-            let isCarouselEnabled: Bool = await services.configService.getFeatureFlag(.nativeCarouselFlow)
+            let isCarouselEnabled: Bool = await services.configService.getFeatureFlag(
+                .nativeCarouselFlow,
+                isPreAuth: true
+            )
             let introCarouselShown = await services.stateService.getIntroCarouselShown()
             let shouldShowCarousel = isCarouselEnabled && !introCarouselShown && !isInAppExtension
             return shouldShowCarousel ? .introCarousel : .landing
@@ -379,7 +382,7 @@ extension AuthRouter {
     /// existing account or once logging in or creating an account is successful.
     ///
     private func setCarouselShownIfEnabled() async {
-        let isCarouselEnabled: Bool = await services.configService.getFeatureFlag(.nativeCarouselFlow)
+        let isCarouselEnabled: Bool = await services.configService.getFeatureFlag(.nativeCarouselFlow, isPreAuth: true)
         let introCarouselShown = await services.stateService.getIntroCarouselShown()
         if isCarouselEnabled, !introCarouselShown {
             await services.stateService.setIntroCarouselShown(true)

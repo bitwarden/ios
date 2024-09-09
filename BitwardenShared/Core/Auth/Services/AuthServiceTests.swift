@@ -13,6 +13,7 @@ class AuthServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body_
     var authAPIService: AuthAPIService!
     var client: MockHTTPClient!
     var clientService: MockClientService!
+    var configService: MockConfigService!
     var environmentService: MockEnvironmentService!
     var keychainRepository: MockKeychainRepository!
     var stateService: MockStateService!
@@ -31,6 +32,7 @@ class AuthServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body_
         appSettingsStore = MockAppSettingsStore()
         authAPIService = APIService(client: client)
         clientService = MockClientService()
+        configService = MockConfigService()
         environmentService = MockEnvironmentService()
         keychainRepository = MockKeychainRepository()
         policyService = MockPolicyService()
@@ -43,6 +45,7 @@ class AuthServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body_
             appIdService: AppIdService(appSettingStore: appSettingsStore),
             authAPIService: authAPIService,
             clientService: clientService,
+            configService: configService,
             environmentService: environmentService,
             keychainRepository: keychainRepository,
             policyService: policyService,
@@ -60,6 +63,7 @@ class AuthServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body_
         authAPIService = nil
         client = nil
         clientService = nil
+        configService = nil
         environmentService = nil
         keychainRepository = nil
         stateService = nil

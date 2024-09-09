@@ -54,6 +54,7 @@ class MockStateService: StateService { // swiftlint:disable:this type_body_lengt
     var passwordGenerationOptions = [String: PasswordGenerationOptions]()
     var pinProtectedUserKeyValue = [String: String]()
     var preAuthEnvironmentUrls: EnvironmentUrlData?
+    var preAuthServerConfig: ServerConfig?
     var rememberedOrgIdentifier: String?
     var showWebIcons = true
     var showWebIconsSubject = CurrentValueSubject<Bool, Never>(true)
@@ -246,6 +247,10 @@ class MockStateService: StateService { // swiftlint:disable:this type_body_lengt
 
     func getPreAuthEnvironmentUrls() async -> EnvironmentUrlData? {
         preAuthEnvironmentUrls
+    }
+
+    func getPreAuthServerConfig() async -> BitwardenShared.ServerConfig? {
+        preAuthServerConfig
     }
 
     func getServerConfig(userId: String?) async throws -> ServerConfig? {
@@ -461,6 +466,10 @@ class MockStateService: StateService { // swiftlint:disable:this type_body_lengt
 
     func setPreAuthEnvironmentUrls(_ urls: BitwardenShared.EnvironmentUrlData) async {
         preAuthEnvironmentUrls = urls
+    }
+
+    func setPreAuthServerConfig(config: BitwardenShared.ServerConfig) async {
+        preAuthServerConfig = config
     }
 
     func setServerConfig(_ config: ServerConfig?, userId: String?) async throws {

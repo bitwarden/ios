@@ -5,6 +5,7 @@ import XCTest
 
 final class ClientServiceTests: BitwardenTestCase {
     var clientBuilder: MockClientBuilder!
+    var configService: MockConfigService!
     var errorReporter: MockErrorReporter!
     var stateService: MockStateService!
     var subject: DefaultClientService!
@@ -16,10 +17,12 @@ final class ClientServiceTests: BitwardenTestCase {
         super.setUp()
 
         clientBuilder = MockClientBuilder()
+        configService = MockConfigService()
         errorReporter = MockErrorReporter()
         stateService = MockStateService()
         subject = DefaultClientService(
             clientBuilder: clientBuilder,
+            configService: configService,
             errorReporter: errorReporter,
             stateService: stateService
         )
@@ -30,6 +33,7 @@ final class ClientServiceTests: BitwardenTestCase {
         super.tearDown()
 
         clientBuilder = nil
+        configService = nil
         errorReporter = nil
         stateService = nil
         subject = nil
@@ -123,4 +127,63 @@ final class ClientServiceTests: BitwardenTestCase {
         let user2Vault = try await subject.vault(for: "1")
         XCTAssertNotIdentical(vault, user2Vault)
     }
+
+//
+//    /// `getConfig()` loads enableCipherKeyEncryption flag as `true` into the SDK.
+//    func test_getConfig_loadFlagsEnableCipherKeyEncryptionTrue() async {
+//        stateService.serverConfig["1"] = ServerConfig(
+//            date: Date(year: 2024, month: 2, day: 14, hour: 7, minute: 50, second: 0),
+//            responseModel: ConfigResponseModel(
+//                environment: nil,
+//                featureStates: [:],
+//                gitHash: "75238191",
+//                server: nil,
+//                version: "2024.4.0"
+//            )
+//        )
+//
+//        let response = await subject.getConfig(forceRefresh: false, isPreAuth: false)
+//        XCTAssertEqual(
+//            clientService.mockPlatform.featureFlags,
+//            ["enableCipherKeyEncryption": true]
+//        )
+//    }
+//
+//    /// `getConfig()` loads enableCipherKeyEncryption flag as `false` into the SDK.
+//    func test_getConfig_loadFlagsEnableCipherKeyEncryptionFalse() async {
+//        stateService.serverConfig["1"] = ServerConfig(
+//            date: Date(year: 2024, month: 2, day: 14, hour: 7, minute: 50, second: 0),
+//            responseModel: ConfigResponseModel(
+//                environment: nil,
+//                featureStates: [:],
+//                gitHash: "75238191",
+//                server: nil,
+//                version: "2024.1.0"
+//            )
+//        )
+//
+//        let response = await subject.getConfig(forceRefresh: false, isPreAuth: false)
+//        XCTAssertEqual(
+//            clientService.mockPlatform.featureFlags,
+//            ["enableCipherKeyEncryption": false]
+//        )
+//    }
+//
+//    /// `getConfig()` logs error when loadFlags throws.
+//    func test_getConfig_loadFlagsError() async {
+//        stateService.serverConfig["1"] = ServerConfig(
+//            date: Date(year: 2024, month: 2, day: 14, hour: 7, minute: 50, second: 0),
+//            responseModel: ConfigResponseModel(
+//                environment: nil,
+//                featureStates: [:],
+//                gitHash: "75238191",
+//                server: nil,
+//                version: "2024.4.0"
+//            )
+//        )
+//        clientService.mockPlatform.loadFlagsError = BitwardenTestError.example
+//
+//        let response = await subject.getConfig(forceRefresh: false, isPreAuth: false)
+//        XCTAssertEqual(errorReporter.errors as? [BitwardenTestError], [.example])
+//    }
 }

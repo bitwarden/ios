@@ -224,6 +224,10 @@ protocol StateService: AnyObject {
     ///
     func getPreAuthEnvironmentUrls() async -> EnvironmentUrlData?
 
+    /// Gets the server config used by the app prior to the user authenticating.
+    /// - Returns: The server config used prior to user authentication.
+    func getPreAuthServerConfig() async -> ServerConfig?
+
     /// Gets the server config for a user ID, as set by the server.
     ///
     /// - Parameter userId: The user ID associated with the server config. Defaults to the active account if `nil`.
@@ -500,6 +504,10 @@ protocol StateService: AnyObject {
     /// - Parameter urls: The environment URLs used prior to user authentication.
     ///
     func setPreAuthEnvironmentUrls(_ urls: EnvironmentUrlData) async
+
+    /// Sets the server config used prior to user authentication
+    /// - Parameter config: The server config to use prior to user authentication.
+    func setPreAuthServerConfig(config: ServerConfig) async
 
     /// Sets the server configuration as provided by a server for a user ID.
     ///
@@ -1246,6 +1254,10 @@ actor DefaultStateService: StateService { // swiftlint:disable:this type_body_le
         appSettingsStore.preAuthEnvironmentUrls
     }
 
+    func getPreAuthServerConfig() async -> ServerConfig? {
+        appSettingsStore.preAuthServerConfig
+    }
+
     func getServerConfig(userId: String?) async throws -> ServerConfig? {
         let userId = try userId ?? getActiveAccountUserId()
         return appSettingsStore.serverConfig(userId: userId)
@@ -1481,6 +1493,10 @@ actor DefaultStateService: StateService { // swiftlint:disable:this type_body_le
 
     func setPreAuthEnvironmentUrls(_ urls: EnvironmentUrlData) async {
         appSettingsStore.preAuthEnvironmentUrls = urls
+    }
+
+    func setPreAuthServerConfig(config: ServerConfig) async {
+        appSettingsStore.preAuthServerConfig = config
     }
 
     func setServerConfig(_ config: ServerConfig?, userId: String?) async throws {

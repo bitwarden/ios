@@ -125,6 +125,9 @@ class DefaultClientService: ClientService {
     /// A helper object that builds a Bitwarden SDK `Client`.
     private let clientBuilder: ClientBuilder
 
+    /// The service to get server-specified configuration.
+    private let configService: ConfigService
+
     /// The service used by the application to report non-fatal errors.
     private let errorReporter: ErrorReporter
 
@@ -143,20 +146,35 @@ class DefaultClientService: ClientService {
     ///
     /// - Parameters:
     ///   - clientBuilder: A helper object that builds a Bitwarden SDK `Client`.
+    ///   - configService: The service to get server-specified configuration.
     ///   - errorReporter: The service used by the application to report non-fatal errors.
     ///   - settings: The settings to apply to the client. Defaults to `nil`.
     ///   - stateService: The service used by the application to manage account state.
     ///
     init(
         clientBuilder: ClientBuilder,
+        configService: ConfigService,
         errorReporter: ErrorReporter,
         settings: ClientSettings? = nil,
         stateService: StateService
     ) {
         self.clientBuilder = clientBuilder
+        self.configService = configService
         self.errorReporter = errorReporter
         self.settings = settings
         self.stateService = stateService
+
+        Task {
+            for try await result in try await configService.configPublisher() {
+                guard let result,
+                      !result.isPreAuth,
+                      let userId = result.userId else {
+                    continue
+                }
+
+                try? await loadFlags(result.serverConfig, for: client(for: userId))
+            }
+        }
     }
 
     // MARK: Methods
@@ -212,7 +230,12 @@ class DefaultClientService: ClientService {
             // If the user has a client, return it.
             guard let client = userClientArray[userId] else {
                 // If not, create one, map it to the user, then return it.
-                let newClient = createAndMapClient(for: userId)
+                let newClient = await createAndMapClient(for: userId)
+
+                // Get the current config and load the flags.
+                var config = await configService.getConfig()
+                loadFlags(config, for: newClient)
+
                 return newClient
             }
             return client
@@ -227,11 +250,27 @@ class DefaultClientService: ClientService {
     ///
     /// - Parameter userId: A user ID that the new client is being mapped to.
     ///
-    private func createAndMapClient(for userId: String) -> BitwardenSdkClient {
+    private func createAndMapClient(for userId: String) async -> BitwardenSdkClient {
         let client = clientBuilder.buildClient()
 
         userClientArray.updateValue(client, forKey: userId)
         return client
+    }
+
+    /// Loads the flags into the SDK.
+    /// - Parameter config: Config to update the flags.
+    private func loadFlags(_ config: ServerConfig?, for client: BitwardenSdkClient) {
+        do {
+            guard let config else {
+                return
+            }
+
+            try client.platform().loadFlags([
+                FeatureFlagsConstants.enableCipherKeyEncryption: config.supportsCipherKeyEncryption(),
+            ])
+        } catch {
+            errorReporter.log(error: error)
+        }
     }
 }
 
@@ -276,9 +315,7 @@ class DefaultClientBuilder: ClientBuilder {
     // MARK: Methods
 
     func buildClient() -> BitwardenSdkClient {
-        let client = Client(settings: settings)
-
-        return client
+        Client(settings: settings)
     }
 }
 

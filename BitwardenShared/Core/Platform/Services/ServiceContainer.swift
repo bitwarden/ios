@@ -316,9 +316,27 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
             keychainRepository: keychainRepository
         )
 
+        let environmentService = DefaultEnvironmentService(stateService: stateService)
+        let collectionService = DefaultCollectionService(collectionDataStore: dataStore, stateService: stateService)
+        let settingsService = DefaultSettingsService(settingsDataStore: dataStore, stateService: stateService)
+        let tokenService = DefaultTokenService(keychainRepository: keychainRepository, stateService: stateService)
+        let apiService = APIService(
+            environmentService: environmentService,
+            stateService: stateService,
+            tokenService: tokenService
+        )
+
+        let configService = DefaultConfigService(
+            configApiService: apiService,
+            errorReporter: errorReporter,
+            stateService: stateService,
+            timeProvider: timeProvider
+        )
+
         let clientBuilder = DefaultClientBuilder(errorReporter: errorReporter)
         let clientService = DefaultClientService(
             clientBuilder: clientBuilder,
+            configService: configService,
             errorReporter: errorReporter,
             stateService: stateService
         )
@@ -332,21 +350,8 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
 
         let localAuthService = DefaultLocalAuthService()
 
-        let environmentService = DefaultEnvironmentService(stateService: stateService)
-        let collectionService = DefaultCollectionService(collectionDataStore: dataStore, stateService: stateService)
-        let settingsService = DefaultSettingsService(settingsDataStore: dataStore, stateService: stateService)
-        let tokenService = DefaultTokenService(keychainRepository: keychainRepository, stateService: stateService)
-        let apiService = APIService(environmentService: environmentService, tokenService: tokenService)
         let captchaService = DefaultCaptchaService(environmentService: environmentService, stateService: stateService)
         let notificationCenterService = DefaultNotificationCenterService()
-
-        let configService = DefaultConfigService(
-            clientService: clientService,
-            configApiService: apiService,
-            errorReporter: errorReporter,
-            stateService: stateService,
-            timeProvider: timeProvider
-        )
 
         let folderService = DefaultFolderService(
             folderAPIService: apiService,
@@ -464,6 +469,7 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
             appIdService: appIdService,
             authAPIService: apiService,
             clientService: clientService,
+            configService: configService,
             environmentService: environmentService,
             keychainRepository: keychainRepository,
             policyService: policyService,
