@@ -108,7 +108,8 @@ class LandingProcessor: StateProcessor<LandingState, LandingAction, LandingEffec
         state.emailVerificationFeatureFlag = await services.configService.getFeatureFlag(
             FeatureFlag.emailVerification,
             defaultValue: false,
-            forceRefresh: true
+            forceRefresh: true,
+            isPreAuth: true
         )
     }
 

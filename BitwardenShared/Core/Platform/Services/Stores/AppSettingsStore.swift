@@ -47,6 +47,9 @@ protocol AppSettingsStore: AnyObject {
     /// The environment URLs used prior to user authentication.
     var preAuthEnvironmentUrls: EnvironmentUrlData? { get set }
 
+    /// The server config used prior to user authentication.
+    var preAuthServerConfig: ServerConfig? { get set }
+
     /// The email being remembered on the landing screen.
     var rememberedEmail: String? { get set }
 
@@ -588,6 +591,7 @@ extension DefaultAppSettingsStore: AppSettingsStore {
         case passwordGenerationOptions(userId: String)
         case pinProtectedUserKey(userId: String)
         case preAuthEnvironmentUrls
+        case preAuthServerConfig
         case rememberedEmail
         case rememberedOrgIdentifier
         case serverConfig(userId: String)
@@ -660,6 +664,8 @@ extension DefaultAppSettingsStore: AppSettingsStore {
                 key = "pinKeyEncryptedUserKey_\(userId)"
             case .preAuthEnvironmentUrls:
                 key = "preAuthEnvironmentUrls"
+            case .preAuthServerConfig:
+                key = "preAuthServerConfig"
             case .rememberedEmail:
                 key = "rememberedEmail"
             case .rememberedOrgIdentifier:
@@ -740,6 +746,11 @@ extension DefaultAppSettingsStore: AppSettingsStore {
     var preAuthEnvironmentUrls: EnvironmentUrlData? {
         get { fetch(for: .preAuthEnvironmentUrls) }
         set { store(newValue, for: .preAuthEnvironmentUrls) }
+    }
+
+    var preAuthServerConfig: ServerConfig? {
+        get { fetch(for: .preAuthServerConfig) }
+        set { store(newValue, for: .preAuthServerConfig) }
     }
 
     var rememberedEmail: String? {

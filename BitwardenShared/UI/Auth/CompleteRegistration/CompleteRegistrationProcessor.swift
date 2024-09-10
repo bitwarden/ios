@@ -244,7 +244,10 @@ class CompleteRegistrationProcessor: StateProcessor<
     /// Sets the feature flag value to be used.
     ///
     private func loadFeatureFlag() async {
-        state.nativeCreateAccountFeatureFlag = await services.configService.getFeatureFlag(.nativeCreateAccountFlow)
+        state.nativeCreateAccountFeatureFlag = await services.configService.getFeatureFlag(
+            .nativeCreateAccountFlow,
+            isPreAuth: true
+        )
     }
 
     /// Shows a `CompleteRegistrationError` alert.

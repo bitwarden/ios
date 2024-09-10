@@ -177,7 +177,7 @@ struct ViewItemDetailsView: View {
     @ViewBuilder private var notesSection: some View {
         if !store.state.notes.isEmpty {
             SectionView(Localizations.notes) {
-                BitwardenTextValueField(value: store.state.notes)
+                BitwardenTextValueField(value: store.state.notes, textSelectionEnabled: true)
             }
             .accessibilityElement(children: .contain)
             .accessibilityIdentifier("CipherNotesLabel")

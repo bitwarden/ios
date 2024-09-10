@@ -13,6 +13,7 @@ class AuthServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body_
     var authAPIService: AuthAPIService!
     var client: MockHTTPClient!
     var clientService: MockClientService!
+    var configService: MockConfigService!
     var environmentService: MockEnvironmentService!
     var keychainRepository: MockKeychainRepository!
     var stateService: MockStateService!
@@ -31,6 +32,18 @@ class AuthServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body_
         appSettingsStore = MockAppSettingsStore()
         authAPIService = APIService(client: client)
         clientService = MockClientService()
+        configService = MockConfigService()
+        configService.configMocker
+            .withResult(ServerConfig(
+                date: Date(year: 2024, month: 2, day: 14, hour: 7, minute: 50, second: 0),
+                responseModel: ConfigResponseModel(
+                    environment: nil,
+                    featureStates: [:],
+                    gitHash: "75238191",
+                    server: nil,
+                    version: "2024.6.0"
+                )
+            ))
         environmentService = MockEnvironmentService()
         keychainRepository = MockKeychainRepository()
         policyService = MockPolicyService()
@@ -43,6 +56,7 @@ class AuthServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body_
             appIdService: AppIdService(appSettingStore: appSettingsStore),
             authAPIService: authAPIService,
             clientService: clientService,
+            configService: configService,
             environmentService: environmentService,
             keychainRepository: keychainRepository,
             policyService: policyService,
@@ -60,6 +74,7 @@ class AuthServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body_
         authAPIService = nil
         client = nil
         clientService = nil
+        configService = nil
         environmentService = nil
         keychainRepository = nil
         stateService = nil
@@ -290,6 +305,7 @@ class AuthServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body_
             loginRequestId: "1"
         )
         XCTAssertEqual(client.requests.last?.body, try tokenRequest.encode())
+        assertGetConfig()
     }
 
     /// `loginWithDevice(_:email:captchaToken:)` throws an error if there's no cached data.
@@ -361,6 +377,7 @@ class AuthServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body_
             keychainRepository.getValue(for: .refreshToken(userId: "13512467-9cfe-43b0-969f-07534084764b")),
             IdentityTokenResponseModel.fixture().refreshToken
         )
+        assertGetConfig()
     }
 
     /// `loginWithMasterPassword(_:username:captchaToken:)` logs in with the password updates AccountProfile's
@@ -412,6 +429,7 @@ class AuthServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body_
             stateService.forcePasswordResetReason["13512467-9cfe-43b0-969f-07534084764b"],
             .weakMasterPasswordOnLogin
         )
+        assertGetConfig()
     }
 
     /// `loginWithMasterPassword(_:username:captchaToken:)` handles a two-factor auth error.
@@ -460,6 +478,7 @@ class AuthServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body_
         let unlockMethod = try await subject.loginWithSingleSignOn(code: "super_cool_secret_code", email: "")
 
         XCTAssertEqual(unlockMethod, .deviceKey)
+        assertGetConfig()
     }
 
     /// `loginWithSingleSignOn(code:email:)` returns the key connector unlock method if the user
@@ -473,6 +492,7 @@ class AuthServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body_
             unlockMethod,
             .keyConnector(keyConnectorURL: URL(string: "https://vault.bitwarden.com/key-connector")!)
         )
+        assertGetConfig()
     }
 
     // `loginWithSingleSignOn(code:email:)` returns the master password unlock method if the user
@@ -492,6 +512,7 @@ class AuthServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body_
             unlockMethod,
             .masterPassword(account)
         )
+        assertGetConfig()
     }
 
     /// `loginWithSingleSignOn(code:email:)` throws an error if the user doesn't have a master password set.
@@ -501,6 +522,7 @@ class AuthServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body_
         await assertAsyncThrows(error: AuthError.requireSetPassword) {
             _ = try await subject.loginWithSingleSignOn(code: "super_cool_secret_code", email: "")
         }
+        assertGetConfig()
     }
 
     /// `loginWithSingleSignOn(code:email:)` returns an account if the vault is still locked after authenticating.
@@ -551,6 +573,7 @@ class AuthServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body_
         )
 
         XCTAssertEqual(unlockMethod, .masterPassword(.fixtureAccountLogin()))
+        assertGetConfig()
     }
 
     /// `loginWithTwoFactorCode(email:code:method:remember:captchaToken:)` uses the cached request but with two factor
@@ -624,6 +647,7 @@ class AuthServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body_
         )
 
         XCTAssertEqual(unlockMethod, .masterPassword(.fixtureAccountLogin()))
+        assertGetConfig()
     }
 
     /// `loginWithTwoFactorCode()` returns the device key unlock method if the user uses trusted
@@ -662,6 +686,7 @@ class AuthServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body_
             remember: true
         )
         XCTAssertEqual(unlockMethod, .deviceKey)
+        assertGetConfig()
     }
 
     /// `loginWithTwoFactorCode()` returns the key connector unlock method if the user uses key connector.
@@ -702,6 +727,7 @@ class AuthServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body_
             unlockMethod,
             .keyConnector(keyConnectorURL: URL(string: "https://vault.bitwarden.com/key-connector")!)
         )
+        assertGetConfig()
     }
 
     /// `requirePasswordChange(email:masterPassword:policy)` returns `false` if there
@@ -803,5 +829,14 @@ class AuthServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body_
 
         // Ensure the resend email request runs successfully.
         try await subject.resendVerificationCodeEmail()
+    }
+
+    // MARK: Private
+
+    /// Asserts that `getConfig` is called with the proper parameters
+    private func assertGetConfig() {
+        configService.configMocker.assertUnwrapping { forceRefresh, isPreAuth in
+            forceRefresh && !isPreAuth
+        }
     }
 } // swiftlint:disable:this file_length
