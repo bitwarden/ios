@@ -74,7 +74,7 @@ public class DefaultSharedKeychainRepository: SharedKeychainRepository {
 
     // MARK: Methods
 
-    /// Retrieve the value for the specifi item from the Keychain Service.
+    /// Retrieve the value for the specific item from the Keychain Service.
     ///
     /// - Parameter item: the keychain item for which to retrieve a value.
     /// - Returns: The value (Data) stored in the keychain for the given item.
@@ -92,12 +92,12 @@ public class DefaultSharedKeychainRepository: SharedKeychainRepository {
             ] as CFDictionary
         )
 
-        if let resultDictionary = foundItem as? [String: Any],
-           let data = resultDictionary[kSecValueData as String] as? Data {
-            return data
-        } else {
+        guard let resultDictionary = foundItem as? [String: Any],
+              let data = resultDictionary[kSecValueData as String] as? Data else {
             throw AuthenticatorKeychainServiceError.keyNotFound(item)
         }
+
+        return data
     }
 
     /// Store a given value into the keychain for the given item.

@@ -4,7 +4,7 @@ import XCTest
 
 @testable import AuthenticatorSyncShared
 
-final class SharedKeychainRepositoryTests: XCTestCase {
+final class SharedKeychainRepositoryTests: AuthenticatorSyncSharedTestCase {
     // MARK: Properties
 
     let accessGroup = "group.com.example.bitwarden"
