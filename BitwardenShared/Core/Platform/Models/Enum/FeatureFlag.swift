@@ -6,7 +6,7 @@ import Foundation
 ///
 enum FeatureFlag: String, Codable {
     /// Flag to enable/disable the ability to sync TOTP codes with the Authenticator app.
-    case authenticatorSyncEnabled = "authenticator-sync-enabled"
+    case authenticatorSyncEnabled = "enable-authenticator-sync-ios"
 
     /// Flag to enable/disable email verification during registration
     /// This flag introduces a new flow for account creation
