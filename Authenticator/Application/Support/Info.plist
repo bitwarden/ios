@@ -122,5 +122,7 @@
 	</array>
 	<key>XSAppIconAssets</key>
 	<string>Resources/Assets.xcassets/AppIcons.appiconset</string>
+	<key>BitwardenAuthenticatorSharedAppGroup</key>
+	<string>$(SHARED_APP_GROUP_IDENTIFIER)</string>
 </dict>
 </plist>

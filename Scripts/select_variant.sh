@@ -27,11 +27,13 @@ export_options_file="Configs/export_options.plist"
 case $variant in
     Production)
     ios_bundle_id='com.bitwarden.authenticator'
+    shared_app_group_id='group.com.bitwarden.bitwarden-authenticator'
     profile_prefix="Dist:"
     app_icon="AppIcon"
         ;;
     Beta)
-    ios_bundle_id='com.bitwarden.autenticator'
+    ios_bundle_id='com.bitwarden.autenticator.beta'
+    shared_app_group_id='group.com.bitwarden.bitwarden-authenticator.beta'
     profile_prefix="Dist: Beta"
     app_icon="AppIcon-Beta"
         ;;
@@ -43,6 +45,7 @@ CODE_SIGN_IDENTITY = Apple Distribution
 DEVELOPMENT_TEAM = LTZ2PFU5D6
 ORGANIZATION_IDENTIFIER = com.8bit
 BASE_BUNDLE_ID = ${ios_bundle_id}
+SHARED_APP_GROUP_IDENTIFIER = ${shared_app_group_id}
 APPICON_NAME = ${app_icon}
 PROVISIONING_PROFILE_SPECIFIER = ${profile_prefix} Bitwarden Authenticator
 EOF

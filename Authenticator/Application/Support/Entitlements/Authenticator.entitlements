@@ -4,7 +4,8 @@
 <dict>
 	<key>com.apple.security.application-groups</key>
 	<array>
-		<string>group.com.bitwarden.authenticator</string>
+		<string>group.${BASE_BUNDLE_ID}</string>
+		<string>$(SHARED_APP_GROUP_IDENTIFIER)</string>
 	</array>
 	<key>keychain-access-groups</key>
 	<array>

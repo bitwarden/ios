@@ -2,6 +2,7 @@ CODE_SIGN_STYLE = Automatic
 DEVELOPMENT_TEAM = LTZ2PFU5D6
 ORGANIZATION_IDENTIFIER = com.bitwarden
 BASE_BUNDLE_ID = $(ORGANIZATION_IDENTIFIER).authenticator
+SHARED_APP_GROUP_IDENTIFIER = group.${ORGANIZATION_IDENTIFIER}.bitwarden-authenticator
 
 // The above code signing settings can be overriden by adding a Local.xcconfig
 // file in the Configs directory.
