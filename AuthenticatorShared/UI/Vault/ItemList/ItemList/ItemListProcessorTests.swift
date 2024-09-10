@@ -101,7 +101,7 @@ class ItemListProcessorTests: AuthenticatorTestCase {
     /// to false if the feature flag is turned off.
     func test_determineItemListCardState_FeatureFlag_off() {
         subject.state.itemListCardState = .passwordManagerSync
-        configService.featureFlagsBool = [.passwordManagerSyncEnabled: false]
+        configService.featureFlagsBool = [.enablePasswordManagerSync: false]
         let task = Task {
             await self.subject.perform(.appeared)
         }
@@ -112,7 +112,7 @@ class ItemListProcessorTests: AuthenticatorTestCase {
 
     /// Tests that the `itemListCardState` is set to `passwordManagerDownload` if the feature flag is turned on.
     func test_determineItemListCardState_FeatureFlag_on_download() {
-        configService.featureFlagsBool = [.passwordManagerSyncEnabled: true]
+        configService.featureFlagsBool = [.enablePasswordManagerSync: true]
         application.canOpenUrlResponse = false
         let task = Task {
             await self.subject.perform(.appeared)
@@ -124,7 +124,7 @@ class ItemListProcessorTests: AuthenticatorTestCase {
 
     /// Tests that the `itemListCardState` is set to `passwordManagerSync` if the feature flag is turned on.
     func test_determineItemListCardState_FeatureFlag_on_sync() {
-        configService.featureFlagsBool = [.passwordManagerSyncEnabled: true]
+        configService.featureFlagsBool = [.enablePasswordManagerSync: true]
         application.canOpenUrlResponse = true
         let task = Task {
             await self.subject.perform(.appeared)
