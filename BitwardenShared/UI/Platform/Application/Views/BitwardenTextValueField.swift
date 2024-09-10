@@ -29,24 +29,18 @@ struct BitwardenTextValueField<AccessoryContent>: View where AccessoryContent: V
 
     var body: some View {
         BitwardenField(title: title, titleAccessibilityIdentifier: titleAccessibilityIdentifier) {
-            if textSelectionEnabled {
-                text
-                    .textSelection(.enabled)
-            } else {
-                text
-            }
+            Text(value)
+                .styleGuide(.body)
+                .multilineTextAlignment(.leading)
+                .foregroundColor(Asset.Colors.textPrimary.swiftUIColor)
+                .accessibilityIdentifier(valueAccessibilityIdentifier ?? value)
+                .if(textSelectionEnabled) { textView in
+                    textView
+                        .textSelection(.enabled)
+                }
         } accessoryContent: {
             accessoryContent
         }
-    }
-
-    /// The main text of this view.
-    @ViewBuilder var text: some View {
-        Text(value)
-            .styleGuide(.body)
-            .multilineTextAlignment(.leading)
-            .foregroundColor(Asset.Colors.textPrimary.swiftUIColor)
-            .accessibilityIdentifier(valueAccessibilityIdentifier ?? value)
     }
 
     // MARK: Initialization
