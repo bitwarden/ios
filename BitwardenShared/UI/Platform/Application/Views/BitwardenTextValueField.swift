@@ -5,6 +5,10 @@ import SwiftUI
 struct BitwardenTextValueField<AccessoryContent>: View where AccessoryContent: View {
     // MARK: Properties
 
+    /// Whether the text selection is enabled.
+    /// Warning: This only allows Copy/Share actions but not range selection.
+    var textSelectionEnabled: Bool
+
     /// The (optional) title of the field.
     var title: String?
 
@@ -25,20 +29,29 @@ struct BitwardenTextValueField<AccessoryContent>: View where AccessoryContent: V
 
     var body: some View {
         BitwardenField(title: title, titleAccessibilityIdentifier: titleAccessibilityIdentifier) {
-            Text(value)
-                .styleGuide(.body)
-                .multilineTextAlignment(.leading)
-                .foregroundColor(Asset.Colors.textPrimary.swiftUIColor)
-                .accessibilityIdentifier(valueAccessibilityIdentifier ?? value)
+            if textSelectionEnabled {
+                text
+                    .textSelection(.enabled)
+            } else {
+                text
+            }
         } accessoryContent: {
             accessoryContent
         }
     }
 
+    /// The main text of this view.
+    @ViewBuilder var text: some View {
+        Text(value)
+            .styleGuide(.body)
+            .multilineTextAlignment(.leading)
+            .foregroundColor(Asset.Colors.textPrimary.swiftUIColor)
+            .accessibilityIdentifier(valueAccessibilityIdentifier ?? value)
+    }
+
     // MARK: Initialization
 
     /// Creates a new `BitwardenTextValueField`.
-    ///
     /// - Parameters:
     ///   - title: The (optional) title of the field.
     ///   - titleAccessibilityIdentifier: The (optional) accessibility identifier to apply
@@ -46,16 +59,19 @@ struct BitwardenTextValueField<AccessoryContent>: View where AccessoryContent: V
     ///   - value: The text value to display in this field.
     ///   - valueAccessibilityIdentifier: The (optional) accessibility identifier to apply
     ///     to the displayed value of the field
+    ///   - textSelectionEnabled: Whether text selection is enabled.
+    ///   This doesn't allow range selection, only copy/share actions.
     ///   - accessoryContent: Any accessory content that should be displayed on the trailing edge of
     ///     the field. This content automatically has the `AccessoryButtonStyle` applied to it.
-    ///
     init(
         title: String? = nil,
         titleAccessibilityIdentifier: String? = "ItemName",
         value: String,
         valueAccessibilityIdentifier: String? = "ItemValue",
+        textSelectionEnabled: Bool = false,
         @ViewBuilder accessoryContent: () -> AccessoryContent
     ) {
+        self.textSelectionEnabled = textSelectionEnabled
         self.title = title
         self.titleAccessibilityIdentifier = titleAccessibilityIdentifier
         self.value = value
@@ -72,18 +88,24 @@ extension BitwardenTextValueField where AccessoryContent == EmptyView {
     ///   - titleAccessibilityIdentifier: The (optional) accessibility identifier to apply
     ///     to the title of the field (if it exists)
     ///   - value: The text value to display in this field.
+    ///   - valueAccessibilityIdentifier: The (optional) accessibility identifier to apply
+    ///     to the displayed value of the field
+    ///   - textSelectionEnabled: Whether text selection is enabled.
+    ///   This doesn't allow range selection, only copy/share actions.
     ///
     init(
         title: String? = nil,
         titleAccessibilityIdentifier: String? = "ItemName",
         value: String,
-        valueAccessibilityIdentifier: String? = "ItemValue"
+        valueAccessibilityIdentifier: String? = "ItemValue",
+        textSelectionEnabled: Bool = false
     ) {
         self.init(
             title: title,
             titleAccessibilityIdentifier: titleAccessibilityIdentifier,
             value: value,
-            valueAccessibilityIdentifier: valueAccessibilityIdentifier
+            valueAccessibilityIdentifier: valueAccessibilityIdentifier,
+            textSelectionEnabled: textSelectionEnabled
         ) {
             EmptyView()
         }
