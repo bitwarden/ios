@@ -688,6 +688,30 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
         XCTAssertNil(urls)
     }
 
+    /// `getPreAuthServerConfig` returns the saved pre-auth server config.
+    func test_getPreAuthServerConfig() async {
+        let config = ServerConfig(
+            date: Date(year: 2024, month: 2, day: 14, hour: 7, minute: 50, second: 0),
+            responseModel: ConfigResponseModel(
+                environment: nil,
+                featureStates: [:],
+                gitHash: "75238192",
+                server: nil,
+                version: "2024.4.0"
+            )
+        )
+
+        appSettingsStore.preAuthServerConfig = config
+        let preAuthConfig = await subject.getPreAuthServerConfig()
+        XCTAssertEqual(preAuthConfig, config)
+    }
+
+    /// `getPreAuthServerConfig` returns `nil` if the server config hasn't been set.
+    func test_getPreAuthServerConfig_notSet() async {
+        let config = await subject.getPreAuthServerConfig()
+        XCTAssertNil(config)
+    }
+
     /// `getServerConfig(:)` returns the config values
     func test_getServerConfig() async throws {
         await subject.addAccount(.fixture())
@@ -1550,6 +1574,23 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
         let urls = EnvironmentUrlData(base: .example)
         await subject.setPreAuthEnvironmentUrls(urls)
         XCTAssertEqual(appSettingsStore.preAuthEnvironmentUrls, urls)
+    }
+
+    /// `setPreAuthServerConfig(config:)` saves the pre-auth server config.
+    func test_setPreAuthServerConfig() async {
+        let config = ServerConfig(
+            date: Date(timeIntervalSince1970: 100),
+            responseModel: ConfigResponseModel(
+                environment: nil,
+                featureStates: [:],
+                gitHash: "1234",
+                server: nil,
+                version: "1.2.3.4"
+            )
+        )
+
+        await subject.setPreAuthServerConfig(config: config)
+        XCTAssertEqual(appSettingsStore.preAuthServerConfig, config)
     }
 
     /// `setServerConfig(_:)` sets the config values.
