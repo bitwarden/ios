@@ -39,6 +39,19 @@ struct ServerConfig: Equatable, Codable, Sendable {
         server = responseModel.server.map(ThirdPartyServerConfig.init)
         version = responseModel.version
     }
+
+    // MARK: Methods
+
+    /// Whether the server supports cipher key encryption.
+    /// - Returns: `true` if it's supported, `false` otherwise.
+    func supportsCipherKeyEncryption() -> Bool {
+        guard let minVersion = ServerVersion(Constants.cipherKeyEncryptionMinServerVersion),
+              let serverVersion = ServerVersion(version),
+              minVersion <= serverVersion else {
+            return false
+        }
+        return true
+    }
 }
 
 // MARK: - ThirdPartyServerConfig

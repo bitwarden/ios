@@ -10,6 +10,9 @@ typealias DeviceType = Int
 enum Constants {
     // MARK: Static Properties
 
+    /// The minimum server version required to have cipher key encryption on.
+    static let cipherKeyEncryptionMinServerVersion = "2024.2.0"
+
     /// The client type corresponding to the app.
     static let clientType: ClientType = "mobile"
 
