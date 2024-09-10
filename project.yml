@@ -55,12 +55,14 @@ schemes:
         - BitwardenAutoFillExtension
         - BitwardenShareExtension
         - BitwardenShared
+        - AuthenticatorSyncShared
       targets:
         - BitwardenTests
         - BitwardenActionExtensionTests
         - BitwardenAutoFillExtensionTests
         - BitwardenShareExtensionTests
         - BitwardenSharedTests
+        - AuthenticatorSyncSharedTests
         - package: Networking/NetworkingTests
   BitwardenActionExtension:
     build:
@@ -116,6 +118,15 @@ schemes:
       region: US
       targets:
         - BitwardenSharedTests
+  AuthenticatorSyncShared:
+    build:
+      targets:
+        AuthenticatorSyncShared: all
+        AuthenticatorSyncSharedTests: [test]
+    test:
+      gatherCoverageData: true
+      targets:
+        - AuthenticatorSyncSharedTests
   BitwardenWatchApp:
     build:
       targets:
@@ -154,6 +165,7 @@ targets:
       - path: swiftgen.yml
         buildPhase: none
     dependencies:
+      - target: AuthenticatorSyncShared
       - target: BitwardenShared
       - target: BitwardenActionExtension
       - target: BitwardenAutoFillExtension
@@ -208,6 +220,7 @@ targets:
     dependencies:
       - target: Bitwarden
       - target: BitwardenShared
+      - target: AuthenticatorSyncShared
       - package: SnapshotTesting
       - package: ViewInspector
     randomExecutionOrder: true
@@ -351,6 +364,7 @@ targets:
         optional: true
       - path: BitwardenWatchShared
     dependencies:
+      - target: AuthenticatorSyncShared
       - package: BitwardenSdk
       - package: Networking
       - package: SwiftUIIntrospect
@@ -387,6 +401,34 @@ targets:
       - package: SnapshotTesting
         product: InlineSnapshotTesting
       - package: ViewInspector
+    randomExecutionOrder: true
+
+  AuthenticatorSyncShared:
+    type: framework
+    platform: iOS
+    configFiles:
+      Debug: Configs/AuthenticatorSyncShared.xcconfig
+      Release: Configs/AuthenticatorSyncShared.xcconfig
+    settings:
+      base:
+        APPLICATION_EXTENSION_API_ONLY: true
+        INFOPLIST_FILE: AuthenticatorSyncShared/Info.plist
+    sources:
+      - path: AuthenticatorSyncShared
+        excludes:
+          - "**/Tests/*"
+  AuthenticatorSyncSharedTests:
+    type: bundle.unit-test
+    platform: iOS
+    settings:
+      base:
+        INFOPLIST_FILE: AuthenticatorSyncShared/Tests/TestHelpers/Support/Info.plist
+    sources:
+      - path: AuthenticatorSyncShared
+        includes:
+          - "**/Tests/*"
+    dependencies:
+      - target: AuthenticatorSyncShared
     randomExecutionOrder: true
 
   BitwardenWatchApp:

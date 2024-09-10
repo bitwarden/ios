@@ -1,0 +1,4 @@
+#include "./Common.xcconfig"
+#include? "./Local.xcconfig"
+
+PRODUCT_BUNDLE_IDENTIFIER = $(ORGANIZATION_IDENTIFIER).AuthenticatorSyncShared
