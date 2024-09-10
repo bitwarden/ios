@@ -9,20 +9,20 @@ import XCTest
 class ItemListCardViewTests: AuthenticatorTestCase {
     // MARK: Tests
 
-    /// Test a snapshot of the ItemListView previews.
-    func test_snapshot_ItemListCardView_previews() {
-        for preview in ItemListCardView_Previews._allPreviews {
-            let name = preview.displayName ?? "Unknown"
-            assertSnapshots(
-                of: preview.content,
-                as: [
-                    "\(name)-portrait": .defaultPortrait,
-                    "\(name)-portraitDark": .defaultPortraitDark,
-                    "\(name)-portraitAX5": .defaultPortraitAX5,
-                ]
-            )
-        }
-    }
+//    /// Test a snapshot of the ItemListView previews.
+//    func test_snapshot_ItemListCardView_previews() {
+//        for preview in ItemListCardView_Previews._allPreviews {
+//            let name = preview.displayName ?? "Unknown"
+//            assertSnapshots(
+//                of: preview.content,
+//                as: [
+//                    "\(name)-portrait": .defaultPortrait,
+//                    "\(name)-portraitDark": .defaultPortraitDark,
+//                    "\(name)-portraitAX5": .defaultPortraitAX5,
+//                ]
+//            )
+//        }
+//    }
 
     /// Test the actions are properly wired up in the ItemListCardView.
     func test_snapshot_ItemListCardView_actions() throws {

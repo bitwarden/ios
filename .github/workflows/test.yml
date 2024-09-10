@@ -10,12 +10,13 @@ on:
     types: [opened, synchronize]
 
 env:
-  DEVELOPER_DIR: /Applications/Xcode_15.0.1.app/Contents/Developer
+  DEVELOPER_DIR: /Applications/Xcode_15.4.app/Contents/Developer
   MINT_LINK_PATH: .mint/bin
   MINT_PATH: .mint/lib
   SIMULATOR_DESTINATION: platform=iOS Simulator,name=iPhone 15 Pro,OS=17.0.1
   RESULT_BUNDLE_PATH: build/AuthenticatorTests.xcresult
   COVERAGE_PATH: build/coverage.xml
+  XCODE_VERSION: 15.4
 
 jobs:
   check-run:
@@ -35,6 +36,11 @@ jobs:
         uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
         with:
           ref: ${{ github.event.pull_request.head.sha }}
+
+      - name: Set Xcode version
+        uses: maxim-lobanov/setup-xcode@60606e260d2fc5762a71e64e74b2174e8ea3c8bd # v1.6.0
+        with:
+          xcode-version: ${{ env.XCODE_VERSION }}
 
       - name: Configure Ruby
         uses: ruby/setup-ruby@a6e6f86333f0a2523ece813039b8b4be04560854 # v1.190.0

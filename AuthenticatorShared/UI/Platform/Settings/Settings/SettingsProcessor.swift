@@ -76,7 +76,6 @@ final class SettingsProcessor: StateProcessor<SettingsState, SettingsAction, Set
             coordinator.showAlert(.privacyPolicyAlert {
                 self.state.url = ExternalLinksConstants.privacyPolicy
             })
-
         case let .toastShown(newValue):
             state.toast = newValue
         case .tutorialTapped:
