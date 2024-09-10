@@ -20,7 +20,7 @@ public protocol AuthenticatorKeychainService: AnyObject {
 
     /// Searches for a query.
     ///
-    /// - Parameter query: Query for the delete.
+    /// - Parameter query: Query for the search.
     /// - Returns: The search results.
     ///
     func search(query: CFDictionary) throws -> AnyObject?
