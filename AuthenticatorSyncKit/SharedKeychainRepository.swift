@@ -51,7 +51,7 @@ public class DefaultSharedKeychainRepository: SharedKeychainRepository {
     ///
     /// Example: "group.com.8bit.bitwarden"
     ///
-    private let appSecAttrAccessGroupShared: String
+    private let sharedAppGroupIdentifier: String
 
     /// The keychain service used by the repository
     ///
@@ -62,13 +62,13 @@ public class DefaultSharedKeychainRepository: SharedKeychainRepository {
     /// Initialize a `DefaultSharedKeychainRepository`.
     ///
     /// - Parameters:
-    ///   - appSecAttrAccessGroupShared: An identifier for the shared access group used by the application.
+    ///   - sharedAppGroupIdentifier: An identifier for the shared access group used by the application.
     ///   - keychainService: The keychain service used by the repository
     public init(
-        appSecAttrAccessGroupShared: String,
+        sharedAppGroupIdentifier: String,
         keychainService: AuthenticatorKeychainService
     ) {
-        self.appSecAttrAccessGroupShared = appSecAttrAccessGroupShared
+        self.sharedAppGroupIdentifier = sharedAppGroupIdentifier
         self.keychainService = keychainService
     }
 
@@ -85,7 +85,7 @@ public class DefaultSharedKeychainRepository: SharedKeychainRepository {
                 kSecMatchLimit: kSecMatchLimitOne,
                 kSecReturnData: true,
                 kSecReturnAttributes: true,
-                kSecAttrAccessGroup: appSecAttrAccessGroupShared,
+                kSecAttrAccessGroup: sharedAppGroupIdentifier,
                 kSecAttrAccessible: kSecAttrAccessibleAfterFirstUnlockThisDeviceOnly,
                 kSecAttrAccount: item.unformattedKey,
                 kSecClass: kSecClassGenericPassword,
@@ -110,7 +110,7 @@ public class DefaultSharedKeychainRepository: SharedKeychainRepository {
         let query = [
             kSecValueData: value,
             kSecAttrAccessible: kSecAttrAccessibleAfterFirstUnlockThisDeviceOnly,
-            kSecAttrAccessGroup: appSecAttrAccessGroupShared,
+            kSecAttrAccessGroup: sharedAppGroupIdentifier,
             kSecAttrAccount: item.unformattedKey,
             kSecClass: kSecClassGenericPassword,
         ] as CFDictionary
@@ -130,7 +130,7 @@ public extension DefaultSharedKeychainRepository {
         try keychainService.delete(
             query: [
                 kSecAttrAccessible: kSecAttrAccessibleAfterFirstUnlockThisDeviceOnly,
-                kSecAttrAccessGroup: appSecAttrAccessGroupShared,
+                kSecAttrAccessGroup: sharedAppGroupIdentifier,
                 kSecAttrAccount: SharedKeychainItem.authenticatorKey.unformattedKey,
                 kSecClass: kSecClassGenericPassword,
             ] as CFDictionary

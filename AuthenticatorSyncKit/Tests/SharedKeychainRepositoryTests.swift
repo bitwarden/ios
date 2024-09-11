@@ -16,7 +16,7 @@ final class SharedKeychainRepositoryTests: AuthenticatorSyncKitTestCase {
     override func setUp() {
         keychainService = MockAuthenticatorKeychainService()
         subject = DefaultSharedKeychainRepository(
-            appSecAttrAccessGroupShared: accessGroup,
+            sharedAppGroupIdentifier: accessGroup,
             keychainService: keychainService
         )
     }
@@ -70,9 +70,34 @@ final class SharedKeychainRepositoryTests: AuthenticatorSyncKitTestCase {
         try XCTAssertTrue(XCTUnwrap(query[kSecReturnData] as? Bool))
     }
 
-    /// Verify that `getAuthenticatorKey()` fails with an error when the Authenticator is not present in the keychain
+    /// Verify that `getAuthenticatorKey()` fails with a `keyNotFound` error when an unexpected
+    /// result is returned instead of the key data from the keychain
     ///
-    func testGetAuthenticatorKeyFailed() async throws {
+    func testGetAuthenticatorKeyBadResult() async throws {
+        let error = AuthenticatorKeychainServiceError.keyNotFound(SharedKeychainItem.authenticatorKey)
+        keychainService.searchResult = .success([kSecValueData as String: NSObject()] as AnyObject)
+
+        await assertAsyncThrows(error: error) {
+            _ = try await subject.getAuthenticatorKey()
+        }
+    }
+
+    /// Verify that `getAuthenticatorKey()` fails with a `keyNotFound` error when a nil
+    /// result is returned instead of the key data from the keychain
+    ///
+    func testGetAuthenticatorKeyNilResult() async throws {
+        let error = AuthenticatorKeychainServiceError.keyNotFound(SharedKeychainItem.authenticatorKey)
+        keychainService.searchResult = .success(nil)
+
+        await assertAsyncThrows(error: error) {
+            _ = try await subject.getAuthenticatorKey()
+        }
+    }
+
+    /// Verify that `getAuthenticatorKey()` fails with an error when the Authenticator key is not
+    /// present in the keychain
+    ///
+    func testGetAuthenticatorKeyNotFound() async throws {
         let error = AuthenticatorKeychainServiceError.keyNotFound(SharedKeychainItem.authenticatorKey)
         keychainService.searchResult = .failure(error)
 
