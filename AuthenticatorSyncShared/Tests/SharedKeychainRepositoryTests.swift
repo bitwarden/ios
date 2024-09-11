@@ -76,15 +76,8 @@ final class SharedKeychainRepositoryTests: AuthenticatorSyncSharedTestCase {
         let error = AuthenticatorKeychainServiceError.keyNotFound(SharedKeychainItem.authenticatorKey)
         keychainService.searchResult = .failure(error)
 
-        do {
+        await assertAsyncThrows(error: error) {
             _ = try await subject.getAuthenticatorKey()
-            XCTFail("Expected error `keyNotFound` was never thrown!")
-        } catch let caughtError as AuthenticatorKeychainServiceError {
-            XCTAssertEqual(caughtError, error)
-        } catch let caughtError {
-            XCTFail(
-                "The error caught (\(caughtError)) does not match the type of error provided (\(error))."
-            )
         }
     }
 
