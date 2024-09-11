@@ -2,9 +2,9 @@ import CryptoKit
 import Foundation
 import XCTest
 
-@testable import AuthenticatorSyncShared
+@testable import AuthenticatorSyncKit
 
-final class SharedKeychainRepositoryTests: AuthenticatorSyncSharedTestCase {
+final class SharedKeychainRepositoryTests: AuthenticatorSyncKitTestCase {
     // MARK: Properties
 
     let accessGroup = "group.com.example.bitwarden"

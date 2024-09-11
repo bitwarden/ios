@@ -36,15 +36,15 @@ packages:
     url: https://github.com/nalexn/ViewInspector
     exactVersion: 0.9.10
 schemes:
-  AuthenticatorSyncShared:
+  AuthenticatorSyncKit:
     build:
       targets:
-        AuthenticatorSyncShared: all
-        AuthenticatorSyncSharedTests: [test]
+        AuthenticatorSyncKit: all
+        AuthenticatorSyncKitTests: [test]
     test:
       gatherCoverageData: true
       targets:
-        - AuthenticatorSyncSharedTests
+        - AuthenticatorSyncKitTests
   Bitwarden:
     build:
       targets:
@@ -59,14 +59,14 @@ schemes:
       language: en
       region: US
       coverageTargets:
-        - AuthenticatorSyncShared
+        - AuthenticatorSyncKit
         - Bitwarden
         - BitwardenActionExtension
         - BitwardenAutoFillExtension
         - BitwardenShareExtension
         - BitwardenShared
       targets:
-        - AuthenticatorSyncSharedTests
+        - AuthenticatorSyncKitTests
         - BitwardenTests
         - BitwardenActionExtensionTests
         - BitwardenAutoFillExtensionTests
@@ -136,32 +136,32 @@ schemes:
       targets:
         BitwardenWatchWidgetExtension: all
 targets:
-  AuthenticatorSyncShared:
+  AuthenticatorSyncKit:
     type: framework
     platform: iOS
     configFiles:
-      Debug: Configs/AuthenticatorSyncShared.xcconfig
-      Release: Configs/AuthenticatorSyncShared.xcconfig
+      Debug: Configs/AuthenticatorSyncKit.xcconfig
+      Release: Configs/AuthenticatorSyncKit.xcconfig
     settings:
       base:
         APPLICATION_EXTENSION_API_ONLY: true
-        INFOPLIST_FILE: AuthenticatorSyncShared/Info.plist
+        INFOPLIST_FILE: AuthenticatorSyncKit/Info.plist
     sources:
-      - path: AuthenticatorSyncShared
+      - path: AuthenticatorSyncKit
         excludes:
           - "**/Tests/*"
-  AuthenticatorSyncSharedTests:
+  AuthenticatorSyncKitTests:
     type: bundle.unit-test
     platform: iOS
     settings:
       base:
-        INFOPLIST_FILE: AuthenticatorSyncShared/Tests/TestHelpers/Support/Info.plist
+        INFOPLIST_FILE: AuthenticatorSyncKit/Tests/TestHelpers/Support/Info.plist
     sources:
-      - path: AuthenticatorSyncShared
+      - path: AuthenticatorSyncKit
         includes:
           - "**/Tests/*"
     dependencies:
-      - target: AuthenticatorSyncShared
+      - target: AuthenticatorSyncKit
     randomExecutionOrder: true
   Bitwarden:
     type: application
@@ -192,7 +192,7 @@ targets:
       - path: swiftgen.yml
         buildPhase: none
     dependencies:
-      - target: AuthenticatorSyncShared
+      - target: AuthenticatorSyncKit
       - target: BitwardenShared
       - target: BitwardenActionExtension
       - target: BitwardenAutoFillExtension
@@ -245,7 +245,7 @@ targets:
           - "**/TestHelpers/*"
       - path: GlobalTestHelpers
     dependencies:
-      - target: AuthenticatorSyncShared
+      - target: AuthenticatorSyncKit
       - target: Bitwarden
       - target: BitwardenShared
       - package: SnapshotTesting
@@ -391,7 +391,7 @@ targets:
         optional: true
       - path: BitwardenWatchShared
     dependencies:
-      - target: AuthenticatorSyncShared
+      - target: AuthenticatorSyncKit
       - package: BitwardenSdk
       - package: Networking
       - package: SwiftUIIntrospect
