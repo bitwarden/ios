@@ -21,6 +21,9 @@ struct CompleteRegistrationState: Equatable, Sendable {
         }
     }
 
+    /// Whether the user's account has been created when completing registration.
+    var didCreateAccount = false
+
     /// Token needed to complete registration
     var emailVerificationToken: String
 
