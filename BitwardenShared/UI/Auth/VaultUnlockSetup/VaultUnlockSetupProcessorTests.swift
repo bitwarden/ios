@@ -96,6 +96,60 @@ class VaultUnlockSetupProcessorTests: BitwardenTestCase {
         XCTAssertEqual(subject.state.unlockMethods, [.biometrics(.touchID), .pin])
     }
 
+    /// `perform(_:)` with `.toggleUnlockMethod` disables biometrics unlock and updates the state.
+    @MainActor
+    func test_perform_toggleUnlockMethod_biometrics_disable() async {
+        subject.state.biometricsStatus = .available(.faceID, enabled: true, hasValidIntegrity: true)
+        vaultUnlockSetupHelper.setBiometricUnlockStatus = .available(
+            .faceID,
+            enabled: false,
+            hasValidIntegrity: false
+        )
+
+        await subject.perform(.toggleUnlockMethod(.biometrics(.faceID), newValue: false))
+
+        XCTAssertTrue(vaultUnlockSetupHelper.setBiometricUnlockCalled)
+        XCTAssertFalse(subject.state.isBiometricUnlockOn)
+    }
+
+    /// `perform(_:)` with `.toggleUnlockMethod` enables biometrics unlock and updates the state.
+    @MainActor
+    func test_perform_toggleUnlockMethod_biometrics_enable() async {
+        vaultUnlockSetupHelper.setBiometricUnlockStatus = .available(
+            .faceID,
+            enabled: true,
+            hasValidIntegrity: true
+        )
+
+        await subject.perform(.toggleUnlockMethod(.biometrics(.faceID), newValue: true))
+
+        XCTAssertTrue(vaultUnlockSetupHelper.setBiometricUnlockCalled)
+        XCTAssertTrue(subject.state.isBiometricUnlockOn)
+    }
+
+    /// `perform(_:)` with `.toggleUnlockMethod` disables pin unlock and updates the state.
+    @MainActor
+    func test_perform_toggleUnlockMethod_pin_disable() async {
+        vaultUnlockSetupHelper.setPinUnlockResult = true
+
+        await subject.perform(.toggleUnlockMethod(.pin, newValue: false))
+
+        XCTAssertTrue(vaultUnlockSetupHelper.setPinUnlockCalled)
+        XCTAssertTrue(subject.state.isPinUnlockOn)
+    }
+
+    /// `perform(_:)` with `.toggleUnlockMethod` enables pin unlock and updates the state.
+    @MainActor
+    func test_perform_toggleUnlockMethod_pin_enable() async {
+        subject.state.isPinUnlockOn = true
+        vaultUnlockSetupHelper.setPinUnlockResult = false
+
+        await subject.perform(.toggleUnlockMethod(.pin, newValue: true))
+
+        XCTAssertTrue(vaultUnlockSetupHelper.setPinUnlockCalled)
+        XCTAssertFalse(subject.state.isPinUnlockOn)
+    }
+
     /// `receive(_:)` with `.continueFlow` navigates to autofill setup.
     @MainActor
     func test_receive_continueFlow() {
@@ -108,63 +162,5 @@ class VaultUnlockSetupProcessorTests: BitwardenTestCase {
     func test_receive_setUpLater() {
         subject.receive(.setUpLater)
         // TODO: PM-10270 Skip unlock setup
-    }
-
-    /// `receive(_:)` with `.toggleUnlockMethod` disables biometrics unlock and updates the state.
-    @MainActor
-    func test_receive_toggleUnlockMethod_biometrics_disable() {
-        subject.state.biometricsStatus = .available(.faceID, enabled: true, hasValidIntegrity: true)
-        vaultUnlockSetupHelper.setBiometricUnlockStatus = .available(
-            .faceID,
-            enabled: false,
-            hasValidIntegrity: false
-        )
-
-        subject.receive(.toggleUnlockMethod(.biometrics(.faceID), newValue: false))
-        waitFor { !subject.state.isBiometricUnlockOn }
-
-        XCTAssertTrue(vaultUnlockSetupHelper.setBiometricUnlockCalled)
-        XCTAssertFalse(subject.state.isBiometricUnlockOn)
-    }
-
-    /// `receive(_:)` with `.toggleUnlockMethod` enables biometrics unlock and updates the state.
-    @MainActor
-    func test_receive_toggleUnlockMethod_biometrics_enable() {
-        vaultUnlockSetupHelper.setBiometricUnlockStatus = .available(
-            .faceID,
-            enabled: true,
-            hasValidIntegrity: true
-        )
-
-        subject.receive(.toggleUnlockMethod(.biometrics(.faceID), newValue: true))
-        waitFor { subject.state.isBiometricUnlockOn }
-
-        XCTAssertTrue(vaultUnlockSetupHelper.setBiometricUnlockCalled)
-        XCTAssertTrue(subject.state.isBiometricUnlockOn)
-    }
-
-    /// `receive(_:)` with `.toggleUnlockMethod` disables pin unlock and updates the state.
-    @MainActor
-    func test_receive_toggleUnlockMethod_pin_disable() {
-        vaultUnlockSetupHelper.setPinUnlockResult = true
-
-        subject.receive(.toggleUnlockMethod(.pin, newValue: false))
-        waitFor { subject.state.isPinUnlockOn }
-
-        XCTAssertTrue(vaultUnlockSetupHelper.setPinUnlockCalled)
-        XCTAssertTrue(subject.state.isPinUnlockOn)
-    }
-
-    /// `receive(_:)` with `.toggleUnlockMethod` enables pin unlock and updates the state.
-    @MainActor
-    func test_receive_toggleUnlockMethod_pin_enable() {
-        subject.state.isPinUnlockOn = true
-        vaultUnlockSetupHelper.setPinUnlockResult = false
-
-        subject.receive(.toggleUnlockMethod(.pin, newValue: true))
-        waitFor { !subject.state.isPinUnlockOn }
-
-        XCTAssertTrue(vaultUnlockSetupHelper.setPinUnlockCalled)
-        XCTAssertFalse(subject.state.isPinUnlockOn)
     }
 }

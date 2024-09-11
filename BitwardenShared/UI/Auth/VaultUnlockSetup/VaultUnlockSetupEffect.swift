@@ -5,4 +5,7 @@
 enum VaultUnlockSetupEffect: Equatable {
     /// Any initial data for the view should be loaded.
     case loadData
+
+    /// An unlock method was toggled on or off.
+    case toggleUnlockMethod(VaultUnlockSetupState.UnlockMethod, newValue: Bool)
 }

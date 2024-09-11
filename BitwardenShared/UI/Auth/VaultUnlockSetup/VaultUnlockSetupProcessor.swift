@@ -6,7 +6,6 @@ class VaultUnlockSetupProcessor: StateProcessor<VaultUnlockSetupState, VaultUnlo
     // MARK: Types
 
     typealias Services = DefaultVaultUnlockSetupHelper.Services
-        & HasBiometricsRepository
 
     // MARK: Private Properties
 
@@ -47,6 +46,13 @@ class VaultUnlockSetupProcessor: StateProcessor<VaultUnlockSetupState, VaultUnlo
         switch effect {
         case .loadData:
             await loadData()
+        case let .toggleUnlockMethod(unlockMethod, newValue):
+            switch unlockMethod {
+            case .biometrics:
+                await toggleBiometricUnlock(enabled: newValue)
+            case .pin:
+                await togglePinUnlock(enabled: newValue)
+            }
         }
     }
 
@@ -58,15 +64,6 @@ class VaultUnlockSetupProcessor: StateProcessor<VaultUnlockSetupState, VaultUnlo
         case .setUpLater:
             // TODO: PM-10270 Skip unlock setup
             break
-        case let .toggleUnlockMethod(unlockMethod, newValue):
-            Task {
-                switch unlockMethod {
-                case .biometrics:
-                    await toggleBiometricUnlock(enabled: newValue)
-                case .pin:
-                    await togglePinUnlock(enabled: newValue)
-                }
-            }
         }
     }
 
