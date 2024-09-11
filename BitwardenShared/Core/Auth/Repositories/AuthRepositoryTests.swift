@@ -1742,6 +1742,37 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         )
         XCTAssertFalse(vaultTimeoutService.isLocked(userId: "1"))
         XCTAssertTrue(vaultTimeoutService.unlockVaultHadUserInteraction)
+        XCTAssertFalse(biometricsRepository.didConfigureBiometricIntegrity)
+    }
+
+    /// `unlockVaultWithPIN(_:)` unlocks the vault with the user's PIN and configures biometric
+    /// integrity if needed.
+    func test_unlockVaultWithPIN_configuresBiometrics() async throws {
+        let account = Account.fixture()
+        stateService.activeAccount = account
+        stateService.accountEncryptionKeys = [
+            "1": AccountEncryptionKeys(encryptedPrivateKey: "PRIVATE_KEY", encryptedUserKey: "USER_KEY"),
+        ]
+        stateService.encryptedPinByUserId[account.profile.userId] = "123"
+        stateService.pinProtectedUserKeyValue[account.profile.userId] = "123"
+        biometricsRepository.biometricUnlockStatus = .success(
+            .available(.faceID, enabled: true, hasValidIntegrity: false)
+        )
+
+        try await subject.unlockVaultWithPIN(pin: "123")
+
+        XCTAssertEqual(
+            clientService.mockCrypto.initializeUserCryptoRequest,
+            InitUserCryptoRequest(
+                kdfParams: .pbkdf2(iterations: UInt32(Constants.pbkdf2Iterations)),
+                email: "user@bitwarden.com",
+                privateKey: "PRIVATE_KEY",
+                method: .pin(pin: "123", pinProtectedUserKey: "123")
+            )
+        )
+        XCTAssertFalse(vaultTimeoutService.isLocked(userId: "1"))
+        XCTAssertTrue(vaultTimeoutService.unlockVaultHadUserInteraction)
+        XCTAssertTrue(biometricsRepository.didConfigureBiometricIntegrity)
     }
 
     /// `unlockVaultWithPIN(_:)` throws an error if there's no pin.

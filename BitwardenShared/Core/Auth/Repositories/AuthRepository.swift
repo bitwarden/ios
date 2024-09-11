@@ -959,8 +959,7 @@ extension DefaultAuthRepository: AuthRepository {
 
             try await configureBiometricUnlockIfRequired()
         case .pin:
-            // No-op: nothing extra to do for pin unlock.
-            break
+            try await configureBiometricUnlockIfRequired()
         }
 
         _ = try await trustDeviceService.trustDeviceIfNeeded()
