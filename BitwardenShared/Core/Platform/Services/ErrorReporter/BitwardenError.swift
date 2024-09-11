@@ -45,14 +45,17 @@ enum BitwardenError {
     /// - Parameters:
     ///   - type: The type of error. This is used to group the errors in the Crashlytics dashboard.
     ///   - message: A message describing the error that occurred.
+    ///   - error: An optional underlying error that caused the error.
     ///
-    static func generalError(type: String, message: String) -> NSError {
-        NSError(
+    static func generalError(type: String, message: String, error: Error? = nil) -> NSError {
+        var userInfo: [String: Any] = ["ErrorMessage": message]
+        if let error {
+            userInfo[NSUnderlyingErrorKey] = error
+        }
+        return NSError(
             domain: "General Error: \(type)",
             code: Code.generalError.rawValue,
-            userInfo: [
-                "ErrorMessage": message,
-            ]
+            userInfo: userInfo
         )
     }
 

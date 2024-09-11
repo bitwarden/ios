@@ -173,11 +173,9 @@ class DefaultBiometricsRepository: BiometricsRepository {
                      kLAErrorUserFallback:
                     throw BiometricsServiceError.biometryFailed
                 default:
-                    throw BiometricsServiceError.getAuthKeyFailed
+                    throw error
                 }
             }
-        } catch {
-            throw BiometricsServiceError.getAuthKeyFailed
         }
     }
 }

@@ -350,7 +350,7 @@ final class BiometricsRepositoryTests: BitwardenTestCase { // swiftlint:disable:
         }
     }
 
-    /// `getUserAuthKey` retrieves the key from keychain and updates integrity state.
+    /// `getUserAuthKey` throws an error if one occurs.
     func test_getUserAuthKey_unknownError() async throws {
         let active = Account.fixture()
         stateService.activeAccount = active
@@ -360,7 +360,22 @@ final class BiometricsRepositoryTests: BitwardenTestCase { // swiftlint:disable:
             active.profile.userId: true,
         ]
         keychainService.getResult = .failure(BitwardenTestError.example)
-        await assertAsyncThrows(error: BiometricsServiceError.getAuthKeyFailed) {
+        await assertAsyncThrows(error: BitwardenTestError.example) {
+            _ = try await subject.getUserAuthKey()
+        }
+    }
+
+    /// `getUserAuthKey` throws an error if an unknown OS error occurs.
+    func test_getUserAuthKey_unknownOSError() async throws {
+        let active = Account.fixture()
+        stateService.activeAccount = active
+        let integrity = Data("Face/Off".utf8)
+        biometricsService.biometricIntegrityState = integrity
+        stateService.biometricsEnabled = [
+            active.profile.userId: true,
+        ]
+        keychainService.getResult = .failure(KeychainServiceError.osStatusError(errSecParam))
+        await assertAsyncThrows(error: KeychainServiceError.osStatusError(errSecParam)) {
             _ = try await subject.getUserAuthKey()
         }
     }
