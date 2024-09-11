@@ -35,10 +35,10 @@ jobs:
           echo '```' >> $GITHUB_STEP_SUMMARY
           echo "</details>" >> $GITHUB_STEP_SUMMARY
 
-      - name: echo distinct ID ${{ github.event.inputs.distinct_id }}
+      - name: Echo distinct ID ${{ github.event.inputs.distinct_id }}
         run: echo ${{ github.event.inputs.distinct_id }}
 
-      - name: Checkout repository
+      - name: Check out repository
         if: ${{ !inputs.skip_checkout || false }}
         uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
         with:
@@ -79,7 +79,6 @@ jobs:
           latest_minor_version=$(echo $latest_version | cut -d "." -f 2)
           latest_patch_version=$(echo $latest_version | cut -d "." -f 3)
 
-
           if [[ "$current_year" == "$latest_major_version" && "$current_month" == "$latest_minor_version" ]]; then
             version_name="${latest_major_version}.${latest_minor_version}.$(($latest_patch_version + 1))"
           else
@@ -87,7 +86,6 @@ jobs:
           fi
 
           output "$version_name"
-
 
       - name: Calculate version number
         id: calc-version-number
