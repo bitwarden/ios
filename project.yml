@@ -36,6 +36,15 @@ packages:
     url: https://github.com/nalexn/ViewInspector
     exactVersion: 0.9.10
 schemes:
+  AuthenticatorSyncKit:
+    build:
+      targets:
+        AuthenticatorSyncKit: all
+        AuthenticatorSyncKitTests: [test]
+    test:
+      gatherCoverageData: true
+      targets:
+        - AuthenticatorSyncKitTests
   Bitwarden:
     build:
       targets:
@@ -50,12 +59,14 @@ schemes:
       language: en
       region: US
       coverageTargets:
+        - AuthenticatorSyncKit
         - Bitwarden
         - BitwardenActionExtension
         - BitwardenAutoFillExtension
         - BitwardenShareExtension
         - BitwardenShared
       targets:
+        - AuthenticatorSyncKitTests
         - BitwardenTests
         - BitwardenActionExtensionTests
         - BitwardenAutoFillExtensionTests
@@ -125,6 +136,33 @@ schemes:
       targets:
         BitwardenWatchWidgetExtension: all
 targets:
+  AuthenticatorSyncKit:
+    type: framework
+    platform: iOS
+    configFiles:
+      Debug: Configs/AuthenticatorSyncKit.xcconfig
+      Release: Configs/AuthenticatorSyncKit.xcconfig
+    settings:
+      base:
+        APPLICATION_EXTENSION_API_ONLY: true
+        INFOPLIST_FILE: AuthenticatorSyncKit/Info.plist
+    sources:
+      - path: AuthenticatorSyncKit
+        excludes:
+          - "**/Tests/*"
+  AuthenticatorSyncKitTests:
+    type: bundle.unit-test
+    platform: iOS
+    settings:
+      base:
+        INFOPLIST_FILE: AuthenticatorSyncKit/Tests/TestHelpers/Support/Info.plist
+    sources:
+      - path: AuthenticatorSyncKit
+        includes:
+          - "**/Tests/*"
+    dependencies:
+      - target: AuthenticatorSyncKit
+    randomExecutionOrder: true
   Bitwarden:
     type: application
     platform: iOS
@@ -154,6 +192,7 @@ targets:
       - path: swiftgen.yml
         buildPhase: none
     dependencies:
+      - target: AuthenticatorSyncKit
       - target: BitwardenShared
       - target: BitwardenActionExtension
       - target: BitwardenAutoFillExtension
@@ -206,6 +245,7 @@ targets:
           - "**/TestHelpers/*"
       - path: GlobalTestHelpers
     dependencies:
+      - target: AuthenticatorSyncKit
       - target: Bitwarden
       - target: BitwardenShared
       - package: SnapshotTesting
@@ -351,6 +391,7 @@ targets:
         optional: true
       - path: BitwardenWatchShared
     dependencies:
+      - target: AuthenticatorSyncKit
       - package: BitwardenSdk
       - package: Networking
       - package: SwiftUIIntrospect
