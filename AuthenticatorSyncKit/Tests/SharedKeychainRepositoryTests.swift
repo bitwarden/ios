@@ -30,7 +30,7 @@ final class SharedKeychainRepositoryTests: AuthenticatorSyncKitTestCase {
 
     /// Verify that `deleteAuthenticatorKey()` issues a delete with the correct search attributes specified.
     ///
-    func testDeleteAuthenticatorKey() async throws {
+    func test_deleteAuthenticatorKey_success() async throws {
         try subject.deleteAuthenticatorKey()
 
         let queries = try XCTUnwrap(keychainService.deleteQueries as? [[CFString: Any]])
@@ -49,7 +49,7 @@ final class SharedKeychainRepositoryTests: AuthenticatorSyncKitTestCase {
     /// Verify that `getAuthenticatorKey()` returns a value successfully when one is set. Additionally, verify the
     /// search attributes are specified correctly.
     ///
-    func testGetAuthenticatorKey() async throws {
+    func test_getAuthenticatorKey_success() async throws {
         let key = SymmetricKey(size: .bits256)
         let data = key.withUnsafeBytes { Data(Array($0)) }
 
@@ -73,7 +73,7 @@ final class SharedKeychainRepositoryTests: AuthenticatorSyncKitTestCase {
     /// Verify that `getAuthenticatorKey()` fails with a `keyNotFound` error when an unexpected
     /// result is returned instead of the key data from the keychain
     ///
-    func testGetAuthenticatorKeyBadResult() async throws {
+    func test_getAuthenticatorKey_badResult() async throws {
         let error = AuthenticatorKeychainServiceError.keyNotFound(SharedKeychainItem.authenticatorKey)
         keychainService.searchResult = .success([kSecValueData as String: NSObject()] as AnyObject)
 
@@ -85,7 +85,7 @@ final class SharedKeychainRepositoryTests: AuthenticatorSyncKitTestCase {
     /// Verify that `getAuthenticatorKey()` fails with a `keyNotFound` error when a nil
     /// result is returned instead of the key data from the keychain
     ///
-    func testGetAuthenticatorKeyNilResult() async throws {
+    func test_getAuthenticatorKey_nilResult() async throws {
         let error = AuthenticatorKeychainServiceError.keyNotFound(SharedKeychainItem.authenticatorKey)
         keychainService.searchResult = .success(nil)
 
@@ -97,7 +97,7 @@ final class SharedKeychainRepositoryTests: AuthenticatorSyncKitTestCase {
     /// Verify that `getAuthenticatorKey()` fails with an error when the Authenticator key is not
     /// present in the keychain
     ///
-    func testGetAuthenticatorKeyNotFound() async throws {
+    func test_getAuthenticatorKey_keyNotFound() async throws {
         let error = AuthenticatorKeychainServiceError.keyNotFound(SharedKeychainItem.authenticatorKey)
         keychainService.searchResult = .failure(error)
 
@@ -108,7 +108,7 @@ final class SharedKeychainRepositoryTests: AuthenticatorSyncKitTestCase {
 
     /// Verify that `setAuthenticatorKey(_:)` sets a value with the correct search attributes specified.
     ///
-    func testSetAuthenticatorKey() async throws {
+    func test_setAuthenticatorKey_success() async throws {
         let key = SymmetricKey(size: .bits256)
         let data = key.withUnsafeBytes { Data(Array($0)) }
         try await subject.setAuthenticatorKey(data)
