@@ -975,3 +975,6 @@
 "PleaseRestartRegistrationOrTryLoggingInYouMayAlreadyHaveAnAccount" = "Please restart registration or try logging in. You may already have an account.";
 "RemovePasskey" = "Remove passkey";
 "PasskeyRemoved" = "Passkey removed";
+"SSHKey" = "SSH key";
+"PrivateKey" = "Private key";
+"PublicKey" = "Public key";

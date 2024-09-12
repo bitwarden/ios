@@ -167,6 +167,8 @@ final class ViewItemProcessor: StateProcessor<ViewItemState, ViewItemAction, Vie
         case .passwordHistoryPressed:
             guard let passwordHistory = state.passwordHistory else { return }
             coordinator.navigate(to: .passwordHistory(passwordHistory))
+        case let .sshKeyItemAction(sshKeyAction):
+            handleSSHKeyAction(sshKeyAction)
         case let .toastShown(newValue):
             state.toast = newValue
         }
@@ -376,6 +378,31 @@ private extension ViewItemProcessor {
             coordinator.navigate(to: .editCollections(cipher), context: self)
         case .moveToOrganization:
             coordinator.navigate(to: .moveToOrganization(cipher), context: self)
+        }
+    }
+
+    /// Handles `ViewSSHKeyItemAction` events.
+    /// - Parameter sshKeyAction: The action to handle
+    private func handleSSHKeyAction(_ sshKeyAction: ViewSSHKeyItemAction) {
+        guard case var .data(cipherState) = state.loadingState else {
+            services.errorReporter.log(
+                error: ActionError.dataNotLoaded("Cannot handle SSH key action without loaded data")
+            )
+            return
+        }
+        guard case .sshKey = cipherState.type else {
+            services.errorReporter.log(
+                error: ActionError.nonCardTypeToggle("Cannot handle SSH key action on non SSH key type")
+            )
+            return
+        }
+        switch sshKeyAction {
+        case let .copyPressed(value, field):
+            copyValue(value, field)
+        case .privateKeyVisibilityPressed:
+            cipherState.sshKeyState.isPrivateKeyVisible.toggle()
+            state.loadingState = .data(cipherState)
+            // TODO: PM-11977 Collect visibility toggled event
         }
     }
 

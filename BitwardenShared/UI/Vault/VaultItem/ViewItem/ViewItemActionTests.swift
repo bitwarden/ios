@@ -21,12 +21,16 @@ class ViewItemActionTests: BitwardenTestCase {
     /// entered again before performing the action if master password reprompt is enabled.
     func test_requiresMasterPasswordReprompt() {
         XCTAssertTrue(ViewItemAction.cardItemAction(.toggleCodeVisibilityChanged(false)).requiresMasterPasswordReprompt)
+        XCTAssertTrue(ViewItemAction.sshKeyItemAction(.privateKeyVisibilityPressed).requiresMasterPasswordReprompt)
 
         XCTAssertTrue(ViewItemAction.copyPressed(value: "", field: .cardNumber).requiresMasterPasswordReprompt)
         XCTAssertTrue(ViewItemAction.copyPressed(value: "", field: .customHiddenField).requiresMasterPasswordReprompt)
         XCTAssertFalse(ViewItemAction.copyPressed(value: "", field: .customTextField).requiresMasterPasswordReprompt)
         XCTAssertTrue(ViewItemAction.copyPressed(value: "", field: .password).requiresMasterPasswordReprompt)
         XCTAssertTrue(ViewItemAction.copyPressed(value: "", field: .securityCode).requiresMasterPasswordReprompt)
+        XCTAssertFalse(ViewItemAction.copyPressed(value: "", field: .sshKeyFingerprint).requiresMasterPasswordReprompt)
+        XCTAssertTrue(ViewItemAction.copyPressed(value: "", field: .sshPrivateKey).requiresMasterPasswordReprompt)
+        XCTAssertFalse(ViewItemAction.copyPressed(value: "", field: .sshPublicKey).requiresMasterPasswordReprompt)
         XCTAssertTrue(ViewItemAction.copyPressed(value: "", field: .totp).requiresMasterPasswordReprompt)
         XCTAssertFalse(ViewItemAction.copyPressed(value: "", field: .uri).requiresMasterPasswordReprompt)
         XCTAssertFalse(ViewItemAction.copyPressed(value: "", field: .username).requiresMasterPasswordReprompt)
