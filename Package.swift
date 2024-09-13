@@ -9,24 +9,24 @@ let package = Package(
     ],
     products: [
         .library(
-            name: "AuthenticatorSyncKit",
+            name: "AuthenticatorBridgeKit",
             targets: [
-                "AuthenticatorSyncKit",
+                "AuthenticatorBridgeKit",
             ]
         ),
     ],
     targets: [
         .target(
-            name: "AuthenticatorSyncKit",
-            path: "AuthenticatorSyncKit",
+            name: "AuthenticatorBridgeKit",
+            path: "AuthenticatorBridgeKit",
             exclude: [
                 "Tests/",
             ]
         ),
         .testTarget(
-            name: "AuthenticatorSyncKitTests",
-            dependencies: ["AuthenticatorSyncKit"],
-            path: "AuthenticatorSyncKit/Tests/"
+            name: "AuthenticatorBridgeKitTests",
+            dependencies: ["AuthenticatorBridgeKit"],
+            path: "AuthenticatorBridgeKit/Tests/"
         ),
     ]
 )
