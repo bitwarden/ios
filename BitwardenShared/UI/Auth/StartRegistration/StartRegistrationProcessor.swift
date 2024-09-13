@@ -43,6 +43,7 @@ class StartRegistrationProcessor: StateProcessor<
     typealias Services = HasAccountAPIService
         & HasAuthRepository
         & HasClientService
+        & HasConfigService
         & HasEnvironmentService
         & HasErrorReporter
         & HasStateService
@@ -93,6 +94,7 @@ class StartRegistrationProcessor: StateProcessor<
         case .appeared:
             await regionHelper.loadRegion()
             state.isReceiveMarketingToggleOn = state.region == .unitedStates
+            await loadFeatureFlags()
         case .regionTapped:
             await regionHelper.presentRegionSelectorAlert(
                 title: Localizations.creatingOn,
@@ -119,6 +121,15 @@ class StartRegistrationProcessor: StateProcessor<
     }
 
     // MARK: Private methods
+
+    /// Sets the feature flags to be used.
+    ///
+    private func loadFeatureFlags() async {
+        state.isCreateAccountFeatureFlagEnabled = await services.configService.getFeatureFlag(
+            .nativeCreateAccountFlow,
+            isPreAuth: true
+        )
+    }
 
     /// Initiates the first step of the registration.
     ///
