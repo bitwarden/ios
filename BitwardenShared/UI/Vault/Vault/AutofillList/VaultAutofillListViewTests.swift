@@ -205,81 +205,81 @@ class VaultAutofillListViewTests: BitwardenTestCase {
     }
 
     /// The populated view renders correctly when mixing passwords and Fido2 credentials on multiple sections.
-//    @MainActor
-//    func test_snapshot_vaultAutofillList_populatedWithFido2_multipleSections() { // swiftlint:disable:this function_body_length
-//        // swiftlint:disable:previous line_length
-//        let account = ProfileSwitcherItem.anneAccount
-//        processor.state.profileSwitcherState.accounts = [account]
-//        processor.state.profileSwitcherState.activeAccountId = account.userId
-//        processor.state.isAutofillingFido2List = true
-//        processor.state.vaultListSections = [
-//            VaultListSection(
-//                id: "Passkeys for myApp.com",
-//                items: [
-//                    .init(
-//                        cipherView: .fixture(
-//                            id: "4",
-//                            login: .fixture(
-//                                username: ""
-//                            ),
-//                            name: "App"
-//                        ),
-//                        fido2CredentialAutofillView: .fixture(
-//                            userNameForUi: "myFido2Username"
-//                        )
-//                    )!,
-//                    .init(
-//                        cipherView: .fixture(
-//                            id: "5",
-//                            login: .fixture(
-//                                username: ""
-//                            ),
-//                            name: "myApp.com"
-//                        ),
-//                        fido2CredentialAutofillView: .fixture(
-//                            userNameForUi: "another user"
-//                        )
-//                    )!,
-//                ],
-//                name: "Passkeys for myApp.com"
-//            ),
-//            VaultListSection(
-//                id: "Passwords for myApp.com",
-//                items: [
-//                    .init(
-//                        cipherView: .fixture(
-//                            id: "1",
-//                            login: .fixture(
-//                                username: "user@bitwarden.com"
-//                            ),
-//                            name: "Apple"
-//                        )
-//                    )!,
-//                    .init(
-//                        cipherView: .fixture(
-//                            id: "2",
-//                            login: .fixture(
-//                                username: "user@bitwarden.com"
-//                            ),
-//                            name: "Bitwarden"
-//                        )
-//                    )!,
-//                    .init(
-//                        cipherView: .fixture(
-//                            id: "3",
-//                            login: .fixture(
-//                                username: ""
-//                            ),
-//                            name: "Company XYZ"
-//                        )
-//                    )!,
-//                ],
-//                name: "Passwords for myApp.com"
-//            ),
-//        ]
-//        assertSnapshots(
-//            of: subject.navStackWrapped,
-//            as: [.defaultPortrait, .defaultPortraitDark, .defaultPortraitAX5]
-//        )
-//    }
+    @MainActor
+    func test_snapshot_vaultAutofillList_populatedWithFido2_multipleSections() { // swiftlint:disable:this function_body_length
+        // swiftlint:disable:previous line_length
+        let account = ProfileSwitcherItem.anneAccount
+        processor.state.profileSwitcherState.accounts = [account]
+        processor.state.profileSwitcherState.activeAccountId = account.userId
+        processor.state.isAutofillingFido2List = true
+        processor.state.vaultListSections = [
+            VaultListSection(
+                id: "Passkeys for myApp.com",
+                items: [
+                    .init(
+                        cipherView: .fixture(
+                            id: "4",
+                            login: .fixture(
+                                username: ""
+                            ),
+                            name: "App"
+                        ),
+                        fido2CredentialAutofillView: .fixture(
+                            userNameForUi: "myFido2Username"
+                        )
+                    )!,
+                    .init(
+                        cipherView: .fixture(
+                            id: "5",
+                            login: .fixture(
+                                username: ""
+                            ),
+                            name: "myApp.com"
+                        ),
+                        fido2CredentialAutofillView: .fixture(
+                            userNameForUi: "another user"
+                        )
+                    )!,
+                ],
+                name: "Passkeys for myApp.com"
+            ),
+            VaultListSection(
+                id: "Passwords for myApp.com",
+                items: [
+                    .init(
+                        cipherView: .fixture(
+                            id: "1",
+                            login: .fixture(
+                                username: "user@bitwarden.com"
+                            ),
+                            name: "Apple"
+                        )
+                    )!,
+                    .init(
+                        cipherView: .fixture(
+                            id: "2",
+                            login: .fixture(
+                                username: "user@bitwarden.com"
+                            ),
+                            name: "Bitwarden"
+                        )
+                    )!,
+                    .init(
+                        cipherView: .fixture(
+                            id: "3",
+                            login: .fixture(
+                                username: ""
+                            ),
+                            name: "Company XYZ"
+                        )
+                    )!,
+                ],
+                name: "Passwords for myApp.com"
+            ),
+        ]
+        assertSnapshots(
+            of: subject.navStackWrapped,
+            as: [.defaultPortrait, .defaultPortraitDark, .defaultPortraitAX5]
+        )
+    }
 }

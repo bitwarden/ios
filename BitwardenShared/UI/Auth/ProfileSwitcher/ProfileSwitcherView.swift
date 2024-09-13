@@ -8,11 +8,16 @@ struct ProfileSwitcherView: View {
     /// The `Store` for this view.
     @ObservedObject var store: Store<ProfileSwitcherState, ProfileSwitcherAction, ProfileSwitcherEffect>
 
+    @SwiftUI.State var scrollOffset = CGPoint.zero
+
     var body: some View {
-        ScrollView {
+        OffsetObservingScrollView(
+            axes: .vertical,
+            offset: $scrollOffset
+        ) {
             VStack(spacing: 0.0) {
                 accounts
-                if store.state.showsAddAccount {
+                if store.state.showsAddAccount {    
                     addAccountRow
                 }
             }
@@ -59,12 +64,12 @@ struct ProfileSwitcherView: View {
 
     /// A background view with accessibility enabled
     private var backgroundView: some View {
-        VStack {
-            Asset.Colors.backgroundPrimary.swiftUIColor
-                .frame(height: store.state.isVisible ? 0.01 : 0)
-                .fixedSize(horizontal: false, vertical: true)
+        ZStack(alignment: .top) {
             Color.black.opacity(0.4)
                 .ignoresSafeArea()
+            Asset.Colors.backgroundPrimary.swiftUIColor
+                .frame(height: abs(min(scrollOffset.y, 0)))
+                .fixedSize(horizontal: false, vertical: true)
         }
         .hidden(!store.state.isVisible)
     }
