@@ -4,7 +4,7 @@ import XCTest
 
 @testable import AuthenticatorBridgeKit
 
-final class AuthenticatorCryptographyServiceTests: XCTestCase {
+final class AuthenticatorCryptographyServiceTests: AuthenticatorBridgeKitTestCase {
     // MARK: Properties
 
     let items: [AuthenticatorBridgeItemDataModel] = AuthenticatorBridgeItemDataModel.fixtures()
@@ -14,6 +14,7 @@ final class AuthenticatorCryptographyServiceTests: XCTestCase {
     // MARK: Setup & Teardown
 
     override func setUp() {
+        super.setUp()
         sharedKeychainRepository = MockSharedKeychainRepository()
         sharedKeychainRepository.authenticatorKey = sharedKeychainRepository.generateKeyData()
         subject = DefaultAuthenticatorCryptographyService(
@@ -24,6 +25,7 @@ final class AuthenticatorCryptographyServiceTests: XCTestCase {
     override func tearDown() {
         sharedKeychainRepository = nil
         subject = nil
+        super.tearDown()
     }
 
     // MARK: Tests
@@ -31,58 +33,65 @@ final class AuthenticatorCryptographyServiceTests: XCTestCase {
     /// Verify that `AuthenticatorCryptographyService.decryptAuthenticatorItems(:)` correctly
     /// decrypts an encrypted array of `AuthenticatorBridgeItemDataModel`.
     ///
-    func testDecrypt() async throws {
-        let encrytpedItems = try await subject.encryptAuthenticatorItems(items)
-        let decrytpedItems = try await subject.decryptAuthenticatorItems(encrytpedItems)
+    func test_decryptAuthenticatorItems_success() async throws {
+        let encryptedItems = try await subject.encryptAuthenticatorItems(items)
+        let decryptedItems = try await subject.decryptAuthenticatorItems(encryptedItems)
 
-        XCTAssertEqual(items, decrytpedItems)
+        XCTAssertEqual(items, decryptedItems)
+    }
+
+    /// Verify that `AuthenticatorCryptographyService.encryptAuthenticatorItems()' throws
+    /// when the `SharedKeyRepository` authenticator key is missing.
+    ///
+    func test_decryptAuthenticatorItems_throwsKeyMissingError() async throws {
+        let error = AuthenticatorKeychainServiceError.keyNotFound(SharedKeychainItem.authenticatorKey)
+
+        try sharedKeychainRepository.deleteAuthenticatorKey()
+        await assertAsyncThrows(error: error) {
+            _ = try await subject.decryptAuthenticatorItems(items)
+        }
     }
 
     /// Verify that `AuthenticatorCryptographyService.encryptAuthenticatorItems(:)` correctly
     /// encrypts an array of `AuthenticatorBridgeItemDataModel`.
     ///
-    func testEncrypt() async throws {
-        let encrytpedItems = try await subject.encryptAuthenticatorItems(items)
+    func test_encryptAuthenticatorItems_success() async throws {
+        let encryptedItems = try await subject.encryptAuthenticatorItems(items)
 
-        XCTAssertEqual(items.count, encrytpedItems.count)
+        XCTAssertEqual(items.count, encryptedItems.count)
 
         for index in 0 ..< items.count {
             let item = try XCTUnwrap(items[index])
-            let encrytpedItem = try XCTUnwrap(encrytpedItems[index])
+            let encryptedItem = try XCTUnwrap(encryptedItems[index])
 
             // Unencrypted values remain equal
-            XCTAssertEqual(item.favorite, encrytpedItem.favorite)
-            XCTAssertEqual(item.id, encrytpedItem.id)
-            XCTAssertEqual(item.name, encrytpedItem.name)
+            XCTAssertEqual(item.favorite, encryptedItem.favorite)
+            XCTAssertEqual(item.id, encryptedItem.id)
+            XCTAssertEqual(item.name, encryptedItem.name)
 
             // Encrypted values should not remain equal, unless they were `nil`
             if item.totpKey != nil {
-                XCTAssertNotEqual(item.totpKey, encrytpedItem.totpKey)
+                XCTAssertNotEqual(item.totpKey, encryptedItem.totpKey)
             } else {
-                XCTAssertNil(encrytpedItem.totpKey)
+                XCTAssertNil(encryptedItem.totpKey)
             }
             if item.username != nil {
-                XCTAssertNotEqual(item.username, encrytpedItem.username)
+                XCTAssertNotEqual(item.username, encryptedItem.username)
             } else {
-                XCTAssertNil(encrytpedItem.username)
+                XCTAssertNil(encryptedItem.username)
             }
         }
     }
 
-    /// Verify that `AuthenticatorCryptographyService' throws when the `SharedKeyRrepository`
-    /// authenticator key is missing.
+    /// Verify that `AuthenticatorCryptographyService.encryptAuthenticatorItems()' throws
+    /// when the `SharedKeyRepository` authenticator key is missing.
     ///
-    func testEncryptAndDecryptThrowWhenKeyMissing() async throws {
+    func test_encryptAuthenticatorItems_throwsKeyMissingError() async throws {
+        let error = AuthenticatorKeychainServiceError.keyNotFound(SharedKeychainItem.authenticatorKey)
+
         try sharedKeychainRepository.deleteAuthenticatorKey()
-
-        do {
+        await assertAsyncThrows(error: error) {
             _ = try await subject.encryptAuthenticatorItems(items)
-            XCTFail("AuthenticatorKeychainServiceError.keyNotFound should have been thrown")
-        } catch AuthenticatorKeychainServiceError.keyNotFound(_) {}
-
-        do {
-            _ = try await subject.decryptAuthenticatorItems(items)
-            XCTFail("AuthenticatorKeychainServiceError.keyNotFound should have been thrown")
-        } catch AuthenticatorKeychainServiceError.keyNotFound(_) {}
+        }
     }
 }

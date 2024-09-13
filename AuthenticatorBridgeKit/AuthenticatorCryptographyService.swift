@@ -32,7 +32,7 @@ public protocol AuthenticatorCryptographyService: AnyObject {
     ) async throws -> [AuthenticatorBridgeItemDataModel]
 }
 
-/// A concreate implementation of the `AuthenticatorCryptographyService` protocol.
+/// A concrete implementation of the `AuthenticatorCryptographyService` protocol.
 ///
 public class DefaultAuthenticatorCryptographyService: AuthenticatorCryptographyService {
     // MARK: Properties

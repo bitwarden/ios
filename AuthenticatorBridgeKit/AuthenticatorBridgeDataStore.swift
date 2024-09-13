@@ -86,7 +86,7 @@ public class AuthenticatorBridgeDataStore {
         try await executeBatchDelete(AuthenticatorBridgeItemData.deleteByUserIdRequest(userId: userId))
     }
 
-    /// Fetchs all items that are owned by the specific userId
+    /// Fetches all items that are owned by the specific userId
     ///
     /// - Parameter userId: the id of the user for which to delete all items.
     ///
