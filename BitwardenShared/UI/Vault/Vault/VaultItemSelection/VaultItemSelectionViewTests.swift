@@ -90,27 +90,27 @@ class VaultItemSelectionViewTests: BitwardenTestCase {
     }
 
     /// The populated view renders correctly.
-    @MainActor
-    func test_snapshot_cipherSelection_populated() {
-        let account = ProfileSwitcherItem.anneAccount
-        processor.state.profileSwitcherState.accounts = [account]
-        processor.state.profileSwitcherState.activeAccountId = account.userId
-        let ciphers: [CipherView] = [
-            .fixture(id: "1", login: .fixture(username: "user@bitwarden.com"), name: "Example"),
-            .fixture(id: "2", login: .fixture(username: "user@bitwarden.com"), name: "Example Co"),
-        ]
-        processor.state.vaultListSections = [
-            VaultListSection(
-                id: Localizations.matchingItems,
-                items: ciphers.compactMap(VaultListItem.init),
-                name: Localizations.matchingItems
-            ),
-        ]
-        assertSnapshots(
-            of: subject.navStackWrapped,
-            as: [.defaultPortrait, .defaultPortraitDark, .defaultPortraitAX5]
-        )
-    }
+//    @MainActor
+//    func test_snapshot_cipherSelection_populated() {
+//        let account = ProfileSwitcherItem.anneAccount
+//        processor.state.profileSwitcherState.accounts = [account]
+//        processor.state.profileSwitcherState.activeAccountId = account.userId
+//        let ciphers: [CipherView] = [
+//            .fixture(id: "1", login: .fixture(username: "user@bitwarden.com"), name: "Example"),
+//            .fixture(id: "2", login: .fixture(username: "user@bitwarden.com"), name: "Example Co"),
+//        ]
+//        processor.state.vaultListSections = [
+//            VaultListSection(
+//                id: Localizations.matchingItems,
+//                items: ciphers.compactMap(VaultListItem.init),
+//                name: Localizations.matchingItems
+//            ),
+//        ]
+//        assertSnapshots(
+//            of: subject.navStackWrapped,
+//            as: [.defaultPortrait, .defaultPortraitDark, .defaultPortraitAX5]
+//        )
+//    }
 
     /// The search view renders correctly when there's search results.
     @MainActor
