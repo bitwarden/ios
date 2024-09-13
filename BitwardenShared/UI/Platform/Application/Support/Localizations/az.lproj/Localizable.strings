@@ -945,6 +945,15 @@
 "SetUpUnlock" = "Kilid açmanı qur";
 "SetUpBiometricsOrChooseAPinCodeToQuicklyAccessYourVaultAndAutofillYourLogins" = "Anbarınıza cəld müraciət etmək və giriş məlumatlarınızı avto-doldurmaq üçün biometrik qurun və ya bir PIN kodu seçin.";
 "SetUpLater" = "Daha sonra qur";
+"MasterPasswordHelp" = "Ana parol köməyi";
+"WhatMakesAPasswordStrong" = "Bir parol necə güclü olur?";
+"StrongPasswordDescriptionLong" = "Parolunuz nə qədər uzun olsa, sındırılması da bir o qədər çətin olur. Hesab yaradarkən minimum say 12-dir, ancaq 14 simvollu bir parol istifadə etsəniz, onun sındırılmasına bir əsrdən çox vaxt lazım olacaq!";
+"TheStrongestPasswordsAreUsually" = "Ən güclü parollar adətən belə olur:";
+"TwelveOrMoreCharacters" = "12 və ya daha çox simvoldan ibarət olanlar";
+"RandomAndComplexUsingNumbersAndSpecialCharacters" = "Rəqəm və xüsusi simvollardan ibarət olan təsadüfi və mürəkkəb olanlar";
+"TotallyDifferentFromYourOtherPasswords" = "Başqa heç bir hesabınızda istifadə edilməyən və unikal olan";
+"UseTheGeneratorToCreateAStrongUniquePassword" = "Güclü və unikal parol yaratmaq üçün yaradıcı istifadə edin";
+"TryItOut" = "Sınayın";
 "PreventAccountLockout" = "Hesab kilidlənməsini önlə";
 "NeverLoseAccessToYourVault" = "Anbara müraciəti heç vaxt itirmə";
 "TheBestWayToMakeSureYouCanAlwaysAccessYourAccountIsToSetUpSafeguardsFromTheStart" = "Hesabınıza daim müraciət edə bildiyinizə əmin olmağın ən yaxşı yolu başdan başlayaraq qoruma tədbiri almaqdır.";

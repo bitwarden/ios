@@ -1,6 +1,6 @@
 import Foundation
 
-@testable import AuthenticatorSyncKit
+@testable import AuthenticatorBridgeKit
 
 class MockAuthenticatorKeychainService {
     // MARK: Properties

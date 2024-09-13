@@ -945,6 +945,15 @@
 "SetUpUnlock" = "Ontgrendelen instellen";
 "SetUpBiometricsOrChooseAPinCodeToQuicklyAccessYourVaultAndAutofillYourLogins" = "Biometrie instellen of een pincode kiezen om snel toegang tot je kluis te krijgen en je inloggegevens automatisch in te vullen.";
 "SetUpLater" = "Later instellen";
+"MasterPasswordHelp" = "Uitleg hoofdwachtwoord";
+"WhatMakesAPasswordStrong" = "Wat maakt een wachtwoord sterk?";
+"StrongPasswordDescriptionLong" = "Hoe langer je wachtwoord, hoe moeilijker het is om te hacken. Het minimum voor het aanmaken van een account is 12 tekens, maar als je 14 tekens gebruikt, kost het eeuwen om je wachtwoord te kraken!";
+"TheStrongestPasswordsAreUsually" = "De sterkste wachtwoorden zijn meestal:";
+"TwelveOrMoreCharacters" = "12 tekens of meer";
+"RandomAndComplexUsingNumbersAndSpecialCharacters" = "Willekeurig en complex, met getallen en speciale tekens";
+"TotallyDifferentFromYourOtherPasswords" = "Helemaal anders dan je andere wachtwoorden";
+"UseTheGeneratorToCreateAStrongUniquePassword" = "Gebruik de generator om een sterk, uniek wachtwoord te maken";
+"TryItOut" = "Probeer het uit";
 "PreventAccountLockout" = "Accountblokkade voorkomen";
 "NeverLoseAccessToYourVault" = "Nooit de toegang tot je kluis verliezen";
 "TheBestWayToMakeSureYouCanAlwaysAccessYourAccountIsToSetUpSafeguardsFromTheStart" = "De beste manier om ervoor te zorgen dat je altijd toegang tot je account hebt, is het direct instellen van vangnetten.";

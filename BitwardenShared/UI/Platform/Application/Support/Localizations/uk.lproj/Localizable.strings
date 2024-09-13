@@ -945,6 +945,15 @@
 "SetUpUnlock" = "Налаштувати розблокування";
 "SetUpBiometricsOrChooseAPinCodeToQuicklyAccessYourVaultAndAutofillYourLogins" = "Налаштуйте біометрію або PIN-код, щоб швидко відкривати сховище й автоматично заповнювати дані.";
 "SetUpLater" = "Налаштувати згодом";
+"MasterPasswordHelp" = "Довідка щодо головного пароля";
+"WhatMakesAPasswordStrong" = "Який пароль вважається надійним?";
+"StrongPasswordDescriptionLong" = "Чим довший пароль, тим складніше його зламати. Надійний пароль складається принаймні з 12 символів, а якщо ви створите з 14, то щоб його зламати знадобляться століття!";
+"TheStrongestPasswordsAreUsually" = "Найнадійніші паролі зазвичай:";
+"TwelveOrMoreCharacters" = "Складаються не менш як із 12 символів";
+"RandomAndComplexUsingNumbersAndSpecialCharacters" = "Випадкові та складні, з використанням цифр і спеціальних символів";
+"TotallyDifferentFromYourOtherPasswords" = "Повністю відрізняються від інших паролів";
+"UseTheGeneratorToCreateAStrongUniquePassword" = "Використовуйте генератор для створення надійного, унікального пароля";
+"TryItOut" = "Спробувати";
 "PreventAccountLockout" = "Захистіться від блокування доступу";
 "NeverLoseAccessToYourVault" = "Ніколи не втрачайте доступ до свого сховища";
 "TheBestWayToMakeSureYouCanAlwaysAccessYourAccountIsToSetUpSafeguardsFromTheStart" = "Для гарантованої безперебійної роботи з обліковим записом варто налаштувати способи відновлення доступу.";

@@ -10,6 +10,7 @@ class VaultUnlockSetupProcessorTests: BitwardenTestCase {
     var coordinator: MockCoordinator<AuthRoute, AuthEvent>!
     var errorReporter: MockErrorReporter!
     var subject: VaultUnlockSetupProcessor!
+    var vaultUnlockSetupHelper: MockVaultUnlockSetupHelper!
 
     // MARK: Setup & Teardown
 
@@ -20,6 +21,7 @@ class VaultUnlockSetupProcessorTests: BitwardenTestCase {
         biometricsRepository = MockBiometricsRepository()
         coordinator = MockCoordinator()
         errorReporter = MockErrorReporter()
+        vaultUnlockSetupHelper = MockVaultUnlockSetupHelper()
 
         subject = VaultUnlockSetupProcessor(
             coordinator: coordinator.asAnyCoordinator(),
@@ -28,7 +30,8 @@ class VaultUnlockSetupProcessorTests: BitwardenTestCase {
                 biometricsRepository: biometricsRepository,
                 errorReporter: errorReporter
             ),
-            state: VaultUnlockSetupState()
+            state: VaultUnlockSetupState(),
+            vaultUnlockSetupHelper: vaultUnlockSetupHelper
         )
     }
 
@@ -40,6 +43,7 @@ class VaultUnlockSetupProcessorTests: BitwardenTestCase {
         coordinator = nil
         errorReporter = nil
         subject = nil
+        vaultUnlockSetupHelper = nil
     }
 
     // MARK: Tests
@@ -92,6 +96,60 @@ class VaultUnlockSetupProcessorTests: BitwardenTestCase {
         XCTAssertEqual(subject.state.unlockMethods, [.biometrics(.touchID), .pin])
     }
 
+    /// `perform(_:)` with `.toggleUnlockMethod` disables biometrics unlock and updates the state.
+    @MainActor
+    func test_perform_toggleUnlockMethod_biometrics_disable() async {
+        subject.state.biometricsStatus = .available(.faceID, enabled: true, hasValidIntegrity: true)
+        vaultUnlockSetupHelper.setBiometricUnlockStatus = .available(
+            .faceID,
+            enabled: false,
+            hasValidIntegrity: false
+        )
+
+        await subject.perform(.toggleUnlockMethod(.biometrics(.faceID), newValue: false))
+
+        XCTAssertTrue(vaultUnlockSetupHelper.setBiometricUnlockCalled)
+        XCTAssertFalse(subject.state.isBiometricUnlockOn)
+    }
+
+    /// `perform(_:)` with `.toggleUnlockMethod` enables biometrics unlock and updates the state.
+    @MainActor
+    func test_perform_toggleUnlockMethod_biometrics_enable() async {
+        vaultUnlockSetupHelper.setBiometricUnlockStatus = .available(
+            .faceID,
+            enabled: true,
+            hasValidIntegrity: true
+        )
+
+        await subject.perform(.toggleUnlockMethod(.biometrics(.faceID), newValue: true))
+
+        XCTAssertTrue(vaultUnlockSetupHelper.setBiometricUnlockCalled)
+        XCTAssertTrue(subject.state.isBiometricUnlockOn)
+    }
+
+    /// `perform(_:)` with `.toggleUnlockMethod` disables pin unlock and updates the state.
+    @MainActor
+    func test_perform_toggleUnlockMethod_pin_disable() async {
+        vaultUnlockSetupHelper.setPinUnlockResult = true
+
+        await subject.perform(.toggleUnlockMethod(.pin, newValue: false))
+
+        XCTAssertTrue(vaultUnlockSetupHelper.setPinUnlockCalled)
+        XCTAssertTrue(subject.state.isPinUnlockOn)
+    }
+
+    /// `perform(_:)` with `.toggleUnlockMethod` enables pin unlock and updates the state.
+    @MainActor
+    func test_perform_toggleUnlockMethod_pin_enable() async {
+        subject.state.isPinUnlockOn = true
+        vaultUnlockSetupHelper.setPinUnlockResult = false
+
+        await subject.perform(.toggleUnlockMethod(.pin, newValue: true))
+
+        XCTAssertTrue(vaultUnlockSetupHelper.setPinUnlockCalled)
+        XCTAssertFalse(subject.state.isPinUnlockOn)
+    }
+
     /// `receive(_:)` with `.continueFlow` navigates to autofill setup.
     @MainActor
     func test_receive_continueFlow() {
@@ -104,102 +162,5 @@ class VaultUnlockSetupProcessorTests: BitwardenTestCase {
     func test_receive_setUpLater() {
         subject.receive(.setUpLater)
         // TODO: PM-10270 Skip unlock setup
-    }
-
-    /// `receive(_:)` with `.toggleUnlockMethod` disables biometrics and updates the state.
-    @MainActor
-    func test_receive_toggleUnlockMethod_biometrics_disable() {
-        let biometricUnlockStatus = BiometricsUnlockStatus.available(.faceID, enabled: false, hasValidIntegrity: false)
-        authRepository.allowBiometricUnlockResult = .success(())
-        biometricsRepository.biometricUnlockStatus = .success(biometricUnlockStatus)
-        subject.state.biometricsStatus = .available(.faceID, enabled: true, hasValidIntegrity: true)
-
-        subject.receive(.toggleUnlockMethod(.biometrics(.faceID), newValue: false))
-        waitFor { !subject.state.isBiometricUnlockOn }
-
-        XCTAssertEqual(authRepository.allowBiometricUnlock, false)
-        XCTAssertEqual(subject.state.biometricsStatus, biometricUnlockStatus)
-        XCTAssertFalse(subject.state.isBiometricUnlockOn)
-    }
-
-    /// `receive(_:)` with `.toggleUnlockMethod` logs an error and shows an alert if disabling biometrics fails.
-    @MainActor
-    func test_receive_toggleUnlockMethod_biometrics_disable_error() {
-        let biometricUnlockStatus = BiometricsUnlockStatus.available(.faceID, enabled: true, hasValidIntegrity: true)
-        authRepository.allowBiometricUnlockResult = .failure(BitwardenTestError.example)
-        biometricsRepository.biometricUnlockStatus = .success(biometricUnlockStatus)
-        subject.state.biometricsStatus = biometricUnlockStatus
-
-        subject.receive(.toggleUnlockMethod(.biometrics(.faceID), newValue: false))
-        waitFor { !coordinator.alertShown.isEmpty }
-
-        XCTAssertEqual(authRepository.allowBiometricUnlock, false)
-        XCTAssertEqual(coordinator.alertShown, [.defaultAlert(title: Localizations.anErrorHasOccurred)])
-        XCTAssertEqual(errorReporter.errors as? [BitwardenTestError], [.example])
-        XCTAssertEqual(subject.state.biometricsStatus, biometricUnlockStatus)
-        XCTAssertTrue(subject.state.isBiometricUnlockOn)
-    }
-
-    /// `receive(_:)` with `.toggleUnlockMethod` enables biometrics and updates the state.
-    @MainActor
-    func test_receive_toggleUnlockMethod_biometrics_enable() {
-        let biometricUnlockStatus = BiometricsUnlockStatus.available(.faceID, enabled: true, hasValidIntegrity: true)
-        authRepository.allowBiometricUnlockResult = .success(())
-        biometricsRepository.biometricUnlockStatus = .success(biometricUnlockStatus)
-
-        subject.receive(.toggleUnlockMethod(.biometrics(.faceID), newValue: true))
-        waitFor { subject.state.isBiometricUnlockOn }
-
-        XCTAssertEqual(authRepository.allowBiometricUnlock, true)
-        XCTAssertEqual(subject.state.biometricsStatus, biometricUnlockStatus)
-        XCTAssertTrue(subject.state.isBiometricUnlockOn)
-    }
-
-    /// `receive(_:)` with `.toggleUnlockMethod` logs an error and shows an alert if enabling biometrics fails.
-    @MainActor
-    func test_receive_toggleUnlockMethod_biometrics_enable_error() {
-        let biometricUnlockStatus = BiometricsUnlockStatus.available(.faceID, enabled: false, hasValidIntegrity: false)
-        authRepository.allowBiometricUnlockResult = .failure(BitwardenTestError.example)
-        biometricsRepository.biometricUnlockStatus = .success(biometricUnlockStatus)
-        subject.state.biometricsStatus = biometricUnlockStatus
-
-        subject.receive(.toggleUnlockMethod(.biometrics(.faceID), newValue: true))
-        waitFor { !coordinator.alertShown.isEmpty }
-
-        XCTAssertEqual(authRepository.allowBiometricUnlock, true)
-        XCTAssertEqual(coordinator.alertShown, [.defaultAlert(title: Localizations.anErrorHasOccurred)])
-        XCTAssertEqual(errorReporter.errors as? [BitwardenTestError], [.example])
-        XCTAssertEqual(subject.state.biometricsStatus, biometricUnlockStatus)
-        XCTAssertFalse(subject.state.isBiometricUnlockOn)
-    }
-
-    /// `receive(_:)` with `.toggleUnlockMethod` updates the pin unlock method in the state.
-    @MainActor
-    func test_receive_toggleUnlockMethod_pin() {
-        subject.receive(.toggleUnlockMethod(.pin, newValue: true))
-        XCTAssertTrue(subject.state.isPinUnlockOn)
-
-        subject.receive(.toggleUnlockMethod(.pin, newValue: false))
-        XCTAssertFalse(subject.state.isPinUnlockOn)
-    }
-
-    /// `receive(_:)` with `.toggleUnlockMethod` updates the touch ID unlock method in the state.
-    @MainActor
-    func test_receive_toggleUnlockMethod_touchID() {
-        subject.state.biometricsStatus = .available(.touchID, enabled: false, hasValidIntegrity: false)
-        biometricsRepository.biometricUnlockStatus = .success(
-            .available(.touchID, enabled: true, hasValidIntegrity: true)
-        )
-
-        subject.receive(.toggleUnlockMethod(.biometrics(.touchID), newValue: true))
-        waitFor { subject.state.isBiometricUnlockOn }
-        XCTAssertTrue(subject.state.isBiometricUnlockOn)
-
-        biometricsRepository.biometricUnlockStatus = .success(
-            .available(.touchID, enabled: false, hasValidIntegrity: false)
-        )
-        subject.receive(.toggleUnlockMethod(.biometrics(.touchID), newValue: false))
-        waitFor { !subject.state.isBiometricUnlockOn }
-        XCTAssertFalse(subject.state.isBiometricUnlockOn)
     }
 }

@@ -192,7 +192,8 @@ final class SettingsCoordinator: Coordinator, HasStackNavigator { // swiftlint:d
         let processor = AccountSecurityProcessor(
             coordinator: asAnyCoordinator(),
             services: services,
-            state: AccountSecurityState()
+            state: AccountSecurityState(),
+            vaultUnlockSetupHelper: DefaultVaultUnlockSetupHelper(services: services)
         )
 
         let view = AccountSecurityView(store: Store(processor: processor))

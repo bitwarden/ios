@@ -238,7 +238,7 @@ extension Alert {
     /// An alert asking if the user wants to login with their PIN upon app restart.
     ///
     /// - Parameters:
-    ///   - biometricType: The biometirc type the app supports.
+    ///   - biometricType: The biometric type the app supports.
     ///   - action: The action to occur if `Yes` is tapped
     ///
     /// - Returns: An alert asking if the user wants to login with their PIN upon app restart.
