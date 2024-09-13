@@ -17,7 +17,7 @@ struct ProfileSwitcherView: View {
         ) {
             VStack(spacing: 0.0) {
                 accounts
-                if store.state.showsAddAccount {    
+                if store.state.showsAddAccount {
                     addAccountRow
                 }
             }
