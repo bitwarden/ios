@@ -945,6 +945,15 @@
 "SetUpUnlock" = "Opsæt oplåsning";
 "SetUpBiometricsOrChooseAPinCodeToQuicklyAccessYourVaultAndAutofillYourLogins" = "Opsæt biometri eller vælg en PIN-kode for hurtigt at tilgå boksen og autoudfylde logins.";
 "SetUpLater" = "Opsæt senere";
+"MasterPasswordHelp" = "Hovedadgangskode-hjælp";
+"WhatMakesAPasswordStrong" = "Hvad gør en adgangskode stærk?";
+"StrongPasswordDescriptionLong" = "Jo længere en adgangskode, jo sværere er den at bryde. Minimum til kontooprettelse er 12 tegn, men bruges 14 tegn, ville det tage århundreder at knække adgangskoden!";
+"TheStrongestPasswordsAreUsually" = "De stærkeste adgangskoder er sædvanligvis:";
+"TwelveOrMoreCharacters" = "12 eller flere tegn";
+"RandomAndComplexUsingNumbersAndSpecialCharacters" = "Tilfældige og komplekse, dvs. med tal og specialtegn";
+"TotallyDifferentFromYourOtherPasswords" = "Helt forskellig fra de øvrige adgangskoder";
+"UseTheGeneratorToCreateAStrongUniquePassword" = "Brug generatoren til at oprette en stærk, unik adgangskode";
+"TryItOut" = "Prøv den";
 "PreventAccountLockout" = "Forhindr at blive låst ude af kontoen";
 "NeverLoseAccessToYourVault" = "Mist aldrig adgang til boksen";
 "TheBestWayToMakeSureYouCanAlwaysAccessYourAccountIsToSetUpSafeguardsFromTheStart" = "Den bedste måde at sikre, at man altid kan tilgå sin konto, er at etablere sikkerhedstiltag fra starten.";

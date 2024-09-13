@@ -945,6 +945,15 @@
 "SetUpUnlock" = "Настройте отключването";
 "SetUpBiometricsOrChooseAPinCodeToQuicklyAccessYourVaultAndAutofillYourLogins" = "Настройте достъп чрез биометрични данни или изберете ПИН код, с който лесно да отключвате трезора си и да попълвате автоматично данните си за вписване.";
 "SetUpLater" = "Настройване по-късно";
+"MasterPasswordHelp" = "Помощ за главната парола";
+"WhatMakesAPasswordStrong" = "Какво прави една парола сложна?";
+"StrongPasswordDescriptionLong" = "Колкото по-дълга е една парола, толкова по-трудно е тя да бъде отгатната. Минималният брой знаци за създаване на регистрация е 12, но ако въведете 14, времето за хакване на паролата може да бъде дори векове!";
+"TheStrongestPasswordsAreUsually" = "Най-сложните пароли обикновено:";
+"TwelveOrMoreCharacters" = "Се състоят от 12 или повече знака";
+"RandomAndComplexUsingNumbersAndSpecialCharacters" = "Изглеждат случайни и сложни, включващи цифри и специални символи";
+"TotallyDifferentFromYourOtherPasswords" = "Са изцяло различни от останалите Ви пароли";
+"UseTheGeneratorToCreateAStrongUniquePassword" = "Използвайте генератора, за да създадете сложна и уникална парола";
+"TryItOut" = "Опитайте";
 "PreventAccountLockout" = "Предпазете се от загуба на достъп до регистрацията си";
 "NeverLoseAccessToYourVault" = "Никога не губете достъп до трезора си";
 "TheBestWayToMakeSureYouCanAlwaysAccessYourAccountIsToSetUpSafeguardsFromTheStart" = "Най-добрият начин да имате увереност, че винаги можете да достъпите данните си, е да настроите предпазните мерки още в началото.";
@@ -964,5 +973,5 @@
 "RestartRegistration" = "Рестартиране на регистрацията";
 "ExpiredLink" = "Връзка с изтекла давност";
 "PleaseRestartRegistrationOrTryLoggingInYouMayAlreadyHaveAnAccount" = "Моля, рестартирайте процеса на регистрация или опитайте да се впишете. Може вече да имате регистрация.";
-"RemovePasskey" = "Remove passkey";
-"PasskeyRemoved" = "Passkey removed";
+"RemovePasskey" = "Премахване на секретния ключ";
+"PasskeyRemoved" = "Секретният ключ е премахнат";
