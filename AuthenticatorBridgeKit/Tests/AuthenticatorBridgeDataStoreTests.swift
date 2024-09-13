@@ -32,9 +32,8 @@ final class AuthenticatorBridgeDataStoreTests: AuthenticatorBridgeKitTestCase {
 
     // MARK: Tests
 
-
-    /// Verify that the `deleteAllForUserId` method successfully deletes all of the data for a given userId from the store.
-    /// Verify that it does NOT delete the data for a different userId
+    /// Verify that the `deleteAllForUserId` method successfully deletes all of the data for a given
+    /// userId from the store. Verify that it does NOT delete the data for a different userId
     ///
     func test_deleteAllForUserId_success() async throws {
         let items = AuthenticatorBridgeItemDataModel.fixtures()
@@ -43,7 +42,8 @@ final class AuthenticatorBridgeDataStoreTests: AuthenticatorBridgeKitTestCase {
         try await subject.replaceAllItems(with: items, forUserId: "userId")
 
         // Separate Insert for "differentUserId"
-        try await subject.replaceAllItems(with: AuthenticatorBridgeItemDataModel.fixtures(), forUserId: "differentUserId")
+        try await subject.replaceAllItems(with: AuthenticatorBridgeItemDataModel.fixtures(),
+                                          forUserId: "differentUserId")
 
         // Remove the items for "differentUserId"
         try await subject.deleteAllForUserId("differentUserId")
@@ -120,7 +120,8 @@ final class AuthenticatorBridgeDataStoreTests: AuthenticatorBridgeKitTestCase {
         XCTAssertFalse(result.contains { $0 == initialItems.first })
     }
 
-    /// Verify the `replaceAllItems` correctly inserts items when a userId doesn't contain any items in the store previously.
+    /// Verify the `replaceAllItems` correctly inserts items when a userId doesn't contain any
+    /// items in the store previously.
     ///
     func test_replaceAllItems_startingFromEmpty() async throws {
         // Insert items for "userId"

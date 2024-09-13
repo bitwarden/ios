@@ -77,7 +77,7 @@ public class AuthenticatorBridgeDataStore {
     }
 
     // MARK: Methods
-    
+
     /// Removes all items that are owned by the specific userId
     ///
     /// - Parameter userId: the id of the user for which to delete all items.
@@ -90,7 +90,7 @@ public class AuthenticatorBridgeDataStore {
     ///
     /// - Parameter userId: the id of the user for which to delete all items.
     ///
-    public func fetchAllForUserId(_ userId: String) async throws -> [AuthenticatorBridgeItemDataModel]  {
+    public func fetchAllForUserId(_ userId: String) async throws -> [AuthenticatorBridgeItemDataModel] {
         let fetchRequest = AuthenticatorBridgeItemData.fetchByUserIdRequest(userId: userId)
         let result = try persistentContainer.viewContext.fetch(fetchRequest)
 

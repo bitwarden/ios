@@ -98,8 +98,8 @@ final class AuthenticatorBridgeItemDataTests: AuthenticatorBridgeKitTestCase {
         XCTAssertEqual(result.count, 0)
     }
 
-    /// Verify that the `fetchByUserIdRequest(userId:)` successfully finds all of the data for a given userId from the store.
-    /// Verify that it does NOT return any data for a different userId
+    /// Verify that the `fetchByUserIdRequest(userId:)` successfully finds all of the data for a given
+    /// userId from the store. Verify that it does NOT return any data for a different userId
     ///
     func test_fetchByUserIdRequest_success() async throws {
         // Insert items for "userId"
@@ -117,7 +117,7 @@ final class AuthenticatorBridgeItemDataTests: AuthenticatorBridgeKitTestCase {
         XCTAssertNotNil(result)
         XCTAssertEqual(result.count, expectedItems.count)
 
-        /// None of the items for userId should contain the item inserted for differentUserId
+        // None of the items for userId should contain the item inserted for differentUserId
         let emptyResult = result.filter { $0.id == differentUserItem.id }
         XCTAssertEqual(emptyResult.count, 0)
     }
