@@ -945,6 +945,15 @@
 "SetUpUnlock" = "ロック解除を設定";
 "SetUpBiometricsOrChooseAPinCodeToQuicklyAccessYourVaultAndAutofillYourLogins" = "生体認証を設定するか、PIN コードを選択して保管庫にすばやくアクセスし、ログインを自動入力します。";
 "SetUpLater" = "後でセットアップ";
+"MasterPasswordHelp" = "マスターパスワードのヘルプ";
+"WhatMakesAPasswordStrong" = "パスワードを強くする方法は?";
+"StrongPasswordDescriptionLong" = "パスワードが長ければ長いほど、ハッキングが困難になります。 アカウント作成の最小文字数は 12 文字ですが、例えば14 文字にするとパスワード解読に掛かる時間は1世紀になります!";
+"TheStrongestPasswordsAreUsually" = "最強のパスワードにするには:";
+"TwelveOrMoreCharacters" = "12文字以上にする";
+"RandomAndComplexUsingNumbersAndSpecialCharacters" = "数字と特殊記号を使用してランダムで複雑にする";
+"TotallyDifferentFromYourOtherPasswords" = "他で使ったパスワードとは全く異なるものにする";
+"UseTheGeneratorToCreateAStrongUniquePassword" = "生成機能を使用して、強力で一意なパスワードを作成";
+"TryItOut" = "試してみる";
 "PreventAccountLockout" = "アカウントのロックアウトを防止";
 "NeverLoseAccessToYourVault" = "保管庫へのアクセス喪失を防ぎましょう";
 "TheBestWayToMakeSureYouCanAlwaysAccessYourAccountIsToSetUpSafeguardsFromTheStart" = "常にアカウントにアクセスできるようにするための最善の方法は、最初から安全対策を設定することです。";

@@ -945,6 +945,15 @@
 "SetUpUnlock" = "Iestatīt atslēgšanu";
 "SetUpBiometricsOrChooseAPinCodeToQuicklyAccessYourVaultAndAutofillYourLogins" = "Biometriju var iestatīt vai PIN kodu var izvēlēties, lai ātri piekļūtu savai glabātavai un automātiski aizpildītu pieteikšanās vienumus.";
 "SetUpLater" = "Iestatīt vēlāk";
+"MasterPasswordHelp" = "Galvenās paroles palīdzība";
+"WhatMakesAPasswordStrong" = "Kas paroli padara stipru?";
+"StrongPasswordDescriptionLong" = "Jo garāka parole, jo grūtāk ir to uzlauzt. Mazākais rakstzīmju skaits konta izveidošanai ir 12, bet, ja izvēlas 14, paredzamais paroles uzlaušanas laiks būtu vairāki gadsimti.";
+"TheStrongestPasswordsAreUsually" = "Stiprākās paroles parasti ir:";
+"TwelveOrMoreCharacters" = "Ar 12 vai vairāk rakstzīmēm";
+"RandomAndComplexUsingNumbersAndSpecialCharacters" = "Nenoteiktas un sarežģītas, saturot skaitļus un īpašās rakstzīmes";
+"TotallyDifferentFromYourOtherPasswords" = "Pilnībā atšķiras no citām parolēm";
+"UseTheGeneratorToCreateAStrongUniquePassword" = "Ir izmantojams veidotājs, lai izveidotu stipru, vienreizēju paroli";
+"TryItOut" = "Izmēģini";
 "PreventAccountLockout" = "Jāizvairās no konta noslēgšanas";
 "NeverLoseAccessToYourVault" = "Nekad nezaudē piekļuvi savai glabātavai";
 "TheBestWayToMakeSureYouCanAlwaysAccessYourAccountIsToSetUpSafeguardsFromTheStart" = "Labākais veids, kā nodrošināt, ka vienmēr var piekļūt savam kontam, ir jau sākumā iestatīt drošības līdzekļus.";
@@ -964,5 +973,5 @@
 "RestartRegistration" = "Sākt reģistrēšanos no jauna";
 "ExpiredLink" = "Saitei beidzies derīgums";
 "PleaseRestartRegistrationOrTryLoggingInYouMayAlreadyHaveAnAccount" = "Lūgums sākt reģistrēšanos no jauna vai mēģināt pieteikties. Tev jau varētu būt konts.";
-"RemovePasskey" = "Remove passkey";
-"PasskeyRemoved" = "Passkey removed";
+"RemovePasskey" = "Noņemt piekļuves atslēgu";
+"PasskeyRemoved" = "Piekļuves atslēga noņemta";

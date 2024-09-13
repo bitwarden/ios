@@ -945,6 +945,15 @@
 "SetUpUnlock" = "Set up unlock";
 "SetUpBiometricsOrChooseAPinCodeToQuicklyAccessYourVaultAndAutofillYourLogins" = "Set up biometrics or choose a PIN code to quickly access your vault and autofill your logins.";
 "SetUpLater" = "Set up later";
+"MasterPasswordHelp" = "Indice du mot de passe principal";
+"WhatMakesAPasswordStrong" = "What makes a password strong?";
+"StrongPasswordDescriptionLong" = "Plus votre mot de passe est long, plus il est difficile à pirater. Le minimum pour créer un compte est de 12 caractères mais si vous faites 14 caractères, le temps nécessaire pour déchiffrer votre mot de passe serait de plusieurs siècles !";
+"TheStrongestPasswordsAreUsually" = "Les mots de passe les plus forts sont généralement :";
+"TwelveOrMoreCharacters" = "12 caractères ou plus";
+"RandomAndComplexUsingNumbersAndSpecialCharacters" = "Aléatoire et complexe, utilisant des nombres et des caractères spéciaux";
+"TotallyDifferentFromYourOtherPasswords" = "Totalement différent de vos autres mots de passe";
+"UseTheGeneratorToCreateAStrongUniquePassword" = "Utilisez le générateur pour créer un mot de passe fort et unique";
+"TryItOut" = "Essayez-le";
 "PreventAccountLockout" = "Prevent account lockout";
 "NeverLoseAccessToYourVault" = "Never lose access to your vault";
 "TheBestWayToMakeSureYouCanAlwaysAccessYourAccountIsToSetUpSafeguardsFromTheStart" = "The best way to make sure you can always access your account is to set up safeguards from the start.";

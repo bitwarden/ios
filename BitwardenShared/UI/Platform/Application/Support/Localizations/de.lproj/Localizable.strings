@@ -201,11 +201,11 @@
 "BitwardenAutofillServiceAlert2" = "Die einfachste Möglichkeit, neue Zugangsdaten zu deinem Tresor hinzuzufügen, ist der Bitwarden Auto-Ausfüllen Dienst. Erfahre mehr über den Bitwarden Auto-Ausfüllen Dienst, indem du zu \"Einstellungen\" wechselst.";
 "Autofill" = "Automatisch Einfügen";
 "AutofillOrView" = "Möchtest du diese Zugangsdaten automatisch einfügen oder ansehen?";
-"BitwardenAutofillServiceMatchConfirm" = "Bist du sicher, dass du diesen Eintrag automatisch einfügen möchtest? Er stimmt nicht komplett mit \"%1$@\" überein.";
+"BitwardenAutofillServiceMatchConfirm" = "Bist du sicher, dass du diesen Eintrag automatisch ausfüllen möchtest? Er stimmt nicht komplett mit \"%1$@\" überein.";
 "MatchingItems" = "Passende Einträge";
 "PossibleMatchingItems" = "Möglicherweise passende Einträge";
 "Search" = "Durchsuchen";
-"BitwardenAutofillServiceSearch" = "Du suchst nach einem Eintrag zum automatischen Einfügen für \"%1$@\".";
+"BitwardenAutofillServiceSearch" = "Du suchst nach einem Eintrag zum automatischen Ausfüllen für \"%1$@\".";
 "LearnOrg" = "Mehr über Organisationen erfahren";
 "CannotOpenApp" = "Die App \"%1$@\" kann nicht geöffnet werden.";
 "AuthenticatorAppTitle" = "Authenticator App";
@@ -361,7 +361,7 @@
 "DatePasswordUpdated" = "Passwort aktualisiert";
 "DateUpdated" = "Aktualisiert";
 "AutofillActivated" = "Auto-Ausfüllen aktiviert!";
-"MustLogInMainAppAutofill" = "Du musst dich in der Bitwarden App anmelden, bevor du AutoFill nutzen kannst.";
+"MustLogInMainAppAutofill" = "Du musst dich in der Bitwarden App anmelden, bevor du Auto-Ausfüllen nutzen kannst.";
 "AutofillSetup" = "Du kannst nun direkt von der Tastatur auf deine Zugangsdaten zugreifen, wenn du dich auf Webseiten oder in Apps anmeldest.";
 "AutofillSetup2" = "Wir empfehlen alle anderen Auto Ausfüllen Apps in den Einstellungen zu deaktivieren wenn du sie nicht nutzt.";
 "BitwardenAutofillDescription" = "Greife auf deinen Tressor direkt von deiner Tastatur aus zu um Passwörter schnell und automatisch auszufüllen.";
@@ -945,6 +945,15 @@
 "SetUpUnlock" = "Entsperren einrichten";
 "SetUpBiometricsOrChooseAPinCodeToQuicklyAccessYourVaultAndAutofillYourLogins" = "Richte Biometrie ein oder lege einen PIN-Code fest, um schnell auf deinen Tresor zuzugreifen und deinen Zugangsdaten automatisch auszufüllen.";
 "SetUpLater" = "Später einrichten";
+"MasterPasswordHelp" = "Master password help";
+"WhatMakesAPasswordStrong" = "Was zeichnet ein starkes Passwort aus?";
+"StrongPasswordDescriptionLong" = "The longer your password, the more difficult it is to hack. The minimum for account creation is 12 characters but if you do 14 characters, the time to crack your password would be centuries!";
+"TheStrongestPasswordsAreUsually" = "The strongest passwords are usually:";
+"TwelveOrMoreCharacters" = "12 or more characters";
+"RandomAndComplexUsingNumbersAndSpecialCharacters" = "Random and complex, using numbers and special characters";
+"TotallyDifferentFromYourOtherPasswords" = "Totally different from your other passwords";
+"UseTheGeneratorToCreateAStrongUniquePassword" = "Use the generator to create a strong, unique password";
+"TryItOut" = "Try it out";
 "PreventAccountLockout" = "Aussperren von deinem Konto verhindern";
 "NeverLoseAccessToYourVault" = "Verliere nie den Zugang zu deinem Tresor";
 "TheBestWayToMakeSureYouCanAlwaysAccessYourAccountIsToSetUpSafeguardsFromTheStart" = "Der beste Weg, um sicherzustellen, dass du immer auf dein Konto zugreifen kannst, ist, von Anfang an Sicherheitsvorkehrungen zu treffen.";
@@ -960,7 +969,7 @@
 "LearnAboutWaysToPreventAccountLockout" = "Erfahre, wie du ein Aussperren von deinem Konto verhindern kannst";
 "WhatMakesAPasswordStrong" = "Was zeichnet ein starkes Passwort aus?";
 "XCharacters" = "%1$@ Zeichen";
-"RemoveMasterPasswordMessage" = "%1$@ está usando SSO com um servidor de chaves auto-hospedado. Uma senha mestra não é mais necessária para fazer login para membros desta organização.";
+"RemoveMasterPasswordMessage" = "%1$@ verwendet SSO mit einem selbst gehosteten Schlüsselserver. Ein Master-Passwort zum Anmelden ist für Mitglieder dieser Organisation nicht mehr erforderlich.";
 "RestartRegistration" = "Registrierung neu starten";
 "ExpiredLink" = "Abgelaufener Link";
 "PleaseRestartRegistrationOrTryLoggingInYouMayAlreadyHaveAnAccount" = "Bitte starte die Registrierung neu oder versuche dich anzumelden. Möglicherweise hast du bereits ein Konto.";

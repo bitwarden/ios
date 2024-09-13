@@ -945,6 +945,15 @@
 "SetUpUnlock" = "Set up unlock";
 "SetUpBiometricsOrChooseAPinCodeToQuicklyAccessYourVaultAndAutofillYourLogins" = "Set up biometrics or choose a PIN code to quickly access your vault and autofill your logins.";
 "SetUpLater" = "Set up later";
+"MasterPasswordHelp" = "Master password help";
+"WhatMakesAPasswordStrong" = "What makes a password strong?";
+"StrongPasswordDescriptionLong" = "The longer your password, the more difficult it is to hack. The minimum for account creation is 12 characters but if you do 14 characters, the time to crack your password would be centuries!";
+"TheStrongestPasswordsAreUsually" = "The strongest passwords are usually:";
+"TwelveOrMoreCharacters" = "12 or more characters";
+"RandomAndComplexUsingNumbersAndSpecialCharacters" = "Random and complex, using numbers and special characters";
+"TotallyDifferentFromYourOtherPasswords" = "Totally different from your other passwords";
+"UseTheGeneratorToCreateAStrongUniquePassword" = "Use the generator to create a strong, unique password";
+"TryItOut" = "Try it out";
 "PreventAccountLockout" = "Prevent account lockout";
 "NeverLoseAccessToYourVault" = "Never lose access to your vault";
 "TheBestWayToMakeSureYouCanAlwaysAccessYourAccountIsToSetUpSafeguardsFromTheStart" = "The best way to make sure you can always access your account is to set up safeguards from the start.";

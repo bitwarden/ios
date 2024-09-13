@@ -945,6 +945,15 @@
 "SetUpUnlock" = "Configurar o desbloqueio";
 "SetUpBiometricsOrChooseAPinCodeToQuicklyAccessYourVaultAndAutofillYourLogins" = "Configure a biometria ou escolha um código PIN para aceder rapidamente ao seu cofre e preencher automaticamente as suas credenciais.";
 "SetUpLater" = "Configurar mais tarde";
+"MasterPasswordHelp" = "Ajuda com a palavra-passe mestra";
+"WhatMakesAPasswordStrong" = "O que torna uma palavra-passe forte?";
+"StrongPasswordDescriptionLong" = "Quanto mais longa for a sua palavra-passe, mais difícil será hackeá-la. O mínimo para a criação de uma conta é de 12 caracteres, mas se tiver 14 caracteres, o tempo para descobrir a sua palavra-passe seria de séculos!";
+"TheStrongestPasswordsAreUsually" = "As palavras-passe mais fortes são normalmente:";
+"TwelveOrMoreCharacters" = "de 12 ou mais caracteres";
+"RandomAndComplexUsingNumbersAndSpecialCharacters" = "Aleatórias e complexas, com números e caracteres especiais";
+"TotallyDifferentFromYourOtherPasswords" = "Completamente diferentes das suas outras palavras-passe";
+"UseTheGeneratorToCreateAStrongUniquePassword" = "Utilize o gerador para criar uma palavra-passe forte e única";
+"TryItOut" = "Experimentar";
 "PreventAccountLockout" = "Previna o bloqueio da conta";
 "NeverLoseAccessToYourVault" = "Nunca perca o acesso ao seu cofre";
 "TheBestWayToMakeSureYouCanAlwaysAccessYourAccountIsToSetUpSafeguardsFromTheStart" = "A melhor forma de garantir que pode sempre aceder à sua conta é definir salvaguardas desde o início.";
