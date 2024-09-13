@@ -48,7 +48,7 @@ extension Alert {
         }
 
         let simulatedTextField = UITextField()
-        simulatedTextField.text = "1234"
+        simulatedTextField.text = text
         textField.textChanged(in: simulatedTextField)
     }
 }
