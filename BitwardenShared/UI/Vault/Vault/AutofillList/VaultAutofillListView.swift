@@ -186,31 +186,39 @@ private struct VaultAutofillListSearchableView: View {
     /// The content displayed in the view.
     @ViewBuilder
     private func contentView() -> some View {
-        if isSearching {
-            searchContentView()
-        } else {
-            if store.state.vaultListSections.isEmpty {
-                EmptyContentView(
-                    image: Asset.Images.openSource.swiftUIImage,
-                    text: store.state.emptyViewMessage
-                ) {
-                    Button {
-                        store.send(.addTapped(fromToolbar: false))
-                    } label: {
-                        Label {
-                            Text(store.state.emptyViewButtonText)
-                        } icon: {
-                            Asset.Images.plus.swiftUIImage
-                                .imageStyle(.accessoryIcon(
-                                    color: Asset.Colors.textPrimaryInverted.swiftUIColor,
-                                    scaleWithFont: true
-                                ))
+        ZStack {
+            let isSearching = isSearching
+                || !store.state.searchText.isEmpty
+                || !store.state.ciphersForSearch.isEmpty
+
+            Group {
+                if store.state.vaultListSections.isEmpty {
+                    EmptyContentView(
+                        image: Asset.Images.openSource.swiftUIImage,
+                        text: store.state.emptyViewMessage
+                    ) {
+                        Button {
+                            store.send(.addTapped(fromToolbar: false))
+                        } label: {
+                            Label {
+                                Text(store.state.emptyViewButtonText)
+                            } icon: {
+                                Asset.Images.plus.swiftUIImage
+                                    .imageStyle(.accessoryIcon(
+                                        color: Asset.Colors.textPrimaryInverted.swiftUIColor,
+                                        scaleWithFont: true
+                                    ))
+                            }
                         }
                     }
+                } else {
+                    cipherListView(store.state.vaultListSections)
                 }
-            } else {
-                cipherListView(store.state.vaultListSections)
             }
+            .hidden(isSearching)
+
+            searchContentView()
+                .hidden(!isSearching)
         }
     }
 
