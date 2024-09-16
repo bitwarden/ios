@@ -37,9 +37,6 @@ struct ProfileSwitcherState: Equatable {
     /// A flag for view visibility.
     var isVisible: Bool
 
-    /// The observed offset of the scrollView.
-    var scrollOffset: CGPoint
-
     /// A flag to indicate if an add account row should be visible.
     private let shouldAlwaysHideAddAccount: Bool
 
@@ -60,7 +57,6 @@ struct ProfileSwitcherState: Equatable {
     ///   - allowLockAndLogout: Should the view be allowed to lock and logout accounts?
     ///   - currentAccountProfile: The current `ProfileSwitcherItem` profile.
     ///   - isVisible: The visibility of the view.
-    ///   - scrollOffset: The offset of the scroll view.
     ///   - shouldAlwaysHideAddAccount: Overrides visibility of the add account row.
     ///   - showPlaceholderToolbarIcon: Should the handler replace the toolbar icon with two dots?
     ///
@@ -69,7 +65,6 @@ struct ProfileSwitcherState: Equatable {
         activeAccountId: String?,
         allowLockAndLogout: Bool,
         isVisible: Bool,
-        scrollOffset: CGPoint = .zero,
         shouldAlwaysHideAddAccount: Bool = false,
         showPlaceholderToolbarIcon: Bool = false
     ) {
@@ -77,7 +72,6 @@ struct ProfileSwitcherState: Equatable {
         self.activeAccountId = activeAccountId
         self.allowLockAndLogout = allowLockAndLogout
         self.isVisible = isVisible
-        self.scrollOffset = scrollOffset
         self.shouldAlwaysHideAddAccount = shouldAlwaysHideAddAccount
         self.showPlaceholderToolbarIcon = showPlaceholderToolbarIcon
     }

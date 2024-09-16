@@ -18,4 +18,7 @@ enum AccountSecurityEffect: Equatable {
 
     /// Unlock with Biometrics was toggled.
     case toggleUnlockWithBiometrics(Bool)
+
+    /// Unlock with pin code was toggled.
+    case toggleUnlockWithPINCode(Bool)
 }

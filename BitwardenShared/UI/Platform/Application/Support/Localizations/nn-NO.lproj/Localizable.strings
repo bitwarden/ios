@@ -945,6 +945,15 @@
 "SetUpUnlock" = "Set up unlock";
 "SetUpBiometricsOrChooseAPinCodeToQuicklyAccessYourVaultAndAutofillYourLogins" = "Set up biometrics or choose a PIN code to quickly access your vault and autofill your logins.";
 "SetUpLater" = "Set up later";
+"MasterPasswordHelp" = "Hovudpassord-hjelp";
+"WhatMakesAPasswordStrong" = "What makes a password strong?";
+"StrongPasswordDescriptionLong" = "Jo lengre passordet ditt er, jo vanskelegare er det å hacke. Minimum for oppretting av konto er 12 teikn, men viss du brukar 14 teikn, vil tida til å knekke passordet vere hundrevis av år!";
+"TheStrongestPasswordsAreUsually" = "Dei sterkaste passorda er vanlegvis:";
+"TwelveOrMoreCharacters" = "12 eller fleire teikn";
+"RandomAndComplexUsingNumbersAndSpecialCharacters" = "Tilfeldig og komplekst, ved hjelp av tal og spesialteikn";
+"TotallyDifferentFromYourOtherPasswords" = "Fullstendig ulikt dine andre passord";
+"UseTheGeneratorToCreateAStrongUniquePassword" = "Bruk generatoren for å lage eit sterkt og unikt passord";
+"TryItOut" = "Prøv det ut";
 "PreventAccountLockout" = "Prevent account lockout";
 "NeverLoseAccessToYourVault" = "Never lose access to your vault";
 "TheBestWayToMakeSureYouCanAlwaysAccessYourAccountIsToSetUpSafeguardsFromTheStart" = "The best way to make sure you can always access your account is to set up safeguards from the start.";

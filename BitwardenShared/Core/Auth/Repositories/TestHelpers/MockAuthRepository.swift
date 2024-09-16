@@ -50,6 +50,7 @@ class MockAuthRepository: AuthRepository { // swiftlint:disable:this type_body_l
     var setMasterPasswordOrganizationIdentifier: String?
     var setMasterPasswordResetPasswordAutoEnroll: Bool?
     var setMasterPasswordResult: Result<Void, Error> = .success(())
+    var setPinsRequirePasswordAfterRestart: Bool?
     var setPinsResult: Result<Void, Error> = .success(())
     var setVaultTimeoutError: Error?
     var unlockVaultFromLoginWithDeviceKey: String?
@@ -221,9 +222,10 @@ class MockAuthRepository: AuthRepository { // swiftlint:disable:this type_body_l
         return match
     }
 
-    func setPins(_ pin: String, requirePasswordAfterRestart _: Bool) async throws {
+    func setPins(_ pin: String, requirePasswordAfterRestart: Bool) async throws {
         encryptedPin = pin
         pinProtectedUserKey = pin
+        setPinsRequirePasswordAfterRestart = requirePasswordAfterRestart
         try setPinsResult.get()
     }
 
