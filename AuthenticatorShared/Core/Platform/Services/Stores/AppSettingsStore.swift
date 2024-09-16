@@ -35,6 +35,14 @@ protocol AppSettingsStore: AnyObject {
     ///
     func biometricIntegrityState(userId: String) -> String?
 
+    /// Gets the closed state for the given card.
+    ///
+    /// - Parameter card: The card to get the closed state for.
+    ///
+    /// - Returns: Whether or not this card has been closed.
+    ///
+    func cardClosedState(card: ItemListCard) -> Bool
+
     /// Gets the time after which the clipboard should be cleared.
     ///
     /// - Parameter userId: The user ID associated with the clipboard clearing time.
@@ -77,6 +85,12 @@ protocol AppSettingsStore: AnyObject {
     ///   - userId: The user ID associated with the Biometric Integrity State.
     ///
     func setBiometricIntegrityState(_ base64EncodedIntegrityState: String?, userId: String)
+
+    /// Sets the closed state to true for the given card.
+    ///
+    /// - Parameter card: The card to set the closed state for.
+    ///
+    func setCardClosedState(card: ItemListCard)
 
     /// Sets the time after which the clipboard should be cleared.
     ///
@@ -216,6 +230,7 @@ extension DefaultAppSettingsStore: AppSettingsStore {
         case appTheme
         case biometricAuthEnabled(userId: String)
         case biometricIntegrityState(userId: String, bundleId: String)
+        case cardClosedState(card: ItemListCard)
         case clearClipboardValue(userId: String)
         case disableWebIcons
         case hasSeenWelcomeTutorial
@@ -236,6 +251,8 @@ extension DefaultAppSettingsStore: AppSettingsStore {
                 key = "biometricUnlock_\(userId)"
             case let .biometricIntegrityState(userId, bundleId):
                 key = "biometricIntegritySource_\(userId)_\(bundleId)"
+            case let .cardClosedState(card: card):
+                key = "cardClosedState_\(card)"
             case let .clearClipboardValue(userId):
                 key = "clearClipboard_\(userId)"
             case .disableWebIcons:
@@ -290,6 +307,10 @@ extension DefaultAppSettingsStore: AppSettingsStore {
         )
     }
 
+    func cardClosedState(card: ItemListCard) -> Bool {
+        fetch(for: .cardClosedState(card: card))
+    }
+
     func clearClipboardValue(userId: String) -> ClearClipboardValue {
         if let rawValue: Int = fetch(for: .clearClipboardValue(userId: userId)),
            let value = ClearClipboardValue(rawValue: rawValue) {
@@ -320,6 +341,10 @@ extension DefaultAppSettingsStore: AppSettingsStore {
         )
     }
 
+    func setCardClosedState(card: ItemListCard) {
+        store(true, for: .cardClosedState(card: card))
+    }
+
     func setClearClipboardValue(_ clearClipboardValue: ClearClipboardValue?, userId: String) {
         store(clearClipboardValue?.rawValue, for: .clearClipboardValue(userId: userId))
     }
@@ -327,4 +352,14 @@ extension DefaultAppSettingsStore: AppSettingsStore {
     func setSecretKey(_ key: String, userId: String) {
         store(key, for: .secretKey(userId: userId))
     }
+}
+
+/// An enumeration of possible item list cards.
+///
+enum ItemListCard: String {
+    /// The password manager download card.
+    case passwordManagerDownload
+
+    /// The password manager sync card.
+    case passwordManagerSync
 }

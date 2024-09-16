@@ -8,6 +8,9 @@ enum ItemListEffect: Equatable {
     /// The vault group view appeared on screen.
     case appeared
 
+    /// The close button was pressed on the given card.
+    case closeCard(ItemListCard)
+
     /// The copy code button was pressed.
     ///
     case copyPressed(_ item: ItemListItem)

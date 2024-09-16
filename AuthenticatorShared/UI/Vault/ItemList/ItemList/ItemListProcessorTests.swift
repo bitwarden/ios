@@ -8,6 +8,7 @@ class ItemListProcessorTests: AuthenticatorTestCase {
     // MARK: Properties
 
     var application: MockApplication!
+    var appSettingsStore: MockAppSettingsStore!
     var authItemRepository: MockAuthenticatorItemRepository!
     var configService: MockConfigService!
     var coordinator: MockCoordinator<ItemListRoute, ItemListEvent>!
@@ -20,6 +21,7 @@ class ItemListProcessorTests: AuthenticatorTestCase {
         super.setUp()
 
         application = MockApplication()
+        appSettingsStore = MockAppSettingsStore()
         authItemRepository = MockAuthenticatorItemRepository()
         configService = MockConfigService()
         coordinator = MockCoordinator()
@@ -27,6 +29,7 @@ class ItemListProcessorTests: AuthenticatorTestCase {
 
         let services = ServiceContainer.withMocks(
             application: application,
+            appSettingsStore: appSettingsStore,
             authenticatorItemRepository: authItemRepository,
             configService: configService,
             totpService: totpService
@@ -95,6 +98,22 @@ class ItemListProcessorTests: AuthenticatorTestCase {
         }
         XCTAssertEqual(item.name, "")
         XCTAssertEqual(item.totpKey, String.base32Key)
+    }
+
+    /// Tests that the `itemListCardState` is set to `none` if the download card has been closed.
+    func test_determineItemListCardState_closed_download() async {
+        configService.featureFlagsBool = [.enablePasswordManagerSync: true]
+        application.canOpenUrlResponse = false
+        await subject.perform(.closeCard(.passwordManagerDownload))
+        XCTAssertEqual(subject.state.itemListCardState, .none)
+    }
+
+    /// Tests that the `itemListCardState` is set to `none` if the sync card has been closed.
+    func test_determineItemListCardState_closed_sync() async {
+        configService.featureFlagsBool = [.enablePasswordManagerSync: true]
+        application.canOpenUrlResponse = true
+        await subject.perform(.closeCard(.passwordManagerSync))
+        XCTAssertEqual(subject.state.itemListCardState, .none)
     }
 
     /// Tests that the `showPasswordManagerSyncCard` and `showPasswordManagerDownloadCard` are set

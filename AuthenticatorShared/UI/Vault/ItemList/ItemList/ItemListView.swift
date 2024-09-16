@@ -136,7 +136,9 @@ private struct SearchableItemListView: View {
                 openURL(ExternalLinksConstants.passwordManagerLink)
             },
             closeTapped: {
-                // TODO: https://livefront.atlassian.net/browse/BITAU-129
+                Task {
+                    await store.perform(.closeCard(.passwordManagerDownload))
+                }
             }
         )
         .padding(.top, 16)
@@ -158,7 +160,9 @@ private struct SearchableItemListView: View {
                 openURL(ExternalLinksConstants.passwordManagerSettings)
             },
             closeTapped: {
-                // TODO: https://livefront.atlassian.net/browse/BITAU-129
+                Task {
+                    await store.perform(.closeCard(.passwordManagerSync))
+                }
             }
         )
         .padding(.top, 16)

@@ -20,6 +20,7 @@ class MockAppSettingsStore: AppSettingsStore {
     var approveLoginRequestsByUserId = [String: Bool]()
     var biometricAuthenticationEnabled = [String: Bool?]()
     var biometricIntegrityStates = [String: String?]()
+    var cardClosedStateValues = [ItemListCard: Bool]()
     var clearClipboardValues = [String: ClearClipboardValue]()
     var connectToWatchByUserId = [String: Bool]()
     var disableAutoTotpCopyByUserId = [String: Bool]()
@@ -37,6 +38,14 @@ class MockAppSettingsStore: AppSettingsStore {
     var vaultTimeout = [String: Int?]()
 
     var unsuccessfulUnlockAttempts = [String: Int]()
+
+    func cardClosedState(card: ItemListCard) -> Bool {
+        cardClosedStateValues[card] ?? false
+    }
+
+    func setCardClosedState(card: ItemListCard) {
+        cardClosedStateValues[card] = true
+    }
 
     func clearClipboardValue(userId: String) -> ClearClipboardValue {
         clearClipboardValues[userId] ?? .never

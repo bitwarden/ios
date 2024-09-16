@@ -112,4 +112,42 @@ class ItemListViewTests: AuthenticatorTestCase {
 
         assertSnapshot(matching: NavigationView { subject }, as: .defaultPortrait)
     }
+
+    /// Test the close taps trigger the associated effect.
+    func test_itemListCardView_close_download() throws {
+        let state = ItemListState(
+            itemListCardState: .passwordManagerDownload,
+            loadingState: .data([ItemListSection.fixture()])
+        )
+        processor = MockProcessor(state: state)
+        subject = ItemListView(
+            store: Store(processor: processor),
+            timeProvider: timeProvider
+        )
+
+        try subject.inspect().find(buttonWithAccessibilityLabel: Localizations.close).tap()
+
+        waitFor(!processor.effects.isEmpty)
+
+        XCTAssertEqual(processor.effects.last, .closeCard(.passwordManagerDownload))
+    }
+
+    /// Test the close taps trigger the associated effect.
+    func test_itemListCardView_close_sync() throws {
+        let state = ItemListState(
+            itemListCardState: .passwordManagerSync,
+            loadingState: .data([])
+        )
+        processor = MockProcessor(state: state)
+        subject = ItemListView(
+            store: Store(processor: processor),
+            timeProvider: timeProvider
+        )
+
+        try subject.inspect().find(buttonWithAccessibilityLabel: Localizations.close).tap()
+
+        waitFor(!processor.effects.isEmpty)
+
+        XCTAssertEqual(processor.effects.last, .closeCard(.passwordManagerSync))
+    }
 }
