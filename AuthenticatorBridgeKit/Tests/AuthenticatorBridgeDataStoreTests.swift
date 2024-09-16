@@ -7,6 +7,7 @@ final class AuthenticatorBridgeDataStoreTests: AuthenticatorBridgeKitTestCase {
     // MARK: Properties
 
     let accessGroup = "group.com.example.bitwarden-authenticator"
+    var cryptoService: MockSharedCryptographyService!
     var subject: AuthenticatorBridgeDataStore!
     var error: Error?
 
@@ -14,17 +15,20 @@ final class AuthenticatorBridgeDataStoreTests: AuthenticatorBridgeKitTestCase {
 
     override func setUp() {
         super.setUp()
+        let cryptoService = MockSharedCryptographyService()
         let errorHandler: (Error) -> Void = { error in
             self.error = error
         }
         subject = AuthenticatorBridgeDataStore(
             storeType: .memory,
             groupIdentifier: accessGroup,
+            cryptoService: cryptoService,
             errorHandler: errorHandler
         )
     }
 
     override func tearDown() {
+        cryptoService = nil
         error = nil
         subject = nil
         super.tearDown()
