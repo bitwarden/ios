@@ -1319,6 +1319,7 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         stateService.accountEncryptionKeys = [
             "1": AccountEncryptionKeys(encryptedPrivateKey: "PRIVATE_KEY", encryptedUserKey: "USER_KEY"),
         ]
+        stateService.encryptedPinByUserId["1"] = "ENCRYPTED_PIN"
 
         await assertAsyncDoesNotThrow {
             try await subject.unlockVaultWithPassword(password: "password")
@@ -1336,6 +1337,7 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         XCTAssertFalse(vaultTimeoutService.isLocked(userId: "1"))
         XCTAssertTrue(organizationService.initializeOrganizationCryptoCalled)
         XCTAssertEqual(authService.hashPasswordPassword, "password")
+        XCTAssertEqual(stateService.accountVolatileData["1"]?.pinProtectedUserKey, "ENCRYPTED_USER_KEY")
         XCTAssertEqual(stateService.masterPasswordHashes["1"], "hashed")
         XCTAssertFalse(biometricsRepository.didConfigureBiometricIntegrity)
         XCTAssertTrue(vaultTimeoutService.unlockVaultHadUserInteraction)
@@ -1462,10 +1464,14 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
             ),
         ]
         stateService.activeAccount = .fixture()
+        stateService.encryptedPinByUserId["1"] = "ENCRYPTED_PIN"
         clientService.mockCrypto.initializeUserCryptoResult = .success(())
+
         await assertAsyncDoesNotThrow {
             try await subject.unlockVaultWithBiometrics()
         }
+
+        XCTAssertEqual(stateService.accountVolatileData["1"]?.pinProtectedUserKey, "ENCRYPTED_USER_KEY")
         XCTAssertTrue(vaultTimeoutService.unlockVaultHadUserInteraction)
     }
 

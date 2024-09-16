@@ -549,7 +549,7 @@ class VaultAutofillListProcessorFido2Tests: BitwardenTestCase { // swiftlint:dis
         XCTAssertTrue(errorReporter.errors.isEmpty)
 
         XCTAssertTrue(subject.state.isAutofillingFido2List)
-        XCTAssertEqual(subject.state.emptyViewMessage, Localizations.noItemsToList)
+        XCTAssertEqual(subject.state.emptyViewMessage, Localizations.noItemsTap)
 
         appExtensionDelegate.completeAssertionRequestMocker.assertUnwrapping { credential in
             credential.userHandle == expectedResult.userHandle
@@ -588,7 +588,7 @@ class VaultAutofillListProcessorFido2Tests: BitwardenTestCase { // swiftlint:dis
         }
 
         XCTAssertTrue(subject.state.isAutofillingFido2List)
-        XCTAssertEqual(subject.state.emptyViewMessage, Localizations.noItemsToList)
+        XCTAssertEqual(subject.state.emptyViewMessage, Localizations.noItemsTap)
     }
 
     /// `perform(_:)` with `.initFido2` calls `makeCredential` from the Fido2 authenticator when

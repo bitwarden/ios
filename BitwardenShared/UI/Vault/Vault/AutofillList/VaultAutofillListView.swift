@@ -43,7 +43,7 @@ struct VaultAutofillListView: View {
                 )
             }
 
-            addToolbarItem(hidden: store.state.isAutofillingFido2List) {
+            addToolbarItem {
                 store.send(.addTapped(fromToolbar: true))
             }
         }
@@ -194,21 +194,17 @@ private struct VaultAutofillListSearchableView: View {
                     image: Asset.Images.openSource.swiftUIImage,
                     text: store.state.emptyViewMessage
                 ) {
-                    if store.state.isAutofillingFido2List {
-                        EmptyView()
-                    } else {
-                        Button {
-                            store.send(.addTapped(fromToolbar: false))
-                        } label: {
-                            Label {
-                                Text(store.state.emptyViewButtonText)
-                            } icon: {
-                                Asset.Images.plus.swiftUIImage
-                                    .imageStyle(.accessoryIcon(
-                                        color: Asset.Colors.textPrimaryInverted.swiftUIColor,
-                                        scaleWithFont: true
-                                    ))
-                            }
+                    Button {
+                        store.send(.addTapped(fromToolbar: false))
+                    } label: {
+                        Label {
+                            Text(store.state.emptyViewButtonText)
+                        } icon: {
+                            Asset.Images.plus.swiftUIImage
+                                .imageStyle(.accessoryIcon(
+                                    color: Asset.Colors.textPrimaryInverted.swiftUIColor,
+                                    scaleWithFont: true
+                                ))
                         }
                     }
                 }
