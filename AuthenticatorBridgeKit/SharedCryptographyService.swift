@@ -64,7 +64,7 @@ public class DefaultAuthenticatorCryptographyService: SharedCryptographyService 
             AuthenticatorBridgeItemDataModel(
                 favorite: item.favorite,
                 id: item.id,
-                name: item.name,
+                name: (try? decrypt(item.name, withKey: symmetricKey)) ?? "",
                 totpKey: try? decrypt(item.totpKey, withKey: symmetricKey),
                 username: try? decrypt(item.username, withKey: symmetricKey)
             )
@@ -81,7 +81,7 @@ public class DefaultAuthenticatorCryptographyService: SharedCryptographyService 
             AuthenticatorBridgeItemDataModel(
                 favorite: item.favorite,
                 id: item.id,
-                name: item.name,
+                name: encrypt(item.name, withKey: symmetricKey) ?? "",
                 totpKey: encrypt(item.totpKey, withKey: symmetricKey),
                 username: encrypt(item.username, withKey: symmetricKey)
             )

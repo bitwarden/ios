@@ -67,9 +67,9 @@ final class SharedCryptographyServiceTests: AuthenticatorBridgeKitTestCase {
             // Unencrypted values remain equal
             XCTAssertEqual(item.favorite, encryptedItem.favorite)
             XCTAssertEqual(item.id, encryptedItem.id)
-            XCTAssertEqual(item.name, encryptedItem.name)
 
             // Encrypted values should not remain equal, unless they were `nil`
+            XCTAssertNotEqual(item.name, encryptedItem.name)
             if item.totpKey != nil {
                 XCTAssertNotEqual(item.totpKey, encryptedItem.totpKey)
             } else {
