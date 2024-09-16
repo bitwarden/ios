@@ -40,21 +40,6 @@ public class AuthenticatorBridgeItemData: NSManagedObject {
         modelData = try JSONEncoder().encode(authenticatorItem)
         self.userId = userId
     }
-
-    // MARK: Methods
-
-    /// Updates the `AuthenticatorBridgeItemData` object from an `AuthenticatorBridgeItemDataModel` and user ID
-    ///
-    /// - Parameters:
-    ///   - authenticatorItem: The `AuthenticatorBridgeItemDataModel` used to update
-    ///   the `AuthenticatorBridgeItemData` instance
-    ///   - userId: The user ID associated with the item
-    ///
-    public func update(with authenticatorItem: AuthenticatorBridgeItemDataModel, userId: String) throws {
-        id = authenticatorItem.id
-        modelData = try JSONEncoder().encode(authenticatorItem)
-        self.userId = userId
-    }
 }
 
 public extension AuthenticatorBridgeItemData {
@@ -71,38 +56,19 @@ public extension AuthenticatorBridgeItemData {
     /// - Returns: A `NSBatchInsertRequest` that inserts the objects for the user.
     ///
     static func batchInsertRequest(
-        objects: [AuthenticatorBridgeItemDataModel],
+        models: [AuthenticatorBridgeItemDataModel],
         userId: String
     ) throws -> NSBatchInsertRequest {
-        var index = 0
-        var errorToThrow: Error?
-
-        let insertRequest = NSBatchInsertRequest(
-            entityName: AuthenticatorBridgeItemData.entityName
-        ) { (managedObject: NSManagedObject) -> Bool in
-
-            if let managedObject = (managedObject as? AuthenticatorBridgeItemData) {
-                guard index < objects.count else { return true }
-                defer { index += 1 }
-
-                do {
-                    try managedObject.update(with: objects[index], userId: userId)
-                } catch {
-                    // The error can't be thrown directly in this closure, so capture it, return
-                    // from the closure, and then throw it.
-                    errorToThrow = error
-                    return true
-                }
+        try NSBatchInsertRequest(
+            entityName: AuthenticatorBridgeItemData.entityName,
+            objects: models.map { model in
+                try [
+                    "id": model.id,
+                    "modelData": JSONEncoder().encode(model),
+                    "userId": userId,
+                ]
             }
-
-            return false
-        }
-
-        if let errorToThrow {
-            throw errorToThrow
-        }
-
-        return insertRequest
+        )
     }
 
     /// A `NSBatchDeleteRequest` that deletes all objects for the specified user.
@@ -118,12 +84,12 @@ public extension AuthenticatorBridgeItemData {
         return NSBatchDeleteRequest(fetchRequest: fetchRequest)
     }
 
-    /// A `NSFetchRequest` that fetches objects for the specified user matching an ID.
+    /// A `NSFetchRequest` that fetches a specific item owned by the specified user matching the provided Id.
     ///
     /// - Parameters:
     ///   - id: The Id of the object to fetch.
     ///   - userId: The user associated with the object to fetch.
-    /// - Returns: A `NSFetchRequest` that fetches all objects for the user.
+    /// - Returns: A `NSFetchRequest` that fetches the object owned by the user with the given id.
     ///
     static func fetchByIdRequest(
         id: String,

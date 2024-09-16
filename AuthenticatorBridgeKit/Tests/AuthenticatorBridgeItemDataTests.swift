@@ -121,25 +121,4 @@ final class AuthenticatorBridgeItemDataTests: AuthenticatorBridgeKitTestCase {
         let emptyResult = result.filter { $0.id == differentUserItem.id }
         XCTAssertEqual(emptyResult.count, 0)
     }
-
-    /// Verify that updating an `AuthenticatorBridgeItemData` successfully updates the model's contents
-    ///
-    func test_update_success() async throws {
-        subject = try AuthenticatorBridgeItemData(
-            context: dataStore.persistentContainer.viewContext,
-            userId: "userId",
-            authenticatorItem: AuthenticatorBridgeItemDataModel(
-                favorite: true, id: "id", name: "name", totpKey: "TOTP Key", username: "username"
-            )
-        )
-
-        let model = AuthenticatorBridgeItemDataModel(
-            favorite: false, id: "newId", name: "newName", totpKey: "new TOTP Key", username: "new username"
-        )
-
-        try? subject.update(with: model, userId: "newUserId")
-
-        XCTAssertEqual(try? subject.model, model)
-        XCTAssertEqual(subject.userId, "newUserId")
-    }
 }

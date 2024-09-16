@@ -39,16 +39,14 @@ final class AuthenticatorBridgeDataStoreTests: AuthenticatorBridgeKitTestCase {
         let items = AuthenticatorBridgeItemDataModel.fixtures()
 
         // First Insert for "userId"
-        try await subject.replaceAllItems(with: items, forUserId: "userId")
+        try await subject.insertItems(items, forUserId: "userId")
 
         // Separate Insert for "differentUserId"
-        try await subject.replaceAllItems(with: AuthenticatorBridgeItemDataModel.fixtures(),
-                                          forUserId: "differentUserId")
+        try await subject.insertItems(AuthenticatorBridgeItemDataModel.fixtures(),
+                                      forUserId: "differentUserId")
 
         // Remove the items for "differentUserId"
         try await subject.deleteAllForUserId("differentUserId")
-        try subject.persistentContainer.viewContext.saveIfChanged()
-        try subject.backgroundContext.saveIfChanged()
 
         // Verify items are removed for "differentUserId"
         let deletedFetchResult = try await subject.fetchAllForUserId("differentUserId")
@@ -69,11 +67,11 @@ final class AuthenticatorBridgeDataStoreTests: AuthenticatorBridgeKitTestCase {
     func test_fetchAllForUserId_success() async throws {
         // Insert items for "userId"
         let expectedItems = AuthenticatorBridgeItemDataModel.fixtures().sorted { $0.id < $1.id }
-        try await subject.replaceAllItems(with: expectedItems, forUserId: "userId")
+        try await subject.insertItems(expectedItems, forUserId: "userId")
 
         // Separate Insert for "differentUserId"
         let differentUserItem = AuthenticatorBridgeItemDataModel.fixture()
-        try await subject.replaceAllItems(with: [differentUserItem], forUserId: "differentUserId")
+        try await subject.insertItems([differentUserItem], forUserId: "differentUserId")
 
         // Fetch should return only the expectedItem
         let result = try await subject.fetchAllForUserId("userId")
@@ -87,13 +85,24 @@ final class AuthenticatorBridgeDataStoreTests: AuthenticatorBridgeKitTestCase {
         XCTAssertEqual(emptyResult.count, 0)
     }
 
+    /// Verify that the `insertItems(_:forUserId:)` method successfully inserts the list of items
+    /// for the given user id.
+    ///
+    func test_insertItemsForUserId_success() async throws {
+        let expectedItems = AuthenticatorBridgeItemDataModel.fixtures().sorted { $0.id < $1.id }
+        try await subject.insertItems(expectedItems, forUserId: "userId")
+        let result = try await subject.fetchAllForUserId("userId")
+
+        XCTAssertEqual(result, expectedItems)
+    }
+
     /// Verify the `replaceAllItems` correctly deletes all of the items in the store previously when given
     /// an empty list of items to insert for the given userId.
     ///
     func test_replaceAllItems_emptyInsertDeletesExisting() async throws {
         // Insert initial items for "userId"
         let expectedItems = AuthenticatorBridgeItemDataModel.fixtures().sorted { $0.id < $1.id }
-        try await subject.replaceAllItems(with: expectedItems, forUserId: "userId")
+        try await subject.insertItems(expectedItems, forUserId: "userId")
 
         // Replace with empty list, deleting all
         try await subject.replaceAllItems(with: [], forUserId: "userId")
@@ -108,7 +117,7 @@ final class AuthenticatorBridgeDataStoreTests: AuthenticatorBridgeKitTestCase {
     func test_replaceAllItems_replacesExisting() async throws {
         // Insert initial items for "userId"
         let initialItems = [AuthenticatorBridgeItemDataModel.fixture()]
-        try await subject.replaceAllItems(with: initialItems, forUserId: "userId")
+        try await subject.insertItems(initialItems, forUserId: "userId")
 
         // Replace items for "userId"
         let expectedItems = AuthenticatorBridgeItemDataModel.fixtures().sorted { $0.id < $1.id }

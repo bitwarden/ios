@@ -88,7 +88,7 @@ public class AuthenticatorBridgeDataStore {
 
     /// Fetches all items that are owned by the specific userId
     ///
-    /// - Parameter userId: the id of the user for which to delete all items.
+    /// - Parameter userId: the id of the user for which to fetch items.
     ///
     public func fetchAllForUserId(_ userId: String) async throws -> [AuthenticatorBridgeItemDataModel] {
         let fetchRequest = AuthenticatorBridgeItemData.fetchByUserIdRequest(userId: userId)
@@ -97,6 +97,19 @@ public class AuthenticatorBridgeDataStore {
         return try result.map { data in
             try data.model
         }
+    }
+
+    /// Inserts the list of items into the store for the given userId.
+    ///
+    /// - Parameters:
+    ///   - items: The list of `AuthenticatorBridgeItemDataModel` to be inserted into the store.
+    ///   - userId: the id of the user for which to insert the items.
+    ///
+    public func insertItems(_ items: [AuthenticatorBridgeItemDataModel],
+                            forUserId userId: String) async throws {
+        try await executeBatchInsert(
+            AuthenticatorBridgeItemData.batchInsertRequest(models: items, userId: userId)
+        )
     }
 
     /// Deletes all existing items for a given user and inserts new items for the list of items provided.
@@ -108,7 +121,7 @@ public class AuthenticatorBridgeDataStore {
     public func replaceAllItems(with items: [AuthenticatorBridgeItemDataModel],
                                 forUserId userId: String) async throws {
         let deleteRequest = AuthenticatorBridgeItemData.deleteByUserIdRequest(userId: userId)
-        let insertRequest = try AuthenticatorBridgeItemData.batchInsertRequest(objects: items, userId: userId)
+        let insertRequest = try AuthenticatorBridgeItemData.batchInsertRequest(models: items, userId: userId)
         try await executeBatchReplace(
             deleteRequest: deleteRequest,
             insertRequest: insertRequest
@@ -123,6 +136,19 @@ public class AuthenticatorBridgeDataStore {
         try await backgroundContext.perform {
             try self.backgroundContext.executeAndMergeChanges(
                 batchDeleteRequest: request,
+                additionalContexts: [self.persistentContainer.viewContext]
+            )
+        }
+    }
+
+    /// Executes a batch insert request and merges the changes into the background and view contexts.
+    ///
+    /// - Parameter request: The batch insert request to perform.
+    ///
+    private func executeBatchInsert(_ request: NSBatchInsertRequest) async throws {
+        try await backgroundContext.perform {
+            try self.backgroundContext.executeAndMergeChanges(
+                batchInsertRequest: request,
                 additionalContexts: [self.persistentContainer.viewContext]
             )
         }
