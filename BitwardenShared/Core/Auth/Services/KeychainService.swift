@@ -1,4 +1,4 @@
-import AuthenticatorSyncKit
+import AuthenticatorBridgeKit
 import Foundation
 
 // MARK: - KeychainService

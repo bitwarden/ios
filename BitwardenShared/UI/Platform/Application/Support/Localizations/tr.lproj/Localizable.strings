@@ -897,8 +897,8 @@
 "YourPasskeyWillBeSavedToYourBitwardenVault" = "Geçiş anahtarınız Bitwarden kasasına kaydedilecektir";
 "YourPasskeyWillBeSavedToYourBitwardenVaultForX" = "%1$@ için geçiş anahtarınız Bitwarden kasasına kaydedilecektir";
 "PasskeysNotSupportedForThisApp" = "Bu uygulamada geçiş anahtarları desteklenmiyor";
-"PasskeyOperationFailedBecauseBrowserIsNotPrivileged" = "Geçiş anahtarı eylemi başarısız oldu çünkü tarayıcı ayrıcalıklı değil";
-"PasskeyOperationFailedBecauseBrowserSignatureDoesNotMatch" = "Geçiş anahtarı eylemi başarısız oldu çünkü tarayıcı imzası uyumsuz";
+"PasskeyOperationFailedBecauseBrowserIsNotPrivileged" = "Tarayıcı izinli olmadığı için geçiş anahtarı işlemi başarısız oldu";
+"PasskeyOperationFailedBecauseBrowserSignatureDoesNotMatch" = "Tarayıcı imzası eşleşmediği için geçiş anahtarı işlemi başarısız oldu";
 "PasskeyOperationFailedBecauseOfMissingAssetLinks" = "Geçiş anahtarı eylemi başarısız oldu çünkü varlık bağlantıları eksik";
 "PasskeyOperationFailedBecauseAppNotFoundInAssetLinks" = "Geçiş anahtarı eylemi başarısız oldu çünkü uygulama varlık bağlantılarında bulunamadı";
 "PasskeyOperationFailedBecauseAppCouldNotBeVerified" = "Geçiş anahtarı eylemi başarısız oldu çünkü uygulama doğrulanamadı";
@@ -945,6 +945,15 @@
 "SetUpUnlock" = "Kilit açmayı ayarla";
 "SetUpBiometricsOrChooseAPinCodeToQuicklyAccessYourVaultAndAutofillYourLogins" = "Kasanıza hızlıca erişmek ve hesaplarınızı otomatik doldurmak için biyometrik girişi ayarlayın ve PIN kodu belirleyin.";
 "SetUpLater" = "Daha sonra ayarla";
+"MasterPasswordHelp" = "Ana parola yardımı";
+"WhatMakesAPasswordStrong" = "Bir parola nasıl güçlü olur?";
+"StrongPasswordDescriptionLong" = "The longer your password, the more difficult it is to hack. The minimum for account creation is 12 characters but if you do 14 characters, the time to crack your password would be centuries!";
+"TheStrongestPasswordsAreUsually" = "The strongest passwords are usually:";
+"TwelveOrMoreCharacters" = "12 or more characters";
+"RandomAndComplexUsingNumbersAndSpecialCharacters" = "Random and complex, using numbers and special characters";
+"TotallyDifferentFromYourOtherPasswords" = "Totally different from your other passwords";
+"UseTheGeneratorToCreateAStrongUniquePassword" = "Güçlü ve benzersiz bir parola oluşturmak için üreteci kullanabilirsiniz";
+"TryItOut" = "Deneyin";
 "PreventAccountLockout" = "Hesap kilitlenmelerinin önüne geçin";
 "NeverLoseAccessToYourVault" = "Kasanıza erişiminizi kaybetmeyin";
 "TheBestWayToMakeSureYouCanAlwaysAccessYourAccountIsToSetUpSafeguardsFromTheStart" = "Hesabınıza her an erişebilmenizin en iyi yolu, önleminizi en baştan almaktır.";

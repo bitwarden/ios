@@ -946,6 +946,15 @@
 "SetUpUnlock" = "Подесите откључавање";
 "SetUpBiometricsOrChooseAPinCodeToQuicklyAccessYourVaultAndAutofillYourLogins" = "Подесите биометрију или изаберите ПИН кôд да бисте брзо приступили свом сефу и аутоматски попунили своје пријаве.";
 "SetUpLater" = "Подесићу касније";
+"MasterPasswordHelp" = "Master password help";
+"WhatMakesAPasswordStrong" = "Шта лозинку чини јаком?";
+"StrongPasswordDescriptionLong" = "The longer your password, the more difficult it is to hack. The minimum for account creation is 12 characters but if you do 14 characters, the time to crack your password would be centuries!";
+"TheStrongestPasswordsAreUsually" = "The strongest passwords are usually:";
+"TwelveOrMoreCharacters" = "12 or more characters";
+"RandomAndComplexUsingNumbersAndSpecialCharacters" = "Random and complex, using numbers and special characters";
+"TotallyDifferentFromYourOtherPasswords" = "Totally different from your other passwords";
+"UseTheGeneratorToCreateAStrongUniquePassword" = "Use the generator to create a strong, unique password";
+"TryItOut" = "Try it out";
 "PreventAccountLockout" = "Спречите закључавање налога";
 "NeverLoseAccessToYourVault" = "Никада не губите приступ свом сефу";
 "TheBestWayToMakeSureYouCanAlwaysAccessYourAccountIsToSetUpSafeguardsFromTheStart" = "Најбољи начин да будете сигурни да увек можете да приступите свом налогу је да поставите заштитне мере од самог почетка.";

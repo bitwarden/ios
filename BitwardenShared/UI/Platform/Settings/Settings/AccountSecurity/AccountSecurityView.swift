@@ -180,9 +180,9 @@ struct AccountSecurityView: View {
             VStack(spacing: 24) {
                 biometricsSetting
 
-                Toggle(isOn: store.binding(
+                Toggle(isOn: store.bindingAsync(
                     get: \.isUnlockWithPINCodeOn,
-                    send: AccountSecurityAction.toggleUnlockWithPINCode
+                    perform: AccountSecurityEffect.toggleUnlockWithPINCode
                 )) {
                     Text(Localizations.unlockWithPIN)
                 }

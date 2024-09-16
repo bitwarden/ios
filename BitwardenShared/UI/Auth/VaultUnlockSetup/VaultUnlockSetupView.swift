@@ -22,9 +22,9 @@ struct VaultUnlockSetupView: View {
 
             VStack(spacing: 0) {
                 ForEach(store.state.unlockMethods) { unlockMethod in
-                    Toggle(isOn: store.binding(
+                    Toggle(isOn: store.bindingAsync(
                         get: { $0[keyPath: unlockMethod.keyPath] },
-                        send: { VaultUnlockSetupAction.toggleUnlockMethod(unlockMethod, newValue: $0) }
+                        perform: { VaultUnlockSetupEffect.toggleUnlockMethod(unlockMethod, newValue: $0) }
                     )) {
                         Text(unlockMethod.title)
                             .foregroundStyle(Asset.Colors.textPrimary.swiftUIColor)

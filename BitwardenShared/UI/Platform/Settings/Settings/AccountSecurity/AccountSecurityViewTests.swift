@@ -116,7 +116,7 @@ class AccountSecurityViewTests: BitwardenTestCase {
         }
         let toggle = try subject.inspect().find(ViewType.Toggle.self)
         try toggle.tap()
-        XCTAssertEqual(processor.dispatchedActions.last, .toggleUnlockWithPINCode(true))
+        XCTAssertEqual(processor.effects.last, .toggleUnlockWithPINCode(true))
     }
 
     // MARK: Snapshots

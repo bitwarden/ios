@@ -947,6 +947,15 @@
 "SetUpUnlock" = "Настройка разблокировки";
 "SetUpBiometricsOrChooseAPinCodeToQuicklyAccessYourVaultAndAutofillYourLogins" = "Настройте биометрию или задайте PIN-код для быстрого доступа к хранилищу и автозаполнения логинов.";
 "SetUpLater" = "Настроить позже";
+"MasterPasswordHelp" = "Помощь с мастер-паролем";
+"WhatMakesAPasswordStrong" = "Какой пароль считается надежным?";
+"StrongPasswordDescriptionLong" = "Чем длиннее ваш пароль, тем сложнее его взломать. Минимальный пароль для создания аккаунта - 12 символов, но если вы добавите еще два символа, время на взлом пароля будет исчисляться веками!";
+"TheStrongestPasswordsAreUsually" = "Самые надежные пароли как правило:";
+"TwelveOrMoreCharacters" = "Содержат 12 или более символов";
+"RandomAndComplexUsingNumbersAndSpecialCharacters" = "Случайные и сложные, с использованием цифр и специальных символов";
+"TotallyDifferentFromYourOtherPasswords" = "Полностью отличаются от других ваших паролей";
+"UseTheGeneratorToCreateAStrongUniquePassword" = "Используйте генератор для создания надежного, уникального пароля";
+"TryItOut" = "Попробовать";
 "PreventAccountLockout" = "Предотвращение блокировки аккаунта";
 "NeverLoseAccessToYourVault" = "Никогда не теряйте доступ к своему хранилищу";
 "TheBestWayToMakeSureYouCanAlwaysAccessYourAccountIsToSetUpSafeguardsFromTheStart" = "Лучший способ убедиться, что вы всегда сможете получить доступ к своему аккаунту, — это настроить меры безопасности с самого начала.";

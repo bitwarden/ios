@@ -1,8 +1,8 @@
 import XCTest
 
-/// Base class for any tests in the AuthenticatorSyncKit framework.
+/// Base class for any tests in the AuthenticatorBridgeKit framework.
 ///
-open class AuthenticatorSyncKitTestCase: XCTestCase {
+open class AuthenticatorBridgeKitTestCase: XCTestCase {
     /// Asserts that an asynchronous block of code will throw an error. The test will fail if the
     /// block does not throw an error.
     ///
