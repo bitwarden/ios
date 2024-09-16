@@ -82,9 +82,24 @@ extension EnvironmentUrlData {
         subpageUrl(additionalPath: "recover-2fa")
     }
 
+    /// Gets the region depending on the base url.
+    var region: RegionType {
+        switch base {
+        case EnvironmentUrlData.defaultUS.base:
+            .unitedStates
+        case EnvironmentUrlData.defaultEU.base:
+            .europe
+        default:
+            .selfHosted
+        }
+    }
+
     /// The base url for send sharing.
     var sendShareURL: URL? {
-        subpageUrl(additionalPath: "send")
+        guard region != .unitedStates else {
+            return URL(string: "https://send.bitwarden.com/#")!
+        }
+        return subpageUrl(additionalPath: "send")
     }
 
     /// The base url for the settings screen.
@@ -118,8 +133,24 @@ extension EnvironmentUrlData {
 
 extension EnvironmentUrlData {
     /// The default URLs for the US region.
-    static let defaultUS = EnvironmentUrlData(base: URL(string: "https://vault.bitwarden.com")!)
+    static let defaultUS = EnvironmentUrlData(
+        api: URL(string: "https://api.bitwarden.com")!,
+        base: URL(string: "https://vault.bitwarden.com")!,
+        events: URL(string: "https://events.bitwarden.com")!,
+        icons: URL(string: "https://icons.bitwarden.net")!,
+        identity: URL(string: "https://identity.bitwarden.com")!,
+        notifications: URL(string: "https://notifications.bitwarden.com")!,
+        webVault: URL(string: "https://vault.bitwarden.com")!
+    )
 
     /// The default URLs for the EU region.
-    static let defaultEU = EnvironmentUrlData(base: URL(string: "https://vault.bitwarden.eu")!)
+    static let defaultEU = EnvironmentUrlData(
+        api: URL(string: "https://api.bitwarden.eu")!,
+        base: URL(string: "https://vault.bitwarden.eu")!,
+        events: URL(string: "https://events.bitwarden.eu")!,
+        icons: URL(string: "https://icons.bitwarden.net")!,
+        identity: URL(string: "https://identity.bitwarden.eu")!,
+        notifications: URL(string: "https://notifications.bitwarden.eu")!,
+        webVault: URL(string: "https://vault.bitwarden.eu")!
+    )
 }

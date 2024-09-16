@@ -42,7 +42,7 @@ extension EnvironmentUrls {
     /// - Parameter environmentUrlData: The environment URLs used to initialize `EnvironmentUrls`.
     ///
     init(environmentUrlData: EnvironmentUrlData) {
-        if let base = environmentUrlData.base {
+        if environmentUrlData.region == .selfHosted, let base = environmentUrlData.base {
             apiURL = base.appendingPathComponent("api")
             baseURL = base
             eventsURL = base.appendingPathComponent("events")

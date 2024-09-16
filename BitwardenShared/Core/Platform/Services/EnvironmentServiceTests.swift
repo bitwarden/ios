@@ -36,13 +36,13 @@ class EnvironmentServiceTests: XCTestCase {
 
     /// The default US URLs are returned if the URLs haven't been loaded.
     func test_defaultUrls() {
-        XCTAssertEqual(subject.apiURL, URL(string: "https://vault.bitwarden.com/api"))
-        XCTAssertEqual(subject.eventsURL, URL(string: "https://vault.bitwarden.com/events"))
-        XCTAssertEqual(subject.iconsURL, URL(string: "https://vault.bitwarden.com/icons"))
-        XCTAssertEqual(subject.identityURL, URL(string: "https://vault.bitwarden.com/identity"))
+        XCTAssertEqual(subject.apiURL, URL(string: "https://api.bitwarden.com"))
+        XCTAssertEqual(subject.eventsURL, URL(string: "https://events.bitwarden.com"))
+        XCTAssertEqual(subject.iconsURL, URL(string: "https://icons.bitwarden.net"))
+        XCTAssertEqual(subject.identityURL, URL(string: "https://identity.bitwarden.com"))
         XCTAssertEqual(subject.importItemsURL, URL(string: "https://vault.bitwarden.com/#/tools/import"))
         XCTAssertEqual(subject.region, .unitedStates)
-        XCTAssertEqual(subject.sendShareURL, URL(string: "https://vault.bitwarden.com/#/send"))
+        XCTAssertEqual(subject.sendShareURL, URL(string: "https://send.bitwarden.com/#"))
         XCTAssertEqual(subject.settingsURL, URL(string: "https://vault.bitwarden.com/#/settings"))
         XCTAssertEqual(subject.webVaultURL, URL(string: "https://vault.bitwarden.com"))
     }
@@ -77,10 +77,10 @@ class EnvironmentServiceTests: XCTestCase {
 
         await subject.loadURLsForActiveAccount()
 
-        XCTAssertEqual(subject.apiURL, URL(string: "https://vault.bitwarden.eu/api"))
-        XCTAssertEqual(subject.eventsURL, URL(string: "https://vault.bitwarden.eu/events"))
-        XCTAssertEqual(subject.iconsURL, URL(string: "https://vault.bitwarden.eu/icons"))
-        XCTAssertEqual(subject.identityURL, URL(string: "https://vault.bitwarden.eu/identity"))
+        XCTAssertEqual(subject.apiURL, URL(string: "https://api.bitwarden.eu"))
+        XCTAssertEqual(subject.eventsURL, URL(string: "https://events.bitwarden.eu"))
+        XCTAssertEqual(subject.iconsURL, URL(string: "https://icons.bitwarden.net"))
+        XCTAssertEqual(subject.identityURL, URL(string: "https://identity.bitwarden.eu"))
         XCTAssertEqual(subject.importItemsURL, URL(string: "https://vault.bitwarden.eu/#/tools/import"))
         XCTAssertEqual(subject.region, .europe)
         XCTAssertEqual(subject.sendShareURL, URL(string: "https://vault.bitwarden.eu/#/send"))
@@ -124,13 +124,13 @@ class EnvironmentServiceTests: XCTestCase {
 
         await subject.loadURLsForActiveAccount()
 
-        XCTAssertEqual(subject.apiURL, URL(string: "https://vault.bitwarden.com/api"))
-        XCTAssertEqual(subject.eventsURL, URL(string: "https://vault.bitwarden.com/events"))
-        XCTAssertEqual(subject.iconsURL, URL(string: "https://vault.bitwarden.com/icons"))
-        XCTAssertEqual(subject.identityURL, URL(string: "https://vault.bitwarden.com/identity"))
+        XCTAssertEqual(subject.apiURL, URL(string: "https://api.bitwarden.com"))
+        XCTAssertEqual(subject.eventsURL, URL(string: "https://events.bitwarden.com"))
+        XCTAssertEqual(subject.iconsURL, URL(string: "https://icons.bitwarden.net"))
+        XCTAssertEqual(subject.identityURL, URL(string: "https://identity.bitwarden.com"))
         XCTAssertEqual(subject.importItemsURL, URL(string: "https://vault.bitwarden.com/#/tools/import"))
         XCTAssertEqual(subject.region, .unitedStates)
-        XCTAssertEqual(subject.sendShareURL, URL(string: "https://vault.bitwarden.com/#/send"))
+        XCTAssertEqual(subject.sendShareURL, URL(string: "https://send.bitwarden.com/#"))
         XCTAssertEqual(subject.settingsURL, URL(string: "https://vault.bitwarden.com/#/settings"))
         XCTAssertEqual(subject.webVaultURL, URL(string: "https://vault.bitwarden.com"))
 
@@ -143,13 +143,13 @@ class EnvironmentServiceTests: XCTestCase {
     func test_loadURLsForActiveAccount_noAccount() async {
         await subject.loadURLsForActiveAccount()
 
-        XCTAssertEqual(subject.apiURL, URL(string: "https://vault.bitwarden.com/api"))
-        XCTAssertEqual(subject.eventsURL, URL(string: "https://vault.bitwarden.com/events"))
-        XCTAssertEqual(subject.iconsURL, URL(string: "https://vault.bitwarden.com/icons"))
-        XCTAssertEqual(subject.identityURL, URL(string: "https://vault.bitwarden.com/identity"))
+        XCTAssertEqual(subject.apiURL, URL(string: "https://api.bitwarden.com"))
+        XCTAssertEqual(subject.eventsURL, URL(string: "https://events.bitwarden.com"))
+        XCTAssertEqual(subject.iconsURL, URL(string: "https://icons.bitwarden.net"))
+        XCTAssertEqual(subject.identityURL, URL(string: "https://identity.bitwarden.com"))
         XCTAssertEqual(subject.importItemsURL, URL(string: "https://vault.bitwarden.com/#/tools/import"))
         XCTAssertEqual(subject.region, .unitedStates)
-        XCTAssertEqual(subject.sendShareURL, URL(string: "https://vault.bitwarden.com/#/send"))
+        XCTAssertEqual(subject.sendShareURL, URL(string: "https://send.bitwarden.com/#"))
         XCTAssertEqual(subject.settingsURL, URL(string: "https://vault.bitwarden.com/#/settings"))
         XCTAssertEqual(subject.webVaultURL, URL(string: "https://vault.bitwarden.com"))
         XCTAssertEqual(stateService.preAuthEnvironmentUrls, .defaultUS)
