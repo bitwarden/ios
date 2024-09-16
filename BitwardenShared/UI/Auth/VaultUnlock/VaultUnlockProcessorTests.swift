@@ -1167,26 +1167,6 @@ class VaultUnlockProcessorTests: BitwardenTestCase { // swiftlint:disable:this t
         XCTAssertTrue(appExtensionDelegate.didCancelCalled)
     }
 
-    /// `receive(_:)` with `.profileSwitcher(.scrollOffset)` updates the state to reflect the changes.
-    @MainActor
-    func test_receive_scrollOffset() {
-        let active = ProfileSwitcherItem.fixture()
-        subject.state.profileSwitcherState = ProfileSwitcherState(
-            accounts: [active],
-            activeAccountId: active.userId,
-            allowLockAndLogout: true,
-            isVisible: true,
-            scrollOffset: .zero
-        )
-
-        let newPoint = CGPoint(x: 0, y: 100)
-        subject.receive(.profileSwitcher(.scrollOffsetChanged(newPoint)))
-
-        XCTAssertNotNil(subject.state.profileSwitcherState)
-        XCTAssertTrue(subject.state.profileSwitcherState.isVisible)
-        XCTAssertEqual(subject.state.profileSwitcherState.scrollOffset, newPoint)
-    }
-
     /// `receive(_:)` with `.toastShown` updates the state's toast value.
     @MainActor
     func test_receive_toastShown() {
