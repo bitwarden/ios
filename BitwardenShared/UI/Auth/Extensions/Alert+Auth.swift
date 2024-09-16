@@ -228,7 +228,7 @@ extension Alert {
     static func setUpUnlockMethodLater(action: @escaping () async -> Void) -> Alert {
         Alert(
             title: Localizations.setUpLaterQuestion,
-            message: Localizations.youCanFinishSetupUnlockAnytime,
+            message: Localizations.youCanFinishSetupUnlockAnytimeDescriptionLong,
             alertActions: [
                 AlertAction(title: Localizations.cancel, style: .cancel),
                 AlertAction(title: Localizations.confirm, style: .default) { _ in

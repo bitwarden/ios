@@ -976,5 +976,5 @@
 "RemovePasskey" = "Remove passkey";
 "PasskeyRemoved" = "Passkey removed";
 "SetUpLaterQuestion" = "Set up later?";
-"YouCanFinishSetupUnlockAnytime" = "You can finish setup anytime in Account Security under Settings. You’ll use your master password to unlock until you set up another method.";
+"YouCanFinishSetupUnlockAnytimeDescriptionLong" = "You can finish setup anytime in Account Security under Settings. You’ll use your master password to unlock until you set up another method.";
 "Confirm" = "Confirm";

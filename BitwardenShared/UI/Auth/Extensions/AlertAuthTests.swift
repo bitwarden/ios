@@ -174,7 +174,7 @@ class AlertAuthTests: BitwardenTestCase {
         }
 
         XCTAssertEqual(subject.title, Localizations.setUpLaterQuestion)
-        XCTAssertEqual(subject.message, Localizations.youCanFinishSetupUnlockAnytime)
+        XCTAssertEqual(subject.message, Localizations.youCanFinishSetupUnlockAnytimeDescriptionLong)
         XCTAssertEqual(subject.preferredStyle, .alert)
         XCTAssertEqual(subject.alertActions.count, 2)
         XCTAssertEqual(subject.alertActions[0].title, Localizations.cancel)
