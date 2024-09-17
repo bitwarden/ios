@@ -43,7 +43,7 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         appWindow.makeKeyAndVisible()
         window = appWindow
 
-        #if DEBUG
+        #if DEBUG_MENU
         addTripleTapGestureRecognizer(to: appWindow)
         #endif
 
