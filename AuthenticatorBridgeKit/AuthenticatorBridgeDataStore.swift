@@ -27,8 +27,8 @@ public class AuthenticatorBridgeDataStore {
         return context
     }()
 
-    /// The cryptography service to use in en/decrypting the items stored.
-    private let cryptoService: SharedCryptographyService
+    /// The CoreData model name.
+    private let modelName = "Bitwarden-Authenticator"
 
     /// The Core Data persistent container.
     public let persistentContainer: NSPersistentContainer
@@ -39,27 +39,24 @@ public class AuthenticatorBridgeDataStore {
     ///
     /// - Parameters:
     ///   - storeType: The type of store to create.
-    ///   - groupIdentifier: The app group identifier for the shared resource.
-    ///   - cryptoService: The cryptography service to use in en/decrypting the items stored.
+    ///   - appGroupIdentifier: The app group identifier for the shared resource.
     ///   - errorHandler: Callback if an error occurs on load of store.
     ///
     public init(
         storeType: AuthenticatorBridgeStoreType = .persisted,
         groupIdentifier: String,
-        cryptoService: SharedCryptographyService,
         errorHandler: @escaping (Error) -> Void
     ) {
-        self.cryptoService = cryptoService
-
         #if SWIFT_PACKAGE
-        let modelURL = Bundle.module.url(forResource: "Bitwarden-Authenticator", withExtension: "momd")!
+        let bundle = Bundle.module
         #else
-        let modelURL = Bundle(for: type(of: self)).url(forResource: "Bitwarden-Authenticator", withExtension: "momd")!
+        let bundle = Bundle(for: type(of: self))
         #endif
 
+        let modelURL = bundle.url(forResource: modelName, withExtension: "momd")!
         let managedObjectModel = NSManagedObjectModel(contentsOf: modelURL)!
         persistentContainer = NSPersistentContainer(
-            name: "Bitwarden-Authenticator",
+            name: modelName,
             managedObjectModel: managedObjectModel
         )
         let storeDescription: NSPersistentStoreDescription
@@ -99,11 +96,11 @@ public class AuthenticatorBridgeDataStore {
     ///
     public func fetchAllForUserId(_ userId: String) async throws -> [AuthenticatorBridgeItemDataModel] {
         let fetchRequest = AuthenticatorBridgeItemData.fetchByUserIdRequest(userId: userId)
-        let result = try persistentContainer.viewContext.fetch(fetchRequest)
-        let encryptedItems =  try result.map { data in
+        let result = try backgroundContext.fetch(fetchRequest)
+
+        return try result.map { data in
             try data.model
         }
-        return try await cryptoService.decryptAuthenticatorItems(encryptedItems)
     }
 
     /// Inserts the list of items into the store for the given userId.
@@ -114,9 +111,8 @@ public class AuthenticatorBridgeDataStore {
     ///
     public func insertItems(_ items: [AuthenticatorBridgeItemDataModel],
                             forUserId userId: String) async throws {
-        let encryptedItems = try await cryptoService.encryptAuthenticatorItems(items)
         try await executeBatchInsert(
-            AuthenticatorBridgeItemData.batchInsertRequest(models: encryptedItems, userId: userId)
+            AuthenticatorBridgeItemData.batchInsertRequest(models: items, userId: userId)
         )
     }
 
@@ -128,12 +124,8 @@ public class AuthenticatorBridgeDataStore {
     ///
     public func replaceAllItems(with items: [AuthenticatorBridgeItemDataModel],
                                 forUserId userId: String) async throws {
-        let encryptedItems = try await cryptoService.encryptAuthenticatorItems(items)
         let deleteRequest = AuthenticatorBridgeItemData.deleteByUserIdRequest(userId: userId)
-        let insertRequest = try AuthenticatorBridgeItemData.batchInsertRequest(
-            models: encryptedItems,
-            userId: userId
-        )
+        let insertRequest = try AuthenticatorBridgeItemData.batchInsertRequest(models: items, userId: userId)
         try await executeBatchReplace(
             deleteRequest: deleteRequest,
             insertRequest: insertRequest
