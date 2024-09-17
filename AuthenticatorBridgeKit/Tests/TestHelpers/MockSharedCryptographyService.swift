@@ -4,15 +4,20 @@ import Foundation
 @testable import AuthenticatorBridgeKit
 
 class MockSharedCryptographyService: SharedCryptographyService {
+    var decryptCalled = false
+    var encryptCalled = false
+
     func decryptAuthenticatorItems(
         _ items: [AuthenticatorBridgeItemDataModel]
     ) async throws -> [AuthenticatorBridgeItemDataModel] {
-        items
+        decryptCalled = true
+        return items
     }
 
     func encryptAuthenticatorItems(
         _ items: [AuthenticatorBridgeItemDataModel]
     ) async throws -> [AuthenticatorBridgeItemDataModel] {
-        items
+        encryptCalled = true
+        return items
     }
 }

@@ -41,6 +41,9 @@ public protocol AuthenticatorBridgeItemService {
 ///
 public class DefaultAuthenticatorBridgeItemService: AuthenticatorBridgeItemService {
     // MARK: Properties
+    
+    /// Cryptography service for encrypting/decrypting items.
+    let cryptoService: SharedCryptographyService
 
     /// The CoreData store for working with shared data.
     let dataStore: AuthenticatorBridgeDataStore
@@ -56,7 +59,10 @@ public class DefaultAuthenticatorBridgeItemService: AuthenticatorBridgeItemServi
     ///   - dataStore: The CoreData store for working with shared data
     ///   - sharedKeychainRepository: The keychain repository for working with the shared key.
     ///
-    init(dataStore: AuthenticatorBridgeDataStore, sharedKeychainRepository: SharedKeychainRepository) {
+    init(cryptoService: SharedCryptographyService,
+         dataStore: AuthenticatorBridgeDataStore,
+         sharedKeychainRepository: SharedKeychainRepository) {
+        self.cryptoService = cryptoService
         self.dataStore = dataStore
         self.sharedKeychainRepository = sharedKeychainRepository
     }
@@ -78,10 +84,10 @@ public class DefaultAuthenticatorBridgeItemService: AuthenticatorBridgeItemServi
     public func fetchAllForUserId(_ userId: String) async throws -> [AuthenticatorBridgeItemDataModel] {
         let fetchRequest = AuthenticatorBridgeItemData.fetchByUserIdRequest(userId: userId)
         let result = try dataStore.backgroundContext.fetch(fetchRequest)
-
-        return result.compactMap { data in
+        let encryptedItems = result.compactMap { data in
             data.model
         }
+        return try await cryptoService.decryptAuthenticatorItems(encryptedItems)
     }
 
     /// Inserts the list of items into the store for the given userId.
@@ -92,8 +98,9 @@ public class DefaultAuthenticatorBridgeItemService: AuthenticatorBridgeItemServi
     ///
     public func insertItems(_ items: [AuthenticatorBridgeItemDataModel],
                             forUserId userId: String) async throws {
+        let encryptedItems = try await cryptoService.encryptAuthenticatorItems(items)
         try await dataStore.executeBatchInsert(
-            AuthenticatorBridgeItemData.batchInsertRequest(objects: items, userId: userId)
+            AuthenticatorBridgeItemData.batchInsertRequest(objects: encryptedItems, userId: userId)
         )
     }
 
@@ -105,8 +112,12 @@ public class DefaultAuthenticatorBridgeItemService: AuthenticatorBridgeItemServi
     ///
     public func replaceAllItems(with items: [AuthenticatorBridgeItemDataModel],
                                 forUserId userId: String) async throws {
+        let encryptedItems = try await cryptoService.encryptAuthenticatorItems(items)
         let deleteRequest = AuthenticatorBridgeItemData.deleteByUserIdRequest(userId: userId)
-        let insertRequest = try AuthenticatorBridgeItemData.batchInsertRequest(objects: items, userId: userId)
+        let insertRequest = try AuthenticatorBridgeItemData.batchInsertRequest(
+            objects: encryptedItems,
+            userId: userId
+        )
         try await dataStore.executeBatchReplace(
             deleteRequest: deleteRequest,
             insertRequest: insertRequest
