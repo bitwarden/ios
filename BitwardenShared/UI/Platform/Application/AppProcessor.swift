@@ -375,7 +375,7 @@ public class AppProcessor {
 
     /// Show the debug menu.
     public func showDebugMenu() {
-        coordinator?.navigate(to: .showDebugMenu)
+        coordinator?.navigate(to: .debugMenu)
     }
 }
 

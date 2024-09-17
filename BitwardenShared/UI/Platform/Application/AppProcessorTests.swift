@@ -126,6 +126,13 @@ class AppProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_body
         XCTAssertEqual(timeProvider.presentTime.timeIntervalSince1970, updated!.timeIntervalSince1970, accuracy: 1.0)
     }
 
+    /// `showDebugMenu` will send the correct route to the coordinator.
+    @MainActor
+    func test_debugMenu() {
+        subject.showDebugMenu()
+        XCTAssertEqual(coordinator.routes.last, .debugMenu)
+    }
+
     /// `didRegister(withToken:)` passes the token to the notification service.
     @MainActor
     func test_didRegister() throws {

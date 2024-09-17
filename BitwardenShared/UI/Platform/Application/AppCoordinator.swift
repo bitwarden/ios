@@ -88,6 +88,8 @@ class AppCoordinator: Coordinator, HasRootNavigator {
         switch route {
         case let .auth(authRoute):
             showAuth(authRoute)
+        case .debugMenu:
+            showDebugMenu()
         case let .extensionSetup(extensionSetupRoute):
             showExtensionSetup(route: extensionSetupRoute)
         case let .loginRequest(loginRequest):
@@ -98,8 +100,6 @@ class AppCoordinator: Coordinator, HasRootNavigator {
             showTab(route: tabRoute)
         case let .vault(vaultRoute):
             showVault(route: vaultRoute)
-        case .showDebugMenu:
-            showDebugMenu()
         }
     }
 

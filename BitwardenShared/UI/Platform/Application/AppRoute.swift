@@ -6,6 +6,9 @@ public enum AppRoute: Equatable {
     /// A route to the authentication flow.
     case auth(AuthRoute)
 
+    /// A route to the debug menu.
+    case debugMenu
+
     /// A route to the extension setup interface.
     case extensionSetup(ExtensionSetupRoute)
 
@@ -20,9 +23,6 @@ public enum AppRoute: Equatable {
 
     /// A route to the vault interface.
     case vault(VaultRoute)
-
-    /// A route to the debug menu.
-    case showDebugMenu
 }
 
 public enum AppEvent: Equatable {
