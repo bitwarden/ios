@@ -148,7 +148,7 @@ extension EnvironmentUrlData {
         api: URL(string: "https://api.bitwarden.eu")!,
         base: URL(string: "https://vault.bitwarden.eu")!,
         events: URL(string: "https://events.bitwarden.eu")!,
-        icons: URL(string: "https://icons.bitwarden.net")!,
+        icons: URL(string: "https://icons.bitwarden.eu")!,
         identity: URL(string: "https://identity.bitwarden.eu")!,
         notifications: URL(string: "https://notifications.bitwarden.eu")!,
         webVault: URL(string: "https://vault.bitwarden.eu")!

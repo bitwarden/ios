@@ -79,7 +79,7 @@ class EnvironmentServiceTests: XCTestCase {
 
         XCTAssertEqual(subject.apiURL, URL(string: "https://api.bitwarden.eu"))
         XCTAssertEqual(subject.eventsURL, URL(string: "https://events.bitwarden.eu"))
-        XCTAssertEqual(subject.iconsURL, URL(string: "https://icons.bitwarden.net"))
+        XCTAssertEqual(subject.iconsURL, URL(string: "https://icons.bitwarden.eu"))
         XCTAssertEqual(subject.identityURL, URL(string: "https://identity.bitwarden.eu"))
         XCTAssertEqual(subject.importItemsURL, URL(string: "https://vault.bitwarden.eu/#/tools/import"))
         XCTAssertEqual(subject.region, .europe)

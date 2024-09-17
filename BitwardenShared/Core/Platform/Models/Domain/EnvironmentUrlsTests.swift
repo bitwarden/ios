@@ -38,7 +38,7 @@ class EnvironmentUrlsTests: BitwardenTestCase {
                 apiURL: URL(string: "https://api.bitwarden.eu")!,
                 baseURL: URL(string: "https://vault.bitwarden.eu")!,
                 eventsURL: URL(string: "https://events.bitwarden.eu")!,
-                iconsURL: URL(string: "https://icons.bitwarden.net")!,
+                iconsURL: URL(string: "https://icons.bitwarden.eu")!,
                 identityURL: URL(string: "https://identity.bitwarden.eu")!,
                 importItemsURL: URL(string: "https://vault.bitwarden.eu/#/tools/import")!,
                 recoveryCodeURL: URL(string: "https://vault.bitwarden.eu/#/recover-2fa")!,
