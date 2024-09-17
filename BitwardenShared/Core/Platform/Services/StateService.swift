@@ -224,6 +224,13 @@ protocol StateService: AnyObject {
     ///
     func getPreAuthEnvironmentUrls() async -> EnvironmentUrlData?
 
+    /// Gets the environment URLs for a given email during account creation.
+    ///
+    /// - Parameter email: The email used to start the account creation.
+    /// - Returns: The environment URLs used prior to start the account creation.
+    ///
+    func getPreAuthEnvironmentUrlsByEmail(email: String) async -> EnvironmentUrlData?
+
     /// Gets the server config used by the app prior to the user authenticating.
     /// - Returns: The server config used prior to user authentication.
     func getPreAuthServerConfig() async -> ServerConfig?
@@ -504,6 +511,13 @@ protocol StateService: AnyObject {
     /// - Parameter urls: The environment URLs used prior to user authentication.
     ///
     func setPreAuthEnvironmentUrls(_ urls: EnvironmentUrlData) async
+
+    /// Sets the environment URLs for a given email during account creation.
+    /// - Parameters:
+    ///   - urls: The environment urls used to start the account creation.
+    ///   - email: The email used to start the account creation.
+    ///
+    func setPreAuthEnvironmentUrlsByEmail(urls: EnvironmentUrlData, email: String) async
 
     /// Sets the server config used prior to user authentication
     /// - Parameter config: The server config to use prior to user authentication.
@@ -1254,6 +1268,10 @@ actor DefaultStateService: StateService { // swiftlint:disable:this type_body_le
         appSettingsStore.preAuthEnvironmentUrls
     }
 
+    func getPreAuthEnvironmentUrlsByEmail(email: String) async -> EnvironmentUrlData? {
+        appSettingsStore.preAuthEnvironmentUrlsByEmail(email: email)
+    }
+
     func getPreAuthServerConfig() async -> ServerConfig? {
         appSettingsStore.preAuthServerConfig
     }
@@ -1493,6 +1511,13 @@ actor DefaultStateService: StateService { // swiftlint:disable:this type_body_le
 
     func setPreAuthEnvironmentUrls(_ urls: EnvironmentUrlData) async {
         appSettingsStore.preAuthEnvironmentUrls = urls
+    }
+
+    func setPreAuthEnvironmentUrlsByEmail(urls: EnvironmentUrlData, email: String) async {
+        appSettingsStore.setPreAuthEnvironmentUrlsByEmail(
+            environmentUrlData: urls,
+            email: email
+        )
     }
 
     func setPreAuthServerConfig(config: ServerConfig) async {
