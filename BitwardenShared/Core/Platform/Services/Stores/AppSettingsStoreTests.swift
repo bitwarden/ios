@@ -348,7 +348,7 @@ class AppSettingsStoreTests: BitwardenTestCase { // swiftlint:disable:this type_
         XCTAssertTrue(try XCTUnwrap(subject.featureFlag(name: FeatureFlag.nativeCarouselFlow.rawValue)))
     }
 
-    ///
+    /// `featureFlag(name:)` returns `nil` if not found.
     func test_featureFlags_nilWhenNotPresent() {
         XCTAssertNil(subject.featureFlag(name: ""))
     }

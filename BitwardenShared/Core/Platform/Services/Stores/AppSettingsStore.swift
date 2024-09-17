@@ -299,8 +299,9 @@ protocol AppSettingsStore: AnyObject {
     /// If the `value` parameter is `nil`, the feature flag is removed from the store. Otherwise, the flag
     /// is set to the provided boolean value.
     ///
-    /// - Parameter name: The name of the feature flag to set or remove, represented as a `String`.
-    /// - Parameter value: The boolean value to assign to the feature flag. If `nil`, the feature flag will be removed
+    /// - Parameters:
+    ///   - name: The name of the feature flag to set or remove, represented as a `String`.
+    ///   - value: The boolean value to assign to the feature flag. If `nil`, the feature flag will be removed
     ///    from the settings store.
     ///
     func setFeatureFlag(name: String, value: Bool?)
