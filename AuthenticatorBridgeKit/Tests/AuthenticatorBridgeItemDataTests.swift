@@ -8,7 +8,7 @@ final class AuthenticatorBridgeItemDataTests: AuthenticatorBridgeKitTestCase {
 
     let accessGroup = "group.com.example.bitwarden-authenticator"
     var dataStore: AuthenticatorBridgeDataStore!
-    var error: Error?
+    var errorReporter: ErrorReporter!
     var itemService: AuthenticatorBridgeItemService!
     var subject: AuthenticatorBridgeItemData!
 
@@ -16,13 +16,11 @@ final class AuthenticatorBridgeItemDataTests: AuthenticatorBridgeKitTestCase {
 
     override func setUp() {
         super.setUp()
-        let errorHandler: (Error) -> Void = { error in
-            self.error = error
-        }
+        errorReporter = MockErrorReporter()
         dataStore = AuthenticatorBridgeDataStore(
-            storeType: .memory,
+            errorReporter: errorReporter,
             groupIdentifier: accessGroup,
-            errorHandler: errorHandler
+            storeType: .memory
         )
         itemService = DefaultAuthenticatorBridgeItemService(
             dataStore: dataStore,
@@ -32,7 +30,7 @@ final class AuthenticatorBridgeItemDataTests: AuthenticatorBridgeKitTestCase {
 
     override func tearDown() {
         dataStore = nil
-        error = nil
+        errorReporter = nil
         subject = nil
         super.tearDown()
     }
@@ -54,7 +52,7 @@ final class AuthenticatorBridgeItemDataTests: AuthenticatorBridgeKitTestCase {
         let modelData = try XCTUnwrap(subject.modelData)
         let model = try JSONDecoder().decode(AuthenticatorBridgeItemDataModel.self, from: modelData)
 
-        XCTAssertEqual(try? subject.model, model)
+        XCTAssertEqual(subject.model, model)
     }
 
     /// Verify that the fetchById request correctly returns an empty list when no item matches the given userId and id.

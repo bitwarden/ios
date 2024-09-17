@@ -79,8 +79,8 @@ public class DefaultAuthenticatorBridgeItemService: AuthenticatorBridgeItemServi
         let fetchRequest = AuthenticatorBridgeItemData.fetchByUserIdRequest(userId: userId)
         let result = try dataStore.backgroundContext.fetch(fetchRequest)
 
-        return try result.map { data in
-            try data.model
+        return result.compactMap { data in
+            data.model
         }
     }
 
@@ -93,7 +93,7 @@ public class DefaultAuthenticatorBridgeItemService: AuthenticatorBridgeItemServi
     public func insertItems(_ items: [AuthenticatorBridgeItemDataModel],
                             forUserId userId: String) async throws {
         try await dataStore.executeBatchInsert(
-            AuthenticatorBridgeItemData.batchInsertRequest(models: items, userId: userId)
+            AuthenticatorBridgeItemData.batchInsertRequest(objects: items, userId: userId)
         )
     }
 
@@ -106,7 +106,7 @@ public class DefaultAuthenticatorBridgeItemService: AuthenticatorBridgeItemServi
     public func replaceAllItems(with items: [AuthenticatorBridgeItemDataModel],
                                 forUserId userId: String) async throws {
         let deleteRequest = AuthenticatorBridgeItemData.deleteByUserIdRequest(userId: userId)
-        let insertRequest = try AuthenticatorBridgeItemData.batchInsertRequest(models: items, userId: userId)
+        let insertRequest = try AuthenticatorBridgeItemData.batchInsertRequest(objects: items, userId: userId)
         try await dataStore.executeBatchReplace(
             deleteRequest: deleteRequest,
             insertRequest: insertRequest

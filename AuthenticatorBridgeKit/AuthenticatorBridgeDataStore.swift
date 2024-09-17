@@ -27,6 +27,9 @@ public class AuthenticatorBridgeDataStore {
         return context
     }()
 
+    /// The service used by the application to report non-fatal errors.
+    let errorReporter: ErrorReporter
+
     /// The CoreData model name.
     private let modelName = "Bitwarden-Authenticator"
 
@@ -38,15 +41,17 @@ public class AuthenticatorBridgeDataStore {
     /// Initialize a `AuthenticatorBridgeDataStore`.
     ///
     /// - Parameters:
-    ///   - storeType: The type of store to create.
+    ///   - errorReporter: The service used by the application to report non-fatal errors.
     ///   - groupIdentifier: The app group identifier for the shared resource.
-    ///   - errorHandler: Callback if an error occurs on load of store.
+    ///   - storeType: The type of store to create.
     ///
     public init(
-        storeType: AuthenticatorBridgeStoreType = .persisted,
+        errorReporter: ErrorReporter,
         groupIdentifier: String,
-        errorHandler: @escaping (Error) -> Void
+        storeType: AuthenticatorBridgeStoreType = .persisted
     ) {
+        self.errorReporter = errorReporter
+
         #if SWIFT_PACKAGE
         let bundle = Bundle.module
         #else
@@ -73,7 +78,7 @@ public class AuthenticatorBridgeDataStore {
 
         persistentContainer.loadPersistentStores { _, error in
             if let error {
-                errorHandler(error)
+                errorReporter.log(error: error)
             }
         }
 
