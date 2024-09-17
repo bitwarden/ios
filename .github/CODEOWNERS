@@ -5,10 +5,10 @@
 # https://docs.github.com/en/repositories/managing-your-repositorys-settings-and-features/customizing-your-repository/about-code-owners
 
 # Default file owners.
-# * @bitwarden/tech-leads
+* @bitwarden/dept-development-mobile @matt-livefront @phil-livefront @victor-livefront @brant-livefront
 
 # DevOps for Actions and other workflow changes.
-# .github/workflows @bitwarden/dept-devops
+.github/workflows @bitwarden/dept-development-mobile
 
 # Auth
 # BitwardenShared/Core/Auth @bitwarden/team-auth-dev
