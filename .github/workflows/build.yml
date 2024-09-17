@@ -125,12 +125,6 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-mint-
 
-      - name: Install yeetd
-        run: |
-          wget https://github.com/biscuitehh/yeetd/releases/download/1.0/yeetd-normal.pkg
-          sudo installer -pkg yeetd-normal.pkg -target /
-          yeetd &
-
       - name: Log in to Azure
         uses: Azure/login@cb79c773a3cfa27f31f25eb3f677781210c9ce3d # v1.6.1
         with:
@@ -331,7 +325,7 @@ jobs:
           name: Bitwarden iOS ${{ steps.calculate.outputs.version }} (${{ steps.calculate.outputs.build_number }}) ${{ env.BUILD_VARIANT }} ${{ env.XCODE_VERSION }}
           path: export
           if-no-files-found: error
-      
+
       - name: Set up private auth key
         run: |
           mkdir ~/private_keys
