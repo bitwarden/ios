@@ -7,7 +7,7 @@
 # Default file owners.
 * @bitwarden/dept-development-mobile @matt-livefront @phil-livefront @victor-livefront @brant-livefront
 
-# DevOps for Actions and other workflow changes.
+# Actions and workflow changes.
 .github/workflows @bitwarden/dept-development-mobile
 
 # Auth
