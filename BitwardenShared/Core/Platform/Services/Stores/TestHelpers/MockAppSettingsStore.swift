@@ -35,7 +35,6 @@ class MockAppSettingsStore: AppSettingsStore {
     var lastActiveTime = [String: Date]()
     var lastSyncTimeByUserId = [String: Date]()
     var masterPasswordHashes = [String: String]()
-    var needsVaultUnlockSetup = [String: Bool]()
     var notificationsLastRegistrationDates = [String: Date]()
     var passwordGenerationOptions = [String: PasswordGenerationOptions]()
     var pinProtectedUserKey = [String: String]()
@@ -110,10 +109,6 @@ class MockAppSettingsStore: AppSettingsStore {
 
     func masterPasswordHash(userId: String) -> String? {
         masterPasswordHashes[userId]
-    }
-
-    func needsVaultUnlockSetup(userId: String) -> Bool {
-        needsVaultUnlockSetup[userId] ?? false
     }
 
     func notificationsLastRegistrationDate(userId: String) -> Date? {
@@ -202,10 +197,6 @@ class MockAppSettingsStore: AppSettingsStore {
 
     func setNotificationsLastRegistrationDate(_ date: Date?, userId: String) {
         notificationsLastRegistrationDates[userId] = date
-    }
-
-    func setNeedsVaultUnlockSetup(_ needsVaultUnlockSetup: Bool, userId: String) {
-        self.needsVaultUnlockSetup[userId] = needsVaultUnlockSetup
     }
 
     func setPasswordGenerationOptions(_ options: PasswordGenerationOptions?, userId: String) {

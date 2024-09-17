@@ -218,13 +218,6 @@ protocol StateService: AnyObject {
     ///
     func getMasterPasswordHash(userId: String?) async throws -> String?
 
-    /// Gets whether the user needs to set up vault unlock methods.
-    ///
-    /// - Parameter userId: The user ID associated with the value.
-    /// - Returns: Whether the user needs to set up vault unlock methods.
-    ///
-    func getNeedsVaultUnlockSetup(userId: String?) async throws -> Bool
-
     /// Gets the last notifications registration date for a user ID.
     ///
     /// - Parameter userId: The user ID of the account. Defaults to the active account if `nil`.
@@ -500,14 +493,6 @@ protocol StateService: AnyObject {
     ///   - userId: The user ID associated with the master password hash.
     ///
     func setMasterPasswordHash(_ hash: String?, userId: String?) async throws
-
-    /// Sets whether the user needs to set up vault unlock methods.
-    ///
-    /// - Parameters:
-    ///   - needsVaultUnlockSetup: Whether the user needs to set up vault unlock methods.
-    ///   - userId: The user ID associated with the value.
-    ///
-    func setNeedsVaultUnlockSetup(_ needsVaultUnlockSetup: Bool, userId: String?) async throws
 
     /// Sets the last notifications registration date for a user ID.
     ///
@@ -811,14 +796,6 @@ extension StateService {
         try await getMasterPasswordHash(userId: nil)
     }
 
-    /// Gets whether the active account needs to set up vault unlock methods.
-    ///
-    /// - Returns: Whether the user needs to set up vault unlock methods.
-    ///
-    func getNeedsVaultUnlockSetup() async throws -> Bool {
-        try await getNeedsVaultUnlockSetup(userId: nil)
-    }
-
     /// Gets the last notifications registration date for the active account.
     ///
     /// - Returns: The last notifications registration date for the active account.
@@ -1019,14 +996,6 @@ extension StateService {
     ///
     func setMasterPasswordHash(_ hash: String?) async throws {
         try await setMasterPasswordHash(hash, userId: nil)
-    }
-
-    /// Sets whether the active account needs to set up vault unlock methods.
-    ///
-    /// - Parameter needsVaultUnlockSetup: Whether the user needs to set up vault unlock methods.
-    ///
-    func setNeedsVaultUnlockSetup(_ needsVaultUnlockSetup: Bool) async throws {
-        try await setNeedsVaultUnlockSetup(needsVaultUnlockSetup, userId: nil)
     }
 
     /// Sets the last notifications registration date for the active account.
@@ -1343,11 +1312,6 @@ actor DefaultStateService: StateService { // swiftlint:disable:this type_body_le
         return appSettingsStore.masterPasswordHash(userId: userId)
     }
 
-    func getNeedsVaultUnlockSetup(userId: String?) async throws -> Bool {
-        let userId = try userId ?? getActiveAccountUserId()
-        return appSettingsStore.needsVaultUnlockSetup(userId: userId)
-    }
-
     func getNotificationsLastRegistrationDate(userId: String?) async throws -> Date? {
         let userId = try userId ?? getActiveAccountUserId()
         return appSettingsStore.notificationsLastRegistrationDate(userId: userId)
@@ -1577,11 +1541,6 @@ actor DefaultStateService: StateService { // swiftlint:disable:this type_body_le
     func setMasterPasswordHash(_ hash: String?, userId: String?) async throws {
         let userId = try userId ?? getActiveAccountUserId()
         appSettingsStore.setMasterPasswordHash(hash, userId: userId)
-    }
-
-    func setNeedsVaultUnlockSetup(_ needsVaultUnlockSetup: Bool, userId: String?) async throws {
-        let userId = try userId ?? getActiveAccountUserId()
-        appSettingsStore.setNeedsVaultUnlockSetup(needsVaultUnlockSetup, userId: userId)
     }
 
     func setNotificationsLastRegistrationDate(_ date: Date?, userId: String?) async throws {

@@ -52,7 +52,6 @@ class VaultUnlockSetupProcessorTests: BitwardenTestCase {
     @MainActor
     func test_perform_continueFlow() async {
         stateService.activeAccount = .fixture()
-        stateService.needsVaultUnlockSetup["1"] = true
 
         await subject.perform(.continueFlow)
 
