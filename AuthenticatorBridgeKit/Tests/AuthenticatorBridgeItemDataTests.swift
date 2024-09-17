@@ -16,6 +16,7 @@ final class AuthenticatorBridgeItemDataTests: AuthenticatorBridgeKitTestCase {
 
     override func setUp() {
         super.setUp()
+        cryptoService = MockSharedCryptographyService()
         errorReporter = MockErrorReporter()
         dataStore = AuthenticatorBridgeDataStore(
             errorReporter: errorReporter,
@@ -23,6 +24,7 @@ final class AuthenticatorBridgeItemDataTests: AuthenticatorBridgeKitTestCase {
             storeType: .memory
         )
         itemService = DefaultAuthenticatorBridgeItemService(
+            cryptoService: cryptoService,
             dataStore: dataStore,
             sharedKeychainRepository: MockSharedKeychainRepository()
         )

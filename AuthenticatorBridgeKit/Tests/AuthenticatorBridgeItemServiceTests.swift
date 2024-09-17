@@ -7,6 +7,7 @@ final class AuthenticatorBridgeItemServiceTests: AuthenticatorBridgeKitTestCase 
     // MARK: Properties
 
     let accessGroup = "group.com.example.bitwarden-authenticator"
+    var cryptoService: MockSharedCryptographyService!
     var dataStore: AuthenticatorBridgeDataStore!
     var errorReporter: ErrorReporter!
     var keychainRepository: SharedKeychainRepository!
@@ -16,6 +17,7 @@ final class AuthenticatorBridgeItemServiceTests: AuthenticatorBridgeKitTestCase 
 
     override func setUp() {
         super.setUp()
+        cryptoService = MockSharedCryptographyService()
         errorReporter = MockErrorReporter()
         dataStore = AuthenticatorBridgeDataStore(
             errorReporter: errorReporter,
@@ -24,12 +26,14 @@ final class AuthenticatorBridgeItemServiceTests: AuthenticatorBridgeKitTestCase 
         )
         keychainRepository = MockSharedKeychainRepository()
         subject = DefaultAuthenticatorBridgeItemService(
+            cryptoService: cryptoService,
             dataStore: dataStore,
             sharedKeychainRepository: keychainRepository
         )
     }
 
     override func tearDown() {
+        cryptoService = nil
         dataStore = nil
         errorReporter = nil
         keychainRepository = nil
@@ -83,6 +87,8 @@ final class AuthenticatorBridgeItemServiceTests: AuthenticatorBridgeKitTestCase 
         // Fetch should return only the expectedItem
         let result = try await subject.fetchAllForUserId("userId")
 
+        XCTAssertTrue(cryptoService.decryptCalled,
+                      "Items should have been decrypted when calling fetchAllForUser!")
         XCTAssertNotNil(result)
         XCTAssertEqual(result.count, expectedItems.count)
         XCTAssertEqual(result, expectedItems)
@@ -100,6 +106,8 @@ final class AuthenticatorBridgeItemServiceTests: AuthenticatorBridgeKitTestCase 
         try await subject.insertItems(expectedItems, forUserId: "userId")
         let result = try await subject.fetchAllForUserId("userId")
 
+        XCTAssertTrue(cryptoService.encryptCalled,
+                      "Items should have been encrypted before inserting!!")
         XCTAssertEqual(result, expectedItems)
     }
 
@@ -132,6 +140,8 @@ final class AuthenticatorBridgeItemServiceTests: AuthenticatorBridgeKitTestCase 
 
         let result = try await subject.fetchAllForUserId("userId")
 
+        XCTAssertTrue(cryptoService.encryptCalled,
+                      "Items should have been encrypted before inserting!!")
         XCTAssertEqual(result, expectedItems)
         XCTAssertFalse(result.contains { $0 == initialItems.first })
     }
@@ -146,6 +156,8 @@ final class AuthenticatorBridgeItemServiceTests: AuthenticatorBridgeKitTestCase 
 
         let result = try await subject.fetchAllForUserId("userId")
 
+        XCTAssertTrue(cryptoService.encryptCalled,
+                      "Items should have been encrypted before inserting!!")
         XCTAssertEqual(result, expectedItems)
     }
 }
