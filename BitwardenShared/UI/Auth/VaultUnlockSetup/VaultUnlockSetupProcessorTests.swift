@@ -5,10 +5,10 @@ import XCTest
 class VaultUnlockSetupProcessorTests: BitwardenTestCase {
     // MARK: Properties
 
-    var authRepository: MockAuthRepository!
     var biometricsRepository: MockBiometricsRepository!
     var coordinator: MockCoordinator<AuthRoute, AuthEvent>!
     var errorReporter: MockErrorReporter!
+    var stateService: MockStateService!
     var subject: VaultUnlockSetupProcessor!
     var vaultUnlockSetupHelper: MockVaultUnlockSetupHelper!
 
@@ -17,18 +17,18 @@ class VaultUnlockSetupProcessorTests: BitwardenTestCase {
     override func setUp() {
         super.setUp()
 
-        authRepository = MockAuthRepository()
         biometricsRepository = MockBiometricsRepository()
         coordinator = MockCoordinator()
         errorReporter = MockErrorReporter()
+        stateService = MockStateService()
         vaultUnlockSetupHelper = MockVaultUnlockSetupHelper()
 
         subject = VaultUnlockSetupProcessor(
             coordinator: coordinator.asAnyCoordinator(),
             services: ServiceContainer.withMocks(
-                authRepository: authRepository,
                 biometricsRepository: biometricsRepository,
-                errorReporter: errorReporter
+                errorReporter: errorReporter,
+                stateService: stateService
             ),
             state: VaultUnlockSetupState(),
             vaultUnlockSetupHelper: vaultUnlockSetupHelper
@@ -38,15 +38,37 @@ class VaultUnlockSetupProcessorTests: BitwardenTestCase {
     override func tearDown() {
         super.tearDown()
 
-        authRepository = nil
         biometricsRepository = nil
         coordinator = nil
         errorReporter = nil
+        stateService = nil
         subject = nil
         vaultUnlockSetupHelper = nil
     }
 
     // MARK: Tests
+
+    /// `perform(_:)` with `.continueFlow` navigates to autofill setup.
+    @MainActor
+    func test_perform_continueFlow() async {
+        stateService.activeAccount = .fixture()
+        stateService.needsVaultUnlockSetup["1"] = true
+
+        await subject.perform(.continueFlow)
+
+        XCTAssertEqual(coordinator.routes, [.autofillSetup])
+        XCTAssertEqual(stateService.needsVaultUnlockSetup["1"], false)
+    }
+
+    /// `perform(_:)` with `.continueFlow` logs an error if one occurs prior to navigates to
+    /// autofill setup.
+    @MainActor
+    func test_perform_continueFlow_error() async {
+        await subject.perform(.continueFlow)
+
+        XCTAssertEqual(coordinator.routes, [.autofillSetup])
+        XCTAssertEqual(errorReporter.errors as? [StateServiceError], [.noActiveAccount])
+    }
 
     /// `perform(_:)` with `.loadData` fetches the biometrics unlock status.
     @MainActor
@@ -150,17 +172,19 @@ class VaultUnlockSetupProcessorTests: BitwardenTestCase {
         XCTAssertFalse(subject.state.isPinUnlockOn)
     }
 
-    /// `receive(_:)` with `.continueFlow` navigates to autofill setup.
+    /// `receive(_:)` with `.setUpLater` shows an alert confirming the user wants to skip unlock
+    /// setup and then navigates to autofill setup.
     @MainActor
-    func test_receive_continueFlow() {
-        subject.receive(.continueFlow)
-        // TODO: PM-10278 Navigate to autofill setup
-    }
-
-    /// `receive(_:)` with `.setUpLater` skips unlock setup.
-    @MainActor
-    func test_receive_setUpLater() {
+    func test_receive_setUpLater() async throws {
         subject.receive(.setUpLater)
-        // TODO: PM-10270 Skip unlock setup
+
+        let alert = try XCTUnwrap(coordinator.alertShown.last)
+        XCTAssertEqual(alert, .setUpUnlockMethodLater {})
+
+        try await alert.tapAction(title: Localizations.cancel)
+        XCTAssertTrue(coordinator.routes.isEmpty)
+
+        try await alert.tapAction(title: Localizations.confirm)
+        XCTAssertEqual(coordinator.routes, [.autofillSetup])
     }
 }

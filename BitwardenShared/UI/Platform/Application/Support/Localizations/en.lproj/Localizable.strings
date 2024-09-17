@@ -978,3 +978,6 @@
 "SSHKey" = "SSH key";
 "PrivateKey" = "Private key";
 "PublicKey" = "Public key";
+"SetUpLaterQuestion" = "Set up later?";
+"YouCanFinishSetupUnlockAnytimeDescriptionLong" = "You can finish setup anytime in Account Security under Settings. You’ll use your master password to unlock until you set up another method.";
+"Confirm" = "Confirm";
