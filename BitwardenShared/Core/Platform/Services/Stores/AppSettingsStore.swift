@@ -131,6 +131,18 @@ protocol AppSettingsStore: AnyObject {
     ///
     func encryptedUserKey(userId: String) -> String?
 
+    /// Retrieves a feature flag value from the app's settings store.
+    ///
+    /// This method fetches the value for a specified feature flag from the app's settings store.
+    /// The value is decoded into a specified type that conforms to `Codable`. If the flag does not exist
+    /// or cannot be decoded, the method returns `nil`.
+    ///
+    /// - Parameter name: The name of the feature flag to retrieve, represented as a `String`.
+    /// - Returns: The value of the feature flag as the specified type `T`, or `nil` if the flag does not exist
+    ///     or cannot be decoded.
+    ///
+    func featureFlag<T: Codable>(name: String) -> T?
+
     /// The user's last active time within the app.
     /// This value is set when the app is backgrounded.
     ///
@@ -280,6 +292,18 @@ protocol AppSettingsStore: AnyObject {
     ///   - userId: The user ID associated with the events.
     ///
     func setEvents(_ events: [EventData], userId: String)
+
+    /// Sets a feature flag value in the app's settings store.
+    ///
+    /// This method updates or removes the value for a specified feature flag in the app's settings store.
+    /// If the `value` parameter is `nil`, the feature flag is removed from the store. Otherwise, the flag
+    /// is set to the provided boolean value.
+    ///
+    /// - Parameter name: The name of the feature flag to set or remove, represented as a `String`.
+    /// - Parameter value: The boolean value to assign to the feature flag. If `nil`, the feature flag will be removed
+    ///    from the settings store.
+    ///
+    func setFeatureFlag(name: String, value: Bool?)
 
     /// Sets the last active time within the app.
     ///
@@ -580,6 +604,7 @@ extension DefaultAppSettingsStore: AppSettingsStore {
         case encryptedPrivateKey(userId: String)
         case encryptedUserKey(userId: String)
         case events(userId: String)
+        case featureFlag(name: String)
         case introCarouselShown
         case lastActiveTime(userId: String)
         case lastSync(userId: String)
@@ -642,6 +667,8 @@ extension DefaultAppSettingsStore: AppSettingsStore {
                 key = "encPrivateKey_\(userId)"
             case let .events(userId):
                 key = "events_\(userId)"
+            case let .featureFlag(name):
+                key = "featureFlag_\(name)"
             case .introCarouselShown:
                 key = "introCarouselShown"
             case let .lastActiveTime(userId):
@@ -820,6 +847,10 @@ extension DefaultAppSettingsStore: AppSettingsStore {
         fetch(for: .events(userId: userId)) ?? []
     }
 
+    func featureFlag<T: Codable>(name: String) -> T? {
+        fetch(for: .featureFlag(name: name))
+    }
+
     func lastActiveTime(userId: String) -> Date? {
         fetch(for: .lastActiveTime(userId: userId)).map { Date(timeIntervalSince1970: $0) }
     }
@@ -900,6 +931,10 @@ extension DefaultAppSettingsStore: AppSettingsStore {
 
     func setEvents(_ events: [EventData], userId: String) {
         store(events, for: .events(userId: userId))
+    }
+
+    func setFeatureFlag(name: String, value: Bool?) {
+        store(value, for: .featureFlag(name: name))
     }
 
     func setLastActiveTime(_ date: Date?, userId: String) {

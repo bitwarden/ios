@@ -372,6 +372,11 @@ public class AppProcessor {
             backgroundTaskId = nil
         }
     }
+
+    /// Show the debug menu.
+    public func showDebugMenu() {
+        coordinator?.navigate(to: .showDebugMenu)
+    }
 }
 
 // MARK: - NotificationServiceDelegate

@@ -16,6 +16,9 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
     /// The main window for this scene.
     var window: UIWindow?
 
+    /// The processor that manages application level logic.
+    var appProcessor: AppProcessor?
+
     // MARK: Methods
 
     func scene(
@@ -33,11 +36,16 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
             return
         }
 
+        self.appProcessor = appProcessor
         let rootViewController = RootViewController()
         let appWindow = UIWindow(windowScene: windowScene)
         appWindow.rootViewController = rootViewController
         appWindow.makeKeyAndVisible()
         window = appWindow
+
+        #if DEBUG
+        addTripleTapGestureRecognizer(to: appWindow)
+        #endif
 
         // Splash window. This is initially visible until the app's processor has finished starting.
         splashWindow = buildSplashWindow(windowScene: windowScene)
@@ -120,5 +128,20 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
     /// Shows the splash view.
     private func showSplash() {
         splashWindow?.alpha = 1
+    }
+
+    /// Handle the triple-tap gesture and launch the debug menu.
+    @objc
+    private func handleTripleTapGesture() {
+        appProcessor?.showDebugMenu()
+    }
+
+    /// Add the triple-tap gesture recognizer to the window.
+    private func addTripleTapGestureRecognizer(to window: UIWindow) {
+        let tapGesture = UITapGestureRecognizer(target: self, action: #selector(handleTripleTapGesture))
+        tapGesture.numberOfTapsRequired = 3
+        /// change this to 3 before PR.
+        tapGesture.numberOfTouchesRequired = 2
+        window.addGestureRecognizer(tapGesture)
     }
 }

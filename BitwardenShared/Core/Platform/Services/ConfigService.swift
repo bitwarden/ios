@@ -63,6 +63,10 @@ protocol ConfigService {
         forceRefresh: Bool,
         isPreAuth: Bool
     ) async -> String?
+
+    /// Retrieves feature flags from a remote configuration service.
+    ///
+    func getRemoteFeatureFlags() async -> [FeatureFlag: AnyCodable]
 }
 
 extension ConfigService {
@@ -91,6 +95,9 @@ extension ConfigService {
 class DefaultConfigService: ConfigService {
     // MARK: Properties
 
+    /// The App Settings Store used for storing and retrieving values from User Defaults.
+    private let appSettingsStore: AppSettingsStore
+
     /// The API service to make config requests.
     private let configApiService: ConfigAPIService
 
@@ -111,17 +118,20 @@ class DefaultConfigService: ConfigService {
     /// Initialize a `DefaultConfigService`.
     ///
     /// - Parameters:
+    ///   - appSettingsStore: The App Settings Store used for storing and retrieving values from User Defaults.
     ///   - configApiService: The API service to make config requests.
     ///   - errorReporter: The service used by the application to report non-fatal errors.
     ///   - stateService: The service used by the application to manage account state.
     ///   - timeProvider: The services used to get the present time.
     ///
     init(
+        appSettingsStore: AppSettingsStore,
         configApiService: ConfigAPIService,
         errorReporter: ErrorReporter,
         stateService: StateService,
         timeProvider: TimeProvider
     ) {
+        self.appSettingsStore = appSettingsStore
         self.configApiService = configApiService
         self.errorReporter = errorReporter
         self.stateService = stateService
@@ -160,6 +170,12 @@ class DefaultConfigService: ConfigService {
         forceRefresh: Bool = false,
         isPreAuth: Bool = false
     ) async -> Bool {
+        #if DEBUG
+        if let userDefaultValue: Bool = appSettingsStore.featureFlag(name: flag.rawValue) {
+            return userDefaultValue
+        }
+        #endif
+
         guard flag.isRemotelyConfigured else { return defaultValue }
         let configuration = await getConfig(forceRefresh: forceRefresh, isPreAuth: isPreAuth)
         return configuration?.featureStates[flag]?.boolValue ?? defaultValue
@@ -185,6 +201,10 @@ class DefaultConfigService: ConfigService {
         guard flag.isRemotelyConfigured else { return defaultValue }
         let configuration = await getConfig(forceRefresh: forceRefresh, isPreAuth: isPreAuth)
         return configuration?.featureStates[flag]?.stringValue ?? defaultValue
+    }
+
+    func getRemoteFeatureFlags() async -> [FeatureFlag: AnyCodable] {
+        await getConfig()?.featureStates ?? [:]
     }
 
     // MARK: Private

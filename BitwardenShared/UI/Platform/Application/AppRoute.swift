@@ -20,6 +20,9 @@ public enum AppRoute: Equatable {
 
     /// A route to the vault interface.
     case vault(VaultRoute)
+
+    /// A route to the debug menu.
+    case showDebugMenu
 }
 
 public enum AppEvent: Equatable {
