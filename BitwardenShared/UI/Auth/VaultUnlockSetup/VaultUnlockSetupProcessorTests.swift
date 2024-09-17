@@ -55,7 +55,7 @@ class VaultUnlockSetupProcessorTests: BitwardenTestCase {
 
         await subject.perform(.continueFlow)
 
-        XCTAssertEqual(coordinator.routes, [.autofillSetup])
+        XCTAssertEqual(coordinator.events, [.didCompleteAuth])
         XCTAssertEqual(stateService.accountSetupVaultUnlock["1"], .complete)
     }
 
@@ -65,7 +65,7 @@ class VaultUnlockSetupProcessorTests: BitwardenTestCase {
     func test_perform_continueFlow_error() async {
         await subject.perform(.continueFlow)
 
-        XCTAssertEqual(coordinator.routes, [.autofillSetup])
+        XCTAssertEqual(coordinator.events, [.didCompleteAuth])
         XCTAssertEqual(errorReporter.errors as? [StateServiceError], [.noActiveAccount])
     }
 
@@ -186,7 +186,7 @@ class VaultUnlockSetupProcessorTests: BitwardenTestCase {
         XCTAssertTrue(coordinator.routes.isEmpty)
 
         try await alert.tapAction(title: Localizations.confirm)
-        XCTAssertEqual(coordinator.routes, [.autofillSetup])
+        XCTAssertEqual(coordinator.events, [.didCompleteAuth])
 
         XCTAssertEqual(stateService.accountSetupVaultUnlock["1"], .setUpLater)
     }
@@ -200,7 +200,7 @@ class VaultUnlockSetupProcessorTests: BitwardenTestCase {
         XCTAssertEqual(alert, .setUpUnlockMethodLater {})
 
         try await alert.tapAction(title: Localizations.confirm)
-        XCTAssertEqual(coordinator.routes, [.autofillSetup])
+        XCTAssertEqual(coordinator.events, [.didCompleteAuth])
 
         XCTAssertEqual(errorReporter.errors as? [StateServiceError], [.noActiveAccount])
     }

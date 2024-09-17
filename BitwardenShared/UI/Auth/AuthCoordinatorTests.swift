@@ -527,7 +527,7 @@ class AuthCoordinatorTests: BitwardenTestCase { // swiftlint:disable:this type_b
     func test_navigate_vaultUnlockSetup() throws {
         subject.navigate(to: .vaultUnlockSetup)
 
-        XCTAssertEqual(stackNavigator.actions.last?.type, .pushed)
+        XCTAssertEqual(stackNavigator.actions.last?.type, .replaced)
         XCTAssertTrue(stackNavigator.actions.last?.view is VaultUnlockSetupView)
     }
 

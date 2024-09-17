@@ -75,7 +75,7 @@ class VaultUnlockSetupProcessor: StateProcessor<VaultUnlockSetupState, VaultUnlo
         } catch {
             services.errorReporter.log(error: error)
         }
-        coordinator.navigate(to: .autofillSetup)
+        await coordinator.handleEvent(.didCompleteAuth)
     }
 
     /// Load any initial data for the view.
@@ -99,7 +99,7 @@ class VaultUnlockSetupProcessor: StateProcessor<VaultUnlockSetupState, VaultUnlo
             } catch {
                 self.services.errorReporter.log(error: error)
             }
-            self.coordinator.navigate(to: .autofillSetup)
+            await self.coordinator.handleEvent(.didCompleteAuth)
         })
     }
 

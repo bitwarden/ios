@@ -823,7 +823,7 @@ final class AuthCoordinator: NSObject, // swiftlint:disable:this type_body_lengt
             vaultUnlockSetupHelper: DefaultVaultUnlockSetupHelper(services: services)
         )
         let view = VaultUnlockSetupView(store: Store(processor: processor))
-        stackNavigator?.push(view)
+        stackNavigator?.replace(view)
     }
 
     /// Show the WebAuthn two factor authentication view.
