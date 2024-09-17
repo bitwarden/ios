@@ -688,6 +688,21 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
         XCTAssertNil(urls)
     }
 
+    /// `getPreAuthEnvironmentUrlsByEmail` returns the saved pre-auth URLs.
+    func test_getPreAuthEnvironmentUrlsByEmail() async {
+        let email = "example@email.com"
+        let urls = EnvironmentUrlData(base: .example)
+        appSettingsStore.setPreAuthEnvironmentUrlsByEmail(environmentUrlData: urls, email: email)
+        let preAuthUrls = await subject.getPreAuthEnvironmentUrlsByEmail(email: email)
+        XCTAssertEqual(preAuthUrls, urls)
+    }
+
+    /// `getPreAuthEnvironmentUrlsByEmail` returns `nil` if the URLs haven't been set.
+    func test_getPreAuthEnvironmentUrlsByEmail_notSet() async {
+        let urls = await subject.getPreAuthEnvironmentUrlsByEmail(email: "example@email.com")
+        XCTAssertNil(urls)
+    }
+
     /// `getPreAuthServerConfig` returns the saved pre-auth server config.
     func test_getPreAuthServerConfig() async {
         let config = ServerConfig(
@@ -1574,6 +1589,14 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
         let urls = EnvironmentUrlData(base: .example)
         await subject.setPreAuthEnvironmentUrls(urls)
         XCTAssertEqual(appSettingsStore.preAuthEnvironmentUrls, urls)
+    }
+
+    /// `setPreAuthEnvironmentUrls` saves the pre-auth URLs for email.
+    func test_setPreAuthEnvironmentUrlsByEmail() async {
+        let email = "example@email.com"
+        let urls = EnvironmentUrlData(base: .example)
+        await subject.setPreAuthEnvironmentUrlsByEmail(urls: urls, email: email)
+        XCTAssertEqual(appSettingsStore.preAuthEnvironmentUrlsByEmail(email: email), urls)
     }
 
     /// `setPreAuthServerConfig(config:)` saves the pre-auth server config.

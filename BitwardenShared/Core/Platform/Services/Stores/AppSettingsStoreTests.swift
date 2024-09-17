@@ -599,6 +599,43 @@ class AppSettingsStoreTests: BitwardenTestCase { // swiftlint:disable:this type_
         )
     }
 
+    /// `preAuthEnvironmentUrlsByEmail` returns `nil` if there isn't a previously stored value.
+    func test_preAuthEnvironmentUrlsByEmail_isInitiallyNil() {
+        XCTAssertNil(subject.preAuthEnvironmentUrlsByEmail(email: "example@email.com"))
+    }
+
+    /// `preAuthEnvironmentUrlsByEmail` can be used to get and set the persisted value in user defaults.
+    func test_preAuthEnvironmentUrlsByEmail_withValue() {
+        let email = "example@email.com"
+        subject.setPreAuthEnvironmentUrlsByEmail(environmentUrlData: .defaultUS, email: email)
+        XCTAssertEqual(subject.preAuthEnvironmentUrlsByEmail(email: email), .defaultUS)
+        try XCTAssertEqual(
+            JSONDecoder().decode(
+                EnvironmentUrlData.self,
+                from: XCTUnwrap(
+                    userDefaults
+                        .string(forKey: "bwPreferencesStorage:preAuthEnvironmentUrlsByEmail_\(email)")?
+                        .data(using: .utf8)
+                )
+            ),
+            .defaultUS
+        )
+
+        subject.setPreAuthEnvironmentUrlsByEmail(environmentUrlData: .defaultEU, email: email)
+        XCTAssertEqual(subject.preAuthEnvironmentUrlsByEmail(email: email), .defaultEU)
+        try XCTAssertEqual(
+            JSONDecoder().decode(
+                EnvironmentUrlData.self,
+                from: XCTUnwrap(
+                    userDefaults
+                        .string(forKey: "bwPreferencesStorage:preAuthEnvironmentUrlsByEmail_\(email)")?
+                        .data(using: .utf8)
+                )
+            ),
+            .defaultEU
+        )
+    }
+
     /// `preAuthServerConfig` is initially `nil`
     func test_preAuthServerConfig_isInitiallyNil() {
         XCTAssertNil(subject.preAuthServerConfig)

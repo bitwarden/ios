@@ -36,6 +36,7 @@ class MockAppSettingsStore: AppSettingsStore {
     var notificationsLastRegistrationDates = [String: Date]()
     var passwordGenerationOptions = [String: PasswordGenerationOptions]()
     var pinProtectedUserKey = [String: String]()
+    var preAuthEnvironmentUrlsByEmail = [String: EnvironmentUrlData]()
     var serverConfig = [String: ServerConfig]()
     var shouldTrustDevice = [String: Bool?]()
     var timeoutAction = [String: Int]()
@@ -111,6 +112,10 @@ class MockAppSettingsStore: AppSettingsStore {
 
     func pinProtectedUserKey(userId: String) -> String? {
         pinProtectedUserKey[userId]
+    }
+
+    func preAuthEnvironmentUrlsByEmail(email: String) -> BitwardenShared.EnvironmentUrlData? {
+        preAuthEnvironmentUrlsByEmail[email]
     }
 
     func twoFactorToken(email: String) -> String? {
@@ -191,6 +196,10 @@ class MockAppSettingsStore: AppSettingsStore {
 
     func setPinProtectedUserKey(key: String?, userId: String) {
         pinProtectedUserKey[userId] = key
+    }
+
+    func setPreAuthEnvironmentUrlsByEmail(environmentUrlData: BitwardenShared.EnvironmentUrlData, email: String) {
+        preAuthEnvironmentUrlsByEmail[email] = environmentUrlData
     }
 
     func setServerConfig(_ config: ServerConfig?, userId: String) {
