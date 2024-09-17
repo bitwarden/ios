@@ -3,33 +3,36 @@ import XCTest
 
 @testable import AuthenticatorBridgeKit
 
-final class AuthenticatorBridgeDataStoreTests: AuthenticatorBridgeKitTestCase {
+final class AuthenticatorBridgeItemServiceTests: AuthenticatorBridgeKitTestCase {
     // MARK: Properties
 
     let accessGroup = "group.com.example.bitwarden-authenticator"
-    var cryptoService: MockSharedCryptographyService!
-    var subject: AuthenticatorBridgeDataStore!
-    var error: Error?
+    var dataStore: AuthenticatorBridgeDataStore!
+    var errorReporter: ErrorReporter!
+    var keychainRepository: SharedKeychainRepository!
+    var subject: AuthenticatorBridgeItemService!
 
     // MARK: Setup & Teardown
 
     override func setUp() {
         super.setUp()
-        let cryptoService = MockSharedCryptographyService()
-        let errorHandler: (Error) -> Void = { error in
-            self.error = error
-        }
-        subject = AuthenticatorBridgeDataStore(
-            storeType: .memory,
+        errorReporter = MockErrorReporter()
+        dataStore = AuthenticatorBridgeDataStore(
+            errorReporter: errorReporter,
             groupIdentifier: accessGroup,
-            cryptoService: cryptoService,
-            errorHandler: errorHandler
+            storeType: .memory
+        )
+        keychainRepository = MockSharedKeychainRepository()
+        subject = DefaultAuthenticatorBridgeItemService(
+            dataStore: dataStore,
+            sharedKeychainRepository: keychainRepository
         )
     }
 
     override func tearDown() {
-        cryptoService = nil
-        error = nil
+        dataStore = nil
+        errorReporter = nil
+        keychainRepository = nil
         subject = nil
         super.tearDown()
     }
