@@ -335,10 +335,7 @@ class AppSettingsStoreTests: BitwardenTestCase { // swiftlint:disable:this type_
 
     /// `setFeatureFlag` and `featureFlag(name:)` work as expected with correct values.
     func test_featureFlags() {
-        let featureFlags = [
-            FeatureFlag.emailVerification,
-            FeatureFlag.nativeCarouselFlow,
-        ]
+        let featureFlags = FeatureFlag.allCases
 
         for flag in featureFlags {
             subject.setFeatureFlag(name: flag.rawValue, value: true)
@@ -346,6 +343,10 @@ class AppSettingsStoreTests: BitwardenTestCase { // swiftlint:disable:this type_
 
         XCTAssertTrue(try XCTUnwrap(subject.featureFlag(name: FeatureFlag.emailVerification.rawValue)))
         XCTAssertTrue(try XCTUnwrap(subject.featureFlag(name: FeatureFlag.nativeCarouselFlow.rawValue)))
+        XCTAssertTrue(try XCTUnwrap(subject.featureFlag(name: FeatureFlag.enableAuthenticatorSync.rawValue)))
+        XCTAssertTrue(try XCTUnwrap(subject.featureFlag(name: FeatureFlag.nativeCreateAccountFlow.rawValue)))
+        XCTAssertTrue(try XCTUnwrap(subject.featureFlag(name: FeatureFlag.testRemoteFeatureFlag.rawValue)))
+        XCTAssertTrue(try XCTUnwrap(subject.featureFlag(name: FeatureFlag.testLocalFeatureFlag.rawValue)))
     }
 
     /// `featureFlag(name:)` returns `nil` if not found.

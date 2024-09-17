@@ -134,11 +134,11 @@ protocol AppSettingsStore: AnyObject {
     /// Retrieves a feature flag value from the app's settings store.
     ///
     /// This method fetches the value for a specified feature flag from the app's settings store.
-    /// The value is decoded into a specified type that conforms to `Codable`. If the flag does not exist
-    /// or cannot be decoded, the method returns `nil`.
+    /// The value is returned as a `Bool`. If the flag does not exist or cannot be decoded,
+    /// the method returns `nil`.
     ///
     /// - Parameter name: The name of the feature flag to retrieve, represented as a `String`.
-    /// - Returns: The value of the feature flag as the specified type `T`, or `nil` if the flag does not exist
+    /// - Returns: The value of the feature flag as a `Bool`, or `nil` if the flag does not exist
     ///     or cannot be decoded.
     ///
     func featureFlag(name: String) -> Bool?

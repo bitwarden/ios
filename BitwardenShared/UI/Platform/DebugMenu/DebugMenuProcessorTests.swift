@@ -58,14 +58,13 @@ class DebugMenuProcessorTests: BitwardenTestCase {
 
         await subject.perform(.viewAppeared)
 
-        XCTAssertTrue(
-            subject.state.featureFlags.contains(
-                .init(
-                    feature: .emailVerification,
-                    isEnabled: true
-                )
-            )
+        let flag = DebugMenuFeatureFlag(
+            feature: .emailVerification,
+            isEnabled: true
         )
+
+        XCTAssertTrue(subject.state.featureFlags.contains(flag))
+        XCTAssertTrue(flag.isEnabled)
     }
 
     /// `perform(.refreshFeatureFlags)` refreshs the current feature flags.

@@ -12,9 +12,4 @@ struct DebugMenuState: Equatable, Sendable {
     func isEnabled(for feature: FeatureFlag) -> Bool {
         featureFlags.first { $0.feature == feature }?.isEnabled ?? false
     }
-
-    /// Computed property to get the index of a given feature flag
-    func index(for feature: FeatureFlag) -> Int? {
-        featureFlags.firstIndex { $0.feature == feature }
-    }
 }
