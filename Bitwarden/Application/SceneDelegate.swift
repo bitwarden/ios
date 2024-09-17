@@ -144,7 +144,7 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         )
         tapGesture.numberOfTapsRequired = 3
         /// change this to 3 before PR.
-        tapGesture.numberOfTouchesRequired = 2
+        tapGesture.numberOfTouchesRequired = 3
         window.addGestureRecognizer(tapGesture)
     }
 }
