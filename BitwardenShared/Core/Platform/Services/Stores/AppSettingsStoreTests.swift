@@ -38,6 +38,38 @@ class AppSettingsStoreTests: BitwardenTestCase { // swiftlint:disable:this type_
 
     // MARK: Tests
 
+    /// `accountSetupAutofill(userId:)` returns `nil` if there isn't a previously stored value.
+    func test_accountSetupAutofill_isInitiallyNil() {
+        XCTAssertNil(subject.accountSetupAutofill(userId: "-1"))
+    }
+
+    /// `accountSetupAutofill(userId:)` can be used to get the user's progress for autofill setup.
+    func test_accountSetupAutofill_withValue() {
+        subject.setAccountSetupAutofill(.setUpLater, userId: "1")
+        subject.setAccountSetupAutofill(.complete, userId: "2")
+
+        XCTAssertEqual(subject.accountSetupAutofill(userId: "1"), .setUpLater)
+        XCTAssertEqual(subject.accountSetupAutofill(userId: "2"), .complete)
+        XCTAssertEqual(userDefaults.integer(forKey: "bwPreferencesStorage:accountSetupAutofill_1"), 1)
+        XCTAssertEqual(userDefaults.integer(forKey: "bwPreferencesStorage:accountSetupAutofill_2"), 2)
+    }
+
+    /// `accountSetupVaultUnlock(userId:)` returns `nil` if there isn't a previously stored value.
+    func test_accountSetupVaultUnlock_isInitiallyFalse() {
+        XCTAssertNil(subject.accountSetupVaultUnlock(userId: "-1"))
+    }
+
+    /// `accountSetupVaultUnlock(userId:)` can be used to get the user's progress for vault unlock setup.
+    func test_accountSetupVaultUnlock_withValue() {
+        subject.setAccountSetupVaultUnlock(.setUpLater, userId: "1")
+        subject.setAccountSetupVaultUnlock(.complete, userId: "2")
+
+        XCTAssertEqual(subject.accountSetupVaultUnlock(userId: "1"), .setUpLater)
+        XCTAssertEqual(subject.accountSetupVaultUnlock(userId: "2"), .complete)
+        XCTAssertEqual(userDefaults.integer(forKey: "bwPreferencesStorage:accountSetupVaultUnlock_1"), 1)
+        XCTAssertEqual(userDefaults.integer(forKey: "bwPreferencesStorage:accountSetupVaultUnlock_2"), 2)
+    }
+
     /// `addSitePromptShown` returns `false` if there isn't a previously stored value.
     func test_addSitePromptShown_isInitiallyFalse() {
         XCTAssertFalse(subject.addSitePromptShown)

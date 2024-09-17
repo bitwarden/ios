@@ -6,7 +6,7 @@ import XCTest
 
 // MARK: - LoginProcessorTests
 
-class LoginProcessorTests: BitwardenTestCase {
+class LoginProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_body_length
     // MARK: Properties
 
     var appSettingsStore: MockAppSettingsStore!
@@ -165,6 +165,32 @@ class LoginProcessorTests: BitwardenTestCase {
 
         XCTAssertEqual(authService.loginWithMasterPasswordUsername, "email@example.com")
         XCTAssertEqual(authService.loginWithMasterPasswordPassword, "Password1234!")
+        XCTAssertFalse(authService.loginWithMasterPasswordIsNewAccount)
+        XCTAssertNil(authService.loginWithMasterPasswordCaptchaToken)
+
+        XCTAssertEqual(coordinator.events.last, .didCompleteAuth)
+        XCTAssertFalse(coordinator.isLoadingOverlayShowing)
+        XCTAssertEqual(coordinator.loadingOverlaysShown, [.init(title: Localizations.loggingIn)])
+
+        XCTAssertEqual(authRepository.unlockVaultPassword, "Password1234!")
+    }
+
+    /// `perform(_:)` with `.loginWithMasterPasswordPressed` logs the user in with the provided
+    /// master password for a newly created account.
+    @MainActor
+    func test_perform_loginWithMasterPasswordPressed_success_isNewAccount() async throws {
+        subject.state.isNewAccount = true
+        subject.state.username = "email@example.com"
+        subject.state.masterPassword = "Password1234!"
+
+        authRepository.unlockWithPasswordResult = .success(())
+        authRepository.activeAccount = .fixture()
+
+        await subject.perform(.loginWithMasterPasswordPressed)
+
+        XCTAssertEqual(authService.loginWithMasterPasswordUsername, "email@example.com")
+        XCTAssertEqual(authService.loginWithMasterPasswordPassword, "Password1234!")
+        XCTAssertTrue(authService.loginWithMasterPasswordIsNewAccount)
         XCTAssertNil(authService.loginWithMasterPasswordCaptchaToken)
 
         XCTAssertEqual(coordinator.events.last, .didCompleteAuth)

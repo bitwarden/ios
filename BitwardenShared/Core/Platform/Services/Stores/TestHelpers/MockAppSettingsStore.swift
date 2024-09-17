@@ -4,6 +4,8 @@ import Foundation
 @testable import BitwardenShared
 
 class MockAppSettingsStore: AppSettingsStore {
+    var accountSetupAutofill = [String: AccountSetupProgress]()
+    var accountSetupVaultUnlock = [String: AccountSetupProgress]()
     var addSitePromptShown = false
     var allowSyncOnRefreshes = [String: Bool]()
     var appId: String?
@@ -53,6 +55,14 @@ class MockAppSettingsStore: AppSettingsStore {
     var usernameGenerationOptions = [String: UsernameGenerationOptions]()
 
     lazy var activeIdSubject = CurrentValueSubject<String?, Never>(self.state?.activeUserId)
+
+    func accountSetupAutofill(userId: String) -> AccountSetupProgress? {
+        accountSetupAutofill[userId]
+    }
+
+    func accountSetupVaultUnlock(userId: String) -> AccountSetupProgress? {
+        accountSetupVaultUnlock[userId]
+    }
 
     func allowSyncOnRefresh(userId: String) -> Bool {
         allowSyncOnRefreshes[userId] ?? false
@@ -124,6 +134,14 @@ class MockAppSettingsStore: AppSettingsStore {
 
     func serverConfig(userId: String) -> ServerConfig? {
         serverConfig[userId]
+    }
+
+    func setAccountSetupAutofill(_ autofillSetup: AccountSetupProgress?, userId: String) {
+        accountSetupAutofill[userId] = autofillSetup
+    }
+
+    func setAccountSetupVaultUnlock(_ vaultUnlockSetup: AccountSetupProgress?, userId: String) {
+        accountSetupVaultUnlock[userId] = vaultUnlockSetup
     }
 
     func setAllowSyncOnRefresh(_ allowSyncOnRefresh: Bool?, userId: String) {

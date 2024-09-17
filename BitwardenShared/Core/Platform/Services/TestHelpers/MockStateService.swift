@@ -5,6 +5,8 @@ import Foundation
 
 class MockStateService: StateService { // swiftlint:disable:this type_body_length
     var accountEncryptionKeys = [String: AccountEncryptionKeys]()
+    var accountSetupAutofill = [String: AccountSetupProgress]()
+    var accountSetupVaultUnlock = [String: AccountSetupProgress]()
     var accountTokens: Account.AccountTokens?
     var accountVolatileData: [String: AccountVolatileData] = [:]
     var accountsAdded = [Account]()
@@ -142,6 +144,16 @@ class MockStateService: StateService { // swiftlint:disable:this type_body_lengt
             throw StateServiceError.noAccounts
         }
         return accounts
+    }
+
+    func getAccountSetupAutofill(userId: String?) async throws -> AccountSetupProgress? {
+        let userId = try unwrapUserId(userId)
+        return accountSetupAutofill[userId]
+    }
+
+    func getAccountSetupVaultUnlock(userId: String?) async throws -> AccountSetupProgress? {
+        let userId = try unwrapUserId(userId)
+        return accountSetupVaultUnlock[userId]
     }
 
     func getAccountIdOrActiveId(userId: String?) async throws -> String {
@@ -335,6 +347,16 @@ class MockStateService: StateService { // swiftlint:disable:this type_body_lengt
     func setAccountHasBeenUnlockedInteractively(userId: String?, value: Bool) async throws {
         setAccountHasBeenUnlockedInteractivelyHasBeenCalled = true
         try setAccountHasBeenUnlockedInteractivelyResult.get()
+    }
+
+    func setAccountSetupAutofill(_ autofillSetup: AccountSetupProgress?, userId: String?) async throws {
+        let userId = try unwrapUserId(userId)
+        accountSetupAutofill[userId] = autofillSetup
+    }
+
+    func setAccountSetupVaultUnlock(_ vaultUnlockSetup: AccountSetupProgress?, userId: String?) async throws {
+        let userId = try unwrapUserId(userId)
+        accountSetupVaultUnlock[userId] = vaultUnlockSetup
     }
 
     func setActiveAccount(userId: String) async throws {

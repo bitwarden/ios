@@ -53,6 +53,20 @@ protocol StateService: AnyObject {
     /// - Parameter userId: The user ID of the account. Defaults to the active account if `nil`.
     func getAccountHasBeenUnlockedInteractively(userId: String?) async throws -> Bool
 
+    /// Gets the user's progress for setting up autofill.
+    ///
+    /// - Parameter userId: The user ID associated with the autofill setup progress.
+    /// - Returns: The user's autofill setup progress.
+    ///
+    func getAccountSetupAutofill(userId: String?) async throws -> AccountSetupProgress?
+
+    /// Gets the user's progress for setting up vault unlock.
+    ///
+    /// - Parameter userId: The user ID associated with the vault unlock setup progress.
+    /// - Returns: The user's vault unlock setup progress.
+    ///
+    func getAccountSetupVaultUnlock(userId: String?) async throws -> AccountSetupProgress?
+
     /// Gets all accounts.
     ///
     /// - Returns: The known user accounts.
@@ -346,6 +360,22 @@ protocol StateService: AnyObject {
     ///   - userId: The user ID of the account. Defaults to the active account if `nil`.
     ///   - value: Whether the user has unlocked their account in the current session.
     func setAccountHasBeenUnlockedInteractively(userId: String?, value: Bool) async throws
+
+    /// Sets the user's progress for setting up autofill.
+    ///
+    /// - Parameters:
+    ///   - autofillSetup: The user's autofill setup progress.
+    ///   - userId: The user ID associated with the autofill setup progress.
+    ///
+    func setAccountSetupAutofill(_ autofillSetup: AccountSetupProgress?, userId: String?) async throws
+
+    /// Sets the user's progress for setting up vault unlock.
+    ///
+    /// - Parameters:
+    ///   - autofillSetup: The user's vault unlock setup progress.
+    ///   - userId: The user ID associated with the vault unlock setup progress.
+    ///
+    func setAccountSetupVaultUnlock(_ vaultUnlockSetup: AccountSetupProgress?, userId: String?) async throws
 
     /// Sets the active account.
     ///
@@ -663,6 +693,22 @@ extension StateService {
         try await getAccount(userId: userId).profile.userId
     }
 
+    /// Gets the active user's progress for setting up autofill.
+    ///
+    /// - Returns: The user's autofill setup progress.
+    ///
+    func getAccountSetupAutofill() async throws -> AccountSetupProgress? {
+        try await getAccountSetupAutofill(userId: nil)
+    }
+
+    /// Gets the active user's progress for setting up vault unlock.
+    ///
+    /// - Returns: The user's vault unlock setup progress.
+    ///
+    func getAccountSetupVaultUnlock() async throws -> AccountSetupProgress? {
+        try await getAccountSetupVaultUnlock(userId: nil)
+    }
+
     /// Gets the active account id.
     ///
     /// - Returns: The active user id.
@@ -885,6 +931,22 @@ extension StateService {
     /// - Parameter value: Whether the user has unlocked their account in the current session
     func setAccountHasBeenUnlockedInteractively(value: Bool) async throws {
         try await setAccountHasBeenUnlockedInteractively(userId: nil, value: value)
+    }
+
+    /// Sets the active user's progress for setting up autofill.
+    ///
+    /// - Parameter autofillSetup: The user's autofill setup progress.
+    ///
+    func setAccountSetupAutofill(_ autofillSetup: AccountSetupProgress?) async throws {
+        try await setAccountSetupAutofill(autofillSetup, userId: nil)
+    }
+
+    /// Sets the active user's progress for setting up vault unlock.
+    ///
+    /// - Parameter vaultUnlockSetup: The user's vault unlock setup progress.
+    ///
+    func setAccountSetupVaultUnlock(_ vaultUnlockSetup: AccountSetupProgress?) async throws {
+        try await setAccountSetupVaultUnlock(vaultUnlockSetup, userId: nil)
     }
 
     /// Sets the allow sync on refresh value for the active account.
@@ -1182,6 +1244,16 @@ actor DefaultStateService: StateService { // swiftlint:disable:this type_body_le
         return accountVolatileData[userId]?.hasBeenUnlockedInteractively == true
     }
 
+    func getAccountSetupAutofill(userId: String?) async throws -> AccountSetupProgress? {
+        let userId = try userId ?? getActiveAccountUserId()
+        return appSettingsStore.accountSetupAutofill(userId: userId)
+    }
+
+    func getAccountSetupVaultUnlock(userId: String?) async throws -> AccountSetupProgress? {
+        let userId = try userId ?? getActiveAccountUserId()
+        return appSettingsStore.accountSetupVaultUnlock(userId: userId)
+    }
+
     func getAccounts() throws -> [Account] {
         guard let accounts = appSettingsStore.state?.accounts else {
             throw StateServiceError.noAccounts
@@ -1408,6 +1480,16 @@ actor DefaultStateService: StateService { // swiftlint:disable:this type_body_le
             userId,
             default: AccountVolatileData()
         ].hasBeenUnlockedInteractively = value
+    }
+
+    func setAccountSetupAutofill(_ autofillSetup: AccountSetupProgress?, userId: String?) async throws {
+        let userId = try userId ?? getActiveAccountUserId()
+        appSettingsStore.setAccountSetupAutofill(autofillSetup, userId: userId)
+    }
+
+    func setAccountSetupVaultUnlock(_ vaultUnlockSetup: AccountSetupProgress?, userId: String?) async throws {
+        let userId = try userId ?? getActiveAccountUserId()
+        appSettingsStore.setAccountSetupVaultUnlock(vaultUnlockSetup, userId: userId)
     }
 
     func setActiveAccount(userId: String) async throws {

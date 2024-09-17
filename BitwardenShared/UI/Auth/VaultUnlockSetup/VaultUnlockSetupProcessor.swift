@@ -71,7 +71,7 @@ class VaultUnlockSetupProcessor: StateProcessor<VaultUnlockSetupState, VaultUnlo
     ///
     private func continueFlow() async {
         do {
-            try await services.stateService.setNeedsVaultUnlockSetup(false)
+            try await services.stateService.setAccountSetupVaultUnlock(.complete)
         } catch {
             services.errorReporter.log(error: error)
         }
@@ -94,6 +94,11 @@ class VaultUnlockSetupProcessor: StateProcessor<VaultUnlockSetupState, VaultUnlo
     ///
     private func showSetUpLaterAlert() {
         coordinator.showAlert(.setUpUnlockMethodLater {
+            do {
+                try await self.services.stateService.setAccountSetupVaultUnlock(.setUpLater)
+            } catch {
+                self.services.errorReporter.log(error: error)
+            }
             self.coordinator.navigate(to: .autofillSetup)
         })
     }

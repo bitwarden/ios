@@ -80,9 +80,11 @@ public enum AuthRoute: Equatable {
 
     /// A route to the login screen.
     ///
-    /// - Parameter username: The username to display on the login screen.
+    /// - Parameters:
+    ///   - username: The username to display on the login screen.
+    ///   - isNewAccount: Whether the user is logging into a newly created account.
     ///
-    case login(username: String)
+    case login(username: String, isNewAccount: Bool = false)
 
     /// A route to the login decryption options screen.
     ///
