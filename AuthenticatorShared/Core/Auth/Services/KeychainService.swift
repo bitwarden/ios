@@ -1,3 +1,4 @@
+import AuthenticatorBridgeKit
 import Foundation
 
 // MARK: - KeychainService
@@ -110,3 +111,7 @@ class DefaultKeychainService: KeychainService {
         }
     }
 }
+
+// MARK: - AuthenticatorKeychainService
+
+extension DefaultKeychainService: AuthenticatorKeychainService {}

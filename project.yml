@@ -18,6 +18,9 @@ packages:
   BitwardenSdk:
     url: https://github.com/bitwarden/sdk-swift
     revision: 93ce71195a729f30b3edd48caeb7af9a39f35403
+  BitwardenShared:
+    url: https://github.com/bitwarden/ios
+    branch: main
   Firebase:
     url: https://github.com/firebase/firebase-ios-sdk
     exactVersion: 10.19.0
@@ -136,6 +139,8 @@ targets:
       - path: GlobalTestHelpers
     dependencies:
       - target: Authenticator
+      - package: BitwardenShared
+        product: AuthenticatorBridgeKit
       - package: SnapshotTesting
       - package: ViewInspector
     randomExecutionOrder: true
@@ -168,6 +173,8 @@ targets:
       - path: AuthenticatorShared/Core/Vault/Services/Importers/Support/Generated/GoogleAuth.pb.swift
         optional: true
     dependencies:
+      - package: BitwardenShared
+        product: AuthenticatorBridgeKit
       - package: BitwardenSdk
       - package: Networking
       - package: SwiftProtobuf
