@@ -344,10 +344,18 @@ class SendRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
     /// `shareURL()` successfully generates a share url for the send view.
     func test_shareURL() async throws {
         let sendView = SendView.fixture(accessId: "ACCESS_ID", key: "KEY")
-        environmentService.webVaultURL = .example
         let url = try await subject.shareURL(for: sendView)
 
         XCTAssertEqual(url?.absoluteString, "https://example.com/#/send/ACCESS_ID/KEY")
+    }
+
+    /// `shareURL()` successfully generates a share url for the send view when the `sendShareURL` ends with a "#".
+    func test_shareURL_poundSignSuffix() async throws {
+        let sendView = SendView.fixture(accessId: "ACCESS_ID", key: "KEY")
+        environmentService.sendShareURL = URL(string: "https://send.bitwarden.com/#")!
+        let url = try await subject.shareURL(for: sendView)
+
+        XCTAssertEqual(url?.absoluteString, "https://send.bitwarden.com/#ACCESS_ID/KEY")
     }
 
     /// `updateSend()` successfully encrypts the send view and uses the send service to update it.
