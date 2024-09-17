@@ -57,7 +57,8 @@ final class DebugMenuCoordinator: Coordinator, HasStackNavigator {
     private func showDebugMenu() {
         let processor = DebugMenuProcessor(
             coordinator: asAnyCoordinator(),
-            services: services
+            services: services,
+            state: DebugMenuState()
         )
 
         let view = DebugMenuView(store: Store(processor: processor))

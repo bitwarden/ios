@@ -333,6 +333,26 @@ class AppSettingsStoreTests: BitwardenTestCase { // swiftlint:disable:this type_
         XCTAssertEqual(subject.events(userId: "1"), [])
     }
 
+    /// `setFeatureFlag` and `featureFlag(name:)` work as expected with correct values.
+    func test_featureFlags() {
+        let featureFlags = [
+            FeatureFlag.emailVerification,
+            FeatureFlag.nativeCarouselFlow,
+        ]
+
+        for flag in featureFlags {
+            subject.setFeatureFlag(name: flag.rawValue, value: true)
+        }
+
+        XCTAssertTrue(try XCTUnwrap(subject.featureFlag(name: FeatureFlag.emailVerification.rawValue)))
+        XCTAssertTrue(try XCTUnwrap(subject.featureFlag(name: FeatureFlag.nativeCarouselFlow.rawValue)))
+    }
+
+    ///
+    func test_featureFlags_nilWhenNotPresent() {
+        XCTAssertNil(subject.featureFlag(name: ""))
+    }
+
     /// `isBiometricAuthenticationEnabled` returns false if there is no previous value.
     func test_isBiometricAuthenticationEnabled_isInitiallyFalse() {
         XCTAssertFalse(subject.isBiometricAuthenticationEnabled(userId: "-1"))

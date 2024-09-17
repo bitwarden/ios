@@ -52,7 +52,7 @@ class MockAppModule:
     func makeAuthRouter() -> BitwardenShared.AnyRouter<BitwardenShared.AuthEvent, BitwardenShared.AuthRoute> {
         authRouter.asAnyRouter()
     }
-    
+
     func makeDebugMenuCoordinator(
         stackNavigator: StackNavigator
     ) -> AnyCoordinator<DebugMenuRoute, Void> {

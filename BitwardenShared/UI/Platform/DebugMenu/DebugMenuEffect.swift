@@ -5,8 +5,8 @@ import Foundation
 /// Effects that can be processed by a `DebugMenuProcessor`.
 ///
 enum DebugMenuEffect: Equatable {
-    /// Initiates the loading of feature flags from a remote source or local cache.
-    case loadFeatureFlags
+    /// The view appeared and is ready to load data.
+    case viewAppeared
 
     /// Triggers a refresh of feature flags, clearing local settings and re-fetching from the remote source.
     case refreshFeatureFlags

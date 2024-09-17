@@ -138,7 +138,10 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
 
     /// Add the triple-tap gesture recognizer to the window.
     private func addTripleTapGestureRecognizer(to window: UIWindow) {
-        let tapGesture = UITapGestureRecognizer(target: self, action: #selector(handleTripleTapGesture))
+        let tapGesture = UITapGestureRecognizer(
+            target: self,
+            action: #selector(handleTripleTapGesture)
+        )
         tapGesture.numberOfTapsRequired = 3
         /// change this to 3 before PR.
         tapGesture.numberOfTouchesRequired = 2

@@ -25,28 +25,30 @@ final class DebugMenuProcessor: StateProcessor<DebugMenuState, DebugMenuAction, 
     /// - Parameters:
     ///   - coordinator: The coordinator used for navigation.
     ///   - services: The services used by the processor.
+    ///   - state: The state of the debug menu.
     ///
     init(
         coordinator: AnyCoordinator<DebugMenuRoute, Void>,
-        services: Services
+        services: Services,
+        state: DebugMenuState
     ) {
         self.coordinator = coordinator
         self.services = services
-        super.init(state: .init())
+        super.init(state: state)
     }
 
     // MARK: Methods
 
     override func receive(_ action: DebugMenuAction) {
         switch action {
-        case .dismiss:
+        case .dismissTapped:
             coordinator.navigate(to: .dismiss)
         }
     }
 
     override func perform(_ effect: DebugMenuEffect) async {
         switch effect {
-        case .loadFeatureFlags:
+        case .viewAppeared:
             await fetchFlags()
         case .refreshFeatureFlags:
             await refreshFlags()
@@ -68,7 +70,7 @@ final class DebugMenuProcessor: StateProcessor<DebugMenuState, DebugMenuAction, 
         let remoteFeatureFlags = await services.configService.getRemoteFeatureFlags()
 
         state.featureFlags = FeatureFlag.allCases.map { feature in
-            let userDefaultValue: Bool? = services.appSettingsStore.featureFlag(name: feature.rawValue)
+            let userDefaultValue = services.appSettingsStore.featureFlag(name: feature.rawValue)
             let remoteFlagValue = remoteFeatureFlags[feature]?.boolValue ?? false
 
             return DebugMenuFeatureFlag(

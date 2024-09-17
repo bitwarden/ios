@@ -30,6 +30,7 @@ class MockAppSettingsStore: AppSettingsStore {
     var encryptedPrivateKeys = [String: String]()
     var encryptedUserKeys = [String: String]()
     var eventsByUserId = [String: [EventData]]()
+    var featureFlags = [String: Bool]()
     var lastActiveTime = [String: Date]()
     var lastSyncTimeByUserId = [String: Date]()
     var masterPasswordHashes = [String: String]()
@@ -87,6 +88,10 @@ class MockAppSettingsStore: AppSettingsStore {
 
     func events(userId: String) -> [EventData] {
         eventsByUserId[userId] ?? []
+    }
+
+    func featureFlag(name: String) -> Bool? {
+        featureFlags[name]
     }
 
     func lastActiveTime(userId: String) -> Date? {
@@ -163,6 +168,10 @@ class MockAppSettingsStore: AppSettingsStore {
 
     func setEvents(_ events: [EventData], userId: String) {
         eventsByUserId[userId] = events
+    }
+
+    func setFeatureFlag(name: String, value: Bool?) {
+        featureFlags[name] = value
     }
 
     func setLastActiveTime(_ date: Date?, userId: String) {

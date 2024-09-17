@@ -280,8 +280,8 @@ class AppCoordinator: Coordinator, HasRootNavigator {
 
     /// Configures and presents the debug menu.
     ///
-    /// Initializes feedback generator for haptic feedback. Sets up a `UINavigationController` with large titles and full-screen presentation style.
-    /// Creates and starts a `DebugMenuCoordinator` to manage the debug menu flow.
+    /// Initializes feedback generator for haptic feedback. Sets up a `UINavigationController`
+    /// and creates / starts a `DebugMenuCoordinator` to manage the debug menu flow.
     /// Presents the navigation controller and triggers haptic feedback upon completion.
     ///
     private func showDebugMenu() {

@@ -5,6 +5,7 @@ import XCTest
 final class ConfigServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body_length
     // MARK: Properties
 
+    var appSettingsStore: MockAppSettingsStore!
     var client: MockHTTPClient!
     var configApiService: APIService!
     var errorReporter: MockErrorReporter!
@@ -18,6 +19,7 @@ final class ConfigServiceTests: BitwardenTestCase { // swiftlint:disable:this ty
     override func setUp() {
         super.setUp()
 
+        appSettingsStore = MockAppSettingsStore()
         client = MockHTTPClient()
         configApiService = APIService(client: client)
         errorReporter = MockErrorReporter()
@@ -25,6 +27,7 @@ final class ConfigServiceTests: BitwardenTestCase { // swiftlint:disable:this ty
         stateService = MockStateService()
         timeProvider = MockTimeProvider(.mockTime(now))
         subject = DefaultConfigService(
+            appSettingsStore: appSettingsStore,
             configApiService: configApiService,
             errorReporter: errorReporter,
             stateService: stateService,
@@ -37,6 +40,7 @@ final class ConfigServiceTests: BitwardenTestCase { // swiftlint:disable:this ty
     override func tearDown() {
         super.tearDown()
 
+        appSettingsStore = nil
         client = nil
         configApiService = nil
         errorReporter = nil

@@ -25,7 +25,7 @@ struct DebugMenuView: View {
         .toolbar {
             ToolbarItem(placement: .navigationBarTrailing) {
                 Button {
-                    store.send(.dismiss)
+                    store.send(.dismissTapped)
                 } label: {
                     Text(Localizations.close)
                 }
@@ -34,7 +34,7 @@ struct DebugMenuView: View {
         }
         .navigationTitle("Debug Menu")
         .task {
-            await store.perform(.loadFeatureFlags)
+            await store.perform(.viewAppeared)
         }
     }
 
@@ -50,6 +50,7 @@ struct DebugMenuView: View {
                 Text(flag.feature.name)
             }
             .toggleStyle(.bitwarden)
+            .accessibilityIdentifier(flag.feature.rawValue)
         }
     }
 
@@ -63,6 +64,7 @@ struct DebugMenuView: View {
             } label: {
                 Image(systemName: "arrow.clockwise")
             }
+            .accessibilityLabel("RefreshFeatureFlagsButton")
         }
     }
 }
@@ -81,7 +83,7 @@ struct DebugMenuView: View {
                         .init(
                             feature: .enableAuthenticatorSync,
                             isEnabled: false
-                        )
+                        ),
                     ]
                 )
             )

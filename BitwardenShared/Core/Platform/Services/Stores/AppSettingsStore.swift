@@ -141,7 +141,7 @@ protocol AppSettingsStore: AnyObject {
     /// - Returns: The value of the feature flag as the specified type `T`, or `nil` if the flag does not exist
     ///     or cannot be decoded.
     ///
-    func featureFlag<T: Codable>(name: String) -> T?
+    func featureFlag(name: String) -> Bool?
 
     /// The user's last active time within the app.
     /// This value is set when the app is backgrounded.
@@ -847,7 +847,7 @@ extension DefaultAppSettingsStore: AppSettingsStore {
         fetch(for: .events(userId: userId)) ?? []
     }
 
-    func featureFlag<T: Codable>(name: String) -> T? {
+    func featureFlag(name: String) -> Bool? {
         fetch(for: .featureFlag(name: name))
     }
 
