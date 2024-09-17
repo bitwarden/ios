@@ -3,12 +3,14 @@ import XCTest
 
 @testable import AuthenticatorBridgeKit
 
-final class AuthenticatorBridgeDataStoreTests: AuthenticatorBridgeKitTestCase {
+final class AuthenticatorBridgeItemServiceTests: AuthenticatorBridgeKitTestCase {
     // MARK: Properties
 
     let accessGroup = "group.com.example.bitwarden-authenticator"
-    var subject: AuthenticatorBridgeDataStore!
+    var dataStore: AuthenticatorBridgeDataStore!
     var error: Error?
+    var keychainRepository: SharedKeychainRepository!
+    var subject: AuthenticatorBridgeItemService!
 
     // MARK: Setup & Teardown
 
@@ -17,15 +19,22 @@ final class AuthenticatorBridgeDataStoreTests: AuthenticatorBridgeKitTestCase {
         let errorHandler: (Error) -> Void = { error in
             self.error = error
         }
-        subject = AuthenticatorBridgeDataStore(
+        dataStore = AuthenticatorBridgeDataStore(
             storeType: .memory,
             groupIdentifier: accessGroup,
             errorHandler: errorHandler
         )
+        keychainRepository = MockSharedKeychainRepository()
+        subject = DefaultAuthenticatorBridgeItemService(
+            dataStore: dataStore,
+            sharedKeychainRepository: keychainRepository
+        )
     }
 
     override func tearDown() {
+        dataStore = nil
         error = nil
+        keychainRepository = nil
         subject = nil
         super.tearDown()
     }

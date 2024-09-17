@@ -9,6 +9,7 @@ final class AuthenticatorBridgeItemDataTests: AuthenticatorBridgeKitTestCase {
     let accessGroup = "group.com.example.bitwarden-authenticator"
     var dataStore: AuthenticatorBridgeDataStore!
     var error: Error?
+    var itemService: AuthenticatorBridgeItemService!
     var subject: AuthenticatorBridgeItemData!
 
     // MARK: Setup & Teardown
@@ -22,6 +23,10 @@ final class AuthenticatorBridgeItemDataTests: AuthenticatorBridgeKitTestCase {
             storeType: .memory,
             groupIdentifier: accessGroup,
             errorHandler: errorHandler
+        )
+        itemService = DefaultAuthenticatorBridgeItemService(
+            dataStore: dataStore,
+            sharedKeychainRepository: MockSharedKeychainRepository()
         )
     }
 
@@ -56,7 +61,7 @@ final class AuthenticatorBridgeItemDataTests: AuthenticatorBridgeKitTestCase {
     ///
     func test_fetchByIdRequest_empty() async throws {
         let expectedItems = AuthenticatorBridgeItemDataModel.fixtures()
-        try await dataStore.replaceAllItems(with: expectedItems, forUserId: "userId")
+        try await itemService.insertItems(expectedItems, forUserId: "userId")
 
         let fetchRequest = AuthenticatorBridgeItemData.fetchByIdRequest(id: "bad id", userId: "userId")
         let result = try dataStore.persistentContainer.viewContext.fetch(fetchRequest)
@@ -70,7 +75,7 @@ final class AuthenticatorBridgeItemDataTests: AuthenticatorBridgeKitTestCase {
     func test_fetchByIdRequest_success() async throws {
         let expectedItems = AuthenticatorBridgeItemDataModel.fixtures()
         let expectedItem = expectedItems[3]
-        try await dataStore.replaceAllItems(with: expectedItems, forUserId: "userId")
+        try await itemService.insertItems(expectedItems, forUserId: "userId")
 
         let fetchRequest = AuthenticatorBridgeItemData.fetchByIdRequest(id: expectedItem.id, userId: "userId")
         let result = try dataStore.persistentContainer.viewContext.fetch(fetchRequest)
@@ -87,7 +92,7 @@ final class AuthenticatorBridgeItemDataTests: AuthenticatorBridgeKitTestCase {
     ///
     func test_fetchByUserIdRequest_empty() async throws {
         let expectedItems = AuthenticatorBridgeItemDataModel.fixtures().sorted { $0.id < $1.id }
-        try await dataStore.replaceAllItems(with: expectedItems, forUserId: "userId")
+        try await itemService.insertItems(expectedItems, forUserId: "userId")
 
         let fetchRequest = AuthenticatorBridgeItemData.fetchByUserIdRequest(
             userId: "nonexistent userId"
@@ -104,11 +109,11 @@ final class AuthenticatorBridgeItemDataTests: AuthenticatorBridgeKitTestCase {
     func test_fetchByUserIdRequest_success() async throws {
         // Insert items for "userId"
         let expectedItems = AuthenticatorBridgeItemDataModel.fixtures().sorted { $0.id < $1.id }
-        try await dataStore.replaceAllItems(with: expectedItems, forUserId: "userId")
+        try await itemService.insertItems(expectedItems, forUserId: "userId")
 
         // Separate Insert for "differentUserId"
         let differentUserItem = AuthenticatorBridgeItemDataModel.fixture()
-        try await dataStore.replaceAllItems(with: [differentUserItem], forUserId: "differentUserId")
+        try await itemService.insertItems([differentUserItem], forUserId: "differentUserId")
 
         // Verify items returned for "userId" do not contain items from "differentUserId"
         let fetchRequest = AuthenticatorBridgeItemData.fetchByUserIdRequest(userId: "userId")
