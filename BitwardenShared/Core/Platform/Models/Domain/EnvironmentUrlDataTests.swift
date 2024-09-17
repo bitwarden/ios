@@ -76,7 +76,7 @@ class EnvironmentUrlDataTests: XCTestCase {
         XCTAssertFalse(EnvironmentUrlData(webVault: .example).isEmpty)
     }
 
-    /// `region` returns `.unitedStates` if base url is the same as teh default for US.
+    /// `region` returns `.unitedStates` if base url is the same as the default for US.
     func test_region_unitedStates() {
         let subject = EnvironmentUrlData(base: URL(string: "https://vault.bitwarden.com")!)
         XCTAssertTrue(subject.region == .unitedStates)
