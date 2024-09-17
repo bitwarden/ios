@@ -16,6 +16,7 @@ class MockAppSettingsStore: AppSettingsStore {
     var loginRequest: LoginRequestNotification?
     var migrationVersion = 0
     var preAuthEnvironmentUrls: EnvironmentUrlData?
+    var preAuthServerConfig: BitwardenShared.ServerConfig?
     var rememberedEmail: String?
     var rememberedOrgIdentifier: String?
 

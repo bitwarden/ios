@@ -29,9 +29,6 @@ enum AccountSecurityAction: Equatable {
     /// The session timeout value has changed.
     case sessionTimeoutValueChanged(SessionTimeoutValue)
 
-    /// Unlock with pin code was toggled.
-    case toggleUnlockWithPINCode(Bool)
-
     /// The two step login button was pressed.
     case twoStepLoginPressed
 }

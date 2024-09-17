@@ -97,7 +97,7 @@ class CompleteRegistrationProcessor: StateProcessor<
         case let .togglePasswordVisibility(newValue):
             state.arePasswordsVisible = newValue
         case .learnMoreTapped:
-            break
+            coordinator.navigate(to: .masterPasswordGuidance)
         case .preventAccountLockTapped:
             coordinator.navigate(to: .preventAccountLock)
         }
@@ -190,6 +190,8 @@ class CompleteRegistrationProcessor: StateProcessor<
                 )
             )
         )
+
+        state.didCreateAccount = true
     }
 
     /// Creates the user's account with their provided credentials.
@@ -226,6 +228,16 @@ class CompleteRegistrationProcessor: StateProcessor<
         } catch let error as CompleteRegistrationError {
             showCompleteRegistrationErrorAlert(error)
         } catch {
+            guard !state.didCreateAccount else {
+                // If an error occurs after the account was created, dismiss the view and navigate
+                // the user to the login screen to complete login.
+                coordinator.navigate(to: .dismissWithAction(DismissAction {
+                    self.coordinator.navigate(to: .login(username: self.state.userEmail))
+                    self.coordinator.showToast(Localizations.accountSuccessfullyCreated)
+                }))
+                return
+            }
+
             coordinator.showAlert(.networkResponseError(error) {
                 await self.completeRegistration(captchaToken: captchaToken)
             })
@@ -244,7 +256,10 @@ class CompleteRegistrationProcessor: StateProcessor<
     /// Sets the feature flag value to be used.
     ///
     private func loadFeatureFlag() async {
-        state.nativeCreateAccountFeatureFlag = await services.configService.getFeatureFlag(.nativeCreateAccountFlow)
+        state.nativeCreateAccountFeatureFlag = await services.configService.getFeatureFlag(
+            .nativeCreateAccountFlow,
+            isPreAuth: true
+        )
     }
 
     /// Shows a `CompleteRegistrationError` alert.

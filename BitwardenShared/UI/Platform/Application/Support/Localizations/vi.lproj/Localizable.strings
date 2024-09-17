@@ -945,6 +945,15 @@
 "SetUpUnlock" = "Thiết lập mở khóa";
 "SetUpBiometricsOrChooseAPinCodeToQuicklyAccessYourVaultAndAutofillYourLogins" = "Thiết lập sinh trắc học hoặc mã PIN để truy cập nhanh vào kho và tự động điền thông tin đăng nhập của bạn.";
 "SetUpLater" = "Thiết lập sau";
+"MasterPasswordHelp" = "Master password help";
+"WhatMakesAPasswordStrong" = "Làm sao để mật khẩu mạnh?";
+"StrongPasswordDescriptionLong" = "The longer your password, the more difficult it is to hack. The minimum for account creation is 12 characters but if you do 14 characters, the time to crack your password would be centuries!";
+"TheStrongestPasswordsAreUsually" = "The strongest passwords are usually:";
+"TwelveOrMoreCharacters" = "12 or more characters";
+"RandomAndComplexUsingNumbersAndSpecialCharacters" = "Random and complex, using numbers and special characters";
+"TotallyDifferentFromYourOtherPasswords" = "Totally different from your other passwords";
+"UseTheGeneratorToCreateAStrongUniquePassword" = "Use the generator to create a strong, unique password";
+"TryItOut" = "Try it out";
 "PreventAccountLockout" = "Ngăn ngừa việc tài khoản bị khóa";
 "NeverLoseAccessToYourVault" = "Không lo mất quyền truy cập kho";
 "TheBestWayToMakeSureYouCanAlwaysAccessYourAccountIsToSetUpSafeguardsFromTheStart" = "Cách tốt nhất để đảm bảo bạn luôn có thể truy cập vào tài khoản của mình là thiết lập biện pháp bảo vệ ngay từ đầu.";
@@ -964,5 +973,5 @@
 "RestartRegistration" = "Tiến hành đăng ký lại";
 "ExpiredLink" = "Liên kết đã hết hạn";
 "PleaseRestartRegistrationOrTryLoggingInYouMayAlreadyHaveAnAccount" = "Vui lòng tiến hành đăng ký lại hoặc thử đăng nhập. Bạn có thể đã có tài khoản.";
-"RemovePasskey" = "Remove passkey";
-"PasskeyRemoved" = "Passkey removed";
+"RemovePasskey" = "Xóa mã khoá";
+"PasskeyRemoved" = "Đã xóa mã khoá";

@@ -945,6 +945,15 @@
 "SetUpUnlock" = "Nastavit odemknutí";
 "SetUpBiometricsOrChooseAPinCodeToQuicklyAccessYourVaultAndAutofillYourLogins" = "Nastavte si biometrické údaje nebo zvolte kód PIN pro rychlý přístup k trezoru a automatické vyplňování přihlašovacích údajů.";
 "SetUpLater" = "Nastavit později";
+"MasterPasswordHelp" = "Nápověda k hlavnímu heslu";
+"WhatMakesAPasswordStrong" = "Co je silným heslem?";
+"StrongPasswordDescriptionLong" = "Čím delší je heslo, tím obtížnější je jeho prolomení. Minimum pro vytvoření účtu je 12 znaků, ale pokud uděláte 14 znaků, doba prolomení Vašeho hesla bude trvat staletí!";
+"TheStrongestPasswordsAreUsually" = "Nejsilnější hesla jsou obvykle:";
+"TwelveOrMoreCharacters" = "12 nebo více znaků";
+"RandomAndComplexUsingNumbersAndSpecialCharacters" = "Náhodná a složitá, s použitím čísel a speciálních znaků";
+"TotallyDifferentFromYourOtherPasswords" = "Zcela se liší od Vašich ostatních hesel";
+"UseTheGeneratorToCreateAStrongUniquePassword" = "Použijte generátor k vytvoření silného, jedinečného hesla";
+"TryItOut" = "Zkuste to";
 "PreventAccountLockout" = "Zabránit uzamčení účtu";
 "NeverLoseAccessToYourVault" = "Nikdy neztratíte přístup do Vašeho trezoru";
 "TheBestWayToMakeSureYouCanAlwaysAccessYourAccountIsToSetUpSafeguardsFromTheStart" = "Nejlepším způsobem, jak se ujistit, že máte vždy přístup k Vašemu účtu, je nastavit zabezpečení od začátku.";

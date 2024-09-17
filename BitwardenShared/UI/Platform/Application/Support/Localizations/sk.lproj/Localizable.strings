@@ -332,7 +332,7 @@
 "VerifyFaceID" = "Overiť Face ID";
 "WindowsHello" = "Windows Hello";
 "BitwardenCredentialProviderGoToSettings" = "Nepodarilo sa automaticky otvoriť nastavenia poskytovateľa poverení pre Android. Môžete otvoriť nastavenie manuálne cez Nastavenia > Systém > Heslá a účty > Heslá, prístupové kľúče a automatické vypĺňanie.";
-"BitwardenAutofillGoToSettings" = "Nepodarilo sa automaticky otvoriť nastavenia automatického dopĺňania pre systém Android. Môžete otvoriť nastavenie manuálne cez Nastavenia > Systém > Jazyky a vstup > Rozšírené > Služba automatického dopĺňania.";
+"BitwardenAutofillGoToSettings" = "Nepodarilo sa automaticky otvoriť nastavenia automatického vypĺňania pre Android. Môžete otvoriť nastavenie manuálne cez Nastavenia > Systém > Jazyky a vstup > Rozšírené > Služba automatického vypĺňania.";
 "CustomFieldName" = "Názov vlastného poľa";
 "FieldTypeBoolean" = "Áno/Nie";
 "FieldTypeHidden" = "Skryté";
@@ -360,7 +360,7 @@
 "BitwardenAutofillAccessibilityServiceDescription2" = "Služba dostupnosti môže byť užitočné pre aplikácie, ktoré nepodporujú štandardnú službu automatického dopĺňania.";
 "DatePasswordUpdated" = "Heslo bolo aktualizované";
 "DateUpdated" = "Aktualizované";
-"AutofillActivated" = "Automatické dopĺňanie aktivované!";
+"AutofillActivated" = "Automatické vypĺňanie aktivované!";
 "MustLogInMainAppAutofill" = "Pred použitím automatického vypĺňania sa najskôr musíte prihlásiť v hlavnej bitwarden aplikácií.";
 "AutofillSetup" = "Pri prihlasovaní do aplikácií a westránok sú teraz vaše prihlasovacie údaje dostupné priamo z klávesnice.";
 "AutofillSetup2" = "Odporúčame vám vypnúť ostatné aplikácie pre automatické dopĺňanie, ak ich neplánujete používať.";
@@ -456,7 +456,7 @@
 "AskToAddLogin" = "Požiadať o pridanie prihlásenia";
 "AskToAddLoginDescription" = "Opýtať sa na pridanie prihlasovacích údajov ak ich ešte nemáte v trezore.";
 "OnRestart" = "Po reštarte aplikácie";
-"AutofillServiceNotEnabled" = "Automatické dopĺňanie umožňuje jednoducho pristupovať k vašemu trezoru z iných stránok a plaikácii. Vyzerá že ste službu automatického dopĺňania pomocou Bitwarden nezapli. Zapnúť ju môžete na obrazove \"Nastavenia\".";
+"AutofillServiceNotEnabled" = "Automatické vypĺňanie umožňuje jednoducho pristupovať k vášmu trezoru z iných stránok a aplikácií. Zdá sa, že ste službu automatického vypĺňania pomocou Bitwardenu nezapli. Zapnúť ju môžete na obrazovke \"Nastavenia\".";
 "ThemeAppliedOnRestart" = "Zmena nastavení vzhľadu sa prejaví po opätovnom štarte aplikácie.";
 "Capitalize" = "Prvé písmeno veľkým";
 "IncludeNumber" = "Zahrnúť číslo";
@@ -489,7 +489,7 @@
 "Open" = "Otvoriť";
 "UnableToSaveAttachment" = "Nastal problem pri ukladaní prílohy. Ak problém pretrváva, môžete je uložiť z Webového trezora.";
 "SaveAttachmentSuccess" = "Príloha úspešne uložená";
-"AutofillTileAccessibilityRequired" = "Zapnite službu dostupnosti pre automatické vypĺňanie v nastaveniach Bitwardenu aby ste mohli používať dlaždicu pre automatické dopĺňanie.";
+"AutofillTileAccessibilityRequired" = "Zapnite službu dostupnosti pre automatické vypĺňanie v nastaveniach Bitwardenu, aby ste mohli používať dlaždicu pre automatické vypĺňanie.";
 "AutofillTileUriNotFound" = "Nenájdené žiadne políčka na heslo";
 "SoftDeleting" = "Posielanie do koša...";
 "ItemSoftDeleted" = "Položka bola poslaná do koša.";
@@ -529,16 +529,16 @@
 "PasskeyManagement" = "Správa prístupových kľúčov";
 "AutofillServices" = "Služba automatického vypĺňania";
 "InlineAutofill" = "Použite vnorené automatické vypĺňanie";
-"InlineAutofillDescription" = "Ak to podporuje váš vybratý editor IME (klávesnica), použite vnorené automatické dopĺňanie. Ak to vaša konfigurácia nepodporuje (alebo je táto voľba zakázaná), bude použité predvolené automatické vyplnenie.";
+"InlineAutofillDescription" = "Ak to podporuje váš vybratý editor IME (klávesnica), použite vnorené automatické vypĺňanie. Ak to vaša konfigurácia nepodporuje (alebo je táto voľba zakázaná), bude použité predvolené automatické vyplnenie.";
 "Accessibility" = "Použiť dostupnosť";
 "AccessibilityDescription" = "Použite službu zjednodušenia prístupu Bitwardenu pre automatické vypĺňanie prihlasovacích údajov v aplikáciách a na webe. Ak je táto možnosť povolená, pri výbere prihlasovacích polí sa zobrazí vyskakovacie okno.";
 "AccessibilityDescription2" = "Použite službu zjednodušenia prístupu Bitwardenu pre automatické vypĺňanie prihlasovacích údajov v aplikáciách a na webe. (Vyžaduje sa povolenie zobrazenia cez iné aplikácie)";
 "AccessibilityDescription3" = "Použite službu zjednodušenia prístupu Bitwardenu pre použitie automatického vypĺňania cez dlaždicu a/alebo zobraziť vyskakovacie okno pomocou zobrazenia cez iné aplikácie (ak je povolené).";
-"AccessibilityDescription4" = "Vyžaduje sa, aby ste použili dlaždicu rýchlej akcie automatického dopĺňania, alebo aby ste rozšírili službu automatického dopĺňania pomocou funkcie zobrazenia cez iné aplikácie (ak je povolená).";
+"AccessibilityDescription4" = "Vyžaduje sa, aby ste použili dlaždicu rýchlej akcie automatického vypĺňania, alebo aby ste rozšírili službu automatického vypĺňania pomocou funkcie zobrazenia cez iné aplikácie (ak je povolená).";
 "DrawOver" = "Použiť zobrazenie cez iné aplikácie";
 "DrawOverDescription" = "Ak je táto možnosť povolená, umožňuje službe zjednodušenia prístupu Bitwardenu zobraziť vyskakovacie okno po klepnutí do prihlasovacieho poľa.";
 "DrawOverDescription2" = "Ak je táto možnosť povolená, umožňuje službe zjednodušenia prístupu Bitwardenu zobraziť vyskakovacie okno po klepnutí do prihlasovacieho poľa a pomáha automaticky vyplniť prihlasovacie polia.";
-"DrawOverDescription3" = "Ak je táto možnosť povolená, dostupnosť zobrazí vyskakovacie okno na rozšírenie služby automatického dopĺňania pre staršie aplikácie, ktoré nepodporujú Android Autofill Framework pre zjednodušenie vypĺňania prihlasovacích údajov.";
+"DrawOverDescription3" = "Ak je táto možnosť povolená, dostupnosť zobrazí vyskakovacie okno na rozšírenie služby automatického vypĺňania pre staršie aplikácie, ktoré nepodporujú Android Autofill Framework na zjednodušenie vypĺňania prihlasovacích údajov.";
 "PersonalOwnershipSubmitError" = "Z dôvodu podnikovej politiky máte obmedzené ukladanie položiek do osobného trezora. Zmeňte možnosť vlastníctvo na organizáciu a vyberte si z dostupných zbierok.";
 "PersonalOwnershipPolicyInEffect" = "Politika organizácie ovplyvňuje vaše možnosti vlastníctva.";
 "Send" = "Send";
@@ -736,7 +736,7 @@
 "Accept" = "Prijať";
 "Decline" = "Odmietnuť";
 "LoginRequestHasAlreadyExpired" = "Platnosť žiadosti o prihlásenie už vypršala.";
-"LoginAttemptFromXDoYouWantToSwitchToThisAccount" = "Pokus o prihlásenie z:\n%1$@\nChcete prepnúť na toto konto?";
+"LoginAttemptFromXDoYouWantToSwitchToThisAccount" = "Pokus o prihlásenie z:\n%1$@\nChcete prepnúť na tento účet?";
 "NewAroundHere" = "Ste tu nový?";
 "GetMasterPasswordwordHint" = "Získať nápoveď pre hlavné heslo";
 "LoggingInAsXOnY" = "Prihlasujete sa ako %1$@ na %2$@";
@@ -853,7 +853,7 @@
 "ContinueToPrivacyPolicy" = "Pokračovať na zásady ochrany osobných údajov?";
 "ContinueToAppStore" = "Pokračovať v obchode s aplikáciami?";
 "ContinueToDeviceSettings" = "Pokračovať do nastavení zariadenia?";
-"TwoStepLoginDescriptionLong" = "Zabezpečte svoje konto nastavením dvojstupňového prihlasovania vo webovej aplikácii Bitwarden.";
+"TwoStepLoginDescriptionLong" = "Zabezpečte svoj účet nastavením dvojstupňového prihlasovania vo webovej aplikácii Bitwarden.";
 "ChangeMasterPasswordDescriptionLong" = "Hlavné heslo si môžete zmeniť vo webovej aplikácii Bitwarden.";
 "YouCanImportDataToYourVaultOnX" = "Údaje do trezora môžete importovať na %1$@.";
 "LearnMoreAboutHowToUseBitwardenOnTheHelpCenter" = "Viac informácií o používaní Bitwardenu nájdete v centre pomoci.";
@@ -945,6 +945,15 @@
 "SetUpUnlock" = "Nastaviť odomknutie";
 "SetUpBiometricsOrChooseAPinCodeToQuicklyAccessYourVaultAndAutofillYourLogins" = "Nastavte biometriu alebo PIN kód pre rýchly prístup k trezoru a automatické vypĺňanie prístupových údajov.";
 "SetUpLater" = "Nastaviť neskôr";
+"MasterPasswordHelp" = "Nápoveď pre hlavné heslo";
+"WhatMakesAPasswordStrong" = "Čo robí heslo silným?";
+"StrongPasswordDescriptionLong" = "Čím dlhšie heslo, tým ťažšie je ho prekonať. Minimálna dĺžka hesla pri vytváraní účtu je 12 znakov, ale ak použijete 14 znakov, prelomenie hesla by trvalo storočia!";
+"TheStrongestPasswordsAreUsually" = "Silnejšie heslá sú zvyčajne:";
+"TwelveOrMoreCharacters" = "12 alebo viac znakov dlhé";
+"RandomAndComplexUsingNumbersAndSpecialCharacters" = "Náhodné a komplexné, používajú čísla a špeciálne znaky";
+"TotallyDifferentFromYourOtherPasswords" = "Úplne odlišné od vašich ostatných hesiel";
+"UseTheGeneratorToCreateAStrongUniquePassword" = "Použite generátor na vytvorenie silného a unikátneho hesla";
+"TryItOut" = "Vyskúšať";
 "PreventAccountLockout" = "Nevymknite sa z účtu";
 "NeverLoseAccessToYourVault" = "Nikdy nestraťte svoj účet";
 "TheBestWayToMakeSureYouCanAlwaysAccessYourAccountIsToSetUpSafeguardsFromTheStart" = "Najlepší spôsob, ako zabezpečiť, aby ste mali vždy prístup k svojmu účtu, je nastaviť ochranné opatrenia hneď od začiatku.";
@@ -963,6 +972,6 @@
 "RemoveMasterPasswordMessage" = "%1$@ používa SSO s vlastným kľúčovým serverom. Na prihlásenie členov tejto organizácie už nie je potrebné hlavné heslo.";
 "RestartRegistration" = "Zopakovať registráciu";
 "ExpiredLink" = "Platnosť odkazu vypršala";
-"PleaseRestartRegistrationOrTryLoggingInYouMayAlreadyHaveAnAccount" = "Zopakujte registráciu alebo sa pokúste prihlásiť. Možno už máte konto.";
+"PleaseRestartRegistrationOrTryLoggingInYouMayAlreadyHaveAnAccount" = "Zopakujte registráciu alebo sa pokúste prihlásiť. Možno už účet máte.";
 "RemovePasskey" = "Odstrániť prístupový kľúč";
 "PasskeyRemoved" = "Prístupový kľúč bol odstránený";

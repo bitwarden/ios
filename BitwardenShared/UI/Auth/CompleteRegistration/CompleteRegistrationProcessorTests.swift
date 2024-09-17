@@ -483,6 +483,68 @@ class CompleteRegistrationProcessorTests: BitwardenTestCase {
         XCTAssertEqual(coordinator.loadingOverlaysShown, [LoadingOverlayState(title: Localizations.creatingAccount)])
     }
 
+    /// `perform(_:)` with `.completeRegistration` navigates to login if the create account request
+    /// succeeds, but login fails.
+    @MainActor
+    func test_perform_completeRegistration_loginError() async throws {
+        authService.loginWithMasterPasswordResult = .failure(BitwardenTestError.example)
+        client.result = .httpSuccess(testData: .createAccountRequest)
+        subject.state = .fixture()
+
+        await subject.perform(.completeRegistration)
+
+        XCTAssertEqual(client.requests.count, 1)
+        XCTAssertEqual(client.requests[0].url, URL(string: "https://example.com/identity/accounts/register/finish"))
+
+        XCTAssertTrue(coordinator.alertShown.isEmpty)
+        XCTAssertFalse(coordinator.isLoadingOverlayShowing)
+        XCTAssertEqual(
+            coordinator.loadingOverlaysShown,
+            [
+                LoadingOverlayState(title: Localizations.creatingAccount),
+            ]
+        )
+        XCTAssertEqual(coordinator.routes.count, 1)
+        guard case let .dismissWithAction(dismissAction) = coordinator.routes.first else {
+            return XCTFail("Unable to find dismiss action.")
+        }
+        dismissAction?.action()
+        XCTAssertEqual(coordinator.routes.count, 2)
+        XCTAssertEqual(coordinator.routes[1], .login(username: "email@example.com"))
+        XCTAssertEqual(coordinator.toastsShown, [Localizations.accountSuccessfullyCreated])
+    }
+
+    /// `perform(_:)` with `.completeRegistration` navigates to login if the create account and
+    /// login requests succeed, but vault unlocking fails.
+    @MainActor
+    func test_perform_completeRegistration_unlockError() async throws {
+        authRepository.unlockWithPasswordResult = .failure(BitwardenTestError.example)
+        client.result = .httpSuccess(testData: .createAccountRequest)
+        subject.state = .fixture()
+
+        await subject.perform(.completeRegistration)
+
+        XCTAssertEqual(client.requests.count, 1)
+        XCTAssertEqual(client.requests[0].url, URL(string: "https://example.com/identity/accounts/register/finish"))
+
+        XCTAssertTrue(coordinator.alertShown.isEmpty)
+        XCTAssertFalse(coordinator.isLoadingOverlayShowing)
+        XCTAssertEqual(
+            coordinator.loadingOverlaysShown,
+            [
+                LoadingOverlayState(title: Localizations.creatingAccount),
+            ]
+        )
+        XCTAssertEqual(coordinator.routes.count, 1)
+        guard case let .dismissWithAction(dismissAction) = coordinator.routes.first else {
+            return XCTFail("Unable to find dismiss action.")
+        }
+        dismissAction?.action()
+        XCTAssertEqual(coordinator.routes.count, 2)
+        XCTAssertEqual(coordinator.routes[1], .login(username: "email@example.com"))
+        XCTAssertEqual(coordinator.toastsShown, [Localizations.accountSuccessfullyCreated])
+    }
+
     /// `perform(_:)` with `.completeRegistration` presents an alert when there is no internet connection.
     /// When the user taps `Try again`, the create account request is made again.
     @MainActor
@@ -592,6 +654,13 @@ class CompleteRegistrationProcessorTests: BitwardenTestCase {
         XCTAssertEqual(coordinator.routes.last, .dismissPresented)
     }
 
+    /// `receive(_:)` with `.learnMoreTapped` launches the master password guidance view.
+    @MainActor
+    func test_receive_learnMoreTapped() {
+        subject.receive(.learnMoreTapped)
+        XCTAssertEqual(coordinator.routes.last, .masterPasswordGuidance)
+    }
+
     /// `receive(_:)` with `.passwordHintTextChanged(_:)` updates the state to reflect the change.
     @MainActor
     func test_receive_passwordHintTextChanged() {
@@ -681,13 +750,6 @@ class CompleteRegistrationProcessorTests: BitwardenTestCase {
     func test_receive_showToast() {
         subject.receive(.toastShown(Toast(text: "example")))
         XCTAssertEqual(subject.state.toast?.text, "example")
-    }
-
-    /// `receive(_:)` with `.preventAccountLockTapped` will show the prevent account lock screen.
-    @MainActor
-    func test_receive_preventAccountLock() {
-        subject.receive(.preventAccountLockTapped)
-        XCTAssertEqual(coordinator.routes.last, .preventAccountLock)
     }
     // swiftlint:disable:next file_length
 }

@@ -945,6 +945,15 @@
 "SetUpUnlock" = "Feloldás beüzemelés";
 "SetUpBiometricsOrChooseAPinCodeToQuicklyAccessYourVaultAndAutofillYourLogins" = "Állítsunk be biometrikus adatokat vagy válasszunk egy PIN kódot a széf gyors eléréséhez és a bejelentkezések automatikus kitöltéséhez.";
 "SetUpLater" = "Beüzemelés később";
+"MasterPasswordHelp" = "Mesterjelszó segítség";
+"WhatMakesAPasswordStrong" = "Mitől erős egy jelszó?";
+"StrongPasswordDescriptionLong" = "Minél hosszabb a jelszó, annál nehezebb feltörni. A fiók létrehozásához minimuma 12 karakter kell, de ha 14 karaktert használunk, akkor a jelszó feltörésének ideje évszázadok lehetnek!";
+"TheStrongestPasswordsAreUsually" = "A legerősebb jelszavak általában a következők:";
+"TwelveOrMoreCharacters" = "12 vagy több karakter";
+"RandomAndComplexUsingNumbersAndSpecialCharacters" = "Véletlenszerű és összetett, számokat és speciális karakterek használatával";
+"TotallyDifferentFromYourOtherPasswords" = "Teljesen más, mint a többi jelszó";
+"UseTheGeneratorToCreateAStrongUniquePassword" = "Használjuk a generátort egy erős, egyedi jelszó létrehozásához.";
+"TryItOut" = "Kipróbálás";
 "PreventAccountLockout" = "A fiókzárolás megakadályozása.";
 "NeverLoseAccessToYourVault" = "Soha ne veszítsük el a hozzáférést a széfhez.";
 "TheBestWayToMakeSureYouCanAlwaysAccessYourAccountIsToSetUpSafeguardsFromTheStart" = "A legjobb módja annak, hogy mindig hozzáférhessünk a fiókhoz, ha a kezdetektől fogva biztosítékokat állítunk be.";

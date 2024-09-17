@@ -3,8 +3,9 @@ import XCTest
 
 @testable import BitwardenShared
 
-final class ClientServiceTests: BitwardenTestCase {
+final class ClientServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body_length
     var clientBuilder: MockClientBuilder!
+    var configService: MockConfigService!
     var errorReporter: MockErrorReporter!
     var stateService: MockStateService!
     var subject: DefaultClientService!
@@ -16,10 +17,12 @@ final class ClientServiceTests: BitwardenTestCase {
         super.setUp()
 
         clientBuilder = MockClientBuilder()
+        configService = MockConfigService()
         errorReporter = MockErrorReporter()
         stateService = MockStateService()
         subject = DefaultClientService(
             clientBuilder: clientBuilder,
+            configService: configService,
             errorReporter: errorReporter,
             stateService: stateService
         )
@@ -30,6 +33,7 @@ final class ClientServiceTests: BitwardenTestCase {
         super.tearDown()
 
         clientBuilder = nil
+        configService = nil
         errorReporter = nil
         stateService = nil
         subject = nil
@@ -78,7 +82,7 @@ final class ClientServiceTests: BitwardenTestCase {
     /// Also tests that a `client(for:)` creates a new client if a user doesn't  have one.
     func test_client_multiple_users() async throws {
         // No active user.
-        let noActiveUserAuth = try await subject.auth(isPreAuth: true)
+        let noActiveUserAuth = try await subject.auth()
         let auth = clientBuilder.clients.first?.clientAuth
         XCTAssertIdentical(noActiveUserAuth, auth)
 
@@ -94,6 +98,221 @@ final class ClientServiceTests: BitwardenTestCase {
         // Returns a user's existing client.
         let userExistingClientAuth = try await subject.auth(for: "1")
         XCTAssertIdentical(userAuth, userExistingClientAuth)
+    }
+
+    /// `client(for:)` loads flags into the SDK.
+    func test_client_loadFlags() async throws {
+        configService.configMocker.withResult(ServerConfig(
+            date: Date(year: 2024, month: 2, day: 14, hour: 7, minute: 50, second: 0),
+            responseModel: ConfigResponseModel(
+                environment: nil,
+                featureStates: [:],
+                gitHash: "75238191",
+                server: nil,
+                version: "2024.4.0"
+            )
+        ))
+
+        _ = try await subject.auth(for: "1")
+
+        let client = try XCTUnwrap(clientBuilder.clients.first)
+        XCTAssertEqual(
+            client.clientPlatform.featureFlags,
+            ["enableCipherKeyEncryption": true]
+        )
+    }
+
+    /// `client(for:)` loads `enableCipherKeyEncryption` flag as `false` into the SDK.
+    func test_client_loadFlagsEnableCipherKeyEncryptionFalse() async throws {
+        configService.configMocker.withResult(ServerConfig(
+            date: Date(year: 2024, month: 2, day: 14, hour: 7, minute: 50, second: 0),
+            responseModel: ConfigResponseModel(
+                environment: nil,
+                featureStates: [:],
+                gitHash: "75238191",
+                server: nil,
+                version: "2024.1.0"
+            )
+        ))
+
+        _ = try await subject.auth(for: "1")
+
+        let client = try XCTUnwrap(clientBuilder.clients.first)
+        XCTAssertEqual(
+            client.clientPlatform.featureFlags,
+            ["enableCipherKeyEncryption": false]
+        )
+    }
+
+    /// `client(for:)` loading flags throws.
+    func test_client_loadFlagsThrows() async throws {
+        configService.configMocker.withResult(ServerConfig(
+            date: Date(year: 2024, month: 2, day: 14, hour: 7, minute: 50, second: 0),
+            responseModel: ConfigResponseModel(
+                environment: nil,
+                featureStates: [:],
+                gitHash: "75238191",
+                server: nil,
+                version: "2024.6.0"
+            )
+        ))
+        clientBuilder.setupClientOnCreation = { client in
+            client.clientPlatform.loadFlagsError = BitwardenTestError.example
+        }
+
+        _ = try await subject.auth(for: "1")
+
+        XCTAssertEqual(errorReporter.errors as? [BitwardenTestError], [.example])
+    }
+
+    /// `client(for:)` does not load flags when config is `nil`.
+    func test_client_doesNotloadFlags() async throws {
+        configService.configMocker.withResult(nil)
+
+        _ = try await subject.auth(for: "1")
+
+        let client = try XCTUnwrap(clientBuilder.clients.first)
+        XCTAssertEqual(
+            client.clientPlatform.featureFlags,
+            [:]
+        )
+    }
+
+    /// `configPublisher` loads flags into the SDK.
+    func test_configPublisher_loadFlags() async throws {
+        configService.configSubject.send(
+            MetaServerConfig(
+                isPreAuth: false,
+                userId: "1",
+                serverConfig: ServerConfig(
+                    date: Date(year: 2024, month: 2, day: 14, hour: 7, minute: 50, second: 0),
+                    responseModel: ConfigResponseModel(
+                        environment: nil,
+                        featureStates: [:],
+                        gitHash: "75238191",
+                        server: nil,
+                        version: "2024.4.0"
+                    )
+                )
+            )
+        )
+
+        try await waitForAsync {
+            guard !self.clientBuilder.clients.isEmpty else {
+                return false
+            }
+            let client = try? XCTUnwrap(self.clientBuilder.clients.first)
+            return client?.clientPlatform.featureFlags == ["enableCipherKeyEncryption": true]
+        }
+    }
+
+    /// `configPublisher` loads flags into the SDK on a already created client.
+    func test_configPublisher_loadFlagsOverride() async throws {
+        configService.configMocker.withResult(ServerConfig(
+            date: Date(year: 2024, month: 2, day: 14, hour: 7, minute: 50, second: 0),
+            responseModel: ConfigResponseModel(
+                environment: nil,
+                featureStates: [:],
+                gitHash: "75238199",
+                server: nil,
+                version: "2024.1.0"
+            )
+        ))
+
+        _ = try await subject.auth(for: "1")
+        let client = try XCTUnwrap(clientBuilder.clients.first)
+        XCTAssertEqual(
+            client.clientPlatform.featureFlags,
+            ["enableCipherKeyEncryption": false]
+        )
+
+        configService.configSubject.send(
+            MetaServerConfig(
+                isPreAuth: false,
+                userId: "1",
+                serverConfig: ServerConfig(
+                    date: Date(year: 2024, month: 2, day: 14, hour: 7, minute: 50, second: 0),
+                    responseModel: ConfigResponseModel(
+                        environment: nil,
+                        featureStates: [:],
+                        gitHash: "75238191",
+                        server: nil,
+                        version: "2024.4.0"
+                    )
+                )
+            )
+        )
+
+        try await waitForAsync {
+            let client = try? XCTUnwrap(self.clientBuilder.clients.first)
+            return client?.clientPlatform.featureFlags == ["enableCipherKeyEncryption": true]
+        }
+        XCTAssertEqual(clientBuilder.clients.count, 1)
+    }
+
+    /// `configPublisher` does not load flags into the SDK when the config sent is pre authentication.
+    func test_configPublisher_doesNotloadFlagsWhenIsPreAuth() async throws {
+        configService.configSubject.send(
+            MetaServerConfig(
+                isPreAuth: true,
+                userId: "1",
+                serverConfig: ServerConfig(
+                    date: Date(year: 2024, month: 2, day: 14, hour: 7, minute: 50, second: 0),
+                    responseModel: ConfigResponseModel(
+                        environment: nil,
+                        featureStates: [:],
+                        gitHash: "75238191",
+                        server: nil,
+                        version: "2024.4.0"
+                    )
+                )
+            )
+        )
+
+        XCTAssertTrue(clientBuilder.clients.isEmpty)
+    }
+
+    /// `configPublisher` does not load flags into the SDK when the config sent doesn't have a user id.
+    func test_configPublisher_doesNotloadFlagsWhenUserIdIsNil() async throws {
+        configService.configSubject.send(
+            MetaServerConfig(
+                isPreAuth: false,
+                userId: nil,
+                serverConfig: ServerConfig(
+                    date: Date(year: 2024, month: 2, day: 14, hour: 7, minute: 50, second: 0),
+                    responseModel: ConfigResponseModel(
+                        environment: nil,
+                        featureStates: [:],
+                        gitHash: "75238191",
+                        server: nil,
+                        version: "2024.4.0"
+                    )
+                )
+            )
+        )
+
+        XCTAssertTrue(clientBuilder.clients.isEmpty)
+    }
+
+    /// `configPublisher` does not load flags into the SDK when the config sent doesn't have a server config.
+    func test_configPublisher_doesNotloadFlagsWhenServerConfigIsNil() async throws {
+        configService.configSubject.send(
+            MetaServerConfig(
+                isPreAuth: false,
+                userId: "1",
+                serverConfig: nil
+            )
+        )
+
+        try await waitForAsync {
+            !self.clientBuilder.clients.isEmpty
+        }
+
+        let client = try XCTUnwrap(clientBuilder.clients.first)
+        XCTAssertEqual(
+            client.clientPlatform.featureFlags,
+            [:]
+        )
     }
 
     /// `crypto(for:)` returns a new `ClientCryptoProtocol` for every user.

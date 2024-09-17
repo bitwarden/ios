@@ -182,6 +182,8 @@ final class AuthCoordinator: NSObject, // swiftlint:disable:this type_body_lengt
             showLoginDecryptionOptions(organizationIdentifier)
         case let .loginWithDevice(email, type, isAuthenticated):
             showLoginWithDevice(email: email, type: type, isAuthenticated: isAuthenticated)
+        case .masterPasswordGuidance:
+            showMasterPasswordGuidance()
         case let .masterPasswordHint(username):
             showMasterPasswordHint(for: username)
         case .preventAccountLock:
@@ -539,6 +541,17 @@ final class AuthCoordinator: NSObject, // swiftlint:disable:this type_body_lengt
         }
     }
 
+    /// Shows the master password guidance screen.
+    ///
+    private func showMasterPasswordGuidance() {
+        let processor = MasterPasswordGuidanceProcessor(coordinator: asAnyCoordinator())
+        let store = Store(processor: processor)
+        let view = MasterPasswordGuidanceView(store: store)
+        let viewController = UIHostingController(rootView: view)
+        let navigationController = UINavigationController(rootViewController: viewController)
+        stackNavigator?.present(navigationController)
+    }
+
     /// Shows the master password hint screen for the provided username.
     ///
     /// - Parameter username: The username to get the password hint for.
@@ -800,7 +813,8 @@ final class AuthCoordinator: NSObject, // swiftlint:disable:this type_body_lengt
         let processor = VaultUnlockSetupProcessor(
             coordinator: asAnyCoordinator(),
             services: services,
-            state: VaultUnlockSetupState()
+            state: VaultUnlockSetupState(),
+            vaultUnlockSetupHelper: DefaultVaultUnlockSetupHelper(services: services)
         )
         let view = VaultUnlockSetupView(store: Store(processor: processor))
         stackNavigator?.push(view)

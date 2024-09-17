@@ -43,7 +43,7 @@ struct VaultAutofillListView: View {
                 )
             }
 
-            addToolbarItem(hidden: store.state.isAutofillingFido2List) {
+            addToolbarItem {
                 store.send(.addTapped(fromToolbar: true))
             }
         }
@@ -186,17 +186,17 @@ private struct VaultAutofillListSearchableView: View {
     /// The content displayed in the view.
     @ViewBuilder
     private func contentView() -> some View {
-        if isSearching {
-            searchContentView()
-        } else {
-            if store.state.vaultListSections.isEmpty {
-                EmptyContentView(
-                    image: Asset.Images.openSource.swiftUIImage,
-                    text: store.state.emptyViewMessage
-                ) {
-                    if store.state.isAutofillingFido2List {
-                        EmptyView()
-                    } else {
+        ZStack {
+            let isSearching = isSearching
+                || !store.state.searchText.isEmpty
+                || !store.state.ciphersForSearch.isEmpty
+
+            Group {
+                if store.state.vaultListSections.isEmpty {
+                    EmptyContentView(
+                        image: Asset.Images.openSource.swiftUIImage,
+                        text: store.state.emptyViewMessage
+                    ) {
                         Button {
                             store.send(.addTapped(fromToolbar: false))
                         } label: {
@@ -211,10 +211,14 @@ private struct VaultAutofillListSearchableView: View {
                             }
                         }
                     }
+                } else {
+                    cipherListView(store.state.vaultListSections)
                 }
-            } else {
-                cipherListView(store.state.vaultListSections)
             }
+            .hidden(isSearching)
+
+            searchContentView()
+                .hidden(!isSearching)
         }
     }
 

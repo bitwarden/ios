@@ -13,6 +13,7 @@ class StartRegistrationProcessorTests: BitwardenTestCase { // swiftlint:disable:
     var captchaService: MockCaptchaService!
     var client: MockHTTPClient!
     var clientAuth: MockClientAuth!
+    var configService: MockConfigService!
     var coordinator: MockCoordinator<AuthRoute, AuthEvent>!
     var errorReporter: MockErrorReporter!
     var subject: StartRegistrationProcessor!
@@ -28,6 +29,7 @@ class StartRegistrationProcessorTests: BitwardenTestCase { // swiftlint:disable:
         captchaService = MockCaptchaService()
         client = MockHTTPClient()
         clientAuth = MockClientAuth()
+        configService = MockConfigService()
         coordinator = MockCoordinator<AuthRoute, AuthEvent>()
         environmentService = MockEnvironmentService()
         errorReporter = MockErrorReporter()
@@ -40,6 +42,7 @@ class StartRegistrationProcessorTests: BitwardenTestCase { // swiftlint:disable:
                 authRepository: authRepository,
                 captchaService: captchaService,
                 clientService: MockClientService(auth: clientAuth),
+                configService: configService,
                 environmentService: environmentService,
                 errorReporter: errorReporter,
                 httpClient: client,
@@ -55,6 +58,7 @@ class StartRegistrationProcessorTests: BitwardenTestCase { // swiftlint:disable:
         captchaService = nil
         clientAuth = nil
         client = nil
+        configService = nil
         coordinator = nil
         environmentService = nil
         errorReporter = nil
@@ -413,6 +417,20 @@ class StartRegistrationProcessorTests: BitwardenTestCase { // swiftlint:disable:
         await subject.didSaveEnvironment(urls: EnvironmentUrlData())
         XCTAssertEqual(subject.state.region, .unitedStates)
         XCTAssertNil(environmentService.setPreAuthEnvironmentUrlsData)
+    }
+
+    /// `perform(.appeared)` loads the feature flags needed by the processor.
+    @MainActor
+    func test_perform_appeared_loadFeatureFlags() async {
+        XCTAssertFalse(subject.state.isCreateAccountFeatureFlagEnabled)
+
+        configService.featureFlagsBool[.nativeCreateAccountFlow] = true
+        await subject.perform(.appeared)
+        XCTAssertTrue(subject.state.isCreateAccountFeatureFlagEnabled)
+
+        configService.featureFlagsBool[.nativeCreateAccountFlow] = false
+        await subject.perform(.appeared)
+        XCTAssertFalse(subject.state.isCreateAccountFeatureFlagEnabled)
     }
 
     /// `perform(.appeared)` with no pre-auth URLs defaults the region and URLs to the US environment.
