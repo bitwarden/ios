@@ -4,11 +4,11 @@ import Foundation
 
 extension AuthenticatorBridgeItemDataModel {
     static func fixture(
-        favorite: Bool = true,
+        favorite: Bool = false,
         id: String = UUID().uuidString,
         name: String = "Name",
-        totpKey: String? = "TOTP Key",
-        username: String? = "Username"
+        totpKey: String? = nil,
+        username: String? = nil
     ) -> AuthenticatorBridgeItemDataModel {
         AuthenticatorBridgeItemDataModel(
             favorite: favorite,
@@ -22,10 +22,10 @@ extension AuthenticatorBridgeItemDataModel {
     static func fixtures() -> [AuthenticatorBridgeItemDataModel] {
         [
             AuthenticatorBridgeItemDataModel.fixture(),
-            AuthenticatorBridgeItemDataModel.fixture(favorite: false),
-            AuthenticatorBridgeItemDataModel.fixture(totpKey: nil),
-            AuthenticatorBridgeItemDataModel.fixture(username: nil),
-            AuthenticatorBridgeItemDataModel.fixture(totpKey: nil, username: nil),
+            AuthenticatorBridgeItemDataModel.fixture(favorite: true),
+            AuthenticatorBridgeItemDataModel.fixture(totpKey: "TOTP Key"),
+            AuthenticatorBridgeItemDataModel.fixture(username: "Username"),
+            AuthenticatorBridgeItemDataModel.fixture(totpKey: "TOTP Key", username: "Username"),
             AuthenticatorBridgeItemDataModel.fixture(totpKey: ""),
             AuthenticatorBridgeItemDataModel.fixture(username: ""),
             AuthenticatorBridgeItemDataModel.fixture(totpKey: "", username: ""),

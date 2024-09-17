@@ -27,6 +27,9 @@ public class AuthenticatorBridgeDataStore {
         return context
     }()
 
+    /// The CoreData model name.
+    private let modelName = "Bitwarden-Authenticator"
+
     /// The Core Data persistent container.
     public let persistentContainer: NSPersistentContainer
 
@@ -45,14 +48,15 @@ public class AuthenticatorBridgeDataStore {
         errorHandler: @escaping (Error) -> Void
     ) {
         #if SWIFT_PACKAGE
-        let modelURL = Bundle.module.url(forResource: "Bitwarden-Authenticator", withExtension: "momd")!
+        let bundle = Bundle.module
         #else
-        let modelURL = Bundle(for: type(of: self)).url(forResource: "Bitwarden-Authenticator", withExtension: "momd")!
+        let bundle = Bundle(for: type(of: self))
         #endif
 
+        let modelURL = bundle.url(forResource: modelName, withExtension: "momd")!
         let managedObjectModel = NSManagedObjectModel(contentsOf: modelURL)!
         persistentContainer = NSPersistentContainer(
-            name: "Bitwarden-Authenticator",
+            name: modelName,
             managedObjectModel: managedObjectModel
         )
         let storeDescription: NSPersistentStoreDescription
@@ -92,7 +96,7 @@ public class AuthenticatorBridgeDataStore {
     ///
     public func fetchAllForUserId(_ userId: String) async throws -> [AuthenticatorBridgeItemDataModel] {
         let fetchRequest = AuthenticatorBridgeItemData.fetchByUserIdRequest(userId: userId)
-        let result = try persistentContainer.viewContext.fetch(fetchRequest)
+        let result = try backgroundContext.fetch(fetchRequest)
 
         return try result.map { data in
             try data.model
