@@ -71,7 +71,7 @@ public class AuthenticatorBridgeDataStore {
         case .persisted:
             let storeURL = FileManager.default
                 .containerURL(forSecurityApplicationGroupIdentifier: groupIdentifier)!
-                .appendingPathComponent("Bitwarden-Authenticator.sqlite")
+                .appendingPathComponent("\(modelName).sqlite")
             storeDescription = NSPersistentStoreDescription(url: storeURL)
         }
         persistentContainer.persistentStoreDescriptions = [storeDescription]
