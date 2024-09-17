@@ -3,7 +3,7 @@ import SwiftUI
 // MARK: - LoadingView
 
 /// A view that displays either a loading indicator or the content view for a set of loaded data.
-struct LoadingView<T: Equatable, Contents: View>: View {
+struct LoadingView<T: Equatable & Sendable, Contents: View>: View {
     /// The state of this view.
     var state: LoadingState<T>
 

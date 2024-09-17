@@ -137,7 +137,7 @@ struct LoginView: View {
 // MARK: - Previews
 
 #if DEBUG
-#Preview {
+#Preview("Empty") {
     NavigationView {
         LoginView(
             store: Store(
@@ -147,10 +147,9 @@ struct LoginView: View {
             )
         )
     }
-    .previewDisplayName("Empty")
 }
 
-#Preview {
+#Preview("With Device") {
     NavigationView {
         LoginView(
             store: Store(
@@ -162,6 +161,5 @@ struct LoginView: View {
             )
         )
     }
-    .previewDisplayName("With Device")
 }
 #endif

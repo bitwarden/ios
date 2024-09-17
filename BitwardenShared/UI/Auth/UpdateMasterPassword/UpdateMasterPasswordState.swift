@@ -1,10 +1,10 @@
-import BitwardenSdk
+@preconcurrency import BitwardenSdk
 
 // MARK: - UpdateMasterPasswordState
 
 /// An object that defines the current state of a `UpdateMasterPasswordView`.
 ///
-struct UpdateMasterPasswordState: Equatable {
+struct UpdateMasterPasswordState: Equatable, Sendable {
     // MARK: Properties
 
     /// The current master password provided by the user.

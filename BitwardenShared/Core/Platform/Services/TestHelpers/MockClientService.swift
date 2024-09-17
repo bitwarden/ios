@@ -4,6 +4,8 @@ import BitwardenSdk
 
 class MockClientService: ClientService {
     var mockAuth: MockClientAuth
+    var mockAuthIsPreAuth = false
+    var mockAuthUserId: String?
     var mockCrypto: MockClientCrypto
     var mockExporters: MockClientExporters
     var mockGenerators: MockClientGenerators
@@ -30,8 +32,10 @@ class MockClientService: ClientService {
         mockVault = vault
     }
 
-    func auth(for userId: String?) -> ClientAuthProtocol {
-        mockAuth
+    func auth(for userId: String?, isPreAuth: Bool) -> ClientAuthProtocol {
+        mockAuthIsPreAuth = isPreAuth
+        mockAuthUserId = userId
+        return mockAuth
     }
 
     func crypto(for userId: String?) -> ClientCryptoProtocol {

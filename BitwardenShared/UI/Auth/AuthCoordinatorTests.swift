@@ -44,7 +44,10 @@ class AuthCoordinatorTests: BitwardenTestCase { // swiftlint:disable:this type_b
             stateService: stateService,
             vaultTimeoutService: vaultTimeoutService
         )
-        authRouter = AuthRouter(services: services)
+        authRouter = AuthRouter(
+            isInAppExtension: false,
+            services: services
+        )
         subject = AuthCoordinator(
             appExtensionDelegate: MockAppExtensionDelegate(),
             delegate: authDelegate,
@@ -163,6 +166,35 @@ class AuthCoordinatorTests: BitwardenTestCase { // swiftlint:disable:this type_b
         XCTAssertTrue(navigationController.viewControllers.first is UIHostingController<StartRegistrationView>)
     }
 
+    /// `navigate(to:)` with `.startRegistrationFromExpiredLink` pushes the start registration view
+    /// onto the stack navigator from expired link.
+    @MainActor
+    func test_navigate_startRegistrationFromExpiredLink() throws {
+        subject.navigate(to: .completeRegistrationFromAppLink(
+            emailVerificationToken: "thisisanamazingtoken",
+            userEmail: "email@example.com",
+            fromEmail: true,
+            region: .unitedStates
+        ))
+        subject.navigate(to: .expiredLink)
+        subject.navigate(to: .startRegistrationFromExpiredLink)
+
+        let landingAction = try XCTUnwrap(stackNavigator.actions[5])
+        let startRegistration = try XCTUnwrap(stackNavigator.actions[6])
+        let startRegistrationNavigationController = try XCTUnwrap(
+            startRegistration.view as? UINavigationController
+        )
+        let lastAction = try XCTUnwrap(stackNavigator.actions.last)
+
+        XCTAssertTrue(
+            startRegistrationNavigationController.viewControllers.first
+                is UIHostingController<StartRegistrationView>
+        )
+        XCTAssertTrue(landingAction.view is LandingView)
+        XCTAssertEqual(landingAction.type, .replaced)
+        XCTAssertEqual(lastAction.type, .dismissedWithCompletionHandler)
+    }
+
     /// `navigate(to:)` with `.dismiss` dismisses all presented view.
     @MainActor
     func test_navigate_dismiss() throws {
@@ -189,6 +221,16 @@ class AuthCoordinatorTests: BitwardenTestCase { // swiftlint:disable:this type_b
         let lastAction = try XCTUnwrap(stackNavigator.actions.last)
         XCTAssertEqual(lastAction.type, .dismissedWithCompletionHandler)
         XCTAssertTrue(didRun)
+    }
+
+    /// `navigate(to:)` with `.expiredLink` pushes the expired link view onto the stack navigator.
+    @MainActor
+    func test_navigate_expiredLink() throws {
+        subject.navigate(to: .expiredLink)
+
+        let navigationController = try XCTUnwrap(stackNavigator.actions.last?.view as? UINavigationController)
+        XCTAssertTrue(stackNavigator.actions.last?.view is UINavigationController)
+        XCTAssertTrue(navigationController.viewControllers.first is UIHostingController<ExpiredLinkView>)
     }
 
     /// `navigate(to:)` with `.enterpriseSingleSignOn` pushes the enterprise single sign-on view onto the stack
@@ -228,6 +270,17 @@ class AuthCoordinatorTests: BitwardenTestCase { // swiftlint:disable:this type_b
         subject.navigate(to: .landing)
 
         XCTAssertEqual(stackNavigator.actions.last?.type, .poppedToRoot)
+    }
+
+    /// `navigate(to:)` with `.landingSoftLoggedOut` pushes the landing view onto the stack
+    /// navigator and populates the email field.
+    @MainActor
+    func test_navigate_landingSoftLoggedOut() throws {
+        subject.navigate(to: .landingSoftLoggedOut(email: "user@bitwarden.com"))
+        XCTAssertTrue(stackNavigator.actions.last?.view is LandingView)
+
+        let view = try XCTUnwrap(stackNavigator.actions.last?.view as? LandingView)
+        XCTAssertEqual(view.store.state.email, "user@bitwarden.com")
     }
 
     /// `navigate(to:)` with `.login` pushes the login view onto the stack navigator and hides the back button.
@@ -299,6 +352,16 @@ class AuthCoordinatorTests: BitwardenTestCase { // swiftlint:disable:this type_b
         XCTAssertTrue(navigationController.viewControllers.first is UIHostingController<PasswordHintView>)
     }
 
+    /// `navigate(to:)` with `.preventAccountLock` presents the prevent account lock view.
+    @MainActor
+    func test_navigate_preventAccountLock() throws {
+        subject.navigate(to: .masterPasswordGuidance)
+
+        XCTAssertEqual(stackNavigator.actions.last?.type, .presented)
+        let navigationController = try XCTUnwrap(stackNavigator.actions.last?.view as? UINavigationController)
+        XCTAssertTrue(navigationController.viewControllers.first is UIHostingController<MasterPasswordGuidanceView>)
+    }
+
     /// `navigate(to:)` with `.selfHosted` pushes the self-hosted view onto the stack navigator.
     @MainActor
     func test_navigate_selfHosted() throws {
@@ -307,6 +370,15 @@ class AuthCoordinatorTests: BitwardenTestCase { // swiftlint:disable:this type_b
         let navigationController = try XCTUnwrap(stackNavigator.actions.last?.view as? UINavigationController)
         XCTAssertTrue(stackNavigator.actions.last?.view is UINavigationController)
         XCTAssertTrue(navigationController.viewControllers.first is UIHostingController<SelfHostedView>)
+    }
+
+    /// `navigate(to:)` with `.removeMasterPassword` pushes the remove master password view onto the stack navigator.
+    @MainActor
+    func test_navigate_removeMasterPassword() throws {
+        subject.navigate(to: .removeMasterPassword(organizationName: "Example Org"))
+
+        XCTAssertTrue(stackNavigator.actions.last?.view is RemoveMasterPasswordView)
+        XCTAssertEqual(stackNavigator.actions.last?.type, .pushed)
     }
 
     /// `navigate(to:)` with `.setMasterPassword` pushes the set master password view onto the stack navigator.
@@ -326,6 +398,7 @@ class AuthCoordinatorTests: BitwardenTestCase { // swiftlint:disable:this type_b
         authRepository.altAccounts = [account]
         vaultTimeoutService.isClientLocked[account.profile.userId] = true
         stateService.activeAccount = account
+        stateService.isAuthenticated[account.profile.userId] = true
 
         let task = Task {
             await subject.handleEvent(.action(.switchAccount(isAutomatic: true, userId: account.profile.userId)))
@@ -360,6 +433,7 @@ class AuthCoordinatorTests: BitwardenTestCase { // swiftlint:disable:this type_b
         authRepository.altAccounts = [account]
         authRepository.isLockedResult = .failure(VaultTimeoutServiceError.noAccountFound)
         stateService.activeAccount = account
+        stateService.isAuthenticated[account.profile.userId] = true
 
         let task = Task {
             await subject.handleEvent(.action(.switchAccount(isAutomatic: true, userId: account.profile.userId)))

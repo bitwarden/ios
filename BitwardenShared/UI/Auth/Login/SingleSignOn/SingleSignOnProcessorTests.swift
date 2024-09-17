@@ -5,6 +5,7 @@ import XCTest
 class SingleSignOnProcessorTests: BitwardenTestCase {
     // MARK: Properties
 
+    var authRepository: MockAuthRepository!
     var authService: MockAuthService!
     var client: MockHTTPClient!
     var coordinator: MockCoordinator<AuthRoute, AuthEvent>!
@@ -17,12 +18,14 @@ class SingleSignOnProcessorTests: BitwardenTestCase {
     override func setUp() {
         super.setUp()
 
+        authRepository = MockAuthRepository()
         authService = MockAuthService()
         client = MockHTTPClient()
         coordinator = MockCoordinator<AuthRoute, AuthEvent>()
         errorReporter = MockErrorReporter()
         stateService = MockStateService()
         let services = ServiceContainer.withMocks(
+            authRepository: authRepository,
             authService: authService,
             errorReporter: errorReporter,
             httpClient: client,
@@ -39,6 +42,7 @@ class SingleSignOnProcessorTests: BitwardenTestCase {
     override func tearDown() {
         super.tearDown()
 
+        authRepository = nil
         authService = nil
         client = nil
         coordinator = nil
@@ -167,6 +171,7 @@ class SingleSignOnProcessorTests: BitwardenTestCase {
         XCTAssertFalse(coordinator.isLoadingOverlayShowing)
         XCTAssertEqual(coordinator.alertShown.last, .networkResponseError(BitwardenTestError.example))
         XCTAssertEqual(errorReporter.errors.last as? BitwardenTestError, .example)
+        XCTAssertNil(stateService.rememberedOrgIdentifier)
     }
 
     /// `singleSignOnCompleted(code:)` navigates to the two-factor view if two-factor authentication is needed.
@@ -182,6 +187,7 @@ class SingleSignOnProcessorTests: BitwardenTestCase {
 
         // Verify the results.
         XCTAssertEqual(coordinator.routes.last, .twoFactor("", nil, AuthMethodsData(), "BestOrganization"))
+        XCTAssertEqual(stateService.rememberedOrgIdentifier, "BestOrganization")
     }
 
     /// `singleSignOnCompleted(code:)` navigates to the set password screen if the user needs
@@ -196,13 +202,44 @@ class SingleSignOnProcessorTests: BitwardenTestCase {
         waitFor(!coordinator.routes.isEmpty)
 
         XCTAssertEqual(coordinator.routes, [.setMasterPassword(organizationIdentifier: "BestOrganization")])
+        XCTAssertEqual(stateService.rememberedOrgIdentifier, "BestOrganization")
+    }
+
+    /// `singleSignOnCompleted(code:)` navigates to the update password screen if the user needs
+    /// to update their master password.
+    @MainActor
+    func test_singleSignOnCompleted_requireUpdatePasswordError() {
+        authService.loginWithSingleSignOnResult = .failure(AuthError.requireUpdatePassword)
+        subject.state.identifierText = "BestOrganization"
+
+        subject.singleSignOnCompleted(code: "CODE")
+
+        waitFor(!coordinator.routes.isEmpty)
+
+        XCTAssertEqual(coordinator.routes, [.updateMasterPassword])
+        XCTAssertEqual(stateService.rememberedOrgIdentifier, "BestOrganization")
+    }
+
+    /// `singleSignOnCompleted(code:)` navigates to the show login decryption options screen if the
+    /// user needs to choose their decryption option for login.
+    @MainActor
+    func test_singleSignOnCompleted_requireDecryptionOptionsError() {
+        authService.loginWithSingleSignOnResult = .failure(AuthError.requireDecryptionOptions)
+        subject.state.identifierText = "BestOrganization"
+
+        subject.singleSignOnCompleted(code: "CODE")
+
+        waitFor(!coordinator.routes.isEmpty)
+
+        XCTAssertEqual(coordinator.routes, [.showLoginDecryptionOptions(organizationIdentifier: "BestOrganization")])
+        XCTAssertEqual(stateService.rememberedOrgIdentifier, "BestOrganization")
     }
 
     /// `singleSignOnCompleted(code:)` navigates to the vault unlock view if the vault is still locked.
     @MainActor
     func test_singleSignOnCompleted_vaultLocked() {
         // Set up the mock data.
-        authService.loginWithSingleSignOnResult = .success(.fixtureAccountLogin())
+        authService.loginWithSingleSignOnResult = .success(.masterPassword(.fixtureAccountLogin()))
         subject.state.identifierText = "BestOrganization"
 
         // Receive the completed code.
@@ -227,11 +264,13 @@ class SingleSignOnProcessorTests: BitwardenTestCase {
         )
     }
 
-    /// `singleSignOnCompleted(code:)` navigates to the complete route if the vault is unlocked.
+    /// `singleSignOnCompleted(code:)` navigates to the complete route if the user uses Key Connector.
     @MainActor
-    func test_singleSignOnCompleted_vaultUnlocked() {
+    func test_singleSignOnCompleted_vaultUnlockedKeyConnector() {
         // Set up the mock data.
-        authService.loginWithSingleSignOnResult = .success(nil)
+        authService.loginWithSingleSignOnResult = .success(.keyConnector(
+            keyConnectorURL: URL(string: "https://example.com")!
+        ))
         subject.state.identifierText = "BestOrganization"
 
         // Receive the completed code.
@@ -239,6 +278,26 @@ class SingleSignOnProcessorTests: BitwardenTestCase {
         waitFor(!coordinator.routes.isEmpty)
 
         // Verify the results.
+        XCTAssertTrue(authRepository.unlockVaultWithKeyConnectorKeyCalled)
+        XCTAssertEqual(authService.loginWithSingleSignOnCode, "super_cool_secret_code")
+        XCTAssertEqual(stateService.rememberedOrgIdentifier, "BestOrganization")
+        XCTAssertFalse(coordinator.isLoadingOverlayShowing)
+        XCTAssertEqual(coordinator.routes, [.complete, .dismiss])
+    }
+
+    /// `singleSignOnCompleted(code:)` navigates to the complete route if the user uses TDE.
+    @MainActor
+    func test_singleSignOnCompleted_vaultUnlockedTDE() {
+        // Set up the mock data.
+        authService.loginWithSingleSignOnResult = .success(.deviceKey)
+        subject.state.identifierText = "BestOrganization"
+
+        // Receive the completed code.
+        subject.singleSignOnCompleted(code: "super_cool_secret_code")
+        waitFor(!coordinator.routes.isEmpty)
+
+        // Verify the results.
+        XCTAssertTrue(authRepository.unlockVaultWithDeviceKeyCalled)
         XCTAssertEqual(authService.loginWithSingleSignOnCode, "super_cool_secret_code")
         XCTAssertEqual(stateService.rememberedOrgIdentifier, "BestOrganization")
         XCTAssertFalse(coordinator.isLoadingOverlayShowing)

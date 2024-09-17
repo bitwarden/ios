@@ -1,5 +1,5 @@
 import AuthenticationServices
-import BitwardenSdk
+@preconcurrency import BitwardenSdk
 import Combine
 import Foundation
 import OSLog
@@ -32,7 +32,9 @@ class CompleteRegistrationProcessor: StateProcessor<
 
     typealias Services = HasAccountAPIService
         & HasAuthRepository
+        & HasAuthService
         & HasClientService
+        & HasConfigService
         & HasEnvironmentService
         & HasErrorReporter
         & HasStateService
@@ -70,6 +72,7 @@ class CompleteRegistrationProcessor: StateProcessor<
         switch effect {
         case .appeared:
             await setRegion()
+            await loadFeatureFlag()
             await verifyUserEmail()
         case .completeRegistration:
             await checkPasswordAndCompleteRegistration()
@@ -93,6 +96,10 @@ class CompleteRegistrationProcessor: StateProcessor<
             state.isCheckDataBreachesToggleOn = newValue
         case let .togglePasswordVisibility(newValue):
             state.arePasswordsVisible = newValue
+        case .learnMoreTapped:
+            coordinator.navigate(to: .masterPasswordGuidance)
+        case .preventAccountLockTapped:
+            coordinator.navigate(to: .preventAccountLock)
         }
     }
 
@@ -148,6 +155,45 @@ class CompleteRegistrationProcessor: StateProcessor<
         }
     }
 
+    /// Performs an API request to create the user's account.
+    ///
+    /// - Parameter captchaToken: The token returned when the captcha flow has completed.
+    ///
+    private func createAccount(captchaToken: String?) async throws {
+        let kdfConfig = KdfConfig()
+
+        let keys = try await services.clientService.auth(isPreAuth: true).makeRegisterKeys(
+            email: state.userEmail,
+            password: state.passwordText,
+            kdf: kdfConfig.sdkKdf
+        )
+
+        let hashedPassword = try await services.clientService.auth(isPreAuth: true).hashPassword(
+            email: state.userEmail,
+            password: state.passwordText,
+            kdfParams: kdfConfig.sdkKdf,
+            purpose: .serverAuthorization
+        )
+
+        _ = try await services.accountAPIService.registerFinish(
+            body: RegisterFinishRequestModel(
+                captchaResponse: captchaToken,
+                email: state.userEmail,
+                emailVerificationToken: state.emailVerificationToken,
+                kdfConfig: kdfConfig,
+                masterPasswordHash: hashedPassword,
+                masterPasswordHint: state.passwordHintText,
+                userSymmetricKey: keys.encryptedUserKey,
+                userAsymmetricKeys: KeysRequestModel(
+                    encryptedPrivateKey: keys.keys.private,
+                    publicKey: keys.keys.public
+                )
+            )
+        )
+
+        state.didCreateAccount = true
+    }
+
     /// Creates the user's account with their provided credentials.
     ///
     /// - Parameter captchaToken: The token returned when the captcha flow has completed.
@@ -168,43 +214,30 @@ class CompleteRegistrationProcessor: StateProcessor<
 
             coordinator.showLoadingOverlay(title: Localizations.creatingAccount)
 
-            let kdf: Kdf = .pbkdf2(iterations: NonZeroU32(KdfConfig().kdfIterations))
+            try await createAccount(captchaToken: captchaToken)
 
-            let keys = try await services.clientService.auth().makeRegisterKeys(
-                email: state.userEmail,
-                password: state.passwordText,
-                kdf: kdf
+            try await services.authService.loginWithMasterPassword(
+                state.passwordText,
+                username: state.userEmail,
+                captchaToken: captchaToken
             )
 
-            let hashedPassword = try await services.clientService.auth().hashPassword(
-                email: state.userEmail,
-                password: state.passwordText,
-                kdfParams: kdf,
-                purpose: .serverAuthorization
-            )
+            try await services.authRepository.unlockVaultWithPassword(password: state.passwordText)
 
-            _ = try await services.accountAPIService.registerFinish(
-                body: RegisterFinishRequestModel(
-                    captchaResponse: captchaToken,
-                    email: state.userEmail,
-                    emailVerificationToken: state.emailVerificationToken,
-                    kdfConfig: KdfConfig(),
-                    masterPasswordHash: hashedPassword,
-                    masterPasswordHint: state.passwordHintText,
-                    userSymmetricKey: keys.encryptedUserKey,
-                    userAsymmetricKeys: KeysRequestModel(
-                        encryptedPrivateKey: keys.keys.private,
-                        publicKey: keys.keys.public
-                    )
-                )
-            )
-
-            coordinator.navigate(to: .dismissWithAction(DismissAction {
-                self.coordinator.showToast(Localizations.accountSuccessfullyCreated)
-            }))
+            await coordinator.handleEvent(.didCompleteAuth)
         } catch let error as CompleteRegistrationError {
             showCompleteRegistrationErrorAlert(error)
         } catch {
+            guard !state.didCreateAccount else {
+                // If an error occurs after the account was created, dismiss the view and navigate
+                // the user to the login screen to complete login.
+                coordinator.navigate(to: .dismissWithAction(DismissAction {
+                    self.coordinator.navigate(to: .login(username: self.state.userEmail))
+                    self.coordinator.showToast(Localizations.accountSuccessfullyCreated)
+                }))
+                return
+            }
+
             coordinator.showAlert(.networkResponseError(error) {
                 await self.completeRegistration(captchaToken: captchaToken)
             })
@@ -218,6 +251,15 @@ class CompleteRegistrationProcessor: StateProcessor<
               let urls = state.region?.defaultURLs else { return }
 
         await services.environmentService.setPreAuthURLs(urls: urls)
+    }
+
+    /// Sets the feature flag value to be used.
+    ///
+    private func loadFeatureFlag() async {
+        state.nativeCreateAccountFeatureFlag = await services.configService.getFeatureFlag(
+            .nativeCreateAccountFlow,
+            isPreAuth: true
+        )
     }
 
     /// Shows a `CompleteRegistrationError` alert.
@@ -245,7 +287,8 @@ class CompleteRegistrationProcessor: StateProcessor<
         Task {
             state.passwordStrengthScore = try? await services.authRepository.passwordStrength(
                 email: state.userEmail,
-                password: state.passwordText
+                password: state.passwordText,
+                isPreAuth: true
             )
         }
     }
@@ -257,7 +300,21 @@ class CompleteRegistrationProcessor: StateProcessor<
         defer { coordinator.hideLoadingOverlay() }
 
         if state.fromEmail {
-            state.toast = Toast(text: Localizations.emailVerified)
+            coordinator.showLoadingOverlay(title: Localizations.verifying)
+
+            do {
+                try await services.accountAPIService.verifyEmailToken(
+                    email: state.userEmail,
+                    emailVerificationToken: state.emailVerificationToken
+                )
+                state.toast = Toast(text: Localizations.emailVerified)
+            } catch VerifyEmailTokenRequestError.tokenExpired {
+                coordinator.navigate(to: .expiredLink)
+            } catch {
+                coordinator.showAlert(.networkResponseError(error) {
+                    await self.verifyUserEmail()
+                })
+            }
         }
     }
 }

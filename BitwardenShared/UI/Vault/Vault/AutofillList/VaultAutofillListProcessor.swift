@@ -1,5 +1,5 @@
 import AuthenticationServices
-import BitwardenSdk
+@preconcurrency import BitwardenSdk
 
 // MARK: - VaultAutofillListProcessor
 
@@ -358,7 +358,6 @@ extension VaultAutofillListProcessor {
             }
         case let .autofillFido2VaultList(serviceIdentifiers, fido2RequestParameters):
             state.isAutofillingFido2List = true
-            state.emptyViewMessage = Localizations.noItemsToList
 
             await handleFido2CredentialAutofill(
                 fido2appExtensionDelegate: fido2AppExtensionDelegate,

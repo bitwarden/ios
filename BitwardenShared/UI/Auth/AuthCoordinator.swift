@@ -155,6 +155,8 @@ final class AuthCoordinator: NSObject, // swiftlint:disable:this type_body_lengt
             showCreateAccount()
         case .startRegistration:
             showStartRegistration(delegate: context as? StartRegistrationDelegate)
+        case .startRegistrationFromExpiredLink:
+            showStartRegistrationFromExpiredLink()
         case .dismiss:
             stackNavigator?.dismiss()
         case .dismissPresented:
@@ -163,6 +165,8 @@ final class AuthCoordinator: NSObject, // swiftlint:disable:this type_body_lengt
             stackNavigator?.dismiss(animated: true, completion: {
                 onDismiss?.action()
             })
+        case .expiredLink:
+            showExpiredLink()
         case let .duoAuthenticationFlow(authURL):
             showDuo2FA(authURL: authURL, delegate: context as? DuoAuthenticationFlowDelegate)
         case let .enterpriseSingleSignOn(email):
@@ -171,6 +175,8 @@ final class AuthCoordinator: NSObject, // swiftlint:disable:this type_body_lengt
             showIntroCarousel()
         case .landing:
             showLanding()
+        case let .landingSoftLoggedOut(email):
+            showLanding(email: email)
         case let .login(username):
             showLogin(username)
         case let .showLoginDecryptionOptions(organizationIdentifier):
@@ -179,8 +185,14 @@ final class AuthCoordinator: NSObject, // swiftlint:disable:this type_body_lengt
             showLoginWithDevice(email: email, type: type, isAuthenticated: isAuthenticated)
         case .masterPasswordGenerator:
             showMasterPasswordGenerator()
+        case .masterPasswordGuidance:
+            showMasterPasswordGuidance()
         case let .masterPasswordHint(username):
             showMasterPasswordHint(for: username)
+        case .preventAccountLock:
+            showPreventAccountLock()
+        case let .removeMasterPassword(organizationName):
+            showRemoveMasterPassword(organizationName: organizationName)
         case let .selfHosted(region):
             showSelfHostedView(delegate: context as? SelfHostedProcessorDelegate, currentRegion: region)
         case let .setMasterPassword(organizationIdentifier):
@@ -386,6 +398,22 @@ final class AuthCoordinator: NSObject, // swiftlint:disable:this type_body_lengt
         session.start()
     }
 
+    /// Shows the expired link screen.
+    ///
+    private func showExpiredLink() {
+        let view = ExpiredLinkView(
+            store: Store(
+                processor: ExpiredLinkProcessor(
+                    coordinator: asAnyCoordinator(),
+                    state: ExpiredLinkState()
+                )
+            )
+        )
+        let navController = UINavigationController(rootViewController: UIHostingController(rootView: view))
+        navController.isModalInPresentation = true
+        stackNavigator?.present(navController)
+    }
+
     /// Shows the enterprise single sign-on screen.
     ///
     /// - Parameter email: The user's email address.
@@ -417,13 +445,19 @@ final class AuthCoordinator: NSObject, // swiftlint:disable:this type_body_lengt
 
     /// Shows the landing screen.
     ///
-    private func showLanding() {
+    /// - Parameter email: The user's email to populate. Defaults to `nil` which will populate the
+    ///     remembered email, if it exists.
+    ///
+    private func showLanding(email: String? = nil) {
         guard let stackNavigator else { return }
         if stackNavigator.popToRoot(animated: UI.animated).isEmpty {
             let processor = LandingProcessor(
                 coordinator: asAnyCoordinator(),
                 services: services,
-                state: LandingState()
+                state: LandingState(
+                    email: email ?? "",
+                    isRememberMeOn: email != nil
+                )
             )
             let store = Store(processor: processor)
             let view = LandingView(store: store)
@@ -519,6 +553,14 @@ final class AuthCoordinator: NSObject, // swiftlint:disable:this type_body_lengt
         )
         let store = Store(processor: processor)
         let view = MasterPasswordGeneratorView(store: store)
+    }
+
+    /// Shows the master password guidance screen.
+    ///
+    private func showMasterPasswordGuidance() {
+        let processor = MasterPasswordGuidanceProcessor(coordinator: asAnyCoordinator())
+        let store = Store(processor: processor)
+        let view = MasterPasswordGuidanceView(store: store)
         let viewController = UIHostingController(rootView: view)
         let navigationController = UINavigationController(rootViewController: viewController)
         stackNavigator?.present(navigationController)
@@ -539,6 +581,33 @@ final class AuthCoordinator: NSObject, // swiftlint:disable:this type_body_lengt
         let viewController = UIHostingController(rootView: view)
         let navigationController = UINavigationController(rootViewController: viewController)
         stackNavigator?.present(navigationController)
+    }
+
+    /// Shows the prevent account lock screen.
+    ///
+    private func showPreventAccountLock() {
+        let processor = PreventAccountLockProcessor(coordinator: asAnyCoordinator())
+        let store = Store(processor: processor)
+        let view = PreventAccountLockView(store: store)
+        let viewController = UIHostingController(rootView: view)
+        let navigationController = UINavigationController(rootViewController: viewController)
+        stackNavigator?.present(navigationController)
+    }
+
+    /// Shows the remove master password screen.
+    ///
+    /// - Parameter organizationName: The organization's name.
+    ///
+    private func showRemoveMasterPassword(organizationName: String) {
+        let processor = RemoveMasterPasswordProcessor(
+            coordinator: asAnyCoordinator(),
+            services: services,
+            state: RemoveMasterPasswordState(
+                organizationName: organizationName
+            )
+        )
+        let view = RemoveMasterPasswordView(store: Store(processor: processor))
+        stackNavigator?.push(view)
     }
 
     /// Shows the self-hosted settings view.
@@ -656,6 +725,24 @@ final class AuthCoordinator: NSObject, // swiftlint:disable:this type_body_lengt
         stackNavigator?.present(navController)
     }
 
+    /// Shows the start registration screen from expired link screen.
+    ///
+    public func showStartRegistrationFromExpiredLink() {
+        guard let stackNavigator else { return }
+        stackNavigator.dismiss {
+            let processor = LandingProcessor(
+                coordinator: self.asAnyCoordinator(),
+                services: self.services,
+                state: LandingState()
+            )
+            let store = Store(processor: processor)
+            let view = LandingView(store: store)
+            stackNavigator.setNavigationBarHidden(false, animated: false)
+            stackNavigator.replace(view, animated: false)
+            self.showStartRegistration(delegate: processor as StartRegistrationDelegate)
+        }
+    }
+
     /// Show the two factor authentication view.
     ///
     /// - Parameters:
@@ -740,7 +827,8 @@ final class AuthCoordinator: NSObject, // swiftlint:disable:this type_body_lengt
         let processor = VaultUnlockSetupProcessor(
             coordinator: asAnyCoordinator(),
             services: services,
-            state: VaultUnlockSetupState()
+            state: VaultUnlockSetupState(),
+            vaultUnlockSetupHelper: DefaultVaultUnlockSetupHelper(services: services)
         )
         let view = VaultUnlockSetupView(store: Store(processor: processor))
         stackNavigator?.push(view)

@@ -204,6 +204,7 @@ class AppProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_body
         waitFor(authRepository.logoutCalled)
         XCTAssertTrue(authRepository.logoutCalled)
         XCTAssertEqual(authRepository.logoutUserId, "2")
+        XCTAssertFalse(authRepository.logoutUserInitiated)
     }
 
     /// `init()` sets the `AppProcessor` as the delegate of any necessary services.
@@ -215,9 +216,8 @@ class AppProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_body
     /// `handleAppLinks(URL)` navigates the user based on the input URL.
     @MainActor
     func test_init_handleAppLinks() {
-        let url = URL(string:
-            "https://bitwarden.com/#/finish-signup?email=example@email.com&token=verificationtoken&fromEmail=true"
-        )
+        // swiftlint:disable:next line_length
+        let url = URL(string: "https://bitwarden.com/redirect-connector.html#finish-signup?email=example@email.com&token=verificationtoken&fromEmail=true")
         subject.handleAppLinks(incomingURL: url!)
 
         XCTAssertEqual(coordinator.routes.last, .auth(.completeRegistrationFromAppLink(
@@ -231,9 +231,8 @@ class AppProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_body
     /// `handleAppLinks(URL)` navigates the user based on the input URL with EU region.
     @MainActor
     func test_init_handleAppLinks_regionEU() {
-        let url = URL(string:
-            "https://bitwarden.eu/#/finish-signup?email=example@email.com&token=verificationtoken&fromEmail=true"
-        )
+        // swiftlint:disable:next line_length
+        let url = URL(string: "https://bitwarden.eu/redirect-connector.html#finish-signup?email=example@email.com&token=verificationtoken&fromEmail=true")
         subject.handleAppLinks(incomingURL: url!)
 
         XCTAssertEqual(coordinator.routes.last, .auth(.completeRegistrationFromAppLink(
@@ -247,9 +246,8 @@ class AppProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_body
     /// `handleAppLinks(URL)` navigates the user based on the input URL with wrong fromEmail value.
     @MainActor
     func test_init_handleAppLinks_fromEmail_notBool() {
-        let url = URL(string:
-            "https://bitwarden.eu/#/finish-signup?email=example@email.com&token=verificationtoken&fromEmail=potato"
-        )
+        // swiftlint:disable:next line_length
+        let url = URL(string: "https://bitwarden.eu/redirect-connector.html#finish-signup?email=example@email.com&token=verificationtoken&fromEmail=potato")
         subject.handleAppLinks(incomingURL: url!)
 
         XCTAssertEqual(coordinator.routes.last, .auth(.completeRegistrationFromAppLink(
@@ -263,13 +261,14 @@ class AppProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_body
     /// `handleAppLinks(URL)` checks error report for `.appLinksInvalidURL`.
     @MainActor
     func test_init_handleAppLinks_invalidURL() {
-        let noPathUrl = URL(string: "https://bitwarden.com/#/email=example@email.com&token=verificationtoken")
+        // swiftlint:disable:next line_length
+        let noPathUrl = URL(string: "https://bitwarden.com/redirect-connector.html#email=example@email.com&token=verificationtoken")
         subject.handleAppLinks(incomingURL: noPathUrl!)
         XCTAssertEqual(errorReporter.errors.last as? AppProcessorError, .appLinksInvalidURL)
         XCTAssertEqual(errorReporter.errors.count, 1)
         errorReporter.errors.removeAll()
 
-        let noParamsUrl = URL(string: "https://bitwarden.com/#/finish-signup/")
+        let noParamsUrl = URL(string: "https://bitwarden.com/redirect-connector.html#finish-signup/")
         subject.handleAppLinks(incomingURL: noParamsUrl!)
         XCTAssertEqual(errorReporter.errors.last as? AppProcessorError, .appLinksInvalidURL)
         XCTAssertEqual(errorReporter.errors.count, 1)
@@ -284,9 +283,8 @@ class AppProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_body
     /// `handleAppLinks(URL)` checks error report for `.appLinksInvalidPath`.
     @MainActor
     func test_init_handleAppLinks_invalidPath() {
-        let url = URL(
-            string: "https://bitwarden.com/#/not-valid?email=example@email.com&token=verificationtoken&fromEmail=true"
-        )
+        // swiftlint:disable:next line_length
+        let url = URL(string: "https://bitwarden.com/redirect-connector.html#not-valid?email=example@email.com&token=verificationtoken&fromEmail=true")
         subject.handleAppLinks(incomingURL: url!)
         XCTAssertEqual(errorReporter.errors.last as? AppProcessorError, .appLinksInvalidPath)
     }
@@ -295,7 +293,7 @@ class AppProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_body
     @MainActor
     func test_init_handleAppLinks_invalidParametersForPath() {
         var url = URL(
-            string: "https://bitwarden.com/#/finish-signup?token=verificationtoken&fromEmail=true"
+            string: "https://bitwarden.com/redirect-connector.html#finish-signup?token=verificationtoken&fromEmail=true"
         )
         subject.handleAppLinks(incomingURL: url!)
         XCTAssertEqual(errorReporter.errors.last as? AppProcessorError, .appLinksInvalidParametersForPath)
@@ -303,16 +301,15 @@ class AppProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_body
         errorReporter.errors.removeAll()
 
         url = URL(
-            string: "https://bitwarden.com/#/finish-signup?email=example@email.com&fromEmail=true"
+            string: "https://bitwarden.com/redirect-connector.html#finish-signup?email=example@email.com&fromEmail=true"
         )
         subject.handleAppLinks(incomingURL: url!)
         XCTAssertEqual(errorReporter.errors.last as? AppProcessorError, .appLinksInvalidParametersForPath)
         XCTAssertEqual(errorReporter.errors.count, 1)
         errorReporter.errors.removeAll()
 
-        url = URL(
-            string: "https://bitwarden.com/#/finish-signup?email=example@email.com&token=verificationtoken"
-        )
+        // swiftlint:disable:next line_length
+        url = URL(string: "https://bitwarden.com/redirect-connector.html#finish-signup?email=example@email.com&token=verificationtoken")
         subject.handleAppLinks(incomingURL: url!)
         XCTAssertEqual(errorReporter.errors.last as? AppProcessorError, .appLinksInvalidParametersForPath)
         XCTAssertEqual(errorReporter.errors.count, 1)
@@ -437,6 +434,34 @@ class AppProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_body
         await assertAsyncThrows(error: ASExtensionError(.userInteractionRequired)) {
             _ = try await subject.provideCredential(for: "1")
         }
+    }
+
+    /// `removeMasterPassword(organizationName:)` notifies the coordinator to show the remove
+    /// master password screen.
+    @MainActor
+    func test_removeMasterPassword() {
+        coordinator.isLoadingOverlayShowing = true
+
+        subject.removeMasterPassword(organizationName: "Example Org")
+
+        XCTAssertFalse(coordinator.isLoadingOverlayShowing)
+        XCTAssertEqual(coordinator.routes, [.auth(.removeMasterPassword(organizationName: "Example Org"))])
+    }
+
+    /// `removeMasterPassword(organizationName:)` doesn't show the remove master password screen in
+    /// the extension.
+    @MainActor
+    func test_removeMasterPassword_extension() {
+        let delegate = MockAppExtensionDelegate()
+        let subject = AppProcessor(
+            appExtensionDelegate: delegate,
+            appModule: appModule,
+            services: ServiceContainer.withMocks()
+        )
+
+        subject.removeMasterPassword(organizationName: "Example Org")
+
+        XCTAssertTrue(coordinator.routes.isEmpty)
     }
 
     /// `repromptForCredentialIfNecessary(for:)` reprompts the user for their master password if
@@ -564,6 +589,7 @@ class AppProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_body
 
         XCTAssertTrue(authRepository.logoutCalled)
         XCTAssertEqual(authRepository.logoutUserId, "1")
+        XCTAssertFalse(authRepository.logoutUserInitiated)
         XCTAssertFalse(coordinator.isLoadingOverlayShowing)
         XCTAssertEqual(coordinator.events, [.didLogout(userId: "1", userInitiated: false)])
     }

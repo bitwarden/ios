@@ -1,5 +1,5 @@
 import AuthenticationServices
-import BitwardenSdk
+@preconcurrency import BitwardenSdk
 import Combine
 import Foundation
 import OSLog
@@ -192,13 +192,13 @@ class CreateAccountProcessor: StateProcessor<CreateAccountState, CreateAccountAc
 
             let kdf: Kdf = .pbkdf2(iterations: NonZeroU32(KdfConfig().kdfIterations))
 
-            let keys = try await services.clientService.auth().makeRegisterKeys(
+            let keys = try await services.clientService.auth(isPreAuth: true).makeRegisterKeys(
                 email: email,
                 password: state.passwordText,
                 kdf: kdf
             )
 
-            let hashedPassword = try await services.clientService.auth().hashPassword(
+            let hashedPassword = try await services.clientService.auth(isPreAuth: true).hashPassword(
                 email: email,
                 password: state.passwordText,
                 kdfParams: kdf,
@@ -284,7 +284,8 @@ class CreateAccountProcessor: StateProcessor<CreateAccountState, CreateAccountAc
         Task {
             state.passwordStrengthScore = try? await services.authRepository.passwordStrength(
                 email: state.emailText,
-                password: state.passwordText
+                password: state.passwordText,
+                isPreAuth: true
             )
         }
     }

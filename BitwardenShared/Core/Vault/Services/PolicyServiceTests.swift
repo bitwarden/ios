@@ -96,7 +96,7 @@ class PolicyServiceTests: BitwardenTestCase { // swiftlint:disable:this type_bod
         XCTAssertTrue(appliedPolicy)
     }
 
-    /// `applyPasswordGenerationOptions()` returns `false` if the user is exempt from policies in the organization.
+    /// `applyPasswordGenerationOptions()` returns `true` if the user is owner in the organization.
     func test_applyPasswordGenerationOptions_exemptUser() async throws {
         stateService.activeAccount = .fixture()
         organizationService.fetchAllOrganizationsResult = .success([.fixture(type: .owner)])
@@ -105,7 +105,7 @@ class PolicyServiceTests: BitwardenTestCase { // swiftlint:disable:this type_bod
         var options = PasswordGenerationOptions(type: .password)
         let appliedPolicy = try await subject.applyPasswordGenerationPolicy(options: &options)
 
-        XCTAssertFalse(appliedPolicy)
+        XCTAssertTrue(appliedPolicy)
     }
 
     /// `applyPasswordGenerationOptions(options:)` applies the password generation policy to the
@@ -391,18 +391,21 @@ class PolicyServiceTests: BitwardenTestCase { // swiftlint:disable:this type_bod
         XCTAssertFalse(onlyOrgApplies)
     }
 
-    /// `policyAppliesToUser()` called concurrently only makes a single request.
+    /// `policyAppliesToUser()` called concurrently doesn't crash.
     func test_policyAppliesToUser_calledConcurrently() async {
         stateService.activeAccount = .fixture()
         organizationService.fetchAllOrganizationsResult = .success([.fixture()])
         policyDataStore.fetchPoliciesResult = .success([.fixture(type: .twoFactorAuthentication)])
 
-        async let concurrentTask1 = subject.policyAppliesToUser(.twoFactorAuthentication)
-        async let concurrentTask2 = subject.policyAppliesToUser(.twoFactorAuthentication)
+        // Calling `policyAppliesToUser(_:)` concurrently shouldn't throw an exception due to
+        // simultaneous access to shared state. Since it's a race condition, running it repeatedly
+        // should expose the failure if it's going to fail.
+        for _ in 0 ..< 5 {
+            async let concurrentTask1 = subject.policyAppliesToUser(.twoFactorAuthentication)
+            async let concurrentTask2 = subject.policyAppliesToUser(.twoFactorAuthentication)
 
-        _ = await (concurrentTask1, concurrentTask2)
-
-        XCTAssertEqual(policyDataStore.fetchPoliciesCount, 1)
+            _ = await (concurrentTask1, concurrentTask2)
+        }
     }
 
     /// `policyAppliesToUser(_:)` returns whether the policy applies to the user when one

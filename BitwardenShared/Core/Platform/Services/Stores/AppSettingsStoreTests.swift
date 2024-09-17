@@ -599,6 +599,49 @@ class AppSettingsStoreTests: BitwardenTestCase { // swiftlint:disable:this type_
         )
     }
 
+    /// `preAuthServerConfig` is initially `nil`
+    func test_preAuthServerConfig_isInitiallyNil() {
+        XCTAssertNil(subject.preAuthServerConfig)
+    }
+
+    /// `preAuthServerConfig` can be used to get and set the persisted value in user defaults.
+    func test_preAuthServerConfig_withValue() {
+        let config = ServerConfig(
+            date: Date(timeIntervalSince1970: 100),
+            responseModel: ConfigResponseModel(
+                environment: EnvironmentServerConfigResponseModel(
+                    api: "https://vault.bitwarden.com",
+                    cloudRegion: "US",
+                    identity: "https://vault.bitwarden.com",
+                    notifications: "https://vault.bitwarden.com",
+                    sso: "https://vault.bitwarden.com",
+                    vault: "https://vault.bitwarden.com"
+                ),
+                featureStates: ["feature": .bool(true)],
+                gitHash: "hash",
+                server: ThirdPartyConfigResponseModel(
+                    name: "Name",
+                    url: "Url"
+                ),
+                version: "version"
+            )
+        )
+        subject.preAuthServerConfig = config
+
+        XCTAssertEqual(subject.preAuthServerConfig, config)
+        try XCTAssertEqual(
+            JSONDecoder().decode(
+                ServerConfig.self,
+                from: XCTUnwrap(
+                    userDefaults
+                        .string(forKey: "bwPreferencesStorage:preAuthServerConfig")?
+                        .data(using: .utf8)
+                )
+            ),
+            config
+        )
+    }
+
     /// `serverConfig(:)` is initially `nil`
     func test_serverConfig_isInitiallyNil() {
         XCTAssertNil(subject.serverConfig(userId: "1"))
@@ -736,6 +779,22 @@ class AppSettingsStoreTests: BitwardenTestCase { // swiftlint:disable:this type_
         subject.rememberedEmail = nil
         XCTAssertNil(subject.rememberedEmail)
         XCTAssertNil(userDefaults.string(forKey: "bwPreferencesStorage:rememberedEmail"))
+    }
+
+    /// `usesKeyConnector(userId:)` returns `false` if there isn't a previously stored value.
+    func test_usesKeyConnector_isInitiallyNil() {
+        XCTAssertFalse(subject.usesKeyConnector(userId: "-1"))
+    }
+
+    /// `usesKeyConnector(userId:)` can be used to get whether the user uses key connector.
+    func test_usesKeyConnector_withValue() {
+        subject.setUsesKeyConnector(true, userId: "1")
+        subject.setUsesKeyConnector(false, userId: "2")
+
+        XCTAssertTrue(subject.usesKeyConnector(userId: "1"))
+        XCTAssertFalse(subject.usesKeyConnector(userId: "2"))
+        XCTAssertTrue(userDefaults.bool(forKey: "bwPreferencesStorage:usesKeyConnector_1"))
+        XCTAssertFalse(userDefaults.bool(forKey: "bwPreferencesStorage:usesKeyConnector_2"))
     }
 
     /// `rememberedOrgIdentifier` returns `nil` if there isn't a previously stored value.

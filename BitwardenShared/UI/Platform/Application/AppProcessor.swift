@@ -160,8 +160,10 @@ public class AppProcessor {
     /// - Parameter incomingURL: The URL handled from AppLinks.
     ///
     public func handleAppLinks(incomingURL: URL) {
-        guard let sanatizedUrl = URL(string: incomingURL.absoluteString.replacingOccurrences(of: "/#/", with: "/")),
-              let components = URLComponents(url: sanatizedUrl, resolvingAgainstBaseURL: true) else {
+        guard let sanatizedUrl = URL(
+            string: incomingURL.absoluteString.replacingOccurrences(of: "/redirect-connector.html#", with: "/")
+        ),
+            let components = URLComponents(url: sanatizedUrl, resolvingAgainstBaseURL: true) else {
             return
         }
 
@@ -317,7 +319,7 @@ public class AppProcessor {
                         case .lock:
                             await services.vaultTimeoutService.lockVault(userId: userId)
                         case .logout, .none:
-                            try await services.authRepository.logout(userId: userId)
+                            try await services.authRepository.logout(userId: userId, userInitiated: false)
                         }
                     }
                 }
@@ -355,7 +357,7 @@ public class AppProcessor {
             services.application?.endBackgroundTask(taskId)
             backgroundTaskId = nil
         }
-        backgroundTaskId = services.application?.beginBackgroundTask(
+        backgroundTaskId = services.application?.startBackgroundTask(
             withName: "SendEventBackgroundTask",
             expirationHandler: { [weak self] in
                 if let backgroundTaskId = self?.backgroundTaskId {
@@ -426,10 +428,18 @@ extension AppProcessor: NotificationServiceDelegate {
 // MARK: - SyncServiceDelegate
 
 extension AppProcessor: SyncServiceDelegate {
+    func removeMasterPassword(organizationName: String) {
+        // Don't show the remove master password screen if running in an app extension.
+        guard appExtensionDelegate?.isInAppExtension != true else { return }
+
+        coordinator?.hideLoadingOverlay()
+        coordinator?.navigate(to: .auth(.removeMasterPassword(organizationName: organizationName)))
+    }
+
     func securityStampChanged(userId: String) async {
         // Log the user out if their security stamp changes.
         coordinator?.hideLoadingOverlay()
-        try? await services.authRepository.logout(userId: userId)
+        try? await services.authRepository.logout(userId: userId, userInitiated: false)
         await coordinator?.handleEvent(.didLogout(userId: userId, userInitiated: false))
     }
 

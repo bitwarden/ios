@@ -1,0 +1,23 @@
+{
+  "access_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE2OTY5MDg4NzksInN1YiI6IjEzNTEyNDY3LTljZmUtNDNiMC05NjlmLTA3NTM0MDg0NzY0YiIsIm5hbWUiOiJCaXR3YXJkZW4gVXNlciIsImVtYWlsIjoidXNlckBiaXR3YXJkZW4uY29tIiwiZW1haWxfdmVyaWZpZWQiOnRydWUsImlhdCI6MTUxNjIzOTAyMiwicHJlbWl1bSI6ZmFsc2UsImFtciI6WyJBcHBsaWNhdGlvbiJdfQ.KDqC8kUaOAgBiUY8eeLa0a4xYWN8GmheXTFXmataFwM",
+  "expires_in": 3600,
+  "token_type": "Bearer",
+  "refresh_token": "REFRESH_TOKEN",
+  "scope": "api offline_access",
+  "PrivateKey": "PRIVATE_KEY",
+  "Key": "KEY",
+  "MasterPasswordPolicy": null,
+  "ForcePasswordReset": false,
+  "ResetMasterPassword": false,
+  "Kdf": 0,
+  "KdfIterations": 600000,
+  "KdfMemory": null,
+  "KdfParallelism": null,
+  "UserDecryptionOptions": {
+    "HasMasterPassword": false,
+    "KeyConnectorOption": {
+      "KeyConnectorUrl": "https://vault.bitwarden.com/key-connector"
+    },
+    "Object": "userDecryptionOptions"
+  }
+}

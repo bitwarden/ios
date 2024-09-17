@@ -84,8 +84,6 @@ extension ProfileSwitcherHandler {
             }
         case .backgroundPressed:
             profileSwitcherState.isVisible = false
-        case let .scrollOffsetChanged(newOffset):
-            profileSwitcherState.scrollOffset = newOffset
         }
     }
 

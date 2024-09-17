@@ -9,8 +9,14 @@ enum FeatureFlag: String, Codable {
     /// This flag introduces a new flow for account creation
     case emailVerification = "email-verification"
 
+    /// Flag to enable/disable the ability to sync TOTP codes with the Authenticator app.
+    case enableAuthenticatorSync = "enable-authenticator-sync-ios"
+
     /// A feature flag for the intro carousel flow.
     case nativeCarouselFlow = "native-carousel-flow"
+
+    /// A feature flag for the create account flow.
+    case nativeCreateAccountFlow = "native-create-account-flow"
 
     // MARK: Test Flags
 
@@ -25,11 +31,13 @@ enum FeatureFlag: String, Codable {
     /// Whether this feature can be enabled remotely.
     var isRemotelyConfigured: Bool {
         switch self {
-        case .emailVerification,
+        case .enableAuthenticatorSync,
              .nativeCarouselFlow,
+             .nativeCreateAccountFlow,
              .testLocalFeatureFlag:
             false
-        case .testRemoteFeatureFlag:
+        case .emailVerification,
+             .testRemoteFeatureFlag:
             true
         }
     }

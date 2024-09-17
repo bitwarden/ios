@@ -110,6 +110,31 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
         XCTAssertEqual(subject.state.toast?.text, Localizations.itemRestored)
     }
 
+    /// `init()` has default values set in the state.
+    @MainActor
+    func test_init_defaultValues() {
+        XCTAssertEqual(
+            subject.state.searchVaultFilterState,
+            SearchVaultFilterRowState(
+                canShowVaultFilter: true,
+                isPersonalOwnershipDisabled: false,
+                organizations: [],
+                searchVaultFilterType: .allVaults
+            )
+        )
+        XCTAssertEqual(subject.state.searchVaultFilterType, .allVaults)
+        XCTAssertEqual(
+            subject.state.vaultFilterState,
+            SearchVaultFilterRowState(
+                canShowVaultFilter: true,
+                isPersonalOwnershipDisabled: false,
+                organizations: [],
+                searchVaultFilterType: .allVaults
+            )
+        )
+        XCTAssertEqual(subject.state.vaultFilterType, .allVaults)
+    }
+
     /// `perform(_:)` with `.appeared` starts listening for updates with the vault repository.
     @MainActor
     func test_perform_appeared() async {
@@ -968,14 +993,6 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
         XCTAssertFalse(subject.state.profileSwitcherState.isVisible)
     }
 
-    /// `receive(_:)` with `ProfileSwitcherAction.scrollOffsetChanged` updates the scroll offset.
-    @MainActor
-    func test_receive_profileSwitcherScrollOffset() {
-        subject.state.profileSwitcherState.scrollOffset = .zero
-        subject.receive(.profileSwitcher(.scrollOffsetChanged(CGPoint(x: 10, y: 10))))
-        XCTAssertEqual(subject.state.profileSwitcherState.scrollOffset, CGPoint(x: 10, y: 10))
-    }
-
     /// `receive(_:)` with `.searchStateChanged(isSearching: false)` hides the profile switcher
     @MainActor
     func test_receive_searchTextChanged_false_noProfilesChange() {
@@ -1008,11 +1025,21 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
     @MainActor
     func test_receive_searchVaultFilterChanged() {
         let organization = Organization.fixture()
-
+        subject.state.organizations = [organization]
         subject.state.searchVaultFilterType = .myVault
+
         subject.receive(.searchVaultFilterChanged(.organization(organization)))
 
         XCTAssertEqual(subject.state.searchVaultFilterType, .organization(organization))
+        XCTAssertEqual(
+            subject.state.searchVaultFilterState,
+            SearchVaultFilterRowState(
+                canShowVaultFilter: true,
+                isPersonalOwnershipDisabled: false,
+                organizations: [organization],
+                searchVaultFilterType: .organization(organization)
+            )
+        )
     }
 
     /// `receive(_:)` with `.toastShown` updates the state's toast value.
@@ -1040,10 +1067,20 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
     @MainActor
     func test_receive_vaultFilterChanged() {
         let organization = Organization.fixture()
-
+        subject.state.organizations = [organization]
         subject.state.vaultFilterType = .myVault
+
         subject.receive(.vaultFilterChanged(.organization(organization)))
 
         XCTAssertEqual(subject.state.vaultFilterType, .organization(organization))
+        XCTAssertEqual(
+            subject.state.vaultFilterState,
+            SearchVaultFilterRowState(
+                canShowVaultFilter: true,
+                isPersonalOwnershipDisabled: false,
+                organizations: [organization],
+                searchVaultFilterType: .organization(organization)
+            )
+        )
     }
 }

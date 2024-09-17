@@ -11,8 +11,10 @@ class CompleteRegistrationProcessorTests: BitwardenTestCase {
     // MARK: Properties
 
     var authRepository: MockAuthRepository!
+    var authService: MockAuthService!
     var client: MockHTTPClient!
     var clientAuth: MockClientAuth!
+    var configService: MockConfigService!
     var coordinator: MockCoordinator<AuthRoute, AuthEvent>!
     var environmentService: MockEnvironmentService!
     var errorReporter: MockErrorReporter!
@@ -23,8 +25,10 @@ class CompleteRegistrationProcessorTests: BitwardenTestCase {
     override func setUp() {
         super.setUp()
         authRepository = MockAuthRepository()
+        authService = MockAuthService()
         client = MockHTTPClient()
         clientAuth = MockClientAuth()
+        configService = MockConfigService()
         coordinator = MockCoordinator<AuthRoute, AuthEvent>()
         environmentService = MockEnvironmentService()
         errorReporter = MockErrorReporter()
@@ -32,7 +36,9 @@ class CompleteRegistrationProcessorTests: BitwardenTestCase {
             coordinator: coordinator.asAnyCoordinator(),
             services: ServiceContainer.withMocks(
                 authRepository: authRepository,
+                authService: authService,
                 clientService: MockClientService(auth: clientAuth),
+                configService: configService,
                 environmentService: environmentService,
                 errorReporter: errorReporter,
                 httpClient: client
@@ -47,9 +53,11 @@ class CompleteRegistrationProcessorTests: BitwardenTestCase {
     override func tearDown() {
         super.tearDown()
         authRepository = nil
+        authService = nil
         clientAuth = nil
         client = nil
         coordinator = nil
+        configService = nil
         errorReporter = nil
         subject = nil
     }
@@ -74,9 +82,10 @@ class CompleteRegistrationProcessorTests: BitwardenTestCase {
         XCTAssertEqual(environmentService.setPreAuthEnvironmentUrlsData, nil)
     }
 
-    /// `perform(.appeared)` verify user email show toast.
+    /// `perform(.appeared)` verify user email show toast on success.
     @MainActor
-    func test_perform_appeared_verifyuseremail_toast() async {
+    func test_perform_appeared_verifyuseremail_success() async {
+        client.results = [.httpSuccess(testData: .emptyResponse)]
         subject.state.fromEmail = true
         await subject.perform(.appeared)
         XCTAssertEqual(subject.state.toast?.text, Localizations.emailVerified)
@@ -84,7 +93,7 @@ class CompleteRegistrationProcessorTests: BitwardenTestCase {
 
     /// `perform(.appeared)` verify user email show no toast.
     @MainActor
-    func test_perform_appeared_verifyuseremail_notoast() async {
+    func test_perform_appeared_verifyuseremail_notFromEmail() async {
         subject.state.fromEmail = false
         await subject.perform(.appeared)
         XCTAssertNil(subject.state.toast)
@@ -94,34 +103,119 @@ class CompleteRegistrationProcessorTests: BitwardenTestCase {
     @MainActor
     func test_perform_appeared_verifyuseremail_hideloading() async {
         coordinator.isLoadingOverlayShowing = true
-        subject.state.fromEmail = true
+        subject.state.fromEmail = false
         await subject.perform(.appeared)
 
         XCTAssertFalse(coordinator.isLoadingOverlayShowing)
         XCTAssertNotNil(coordinator.loadingOverlaysShown)
+    }
+
+    /// `perform(.appeared)` verify user email with token expired error shows expired link screen.
+    @MainActor
+    func test_perform_appeared_verifyuseremail_tokenexpired() async {
+        client.results = [
+            .httpFailure(
+                statusCode: 400,
+                headers: [:],
+                data: APITestData.verifyEmailTokenExpiredLink.data
+            ),
+        ]
+        subject.state.fromEmail = true
+        await subject.perform(.appeared)
+        XCTAssertEqual(coordinator.routes.last, .expiredLink)
+    }
+
+    /// `perform(.appeared)` verify user email presents an alert when there is no internet connection.
+    /// When the user taps `Try again`, the verify user email request is made again.
+    @MainActor
+    func test_perform_appeared_verifyuseremail_error() async throws {
+        subject.state = .fixture()
+        subject.state.fromEmail = true
+
+        let urlError = URLError(.notConnectedToInternet) as Error
+        client.results = [.httpFailure(urlError), .httpSuccess(testData: .emptyResponse)]
+
+        await subject.perform(.appeared)
+
+        let alert = try XCTUnwrap(coordinator.alertShown.last)
+        XCTAssertEqual(alert, Alert.networkResponseError(urlError) {
+            await self.subject.perform(.appeared)
+        })
+
+        try await alert.tapAction(title: Localizations.tryAgain)
+
         XCTAssertEqual(subject.state.toast?.text, Localizations.emailVerified)
+        XCTAssertEqual(client.requests.count, 2)
+        XCTAssertEqual(client.requests[0].url, URL(
+            string: "https://example.com/identity/accounts/register/verification-email-clicked"
+        ))
+        XCTAssertEqual(client.requests[1].url, URL(
+            string: "https://example.com/identity/accounts/register/verification-email-clicked"
+        ))
+
+        XCTAssertFalse(coordinator.isLoadingOverlayShowing)
+        XCTAssertEqual(
+            coordinator.loadingOverlaysShown,
+            [
+                LoadingOverlayState(title: Localizations.verifying),
+                LoadingOverlayState(title: Localizations.verifying),
+            ]
+        )
+    }
+
+    /// `perform(.appeared)` with feature flag for .nativeCreateAccountFlow set to true
+    @MainActor
+    func test_perform_appeared_loadFeatureFlag_true() async {
+        configService.featureFlagsBool[.nativeCreateAccountFlow] = true
+        subject.state.nativeCreateAccountFeatureFlag = false
+
+        await subject.perform(.appeared)
+        XCTAssertTrue(subject.state.nativeCreateAccountFeatureFlag)
+    }
+
+    /// `perform(.appeared)` with feature flag for .nativeCreateAccountFlow set to false
+    @MainActor
+    func test_perform_appeared_loadsFeatureFlag_false() async {
+        configService.featureFlagsBool[.nativeCreateAccountFlow] = false
+        subject.state.nativeCreateAccountFeatureFlag = true
+
+        await subject.perform(.appeared)
+        XCTAssertFalse(subject.state.nativeCreateAccountFeatureFlag)
+    }
+
+    /// `perform(.appeared)` with feature flag defaulting to false
+    @MainActor
+    func test_perform_appeared_loadsFeatureFlag_nil() async {
+        configService.featureFlagsBool[.nativeCreateAccountFlow] = nil
+        subject.state.nativeCreateAccountFeatureFlag = true
+
+        await subject.perform(.appeared)
+        XCTAssertFalse(subject.state.nativeCreateAccountFeatureFlag)
     }
 
     /// `perform(_:)` with `.completeRegistration` will still make the `CompleteRegistrationRequest` when the HIBP
     /// network request fails.
     @MainActor
     func test_perform_checkPasswordAndCompleteRegistration_failure() async throws {
+        authService.loginWithMasterPasswordResult = .success(())
         subject.state = .fixture(isCheckDataBreachesToggleOn: true)
 
-        client.results = [.httpFailure(URLError(.timedOut) as Error), .httpSuccess(testData: .createAccountRequest)]
+        client.results = [
+            .httpFailure(URLError(.timedOut) as Error),
+            .httpSuccess(testData: .createAccountRequest),
+        ]
 
         await subject.perform(.completeRegistration)
-        var dismissAction: DismissAction?
-        if case let .dismissWithAction(onDismiss) = coordinator.routes.last {
-            dismissAction = onDismiss
-        }
-        XCTAssertNotNil(dismissAction)
-        dismissAction?.action()
+
+        XCTAssertEqual(authService.loginWithMasterPasswordPassword, "password1234")
+        XCTAssertNil(authService.loginWithMasterPasswordCaptchaToken)
+        XCTAssertEqual(authService.loginWithMasterPasswordUsername, "email@example.com")
 
         XCTAssertEqual(client.requests.count, 2)
         XCTAssertEqual(client.requests[0].url, URL(string: "https://api.pwnedpasswords.com/range/e6b6a"))
         XCTAssertEqual(client.requests[1].url, URL(string: "https://example.com/identity/accounts/register/finish"))
 
+        XCTAssertEqual(coordinator.events, [.didCompleteAuth])
         XCTAssertFalse(coordinator.isLoadingOverlayShowing)
         XCTAssertEqual(
             coordinator.loadingOverlaysShown,
@@ -389,10 +483,73 @@ class CompleteRegistrationProcessorTests: BitwardenTestCase {
         XCTAssertEqual(coordinator.loadingOverlaysShown, [LoadingOverlayState(title: Localizations.creatingAccount)])
     }
 
+    /// `perform(_:)` with `.completeRegistration` navigates to login if the create account request
+    /// succeeds, but login fails.
+    @MainActor
+    func test_perform_completeRegistration_loginError() async throws {
+        authService.loginWithMasterPasswordResult = .failure(BitwardenTestError.example)
+        client.result = .httpSuccess(testData: .createAccountRequest)
+        subject.state = .fixture()
+
+        await subject.perform(.completeRegistration)
+
+        XCTAssertEqual(client.requests.count, 1)
+        XCTAssertEqual(client.requests[0].url, URL(string: "https://example.com/identity/accounts/register/finish"))
+
+        XCTAssertTrue(coordinator.alertShown.isEmpty)
+        XCTAssertFalse(coordinator.isLoadingOverlayShowing)
+        XCTAssertEqual(
+            coordinator.loadingOverlaysShown,
+            [
+                LoadingOverlayState(title: Localizations.creatingAccount),
+            ]
+        )
+        XCTAssertEqual(coordinator.routes.count, 1)
+        guard case let .dismissWithAction(dismissAction) = coordinator.routes.first else {
+            return XCTFail("Unable to find dismiss action.")
+        }
+        dismissAction?.action()
+        XCTAssertEqual(coordinator.routes.count, 2)
+        XCTAssertEqual(coordinator.routes[1], .login(username: "email@example.com"))
+        XCTAssertEqual(coordinator.toastsShown, [Localizations.accountSuccessfullyCreated])
+    }
+
+    /// `perform(_:)` with `.completeRegistration` navigates to login if the create account and
+    /// login requests succeed, but vault unlocking fails.
+    @MainActor
+    func test_perform_completeRegistration_unlockError() async throws {
+        authRepository.unlockWithPasswordResult = .failure(BitwardenTestError.example)
+        client.result = .httpSuccess(testData: .createAccountRequest)
+        subject.state = .fixture()
+
+        await subject.perform(.completeRegistration)
+
+        XCTAssertEqual(client.requests.count, 1)
+        XCTAssertEqual(client.requests[0].url, URL(string: "https://example.com/identity/accounts/register/finish"))
+
+        XCTAssertTrue(coordinator.alertShown.isEmpty)
+        XCTAssertFalse(coordinator.isLoadingOverlayShowing)
+        XCTAssertEqual(
+            coordinator.loadingOverlaysShown,
+            [
+                LoadingOverlayState(title: Localizations.creatingAccount),
+            ]
+        )
+        XCTAssertEqual(coordinator.routes.count, 1)
+        guard case let .dismissWithAction(dismissAction) = coordinator.routes.first else {
+            return XCTFail("Unable to find dismiss action.")
+        }
+        dismissAction?.action()
+        XCTAssertEqual(coordinator.routes.count, 2)
+        XCTAssertEqual(coordinator.routes[1], .login(username: "email@example.com"))
+        XCTAssertEqual(coordinator.toastsShown, [Localizations.accountSuccessfullyCreated])
+    }
+
     /// `perform(_:)` with `.completeRegistration` presents an alert when there is no internet connection.
     /// When the user taps `Try again`, the create account request is made again.
     @MainActor
     func test_perform_completeRegistration_noInternetConnection() async throws {
+        authService.loginWithMasterPasswordResult = .success(())
         subject.state = .fixture()
 
         let urlError = URLError(.notConnectedToInternet) as Error
@@ -407,17 +564,15 @@ class CompleteRegistrationProcessorTests: BitwardenTestCase {
 
         try await alert.tapAction(title: Localizations.tryAgain)
 
-        var dismissAction: DismissAction?
-        if case let .dismissWithAction(onDismiss) = coordinator.routes.last {
-            dismissAction = onDismiss
-        }
-        XCTAssertNotNil(dismissAction)
-        dismissAction?.action()
+        XCTAssertEqual(authService.loginWithMasterPasswordPassword, "password1234")
+        XCTAssertNil(authService.loginWithMasterPasswordCaptchaToken)
+        XCTAssertEqual(authService.loginWithMasterPasswordUsername, "email@example.com")
 
         XCTAssertEqual(client.requests.count, 2)
         XCTAssertEqual(client.requests[0].url, URL(string: "https://example.com/identity/accounts/register/finish"))
         XCTAssertEqual(client.requests[1].url, URL(string: "https://example.com/identity/accounts/register/finish"))
 
+        XCTAssertEqual(coordinator.events, [.didCompleteAuth])
         XCTAssertFalse(coordinator.isLoadingOverlayShowing)
         XCTAssertEqual(
             coordinator.loadingOverlaysShown,
@@ -460,6 +615,7 @@ class CompleteRegistrationProcessorTests: BitwardenTestCase {
     /// When the user taps `Try again`, the create account request is made again.
     @MainActor
     func test_perform_completeRegistration_timeout() async throws {
+        authService.loginWithMasterPasswordResult = .success(())
         subject.state = .fixture()
 
         let urlError = URLError(.timedOut) as Error
@@ -472,17 +628,15 @@ class CompleteRegistrationProcessorTests: BitwardenTestCase {
 
         try await alert.tapAction(title: Localizations.tryAgain)
 
-        var dismissAction: DismissAction?
-        if case let .dismissWithAction(onDismiss) = coordinator.routes.last {
-            dismissAction = onDismiss
-        }
-        XCTAssertNotNil(dismissAction)
-        dismissAction?.action()
+        XCTAssertEqual(authService.loginWithMasterPasswordPassword, "password1234")
+        XCTAssertNil(authService.loginWithMasterPasswordCaptchaToken)
+        XCTAssertEqual(authService.loginWithMasterPasswordUsername, "email@example.com")
 
         XCTAssertEqual(client.requests.count, 2)
         XCTAssertEqual(client.requests[0].url, URL(string: "https://example.com/identity/accounts/register/finish"))
         XCTAssertEqual(client.requests[1].url, URL(string: "https://example.com/identity/accounts/register/finish"))
 
+        XCTAssertEqual(coordinator.events, [.didCompleteAuth])
         XCTAssertFalse(coordinator.isLoadingOverlayShowing)
         XCTAssertEqual(
             coordinator.loadingOverlaysShown,
@@ -498,6 +652,13 @@ class CompleteRegistrationProcessorTests: BitwardenTestCase {
     func test_receive_dismiss() {
         subject.receive(.dismiss)
         XCTAssertEqual(coordinator.routes.last, .dismissPresented)
+    }
+
+    /// `receive(_:)` with `.learnMoreTapped` launches the master password guidance view.
+    @MainActor
+    func test_receive_learnMoreTapped() {
+        subject.receive(.learnMoreTapped)
+        XCTAssertEqual(coordinator.routes.last, .masterPasswordGuidance)
     }
 
     /// `receive(_:)` with `.passwordHintTextChanged(_:)` updates the state to reflect the change.
@@ -534,6 +695,7 @@ class CompleteRegistrationProcessorTests: BitwardenTestCase {
         waitFor(subject.state.passwordStrengthScore == 0)
         XCTAssertEqual(subject.state.passwordStrengthScore, 0)
         XCTAssertEqual(authRepository.passwordStrengthEmail, "user@bitwarden.com")
+        XCTAssertTrue(authRepository.passwordStrengthIsPreAuth)
         XCTAssertEqual(authRepository.passwordStrengthPassword, "T")
 
         authRepository.passwordStrengthResult = 4
@@ -541,6 +703,7 @@ class CompleteRegistrationProcessorTests: BitwardenTestCase {
         waitFor(subject.state.passwordStrengthScore == 4)
         XCTAssertEqual(subject.state.passwordStrengthScore, 4)
         XCTAssertEqual(authRepository.passwordStrengthEmail, "user@bitwarden.com")
+        XCTAssertTrue(authRepository.passwordStrengthIsPreAuth)
         XCTAssertEqual(authRepository.passwordStrengthPassword, "TestPassword1234567890!@#")
     }
 

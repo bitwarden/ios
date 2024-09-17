@@ -47,10 +47,14 @@ class LandingProcessor: StateProcessor<LandingState, LandingAction, LandingEffec
         self.coordinator = coordinator
         self.services = services
 
-        let rememberedEmail = services.appSettingsStore.rememberedEmail
         var state = state
-        state.email = rememberedEmail ?? ""
-        state.isRememberMeOn = rememberedEmail != nil
+        // If the email is already set (for a soft logged out account), don't replace it with the
+        // user's remembered email.
+        if state.email.isEmpty {
+            let rememberedEmail = services.appSettingsStore.rememberedEmail
+            state.email = rememberedEmail ?? ""
+            state.isRememberMeOn = rememberedEmail != nil
+        }
         super.init(state: state)
     }
 
@@ -104,7 +108,8 @@ class LandingProcessor: StateProcessor<LandingState, LandingAction, LandingEffec
         state.emailVerificationFeatureFlag = await services.configService.getFeatureFlag(
             FeatureFlag.emailVerification,
             defaultValue: false,
-            forceRefresh: true
+            forceRefresh: true,
+            isPreAuth: true
         )
     }
 

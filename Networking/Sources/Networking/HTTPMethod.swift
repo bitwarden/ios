@@ -1,6 +1,6 @@
 /// A type representing the HTTP method.
 ///
-public struct HTTPMethod: Equatable {
+public struct HTTPMethod: Equatable, Sendable {
     /// The string value of the method.
     let rawValue: String
 }

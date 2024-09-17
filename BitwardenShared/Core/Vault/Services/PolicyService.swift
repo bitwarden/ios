@@ -1,4 +1,4 @@
-import BitwardenSdk
+@preconcurrency import BitwardenSdk
 
 // MARK: - PolicyService
 
@@ -94,6 +94,10 @@ actor DefaultPolicyService: PolicyService {
     /// - Returns: Whether the organization is exempt from the policy.
     ///
     private func isOrganization(_ organization: Organization, exemptFrom policyType: PolicyType) -> Bool {
+        if policyType == .passwordGenerator {
+            return false
+        }
+
         if policyType == .maximumVaultTimeout {
             return organization.type == .owner
         }

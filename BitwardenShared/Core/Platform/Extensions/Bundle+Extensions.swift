@@ -37,4 +37,10 @@ extension Bundle {
     var keychainAccessGroup: String {
         infoDictionary?["BitwardenKeychainAccessGroup"] as? String ?? appIdentifier
     }
+
+    /// Return's the shared app group identifier. This App Group is shared between the
+    /// main Bitwarden app and the Authenticator app.
+    var sharedAppGroupIdentifier: String {
+        infoDictionary?["BitwardenAuthenticatorSharedAppGroup"] as? String ?? groupIdentifier
+    }
 }

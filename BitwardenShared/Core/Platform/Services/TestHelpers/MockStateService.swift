@@ -35,8 +35,11 @@ class MockStateService: StateService { // swiftlint:disable:this type_body_lengt
     var events = [String: [EventData]]()
     var forcePasswordResetReason = [String: ForcePasswordResetReason]()
     var introCarouselShown = false
+    var isAuthenticated = [String: Bool]()
+    var isAuthenticatedError: Error?
     var lastActiveTime = [String: Date]()
     var loginRequest: LoginRequestNotification?
+    var logoutAccountUserInitiated = false
     var getAccountEncryptionKeysError: Error?
     // swiftlint:disable:next identifier_name
     var getAccountHasBeenUnlockedInteractivelyResult: Result<Bool, Error> = .success(false)
@@ -51,6 +54,7 @@ class MockStateService: StateService { // swiftlint:disable:this type_body_lengt
     var passwordGenerationOptions = [String: PasswordGenerationOptions]()
     var pinProtectedUserKeyValue = [String: String]()
     var preAuthEnvironmentUrls: EnvironmentUrlData?
+    var preAuthServerConfig: ServerConfig?
     var rememberedOrgIdentifier: String?
     var showWebIcons = true
     var showWebIconsSubject = CurrentValueSubject<Bool, Never>(true)
@@ -69,6 +73,7 @@ class MockStateService: StateService { // swiftlint:disable:this type_body_lengt
     var userHasMasterPassword = [String: Bool]()
     var userIds = [String]()
     var usernameGenerationOptions = [String: UsernameGenerationOptions]()
+    var usesKeyConnector = [String: Bool]()
     var vaultTimeout = [String: SessionTimeoutValue]()
 
     lazy var activeIdSubject = CurrentValueSubject<String?, Never>(self.activeAccount?.profile.userId)
@@ -244,6 +249,10 @@ class MockStateService: StateService { // swiftlint:disable:this type_body_lengt
         preAuthEnvironmentUrls
     }
 
+    func getPreAuthServerConfig() async -> BitwardenShared.ServerConfig? {
+        preAuthServerConfig
+    }
+
     func getServerConfig(userId: String?) async throws -> ServerConfig? {
         let userId = try unwrapUserId(userId)
         return serverConfig[userId]
@@ -285,14 +294,26 @@ class MockStateService: StateService { // swiftlint:disable:this type_body_lengt
         return usernameGenerationOptions[userId]
     }
 
+    func getUsesKeyConnector(userId: String?) async throws -> Bool {
+        let userId = try unwrapUserId(userId)
+        return usesKeyConnector[userId] ?? false
+    }
+
     func getVaultTimeout(userId: String?) async throws -> SessionTimeoutValue {
         let userId = try unwrapUserId(userId)
         return vaultTimeout[userId] ?? .immediately
     }
 
-    func logoutAccount(userId: String?) async throws {
+    func isAuthenticated(userId: String?) async throws -> Bool {
+        let userId = try unwrapUserId(userId)
+        if let isAuthenticatedError { throw isAuthenticatedError }
+        return isAuthenticated[userId] ?? false
+    }
+
+    func logoutAccount(userId: String?, userInitiated: Bool) async throws {
         let userId = try unwrapUserId(userId)
         accountsLoggedOut.append(userId)
+        logoutAccountUserInitiated = userInitiated
     }
 
     func pinProtectedUserKey(userId: String?) async throws -> String? {
@@ -380,8 +401,9 @@ class MockStateService: StateService { // swiftlint:disable:this type_body_lengt
     }
 
     func setIsAuthenticated() {
-        activeAccount = .fixture()
-        accountEncryptionKeys["1"] = .init(encryptedPrivateKey: "", encryptedUserKey: "")
+        let account = Account.fixture()
+        activeAccount = account
+        isAuthenticated[account.profile.userId] = true
     }
 
     func setLastActiveTime(_ date: Date?, userId: String?) async throws {
@@ -446,6 +468,10 @@ class MockStateService: StateService { // swiftlint:disable:this type_body_lengt
         preAuthEnvironmentUrls = urls
     }
 
+    func setPreAuthServerConfig(config: BitwardenShared.ServerConfig) async {
+        preAuthServerConfig = config
+    }
+
     func setServerConfig(_ config: ServerConfig?, userId: String?) async throws {
         let userId = try unwrapUserId(userId)
         serverConfig[userId] = config
@@ -477,14 +503,19 @@ class MockStateService: StateService { // swiftlint:disable:this type_body_lengt
         unsuccessfulUnlockAttempts[userId] = attempts
     }
 
-    func setUserHasMasterPassword() async throws {
+    func setUserHasMasterPassword(_ hasMasterPassword: Bool) async throws {
         let userId = try unwrapUserId(nil)
-        userHasMasterPassword[userId] = true
+        userHasMasterPassword[userId] = hasMasterPassword
     }
 
     func setUsernameGenerationOptions(_ options: UsernameGenerationOptions?, userId: String?) async throws {
         let userId = try unwrapUserId(userId)
         usernameGenerationOptions[userId] = options
+    }
+
+    func setUsesKeyConnector(_ usesKeyConnector: Bool, userId: String?) async throws {
+        let userId = try unwrapUserId(userId)
+        self.usesKeyConnector[userId] = usesKeyConnector
     }
 
     func setVaultTimeout(value: SessionTimeoutValue, userId: String?) async throws {

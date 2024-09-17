@@ -487,6 +487,21 @@ class VaultUnlockProcessorTests: BitwardenTestCase { // swiftlint:disable:this t
         XCTAssertEqual(attemptsInUserDefaults, 0)
     }
 
+    /// `perform(_:)` with `.unlockVaultWithBiometrics` logs the user out if biometrics is locked
+    /// due to too many failed attempts.
+    @MainActor
+    func test_perform_unlockWithBiometrics_biometryLocked() async throws {
+        stateService.activeAccount = .fixture()
+        biometricsRepository.biometricUnlockStatus = .success(
+            .available(.touchID, enabled: true, hasValidIntegrity: true)
+        )
+        authRepository.unlockVaultWithBiometricsResult = .failure(BiometricsServiceError.biometryLocked)
+
+        await subject.perform(.unlockVaultWithBiometrics)
+        XCTAssertNil(coordinator.routes.last)
+        XCTAssertEqual(coordinator.events, [.action(.logout(userId: nil, userInitiated: true))])
+    }
+
     /// `perform(_:)` with `.unlockVaultWithBiometrics` shows the KDF warning in an extension if the
     /// KDF memory is potentially too high.
     @MainActor
@@ -521,6 +536,7 @@ class VaultUnlockProcessorTests: BitwardenTestCase { // swiftlint:disable:this t
         await subject.perform(.unlockVaultWithBiometrics)
         let route = try XCTUnwrap(coordinator.routes.last)
         XCTAssertEqual(route, .landing)
+        XCTAssertEqual(errorReporter.errors as? [StateServiceError], [.noActiveAccount])
     }
 
     /// `perform(_:)` with `.unlockWithBiometrics` requires a set user preference.
@@ -573,6 +589,12 @@ class VaultUnlockProcessorTests: BitwardenTestCase { // swiftlint:disable:this t
         await subject.perform(.unlockVaultWithBiometrics)
         XCTAssertNil(coordinator.routes.last)
         XCTAssertEqual(1, subject.state.unsuccessfulUnlockAttemptsCount)
+
+        XCTAssertEqual(errorReporter.errors.count, 1)
+        XCTAssertEqual(
+            (errorReporter.errors[0] as NSError).domain,
+            "General Error: VaultUnlock: Biometrics Unlock Error"
+        )
     }
 
     /// `perform(_:)` with `.unlockWithBiometrics` requires successful biometrics.
@@ -593,6 +615,12 @@ class VaultUnlockProcessorTests: BitwardenTestCase { // swiftlint:disable:this t
             .action(
                 .logout(userId: nil, userInitiated: true)
             )
+        )
+
+        XCTAssertEqual(errorReporter.errors.count, 1)
+        XCTAssertEqual(
+            (errorReporter.errors[0] as NSError).domain,
+            "General Error: VaultUnlock: Biometrics Unlock Error"
         )
     }
 
@@ -1137,26 +1165,6 @@ class VaultUnlockProcessorTests: BitwardenTestCase { // swiftlint:disable:this t
         subject.receive(.cancelPressed)
 
         XCTAssertTrue(appExtensionDelegate.didCancelCalled)
-    }
-
-    /// `receive(_:)` with `.profileSwitcher(.scrollOffset)` updates the state to reflect the changes.
-    @MainActor
-    func test_receive_scrollOffset() {
-        let active = ProfileSwitcherItem.fixture()
-        subject.state.profileSwitcherState = ProfileSwitcherState(
-            accounts: [active],
-            activeAccountId: active.userId,
-            allowLockAndLogout: true,
-            isVisible: true,
-            scrollOffset: .zero
-        )
-
-        let newPoint = CGPoint(x: 0, y: 100)
-        subject.receive(.profileSwitcher(.scrollOffsetChanged(newPoint)))
-
-        XCTAssertNotNil(subject.state.profileSwitcherState)
-        XCTAssertTrue(subject.state.profileSwitcherState.isVisible)
-        XCTAssertEqual(subject.state.profileSwitcherState.scrollOffset, newPoint)
     }
 
     /// `receive(_:)` with `.toastShown` updates the state's toast value.

@@ -224,6 +224,10 @@ protocol StateService: AnyObject {
     ///
     func getPreAuthEnvironmentUrls() async -> EnvironmentUrlData?
 
+    /// Gets the server config used by the app prior to the user authenticating.
+    /// - Returns: The server config used prior to user authentication.
+    func getPreAuthServerConfig() async -> ServerConfig?
+
     /// Gets the server config for a user ID, as set by the server.
     ///
     /// - Parameter userId: The user ID associated with the server config. Defaults to the active account if `nil`.
@@ -286,6 +290,13 @@ protocol StateService: AnyObject {
     ///
     func getUsernameGenerationOptions(userId: String?) async throws -> UsernameGenerationOptions?
 
+    /// Gets whether the user uses key connector.
+    ///
+    /// - Parameter userId: The user ID to check if they use key connector.
+    /// - Returns: Whether the user uses key connector.
+    ///
+    func getUsesKeyConnector(userId: String?) async throws -> Bool
+
     /// Gets the session timeout value.
     ///
     /// - Parameter userId: The user ID for the account.
@@ -293,12 +304,20 @@ protocol StateService: AnyObject {
     ///
     func getVaultTimeout(userId: String?) async throws -> SessionTimeoutValue
 
+    /// Whether the user is authenticated.
+    ///
+    /// - Parameter userId: The user ID to check if they are authenticated.
+    /// - Returns: Whether the user is authenticated.
+    ///
+    func isAuthenticated(userId: String?) async throws -> Bool
+
     /// Logs the user out of an account.
     ///
-    /// - Parameter userId: The user ID of the account to log out of. Defaults to the active
-    ///   account if `nil`.
+    /// - Parameters:
+    ///   - userId: The user ID of the account to log out of. Defaults to the active account if `nil`.
+    ///   - userInitiated: Whether the logout was user initiated or a result of a logout timeout action.
     ///
-    func logoutAccount(userId: String?) async throws
+    func logoutAccount(userId: String?, userInitiated: Bool) async throws
 
     /// The pin protected user key.
     ///
@@ -486,6 +505,10 @@ protocol StateService: AnyObject {
     ///
     func setPreAuthEnvironmentUrls(_ urls: EnvironmentUrlData) async
 
+    /// Sets the server config used prior to user authentication
+    /// - Parameter config: The server config to use prior to user authentication.
+    func setPreAuthServerConfig(config: ServerConfig) async
+
     /// Sets the server configuration as provided by a server for a user ID.
     ///
     /// - Parameters:
@@ -529,9 +552,11 @@ protocol StateService: AnyObject {
     ///
     func setUnsuccessfulUnlockAttempts(_ attempts: Int, userId: String?) async throws
 
-    /// Sets user has master password to true.
+    /// Sets whether the user has a master password.
     ///
-    func setUserHasMasterPassword() async throws
+    /// - Parameter hasMasterPassword: Whether the user has a master password.
+    ///
+    func setUserHasMasterPassword(_ hasMasterPassword: Bool) async throws
 
     /// Sets the username generation options for a user ID.
     ///
@@ -540,6 +565,14 @@ protocol StateService: AnyObject {
     ///   - userId: The user ID associated with the username generation options.
     ///
     func setUsernameGenerationOptions(_ options: UsernameGenerationOptions?, userId: String?) async throws
+
+    /// Sets whether the user uses key connector.
+    ///
+    /// - Parameters:
+    ///   - usesKeyConnector: Whether the user uses key connector.
+    ///   - userId: The user ID to set whether they use key connector.
+    ///
+    func setUsesKeyConnector(_ usesKeyConnector: Bool, userId: String?) async throws
 
     /// Sets the session timeout value.
     ///
@@ -776,6 +809,14 @@ extension StateService {
         try await getUsernameGenerationOptions(userId: nil)
     }
 
+    /// Gets whether the user uses key connector.
+    ///
+    /// - Returns: Whether the user uses key connector.
+    ///
+    func getUsesKeyConnector() async throws -> Bool {
+        try await getUsesKeyConnector(userId: nil)
+    }
+
     /// Gets the session timeout value.
     ///
     /// - Returns: The session timeout value.
@@ -784,19 +825,21 @@ extension StateService {
         try await getVaultTimeout(userId: nil)
     }
 
-    /// Whether the user is authenticated or not.
+    /// Whether the active user account is authenticated.
     ///
     /// - Returns: Whether the user is authenticated.
     ///
-    func isAuthenticated() async -> Bool {
-        let accountKeys = try? await getAccountEncryptionKeys()
-        return accountKeys != nil
+    func isAuthenticated() async throws -> Bool {
+        try await isAuthenticated(userId: nil)
     }
 
     /// Logs the user out of the active account.
     ///
-    func logoutAccount() async throws {
-        try await logoutAccount(userId: nil)
+    /// - Parameters userInitiated: Whether the logout was user initiated or a result of a logout
+    ///     timeout action.
+    ///
+    func logoutAccount(userInitiated: Bool) async throws {
+        try await logoutAccount(userId: nil, userInitiated: userInitiated)
     }
 
     /// The pin protected user key.
@@ -941,6 +984,14 @@ extension StateService {
         try await setUsernameGenerationOptions(options, userId: nil)
     }
 
+    /// Sets whether the user uses key connector.
+    ///
+    /// - Parameter usesKeyConnector: Whether the user uses key connector.
+    ///
+    func setUsesKeyConnector(_ usesKeyConnector: Bool) async throws {
+        try await setUsesKeyConnector(usesKeyConnector, userId: nil)
+    }
+
     /// Sets the session timeout value.
     ///
     /// - Parameter value: The value that dictates how many seconds in the future a timeout should occur.
@@ -960,6 +1011,9 @@ enum StateServiceError: Error {
 
     /// There isn't an active account.
     case noActiveAccount
+
+    /// The user has no private key.
+    case noEncryptedPrivateKey
 
     /// The user has no pin protected user key.
     case noPinProtectedUserKey
@@ -1053,7 +1107,7 @@ actor DefaultStateService: StateService { // swiftlint:disable:this type_body_le
     }
 
     func deleteAccount() async throws {
-        try await logoutAccount()
+        try await logoutAccount(userInitiated: true)
     }
 
     func doesActiveAccountHavePremium() async throws -> Bool {
@@ -1084,7 +1138,7 @@ actor DefaultStateService: StateService { // swiftlint:disable:this type_body_le
     func getAccountEncryptionKeys(userId: String?) async throws -> AccountEncryptionKeys {
         let userId = try userId ?? getActiveAccountUserId()
         guard let encryptedPrivateKey = appSettingsStore.encryptedPrivateKey(userId: userId) else {
-            throw StateServiceError.noActiveAccount
+            throw StateServiceError.noEncryptedPrivateKey
         }
         return AccountEncryptionKeys(
             encryptedPrivateKey: encryptedPrivateKey,
@@ -1200,6 +1254,10 @@ actor DefaultStateService: StateService { // swiftlint:disable:this type_body_le
         appSettingsStore.preAuthEnvironmentUrls
     }
 
+    func getPreAuthServerConfig() async -> ServerConfig? {
+        appSettingsStore.preAuthServerConfig
+    }
+
     func getServerConfig(userId: String?) async throws -> ServerConfig? {
         let userId = try userId ?? getActiveAccountUserId()
         return appSettingsStore.serverConfig(userId: userId)
@@ -1246,6 +1304,11 @@ actor DefaultStateService: StateService { // swiftlint:disable:this type_body_le
         return appSettingsStore.usernameGenerationOptions(userId: userId)
     }
 
+    func getUsesKeyConnector(userId: String?) async throws -> Bool {
+        let userId = try userId ?? getActiveAccountUserId()
+        return appSettingsStore.usesKeyConnector(userId: userId)
+    }
+
     func getVaultTimeout(userId: String?) async throws -> SessionTimeoutValue {
         let userId = try getAccount(userId: userId).profile.userId
         guard let rawValue = appSettingsStore.vaultTimeout(userId: userId) else {
@@ -1255,13 +1318,26 @@ actor DefaultStateService: StateService { // swiftlint:disable:this type_body_le
         return SessionTimeoutValue(rawValue: rawValue)
     }
 
-    func logoutAccount(userId: String?) async throws {
+    func isAuthenticated(userId: String?) async throws -> Bool {
+        let userId = try getAccount(userId: userId).profile.userId
+
+        do {
+            _ = try await keychainRepository.getAccessToken(userId: userId)
+            return true
+        } catch KeychainServiceError.osStatusError(errSecItemNotFound) {
+            return false
+        }
+    }
+
+    func logoutAccount(userId: String?, userInitiated: Bool) async throws {
         guard var state = appSettingsStore.state else { return }
         defer { appSettingsStore.state = state }
 
         let knownUserId: String = try userId ?? getActiveAccountUserId()
-        state.accounts.removeValue(forKey: knownUserId)
-        if state.activeUserId == knownUserId {
+        if userInitiated {
+            state.accounts.removeValue(forKey: knownUserId)
+        }
+        if state.activeUserId == knownUserId, userInitiated {
             // Find the next account to make the active account.
             state.activeUserId = state.accounts.first?.key
         }
@@ -1419,6 +1495,10 @@ actor DefaultStateService: StateService { // swiftlint:disable:this type_body_le
         appSettingsStore.preAuthEnvironmentUrls = urls
     }
 
+    func setPreAuthServerConfig(config: ServerConfig) async {
+        appSettingsStore.preAuthServerConfig = config
+    }
+
     func setServerConfig(_ config: ServerConfig?, userId: String?) async throws {
         let userId = try userId ?? getActiveAccountUserId()
         appSettingsStore.setServerConfig(config, userId: userId)
@@ -1447,13 +1527,13 @@ actor DefaultStateService: StateService { // swiftlint:disable:this type_body_le
         appSettingsStore.setUnsuccessfulUnlockAttempts(attempts, userId: userId)
     }
 
-    func setUserHasMasterPassword() async throws {
+    func setUserHasMasterPassword(_ hasMasterPassword: Bool) async throws {
         let userId = try getActiveAccountUserId()
         var state = appSettingsStore.state ?? State()
         defer { appSettingsStore.state = state }
 
         guard var profile = state.accounts[userId]?.profile else { return }
-        profile.userDecryptionOptions?.hasMasterPassword = true
+        profile.userDecryptionOptions?.hasMasterPassword = hasMasterPassword
 
         state.accounts[userId]?.profile = profile
     }
@@ -1461,6 +1541,11 @@ actor DefaultStateService: StateService { // swiftlint:disable:this type_body_le
     func setUsernameGenerationOptions(_ options: UsernameGenerationOptions?, userId: String?) async throws {
         let userId = try userId ?? getActiveAccountUserId()
         appSettingsStore.setUsernameGenerationOptions(options, userId: userId)
+    }
+
+    func setUsesKeyConnector(_ usesKeyConnector: Bool, userId: String?) async throws {
+        let userId = try userId ?? getActiveAccountUserId()
+        appSettingsStore.setUsesKeyConnector(usesKeyConnector, userId: userId)
     }
 
     func setVaultTimeout(value: SessionTimeoutValue, userId: String?) async throws {

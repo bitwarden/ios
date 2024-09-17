@@ -156,6 +156,7 @@ jobs:
             "dist_share_extension.mobileprovision"
             "dist_bitwarden_watch_app.mobileprovision"
             "dist_bitwarden_watch_app_extension.mobileprovision"
+            "dist_bitwarden_watch_widget_extension.mobileprovision"
           )
 
           for FILE in "${profiles[@]}"
@@ -178,6 +179,7 @@ jobs:
             "dist_beta_share_extension.mobileprovision"
             "dist_beta_bitwarden_watch_app.mobileprovision"
             "dist_beta_bitwarden_watch_app_extension.mobileprovision"
+            "dist_beta_bitwarden_watch_widget_extension.mobileprovision"
           )
 
           for FILE in "${profiles[@]}"
@@ -265,67 +267,9 @@ jobs:
             -T /usr/bin/security
           security set-key-partition-list -S apple-tool:,apple:,codesign: -s -k $KEYCHAIN_PASSWORD build.keychain
 
-      - name: Configure production provisioning profiles
-        if: env.BUILD_VARIANT == 'Production'
+      - name: Configure provisioning profiles
         run: |
-          AUTOFILL_PROFILE_PATH=$HOME/secrets/dist_autofill.mobileprovision
-          BITWARDEN_PROFILE_PATH=$HOME/secrets/dist_bitwarden.mobileprovision
-          EXTENSION_PROFILE_PATH=$HOME/secrets/dist_extension.mobileprovision
-          SHARE_EXTENSION_PROFILE_PATH=$HOME/secrets/dist_share_extension.mobileprovision
-          WATCH_APP_PROFILE_PATH=$HOME/secrets/dist_bitwarden_watch_app.mobileprovision
-          WATCH_APP_EXTENSION_PROFILE_PATH=$HOME/secrets/dist_bitwarden_watch_app_extension.mobileprovision
-          PROFILES_DIR_PATH=$HOME/Library/MobileDevice/Provisioning\ Profiles
-
-          mkdir -p "$PROFILES_DIR_PATH"
-
-          AUTOFILL_UUID=$(grep UUID -A1 -a $AUTOFILL_PROFILE_PATH | grep -io "[-A-F0-9]\{36\}")
-          cp $AUTOFILL_PROFILE_PATH "$PROFILES_DIR_PATH/$AUTOFILL_UUID.mobileprovision"
-
-          BITWARDEN_UUID=$(grep UUID -A1 -a $BITWARDEN_PROFILE_PATH | grep -io "[-A-F0-9]\{36\}")
-          cp $BITWARDEN_PROFILE_PATH "$PROFILES_DIR_PATH/$BITWARDEN_UUID.mobileprovision"
-
-          EXTENSION_UUID=$(grep UUID -A1 -a $EXTENSION_PROFILE_PATH | grep -io "[-A-F0-9]\{36\}")
-          cp $EXTENSION_PROFILE_PATH "$PROFILES_DIR_PATH/$EXTENSION_UUID.mobileprovision"
-
-          SHARE_EXTENSION_UUID=$(grep UUID -A1 -a $SHARE_EXTENSION_PROFILE_PATH | grep -io "[-A-F0-9]\{36\}")
-          cp $SHARE_EXTENSION_PROFILE_PATH "$PROFILES_DIR_PATH/$SHARE_EXTENSION_UUID.mobileprovision"
-
-          WATCH_APP_UUID=$(grep UUID -A1 -a $WATCH_APP_PROFILE_PATH | grep -io "[-A-F0-9]\{36\}")
-          cp $WATCH_APP_PROFILE_PATH "$PROFILES_DIR_PATH/$WATCH_APP_UUID.mobileprovision"
-
-          WATCH_APP_EXTENSION_UUID=$(grep UUID -A1 -a $WATCH_APP_EXTENSION_PROFILE_PATH | grep -io "[-A-F0-9]\{36\}")
-          cp $WATCH_APP_EXTENSION_PROFILE_PATH "$PROFILES_DIR_PATH/$WATCH_APP_EXTENSION_UUID.mobileprovision"
-
-      - name: Configure beta provisioning profiles
-        if: env.BUILD_VARIANT == 'Beta'
-        run: |
-          AUTOFILL_PROFILE_PATH=$HOME/secrets/dist_beta_autofill.mobileprovision
-          BITWARDEN_PROFILE_PATH=$HOME/secrets/dist_beta_bitwarden.mobileprovision
-          EXTENSION_PROFILE_PATH=$HOME/secrets/dist_beta_extension.mobileprovision
-          SHARE_EXTENSION_PROFILE_PATH=$HOME/secrets/dist_beta_share_extension.mobileprovision
-          WATCH_APP_PROFILE_PATH=$HOME/secrets/dist_beta_bitwarden_watch_app.mobileprovision
-          WATCH_APP_EXTENSION_PROFILE_PATH=$HOME/secrets/dist_beta_bitwarden_watch_app_extension.mobileprovision
-          PROFILES_DIR_PATH=$HOME/Library/MobileDevice/Provisioning\ Profiles
-
-          mkdir -p "$PROFILES_DIR_PATH"
-
-          AUTOFILL_UUID=$(grep UUID -A1 -a $AUTOFILL_PROFILE_PATH | grep -io "[-A-F0-9]\{36\}")
-          cp $AUTOFILL_PROFILE_PATH "$PROFILES_DIR_PATH/$AUTOFILL_UUID.mobileprovision"
-
-          BITWARDEN_UUID=$(grep UUID -A1 -a $BITWARDEN_PROFILE_PATH | grep -io "[-A-F0-9]\{36\}")
-          cp $BITWARDEN_PROFILE_PATH "$PROFILES_DIR_PATH/$BITWARDEN_UUID.mobileprovision"
-
-          EXTENSION_UUID=$(grep UUID -A1 -a $EXTENSION_PROFILE_PATH | grep -io "[-A-F0-9]\{36\}")
-          cp $EXTENSION_PROFILE_PATH "$PROFILES_DIR_PATH/$EXTENSION_UUID.mobileprovision"
-
-          SHARE_EXTENSION_UUID=$(grep UUID -A1 -a $SHARE_EXTENSION_PROFILE_PATH | grep -io "[-A-F0-9]\{36\}")
-          cp $SHARE_EXTENSION_PROFILE_PATH "$PROFILES_DIR_PATH/$SHARE_EXTENSION_UUID.mobileprovision"
-
-          WATCH_APP_UUID=$(grep UUID -A1 -a $WATCH_APP_PROFILE_PATH | grep -io "[-A-F0-9]\{36\}")
-          cp $WATCH_APP_PROFILE_PATH "$PROFILES_DIR_PATH/$WATCH_APP_UUID.mobileprovision"
-
-          WATCH_APP_EXTENSION_UUID=$(grep UUID -A1 -a $WATCH_APP_EXTENSION_PROFILE_PATH | grep -io "[-A-F0-9]\{36\}")
-          cp $WATCH_APP_EXTENSION_PROFILE_PATH "$PROFILES_DIR_PATH/$WATCH_APP_EXTENSION_UUID.mobileprovision"
+          ./Scripts/configure_provisioning_profiles.sh ${{ env.BUILD_VARIANT }}
 
       - name: Update beta export compliance key
         if: env.BUILD_VARIANT == 'Beta'
@@ -342,7 +286,7 @@ jobs:
           plutil -replace aps-environment -string production Bitwarden/Application/Support/Bitwarden.entitlements
 
       - name: Configure Ruby
-        uses: ruby/setup-ruby@a6e6f86333f0a2523ece813039b8b4be04560854 # v1.190.0
+        uses: ruby/setup-ruby@a6b46b8a08edb18935835849f2a17072d5cc8c73 # v1.192.0
         with:
           bundler-cache: true
 
@@ -382,7 +326,7 @@ jobs:
           cp -rv build/Bitwarden.xcarchive/dSYMs/*.dSYM export/dSYMs
 
       - name: Upload IPA & dSYM files
-        uses: actions/upload-artifact@89ef406dd8d7e03cfd12d9e0a4a378f454709029 # v4.3.5
+        uses: actions/upload-artifact@50769540e7f4bd5e21e526ee35c689e35e0d6874 # v4.4.0
         with:
           name: Bitwarden iOS ${{ steps.calculate.outputs.version }} (${{ steps.calculate.outputs.build_number }}) ${{ env.BUILD_VARIANT }} ${{ env.XCODE_VERSION }}
           path: export
@@ -406,7 +350,8 @@ jobs:
       - name: Upload app to TestFlight with Fastlane
         run: |
           NEWLINE=$'\n'
+          CHANGELOG="$(git show -s --format=%s)$NEWLINE$GITHUB_REPOSITORY/$GITHUB_REF_NAME @ $GITHUB_SHA${NEWLINE}Xcode ${{ env.XCODE_VERSION }}$NEWLINE$GITHUB_SERVER_URL/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID"
           fastlane upload_build \
             api_key_path:"$HOME/secrets/appstoreconnect-fastlane.json" \
-            changelog:"$(git show -s --format=%s)$NEWLINE$GITHUB_REPOSITORY/$GITHUB_REF_NAME @ $GITHUB_SHA$NEWLINE$NEWLINE$GITHUB_SERVER_URL/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID" \
+            changelog:"$CHANGELOG" \
             ipa_path:"export/Bitwarden.ipa"

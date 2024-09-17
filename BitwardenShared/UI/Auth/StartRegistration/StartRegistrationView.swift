@@ -17,6 +17,16 @@ struct StartRegistrationView: View {
 
     var body: some View {
         VStack(spacing: 16) {
+            if store.state.isCreateAccountFeatureFlagEnabled {
+                Image(decorative: Asset.Images.vaultIllustration)
+                    .resizable()
+                    .frame(width: 132, height: 132)
+                    .padding(.top, 24)
+                    .padding(.bottom, 32)
+            }
+
+            name
+
             VStack(alignment: .leading, spacing: 0) {
                 email
                     .padding(.bottom, 8)
@@ -28,8 +38,6 @@ struct StartRegistrationView: View {
                     await store.perform(.regionTapped)
                 }
             }
-
-            name
 
             receiveMarketingToggle
 

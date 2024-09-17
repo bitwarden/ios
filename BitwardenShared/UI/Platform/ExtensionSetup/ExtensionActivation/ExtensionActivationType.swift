@@ -2,7 +2,7 @@
 
 /// The different types of extensions to show the activation view for.
 ///
-public enum ExtensionActivationType: Equatable {
+public enum ExtensionActivationType: Equatable, Sendable {
     /// The app's action extension.
     case appExtension
 

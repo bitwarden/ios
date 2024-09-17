@@ -40,4 +40,8 @@ extension APITestData {
     static let startRegistrationInvalidEmailFormat = loadFromJsonBundle(resource: "StartRegistrationInvalidEmailFormat")
     static let startRegistrationCaptchaFailure = loadFromJsonBundle(resource: "StartRegistrationCaptchaFailure")
     static let startRegistrationSuccess = loadFromBundle(resource: "StartRegistrationSuccess", extension: "txt")
+
+    // MARK: Verify Email Token
+
+    static let verifyEmailTokenExpiredLink = loadFromJsonBundle(resource: "VerifyEmailTokenExpiredLink")
 }

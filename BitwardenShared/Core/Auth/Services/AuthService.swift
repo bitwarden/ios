@@ -51,6 +51,21 @@ enum AuthError: Error {
     case unableToResendEmail
 }
 
+// MARK: - LoginUnlockMethod
+
+/// An enumeration of vault unlock methods that can be used when a user is logging in.
+///
+enum LoginUnlockMethod: Equatable {
+    /// The user uses a device key to unlock the vault.
+    case deviceKey
+
+    /// The user needs to unlock their vault with their master password.
+    case masterPassword(Account)
+
+    /// The user uses key connector to unlock the vault.
+    case keyConnector(keyConnectorURL: URL)
+}
+
 // MARK: - AuthService
 
 /// A protocol for a service used that handles the auth logic.
@@ -152,9 +167,9 @@ protocol AuthService {
     ///   - code: The code received from the single sign on WebAuth flow.
     ///   - email: The user's email address.
     ///
-    /// - Returns: The account to unlock the vault for, or nil if the vault does not need to be unlocked.
+    /// - Returns: The vault unlock method to use after login.
     ///
-    func loginWithSingleSignOn(code: String, email: String) async throws -> Account?
+    func loginWithSingleSignOn(code: String, email: String) async throws -> LoginUnlockMethod
 
     /// Continue the previous login attempt with the addition of the two-factor information.
     ///
@@ -165,7 +180,7 @@ protocol AuthService {
     ///   - remember: Whether to remember the two-factor code.
     ///   - captchaToken:  An optional captcha token value to add to the token request.
     ///
-    /// - Returns: The account to unlock the vault for.
+    /// - Returns: The vault unlock method to use after login.
     ///
     func loginWithTwoFactorCode(
         email: String,
@@ -173,7 +188,7 @@ protocol AuthService {
         method: TwoFactorAuthMethod,
         remember: Bool,
         captchaToken: String?
-    ) async throws -> Account?
+    ) async throws -> LoginUnlockMethod
 
     /// Evaluates the supplied master password against the master password policy provided by the Identity response.
     /// - Parameters:
@@ -242,6 +257,9 @@ class DefaultAuthService: AuthService { // swiftlint:disable:this type_body_leng
     /// The code verifier used to login after receiving the code from the WebAuth.
     private var codeVerifier = ""
 
+    /// The service to get server-specified configuration
+    private let configService: ConfigService
+
     /// The service used by the application to manage the environment settings.
     private let environmentService: EnvironmentService
 
@@ -283,6 +301,7 @@ class DefaultAuthService: AuthService { // swiftlint:disable:this type_body_leng
     ///   - appIdService: The service used by the application to manage the app's ID.
     ///   - authAPIService: The API service used to make calls related to the auth process.
     ///   - clientService: The service that handles common client functionality such as encryption and decryption.
+    ///   - configService: The service to get server-specified configuration.
     ///   - environmentService: The service used by the application to manage the environment settings.
     ///   - keychainRepository: The repository used to manages keychain items.
     ///   - policyService: The service used by the application to manage the policy.
@@ -295,6 +314,7 @@ class DefaultAuthService: AuthService { // swiftlint:disable:this type_body_leng
         appIdService: AppIdService,
         authAPIService: AuthAPIService,
         clientService: ClientService,
+        configService: ConfigService,
         environmentService: EnvironmentService,
         keychainRepository: KeychainRepository,
         policyService: PolicyService,
@@ -306,6 +326,7 @@ class DefaultAuthService: AuthService { // swiftlint:disable:this type_body_leng
         self.appIdService = appIdService
         self.authAPIService = authAPIService
         self.clientService = clientService
+        self.configService = configService
         self.environmentService = environmentService
         self.keychainRepository = keychainRepository
         self.policyService = policyService
@@ -522,7 +543,7 @@ class DefaultAuthService: AuthService { // swiftlint:disable:this type_body_leng
         let response = try await accountAPIService.preLogin(email: username)
 
         // Get the identity token to log in to Bitwarden.
-        let hashedPassword = try await clientService.auth().hashPassword(
+        let hashedPassword = try await clientService.auth(isPreAuth: true).hashPassword(
             email: username,
             password: masterPassword,
             kdfParams: response.sdkKdf,
@@ -554,7 +575,12 @@ class DefaultAuthService: AuthService { // swiftlint:disable:this type_body_leng
         }
     }
 
-    /// Check TDE user decryption options to see if can unlock with trusted deviceKey or needs further actions
+    /// Check TDE user decryption options to see if can unlock with trusted deviceKey or needs
+    /// further actions.
+    ///
+    /// - Parameter response: The response received from the identity token request.
+    /// - Returns: Whether the vault can be unlocked with the trusted device key.
+    ///
     private func canUnlockWithDeviceKey(_ response: IdentityTokenResponseModel) async throws -> Bool {
         if let decryptionOptions = response.userDecryptionOptions,
            let trustedDeviceOption = decryptionOptions.trustedDeviceOption {
@@ -586,7 +612,7 @@ class DefaultAuthService: AuthService { // swiftlint:disable:this type_body_leng
         return false
     }
 
-    func loginWithSingleSignOn(code: String, email: String) async throws -> Account? {
+    func loginWithSingleSignOn(code: String, email: String) async throws -> LoginUnlockMethod {
         // Get the identity token to log in to Bitwarden.
         let response = try await getIdentityTokenResponse(
             authenticationMethod: .authorizationCode(
@@ -597,13 +623,7 @@ class DefaultAuthService: AuthService { // swiftlint:disable:this type_body_leng
             email: email
         )
 
-        if try await canUnlockWithDeviceKey(response) {
-            return nil
-        }
-
-        // Return the account if the vault still needs to be unlocked and nil otherwise.
-        // TODO: BIT-1392 Wait for SDK to support unlocking vault for TDE accounts.
-        return try await stateService.getActiveAccount()
+        return try await unlockMethod(for: response)
     }
 
     func loginWithTwoFactorCode(
@@ -612,7 +632,7 @@ class DefaultAuthService: AuthService { // swiftlint:disable:this type_body_leng
         method: TwoFactorAuthMethod,
         remember: Bool,
         captchaToken: String? = nil
-    ) async throws -> Account? {
+    ) async throws -> LoginUnlockMethod {
         guard var twoFactorRequest else { throw AuthError.missingTwoFactorRequest }
 
         // Add the two factor information to the request.
@@ -635,12 +655,7 @@ class DefaultAuthService: AuthService { // swiftlint:disable:this type_body_leng
         self.twoFactorRequest = nil
         resendEmailModel = nil
 
-        if try await canUnlockWithDeviceKey(response) {
-            return nil
-        }
-
-        // Return the account if the vault still needs to be unlocked.
-        return try await stateService.getActiveAccount()
+        return try await unlockMethod(for: response)
     }
 
     func requirePasswordChange(
@@ -703,6 +718,25 @@ class DefaultAuthService: AuthService { // swiftlint:disable:this type_body_leng
     }
 
     // MARK: Private Methods
+
+    /// Returns the Key Connector URL if it exists in the identity token response and if it can be
+    /// used to fetch the user's Key Connector key.
+    ///
+    /// - Parameter response: The response received from the identity token request.
+    /// - Returns: The Key Connector URL if it exists in the response and if it can be used to
+    ///     fetch the user's Key Connector key.
+    ///
+    private func keyConnectorUrlForUnlock(_ response: IdentityTokenResponseModel) -> URL? {
+        guard let keyConnectorUrl = response.keyConnectorUrl ??
+            response.userDecryptionOptions?.keyConnectorOption?.keyConnectorUrl,
+            // If the user has a master password, they haven't been migrated to key connector yet
+            // and the master password should still be used for vault unlock.
+            response.userDecryptionOptions?.hasMasterPassword == false,
+            !keyConnectorUrl.isEmpty
+        else { return nil }
+
+        return URL(string: keyConnectorUrl)
+    }
 
     /// Get the fingerprint phrase from the public key of a login request.
     ///
@@ -775,6 +809,9 @@ class DefaultAuthService: AuthService { // swiftlint:disable:this type_body_leng
             let account = try Account(identityTokenResponseModel: identityTokenResponse, environmentUrls: urls)
             try await saveAccount(account, identityTokenResponse: identityTokenResponse)
 
+            // Get the config so it gets updated for this particular user.
+            await configService.getConfig(forceRefresh: true, isPreAuth: false)
+
             return identityTokenResponse
         } catch let error as IdentityTokenRequestError {
             if case let .twoFactorRequired(_, ssoToken, captchaBypassToken) = error {
@@ -799,6 +836,24 @@ class DefaultAuthService: AuthService { // swiftlint:disable:this type_body_leng
             // Re-throw the error.
             throw error
         }
+    }
+
+    /// Returns a `LoginUnlockMethod` based on the identity token response.
+    ///
+    /// - Parameter response: The API response for the identity token request, used to determine
+    ///     the unlock method used after login.
+    /// - Returns: The `LoginUnlockMethod` that should be used to unlock the vault after login.
+    ///
+    private func unlockMethod(for response: IdentityTokenResponseModel) async throws -> LoginUnlockMethod {
+        if try await canUnlockWithDeviceKey(response) {
+            return .deviceKey
+        }
+
+        if let keyConnectorUrl = keyConnectorUrlForUnlock(response) {
+            return .keyConnector(keyConnectorURL: keyConnectorUrl)
+        }
+
+        return try await .masterPassword(stateService.getActiveAccount())
     }
 
     /// Saves the user's account information.

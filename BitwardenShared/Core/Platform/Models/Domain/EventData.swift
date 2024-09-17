@@ -4,7 +4,7 @@ import Foundation
 
 /// Domain model for tracked events.
 ///
-public struct EventData: Codable, Equatable {
+public struct EventData: Codable, Equatable, Sendable {
     /// The type of event.
     let type: EventType
 

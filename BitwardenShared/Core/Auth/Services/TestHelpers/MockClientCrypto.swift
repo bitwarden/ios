@@ -3,6 +3,9 @@ import BitwardenSdk
 @testable import BitwardenShared
 
 class MockClientCrypto: ClientCryptoProtocol {
+    var deriveKeyConnectorRequest: DeriveKeyConnectorRequest?
+    var deriveKeyConnectorResult: Result<String, Error> = .success("key")
+
     var derivePinKeyPin: String?
     var derivePinUserKey: String?
     var derivePinKeyResult: Result<DerivePinKeyResponse, Error> = .success(
@@ -32,6 +35,11 @@ class MockClientCrypto: ClientCryptoProtocol {
             newKey: "new key"
         )
     )
+
+    func deriveKeyConnector(request: DeriveKeyConnectorRequest) throws -> String {
+        deriveKeyConnectorRequest = request
+        return try deriveKeyConnectorResult.get()
+    }
 
     func derivePinKey(pin: String) throws -> DerivePinKeyResponse {
         derivePinKeyPin = pin

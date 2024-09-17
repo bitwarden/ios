@@ -8,7 +8,7 @@ import Networking
 struct TrustedDeviceKeysRequestModel: JSONRequestBody, Equatable {
     // MARK: Properties
 
-    static var encoder = JSONEncoder()
+    static let encoder = JSONEncoder()
 
     /// The encrypted private key used in a `TrustedDeviceKeysRequest`.
     let encryptedPrivateKey: String

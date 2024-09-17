@@ -6,7 +6,7 @@ import Networking
 /// The response returned from the API when requesting the single sign on details.
 ///
 struct SingleSignOnDetailsResponse: JSONResponse, Equatable {
-    static var decoder = JSONDecoder.pascalOrSnakeCaseDecoder
+    static let decoder = JSONDecoder.pascalOrSnakeCaseDecoder
 
     // MARK: Properties
 

@@ -4,7 +4,7 @@ import BitwardenSdk
 
 /// An enum describing the type of data in a send.
 ///
-public enum SendType: Int, CaseIterable, Codable, Equatable, Menuable {
+public enum SendType: Int, CaseIterable, Codable, Equatable, Menuable, Sendable {
     /// The send contains text data.
     case text = 0
 

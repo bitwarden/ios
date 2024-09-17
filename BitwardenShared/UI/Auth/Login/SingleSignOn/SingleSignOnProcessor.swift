@@ -5,6 +5,7 @@ import Foundation
 
 /// An object that is signaled when specific circumstances in the single sign on flow have been encountered.
 ///
+@MainActor
 protocol SingleSignOnFlowDelegate: AnyObject {
     /// Called when the single sign on flow has been completed successfully.
     ///
@@ -89,13 +90,15 @@ final class SingleSignOnProcessor: StateProcessor<SingleSignOnState, SingleSignO
         case ASWebAuthenticationSessionError.canceledLogin:
             break
         case let IdentityTokenRequestError.twoFactorRequired(authMethodsData, _, _):
-            coordinator.navigate(to: .twoFactor(state.email, nil, authMethodsData, state.identifierText))
+            rememberOrgIdentifierAndNavigate(to: .twoFactor(state.email, nil, authMethodsData, state.identifierText))
         case AuthError.requireSetPassword:
-            coordinator.navigate(to: .setMasterPassword(organizationIdentifier: state.identifierText))
+            rememberOrgIdentifierAndNavigate(to: .setMasterPassword(organizationIdentifier: state.identifierText))
         case AuthError.requireUpdatePassword:
-            coordinator.navigate(to: .updateMasterPassword)
+            rememberOrgIdentifierAndNavigate(to: .updateMasterPassword)
         case AuthError.requireDecryptionOptions:
-            coordinator.navigate(to: .showLoginDecryptionOptions(organizationIdentifier: state.identifierText))
+            rememberOrgIdentifierAndNavigate(to: .showLoginDecryptionOptions(
+                organizationIdentifier: state.identifierText
+            ))
         default:
             coordinator.showAlert(.networkResponseError(error, tryAgain))
             services.errorReporter.log(error: error)
@@ -153,6 +156,15 @@ final class SingleSignOnProcessor: StateProcessor<SingleSignOnState, SingleSignO
             services.errorReporter.log(error: error)
         }
     }
+
+    /// Remembers the org identifier for future logins and navigates to the specified route.
+    ///
+    /// - Parameter route: The route to navigate to after saving the org identifier.
+    ///
+    private func rememberOrgIdentifierAndNavigate(to route: AuthRoute) {
+        services.stateService.rememberedOrgIdentifier = state.identifierText
+        coordinator.navigate(to: route)
+    }
 }
 
 // MARK: - SingleSignOnFlowDelegate
@@ -163,7 +175,10 @@ extension SingleSignOnProcessor: SingleSignOnFlowDelegate {
         Task {
             do {
                 // Use the code to authenticate the user with Bitwarden.
-                let account = try await self.services.authService.loginWithSingleSignOn(code: code, email: state.email)
+                let unlockMethod = try await self.services.authService.loginWithSingleSignOn(
+                    code: code,
+                    email: state.email
+                )
 
                 // Remember the organization identifier after successfully logging on.
                 services.stateService.rememberedOrgIdentifier = state.identifierText
@@ -172,7 +187,12 @@ extension SingleSignOnProcessor: SingleSignOnFlowDelegate {
                 coordinator.hideLoadingOverlay()
 
                 // Show the appropriate view and dismiss this sheet.
-                if let account {
+                switch unlockMethod {
+                case .deviceKey:
+                    // Attempt to unlock the vault with tde.
+                    try await services.authRepository.unlockVaultWithDeviceKey()
+                    coordinator.navigate(to: .complete)
+                case let .masterPassword(account):
                     coordinator.navigate(
                         to: .vaultUnlock(
                             account,
@@ -181,11 +201,14 @@ extension SingleSignOnProcessor: SingleSignOnFlowDelegate {
                             didSwitchAccountAutomatically: false
                         )
                     )
-                } else {
-                    // Attempt to unlock the vault with tde.
-                    try await services.authRepository.unlockVaultWithDeviceKey()
+                case let .keyConnector(keyConnectorUrl):
+                    try await services.authRepository.unlockVaultWithKeyConnectorKey(
+                        keyConnectorURL: keyConnectorUrl,
+                        orgIdentifier: state.identifierText
+                    )
                     coordinator.navigate(to: .complete)
                 }
+
                 coordinator.navigate(to: .dismiss)
             } catch {
                 // The delay is necessary in order to ensure the alert displays over the WebAuth view.

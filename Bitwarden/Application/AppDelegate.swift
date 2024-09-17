@@ -4,6 +4,7 @@ import UIKit
 /// A protocol for an `AppDelegate` that can be used by the `SceneDelegate` to look up the
 /// `AppDelegate` when the app is running (`AppDelegate`) or testing (`TestingAppDelegate`).
 ///
+@MainActor
 protocol AppDelegateType: AnyObject {
     /// The processor that manages application level logic.
     var appProcessor: AppProcessor? { get }

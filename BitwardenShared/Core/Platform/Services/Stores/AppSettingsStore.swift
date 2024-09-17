@@ -47,6 +47,9 @@ protocol AppSettingsStore: AnyObject {
     /// The environment URLs used prior to user authentication.
     var preAuthEnvironmentUrls: EnvironmentUrlData? { get set }
 
+    /// The server config used prior to user authentication.
+    var preAuthServerConfig: ServerConfig? { get set }
+
     /// The email being remembered on the landing screen.
     var rememberedEmail: String? { get set }
 
@@ -364,6 +367,14 @@ protocol AppSettingsStore: AnyObject {
     ///
     func setUnsuccessfulUnlockAttempts(_ attempts: Int, userId: String)
 
+    /// Sets whether the user uses key connector.
+    ///
+    /// - Parameters:
+    ///   - usesKeyConnector: Whether the user uses key connector.
+    ///   - userId: The user ID to set whether they use key connector.
+    ///
+    func setUsesKeyConnector(_ usesKeyConnector: Bool, userId: String)
+
     /// Sets the user's session timeout, in minutes.
     ///
     /// - Parameters:
@@ -413,6 +424,13 @@ protocol AppSettingsStore: AnyObject {
     /// - Returns: The number of unsuccessful attempts to unlock the vault.
     ///
     func unsuccessfulUnlockAttempts(userId: String) -> Int
+
+    /// Gets whether the user uses key connector.
+    ///
+    /// - Parameter userId: The user ID to check if they use key connector.
+    /// - Returns: Whether the user uses key connector.
+    ///
+    func usesKeyConnector(userId: String) -> Bool
 
     /// Returns the session timeout in minutes.
     ///
@@ -573,6 +591,7 @@ extension DefaultAppSettingsStore: AppSettingsStore {
         case passwordGenerationOptions(userId: String)
         case pinProtectedUserKey(userId: String)
         case preAuthEnvironmentUrls
+        case preAuthServerConfig
         case rememberedEmail
         case rememberedOrgIdentifier
         case serverConfig(userId: String)
@@ -581,6 +600,7 @@ extension DefaultAppSettingsStore: AppSettingsStore {
         case twoFactorToken(email: String)
         case unsuccessfulUnlockAttempts(userId: String)
         case usernameGenerationOptions(userId: String)
+        case usesKeyConnector(userId: String)
         case vaultTimeout(userId: String)
         case vaultTimeoutAction(userId: String)
 
@@ -644,6 +664,8 @@ extension DefaultAppSettingsStore: AppSettingsStore {
                 key = "pinKeyEncryptedUserKey_\(userId)"
             case .preAuthEnvironmentUrls:
                 key = "preAuthEnvironmentUrls"
+            case .preAuthServerConfig:
+                key = "preAuthServerConfig"
             case .rememberedEmail:
                 key = "rememberedEmail"
             case .rememberedOrgIdentifier:
@@ -660,6 +682,8 @@ extension DefaultAppSettingsStore: AppSettingsStore {
                 key = "invalidUnlockAttempts_\(userId)"
             case let .usernameGenerationOptions(userId):
                 key = "usernameGenerationOptions_\(userId)"
+            case let .usesKeyConnector(userId):
+                key = "usesKeyConnector_\(userId)"
             case let .vaultTimeout(userId):
                 key = "vaultTimeout_\(userId)"
             case let .vaultTimeoutAction(userId):
@@ -722,6 +746,11 @@ extension DefaultAppSettingsStore: AppSettingsStore {
     var preAuthEnvironmentUrls: EnvironmentUrlData? {
         get { fetch(for: .preAuthEnvironmentUrls) }
         set { store(newValue, for: .preAuthEnvironmentUrls) }
+    }
+
+    var preAuthServerConfig: ServerConfig? {
+        get { fetch(for: .preAuthServerConfig) }
+        set { store(newValue, for: .preAuthServerConfig) }
     }
 
     var rememberedEmail: String? {
@@ -917,6 +946,10 @@ extension DefaultAppSettingsStore: AppSettingsStore {
         store(options, for: .usernameGenerationOptions(userId: userId))
     }
 
+    func setUsesKeyConnector(_ usesKeyConnector: Bool, userId: String) {
+        store(usesKeyConnector, for: .usesKeyConnector(userId: userId))
+    }
+
     func setVaultTimeout(minutes: Int, userId: String) {
         store(minutes, for: .vaultTimeout(userId: userId))
     }
@@ -939,6 +972,10 @@ extension DefaultAppSettingsStore: AppSettingsStore {
 
     func usernameGenerationOptions(userId: String) -> UsernameGenerationOptions? {
         fetch(for: .usernameGenerationOptions(userId: userId))
+    }
+
+    func usesKeyConnector(userId: String) -> Bool {
+        fetch(for: .usesKeyConnector(userId: userId))
     }
 
     func setUnsuccessfulUnlockAttempts(_ attempts: Int, userId: String) {
