@@ -41,7 +41,7 @@ public protocol AuthenticatorBridgeItemService {
 ///
 public class DefaultAuthenticatorBridgeItemService: AuthenticatorBridgeItemService {
     // MARK: Properties
-    
+
     /// Cryptography service for encrypting/decrypting items.
     let cryptoService: SharedCryptographyService
 

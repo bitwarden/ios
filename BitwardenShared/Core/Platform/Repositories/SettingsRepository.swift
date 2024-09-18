@@ -192,7 +192,7 @@ extension DefaultSettingsRepository: SettingsRepository {
     }
 
     func getSyncToAuthenticator() async throws -> Bool {
-        try await stateService.getConnectToWatch()
+        try await stateService.getSyncToAuthenticator()
     }
 
     func lastSyncTimePublisher() async throws -> AsyncPublisher<AnyPublisher<Date?, Never>> {
