@@ -47,6 +47,7 @@ protocol SettingsRepository: AnyObject {
     func getDisableAutoTotpCopy() async throws -> Bool
 
     /// Get the current value of the sync to Authenticator setting.
+    ///
     func getSyncToAuthenticator() async throws -> Bool
 
     /// A publisher for the last sync time.
@@ -78,6 +79,12 @@ protocol SettingsRepository: AnyObject {
     /// - Parameter disableAutoTotpCopy: Whether a cipher's TOTP should be auto-copied during autofill.
     ///
     func updateDisableAutoTotpCopy(_ disableAutoTotpCopy: Bool) async throws
+
+    /// Update the cached value of the sync to authenticator setting.
+    ///
+    /// - Parameter connectToWatch: Whether to sync TOTP codes to the Authenticator app.
+    ///
+    func updateSyncToAuthenticator(_ syncToAuthenticator: Bool) async throws
 
     // MARK: Publishers
 
@@ -185,8 +192,7 @@ extension DefaultSettingsRepository: SettingsRepository {
     }
 
     func getSyncToAuthenticator() async throws -> Bool {
-        false
-//        try await stateService.getConnectToWatch()
+        try await stateService.getConnectToWatch()
     }
 
     func lastSyncTimePublisher() async throws -> AsyncPublisher<AnyPublisher<Date?, Never>> {
@@ -207,6 +213,10 @@ extension DefaultSettingsRepository: SettingsRepository {
 
     func updateDisableAutoTotpCopy(_ disableAutoTotpCopy: Bool) async throws {
         try await stateService.setDisableAutoTotpCopy(disableAutoTotpCopy)
+    }
+
+    func updateSyncToAuthenticator(_ syncToAuthenticator: Bool) async throws {
+        try await stateService.setSyncToAuthenticator(syncToAuthenticator)
     }
 
     // MARK: Publishers
