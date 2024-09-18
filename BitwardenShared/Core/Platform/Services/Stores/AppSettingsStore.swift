@@ -193,7 +193,8 @@ protocol AppSettingsStore: AnyObject {
     /// Gets the environment URLs used to start the account creation flow.
     ///
     /// - Parameters:
-    ///  - email: The user's email address.
+    ///  - email: The email used to start the account creation.
+    /// - Returns: The environment URLs used prior to start the account creation.
     ///
     func preAuthEnvironmentUrlsByEmail(email: String) -> EnvironmentUrlData?
 
