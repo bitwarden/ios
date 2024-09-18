@@ -141,7 +141,7 @@ protocol AppSettingsStore: AnyObject {
     /// - Returns: The value of the feature flag as a `Bool`, or `nil` if the flag does not exist
     ///     or cannot be decoded.
     ///
-    func featureFlag(name: String) -> Bool?
+    func debugFeatureFlag(name: String) -> Bool?
 
     /// The user's last active time within the app.
     /// This value is set when the app is backgrounded.
@@ -304,7 +304,7 @@ protocol AppSettingsStore: AnyObject {
     ///   - value: The boolean value to assign to the feature flag. If `nil`, the feature flag will be removed
     ///    from the settings store.
     ///
-    func setFeatureFlag(name: String, value: Bool?)
+    func overrideDebugFeatureFlag(name: String, value: Bool?)
 
     /// Sets the last active time within the app.
     ///
@@ -848,7 +848,7 @@ extension DefaultAppSettingsStore: AppSettingsStore {
         fetch(for: .events(userId: userId)) ?? []
     }
 
-    func featureFlag(name: String) -> Bool? {
+    func debugFeatureFlag(name: String) -> Bool? {
         fetch(for: .featureFlag(name: name))
     }
 
@@ -934,7 +934,7 @@ extension DefaultAppSettingsStore: AppSettingsStore {
         store(events, for: .events(userId: userId))
     }
 
-    func setFeatureFlag(name: String, value: Bool?) {
+    func overrideDebugFeatureFlag(name: String, value: Bool?) {
         store(value, for: .featureFlag(name: name))
     }
 

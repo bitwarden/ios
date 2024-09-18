@@ -128,7 +128,7 @@ class AppProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_body
 
     /// `showDebugMenu` will send the correct route to the coordinator.
     @MainActor
-    func test_debugMenu() {
+    func test_showDebugMenu() {
         subject.showDebugMenu()
         XCTAssertEqual(coordinator.routes.last, .debugMenu)
     }

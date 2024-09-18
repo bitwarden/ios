@@ -53,7 +53,7 @@ final class DebugMenuProcessor: StateProcessor<DebugMenuState, DebugMenuAction, 
         case .refreshFeatureFlags:
             await refreshFlags()
         case let .toggleFeatureFlag(flag, newValue):
-            services.appSettingsStore.setFeatureFlag(
+            services.appSettingsStore.overrideDebugFeatureFlag(
                 name: flag,
                 value: newValue
             )
@@ -64,26 +64,19 @@ final class DebugMenuProcessor: StateProcessor<DebugMenuState, DebugMenuAction, 
     // MARK: Private Functions
 
     /// Asynchronously fetches and updates feature flags for the debug menu.
-    /// If we are in a DEBUG build, we will try to use the value stored in User Defaults,
+    /// We will try to use the value stored in User Defaults,
     /// otherwise use the remote state or default to false.
     private func fetchFlags() async {
-        let remoteFeatureFlags = await services.configService.getRemoteFeatureFlags()
-
-        state.featureFlags = FeatureFlag.allCases.map { feature in
-            let userDefaultValue = services.appSettingsStore.featureFlag(name: feature.rawValue)
-            let remoteFlagValue = remoteFeatureFlags[feature]?.boolValue ?? false
-
-            return DebugMenuFeatureFlag(
-                feature: feature,
-                isEnabled: userDefaultValue ?? remoteFlagValue
-            )
-        }
+        state.featureFlags = await services.configService.getDebugFeatureFlags()
     }
 
     /// Refreshes the feature flags by resetting their local values and fetching the latest configurations.
     private func refreshFlags() async {
         for feature in FeatureFlag.allCases {
-            services.appSettingsStore.setFeatureFlag(name: feature.rawValue, value: nil)
+            services.appSettingsStore.overrideDebugFeatureFlag(
+                name: feature.rawValue,
+                value: nil
+            )
         }
         await fetchFlags()
     }

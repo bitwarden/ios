@@ -5,9 +5,6 @@ import Foundation
 /// Effects that can be processed by a `DebugMenuProcessor`.
 ///
 enum DebugMenuEffect: Equatable {
-    /// The view appeared and is ready to load data.
-    case viewAppeared
-
     /// Triggers a refresh of feature flags, clearing local settings and re-fetching from the remote source.
     case refreshFeatureFlags
 
@@ -17,4 +14,7 @@ enum DebugMenuEffect: Equatable {
     ///   - String: The identifier for the feature flag.
     ///   - Bool: The state to which the feature flag should be set (enabled or disabled).
     case toggleFeatureFlag(String, Bool)
+
+    /// The view appeared and is ready to load data.
+    case viewAppeared
 }

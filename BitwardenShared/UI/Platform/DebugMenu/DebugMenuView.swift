@@ -13,13 +13,11 @@ struct DebugMenuView: View {
     // MARK: View
 
     var body: some View {
-        ZStack {
-            List {
-                Section {
-                    featureFlags
-                } header: {
-                    featureFlagSectionHeader
-                }
+        List {
+            Section {
+                featureFlags
+            } header: {
+                featureFlagSectionHeader
             }
         }
         .toolbar {

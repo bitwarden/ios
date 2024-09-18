@@ -17,7 +17,9 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
     var window: UIWindow?
 
     /// The processor that manages application level logic.
-    var appProcessor: AppProcessor?
+    var appProcessor: AppProcessor? {
+        (UIApplication.shared.delegate as? AppDelegateType)?.appProcessor
+    }
 
     // MARK: Methods
 
@@ -27,7 +29,7 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         options connectionOptions: UIScene.ConnectionOptions
     ) {
         guard let windowScene = scene as? UIWindowScene else { return }
-        guard let appProcessor = (UIApplication.shared.delegate as? AppDelegateType)?.appProcessor else {
+        guard let appProcessor else {
             if (UIApplication.shared.delegate as? AppDelegateType)?.isTesting == true {
                 // If the app is running tests, show a testing view.
                 window = buildSplashWindow(windowScene: windowScene)
@@ -36,7 +38,6 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
             return
         }
 
-        self.appProcessor = appProcessor
         let rootViewController = RootViewController()
         let appWindow = UIWindow(windowScene: windowScene)
         appWindow.rootViewController = rootViewController
@@ -72,18 +73,19 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         _ scene: UIScene,
         continue userActivity: NSUserActivity
     ) {
-        guard let appProcessor = (UIApplication.shared.delegate as? AppDelegateType)?.appProcessor,
-              userActivity.activityType == NSUserActivityTypeBrowsingWeb,
-              let incomingURL = userActivity.webpageURL else {
-            return
-        }
+        guard
+            let appProcessor,
+            userActivity.activityType == NSUserActivityTypeBrowsingWeb,
+            let incomingURL = userActivity.webpageURL
+        else { return }
 
         appProcessor.handleAppLinks(incomingURL: incomingURL)
     }
 
     func scene(_ scene: UIScene, openURLContexts urlContexts: Set<UIOpenURLContext>) {
-        guard let url = urlContexts.first?.url,
-              let appProcessor = (UIApplication.shared.delegate as? AppDelegateType)?.appProcessor
+        guard
+            let url = urlContexts.first?.url,
+            let appProcessor
         else { return }
 
         Task {
@@ -143,7 +145,7 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
             action: #selector(handleTripleTapGesture)
         )
         tapGesture.numberOfTapsRequired = 3
-        tapGesture.numberOfTouchesRequired = 3
+        tapGesture.numberOfTouchesRequired = 2
         window.addGestureRecognizer(tapGesture)
     }
 }

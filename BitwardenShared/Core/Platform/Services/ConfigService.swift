@@ -64,9 +64,9 @@ protocol ConfigService {
         isPreAuth: Bool
     ) async -> String?
 
-    /// Retrieves feature flags from a remote configuration service.
+    /// Retrieves debug menu feature flags.
     ///
-    func getRemoteFeatureFlags() async -> [FeatureFlag: AnyCodable]
+    func getDebugFeatureFlags() async ->  [DebugMenuFeatureFlag]
 }
 
 extension ConfigService {
@@ -170,8 +170,8 @@ class DefaultConfigService: ConfigService {
         forceRefresh: Bool = false,
         isPreAuth: Bool = false
     ) async -> Bool {
-        #if DEBUG
-        if let userDefaultValue: Bool = appSettingsStore.featureFlag(name: flag.rawValue) {
+        #if DEBUG_MENU
+        if let userDefaultValue = appSettingsStore.debugFeatureFlag(name: flag.rawValue) {
             return userDefaultValue
         }
         #endif
@@ -203,8 +203,18 @@ class DefaultConfigService: ConfigService {
         return configuration?.featureStates[flag]?.stringValue ?? defaultValue
     }
 
-    func getRemoteFeatureFlags() async -> [FeatureFlag: AnyCodable] {
-        await getConfig()?.featureStates ?? [:]
+    func getDebugFeatureFlags() async -> [DebugMenuFeatureFlag] {
+        let remoteFeatureFlags = await getConfig()?.featureStates ?? [:]
+
+        return FeatureFlag.allCases.map { feature in
+            let userDefaultValue = appSettingsStore.debugFeatureFlag(name: feature.rawValue)
+            let remoteFlagValue = remoteFeatureFlags[feature]?.boolValue ?? false
+
+            return DebugMenuFeatureFlag(
+                feature: feature,
+                isEnabled: userDefaultValue ?? remoteFlagValue
+            )
+        }
     }
 
     // MARK: Private
