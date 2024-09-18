@@ -41,7 +41,7 @@ public protocol AuthenticatorBridgeItemService {
 ///
 public class DefaultAuthenticatorBridgeItemService: AuthenticatorBridgeItemService {
     // MARK: Properties
-    
+
     /// Cryptography service for encrypting/decrypting items.
     let cryptoService: SharedCryptographyService
 
@@ -59,9 +59,9 @@ public class DefaultAuthenticatorBridgeItemService: AuthenticatorBridgeItemServi
     ///   - dataStore: The CoreData store for working with shared data
     ///   - sharedKeychainRepository: The keychain repository for working with the shared key.
     ///
-    init(cryptoService: SharedCryptographyService,
-         dataStore: AuthenticatorBridgeDataStore,
-         sharedKeychainRepository: SharedKeychainRepository) {
+    public init(cryptoService: SharedCryptographyService,
+                dataStore: AuthenticatorBridgeDataStore,
+                sharedKeychainRepository: SharedKeychainRepository) {
         self.cryptoService = cryptoService
         self.dataStore = dataStore
         self.sharedKeychainRepository = sharedKeychainRepository

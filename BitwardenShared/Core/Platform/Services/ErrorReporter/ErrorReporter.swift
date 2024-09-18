@@ -1,6 +1,8 @@
+import AuthenticatorBridgeKit
+
 /// A protocol for a service that can report non-fatal errors for investigation.
 ///
-public protocol ErrorReporter: AnyObject {
+public protocol ErrorReporter: AnyObject, AuthenticatorBridgeKit.ErrorReporter {
     // MARK: Properties
 
     /// Whether collecting non-fatal errors and crash reports is enabled.
