@@ -46,6 +46,9 @@ protocol SettingsRepository: AnyObject {
     ///
     func getDisableAutoTotpCopy() async throws -> Bool
 
+    /// Get the current value of the sync to Authenticator setting.
+    func getSyncToAuthenticator() async throws -> Bool
+
     /// A publisher for the last sync time.
     ///
     /// - Returns: A publisher for the last sync time.
@@ -179,6 +182,11 @@ extension DefaultSettingsRepository: SettingsRepository {
 
     func getDisableAutoTotpCopy() async throws -> Bool {
         try await stateService.getDisableAutoTotpCopy()
+    }
+
+    func getSyncToAuthenticator() async throws -> Bool {
+        false
+//        try await stateService.getConnectToWatch()
     }
 
     func lastSyncTimePublisher() async throws -> AsyncPublisher<AnyPublisher<Date?, Never>> {
