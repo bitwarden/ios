@@ -27,6 +27,9 @@ enum StartRegistrationError: Error {
 
     /// The email is invalid.
     case invalidEmail
+
+    /// The pre auth environment urls are nill.
+    case preAuthUrlsEmpty
 }
 
 // MARK: - StartRegistrationProcessor
@@ -165,6 +168,11 @@ class StartRegistrationProcessor: StateProcessor<
                     userEmail: state.emailText
                 ))
             } else {
+                guard let preAuthUrls = await services.stateService.getPreAuthEnvironmentUrls() else {
+                    throw StartRegistrationError.preAuthUrlsEmpty
+                }
+
+                await services.stateService.setPreAuthEnvironmentUrlsByEmail(urls: preAuthUrls, email: email)
                 coordinator.navigate(to: .checkEmail(email: state.emailText))
             }
         } catch let error as StartRegistrationError {
@@ -188,6 +196,8 @@ class StartRegistrationProcessor: StateProcessor<
             coordinator.showAlert(.validationFieldRequired(fieldName: Localizations.email))
         case .invalidEmail:
             coordinator.showAlert(.invalidEmail)
+        case .preAuthUrlsEmpty:
+            coordinator.showAlert(.defaultAlert(title: Localizations.anErrorHasOccurred))
         }
     }
 }

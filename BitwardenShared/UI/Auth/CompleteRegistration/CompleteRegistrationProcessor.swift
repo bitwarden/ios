@@ -17,6 +17,9 @@ enum CompleteRegistrationError: Error {
 
     /// The password does not meet the minimum length requirement.
     case passwordIsTooShort
+
+    /// The environment urls to complete the registration are empty
+    case preAuthUrlsEmpty
 }
 
 // MARK: - CompleteRegistrationProcessor
@@ -244,13 +247,24 @@ class CompleteRegistrationProcessor: StateProcessor<
         }
     }
 
-    /// Sets the URLs to use.
+    /// Sets the URLs to use if user came from an email link.
     ///
     private func setRegion() async {
-        guard state.region != nil,
-              let urls = state.region?.defaultURLs else { return }
+        do {
+            guard state.fromEmail else {
+                return
+            }
 
-        await services.environmentService.setPreAuthURLs(urls: urls)
+            guard let urls = await services.stateService.getPreAuthEnvironmentUrlsByEmail(email: state.userEmail) else {
+                throw CompleteRegistrationError.preAuthUrlsEmpty
+            }
+
+            await services.environmentService.setPreAuthURLs(urls: urls)
+        } catch let error as CompleteRegistrationError {
+            showCompleteRegistrationErrorAlert(error)
+        } catch {
+            coordinator.showAlert(.defaultAlert(title: Localizations.anErrorHasOccurred))
+        }
     }
 
     /// Sets the feature flag value to be used.
@@ -274,6 +288,11 @@ class CompleteRegistrationProcessor: StateProcessor<
             coordinator.showAlert(.validationFieldRequired(fieldName: Localizations.masterPassword))
         case .passwordIsTooShort:
             coordinator.showAlert(.passwordIsTooShort)
+        case .preAuthUrlsEmpty:
+            coordinator.showAlert(.defaultAlert(
+                title: Localizations.anErrorHasOccurred,
+                message: Localizations.theRegionForTheGivenEmailCouldNotBeLoaded
+            ))
         }
     }
 

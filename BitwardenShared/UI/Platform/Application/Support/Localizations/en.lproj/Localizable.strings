@@ -975,3 +975,4 @@
 "PleaseRestartRegistrationOrTryLoggingInYouMayAlreadyHaveAnAccount" = "Please restart registration or try logging in. You may already have an account.";
 "RemovePasskey" = "Remove passkey";
 "PasskeyRemoved" = "Passkey removed";
+"TheRegionForTheGivenEmailCouldNotBeLoaded" = "The region for the given email could not be loaded.";
