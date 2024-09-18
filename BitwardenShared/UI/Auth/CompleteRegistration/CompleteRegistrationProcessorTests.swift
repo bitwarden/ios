@@ -99,7 +99,7 @@ class CompleteRegistrationProcessorTests: BitwardenTestCase {
         await stateService.setPreAuthEnvironmentUrlsByEmail(urls: .defaultEU, email: "another_email@example.com")
         await subject.perform(.appeared)
         XCTAssertEqual(
-            coordinator.alertShown.last,
+            coordinator.alertShown[0],
             .defaultAlert(
                 title: Localizations.anErrorHasOccurred,
                 message: Localizations.theRegionForTheGivenEmailCouldNotBeLoaded
