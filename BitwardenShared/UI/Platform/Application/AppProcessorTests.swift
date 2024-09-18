@@ -13,6 +13,7 @@ class AppProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_body
     var authRepository: MockAuthRepository!
     var autofillCredentialService: MockAutofillCredentialService!
     var clientService: MockClientService!
+    var configService: MockConfigService!
     var coordinator: MockCoordinator<AppRoute, AppEvent>!
     var errorReporter: MockErrorReporter!
     var fido2UserInterfaceHelper: MockFido2UserInterfaceHelper!
@@ -38,6 +39,7 @@ class AppProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_body
         authRepository = MockAuthRepository()
         autofillCredentialService = MockAutofillCredentialService()
         clientService = MockClientService()
+        configService = MockConfigService()
         coordinator = MockCoordinator()
         appModule.authRouter = router
         appModule.appCoordinator = coordinator
@@ -59,6 +61,7 @@ class AppProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_body
                 authRepository: authRepository,
                 autofillCredentialService: autofillCredentialService,
                 clientService: clientService,
+                configService: configService,
                 errorReporter: errorReporter,
                 eventService: eventService,
                 fido2UserInterfaceHelper: fido2UserInterfaceHelper,
@@ -81,6 +84,7 @@ class AppProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_body
         authRepository = nil
         autofillCredentialService = nil
         clientService = nil
+        configService = nil
         coordinator = nil
         errorReporter = nil
         fido2UserInterfaceHelper = nil
@@ -618,6 +622,83 @@ class AppProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_body
         XCTAssertTrue(appModule.appCoordinator.isStarted)
         XCTAssertEqual(appModule.appCoordinator.events, [.didStart])
         XCTAssertEqual(migrationService.didPerformMigrations, true)
+    }
+
+    /// `start(navigator:)` doesn't complete the accounts autofill setup if autofill is disabled.
+    @MainActor
+    func test_start_completeAutofillAccountSetupIfEnabled_autofillDisabled() async {
+        autofillCredentialService.isAutofillCredentialsEnabled = false
+        configService.featureFlagsBool[.nativeCreateAccountFlow] = true
+        stateService.activeAccount = .fixture()
+        stateService.accounts = [.fixture()]
+        stateService.accountSetupAutofill["1"] = .setUpLater
+
+        let rootNavigator = MockRootNavigator()
+        await subject.start(appContext: .mainApp, navigator: rootNavigator, window: nil)
+
+        XCTAssertEqual(stateService.accountSetupAutofill, ["1": .setUpLater])
+    }
+
+    /// `start(navigator:)` doesn't complete the accounts autofill setup if the native create
+    /// account flow feature flag is disabled.
+    @MainActor
+    func test_start_completeAutofillAccountSetupIfEnabled_featureFlagDisabled() async {
+        autofillCredentialService.isAutofillCredentialsEnabled = true
+        configService.featureFlagsBool[.nativeCreateAccountFlow] = false
+        stateService.activeAccount = .fixture()
+        stateService.accounts = [.fixture()]
+        stateService.accountSetupAutofill["1"] = .setUpLater
+
+        let rootNavigator = MockRootNavigator()
+        await subject.start(appContext: .mainApp, navigator: rootNavigator, window: nil)
+
+        XCTAssertEqual(stateService.accountSetupAutofill, ["1": .setUpLater])
+    }
+
+    /// `start(navigator:)` logs an error if one occurs while updating the account's autofill setup.
+    @MainActor
+    func test_start_completeAutofillAccountSetupIfEnabled_error() async {
+        autofillCredentialService.isAutofillCredentialsEnabled = true
+        configService.featureFlagsBool[.nativeCreateAccountFlow] = true
+        stateService.accounts = [.fixture()]
+        stateService.accountSetupAutofill["1"] = .setUpLater
+
+        let rootNavigator = MockRootNavigator()
+        await subject.start(appContext: .mainApp, navigator: rootNavigator, window: nil)
+
+        XCTAssertEqual(errorReporter.errors as? [StateServiceError], [.noActiveAccount])
+        XCTAssertEqual(stateService.accountSetupAutofill, ["1": .setUpLater])
+    }
+
+    /// `start(navigator:)` doesn't update the user's autofill setup progress if they have no
+    /// current progress recorded.
+    @MainActor
+    func test_start_completeAutofillAccountSetupIfEnabled_noProgress() async {
+        autofillCredentialService.isAutofillCredentialsEnabled = true
+        configService.featureFlagsBool[.nativeCreateAccountFlow] = true
+        stateService.activeAccount = .fixture()
+        stateService.accounts = [.fixture()]
+
+        let rootNavigator = MockRootNavigator()
+        await subject.start(appContext: .mainApp, navigator: rootNavigator, window: nil)
+
+        XCTAssertTrue(stateService.accountSetupAutofill.isEmpty)
+    }
+
+    /// `start(navigator:)` completes the user's autofill setup progress if autofill is enabled and
+    /// they previously choose to set it up later.
+    @MainActor
+    func test_start_completeAutofillAccountSetupIfEnabled_success() async {
+        autofillCredentialService.isAutofillCredentialsEnabled = true
+        configService.featureFlagsBool[.nativeCreateAccountFlow] = true
+        stateService.activeAccount = .fixture()
+        stateService.accounts = [.fixture()]
+        stateService.accountSetupAutofill["1"] = .setUpLater
+
+        let rootNavigator = MockRootNavigator()
+        await subject.start(appContext: .mainApp, navigator: rootNavigator, window: nil)
+
+        XCTAssertEqual(stateService.accountSetupAutofill, ["1": .complete])
     }
 
     /// `unlockVaultWithNeverlockKey()` unlocks it calling the auth repository.
