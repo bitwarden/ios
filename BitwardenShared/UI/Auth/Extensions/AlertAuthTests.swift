@@ -165,6 +165,28 @@ class AlertAuthTests: BitwardenTestCase {
         await fulfillment(of: [expectation], timeout: 3)
     }
 
+    /// `setUpUnlockMethodLater(action:)` builds an `Alert` confirming the user wants to set up
+    /// their unlock methods later.
+    func test_setUpUnlockMethodLater() async throws {
+        var actionCalled = false
+        let subject = Alert.setUpUnlockMethodLater {
+            actionCalled = true
+        }
+
+        XCTAssertEqual(subject.title, Localizations.setUpLaterQuestion)
+        XCTAssertEqual(subject.message, Localizations.youCanFinishSetupUnlockAnytimeDescriptionLong)
+        XCTAssertEqual(subject.preferredStyle, .alert)
+        XCTAssertEqual(subject.alertActions.count, 2)
+        XCTAssertEqual(subject.alertActions[0].title, Localizations.cancel)
+        XCTAssertEqual(subject.alertActions[1].title, Localizations.confirm)
+
+        try await subject.tapAction(title: Localizations.cancel)
+        XCTAssertFalse(actionCalled)
+
+        try await subject.tapAction(title: Localizations.confirm)
+        XCTAssertTrue(actionCalled)
+    }
+
     /// `switchToExistingAccount(action:)` builds an `Alert` for switching to an existing account.
     func test_switchToExistingAccount() async throws {
         var actionCalled = false

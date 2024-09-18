@@ -4,6 +4,9 @@ import Foundation
 
 /// A route to a specific screen in the authentication flow.
 public enum AuthRoute: Equatable {
+    /// A route to the autofill setup screen.
+    case autofillSetup
+
     /// A route to the captcha screen.
     case captcha(url: URL, callbackUrlScheme: String)
 

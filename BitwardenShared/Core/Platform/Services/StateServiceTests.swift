@@ -637,6 +637,25 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
         }
     }
 
+    /// `getNeedsVaultUnlockSetup()` returns whether the user needs to set up vault unlock methods.
+    func test_getNeedsVaultUnlockSetup() async throws {
+        await subject.addAccount(.fixture(profile: .fixture(userId: "1")))
+
+        let initialValue = try await subject.getNeedsVaultUnlockSetup()
+        XCTAssertFalse(initialValue)
+
+        appSettingsStore.needsVaultUnlockSetup["1"] = true
+        let needsVaultUnlockSetup = try await subject.getNeedsVaultUnlockSetup()
+        XCTAssertTrue(needsVaultUnlockSetup)
+    }
+
+    /// `getNeedsVaultUnlockSetup()` throws an error if there isn't an active account.
+    func test_getNeedsVaultUnlockSetup_noAccount() async throws {
+        await assertAsyncThrows(error: StateServiceError.noActiveAccount) {
+            _ = try await subject.getNeedsVaultUnlockSetup()
+        }
+    }
+
     /// `getNotificationsLastRegistrationDate()` returns the user's last notifications registration date.
     func test_getNotificationsLastRegistrationDate() async throws {
         await subject.addAccount(.fixture(profile: .fixture(userId: "1")))
@@ -1548,6 +1567,17 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
 
         try await subject.setMasterPasswordHash("1234", userId: "1")
         XCTAssertEqual(appSettingsStore.masterPasswordHashes, ["1": "1234"])
+    }
+
+    /// `setNeedsVaultUnlockSetup(_:)` sets whether the user needs to set up vault unlock methods.
+    func test_setNeedsVaultUnlockSetup() async throws {
+        await subject.addAccount(.fixture(profile: .fixture(userId: "1")))
+
+        try await subject.setNeedsVaultUnlockSetup(true)
+        XCTAssertEqual(appSettingsStore.needsVaultUnlockSetup, ["1": true])
+
+        try await subject.setNeedsVaultUnlockSetup(false, userId: "1")
+        XCTAssertEqual(appSettingsStore.needsVaultUnlockSetup, ["1": false])
     }
 
     /// `setNotificationsLastRegistrationDate(_:)` sets the last notifications registration date for a user.
