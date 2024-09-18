@@ -174,6 +174,13 @@ protocol AppSettingsStore: AnyObject {
     ///
     func masterPasswordHash(userId: String) -> String?
 
+    /// Gets whether the user needs to set up vault unlock methods.
+    ///
+    /// - Parameter userId: The user ID associated with the value.
+    /// - Returns: Whether the user needs to set up vault unlock methods.
+    ///
+    func needsVaultUnlockSetup(userId: String) -> Bool
+
     /// Gets the last date the user successfully registered for push notifications.
     ///
     /// - Parameter userId: The user ID associated with the last notifications registration date.
@@ -329,6 +336,14 @@ protocol AppSettingsStore: AnyObject {
     ///   - userId: The user ID associated with the master password hash.
     ///
     func setMasterPasswordHash(_ hash: String?, userId: String)
+
+    /// Sets whether the user needs to set up vault unlock methods.
+    ///
+    /// - Parameters:
+    ///   - needsVaultUnlockSetup: Whether the user needs to set up vault unlock methods.
+    ///   - userId: The user ID associated with the value.
+    ///
+    func setNeedsVaultUnlockSetup(_ needsVaultUnlockSetup: Bool, userId: String)
 
     /// Sets the last notifications registration date for a user ID.
     ///
@@ -613,6 +628,7 @@ extension DefaultAppSettingsStore: AppSettingsStore {
         case loginRequest
         case masterPasswordHash(userId: String)
         case migrationVersion
+        case needsVaultUnlockSetup(userId: String)
         case notificationsLastRegistrationDate(userId: String)
         case passwordGenerationOptions(userId: String)
         case pinProtectedUserKey(userId: String)
@@ -684,6 +700,8 @@ extension DefaultAppSettingsStore: AppSettingsStore {
                 key = "keyHash_\(userId)"
             case .migrationVersion:
                 key = "migrationVersion"
+            case let .needsVaultUnlockSetup(userId):
+                key = "needsVaultUnlockSetup_\(userId)"
             case let .notificationsLastRegistrationDate(userId):
                 key = "pushLastRegistrationDate_\(userId)"
             case let .passwordGenerationOptions(userId):
@@ -868,6 +886,10 @@ extension DefaultAppSettingsStore: AppSettingsStore {
         fetch(for: .masterPasswordHash(userId: userId))
     }
 
+    func needsVaultUnlockSetup(userId: String) -> Bool {
+        fetch(for: .needsVaultUnlockSetup(userId: userId))
+    }
+
     func notificationsLastRegistrationDate(userId: String) -> Date? {
         fetch(for: .notificationsLastRegistrationDate(userId: userId)).map { Date(timeIntervalSince1970: $0) }
     }
@@ -948,6 +970,10 @@ extension DefaultAppSettingsStore: AppSettingsStore {
 
     func setMasterPasswordHash(_ hash: String?, userId: String) {
         store(hash, for: .masterPasswordHash(userId: userId))
+    }
+
+    func setNeedsVaultUnlockSetup(_ needsVaultUnlockSetup: Bool, userId: String) {
+        store(needsVaultUnlockSetup, for: .needsVaultUnlockSetup(userId: userId))
     }
 
     func setNotificationsLastRegistrationDate(_ date: Date?, userId: String) {
