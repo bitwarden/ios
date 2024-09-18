@@ -17,6 +17,21 @@ class ViewItemActionTests: BitwardenTestCase {
         XCTAssertNil(CopyableField.username.eventOnCopy)
     }
 
+    /// `getter:localizedName` returns the correct localized name for each action.
+    func test_localizedName() {
+        XCTAssertEqual(CopyableField.cardNumber.localizedName, Localizations.number)
+        XCTAssertNil(CopyableField.customHiddenField.localizedName)
+        XCTAssertNil(CopyableField.customTextField.localizedName)
+        XCTAssertEqual(CopyableField.password.localizedName, Localizations.password)
+        XCTAssertEqual(CopyableField.securityCode.localizedName, Localizations.securityCode)
+        XCTAssertEqual(CopyableField.sshKeyFingerprint.localizedName, Localizations.fingerprint)
+        XCTAssertEqual(CopyableField.sshPrivateKey.localizedName, Localizations.privateKey)
+        XCTAssertEqual(CopyableField.sshPublicKey.localizedName, Localizations.publicKey)
+        XCTAssertEqual(CopyableField.totp.localizedName, Localizations.totp)
+        XCTAssertEqual(CopyableField.uri.localizedName, Localizations.uri)
+        XCTAssertEqual(CopyableField.username.localizedName, Localizations.username)
+    }
+
     /// `requiresMasterPasswordReprompt` returns whether the user's master password needs to be
     /// entered again before performing the action if master password reprompt is enabled.
     func test_requiresMasterPasswordReprompt() {

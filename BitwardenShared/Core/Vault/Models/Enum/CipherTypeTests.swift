@@ -23,4 +23,9 @@ class CipherTypeTests: BitwardenTestCase {
         XCTAssertEqual(CipherType(group: .secureNote), .secureNote)
         XCTAssertNil(CipherType(group: .trash))
     }
+
+    /// `canCreateCases` return the correct cipher types that the user can use to create ciphers.
+    func test_canCreateCases() {
+        XCTAssertEqual(CipherType.canCreateCases, [.login, .card, .identity, .secureNote])
+    }
 }

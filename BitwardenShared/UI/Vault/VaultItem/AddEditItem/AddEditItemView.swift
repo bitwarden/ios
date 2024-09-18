@@ -137,7 +137,7 @@ struct AddEditItemView: View {
                 BitwardenMenuField(
                     title: Localizations.type,
                     accessibilityIdentifier: "ItemTypePicker",
-                    options: CipherType.allCases.filter { $0 != .sshKey },
+                    options: CipherType.canCreateCases,
                     selection: store.binding(
                         get: \.type,
                         send: AddEditItemAction.typeChanged

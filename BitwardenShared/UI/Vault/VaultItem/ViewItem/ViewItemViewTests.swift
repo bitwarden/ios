@@ -402,9 +402,18 @@ class ViewItemViewTests: BitwardenTestCase { // swiftlint:disable:this type_body
         )
     }
 
-    /// Snapshots the previews for SSH key type.
+    /// Snapshots the previews for login types.
     @MainActor
     func test_snapshot_previews_sshKey() {
+        assertSnapshot(
+            matching: ViewItemView_Previews.sshKeyPreview,
+            as: .tallPortrait
+        )
+    }
+
+    /// Snapshots the previews for SSH key type.
+    @MainActor
+    func test_snapshot_sshKey() {
         processor.state.loadingState = .data(sshKeyCipherItemState(isPrivateKeyVisible: false))
         assertSnapshots(
             of: subject,
@@ -414,7 +423,7 @@ class ViewItemViewTests: BitwardenTestCase { // swiftlint:disable:this type_body
 
     /// Snapshots the previews for SSH key type when private key is visible.
     @MainActor
-    func test_snapshot_previews_sshKeyPrivateKeyVisible() {
+    func test_snapshot_sshKeyPrivateKeyVisible() {
         processor.state.loadingState = .data(sshKeyCipherItemState(isPrivateKeyVisible: true))
         assertSnapshots(
             of: subject,

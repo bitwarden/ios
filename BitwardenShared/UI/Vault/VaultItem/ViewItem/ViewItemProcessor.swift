@@ -28,6 +28,9 @@ final class ViewItemProcessor: StateProcessor<ViewItemState, ViewItemAction, Vie
 
         /// A password visibility toggle occurred when not possible.
         case nonLoginPasswordToggle(String)
+
+        /// An error for ssh key action handling
+        case nonSshKeyTypeToggle(String)
     }
 
     // MARK: Private Properties
@@ -392,7 +395,7 @@ private extension ViewItemProcessor {
         }
         guard case .sshKey = cipherState.type else {
             services.errorReporter.log(
-                error: ActionError.nonCardTypeToggle("Cannot handle SSH key action on non SSH key type")
+                error: ActionError.nonSshKeyTypeToggle("Cannot handle SSH key action on non SSH key type")
             )
             return
         }

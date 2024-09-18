@@ -129,9 +129,9 @@ extension CipherView {
         // TODO: PM-10401 create state when SDK is updated
         SSHKeyItemState(
             isPrivateKeyVisible: false,
-            privateKey: "TestPrivateKey",
-            publicKey: "TestPublicKey",
-            keyFingerprint: "TestFingerprint"
+            privateKey: "Test",
+            publicKey: "Test",
+            keyFingerprint: "Test"
         )
     }
 
