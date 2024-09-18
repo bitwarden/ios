@@ -10,7 +10,7 @@ enum PolicyOptionType: String {
     case capitalize
 
     /// A policy option for the default type of the password generator.
-    case defaultType
+    case overridePasswordType
 
     /// A policy option for whether to include a number in a passphrase.
     case includeNumber

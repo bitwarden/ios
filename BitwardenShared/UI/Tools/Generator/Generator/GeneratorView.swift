@@ -100,7 +100,7 @@ struct GeneratorView: View {
                 case let .menuPasswordGeneratorType(menuField):
                     FormMenuFieldView(field: menuField) { newValue in
                         store.send(.passwordGeneratorTypeChanged(newValue))
-                    }
+                    }.disabled(store.state.policyOptions?.overridePasswordType ?? false)
                 case let .menuUsernameForwardedEmailService(menuField):
                     FormMenuFieldView(field: menuField) { newValue in
                         store.send(.usernameForwardedEmailServiceChanged(newValue))
