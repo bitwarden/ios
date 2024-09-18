@@ -39,6 +39,7 @@ class MockAppSettingsStore: AppSettingsStore {
     var pinProtectedUserKey = [String: String]()
     var serverConfig = [String: ServerConfig]()
     var shouldTrustDevice = [String: Bool?]()
+    var syncToAuthenticatorByUserId = [String: Bool]()
     var timeoutAction = [String: Int]()
     var twoFactorTokens = [String: String]()
     var usesKeyConnector = [String: Bool]()
@@ -210,6 +211,10 @@ class MockAppSettingsStore: AppSettingsStore {
         self.shouldTrustDevice[userId] = shouldTrustDevice
     }
 
+    func setSyncToAuthenticator(_ syncToAuthenticator: Bool, userId: String) {
+        syncToAuthenticatorByUserId[userId] = syncToAuthenticator
+    }
+
     func setTimeoutAction(key: SessionTimeoutAction, userId: String) {
         timeoutAction[userId] = key.rawValue
     }
@@ -240,6 +245,10 @@ class MockAppSettingsStore: AppSettingsStore {
 
     func shouldTrustDevice(userId: String) -> Bool? {
         shouldTrustDevice[userId] ?? false
+    }
+
+    func syncToAuthenticator(userId: String) -> Bool {
+        syncToAuthenticatorByUserId[userId] ?? false
     }
 
     func timeoutAction(userId: String) -> Int? {

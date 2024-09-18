@@ -67,6 +67,9 @@ class MockStateService: StateService { // swiftlint:disable:this type_body_lengt
     var setBiometricAuthenticationEnabledResult: Result<Void, Error> = .success(())
     var setBiometricIntegrityStateError: Error?
     var shouldTrustDevice = [String: Bool?]()
+    var syncToAuthenticatorByUserId = [String: Bool]()
+    var syncToAuthenticatorResult: Result<Void, Error> = .success(())
+    var syncToAuthenticatorSubject = CurrentValueSubject<(String?, Bool), Never>((nil, false))
     var twoFactorTokens = [String: String]()
     var unsuccessfulUnlockAttempts = [String: Int]()
     var updateProfileResponse: ProfileResponseModel?
@@ -270,6 +273,12 @@ class MockStateService: StateService { // swiftlint:disable:this type_body_lengt
 
     func getShowWebIcons() async -> Bool {
         showWebIcons
+    }
+
+    func getSyncToAuthenticator(userId: String?) async throws -> Bool {
+        try syncToAuthenticatorResult.get()
+        let userId = try unwrapUserId(userId)
+        return syncToAuthenticatorByUserId[userId] ?? false
     }
 
     func getTimeoutAction(userId: String?) async throws -> SessionTimeoutAction {
@@ -496,6 +505,12 @@ class MockStateService: StateService { // swiftlint:disable:this type_body_lengt
         self.showWebIcons = showWebIcons
     }
 
+    func setSyncToAuthenticator(_ syncToAuthenticator: Bool, userId: String?) async throws {
+        try syncToAuthenticatorResult.get()
+        let userId = try unwrapUserId(userId)
+        syncToAuthenticatorByUserId[userId] = syncToAuthenticator
+    }
+
     func setTimeoutAction(action: SessionTimeoutAction, userId: String?) async throws {
         let userId = try unwrapUserId(userId)
         timeoutAction[userId] = action
@@ -586,6 +601,10 @@ class MockStateService: StateService { // swiftlint:disable:this type_body_lengt
 
     func showWebIconsPublisher() async -> AnyPublisher<Bool, Never> {
         showWebIconsSubject.eraseToAnyPublisher()
+    }
+
+    func syncToAuthenticatorPublisher() async -> AnyPublisher<(String?, Bool), Never> {
+        syncToAuthenticatorSubject.eraseToAnyPublisher()
     }
 }
 

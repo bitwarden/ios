@@ -1703,7 +1703,7 @@ actor DefaultStateService: StateService { // swiftlint:disable:this type_body_le
         activeAccountIdPublisher().flatMap { userId in
             self.syncToAuthenticatorByUserIdSubject.map { values in
                 let userValue = if let userId {
-                    values[userId] ?? self.appSettingsStore.connectToWatch(userId: userId)
+                    values[userId] ?? self.appSettingsStore.syncToAuthenticator(userId: userId)
                 } else {
                     false
                 }
