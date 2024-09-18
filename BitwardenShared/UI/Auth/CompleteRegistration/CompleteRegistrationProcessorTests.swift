@@ -63,6 +63,7 @@ class CompleteRegistrationProcessorTests: BitwardenTestCase {
         configService = nil
         errorReporter = nil
         subject = nil
+        stateService = nil
     }
 
     // MARK: Tests
