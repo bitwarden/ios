@@ -139,7 +139,8 @@ class StartRegistrationProcessorTests: BitwardenTestCase { // swiftlint:disable:
         XCTAssertEqual(
             coordinator.alertShown.last,
             .defaultAlert(
-                title: Localizations.anErrorHasOccurred
+                title: Localizations.anErrorHasOccurred,
+                message: Localizations.thePreAuthUrlsCouldNotBeLoadedToStartTheAccountCreation
             )
         )
 

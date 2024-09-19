@@ -28,7 +28,7 @@ enum StartRegistrationError: Error {
     /// The email is invalid.
     case invalidEmail
 
-    /// The pre auth environment urls are nill.
+    /// The pre auth environment urls are nil.
     case preAuthUrlsEmpty
 }
 
@@ -197,7 +197,10 @@ class StartRegistrationProcessor: StateProcessor<
         case .invalidEmail:
             coordinator.showAlert(.invalidEmail)
         case .preAuthUrlsEmpty:
-            coordinator.showAlert(.defaultAlert(title: Localizations.anErrorHasOccurred))
+            coordinator.showAlert(.defaultAlert(
+                title: Localizations.anErrorHasOccurred,
+                message: Localizations.thePreAuthUrlsCouldNotBeLoadedToStartTheAccountCreation
+            ))
         }
     }
 }
