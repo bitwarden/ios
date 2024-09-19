@@ -616,6 +616,43 @@ class AppSettingsStoreTests: BitwardenTestCase { // swiftlint:disable:this type_
         )
     }
 
+    /// `accountCreationEnvironmentUrls` returns `nil` if there isn't a previously stored value.
+    func test_accountCreationEnvironmentUrls_isInitiallyNil() {
+        XCTAssertNil(subject.accountCreationEnvironmentUrls(email: "example@email.com"))
+    }
+
+    /// `accountCreationEnvironmentUrls` can be used to get and set the persisted value in user defaults.
+    func test_accountCreationEnvironmentUrls_withValue() {
+        let email = "example@email.com"
+        subject.setAccountCreationEnvironmentUrls(environmentUrlData: .defaultUS, email: email)
+        XCTAssertEqual(subject.accountCreationEnvironmentUrls(email: email), .defaultUS)
+        try XCTAssertEqual(
+            JSONDecoder().decode(
+                EnvironmentUrlData.self,
+                from: XCTUnwrap(
+                    userDefaults
+                        .string(forKey: "bwPreferencesStorage:accountCreationEnvironmentUrls_\(email)")?
+                        .data(using: .utf8)
+                )
+            ),
+            .defaultUS
+        )
+
+        subject.setAccountCreationEnvironmentUrls(environmentUrlData: .defaultEU, email: email)
+        XCTAssertEqual(subject.accountCreationEnvironmentUrls(email: email), .defaultEU)
+        try XCTAssertEqual(
+            JSONDecoder().decode(
+                EnvironmentUrlData.self,
+                from: XCTUnwrap(
+                    userDefaults
+                        .string(forKey: "bwPreferencesStorage:accountCreationEnvironmentUrls_\(email)")?
+                        .data(using: .utf8)
+                )
+            ),
+            .defaultEU
+        )
+    }
+
     /// `preAuthServerConfig` is initially `nil`
     func test_preAuthServerConfig_isInitiallyNil() {
         XCTAssertNil(subject.preAuthServerConfig)
