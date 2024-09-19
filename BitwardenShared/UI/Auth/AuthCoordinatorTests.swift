@@ -137,8 +137,7 @@ class AuthCoordinatorTests: BitwardenTestCase { // swiftlint:disable:this type_b
         subject.navigate(to: .completeRegistrationFromAppLink(
             emailVerificationToken: "thisisanamazingtoken",
             userEmail: "email@example.com",
-            fromEmail: true,
-            region: .unitedStates
+            fromEmail: true
         ))
 
         let landingAction = try XCTUnwrap(stackNavigator.actions[1])
@@ -173,8 +172,7 @@ class AuthCoordinatorTests: BitwardenTestCase { // swiftlint:disable:this type_b
         subject.navigate(to: .completeRegistrationFromAppLink(
             emailVerificationToken: "thisisanamazingtoken",
             userEmail: "email@example.com",
-            fromEmail: true,
-            region: .unitedStates
+            fromEmail: true
         ))
         subject.navigate(to: .expiredLink)
         subject.navigate(to: .startRegistrationFromExpiredLink)
