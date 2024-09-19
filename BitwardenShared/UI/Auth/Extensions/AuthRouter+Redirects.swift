@@ -357,7 +357,7 @@ extension AuthRouter {
                     return .landingSoftLoggedOut(email: activeAccount.profile.email)
                 }
 
-                let hasMasterPassword = activeAccount.profile.userDecryptionOptions?.hasMasterPassword == true
+                let hasMasterPassword = activeAccount.profile.userDecryptionOptions?.hasMasterPassword ?? true
 
                 if !hasMasterPassword {
                     let biometricUnlockStatus = try await services.biometricsRepository.getBiometricUnlockStatus()
