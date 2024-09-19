@@ -4,7 +4,7 @@ import Foundation
 
 /// An enum to represent a feature flag sent by the server
 ///
-enum FeatureFlag: String, Codable, CaseIterable {
+enum FeatureFlag: String, Codable {
     /// Flag to enable/disable email verification during registration
     /// This flag introduces a new flow for account creation
     case emailVerification = "email-verification"
@@ -26,7 +26,19 @@ enum FeatureFlag: String, Codable, CaseIterable {
     /// A test feature flag that can be remotely configured.
     case testRemoteFeatureFlag = "test-remote-feature-flag"
 
-    // MARK: Properties
+    // MARK: Type Properties
+
+    /// An array of feature flags available in the debug menu.
+    static var debugMenuFeatureFlags: [FeatureFlag] {
+        [
+            .emailVerification,
+            .enableAuthenticatorSync,
+            .nativeCarouselFlow,
+            .nativeCreateAccountFlow,
+        ]
+    }
+
+    // MARK: Instance Properties
 
     /// Whether this feature can be enabled remotely.
     var isRemotelyConfigured: Bool {

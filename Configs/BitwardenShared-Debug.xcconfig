@@ -1,6 +1,6 @@
 #include "./Common.xcconfig"
+#include "./Base-Debug.xcconfig"
 #include? "./Local.xcconfig"
 
-BITWARDEN_FLAGS = DEBUG_MENU
 PRODUCT_BUNDLE_IDENTIFIER = $(BASE_BUNDLE_ID).bitwarden-shared
 SWIFT_ACTIVE_COMPILATION_CONDITIONS = $(inherited) $(BITWARDEN_FLAGS)

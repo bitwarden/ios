@@ -463,23 +463,22 @@ final class ConfigServiceTests: BitwardenTestCase { // swiftlint:disable:this ty
         XCTAssertEqual(value, "fallback")
     }
 
-    /// `getRemoteFeatureFlags(:)` returns the default value if the feature is not remotely configurable for strings
-    func test_getRemoteFeatureFlags() async {
+    /// `getDebugFeatureFlags(:)` returns the default value if the feature is not remotely configurable for strings
+    func test_getDebugFeatureFlags() async {
         stateService.serverConfig["1"] = ServerConfig(
             date: Date(year: 2024, month: 2, day: 14, hour: 7, minute: 50, second: 0),
             responseModel: ConfigResponseModel(
                 environment: nil,
-                featureStates: ["test-remote-feature-flag": .bool(true)],
+                featureStates: ["email-verification": .bool(true)],
                 gitHash: "75238191",
                 server: nil,
                 version: "2024.4.0"
             )
         )
-        let value = await subject.getRemoteFeatureFlags()
-        let boolValueDict = value.compactMapValues { anyCodable in
-            anyCodable.boolValue
-        }
-        XCTAssertEqual(boolValueDict, [.testRemoteFeatureFlag: true])
+        appSettingsStore.overrideDebugFeatureFlag(name: "email-verification", value: false)
+        let flags = await subject.getDebugFeatureFlags()
+        let emailVerificationFlag = try? XCTUnwrap(flags.first { $0.feature.rawValue == "email-verification" })
+        XCTAssertFalse(emailVerificationFlag?.isEnabled ?? true)
     }
 
     // MARK: Private

@@ -2,10 +2,10 @@
 CODE_SIGN_IDENTITY = Apple Development
 
 #include "./Common.xcconfig"
+#include "./Base-Release.xcconfig"
 #include? "./Local.xcconfig"
 
 ASSETCATALOG_COMPILER_APPICON_NAME = $(APPICON_NAME)
-BITWARDEN_FLAGS = DEBUG_MENU
 CODE_SIGN_ENTITLEMENTS = Bitwarden/Application/Support/Bitwarden.entitlements
 FIREBASE_CONFIG_FILENAME = GoogleService-Info.plist
 PRODUCT_BUNDLE_IDENTIFIER = $(BASE_BUNDLE_ID)

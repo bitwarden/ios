@@ -364,8 +364,8 @@ targets:
     type: framework
     platform: iOS
     configFiles:
-      Debug: Configs/BitwardenShared.xcconfig
-      Release: Configs/BitwardenShared.xcconfig
+      Debug: Configs/BitwardenShared-Debug.xcconfig
+      Release: Configs/BitwardenShared-Release.xcconfig
     settings:
       base:
         APPLICATION_EXTENSION_API_ONLY: true

@@ -67,6 +67,10 @@ class MockAppSettingsStore: AppSettingsStore {
         connectToWatchByUserId[userId] ?? false
     }
 
+    func debugFeatureFlag(name: String) -> Bool? {
+        featureFlags[name]
+    }
+
     func defaultUriMatchType(userId: String) -> UriMatchType? {
         defaultUriMatchTypeByUserId[userId]
     }
@@ -91,10 +95,6 @@ class MockAppSettingsStore: AppSettingsStore {
         eventsByUserId[userId] ?? []
     }
 
-    func featureFlag(name: String) -> Bool? {
-        featureFlags[name]
-    }
-
     func lastActiveTime(userId: String) -> Date? {
         lastActiveTime[userId]
     }
@@ -113,6 +113,10 @@ class MockAppSettingsStore: AppSettingsStore {
 
     func notificationsLastRegistrationDate(userId: String) -> Date? {
         notificationsLastRegistrationDates[userId]
+    }
+
+    func overrideDebugFeatureFlag(name: String, value: Bool?) {
+        featureFlags[name] = value
     }
 
     func passwordGenerationOptions(userId: String) -> PasswordGenerationOptions? {
@@ -173,10 +177,6 @@ class MockAppSettingsStore: AppSettingsStore {
 
     func setEvents(_ events: [EventData], userId: String) {
         eventsByUserId[userId] = events
-    }
-
-    func setFeatureFlag(name: String, value: Bool?) {
-        featureFlags[name] = value
     }
 
     func setLastActiveTime(_ date: Date?, userId: String) {

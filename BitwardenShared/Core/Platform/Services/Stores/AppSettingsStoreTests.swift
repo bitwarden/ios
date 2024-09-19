@@ -333,25 +333,23 @@ class AppSettingsStoreTests: BitwardenTestCase { // swiftlint:disable:this type_
         XCTAssertEqual(subject.events(userId: "1"), [])
     }
 
-    /// `setFeatureFlag` and `featureFlag(name:)` work as expected with correct values.
+    /// `overrideDebugFeatureFlag(name:value:)` and `debugFeatureFlag(name:)` work as expected with correct values.
     func test_featureFlags() {
-        let featureFlags = FeatureFlag.allCases
+        let featureFlags = FeatureFlag.debugMenuFeatureFlags
 
         for flag in featureFlags {
-            subject.setFeatureFlag(name: flag.rawValue, value: true)
+            subject.overrideDebugFeatureFlag(name: flag.rawValue, value: true)
         }
 
-        XCTAssertTrue(try XCTUnwrap(subject.featureFlag(name: FeatureFlag.emailVerification.rawValue)))
-        XCTAssertTrue(try XCTUnwrap(subject.featureFlag(name: FeatureFlag.nativeCarouselFlow.rawValue)))
-        XCTAssertTrue(try XCTUnwrap(subject.featureFlag(name: FeatureFlag.enableAuthenticatorSync.rawValue)))
-        XCTAssertTrue(try XCTUnwrap(subject.featureFlag(name: FeatureFlag.nativeCreateAccountFlow.rawValue)))
-        XCTAssertTrue(try XCTUnwrap(subject.featureFlag(name: FeatureFlag.testRemoteFeatureFlag.rawValue)))
-        XCTAssertTrue(try XCTUnwrap(subject.featureFlag(name: FeatureFlag.testLocalFeatureFlag.rawValue)))
+        XCTAssertTrue(try XCTUnwrap(subject.debugFeatureFlag(name: FeatureFlag.emailVerification.rawValue)))
+        XCTAssertTrue(try XCTUnwrap(subject.debugFeatureFlag(name: FeatureFlag.nativeCarouselFlow.rawValue)))
+        XCTAssertTrue(try XCTUnwrap(subject.debugFeatureFlag(name: FeatureFlag.enableAuthenticatorSync.rawValue)))
+        XCTAssertTrue(try XCTUnwrap(subject.debugFeatureFlag(name: FeatureFlag.nativeCreateAccountFlow.rawValue)))
     }
 
     /// `featureFlag(name:)` returns `nil` if not found.
     func test_featureFlags_nilWhenNotPresent() {
-        XCTAssertNil(subject.featureFlag(name: ""))
+        XCTAssertNil(subject.debugFeatureFlag(name: ""))
     }
 
     /// `isBiometricAuthenticationEnabled` returns false if there is no previous value.
