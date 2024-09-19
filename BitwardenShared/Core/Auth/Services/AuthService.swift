@@ -158,8 +158,14 @@ protocol AuthService {
     ///   - password: The master password.
     ///   - username: The username.
     ///   - captchaToken: An optional captcha token value to add to the token request.
+    ///   - isNewAccount: Whether the user is logging into a newly created account.
     ///
-    func loginWithMasterPassword(_ password: String, username: String, captchaToken: String?) async throws
+    func loginWithMasterPassword(
+        _ password: String,
+        username: String,
+        captchaToken: String?,
+        isNewAccount: Bool
+    ) async throws
 
     /// Login with the single sign on code.
     ///
@@ -538,7 +544,12 @@ class DefaultAuthService: AuthService { // swiftlint:disable:this type_body_leng
         return (loginWithDeviceData.privateKey, key)
     }
 
-    func loginWithMasterPassword(_ masterPassword: String, username: String, captchaToken: String?) async throws {
+    func loginWithMasterPassword(
+        _ masterPassword: String,
+        username: String,
+        captchaToken: String?,
+        isNewAccount: Bool
+    ) async throws {
         // Complete the pre-login steps.
         let response = try await accountAPIService.preLogin(email: username)
 
@@ -572,6 +583,11 @@ class DefaultAuthService: AuthService { // swiftlint:disable:this type_body_leng
         }
         if try await requirePasswordChange(email: username, masterPassword: masterPassword, policy: policy) {
             try await stateService.setForcePasswordResetReason(.weakMasterPasswordOnLogin)
+        }
+
+        if isNewAccount, await configService.getFeatureFlag(.nativeCreateAccountFlow) {
+            try await stateService.setAccountSetupAutofill(.incomplete)
+            try await stateService.setAccountSetupVaultUnlock(.incomplete)
         }
     }
 

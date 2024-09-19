@@ -57,9 +57,6 @@ struct CompleteRegistrationState: Equatable, Sendable {
         arePasswordsVisible ? Asset.Images.hidden : Asset.Images.visible
     }
 
-    /// The region where the account should be created
-    var region: RegionType?
-
     /// The required text count for the password strength.
     var requiredPasswordCount = Constants.minimumPasswordCharacters
 

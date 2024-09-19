@@ -17,6 +17,9 @@ enum CompleteRegistrationError: Error {
 
     /// The password does not meet the minimum length requirement.
     case passwordIsTooShort
+
+    /// The environment urls to complete the registration are empty
+    case preAuthUrlsEmpty
 }
 
 // MARK: - CompleteRegistrationProcessor
@@ -219,12 +222,14 @@ class CompleteRegistrationProcessor: StateProcessor<
             try await services.authService.loginWithMasterPassword(
                 state.passwordText,
                 username: state.userEmail,
-                captchaToken: captchaToken
+                captchaToken: captchaToken,
+                isNewAccount: true
             )
 
             try await services.authRepository.unlockVaultWithPassword(password: state.passwordText)
 
             await coordinator.handleEvent(.didCompleteAuth)
+            coordinator.navigate(to: .dismiss)
         } catch let error as CompleteRegistrationError {
             showCompleteRegistrationErrorAlert(error)
         } catch {
@@ -232,7 +237,7 @@ class CompleteRegistrationProcessor: StateProcessor<
                 // If an error occurs after the account was created, dismiss the view and navigate
                 // the user to the login screen to complete login.
                 coordinator.navigate(to: .dismissWithAction(DismissAction {
-                    self.coordinator.navigate(to: .login(username: self.state.userEmail))
+                    self.coordinator.navigate(to: .login(username: self.state.userEmail, isNewAccount: true))
                     self.coordinator.showToast(Localizations.accountSuccessfullyCreated)
                 }))
                 return
@@ -244,13 +249,24 @@ class CompleteRegistrationProcessor: StateProcessor<
         }
     }
 
-    /// Sets the URLs to use.
+    /// Sets the URLs to use if user came from an email link.
     ///
     private func setRegion() async {
-        guard state.region != nil,
-              let urls = state.region?.defaultURLs else { return }
+        do {
+            guard state.fromEmail else {
+                return
+            }
 
-        await services.environmentService.setPreAuthURLs(urls: urls)
+            guard let urls = await services.stateService.getAccountCreationEnvironmentUrls(email: state.userEmail) else {
+                throw CompleteRegistrationError.preAuthUrlsEmpty
+            }
+
+            await services.environmentService.setPreAuthURLs(urls: urls)
+        } catch let error as CompleteRegistrationError {
+            showCompleteRegistrationErrorAlert(error)
+        } catch {
+            coordinator.showAlert(.defaultAlert(title: Localizations.anErrorHasOccurred))
+        }
     }
 
     /// Sets the feature flag value to be used.
@@ -274,6 +290,11 @@ class CompleteRegistrationProcessor: StateProcessor<
             coordinator.showAlert(.validationFieldRequired(fieldName: Localizations.masterPassword))
         case .passwordIsTooShort:
             coordinator.showAlert(.passwordIsTooShort)
+        case .preAuthUrlsEmpty:
+            coordinator.showAlert(.defaultAlert(
+                title: Localizations.anErrorHasOccurred,
+                message: Localizations.theRegionForTheGivenEmailCouldNotBeLoaded
+            ))
         }
     }
 

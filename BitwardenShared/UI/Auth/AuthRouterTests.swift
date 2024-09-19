@@ -217,6 +217,27 @@ final class AuthRouterTests: BitwardenTestCase { // swiftlint:disable:this type_
         XCTAssertEqual(route, .complete)
     }
 
+    /// `handleAndRoute(_:)` redirects `.didCompleteAuth` to `.autofillSetup` if the user still
+    /// needs to set up autofill.
+    func test_handleAndRoute_didCompleteAuth_incompleteAutofill() async {
+        // TODO: PM-10278 Add autofill setup screen
+//        authRepository.activeAccount = .fixture()
+//        stateService.activeAccount = .fixture()
+//        stateService.accountSetupAutofill["1"] = .incomplete
+//        let route = await subject.handleAndRoute(.didCompleteAuth)
+//        XCTAssertEqual(route, .autofillSetup)
+    }
+
+    /// `handleAndRoute(_:)` redirects `.didCompleteAuth` to `.vaultUnlockSetup` if the user still
+    /// needs to set up a vault unlock method.
+    func test_handleAndRoute_didCompleteAuth_incompleteVaultSetup() async {
+        authRepository.activeAccount = .fixture()
+        stateService.activeAccount = .fixture()
+        stateService.accountSetupVaultUnlock["1"] = .incomplete
+        let route = await subject.handleAndRoute(.didCompleteAuth)
+        XCTAssertEqual(route, .vaultUnlockSetup)
+    }
+
     /// `handleAndRoute(_ :)` redirects `.didCompleteAuth` to `.landing` when there are no accounts.
     func test_handleAndRoute_didCompleteAuth_noAccounts() async {
         let route = await subject.handleAndRoute(.didCompleteAuth)
