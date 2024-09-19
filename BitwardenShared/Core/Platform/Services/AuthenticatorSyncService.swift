@@ -47,7 +47,7 @@ class DefaultAuthenticatorSyncService: NSObject, AuthenticatorSyncService {
 
     /// The service used by the application to manage account state.
     private let stateService: StateService
-    
+
     /// a Task that subscribes to the sync setting publisher for accounts. This allows us to take action once
     /// a user opts-in to Authenticator sync.
     public var syncSettingSubscriberTask: Task<Void, Error>?
@@ -151,13 +151,50 @@ class DefaultAuthenticatorSyncService: NSObject, AuthenticatorSyncService {
         }
     }
 
+    /// This function handles the initial syncing with the Authenticator app as well as listening for updates
+    /// when the user adds new items. This is called when the sync is turned on.
+    ///
+    /// - Parameter userId: The userId of the user who has turned on sync.
+    ///
+    private func handleSyncOnForUserId(_ userId: String) async throws {
+        Logger.application.log("#### sync is on for userId: \(userId)")
+        if application?.applicationState == .background {
+            Logger.application.log("#### App in background. Subscribing to cipher updates from push notifications.")
+            subscribeToCipherUpdates(userId: userId)
+        } else if vaultTimeoutService.isLocked(userId: userId) {
+            Logger.application.log("#### App in foreground and locked for \(userId). Waiting for unlock to occur.")
+            //                            subscribeToVaultPublisher()
+        } else {
+            Logger.application.log("#### App in foreground and unlocked. Begin key creations.")
+            try await createAuthenticatorKeyIfNeeded()
+            //                            try await createAuthenticatorVaultKey(userId: userId)
+            Logger.application.log("#### Subscribing to cipher updates")
+            subscribeToCipherUpdates(userId: userId)
+        }
+    }
+
+    /// This function handles stopping sync and cleaning up all sync-related items when a user has turned sync Off.
+    ///
+    /// - Parameter userId: The userId of the user who has turned off sync.
+    ///
+    private func handleSyncOffForUserId(_ userId: String) async throws {
+        Logger.application.log("#### sync is off for userId: \(userId)")
+        Logger.application.log("#### clearing data for userId: \(userId)")
+        //                        try await deleteFromAuthenticatorStore(userId: userId)
+        //                        try await deleteAuthenticatorKeyIfLast()
+        //                        try await keychainRepository.deleteAuthenticatorVaultKey(userId: userId)
+        Logger.application.log("#### Canceling cipher update subscription")
+        cipherPublisherTasks[userId]??.cancel()
+        cipherPublisherTasks[userId] = nil
+    }
+
     /// Subscribe to NotificationCenter updates about if the app is in the foreground vs. background.
     ///
     private func subscribeToAppState() {
         Task {
             for await _ in notificationCenterService.willEnterForegroundPublisher() {
                 Logger.application.log("#### app entered foreground")
-                syncToAuthenticator()
+                subscribeToSyncToAuthenticatorSetting()
             }
         }
     }
@@ -180,71 +217,26 @@ class DefaultAuthenticatorSyncService: NSObject, AuthenticatorSyncService {
         }
     }
 
-    /// Sync to Authenticator for all unlocked accounts.
+    /// Subscribe to the Sync to Authenticator setting to handle when the user grants (or revokes)
+    /// permission to sync items to the Authenticator app.
     ///
-    private func syncToAuthenticator() {
+    private func subscribeToSyncToAuthenticatorSetting() {
         syncSettingSubscriberTask = Task {
             for await (userId, shouldSync) in await self.stateService.syncToAuthenticatorPublisher().values {
                 guard let userId else { continue }
 
+                Logger.application.log("#### Sync With Authenticator App Setting: \(shouldSync), userId: \(userId)")
                 do {
-                    Logger.application.log("#### Sync With Authenticator App Setting: \(shouldSync), userId: \(userId)")
                     if shouldSync {
-                        Logger.application.log("#### sync is on for userId: \(userId)")
-                        guard let app = application as? UIApplication else { return }
-                        if await app.applicationState == .background {
-                            Logger.application.log("#### App in background. Subscribing to cipher updates from push notifications.")
-                            subscribeToCipherUpdates(userId: userId)
-                        } else if vaultTimeoutService.isLocked(userId: userId) {
-                            Logger.application.log("#### App in foreground and locked for \(userId). Waiting for unlock to occur.")
-//                            subscribeToVaultPublisher()
-                            break
-                        } else {
-                            Logger.application.log("#### App in foreground and unlocked. Begin key creations.")
-                            try await createAuthenticatorKeyIfNeeded()
-//                            try await createAuthenticatorVaultKey(userId: userId)
-                            Logger.application.log("#### Subscribing to cipher updates")
-                            subscribeToCipherUpdates(userId: userId)
-                        }
+                        try await handleSyncOnForUserId(userId)
                     } else {
-                        Logger.application.log("#### sync is off for userId: \(userId)")
-                        Logger.application.log("#### clearing data for userId: \(userId)")
-//                        try await deleteFromAuthenticatorStore(userId: userId)
-//                        try await deleteAuthenticatorKeyIfLast()
-//                        try await keychainRepository.deleteAuthenticatorVaultKey(userId: userId)
-                        Logger.application.log("#### Canceling cipher update subscription")
-                        cipherPublisherTasks[userId]??.cancel()
-                        cipherPublisherTasks[userId] = nil
+                        try await handleSyncOffForUserId(userId)
                     }
                 } catch {
                     Logger.application.log("#### Error in Auth Options publisher: \(error)")
                 }
             }
         }
-//        Task {
-//            for account in try await stateService.getAccounts() {
-//                let userId = account.profile.userId
-//                do {
-//                    Logger.application.log("#### sync is on for userId: \(userId)")
-//                    guard let app = application as? UIApplication else { return }
-//                    if await app.applicationState == .background {
-//                        Logger.application.log("#### App in background. Wait for foreground.")
-//                    } else if vaultTimeoutService.isLocked(userId: userId) {
-//                        Logger.application.log(
-//                            "#### App in foreground and locked for \(userId). Waiting for unlock to occur."
-//                        )
-//                        break
-//                    } else {
-//                        Logger.application.log("#### App in foreground and unlocked. Begin key creations.")
-//                        try await createAuthenticatorKeyIfNeeded()
-//                        Logger.application.log("#### Subscribing to cipher updates")
-//                        subscribeToCipherUpdates(userId: userId)
-//                    }
-//                } catch {
-//                    Logger.application.log("#### Error in Auth Options publisher: \(error)")
-//                }
-//            }
-//        }
     }
 
     /// Takes in a list of encrypted Ciphers, decrypts them, and writes ones with TOTP codes to the shared store.

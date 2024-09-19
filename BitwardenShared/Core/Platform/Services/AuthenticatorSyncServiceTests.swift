@@ -1,3 +1,4 @@
+import AuthenticatorBridgeKit
 import XCTest
 
 @testable import BitwardenShared
@@ -82,8 +83,8 @@ final class AuthenticatorSyncServiceTests: BitwardenTestCase {
             stateService: stateService,
             vaultTimeoutService: vaultTimeoutService
         )
-        XCTAssertEqual(notificationCenterService.willEnterForegroundSubscribers, 0)
         notificationCenterService.willEnterForegroundSubject.send()
+        XCTAssertEqual(notificationCenterService.willEnterForegroundSubscribers, 0)
         // TODO: Test to make sure this does nothing
     }
 
@@ -94,5 +95,27 @@ final class AuthenticatorSyncServiceTests: BitwardenTestCase {
         XCTAssertEqual(notificationCenterService.willEnterForegroundSubscribers, 1)
         notificationCenterService.willEnterForegroundSubject.send()
         // TODO: Test to make sure this does stuff
+    }
+
+    /// When the app enters the foreground and the user has subscribed to sync, the
+    /// `createAuthenticatorKeyIfNeeded` method successfully creates the sync key
+    /// if it is not already present
+    ///
+    func test_createAuthenticatorKeyIfNeeded_createsKeyWhenNeeded() async throws {
+        try sharedKeychainRepository.deleteAuthenticatorKey()
+        application.applicationState = .active
+        notificationCenterService.willEnterForegroundSubject.send()
+        await stateService.addAccount(.fixture(profile: .fixture(userId: "1")))
+
+        try await stateService.setSyncToAuthenticator(true)
+
+        waitFor(sharedKeychainRepository.authenticatorKey != nil)
+    }
+
+    /// When the app enters the foreground and the user has subscribed to sync, the
+    /// `createAuthenticatorKeyIfNeeded` method successfully retrieves the key in
+    /// SharedKeyRepository and doesn't recreate it.
+    ///
+    func test_createAuthenticatorKeyIfNeeded_keyAlreadyExists() async throws {
     }
 }

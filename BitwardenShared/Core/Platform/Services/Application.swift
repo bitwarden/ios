@@ -3,6 +3,9 @@ import UIKit
 /// A protocol for the application instance (i.e. `UIApplication`).
 ///
 public protocol Application {
+    /// The current state of the application (i.e. foreground, inactive, background)
+    var applicationState: UIApplication.State {get}
+
     /// Marks the start of a task with a custom name that should continue if the app enters the background.
     /// See note in `UIApplication+Application.swift`
     /// TODO: PM-11189
