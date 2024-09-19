@@ -158,13 +158,19 @@ class PolicyServiceTests: BitwardenTestCase { // swiftlint:disable:this type_bod
         organizationService.fetchAllOrganizationsResult = .success([.fixture()])
         policyDataStore.fetchPoliciesResult = .success(
             [
+                passwordGeneratorPolicy,
                 .fixture(
                     data: [
-                        PolicyOptionType.overridePasswordType.rawValue: .string("password"),
+                        PolicyOptionType.overridePasswordType.rawValue: .string(PasswordGeneratorType.password.rawValue),
                     ],
                     type: .passwordGenerator
                 ),
-                passwordGeneratorPolicy,
+                .fixture(
+                    data: [
+                        PolicyOptionType.overridePasswordType.rawValue: .string(PasswordGeneratorType.passphrase.rawValue),
+                    ],
+                    type: .passwordGenerator
+                ),
             ]
         )
 

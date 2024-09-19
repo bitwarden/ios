@@ -183,16 +183,14 @@ extension DefaultPolicyService {
         for policy in policies {
             if let overridePasswordTypeString = policy[.overridePasswordType]?.stringValue,
                let overridePasswordType = PasswordGeneratorType(rawValue: overridePasswordTypeString),
-               generatorType != .password,
-               options.overridePasswordType != true {
+               generatorType != .password {
                 // If there's multiple policies with different default types, the password type
                 // should take priority. Use `generateType` as opposed to `options.type` to ignore
                 // the existing type in the options.
                 generatorType = overridePasswordType
+                options.overridePasswordType = true
             }
-            // if the stringValue is NOT emptu or null, overridePasswordType should be true
-            options.overridePasswordType = !(policy[.overridePasswordType]?.stringValue?.isEmpty ?? true)
-
+        
             if let minLength = policy[.minLength]?.intValue {
                 options.setMinLength(minLength)
             }
