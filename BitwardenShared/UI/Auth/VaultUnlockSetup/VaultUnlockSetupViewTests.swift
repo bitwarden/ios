@@ -31,11 +31,11 @@ class VaultUnlockSetupViewTests: BitwardenTestCase {
 
     /// Tapping the continue button dispatches the continue flow action.
     @MainActor
-    func test_continue_tap() throws {
+    func test_continue_tap() async throws {
         processor.state.biometricsStatus = .available(.faceID, enabled: true, hasValidIntegrity: true)
-        let button = try subject.inspect().find(button: Localizations.continue)
-        try button.tap()
-        XCTAssertEqual(processor.dispatchedActions.last, .continueFlow)
+        let button = try subject.inspect().find(asyncButton: Localizations.continue)
+        try await button.tap()
+        XCTAssertEqual(processor.effects.last, .continueFlow)
     }
 
     /// The continue button is enabled when one or more unlock methods are enabled.

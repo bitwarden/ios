@@ -43,8 +43,8 @@ struct VaultUnlockSetupView: View {
             .clipShape(RoundedRectangle(cornerRadius: 10))
 
             VStack(spacing: 12) {
-                Button(Localizations.continue) {
-                    store.send(.continueFlow)
+                AsyncButton(Localizations.continue) {
+                    await store.perform(.continueFlow)
                 }
                 .buttonStyle(.primary())
                 .disabled(!store.state.isContinueButtonEnabled)

@@ -27,6 +27,9 @@ public class AuthenticatorBridgeDataStore {
         return context
     }()
 
+    /// The service used by the application to report non-fatal errors.
+    let errorReporter: ErrorReporter
+
     /// The CoreData model name.
     private let modelName = "Bitwarden-Authenticator"
 
@@ -38,15 +41,17 @@ public class AuthenticatorBridgeDataStore {
     /// Initialize a `AuthenticatorBridgeDataStore`.
     ///
     /// - Parameters:
+    ///   - errorReporter: The service used by the application to report non-fatal errors.
+    ///   - groupIdentifier: The app group identifier for the shared resource.
     ///   - storeType: The type of store to create.
-    ///   - appGroupIdentifier: The app group identifier for the shared resource.
-    ///   - errorHandler: Callback if an error occurs on load of store.
     ///
     public init(
-        storeType: AuthenticatorBridgeStoreType = .persisted,
+        errorReporter: ErrorReporter,
         groupIdentifier: String,
-        errorHandler: @escaping (Error) -> Void
+        storeType: AuthenticatorBridgeStoreType = .persisted
     ) {
+        self.errorReporter = errorReporter
+
         #if SWIFT_PACKAGE
         let bundle = Bundle.module
         #else
@@ -66,14 +71,14 @@ public class AuthenticatorBridgeDataStore {
         case .persisted:
             let storeURL = FileManager.default
                 .containerURL(forSecurityApplicationGroupIdentifier: groupIdentifier)!
-                .appendingPathComponent("Bitwarden-Authenticator.sqlite")
+                .appendingPathComponent("\(modelName).sqlite")
             storeDescription = NSPersistentStoreDescription(url: storeURL)
         }
         persistentContainer.persistentStoreDescriptions = [storeDescription]
 
         persistentContainer.loadPersistentStores { _, error in
             if let error {
-                errorHandler(error)
+                errorReporter.log(error: error)
             }
         }
 
@@ -82,61 +87,11 @@ public class AuthenticatorBridgeDataStore {
 
     // MARK: Methods
 
-    /// Removes all items that are owned by the specific userId
-    ///
-    /// - Parameter userId: the id of the user for which to delete all items.
-    ///
-    public func deleteAllForUserId(_ userId: String) async throws {
-        try await executeBatchDelete(AuthenticatorBridgeItemData.deleteByUserIdRequest(userId: userId))
-    }
-
-    /// Fetches all items that are owned by the specific userId
-    ///
-    /// - Parameter userId: the id of the user for which to fetch items.
-    ///
-    public func fetchAllForUserId(_ userId: String) async throws -> [AuthenticatorBridgeItemDataModel] {
-        let fetchRequest = AuthenticatorBridgeItemData.fetchByUserIdRequest(userId: userId)
-        let result = try backgroundContext.fetch(fetchRequest)
-
-        return try result.map { data in
-            try data.model
-        }
-    }
-
-    /// Inserts the list of items into the store for the given userId.
-    ///
-    /// - Parameters:
-    ///   - items: The list of `AuthenticatorBridgeItemDataModel` to be inserted into the store.
-    ///   - userId: the id of the user for which to insert the items.
-    ///
-    public func insertItems(_ items: [AuthenticatorBridgeItemDataModel],
-                            forUserId userId: String) async throws {
-        try await executeBatchInsert(
-            AuthenticatorBridgeItemData.batchInsertRequest(models: items, userId: userId)
-        )
-    }
-
-    /// Deletes all existing items for a given user and inserts new items for the list of items provided.
-    ///
-    /// - Parameters:
-    ///   - items: The new items to be inserted into the store
-    ///   - userId: The userId of the items to be removed and then replaces with items.
-    ///
-    public func replaceAllItems(with items: [AuthenticatorBridgeItemDataModel],
-                                forUserId userId: String) async throws {
-        let deleteRequest = AuthenticatorBridgeItemData.deleteByUserIdRequest(userId: userId)
-        let insertRequest = try AuthenticatorBridgeItemData.batchInsertRequest(models: items, userId: userId)
-        try await executeBatchReplace(
-            deleteRequest: deleteRequest,
-            insertRequest: insertRequest
-        )
-    }
-
     /// Executes a batch delete request and merges the changes into the background and view contexts.
     ///
     /// - Parameter request: The batch delete request to perform.
     ///
-    private func executeBatchDelete(_ request: NSBatchDeleteRequest) async throws {
+    public func executeBatchDelete(_ request: NSBatchDeleteRequest) async throws {
         try await backgroundContext.perform {
             try self.backgroundContext.executeAndMergeChanges(
                 batchDeleteRequest: request,
@@ -149,7 +104,7 @@ public class AuthenticatorBridgeDataStore {
     ///
     /// - Parameter request: The batch insert request to perform.
     ///
-    private func executeBatchInsert(_ request: NSBatchInsertRequest) async throws {
+    public func executeBatchInsert(_ request: NSBatchInsertRequest) async throws {
         try await backgroundContext.perform {
             try self.backgroundContext.executeAndMergeChanges(
                 batchInsertRequest: request,
@@ -165,7 +120,7 @@ public class AuthenticatorBridgeDataStore {
     ///   - deleteRequest: The batch delete request to perform.
     ///   - insertRequest: The batch insert request to perform.
     ///
-    private func executeBatchReplace(
+    public func executeBatchReplace(
         deleteRequest: NSBatchDeleteRequest,
         insertRequest: NSBatchInsertRequest
     ) async throws {
