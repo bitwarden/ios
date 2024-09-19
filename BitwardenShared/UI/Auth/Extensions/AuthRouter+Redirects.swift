@@ -328,7 +328,7 @@ extension AuthRouter {
     /// - Parameters:
     ///    - activeAccount: The active account.
     ///    - animated: If the suggested route can be animated, use this value.
-    ///    - shouldAttemptAutomaticBiometricUnlock: If the route uses automatic bioemtrics unlock,
+    ///    - shouldAttemptAutomaticBiometricUnlock: If the route uses automatic biometrics unlock,
     ///      this value enables or disables the feature.
     ///    - shouldAttemptAccountSwitch: Should the application automatically switch accounts for the user?
     /// - Returns: A suggested route for the active account with state pre-configured.
