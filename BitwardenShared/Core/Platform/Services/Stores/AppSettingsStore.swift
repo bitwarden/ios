@@ -190,6 +190,14 @@ protocol AppSettingsStore: AnyObject {
     ///
     func pinProtectedUserKey(userId: String) -> String?
 
+    /// Gets the environment URLs used to start the account creation flow.
+    ///
+    /// - Parameters:
+    ///  - email: The email used to start the account creation.
+    /// - Returns: The environment URLs used prior to start the account creation.
+    ///
+    func accountCreationEnvironmentUrls(email: String) -> EnvironmentUrlData?
+
     /// The server configuration.
     ///
     /// - Parameter userId: The user ID associated with the server config.
@@ -343,6 +351,14 @@ protocol AppSettingsStore: AnyObject {
     ///   - userId: The user ID.
     ///
     func setPinProtectedUserKey(key: String?, userId: String)
+
+    /// Sets the environment URLs used to start the account creation flow.
+    ///
+    /// - Parameters:
+    ///  - email: The user's email address.
+    ///  - environmentUrlData: The environment data to be saved.
+    ///
+    func setAccountCreationEnvironmentUrls(environmentUrlData: EnvironmentUrlData, email: String)
 
     /// Sets the server config.
     ///
@@ -607,6 +623,7 @@ extension DefaultAppSettingsStore: AppSettingsStore {
         case passwordGenerationOptions(userId: String)
         case pinProtectedUserKey(userId: String)
         case preAuthEnvironmentUrls
+        case accountCreationEnvironmentUrls(email: String)
         case preAuthServerConfig
         case rememberedEmail
         case rememberedOrgIdentifier
@@ -682,6 +699,8 @@ extension DefaultAppSettingsStore: AppSettingsStore {
                 key = "pinKeyEncryptedUserKey_\(userId)"
             case .preAuthEnvironmentUrls:
                 key = "preAuthEnvironmentUrls"
+            case let .accountCreationEnvironmentUrls(email):
+                key = "accountCreationEnvironmentUrls_\(email)"
             case .preAuthServerConfig:
                 key = "preAuthServerConfig"
             case .rememberedEmail:
@@ -870,6 +889,12 @@ extension DefaultAppSettingsStore: AppSettingsStore {
         fetch(for: .pinProtectedUserKey(userId: userId))
     }
 
+    func accountCreationEnvironmentUrls(email: String) -> EnvironmentUrlData? {
+        fetch(
+            for: .accountCreationEnvironmentUrls(email: email)
+        )
+    }
+
     func serverConfig(userId: String) -> ServerConfig? {
         fetch(for: .serverConfig(userId: userId))
     }
@@ -950,6 +975,10 @@ extension DefaultAppSettingsStore: AppSettingsStore {
 
     func setPinProtectedUserKey(key: String?, userId: String) {
         store(key, for: .pinProtectedUserKey(userId: userId))
+    }
+
+    func setAccountCreationEnvironmentUrls(environmentUrlData: EnvironmentUrlData, email: String) {
+        store(environmentUrlData, for: .accountCreationEnvironmentUrls(email: email))
     }
 
     func setServerConfig(_ config: ServerConfig?, userId: String) {
