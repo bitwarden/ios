@@ -268,7 +268,7 @@ class DefaultAutofillCredentialService {
 
 extension DefaultAutofillCredentialService: AutofillCredentialService {
     func isAutofillCredentialsEnabled() async -> Bool {
-        await identityStore.state().isEnabled
+        await identityStore.isAutofillEnabled()
     }
 
     func provideCredential(
@@ -475,6 +475,14 @@ protocol CredentialIdentityStore {
     /// - Returns: The state of the credential identity store.
     ///
     func state() async -> ASCredentialIdentityStoreState
+}
+
+extension CredentialIdentityStore {
+    /// Returns whether autofilling credentials via the extension is enabled.
+    ///
+    func isAutofillEnabled() async -> Bool {
+        await state().isEnabled
+    }
 }
 
 // MARK: - ASCredentialIdentityStore+CredentialIdentityStore

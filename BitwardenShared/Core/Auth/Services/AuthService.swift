@@ -266,6 +266,9 @@ class DefaultAuthService: AuthService { // swiftlint:disable:this type_body_leng
     /// The service to get server-specified configuration
     private let configService: ConfigService
 
+    /// The store which makes credential identities available to the system for AutoFill suggestions.
+    private let credentialIdentityStore: CredentialIdentityStore
+
     /// The service used by the application to manage the environment settings.
     private let environmentService: EnvironmentService
 
@@ -308,6 +311,8 @@ class DefaultAuthService: AuthService { // swiftlint:disable:this type_body_leng
     ///   - authAPIService: The API service used to make calls related to the auth process.
     ///   - clientService: The service that handles common client functionality such as encryption and decryption.
     ///   - configService: The service to get server-specified configuration.
+    ///   - credentialIdentityStore: The store which makes credential identities available to the
+    ///     system for AutoFill suggestions.
     ///   - environmentService: The service used by the application to manage the environment settings.
     ///   - keychainRepository: The repository used to manages keychain items.
     ///   - policyService: The service used by the application to manage the policy.
@@ -321,6 +326,7 @@ class DefaultAuthService: AuthService { // swiftlint:disable:this type_body_leng
         authAPIService: AuthAPIService,
         clientService: ClientService,
         configService: ConfigService,
+        credentialIdentityStore: CredentialIdentityStore = ASCredentialIdentityStore.shared,
         environmentService: EnvironmentService,
         keychainRepository: KeychainRepository,
         policyService: PolicyService,
@@ -333,6 +339,7 @@ class DefaultAuthService: AuthService { // swiftlint:disable:this type_body_leng
         self.authAPIService = authAPIService
         self.clientService = clientService
         self.configService = configService
+        self.credentialIdentityStore = credentialIdentityStore
         self.environmentService = environmentService
         self.keychainRepository = keychainRepository
         self.policyService = policyService
@@ -586,7 +593,8 @@ class DefaultAuthService: AuthService { // swiftlint:disable:this type_body_leng
         }
 
         if isNewAccount, await configService.getFeatureFlag(.nativeCreateAccountFlow) {
-            try await stateService.setAccountSetupAutofill(.incomplete)
+            let isAutofillEnabled = await credentialIdentityStore.isAutofillEnabled()
+            try await stateService.setAccountSetupAutofill(isAutofillEnabled ? .complete : .incomplete)
             try await stateService.setAccountSetupVaultUnlock(.incomplete)
         }
     }
