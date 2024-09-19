@@ -30,6 +30,7 @@ final class AuthenticatorSyncServiceTests: BitwardenTestCase {
         sharedKeychainRepository = MockSharedKeychainRepository()
         stateService = MockStateService()
         vaultTimeoutService = MockVaultTimeoutService()
+        configService.featureFlagsBool[.enableAuthenticatorSync] = true
         subject = DefaultAuthenticatorSyncService(
             application: application,
             authBridgeItemService: authBridgeItemService,
@@ -62,6 +63,36 @@ final class AuthenticatorSyncServiceTests: BitwardenTestCase {
 
     // MARK: Tests
 
-    /// `auth(for:)` returns a new `ClientAuthProtocol` for every user.
-    func test_auth() async throws {}
+    /// Initializing the `AuthenticatorSyncService` when the `enableAuthenticatorSync` feature flag
+    /// is turned off should do nothing.
+    ///
+    func test_init_featureFlagOff() async throws {
+        subject = nil
+        notificationCenterService.willEnterForegroundSubscribers = 0
+        configService.featureFlagsBool[.enableAuthenticatorSync] = false
+        subject = DefaultAuthenticatorSyncService(
+            application: application,
+            authBridgeItemService: authBridgeItemService,
+            cipherService: cipherService,
+            clientService: clientService,
+            configService: configService,
+            errorReporter: errorReporter,
+            notificationCenterService: notificationCenterService,
+            sharedKeychainRepository: sharedKeychainRepository,
+            stateService: stateService,
+            vaultTimeoutService: vaultTimeoutService
+        )
+        XCTAssertEqual(notificationCenterService.willEnterForegroundSubscribers, 0)
+        notificationCenterService.willEnterForegroundSubject.send()
+        // TODO: Test to make sure this does nothing
+    }
+
+    /// Initializing the `AuthenticatorSyncService` when the `enableAuthenticatorSync` feature flag
+    /// is turned on should do subscribe to foreground notifications.
+    ///
+    func test_init_featureFlagOn() async throws {
+        XCTAssertEqual(notificationCenterService.willEnterForegroundSubscribers, 1)
+        notificationCenterService.willEnterForegroundSubject.send()
+        // TODO: Test to make sure this does stuff
+    }
 }

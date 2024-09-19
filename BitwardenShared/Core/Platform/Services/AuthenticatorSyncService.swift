@@ -47,6 +47,10 @@ class DefaultAuthenticatorSyncService: NSObject, AuthenticatorSyncService {
 
     /// The service used by the application to manage account state.
     private let stateService: StateService
+    
+    /// a Task that subscribes to the sync setting publisher for accounts. This allows us to take action once
+    /// a user opts-in to Authenticator sync.
+    public var syncSettingSubscriberTask: Task<Void, Error>?
 
     /// The service used by the application to manage vault access.
     private let vaultTimeoutService: VaultTimeoutService
@@ -94,7 +98,7 @@ class DefaultAuthenticatorSyncService: NSObject, AuthenticatorSyncService {
 
         Task {
             if await configService.getFeatureFlag(FeatureFlag.enableAuthenticatorSync,
-                                                  defaultValue: true) {
+                                                  defaultValue: false) {
                 subscribeToAppState()
             }
         }
@@ -179,30 +183,68 @@ class DefaultAuthenticatorSyncService: NSObject, AuthenticatorSyncService {
     /// Sync to Authenticator for all unlocked accounts.
     ///
     private func syncToAuthenticator() {
-        Task {
-            for account in try await stateService.getAccounts() {
-                let userId = account.profile.userId
+        syncSettingSubscriberTask = Task {
+            for await (userId, shouldSync) in await self.stateService.syncToAuthenticatorPublisher().values {
+                guard let userId else { continue }
+
                 do {
-                    Logger.application.log("#### sync is on for userId: \(userId)")
-                    guard let app = application as? UIApplication else { return }
-                    if await app.applicationState == .background {
-                        Logger.application.log("#### App in background. Wait for foreground.")
-                    } else if vaultTimeoutService.isLocked(userId: userId) {
-                        Logger.application.log(
-                            "#### App in foreground and locked for \(userId). Waiting for unlock to occur."
-                        )
-                        break
+                    Logger.application.log("#### Sync With Authenticator App Setting: \(shouldSync), userId: \(userId)")
+                    if shouldSync {
+                        Logger.application.log("#### sync is on for userId: \(userId)")
+                        guard let app = application as? UIApplication else { return }
+                        if await app.applicationState == .background {
+                            Logger.application.log("#### App in background. Subscribing to cipher updates from push notifications.")
+                            subscribeToCipherUpdates(userId: userId)
+                        } else if vaultTimeoutService.isLocked(userId: userId) {
+                            Logger.application.log("#### App in foreground and locked for \(userId). Waiting for unlock to occur.")
+//                            subscribeToVaultPublisher()
+                            break
+                        } else {
+                            Logger.application.log("#### App in foreground and unlocked. Begin key creations.")
+                            try await createAuthenticatorKeyIfNeeded()
+//                            try await createAuthenticatorVaultKey(userId: userId)
+                            Logger.application.log("#### Subscribing to cipher updates")
+                            subscribeToCipherUpdates(userId: userId)
+                        }
                     } else {
-                        Logger.application.log("#### App in foreground and unlocked. Begin key creations.")
-                        try await createAuthenticatorKeyIfNeeded()
-                        Logger.application.log("#### Subscribing to cipher updates")
-                        subscribeToCipherUpdates(userId: userId)
+                        Logger.application.log("#### sync is off for userId: \(userId)")
+                        Logger.application.log("#### clearing data for userId: \(userId)")
+//                        try await deleteFromAuthenticatorStore(userId: userId)
+//                        try await deleteAuthenticatorKeyIfLast()
+//                        try await keychainRepository.deleteAuthenticatorVaultKey(userId: userId)
+                        Logger.application.log("#### Canceling cipher update subscription")
+                        cipherPublisherTasks[userId]??.cancel()
+                        cipherPublisherTasks[userId] = nil
                     }
                 } catch {
                     Logger.application.log("#### Error in Auth Options publisher: \(error)")
                 }
             }
         }
+//        Task {
+//            for account in try await stateService.getAccounts() {
+//                let userId = account.profile.userId
+//                do {
+//                    Logger.application.log("#### sync is on for userId: \(userId)")
+//                    guard let app = application as? UIApplication else { return }
+//                    if await app.applicationState == .background {
+//                        Logger.application.log("#### App in background. Wait for foreground.")
+//                    } else if vaultTimeoutService.isLocked(userId: userId) {
+//                        Logger.application.log(
+//                            "#### App in foreground and locked for \(userId). Waiting for unlock to occur."
+//                        )
+//                        break
+//                    } else {
+//                        Logger.application.log("#### App in foreground and unlocked. Begin key creations.")
+//                        try await createAuthenticatorKeyIfNeeded()
+//                        Logger.application.log("#### Subscribing to cipher updates")
+//                        subscribeToCipherUpdates(userId: userId)
+//                    }
+//                } catch {
+//                    Logger.application.log("#### Error in Auth Options publisher: \(error)")
+//                }
+//            }
+//        }
     }
 
     /// Takes in a list of encrypted Ciphers, decrypts them, and writes ones with TOTP codes to the shared store.

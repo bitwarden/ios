@@ -5,13 +5,17 @@ import Foundation
 
 class MockNotificationCenterService: NotificationCenterService {
     var didEnterBackgroundSubject = CurrentValueSubject<Void, Never>(())
+    var didEnterBackgroundSubscribers = 0
     var willEnterForegroundSubject = CurrentValueSubject<Void, Never>(())
+    var willEnterForegroundSubscribers = 0
 
     func didEnterBackgroundPublisher() -> AsyncPublisher<AnyPublisher<Void, Never>> {
-        didEnterBackgroundSubject.eraseToAnyPublisher().values
+        didEnterBackgroundSubscribers += 1
+        return didEnterBackgroundSubject.eraseToAnyPublisher().values
     }
 
     func willEnterForegroundPublisher() -> AsyncPublisher<AnyPublisher<Void, Never>> {
-        willEnterForegroundSubject.eraseToAnyPublisher().values
+        willEnterForegroundSubscribers += 1
+        return willEnterForegroundSubject.eraseToAnyPublisher().values
     }
 }
