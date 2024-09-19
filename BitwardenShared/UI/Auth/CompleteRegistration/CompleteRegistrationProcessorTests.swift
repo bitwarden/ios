@@ -74,7 +74,7 @@ class CompleteRegistrationProcessorTests: BitwardenTestCase {
         let email = "email@example.com"
         subject.state.userEmail = email
         subject.state.fromEmail = true
-        await stateService.setPreAuthEnvironmentUrlsByEmail(urls: .defaultEU, email: email)
+        await stateService.setAccountCreationEnvironmentUrls(urls: .defaultEU, email: email)
         await subject.perform(.appeared)
         XCTAssertEqual(environmentService.setPreAuthEnvironmentUrlsData, .defaultEU)
     }
@@ -85,7 +85,7 @@ class CompleteRegistrationProcessorTests: BitwardenTestCase {
         let email = "email@example.com"
         subject.state.userEmail = email
         subject.state.fromEmail = false
-        await stateService.setPreAuthEnvironmentUrlsByEmail(urls: .defaultEU, email: email)
+        await stateService.setAccountCreationEnvironmentUrls(urls: .defaultEU, email: email)
         await subject.perform(.appeared)
         XCTAssertNil(coordinator.alertShown.last)
         XCTAssertEqual(environmentService.setPreAuthEnvironmentUrlsData, nil)
@@ -97,7 +97,7 @@ class CompleteRegistrationProcessorTests: BitwardenTestCase {
         let email = "email@example.com"
         subject.state.userEmail = email
         subject.state.fromEmail = true
-        await stateService.setPreAuthEnvironmentUrlsByEmail(urls: .defaultEU, email: "another_email@example.com")
+        await stateService.setAccountCreationEnvironmentUrls(urls: .defaultEU, email: "another_email@example.com")
         await subject.perform(.appeared)
         XCTAssertEqual(
             coordinator.alertShown[0],

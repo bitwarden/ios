@@ -172,7 +172,7 @@ class StartRegistrationProcessor: StateProcessor<
                     throw StartRegistrationError.preAuthUrlsEmpty
                 }
 
-                await services.stateService.setPreAuthEnvironmentUrlsByEmail(urls: preAuthUrls, email: email)
+                await services.stateService.setAccountCreationEnvironmentUrls(urls: preAuthUrls, email: email)
                 coordinator.navigate(to: .checkEmail(email: state.emailText))
             }
         } catch let error as StartRegistrationError {
@@ -197,7 +197,10 @@ class StartRegistrationProcessor: StateProcessor<
         case .invalidEmail:
             coordinator.showAlert(.invalidEmail)
         case .preAuthUrlsEmpty:
-            coordinator.showAlert(.defaultAlert(title: Localizations.anErrorHasOccurred))
+            coordinator.showAlert(.defaultAlert(
+                title: Localizations.anErrorHasOccurred,
+                message: Localizations.thePreAuthUrlsCouldNotBeLoadedToStartTheAccountCreation
+            ))
         }
     }
 }

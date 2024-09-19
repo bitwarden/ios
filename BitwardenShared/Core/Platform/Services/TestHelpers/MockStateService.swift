@@ -55,7 +55,7 @@ class MockStateService: StateService { // swiftlint:disable:this type_body_lengt
     var passwordGenerationOptions = [String: PasswordGenerationOptions]()
     var pinProtectedUserKeyValue = [String: String]()
     var preAuthEnvironmentUrls: EnvironmentUrlData?
-    var preAuthEnvironmentUrlsByEmail = [String: EnvironmentUrlData]()
+    var accountCreationEnvironmentUrls = [String: EnvironmentUrlData]()
     var preAuthServerConfig: ServerConfig?
     var rememberedOrgIdentifier: String?
     var showWebIcons = true
@@ -256,8 +256,8 @@ class MockStateService: StateService { // swiftlint:disable:this type_body_lengt
         preAuthEnvironmentUrls
     }
 
-    func getPreAuthEnvironmentUrlsByEmail(email: String) async -> EnvironmentUrlData? {
-        preAuthEnvironmentUrlsByEmail[email]
+    func getAccountCreationEnvironmentUrls(email: String) async -> EnvironmentUrlData? {
+        accountCreationEnvironmentUrls[email]
     }
 
     func getPreAuthServerConfig() async -> BitwardenShared.ServerConfig? {
@@ -484,8 +484,8 @@ class MockStateService: StateService { // swiftlint:disable:this type_body_lengt
         preAuthEnvironmentUrls = urls
     }
 
-    func setPreAuthEnvironmentUrlsByEmail(urls: BitwardenShared.EnvironmentUrlData, email: String) async {
-        preAuthEnvironmentUrlsByEmail[email] = urls
+    func setAccountCreationEnvironmentUrls(urls: BitwardenShared.EnvironmentUrlData, email: String) async {
+        accountCreationEnvironmentUrls[email] = urls
     }
 
     func setPreAuthServerConfig(config: BitwardenShared.ServerConfig) async {

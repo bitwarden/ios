@@ -236,7 +236,7 @@ protocol StateService: AnyObject {
     /// - Parameter email: The email used to start the account creation.
     /// - Returns: The environment URLs used prior to start the account creation.
     ///
-    func getPreAuthEnvironmentUrlsByEmail(email: String) async -> EnvironmentUrlData?
+    func getAccountCreationEnvironmentUrls(email: String) async -> EnvironmentUrlData?
 
     /// Gets the server config used by the app prior to the user authenticating.
     /// - Returns: The server config used prior to user authentication.
@@ -532,7 +532,7 @@ protocol StateService: AnyObject {
     ///   - urls: The environment urls used to start the account creation.
     ///   - email: The email used to start the account creation.
     ///
-    func setPreAuthEnvironmentUrlsByEmail(urls: EnvironmentUrlData, email: String) async
+    func setAccountCreationEnvironmentUrls(urls: EnvironmentUrlData, email: String) async
 
     /// Sets the server config used prior to user authentication
     /// - Parameter config: The server config to use prior to user authentication.
@@ -1304,8 +1304,8 @@ actor DefaultStateService: StateService { // swiftlint:disable:this type_body_le
         appSettingsStore.preAuthEnvironmentUrls
     }
 
-    func getPreAuthEnvironmentUrlsByEmail(email: String) async -> EnvironmentUrlData? {
-        appSettingsStore.preAuthEnvironmentUrlsByEmail(email: email)
+    func getAccountCreationEnvironmentUrls(email: String) async -> EnvironmentUrlData? {
+        appSettingsStore.accountCreationEnvironmentUrls(email: email)
     }
 
     func getPreAuthServerConfig() async -> ServerConfig? {
@@ -1554,8 +1554,8 @@ actor DefaultStateService: StateService { // swiftlint:disable:this type_body_le
         appSettingsStore.preAuthEnvironmentUrls = urls
     }
 
-    func setPreAuthEnvironmentUrlsByEmail(urls: EnvironmentUrlData, email: String) async {
-        appSettingsStore.setPreAuthEnvironmentUrlsByEmail(
+    func setAccountCreationEnvironmentUrls(urls: EnvironmentUrlData, email: String) async {
+        appSettingsStore.setAccountCreationEnvironmentUrls(
             environmentUrlData: urls,
             email: email
         )
