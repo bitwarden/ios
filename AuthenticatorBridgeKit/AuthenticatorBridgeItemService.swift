@@ -56,6 +56,7 @@ public class DefaultAuthenticatorBridgeItemService: AuthenticatorBridgeItemServi
     /// Initialize a `DefaultAuthenticatorBridgeItemService`
     ///
     /// - Parameters:
+    ///   - cryptoService: Cryptography service for encrypting/decrypting items.
     ///   - dataStore: The CoreData store for working with shared data
     ///   - sharedKeychainRepository: The keychain repository for working with the shared key.
     ///
