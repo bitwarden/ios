@@ -132,12 +132,15 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         splashWindow?.alpha = 1
     }
 
+    #if DEBUG_MENU
     /// Handle the triple-tap gesture and launch the debug menu.
     @objc
     private func handleTripleTapGesture() {
         appProcessor?.showDebugMenu()
     }
+    #endif
 
+    #if DEBUG_MENU
     /// Add the triple-tap gesture recognizer to the window.
     private func addTripleTapGestureRecognizer(to window: UIWindow) {
         let tapGesture = UITapGestureRecognizer(
@@ -148,4 +151,5 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         tapGesture.numberOfTouchesRequired = 2
         window.addGestureRecognizer(tapGesture)
     }
+    #endif
 }
