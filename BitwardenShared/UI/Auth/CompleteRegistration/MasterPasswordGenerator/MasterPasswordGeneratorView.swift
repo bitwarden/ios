@@ -31,7 +31,7 @@ struct MasterPasswordGeneratorView: View {
                 store.send(.dismiss)
             }
             saveToolbarItem {
-                store.send(.save)
+                await store.perform(.save)
             }
         }
         .task {
@@ -49,7 +49,9 @@ struct MasterPasswordGeneratorView: View {
         ))
         .submitLabel(.done)
         .onSubmit {
-            store.send(.save)
+            Task {
+                await store.perform(.save)
+            }
         }
     }
 

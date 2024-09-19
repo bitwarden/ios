@@ -11,7 +11,4 @@ enum MasterPasswordGeneratorAction: Equatable {
 
     /// The button to learn more about preventing account lock was tapped.
     case preventAccountLock
-
-    /// The save button was tapped.
-    case save
 }

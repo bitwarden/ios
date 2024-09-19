@@ -45,6 +45,10 @@ class MasterPasswordGeneratorProcessor: StateProcessor<
             await generatePassword()
         case .generate:
             await generatePassword()
+        case .save:
+            // https://bitwarden.atlassian.net/browse/PM-10676
+            // Hook up logic to fill in the generated password
+            coordinator.navigate(to: .dismissPresented)
         }
     }
 
@@ -54,12 +58,8 @@ class MasterPasswordGeneratorProcessor: StateProcessor<
             coordinator.navigate(to: .dismissPresented)
         case let .masterPasswordChanged(newValue):
             state.generatedPassword = newValue
-        case .save:
-            // TODO:
-            coordinator.navigate(to: .dismissPresented)
         case .preventAccountLock:
-            // TODO: https://bitwarden.atlassian.net/browse/PM-10268
-            break
+            coordinator.navigate(to: .preventAccountLock)
         }
     }
 

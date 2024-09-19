@@ -553,6 +553,9 @@ final class AuthCoordinator: NSObject, // swiftlint:disable:this type_body_lengt
         )
         let store = Store(processor: processor)
         let view = MasterPasswordGeneratorView(store: store)
+        let viewController = UIHostingController(rootView: view)
+        let navigationController = UINavigationController(rootViewController: viewController)
+        stackNavigator?.present(navigationController)
     }
 
     /// Shows the master password guidance screen.

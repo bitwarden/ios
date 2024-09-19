@@ -78,8 +78,8 @@ class MasterPasswordGeneratorProcessorTests: BitwardenTestCase {
 
     /// `receive(_:)` with `.save` dismisses the view.
     @MainActor
-    func test_receive_save() {
-        subject.receive(.save)
+    func test_receive_save() async {
+        await subject.perform(.save)
         XCTAssertEqual(coordinator.routes.last, .dismissPresented)
     }
 }

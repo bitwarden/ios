@@ -8,4 +8,7 @@ enum MasterPasswordGeneratorEffect: Equatable {
 
     /// The generate button was tapped.
     case generate
+
+    /// The save button was tapped.
+    case save
 }
