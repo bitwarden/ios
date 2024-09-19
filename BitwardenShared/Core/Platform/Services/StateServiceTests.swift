@@ -637,6 +637,25 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
         }
     }
 
+    /// `getNeedsVaultUnlockSetup()` returns whether the user needs to set up vault unlock methods.
+    func test_getNeedsVaultUnlockSetup() async throws {
+        await subject.addAccount(.fixture(profile: .fixture(userId: "1")))
+
+        let initialValue = try await subject.getNeedsVaultUnlockSetup()
+        XCTAssertFalse(initialValue)
+
+        appSettingsStore.needsVaultUnlockSetup["1"] = true
+        let needsVaultUnlockSetup = try await subject.getNeedsVaultUnlockSetup()
+        XCTAssertTrue(needsVaultUnlockSetup)
+    }
+
+    /// `getNeedsVaultUnlockSetup()` throws an error if there isn't an active account.
+    func test_getNeedsVaultUnlockSetup_noAccount() async throws {
+        await assertAsyncThrows(error: StateServiceError.noActiveAccount) {
+            _ = try await subject.getNeedsVaultUnlockSetup()
+        }
+    }
+
     /// `getNotificationsLastRegistrationDate()` returns the user's last notifications registration date.
     func test_getNotificationsLastRegistrationDate() async throws {
         await subject.addAccount(.fixture(profile: .fixture(userId: "1")))
@@ -685,6 +704,21 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
     /// `getPreAuthEnvironmentUrls` returns `nil` if the URLs haven't been set.
     func test_getPreAuthEnvironmentUrls_notSet() async {
         let urls = await subject.getPreAuthEnvironmentUrls()
+        XCTAssertNil(urls)
+    }
+
+    /// `getAccountCreationEnvironmentUrls` returns the saved pre-auth URLs for a given email.
+    func test_getAccountCreationEnvironmentUrls() async {
+        let email = "example@email.com"
+        let urls = EnvironmentUrlData(base: .example)
+        appSettingsStore.setAccountCreationEnvironmentUrls(environmentUrlData: urls, email: email)
+        let preAuthUrls = await subject.getAccountCreationEnvironmentUrls(email: email)
+        XCTAssertEqual(preAuthUrls, urls)
+    }
+
+    /// `getAccountCreationEnvironmentUrls` returns `nil` if the URLs haven't been set for a given email.
+    func test_getAccountCreationEnvironmentUrls_notSet() async {
+        let urls = await subject.getAccountCreationEnvironmentUrls(email: "example@email.com")
         XCTAssertNil(urls)
     }
 
@@ -1535,6 +1569,17 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
         XCTAssertEqual(appSettingsStore.masterPasswordHashes, ["1": "1234"])
     }
 
+    /// `setNeedsVaultUnlockSetup(_:)` sets whether the user needs to set up vault unlock methods.
+    func test_setNeedsVaultUnlockSetup() async throws {
+        await subject.addAccount(.fixture(profile: .fixture(userId: "1")))
+
+        try await subject.setNeedsVaultUnlockSetup(true)
+        XCTAssertEqual(appSettingsStore.needsVaultUnlockSetup, ["1": true])
+
+        try await subject.setNeedsVaultUnlockSetup(false, userId: "1")
+        XCTAssertEqual(appSettingsStore.needsVaultUnlockSetup, ["1": false])
+    }
+
     /// `setNotificationsLastRegistrationDate(_:)` sets the last notifications registration date for a user.
     func test_setNotificationsLastRegistrationDate() async throws {
         await subject.addAccount(.fixture(profile: .fixture(userId: "1")))
@@ -1574,6 +1619,14 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
         let urls = EnvironmentUrlData(base: .example)
         await subject.setPreAuthEnvironmentUrls(urls)
         XCTAssertEqual(appSettingsStore.preAuthEnvironmentUrls, urls)
+    }
+
+    /// `test_setAccountCreationEnvironmentUrls` saves the pre-auth URLs for email for a given email.
+    func test_setAccountCreationEnvironmentUrls() async {
+        let email = "example@email.com"
+        let urls = EnvironmentUrlData(base: .example)
+        await subject.setAccountCreationEnvironmentUrls(urls: urls, email: email)
+        XCTAssertEqual(appSettingsStore.accountCreationEnvironmentUrls(email: email), urls)
     }
 
     /// `setPreAuthServerConfig(config:)` saves the pre-auth server config.

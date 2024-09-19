@@ -4,6 +4,9 @@ import Foundation
 
 /// A route to a specific screen in the authentication flow.
 public enum AuthRoute: Equatable {
+    /// A route to the autofill setup screen.
+    case autofillSetup
+
     /// A route to the captcha screen.
     case captcha(url: URL, callbackUrlScheme: String)
 
@@ -25,13 +28,11 @@ public enum AuthRoute: Equatable {
     ///    - emailVerificationToken: Token needed to complete registration.
     ///    - userEmail: The user's email.
     ///    - fromEmail: The user opened the app from an email AppLink.
-    ///    - region: Region where the complete registration should happen.
     ///
     case completeRegistrationFromAppLink(
         emailVerificationToken: String,
         userEmail: String,
-        fromEmail: Bool,
-        region: RegionType
+        fromEmail: Bool
     )
 
     /// Dismisses the auth flow becuase the vault was unlocked with the never unlock key.

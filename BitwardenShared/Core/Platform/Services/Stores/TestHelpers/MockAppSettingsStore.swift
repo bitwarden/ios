@@ -33,9 +33,11 @@ class MockAppSettingsStore: AppSettingsStore {
     var lastActiveTime = [String: Date]()
     var lastSyncTimeByUserId = [String: Date]()
     var masterPasswordHashes = [String: String]()
+    var needsVaultUnlockSetup = [String: Bool]()
     var notificationsLastRegistrationDates = [String: Date]()
     var passwordGenerationOptions = [String: PasswordGenerationOptions]()
     var pinProtectedUserKey = [String: String]()
+    var accountCreationEnvironmentUrls = [String: EnvironmentUrlData]()
     var serverConfig = [String: ServerConfig]()
     var shouldTrustDevice = [String: Bool?]()
     var timeoutAction = [String: Int]()
@@ -101,6 +103,10 @@ class MockAppSettingsStore: AppSettingsStore {
         masterPasswordHashes[userId]
     }
 
+    func needsVaultUnlockSetup(userId: String) -> Bool {
+        needsVaultUnlockSetup[userId] ?? false
+    }
+
     func notificationsLastRegistrationDate(userId: String) -> Date? {
         notificationsLastRegistrationDates[userId]
     }
@@ -111,6 +117,10 @@ class MockAppSettingsStore: AppSettingsStore {
 
     func pinProtectedUserKey(userId: String) -> String? {
         pinProtectedUserKey[userId]
+    }
+
+    func accountCreationEnvironmentUrls(email: String) -> BitwardenShared.EnvironmentUrlData? {
+        accountCreationEnvironmentUrls[email]
     }
 
     func twoFactorToken(email: String) -> String? {
@@ -181,6 +191,10 @@ class MockAppSettingsStore: AppSettingsStore {
         notificationsLastRegistrationDates[userId] = date
     }
 
+    func setNeedsVaultUnlockSetup(_ needsVaultUnlockSetup: Bool, userId: String) {
+        self.needsVaultUnlockSetup[userId] = needsVaultUnlockSetup
+    }
+
     func setPasswordGenerationOptions(_ options: PasswordGenerationOptions?, userId: String) {
         guard let options else {
             passwordGenerationOptions.removeValue(forKey: userId)
@@ -191,6 +205,10 @@ class MockAppSettingsStore: AppSettingsStore {
 
     func setPinProtectedUserKey(key: String?, userId: String) {
         pinProtectedUserKey[userId] = key
+    }
+
+    func setAccountCreationEnvironmentUrls(environmentUrlData: BitwardenShared.EnvironmentUrlData, email: String) {
+        accountCreationEnvironmentUrls[email] = environmentUrlData
     }
 
     func setServerConfig(_ config: ServerConfig?, userId: String) {

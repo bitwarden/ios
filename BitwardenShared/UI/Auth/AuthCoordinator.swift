@@ -117,6 +117,9 @@ final class AuthCoordinator: NSObject, // swiftlint:disable:this type_body_lengt
 
     func navigate(to route: AuthRoute, context: AnyObject?) { // swiftlint:disable:this function_body_length
         switch route {
+        case .autofillSetup:
+            // TODO: PM-10278 Add autofill setup screen
+            break
         case let .captcha(url, callbackUrlScheme):
             showCaptcha(
                 url: url,
@@ -137,18 +140,16 @@ final class AuthCoordinator: NSObject, // swiftlint:disable:this type_body_lengt
         case let .completeRegistration(emailVerificationToken, userEmail):
             showCompleteRegistration(
                 emailVerificationToken: emailVerificationToken,
-                userEmail: userEmail,
-                region: nil
+                userEmail: userEmail
             )
-        case let .completeRegistrationFromAppLink(emailVerificationToken, userEmail, fromEmail, region):
+        case let .completeRegistrationFromAppLink(emailVerificationToken, userEmail, fromEmail):
             // Coming from an AppLink clear the current stack
             stackNavigator?.dismiss {
                 self.showLanding()
                 self.showCompleteRegistration(
                     emailVerificationToken: emailVerificationToken,
                     userEmail: userEmail,
-                    fromEmail: fromEmail,
-                    region: region
+                    fromEmail: fromEmail
                 )
             }
         case .createAccount:
@@ -334,8 +335,7 @@ final class AuthCoordinator: NSObject, // swiftlint:disable:this type_body_lengt
     private func showCompleteRegistration(
         emailVerificationToken: String,
         userEmail: String,
-        fromEmail: Bool = false,
-        region: RegionType?
+        fromEmail: Bool = false
     ) {
         let view = CompleteRegistrationView(
             store: Store(
@@ -345,7 +345,6 @@ final class AuthCoordinator: NSObject, // swiftlint:disable:this type_body_lengt
                     state: CompleteRegistrationState(
                         emailVerificationToken: emailVerificationToken,
                         fromEmail: fromEmail,
-                        region: region,
                         userEmail: userEmail
                     )
                 )

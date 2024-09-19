@@ -49,11 +49,13 @@ class MockStateService: StateService { // swiftlint:disable:this type_body_lengt
     var lastSyncTimeSubject = CurrentValueSubject<Date?, Never>(nil)
     var lastUserShouldConnectToWatch = false
     var masterPasswordHashes = [String: String]()
+    var needsVaultUnlockSetup = [String: Bool]()
     var notificationsLastRegistrationDates = [String: Date]()
     var notificationsLastRegistrationError: Error?
     var passwordGenerationOptions = [String: PasswordGenerationOptions]()
     var pinProtectedUserKeyValue = [String: String]()
     var preAuthEnvironmentUrls: EnvironmentUrlData?
+    var accountCreationEnvironmentUrls = [String: EnvironmentUrlData]()
     var preAuthServerConfig: ServerConfig?
     var rememberedOrgIdentifier: String?
     var showWebIcons = true
@@ -232,6 +234,11 @@ class MockStateService: StateService { // swiftlint:disable:this type_body_lengt
         return masterPasswordHashes[userId]
     }
 
+    func getNeedsVaultUnlockSetup(userId: String?) async throws -> Bool {
+        let userId = try unwrapUserId(userId)
+        return needsVaultUnlockSetup[userId] ?? false
+    }
+
     func getNotificationsLastRegistrationDate(userId: String?) async throws -> Date? {
         if let notificationsLastRegistrationError {
             throw notificationsLastRegistrationError
@@ -247,6 +254,10 @@ class MockStateService: StateService { // swiftlint:disable:this type_body_lengt
 
     func getPreAuthEnvironmentUrls() async -> EnvironmentUrlData? {
         preAuthEnvironmentUrls
+    }
+
+    func getAccountCreationEnvironmentUrls(email: String) async -> EnvironmentUrlData? {
+        accountCreationEnvironmentUrls[email]
     }
 
     func getPreAuthServerConfig() async -> BitwardenShared.ServerConfig? {
@@ -429,6 +440,11 @@ class MockStateService: StateService { // swiftlint:disable:this type_body_lengt
         masterPasswordHashes[userId] = hash
     }
 
+    func setNeedsVaultUnlockSetup(_ needsVaultUnlockSetup: Bool, userId: String?) async throws {
+        let userId = try unwrapUserId(userId)
+        self.needsVaultUnlockSetup[userId] = needsVaultUnlockSetup
+    }
+
     func setNotificationsLastRegistrationDate(_ date: Date?, userId: String?) async throws {
         let userId = try unwrapUserId(userId)
         notificationsLastRegistrationDates[userId] = date
@@ -466,6 +482,10 @@ class MockStateService: StateService { // swiftlint:disable:this type_body_lengt
 
     func setPreAuthEnvironmentUrls(_ urls: BitwardenShared.EnvironmentUrlData) async {
         preAuthEnvironmentUrls = urls
+    }
+
+    func setAccountCreationEnvironmentUrls(urls: BitwardenShared.EnvironmentUrlData, email: String) async {
+        accountCreationEnvironmentUrls[email] = urls
     }
 
     func setPreAuthServerConfig(config: BitwardenShared.ServerConfig) async {

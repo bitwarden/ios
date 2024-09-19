@@ -204,6 +204,13 @@ protocol StateService: AnyObject {
     ///
     func getMasterPasswordHash(userId: String?) async throws -> String?
 
+    /// Gets whether the user needs to set up vault unlock methods.
+    ///
+    /// - Parameter userId: The user ID associated with the value.
+    /// - Returns: Whether the user needs to set up vault unlock methods.
+    ///
+    func getNeedsVaultUnlockSetup(userId: String?) async throws -> Bool
+
     /// Gets the last notifications registration date for a user ID.
     ///
     /// - Parameter userId: The user ID of the account. Defaults to the active account if `nil`.
@@ -223,6 +230,13 @@ protocol StateService: AnyObject {
     /// - Returns: The environment URLs used prior to user authentication.
     ///
     func getPreAuthEnvironmentUrls() async -> EnvironmentUrlData?
+
+    /// Gets the environment URLs for a given email during account creation.
+    ///
+    /// - Parameter email: The email used to start the account creation.
+    /// - Returns: The environment URLs used prior to start the account creation.
+    ///
+    func getAccountCreationEnvironmentUrls(email: String) async -> EnvironmentUrlData?
 
     /// Gets the server config used by the app prior to the user authenticating.
     /// - Returns: The server config used prior to user authentication.
@@ -464,6 +478,14 @@ protocol StateService: AnyObject {
     ///
     func setMasterPasswordHash(_ hash: String?, userId: String?) async throws
 
+    /// Sets whether the user needs to set up vault unlock methods.
+    ///
+    /// - Parameters:
+    ///   - needsVaultUnlockSetup: Whether the user needs to set up vault unlock methods.
+    ///   - userId: The user ID associated with the value.
+    ///
+    func setNeedsVaultUnlockSetup(_ needsVaultUnlockSetup: Bool, userId: String?) async throws
+
     /// Sets the last notifications registration date for a user ID.
     ///
     /// - Parameters:
@@ -504,6 +526,13 @@ protocol StateService: AnyObject {
     /// - Parameter urls: The environment URLs used prior to user authentication.
     ///
     func setPreAuthEnvironmentUrls(_ urls: EnvironmentUrlData) async
+
+    /// Sets the environment URLs for a given email during account creation.
+    /// - Parameters:
+    ///   - urls: The environment urls used to start the account creation.
+    ///   - email: The email used to start the account creation.
+    ///
+    func setAccountCreationEnvironmentUrls(urls: EnvironmentUrlData, email: String) async
 
     /// Sets the server config used prior to user authentication
     /// - Parameter config: The server config to use prior to user authentication.
@@ -750,6 +779,14 @@ extension StateService {
         try await getMasterPasswordHash(userId: nil)
     }
 
+    /// Gets whether the active account needs to set up vault unlock methods.
+    ///
+    /// - Returns: Whether the user needs to set up vault unlock methods.
+    ///
+    func getNeedsVaultUnlockSetup() async throws -> Bool {
+        try await getNeedsVaultUnlockSetup(userId: nil)
+    }
+
     /// Gets the last notifications registration date for the active account.
     ///
     /// - Returns: The last notifications registration date for the active account.
@@ -934,6 +971,14 @@ extension StateService {
     ///
     func setMasterPasswordHash(_ hash: String?) async throws {
         try await setMasterPasswordHash(hash, userId: nil)
+    }
+
+    /// Sets whether the active account needs to set up vault unlock methods.
+    ///
+    /// - Parameter needsVaultUnlockSetup: Whether the user needs to set up vault unlock methods.
+    ///
+    func setNeedsVaultUnlockSetup(_ needsVaultUnlockSetup: Bool) async throws {
+        try await setNeedsVaultUnlockSetup(needsVaultUnlockSetup, userId: nil)
     }
 
     /// Sets the last notifications registration date for the active account.
@@ -1240,6 +1285,11 @@ actor DefaultStateService: StateService { // swiftlint:disable:this type_body_le
         return appSettingsStore.masterPasswordHash(userId: userId)
     }
 
+    func getNeedsVaultUnlockSetup(userId: String?) async throws -> Bool {
+        let userId = try userId ?? getActiveAccountUserId()
+        return appSettingsStore.needsVaultUnlockSetup(userId: userId)
+    }
+
     func getNotificationsLastRegistrationDate(userId: String?) async throws -> Date? {
         let userId = try userId ?? getActiveAccountUserId()
         return appSettingsStore.notificationsLastRegistrationDate(userId: userId)
@@ -1252,6 +1302,10 @@ actor DefaultStateService: StateService { // swiftlint:disable:this type_body_le
 
     func getPreAuthEnvironmentUrls() async -> EnvironmentUrlData? {
         appSettingsStore.preAuthEnvironmentUrls
+    }
+
+    func getAccountCreationEnvironmentUrls(email: String) async -> EnvironmentUrlData? {
+        appSettingsStore.accountCreationEnvironmentUrls(email: email)
     }
 
     func getPreAuthServerConfig() async -> ServerConfig? {
@@ -1461,6 +1515,11 @@ actor DefaultStateService: StateService { // swiftlint:disable:this type_body_le
         appSettingsStore.setMasterPasswordHash(hash, userId: userId)
     }
 
+    func setNeedsVaultUnlockSetup(_ needsVaultUnlockSetup: Bool, userId: String?) async throws {
+        let userId = try userId ?? getActiveAccountUserId()
+        appSettingsStore.setNeedsVaultUnlockSetup(needsVaultUnlockSetup, userId: userId)
+    }
+
     func setNotificationsLastRegistrationDate(_ date: Date?, userId: String?) async throws {
         let userId = try userId ?? getActiveAccountUserId()
         appSettingsStore.setNotificationsLastRegistrationDate(date, userId: userId)
@@ -1493,6 +1552,13 @@ actor DefaultStateService: StateService { // swiftlint:disable:this type_body_le
 
     func setPreAuthEnvironmentUrls(_ urls: EnvironmentUrlData) async {
         appSettingsStore.preAuthEnvironmentUrls = urls
+    }
+
+    func setAccountCreationEnvironmentUrls(urls: EnvironmentUrlData, email: String) async {
+        appSettingsStore.setAccountCreationEnvironmentUrls(
+            environmentUrlData: urls,
+            email: email
+        )
     }
 
     func setPreAuthServerConfig(config: ServerConfig) async {

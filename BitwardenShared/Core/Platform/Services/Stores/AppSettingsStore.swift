@@ -162,6 +162,13 @@ protocol AppSettingsStore: AnyObject {
     ///
     func masterPasswordHash(userId: String) -> String?
 
+    /// Gets whether the user needs to set up vault unlock methods.
+    ///
+    /// - Parameter userId: The user ID associated with the value.
+    /// - Returns: Whether the user needs to set up vault unlock methods.
+    ///
+    func needsVaultUnlockSetup(userId: String) -> Bool
+
     /// Gets the last date the user successfully registered for push notifications.
     ///
     /// - Parameter userId: The user ID associated with the last notifications registration date.
@@ -182,6 +189,14 @@ protocol AppSettingsStore: AnyObject {
     /// - Returns: The pin protected user key.
     ///
     func pinProtectedUserKey(userId: String) -> String?
+
+    /// Gets the environment URLs used to start the account creation flow.
+    ///
+    /// - Parameters:
+    ///  - email: The email used to start the account creation.
+    /// - Returns: The environment URLs used prior to start the account creation.
+    ///
+    func accountCreationEnvironmentUrls(email: String) -> EnvironmentUrlData?
 
     /// The server configuration.
     ///
@@ -305,6 +320,14 @@ protocol AppSettingsStore: AnyObject {
     ///
     func setMasterPasswordHash(_ hash: String?, userId: String)
 
+    /// Sets whether the user needs to set up vault unlock methods.
+    ///
+    /// - Parameters:
+    ///   - needsVaultUnlockSetup: Whether the user needs to set up vault unlock methods.
+    ///   - userId: The user ID associated with the value.
+    ///
+    func setNeedsVaultUnlockSetup(_ needsVaultUnlockSetup: Bool, userId: String)
+
     /// Sets the last notifications registration date for a user ID.
     ///
     /// - Parameters:
@@ -328,6 +351,14 @@ protocol AppSettingsStore: AnyObject {
     ///   - userId: The user ID.
     ///
     func setPinProtectedUserKey(key: String?, userId: String)
+
+    /// Sets the environment URLs used to start the account creation flow.
+    ///
+    /// - Parameters:
+    ///  - email: The user's email address.
+    ///  - environmentUrlData: The environment data to be saved.
+    ///
+    func setAccountCreationEnvironmentUrls(environmentUrlData: EnvironmentUrlData, email: String)
 
     /// Sets the server config.
     ///
@@ -587,10 +618,12 @@ extension DefaultAppSettingsStore: AppSettingsStore {
         case loginRequest
         case masterPasswordHash(userId: String)
         case migrationVersion
+        case needsVaultUnlockSetup(userId: String)
         case notificationsLastRegistrationDate(userId: String)
         case passwordGenerationOptions(userId: String)
         case pinProtectedUserKey(userId: String)
         case preAuthEnvironmentUrls
+        case accountCreationEnvironmentUrls(email: String)
         case preAuthServerConfig
         case rememberedEmail
         case rememberedOrgIdentifier
@@ -656,6 +689,8 @@ extension DefaultAppSettingsStore: AppSettingsStore {
                 key = "keyHash_\(userId)"
             case .migrationVersion:
                 key = "migrationVersion"
+            case let .needsVaultUnlockSetup(userId):
+                key = "needsVaultUnlockSetup_\(userId)"
             case let .notificationsLastRegistrationDate(userId):
                 key = "pushLastRegistrationDate_\(userId)"
             case let .passwordGenerationOptions(userId):
@@ -664,6 +699,8 @@ extension DefaultAppSettingsStore: AppSettingsStore {
                 key = "pinKeyEncryptedUserKey_\(userId)"
             case .preAuthEnvironmentUrls:
                 key = "preAuthEnvironmentUrls"
+            case let .accountCreationEnvironmentUrls(email):
+                key = "accountCreationEnvironmentUrls_\(email)"
             case .preAuthServerConfig:
                 key = "preAuthServerConfig"
             case .rememberedEmail:
@@ -836,6 +873,10 @@ extension DefaultAppSettingsStore: AppSettingsStore {
         fetch(for: .masterPasswordHash(userId: userId))
     }
 
+    func needsVaultUnlockSetup(userId: String) -> Bool {
+        fetch(for: .needsVaultUnlockSetup(userId: userId))
+    }
+
     func notificationsLastRegistrationDate(userId: String) -> Date? {
         fetch(for: .notificationsLastRegistrationDate(userId: userId)).map { Date(timeIntervalSince1970: $0) }
     }
@@ -846,6 +887,12 @@ extension DefaultAppSettingsStore: AppSettingsStore {
 
     func pinProtectedUserKey(userId: String) -> String? {
         fetch(for: .pinProtectedUserKey(userId: userId))
+    }
+
+    func accountCreationEnvironmentUrls(email: String) -> EnvironmentUrlData? {
+        fetch(
+            for: .accountCreationEnvironmentUrls(email: email)
+        )
     }
 
     func serverConfig(userId: String) -> ServerConfig? {
@@ -914,6 +961,10 @@ extension DefaultAppSettingsStore: AppSettingsStore {
         store(hash, for: .masterPasswordHash(userId: userId))
     }
 
+    func setNeedsVaultUnlockSetup(_ needsVaultUnlockSetup: Bool, userId: String) {
+        store(needsVaultUnlockSetup, for: .needsVaultUnlockSetup(userId: userId))
+    }
+
     func setNotificationsLastRegistrationDate(_ date: Date?, userId: String) {
         store(date?.timeIntervalSince1970, for: .notificationsLastRegistrationDate(userId: userId))
     }
@@ -924,6 +975,10 @@ extension DefaultAppSettingsStore: AppSettingsStore {
 
     func setPinProtectedUserKey(key: String?, userId: String) {
         store(key, for: .pinProtectedUserKey(userId: userId))
+    }
+
+    func setAccountCreationEnvironmentUrls(environmentUrlData: EnvironmentUrlData, email: String) {
+        store(environmentUrlData, for: .accountCreationEnvironmentUrls(email: email))
     }
 
     func setServerConfig(_ config: ServerConfig?, userId: String) {
