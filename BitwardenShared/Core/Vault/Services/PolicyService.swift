@@ -190,7 +190,7 @@ extension DefaultPolicyService {
                 generatorType = overridePasswordType
                 options.overridePasswordType = true
             }
-        
+
             if let minLength = policy[.minLength]?.intValue {
                 options.setMinLength(minLength)
             }
