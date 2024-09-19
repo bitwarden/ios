@@ -5,6 +5,8 @@ import Foundation
 
 class MockStateService: StateService { // swiftlint:disable:this type_body_length
     var accountEncryptionKeys = [String: AccountEncryptionKeys]()
+    var accountSetupAutofill = [String: AccountSetupProgress]()
+    var accountSetupVaultUnlock = [String: AccountSetupProgress]()
     var accountTokens: Account.AccountTokens?
     var accountVolatileData: [String: AccountVolatileData] = [:]
     var accountsAdded = [Account]()
@@ -49,7 +51,6 @@ class MockStateService: StateService { // swiftlint:disable:this type_body_lengt
     var lastSyncTimeSubject = CurrentValueSubject<Date?, Never>(nil)
     var lastUserShouldConnectToWatch = false
     var masterPasswordHashes = [String: String]()
-    var needsVaultUnlockSetup = [String: Bool]()
     var notificationsLastRegistrationDates = [String: Date]()
     var notificationsLastRegistrationError: Error?
     var passwordGenerationOptions = [String: PasswordGenerationOptions]()
@@ -145,6 +146,16 @@ class MockStateService: StateService { // swiftlint:disable:this type_body_lengt
         return accounts
     }
 
+    func getAccountSetupAutofill(userId: String?) async throws -> AccountSetupProgress? {
+        let userId = try unwrapUserId(userId)
+        return accountSetupAutofill[userId]
+    }
+
+    func getAccountSetupVaultUnlock(userId: String?) async throws -> AccountSetupProgress? {
+        let userId = try unwrapUserId(userId)
+        return accountSetupVaultUnlock[userId]
+    }
+
     func getAccountIdOrActiveId(userId: String?) async throws -> String {
         if let userId {
             return userId
@@ -232,11 +243,6 @@ class MockStateService: StateService { // swiftlint:disable:this type_body_lengt
     func getMasterPasswordHash(userId: String?) async throws -> String? {
         let userId = try unwrapUserId(userId)
         return masterPasswordHashes[userId]
-    }
-
-    func getNeedsVaultUnlockSetup(userId: String?) async throws -> Bool {
-        let userId = try unwrapUserId(userId)
-        return needsVaultUnlockSetup[userId] ?? false
     }
 
     func getNotificationsLastRegistrationDate(userId: String?) async throws -> Date? {
@@ -342,6 +348,16 @@ class MockStateService: StateService { // swiftlint:disable:this type_body_lengt
         try setAccountHasBeenUnlockedInteractivelyResult.get()
     }
 
+    func setAccountSetupAutofill(_ autofillSetup: AccountSetupProgress?, userId: String?) async throws {
+        let userId = try unwrapUserId(userId)
+        accountSetupAutofill[userId] = autofillSetup
+    }
+
+    func setAccountSetupVaultUnlock(_ vaultUnlockSetup: AccountSetupProgress?, userId: String?) async throws {
+        let userId = try unwrapUserId(userId)
+        accountSetupVaultUnlock[userId] = vaultUnlockSetup
+    }
+
     func setActiveAccount(userId: String) async throws {
         guard let accounts,
               let match = accounts.first(where: { account in
@@ -438,11 +454,6 @@ class MockStateService: StateService { // swiftlint:disable:this type_body_lengt
     func setMasterPasswordHash(_ hash: String?, userId: String?) async throws {
         let userId = try unwrapUserId(userId)
         masterPasswordHashes[userId] = hash
-    }
-
-    func setNeedsVaultUnlockSetup(_ needsVaultUnlockSetup: Bool, userId: String?) async throws {
-        let userId = try unwrapUserId(userId)
-        self.needsVaultUnlockSetup[userId] = needsVaultUnlockSetup
     }
 
     func setNotificationsLastRegistrationDate(_ date: Date?, userId: String?) async throws {

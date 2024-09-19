@@ -300,6 +300,44 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
         }
     }
 
+    /// `getAccountSetupAutofill()` returns the user's autofill setup progress.
+    func test_getAccountSetupAutofill() async throws {
+        await subject.addAccount(.fixture(profile: .fixture(userId: "1")))
+
+        let initialValue = try await subject.getAccountSetupAutofill()
+        XCTAssertNil(initialValue)
+
+        appSettingsStore.accountSetupAutofill["1"] = .setUpLater
+        let setUpLater = try await subject.getAccountSetupAutofill()
+        XCTAssertEqual(setUpLater, .setUpLater)
+    }
+
+    /// `getAccountSetupAutofill()` throws an error if there isn't an active account.
+    func test_getAccountSetupAutofill_noAccount() async throws {
+        await assertAsyncThrows(error: StateServiceError.noActiveAccount) {
+            _ = try await subject.getAccountSetupAutofill()
+        }
+    }
+
+    /// `getAccountSetupVaultUnlock()` returns the user's vault unlock setup progress.
+    func test_getAccountSetupVaultUnlock() async throws {
+        await subject.addAccount(.fixture(profile: .fixture(userId: "1")))
+
+        let initialValue = try await subject.getAccountSetupVaultUnlock()
+        XCTAssertNil(initialValue)
+
+        appSettingsStore.accountSetupVaultUnlock["1"] = .setUpLater
+        let setUpLater = try await subject.getAccountSetupVaultUnlock()
+        XCTAssertEqual(setUpLater, .setUpLater)
+    }
+
+    /// `getAccountSetupVaultUnlock()` throws an error if there isn't an active account.
+    func test_getAccountSetupVaultUnlock_noAccount() async throws {
+        await assertAsyncThrows(error: StateServiceError.noActiveAccount) {
+            _ = try await subject.getAccountSetupVaultUnlock()
+        }
+    }
+
     /// `getActiveAccount()` returns the active account.
     func test_getActiveAccount() async throws {
         let account = Account.fixture(profile: .fixture(userId: "2"))
@@ -634,25 +672,6 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
     func test_getMasterPasswordHash_noAccount() async {
         await assertAsyncThrows(error: StateServiceError.noActiveAccount) {
             _ = try await subject.getMasterPasswordHash()
-        }
-    }
-
-    /// `getNeedsVaultUnlockSetup()` returns whether the user needs to set up vault unlock methods.
-    func test_getNeedsVaultUnlockSetup() async throws {
-        await subject.addAccount(.fixture(profile: .fixture(userId: "1")))
-
-        let initialValue = try await subject.getNeedsVaultUnlockSetup()
-        XCTAssertFalse(initialValue)
-
-        appSettingsStore.needsVaultUnlockSetup["1"] = true
-        let needsVaultUnlockSetup = try await subject.getNeedsVaultUnlockSetup()
-        XCTAssertTrue(needsVaultUnlockSetup)
-    }
-
-    /// `getNeedsVaultUnlockSetup()` throws an error if there isn't an active account.
-    func test_getNeedsVaultUnlockSetup_noAccount() async throws {
-        await assertAsyncThrows(error: StateServiceError.noActiveAccount) {
-            _ = try await subject.getNeedsVaultUnlockSetup()
         }
     }
 
@@ -1507,6 +1526,28 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
         }
     }
 
+    /// `setAccountSetupAutofill(_:)` sets the user's autofill setup progress.
+    func test_setAccountSetupAutofill() async throws {
+        await subject.addAccount(.fixture(profile: .fixture(userId: "1")))
+
+        try await subject.setAccountSetupAutofill(.incomplete)
+        XCTAssertEqual(appSettingsStore.accountSetupAutofill, ["1": .incomplete])
+
+        try await subject.setAccountSetupAutofill(.complete, userId: "1")
+        XCTAssertEqual(appSettingsStore.accountSetupAutofill, ["1": .complete])
+    }
+
+    /// `setAccountSetupVaultUnlock(_:)` sets the user's vault unlock setup progress.
+    func test_setAccountSetupVaultUnlock() async throws {
+        await subject.addAccount(.fixture(profile: .fixture(userId: "1")))
+
+        try await subject.setAccountSetupVaultUnlock(.incomplete)
+        XCTAssertEqual(appSettingsStore.accountSetupVaultUnlock, ["1": .incomplete])
+
+        try await subject.setAccountSetupVaultUnlock(.complete, userId: "1")
+        XCTAssertEqual(appSettingsStore.accountSetupVaultUnlock, ["1": .complete])
+    }
+
     /// `setActiveAccount(userId: )` succeeds if there is a matching account
     func test_setActiveAccount_match_multi() async throws {
         let account1 = Account.fixture(profile: .fixture(userId: "1"))
@@ -1567,17 +1608,6 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
 
         try await subject.setMasterPasswordHash("1234", userId: "1")
         XCTAssertEqual(appSettingsStore.masterPasswordHashes, ["1": "1234"])
-    }
-
-    /// `setNeedsVaultUnlockSetup(_:)` sets whether the user needs to set up vault unlock methods.
-    func test_setNeedsVaultUnlockSetup() async throws {
-        await subject.addAccount(.fixture(profile: .fixture(userId: "1")))
-
-        try await subject.setNeedsVaultUnlockSetup(true)
-        XCTAssertEqual(appSettingsStore.needsVaultUnlockSetup, ["1": true])
-
-        try await subject.setNeedsVaultUnlockSetup(false, userId: "1")
-        XCTAssertEqual(appSettingsStore.needsVaultUnlockSetup, ["1": false])
     }
 
     /// `setNotificationsLastRegistrationDate(_:)` sets the last notifications registration date for a user.

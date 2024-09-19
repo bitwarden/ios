@@ -222,12 +222,14 @@ class CompleteRegistrationProcessor: StateProcessor<
             try await services.authService.loginWithMasterPassword(
                 state.passwordText,
                 username: state.userEmail,
-                captchaToken: captchaToken
+                captchaToken: captchaToken,
+                isNewAccount: true
             )
 
             try await services.authRepository.unlockVaultWithPassword(password: state.passwordText)
 
             await coordinator.handleEvent(.didCompleteAuth)
+            coordinator.navigate(to: .dismiss)
         } catch let error as CompleteRegistrationError {
             showCompleteRegistrationErrorAlert(error)
         } catch {
@@ -235,7 +237,7 @@ class CompleteRegistrationProcessor: StateProcessor<
                 // If an error occurs after the account was created, dismiss the view and navigate
                 // the user to the login screen to complete login.
                 coordinator.navigate(to: .dismissWithAction(DismissAction {
-                    self.coordinator.navigate(to: .login(username: self.state.userEmail))
+                    self.coordinator.navigate(to: .login(username: self.state.userEmail, isNewAccount: true))
                     self.coordinator.showToast(Localizations.accountSuccessfullyCreated)
                 }))
                 return

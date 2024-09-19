@@ -331,7 +331,8 @@ class AuthServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body_
         try await subject.loginWithMasterPassword(
             "Password1234!",
             username: "email@example.com",
-            captchaToken: nil
+            captchaToken: nil,
+            isNewAccount: false
         )
 
         // Verify the results.
@@ -365,6 +366,77 @@ class AuthServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body_
                 ),
             ]
         )
+        XCTAssertNil(stateService.accountSetupAutofill["13512467-9cfe-43b0-969f-07534084764b"])
+        XCTAssertNil(stateService.accountSetupVaultUnlock["13512467-9cfe-43b0-969f-07534084764b"])
+        XCTAssertEqual(
+            stateService.masterPasswordHashes,
+            ["13512467-9cfe-43b0-969f-07534084764b": "hashed password"]
+        )
+        try XCTAssertEqual(
+            keychainRepository.getValue(for: .accessToken(userId: "13512467-9cfe-43b0-969f-07534084764b")),
+            IdentityTokenResponseModel.fixture().accessToken
+        )
+        try XCTAssertEqual(
+            keychainRepository.getValue(for: .refreshToken(userId: "13512467-9cfe-43b0-969f-07534084764b")),
+            IdentityTokenResponseModel.fixture().refreshToken
+        )
+        assertGetConfig()
+    }
+
+    /// `loginWithMasterPassword(_:username:captchaToken:)` logs the user in with the password for
+    /// a newly created account.
+    func test_loginWithMasterPassword_isNewAccount() async throws { // swiftlint:disable:this function_body_length
+        client.results = [
+            .httpSuccess(testData: .preLoginSuccess),
+            .httpSuccess(testData: .identityTokenSuccess),
+        ]
+        appSettingsStore.appId = "App id"
+        clientService.mockAuth.hashPasswordResult = .success("hashed password")
+        configService.featureFlagsBool[.nativeCreateAccountFlow] = true
+        stateService.preAuthEnvironmentUrls = EnvironmentUrlData(base: URL(string: "https://vault.bitwarden.com"))
+        systemDevice.modelIdentifier = "Model id"
+
+        // Attempt to login.
+        try await subject.loginWithMasterPassword(
+            "Password1234!",
+            username: "email@example.com",
+            captchaToken: nil,
+            isNewAccount: true
+        )
+
+        // Verify the results.
+        let preLoginRequest = PreLoginRequestModel(
+            email: "email@example.com"
+        )
+        let tokenRequest = IdentityTokenRequestModel(
+            authenticationMethod: .password(username: "email@example.com", password: "hashed password"),
+            captchaToken: nil,
+            deviceInfo: DeviceInfo(
+                identifier: "App id",
+                name: "Model id"
+            ),
+            loginRequestId: nil
+        )
+        XCTAssertEqual(client.requests.count, 2)
+        XCTAssertEqual(client.requests[0].body, try preLoginRequest.encode())
+        XCTAssertEqual(client.requests[1].body, try tokenRequest.encode())
+
+        XCTAssertEqual(clientService.mockAuth.hashPasswordEmail, "user@bitwarden.com")
+        XCTAssertEqual(clientService.mockAuth.hashPasswordPassword, "Password1234!")
+        XCTAssertEqual(clientService.mockAuth.hashPasswordKdfParams, .pbkdf2(iterations: 600_000))
+
+        XCTAssertEqual(stateService.accountsAdded, [Account.fixtureAccountLogin()])
+        XCTAssertEqual(
+            stateService.accountEncryptionKeys,
+            [
+                "13512467-9cfe-43b0-969f-07534084764b": AccountEncryptionKeys(
+                    encryptedPrivateKey: "PRIVATE_KEY",
+                    encryptedUserKey: "KEY"
+                ),
+            ]
+        )
+        XCTAssertEqual(stateService.accountSetupAutofill["13512467-9cfe-43b0-969f-07534084764b"], .incomplete)
+        XCTAssertEqual(stateService.accountSetupVaultUnlock["13512467-9cfe-43b0-969f-07534084764b"], .incomplete)
         XCTAssertEqual(
             stateService.masterPasswordHashes,
             ["13512467-9cfe-43b0-969f-07534084764b": "hashed password"]
@@ -398,7 +470,8 @@ class AuthServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body_
         try await subject.loginWithMasterPassword(
             "Password1234!",
             username: "email@example.com",
-            captchaToken: nil
+            captchaToken: nil,
+            isNewAccount: false
         )
 
         // Verify the results.
@@ -461,7 +534,8 @@ class AuthServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body_
             try await subject.loginWithMasterPassword(
                 "Password1234!",
                 username: "email@example.com",
-                captchaToken: nil
+                captchaToken: nil,
+                isNewAccount: false
             )
         }
 
@@ -607,7 +681,8 @@ class AuthServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body_
             try await subject.loginWithMasterPassword(
                 "Password1234!",
                 username: "email@example.com",
-                captchaToken: nil
+                captchaToken: nil,
+                isNewAccount: false
             )
         }
 
@@ -675,7 +750,8 @@ class AuthServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body_
             try await subject.loginWithMasterPassword(
                 "Password1234!",
                 username: "email@example.com",
-                captchaToken: nil
+                captchaToken: nil,
+                isNewAccount: false
             )
         }
 
@@ -713,7 +789,8 @@ class AuthServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body_
             try await subject.loginWithMasterPassword(
                 "Password1234!",
                 username: "email@example.com",
-                captchaToken: nil
+                captchaToken: nil,
+                isNewAccount: false
             )
         }
 
@@ -823,7 +900,8 @@ class AuthServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body_
             try await subject.loginWithMasterPassword(
                 "Password1234!",
                 username: "email@example.com",
-                captchaToken: nil
+                captchaToken: nil,
+                isNewAccount: false
             )
         }
 

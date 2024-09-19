@@ -1,5 +1,7 @@
 // MARK: AuthRouterRedirects
 
+// swiftlint:disable file_length
+
 extension AuthRouter {
     /// Configures the app with an active account.
     ///
@@ -30,6 +32,11 @@ extension AuthRouter {
         }
         if account.profile.forcePasswordResetReason != nil {
             return .updateMasterPassword
+        } else if await (try? services.stateService.getAccountSetupVaultUnlock()) == .incomplete {
+            return .vaultUnlockSetup
+            // TODO: PM-10278 Add autofill setup screen
+//        } else if await (try? services.stateService.getAccountSetupAutofill()) == .incomplete {
+//            return .autofillSetup
         } else {
             await setCarouselShownIfEnabled()
             return .complete
