@@ -227,6 +227,45 @@ final class CipherViewUpdateTests: BitwardenTestCase {
         XCTAssertEqual(newerPasswordHistory?.last?.password, "New password")
     }
 
+    /// Tests that the update succeeds with a new password updating the password revision date.
+    func test_update_login_passwordRevisionDate_succeeds() throws {
+        subject = CipherView.loginFixture(
+            login: .fixture(
+                password: "Old password",
+                passwordRevisionDate: DateTime.distantPast
+            )
+        )
+        cipherItemState.loginState.password = "New password"
+
+        let comparison = subject.updatedView(with: cipherItemState)
+        let passwordRevisionDate = try XCTUnwrap(comparison.login?.passwordRevisionDate)
+
+        XCTAssertTrue(
+            passwordRevisionDate > Calendar.current.date(
+                byAdding: .second,
+                value: -5,
+                to: Date()
+            )! && passwordRevisionDate < Date()
+        )
+    }
+
+    /// Tests that the password revision date doesn't get updated if the password hasn't changed
+    func test_update_login_passwordRevisionDate_noUpdateIfNoNewPassword() throws {
+        subject = CipherView.loginFixture(
+            login: .fixture(
+                password: "Old password",
+                passwordRevisionDate: DateTime.distantPast
+            )
+        )
+        cipherItemState.loginState.password = "Old password"
+        cipherItemState.loginState.username = "New username"
+
+        let comparison = subject.updatedView(with: cipherItemState)
+        let passwordRevisionDate = try XCTUnwrap(comparison.login?.passwordRevisionDate)
+
+        XCTAssertEqual(passwordRevisionDate, DateTime.distantPast)
+    }
+
     /// Tests that the update succeeds with updated properties.
     func test_update_secureNote_succeeds() {
         cipherItemState.type = .secureNote
