@@ -662,11 +662,12 @@ class AppProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_body
         configService.featureFlagsBool[.nativeCreateAccountFlow] = true
         stateService.accounts = [.fixture()]
         stateService.accountSetupAutofill["1"] = .setUpLater
+        stateService.accountSetupAutofillError = BitwardenTestError.example
 
         let rootNavigator = MockRootNavigator()
         await subject.start(appContext: .mainApp, navigator: rootNavigator, window: nil)
 
-        XCTAssertEqual(errorReporter.errors as? [StateServiceError], [.noActiveAccount])
+        XCTAssertEqual(errorReporter.errors as? [BitwardenTestError], [.example])
         XCTAssertEqual(stateService.accountSetupAutofill, ["1": .setUpLater])
     }
 
