@@ -82,7 +82,7 @@ protocol SettingsRepository: AnyObject {
 
     /// Update the cached value of the sync to authenticator setting.
     ///
-    /// - Parameter connectToWatch: Whether to sync TOTP codes to the Authenticator app.
+    /// - Parameter syncToAuthenticator: Whether to sync TOTP codes to the Authenticator app.
     ///
     func updateSyncToAuthenticator(_ syncToAuthenticator: Bool) async throws
 
