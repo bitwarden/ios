@@ -53,6 +53,20 @@ protocol StateService: AnyObject {
     /// - Parameter userId: The user ID of the account. Defaults to the active account if `nil`.
     func getAccountHasBeenUnlockedInteractively(userId: String?) async throws -> Bool
 
+    /// Gets the user's progress for setting up autofill.
+    ///
+    /// - Parameter userId: The user ID associated with the autofill setup progress.
+    /// - Returns: The user's autofill setup progress.
+    ///
+    func getAccountSetupAutofill(userId: String?) async throws -> AccountSetupProgress?
+
+    /// Gets the user's progress for setting up vault unlock.
+    ///
+    /// - Parameter userId: The user ID associated with the vault unlock setup progress.
+    /// - Returns: The user's vault unlock setup progress.
+    ///
+    func getAccountSetupVaultUnlock(userId: String?) async throws -> AccountSetupProgress?
+
     /// Gets all accounts.
     ///
     /// - Returns: The known user accounts.
@@ -204,13 +218,6 @@ protocol StateService: AnyObject {
     ///
     func getMasterPasswordHash(userId: String?) async throws -> String?
 
-    /// Gets whether the user needs to set up vault unlock methods.
-    ///
-    /// - Parameter userId: The user ID associated with the value.
-    /// - Returns: Whether the user needs to set up vault unlock methods.
-    ///
-    func getNeedsVaultUnlockSetup(userId: String?) async throws -> Bool
-
     /// Gets the last notifications registration date for a user ID.
     ///
     /// - Parameter userId: The user ID of the account. Defaults to the active account if `nil`.
@@ -230,6 +237,13 @@ protocol StateService: AnyObject {
     /// - Returns: The environment URLs used prior to user authentication.
     ///
     func getPreAuthEnvironmentUrls() async -> EnvironmentUrlData?
+
+    /// Gets the environment URLs for a given email during account creation.
+    ///
+    /// - Parameter email: The email used to start the account creation.
+    /// - Returns: The environment URLs used prior to start the account creation.
+    ///
+    func getAccountCreationEnvironmentUrls(email: String) async -> EnvironmentUrlData?
 
     /// Gets the server config used by the app prior to the user authenticating.
     /// - Returns: The server config used prior to user authentication.
@@ -346,6 +360,22 @@ protocol StateService: AnyObject {
     ///   - userId: The user ID of the account. Defaults to the active account if `nil`.
     ///   - value: Whether the user has unlocked their account in the current session.
     func setAccountHasBeenUnlockedInteractively(userId: String?, value: Bool) async throws
+
+    /// Sets the user's progress for setting up autofill.
+    ///
+    /// - Parameters:
+    ///   - autofillSetup: The user's autofill setup progress.
+    ///   - userId: The user ID associated with the autofill setup progress.
+    ///
+    func setAccountSetupAutofill(_ autofillSetup: AccountSetupProgress?, userId: String?) async throws
+
+    /// Sets the user's progress for setting up vault unlock.
+    ///
+    /// - Parameters:
+    ///   - autofillSetup: The user's vault unlock setup progress.
+    ///   - userId: The user ID associated with the vault unlock setup progress.
+    ///
+    func setAccountSetupVaultUnlock(_ vaultUnlockSetup: AccountSetupProgress?, userId: String?) async throws
 
     /// Sets the active account.
     ///
@@ -471,14 +501,6 @@ protocol StateService: AnyObject {
     ///
     func setMasterPasswordHash(_ hash: String?, userId: String?) async throws
 
-    /// Sets whether the user needs to set up vault unlock methods.
-    ///
-    /// - Parameters:
-    ///   - needsVaultUnlockSetup: Whether the user needs to set up vault unlock methods.
-    ///   - userId: The user ID associated with the value.
-    ///
-    func setNeedsVaultUnlockSetup(_ needsVaultUnlockSetup: Bool, userId: String?) async throws
-
     /// Sets the last notifications registration date for a user ID.
     ///
     /// - Parameters:
@@ -519,6 +541,13 @@ protocol StateService: AnyObject {
     /// - Parameter urls: The environment URLs used prior to user authentication.
     ///
     func setPreAuthEnvironmentUrls(_ urls: EnvironmentUrlData) async
+
+    /// Sets the environment URLs for a given email during account creation.
+    /// - Parameters:
+    ///   - urls: The environment urls used to start the account creation.
+    ///   - email: The email used to start the account creation.
+    ///
+    func setAccountCreationEnvironmentUrls(urls: EnvironmentUrlData, email: String) async
 
     /// Sets the server config used prior to user authentication
     /// - Parameter config: The server config to use prior to user authentication.
@@ -663,6 +692,22 @@ extension StateService {
         try await getAccount(userId: userId).profile.userId
     }
 
+    /// Gets the active user's progress for setting up autofill.
+    ///
+    /// - Returns: The user's autofill setup progress.
+    ///
+    func getAccountSetupAutofill() async throws -> AccountSetupProgress? {
+        try await getAccountSetupAutofill(userId: nil)
+    }
+
+    /// Gets the active user's progress for setting up vault unlock.
+    ///
+    /// - Returns: The user's vault unlock setup progress.
+    ///
+    func getAccountSetupVaultUnlock() async throws -> AccountSetupProgress? {
+        try await getAccountSetupVaultUnlock(userId: nil)
+    }
+
     /// Gets the active account id.
     ///
     /// - Returns: The active user id.
@@ -763,14 +808,6 @@ extension StateService {
     ///
     func getMasterPasswordHash() async throws -> String? {
         try await getMasterPasswordHash(userId: nil)
-    }
-
-    /// Gets whether the active account needs to set up vault unlock methods.
-    ///
-    /// - Returns: Whether the user needs to set up vault unlock methods.
-    ///
-    func getNeedsVaultUnlockSetup() async throws -> Bool {
-        try await getNeedsVaultUnlockSetup(userId: nil)
     }
 
     /// Gets the last notifications registration date for the active account.
@@ -887,6 +924,22 @@ extension StateService {
         try await setAccountHasBeenUnlockedInteractively(userId: nil, value: value)
     }
 
+    /// Sets the active user's progress for setting up autofill.
+    ///
+    /// - Parameter autofillSetup: The user's autofill setup progress.
+    ///
+    func setAccountSetupAutofill(_ autofillSetup: AccountSetupProgress?) async throws {
+        try await setAccountSetupAutofill(autofillSetup, userId: nil)
+    }
+
+    /// Sets the active user's progress for setting up vault unlock.
+    ///
+    /// - Parameter vaultUnlockSetup: The user's vault unlock setup progress.
+    ///
+    func setAccountSetupVaultUnlock(_ vaultUnlockSetup: AccountSetupProgress?) async throws {
+        try await setAccountSetupVaultUnlock(vaultUnlockSetup, userId: nil)
+    }
+
     /// Sets the allow sync on refresh value for the active account.
     ///
     /// - Parameter allowSyncOnRefresh: The allow sync on refresh value.
@@ -957,14 +1010,6 @@ extension StateService {
     ///
     func setMasterPasswordHash(_ hash: String?) async throws {
         try await setMasterPasswordHash(hash, userId: nil)
-    }
-
-    /// Sets whether the active account needs to set up vault unlock methods.
-    ///
-    /// - Parameter needsVaultUnlockSetup: Whether the user needs to set up vault unlock methods.
-    ///
-    func setNeedsVaultUnlockSetup(_ needsVaultUnlockSetup: Bool) async throws {
-        try await setNeedsVaultUnlockSetup(needsVaultUnlockSetup, userId: nil)
     }
 
     /// Sets the last notifications registration date for the active account.
@@ -1182,6 +1227,16 @@ actor DefaultStateService: StateService { // swiftlint:disable:this type_body_le
         return accountVolatileData[userId]?.hasBeenUnlockedInteractively == true
     }
 
+    func getAccountSetupAutofill(userId: String?) async throws -> AccountSetupProgress? {
+        let userId = try userId ?? getActiveAccountUserId()
+        return appSettingsStore.accountSetupAutofill(userId: userId)
+    }
+
+    func getAccountSetupVaultUnlock(userId: String?) async throws -> AccountSetupProgress? {
+        let userId = try userId ?? getActiveAccountUserId()
+        return appSettingsStore.accountSetupVaultUnlock(userId: userId)
+    }
+
     func getAccounts() throws -> [Account] {
         guard let accounts = appSettingsStore.state?.accounts else {
             throw StateServiceError.noAccounts
@@ -1271,11 +1326,6 @@ actor DefaultStateService: StateService { // swiftlint:disable:this type_body_le
         return appSettingsStore.masterPasswordHash(userId: userId)
     }
 
-    func getNeedsVaultUnlockSetup(userId: String?) async throws -> Bool {
-        let userId = try userId ?? getActiveAccountUserId()
-        return appSettingsStore.needsVaultUnlockSetup(userId: userId)
-    }
-
     func getNotificationsLastRegistrationDate(userId: String?) async throws -> Date? {
         let userId = try userId ?? getActiveAccountUserId()
         return appSettingsStore.notificationsLastRegistrationDate(userId: userId)
@@ -1288,6 +1338,10 @@ actor DefaultStateService: StateService { // swiftlint:disable:this type_body_le
 
     func getPreAuthEnvironmentUrls() async -> EnvironmentUrlData? {
         appSettingsStore.preAuthEnvironmentUrls
+    }
+
+    func getAccountCreationEnvironmentUrls(email: String) async -> EnvironmentUrlData? {
+        appSettingsStore.accountCreationEnvironmentUrls(email: email)
     }
 
     func getPreAuthServerConfig() async -> ServerConfig? {
@@ -1410,6 +1464,16 @@ actor DefaultStateService: StateService { // swiftlint:disable:this type_body_le
         ].hasBeenUnlockedInteractively = value
     }
 
+    func setAccountSetupAutofill(_ autofillSetup: AccountSetupProgress?, userId: String?) async throws {
+        let userId = try userId ?? getActiveAccountUserId()
+        appSettingsStore.setAccountSetupAutofill(autofillSetup, userId: userId)
+    }
+
+    func setAccountSetupVaultUnlock(_ vaultUnlockSetup: AccountSetupProgress?, userId: String?) async throws {
+        let userId = try userId ?? getActiveAccountUserId()
+        appSettingsStore.setAccountSetupVaultUnlock(vaultUnlockSetup, userId: userId)
+    }
+
     func setActiveAccount(userId: String) async throws {
         guard var state = appSettingsStore.state else { return }
         defer { appSettingsStore.state = state }
@@ -1497,11 +1561,6 @@ actor DefaultStateService: StateService { // swiftlint:disable:this type_body_le
         appSettingsStore.setMasterPasswordHash(hash, userId: userId)
     }
 
-    func setNeedsVaultUnlockSetup(_ needsVaultUnlockSetup: Bool, userId: String?) async throws {
-        let userId = try userId ?? getActiveAccountUserId()
-        appSettingsStore.setNeedsVaultUnlockSetup(needsVaultUnlockSetup, userId: userId)
-    }
-
     func setNotificationsLastRegistrationDate(_ date: Date?, userId: String?) async throws {
         let userId = try userId ?? getActiveAccountUserId()
         appSettingsStore.setNotificationsLastRegistrationDate(date, userId: userId)
@@ -1534,6 +1593,13 @@ actor DefaultStateService: StateService { // swiftlint:disable:this type_body_le
 
     func setPreAuthEnvironmentUrls(_ urls: EnvironmentUrlData) async {
         appSettingsStore.preAuthEnvironmentUrls = urls
+    }
+
+    func setAccountCreationEnvironmentUrls(urls: EnvironmentUrlData, email: String) async {
+        appSettingsStore.setAccountCreationEnvironmentUrls(
+            environmentUrlData: urls,
+            email: email
+        )
     }
 
     func setPreAuthServerConfig(config: ServerConfig) async {

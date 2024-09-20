@@ -169,7 +169,7 @@ public class AppProcessor {
 
         // Check for specific URL components that you need.
         guard let params = components.queryItems,
-              let host = components.host else {
+              components.host != nil else {
             services.errorReporter.log(error: AppProcessorError.appLinksInvalidURL)
             return
         }
@@ -190,8 +190,7 @@ public class AppProcessor {
             AuthRoute.completeRegistrationFromAppLink(
                 emailVerificationToken: verificationToken,
                 userEmail: email,
-                fromEmail: Bool(fromEmail) ?? true,
-                region: host.contains(RegionType.europe.baseUrlDescription) ? .europe : .unitedStates
+                fromEmail: Bool(fromEmail) ?? true
             )))
     }
 

@@ -230,23 +230,7 @@ class AppProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_body
         XCTAssertEqual(coordinator.routes.last, .auth(.completeRegistrationFromAppLink(
             emailVerificationToken: "verificationtoken",
             userEmail: "example@email.com",
-            fromEmail: true,
-            region: .unitedStates
-        )))
-    }
-
-    /// `handleAppLinks(URL)` navigates the user based on the input URL with EU region.
-    @MainActor
-    func test_init_handleAppLinks_regionEU() {
-        // swiftlint:disable:next line_length
-        let url = URL(string: "https://bitwarden.eu/redirect-connector.html#finish-signup?email=example@email.com&token=verificationtoken&fromEmail=true")
-        subject.handleAppLinks(incomingURL: url!)
-
-        XCTAssertEqual(coordinator.routes.last, .auth(.completeRegistrationFromAppLink(
-            emailVerificationToken: "verificationtoken",
-            userEmail: "example@email.com",
-            fromEmail: true,
-            region: .europe
+            fromEmail: true
         )))
     }
 
@@ -260,8 +244,7 @@ class AppProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_body
         XCTAssertEqual(coordinator.routes.last, .auth(.completeRegistrationFromAppLink(
             emailVerificationToken: "verificationtoken",
             userEmail: "example@email.com",
-            fromEmail: true,
-            region: .europe
+            fromEmail: true
         )))
     }
 
