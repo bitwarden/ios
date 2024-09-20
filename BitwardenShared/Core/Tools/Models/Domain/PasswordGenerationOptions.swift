@@ -50,7 +50,7 @@ struct PasswordGenerationOptions: Codable, Equatable {
     var wordSeparator: String?
 
     /// Whether the password type should be enforced or not
-    var overridePasswordType: Bool = false
+    var overridePasswordType: Bool?
 }
 
 extension PasswordGenerationOptions {
