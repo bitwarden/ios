@@ -5,6 +5,7 @@
 class MockAppModule:
     AppModule,
     AuthModule,
+    DebugMenuModule,
     ExtensionSetupModule,
     FileSelectionModule,
     GeneratorModule,
@@ -19,6 +20,7 @@ class MockAppModule:
     var appCoordinator = MockCoordinator<AppRoute, AppEvent>()
     var authCoordinator = MockCoordinator<AuthRoute, AuthEvent>()
     var authRouter = MockRouter<AuthEvent, AuthRoute>(routeForEvent: { _ in .landing })
+    var debugMenuCoordinator = MockCoordinator<DebugMenuRoute, Void>()
     var extensionSetupCoordinator = MockCoordinator<ExtensionSetupRoute, Void>()
     var fileSelectionDelegate: FileSelectionDelegate?
     var fileSelectionCoordinator = MockCoordinator<FileSelectionRoute, Void>()
@@ -49,6 +51,12 @@ class MockAppModule:
 
     func makeAuthRouter() -> BitwardenShared.AnyRouter<BitwardenShared.AuthEvent, BitwardenShared.AuthRoute> {
         authRouter.asAnyRouter()
+    }
+
+    func makeDebugMenuCoordinator(
+        stackNavigator: StackNavigator
+    ) -> AnyCoordinator<DebugMenuRoute, Void> {
+        debugMenuCoordinator.asAnyCoordinator()
     }
 
     func makeExtensionSetupCoordinator(

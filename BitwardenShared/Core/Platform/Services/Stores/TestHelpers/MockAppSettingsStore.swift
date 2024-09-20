@@ -17,6 +17,7 @@ class MockAppSettingsStore: AppSettingsStore {
     var lastUserShouldConnectToWatch = false
     var loginRequest: LoginRequestNotification?
     var migrationVersion = 0
+    var overrideDebugFeatureFlagCalled = false
     var preAuthEnvironmentUrls: EnvironmentUrlData?
     var preAuthServerConfig: BitwardenShared.ServerConfig?
     var rememberedEmail: String?
@@ -32,6 +33,7 @@ class MockAppSettingsStore: AppSettingsStore {
     var encryptedPrivateKeys = [String: String]()
     var encryptedUserKeys = [String: String]()
     var eventsByUserId = [String: [EventData]]()
+    var featureFlags = [String: Bool]()
     var lastActiveTime = [String: Date]()
     var lastSyncTimeByUserId = [String: Date]()
     var masterPasswordHashes = [String: String]()
@@ -76,6 +78,10 @@ class MockAppSettingsStore: AppSettingsStore {
         connectToWatchByUserId[userId] ?? false
     }
 
+    func debugFeatureFlag(name: String) -> Bool? {
+        featureFlags[name]
+    }
+
     func defaultUriMatchType(userId: String) -> UriMatchType? {
         defaultUriMatchTypeByUserId[userId]
     }
@@ -114,6 +120,11 @@ class MockAppSettingsStore: AppSettingsStore {
 
     func notificationsLastRegistrationDate(userId: String) -> Date? {
         notificationsLastRegistrationDates[userId]
+    }
+
+    func overrideDebugFeatureFlag(name: String, value: Bool?) {
+        overrideDebugFeatureFlagCalled = true
+        featureFlags[name] = value
     }
 
     func passwordGenerationOptions(userId: String) -> PasswordGenerationOptions? {

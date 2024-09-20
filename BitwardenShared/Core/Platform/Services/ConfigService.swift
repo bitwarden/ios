@@ -63,6 +63,23 @@ protocol ConfigService {
         forceRefresh: Bool,
         isPreAuth: Bool
     ) async -> String?
+
+    // MARK: Debug Feature Flags
+
+    /// Retrieves the debug menu feature flags.
+    ///
+    func getDebugFeatureFlags() async -> [DebugMenuFeatureFlag]
+
+    /// Toggles the value of a debug feature flag in the app's settings store.
+    ///
+    func toggleDebugFeatureFlag(
+        name: String,
+        newValue: Bool?
+    ) async -> [DebugMenuFeatureFlag]
+
+    /// Refreshes the list of debug feature flags by reloading their values from the settings store.
+    ///
+    func refreshDebugFeatureFlags() async -> [DebugMenuFeatureFlag]
 }
 
 extension ConfigService {
@@ -91,6 +108,9 @@ extension ConfigService {
 class DefaultConfigService: ConfigService {
     // MARK: Properties
 
+    /// The App Settings Store used for storing and retrieving values from User Defaults.
+    private let appSettingsStore: AppSettingsStore
+
     /// The API service to make config requests.
     private let configApiService: ConfigAPIService
 
@@ -111,17 +131,20 @@ class DefaultConfigService: ConfigService {
     /// Initialize a `DefaultConfigService`.
     ///
     /// - Parameters:
+    ///   - appSettingsStore: The App Settings Store used for storing and retrieving values from User Defaults.
     ///   - configApiService: The API service to make config requests.
     ///   - errorReporter: The service used by the application to report non-fatal errors.
     ///   - stateService: The service used by the application to manage account state.
     ///   - timeProvider: The services used to get the present time.
     ///
     init(
+        appSettingsStore: AppSettingsStore,
         configApiService: ConfigAPIService,
         errorReporter: ErrorReporter,
         stateService: StateService,
         timeProvider: TimeProvider
     ) {
+        self.appSettingsStore = appSettingsStore
         self.configApiService = configApiService
         self.errorReporter = errorReporter
         self.stateService = stateService
@@ -160,6 +183,12 @@ class DefaultConfigService: ConfigService {
         forceRefresh: Bool = false,
         isPreAuth: Bool = false
     ) async -> Bool {
+        #if DEBUG_MENU
+        if let userDefaultValue = appSettingsStore.debugFeatureFlag(name: flag.rawValue) {
+            return userDefaultValue
+        }
+        #endif
+
         guard flag.isRemotelyConfigured else { return defaultValue }
         let configuration = await getConfig(forceRefresh: forceRefresh, isPreAuth: isPreAuth)
         return configuration?.featureStates[flag]?.boolValue ?? defaultValue
@@ -185,6 +214,40 @@ class DefaultConfigService: ConfigService {
         guard flag.isRemotelyConfigured else { return defaultValue }
         let configuration = await getConfig(forceRefresh: forceRefresh, isPreAuth: isPreAuth)
         return configuration?.featureStates[flag]?.stringValue ?? defaultValue
+    }
+
+    func getDebugFeatureFlags() async -> [DebugMenuFeatureFlag] {
+        let remoteFeatureFlags = await getConfig()?.featureStates ?? [:]
+
+        let flags = FeatureFlag.debugMenuFeatureFlags.map { feature in
+            let userDefaultValue = appSettingsStore.debugFeatureFlag(name: feature.rawValue)
+            let remoteFlagValue = remoteFeatureFlags[feature]?.boolValue ?? false
+
+            return DebugMenuFeatureFlag(
+                feature: feature,
+                isEnabled: userDefaultValue ?? remoteFlagValue
+            )
+        }
+
+        return flags
+    }
+
+    func toggleDebugFeatureFlag(name: String, newValue: Bool?) async -> [DebugMenuFeatureFlag] {
+        appSettingsStore.overrideDebugFeatureFlag(
+            name: name,
+            value: newValue
+        )
+        return await getDebugFeatureFlags()
+    }
+
+    func refreshDebugFeatureFlags() async -> [DebugMenuFeatureFlag] {
+        for feature in FeatureFlag.debugMenuFeatureFlags {
+            appSettingsStore.overrideDebugFeatureFlag(
+                name: feature.rawValue,
+                value: nil
+            )
+        }
+        return await getDebugFeatureFlags()
     }
 
     // MARK: Private
