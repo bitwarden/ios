@@ -62,7 +62,7 @@ final class AuthenticatorBridgeItemDataTests: AuthenticatorBridgeKitTestCase {
     /// Verify that the fetchById request correctly returns an empty list when no item matches the given userId and id.
     ///
     func test_fetchByIdRequest_empty() async throws {
-        let expectedItems = AuthenticatorBridgeItemDataModel.fixtures()
+        let expectedItems = AuthenticatorBridgeItemDataView.fixtures()
         try await itemService.insertItems(expectedItems, forUserId: "userId")
 
         let fetchRequest = AuthenticatorBridgeItemData.fetchByIdRequest(id: "bad id", userId: "userId")
@@ -75,9 +75,10 @@ final class AuthenticatorBridgeItemDataTests: AuthenticatorBridgeKitTestCase {
     /// Verify that the fetchById request correctly finds the item with the given userId and id.
     ///
     func test_fetchByIdRequest_success() async throws {
-        let expectedItems = AuthenticatorBridgeItemDataModel.fixtures()
+        let expectedItems = AuthenticatorBridgeItemDataView.fixtures()
         let expectedItem = expectedItems[3]
         try await itemService.insertItems(expectedItems, forUserId: "userId")
+        XCTAssertTrue(cryptoService.encryptCalled)
 
         let fetchRequest = AuthenticatorBridgeItemData.fetchByIdRequest(id: expectedItem.id, userId: "userId")
         let result = try dataStore.persistentContainer.viewContext.fetch(fetchRequest)
@@ -85,7 +86,8 @@ final class AuthenticatorBridgeItemDataTests: AuthenticatorBridgeKitTestCase {
         XCTAssertNotNil(result)
         XCTAssertEqual(result.count, 1)
 
-        let item = try XCTUnwrap(result.first?.model)
+        let decrypted = try await cryptoService.decryptAuthenticatorItems(result.compactMap(\.model))
+        let item = try XCTUnwrap(decrypted.first)
         XCTAssertEqual(item, expectedItem)
     }
 
@@ -93,8 +95,9 @@ final class AuthenticatorBridgeItemDataTests: AuthenticatorBridgeKitTestCase {
     /// items for the given userId
     ///
     func test_fetchByUserIdRequest_empty() async throws {
-        let expectedItems = AuthenticatorBridgeItemDataModel.fixtures().sorted { $0.id < $1.id }
+        let expectedItems = AuthenticatorBridgeItemDataView.fixtures().sorted { $0.id < $1.id }
         try await itemService.insertItems(expectedItems, forUserId: "userId")
+        XCTAssertTrue(cryptoService.encryptCalled)
 
         let fetchRequest = AuthenticatorBridgeItemData.fetchByUserIdRequest(
             userId: "nonexistent userId"
@@ -110,12 +113,15 @@ final class AuthenticatorBridgeItemDataTests: AuthenticatorBridgeKitTestCase {
     ///
     func test_fetchByUserIdRequest_success() async throws {
         // Insert items for "userId"
-        let expectedItems = AuthenticatorBridgeItemDataModel.fixtures().sorted { $0.id < $1.id }
+        let expectedItems = AuthenticatorBridgeItemDataView.fixtures().sorted { $0.id < $1.id }
         try await itemService.insertItems(expectedItems, forUserId: "userId")
+        XCTAssertTrue(cryptoService.encryptCalled)
 
         // Separate Insert for "differentUserId"
-        let differentUserItem = AuthenticatorBridgeItemDataModel.fixture()
+        cryptoService.encryptCalled = false
+        let differentUserItem = AuthenticatorBridgeItemDataView.fixture()
         try await itemService.insertItems([differentUserItem], forUserId: "differentUserId")
+        XCTAssertTrue(cryptoService.encryptCalled)
 
         // Verify items returned for "userId" do not contain items from "differentUserId"
         let fetchRequest = AuthenticatorBridgeItemData.fetchByUserIdRequest(userId: "userId")

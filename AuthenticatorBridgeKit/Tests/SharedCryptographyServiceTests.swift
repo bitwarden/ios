@@ -7,7 +7,7 @@ import XCTest
 final class SharedCryptographyServiceTests: AuthenticatorBridgeKitTestCase {
     // MARK: Properties
 
-    let items: [AuthenticatorBridgeItemDataModel] = AuthenticatorBridgeItemDataModel.fixtures()
+    let items: [AuthenticatorBridgeItemDataView] = AuthenticatorBridgeItemDataView.fixtures()
     var sharedKeychainRepository: MockSharedKeychainRepository!
     var subject: SharedCryptographyService!
 
@@ -48,7 +48,7 @@ final class SharedCryptographyServiceTests: AuthenticatorBridgeKitTestCase {
 
         try sharedKeychainRepository.deleteAuthenticatorKey()
         await assertAsyncThrows(error: error) {
-            _ = try await subject.decryptAuthenticatorItems(items)
+            _ = try await subject.decryptAuthenticatorItems([])
         }
     }
 

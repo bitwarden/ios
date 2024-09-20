@@ -16,7 +16,7 @@ public protocol AuthenticatorBridgeItemService {
     ///
     /// - Parameter userId: the id of the user for which to fetch items.
     ///
-    func fetchAllForUserId(_ userId: String) async throws -> [AuthenticatorBridgeItemDataModel]
+    func fetchAllForUserId(_ userId: String) async throws -> [AuthenticatorBridgeItemDataView]
 
     /// Inserts the list of items into the store for the given userId.
     ///
@@ -24,7 +24,7 @@ public protocol AuthenticatorBridgeItemService {
     ///   - items: The list of `AuthenticatorBridgeItemDataModel` to be inserted into the store.
     ///   - userId: the id of the user for which to insert the items.
     ///
-    func insertItems(_ items: [AuthenticatorBridgeItemDataModel],
+    func insertItems(_ items: [AuthenticatorBridgeItemDataView],
                      forUserId userId: String) async throws
 
     /// Deletes all existing items for a given user and inserts new items for the list of items provided.
@@ -33,7 +33,7 @@ public protocol AuthenticatorBridgeItemService {
     ///   - items: The new items to be inserted into the store
     ///   - userId: The userId of the items to be removed and then replaces with items.
     ///
-    func replaceAllItems(with items: [AuthenticatorBridgeItemDataModel],
+    func replaceAllItems(with items: [AuthenticatorBridgeItemDataView],
                          forUserId userId: String) async throws
 }
 
@@ -82,7 +82,7 @@ public class DefaultAuthenticatorBridgeItemService: AuthenticatorBridgeItemServi
     ///
     /// - Parameter userId: the id of the user for which to fetch items.
     ///
-    public func fetchAllForUserId(_ userId: String) async throws -> [AuthenticatorBridgeItemDataModel] {
+    public func fetchAllForUserId(_ userId: String) async throws -> [AuthenticatorBridgeItemDataView] {
         let fetchRequest = AuthenticatorBridgeItemData.fetchByUserIdRequest(userId: userId)
         let result = try dataStore.backgroundContext.fetch(fetchRequest)
         let encryptedItems = result.compactMap { data in
@@ -97,7 +97,7 @@ public class DefaultAuthenticatorBridgeItemService: AuthenticatorBridgeItemServi
     ///   - items: The list of `AuthenticatorBridgeItemDataModel` to be inserted into the store.
     ///   - userId: the id of the user for which to insert the items.
     ///
-    public func insertItems(_ items: [AuthenticatorBridgeItemDataModel],
+    public func insertItems(_ items: [AuthenticatorBridgeItemDataView],
                             forUserId userId: String) async throws {
         let encryptedItems = try await cryptoService.encryptAuthenticatorItems(items)
         try await dataStore.executeBatchInsert(
@@ -111,7 +111,7 @@ public class DefaultAuthenticatorBridgeItemService: AuthenticatorBridgeItemServi
     ///   - items: The new items to be inserted into the store
     ///   - userId: The userId of the items to be removed and then replaces with items.
     ///
-    public func replaceAllItems(with items: [AuthenticatorBridgeItemDataModel],
+    public func replaceAllItems(with items: [AuthenticatorBridgeItemDataView],
                                 forUserId userId: String) async throws {
         let encryptedItems = try await cryptoService.encryptAuthenticatorItems(items)
         let deleteRequest = AuthenticatorBridgeItemData.deleteByUserIdRequest(userId: userId)
