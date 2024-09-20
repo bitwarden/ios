@@ -975,3 +975,8 @@
 "PleaseRestartRegistrationOrTryLoggingInYouMayAlreadyHaveAnAccount" = "Παρακαλώ επανεκκινήστε την εγγραφή ή δοκιμάστε να συνδεθείτε. Μπορεί να έχετε ήδη λογαριασμό.";
 "RemovePasskey" = "Αφαίρεση κλειδιού πρόσβασης";
 "PasskeyRemoved" = "Το κλειδί πρόσβασης αφαιρέθηκε";
+"TheRegionForTheGivenEmailCouldNotBeLoaded" = "The region for the given email could not be loaded.";
+"SetUpLaterQuestion" = "Set up later?";
+"YouCanFinishSetupUnlockAnytimeDescriptionLong" = "You can finish setup anytime in Account Security under Settings. You’ll use your master password to unlock until you set up another method.";
+"Confirm" = "Confirm";
+"ThePreAuthUrlsCouldNotBeLoadedToStartTheAccountCreation" = "The Pre Auth Urls could not be loaded to start the account creation.";

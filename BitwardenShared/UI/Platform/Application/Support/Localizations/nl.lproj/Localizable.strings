@@ -975,3 +975,8 @@
 "PleaseRestartRegistrationOrTryLoggingInYouMayAlreadyHaveAnAccount" = "Herstart de registratie of probeer in te loggen. Je heeft mogelijk al een account.";
 "RemovePasskey" = "Passkey verwijderen";
 "PasskeyRemoved" = "Passkey verwijderd";
+"TheRegionForTheGivenEmailCouldNotBeLoaded" = "De regio voor het opgegeven e-mailadres kon niet geladen worden.";
+"SetUpLaterQuestion" = "Later instellen?";
+"YouCanFinishSetupUnlockAnytimeDescriptionLong" = "Je kunt de installatie ieder moment afronden in Accountbeveiliging onder Instellingen. Je gebruikt je hoofdwachtwoord voor ontgrendelen totdat je een andere methode hebt ingesteld.";
+"Confirm" = "Bevestigen";
+"ThePreAuthUrlsCouldNotBeLoadedToStartTheAccountCreation" = "DePre-Auth-Urls konden niet gelaten worden om het account aan te maken.";
