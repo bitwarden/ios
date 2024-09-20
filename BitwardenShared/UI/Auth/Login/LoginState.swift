@@ -14,6 +14,9 @@ struct LoginState: Equatable {
     /// A flag indicating if the login with device button should be displayed or not.
     var isLoginWithDeviceVisible: Bool = false
 
+    /// Whether the user is logging into a newly created account.
+    var isNewAccount = false
+
     /// The password visibility icon used in the view's text field.
     var passwordVisibleIcon: ImageAsset {
         isMasterPasswordRevealed ? Asset.Images.hidden : Asset.Images.visible

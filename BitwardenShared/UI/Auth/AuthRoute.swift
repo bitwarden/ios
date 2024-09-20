@@ -28,13 +28,11 @@ public enum AuthRoute: Equatable {
     ///    - emailVerificationToken: Token needed to complete registration.
     ///    - userEmail: The user's email.
     ///    - fromEmail: The user opened the app from an email AppLink.
-    ///    - region: Region where the complete registration should happen.
     ///
     case completeRegistrationFromAppLink(
         emailVerificationToken: String,
         userEmail: String,
-        fromEmail: Bool,
-        region: RegionType
+        fromEmail: Bool
     )
 
     /// Dismisses the auth flow becuase the vault was unlocked with the never unlock key.
@@ -80,9 +78,11 @@ public enum AuthRoute: Equatable {
 
     /// A route to the login screen.
     ///
-    /// - Parameter username: The username to display on the login screen.
+    /// - Parameters:
+    ///   - username: The username to display on the login screen.
+    ///   - isNewAccount: Whether the user is logging into a newly created account.
     ///
-    case login(username: String)
+    case login(username: String, isNewAccount: Bool = false)
 
     /// A route to the login decryption options screen.
     ///

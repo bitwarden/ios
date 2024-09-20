@@ -71,6 +71,7 @@ actor DefaultPolicyService: PolicyService {
     /// Initialize a `DefaultPolicyService`.
     ///
     /// - Parameters:
+    ///   - organizationService: The service for managing the organizations for the user.
     ///   - policyDataStore: The data store for managing the persisted policies for the user.
     ///   - stateService: The service used by the application to manage account state.
     ///
