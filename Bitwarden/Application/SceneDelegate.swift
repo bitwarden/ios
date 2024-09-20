@@ -39,7 +39,11 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         }
 
         let rootViewController = RootViewController()
-        let appWindow = UIWindow(windowScene: windowScene)
+        let appWindow = ShakeWindow(windowScene: windowScene) { [weak self] in
+            #if DEBUG_MENU
+            self?.appProcessor?.showDebugMenu()
+            #endif
+        }
         appWindow.rootViewController = rootViewController
         appWindow.makeKeyAndVisible()
         window = appWindow
