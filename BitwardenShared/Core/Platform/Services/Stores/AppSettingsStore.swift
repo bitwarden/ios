@@ -392,7 +392,7 @@ protocol AppSettingsStore: AnyObject {
     /// Sets the sync to Authenticator setting for the user.
     ///
     /// - Parameters:
-    ///   - connectToWatch: Whether to sync TOTP codes to the Authenticator app.
+    ///   - syncToAuthenticator: Whether to sync TOTP codes to the Authenticator app.
     ///   - userId: The user ID associated with the sync to Authenticator value.
     ///
     func setSyncToAuthenticator(_ syncToAuthenticator: Bool, userId: String)

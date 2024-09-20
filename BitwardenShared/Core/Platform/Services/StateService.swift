@@ -584,7 +584,7 @@ protocol StateService: AnyObject {
     /// Sets the sync to authenticator value for an account.
     ///
     /// - Parameters:
-    ///   - connectToWatch: Whether to sync TOTP codes to the Authenticator app.
+    ///   - syncToAuthenticator: Whether to sync TOTP codes to the Authenticator app.
     ///   - userId: The user ID of the account. Defaults to the active account if `nil`.
     ///
     func setSyncToAuthenticator(_ syncToAuthenticator: Bool, userId: String?) async throws
@@ -1068,7 +1068,7 @@ extension StateService {
 
     /// Sets the sync to authenticator value for the active account.
     ///
-    /// - Parameter connectToWatch: Whether to sync TOTP codes to the Authenticator app.
+    /// - Parameter syncToAuthenticator: Whether to sync TOTP codes to the Authenticator app.
     ///
     func setSyncToAuthenticator(_ syncToAuthenticator: Bool) async throws {
         try await setSyncToAuthenticator(syncToAuthenticator, userId: nil)
