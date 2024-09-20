@@ -17,7 +17,7 @@ public protocol SharedCryptographyService: AnyObject {
     ///
     func decryptAuthenticatorItems(
         _ items: [AuthenticatorBridgeItemDataModel]
-    ) async throws -> [AuthenticatorBridgeItemDataModel]
+    ) async throws -> [AuthenticatorBridgeItemDataView]
 
     /// Takes an array of `AuthenticatorBridgeItemDataModel` with decrypted data and
     /// returns the list with each member encrypted.
@@ -28,7 +28,7 @@ public protocol SharedCryptographyService: AnyObject {
     ///     key is not in the shared repository.
     ///
     func encryptAuthenticatorItems(
-        _ items: [AuthenticatorBridgeItemDataModel]
+        _ items: [AuthenticatorBridgeItemDataView]
     ) async throws -> [AuthenticatorBridgeItemDataModel]
 }
 
@@ -56,12 +56,12 @@ public class DefaultAuthenticatorCryptographyService: SharedCryptographyService 
 
     public func decryptAuthenticatorItems(
         _ items: [AuthenticatorBridgeItemDataModel]
-    ) async throws -> [AuthenticatorBridgeItemDataModel] {
+    ) async throws -> [AuthenticatorBridgeItemDataView] {
         let key = try await sharedKeychainRepository.getAuthenticatorKey()
         let symmetricKey = SymmetricKey(data: key)
 
         return items.map { item in
-            AuthenticatorBridgeItemDataModel(
+            AuthenticatorBridgeItemDataView(
                 favorite: item.favorite,
                 id: item.id,
                 name: (try? decrypt(item.name, withKey: symmetricKey)) ?? "",
@@ -72,7 +72,7 @@ public class DefaultAuthenticatorCryptographyService: SharedCryptographyService 
     }
 
     public func encryptAuthenticatorItems(
-        _ items: [AuthenticatorBridgeItemDataModel]
+        _ items: [AuthenticatorBridgeItemDataView]
     ) async throws -> [AuthenticatorBridgeItemDataModel] {
         let key = try await sharedKeychainRepository.getAuthenticatorKey()
         let symmetricKey = SymmetricKey(data: key)
