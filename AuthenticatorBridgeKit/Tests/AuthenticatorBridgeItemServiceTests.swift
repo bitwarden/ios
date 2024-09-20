@@ -7,6 +7,7 @@ final class AuthenticatorBridgeItemServiceTests: AuthenticatorBridgeKitTestCase 
     // MARK: Properties
 
     let accessGroup = "group.com.example.bitwarden-authenticator"
+    var cryptoService: MockSharedCryptographyService!
     var dataStore: AuthenticatorBridgeDataStore!
     var errorReporter: ErrorReporter!
     var keychainRepository: SharedKeychainRepository!
@@ -16,6 +17,7 @@ final class AuthenticatorBridgeItemServiceTests: AuthenticatorBridgeKitTestCase 
 
     override func setUp() {
         super.setUp()
+        cryptoService = MockSharedCryptographyService()
         errorReporter = MockErrorReporter()
         dataStore = AuthenticatorBridgeDataStore(
             errorReporter: errorReporter,
@@ -24,12 +26,14 @@ final class AuthenticatorBridgeItemServiceTests: AuthenticatorBridgeKitTestCase 
         )
         keychainRepository = MockSharedKeychainRepository()
         subject = DefaultAuthenticatorBridgeItemService(
+            cryptoService: cryptoService,
             dataStore: dataStore,
             sharedKeychainRepository: keychainRepository
         )
     }
 
     override func tearDown() {
+        cryptoService = nil
         dataStore = nil
         errorReporter = nil
         keychainRepository = nil
@@ -43,13 +47,13 @@ final class AuthenticatorBridgeItemServiceTests: AuthenticatorBridgeKitTestCase 
     /// userId from the store. Verify that it does NOT delete the data for a different userId
     ///
     func test_deleteAllForUserId_success() async throws {
-        let items = AuthenticatorBridgeItemDataModel.fixtures()
+        let items = AuthenticatorBridgeItemDataView.fixtures()
 
         // First Insert for "userId"
         try await subject.insertItems(items, forUserId: "userId")
 
         // Separate Insert for "differentUserId"
-        try await subject.insertItems(AuthenticatorBridgeItemDataModel.fixtures(),
+        try await subject.insertItems(AuthenticatorBridgeItemDataView.fixtures(),
                                       forUserId: "differentUserId")
 
         // Remove the items for "differentUserId"
@@ -73,16 +77,18 @@ final class AuthenticatorBridgeItemServiceTests: AuthenticatorBridgeKitTestCase 
     ///
     func test_fetchAllForUserId_success() async throws {
         // Insert items for "userId"
-        let expectedItems = AuthenticatorBridgeItemDataModel.fixtures().sorted { $0.id < $1.id }
+        let expectedItems = AuthenticatorBridgeItemDataView.fixtures().sorted { $0.id < $1.id }
         try await subject.insertItems(expectedItems, forUserId: "userId")
 
         // Separate Insert for "differentUserId"
-        let differentUserItem = AuthenticatorBridgeItemDataModel.fixture()
+        let differentUserItem = AuthenticatorBridgeItemDataView.fixture()
         try await subject.insertItems([differentUserItem], forUserId: "differentUserId")
 
         // Fetch should return only the expectedItem
         let result = try await subject.fetchAllForUserId("userId")
 
+        XCTAssertTrue(cryptoService.decryptCalled,
+                      "Items should have been decrypted when calling fetchAllForUser!")
         XCTAssertNotNil(result)
         XCTAssertEqual(result.count, expectedItems.count)
         XCTAssertEqual(result, expectedItems)
@@ -96,10 +102,12 @@ final class AuthenticatorBridgeItemServiceTests: AuthenticatorBridgeKitTestCase 
     /// for the given user id.
     ///
     func test_insertItemsForUserId_success() async throws {
-        let expectedItems = AuthenticatorBridgeItemDataModel.fixtures().sorted { $0.id < $1.id }
+        let expectedItems = AuthenticatorBridgeItemDataView.fixtures().sorted { $0.id < $1.id }
         try await subject.insertItems(expectedItems, forUserId: "userId")
         let result = try await subject.fetchAllForUserId("userId")
 
+        XCTAssertTrue(cryptoService.encryptCalled,
+                      "Items should have been encrypted before inserting!!")
         XCTAssertEqual(result, expectedItems)
     }
 
@@ -108,7 +116,7 @@ final class AuthenticatorBridgeItemServiceTests: AuthenticatorBridgeKitTestCase 
     ///
     func test_replaceAllItems_emptyInsertDeletesExisting() async throws {
         // Insert initial items for "userId"
-        let expectedItems = AuthenticatorBridgeItemDataModel.fixtures().sorted { $0.id < $1.id }
+        let expectedItems = AuthenticatorBridgeItemDataView.fixtures().sorted { $0.id < $1.id }
         try await subject.insertItems(expectedItems, forUserId: "userId")
 
         // Replace with empty list, deleting all
@@ -123,15 +131,17 @@ final class AuthenticatorBridgeItemServiceTests: AuthenticatorBridgeKitTestCase 
     ///
     func test_replaceAllItems_replacesExisting() async throws {
         // Insert initial items for "userId"
-        let initialItems = [AuthenticatorBridgeItemDataModel.fixture()]
+        let initialItems = [AuthenticatorBridgeItemDataView.fixture()]
         try await subject.insertItems(initialItems, forUserId: "userId")
 
         // Replace items for "userId"
-        let expectedItems = AuthenticatorBridgeItemDataModel.fixtures().sorted { $0.id < $1.id }
+        let expectedItems = AuthenticatorBridgeItemDataView.fixtures().sorted { $0.id < $1.id }
         try await subject.replaceAllItems(with: expectedItems, forUserId: "userId")
 
         let result = try await subject.fetchAllForUserId("userId")
 
+        XCTAssertTrue(cryptoService.encryptCalled,
+                      "Items should have been encrypted before inserting!!")
         XCTAssertEqual(result, expectedItems)
         XCTAssertFalse(result.contains { $0 == initialItems.first })
     }
@@ -141,11 +151,13 @@ final class AuthenticatorBridgeItemServiceTests: AuthenticatorBridgeKitTestCase 
     ///
     func test_replaceAllItems_startingFromEmpty() async throws {
         // Insert items for "userId"
-        let expectedItems = AuthenticatorBridgeItemDataModel.fixtures().sorted { $0.id < $1.id }
+        let expectedItems = AuthenticatorBridgeItemDataView.fixtures().sorted { $0.id < $1.id }
         try await subject.replaceAllItems(with: expectedItems, forUserId: "userId")
 
         let result = try await subject.fetchAllForUserId("userId")
 
+        XCTAssertTrue(cryptoService.encryptCalled,
+                      "Items should have been encrypted before inserting!!")
         XCTAssertEqual(result, expectedItems)
     }
 }
