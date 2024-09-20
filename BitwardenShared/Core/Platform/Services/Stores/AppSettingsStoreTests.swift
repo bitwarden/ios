@@ -754,6 +754,22 @@ class AppSettingsStoreTests: BitwardenTestCase { // swiftlint:disable:this type_
         )
     }
 
+    /// `syncToAuthenticator(userId:)` returns false if there isn't a previously stored value.
+    func test_syncToAuthenticator_isInitiallyFalse() {
+        XCTAssertFalse(subject.syncToAuthenticator(userId: "0"))
+    }
+
+    /// `syncToAuthenticator(userId:)` can be used to get the sync to authenticator value for a user.
+    func test_syncToAuthenticator_withValue() {
+        subject.setSyncToAuthenticator(true, userId: "1")
+        subject.setSyncToAuthenticator(false, userId: "2")
+
+        XCTAssertTrue(subject.syncToAuthenticator(userId: "1"))
+        XCTAssertFalse(subject.syncToAuthenticator(userId: "2"))
+        XCTAssertTrue(userDefaults.bool(forKey: "bwPreferencesStorage:shouldSyncToAuthenticator_1"))
+        XCTAssertFalse(userDefaults.bool(forKey: "bwPreferencesStorage:shouldSyncToAuthenticator_2"))
+    }
+
     /// `twoFactorToken(email:)` returns `nil` if there isn't a previously stored value.
     func test_twoFactorToken_isInitiallyNil() {
         XCTAssertNil(subject.twoFactorToken(email: "anything@email.com"))

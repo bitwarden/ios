@@ -389,6 +389,14 @@ protocol AppSettingsStore: AnyObject {
     ///
     func setShouldTrustDevice(shouldTrustDevice: Bool?, userId: String)
 
+    /// Sets the sync to Authenticator setting for the user.
+    ///
+    /// - Parameters:
+    ///   - connectToWatch: Whether to sync TOTP codes to the Authenticator app.
+    ///   - userId: The user ID associated with the sync to Authenticator value.
+    ///
+    func setSyncToAuthenticator(_ syncToAuthenticator: Bool, userId: String)
+
     /// Sets the user's timeout action.
     ///
     /// - Parameters:
@@ -442,6 +450,14 @@ protocol AppSettingsStore: AnyObject {
     /// - Returns: Whether to trust the device.
     ///
     func shouldTrustDevice(userId: String) -> Bool?
+
+    /// Gets the sync to Authenticator setting for the user.
+    ///
+    /// - Parameter userId: The user ID associated with the sync to Authenticator value.
+    ///
+    /// - Returns: Whether to sync TOTP codes with the Authenticator app.
+    ///
+    func syncToAuthenticator(userId: String) -> Bool
 
     /// Returns the action taken upon a session timeout.
     ///
@@ -645,6 +661,7 @@ extension DefaultAppSettingsStore: AppSettingsStore {
         case rememberedOrgIdentifier
         case serverConfig(userId: String)
         case shouldTrustDevice(userId: String)
+        case syncToAuthenticator(userId: String)
         case state
         case twoFactorToken(email: String)
         case unsuccessfulUnlockAttempts(userId: String)
@@ -731,6 +748,8 @@ extension DefaultAppSettingsStore: AppSettingsStore {
                 key = "shouldTrustDevice_\(userId)"
             case .state:
                 key = "state"
+            case let .syncToAuthenticator(userId):
+                key = "shouldSyncToAuthenticator_\(userId)"
             case let .twoFactorToken(email):
                 key = "twoFactorToken_\(email)"
             case let .unsuccessfulUnlockAttempts(userId):
@@ -1015,6 +1034,10 @@ extension DefaultAppSettingsStore: AppSettingsStore {
         store(shouldTrustDevice, for: .shouldTrustDevice(userId: userId))
     }
 
+    func setSyncToAuthenticator(_ syncToAuthenticator: Bool, userId: String) {
+        store(syncToAuthenticator, for: .syncToAuthenticator(userId: userId))
+    }
+
     func setTimeoutAction(key: SessionTimeoutAction, userId: String) {
         store(key, for: .vaultTimeoutAction(userId: userId))
     }
@@ -1033,6 +1056,10 @@ extension DefaultAppSettingsStore: AppSettingsStore {
 
     func setVaultTimeout(minutes: Int, userId: String) {
         store(minutes, for: .vaultTimeout(userId: userId))
+    }
+
+    func syncToAuthenticator(userId: String) -> Bool {
+        fetch(for: .syncToAuthenticator(userId: userId))
     }
 
     func timeoutAction(userId: String) -> Int? {
