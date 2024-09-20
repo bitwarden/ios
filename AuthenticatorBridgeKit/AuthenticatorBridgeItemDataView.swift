@@ -21,14 +21,14 @@ public struct AuthenticatorBridgeItemDataView: Codable, Equatable {
     /// The username of the Bitwarden account that owns this iteam.
     public let username: String?
 
-    /// Initialize an `AuthenticatorBridgeItemDataModel` with the values provided.
+    /// Initialize an `AuthenticatorBridgeItemDataView` with the values provided.
     ///
     /// - Parameters:
     ///   - favorite: Bool indicating if this item is a favorite.
     ///   - id: The unique id of the item.
     ///   - name: The name of the item.
     ///   - totpKey: The TOTP key used to generate codes.
-    ///   - username: The username of the Bitwarden account that owns this iteam.
+    ///   - username: The username of the Bitwarden account that owns this item.
     ///
     public init(favorite: Bool, id: String, name: String, totpKey: String?, username: String?) {
         self.favorite = favorite
