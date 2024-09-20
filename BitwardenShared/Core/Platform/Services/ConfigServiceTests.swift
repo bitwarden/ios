@@ -481,6 +481,25 @@ final class ConfigServiceTests: BitwardenTestCase { // swiftlint:disable:this ty
         XCTAssertFalse(emailVerificationFlag?.isEnabled ?? true)
     }
 
+    /// `toggleDebugFeatureFlag` will correctly change the value of the flag given.
+    func test_toggleDebugFeatureFlag() async throws {
+        let flags = await subject.toggleDebugFeatureFlag(
+            name: FeatureFlag.emailVerification.rawValue,
+            newValue: true
+        )
+        XCTAssertTrue(appSettingsStore.overrideDebugFeatureFlagCalled)
+        let flag = try XCTUnwrap(flags.first { $0.feature == .emailVerification })
+        XCTAssertTrue(flag.isEnabled)
+    }
+
+    /// `refreshDebugFeatureFlags` will reset the flags to the original state before overriding.
+    func test_refreshDebugFeatureFlags() async throws {
+        let flags = await subject.refreshDebugFeatureFlags()
+        XCTAssertTrue(appSettingsStore.overrideDebugFeatureFlagCalled)
+        let flag = try XCTUnwrap(flags.first { $0.feature == .emailVerification })
+        XCTAssertFalse(flag.isEnabled)
+    }
+
     // MARK: Private
 
     /// Asserts the config publisher is publishing the right values.

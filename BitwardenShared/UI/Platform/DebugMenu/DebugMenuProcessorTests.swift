@@ -62,13 +62,7 @@ class DebugMenuProcessorTests: BitwardenTestCase {
     /// `perform(.refreshFeatureFlags)` refreshs the current feature flags.
     @MainActor
     func test_perform_refreshFeatureFlags() async {
-        let flag = DebugMenuFeatureFlag(
-            feature: .testLocalFeatureFlag,
-            isEnabled: true
-        )
-
         await subject.perform(.refreshFeatureFlags)
-
         XCTAssertTrue(configService.refreshDebugFeatureFlagsCalled)
     }
 

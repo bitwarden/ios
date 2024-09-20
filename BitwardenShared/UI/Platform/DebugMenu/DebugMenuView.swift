@@ -41,7 +41,7 @@ struct DebugMenuView: View {
         ForEach(store.state.featureFlags) { flag in
             Toggle(
                 isOn: store.bindingAsync(
-                    get: { $0.isEnabled(for: flag.feature) },
+                    get: { _ in flag.isEnabled },
                     perform: { DebugMenuEffect.toggleFeatureFlag(flag.feature.rawValue, $0) }
                 )
             ) {

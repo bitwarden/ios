@@ -9,7 +9,6 @@ class MockConfigService: ConfigService {
     var configMocker = InvocationMockerWithThrowingResult<(forceRefresh: Bool, isPreAuth: Bool), ServerConfig?>()
     var configSubject = CurrentValueSubject<BitwardenShared.MetaServerConfig?, Never>(nil)
     var debugFeatureFlags = [DebugMenuFeatureFlag]()
-    var featureFlags = [FeatureFlag: AnyCodable]()
     var featureFlagsBool = [FeatureFlag: Bool]()
     var featureFlagsInt = [FeatureFlag: Int]()
     var featureFlagsString = [FeatureFlag: String]()
@@ -46,7 +45,8 @@ class MockConfigService: ConfigService {
     }
 
     func getDebugFeatureFlags() async -> [DebugMenuFeatureFlag] {
-        debugFeatureFlags
+        getDebugFeatureFlagsCalled = true
+        return debugFeatureFlags
     }
 
     func refreshDebugFeatureFlags() async -> [DebugMenuFeatureFlag] {

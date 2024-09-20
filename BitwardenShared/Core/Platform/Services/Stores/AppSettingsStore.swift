@@ -613,6 +613,7 @@ extension DefaultAppSettingsStore: AppSettingsStore {
         case biometricIntegrityStateLegacy
         case clearClipboardValue(userId: String)
         case connectToWatch(userId: String)
+        case debugFeatureFlag(name: String)
         case defaultUriMatch(userId: String)
         case disableAutoTotpCopy(userId: String)
         case disableWebIcons
@@ -620,7 +621,6 @@ extension DefaultAppSettingsStore: AppSettingsStore {
         case encryptedPrivateKey(userId: String)
         case encryptedUserKey(userId: String)
         case events(userId: String)
-        case featureFlag(name: String)
         case introCarouselShown
         case lastActiveTime(userId: String)
         case lastSync(userId: String)
@@ -670,6 +670,8 @@ extension DefaultAppSettingsStore: AppSettingsStore {
                 key = "clearClipboard_\(userId)"
             case let .connectToWatch(userId):
                 key = "shouldConnectToWatch_\(userId)"
+            case let .debugFeatureFlag(name):
+                key = "debugFeatureFlag_\(name)"
             case let .defaultUriMatch(userId):
                 key = "defaultUriMatch_\(userId)"
             case let .disableAutoTotpCopy(userId):
@@ -684,8 +686,6 @@ extension DefaultAppSettingsStore: AppSettingsStore {
                 key = "encPrivateKey_\(userId)"
             case let .events(userId):
                 key = "events_\(userId)"
-            case let .featureFlag(name):
-                key = "featureFlag_\(name)"
             case .introCarouselShown:
                 key = "introCarouselShown"
             case let .lastActiveTime(userId):
@@ -843,7 +843,7 @@ extension DefaultAppSettingsStore: AppSettingsStore {
     }
 
     func debugFeatureFlag(name: String) -> Bool? {
-        fetch(for: .featureFlag(name: name))
+        fetch(for: .debugFeatureFlag(name: name))
     }
 
     func defaultUriMatchType(userId: String) -> UriMatchType? {
@@ -895,7 +895,7 @@ extension DefaultAppSettingsStore: AppSettingsStore {
     }
 
     func overrideDebugFeatureFlag(name: String, value: Bool?) {
-        store(value, for: .featureFlag(name: name))
+        store(value, for: .debugFeatureFlag(name: name))
     }
 
     func passwordGenerationOptions(userId: String) -> PasswordGenerationOptions? {

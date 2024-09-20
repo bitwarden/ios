@@ -15,6 +15,7 @@ class MockAppSettingsStore: AppSettingsStore {
     var lastUserShouldConnectToWatch = false
     var loginRequest: LoginRequestNotification?
     var migrationVersion = 0
+    var overrideDebugFeatureFlagCalled = false
     var preAuthEnvironmentUrls: EnvironmentUrlData?
     var preAuthServerConfig: BitwardenShared.ServerConfig?
     var rememberedEmail: String?
@@ -116,6 +117,7 @@ class MockAppSettingsStore: AppSettingsStore {
     }
 
     func overrideDebugFeatureFlag(name: String, value: Bool?) {
+        overrideDebugFeatureFlagCalled = true
         featureFlags[name] = value
     }
 
