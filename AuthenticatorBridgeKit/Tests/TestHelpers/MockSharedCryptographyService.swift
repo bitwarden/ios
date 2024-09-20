@@ -9,15 +9,31 @@ class MockSharedCryptographyService: SharedCryptographyService {
 
     func decryptAuthenticatorItems(
         _ items: [AuthenticatorBridgeItemDataModel]
-    ) async throws -> [AuthenticatorBridgeItemDataModel] {
+    ) async throws -> [AuthenticatorBridgeItemDataView] {
         decryptCalled = true
-        return items
+        return items.map { model in
+            AuthenticatorBridgeItemDataView(
+                favorite: model.favorite,
+                id: model.id,
+                name: model.name,
+                totpKey: model.totpKey,
+                username: model.username
+            )
+        }
     }
 
     func encryptAuthenticatorItems(
-        _ items: [AuthenticatorBridgeItemDataModel]
+        _ items: [AuthenticatorBridgeItemDataView]
     ) async throws -> [AuthenticatorBridgeItemDataModel] {
         encryptCalled = true
-        return items
+        return items.map { view in
+            AuthenticatorBridgeItemDataModel(
+                favorite: view.favorite,
+                id: view.id,
+                name: view.name,
+                totpKey: view.totpKey,
+                username: view.username
+            )
+        }
     }
 }
