@@ -185,7 +185,7 @@ class TwoFactorAuthProcessorTests: BitwardenTestCase { // swiftlint:disable:this
 
         XCTAssertEqual(coordinator.routes, [])
         // swiftlint:disable:next line_length
-        XCTAssertNil(subject.state.toast?.text, Localizations.errorConnectingWithTheDuoServiceUseADifferentTwoStepLoginMethodOrContactDuoForAssistance)
+        XCTAssertEqual(subject.state.toast?.text, Localizations.errorConnectingWithTheDuoServiceUseADifferentTwoStepLoginMethodOrContactDuoForAssistance)
     }
 
     /// `perform(_:)` with `.beginDuoAuth` initates the duo auth flow.
