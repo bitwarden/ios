@@ -2,21 +2,23 @@ import AuthenticatorBridgeKit
 import BitwardenShared
 
 class MockAuthenticatorBridgeItemService: AuthenticatorBridgeItemService {
-    var storedItems: [String: [AuthenticatorBridgeItemDataModel]] = [:]
+    var replaceAllCalled = false
+    var storedItems: [String: [AuthenticatorBridgeItemDataView]] = [:]
 
     func deleteAllForUserId(_ userId: String) async throws {
         storedItems[userId] = []
     }
 
-    func fetchAllForUserId(_ userId: String) async throws -> [AuthenticatorBridgeItemDataModel] {
+    func fetchAllForUserId(_ userId: String) async throws -> [AuthenticatorBridgeItemDataView] {
         storedItems[userId] ?? []
     }
 
-    func insertItems(_ items: [AuthenticatorBridgeItemDataModel], forUserId userId: String) async throws {
+    func insertItems(_ items: [AuthenticatorBridgeItemDataView], forUserId userId: String) async throws {
         storedItems[userId] = items
     }
 
-    func replaceAllItems(with items: [AuthenticatorBridgeItemDataModel], forUserId userId: String) async throws {
+    func replaceAllItems(with items: [AuthenticatorBridgeItemDataView], forUserId userId: String) async throws {
         storedItems[userId] = items
+        replaceAllCalled = true
     }
 }

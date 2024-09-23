@@ -50,7 +50,7 @@ class DefaultAuthenticatorSyncService: NSObject, AuthenticatorSyncService {
 
     /// a Task that subscribes to the sync setting publisher for accounts. This allows us to take action once
     /// a user opts-in to Authenticator sync.
-    public var syncSettingSubscriberTask: Task<Void, Error>?
+    private var syncSettingSubscriberTask: Task<Void, Error>?
 
     /// The service used by the application to manage vault access.
     private let vaultTimeoutService: VaultTimeoutService
@@ -127,7 +127,7 @@ class DefaultAuthenticatorSyncService: NSObject, AuthenticatorSyncService {
     /// - Returns: The decrypted, filtered, and sorted `CipherDTO` objects.
     ///
     private func decryptTOTPs(_ ciphers: [Cipher],
-                              userId: String) async throws -> [AuthenticatorBridgeItemDataModel] {
+                              userId: String) async throws -> [AuthenticatorBridgeItemDataView] {
         let decryptedCiphers = try await ciphers.asyncMap { cipher in
             try await self.clientService.vault().ciphers().decrypt(cipher: cipher)
         }
@@ -141,7 +141,7 @@ class DefaultAuthenticatorSyncService: NSObject, AuthenticatorSyncService {
         }
 
         return ciphersToUse.map { cipher in
-            AuthenticatorBridgeItemDataModel(
+            AuthenticatorBridgeItemDataView(
                 favorite: false,
                 id: cipher.id ?? UUID().uuidString,
                 name: cipher.name,
@@ -158,16 +158,10 @@ class DefaultAuthenticatorSyncService: NSObject, AuthenticatorSyncService {
     ///
     private func handleSyncOnForUserId(_ userId: String) async throws {
         Logger.application.log("#### sync is on for userId: \(userId)")
-        if application?.applicationState == .background {
-            Logger.application.log("#### App in background. Subscribing to cipher updates from push notifications.")
-            subscribeToCipherUpdates(userId: userId)
-        } else if vaultTimeoutService.isLocked(userId: userId) {
-            Logger.application.log("#### App in foreground and locked for \(userId). Waiting for unlock to occur.")
-            //                            subscribeToVaultPublisher()
-        } else {
+
+        if application?.applicationState == .active, !vaultTimeoutService.isLocked(userId: userId) {
             Logger.application.log("#### App in foreground and unlocked. Begin key creations.")
             try await createAuthenticatorKeyIfNeeded()
-            //                            try await createAuthenticatorVaultKey(userId: userId)
             Logger.application.log("#### Subscribing to cipher updates")
             subscribeToCipherUpdates(userId: userId)
         }
@@ -177,12 +171,8 @@ class DefaultAuthenticatorSyncService: NSObject, AuthenticatorSyncService {
     ///
     /// - Parameter userId: The userId of the user who has turned off sync.
     ///
-    private func handleSyncOffForUserId(_ userId: String) async throws {
+    private func handleSyncOffForUserId(_ userId: String) {
         Logger.application.log("#### sync is off for userId: \(userId)")
-        Logger.application.log("#### clearing data for userId: \(userId)")
-        //                        try await deleteFromAuthenticatorStore(userId: userId)
-        //                        try await deleteAuthenticatorKeyIfLast()
-        //                        try await keychainRepository.deleteAuthenticatorVaultKey(userId: userId)
         Logger.application.log("#### Canceling cipher update subscription")
         cipherPublisherTasks[userId]??.cancel()
         cipherPublisherTasks[userId] = nil
@@ -230,7 +220,7 @@ class DefaultAuthenticatorSyncService: NSObject, AuthenticatorSyncService {
                     if shouldSync {
                         try await handleSyncOnForUserId(userId)
                     } else {
-                        try await handleSyncOffForUserId(userId)
+                        handleSyncOffForUserId(userId)
                     }
                 } catch {
                     Logger.application.log("#### Error in Auth Options publisher: \(error)")
