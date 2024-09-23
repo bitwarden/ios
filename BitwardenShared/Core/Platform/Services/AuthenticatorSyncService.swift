@@ -156,12 +156,16 @@ class DefaultAuthenticatorSyncService: NSObject, AuthenticatorSyncService {
     ///
     /// - Parameter userId: The userId of the user who has turned on sync.
     ///
-    private func handleSyncOnForUserId(_ userId: String) async throws {
+    private func handleSyncOnForUserId(_ userId: String) async {
         Logger.application.log("#### sync is on for userId: \(userId)")
 
         if application?.applicationState == .active, !vaultTimeoutService.isLocked(userId: userId) {
             Logger.application.log("#### App in foreground and unlocked. Begin key creations.")
-            try await createAuthenticatorKeyIfNeeded()
+            do {
+                try await createAuthenticatorKeyIfNeeded()
+            } catch {
+                errorReporter.log(error: error)
+            }
             Logger.application.log("#### Subscribing to cipher updates")
             subscribeToCipherUpdates(userId: userId)
         }
@@ -216,14 +220,10 @@ class DefaultAuthenticatorSyncService: NSObject, AuthenticatorSyncService {
                 guard let userId else { continue }
 
                 Logger.application.log("#### Sync With Authenticator App Setting: \(shouldSync), userId: \(userId)")
-                do {
-                    if shouldSync {
-                        try await handleSyncOnForUserId(userId)
-                    } else {
-                        handleSyncOffForUserId(userId)
-                    }
-                } catch {
-                    Logger.application.log("#### Error in Auth Options publisher: \(error)")
+                if shouldSync {
+                    await handleSyncOnForUserId(userId)
+                } else {
+                    handleSyncOffForUserId(userId)
                 }
             }
         }

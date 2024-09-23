@@ -73,9 +73,7 @@ final class AuthenticatorSyncServiceTests: BitwardenTestCase {
     func test_createAuthenticatorKeyIfNeeded_createsKeyWhenNeeded() async throws {
         try sharedKeychainRepository.deleteAuthenticatorKey()
         stateService.activeAccount = .fixture()
-        stateService.syncToAuthenticatorSubject =
-            CurrentValueSubject<(String?, Bool), Never>(("1", true))
-
+        stateService.syncToAuthenticatorSubject.send(("1", true))
         application.applicationState = .active
         notificationCenterService.willEnterForegroundSubject.send()
 
@@ -91,9 +89,7 @@ final class AuthenticatorSyncServiceTests: BitwardenTestCase {
         try await sharedKeychainRepository.setAuthenticatorKey(key)
 
         stateService.activeAccount = .fixture()
-        stateService.syncToAuthenticatorSubject =
-            CurrentValueSubject<(String?, Bool), Never>(("1", true))
-
+        stateService.syncToAuthenticatorSubject.send(("1", true))
         application.applicationState = .active
         notificationCenterService.willEnterForegroundSubject.send()
 
@@ -105,9 +101,7 @@ final class AuthenticatorSyncServiceTests: BitwardenTestCase {
     ///
     func test_decryptTOTPs_filtersOutDeleted() async throws {
         stateService.activeAccount = .fixture()
-        stateService.syncToAuthenticatorSubject =
-            CurrentValueSubject<(String?, Bool), Never>(("1", true))
-
+        stateService.syncToAuthenticatorSubject.send(("1", true))
         application.applicationState = .active
         notificationCenterService.willEnterForegroundSubject.send()
         cipherService.ciphersSubject.send([
@@ -140,9 +134,7 @@ final class AuthenticatorSyncServiceTests: BitwardenTestCase {
     ///
     func test_decryptTOTPs_ignoresItemsWithoutTOTP() async throws {
         stateService.activeAccount = .fixture()
-        stateService.syncToAuthenticatorSubject =
-            CurrentValueSubject<(String?, Bool), Never>(("1", true))
-
+        stateService.syncToAuthenticatorSubject.send(("1", true))
         application.applicationState = .active
         notificationCenterService.willEnterForegroundSubject.send()
         cipherService.ciphersSubject.send([
@@ -173,9 +165,7 @@ final class AuthenticatorSyncServiceTests: BitwardenTestCase {
     ///
     func test_decryptTOTPs_providesIdIfNil() async throws {
         stateService.activeAccount = .fixture()
-        stateService.syncToAuthenticatorSubject =
-            CurrentValueSubject<(String?, Bool), Never>(("1", true))
-
+        stateService.syncToAuthenticatorSubject.send(("1", true))
         application.applicationState = .active
         notificationCenterService.willEnterForegroundSubject.send()
         cipherService.ciphersSubject.send([
@@ -202,9 +192,7 @@ final class AuthenticatorSyncServiceTests: BitwardenTestCase {
     ///
     func test_decryptTOTPs_success() async throws {
         stateService.activeAccount = .fixture()
-        stateService.syncToAuthenticatorSubject =
-            CurrentValueSubject<(String?, Bool), Never>(("1", true))
-
+        stateService.syncToAuthenticatorSubject.send(("1", true))
         application.applicationState = .active
         notificationCenterService.willEnterForegroundSubject.send()
         cipherService.ciphersSubject.send([
@@ -227,13 +215,24 @@ final class AuthenticatorSyncServiceTests: BitwardenTestCase {
         XCTAssertEqual(item.username, "user@bitwarden.com")
     }
 
+    /// Verifies that the AuthSyncService handles and reports  errors when sync is turned On..
+    ///
+    func test_handleSyncOn_error() async throws {
+        sharedKeychainRepository.errorToThrow = BitwardenTestError.example
+
+        stateService.activeAccount = .fixture()
+        stateService.syncToAuthenticatorSubject.send(("1", true))
+        application.applicationState = .active
+        notificationCenterService.willEnterForegroundSubject.send()
+
+        waitFor(!errorReporter.errors.isEmpty)
+    }
+
     /// Verifies that the AuthSyncService stops listening for Cipher updates when the user has sync turned off.
     ///
     func test_handleSyncOff() async throws {
         stateService.activeAccount = .fixture()
-        stateService.syncToAuthenticatorSubject =
-            CurrentValueSubject<(String?, Bool), Never>(("1", false))
-
+        stateService.syncToAuthenticatorSubject.send(("1", false))
         application.applicationState = .active
         notificationCenterService.willEnterForegroundSubject.send()
         cipherService.ciphersSubject.send([
@@ -249,5 +248,17 @@ final class AuthenticatorSyncServiceTests: BitwardenTestCase {
         try await Task.sleep(nanoseconds: 100_000_000)
 
         XCTAssertFalse(authBridgeItemService.replaceAllCalled)
+    }
+
+    /// Verifies that the AuthSyncService handles and reports errors thrown by the Cipher service..
+    ///
+    func test_subscribeToCipherUpdates_error() async throws {
+        stateService.activeAccount = .fixture()
+        stateService.syncToAuthenticatorSubject.send(("1", true))
+        application.applicationState = .active
+        notificationCenterService.willEnterForegroundSubject.send()
+        cipherService.ciphersSubject.send(completion: .failure(BitwardenTestError.example))
+
+        waitFor(!errorReporter.errors.isEmpty)
     }
 }

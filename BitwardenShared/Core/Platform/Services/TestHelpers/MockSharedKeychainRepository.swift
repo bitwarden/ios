@@ -5,6 +5,7 @@ import Foundation
 
 class MockSharedKeychainRepository {
     var authenticatorKey: Data?
+    var errorToThrow: Error?
 }
 
 extension MockSharedKeychainRepository: SharedKeychainRepository {
@@ -18,6 +19,8 @@ extension MockSharedKeychainRepository: SharedKeychainRepository {
     }
 
     func getAuthenticatorKey() async throws -> Data {
+        guard errorToThrow == nil else { throw errorToThrow! }
+
         if let authenticatorKey {
             return authenticatorKey
         } else {
@@ -26,6 +29,8 @@ extension MockSharedKeychainRepository: SharedKeychainRepository {
     }
 
     func setAuthenticatorKey(_ value: Data) async throws {
+        guard errorToThrow == nil else { throw errorToThrow! }
+
         authenticatorKey = value
     }
 }
