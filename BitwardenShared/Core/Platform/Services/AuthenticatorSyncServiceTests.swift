@@ -97,7 +97,7 @@ final class AuthenticatorSyncServiceTests: BitwardenTestCase {
         XCTAssertEqual(sharedKeychainRepository.authenticatorKey, key)
     }
 
-    /// Verifies that when Ciphers are published. the service filters out one that have a deletedDate in the past.
+    /// When Ciphers are published. the service filters out ones that have a deletedDate in the past.
     ///
     func test_decryptTOTPs_filtersOutDeleted() async throws {
         stateService.activeAccount = .fixture()
@@ -129,8 +129,7 @@ final class AuthenticatorSyncServiceTests: BitwardenTestCase {
         XCTAssertEqual(items.first?.id, "1234")
     }
 
-    /// Verifies that when Ciphers are published. the service ignores any Ciphers with logins that don't contain a
-    /// TOTP key.
+    /// When Ciphers are published. the service ignores any Ciphers with logins that don't contain a TOTP key.
     ///
     func test_decryptTOTPs_ignoresItemsWithoutTOTP() async throws {
         stateService.activeAccount = .fixture()
@@ -215,7 +214,7 @@ final class AuthenticatorSyncServiceTests: BitwardenTestCase {
         XCTAssertEqual(item.username, "user@bitwarden.com")
     }
 
-    /// Verifies that the AuthSyncService handles and reports  errors when sync is turned On..
+    /// Verifies that the AuthSyncService handles and reports errors when sync is turned On..
     ///
     func test_handleSyncOn_error() async throws {
         sharedKeychainRepository.errorToThrow = BitwardenTestError.example
