@@ -975,3 +975,8 @@
 "PleaseRestartRegistrationOrTryLoggingInYouMayAlreadyHaveAnAccount" = "Restartujte registraci nebo se zkuste přihlásit. Možná již máte účet.";
 "RemovePasskey" = "Odebrat přístupový klíč";
 "PasskeyRemoved" = "Přístupový klíč byl odebrán";
+"TheRegionForTheGivenEmailCouldNotBeLoaded" = "Oblast pro daný e-mail nelze načíst.";
+"SetUpLaterQuestion" = "Nastavit později?";
+"YouCanFinishSetupUnlockAnytimeDescriptionLong" = "Nastavení můžete kdykoli dokončit v části Zabezpečení účtu v části Nastavení. Dokud nenastavíte jiný způsob, budete k odemykání používat hlavní heslo.";
+"Confirm" = "Potvrdit";
+"ThePreAuthUrlsCouldNotBeLoadedToStartTheAccountCreation" = "Předautorizační adresy URL se nepodařilo načíst, aby bylo možné zahájit vytváření účtu.";

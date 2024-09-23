@@ -977,3 +977,8 @@
 "PleaseRestartRegistrationOrTryLoggingInYouMayAlreadyHaveAnAccount" = "Пожалуйста, повторите регистрацию или попробуйте авторизоваться. Возможно, у вас уже есть аккаунт.";
 "RemovePasskey" = "Удалить passkey";
 "PasskeyRemoved" = "Passkey удален";
+"TheRegionForTheGivenEmailCouldNotBeLoaded" = "Не удалось загрузить регион для данного email.";
+"SetUpLaterQuestion" = "Настроить позже?";
+"YouCanFinishSetupUnlockAnytimeDescriptionLong" = "Вы можете завершить в любое время в настройках безопасности аккаунта. Для разблокировки будет использоваться мастер-пароль, пока вы не установите другой метод.";
+"Confirm" = "Подтвердить";
+"ThePreAuthUrlsCouldNotBeLoadedToStartTheAccountCreation" = "Не удалось загрузить URL предавторизации для начала создания аккаунта.";

@@ -331,7 +331,7 @@
 "UseFaceIDToUnlock" = "Kilidi Face ID ile aç";
 "VerifyFaceID" = "Face ID'yi doğrula";
 "WindowsHello" = "Windows Hello";
-"BitwardenCredentialProviderGoToSettings" = "We were unable to automatically open the Android credential provider settings menu for you. You can navigate to the credential provider settings menu manually from Android Settings > System > Passwords & accounts > Passwords, passkeys and data services.";
+"BitwardenCredentialProviderGoToSettings" = "Android bilgi sağlayıcı ayarları menüsünü otomatik olarak açamadık. Bilgi sağlayıcı ayarları menüsüne kendiniz gitmek için Android Ayarları > Sistem > Parolalar ve hesaplar > Parolalar, geçiş anahtarları ve veri servisleri yolunu izleyebilirsiniz.";
 "BitwardenAutofillGoToSettings" = "Android otomatik doldurma ayarları menüsünü otomatik olarak açamadık. Lütfen şu yolu izleyerek otomatik doldurma ayarları menüsüne gidin: Android ayarları > Sistem> Dil ve giriş > Gelişmiş > Otomatik doldurma hizmeti.";
 "CustomFieldName" = "Özel alan adı";
 "FieldTypeBoolean" = "Boole";
@@ -891,7 +891,7 @@
 "SetUpAutofill" = "Otomatik doldurmayı ayarla";
 "GetInstantAccessToYourPasswordsAndPasskeys" = "Parolalarınıza ve geçiş anahtarlarınıza anında erişin!";
 "SetUpAutoFillDescriptionLong" = "Otomatik parola doldurma ve anahtar yönetimi için, iOS ayarlarında Bitwarden'ı tercih edilen sağlayıcı olarak belirleyin.";
-"FirstDotGoToYourDeviceSettingsPasswordsPasswordOptions" = "1. Go to your device's Settings > Passwords > Password Options";
+"FirstDotGoToYourDeviceSettingsPasswordsPasswordOptions" = "1. Cihazınızda Ayarlar > Parolalar > Parola Seçenekleri kısmına gidin";
 "SecondDotTurnOnAutoFill" = "2. Otomatik doldurmayı açın";
 "ThirdDotSelectBitwardenToUseForPasswordsAndPasskeys" = "Parolalar ve geçiş anahtarları için kullanılmak üzere Bitwarden'ı seçin";
 "YourPasskeyWillBeSavedToYourBitwardenVault" = "Geçiş anahtarınız Bitwarden kasasına kaydedilecektir";
@@ -905,7 +905,7 @@
 "RemindMeLater" = "Daha sonra hatırlat";
 "Notice" = "Dikkat";
 "AppInfo" = "Uygulama bilgileri";
-"Browse" = "Browse";
+"Browse" = "Gözat";
 "SelectLanguage" = "Dil seçin";
 "ContinueToCompleteWebAuthnVerification" = "Continue to complete WebAuthn verification.";
 "ThereWasAnErrorStartingWebAuthnTwoFactorAuthentication" = "There was an error starting WebAuthn two factor authentication";
@@ -917,12 +917,12 @@
 "FilePasswordDescription" = "Bu parola, bu dosyayı dışa ve içe aktarmak için kullanılacaktır";
 "CreatingOn" = "Creating on";
 "CheckYourEmail" = "E-postanızı kontrol edin";
-"FollowTheInstructionsInTheEmailSentToXToContinueCreatingYourAccount" = "Follow the instructions in the email sent to %1$@ to continue creating your account.";
+"FollowTheInstructionsInTheEmailSentToXToContinueCreatingYourAccount" = "Hesabınızı oluşturmaya devam etmek için %1$@ adresine gönderdiğimiz e-postadaki yönergeleri uygulayın.";
 "NoEmailGoBackToEditYourEmailAddress" = "No email? **[Go back](https://)** to edit your email address.";
 "OrLogInYouMayAlreadyHaveAnAccount." = "Or **[log in](https://)**, you may already have an account.";
 "OpenEmailApp" = "E-Posta uygulamasını aç";
-"SetPassword" = "Set password";
-"FinishCreatingYourAccountForXBySettingAPassword." = "Finish creating your account for %1$@ by setting a password.";
+"SetPassword" = "Parola belirle";
+"FinishCreatingYourAccountForXBySettingAPassword." = "Parolanızı belirleyerek %1$@ hesabınızı oluşturmayı tamamlayın.";
 "VerifyingEmail" = "Verifying email";
 "EmailVerified" = "E-posta doğrulandı";
 "AccountSuccessfullyCreated" = "Hesap başarıyla oluşturuldu!";
@@ -949,7 +949,7 @@
 "WhatMakesAPasswordStrong" = "Bir parola nasıl güçlü olur?";
 "StrongPasswordDescriptionLong" = "The longer your password, the more difficult it is to hack. The minimum for account creation is 12 characters but if you do 14 characters, the time to crack your password would be centuries!";
 "TheStrongestPasswordsAreUsually" = "The strongest passwords are usually:";
-"TwelveOrMoreCharacters" = "12 or more characters";
+"TwelveOrMoreCharacters" = "12 veya daha fazla karakter";
 "RandomAndComplexUsingNumbersAndSpecialCharacters" = "Random and complex, using numbers and special characters";
 "TotallyDifferentFromYourOtherPasswords" = "Totally different from your other passwords";
 "UseTheGeneratorToCreateAStrongUniquePassword" = "Güçlü ve benzersiz bir parola oluşturmak için üreteci kullanabilirsiniz";
@@ -975,3 +975,8 @@
 "PleaseRestartRegistrationOrTryLoggingInYouMayAlreadyHaveAnAccount" = "Please restart registration or try logging in. You may already have an account.";
 "RemovePasskey" = "Geçiş anahtarını kaldır";
 "PasskeyRemoved" = "Geçiş anahtarı kaldırıldı";
+"TheRegionForTheGivenEmailCouldNotBeLoaded" = "The region for the given email could not be loaded.";
+"SetUpLaterQuestion" = "Daha sonra ayarlamak ister misiniz?";
+"YouCanFinishSetupUnlockAnytimeDescriptionLong" = "Kurulumu istediğiniz zaman Ayarlar altındaki Hesap Güvenliği bölümünden tamamlayabilirsiniz. Başka bir yöntem tanımlayana kadar kilidi açmak için ana parolanızı kullanabilirsiniz.";
+"Confirm" = "Onayla";
+"ThePreAuthUrlsCouldNotBeLoadedToStartTheAccountCreation" = "The Pre Auth Urls could not be loaded to start the account creation.";

@@ -206,6 +206,14 @@ class AppCoordinatorTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         XCTAssertEqual(module.authCoordinator.routes, [.landing, .landing])
     }
 
+    /// `navigate(to:)` with `.debugMenu` starts the auth coordinator and navigates to the proper debug menu route.
+    @MainActor
+    func test_navigateTo_debugMenu() throws {
+        subject.navigate(to: .debugMenu)
+
+        waitFor(module.debugMenuCoordinator.isStarted)
+    }
+
     /// `navigate(to:)` with `.extensionSetup(.extensionActivation))` starts the extension setup
     /// coordinator and navigates to the proper route.
     @MainActor
