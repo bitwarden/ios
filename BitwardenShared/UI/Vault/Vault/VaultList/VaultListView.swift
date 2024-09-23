@@ -41,7 +41,7 @@ private struct SearchableVaultListView: View {
             search
                 .hidden(!isSearching)
         }
-        .background(Asset.Colors.backgroundSecondary.swiftUIColor.ignoresSafeArea())
+        .background(Asset.Colors.backgroundPrimary.swiftUIColor.ignoresSafeArea())
         .toast(store.binding(
             get: \.toast,
             send: VaultListAction.toastShown
@@ -111,7 +111,7 @@ private struct SearchableVaultListView: View {
                                 for: item,
                                 isLastInSection: store.state.searchResults.last == item
                             )
-                            .background(Asset.Colors.backgroundPrimary.swiftUIColor)
+                            .background(Asset.Colors.backgroundSecondary.swiftUIColor)
                         }
                         .accessibilityIdentifier("CipherCell")
                     }

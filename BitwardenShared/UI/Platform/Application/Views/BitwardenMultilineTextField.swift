@@ -39,7 +39,7 @@ struct BitwardenMultilineTextField: View {
                 .styleGuide(.body, includeLineSpacing: false)
                 .accessibilityIdentifier(accessibilityIdentifier ?? "")
                 .foregroundStyle(Asset.Colors.textPrimary.swiftUIColor)
-                .tint(Asset.Colors.primaryBitwarden.swiftUIColor)
+                .tint(Asset.Colors.tintPrimary.swiftUIColor)
                 .scrollDisabled(true)
             } else {
                 TextEditor(
@@ -48,7 +48,7 @@ struct BitwardenMultilineTextField: View {
                 .styleGuide(.body, includeLineSpacing: false)
                 .accessibilityIdentifier(accessibilityIdentifier ?? "")
                 .foregroundStyle(Asset.Colors.textPrimary.swiftUIColor)
-                .tint(Asset.Colors.primaryBitwarden.swiftUIColor)
+                .tint(Asset.Colors.tintPrimary.swiftUIColor)
             }
         }
     }

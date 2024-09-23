@@ -110,11 +110,19 @@ extension View {
 
     /// Applies the `ScrollViewModifier` to a view.
     ///
-    /// - Parameter addVerticalPadding: Whether or not to add vertical padding. Defaults to `true`.
+    /// - Parameters:
+    ///   - addVerticalPadding: Whether or not to add vertical padding. Defaults to `true`.
+    ///   - backgroundColor: The background color to apply to the scroll view. Defaults to `backgroundPrimary`.
     ///
     /// - Returns: A view within a `ScrollView`.
     ///
-    func scrollView(addVerticalPadding: Bool = true) -> some View {
-        modifier(ScrollViewModifier(addVerticalPadding: addVerticalPadding))
+    func scrollView(
+        addVerticalPadding: Bool = true,
+        backgroundColor: Color = Asset.Colors.backgroundPrimary.swiftUIColor
+    ) -> some View {
+        modifier(ScrollViewModifier(
+            addVerticalPadding: addVerticalPadding,
+            backgroundColor: backgroundColor
+        ))
     }
 }

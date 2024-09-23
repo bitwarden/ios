@@ -78,7 +78,7 @@ private struct MainSendListView: View {
                 .padding(16)
                 .frame(minHeight: reader.size.height)
             }
-            .background(Asset.Colors.backgroundSecondary.swiftUIColor.ignoresSafeArea())
+            .background(Asset.Colors.backgroundPrimary.swiftUIColor.ignoresSafeArea())
         }
     }
 
@@ -100,7 +100,7 @@ private struct MainSendListView: View {
             }
             .padding(16)
         }
-        .background(Asset.Colors.backgroundSecondary.swiftUIColor.ignoresSafeArea())
+        .background(Asset.Colors.backgroundPrimary.swiftUIColor.ignoresSafeArea())
     }
 
     /// A view that displays the search interface, including search results, an empty search
@@ -119,7 +119,7 @@ private struct MainSendListView: View {
                 }
                 .padding(16)
             }
-            .background(Asset.Colors.backgroundSecondary.swiftUIColor.ignoresSafeArea())
+            .background(Asset.Colors.backgroundPrimary.swiftUIColor.ignoresSafeArea())
         } else {
             SearchNoResultsView()
         }
@@ -169,7 +169,7 @@ private struct MainSendListView: View {
                     )
                 }
             }
-            .background(Asset.Colors.backgroundPrimary.swiftUIColor)
+            .background(Asset.Colors.backgroundSecondary.swiftUIColor)
             .clipShape(RoundedRectangle(cornerRadius: 10))
         }
     }
@@ -218,7 +218,7 @@ struct SendListView: View {
                         } label: {
                             Image(asset: Asset.Images.infoRound, label: Text(Localizations.aboutSend))
                                 .resizable()
-                                .foregroundColor(Asset.Colors.primaryBitwarden.swiftUIColor)
+                                .foregroundColor(Asset.Colors.iconSecondary.swiftUIColor)
                                 .frame(width: 22, height: 22)
                         }
                         .frame(minHeight: 44)

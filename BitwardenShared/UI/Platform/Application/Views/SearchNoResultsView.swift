@@ -37,7 +37,7 @@ struct SearchNoResultsView<Content: View>: View {
                 }
             }
         }
-        .background(Color(asset: Asset.Colors.backgroundSecondary))
+        .background(Color(asset: Asset.Colors.backgroundPrimary))
     }
 
     // MARK: Initialization

@@ -6,7 +6,7 @@ import SwiftUI
 /// Part of `ProfileSwitcherState`.
 struct ProfileSwitcherItem: Equatable, Hashable {
     /// The color associated with the profile
-    var color: Color = .init(asset: Asset.Colors.primaryBitwardenLight).opacity(0.12)
+    var color: Color = Asset.Colors.backgroundTertiary.swiftUIColor
 
     /// The account's email.
     var email: String

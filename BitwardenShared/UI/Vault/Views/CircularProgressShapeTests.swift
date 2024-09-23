@@ -14,7 +14,7 @@ final class CircularProgressShapeTests: BitwardenTestCase {
                 clockwise: true
             )
             .stroke(lineWidth: 3)
-            .foregroundColor(Asset.Colors.primaryBitwarden.swiftUIColor)
+            .foregroundColor(Asset.Colors.iconSecondary.swiftUIColor)
             .frame(width: 30, height: 30)
             CircularProgressShape(
                 progress: 0.4,
