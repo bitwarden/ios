@@ -628,7 +628,6 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
         )
 
         let authenticatorSyncService = DefaultAuthenticatorSyncService(
-            application: application,
             authBridgeItemService: authBridgeItemService,
             cipherService: cipherService,
             clientService: clientService,

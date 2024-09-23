@@ -18,9 +18,6 @@ protocol AuthenticatorSyncService {}
 class DefaultAuthenticatorSyncService: NSObject, AuthenticatorSyncService {
     // MARK: Private Properties
 
-    /// The Application instance, used to determine if the app is in the foreground, etc
-    private let application: Application?
-
     /// The service for managing sharing items to/from the Authenticator app.
     private let authBridgeItemService: AuthenticatorBridgeItemService
 
@@ -60,7 +57,6 @@ class DefaultAuthenticatorSyncService: NSObject, AuthenticatorSyncService {
     /// Initialize a `DefaultAuthenticatorSyncService`.
     ///
     /// - Parameters:
-    ///   - application: The Application instance, used to determine if the app is in the foreground, etc
     ///   - authBridgeItemService: The service for managing sharing items to/from the Authenticator app.
     ///   - cipherService: The service used to manage syncing and updates to the user's ciphers.
     ///   - clientService: The service that handles common client functionality such as encryption and decryption.
@@ -73,7 +69,6 @@ class DefaultAuthenticatorSyncService: NSObject, AuthenticatorSyncService {
     ///   - vaultTimeoutService: The service used by the application to manage vault access.
     ///
     init(
-        application: Application?,
         authBridgeItemService: AuthenticatorBridgeItemService,
         cipherService: CipherService,
         clientService: ClientService,
@@ -84,7 +79,6 @@ class DefaultAuthenticatorSyncService: NSObject, AuthenticatorSyncService {
         stateService: StateService,
         vaultTimeoutService: VaultTimeoutService
     ) {
-        self.application = application
         self.authBridgeItemService = authBridgeItemService
         self.cipherService = cipherService
         self.clientService = clientService
@@ -159,7 +153,7 @@ class DefaultAuthenticatorSyncService: NSObject, AuthenticatorSyncService {
     private func handleSyncOnForUserId(_ userId: String) async {
         Logger.application.log("#### sync is on for userId: \(userId)")
 
-        if await application?.applicationState == .active, !vaultTimeoutService.isLocked(userId: userId) {
+        if !vaultTimeoutService.isLocked(userId: userId) {
             Logger.application.log("#### App in foreground and unlocked. Begin key creations.")
             do {
                 try await createAuthenticatorKeyIfNeeded()

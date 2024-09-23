@@ -3,7 +3,6 @@ import UIKit
 @testable import BitwardenShared
 
 class MockApplication: Application {
-    var applicationState: UIApplication.State = .active
     var beginBackgroundTaskName: String?
     var beginBackgroundTaskHandler: (() -> Void)?
     var beginBackgroundTaskIdentifier: UIBackgroundTaskIdentifier = .invalid
