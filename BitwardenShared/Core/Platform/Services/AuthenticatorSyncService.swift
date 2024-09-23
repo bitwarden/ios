@@ -159,7 +159,7 @@ class DefaultAuthenticatorSyncService: NSObject, AuthenticatorSyncService {
     private func handleSyncOnForUserId(_ userId: String) async {
         Logger.application.log("#### sync is on for userId: \(userId)")
 
-        if application?.applicationState == .active, !vaultTimeoutService.isLocked(userId: userId) {
+        if await application?.applicationState == .active, !vaultTimeoutService.isLocked(userId: userId) {
             Logger.application.log("#### App in foreground and unlocked. Begin key creations.")
             do {
                 try await createAuthenticatorKeyIfNeeded()
