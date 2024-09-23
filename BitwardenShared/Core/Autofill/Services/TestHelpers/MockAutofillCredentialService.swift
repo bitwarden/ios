@@ -6,9 +6,14 @@ import BitwardenSdk
 // MARK: - MockAutofillCredentialService
 
 class MockAutofillCredentialService: AutofillCredentialService {
+    var isAutofillCredentialsEnabled = false
     var provideCredentialPasswordCredential: ASPasswordCredential?
     var provideCredentialError: Error?
     var provideFido2CredentialResult: Result<PasskeyAssertionCredential, Error> = .failure(BitwardenTestError.example)
+
+    func isAutofillCredentialsEnabled() async -> Bool {
+        isAutofillCredentialsEnabled
+    }
 
     func provideCredential(
         for id: String,

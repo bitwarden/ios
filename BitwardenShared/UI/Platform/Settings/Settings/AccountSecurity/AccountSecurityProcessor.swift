@@ -14,6 +14,7 @@ final class AccountSecurityProcessor: StateProcessor<
 
     typealias Services = HasAuthRepository
         & HasBiometricsRepository
+        & HasConfigService
         & HasErrorReporter
         & HasPolicyService
         & HasSettingsRepository
@@ -120,6 +121,22 @@ final class AccountSecurityProcessor: StateProcessor<
             state.sessionTimeoutAction = try await services.authRepository.sessionTimeoutAction()
         } catch {
             coordinator.showAlert(.defaultAlert(title: Localizations.anErrorHasOccurred))
+            services.errorReporter.log(error: error)
+        }
+    }
+
+    /// If the native create account feature flag is enabled, this marks the user's vault unlock
+    /// account setup complete. This should be called whenever PIN or biometrics unlock has been
+    /// turned on.
+    ///
+    private func completeAccountSetupVaultUnlockIfNeeded() async {
+        guard await services.configService.getFeatureFlag(.nativeCreateAccountFlow) else { return }
+        do {
+            guard let progress = try await services.stateService.getAccountSetupVaultUnlock(),
+                  progress != .complete
+            else { return }
+            try await services.stateService.setAccountSetupVaultUnlock(.complete)
+        } catch {
             services.errorReporter.log(error: error)
         }
     }
@@ -274,6 +291,10 @@ final class AccountSecurityProcessor: StateProcessor<
         // Refresh vault timeout action in case the user doesn't have a password and biometric
         // unlock was disabled.
         await refreshVaultTimeoutAction()
+
+        if enabled {
+            await completeAccountSetupVaultUnlockIfNeeded()
+        }
     }
 
     /// Shows an alert prompting the user to enter their PIN. If set successfully, the toggle will be turned on.
@@ -288,5 +309,9 @@ final class AccountSecurityProcessor: StateProcessor<
 
         // Refresh vault timeout action in case the user doesn't have a password and the pin was disabled.
         await refreshVaultTimeoutAction()
+
+        if isOn {
+            await completeAccountSetupVaultUnlockIfNeeded()
+        }
     }
 }
