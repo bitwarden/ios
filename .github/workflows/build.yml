@@ -319,7 +319,7 @@ jobs:
 
       - name: Update CI build info
         run: |
-          ./Scripts/update_app_ci_build_info.sh ${{ github.run_id }} ${{ github.run_number }} ${{ github.run_attempt }}
+          ./Scripts/update_app_ci_build_info.sh ${{ github.run_id }} ${{ github.run_number }} ${{ github.run_attempt }} "${{ inputs.compiler-flags }}"
 
       - name: Build iOS app
         run: |
