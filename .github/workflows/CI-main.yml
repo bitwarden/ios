@@ -12,6 +12,9 @@ on:
       build-number:
         description: "Version Number Override - e.g. '1021'"
         type: number
+      patch_version:
+        description: "Patch Version Override - e.g. '999'"
+        type: string
 
 env:
   XCODE_VERSION: '15.4'
@@ -24,61 +27,51 @@ jobs:
       build_variant: ${{ steps.calculate.outputs.variant }}
       build_version: ${{ steps.calculate.outputs.version }}
       build_number: ${{ steps.calculate.outputs.build_number }}
-      xcode_version: ${{ steps.calculate.outputs.xcode_version }}
 
     steps:
-      - name: Check out repo
-        uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
-        with:
-          fetch-depth: 0
-          filter: tree:0
-
-      - name: Calculate build version and number
-        id: calculate
+      - name: Log inputs to job summary
         run: |
-          if [[ ! -z "${{ inputs.build-version }}" ]]; then
-            echo -e "\nApplying build version override"
-            next_version=${{ inputs.build-version }}
-          else
-            echo -e "\nCalculating next version..."
-            current_year=$(date +%Y)
-            current_month=$(date +%-m)
+          echo "<details><summary>Workflow Inputs</summary>" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo '```json' >> $GITHUB_STEP_SUMMARY
+          echo '${{ toJson(inputs) }}' >> $GITHUB_STEP_SUMMARY
+          echo '```' >> $GITHUB_STEP_SUMMARY
+          echo "</details>" >> $GITHUB_STEP_SUMMARY
 
-            latest_tag_version=$(git tag --sort=committerdate --list | tail -1)
-            latest_version=${latest_tag_version:1}  # remove 'v' from tag version
+      - name: Calculate version
+        if: ${{ !inputs.build-version && !inputs.build-number }}
+        uses: bitwarden/ios/.github/actions/dispatch-and-download@main
+        id: dispatch-version
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          repo: ios
+          owner: bitwarden
+          workflow: _version.yml
+          workflow_inputs: '{"base_version_number": "1000", "version_name": "${{ inputs.build-version }}", "version_number": "${{ inputs.build-number }}", "patch_number": "${{ inputs.patch_number }}"}'
 
-            latest_major_version=$(echo $latest_version | cut -d "." -f 1)
-            latest_minor_version=$(echo $latest_version | cut -d "." -f 2)
-            latest_patch_version=$(echo $latest_version | cut -d "." -f 3)
+      - name: Read version info
+        id: version_info
+        run: |
+          # test if dispatch-version was skipped
+          if [ ! -f version-info/version_info.json ]; then
+            json='{
+              "version_number": "${{ inputs.build-number }}",
+              "version_name": "${{ inputs.build-version }}"
+            }'
 
-            echo "  Current Year:         $current_year"
-            echo "  Current Month:        $current_month"
-            echo "  Latest Version:       $latest_version"
-            echo "  Latest Major Version: $latest_major_version"
-            echo "  Latest Minor Version: $latest_minor_version"
-            echo "  Latest Patch Version: $latest_patch_version"
-
-            if [[ "$current_year" == "$latest_major_version" && "$current_month" == "$latest_minor_version" ]]; then
-              next_version="${latest_major_version}.${latest_minor_version}.$(($latest_patch_version + 1))"
-            else
-              next_version="${current_year}.${current_month}.0"
-            fi
+            # file will be used by the upload step
+            echo "$json" > version-info/version_info.json
           fi
 
-          if [[ ! -z "${{ inputs.build-number }}" ]]; then
-            echo -e "\nApplying build number override"
-            next_number=${{ inputs.build-number }}
-          else
-            echo -e "\nCalculating build number..."
-            next_number=$(($GITHUB_RUN_NUMBER + 1000))
-          fi
+          content=$(cat version-info/version_info.json)
+          echo "version_name=$(echo $content | jq -r .version_name)" >> $GITHUB_OUTPUT
+          echo "version_number=$(echo $content | jq -r .version_number)" >> $GITHUB_OUTPUT
 
-          echo -e "\n"
-          echo "**Version**: $next_version" | tee -a $GITHUB_STEP_SUMMARY
-          echo "**Build Number**: $next_number" | tee -a $GITHUB_STEP_SUMMARY
-          echo "version=$next_version" >> $GITHUB_OUTPUT
-          echo "build_number=$next_number" >> $GITHUB_OUTPUT
-          echo "xcode_version=$XCODE_VERSION" >> $GITHUB_OUTPUT
+      - name: Upload version info artifact
+        uses: actions/upload-artifact@50769540e7f4bd5e21e526ee35c689e35e0d6874 # v4.4.0
+        with:
+          name: version-info
+          path: version-info/version_info.json
 
   build:
     name: Build
@@ -91,5 +84,5 @@ jobs:
       build-variant: ${{ matrix.variant }}
       build-version: ${{ needs.resolve-values.outputs.build_version }}
       build-number: ${{ needs.resolve-values.outputs.build_number }}
-      xcode-version: ${{ needs.resolve-values.outputs.xcode_version }}
+      xcode-version: ${{ env.XCODE_VERSION }}
     secrets: inherit
