@@ -49,8 +49,21 @@ public enum UI {
     /// Sets up the default global appearances used throughout the app.
     ///
     public static func applyDefaultAppearances() {
+        let bodyFont = UIFontMetrics(forTextStyle: .body).scaledFont(
+            for: FontFamily.DMSans.regular.font(size: 15)
+        )
+        let bodyBoldFont = UIFontMetrics(forTextStyle: .body).scaledFont(
+            for: FontFamily.DMSans.bold.font(size: 15)
+        )
+        let largeTitleFont = UIFontMetrics(forTextStyle: .largeTitle).scaledFont(
+            for: FontFamily.DMSans.bold.font(size: 26)
+        )
+
         let navigationBarAppearance = UINavigationBarAppearance()
         navigationBarAppearance.backgroundColor = Asset.Colors.primaryContrastBitwarden.color
+        navigationBarAppearance.buttonAppearance.normal.titleTextAttributes = [.font: bodyFont]
+        navigationBarAppearance.largeTitleTextAttributes = [.font: largeTitleFont]
+        navigationBarAppearance.titleTextAttributes = [.font: bodyBoldFont]
         UINavigationBar.appearance().scrollEdgeAppearance = navigationBarAppearance
         UINavigationBar.appearance().standardAppearance = navigationBarAppearance
 
@@ -67,6 +80,10 @@ public enum UI {
         UITabBar.appearance().tintColor = Asset.Colors.primaryBitwarden.color
 
         UIBarButtonItem.appearance(whenContainedInInstancesOf: [UISearchBar.self]).title = Localizations.cancel
+        UIBarButtonItem.appearance(whenContainedInInstancesOf: [UISearchBar.self]).setTitleTextAttributes(
+            [.font: FontFamily.DMSans.regular.font(size: 15)],
+            for: .normal
+        )
         UISearchBar.appearance().tintColor = Asset.Colors.primaryBitwarden.color
         // Explicitly tint the image so that it does not assume the tint color assigned to the entire search bar.
         let image = Asset.Images.cancelRound.image

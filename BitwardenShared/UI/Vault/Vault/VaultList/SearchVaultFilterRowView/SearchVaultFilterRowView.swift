@@ -21,6 +21,8 @@ struct SearchVaultFilterRowView: View {
             VStack(spacing: 0) {
                 HStack(spacing: 0) {
                     Text(store.state.searchVaultFilterType.filterTitle)
+                        .foregroundStyle(Asset.Colors.textPrimary.swiftUIColor)
+                        .styleGuide(.body)
 
                     Spacer()
 

@@ -66,6 +66,7 @@ private struct MainSendListView: View {
 
                     Text(Localizations.noSends)
                         .multilineTextAlignment(.center)
+                        .styleGuide(.callout)
 
                     Button(Localizations.addASend) {
                         store.send(.addItemPressed)

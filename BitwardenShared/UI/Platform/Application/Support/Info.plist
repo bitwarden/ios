@@ -18,5 +18,12 @@
 	<string>1.0</string>
 	<key>CFBundleVersion</key>
 	<string>1</string>
+	<key>UIAppFonts</key>
+	<array>
+		<string>DMSans-Bold.ttf</string>
+		<string>DMSans-BoldItalic.ttf</string>
+		<string>DMSans-Italic.ttf</string>
+		<string>DMSans-Regular.ttf</string>
+	</array>
 </dict>
 </plist>
