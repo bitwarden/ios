@@ -91,6 +91,14 @@ jobs:
       - name: Calculate version number
         id: calc-version-number
         run: |
+          # override version number if provided
+          if [[ ! -z "${{ inputs.version_number }}" ]]; then
+            version_number=${{ inputs.version_number }}
+            echo "::warning::Override applied: $version_number"
+            echo "version_number=$version_number" >> $GITHUB_OUTPUT
+            exit 0
+          fi
+
           version_number=$(($GITHUB_RUN_NUMBER + ${{ env.BASE_VERSION_NUMBER }}))
           echo "version_number=$version_number" >> $GITHUB_OUTPUT
 
