@@ -3,11 +3,18 @@ import Foundation
 @testable import AuthenticatorShared
 
 class MockCryptographyService: CryptographyService {
+    var decryptError: Error?
+    var decryptedAuthenticatorItems = [AuthenticatorItem]()
+
     var encryptError: Error?
     var encryptedAuthenticatorItems = [AuthenticatorItemView]()
 
     func decrypt(_ authenticatorItem: AuthenticatorItem) async throws -> AuthenticatorItemView {
-        AuthenticatorItemView(authenticatorItem: authenticatorItem)
+        decryptedAuthenticatorItems.append(authenticatorItem)
+        if let decryptError {
+            throw decryptError
+        }
+        return AuthenticatorItemView(authenticatorItem: authenticatorItem)
     }
 
     func encrypt(_ authenticatorItemView: AuthenticatorItemView) async throws -> AuthenticatorItem {

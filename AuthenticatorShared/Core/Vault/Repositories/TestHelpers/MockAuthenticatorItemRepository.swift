@@ -17,15 +17,16 @@ class MockAuthenticatorItemRepository: AuthenticatorItemRepository {
     var fetchAuthenticatorItemId: String?
     var fetchAuthenticatorItemResult: Result<AuthenticatorItemView?, Error> = .success(nil)
 
-    var refreshTOTPCodeResult: Result<TOTPCodeModel, Error> = .success(
-        TOTPCodeModel(code: .base32Key, codeGenerationDate: .now, period: 30)
-    )
-    var refreshedTOTPKeyConfig: TOTPKeyModel?
+    var refreshTotpCodesResult: Result<[ItemListItem], Error> = .success([])
+    var refreshedTotpTime: Date?
+    var refreshedTotpCodes: [ItemListItem] = []
 
     var authenticatorItemDetailsSubject = CurrentValueSubject<AuthenticatorItemView?, Error>(nil)
     var itemListSubject = CurrentValueSubject<[ItemListSection], Error>([])
 
     var searchItemListSubject = CurrentValueSubject<[ItemListItem], Error>([])
+
+    var timeProvider: TimeProvider = MockTimeProvider(.currentTime)
 
     var updateAuthenticatorItemItems = [AuthenticatorItemView]()
     var updateAuthenticatorItemResult: Result<Void, Error> = .success(())
@@ -42,7 +43,7 @@ class MockAuthenticatorItemRepository: AuthenticatorItemRepository {
         try deleteAuthenticatorItemResult.get()
     }
 
-    func fetchAllAuthenticatorItems() async throws -> [AuthenticatorShared.AuthenticatorItemView] {
+    func fetchAllAuthenticatorItems() async throws -> [AuthenticatorItemView] {
         try fetchAllAuthenticatorItemsResult.get()
     }
 
@@ -51,9 +52,15 @@ class MockAuthenticatorItemRepository: AuthenticatorItemRepository {
         return try fetchAuthenticatorItemResult.get()
     }
 
-    func refreshTotpCode(for key: TOTPKeyModel) async throws -> AuthenticatorShared.TOTPCodeModel {
-        refreshedTOTPKeyConfig = key
-        return try refreshTOTPCodeResult.get()
+    func refreshTotpCodes(on items: [ItemListItem]) async throws -> [ItemListItem] {
+        refreshedTotpTime = timeProvider.presentTime
+        refreshedTotpCodes = items
+        return try refreshTotpCodesResult.get()
+    }
+
+    func updateAuthenticatorItem(_ authenticatorItem: AuthenticatorItemView) async throws {
+        updateAuthenticatorItemItems.append(authenticatorItem)
+        try updateAuthenticatorItemResult.get()
     }
 
     func authenticatorItemDetailsPublisher(
@@ -66,14 +73,9 @@ class MockAuthenticatorItemRepository: AuthenticatorItemRepository {
         itemListSubject.eraseToAnyPublisher().values
     }
 
-    func updateAuthenticatorItem(_ authenticatorItem: AuthenticatorItemView) async throws {
-        updateAuthenticatorItemItems.append(authenticatorItem)
-        try updateAuthenticatorItemResult.get()
-    }
-
     func searchItemListPublisher(
         searchText: String
-    ) async throws -> AsyncThrowingPublisher<AnyPublisher<[AuthenticatorShared.ItemListItem], Error>> {
+    ) async throws -> AsyncThrowingPublisher<AnyPublisher<[ItemListItem], Error>> {
         searchItemListSubject.eraseToAnyPublisher().values
     }
 }

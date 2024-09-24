@@ -34,9 +34,9 @@ extension ItemListItem {
     /// - Parameters:
     ///   - authenticatorItemView: The `AuthenticatorItemView` used to initialize the `ItemListItem`
     ///
-    init?(authenticatorItemView: AuthenticatorItemView) {
+    init?(authenticatorItemView: AuthenticatorItemView, timeProvider: TimeProvider) {
         guard let totpKey = TOTPKeyModel(authenticatorKey: authenticatorItemView.totpKey) else { return nil }
-        let totpCode = TOTPCodeModel(code: "123456", codeGenerationDate: .now, period: 30)
+        let totpCode = TOTPCodeModel(code: "123456", codeGenerationDate: timeProvider.presentTime, period: 30)
         let totpModel = ItemListTotpItem(itemView: authenticatorItemView, totpCode: totpCode)
         let name: String
         let username: String?
