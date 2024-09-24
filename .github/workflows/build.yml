@@ -128,7 +128,7 @@ jobs:
           cp $AUTHENTICATOR_PROFILE_PATH "$PROFILES_DIR_PATH/$AUTHENTICATOR_UUID.mobileprovision"
 
       - name: Configure Ruby
-        uses: ruby/setup-ruby@a6e6f86333f0a2523ece813039b8b4be04560854 # v1.190.0
+        uses: ruby/setup-ruby@f321cf5a4d1533575411f8752cf25b86478b0442 # v1.193.0
         with:
           bundler-cache: true
 
@@ -201,7 +201,7 @@ jobs:
         uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
 
       - name: Upload sources
-        uses: crowdin/github-action@6ed209d411599a981ccb978df3be9dc9b8a81699 # v2.1.1
+        uses: crowdin/github-action@95d6e895e871c3c7acf0cfb962f296baa41e63c6 # v2.2.0
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           CROWDIN_API_TOKEN: ${{ secrets.CROWDIN_API_TOKEN }}
