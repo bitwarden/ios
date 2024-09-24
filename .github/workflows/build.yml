@@ -23,7 +23,7 @@ on:
         required: false
         type: string
       compiler-flags:
-        description: "Compiler Flags - e.g. \`DEBUG_MENU FEATURE2\`"
+        description: "Compiler Flags - e.g. 'DEBUG_MENU FEATURE2'"
   workflow_call:
     inputs:
       build-variant:
@@ -43,7 +43,7 @@ on:
         required: false
         type: string
       compiler-flags:
-        description: "Compiler Flags - e.g. \`DEBUG_MENU FEATURE2\`"
+        description: "Compiler Flags - e.g. 'DEBUG_MENU FEATURE2'"
 
 env:
   BUILD_VARIANT: ${{ inputs.build-variant || 'Beta' }}
