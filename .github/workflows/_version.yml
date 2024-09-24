@@ -10,13 +10,14 @@ on:
         type: number
         default: 0
       version_name:
-        description: "Overrides version name calculation"
+        description: "Version Name Override - e.g. '2024.8.1'"
+      version_number:
+        description: "Version Number Override - e.g. '1021'"
       distinct_id:
         description: "Unique ID for this dispatch, used by dispatch-and-download.yml"
       skip_checkout:
         description: "Skip checking out the repository"
         type: boolean
-  repository_dispatch:
 
 env:
   BASE_VERSION_NUMBER: ${{ inputs.base_version_number || 0 }}

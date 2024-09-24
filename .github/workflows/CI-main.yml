@@ -7,12 +7,10 @@ on:
   workflow_dispatch:
     inputs:
       build-version:
-        description: "Optional. Version string to use, in X.Y.Z format. Overrides default in the project."
-        required: false
+        description: "Version Name Override - e.g. '2024.8.1'"
         type: string
       build-number:
-        description: "Optional. Build number to use. Overrides default of GitHub run number."
-        required: false
+        description: "Version Number Override - e.g. '1021'"
         type: number
 
 env:
