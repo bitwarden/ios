@@ -77,6 +77,17 @@ class AutofillCredentialServiceTests: BitwardenTestCase { // swiftlint:disable:t
 
     // MARK: Tests
 
+    /// `isAutofillCredentialsEnabled()` returns whether autofilling credentials is enabled.
+    func test_isAutofillCredentialsEnabled() async {
+        identityStore.state.mockIsEnabled = false
+        var isEnabled = await subject.isAutofillCredentialsEnabled()
+        XCTAssertFalse(isEnabled)
+
+        identityStore.state.mockIsEnabled = true
+        isEnabled = await subject.isAutofillCredentialsEnabled()
+        XCTAssertTrue(isEnabled)
+    }
+
     /// `provideCredential(for:)` returns the credential containing the username and password for
     /// the specified ID.
     func test_provideCredential() async throws {

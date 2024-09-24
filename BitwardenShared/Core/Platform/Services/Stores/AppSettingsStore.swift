@@ -105,6 +105,18 @@ protocol AppSettingsStore: AnyObject {
     ///
     func connectToWatch(userId: String) -> Bool
 
+    /// Retrieves a feature flag value from the app's settings store.
+    ///
+    /// This method fetches the value for a specified feature flag from the app's settings store.
+    /// The value is returned as a `Bool`. If the flag does not exist or cannot be decoded,
+    /// the method returns `nil`.
+    ///
+    /// - Parameter name: The name of the feature flag to retrieve, represented as a `String`.
+    /// - Returns: The value of the feature flag as a `Bool`, or `nil` if the flag does not exist
+    ///     or cannot be decoded.
+    ///
+    func debugFeatureFlag(name: String) -> Bool?
+
     /// Gets the default URI match type.
     ///
     /// - Parameter userId: The user ID associated with the default URI match type.
@@ -182,6 +194,19 @@ protocol AppSettingsStore: AnyObject {
     /// - Returns: The last notifications registration date for the user.
     ///
     func notificationsLastRegistrationDate(userId: String) -> Date?
+
+    /// Sets a feature flag value in the app's settings store.
+    ///
+    /// This method updates or removes the value for a specified feature flag in the app's settings store.
+    /// If the `value` parameter is `nil`, the feature flag is removed from the store. Otherwise, the flag
+    /// is set to the provided boolean value.
+    ///
+    /// - Parameters:
+    ///   - name: The name of the feature flag to set or remove, represented as a `String`.
+    ///   - value: The boolean value to assign to the feature flag. If `nil`, the feature flag will be removed
+    ///    from the settings store.
+    ///
+    func overrideDebugFeatureFlag(name: String, value: Bool?)
 
     /// Gets the password generation options for a user ID.
     ///
@@ -637,6 +662,7 @@ extension DefaultAppSettingsStore: AppSettingsStore {
         case biometricIntegrityStateLegacy
         case clearClipboardValue(userId: String)
         case connectToWatch(userId: String)
+        case debugFeatureFlag(name: String)
         case defaultUriMatch(userId: String)
         case disableAutoTotpCopy(userId: String)
         case disableWebIcons
@@ -698,6 +724,8 @@ extension DefaultAppSettingsStore: AppSettingsStore {
                 key = "clearClipboard_\(userId)"
             case let .connectToWatch(userId):
                 key = "shouldConnectToWatch_\(userId)"
+            case let .debugFeatureFlag(name):
+                key = "debugFeatureFlag_\(name)"
             case let .defaultUriMatch(userId):
                 key = "defaultUriMatch_\(userId)"
             case let .disableAutoTotpCopy(userId):
@@ -878,6 +906,10 @@ extension DefaultAppSettingsStore: AppSettingsStore {
         fetch(for: .connectToWatch(userId: userId))
     }
 
+    func debugFeatureFlag(name: String) -> Bool? {
+        fetch(for: .debugFeatureFlag(name: name))
+    }
+
     func defaultUriMatchType(userId: String) -> UriMatchType? {
         fetch(for: .defaultUriMatch(userId: userId))
     }
@@ -920,6 +952,10 @@ extension DefaultAppSettingsStore: AppSettingsStore {
 
     func notificationsLastRegistrationDate(userId: String) -> Date? {
         fetch(for: .notificationsLastRegistrationDate(userId: userId)).map { Date(timeIntervalSince1970: $0) }
+    }
+
+    func overrideDebugFeatureFlag(name: String, value: Bool?) {
+        store(value, for: .debugFeatureFlag(name: name))
     }
 
     func passwordGenerationOptions(userId: String) -> PasswordGenerationOptions? {

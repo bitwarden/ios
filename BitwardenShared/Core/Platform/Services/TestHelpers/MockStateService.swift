@@ -6,6 +6,7 @@ import Foundation
 class MockStateService: StateService { // swiftlint:disable:this type_body_length
     var accountEncryptionKeys = [String: AccountEncryptionKeys]()
     var accountSetupAutofill = [String: AccountSetupProgress]()
+    var accountSetupAutofillError: Error?
     var accountSetupVaultUnlock = [String: AccountSetupProgress]()
     var accountTokens: Account.AccountTokens?
     var accountVolatileData: [String: AccountVolatileData] = [:]
@@ -359,6 +360,9 @@ class MockStateService: StateService { // swiftlint:disable:this type_body_lengt
 
     func setAccountSetupAutofill(_ autofillSetup: AccountSetupProgress?, userId: String?) async throws {
         let userId = try unwrapUserId(userId)
+        if let accountSetupAutofillError {
+            throw accountSetupAutofillError
+        }
         accountSetupAutofill[userId] = autofillSetup
     }
 
