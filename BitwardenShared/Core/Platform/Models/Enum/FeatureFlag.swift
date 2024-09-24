@@ -26,7 +26,19 @@ enum FeatureFlag: String, Codable {
     /// A test feature flag that can be remotely configured.
     case testRemoteFeatureFlag = "test-remote-feature-flag"
 
-    // MARK: Properties
+    // MARK: Type Properties
+
+    /// An array of feature flags available in the debug menu.
+    static var debugMenuFeatureFlags: [FeatureFlag] {
+        [
+            .emailVerification,
+            .enableAuthenticatorSync,
+            .nativeCarouselFlow,
+            .nativeCreateAccountFlow,
+        ]
+    }
+
+    // MARK: Instance Properties
 
     /// Whether this feature can be enabled remotely.
     var isRemotelyConfigured: Bool {
@@ -39,6 +51,24 @@ enum FeatureFlag: String, Codable {
         case .emailVerification,
              .testRemoteFeatureFlag:
             true
+        }
+    }
+
+    /// The display name of the feature flag.
+    var name: String {
+        switch self {
+        case .emailVerification:
+            "Email Verification"
+        case .enableAuthenticatorSync:
+            "Enable Authenticator Sync"
+        case .nativeCarouselFlow:
+            "Native Carousel Flow"
+        case .nativeCreateAccountFlow:
+            "Native Create Account Flow"
+        case .testLocalFeatureFlag:
+            "Test Local Feature Flag"
+        case .testRemoteFeatureFlag:
+            "Test Remote Feature Flag"
         }
     }
 }

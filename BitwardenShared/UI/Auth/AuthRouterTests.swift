@@ -155,6 +155,43 @@ final class AuthRouterTests: BitwardenTestCase { // swiftlint:disable:this type_
         XCTAssertEqual(route, .enterpriseSingleSignOn(email: "user@bitwarden.com"))
     }
 
+    /// `handleAndRoute(_ :)` redirects `.accountBecameActive()` to `.vaultUnlock`
+    /// when the user profile has no user decryption options.
+    func test_handleAndRoute_accountBecameActive_noUserDecryptionOptions() async {
+        let active = Account.fixture(
+            profile: .fixture(
+                userDecryptionOptions: nil
+            )
+        )
+        stateService.activeAccount = active
+
+        biometricsRepository.biometricUnlockStatus = .success(
+            .available(.faceID, enabled: true, hasValidIntegrity: false)
+        )
+        stateService.isAuthenticated = [
+            active.profile.userId: true,
+        ]
+        authRepository.isLockedResult = .success(true)
+
+        let route = await subject.handleAndRoute(
+            .accountBecameActive(
+                active,
+                animated: true,
+                attemptAutomaticBiometricUnlock: true,
+                didSwitchAccountAutomatically: false
+            )
+        )
+        XCTAssertEqual(
+            route,
+            .vaultUnlock(
+                active,
+                animated: true,
+                attemptAutomaticBiometricUnlock: true,
+                didSwitchAccountAutomatically: false
+            )
+        )
+    }
+
     /// `handleAndRoute(_ :)` redirects `.accountBecameActive()` to `.vaultUnlock` when checking if
     /// an account is authenticated fails.
     func test_handleAndRoute_accountBecameActive_logout_isAuthenticatedError() async {
@@ -215,6 +252,27 @@ final class AuthRouterTests: BitwardenTestCase { // swiftlint:disable:this type_
         authRepository.activeAccount = .fixture()
         let route = await subject.handleAndRoute(.didCompleteAuth)
         XCTAssertEqual(route, .complete)
+    }
+
+    /// `handleAndRoute(_:)` redirects `.didCompleteAuth` to `.autofillSetup` if the user still
+    /// needs to set up autofill.
+    func test_handleAndRoute_didCompleteAuth_incompleteAutofill() async {
+        // TODO: PM-10278 Add autofill setup screen
+//        authRepository.activeAccount = .fixture()
+//        stateService.activeAccount = .fixture()
+//        stateService.accountSetupAutofill["1"] = .incomplete
+//        let route = await subject.handleAndRoute(.didCompleteAuth)
+//        XCTAssertEqual(route, .autofillSetup)
+    }
+
+    /// `handleAndRoute(_:)` redirects `.didCompleteAuth` to `.vaultUnlockSetup` if the user still
+    /// needs to set up a vault unlock method.
+    func test_handleAndRoute_didCompleteAuth_incompleteVaultSetup() async {
+        authRepository.activeAccount = .fixture()
+        stateService.activeAccount = .fixture()
+        stateService.accountSetupVaultUnlock["1"] = .incomplete
+        let route = await subject.handleAndRoute(.didCompleteAuth)
+        XCTAssertEqual(route, .vaultUnlockSetup)
     }
 
     /// `handleAndRoute(_ :)` redirects `.didCompleteAuth` to `.landing` when there are no accounts.

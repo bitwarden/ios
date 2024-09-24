@@ -11,6 +11,7 @@ class AppCoordinator: Coordinator, HasRootNavigator {
 
     /// The types of modules used by this coordinator.
     typealias Module = AuthModule
+        & DebugMenuModule
         & ExtensionSetupModule
         & FileSelectionModule
         & LoginRequestModule
@@ -87,6 +88,8 @@ class AppCoordinator: Coordinator, HasRootNavigator {
         switch route {
         case let .auth(authRoute):
             showAuth(authRoute)
+        case .debugMenu:
+            showDebugMenu()
         case let .extensionSetup(extensionSetupRoute):
             showExtensionSetup(route: extensionSetupRoute)
         case let .loginRequest(loginRequest):
@@ -273,6 +276,29 @@ class AppCoordinator: Coordinator, HasRootNavigator {
             childCoordinator = coordinator
             rootNavigator?.show(child: stackNavigator)
         }
+    }
+
+    /// Configures and presents the debug menu.
+    ///
+    /// Initializes feedback generator for haptic feedback. Sets up a `UINavigationController`
+    /// and creates / starts a `DebugMenuCoordinator` to manage the debug menu flow.
+    /// Presents the navigation controller and triggers haptic feedback upon completion.
+    ///
+    private func showDebugMenu() {
+        let feedbackGenerator = UIImpactFeedbackGenerator(style: .medium)
+        feedbackGenerator.prepare()
+        let stackNavigator = UINavigationController()
+        stackNavigator.navigationBar.prefersLargeTitles = true
+        stackNavigator.modalPresentationStyle = .fullScreen
+        let debugMenuCoordinator = module.makeDebugMenuCoordinator(stackNavigator: stackNavigator)
+        debugMenuCoordinator.start()
+        childCoordinator = debugMenuCoordinator
+
+        rootNavigator?.rootViewController?.topmostViewController().present(
+            stackNavigator,
+            animated: true,
+            completion: { feedbackGenerator.impactOccurred() }
+        )
     }
 }
 

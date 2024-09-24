@@ -975,3 +975,8 @@
 "PleaseRestartRegistrationOrTryLoggingInYouMayAlreadyHaveAnAccount" = "Перезапустіть реєстрацію або спробуйте увійти. Можливо, ви вже маєте обліковий запис.";
 "RemovePasskey" = "Вилучити ключ доступу";
 "PasskeyRemoved" = "Ключ доступу вилучено";
+"TheRegionForTheGivenEmailCouldNotBeLoaded" = "Не вдалося завантажити регіон для вказаної електронної пошти.";
+"SetUpLaterQuestion" = "Налаштувати пізніше?";
+"YouCanFinishSetupUnlockAnytimeDescriptionLong" = "Ви можете завершити налаштування будь-коли в розділі \"Безпека облікового запису\" в налаштуваннях. Ви будете використовувати головний пароль для розблокування, поки не встановите інший метод.";
+"Confirm" = "Підтвердити";
+"ThePreAuthUrlsCouldNotBeLoadedToStartTheAccountCreation" = "Не вдалося завантажити URL-адреси для створення облікового запису.";

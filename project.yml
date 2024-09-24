@@ -20,7 +20,7 @@ settings:
 packages:
   BitwardenSdk:
     url: https://github.com/bitwarden/sdk-swift
-    revision: a09d0dc8f3ef3e27bc45407d58d4df89e61d438e
+    revision: b5853c98f31ff9230c5eff83888081ea34c76afe
   Firebase:
     url: https://github.com/firebase/firebase-ios-sdk
     exactVersion: 10.24.0
@@ -364,8 +364,8 @@ targets:
     type: framework
     platform: iOS
     configFiles:
-      Debug: Configs/BitwardenShared.xcconfig
-      Release: Configs/BitwardenShared.xcconfig
+      Debug: Configs/BitwardenShared-Debug.xcconfig
+      Release: Configs/BitwardenShared-Release.xcconfig
     settings:
       base:
         APPLICATION_EXTENSION_API_ONLY: true

@@ -975,3 +975,8 @@
 "PleaseRestartRegistrationOrTryLoggingInYouMayAlreadyHaveAnAccount" = "Indítsuk újra a regisztrációt vagy próbáljunk meg bejelentkezni. Valószínűleg már létezik a fiók.";
 "RemovePasskey" = "Belépőkulcs eltávolítása";
 "PasskeyRemoved" = "A belépőlulcs eltávolításra került.";
+"TheRegionForTheGivenEmailCouldNotBeLoaded" = "Az adott e-mail cím régióját nem lehetett betölteni.";
+"SetUpLaterQuestion" = "Beállítás később?";
+"YouCanFinishSetupUnlockAnytimeDescriptionLong" = "A beállítást bármikor befejezhetjük a Beállításokban a Fiókbiztonságnál. A feloldáshoz a mesterjelszó van használatban egy másik mód beállításáig.";
+"Confirm" = "Megerősítés";
+"ThePreAuthUrlsCouldNotBeLoadedToStartTheAccountCreation" = "Az előzes hitelestíési webcímeket nem lehetett betölteni a fiók létrehozásának megkezdéséhez.";

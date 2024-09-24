@@ -975,3 +975,8 @@
 "PleaseRestartRegistrationOrTryLoggingInYouMayAlreadyHaveAnAccount" = "登録を再度始めるか、ログインを試してください。すでにアカウントを持っている可能性があります。";
 "RemovePasskey" = "パスキーを削除";
 "PasskeyRemoved" = "パスキーを削除しました";
+"TheRegionForTheGivenEmailCouldNotBeLoaded" = "The region for the given email could not be loaded.";
+"SetUpLaterQuestion" = "後で設定しますか?";
+"YouCanFinishSetupUnlockAnytimeDescriptionLong" = "アカウントのセキュリティでいつでもセットアップを完了できます。別の方法を設定するまではマスターパスワードを使用してロックを解除してください。";
+"Confirm" = "確認";
+"ThePreAuthUrlsCouldNotBeLoadedToStartTheAccountCreation" = "The Pre Auth Urls could not be loaded to start the account creation.";

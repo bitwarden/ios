@@ -140,7 +140,8 @@ class LoginProcessor: StateProcessor<LoginState, LoginAction, LoginEffect> {
             try await services.authService.loginWithMasterPassword(
                 state.masterPassword,
                 username: state.username,
-                captchaToken: captchaToken
+                captchaToken: captchaToken,
+                isNewAccount: state.isNewAccount
             )
 
             // Unlock the vault.

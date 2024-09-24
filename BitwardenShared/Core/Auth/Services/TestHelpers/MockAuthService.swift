@@ -45,6 +45,7 @@ class MockAuthService: AuthService {
     var loginWithMasterPasswordPassword: String?
     var loginWithMasterPasswordUsername: String?
     var loginWithMasterPasswordCaptchaToken: String?
+    var loginWithMasterPasswordIsNewAccount = false
     var loginWithMasterPasswordResult: Result<Void, Error> = .success(())
 
     var loginWithSingleSignOnCode: String?
@@ -125,10 +126,16 @@ class MockAuthService: AuthService {
         return try loginWithDeviceResult.get()
     }
 
-    func loginWithMasterPassword(_ password: String, username: String, captchaToken: String?) async throws {
+    func loginWithMasterPassword(
+        _ password: String,
+        username: String,
+        captchaToken: String?,
+        isNewAccount: Bool
+    ) async throws {
         loginWithMasterPasswordPassword = password
         loginWithMasterPasswordUsername = username
         loginWithMasterPasswordCaptchaToken = captchaToken
+        loginWithMasterPasswordIsNewAccount = isNewAccount
         try loginWithMasterPasswordResult.get()
     }
 

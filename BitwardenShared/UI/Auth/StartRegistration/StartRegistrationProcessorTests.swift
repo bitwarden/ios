@@ -95,6 +95,64 @@ class StartRegistrationProcessorTests: BitwardenTestCase { // swiftlint:disable:
         XCTAssertEqual(coordinator.routes.last, .selfHosted(currentRegion: .europe))
     }
 
+    /// `perform(_:)` with `.startRegistration` sets preAuthUrls for the given email and navigates to check email.
+    @MainActor
+    func test_perform_startRegistration_setPreAuthUrls_checkEmail() async throws {
+        subject.state = .fixture()
+        client.result = .httpSuccess(testData: .nilResponse)
+        stateService.preAuthEnvironmentUrls = .defaultEU
+
+        await subject.perform(.startRegistration)
+
+        XCTAssertEqual(client.requests.count, 1)
+        XCTAssertEqual(
+            client.requests[0].url,
+            URL(string: "https://example.com/identity/accounts/register/send-verification-email")
+        )
+        XCTAssertEqual(coordinator.routes.last, .checkEmail(
+            email: "example@email.com"
+        ))
+
+        XCTAssertFalse(coordinator.isLoadingOverlayShowing)
+        XCTAssertEqual(
+            coordinator.loadingOverlaysShown,
+            [
+                LoadingOverlayState(title: Localizations.creatingAccount),
+            ]
+        )
+    }
+
+    /// `perform(_:)` with `.startRegistration` fails if preAuthUrls cannot be loaded.
+    @MainActor
+    func test_perform_startRegistration_setPreAuthUrls_checkEmail_noUrls() async throws {
+        subject.state = .fixture()
+        client.result = .httpSuccess(testData: .nilResponse)
+        stateService.preAuthEnvironmentUrls = nil
+
+        await subject.perform(.startRegistration)
+
+        XCTAssertEqual(client.requests.count, 1)
+        XCTAssertEqual(
+            client.requests[0].url,
+            URL(string: "https://example.com/identity/accounts/register/send-verification-email")
+        )
+        XCTAssertEqual(
+            coordinator.alertShown.last,
+            .defaultAlert(
+                title: Localizations.anErrorHasOccurred,
+                message: Localizations.thePreAuthUrlsCouldNotBeLoadedToStartTheAccountCreation
+            )
+        )
+
+        XCTAssertFalse(coordinator.isLoadingOverlayShowing)
+        XCTAssertEqual(
+            coordinator.loadingOverlaysShown,
+            [
+                LoadingOverlayState(title: Localizations.creatingAccount),
+            ]
+        )
+    }
+
     /// `perform(_:)` with `.startRegistration` presents an alert when the email has already been taken.
     @MainActor
     func test_perform_startRegistration_emailExists() async {
