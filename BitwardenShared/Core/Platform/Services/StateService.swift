@@ -1768,11 +1768,10 @@ actor DefaultStateService: StateService { // swiftlint:disable:this type_body_le
     func syncToAuthenticatorPublisher() async -> AnyPublisher<(String?, Bool), Never> {
         activeAccountIdPublisher().flatMap { userId in
             self.syncToAuthenticatorByUserIdSubject.map { values in
-                let userValue = if let userId {
-                    values[userId] ?? self.appSettingsStore.syncToAuthenticator(userId: userId)
-                } else {
-                    false
+                guard let userId else {
+                    return (nil, false)
                 }
+                let userValue = values[userId] ?? self.appSettingsStore.syncToAuthenticator(userId: userId)
                 return (userId, userValue)
             }
         }
