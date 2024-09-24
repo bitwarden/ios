@@ -24,6 +24,7 @@ on:
         type: string
       compiler-flags:
         description: "Compiler Flags - e.g. 'DEBUG_MENU FEATURE2'"
+        type: string
   workflow_call:
     inputs:
       build-variant:
@@ -44,6 +45,7 @@ on:
         type: string
       compiler-flags:
         description: "Compiler Flags - e.g. 'DEBUG_MENU FEATURE2'"
+        type: string
 
 env:
   BUILD_VARIANT: ${{ inputs.build-variant || 'Beta' }}
@@ -335,7 +337,7 @@ jobs:
           name: Bitwarden iOS ${{ steps.calculate.outputs.version }} (${{ steps.calculate.outputs.build_number }}) ${{ env.BUILD_VARIANT }} ${{ env.XCODE_VERSION }}
           path: export
           if-no-files-found: error
-      
+
       - name: Set up private auth key
         run: |
           mkdir ~/private_keys
