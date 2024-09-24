@@ -209,6 +209,7 @@ class DefaultAuthenticatorSyncService: NSObject, AuthenticatorSyncService {
     /// permission to sync items to the Authenticator app.
     ///
     private func subscribeToSyncToAuthenticatorSetting() {
+        syncSettingSubscriberTask?.cancel()
         syncSettingSubscriberTask = Task {
             for await (userId, shouldSync) in await self.stateService.syncToAuthenticatorPublisher().values {
                 guard let userId else { continue }
