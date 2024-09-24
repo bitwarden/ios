@@ -21,7 +21,7 @@ on:
         description: "Xcode Version Override - e.g. '15.2'"
         type: string
       base_version_number:
-        description: "Base version number to use for version calculation"
+        description: "Base Version Number - Will be added to the calculated version number"
         type: number
         default: 2000
       patch_version:
@@ -42,7 +42,7 @@ on:
         description: "Xcode Version Override - e.g. '15.2'"
         type: string
       base_version_number:
-        description: "Base version number to use for version calculation"
+        description: "Base Version Number - Will be added to the calculated version number"
         type: number
         default: 2000
       patch_version:
@@ -61,6 +61,15 @@ jobs:
       MINT_LINK_PATH: .mint/bin
 
     steps:
+      - name: Log inputs to job summary
+        run: |
+          echo "<details><summary>Workflow Inputs</summary>" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo '```json' >> $GITHUB_STEP_SUMMARY
+          echo '${{ toJson(inputs) }}' >> $GITHUB_STEP_SUMMARY
+          echo '```' >> $GITHUB_STEP_SUMMARY
+          echo "</details>" >> $GITHUB_STEP_SUMMARY
+
       - name: Check out repo
         uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
         with:
@@ -77,23 +86,19 @@ jobs:
           owner: bitwarden
           workflow: _version.yml
           workflow_inputs: '{"base_version_number": "${{ inputs.base_version_number }}", "version_name": "${{ inputs.build-version }}", "version_number": "${{ inputs.build-number }}", "patch_number": "${{ inputs.patch_number }}"}'
+
       - name: Read version info
         id: version_info
         run: |
           content=$(cat version-info/version_info.json)
           echo "version_name=$(echo $content | jq -r .version_name)" >> $GITHUB_OUTPUT
           echo "version_number=$(echo $content | jq -r .version_number)" >> $GITHUB_OUTPUT
+
       - name: Upload version info artifact
         uses: actions/upload-artifact@50769540e7f4bd5e21e526ee35c689e35e0d6874 # v4.4.0
         with:
           name: version-info
           path: version-info/version_info.json
-      - name: Print values
-        run: |
-          echo "**Variant**: ${{ env.BUILD_VARIANT }}" | tee -a $GITHUB_STEP_SUMMARY
-          echo "**Version**: ${{ steps.version_info.outputs.version_name }}" | tee -a $GITHUB_STEP_SUMMARY
-          echo "**Number**: ${{ steps.version_info.outputs.version_number }}" | tee -a $GITHUB_STEP_SUMMARY
-          echo "**Xcode**: ${{ env.XCODE_VERSION }}" | tee -a $GITHUB_STEP_SUMMARY
 
       - name: Set Xcode version
         uses: maxim-lobanov/setup-xcode@60606e260d2fc5762a71e64e74b2174e8ea3c8bd # v1.6.0

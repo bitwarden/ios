@@ -6,7 +6,7 @@ on:
   workflow_dispatch:
     inputs:
       base_version_number:
-        description: "Base version number to use for version calculation"
+        description: "Base Version Number - Will be added to the calculated version number"
         type: number
         default: 0
       version_name:
