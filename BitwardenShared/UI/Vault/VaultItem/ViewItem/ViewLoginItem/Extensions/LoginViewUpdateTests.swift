@@ -46,6 +46,25 @@ final class LoginViewUpdateTests: BitwardenTestCase {
     func test_update_loginView_changes() {
         loginState.username = "Username"
         loginState.password = "Password"
+        loginState.passwordUpdatedDate = Date()
+        loginState.uris = [UriState(uri: "example.com")]
+        let comparison = BitwardenSdk.LoginView(
+            loginView: subject,
+            loginState: loginState
+        )
+        XCTAssertEqual(comparison.username, loginState.username)
+        XCTAssertEqual(comparison.password, loginState.password)
+        XCTAssertEqual(comparison.passwordRevisionDate, loginState.passwordUpdatedDate)
+        XCTAssertEqual(comparison.uris, [LoginUriView.fixture(uri: "example.com", match: nil)])
+        XCTAssertEqual(comparison.totp, subject.totp)
+        XCTAssertEqual(comparison.autofillOnPageLoad, subject.autofillOnPageLoad)
+    }
+
+    /// Tests that the init succeeds with a LoginView when the `loginState` doesn't have `passwordUpdateDate`.
+    func test_update_loginView_changesNoPasswordUpdatedDate() {
+        loginState.username = "Username"
+        loginState.password = "Password"
+        loginState.passwordUpdatedDate = nil
         loginState.uris = [UriState(uri: "example.com")]
         let comparison = BitwardenSdk.LoginView(
             loginView: subject,
