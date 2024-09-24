@@ -377,7 +377,10 @@ extension TwoFactorAuthProcessor: DuoAuthenticationFlowDelegate {
 
         guard let authURLValue = maybeAuthURL,
               let authURL = URL(string: authURLValue) else {
-            state.toast = Toast(text: Localizations.duoUnsupported)
+            state.toast = Toast(
+                // swiftlint:disable:next line_length
+                text: Localizations.errorConnectingWithTheDuoServiceUseADifferentTwoStepLoginMethodOrContactDuoForAssistance
+            )
             return
         }
 
