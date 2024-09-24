@@ -7,19 +7,26 @@ final class CipherViewUpdateTests: BitwardenTestCase {
     // MARK: Properties
 
     var cipherItemState: CipherItemState!
+    var now: Date!
+    var timeProvider: MockTimeProvider!
     var subject: BitwardenSdk.CipherView!
 
     // MARK: Setup & Teardown
 
     override func setUp() {
         super.setUp()
+
+        now = Date(year: 2024, month: 2, day: 14, hour: 8, minute: 0, second: 0)
         subject = CipherView.loginFixture()
+        timeProvider = MockTimeProvider(.mockTime(now))
         cipherItemState = .init(hasPremium: true)
     }
 
     override func tearDown() {
         super.tearDown()
+
         subject = nil
+        timeProvider = nil
         cipherItemState = nil
     }
 
@@ -237,16 +244,10 @@ final class CipherViewUpdateTests: BitwardenTestCase {
         )
         cipherItemState.loginState.password = "New password"
 
-        let comparison = subject.updatedView(with: cipherItemState)
+        let comparison = subject.updatedView(with: cipherItemState, timeProvider: timeProvider)
         let passwordRevisionDate = try XCTUnwrap(comparison.login?.passwordRevisionDate)
 
-        XCTAssertTrue(
-            passwordRevisionDate > Calendar.current.date(
-                byAdding: .second,
-                value: -5,
-                to: Date()
-            )! && passwordRevisionDate < Date()
-        )
+        XCTAssertEqual(passwordRevisionDate, now)
     }
 
     /// Tests that the password revision date doesn't get updated if the password hasn't changed
