@@ -75,7 +75,7 @@ jobs:
   build:
     name: Build
     needs: resolve-values
-    uses: ./.github/workflows/build.yml
+    uses: bitwarden/ios/.github/workflows/build.yml@main
     strategy:
       matrix:
         variant: [Beta, Production]
