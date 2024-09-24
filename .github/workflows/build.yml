@@ -90,6 +90,17 @@ jobs:
       - name: Read version info
         id: version_info
         run: |
+          # test if dispatch-version was skipped. In that case, creates the same .json file expected by the Upload artifact step
+          if [ ! -f version-info/version_info.json ]; then
+            json='{
+              "version_number": "${{ inputs.build-number }}",
+              "version_name": "${{ inputs.build-version }}"
+            }'
+
+            # file will be used by the upload step
+            echo "$json" > version-info/version_info.json
+          fi
+
           content=$(cat version-info/version_info.json)
           echo "version_name=$(echo $content | jq -r .version_name)" >> $GITHUB_OUTPUT
           echo "version_number=$(echo $content | jq -r .version_number)" >> $GITHUB_OUTPUT
