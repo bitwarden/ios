@@ -1,23 +1,28 @@
 #!/usr/bin/env bash
 #
-# Updates the Release version of the Bitwarden app to a build variant
+# Updates the Release version of the Bitwarden app to a build variant and sets compiler flags
 #
 # Usage:
 #
-#   $ ./select_variant.sh <variant>
+#   $ ./select_variant.sh <variant - {Production|Beta}> "<compiler_flags>"
+# Example:
+#  $ ./select_variant.sh Production
+#  $ ./select_variant.sh Beta DEBUG_MENU
+#  $ ./select_variant.sh Beta "FEATURE1 FEATURE2"
 
 set -euo pipefail
 
 bold=$(tput -T ansi bold)
 normal=$(tput -T ansi sgr0)
 
-if [ $# -ne 1 ]; then
+if [ $# -lt 1 ]; then
   echo >&2 "Called without necessary arguments: ${bold}Variant${normal}."
-  echo >&2 "For example: \`Scripts/select_variant.sh Beta."
+  echo >&2 "For example: \`Scripts/select_variant.sh Beta \"DEBUG_MENU\"\`"
   exit 1
 fi
 
 variant=$1
+compiler_flags=${2:-''}
 
 echo "🧱 Setting build variant to ${bold}${variant}${normal}."
 
@@ -53,6 +58,7 @@ PROVISIONING_PROFILE_SPECIFIER_AUTOFILL_EXTENSION = ${profile_prefix} Autofill
 PROVISIONING_PROFILE_SPECIFIER_SHARE_EXTENSION = ${profile_prefix} Share Extension
 PROVISIONING_PROFILE_SPECIFIER_WATCH_APP = ${profile_prefix} Bitwarden Watch App
 PROVISIONING_PROFILE_SPECIFIER_WATCH_WIDGET_EXTENSION = ${profile_prefix} Bitwarden Watch Widget Extension
+SWIFT_ACTIVE_COMPILATION_CONDITIONS = \$(inherited) ${compiler_flags}
 EOF
 
 cat << EOF > ${export_options_file}
