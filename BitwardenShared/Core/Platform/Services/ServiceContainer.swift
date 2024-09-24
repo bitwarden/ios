@@ -638,6 +638,7 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
             stateService: stateService,
             vaultTimeoutService: vaultTimeoutService
         )
+        authenticatorSyncService.start()
 
         self.init(
             apiService: apiService,

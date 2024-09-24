@@ -9,7 +9,12 @@ import UIKit
 
 /// The service used to share TOTP codes to and from the Authenticator app..
 ///
-protocol AuthenticatorSyncService {}
+protocol AuthenticatorSyncService {
+    /// This starts the service listening for updates and writing to the shared store. This method
+    /// must be called for the service to do any syncing.
+    ///
+    func start()
+}
 
 // MARK: - DefaultAuthenticatorSyncService
 
@@ -89,7 +94,11 @@ class DefaultAuthenticatorSyncService: NSObject, AuthenticatorSyncService {
         self.stateService = stateService
         self.vaultTimeoutService = vaultTimeoutService
         super.init()
+    }
 
+    // MARK: Public Methods
+
+    public func start() {
         Task {
             if await configService.getFeatureFlag(FeatureFlag.enableAuthenticatorSync,
                                                   defaultValue: false) {
