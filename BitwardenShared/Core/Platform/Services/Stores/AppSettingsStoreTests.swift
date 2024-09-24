@@ -38,6 +38,38 @@ class AppSettingsStoreTests: BitwardenTestCase { // swiftlint:disable:this type_
 
     // MARK: Tests
 
+    /// `accountSetupAutofill(userId:)` returns `nil` if there isn't a previously stored value.
+    func test_accountSetupAutofill_isInitiallyNil() {
+        XCTAssertNil(subject.accountSetupAutofill(userId: "-1"))
+    }
+
+    /// `accountSetupAutofill(userId:)` can be used to get the user's progress for autofill setup.
+    func test_accountSetupAutofill_withValue() {
+        subject.setAccountSetupAutofill(.setUpLater, userId: "1")
+        subject.setAccountSetupAutofill(.complete, userId: "2")
+
+        XCTAssertEqual(subject.accountSetupAutofill(userId: "1"), .setUpLater)
+        XCTAssertEqual(subject.accountSetupAutofill(userId: "2"), .complete)
+        XCTAssertEqual(userDefaults.integer(forKey: "bwPreferencesStorage:accountSetupAutofill_1"), 1)
+        XCTAssertEqual(userDefaults.integer(forKey: "bwPreferencesStorage:accountSetupAutofill_2"), 2)
+    }
+
+    /// `accountSetupVaultUnlock(userId:)` returns `nil` if there isn't a previously stored value.
+    func test_accountSetupVaultUnlock_isInitiallyFalse() {
+        XCTAssertNil(subject.accountSetupVaultUnlock(userId: "-1"))
+    }
+
+    /// `accountSetupVaultUnlock(userId:)` can be used to get the user's progress for vault unlock setup.
+    func test_accountSetupVaultUnlock_withValue() {
+        subject.setAccountSetupVaultUnlock(.setUpLater, userId: "1")
+        subject.setAccountSetupVaultUnlock(.complete, userId: "2")
+
+        XCTAssertEqual(subject.accountSetupVaultUnlock(userId: "1"), .setUpLater)
+        XCTAssertEqual(subject.accountSetupVaultUnlock(userId: "2"), .complete)
+        XCTAssertEqual(userDefaults.integer(forKey: "bwPreferencesStorage:accountSetupVaultUnlock_1"), 1)
+        XCTAssertEqual(userDefaults.integer(forKey: "bwPreferencesStorage:accountSetupVaultUnlock_2"), 2)
+    }
+
     /// `addSitePromptShown` returns `false` if there isn't a previously stored value.
     func test_addSitePromptShown_isInitiallyFalse() {
         XCTAssertFalse(subject.addSitePromptShown)
@@ -333,6 +365,25 @@ class AppSettingsStoreTests: BitwardenTestCase { // swiftlint:disable:this type_
         XCTAssertEqual(subject.events(userId: "1"), [])
     }
 
+    /// `overrideDebugFeatureFlag(name:value:)` and `debugFeatureFlag(name:)` work as expected with correct values.
+    func test_featureFlags() {
+        let featureFlags = FeatureFlag.debugMenuFeatureFlags
+
+        for flag in featureFlags {
+            subject.overrideDebugFeatureFlag(name: flag.rawValue, value: true)
+        }
+
+        XCTAssertTrue(try XCTUnwrap(subject.debugFeatureFlag(name: FeatureFlag.emailVerification.rawValue)))
+        XCTAssertTrue(try XCTUnwrap(subject.debugFeatureFlag(name: FeatureFlag.nativeCarouselFlow.rawValue)))
+        XCTAssertTrue(try XCTUnwrap(subject.debugFeatureFlag(name: FeatureFlag.enableAuthenticatorSync.rawValue)))
+        XCTAssertTrue(try XCTUnwrap(subject.debugFeatureFlag(name: FeatureFlag.nativeCreateAccountFlow.rawValue)))
+    }
+
+    /// `featureFlag(name:)` returns `nil` if not found.
+    func test_featureFlags_nilWhenNotPresent() {
+        XCTAssertNil(subject.debugFeatureFlag(name: ""))
+    }
+
     /// `isBiometricAuthenticationEnabled` returns false if there is no previous value.
     func test_isBiometricAuthenticationEnabled_isInitiallyFalse() {
         XCTAssertFalse(subject.isBiometricAuthenticationEnabled(userId: "-1"))
@@ -515,23 +566,6 @@ class AppSettingsStoreTests: BitwardenTestCase { // swiftlint:disable:this type_
         XCTAssertEqual(userDefaults.double(forKey: "bwPreferencesStorage:pushLastRegistrationDate_2"), 1_696_204_800.0)
     }
 
-    /// `needsVaultUnlockSetup(userId:)` returns `false` if there isn't a previously stored value.
-    func test_needsVaultUnlockSetup_isInitiallyFalse() {
-        XCTAssertFalse(subject.needsVaultUnlockSetup(userId: "-1"))
-    }
-
-    /// `needsVaultUnlockSetup(userId:)` can be used to get whether the user needs to set up vault
-    /// unlock methods.
-    func test_needsVaultUnlockSetup__withValue() {
-        subject.setNeedsVaultUnlockSetup(true, userId: "1")
-        subject.setNeedsVaultUnlockSetup(false, userId: "2")
-
-        XCTAssertTrue(subject.needsVaultUnlockSetup(userId: "1"))
-        XCTAssertFalse(subject.needsVaultUnlockSetup(userId: "2"))
-        XCTAssertTrue(userDefaults.bool(forKey: "bwPreferencesStorage:needsVaultUnlockSetup_1"))
-        XCTAssertFalse(userDefaults.bool(forKey: "bwPreferencesStorage:needsVaultUnlockSetup_2"))
-    }
-
     /// `passwordGenerationOptions(userId:)` returns `nil` if there isn't a previously stored value.
     func test_passwordGenerationOptions_isInitiallyNil() {
         XCTAssertNil(subject.passwordGenerationOptions(userId: "-1"))
@@ -609,6 +643,43 @@ class AppSettingsStoreTests: BitwardenTestCase { // swiftlint:disable:this type_
                 from: XCTUnwrap(
                     userDefaults
                         .string(forKey: "bwPreferencesStorage:preAuthEnvironmentUrls")?
+                        .data(using: .utf8)
+                )
+            ),
+            .defaultEU
+        )
+    }
+
+    /// `accountCreationEnvironmentUrls` returns `nil` if there isn't a previously stored value.
+    func test_accountCreationEnvironmentUrls_isInitiallyNil() {
+        XCTAssertNil(subject.accountCreationEnvironmentUrls(email: "example@email.com"))
+    }
+
+    /// `accountCreationEnvironmentUrls` can be used to get and set the persisted value in user defaults.
+    func test_accountCreationEnvironmentUrls_withValue() {
+        let email = "example@email.com"
+        subject.setAccountCreationEnvironmentUrls(environmentUrlData: .defaultUS, email: email)
+        XCTAssertEqual(subject.accountCreationEnvironmentUrls(email: email), .defaultUS)
+        try XCTAssertEqual(
+            JSONDecoder().decode(
+                EnvironmentUrlData.self,
+                from: XCTUnwrap(
+                    userDefaults
+                        .string(forKey: "bwPreferencesStorage:accountCreationEnvironmentUrls_\(email)")?
+                        .data(using: .utf8)
+                )
+            ),
+            .defaultUS
+        )
+
+        subject.setAccountCreationEnvironmentUrls(environmentUrlData: .defaultEU, email: email)
+        XCTAssertEqual(subject.accountCreationEnvironmentUrls(email: email), .defaultEU)
+        try XCTAssertEqual(
+            JSONDecoder().decode(
+                EnvironmentUrlData.self,
+                from: XCTUnwrap(
+                    userDefaults
+                        .string(forKey: "bwPreferencesStorage:accountCreationEnvironmentUrls_\(email)")?
                         .data(using: .utf8)
                 )
             ),

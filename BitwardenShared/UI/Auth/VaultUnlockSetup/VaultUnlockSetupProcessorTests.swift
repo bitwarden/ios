@@ -52,12 +52,11 @@ class VaultUnlockSetupProcessorTests: BitwardenTestCase {
     @MainActor
     func test_perform_continueFlow() async {
         stateService.activeAccount = .fixture()
-        stateService.needsVaultUnlockSetup["1"] = true
 
         await subject.perform(.continueFlow)
 
-        XCTAssertEqual(coordinator.routes, [.autofillSetup])
-        XCTAssertEqual(stateService.needsVaultUnlockSetup["1"], false)
+        XCTAssertEqual(coordinator.events, [.didCompleteAuth])
+        XCTAssertEqual(stateService.accountSetupVaultUnlock["1"], .complete)
     }
 
     /// `perform(_:)` with `.continueFlow` logs an error if one occurs prior to navigates to
@@ -66,7 +65,7 @@ class VaultUnlockSetupProcessorTests: BitwardenTestCase {
     func test_perform_continueFlow_error() async {
         await subject.perform(.continueFlow)
 
-        XCTAssertEqual(coordinator.routes, [.autofillSetup])
+        XCTAssertEqual(coordinator.events, [.didCompleteAuth])
         XCTAssertEqual(errorReporter.errors as? [StateServiceError], [.noActiveAccount])
     }
 
@@ -176,6 +175,8 @@ class VaultUnlockSetupProcessorTests: BitwardenTestCase {
     /// setup and then navigates to autofill setup.
     @MainActor
     func test_receive_setUpLater() async throws {
+        stateService.activeAccount = .fixture()
+
         subject.receive(.setUpLater)
 
         let alert = try XCTUnwrap(coordinator.alertShown.last)
@@ -185,6 +186,22 @@ class VaultUnlockSetupProcessorTests: BitwardenTestCase {
         XCTAssertTrue(coordinator.routes.isEmpty)
 
         try await alert.tapAction(title: Localizations.confirm)
-        XCTAssertEqual(coordinator.routes, [.autofillSetup])
+        XCTAssertEqual(coordinator.events, [.didCompleteAuth])
+
+        XCTAssertEqual(stateService.accountSetupVaultUnlock["1"], .setUpLater)
+    }
+
+    /// `receive(_:)` with `.setUpLater` logs an error if one occurs while saving the set up later flag.
+    @MainActor
+    func test_receive_setUpLater_error() async throws {
+        subject.receive(.setUpLater)
+
+        let alert = try XCTUnwrap(coordinator.alertShown.last)
+        XCTAssertEqual(alert, .setUpUnlockMethodLater {})
+
+        try await alert.tapAction(title: Localizations.confirm)
+        XCTAssertEqual(coordinator.events, [.didCompleteAuth])
+
+        XCTAssertEqual(errorReporter.errors as? [StateServiceError], [.noActiveAccount])
     }
 }

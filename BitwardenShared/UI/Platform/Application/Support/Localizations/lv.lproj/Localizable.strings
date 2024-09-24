@@ -975,3 +975,8 @@
 "PleaseRestartRegistrationOrTryLoggingInYouMayAlreadyHaveAnAccount" = "Lūgums sākt reģistrēšanos no jauna vai mēģināt pieteikties. Tev jau varētu būt konts.";
 "RemovePasskey" = "Noņemt piekļuves atslēgu";
 "PasskeyRemoved" = "Piekļuves atslēga noņemta";
+"TheRegionForTheGivenEmailCouldNotBeLoaded" = "The region for the given email could not be loaded.";
+"SetUpLaterQuestion" = "Iestatīt vēlāk?";
+"YouCanFinishSetupUnlockAnytimeDescriptionLong" = "Iestatīšanu var pabeigt jebkurā brīdi iestatījumu sadaļā \"Konta drošība\". Būs jāizmanto sava galvenā parole, lai atslēgtu, līdz tiks iestatīts cits veids.";
+"Confirm" = "Apstiprināt";
+"ThePreAuthUrlsCouldNotBeLoadedToStartTheAccountCreation" = "The Pre Auth Urls could not be loaded to start the account creation.";

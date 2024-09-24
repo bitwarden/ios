@@ -247,7 +247,7 @@ class GeneratorProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
     }
 
     /// Generating a new password applies any policies to the options before generating the value,
-    /// but doesn't override the generator type.
+    /// and overrides the generator type.
     @MainActor
     func test_generatePassword_appliesPolicies_generatorTypeChange() throws {
         waitFor(subject.didLoadGeneratorOptions)
@@ -260,9 +260,9 @@ class GeneratorProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
         subject.state.passwordState.passwordGeneratorType = .passphrase
 
         subject.receive(.refreshGeneratedValue)
-        waitFor { generatorRepository.passphraseGeneratorRequest != nil }
+        waitFor { generatorRepository.passwordGeneratorRequest != nil }
 
-        XCTAssertEqual(subject.state.passwordState.passwordGeneratorType, .passphrase)
+        XCTAssertEqual(subject.state.passwordState.passwordGeneratorType, .password)
     }
 
     /// If an error occurs generating an username, an alert is shown.

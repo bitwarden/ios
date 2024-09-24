@@ -975,3 +975,8 @@
 "PleaseRestartRegistrationOrTryLoggingInYouMayAlreadyHaveAnAccount" = "请重新注册或尝试登录。您可能已经有一个账户了。";
 "RemovePasskey" = "移除通行密钥";
 "PasskeyRemoved" = "通行密钥已移除";
+"TheRegionForTheGivenEmailCouldNotBeLoaded" = "无法加载给定的电子邮件的区域。";
+"SetUpLaterQuestion" = "稍后设置吗？";
+"YouCanFinishSetupUnlockAnytimeDescriptionLong" = "您可以随时在「设置」下的「账户安全」中完成设置。将使用您的主密码解锁，也可以设置其他方法。";
+"Confirm" = "确认";
+"ThePreAuthUrlsCouldNotBeLoadedToStartTheAccountCreation" = "无法加载预认证 URL 来启动账户创建。";
