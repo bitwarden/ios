@@ -22,6 +22,8 @@ on:
         description: "Optional. Xcode version to use. Overrides default."
         required: false
         type: string
+      compiler-flags:
+        description: "Compiler Flags - e.g. \`DEBUG_MENU FEATURE2\`"
   workflow_call:
     inputs:
       build-variant:
@@ -40,6 +42,8 @@ on:
         description: "Xcode version to use"
         required: false
         type: string
+      compiler-flags:
+        description: "Compiler Flags - e.g. \`DEBUG_MENU FEATURE2\`"
 
 env:
   BUILD_VARIANT: ${{ inputs.build-variant || 'Beta' }}
@@ -301,7 +305,7 @@ jobs:
 
       - name: Select variant
         run: |
-          ./Scripts/select_variant.sh ${{ env.BUILD_VARIANT }}
+          ./Scripts/select_variant.sh ${{ env.BUILD_VARIANT }} "${{ inputs.compiler-flags }}"
 
       - name: Update build version and number
         env:
@@ -349,8 +353,12 @@ jobs:
 
       - name: Upload app to TestFlight with Fastlane
         run: |
-          NEWLINE=$'\n'
-          CHANGELOG="$(git show -s --format=%s)$NEWLINE$GITHUB_REPOSITORY/$GITHUB_REF_NAME @ $GITHUB_SHA${NEWLINE}Xcode ${{ env.XCODE_VERSION }}$NEWLINE$GITHUB_SERVER_URL/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID"
+          CHANGELOG="$(git show -s --format=%s)
+          $GITHUB_REPOSITORY/$GITHUB_REF_NAME @ $GITHUB_SHA
+          Xcode ${{ env.XCODE_VERSION }}
+          Compiler Flags: ${{ inputs.compiler-flags }}
+          $GITHUB_SERVER_URL/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID"
+
           fastlane upload_build \
             api_key_path:"$HOME/secrets/appstoreconnect-fastlane.json" \
             changelog:"$CHANGELOG" \
