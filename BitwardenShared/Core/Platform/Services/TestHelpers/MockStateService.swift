@@ -69,6 +69,7 @@ class MockStateService: StateService { // swiftlint:disable:this type_body_lengt
     var setAccountHasBeenUnlockedInteractivelyResult: Result<Void, Error> = .success(())
     var setBiometricAuthenticationEnabledResult: Result<Void, Error> = .success(())
     var setBiometricIntegrityStateError: Error?
+    var settingsBadgeSubject = CurrentValueSubject<String?, Never>(nil)
     var shouldTrustDevice = [String: Bool?]()
     var twoFactorTokens = [String: String]()
     var unsuccessfulUnlockAttempts = [String: Int]()
@@ -606,6 +607,11 @@ class MockStateService: StateService { // swiftlint:disable:this type_body_lengt
 
     func lastSyncTimePublisher() async throws -> AnyPublisher<Date?, Never> {
         lastSyncTimeSubject.eraseToAnyPublisher()
+    }
+
+    func settingsBadgePublisher() async throws -> AnyPublisher<String?, Never> {
+        _ = try unwrapUserId(nil)
+        return settingsBadgeSubject.eraseToAnyPublisher()
     }
 
     func showWebIconsPublisher() async -> AnyPublisher<Bool, Never> {
