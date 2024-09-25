@@ -51,11 +51,8 @@ extension Publisher where Failure == Error {
         _ transform: @escaping (Output) async throws -> T
     ) -> Publishers.FlatMap<Future<T, Failure>, Self> {
         flatMap(maxPublishers: maxPublishers) { value in
-            Future { promise in
-                Task {
-                    let output = try await transform(value)
-                    promise(.success(output))
-                }
+            Future {
+                try await transform(value)
             }
         }
     }

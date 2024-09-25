@@ -28,6 +28,13 @@ public protocol AuthenticatorBridgeItemService {
     func insertItems(_ items: [AuthenticatorBridgeItemDataView],
                      forUserId userId: String) async throws
 
+    /// Returns true if sync has been enabled for one or more accounts in the Bitwarden PM app, false
+    /// if there are no accounts with sync currently turned on.
+    ///
+    /// - Returns: true if there is one or more accounts with sync turned on. False otherwise.
+    ///
+    func isSyncOn() async throws -> Bool
+
     /// Deletes all existing items for a given user and inserts new items for the list of items provided.
     ///
     /// - Parameters:
@@ -97,6 +104,11 @@ public class DefaultAuthenticatorBridgeItemService: AuthenticatorBridgeItemServi
             data.model
         }
         return try await cryptoService.decryptAuthenticatorItemModels(encryptedItems)
+    }
+
+    public func isSyncOn() async throws -> Bool {
+        let key = try? await sharedKeychainRepository.getAuthenticatorKey()
+        return key != nil
     }
 
     /// Inserts the list of items into the store for the given userId.

@@ -10,7 +10,7 @@ final class AuthenticatorBridgeItemServiceTests: AuthenticatorBridgeKitTestCase 
     var cryptoService: MockSharedCryptographyService!
     var dataStore: AuthenticatorBridgeDataStore!
     var errorReporter: ErrorReporter!
-    var keychainRepository: SharedKeychainRepository!
+    var keychainRepository: MockSharedKeychainRepository!
     var subject: AuthenticatorBridgeItemService!
 
     // MARK: Setup & Teardown
@@ -111,6 +111,23 @@ final class AuthenticatorBridgeItemServiceTests: AuthenticatorBridgeKitTestCase 
         XCTAssertEqual(result, expectedItems)
     }
 
+    /// Verify that `isSyncOn` returns false when the key is not present in the keychain.
+    ///
+    func test_isSyncOn_false() async throws {
+        try keychainRepository.deleteAuthenticatorKey()
+        let sync = try await subject.isSyncOn()
+        XCTAssertFalse(sync)
+    }
+
+    /// Verify that `isSyncOn` returns true when the key is present in the keychain.
+    ///
+    func test_isSyncOn_true() async throws {
+        let key = keychainRepository.generateKeyData()
+        try await keychainRepository.setAuthenticatorKey(key)
+        let sync = try await subject.isSyncOn()
+        XCTAssertTrue(sync)
+    }
+
     /// Verify the `replaceAllItems` correctly deletes all of the items in the store previously when given
     /// an empty list of items to insert for the given userId.
     ///
@@ -190,6 +207,27 @@ final class AuthenticatorBridgeItemServiceTests: AuthenticatorBridgeKitTestCase 
         }
 
         XCTAssertEqual(results, expectedItems)
+    }
+
+    /// Verify that the shared items publisher publishes new lists when items are deleted..
+    ///
+    func test_sharedItemsPublisher_withDeletes() async throws {
+        let initialItems = AuthenticatorBridgeItemDataView.fixtures().sorted { $0.id < $1.id }
+        try await subject.insertItems(initialItems, forUserId: "userId")
+
+        var results: [[AuthenticatorBridgeItemDataView]] = []
+        for try await value in try await subject.sharedItemsPublisher().prefix(1) {
+            results.append(value)
+        }
+
+        try await subject.replaceAllItems(with: [], forUserId: "userId")
+
+        for try await value in try await subject.sharedItemsPublisher().prefix(1) {
+            results.append(value)
+        }
+
+        XCTAssertEqual(results[0], initialItems)
+        XCTAssertEqual(results[1], [])
     }
 
     /// Verify that the shared items publisher publishes items that are inserted/replaced later.

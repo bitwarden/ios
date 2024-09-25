@@ -7,6 +7,7 @@ class MockAuthenticatorBridgeItemService: AuthenticatorBridgeItemService {
     var sharedItemsPublisherError: Error?
     var sharedItemsSubject = CurrentValueSubject<[AuthenticatorBridgeItemDataView], Error>([])
     var storedItems: [String: [AuthenticatorBridgeItemDataView]] = [:]
+    var syncOn = false
 
     func deleteAllForUserId(_ userId: String) async throws {
         storedItems[userId] = []
@@ -18,6 +19,10 @@ class MockAuthenticatorBridgeItemService: AuthenticatorBridgeItemService {
 
     func insertItems(_ items: [AuthenticatorBridgeItemDataView], forUserId userId: String) async throws {
         storedItems[userId] = items
+    }
+
+    func isSyncOn() async throws -> Bool {
+        syncOn
     }
 
     func replaceAllItems(with items: [AuthenticatorBridgeItemDataView], forUserId userId: String) async throws {
