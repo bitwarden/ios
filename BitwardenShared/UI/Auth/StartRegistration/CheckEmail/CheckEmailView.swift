@@ -19,7 +19,7 @@ struct CheckEmailView: View {
         VStack(spacing: 16) {
             VStack(alignment: .center, spacing: 0) {
                 Image(decorative: Asset.Images.checkEmail)
-                    .foregroundColor(Asset.Colors.primaryBitwarden.swiftUIColor)
+                    .foregroundColor(Asset.Colors.iconSecondary.swiftUIColor)
                     .frame(maxWidth: .infinity)
                     .padding(.vertical, 32)
 
@@ -48,7 +48,7 @@ struct CheckEmailView: View {
 
                 Text(LocalizedStringKey(Localizations.noEmailGoBackToEditYourEmailAddress))
                     .styleGuide(.subheadline)
-                    .tint(Asset.Colors.primaryBitwarden.swiftUIColor)
+                    .tint(Asset.Colors.textInteraction.swiftUIColor)
                     .foregroundColor(Asset.Colors.textPrimary.swiftUIColor)
                     .padding([.horizontal, .bottom], 32)
                     .environment(\.openURL, OpenURLAction { _ in
@@ -58,7 +58,7 @@ struct CheckEmailView: View {
 
                 Text(LocalizedStringKey(Localizations.orLogInYouMayAlreadyHaveAnAccount))
                     .styleGuide(.subheadline)
-                    .tint(Asset.Colors.primaryBitwarden.swiftUIColor)
+                    .tint(Asset.Colors.textInteraction.swiftUIColor)
                     .foregroundColor(Asset.Colors.textPrimary.swiftUIColor)
                     .padding(.horizontal, 32)
                     .environment(\.openURL, OpenURLAction { _ in

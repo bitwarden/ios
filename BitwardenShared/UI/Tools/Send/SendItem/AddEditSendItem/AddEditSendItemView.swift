@@ -49,7 +49,7 @@ struct AddEditSendItemView: View { // swiftlint:disable:this type_body_length
             profileSwitcher
         }
         .dismissKeyboardInteractively()
-        .background(Asset.Colors.backgroundSecondary.swiftUIColor.ignoresSafeArea())
+        .background(Asset.Colors.backgroundPrimary.swiftUIColor.ignoresSafeArea())
         .navigationBar(
             title: store.state.mode.navigationTitle,
             titleDisplayMode: .inline
@@ -291,7 +291,7 @@ struct AddEditSendItemView: View { // swiftlint:disable:this type_body_length
                         store.send(.clearExpirationDatePressed)
                     }
                     .accessibilityIdentifier("Clear")
-                    .tint(Asset.Colors.primaryBitwarden.swiftUIColor)
+                    .tint(Asset.Colors.textInteraction.swiftUIColor)
                     .accessibilityIdentifier("SendClearExpirationDateButton")
                 }
             }
@@ -431,7 +431,7 @@ struct AddEditSendItemView: View { // swiftlint:disable:this type_body_length
                     .rotationEffect(store.state.isOptionsExpanded ? Angle(degrees: 180) : .zero)
             }
             .padding(.vertical, 12)
-            .foregroundStyle(Asset.Colors.primaryBitwarden.swiftUIColor)
+            .foregroundStyle(Asset.Colors.textInteraction.swiftUIColor)
         }
         .accessibilityIdentifier("SendShowHideOptionsButton")
     }

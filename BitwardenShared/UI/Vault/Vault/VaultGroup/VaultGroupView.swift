@@ -32,7 +32,7 @@ struct VaultGroupView: View {
             )
             .navigationTitle(store.state.group.navigationTitle)
             .navigationBarTitleDisplayMode(.inline)
-            .background(Asset.Colors.backgroundSecondary.swiftUIColor.ignoresSafeArea())
+            .background(Asset.Colors.backgroundPrimary.swiftUIColor.ignoresSafeArea())
             .toolbar {
                 addToolbarItem(hidden: !store.state.showAddToolbarItem) {
                     store.send(.addItemPressed)
@@ -126,7 +126,7 @@ struct VaultGroupView: View {
                                 for: item,
                                 isLastInSection: store.state.searchResults.last == item
                             )
-                            .background(Asset.Colors.backgroundPrimary.swiftUIColor)
+                            .background(Asset.Colors.backgroundSecondary.swiftUIColor)
                         }
                     }
                 }

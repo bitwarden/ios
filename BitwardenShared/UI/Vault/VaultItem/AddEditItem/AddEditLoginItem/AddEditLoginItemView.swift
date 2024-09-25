@@ -250,7 +250,7 @@ struct AddEditLoginItemView_Previews: PreviewProvider {
                 }
                 .padding(16)
             }
-            .background(Asset.Colors.backgroundSecondary.swiftUIColor)
+            .background(Asset.Colors.backgroundPrimary.swiftUIColor)
             .ignoresSafeArea()
         }
         .previewDisplayName("Empty Add Edit State")
@@ -271,7 +271,7 @@ struct AddEditLoginItemView_Previews: PreviewProvider {
                 }
                 .padding(16)
             }
-            .background(Asset.Colors.backgroundSecondary.swiftUIColor)
+            .background(Asset.Colors.backgroundPrimary.swiftUIColor)
             .ignoresSafeArea()
         }
         .previewDisplayName("Auth Key")

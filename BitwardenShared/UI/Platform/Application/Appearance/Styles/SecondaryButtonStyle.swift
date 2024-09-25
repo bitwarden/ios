@@ -10,11 +10,12 @@ struct SecondaryButtonStyle: ButtonStyle {
 
     func makeBody(configuration: Configuration) -> some View {
         configuration.label
-            .foregroundColor(Asset.Colors.primaryBitwarden.swiftUIColor)
+            .foregroundColor(Asset.Colors.textInteraction.swiftUIColor)
+            .styleGuide(.bodyBold)
             .padding(.vertical, 14)
             .padding(.horizontal, 20)
             .frame(maxWidth: shouldFillWidth ? .infinity : nil)
-            .background(Asset.Colors.primaryBitwarden.swiftUIColor.opacity(0.08))
+            .background(Asset.Colors.buttonFilledBackground.swiftUIColor.opacity(0.08))
             .clipShape(RoundedRectangle(cornerRadius: 12))
             .opacity(configuration.isPressed ? 0.5 : 1)
     }
@@ -31,3 +32,16 @@ extension ButtonStyle where Self == SecondaryButtonStyle {
         SecondaryButtonStyle(shouldFillWidth: shouldFillWidth)
     }
 }
+
+#if DEBUG
+#Preview {
+    VStack {
+        Button("Hello World!") {}
+
+        Button("Hello World!") {}
+            .disabled(true)
+    }
+    .buttonStyle(.secondary())
+    .padding()
+}
+#endif

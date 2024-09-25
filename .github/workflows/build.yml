@@ -22,6 +22,9 @@ on:
         description: "Optional. Xcode version to use. Overrides default."
         required: false
         type: string
+      compiler-flags:
+        description: "Compiler Flags - e.g. 'DEBUG_MENU FEATURE2'"
+        type: string
   workflow_call:
     inputs:
       build-variant:
@@ -39,6 +42,9 @@ on:
       xcode-version:
         description: "Xcode version to use"
         required: false
+        type: string
+      compiler-flags:
+        description: "Compiler Flags - e.g. 'DEBUG_MENU FEATURE2'"
         type: string
 
 env:
@@ -124,12 +130,6 @@ jobs:
           key: ${{ runner.os }}-mint-${{ hashFiles('**/Mintfile') }}
           restore-keys: |
             ${{ runner.os }}-mint-
-
-      - name: Install yeetd
-        run: |
-          wget https://github.com/biscuitehh/yeetd/releases/download/1.0/yeetd-normal.pkg
-          sudo installer -pkg yeetd-normal.pkg -target /
-          yeetd &
 
       - name: Log in to Azure
         uses: Azure/login@cb79c773a3cfa27f31f25eb3f677781210c9ce3d # v1.6.1
@@ -301,7 +301,7 @@ jobs:
 
       - name: Select variant
         run: |
-          ./Scripts/select_variant.sh ${{ env.BUILD_VARIANT }}
+          ./Scripts/select_variant.sh ${{ env.BUILD_VARIANT }} "${{ inputs.compiler-flags }}"
 
       - name: Update build version and number
         env:
@@ -313,7 +313,7 @@ jobs:
 
       - name: Update CI build info
         run: |
-          ./Scripts/update_app_ci_build_info.sh ${{ github.run_id }} ${{ github.run_number }} ${{ github.run_attempt }}
+          ./Scripts/update_app_ci_build_info.sh ${{ github.run_id }} ${{ github.run_number }} ${{ github.run_attempt }} "${{ inputs.compiler-flags }}"
 
       - name: Build iOS app
         run: |
@@ -331,7 +331,7 @@ jobs:
           name: Bitwarden iOS ${{ steps.calculate.outputs.version }} (${{ steps.calculate.outputs.build_number }}) ${{ env.BUILD_VARIANT }} ${{ env.XCODE_VERSION }}
           path: export
           if-no-files-found: error
-      
+
       - name: Set up private auth key
         run: |
           mkdir ~/private_keys
@@ -349,8 +349,12 @@ jobs:
 
       - name: Upload app to TestFlight with Fastlane
         run: |
-          NEWLINE=$'\n'
-          CHANGELOG="$(git show -s --format=%s)$NEWLINE$GITHUB_REPOSITORY/$GITHUB_REF_NAME @ $GITHUB_SHA${NEWLINE}Xcode ${{ env.XCODE_VERSION }}$NEWLINE$GITHUB_SERVER_URL/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID"
+          CHANGELOG="$(git show -s --format=%s)
+          $GITHUB_REPOSITORY/$GITHUB_REF_NAME @ $GITHUB_SHA
+          Xcode ${{ env.XCODE_VERSION }}
+          Compiler Flags: ${{ inputs.compiler-flags }}
+          $GITHUB_SERVER_URL/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID"
+
           fastlane upload_build \
             api_key_path:"$HOME/secrets/appstoreconnect-fastlane.json" \
             changelog:"$CHANGELOG" \

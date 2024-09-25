@@ -152,7 +152,7 @@ struct VaultListItemRowView: View {
             } label: {
                 Asset.Images.copy.swiftUIImage
             }
-            .foregroundColor(Asset.Colors.primaryBitwarden.swiftUIColor)
+            .foregroundColor(Asset.Colors.iconPrimary.swiftUIColor)
             .accessibilityLabel(Localizations.copyTotp)
         }
     }

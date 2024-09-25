@@ -16,7 +16,7 @@ struct FoldersView: View {
         VStack(alignment: .leading, spacing: 16) {
             if store.state.folders.isEmpty {
                 empty
-                    .background(Color(asset: Asset.Colors.backgroundSecondary))
+                    .background(Color(asset: Asset.Colors.backgroundPrimary))
             } else {
                 folders
                     .scrollView()

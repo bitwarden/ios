@@ -63,8 +63,8 @@ extension View {
                         .accessibilityHidden(initials != nil)
                 }
             }
-            .foregroundColor(textColor ?? Asset.Colors.primaryBitwarden.swiftUIColor)
-            .background(color ?? Asset.Colors.primaryBitwarden.swiftUIColor.opacity(0.12))
+            .foregroundColor(textColor ?? Asset.Colors.textInteraction.swiftUIColor)
+            .background(color ?? Asset.Colors.backgroundTertiary.swiftUIColor)
             .clipShape(Circle())
     }
 }
