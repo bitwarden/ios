@@ -35,6 +35,7 @@ struct ManualEntryView: View {
             )
         }
         .buttonStyle(.tertiary())
+        .accessibilityIdentifier("ManualEntryAddCodeButton")
     }
 
     /// The main content of the view.
@@ -50,6 +51,7 @@ struct ManualEntryView: View {
                     send: ManualEntryAction.nameChanged
                 )
             )
+            .accessibilityIdentifier("ManualEntryNameField")
 
             BitwardenTextField(
                 title: Localizations.key,
@@ -58,6 +60,7 @@ struct ManualEntryView: View {
                     send: ManualEntryAction.authenticatorKeyChanged
                 )
             )
+            .accessibilityIdentifier("ManualEntryKeyField")
             addButton
             footer
         }

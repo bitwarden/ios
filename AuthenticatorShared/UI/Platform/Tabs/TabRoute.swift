@@ -10,6 +10,13 @@ public enum TabRoute: Equatable, Hashable {
 
     /// The settings tab.
     case settings(SettingsRoute)
+
+    public var accessibilityIdentifier: String {
+        switch self {
+        case .itemList: return "VerificationCodesTabButton"
+        case .settings: return "SettingsTabButton"
+        }
+    }
 }
 
 // MARK: - TabRepresentable
