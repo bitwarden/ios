@@ -1802,8 +1802,10 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
 
         try await subject.setSyncToAuthenticator(true)
 
-        XCTAssertTrue(publishedValues[0] == (userId: "1", shouldSync: false))
-        XCTAssertTrue(publishedValues[1] == (userId: "1", shouldSync: true))
+        XCTAssertEqual(publishedValues[0].userId, "1")
+        XCTAssertEqual(publishedValues[0].shouldSync, false)
+        XCTAssertEqual(publishedValues[1].userId, "1")
+        XCTAssertEqual(publishedValues[1].shouldSync, true)
     }
 
     /// `syncToAuthenticatorPublisher()` gets the initial stored value if a cached value doesn't exist.
@@ -1821,8 +1823,10 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
 
         try await subject.setSyncToAuthenticator(false)
 
-        XCTAssertTrue(publishedValues[0] == (userId: "1", shouldSync: true))
-        XCTAssertTrue(publishedValues[1] == (userId: "1", shouldSync: false))
+        XCTAssertEqual(publishedValues[0].userId, "1")
+        XCTAssertEqual(publishedValues[0].shouldSync, true)
+        XCTAssertEqual(publishedValues[1].userId, "1")
+        XCTAssertEqual(publishedValues[1].shouldSync, false)
     }
 
     /// `syncToAuthenticatorPublisher()` returns false if the user is not logged in.
@@ -1834,7 +1838,8 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
             })
         defer { publisher.cancel() }
 
-        XCTAssertTrue(publishedValues[0] == (userId: nil, shouldSync: false))
+        XCTAssertNil(publishedValues[0].userId)
+        XCTAssertFalse(publishedValues[0].shouldSync)
     }
 
     /// `.setActiveAccount(userId:)` sets the action that occurs when there's a session timeout.
