@@ -1,4 +1,9 @@
 output_dir: BitwardenShared/UI/Platform/Application/Support/Generated/
+fonts:
+  inputs: BitwardenShared/UI/Platform/Application/Support/Fonts
+  outputs:
+    templateName: swift5
+    output: Fonts.swift
 strings:
   inputs: BitwardenShared/UI/Platform/Application/Support/Localizations/en.lproj
   outputs:

@@ -975,3 +975,8 @@
 "PleaseRestartRegistrationOrTryLoggingInYouMayAlreadyHaveAnAccount" = "Моля, рестартирайте процеса на регистрация или опитайте да се впишете. Може вече да имате регистрация.";
 "RemovePasskey" = "Премахване на секретния ключ";
 "PasskeyRemoved" = "Секретният ключ е премахнат";
+"TheRegionForTheGivenEmailCouldNotBeLoaded" = "Регионът за зададената е-поща не може да бъде зареден.";
+"SetUpLaterQuestion" = "Настройване по-късно?";
+"YouCanFinishSetupUnlockAnytimeDescriptionLong" = "Можете да завършите настройката по всяко време от Настройки > Защита на регистрацията. Ще трябва да използвате главната си парола за отключване, докато не настроите друг метод.";
+"Confirm" = "Потвърждаване";
+"ThePreAuthUrlsCouldNotBeLoadedToStartTheAccountCreation" = "Пред-удостоверителните адреси не могат да бъдат заредени, за да започне създаването на регистрация.";

@@ -364,8 +364,8 @@ targets:
     type: framework
     platform: iOS
     configFiles:
-      Debug: Configs/BitwardenShared.xcconfig
-      Release: Configs/BitwardenShared.xcconfig
+      Debug: Configs/BitwardenShared-Debug.xcconfig
+      Release: Configs/BitwardenShared-Release.xcconfig
     settings:
       base:
         APPLICATION_EXTENSION_API_ONLY: true
@@ -387,6 +387,8 @@ targets:
         buildPhase: none
       - path: BitwardenShared/UI/Platform/Application/Support/Generated/Assets.swift
         optional: true
+      - path: BitwardenShared/UI/Platform/Application/Support/Generated/Fonts.swift
+        optional: true
       - path: BitwardenShared/UI/Platform/Application/Support/Generated/Localizations.swift
         optional: true
       - path: BitwardenWatchShared
@@ -405,6 +407,7 @@ targets:
         basedOnDependencyAnalysis: false
         outputFiles:
           - $(SRCROOT)/BitwardenShared/UI/Platform/Application/Support/Generated/Assets.swift
+          - $(SRCROOT)/BitwardenShared/UI/Platform/Application/Support/Generated/Fonts.swift
           - $(SRCROOT)/BitwardenShared/UI/Platform/Application/Support/Generated/Localizations.swift
   BitwardenSharedTests:
     type: bundle.unit-test

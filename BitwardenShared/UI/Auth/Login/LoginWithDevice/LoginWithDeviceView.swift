@@ -49,7 +49,7 @@ struct LoginWithDeviceView: View {
                 store.send(.dismiss)
             }
             .styleGuide(.subheadline)
-            .foregroundStyle(Asset.Colors.primaryBitwarden.swiftUIColor)
+            .foregroundStyle(Asset.Colors.textInteraction.swiftUIColor)
             .accessibilityIdentifier("ViewAllLoginOptionsButton")
         }
     }
@@ -72,7 +72,7 @@ struct LoginWithDeviceView: View {
 
             Text(store.state.fingerprintPhrase ?? "")
                 .styleGuide(.bodyMonospaced)
-                .foregroundStyle(Asset.Colors.fingerprint.swiftUIColor)
+                .foregroundStyle(Asset.Colors.textCodePink.swiftUIColor)
                 .multilineTextAlignment(.leading)
                 .accessibilityIdentifier("FingerprintPhraseValue")
         }
@@ -85,7 +85,7 @@ struct LoginWithDeviceView: View {
                 await store.perform(.resendNotification)
             }
             .styleGuide(.body)
-            .foregroundStyle(Asset.Colors.primaryBitwarden.swiftUIColor)
+            .foregroundStyle(Asset.Colors.textInteraction.swiftUIColor)
             .accessibilityIdentifier("ResendNotificationButton")
         }
     }

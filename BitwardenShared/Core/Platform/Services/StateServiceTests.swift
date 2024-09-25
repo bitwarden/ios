@@ -1793,22 +1793,17 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
     func test_syncToAuthenticatorPublisher() async throws {
         await subject.addAccount(.fixture(profile: .fixture(userId: "1")))
 
-        var publishedValues = [SyncToAuthenticatorValue]()
+        var publishedValues = [(userId: String?, shouldSync: Bool)]()
         let publisher = await subject.syncToAuthenticatorPublisher()
             .sink(receiveValue: { userId, shouldSync in
-                publishedValues.append(SyncToAuthenticatorValue(userId: userId, shouldSync: shouldSync))
+                publishedValues.append((userId: userId, shouldSync: shouldSync))
             })
         defer { publisher.cancel() }
 
         try await subject.setSyncToAuthenticator(true)
 
-        XCTAssertEqual(
-            publishedValues,
-            [
-                SyncToAuthenticatorValue(userId: "1", shouldSync: false),
-                SyncToAuthenticatorValue(userId: "1", shouldSync: true),
-            ]
-        )
+        XCTAssertTrue(publishedValues[0] == (userId: "1", shouldSync: false))
+        XCTAssertTrue(publishedValues[1] == (userId: "1", shouldSync: true))
     }
 
     /// `syncToAuthenticatorPublisher()` gets the initial stored value if a cached value doesn't exist.
@@ -1817,34 +1812,29 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
 
         appSettingsStore.syncToAuthenticatorByUserId["1"] = true
 
-        var publishedValues = [SyncToAuthenticatorValue]()
+        var publishedValues = [(userId: String?, shouldSync: Bool)]()
         let publisher = await subject.syncToAuthenticatorPublisher()
             .sink(receiveValue: { userId, shouldSync in
-                publishedValues.append(SyncToAuthenticatorValue(userId: userId, shouldSync: shouldSync))
+                publishedValues.append((userId: userId, shouldSync: shouldSync))
             })
         defer { publisher.cancel() }
 
         try await subject.setSyncToAuthenticator(false)
 
-        XCTAssertEqual(
-            publishedValues,
-            [
-                SyncToAuthenticatorValue(userId: "1", shouldSync: true),
-                SyncToAuthenticatorValue(userId: "1", shouldSync: false),
-            ]
-        )
+        XCTAssertTrue(publishedValues[0] == (userId: "1", shouldSync: true))
+        XCTAssertTrue(publishedValues[1] == (userId: "1", shouldSync: false))
     }
 
     /// `syncToAuthenticatorPublisher()` returns false if the user is not logged in.
     func test_syncToAuthenticatorPublisher_notLoggedIn() async throws {
-        var publishedValues = [SyncToAuthenticatorValue]()
+        var publishedValues = [(userId: String?, shouldSync: Bool)]()
         let publisher = await subject.syncToAuthenticatorPublisher()
             .sink(receiveValue: { userId, shouldSync in
-                publishedValues.append(SyncToAuthenticatorValue(userId: userId, shouldSync: shouldSync))
+                publishedValues.append((userId: userId, shouldSync: shouldSync))
             })
         defer { publisher.cancel() }
 
-        XCTAssertEqual(publishedValues, [SyncToAuthenticatorValue(userId: nil, shouldSync: false)])
+        XCTAssertTrue(publishedValues[0] == (userId: nil, shouldSync: false))
     }
 
     /// `.setActiveAccount(userId:)` sets the action that occurs when there's a session timeout.
@@ -1936,9 +1926,4 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
 private struct ConnectToWatchValue: Equatable {
     let userId: String?
     let shouldConnect: Bool
-}
-
-private struct SyncToAuthenticatorValue: Equatable {
-    let userId: String?
-    let shouldSync: Bool
 } // swiftlint:disable:this file_length

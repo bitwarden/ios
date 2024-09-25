@@ -334,6 +334,7 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
         )
 
         let configService = DefaultConfigService(
+            appSettingsStore: appSettingsStore,
             configApiService: apiService,
             errorReporter: errorReporter,
             stateService: stateService,

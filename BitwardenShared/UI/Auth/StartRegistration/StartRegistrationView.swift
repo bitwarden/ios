@@ -107,7 +107,7 @@ struct StartRegistrationView: View {
     private var termsAndPrivacyText: some View {
         Text(LocalizedStringKey(store.state.termsAndPrivacyDisclaimerText))
             .styleGuide(.footnote)
-            .tint(Asset.Colors.primaryBitwarden.swiftUIColor)
+            .tint(Asset.Colors.textInteraction.swiftUIColor)
             .foregroundColor(Asset.Colors.textPrimary.swiftUIColor)
             .padding([.bottom], 32)
             .multilineTextAlignment(.center)
@@ -121,7 +121,7 @@ struct StartRegistrationView: View {
                 send: StartRegistrationAction.toggleReceiveMarketing
             )) {
                 Text(LocalizedStringKey(store.state.receiveMarketingEmailsText))
-                    .tint(Asset.Colors.primaryBitwarden.swiftUIColor)
+                    .tint(Asset.Colors.textInteraction.swiftUIColor)
                     .foregroundColor(Asset.Colors.textPrimary.swiftUIColor)
                     .styleGuide(.subheadline)
             }

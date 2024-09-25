@@ -70,7 +70,7 @@ struct SettingsMenuField<T>: View where T: Menuable {
                     .padding(.leading, 16)
             }
         }
-        .background(Asset.Colors.backgroundPrimary.swiftUIColor)
+        .background(Asset.Colors.backgroundSecondary.swiftUIColor)
     }
 
     /// Initializes a new `SettingsMenuField`.
