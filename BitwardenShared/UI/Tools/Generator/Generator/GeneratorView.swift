@@ -28,7 +28,7 @@ struct GeneratorView: View {
             }
             .padding(16)
         }
-        .background(Asset.Colors.backgroundSecondary.swiftUIColor)
+        .background(Asset.Colors.backgroundPrimary.swiftUIColor)
         .navigationBarTitleDisplayMode(store.state.presentationMode == .inPlace ? .inline : .large)
         .navigationTitle(Localizations.generator)
         .task { await store.perform(.appeared) }

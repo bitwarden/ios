@@ -18,7 +18,7 @@ struct SelectLanguageView: View {
                 languageOptionRow(languageOption)
             }
         }
-        .background(Asset.Colors.backgroundPrimary.swiftUIColor)
+        .background(Asset.Colors.backgroundSecondary.swiftUIColor)
         .cornerRadius(10)
         .scrollView()
         .navigationBar(title: Localizations.selectLanguage, titleDisplayMode: .inline)

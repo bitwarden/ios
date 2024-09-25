@@ -75,7 +75,7 @@ struct VaultUnlockView: View {
                     if store.state.isBiometricsEnabledAndInvalid {
                         Text(Localizations.accountBiometricInvalidatedExtension)
                             .styleGuide(.body, weight: .bold)
-                            .foregroundColor(Asset.Colors.loadingRed.swiftUIColor)
+                            .foregroundColor(Asset.Colors.error.swiftUIColor)
                     }
                 }
 
@@ -91,7 +91,7 @@ struct VaultUnlockView: View {
             }
             .padding(16)
         }
-        .background(Asset.Colors.backgroundSecondary.swiftUIColor.ignoresSafeArea())
+        .background(Asset.Colors.backgroundPrimary.swiftUIColor.ignoresSafeArea())
     }
 
     /// The Toolbar item for the profile switcher view.

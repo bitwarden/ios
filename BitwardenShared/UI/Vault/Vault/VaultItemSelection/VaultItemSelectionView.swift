@@ -137,7 +137,7 @@ private struct VaultItemSelectionSearchableView: View {
             get: \.toast,
             send: VaultItemSelectionAction.toastShown
         ))
-        .background(Color(asset: Asset.Colors.backgroundSecondary).ignoresSafeArea())
+        .background(Color(asset: Asset.Colors.backgroundPrimary).ignoresSafeArea())
     }
 
     // MARK: Private Views
@@ -158,7 +158,7 @@ private struct VaultItemSelectionSearchableView: View {
                     } icon: {
                         Asset.Images.plus.swiftUIImage
                             .imageStyle(.accessoryIcon(
-                                color: Asset.Colors.textPrimaryInverted.swiftUIColor,
+                                color: Asset.Colors.buttonFilledForeground.swiftUIColor,
                                 scaleWithFont: true
                             ))
                     }
@@ -203,7 +203,7 @@ private struct VaultItemSelectionSearchableView: View {
                     vaultListItemView(item, hasDivider: store.state.searchResults.last != item)
                 }
             }
-            .background(Asset.Colors.backgroundPrimary.swiftUIColor)
+            .background(Asset.Colors.backgroundSecondary.swiftUIColor)
         }
     }
 

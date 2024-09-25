@@ -77,7 +77,7 @@ struct SliderFieldView<State>: View {
                 step: field.step,
                 onEditingChanged: onEditingChanged
             )
-            .tint(Asset.Colors.primaryBitwarden.swiftUIColor)
+            .tint(Asset.Colors.tintPrimary.swiftUIColor)
             .accessibilityLabel(field.title)
             .accessibilityIdentifier(field.sliderAccessibilityId ?? field.title)
             .apply { view in
@@ -97,7 +97,7 @@ struct SliderFieldView<State>: View {
         }
         .padding(.horizontal, 16)
         .padding(.vertical, 8)
-        .background(Asset.Colors.backgroundPrimary.swiftUIColor)
+        .background(Asset.Colors.backgroundSecondary.swiftUIColor)
         .cornerRadius(10)
     }
 

@@ -33,9 +33,9 @@ struct ToastView: View {
                 .dynamicTypeSize(...DynamicTypeSize.accessibility2)
                 .id(toast.id)
                 .padding(14)
-                .foregroundColor(Asset.Colors.textPrimaryInverted.swiftUIColor)
+                .foregroundColor(Asset.Colors.textReversed.swiftUIColor)
                 .frame(minWidth: 300, minHeight: 46)
-                .background(Asset.Colors.primaryBitwarden.swiftUIColor)
+                .background(Asset.Colors.backgroundAlert.swiftUIColor)
                 .clipShape(RoundedRectangle(cornerRadius: 24))
                 .accessibilityElement(children: .combine)
                 .padding(.horizontal, 16)
@@ -79,7 +79,7 @@ struct ToastView_Previews: PreviewProvider {
             .previewDisplayName("Toast View")
 
         NavigationView {
-            Asset.Colors.backgroundPrimary.swiftUIColor
+            Asset.Colors.backgroundSecondary.swiftUIColor
                 .toast(.constant(Toast(text: "Taos, NM!")))
         }
         .previewDisplayName("Overlay")

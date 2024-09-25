@@ -21,7 +21,7 @@ struct PreventAccountLockView: View {
 
                 writeDownInstructions
             }
-            .background(Asset.Colors.backgroundTertiary.swiftUIColor)
+            .background(Asset.Colors.backgroundSecondary.swiftUIColor)
             .clipShape(RoundedRectangle(cornerRadius: 10))
         }
         .scrollView()
@@ -59,7 +59,7 @@ struct PreventAccountLockView: View {
                 Image(decorative: Asset.Images.lightbulb)
                     .resizable()
                     .frame(width: 32, height: 32)
-                    .foregroundStyle(Asset.Colors.primaryBitwarden.swiftUIColor)
+                    .foregroundStyle(Asset.Colors.iconSecondary.swiftUIColor)
 
                 VStack(alignment: .leading, spacing: 4) {
                     Text(Localizations.createAHint)
@@ -84,7 +84,7 @@ struct PreventAccountLockView: View {
             Image(decorative: Asset.Images.pencil)
                 .resizable()
                 .frame(width: 32, height: 32)
-                .foregroundStyle(Asset.Colors.primaryBitwarden.swiftUIColor)
+                .foregroundStyle(Asset.Colors.iconSecondary.swiftUIColor)
 
             VStack(alignment: .leading, spacing: 4) {
                 Text(Localizations.writeYourPasswordDown)

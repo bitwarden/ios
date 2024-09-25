@@ -27,13 +27,13 @@ struct RegionSelector: View {
                     Text("\(selectorLabel): ")
                         .foregroundColor(Asset.Colors.textSecondary.swiftUIColor)
                         + Text(regionName).bold()
-                        .foregroundColor(Asset.Colors.primaryBitwarden.swiftUIColor)
+                        .foregroundColor(Asset.Colors.textInteraction.swiftUIColor)
                 }
                 .styleGuide(.footnote)
 
                 Image(decorative: Asset.Images.downAngle)
                     .scaledFrame(width: 12, height: 12)
-                    .foregroundColor(Asset.Colors.primaryBitwarden.swiftUIColor)
+                    .foregroundColor(Asset.Colors.iconSecondary.swiftUIColor)
             }
         }
         .accessibilityIdentifier("RegionSelectorDropdown")
