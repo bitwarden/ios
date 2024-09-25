@@ -1,8 +1,11 @@
 import AuthenticatorBridgeKit
 import BitwardenShared
+import Combine
 
 class MockAuthenticatorBridgeItemService: AuthenticatorBridgeItemService {
     var replaceAllCalled = false
+    var sharedItemsPublisherError: Error?
+    var sharedItemsSubject = CurrentValueSubject<[AuthenticatorBridgeItemDataView], Error>([])
     var storedItems: [String: [AuthenticatorBridgeItemDataView]] = [:]
 
     func deleteAllForUserId(_ userId: String) async throws {
@@ -20,5 +23,13 @@ class MockAuthenticatorBridgeItemService: AuthenticatorBridgeItemService {
     func replaceAllItems(with items: [AuthenticatorBridgeItemDataView], forUserId userId: String) async throws {
         storedItems[userId] = items
         replaceAllCalled = true
+    }
+
+    func sharedItemsPublisher() async throws ->
+        AsyncThrowingPublisher<AnyPublisher<[AuthenticatorBridgeKit.AuthenticatorBridgeItemDataView], any Error>> {
+        if let sharedItemsPublisherError {
+            throw sharedItemsPublisherError
+        }
+        return sharedItemsSubject.eraseToAnyPublisher().values
     }
 }

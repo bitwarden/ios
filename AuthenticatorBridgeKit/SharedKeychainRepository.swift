@@ -42,7 +42,7 @@ public protocol SharedKeychainRepository: AnyObject {
 
 // MARK: - DefaultKeychainRepository
 
-/// A concreate implementation of the `SharedKeychainRepository` protocol.
+/// A concrete implementation of the `SharedKeychainRepository` protocol.
 ///
 public class DefaultSharedKeychainRepository: SharedKeychainRepository {
     // MARK: Properties

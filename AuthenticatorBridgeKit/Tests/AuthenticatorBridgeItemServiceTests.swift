@@ -160,4 +160,57 @@ final class AuthenticatorBridgeItemServiceTests: AuthenticatorBridgeKitTestCase 
                       "Items should have been encrypted before inserting!!")
         XCTAssertEqual(result, expectedItems)
     }
+
+    /// Verify that the shared items publisher publishes items for all users at once.
+    ///
+    func test_sharedItemsPublisher_containsAllUsers() async throws {
+        let initialItems = AuthenticatorBridgeItemDataView.fixtures().sorted { $0.id < $1.id }
+        let otherUserItems = [AuthenticatorBridgeItemDataView.fixture(name: "New Item")]
+        try await subject.insertItems(initialItems, forUserId: "userId")
+        try await subject.replaceAllItems(with: otherUserItems, forUserId: "differentUser")
+
+        var results: [[AuthenticatorBridgeItemDataView]] = []
+        for try await value in try await subject.sharedItemsPublisher().prefix(1) {
+            results.append(value)
+        }
+
+        let combined = (otherUserItems + initialItems)
+        XCTAssertEqual(results[0], combined)
+    }
+
+    /// Verify that the shared items publisher publishes all the items inserted initially.
+    ///
+    func test_sharedItemsPublisher_success() async throws {
+        let expectedItems = AuthenticatorBridgeItemDataView.fixtures().sorted { $0.id < $1.id }
+        try await subject.insertItems(expectedItems, forUserId: "userId")
+
+        var results: [AuthenticatorBridgeItemDataView] = []
+        for try await value in try await subject.sharedItemsPublisher().prefix(1) {
+            results = value
+        }
+
+        XCTAssertEqual(results, expectedItems)
+    }
+
+    /// Verify that the shared items publisher publishes items that are inserted/replaced later.
+    ///
+    func test_sharedItemsPublisher_withUpdates() async throws {
+        let initialItems = AuthenticatorBridgeItemDataView.fixtures().sorted { $0.id < $1.id }
+        try await subject.insertItems(initialItems, forUserId: "userId")
+
+        var results: [[AuthenticatorBridgeItemDataView]] = []
+        for try await value in try await subject.sharedItemsPublisher().prefix(1) {
+            results.append(value)
+        }
+
+        let replacedItems = [AuthenticatorBridgeItemDataView.fixture(name: "New Item")]
+        try await subject.replaceAllItems(with: replacedItems, forUserId: "userId")
+
+        for try await value in try await subject.sharedItemsPublisher().prefix(1) {
+            results.append(value)
+        }
+
+        XCTAssertEqual(results[0], initialItems)
+        XCTAssertEqual(results[1], replacedItems)
+    }
 }

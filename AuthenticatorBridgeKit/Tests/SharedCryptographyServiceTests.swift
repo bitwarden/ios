@@ -30,12 +30,12 @@ final class SharedCryptographyServiceTests: AuthenticatorBridgeKitTestCase {
 
     // MARK: Tests
 
-    /// Verify that `SharedCryptographyService.decryptAuthenticatorItems(:)` correctly
+    /// Verify that `SharedCryptographyService.decryptAuthenticatorItemModels(:)` correctly
     /// decrypts an encrypted array of `AuthenticatorBridgeItemDataModel`.
     ///
     func test_decryptAuthenticatorItems_success() async throws {
         let encryptedItems = try await subject.encryptAuthenticatorItems(items)
-        let decryptedItems = try await subject.decryptAuthenticatorItems(encryptedItems)
+        let decryptedItems = try await subject.decryptAuthenticatorItemModels(encryptedItems)
 
         XCTAssertEqual(items, decryptedItems)
     }
@@ -48,7 +48,7 @@ final class SharedCryptographyServiceTests: AuthenticatorBridgeKitTestCase {
 
         try sharedKeychainRepository.deleteAuthenticatorKey()
         await assertAsyncThrows(error: error) {
-            _ = try await subject.decryptAuthenticatorItems([])
+            _ = try await subject.decryptAuthenticatorItemModels([])
         }
     }
 

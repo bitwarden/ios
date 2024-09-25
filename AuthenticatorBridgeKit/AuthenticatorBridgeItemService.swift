@@ -1,3 +1,4 @@
+import Combine
 import Foundation
 
 // MARK: - AuthenticatorBridgeItemService
@@ -35,6 +36,13 @@ public protocol AuthenticatorBridgeItemService {
     ///
     func replaceAllItems(with items: [AuthenticatorBridgeItemDataView],
                          forUserId userId: String) async throws
+
+    /// A Publisher that returns all of the items in the shared store.
+    ///
+    /// - Returns: Publisher that will publish the initial list of all items and any future data changes.
+    ///
+    func sharedItemsPublisher() async throws ->
+        AsyncThrowingPublisher<AnyPublisher<[AuthenticatorBridgeItemDataView], any Error>>
 }
 
 /// A concrete implementation of the `AuthenticatorBridgeItemService` protocol.
@@ -88,7 +96,7 @@ public class DefaultAuthenticatorBridgeItemService: AuthenticatorBridgeItemServi
         let encryptedItems = result.compactMap { data in
             data.model
         }
-        return try await cryptoService.decryptAuthenticatorItems(encryptedItems)
+        return try await cryptoService.decryptAuthenticatorItemModels(encryptedItems)
     }
 
     /// Inserts the list of items into the store for the given userId.
@@ -123,5 +131,20 @@ public class DefaultAuthenticatorBridgeItemService: AuthenticatorBridgeItemServi
             deleteRequest: deleteRequest,
             insertRequest: insertRequest
         )
+    }
+
+    public func sharedItemsPublisher() async throws ->
+        AsyncThrowingPublisher<AnyPublisher<[AuthenticatorBridgeItemDataView], any Error>> {
+        let fetchRequest = AuthenticatorBridgeItemData.fetchRequest()
+        fetchRequest.sortDescriptors = [NSSortDescriptor(keyPath: \AuthenticatorBridgeItemData.userId, ascending: true)]
+        return FetchedResultsPublisher(
+            context: dataStore.persistentContainer.viewContext,
+            request: fetchRequest
+        )
+        .asyncTryMap { items in
+            try await self.cryptoService.decryptAuthenticatorItemDatas(items)
+        }
+        .eraseToAnyPublisher()
+        .values
     }
 }
