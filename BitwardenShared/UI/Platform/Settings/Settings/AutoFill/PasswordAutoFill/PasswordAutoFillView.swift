@@ -160,7 +160,7 @@ struct PasswordAutoFillView: View {
             .frame(maxWidth: .infinity)
     }
 
-    ///
+    /// The current auto fill instructions to present in the list.
     private var autofillInstructions: some View {
         VStack(alignment: .leading, spacing: 0) {
             ForEach(
@@ -179,7 +179,7 @@ struct PasswordAutoFillView: View {
                 .padding(.vertical, 8)
                 .padding(.horizontal, 16)
 
-                if index < store.state.instructionList.count - 1 {
+                if index < store.state.autofillInstructions.count - 1 {
                     Divider()
                         .padding(.leading, 48)
                 }
