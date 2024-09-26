@@ -676,6 +676,12 @@ protocol StateService: AnyObject {
     ///
     func lastSyncTimePublisher() async throws -> AnyPublisher<Date?, Never>
 
+    /// A publisher for showing badges in the settings tab.
+    ///
+    /// - Returns: A publisher for showing badges in the settings tab.
+    ///
+    func settingsBadgePublisher() async throws -> AnyPublisher<String?, Never>
+
     /// A publisher for whether or not to show the web icons.
     ///
     /// - Returns: A publisher for whether or not to show the web icons.
@@ -1178,6 +1184,9 @@ actor DefaultStateService: StateService { // swiftlint:disable:this type_body_le
     /// A service used to access data in the keychain.
     private let keychainRepository: KeychainRepository
 
+    /// A subject containing the settings badge value mapped to user ID.
+    private let settingsBadgeByUserIdSubject = CurrentValueSubject<[String: String?], Never>([:])
+
     /// A subject containing whether to show the website icons.
     private var showWebIconsSubject: CurrentValueSubject<Bool, Never>
 
@@ -1513,11 +1522,13 @@ actor DefaultStateService: StateService { // swiftlint:disable:this type_body_le
     func setAccountSetupAutofill(_ autofillSetup: AccountSetupProgress?, userId: String?) async throws {
         let userId = try userId ?? getActiveAccountUserId()
         appSettingsStore.setAccountSetupAutofill(autofillSetup, userId: userId)
+        try await updateSettingsBadgePublisher(userId: userId)
     }
 
     func setAccountSetupVaultUnlock(_ vaultUnlockSetup: AccountSetupProgress?, userId: String?) async throws {
         let userId = try userId ?? getActiveAccountUserId()
         appSettingsStore.setAccountSetupVaultUnlock(vaultUnlockSetup, userId: userId)
+        try await updateSettingsBadgePublisher(userId: userId)
     }
 
     func setActiveAccount(userId: String) async throws {
@@ -1761,6 +1772,12 @@ actor DefaultStateService: StateService { // swiftlint:disable:this type_body_le
         return lastSyncTimeByUserIdSubject.map { $0[userId] }.eraseToAnyPublisher()
     }
 
+    func settingsBadgePublisher() async throws -> AnyPublisher<String?, Never> {
+        let userId = try getActiveAccountUserId()
+        try await updateSettingsBadgePublisher(userId: userId)
+        return settingsBadgeByUserIdSubject.compactMap { $0[userId] }.eraseToAnyPublisher()
+    }
+
     func showWebIconsPublisher() async -> AnyPublisher<Bool, Never> {
         showWebIconsSubject.eraseToAnyPublisher()
     }
@@ -1789,6 +1806,20 @@ actor DefaultStateService: StateService { // swiftlint:disable:this type_body_le
             throw StateServiceError.noActiveAccount
         }
         return activeUserId
+    }
+
+    /// Updates the settings badge publisher by determining the settings badge count for the user.
+    ///
+    /// - Parameter userId: The user ID whose settings badge count should be updated.
+    ///
+    private func updateSettingsBadgePublisher(userId: String) async throws {
+        let autofillSetupProgress = try await getAccountSetupAutofill(userId: userId)
+        let vaultUnlockSetupProgress = try await getAccountSetupVaultUnlock(userId: userId)
+        let badgeCount = [autofillSetupProgress, vaultUnlockSetupProgress]
+            .compactMap { $0 }
+            .filter { $0 != .complete }
+            .count
+        settingsBadgeByUserIdSubject.value[userId] = badgeCount > 0 ? String(badgeCount) : nil
     }
 }
 
