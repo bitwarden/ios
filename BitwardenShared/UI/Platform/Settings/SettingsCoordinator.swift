@@ -353,7 +353,6 @@ final class SettingsCoordinator: Coordinator, HasStackNavigator { // swiftlint:d
             services: services,
             state: OtherSettingsState()
         )
-
         let view = OtherSettingsView(store: Store(processor: processor))
         let viewController = UIHostingController(rootView: view)
         viewController.navigationItem.largeTitleDisplayMode = .never
@@ -363,7 +362,11 @@ final class SettingsCoordinator: Coordinator, HasStackNavigator { // swiftlint:d
     /// Shows the password auto-fill screen.
     ///
     private func showPasswordAutoFill() {
-        let view = PasswordAutoFillView()
+        let processor = PasswordAutoFillProcessor(
+            services: services,
+            state: .init(mode: .settings)
+        )
+        let view = PasswordAutoFillView(store: Store(processor: processor))
         let viewController = UIHostingController(rootView: view)
         viewController.navigationItem.largeTitleDisplayMode = .never
         stackNavigator?.push(viewController, navigationTitle: Localizations.passwordAutofill)

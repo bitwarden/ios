@@ -13,6 +13,9 @@ enum ExternalLinksConstants {
     /// A link to the app review page within the app store.
     static let appReview = URL(string: "https://itunes.apple.com/us/app/id1137397744?action=write-review")
 
+    /// A link to the auto fill help page.
+    static let autofillHelp = URL(string: "https://bitwarden.com/help/auto-fill-ios/#keyboard-auto-fill")!
+
     /// A link to Bitwarden's help page for learning more about the account fingerprint phrase.
     static let fingerprintPhrase = URL(string: "https://bitwarden.com/help/fingerprint-phrase/")!
 
@@ -21,6 +24,9 @@ enum ExternalLinksConstants {
 
     /// A link to Bitwarden's general help and feedback page.
     static let helpAndFeedback = URL(string: "https://bitwarden.com/help/")!
+
+    /// A link to the password options within the passwords section of the settings menu.
+    static let passwordOptions = URL(string: "App-prefs:PASSWORDS&path=PASSWORD_OPTIONS")!
 
     /// A markdown link to Bitwarden's privacy policy.
     static let privacyPolicy = URL(string: "https://bitwarden.com/privacy/")!

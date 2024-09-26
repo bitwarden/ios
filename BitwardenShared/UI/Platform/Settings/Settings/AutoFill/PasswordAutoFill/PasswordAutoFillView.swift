@@ -5,9 +5,97 @@ import SwiftUI
 /// A view that shows the instructions for enabling password autofill.
 ///
 struct PasswordAutoFillView: View {
+    // MARK: Properties
+
+    /// The store used to render the view.
+    @ObservedObject var store: Store<
+        PasswordAutoFillState,
+        Void,
+        PasswordAutoFillEffect
+    >
+
+    /// An object used to determine the current color scheme.
+    @Environment(\.colorScheme) var colorScheme
+
+    /// An object used to open urls from this view.
+    @Environment(\.openURL) private var openURL
+
     // MARK: View
 
     var body: some View {
+        Group {
+            if store.state.nativeCreateAccountFeatureFlag {
+                contentView
+            } else {
+                legacyContentView
+            }
+        }
+        .navigationBar(
+            title: store.state.navigationBarTitle,
+            titleDisplayMode: .inline
+        )
+        .task {
+            await store.perform(.appeared)
+        }
+    }
+
+    // MARK: Private Views
+
+    /// The content view.
+    private var contentView: some View {
+        VStack(spacing: 0) {
+            ZStack {
+                gifViewPlaceholder
+                    .frame(width: 230, height: 278)
+                    .background(.red)
+                    .padding(.top, 32)
+
+                gifView
+                    .frame(width: 230, height: 280)
+                    .padding(.top, 32)
+            }
+
+            Text(Localizations.turnOnAutoFill)
+                .styleGuide(.title2, weight: .bold)
+                .padding(.top, 32)
+
+            Text(Localizations.useAutoFillToLogIntoYourAccountsWithASingleTap)
+                .styleGuide(.body)
+                .multilineTextAlignment(.center)
+                .padding(.top, 16)
+
+            autofillInstructions
+                .padding(.top, 32)
+
+            Text(
+                LocalizedStringKey(
+                    Localizations.needHelpCheckOutAutofillHelp(
+                        ExternalLinksConstants.autofillHelp)
+                )
+            )
+            .styleGuide(.subheadline)
+            .tint(Asset.Colors.textInteraction.swiftUIColor)
+            .padding(.top, 32)
+
+            Button(Localizations.continue) {
+                openURL(ExternalLinksConstants.passwordOptions)
+            }
+            .buttonStyle(.primary())
+            .padding(.top, 32)
+            .padding(.bottom, 12)
+
+            if store.state.mode == .onboarding {
+                AsyncButton(Localizations.turnOnLater) {
+                    await store.perform(.turnAutoFillOnLaterButtonTapped)
+                }
+                .buttonStyle(.transparent)
+            }
+        }
+        .scrollView(addVerticalPadding: false)
+    }
+
+    /// The legacy content view.
+    private var legacyContentView: some View {
         GeometryReader { geometry in
             VStack(alignment: .center) {
                 instructionsContent
@@ -22,10 +110,37 @@ struct PasswordAutoFillView: View {
             .frame(minHeight: geometry.size.height)
             .scrollView(addVerticalPadding: false)
         }
-        .navigationBar(title: Localizations.passwordAutofill, titleDisplayMode: .inline)
     }
 
-    // MARK: Private Views
+    /// The view used for displaying the gif content.
+    @ViewBuilder private var gifView: some View {
+        switch colorScheme {
+        case .light:
+            GifView(gif: Asset.Images.autofillIosLight)
+        case .dark:
+            GifView(gif: Asset.Images.autofillIosDark)
+        @unknown default:
+            GifView(gif: Asset.Images.autofillIosLight)
+        }
+    }
+
+    /// The placeholder image to present while the gif loads.
+    @ViewBuilder private var gifViewPlaceholder: some View {
+        switch colorScheme {
+        case .light:
+            Image(decorative: Asset.Images.autofillIosLightPlaceholder)
+                .resizable()
+                .scaledToFit()
+        case .dark:
+            Image(decorative: Asset.Images.autofillIosDarkPlaceholder)
+                .resizable()
+                .scaledToFit()
+        @unknown default:
+            Image(decorative: Asset.Images.autofillIosLightPlaceholder)
+                .resizable()
+                .scaledToFit()
+        }
+    }
 
     /// The preview image of what the extension will look like.
     private var imageView: some View {
@@ -43,6 +158,35 @@ struct PasswordAutoFillView: View {
             .foregroundStyle(Asset.Colors.textPrimary.swiftUIColor)
             .multilineTextAlignment(.center)
             .frame(maxWidth: .infinity)
+    }
+
+    ///
+    private var autofillInstructions: some View {
+        VStack(alignment: .leading, spacing: 0) {
+            ForEach(
+                Array(store.state.autofillInstructions.enumerated()),
+                id: \.element
+            ) { index, instruction in
+                HStack(spacing: 0) {
+                    Text("\(index + 1)")
+                        .styleGuide(.title)
+                        .foregroundColor(Asset.Colors.textCodeBlue.swiftUIColor)
+                        .frame(width: 34, height: 60, alignment: .leading)
+
+                    Text(LocalizedStringKey(instruction))
+                        .styleGuide(.body)
+                }
+                .padding(.vertical, 8)
+                .padding(.horizontal, 16)
+
+                if index < store.state.instructionList.count - 1 {
+                    Divider()
+                        .padding(.leading, 48)
+                }
+            }
+        }
+        .background(Asset.Colors.backgroundSecondary.swiftUIColor)
+        .clipShape(RoundedRectangle(cornerRadius: 10))
     }
 
     /// The list of step by step instructions.
@@ -85,6 +229,37 @@ struct PasswordAutoFillView: View {
 
 // MARK: - Previews
 
-#Preview {
-    PasswordAutoFillView()
+#if DEBUG
+#Preview("Settings") {
+    PasswordAutoFillView(
+        store: Store(
+            processor: StateProcessor(
+                state: .init(mode: .settings)
+            )
+        )
+    )
 }
+
+#Preview("Onboarding") {
+    PasswordAutoFillView(
+        store: Store(
+            processor: StateProcessor(
+                state: .init(mode: .onboarding)
+            )
+        )
+    )
+}
+
+#Preview("Settings w/ FF off") {
+    PasswordAutoFillView(
+        store: Store(
+            processor: StateProcessor(
+                state: .init(
+                    mode: .onboarding,
+                    nativeCreateAccountFeatureFlag: false
+                )
+            )
+        )
+    )
+}
+#endif

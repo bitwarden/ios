@@ -257,9 +257,9 @@ class CompleteRegistrationProcessor: StateProcessor<
                 return
             }
 
-            guard let urls = await services.stateService.getAccountCreationEnvironmentUrls(email: state.userEmail) else {
-                throw CompleteRegistrationError.preAuthUrlsEmpty
-            }
+            guard
+                let urls = await services.stateService.getAccountCreationEnvironmentUrls(email: state.userEmail)
+            else { throw CompleteRegistrationError.preAuthUrlsEmpty }
 
             await services.environmentService.setPreAuthURLs(urls: urls)
         } catch let error as CompleteRegistrationError {
