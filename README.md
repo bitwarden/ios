@@ -46,6 +46,9 @@
     $ Scripts/bootstrap.sh
     ```
 
+    > **Hint**
+    > For development purposes it's possible to use a local build of the Bitwarden SDK by setting the environment variable `LOCAL_SDK` to `true` before running the bootstrap script. Review [Linking SDK to clients](https://contributing-docs.pages.dev/getting-started/sdk/#linking-sdk-to-clients) for more details.
+
     > **Note**
     > Because `Scripts/bootstrap.sh` is how the project is generated, `bootstrap.sh` will need to be run every time the project configuration or file structure has changed (for example, when files have been added, removed or moved). It is typically best practice to run `bootstrap.sh` any time you switch branches or pull down changes.
 
