@@ -4,23 +4,21 @@ on:
   workflow_dispatch:
     inputs:
       build-variant:
-        description: "Which variant of the app to build"
+        description: "Build Variant"
         required: true
+        default: "Production"
         type: choice
         options:
           - Beta
           - Production
       build-version:
-        description: "Optional. Version string to use, in X.Y.Z format. Overrides default in the project."
-        required: false
+        description: "Version Name Override - e.g. '2024.8.1'"
         type: string
       build-number:
-        description: "Optional. Build number to use. Overrides default of GitHub run number."
-        required: false
+        description: "Version Number Override - e.g. '1021'"
         type: number
       xcode-version:
-        description: "Optional. Xcode version to use. Overrides default."
-        required: false
+        description: "Xcode Version Override - e.g. '15.2'"
         type: string
       compiler-flags:
         description: "Compiler Flags - e.g. 'DEBUG_MENU FEATURE2'"
@@ -28,20 +26,16 @@ on:
   workflow_call:
     inputs:
       build-variant:
-        description: "Which variant of the app to build"
-        required: false
+        description: "Build Variant"
         type: string
       build-version:
-        description: "Version string to use, in X.Y.Z format"
-        required: false
+        description: "Version Name Override - e.g. '2024.8.1'"
         type: string
       build-number:
-        description: "Build number to use"
-        required: false
+        description: "Version Number Override - e.g. '1021'"
         type: string
       xcode-version:
-        description: "Xcode version to use"
-        required: false
+        description: "Xcode Version Override - e.g. '15.2'"
         type: string
       compiler-flags:
         description: "Compiler Flags - e.g. 'DEBUG_MENU FEATURE2'"

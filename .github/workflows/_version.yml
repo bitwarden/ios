@@ -10,13 +10,16 @@ on:
         type: number
         default: 0
       version_name:
-        description: "Overrides version name calculation"
+        description: "Version Name Override - e.g. '2024.8.1'"
+      version_number:
+        description: "Version Number Override - e.g. '1021'"
+      patch_version:
+        description: "Patch Version Override - e.g. '999'"
       distinct_id:
         description: "Unique ID for this dispatch, used by dispatch-and-download.yml"
       skip_checkout:
         description: "Skip checking out the repository"
         type: boolean
-  repository_dispatch:
 
 env:
   BASE_VERSION_NUMBER: ${{ inputs.base_version_number || 0 }}
@@ -54,7 +57,6 @@ jobs:
 
           # override version name if provided
           if [[ ! -z "${{ inputs.version_name }}" ]]; then
-            echo -e "\nApplying version override"
             version_name=${{ inputs.version_name }}
             echo "::warning::Override applied: $version_name"
             output "$version_name"
@@ -66,7 +68,7 @@ jobs:
 
           latest_tag_version=$(git tag --sort=committerdate --list | tail -1)
           if [[ -z "$latest_tag_version" ]]; then
-            version_name="${current_year}.${current_month}.0"
+            version_name="${current_year}.${current_month}.${{ inputs.patch_version || 0 }}"
             echo "::warning::No tags found, did you checkout? Calculating version from current date: $version_name"
             output "$version_name"
             exit 0
@@ -77,19 +79,29 @@ jobs:
 
           latest_major_version=$(echo $latest_version | cut -d "." -f 1)
           latest_minor_version=$(echo $latest_version | cut -d "." -f 2)
-          latest_patch_version=$(echo $latest_version | cut -d "." -f 3)
-
-          if [[ "$current_year" == "$latest_major_version" && "$current_month" == "$latest_minor_version" ]]; then
-            version_name="${latest_major_version}.${latest_minor_version}.$(($latest_patch_version + 1))"
-          else
-            version_name="${current_year}.${current_month}.0"
+          patch_version=0
+          if [[ ! -z "${{ inputs.version_name }}" ]]; then
+            patch_version=${{ inputs.patch_version }}
+            echo "::warning::Patch Version Override applied: $patch_version"
+          elif [[ "$current_year" == "$latest_major_version" && "$current_month" == "$latest_minor_version" ]]; then
+            latest_patch_version=$(echo $latest_version | cut -d "." -f 3)
+            patch_version=$(($latest_patch_version + 1))
           fi
 
+          version_name="${current_year}.${current_month}.${patch_version}"
           output "$version_name"
 
       - name: Calculate version number
         id: calc-version-number
         run: |
+          # override version number if provided
+          if [[ ! -z "${{ inputs.version_number }}" ]]; then
+            version_number=${{ inputs.version_number }}
+            echo "::warning::Override applied: $version_number"
+            echo "version_number=$version_number" >> $GITHUB_OUTPUT
+            exit 0
+          fi
+
           version_number=$(($GITHUB_RUN_NUMBER + ${{ env.BASE_VERSION_NUMBER }}))
           echo "version_number=$version_number" >> $GITHUB_OUTPUT
 
