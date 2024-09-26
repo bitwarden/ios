@@ -60,10 +60,3 @@ runs:
       with:
         run-id: ${{steps.return_dispatch.outputs.run_id}}
         github-token: ${{ inputs.token }}
-
-    - name: Debug artifact download
-      shell: bash
-      run: |
-        echo "Run ID: ${{steps.return_dispatch.outputs.run_id}}"
-        echo "Artifacts path: ${{ steps.download.outputs.download-path }}"
-        ls -laR ${{ steps.download.outputs.download-path }}

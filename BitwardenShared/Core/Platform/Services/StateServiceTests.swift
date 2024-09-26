@@ -791,6 +791,14 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
         XCTAssertFalse(value)
     }
 
+    /// `getSyncToAuthenticator()` returns the sync to authenticator value for the active account.
+    func test_getSyncToAuthenticator() async throws {
+        await subject.addAccount(.fixture())
+        appSettingsStore.syncToAuthenticatorByUserId["1"] = true
+        let value = try await subject.getSyncToAuthenticator()
+        XCTAssertTrue(value)
+    }
+
     /// `.getTimeoutAction(userId:)` returns the session timeout action.
     func test_getTimeoutAction() async throws {
         try await subject.setTimeoutAction(action: .logout, userId: "1")
@@ -1705,6 +1713,14 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
         XCTAssertTrue(appSettingsStore.disableWebIcons)
     }
 
+    /// `setSyncToAuthenticator(_:userId:)` sets the sync to authenticator value for a user.
+    func test_setSyncToAuthenticator() async throws {
+        await subject.addAccount(.fixture())
+
+        try await subject.setSyncToAuthenticator(true)
+        XCTAssertTrue(appSettingsStore.syncToAuthenticator(userId: "1"))
+    }
+
     /// `settingsBadgePublisher()` publishes the settings badge value for the active user.
     func test_settingsBadgePublisher() async throws {
         await subject.addAccount(.fixture())
@@ -1798,6 +1814,59 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
 
         try await subject.setUsesKeyConnector(true)
         XCTAssertEqual(appSettingsStore.usesKeyConnector["1"], true)
+    }
+
+    /// `syncToAuthenticatorPublisher()` returns a publisher for the user's sync to authenticator settings.
+    func test_syncToAuthenticatorPublisher() async throws {
+        await subject.addAccount(.fixture(profile: .fixture(userId: "1")))
+
+        var publishedValues = [(userId: String?, shouldSync: Bool)]()
+        let publisher = await subject.syncToAuthenticatorPublisher()
+            .sink(receiveValue: { userId, shouldSync in
+                publishedValues.append((userId: userId, shouldSync: shouldSync))
+            })
+        defer { publisher.cancel() }
+
+        try await subject.setSyncToAuthenticator(true)
+
+        XCTAssertEqual(publishedValues[0].userId, "1")
+        XCTAssertEqual(publishedValues[0].shouldSync, false)
+        XCTAssertEqual(publishedValues[1].userId, "1")
+        XCTAssertEqual(publishedValues[1].shouldSync, true)
+    }
+
+    /// `syncToAuthenticatorPublisher()` gets the initial stored value if a cached value doesn't exist.
+    func test_syncToAuthenticatorPublisher_fetchesInitialValue() async throws {
+        await subject.addAccount(.fixture(profile: .fixture(userId: "1")))
+
+        appSettingsStore.syncToAuthenticatorByUserId["1"] = true
+
+        var publishedValues = [(userId: String?, shouldSync: Bool)]()
+        let publisher = await subject.syncToAuthenticatorPublisher()
+            .sink(receiveValue: { userId, shouldSync in
+                publishedValues.append((userId: userId, shouldSync: shouldSync))
+            })
+        defer { publisher.cancel() }
+
+        try await subject.setSyncToAuthenticator(false)
+
+        XCTAssertEqual(publishedValues[0].userId, "1")
+        XCTAssertEqual(publishedValues[0].shouldSync, true)
+        XCTAssertEqual(publishedValues[1].userId, "1")
+        XCTAssertEqual(publishedValues[1].shouldSync, false)
+    }
+
+    /// `syncToAuthenticatorPublisher()` returns false if the user is not logged in.
+    func test_syncToAuthenticatorPublisher_notLoggedIn() async throws {
+        var publishedValues = [(userId: String?, shouldSync: Bool)]()
+        let publisher = await subject.syncToAuthenticatorPublisher()
+            .sink(receiveValue: { userId, shouldSync in
+                publishedValues.append((userId: userId, shouldSync: shouldSync))
+            })
+        defer { publisher.cancel() }
+
+        XCTAssertNil(publishedValues[0].userId)
+        XCTAssertFalse(publishedValues[0].shouldSync)
     }
 
     /// `.setActiveAccount(userId:)` sets the action that occurs when there's a session timeout.
