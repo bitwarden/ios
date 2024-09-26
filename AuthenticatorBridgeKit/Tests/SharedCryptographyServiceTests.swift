@@ -30,20 +30,55 @@ final class SharedCryptographyServiceTests: AuthenticatorBridgeKitTestCase {
 
     // MARK: Tests
 
+    /// Verify that `SharedCryptographyService.decryptAuthenticatorItemDatas(:)` correctly
+    /// decrypts an encrypted array of `AuthenticatorBridgeItemDataModel`.
+    ///
+    func test_decryptAuthenticatorItemDatas_success() async throws {
+        let sharedDataStore = AuthenticatorBridgeDataStore(
+            errorReporter: MockErrorReporter(),
+            groupIdentifier: "com.example.bitwarden-authenticator",
+            storeType: .memory
+        )
+        let encryptedItems = try await subject.encryptAuthenticatorItems(items)
+        let decryptedItems = try await subject.decryptAuthenticatorItemDatas(
+            encryptedItems.compactMap { item in
+                try? AuthenticatorBridgeItemData(
+                    context: sharedDataStore.persistentContainer.viewContext,
+                    userId: "userId",
+                    authenticatorItem: item
+                )
+            }
+        )
+
+        XCTAssertEqual(items, decryptedItems)
+    }
+
+    /// Verify that `SharedCryptographyService.decryptAuthenticatorItemDatas()' throws
+    /// when the `SharedKeyRepository` authenticator key is missing.
+    ///
+    func test_decryptAuthenticatorItemDatas_throwsKeyMissingError() async throws {
+        let error = AuthenticatorKeychainServiceError.keyNotFound(SharedKeychainItem.authenticatorKey)
+
+        try sharedKeychainRepository.deleteAuthenticatorKey()
+        await assertAsyncThrows(error: error) {
+            _ = try await subject.decryptAuthenticatorItemDatas([])
+        }
+    }
+
     /// Verify that `SharedCryptographyService.decryptAuthenticatorItemModels(:)` correctly
     /// decrypts an encrypted array of `AuthenticatorBridgeItemDataModel`.
     ///
-    func test_decryptAuthenticatorItems_success() async throws {
+    func test_decryptAuthenticatorItemModels_success() async throws {
         let encryptedItems = try await subject.encryptAuthenticatorItems(items)
         let decryptedItems = try await subject.decryptAuthenticatorItemModels(encryptedItems)
 
         XCTAssertEqual(items, decryptedItems)
     }
 
-    /// Verify that `SharedCryptographyService.encryptAuthenticatorItems()' throws
+    /// Verify that `SharedCryptographyService.decryptAuthenticatorItemModels()' throws
     /// when the `SharedKeyRepository` authenticator key is missing.
     ///
-    func test_decryptAuthenticatorItems_throwsKeyMissingError() async throws {
+    func test_decryptAuthenticatorItemModels_throwsKeyMissingError() async throws {
         let error = AuthenticatorKeychainServiceError.keyNotFound(SharedKeychainItem.authenticatorKey)
 
         try sharedKeychainRepository.deleteAuthenticatorKey()
