@@ -1721,6 +1721,33 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
         XCTAssertTrue(appSettingsStore.syncToAuthenticator(userId: "1"))
     }
 
+    /// `settingsBadgePublisher()` publishes the settings badge value for the active user.
+    func test_settingsBadgePublisher() async throws {
+        await subject.addAccount(.fixture())
+
+        var badgeValues = [String?]()
+        let publisher = try await subject.settingsBadgePublisher()
+            .sink { badgeValue in
+                badgeValues.append(badgeValue)
+            }
+        defer { publisher.cancel() }
+
+        try await subject.setAccountSetupAutofill(.setUpLater)
+        try await subject.setAccountSetupVaultUnlock(.setUpLater)
+
+        try await subject.setAccountSetupAutofill(.complete)
+        try await subject.setAccountSetupVaultUnlock(.complete)
+
+        XCTAssertEqual(badgeValues, [nil, "1", "2", "1", nil])
+    }
+
+    /// `settingsBadgePublisher()` throws an error if there's no active account.
+    func test_settingsBadgePublisher_error() async throws {
+        await assertAsyncThrows(error: StateServiceError.noActiveAccount) {
+            _ = try await subject.settingsBadgePublisher()
+        }
+    }
+
     /// `setTwoFactorToken(_:email:)` sets the two-factor code for the email.
     func test_setTwoFactorToken() async {
         await subject.setTwoFactorToken("yay_you_win!", email: "winner@email.com")
