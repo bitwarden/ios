@@ -268,6 +268,14 @@ protocol StateService: AnyObject {
     ///
     func getShowWebIcons() async -> Bool
 
+    /// Gets the sync to Authenticator value for an account.
+    ///
+    /// - Parameter userId: The user ID associated with the sync to Authenticator value. Defaults to the active
+    ///   account if `nil`
+    /// - Returns: Whether to sync TOPT codes to the Authenticator app.
+    ///
+    func getSyncToAuthenticator(userId: String?) async throws -> Bool
+
     /// Gets the session timeout action.
     ///
     /// - Parameter userId: The user ID for the account.
@@ -573,6 +581,14 @@ protocol StateService: AnyObject {
     ///
     func setShowWebIcons(_ showWebIcons: Bool) async
 
+    /// Sets the sync to authenticator value for an account.
+    ///
+    /// - Parameters:
+    ///   - syncToAuthenticator: Whether to sync TOTP codes to the Authenticator app.
+    ///   - userId: The user ID of the account. Defaults to the active account if `nil`.
+    ///
+    func setSyncToAuthenticator(_ syncToAuthenticator: Bool, userId: String?) async throws
+
     /// Sets the session timeout action.
     ///
     /// - Parameters:
@@ -660,11 +676,23 @@ protocol StateService: AnyObject {
     ///
     func lastSyncTimePublisher() async throws -> AnyPublisher<Date?, Never>
 
+    /// A publisher for showing badges in the settings tab.
+    ///
+    /// - Returns: A publisher for showing badges in the settings tab.
+    ///
+    func settingsBadgePublisher() async throws -> AnyPublisher<String?, Never>
+
     /// A publisher for whether or not to show the web icons.
     ///
     /// - Returns: A publisher for whether or not to show the web icons.
     ///
     func showWebIconsPublisher() async -> AnyPublisher<Bool, Never>
+
+    /// A publisher for the sync to authenticator value.
+    ///
+    /// - Returns: A publisher for the sync to authenticator value.
+    ///
+    func syncToAuthenticatorPublisher() async -> AnyPublisher<(String?, Bool), Never>
 }
 
 extension StateService {
@@ -832,6 +860,14 @@ extension StateService {
     ///
     func getServerConfig() async throws -> ServerConfig? {
         try await getServerConfig(userId: nil)
+    }
+
+    /// Gets the sync to authenticator value for the active account.
+    ///
+    /// - Returns: Whether to sync TOTP codes to the Authenticator app.
+    ///
+    func getSyncToAuthenticator() async throws -> Bool {
+        try await getSyncToAuthenticator(userId: nil)
     }
 
     /// Gets the session timeout action.
@@ -1036,6 +1072,14 @@ extension StateService {
         try await setServerConfig(config, userId: nil)
     }
 
+    /// Sets the sync to authenticator value for the active account.
+    ///
+    /// - Parameter syncToAuthenticator: Whether to sync TOTP codes to the Authenticator app.
+    ///
+    func setSyncToAuthenticator(_ syncToAuthenticator: Bool) async throws {
+        try await setSyncToAuthenticator(syncToAuthenticator, userId: nil)
+    }
+
     /// Sets the session timeout action.
     ///
     /// - Parameter action: The action to take when the user's session times out.
@@ -1140,8 +1184,14 @@ actor DefaultStateService: StateService { // swiftlint:disable:this type_body_le
     /// A service used to access data in the keychain.
     private let keychainRepository: KeychainRepository
 
+    /// A subject containing the settings badge value mapped to user ID.
+    private let settingsBadgeByUserIdSubject = CurrentValueSubject<[String: String?], Never>([:])
+
     /// A subject containing whether to show the website icons.
     private var showWebIconsSubject: CurrentValueSubject<Bool, Never>
+
+    /// A subject containing the sync to authenticator value.
+    private var syncToAuthenticatorByUserIdSubject = CurrentValueSubject<[String: Bool], Never>([:])
 
     // MARK: Initialization
 
@@ -1361,6 +1411,11 @@ actor DefaultStateService: StateService { // swiftlint:disable:this type_body_le
         !appSettingsStore.disableWebIcons
     }
 
+    func getSyncToAuthenticator(userId: String?) async throws -> Bool {
+        let userId = try userId ?? getActiveAccountUserId()
+        return appSettingsStore.syncToAuthenticator(userId: userId)
+    }
+
     func getTimeoutAction(userId: String?) async throws -> SessionTimeoutAction {
         let userId = try userId ?? getActiveAccountUserId()
         guard let rawValue = appSettingsStore.timeoutAction(userId: userId),
@@ -1467,11 +1522,13 @@ actor DefaultStateService: StateService { // swiftlint:disable:this type_body_le
     func setAccountSetupAutofill(_ autofillSetup: AccountSetupProgress?, userId: String?) async throws {
         let userId = try userId ?? getActiveAccountUserId()
         appSettingsStore.setAccountSetupAutofill(autofillSetup, userId: userId)
+        try await updateSettingsBadgePublisher(userId: userId)
     }
 
     func setAccountSetupVaultUnlock(_ vaultUnlockSetup: AccountSetupProgress?, userId: String?) async throws {
         let userId = try userId ?? getActiveAccountUserId()
         appSettingsStore.setAccountSetupVaultUnlock(vaultUnlockSetup, userId: userId)
+        try await updateSettingsBadgePublisher(userId: userId)
     }
 
     func setActiveAccount(userId: String) async throws {
@@ -1620,6 +1677,12 @@ actor DefaultStateService: StateService { // swiftlint:disable:this type_body_le
         showWebIconsSubject.send(showWebIcons)
     }
 
+    func setSyncToAuthenticator(_ syncToAuthenticator: Bool, userId: String?) async throws {
+        let userId = try userId ?? getActiveAccountUserId()
+        appSettingsStore.setSyncToAuthenticator(syncToAuthenticator, userId: userId)
+        syncToAuthenticatorByUserIdSubject.value[userId] = syncToAuthenticator
+    }
+
     func setTimeoutAction(action: SessionTimeoutAction, userId: String?) async throws {
         let userId = try userId ?? getActiveAccountUserId()
         appSettingsStore.setTimeoutAction(key: action, userId: userId)
@@ -1709,8 +1772,27 @@ actor DefaultStateService: StateService { // swiftlint:disable:this type_body_le
         return lastSyncTimeByUserIdSubject.map { $0[userId] }.eraseToAnyPublisher()
     }
 
+    func settingsBadgePublisher() async throws -> AnyPublisher<String?, Never> {
+        let userId = try getActiveAccountUserId()
+        try await updateSettingsBadgePublisher(userId: userId)
+        return settingsBadgeByUserIdSubject.compactMap { $0[userId] }.eraseToAnyPublisher()
+    }
+
     func showWebIconsPublisher() async -> AnyPublisher<Bool, Never> {
         showWebIconsSubject.eraseToAnyPublisher()
+    }
+
+    func syncToAuthenticatorPublisher() async -> AnyPublisher<(String?, Bool), Never> {
+        activeAccountIdPublisher().flatMap { userId in
+            self.syncToAuthenticatorByUserIdSubject.map { values in
+                guard let userId else {
+                    return (nil, false)
+                }
+                let userValue = values[userId] ?? self.appSettingsStore.syncToAuthenticator(userId: userId)
+                return (userId, userValue)
+            }
+        }
+        .eraseToAnyPublisher()
     }
 
     // MARK: Private
@@ -1724,6 +1806,20 @@ actor DefaultStateService: StateService { // swiftlint:disable:this type_body_le
             throw StateServiceError.noActiveAccount
         }
         return activeUserId
+    }
+
+    /// Updates the settings badge publisher by determining the settings badge count for the user.
+    ///
+    /// - Parameter userId: The user ID whose settings badge count should be updated.
+    ///
+    private func updateSettingsBadgePublisher(userId: String) async throws {
+        let autofillSetupProgress = try await getAccountSetupAutofill(userId: userId)
+        let vaultUnlockSetupProgress = try await getAccountSetupVaultUnlock(userId: userId)
+        let badgeCount = [autofillSetupProgress, vaultUnlockSetupProgress]
+            .compactMap { $0 }
+            .filter { $0 != .complete }
+            .count
+        settingsBadgeByUserIdSubject.value[userId] = badgeCount > 0 ? String(badgeCount) : nil
     }
 }
 

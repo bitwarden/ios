@@ -58,6 +58,10 @@ public enum UI {
         let largeTitleFont = UIFontMetrics(forTextStyle: .largeTitle).scaledFont(
             for: FontFamily.DMSans.bold.font(size: 26)
         )
+        let iconBadgeBackground = Asset.Colors.iconBadgeBackground.color
+        let iconBadgeTextAttributes: [NSAttributedString.Key: Any] = [
+            .foregroundColor: Asset.Colors.iconBadgeForeground.color,
+        ]
 
         let navigationBarAppearance = UINavigationBarAppearance()
         navigationBarAppearance.backgroundColor = Asset.Colors.backgroundSecondary.color
@@ -76,6 +80,12 @@ public enum UI {
         let tabBarAppearance = UITabBarAppearance()
         tabBarAppearance.configureWithOpaqueBackground()
         tabBarAppearance.backgroundColor = Asset.Colors.backgroundSecondary.color
+        tabBarAppearance.compactInlineLayoutAppearance.normal.badgeBackgroundColor = iconBadgeBackground
+        tabBarAppearance.compactInlineLayoutAppearance.normal.badgeTextAttributes = iconBadgeTextAttributes
+        tabBarAppearance.inlineLayoutAppearance.normal.badgeBackgroundColor = iconBadgeBackground
+        tabBarAppearance.inlineLayoutAppearance.normal.badgeTextAttributes = iconBadgeTextAttributes
+        tabBarAppearance.stackedLayoutAppearance.normal.badgeBackgroundColor = iconBadgeBackground
+        tabBarAppearance.stackedLayoutAppearance.normal.badgeTextAttributes = iconBadgeTextAttributes
         UITabBar.appearance().scrollEdgeAppearance = tabBarAppearance
         UITabBar.appearance().standardAppearance = tabBarAppearance
         UITabBar.appearance().tintColor = Asset.Colors.iconSecondary.color
