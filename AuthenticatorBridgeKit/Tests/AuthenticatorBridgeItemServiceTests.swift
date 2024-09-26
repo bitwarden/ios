@@ -187,10 +187,16 @@ final class AuthenticatorBridgeItemServiceTests: AuthenticatorBridgeKitTestCase 
         try await subject.replaceAllItems(with: otherUserItems, forUserId: "differentUser")
 
         var results: [[AuthenticatorBridgeItemDataView]] = []
-        for try await value in try await subject.sharedItemsPublisher().prefix(1) {
-            results.append(value)
-        }
+        let publisher = try await subject.sharedItemsPublisher()
+            .sink(
+                receiveCompletion: { _ in },
+                receiveValue: { value in
+                    results.append(value)
+                }
+            )
+        defer { publisher.cancel() }
 
+        waitFor(results.count == 1)
         let combined = (otherUserItems + initialItems)
         XCTAssertEqual(results[0], combined)
     }
@@ -201,12 +207,18 @@ final class AuthenticatorBridgeItemServiceTests: AuthenticatorBridgeKitTestCase 
         let expectedItems = AuthenticatorBridgeItemDataView.fixtures().sorted { $0.id < $1.id }
         try await subject.insertItems(expectedItems, forUserId: "userId")
 
-        var results: [AuthenticatorBridgeItemDataView] = []
-        for try await value in try await subject.sharedItemsPublisher().prefix(1) {
-            results = value
-        }
+        var results: [[AuthenticatorBridgeItemDataView]] = []
+        let publisher = try await subject.sharedItemsPublisher()
+            .sink(
+                receiveCompletion: { _ in },
+                receiveValue: { value in
+                    results.append(value)
+                }
+            )
+        defer { publisher.cancel() }
 
-        XCTAssertEqual(results, expectedItems)
+        waitFor(results.count == 1)
+        XCTAssertEqual(results[0], expectedItems)
     }
 
     /// Verify that the shared items publisher publishes new lists when items are deleted..
@@ -216,16 +228,18 @@ final class AuthenticatorBridgeItemServiceTests: AuthenticatorBridgeKitTestCase 
         try await subject.insertItems(initialItems, forUserId: "userId")
 
         var results: [[AuthenticatorBridgeItemDataView]] = []
-        for try await value in try await subject.sharedItemsPublisher().prefix(1) {
-            results.append(value)
-        }
+        let publisher = try await subject.sharedItemsPublisher()
+            .sink(
+                receiveCompletion: { _ in },
+                receiveValue: { value in
+                    results.append(value)
+                }
+            )
+        defer { publisher.cancel() }
 
         try await subject.replaceAllItems(with: [], forUserId: "userId")
 
-        for try await value in try await subject.sharedItemsPublisher().prefix(1) {
-            results.append(value)
-        }
-
+        waitFor(results.count == 2)
         XCTAssertEqual(results[0], initialItems)
         XCTAssertEqual(results[1], [])
     }
@@ -237,17 +251,19 @@ final class AuthenticatorBridgeItemServiceTests: AuthenticatorBridgeKitTestCase 
         try await subject.insertItems(initialItems, forUserId: "userId")
 
         var results: [[AuthenticatorBridgeItemDataView]] = []
-        for try await value in try await subject.sharedItemsPublisher().prefix(1) {
-            results.append(value)
-        }
+        let publisher = try await subject.sharedItemsPublisher()
+            .sink(
+                receiveCompletion: { _ in },
+                receiveValue: { value in
+                    results.append(value)
+                }
+            )
+        defer { publisher.cancel() }
 
         let replacedItems = [AuthenticatorBridgeItemDataView.fixture(name: "New Item")]
         try await subject.replaceAllItems(with: replacedItems, forUserId: "userId")
 
-        for try await value in try await subject.sharedItemsPublisher().prefix(1) {
-            results.append(value)
-        }
-
+        waitFor(results.count == 2)
         XCTAssertEqual(results[0], initialItems)
         XCTAssertEqual(results[1], replacedItems)
     }

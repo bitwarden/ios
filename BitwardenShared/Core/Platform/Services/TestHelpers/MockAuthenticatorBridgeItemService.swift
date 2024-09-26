@@ -31,10 +31,10 @@ class MockAuthenticatorBridgeItemService: AuthenticatorBridgeItemService {
     }
 
     func sharedItemsPublisher() async throws ->
-        AsyncThrowingPublisher<AnyPublisher<[AuthenticatorBridgeKit.AuthenticatorBridgeItemDataView], any Error>> {
+        AnyPublisher<[AuthenticatorBridgeKit.AuthenticatorBridgeItemDataView], any Error> {
         if let sharedItemsPublisherError {
             throw sharedItemsPublisherError
         }
-        return sharedItemsSubject.eraseToAnyPublisher().values
+        return sharedItemsSubject.eraseToAnyPublisher()
     }
 }

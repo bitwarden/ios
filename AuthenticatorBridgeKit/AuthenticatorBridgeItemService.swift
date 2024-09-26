@@ -49,7 +49,7 @@ public protocol AuthenticatorBridgeItemService {
     /// - Returns: Publisher that will publish the initial list of all items and any future data changes.
     ///
     func sharedItemsPublisher() async throws ->
-        AsyncThrowingPublisher<AnyPublisher<[AuthenticatorBridgeItemDataView], any Error>>
+        AnyPublisher<[AuthenticatorBridgeItemDataView], any Error>
 }
 
 /// A concrete implementation of the `AuthenticatorBridgeItemService` protocol.
@@ -146,7 +146,7 @@ public class DefaultAuthenticatorBridgeItemService: AuthenticatorBridgeItemServi
     }
 
     public func sharedItemsPublisher() async throws ->
-        AsyncThrowingPublisher<AnyPublisher<[AuthenticatorBridgeItemDataView], any Error>> {
+        AnyPublisher<[AuthenticatorBridgeItemDataView], any Error> {
         let fetchRequest = AuthenticatorBridgeItemData.fetchRequest()
         fetchRequest.sortDescriptors = [NSSortDescriptor(keyPath: \AuthenticatorBridgeItemData.userId, ascending: true)]
         return FetchedResultsPublisher(
@@ -157,6 +157,5 @@ public class DefaultAuthenticatorBridgeItemService: AuthenticatorBridgeItemServi
             try await self.cryptoService.decryptAuthenticatorItemDatas(items)
         }
         .eraseToAnyPublisher()
-        .values
     }
 }
