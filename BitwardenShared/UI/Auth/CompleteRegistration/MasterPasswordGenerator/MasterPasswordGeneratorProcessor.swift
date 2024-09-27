@@ -41,8 +41,8 @@ class MasterPasswordGeneratorProcessor: StateProcessor<
 
     override func perform(_ effect: MasterPasswordGeneratorEffect) async {
         switch effect {
-        case .loadData,
-             .generate:
+        case .generate,
+             .loadData:
             await generatePassword()
         case .save:
             // https://bitwarden.atlassian.net/browse/PM-10676
