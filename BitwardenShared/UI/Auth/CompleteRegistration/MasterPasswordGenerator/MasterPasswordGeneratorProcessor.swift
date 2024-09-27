@@ -17,7 +17,7 @@ class MasterPasswordGeneratorProcessor: StateProcessor<
     /// The coordinator that handles navigation.
     private let coordinator: AnyCoordinator<AuthRoute, AuthEvent>
 
-    /// The delegate used to communiate saving a new generated password.
+    /// The delegate responsible for notifying when a generated password is saved.
     private weak var delegate: MasterPasswordUpdateDelegate?
 
     /// The services used by this processor.
@@ -29,7 +29,7 @@ class MasterPasswordGeneratorProcessor: StateProcessor<
     ///
     /// - Parameters:
     ///   - coordinator: The coordinator that handles navigation.
-    ///   - delegate: The delegate for the processor to notifiy saving a generated password.
+    ///   - delegate: The delegate responsible for notifying when a generated password is saved.
     ///   - services: The services required by this processor.
     ///
     init(
