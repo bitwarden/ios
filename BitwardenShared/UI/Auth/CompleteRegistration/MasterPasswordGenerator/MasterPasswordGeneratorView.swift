@@ -51,11 +51,6 @@ struct MasterPasswordGeneratorView: View {
             send: MasterPasswordGeneratorAction.masterPasswordChanged
         ))
         .submitLabel(.done)
-        .onSubmit {
-            Task {
-                await store.perform(.save)
-            }
-        }
     }
 
     /// The generate button.
