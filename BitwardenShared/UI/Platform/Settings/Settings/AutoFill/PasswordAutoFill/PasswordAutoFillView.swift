@@ -62,7 +62,7 @@ struct PasswordAutoFillView: View {
             Text(Localizations.useAutoFillToLogIntoYourAccountsWithASingleTap)
                 .styleGuide(.body)
                 .multilineTextAlignment(.center)
-                .padding(.top, 16)
+                .padding([.top, .horizontal], 16)
 
             autofillInstructions
                 .padding(.top, 32)
@@ -234,7 +234,10 @@ struct PasswordAutoFillView: View {
     PasswordAutoFillView(
         store: Store(
             processor: StateProcessor(
-                state: .init(mode: .settings)
+                state: .init(
+                    mode: .settings,
+                    nativeCreateAccountFeatureFlag: true
+                )
             )
         )
     )
@@ -244,7 +247,10 @@ struct PasswordAutoFillView: View {
     PasswordAutoFillView(
         store: Store(
             processor: StateProcessor(
-                state: .init(mode: .onboarding)
+                state: .init(
+                    mode: .onboarding,
+                    nativeCreateAccountFeatureFlag: true
+                )
             )
         )
     )
@@ -254,10 +260,7 @@ struct PasswordAutoFillView: View {
     PasswordAutoFillView(
         store: Store(
             processor: StateProcessor(
-                state: .init(
-                    mode: .onboarding,
-                    nativeCreateAccountFeatureFlag: false
-                )
+                state: .init(mode: .settings)
             )
         )
     )
