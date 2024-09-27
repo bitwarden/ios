@@ -25,7 +25,7 @@ class MockSharedCryptographyService: SharedCryptographyService {
         }
     }
 
-    func decryptAuthenticatorItemModels(
+    func decryptAuthenticatorItems(
         _ items: [AuthenticatorBridgeItemDataModel]
     ) async throws -> [AuthenticatorBridgeItemDataView] {
         decryptCalled = true

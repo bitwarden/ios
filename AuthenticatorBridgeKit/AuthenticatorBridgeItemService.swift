@@ -28,10 +28,10 @@ public protocol AuthenticatorBridgeItemService {
     func insertItems(_ items: [AuthenticatorBridgeItemDataView],
                      forUserId userId: String) async throws
 
-    /// Returns true if sync has been enabled for one or more accounts in the Bitwarden PM app, false
+    /// Returns `true` if sync has been enabled for one or more accounts in the Bitwarden PM app, `false`
     /// if there are no accounts with sync currently turned on.
     ///
-    /// - Returns: true if there is one or more accounts with sync turned on. False otherwise.
+    /// - Returns: `true` if there is one or more accounts with sync turned on; `false` otherwise.
     ///
     func isSyncOn() async throws -> Bool
 
@@ -103,7 +103,7 @@ public class DefaultAuthenticatorBridgeItemService: AuthenticatorBridgeItemServi
         let encryptedItems = result.compactMap { data in
             data.model
         }
-        return try await cryptoService.decryptAuthenticatorItemModels(encryptedItems)
+        return try await cryptoService.decryptAuthenticatorItems(encryptedItems)
     }
 
     public func isSyncOn() async throws -> Bool {
@@ -153,8 +153,11 @@ public class DefaultAuthenticatorBridgeItemService: AuthenticatorBridgeItemServi
             context: dataStore.persistentContainer.viewContext,
             request: fetchRequest
         )
-        .asyncTryMap { items in
-            try await self.cryptoService.decryptAuthenticatorItemDatas(items)
+        .tryMap { dataItems in
+            dataItems.compactMap(\.model)
+        }
+        .asyncTryMap { itemModela in
+            try await self.cryptoService.decryptAuthenticatorItems(itemModela)
         }
         .eraseToAnyPublisher()
     }

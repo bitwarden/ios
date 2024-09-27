@@ -7,7 +7,7 @@ import UIKit
 
 // MARK: - AuthenticatorSyncService
 
-/// The service used to share TOTP codes to and from the Authenticator app..
+/// The service used to share TOTP codes to and from the Authenticator app.
 ///
 protocol AuthenticatorSyncService {
     /// This starts the service listening for updates and writing to the shared store. This method
@@ -131,19 +131,18 @@ class DefaultAuthenticatorSyncService: NSObject, AuthenticatorSyncService {
     ///
     private func decryptTOTPs(_ ciphers: [Cipher],
                               userId: String) async throws -> [AuthenticatorBridgeItemDataView] {
-        let decryptedCiphers = try await ciphers.asyncMap { cipher in
+        let totpCiphers = ciphers.filter { cipher in
+            cipher.deletedDate == nil
+                && cipher.type == .login
+                && cipher.login?.totp != nil
+        }
+        let decryptedCiphers = try await totpCiphers.asyncMap { cipher in
             try await self.clientService.vault().ciphers().decrypt(cipher: cipher)
         }
         let account = try await stateService.getActiveAccount()
         let username = account.profile.name ?? account.profile.email
 
-        let ciphersToUse = decryptedCiphers.filter { cipher in
-            cipher.deletedDate == nil
-                && cipher.type == .login
-                && cipher.login?.totp != nil
-        }
-
-        return ciphersToUse.map { cipher in
+        return decryptedCiphers.map { cipher in
             AuthenticatorBridgeItemDataView(
                 favorite: false,
                 id: cipher.id ?? UUID().uuidString,
@@ -160,18 +159,20 @@ class DefaultAuthenticatorSyncService: NSObject, AuthenticatorSyncService {
     /// - Parameter userId: The userId of the user who has turned on sync.
     ///
     private func handleSyncOnForUserId(_ userId: String) async {
-        Logger.application.log("#### sync is on for userId: \(userId)")
+        Logger.application.debug("#### sync is on for userId: \(userId)")
 
-        if !vaultTimeoutService.isLocked(userId: userId) {
-            Logger.application.log("#### App in foreground and unlocked. Begin key creations.")
-            do {
-                try await createAuthenticatorKeyIfNeeded()
-            } catch {
-                errorReporter.log(error: error)
-            }
-            Logger.application.log("#### Subscribing to cipher updates")
-            subscribeToCipherUpdates(userId: userId)
+        guard !vaultTimeoutService.isLocked(userId: userId) else {
+            return
         }
+
+        Logger.application.debug("#### App in foreground and unlocked. Begin key creations.")
+        do {
+            try await createAuthenticatorKeyIfNeeded()
+        } catch {
+            errorReporter.log(error: error)
+        }
+        Logger.application.debug("#### Subscribing to cipher updates")
+        subscribeToCipherUpdates(userId: userId)
     }
 
     /// This function handles stopping sync and cleaning up all sync-related items when a user has turned sync Off.
@@ -179,8 +180,8 @@ class DefaultAuthenticatorSyncService: NSObject, AuthenticatorSyncService {
     /// - Parameter userId: The userId of the user who has turned off sync.
     ///
     private func handleSyncOffForUserId(_ userId: String) {
-        Logger.application.log("#### sync is off for userId: \(userId)")
-        Logger.application.log("#### Canceling cipher update subscription")
+        Logger.application.debug("#### sync is off for userId: \(userId)")
+        Logger.application.debug("#### Canceling cipher update subscription")
         cipherPublisherTasks[userId]??.cancel()
         cipherPublisherTasks[userId] = nil
     }
@@ -190,7 +191,7 @@ class DefaultAuthenticatorSyncService: NSObject, AuthenticatorSyncService {
     private func subscribeToAppState() {
         Task {
             for await _ in notificationCenterService.willEnterForegroundPublisher() {
-                Logger.application.log("#### app entered foreground")
+                Logger.application.debug("#### app entered foreground")
                 subscribeToSyncToAuthenticatorSetting()
             }
         }
@@ -223,7 +224,7 @@ class DefaultAuthenticatorSyncService: NSObject, AuthenticatorSyncService {
             for await (userId, shouldSync) in await self.stateService.syncToAuthenticatorPublisher().values {
                 guard let userId else { continue }
 
-                Logger.application.log("#### Sync With Authenticator App Setting: \(shouldSync), userId: \(userId)")
+                Logger.application.debug("#### Sync With Authenticator App Setting: \(shouldSync), userId: \(userId)")
                 if shouldSync {
                     await handleSyncOnForUserId(userId)
                 } else {
@@ -241,7 +242,7 @@ class DefaultAuthenticatorSyncService: NSObject, AuthenticatorSyncService {
     ///
     private func writeCiphers(ciphers: [Cipher], userId: String) async throws {
         let items = try await decryptTOTPs(ciphers, userId: userId)
-        Logger.application.log("#### replacing data for \(userId)")
+        Logger.application.debug("#### replacing data for \(userId)")
         try await authBridgeItemService.replaceAllItems(with: items, forUserId: userId)
     }
 }

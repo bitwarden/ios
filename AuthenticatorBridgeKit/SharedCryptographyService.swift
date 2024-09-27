@@ -7,21 +7,6 @@ import Foundation
 /// Bitwarden app and the Authenticator app.
 ///
 public protocol SharedCryptographyService: AnyObject {
-    /// Takes an array of `AuthenticatorBridgeItemData` with encrypted data and
-    /// returns the list with each member decrypted.
-    ///
-    /// Note: if any of the items cannot convert its modelData to a model, it will be dropped
-    /// from the resulting array.
-    ///
-    /// - Parameter items: The encrypted array of items to be decrypted
-    /// - Returns: the array of items with their data decrypted
-    /// - Throws: AuthenticatorKeychainServiceError.keyNotFound if the Authenticator
-    ///     key is not in the shared repository.
-    ///
-    func decryptAuthenticatorItemDatas(
-        _ items: [AuthenticatorBridgeItemData]
-    ) async throws -> [AuthenticatorBridgeItemDataView]
-
     /// Takes an array of `AuthenticatorBridgeItemDataModel` with encrypted data and
     /// returns the list with each member decrypted.
     ///
@@ -30,11 +15,11 @@ public protocol SharedCryptographyService: AnyObject {
     /// - Throws: AuthenticatorKeychainServiceError.keyNotFound if the Authenticator
     ///     key is not in the shared repository.
     ///
-    func decryptAuthenticatorItemModels(
+    func decryptAuthenticatorItems(
         _ items: [AuthenticatorBridgeItemDataModel]
     ) async throws -> [AuthenticatorBridgeItemDataView]
 
-    /// Takes an array of `AuthenticatorBridgeItemDataModel` with decrypted data and
+    /// Takes an array of `AuthenticatorBridgeItemDataView` with decrypted data and
     /// returns the list with each member encrypted.
     ///
     /// - Parameter items: The decrypted array of items to be encrypted
@@ -69,26 +54,7 @@ public class DefaultAuthenticatorCryptographyService: SharedCryptographyService 
 
     // MARK: Methods
 
-    public func decryptAuthenticatorItemDatas(
-        _ items: [AuthenticatorBridgeItemData]
-    ) async throws -> [AuthenticatorBridgeItemDataView] {
-        let key = try await sharedKeychainRepository.getAuthenticatorKey()
-        let symmetricKey = SymmetricKey(data: key)
-
-        return items.compactMap { data in
-            guard let item = data.model else { return nil }
-
-            return AuthenticatorBridgeItemDataView(
-                favorite: item.favorite,
-                id: item.id,
-                name: (try? decrypt(item.name, withKey: symmetricKey)) ?? "",
-                totpKey: try? decrypt(item.totpKey, withKey: symmetricKey),
-                username: try? decrypt(item.username, withKey: symmetricKey)
-            )
-        }
-    }
-
-    public func decryptAuthenticatorItemModels(
+    public func decryptAuthenticatorItems(
         _ items: [AuthenticatorBridgeItemDataModel]
     ) async throws -> [AuthenticatorBridgeItemDataView] {
         let key = try await sharedKeychainRepository.getAuthenticatorKey()

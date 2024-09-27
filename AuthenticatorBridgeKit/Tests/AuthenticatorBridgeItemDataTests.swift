@@ -86,7 +86,7 @@ final class AuthenticatorBridgeItemDataTests: AuthenticatorBridgeKitTestCase {
         XCTAssertNotNil(result)
         XCTAssertEqual(result.count, 1)
 
-        let decrypted = try await cryptoService.decryptAuthenticatorItemModels(result.compactMap(\.model))
+        let decrypted = try await cryptoService.decryptAuthenticatorItems(result.compactMap(\.model))
         let item = try XCTUnwrap(decrypted.first)
         XCTAssertEqual(item, expectedItem)
     }
