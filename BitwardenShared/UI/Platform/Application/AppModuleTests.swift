@@ -71,7 +71,7 @@ class AppModuleTests: BitwardenTestCase {
         let coordinator = subject.makeExtensionSetupCoordinator(
             stackNavigator: navigationController
         )
-        coordinator.start()
+        coordinator.navigate(to: .extensionActivation(type: .autofillExtension))
         XCTAssertEqual(navigationController.viewControllers.count, 1)
         XCTAssertTrue(navigationController.viewControllers[0] is UIHostingController<ExtensionActivationView>)
     }
