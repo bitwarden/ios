@@ -4,7 +4,7 @@ import Foundation
 
 /// An enum to represent a feature flag sent by the server
 ///
-enum FeatureFlag: String, Codable {
+enum FeatureFlag: String, CaseIterable, Codable {
     /// Flag to enable/disable email verification during registration
     /// This flag introduces a new flow for account creation
     case emailVerification = "email-verification"
@@ -42,12 +42,8 @@ enum FeatureFlag: String, Codable {
 
     /// An array of feature flags available in the debug menu.
     static var debugMenuFeatureFlags: [FeatureFlag] {
-        [
-            .emailVerification,
-            .enableAuthenticatorSync,
-            .nativeCarouselFlow,
-            .nativeCreateAccountFlow,
-        ]
+        allCases.filter { !$0.rawValue.hasPrefix("test-") }
+            .filter { $0 != .enableCipherKeyEncryption }
     }
 
     /// The initial values for feature flags.
