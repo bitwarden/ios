@@ -107,6 +107,8 @@
 "ExtensionInSafari" = "In Safari, find Bitwarden using the share icon (hint: scroll to the right on the bottom row of the menu).";
 "ExtensionInstantAccess" = "Get instant access to your passwords!";
 "ExtensionReady" = "You're ready to log in!";
+"ExtensionAllSet" = "You're all set!";
+"ExtensionAutoFillActivated" = "You can now use autofill to log into apps and websites using your saved passwords. Now, you can explore everything else Bitwarden has to offer.";
 "ExtensionSetup" = "Your logins are now easily accessible from Safari, Chrome, and other supported apps.";
 "ExtensionSetup2" = "In Safari and Chrome, find Bitwarden using the share icon (hint: scroll to the right on the bottom row of the share menu).";
 "ExtensionTapIcon" = "Tap the Bitwarden icon in the menu to launch the extension.";
@@ -980,3 +982,5 @@
 "Confirm" = "Confirm";
 "ErrorConnectingWithTheDuoServiceUseADifferentTwoStepLoginMethodOrContactDuoForAssistance" = "Error connecting with the Duo service. Use a different two-step login method or contact Duo for assistance.";
 "ThePreAuthUrlsCouldNotBeLoadedToStartTheAccountCreation" = "The Pre Auth Urls could not be loaded to start the account creation.";
+"ContinueToBitwarden" = "Continue to Bitwarden";
+"BackToSettings" = "Back to settings";
