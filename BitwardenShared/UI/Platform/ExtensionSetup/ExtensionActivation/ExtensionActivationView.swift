@@ -27,6 +27,7 @@ struct ExtensionActivationView: View {
                 content
             }
         }
+        .scrollView()
         .navigationTitle(store.state.navigationBarTitle)
         .navigationBarTitleDisplayMode(.inline)
         .task {
@@ -57,7 +58,6 @@ struct ExtensionActivationView: View {
             .buttonStyle(.transparent)
             .padding(.top, 12)
         }
-        .scrollView()
     }
 
     /// The legacy view for this screen kept intact to support both versions.
@@ -76,7 +76,6 @@ struct ExtensionActivationView: View {
 
             image
         }
-        .scrollView()
         .toolbar {
             cancelToolbarItem {
                 store.send(.cancelTapped)
