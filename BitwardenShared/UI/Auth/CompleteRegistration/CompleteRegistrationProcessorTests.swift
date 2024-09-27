@@ -687,6 +687,7 @@ class CompleteRegistrationProcessorTests: BitwardenTestCase {
     func test_receive_learnMoreTapped() {
         subject.receive(.learnMoreTapped)
         XCTAssertEqual(coordinator.routes.last, .masterPasswordGuidance)
+        XCTAssertNotNil(coordinator.contexts.last as? CompleteRegistrationProcessor)
     }
 
     /// `receive(_:)` with `.passwordHintTextChanged(_:)` updates the state to reflect the change.
