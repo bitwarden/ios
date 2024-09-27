@@ -6,5 +6,5 @@ struct MasterPasswordGeneratorState: Equatable {
     // MARK: Properties
 
     /// The generated master password.
-    var generatedPassword: String
+    var generatedPassword: String = ""
 }

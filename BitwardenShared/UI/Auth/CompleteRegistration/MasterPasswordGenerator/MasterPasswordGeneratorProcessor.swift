@@ -34,16 +34,15 @@ class MasterPasswordGeneratorProcessor: StateProcessor<
     ) {
         self.coordinator = coordinator
         self.services = services
-        super.init(state: MasterPasswordGeneratorState(generatedPassword: ""))
+        super.init(state: MasterPasswordGeneratorState())
     }
 
     // MARK: Methods
 
     override func perform(_ effect: MasterPasswordGeneratorEffect) async {
         switch effect {
-        case .loadData:
-            await generatePassword()
-        case .generate:
+        case .loadData,
+             .generate:
             await generatePassword()
         case .save:
             // https://bitwarden.atlassian.net/browse/PM-10676
