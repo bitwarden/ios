@@ -25,7 +25,10 @@ struct MasterPasswordGeneratorView: View {
             instructionsPreventAccountLockView
         }
         .scrollView()
-        .navigationBar(title: Localizations.generateMasterPassword, titleDisplayMode: .inline)
+        .navigationBar(
+            title: Localizations.generateMasterPassword,
+            titleDisplayMode: .inline
+        )
         .toolbar {
             cancelToolbarItem {
                 store.send(.dismiss)
@@ -82,7 +85,7 @@ struct MasterPasswordGeneratorView: View {
             } label: {
                 Text(Localizations.learnAboutOtherWaysToPreventAccountLockout)
                     .styleGuide(.footnote, weight: .semibold)
-                    .foregroundStyle(Asset.Colors.textPrimary.swiftUIColor)
+                    .foregroundStyle(Asset.Colors.textCodeBlue.swiftUIColor)
                     .multilineTextAlignment(.leading)
                     .frame(maxWidth: .infinity, alignment: .leading)
             }
