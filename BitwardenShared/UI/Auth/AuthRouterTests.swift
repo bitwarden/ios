@@ -257,12 +257,11 @@ final class AuthRouterTests: BitwardenTestCase { // swiftlint:disable:this type_
     /// `handleAndRoute(_:)` redirects `.didCompleteAuth` to `.autofillSetup` if the user still
     /// needs to set up autofill.
     func test_handleAndRoute_didCompleteAuth_incompleteAutofill() async {
-        // TODO: PM-10278 Add autofill setup screen
-//        authRepository.activeAccount = .fixture()
-//        stateService.activeAccount = .fixture()
-//        stateService.accountSetupAutofill["1"] = .incomplete
-//        let route = await subject.handleAndRoute(.didCompleteAuth)
-//        XCTAssertEqual(route, .autofillSetup)
+        authRepository.activeAccount = .fixture()
+        stateService.activeAccount = .fixture()
+        stateService.accountSetupAutofill["1"] = .incomplete
+        let route = await subject.handleAndRoute(.didCompleteAuth)
+        XCTAssertEqual(route, .autofillSetup)
     }
 
     /// `handleAndRoute(_:)` redirects `.didCompleteAuth` to `.vaultUnlockSetup` if the user still
