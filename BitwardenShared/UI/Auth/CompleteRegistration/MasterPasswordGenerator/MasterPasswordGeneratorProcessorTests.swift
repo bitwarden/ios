@@ -76,10 +76,25 @@ class MasterPasswordGeneratorProcessorTests: BitwardenTestCase {
         XCTAssertEqual(coordinator.routes.last, .dismissPresented)
     }
 
+    /// `receive(_:)` with `.preventAccountLock` shows the prevent account lock screen.
+    @MainActor
+    func test_receive_save() {
+        subject.receive(.preventAccountLock)
+        XCTAssertEqual(coordinator.routes.last, .preventAccountLock)
+    }
+
     /// `receive(_:)` with `.save` dismisses the view.
     @MainActor
     func test_receive_save() async {
         await subject.perform(.save)
         XCTAssertEqual(coordinator.routes.last, .dismissPresented)
+    }
+
+    /// `receive(_:)` with `.masterPasswordChanged(String)` changes the master password.
+    @MainActor
+    func test_receive_masterPasswordChanged() {
+        let updatedPassword = "XxLimpBizkit4Eva!xX"
+        subject.receive(.masterPasswordChanged(updatedPassword))
+        XCTAssertEqual(subject.state.generatedPassword, updatedPassword)
     }
 }
