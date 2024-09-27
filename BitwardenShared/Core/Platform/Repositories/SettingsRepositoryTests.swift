@@ -137,6 +137,19 @@ class SettingsRepositoryTests: BitwardenTestCase {
         XCTAssertTrue(value)
     }
 
+    /// `getSyncToAuthenticator()` returns the expected value.
+    func test_getSyncToAuthenticator() async throws {
+        stateService.activeAccount = .fixture()
+
+        // Defaults to false if no value is set.
+        var value = try await subject.getSyncToAuthenticator()
+        XCTAssertFalse(value)
+
+        stateService.syncToAuthenticatorByUserId["1"] = true
+        value = try await subject.getSyncToAuthenticator()
+        XCTAssertTrue(value)
+    }
+
     /// `fetchSync()` throws an error if syncing fails.
     func test_fetchSync_error() async throws {
         syncService.fetchSyncResult = .failure(BitwardenTestError.example)
@@ -228,5 +241,19 @@ class SettingsRepositoryTests: BitwardenTestCase {
         try await subject.updateDisableAutoTotpCopy(true)
 
         try XCTAssertTrue(XCTUnwrap(stateService.disableAutoTotpCopyByUserId["1"]))
+    }
+
+    /// `updateSyncToAuthenticator()` updates the value in the state service.
+    func test_updateSyncToAuthenticator() async throws {
+        stateService.activeAccount = .fixture()
+
+        // The value should start off with a default of false.
+        var value = try await stateService.getSyncToAuthenticator()
+        XCTAssertFalse(value)
+
+        // Set the value and ensure it updates.
+        try await subject.updateSyncToAuthenticator(true)
+        value = try await stateService.getSyncToAuthenticator()
+        XCTAssertTrue(value)
     }
 }

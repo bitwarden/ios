@@ -537,7 +537,7 @@ class CompleteRegistrationProcessorTests: BitwardenTestCase {
         }
         dismissAction?.action()
         XCTAssertEqual(coordinator.routes.count, 2)
-        XCTAssertEqual(coordinator.routes[1], .login(username: "email@example.com"))
+        XCTAssertEqual(coordinator.routes[1], .login(username: "email@example.com", isNewAccount: true))
         XCTAssertEqual(coordinator.toastsShown, [Localizations.accountSuccessfullyCreated])
     }
 
@@ -568,7 +568,7 @@ class CompleteRegistrationProcessorTests: BitwardenTestCase {
         }
         dismissAction?.action()
         XCTAssertEqual(coordinator.routes.count, 2)
-        XCTAssertEqual(coordinator.routes[1], .login(username: "email@example.com"))
+        XCTAssertEqual(coordinator.routes[1], .login(username: "email@example.com", isNewAccount: true))
         XCTAssertEqual(coordinator.toastsShown, [Localizations.accountSuccessfullyCreated])
     }
 
@@ -658,6 +658,7 @@ class CompleteRegistrationProcessorTests: BitwardenTestCase {
         XCTAssertEqual(authService.loginWithMasterPasswordPassword, "password1234")
         XCTAssertNil(authService.loginWithMasterPasswordCaptchaToken)
         XCTAssertEqual(authService.loginWithMasterPasswordUsername, "email@example.com")
+        XCTAssertTrue(authService.loginWithMasterPasswordIsNewAccount)
 
         XCTAssertEqual(client.requests.count, 2)
         XCTAssertEqual(client.requests[0].url, URL(string: "https://example.com/identity/accounts/register/finish"))

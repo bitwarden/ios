@@ -50,6 +50,7 @@ final class SettingsCoordinator: Coordinator, HasStackNavigator { // swiftlint:d
         & HasAuthRepository
         & HasAuthService
         & HasBiometricsRepository
+        & HasConfigService
         & HasEnvironmentService
         & HasErrorReporter
         & HasExportVaultService
@@ -400,6 +401,8 @@ final class SettingsCoordinator: Coordinator, HasStackNavigator { // swiftlint:d
     private func showSettings() {
         let processor = SettingsProcessor(
             coordinator: asAnyCoordinator(),
+            delegate: self,
+            services: services,
             state: SettingsState()
         )
         let view = SettingsView(store: Store(processor: processor))
@@ -418,5 +421,13 @@ final class SettingsCoordinator: Coordinator, HasStackNavigator { // swiftlint:d
         let viewController = UIHostingController(rootView: view)
         viewController.navigationItem.largeTitleDisplayMode = .never
         stackNavigator?.push(viewController, navigationTitle: Localizations.vault)
+    }
+}
+
+// MARK: SettingsProcessorDelegate
+
+extension SettingsCoordinator: SettingsProcessorDelegate {
+    func updateSettingsTabBadge(_ badgeValue: String?) {
+        stackNavigator?.rootViewController?.tabBarItem.badgeValue = badgeValue
     }
 }

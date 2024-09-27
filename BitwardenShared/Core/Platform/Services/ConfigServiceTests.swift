@@ -5,6 +5,7 @@ import XCTest
 final class ConfigServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body_length
     // MARK: Properties
 
+    var appSettingsStore: MockAppSettingsStore!
     var client: MockHTTPClient!
     var configApiService: APIService!
     var errorReporter: MockErrorReporter!
@@ -18,6 +19,7 @@ final class ConfigServiceTests: BitwardenTestCase { // swiftlint:disable:this ty
     override func setUp() {
         super.setUp()
 
+        appSettingsStore = MockAppSettingsStore()
         client = MockHTTPClient()
         configApiService = APIService(client: client)
         errorReporter = MockErrorReporter()
@@ -25,6 +27,7 @@ final class ConfigServiceTests: BitwardenTestCase { // swiftlint:disable:this ty
         stateService = MockStateService()
         timeProvider = MockTimeProvider(.mockTime(now))
         subject = DefaultConfigService(
+            appSettingsStore: appSettingsStore,
             configApiService: configApiService,
             errorReporter: errorReporter,
             stateService: stateService,
@@ -37,6 +40,7 @@ final class ConfigServiceTests: BitwardenTestCase { // swiftlint:disable:this ty
     override func tearDown() {
         super.tearDown()
 
+        appSettingsStore = nil
         client = nil
         configApiService = nil
         errorReporter = nil
@@ -457,6 +461,43 @@ final class ConfigServiceTests: BitwardenTestCase { // swiftlint:disable:this ty
         )
         let value = await subject.getFeatureFlag(.testLocalFeatureFlag, defaultValue: "fallback", forceRefresh: false)
         XCTAssertEqual(value, "fallback")
+    }
+
+    /// `getDebugFeatureFlags(:)` returns the default value if the feature is not remotely configurable for strings
+    func test_getDebugFeatureFlags() async {
+        stateService.serverConfig["1"] = ServerConfig(
+            date: Date(year: 2024, month: 2, day: 14, hour: 7, minute: 50, second: 0),
+            responseModel: ConfigResponseModel(
+                environment: nil,
+                featureStates: ["email-verification": .bool(true)],
+                gitHash: "75238191",
+                server: nil,
+                version: "2024.4.0"
+            )
+        )
+        appSettingsStore.overrideDebugFeatureFlag(name: "email-verification", value: false)
+        let flags = await subject.getDebugFeatureFlags()
+        let emailVerificationFlag = try? XCTUnwrap(flags.first { $0.feature.rawValue == "email-verification" })
+        XCTAssertFalse(emailVerificationFlag?.isEnabled ?? true)
+    }
+
+    /// `toggleDebugFeatureFlag` will correctly change the value of the flag given.
+    func test_toggleDebugFeatureFlag() async throws {
+        let flags = await subject.toggleDebugFeatureFlag(
+            name: FeatureFlag.emailVerification.rawValue,
+            newValue: true
+        )
+        XCTAssertTrue(appSettingsStore.overrideDebugFeatureFlagCalled)
+        let flag = try XCTUnwrap(flags.first { $0.feature == .emailVerification })
+        XCTAssertTrue(flag.isEnabled)
+    }
+
+    /// `refreshDebugFeatureFlags` will reset the flags to the original state before overriding.
+    func test_refreshDebugFeatureFlags() async throws {
+        let flags = await subject.refreshDebugFeatureFlags()
+        XCTAssertTrue(appSettingsStore.overrideDebugFeatureFlagCalled)
+        let flag = try XCTUnwrap(flags.first { $0.feature == .emailVerification })
+        XCTAssertFalse(flag.isEnabled)
     }
 
     // MARK: Private

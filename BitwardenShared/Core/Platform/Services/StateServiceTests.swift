@@ -300,6 +300,44 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
         }
     }
 
+    /// `getAccountSetupAutofill()` returns the user's autofill setup progress.
+    func test_getAccountSetupAutofill() async throws {
+        await subject.addAccount(.fixture(profile: .fixture(userId: "1")))
+
+        let initialValue = try await subject.getAccountSetupAutofill()
+        XCTAssertNil(initialValue)
+
+        appSettingsStore.accountSetupAutofill["1"] = .setUpLater
+        let setUpLater = try await subject.getAccountSetupAutofill()
+        XCTAssertEqual(setUpLater, .setUpLater)
+    }
+
+    /// `getAccountSetupAutofill()` throws an error if there isn't an active account.
+    func test_getAccountSetupAutofill_noAccount() async throws {
+        await assertAsyncThrows(error: StateServiceError.noActiveAccount) {
+            _ = try await subject.getAccountSetupAutofill()
+        }
+    }
+
+    /// `getAccountSetupVaultUnlock()` returns the user's vault unlock setup progress.
+    func test_getAccountSetupVaultUnlock() async throws {
+        await subject.addAccount(.fixture(profile: .fixture(userId: "1")))
+
+        let initialValue = try await subject.getAccountSetupVaultUnlock()
+        XCTAssertNil(initialValue)
+
+        appSettingsStore.accountSetupVaultUnlock["1"] = .setUpLater
+        let setUpLater = try await subject.getAccountSetupVaultUnlock()
+        XCTAssertEqual(setUpLater, .setUpLater)
+    }
+
+    /// `getAccountSetupVaultUnlock()` throws an error if there isn't an active account.
+    func test_getAccountSetupVaultUnlock_noAccount() async throws {
+        await assertAsyncThrows(error: StateServiceError.noActiveAccount) {
+            _ = try await subject.getAccountSetupVaultUnlock()
+        }
+    }
+
     /// `getActiveAccount()` returns the active account.
     func test_getActiveAccount() async throws {
         let account = Account.fixture(profile: .fixture(userId: "2"))
@@ -637,25 +675,6 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
         }
     }
 
-    /// `getNeedsVaultUnlockSetup()` returns whether the user needs to set up vault unlock methods.
-    func test_getNeedsVaultUnlockSetup() async throws {
-        await subject.addAccount(.fixture(profile: .fixture(userId: "1")))
-
-        let initialValue = try await subject.getNeedsVaultUnlockSetup()
-        XCTAssertFalse(initialValue)
-
-        appSettingsStore.needsVaultUnlockSetup["1"] = true
-        let needsVaultUnlockSetup = try await subject.getNeedsVaultUnlockSetup()
-        XCTAssertTrue(needsVaultUnlockSetup)
-    }
-
-    /// `getNeedsVaultUnlockSetup()` throws an error if there isn't an active account.
-    func test_getNeedsVaultUnlockSetup_noAccount() async throws {
-        await assertAsyncThrows(error: StateServiceError.noActiveAccount) {
-            _ = try await subject.getNeedsVaultUnlockSetup()
-        }
-    }
-
     /// `getNotificationsLastRegistrationDate()` returns the user's last notifications registration date.
     func test_getNotificationsLastRegistrationDate() async throws {
         await subject.addAccount(.fixture(profile: .fixture(userId: "1")))
@@ -770,6 +789,14 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
 
         let value = await subject.getShowWebIcons()
         XCTAssertFalse(value)
+    }
+
+    /// `getSyncToAuthenticator()` returns the sync to authenticator value for the active account.
+    func test_getSyncToAuthenticator() async throws {
+        await subject.addAccount(.fixture())
+        appSettingsStore.syncToAuthenticatorByUserId["1"] = true
+        let value = try await subject.getSyncToAuthenticator()
+        XCTAssertTrue(value)
     }
 
     /// `.getTimeoutAction(userId:)` returns the session timeout action.
@@ -1507,6 +1534,28 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
         }
     }
 
+    /// `setAccountSetupAutofill(_:)` sets the user's autofill setup progress.
+    func test_setAccountSetupAutofill() async throws {
+        await subject.addAccount(.fixture(profile: .fixture(userId: "1")))
+
+        try await subject.setAccountSetupAutofill(.incomplete)
+        XCTAssertEqual(appSettingsStore.accountSetupAutofill, ["1": .incomplete])
+
+        try await subject.setAccountSetupAutofill(.complete, userId: "1")
+        XCTAssertEqual(appSettingsStore.accountSetupAutofill, ["1": .complete])
+    }
+
+    /// `setAccountSetupVaultUnlock(_:)` sets the user's vault unlock setup progress.
+    func test_setAccountSetupVaultUnlock() async throws {
+        await subject.addAccount(.fixture(profile: .fixture(userId: "1")))
+
+        try await subject.setAccountSetupVaultUnlock(.incomplete)
+        XCTAssertEqual(appSettingsStore.accountSetupVaultUnlock, ["1": .incomplete])
+
+        try await subject.setAccountSetupVaultUnlock(.complete, userId: "1")
+        XCTAssertEqual(appSettingsStore.accountSetupVaultUnlock, ["1": .complete])
+    }
+
     /// `setActiveAccount(userId: )` succeeds if there is a matching account
     func test_setActiveAccount_match_multi() async throws {
         let account1 = Account.fixture(profile: .fixture(userId: "1"))
@@ -1567,17 +1616,6 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
 
         try await subject.setMasterPasswordHash("1234", userId: "1")
         XCTAssertEqual(appSettingsStore.masterPasswordHashes, ["1": "1234"])
-    }
-
-    /// `setNeedsVaultUnlockSetup(_:)` sets whether the user needs to set up vault unlock methods.
-    func test_setNeedsVaultUnlockSetup() async throws {
-        await subject.addAccount(.fixture(profile: .fixture(userId: "1")))
-
-        try await subject.setNeedsVaultUnlockSetup(true)
-        XCTAssertEqual(appSettingsStore.needsVaultUnlockSetup, ["1": true])
-
-        try await subject.setNeedsVaultUnlockSetup(false, userId: "1")
-        XCTAssertEqual(appSettingsStore.needsVaultUnlockSetup, ["1": false])
     }
 
     /// `setNotificationsLastRegistrationDate(_:)` sets the last notifications registration date for a user.
@@ -1675,6 +1713,41 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
         XCTAssertTrue(appSettingsStore.disableWebIcons)
     }
 
+    /// `setSyncToAuthenticator(_:userId:)` sets the sync to authenticator value for a user.
+    func test_setSyncToAuthenticator() async throws {
+        await subject.addAccount(.fixture())
+
+        try await subject.setSyncToAuthenticator(true)
+        XCTAssertTrue(appSettingsStore.syncToAuthenticator(userId: "1"))
+    }
+
+    /// `settingsBadgePublisher()` publishes the settings badge value for the active user.
+    func test_settingsBadgePublisher() async throws {
+        await subject.addAccount(.fixture())
+
+        var badgeValues = [String?]()
+        let publisher = try await subject.settingsBadgePublisher()
+            .sink { badgeValue in
+                badgeValues.append(badgeValue)
+            }
+        defer { publisher.cancel() }
+
+        try await subject.setAccountSetupAutofill(.setUpLater)
+        try await subject.setAccountSetupVaultUnlock(.setUpLater)
+
+        try await subject.setAccountSetupAutofill(.complete)
+        try await subject.setAccountSetupVaultUnlock(.complete)
+
+        XCTAssertEqual(badgeValues, [nil, "1", "2", "1", nil])
+    }
+
+    /// `settingsBadgePublisher()` throws an error if there's no active account.
+    func test_settingsBadgePublisher_error() async throws {
+        await assertAsyncThrows(error: StateServiceError.noActiveAccount) {
+            _ = try await subject.settingsBadgePublisher()
+        }
+    }
+
     /// `setTwoFactorToken(_:email:)` sets the two-factor code for the email.
     func test_setTwoFactorToken() async {
         await subject.setTwoFactorToken("yay_you_win!", email: "winner@email.com")
@@ -1741,6 +1814,59 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
 
         try await subject.setUsesKeyConnector(true)
         XCTAssertEqual(appSettingsStore.usesKeyConnector["1"], true)
+    }
+
+    /// `syncToAuthenticatorPublisher()` returns a publisher for the user's sync to authenticator settings.
+    func test_syncToAuthenticatorPublisher() async throws {
+        await subject.addAccount(.fixture(profile: .fixture(userId: "1")))
+
+        var publishedValues = [(userId: String?, shouldSync: Bool)]()
+        let publisher = await subject.syncToAuthenticatorPublisher()
+            .sink(receiveValue: { userId, shouldSync in
+                publishedValues.append((userId: userId, shouldSync: shouldSync))
+            })
+        defer { publisher.cancel() }
+
+        try await subject.setSyncToAuthenticator(true)
+
+        XCTAssertEqual(publishedValues[0].userId, "1")
+        XCTAssertEqual(publishedValues[0].shouldSync, false)
+        XCTAssertEqual(publishedValues[1].userId, "1")
+        XCTAssertEqual(publishedValues[1].shouldSync, true)
+    }
+
+    /// `syncToAuthenticatorPublisher()` gets the initial stored value if a cached value doesn't exist.
+    func test_syncToAuthenticatorPublisher_fetchesInitialValue() async throws {
+        await subject.addAccount(.fixture(profile: .fixture(userId: "1")))
+
+        appSettingsStore.syncToAuthenticatorByUserId["1"] = true
+
+        var publishedValues = [(userId: String?, shouldSync: Bool)]()
+        let publisher = await subject.syncToAuthenticatorPublisher()
+            .sink(receiveValue: { userId, shouldSync in
+                publishedValues.append((userId: userId, shouldSync: shouldSync))
+            })
+        defer { publisher.cancel() }
+
+        try await subject.setSyncToAuthenticator(false)
+
+        XCTAssertEqual(publishedValues[0].userId, "1")
+        XCTAssertEqual(publishedValues[0].shouldSync, true)
+        XCTAssertEqual(publishedValues[1].userId, "1")
+        XCTAssertEqual(publishedValues[1].shouldSync, false)
+    }
+
+    /// `syncToAuthenticatorPublisher()` returns false if the user is not logged in.
+    func test_syncToAuthenticatorPublisher_notLoggedIn() async throws {
+        var publishedValues = [(userId: String?, shouldSync: Bool)]()
+        let publisher = await subject.syncToAuthenticatorPublisher()
+            .sink(receiveValue: { userId, shouldSync in
+                publishedValues.append((userId: userId, shouldSync: shouldSync))
+            })
+        defer { publisher.cancel() }
+
+        XCTAssertNil(publishedValues[0].userId)
+        XCTAssertFalse(publishedValues[0].shouldSync)
     }
 
     /// `.setActiveAccount(userId:)` sets the action that occurs when there's a session timeout.

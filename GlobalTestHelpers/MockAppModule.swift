@@ -5,6 +5,7 @@
 class MockAppModule:
     AppModule,
     AuthModule,
+    DebugMenuModule,
     ExtensionSetupModule,
     FileSelectionModule,
     GeneratorModule,
@@ -19,6 +20,7 @@ class MockAppModule:
     var appCoordinator = MockCoordinator<AppRoute, AppEvent>()
     var authCoordinator = MockCoordinator<AuthRoute, AuthEvent>()
     var authRouter = MockRouter<AuthEvent, AuthRoute>(routeForEvent: { _ in .landing })
+    var debugMenuCoordinator = MockCoordinator<DebugMenuRoute, Void>()
     var extensionSetupCoordinator = MockCoordinator<ExtensionSetupRoute, Void>()
     var fileSelectionDelegate: FileSelectionDelegate?
     var fileSelectionCoordinator = MockCoordinator<FileSelectionRoute, Void>()
@@ -28,6 +30,7 @@ class MockAppModule:
     var sendCoordinator = MockCoordinator<SendRoute, Void>()
     var sendItemCoordinator = MockCoordinator<SendItemRoute, AuthAction>()
     var settingsCoordinator = MockCoordinator<SettingsRoute, SettingsEvent>()
+    var settingsNavigator: StackNavigator? // swiftlint:disable:this weak_navigator
     var tabCoordinator = MockCoordinator<TabRoute, Void>()
     var vaultCoordinator = MockCoordinator<VaultRoute, AuthAction>()
     var vaultItemCoordinator = MockCoordinator<VaultItemRoute, VaultItemEvent>()
@@ -49,6 +52,12 @@ class MockAppModule:
 
     func makeAuthRouter() -> BitwardenShared.AnyRouter<BitwardenShared.AuthEvent, BitwardenShared.AuthRoute> {
         authRouter.asAnyRouter()
+    }
+
+    func makeDebugMenuCoordinator(
+        stackNavigator: StackNavigator
+    ) -> AnyCoordinator<DebugMenuRoute, Void> {
+        debugMenuCoordinator.asAnyCoordinator()
     }
 
     func makeExtensionSetupCoordinator(
@@ -99,9 +108,10 @@ class MockAppModule:
 
     func makeSettingsCoordinator(
         delegate _: SettingsCoordinatorDelegate,
-        stackNavigator _: StackNavigator
+        stackNavigator: StackNavigator
     ) -> AnyCoordinator<SettingsRoute, SettingsEvent> {
-        settingsCoordinator.asAnyCoordinator()
+        settingsNavigator = stackNavigator
+        return settingsCoordinator.asAnyCoordinator()
     }
 
     func makeTabCoordinator( // swiftlint:disable:this function_parameter_count

@@ -305,6 +305,21 @@ class SettingsCoordinatorTests: BitwardenTestCase {
 
         XCTAssertTrue(stackNavigator.actions.last?.view is SettingsView)
     }
+
+    /// `updateSettingsTabBadge(_:)` updates the badge value on the root view controller's tab bar item.
+    @MainActor
+    func test_updateSettingsTabBadge() {
+        stackNavigator.rootViewController = UIViewController()
+
+        subject.updateSettingsTabBadge("1")
+        XCTAssertEqual(stackNavigator.rootViewController?.tabBarItem.badgeValue, "1")
+
+        subject.updateSettingsTabBadge("2")
+        XCTAssertEqual(stackNavigator.rootViewController?.tabBarItem.badgeValue, "2")
+
+        subject.updateSettingsTabBadge(nil)
+        XCTAssertNil(stackNavigator.rootViewController?.tabBarItem.badgeValue)
+    }
 }
 
 class MockSettingsCoordinatorDelegate: SettingsCoordinatorDelegate {

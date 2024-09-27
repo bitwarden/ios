@@ -122,13 +122,13 @@ struct LandingView: View {
                     Button(Localizations.createAccount) {
                         store.send(.createAccountPressed)
                     }
-                    .foregroundColor(Asset.Colors.primaryBitwarden.swiftUIColor)
+                    .foregroundColor(Asset.Colors.textInteraction.swiftUIColor)
                 }
                 .styleGuide(.footnote)
             }
             .padding([.horizontal, .bottom], 16)
         }
-        .background(Asset.Colors.backgroundSecondary.swiftUIColor.ignoresSafeArea())
+        .background(Asset.Colors.backgroundPrimary.swiftUIColor.ignoresSafeArea())
     }
 }
 

@@ -59,6 +59,20 @@ protocol AppSettingsStore: AnyObject {
     /// The app's account state.
     var state: State? { get set }
 
+    /// The user's progress for setting up autofill.
+    ///
+    /// - Parameter userId: The user ID associated with the stored autofill setup progress.
+    /// - Returns: The user's autofill setup progress.
+    ///
+    func accountSetupAutofill(userId: String) -> AccountSetupProgress?
+
+    /// The user's progress for setting up vault unlock.
+    ///
+    /// - Parameter userId: The user ID associated with the stored vault unlock setup progress.
+    /// - Returns: The user's vault unlock setup progress.
+    ///
+    func accountSetupVaultUnlock(userId: String) -> AccountSetupProgress?
+
     /// Whether the vault should sync on refreshing.
     ///
     /// - Parameter userId: The user ID associated with the sync on refresh setting.
@@ -90,6 +104,18 @@ protocol AppSettingsStore: AnyObject {
     /// - Returns: Whether to connect to the watch app.
     ///
     func connectToWatch(userId: String) -> Bool
+
+    /// Retrieves a feature flag value from the app's settings store.
+    ///
+    /// This method fetches the value for a specified feature flag from the app's settings store.
+    /// The value is returned as a `Bool`. If the flag does not exist or cannot be decoded,
+    /// the method returns `nil`.
+    ///
+    /// - Parameter name: The name of the feature flag to retrieve, represented as a `String`.
+    /// - Returns: The value of the feature flag as a `Bool`, or `nil` if the flag does not exist
+    ///     or cannot be decoded.
+    ///
+    func debugFeatureFlag(name: String) -> Bool?
 
     /// Gets the default URI match type.
     ///
@@ -162,19 +188,25 @@ protocol AppSettingsStore: AnyObject {
     ///
     func masterPasswordHash(userId: String) -> String?
 
-    /// Gets whether the user needs to set up vault unlock methods.
-    ///
-    /// - Parameter userId: The user ID associated with the value.
-    /// - Returns: Whether the user needs to set up vault unlock methods.
-    ///
-    func needsVaultUnlockSetup(userId: String) -> Bool
-
     /// Gets the last date the user successfully registered for push notifications.
     ///
     /// - Parameter userId: The user ID associated with the last notifications registration date.
     /// - Returns: The last notifications registration date for the user.
     ///
     func notificationsLastRegistrationDate(userId: String) -> Date?
+
+    /// Sets a feature flag value in the app's settings store.
+    ///
+    /// This method updates or removes the value for a specified feature flag in the app's settings store.
+    /// If the `value` parameter is `nil`, the feature flag is removed from the store. Otherwise, the flag
+    /// is set to the provided boolean value.
+    ///
+    /// - Parameters:
+    ///   - name: The name of the feature flag to set or remove, represented as a `String`.
+    ///   - value: The boolean value to assign to the feature flag. If `nil`, the feature flag will be removed
+    ///    from the settings store.
+    ///
+    func overrideDebugFeatureFlag(name: String, value: Bool?)
 
     /// Gets the password generation options for a user ID.
     ///
@@ -203,6 +235,22 @@ protocol AppSettingsStore: AnyObject {
     /// - Parameter userId: The user ID associated with the server config.
     /// - Returns: The server config for that user ID.
     func serverConfig(userId: String) -> ServerConfig?
+
+    /// Sets the user's progress for autofill setup.
+    ///
+    /// - Parameters:
+    ///   - autofillSetup: The user's autofill setup progress.
+    ///   - userId: The user ID associated with the stored autofill setup progress.
+    ///
+    func setAccountSetupAutofill(_ autofillSetup: AccountSetupProgress?, userId: String)
+
+    /// Sets the user's progress for vault unlock setup.
+    ///
+    /// - Parameters:
+    ///   - vaultUnlockSetup: The user's vault unlock setup progress.
+    ///   - userId: The user ID associated with the stored autofill setup progress.
+    ///
+    func setAccountSetupVaultUnlock(_ vaultUnlockSetup: AccountSetupProgress?, userId: String)
 
     /// Whether the vault should sync on refreshing.
     ///
@@ -320,14 +368,6 @@ protocol AppSettingsStore: AnyObject {
     ///
     func setMasterPasswordHash(_ hash: String?, userId: String)
 
-    /// Sets whether the user needs to set up vault unlock methods.
-    ///
-    /// - Parameters:
-    ///   - needsVaultUnlockSetup: Whether the user needs to set up vault unlock methods.
-    ///   - userId: The user ID associated with the value.
-    ///
-    func setNeedsVaultUnlockSetup(_ needsVaultUnlockSetup: Bool, userId: String)
-
     /// Sets the last notifications registration date for a user ID.
     ///
     /// - Parameters:
@@ -373,6 +413,14 @@ protocol AppSettingsStore: AnyObject {
     /// - Parameter shouldTrustDevice: Whether to trust the device.
     ///
     func setShouldTrustDevice(shouldTrustDevice: Bool?, userId: String)
+
+    /// Sets the sync to Authenticator setting for the user.
+    ///
+    /// - Parameters:
+    ///   - syncToAuthenticator: Whether to sync TOTP codes to the Authenticator app.
+    ///   - userId: The user ID associated with the sync to Authenticator value.
+    ///
+    func setSyncToAuthenticator(_ syncToAuthenticator: Bool, userId: String)
 
     /// Sets the user's timeout action.
     ///
@@ -427,6 +475,14 @@ protocol AppSettingsStore: AnyObject {
     /// - Returns: Whether to trust the device.
     ///
     func shouldTrustDevice(userId: String) -> Bool?
+
+    /// Gets the sync to Authenticator setting for the user.
+    ///
+    /// - Parameter userId: The user ID associated with the sync to Authenticator value.
+    ///
+    /// - Returns: Whether to sync TOTP codes with the Authenticator app.
+    ///
+    func syncToAuthenticator(userId: String) -> Bool
 
     /// Returns the action taken upon a session timeout.
     ///
@@ -594,6 +650,8 @@ extension DefaultAppSettingsStore: AppSettingsStore {
     /// The keys used to store their associated values.
     ///
     enum Keys {
+        case accountSetupAutofill(userId: String)
+        case accountSetupVaultUnlock(userId: String)
         case addSitePromptShown
         case allowSyncOnRefresh(userId: String)
         case appId
@@ -604,6 +662,7 @@ extension DefaultAppSettingsStore: AppSettingsStore {
         case biometricIntegrityStateLegacy
         case clearClipboardValue(userId: String)
         case connectToWatch(userId: String)
+        case debugFeatureFlag(name: String)
         case defaultUriMatch(userId: String)
         case disableAutoTotpCopy(userId: String)
         case disableWebIcons
@@ -618,7 +677,6 @@ extension DefaultAppSettingsStore: AppSettingsStore {
         case loginRequest
         case masterPasswordHash(userId: String)
         case migrationVersion
-        case needsVaultUnlockSetup(userId: String)
         case notificationsLastRegistrationDate(userId: String)
         case passwordGenerationOptions(userId: String)
         case pinProtectedUserKey(userId: String)
@@ -629,6 +687,7 @@ extension DefaultAppSettingsStore: AppSettingsStore {
         case rememberedOrgIdentifier
         case serverConfig(userId: String)
         case shouldTrustDevice(userId: String)
+        case syncToAuthenticator(userId: String)
         case state
         case twoFactorToken(email: String)
         case unsuccessfulUnlockAttempts(userId: String)
@@ -641,6 +700,10 @@ extension DefaultAppSettingsStore: AppSettingsStore {
         var storageKey: String {
             let key: String
             switch self {
+            case let .accountSetupAutofill(userId):
+                key = "accountSetupAutofill_\(userId)"
+            case let .accountSetupVaultUnlock(userId):
+                key = "accountSetupVaultUnlock_\(userId)"
             case .addSitePromptShown:
                 key = "addSitePromptShown"
             case let .allowSyncOnRefresh(userId):
@@ -661,6 +724,8 @@ extension DefaultAppSettingsStore: AppSettingsStore {
                 key = "clearClipboard_\(userId)"
             case let .connectToWatch(userId):
                 key = "shouldConnectToWatch_\(userId)"
+            case let .debugFeatureFlag(name):
+                key = "debugFeatureFlag_\(name)"
             case let .defaultUriMatch(userId):
                 key = "defaultUriMatch_\(userId)"
             case let .disableAutoTotpCopy(userId):
@@ -689,8 +754,6 @@ extension DefaultAppSettingsStore: AppSettingsStore {
                 key = "keyHash_\(userId)"
             case .migrationVersion:
                 key = "migrationVersion"
-            case let .needsVaultUnlockSetup(userId):
-                key = "needsVaultUnlockSetup_\(userId)"
             case let .notificationsLastRegistrationDate(userId):
                 key = "pushLastRegistrationDate_\(userId)"
             case let .passwordGenerationOptions(userId):
@@ -713,6 +776,8 @@ extension DefaultAppSettingsStore: AppSettingsStore {
                 key = "shouldTrustDevice_\(userId)"
             case .state:
                 key = "state"
+            case let .syncToAuthenticator(userId):
+                key = "shouldSyncToAuthenticator_\(userId)"
             case let .twoFactorToken(email):
                 key = "twoFactorToken_\(email)"
             case let .unsuccessfulUnlockAttempts(userId):
@@ -808,6 +873,14 @@ extension DefaultAppSettingsStore: AppSettingsStore {
         }
     }
 
+    func accountSetupAutofill(userId: String) -> AccountSetupProgress? {
+        fetch(for: .accountSetupAutofill(userId: userId))
+    }
+
+    func accountSetupVaultUnlock(userId: String) -> AccountSetupProgress? {
+        fetch(for: .accountSetupVaultUnlock(userId: userId))
+    }
+
     func allowSyncOnRefresh(userId: String) -> Bool {
         fetch(for: .allowSyncOnRefresh(userId: userId))
     }
@@ -831,6 +904,10 @@ extension DefaultAppSettingsStore: AppSettingsStore {
 
     func connectToWatch(userId: String) -> Bool {
         fetch(for: .connectToWatch(userId: userId))
+    }
+
+    func debugFeatureFlag(name: String) -> Bool? {
+        fetch(for: .debugFeatureFlag(name: name))
     }
 
     func defaultUriMatchType(userId: String) -> UriMatchType? {
@@ -873,12 +950,12 @@ extension DefaultAppSettingsStore: AppSettingsStore {
         fetch(for: .masterPasswordHash(userId: userId))
     }
 
-    func needsVaultUnlockSetup(userId: String) -> Bool {
-        fetch(for: .needsVaultUnlockSetup(userId: userId))
-    }
-
     func notificationsLastRegistrationDate(userId: String) -> Date? {
         fetch(for: .notificationsLastRegistrationDate(userId: userId)).map { Date(timeIntervalSince1970: $0) }
+    }
+
+    func overrideDebugFeatureFlag(name: String, value: Bool?) {
+        store(value, for: .debugFeatureFlag(name: name))
     }
 
     func passwordGenerationOptions(userId: String) -> PasswordGenerationOptions? {
@@ -897,6 +974,14 @@ extension DefaultAppSettingsStore: AppSettingsStore {
 
     func serverConfig(userId: String) -> ServerConfig? {
         fetch(for: .serverConfig(userId: userId))
+    }
+
+    func setAccountSetupAutofill(_ autofillSetup: AccountSetupProgress?, userId: String) {
+        store(autofillSetup, for: .accountSetupAutofill(userId: userId))
+    }
+
+    func setAccountSetupVaultUnlock(_ vaultUnlockSetup: AccountSetupProgress?, userId: String) {
+        store(vaultUnlockSetup, for: .accountSetupVaultUnlock(userId: userId))
     }
 
     func setAllowSyncOnRefresh(_ allowSyncOnRefresh: Bool?, userId: String) {
@@ -961,10 +1046,6 @@ extension DefaultAppSettingsStore: AppSettingsStore {
         store(hash, for: .masterPasswordHash(userId: userId))
     }
 
-    func setNeedsVaultUnlockSetup(_ needsVaultUnlockSetup: Bool, userId: String) {
-        store(needsVaultUnlockSetup, for: .needsVaultUnlockSetup(userId: userId))
-    }
-
     func setNotificationsLastRegistrationDate(_ date: Date?, userId: String) {
         store(date?.timeIntervalSince1970, for: .notificationsLastRegistrationDate(userId: userId))
     }
@@ -989,6 +1070,10 @@ extension DefaultAppSettingsStore: AppSettingsStore {
         store(shouldTrustDevice, for: .shouldTrustDevice(userId: userId))
     }
 
+    func setSyncToAuthenticator(_ syncToAuthenticator: Bool, userId: String) {
+        store(syncToAuthenticator, for: .syncToAuthenticator(userId: userId))
+    }
+
     func setTimeoutAction(key: SessionTimeoutAction, userId: String) {
         store(key, for: .vaultTimeoutAction(userId: userId))
     }
@@ -1007,6 +1092,10 @@ extension DefaultAppSettingsStore: AppSettingsStore {
 
     func setVaultTimeout(minutes: Int, userId: String) {
         store(minutes, for: .vaultTimeout(userId: userId))
+    }
+
+    func syncToAuthenticator(userId: String) -> Bool {
+        fetch(for: .syncToAuthenticator(userId: userId))
     }
 
     func timeoutAction(userId: String) -> Int? {

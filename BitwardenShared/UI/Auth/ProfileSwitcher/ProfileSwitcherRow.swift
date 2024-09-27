@@ -85,7 +85,7 @@ struct ProfileSwitcherRow: View {
             }
             .padding([.leading], 16)
         }
-        .background(Asset.Colors.backgroundPrimary.swiftUIColor)
+        .background(Asset.Colors.backgroundSecondary.swiftUIColor)
     }
 
     /// A row divider view
@@ -94,7 +94,7 @@ struct ProfileSwitcherRow: View {
             Rectangle()
                 .frame(height: 1.0)
                 .frame(maxWidth: .infinity)
-                .foregroundColor(Asset.Colors.separatorOpaque.swiftUIColor)
+                .foregroundColor(Asset.Colors.strokeDivider.swiftUIColor)
         } else {
             EmptyView()
         }
@@ -113,7 +113,7 @@ struct ProfileSwitcherRow: View {
             .accessibilityLabel(Localizations.account)
         case .addAccount:
             Asset.Images.plus.swiftUIImage
-                .imageStyle(.rowIcon(color: Asset.Colors.primaryBitwarden.swiftUIColor))
+                .imageStyle(.rowIcon(color: Asset.Colors.iconSecondary.swiftUIColor))
                 .padding(4)
         }
     }
@@ -183,11 +183,11 @@ struct ProfileSwitcherRow: View {
     private var trailingIconColor: Color {
         switch store.state.rowType {
         case .active:
-            Asset.Colors.primaryBitwarden.swiftUIColor
+            Asset.Colors.iconPrimary.swiftUIColor
         case .alternate:
             Asset.Colors.textSecondary.swiftUIColor
         case .addAccount:
-            Asset.Colors.backgroundPrimary.swiftUIColor
+            Asset.Colors.backgroundSecondary.swiftUIColor
         }
     }
 

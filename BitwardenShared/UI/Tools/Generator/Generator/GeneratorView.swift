@@ -28,7 +28,7 @@ struct GeneratorView: View {
             }
             .padding(16)
         }
-        .background(Asset.Colors.backgroundSecondary.swiftUIColor)
+        .background(Asset.Colors.backgroundPrimary.swiftUIColor)
         .navigationBarTitleDisplayMode(store.state.presentationMode == .inPlace ? .inline : .large)
         .navigationTitle(Localizations.generator)
         .task { await store.perform(.appeared) }
@@ -100,7 +100,7 @@ struct GeneratorView: View {
                 case let .menuPasswordGeneratorType(menuField):
                     FormMenuFieldView(field: menuField) { newValue in
                         store.send(.passwordGeneratorTypeChanged(newValue))
-                    }
+                    }.disabled(store.state.policyOptions?.overridePasswordType ?? false)
                 case let .menuUsernameForwardedEmailService(menuField):
                     FormMenuFieldView(field: menuField) { newValue in
                         store.send(.usernameForwardedEmailServiceChanged(newValue))

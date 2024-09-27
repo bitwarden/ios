@@ -16,6 +16,11 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
     /// The main window for this scene.
     var window: UIWindow?
 
+    /// The processor that manages application level logic.
+    var appProcessor: AppProcessor? {
+        (UIApplication.shared.delegate as? AppDelegateType)?.appProcessor
+    }
+
     // MARK: Methods
 
     func scene(
@@ -24,7 +29,7 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         options connectionOptions: UIScene.ConnectionOptions
     ) {
         guard let windowScene = scene as? UIWindowScene else { return }
-        guard let appProcessor = (UIApplication.shared.delegate as? AppDelegateType)?.appProcessor else {
+        guard let appProcessor else {
             if (UIApplication.shared.delegate as? AppDelegateType)?.isTesting == true {
                 // If the app is running tests, show a testing view.
                 window = buildSplashWindow(windowScene: windowScene)
@@ -34,10 +39,18 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         }
 
         let rootViewController = RootViewController()
-        let appWindow = UIWindow(windowScene: windowScene)
+        let appWindow = ShakeWindow(windowScene: windowScene) { [weak self] in
+            #if DEBUG_MENU
+            self?.appProcessor?.showDebugMenu()
+            #endif
+        }
         appWindow.rootViewController = rootViewController
         appWindow.makeKeyAndVisible()
         window = appWindow
+
+        #if DEBUG_MENU
+        addTripleTapGestureRecognizer(to: appWindow)
+        #endif
 
         // Splash window. This is initially visible until the app's processor has finished starting.
         splashWindow = buildSplashWindow(windowScene: windowScene)
@@ -64,18 +77,19 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         _ scene: UIScene,
         continue userActivity: NSUserActivity
     ) {
-        guard let appProcessor = (UIApplication.shared.delegate as? AppDelegateType)?.appProcessor,
-              userActivity.activityType == NSUserActivityTypeBrowsingWeb,
-              let incomingURL = userActivity.webpageURL else {
-            return
-        }
+        guard
+            let appProcessor,
+            userActivity.activityType == NSUserActivityTypeBrowsingWeb,
+            let incomingURL = userActivity.webpageURL
+        else { return }
 
         appProcessor.handleAppLinks(incomingURL: incomingURL)
     }
 
     func scene(_ scene: UIScene, openURLContexts urlContexts: Set<UIOpenURLContext>) {
-        guard let url = urlContexts.first?.url,
-              let appProcessor = (UIApplication.shared.delegate as? AppDelegateType)?.appProcessor
+        guard
+            let url = urlContexts.first?.url,
+            let appProcessor
         else { return }
 
         Task {
@@ -121,4 +135,25 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
     private func showSplash() {
         splashWindow?.alpha = 1
     }
+
+    #if DEBUG_MENU
+    /// Handle the triple-tap gesture and launch the debug menu.
+    @objc
+    private func handleTripleTapGesture() {
+        appProcessor?.showDebugMenu()
+    }
+    #endif
+
+    #if DEBUG_MENU
+    /// Add the triple-tap gesture recognizer to the window.
+    private func addTripleTapGestureRecognizer(to window: UIWindow) {
+        let tapGesture = UITapGestureRecognizer(
+            target: self,
+            action: #selector(handleTripleTapGesture)
+        )
+        tapGesture.numberOfTapsRequired = 3
+        tapGesture.numberOfTouchesRequired = 3
+        window.addGestureRecognizer(tapGesture)
+    }
+    #endif
 }

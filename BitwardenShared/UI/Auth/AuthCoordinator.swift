@@ -178,8 +178,8 @@ final class AuthCoordinator: NSObject, // swiftlint:disable:this type_body_lengt
             showLanding()
         case let .landingSoftLoggedOut(email):
             showLanding(email: email)
-        case let .login(username):
-            showLogin(username)
+        case let .login(username, isNewAccount):
+            showLogin(username, isNewAccount: isNewAccount)
         case let .showLoginDecryptionOptions(organizationIdentifier):
             showLoginDecryptionOptions(organizationIdentifier)
         case let .loginWithDevice(email, type, isAuthenticated):
@@ -468,9 +468,11 @@ final class AuthCoordinator: NSObject, // swiftlint:disable:this type_body_lengt
     /// Shows the login screen. If the create account flow is being presented it will be dismissed
     /// and the login screen will be pushed
     ///
-    /// - Parameter username: The user's username.
+    /// - Parameters:
+    ///   - username: The user's username.
+    ///   - isNewAccount: Whether the user is logging into a newly created account.
     ///
-    private func showLogin(_ username: String) {
+    private func showLogin(_ username: String, isNewAccount: Bool) {
         guard let stackNavigator else { return }
         let isPresenting = stackNavigator.rootViewController?.presentedViewController != nil
 
@@ -479,6 +481,7 @@ final class AuthCoordinator: NSObject, // swiftlint:disable:this type_body_lengt
         )
 
         let state = LoginState(
+            isNewAccount: isNewAccount,
             serverURLString: environmentUrls.webVaultURL.host ?? "",
             username: username
         )
@@ -833,7 +836,7 @@ final class AuthCoordinator: NSObject, // swiftlint:disable:this type_body_lengt
             vaultUnlockSetupHelper: DefaultVaultUnlockSetupHelper(services: services)
         )
         let view = VaultUnlockSetupView(store: Store(processor: processor))
-        stackNavigator?.push(view)
+        stackNavigator?.replace(view)
     }
 
     /// Show the WebAuthn two factor authentication view.
