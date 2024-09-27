@@ -11,7 +11,7 @@ enum ExternalLinksConstants {
     static let aboutOrganizations = URL(string: "https://bitwarden.com/help/about-organizations")!
 
     /// A deep link to the Bitwarden app.
-    static let appDeepLink = URL(string: "https://www.vault.bitwarden.pw/redirect-connector.html#")!
+    static let appDeepLink = URL(string: "bitwarden://")!
 
     /// A link to the app review page within the app store.
     static let appReview = URL(string: "https://itunes.apple.com/us/app/id1137397744?action=write-review")

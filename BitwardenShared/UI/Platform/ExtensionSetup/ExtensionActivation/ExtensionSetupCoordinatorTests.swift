@@ -8,7 +8,6 @@ import XCTest
 class ExtensionSetupCoordinatorTests: BitwardenTestCase {
     // MARK: Properties
 
-    var configService: MockConfigService!
     var stackNavigator: MockStackNavigator!
     var subject: ExtensionSetupCoordinator!
 
@@ -17,11 +16,10 @@ class ExtensionSetupCoordinatorTests: BitwardenTestCase {
     override func setUp() {
         super.setUp()
 
-        configService = MockConfigService()
         stackNavigator = MockStackNavigator()
         subject = ExtensionSetupCoordinator(
             appExtensionDelegate: MockAppExtensionDelegate(),
-            services: ServiceContainer.withMocks(configService: configService),
+            services: ServiceContainer.withMocks(),
             stackNavigator: stackNavigator
         )
     }
@@ -29,7 +27,6 @@ class ExtensionSetupCoordinatorTests: BitwardenTestCase {
     override func tearDown() {
         super.tearDown()
 
-        configService = nil
         stackNavigator = nil
         subject = nil
     }

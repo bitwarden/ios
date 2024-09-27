@@ -28,12 +28,12 @@ struct ExtensionActivationState: Equatable, Sendable {
     /// The title for the navigation bar.
     var navigationBarTitle: String {
         guard isNativeCreateAccountFeatureFlagEnabled else { return "" }
-        return extensionType == .autofillExtension ? "Account setup" : ""
+        return extensionType == .autofillExtension ? Localizations.accountSetup : ""
     }
 
     /// Whether or not to show the new or legacy view.
     var showLegacyView: Bool {
-        !isNativeCreateAccountFeatureFlagEnabled
+        !isNativeCreateAccountFeatureFlagEnabled || extensionType == .appExtension
     }
 
     /// The title text in the view.

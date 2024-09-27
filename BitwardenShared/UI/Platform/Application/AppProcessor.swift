@@ -102,6 +102,8 @@ public class AppProcessor {
     /// - Parameter url: The deep link URL to handle.
     ///
     public func openUrl(_ url: URL) async {
+        guard url.scheme == "otpauth" else { return }
+
         guard let otpAuthModel = OTPAuthModel(otpAuthKey: url.absoluteString) else {
             coordinator?.showAlert(.defaultAlert(title: Localizations.anErrorHasOccurred))
             return

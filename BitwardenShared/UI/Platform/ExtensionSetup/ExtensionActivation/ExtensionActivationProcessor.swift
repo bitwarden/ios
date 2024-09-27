@@ -40,17 +40,17 @@ class ExtensionActivationProcessor: StateProcessor<
 
     // MARK: Methods
 
-    override func receive(_ action: ExtensionActivationAction) {
-        switch action {
-        case .cancelTapped:
-            appExtensionDelegate?.didCancel()
-        }
-    }
-
     override func perform(_ effect: ExtensionActivationEffect) async {
         switch effect {
         case .appeared:
             await loadFeatureFlag()
+        }
+    }
+
+    override func receive(_ action: ExtensionActivationAction) {
+        switch action {
+        case .cancelTapped:
+            appExtensionDelegate?.didCancel()
         }
     }
 
