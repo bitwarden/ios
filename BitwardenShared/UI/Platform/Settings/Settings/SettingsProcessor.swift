@@ -64,8 +64,9 @@ final class SettingsProcessor: StateProcessor<SettingsState, SettingsAction, Voi
             guard await self?.services.configService.getFeatureFlag(.nativeCreateAccountFlow) == true else { return }
             do {
                 guard let publisher = try await self?.services.stateService.settingsBadgePublisher() else { return }
-                for await badgeValue in publisher.values {
-                    self?.delegate?.updateSettingsTabBadge(badgeValue)
+                for await badgeState in publisher.values {
+                    self?.delegate?.updateSettingsTabBadge(badgeState.badgeValue)
+                    self?.state.badgeState = badgeState
                 }
             } catch {
                 self?.services.errorReporter.log(error: error)
