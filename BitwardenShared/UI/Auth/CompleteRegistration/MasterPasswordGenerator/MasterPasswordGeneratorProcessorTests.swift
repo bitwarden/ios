@@ -78,7 +78,7 @@ class MasterPasswordGeneratorProcessorTests: BitwardenTestCase {
 
     /// `receive(_:)` with `.preventAccountLock` shows the prevent account lock screen.
     @MainActor
-    func test_receive_save() {
+    func test_receive_preventAccountLock() {
         subject.receive(.preventAccountLock)
         XCTAssertEqual(coordinator.routes.last, .preventAccountLock)
     }

@@ -64,6 +64,8 @@ class MasterPasswordGeneratorProcessor: StateProcessor<
 
     // MARK: Private Methods
 
+    /// Generates a new master password asynchronously and updates the state.
+    ///
     private func generatePassword() async {
         do {
             state.generatedPassword = try await services.generatorRepository.generateMasterPassword()

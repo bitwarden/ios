@@ -18,7 +18,7 @@ struct MasterPasswordGeneratorView: View {
 
     var body: some View {
         VStack(spacing: 24) {
-            passwordTextField
+            passwordText
 
             generateButton
 
@@ -44,13 +44,17 @@ struct MasterPasswordGeneratorView: View {
 
     // MARK: Private views
 
-    /// The generated password text field.
-    private var passwordTextField: some View {
-        BitwardenTextField(text: store.binding(
-            get: \.generatedPassword,
-            send: MasterPasswordGeneratorAction.masterPasswordChanged
-        ))
-        .submitLabel(.done)
+    /// The generated password view.
+    private var passwordText: some View {
+        PasswordText(
+            password: store.state.generatedPassword,
+            isPasswordVisible: true
+        )
+        .frame(maxWidth: .infinity, minHeight: 28, alignment: .leading)
+        .padding(.horizontal, 16)
+        .padding(.vertical, 8)
+        .background(Asset.Colors.backgroundSecondary.swiftUIColor)
+        .clipShape(RoundedRectangle(cornerRadius: 10))
     }
 
     /// The generate button.
@@ -80,7 +84,7 @@ struct MasterPasswordGeneratorView: View {
             } label: {
                 Text(Localizations.learnAboutOtherWaysToPreventAccountLockout)
                     .styleGuide(.footnote, weight: .semibold)
-                    .foregroundStyle(Asset.Colors.textCodeBlue.swiftUIColor)
+                    .foregroundStyle(Asset.Colors.textInteraction.swiftUIColor)
                     .multilineTextAlignment(.leading)
                     .frame(maxWidth: .infinity, alignment: .leading)
             }
