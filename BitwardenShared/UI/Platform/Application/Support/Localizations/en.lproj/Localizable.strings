@@ -980,3 +980,5 @@
 "Confirm" = "Confirm";
 "ErrorConnectingWithTheDuoServiceUseADifferentTwoStepLoginMethodOrContactDuoForAssistance" = "Error connecting with the Duo service. Use a different two-step login method or contact Duo for assistance.";
 "ThePreAuthUrlsCouldNotBeLoadedToStartTheAccountCreation" = "The Pre Auth Urls could not be loaded to start the account creation.";
+"GetStarted" = "Get started";
+"Dismiss" = "Dismiss";
