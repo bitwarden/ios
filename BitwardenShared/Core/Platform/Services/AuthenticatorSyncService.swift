@@ -2,8 +2,6 @@ import AuthenticatorBridgeKit
 import BitwardenSdk
 import CryptoKit
 import Foundation
-import OSLog
-import UIKit
 
 // MARK: - AuthenticatorSyncService
 
@@ -159,19 +157,15 @@ class DefaultAuthenticatorSyncService: NSObject, AuthenticatorSyncService {
     /// - Parameter userId: The userId of the user who has turned on sync.
     ///
     private func handleSyncOnForUserId(_ userId: String) async {
-        Logger.application.debug("#### sync is on for userId: \(userId)")
-
         guard !vaultTimeoutService.isLocked(userId: userId) else {
             return
         }
 
-        Logger.application.debug("#### App in foreground and unlocked. Begin key creations.")
         do {
             try await createAuthenticatorKeyIfNeeded()
         } catch {
             errorReporter.log(error: error)
         }
-        Logger.application.debug("#### Subscribing to cipher updates")
         subscribeToCipherUpdates(userId: userId)
     }
 
@@ -180,8 +174,6 @@ class DefaultAuthenticatorSyncService: NSObject, AuthenticatorSyncService {
     /// - Parameter userId: The userId of the user who has turned off sync.
     ///
     private func handleSyncOffForUserId(_ userId: String) {
-        Logger.application.debug("#### sync is off for userId: \(userId)")
-        Logger.application.debug("#### Canceling cipher update subscription")
         cipherPublisherTasks[userId]??.cancel()
         cipherPublisherTasks[userId] = nil
     }
@@ -191,7 +183,6 @@ class DefaultAuthenticatorSyncService: NSObject, AuthenticatorSyncService {
     private func subscribeToAppState() {
         Task {
             for await _ in notificationCenterService.willEnterForegroundPublisher() {
-                Logger.application.debug("#### app entered foreground")
                 subscribeToSyncToAuthenticatorSetting()
             }
         }
@@ -224,7 +215,6 @@ class DefaultAuthenticatorSyncService: NSObject, AuthenticatorSyncService {
             for await (userId, shouldSync) in await self.stateService.syncToAuthenticatorPublisher().values {
                 guard let userId else { continue }
 
-                Logger.application.debug("#### Sync With Authenticator App Setting: \(shouldSync), userId: \(userId)")
                 if shouldSync {
                     await handleSyncOnForUserId(userId)
                 } else {
@@ -242,7 +232,6 @@ class DefaultAuthenticatorSyncService: NSObject, AuthenticatorSyncService {
     ///
     private func writeCiphers(ciphers: [Cipher], userId: String) async throws {
         let items = try await decryptTOTPs(ciphers, userId: userId)
-        Logger.application.debug("#### replacing data for \(userId)")
         try await authBridgeItemService.replaceAllItems(with: items, forUserId: userId)
     }
 }

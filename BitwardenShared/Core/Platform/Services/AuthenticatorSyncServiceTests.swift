@@ -100,8 +100,6 @@ final class AuthenticatorSyncServiceTests: BitwardenTestCase {
         configService.featureFlagsBool[.enableAuthenticatorSync] = true
         subject.start()
         stateService.activeAccount = .fixture()
-        stateService.syncToAuthenticatorSubject.send(("1", true))
-        notificationCenterService.willEnterForegroundSubject.send()
         cipherService.ciphersSubject.send([
             .fixture(
                 id: "1234",
@@ -119,6 +117,8 @@ final class AuthenticatorSyncServiceTests: BitwardenTestCase {
                 )
             ),
         ])
+        stateService.syncToAuthenticatorSubject.send(("1", true))
+        notificationCenterService.willEnterForegroundSubject.send()
 
         waitFor(authBridgeItemService.replaceAllCalled)
 
@@ -133,8 +133,6 @@ final class AuthenticatorSyncServiceTests: BitwardenTestCase {
         configService.featureFlagsBool[.enableAuthenticatorSync] = true
         subject.start()
         stateService.activeAccount = .fixture()
-        stateService.syncToAuthenticatorSubject.send(("1", true))
-        notificationCenterService.willEnterForegroundSubject.send()
         cipherService.ciphersSubject.send([
             .fixture(
                 id: "1234",
@@ -150,6 +148,8 @@ final class AuthenticatorSyncServiceTests: BitwardenTestCase {
                 )
             ),
         ])
+        stateService.syncToAuthenticatorSubject.send(("1", true))
+        notificationCenterService.willEnterForegroundSubject.send()
 
         waitFor(authBridgeItemService.replaceAllCalled)
 
@@ -165,8 +165,6 @@ final class AuthenticatorSyncServiceTests: BitwardenTestCase {
         configService.featureFlagsBool[.enableAuthenticatorSync] = true
         subject.start()
         stateService.activeAccount = .fixture()
-        stateService.syncToAuthenticatorSubject.send(("1", true))
-        notificationCenterService.willEnterForegroundSubject.send()
         cipherService.ciphersSubject.send([
             .fixture(
                 login: .fixture(
@@ -175,6 +173,8 @@ final class AuthenticatorSyncServiceTests: BitwardenTestCase {
                 )
             ),
         ])
+        stateService.syncToAuthenticatorSubject.send(("1", true))
+        notificationCenterService.willEnterForegroundSubject.send()
 
         waitFor(authBridgeItemService.replaceAllCalled)
 
@@ -193,8 +193,6 @@ final class AuthenticatorSyncServiceTests: BitwardenTestCase {
         configService.featureFlagsBool[.enableAuthenticatorSync] = true
         subject.start()
         stateService.activeAccount = .fixture()
-        stateService.syncToAuthenticatorSubject.send(("1", true))
-        notificationCenterService.willEnterForegroundSubject.send()
         cipherService.ciphersSubject.send([
             .fixture(
                 id: "1234",
@@ -204,6 +202,8 @@ final class AuthenticatorSyncServiceTests: BitwardenTestCase {
                 )
             ),
         ])
+        stateService.syncToAuthenticatorSubject.send(("1", true))
+        notificationCenterService.willEnterForegroundSubject.send()
 
         waitFor(authBridgeItemService.replaceAllCalled)
 
