@@ -73,7 +73,7 @@ struct MasterPasswordGeneratorView: View {
 
     /// The password instructions and prevent account lockout button.
     private var instructionsPreventAccountLockView: some View {
-        VStack(alignment: .leading, spacing: 4) {
+        VStack(alignment: .leading, spacing: 0) {
             Text(Localizations.writeThisPasswordDownAndKeepItSomewhereSafe)
                 .styleGuide(.footnote)
                 .foregroundStyle(Asset.Colors.textSecondary.swiftUIColor)
