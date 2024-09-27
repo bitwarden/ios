@@ -64,6 +64,18 @@ class AppModuleTests: BitwardenTestCase {
         XCTAssertTrue(navigationController.viewControllers[0] is UIHostingController<DebugMenuView>)
     }
 
+    /// `makeExtensionSetupCoordinator` builds the extensions setup coordinator.
+    @MainActor
+    func test_makeExtensionSetupCoordinator() {
+        let navigationController = UINavigationController()
+        let coordinator = subject.makeExtensionSetupCoordinator(
+            stackNavigator: navigationController
+        )
+        coordinator.start()
+        XCTAssertEqual(navigationController.viewControllers.count, 1)
+        XCTAssertTrue(navigationController.viewControllers[0] is UIHostingController<ExtensionActivationView>)
+    }
+
     /// `makeSendCoordinator()` builds the send coordinator.
     @MainActor
     func test_makeSendCoordinator() {
