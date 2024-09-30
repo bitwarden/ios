@@ -153,14 +153,12 @@ class MockStateService: StateService { // swiftlint:disable:this type_body_lengt
         return accounts
     }
 
-    func getAccountSetupAutofill(userId: String?) async throws -> AccountSetupProgress? {
-        let userId = try unwrapUserId(userId)
-        return accountSetupAutofill[userId]
+    func getAccountSetupAutofill(userId: String) async -> AccountSetupProgress? {
+        accountSetupAutofill[userId]
     }
 
-    func getAccountSetupVaultUnlock(userId: String?) async throws -> AccountSetupProgress? {
-        let userId = try unwrapUserId(userId)
-        return accountSetupVaultUnlock[userId]
+    func getAccountSetupVaultUnlock(userId: String) async -> AccountSetupProgress? {
+        accountSetupVaultUnlock[userId]
     }
 
     func getAccountIdOrActiveId(userId: String?) async throws -> String {
