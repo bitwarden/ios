@@ -39,7 +39,7 @@ struct VaultUnlockSetupView: View {
                     }
                 }
             }
-            .background(Asset.Colors.backgroundTertiary.swiftUIColor)
+            .background(Asset.Colors.backgroundSecondary.swiftUIColor)
             .clipShape(RoundedRectangle(cornerRadius: 10))
 
             VStack(spacing: 12) {

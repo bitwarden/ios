@@ -14,17 +14,18 @@ struct TertiaryButtonStyle: ButtonStyle {
     /// The button's foreground color.
     var foregroundColor: Color {
         isDestructive
-            ? Asset.Colors.loadingRed.swiftUIColor
-            : Asset.Colors.primaryBitwarden.swiftUIColor
+            ? Asset.Colors.error.swiftUIColor
+            : Asset.Colors.textInteraction.swiftUIColor
     }
 
     func makeBody(configuration: Configuration) -> some View {
         configuration.label
             .foregroundColor(foregroundColor)
+            .styleGuide(.bodyBold)
             .padding(.vertical, 14)
             .padding(.horizontal, 20)
             .frame(maxWidth: shouldFillWidth ? .infinity : nil)
-            .background(Asset.Colors.fillTertiary.swiftUIColor)
+            .background(Asset.Colors.Legacy.fillTertiary.swiftUIColor)
             .clipShape(RoundedRectangle(cornerRadius: 12))
             .opacity(configuration.isPressed ? 0.5 : 1)
     }
@@ -43,3 +44,16 @@ extension ButtonStyle where Self == TertiaryButtonStyle {
         TertiaryButtonStyle(isDestructive: isDestructive, shouldFillWidth: shouldFillWidth)
     }
 }
+
+#if DEBUG
+#Preview {
+    VStack {
+        Button("Hello World!") {}
+
+        Button("Hello World!") {}
+            .disabled(true)
+    }
+    .buttonStyle(.tertiary())
+    .padding()
+}
+#endif

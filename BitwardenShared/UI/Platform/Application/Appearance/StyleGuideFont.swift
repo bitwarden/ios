@@ -6,7 +6,7 @@ struct StyleGuideFont {
     // MARK: Properties
 
     /// The font to use for the style.
-    let font: Font
+    let font: SwiftUI.Font
 
     /// The line height for this style, in px.
     let lineHeight: CGFloat
@@ -15,44 +15,76 @@ struct StyleGuideFont {
     let size: CGFloat
 }
 
+extension StyleGuideFont {
+    /// Initialize a `StyleGuideFont` from a `FontConvertible`.
+    ///
+    /// - Parameters:
+    ///   - font: The `FontConvertible` font for this style.
+    ///   - lineHeight: The line height for this style, in px.
+    ///   - size: The default font size for this style, in px.
+    ///   - textStyle: The text style for the font, used to determine how the font scales with dynamic type.
+    ///
+    init(font: FontConvertible, lineHeight: CGFloat, size: CGFloat, textStyle: SwiftUI.Font.TextStyle) {
+        self.font = font.swiftUIFont(size: size, relativeTo: textStyle)
+        self.lineHeight = lineHeight
+        self.size = size
+    }
+
+    /// Returns a `StyleGuideFont` that uses the DMSans font.
+    ///
+    /// - Parameters:
+    ///   - lineHeight: The line height for this style, in px.
+    ///   - size: The default font size for this style, in px.
+    ///   - textStyle: The text style for the font, used to determine how the font scales with dynamic type.
+    /// - Returns: A `StyleGuideFont` that uses the DMSans font.
+    ///
+    static func dmSans(lineHeight: CGFloat, size: CGFloat, textStyle: SwiftUI.Font.TextStyle) -> StyleGuideFont {
+        FontFamily.registerAllCustomFonts()
+        return self.init(font: FontFamily.DMSans.regular, lineHeight: lineHeight, size: size, textStyle: textStyle)
+    }
+}
+
 // MARK: - StyleGuideFont Constants
 
 extension StyleGuideFont {
     /// The font for the large title style.
-    static let largeTitle = StyleGuideFont(font: .system(.largeTitle), lineHeight: 41, size: 34)
+    static let largeTitle = StyleGuideFont.dmSans(lineHeight: 32, size: 26, textStyle: .largeTitle)
 
     /// The font for the title style.
-    static let title = StyleGuideFont(font: .system(.title), lineHeight: 34, size: 28)
+    static let title = StyleGuideFont.dmSans(lineHeight: 28, size: 22, textStyle: .title)
 
     /// The font for the title2 style.
-    static let title2 = StyleGuideFont(font: .system(.title2), lineHeight: 28, size: 22)
+    static let title2 = StyleGuideFont.dmSans(lineHeight: 22, size: 17, textStyle: .title2)
 
     /// The font for the title3 style.
-    static let title3 = StyleGuideFont(font: .system(.title3), lineHeight: 25, size: 20)
+    static let title3 = StyleGuideFont.dmSans(lineHeight: 21, size: 16, textStyle: .title3)
 
     /// The font for the headline style.
-    static let headline = StyleGuideFont(font: .system(.headline), lineHeight: 22, size: 17)
+    static let headline = StyleGuideFont.dmSans(lineHeight: 28, size: 15, textStyle: .headline)
 
     /// The font for the body style.
-    static let body = StyleGuideFont(font: .system(.body), lineHeight: 22, size: 17)
+    static let body = StyleGuideFont.dmSans(lineHeight: 20, size: 15, textStyle: .body)
+
+    /// The font for the bold body style.
+    static let bodyBold = StyleGuideFont(font: FontFamily.DMSans.bold, lineHeight: 20, size: 15, textStyle: .body)
 
     /// The font for the monospaced body style.
     static let bodyMonospaced = StyleGuideFont(font: .system(.body, design: .monospaced), lineHeight: 22, size: 17)
 
     /// The font for the callout style.
-    static let callout = StyleGuideFont(font: .system(.callout), lineHeight: 21, size: 16)
+    static let callout = StyleGuideFont.dmSans(lineHeight: 18, size: 13, textStyle: .callout)
 
     /// The font for the subheadline style.
-    static let subheadline = StyleGuideFont(font: .system(.subheadline), lineHeight: 20, size: 15)
+    static let subheadline = StyleGuideFont.dmSans(lineHeight: 16, size: 12, textStyle: .subheadline)
 
     /// The font for the footnote style.
-    static let footnote = StyleGuideFont(font: .system(.footnote), lineHeight: 18, size: 13)
+    static let footnote = StyleGuideFont.dmSans(lineHeight: 18, size: 12, textStyle: .footnote)
 
     /// The font for the caption1 style.
-    static let caption1 = StyleGuideFont(font: .system(.caption), lineHeight: 16, size: 12)
+    static let caption1 = StyleGuideFont.dmSans(lineHeight: 18, size: 12, textStyle: .caption)
 
     /// The font for the caption2 style.
-    static let caption2 = StyleGuideFont(font: .system(.caption2), lineHeight: 13, size: 11)
+    static let caption2 = StyleGuideFont.dmSans(lineHeight: 13, size: 11, textStyle: .caption2)
 
     /// The font for the caption2 style monospaced.
     static let caption2Monospaced = StyleGuideFont(
@@ -64,12 +96,12 @@ extension StyleGuideFont {
 
 // MARK: Font + Style Guide
 
-private extension Font {
+private extension SwiftUI.Font {
     /// Returns a style guide font for the specified style.
     ///
     /// - Parameter style: The style for which to return a font for.
     /// - Returns: A font for the specified style.
-    static func styleGuide(_ style: StyleGuideFont) -> Font {
+    static func styleGuide(_ style: StyleGuideFont) -> SwiftUI.Font {
         style.font
     }
 }
@@ -121,7 +153,7 @@ extension Text {
     ///
     func styleGuide(
         _ style: StyleGuideFont,
-        weight: Font.Weight = .regular,
+        weight: SwiftUI.Font.Weight = .regular,
         isItalic: Bool = false,
         includeLineSpacing: Bool = true,
         monoSpacedDigit: Bool = false

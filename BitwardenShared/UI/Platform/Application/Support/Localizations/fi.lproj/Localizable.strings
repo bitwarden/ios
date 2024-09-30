@@ -456,7 +456,7 @@
 "AskToAddLogin" = "Kysy lisätäänkö kirjautumistieto";
 "AskToAddLoginDescription" = "Kysy lisätäänkö uusi kohde, jos holvissa ei vielä ole sopivaa kohdetta.";
 "OnRestart" = "Kun sovellus käynnistetään uudelleen";
-"AutofillServiceNotEnabled" = "Automaattisen täytön avulla Bitwarden-holviasi on helppo käyttää sivustoilla ja muissa sovelluksissa. Näyttää siltä, ettei Bitwardenia ole määritetty automaattitäytön palveluksi. Määritys onnistuu \"Asetukset\"-ruudusta.";
+"AutofillServiceNotEnabled" = "Automaattitäytön avulla Bitwarden-holviasi on helppo käyttää sivustoilla ja muissa sovelluksissa. Näyttää siltä, ettei Bitwardenia ole määritetty automaattitäytön palveluksi. Määritys onnistuu asetuksista.";
 "ThemeAppliedOnRestart" = "Teema vaihtuu kun sovellus käynnistetään uudelleen.";
 "Capitalize" = "Sanat isoilla alkukirjaimilla";
 "IncludeNumber" = "Sisällytä numero";
@@ -622,8 +622,8 @@
 "Fido2ReturnToApp" = "Palaa sovellukseen";
 "Fido2CheckBrowser" = "Varmista, että oletusselaimesi sisältää WebAuthn-tuen ja yritä uudelleen.";
 "ResetPasswordAutoEnrollInviteWarning" = "Organisaatiolla on yrityskäytäntö, joka liittää tilisi automaattisesti salasanan palautusapuun. Liitos sallii organisaation ylläpitäjien vaihtaa pääsalasanasi.";
-"VaultTimeoutPolicyInEffect" = "Organisaatiokäytännöt ovat määrittäneet holvisi aikakatkaisun enimmäisajaksi %1$@ tunti(a) %2$@ minuutti(a).";
-"VaultTimeoutPolicyWithActionInEffect" = "Organisaatiokäytännöt vaikuttavat holvisi aikakatkaisuun. Suurin sallittu aika on %1$@ tunti(a) %2$@ minuutti(a). Holvillesi määritetty aikakatkaisutoiminto on %3$@.";
+"VaultTimeoutPolicyInEffect" = "Organisaatiokäytännöt ovat määrittäneet holvisi aikakatkaisun enimmäisajaksi %1$@ tuntia %2$@ minuuttia.";
+"VaultTimeoutPolicyWithActionInEffect" = "Organisaatiokäytännöt vaikuttavat holvisi aikakatkaisuun. Suurin sallittu aika on %1$@ tuntia %2$@ minuuttia. Holvillesi määritetty aikakatkaisutoiminto on %3$@.";
 "VaultTimeoutActionPolicyInEffect" = "Organisaatiokäytännöt ovat määrittäneet holville aikakatkaisutoiminnon %1$@.";
 "VaultTimeoutToLarge" = "Holvisi aikakatkaisu ylittää organisaatiosi asettamat rajoitukset.";
 "DisablePersonalVaultExportPolicyInEffect" = "Yksi tai useampi organisaatiokäytäntö estää henkilökohtaisen holvisi viennin.";
@@ -761,7 +761,7 @@
 "LanguageChangeRequiresAppRestart" = "Kielen vaihto vaatii sovelluksen uudelleenkäynnistyksen.";
 "DefaultSystem" = "Oletus (järjestelmä)";
 "Important" = "Tärkeää";
-"YourMasterPasswordCannotBeRecoveredIfYouForgetItXCharactersMinimum" = "Pääsalasanasi palautus ei ole mahdollista, jos unohdat sen! Vähintään %1$@ merkkiä.";
+"YourMasterPasswordCannotBeRecoveredIfYouForgetItXCharactersMinimum" = "Pääsalasanaasi ei ole mahdollista palauttaa, jos unohdat sen! Vähintään %1$@ merkkiä.";
 "WeakMasterPassword" = "Heikko pääsalasana";
 "WeakPasswordIdentifiedUseAStrongPasswordToProtectYourAccount" = "Havaittiin heikko salasana. Suojaa tilisi vahvalla salasanalla. Haluatko varmasti käyttää heikkoa salasanaa?";
 "Weak" = "Heikko";
@@ -837,9 +837,9 @@
 "SessionTimeout" = "Istunnon aikakatkaisu";
 "SessionTimeoutAction" = "Istunnon aikakatkaisutoiminto";
 "AccountFingerprintPhrase" = "Tilin tunnistelauseke";
-"OneHourAndOneMinute" = "1 tunti 1 minuutti";
-"OneHourAndXMinute" = "1 tunti %1$@ minuuttia";
-"XHoursAndOneMinute" = "%1$@ tuntia 1 minuutti";
+"OneHourAndOneMinute" = "Tunti ja minuutti";
+"OneHourAndXMinute" = "Tunti ja %1$@ minuuttia";
+"XHoursAndOneMinute" = "%1$@ tuntia ja minuutti";
 "XHoursAndYMinutes" = "%1$@ tuntia %2$@ minuuttia";
 "XHours" = "%1$@ tuntia";
 "PasskeyManagementExplanationLong" = "Käytä Bitwardenia uusien pääsyavainten tallennukseen ja kirjaudu palveluihin holviisi aiemmin tallennetuilla avaimilla.";
@@ -892,7 +892,7 @@
 "GetInstantAccessToYourPasswordsAndPasskeys" = "Tavoita salasanasi ja pääsyavaimesi välittömästi!";
 "SetUpAutoFillDescriptionLong" = "Määrittääksesi salasanojen automaattitäytön ja pääsyavainten hallinnan, aseta Bitwarden iOS-laitteesi asetuksista näiden oletusratkaisuksi.";
 "FirstDotGoToYourDeviceSettingsPasswordsPasswordOptions" = "1. Avaa laitteesi Asetukset > Salasanat > Salasanavalinnat";
-"SecondDotTurnOnAutoFill" = "4. Kytke automaattinen täyttö käyttöön";
+"SecondDotTurnOnAutoFill" = "4. Kytke automaattitäyttö käyttöön";
 "ThirdDotSelectBitwardenToUseForPasswordsAndPasskeys" = "3. Valitse \"Bitwarden\" käyttääksesi sitä salasanoille ja pääsyavaimille";
 "YourPasskeyWillBeSavedToYourBitwardenVault" = "Pääsyavaimesi tallennetaan Bitwarden-holviisi";
 "YourPasskeyWillBeSavedToYourBitwardenVaultForX" = "Pääsyavaimesi tallennetaan Bitwarden-holvisi kohteeseen %1$@";
@@ -911,7 +911,6 @@
 "ThereWasAnErrorStartingWebAuthnTwoFactorAuthentication" = "Virhe aloitettaessa kaksivaiheista WebAuthn-tunnistautumista";
 "LaunchWebAuthn" = "Avaa WebAuthn";
 "Duo" = "Duo";
-"DuoUnsupported" = "Duoa ei ole vielä tueta.";
 "FilePassword" = "Tiedoston salasana";
 "ConfirmFilePassword" = "Vahvista tiedoston salasana";
 "FilePasswordDescription" = "Tätä salasanaa käytetään tämän tiedoston viennissä ja tuonnissa";
@@ -975,8 +974,9 @@
 "PleaseRestartRegistrationOrTryLoggingInYouMayAlreadyHaveAnAccount" = "Aloita rekisteröityminen alusta tai yritä kirjautua sisään uudelleen. Sinulla saattaa jo olla tili.";
 "RemovePasskey" = "Poista pääsyavain";
 "PasskeyRemoved" = "Pääsyavain poistettiin";
-"TheRegionForTheGivenEmailCouldNotBeLoaded" = "The region for the given email could not be loaded.";
+"TheRegionForTheGivenEmailCouldNotBeLoaded" = "Annetun sähköpostiosoitteen aluetta ei voitu ladata.";
 "SetUpLaterQuestion" = "Määritetäänkö myöhemmin?";
 "YouCanFinishSetupUnlockAnytimeDescriptionLong" = "Voit viimeistellä käyttöönoton milloin tahansa asetusten \"Tilin suojaus\" -osiosta. Voit avata lukituksen pääsalasanallasi kunnes määrität vaihtoehtoisen menetelmän.";
 "Confirm" = "Vahvista";
-"ThePreAuthUrlsCouldNotBeLoadedToStartTheAccountCreation" = "The Pre Auth Urls could not be loaded to start the account creation.";
+"ErrorConnectingWithTheDuoServiceUseADifferentTwoStepLoginMethodOrContactDuoForAssistance" = "Error connecting with the Duo service. Use a different two-step login method or contact Duo for assistance.";
+"ThePreAuthUrlsCouldNotBeLoadedToStartTheAccountCreation" = "Pre Auth URL-osoitteita ei voitu ladata tilin luonnin aloittamiseksi.";

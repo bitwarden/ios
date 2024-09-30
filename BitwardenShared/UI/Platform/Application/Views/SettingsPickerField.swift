@@ -68,7 +68,7 @@ struct SettingsPickerField: View {
                 }
             }
         }
-        .background(Asset.Colors.backgroundPrimary.swiftUIColor)
+        .background(Asset.Colors.backgroundSecondary.swiftUIColor)
     }
 
     // MARK: Initialization

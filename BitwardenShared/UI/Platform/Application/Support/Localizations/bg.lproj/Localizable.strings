@@ -911,7 +911,6 @@
 "ThereWasAnErrorStartingWebAuthnTwoFactorAuthentication" = "Имаше грешка при стартирането на двустепенното удостоверяване чрез WebAuthn";
 "LaunchWebAuthn" = "Стартиране на WebAuthn";
 "Duo" = "Duo";
-"DuoUnsupported" = "Duo все още не се поддържа.";
 "FilePassword" = "Парола на файла";
 "ConfirmFilePassword" = "Потвърждаване на паролата на файла";
 "FilePasswordDescription" = "Паролата ще бъде използвана за изнасяне и внасяне на този файл";
@@ -979,4 +978,5 @@
 "SetUpLaterQuestion" = "Настройване по-късно?";
 "YouCanFinishSetupUnlockAnytimeDescriptionLong" = "Можете да завършите настройката по всяко време от Настройки > Защита на регистрацията. Ще трябва да използвате главната си парола за отключване, докато не настроите друг метод.";
 "Confirm" = "Потвърждаване";
+"ErrorConnectingWithTheDuoServiceUseADifferentTwoStepLoginMethodOrContactDuoForAssistance" = "Грешка при свързването с услугата на Duo. Използвайте друг метод за двустепенно удостоверяване или се свържете с Duo за съдействие.";
 "ThePreAuthUrlsCouldNotBeLoadedToStartTheAccountCreation" = "Пред-удостоверителните адреси не могат да бъдат заредени, за да започне създаването на регистрация.";

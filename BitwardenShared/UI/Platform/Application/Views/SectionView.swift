@@ -66,7 +66,7 @@ struct SectionView_Previews: PreviewProvider {
             }
         }
         .padding(16)
-        .background(Asset.Colors.backgroundSecondary.swiftUIColor)
+        .background(Asset.Colors.backgroundPrimary.swiftUIColor)
     }
 }
 #endif
