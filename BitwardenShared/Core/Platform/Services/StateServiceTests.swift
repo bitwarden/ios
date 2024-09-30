@@ -1725,10 +1725,10 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
     func test_settingsBadgePublisher() async throws {
         await subject.addAccount(.fixture())
 
-        var badgeValues = [String?]()
+        var publishedValues = [SettingsBadgeState]()
         let publisher = try await subject.settingsBadgePublisher()
-            .sink { badgeValue in
-                badgeValues.append(badgeValue)
+            .sink { badgeState in
+                publishedValues.append(badgeState)
             }
         defer { publisher.cancel() }
 
@@ -1738,7 +1738,29 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
         try await subject.setAccountSetupAutofill(.complete)
         try await subject.setAccountSetupVaultUnlock(.complete)
 
-        XCTAssertEqual(badgeValues, [nil, "1", "2", "1", nil])
+        XCTAssertEqual(publishedValues.count, 5)
+        XCTAssertEqual(publishedValues[0], .fixture())
+        XCTAssertEqual(publishedValues[1], .fixture(autofillSetupProgress: .setUpLater, badgeValue: "1"))
+        XCTAssertEqual(
+            publishedValues[2],
+            .fixture(
+                autofillSetupProgress: .setUpLater,
+                badgeValue: "2",
+                vaultUnlockSetupProgress: .setUpLater
+            )
+        )
+        XCTAssertEqual(
+            publishedValues[3],
+            .fixture(
+                autofillSetupProgress: .complete,
+                badgeValue: "1",
+                vaultUnlockSetupProgress: .setUpLater
+            )
+        )
+        XCTAssertEqual(
+            publishedValues[4],
+            .fixture(autofillSetupProgress: .complete, vaultUnlockSetupProgress: .complete)
+        )
     }
 
     /// `settingsBadgePublisher()` throws an error if there's no active account.

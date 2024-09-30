@@ -680,7 +680,7 @@ protocol StateService: AnyObject {
     ///
     /// - Returns: A publisher for showing badges in the settings tab.
     ///
-    func settingsBadgePublisher() async throws -> AnyPublisher<String?, Never>
+    func settingsBadgePublisher() async throws -> AnyPublisher<SettingsBadgeState, Never>
 
     /// A publisher for whether or not to show the web icons.
     ///
@@ -1185,7 +1185,7 @@ actor DefaultStateService: StateService { // swiftlint:disable:this type_body_le
     private let keychainRepository: KeychainRepository
 
     /// A subject containing the settings badge value mapped to user ID.
-    private let settingsBadgeByUserIdSubject = CurrentValueSubject<[String: String?], Never>([:])
+    private let settingsBadgeByUserIdSubject = CurrentValueSubject<[String: SettingsBadgeState], Never>([:])
 
     /// A subject containing whether to show the website icons.
     private var showWebIconsSubject: CurrentValueSubject<Bool, Never>
@@ -1772,7 +1772,7 @@ actor DefaultStateService: StateService { // swiftlint:disable:this type_body_le
         return lastSyncTimeByUserIdSubject.map { $0[userId] }.eraseToAnyPublisher()
     }
 
-    func settingsBadgePublisher() async throws -> AnyPublisher<String?, Never> {
+    func settingsBadgePublisher() async throws -> AnyPublisher<SettingsBadgeState, Never> {
         let userId = try getActiveAccountUserId()
         try await updateSettingsBadgePublisher(userId: userId)
         return settingsBadgeByUserIdSubject.compactMap { $0[userId] }.eraseToAnyPublisher()
@@ -1819,7 +1819,11 @@ actor DefaultStateService: StateService { // swiftlint:disable:this type_body_le
             .compactMap { $0 }
             .filter { $0 != .complete }
             .count
-        settingsBadgeByUserIdSubject.value[userId] = badgeCount > 0 ? String(badgeCount) : nil
+        settingsBadgeByUserIdSubject.value[userId] = SettingsBadgeState(
+            autofillSetupProgress: autofillSetupProgress,
+            badgeValue: badgeCount > 0 ? String(badgeCount) : nil,
+            vaultUnlockSetupProgress: vaultUnlockSetupProgress
+        )
     }
 }
 
