@@ -78,27 +78,6 @@ enum FeatureFlag: String, CaseIterable, Codable {
 
     /// The display name of the feature flag.
     var name: String {
-        switch self {
-        case .emailVerification:
-            "Email Verification"
-        case .enableAuthenticatorSync:
-            "Enable Authenticator Sync"
-        case .enableCipherKeyEncryption:
-            "Enable Cipher Key Encryption"
-        case .nativeCarouselFlow:
-            "Native Carousel Flow"
-        case .nativeCreateAccountFlow:
-            "Native Create Account Flow"
-        case .testLocalFeatureFlag:
-            "Test Local Feature Flag"
-        case .testRemoteFeatureFlag:
-            "Test Remote Feature Flag"
-        case .testInitialBoolFlag:
-            "Test Initial Boolean Flag"
-        case .testInitialIntFlag:
-            "Test Initial Integer Flag"
-        case .testInitialStringFlag:
-            "Test Initial String Flag"
-        }
+        rawValue.split(separator: "-").map(\.localizedCapitalized).joined(separator: " ")
     }
 }

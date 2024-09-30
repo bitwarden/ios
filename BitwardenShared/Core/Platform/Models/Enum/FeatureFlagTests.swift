@@ -11,4 +11,12 @@ final class FeatureFlagTests: BitwardenTestCase {
         let filtered = actual.filter { $0.hasPrefix("test-") }
         XCTAssertEqual(filtered, [])
     }
+
+    /// `name` formats the raw value of a feature flag
+    func test_name() {
+        XCTAssertEqual(FeatureFlag.testLocalFeatureFlag.name, "Test Local Feature Flag")
+        XCTAssertEqual(FeatureFlag.testInitialBoolFlag.name, "Test Initial Bool Flag")
+        XCTAssertEqual(FeatureFlag.testInitialIntFlag.name, "Test Initial Int Flag")
+        XCTAssertEqual(FeatureFlag.testInitialStringFlag.name, "Test Initial String Flag")
+    }
 }
