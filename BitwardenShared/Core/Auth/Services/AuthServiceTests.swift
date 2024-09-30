@@ -466,6 +466,7 @@ class AuthServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body_
     /// `loginWithMasterPassword(_:username:captchaToken:)` logs the user in with the password for
     /// a newly created account and logs an error instead of throwing if setting the account setup
     /// progress fails.
+    @MainActor
     func test_loginWithMasterPassword_isNewAccount_accountSetupError() async throws {
         client.results = [
             .httpSuccess(testData: .preLoginSuccess),
