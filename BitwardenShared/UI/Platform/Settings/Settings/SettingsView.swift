@@ -31,14 +31,14 @@ struct SettingsView: View {
     /// The settings items.
     private var settingsItems: some View {
         VStack(spacing: 0) {
-            SettingsListItem(Localizations.accountSecurity, badgeValue: store.state.accountSecurityBadgeValue) {
+            SettingsListItem(Localizations.accountSecurity) {
                 store.send(.accountSecurityPressed)
             } trailingContent: {
                 chevron
             }
             .accessibilityIdentifier("AccountSecuritySettingsButton")
 
-            SettingsListItem(Localizations.autofill, badgeValue: store.state.autofillBadgeValue) {
+            SettingsListItem(Localizations.autofill) {
                 store.send(.autoFillPressed)
             } trailingContent: {
                 chevron

@@ -13,9 +13,6 @@ struct SettingsListItem<Content: View>: View {
     /// The action to perform when the list item is tapped.
     let action: () -> Void
 
-    /// An optional string to display as the badge next to the trailing content.
-    let badgeValue: String?
-
     /// Whether or not the list item should have a divider on the bottom.
     let hasDivider: Bool
 
@@ -45,10 +42,6 @@ struct SettingsListItem<Content: View>: View {
 
                     Spacer()
 
-                    if let badgeValue {
-                        BitwardenBadge(badgeValue: badgeValue)
-                    }
-
                     trailingContent()
                         .styleGuide(.body)
                         .foregroundColor(Asset.Colors.textSecondary.swiftUIColor)
@@ -74,7 +67,6 @@ struct SettingsListItem<Content: View>: View {
     ///  - name: The name of the list item.
     ///  - hasDivider: Whether or not the list item should have a divider on the bottom.
     ///  - accessibilityIdentifier: The accessibility ID for the list item.
-    ///  - badgeValue: An optional string to display as the badge next to the trailing content.
     ///  - nameAccessibilityID: The accessibility ID for the list item name.
     ///  - action: The action to perform when the list item is tapped.
     ///  - trailingContent: Content that appears on the trailing edge of the list item.
@@ -85,13 +77,11 @@ struct SettingsListItem<Content: View>: View {
         _ name: String,
         hasDivider: Bool = true,
         accessibilityIdentifier: String? = nil,
-        badgeValue: String? = nil,
         nameAccessibilityID: String? = nil,
         action: @escaping () -> Void,
         @ViewBuilder trailingContent: @escaping () -> Content? = { EmptyView() }
     ) {
         self.accessibilityIdentifier = accessibilityIdentifier
-        self.badgeValue = badgeValue
         self.name = name
         self.hasDivider = hasDivider
         self.nameAccessibilityID = nameAccessibilityID
@@ -115,8 +105,6 @@ struct SettingsListItem<Content: View>: View {
             }
 
             SettingsListItem("Account Security") {}
-
-            SettingsListItem("Account Security with Badge!", badgeValue: "3") {}
         }
     }
 }

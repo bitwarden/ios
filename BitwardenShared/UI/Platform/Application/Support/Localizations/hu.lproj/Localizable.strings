@@ -911,6 +911,7 @@
 "ThereWasAnErrorStartingWebAuthnTwoFactorAuthentication" = "There was an error starting WebAuthn two factor authentication";
 "LaunchWebAuthn" = "Launch WebAuthn";
 "Duo" = "Duo";
+"DuoUnsupported" = "Duo not yet supported.";
 "FilePassword" = "File password";
 "ConfirmFilePassword" = "Confirm file password";
 "FilePasswordDescription" = "This password will be used to export and import this file";
@@ -978,5 +979,4 @@
 "SetUpLaterQuestion" = "Beállítás később?";
 "YouCanFinishSetupUnlockAnytimeDescriptionLong" = "A beállítást bármikor befejezhetjük a Beállításokban a Fiókbiztonságnál. A feloldáshoz a mesterjelszó van használatban egy másik mód beállításáig.";
 "Confirm" = "Megerősítés";
-"ErrorConnectingWithTheDuoServiceUseADifferentTwoStepLoginMethodOrContactDuoForAssistance" = "Hiba történt a Duo szolgáltatáshoz csatlakozáskor. Használjunk másik kétlépcsős bejelentkezési módot vagy kérjünk segítséget a Duotól.";
 "ThePreAuthUrlsCouldNotBeLoadedToStartTheAccountCreation" = "Az előzes hitelestíési webcímeket nem lehetett betölteni a fiók létrehozásának megkezdéséhez.";

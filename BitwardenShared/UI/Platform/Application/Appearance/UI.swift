@@ -48,7 +48,7 @@ public enum UI {
 
     /// Sets up the default global appearances used throughout the app.
     ///
-    public static func applyDefaultAppearances() { // swiftlint:disable:this function_body_length
+    public static func applyDefaultAppearances() {
         let bodyFont = UIFontMetrics(forTextStyle: .body).scaledFont(
             for: FontFamily.DMSans.regular.font(size: 15)
         )
@@ -60,7 +60,6 @@ public enum UI {
         )
         let iconBadgeBackground = Asset.Colors.iconBadgeBackground.color
         let iconBadgeTextAttributes: [NSAttributedString.Key: Any] = [
-            .font: FontFamily.DMSans.bold.font(size: 12),
             .foregroundColor: Asset.Colors.iconBadgeForeground.color,
         ]
 

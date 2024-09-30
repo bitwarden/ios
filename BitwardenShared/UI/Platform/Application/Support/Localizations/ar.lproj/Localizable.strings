@@ -911,6 +911,7 @@
 "ThereWasAnErrorStartingWebAuthnTwoFactorAuthentication" = "حدث خطأ أثناء بدء المصادقة من عاملين لـ WebAuthn";
 "LaunchWebAuthn" = "تشغيل WebAuthn";
 "Duo" = "دوو";
+"DuoUnsupported" = "دوو غير مدعوم بعد.";
 "FilePassword" = "كلمة مرور الملف";
 "ConfirmFilePassword" = "تأكيد كلمة مرور الملف";
 "FilePasswordDescription" = "ستُستخدم كلمة المرور هذه لتصدير واستيراد هذا الملف";
@@ -978,5 +979,4 @@
 "SetUpLaterQuestion" = "Set up later?";
 "YouCanFinishSetupUnlockAnytimeDescriptionLong" = "You can finish setup anytime in Account Security under Settings. You’ll use your master password to unlock until you set up another method.";
 "Confirm" = "Confirm";
-"ErrorConnectingWithTheDuoServiceUseADifferentTwoStepLoginMethodOrContactDuoForAssistance" = "Error connecting with the Duo service. Use a different two-step login method or contact Duo for assistance.";
 "ThePreAuthUrlsCouldNotBeLoadedToStartTheAccountCreation" = "The Pre Auth Urls could not be loaded to start the account creation.";

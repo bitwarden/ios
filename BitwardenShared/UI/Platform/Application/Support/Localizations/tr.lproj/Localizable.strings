@@ -911,6 +911,7 @@
 "ThereWasAnErrorStartingWebAuthnTwoFactorAuthentication" = "There was an error starting WebAuthn two factor authentication";
 "LaunchWebAuthn" = "Launch WebAuthn";
 "Duo" = "Duo";
+"DuoUnsupported" = "Duo henüz desteklenmiyor.";
 "FilePassword" = "Dosya parolası";
 "ConfirmFilePassword" = "Dosya parolasını onaylayın";
 "FilePasswordDescription" = "Bu parola, bu dosyayı dışa ve içe aktarmak için kullanılacaktır";
@@ -978,5 +979,4 @@
 "SetUpLaterQuestion" = "Daha sonra ayarlamak ister misiniz?";
 "YouCanFinishSetupUnlockAnytimeDescriptionLong" = "Kurulumu istediğiniz zaman Ayarlar altındaki Hesap Güvenliği bölümünden tamamlayabilirsiniz. Başka bir yöntem tanımlayana kadar kilidi açmak için ana parolanızı kullanabilirsiniz.";
 "Confirm" = "Onayla";
-"ErrorConnectingWithTheDuoServiceUseADifferentTwoStepLoginMethodOrContactDuoForAssistance" = "Duo hizmetine bağlanırken hata oluştu. Başka bir iki aşamalı giriş yöntemi kullanın veya destek almak Duo ile iletişime geçin.";
 "ThePreAuthUrlsCouldNotBeLoadedToStartTheAccountCreation" = "The Pre Auth Urls could not be loaded to start the account creation.";

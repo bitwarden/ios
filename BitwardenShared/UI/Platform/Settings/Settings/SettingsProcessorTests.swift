@@ -61,27 +61,17 @@ class SettingsProcessorTests: BitwardenTestCase {
         stateService.activeAccount = .fixture()
         setUpSubject()
 
-        var badgeState = SettingsBadgeState.fixture(badgeValue: "1", vaultUnlockSetupProgress: .setUpLater)
-        stateService.settingsBadgeSubject.send(badgeState)
+        stateService.settingsBadgeSubject.send("1")
         try await waitForAsync { self.delegate.badgeValue == "1" }
         XCTAssertEqual(delegate.badgeValue, "1")
-        XCTAssertEqual(subject.state.badgeState, badgeState)
 
-        badgeState = SettingsBadgeState.fixture(
-            autofillSetupProgress: .setUpLater,
-            badgeValue: "2",
-            vaultUnlockSetupProgress: .setUpLater
-        )
-        stateService.settingsBadgeSubject.send(badgeState)
+        stateService.settingsBadgeSubject.send("2")
         try await waitForAsync { self.delegate.badgeValue == "2" }
         XCTAssertEqual(delegate.badgeValue, "2")
-        XCTAssertEqual(subject.state.badgeState, badgeState)
 
-        badgeState = SettingsBadgeState.fixture(badgeValue: nil)
-        stateService.settingsBadgeSubject.send(badgeState)
+        stateService.settingsBadgeSubject.send(nil)
         try await waitForAsync { self.delegate.badgeValue == nil }
         XCTAssertNil(delegate.badgeValue)
-        XCTAssertEqual(subject.state.badgeState, badgeState)
     }
 
     /// `init()` subscribes to the badge publisher and logs an error if one occurs.
@@ -90,7 +80,7 @@ class SettingsProcessorTests: BitwardenTestCase {
         configService.featureFlagsBool[.nativeCreateAccountFlow] = true
         setUpSubject()
 
-        stateService.settingsBadgeSubject.send(SettingsBadgeState.fixture(badgeValue: "1"))
+        stateService.settingsBadgeSubject.send("1")
         try await waitForAsync { !self.errorReporter.errors.isEmpty }
 
         XCTAssertEqual(errorReporter.errors as? [StateServiceError], [.noActiveAccount])

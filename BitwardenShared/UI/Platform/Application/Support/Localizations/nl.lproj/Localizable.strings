@@ -911,6 +911,7 @@
 "ThereWasAnErrorStartingWebAuthnTwoFactorAuthentication" = "Er is een fout opgetreden bij het starten van WebAuthn twee factor authenticatie";
 "LaunchWebAuthn" = "Start WebAuthn";
 "Duo" = "Duo";
+"DuoUnsupported" = "Duo wordt nog niet ondersteund.";
 "FilePassword" = "Bestandswachtwoord";
 "ConfirmFilePassword" = "Bestandswachtwoord bevestigen";
 "FilePasswordDescription" = "Dit wachtwoord wordt gebruikt om dit bestand te exporteren en te importeren";
@@ -978,5 +979,4 @@
 "SetUpLaterQuestion" = "Later instellen?";
 "YouCanFinishSetupUnlockAnytimeDescriptionLong" = "Je kunt de installatie ieder moment afronden in Accountbeveiliging onder Instellingen. Je gebruikt je hoofdwachtwoord voor ontgrendelen totdat je een andere methode hebt ingesteld.";
 "Confirm" = "Bevestigen";
-"ErrorConnectingWithTheDuoServiceUseADifferentTwoStepLoginMethodOrContactDuoForAssistance" = "Fout bij het verbinden met de Duo-service. Gebruik een andere tweestapsaanmeldingsmethode of neem contact op met Duo voor hulp.";
 "ThePreAuthUrlsCouldNotBeLoadedToStartTheAccountCreation" = "DePre-Auth-Urls konden niet gelaten worden om het account aan te maken.";

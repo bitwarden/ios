@@ -189,13 +189,9 @@ class DefaultConfigService: ConfigService {
         }
         #endif
 
-        guard flag.isRemotelyConfigured else {
-            return FeatureFlag.initialValues[flag]?.boolValue ?? defaultValue
-        }
+        guard flag.isRemotelyConfigured else { return defaultValue }
         let configuration = await getConfig(forceRefresh: forceRefresh, isPreAuth: isPreAuth)
-        return configuration?.featureStates[flag]?.boolValue
-            ?? FeatureFlag.initialValues[flag]?.boolValue
-            ?? defaultValue
+        return configuration?.featureStates[flag]?.boolValue ?? defaultValue
     }
 
     func getFeatureFlag(
@@ -204,13 +200,9 @@ class DefaultConfigService: ConfigService {
         forceRefresh: Bool = false,
         isPreAuth: Bool = false
     ) async -> Int {
-        guard flag.isRemotelyConfigured else {
-            return FeatureFlag.initialValues[flag]?.intValue ?? defaultValue
-        }
+        guard flag.isRemotelyConfigured else { return defaultValue }
         let configuration = await getConfig(forceRefresh: forceRefresh, isPreAuth: isPreAuth)
-        return configuration?.featureStates[flag]?.intValue
-            ?? FeatureFlag.initialValues[flag]?.intValue
-            ?? defaultValue
+        return configuration?.featureStates[flag]?.intValue ?? defaultValue
     }
 
     func getFeatureFlag(
@@ -219,13 +211,9 @@ class DefaultConfigService: ConfigService {
         forceRefresh: Bool = false,
         isPreAuth: Bool = false
     ) async -> String? {
-        guard flag.isRemotelyConfigured else {
-            return FeatureFlag.initialValues[flag]?.stringValue ?? defaultValue
-        }
+        guard flag.isRemotelyConfigured else { return defaultValue }
         let configuration = await getConfig(forceRefresh: forceRefresh, isPreAuth: isPreAuth)
-        return configuration?.featureStates[flag]?.stringValue
-            ?? FeatureFlag.initialValues[flag]?.stringValue
-            ?? defaultValue
+        return configuration?.featureStates[flag]?.stringValue ?? defaultValue
     }
 
     func getDebugFeatureFlags() async -> [DebugMenuFeatureFlag] {

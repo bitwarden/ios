@@ -911,6 +911,7 @@
 "ThereWasAnErrorStartingWebAuthnTwoFactorAuthentication" = "Es gab einen Fehler beim Starten der WebAuthn Zwei-Faktor-Authentifizierung";
 "LaunchWebAuthn" = "WebAuthn starten";
 "Duo" = "Duo";
+"DuoUnsupported" = "Duo wird noch nicht unterstützt.";
 "FilePassword" = "Dateipasswort";
 "ConfirmFilePassword" = "Dateipasswort bestätigen";
 "FilePasswordDescription" = "Dieses Passwort wird zum Exportieren und Importieren dieser Datei verwendet";
@@ -978,5 +979,4 @@
 "SetUpLaterQuestion" = "Später einrichten?";
 "YouCanFinishSetupUnlockAnytimeDescriptionLong" = "Du kannst die Einrichtung jederzeit unter Kontosicherheit in den Einstellungen abschließen. Du musst dein Master-Passwort zum Entsperren verwenden, bis du eine andere Methode eingerichtet hast.";
 "Confirm" = "Bestätigen";
-"ErrorConnectingWithTheDuoServiceUseADifferentTwoStepLoginMethodOrContactDuoForAssistance" = "Fehler beim Verbinden mit dem Duo-Dienst. Verwende eine andere Zwei-Faktor-Authentifizierungsmethode oder kontaktiere Duo für Hilfe.";
 "ThePreAuthUrlsCouldNotBeLoadedToStartTheAccountCreation" = "Die Pre-Auth-URLs konnten nicht geladen werden, um die Kontoerstellung zu starten.";

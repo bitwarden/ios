@@ -79,23 +79,8 @@ class SettingsViewTests: BitwardenTestCase {
         XCTAssertEqual(processor.dispatchedActions.last, .vaultPressed)
     }
 
-    // MARK: Snapshots
-
     /// Tests the view renders correctly.
     func test_viewRender() {
         assertSnapshot(of: subject, as: .defaultPortrait)
-    }
-
-    /// Tests the view renders correctly with badges.
-    @MainActor
-    func test_settingsView_badges() {
-        processor.state.badgeState = .fixture(
-            autofillSetupProgress: .setUpLater,
-            vaultUnlockSetupProgress: .setUpLater
-        )
-        assertSnapshots(
-            of: subject,
-            as: [.defaultPortrait, .defaultPortraitDark, .defaultPortraitAX5]
-        )
     }
 }

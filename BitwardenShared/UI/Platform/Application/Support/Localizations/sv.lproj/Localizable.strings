@@ -912,6 +912,7 @@ Vänligen använd en enhet som stöds och/eller lägg till fler metoder som har 
 "ThereWasAnErrorStartingWebAuthnTwoFactorAuthentication" = "There was an error starting WebAuthn two factor authentication";
 "LaunchWebAuthn" = "Launch WebAuthn";
 "Duo" = "Duo";
+"DuoUnsupported" = "Duo stöds ännu inte.";
 "FilePassword" = "Fillösenord";
 "ConfirmFilePassword" = "Bekräfta fillösenord";
 "FilePasswordDescription" = "Detta lösenord kommer att användas för att exportera och importera denna fil";
@@ -979,5 +980,4 @@ Vänligen använd en enhet som stöds och/eller lägg till fler metoder som har 
 "SetUpLaterQuestion" = "Set up later?";
 "YouCanFinishSetupUnlockAnytimeDescriptionLong" = "You can finish setup anytime in Account Security under Settings. You’ll use your master password to unlock until you set up another method.";
 "Confirm" = "Bekräfta";
-"ErrorConnectingWithTheDuoServiceUseADifferentTwoStepLoginMethodOrContactDuoForAssistance" = "Error connecting with the Duo service. Use a different two-step login method or contact Duo for assistance.";
 "ThePreAuthUrlsCouldNotBeLoadedToStartTheAccountCreation" = "The Pre Auth Urls could not be loaded to start the account creation.";

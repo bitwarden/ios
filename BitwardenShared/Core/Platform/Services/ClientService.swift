@@ -295,7 +295,7 @@ actor DefaultClientService: ClientService {
             }
 
             try client.platform().loadFlags([
-                FeatureFlag.enableCipherKeyEncryption.rawValue: config.supportsCipherKeyEncryption(),
+                FeatureFlagsConstants.enableCipherKeyEncryption: config.supportsCipherKeyEncryption(),
             ])
         } catch {
             errorReporter.log(error: error)

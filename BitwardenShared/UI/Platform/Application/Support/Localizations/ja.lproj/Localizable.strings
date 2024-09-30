@@ -911,6 +911,7 @@
 "ThereWasAnErrorStartingWebAuthnTwoFactorAuthentication" = "WebAuthn 2要素認証の開始時にエラーが発生しました";
 "LaunchWebAuthn" = "WebAuthn を起動";
 "Duo" = "Duo";
+"DuoUnsupported" = "Duo はまだサポートされていません。";
 "FilePassword" = "ファイルパスワード";
 "ConfirmFilePassword" = "ファイルパスワードの確認";
 "FilePasswordDescription" = "このパスワードはこのファイルのエクスポートとインポート時に使用します";
@@ -974,9 +975,8 @@
 "PleaseRestartRegistrationOrTryLoggingInYouMayAlreadyHaveAnAccount" = "登録を再度始めるか、ログインを試してください。すでにアカウントを持っている可能性があります。";
 "RemovePasskey" = "パスキーを削除";
 "PasskeyRemoved" = "パスキーを削除しました";
-"TheRegionForTheGivenEmailCouldNotBeLoaded" = "指定されたメールのリージョンを読み込めませんでした。";
+"TheRegionForTheGivenEmailCouldNotBeLoaded" = "The region for the given email could not be loaded.";
 "SetUpLaterQuestion" = "後で設定しますか?";
 "YouCanFinishSetupUnlockAnytimeDescriptionLong" = "アカウントのセキュリティでいつでもセットアップを完了できます。別の方法を設定するまではマスターパスワードを使用してロックを解除してください。";
 "Confirm" = "確認";
-"ErrorConnectingWithTheDuoServiceUseADifferentTwoStepLoginMethodOrContactDuoForAssistance" = "Duo サービスへの接続中にエラーが発生しました。異なる二段階ログイン方法を使用するか、Duo に連絡してください。";
-"ThePreAuthUrlsCouldNotBeLoadedToStartTheAccountCreation" = "アカウント作成を開始するための事前認証 URL を読み込めませんでした。";
+"ThePreAuthUrlsCouldNotBeLoadedToStartTheAccountCreation" = "The Pre Auth Urls could not be loaded to start the account creation.";

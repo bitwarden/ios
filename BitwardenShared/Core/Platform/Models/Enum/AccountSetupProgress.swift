@@ -12,11 +12,3 @@ enum AccountSetupProgress: Int, Codable {
     /// The user has completed the set up.
     case complete = 2
 }
-
-extension AccountSetupProgress {
-    /// Whether the progress is `.complete`.
-    var isComplete: Bool {
-        guard case .complete = self else { return false }
-        return true
-    }
-}

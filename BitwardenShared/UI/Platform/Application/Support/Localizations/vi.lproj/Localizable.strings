@@ -911,6 +911,7 @@
 "ThereWasAnErrorStartingWebAuthnTwoFactorAuthentication" = "Xảy ra lỗi khi khởi động xác thực hai bước với WebAuthn";
 "LaunchWebAuthn" = "Khởi chạy WebAuthn";
 "Duo" = "Duo";
+"DuoUnsupported" = "Chưa hỗ trợ Duo.";
 "FilePassword" = "Mật khẩu tập tin";
 "ConfirmFilePassword" = "Nhập lại mật khẩu tập tin";
 "FilePasswordDescription" = "Mật khẩu này sẽ được sử dụng để xuất và nhập tập tin này";
@@ -974,9 +975,8 @@
 "PleaseRestartRegistrationOrTryLoggingInYouMayAlreadyHaveAnAccount" = "Vui lòng tiến hành đăng ký lại hoặc thử đăng nhập. Bạn có thể đã có tài khoản.";
 "RemovePasskey" = "Xóa mã khoá";
 "PasskeyRemoved" = "Đã xóa mã khoá";
-"TheRegionForTheGivenEmailCouldNotBeLoaded" = "Không thể tải vùng cho email đã cung cấp.";
+"TheRegionForTheGivenEmailCouldNotBeLoaded" = "The region for the given email could not be loaded.";
 "SetUpLaterQuestion" = "Thiết lập sau?";
 "YouCanFinishSetupUnlockAnytimeDescriptionLong" = "Bạn có thể hoàn tất thiết lập bất cứ lúc nào trong mục Bảo mật tài khoản trong Cài đặt. Bạn sẽ sử dụng mật khẩu chính để mở khóa cho đến khi thiết lập phương pháp khác.";
 "Confirm" = "Xác nhận";
-"ErrorConnectingWithTheDuoServiceUseADifferentTwoStepLoginMethodOrContactDuoForAssistance" = "Lỗi kết nối với dịch vụ Duo. Sử dụng phương thức đăng nhập hai bước khác hoặc liên hệ Duo để được hỗ trợ.";
-"ThePreAuthUrlsCouldNotBeLoadedToStartTheAccountCreation" = "Không thể tải URL xác thực trước để bắt đầu tạo tài khoản.";
+"ThePreAuthUrlsCouldNotBeLoadedToStartTheAccountCreation" = "The Pre Auth Urls could not be loaded to start the account creation.";

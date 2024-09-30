@@ -911,6 +911,7 @@
 "ThereWasAnErrorStartingWebAuthnTwoFactorAuthentication" = "Atgadījās kļūda WebAuth divpakāpju autentifikācijas uzsākšanā";
 "LaunchWebAuthn" = "Palaist WebAuthn";
 "Duo" = "Duo";
+"DuoUnsupported" = "Duo vēl nav atbalstīts.";
 "FilePassword" = "Datnes parole";
 "ConfirmFilePassword" = "Apstiprināt datnes paroli";
 "FilePasswordDescription" = "Šī parole tiks izmantota, lai izgūtu un ievietotu šo datni";
@@ -974,9 +975,8 @@
 "PleaseRestartRegistrationOrTryLoggingInYouMayAlreadyHaveAnAccount" = "Lūgums sākt reģistrēšanos no jauna vai mēģināt pieteikties. Tev jau varētu būt konts.";
 "RemovePasskey" = "Noņemt piekļuves atslēgu";
 "PasskeyRemoved" = "Piekļuves atslēga noņemta";
-"TheRegionForTheGivenEmailCouldNotBeLoaded" = "Sniegtās e-pasta adreses apgabalu nevarēja ielādēt.";
+"TheRegionForTheGivenEmailCouldNotBeLoaded" = "The region for the given email could not be loaded.";
 "SetUpLaterQuestion" = "Iestatīt vēlāk?";
 "YouCanFinishSetupUnlockAnytimeDescriptionLong" = "Iestatīšanu var pabeigt jebkurā brīdi iestatījumu sadaļā \"Konta drošība\". Būs jāizmanto sava galvenā parole, lai atslēgtu, līdz tiks iestatīts cits veids.";
 "Confirm" = "Apstiprināt";
-"ErrorConnectingWithTheDuoServiceUseADifferentTwoStepLoginMethodOrContactDuoForAssistance" = "Error connecting with the Duo service. Use a different two-step login method or contact Duo for assistance.";
-"ThePreAuthUrlsCouldNotBeLoadedToStartTheAccountCreation" = "Pre Auth URL nevarēja ielādēt, lai uzsāktu konta izveidi.";
+"ThePreAuthUrlsCouldNotBeLoadedToStartTheAccountCreation" = "The Pre Auth Urls could not be loaded to start the account creation.";

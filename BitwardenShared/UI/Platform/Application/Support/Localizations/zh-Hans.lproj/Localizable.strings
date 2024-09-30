@@ -911,6 +911,7 @@
 "ThereWasAnErrorStartingWebAuthnTwoFactorAuthentication" = "启动 WebAuthn 双重身份验证时出错";
 "LaunchWebAuthn" = "启动 WebAuthn";
 "Duo" = "Duo";
+"DuoUnsupported" = "尚不支持 Duo。";
 "FilePassword" = "文件密码";
 "ConfirmFilePassword" = "确认文件密码";
 "FilePasswordDescription" = "此密码将用于导出和导入此文件";
@@ -945,7 +946,7 @@
 "SetUpBiometricsOrChooseAPinCodeToQuicklyAccessYourVaultAndAutofillYourLogins" = "设置生物识别或选择一个 PIN 码来快速访问您的密码库以及自动填充登录信息。";
 "SetUpLater" = "稍后设置";
 "MasterPasswordHelp" = "主密码帮助";
-"WhatMakesAPasswordStrong" = "如何使密码更安全？";
+"WhatMakesAPasswordStrong" = "如何使密码更加强大？";
 "StrongPasswordDescriptionLong" = "密码越长，被破解的难度就越大。创建账户时，密码至少需要 12 个字符，但如果使用 14 个字符，破解所需的时间将长达数个世纪！";
 "TheStrongestPasswordsAreUsually" = "最强的密码通常是：";
 "TwelveOrMoreCharacters" = "12 个或更多字符";
@@ -966,7 +967,7 @@
 "RetypeMasterPasswordRequired" = "再次输入主密码（必填）";
 "BitwardenCannotResetALostOrForgottenMasterPassword" = "Bitwarden 无法重置丢失或遗忘的主密码。";
 "LearnAboutWaysToPreventAccountLockout" = "了解防止账户被锁定的方法";
-"WhatMakesAPasswordStrong" = "如何使密码更安全？";
+"WhatMakesAPasswordStrong" = "如何使密码更加强大？";
 "XCharacters" = "%1$@ 个字符";
 "RemoveMasterPasswordMessage" = "%1$@ 使用自托管密钥服务器 SSO。该组织的成员不再需要主密码登录。";
 "RestartRegistration" = "重新开始注册";
@@ -978,5 +979,4 @@
 "SetUpLaterQuestion" = "稍后设置吗？";
 "YouCanFinishSetupUnlockAnytimeDescriptionLong" = "您可以随时在「设置」下的「账户安全」中完成设置。将使用您的主密码解锁，也可以设置其他方法。";
 "Confirm" = "确认";
-"ErrorConnectingWithTheDuoServiceUseADifferentTwoStepLoginMethodOrContactDuoForAssistance" = "与 Duo 服务连接时出错。请使用其他的两步登录方式，或请联系 Duo 寻求帮助。";
 "ThePreAuthUrlsCouldNotBeLoadedToStartTheAccountCreation" = "无法加载预认证 URL 来启动账户创建。";
