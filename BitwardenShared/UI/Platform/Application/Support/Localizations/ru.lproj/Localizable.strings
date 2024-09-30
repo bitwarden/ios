@@ -913,7 +913,6 @@
 "ThereWasAnErrorStartingWebAuthnTwoFactorAuthentication" = "Возникла ошибка при запуске двухэтапной аутентификации WebAuthn";
 "LaunchWebAuthn" = "Запустить WebAuthn";
 "Duo" = "Duo";
-"DuoUnsupported" = "Duo пока не поддерживается.";
 "FilePassword" = "Пароль к файлу";
 "ConfirmFilePassword" = "Подтвердите пароль к файлу";
 "FilePasswordDescription" = "Этот пароль будет использоваться для экспорта и импорта этого файла";
@@ -981,4 +980,5 @@
 "SetUpLaterQuestion" = "Настроить позже?";
 "YouCanFinishSetupUnlockAnytimeDescriptionLong" = "Вы можете завершить в любое время в настройках безопасности аккаунта. Для разблокировки будет использоваться мастер-пароль, пока вы не установите другой метод.";
 "Confirm" = "Подтвердить";
+"ErrorConnectingWithTheDuoServiceUseADifferentTwoStepLoginMethodOrContactDuoForAssistance" = "Ошибка при подключении к сервису Duo. Используйте другой метод двухэтапной аутентификации или обратитесь за помощью в Duo.";
 "ThePreAuthUrlsCouldNotBeLoadedToStartTheAccountCreation" = "Не удалось загрузить URL предавторизации для начала создания аккаунта.";

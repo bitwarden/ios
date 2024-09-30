@@ -911,7 +911,6 @@
 "ThereWasAnErrorStartingWebAuthnTwoFactorAuthentication" = "WebAuthn iki faktorlu kimlik doğrulama başladılarkən bir xəta baş verdi";
 "LaunchWebAuthn" = "WebAuthn-u başlat";
 "Duo" = "Duo";
-"DuoUnsupported" = "Duo hələ dəstəklənmir.";
 "FilePassword" = "Fayl parolu";
 "ConfirmFilePassword" = "Fayl parolunu təsdiqlə";
 "FilePasswordDescription" = "Bu parol, bu faylı daxilə və xaricə köçürmək üçün istifadə olunacaq";
@@ -975,8 +974,9 @@
 "PleaseRestartRegistrationOrTryLoggingInYouMayAlreadyHaveAnAccount" = "Lütfən qeydiyyatı yenidən başladın və ya giriş etməyə çalışın. Artıq bir hesabınız ola bilər.";
 "RemovePasskey" = "Keçid açarını sil";
 "PasskeyRemoved" = "Keçid açarı silindi";
-"TheRegionForTheGivenEmailCouldNotBeLoaded" = "The region for the given email could not be loaded.";
+"TheRegionForTheGivenEmailCouldNotBeLoaded" = "Verilmiş e-poçtla əlaqəli e-poçt yüklənə bilmədi.";
 "SetUpLaterQuestion" = "Daha sonra qurulsun?";
 "YouCanFinishSetupUnlockAnytimeDescriptionLong" = "Quraşdırmanı istənilən vaxt Ayarlardakı Hesab Güvənliyində tamamlaya bilərsiniz. Başqa bir üsul qurana qədər kilidi açmaq üçün ana parolunuzu istifadə edəcəksiniz.";
 "Confirm" = "Təsdiqlə";
-"ThePreAuthUrlsCouldNotBeLoadedToStartTheAccountCreation" = "The Pre Auth Urls could not be loaded to start the account creation.";
+"ErrorConnectingWithTheDuoServiceUseADifferentTwoStepLoginMethodOrContactDuoForAssistance" = "Duo xidmətinə bağlanarkən xəta baş verdi. Fərqli iki addımlı giriş üsulu istifadə edin və ya kömək üçün Duo ilə əlaqə saxlayın.";
+"ThePreAuthUrlsCouldNotBeLoadedToStartTheAccountCreation" = "Hesab yaratmanı başlatmaq üçün Ön Kimlik Doğrulama URL-ləri yüklənə bilmədi.";
