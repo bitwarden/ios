@@ -16,6 +16,7 @@ class AuthServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body_
     var configService: MockConfigService!
     var credentialIdentityStore: MockCredentialIdentityStore!
     var environmentService: MockEnvironmentService!
+    var errorReporter: MockErrorReporter!
     var keychainRepository: MockKeychainRepository!
     var stateService: MockStateService!
     var policyService: MockPolicyService!
@@ -47,6 +48,7 @@ class AuthServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body_
             ))
         credentialIdentityStore = MockCredentialIdentityStore()
         environmentService = MockEnvironmentService()
+        errorReporter = MockErrorReporter()
         keychainRepository = MockKeychainRepository()
         policyService = MockPolicyService()
         stateService = MockStateService()
@@ -61,6 +63,7 @@ class AuthServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body_
             configService: configService,
             credentialIdentityStore: credentialIdentityStore,
             environmentService: environmentService,
+            errorReporter: errorReporter,
             keychainRepository: keychainRepository,
             policyService: policyService,
             stateService: stateService,
@@ -80,6 +83,7 @@ class AuthServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body_
         configService = nil
         credentialIdentityStore = nil
         environmentService = nil
+        errorReporter = nil
         keychainRepository = nil
         stateService = nil
         subject = nil
@@ -455,6 +459,36 @@ class AuthServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body_
             IdentityTokenResponseModel.fixture().refreshToken
         )
         assertGetConfig()
+    }
+
+    /// `loginWithMasterPassword(_:username:captchaToken:)` logs the user in with the password for
+    /// a newly created account and logs an error instead of throwing if setting the account setup
+    /// progress fails.
+    func test_loginWithMasterPassword_isNewAccount_accountSetupError() async throws {
+        client.results = [
+            .httpSuccess(testData: .preLoginSuccess),
+            .httpSuccess(testData: .identityTokenSuccess),
+        ]
+        appSettingsStore.appId = "App id"
+        clientService.mockAuth.hashPasswordResult = .success("hashed password")
+        configService.featureFlagsBool[.nativeCreateAccountFlow] = true
+        credentialIdentityStore.state.mockIsEnabled = true
+        stateService.accountSetupAutofillError = BitwardenTestError.example
+        stateService.preAuthEnvironmentUrls = EnvironmentUrlData(base: URL(string: "https://vault.bitwarden.com"))
+        systemDevice.modelIdentifier = "Model id"
+
+        // Attempt to login.
+        try await subject.loginWithMasterPassword(
+            "Password1234!",
+            username: "email@example.com",
+            captchaToken: nil,
+            isNewAccount: true
+        )
+
+        XCTAssertEqual(errorReporter.errors as? [BitwardenTestError], [.example])
+
+        XCTAssertNil(stateService.accountSetupAutofill["13512467-9cfe-43b0-969f-07534084764b"])
+        XCTAssertNil(stateService.accountSetupVaultUnlock["13512467-9cfe-43b0-969f-07534084764b"])
     }
 
     /// `loginWithMasterPassword(_:username:captchaToken:)` logs the user in with the password for
