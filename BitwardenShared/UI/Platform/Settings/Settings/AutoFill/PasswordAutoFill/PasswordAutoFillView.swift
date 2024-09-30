@@ -46,14 +46,11 @@ struct PasswordAutoFillView: View {
         VStack(spacing: 0) {
             ZStack {
                 gifViewPlaceholder
-                    .frame(width: 230, height: 278)
-                    .background(.red)
-                    .padding(.top, 32)
 
                 gifView
-                    .frame(width: 230, height: 280)
-                    .padding(.top, 32)
             }
+            .frame(width: 230, height: 278)
+            .padding(.top, 32)
 
             Text(Localizations.turnOnAutoFill)
                 .styleGuide(.title2, weight: .bold)
@@ -163,25 +160,25 @@ struct PasswordAutoFillView: View {
     /// The current auto fill instructions to present in the list.
     private var autofillInstructions: some View {
         VStack(alignment: .leading, spacing: 0) {
-            ForEach(
-                Array(store.state.autofillInstructions.enumerated()),
-                id: \.element
-            ) { index, instruction in
-                HStack(spacing: 0) {
-                    Text("\(index + 1)")
-                        .styleGuide(.title)
-                        .foregroundColor(Asset.Colors.textCodeBlue.swiftUIColor)
-                        .frame(width: 34, height: 60, alignment: .leading)
+            ForEachIndexed(store.state.autofillInstructions, id: \.self) { index, instruction in
+                Group {
+                    HStack(spacing: 0) {
+                        Text("\(index + 1)")
+                            .styleGuide(.title)
+                            .foregroundColor(Asset.Colors.textCodeBlue.swiftUIColor)
+                            .frame(width: 34, height: 60, alignment: .leading)
 
-                    Text(LocalizedStringKey(instruction))
-                        .styleGuide(.body)
-                }
-                .padding(.vertical, 8)
-                .padding(.horizontal, 16)
+                        Text(LocalizedStringKey(instruction))
+                            .styleGuide(.body)
+                            .foregroundColor(Asset.Colors.textPrimary.swiftUIColor)
+                    }
+                    .padding(.vertical, 8)
+                    .padding(.horizontal, 16)
 
-                if index < store.state.autofillInstructions.count - 1 {
-                    Divider()
-                        .padding(.leading, 48)
+                    if index < store.state.autofillInstructions.count - 1 {
+                        Divider()
+                            .padding(.leading, 48)
+                    }
                 }
             }
         }

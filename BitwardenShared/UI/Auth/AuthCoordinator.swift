@@ -41,6 +41,7 @@ final class AuthCoordinator: NSObject, // swiftlint:disable:this type_body_lengt
         & HasAuthAPIService
         & HasAuthRepository
         & HasAuthService
+        & HasAutofillCredentialService
         & HasBiometricsRepository
         & HasCaptchaService
         & HasClientService
@@ -48,6 +49,7 @@ final class AuthCoordinator: NSObject, // swiftlint:disable:this type_body_lengt
         & HasDeviceAPIService
         & HasEnvironmentService
         & HasErrorReporter
+        & HasNotificationCenterService
         & HasNFCReaderService
         & HasOrganizationAPIService
         & HasPolicyService

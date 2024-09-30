@@ -49,11 +49,13 @@ final class SettingsCoordinator: Coordinator, HasStackNavigator { // swiftlint:d
     typealias Services = HasAccountAPIService
         & HasAuthRepository
         & HasAuthService
+        & HasAutofillCredentialService
         & HasBiometricsRepository
         & HasConfigService
         & HasEnvironmentService
         & HasErrorReporter
         & HasExportVaultService
+        & HasNotificationCenterService
         & HasPasteboardService
         & HasPolicyService
         & HasSettingsRepository

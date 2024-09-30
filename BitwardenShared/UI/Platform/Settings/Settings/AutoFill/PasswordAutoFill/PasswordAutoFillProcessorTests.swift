@@ -35,6 +35,7 @@ class PasswordAutoFillProcessorTests: BitwardenTestCase {
 
     override func tearDown() {
         configService = nil
+        coordinator = nil
         errorReporter = nil
         stateService = nil
         subject = nil

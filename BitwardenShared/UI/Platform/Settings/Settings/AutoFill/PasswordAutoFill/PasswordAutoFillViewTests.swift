@@ -70,24 +70,9 @@ class PasswordAutoFillViewTests: BitwardenTestCase {
         assertSnapshots(
             of: subject.navStackWrapped,
             as: [
-                .fixedSize(
-                    height: 1000,
-                    interfaceStyle: .light
-                ),
-                .fixedSize(
-                    height: 1000,
-                    interfaceStyle: .dark
-                ),
-                .fixedSize(
-                    height: 2500,
-                    interfaceStyle: .light,
-                    preferredContentSizeCategory: .accessibilityExtraExtraExtraLarge
-                ),
-                .fixedSize(
-                    height: 2500,
-                    interfaceStyle: .dark,
-                    preferredContentSizeCategory: .accessibilityExtraExtraExtraLarge
-                ),
+                .portrait(heightMultiple: 1.2),
+                .portraitDark(heightMultiple: 1.2),
+                .tallPortraitAX5(heightMultiple: 2.2),
             ]
         )
     }
@@ -101,24 +86,9 @@ class PasswordAutoFillViewTests: BitwardenTestCase {
         assertSnapshots(
             of: subject.navStackWrapped,
             as: [
-                .fixedSize(
-                    height: 1000,
-                    interfaceStyle: .light
-                ),
-                .fixedSize(
-                    height: 1000,
-                    interfaceStyle: .dark
-                ),
-                .fixedSize(
-                    height: 2500,
-                    interfaceStyle: .light,
-                    preferredContentSizeCategory: .accessibilityExtraExtraExtraLarge
-                ),
-                .fixedSize(
-                    height: 2500,
-                    interfaceStyle: .dark,
-                    preferredContentSizeCategory: .accessibilityExtraExtraExtraLarge
-                ),
+                .portrait(heightMultiple: 1.2),
+                .portraitDark(heightMultiple: 1.2),
+                .tallPortraitAX5(heightMultiple: 3),
             ]
         )
     }

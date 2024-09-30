@@ -8,8 +8,10 @@ final class PasswordAutoFillProcessor: StateProcessor<PasswordAutoFillState, Voi
     // MARK: Types
 
     /// The services used by this processor.
-    typealias Services = HasConfigService
+    typealias Services = HasAutofillCredentialService
+        & HasConfigService
         & HasErrorReporter
+        & HasNotificationCenterService
         & HasStateService
 
     // MARK: Private Properties
@@ -45,6 +47,7 @@ final class PasswordAutoFillProcessor: StateProcessor<PasswordAutoFillState, Voi
         switch effect {
         case .appeared:
             await loadFeatureFlag()
+            await monitorAutofillCompletionDuringOnboarding()
         case .turnAutoFillOnLaterButtonTapped:
             coordinator?.showAlert(
                 .setUpAutoFillLater { [weak self] in
@@ -60,9 +63,23 @@ final class PasswordAutoFillProcessor: StateProcessor<PasswordAutoFillState, Voi
     ///
     private func loadFeatureFlag() async {
         state.nativeCreateAccountFeatureFlag = await services.configService.getFeatureFlag(
-            .nativeCreateAccountFlow,
-            isPreAuth: true
+            .nativeCreateAccountFlow
         )
+    }
+
+    /// Monitors the autofill completion process during onboarding mode.
+    /// When the app enters the foreground and autofill credentials are enabled,
+    /// it completes the account setup process and triggers the appropriate event.
+    ///
+    private func monitorAutofillCompletionDuringOnboarding() async {
+        guard state.mode == .onboarding else { return }
+
+        let autofillIsEnabled = await services.autofillCredentialService.isAutofillCredentialsEnabled()
+
+        for await _ in services.notificationCenterService.willEnterForegroundPublisher() where autofillIsEnabled {
+            try? await services.stateService.setAccountSetupAutofill(.complete)
+            await coordinator?.handleEvent(.didCompleteAuth)
+        }
     }
 
     /// Continues the set up unlock flow by navigating to autofill setup.
