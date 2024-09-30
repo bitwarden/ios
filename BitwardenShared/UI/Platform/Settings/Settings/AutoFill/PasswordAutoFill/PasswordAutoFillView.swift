@@ -1,3 +1,4 @@
+import AuthenticationServices
 import SwiftUI
 
 // MARK: - PasswordAutoFillView
@@ -75,7 +76,11 @@ struct PasswordAutoFillView: View {
             .padding(.top, 32)
 
             Button(Localizations.continue) {
-                openURL(ExternalLinksConstants.passwordOptions)
+                if #available(iOS 17, *) {
+                    ASSettingsHelper.openVerificationCodeAppSettings()
+                } else {
+                    openURL(ExternalLinksConstants.passwordOptions)
+                }
             }
             .buttonStyle(.primary())
             .padding(.top, 32)
