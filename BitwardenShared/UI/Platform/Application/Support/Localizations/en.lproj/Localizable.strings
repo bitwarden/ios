@@ -101,7 +101,7 @@
 "EditItem" = "Edit item";
 "EnableAutomaticSyncing" = "Allow automatic syncing";
 "EnterEmailForHint" = "Enter your account email address to receive your master password hint.";
-"ExtensionReenable" = "Reactivate app extension";
+"ReactivateAppExtension" = "Reactivate app extension";
 "ExtensionAlmostDone" = "Almost done!";
 "ExtensionEnable" = "Activate app extension";
 "ExtensionInSafari" = "In Safari, find Bitwarden using the share icon (hint: scroll to the right on the bottom row of the menu).";
