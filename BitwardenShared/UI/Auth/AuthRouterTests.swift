@@ -224,6 +224,7 @@ final class AuthRouterTests: BitwardenTestCase { // swiftlint:disable:this type_
 
     /// `handleAndRoute(_ :)` redirects `.didCompleteAuth` to `.landing` and doesn't set the
     /// carousel shown flag if the carousel feature flag is off.
+    @MainActor
     func test_handleAndRoute_didCompleteAuth_carouselNotShown() async {
         authRepository.activeAccount = .fixture()
         configService.featureFlagsBool[.nativeCarouselFlow] = false
@@ -236,6 +237,7 @@ final class AuthRouterTests: BitwardenTestCase { // swiftlint:disable:this type_
 
     /// `handleAndRoute(_ :)` redirects `.didCompleteAuth` to `.landing` and sets the carousel shown
     /// flag if the carousel feature flag is on and the carousel hasn't been shown yet.
+    @MainActor
     func test_handleAndRoute_didCompleteAuth_carouselShown() async {
         authRepository.activeAccount = .fixture()
         configService.featureFlagsBool[.nativeCarouselFlow] = true
@@ -877,6 +879,7 @@ final class AuthRouterTests: BitwardenTestCase { // swiftlint:disable:this type_
 
     /// `handleAndRoute(_ :)` redirects `.didStart` to `.introCarousel` if there's no accounts and
     /// the carousel flow is enabled.
+    @MainActor
     func test_handleAndRoute_didStart_carouselFlow() async {
         configService.featureFlagsBool[.nativeCarouselFlow] = true
 
@@ -887,6 +890,7 @@ final class AuthRouterTests: BitwardenTestCase { // swiftlint:disable:this type_
 
     /// `handleAndRoute(_ :)` redirects `.didStart` to `.landing` if there's no accounts, the
     /// carousel flow is enabled, but the carousel has already been shown.
+    @MainActor
     func test_handleAndRoute_didStart_carouselFlow_carouselShown() async {
         configService.featureFlagsBool[.nativeCarouselFlow] = true
         stateService.introCarouselShown = true
@@ -897,10 +901,11 @@ final class AuthRouterTests: BitwardenTestCase { // swiftlint:disable:this type_
     }
 
     /// `handleAndRoute(_ :)` redirects `.didStart` to `.landing` if it's running in an extension.
+    @MainActor
     func test_handleAndRoute_didStart_carouselFlow_extension() async {
         configService.featureFlagsBool[.nativeCarouselFlow] = true
 
-        subject = await AuthRouter(
+        subject = AuthRouter(
             isInAppExtension: true,
             services: ServiceContainer.withMocks(
                 authRepository: authRepository,
@@ -918,6 +923,7 @@ final class AuthRouterTests: BitwardenTestCase { // swiftlint:disable:this type_
 
     /// `handleAndRoute(_ :)` redirects `.didStart` to `.completeWithNeverUnlockKey` if there's an
     /// existing account with never lock enabled and sets the intro carousel as shown.
+    @MainActor
     func test_handleAndRoute_didStart_carouselFlow_existingAccountNeverLock() async {
         let account = Account.fixture()
         authRepository.activeAccount = .fixture()
