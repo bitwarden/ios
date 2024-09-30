@@ -319,21 +319,63 @@ final class ConfigServiceTests: BitwardenTestCase { // swiftlint:disable:this ty
 
     // MARK: Tests - getConfig initial values
 
-    /// `getFeatureFlag(:)` returns the initial value for booleans if it is configured.
-    func test_getFeatureFlag_initialValue_bool() async {
-        let value = await subject.getFeatureFlag(.testInitialBoolFlag, defaultValue: false, forceRefresh: false)
+    /// `getFeatureFlag(:)` returns the initial value for local-only booleans if it is configured.
+    func test_getFeatureFlag_initialValue_localBool() async {
+        let value = await subject.getFeatureFlag(
+            .testLocalInitialBoolFlag,
+            defaultValue: false,
+            forceRefresh: false
+        )
         XCTAssertTrue(value)
     }
 
-    /// `getFeatureFlag(:)` returns the initial value for integers if it is configured.
-    func test_getFeatureFlag_initialValue_int() async {
-        let value = await subject.getFeatureFlag(.testInitialIntFlag, defaultValue: 10, forceRefresh: false)
+    /// `getFeatureFlag(:)` returns the initial value for local-only integers if it is configured.
+    func test_getFeatureFlag_initialValue_localInt() async {
+        let value = await subject.getFeatureFlag(
+            .testLocalInitialIntFlag,
+            defaultValue: 10,
+            forceRefresh: false
+        )
         XCTAssertEqual(value, 42)
     }
 
-    /// `getFeatureFlag(:)` returns the initial value for integers if it is configured.
-    func test_getFeatureFlag_initialValue_string_locallyConfigured2() async {
-        let value = await subject.getFeatureFlag(.testInitialStringFlag, defaultValue: "Default", forceRefresh: false)
+    /// `getFeatureFlag(:)` returns the initial value for local-only strings if it is configured.
+    func test_getFeatureFlag_initialValue_localString() async {
+        let value = await subject.getFeatureFlag(
+            .testLocalInitialStringFlag,
+            defaultValue: "Default",
+            forceRefresh: false
+        )
+        XCTAssertEqual(value, "Test String")
+    }
+
+    /// `getFeatureFlag(:)` returns the initial value for remote-configured booleans if it is configured.
+    func test_getFeatureFlag_initialValue_remoteBool() async {
+        let value = await subject.getFeatureFlag(
+            .testRemoteInitialBoolFlag,
+            defaultValue: false,
+            forceRefresh: false
+        )
+        XCTAssertTrue(value)
+    }
+
+    /// `getFeatureFlag(:)` returns the initial value for remote-configured integers if it is configured.
+    func test_getFeatureFlag_initialValue_remoteInt() async {
+        let value = await subject.getFeatureFlag(
+            .testRemoteInitialIntFlag,
+            defaultValue: 10,
+            forceRefresh: false
+        )
+        XCTAssertEqual(value, 42)
+    }
+
+    /// `getFeatureFlag(:)` returns the initial value for remote-configured integers if it is configured.
+    func test_getFeatureFlag_initialValue_remoteString() async {
+        let value = await subject.getFeatureFlag(
+            .testRemoteInitialStringFlag,
+            defaultValue: "Default",
+            forceRefresh: false
+        )
         XCTAssertEqual(value, "Test String")
     }
 

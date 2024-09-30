@@ -23,20 +23,29 @@ enum FeatureFlag: String, CaseIterable, Codable {
 
     // MARK: Test Flags
 
-    /// A test feature flag that has an initial boolean value.
-    case testInitialBoolFlag = "test-initial-bool-flag"
-
-    /// A test feature flag that has an initial integer value.
-    case testInitialIntFlag = "test-initial-int-flag"
-
-    /// A test feature flag that has an initial string value.
-    case testInitialStringFlag = "test-initial-string-flag"
-
-    /// A test feature flag that isn't remotely configured.
+    /// A test feature flag that isn't remotely configured and has no initial value.
     case testLocalFeatureFlag = "test-local-feature-flag"
+
+    /// A test feature flag that has an initial boolean value and is not remotely configured.
+    case testLocalInitialBoolFlag = "test-local-initial-bool-flag"
+
+    /// A test feature flag that has an initial integer value and is not remotely configured.
+    case testLocalInitialIntFlag = "test-local-initial-int-flag"
+
+    /// A test feature flag that has an initial string value and is not remotely configured.
+    case testLocalInitialStringFlag = "test-local-initial-string-flag"
 
     /// A test feature flag that can be remotely configured.
     case testRemoteFeatureFlag = "test-remote-feature-flag"
+
+    /// A test feature flag that has an initial boolean value and is not remotely configured.
+    case testRemoteInitialBoolFlag = "test-remote-initial-bool-flag"
+
+    /// A test feature flag that has an initial integer value and is not remotely configured.
+    case testRemoteInitialIntFlag = "test-remote-initial-int-flag"
+
+    /// A test feature flag that has an initial string value and is not remotely configured.
+    case testRemoteInitialStringFlag = "test-remote-initial-string-flag"
 
     // MARK: Type Properties
 
@@ -51,9 +60,12 @@ enum FeatureFlag: String, CaseIterable, Codable {
     /// but if `isRemotelyConfigured` is false for the flag, then the value here will be used.
     /// This is a helpful way to manage local feature flags.
     static let initialValues: [FeatureFlag: AnyCodable] = [
-        .testInitialBoolFlag: .bool(true),
-        .testInitialIntFlag: .int(42),
-        .testInitialStringFlag: .string("Test String"),
+        .testLocalInitialBoolFlag: .bool(true),
+        .testLocalInitialIntFlag: .int(42),
+        .testLocalInitialStringFlag: .string("Test String"),
+        .testRemoteInitialBoolFlag: .bool(true),
+        .testRemoteInitialIntFlag: .int(42),
+        .testRemoteInitialStringFlag: .string("Test String"),
     ]
 
     // MARK: Instance Properties
@@ -65,13 +77,16 @@ enum FeatureFlag: String, CaseIterable, Codable {
              .enableCipherKeyEncryption,
              .nativeCarouselFlow,
              .nativeCreateAccountFlow,
-             .testLocalFeatureFlag:
+             .testLocalFeatureFlag,
+             .testLocalInitialBoolFlag,
+             .testLocalInitialIntFlag,
+             .testLocalInitialStringFlag:
             false
         case .emailVerification,
-             .testInitialBoolFlag,
-             .testInitialIntFlag,
-             .testInitialStringFlag,
-             .testRemoteFeatureFlag:
+             .testRemoteFeatureFlag,
+             .testRemoteInitialBoolFlag,
+             .testRemoteInitialIntFlag,
+             .testRemoteInitialStringFlag:
             true
         }
     }
