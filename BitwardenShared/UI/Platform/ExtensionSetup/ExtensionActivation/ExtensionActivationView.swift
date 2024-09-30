@@ -42,8 +42,8 @@ struct ExtensionActivationView: View {
         VStack(spacing: 0) {
             PageHeaderView(
                 image: Asset.Images.autofillIllustration,
-                title: Localizations.extensionAllSet,
-                message: Localizations.extensionAutoFillActivated
+                title: Localizations.youreAllSet,
+                message: Localizations.autoFillActivatedDescriptionLong
             )
 
             Button(Localizations.continueToBitwarden) {
