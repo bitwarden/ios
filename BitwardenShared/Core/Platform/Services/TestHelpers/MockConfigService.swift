@@ -3,6 +3,7 @@ import Foundation
 
 @testable import BitwardenShared
 
+@MainActor
 class MockConfigService: ConfigService {
     // MARK: Properties
 
@@ -15,6 +16,8 @@ class MockConfigService: ConfigService {
     var getDebugFeatureFlagsCalled = false
     var refreshDebugFeatureFlagsCalled = false
     var toggleDebugFeatureFlagCalled = false
+
+    nonisolated init() {}
 
     // MARK: Methods
 

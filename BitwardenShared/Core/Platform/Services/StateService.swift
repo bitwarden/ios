@@ -58,14 +58,14 @@ protocol StateService: AnyObject {
     /// - Parameter userId: The user ID associated with the autofill setup progress.
     /// - Returns: The user's autofill setup progress.
     ///
-    func getAccountSetupAutofill(userId: String?) async throws -> AccountSetupProgress?
+    func getAccountSetupAutofill(userId: String) async -> AccountSetupProgress?
 
     /// Gets the user's progress for setting up vault unlock.
     ///
     /// - Parameter userId: The user ID associated with the vault unlock setup progress.
     /// - Returns: The user's vault unlock setup progress.
     ///
-    func getAccountSetupVaultUnlock(userId: String?) async throws -> AccountSetupProgress?
+    func getAccountSetupVaultUnlock(userId: String) async -> AccountSetupProgress?
 
     /// Gets all accounts.
     ///
@@ -725,7 +725,7 @@ extension StateService {
     /// - Returns: The user's autofill setup progress.
     ///
     func getAccountSetupAutofill() async throws -> AccountSetupProgress? {
-        try await getAccountSetupAutofill(userId: nil)
+        try await getAccountSetupAutofill(userId: getActiveAccountId())
     }
 
     /// Gets the active user's progress for setting up vault unlock.
@@ -733,7 +733,7 @@ extension StateService {
     /// - Returns: The user's vault unlock setup progress.
     ///
     func getAccountSetupVaultUnlock() async throws -> AccountSetupProgress? {
-        try await getAccountSetupVaultUnlock(userId: nil)
+        try await getAccountSetupVaultUnlock(userId: getActiveAccountId())
     }
 
     /// Gets the active account id.
@@ -1277,14 +1277,12 @@ actor DefaultStateService: StateService { // swiftlint:disable:this type_body_le
         return accountVolatileData[userId]?.hasBeenUnlockedInteractively == true
     }
 
-    func getAccountSetupAutofill(userId: String?) async throws -> AccountSetupProgress? {
-        let userId = try userId ?? getActiveAccountUserId()
-        return appSettingsStore.accountSetupAutofill(userId: userId)
+    func getAccountSetupAutofill(userId: String) async -> AccountSetupProgress? {
+        appSettingsStore.accountSetupAutofill(userId: userId)
     }
 
-    func getAccountSetupVaultUnlock(userId: String?) async throws -> AccountSetupProgress? {
-        let userId = try userId ?? getActiveAccountUserId()
-        return appSettingsStore.accountSetupVaultUnlock(userId: userId)
+    func getAccountSetupVaultUnlock(userId: String) async -> AccountSetupProgress? {
+        appSettingsStore.accountSetupVaultUnlock(userId: userId)
     }
 
     func getAccounts() throws -> [Account] {
@@ -1522,13 +1520,13 @@ actor DefaultStateService: StateService { // swiftlint:disable:this type_body_le
     func setAccountSetupAutofill(_ autofillSetup: AccountSetupProgress?, userId: String?) async throws {
         let userId = try userId ?? getActiveAccountUserId()
         appSettingsStore.setAccountSetupAutofill(autofillSetup, userId: userId)
-        try await updateSettingsBadgePublisher(userId: userId)
+        await updateSettingsBadgePublisher(userId: userId)
     }
 
     func setAccountSetupVaultUnlock(_ vaultUnlockSetup: AccountSetupProgress?, userId: String?) async throws {
         let userId = try userId ?? getActiveAccountUserId()
         appSettingsStore.setAccountSetupVaultUnlock(vaultUnlockSetup, userId: userId)
-        try await updateSettingsBadgePublisher(userId: userId)
+        await updateSettingsBadgePublisher(userId: userId)
     }
 
     func setActiveAccount(userId: String) async throws {
@@ -1774,7 +1772,7 @@ actor DefaultStateService: StateService { // swiftlint:disable:this type_body_le
 
     func settingsBadgePublisher() async throws -> AnyPublisher<SettingsBadgeState, Never> {
         let userId = try getActiveAccountUserId()
-        try await updateSettingsBadgePublisher(userId: userId)
+        await updateSettingsBadgePublisher(userId: userId)
         return settingsBadgeByUserIdSubject.compactMap { $0[userId] }.eraseToAnyPublisher()
     }
 
@@ -1812,9 +1810,9 @@ actor DefaultStateService: StateService { // swiftlint:disable:this type_body_le
     ///
     /// - Parameter userId: The user ID whose settings badge count should be updated.
     ///
-    private func updateSettingsBadgePublisher(userId: String) async throws {
-        let autofillSetupProgress = try await getAccountSetupAutofill(userId: userId)
-        let vaultUnlockSetupProgress = try await getAccountSetupVaultUnlock(userId: userId)
+    private func updateSettingsBadgePublisher(userId: String) async {
+        let autofillSetupProgress = await getAccountSetupAutofill(userId: userId)
+        let vaultUnlockSetupProgress = await getAccountSetupVaultUnlock(userId: userId)
         let badgeCount = [autofillSetupProgress, vaultUnlockSetupProgress]
             .compactMap { $0 }
             .filter { $0 != .complete }
