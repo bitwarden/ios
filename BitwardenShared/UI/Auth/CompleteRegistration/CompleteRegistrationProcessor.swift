@@ -4,6 +4,18 @@ import Combine
 import Foundation
 import OSLog
 
+// MARK: - MasterPasswordUpdateDelegate
+
+/// A delegate protocol for handling master password updates during registration completion.
+///
+protocol MasterPasswordUpdateDelegate: AnyObject {
+    /// Called when the master password is updated.
+    ///
+    /// - Parameter password: The new master password.
+    ///
+    func didUpdateMasterPassword(password: String)
+}
+
 // MARK: - CompleteRegistrationError
 
 /// Enumeration of errors that may occur when completing registration for an account.
@@ -100,7 +112,10 @@ class CompleteRegistrationProcessor: StateProcessor<
         case let .togglePasswordVisibility(newValue):
             state.arePasswordsVisible = newValue
         case .learnMoreTapped:
-            coordinator.navigate(to: .masterPasswordGuidance)
+            coordinator.navigate(
+                to: .masterPasswordGuidance,
+                context: self
+            )
         case .preventAccountLockTapped:
             coordinator.navigate(to: .preventAccountLock)
         }
@@ -337,5 +352,14 @@ class CompleteRegistrationProcessor: StateProcessor<
                 })
             }
         }
+    }
+}
+
+// MARK: - CompleteRegistrationDelegate
+
+extension CompleteRegistrationProcessor: MasterPasswordUpdateDelegate {
+    func didUpdateMasterPassword(password: String) {
+        state.passwordText = password
+        state.retypePasswordText = password
     }
 }
