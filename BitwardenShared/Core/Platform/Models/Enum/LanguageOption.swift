@@ -50,7 +50,7 @@ public enum LanguageOption: Equatable, Sendable {
             "nb",
             "nl",
             "pl",
-            "pt-BT",
+            "pt-BR",
             "pt-PT",
             "ro",
             "ru",
