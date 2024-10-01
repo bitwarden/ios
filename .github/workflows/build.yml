@@ -97,6 +97,7 @@ jobs:
       - name: Read version info
         id: version_info
         run: |
+          ls -lAr #TODO remove this
           # test if dispatch-version was skipped. In that case, creates the same .json file expected by the Upload artifact step
           if [ ! -f version-info/version_info.json ]; then
             json='{
@@ -106,6 +107,8 @@ jobs:
 
             # file will be used by the upload step
             echo "$json" > version-info/version_info.json
+
+            ls -lAr #TODO remove this
           fi
 
           content=$(cat version-info/version_info.json)
