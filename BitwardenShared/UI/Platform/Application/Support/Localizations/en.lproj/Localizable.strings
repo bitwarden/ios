@@ -989,3 +989,5 @@
 "TurnOnLater" = "Turn on later";
 "TurnOnAutoFillLaterQuestion" = "Turn on autofill later?";
 "YouCanReturnToCompleteThisStepAnytimeInSettings" = "You can return to complete this step anytime in Settings.";
+"GetStarted" = "Get started";
+"Dismiss" = "Dismiss";

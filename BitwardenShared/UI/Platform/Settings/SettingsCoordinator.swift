@@ -164,6 +164,9 @@ final class SettingsCoordinator: Coordinator, HasStackNavigator { // swiftlint:d
             showExportedVaultURL(fileURL)
         case .vault:
             showVault()
+        case .vaultUnlockSetup:
+            // TODO: PM-12780 Display set up unlock screen
+            break
         }
     }
 
