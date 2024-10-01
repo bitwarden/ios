@@ -65,6 +65,7 @@ final class AuthenticatorSyncServiceTests: BitwardenTestCase {
     /// `createAuthenticatorKeyIfNeeded` method successfully creates the sync key
     /// if it is not already present
     ///
+    @MainActor
     func test_createAuthenticatorKeyIfNeeded_createsKeyWhenNeeded() async throws {
         configService.featureFlagsBool[.enableAuthenticatorSync] = true
         await subject.start()
@@ -80,6 +81,7 @@ final class AuthenticatorSyncServiceTests: BitwardenTestCase {
     /// `createAuthenticatorKeyIfNeeded` method successfully retrieves the key in
     /// SharedKeyRepository and doesn't recreate it.
     ///
+    @MainActor
     func test_createAuthenticatorKeyIfNeeded_keyAlreadyExists() async throws {
         configService.featureFlagsBool[.enableAuthenticatorSync] = true
         await subject.start()
@@ -96,6 +98,7 @@ final class AuthenticatorSyncServiceTests: BitwardenTestCase {
 
     /// When Ciphers are published. the service filters out ones that have a deletedDate in the past.
     ///
+    @MainActor
     func test_decryptTOTPs_filtersOutDeleted() async throws {
         configService.featureFlagsBool[.enableAuthenticatorSync] = true
         await subject.start()
@@ -129,6 +132,7 @@ final class AuthenticatorSyncServiceTests: BitwardenTestCase {
 
     /// When Ciphers are published. the service ignores any Ciphers with logins that don't contain a TOTP key.
     ///
+    @MainActor
     func test_decryptTOTPs_ignoresItemsWithoutTOTP() async throws {
         configService.featureFlagsBool[.enableAuthenticatorSync] = true
         await subject.start()
@@ -161,6 +165,7 @@ final class AuthenticatorSyncServiceTests: BitwardenTestCase {
     /// Verifies that the AuthSyncService responds to new Ciphers published and provides a generated UUID if the
     /// Cipher has no id itself.
     ///
+    @MainActor
     func test_decryptTOTPs_providesIdIfNil() async throws {
         configService.featureFlagsBool[.enableAuthenticatorSync] = true
         await subject.start()
@@ -189,6 +194,7 @@ final class AuthenticatorSyncServiceTests: BitwardenTestCase {
     /// Verifies that the AuthSyncService responds to new Ciphers published by converting them into ItemViews and
     /// passes them to the ItemService for storage.
     ///
+    @MainActor
     func test_decryptTOTPs_success() async throws {
         configService.featureFlagsBool[.enableAuthenticatorSync] = true
         await subject.start()
@@ -217,6 +223,7 @@ final class AuthenticatorSyncServiceTests: BitwardenTestCase {
 
     /// Verifies that the AuthSyncService handles and reports errors when sync is turned On..
     ///
+    @MainActor
     func test_handleSyncOn_error() async throws {
         configService.featureFlagsBool[.enableAuthenticatorSync] = true
         await subject.start()
@@ -231,6 +238,7 @@ final class AuthenticatorSyncServiceTests: BitwardenTestCase {
 
     /// Verifies that the AuthSyncService stops listening for Cipher updates when the user has sync turned off.
     ///
+    @MainActor
     func test_handleSyncOff() async throws {
         configService.featureFlagsBool[.enableAuthenticatorSync] = true
         await subject.start()
@@ -254,6 +262,7 @@ final class AuthenticatorSyncServiceTests: BitwardenTestCase {
 
     /// Starting the service when the feature flag is off should do nothing - no subscriptions or responses.
     ///
+    @MainActor
     func test_start_featureFlagOff() async throws {
         configService.featureFlagsBool[.enableAuthenticatorSync] = false
         await subject.start()
@@ -268,6 +277,7 @@ final class AuthenticatorSyncServiceTests: BitwardenTestCase {
 
     /// Verifies that the AuthSyncService handles and reports errors thrown by the Cipher service..
     ///
+    @MainActor
     func test_subscribeToCipherUpdates_error() async throws {
         configService.featureFlagsBool[.enableAuthenticatorSync] = true
         await subject.start()

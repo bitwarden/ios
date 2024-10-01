@@ -115,7 +115,7 @@ final class AuthenticatorBridgeItemServiceTests: AuthenticatorBridgeKitTestCase 
     ///
     func test_isSyncOn_false() async throws {
         try keychainRepository.deleteAuthenticatorKey()
-        let sync = try await subject.isSyncOn()
+        let sync = await subject.isSyncOn()
         XCTAssertFalse(sync)
     }
 
@@ -124,7 +124,7 @@ final class AuthenticatorBridgeItemServiceTests: AuthenticatorBridgeKitTestCase 
     func test_isSyncOn_true() async throws {
         let key = keychainRepository.generateKeyData()
         try await keychainRepository.setAuthenticatorKey(key)
-        let sync = try await subject.isSyncOn()
+        let sync = await subject.isSyncOn()
         XCTAssertTrue(sync)
     }
 
