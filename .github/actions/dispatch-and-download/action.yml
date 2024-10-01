@@ -27,6 +27,7 @@ runs:
   using: "composite"
   steps:
     - name: Log inputs to job summary
+      shell: bash
       run: |
         echo "<details><summary>Workflow Inputs</summary>" >> $GITHUB_STEP_SUMMARY
         echo "" >> $GITHUB_STEP_SUMMARY
