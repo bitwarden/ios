@@ -41,6 +41,7 @@ final class AuthCoordinator: NSObject, // swiftlint:disable:this type_body_lengt
         & HasAuthAPIService
         & HasAuthRepository
         & HasAuthService
+        & HasAutofillCredentialService
         & HasBiometricsRepository
         & HasCaptchaService
         & HasClientService
@@ -49,6 +50,7 @@ final class AuthCoordinator: NSObject, // swiftlint:disable:this type_body_lengt
         & HasEnvironmentService
         & HasErrorReporter
         & HasGeneratorRepository
+        & HasNotificationCenterService
         & HasNFCReaderService
         & HasOrganizationAPIService
         & HasPolicyService
@@ -118,8 +120,7 @@ final class AuthCoordinator: NSObject, // swiftlint:disable:this type_body_lengt
     func navigate(to route: AuthRoute, context: AnyObject?) { // swiftlint:disable:this function_body_length
         switch route {
         case .autofillSetup:
-            // TODO: PM-10278 Add autofill setup screen
-            break
+            showAutoFillSetup()
         case let .captcha(url, callbackUrlScheme):
             showCaptcha(
                 url: url,
@@ -263,6 +264,19 @@ final class AuthCoordinator: NSObject, // swiftlint:disable:this type_body_lengt
             throw StateServiceError.noActiveAccount
         }
         return try await services.authRepository.setActiveAccount(userId: alternate.profile.userId)
+    }
+
+    /// Shows the password autofill screen.
+    ///
+    private func showAutoFillSetup() {
+        let processor = PasswordAutoFillProcessor(
+            coordinator: asAnyCoordinator(),
+            services: services,
+            state: .init(mode: .onboarding)
+        )
+
+        let view = PasswordAutoFillView(store: Store(processor: processor))
+        stackNavigator?.replace(view)
     }
 
     /// Shows the captcha screen.
