@@ -44,7 +44,7 @@ struct ExtensionActivationView: View {
                 .padding(16)
                 .overlay {
                     RoundedRectangle(cornerRadius: 12)
-                        .strokeBorder(Asset.Colors.separatorOpaque.swiftUIColor, lineWidth: 1.5)
+                        .strokeBorder(Asset.Colors.strokeDivider.swiftUIColor, lineWidth: 1.5)
                 }
         case .autofillExtension:
             Image(decorative: Asset.Images.check)

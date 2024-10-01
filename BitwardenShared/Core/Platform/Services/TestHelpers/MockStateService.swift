@@ -69,7 +69,13 @@ class MockStateService: StateService { // swiftlint:disable:this type_body_lengt
     var setAccountHasBeenUnlockedInteractivelyResult: Result<Void, Error> = .success(())
     var setBiometricAuthenticationEnabledResult: Result<Void, Error> = .success(())
     var setBiometricIntegrityStateError: Error?
+    var settingsBadgeSubject = CurrentValueSubject<SettingsBadgeState, Never>(
+        SettingsBadgeState(autofillSetupProgress: nil, badgeValue: nil, vaultUnlockSetupProgress: nil)
+    )
     var shouldTrustDevice = [String: Bool?]()
+    var syncToAuthenticatorByUserId = [String: Bool]()
+    var syncToAuthenticatorResult: Result<Void, Error> = .success(())
+    var syncToAuthenticatorSubject = CurrentValueSubject<(String?, Bool), Never>((nil, false))
     var twoFactorTokens = [String: String]()
     var unsuccessfulUnlockAttempts = [String: Int]()
     var updateProfileResponse: ProfileResponseModel?
@@ -147,14 +153,12 @@ class MockStateService: StateService { // swiftlint:disable:this type_body_lengt
         return accounts
     }
 
-    func getAccountSetupAutofill(userId: String?) async throws -> AccountSetupProgress? {
-        let userId = try unwrapUserId(userId)
-        return accountSetupAutofill[userId]
+    func getAccountSetupAutofill(userId: String) async -> AccountSetupProgress? {
+        accountSetupAutofill[userId]
     }
 
-    func getAccountSetupVaultUnlock(userId: String?) async throws -> AccountSetupProgress? {
-        let userId = try unwrapUserId(userId)
-        return accountSetupVaultUnlock[userId]
+    func getAccountSetupVaultUnlock(userId: String) async -> AccountSetupProgress? {
+        accountSetupVaultUnlock[userId]
     }
 
     func getAccountIdOrActiveId(userId: String?) async throws -> String {
@@ -282,6 +286,12 @@ class MockStateService: StateService { // swiftlint:disable:this type_body_lengt
 
     func getShowWebIcons() async -> Bool {
         showWebIcons
+    }
+
+    func getSyncToAuthenticator(userId: String?) async throws -> Bool {
+        try syncToAuthenticatorResult.get()
+        let userId = try unwrapUserId(userId)
+        return syncToAuthenticatorByUserId[userId] ?? false
     }
 
     func getTimeoutAction(userId: String?) async throws -> SessionTimeoutAction {
@@ -520,6 +530,12 @@ class MockStateService: StateService { // swiftlint:disable:this type_body_lengt
         self.showWebIcons = showWebIcons
     }
 
+    func setSyncToAuthenticator(_ syncToAuthenticator: Bool, userId: String?) async throws {
+        try syncToAuthenticatorResult.get()
+        let userId = try unwrapUserId(userId)
+        syncToAuthenticatorByUserId[userId] = syncToAuthenticator
+    }
+
     func setTimeoutAction(action: SessionTimeoutAction, userId: String?) async throws {
         let userId = try unwrapUserId(userId)
         timeoutAction[userId] = action
@@ -608,8 +624,17 @@ class MockStateService: StateService { // swiftlint:disable:this type_body_lengt
         lastSyncTimeSubject.eraseToAnyPublisher()
     }
 
+    func settingsBadgePublisher() async throws -> AnyPublisher<SettingsBadgeState, Never> {
+        _ = try unwrapUserId(nil)
+        return settingsBadgeSubject.eraseToAnyPublisher()
+    }
+
     func showWebIconsPublisher() async -> AnyPublisher<Bool, Never> {
         showWebIconsSubject.eraseToAnyPublisher()
+    }
+
+    func syncToAuthenticatorPublisher() async -> AnyPublisher<(String?, Bool), Never> {
+        syncToAuthenticatorSubject.eraseToAnyPublisher()
     }
 }
 

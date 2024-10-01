@@ -21,7 +21,7 @@ struct ProfileSwitcherView: View {
                     addAccountRow
                 }
             }
-            .background(Asset.Colors.backgroundPrimary.swiftUIColor)
+            .background(Asset.Colors.backgroundSecondary.swiftUIColor)
             .transition(.move(edge: .top))
             .hidden(!store.state.isVisible)
             .fixedSize(horizontal: false, vertical: true)
@@ -67,7 +67,7 @@ struct ProfileSwitcherView: View {
         ZStack(alignment: .top) {
             Color.black.opacity(0.4)
                 .ignoresSafeArea()
-            Asset.Colors.backgroundPrimary.swiftUIColor
+            Asset.Colors.backgroundSecondary.swiftUIColor
                 .frame(height: abs(min(scrollOffset.y, 0)))
                 .fixedSize(horizontal: false, vertical: true)
         }

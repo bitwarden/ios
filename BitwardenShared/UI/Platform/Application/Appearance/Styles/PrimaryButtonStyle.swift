@@ -16,11 +16,11 @@ struct PrimaryButtonStyle: ButtonStyle {
     /// The background color of this button.
     var backgroundColor: Color {
         if isDestructive {
-            Asset.Colors.loadingRed.swiftUIColor
+            Asset.Colors.error.swiftUIColor
         } else {
             isEnabled
-                ? Asset.Colors.primaryBitwarden.swiftUIColor
-                : Asset.Colors.fillTertiary.swiftUIColor
+                ? Asset.Colors.buttonFilledBackground.swiftUIColor
+                : Asset.Colors.buttonFilledDisabledBackground.swiftUIColor
         }
     }
 
@@ -28,8 +28,8 @@ struct PrimaryButtonStyle: ButtonStyle {
     /// images.
     var foregroundColor: Color {
         isEnabled
-            ? Asset.Colors.primaryContrastBitwarden.swiftUIColor
-            : Asset.Colors.textTertiary.swiftUIColor
+            ? Asset.Colors.buttonFilledForeground.swiftUIColor
+            : Asset.Colors.buttonFilledDisabledForeground.swiftUIColor
     }
 
     func makeBody(configuration: Configuration) -> some View {
@@ -62,19 +62,17 @@ extension ButtonStyle where Self == PrimaryButtonStyle {
 // MARK: Previews
 
 #if DEBUG
-#Preview("Enabled") {
-    Button("Hello World!") {}
-        .buttonStyle(.primary())
-}
+#Preview {
+    VStack {
+        Button("Hello World!") {}
 
-#Preview("Disabled") {
-    Button("Hello World!") {}
-        .buttonStyle(.primary())
-        .disabled(true)
-}
+        Button("Hello World!") {}
+            .disabled(true)
 
-#Preview("Destructive") {
-    Button("Hello World!") {}
-        .buttonStyle(.primary(isDestructive: true))
+        Button("Hello World!") {}
+            .buttonStyle(.primary(isDestructive: true))
+    }
+    .buttonStyle(.primary())
+    .padding()
 }
 #endif

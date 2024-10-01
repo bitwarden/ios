@@ -60,31 +60,35 @@ struct IntroCarouselView: View {
         @ViewBuilder imageContent: () -> some View,
         @ViewBuilder textContent: () -> some View
     ) -> some View {
-        if verticalSizeClass == .regular {
-            VStack(spacing: 80) {
-                imageContent()
-                textContent()
-            }
-            .padding(.vertical, 16)
-            .frame(maxWidth: .infinity, minHeight: minHeight)
-            .scrollView(addVerticalPadding: false)
-        } else {
-            HStack(alignment: .top, spacing: 40) {
-                VStack(spacing: 0) {
-                    Spacer(minLength: 0)
+        Group {
+            if verticalSizeClass == .regular {
+                VStack(spacing: 80) {
                     imageContent()
-                        .padding(.leading, 36)
-                        .padding(.vertical, 16)
-                    Spacer(minLength: 0)
+                    textContent()
                 }
-                .frame(minHeight: minHeight)
+                .padding(.vertical, 16)
+                .frame(maxWidth: .infinity, minHeight: minHeight)
+            } else {
+                HStack(alignment: .top, spacing: 40) {
+                    VStack(spacing: 0) {
+                        Spacer(minLength: 0)
+                        imageContent()
+                            .padding(.leading, 36)
+                            .padding(.vertical, 16)
+                        Spacer(minLength: 0)
+                    }
+                    .frame(minHeight: minHeight)
 
-                textContent()
-                    .padding(.vertical, 16)
-                    .frame(maxWidth: .infinity, minHeight: minHeight)
-                    .scrollView(addVerticalPadding: false)
+                    textContent()
+                        .padding(.vertical, 16)
+                        .frame(maxWidth: .infinity, minHeight: minHeight)
+                }
             }
         }
+        .scrollView(
+            addVerticalPadding: false,
+            backgroundColor: Asset.Colors.backgroundSecondary.swiftUIColor
+        )
     }
 
     /// A view that displays a carousel page.
