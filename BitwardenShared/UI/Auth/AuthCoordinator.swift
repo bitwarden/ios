@@ -48,6 +48,7 @@ final class AuthCoordinator: NSObject, // swiftlint:disable:this type_body_lengt
         & HasDeviceAPIService
         & HasEnvironmentService
         & HasErrorReporter
+        & HasGeneratorRepository
         & HasNFCReaderService
         & HasOrganizationAPIService
         & HasPolicyService
@@ -183,6 +184,8 @@ final class AuthCoordinator: NSObject, // swiftlint:disable:this type_body_lengt
             showLoginDecryptionOptions(organizationIdentifier)
         case let .loginWithDevice(email, type, isAuthenticated):
             showLoginWithDevice(email: email, type: type, isAuthenticated: isAuthenticated)
+        case .masterPasswordGenerator:
+            showMasterPasswordGenerator()
         case .masterPasswordGuidance:
             showMasterPasswordGuidance()
         case let .masterPasswordHint(username):
@@ -541,6 +544,20 @@ final class AuthCoordinator: NSObject, // swiftlint:disable:this type_body_lengt
         if isPresenting {
             stackNavigator.dismiss()
         }
+    }
+
+    /// Shows the generate master password screen.
+    ///
+    private func showMasterPasswordGenerator() {
+        let processor = MasterPasswordGeneratorProcessor(
+            coordinator: asAnyCoordinator(),
+            services: services
+        )
+        let store = Store(processor: processor)
+        let view = MasterPasswordGeneratorView(store: store)
+        let viewController = UIHostingController(rootView: view)
+        let navigationController = UINavigationController(rootViewController: viewController)
+        stackNavigator?.present(navigationController)
     }
 
     /// Shows the master password guidance screen.

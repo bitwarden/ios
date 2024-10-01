@@ -1,0 +1,3 @@
+packages:
+  BitwardenSdk:
+    path: ../sdk/languages/swift
