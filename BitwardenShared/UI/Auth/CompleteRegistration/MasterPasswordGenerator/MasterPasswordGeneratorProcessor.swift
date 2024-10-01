@@ -17,6 +17,9 @@ class MasterPasswordGeneratorProcessor: StateProcessor<
     /// The coordinator that handles navigation.
     private let coordinator: AnyCoordinator<AuthRoute, AuthEvent>
 
+    /// The delegate used to communiate saving a new generated password.
+    private weak var delegate: MasterPasswordUpdateDelegate?
+
     /// The services used by this processor.
     private var services: Services
 
@@ -26,13 +29,16 @@ class MasterPasswordGeneratorProcessor: StateProcessor<
     ///
     /// - Parameters:
     ///   - coordinator: The coordinator that handles navigation.
+    ///   - delegate: The delegate for the processor to notifiy saving a generated password.
     ///   - services: The services required by this processor.
     ///
     init(
         coordinator: AnyCoordinator<AuthRoute, AuthEvent>,
+        delegate: MasterPasswordUpdateDelegate?,
         services: Services
     ) {
         self.coordinator = coordinator
+        self.delegate = delegate
         self.services = services
         super.init(state: MasterPasswordGeneratorState())
     }
@@ -45,9 +51,7 @@ class MasterPasswordGeneratorProcessor: StateProcessor<
              .loadData:
             await generatePassword()
         case .save:
-            // https://bitwarden.atlassian.net/browse/PM-10676
-            // Hook up logic to fill in the generated password
-            coordinator.navigate(to: .dismissPresented)
+            delegate?.didUpdateMasterPassword(password: state.generatedPassword)
         }
     }
 

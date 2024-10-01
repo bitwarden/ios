@@ -185,9 +185,9 @@ final class AuthCoordinator: NSObject, // swiftlint:disable:this type_body_lengt
         case let .loginWithDevice(email, type, isAuthenticated):
             showLoginWithDevice(email: email, type: type, isAuthenticated: isAuthenticated)
         case .masterPasswordGenerator:
-            showMasterPasswordGenerator()
+            showMasterPasswordGenerator(delegate: context as? MasterPasswordUpdateDelegate)
         case .masterPasswordGuidance:
-            showMasterPasswordGuidance()
+            showMasterPasswordGuidance(delegate: context as? MasterPasswordUpdateDelegate)
         case let .masterPasswordHint(username):
             showMasterPasswordHint(for: username)
         case .preventAccountLock:
@@ -548,9 +548,10 @@ final class AuthCoordinator: NSObject, // swiftlint:disable:this type_body_lengt
 
     /// Shows the generate master password screen.
     ///
-    private func showMasterPasswordGenerator() {
+    private func showMasterPasswordGenerator(delegate: MasterPasswordUpdateDelegate?) {
         let processor = MasterPasswordGeneratorProcessor(
             coordinator: asAnyCoordinator(),
+            delegate: delegate,
             services: services
         )
         let store = Store(processor: processor)
@@ -562,8 +563,11 @@ final class AuthCoordinator: NSObject, // swiftlint:disable:this type_body_lengt
 
     /// Shows the master password guidance screen.
     ///
-    private func showMasterPasswordGuidance() {
-        let processor = MasterPasswordGuidanceProcessor(coordinator: asAnyCoordinator())
+    private func showMasterPasswordGuidance(delegate: MasterPasswordUpdateDelegate?) {
+        let processor = MasterPasswordGuidanceProcessor(
+            coordinator: asAnyCoordinator(),
+            delegate: delegate
+        )
         let store = Store(processor: processor)
         let view = MasterPasswordGuidanceView(store: store)
         let viewController = UIHostingController(rootView: view)

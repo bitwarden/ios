@@ -7,6 +7,7 @@ class MasterPasswordGeneratorProcessorTests: BitwardenTestCase {
     // MARK: Properties
 
     var coordinator: MockCoordinator<AuthRoute, AuthEvent>!
+    var delegate: MockMasterPasswordUpdateDelegate!
     var errorReporter: MockErrorReporter!
     var generatorRepository: MockGeneratorRepository!
     var subject: MasterPasswordGeneratorProcessor!
@@ -17,11 +18,13 @@ class MasterPasswordGeneratorProcessorTests: BitwardenTestCase {
         super.setUp()
 
         coordinator = MockCoordinator()
+        delegate = MockMasterPasswordUpdateDelegate()
         errorReporter = MockErrorReporter()
         generatorRepository = MockGeneratorRepository()
 
         subject = MasterPasswordGeneratorProcessor(
             coordinator: coordinator.asAnyCoordinator(),
+            delegate: delegate,
             services: ServiceContainer.withMocks(
                 errorReporter: errorReporter,
                 generatorRepository: generatorRepository
@@ -33,6 +36,7 @@ class MasterPasswordGeneratorProcessorTests: BitwardenTestCase {
         super.tearDown()
 
         coordinator = nil
+        delegate = nil
         errorReporter = nil
         generatorRepository = nil
         subject = nil
@@ -83,18 +87,20 @@ class MasterPasswordGeneratorProcessorTests: BitwardenTestCase {
         XCTAssertEqual(coordinator.routes.last, .preventAccountLock)
     }
 
-    /// `receive(_:)` with `.save` dismisses the view.
-    @MainActor
-    func test_receive_save() async {
-        await subject.perform(.save)
-        XCTAssertEqual(coordinator.routes.last, .dismissPresented)
-    }
-
     /// `receive(_:)` with `.masterPasswordChanged(String)` changes the master password.
     @MainActor
     func test_receive_masterPasswordChanged() {
         let updatedPassword = "XxLimpBizkit4Eva!xX"
         subject.receive(.masterPasswordChanged(updatedPassword))
         XCTAssertEqual(subject.state.generatedPassword, updatedPassword)
+    }
+
+    /// `receive(_:)` with `.save` dismisses the view and calls the delegate to update.
+    @MainActor
+    func test_receive_save() async {
+        subject.state.generatedPassword = "NickbackRulez!"
+        await subject.perform(.save)
+        XCTAssertEqual(subject.state.generatedPassword, delegate.updatedPassword)
+        XCTAssertTrue(delegate.updateMasterPasswordCalled)
     }
 }
