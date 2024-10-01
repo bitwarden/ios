@@ -128,10 +128,10 @@ extension CipherView {
 
         // Update the password updated date and the password history if the password has changed.
         var passwordHistory = passwordHistory
+        let lastUsedDate = timeProvider.presentTime
         if addEditState.type == .login,
            let previousPassword = login?.password,
            addEditState.loginState.password != previousPassword {
-            let lastUsedDate = timeProvider.presentTime
             loginState.passwordUpdatedDate = lastUsedDate
 
             // Update the password history list.
@@ -141,10 +141,20 @@ extension CipherView {
             } else {
                 passwordHistory!.append(newPasswordHistoryView)
             }
-
-            // Cap the size of the password history list to 5.
-            passwordHistory = passwordHistory?.suffix(5)
         }
+
+        // Map new fields
+        let newFields = mapFields(addEditState)
+
+        updatePasswordHistoryWithHiddenFields(
+            passwordHistory: &passwordHistory,
+            oldFields: addEditState.cipher.fields,
+            newFields: newFields,
+            lastUsedDate: lastUsedDate
+        )
+
+        // Cap the size of the password history list to 5.
+        passwordHistory = passwordHistory?.suffix(5)
 
         // Return the updated cipher.
         return CipherView(
@@ -167,20 +177,48 @@ extension CipherView {
             viewPassword: viewPassword,
             localData: localData,
             attachments: attachments,
-            fields: addEditState.customFieldsState.customFields.isEmpty ?
-                nil : addEditState.customFieldsState.customFields.map { customField in
-                    FieldView(
-                        name: customField.name,
-                        value: customField.value,
-                        type: .init(fieldType: customField.type),
-                        linkedId: customField.linkedIdType?.rawValue
-                    )
-                },
+            fields: newFields,
             passwordHistory: passwordHistory,
             creationDate: creationDate,
             deletedDate: deletedDate,
             revisionDate: revisionDate
         )
+    }
+
+    private func updatePasswordHistoryWithHiddenFields(
+        passwordHistory: inout [PasswordHistoryView]?,
+        oldFields: [FieldView]?,
+        newFields: [FieldView]?,
+        lastUsedDate: Date
+    ) {
+        if let oldFields {
+            oldFields.filter { field in
+                FieldType(fieldType: field.type) == FieldType.hidden &&
+                    !(newFields?.contains(field) ?? false)
+            }.forEach { hiddenField in
+                let passHistoryHiddenField = PasswordHistoryView(
+                    password: "\(hiddenField.name ?? ""): \(hiddenField.value ?? "")",
+                    lastUsedDate: lastUsedDate
+                )
+                if passwordHistory == nil {
+                    passwordHistory = [passHistoryHiddenField]
+                } else if !passwordHistory!.contains(passHistoryHiddenField) {
+                    passwordHistory!.append(passHistoryHiddenField)
+                }
+            }
+        }
+    }
+
+    private func mapFields(_ addEditState: AddEditItemState) -> [FieldView]? {
+        addEditState.customFieldsState.customFields.isEmpty ?
+            nil : addEditState.customFieldsState.customFields.map { customField in
+                FieldView(
+                    name: customField.name,
+                    value: customField.value,
+                    type: .init(fieldType: customField.type),
+                    linkedId: customField.linkedIdType?.rawValue
+                )
+            }
     }
 }
 
