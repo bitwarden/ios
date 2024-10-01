@@ -84,7 +84,6 @@ jobs:
           filter: tree:0
 
       - name: Calculate version
-        if: ${{ !inputs.build-version && !inputs.build-number }}
         uses: bitwarden/ios/.github/actions/dispatch-and-download@use-version-name #TODO REVERT TO MAIN
         id: dispatch-version
         with:
