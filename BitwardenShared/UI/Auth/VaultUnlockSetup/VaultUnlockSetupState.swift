@@ -78,8 +78,8 @@ struct VaultUnlockSetupState: Equatable {
     /// Whether biometric unlock (Face ID / Touch ID) is turned on.
     var isBiometricUnlockOn: Bool {
         switch biometricsStatus {
-        case let .available(_, enabled, hasValidIntegrity):
-            return enabled && hasValidIntegrity
+        case let .available(_, enabled):
+            return enabled
         case nil, .notAvailable:
             return false
         }
@@ -92,7 +92,7 @@ struct VaultUnlockSetupState: Equatable {
 
     /// The available unlock methods to show in the UI.
     var unlockMethods: [UnlockMethod] {
-        guard case let .available(biometricsType, _, _) = biometricsStatus else {
+        guard case let .available(biometricsType, _) = biometricsStatus else {
             return [.pin]
         }
         return [.biometrics(biometricsType), .pin]

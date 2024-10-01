@@ -219,7 +219,7 @@ struct AccountSecurityView: View {
     ///
     @ViewBuilder private var biometricsSetting: some View {
         switch store.state.biometricUnlockStatus {
-        case let .available(type, enabled: enabled, _):
+        case let .available(type, enabled: enabled):
             biometricUnlockToggle(enabled: enabled, type: type)
         default:
             EmptyView()

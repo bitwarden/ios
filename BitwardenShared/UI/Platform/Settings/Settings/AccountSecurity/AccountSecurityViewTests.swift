@@ -85,11 +85,11 @@ class AccountSecurityViewTests: BitwardenTestCase {
     /// The view displays a biometrics toggle.
     @MainActor
     func test_biometricsToggle() throws {
-        processor.state.biometricUnlockStatus = .available(.faceID, enabled: false, hasValidIntegrity: false)
+        processor.state.biometricUnlockStatus = .available(.faceID, enabled: false)
         _ = try subject.inspect().find(
             toggleWithAccessibilityLabel: Localizations.unlockWith(Localizations.faceID)
         )
-        processor.state.biometricUnlockStatus = .available(.touchID, enabled: true, hasValidIntegrity: true)
+        processor.state.biometricUnlockStatus = .available(.touchID, enabled: true)
         _ = try subject.inspect().find(
             toggleWithAccessibilityLabel: Localizations.unlockWith(Localizations.touchID)
         )
@@ -181,8 +181,7 @@ class AccountSecurityViewTests: BitwardenTestCase {
                     state: AccountSecurityState(
                         biometricUnlockStatus: .available(
                             .touchID,
-                            enabled: false,
-                            hasValidIntegrity: true
+                            enabled: false
                         ),
                         sessionTimeoutValue: .custom(1)
                     )
@@ -201,8 +200,7 @@ class AccountSecurityViewTests: BitwardenTestCase {
                     state: AccountSecurityState(
                         biometricUnlockStatus: .available(
                             .faceID,
-                            enabled: true,
-                            hasValidIntegrity: true
+                            enabled: true
                         ),
                         sessionTimeoutValue: .custom(1)
                     )
@@ -210,26 +208,6 @@ class AccountSecurityViewTests: BitwardenTestCase {
             )
         )
         assertSnapshot(of: subject, as: .defaultPortrait)
-    }
-
-    /// The view renders correctly when biometrics are available.
-    @MainActor
-    func test_snapshot_biometricsEnabled_faceID_nonValidIntegrity_dark() {
-        let subject = AccountSecurityView(
-            store: Store(
-                processor: StateProcessor(
-                    state: AccountSecurityState(
-                        biometricUnlockStatus: .available(
-                            .faceID,
-                            enabled: true,
-                            hasValidIntegrity: false
-                        ),
-                        sessionTimeoutValue: .custom(1)
-                    )
-                )
-            )
-        )
-        assertSnapshot(of: subject, as: .defaultPortraitDark)
     }
 
     /// The view renders correctly when showing the custom session timeout field.

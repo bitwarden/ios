@@ -127,10 +127,9 @@ class VaultUnlockProcessor: StateProcessor<
         state.unsuccessfulUnlockAttemptsCount = await services.stateService.getUnsuccessfulUnlockAttempts()
         state.isInAppExtension = appExtensionDelegate?.isInAppExtension ?? false
         await refreshProfileState()
-        // If biometric unlock is available, enabled,
-        // and the user's biometric integrity state is valid;
+        // If biometric unlock is available and enabled,
         // attempt to unlock the vault with biometrics once.
-        if case .available(_, true, true) = state.biometricUnlockStatus,
+        if case .available(_, true) = state.biometricUnlockStatus,
            shouldAttemptAutomaticBiometricUnlock {
             shouldAttemptAutomaticBiometricUnlock = false
             await unlockWithBiometrics()
@@ -231,9 +230,7 @@ class VaultUnlockProcessor: StateProcessor<
     ///
     private func unlockWithBiometrics() async {
         let status = try? await services.biometricsRepository.getBiometricUnlockStatus()
-        guard case let .available(_, enabled: enabled, hasValidIntegrity) = status,
-              enabled,
-              hasValidIntegrity else {
+        guard case let .available(_, enabled: enabled) = status, enabled else {
             await loadData()
             return
         }

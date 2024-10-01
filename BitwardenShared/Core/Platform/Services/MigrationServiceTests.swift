@@ -97,7 +97,6 @@ class MigrationServiceTests: BitwardenTestCase { // swiftlint:disable:this type_
 
     /// `performMigrations()` performs migration 1 and moves the user's tokens to the keychain.
     func test_performMigrations_1_withAccounts() async throws {
-        appSettingsStore.biometricIntegrityStateLegacy = "1234"
         appSettingsStore.migrationVersion = 0
         appSettingsStore.state = .fixture(
             accounts: [
@@ -137,13 +136,11 @@ class MigrationServiceTests: BitwardenTestCase { // swiftlint:disable:this type_
         try XCTAssertEqual(keychainRepository.getValue(for: .refreshToken(userId: "2")), "REFRESH_TOKEN_2")
 
         for userId in ["1", "2"] {
-            XCTAssertEqual(appSettingsStore.biometricIntegrityState(userId: userId), "1234")
             XCTAssertNil(appSettingsStore.lastActiveTime(userId: userId))
             XCTAssertNil(appSettingsStore.lastSyncTime(userId: userId))
             XCTAssertNil(appSettingsStore.notificationsLastRegistrationDate(userId: userId))
         }
 
-        XCTAssertNil(appSettingsStore.biometricIntegrityStateLegacy)
         XCTAssertFalse(keychainRepository.deleteAllItemsCalled)
 
         XCTAssertTrue(errorReporter.isEnabled)
@@ -230,9 +227,13 @@ class MigrationServiceTests: BitwardenTestCase { // swiftlint:disable:this type_
         XCTAssertEqual(appSettingsStore.migrationVersion, 2)
     }
 
-    /// `performMigrations()` for migration 3 migrates the integrity state values.
+    /// `performMigrations()` for migration 3 removes the integrity state values from MAUI.
     func test_performMigrations_3() async throws {
         appGroupUserDefaults.set(
+            "integrity-state-app",
+            forKey: "bwPreferencesStorage:biometricIntegritySource"
+        )
+        appGroupUserDefaults.set(
             "integrity-state-autofill",
             forKey: "bwPreferencesStorage:iOSAutoFillBiometricIntegritySource"
         )
@@ -244,34 +245,13 @@ class MigrationServiceTests: BitwardenTestCase { // swiftlint:disable:this type_
             "integrity-state-share-extension",
             forKey: "bwPreferencesStorage:iOSShareExtensionBiometricIntegritySource"
         )
-        appSettingsStore.state = State(
-            accounts: [
-                "1": .fixture(),
-                "2": .fixture(profile: .fixture(userId: "2")),
-            ],
-            activeUserId: "1"
-        )
 
         try await subject.performMigration(version: 3)
 
-        func newKey(userId: String, extensionName: String) -> String {
-            "bwPreferencesStorage:biometricIntegritySource_\(userId)_\(Bundle.main.appIdentifier).\(extensionName)"
-        }
-
-        for userId in 1 ... 2 {
-            let userId = String(userId)
-
-            let autofillKey = newKey(userId: userId, extensionName: "autofill")
-            XCTAssertEqual(appGroupUserDefaults.string(forKey: autofillKey), "integrity-state-autofill")
-
-            let extensionKey = newKey(userId: userId, extensionName: "find-login-action-extension")
-            XCTAssertEqual(appGroupUserDefaults.string(forKey: extensionKey), "integrity-state-extension")
-
-            let shareExtensionKey = newKey(userId: userId, extensionName: "share-extension")
-            XCTAssertEqual(appGroupUserDefaults.string(forKey: shareExtensionKey), "integrity-state-share-extension")
-        }
-
         // Previous values are removed.
+        XCTAssertNil(
+            appGroupUserDefaults.string(forKey: "bwPreferencesStorage:biometricIntegritySource")
+        )
         XCTAssertNil(
             appGroupUserDefaults.string(forKey: "bwPreferencesStorage:iOSAutoFillBiometricIntegritySource")
         )
@@ -283,68 +263,35 @@ class MigrationServiceTests: BitwardenTestCase { // swiftlint:disable:this type_
         )
     }
 
-    /// `performMigrations()` for migration 3 removes the previous values if there's no accounts to migrate.
-    func test_performMigrations_3_noAccounts() async throws {
-        appGroupUserDefaults.set(
-            "integrity-state-autofill",
-            forKey: "bwPreferencesStorage:iOSAutoFillBiometricIntegritySource"
-        )
-        appGroupUserDefaults.set(
-            "integrity-state-extension",
-            forKey: "bwPreferencesStorage:iOSExtensionBiometricIntegritySource"
-        )
-        appGroupUserDefaults.set(
-            "integrity-state-share-extension",
-            forKey: "bwPreferencesStorage:iOSShareExtensionBiometricIntegritySource"
-        )
-
-        try await subject.performMigration(version: 3)
-
-        // Previous values are removed.
-        XCTAssertNil(
-            appGroupUserDefaults.string(forKey: "bwPreferencesStorage:iOSAutoFillBiometricIntegritySource")
-        )
-        XCTAssertNil(
-            appGroupUserDefaults.string(forKey: "bwPreferencesStorage:iOSExtensionBiometricIntegritySource")
-        )
-        XCTAssertNil(
-            appGroupUserDefaults.string(forKey: "bwPreferencesStorage:iOSShareExtensionBiometricIntegritySource")
-        )
-    }
-
-    /// `performMigrations()` for migration 3 migrates the integrity state values, skipping any
-    /// keys which have new values.
-    func test_performMigrations_3_skipsNewKeys() async throws { // swiftlint:disable:this function_body_length
-        func newKey(userId: String, extensionName: String) -> String {
-            "bwPreferencesStorage:biometricIntegritySource_\(userId)_\(Bundle.main.appIdentifier).\(extensionName)"
+    /// `performMigrations()` for migration 4 removes the native integrity state values.
+    func test_performMigrations_4() async throws {
+        func newKey(userId: String, extensionName: String?) -> String {
+            [
+                "bwPreferencesStorage:biometricIntegritySource_\(userId)_\(Bundle.main.appIdentifier)",
+                extensionName,
+            ]
+            .compactMap { $0 }
+            .joined(separator: ".")
         }
 
-        appGroupUserDefaults.set(
-            "integrity-state-autofill",
-            forKey: "bwPreferencesStorage:iOSAutoFillBiometricIntegritySource"
-        )
-        appGroupUserDefaults.set(
-            "integrity-state-extension",
-            forKey: "bwPreferencesStorage:iOSExtensionBiometricIntegritySource"
-        )
-        appGroupUserDefaults.set(
-            "integrity-state-share-extension",
-            forKey: "bwPreferencesStorage:iOSShareExtensionBiometricIntegritySource"
-        )
-
-        // User 1 already has new integrity state values set.
-        appGroupUserDefaults.set(
-            "new-integrity-state-autofill",
-            forKey: newKey(userId: "1", extensionName: "autofill")
-        )
-        appGroupUserDefaults.set(
-            "new-integrity-state-extension",
-            forKey: newKey(userId: "1", extensionName: "find-login-action-extension")
-        )
-        appGroupUserDefaults.set(
-            "new-integrity-state-share-extension",
-            forKey: newKey(userId: "1", extensionName: "share-extension")
-        )
+        for userId in ["1", "2"] {
+            appGroupUserDefaults.set(
+                "integrity-state-app",
+                forKey: newKey(userId: userId, extensionName: nil)
+            )
+            appGroupUserDefaults.set(
+                "integrity-state-autofill",
+                forKey: newKey(userId: userId, extensionName: "autofill")
+            )
+            appGroupUserDefaults.set(
+                "integrity-state-find-login-action-extension",
+                forKey: newKey(userId: userId, extensionName: "find-login-action-extension")
+            )
+            appGroupUserDefaults.set(
+                "integrity-state-share-extension",
+                forKey: newKey(userId: userId, extensionName: "share-extension")
+            )
+        }
 
         appSettingsStore.state = State(
             accounts: [
@@ -354,37 +301,21 @@ class MigrationServiceTests: BitwardenTestCase { // swiftlint:disable:this type_
             activeUserId: "1"
         )
 
-        try await subject.performMigration(version: 3)
+        try await subject.performMigration(version: 4)
 
-        // User 1 keeps newer values.
-        let autofillKey1 = newKey(userId: "1", extensionName: "autofill")
-        XCTAssertEqual(appGroupUserDefaults.string(forKey: autofillKey1), "new-integrity-state-autofill")
-
-        let extensionKey1 = newKey(userId: "1", extensionName: "find-login-action-extension")
-        XCTAssertEqual(appGroupUserDefaults.string(forKey: extensionKey1), "new-integrity-state-extension")
-
-        let shareExtensionKey1 = newKey(userId: "1", extensionName: "share-extension")
-        XCTAssertEqual(appGroupUserDefaults.string(forKey: shareExtensionKey1), "new-integrity-state-share-extension")
-
-        // User 2 gets migrated values.
-        let autofillKey2 = newKey(userId: "2", extensionName: "autofill")
-        XCTAssertEqual(appGroupUserDefaults.string(forKey: autofillKey2), "integrity-state-autofill")
-
-        let extensionKey2 = newKey(userId: "2", extensionName: "find-login-action-extension")
-        XCTAssertEqual(appGroupUserDefaults.string(forKey: extensionKey2), "integrity-state-extension")
-
-        let shareExtensionKey2 = newKey(userId: "2", extensionName: "share-extension")
-        XCTAssertEqual(appGroupUserDefaults.string(forKey: shareExtensionKey2), "integrity-state-share-extension")
-
-        // Previous values are removed.
-        XCTAssertNil(
-            appGroupUserDefaults.string(forKey: "bwPreferencesStorage:iOSAutoFillBiometricIntegritySource")
-        )
-        XCTAssertNil(
-            appGroupUserDefaults.string(forKey: "bwPreferencesStorage:iOSExtensionBiometricIntegritySource")
-        )
-        XCTAssertNil(
-            appGroupUserDefaults.string(forKey: "bwPreferencesStorage:iOSShareExtensionBiometricIntegritySource")
-        )
+        for userId in ["1", "2"] {
+            XCTAssertNil(appGroupUserDefaults.string(
+                forKey: newKey(userId: userId, extensionName: nil)
+            ))
+            XCTAssertNil(appGroupUserDefaults.string(
+                forKey: newKey(userId: userId, extensionName: "autofill")
+            ))
+            XCTAssertNil(appGroupUserDefaults.string(
+                forKey: newKey(userId: userId, extensionName: "find-login-action-extension")
+            ))
+            XCTAssertNil(appGroupUserDefaults.string(
+                forKey: newKey(userId: userId, extensionName: "share-extension")
+            ))
+        }
     }
 }
