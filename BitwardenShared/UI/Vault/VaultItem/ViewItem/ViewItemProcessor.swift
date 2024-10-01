@@ -100,6 +100,10 @@ final class ViewItemProcessor: StateProcessor<ViewItemState, ViewItemAction, Vie
                 await showPermanentDeleteConfirmation(cipherState.cipher)
             }
         case .restorePressed:
+            guard !state.isMasterPasswordRequired else {
+                presentMasterPasswordRepromptAlert { await self.perform(effect) }
+                return
+            }
             await showRestoreItemConfirmation()
         case .totpCodeExpired:
             await updateTOTPCode()

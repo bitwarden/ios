@@ -767,6 +767,48 @@ class ViewItemProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
         XCTAssertEqual(errorReporter.errors.first as? TestError, TestError())
     }
 
+    /// `perform(_:)` with `.restorePressed` reprompts the user for their master password if reprompt
+    /// is enabled prior to restore the item and displays toast if restoring succeeds.
+    @MainActor
+    func test_perform_restorePressed_masterPasswordReprompt() async throws {
+        let cipherState = CipherItemState(
+            existing: CipherView.loginFixture(deletedDate: .now, id: "123", reprompt: .password),
+            hasPremium: false
+        )!
+
+        let state = ViewItemState(
+            loadingState: .data(cipherState)
+        )
+        subject.state = state
+        vaultRepository.softDeleteCipherResult = .success(())
+        await subject.perform(.restorePressed)
+
+        let repromptAlert = try XCTUnwrap(coordinator.alertShown.last)
+        XCTAssertEqual(repromptAlert, .masterPasswordPrompt(completion: { _ in }))
+        repromptAlert.alertTextFields = [AlertTextField(id: "password", text: "password")]
+        try await repromptAlert.tapAction(title: Localizations.submit)
+
+        // Ensure the alert is shown.
+        let alert = coordinator.alertShown.last
+        XCTAssertEqual(alert?.title, Localizations.doYouReallyWantToRestoreCipher)
+        XCTAssertNil(alert?.message)
+
+        // Tap the "Yes" button on the alert.
+        let action = try XCTUnwrap(alert?.alertActions.first(where: { $0.title == Localizations.yes }))
+        await action.handler?(action, [])
+
+        XCTAssertNil(errorReporter.errors.first)
+        // Ensure the cipher is restored and the view is dismissed.
+        XCTAssertNil(vaultRepository.restoredCipher.last?.deletedDate)
+        var dismissAction: DismissAction?
+        if case let .dismiss(onDismiss) = coordinator.routes.last {
+            dismissAction = onDismiss
+        }
+        XCTAssertNotNil(dismissAction)
+        dismissAction?.action()
+        XCTAssertTrue(delegate.itemRestoredCalled)
+    }
+
     /// `perform(_:)` with `.restorePressed` presents the confirmation alert before restore the item and displays
     /// toast if restoring succeeds.
     @MainActor
