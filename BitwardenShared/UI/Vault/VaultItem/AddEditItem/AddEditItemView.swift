@@ -73,7 +73,7 @@ struct AddEditItemView: View {
         .animation(.default, value: store.state.collectionsForOwner)
         .dismissKeyboardImmediately()
         .background(
-            Asset.Colors.backgroundSecondary.swiftUIColor
+            Asset.Colors.backgroundPrimary.swiftUIColor
                 .ignoresSafeArea()
         )
         .navigationBarTitleDisplayMode(.inline)
@@ -238,7 +238,7 @@ private extension AddEditItemView {
                         } label: {
                             Asset.Images.questionRound.swiftUIImage
                         }
-                        .foregroundColor(Asset.Colors.primaryBitwarden.swiftUIColor)
+                        .foregroundColor(Asset.Colors.iconSecondary.swiftUIColor)
                         .accessibilityLabel(Localizations.masterPasswordRePromptHelp)
                     }
                 }

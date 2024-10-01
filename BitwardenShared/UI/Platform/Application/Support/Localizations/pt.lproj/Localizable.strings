@@ -911,7 +911,6 @@
 "ThereWasAnErrorStartingWebAuthnTwoFactorAuthentication" = "Ocorreu um erro ao iniciar a autenticação de dois fatores WebAuthn";
 "LaunchWebAuthn" = "Iniciar o WebAuthn";
 "Duo" = "Duo";
-"DuoUnsupported" = "O Duo ainda não é suportado.";
 "FilePassword" = "Palavra-passe do ficheiro";
 "ConfirmFilePassword" = "Confirmar a palavra-passe do ficheiro";
 "FilePasswordDescription" = "Esta palavra-passe será utilizada para exportar e importar este ficheiro";
@@ -975,3 +974,9 @@
 "PleaseRestartRegistrationOrTryLoggingInYouMayAlreadyHaveAnAccount" = "Por favor, reinicie o registo ou tente iniciar sessão. É possível que já tenha uma conta.";
 "RemovePasskey" = "Remover chave de acesso";
 "PasskeyRemoved" = "Chave de acesso removida";
+"TheRegionForTheGivenEmailCouldNotBeLoaded" = "Não foi possível carregar a região para o e-mail fornecido.";
+"SetUpLaterQuestion" = "Configurar mais tarde?";
+"YouCanFinishSetupUnlockAnytimeDescriptionLong" = "Pode terminar a configuração a qualquer altura em Segurança da conta, nas Definições. Utilizará a sua palavra-passe mestra para desbloquear até definir outro método.";
+"Confirm" = "Confirmar";
+"ErrorConnectingWithTheDuoServiceUseADifferentTwoStepLoginMethodOrContactDuoForAssistance" = "Erro ao ligar ao serviço Duo. Utilize um método de verificação de dois passos diferente ou contacte o Duo para obter assistência.";
+"ThePreAuthUrlsCouldNotBeLoadedToStartTheAccountCreation" = "Não foi possível carregar os URLs de pré-autorização para iniciar a criação da conta.";

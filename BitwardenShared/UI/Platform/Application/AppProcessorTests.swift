@@ -13,6 +13,7 @@ class AppProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_body
     var authRepository: MockAuthRepository!
     var autofillCredentialService: MockAutofillCredentialService!
     var clientService: MockClientService!
+    var configService: MockConfigService!
     var coordinator: MockCoordinator<AppRoute, AppEvent>!
     var errorReporter: MockErrorReporter!
     var fido2UserInterfaceHelper: MockFido2UserInterfaceHelper!
@@ -38,6 +39,7 @@ class AppProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_body
         authRepository = MockAuthRepository()
         autofillCredentialService = MockAutofillCredentialService()
         clientService = MockClientService()
+        configService = MockConfigService()
         coordinator = MockCoordinator()
         appModule.authRouter = router
         appModule.appCoordinator = coordinator
@@ -59,6 +61,7 @@ class AppProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_body
                 authRepository: authRepository,
                 autofillCredentialService: autofillCredentialService,
                 clientService: clientService,
+                configService: configService,
                 errorReporter: errorReporter,
                 eventService: eventService,
                 fido2UserInterfaceHelper: fido2UserInterfaceHelper,
@@ -81,6 +84,7 @@ class AppProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_body
         authRepository = nil
         autofillCredentialService = nil
         clientService = nil
+        configService = nil
         coordinator = nil
         errorReporter = nil
         fido2UserInterfaceHelper = nil
@@ -124,6 +128,13 @@ class AppProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_body
         let updated = vaultTimeoutService.lastActiveTime[account.profile.userId]
 
         XCTAssertEqual(timeProvider.presentTime.timeIntervalSince1970, updated!.timeIntervalSince1970, accuracy: 1.0)
+    }
+
+    /// `showDebugMenu` will send the correct route to the coordinator.
+    @MainActor
+    func test_showDebugMenu() {
+        subject.showDebugMenu()
+        XCTAssertEqual(coordinator.routes.last, .debugMenu)
     }
 
     /// `didRegister(withToken:)` passes the token to the notification service.
@@ -223,23 +234,7 @@ class AppProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_body
         XCTAssertEqual(coordinator.routes.last, .auth(.completeRegistrationFromAppLink(
             emailVerificationToken: "verificationtoken",
             userEmail: "example@email.com",
-            fromEmail: true,
-            region: .unitedStates
-        )))
-    }
-
-    /// `handleAppLinks(URL)` navigates the user based on the input URL with EU region.
-    @MainActor
-    func test_init_handleAppLinks_regionEU() {
-        // swiftlint:disable:next line_length
-        let url = URL(string: "https://bitwarden.eu/redirect-connector.html#finish-signup?email=example@email.com&token=verificationtoken&fromEmail=true")
-        subject.handleAppLinks(incomingURL: url!)
-
-        XCTAssertEqual(coordinator.routes.last, .auth(.completeRegistrationFromAppLink(
-            emailVerificationToken: "verificationtoken",
-            userEmail: "example@email.com",
-            fromEmail: true,
-            region: .europe
+            fromEmail: true
         )))
     }
 
@@ -253,8 +248,7 @@ class AppProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_body
         XCTAssertEqual(coordinator.routes.last, .auth(.completeRegistrationFromAppLink(
             emailVerificationToken: "verificationtoken",
             userEmail: "example@email.com",
-            fromEmail: true,
-            region: .europe
+            fromEmail: true
         )))
     }
 
@@ -408,10 +402,20 @@ class AppProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_body
         XCTAssertEqual(coordinator.events, [.setAuthCompletionRoute(.tab(.vault(.vaultItemSelection(model))))])
     }
 
+    /// `openUrl(_:)` handles receiving an non OTP deep link and silently returns with a no-op.
+    @MainActor
+    func test_openUrl_nonOtpKey_failSilently() async throws {
+        try await subject.openUrl(XCTUnwrap(URL(string: "bitwarden://")))
+
+        XCTAssertEqual(coordinator.alertShown, [])
+        XCTAssertEqual(coordinator.routes, [])
+    }
+
     /// `openUrl(_:)` handles receiving an OTP deep link if the URL isn't an OTP key.
     @MainActor
     func test_openUrl_otpKey_invalid() async throws {
-        try await subject.openUrl(XCTUnwrap(URL(string: "https://google.com")))
+        let otpKey: String = .otpAuthUriKeyNoSecret
+        try await subject.openUrl(XCTUnwrap(URL(string: otpKey)))
 
         XCTAssertEqual(coordinator.alertShown, [.defaultAlert(title: Localizations.anErrorHasOccurred)])
         XCTAssertEqual(coordinator.routes, [])
@@ -635,6 +639,84 @@ class AppProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_body
         XCTAssertTrue(appModule.appCoordinator.isStarted)
         XCTAssertEqual(appModule.appCoordinator.events, [.didStart])
         XCTAssertEqual(migrationService.didPerformMigrations, true)
+    }
+
+    /// `start(navigator:)` doesn't complete the accounts autofill setup if autofill is disabled.
+    @MainActor
+    func test_start_completeAutofillAccountSetupIfEnabled_autofillDisabled() async {
+        autofillCredentialService.isAutofillCredentialsEnabled = false
+        configService.featureFlagsBool[.nativeCreateAccountFlow] = true
+        stateService.activeAccount = .fixture()
+        stateService.accounts = [.fixture()]
+        stateService.accountSetupAutofill["1"] = .setUpLater
+
+        let rootNavigator = MockRootNavigator()
+        await subject.start(appContext: .mainApp, navigator: rootNavigator, window: nil)
+
+        XCTAssertEqual(stateService.accountSetupAutofill, ["1": .setUpLater])
+    }
+
+    /// `start(navigator:)` doesn't complete the accounts autofill setup if the native create
+    /// account flow feature flag is disabled.
+    @MainActor
+    func test_start_completeAutofillAccountSetupIfEnabled_featureFlagDisabled() async {
+        autofillCredentialService.isAutofillCredentialsEnabled = true
+        configService.featureFlagsBool[.nativeCreateAccountFlow] = false
+        stateService.activeAccount = .fixture()
+        stateService.accounts = [.fixture()]
+        stateService.accountSetupAutofill["1"] = .setUpLater
+
+        let rootNavigator = MockRootNavigator()
+        await subject.start(appContext: .mainApp, navigator: rootNavigator, window: nil)
+
+        XCTAssertEqual(stateService.accountSetupAutofill, ["1": .setUpLater])
+    }
+
+    /// `start(navigator:)` logs an error if one occurs while updating the account's autofill setup.
+    @MainActor
+    func test_start_completeAutofillAccountSetupIfEnabled_error() async {
+        autofillCredentialService.isAutofillCredentialsEnabled = true
+        configService.featureFlagsBool[.nativeCreateAccountFlow] = true
+        stateService.accounts = [.fixture()]
+        stateService.accountSetupAutofill["1"] = .setUpLater
+        stateService.accountSetupAutofillError = BitwardenTestError.example
+
+        let rootNavigator = MockRootNavigator()
+        await subject.start(appContext: .mainApp, navigator: rootNavigator, window: nil)
+
+        XCTAssertEqual(errorReporter.errors as? [BitwardenTestError], [.example])
+        XCTAssertEqual(stateService.accountSetupAutofill, ["1": .setUpLater])
+    }
+
+    /// `start(navigator:)` doesn't update the user's autofill setup progress if they have no
+    /// current progress recorded.
+    @MainActor
+    func test_start_completeAutofillAccountSetupIfEnabled_noProgress() async {
+        autofillCredentialService.isAutofillCredentialsEnabled = true
+        configService.featureFlagsBool[.nativeCreateAccountFlow] = true
+        stateService.activeAccount = .fixture()
+        stateService.accounts = [.fixture()]
+
+        let rootNavigator = MockRootNavigator()
+        await subject.start(appContext: .mainApp, navigator: rootNavigator, window: nil)
+
+        XCTAssertTrue(stateService.accountSetupAutofill.isEmpty)
+    }
+
+    /// `start(navigator:)` completes the user's autofill setup progress if autofill is enabled and
+    /// they previously choose to set it up later.
+    @MainActor
+    func test_start_completeAutofillAccountSetupIfEnabled_success() async {
+        autofillCredentialService.isAutofillCredentialsEnabled = true
+        configService.featureFlagsBool[.nativeCreateAccountFlow] = true
+        stateService.activeAccount = .fixture()
+        stateService.accounts = [.fixture()]
+        stateService.accountSetupAutofill["1"] = .setUpLater
+
+        let rootNavigator = MockRootNavigator()
+        await subject.start(appContext: .mainApp, navigator: rootNavigator, window: nil)
+
+        XCTAssertEqual(stateService.accountSetupAutofill, ["1": .complete])
     }
 
     /// `unlockVaultWithNeverlockKey()` unlocks it calling the auth repository.

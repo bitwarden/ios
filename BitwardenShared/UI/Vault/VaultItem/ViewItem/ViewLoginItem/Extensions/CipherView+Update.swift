@@ -136,18 +136,23 @@ extension CipherView {
     }
 
     /// Updates the cipher view with the state information from `AddEditItemState`.
-    ///
-    /// - Parameter addEditState: The `AddEditItemState` containing the updated state information.
+    /// - Parameters:
+    ///   - addEditState: The `AddEditItemState` containing the updated state information.
+    ///   - timeProvider: The `TimeProvider` to use to get current time.
     /// - Returns: An updated `CipherView` reflecting the changes from the `AddEditItemState`.
-    ///
-    func updatedView(with addEditState: AddEditItemState) -> CipherView {
-        // Update the password history if the password has changed.
+    func updatedView(with addEditState: AddEditItemState, timeProvider: TimeProvider = CurrentTime()) -> CipherView {
+        var loginState = addEditState.loginState
+
+        // Update the password updated date and the password history if the password has changed.
         var passwordHistory = passwordHistory
         if addEditState.type == .login,
            let previousPassword = login?.password,
            addEditState.loginState.password != previousPassword {
+            let lastUsedDate = timeProvider.presentTime
+            loginState.passwordUpdatedDate = lastUsedDate
+
             // Update the password history list.
-            let newPasswordHistoryView = PasswordHistoryView(password: previousPassword, lastUsedDate: Date())
+            let newPasswordHistoryView = PasswordHistoryView(password: previousPassword, lastUsedDate: lastUsedDate)
             if passwordHistory == nil {
                 passwordHistory = [newPasswordHistoryView]
             } else {
@@ -168,7 +173,7 @@ extension CipherView {
             name: addEditState.name,
             notes: addEditState.notes.nilIfEmpty,
             type: BitwardenSdk.CipherType(addEditState.type),
-            login: (addEditState.type == .login) ? .init(loginView: login, loginState: addEditState.loginState) : nil,
+            login: (addEditState.type == .login) ? .init(loginView: login, loginState: loginState) : nil,
             identity: (addEditState.type == .identity) ? addEditState.identityState.identityView : nil,
             card: (addEditState.type == .card) ? addEditState.cardItemState.cardView : nil,
             secureNote: (addEditState.type == .secureNote) ? secureNote : nil,

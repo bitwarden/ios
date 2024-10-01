@@ -911,7 +911,6 @@
 "ThereWasAnErrorStartingWebAuthnTwoFactorAuthentication" = "Při spouštění dvoufaktorového ověření WebAuthn došlo k chybě";
 "LaunchWebAuthn" = "Otevřít WebAuthn";
 "Duo" = "DUO";
-"DuoUnsupported" = "DUO nyní není podporováno.";
 "FilePassword" = "Heslo souboru";
 "ConfirmFilePassword" = "Potvrdit heslo souboru";
 "FilePasswordDescription" = "Toto heslo bude použito pro export a import tohoto souboru";
@@ -975,3 +974,9 @@
 "PleaseRestartRegistrationOrTryLoggingInYouMayAlreadyHaveAnAccount" = "Restartujte registraci nebo se zkuste přihlásit. Možná již máte účet.";
 "RemovePasskey" = "Odebrat přístupový klíč";
 "PasskeyRemoved" = "Přístupový klíč byl odebrán";
+"TheRegionForTheGivenEmailCouldNotBeLoaded" = "Oblast pro daný e-mail nelze načíst.";
+"SetUpLaterQuestion" = "Nastavit později?";
+"YouCanFinishSetupUnlockAnytimeDescriptionLong" = "Nastavení můžete kdykoli dokončit v části Zabezpečení účtu v části Nastavení. Dokud nenastavíte jiný způsob, budete k odemykání používat hlavní heslo.";
+"Confirm" = "Potvrdit";
+"ErrorConnectingWithTheDuoServiceUseADifferentTwoStepLoginMethodOrContactDuoForAssistance" = "Chyba při připojování ke službě Duo. Použijte jinou dvoufázovou metodu přihlášení nebo kontaktujte Duo o pomoc.";
+"ThePreAuthUrlsCouldNotBeLoadedToStartTheAccountCreation" = "Předautorizační adresy URL se nepodařilo načíst, aby bylo možné zahájit vytváření účtu.";

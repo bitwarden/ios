@@ -527,7 +527,7 @@ Vänligen använd en enhet som stöds och/eller lägg till fler metoder som har 
 "TermsOfService" = "Användarvillkor";
 "PrivacyPolicy" = "Integritetspolicy";
 "AccessibilityDrawOverPermissionAlert" = "Bitwarden behöver din uppmärksamhet - Aktivera \"Överlappning\" under \"Tjänster för automatisk ifyllnad\" i Bitwardens inställningar";
-"PasskeyManagement" = "Passkey hantering";
+"PasskeyManagement" = "Nyckelhantering";
 "AutofillServices" = "Tjänster för automatisk ifyllnad";
 "InlineAutofill" = "Använd flytande automatisk ifyllnad";
 "InlineAutofillDescription" = "Använd flytande automatisk ifyllnad om ditt valda IME (tangentbord) stöder det. Om din konfiguration inte stöds (eller detta alternativ är inaktiverat), kommer den vanliga överlappningen för automatisk ifyllnad att användas.";
@@ -605,7 +605,7 @@ Vänligen använd en enhet som stöds och/eller lägg till fler metoder som har 
 "PasswordConfirmation" = "Bekräfta huvudlösenord";
 "PasswordConfirmationDesc" = "Denna åtgärd är skyddad. För att fortsätta, vänligen verifiera din identitet genom att ange ditt huvudlösenord.";
 "CaptchaRequired" = "Captcha krävs";
-"CaptchaFailed" = "Captcha misslyckades. Vänligen försök igen.";
+"CaptchaFailed" = "Captcha misslyckades. Försök igen.";
 "UpdatedMasterPassword" = "Huvudlösenord uppdaterades";
 "UpdateMasterPassword" = "Uppdatera huvudlösenord";
 "UpdateMasterPasswordWarning" = "Ditt huvudlösenord ändrades nyligen av en administratör i din organisation. För att få tillgång till valvet måste du uppdatera ditt huvudlösenord nu. Om du fortsätter kommer du att loggas ut från din nuvarande session, vilket kräver att du loggar in igen. Aktiva sessioner på andra enheter kan komma att vara aktiva i upp till en timme.";
@@ -871,8 +871,8 @@ Vänligen använd en enhet som stöds och/eller lägg till fler metoder som har 
 "YourOrganizationRequiresYouToSetAMasterPassword" = "Din organisation kräver att du anger ett huvudlösenord.";
 "SetUpAnUnlockOptionToChangeYourVaultTimeoutAction" = "Ställ in ett upplåsningsalternativ för att ändra vad som händer när tidsgränsen uppnås.";
 "ChooseALoginToSaveThisPasskeyTo" = "Välj en inloggning för att spara denna lösennyckel till";
-"SavePasskeyAsNewLogin" = "Spara passkey som ny inloggning";
-"SavePasskey" = "Spara lösennyckel";
+"SavePasskeyAsNewLogin" = "Spara nyckel som ny inloggning";
+"SavePasskey" = "Spara nyckel";
 "PasskeysForX" = "Passkeys för %1$@";
 "PasswordsForX" = "Lösenord för %1$@";
 "OverwritePasskey" = "Skriv över lösennyckel?";
@@ -912,7 +912,6 @@ Vänligen använd en enhet som stöds och/eller lägg till fler metoder som har 
 "ThereWasAnErrorStartingWebAuthnTwoFactorAuthentication" = "There was an error starting WebAuthn two factor authentication";
 "LaunchWebAuthn" = "Launch WebAuthn";
 "Duo" = "Duo";
-"DuoUnsupported" = "Duo stöds ännu inte.";
 "FilePassword" = "Fillösenord";
 "ConfirmFilePassword" = "Bekräfta fillösenord";
 "FilePasswordDescription" = "Detta lösenord kommer att användas för att exportera och importera denna fil";
@@ -976,3 +975,9 @@ Vänligen använd en enhet som stöds och/eller lägg till fler metoder som har 
 "PleaseRestartRegistrationOrTryLoggingInYouMayAlreadyHaveAnAccount" = "Please restart registration or try logging in. You may already have an account.";
 "RemovePasskey" = "Remove passkey";
 "PasskeyRemoved" = "Passkey removed";
+"TheRegionForTheGivenEmailCouldNotBeLoaded" = "The region for the given email could not be loaded.";
+"SetUpLaterQuestion" = "Set up later?";
+"YouCanFinishSetupUnlockAnytimeDescriptionLong" = "You can finish setup anytime in Account Security under Settings. You’ll use your master password to unlock until you set up another method.";
+"Confirm" = "Bekräfta";
+"ErrorConnectingWithTheDuoServiceUseADifferentTwoStepLoginMethodOrContactDuoForAssistance" = "Error connecting with the Duo service. Use a different two-step login method or contact Duo for assistance.";
+"ThePreAuthUrlsCouldNotBeLoadedToStartTheAccountCreation" = "The Pre Auth Urls could not be loaded to start the account creation.";

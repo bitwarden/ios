@@ -151,7 +151,7 @@ private struct VaultAutofillListSearchableView: View {
                 }
             }
         }
-        .background(Asset.Colors.backgroundPrimary.swiftUIColor)
+        .background(Asset.Colors.backgroundSecondary.swiftUIColor)
         .clipShape(RoundedRectangle(cornerRadius: 10))
         .scrollView()
     }
@@ -205,7 +205,7 @@ private struct VaultAutofillListSearchableView: View {
                             } icon: {
                                 Asset.Images.plus.swiftUIImage
                                     .imageStyle(.accessoryIcon(
-                                        color: Asset.Colors.textPrimaryInverted.swiftUIColor,
+                                        color: Asset.Colors.buttonFilledForeground.swiftUIColor,
                                         scaleWithFont: true
                                     ))
                             }

@@ -3,14 +3,21 @@ import Foundation
 
 @testable import BitwardenShared
 
+@MainActor
 class MockConfigService: ConfigService {
     // MARK: Properties
 
     var configMocker = InvocationMockerWithThrowingResult<(forceRefresh: Bool, isPreAuth: Bool), ServerConfig?>()
     var configSubject = CurrentValueSubject<BitwardenShared.MetaServerConfig?, Never>(nil)
+    var debugFeatureFlags = [DebugMenuFeatureFlag]()
     var featureFlagsBool = [FeatureFlag: Bool]()
     var featureFlagsInt = [FeatureFlag: Int]()
     var featureFlagsString = [FeatureFlag: String]()
+    var getDebugFeatureFlagsCalled = false
+    var refreshDebugFeatureFlagsCalled = false
+    var toggleDebugFeatureFlagCalled = false
+
+    nonisolated init() {}
 
     // MARK: Methods
 
@@ -38,5 +45,23 @@ class MockConfigService: ConfigService {
         isPreAuth: Bool
     ) async -> String? {
         featureFlagsString[flag] ?? defaultValue
+    }
+
+    func getDebugFeatureFlags() async -> [DebugMenuFeatureFlag] {
+        getDebugFeatureFlagsCalled = true
+        return debugFeatureFlags
+    }
+
+    func refreshDebugFeatureFlags() async -> [DebugMenuFeatureFlag] {
+        refreshDebugFeatureFlagsCalled = true
+        return debugFeatureFlags
+    }
+
+    func toggleDebugFeatureFlag(
+        name: String,
+        newValue: Bool?
+    ) async -> [DebugMenuFeatureFlag] {
+        toggleDebugFeatureFlagCalled = true
+        return debugFeatureFlags
     }
 }

@@ -27,8 +27,8 @@ struct PasswordText: View {
     ///
     /// The following foreground color is applied to each character:
     /// - Letters: `textPrimary`
-    /// - Numbers: `primaryBitwarden`
-    /// - Symbols: `fingerprint`
+    /// - Numbers: `textCodeBlue`
+    /// - Symbols: `textCodePink`
     ///
     /// - Parameter value: The value to color code.
     /// - Returns: A color-coded `Text` view containing the provided string.
@@ -38,9 +38,9 @@ struct PasswordText: View {
         password.reduce(Text("")) { text, character in
             let foregroundColor: Color = {
                 if character.isNumber {
-                    return Asset.Colors.primaryBitwarden.swiftUIColor
+                    return Asset.Colors.textCodeBlue.swiftUIColor
                 } else if character.isSymbol || character.isPunctuation {
-                    return Asset.Colors.fingerprint.swiftUIColor
+                    return Asset.Colors.textCodePink.swiftUIColor
                 } else {
                     return Asset.Colors.textPrimary.swiftUIColor
                 }

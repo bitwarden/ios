@@ -5,6 +5,7 @@ import XCTest
 final class ConfigServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body_length
     // MARK: Properties
 
+    var appSettingsStore: MockAppSettingsStore!
     var client: MockHTTPClient!
     var configApiService: APIService!
     var errorReporter: MockErrorReporter!
@@ -18,6 +19,7 @@ final class ConfigServiceTests: BitwardenTestCase { // swiftlint:disable:this ty
     override func setUp() {
         super.setUp()
 
+        appSettingsStore = MockAppSettingsStore()
         client = MockHTTPClient()
         configApiService = APIService(client: client)
         errorReporter = MockErrorReporter()
@@ -25,6 +27,7 @@ final class ConfigServiceTests: BitwardenTestCase { // swiftlint:disable:this ty
         stateService = MockStateService()
         timeProvider = MockTimeProvider(.mockTime(now))
         subject = DefaultConfigService(
+            appSettingsStore: appSettingsStore,
             configApiService: configApiService,
             errorReporter: errorReporter,
             stateService: stateService,
@@ -37,6 +40,7 @@ final class ConfigServiceTests: BitwardenTestCase { // swiftlint:disable:this ty
     override func tearDown() {
         super.tearDown()
 
+        appSettingsStore = nil
         client = nil
         configApiService = nil
         errorReporter = nil
@@ -45,7 +49,7 @@ final class ConfigServiceTests: BitwardenTestCase { // swiftlint:disable:this ty
         timeProvider = nil
     }
 
-    // MARK: Tests
+    // MARK: Tests - getConfig remote interactions
 
     /// `getConfig(:)` gets the configuration from the server if `forceRefresh` is true
     func test_getConfig_local_forceRefresh() async throws {
@@ -202,7 +206,7 @@ final class ConfigServiceTests: BitwardenTestCase { // swiftlint:disable:this ty
         XCTAssertNil(stateService.preAuthServerConfig)
     }
 
-    // MARK: getConfig pre-auth
+    // MARK: Tests - getConfig pre-auth
 
     /// `getConfig(:)` gets the configuration from the server if `forceRefresh` is true
     /// and the user has not been authenticated.
@@ -313,7 +317,69 @@ final class ConfigServiceTests: BitwardenTestCase { // swiftlint:disable:this ty
         XCTAssertEqual(stateService.preAuthServerConfig?.featureStates[.testRemoteFeatureFlag], .bool(true))
     }
 
-    // MARK: getFeatureFlag
+    // MARK: Tests - getConfig initial values
+
+    /// `getFeatureFlag(:)` returns the initial value for local-only booleans if it is configured.
+    func test_getFeatureFlag_initialValue_localBool() async {
+        let value = await subject.getFeatureFlag(
+            .testLocalInitialBoolFlag,
+            defaultValue: false,
+            forceRefresh: false
+        )
+        XCTAssertTrue(value)
+    }
+
+    /// `getFeatureFlag(:)` returns the initial value for local-only integers if it is configured.
+    func test_getFeatureFlag_initialValue_localInt() async {
+        let value = await subject.getFeatureFlag(
+            .testLocalInitialIntFlag,
+            defaultValue: 10,
+            forceRefresh: false
+        )
+        XCTAssertEqual(value, 42)
+    }
+
+    /// `getFeatureFlag(:)` returns the initial value for local-only strings if it is configured.
+    func test_getFeatureFlag_initialValue_localString() async {
+        let value = await subject.getFeatureFlag(
+            .testLocalInitialStringFlag,
+            defaultValue: "Default",
+            forceRefresh: false
+        )
+        XCTAssertEqual(value, "Test String")
+    }
+
+    /// `getFeatureFlag(:)` returns the initial value for remote-configured booleans if it is configured.
+    func test_getFeatureFlag_initialValue_remoteBool() async {
+        let value = await subject.getFeatureFlag(
+            .testRemoteInitialBoolFlag,
+            defaultValue: false,
+            forceRefresh: false
+        )
+        XCTAssertTrue(value)
+    }
+
+    /// `getFeatureFlag(:)` returns the initial value for remote-configured integers if it is configured.
+    func test_getFeatureFlag_initialValue_remoteInt() async {
+        let value = await subject.getFeatureFlag(
+            .testRemoteInitialIntFlag,
+            defaultValue: 10,
+            forceRefresh: false
+        )
+        XCTAssertEqual(value, 42)
+    }
+
+    /// `getFeatureFlag(:)` returns the initial value for remote-configured integers if it is configured.
+    func test_getFeatureFlag_initialValue_remoteString() async {
+        let value = await subject.getFeatureFlag(
+            .testRemoteInitialStringFlag,
+            defaultValue: "Default",
+            forceRefresh: false
+        )
+        XCTAssertEqual(value, "Test String")
+    }
+
+    // MARK: Tests - getFeatureFlag
 
     /// `getFeatureFlag(:)` can return a boolean if it's in the configuration
     func test_getFeatureFlag_bool_exists() async {
@@ -459,6 +525,45 @@ final class ConfigServiceTests: BitwardenTestCase { // swiftlint:disable:this ty
         XCTAssertEqual(value, "fallback")
     }
 
+    /// `getDebugFeatureFlags(:)` returns the default value if the feature is not remotely configurable for strings
+    func test_getDebugFeatureFlags() async {
+        stateService.serverConfig["1"] = ServerConfig(
+            date: Date(year: 2024, month: 2, day: 14, hour: 7, minute: 50, second: 0),
+            responseModel: ConfigResponseModel(
+                environment: nil,
+                featureStates: ["email-verification": .bool(true)],
+                gitHash: "75238191",
+                server: nil,
+                version: "2024.4.0"
+            )
+        )
+        appSettingsStore.overrideDebugFeatureFlag(name: "email-verification", value: false)
+        let flags = await subject.getDebugFeatureFlags()
+        let emailVerificationFlag = try? XCTUnwrap(flags.first { $0.feature.rawValue == "email-verification" })
+        XCTAssertFalse(emailVerificationFlag?.isEnabled ?? true)
+    }
+
+    // MARK: Tests - Other
+
+    /// `toggleDebugFeatureFlag` will correctly change the value of the flag given.
+    func test_toggleDebugFeatureFlag() async throws {
+        let flags = await subject.toggleDebugFeatureFlag(
+            name: FeatureFlag.emailVerification.rawValue,
+            newValue: true
+        )
+        XCTAssertTrue(appSettingsStore.overrideDebugFeatureFlagCalled)
+        let flag = try XCTUnwrap(flags.first { $0.feature == .emailVerification })
+        XCTAssertTrue(flag.isEnabled)
+    }
+
+    /// `refreshDebugFeatureFlags` will reset the flags to the original state before overriding.
+    func test_refreshDebugFeatureFlags() async throws {
+        let flags = await subject.refreshDebugFeatureFlags()
+        XCTAssertTrue(appSettingsStore.overrideDebugFeatureFlagCalled)
+        let flag = try XCTUnwrap(flags.first { $0.feature == .emailVerification })
+        XCTAssertFalse(flag.isEnabled)
+    }
+
     // MARK: Private
 
     /// Asserts the config publisher is publishing the right values.
@@ -466,12 +571,18 @@ final class ConfigServiceTests: BitwardenTestCase { // swiftlint:disable:this ty
     ///   - isPreAuth: The expected value of `isPreAuth`
     ///   - userId: The expected value of `userId`
     ///   - gitHash: The expected value of `gitHash`
-    private func assertConfigPublisherWith(isPreAuth: Bool, userId: String?, gitHash: String?) async throws {
+    private func assertConfigPublisherWith(
+        isPreAuth: Bool,
+        userId: String?,
+        gitHash: String?,
+        file: StaticString = #file,
+        line: UInt = #line
+    ) async throws {
         var publisher = try await subject.configPublisher().makeAsyncIterator()
         let result = try await publisher.next()
         let metaConfig = try XCTUnwrap(XCTUnwrap(result))
-        XCTAssertEqual(metaConfig.isPreAuth, isPreAuth)
-        XCTAssertEqual(metaConfig.userId, userId)
-        XCTAssertTrue(metaConfig.serverConfig?.gitHash == gitHash)
+        XCTAssertEqual(metaConfig.isPreAuth, isPreAuth, file: file, line: line)
+        XCTAssertEqual(metaConfig.userId, userId, file: file, line: line)
+        XCTAssertEqual(metaConfig.serverConfig?.gitHash, gitHash, file: file, line: line)
     }
 } // swiftlint:disable:this file_length

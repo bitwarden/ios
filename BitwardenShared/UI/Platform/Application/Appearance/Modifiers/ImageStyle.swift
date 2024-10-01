@@ -26,7 +26,7 @@ extension ImageStyle {
     /// An `ImageStyle` for applying common properties to a circular accessory icon.
     ///
     /// - Size: 16x16pt
-    /// - Color: `Asset.Colors.primaryBitwarden`
+    /// - Color: `Asset.Colors.iconSecondary`
     ///
     static let accessoryIcon = accessoryIcon()
 
@@ -40,10 +40,10 @@ extension ImageStyle {
     /// An `ImageStyle` for applying common properties for icons within a toolbar.
     ///
     /// - Size: 19x19pt
-    /// - Color: `Asset.Colors.primaryBitwarden`
+    /// - Color: `Asset.Colors.iconSecondary`
     ///
     static let toolbarIcon = ImageStyle(
-        color: Asset.Colors.primaryBitwarden.swiftUIColor,
+        color: Asset.Colors.iconSecondary.swiftUIColor,
         scaleWithFont: false,
         width: 19,
         height: 19
@@ -52,14 +52,14 @@ extension ImageStyle {
     /// An `ImageStyle` for applying common properties to a circular accessory icon.
     ///
     /// - Size: 16x16pt
-    /// - Color: Defaults to `Asset.Colors.primaryBitwarden`
+    /// - Color: Defaults to `Asset.Colors.iconSecondary`
     ///
     /// - Parameters:
-    ///   - color: The foreground color of the image. Defaults to `Asset.Colors.primaryBitwarden`.
+    ///   - color: The foreground color of the image. Defaults to `Asset.Colors.iconSecondary`.
     ///   - scaleWithFont: Whether the image should scale with font size changes.
     ///
     static func accessoryIcon(
-        color: Color = Asset.Colors.primaryBitwarden.swiftUIColor,
+        color: Color = Asset.Colors.iconSecondary.swiftUIColor,
         scaleWithFont: Bool = false
     ) -> ImageStyle {
         ImageStyle(color: color, scaleWithFont: scaleWithFont, width: 16, height: 16)

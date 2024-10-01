@@ -165,6 +165,27 @@ class AlertAuthTests: BitwardenTestCase {
         await fulfillment(of: [expectation], timeout: 3)
     }
 
+    /// `setUpAutoFillLater(action:)` builds an `Alert` for setting up autofill later.
+    func test_setUpAutoFillLater() async throws {
+        var actionCalled = false
+        let subject = Alert.setUpAutoFillLater {
+            actionCalled = true
+        }
+
+        XCTAssertEqual(subject.title, Localizations.turnOnAutoFillLaterQuestion)
+        XCTAssertEqual(subject.message, Localizations.youCanReturnToCompleteThisStepAnytimeInSettings)
+        XCTAssertEqual(subject.preferredStyle, .alert)
+        XCTAssertEqual(subject.alertActions.count, 2)
+        XCTAssertEqual(subject.alertActions[0].title, Localizations.cancel)
+        XCTAssertEqual(subject.alertActions[1].title, Localizations.confirm)
+
+        try await subject.tapAction(title: Localizations.cancel)
+        XCTAssertFalse(actionCalled)
+
+        try await subject.tapAction(title: Localizations.confirm)
+        XCTAssertTrue(actionCalled)
+    }
+
     /// `setUpUnlockMethodLater(action:)` builds an `Alert` confirming the user wants to set up
     /// their unlock methods later.
     func test_setUpUnlockMethodLater() async throws {

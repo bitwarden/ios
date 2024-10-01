@@ -158,8 +158,14 @@ protocol AuthService {
     ///   - password: The master password.
     ///   - username: The username.
     ///   - captchaToken: An optional captcha token value to add to the token request.
+    ///   - isNewAccount: Whether the user is logging into a newly created account.
     ///
-    func loginWithMasterPassword(_ password: String, username: String, captchaToken: String?) async throws
+    func loginWithMasterPassword(
+        _ password: String,
+        username: String,
+        captchaToken: String?,
+        isNewAccount: Bool
+    ) async throws
 
     /// Login with the single sign on code.
     ///
@@ -260,8 +266,14 @@ class DefaultAuthService: AuthService { // swiftlint:disable:this type_body_leng
     /// The service to get server-specified configuration
     private let configService: ConfigService
 
+    /// The store which makes credential identities available to the system for AutoFill suggestions.
+    private let credentialIdentityStore: CredentialIdentityStore
+
     /// The service used by the application to manage the environment settings.
     private let environmentService: EnvironmentService
+
+    /// The service used by the application to report non-fatal errors.
+    private let errorReporter: ErrorReporter
 
     /// The repository used to manages keychain items.
     private let keychainRepository: KeychainRepository
@@ -302,7 +314,10 @@ class DefaultAuthService: AuthService { // swiftlint:disable:this type_body_leng
     ///   - authAPIService: The API service used to make calls related to the auth process.
     ///   - clientService: The service that handles common client functionality such as encryption and decryption.
     ///   - configService: The service to get server-specified configuration.
+    ///   - credentialIdentityStore: The store which makes credential identities available to the
+    ///     system for AutoFill suggestions.
     ///   - environmentService: The service used by the application to manage the environment settings.
+    ///   - errorReporter: The service used by the application to report non-fatal errors.
     ///   - keychainRepository: The repository used to manages keychain items.
     ///   - policyService: The service used by the application to manage the policy.
     ///   - stateService: The object used by the application to retrieve information about this device.
@@ -315,7 +330,9 @@ class DefaultAuthService: AuthService { // swiftlint:disable:this type_body_leng
         authAPIService: AuthAPIService,
         clientService: ClientService,
         configService: ConfigService,
+        credentialIdentityStore: CredentialIdentityStore = ASCredentialIdentityStore.shared,
         environmentService: EnvironmentService,
+        errorReporter: ErrorReporter,
         keychainRepository: KeychainRepository,
         policyService: PolicyService,
         stateService: StateService,
@@ -327,7 +344,9 @@ class DefaultAuthService: AuthService { // swiftlint:disable:this type_body_leng
         self.authAPIService = authAPIService
         self.clientService = clientService
         self.configService = configService
+        self.credentialIdentityStore = credentialIdentityStore
         self.environmentService = environmentService
+        self.errorReporter = errorReporter
         self.keychainRepository = keychainRepository
         self.policyService = policyService
         self.stateService = stateService
@@ -538,7 +557,12 @@ class DefaultAuthService: AuthService { // swiftlint:disable:this type_body_leng
         return (loginWithDeviceData.privateKey, key)
     }
 
-    func loginWithMasterPassword(_ masterPassword: String, username: String, captchaToken: String?) async throws {
+    func loginWithMasterPassword(
+        _ masterPassword: String,
+        username: String,
+        captchaToken: String?,
+        isNewAccount: Bool
+    ) async throws {
         // Complete the pre-login steps.
         let response = try await accountAPIService.preLogin(email: username)
 
@@ -572,6 +596,16 @@ class DefaultAuthService: AuthService { // swiftlint:disable:this type_body_leng
         }
         if try await requirePasswordChange(email: username, masterPassword: masterPassword, policy: policy) {
             try await stateService.setForcePasswordResetReason(.weakMasterPasswordOnLogin)
+        }
+
+        if isNewAccount, await configService.getFeatureFlag(.nativeCreateAccountFlow) {
+            do {
+                let isAutofillEnabled = await credentialIdentityStore.isAutofillEnabled()
+                try await stateService.setAccountSetupAutofill(isAutofillEnabled ? .complete : .incomplete)
+                try await stateService.setAccountSetupVaultUnlock(.incomplete)
+            } catch {
+                errorReporter.log(error: error)
+            }
         }
     }
 

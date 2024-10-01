@@ -217,6 +217,25 @@ extension Alert {
         )
     }
 
+    /// An alert confirming that the user wants to finish setting up autofill later in settings.
+    ///
+    /// - Parameter action: The action taken when the user taps on Confirm to finish setting up
+    ///     autofill later in settings.
+    /// - Returns: An alert confirming that the user wants to finish setting up autofill let in settings.
+    ///
+    static func setUpAutoFillLater(action: @escaping () async -> Void) -> Alert {
+        Alert(
+            title: Localizations.turnOnAutoFillLaterQuestion,
+            message: Localizations.youCanReturnToCompleteThisStepAnytimeInSettings,
+            alertActions: [
+                AlertAction(title: Localizations.cancel, style: .cancel),
+                AlertAction(title: Localizations.confirm, style: .default) { _ in
+                    await action()
+                },
+            ]
+        )
+    }
+
     /// An alert confirming that the user wants to finish setting up their vault unlock methods
     /// later in settings.
     ///

@@ -114,7 +114,7 @@ struct PendingRequestsView: View {
 
                     Text(pendingRequest.fingerprintPhrase ?? "")
                         .styleGuide(.caption2Monospaced)
-                        .foregroundStyle(Asset.Colors.fingerprint.swiftUIColor)
+                        .foregroundStyle(Asset.Colors.textCodePink.swiftUIColor)
                         .frame(maxWidth: .infinity, alignment: .leading)
                         .multilineTextAlignment(.leading)
                         .accessibilityIdentifier("FingerprintPhraseValue")
@@ -141,7 +141,7 @@ struct PendingRequestsView: View {
                 }
             }
         }
-        .background(Asset.Colors.backgroundTertiary.swiftUIColor)
+        .background(Asset.Colors.backgroundSecondary.swiftUIColor)
         .accessibilityIdentifier("LoginRequestCell")
     }
 }

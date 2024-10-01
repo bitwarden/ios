@@ -911,7 +911,6 @@
 "ThereWasAnErrorStartingWebAuthnTwoFactorAuthentication" = "S'ha produït un error en iniciar l'autenticació de dos factors de WebAuthn";
 "LaunchWebAuthn" = "Inicia WebAuthn";
 "Duo" = "Duo";
-"DuoUnsupported" = "Duo encara no és compatible.";
 "FilePassword" = "Contrasenya del fitxer";
 "ConfirmFilePassword" = "Confirma la contrasenya del fitxer";
 "FilePasswordDescription" = "Aquesta contrasenya s'utilitzarà per exportar i importar aquest fitxer";
@@ -975,3 +974,9 @@
 "PleaseRestartRegistrationOrTryLoggingInYouMayAlreadyHaveAnAccount" = "Please restart registration or try logging in. You may already have an account.";
 "RemovePasskey" = "Remove passkey";
 "PasskeyRemoved" = "Passkey removed";
+"TheRegionForTheGivenEmailCouldNotBeLoaded" = "The region for the given email could not be loaded.";
+"SetUpLaterQuestion" = "Set up later?";
+"YouCanFinishSetupUnlockAnytimeDescriptionLong" = "You can finish setup anytime in Account Security under Settings. You’ll use your master password to unlock until you set up another method.";
+"Confirm" = "Confirm";
+"ErrorConnectingWithTheDuoServiceUseADifferentTwoStepLoginMethodOrContactDuoForAssistance" = "Error connecting with the Duo service. Use a different two-step login method or contact Duo for assistance.";
+"ThePreAuthUrlsCouldNotBeLoadedToStartTheAccountCreation" = "The Pre Auth Urls could not be loaded to start the account creation.";

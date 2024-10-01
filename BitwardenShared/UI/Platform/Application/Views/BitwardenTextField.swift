@@ -118,13 +118,13 @@ struct BitwardenTextField<TrailingContent: View>: View {
                 text = ""
             } label: {
                 Asset.Images.cancelRound.swiftUIImage
-                    .foregroundColor(Asset.Colors.primaryBitwarden.swiftUIColor)
+                    .foregroundColor(Asset.Colors.iconSecondary.swiftUIColor)
                     .frame(width: 14, height: 14)
             }
             .padding(.vertical, 5)
             .hidden(text.isEmpty || !isFocused)
         }
-        .tint(Asset.Colors.primaryBitwarden.swiftUIColor)
+        .tint(Asset.Colors.tintPrimary.swiftUIColor)
         .onAppear {
             isSecureFieldFocused = isPasswordAutoFocused
         }

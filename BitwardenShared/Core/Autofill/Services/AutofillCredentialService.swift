@@ -13,6 +13,10 @@ protocol AutofillCredentialServiceDelegate: AnyObject {
 /// A service which manages the ciphers exposed to the system for AutoFill suggestions.
 ///
 protocol AutofillCredentialService: AnyObject {
+    /// Returns whether autofilling credentials via the extension is enabled.
+    ///
+    func isAutofillCredentialsEnabled() async -> Bool
+
     /// Returns a `ASPasswordCredential` that matches the user-requested credential which can be
     /// used for autofill.
     ///
@@ -263,6 +267,10 @@ class DefaultAutofillCredentialService {
 }
 
 extension DefaultAutofillCredentialService: AutofillCredentialService {
+    func isAutofillCredentialsEnabled() async -> Bool {
+        await identityStore.isAutofillEnabled()
+    }
+
     func provideCredential(
         for id: String,
         autofillCredentialServiceDelegate: AutofillCredentialServiceDelegate,
@@ -467,6 +475,14 @@ protocol CredentialIdentityStore {
     /// - Returns: The state of the credential identity store.
     ///
     func state() async -> ASCredentialIdentityStoreState
+}
+
+extension CredentialIdentityStore {
+    /// Returns whether autofilling credentials via the extension is enabled.
+    ///
+    func isAutofillEnabled() async -> Bool {
+        await state().isEnabled
+    }
 }
 
 // MARK: - ASCredentialIdentityStore+CredentialIdentityStore

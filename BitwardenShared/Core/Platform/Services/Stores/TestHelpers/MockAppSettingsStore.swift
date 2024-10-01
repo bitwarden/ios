@@ -4,6 +4,8 @@ import Foundation
 @testable import BitwardenShared
 
 class MockAppSettingsStore: AppSettingsStore {
+    var accountSetupAutofill = [String: AccountSetupProgress]()
+    var accountSetupVaultUnlock = [String: AccountSetupProgress]()
     var addSitePromptShown = false
     var allowSyncOnRefreshes = [String: Bool]()
     var appId: String?
@@ -15,6 +17,7 @@ class MockAppSettingsStore: AppSettingsStore {
     var lastUserShouldConnectToWatch = false
     var loginRequest: LoginRequestNotification?
     var migrationVersion = 0
+    var overrideDebugFeatureFlagCalled = false
     var preAuthEnvironmentUrls: EnvironmentUrlData?
     var preAuthServerConfig: BitwardenShared.ServerConfig?
     var rememberedEmail: String?
@@ -30,15 +33,17 @@ class MockAppSettingsStore: AppSettingsStore {
     var encryptedPrivateKeys = [String: String]()
     var encryptedUserKeys = [String: String]()
     var eventsByUserId = [String: [EventData]]()
+    var featureFlags = [String: Bool]()
     var lastActiveTime = [String: Date]()
     var lastSyncTimeByUserId = [String: Date]()
     var masterPasswordHashes = [String: String]()
-    var needsVaultUnlockSetup = [String: Bool]()
     var notificationsLastRegistrationDates = [String: Date]()
     var passwordGenerationOptions = [String: PasswordGenerationOptions]()
     var pinProtectedUserKey = [String: String]()
+    var accountCreationEnvironmentUrls = [String: EnvironmentUrlData]()
     var serverConfig = [String: ServerConfig]()
     var shouldTrustDevice = [String: Bool?]()
+    var syncToAuthenticatorByUserId = [String: Bool]()
     var timeoutAction = [String: Int]()
     var twoFactorTokens = [String: String]()
     var usesKeyConnector = [String: Bool]()
@@ -54,6 +59,14 @@ class MockAppSettingsStore: AppSettingsStore {
 
     lazy var activeIdSubject = CurrentValueSubject<String?, Never>(self.state?.activeUserId)
 
+    func accountSetupAutofill(userId: String) -> AccountSetupProgress? {
+        accountSetupAutofill[userId]
+    }
+
+    func accountSetupVaultUnlock(userId: String) -> AccountSetupProgress? {
+        accountSetupVaultUnlock[userId]
+    }
+
     func allowSyncOnRefresh(userId: String) -> Bool {
         allowSyncOnRefreshes[userId] ?? false
     }
@@ -64,6 +77,10 @@ class MockAppSettingsStore: AppSettingsStore {
 
     func connectToWatch(userId: String) -> Bool {
         connectToWatchByUserId[userId] ?? false
+    }
+
+    func debugFeatureFlag(name: String) -> Bool? {
+        featureFlags[name]
     }
 
     func defaultUriMatchType(userId: String) -> UriMatchType? {
@@ -102,12 +119,13 @@ class MockAppSettingsStore: AppSettingsStore {
         masterPasswordHashes[userId]
     }
 
-    func needsVaultUnlockSetup(userId: String) -> Bool {
-        needsVaultUnlockSetup[userId] ?? false
-    }
-
     func notificationsLastRegistrationDate(userId: String) -> Date? {
         notificationsLastRegistrationDates[userId]
+    }
+
+    func overrideDebugFeatureFlag(name: String, value: Bool?) {
+        overrideDebugFeatureFlagCalled = true
+        featureFlags[name] = value
     }
 
     func passwordGenerationOptions(userId: String) -> PasswordGenerationOptions? {
@@ -118,12 +136,24 @@ class MockAppSettingsStore: AppSettingsStore {
         pinProtectedUserKey[userId]
     }
 
+    func accountCreationEnvironmentUrls(email: String) -> BitwardenShared.EnvironmentUrlData? {
+        accountCreationEnvironmentUrls[email]
+    }
+
     func twoFactorToken(email: String) -> String? {
         twoFactorTokens[email]
     }
 
     func serverConfig(userId: String) -> ServerConfig? {
         serverConfig[userId]
+    }
+
+    func setAccountSetupAutofill(_ autofillSetup: AccountSetupProgress?, userId: String) {
+        accountSetupAutofill[userId] = autofillSetup
+    }
+
+    func setAccountSetupVaultUnlock(_ vaultUnlockSetup: AccountSetupProgress?, userId: String) {
+        accountSetupVaultUnlock[userId] = vaultUnlockSetup
     }
 
     func setAllowSyncOnRefresh(_ allowSyncOnRefresh: Bool?, userId: String) {
@@ -186,10 +216,6 @@ class MockAppSettingsStore: AppSettingsStore {
         notificationsLastRegistrationDates[userId] = date
     }
 
-    func setNeedsVaultUnlockSetup(_ needsVaultUnlockSetup: Bool, userId: String) {
-        self.needsVaultUnlockSetup[userId] = needsVaultUnlockSetup
-    }
-
     func setPasswordGenerationOptions(_ options: PasswordGenerationOptions?, userId: String) {
         guard let options else {
             passwordGenerationOptions.removeValue(forKey: userId)
@@ -202,12 +228,20 @@ class MockAppSettingsStore: AppSettingsStore {
         pinProtectedUserKey[userId] = key
     }
 
+    func setAccountCreationEnvironmentUrls(environmentUrlData: BitwardenShared.EnvironmentUrlData, email: String) {
+        accountCreationEnvironmentUrls[email] = environmentUrlData
+    }
+
     func setServerConfig(_ config: ServerConfig?, userId: String) {
         serverConfig[userId] = config
     }
 
     func setShouldTrustDevice(shouldTrustDevice: Bool?, userId: String) {
         self.shouldTrustDevice[userId] = shouldTrustDevice
+    }
+
+    func setSyncToAuthenticator(_ syncToAuthenticator: Bool, userId: String) {
+        syncToAuthenticatorByUserId[userId] = syncToAuthenticator
     }
 
     func setTimeoutAction(key: SessionTimeoutAction, userId: String) {
@@ -240,6 +274,10 @@ class MockAppSettingsStore: AppSettingsStore {
 
     func shouldTrustDevice(userId: String) -> Bool? {
         shouldTrustDevice[userId] ?? false
+    }
+
+    func syncToAuthenticator(userId: String) -> Bool {
+        syncToAuthenticatorByUserId[userId] ?? false
     }
 
     func timeoutAction(userId: String) -> Int? {

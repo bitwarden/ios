@@ -911,7 +911,6 @@
 "ThereWasAnErrorStartingWebAuthnTwoFactorAuthentication" = "Houve um erro ao iniciar a autenticação de dois fatores WebAuthn";
 "LaunchWebAuthn" = "Iniciar WebAuthn";
 "Duo" = "Duo";
-"DuoUnsupported" = "Duo ainda não suportado.";
 "FilePassword" = "Senha do arquivo";
 "ConfirmFilePassword" = "Confirme a senha do arquivo";
 "FilePasswordDescription" = "Esta senha será usada para exportar e importar este arquivo";
@@ -975,3 +974,9 @@
 "PleaseRestartRegistrationOrTryLoggingInYouMayAlreadyHaveAnAccount" = "Por favor, reinicie o registro ou tente iniciar a sessão. Você pode já ter uma conta.";
 "RemovePasskey" = "Remove passkey";
 "PasskeyRemoved" = "Passkey removed";
+"TheRegionForTheGivenEmailCouldNotBeLoaded" = "The region for the given email could not be loaded.";
+"SetUpLaterQuestion" = "Set up later?";
+"YouCanFinishSetupUnlockAnytimeDescriptionLong" = "You can finish setup anytime in Account Security under Settings. You’ll use your master password to unlock until you set up another method.";
+"Confirm" = "Confirm";
+"ErrorConnectingWithTheDuoServiceUseADifferentTwoStepLoginMethodOrContactDuoForAssistance" = "Error connecting with the Duo service. Use a different two-step login method or contact Duo for assistance.";
+"ThePreAuthUrlsCouldNotBeLoadedToStartTheAccountCreation" = "The Pre Auth Urls could not be loaded to start the account creation.";

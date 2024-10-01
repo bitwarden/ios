@@ -102,6 +102,8 @@ public class AppProcessor {
     /// - Parameter url: The deep link URL to handle.
     ///
     public func openUrl(_ url: URL) async {
+        guard url.scheme?.isOtpAuthScheme == true else { return }
+
         guard let otpAuthModel = OTPAuthModel(otpAuthKey: url.absoluteString) else {
             coordinator?.showAlert(.defaultAlert(title: Localizations.anErrorHasOccurred))
             return
@@ -147,6 +149,7 @@ public class AppProcessor {
         await services.migrationService.performMigrations()
         await services.environmentService.loadURLsForActiveAccount()
         _ = await services.configService.getConfig()
+        await completeAutofillAccountSetupIfEnabled()
 
         if let initialRoute {
             coordinator.navigate(to: initialRoute)
@@ -169,7 +172,7 @@ public class AppProcessor {
 
         // Check for specific URL components that you need.
         guard let params = components.queryItems,
-              let host = components.host else {
+              components.host != nil else {
             services.errorReporter.log(error: AppProcessorError.appLinksInvalidURL)
             return
         }
@@ -190,12 +193,32 @@ public class AppProcessor {
             AuthRoute.completeRegistrationFromAppLink(
                 emailVerificationToken: verificationToken,
                 userEmail: email,
-                fromEmail: Bool(fromEmail) ?? true,
-                region: host.contains(RegionType.europe.baseUrlDescription) ? .europe : .unitedStates
+                fromEmail: Bool(fromEmail) ?? true
             )))
     }
 
     // MARK: Autofill Methods
+
+    /// If the native create account feature flag and the autofill extension are enabled, this marks
+    /// any user's autofill account setup completed. This should be called on app startup.
+    ///
+    func completeAutofillAccountSetupIfEnabled() async {
+        guard await services.configService.getFeatureFlag(.nativeCreateAccountFlow),
+              await services.autofillCredentialService.isAutofillCredentialsEnabled()
+        else { return }
+        do {
+            let accounts = try await services.stateService.getAccounts()
+            for account in accounts {
+                let userId = account.profile.userId
+                guard let progress = try await services.stateService.getAccountSetupAutofill(userId: userId),
+                      progress != .complete
+                else { continue }
+                try await services.stateService.setAccountSetupAutofill(.complete, userId: userId)
+            }
+        } catch {
+            services.errorReporter.log(error: error)
+        }
+    }
 
     /// Returns a `ASPasswordCredential` that matches the user-requested credential which can be
     /// used for autofill.
@@ -371,6 +394,11 @@ public class AppProcessor {
             services.application?.endBackgroundTask(taskId)
             backgroundTaskId = nil
         }
+    }
+
+    /// Show the debug menu.
+    public func showDebugMenu() {
+        coordinator?.navigate(to: .debugMenu)
     }
 }
 

@@ -167,7 +167,7 @@ struct AddEditCustomFieldsView_Previews: PreviewProvider {
         )
         .padding(16)
         .background(
-            Asset.Colors.backgroundSecondary.swiftUIColor
+            Asset.Colors.backgroundPrimary.swiftUIColor
                 .ignoresSafeArea()
         )
     }

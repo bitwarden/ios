@@ -5,6 +5,9 @@ import Foundation
 
 class MockStateService: StateService { // swiftlint:disable:this type_body_length
     var accountEncryptionKeys = [String: AccountEncryptionKeys]()
+    var accountSetupAutofill = [String: AccountSetupProgress]()
+    var accountSetupAutofillError: Error?
+    var accountSetupVaultUnlock = [String: AccountSetupProgress]()
     var accountTokens: Account.AccountTokens?
     var accountVolatileData: [String: AccountVolatileData] = [:]
     var accountsAdded = [Account]()
@@ -49,12 +52,12 @@ class MockStateService: StateService { // swiftlint:disable:this type_body_lengt
     var lastSyncTimeSubject = CurrentValueSubject<Date?, Never>(nil)
     var lastUserShouldConnectToWatch = false
     var masterPasswordHashes = [String: String]()
-    var needsVaultUnlockSetup = [String: Bool]()
     var notificationsLastRegistrationDates = [String: Date]()
     var notificationsLastRegistrationError: Error?
     var passwordGenerationOptions = [String: PasswordGenerationOptions]()
     var pinProtectedUserKeyValue = [String: String]()
     var preAuthEnvironmentUrls: EnvironmentUrlData?
+    var accountCreationEnvironmentUrls = [String: EnvironmentUrlData]()
     var preAuthServerConfig: ServerConfig?
     var rememberedOrgIdentifier: String?
     var showWebIcons = true
@@ -64,9 +67,16 @@ class MockStateService: StateService { // swiftlint:disable:this type_body_lengt
     var setAccountHasBeenUnlockedInteractivelyHasBeenCalled = false // swiftlint:disable:this identifier_name
     // swiftlint:disable:next identifier_name
     var setAccountHasBeenUnlockedInteractivelyResult: Result<Void, Error> = .success(())
+    var setAccountSetupAutofillCalled = false
     var setBiometricAuthenticationEnabledResult: Result<Void, Error> = .success(())
     var setBiometricIntegrityStateError: Error?
+    var settingsBadgeSubject = CurrentValueSubject<SettingsBadgeState, Never>(
+        SettingsBadgeState(autofillSetupProgress: nil, badgeValue: nil, vaultUnlockSetupProgress: nil)
+    )
     var shouldTrustDevice = [String: Bool?]()
+    var syncToAuthenticatorByUserId = [String: Bool]()
+    var syncToAuthenticatorResult: Result<Void, Error> = .success(())
+    var syncToAuthenticatorSubject = CurrentValueSubject<(String?, Bool), Never>((nil, false))
     var twoFactorTokens = [String: String]()
     var unsuccessfulUnlockAttempts = [String: Int]()
     var updateProfileResponse: ProfileResponseModel?
@@ -142,6 +152,14 @@ class MockStateService: StateService { // swiftlint:disable:this type_body_lengt
             throw StateServiceError.noAccounts
         }
         return accounts
+    }
+
+    func getAccountSetupAutofill(userId: String) async -> AccountSetupProgress? {
+        accountSetupAutofill[userId]
+    }
+
+    func getAccountSetupVaultUnlock(userId: String) async -> AccountSetupProgress? {
+        accountSetupVaultUnlock[userId]
     }
 
     func getAccountIdOrActiveId(userId: String?) async throws -> String {
@@ -233,11 +251,6 @@ class MockStateService: StateService { // swiftlint:disable:this type_body_lengt
         return masterPasswordHashes[userId]
     }
 
-    func getNeedsVaultUnlockSetup(userId: String?) async throws -> Bool {
-        let userId = try unwrapUserId(userId)
-        return needsVaultUnlockSetup[userId] ?? false
-    }
-
     func getNotificationsLastRegistrationDate(userId: String?) async throws -> Date? {
         if let notificationsLastRegistrationError {
             throw notificationsLastRegistrationError
@@ -255,6 +268,10 @@ class MockStateService: StateService { // swiftlint:disable:this type_body_lengt
         preAuthEnvironmentUrls
     }
 
+    func getAccountCreationEnvironmentUrls(email: String) async -> EnvironmentUrlData? {
+        accountCreationEnvironmentUrls[email]
+    }
+
     func getPreAuthServerConfig() async -> BitwardenShared.ServerConfig? {
         preAuthServerConfig
     }
@@ -270,6 +287,12 @@ class MockStateService: StateService { // swiftlint:disable:this type_body_lengt
 
     func getShowWebIcons() async -> Bool {
         showWebIcons
+    }
+
+    func getSyncToAuthenticator(userId: String?) async throws -> Bool {
+        try syncToAuthenticatorResult.get()
+        let userId = try unwrapUserId(userId)
+        return syncToAuthenticatorByUserId[userId] ?? false
     }
 
     func getTimeoutAction(userId: String?) async throws -> SessionTimeoutAction {
@@ -335,6 +358,20 @@ class MockStateService: StateService { // swiftlint:disable:this type_body_lengt
     func setAccountHasBeenUnlockedInteractively(userId: String?, value: Bool) async throws {
         setAccountHasBeenUnlockedInteractivelyHasBeenCalled = true
         try setAccountHasBeenUnlockedInteractivelyResult.get()
+    }
+
+    func setAccountSetupAutofill(_ autofillSetup: AccountSetupProgress?, userId: String?) async throws {
+        setAccountSetupAutofillCalled = true
+        let userId = try unwrapUserId(userId)
+        if let accountSetupAutofillError {
+            throw accountSetupAutofillError
+        }
+        accountSetupAutofill[userId] = autofillSetup
+    }
+
+    func setAccountSetupVaultUnlock(_ vaultUnlockSetup: AccountSetupProgress?, userId: String?) async throws {
+        let userId = try unwrapUserId(userId)
+        accountSetupVaultUnlock[userId] = vaultUnlockSetup
     }
 
     func setActiveAccount(userId: String) async throws {
@@ -435,11 +472,6 @@ class MockStateService: StateService { // swiftlint:disable:this type_body_lengt
         masterPasswordHashes[userId] = hash
     }
 
-    func setNeedsVaultUnlockSetup(_ needsVaultUnlockSetup: Bool, userId: String?) async throws {
-        let userId = try unwrapUserId(userId)
-        self.needsVaultUnlockSetup[userId] = needsVaultUnlockSetup
-    }
-
     func setNotificationsLastRegistrationDate(_ date: Date?, userId: String?) async throws {
         let userId = try unwrapUserId(userId)
         notificationsLastRegistrationDates[userId] = date
@@ -479,6 +511,10 @@ class MockStateService: StateService { // swiftlint:disable:this type_body_lengt
         preAuthEnvironmentUrls = urls
     }
 
+    func setAccountCreationEnvironmentUrls(urls: BitwardenShared.EnvironmentUrlData, email: String) async {
+        accountCreationEnvironmentUrls[email] = urls
+    }
+
     func setPreAuthServerConfig(config: BitwardenShared.ServerConfig) async {
         preAuthServerConfig = config
     }
@@ -494,6 +530,12 @@ class MockStateService: StateService { // swiftlint:disable:this type_body_lengt
 
     func setShowWebIcons(_ showWebIcons: Bool) async {
         self.showWebIcons = showWebIcons
+    }
+
+    func setSyncToAuthenticator(_ syncToAuthenticator: Bool, userId: String?) async throws {
+        try syncToAuthenticatorResult.get()
+        let userId = try unwrapUserId(userId)
+        syncToAuthenticatorByUserId[userId] = syncToAuthenticator
     }
 
     func setTimeoutAction(action: SessionTimeoutAction, userId: String?) async throws {
@@ -584,8 +626,17 @@ class MockStateService: StateService { // swiftlint:disable:this type_body_lengt
         lastSyncTimeSubject.eraseToAnyPublisher()
     }
 
+    func settingsBadgePublisher() async throws -> AnyPublisher<SettingsBadgeState, Never> {
+        _ = try unwrapUserId(nil)
+        return settingsBadgeSubject.eraseToAnyPublisher()
+    }
+
     func showWebIconsPublisher() async -> AnyPublisher<Bool, Never> {
         showWebIconsSubject.eraseToAnyPublisher()
+    }
+
+    func syncToAuthenticatorPublisher() async -> AnyPublisher<(String?, Bool), Never> {
+        syncToAuthenticatorSubject.eraseToAnyPublisher()
     }
 }
 

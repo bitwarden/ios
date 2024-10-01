@@ -70,7 +70,7 @@ struct ViewItemDetailsView: View { // swiftlint:disable:this type_body_length
                         .frame(maxWidth: .infinity, minHeight: 28, alignment: .leading)
                         .padding(.horizontal, 16)
                         .padding(.vertical, 8)
-                        .background(Asset.Colors.backgroundPrimary.swiftUIColor)
+                        .background(Asset.Colors.backgroundSecondary.swiftUIColor)
                         .clipShape(RoundedRectangle(cornerRadius: 10))
                     } else {
                         BitwardenField(title: customField.name) {
@@ -211,9 +211,9 @@ struct ViewItemDetailsView: View { // swiftlint:disable:this type_body_length
                             store.send(.passwordHistoryPressed)
                         } label: {
                             Text("\(passwordHistoryCount)")
-                                .underline(color: Asset.Colors.primaryBitwarden.swiftUIColor)
+                                .underline(color: Asset.Colors.textInteraction.swiftUIColor)
                         }
-                        .foregroundStyle(Asset.Colors.primaryBitwarden.swiftUIColor)
+                        .foregroundStyle(Asset.Colors.textInteraction.swiftUIColor)
                         .id("passwordHistoryButton")
                     }
                     .accessibilityLabel(Localizations.passwordHistory + ": \(passwordHistoryCount)")
@@ -289,7 +289,7 @@ struct ViewItemDetailsView: View { // swiftlint:disable:this type_body_length
                     store.send(.downloadAttachment(attachment))
                 } label: {
                     Image(asset: Asset.Images.download)
-                        .imageStyle(.rowIcon(color: Asset.Colors.primaryBitwarden.swiftUIColor))
+                        .imageStyle(.rowIcon(color: Asset.Colors.iconSecondary.swiftUIColor))
                 }
                 .accessibilityLabel(Localizations.download)
             }
@@ -300,7 +300,7 @@ struct ViewItemDetailsView: View { // swiftlint:disable:this type_body_length
                     .padding(.leading, 16)
             }
         }
-        .background(Asset.Colors.backgroundPrimary.swiftUIColor)
+        .background(Asset.Colors.backgroundSecondary.swiftUIColor)
         .accessibilityElement(children: .contain)
         .accessibilityIdentifier("CipherAttachment")
     }
