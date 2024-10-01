@@ -210,6 +210,15 @@ class AuthCoordinatorTests: BitwardenTestCase { // swiftlint:disable:this type_b
         XCTAssertEqual(lastAction.type, .dismissed)
     }
 
+    /// `navigate(to:)` with `.dismiss` pops the view controller if there's no presented views.
+    @MainActor
+    func test_navigate_dismiss_pop() throws {
+        subject.navigate(to: .vaultUnlockSetup(.settings))
+        subject.navigate(to: .dismiss)
+        let lastAction = try XCTUnwrap(stackNavigator.actions.last)
+        XCTAssertEqual(lastAction.type, .popped)
+    }
+
     /// `navigate(to:)` with `.dismissPresented` dismisses the presented view.
     @MainActor
     func test_navigate_dismissPresented() throws {
@@ -541,7 +550,7 @@ class AuthCoordinatorTests: BitwardenTestCase { // swiftlint:disable:this type_b
     /// `navigate(to:)` with `.vaultUnlockSetup` pushes the vault unlock setup onto the navigation stack.
     @MainActor
     func test_navigate_vaultUnlockSetup() throws {
-        subject.navigate(to: .vaultUnlockSetup)
+        subject.navigate(to: .vaultUnlockSetup(.createAccount))
 
         XCTAssertEqual(stackNavigator.actions.last?.type, .replaced)
         XCTAssertTrue(stackNavigator.actions.last?.view is VaultUnlockSetupView)

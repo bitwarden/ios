@@ -273,7 +273,7 @@ final class AuthRouterTests: BitwardenTestCase { // swiftlint:disable:this type_
         stateService.activeAccount = .fixture()
         stateService.accountSetupVaultUnlock["1"] = .incomplete
         let route = await subject.handleAndRoute(.didCompleteAuth)
-        XCTAssertEqual(route, .vaultUnlockSetup)
+        XCTAssertEqual(route, .vaultUnlockSetup(.createAccount))
     }
 
     /// `handleAndRoute(_ :)` redirects `.didCompleteAuth` to `.landing` when there are no accounts.

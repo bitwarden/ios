@@ -15,7 +15,7 @@ class VaultUnlockSetupViewTests: BitwardenTestCase {
     override func setUp() {
         super.setUp()
 
-        processor = MockProcessor(state: VaultUnlockSetupState())
+        processor = MockProcessor(state: VaultUnlockSetupState(accountSetupFlow: .createAccount))
 
         subject = VaultUnlockSetupView(store: Store(processor: processor))
     }
@@ -28,6 +28,22 @@ class VaultUnlockSetupViewTests: BitwardenTestCase {
     }
 
     // MARK: Tests
+
+    /// The view displays the set up later button when in the create account flow.
+    @MainActor
+    func test_accountSetupFlow_createAccount() async throws {
+        processor.state.accountSetupFlow = .createAccount
+
+        XCTAssertNoThrow(try subject.inspect().find(button: Localizations.setUpLater))
+    }
+
+    /// The view hides the set up later button when in the settings flow.
+    @MainActor
+    func test_accountSetupFlow_settings() async {
+        processor.state.accountSetupFlow = .settings
+
+        XCTAssertThrowsError(try subject.inspect().find(button: Localizations.setUpLater))
+    }
 
     /// Tapping the continue button dispatches the continue flow action.
     @MainActor
@@ -71,6 +87,17 @@ class VaultUnlockSetupViewTests: BitwardenTestCase {
         assertSnapshots(
             of: subject.navStackWrapped,
             as: [.defaultPortrait, .defaultPortraitDark, .tallPortraitAX5(heightMultiple: 2), .defaultLandscape]
+        )
+    }
+
+    /// The vault unlock setup view renders correctly when shown from settings.
+    @MainActor
+    func test_snapshot_vaultUnlockSetup_settings() {
+        processor.state.accountSetupFlow = .settings
+        processor.state.biometricsStatus = .available(.faceID, enabled: false, hasValidIntegrity: false)
+        assertSnapshots(
+            of: subject.navStackWrapped,
+            as: [.defaultPortrait, .defaultPortraitDark, .tallPortraitAX5(heightMultiple: 2)]
         )
     }
 
