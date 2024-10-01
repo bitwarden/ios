@@ -40,7 +40,7 @@ final class SharedCryptographyServiceTests: AuthenticatorBridgeKitTestCase {
         XCTAssertEqual(items, decryptedItems)
     }
 
-    /// Verify that `SharedCryptographyService.encryptAuthenticatorItems()' throws
+    /// Verify that `SharedCryptographyService.decryptAuthenticatorItems()' throws
     /// when the `SharedKeyRepository` authenticator key is missing.
     ///
     func test_decryptAuthenticatorItems_throwsKeyMissingError() async throws {
@@ -53,7 +53,8 @@ final class SharedCryptographyServiceTests: AuthenticatorBridgeKitTestCase {
     }
 
     /// Verify that `SharedCryptographyService.encryptAuthenticatorItems(:)` correctly
-    /// encrypts an array of `AuthenticatorBridgeItemDataModel`.
+    /// encrypts an array of `AuthenticatorBridgeItemDataView` into
+    /// `AuthenticatorBridgeItemDataModel`.
     ///
     func test_encryptAuthenticatorItems_success() async throws {
         let encryptedItems = try await subject.encryptAuthenticatorItems(items)

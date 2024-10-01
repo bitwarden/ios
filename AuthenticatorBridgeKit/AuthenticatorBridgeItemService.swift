@@ -1,3 +1,4 @@
+import Combine
 import Foundation
 
 // MARK: - AuthenticatorBridgeItemService
@@ -27,6 +28,13 @@ public protocol AuthenticatorBridgeItemService {
     func insertItems(_ items: [AuthenticatorBridgeItemDataView],
                      forUserId userId: String) async throws
 
+    /// Returns `true` if sync has been enabled for one or more accounts in the Bitwarden PM app, `false`
+    /// if there are no accounts with sync currently turned on.
+    ///
+    /// - Returns: `true` if there is one or more accounts with sync turned on; `false` otherwise.
+    ///
+    func isSyncOn() async -> Bool
+
     /// Deletes all existing items for a given user and inserts new items for the list of items provided.
     ///
     /// - Parameters:
@@ -35,6 +43,13 @@ public protocol AuthenticatorBridgeItemService {
     ///
     func replaceAllItems(with items: [AuthenticatorBridgeItemDataView],
                          forUserId userId: String) async throws
+
+    /// A Publisher that returns all of the items in the shared store.
+    ///
+    /// - Returns: Publisher that will publish the initial list of all items and any future data changes.
+    ///
+    func sharedItemsPublisher() async throws ->
+        AnyPublisher<[AuthenticatorBridgeItemDataView], any Error>
 }
 
 /// A concrete implementation of the `AuthenticatorBridgeItemService` protocol.
@@ -60,9 +75,9 @@ public class DefaultAuthenticatorBridgeItemService: AuthenticatorBridgeItemServi
     ///   - dataStore: The CoreData store for working with shared data
     ///   - sharedKeychainRepository: The keychain repository for working with the shared key.
     ///
-    init(cryptoService: SharedCryptographyService,
-         dataStore: AuthenticatorBridgeDataStore,
-         sharedKeychainRepository: SharedKeychainRepository) {
+    public init(cryptoService: SharedCryptographyService,
+                dataStore: AuthenticatorBridgeDataStore,
+                sharedKeychainRepository: SharedKeychainRepository) {
         self.cryptoService = cryptoService
         self.dataStore = dataStore
         self.sharedKeychainRepository = sharedKeychainRepository
@@ -89,6 +104,11 @@ public class DefaultAuthenticatorBridgeItemService: AuthenticatorBridgeItemServi
             data.model
         }
         return try await cryptoService.decryptAuthenticatorItems(encryptedItems)
+    }
+
+    public func isSyncOn() async -> Bool {
+        let key = try? await sharedKeychainRepository.getAuthenticatorKey()
+        return key != nil
     }
 
     /// Inserts the list of items into the store for the given userId.
@@ -123,5 +143,22 @@ public class DefaultAuthenticatorBridgeItemService: AuthenticatorBridgeItemServi
             deleteRequest: deleteRequest,
             insertRequest: insertRequest
         )
+    }
+
+    public func sharedItemsPublisher() async throws ->
+        AnyPublisher<[AuthenticatorBridgeItemDataView], any Error> {
+        let fetchRequest = AuthenticatorBridgeItemData.fetchRequest()
+        fetchRequest.sortDescriptors = [NSSortDescriptor(keyPath: \AuthenticatorBridgeItemData.userId, ascending: true)]
+        return FetchedResultsPublisher(
+            context: dataStore.persistentContainer.viewContext,
+            request: fetchRequest
+        )
+        .tryMap { dataItems in
+            dataItems.compactMap(\.model)
+        }
+        .asyncTryMap { itemModel in
+            try await self.cryptoService.decryptAuthenticatorItems(itemModel)
+        }
+        .eraseToAnyPublisher()
     }
 }
