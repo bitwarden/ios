@@ -16,7 +16,7 @@ on:
         type: string
       build-number:
         description: "Version Number Override - e.g. '1021'"
-        type: number
+        type: string
       xcode-version:
         description: "Xcode Version Override - e.g. '15.2'"
         type: string
