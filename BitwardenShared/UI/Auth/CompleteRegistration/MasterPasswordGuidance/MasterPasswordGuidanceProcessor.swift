@@ -30,8 +30,7 @@ class MasterPasswordGuidanceProcessor: StateProcessor<
         case .dismiss:
             coordinator.navigate(to: .dismissPresented)
         case .generatePasswordPressed:
-            // TODO: PM-10267
-            break
+            coordinator.navigate(to: .masterPasswordGenerator)
         }
     }
 }
