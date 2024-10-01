@@ -41,6 +41,7 @@ final class AuthCoordinator: NSObject, // swiftlint:disable:this type_body_lengt
         & HasAuthAPIService
         & HasAuthRepository
         & HasAuthService
+        & HasAutofillCredentialService
         & HasBiometricsRepository
         & HasCaptchaService
         & HasClientService
@@ -49,6 +50,7 @@ final class AuthCoordinator: NSObject, // swiftlint:disable:this type_body_lengt
         & HasEnvironmentService
         & HasErrorReporter
         & HasGeneratorRepository
+        & HasNotificationCenterService
         & HasNFCReaderService
         & HasOrganizationAPIService
         & HasPolicyService
@@ -118,8 +120,7 @@ final class AuthCoordinator: NSObject, // swiftlint:disable:this type_body_lengt
     func navigate(to route: AuthRoute, context: AnyObject?) { // swiftlint:disable:this function_body_length
         switch route {
         case .autofillSetup:
-            // TODO: PM-10278 Add autofill setup screen
-            break
+            showAutoFillSetup()
         case let .captcha(url, callbackUrlScheme):
             showCaptcha(
                 url: url,
@@ -185,9 +186,9 @@ final class AuthCoordinator: NSObject, // swiftlint:disable:this type_body_lengt
         case let .loginWithDevice(email, type, isAuthenticated):
             showLoginWithDevice(email: email, type: type, isAuthenticated: isAuthenticated)
         case .masterPasswordGenerator:
-            showMasterPasswordGenerator()
+            showMasterPasswordGenerator(delegate: context as? MasterPasswordUpdateDelegate)
         case .masterPasswordGuidance:
-            showMasterPasswordGuidance()
+            showMasterPasswordGuidance(delegate: context as? MasterPasswordUpdateDelegate)
         case let .masterPasswordHint(username):
             showMasterPasswordHint(for: username)
         case .preventAccountLock:
@@ -263,6 +264,19 @@ final class AuthCoordinator: NSObject, // swiftlint:disable:this type_body_lengt
             throw StateServiceError.noActiveAccount
         }
         return try await services.authRepository.setActiveAccount(userId: alternate.profile.userId)
+    }
+
+    /// Shows the password autofill screen.
+    ///
+    private func showAutoFillSetup() {
+        let processor = PasswordAutoFillProcessor(
+            coordinator: asAnyCoordinator(),
+            services: services,
+            state: .init(mode: .onboarding)
+        )
+
+        let view = PasswordAutoFillView(store: Store(processor: processor))
+        stackNavigator?.replace(view)
     }
 
     /// Shows the captcha screen.
@@ -548,9 +562,10 @@ final class AuthCoordinator: NSObject, // swiftlint:disable:this type_body_lengt
 
     /// Shows the generate master password screen.
     ///
-    private func showMasterPasswordGenerator() {
+    private func showMasterPasswordGenerator(delegate: MasterPasswordUpdateDelegate?) {
         let processor = MasterPasswordGeneratorProcessor(
             coordinator: asAnyCoordinator(),
+            delegate: delegate,
             services: services
         )
         let store = Store(processor: processor)
@@ -562,8 +577,11 @@ final class AuthCoordinator: NSObject, // swiftlint:disable:this type_body_lengt
 
     /// Shows the master password guidance screen.
     ///
-    private func showMasterPasswordGuidance() {
-        let processor = MasterPasswordGuidanceProcessor(coordinator: asAnyCoordinator())
+    private func showMasterPasswordGuidance(delegate: MasterPasswordUpdateDelegate?) {
+        let processor = MasterPasswordGuidanceProcessor(
+            coordinator: asAnyCoordinator(),
+            delegate: delegate
+        )
         let store = Store(processor: processor)
         let view = MasterPasswordGuidanceView(store: store)
         let viewController = UIHostingController(rootView: view)

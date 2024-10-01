@@ -984,6 +984,15 @@
 "Confirm" = "Confirm";
 "ErrorConnectingWithTheDuoServiceUseADifferentTwoStepLoginMethodOrContactDuoForAssistance" = "Error connecting with the Duo service. Use a different two-step login method or contact Duo for assistance.";
 "ThePreAuthUrlsCouldNotBeLoadedToStartTheAccountCreation" = "The Pre Auth Urls could not be loaded to start the account creation.";
+"FromYourDeviceSettingsToggleOnAutoFillPasswordsAndPasskeys" = "From your device settings, **toggle on autofill Passwords and Passkeys.**";
+"ToggleOffICloudToMakeBitwardenYourDefaultAutoFillSource" = "**Toggle off iCloud Keychain** to make Bitwarden your default autofill source.";
+"ToggleOnBitwardenToUseYourSavedPasswordsToLogIntoYourAccounts" = "**Toggle on Bitwarden** to use your saved passwords to log into your accounts.";
+"TurnOnAutoFill"= "Turn on autofill";
+"UseAutoFillToLogIntoYourAccountsWithASingleTap" = "Use autofill to log into your accounts with a single tap.";
+"NeedHelpCheckOutAutofillHelp" = "Need help? Check out **[autofill help](%1$@)**";
+"TurnOnLater" = "Turn on later";
+"TurnOnAutoFillLaterQuestion" = "Turn on autofill later?";
+"YouCanReturnToCompleteThisStepAnytimeInSettings" = "You can return to complete this step anytime in Settings.";
 "ContinueToBitwarden" = "Continue to Bitwarden";
 "BackToSettings" = "Back to settings";
 "YoureAllSet" = "You're all set!";
