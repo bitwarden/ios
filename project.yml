@@ -375,6 +375,7 @@ targets:
         APPLICATION_EXTENSION_API_ONLY: true
         DEVELOPMENT_ASSET_PATHS: 
           - BitwardenShared/UI/Auth/PreviewContent
+          - BitwardenShared/UI/Platform/PreviewContent
           - BitwardenShared/UI/Tools/PreviewContent
           - BitwardenShared/UI/Vault/PreviewContent
         INFOPLIST_FILE: BitwardenShared/UI/Platform/Application/Support/Info.plist

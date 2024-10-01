@@ -54,7 +54,58 @@ class AutoFillViewTests: BitwardenTestCase {
         XCTAssertEqual(processor.dispatchedActions.last, .passwordAutoFillTapped)
     }
 
+    /// The action card is hidden if the autofill setup progress is complete.
+    @MainActor
+    func test_setUpUnlockActionCard_hidden() {
+        processor.state.badgeState = .fixture(autofillSetupProgress: .complete)
+        XCTAssertThrowsError(try subject.inspect().find(ActionCard<BitwardenBadge>.self))
+    }
+
+    /// The action card is visible if the autofill setup progress isn't complete.
+    @MainActor
+    func test_setUpUnlockActionCard_visible() async throws {
+        processor.state.badgeState = .fixture(autofillSetupProgress: .setUpLater)
+        let actionCard = try subject.inspect().find(actionCard: Localizations.getStarted)
+
+        let badge = try actionCard.find(BitwardenBadge.self)
+        try XCTAssertEqual(badge.text().string(), "1")
+    }
+
+    /// Tapping the dismiss button in the set up autofill action card sends the
+    /// `.dismissSetUpUnlockActionCard` effect.
+    @MainActor
+    func test_setUpUnlockActionCard_visible_tapDismiss() async throws {
+        processor.state.badgeState = .fixture(autofillSetupProgress: .setUpLater)
+        let actionCard = try subject.inspect().find(actionCard: Localizations.setUpAutofill)
+
+        let button = try actionCard.find(asyncButton: Localizations.dismiss)
+        try await button.tap()
+        XCTAssertEqual(processor.effects, [.dismissSetUpAutofillActionCard])
+    }
+
+    /// Tapping the get started button in the set up autofill action card sends the
+    /// `.showSetUpUnlock` action.
+    @MainActor
+    func test_setUpUnlockActionCard_visible_tapGetStarted() async throws {
+        processor.state.badgeState = .fixture(autofillSetupProgress: .setUpLater)
+        let actionCard = try subject.inspect().find(actionCard: Localizations.setUpAutofill)
+
+        let button = try actionCard.find(asyncButton: Localizations.getStarted)
+        try await button.tap()
+        XCTAssertEqual(processor.dispatchedActions, [.showSetUpAutofill])
+    }
+
     // MARK: Snapshots
+
+    /// The view renders correctly with the autofill action card is displayed.
+    @MainActor
+    func test_snapshot_actionCardAutofill() async {
+        processor.state.badgeState = .fixture(autofillSetupProgress: .setUpLater)
+        assertSnapshots(
+            of: subject,
+            as: [.defaultPortrait, .defaultPortraitDark, .defaultPortraitAX5]
+        )
+    }
 
     /// The view renders correctly.
     @MainActor
