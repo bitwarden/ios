@@ -38,6 +38,6 @@ class MasterPasswordGuidanceProcessorTests: BitwardenTestCase {
     @MainActor
     func test_receive_generatePasswordPressed() {
         subject.receive(.generatePasswordPressed)
-        // TODO: PM-10267
+        XCTAssertEqual(coordinator.routes.last, .masterPasswordGenerator)
     }
 }
