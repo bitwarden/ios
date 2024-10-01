@@ -60,8 +60,8 @@ public enum LanguageOption: Equatable, Sendable {
             "tr",
             "uk",
             "vi",
-            "zh-CN",
-            "zh-TW",
+            "zh-Hans",
+            "zh-Hant",
         ]
 
     // MARK: Properties
