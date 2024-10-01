@@ -11,14 +11,14 @@ protocol AuthenticatorSyncService {
     /// This starts the service listening for updates and writing to the shared store. This method
     /// must be called for the service to do any syncing.
     ///
-    func start()
+    func start() async
 }
 
 // MARK: - DefaultAuthenticatorSyncService
 
 /// The default `AuthenticatorSyncService` type for the application.
 ///
-class DefaultAuthenticatorSyncService: NSObject, AuthenticatorSyncService {
+actor DefaultAuthenticatorSyncService: NSObject, AuthenticatorSyncService {
     // MARK: Private Properties
 
     /// The service for managing sharing items to/from the Authenticator app.
@@ -44,6 +44,9 @@ class DefaultAuthenticatorSyncService: NSObject, AuthenticatorSyncService {
 
     /// The keychain repository for managing the key shared between the PM and Authenticator apps.
     private let sharedKeychainRepository: SharedKeychainRepository
+
+    /// Whether or not the service has been started.
+    private var started: Bool = false
 
     /// The service used by the application to manage account state.
     private let stateService: StateService
@@ -96,12 +99,12 @@ class DefaultAuthenticatorSyncService: NSObject, AuthenticatorSyncService {
 
     // MARK: Public Methods
 
-    public func start() {
-        Task {
-            if await configService.getFeatureFlag(FeatureFlag.enableAuthenticatorSync,
-                                                  defaultValue: false) {
-                subscribeToAppState()
-            }
+    public func start() async {
+        guard !started else { return }
+        started = true
+        if await configService.getFeatureFlag(FeatureFlag.enableAuthenticatorSync,
+                                              defaultValue: false) {
+            subscribeToAppState()
         }
     }
 

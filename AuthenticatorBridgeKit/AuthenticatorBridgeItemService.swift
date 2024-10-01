@@ -33,7 +33,7 @@ public protocol AuthenticatorBridgeItemService {
     ///
     /// - Returns: `true` if there is one or more accounts with sync turned on; `false` otherwise.
     ///
-    func isSyncOn() async throws -> Bool
+    func isSyncOn() async -> Bool
 
     /// Deletes all existing items for a given user and inserts new items for the list of items provided.
     ///
@@ -106,7 +106,7 @@ public class DefaultAuthenticatorBridgeItemService: AuthenticatorBridgeItemServi
         return try await cryptoService.decryptAuthenticatorItems(encryptedItems)
     }
 
-    public func isSyncOn() async throws -> Bool {
+    public func isSyncOn() async -> Bool {
         let key = try? await sharedKeychainRepository.getAuthenticatorKey()
         return key != nil
     }

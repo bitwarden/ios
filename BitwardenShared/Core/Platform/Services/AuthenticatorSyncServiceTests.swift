@@ -67,7 +67,7 @@ final class AuthenticatorSyncServiceTests: BitwardenTestCase {
     ///
     func test_createAuthenticatorKeyIfNeeded_createsKeyWhenNeeded() async throws {
         configService.featureFlagsBool[.enableAuthenticatorSync] = true
-        subject.start()
+        await subject.start()
         try sharedKeychainRepository.deleteAuthenticatorKey()
         stateService.activeAccount = .fixture()
         stateService.syncToAuthenticatorSubject.send(("1", true))
@@ -82,7 +82,7 @@ final class AuthenticatorSyncServiceTests: BitwardenTestCase {
     ///
     func test_createAuthenticatorKeyIfNeeded_keyAlreadyExists() async throws {
         configService.featureFlagsBool[.enableAuthenticatorSync] = true
-        subject.start()
+        await subject.start()
         let key = sharedKeychainRepository.generateKeyData()
         try await sharedKeychainRepository.setAuthenticatorKey(key)
 
@@ -98,7 +98,7 @@ final class AuthenticatorSyncServiceTests: BitwardenTestCase {
     ///
     func test_decryptTOTPs_filtersOutDeleted() async throws {
         configService.featureFlagsBool[.enableAuthenticatorSync] = true
-        subject.start()
+        await subject.start()
         stateService.activeAccount = .fixture()
         cipherService.ciphersSubject.send([
             .fixture(
@@ -131,7 +131,7 @@ final class AuthenticatorSyncServiceTests: BitwardenTestCase {
     ///
     func test_decryptTOTPs_ignoresItemsWithoutTOTP() async throws {
         configService.featureFlagsBool[.enableAuthenticatorSync] = true
-        subject.start()
+        await subject.start()
         stateService.activeAccount = .fixture()
         cipherService.ciphersSubject.send([
             .fixture(
@@ -163,7 +163,7 @@ final class AuthenticatorSyncServiceTests: BitwardenTestCase {
     ///
     func test_decryptTOTPs_providesIdIfNil() async throws {
         configService.featureFlagsBool[.enableAuthenticatorSync] = true
-        subject.start()
+        await subject.start()
         stateService.activeAccount = .fixture()
         cipherService.ciphersSubject.send([
             .fixture(
@@ -191,7 +191,7 @@ final class AuthenticatorSyncServiceTests: BitwardenTestCase {
     ///
     func test_decryptTOTPs_success() async throws {
         configService.featureFlagsBool[.enableAuthenticatorSync] = true
-        subject.start()
+        await subject.start()
         stateService.activeAccount = .fixture()
         cipherService.ciphersSubject.send([
             .fixture(
@@ -219,7 +219,7 @@ final class AuthenticatorSyncServiceTests: BitwardenTestCase {
     ///
     func test_handleSyncOn_error() async throws {
         configService.featureFlagsBool[.enableAuthenticatorSync] = true
-        subject.start()
+        await subject.start()
         sharedKeychainRepository.errorToThrow = BitwardenTestError.example
 
         stateService.activeAccount = .fixture()
@@ -233,7 +233,7 @@ final class AuthenticatorSyncServiceTests: BitwardenTestCase {
     ///
     func test_handleSyncOff() async throws {
         configService.featureFlagsBool[.enableAuthenticatorSync] = true
-        subject.start()
+        await subject.start()
         stateService.activeAccount = .fixture()
         stateService.syncToAuthenticatorSubject.send(("1", false))
         notificationCenterService.willEnterForegroundSubject.send()
@@ -256,7 +256,7 @@ final class AuthenticatorSyncServiceTests: BitwardenTestCase {
     ///
     func test_start_featureFlagOff() async throws {
         configService.featureFlagsBool[.enableAuthenticatorSync] = false
-        subject.start()
+        await subject.start()
         try sharedKeychainRepository.deleteAuthenticatorKey()
         stateService.activeAccount = .fixture()
         stateService.syncToAuthenticatorSubject.send(("1", true))
@@ -270,7 +270,7 @@ final class AuthenticatorSyncServiceTests: BitwardenTestCase {
     ///
     func test_subscribeToCipherUpdates_error() async throws {
         configService.featureFlagsBool[.enableAuthenticatorSync] = true
-        subject.start()
+        await subject.start()
         stateService.activeAccount = .fixture()
         stateService.syncToAuthenticatorSubject.send(("1", true))
         notificationCenterService.willEnterForegroundSubject.send()
