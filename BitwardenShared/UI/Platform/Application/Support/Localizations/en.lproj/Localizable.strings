@@ -944,6 +944,10 @@
 "SetUpUnlock" = "Set up unlock";
 "SetUpBiometricsOrChooseAPinCodeToQuicklyAccessYourVaultAndAutofillYourLogins" = "Set up biometrics or choose a PIN code to quickly access your vault and autofill your logins.";
 "SetUpLater" = "Set up later";
+"GenerateMasterPassword" = "Generate master password";
+"Generate" = "Generate";
+"WriteThisPasswordDownAndKeepItSomewhereSafe" = "Write this password down and keep it somewhere safe.";
+"LearnAboutOtherWaysToPreventAccountLockout" = "Learn about other ways to prevent account lockout";
 "MasterPasswordHelp" = "Master password help";
 "WhatMakesAPasswordStrong" = "What makes a password strong?";
 "StrongPasswordDescriptionLong" = "The longer your password, the more difficult it is to hack. The minimum for account creation is 12 characters but if you do 14 characters, the time to crack your password would be centuries!";
