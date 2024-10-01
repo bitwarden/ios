@@ -84,7 +84,7 @@ jobs:
 
       - name: Calculate version
         if: ${{ !inputs.build-version && !inputs.build-number }}
-        uses: bitwarden/ios/.github/workflows/dispatch-and-download@main
+        uses: bitwarden/ios/.github/actions/dispatch-and-download@main
         id: dispatch-version
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
