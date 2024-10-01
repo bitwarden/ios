@@ -47,6 +47,7 @@ final class PasswordAutoFillProcessor: StateProcessor<PasswordAutoFillState, Voi
         switch effect {
         case .appeared:
             await loadFeatureFlag()
+        case .checkAutofillOnForeground:
             await monitorAutofillCompletionDuringOnboarding()
         case .turnAutoFillOnLaterButtonTapped:
             coordinator?.showAlert(
@@ -67,21 +68,6 @@ final class PasswordAutoFillProcessor: StateProcessor<PasswordAutoFillState, Voi
         )
     }
 
-    /// Monitors the autofill completion process during onboarding mode.
-    /// When the app enters the foreground and autofill credentials are enabled,
-    /// it completes the account setup process and triggers the appropriate event.
-    ///
-    private func monitorAutofillCompletionDuringOnboarding() async {
-        guard state.mode == .onboarding else { return }
-
-        let autofillIsEnabled = await services.autofillCredentialService.isAutofillCredentialsEnabled()
-
-        for await _ in services.notificationCenterService.willEnterForegroundPublisher() where autofillIsEnabled {
-            try? await services.stateService.setAccountSetupAutofill(.complete)
-            await coordinator?.handleEvent(.didCompleteAuth)
-        }
-    }
-
     /// Continues the set up unlock flow by navigating to autofill setup.
     ///
     private func turnOnLaterFlow() async {
@@ -90,6 +76,34 @@ final class PasswordAutoFillProcessor: StateProcessor<PasswordAutoFillState, Voi
         } catch {
             services.errorReporter.log(error: error)
         }
+        await coordinator?.handleEvent(.didCompleteAuth)
+    }
+
+    /// Monitors the autofill completion process during onboarding mode.
+    /// When the app enters the foreground and autofill credentials are enabled,
+    /// it completes the account setup process and triggers the appropriate event.
+    ///
+    private func monitorAutofillCompletionDuringOnboarding() async {
+        guard state.mode == .onboarding else { return }
+
+        for await _ in services.notificationCenterService.willEnterForegroundPublisher() {
+            await checkAutofillCompletion()
+        }
+    }
+
+    /// Checks if autofill credentials are enabled, and if so,
+    /// completes the account setup process by updating the state and triggering the necessary event.
+    /// If an error occurs while updating the state, it logs the error using the error reporter.
+    ///
+    private func checkAutofillCompletion() async {
+        guard await services.autofillCredentialService.isAutofillCredentialsEnabled() else { return }
+
+        do {
+            try await services.stateService.setAccountSetupAutofill(.complete)
+        } catch {
+            services.errorReporter.log(error: error)
+        }
+
         await coordinator?.handleEvent(.didCompleteAuth)
     }
 }

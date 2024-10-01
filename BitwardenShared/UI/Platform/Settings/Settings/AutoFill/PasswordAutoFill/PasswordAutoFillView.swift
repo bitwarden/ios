@@ -38,6 +38,9 @@ struct PasswordAutoFillView: View {
         .task {
             await store.perform(.appeared)
         }
+        .task {
+            await store.perform(.checkAutofillOnForeground)
+        }
     }
 
     // MARK: Private Views

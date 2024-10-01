@@ -7,9 +7,11 @@ import XCTest
 class PasswordAutoFillProcessorTests: BitwardenTestCase {
     // MARK: Properties
 
+    var autofillCredentialService: MockAutofillCredentialService!
     var configService: MockConfigService!
     var coordinator: MockCoordinator<AuthRoute, AuthEvent>!
     var errorReporter: MockErrorReporter!
+    var notificationCenterService: MockNotificationCenterService!
     var stateService: MockStateService!
     var subject: PasswordAutoFillProcessor!
 
@@ -18,15 +20,19 @@ class PasswordAutoFillProcessorTests: BitwardenTestCase {
     override func setUp() {
         super.setUp()
 
+        autofillCredentialService = MockAutofillCredentialService()
         configService = MockConfigService()
         coordinator = MockCoordinator()
         errorReporter = MockErrorReporter()
+        notificationCenterService = MockNotificationCenterService()
         stateService = MockStateService()
         subject = PasswordAutoFillProcessor(
             coordinator: coordinator.asAnyCoordinator(),
             services: ServiceContainer.withMocks(
+                autofillCredentialService: autofillCredentialService,
                 configService: configService,
                 errorReporter: errorReporter,
+                notificationCenterService: notificationCenterService,
                 stateService: stateService
             ),
             state: .init(mode: .onboarding)
@@ -34,9 +40,13 @@ class PasswordAutoFillProcessorTests: BitwardenTestCase {
     }
 
     override func tearDown() {
+        super.tearDown()
+
+        autofillCredentialService = nil
         configService = nil
         coordinator = nil
         errorReporter = nil
+        notificationCenterService = nil
         stateService = nil
         subject = nil
     }
@@ -93,10 +103,50 @@ class PasswordAutoFillProcessorTests: BitwardenTestCase {
         XCTAssertEqual(stateService.accountSetupAutofill["1"], .setUpLater)
     }
 
+    /// `perform(.checkAutoFillOnForeground` will complete auth if autofill is enabled.
+    ///
+    @MainActor
+    func test_perform_checkAutofillOnForeground_autofillEnabled() {
+        autofillCredentialService.isAutofillCredentialsEnabled = true
+
+        let task = Task {
+            await subject.perform(.checkAutofillOnForeground)
+        }
+        defer { task.cancel() }
+
+        notificationCenterService.willEnterForegroundSubject.send()
+        waitFor(!coordinator.events.isEmpty)
+
+        XCTAssertEqual(coordinator.events, [.didCompleteAuth])
+        XCTAssertTrue(stateService.setAccountSetupAutofillCalled)
+    }
+
+    /// `perform(_:)` with `.checkAutofillOnForeground` logs an error is setAccountSetupAutofill fails
+    /// but we still complete auth via the coordinator.
+    @MainActor
+    func test_perform_checkAutofillOnForeground_error() {
+        stateService.activeAccount = .fixture()
+        autofillCredentialService.isAutofillCredentialsEnabled = true
+        stateService.accountSetupAutofillError = BitwardenTestError.example
+
+        let task = Task {
+            await subject.perform(.checkAutofillOnForeground)
+        }
+        defer { task.cancel() }
+
+        waitFor(!errorReporter.errors.isEmpty)
+
+        XCTAssertTrue(stateService.setAccountSetupAutofillCalled)
+        XCTAssertEqual(errorReporter.errors as? [BitwardenTestError], [.example])
+        XCTAssertEqual(coordinator.events, [.didCompleteAuth])
+    }
+
     /// `perform(_:)` with `.turnAutoFillOnLaterButtonTapped` logs an error
     ///  if one occurs while saving the set up later flag.
     @MainActor
     func test_receive_setUpLater_error() async throws {
+        stateService.activeAccount = .fixture()
+        stateService.accountSetupAutofillError = BitwardenTestError.example
         await subject.perform(.turnAutoFillOnLaterButtonTapped)
 
         let alert = try XCTUnwrap(coordinator.alertShown.last)
@@ -104,6 +154,6 @@ class PasswordAutoFillProcessorTests: BitwardenTestCase {
 
         try await alert.tapAction(title: Localizations.confirm)
         XCTAssertEqual(coordinator.events, [.didCompleteAuth])
-        XCTAssertEqual(errorReporter.errors as? [StateServiceError], [.noActiveAccount])
+        XCTAssertEqual(errorReporter.errors as? [BitwardenTestError], [.example])
     }
 }
