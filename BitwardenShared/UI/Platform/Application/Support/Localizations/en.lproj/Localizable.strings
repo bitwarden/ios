@@ -101,7 +101,7 @@
 "EditItem" = "Edit item";
 "EnableAutomaticSyncing" = "Allow automatic syncing";
 "EnterEmailForHint" = "Enter your account email address to receive your master password hint.";
-"ExntesionReenable" = "Reactivate app extension";
+"ReactivateAppExtension" = "Reactivate app extension";
 "ExtensionAlmostDone" = "Almost done!";
 "ExtensionEnable" = "Activate app extension";
 "ExtensionInSafari" = "In Safari, find Bitwarden using the share icon (hint: scroll to the right on the bottom row of the menu).";
@@ -984,5 +984,9 @@
 "Confirm" = "Confirm";
 "ErrorConnectingWithTheDuoServiceUseADifferentTwoStepLoginMethodOrContactDuoForAssistance" = "Error connecting with the Duo service. Use a different two-step login method or contact Duo for assistance.";
 "ThePreAuthUrlsCouldNotBeLoadedToStartTheAccountCreation" = "The Pre Auth Urls could not be loaded to start the account creation.";
+"ContinueToBitwarden" = "Continue to Bitwarden";
+"BackToSettings" = "Back to settings";
+"YoureAllSet" = "You're all set!";
+"AutoFillActivatedDescriptionLong" = "You can now use autofill to log into apps and websites using your saved passwords. Now, you can explore everything else Bitwarden has to offer.";
 "GetStarted" = "Get started";
 "Dismiss" = "Dismiss";
