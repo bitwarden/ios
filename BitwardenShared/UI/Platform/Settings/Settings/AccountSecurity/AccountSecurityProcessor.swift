@@ -63,8 +63,6 @@ final class AccountSecurityProcessor: StateProcessor<
             await showAccountFingerprintPhraseAlert()
         case .appeared:
             await appeared()
-        case .dismissSetUpUnlockActionCard:
-            await dismissSetUpUnlockActionCard()
         case .loadData:
             await loadData()
         case .lockVault:
@@ -75,8 +73,6 @@ final class AccountSecurityProcessor: StateProcessor<
                     )
                 )
             )
-        case .streamSettingsBadge:
-            await streamSettingsBadge()
         case let .toggleUnlockWithBiometrics(isOn):
             await setBioMetricAuth(isOn)
         case let .toggleUnlockWithPINCode(isOn):
@@ -102,8 +98,6 @@ final class AccountSecurityProcessor: StateProcessor<
             setTimeoutAction(newValue)
         case let .sessionTimeoutValueChanged(newValue):
             setVaultTimeout(value: newValue)
-        case .showSetUpUnlock:
-            coordinator.navigate(to: .vaultUnlockSetup)
         case .twoStepLoginPressed:
             showTwoStepLoginAlert()
         }
@@ -144,17 +138,6 @@ final class AccountSecurityProcessor: StateProcessor<
             try await services.stateService.setAccountSetupVaultUnlock(.complete)
         } catch {
             services.errorReporter.log(error: error)
-        }
-    }
-
-    /// Dismisses the set up unlock action card by marking the user's vault unlock setup progress complete.
-    ///
-    private func dismissSetUpUnlockActionCard() async {
-        do {
-            try await services.stateService.setAccountSetupVaultUnlock(.complete)
-        } catch {
-            services.errorReporter.log(error: error)
-            coordinator.showAlert(.defaultAlert(title: Localizations.anErrorHasOccurred))
         }
     }
 
@@ -311,19 +294,6 @@ final class AccountSecurityProcessor: StateProcessor<
 
         if enabled {
             await completeAccountSetupVaultUnlockIfNeeded()
-        }
-    }
-
-    /// Streams the state of the badges in the settings tab.
-    ///
-    private func streamSettingsBadge() async {
-        guard await services.configService.getFeatureFlag(.nativeCreateAccountFlow) else { return }
-        do {
-            for await badgeState in try await services.stateService.settingsBadgePublisher().values {
-                state.badgeState = badgeState
-            }
-        } catch {
-            services.errorReporter.log(error: error)
         }
     }
 

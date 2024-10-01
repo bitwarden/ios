@@ -69,7 +69,4 @@ public enum SettingsRoute: Equatable, Hashable {
 
     /// A route to the vault settings view.
     case vault
-
-    /// A route to the vault unlock setup screen.
-    case vaultUnlockSetup
 }

@@ -174,28 +174,6 @@ class AccountSecurityProcessorTests: BitwardenTestCase { // swiftlint:disable:th
         )
     }
 
-    /// `perform(_:)` with `.dismissSetUpUnlockActionCard` sets the user's vault unlock setup
-    /// progress to complete.
-    @MainActor
-    func test_perform_dismissSetUpUnlockActionCard() async {
-        stateService.activeAccount = .fixture()
-        stateService.accountSetupVaultUnlock["1"] = .setUpLater
-
-        await subject.perform(.dismissSetUpUnlockActionCard)
-
-        XCTAssertEqual(stateService.accountSetupVaultUnlock["1"], .complete)
-    }
-
-    /// `perform(_:)` with `.dismissSetUpUnlockActionCard` logs an error and shows an alert if an
-    /// error occurs.
-    @MainActor
-    func test_perform_dismissSetUpUnlockActionCard_error() async {
-        await subject.perform(.dismissSetUpUnlockActionCard)
-
-        XCTAssertEqual(coordinator.alertShown, [.defaultAlert(title: Localizations.anErrorHasOccurred)])
-        XCTAssertEqual(errorReporter.errors as? [StateServiceError], [.noActiveAccount])
-    }
-
     /// `perform(_:)` with `.loadData` loads the initial data for the view.
     @MainActor
     func test_perform_loadData() async {
@@ -250,47 +228,6 @@ class AccountSecurityProcessorTests: BitwardenTestCase { // swiftlint:disable:th
 
         XCTAssertEqual(authRepository.lockVaultUserId, nil)
         XCTAssertEqual(coordinator.events.last, .authAction(.lockVault(userId: nil)))
-    }
-
-    /// `perform(_:)` with `.streamSettingsBadge` updates the state's badge state whenever it changes.
-    @MainActor
-    func test_perform_streamSettingsBadge() {
-        configService.featureFlagsBool[.nativeCreateAccountFlow] = true
-        stateService.activeAccount = .fixture()
-
-        let task = Task {
-            await subject.perform(.streamSettingsBadge)
-        }
-        defer { task.cancel() }
-
-        let badgeState = SettingsBadgeState.fixture(vaultUnlockSetupProgress: .setUpLater)
-        stateService.settingsBadgeSubject.send(badgeState)
-        waitFor { subject.state.badgeState == badgeState }
-
-        XCTAssertEqual(subject.state.badgeState, badgeState)
-    }
-
-    /// `perform(_:)` with `.streamSettingsBadge` logs an error if streaming the settings badge state fails.
-    @MainActor
-    func test_perform_streamSettingsBadge_error() async {
-        configService.featureFlagsBool[.nativeCreateAccountFlow] = true
-
-        await subject.perform(.streamSettingsBadge)
-
-        XCTAssertEqual(errorReporter.errors as? [StateServiceError], [.noActiveAccount])
-    }
-
-    /// `perform(_:)` with `.streamSettingsBadge` doesn't load the badge state if the create account
-    /// feature flag is disabled.
-    @MainActor
-    func test_perform_streamSettingsBadge_nativeCreateAccountFlowDisabled() async {
-        configService.featureFlagsBool[.nativeCreateAccountFlow] = false
-        stateService.activeAccount = .fixture()
-        stateService.settingsBadgeSubject.send(.fixture())
-
-        await subject.perform(.streamSettingsBadge)
-
-        XCTAssertNil(subject.state.badgeState)
     }
 
     /// `perform(_:)` with `.accountFingerprintPhrasePressed` navigates to the web app
@@ -738,15 +675,6 @@ class AccountSecurityProcessorTests: BitwardenTestCase { // swiftlint:disable:th
         subject.receive(.sessionTimeoutValueChanged(.fourHours))
 
         waitFor(errorReporter.errors.last as? BitwardenTestError == BitwardenTestError.example)
-    }
-
-    /// `receive(_:)` with `showSetUpUnlock(:)` has the coordinator navigate to the vault unlock
-    /// setup screen.
-    @MainActor
-    func test_receive_showSetUpUnlock() throws {
-        subject.receive(.showSetUpUnlock)
-
-        XCTAssertEqual(coordinator.routes, [.vaultUnlockSetup])
     }
 
     /// `receive(_:)` with `.twoStepLoginPressed` shows the two step login alert.

@@ -17,10 +17,6 @@ options:
 settings:
   MARKETING_VERSION: 2024.6.0    # Bump this for a new version update.
   CURRENT_PROJECT_VERSION: 1
-include:
-  - path: Configs/local-sdk.yml
-    relativePaths: false
-    enable: ${LOCAL_SDK}
 packages:
   BitwardenSdk:
     url: https://github.com/bitwarden/sdk-swift

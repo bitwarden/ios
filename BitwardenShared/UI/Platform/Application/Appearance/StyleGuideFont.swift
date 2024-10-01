@@ -112,49 +112,28 @@ extension View {
     ///
     /// - Parameters:
     ///   - style: The style of the text.
-    ///   - includeLinePadding: A flag to indicate if the style should apply padding around the
-    ///     view to account for the font's line height. Defaults to `true`.
     ///   - includeLineSpacing: A flag to indicate if the style should change `.lineSpacing()`.
-    ///     Defaults to `true`. When `true`, this will set line spacing and padding.
+    ///         Defaults to true.
     /// - Returns: The view with adjusted line height & font.
     ///
-    func styleGuide(
-        _ style: StyleGuideFont,
-        includeLinePadding: Bool = true,
-        includeLineSpacing: Bool = true
-    ) -> some View {
+    func styleGuide(_ style: StyleGuideFont, includeLineSpacing: Bool = true) -> some View {
         font(.styleGuide(style))
-            .lineHeight(
-                for: style,
-                includeLinePadding: includeLinePadding,
-                includeLineSpacing: includeLineSpacing
-            )
+            .lineHeight(for: style, includeLineSpacing: includeLineSpacing)
     }
 
     /// Sets the line height for the view.
     ///
-    /// - Parameters:
-    ///   - style: The style of the text.
-    ///   - includeLinePadding: A flag to indicate if the style should apply padding around the
-    ///     view to account for the font's line height. Defaults to `true`.
-    ///   - includeLineSpacing: A flag to indicate if the style should change `.lineSpacing()`.
-    ///     Defaults to `true`. When `true`, this will set line spacing and padding.
+    /// - Parameter style: The style of the text.
     /// - Returns: The view with adjusted line height.
     @ViewBuilder
-    func lineHeight(
-        for style: StyleGuideFont,
-        includeLinePadding: Bool,
-        includeLineSpacing: Bool
-    ) -> some View {
+    func lineHeight(for style: StyleGuideFont, includeLineSpacing: Bool) -> some View {
         if includeLineSpacing {
             padding(.vertical, (style.lineHeight - style.size) / 2)
                 .lineSpacing((style.lineHeight - style.size) / 2)
                 .frame(minHeight: style.lineHeight)
-        } else if includeLinePadding {
+        } else {
             padding(.vertical, (style.lineHeight - style.size) / 2)
                 .frame(minHeight: style.lineHeight)
-        } else {
-            self
         }
     }
 }
@@ -167,10 +146,8 @@ extension Text {
     ///   - style: The style of the text.
     ///   - weight: The font weight. Defaults to `.regular`.
     ///   - isItalic: If the text is Italic. Defaults to `false`.
-    ///   - includeLinePadding: A flag to indicate if the style should apply padding around the
-    ///     view to account for the font's line height. Defaults to `true`.
     ///   - includeLineSpacing: A flag to indicate if the style should change `.lineSpacing()`.
-    ///     Defaults to `true`. When `true`, this will set line spacing and padding.
+    ///         Defaults to true.
     ///   - monoSpacedDigit: If the text is monospaced for digits. Defaults to `false`.
     /// - Returns: The Text with adjusted line height & font.
     ///
@@ -178,7 +155,6 @@ extension Text {
         _ style: StyleGuideFont,
         weight: SwiftUI.Font.Weight = .regular,
         isItalic: Bool = false,
-        includeLinePadding: Bool = true,
         includeLineSpacing: Bool = true,
         monoSpacedDigit: Bool = false
     ) -> some View {
@@ -191,11 +167,7 @@ extension Text {
             textWithFont = textWithFont.monospacedDigit()
         }
         return textWithFont
-            .lineHeight(
-                for: style,
-                includeLinePadding: includeLinePadding,
-                includeLineSpacing: includeLineSpacing
-            )
+            .lineHeight(for: style, includeLineSpacing: includeLineSpacing)
     }
 }
 

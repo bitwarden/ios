@@ -29,9 +29,6 @@ enum AccountSecurityAction: Equatable {
     /// The session timeout value has changed.
     case sessionTimeoutValueChanged(SessionTimeoutValue)
 
-    /// The user tapped the get started button on the set up unlock action card.
-    case showSetUpUnlock
-
     /// The two step login button was pressed.
     case twoStepLoginPressed
 }

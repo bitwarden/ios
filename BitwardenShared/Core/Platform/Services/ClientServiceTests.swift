@@ -101,7 +101,6 @@ final class ClientServiceTests: BitwardenTestCase { // swiftlint:disable:this ty
     }
 
     /// `client(for:)` loads flags into the SDK.
-    @MainActor
     func test_client_loadFlags() async throws {
         configService.configMocker.withResult(ServerConfig(
             date: Date(year: 2024, month: 2, day: 14, hour: 7, minute: 50, second: 0),
@@ -124,7 +123,6 @@ final class ClientServiceTests: BitwardenTestCase { // swiftlint:disable:this ty
     }
 
     /// `client(for:)` loads `enableCipherKeyEncryption` flag as `false` into the SDK.
-    @MainActor
     func test_client_loadFlagsEnableCipherKeyEncryptionFalse() async throws {
         configService.configMocker.withResult(ServerConfig(
             date: Date(year: 2024, month: 2, day: 14, hour: 7, minute: 50, second: 0),
@@ -147,7 +145,6 @@ final class ClientServiceTests: BitwardenTestCase { // swiftlint:disable:this ty
     }
 
     /// `client(for:)` loading flags throws.
-    @MainActor
     func test_client_loadFlagsThrows() async throws {
         configService.configMocker.withResult(ServerConfig(
             date: Date(year: 2024, month: 2, day: 14, hour: 7, minute: 50, second: 0),
@@ -169,7 +166,6 @@ final class ClientServiceTests: BitwardenTestCase { // swiftlint:disable:this ty
     }
 
     /// `client(for:)` does not load flags when config is `nil`.
-    @MainActor
     func test_client_doesNotloadFlags() async throws {
         configService.configMocker.withResult(nil)
 
@@ -183,7 +179,6 @@ final class ClientServiceTests: BitwardenTestCase { // swiftlint:disable:this ty
     }
 
     /// `configPublisher` loads flags into the SDK.
-    @MainActor
     func test_configPublisher_loadFlags() async throws {
         configService.configSubject.send(
             MetaServerConfig(
@@ -212,7 +207,6 @@ final class ClientServiceTests: BitwardenTestCase { // swiftlint:disable:this ty
     }
 
     /// `configPublisher` loads flags into the SDK on a already created client.
-    @MainActor
     func test_configPublisher_loadFlagsOverride() async throws {
         configService.configMocker.withResult(ServerConfig(
             date: Date(year: 2024, month: 2, day: 14, hour: 7, minute: 50, second: 0),
@@ -257,7 +251,6 @@ final class ClientServiceTests: BitwardenTestCase { // swiftlint:disable:this ty
     }
 
     /// `configPublisher` does not load flags into the SDK when the config sent is pre authentication.
-    @MainActor
     func test_configPublisher_doesNotloadFlagsWhenIsPreAuth() async throws {
         configService.configSubject.send(
             MetaServerConfig(
@@ -280,7 +273,6 @@ final class ClientServiceTests: BitwardenTestCase { // swiftlint:disable:this ty
     }
 
     /// `configPublisher` does not load flags into the SDK when the config sent doesn't have a user id.
-    @MainActor
     func test_configPublisher_doesNotloadFlagsWhenUserIdIsNil() async throws {
         configService.configSubject.send(
             MetaServerConfig(
@@ -303,7 +295,6 @@ final class ClientServiceTests: BitwardenTestCase { // swiftlint:disable:this ty
     }
 
     /// `configPublisher` does not load flags into the SDK when the config sent doesn't have a server config.
-    @MainActor
     func test_configPublisher_doesNotloadFlagsWhenServerConfigIsNil() async throws {
         configService.configSubject.send(
             MetaServerConfig(
