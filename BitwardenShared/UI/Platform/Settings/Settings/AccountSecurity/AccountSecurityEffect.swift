@@ -9,12 +9,18 @@ enum AccountSecurityEffect: Equatable {
     /// The view has appeared.
     case appeared
 
+    /// The user tapped the dismiss button on the set up unlock action card.
+    case dismissSetUpUnlockActionCard
+
     /// Any initial data for the view should be loaded.
     case loadData
 
     /// The user's vault should be locked.
     ///
     case lockVault
+
+    /// Stream the state of the badges in the settings tab.
+    case streamSettingsBadge
 
     /// Unlock with Biometrics was toggled.
     case toggleUnlockWithBiometrics(Bool)
