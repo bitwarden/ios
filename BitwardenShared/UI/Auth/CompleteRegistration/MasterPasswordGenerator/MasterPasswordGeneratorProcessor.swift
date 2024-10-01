@@ -52,6 +52,7 @@ class MasterPasswordGeneratorProcessor: StateProcessor<
             await generatePassword()
         case .save:
             delegate?.didUpdateMasterPassword(password: state.generatedPassword)
+            coordinator.navigate(to: .dismissPresented)
         }
     }
 

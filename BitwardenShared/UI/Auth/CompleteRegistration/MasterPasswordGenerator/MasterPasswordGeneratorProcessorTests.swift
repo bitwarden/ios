@@ -95,12 +95,13 @@ class MasterPasswordGeneratorProcessorTests: BitwardenTestCase {
         XCTAssertEqual(subject.state.generatedPassword, updatedPassword)
     }
 
-    /// `receive(_:)` with `.save` dismisses the view and calls the delegate to update.
+    /// `receive(_:)` with `.save` dismisses the view and calls the delegate to update and dismisses the view.
     @MainActor
     func test_receive_save() async {
         subject.state.generatedPassword = "NickbackRulez!"
         await subject.perform(.save)
         XCTAssertEqual(subject.state.generatedPassword, delegate.updatedPassword)
         XCTAssertTrue(delegate.updateMasterPasswordCalled)
+        XCTAssertEqual(coordinator.routes.last, .dismissPresented)
     }
 }

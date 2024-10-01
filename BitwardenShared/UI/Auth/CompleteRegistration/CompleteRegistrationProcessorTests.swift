@@ -795,7 +795,6 @@ class CompleteRegistrationProcessorTests: BitwardenTestCase {
         subject.didUpdateMasterPassword(password: expectedPassword)
         XCTAssertEqual(subject.state.passwordText, expectedPassword)
         XCTAssertEqual(subject.state.retypePasswordText, expectedPassword)
-        XCTAssertEqual(coordinator.routes.last, .dismissPresented)
     }
     // swiftlint:disable:next file_length
 }

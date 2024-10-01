@@ -361,6 +361,5 @@ extension CompleteRegistrationProcessor: MasterPasswordUpdateDelegate {
     func didUpdateMasterPassword(password: String) {
         state.passwordText = password
         state.retypePasswordText = password
-        coordinator.navigate(to: .dismissPresented)
     }
 }
