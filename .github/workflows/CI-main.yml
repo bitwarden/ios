@@ -24,10 +24,8 @@ jobs:
     name: "Resolve values"
     runs-on: macos-14
     outputs:
-      build_variant: ${{ steps.calculate.outputs.variant }}
-      build_version: ${{ steps.calculate.outputs.version }}
-      build_number: ${{ steps.calculate.outputs.build_number }}
-
+      version_name: ${{ steps.version_info.outputs.version_name }}
+      version_number: ${{ steps.version_info.outputs.version_number }}
     steps:
       - name: Test checks
         run: |
