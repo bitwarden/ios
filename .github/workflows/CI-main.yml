@@ -54,12 +54,17 @@ jobs:
         run: |
           # test if dispatch-version was skipped. In that case, creates the same .json file expected by the Upload artifact step
           if [ ! -f version-info/version_info.json ]; then
+            echo "::warning::version-version.json not found, was the previous step skipped? Creating a new file"
             json='{
               "version_number": "${{ inputs.build-number }}",
               "version_name": "${{ inputs.build-version }}"
             }'
 
+            # file will be used by the upload step
+            mkdir version-info
             echo "$json" > version-info/version_info.json
+          else
+              echo "::notice::version-version.json found!"
           fi
 
           content=$(cat version-info/version_info.json)
