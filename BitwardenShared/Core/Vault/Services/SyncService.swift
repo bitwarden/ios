@@ -145,7 +145,7 @@ class DefaultSyncService: SyncService {
     ///
     /// - Parameters:
     ///   - accountAPIService: The services used by the application to make account related API requests.
-    ///   - cipherService: The service for managing the ciphers for the user.
+    ///   - cipherDataStore: The service for managing the ciphers for the user.
     ///   - clientService: The service that handles common client functionality such as encryption and decryption.
     ///   - collectionService: The service for managing the collections for the user.
     ///   - folderService: The service for managing the folders for the user.
