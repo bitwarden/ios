@@ -72,17 +72,17 @@ runs:
           if [ "$status" = "completed" ]; then
             conclusion=$(echo "$run_data" | jq -r '.conclusion')
             if [ "$conclusion" != "success" ]; then
-              echo "::error::The workflow has not completed successfully."
+              echo "::error::Dispatched workflow failed."
               exit 1
             else
-              echo "::notice::The workflow completed successfully!"
+              echo "::debug::Dispatched workflow completed successfully!"
               break
             fi
           fi
 
           timeout_counter=$((timeout_counter + 1))
           if [ $((timeout_counter * interval)) -ge $((timeout * 60)) ]; then
-            echo "::error::Timeout waiting for the workflow to complete."
+            echo "::error::Timeout waiting for the Dispatched workflow to complete."
             exit 1
           fi
 
