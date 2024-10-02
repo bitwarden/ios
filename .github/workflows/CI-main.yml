@@ -100,5 +100,5 @@ jobs:
       build-variant: ${{ matrix.variant }}
       build-version: ${{ needs.resolve-values.outputs.version_name }}
       build-number: ${{ needs.resolve-values.outputs.version_number }}
-      xcode-version: ${{ env.XCODE_VERSION }}
+      xcode-version: $XCODE_VERSION
     secrets: inherit
