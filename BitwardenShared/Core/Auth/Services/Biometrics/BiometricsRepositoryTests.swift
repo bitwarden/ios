@@ -205,6 +205,19 @@ final class BiometricsRepositoryTests: BitwardenTestCase { // swiftlint:disable:
         }
     }
 
+    /// `getUserAuthKey` throws a not found error if the key can't be found.
+    func test_getUserAuthKey_notFoundError() async throws {
+        let active = Account.fixture()
+        stateService.activeAccount = active
+        stateService.biometricsEnabled = [
+            active.profile.userId: true,
+        ]
+        keychainService.getResult = .failure(KeychainServiceError.osStatusError(errSecItemNotFound))
+        await assertAsyncThrows(error: BiometricsServiceError.getAuthKeyFailed) {
+            _ = try await subject.getUserAuthKey()
+        }
+    }
+
     /// `getUserAuthKey` throws a biometry failed error if biometrics are disconnected.
     func test_getUserAuthKey_biometryFailed() async throws {
         let active = Account.fixture()

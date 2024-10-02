@@ -147,6 +147,8 @@ class DefaultBiometricsRepository: BiometricsRepository {
                      kLAErrorSystemCancel,
                      kLAErrorUserCancel:
                     throw BiometricsServiceError.biometryCancelled
+                case errSecItemNotFound:
+                    throw BiometricsServiceError.getAuthKeyFailed
                 case kLAErrorBiometryDisconnected,
                      kLAErrorUserFallback:
                     throw BiometricsServiceError.biometryFailed
