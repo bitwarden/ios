@@ -15,20 +15,21 @@ on:
       patch_version:
         description: "Patch Version Override - e.g. '999'"
         type: string
-      ditribute:
+      distribute:
         description: "Distribute to TestFlight"
         type: boolean
-        default: false
 env:
   XCODE_VERSION: '15.4'
   DISTRIBUTE_TO_TESTFLIGHT: ${{ github.event_name == 'push' || inputs.distribute }}
 jobs:
   resolve-values:
     name: "Resolve values"
-    runs-on: macos-14
+    runs-on: ubuntu-latest
     outputs:
       version_name: ${{ steps.version_info.outputs.version_name }}
       version_number: ${{ steps.version_info.outputs.version_number }}
+      xcode_version: ${{ env.XCODE_VERSION }}
+      distribute_to_testflight: ${{ env.DISTRIBUTE_TO_TESTFLIGHT }}
     steps:
       - name: Log inputs to job summary
         run: |
@@ -88,6 +89,7 @@ jobs:
       build-variant: ${{ matrix.variant }}
       build-version: ${{ needs.resolve-values.outputs.version_name }}
       build-number: ${{ needs.resolve-values.outputs.version_number }}
-      xcode-version: $XCODE_VERSION
-      distribute: $DISTRIBUTE_TO_TESTFLIGHT
+      xcode-version: ${{ needs.resolve-values.outputs.xcode_version }}
+      distribute: ${{ fromJSON(needs.resolve-values.outputs.distribute_to_testflight) }}
+      upload_version_info: false
     secrets: inherit
