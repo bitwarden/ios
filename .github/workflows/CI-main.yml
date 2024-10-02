@@ -15,10 +15,13 @@ on:
       patch_version:
         description: "Patch Version Override - e.g. '999'"
         type: string
-
+      ditribute:
+        description: "Distribute to TestFlight"
+        type: boolean
+        default: false
 env:
   XCODE_VERSION: '15.4'
-
+  DISTRIBUTE_TO_TESTFLIGHT: ${{ github.event_name == 'push' || inputs.distribute }}
 jobs:
   resolve-values:
     name: "Resolve values"
@@ -86,4 +89,5 @@ jobs:
       build-version: ${{ needs.resolve-values.outputs.version_name }}
       build-number: ${{ needs.resolve-values.outputs.version_number }}
       xcode-version: $XCODE_VERSION
+      distribute: $DISTRIBUTE_TO_TESTFLIGHT
     secrets: inherit

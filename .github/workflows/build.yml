@@ -31,6 +31,10 @@ on:
       patch_version:
         description: "Patch Version Override - e.g. '999'"
         type: string
+      ditribute:
+        description: "Distribute to TestFlight"
+        type: boolean
+        default: false
   workflow_call:
     inputs:
       build-variant:
@@ -55,6 +59,10 @@ on:
       patch_version:
         description: "Patch Version Override - e.g. '999'"
         type: string
+      ditribute:
+        description: "Distribute to TestFlight"
+        type: boolean
+        default: false
 env:
   BUILD_VARIANT: ${{ inputs.build-variant || 'Beta' }}
   XCODE_VERSION: ${{ inputs.xcode-version || '15.4' }}
@@ -350,6 +358,7 @@ jobs:
             --apiIssuer "${{ secrets.APP_STORE_CONNECT_TEAM_ISSUER }}"
 
       - name: Upload app to TestFlight with Fastlane
+        if: ${{ inputs.ditribute }}
         run: |
           CHANGELOG="$(git show -s --format=%s)
           $GITHUB_REPOSITORY/$GITHUB_REF_NAME @ $GITHUB_SHA
