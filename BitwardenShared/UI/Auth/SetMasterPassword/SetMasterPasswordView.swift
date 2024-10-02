@@ -77,7 +77,7 @@ struct SetMasterPasswordView: View {
             }
             .padding(16)
         }
-        .background(Asset.Colors.backgroundSecondary.swiftUIColor)
+        .background(Asset.Colors.backgroundPrimary.swiftUIColor)
         .navigationTitle(Localizations.setMasterPassword)
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {

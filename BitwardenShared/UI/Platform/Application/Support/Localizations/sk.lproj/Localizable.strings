@@ -911,7 +911,6 @@
 "ThereWasAnErrorStartingWebAuthnTwoFactorAuthentication" = "Pri spustení dvojstupňového overovania WebAuthn došlo k chybe";
 "LaunchWebAuthn" = "Spustiť WebAuthn";
 "Duo" = "Duo";
-"DuoUnsupported" = "Duo ešte nie je podporované.";
 "FilePassword" = "Heslo súboru";
 "ConfirmFilePassword" = "Potvrdiť heslo súboru";
 "FilePasswordDescription" = "Toto heslo sa použije na export a import tohto súboru";
@@ -979,4 +978,5 @@
 "SetUpLaterQuestion" = "Nastaviť neskôr?";
 "YouCanFinishSetupUnlockAnytimeDescriptionLong" = "Nastavenie môžete kedykoľvek dokončiť v Nastavenia – Zabezpečenie účtu. Na odomknutie budete používať svoje hlavné heslo, kým nenastavíte iný spôsob.";
 "Confirm" = "Potvrdiť";
+"ErrorConnectingWithTheDuoServiceUseADifferentTwoStepLoginMethodOrContactDuoForAssistance" = "Chyba pri pripájaní k službe Duo. Použite inú metódu dvojstupňového prihlásenia alebo kontaktujte Duo a požiadajte o pomoc.";
 "ThePreAuthUrlsCouldNotBeLoadedToStartTheAccountCreation" = "Predbežnú autorizácia adries URL sa nepodarilo načítať na spustenie vytvárania účtu.";

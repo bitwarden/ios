@@ -52,7 +52,7 @@ struct SearchVaultFilterRowView: View {
                 .padding(.vertical, 9)
                 .frame(minHeight: 60)
                 .accessibilityIdentifier(accessibilityID ?? "")
-                .background(Asset.Colors.backgroundPrimary.swiftUIColor)
+                .background(Asset.Colors.backgroundSecondary.swiftUIColor)
 
                 if hasDivider {
                     Divider()

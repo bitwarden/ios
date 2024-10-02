@@ -95,14 +95,18 @@ class UITabBarControllerExtensionsTests: BitwardenTestCase {
     }
 
     /// Tests that the tab bar items are laid out correctly with settings selected in light mode.
+    @MainActor
     func test_snapshot_tabBarItems_settingsSelected_lightMode() {
+        module.settingsNavigator?.rootViewController?.tabBarItem.badgeValue = "1"
         subject.overrideUserInterfaceStyle = .light
         subject.selectedIndex = 3
         assertSnapshot(of: subject, as: .image)
     }
 
     /// Tests that the tab bar items are laid out correctly with settings selected in dark mode.
+    @MainActor
     func test_snapshot_tabBarItems_settingsSelected_darkMode() {
+        module.settingsNavigator?.rootViewController?.tabBarItem.badgeValue = "1"
         subject.overrideUserInterfaceStyle = .dark
         subject.selectedIndex = 3
         assertSnapshot(of: subject, as: .image)

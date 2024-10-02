@@ -26,7 +26,7 @@ struct PasswordStrengthIndicator: View {
             GeometryReader { geometry in
                 ZStack(alignment: .leading) {
                     RoundedRectangle(cornerRadius: 2)
-                        .fill(Color(asset: Asset.Colors.separatorOpaque))
+                        .fill(Color(asset: Asset.Colors.strokeDivider))
 
                     RoundedRectangle(cornerRadius: 2)
                         .fill(Color(asset: passwordStrength.color))
@@ -41,22 +41,18 @@ struct PasswordStrengthIndicator: View {
                     HStack(spacing: 4) {
                         if passwordTextCount >= requiredTextCount {
                             Image(asset: Asset.Images.check)
-                                .foregroundColor(Color(asset: Asset.Colors.loadingGreen))
+                                .foregroundColor(Asset.Colors.textSecondary.swiftUIColor)
                                 .frame(width: 10, height: 10)
                                 .padding(.leading, 1)
                         } else {
                             Circle()
-                                .stroke(Color(.separatorOpaque), lineWidth: 2)
+                                .stroke(Asset.Colors.iconPrimary.swiftUIColor, lineWidth: 2)
                                 .frame(width: 10, height: 10)
                                 .padding(.leading, 1)
                         }
 
                         Text(Localizations.xCharacters(requiredTextCount))
-                            .foregroundColor(
-                                passwordTextCount >= requiredTextCount ?
-                                    Color(asset: Asset.Colors.loadingGreen) :
-                                    Color(asset: Asset.Colors.separatorOpaque)
-                            )
+                            .foregroundColor(Asset.Colors.textSecondary.swiftUIColor)
                             .styleGuide(.footnote, weight: .bold)
                             .dynamicTypeSize(...DynamicTypeSize.accessibility3)
                     }
@@ -129,21 +125,21 @@ extension PasswordStrengthIndicator {
         init(score: UInt8?) {
             switch score {
             case 0, 1:
-                color = Asset.Colors.loadingRed
+                color = Asset.Colors.statusWeak1
                 text = Localizations.weak
             case 2:
-                color = Asset.Colors.loadingOrange
+                color = Asset.Colors.statusWeak2
                 text = Localizations.weak
             case 3:
-                color = Asset.Colors.loadingBlue
+                color = Asset.Colors.statusGood
                 text = Localizations.good
             case 4:
-                color = Asset.Colors.loadingGreen
+                color = Asset.Colors.statusStrong
                 text = Localizations.strong
             default:
                 // Provide the initial color when not visible so the color isn't animated when the
                 // first segment appears.
-                color = Asset.Colors.loadingRed
+                color = Asset.Colors.statusWeak1
                 text = nil
             }
 

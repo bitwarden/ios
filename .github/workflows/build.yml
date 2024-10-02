@@ -6,7 +6,7 @@ on:
       build-variant:
         description: "Build Variant"
         required: true
-        default: "Production"
+        default: "Beta"
         type: choice
         options:
           - Beta
@@ -16,13 +16,14 @@ on:
         type: string
       build-number:
         description: "Version Number Override - e.g. '1021'"
-        type: number
+        type: string
       xcode-version:
         description: "Xcode Version Override - e.g. '15.2'"
         type: string
       compiler-flags:
         description: "Compiler Flags - e.g. 'DEBUG_MENU FEATURE2'"
         type: string
+        default: "DEBUG_MENU"
       base_version_number:
         description: "Base Version Number - Will be added to the calculated version number"
         type: number
@@ -69,7 +70,7 @@ jobs:
     steps:
       - name: Log inputs to job summary
         run: |
-          echo "<details><summary>Workflow Inputs</summary>" >> $GITHUB_STEP_SUMMARY
+          echo "<details><summary>Build Workflow Inputs</summary>" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
           echo '```json' >> $GITHUB_STEP_SUMMARY
           echo '${{ toJson(inputs) }}' >> $GITHUB_STEP_SUMMARY
@@ -83,34 +84,37 @@ jobs:
           filter: tree:0
 
       - name: Calculate version
-        if: ${{ !inputs.build-version && !inputs.build-number }}
         uses: bitwarden/ios/.github/actions/dispatch-and-download@main
         id: dispatch-version
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
-          repo: ios
           owner: bitwarden
+          repo: ios
+          ref: main
           workflow: _version.yml
-          workflow_inputs: '{"base_version_number": "${{ inputs.base_version_number }}", "version_name": "${{ inputs.build-version }}", "version_number": "${{ inputs.build-number }}", "patch_number": "${{ inputs.patch_number }}"}'
+          workflow_inputs: '{"base_version_number": "${{ inputs.base_version_number }}", "version_name": "${{ inputs.build-version }}", "version_number": "${{ inputs.build-number }}", "patch_version": "${{ inputs.patch_version }}"}'
 
       - name: Read version info
         id: version_info
         run: |
           # test if dispatch-version was skipped. In that case, creates the same .json file expected by the Upload artifact step
           if [ ! -f version-info/version_info.json ]; then
+            echo "::warning::version-version.json not found, was the previous step skipped? Creating a new file"
             json='{
               "version_number": "${{ inputs.build-number }}",
               "version_name": "${{ inputs.build-version }}"
             }'
 
             # file will be used by the upload step
+            mkdir version-info
             echo "$json" > version-info/version_info.json
+          else
+              echo "::notice::version-version.json found!"
           fi
 
           content=$(cat version-info/version_info.json)
           echo "version_name=$(echo $content | jq -r .version_name)" >> $GITHUB_OUTPUT
           echo "version_number=$(echo $content | jq -r .version_number)" >> $GITHUB_OUTPUT
-
       - name: Upload version info artifact
         uses: actions/upload-artifact@50769540e7f4bd5e21e526ee35c689e35e0d6874 # v4.4.0
         with:
@@ -130,12 +134,6 @@ jobs:
           key: ${{ runner.os }}-mint-${{ hashFiles('**/Mintfile') }}
           restore-keys: |
             ${{ runner.os }}-mint-
-
-      - name: Install yeetd
-        run: |
-          wget https://github.com/biscuitehh/yeetd/releases/download/1.0/yeetd-normal.pkg
-          sudo installer -pkg yeetd-normal.pkg -target /
-          yeetd &
 
       - name: Log in to Azure
         uses: Azure/login@cb79c773a3cfa27f31f25eb3f677781210c9ce3d # v1.6.1
@@ -310,12 +308,9 @@ jobs:
           ./Scripts/select_variant.sh ${{ env.BUILD_VARIANT }} "${{ inputs.compiler-flags }}"
 
       - name: Update build version and number
-        env:
-          build_version: ${{ steps.calculate.outputs.version }}
-          build_number: ${{ steps.calculate.outputs.build_number }}
         run: |
-          yq -i '.settings.MARKETING_VERSION = "${{ env.build_version }}"' 'project.yml'
-          yq -i '.settings.CURRENT_PROJECT_VERSION = "${{ env.build_number }}"' 'project.yml'
+          yq -i '.settings.MARKETING_VERSION = "${{ steps.version_info.outputs.version_name }}"' 'project.yml'
+          yq -i '.settings.CURRENT_PROJECT_VERSION = "${{ steps.version_info.outputs.version_number }}"' 'project.yml'
 
       - name: Update CI build info
         run: |
@@ -334,7 +329,7 @@ jobs:
       - name: Upload IPA & dSYM files
         uses: actions/upload-artifact@50769540e7f4bd5e21e526ee35c689e35e0d6874 # v4.4.0
         with:
-          name: Bitwarden iOS ${{ steps.calculate.outputs.version }} (${{ steps.calculate.outputs.build_number }}) ${{ env.BUILD_VARIANT }} ${{ env.XCODE_VERSION }}
+          name: Bitwarden iOS ${{ steps.version_info.outputs.version_name }} (${{ steps.version_info.outputs.version_number }}) ${{ env.BUILD_VARIANT }} ${{ env.XCODE_VERSION }}
           path: export
           if-no-files-found: error
 

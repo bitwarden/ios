@@ -41,6 +41,47 @@ class AccountSecurityViewTests: BitwardenTestCase {
         task.cancel()
     }
 
+    /// The action card is hidden if the vault unlock setup progress is complete.
+    @MainActor
+    func test_setUpUnlockActionCard_hidden() {
+        processor.state.badgeState = .fixture(vaultUnlockSetupProgress: .complete)
+        XCTAssertThrowsError(try subject.inspect().find(ActionCard<BitwardenBadge>.self))
+    }
+
+    /// The action card is visible if the vault unlock setup progress isn't complete.
+    @MainActor
+    func test_setUpUnlockActionCard_visible() async throws {
+        processor.state.badgeState = .fixture(vaultUnlockSetupProgress: .setUpLater)
+        let actionCard = try subject.inspect().find(actionCard: Localizations.getStarted)
+
+        let badge = try actionCard.find(BitwardenBadge.self)
+        try XCTAssertEqual(badge.text().string(), "1")
+    }
+
+    /// Tapping the dismiss button in the set up unlock action card sends the
+    /// `.dismissSetUpUnlockActionCard` effect.
+    @MainActor
+    func test_setUpUnlockActionCard_visible_tapDismiss() async throws {
+        processor.state.badgeState = .fixture(vaultUnlockSetupProgress: .setUpLater)
+        let actionCard = try subject.inspect().find(actionCard: Localizations.setUpUnlock)
+
+        let button = try actionCard.find(asyncButton: Localizations.dismiss)
+        try await button.tap()
+        XCTAssertEqual(processor.effects, [.dismissSetUpUnlockActionCard])
+    }
+
+    /// Tapping the get started button in the set up unlock action card sends the
+    /// `.showSetUpUnlock` action.
+    @MainActor
+    func test_setUpUnlockActionCard_visible_tapGetStarted() async throws {
+        processor.state.badgeState = .fixture(vaultUnlockSetupProgress: .setUpLater)
+        let actionCard = try subject.inspect().find(actionCard: Localizations.setUpUnlock)
+
+        let button = try actionCard.find(asyncButton: Localizations.getStarted)
+        try await button.tap()
+        XCTAssertEqual(processor.dispatchedActions, [.showSetUpUnlock])
+    }
+
     /// The view displays a biometrics toggle.
     @MainActor
     func test_biometricsToggle() throws {
@@ -120,6 +161,16 @@ class AccountSecurityViewTests: BitwardenTestCase {
     }
 
     // MARK: Snapshots
+
+    /// THe view renders correctly with the vault unlock action card displayed.
+    @MainActor
+    func test_snapshot_actionCardVaultUnlock() async {
+        processor.state.badgeState = .fixture(vaultUnlockSetupProgress: .setUpLater)
+        assertSnapshots(
+            of: subject,
+            as: [.defaultPortrait, .defaultPortraitDark, .defaultPortraitAX5]
+        )
+    }
 
     /// The view renders correctly when biometrics are available.
     @MainActor

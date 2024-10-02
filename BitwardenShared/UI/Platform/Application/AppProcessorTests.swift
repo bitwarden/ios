@@ -402,10 +402,20 @@ class AppProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_body
         XCTAssertEqual(coordinator.events, [.setAuthCompletionRoute(.tab(.vault(.vaultItemSelection(model))))])
     }
 
+    /// `openUrl(_:)` handles receiving an non OTP deep link and silently returns with a no-op.
+    @MainActor
+    func test_openUrl_nonOtpKey_failSilently() async throws {
+        try await subject.openUrl(XCTUnwrap(URL(string: "bitwarden://")))
+
+        XCTAssertEqual(coordinator.alertShown, [])
+        XCTAssertEqual(coordinator.routes, [])
+    }
+
     /// `openUrl(_:)` handles receiving an OTP deep link if the URL isn't an OTP key.
     @MainActor
     func test_openUrl_otpKey_invalid() async throws {
-        try await subject.openUrl(XCTUnwrap(URL(string: "https://google.com")))
+        let otpKey: String = .otpAuthUriKeyNoSecret
+        try await subject.openUrl(XCTUnwrap(URL(string: otpKey)))
 
         XCTAssertEqual(coordinator.alertShown, [.defaultAlert(title: Localizations.anErrorHasOccurred)])
         XCTAssertEqual(coordinator.routes, [])

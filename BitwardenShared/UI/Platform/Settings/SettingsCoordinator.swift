@@ -49,11 +49,13 @@ final class SettingsCoordinator: Coordinator, HasStackNavigator { // swiftlint:d
     typealias Services = HasAccountAPIService
         & HasAuthRepository
         & HasAuthService
+        & HasAutofillCredentialService
         & HasBiometricsRepository
         & HasConfigService
         & HasEnvironmentService
         & HasErrorReporter
         & HasExportVaultService
+        & HasNotificationCenterService
         & HasPasteboardService
         & HasPolicyService
         & HasSettingsRepository
@@ -162,6 +164,9 @@ final class SettingsCoordinator: Coordinator, HasStackNavigator { // swiftlint:d
             showExportedVaultURL(fileURL)
         case .vault:
             showVault()
+        case .vaultUnlockSetup:
+            // TODO: PM-12780 Display set up unlock screen
+            break
         }
     }
 
@@ -353,7 +358,6 @@ final class SettingsCoordinator: Coordinator, HasStackNavigator { // swiftlint:d
             services: services,
             state: OtherSettingsState()
         )
-
         let view = OtherSettingsView(store: Store(processor: processor))
         let viewController = UIHostingController(rootView: view)
         viewController.navigationItem.largeTitleDisplayMode = .never
@@ -363,7 +367,11 @@ final class SettingsCoordinator: Coordinator, HasStackNavigator { // swiftlint:d
     /// Shows the password auto-fill screen.
     ///
     private func showPasswordAutoFill() {
-        let view = PasswordAutoFillView()
+        let processor = PasswordAutoFillProcessor(
+            services: services,
+            state: .init(mode: .settings)
+        )
+        let view = PasswordAutoFillView(store: Store(processor: processor))
         let viewController = UIHostingController(rootView: view)
         viewController.navigationItem.largeTitleDisplayMode = .never
         stackNavigator?.push(viewController, navigationTitle: Localizations.passwordAutofill)
@@ -401,6 +409,8 @@ final class SettingsCoordinator: Coordinator, HasStackNavigator { // swiftlint:d
     private func showSettings() {
         let processor = SettingsProcessor(
             coordinator: asAnyCoordinator(),
+            delegate: self,
+            services: services,
             state: SettingsState()
         )
         let view = SettingsView(store: Store(processor: processor))
@@ -419,5 +429,13 @@ final class SettingsCoordinator: Coordinator, HasStackNavigator { // swiftlint:d
         let viewController = UIHostingController(rootView: view)
         viewController.navigationItem.largeTitleDisplayMode = .never
         stackNavigator?.push(viewController, navigationTitle: Localizations.vault)
+    }
+}
+
+// MARK: SettingsProcessorDelegate
+
+extension SettingsCoordinator: SettingsProcessorDelegate {
+    func updateSettingsTabBadge(_ badgeValue: String?) {
+        stackNavigator?.rootViewController?.tabBarItem.badgeValue = badgeValue
     }
 }
