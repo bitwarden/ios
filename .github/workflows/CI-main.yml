@@ -29,6 +29,21 @@ jobs:
       build_number: ${{ steps.calculate.outputs.build_number }}
 
     steps:
+      - name: Test checks
+        run: |
+          echo "values build-number: ${{ inputs.build-number }}"
+          echo "values build-version: ${{ inputs.build-version }}"
+
+          echo "!build-number: ${{ !inputs.build-number }}"
+          echo "!build-version: ${{ !inputs.build-version }}"
+          echo "build-number == \"\": ${{ inputs.build-number == "" }}"
+          echo "build-number == 0: ${{ inputs.build-number == 0 }}"
+          echo "build-version == \"\" ${{ inputs.build-version == "" }}"
+
+          echo "!build: ${{ !inputs.build-number && !inputs.build-version }}"
+          echo "build aspas: ${{ inputs.build-number == "" && !inputs.build-version == "" }}"
+          exit 1
+
       - name: Log inputs to job summary
         run: |
           echo "<details><summary>CI-main Workflow Inputs</summary>" >> $GITHUB_STEP_SUMMARY
