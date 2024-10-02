@@ -3,6 +3,15 @@
 /// A coordinator that manages navigation in the vault tab.
 ///
 final class ExtensionSetupCoordinator: Coordinator, HasStackNavigator {
+    // MARK: Types
+
+    typealias Services = HasConfigService
+
+    // MARK: Private Properties
+
+    /// The services used by this coordinator.
+    private let services: Services
+
     // MARK: Private Properties
 
     /// A delegate used to communicate with the app extension.
@@ -19,13 +28,16 @@ final class ExtensionSetupCoordinator: Coordinator, HasStackNavigator {
     ///
     /// - Parameters:
     ///   - appExtensionDelegate: A delegate used to communicate with the app extension.
+    ///   - services: The services used by this coordinator.
     ///   - stackNavigator: The stack navigator that is managed by this coordinator.
     ///
     init(
         appExtensionDelegate: AppExtensionDelegate?,
+        services: Services,
         stackNavigator: StackNavigator
     ) {
         self.appExtensionDelegate = appExtensionDelegate
+        self.services = services
         self.stackNavigator = stackNavigator
     }
 
@@ -47,6 +59,7 @@ final class ExtensionSetupCoordinator: Coordinator, HasStackNavigator {
     private func showExtensionActivation(extensionType: ExtensionActivationType) {
         let processor = ExtensionActivationProcessor(
             appExtensionDelegate: appExtensionDelegate,
+            services: services,
             state: ExtensionActivationState(extensionType: extensionType)
         )
         let view = ExtensionActivationView(store: Store(processor: processor))

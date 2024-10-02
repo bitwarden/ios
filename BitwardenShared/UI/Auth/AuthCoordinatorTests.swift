@@ -74,6 +74,14 @@ class AuthCoordinatorTests: BitwardenTestCase { // swiftlint:disable:this type_b
 
     // MARK: Tests
 
+    /// `navigate(to:)` with `.autofillSetup` pushes the password autofill view onto the navigation stack.
+    @MainActor
+    func test_navigate_autofillSetup() {
+        subject.navigate(to: .autofillSetup)
+        XCTAssertEqual(stackNavigator.actions.last?.type, .replaced)
+        XCTAssertTrue(stackNavigator.actions.last?.view is PasswordAutoFillView)
+    }
+
     /// `navigate(to:)` with `.complete` notifies the delegate that auth has completed.
     @MainActor
     func test_navigate_complete() {
@@ -347,6 +355,16 @@ class AuthCoordinatorTests: BitwardenTestCase { // swiftlint:disable:this type_b
         XCTAssertEqual(stackNavigator.actions.last?.type, .presented)
         let navigationController = try XCTUnwrap(stackNavigator.actions.last?.view as? UINavigationController)
         XCTAssertTrue(navigationController.viewControllers.first is UIHostingController<LoginWithDeviceView>)
+    }
+
+    /// `navigate(to:)` with `.masterPasswordGenerator` presents the generate master password view.
+    @MainActor
+    func test_navigate_masterPasswordGenerator() throws {
+        subject.navigate(to: .masterPasswordGenerator)
+
+        XCTAssertEqual(stackNavigator.actions.last?.type, .presented)
+        let navigationController = try XCTUnwrap(stackNavigator.actions.last?.view as? UINavigationController)
+        XCTAssertTrue(navigationController.viewControllers.first is UIHostingController<MasterPasswordGeneratorView>)
     }
 
     /// `navigate(to:)` with `.masterPasswordHint` presents the master password hint view.

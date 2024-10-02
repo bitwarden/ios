@@ -17,9 +17,9 @@ class ExtensionSetupCoordinatorTests: BitwardenTestCase {
         super.setUp()
 
         stackNavigator = MockStackNavigator()
-
         subject = ExtensionSetupCoordinator(
             appExtensionDelegate: MockAppExtensionDelegate(),
+            services: ServiceContainer.withMocks(),
             stackNavigator: stackNavigator
         )
     }

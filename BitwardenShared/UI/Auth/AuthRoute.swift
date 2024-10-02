@@ -107,6 +107,9 @@ public enum AuthRoute: Equatable {
     ///
     case loginWithDevice(email: String, authRequestType: AuthRequestType, isAuthenticated: Bool)
 
+    /// A route to the generate master password view.
+    case masterPasswordGenerator
+
     /// A route to the master password guidance view.
     case masterPasswordGuidance
 

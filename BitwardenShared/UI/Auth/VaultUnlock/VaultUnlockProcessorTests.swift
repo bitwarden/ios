@@ -46,6 +46,8 @@ class VaultUnlockProcessorTests: BitwardenTestCase { // swiftlint:disable:this t
         authRepository = nil
         biometricsRepository = nil
         coordinator = nil
+        errorReporter = nil
+        stateService = nil
         subject = nil
     }
 
@@ -64,11 +66,10 @@ class VaultUnlockProcessorTests: BitwardenTestCase { // swiftlint:disable:this t
         XCTAssertEqual(subject.state.biometricUnlockStatus, .notAvailable)
     }
 
-    /// `perform(.appeared)` with a biometrics status error yields `BiometricUnlockStatus.unavailable`.
+    /// `perform(.appeared)` with a biometrics status yields the expected status.
     @MainActor
     func test_perform_appeared_biometricUnlockStatus_success() async {
         stateService.activeAccount = .fixture()
-        struct FetchError: Error {}
         let expectedStatus = BiometricsUnlockStatus.available(.touchID, enabled: true, hasValidIntegrity: false)
         biometricsRepository.biometricUnlockStatus = .success(expectedStatus)
         await subject.perform(.appeared)

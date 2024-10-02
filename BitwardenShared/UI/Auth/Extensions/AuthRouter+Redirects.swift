@@ -34,9 +34,8 @@ extension AuthRouter {
             return .updateMasterPassword
         } else if await (try? services.stateService.getAccountSetupVaultUnlock()) == .incomplete {
             return .vaultUnlockSetup
-            // TODO: PM-10278 Add autofill setup screen
-//        } else if await (try? services.stateService.getAccountSetupAutofill()) == .incomplete {
-//            return .autofillSetup
+        } else if await (try? services.stateService.getAccountSetupAutofill()) == .incomplete {
+            return .autofillSetup
         } else {
             await setCarouselShownIfEnabled()
             return .complete
