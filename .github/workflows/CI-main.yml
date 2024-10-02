@@ -34,12 +34,12 @@ jobs:
 
           echo "!build-number: ${{ !inputs.build-number }}"
           echo "!build-version: ${{ !inputs.build-version }}"
-          echo "build-number == \"\": ${{ inputs.build-number == "" }}"
+          echo "build-number == '': ${{ inputs.build-number == '' }}"
           echo "build-number == 0: ${{ inputs.build-number == 0 }}"
-          echo "build-version == \"\" ${{ inputs.build-version == "" }}"
+          echo "build-version == '' ${{ inputs.build-version == '' }}"
 
           echo "!build: ${{ !inputs.build-number && !inputs.build-version }}"
-          echo "build aspas: ${{ inputs.build-number == "" && !inputs.build-version == "" }}"
+          echo "build aspas: ${{ inputs.build-number == '' && !inputs.build-version == '' }}"
           exit 1
 
       - name: Log inputs to job summary
