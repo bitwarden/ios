@@ -31,7 +31,7 @@ jobs:
     steps:
       - name: Log inputs to job summary
         run: |
-          echo "<details><summary>Workflow Inputs</summary>" >> $GITHUB_STEP_SUMMARY
+          echo "<details><summary>CI-main Workflow Inputs</summary>" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
           echo '```json' >> $GITHUB_STEP_SUMMARY
           echo '${{ toJson(inputs) }}' >> $GITHUB_STEP_SUMMARY
@@ -47,7 +47,7 @@ jobs:
           repo: ios
           owner: bitwarden
           workflow: _version.yml
-          workflow_inputs: '{"base_version_number": "1000", "version_name": "${{ inputs.build-version }}", "version_number": "${{ inputs.build-number }}", "patch_number": "${{ inputs.patch_number }}"}'
+          workflow_inputs: '{"base_version_number": "1000", "version_name": "${{ inputs.build-version }}", "version_number": "${{ inputs.build-number }}", "patch_version": "${{ inputs.patch_version }}"}'
 
       - name: Read version info
         id: version_info
@@ -65,7 +65,6 @@ jobs:
           content=$(cat version-info/version_info.json)
           echo "version_name=$(echo $content | jq -r .version_name)" >> $GITHUB_OUTPUT
           echo "version_number=$(echo $content | jq -r .version_number)" >> $GITHUB_OUTPUT
-
       - name: Upload version info artifact
         uses: actions/upload-artifact@50769540e7f4bd5e21e526ee35c689e35e0d6874 # v4.4.0
         with:
@@ -81,7 +80,7 @@ jobs:
         variant: [Beta, Production]
     with:
       build-variant: ${{ matrix.variant }}
-      build-version: ${{ needs.resolve-values.outputs.build_version }}
-      build-number: ${{ needs.resolve-values.outputs.build_number }}
+      build-version: ${{ needs.resolve-values.outputs.version_name }}
+      build-number: ${{ needs.resolve-values.outputs.version_number }}
       xcode-version: ${{ env.XCODE_VERSION }}
     secrets: inherit
