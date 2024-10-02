@@ -799,7 +799,7 @@ class ViewItemProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
 
         XCTAssertNil(errorReporter.errors.first)
         // Ensure the cipher is restored and the view is dismissed.
-        XCTAssertNil(vaultRepository.restoredCipher.last?.deletedDate)
+        XCTAssertEqual(vaultRepository.restoredCipher.last?.id, "123")
         var dismissAction: DismissAction?
         if case let .dismiss(onDismiss) = coordinator.routes.last {
             dismissAction = onDismiss
