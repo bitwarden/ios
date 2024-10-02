@@ -626,6 +626,23 @@ class VaultUnlockProcessorTests: BitwardenTestCase { // swiftlint:disable:this t
         XCTAssertNil(coordinator.routes.last)
     }
 
+    /// `perform(_:)` with `.unlockWithBiometrics` logs the user out if the user's auth key doesn't
+    /// exist and they don't have a master password or PIN.
+    @MainActor
+    func test_perform_unlockWithBiometrics_authRepoError_getAuthKeyFailed_noMPOrPin() async throws {
+        biometricsRepository.biometricUnlockStatus = .success(
+            .available(.touchID, enabled: true)
+        )
+        authRepository.unlockVaultWithBiometricsResult = .failure(BiometricsServiceError.getAuthKeyFailed)
+        authRepository.allowBiometricUnlockResult = .success(())
+        authRepository.hasMasterPasswordResult = .success(false)
+        authRepository.isPinUnlockAvailableResult = .success(false)
+
+        await subject.perform(.unlockVaultWithBiometrics)
+        XCTAssertEqual(authRepository.allowBiometricUnlock, false)
+        XCTAssertEqual(coordinator.events, [.action(.logout(userId: nil, userInitiated: false))])
+    }
+
     /// `perform(_:)` with `.unlockWithBiometrics` handles user cancellation.
     @MainActor
     func test_perform_unlockWithBiometrics_userCancelled() async throws {

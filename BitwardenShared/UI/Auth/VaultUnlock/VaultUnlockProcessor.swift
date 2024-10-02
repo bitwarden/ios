@@ -253,7 +253,17 @@ class VaultUnlockProcessor: StateProcessor<
                 message: "Biometrics auth is enabled but key was unable to be found. Disabling biometric unlock."
             ))
             try? await services.authRepository.allowBioMetricUnlock(false)
-            await loadData()
+
+            let hasMasterPassword = try? await services.authRepository.hasMasterPassword()
+            let isPinEnabled = try? await services.authRepository.isPinUnlockAvailable()
+            if hasMasterPassword == false, isPinEnabled == false {
+                // If biometrics is enabled, but the auth key doesn't exist and the user doesn't
+                // have a master password or PIN, log the user out.
+                await logoutUser(userInitiated: false)
+            } else {
+                // Otherwise, refresh the data to remove biometrics as an unlock method.
+                await loadData()
+            }
         } catch let error as StateServiceError {
             // If there is no active account, don't add to the unsuccessful count.
             services.errorReporter.log(error: error)
