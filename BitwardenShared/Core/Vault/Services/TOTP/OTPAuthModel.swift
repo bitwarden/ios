@@ -64,7 +64,7 @@ public struct OTPAuthModel: Equatable, Hashable, Sendable {
     ///
     init?(otpAuthKey: String) {
         guard let urlComponents = URLComponents(string: otpAuthKey),
-              urlComponents.scheme == "otpauth",
+              urlComponents.scheme?.isOtpAuthScheme == true,
               let queryItems = urlComponents.queryItems,
               let secret = queryItems.first(where: { $0.name == "secret" })?.value else {
             return nil
