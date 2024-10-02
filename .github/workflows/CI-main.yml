@@ -27,17 +27,6 @@ jobs:
       version_name: ${{ steps.version_info.outputs.version_name }}
       version_number: ${{ steps.version_info.outputs.version_number }}
     steps:
-      - name: Test checks
-        run: |
-          echo values
-          echo "values build-number: ${{ inputs.build-number }}"
-          echo "values build-version: ${{ inputs.build-version }}"
-
-          echo "!build: ${{ !inputs.build-number && !inputs.build-version }}"
-          echo "build aspas: ${{ inputs.build-number == '' || inputs.build-version == '' }}"
-
-          exit 1
-
       - name: Log inputs to job summary
         run: |
           echo "<details><summary>CI-main Workflow Inputs</summary>" >> $GITHUB_STEP_SUMMARY
@@ -48,7 +37,7 @@ jobs:
           echo "</details>" >> $GITHUB_STEP_SUMMARY
 
       - name: Calculate version
-        if: ${{ !inputs.build-version && !inputs.build-number }}
+        if: ${{ inputs.build-number == '' || inputs.build-version == '' }}
         uses: bitwarden/ios/.github/actions/dispatch-and-download@main
         id: dispatch-version
         with:
