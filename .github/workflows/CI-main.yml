@@ -96,8 +96,8 @@ jobs:
       upload_version_info: false
     secrets: inherit
 
-  build-internal-beta:
-    name: Build Internal Beta
+  build-internal:
+    name: Build Internal App
     runs-on: macos-14
     needs: resolve-values
     steps:
