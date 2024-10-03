@@ -31,6 +31,10 @@ on:
       patch_version:
         description: "Patch Version Override - e.g. '999'"
         type: string
+      distribute:
+        description: "Distribute to TestFlight"
+        type: boolean
+        default: true
   workflow_call:
     inputs:
       build-variant:
@@ -55,6 +59,12 @@ on:
       patch_version:
         description: "Patch Version Override - e.g. '999'"
         type: string
+      distribute:
+        description: "Distribute to TestFlight"
+        type: boolean
+      upload_version_info:
+        description: "Upload version-info file - When false, caller may be handling it already"
+        type: boolean
 env:
   BUILD_VARIANT: ${{ inputs.build-variant || 'Beta' }}
   XCODE_VERSION: ${{ inputs.xcode-version || '15.4' }}
@@ -84,6 +94,7 @@ jobs:
           filter: tree:0
 
       - name: Calculate version
+        if: ${{ inputs.build-number == '' || inputs.build-version == '' }}
         uses: bitwarden/ios/.github/actions/dispatch-and-download@main
         id: dispatch-version
         with:
@@ -116,6 +127,7 @@ jobs:
           echo "version_name=$(echo $content | jq -r .version_name)" >> $GITHUB_OUTPUT
           echo "version_number=$(echo $content | jq -r .version_number)" >> $GITHUB_OUTPUT
       - name: Upload version info artifact
+        if: ${{ inputs.upload_version_info }}
         uses: actions/upload-artifact@50769540e7f4bd5e21e526ee35c689e35e0d6874 # v4.4.0
         with:
           name: version-info
@@ -349,6 +361,7 @@ jobs:
             --apiIssuer "${{ secrets.APP_STORE_CONNECT_TEAM_ISSUER }}"
 
       - name: Upload app to TestFlight with Fastlane
+        if: ${{ inputs.distribute }}
         run: |
           CHANGELOG="$(git show -s --format=%s)
           $GITHUB_REPOSITORY/$GITHUB_REF_NAME @ $GITHUB_SHA
