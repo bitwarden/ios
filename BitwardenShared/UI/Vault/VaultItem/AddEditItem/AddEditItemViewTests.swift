@@ -796,7 +796,7 @@ class AddEditItemViewTests: BitwardenTestCase { // swiftlint:disable:this type_b
     func test_snapshot_previews_addEditItemView() {
         for preview in AddEditItemView_Previews._allPreviews {
             assertSnapshots(
-                matching: preview.content,
+                of: preview.content,
                 as: [
                     .tallPortrait,
                     .tallPortraitAX5(heightMultiple: 5),

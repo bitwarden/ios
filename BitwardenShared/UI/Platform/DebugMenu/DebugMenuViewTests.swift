@@ -81,6 +81,6 @@ class DebugMenuViewTests: BitwardenTestCase {
                 isEnabled: false
             ),
         ]
-        assertSnapshot(matching: subject, as: .defaultPortrait)
+        assertSnapshot(of: subject, as: .defaultPortrait)
     }
 }
