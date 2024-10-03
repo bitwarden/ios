@@ -19,7 +19,7 @@ public protocol SharedCryptographyService: AnyObject {
         _ items: [AuthenticatorBridgeItemDataModel]
     ) async throws -> [AuthenticatorBridgeItemDataView]
 
-    /// Takes an array of `AuthenticatorBridgeItemDataModel` with decrypted data and
+    /// Takes an array of `AuthenticatorBridgeItemDataView` with decrypted data and
     /// returns the list with each member encrypted.
     ///
     /// - Parameter items: The decrypted array of items to be encrypted

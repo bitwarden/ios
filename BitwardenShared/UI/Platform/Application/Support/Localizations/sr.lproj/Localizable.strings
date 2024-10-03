@@ -912,7 +912,6 @@
 "ThereWasAnErrorStartingWebAuthnTwoFactorAuthentication" = "Дошло је до грешке при покретању WebAuthn двофакторске аутентификације";
 "LaunchWebAuthn" = "Покренути WebAuthn";
 "Duo" = "Duo";
-"DuoUnsupported" = "Duo функција још није подржана.";
 "FilePassword" = "Лозинка датотеке";
 "ConfirmFilePassword" = "Потврдити лозинку датотеке";
 "FilePasswordDescription" = "Ова лозинка ће се користити за извоз и увоз ове датотеке";
@@ -976,8 +975,9 @@
 "PleaseRestartRegistrationOrTryLoggingInYouMayAlreadyHaveAnAccount" = "Поново покрените регистрацију или покушајте да се пријавите. Можда већ имате налог.";
 "RemovePasskey" = "Уклонити приступачни кључ";
 "PasskeyRemoved" = "Приступачни кључ је уклоњен";
-"TheRegionForTheGivenEmailCouldNotBeLoaded" = "The region for the given email could not be loaded.";
+"TheRegionForTheGivenEmailCouldNotBeLoaded" = "Регион за дат имејл није могао да се учита.";
 "SetUpLaterQuestion" = "Подесити касније?";
 "YouCanFinishSetupUnlockAnytimeDescriptionLong" = "Подешавање можете да завршите у било ком тренутку у оквиру Безбедност налога у оквиру Подешавања. За откључавање ћете користити своју главну лозинку док не подесите други метод.";
 "Confirm" = "Потврди";
+"ErrorConnectingWithTheDuoServiceUseADifferentTwoStepLoginMethodOrContactDuoForAssistance" = "Грешка при повезивању са услугом Duo. Користите други метод пријаве у два корака или контактирајте Duo за помоћ.";
 "ThePreAuthUrlsCouldNotBeLoadedToStartTheAccountCreation" = "The Pre Auth Urls could not be loaded to start the account creation.";

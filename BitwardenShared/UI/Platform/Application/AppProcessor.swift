@@ -102,6 +102,8 @@ public class AppProcessor {
     /// - Parameter url: The deep link URL to handle.
     ///
     public func openUrl(_ url: URL) async {
+        guard url.scheme?.isOtpAuthScheme == true else { return }
+
         guard let otpAuthModel = OTPAuthModel(otpAuthKey: url.absoluteString) else {
             coordinator?.showAlert(.defaultAlert(title: Localizations.anErrorHasOccurred))
             return
@@ -208,7 +210,7 @@ public class AppProcessor {
             let accounts = try await services.stateService.getAccounts()
             for account in accounts {
                 let userId = account.profile.userId
-                guard let progress = try await services.stateService.getAccountSetupAutofill(userId: userId),
+                guard let progress = await services.stateService.getAccountSetupAutofill(userId: userId),
                       progress != .complete
                 else { continue }
                 try await services.stateService.setAccountSetupAutofill(.complete, userId: userId)

@@ -687,6 +687,7 @@ class CompleteRegistrationProcessorTests: BitwardenTestCase {
     func test_receive_learnMoreTapped() {
         subject.receive(.learnMoreTapped)
         XCTAssertEqual(coordinator.routes.last, .masterPasswordGuidance)
+        XCTAssertNotNil(coordinator.contexts.last as? CompleteRegistrationProcessor)
     }
 
     /// `receive(_:)` with `.passwordHintTextChanged(_:)` updates the state to reflect the change.
@@ -735,6 +736,13 @@ class CompleteRegistrationProcessorTests: BitwardenTestCase {
         XCTAssertEqual(authRepository.passwordStrengthPassword, "TestPassword1234567890!@#")
     }
 
+    /// `receive(_:)` with `.preventAccountLockTapped` navigates to the right route.
+    @MainActor
+    func test_receive_preventAccountLock() {
+        subject.receive(.preventAccountLockTapped)
+        XCTAssertEqual(coordinator.routes.last, .preventAccountLock)
+    }
+
     /// `receive(_:)` with `.retypePasswordTextChanged(_:)` updates the state to reflect the change.
     @MainActor
     func test_receive_retypePasswordTextChanged() {
@@ -778,6 +786,15 @@ class CompleteRegistrationProcessorTests: BitwardenTestCase {
     func test_receive_showToast() {
         subject.receive(.toastShown(Toast(text: "example")))
         XCTAssertEqual(subject.state.toast?.text, "example")
+    }
+
+    /// Tests `didUpdateMasterPassword` correctly updates the state and navigates correctly.
+    @MainActor
+    func test_didUpdateMasterPassword() {
+        let expectedPassword = "215-Go-Birds-🦅"
+        subject.didUpdateMasterPassword(password: expectedPassword)
+        XCTAssertEqual(subject.state.passwordText, expectedPassword)
+        XCTAssertEqual(subject.state.retypePasswordText, expectedPassword)
     }
     // swiftlint:disable:next file_length
 }

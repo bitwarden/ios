@@ -146,6 +146,12 @@ class GeneratorRepositoryTests: BitwardenTestCase { // swiftlint:disable:this ty
         )
     }
 
+    /// `generateMasterPassword` returns the generated master password.
+    func test_generateMasterPassword() async throws {
+        let masterPassword = try await subject.generateMasterPassword()
+        XCTAssertEqual(masterPassword, "PASSPHRASE")
+    }
+
     /// `generatePassphrase` returns the generated passphrase.
     func test_generatePassphrase() async throws {
         let passphrase = try await subject.generatePassphrase(

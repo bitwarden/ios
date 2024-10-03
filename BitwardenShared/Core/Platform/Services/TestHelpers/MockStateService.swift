@@ -67,6 +67,7 @@ class MockStateService: StateService { // swiftlint:disable:this type_body_lengt
     var setAccountHasBeenUnlockedInteractivelyHasBeenCalled = false // swiftlint:disable:this identifier_name
     // swiftlint:disable:next identifier_name
     var setAccountHasBeenUnlockedInteractivelyResult: Result<Void, Error> = .success(())
+    var setAccountSetupAutofillCalled = false
     var setBiometricAuthenticationEnabledResult: Result<Void, Error> = .success(())
     var setBiometricIntegrityStateError: Error?
     var settingsBadgeSubject = CurrentValueSubject<SettingsBadgeState, Never>(
@@ -153,14 +154,12 @@ class MockStateService: StateService { // swiftlint:disable:this type_body_lengt
         return accounts
     }
 
-    func getAccountSetupAutofill(userId: String?) async throws -> AccountSetupProgress? {
-        let userId = try unwrapUserId(userId)
-        return accountSetupAutofill[userId]
+    func getAccountSetupAutofill(userId: String) async -> AccountSetupProgress? {
+        accountSetupAutofill[userId]
     }
 
-    func getAccountSetupVaultUnlock(userId: String?) async throws -> AccountSetupProgress? {
-        let userId = try unwrapUserId(userId)
-        return accountSetupVaultUnlock[userId]
+    func getAccountSetupVaultUnlock(userId: String) async -> AccountSetupProgress? {
+        accountSetupVaultUnlock[userId]
     }
 
     func getAccountIdOrActiveId(userId: String?) async throws -> String {
@@ -362,6 +361,7 @@ class MockStateService: StateService { // swiftlint:disable:this type_body_lengt
     }
 
     func setAccountSetupAutofill(_ autofillSetup: AccountSetupProgress?, userId: String?) async throws {
+        setAccountSetupAutofillCalled = true
         let userId = try unwrapUserId(userId)
         if let accountSetupAutofillError {
             throw accountSetupAutofillError
