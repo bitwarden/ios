@@ -352,7 +352,7 @@ class ViewItemViewTests: BitwardenTestCase { // swiftlint:disable:this type_body
     @MainActor
     func test_snapshot_previews_card() {
         assertSnapshot(
-            matching: ViewItemView_Previews.cardPreview,
+            of: ViewItemView_Previews.cardPreview,
             as: .defaultPortrait
         )
     }
@@ -361,7 +361,7 @@ class ViewItemViewTests: BitwardenTestCase { // swiftlint:disable:this type_body
     @MainActor
     func test_snapshot_previews_card_dark() {
         assertSnapshot(
-            matching: ViewItemView_Previews.cardPreview,
+            of: ViewItemView_Previews.cardPreview,
             as: .defaultPortraitDark
         )
     }
@@ -370,7 +370,7 @@ class ViewItemViewTests: BitwardenTestCase { // swiftlint:disable:this type_body
     @MainActor
     func test_snapshot_previews_card_largeText() {
         assertSnapshot(
-            matching: ViewItemView_Previews.cardPreview,
+            of: ViewItemView_Previews.cardPreview,
             as: .tallPortraitAX5(heightMultiple: 3)
         )
     }
@@ -379,7 +379,7 @@ class ViewItemViewTests: BitwardenTestCase { // swiftlint:disable:this type_body
     @MainActor
     func test_snapshot_previews_login() {
         assertSnapshot(
-            matching: ViewItemView_Previews.loginPreview,
+            of: ViewItemView_Previews.loginPreview,
             as: .tallPortrait
         )
     }
@@ -388,7 +388,7 @@ class ViewItemViewTests: BitwardenTestCase { // swiftlint:disable:this type_body
     @MainActor
     func test_snapshot_previews_login_dark() {
         assertSnapshot(
-            matching: ViewItemView_Previews.loginPreview,
+            of: ViewItemView_Previews.loginPreview,
             as: .portraitDark(heightMultiple: 2)
         )
     }
@@ -397,7 +397,7 @@ class ViewItemViewTests: BitwardenTestCase { // swiftlint:disable:this type_body
     @MainActor
     func test_snapshot_previews_login_largeText() {
         assertSnapshot(
-            matching: ViewItemView_Previews.loginPreview,
+            of: ViewItemView_Previews.loginPreview,
             as: .tallPortraitAX5(heightMultiple: 4)
         )
     }

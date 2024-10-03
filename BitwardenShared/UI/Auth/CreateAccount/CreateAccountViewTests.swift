@@ -121,7 +121,7 @@ class CreateAccountViewTests: BitwardenTestCase {
     /// Tests the view renders correctly when the text fields are all empty.
     @MainActor
     func test_snapshot_empty() {
-        assertSnapshot(matching: subject, as: .defaultPortrait)
+        assertSnapshot(of: subject, as: .defaultPortrait)
     }
 
     /// Tests the view renders correctly when text fields are hidden.
@@ -134,7 +134,7 @@ class CreateAccountViewTests: BitwardenTestCase {
         processor.state.passwordHintText = "wink wink"
         processor.state.passwordStrengthScore = 0
 
-        assertSnapshot(matching: subject, as: .defaultPortrait)
+        assertSnapshot(of: subject, as: .defaultPortrait)
     }
 
     /// Tests the view renders correctly when the text fields are all populated.
@@ -147,7 +147,7 @@ class CreateAccountViewTests: BitwardenTestCase {
         processor.state.passwordHintText = "wink wink"
         processor.state.passwordStrengthScore = 0
 
-        assertSnapshot(matching: subject, as: .defaultPortrait)
+        assertSnapshot(of: subject, as: .defaultPortrait)
     }
 
     /// Tests the view renders correctly when the toggles are on.
@@ -156,6 +156,6 @@ class CreateAccountViewTests: BitwardenTestCase {
         processor.state.isTermsAndPrivacyToggleOn = true
         processor.state.isCheckDataBreachesToggleOn = true
 
-        assertSnapshot(matching: subject, as: .defaultPortrait)
+        assertSnapshot(of: subject, as: .defaultPortrait)
     }
 }

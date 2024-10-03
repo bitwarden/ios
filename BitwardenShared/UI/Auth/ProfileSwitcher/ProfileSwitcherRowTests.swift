@@ -36,7 +36,7 @@ final class ProfileSwitcherRowTests: BitwardenTestCase {
 
     /// Snapshot test for the add account row
     func test_snapshot_addAccount() throws {
-        assertSnapshot(matching: subject, as: .defaultPortrait)
+        assertSnapshot(of: subject, as: .defaultPortrait)
     }
 
     /// Snapshot test for the active account row
@@ -47,7 +47,7 @@ final class ProfileSwitcherRowTests: BitwardenTestCase {
             showDivider: true,
             rowType: .active(.fixtureUnlocked)
         )
-        assertSnapshot(matching: subject, as: .defaultPortrait)
+        assertSnapshot(of: subject, as: .defaultPortrait)
     }
 
     /// Snapshot test for the active account row without a divider
@@ -58,7 +58,7 @@ final class ProfileSwitcherRowTests: BitwardenTestCase {
             showDivider: false,
             rowType: .active(.fixtureUnlocked)
         )
-        assertSnapshot(matching: subject, as: .defaultPortrait)
+        assertSnapshot(of: subject, as: .defaultPortrait)
     }
 
     /// Snapshot test for the alternate unlocked account row
@@ -68,7 +68,7 @@ final class ProfileSwitcherRowTests: BitwardenTestCase {
             shouldTakeAccessibilityFocus: false,
             rowType: .alternate(.fixtureUnlocked)
         )
-        assertSnapshot(matching: subject, as: .defaultPortrait)
+        assertSnapshot(of: subject, as: .defaultPortrait)
     }
 
     /// Snapshot test for the alternate locked account row
@@ -78,7 +78,7 @@ final class ProfileSwitcherRowTests: BitwardenTestCase {
             shouldTakeAccessibilityFocus: false,
             rowType: .alternate(.fixtureLocked)
         )
-        assertSnapshot(matching: subject, as: .defaultPortrait)
+        assertSnapshot(of: subject, as: .defaultPortrait)
     }
 
     /// Snapshot test for the alternate logged out row.
@@ -88,6 +88,6 @@ final class ProfileSwitcherRowTests: BitwardenTestCase {
             shouldTakeAccessibilityFocus: false,
             rowType: .alternate(.fixtureLoggedOut)
         )
-        assertSnapshot(matching: subject, as: .defaultPortrait)
+        assertSnapshot(of: subject, as: .defaultPortrait)
     }
 }
