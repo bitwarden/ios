@@ -7,6 +7,7 @@ final class ActionCardTests: BitwardenTestCase {
     // MARK: Tests
 
     /// Tapping the action button should call the action button state's action closure.
+    @MainActor
     func test_actionButton_tap() async throws {
         var actionButtonTapped = false
         let subject = ActionCard(
@@ -22,6 +23,7 @@ final class ActionCardTests: BitwardenTestCase {
     }
 
     /// Tapping the dismiss button should call the dismiss button state's action closure.
+    @MainActor
     func test_dismissButton_tap() async throws {
         var dismissButtonTapped = false
         let subject = ActionCard(

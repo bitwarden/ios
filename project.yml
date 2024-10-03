@@ -38,7 +38,7 @@ packages:
     exactVersion: 1.15.4
   ViewInspector:
     url: https://github.com/nalexn/ViewInspector
-    exactVersion: 0.9.10
+    exactVersion: 0.10.0
 schemes:
   AuthenticatorBridgeKit:
     build:
