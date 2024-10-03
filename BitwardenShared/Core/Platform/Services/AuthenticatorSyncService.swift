@@ -174,6 +174,21 @@ actor DefaultAuthenticatorSyncService: NSObject, AuthenticatorSyncService {
         }
     }
 
+    /// If sync has been turned off for all accounts, delete the Authenticator key from the shared keychain.
+    ///
+    private func deleteKeyIfSyncingIsOff() async throws {
+        var hasAccountWithSync = false
+        for account in try await stateService.getAccounts() {
+            hasAccountWithSync = try await stateService.getSyncToAuthenticator(userId: account.profile.userId)
+            if hasAccountWithSync {
+                break
+            }
+        }
+        if !hasAccountWithSync {
+            try? sharedKeychainRepository.deleteAuthenticatorKey()
+        }
+    }
+
     /// Determine if the given userId has sync turned on and an unlocked vault. This method serves as the
     /// integration point of both the sync settings subscriber and the vault subscriber. When the user has sync turned
     /// on and the vault unlocked, we can proceed with the sync.
@@ -181,15 +196,18 @@ actor DefaultAuthenticatorSyncService: NSObject, AuthenticatorSyncService {
     /// - Parameter userId: The userId of the user whose sync status is being determined.
     ///
     private func determineSyncForUserId(_ userId: String) async throws {
-        guard try await stateService.getSyncToAuthenticator(userId: userId),
-              !vaultTimeoutService.isLocked(userId: userId) else {
+        if try await !stateService.getSyncToAuthenticator(userId: userId) {
             cipherPublisherTasks[userId]??.cancel()
             cipherPublisherTasks[userId] = nil
-            return
+            try await authBridgeItemService.deleteAllForUserId(userId)
+            try await deleteKeyIfSyncingIsOff()
+        } else if vaultTimeoutService.isLocked(userId: userId) {
+            cipherPublisherTasks[userId]??.cancel()
+            cipherPublisherTasks[userId] = nil
+        } else {
+            try await createAuthenticatorKeyIfNeeded()
+            subscribeToCipherUpdates(userId: userId)
         }
-
-        try await createAuthenticatorKeyIfNeeded()
-        subscribeToCipherUpdates(userId: userId)
     }
 
     /// Create a task for the given userId to listen for Cipher updates and sync to the Authenticator store.
