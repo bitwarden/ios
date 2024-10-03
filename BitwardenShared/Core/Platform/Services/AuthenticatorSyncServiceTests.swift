@@ -407,7 +407,8 @@ final class AuthenticatorSyncServiceTests: BitwardenTestCase { // swiftlint:disa
     ///
     @MainActor
     func test_start_featureFlagOff() async throws {
-        setupInitialState(syncOn: false)
+        setupInitialState()
+        configService.featureFlagsBool[.enableAuthenticatorSync] = false
         await subject.start()
         try sharedKeychainRepository.deleteAuthenticatorKey()
         stateService.syncToAuthenticatorSubject.send(("1", true))
