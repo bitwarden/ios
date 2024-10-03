@@ -35,7 +35,7 @@ struct AutoFillView: View {
 
     /// The action card for setting up autofill.
     @ViewBuilder private var autofillActionCard: some View {
-        if let progress = store.state.badgeState?.autofillSetupProgress, progress != .complete {
+        if store.state.shouldShowAutofillActionCard {
             ActionCard(
                 title: Localizations.setUpAutofill,
                 actionButtonState: ActionCard.ButtonState(title: Localizations.getStarted) {

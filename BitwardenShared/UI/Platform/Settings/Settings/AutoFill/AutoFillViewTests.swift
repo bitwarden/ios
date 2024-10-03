@@ -56,8 +56,15 @@ class AutoFillViewTests: BitwardenTestCase {
 
     /// The action card is hidden if the autofill setup progress is complete.
     @MainActor
-    func test_setUpUnlockActionCard_hidden() {
+    func test_setUpUnlockActionCard_hidden_complete() {
         processor.state.badgeState = .fixture(autofillSetupProgress: .complete)
+        XCTAssertThrowsError(try subject.inspect().find(ActionCard<BitwardenBadge>.self))
+    }
+
+    /// The action card is hidden if there's no autofill setup progress.
+    @MainActor
+    func test_setUpUnlockActionCard_hidden_nilBadgeState() {
+        processor.state.badgeState = nil
         XCTAssertThrowsError(try subject.inspect().find(ActionCard<BitwardenBadge>.self))
     }
 

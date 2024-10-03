@@ -13,4 +13,12 @@ struct AutoFillState {
 
     /// Whether or not the copy TOTP automatically toggle is on.
     var isCopyTOTPToggleOn: Bool = false
+
+    // MARK: Computed Properties
+
+    /// Whether the autofill action card should be shown.
+    var shouldShowAutofillActionCard: Bool {
+        guard let badgeState, badgeState.autofillSetupProgress != .complete else { return false }
+        return true
+    }
 }
