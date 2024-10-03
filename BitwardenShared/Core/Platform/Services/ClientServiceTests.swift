@@ -3,6 +3,8 @@ import XCTest
 
 @testable import BitwardenShared
 
+// swiftlint:disable file_length
+
 final class ClientServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body_length
     var clientBuilder: MockClientBuilder!
     var configService: MockConfigService!
