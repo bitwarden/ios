@@ -51,14 +51,6 @@ actor DefaultAuthenticatorSyncService: NSObject, AuthenticatorSyncService {
     /// The service used by the application to manage account state.
     private let stateService: StateService
 
-    /// a Task that subscribes to the sync setting publisher for accounts. This allows us to take action once
-    /// a user opts-in to Authenticator sync.
-    private var syncSettingSubscriberTask: Task<Void, Error>?
-
-    /// a Task that subscribes to the vault lock publisher for accounts. This allows us to take action once
-    /// a user unlocks their vault..
-    private var vaultUnlockSubscriberTask: Task<Void, Error>?
-
     /// The service used by the application to manage vault access.
     private let vaultTimeoutService: VaultTimeoutService
 
@@ -112,7 +104,7 @@ actor DefaultAuthenticatorSyncService: NSObject, AuthenticatorSyncService {
             return
         }
 
-        syncSettingSubscriberTask = Task {
+        Task {
             for await (userId, _) in await self.stateService.syncToAuthenticatorPublisher().values {
                 guard let userId else { continue }
 
@@ -123,7 +115,7 @@ actor DefaultAuthenticatorSyncService: NSObject, AuthenticatorSyncService {
                 }
             }
         }
-        vaultUnlockSubscriberTask = Task {
+        Task {
             for await vaultStatus in await self.vaultTimeoutService.vaultLockStatusPublisher().values {
                 guard let vaultStatus else { continue }
 
