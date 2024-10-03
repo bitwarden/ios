@@ -4,6 +4,8 @@ import XCTest
 
 @testable import BitwardenShared
 
+// swiftlint:disable file_length
+
 // MARK: - SendRepositoryTests
 
 class SendRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_body_length

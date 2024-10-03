@@ -1,5 +1,7 @@
 import SwiftUI
 
+// swiftlint:disable file_length
+
 /// A `StyleGuideFont` contains the font to use for a specific style.
 ///
 struct StyleGuideFont {
