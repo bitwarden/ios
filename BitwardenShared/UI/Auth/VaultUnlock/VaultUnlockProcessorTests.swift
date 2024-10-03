@@ -626,6 +626,40 @@ class VaultUnlockProcessorTests: BitwardenTestCase { // swiftlint:disable:this t
         XCTAssertNil(coordinator.routes.last)
     }
 
+    /// `perform(_:)` with `.unlockWithBiometrics` disables biometrics if the user's auth key doesn't
+    /// exist and they have a master password but no PIN.
+    @MainActor
+    func test_perform_unlockWithBiometrics_authRepoError_getAuthKeyFailed_masterPasswordWithoutPin() async throws {
+        biometricsRepository.biometricUnlockStatus = .success(
+            .available(.touchID, enabled: true)
+        )
+        authRepository.unlockVaultWithBiometricsResult = .failure(BiometricsServiceError.getAuthKeyFailed)
+        authRepository.allowBiometricUnlockResult = .success(())
+        authRepository.hasMasterPasswordResult = .success(true)
+        authRepository.isPinUnlockAvailableResult = .success(false)
+
+        await subject.perform(.unlockVaultWithBiometrics)
+        XCTAssertEqual(authRepository.allowBiometricUnlock, false)
+        XCTAssertNil(coordinator.routes.last)
+    }
+
+    /// `perform(_:)` with `.unlockWithBiometrics` disables biometrics if the user's auth key doesn't
+    /// exist and they have a PIN but no master password.
+    @MainActor
+    func test_perform_unlockWithBiometrics_authRepoError_getAuthKeyFailed_pinWithoutMasterPassword() async throws {
+        biometricsRepository.biometricUnlockStatus = .success(
+            .available(.touchID, enabled: true)
+        )
+        authRepository.unlockVaultWithBiometricsResult = .failure(BiometricsServiceError.getAuthKeyFailed)
+        authRepository.allowBiometricUnlockResult = .success(())
+        authRepository.hasMasterPasswordResult = .success(false)
+        authRepository.isPinUnlockAvailableResult = .success(true)
+
+        await subject.perform(.unlockVaultWithBiometrics)
+        XCTAssertEqual(authRepository.allowBiometricUnlock, false)
+        XCTAssertNil(coordinator.routes.last)
+    }
+
     /// `perform(_:)` with `.unlockWithBiometrics` logs the user out if the user's auth key doesn't
     /// exist and they don't have a master password or PIN.
     @MainActor
@@ -636,6 +670,23 @@ class VaultUnlockProcessorTests: BitwardenTestCase { // swiftlint:disable:this t
         authRepository.unlockVaultWithBiometricsResult = .failure(BiometricsServiceError.getAuthKeyFailed)
         authRepository.allowBiometricUnlockResult = .success(())
         authRepository.hasMasterPasswordResult = .success(false)
+        authRepository.isPinUnlockAvailableResult = .success(false)
+
+        await subject.perform(.unlockVaultWithBiometrics)
+        XCTAssertEqual(authRepository.allowBiometricUnlock, false)
+        XCTAssertEqual(coordinator.events, [.action(.logout(userId: nil, userInitiated: false))])
+    }
+
+    /// `perform(_:)` with `.unlockWithBiometrics` logs the user out if the user's auth key doesn't
+    /// exist and fetching whether they have a master password fails.
+    @MainActor
+    func test_perform_unlockWithBiometrics_authRepoError_getAuthKeyFailed_hasMasterPasswordError() async throws {
+        biometricsRepository.biometricUnlockStatus = .success(
+            .available(.touchID, enabled: true)
+        )
+        authRepository.unlockVaultWithBiometricsResult = .failure(BiometricsServiceError.getAuthKeyFailed)
+        authRepository.allowBiometricUnlockResult = .success(())
+        authRepository.hasMasterPasswordResult = .failure(BitwardenTestError.example)
         authRepository.isPinUnlockAvailableResult = .success(false)
 
         await subject.perform(.unlockVaultWithBiometrics)

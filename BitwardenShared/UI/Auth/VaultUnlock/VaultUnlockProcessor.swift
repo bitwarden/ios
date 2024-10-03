@@ -256,7 +256,7 @@ class VaultUnlockProcessor: StateProcessor<
 
             let hasMasterPassword = try? await services.authRepository.hasMasterPassword()
             let isPinEnabled = try? await services.authRepository.isPinUnlockAvailable()
-            if hasMasterPassword == false, isPinEnabled == false {
+            if hasMasterPassword == nil || hasMasterPassword == false, isPinEnabled == false {
                 // If biometrics is enabled, but the auth key doesn't exist and the user doesn't
                 // have a master password or PIN, log the user out.
                 await logoutUser(userInitiated: false)
