@@ -118,6 +118,23 @@ extension CipherView {
         )
     }
 
+    /// Creates an `SSHKeyItemState` representation of the cipher.
+    ///
+    /// This function converts the `sshKey` information of the cipher into an `SSHKeyItemState`,
+    /// which is used to manage and display SSH key data in the UI.
+    ///
+    /// - Returns: An `SSHKeyItemState` representing the SSH key information of the cipher.
+    ///
+    func sshKeyItemState() -> SSHKeyItemState {
+        // TODO: PM-10401 create state when SDK is updated
+        SSHKeyItemState(
+            isPrivateKeyVisible: false,
+            privateKey: "Test",
+            publicKey: "Test",
+            keyFingerprint: "Test"
+        )
+    }
+
     /// Updates the cipher view with the state information from `AddEditItemState`.
     /// - Parameters:
     ///   - addEditState: The `AddEditItemState` containing the updated state information.

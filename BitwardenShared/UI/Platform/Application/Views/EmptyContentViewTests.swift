@@ -28,6 +28,6 @@ final class EmptyContentViewTests: BitwardenTestCase {
             }
         }
 
-        assertSnapshots(matching: SnapshotView(), as: [.defaultPortrait, .defaultPortraitDark, .defaultPortraitAX5])
+        assertSnapshots(of: SnapshotView(), as: [.defaultPortrait, .defaultPortraitDark, .defaultPortraitAX5])
     }
 }

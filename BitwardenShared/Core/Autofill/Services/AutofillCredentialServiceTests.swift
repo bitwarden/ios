@@ -54,6 +54,12 @@ class AutofillCredentialServiceTests: BitwardenTestCase { // swiftlint:disable:t
             totpService: totpService,
             vaultTimeoutService: vaultTimeoutService
         )
+
+        // Wait for the `DefaultAutofillCredentialService.init` task to sync the initial set of
+        // identities for the active account, otherwise there's a potential race condition between
+        // that and the tests below.
+        waitFor { identityStore.removeAllCredentialIdentitiesCalled }
+        identityStore.removeAllCredentialIdentitiesCalled = false
     }
 
     override func tearDown() {
@@ -638,7 +644,6 @@ class AutofillCredentialServiceTests: BitwardenTestCase { // swiftlint:disable:t
 
     /// `syncIdentities(vaultLockStatus:)` doesn't remove identities if the store's state is disabled.
     func test_syncIdentities_removeDisabled() async throws {
-        try await waitAndResetRemoveAllCredentialIdentitiesCalled()
         identityStore.state.mockIsEnabled = false
 
         vaultTimeoutService.vaultLockStatusSubject.send(nil)
@@ -656,14 +661,13 @@ class AutofillCredentialServiceTests: BitwardenTestCase { // swiftlint:disable:t
         vaultTimeoutService.vaultLockStatusSubject.send(nil)
         waitFor(identityStore.removeAllCredentialIdentitiesCalled)
 
+        waitFor(!errorReporter.errors.isEmpty)
         XCTAssertEqual(errorReporter.errors as? [BitwardenTestError], [.example])
     }
 
     /// `syncIdentities(vaultLockStatus:)` removes identities from the store when the user switches from a previous
     /// synced vault to another user.
     func test_syncIdentities_removeOnSwitched() async throws {
-        try await waitAndResetRemoveAllCredentialIdentitiesCalled()
-
         cipherService.fetchAllCiphersResult = .success([
             .fixture(
                 id: "1",
@@ -691,8 +695,6 @@ class AutofillCredentialServiceTests: BitwardenTestCase { // swiftlint:disable:t
 
     /// `syncIdentities(vaultLockStatus:)` doesn't remove identities from the store when the user locks their vault.
     func test_syncIdentities_dontRemoveOnSwitchedEqualUser() async throws {
-        try await waitAndResetRemoveAllCredentialIdentitiesCalled()
-
         cipherService.fetchAllCiphersResult = .success([
             .fixture(
                 id: "1",
@@ -717,8 +719,6 @@ class AutofillCredentialServiceTests: BitwardenTestCase { // swiftlint:disable:t
     /// `syncIdentities(vaultLockStatus:)` doesn't remove identities from the store when it tries to sync
     /// for the first time and it's locked (last user ID synced is `nil`).
     func test_syncIdentities_dontRemoveOnFirstSyncLocked() async throws {
-        try await waitAndResetRemoveAllCredentialIdentitiesCalled()
-
         vaultTimeoutService.vaultLockStatusSubject.send(VaultLockStatus(isVaultLocked: true, userId: "1"))
         XCTAssertFalse(identityStore.removeAllCredentialIdentitiesCalled)
     }
@@ -763,18 +763,5 @@ class AutofillCredentialServiceTests: BitwardenTestCase { // swiftlint:disable:t
         waitFor(identityStore.replaceCredentialIdentitiesCalled)
 
         XCTAssertEqual(errorReporter.errors as? [BitwardenTestError], [.example])
-    }
-
-    // MARK: Private
-
-    /// Waits until `identityStore.removeAllCredentialIdentitiesCalled` is `true` and then resets it
-    /// to `false`. This happens because of the first value of `vaultTimeoutService.vaultLockStatusSubject`
-    /// which is `nil` and removes all credentials when the test is setup.
-    private func waitAndResetRemoveAllCredentialIdentitiesCalled() async throws {
-        try await waitForAsync {
-            self.identityStore.removeAllCredentialIdentitiesCalled
-        }
-
-        identityStore.removeAllCredentialIdentitiesCalled = false
     }
 } // swiftlint:disable:this file_length

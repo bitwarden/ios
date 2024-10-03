@@ -25,6 +25,7 @@ class CipherItemStateTests: BitwardenTestCase {
         XCTAssertEqual(state.loginState, cipher.loginItemState(excludeFido2Credentials: true, showTOTP: true))
         XCTAssertTrue(state.loginState.fido2Credentials.isEmpty)
         XCTAssertEqual(state.notes, cipher.notes ?? "")
+        XCTAssertEqual(state.sshKeyState, cipher.sshKeyItemState())
         XCTAssertEqual(state.type, .init(type: cipher.type))
         XCTAssertEqual(state.updatedDate, cipher.revisionDate)
     }
