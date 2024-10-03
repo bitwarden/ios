@@ -186,7 +186,7 @@ actor DefaultAuthenticatorSyncService: NSObject, AuthenticatorSyncService {
     /// integration point of both the sync settings subscriber and the vault subscriber. When the user has sync turned
     /// on and the vault unlocked, we can proceed with the sync.
     ///
-    /// - Parameter userId: The userId of the user who has turned on sync.
+    /// - Parameter userId: The userId of the user whose sync status is being determined.
     ///
     private func determineSyncForUserId(_ userId: String) async throws {
         guard try await stateService.getSyncToAuthenticator(userId: userId),
