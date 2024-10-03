@@ -3,7 +3,7 @@ import XCTest
 
 @testable import BitwardenShared
 
-final class CipherViewUpdateTests: BitwardenTestCase {
+final class CipherViewUpdateTests: BitwardenTestCase { // swiftlint:disable:this type_body_length
     // MARK: Properties
 
     var cipherItemState: CipherItemState!
