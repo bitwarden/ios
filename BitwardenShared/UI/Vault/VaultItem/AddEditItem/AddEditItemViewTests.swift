@@ -805,4 +805,47 @@ class AddEditItemViewTests: BitwardenTestCase { // swiftlint:disable:this type_b
             )
         }
     }
+
+    /// Snapshots the previews for SSH key type.
+    @MainActor
+    func test_snapshot_sshKey() {
+        processor.state = sshKeyCipherItemState(isPrivateKeyVisible: false)
+        assertSnapshots(
+            of: subject,
+            as: [.defaultPortrait, .defaultPortraitDark, .defaultPortraitAX5]
+        )
+    }
+
+    /// Snapshots the previews for SSH key type when private key is visible.
+    @MainActor
+    func test_snapshot_sshKeyPrivateKeyVisible() {
+        processor.state = sshKeyCipherItemState(isPrivateKeyVisible: true)
+        assertSnapshots(
+            of: subject,
+            as: [.defaultPortrait, .defaultPortraitDark, .defaultPortraitAX5]
+        )
+    }
+
+    // MARK: Private
+
+    /// Creates a `CipherItemState` for an SSH key item.
+    /// - Parameter isPrivateKeyVisible: Whether the private key is visible.
+    /// - Returns: The `CipherItemState` for SSH key item.
+    private func sshKeyCipherItemState(isPrivateKeyVisible: Bool) -> CipherItemState {
+        var state = CipherItemState(
+            existing: .fixture(
+                id: "fake-id"
+            ),
+            hasPremium: true
+        )!
+        state.name = "Example"
+        state.type = .sshKey
+        state.sshKeyState = SSHKeyItemState(
+            isPrivateKeyVisible: isPrivateKeyVisible,
+            privateKey: "ajsdfopij1ZXCVZXC12312QW",
+            publicKey: "ssh-ed25519 AAAAA/asdjfoiwejrpo23323j23ASdfas",
+            keyFingerprint: "SHA-256:2qwer233ADJOIq1adfweqe21321qw"
+        )
+        return state
+    }
 } // swiftlint:disable:this file_length
