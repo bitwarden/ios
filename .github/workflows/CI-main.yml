@@ -51,7 +51,7 @@ jobs:
           repo: ios
           owner: bitwarden
           workflow: _version.yml
-          workflow_inputs: '{"base_version_number": "1000", "version_name": "${{ inputs.build-version }}", "version_number": "${{ inputs.build-number }}", "patch_version": "${{ inputs.patch_version }}"}'
+          workflow_inputs: '{"base_version_number": "1500", "version_name": "${{ inputs.build-version }}", "version_number": "${{ inputs.build-number }}", "patch_version": "${{ inputs.patch_version }}"}'
 
       - name: Read version info
         id: version_info
