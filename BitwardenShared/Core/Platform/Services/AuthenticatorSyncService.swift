@@ -125,7 +125,7 @@ actor DefaultAuthenticatorSyncService: NSObject, AuthenticatorSyncService {
         }
         vaultUnlockSubscriberTask = Task {
             for await vaultStatus in await self.vaultTimeoutService.vaultLockStatusPublisher().values {
-                guard let vaultStatus else { break }
+                guard let vaultStatus else { continue }
 
                 do {
                     try await determineSyncForUserId(vaultStatus.userId)
@@ -169,7 +169,7 @@ actor DefaultAuthenticatorSyncService: NSObject, AuthenticatorSyncService {
             try await self.clientService.vault().ciphers().decrypt(cipher: cipher)
         }
         let account = try await stateService.getActiveAccount()
-        let username = account.profile.name ?? account.profile.email
+        let username = account.profile.email
 
         return decryptedCiphers.map { cipher in
             AuthenticatorBridgeItemDataView(
