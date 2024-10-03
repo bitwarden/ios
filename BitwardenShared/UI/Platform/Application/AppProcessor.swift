@@ -210,7 +210,7 @@ public class AppProcessor {
             let accounts = try await services.stateService.getAccounts()
             for account in accounts {
                 let userId = account.profile.userId
-                guard let progress = try await services.stateService.getAccountSetupAutofill(userId: userId),
+                guard let progress = await services.stateService.getAccountSetupAutofill(userId: userId),
                       progress != .complete
                 else { continue }
                 try await services.stateService.setAccountSetupAutofill(.complete, userId: userId)
