@@ -37,6 +37,9 @@ protocol ViewVaultItemState: Sendable {
     /// The notes of this item.
     var notes: String { get set }
 
+    /// The SSH key item state.
+    var sshKeyState: SSHKeyItemState { get set }
+
     /// When this item was last updated.
     var updatedDate: Date { get set }
 

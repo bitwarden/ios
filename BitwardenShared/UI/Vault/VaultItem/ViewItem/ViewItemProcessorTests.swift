@@ -1184,6 +1184,131 @@ class ViewItemProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
         XCTAssertEqual(coordinator.alertShown.last, .masterPasswordPrompt(completion: { _ in }))
     }
 
+    /// `receive(_:)` with `.sshKeyItemAction` with `.privateKeyVisibilityPressed`  toggles
+    /// the visibility of the `privateKey` field.
+    @MainActor
+    func test_receive_sshKeyItemAction_privateKeyVisibilityPressed() {
+        initializeSshKeyState()
+        subject.receive(.sshKeyItemAction(.privateKeyVisibilityPressed))
+
+        XCTAssertTrue(subject.state.loadingState.data?.sshKeyState.isPrivateKeyVisible == true)
+    }
+
+    /// `receive(_:)` with `.sshKeyItemAction` with `.privateKeyVisibilityPressed`  toggles
+    /// the visibility of the `privateKey` field when master password required.
+    @MainActor
+    func test_receive_sshKeyItemAction_privateKeyVisibilityPressedWithPaasswordReprompt() async throws {
+        initializeSshKeyState(reprompt: .password)
+        subject.receive(.sshKeyItemAction(.privateKeyVisibilityPressed))
+
+        let alert = try XCTUnwrap(coordinator.alertShown.last)
+        try await alert.submitMasterPasswordReprompt(with: "password1234")
+
+        XCTAssertEqual(authRepository.validatePasswordPasswords, ["password1234"])
+
+        XCTAssertTrue(subject.state.loadingState.data?.sshKeyState.isPrivateKeyVisible == true)
+        XCTAssertTrue(subject.state.hasVerifiedMasterPassword)
+    }
+
+    /// `receive(_:)` with `.sshKeyItemAction` with `.privateKeyVisibilityPressed`  toggles
+    /// the visibility of the `privateKey` field when master password required.
+    @MainActor
+    func test_receive_sshKeyItemAction_privateKeyVisibilityPressedWithPaasswordRepromptCancelled() async throws {
+        initializeSshKeyState(reprompt: .password)
+        subject.receive(.sshKeyItemAction(.privateKeyVisibilityPressed))
+
+        let alert = try XCTUnwrap(coordinator.alertShown.last)
+        try await alert.tapCancel()
+
+        XCTAssertTrue(subject.state.loadingState.data?.sshKeyState.isPrivateKeyVisible == false)
+        XCTAssertFalse(subject.state.hasVerifiedMasterPassword)
+    }
+
+    /// `receive(_:)` with `.sshKeyItemAction` with `.privateKeyVisibilityPressed`  but data is not loaded yet
+    /// throws.
+    @MainActor
+    func test_receive_sshKeyItemAction_privateKeyVisibilityPressedLoadingLogsError() async throws {
+        subject.state.loadingState = .loading(nil)
+        subject.receive(.sshKeyItemAction(.privateKeyVisibilityPressed))
+
+        XCTAssertEqual(
+            errorReporter.errors.last as? ViewItemProcessor.ActionError,
+            .dataNotLoaded("Cannot handle SSH key action without loaded data")
+        )
+    }
+
+    /// `receive(_:)` with `.sshKeyItemAction` with `.privateKeyVisibilityPressed`  but data is not loaded yet
+    /// throws.
+    @MainActor
+    func test_receive_sshKeyItemAction_privateKeyVisibilityPressedNotSshKeyTypeLogsError() async throws {
+        var cipherItemState = CipherItemState(
+            existing: .fixture(),
+            hasPremium: true
+        )!
+        cipherItemState.type = .login
+        subject.state.loadingState = .data(cipherItemState)
+
+        subject.receive(.sshKeyItemAction(.privateKeyVisibilityPressed))
+
+        XCTAssertEqual(
+            errorReporter.errors.last as? ViewItemProcessor.ActionError,
+            .nonSshKeyTypeToggle("Cannot handle SSH key action on non SSH key type")
+        )
+    }
+
+    /// `receive(_:)` with `.sshKeyItemAction` with `.copyPressed`  copies the corresponding field.
+    @MainActor
+    func test_receive_sshKeyItemAction_copyPressed() async throws {
+        initializeSshKeyState(reprompt: .none)
+
+        subject.receive(.sshKeyItemAction(.copyPressed(value: "privateKey", field: .sshPrivateKey)))
+        XCTAssertEqual(pasteboardService.copiedString, "privateKey")
+        XCTAssertEqual(subject.state.toast?.text, Localizations.valueHasBeenCopied(Localizations.privateKey))
+
+        subject.receive(.sshKeyItemAction(.copyPressed(value: "publicKey", field: .sshPublicKey)))
+        XCTAssertEqual(pasteboardService.copiedString, "publicKey")
+        XCTAssertEqual(subject.state.toast?.text, Localizations.valueHasBeenCopied(Localizations.publicKey))
+
+        subject.receive(.sshKeyItemAction(.copyPressed(value: "fingerprint", field: .sshKeyFingerprint)))
+        XCTAssertEqual(pasteboardService.copiedString, "fingerprint")
+        XCTAssertEqual(subject.state.toast?.text, Localizations.valueHasBeenCopied(Localizations.fingerprint))
+    }
+
+    /// `receive(_:)` with `.sshKeyItemAction` with `.copyPressed`  copies the corresponding field when
+    /// needing password reprompt and is correct.
+    @MainActor
+    func test_receive_sshKeyItemAction_copyPressedWithPasswordReprompt() async throws {
+        initializeSshKeyState(reprompt: .password)
+
+        subject.receive(.sshKeyItemAction(.copyPressed(value: "privateKey", field: .sshPrivateKey)))
+
+        let alert = try XCTUnwrap(coordinator.alertShown.last)
+        try await alert.submitMasterPasswordReprompt(with: "password1234")
+
+        XCTAssertEqual(authRepository.validatePasswordPasswords, ["password1234"])
+        XCTAssertTrue(subject.state.hasVerifiedMasterPassword)
+
+        XCTAssertEqual(pasteboardService.copiedString, "privateKey")
+        XCTAssertEqual(subject.state.toast?.text, Localizations.valueHasBeenCopied(Localizations.privateKey))
+    }
+
+    /// `receive(_:)` with `.sshKeyItemAction` with `.copyPressed`  copies the corresponding field when
+    /// needing password reprompt and is cancelled.
+    @MainActor
+    func test_receive_sshKeyItemAction_copyPressedWithPasswordRepromptCancelled() async throws {
+        initializeSshKeyState(reprompt: .password)
+
+        subject.receive(.sshKeyItemAction(.copyPressed(value: "privateKey", field: .sshPrivateKey)))
+
+        let alert = try XCTUnwrap(coordinator.alertShown.last)
+        try await alert.tapCancel()
+
+        XCTAssertFalse(subject.state.hasVerifiedMasterPassword)
+
+        XCTAssertNil(pasteboardService.copiedString)
+        XCTAssertNil(subject.state.toast?.text)
+    }
+
     /// `receive(_:)` with `.toastShown` with a value updates the state correctly.
     @MainActor
     func test_receive_toastShown_withValue() {
@@ -1220,9 +1345,7 @@ class ViewItemProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
         subject.receive(.passwordVisibilityPressed)
 
         let alert = try XCTUnwrap(coordinator.alertShown.last)
-        XCTAssertNotNil(alert.alertTextFields.first)
-        let action = try XCTUnwrap(alert.alertActions.first(where: { $0.title == Localizations.submit }))
-        await action.handler?(action, [AlertTextField(id: "password", text: "password1234")])
+        try await alert.submitMasterPasswordReprompt(with: "password1234")
 
         XCTAssertEqual(authRepository.validatePasswordPasswords, ["password1234"])
 
@@ -1278,5 +1401,39 @@ class ViewItemProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
 
         let invalidPasswordAlert = try XCTUnwrap(coordinator.alertShown.last)
         XCTAssertEqual(invalidPasswordAlert, .defaultAlert(title: Localizations.invalidMasterPassword))
+    }
+
+    // MARK: Private
+
+    /// Initializes the state for a cipher of type `.sshKey`.
+    @MainActor
+    private func initializeSshKeyState(reprompt: BitwardenSdk.CipherRepromptType = .none) {
+        let cipherView = CipherView.fixture(
+            id: "123",
+            login: BitwardenSdk.LoginView(
+                username: nil,
+                password: nil,
+                passwordRevisionDate: nil,
+                uris: nil,
+                totp: nil,
+                autofillOnPageLoad: nil,
+                fido2Credentials: nil
+            ),
+            name: "name",
+            reprompt: reprompt,
+            revisionDate: Date()
+        )
+        var cipherItemState = CipherItemState(
+            existing: cipherView,
+            hasPremium: true
+        )!
+        cipherItemState.type = .sshKey
+        cipherItemState.sshKeyState = SSHKeyItemState(
+            isPrivateKeyVisible: false,
+            privateKey: "privateKey",
+            publicKey: "publicKey",
+            keyFingerprint: "fingerprint"
+        )
+        subject.state.loadingState = .data(cipherItemState)
     }
 } // swiftlint:disable:this file_length

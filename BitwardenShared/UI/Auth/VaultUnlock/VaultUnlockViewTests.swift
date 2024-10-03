@@ -127,7 +127,7 @@ class VaultUnlockViewTests: BitwardenTestCase {
 
     /// Test a snapshot of the empty view.
     func test_snapshot_vaultUnlock_empty() {
-        assertSnapshot(matching: subject, as: .defaultPortrait)
+        assertSnapshot(of: subject, as: .defaultPortrait)
     }
 
     /// Test a snapshot of the view with face id biometrics available.
@@ -137,14 +137,14 @@ class VaultUnlockViewTests: BitwardenTestCase {
             .faceID,
             enabled: true
         )
-        assertSnapshot(matching: subject, as: .defaultPortrait)
+        assertSnapshot(of: subject, as: .defaultPortrait)
     }
 
     /// Test a snapshot of the view with biometrics unavailable.
     @MainActor
     func test_snapshot_vaultUnlock_withBiometrics_notAvailable() {
         processor.state.biometricUnlockStatus = .notAvailable
-        assertSnapshot(matching: subject, as: .defaultLandscape)
+        assertSnapshot(of: subject, as: .defaultLandscape)
     }
 
     /// Test a snapshot of the view with touch id biometrics available.
@@ -154,7 +154,7 @@ class VaultUnlockViewTests: BitwardenTestCase {
             .touchID,
             enabled: true
         )
-        assertSnapshot(matching: subject, as: .defaultPortrait)
+        assertSnapshot(of: subject, as: .defaultPortrait)
     }
 
     /// Test a snapshot of the view when the password is hidden.
@@ -162,7 +162,7 @@ class VaultUnlockViewTests: BitwardenTestCase {
     func test_snapshot_vaultUnlock_passwordHidden() {
         processor.state.masterPassword = "Password"
         processor.state.isMasterPasswordRevealed = false
-        assertSnapshot(matching: subject, as: .defaultPortrait)
+        assertSnapshot(of: subject, as: .defaultPortrait)
     }
 
     /// Test a snapshot of the view when the password is revealed.
@@ -170,7 +170,7 @@ class VaultUnlockViewTests: BitwardenTestCase {
     func test_snapshot_vaultUnlock_passwordRevealed() {
         processor.state.masterPassword = "Password"
         processor.state.isMasterPasswordRevealed = true
-        assertSnapshot(matching: subject, as: .defaultPortrait)
+        assertSnapshot(of: subject, as: .defaultPortrait)
     }
 
     /// Check the snapshot for the profiles visible
@@ -188,21 +188,21 @@ class VaultUnlockViewTests: BitwardenTestCase {
             allowLockAndLogout: true,
             isVisible: true
         )
-        assertSnapshot(matching: subject, as: .defaultPortrait)
+        assertSnapshot(of: subject, as: .defaultPortrait)
     }
 
     /// Check the snapshot for the profiles visible
     @MainActor
     func test_snapshot_profilesVisible_max() {
         processor.state.profileSwitcherState = .maximumAccounts
-        assertSnapshot(matching: subject, as: .defaultPortrait)
+        assertSnapshot(of: subject, as: .defaultPortrait)
     }
 
     /// Check the snapshot for the profiles visible
     @MainActor
     func test_snapshot_profilesVisible_max_largeText() {
         processor.state.profileSwitcherState = .maximumAccounts
-        assertSnapshot(matching: subject, as: .defaultPortraitAX5)
+        assertSnapshot(of: subject, as: .defaultPortraitAX5)
     }
 
     /// Check the snapshot for the profiles closed
@@ -220,6 +220,6 @@ class VaultUnlockViewTests: BitwardenTestCase {
             allowLockAndLogout: true,
             isVisible: false
         )
-        assertSnapshot(matching: subject, as: .defaultPortrait)
+        assertSnapshot(of: subject, as: .defaultPortrait)
     }
 }

@@ -162,7 +162,7 @@ class AccountSecurityViewTests: BitwardenTestCase {
 
     // MARK: Snapshots
 
-    /// THe view renders correctly with the vault unlock action card displayed.
+    /// The view renders correctly with the vault unlock action card is displayed.
     @MainActor
     func test_snapshot_actionCardVaultUnlock() async {
         processor.state.badgeState = .fixture(vaultUnlockSetupProgress: .setUpLater)

@@ -92,14 +92,14 @@ class StartRegistrationViewTests: BitwardenTestCase {
     /// Tests the view renders correctly when the text fields are all empty.
     @MainActor
     func test_snapshot_empty() {
-        assertSnapshot(matching: subject, as: .defaultPortrait)
+        assertSnapshot(of: subject, as: .defaultPortrait)
     }
 
     /// Tests the view renders correctly for the native create account feature flag.
     @MainActor
     func test_snapshot_nativeCreateAccountFeatureFlag() {
         processor.state.isCreateAccountFeatureFlagEnabled = true
-        assertSnapshot(matching: subject, as: .defaultPortrait)
+        assertSnapshot(of: subject, as: .defaultPortrait)
     }
 
     /// Tests the view renders correctly when the text fields are all populated.
@@ -108,7 +108,7 @@ class StartRegistrationViewTests: BitwardenTestCase {
         processor.state.emailText = "email@example.com"
         processor.state.nameText = "user name"
 
-        assertSnapshots(matching: subject, as: [.defaultPortrait, .defaultPortraitDark, .defaultPortraitAX5])
+        assertSnapshots(of: subject, as: [.defaultPortrait, .defaultPortraitDark, .defaultPortraitAX5])
     }
 
     /// Tests the view renders correctly when the text fields are all populated with long text.
@@ -117,7 +117,7 @@ class StartRegistrationViewTests: BitwardenTestCase {
         processor.state.emailText = "emailmmmmmmmmmmmmmmmmmmmmm@exammmmmmmmmmmmmmmmmmmmmmmmmmmmmmmple.com"
         processor.state.nameText = "user name name name name name name name name name name name name name name"
 
-        assertSnapshots(matching: subject, as: [.defaultPortrait, .defaultPortraitDark, .defaultPortraitAX5])
+        assertSnapshots(of: subject, as: [.defaultPortrait, .defaultPortraitDark, .defaultPortraitAX5])
     }
 
     /// Tests the view renders correctly when the toggles are on.
@@ -125,7 +125,7 @@ class StartRegistrationViewTests: BitwardenTestCase {
     func test_snapshot_toggles_on() throws {
         processor.state.isReceiveMarketingToggleOn = true
 
-        assertSnapshot(matching: subject, as: .defaultPortrait)
+        assertSnapshot(of: subject, as: .defaultPortrait)
     }
 
     /// Tests the view renders correctly when the marketing toggle is hidden.
@@ -133,6 +133,6 @@ class StartRegistrationViewTests: BitwardenTestCase {
     func test_snapshot_marketingToggle_hidden() throws {
         processor.state.showReceiveMarketingToggle = false
 
-        assertSnapshot(matching: subject, as: .defaultPortrait)
+        assertSnapshot(of: subject, as: .defaultPortrait)
     }
 }
