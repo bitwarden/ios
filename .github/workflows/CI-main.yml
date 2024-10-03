@@ -21,7 +21,7 @@ on:
 env:
   XCODE_VERSION: '15.4'
   DISTRIBUTE_TO_TESTFLIGHT: ${{ github.event_name == 'push' || inputs.distribute }}
-  INTERNAL_PATCH_NUMBER: 999
+  INTERNAL_BETA_PATCH_NUMBER: 999
 
 jobs:
   resolve-values:
@@ -105,16 +105,17 @@ jobs:
         id: fix-patch-version
         run: |
           version_name=${{ needs.resolve-values.outputs.build_version }}
-          internal_version_name="${version_name%.*}.${{ env.INTERNAL_PATCH_NUMBER }}"
+          internal_version_name="${version_name%.*}.${{ env.INTERNAL_BETA_PATCH_NUMBER }}"
           echo "version_name=$internal_version_name" >> $GITHUB_OUTPUT
           echo "::warning::Internal version name: $internal_version_name"
-
       - name: Build
         uses: bitwarden/ios/.github/workflows/build.yml@main
         with:
           build-variant: Beta
           build-version: ${{ steps.fix-patch-version.outputs.version_name }}
-          build-number: ${{ needs.resolve-values.outputs.build_number }}
-          xcode-version: ${{ env.XCODE_VERSION }}
+          build-number: ${{ needs.resolve-values.outputs.version_number }}
+          xcode-version: ${{ needs.resolve-values.outputs.xcode_version }}
+          distribute: ${{ fromJSON(needs.resolve-values.outputs.distribute_to_testflight) }}
+          upload_version_info: false
           compiler-flags: "DEBUG_MENU"
         secrets: inherit
