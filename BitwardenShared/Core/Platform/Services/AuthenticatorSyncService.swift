@@ -177,16 +177,13 @@ actor DefaultAuthenticatorSyncService: NSObject, AuthenticatorSyncService {
     /// If sync has been turned off for all accounts, delete the Authenticator key from the shared keychain.
     ///
     private func deleteKeyIfSyncingIsOff() async throws {
-        var hasAccountWithSync = false
         for account in try await stateService.getAccounts() {
-            hasAccountWithSync = try await stateService.getSyncToAuthenticator(userId: account.profile.userId)
-            if hasAccountWithSync {
-                break
+            let hasAccountWithSync = try await stateService.getSyncToAuthenticator(userId: account.profile.userId)
+            guard !hasAccountWithSync else {
+                return
             }
         }
-        if !hasAccountWithSync {
-            try? sharedKeychainRepository.deleteAuthenticatorKey()
-        }
+        try sharedKeychainRepository.deleteAuthenticatorKey()
     }
 
     /// Determine if the given userId has sync turned on and an unlocked vault. This method serves as the
