@@ -32,6 +32,7 @@ jobs:
       version_number: ${{ steps.version_info.outputs.version_number }}
       xcode_version: ${{ env.XCODE_VERSION }}
       distribute_to_testflight: ${{ env.DISTRIBUTE_TO_TESTFLIGHT }}
+      internal_beta_version_name: ${{ steps.internal_versions.outputs.internal_beta_version_name}}
     steps:
       - name: Log inputs to job summary
         run: |
@@ -79,6 +80,13 @@ jobs:
         with:
           name: version-info
           path: version-info/version_info.json
+      - name: Set patch version for internal builds
+        id: internal_versions
+        run: |
+          version_name=${{ steps.version_info.outputs.version_name }}
+          internal_beta_version_name="${version_name%.*}.${{ env.INTERNAL_BETA_PATCH_NUMBER }}"
+          echo "internal_beta_version_name=$internal_beta_version_name" >> $GITHUB_OUTPUT
+          echo "::warning::Internal version name: $internal_beta_version_name"
 
   build-public:
     name: Build Public Apps
@@ -98,24 +106,14 @@ jobs:
 
   build-internal:
     name: Build Internal App
-    runs-on: macos-14
     needs: resolve-values
-    steps:
-      - name: Set patch version for internal builds
-        id: fix-patch-version
-        run: |
-          version_name=${{ needs.resolve-values.outputs.build_version }}
-          internal_version_name="${version_name%.*}.${{ env.INTERNAL_BETA_PATCH_NUMBER }}"
-          echo "version_name=$internal_version_name" >> $GITHUB_OUTPUT
-          echo "::warning::Internal version name: $internal_version_name"
-      - name: Build
-        uses: bitwarden/ios/.github/workflows/build.yml@main
-        with:
-          build-variant: Beta
-          build-version: ${{ steps.fix-patch-version.outputs.version_name }}
-          build-number: ${{ needs.resolve-values.outputs.version_number }}
-          xcode-version: ${{ needs.resolve-values.outputs.xcode_version }}
-          distribute: ${{ fromJSON(needs.resolve-values.outputs.distribute_to_testflight) }}
-          upload_version_info: false
-          compiler-flags: "DEBUG_MENU"
-        secrets: inherit
+    uses: bitwarden/ios/.github/workflows/build.yml@main
+    with:
+      build-variant: Beta
+      build-version: ${{ needs.resolve-values.outputs.internal_beta_version_name }}
+      build-number: ${{ needs.resolve-values.outputs.version_number }}
+      xcode-version: ${{ needs.resolve-values.outputs.xcode_version }}
+      distribute: ${{ fromJSON(needs.resolve-values.outputs.distribute_to_testflight) }}
+      upload_version_info: false
+      compiler-flags: "DEBUG_MENU"
+    secrets: inherit
