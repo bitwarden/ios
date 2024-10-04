@@ -911,7 +911,6 @@
 "ThereWasAnErrorStartingWebAuthnTwoFactorAuthentication" = "Došlo je do greške kod pokretanja WebAuthn dvostruke autentifikacije";
 "LaunchWebAuthn" = "Pokreni WebAuth";
 "Duo" = "Duo";
-"DuoUnsupported" = "Duo još nije podržan.";
 "FilePassword" = "Lozinka datoteke";
 "ConfirmFilePassword" = "Potvrdi lozinku datoteke";
 "FilePasswordDescription" = "Ova će se lozinka koristiti za izvoz i uvoz ove datoteke";
@@ -979,4 +978,5 @@
 "SetUpLaterQuestion" = "Postavi kasnije?";
 "YouCanFinishSetupUnlockAnytimeDescriptionLong" = "Možeš završiti postavljanje bilo kada u Sigurnosti računa pod Postavkama. Za otključavanje koristi svoju glavnu lozinku dok ne postaviš drugu metodu.";
 "Confirm" = "Potvrdi";
+"ErrorConnectingWithTheDuoServiceUseADifferentTwoStepLoginMethodOrContactDuoForAssistance" = "Error connecting with the Duo service. Use a different two-step login method or contact Duo for assistance.";
 "ThePreAuthUrlsCouldNotBeLoadedToStartTheAccountCreation" = "The Pre Auth Urls could not be loaded to start the account creation.";

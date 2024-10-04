@@ -9,6 +9,7 @@ extension String {
     static let otpAuthUriKeyPartial = "otpauth://totp/Example:user@bitwarden.com?secret=JBSWY3DPEHPK3PXP"
     // swiftlint:disable:next line_length
     static let otpAuthUriKeySHA512 = "otpauth://totp/Example:user@bitwarden.com?secret=JBSWY3DPEHPK3PXP&algorithm=SHA512"
+    static let otpAuthUriKeyNoSecret = "otpauth://totp/Example:user@bitwarden.com?"
     static let steamUriKeyIdentifier = "JBSWY3DPEHPK3PXP"
     static let steamUriKey = "steam://\(steamUriKeyIdentifier)"
 }

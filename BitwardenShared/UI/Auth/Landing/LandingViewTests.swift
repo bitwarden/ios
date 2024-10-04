@@ -98,21 +98,21 @@ class LandingViewTests: BitwardenTestCase {
     /// Check the snapshot for the empty state.
     @MainActor
     func test_snapshot_empty() {
-        assertSnapshot(matching: subject, as: .defaultPortrait)
+        assertSnapshot(of: subject, as: .defaultPortrait)
     }
 
     /// Check the snapshot when the email text field has a value.
     @MainActor
     func test_snapshot_email_value() {
         processor.state.email = "email@example.com"
-        assertSnapshot(matching: subject, as: .defaultPortrait)
+        assertSnapshot(of: subject, as: .defaultPortrait)
     }
 
     /// Check the snapshot when the remember me toggle is on.
     @MainActor
     func test_snapshot_isRememberMeOn_true() {
         processor.state.isRememberMeOn = true
-        assertSnapshot(matching: subject, as: .defaultPortrait)
+        assertSnapshot(of: subject, as: .defaultPortrait)
     }
 
     /// Check the snapshot for the profiles visible
@@ -130,7 +130,7 @@ class LandingViewTests: BitwardenTestCase {
             allowLockAndLogout: true,
             isVisible: true
         )
-        assertSnapshot(matching: subject, as: .defaultPortrait)
+        assertSnapshot(of: subject, as: .defaultPortrait)
     }
 
     /// Check the snapshot for the profiles closed
@@ -148,6 +148,6 @@ class LandingViewTests: BitwardenTestCase {
             allowLockAndLogout: true,
             isVisible: false
         )
-        assertSnapshot(matching: subject, as: .defaultPortrait)
+        assertSnapshot(of: subject, as: .defaultPortrait)
     }
 }

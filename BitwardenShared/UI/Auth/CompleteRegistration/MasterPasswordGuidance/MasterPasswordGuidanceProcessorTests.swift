@@ -6,6 +6,7 @@ class MasterPasswordGuidanceProcessorTests: BitwardenTestCase {
     // MARK: Properties
 
     var coordinator: MockCoordinator<AuthRoute, AuthEvent>!
+    var delegate: MockMasterPasswordUpdateDelegate!
     var subject: MasterPasswordGuidanceProcessor!
 
     // MARK: Setup & Teardown
@@ -14,14 +15,18 @@ class MasterPasswordGuidanceProcessorTests: BitwardenTestCase {
         super.setUp()
 
         coordinator = MockCoordinator()
-
-        subject = MasterPasswordGuidanceProcessor(coordinator: coordinator.asAnyCoordinator())
+        delegate = MockMasterPasswordUpdateDelegate()
+        subject = MasterPasswordGuidanceProcessor(
+            coordinator: coordinator.asAnyCoordinator(),
+            delegate: delegate
+        )
     }
 
     override func tearDown() {
         super.tearDown()
 
         coordinator = nil
+        delegate = nil
         subject = nil
     }
 
@@ -38,6 +43,7 @@ class MasterPasswordGuidanceProcessorTests: BitwardenTestCase {
     @MainActor
     func test_receive_generatePasswordPressed() {
         subject.receive(.generatePasswordPressed)
-        // TODO: PM-10267
+        XCTAssertEqual(coordinator.routes.last, .masterPasswordGenerator)
+        XCTAssertNotNil(coordinator.contexts.last as? MasterPasswordUpdateDelegate)
     }
 }

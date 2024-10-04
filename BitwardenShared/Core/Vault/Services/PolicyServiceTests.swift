@@ -161,13 +161,15 @@ class PolicyServiceTests: BitwardenTestCase { // swiftlint:disable:this type_bod
                 passwordGeneratorPolicy,
                 .fixture(
                     data: [
-                        PolicyOptionType.overridePasswordType.rawValue: .string(PasswordGeneratorType.password.rawValue),
+                        PolicyOptionType.overridePasswordType.rawValue:
+                            .string(PasswordGeneratorType.password.rawValue),
                     ],
                     type: .passwordGenerator
                 ),
                 .fixture(
                     data: [
-                        PolicyOptionType.overridePasswordType.rawValue: .string(PasswordGeneratorType.passphrase.rawValue),
+                        PolicyOptionType.overridePasswordType.rawValue:
+                            .string(PasswordGeneratorType.passphrase.rawValue),
                     ],
                     type: .passwordGenerator
                 ),

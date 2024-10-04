@@ -1567,6 +1567,16 @@ class AddEditItemProcessorTests: BitwardenTestCase {
         XCTAssertEqual(subject.state.loginState.password, "")
     }
 
+    /// `receive(_:)` with `.sshKeyItemAction` and `privateKeyVisibilityPressed` toggles
+    /// the visibility of the `privateKey` field.
+    @MainActor
+    func test_receive_sshKeyItemAction_withoutValue() {
+        subject.state.sshKeyState.isPrivateKeyVisible = false
+        subject.receive(.sshKeyItemAction(.privateKeyVisibilityPressed))
+
+        XCTAssertTrue(subject.state.sshKeyState.isPrivateKeyVisible)
+    }
+
     /// `receive(_:)` with `.toastShown` without a value updates the state correctly.
     @MainActor
     func test_receive_toastShown_withoutValue() {

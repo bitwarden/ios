@@ -27,8 +27,9 @@ runs:
   using: "composite"
   steps:
     - name: Log inputs to job summary
+      shell: bash
       run: |
-        echo "<details><summary>Workflow Inputs</summary>" >> $GITHUB_STEP_SUMMARY
+        echo "<details><summary>Dispatch and Download Action Workflow Inputs</summary>" >> $GITHUB_STEP_SUMMARY
         echo "" >> $GITHUB_STEP_SUMMARY
         echo '```json' >> $GITHUB_STEP_SUMMARY
         echo '${{ toJson(inputs) }}' >> $GITHUB_STEP_SUMMARY
@@ -36,7 +37,7 @@ runs:
         echo "</details>" >> $GITHUB_STEP_SUMMARY
 
     - name: Dispatch an action and get the run ID and URL
-      uses: codex-/return-dispatch@bcb9c46cb8ee849d5e6cca0ba9c8529d620ae006 # v1.15.0
+      uses: codex-/return-dispatch@8e5959a15e0ef0a34b9569395f994e61fed5dd26 # v1.16.0
       id: return_dispatch
       with:
         token: ${{ inputs.token }}
@@ -53,6 +54,40 @@ runs:
       run: |
         echo ${{steps.return_dispatch.outputs.run_id}}
         echo ${{steps.return_dispatch.outputs.run_url}}
+    - name: Wait for workflow to finish
+      shell: bash
+      run: |
+        sleep 5
+
+        timeout="30" # in seconds
+        interval="10" # in seconds
+        counter=0
+        timeout_counter=0
+        url="https://api.github.com/repos/${{ inputs.owner }}/${{ inputs.repo }}/actions/runs/${{steps.return_dispatch.outputs.run_id}}"
+        while true; do
+          run_data=$(curl -s -H "Accept: application/vnd.github+json" -H "Authorization: token ${{ inputs.token }}" $url)
+          status=$(echo "$run_data" | jq -r '.status')
+
+          echo "Try -> $timeout_counter; status -> $status"
+          if [ "$status" = "completed" ]; then
+            conclusion=$(echo "$run_data" | jq -r '.conclusion')
+            if [ "$conclusion" != "success" ]; then
+              echo "::error::Dispatched workflow failed."
+              exit 1
+            else
+              echo "::debug::Dispatched workflow completed successfully!"
+              break
+            fi
+          fi
+
+          timeout_counter=$((timeout_counter + 1))
+          if [ $((timeout_counter * interval)) -ge $((timeout * 60)) ]; then
+            echo "::error::Timeout waiting for the Dispatched workflow to complete."
+            exit 1
+          fi
+
+          sleep $interval
+        done
 
     - name: Download all artifacts
       uses: actions/download-artifact@fa0a91b85d4f404e444e00e005971372dc801d16 # v4.1.8

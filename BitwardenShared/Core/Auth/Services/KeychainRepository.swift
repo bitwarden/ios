@@ -243,8 +243,8 @@ class DefaultKeychainRepository: KeychainRepository {
         )
 
         if let resultDictionary = foundItem as? [String: Any],
-           let data = resultDictionary[kSecValueData as String] as? Data {
-            let string = String(decoding: data, as: UTF8.self)
+           let data = resultDictionary[kSecValueData as String] as? Data,
+           let string = String(data: data, encoding: .utf8) {
             guard !string.isEmpty else {
                 throw KeychainServiceError.keyNotFound(item)
             }

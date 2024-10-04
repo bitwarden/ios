@@ -100,6 +100,6 @@ class PasswordStrengthIndicatorTests: BitwardenTestCase {
             }
         }
 
-        assertSnapshots(matching: SnapshotView(), as: [.defaultPortrait, .defaultPortraitDark])
+        assertSnapshots(of: SnapshotView(), as: [.defaultPortrait, .defaultPortraitDark])
     }
 }

@@ -17,6 +17,8 @@ struct AccountSecurityView: View {
 
     var body: some View {
         VStack(spacing: 20) {
+            setUpUnlockActionCard
+
             pendingLoginRequests
 
             unlockOptionsSection
@@ -25,6 +27,7 @@ struct AccountSecurityView: View {
 
             otherSection
         }
+        .animation(.easeInOut, value: store.state.badgeState?.vaultUnlockSetupProgress == .complete)
         .scrollView()
         .navigationBar(title: Localizations.accountSecurity, titleDisplayMode: .inline)
         .onChange(of: store.state.twoStepLoginUrl) { newValue in
@@ -43,9 +46,29 @@ struct AccountSecurityView: View {
         .task {
             await store.perform(.loadData)
         }
+        .task {
+            await store.perform(.streamSettingsBadge)
+        }
     }
 
     // MARK: Private views
+
+    /// The action card for setting up vault unlock methods.
+    @ViewBuilder private var setUpUnlockActionCard: some View {
+        if let progress = store.state.badgeState?.vaultUnlockSetupProgress, progress != .complete {
+            ActionCard(
+                title: Localizations.setUpUnlock,
+                actionButtonState: ActionCard.ButtonState(title: Localizations.getStarted) {
+                    store.send(.showSetUpUnlock)
+                },
+                dismissButtonState: ActionCard.ButtonState(title: Localizations.dismiss) {
+                    await store.perform(.dismissSetUpUnlockActionCard)
+                }
+            ) {
+                BitwardenBadge(badgeValue: "1")
+            }
+        }
+    }
 
     /// The other section.
     private var otherSection: some View {
@@ -237,6 +260,14 @@ struct AccountSecurityView: View {
         AccountSecurityView(
             store: Store(processor: StateProcessor(state: AccountSecurityState()))
         )
+    }
+}
+
+#Preview("Vault Unlock Action Card") {
+    NavigationView {
+        AccountSecurityView(store: Store(processor: StateProcessor(state: AccountSecurityState(
+            badgeState: .fixture(vaultUnlockSetupProgress: .setUpLater)
+        ))))
     }
 }
 #endif

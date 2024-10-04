@@ -6,7 +6,7 @@ on:
   workflow_dispatch:
     inputs:
       base_version_number:
-        description: "Base version number to use for version calculation"
+        description: "Base Version Number - Will be added to the calculated version number"
         type: number
         default: 0
       version_name:
@@ -31,7 +31,7 @@ jobs:
     steps:
       - name: Log inputs to job summary
         run: |
-          echo "<details><summary>Workflow Inputs</summary>" >> $GITHUB_STEP_SUMMARY
+          echo "<details><summary>Version Workflow Inputs</summary>" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
           echo '```json' >> $GITHUB_STEP_SUMMARY
           echo '${{ toJson(inputs) }}' >> $GITHUB_STEP_SUMMARY
@@ -43,7 +43,7 @@ jobs:
 
       - name: Check out repository
         if: ${{ !inputs.skip_checkout || false }}
-        uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
+        uses: actions/checkout@d632683dd7b4114ad314bca15554477dd762a938 # v4.2.0
         with:
           fetch-depth: 0
 
@@ -80,7 +80,7 @@ jobs:
           latest_major_version=$(echo $latest_version | cut -d "." -f 1)
           latest_minor_version=$(echo $latest_version | cut -d "." -f 2)
           patch_version=0
-          if [[ ! -z "${{ inputs.version_name }}" ]]; then
+          if [[ ! -z "${{ inputs.patch_version }}" ]]; then
             patch_version=${{ inputs.patch_version }}
             echo "::warning::Patch Version Override applied: $patch_version"
           elif [[ "$current_year" == "$latest_major_version" && "$current_month" == "$latest_minor_version" ]]; then

@@ -12,84 +12,110 @@ on:
       build-number:
         description: "Version Number Override - e.g. '1021'"
         type: number
-
+      patch_version:
+        description: "Patch Version Override - e.g. '999'"
+        type: string
+      distribute:
+        description: "Distribute to TestFlight"
+        type: boolean
 env:
   XCODE_VERSION: '15.4'
+  DISTRIBUTE_TO_TESTFLIGHT: ${{ github.event_name == 'push' || inputs.distribute }}
+  INTERNAL_BETA_PATCH_NUMBER: 999
 
 jobs:
   resolve-values:
     name: "Resolve values"
-    runs-on: macos-14
+    runs-on: ubuntu-latest
     outputs:
-      build_variant: ${{ steps.calculate.outputs.variant }}
-      build_version: ${{ steps.calculate.outputs.version }}
-      build_number: ${{ steps.calculate.outputs.build_number }}
-      xcode_version: ${{ steps.calculate.outputs.xcode_version }}
-
+      version_name: ${{ steps.version_info.outputs.version_name }}
+      version_number: ${{ steps.version_info.outputs.version_number }}
+      xcode_version: ${{ env.XCODE_VERSION }}
+      distribute_to_testflight: ${{ env.DISTRIBUTE_TO_TESTFLIGHT }}
     steps:
-      - name: Check out repo
-        uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
-        with:
-          fetch-depth: 0
-          filter: tree:0
-
-      - name: Calculate build version and number
-        id: calculate
+      - name: Log inputs to job summary
         run: |
-          if [[ ! -z "${{ inputs.build-version }}" ]]; then
-            echo -e "\nApplying build version override"
-            next_version=${{ inputs.build-version }}
+          echo "<details><summary>CI-main Workflow Inputs</summary>" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo '```json' >> $GITHUB_STEP_SUMMARY
+          echo '${{ toJson(inputs) }}' >> $GITHUB_STEP_SUMMARY
+          echo '```' >> $GITHUB_STEP_SUMMARY
+          echo "</details>" >> $GITHUB_STEP_SUMMARY
+
+      - name: Calculate version
+        if: ${{ inputs.build-number == '' || inputs.build-version == '' }}
+        uses: bitwarden/ios/.github/actions/dispatch-and-download@main
+        id: dispatch-version
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          repo: ios
+          owner: bitwarden
+          workflow: _version.yml
+          workflow_inputs: '{"base_version_number": "1500", "version_name": "${{ inputs.build-version }}", "version_number": "${{ inputs.build-number }}", "patch_version": "${{ inputs.patch_version }}"}'
+
+      - name: Read version info
+        id: version_info
+        run: |
+          # test if dispatch-version was skipped. In that case, creates the same .json file expected by the Upload artifact step
+          if [ ! -f version-info/version_info.json ]; then
+            echo "::warning::version-version.json not found, was the previous step skipped? Creating a new file"
+            json='{
+              "version_number": "${{ inputs.build-number }}",
+              "version_name": "${{ inputs.build-version }}"
+            }'
+
+            # file will be used by the upload step
+            mkdir version-info
+            echo "$json" > version-info/version_info.json
           else
-            echo -e "\nCalculating next version..."
-            current_year=$(date +%Y)
-            current_month=$(date +%-m)
-
-            latest_tag_version=$(git tag --sort=committerdate --list | tail -1)
-            latest_version=${latest_tag_version:1}  # remove 'v' from tag version
-
-            latest_major_version=$(echo $latest_version | cut -d "." -f 1)
-            latest_minor_version=$(echo $latest_version | cut -d "." -f 2)
-            latest_patch_version=$(echo $latest_version | cut -d "." -f 3)
-
-            echo "  Current Year:         $current_year"
-            echo "  Current Month:        $current_month"
-            echo "  Latest Version:       $latest_version"
-            echo "  Latest Major Version: $latest_major_version"
-            echo "  Latest Minor Version: $latest_minor_version"
-            echo "  Latest Patch Version: $latest_patch_version"
-
-            if [[ "$current_year" == "$latest_major_version" && "$current_month" == "$latest_minor_version" ]]; then
-              next_version="${latest_major_version}.${latest_minor_version}.$(($latest_patch_version + 1))"
-            else
-              next_version="${current_year}.${current_month}.0"
-            fi
+              echo "::notice::version-version.json found!"
           fi
 
-          if [[ ! -z "${{ inputs.build-number }}" ]]; then
-            echo -e "\nApplying build number override"
-            next_number=${{ inputs.build-number }}
-          else
-            echo -e "\nCalculating build number..."
-            next_number=$(($GITHUB_RUN_NUMBER + 1000))
-          fi
+          content=$(cat version-info/version_info.json)
+          echo "version_name=$(echo $content | jq -r .version_name)" >> $GITHUB_OUTPUT
+          echo "version_number=$(echo $content | jq -r .version_number)" >> $GITHUB_OUTPUT
+      - name: Upload version info artifact
+        uses: actions/upload-artifact@50769540e7f4bd5e21e526ee35c689e35e0d6874 # v4.4.0
+        with:
+          name: version-info
+          path: version-info/version_info.json
 
-          echo -e "\n"
-          echo "**Version**: $next_version" | tee -a $GITHUB_STEP_SUMMARY
-          echo "**Build Number**: $next_number" | tee -a $GITHUB_STEP_SUMMARY
-          echo "version=$next_version" >> $GITHUB_OUTPUT
-          echo "build_number=$next_number" >> $GITHUB_OUTPUT
-          echo "xcode_version=$XCODE_VERSION" >> $GITHUB_OUTPUT
-
-  build:
-    name: Build
+  build-public:
+    name: Build Public Apps
     needs: resolve-values
-    uses: ./.github/workflows/build.yml
+    uses: bitwarden/ios/.github/workflows/build.yml@main
     strategy:
       matrix:
         variant: [Beta, Production]
     with:
       build-variant: ${{ matrix.variant }}
-      build-version: ${{ needs.resolve-values.outputs.build_version }}
-      build-number: ${{ needs.resolve-values.outputs.build_number }}
+      build-version: ${{ needs.resolve-values.outputs.version_name }}
+      build-number: ${{ needs.resolve-values.outputs.version_number }}
       xcode-version: ${{ needs.resolve-values.outputs.xcode_version }}
+      distribute: ${{ fromJSON(needs.resolve-values.outputs.distribute_to_testflight) }}
+      upload_version_info: false
     secrets: inherit
+
+  build-internal:
+    name: Build Internal App
+    runs-on: macos-14
+    needs: resolve-values
+    steps:
+      - name: Set patch version for internal builds
+        id: fix-patch-version
+        run: |
+          version_name=${{ needs.resolve-values.outputs.build_version }}
+          internal_version_name="${version_name%.*}.${{ env.INTERNAL_BETA_PATCH_NUMBER }}"
+          echo "version_name=$internal_version_name" >> $GITHUB_OUTPUT
+          echo "::warning::Internal version name: $internal_version_name"
+      - name: Build
+        uses: bitwarden/ios/.github/workflows/build.yml@main
+        with:
+          build-variant: Beta
+          build-version: ${{ steps.fix-patch-version.outputs.version_name }}
+          build-number: ${{ needs.resolve-values.outputs.version_number }}
+          xcode-version: ${{ needs.resolve-values.outputs.xcode_version }}
+          distribute: ${{ fromJSON(needs.resolve-values.outputs.distribute_to_testflight) }}
+          upload_version_info: false
+          compiler-flags: "DEBUG_MENU"
+        secrets: inherit
