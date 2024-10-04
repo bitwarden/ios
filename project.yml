@@ -35,10 +35,10 @@ packages:
     exactVersion: 1.3.0
   SnapshotTesting:
     url: https://github.com/pointfreeco/swift-snapshot-testing
-    exactVersion: 1.15.4
+    exactVersion: 1.17.5
   ViewInspector:
     url: https://github.com/nalexn/ViewInspector
-    exactVersion: 0.9.10
+    exactVersion: 0.10.0
 schemes:
   AuthenticatorBridgeKit:
     build:
@@ -375,6 +375,7 @@ targets:
         APPLICATION_EXTENSION_API_ONLY: true
         DEVELOPMENT_ASSET_PATHS: 
           - BitwardenShared/UI/Auth/PreviewContent
+          - BitwardenShared/UI/Platform/PreviewContent
           - BitwardenShared/UI/Tools/PreviewContent
           - BitwardenShared/UI/Vault/PreviewContent
         INFOPLIST_FILE: BitwardenShared/UI/Platform/Application/Support/Info.plist

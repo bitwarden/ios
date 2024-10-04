@@ -10,7 +10,7 @@ class ViewCardItemViewTests: BitwardenTestCase {
     ///
     func test_snapshot_viewCardItemView_empty() {
         assertSnapshots(
-            matching: ViewCardItemView_Previews.emptyPreview,
+            of: ViewCardItemView_Previews.emptyPreview,
             as: [
                 .defaultPortrait,
             ]
@@ -21,7 +21,7 @@ class ViewCardItemViewTests: BitwardenTestCase {
     ///
     func test_snapshot_viewCardItemView_full() {
         assertSnapshots(
-            matching: ViewCardItemView_Previews.fullPreview,
+            of: ViewCardItemView_Previews.fullPreview,
             as: [
                 .defaultPortrait,
             ]
@@ -32,7 +32,7 @@ class ViewCardItemViewTests: BitwardenTestCase {
     ///
     func test_snapshot_viewCardItemView_full_dark() {
         assertSnapshots(
-            matching: ViewCardItemView_Previews.fullPreview,
+            of: ViewCardItemView_Previews.fullPreview,
             as: [
                 .defaultPortraitDark,
             ]
@@ -43,7 +43,7 @@ class ViewCardItemViewTests: BitwardenTestCase {
     ///
     func test_snapshot_viewCardItemView_full_largeFont() {
         assertSnapshots(
-            matching: ViewCardItemView_Previews.fullPreview,
+            of: ViewCardItemView_Previews.fullPreview,
             as: [
                 .tallPortraitAX5(heightMultiple: 1.75),
             ]
@@ -54,7 +54,7 @@ class ViewCardItemViewTests: BitwardenTestCase {
     ///
     func test_snapshot_viewCardItemView_hiddenCode() {
         assertSnapshots(
-            matching: ViewCardItemView_Previews.hiddenCodePreview,
+            of: ViewCardItemView_Previews.hiddenCodePreview,
             as: [
                 .defaultPortrait,
             ]
@@ -65,7 +65,7 @@ class ViewCardItemViewTests: BitwardenTestCase {
     ///
     func test_snapshot_viewCardItemView_noExpirationState() {
         assertSnapshots(
-            matching: ViewCardItemView_Previews.noExpiration,
+            of: ViewCardItemView_Previews.noExpiration,
             as: [
                 .defaultPortrait,
             ]
@@ -76,7 +76,7 @@ class ViewCardItemViewTests: BitwardenTestCase {
     ///
     func test_snapshot_viewCardItemView_partialExpirationState() {
         assertSnapshots(
-            matching: ViewCardItemView_Previews.yearOnlyExpiration,
+            of: ViewCardItemView_Previews.yearOnlyExpiration,
             as: [
                 .defaultPortrait,
             ]

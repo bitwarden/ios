@@ -88,6 +88,9 @@ struct CipherItemState: Equatable {
     /// If master password reprompt toggle should be shown
     var showMasterPasswordReprompt: Bool
 
+    /// The SSH key item state.
+    var sshKeyState: SSHKeyItemState
+
     /// A toast for the AddEditItemView
     var toast: Toast?
 
@@ -162,6 +165,7 @@ struct CipherItemState: Equatable {
         name: String,
         notes: String,
         organizationId: String?,
+        sshKeyState: SSHKeyItemState,
         type: CipherType,
         updatedDate: Date
     ) {
@@ -183,6 +187,7 @@ struct CipherItemState: Equatable {
         self.organizationId = organizationId
         ownershipOptions = []
         showMasterPasswordReprompt = true
+        self.sshKeyState = sshKeyState
         self.type = type
         self.updatedDate = updatedDate
         self.configuration = configuration
@@ -224,6 +229,7 @@ struct CipherItemState: Equatable {
             name: name ?? uri.flatMap(URL.init)?.host ?? "",
             notes: "",
             organizationId: organizationId,
+            sshKeyState: .init(),
             type: type,
             updatedDate: .now
         )
@@ -246,6 +252,7 @@ struct CipherItemState: Equatable {
             name: "\(cipherView.name) - \(Localizations.clone)",
             notes: cipherView.notes ?? "",
             organizationId: cipherView.organizationId,
+            sshKeyState: cipherView.sshKeyItemState(),
             type: .init(type: cipherView.type),
             updatedDate: cipherView.revisionDate
         )
@@ -276,6 +283,7 @@ struct CipherItemState: Equatable {
             name: cipherView.name,
             notes: cipherView.notes ?? "",
             organizationId: cipherView.organizationId,
+            sshKeyState: cipherView.sshKeyItemState(),
             type: .init(type: cipherView.type),
             updatedDate: cipherView.revisionDate
         )

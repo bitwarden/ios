@@ -14,18 +14,41 @@ struct AutoFillView: View {
 
     var body: some View {
         VStack(spacing: 20) {
+            autofillActionCard
+
             autoFillSection
 
             additionalOptionsSection
         }
+        .animation(.easeInOut, value: store.state.badgeState?.autofillSetupProgress == .complete)
         .scrollView()
         .navigationBar(title: Localizations.autofill, titleDisplayMode: .inline)
         .task {
             await store.perform(.fetchSettingValues)
         }
+        .task {
+            await store.perform(.streamSettingsBadge)
+        }
     }
 
     // MARK: Private views
+
+    /// The action card for setting up autofill.
+    @ViewBuilder private var autofillActionCard: some View {
+        if store.state.shouldShowAutofillActionCard {
+            ActionCard(
+                title: Localizations.setUpAutofill,
+                actionButtonState: ActionCard.ButtonState(title: Localizations.getStarted) {
+                    store.send(.showSetUpAutofill)
+                },
+                dismissButtonState: ActionCard.ButtonState(title: Localizations.dismiss) {
+                    await store.perform(.dismissSetUpAutofillActionCard)
+                }
+            ) {
+                BitwardenBadge(badgeValue: "1")
+            }
+        }
+    }
 
     /// The additional options section.
     private var additionalOptionsSection: some View {
@@ -94,6 +117,18 @@ struct AutoFillView: View {
 
 // MARK: - Previews
 
+#if DEBUG
 #Preview {
-    AutoFillView(store: Store(processor: StateProcessor(state: AutoFillState())))
+    NavigationView {
+        AutoFillView(store: Store(processor: StateProcessor(state: AutoFillState())))
+    }
 }
+
+#Preview("Autofill Action Card") {
+    NavigationView {
+        AutoFillView(store: Store(processor: StateProcessor(state: AutoFillState(
+            badgeState: .fixture(autofillSetupProgress: .setUpLater)
+        ))))
+    }
+}
+#endif

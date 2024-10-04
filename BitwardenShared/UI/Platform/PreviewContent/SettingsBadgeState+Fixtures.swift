@@ -1,5 +1,4 @@
-@testable import BitwardenShared
-
+#if DEBUG
 extension SettingsBadgeState {
     static func fixture(
         autofillSetupProgress: AccountSetupProgress? = nil,
@@ -13,3 +12,4 @@ extension SettingsBadgeState {
         )
     }
 }
+#endif

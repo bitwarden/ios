@@ -11,7 +11,7 @@ class AddEditCardItemViewTests: BitwardenTestCase {
     func test_snapshot_addEditCardItemView() {
         for preview in AddEditCardItemView_Previews._allPreviews {
             assertSnapshots(
-                matching: preview.content,
+                of: preview.content,
                 as: [
                     .defaultPortrait,
                     .defaultPortraitDark,
