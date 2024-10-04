@@ -29,10 +29,18 @@ public protocol AuthenticatorKeychainService: AnyObject {
 // MARK: - AuthenticatorKeychainServiceError
 
 /// Enum with possible error cases that can be thrown from `AuthenticatorKeychainService`.
-public enum AuthenticatorKeychainServiceError: Error, Equatable {
+public enum AuthenticatorKeychainServiceError: Error, Equatable, CustomNSError {
     /// When a `KeychainService` is unable to locate an auth key for a given storage key.
     ///
     /// - Parameter KeychainItem: The potential storage key for the auth key.
     ///
     case keyNotFound(SharedKeychainItem)
+
+    /// The user-info dictionary.
+    public var errorUserInfo: [String: Any] {
+        switch self {
+        case let .keyNotFound(keychainItem):
+            return ["Keychain Item": keychainItem.unformattedKey]
+        }
+    }
 }
