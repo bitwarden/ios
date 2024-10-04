@@ -195,7 +195,6 @@ struct SendListView: View {
 
     var body: some View {
         MainSendListView(store: store)
-            .autocorrectionDisabled(true)
             .searchable(
                 text: store.binding(
                     get: \.searchText,

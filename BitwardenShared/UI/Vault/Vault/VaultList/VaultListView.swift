@@ -254,18 +254,13 @@ struct VaultListView: View {
                 store: store,
                 timeProvider: timeProvider
             )
-            .autocorrectionDisabled(true)
             .searchable(
-                
                 text: store.binding(
                     get: \.searchText,
                     send: VaultListAction.searchTextChanged
-                        
                 ),
-                
                 placement: .navigationBarDrawer(displayMode: .always),
                 prompt: Localizations.search
-                
             )
             .task(id: store.state.searchText) {
                 await store.perform(.search(store.state.searchText))
