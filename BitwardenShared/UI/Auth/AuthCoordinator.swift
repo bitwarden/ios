@@ -574,7 +574,7 @@ final class AuthCoordinator: NSObject, // swiftlint:disable:this type_body_lengt
 
         let topmostViewController = stackNavigator?.rootViewController?.topmostViewController()
         topmostViewController?.navigationItem.backButtonTitle = Localizations.back
-        topmostViewController?.navigationController?.pushViewController(
+        topmostViewController?.navigationController?.push(
             viewController,
             animated: true
         )
