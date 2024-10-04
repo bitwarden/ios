@@ -235,7 +235,7 @@ final class CipherViewUpdateTests: BitwardenTestCase { // swiftlint:disable:this
         XCTAssertEqual(newerPasswordHistory?.last?.password, "New password")
     }
 
-    /// Tests that the update succeeds when a hidden field change modifies the password history..
+    /// Tests that the update succeeds when a hidden field change modifies the password history.
     func test_update_login_passwordHistory_hiddenField_succeeds() {
         cipherItemState.customFieldsState.customFields = [
             CustomFieldState(fieldView: .fixture(value: "2")),
