@@ -15,6 +15,8 @@ extension MockSharedKeychainRepository: SharedKeychainRepository {
     }
 
     func deleteAuthenticatorKey() throws {
+        guard errorToThrow == nil else { throw errorToThrow! }
+
         authenticatorKey = nil
     }
 

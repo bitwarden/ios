@@ -206,6 +206,41 @@ final class AuthenticatorSyncServiceTests: BitwardenTestCase { // swiftlint:disa
         XCTAssertEqual(item.username, "user@bitwarden.com")
     }
 
+    /// Verifies that the AuthSyncService handles an error when attempting to fetch the accounts to check
+    /// if any are left with sync.
+    ///
+    @MainActor
+    func test_deleteKeyIfSyncingIsOff_errorFetchingAccounts() async throws {
+        setupInitialState()
+        await subject.start()
+        stateService.syncToAuthenticatorSubject.send(("1", true))
+
+        waitFor(sharedKeychainRepository.authenticatorKey != nil)
+
+        stateService.accounts = nil
+        stateService.syncToAuthenticatorByUserId["1"] = false
+        stateService.syncToAuthenticatorSubject.send(("1", false))
+
+        waitFor(!errorReporter.errors.isEmpty)
+    }
+
+    /// Verifies that the AuthSyncService handles a keychain error when attempting to remove the Authenticator key.
+    ///
+    @MainActor
+    func test_deleteKeyIfSyncingIsOff_errorInKeychain() async throws {
+        setupInitialState()
+        await subject.start()
+        stateService.syncToAuthenticatorSubject.send(("1", true))
+
+        waitFor(sharedKeychainRepository.authenticatorKey != nil)
+
+        sharedKeychainRepository.errorToThrow = BitwardenTestError.example
+        stateService.syncToAuthenticatorByUserId["1"] = false
+        stateService.syncToAuthenticatorSubject.send(("1", false))
+
+        waitFor(!errorReporter.errors.isEmpty)
+    }
+
     /// Verifies that the AuthSyncService removes the Authenticator key when the last account to sync is turned off.
     ///
     @MainActor
@@ -240,10 +275,38 @@ final class AuthenticatorSyncServiceTests: BitwardenTestCase { // swiftlint:disa
         XCTAssertNotNil(sharedKeychainRepository.authenticatorKey)
     }
 
-    /// Verifies that the AuthSyncService handles and reports errors when sync is turned On..
+    /// Verifies that the AuthSyncService handles and reports errors when sync is turned off and the
+    /// service attempts to delete this account's items from the Store.
     ///
     @MainActor
-    func test_determineSyncForUserId_error() async throws {
+    func test_determineSyncForUserId_errorFromDeleteAllItems() async throws {
+        setupInitialState()
+        await subject.start()
+
+        authBridgeItemService.errorToThrow = BitwardenTestError.example
+        stateService.syncToAuthenticatorByUserId["1"] = false
+        stateService.syncToAuthenticatorSubject.send(("1", false))
+        waitFor(!errorReporter.errors.isEmpty)
+    }
+
+    /// Verifies that the AuthSyncService handles and reports errors when and there is an error
+    /// thrown while accessing the sync setting for the account.
+    ///
+    @MainActor
+    func test_determineSyncForUserId_errorFromFetchingSyncSetting() async throws {
+        setupInitialState()
+        await subject.start()
+
+        stateService.syncToAuthenticatorResult = .failure(BitwardenTestError.example)
+        stateService.syncToAuthenticatorSubject.send(("1", true))
+        waitFor(!errorReporter.errors.isEmpty)
+    }
+
+    /// Verifies that the AuthSyncService handles and reports errors when sync is turned On and the
+    /// keychain throws an error.
+    ///
+    @MainActor
+    func test_determineSyncForUserId_errorFromKeychain() async throws {
         setupInitialState()
         await subject.start()
         sharedKeychainRepository.errorToThrow = BitwardenTestError.example
