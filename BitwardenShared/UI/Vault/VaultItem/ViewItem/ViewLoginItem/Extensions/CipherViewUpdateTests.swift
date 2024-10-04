@@ -178,7 +178,7 @@ final class CipherViewUpdateTests: BitwardenTestCase { // swiftlint:disable:this
 
     /// Tests that the update succeeds with new properties.
     func test_update_login_edits_succeeds() {
-        subject = CipherView.loginFixture(fields: nil)
+        subject = CipherView.loginFixture()
         cipherItemState.type = .login
         cipherItemState.notes = "I have a note"
         cipherItemState.loginState.username = "PASTA"
@@ -220,7 +220,7 @@ final class CipherViewUpdateTests: BitwardenTestCase { // swiftlint:disable:this
 
     /// Tests that the update succeeds with a new password updating the password history.
     func test_update_login_passwordHistory_succeeds() {
-        subject = CipherView.loginFixture(fields: nil, login: .fixture(password: "Old password"))
+        subject = CipherView.loginFixture(login: .fixture(password: "Old password"))
         cipherItemState.loginState.password = "New password"
 
         let comparison = subject.updatedView(with: cipherItemState)
@@ -237,6 +237,14 @@ final class CipherViewUpdateTests: BitwardenTestCase { // swiftlint:disable:this
 
     /// Tests that the update succeeds when a hidden field change modifies the password history.
     func test_update_login_passwordHistory_hiddenField_succeeds() {
+        subject = CipherView.loginFixture(fields: [
+            FieldView(
+                name: "Name",
+                value: "1",
+                type: BitwardenSdk.FieldType.hidden,
+                linkedId: nil
+            ),
+        ])
         cipherItemState.customFieldsState.customFields = [
             CustomFieldState(fieldView: .fixture(value: "2")),
         ]
@@ -258,6 +266,14 @@ final class CipherViewUpdateTests: BitwardenTestCase { // swiftlint:disable:this
 
     /// Tests that the update succeeds when a hidden field is deleted modifies the password history..
     func test_update_login_passwordHistory_deleteHiddenField_succeeds() {
+        subject = CipherView.loginFixture(fields: [
+            FieldView(
+                name: "Name",
+                value: "1",
+                type: BitwardenSdk.FieldType.hidden,
+                linkedId: nil
+            ),
+        ])
         cipherItemState.customFieldsState.customFields = [
             CustomFieldState(fieldView: .fixture()),
             CustomFieldState(fieldView: .fixture(name: "NewField", value: "1")),
@@ -280,6 +296,14 @@ final class CipherViewUpdateTests: BitwardenTestCase { // swiftlint:disable:this
 
     /// Tests a new hidden field doesn't update the password history.
     func test_update_login_passwordHistory_newHiddenField_succeeds() {
+        subject = CipherView.loginFixture(fields: [
+            FieldView(
+                name: "Name",
+                value: "1",
+                type: BitwardenSdk.FieldType.hidden,
+                linkedId: nil
+            ),
+        ])
         cipherItemState.customFieldsState.customFields = [
             CustomFieldState(fieldView: .fixture()),
             CustomFieldState(fieldView: .fixture(name: "NewField", value: "1")),

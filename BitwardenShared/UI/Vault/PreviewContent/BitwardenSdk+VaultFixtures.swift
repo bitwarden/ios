@@ -193,14 +193,7 @@ extension CipherView {
         deletedDate: Date? = nil,
         edit: Bool = true,
         favorite: Bool = false,
-        fields: [FieldView]? = [
-            FieldView(
-                name: "Name",
-                value: "1",
-                type: BitwardenSdk.FieldType.hidden,
-                linkedId: nil
-            ),
-        ],
+        fields: [FieldView]? = nil,
         folderId: String? = nil,
         id: String = "8675",
         key: String? = nil,
