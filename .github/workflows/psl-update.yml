@@ -21,22 +21,17 @@ jobs:
           curl https://publicsuffix.org/list/public_suffix_list.dat \
           -o BitwardenShared/Core/Platform/Utilities/Resources/public_suffix_list.dat
 
-    #   - name: Create pull-request
-    #     id: cpr
-    #     uses: peter-evans/create-pull-request@v4
-    #     with:
-    #       commit-message: "util: gTLD data autopull updates for ${{ steps.get-date.outputs.NOW }}"
-    #       title: "util: gTLD autopull updates for ${{ steps.get-date.outputs.now }}"
-    #       body: "Public suffix list gTLD data updates from `tools/patchnewgtlds` for ${{ steps.get-date.outputs.now }}."
-    #       committer: "GitHub <noreply@github.com>"
-    #       author: "GitHub <noreply@github.com>"
-    #       branch: psl-gtld-update
-    #       labels: |
-    #         ✅ autopull
-    #         🚩ICANN (IANA/ICP-3) Section
-    #       delete-branch: true
+      - name: Create pull-request
+        id: cpr
+        uses: peter-evans/create-pull-request@v4
+        with:
+          commit-message: "Update public suffix list"
+          title: "Update public suffix list"
+          body: "Update the public suffix list"
+          branch: update-public-suffix-list
+          delete-branch: true
 
-    #   - name: Check outputs
-    #     run: |
-    #       echo "Pull Request Number - ${{ steps.cpr.outputs.pull-request-number }}"
-    #       echo "Pull Request URL - ${{ steps.cpr.outputs.pull-request-url }}"
+      - name: Check outputs
+        run: |
+          echo "Pull Request Number - ${{ steps.cpr.outputs.pull-request-number }}"
+          echo "Pull Request URL - ${{ steps.cpr.outputs.pull-request-url }}"
