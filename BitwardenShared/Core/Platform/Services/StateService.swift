@@ -1200,11 +1200,13 @@ actor DefaultStateService: StateService { // swiftlint:disable:this type_body_le
     /// - Parameters:
     ///  - appSettingsStore: The service that persists app settings.
     ///  - dataStore: The data store that handles performing data requests.
+    ///  - errorReporter: The service used by the application to report non-fatal errors.
     ///  - keychainRepository: A service used to access data in the keychain.
     ///
     init(
         appSettingsStore: AppSettingsStore,
         dataStore: DataStore,
+        errorReporter: ErrorReporter,
         keychainRepository: KeychainRepository
     ) {
         self.appSettingsStore = appSettingsStore
@@ -1213,6 +1215,12 @@ actor DefaultStateService: StateService { // swiftlint:disable:this type_body_le
 
         appThemeSubject = CurrentValueSubject(AppTheme(appSettingsStore.appTheme))
         showWebIconsSubject = CurrentValueSubject(!appSettingsStore.disableWebIcons)
+
+        Task {
+            for await activeUserId in await self.appSettingsStore.activeAccountIdPublisher().values {
+                errorReporter.setUserId(activeUserId)
+            }
+        }
     }
 
     // MARK: Methods
