@@ -4,7 +4,7 @@ import SwiftUI
 // MARK: - ViewItemDetailsView
 
 /// A view for displaying the contents of a Vault item details.
-struct ViewItemDetailsView: View {
+struct ViewItemDetailsView: View { // swiftlint:disable:this type_body_length
     // MARK: Private Properties
 
     @Environment(\.openURL) private var openURL
@@ -169,6 +169,15 @@ struct ViewItemDetailsView: View {
                 )
             case .secureNote:
                 EmptyView()
+            case .sshKey:
+                ViewSSHKeyItemView(
+                    showCopyButtons: true,
+                    store: store.child(
+                        state: { _ in store.state.sshKeyState },
+                        mapAction: { .sshKeyItemAction($0) },
+                        mapEffect: nil
+                    )
+                )
             }
         }
     }

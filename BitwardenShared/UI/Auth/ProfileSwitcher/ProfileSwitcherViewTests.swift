@@ -236,7 +236,7 @@ class ProfileSwitcherViewTests: BitwardenTestCase { // swiftlint:disable:this ty
     // MARK: Snapshots
 
     func test_snapshot_singleAccount() {
-        assertSnapshot(matching: subject, as: .defaultPortrait)
+        assertSnapshot(of: subject, as: .defaultPortrait)
     }
 
     @MainActor
@@ -267,19 +267,19 @@ class ProfileSwitcherViewTests: BitwardenTestCase { // swiftlint:disable:this ty
             allowLockAndLogout: true,
             isVisible: true
         )
-        assertSnapshot(matching: subject, as: .defaultPortrait)
+        assertSnapshot(of: subject, as: .defaultPortrait)
     }
 
     @MainActor
     func test_snapshot_multiAccount_unlocked_atMaximum() {
         processor.state = ProfileSwitcherState.maximumAccounts
-        assertSnapshot(matching: subject, as: .defaultPortrait)
+        assertSnapshot(of: subject, as: .defaultPortrait)
     }
 
     @MainActor
     func test_snapshot_multiAccount_unlocked_atMaximum_largeText() {
         processor.state = ProfileSwitcherState.maximumAccounts
-        assertSnapshot(matching: subject, as: .defaultPortraitAX5)
+        assertSnapshot(of: subject, as: .defaultPortraitAX5)
     }
 
     @MainActor
@@ -310,7 +310,7 @@ class ProfileSwitcherViewTests: BitwardenTestCase { // swiftlint:disable:this ty
             allowLockAndLogout: true,
             isVisible: true
         )
-        assertSnapshot(matching: subject, as: .defaultPortrait)
+        assertSnapshot(of: subject, as: .defaultPortrait)
     }
 
     @MainActor
@@ -347,14 +347,14 @@ class ProfileSwitcherViewTests: BitwardenTestCase { // swiftlint:disable:this ty
             allowLockAndLogout: true,
             isVisible: true
         )
-        assertSnapshot(matching: subject, as: .defaultPortrait)
+        assertSnapshot(of: subject, as: .defaultPortrait)
     }
 
     /// Test a snapshot of the ProfileSwitcherView previews.
     func test_snapshot_profileSwitcherView_previews() {
         for preview in ProfileSwitcherView_Previews._allPreviews {
             assertSnapshots(
-                matching: preview.content,
+                of: preview.content,
                 as: [.defaultPortrait]
             )
         }

@@ -72,6 +72,9 @@ protocol AddEditItemState: Sendable {
     /// If master password reprompt toggle should be shown.
     var showMasterPasswordReprompt: Bool { get set }
 
+    /// The SSH key item state.
+    var sshKeyState: SSHKeyItemState { get set }
+
     /// A toast message to show in the view.
     var toast: Toast? { get set }
 

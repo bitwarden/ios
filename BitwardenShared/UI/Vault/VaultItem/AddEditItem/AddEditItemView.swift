@@ -137,7 +137,7 @@ struct AddEditItemView: View {
                 BitwardenMenuField(
                     title: Localizations.type,
                     accessibilityIdentifier: "ItemTypePicker",
-                    options: CipherType.allCases,
+                    options: CipherType.canCreateCases,
                     selection: store.binding(
                         get: \.type,
                         send: AddEditItemAction.typeChanged
@@ -163,6 +163,8 @@ struct AddEditItemView: View {
                 EmptyView()
             case .identity:
                 identityItems
+            case .sshKey:
+                sshKeyItems
             }
         }
     }
@@ -189,6 +191,17 @@ struct AddEditItemView: View {
                 },
                 mapAction: { $0 },
                 mapEffect: { $0 }
+            )
+        )
+    }
+
+    @ViewBuilder private var sshKeyItems: some View {
+        ViewSSHKeyItemView(
+            showCopyButtons: false,
+            store: store.child(
+                state: { _ in store.state.sshKeyState },
+                mapAction: { .sshKeyItemAction($0) },
+                mapEffect: nil
             )
         )
     }

@@ -17,6 +17,11 @@ enum AlertError: LocalizedError {
 }
 
 extension Alert {
+    /// Simulates tapping the cancel button of the alert.
+    func tapCancel() async throws{
+        try await tapAction(title: Localizations.cancel)
+    }
+
     /// Simulates a user interaction with the alert action that matches the provided title.
     ///
     /// - Parameters:
@@ -50,5 +55,19 @@ extension Alert {
         let simulatedTextField = UITextField()
         simulatedTextField.text = text
         textField.textChanged(in: simulatedTextField)
+    }
+
+    /// Fills the "password" TextField with the `with` parameter and simulatess tapping the "Submit" button.
+    /// - Parameter with: Value to enter into the TextField.
+    func submitMasterPasswordReprompt(with password: String) async throws {
+        try await tapAction(
+            title: Localizations.submit,
+            alertTextFields: [
+                AlertTextField(
+                    id: "password",
+                    text: password
+                ),
+            ]
+        )
     }
 }

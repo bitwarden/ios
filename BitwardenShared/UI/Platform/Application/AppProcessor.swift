@@ -70,7 +70,7 @@ public class AppProcessor {
 
         startEventTimer()
 
-        UI.initialLanguageCode = services.appSettingsStore.appLocale ?? Locale.current.languageCode
+        UI.initialLanguageCode = services.appSettingsStore.appLocale ?? Bundle.main.preferredLocalizations.first
         UI.applyDefaultAppearances()
 
         Task {

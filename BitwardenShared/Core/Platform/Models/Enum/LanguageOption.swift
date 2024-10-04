@@ -50,7 +50,7 @@ public enum LanguageOption: Equatable, Sendable {
             "nb",
             "nl",
             "pl",
-            "pt-BT",
+            "pt-BR",
             "pt-PT",
             "ro",
             "ru",
@@ -60,8 +60,8 @@ public enum LanguageOption: Equatable, Sendable {
             "tr",
             "uk",
             "vi",
-            "zh-CN",
-            "zh-TW",
+            "zh-Hans",
+            "zh-Hant",
         ]
 
     // MARK: Properties
