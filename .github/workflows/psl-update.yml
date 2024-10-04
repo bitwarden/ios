@@ -41,6 +41,7 @@ jobs:
           title: "Update public suffix list"
           body: "Update the public suffix list"
           branch: update-public-suffix-list
+          sign-commits: true
           delete-branch: true
 
       - name: Check outputs
