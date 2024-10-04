@@ -207,7 +207,6 @@ class EnvironmentServiceTests: XCTestCase {
         XCTAssertEqual(subject.settingsURL, URL(string: "https://example.com/#/settings"))
         XCTAssertEqual(subject.webVaultURL, URL(string: "https://example.com"))
         XCTAssertEqual(stateService.preAuthEnvironmentUrls, urls)
-        
         XCTAssertEqual(errorReporter.region?.region, "Self-Hosted")
         XCTAssertEqual(errorReporter.region?.isPreAuth, true)
     }
