@@ -18,7 +18,7 @@ enum AlertError: LocalizedError {
 
 extension Alert {
     /// Simulates tapping the cancel button of the alert.
-    func tapCancel() async throws{
+    func tapCancel() async throws {
         try await tapAction(title: Localizations.cancel)
     }
 
