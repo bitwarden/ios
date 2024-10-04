@@ -1217,7 +1217,7 @@ actor DefaultStateService: StateService { // swiftlint:disable:this type_body_le
         showWebIconsSubject = CurrentValueSubject(!appSettingsStore.disableWebIcons)
 
         Task {
-            for await activeUserId in await self.appSettingsStore.activeAccountIdPublisher().values {
+            for await activeUserId in self.appSettingsStore.activeAccountIdPublisher().values {
                 errorReporter.setUserId(activeUserId)
             }
         }
