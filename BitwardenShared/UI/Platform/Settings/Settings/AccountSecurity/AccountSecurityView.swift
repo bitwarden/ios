@@ -262,4 +262,12 @@ struct AccountSecurityView: View {
         )
     }
 }
+
+#Preview("Vault Unlock Action Card") {
+    NavigationView {
+        AccountSecurityView(store: Store(processor: StateProcessor(state: AccountSecurityState(
+            badgeState: .fixture(vaultUnlockSetupProgress: .setUpLater)
+        ))))
+    }
+}
 #endif
