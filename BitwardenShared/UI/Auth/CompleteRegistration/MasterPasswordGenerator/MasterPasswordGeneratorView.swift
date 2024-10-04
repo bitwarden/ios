@@ -30,9 +30,6 @@ struct MasterPasswordGeneratorView: View {
             titleDisplayMode: .inline
         )
         .toolbar {
-            cancelToolbarItem {
-                store.send(.dismiss)
-            }
             saveToolbarItem {
                 await store.perform(.save)
             }

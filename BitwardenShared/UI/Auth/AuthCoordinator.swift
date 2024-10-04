@@ -162,7 +162,7 @@ final class AuthCoordinator: NSObject, // swiftlint:disable:this type_body_lengt
         case .dismiss:
             stackNavigator?.dismiss()
         case .dismissPresented:
-            stackNavigator?.rootViewController?.presentedViewController?.dismiss(animated: true)
+            stackNavigator?.rootViewController?.topmostViewController().dismiss(animated: true)
         case let .dismissWithAction(onDismiss):
             stackNavigator?.dismiss(animated: true, completion: {
                 onDismiss?.action()
@@ -571,8 +571,13 @@ final class AuthCoordinator: NSObject, // swiftlint:disable:this type_body_lengt
         let store = Store(processor: processor)
         let view = MasterPasswordGeneratorView(store: store)
         let viewController = UIHostingController(rootView: view)
-        let navigationController = UINavigationController(rootViewController: viewController)
-        stackNavigator?.present(navigationController)
+
+        let topmostViewController = stackNavigator?.rootViewController?.topmostViewController()
+        topmostViewController?.navigationItem.backButtonTitle = Localizations.back
+        topmostViewController?.navigationController?.pushViewController(
+            viewController,
+            animated: true
+        )
     }
 
     /// Shows the master password guidance screen.
