@@ -78,7 +78,7 @@ class DefaultEnvironmentService: EnvironmentService {
     // MARK: Initialization
 
     /// Initialize a `DefaultEnvironmentService`.
-    /// 
+    ///
     /// - Parameters:
     ///   - errorReporter: The service used by the application to report non-fatal errors
     ///   - stateService: The service used by the application to manage account state.
