@@ -146,9 +146,9 @@ extension CipherView {
         // Map new fields
         let newFields = mapFields(addEditState)
 
-        updatePasswordHistoryWithHiddenFields(
-            passwordHistory: &passwordHistory,
-            oldFields: addEditState.cipher.fields,
+        passwordHistory = updatePasswordHistoryWithHiddenFields(
+            passwordHistory: passwordHistory,
+            oldFields: fields,
             newFields: newFields,
             lastUsedDate: lastUsedDate
         )
@@ -186,11 +186,12 @@ extension CipherView {
     }
 
     private func updatePasswordHistoryWithHiddenFields(
-        passwordHistory: inout [PasswordHistoryView]?,
+        passwordHistory: [PasswordHistoryView]?,
         oldFields: [FieldView]?,
         newFields: [FieldView]?,
         lastUsedDate: Date
-    ) {
+    ) -> [PasswordHistoryView]? {
+        var newHistory = passwordHistory
         if let oldFields {
             oldFields.filter { field in
                 FieldType(fieldType: field.type) == FieldType.hidden &&
@@ -200,13 +201,14 @@ extension CipherView {
                     password: "\(hiddenField.name ?? ""): \(hiddenField.value ?? "")",
                     lastUsedDate: lastUsedDate
                 )
-                if passwordHistory == nil {
-                    passwordHistory = [passHistoryHiddenField]
+                if newHistory == nil {
+                    newHistory = [passHistoryHiddenField]
                 } else if !passwordHistory!.contains(passHistoryHiddenField) {
-                    passwordHistory!.append(passHistoryHiddenField)
+                    newHistory!.append(passHistoryHiddenField)
                 }
             }
         }
+        return newHistory
     }
 
     private func mapFields(_ addEditState: AddEditItemState) -> [FieldView]? {
