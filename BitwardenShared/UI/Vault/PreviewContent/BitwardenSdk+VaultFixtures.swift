@@ -193,7 +193,14 @@ extension CipherView {
         deletedDate: Date? = nil,
         edit: Bool = true,
         favorite: Bool = false,
-        fields: [FieldView]? = nil,
+        fields: [FieldView]? = [
+            FieldView(
+                name: "Name",
+                value: "1",
+                type: BitwardenSdk.FieldType.hidden,
+                linkedId: nil
+            ),
+        ],
         folderId: String? = nil,
         id: String = "8675",
         key: String? = nil,
@@ -379,6 +386,22 @@ extension Fido2CredentialView {
             userDisplayName: userDisplayName,
             discoverable: discoverable,
             creationDate: creationDate
+        )
+    }
+}
+
+extension BitwardenSdk.FieldView {
+    static func fixture(
+        name: String? = "Name",
+        value: String? = "1",
+        type: BitwardenSdk.FieldType = BitwardenSdk.FieldType.hidden,
+        linkedId: BitwardenSdk.LinkedIdType? = nil
+    ) -> BitwardenSdk.FieldView {
+        BitwardenSdk.FieldView(
+            name: name,
+            value: value,
+            type: type,
+            linkedId: linkedId
         )
     }
 }
