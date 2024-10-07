@@ -94,7 +94,7 @@ class VaultUnlockSetupViewTests: BitwardenTestCase {
     @MainActor
     func test_snapshot_vaultUnlockSetup_settings() {
         processor.state.accountSetupFlow = .settings
-        processor.state.biometricsStatus = .available(.faceID, enabled: false, hasValidIntegrity: false)
+        processor.state.biometricsStatus = .available(.faceID, enabled: false)
         assertSnapshots(
             of: subject.navStackWrapped,
             as: [.defaultPortrait, .defaultPortraitDark, .tallPortraitAX5(heightMultiple: 2)]
