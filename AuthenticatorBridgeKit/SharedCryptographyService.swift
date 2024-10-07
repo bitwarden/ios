@@ -62,6 +62,7 @@ public class DefaultAuthenticatorCryptographyService: SharedCryptographyService 
 
         return items.map { item in
             AuthenticatorBridgeItemDataView(
+                bitwardenAccountName: (try? decrypt(item.bitwardenAccountName, withKey: symmetricKey)) ?? "",
                 favorite: item.favorite,
                 id: item.id,
                 name: (try? decrypt(item.name, withKey: symmetricKey)) ?? "",
@@ -79,6 +80,7 @@ public class DefaultAuthenticatorCryptographyService: SharedCryptographyService 
 
         return items.map { item in
             AuthenticatorBridgeItemDataModel(
+                bitwardenAccountName: encrypt(item.bitwardenAccountName, withKey: symmetricKey) ?? "",
                 favorite: item.favorite,
                 id: item.id,
                 name: encrypt(item.name, withKey: symmetricKey) ?? "",

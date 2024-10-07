@@ -49,7 +49,12 @@ final class AuthenticatorBridgeItemDataTests: AuthenticatorBridgeKitTestCase {
             context: dataStore.persistentContainer.viewContext,
             userId: "userId",
             authenticatorItem: AuthenticatorBridgeItemDataModel(
-                favorite: true, id: "is", name: "name", totpKey: "TOTP Key", username: "username"
+                bitwardenAccountName: "test@example.com",
+                favorite: true,
+                id: "is",
+                name: "name",
+                totpKey: "TOTP Key",
+                username: "username"
             )
         )
 

@@ -71,6 +71,11 @@ final class SharedCryptographyServiceTests: AuthenticatorBridgeKitTestCase {
 
             // Encrypted values should not remain equal, unless they were `nil`
             XCTAssertNotEqual(item.name, encryptedItem.name)
+            if item.bitwardenAccountName != nil {
+                XCTAssertNotEqual(item.bitwardenAccountName, encryptedItem.bitwardenAccountName)
+            } else {
+                XCTAssertNil(encryptedItem.bitwardenAccountName)
+            }
             if item.totpKey != nil {
                 XCTAssertNotEqual(item.totpKey, encryptedItem.totpKey)
             } else {
