@@ -3,15 +3,10 @@
 class MockBiometricsRepository: BiometricsRepository {
     var biometricUnlockStatus: Result<BiometricsUnlockStatus, Error> = .success(.notAvailable)
     var capturedUserAuthKey: String?
-    var didConfigureBiometricIntegrity = false
     var didDeleteKey: Bool = false
     var getBiometricAuthenticationTypeResult: BitwardenShared.BiometricAuthenticationType?
     var getUserAuthKeyResult: Result<String, Error> = .success("UserAuthKey")
     var setBiometricUnlockKeyError: Error?
-
-    func configureBiometricIntegrity() async {
-        didConfigureBiometricIntegrity = true
-    }
 
     func getBiometricAuthenticationType() -> BitwardenShared.BiometricAuthenticationType? {
         getBiometricAuthenticationTypeResult

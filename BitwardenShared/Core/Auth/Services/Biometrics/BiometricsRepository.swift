@@ -5,7 +5,7 @@ import LocalAuthentication
 
 enum BiometricsUnlockStatus: Equatable {
     /// Biometric Unlock is available.
-    case available(BiometricAuthenticationType, enabled: Bool, hasValidIntegrity: Bool)
+    case available(BiometricAuthenticationType, enabled: Bool)
 
     /// Biometric Unlock is not available.
     case notAvailable
@@ -14,7 +14,7 @@ enum BiometricsUnlockStatus: Equatable {
 
     /// Whether biometric unlock is both available and enabled.
     var isEnabled: Bool {
-        guard case let .available(_, enabled, _) = self else {
+        guard case let .available(_, enabled) = self else {
             return false
         }
         return enabled
@@ -26,10 +26,6 @@ enum BiometricsUnlockStatus: Equatable {
 /// A protocol for returning the available authentication policies and access controls for the user's device.
 ///
 protocol BiometricsRepository: AnyObject {
-    /// Configures the device Biometric Integrity state.
-    ///     Should be called following a successful launch when biometric unlock is enabled.
-    func configureBiometricIntegrity() async throws
-
     /// Returns the device BiometricAuthenticationType.
     ///
     /// - Returns: The `BiometricAuthenticationType`.
@@ -69,7 +65,7 @@ class DefaultBiometricsRepository: BiometricsRepository {
     /// A service used to store the UserAuthKey key/value pair.
     var keychainRepository: KeychainRepository
 
-    /// A service used to store the Biometric Integrity Source key/value pair.
+    /// A service used to update user preferences.
     var stateService: StateService
 
     // MARK: Initialization
@@ -91,13 +87,6 @@ class DefaultBiometricsRepository: BiometricsRepository {
         self.stateService = stateService
     }
 
-    func configureBiometricIntegrity() async throws {
-        if let state = biometricsService.getBiometricIntegrityState() {
-            let base64State = state.base64EncodedString()
-            try await stateService.setBiometricIntegrityState(base64State)
-        }
-    }
-
     func getBiometricAuthenticationType() -> BiometricAuthenticationType? {
         biometricsService.getBiometricAuthenticationType()
     }
@@ -106,13 +95,11 @@ class DefaultBiometricsRepository: BiometricsRepository {
         guard let authKey,
               try await biometricsService.evaluateBiometricPolicy() else {
             try await stateService.setBiometricAuthenticationEnabled(false)
-            try await stateService.setBiometricIntegrityState(nil)
             try? await deleteUserAuthKey()
             return
         }
 
         try await setUserBiometricAuthKey(value: authKey)
-        try await configureBiometricIntegrity()
         try await stateService.setBiometricAuthenticationEnabled(true)
     }
 
@@ -122,14 +109,9 @@ class DefaultBiometricsRepository: BiometricsRepository {
             throw BiometricsServiceError.biometryLocked
         }
         let hasEnabledBiometricUnlock = try await stateService.getBiometricAuthenticationEnabled()
-        let hasValidIntegrityState = await isBiometricIntegrityValid()
         switch biometryStatus {
         case let .authorized(type):
-            return .available(
-                type,
-                enabled: hasEnabledBiometricUnlock,
-                hasValidIntegrity: hasValidIntegrityState
-            )
+            return .available(type, enabled: hasEnabledBiometricUnlock)
         case .denied,
              .lockedOut,
              .noBiometrics,
@@ -149,10 +131,6 @@ class DefaultBiometricsRepository: BiometricsRepository {
             guard !string.isEmpty else {
                 throw BiometricsServiceError.getAuthKeyFailed
             }
-            if let state = biometricsService.getBiometricIntegrityState() {
-                let base64State = state.base64EncodedString()
-                try await stateService.setBiometricIntegrityState(base64State)
-            }
             return string
         } catch let error as KeychainServiceError {
             switch error {
@@ -169,6 +147,8 @@ class DefaultBiometricsRepository: BiometricsRepository {
                      kLAErrorSystemCancel,
                      kLAErrorUserCancel:
                     throw BiometricsServiceError.biometryCancelled
+                case errSecItemNotFound:
+                    throw BiometricsServiceError.getAuthKeyFailed
                 case kLAErrorBiometryDisconnected,
                      kLAErrorUserFallback:
                     throw BiometricsServiceError.biometryFailed
@@ -193,20 +173,6 @@ extension DefaultBiometricsRepository {
         } catch {
             throw BiometricsServiceError.deleteAuthKeyFailed
         }
-    }
-
-    /// Checks if the device evaluatedPolicyDomainState matches the data saved to user defaults.
-    ///
-    /// - Returns: A `Bool` indicating if the stored Data matches the current data.
-    ///     If no data is stored to the device, `true` is returned by default.
-    ///
-    private func isBiometricIntegrityValid() async -> Bool {
-        guard let data = biometricsService.getBiometricIntegrityState() else {
-            // Fallback for devices unable to retrieve integrity state.
-            return true
-        }
-        let integrityString: String? = try? await stateService.getBiometricIntegrityState()
-        return data.base64EncodedString() == integrityString
     }
 
     /// Attempts to save an auth key to the keychain with biometrics.
