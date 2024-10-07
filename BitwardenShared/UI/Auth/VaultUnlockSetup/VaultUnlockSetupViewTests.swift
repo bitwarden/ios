@@ -32,7 +32,7 @@ class VaultUnlockSetupViewTests: BitwardenTestCase {
     /// Tapping the continue button dispatches the continue flow action.
     @MainActor
     func test_continue_tap() async throws {
-        processor.state.biometricsStatus = .available(.faceID, enabled: true, hasValidIntegrity: true)
+        processor.state.biometricsStatus = .available(.faceID, enabled: true)
         let button = try subject.inspect().find(asyncButton: Localizations.continue)
         try await button.tap()
         XCTAssertEqual(processor.effects.last, .continueFlow)
@@ -44,11 +44,11 @@ class VaultUnlockSetupViewTests: BitwardenTestCase {
         var button = try subject.inspect().find(button: Localizations.continue)
         XCTAssertTrue(button.isDisabled())
 
-        processor.state.biometricsStatus = .available(.faceID, enabled: true, hasValidIntegrity: true)
+        processor.state.biometricsStatus = .available(.faceID, enabled: true)
         button = try subject.inspect().find(button: Localizations.continue)
         XCTAssertFalse(button.isDisabled())
 
-        processor.state.biometricsStatus = .available(.faceID, enabled: false, hasValidIntegrity: false)
+        processor.state.biometricsStatus = .available(.faceID, enabled: false)
         processor.state.isPinUnlockOn = true
         button = try subject.inspect().find(button: Localizations.continue)
         XCTAssertFalse(button.isDisabled())
@@ -67,7 +67,7 @@ class VaultUnlockSetupViewTests: BitwardenTestCase {
     /// The vault unlock setup view renders correctly.
     @MainActor
     func test_snapshot_vaultUnlockSetup() {
-        processor.state.biometricsStatus = .available(.faceID, enabled: false, hasValidIntegrity: false)
+        processor.state.biometricsStatus = .available(.faceID, enabled: false)
         assertSnapshots(
             of: subject.navStackWrapped,
             as: [.defaultPortrait, .defaultPortraitDark, .tallPortraitAX5(heightMultiple: 2), .defaultLandscape]
@@ -77,7 +77,7 @@ class VaultUnlockSetupViewTests: BitwardenTestCase {
     /// The vault unlock setup view renders correctly for a device with Touch ID.
     @MainActor
     func test_snapshot_vaultUnlockSetup_touchID() {
-        processor.state.biometricsStatus = .available(.touchID, enabled: false, hasValidIntegrity: false)
+        processor.state.biometricsStatus = .available(.touchID, enabled: false)
         assertSnapshots(
             of: subject.navStackWrapped,
             as: [.defaultPortrait]
@@ -96,7 +96,7 @@ class VaultUnlockSetupViewTests: BitwardenTestCase {
     /// The vault unlock setup view renders correctly with an unlock method enabled.
     @MainActor
     func test_snapshot_vaultUnlockSetup_unlockMethodEnabled() {
-        processor.state.biometricsStatus = .available(.faceID, enabled: true, hasValidIntegrity: true)
+        processor.state.biometricsStatus = .available(.faceID, enabled: true)
         assertSnapshots(
             of: subject.navStackWrapped,
             as: [.defaultPortrait]

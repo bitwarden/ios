@@ -107,16 +107,14 @@ class VaultUnlockViewTests: BitwardenTestCase {
     func test_vaultUnlockWithBiometricsButton_tap() throws {
         processor.state.biometricUnlockStatus = .available(
             .faceID,
-            enabled: true,
-            hasValidIntegrity: true
+            enabled: true
         )
         var expectedString = Localizations.useFaceIDToUnlock
         var button = try subject.inspect().find(button: expectedString)
 
         processor.state.biometricUnlockStatus = .available(
             .touchID,
-            enabled: true,
-            hasValidIntegrity: true
+            enabled: true
         )
         expectedString = Localizations.useFingerprintToUnlock
         button = try subject.inspect().find(button: expectedString)
@@ -137,19 +135,7 @@ class VaultUnlockViewTests: BitwardenTestCase {
     func test_snapshot_vaultUnlock_withBiometrics_faceId() {
         processor.state.biometricUnlockStatus = .available(
             .faceID,
-            enabled: true,
-            hasValidIntegrity: true
-        )
-        assertSnapshot(of: subject, as: .defaultPortrait)
-    }
-
-    /// Tests that we show the red alert message when we don't have a valid integrity but biometrics is available.
-    @MainActor
-    func test_snapshot_vaultUnlock_withBiometrics_enabledAndInvalidIntegrity() {
-        processor.state.biometricUnlockStatus = .available(
-            .faceID,
-            enabled: true,
-            hasValidIntegrity: false
+            enabled: true
         )
         assertSnapshot(of: subject, as: .defaultPortrait)
     }
@@ -166,8 +152,7 @@ class VaultUnlockViewTests: BitwardenTestCase {
     func test_snapshot_vaultUnlock_withBiometrics_touchId() {
         processor.state.biometricUnlockStatus = .available(
             .touchID,
-            enabled: true,
-            hasValidIntegrity: true
+            enabled: true
         )
         assertSnapshot(of: subject, as: .defaultPortrait)
     }
