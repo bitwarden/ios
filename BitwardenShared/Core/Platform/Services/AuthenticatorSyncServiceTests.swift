@@ -455,6 +455,31 @@ final class AuthenticatorSyncServiceTests: BitwardenTestCase { // swiftlint:disa
         waitFor(!errorReporter.errors.isEmpty)
     }
 
+    /// The AuthService may not get notified about Vault locking if the user has switched accounts. Verify
+    /// that it checks the vault lock before beginning to decrypt and write new Ciphers received.
+    ///
+    @MainActor
+    func test_writeCiphers_vaultLocked() async throws {
+        setupInitialState()
+        await subject.start()
+        stateService.syncToAuthenticatorSubject.send(("1", true))
+        try await Task.sleep(nanoseconds: 10_000_000)
+
+        vaultTimeoutService.isClientLocked["1"] = true
+        cipherDataStore.cipherSubjectByUserId["1"]?.send([
+            .fixture(
+                id: "1234",
+                login: .fixture(
+                    username: "user@bitwarden.com",
+                    totp: "totp"
+                )
+            ),
+        ])
+        try await Task.sleep(nanoseconds: 10_000_000)
+        XCTAssertNil(authBridgeItemService.storedItems["1"]?.first)
+        XCTAssertTrue(errorReporter.errors.isEmpty)
+    }
+
     // MARK: - Private Methods
 
     /// Helper function that sets up testing parameters based on the flags passed in
