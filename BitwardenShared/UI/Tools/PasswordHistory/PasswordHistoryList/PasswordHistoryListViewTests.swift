@@ -66,7 +66,7 @@ class PasswordHistoryListViewTests: BitwardenTestCase {
     /// Test a snapshot of the generator history view's empty state.
     func test_snapshot_generatorHistoryViewEmpty() {
         assertSnapshot(
-            matching: subject,
+            of: subject,
             as: .defaultPortrait
         )
     }
@@ -90,7 +90,7 @@ class PasswordHistoryListViewTests: BitwardenTestCase {
             ),
         ]
         assertSnapshots(
-            matching: subject,
+            of: subject,
             as: [.defaultPortrait, .defaultPortraitAX5]
         )
     }

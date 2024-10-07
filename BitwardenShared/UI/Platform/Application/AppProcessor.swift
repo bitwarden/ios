@@ -70,7 +70,7 @@ public class AppProcessor {
 
         startEventTimer()
 
-        UI.initialLanguageCode = services.appSettingsStore.appLocale ?? Locale.current.languageCode
+        UI.initialLanguageCode = services.appSettingsStore.appLocale ?? Bundle.main.preferredLocalizations.first
         UI.applyDefaultAppearances()
 
         Task {
@@ -127,12 +127,14 @@ public class AppProcessor {
     ///   - initialRoute: The initial route to navigate to. If `nil` this, will navigate to the
     ///     unlock or landing auth route based on if there's an active account. Defaults to `nil`.
     ///   - navigator: The object that will be used to navigate between routes.
+    ///   - splashWindow: The splash window to use to set the app's theme.
     ///   - window: The window to use to set the app's theme.
     ///
     public func start(
         appContext: AppContext,
         initialRoute: AppRoute? = nil,
         navigator: RootNavigator,
+        splashWindow: UIWindow? = nil,
         window: UIWindow?
     ) async {
         let coordinator = appModule.makeAppCoordinator(appContext: appContext, navigator: navigator)
@@ -142,6 +144,7 @@ public class AppProcessor {
         Task {
             for await appTheme in await services.stateService.appThemePublisher().values {
                 navigator.appTheme = appTheme
+                splashWindow?.overrideUserInterfaceStyle = appTheme.userInterfaceStyle
                 window?.overrideUserInterfaceStyle = appTheme.userInterfaceStyle
             }
         }

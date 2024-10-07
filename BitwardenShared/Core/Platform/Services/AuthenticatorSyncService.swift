@@ -158,7 +158,7 @@ actor DefaultAuthenticatorSyncService: NSObject, AuthenticatorSyncService {
                 && cipher.login?.totp != nil
         }
         let decryptedCiphers = try await totpCiphers.asyncMap { cipher in
-            try await self.clientService.vault().ciphers().decrypt(cipher: cipher)
+            try await self.clientService.vault(for: userId).ciphers().decrypt(cipher: cipher)
         }
         let account = try await stateService.getActiveAccount()
         let username = account.profile.email
@@ -195,12 +195,12 @@ actor DefaultAuthenticatorSyncService: NSObject, AuthenticatorSyncService {
     private func determineSyncForUserId(_ userId: String) async throws {
         if try await !stateService.getSyncToAuthenticator(userId: userId) {
             cipherPublisherTasks[userId]??.cancel()
-            cipherPublisherTasks[userId] = nil
+            cipherPublisherTasks.removeValue(forKey: userId)
             try await authBridgeItemService.deleteAllForUserId(userId)
             try await deleteKeyIfSyncingIsOff()
         } else if vaultTimeoutService.isLocked(userId: userId) {
             cipherPublisherTasks[userId]??.cancel()
-            cipherPublisherTasks[userId] = nil
+            cipherPublisherTasks.removeValue(forKey: userId)
         } else {
             try await createAuthenticatorKeyIfNeeded()
             subscribeToCipherUpdates(userId: userId)
@@ -232,6 +232,8 @@ actor DefaultAuthenticatorSyncService: NSObject, AuthenticatorSyncService {
     ///   - userId: The userId of the account to which the Ciphers belong.
     ///
     private func writeCiphers(ciphers: [Cipher], userId: String) async throws {
+        guard !vaultTimeoutService.isLocked(userId: userId) else { return }
+
         let items = try await decryptTOTPs(ciphers, userId: userId)
         try await authBridgeItemService.replaceAllItems(with: items, forUserId: userId)
     }

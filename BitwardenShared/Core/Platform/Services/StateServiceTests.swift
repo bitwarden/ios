@@ -8,6 +8,7 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
 
     var appSettingsStore: MockAppSettingsStore!
     var dataStore: DataStore!
+    var errorReporter: MockErrorReporter!
     var keychainRepository: MockKeychainRepository!
     var subject: DefaultStateService!
 
@@ -18,11 +19,13 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
 
         appSettingsStore = MockAppSettingsStore()
         dataStore = DataStore(errorReporter: MockErrorReporter(), storeType: .memory)
+        errorReporter = MockErrorReporter()
         keychainRepository = MockKeychainRepository()
 
         subject = DefaultStateService(
             appSettingsStore: appSettingsStore,
             dataStore: dataStore,
+            errorReporter: errorReporter,
             keychainRepository: keychainRepository
         )
     }
@@ -32,6 +35,7 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
 
         appSettingsStore = nil
         dataStore = nil
+        errorReporter = nil
         keychainRepository = nil
         subject = nil
     }
@@ -610,6 +614,25 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
         appSettingsStore.eventsByUserId["1"] = events
         let actual = try await subject.getEvents(userId: "1")
         XCTAssertEqual(actual, events)
+    }
+
+    /// `init()` subscribes to active account publisher and sets the user id on the error reporter.
+    func test_init_activeAccountSubscription() async throws {
+        appSettingsStore.state = State(
+            accounts: [
+                "1": .fixture(profile: .fixture(email: "user1@bitwarden.com", userId: "1")),
+                "2": .fixture(profile: .fixture(email: "user2@bitwarden.com", userId: "2")),
+                "3": .fixture(profile: .fixture(email: "user3@bitwarden.com", userId: "3")),
+            ],
+            activeUserId: "2"
+        )
+        try await waitForAsync {
+            self.errorReporter.currentUserId == "2"
+        }
+        appSettingsStore.activeIdSubject.send(nil)
+        try await waitForAsync {
+            self.errorReporter.currentUserId == nil
+        }
     }
 
     /// `getIntroCarouselShown()` returns whether the intro carousel screen has been shown.

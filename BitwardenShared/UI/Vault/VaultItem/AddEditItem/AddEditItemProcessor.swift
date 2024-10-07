@@ -195,6 +195,8 @@ final class AddEditItemProcessor: StateProcessor<// swiftlint:disable:this type_
                     )
                 }
             }
+        case let .sshKeyItemAction(sshKeyAction):
+            handleSSHKeyAction(sshKeyAction)
         case let .toastShown(newValue):
             state.toast = newValue
         case .totpFieldLeftFocus:
@@ -344,6 +346,18 @@ final class AddEditItemProcessor: StateProcessor<// swiftlint:disable:this type_
             coordinator.navigate(to: .editCollections(state.cipher), context: self)
         case .moveToOrganization:
             coordinator.navigate(to: .moveToOrganization(state.cipher), context: self)
+        }
+    }
+
+    /// Handles `ViewSSHKeyItemAction` events.
+    /// - Parameter sshKeyAction: The action to handle
+    private func handleSSHKeyAction(_ sshKeyAction: ViewSSHKeyItemAction) {
+        switch sshKeyAction {
+        case .copyPressed:
+            return
+        case .privateKeyVisibilityPressed:
+            state.sshKeyState.isPrivateKeyVisible.toggle()
+            // TODO: PM-11977 Collect visibility toggled event
         }
     }
 

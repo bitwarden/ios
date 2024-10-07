@@ -62,7 +62,7 @@ final class ProfileSwitcherToolbarViewTests: BitwardenTestCase {
     func test_snapshot_empty() {
         processor.state = .empty()
         assertSnapshot(
-            matching: snapshotSubject(
+            of: snapshotSubject(
                 title: "Empty State"
             ),
             as: .portrait(heightMultiple: 0.1)
@@ -78,7 +78,7 @@ final class ProfileSwitcherToolbarViewTests: BitwardenTestCase {
             isVisible: true
         )
         assertSnapshot(
-            matching: snapshotSubject(
+            of: snapshotSubject(
                 title: "No Active Account"
             ),
             as: .portrait(heightMultiple: 0.1)
@@ -87,7 +87,7 @@ final class ProfileSwitcherToolbarViewTests: BitwardenTestCase {
 
     func test_snapshot_singleAccount() {
         assertSnapshot(
-            matching: snapshotSubject(
+            of: snapshotSubject(
                 title: "Single Account"
             ),
             as: .portrait(heightMultiple: 0.1)
@@ -111,7 +111,7 @@ final class ProfileSwitcherToolbarViewTests: BitwardenTestCase {
             isVisible: true
         )
         assertSnapshot(
-            matching: snapshotSubject(
+            of: snapshotSubject(
                 title: "Multi Account"
             ),
             as: .portrait(heightMultiple: 0.1)
@@ -135,7 +135,7 @@ final class ProfileSwitcherToolbarViewTests: BitwardenTestCase {
             isVisible: true
         )
         assertSnapshot(
-            matching: snapshotSubject(
+            of: snapshotSubject(
                 title: "Black Icon Color"
             ),
             as: .portrait(heightMultiple: 0.1)
@@ -159,7 +159,7 @@ final class ProfileSwitcherToolbarViewTests: BitwardenTestCase {
             isVisible: true
         )
         assertSnapshot(
-            matching: snapshotSubject(
+            of: snapshotSubject(
                 title: "Blue Icon Color"
             ),
             as: .portrait(heightMultiple: 0.1)
@@ -183,7 +183,7 @@ final class ProfileSwitcherToolbarViewTests: BitwardenTestCase {
             isVisible: true
         )
         assertSnapshot(
-            matching: snapshotSubject(
+            of: snapshotSubject(
                 title: "White Icon Color"
             ),
             as: .portrait(heightMultiple: 0.1)
@@ -207,7 +207,7 @@ final class ProfileSwitcherToolbarViewTests: BitwardenTestCase {
             isVisible: true
         )
         assertSnapshot(
-            matching: snapshotSubject(
+            of: snapshotSubject(
                 title: "Yellow Icon Color"
             ),
             as: .portrait(heightMultiple: 0.1)
