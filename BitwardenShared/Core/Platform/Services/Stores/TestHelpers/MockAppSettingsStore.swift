@@ -5,6 +5,7 @@ import Foundation
 
 class MockAppSettingsStore: AppSettingsStore {
     var accountSetupAutofill = [String: AccountSetupProgress]()
+    var accountSetupImportLogins = [String: AccountSetupProgress]()
     var accountSetupVaultUnlock = [String: AccountSetupProgress]()
     var addSitePromptShown = false
     var allowSyncOnRefreshes = [String: Bool]()
@@ -59,6 +60,10 @@ class MockAppSettingsStore: AppSettingsStore {
 
     func accountSetupAutofill(userId: String) -> AccountSetupProgress? {
         accountSetupAutofill[userId]
+    }
+
+    func accountSetupImportLogins(userId: String) -> AccountSetupProgress? {
+        accountSetupImportLogins[userId]
     }
 
     func accountSetupVaultUnlock(userId: String) -> AccountSetupProgress? {
@@ -148,6 +153,10 @@ class MockAppSettingsStore: AppSettingsStore {
 
     func setAccountSetupAutofill(_ autofillSetup: AccountSetupProgress?, userId: String) {
         accountSetupAutofill[userId] = autofillSetup
+    }
+
+    func setAccountSetupImportLogins(_ importLoginsSetup: AccountSetupProgress?, userId: String) {
+        accountSetupImportLogins[userId] = importLoginsSetup
     }
 
     func setAccountSetupVaultUnlock(_ vaultUnlockSetup: AccountSetupProgress?, userId: String) {

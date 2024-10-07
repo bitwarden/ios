@@ -1002,3 +1002,5 @@
 "AutoFillActivatedDescriptionLong" = "You can now use autofill to log into apps and websites using your saved passwords. Now, you can explore everything else Bitwarden has to offer.";
 "GetStarted" = "Get started";
 "Dismiss" = "Dismiss";
+"ImportSavedLogins" = "Import saved logins";
+"ImportSavedLoginsDescriptionLong" = "Use a computer to import logins from an existing password manager.";

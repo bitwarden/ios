@@ -60,6 +60,13 @@ protocol StateService: AnyObject {
     ///
     func getAccountSetupAutofill(userId: String) async -> AccountSetupProgress?
 
+    /// Gets the user's progress for importing logins.
+    ///
+    /// - Parameter userId: The user ID associated with the import logins setup progress.
+    /// - Returns: The user's import logins setup progress.
+    ///
+    func getAccountSetupImportLogins(userId: String) async -> AccountSetupProgress?
+
     /// Gets the user's progress for setting up vault unlock.
     ///
     /// - Parameter userId: The user ID associated with the vault unlock setup progress.
@@ -370,6 +377,14 @@ protocol StateService: AnyObject {
     ///   - userId: The user ID associated with the autofill setup progress.
     ///
     func setAccountSetupAutofill(_ autofillSetup: AccountSetupProgress?, userId: String?) async throws
+
+    /// Sets the user's progress for setting up import logins.
+    ///
+    /// - Parameters:
+    ///   - importLogins: The user's import logins setup progress.
+    ///   - userId: The user ID associated with the import logins setup progress.
+    ///
+    func setAccountSetupImportLogins(_ importLogins: AccountSetupProgress?, userId: String?) async throws
 
     /// Sets the user's progress for setting up vault unlock.
     ///
@@ -716,6 +731,14 @@ extension StateService {
         try await getAccountSetupAutofill(userId: getActiveAccountId())
     }
 
+    /// Gets the active user's progress for importing logins.
+    ///
+    /// - Returns: The user's import logins setup progress.
+    ///
+    func getAccountSetupImportLogins() async throws -> AccountSetupProgress? {
+        try await getAccountSetupImportLogins(userId: getActiveAccountId())
+    }
+
     /// Gets the active user's progress for setting up vault unlock.
     ///
     /// - Returns: The user's vault unlock setup progress.
@@ -954,6 +977,14 @@ extension StateService {
     ///
     func setAccountSetupAutofill(_ autofillSetup: AccountSetupProgress?) async throws {
         try await setAccountSetupAutofill(autofillSetup, userId: nil)
+    }
+
+    /// Sets the active user's progress for importing logins.
+    ///
+    /// - Parameter importLogins: The user's import logins progress.
+    ///
+    func setAccountSetupImportLogins(_ importLogins: AccountSetupProgress?) async throws {
+        try await setAccountSetupImportLogins(importLogins, userId: nil)
     }
 
     /// Sets the active user's progress for setting up vault unlock.
@@ -1277,6 +1308,10 @@ actor DefaultStateService: StateService { // swiftlint:disable:this type_body_le
         appSettingsStore.accountSetupAutofill(userId: userId)
     }
 
+    func getAccountSetupImportLogins(userId: String) async -> AccountSetupProgress? {
+        appSettingsStore.accountSetupImportLogins(userId: userId)
+    }
+
     func getAccountSetupVaultUnlock(userId: String) async -> AccountSetupProgress? {
         appSettingsStore.accountSetupVaultUnlock(userId: userId)
     }
@@ -1515,6 +1550,12 @@ actor DefaultStateService: StateService { // swiftlint:disable:this type_body_le
     func setAccountSetupAutofill(_ autofillSetup: AccountSetupProgress?, userId: String?) async throws {
         let userId = try userId ?? getActiveAccountUserId()
         appSettingsStore.setAccountSetupAutofill(autofillSetup, userId: userId)
+        await updateSettingsBadgePublisher(userId: userId)
+    }
+
+    func setAccountSetupImportLogins(_ importLogins: AccountSetupProgress?, userId: String?) async throws {
+        let userId = try userId ?? getActiveAccountUserId()
+        appSettingsStore.setAccountSetupImportLogins(importLogins, userId: userId)
         await updateSettingsBadgePublisher(userId: userId)
     }
 
@@ -1807,6 +1848,7 @@ actor DefaultStateService: StateService { // swiftlint:disable:this type_body_le
     ///
     private func updateSettingsBadgePublisher(userId: String) async {
         let autofillSetupProgress = await getAccountSetupAutofill(userId: userId)
+        let importLoginsSetupProgress = await getAccountSetupImportLogins(userId: userId)
         let vaultUnlockSetupProgress = await getAccountSetupVaultUnlock(userId: userId)
         let badgeCount = [autofillSetupProgress, vaultUnlockSetupProgress]
             .compactMap { $0 }
@@ -1815,6 +1857,7 @@ actor DefaultStateService: StateService { // swiftlint:disable:this type_body_le
         settingsBadgeByUserIdSubject.value[userId] = SettingsBadgeState(
             autofillSetupProgress: autofillSetupProgress,
             badgeValue: badgeCount > 0 ? String(badgeCount) : nil,
+            importLoginsSetupProgress: importLoginsSetupProgress,
             vaultUnlockSetupProgress: vaultUnlockSetupProgress
         )
     }
