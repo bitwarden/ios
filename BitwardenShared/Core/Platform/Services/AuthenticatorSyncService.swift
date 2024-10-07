@@ -25,7 +25,7 @@ actor DefaultAuthenticatorSyncService: NSObject, AuthenticatorSyncService {
     private let authBridgeItemService: AuthenticatorBridgeItemService
 
     /// The Tasks listening for Cipher updates (one for each user, indexed by the userId).
-    private var cipherPublisherTasks = [String: Task<Void, Error>?]()
+    private var cipherPublisherTasks = [String: Task<Void, Error>]()
 
     /// The service used to manage syncing and updates to the user's ciphers.
     private let cipherDataStore: CipherDataStore
@@ -194,12 +194,12 @@ actor DefaultAuthenticatorSyncService: NSObject, AuthenticatorSyncService {
     ///
     private func determineSyncForUserId(_ userId: String) async throws {
         if try await !stateService.getSyncToAuthenticator(userId: userId) {
-            cipherPublisherTasks[userId]??.cancel()
+            cipherPublisherTasks[userId]?.cancel()
             cipherPublisherTasks.removeValue(forKey: userId)
             try await authBridgeItemService.deleteAllForUserId(userId)
             try await deleteKeyIfSyncingIsOff()
         } else if vaultTimeoutService.isLocked(userId: userId) {
-            cipherPublisherTasks[userId]??.cancel()
+            cipherPublisherTasks[userId]?.cancel()
             cipherPublisherTasks.removeValue(forKey: userId)
         } else {
             try await createAuthenticatorKeyIfNeeded()

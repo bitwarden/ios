@@ -119,12 +119,6 @@ protocol StateService: AnyObject {
     ///
     func getBiometricAuthenticationEnabled() async throws -> Bool
 
-    /// Gets the BiometricIntegrityState for the active user.
-    ///
-    /// - Returns: An optional base64 string encoding of the BiometricIntegrityState `Data` as last stored for the user.
-    ///
-    func getBiometricIntegrityState() async throws -> String?
-
     /// Gets the clear clipboard value for an account.
     ///
     /// - Parameter userId: The user ID associated with the clear clipboard value. Defaults to the active
@@ -418,12 +412,6 @@ protocol StateService: AnyObject {
     ///     If `false`, the device should not attempt biometric authentication for authorization events.
     ///
     func setBiometricAuthenticationEnabled(_ isEnabled: Bool?) async throws
-
-    /// Sets the BiometricIntegrityState for the active user.
-    ///
-    /// - Parameter base64State: A base64 string encoding of the BiometricIntegrityState `Data`.
-    ///
-    func setBiometricIntegrityState(_ base64State: String?) async throws
 
     /// Sets the clear clipboard value for an account.
     ///
@@ -1494,7 +1482,6 @@ actor DefaultStateService: StateService { // swiftlint:disable:this type_body_le
         }
 
         appSettingsStore.setBiometricAuthenticationEnabled(nil, for: knownUserId)
-        appSettingsStore.setBiometricIntegrityState(nil, userId: knownUserId)
         appSettingsStore.setDefaultUriMatchType(nil, userId: knownUserId)
         appSettingsStore.setDisableAutoTotpCopy(nil, userId: knownUserId)
         appSettingsStore.setEncryptedPrivateKey(key: nil, userId: knownUserId)
@@ -1853,18 +1840,8 @@ extension DefaultStateService {
         return appSettingsStore.isBiometricAuthenticationEnabled(userId: userId)
     }
 
-    func getBiometricIntegrityState() async throws -> String? {
-        let userId = try getActiveAccountUserId()
-        return appSettingsStore.biometricIntegrityState(userId: userId)
-    }
-
     func setBiometricAuthenticationEnabled(_ isEnabled: Bool?) async throws {
         let userId = try getActiveAccountUserId()
         appSettingsStore.setBiometricAuthenticationEnabled(isEnabled, for: userId)
-    }
-
-    func setBiometricIntegrityState(_ base64State: String?) async throws {
-        let userId = try getActiveAccountUserId()
-        appSettingsStore.setBiometricIntegrityState(base64State, userId: userId)
     }
 }

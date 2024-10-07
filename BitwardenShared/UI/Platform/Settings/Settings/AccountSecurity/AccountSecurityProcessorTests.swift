@@ -210,7 +210,7 @@ class AccountSecurityProcessorTests: BitwardenTestCase { // swiftlint:disable:th
     /// `perform(_:)` with `.loadData` updates the state.
     @MainActor
     func test_perform_loadData_biometricsValue() async {
-        let biometricUnlockStatus = BiometricsUnlockStatus.available(.faceID, enabled: true, hasValidIntegrity: true)
+        let biometricUnlockStatus = BiometricsUnlockStatus.available(.faceID, enabled: true)
         biometricsRepository.biometricUnlockStatus = .success(
             biometricUnlockStatus
         )
@@ -339,11 +339,10 @@ class AccountSecurityProcessorTests: BitwardenTestCase { // swiftlint:disable:th
     func test_perform_toggleUnlockWithBiometrics_disable() async {
         configService.featureFlagsBool[.nativeCreateAccountFlow] = true
         stateService.activeAccount = .fixture()
-        subject.state.biometricUnlockStatus = .available(.faceID, enabled: true, hasValidIntegrity: true)
+        subject.state.biometricUnlockStatus = .available(.faceID, enabled: true)
         vaultUnlockSetupHelper.setBiometricUnlockStatus = .available(
             .faceID,
-            enabled: false,
-            hasValidIntegrity: false
+            enabled: false
         )
 
         await subject.perform(.toggleUnlockWithBiometrics(false))
@@ -363,12 +362,11 @@ class AccountSecurityProcessorTests: BitwardenTestCase { // swiftlint:disable:th
         authRepository.sessionTimeoutAction["1"] = .logout
         configService.featureFlagsBool[.nativeCreateAccountFlow] = true
         stateService.activeAccount = .fixture()
-        subject.state.biometricUnlockStatus = .available(.faceID, enabled: true, hasValidIntegrity: true)
+        subject.state.biometricUnlockStatus = .available(.faceID, enabled: true)
         subject.state.sessionTimeoutAction = .lock
         vaultUnlockSetupHelper.setBiometricUnlockStatus = .available(
             .faceID,
-            enabled: false,
-            hasValidIntegrity: false
+            enabled: false
         )
 
         await subject.perform(.toggleUnlockWithBiometrics(false))
@@ -386,11 +384,10 @@ class AccountSecurityProcessorTests: BitwardenTestCase { // swiftlint:disable:th
         configService.featureFlagsBool[.nativeCreateAccountFlow] = true
         stateService.activeAccount = .fixture()
         stateService.accountSetupVaultUnlock["1"] = .setUpLater
-        subject.state.biometricUnlockStatus = .available(.faceID, enabled: true, hasValidIntegrity: true)
+        subject.state.biometricUnlockStatus = .available(.faceID, enabled: true)
         vaultUnlockSetupHelper.setBiometricUnlockStatus = .available(
             .faceID,
-            enabled: true,
-            hasValidIntegrity: false
+            enabled: true
         )
 
         await subject.perform(.toggleUnlockWithBiometrics(true))
@@ -791,7 +788,7 @@ class AccountSecurityProcessorTests: BitwardenTestCase { // swiftlint:disable:th
     func test_refreshVaultTimeoutAction_withoutMasterPassword_biometricsOff() async {
         authRepository.activeAccount = .fixtureWithTdeNoPassword()
         authRepository.sessionTimeoutAction["1"] = .lock
-        subject.state.biometricUnlockStatus = .available(.faceID, enabled: true, hasValidIntegrity: true)
+        subject.state.biometricUnlockStatus = .available(.faceID, enabled: true)
 
         await subject.perform(.appeared)
         waitFor { subject.state.sessionTimeoutAction == .lock }

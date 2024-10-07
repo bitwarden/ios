@@ -21,13 +21,6 @@ protocol AppSettingsStore: AnyObject {
     /// The app's theme.
     var appTheme: String? { get set }
 
-    /// The legacy system biometric integrity state `Data`, base64 encoded.
-    ///
-    /// NOTE: This is only used for migrating from the legacy app and isn't constrained to a
-    ///     specific user, `biometricIntegrityState(userId:)` should be used instead.
-    ///
-    var biometricIntegrityStateLegacy: String? { get set }
-
     /// Whether to disable the website icons.
     var disableWebIcons: Bool { get set }
 
@@ -80,14 +73,6 @@ protocol AppSettingsStore: AnyObject {
     /// - Returns: Whether the vault should sync on refreshing.
     ///
     func allowSyncOnRefresh(userId: String) -> Bool
-
-    /// The system biometric integrity state `Data`, base64 encoded.
-    ///
-    /// - Parameter userId: The user ID associated with the Biometric Integrity State.
-    /// - Returns: A base64 encoded `String`
-    ///  representing the last known Biometric Integrity State `Data` for the userID.
-    ///
-    func biometricIntegrityState(userId: String) -> String?
 
     /// Gets the time after which the clipboard should be cleared.
     ///
@@ -269,14 +254,6 @@ protocol AppSettingsStore: AnyObject {
     ///   - userId: The user ID associated with the biometric authentication preference.
     ///
     func setBiometricAuthenticationEnabled(_ isEnabled: Bool?, for userId: String)
-
-    /// Sets a biometric integrity state `Data` as a base64 encoded `String`.
-    ///
-    /// - Parameters:
-    ///   - base64EncodedIntegrityState: The biometric integrity state `Data`, encoded as a base64 `String`.
-    ///   - userId: The user ID associated with the Biometric Integrity State.
-    ///
-    func setBiometricIntegrityState(_ base64EncodedIntegrityState: String?, userId: String)
 
     /// Sets the time after which the clipboard should be cleared.
     ///
@@ -658,8 +635,6 @@ extension DefaultAppSettingsStore: AppSettingsStore {
         case appLocale
         case appTheme
         case biometricAuthEnabled(userId: String)
-        case biometricIntegrityState(userId: String, bundleId: String)
-        case biometricIntegrityStateLegacy
         case clearClipboardValue(userId: String)
         case connectToWatch(userId: String)
         case debugFeatureFlag(name: String)
@@ -716,10 +691,6 @@ extension DefaultAppSettingsStore: AppSettingsStore {
                 key = "theme"
             case let .biometricAuthEnabled(userId):
                 key = "biometricUnlock_\(userId)"
-            case let .biometricIntegrityState(userId, bundleId):
-                key = "biometricIntegritySource_\(userId)_\(bundleId)"
-            case .biometricIntegrityStateLegacy:
-                key = "biometricIntegritySource"
             case let .clearClipboardValue(userId):
                 key = "clearClipboard_\(userId)"
             case let .connectToWatch(userId):
@@ -815,11 +786,6 @@ extension DefaultAppSettingsStore: AppSettingsStore {
         set { store(newValue, for: .appTheme) }
     }
 
-    var biometricIntegrityStateLegacy: String? {
-        get { fetch(for: .biometricIntegrityStateLegacy) }
-        set { store(newValue, for: .biometricIntegrityStateLegacy) }
-    }
-
     var disableWebIcons: Bool {
         get { fetch(for: .disableWebIcons) }
         set { store(newValue, for: .disableWebIcons) }
@@ -883,15 +849,6 @@ extension DefaultAppSettingsStore: AppSettingsStore {
 
     func allowSyncOnRefresh(userId: String) -> Bool {
         fetch(for: .allowSyncOnRefresh(userId: userId))
-    }
-
-    func biometricIntegrityState(userId: String) -> String? {
-        fetch(
-            for: .biometricIntegrityState(
-                userId: userId,
-                bundleId: bundleId
-            )
-        )
     }
 
     func clearClipboardValue(userId: String) -> ClearClipboardValue {
@@ -990,16 +947,6 @@ extension DefaultAppSettingsStore: AppSettingsStore {
 
     func setBiometricAuthenticationEnabled(_ isEnabled: Bool?, for userId: String) {
         store(isEnabled, for: .biometricAuthEnabled(userId: userId))
-    }
-
-    func setBiometricIntegrityState(_ base64EncodedIntegrityState: String?, userId: String) {
-        store(
-            base64EncodedIntegrityState,
-            for: .biometricIntegrityState(
-                userId: userId,
-                bundleId: bundleId
-            )
-        )
     }
 
     func setClearClipboardValue(_ clearClipboardValue: ClearClipboardValue?, userId: String) {
