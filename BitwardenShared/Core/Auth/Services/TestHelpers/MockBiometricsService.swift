@@ -5,7 +5,6 @@ import LocalAuthentication
 class MockBiometricsService: BiometricsService {
     var biometricAuthenticationType: BiometricAuthenticationType?
     var biometricAuthStatus: BiometricAuthorizationStatus = .notDetermined
-    var biometricIntegrityState: Data?
     var evaluationResult: Bool = true
 
     func evaluateBiometricPolicy(
@@ -21,9 +20,5 @@ class MockBiometricsService: BiometricsService {
 
     func getBiometricAuthStatus() -> BiometricAuthorizationStatus {
         biometricAuthStatus
-    }
-
-    func getBiometricIntegrityState() -> Data? {
-        biometricIntegrityState
     }
 }

@@ -366,14 +366,27 @@ class AuthCoordinatorTests: BitwardenTestCase { // swiftlint:disable:this type_b
         XCTAssertTrue(navigationController.viewControllers.first is UIHostingController<LoginWithDeviceView>)
     }
 
-    /// `navigate(to:)` with `.masterPasswordGenerator` presents the generate master password view.
+    /// `navigate(to:)` with `.masterPasswordGuidance` presents the master password guidance view.
     @MainActor
-    func test_navigate_masterPasswordGenerator() throws {
-        subject.navigate(to: .masterPasswordGenerator)
+    func test_navigate_masterPasswordGuidance() throws {
+        subject.navigate(to: .masterPasswordGuidance)
 
         XCTAssertEqual(stackNavigator.actions.last?.type, .presented)
         let navigationController = try XCTUnwrap(stackNavigator.actions.last?.view as? UINavigationController)
-        XCTAssertTrue(navigationController.viewControllers.first is UIHostingController<MasterPasswordGeneratorView>)
+        XCTAssertTrue(navigationController.viewControllers.first is UIHostingController<MasterPasswordGuidanceView>)
+    }
+
+    /// `navigate(to:)` with `.masterPasswordGenerator` presents the generate master password view.
+    @MainActor
+    func test_navigate_masterPasswordGenerator() throws {
+        let navigationController = UINavigationController(rootViewController: UIViewController())
+        stackNavigator.rootViewController = navigationController
+
+        subject.navigate(to: .masterPasswordGenerator)
+
+        let topmostViewController = stackNavigator.rootViewController?.topmostViewController()
+        let navController = try XCTUnwrap(topmostViewController?.navigationController)
+        XCTAssertTrue(navController.viewControllers.last is UIHostingController<MasterPasswordGeneratorView>)
     }
 
     /// `navigate(to:)` with `.masterPasswordHint` presents the master password hint view.
@@ -389,11 +402,11 @@ class AuthCoordinatorTests: BitwardenTestCase { // swiftlint:disable:this type_b
     /// `navigate(to:)` with `.preventAccountLock` presents the prevent account lock view.
     @MainActor
     func test_navigate_preventAccountLock() throws {
-        subject.navigate(to: .masterPasswordGuidance)
+        subject.navigate(to: .preventAccountLock)
 
         XCTAssertEqual(stackNavigator.actions.last?.type, .presented)
         let navigationController = try XCTUnwrap(stackNavigator.actions.last?.view as? UINavigationController)
-        XCTAssertTrue(navigationController.viewControllers.first is UIHostingController<MasterPasswordGuidanceView>)
+        XCTAssertTrue(navigationController.viewControllers.first is UIHostingController<PreventAccountLockView>)
     }
 
     /// `navigate(to:)` with `.selfHosted` pushes the self-hosted view onto the stack navigator.

@@ -84,7 +84,7 @@ class VaultUnlockSetupProcessorTests: BitwardenTestCase {
     /// `perform(_:)` with `.loadData` fetches the biometrics unlock status.
     @MainActor
     func test_perform_loadData() async {
-        let status = BiometricsUnlockStatus.available(.faceID, enabled: false, hasValidIntegrity: false)
+        let status = BiometricsUnlockStatus.available(.faceID, enabled: false)
         biometricsRepository.biometricUnlockStatus = .success(status)
 
         await subject.perform(.loadData)
@@ -120,7 +120,7 @@ class VaultUnlockSetupProcessorTests: BitwardenTestCase {
     /// `perform(_:)` with `.loadData` fetches the biometrics unlock status for a device with Touch ID.
     @MainActor
     func test_perform_loadData_touchID() async {
-        let status = BiometricsUnlockStatus.available(.touchID, enabled: false, hasValidIntegrity: false)
+        let status = BiometricsUnlockStatus.available(.touchID, enabled: false)
         biometricsRepository.biometricUnlockStatus = .success(status)
 
         await subject.perform(.loadData)
@@ -132,11 +132,10 @@ class VaultUnlockSetupProcessorTests: BitwardenTestCase {
     /// `perform(_:)` with `.toggleUnlockMethod` disables biometrics unlock and updates the state.
     @MainActor
     func test_perform_toggleUnlockMethod_biometrics_disable() async {
-        subject.state.biometricsStatus = .available(.faceID, enabled: true, hasValidIntegrity: true)
+        subject.state.biometricsStatus = .available(.faceID, enabled: true)
         vaultUnlockSetupHelper.setBiometricUnlockStatus = .available(
             .faceID,
-            enabled: false,
-            hasValidIntegrity: false
+            enabled: false
         )
 
         await subject.perform(.toggleUnlockMethod(.biometrics(.faceID), newValue: false))
@@ -150,8 +149,7 @@ class VaultUnlockSetupProcessorTests: BitwardenTestCase {
     func test_perform_toggleUnlockMethod_biometrics_enable() async {
         vaultUnlockSetupHelper.setBiometricUnlockStatus = .available(
             .faceID,
-            enabled: true,
-            hasValidIntegrity: true
+            enabled: true
         )
 
         await subject.perform(.toggleUnlockMethod(.biometrics(.faceID), newValue: true))
