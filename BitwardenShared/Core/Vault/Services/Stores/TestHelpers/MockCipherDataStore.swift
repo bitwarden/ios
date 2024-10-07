@@ -15,7 +15,7 @@ class MockCipherDataStore: CipherDataStore {
     var fetchCipherId: String?
     var fetchCipherResult: Cipher?
 
-    var cipherSubject = CurrentValueSubject<[Cipher], Error>([])
+    var cipherSubjectByUserId: [String: CurrentValueSubject<[Cipher], Error>] = [:]
 
     var replaceCiphersValue: [Cipher]?
     var replaceCiphersUserId: String?
@@ -42,8 +42,14 @@ class MockCipherDataStore: CipherDataStore {
         return fetchCipherResult
     }
 
-    func cipherPublisher(userId _: String) -> AnyPublisher<[Cipher], Error> {
-        cipherSubject.eraseToAnyPublisher()
+    func cipherPublisher(userId: String) -> AnyPublisher<[Cipher], Error> {
+        if let subject = cipherSubjectByUserId[userId] {
+            return subject.eraseToAnyPublisher()
+        } else {
+            let subject = CurrentValueSubject<[Cipher], Error>([])
+            cipherSubjectByUserId[userId] = subject
+            return subject.eraseToAnyPublisher()
+        }
     }
 
     func replaceCiphers(_ ciphers: [Cipher], userId: String) async throws {

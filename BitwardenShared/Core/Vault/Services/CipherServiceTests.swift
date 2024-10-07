@@ -78,7 +78,8 @@ class CipherServiceTests: BitwardenTestCase {
         _ = try await iterator.next()
 
         let cipher = Cipher.fixture()
-        cipherDataStore.cipherSubject.value = [cipher]
+        let userId = stateService.activeAccount?.profile.userId ?? ""
+        cipherDataStore.cipherSubjectByUserId[userId]?.value = [cipher]
         let publisherValue = try await iterator.next()
         try XCTAssertEqual(XCTUnwrap(publisherValue), [cipher])
     }
