@@ -172,7 +172,8 @@ final class AuthenticatorSyncServiceTests: BitwardenTestCase { // swiftlint:disa
         waitFor(authBridgeItemService.storedItems["1"]?.first != nil)
 
         let item = try XCTUnwrap(authBridgeItemService.storedItems["1"]?.first)
-        XCTAssertEqual(item.bitwardenAccountName, "user@bitwarden.com")
+        XCTAssertEqual(item.bitwardenAccountDomain, "vault.bitwarden.com")
+        XCTAssertEqual(item.bitwardenAccountEmail, "user@bitwarden.com")
         XCTAssertEqual(item.favorite, false)
         XCTAssertNotNil(item.id)
         XCTAssertEqual(item.name, "Bitwarden")
@@ -200,7 +201,8 @@ final class AuthenticatorSyncServiceTests: BitwardenTestCase { // swiftlint:disa
         waitFor(authBridgeItemService.storedItems["1"]?.first != nil)
 
         let item = try XCTUnwrap(authBridgeItemService.storedItems["1"]?.first)
-        XCTAssertEqual(item.bitwardenAccountName, "user@bitwarden.com")
+        XCTAssertEqual(item.bitwardenAccountDomain, "vault.bitwarden.com")
+        XCTAssertEqual(item.bitwardenAccountEmail, "user@bitwarden.com")
         XCTAssertEqual(item.favorite, false)
         XCTAssertEqual(item.id, "1234")
         XCTAssertEqual(item.name, "Bitwarden")
@@ -426,15 +428,18 @@ final class AuthenticatorSyncServiceTests: BitwardenTestCase { // swiftlint:disa
         waitFor(authBridgeItemService.storedItems["1"]?.first != nil)
 
         let item = try XCTUnwrap(authBridgeItemService.storedItems["1"]?.first)
-        XCTAssertEqual(item.bitwardenAccountName, "user@bitwarden.com")
+        XCTAssertEqual(item.bitwardenAccountDomain, "vault.bitwarden.com")
+        XCTAssertEqual(item.bitwardenAccountEmail, "user@bitwarden.com")
         XCTAssertEqual(item.favorite, false)
         XCTAssertEqual(item.id, "1234")
         XCTAssertEqual(item.name, "Bitwarden")
         XCTAssertEqual(item.totpKey, "totp")
         XCTAssertEqual(item.username, "masked@example.com")
 
-        await stateService.addAccount(.fixture(profile: .fixture(email: "different@bitwarden.com",
-                                                                 userId: "2")))
+        await stateService.addAccount(.fixture(
+            profile: .fixture(email: "different@bitwarden.com", userId: "2"),
+            settings: .fixture(environmentUrls: .fixture(webVault: URL(string: "https://vault.example.com")))
+        ))
         stateService.syncToAuthenticatorByUserId["2"] = true
         vaultTimeoutService.isClientLocked["2"] = false
         stateService.syncToAuthenticatorSubject.send(("2", true))
@@ -451,7 +456,8 @@ final class AuthenticatorSyncServiceTests: BitwardenTestCase { // swiftlint:disa
         waitFor(authBridgeItemService.storedItems["2"]?.first != nil)
 
         let otherItem = try XCTUnwrap(authBridgeItemService.storedItems["2"]?.first)
-        XCTAssertEqual(otherItem.bitwardenAccountName, "different@bitwarden.com")
+        XCTAssertEqual(otherItem.bitwardenAccountDomain, "vault.example.com")
+        XCTAssertEqual(otherItem.bitwardenAccountEmail, "different@bitwarden.com")
         XCTAssertEqual(otherItem.favorite, false)
         XCTAssertEqual(otherItem.id, "4321")
         XCTAssertEqual(otherItem.name, "Bitwarden")
@@ -486,7 +492,8 @@ final class AuthenticatorSyncServiceTests: BitwardenTestCase { // swiftlint:disa
         waitFor(authBridgeItemService.storedItems["1"]?.first != nil)
 
         let item = try XCTUnwrap(authBridgeItemService.storedItems["1"]?.first)
-        XCTAssertEqual(item.bitwardenAccountName, "user@bitwarden.com")
+        XCTAssertEqual(item.bitwardenAccountDomain, "vault.bitwarden.com")
+        XCTAssertEqual(item.bitwardenAccountEmail, "user@bitwarden.com")
         XCTAssertEqual(item.favorite, false)
         XCTAssertEqual(item.id, "1234")
         XCTAssertEqual(item.name, "Bitwarden")
