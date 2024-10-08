@@ -76,4 +76,14 @@ class ImportLoginsProcessorTests: BitwardenTestCase {
         subject.receive(.dismiss)
         XCTAssertEqual(coordinator.routes.last, .dismiss)
     }
+
+    /// `receive(_:)` with `.getStarted` shows an alert for the user to confirm they have a
+    /// computer available.
+    @MainActor
+    func test_receive_getStarted() throws {
+        subject.receive(.getStarted)
+
+        let alert = try XCTUnwrap(coordinator.alertShown.last)
+        XCTAssertEqual(alert, .importLoginsComputerAvailable {})
+    }
 }

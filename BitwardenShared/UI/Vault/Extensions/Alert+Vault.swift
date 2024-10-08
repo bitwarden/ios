@@ -91,6 +91,24 @@ extension Alert {
         )
     }
 
+    /// An alert asking the user if they have a computer available to import logins.
+    ///
+    /// - Parameter action: The action taken when the user taps on continue.
+    /// - Returns: An alert asking the user if they have a computer available to import logins.
+    ///
+    static func importLoginsComputerAvailable(action: @escaping () async -> Void) -> Alert {
+        Alert(
+            title: Localizations.doYouHaveAComputerAvailable,
+            message: Localizations.doYouHaveAComputerAvailableDescriptionLong,
+            alertActions: [
+                AlertAction(title: Localizations.cancel, style: .cancel),
+                AlertAction(title: Localizations.continue, style: .default) { _ in
+                    await action()
+                },
+            ]
+        )
+    }
+
     /// An alert confirming that the user wants to import logins later in settings.
     ///
     /// - Parameter action: The action taken when the user taps on Confirm to import logins later

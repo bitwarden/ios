@@ -1013,3 +1013,5 @@
 "ImportLoginsLater" = "Import logins later";
 "ImportLoginsLaterQuestion" = "Import logins later?";
 "YouCanReturnToCompleteThisStepAnytimeInVaultUnderSettings" = "You can return to complete this step anytime in Vault under Settings.";
+"DoYouHaveAComputerAvailable" = "Do you have a computer available?";
+"DoYouHaveAComputerAvailableDescriptionLong" = "The following instructions will guide you through importing logins from your desktop or laptop computer.";

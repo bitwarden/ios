@@ -61,6 +61,26 @@ class AlertVaultTests: BitwardenTestCase {
         XCTAssertEqual(subject.alertActions[3].style, .cancel)
     }
 
+    /// `importLoginsComputerAvailable(action:)` constructs an `Alert` that confirms that the user
+    /// has a computer available to import logins.
+    func test_importLoginsComputerAvailable() async throws {
+        var actionCalled = false
+        let subject = Alert.importLoginsComputerAvailable { actionCalled = true }
+
+        XCTAssertEqual(subject.title, Localizations.doYouHaveAComputerAvailable)
+        XCTAssertEqual(subject.message, Localizations.doYouHaveAComputerAvailableDescriptionLong)
+        XCTAssertEqual(subject.alertActions[0].title, Localizations.cancel)
+        XCTAssertEqual(subject.alertActions[0].style, .cancel)
+        XCTAssertEqual(subject.alertActions[1].title, Localizations.continue)
+        XCTAssertEqual(subject.alertActions[1].style, .default)
+
+        try await subject.tapCancel()
+        XCTAssertFalse(actionCalled)
+
+        try await subject.tapAction(title: Localizations.continue)
+        XCTAssertTrue(actionCalled)
+    }
+
     /// `static importLoginsLater(action:)` constructs an `Alert` that confirms that the user
     /// wants to import logins later in settings.
     func test_importLoginsLater() async throws {

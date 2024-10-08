@@ -58,7 +58,9 @@ class ImportLoginsProcessor: StateProcessor<ImportLoginsState, ImportLoginsActio
     /// Shows the alert confirming the user wants to get started on importing logins.
     ///
     private func showGetStartAlert() {
-        // TODO
+        coordinator.showAlert(.importLoginsComputerAvailable {
+            // TODO: PM-11150 Show step 1
+        })
     }
 
     /// Shows the alert confirming the user wants to import logins later.
