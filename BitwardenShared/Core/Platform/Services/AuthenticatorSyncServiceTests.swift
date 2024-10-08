@@ -8,10 +8,11 @@ import XCTest
 final class AuthenticatorSyncServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body_length
     var authBridgeItemService: MockAuthenticatorBridgeItemService!
     var cipherDataStore: MockCipherDataStore!
+    var authRepository: MockAuthRepository!
     var clientService: MockClientService!
     var configService: MockConfigService!
     var errorReporter: MockErrorReporter!
-    var notificationCenterService: MockNotificationCenterService!
+    var keychainRepository: MockKeychainRepository!
     var sharedKeychainRepository: MockSharedKeychainRepository!
     var stateService: MockStateService!
     var subject: DefaultAuthenticatorSyncService!
@@ -23,22 +24,24 @@ final class AuthenticatorSyncServiceTests: BitwardenTestCase { // swiftlint:disa
         super.setUp()
 
         authBridgeItemService = MockAuthenticatorBridgeItemService()
+        authRepository = MockAuthRepository()
         cipherDataStore = MockCipherDataStore()
         configService = MockConfigService()
         clientService = MockClientService()
         errorReporter = MockErrorReporter()
-        notificationCenterService = MockNotificationCenterService()
+        keychainRepository = MockKeychainRepository()
         sharedKeychainRepository = MockSharedKeychainRepository()
         stateService = MockStateService()
         vaultTimeoutService = MockVaultTimeoutService()
 
         subject = DefaultAuthenticatorSyncService(
             authBridgeItemService: authBridgeItemService,
+            authRepository: authRepository,
             cipherDataStore: cipherDataStore,
             clientService: clientService,
             configService: configService,
             errorReporter: errorReporter,
-            notificationCenterService: notificationCenterService,
+            keychainRepository: keychainRepository,
             sharedKeychainRepository: sharedKeychainRepository,
             stateService: stateService,
             vaultTimeoutService: vaultTimeoutService
@@ -49,11 +52,12 @@ final class AuthenticatorSyncServiceTests: BitwardenTestCase { // swiftlint:disa
         super.tearDown()
 
         authBridgeItemService = nil
+        authRepository = nil
         cipherDataStore = nil
         configService = nil
         clientService = nil
         errorReporter = nil
-        notificationCenterService = nil
+        keychainRepository = nil
         sharedKeychainRepository = nil
         stateService = nil
         subject = nil
@@ -62,7 +66,7 @@ final class AuthenticatorSyncServiceTests: BitwardenTestCase { // swiftlint:disa
 
     // MARK: Tests
 
-    /// When the app enters the foreground and the user has subscribed to sync, the
+    /// When the user has subscribed to sync and has an unlocked vault, the
     /// `createAuthenticatorKeyIfNeeded` method successfully creates the sync key
     /// if it is not already present
     ///
@@ -76,7 +80,7 @@ final class AuthenticatorSyncServiceTests: BitwardenTestCase { // swiftlint:disa
         waitFor(sharedKeychainRepository.authenticatorKey != nil)
     }
 
-    /// When the app enters the foreground and the user has subscribed to sync, the
+    /// When the user has subscribed to sync and has an unlocked vault, the
     /// `createAuthenticatorKeyIfNeeded` method successfully retrieves the key in
     /// SharedKeyRepository and doesn't recreate it.
     ///
@@ -91,6 +95,79 @@ final class AuthenticatorSyncServiceTests: BitwardenTestCase { // swiftlint:disa
 
         waitFor(sharedKeychainRepository.authenticatorKey != nil)
         XCTAssertEqual(sharedKeychainRepository.authenticatorKey, key)
+    }
+
+    /// When the user has subscribed to sync and has an unlocked vault, the
+    /// `createAuthenticatorVaultKeyIfNeeded` method successfully stores a copy
+    /// of the user's vault key in the keychain if it is not already present.
+    ///
+    @MainActor
+    func test_createAuthenticatorVaultKeyIfNeeded_createsKeyWhenNeeded() async throws {
+        setupInitialState()
+        await subject.start()
+        try await keychainRepository.deleteAuthenticatorVaultKey(userId: "1")
+        stateService.syncToAuthenticatorSubject.send(("1", true))
+
+        waitFor(keychainRepository.mockStorage["bwKeyChainStorage:mockAppId:authenticatorVaultKey_1"] != nil)
+    }
+
+    /// When the user has subscribed to sync and has an unlocked vault, the
+    /// `createAuthenticatorVaultKeyIfNeeded` method successfully handles an
+    /// error in retrieving the user's vault key..
+    ///
+    @MainActor
+    func test_createAuthenticatorVaultKeyIfNeeded_cryptoError() async throws {
+        setupInitialState()
+        await subject.start()
+        clientService.mockCrypto.getUserEncryptionKeyResult = .failure(BitwardenTestError.example)
+        stateService.syncToAuthenticatorSubject.send(("1", true))
+
+        waitFor(!errorReporter.errors.isEmpty)
+    }
+
+    /// When the user has subscribed to sync and has an unlocked vault, the
+    /// `createAuthenticatorVaultKeyIfNeeded` method safely returns when the key
+    /// doesn't need to be created.
+    ///
+    @MainActor
+    func test_createAuthenticatorVaultKeyIfNeeded_keyAlreadyExists() async throws {
+        setupInitialState()
+        await subject.start()
+        keychainRepository.mockStorage["authenticatorVaultKey_1"] = "AUTHENTICATOR_VAULT_KEY"
+
+        stateService.syncToAuthenticatorSubject.send(("1", true))
+
+        waitFor(keychainRepository.mockStorage["authenticatorVaultKey_1"] != nil)
+        XCTAssertEqual(keychainRepository.mockStorage["authenticatorVaultKey_1"],
+                       "AUTHENTICATOR_VAULT_KEY")
+    }
+
+    /// When the user has subscribed to sync and has an unlocked vault, the
+    /// `createAuthenticatorVaultKeyIfNeeded` method successfully handles an
+    /// error in storing the user's vault key in the keychain..
+    ///
+    @MainActor
+    func test_createAuthenticatorVaultKeyIfNeeded_keychainError() async throws {
+        setupInitialState()
+        await subject.start()
+        keychainRepository.setAuthenticatorVaultKeyResult = .failure(BitwardenTestError.example)
+        stateService.syncToAuthenticatorSubject.send(("1", true))
+
+        waitFor(!errorReporter.errors.isEmpty)
+    }
+
+    /// When the user has subscribed to sync and has an unlocked vault, but is **not** the active user,
+    /// `createAuthenticatorVaultKeyIfNeeded` method should return without attempting to
+    /// store the user's key.
+    ///
+    @MainActor
+    func test_createAuthenticatorVaultKeyIfNeeded_notActiveUser() async throws {
+        setupInitialState()
+        await subject.start()
+        await stateService.addAccount(.fixtureAccountLogin())
+        stateService.syncToAuthenticatorSubject.send(("1", true))
+
+        XCTAssertNil(keychainRepository.mockStorage["authenticatorVaultKey_1"])
     }
 
     /// When Ciphers are published. the service filters out ones that have a deletedDate in the past.

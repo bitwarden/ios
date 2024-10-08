@@ -24,6 +24,9 @@ actor DefaultAuthenticatorSyncService: NSObject, AuthenticatorSyncService {
     /// The service for managing sharing items to/from the Authenticator app.
     private let authBridgeItemService: AuthenticatorBridgeItemService
 
+    /// AuthRepository for unlocking the vault with the Authenticator Key.
+    private let authRepository: AuthRepository
+
     /// The Tasks listening for Cipher updates (one for each user, indexed by the userId).
     private var cipherPublisherTasks = [String: Task<Void, Error>]()
 
@@ -39,8 +42,8 @@ actor DefaultAuthenticatorSyncService: NSObject, AuthenticatorSyncService {
     /// The service used by the application to report non-fatal errors.
     private let errorReporter: ErrorReporter
 
-    /// Notification Center Service to subscribe to foreground/background events.
-    private let notificationCenterService: NotificationCenterService
+    /// Keychain Repository for storing/accessing the Authenticator Vault Key.
+    private let keychainRepository: KeychainRepository
 
     /// The keychain repository for managing the key shared between the PM and Authenticator apps.
     private let sharedKeychainRepository: SharedKeychainRepository
@@ -60,11 +63,12 @@ actor DefaultAuthenticatorSyncService: NSObject, AuthenticatorSyncService {
     ///
     /// - Parameters:
     ///   - authBridgeItemService: The service for managing sharing items to/from the Authenticator app.
+    ///   - authRepository: AuthRepository for unlocking the vault with the Authenticator Key.
     ///   - cipherDataStore: The service used to manage syncing and updates to the user's ciphers.
     ///   - clientService: The service that handles common client functionality such as encryption and decryption.
     ///   - configService: The service to get server-specified configuration.
     ///   - errorReporter: The service used by the application to report non-fatal errors.\ organizations.
-    ///   - notificationCenterService: Notification Center Service to subscribe to foreground/background events.
+    ///   - keychainRepository: Keychain Repository for storing/accessing the Authenticator Vault Key.
     ///   - sharedKeychainRepository: The keychain repository for managing the key shared
     ///     between the PM and Authenticator apps.
     ///   - stateService: The service used by the application to manage account state.
@@ -72,22 +76,24 @@ actor DefaultAuthenticatorSyncService: NSObject, AuthenticatorSyncService {
     ///
     init(
         authBridgeItemService: AuthenticatorBridgeItemService,
+        authRepository: AuthRepository,
         cipherDataStore: CipherDataStore,
         clientService: ClientService,
         configService: ConfigService,
         errorReporter: ErrorReporter,
-        notificationCenterService: NotificationCenterService,
+        keychainRepository: KeychainRepository,
         sharedKeychainRepository: SharedKeychainRepository,
         stateService: StateService,
         vaultTimeoutService: VaultTimeoutService
     ) {
         self.authBridgeItemService = authBridgeItemService
+        self.authRepository = authRepository
         self.cipherDataStore = cipherDataStore
         self.clientService = clientService
         self.configService = configService
         self.errorReporter = errorReporter
+        self.keychainRepository = keychainRepository
         self.sharedKeychainRepository = sharedKeychainRepository
-        self.notificationCenterService = notificationCenterService
         self.stateService = stateService
         self.vaultTimeoutService = vaultTimeoutService
         super.init()
@@ -139,6 +145,22 @@ actor DefaultAuthenticatorSyncService: NSObject, AuthenticatorSyncService {
             let data = key.withUnsafeBytes { Data(Array($0)) }
             try await sharedKeychainRepository.setAuthenticatorKey(data)
         }
+    }
+
+    /// Store the user's vault key in the keychain so we can unlock that vault for them when ciphers are received.
+    ///
+    /// Note: The userId must be the active account or else this function will return without setting up the key.
+    ///
+    /// - Parameter userId: The userId of the account whose vault unlock is being set up.
+    ///
+    private func createAuthenticatorVaultKeyIfNeeded(userId: String) async throws {
+        let authVaultKey = try? await keychainRepository.getAuthenticatorVaultKey(userId: userId)
+        guard authVaultKey == nil,
+              let activeId = try? await stateService.getActiveAccountId(),
+              activeId == userId else { return }
+
+        let key = try await clientService.crypto().getUserEncryptionKey()
+        try await keychainRepository.setAuthenticatorVaultKey(key, userId: userId)
     }
 
     /// Take a list of encrypted ciphers, decrypt them, filter for only active ciphers with a totp code, then
@@ -203,6 +225,7 @@ actor DefaultAuthenticatorSyncService: NSObject, AuthenticatorSyncService {
             cipherPublisherTasks.removeValue(forKey: userId)
         } else {
             try await createAuthenticatorKeyIfNeeded()
+            try await createAuthenticatorVaultKeyIfNeeded(userId: userId)
             subscribeToCipherUpdates(userId: userId)
         }
     }
