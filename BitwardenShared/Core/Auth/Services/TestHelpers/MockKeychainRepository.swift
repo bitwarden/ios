@@ -16,11 +16,15 @@ class MockKeychainRepository: KeychainRepository {
 
     var getAccessTokenResult: Result<String, Error> = .success("ACCESS_TOKEN")
 
+    var getAuthenticatorVaultKeyResult: Result<String, Error> = .success("AUTHENTICATOR_VAULT_KEY")
+
     var getDeviceKeyResult: Result<String, Error> = .success("DEVICE_KEY")
 
     var getRefreshTokenResult: Result<String, Error> = .success("REFRESH_TOKEN")
 
     var getPendingAdminLoginRequestResult: Result<String, Error> = .success("PENDING_REQUEST")
+
+    var setAuthenticatorVaultKeyResult: Result<Void, Error> = .success(())
 
     var setAccessTokenResult: Result<Void, Error> = .success(())
 
@@ -34,6 +38,12 @@ class MockKeychainRepository: KeychainRepository {
         deleteAllItemsCalled = true
         mockStorage.removeAll()
         try deleteAllItemsResult.get()
+    }
+
+    func deleteAuthenticatorVaultKey(userId: String) async throws {
+        try deleteResult.get()
+        let formattedKey = formattedKey(for: .deviceKey(userId: userId))
+        mockStorage = mockStorage.filter { $0.key != formattedKey }
     }
 
     func deleteItems(for userId: String) async throws {
@@ -61,6 +71,10 @@ class MockKeychainRepository: KeychainRepository {
 
     func getAccessToken(userId: String) async throws -> String {
         try getAccessTokenResult.get()
+    }
+
+    func getAuthenticatorVaultKey(userId: String) async throws -> String? {
+        try getValue(for: .authenticatorVaultKey(userId: userId))
     }
 
     func getDeviceKey(userId: String) async throws -> String? {
@@ -103,6 +117,11 @@ class MockKeychainRepository: KeychainRepository {
     func setAccessToken(_ value: String, userId: String) async throws {
         try setAccessTokenResult.get()
         mockStorage[formattedKey(for: .accessToken(userId: userId))] = value
+    }
+
+    func setAuthenticatorVaultKey(_ value: String, userId: String) async throws {
+        try setAuthenticatorVaultKeyResult.get()
+        mockStorage[formattedKey(for: .authenticatorVaultKey(userId: userId))] = value
     }
 
     func setDeviceKey(_ value: String, userId: String) async throws {
