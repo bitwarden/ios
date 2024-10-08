@@ -21,6 +21,7 @@ struct ImportLoginsView: View {
             case .intro: intro()
             case .step1: step1()
             case .step2: step2()
+            case .step3: step3()
             }
         }
         .transition(.opacity)
@@ -84,6 +85,17 @@ struct ImportLoginsView: View {
         stepView(step: 2, title: Localizations.logInToBitwarden) {
             NumberedListRow(title: Localizations.onYourComputerOpenANewBrowserTabAndGoTo(store.state.webVaultHost))
             NumberedListRow(title: Localizations.logInToTheBitwardenWebApp)
+        }
+    }
+
+    /// The step 3 page view.
+    @ViewBuilder
+    private func step3() -> some View {
+        stepView(step: 3, title: Localizations.importLoginsToBitwarden) {
+            NumberedListRow(title: Localizations.inTheBitwardenNavigationFindTheToolsOptionAndSelectImportData)
+            NumberedListRow(title: Localizations.fillOutTheFormAndImportYourSavedPasswordFile)
+            NumberedListRow(title: Localizations.selectImportDataInTheWebAppThenDoneToFinishSyncing)
+            NumberedListRow(title: Localizations.forYourSecurityBeSureToDeleteYourSavedPasswordFile)
         }
     }
 
@@ -152,6 +164,11 @@ struct ImportLoginsView: View {
 
 #Preview("Step 2") {
     ImportLoginsView(store: Store(processor: StateProcessor(state: ImportLoginsState(page: .step2))))
+        .navStackWrapped
+}
+
+#Preview("Step 3") {
+    ImportLoginsView(store: Store(processor: StateProcessor(state: ImportLoginsState(page: .step3))))
         .navStackWrapped
 }
 #endif

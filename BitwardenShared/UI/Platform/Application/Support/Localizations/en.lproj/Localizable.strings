@@ -1026,3 +1026,8 @@
 "LogInToBitwarden" = "Log in to Bitwarden";
 "OnYourComputerOpenANewBrowserTabAndGoTo" = "On your computer, open a new browser tab and **go to %1$@**";
 "LogInToTheBitwardenWebApp" = "**Log in to the Bitwarden web app.**";
+"ImportLoginsToBitwarden" = "Import logins to Bitwarden";
+"InTheBitwardenNavigationFindTheToolsOptionAndSelectImportData" = "In the Bitwarden navigation, **find the Tools option** and **select Import data.**";
+"FillOutTheFormAndImportYourSavedPasswordFile" = "Fill out the form and **import your saved password file.**";
+"SelectImportDataInTheWebAppThenDoneToFinishSyncing" = "**Select Import data** in the web app, then **Done** to finish syncing.";
+"ForYourSecurityBeSureToDeleteYourSavedPasswordFile" = "For your security, be sure to **delete your saved password file.**";
