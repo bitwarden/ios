@@ -1012,3 +1012,4 @@
 "ImportLoginsDescriptionLong" = "From your computer, follow these instructions to export saved passwords from your browser or other password manager. Then, safely import them to Bitwarden.";
 "ImportLoginsLater" = "Import logins later";
 "ImportLoginsLaterQuestion" = "Import logins later?";
+"YouCanReturnToCompleteThisStepAnytimeInVaultUnderSettings" = "You can return to complete this step anytime in Vault under Settings.";

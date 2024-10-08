@@ -64,6 +64,13 @@ class ImportLoginsProcessor: StateProcessor<ImportLoginsState, ImportLoginsActio
     /// Shows the alert confirming the user wants to import logins later.
     ///
     private func showImportLoginsLaterAlert() {
-        // TODO
+        coordinator.showAlert(.importLoginsLater {
+            do {
+                try await self.services.stateService.setAccountSetupImportLogins(.setUpLater)
+            } catch {
+                self.services.errorReporter.log(error: error)
+            }
+            self.coordinator.navigate(to: .dismiss)
+        })
     }
 }

@@ -61,6 +61,26 @@ class AlertVaultTests: BitwardenTestCase {
         XCTAssertEqual(subject.alertActions[3].style, .cancel)
     }
 
+    /// `static importLoginsLater(action:)` constructs an `Alert` that confirms that the user
+    /// wants to import logins later in settings.
+    func test_importLoginsLater() async throws {
+        var actionCalled = false
+        let subject = Alert.importLoginsLater { actionCalled = true }
+
+        XCTAssertEqual(subject.title, Localizations.importLoginsLaterQuestion)
+        XCTAssertEqual(subject.message, Localizations.youCanReturnToCompleteThisStepAnytimeInVaultUnderSettings)
+        XCTAssertEqual(subject.alertActions[0].title, Localizations.cancel)
+        XCTAssertEqual(subject.alertActions[0].style, .cancel)
+        XCTAssertEqual(subject.alertActions[1].title, Localizations.confirm)
+        XCTAssertEqual(subject.alertActions[1].style, .default)
+
+        try await subject.tapCancel()
+        XCTAssertFalse(actionCalled)
+
+        try await subject.tapAction(title: Localizations.confirm)
+        XCTAssertTrue(actionCalled)
+    }
+
     /// `passwordAutofillInformation()` constructs an `Alert` that informs the user about password
     /// autofill.
     func test_passwordAutofillInformation() {

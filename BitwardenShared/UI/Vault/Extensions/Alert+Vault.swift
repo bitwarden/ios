@@ -91,6 +91,25 @@ extension Alert {
         )
     }
 
+    /// An alert confirming that the user wants to import logins later in settings.
+    ///
+    /// - Parameter action: The action taken when the user taps on Confirm to import logins later
+    ///     in settings.
+    /// - Returns: An alert confirming that the user wants to import logins later in settings.
+    ///
+    static func importLoginsLater(action: @escaping () async -> Void) -> Alert {
+        Alert(
+            title: Localizations.importLoginsLaterQuestion,
+            message: Localizations.youCanReturnToCompleteThisStepAnytimeInVaultUnderSettings,
+            alertActions: [
+                AlertAction(title: Localizations.cancel, style: .cancel),
+                AlertAction(title: Localizations.confirm, style: .default) { _ in
+                    await action()
+                },
+            ]
+        )
+    }
+
     /// An alert presenting the user with more options for a vault list item.
     ///
     /// - Parameters:
