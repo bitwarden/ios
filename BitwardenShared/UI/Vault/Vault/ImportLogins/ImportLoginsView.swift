@@ -17,6 +17,7 @@ struct ImportLoginsView: View {
             switch store.state.page {
             case .intro: intro()
             case .step1: step1()
+            case .step2: step2()
             }
         }
         .transition(.opacity)
@@ -26,6 +27,9 @@ struct ImportLoginsView: View {
             cancelToolbarItem {
                 store.send(.dismiss)
             }
+        }
+        .task {
+            await store.perform(.appeared)
         }
     }
 
@@ -68,6 +72,15 @@ struct ImportLoginsView: View {
                 title: Localizations.exportLoginsStep3,
                 subtitle: Localizations.exportLoginsStep3Subtitle
             )
+        }
+    }
+
+    /// The step 2 page view.
+    @ViewBuilder
+    private func step2() -> some View {
+        stepView(step: 2, totalSteps: 3, title: Localizations.logInToBitwarden) {
+            NumberedListRow(title: Localizations.logInToBitwardenStep1(store.state.webVaultHost))
+            NumberedListRow(title: Localizations.logInToBitwardenStep2)
         }
     }
 
@@ -133,6 +146,11 @@ struct ImportLoginsView: View {
 
 #Preview("Step 1") {
     ImportLoginsView(store: Store(processor: StateProcessor(state: ImportLoginsState(page: .step1))))
+        .navStackWrapped
+}
+
+#Preview("Step 2") {
+    ImportLoginsView(store: Store(processor: StateProcessor(state: ImportLoginsState(page: .step2))))
         .navStackWrapped
 }
 #endif

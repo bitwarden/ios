@@ -1023,3 +1023,6 @@
 "ExportLoginsStep3" = "**Select Import data** in the web app, then Done to finish syncing.";
 "ExportLoginsStep3Subtitle" = "You’ll delete this file after import is complete.";
 "NeedHelpCheckOutImportHelp" = "Need help? Check out **[import help](%1$@)**";
+"LogInToBitwarden" = "Log in to Bitwarden";
+"LogInToBitwardenStep1" = "On your computer, open a new browser tab and **go to %1$@**";
+"LogInToBitwardenStep2" = "**Log in to the Bitwarden web app.**";
