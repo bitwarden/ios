@@ -19,6 +19,7 @@ struct VaultUnlockSetupView: View {
                 title: Localizations.setUpUnlock,
                 message: Localizations.setUpBiometricsOrChooseAPinCodeToQuicklyAccessYourVaultAndAutofillYourLogins
             )
+            .padding(.top, 40)
 
             VStack(spacing: 0) {
                 ForEach(store.state.unlockMethods) { unlockMethod in
