@@ -80,7 +80,7 @@ private struct MainSendListView: View {
                             Image(decorative: Asset.Images.plus)
                                 .resizable()
                                 .frame(width: 16, height: 16)
-                            Text(Localizations.addSend)
+                            Text(Localizations.newSend)
                         }
                         .padding(.horizontal, 24)
                     }

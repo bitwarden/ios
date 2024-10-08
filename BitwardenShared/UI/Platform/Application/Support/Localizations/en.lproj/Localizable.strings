@@ -576,13 +576,12 @@
 "NotesInfo" = "Private notes about this Send.";
 "DisableSend" = "Deactivate this Send so that no one can access it";
 "NoSends" = "There are no Sends in your account.";
-"AddASend" = "Add a Send";
 "CopyLink" = "Copy link";
 "ShareLink" = "Share link";
 "SendLink" = "Send link";
 "SearchSends" = "Search Sends";
 "EditSend" = "Edit Send";
-"AddSend" = "New Send";
+"NewSend" = "New Send";
 "AreYouSureDeleteSend" = "Are you sure you want to delete this Send?";
 "SendDeleted" = "Send deleted";
 "SendUpdated" = "Send saved";
