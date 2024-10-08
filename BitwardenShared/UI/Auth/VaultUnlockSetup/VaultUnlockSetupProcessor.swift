@@ -75,7 +75,13 @@ class VaultUnlockSetupProcessor: StateProcessor<VaultUnlockSetupState, VaultUnlo
         } catch {
             services.errorReporter.log(error: error)
         }
-        await coordinator.handleEvent(.didCompleteAuth)
+
+        switch state.accountSetupFlow {
+        case .createAccount:
+            await coordinator.handleEvent(.didCompleteAuth)
+        case .settings:
+            coordinator.navigate(to: .dismiss)
+        }
     }
 
     /// Load any initial data for the view.

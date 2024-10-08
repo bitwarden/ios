@@ -6,8 +6,11 @@ import Foundation
 public struct AuthenticatorBridgeItemDataModel: Codable, Equatable {
     // MARK: Properties
 
+    /// The domain of the Bitwarden account that owns this item. (e.g. https://vault.bitwarden.com)
+    public let bitwardenAccountDomain: String?
+
     /// The email of the Bitwarden account that owns this item.
-    public let bitwardenAccountName: String?
+    public let bitwardenAccountEmail: String?
 
     /// Bool indicating if this item is a favorite.
     public let favorite: Bool

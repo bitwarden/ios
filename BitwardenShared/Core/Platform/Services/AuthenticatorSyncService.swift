@@ -186,7 +186,8 @@ actor DefaultAuthenticatorSyncService: NSObject, AuthenticatorSyncService {
 
         return decryptedCiphers.map { cipher in
             AuthenticatorBridgeItemDataView(
-                bitwardenAccountName: account?.profile.email,
+                bitwardenAccountDomain: account?.settings.environmentUrls?.webVaultHost,
+                bitwardenAccountEmail: account?.profile.email,
                 favorite: false,
                 id: cipher.id ?? UUID().uuidString,
                 name: cipher.name,
