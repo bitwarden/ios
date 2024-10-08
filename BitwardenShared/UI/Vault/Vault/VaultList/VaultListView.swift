@@ -69,44 +69,41 @@ private struct SearchableVaultListView: View {
 
     /// A view that displays the empty vault interface.
     @ViewBuilder private var emptyVault: some View {
-        VStack(spacing: 24) {
-            vaultFilterRow
-                .padding(.top, 16)
+        GeometryReader { reader in
+            ScrollView {
+                VStack(spacing: 24) {
+                    vaultFilterRow
+                        .padding(.top, 16)
 
-            Spacer()
+                    Spacer()
 
-            Image(decorative: Asset.Images.emptyVaultItems)
-                .resizable()
-                .frame(width: 100, height: 100)
+                    PageHeaderView(
+                        image: Asset.Images.items,
+                        title: Localizations.saveAndProtectYourData,
+                        message: Localizations
+                            .theVaultProtectsMoreThanJustPasswordsStoreSecureLoginsIdsCardsAndNotesSecurelyHere
+                    )
+                    .padding(.horizontal, 16)
 
-            VStack(spacing: 12) {
-                Text(Localizations.saveAndProtectYourData)
-                    .styleGuide(.title2, weight: .semibold)
-                    .foregroundColor(Asset.Colors.textPrimary.swiftUIColor)
+                    Button {
+                        store.send(.addItemPressed)
+                    } label: {
+                        HStack {
+                            Image(decorative: Asset.Images.plus)
+                                .resizable()
+                                .frame(width: 16, height: 16)
+                            Text(Localizations.addAnItem)
+                        }
+                        .padding(.horizontal, 24)
+                    }
+                    .buttonStyle(.primary(shouldFillWidth: false))
 
-                Text(Localizations.theVaultProtectsMoreThanJustPasswordsStoreSecureLoginsIdsCardsAndNotesSecurelyHere)
-                    .styleGuide(.body)
-                    .multilineTextAlignment(.center)
-                    .foregroundColor(Asset.Colors.textPrimary.swiftUIColor)
-                    .padding(.horizontal, 8)
-            }
-
-            Button {
-                store.send(.addItemPressed)
-            } label: {
-                HStack {
-                    Image(decorative: Asset.Images.plus)
-                        .resizable()
-                        .frame(width: 16, height: 16)
-                    Text(Localizations.addAnItem)
+                    Spacer()
                 }
+                .padding(.horizontal, 16)
+                .frame(minHeight: reader.size.height)
             }
-            .buttonStyle(.primary(shouldFillWidth: false))
-            .clipShape(RoundedRectangle(cornerRadius: 28))
-
-            Spacer()
         }
-        .padding(.horizontal, 16)
     }
 
     /// A view that displays the search interface, including search results, an empty search

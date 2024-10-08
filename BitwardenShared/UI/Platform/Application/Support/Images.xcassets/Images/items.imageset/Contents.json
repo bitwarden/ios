@@ -1,7 +1,7 @@
 {
   "images" : [
     {
-      "filename" : "empty_vault_items_light.pdf",
+      "filename" : "items_light.pdf",
       "idiom" : "universal"
     },
     {
@@ -11,7 +11,7 @@
           "value" : "dark"
         }
       ],
-      "filename" : "empty_vault_items_dark.pdf",
+      "filename" : "items_dark.pdf",
       "idiom" : "universal"
     }
   ],

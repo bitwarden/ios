@@ -176,7 +176,7 @@ class VaultListViewTests: BitwardenTestCase {
         processor.state.profileSwitcherState.isVisible = false
         processor.state.loadingState = .data([])
 
-        assertSnapshots(of: subject, as: [.defaultPortrait, .defaultPortraitDark])
+        assertSnapshots(of: subject, as: [.defaultPortrait, .defaultPortraitDark, .defaultLandscape])
     }
 
     @MainActor
