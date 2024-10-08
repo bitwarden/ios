@@ -43,8 +43,8 @@ class MockAppModule:
     }
 
     func makeAuthCoordinator(
-        delegate _: AuthCoordinatorDelegate,
-        rootNavigator _: RootNavigator,
+        delegate _: AuthCoordinatorDelegate?,
+        rootNavigator _: RootNavigator?,
         stackNavigator _: StackNavigator
     ) -> AnyCoordinator<AuthRoute, AuthEvent> {
         authCoordinator.asAnyCoordinator()

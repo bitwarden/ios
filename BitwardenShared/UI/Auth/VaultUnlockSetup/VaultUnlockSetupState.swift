@@ -67,6 +67,9 @@ struct VaultUnlockSetupState: Equatable {
 
     // MARK: Properties
 
+    /// The account setup flow that the user is in.
+    var accountSetupFlow: AccountSetupFlow
+
     /// The biometric auth status for the user.
     var biometricsStatus: BiometricsUnlockStatus?
 
@@ -88,6 +91,21 @@ struct VaultUnlockSetupState: Equatable {
     /// Whether the continue button is enabled.
     var isContinueButtonEnabled: Bool {
         isBiometricUnlockOn || isPinUnlockOn
+    }
+
+    /// The title to display in the navigation bar.
+    var navigationBarTitle: String {
+        switch accountSetupFlow {
+        case .createAccount:
+            Localizations.accountSetup
+        case .settings:
+            Localizations.setUpUnlock
+        }
+    }
+
+    /// Whether the set up later button should be displayed.
+    var shouldDisplaySetUpLaterButton: Bool {
+        accountSetupFlow == .createAccount
     }
 
     /// The available unlock methods to show in the UI.

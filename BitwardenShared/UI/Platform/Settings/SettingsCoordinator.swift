@@ -44,7 +44,8 @@ final class SettingsCoordinator: Coordinator, HasStackNavigator { // swiftlint:d
     // MARK: Types
 
     /// The module types required by this coordinator for creating child coordinators.
-    typealias Module = LoginRequestModule
+    typealias Module = AuthModule
+        & LoginRequestModule
 
     typealias Services = HasAccountAPIService
         & HasAuthRepository
@@ -165,8 +166,7 @@ final class SettingsCoordinator: Coordinator, HasStackNavigator { // swiftlint:d
         case .vault:
             showVault()
         case .vaultUnlockSetup:
-            // TODO: PM-12780 Display set up unlock screen
-            break
+            showAuthCoordinator(route: .vaultUnlockSetup(.settings))
         }
     }
 
@@ -274,6 +274,20 @@ final class SettingsCoordinator: Coordinator, HasStackNavigator { // swiftlint:d
             )
         }
         stackNavigator?.present(viewController)
+    }
+
+    /// Navigates to the specified auth coordinator route within the existing navigator.
+    ///
+    /// - Parameter route: The auth route to navigate to.
+    ///
+    private func showAuthCoordinator(route: AuthRoute) {
+        guard let stackNavigator else { return }
+        let coordinator = module.makeAuthCoordinator(
+            delegate: nil,
+            rootNavigator: nil,
+            stackNavigator: stackNavigator
+        )
+        coordinator.navigate(to: route)
     }
 
     /// Shows the auto-fill screen.
