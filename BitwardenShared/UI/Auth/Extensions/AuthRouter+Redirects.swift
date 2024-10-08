@@ -31,7 +31,7 @@ extension AuthRouter {
         if account.profile.forcePasswordResetReason != nil {
             return .updateMasterPassword
         } else if await (try? services.stateService.getAccountSetupVaultUnlock()) == .incomplete {
-            return .vaultUnlockSetup
+            return .vaultUnlockSetup(.createAccount)
         } else if await (try? services.stateService.getAccountSetupAutofill()) == .incomplete {
             return .autofillSetup
         } else {
