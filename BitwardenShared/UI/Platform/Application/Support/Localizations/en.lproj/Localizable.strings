@@ -1002,3 +1002,5 @@
 "AutoFillActivatedDescriptionLong" = "You can now use autofill to log into apps and websites using your saved passwords. Now, you can explore everything else Bitwarden has to offer.";
 "GetStarted" = "Get started";
 "Dismiss" = "Dismiss";
+"SaveAndProtectYourData" = "Save and protect your data";
+"TheVaultProtectsMoreThanJustPasswordsStoreSecureLoginsIdsCardsAndNotesSecurelyHere" = "The vault protects more than just your passwords. Store secure logins, IDs, cards and notes securely here.";

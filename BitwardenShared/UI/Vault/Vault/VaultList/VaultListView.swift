@@ -69,30 +69,44 @@ private struct SearchableVaultListView: View {
 
     /// A view that displays the empty vault interface.
     @ViewBuilder private var emptyVault: some View {
-        GeometryReader { reader in
-            ScrollView {
-                VStack(spacing: 24) {
-                    vaultFilterRow
-                        .padding(.top, 16)
+        VStack(spacing: 24) {
+            vaultFilterRow
+                .padding(.top, 16)
 
-                    Spacer()
+            Spacer()
 
-                    Text(Localizations.noItems)
-                        .multilineTextAlignment(.center)
-                        .styleGuide(.callout)
-                        .foregroundColor(Asset.Colors.textPrimary.swiftUIColor)
+            Image(decorative: Asset.Images.emptyVaultItems)
+                .resizable()
+                .frame(width: 100, height: 100)
 
-                    Button(Localizations.addAnItem) {
-                        store.send(.addItemPressed)
-                    }
-                    .buttonStyle(.tertiary())
+            VStack(spacing: 12) {
+                Text(Localizations.saveAndProtectYourData)
+                    .styleGuide(.title2, weight: .semibold)
+                    .foregroundColor(Asset.Colors.textPrimary.swiftUIColor)
 
-                    Spacer()
-                }
-                .padding(.horizontal, 16)
-                .frame(minHeight: reader.size.height)
+                Text(Localizations.theVaultProtectsMoreThanJustPasswordsStoreSecureLoginsIdsCardsAndNotesSecurelyHere)
+                    .styleGuide(.body)
+                    .multilineTextAlignment(.center)
+                    .foregroundColor(Asset.Colors.textPrimary.swiftUIColor)
+                    .padding(.horizontal, 8)
             }
+
+            Button {
+                store.send(.addItemPressed)
+            } label: {
+                HStack {
+                    Image(decorative: Asset.Images.plus)
+                        .resizable()
+                        .frame(width: 16, height: 16)
+                    Text(Localizations.addAnItem)
+                }
+            }
+            .buttonStyle(.primary(shouldFillWidth: false))
+            .clipShape(RoundedRectangle(cornerRadius: 28))
+
+            Spacer()
         }
+        .padding(.horizontal, 16)
     }
 
     /// A view that displays the search interface, including search results, an empty search
