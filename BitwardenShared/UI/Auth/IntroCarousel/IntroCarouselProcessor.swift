@@ -5,11 +5,18 @@ import SwiftUI
 
 /// The processor used to manage state and handle actions for the intro carousel screen.
 ///
-class IntroCarouselProcessor: StateProcessor<IntroCarouselState, IntroCarouselAction, Void> {
+class IntroCarouselProcessor: StateProcessor<IntroCarouselState, IntroCarouselAction, IntroCarouselEffect> {
+    // MARK: Types
+
+    typealias Services = HasConfigService
+
     // MARK: Private Properties
 
     /// The coordinator that handles navigation.
     private let coordinator: AnyCoordinator<AuthRoute, AuthEvent>
+
+    /// The services required by this processor.
+    private let services: Services
 
     // MARK: Initialization
 
@@ -22,22 +29,45 @@ class IntroCarouselProcessor: StateProcessor<IntroCarouselState, IntroCarouselAc
     ///
     init(
         coordinator: AnyCoordinator<AuthRoute, AuthEvent>,
+        services: Services,
         state: IntroCarouselState
     ) {
         self.coordinator = coordinator
+        self.services = services
         super.init(state: state)
     }
 
     // MARK: Methods
 
+    override func perform(_ effect: IntroCarouselEffect) async {
+        switch effect {
+        case .createAccount:
+            let isEmailVerificationEnabled: Bool = await services.configService.getFeatureFlag(
+                .emailVerification,
+                isPreAuth: true
+            )
+            if isEmailVerificationEnabled {
+                coordinator.navigate(to: .startRegistration, context: self)
+            } else {
+                coordinator.navigate(to: .createAccount)
+            }
+        }
+    }
+
     override func receive(_ action: IntroCarouselAction) {
         switch action {
-        case .createAccount:
-            coordinator.navigate(to: .createAccount)
         case let .currentPageIndexChanged(newValue):
             state.currentPageIndex = newValue
         case .logIn:
             coordinator.navigate(to: .landing)
         }
+    }
+}
+
+// MARK: - StartRegistrationDelegate
+
+extension IntroCarouselProcessor: StartRegistrationDelegate {
+    func didChangeRegion() async {
+        // No-op: the carousel doesn't show the region so there's nothing to do here.
     }
 }
