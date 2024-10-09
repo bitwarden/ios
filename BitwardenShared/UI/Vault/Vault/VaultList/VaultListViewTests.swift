@@ -56,16 +56,16 @@ class VaultListViewTests: BitwardenTestCase {
         processor.state.loadingState = .data([])
         let button = try subject.inspect().find(button: Localizations.add)
         try button.tap()
-        XCTAssertEqual(processor.dispatchedActions.last, .addItemPressed)
+        XCTAssertEqual(processor.dispatchedActions.last, .newLoginButtonPressed)
     }
 
-    /// Tapping the add an item button dispatches the `.addItemPressed` action.
+    /// Tapping the add the new login button dispatches the `.newLoginButtonPressed` action.
     @MainActor
-    func test_addAnItemButton_tap() throws {
+    func test_newLoginButton_tap() throws {
         processor.state.loadingState = .data([])
-        let button = try subject.inspect().find(button: Localizations.addAnItem)
+        let button = try subject.inspect().find(button: Localizations.newLogin)
         try button.tap()
-        XCTAssertEqual(processor.dispatchedActions.last, .addItemPressed)
+        XCTAssertEqual(processor.dispatchedActions.last, .newLoginButtonPressed)
     }
 
     /// Long pressing a profile row dispatches the `.accountLongPressed` action.

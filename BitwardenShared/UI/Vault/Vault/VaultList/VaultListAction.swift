@@ -4,9 +4,6 @@ import BitwardenSdk
 
 /// Actions that can be processed by a `VaultListProcessor`.
 enum VaultListAction: Equatable {
-    /// The add item button was pressed.
-    case addItemPressed
-
     /// The url has been opened so clear the value in the state.
     case clearURL
 
@@ -16,6 +13,9 @@ enum VaultListAction: Equatable {
 
     /// An item in the vault was pressed.
     case itemPressed(item: VaultListItem)
+
+    /// The new login button was pressed.
+    case newLoginButtonPressed
 
     /// A forwarded profile switcher action
     case profileSwitcher(ProfileSwitcherAction)
