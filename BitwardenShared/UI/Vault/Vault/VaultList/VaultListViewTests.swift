@@ -59,11 +59,11 @@ class VaultListViewTests: BitwardenTestCase { // swiftlint:disable:this type_bod
         XCTAssertEqual(processor.dispatchedActions.last, .addItemPressed)
     }
 
-    /// Tapping the add an item button dispatches the `.addItemPressed` action.
+    /// Tapping the add the new login button dispatches the `.addItemPressed` action.
     @MainActor
-    func test_addAnItemButton_tap() throws {
+    func test_newLoginButton_tap() throws {
         processor.state.loadingState = .data([])
-        let button = try subject.inspect().find(button: Localizations.addAnItem)
+        let button = try subject.inspect().find(button: Localizations.newLogin)
         try button.tap()
         XCTAssertEqual(processor.dispatchedActions.last, .addItemPressed)
     }

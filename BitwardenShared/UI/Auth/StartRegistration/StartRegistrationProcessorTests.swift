@@ -120,6 +120,35 @@ class StartRegistrationProcessorTests: BitwardenTestCase { // swiftlint:disable:
                 LoadingOverlayState(title: Localizations.creatingAccount),
             ]
         )
+        XCTAssertEqual(stateService.accountCreationEnvironmentUrls["example@email.com"], .defaultEU)
+    }
+
+    /// `perform(_:)` with `.startRegistration` sets preAuthUrls for the given email and navigates to check email.
+    @MainActor
+    func test_perform_startRegistration_setPreAuthUrls_checkEmail_emailWithSpaceAndCapitals() async throws {
+        subject.state = .fixture(emailText: "  example@EMAIL.com   ")
+        client.result = .httpSuccess(testData: .nilResponse)
+        stateService.preAuthEnvironmentUrls = .defaultEU
+
+        await subject.perform(.startRegistration)
+
+        XCTAssertEqual(client.requests.count, 1)
+        XCTAssertEqual(
+            client.requests[0].url,
+            URL(string: "https://example.com/identity/accounts/register/send-verification-email")
+        )
+        XCTAssertEqual(coordinator.routes.last, .checkEmail(
+            email: "example@email.com"
+        ))
+
+        XCTAssertFalse(coordinator.isLoadingOverlayShowing)
+        XCTAssertEqual(
+            coordinator.loadingOverlaysShown,
+            [
+                LoadingOverlayState(title: Localizations.creatingAccount),
+            ]
+        )
+        XCTAssertEqual(stateService.accountCreationEnvironmentUrls["example@email.com"], .defaultEU)
     }
 
     /// `perform(_:)` with `.startRegistration` fails if preAuthUrls cannot be loaded.
@@ -382,6 +411,15 @@ class StartRegistrationProcessorTests: BitwardenTestCase { // swiftlint:disable:
 
         XCTAssertFalse(coordinator.isLoadingOverlayShowing)
         XCTAssertEqual(coordinator.loadingOverlaysShown, [LoadingOverlayState(title: Localizations.creatingAccount)])
+        XCTAssertEqual(
+            coordinator.routes,
+            [
+                .completeRegistration(
+                    emailVerificationToken: "0018A45C4D1DEF81644B54AB7F969B88D65\n",
+                    userEmail: "example@email.com"
+                ),
+            ]
+        )
     }
 
     /// `perform(_:)` with `.startRegistration` and a valid email surrounded by whitespace trims the whitespace and
@@ -402,6 +440,15 @@ class StartRegistrationProcessorTests: BitwardenTestCase { // swiftlint:disable:
 
         XCTAssertFalse(coordinator.isLoadingOverlayShowing)
         XCTAssertEqual(coordinator.loadingOverlaysShown, [LoadingOverlayState(title: Localizations.creatingAccount)])
+        XCTAssertEqual(
+            coordinator.routes,
+            [
+                .completeRegistration(
+                    emailVerificationToken: "0018A45C4D1DEF81644B54AB7F969B88D65\n",
+                    userEmail: "email@example.com"
+                ),
+            ]
+        )
     }
 
     /// `perform(_:)` with `.startRegistration` and a valid email with uppercase characters
@@ -422,6 +469,15 @@ class StartRegistrationProcessorTests: BitwardenTestCase { // swiftlint:disable:
         )
         XCTAssertFalse(coordinator.isLoadingOverlayShowing)
         XCTAssertEqual(coordinator.loadingOverlaysShown, [LoadingOverlayState(title: Localizations.creatingAccount)])
+        XCTAssertEqual(
+            coordinator.routes,
+            [
+                .completeRegistration(
+                    emailVerificationToken: "0018A45C4D1DEF81644B54AB7F969B88D65\n",
+                    userEmail: "email@example.com"
+                ),
+            ]
+        )
     }
 
     /// `receive(_:)` with `.dismiss` dismisses the view.

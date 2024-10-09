@@ -96,7 +96,7 @@ private struct SearchableVaultListView: View {
                             Image(decorative: Asset.Images.plus)
                                 .resizable()
                                 .frame(width: 16, height: 16)
-                            Text(Localizations.addAnItem)
+                            Text(Localizations.newLogin)
                         }
                         .padding(.horizontal, 24)
                     }
