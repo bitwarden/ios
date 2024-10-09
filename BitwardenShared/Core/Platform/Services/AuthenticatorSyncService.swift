@@ -216,16 +216,16 @@ actor DefaultAuthenticatorSyncService: NSObject, AuthenticatorSyncService {
     /// - Parameter userId: The userId of the user whose sync status is being determined.
     ///
     private func determineSyncForUserId(_ userId: String) async throws {
-        if try await !stateService.getSyncToAuthenticator(userId: userId) {
+        guard try await stateService.getSyncToAuthenticator(userId: userId) else {
             cipherPublisherTasks[userId]?.cancel()
             cipherPublisherTasks.removeValue(forKey: userId)
             try await keychainRepository.deleteAuthenticatorVaultKey(userId: userId)
             try await authBridgeItemService.deleteAllForUserId(userId)
             try await deleteKeyIfSyncingIsOff()
-        } else if vaultTimeoutService.isLocked(userId: userId) {
-            cipherPublisherTasks[userId]?.cancel()
-            cipherPublisherTasks.removeValue(forKey: userId)
-        } else {
+            return
+        }
+
+        if !vaultTimeoutService.isLocked(userId: userId) {
             try await createAuthenticatorKeyIfNeeded()
             try await createAuthenticatorVaultKeyIfNeeded(userId: userId)
             subscribeToCipherUpdates(userId: userId)
@@ -257,9 +257,14 @@ actor DefaultAuthenticatorSyncService: NSObject, AuthenticatorSyncService {
     ///   - userId: The userId of the account to which the Ciphers belong.
     ///
     private func writeCiphers(ciphers: [Cipher], userId: String) async throws {
-        guard !vaultTimeoutService.isLocked(userId: userId) else { return }
-
+        var useKey = vaultTimeoutService.isLocked(userId: userId)
+        if useKey {
+            try await authRepository.unlockVaultWithAuthenticatorVaultKey(userId: userId)
+        }
         let items = try await decryptTOTPs(ciphers, userId: userId)
+        if useKey {
+            await vaultTimeoutService.lockVault(userId: userId)
+        }
         try await authBridgeItemService.replaceAllItems(with: items, forUserId: userId)
     }
 }
