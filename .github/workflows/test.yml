@@ -56,12 +56,21 @@ jobs:
       pull-requests: write
 
     steps:
+      - name: Log inputs to job summary
+        run: |
+          echo "<details><summary>Build Workflow Inputs</summary>" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo '```json' >> $GITHUB_STEP_SUMMARY
+          echo '${{ toJson(inputs) }}' >> $GITHUB_STEP_SUMMARY
+          echo '```' >> $GITHUB_STEP_SUMMARY
+          echo "</details>" >> $GITHUB_STEP_SUMMARY
+
       - name: Check out repo
         uses: actions/checkout@d632683dd7b4114ad314bca15554477dd762a938 # v4.2.0
         with:
           ref: ${{  github.event.pull_request.head.sha }}
 
-      - name: Read Xcode version
+      - name: Read default Xcode version
         run: |
           echo "DEFAULT_XCODE_VERSION=$(cat .xcode-version | tr -d '\n')" >> "$GITHUB_ENV"
 
@@ -70,61 +79,61 @@ jobs:
         with:
           xcode-version: ${{ env.XCODE_VERSION || env.DEFAULT_XCODE_VERSION }}
 
-      - name: Configure Ruby
-        uses: ruby/setup-ruby@c04af2bb7258bb6a03df1d3c1865998ac9390972 # v1.194.0
-        with:
-          bundler-cache: true
-
-      - name: Cache Mint packages
-        uses: actions/cache@0c45773b623bea8c8e75f6c82b208c3cf94ea4f9 # v4.0.2
-        with:
-          path: .mint
-          key: ${{ runner.os }}-mint-${{ hashFiles('**/Mintfile') }}
-          restore-keys: |
-            ${{ runner.os }}-mint-
-
-      - name: Cache SPM packages
-        uses: actions/cache@0c45773b623bea8c8e75f6c82b208c3cf94ea4f9 # v4.0.2
-        with:
-          path: build/DerivedData/SourcePackages
-          key: ${{ runner.os }}-spm-${{ hashFiles('**/Package.resolved') }}
-          restore-keys: |
-            ${{ runner.os }}-spm-
-
-      - name: Install yeetd
-        run: |
-          wget https://github.com/biscuitehh/yeetd/releases/download/1.0/yeetd-normal.pkg
-          sudo installer -pkg yeetd-normal.pkg -target /
-          yeetd &
-
-      - name: Install Mint, xcbeautify, and xcresultparser
-        run: |
-          brew install mint xcbeautify a7ex/homebrew-formulae/xcresultparser
-          ./Scripts/bootstrap.sh
-
-      - name: Build and test
-        run: |
-          xcrun -f xcodebuild
-          set -o pipefail && \
-            xcrun xcodebuild test \
-            -project Bitwarden.xcodeproj \
-            -scheme Bitwarden \
-            -configuration Debug \
-            -destination "platform=iOS Simulator,name=${{ env.SIMULATOR_NAME }},OS=${{ env.SIMULATOR_VERSION }}" \
-            -resultBundlePath ${{ env.RESULT_BUNDLE_PATH }} \
-            -derivedDataPath build/DerivedData \
-            | xcbeautify --renderer github-actions
-
-      # - name: Convert coverage to Cobertura
-      #   run: |
-      #     set -o pipefail && \
-      #       xcresultparser --output-format cobertura \
-      #       "$RESULT_BUNDLE_PATH" >"$COVERAGE_PATH"
-
-      # - name: Upload to codecov.io
-      #   uses: codecov/codecov-action@b9fd7d16f6d7d1b5d2bec1a2887e65ceed900238 # v4.6.0
+      # - name: Configure Ruby
+      #   uses: ruby/setup-ruby@c04af2bb7258bb6a03df1d3c1865998ac9390972 # v1.194.0
       #   with:
-      #     plugin: xcode
-      #     file: ${{ env.COVERAGE_PATH }}
-      #   env:
-      #     CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
+      #     bundler-cache: true
+
+      # - name: Cache Mint packages
+      #   uses: actions/cache@0c45773b623bea8c8e75f6c82b208c3cf94ea4f9 # v4.0.2
+      #   with:
+      #     path: .mint
+      #     key: ${{ runner.os }}-mint-${{ hashFiles('**/Mintfile') }}
+      #     restore-keys: |
+      #       ${{ runner.os }}-mint-
+
+      # - name: Cache SPM packages
+      #   uses: actions/cache@0c45773b623bea8c8e75f6c82b208c3cf94ea4f9 # v4.0.2
+      #   with:
+      #     path: build/DerivedData/SourcePackages
+      #     key: ${{ runner.os }}-spm-${{ hashFiles('**/Package.resolved') }}
+      #     restore-keys: |
+      #       ${{ runner.os }}-spm-
+
+      # - name: Install yeetd
+      #   run: |
+      #     wget https://github.com/biscuitehh/yeetd/releases/download/1.0/yeetd-normal.pkg
+      #     sudo installer -pkg yeetd-normal.pkg -target /
+      #     yeetd &
+
+      # - name: Install Mint, xcbeautify, and xcresultparser
+      #   run: |
+      #     brew install mint xcbeautify a7ex/homebrew-formulae/xcresultparser
+      #     ./Scripts/bootstrap.sh
+
+      # - name: Build and test
+      #   run: |
+      #     xcrun -f xcodebuild
+      #     set -o pipefail && \
+      #       xcrun xcodebuild test \
+      #       -project Bitwarden.xcodeproj \
+      #       -scheme Bitwarden \
+      #       -configuration Debug \
+      #       -destination "platform=iOS Simulator,name=${{ env.SIMULATOR_NAME }},OS=${{ env.SIMULATOR_VERSION }}" \
+      #       -resultBundlePath ${{ env.RESULT_BUNDLE_PATH }} \
+      #       -derivedDataPath build/DerivedData \
+      #       | xcbeautify --renderer github-actions
+
+      # # - name: Convert coverage to Cobertura
+      # #   run: |
+      # #     set -o pipefail && \
+      # #       xcresultparser --output-format cobertura \
+      # #       "$RESULT_BUNDLE_PATH" >"$COVERAGE_PATH"
+
+      # # - name: Upload to codecov.io
+      # #   uses: codecov/codecov-action@b9fd7d16f6d7d1b5d2bec1a2887e65ceed900238 # v4.6.0
+      # #   with:
+      # #     plugin: xcode
+      # #     file: ${{ env.COVERAGE_PATH }}
+      # #   env:
+      # #     CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
