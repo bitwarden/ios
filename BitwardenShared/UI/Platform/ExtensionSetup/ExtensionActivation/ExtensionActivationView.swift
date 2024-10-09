@@ -45,6 +45,7 @@ struct ExtensionActivationView: View {
                 title: Localizations.youreAllSet,
                 message: Localizations.autoFillActivatedDescriptionLong
             )
+            .padding(.top, 40)
 
             Button(Localizations.continueToBitwarden) {
                 openURL(ExternalLinksConstants.appDeepLink)

@@ -179,7 +179,7 @@ public enum AuthRoute: Equatable {
     )
 
     /// A route to the vault unlock setup screen.
-    case vaultUnlockSetup
+    case vaultUnlockSetup(AccountSetupFlow)
 
     /// A route to the WebAuthn two factor authentication.
     ///

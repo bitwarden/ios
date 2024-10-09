@@ -5,6 +5,7 @@ import XCTest
 class EnvironmentServiceTests: XCTestCase {
     // MARK: Properties
 
+    var errorReporter: MockErrorReporter!
     var stateService: MockStateService!
     var standardUserDefaults: UserDefaults!
     var subject: EnvironmentService!
@@ -14,11 +15,13 @@ class EnvironmentServiceTests: XCTestCase {
     override func setUp() {
         super.setUp()
 
+        errorReporter = MockErrorReporter()
         stateService = MockStateService()
         standardUserDefaults = UserDefaults(suiteName: "test")
         standardUserDefaults.removeObject(forKey: "com.apple.configuration.managed")
 
         subject = DefaultEnvironmentService(
+            errorReporter: errorReporter,
             stateService: stateService,
             standardUserDefaults: standardUserDefaults
         )
@@ -27,6 +30,7 @@ class EnvironmentServiceTests: XCTestCase {
     override func tearDown() {
         super.tearDown()
 
+        errorReporter = nil
         stateService = nil
         standardUserDefaults = nil
         subject = nil
@@ -66,6 +70,9 @@ class EnvironmentServiceTests: XCTestCase {
         XCTAssertEqual(subject.settingsURL, URL(string: "https://example.com/#/settings"))
         XCTAssertEqual(subject.webVaultURL, URL(string: "https://example.com"))
         XCTAssertEqual(stateService.preAuthEnvironmentUrls, urls)
+
+        XCTAssertEqual(errorReporter.region?.region, "Self-Hosted")
+        XCTAssertEqual(errorReporter.region?.isPreAuth, false)
     }
 
     /// `loadURLsForActiveAccount()` handles EU URLs
@@ -87,6 +94,9 @@ class EnvironmentServiceTests: XCTestCase {
         XCTAssertEqual(subject.settingsURL, URL(string: "https://vault.bitwarden.eu/#/settings"))
         XCTAssertEqual(subject.webVaultURL, URL(string: "https://vault.bitwarden.eu"))
         XCTAssertEqual(stateService.preAuthEnvironmentUrls, urls)
+
+        XCTAssertEqual(errorReporter.region?.region, "EU")
+        XCTAssertEqual(errorReporter.region?.isPreAuth, false)
     }
 
     /// `loadURLsForActiveAccount()` loads the managed config URLs.
@@ -153,6 +163,9 @@ class EnvironmentServiceTests: XCTestCase {
         XCTAssertEqual(subject.settingsURL, URL(string: "https://vault.bitwarden.com/#/settings"))
         XCTAssertEqual(subject.webVaultURL, URL(string: "https://vault.bitwarden.com"))
         XCTAssertEqual(stateService.preAuthEnvironmentUrls, .defaultUS)
+
+        XCTAssertEqual(errorReporter.region?.region, "US")
+        XCTAssertEqual(errorReporter.region?.isPreAuth, false)
     }
 
     /// `loadURLsForActiveAccount()` loads the preAuth URLs if there's no active account
@@ -173,6 +186,9 @@ class EnvironmentServiceTests: XCTestCase {
         XCTAssertEqual(subject.settingsURL, URL(string: "https://example.com/#/settings"))
         XCTAssertEqual(subject.webVaultURL, URL(string: "https://example.com"))
         XCTAssertEqual(stateService.preAuthEnvironmentUrls, urls)
+
+        XCTAssertEqual(errorReporter.region?.region, "Self-Hosted")
+        XCTAssertEqual(errorReporter.region?.isPreAuth, false)
     }
 
     /// `setPreAuthURLs(urls:)` sets the pre-auth URLs.
@@ -191,5 +207,7 @@ class EnvironmentServiceTests: XCTestCase {
         XCTAssertEqual(subject.settingsURL, URL(string: "https://example.com/#/settings"))
         XCTAssertEqual(subject.webVaultURL, URL(string: "https://example.com"))
         XCTAssertEqual(stateService.preAuthEnvironmentUrls, urls)
+        XCTAssertEqual(errorReporter.region?.region, "Self-Hosted")
+        XCTAssertEqual(errorReporter.region?.isPreAuth, true)
     }
 }

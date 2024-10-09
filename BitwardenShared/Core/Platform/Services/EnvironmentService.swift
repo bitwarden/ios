@@ -60,6 +60,9 @@ protocol EnvironmentService {
 class DefaultEnvironmentService: EnvironmentService {
     // MARK: Properties
 
+    /// The service used by the application to report non-fatal errors.
+    let errorReporter: ErrorReporter
+
     /// The service used by the application to manage account state.
     let stateService: StateService
 
@@ -77,10 +80,12 @@ class DefaultEnvironmentService: EnvironmentService {
     /// Initialize a `DefaultEnvironmentService`.
     ///
     /// - Parameters:
+    ///   - errorReporter: The service used by the application to report non-fatal errors
     ///   - stateService: The service used by the application to manage account state.
     ///   - standardUserDefaults: The shared UserDefaults instance.
     ///
-    init(stateService: StateService, standardUserDefaults: UserDefaults = .standard) {
+    init(errorReporter: ErrorReporter, stateService: StateService, standardUserDefaults: UserDefaults = .standard) {
+        self.errorReporter = errorReporter
         self.stateService = stateService
         self.standardUserDefaults = standardUserDefaults
 
@@ -105,6 +110,8 @@ class DefaultEnvironmentService: EnvironmentService {
         await setPreAuthURLs(urls: managedSettingsUrls ?? urls)
         environmentUrls = EnvironmentUrls(environmentUrlData: urls)
 
+        errorReporter.setRegion(region.errorReporterName, isPreAuth: false)
+
         // swiftformat:disable:next redundantSelf
         Logger.application.info("Loaded environment URLs: \(String(describing: self.environmentUrls))")
     }
@@ -112,6 +119,8 @@ class DefaultEnvironmentService: EnvironmentService {
     func setPreAuthURLs(urls: EnvironmentUrlData) async {
         await stateService.setPreAuthEnvironmentUrls(urls)
         environmentUrls = EnvironmentUrls(environmentUrlData: urls)
+
+        errorReporter.setRegion(region.errorReporterName, isPreAuth: true)
 
         // swiftformat:disable:next redundantSelf
         Logger.application.info("Setting pre-auth URLs: \(String(describing: self.environmentUrls))")

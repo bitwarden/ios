@@ -24,6 +24,7 @@ struct CompleteRegistrationView: View {
                     title: Localizations.chooseYourMasterPassword,
                     message: Localizations.chooseAUniqueAndStrongPasswordToKeepYourInformationSafe
                 )
+                .padding(.top, 40)
 
                 learnMoreSection
                     .padding(.vertical, 16)

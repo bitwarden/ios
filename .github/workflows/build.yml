@@ -313,6 +313,7 @@ jobs:
 
       - name: Install Fastlane, Mint
         run: |
+          brew update
           brew install fastlane mint
 
       - name: Install Mint packages

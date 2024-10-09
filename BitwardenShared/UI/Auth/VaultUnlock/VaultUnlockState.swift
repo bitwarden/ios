@@ -17,14 +17,6 @@ struct VaultUnlockState: Equatable {
 
     // MARK: Properties
 
-    /// Indicates if biometrics are enabled but has an invalid integrity.
-    var isBiometricsEnabledAndInvalid: Bool {
-        if case let .available(_, enabled, hasValidIntegrity) = biometricUnlockStatus {
-            return enabled && !hasValidIntegrity
-        }
-        return false
-    }
-
     /// The biometric auth status for the user.
     var biometricUnlockStatus: BiometricsUnlockStatus = .notAvailable
 
