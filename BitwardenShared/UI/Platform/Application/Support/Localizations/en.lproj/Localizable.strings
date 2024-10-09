@@ -581,7 +581,7 @@
 "SendLink" = "Send link";
 "SearchSends" = "Search Sends";
 "EditSend" = "Edit Send";
-"NewSend" = "New Send";
+"NewSend" = "New send";
 "AreYouSureDeleteSend" = "Are you sure you want to delete this Send?";
 "SendDeleted" = "Send deleted";
 "SendUpdated" = "Send saved";
