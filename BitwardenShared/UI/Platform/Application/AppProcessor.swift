@@ -54,11 +54,17 @@ public class AppProcessor {
     /// - Parameters:
     ///   - appExtensionDelegate: A delegate used to communicate with the app extension.
     ///   - appModule: The root module to use to create sub-coordinators.
+    ///   - debugDidEnterBackground: A closure that is called in debug builds for testing after the
+    ///     processor finishes its work when the app enters the background.
+    ///   - debugWillEnterForeground: A closure that is called in debug builds for testing after the
+    ///     processor finishes its work when the app enters the foreground.
     ///   - services: The services used by the app.
     ///
     public init(
         appExtensionDelegate: AppExtensionDelegate? = nil,
         appModule: AppModule,
+        debugDidEnterBackground: (() -> Void)? = nil,
+        debugWillEnterForeground: (() -> Void)? = nil,
         services: ServiceContainer
     ) {
         self.appExtensionDelegate = appExtensionDelegate
@@ -77,6 +83,10 @@ public class AppProcessor {
             for await _ in services.notificationCenterService.willEnterForegroundPublisher() {
                 startEventTimer()
                 await checkAccountsForTimeout()
+                await completeAutofillAccountSetupIfEnabled()
+                #if DEBUG
+                debugWillEnterForeground?()
+                #endif
             }
         }
 
@@ -91,6 +101,9 @@ public class AppProcessor {
                 } catch {
                     services.errorReporter.log(error: error)
                 }
+                #if DEBUG
+                debugDidEnterBackground?()
+                #endif
             }
         }
     }
@@ -166,10 +179,10 @@ public class AppProcessor {
     /// - Parameter incomingURL: The URL handled from AppLinks.
     ///
     public func handleAppLinks(incomingURL: URL) {
-        guard let sanatizedUrl = URL(
+        guard let sanitizedUrl = URL(
             string: incomingURL.absoluteString.replacingOccurrences(of: "/redirect-connector.html#", with: "/")
         ),
-            let components = URLComponents(url: sanatizedUrl, resolvingAgainstBaseURL: true) else {
+            let components = URLComponents(url: sanitizedUrl, resolvingAgainstBaseURL: true) else {
             return
         }
 
@@ -201,27 +214,6 @@ public class AppProcessor {
     }
 
     // MARK: Autofill Methods
-
-    /// If the native create account feature flag and the autofill extension are enabled, this marks
-    /// any user's autofill account setup completed. This should be called on app startup.
-    ///
-    func completeAutofillAccountSetupIfEnabled() async {
-        guard await services.configService.getFeatureFlag(.nativeCreateAccountFlow),
-              await services.autofillCredentialService.isAutofillCredentialsEnabled()
-        else { return }
-        do {
-            let accounts = try await services.stateService.getAccounts()
-            for account in accounts {
-                let userId = account.profile.userId
-                guard let progress = await services.stateService.getAccountSetupAutofill(userId: userId),
-                      progress != .complete
-                else { continue }
-                try await services.stateService.setAccountSetupAutofill(.complete, userId: userId)
-            }
-        } catch {
-            services.errorReporter.log(error: error)
-        }
-    }
 
     /// Returns a `ASPasswordCredential` that matches the user-requested credential which can be
     /// used for autofill.
@@ -284,6 +276,11 @@ public class AppProcessor {
         coordinator?.showAlert(alert)
     }
 
+    /// Show the debug menu.
+    public func showDebugMenu() {
+        coordinator?.navigate(to: .debugMenu)
+    }
+
     // MARK: Notification Methods
 
     /// Called when the app has registered for push notifications.
@@ -322,7 +319,9 @@ public class AppProcessor {
             notificationTapped: notificationTapped
         )
     }
+}
 
+extension AppProcessor {
     // MARK: Private Methods
 
     /// Checks if any accounts have timed out.
@@ -352,6 +351,30 @@ public class AppProcessor {
             }
         } catch StateServiceError.noAccounts, StateServiceError.noActiveAccount {
             // No-op: nothing to do if there's no accounts or an active account.
+        } catch {
+            services.errorReporter.log(error: error)
+        }
+    }
+
+    /// If the native create account feature flag and the autofill extension are enabled, this marks
+    /// any user's autofill account setup completed. This should be called on app startup.
+    ///
+    private func completeAutofillAccountSetupIfEnabled() async {
+        // Don't mark the user's progress as complete in the extension, otherwise the app may not
+        // see that the user's progress needs to be updated to publish new values to subscribers.
+        guard appExtensionDelegate?.isInAppExtension != true,
+              await services.configService.getFeatureFlag(.nativeCreateAccountFlow),
+              await services.autofillCredentialService.isAutofillCredentialsEnabled()
+        else { return }
+        do {
+            let accounts = try await services.stateService.getAccounts()
+            for account in accounts {
+                let userId = account.profile.userId
+                guard let progress = await services.stateService.getAccountSetupAutofill(userId: userId),
+                      progress != .complete
+                else { continue }
+                try await services.stateService.setAccountSetupAutofill(.complete, userId: userId)
+            }
         } catch {
             services.errorReporter.log(error: error)
         }
@@ -397,11 +420,6 @@ public class AppProcessor {
             services.application?.endBackgroundTask(taskId)
             backgroundTaskId = nil
         }
-    }
-
-    /// Show the debug menu.
-    public func showDebugMenu() {
-        coordinator?.navigate(to: .debugMenu)
     }
 }
 

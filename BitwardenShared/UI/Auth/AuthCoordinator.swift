@@ -101,8 +101,8 @@ final class AuthCoordinator: NSObject, // swiftlint:disable:this type_body_lengt
     ///
     init(
         appExtensionDelegate: AppExtensionDelegate?,
-        delegate: AuthCoordinatorDelegate,
-        rootNavigator: RootNavigator,
+        delegate: AuthCoordinatorDelegate?,
+        rootNavigator: RootNavigator?,
         router: AnyRouter<AuthEvent, AuthRoute>,
         services: Services,
         stackNavigator: StackNavigator
@@ -160,7 +160,11 @@ final class AuthCoordinator: NSObject, // swiftlint:disable:this type_body_lengt
         case .startRegistrationFromExpiredLink:
             showStartRegistrationFromExpiredLink()
         case .dismiss:
-            stackNavigator?.dismiss()
+            if stackNavigator?.isPresenting == false {
+                stackNavigator?.pop()
+            } else {
+                stackNavigator?.dismiss()
+            }
         case .dismissPresented:
             stackNavigator?.rootViewController?.topmostViewController().dismiss(animated: true)
         case let .dismissWithAction(onDismiss):
@@ -237,8 +241,8 @@ final class AuthCoordinator: NSObject, // swiftlint:disable:this type_body_lengt
                 attemptAutmaticBiometricUnlock: attemptAutomaticBiometricUnlock,
                 didSwitchAccountAutomatically: didSwitch
             )
-        case .vaultUnlockSetup:
-            showVaultUnlockSetup()
+        case let .vaultUnlockSetup(accountSetupFlow):
+            showVaultUnlockSetup(accountSetupFlow: accountSetupFlow)
         }
     }
 
@@ -851,15 +855,23 @@ final class AuthCoordinator: NSObject, // swiftlint:disable:this type_body_lengt
 
     /// Shows the vault unlock setup screen.
     ///
-    func showVaultUnlockSetup() {
+    /// - Parameter accountSetupFlow: The account setup flow that the user is in.
+    ///
+    func showVaultUnlockSetup(accountSetupFlow: AccountSetupFlow) {
         let processor = VaultUnlockSetupProcessor(
             coordinator: asAnyCoordinator(),
             services: services,
-            state: VaultUnlockSetupState(),
+            state: VaultUnlockSetupState(accountSetupFlow: accountSetupFlow),
             vaultUnlockSetupHelper: DefaultVaultUnlockSetupHelper(services: services)
         )
         let view = VaultUnlockSetupView(store: Store(processor: processor))
-        stackNavigator?.replace(view)
+        switch accountSetupFlow {
+        case .createAccount:
+            stackNavigator?.replace(view)
+        case .settings:
+            let viewController = UIHostingController(rootView: view)
+            stackNavigator?.push(viewController, navigationTitle: Localizations.setUpUnlock)
+        }
     }
 
     /// Show the WebAuthn two factor authentication view.
