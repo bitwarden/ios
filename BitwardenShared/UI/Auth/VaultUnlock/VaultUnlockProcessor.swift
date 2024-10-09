@@ -127,10 +127,9 @@ class VaultUnlockProcessor: StateProcessor<
         state.unsuccessfulUnlockAttemptsCount = await services.stateService.getUnsuccessfulUnlockAttempts()
         state.isInAppExtension = appExtensionDelegate?.isInAppExtension ?? false
         await refreshProfileState()
-        // If biometric unlock is available, enabled,
-        // and the user's biometric integrity state is valid;
+        // If biometric unlock is available and enabled,
         // attempt to unlock the vault with biometrics once.
-        if case .available(_, true, true) = state.biometricUnlockStatus,
+        if case .available(_, true) = state.biometricUnlockStatus,
            shouldAttemptAutomaticBiometricUnlock {
             shouldAttemptAutomaticBiometricUnlock = false
             await unlockWithBiometrics()
@@ -231,9 +230,7 @@ class VaultUnlockProcessor: StateProcessor<
     ///
     private func unlockWithBiometrics() async {
         let status = try? await services.biometricsRepository.getBiometricUnlockStatus()
-        guard case let .available(_, enabled: enabled, hasValidIntegrity) = status,
-              enabled,
-              hasValidIntegrity else {
+        guard case let .available(_, enabled: enabled) = status, enabled else {
             await loadData()
             return
         }
@@ -256,7 +253,17 @@ class VaultUnlockProcessor: StateProcessor<
                 message: "Biometrics auth is enabled but key was unable to be found. Disabling biometric unlock."
             ))
             try? await services.authRepository.allowBioMetricUnlock(false)
-            await loadData()
+
+            let hasMasterPassword = try? await services.authRepository.hasMasterPassword()
+            let isPinEnabled = try? await services.authRepository.isPinUnlockAvailable()
+            if hasMasterPassword == nil || hasMasterPassword == false, isPinEnabled == false {
+                // If biometrics is enabled, but the auth key doesn't exist and the user doesn't
+                // have a master password or PIN, log the user out.
+                await logoutUser(userInitiated: false)
+            } else {
+                // Otherwise, refresh the data to remove biometrics as an unlock method.
+                await loadData()
+            }
         } catch let error as StateServiceError {
             // If there is no active account, don't add to the unsuccessful count.
             services.errorReporter.log(error: error)

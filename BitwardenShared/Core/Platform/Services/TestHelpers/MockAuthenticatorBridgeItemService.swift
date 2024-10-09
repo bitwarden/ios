@@ -3,21 +3,24 @@ import BitwardenShared
 import Combine
 
 class MockAuthenticatorBridgeItemService: AuthenticatorBridgeItemService {
+    var errorToThrow: Error?
     var replaceAllCalled = false
-    var sharedItemsPublisherError: Error?
     var sharedItemsSubject = CurrentValueSubject<[AuthenticatorBridgeItemDataView], Error>([])
     var storedItems: [String: [AuthenticatorBridgeItemDataView]] = [:]
     var syncOn = false
 
     func deleteAllForUserId(_ userId: String) async throws {
+        guard errorToThrow == nil else { throw errorToThrow! }
         storedItems[userId] = []
     }
 
     func fetchAllForUserId(_ userId: String) async throws -> [AuthenticatorBridgeItemDataView] {
-        storedItems[userId] ?? []
+        guard errorToThrow == nil else { throw errorToThrow! }
+        return storedItems[userId] ?? []
     }
 
     func insertItems(_ items: [AuthenticatorBridgeItemDataView], forUserId userId: String) async throws {
+        guard errorToThrow == nil else { throw errorToThrow! }
         storedItems[userId] = items
     }
 
@@ -26,15 +29,15 @@ class MockAuthenticatorBridgeItemService: AuthenticatorBridgeItemService {
     }
 
     func replaceAllItems(with items: [AuthenticatorBridgeItemDataView], forUserId userId: String) async throws {
+        guard errorToThrow == nil else { throw errorToThrow! }
         storedItems[userId] = items
         replaceAllCalled = true
     }
 
     func sharedItemsPublisher() async throws ->
         AnyPublisher<[AuthenticatorBridgeKit.AuthenticatorBridgeItemDataView], any Error> {
-        if let sharedItemsPublisherError {
-            throw sharedItemsPublisherError
-        }
+        guard errorToThrow == nil else { throw errorToThrow! }
+
         return sharedItemsSubject.eraseToAnyPublisher()
     }
 }

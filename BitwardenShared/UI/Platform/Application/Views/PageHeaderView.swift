@@ -35,7 +35,6 @@ struct PageHeaderView: View {
                     .styleGuide(.body)
             }
         }
-        .padding(.top, 40)
         .foregroundStyle(Asset.Colors.textPrimary.swiftUIColor)
         .multilineTextAlignment(.center)
     }
