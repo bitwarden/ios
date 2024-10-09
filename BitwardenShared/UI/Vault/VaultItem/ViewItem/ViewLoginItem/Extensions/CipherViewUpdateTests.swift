@@ -399,4 +399,4 @@ final class CipherViewUpdateTests: BitwardenTestCase { // swiftlint:disable:this
         XCTAssertNil(identity.postalCode)
         XCTAssertNil(identity.country)
     }
-}
+} // swiftlint:disable:this file_length

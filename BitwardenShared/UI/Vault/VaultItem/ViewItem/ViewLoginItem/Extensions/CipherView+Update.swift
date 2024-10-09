@@ -161,7 +161,7 @@ extension CipherView {
         }
 
         // Map new fields
-        let newFields = mapFields(addEditState)
+        let newFields = mapToCustomFieldViews(from: addEditState.customFieldsState.customFields)
 
         passwordHistory = updatePasswordHistoryWithHiddenFields(
             passwordHistory: passwordHistory,
@@ -208,36 +208,41 @@ extension CipherView {
         newFields: [FieldView]?,
         lastUsedDate: Date
     ) -> [PasswordHistoryView]? {
+        guard let oldFields else {
+            return passwordHistory
+        }
+
         var newHistory = passwordHistory
-        if let oldFields {
-            oldFields.filter { field in
-                FieldType(fieldType: field.type) == FieldType.hidden &&
-                    !(newFields?.contains(field) ?? false)
-            }.forEach { hiddenField in
-                let passHistoryHiddenField = PasswordHistoryView(
-                    password: "\(hiddenField.name ?? ""): \(hiddenField.value ?? "")",
-                    lastUsedDate: lastUsedDate
-                )
-                if newHistory == nil {
-                    newHistory = [passHistoryHiddenField]
-                } else if !passwordHistory!.contains(passHistoryHiddenField) {
-                    newHistory!.append(passHistoryHiddenField)
-                }
+        oldFields.filter { field in
+            FieldType(fieldType: field.type) == FieldType.hidden &&
+                !field.name.isEmptyOrNil &&
+                !field.value.isEmptyOrNil &&
+                !(newFields?.contains(field) ?? false)
+        }.forEach { hiddenField in
+            guard !hiddenField.name.isEmptyOrNil else {
+                return
+            }
+
+            let passHistoryHiddenField = PasswordHistoryView(
+                password: "\(hiddenField.name ?? ""): \(hiddenField.value ?? "")",
+                lastUsedDate: lastUsedDate
+            )
+            if newHistory == nil {
+                newHistory = [passHistoryHiddenField]
+            } else {
+                newHistory?.append(passHistoryHiddenField)
             }
         }
         return newHistory
     }
 
-    private func mapFields(_ addEditState: AddEditItemState) -> [FieldView]? {
-        addEditState.customFieldsState.customFields.isEmpty ?
-            nil : addEditState.customFieldsState.customFields.map { customField in
-                FieldView(
-                    name: customField.name,
-                    value: customField.value,
-                    type: .init(fieldType: customField.type),
-                    linkedId: customField.linkedIdType?.rawValue
-                )
-            }
+    /// Maps the array of `CustomFieldState` into the an array of `FieldView`.
+    private func mapToCustomFieldViews(from customFields: [CustomFieldState]) -> [FieldView]? {
+        guard !customFields.isEmpty else {
+            return nil
+        }
+
+        return customFields.map { FieldView(customFieldState: $0) }
     }
 }
 
