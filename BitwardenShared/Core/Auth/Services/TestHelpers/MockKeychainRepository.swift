@@ -42,7 +42,7 @@ class MockKeychainRepository: KeychainRepository {
 
     func deleteAuthenticatorVaultKey(userId: String) async throws {
         try deleteResult.get()
-        let formattedKey = formattedKey(for: .deviceKey(userId: userId))
+        let formattedKey = formattedKey(for: .authenticatorVaultKey(userId: userId))
         mockStorage = mockStorage.filter { $0.key != formattedKey }
     }
 

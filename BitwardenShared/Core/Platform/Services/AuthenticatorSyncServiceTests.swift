@@ -356,6 +356,22 @@ final class AuthenticatorSyncServiceTests: BitwardenTestCase { // swiftlint:disa
         XCTAssertNotNil(sharedKeychainRepository.authenticatorKey)
     }
 
+    /// Verifies that the AuthSyncService removes the Authenticator vault key when a user turns off sync
+    /// for their account.
+    ///
+    @MainActor
+    func test_determineSyncForUserId_deletesAuthenticatorVaultKey() async throws {
+        setupInitialState()
+        await subject.start()
+        stateService.syncToAuthenticatorSubject.send(("1", true))
+
+        waitFor(keychainRepository.mockStorage["bwKeyChainStorage:mockAppId:authenticatorVaultKey_1"] != nil)
+        stateService.syncToAuthenticatorByUserId["1"] = false
+        stateService.syncToAuthenticatorSubject.send(("1", false))
+
+        waitFor(keychainRepository.mockStorage["bwKeyChainStorage:mockAppId:authenticatorVaultKey_1"] == nil)
+    }
+
     /// Verifies that the AuthSyncService handles and reports errors when sync is turned off and the
     /// service attempts to delete this account's items from the Store.
     ///
@@ -388,6 +404,19 @@ final class AuthenticatorSyncServiceTests: BitwardenTestCase { // swiftlint:disa
     ///
     @MainActor
     func test_determineSyncForUserId_errorFromKeychain() async throws {
+        setupInitialState()
+        await subject.start()
+        keychainRepository.setAuthenticatorVaultKeyResult = .failure(BitwardenTestError.example)
+
+        stateService.syncToAuthenticatorSubject.send(("1", true))
+        waitFor(!errorReporter.errors.isEmpty)
+    }
+
+    /// Verifies that the AuthSyncService handles and reports errors when sync is turned On and the
+    /// shared keychain throws an error.
+    ///
+    @MainActor
+    func test_determineSyncForUserId_errorFromSharedKeychain() async throws {
         setupInitialState()
         await subject.start()
         sharedKeychainRepository.errorToThrow = BitwardenTestError.example
@@ -435,6 +464,7 @@ final class AuthenticatorSyncServiceTests: BitwardenTestCase { // swiftlint:disa
         stateService.syncToAuthenticatorByUserId["1"] = false
         stateService.syncToAuthenticatorSubject.send(("1", false))
         waitFor((authBridgeItemService.storedItems["1"]?.isEmpty) ?? false)
+
 
         // Sending additional updates should not appear in Store
         cipherDataStore.cipherSubjectByUserId["1"]?.send([

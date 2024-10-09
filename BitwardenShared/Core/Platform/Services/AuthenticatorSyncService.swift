@@ -219,6 +219,7 @@ actor DefaultAuthenticatorSyncService: NSObject, AuthenticatorSyncService {
         if try await !stateService.getSyncToAuthenticator(userId: userId) {
             cipherPublisherTasks[userId]?.cancel()
             cipherPublisherTasks.removeValue(forKey: userId)
+            try await keychainRepository.deleteAuthenticatorVaultKey(userId: userId)
             try await authBridgeItemService.deleteAllForUserId(userId)
             try await deleteKeyIfSyncingIsOff()
         } else if vaultTimeoutService.isLocked(userId: userId) {
