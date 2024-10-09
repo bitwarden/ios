@@ -28,7 +28,7 @@ public struct AuthenticatorBridgeItemDataView: Codable, Equatable {
     public let username: String?
 
     /// Initialize an `AuthenticatorBridgeItemDataView` with the values provided.
-    /// 
+    ///
     /// - Parameters:
     ///   - bitwardenAccountDomain: The domain of the Bitwarden account that owns this item.
     ///   - bitwardenAccountEmail: The email of the Bitwarden account that owns this item
