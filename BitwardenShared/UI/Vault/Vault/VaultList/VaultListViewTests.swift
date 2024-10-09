@@ -68,6 +68,14 @@ class VaultListViewTests: BitwardenTestCase {
         XCTAssertEqual(processor.dispatchedActions.last, .addItemPressed)
     }
 
+    /// Tapping the new login floating acrtion button dispatches the `.addItemPressed` action.`
+    @MainActor
+    func test_newLoginFloatingActionButton_tap() throws {
+        let fab = try subject.inspect().find(viewWithAccessibilityIdentifier: "new-login-floating-action-button")
+        try fab.button().tap()
+        XCTAssertEqual(processor.dispatchedActions.last, .addItemPressed)
+    }
+
     /// Long pressing a profile row dispatches the `.accountLongPressed` action.
     @MainActor
     func test_accountRow_longPress_currentAccount() throws {
