@@ -9,13 +9,37 @@ on:
       - "pm-13193/xcode-version-file"
   pull_request_target:
     types: [opened, synchronize]
+  workflow_dispatch:
+    inputs:
+      xcode-version:
+        description: "Xcode version override - e.g. '15.2'"
+        type: string
+      simulator-name:
+        description: "Simulator name override - e.g. 'iPhone 16 Pro'"
+        type: string
+      simulator-version:
+        description: "Simulator iOS version override - e.g. '18.0.1'"
+        type: string
+  workflow_call:
+    inputs:
+      xcode-version:
+        description: "Xcode version override - e.g. '15.2'"
+        type: string
+      simulator-name:
+        description: "Simulator name override - e.g. 'iPhone 16 Pro'"
+        type: string
+      simulator-version:
+        description: "Simulator iOS version override - e.g. '18.0.1'"
+        type: string
 
 env:
+  COVERAGE_PATH: build/coverage.xml
   MINT_LINK_PATH: .mint/bin
   MINT_PATH: .mint/lib
-  SIMULATOR_DESTINATION: platform=iOS Simulator,name=iPhone 15 Pro,OS=18.0
   RESULT_BUNDLE_PATH: build/BitwardenTests.xcresult
-  COVERAGE_PATH: build/coverage.xml
+  SIMULATOR_NAME: ${{ inputs.simulator-name || 'iPhone 15 Pro' }}
+  SIMULATOR_VERSION: ${{ inputs.simulator-version || '17.0.1' }}
+  XCODE_VERSION: ${{ inputs.xcode-version || '15.4' }}
 
 jobs:
   check-run:
@@ -39,7 +63,7 @@ jobs:
 
       - name: Read Xcode version
         run: |
-          echo "XCODE_VERSION=$(cat .xcode-version)" >> "$GITHUB_ENV"
+          echo "XCODE_VERSION=$(cat .xcode-version | tr -d '\n')" >> "$GITHUB_ENV"
 
       - name: Set Xcode version
         uses: maxim-lobanov/setup-xcode@60606e260d2fc5762a71e64e74b2174e8ea3c8bd # v1.6.0
@@ -80,12 +104,13 @@ jobs:
 
       - name: Build and test
         run: |
+          xcrun -f xcodebuild
           set -o pipefail && \
             xcrun xcodebuild test \
             -project Bitwarden.xcodeproj \
             -scheme Bitwarden \
             -configuration Debug \
-            -destination "${{ env.SIMULATOR_DESTINATION }}" \
+            -destination "platform=iOS Simulator,name=${{ env.SIMULATOR_NAME }},OS=${{ env.SIMULATOR_VERSION }}" \
             -resultBundlePath ${{ env.RESULT_BUNDLE_PATH }} \
             -derivedDataPath build/DerivedData \
             | xcbeautify --renderer github-actions
