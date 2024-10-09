@@ -926,6 +926,23 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
         XCTAssertEqual(coordinator.routes.last, .addAccount)
     }
 
+    /// `receive(_:)` with `.addItemPressed` navigates to the `.addItem` route.
+    @MainActor
+    func test_receive_addItemPressed() {
+        subject.receive(.addItemPressed)
+
+        XCTAssertEqual(coordinator.routes.last, .addItem())
+    }
+
+    /// `receive(_:)` with `.addItemPressed` hides the profile switcher view
+    @MainActor
+    func test_receive_addItemPressed_hideProfiles() {
+        subject.state.profileSwitcherState.isVisible = true
+        subject.receive(.addItemPressed)
+
+        XCTAssertFalse(subject.state.profileSwitcherState.isVisible)
+    }
+
     /// `receive(_:)` with `.clearURL` clears the url in the state.
     @MainActor
     func test_receive_clearURL() {
@@ -965,23 +982,6 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
         subject.receive(.itemPressed(item: .fixtureTOTP(totp: .fixture())))
 
         XCTAssertEqual(coordinator.routes.last, .viewItem(id: "123"))
-    }
-
-    /// `receive(_:)` with `.newLoginButtonPressed` navigates to the `.addItem` route.
-    @MainActor
-    func test_receive_newLoginPressed() {
-        subject.receive(.newLoginButtonPressed)
-
-        XCTAssertEqual(coordinator.routes.last, .addItem())
-    }
-
-    /// `receive(_:)` with `.newLoginButtonPressed` hides the profile switcher view
-    @MainActor
-    func test_receive_newLoginPressed_hideProfiles() {
-        subject.state.profileSwitcherState.isVisible = true
-        subject.receive(.newLoginButtonPressed)
-
-        XCTAssertFalse(subject.state.profileSwitcherState.isVisible)
     }
 
     /// `receive(_:)` with `ProfileSwitcherAction.backgroundPressed` turns off the Profile Switcher Visibility.

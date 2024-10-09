@@ -86,7 +86,7 @@ private struct SearchableVaultListView: View {
                     .padding(.horizontal, 16)
 
                     Button {
-                        store.send(.newLoginButtonPressed)
+                        store.send(.addItemPressed)
                     } label: {
                         HStack {
                             Image(decorative: Asset.Images.plus)
@@ -303,7 +303,7 @@ struct VaultListView: View {
                 )
             }
             addToolbarItem {
-                store.send(.newLoginButtonPressed)
+                store.send(.addItemPressed)
             }
         }
         .task {

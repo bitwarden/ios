@@ -97,6 +97,9 @@ final class VaultListProcessor: StateProcessor<
 
     override func receive(_ action: VaultListAction) {
         switch action {
+        case .addItemPressed:
+            setProfileSwitcher(visible: false)
+            coordinator.navigate(to: .addItem())
         case .clearURL:
             state.url = nil
         case .copyTOTPCode:
@@ -110,9 +113,6 @@ final class VaultListProcessor: StateProcessor<
             case let .totp(_, model):
                 coordinator.navigate(to: .viewItem(id: model.id))
             }
-        case .newLoginButtonPressed:
-            setProfileSwitcher(visible: false)
-            coordinator.navigate(to: .addItem())
         case let .profileSwitcher(profileAction):
             handleProfileSwitcherAction(profileAction)
         case let .searchStateChanged(isSearching: isSearching):
