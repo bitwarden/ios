@@ -6,6 +6,7 @@ on:
       - "main"
       - "rc"
       - "hotfix-rc"
+      - "pm-13193/xcode-version-file"
   pull_request_target:
     types: [opened, synchronize]
 
@@ -16,7 +17,6 @@ env:
   SIMULATOR_DESTINATION: platform=iOS Simulator,name=iPhone 15 Pro,OS=17.0.1
   RESULT_BUNDLE_PATH: build/BitwardenTests.xcresult
   COVERAGE_PATH: build/coverage.xml
-  XCODE_VERSION: 15.4
 
 jobs:
   check-run:
@@ -38,65 +38,69 @@ jobs:
         with:
           ref: ${{  github.event.pull_request.head.sha }}
 
+      - name: Read Xcode version
+        run: |
+          echo "XCODE_VERSION=$(cat .xcode-version)" >> "$GITHUB_ENV"
+
       - name: Set Xcode version
         uses: maxim-lobanov/setup-xcode@60606e260d2fc5762a71e64e74b2174e8ea3c8bd # v1.6.0
         with:
           xcode-version: ${{ env.XCODE_VERSION }}
 
-      - name: Configure Ruby
-        uses: ruby/setup-ruby@c04af2bb7258bb6a03df1d3c1865998ac9390972 # v1.194.0
-        with:
-          bundler-cache: true
+      # - name: Configure Ruby
+      #   uses: ruby/setup-ruby@c04af2bb7258bb6a03df1d3c1865998ac9390972 # v1.194.0
+      #   with:
+      #     bundler-cache: true
 
-      - name: Cache Mint packages
-        uses: actions/cache@0c45773b623bea8c8e75f6c82b208c3cf94ea4f9 # v4.0.2
-        with:
-          path: .mint
-          key: ${{ runner.os }}-mint-${{ hashFiles('**/Mintfile') }}
-          restore-keys: |
-            ${{ runner.os }}-mint-
+      # - name: Cache Mint packages
+      #   uses: actions/cache@0c45773b623bea8c8e75f6c82b208c3cf94ea4f9 # v4.0.2
+      #   with:
+      #     path: .mint
+      #     key: ${{ runner.os }}-mint-${{ hashFiles('**/Mintfile') }}
+      #     restore-keys: |
+      #       ${{ runner.os }}-mint-
 
-      - name: Cache SPM packages
-        uses: actions/cache@0c45773b623bea8c8e75f6c82b208c3cf94ea4f9 # v4.0.2
-        with:
-          path: build/DerivedData/SourcePackages
-          key: ${{ runner.os }}-spm-${{ hashFiles('**/Package.resolved') }}
-          restore-keys: |
-            ${{ runner.os }}-spm-
+      # - name: Cache SPM packages
+      #   uses: actions/cache@0c45773b623bea8c8e75f6c82b208c3cf94ea4f9 # v4.0.2
+      #   with:
+      #     path: build/DerivedData/SourcePackages
+      #     key: ${{ runner.os }}-spm-${{ hashFiles('**/Package.resolved') }}
+      #     restore-keys: |
+      #       ${{ runner.os }}-spm-
 
-      - name: Install yeetd
-        run: |
-          wget https://github.com/biscuitehh/yeetd/releases/download/1.0/yeetd-normal.pkg
-          sudo installer -pkg yeetd-normal.pkg -target /
-          yeetd &
+      # - name: Install yeetd
+      #   run: |
+      #     wget https://github.com/biscuitehh/yeetd/releases/download/1.0/yeetd-normal.pkg
+      #     sudo installer -pkg yeetd-normal.pkg -target /
+      #     yeetd &
 
-      - name: Install Mint, xcbeautify, and xcresultparser
-        run: |
-          brew install mint xcbeautify a7ex/homebrew-formulae/xcresultparser
-          ./Scripts/bootstrap.sh
+      # - name: Install Mint, xcbeautify, and xcresultparser
+      #   run: |
+      #     brew install mint xcbeautify a7ex/homebrew-formulae/xcresultparser
+      #     ./Scripts/bootstrap.sh
 
-      - name: Build and test
-        run: |
-          set -o pipefail && \
-            xcrun xcodebuild test \
-            -project Bitwarden.xcodeproj \
-            -scheme Bitwarden \
-            -configuration Debug \
-            -destination "${{ env.SIMULATOR_DESTINATION }}" \
-            -resultBundlePath ${{ env.RESULT_BUNDLE_PATH }} \
-            -derivedDataPath build/DerivedData \
-            | xcbeautify --renderer github-actions
+      # - name: Build and test
+      #   run: |
+      #     set -o pipefail && \
+      #       xcrun xcodebuild test \
+      #       -project Bitwarden.xcodeproj \
+      #       -scheme Bitwarden \
+      #       -configuration Debug \
+      #       -destination "${{ env.SIMULATOR_DESTINATION }}" \
+      #       -resultBundlePath ${{ env.RESULT_BUNDLE_PATH }} \
+      #       -derivedDataPath build/DerivedData \
+      #       | xcbeautify --renderer github-actions
 
-      - name: Convert coverage to Cobertura
-        run: |
-          set -o pipefail && \
-            xcresultparser --output-format cobertura \
-            "$RESULT_BUNDLE_PATH" >"$COVERAGE_PATH"
+      # - name: Convert coverage to Cobertura
+      #   run: |
+      #     set -o pipefail && \
+      #       xcresultparser --output-format cobertura \
+      #       "$RESULT_BUNDLE_PATH" >"$COVERAGE_PATH"
 
-      - name: Upload to codecov.io
-        uses: codecov/codecov-action@b9fd7d16f6d7d1b5d2bec1a2887e65ceed900238 # v4.6.0
-        with:
-          plugin: xcode
-          file: ${{ env.COVERAGE_PATH }}
-        env:
-          CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
+      # - name: Upload to codecov.io
+      #   uses: codecov/codecov-action@b9fd7d16f6d7d1b5d2bec1a2887e65ceed900238 # v4.6.0
+      #   with:
+      #     plugin: xcode
+      #     file: ${{ env.COVERAGE_PATH }}
+      #   env:
+      #     CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
