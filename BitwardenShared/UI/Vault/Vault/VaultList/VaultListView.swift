@@ -81,15 +81,26 @@ private struct SearchableVaultListView: View {
 
                     Spacer()
 
-                    Text(Localizations.noItems)
-                        .multilineTextAlignment(.center)
-                        .styleGuide(.callout)
-                        .foregroundColor(Asset.Colors.textPrimary.swiftUIColor)
+                    PageHeaderView(
+                        image: Asset.Images.items,
+                        title: Localizations.saveAndProtectYourData,
+                        message: Localizations
+                            .theVaultProtectsMoreThanJustPasswordsStoreSecureLoginsIdsCardsAndNotesSecurelyHere
+                    )
+                    .padding(.horizontal, 16)
 
-                    Button(Localizations.addAnItem) {
+                    Button {
                         store.send(.addItemPressed)
+                    } label: {
+                        HStack {
+                            Image(decorative: Asset.Images.plus)
+                                .resizable()
+                                .frame(width: 16, height: 16)
+                            Text(Localizations.addAnItem)
+                        }
+                        .padding(.horizontal, 24)
                     }
-                    .buttonStyle(.tertiary())
+                    .buttonStyle(.primary(shouldFillWidth: false))
 
                     Spacer()
                 }

@@ -29,6 +29,9 @@ class AppProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_body
     var vaultRepository: MockVaultRepository!
     var vaultTimeoutService: MockVaultTimeoutService!
 
+    var didEnterBackgroundCalled = 0
+    var willEnterForegroundCalled = 0
+
     // MARK: Setup & Teardown
 
     override func setUp() {
@@ -57,6 +60,8 @@ class AppProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_body
 
         subject = AppProcessor(
             appModule: appModule,
+            debugDidEnterBackground: { [weak self] in self?.didEnterBackgroundCalled += 1 },
+            debugWillEnterForeground: { [weak self] in self?.willEnterForegroundCalled += 1 },
             services: ServiceContainer.withMocks(
                 authRepository: authRepository,
                 autofillCredentialService: autofillCredentialService,
@@ -216,6 +221,26 @@ class AppProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_body
         XCTAssertTrue(authRepository.logoutCalled)
         XCTAssertEqual(authRepository.logoutUserId, "2")
         XCTAssertFalse(authRepository.logoutUserInitiated)
+    }
+
+    /// `init()` subscribes to will enter foreground events ands completes the user's autofill setup
+    /// process if autofill is enabled and they previously choose to set it up later.
+    @MainActor
+    func test_init_appForeground_completeAutofillAccountSetup() async throws {
+        // The processor checks for autofill completion when entering the foreground. Wait for the
+        // initial check to finish when the test starts before continuing.
+        try await waitForAsync { self.willEnterForegroundCalled == 1 }
+
+        autofillCredentialService.isAutofillCredentialsEnabled = true
+        configService.featureFlagsBool[.nativeCreateAccountFlow] = true
+        stateService.activeAccount = .fixture()
+        stateService.accounts = [.fixture()]
+        stateService.accountSetupAutofill["1"] = .setUpLater
+
+        notificationCenterService.willEnterForegroundSubject.send()
+        try await waitForAsync { self.willEnterForegroundCalled == 2 }
+
+        XCTAssertEqual(stateService.accountSetupAutofill, ["1": .complete])
     }
 
     /// `init()` sets the `AppProcessor` as the delegate of any necessary services.
@@ -641,6 +666,36 @@ class AppProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_body
         XCTAssertEqual(migrationService.didPerformMigrations, true)
     }
 
+    /// `start(navigator:)` doesn't complete the accounts autofill setup when running in an app extension.
+    @MainActor
+    func test_start_completeAutofillAccountSetupIfEnabled_appExtension() async throws {
+        let delegate = MockAppExtensionDelegate()
+        delegate.isInAppExtension = true
+        var willEnterForegroundCalled = 0
+        let subject = AppProcessor(
+            appExtensionDelegate: delegate,
+            appModule: appModule,
+            debugWillEnterForeground: { willEnterForegroundCalled += 1 },
+            services: ServiceContainer.withMocks(
+                autofillCredentialService: autofillCredentialService,
+                configService: configService,
+                stateService: stateService
+            )
+        )
+        try await waitForAsync { willEnterForegroundCalled == 1 }
+
+        autofillCredentialService.isAutofillCredentialsEnabled = true
+        configService.featureFlagsBool[.nativeCreateAccountFlow] = true
+        stateService.activeAccount = .fixture()
+        stateService.accounts = [.fixture()]
+        stateService.accountSetupAutofill["1"] = .setUpLater
+
+        let rootNavigator = MockRootNavigator()
+        await subject.start(appContext: .mainApp, navigator: rootNavigator, window: nil)
+
+        XCTAssertEqual(stateService.accountSetupAutofill, ["1": .setUpLater])
+    }
+
     /// `start(navigator:)` doesn't complete the accounts autofill setup if autofill is disabled.
     @MainActor
     func test_start_completeAutofillAccountSetupIfEnabled_autofillDisabled() async {
@@ -674,7 +729,11 @@ class AppProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_body
 
     /// `start(navigator:)` logs an error if one occurs while updating the account's autofill setup.
     @MainActor
-    func test_start_completeAutofillAccountSetupIfEnabled_error() async {
+    func test_start_completeAutofillAccountSetupIfEnabled_error() async throws {
+        // The processor checks for autofill completion when entering the foreground. Wait for the
+        // initial check to finish when the test starts before continuing.
+        try await waitForAsync { self.willEnterForegroundCalled == 1 }
+
         autofillCredentialService.isAutofillCredentialsEnabled = true
         configService.featureFlagsBool[.nativeCreateAccountFlow] = true
         stateService.accounts = [.fixture()]
@@ -706,7 +765,11 @@ class AppProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_body
     /// `start(navigator:)` completes the user's autofill setup progress if autofill is enabled and
     /// they previously choose to set it up later.
     @MainActor
-    func test_start_completeAutofillAccountSetupIfEnabled_success() async {
+    func test_start_completeAutofillAccountSetupIfEnabled_success() async throws {
+        // The processor checks for autofill completion when entering the foreground. Wait for the
+        // initial check to finish when the test starts before continuing.
+        try await waitForAsync { self.willEnterForegroundCalled == 1 }
+
         autofillCredentialService.isAutofillCredentialsEnabled = true
         configService.featureFlagsBool[.nativeCreateAccountFlow] = true
         stateService.activeAccount = .fixture()
