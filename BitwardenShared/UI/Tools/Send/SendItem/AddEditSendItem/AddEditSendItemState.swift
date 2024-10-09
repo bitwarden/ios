@@ -22,11 +22,11 @@ struct AddEditSendItemState: Equatable, Sendable {
         var navigationTitle: String {
             switch self {
             case .add:
-                Localizations.newSend
+                Localizations.newSend.capitalized
             case .edit:
                 Localizations.editSend
             case .shareExtension:
-                Localizations.newSend
+                Localizations.newSend.capitalized
             }
         }
     }
