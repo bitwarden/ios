@@ -50,7 +50,7 @@ class VaultListViewTests: BitwardenTestCase {
 
     // MARK: Tests
 
-    /// Tapping the add item button dispatches the `.addItemPressed` action.
+    /// Tapping the add item button dispatches the `.newLoginButtonPressed` action.
     @MainActor
     func test_addItemButton_tap() throws {
         processor.state.loadingState = .data([])
