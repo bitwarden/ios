@@ -132,8 +132,8 @@ struct ImportLoginsView: View {
             .tint(Asset.Colors.textInteraction.swiftUIColor)
 
             VStack(spacing: 12) {
-                Button(Localizations.continue) {
-                    store.send(.advanceNextPage)
+                AsyncButton(Localizations.continue) {
+                    await store.perform(.advanceNextPage)
                 }
                 .buttonStyle(.primary())
 

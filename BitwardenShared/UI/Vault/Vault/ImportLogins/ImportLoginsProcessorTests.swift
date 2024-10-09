@@ -7,6 +7,7 @@ class ImportLoginsProcessorTests: BitwardenTestCase {
 
     var coordinator: MockCoordinator<VaultRoute, AuthAction>!
     var errorReporter: MockErrorReporter!
+    var settingsRepository: MockSettingsRepository!
     var stateService: MockStateService!
     var subject: ImportLoginsProcessor!
 
@@ -17,12 +18,14 @@ class ImportLoginsProcessorTests: BitwardenTestCase {
 
         coordinator = MockCoordinator()
         errorReporter = MockErrorReporter()
+        settingsRepository = MockSettingsRepository()
         stateService = MockStateService()
 
         subject = ImportLoginsProcessor(
             coordinator: coordinator.asAnyCoordinator(),
             services: ServiceContainer.withMocks(
                 errorReporter: errorReporter,
+                settingsRepository: settingsRepository,
                 stateService: stateService
             ),
             state: ImportLoginsState()
@@ -34,48 +37,54 @@ class ImportLoginsProcessorTests: BitwardenTestCase {
 
         coordinator = nil
         errorReporter = nil
+        settingsRepository = nil
         stateService = nil
         subject = nil
     }
 
     // MARK: Tests
 
-    /// `receive(_:)` with `.advanceNextPage` advances to the next page.
+    /// `perform(_:)` with `.advanceNextPage` advances to the next page.
     @MainActor
-    func test_receive_advanceNextPage() {
+    func test_perform_advanceNextPage() async {
         XCTAssertEqual(subject.state.page, .intro)
 
-        subject.receive(.advanceNextPage)
+        await subject.perform(.advanceNextPage)
         XCTAssertEqual(subject.state.page, .step1)
 
-        subject.receive(.advanceNextPage)
+        await subject.perform(.advanceNextPage)
         XCTAssertEqual(subject.state.page, .step2)
 
-        subject.receive(.advanceNextPage)
-        XCTAssertEqual(subject.state.page, .step3)
-
-        // TODO: PM-11159 Sync vault
-        subject.receive(.advanceNextPage)
+        await subject.perform(.advanceNextPage)
         XCTAssertEqual(subject.state.page, .step3)
     }
 
-    /// `receive(_:)` with `.advancePreviousPage` advances to the previous page.
+    /// `perform(_:)` with `.advanceNextPage` initiates a vault sync when on the last page.
     @MainActor
-    func test_receive_advancePreviousPage() {
+    func test_perform_advanceNextPage_sync() async {
         subject.state.page = .step3
 
-        subject.receive(.advancePreviousPage)
-        XCTAssertEqual(subject.state.page, .step2)
+        await subject.perform(.advanceNextPage)
 
-        subject.receive(.advancePreviousPage)
-        XCTAssertEqual(subject.state.page, .step1)
+        XCTAssertEqual(coordinator.loadingOverlaysShown, [LoadingOverlayState(title: Localizations.syncingLogins)])
+        XCTAssertFalse(coordinator.isLoadingOverlayShowing)
+        XCTAssertTrue(settingsRepository.fetchSyncCalled)
+    }
 
-        subject.receive(.advancePreviousPage)
-        XCTAssertEqual(subject.state.page, .intro)
+    /// `perform(_:)` with `.advanceNextPage` initiates a vault sync when on the last page and
+    /// handles a sync error.
+    @MainActor
+    func test_perform_advanceNextPage_syncError() async {
+        subject.state.page = .step3
+        settingsRepository.fetchSyncResult = .failure(BitwardenTestError.example)
 
-        // Advancing again stays at the first page.
-        subject.receive(.advancePreviousPage)
-        XCTAssertEqual(subject.state.page, .intro)
+        await subject.perform(.advanceNextPage)
+
+        XCTAssertEqual(coordinator.loadingOverlaysShown, [LoadingOverlayState(title: Localizations.syncingLogins)])
+        XCTAssertFalse(coordinator.isLoadingOverlayShowing)
+        XCTAssertEqual(coordinator.alertShown, [.networkResponseError(BitwardenTestError.example)])
+        XCTAssertEqual(errorReporter.errors as? [BitwardenTestError], [BitwardenTestError.example])
+        XCTAssertTrue(settingsRepository.fetchSyncCalled)
     }
 
     /// `perform(_:)` with `.appeared` loads the user's web vault host.
@@ -139,6 +148,25 @@ class ImportLoginsProcessorTests: BitwardenTestCase {
 
         XCTAssertEqual(coordinator.routes, [.dismiss])
         XCTAssertEqual(errorReporter.errors as? [StateServiceError], [.noActiveAccount])
+    }
+
+    /// `receive(_:)` with `.advancePreviousPage` advances to the previous page.
+    @MainActor
+    func test_receive_advancePreviousPage() {
+        subject.state.page = .step3
+
+        subject.receive(.advancePreviousPage)
+        XCTAssertEqual(subject.state.page, .step2)
+
+        subject.receive(.advancePreviousPage)
+        XCTAssertEqual(subject.state.page, .step1)
+
+        subject.receive(.advancePreviousPage)
+        XCTAssertEqual(subject.state.page, .intro)
+
+        // Advancing again stays at the first page.
+        subject.receive(.advancePreviousPage)
+        XCTAssertEqual(subject.state.page, .intro)
     }
 
     /// `receive(_:)` with `.dismiss` dismisses the view.
