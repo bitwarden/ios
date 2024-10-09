@@ -112,7 +112,6 @@ jobs:
 
       - name: Build and test
         run: |
-          xcrun -f xcodebuild
           set -o pipefail && \
             xcrun xcodebuild test \
             -project Bitwarden.xcodeproj \
