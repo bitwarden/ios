@@ -126,6 +126,17 @@ class VaultCoordinatorTests: BitwardenTestCase {
         XCTAssertEqual(view.store.state.vaultFilterType, .allVaults)
     }
 
+    /// `navigate(to:)` with `.importLogins` presents the import logins view onto the stack navigator.
+    @MainActor
+    func test_navigateTo_importLogins() throws {
+        subject.navigate(to: .importLogins)
+
+        let action = try XCTUnwrap(stackNavigator.actions.last)
+        XCTAssertEqual(action.type, .presented)
+        let navigationController = try XCTUnwrap(action.view as? UINavigationController)
+        XCTAssertTrue(navigationController.viewControllers.first is UIHostingController<ImportLoginsView>)
+    }
+
     /// `navigate(to:)` with `.list` pushes the vault list view onto the stack navigator.
     @MainActor
     func test_navigateTo_list_withoutPresented() throws {
