@@ -47,6 +47,10 @@ class ImportLoginsProcessorTests: BitwardenTestCase {
 
         subject.receive(.advanceNextPage)
         XCTAssertEqual(subject.state.page, .step1)
+
+        // TODO: PM-11159 Sync vault
+        subject.receive(.advanceNextPage)
+        XCTAssertEqual(subject.state.page, .step1)
     }
 
     /// `receive(_:)` with `.advancePreviousPage` advances to the previous page.
