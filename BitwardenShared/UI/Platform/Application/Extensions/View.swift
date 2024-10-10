@@ -129,10 +129,32 @@ extension View {
     /// Returns a floating action button positioned at the bottom-right corner of the screen.
     ///
     /// - Parameter action: The action to perform when the button is tapped.
-    /// - Returns: A `AddItemFloatingActionButton` configured for adding an item.
+    /// - Returns: A `FloatingActionButton` configured for adding an item.
     ///
     func addItemFloatingActionButton(action: @escaping () -> Void) -> some View {
-        AddItemFloatingActionButton(image: Asset.Images.plus.swiftUIImage, action: action)
+        floatingActionButton(image: Asset.Images.plus.swiftUIImage, action: action)
+            .accessibilityLabel("AddItemFloatingActionButton")
+    }
+
+    /// Returns a floating action button positioned at the bottom-right corner of the screen.
+    ///
+    /// - Parameter action: The action to perform when the button is tapped.
+    /// - Returns: A `FloatingActionButton` configured for adding an item.
+    ///
+    func editItemFloatingActionButton(action: @escaping () -> Void) -> some View {
+        floatingActionButton(image: Asset.Images.pencil.swiftUIImage, action: action)
+            .accessibilityLabel("EditItemFloatingActionButton")
+    }
+
+    /// Returns a floating action button positioned at the bottom-right corner of the screen.
+    ///
+    /// - Parameters:
+    ///   - image: The image to display within the button.
+    ///   - action: The action to perform when the button is tapped.
+    /// - Returns: A `FloatingActionButton` configured with the specified image and action.
+    ///
+    func floatingActionButton(image: Image, action: @escaping () -> Void) -> some View {
+        FloatingActionButton(image: image, action: action)
             .padding([.trailing, .bottom], 16)
     }
 }

@@ -78,7 +78,7 @@ struct FoldersView: View {
             }
         }
         .clipShape(RoundedRectangle(cornerRadius: 10))
-        .padding(.bottom, AddItemFloatingActionButton.bottomOffsetPadding)
+        .padding(.bottom, FloatingActionButton.bottomOffsetPadding)
     }
 }
 

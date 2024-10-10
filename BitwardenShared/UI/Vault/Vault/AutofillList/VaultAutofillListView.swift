@@ -136,7 +136,7 @@ private struct VaultAutofillListSearchableView: View {
                 }
             }
         }
-        .padding(.bottom, AddItemFloatingActionButton.bottomOffsetPadding)
+        .padding(.bottom, FloatingActionButton.bottomOffsetPadding)
     }
 
     /// A view for displaying a list of ciphers without sections.
@@ -212,7 +212,7 @@ private struct VaultAutofillListSearchableView: View {
                     }
                 } else {
                     cipherListView(store.state.vaultListSections)
-                        .padding(.bottom, AddItemFloatingActionButton.bottomOffsetPadding)
+                        .padding(.bottom, FloatingActionButton.bottomOffsetPadding)
                         .scrollView()
                 }
             }

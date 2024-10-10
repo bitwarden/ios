@@ -186,7 +186,7 @@ private struct VaultItemSelectionSearchableView: View {
                 }
             }
         }
-        .padding(.bottom, AddItemFloatingActionButton.bottomOffsetPadding)
+        .padding(.bottom, FloatingActionButton.bottomOffsetPadding)
         .scrollView()
     }
 
