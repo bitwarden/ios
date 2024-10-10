@@ -695,10 +695,10 @@ final class AuthenticatorSyncServiceTests: BitwardenTestCase { // swiftlint:disa
     @MainActor
     func test_start_multipleStartsIgnored() async throws {
         setupInitialState()
-        await subject.start()
-        await subject.start()
+        async let first: Void = subject.start()
+        async let second: Void = subject.start()
+        _ = await (first, second)
         stateService.syncToAuthenticatorSubject.send(("1", true))
-        waitFor(keychainRepository.mockStorage["bwKeyChainStorage:mockAppId:authenticatorVaultKey_1"] != nil)
         cipherDataStore.cipherSubjectByUserId["1"]?.send([
             .fixture(
                 id: "1234",

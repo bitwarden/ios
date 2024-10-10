@@ -1342,9 +1342,7 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         ]
         clientService.mockCrypto.getUserEncryptionKeyResult = .success("sauce")
         clientService.mockCrypto.initializeUserCryptoResult = .success(())
-        await assertAsyncDoesNotThrow {
-            try await subject.unlockVaultWithAuthenticatorVaultKey(userId: active.profile.userId)
-        }
+        try await subject.unlockVaultWithAuthenticatorVaultKey(userId: active.profile.userId)
         XCTAssertFalse(vaultTimeoutService.unlockVaultHadUserInteraction)
     }
 

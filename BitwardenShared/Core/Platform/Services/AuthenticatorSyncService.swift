@@ -257,7 +257,7 @@ actor DefaultAuthenticatorSyncService: NSObject, AuthenticatorSyncService {
     ///   - userId: The userId of the account to which the Ciphers belong.
     ///
     private func writeCiphers(ciphers: [Cipher], userId: String) async throws {
-        var useKey = vaultTimeoutService.isLocked(userId: userId)
+        let useKey = vaultTimeoutService.isLocked(userId: userId)
         if useKey {
             try await authRepository.unlockVaultWithAuthenticatorVaultKey(userId: userId)
         }
