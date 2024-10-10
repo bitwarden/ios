@@ -13,8 +13,8 @@ class MockSharedCryptographyService: SharedCryptographyService {
         decryptCalled = true
         return items.map { model in
             AuthenticatorBridgeItemDataView(
-                bitwardenAccountDomain: model.bitwardenAccountDomain,
-                bitwardenAccountEmail: model.bitwardenAccountEmail,
+                accountDomain: model.accountDomain,
+                accountEmail: model.accountEmail,
                 favorite: model.favorite,
                 id: model.id,
                 name: model.name,
@@ -30,8 +30,8 @@ class MockSharedCryptographyService: SharedCryptographyService {
         encryptCalled = true
         return items.map { view in
             AuthenticatorBridgeItemDataModel(
-                bitwardenAccountDomain: view.bitwardenAccountDomain,
-                bitwardenAccountEmail: view.bitwardenAccountEmail,
+                accountDomain: view.accountDomain,
+                accountEmail: view.accountEmail,
                 favorite: view.favorite,
                 id: view.id,
                 name: view.name,
