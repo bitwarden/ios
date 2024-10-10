@@ -50,6 +50,11 @@ struct VaultItemSelectionView: View {
                 store.send(.addTapped)
             }
         }
+        .overlay(alignment: .bottomTrailing) {
+            addItemFloatingActionButton {
+                store.send(.addTapped)
+            }
+        }
     }
 
     // MARK: Private properties
@@ -181,6 +186,7 @@ private struct VaultItemSelectionSearchableView: View {
                 }
             }
         }
+        .padding(.bottom, AddItemFloatingActionButton.bottomOffsetPadding)
         .scrollView()
     }
 
@@ -264,6 +270,34 @@ private struct VaultItemSelectionSearchableView: View {
             ),
             .fixture(
                 id: "3",
+                name: "Company XYZ"
+            ),
+            .fixture(
+                id: "4",
+                login: .fixture(username: "user@bitwarden.com"),
+                name: "Apple"
+            ),
+            .fixture(
+                id: "5",
+                login: .fixture(username: "user@bitwarden.com"),
+                name: "Bitwarden"
+            ),
+            .fixture(
+                id: "6",
+                name: "Company XYZ"
+            ),
+            .fixture(
+                id: "47",
+                login: .fixture(username: "user@bitwarden.com"),
+                name: "Apple"
+            ),
+            .fixture(
+                id: "8",
+                login: .fixture(username: "user@bitwarden.com"),
+                name: "Bitwarden"
+            ),
+            .fixture(
+                id: "9",
                 name: "Company XYZ"
             ),
         ]

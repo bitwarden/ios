@@ -125,4 +125,14 @@ extension View {
             backgroundColor: backgroundColor
         ))
     }
+
+    /// Returns a floating action button positioned at the bottom-right corner of the screen.
+    ///
+    /// - Parameter action: The action to perform when the button is tapped.
+    /// - Returns: A `AddItemFloatingActionButton` configured for adding an item.
+    ///
+    func addItemFloatingActionButton(action: @escaping () -> Void) -> some View {
+        AddItemFloatingActionButton(image: Asset.Images.plus.swiftUIImage, action: action)
+            .padding([.trailing, .bottom], 16)
+    }
 }

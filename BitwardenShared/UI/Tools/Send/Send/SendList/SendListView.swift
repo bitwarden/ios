@@ -33,6 +33,11 @@ private struct MainSendListView: View {
 
             content
                 .hidden(isSearching)
+                .overlay(alignment: .bottomTrailing) {
+                    addItemFloatingActionButton {
+                        store.send(.addItemPressed)
+                    }
+                }
 
             search
                 .hidden(!isSearching)
@@ -98,7 +103,9 @@ private struct MainSendListView: View {
                     )
                 }
             }
-            .padding(16)
+            .padding(.top, 16)
+            .padding(.horizontal, 16)
+            .padding(.bottom, AddItemFloatingActionButton.bottomOffsetPadding)
         }
         .background(Asset.Colors.backgroundPrimary.swiftUIColor.ignoresSafeArea())
     }

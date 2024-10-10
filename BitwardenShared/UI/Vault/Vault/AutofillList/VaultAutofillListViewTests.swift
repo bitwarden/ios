@@ -37,6 +37,14 @@ class VaultAutofillListViewTests: BitwardenTestCase {
         XCTAssertEqual(processor.dispatchedActions.last, .addTapped(fromToolbar: true))
     }
 
+    /// Tapping the add item floating acrtion button dispatches the `.addItemPressed` action.`
+    @MainActor
+    func test_addItemFloatingActionButton_tap() throws {
+        let fab = try subject.inspect().find(viewWithAccessibilityLabel: "AddItemFloatingActionButton")
+        try fab.button().tap()
+        XCTAssertEqual(processor.dispatchedActions.last, .addTapped(fromToolbar: false))
+    }
+
     /// Tapping the add an item button dispatches the `.addTapped` action.
     @MainActor
     func test_addItemButton_tap_fido2CreationFlowEmptyView() throws {

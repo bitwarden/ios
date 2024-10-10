@@ -136,7 +136,7 @@ private struct VaultAutofillListSearchableView: View {
                 }
             }
         }
-        .scrollView()
+        .padding(.bottom, AddItemFloatingActionButton.bottomOffsetPadding)
     }
 
     /// A view for displaying a list of ciphers without sections.
@@ -153,7 +153,6 @@ private struct VaultAutofillListSearchableView: View {
         }
         .background(Asset.Colors.backgroundSecondary.swiftUIColor)
         .clipShape(RoundedRectangle(cornerRadius: 10))
-        .scrollView()
     }
 
     /// Creates a row in the list for the provided item.
@@ -213,12 +212,19 @@ private struct VaultAutofillListSearchableView: View {
                     }
                 } else {
                     cipherListView(store.state.vaultListSections)
+                        .padding(.bottom, AddItemFloatingActionButton.bottomOffsetPadding)
+                        .scrollView()
                 }
             }
             .hidden(isSearching)
 
             searchContentView()
                 .hidden(!isSearching)
+        }
+        .overlay(alignment: .bottomTrailing) {
+            addItemFloatingActionButton {
+                store.send(.addTapped(fromToolbar: false))
+            }
         }
     }
 
@@ -239,6 +245,18 @@ private struct VaultAutofillListSearchableView: View {
 #Preview("Empty") {
     NavigationView {
         VaultAutofillListView(store: Store(processor: StateProcessor(state: VaultAutofillListState())))
+    }
+}
+
+#Preview("Searching") {
+    NavigationView {
+        VaultAutofillListView(
+            store: Store(
+                processor: StateProcessor(
+                    state: VaultAutofillListState(searchText: "Test")
+                )
+            )
+        )
     }
 }
 
@@ -340,6 +358,14 @@ private struct VaultAutofillListSearchableView: View {
                                     ))!,
                                     .init(cipherView: .fixture(
                                         id: "3",
+                                        name: "Company XYZ"
+                                    ))!,
+                                    .init(cipherView: .fixture(
+                                        id: "4",
+                                        name: "Company XYZ"
+                                    ))!,
+                                    .init(cipherView: .fixture(
+                                        id: "5",
                                         name: "Company XYZ"
                                     ))!,
                                 ],

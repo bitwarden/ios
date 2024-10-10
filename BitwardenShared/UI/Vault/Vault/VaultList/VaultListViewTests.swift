@@ -68,10 +68,10 @@ class VaultListViewTests: BitwardenTestCase {
         XCTAssertEqual(processor.dispatchedActions.last, .addItemPressed)
     }
 
-    /// Tapping the new login floating acrtion button dispatches the `.addItemPressed` action.`
+    /// Tapping the floating action button dispatches the `.addItemPressed` action.`
     @MainActor
-    func test_newLoginFloatingActionButton_tap() throws {
-        let fab = try subject.inspect().find(viewWithAccessibilityIdentifier: "new-login-floating-action-button")
+    func test_addItemFloatingActionButton_tap() throws {
+        let fab = try subject.inspect().find(viewWithAccessibilityLabel: "AddItemFloatingActionButton")
         try fab.button().tap()
         XCTAssertEqual(processor.dispatchedActions.last, .addItemPressed)
     }

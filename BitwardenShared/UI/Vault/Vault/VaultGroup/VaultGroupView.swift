@@ -107,6 +107,11 @@ struct VaultGroupView: View {
                 groupView(with: items)
             }
         }
+        .overlay(alignment: .bottomTrailing) {
+            addItemFloatingActionButton {
+                store.send(.addItemPressed)
+            }
+        }
     }
 
     /// A view that displays the search interface, including search results, an empty search
@@ -186,7 +191,9 @@ struct VaultGroupView: View {
                     }
                 }
             }
-            .padding(16)
+            .padding(.top, 16)
+            .padding(.horizontal, 16)
+            .padding(.bottom, AddItemFloatingActionButton.bottomOffsetPadding)
         }
     }
 

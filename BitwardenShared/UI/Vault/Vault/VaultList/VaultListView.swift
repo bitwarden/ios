@@ -40,9 +40,6 @@ private struct SearchableVaultListView: View {
 
             search
                 .hidden(!isSearching)
-
-            newLoginFloatingActionButton
-                .hidden(isSearching)
         }
         .background(Asset.Colors.backgroundPrimary.swiftUIColor.ignoresSafeArea())
         .toast(store.binding(
@@ -69,36 +66,6 @@ private struct SearchableVaultListView: View {
     }
 
     // MARK: Private Properties
-
-    /// A floating action button positioned at the bottom-right corner of the screen.
-    @ViewBuilder private var newLoginFloatingActionButton: some View {
-        VStack {
-            Spacer()
-            HStack {
-                Spacer()
-                Button {
-                    store.send(.addItemPressed)
-                } label: {
-                    Circle()
-                        .fill(Asset.Colors.buttonFilledBackground.swiftUIColor)
-                        .frame(width: 50, height: 50)
-                        .overlay(
-                            Asset.Images.plus.swiftUIImage
-                                .imageStyle(
-                                    .init(
-                                        color: Asset.Colors.buttonFilledForeground.swiftUIColor,
-                                        scaleWithFont: false,
-                                        width: 24,
-                                        height: 24
-                                    )
-                                )
-                        )
-                }
-                .accessibilityIdentifier("new-login-floating-action-button")
-            }
-            .padding([.trailing, .bottom], 16)
-        }
-    }
 
     /// A view that displays the empty vault interface.
     @ViewBuilder private var emptyVault: some View {
@@ -193,6 +160,11 @@ private struct SearchableVaultListView: View {
                 vaultContents(with: sections)
             }
         }
+        .overlay(alignment: .bottomTrailing) {
+            addItemFloatingActionButton {
+                store.send(.addItemPressed)
+            }
+        }
     }
 
     /// Displays the vault filter row if the user is a member of any.
@@ -237,7 +209,9 @@ private struct SearchableVaultListView: View {
                     }
                 }
             }
-            .padding(16)
+            .padding(.top, 16)
+            .padding(.horizontal, 16)
+            .padding(.bottom, AddItemFloatingActionButton.bottomOffsetPadding)
         }
     }
 
@@ -522,6 +496,42 @@ struct VaultListView_Previews: PreviewProvider {
                                 VaultListSection(
                                     id: "CollectionItems",
                                     items: [
+                                        .init(cipherView: .fixture(
+                                            id: UUID().uuidString,
+                                            login: .fixture(username: "email@example.com"),
+                                            name: "Example",
+                                            organizationId: "1"
+                                        ))!,
+                                        .init(cipherView: .fixture(
+                                            id: UUID().uuidString,
+                                            login: .fixture(username: "email@example.com"),
+                                            name: "Example",
+                                            organizationId: "1"
+                                        ))!,
+                                        .init(cipherView: .fixture(
+                                            id: UUID().uuidString,
+                                            login: .fixture(username: "email@example.com"),
+                                            name: "Example",
+                                            organizationId: "1"
+                                        ))!,
+                                        .init(cipherView: .fixture(
+                                            id: UUID().uuidString,
+                                            login: .fixture(username: "email@example.com"),
+                                            name: "Example",
+                                            organizationId: "1"
+                                        ))!,
+                                        .init(cipherView: .fixture(
+                                            id: UUID().uuidString,
+                                            login: .fixture(username: "email@example.com"),
+                                            name: "Example",
+                                            organizationId: "1"
+                                        ))!,
+                                        .init(cipherView: .fixture(
+                                            id: UUID().uuidString,
+                                            login: .fixture(username: "email@example.com"),
+                                            name: "Example",
+                                            organizationId: "1"
+                                        ))!,
                                         .init(cipherView: .fixture(
                                             id: UUID().uuidString,
                                             login: .fixture(username: "email@example.com"),

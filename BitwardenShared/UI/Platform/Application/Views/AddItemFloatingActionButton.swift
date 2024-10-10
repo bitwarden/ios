@@ -1,0 +1,38 @@
+import SwiftUI
+
+// MARK: - AddItemFloatingActionButton
+
+/// A view representing a floating action button for adding new items.
+///
+struct AddItemFloatingActionButton: View {
+    // MARK: Properties
+
+    /// The bottom content offset padding around the floating action button.
+    /// This is the button size plus the bottom/top padding (50 + 16 + 16).
+    static let bottomOffsetPadding: CGFloat = 82
+
+    /// The image to be displayed within the button.
+    let image: Image
+
+    /// A closure that defines the action to be performed when the button is tapped.
+    let action: () -> Void
+
+    // MARK: View
+
+    var body: some View {
+        Button(action: action) {
+            image
+                .imageStyle(
+                    .init(
+                        color: Asset.Colors.buttonFilledForeground.swiftUIColor,
+                        scaleWithFont: false,
+                        width: 32,
+                        height: 32
+                    )
+                )
+        }
+        .frame(width: 50, height: 50)
+        .buttonStyle(CircleButtonStyle())
+        .accessibilityLabel("AddItemFloatingActionButton")
+    }
+}

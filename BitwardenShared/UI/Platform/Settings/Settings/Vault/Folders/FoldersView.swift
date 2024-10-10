@@ -28,6 +28,11 @@ struct FoldersView: View {
                 store.send(.add)
             }
         }
+        .overlay(alignment: .bottomTrailing) {
+            addItemFloatingActionButton {
+                store.send(.add)
+            }
+        }
         .task {
             await store.perform(.streamFolders)
         }
@@ -73,5 +78,81 @@ struct FoldersView: View {
             }
         }
         .clipShape(RoundedRectangle(cornerRadius: 10))
+        .padding(.bottom, AddItemFloatingActionButton.bottomOffsetPadding)
     }
 }
+
+#if DEBUG
+#Preview {
+    FoldersView(
+        store: Store(
+            processor: StateProcessor(
+                state: .init(
+                    folders: [
+                        .init(
+                            id: "1",
+                            name: "Test",
+                            revisionDate: .now
+                        ),
+                        .init(
+                            id: "2",
+                            name: "Test",
+                            revisionDate: .now
+                        ),
+                        .init(
+                            id: "3",
+                            name: "Test",
+                            revisionDate: .now
+                        ),
+                        .init(
+                            id: "4",
+                            name: "Test",
+                            revisionDate: .now
+                        ),
+                        .init(
+                            id: "5",
+                            name: "Test",
+                            revisionDate: .now
+                        ),
+                        .init(
+                            id: "6",
+                            name: "Test",
+                            revisionDate: .now
+                        ),
+                        .init(
+                            id: "7",
+                            name: "Test",
+                            revisionDate: .now
+                        ),
+                        .init(
+                            id: "8",
+                            name: "Test",
+                            revisionDate: .now
+                        ),
+                        .init(
+                            id: "9",
+                            name: "Test",
+                            revisionDate: .now
+                        ),
+                        .init(
+                            id: "10",
+                            name: "Test",
+                            revisionDate: .now
+                        ),
+                        .init(
+                            id: "11",
+                            name: "Test",
+                            revisionDate: .now
+                        ),
+                        .init(
+                            id: "12",
+                            name: "Test",
+                            revisionDate: .now
+                        ),
+                    ]
+                )
+            )
+        )
+    )
+}
+#endif
