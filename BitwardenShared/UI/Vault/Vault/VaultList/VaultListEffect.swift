@@ -5,6 +5,9 @@ enum VaultListEffect: Equatable {
     /// The vault list appeared on screen.
     case appeared
 
+    /// The user tapped the dismiss button on the import logins action card.
+    case dismissImportLoginsActionCard
+
     /// The more button on an item in the vault group was tapped.
     ///
     /// - Parameter item: The item associated with the more button that was tapped.
@@ -22,6 +25,9 @@ enum VaultListEffect: Equatable {
 
     /// Searches based on the keyword.
     case search(String)
+
+    /// Stream the user's accounts setup progress.
+    case streamAccountSetupProgress
 
     /// Stream the list of organizations for the user.
     case streamOrganizations

@@ -13,6 +13,9 @@ struct VaultListState: Equatable {
     /// The base url used to fetch icons.
     var iconBaseURL: URL?
 
+    /// The user's import logins setup progress.
+    var importLoginsSetupProgress: AccountSetupProgress?
+
     /// Whether the policy is enforced to disable personal vault ownership.
     var isPersonalOwnershipDisabled: Bool = false
 
@@ -65,6 +68,11 @@ struct VaultListState: Equatable {
             organizations: organizations,
             searchVaultFilterType: searchVaultFilterType
         )
+    }
+
+    /// Whether the import logins action card should be shown.
+    var shouldShowImportLoginsActionCard: Bool {
+        importLoginsSetupProgress != nil && importLoginsSetupProgress != .complete
     }
 
     /// The state for showing the vault filter.
