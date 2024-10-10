@@ -633,8 +633,8 @@ final class AuthenticatorSyncServiceTests: BitwardenTestCase { // swiftlint:disa
         waitFor(authBridgeItemService.storedItems["1"]?.first != nil)
 
         let item = try XCTUnwrap(authBridgeItemService.storedItems["1"]?.first)
-        XCTAssertEqual(item.bitwardenAccountDomain, "vault.bitwarden.com")
-        XCTAssertEqual(item.bitwardenAccountEmail, "user@bitwarden.com")
+        XCTAssertEqual(item.accountDomain, "vault.bitwarden.com")
+        XCTAssertEqual(item.accountEmail, "user@bitwarden.com")
         XCTAssertEqual(item.favorite, false)
         XCTAssertEqual(item.id, "1234")
         XCTAssertEqual(item.name, "Bitwarden")
