@@ -7,10 +7,10 @@ public struct AuthenticatorBridgeItemDataView: Codable, Equatable {
     // MARK: Properties
 
     /// The domain of the Bitwarden account that owns this item. (e.g. https://vault.bitwarden.com)
-    public let bitwardenAccountDomain: String?
+    public let accountDomain: String?
 
     /// The email of the Bitwarden account that owns this item.
-    public let bitwardenAccountEmail: String?
+    public let accountEmail: String?
 
     /// Bool indicating if this item is a favorite.
     public let favorite: Bool
@@ -30,23 +30,23 @@ public struct AuthenticatorBridgeItemDataView: Codable, Equatable {
     /// Initialize an `AuthenticatorBridgeItemDataView` with the values provided.
     ///
     /// - Parameters:
-    ///   - bitwardenAccountDomain: The domain of the Bitwarden account that owns this item.
-    ///   - bitwardenAccountEmail: The email of the Bitwarden account that owns this item
+    ///   - accountDomain: The domain of the Bitwarden account that owns this item.
+    ///   - accountEmail: The email of the Bitwarden account that owns this item
     ///   - favorite: Bool indicating if this item is a favorite.
     ///   - id: The unique id of the item.
     ///   - name: The name of the item.
     ///   - totpKey: The TOTP key used to generate codes.
     ///   - username: The username of the item.
     ///
-    public init(bitwardenAccountDomain: String?,
-                bitwardenAccountEmail: String?,
+    public init(accountDomain: String?,
+                accountEmail: String?,
                 favorite: Bool,
                 id: String,
                 name: String,
                 totpKey: String?,
                 username: String?) {
-        self.bitwardenAccountDomain = bitwardenAccountDomain
-        self.bitwardenAccountEmail = bitwardenAccountEmail
+        self.accountDomain = accountDomain
+        self.accountEmail = accountEmail
         self.favorite = favorite
         self.id = id
         self.name = name

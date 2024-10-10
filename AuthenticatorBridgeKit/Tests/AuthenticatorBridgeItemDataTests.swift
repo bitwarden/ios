@@ -49,8 +49,8 @@ final class AuthenticatorBridgeItemDataTests: AuthenticatorBridgeKitTestCase {
             context: dataStore.persistentContainer.viewContext,
             userId: "userId",
             authenticatorItem: AuthenticatorBridgeItemDataModel(
-                bitwardenAccountDomain: "https://vault.example.com",
-                bitwardenAccountEmail: "test@example.com",
+                accountDomain: "https://vault.example.com",
+                accountEmail: "test@example.com",
                 favorite: true,
                 id: "is",
                 name: "name",
