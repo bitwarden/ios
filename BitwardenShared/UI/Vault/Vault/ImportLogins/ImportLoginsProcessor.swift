@@ -46,6 +46,10 @@ class ImportLoginsProcessor: StateProcessor<ImportLoginsState, ImportLoginsActio
 
     override func receive(_ action: ImportLoginsAction) {
         switch action {
+        case .advanceNextPage:
+            advanceNextPage()
+        case .advancePreviousPage:
+            advancePreviousPage()
         case .dismiss:
             coordinator.navigate(to: .dismiss)
         case .getStarted:
@@ -55,11 +59,28 @@ class ImportLoginsProcessor: StateProcessor<ImportLoginsState, ImportLoginsActio
 
     // MARK: Private
 
+    /// Advances the view to show the next page of instructions.
+    ///
+    private func advanceNextPage() {
+        guard let next = state.page.next else {
+            // TODO: PM-11159 Sync vault
+            return
+        }
+        state.page = next
+    }
+
+    /// Advances the view to show the previous page of instructions.
+    ///
+    private func advancePreviousPage() {
+        guard let previous = state.page.previous else { return }
+        state.page = previous
+    }
+
     /// Shows the alert confirming the user wants to get started on importing logins.
     ///
     private func showGetStartAlert() {
         coordinator.showAlert(.importLoginsComputerAvailable {
-            // TODO: PM-11150 Show step 1
+            self.advanceNextPage()
         })
     }
 

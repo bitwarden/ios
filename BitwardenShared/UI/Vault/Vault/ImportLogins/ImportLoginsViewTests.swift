@@ -53,14 +53,42 @@ class ImportLoginsViewTests: BitwardenTestCase {
         XCTAssertEqual(processor.effects.last, .importLoginsLater)
     }
 
+    /// Tapping the back button for a step dispatches the `advancePreviousPage` action.
+    @MainActor
+    func test_step_back_tap() throws {
+        processor.state.page = .step1
+        let button = try subject.inspect().find(button: Localizations.back)
+        try button.tap()
+        XCTAssertEqual(processor.dispatchedActions.last, .advancePreviousPage)
+    }
+
+    /// Tapping the continue button for a step dispatches the `advanceNextPage` action.
+    @MainActor
+    func test_step_continue_tap() throws {
+        processor.state.page = .step1
+        let button = try subject.inspect().find(button: Localizations.continue)
+        try button.tap()
+        XCTAssertEqual(processor.dispatchedActions.last, .advanceNextPage)
+    }
+
     // MARK: Snapshots
 
-    /// The import logins view renders correctly.
+    /// The import logins intro page renders correctly.
     @MainActor
-    func test_snapshot_importLogins() {
+    func test_snapshot_importLoginsIntro() {
         assertSnapshots(
             of: subject.navStackWrapped,
             as: [.defaultPortrait, .defaultPortraitDark, .tallPortraitAX5(heightMultiple: 2), .defaultLandscape]
+        )
+    }
+
+    /// The import logins step 1 page renders correctly.
+    @MainActor
+    func test_snapshot_importLoginsStep1() {
+        processor.state.page = .step1
+        assertSnapshots(
+            of: subject.navStackWrapped,
+            as: [.defaultPortrait, .defaultPortraitDark, .tallPortraitAX5(heightMultiple: 2.5), .defaultLandscape]
         )
     }
 }

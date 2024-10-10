@@ -40,6 +40,32 @@ class ImportLoginsProcessorTests: BitwardenTestCase {
 
     // MARK: Tests
 
+    /// `receive(_:)` with `.advanceNextPage` advances to the next page.
+    @MainActor
+    func test_receive_advanceNextPage() {
+        XCTAssertEqual(subject.state.page, .intro)
+
+        subject.receive(.advanceNextPage)
+        XCTAssertEqual(subject.state.page, .step1)
+
+        // TODO: PM-11159 Sync vault
+        subject.receive(.advanceNextPage)
+        XCTAssertEqual(subject.state.page, .step1)
+    }
+
+    /// `receive(_:)` with `.advancePreviousPage` advances to the previous page.
+    @MainActor
+    func test_receive_advancePreviousPage() {
+        subject.state.page = .step1
+
+        subject.receive(.advancePreviousPage)
+        XCTAssertEqual(subject.state.page, .intro)
+
+        // Advancing again stays at the first page.
+        subject.receive(.advancePreviousPage)
+        XCTAssertEqual(subject.state.page, .intro)
+    }
+
     /// `perform(_:)` with `.importLoginsLater` shows an alert for confirming the user wants to
     /// import logins later.
     @MainActor
@@ -80,10 +106,13 @@ class ImportLoginsProcessorTests: BitwardenTestCase {
     /// `receive(_:)` with `.getStarted` shows an alert for the user to confirm they have a
     /// computer available.
     @MainActor
-    func test_receive_getStarted() throws {
+    func test_receive_getStarted() async throws {
         subject.receive(.getStarted)
 
         let alert = try XCTUnwrap(coordinator.alertShown.last)
         XCTAssertEqual(alert, .importLoginsComputerAvailable {})
+
+        try await alert.tapAction(title: Localizations.continue)
+        XCTAssertEqual(subject.state.page, .step1)
     }
 }
