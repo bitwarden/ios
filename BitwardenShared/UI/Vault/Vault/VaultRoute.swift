@@ -36,6 +36,9 @@ public enum VaultRoute: Equatable, Hashable {
     /// A route to the vault item list screen for the specified group.
     case group(_ group: VaultListGroup, filter: VaultFilterType)
 
+    /// A route to the import logins screen.
+    case importLogins
+
     /// A route to the vault list screen.
     case list
 

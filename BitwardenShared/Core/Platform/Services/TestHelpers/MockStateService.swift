@@ -7,6 +7,7 @@ class MockStateService: StateService { // swiftlint:disable:this type_body_lengt
     var accountEncryptionKeys = [String: AccountEncryptionKeys]()
     var accountSetupAutofill = [String: AccountSetupProgress]()
     var accountSetupAutofillError: Error?
+    var accountSetupImportLogins = [String: AccountSetupProgress]()
     var accountSetupVaultUnlock = [String: AccountSetupProgress]()
     var accountTokens: Account.AccountTokens?
     var accountVolatileData: [String: AccountVolatileData] = [:]
@@ -67,9 +68,8 @@ class MockStateService: StateService { // swiftlint:disable:this type_body_lengt
     var setAccountHasBeenUnlockedInteractivelyResult: Result<Void, Error> = .success(())
     var setAccountSetupAutofillCalled = false
     var setBiometricAuthenticationEnabledResult: Result<Void, Error> = .success(())
-    var settingsBadgeSubject = CurrentValueSubject<SettingsBadgeState, Never>(
-        SettingsBadgeState(autofillSetupProgress: nil, badgeValue: nil, vaultUnlockSetupProgress: nil)
-    )
+    var setBiometricIntegrityStateError: Error?
+    var settingsBadgeSubject = CurrentValueSubject<SettingsBadgeState, Never>(.fixture())
     var shouldTrustDevice = [String: Bool?]()
     var syncToAuthenticatorByUserId = [String: Bool]()
     var syncToAuthenticatorResult: Result<Void, Error> = .success(())
@@ -153,6 +153,10 @@ class MockStateService: StateService { // swiftlint:disable:this type_body_lengt
 
     func getAccountSetupAutofill(userId: String) async -> AccountSetupProgress? {
         accountSetupAutofill[userId]
+    }
+
+    func getAccountSetupImportLogins(userId: String) async -> AccountSetupProgress? {
+        accountSetupImportLogins[userId]
     }
 
     func getAccountSetupVaultUnlock(userId: String) async -> AccountSetupProgress? {
@@ -364,6 +368,11 @@ class MockStateService: StateService { // swiftlint:disable:this type_body_lengt
             throw accountSetupAutofillError
         }
         accountSetupAutofill[userId] = autofillSetup
+    }
+
+    func setAccountSetupImportLogins(_ importLoginsSetup: AccountSetupProgress?, userId: String?) async throws {
+        let userId = try unwrapUserId(userId)
+        accountSetupImportLogins[userId] = importLoginsSetup
     }
 
     func setAccountSetupVaultUnlock(_ vaultUnlockSetup: AccountSetupProgress?, userId: String?) async throws {
