@@ -15,7 +15,7 @@ public protocol ErrorReporter: AnyObject, AuthenticatorBridgeKit.ErrorReporter {
     /// - Parameter error: The error to log.
     ///
     func log(error: Error)
-    
+
     /// Sets the current region the user is on.
     /// - Parameters:
     ///   - region: Region the user is on (US, EU, SelfHosted).

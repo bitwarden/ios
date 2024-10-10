@@ -12,7 +12,7 @@ struct IntroCarouselView: View {
     @Environment(\.verticalSizeClass) var verticalSizeClass
 
     /// The `Store` for this view.
-    @ObservedObject var store: Store<IntroCarouselState, IntroCarouselAction, Void>
+    @ObservedObject var store: Store<IntroCarouselState, IntroCarouselAction, IntroCarouselEffect>
 
     // MARK: View
 
@@ -32,8 +32,8 @@ struct IntroCarouselView: View {
             .animation(.default, value: store.state.currentPageIndex)
 
             VStack(spacing: 12) {
-                Button(Localizations.createAccount) {
-                    store.send(.createAccount)
+                AsyncButton(Localizations.createAccount) {
+                    await store.perform(.createAccount)
                 }
                 .buttonStyle(.primary())
 
