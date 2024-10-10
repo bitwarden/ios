@@ -32,6 +32,7 @@ struct ImportLoginsView: View {
                 .buttonStyle(.transparent)
             }
         }
+        .padding(.top, 8)
         .frame(maxWidth: .infinity)
         .scrollView()
         .navigationBar(title: Localizations.importLogins, titleDisplayMode: .inline)

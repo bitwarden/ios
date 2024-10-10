@@ -18,7 +18,7 @@ class ImportLoginsProcessor: StateProcessor<ImportLoginsState, ImportLoginsActio
 
     // MARK: Initialization
 
-    /// Creates a new `VaultUnlockSetupProcessor`.
+    /// Creates a new `ImportLoginsProcessor`.
     ///
     /// - Parameters:
     ///   - coordinator: The coordinator that handles navigation.
