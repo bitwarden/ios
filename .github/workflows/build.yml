@@ -67,7 +67,7 @@ on:
         type: boolean
 env:
   BUILD_VARIANT: ${{ inputs.build-variant || 'Beta' }}
-  XCODE_VERSION: ${{ inputs.xcode-version || '15.4' }}
+  XCODE_VERSION: ${{ inputs.xcode-version }}
 
 jobs:
   build:
@@ -126,6 +126,7 @@ jobs:
           content=$(cat version-info/version_info.json)
           echo "version_name=$(echo $content | jq -r .version_name)" >> $GITHUB_OUTPUT
           echo "version_number=$(echo $content | jq -r .version_number)" >> $GITHUB_OUTPUT
+
       - name: Upload version info artifact
         if: ${{ inputs.upload_version_info }}
         uses: actions/upload-artifact@50769540e7f4bd5e21e526ee35c689e35e0d6874 # v4.4.0
@@ -133,10 +134,14 @@ jobs:
           name: version-info
           path: version-info/version_info.json
 
+      - name: Read default Xcode version
+        run: |
+          echo "DEFAULT_XCODE_VERSION=$(cat .xcode-version | tr -d '\n')" >> "$GITHUB_ENV"
+
       - name: Set Xcode version
         uses: maxim-lobanov/setup-xcode@60606e260d2fc5762a71e64e74b2174e8ea3c8bd # v1.6.0
         with:
-          xcode-version: ${{ env.XCODE_VERSION }}
+          xcode-version: ${{ env.XCODE_VERSION || env.DEFAULT_XCODE_VERSION }}
 
       - name: Cache Mint packages
         id: mint-cache

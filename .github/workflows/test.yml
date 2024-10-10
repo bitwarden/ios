@@ -8,15 +8,37 @@ on:
       - "hotfix-rc"
   pull_request_target:
     types: [opened, synchronize]
+  workflow_dispatch:
+    inputs:
+      xcode-version:
+        description: "Xcode version override - e.g. '15.2'"
+        type: string
+      simulator-name:
+        description: "Simulator name override - e.g. 'iPhone 16 Pro'"
+        type: string
+      simulator-version:
+        description: "Simulator iOS version override - e.g. '18.0.1'"
+        type: string
+  workflow_call:
+    inputs:
+      xcode-version:
+        description: "Xcode version override - e.g. '15.2'"
+        type: string
+      simulator-name:
+        description: "Simulator name override - e.g. 'iPhone 16 Pro'"
+        type: string
+      simulator-version:
+        description: "Simulator iOS version override - e.g. '18.0.1'"
+        type: string
 
 env:
-  DEVELOPER_DIR: /Applications/Xcode_15.4.app/Contents/Developer
+  COVERAGE_PATH: build/coverage.xml
   MINT_LINK_PATH: .mint/bin
   MINT_PATH: .mint/lib
-  SIMULATOR_DESTINATION: platform=iOS Simulator,name=iPhone 15 Pro,OS=17.0.1
   RESULT_BUNDLE_PATH: build/BitwardenTests.xcresult
-  COVERAGE_PATH: build/coverage.xml
-  XCODE_VERSION: 15.4
+  SIMULATOR_NAME: ${{ inputs.simulator-name || 'iPhone 15 Pro' }}
+  SIMULATOR_VERSION: ${{ inputs.simulator-version || '17.0.1' }}
+  XCODE_VERSION: ${{ inputs.xcode-version }}
 
 jobs:
   check-run:
@@ -33,15 +55,28 @@ jobs:
       pull-requests: write
 
     steps:
+      - name: Log inputs to job summary
+        run: |
+          echo "<details><summary>Build Workflow Inputs</summary>" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo '```json' >> $GITHUB_STEP_SUMMARY
+          echo '${{ toJson(inputs) }}' >> $GITHUB_STEP_SUMMARY
+          echo '```' >> $GITHUB_STEP_SUMMARY
+          echo "</details>" >> $GITHUB_STEP_SUMMARY
+
       - name: Check out repo
         uses: actions/checkout@d632683dd7b4114ad314bca15554477dd762a938 # v4.2.0
         with:
           ref: ${{  github.event.pull_request.head.sha }}
 
+      - name: Read default Xcode version
+        run: |
+          echo "DEFAULT_XCODE_VERSION=$(cat .xcode-version | tr -d '\n')" >> "$GITHUB_ENV"
+
       - name: Set Xcode version
         uses: maxim-lobanov/setup-xcode@60606e260d2fc5762a71e64e74b2174e8ea3c8bd # v1.6.0
         with:
-          xcode-version: ${{ env.XCODE_VERSION }}
+          xcode-version: ${{ env.XCODE_VERSION || env.DEFAULT_XCODE_VERSION }}
 
       - name: Configure Ruby
         uses: ruby/setup-ruby@c04af2bb7258bb6a03df1d3c1865998ac9390972 # v1.194.0
@@ -82,7 +117,7 @@ jobs:
             -project Bitwarden.xcodeproj \
             -scheme Bitwarden \
             -configuration Debug \
-            -destination "${{ env.SIMULATOR_DESTINATION }}" \
+            -destination "platform=iOS Simulator,name=${{ env.SIMULATOR_NAME }},OS=${{ env.SIMULATOR_VERSION }}" \
             -resultBundlePath ${{ env.RESULT_BUNDLE_PATH }} \
             -derivedDataPath build/DerivedData \
             | xcbeautify --renderer github-actions
