@@ -64,6 +64,7 @@ final class VaultCoordinator: Coordinator, HasStackNavigator {
         & HasAutofillCredentialService
         & HasCameraService
         & HasClientService
+        & HasConfigService
         & HasEnvironmentService
         & HasErrorReporter
         & HasFido2CredentialStore
@@ -169,6 +170,9 @@ final class VaultCoordinator: Coordinator, HasStackNavigator {
             stackNavigator?.dismiss()
         case let .group(group, filter):
             showGroup(group, filter: filter)
+        case .importLogins:
+            // TODO: PM-11147 Show import logins
+            break
         case .list:
             showList()
         case let .loginRequest(loginRequest):

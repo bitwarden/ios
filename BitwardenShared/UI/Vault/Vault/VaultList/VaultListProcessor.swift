@@ -1,6 +1,8 @@
 import BitwardenSdk
 import SwiftUI
 
+// swiftlint:disable file_length
+
 // MARK: - VaultListProcessor
 
 /// The processor used to manage state and handle actions for the vault list screen.
@@ -15,6 +17,7 @@ final class VaultListProcessor: StateProcessor<
     typealias Services = HasApplication
         & HasAuthRepository
         & HasAuthService
+        & HasConfigService
         & HasErrorReporter
         & HasEventService
         & HasNotificationService
@@ -66,6 +69,8 @@ final class VaultListProcessor: StateProcessor<
             await handleNotifications()
             await checkPendingLoginRequests()
             await checkPersonalOwnershipPolicy()
+        case .dismissImportLoginsActionCard:
+            await dismissImportLoginsActionCard()
         case let .morePressed(item):
             await vaultItemMoreOptionsHelper.showMoreOptionsAlert(
                 for: item,
@@ -84,6 +89,8 @@ final class VaultListProcessor: StateProcessor<
             await refreshVault(isManualRefresh: true)
         case let .search(text):
             state.searchResults = await searchVault(for: text)
+        case .streamAccountSetupProgress:
+            await streamAccountSetupProgress()
         case .streamOrganizations:
             await streamOrganizations()
         case .streamShowWebIcons:
@@ -126,6 +133,8 @@ final class VaultListProcessor: StateProcessor<
             state.searchText = newValue
         case let .searchVaultFilterChanged(newValue):
             state.searchVaultFilterType = newValue
+        case .showImportLogins:
+            coordinator.navigate(to: .importLogins)
         case let .toastShown(newValue):
             state.toast = newValue
         case .totpCodeExpired:
@@ -170,6 +179,17 @@ extension VaultListProcessor {
         let isPersonalOwnershipDisabled = await services.policyService.policyAppliesToUser(.personalOwnership)
         state.isPersonalOwnershipDisabled = isPersonalOwnershipDisabled
         state.canShowVaultFilter = await services.vaultRepository.canShowVaultFilter()
+    }
+
+    /// Dismisses the import logins action card by marking the user's import logins progress complete.
+    ///
+    private func dismissImportLoginsActionCard() async {
+        do {
+            try await services.stateService.setAccountSetupImportLogins(.complete)
+        } catch {
+            services.errorReporter.log(error: error)
+            coordinator.showAlert(.defaultAlert(title: Localizations.anErrorHasOccurred))
+        }
     }
 
     /// Entry point to handling things around push notifications.
@@ -269,6 +289,19 @@ extension VaultListProcessor {
         state.profileSwitcherState.isVisible = visible
     }
 
+    /// Streams the user's account setup progress.
+    ///
+    private func streamAccountSetupProgress() async {
+        guard await services.configService.getFeatureFlag(.nativeCreateAccountFlow) else { return }
+        do {
+            for await badgeState in try await services.stateService.settingsBadgePublisher().values {
+                state.importLoginsSetupProgress = badgeState.importLoginsSetupProgress
+            }
+        } catch {
+            services.errorReporter.log(error: error)
+        }
+    }
+
     /// Streams the user's organizations.
     private func streamOrganizations() async {
         do {
@@ -295,6 +328,11 @@ extension VaultListProcessor {
                 } else {
                     // Otherwise mark the state as `.loading` until the sync is complete.
                     state.loadingState = .loading(value)
+                }
+
+                // Dismiss the import logins action card once the vault has items in it.
+                if !value.isEmpty, await services.configService.getFeatureFlag(.nativeCreateAccountFlow) {
+                    await dismissImportLoginsActionCard()
                 }
             }
         } catch {
