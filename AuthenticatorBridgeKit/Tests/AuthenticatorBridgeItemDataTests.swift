@@ -49,7 +49,13 @@ final class AuthenticatorBridgeItemDataTests: AuthenticatorBridgeKitTestCase {
             context: dataStore.persistentContainer.viewContext,
             userId: "userId",
             authenticatorItem: AuthenticatorBridgeItemDataModel(
-                favorite: true, id: "is", name: "name", totpKey: "TOTP Key", username: "username"
+                accountDomain: "https://vault.example.com",
+                accountEmail: "test@example.com",
+                favorite: true,
+                id: "is",
+                name: "name",
+                totpKey: "TOTP Key",
+                username: "username"
             )
         )
 
