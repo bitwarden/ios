@@ -10,8 +10,30 @@ struct Toast: Equatable, Identifiable {
     /// A unique identifier of the toast.
     let id = UUID()
 
-    /// The text displayed in the toast.
-    let text: String
+    /// The title text displayed in the toast.
+    let title: String
+
+    /// The subtitle text displayed in the toast.
+    let subtitle: String?
+
+    // MARK: Initialization
+
+    /// Initialize a `Toast`.
+    ///
+    /// - Parameters:
+    ///   - title: The title text displayed in the toast.
+    ///   - subtitle: The subtitle text displayed in the toast.
+    ///
+    init(title: String, subtitle: String? = nil) {
+        self.title = title
+        self.subtitle = subtitle
+    }
+
+    static func == (lhs: Toast, rhs: Toast) -> Bool {
+        // Exclude `id` from `Equatable`, it's only used by the view to handle animations between toasts.
+        lhs.title == rhs.title
+            && lhs.subtitle == rhs.subtitle
+    }
 }
 
 // MARK: - ToastView
@@ -27,7 +49,7 @@ struct ToastView: View {
 
     var body: some View {
         if let toast {
-            Text(toast.text)
+            Text(toast.title)
                 .styleGuide(.subheadline, weight: .semibold)
                 .multilineTextAlignment(.center)
                 .dynamicTypeSize(...DynamicTypeSize.accessibility2)
@@ -75,12 +97,12 @@ extension View {
 #if DEBUG
 struct ToastView_Previews: PreviewProvider {
     static var previews: some View {
-        ToastView(toast: .constant(Toast(text: "Toast!")))
+        ToastView(toast: .constant(Toast(title: "Toast!")))
             .previewDisplayName("Toast View")
 
         NavigationView {
             Asset.Colors.backgroundSecondary.swiftUIColor
-                .toast(.constant(Toast(text: "Taos, NM!")))
+                .toast(.constant(Toast(title: "Taos, NM!")))
         }
         .previewDisplayName("Overlay")
     }

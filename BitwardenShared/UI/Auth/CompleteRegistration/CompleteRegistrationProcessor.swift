@@ -343,7 +343,7 @@ class CompleteRegistrationProcessor: StateProcessor<
                     email: state.userEmail,
                     emailVerificationToken: state.emailVerificationToken
                 )
-                state.toast = Toast(text: Localizations.emailVerified)
+                state.toast = Toast(title: Localizations.emailVerified)
             } catch VerifyEmailTokenRequestError.tokenExpired {
                 coordinator.navigate(to: .expiredLink)
             } catch {
