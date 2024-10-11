@@ -1,7 +1,7 @@
 {
   "images" : [
     {
-      "filename" : "secure-user.pdf",
+      "filename" : "generate.pdf",
       "idiom" : "universal"
     },
     {
@@ -11,7 +11,7 @@
           "value" : "dark"
         }
       ],
-      "filename" : "secure-user-dark.pdf",
+      "filename" : "generate-dark.pdf",
       "idiom" : "universal"
     }
   ],

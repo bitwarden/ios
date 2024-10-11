@@ -1,7 +1,7 @@
 {
   "images" : [
     {
-      "filename" : "secure-devices.pdf",
+      "filename" : "devices.pdf",
       "idiom" : "universal"
     },
     {
@@ -11,7 +11,7 @@
           "value" : "dark"
         }
       ],
-      "filename" : "secure-devices-dark.pdf",
+      "filename" : "devices-dark.pdf",
       "idiom" : "universal"
     }
   ],

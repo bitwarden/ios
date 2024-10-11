@@ -99,8 +99,8 @@ struct IntroCarouselView: View {
                 page.image
                     .resizable()
                     .frame(
-                        width: verticalSizeClass == .regular ? 200 : 132,
-                        height: verticalSizeClass == .regular ? 200 : 132
+                        width: verticalSizeClass == .regular ? 152 : 124,
+                        height: verticalSizeClass == .regular ? 152 : 124
                     )
                     .accessibilityHidden(true)
             } textContent: {
