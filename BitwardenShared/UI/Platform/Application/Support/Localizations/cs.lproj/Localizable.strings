@@ -1002,3 +1002,16 @@
 "AutoFillActivatedDescriptionLong" = "K přihlašování do aplikací a na webové stránky pomocí uložených hesel můžete nyní používat automatické vyplňování. Nyní můžete prozkoumat vše ostatní, co Bitwarden nabízí.";
 "GetStarted" = "Začínáme";
 "Dismiss" = "Zavřít";
+"SaveAndProtectYourData" = "Uložit a chránit Vaše data";
+"TheVaultProtectsMoreThanJustPasswordsStoreSecureLoginsIdsCardsAndNotesSecurelyHere" = "Trezor chrání více než jen Vaše hesla. Bezpečně zde uložte zabezpečená přihlášení, ID, karty a poznámky.";
+"NewLogin" = "Nové přihlášení";
+"ImportSavedLogins" = "Importovat uložená přihlášení";
+"ImportSavedLoginsDescriptionLong" = "Použijte počítač k importu přihlašovacích údajů z existujícího správce hesel.";
+"ImportLogins" = "Importovat přihlášení";
+"GiveYourVaultAHeadStart" = "Dejte svému trezoru náskok";
+"ImportLoginsDescriptionLong" = "Chcete-li exportovat uložená hesla z prohlížeče nebo jiného správce hesel, postupujte v počítači podle těchto pokynů. Poté je bezpečně importujte do aplikace Bitwarden.";
+"ImportLoginsLater" = "Importovat přihlášení později";
+"ImportLoginsLaterQuestion" = "Importovat přihlášení později?";
+"YouCanReturnToCompleteThisStepAnytimeInVaultUnderSettings" = "K dokončení tohoto kroku se můžete kdykoliv vrátit v Trezoru v Nastavení.";
+"DoYouHaveAComputerAvailable" = "Máte k dispozici počítač?";
+"DoYouHaveAComputerAvailableDescriptionLong" = "Následující pokyny Vás povedou importováním přihlašovacích údajů z Vašeho stolního počítače nebo notebooku.";
