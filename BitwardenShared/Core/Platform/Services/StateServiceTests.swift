@@ -323,6 +323,25 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
         }
     }
 
+    /// `getAccountSetupImportLogins()` returns the user's import logins setup progress.
+    func test_getAccountSetupImportLogins() async throws {
+        await subject.addAccount(.fixture(profile: .fixture(userId: "1")))
+
+        let initialValue = try await subject.getAccountSetupImportLogins()
+        XCTAssertNil(initialValue)
+
+        appSettingsStore.accountSetupImportLogins["1"] = .setUpLater
+        let setUpLater = try await subject.getAccountSetupImportLogins()
+        XCTAssertEqual(setUpLater, .setUpLater)
+    }
+
+    /// `getAccountSetupImportLogins()` throws an error if there isn't an active account.
+    func test_getAccountSetupImportLogins_noAccount() async throws {
+        await assertAsyncThrows(error: StateServiceError.noActiveAccount) {
+            _ = try await subject.getAccountSetupImportLogins()
+        }
+    }
+
     /// `getAccountSetupVaultUnlock()` returns the user's vault unlock setup progress.
     func test_getAccountSetupVaultUnlock() async throws {
         await subject.addAccount(.fixture(profile: .fixture(userId: "1")))
@@ -1521,6 +1540,17 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
 
         try await subject.setAccountSetupAutofill(.complete, userId: "1")
         XCTAssertEqual(appSettingsStore.accountSetupAutofill, ["1": .complete])
+    }
+
+    /// `setAccountSetupImportLogins(_:)` sets the user's import logins setup progress.
+    func test_setAccountSetupImportLogins() async throws {
+        await subject.addAccount(.fixture(profile: .fixture(userId: "1")))
+
+        try await subject.setAccountSetupImportLogins(.incomplete)
+        XCTAssertEqual(appSettingsStore.accountSetupImportLogins, ["1": .incomplete])
+
+        try await subject.setAccountSetupImportLogins(.complete, userId: "1")
+        XCTAssertEqual(appSettingsStore.accountSetupImportLogins, ["1": .complete])
     }
 
     /// `setAccountSetupVaultUnlock(_:)` sets the user's vault unlock setup progress.

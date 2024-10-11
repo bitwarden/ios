@@ -64,6 +64,7 @@ final class VaultCoordinator: Coordinator, HasStackNavigator {
         & HasAutofillCredentialService
         & HasCameraService
         & HasClientService
+        & HasConfigService
         & HasEnvironmentService
         & HasErrorReporter
         & HasFido2CredentialStore
@@ -169,6 +170,8 @@ final class VaultCoordinator: Coordinator, HasStackNavigator {
             stackNavigator?.dismiss()
         case let .group(group, filter):
             showGroup(group, filter: filter)
+        case .importLogins:
+            showImportLogins()
         case .list:
             showList()
         case let .loginRequest(loginRequest):
@@ -238,6 +241,21 @@ final class VaultCoordinator: Coordinator, HasStackNavigator {
             navigationTitle: group.navigationTitle,
             searchController: searchController
         )
+    }
+
+    /// Shows the import login items screen.
+    ///
+    private func showImportLogins() {
+        let processor = ImportLoginsProcessor(
+            coordinator: asAnyCoordinator(),
+            services: services,
+            state: ImportLoginsState()
+        )
+        let view = ImportLoginsView(store: Store(processor: processor))
+        let viewController = UIHostingController(rootView: view)
+        let navigationController = UINavigationController(rootViewController: viewController)
+        navigationController.modalPresentationStyle = .fullScreen
+        stackNavigator?.present(navigationController)
     }
 
     /// Shows the vault list screen.

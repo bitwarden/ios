@@ -54,6 +54,22 @@ class AppSettingsStoreTests: BitwardenTestCase { // swiftlint:disable:this type_
         XCTAssertEqual(userDefaults.integer(forKey: "bwPreferencesStorage:accountSetupAutofill_2"), 2)
     }
 
+    /// `accountSetupImportLogins(userId:)` returns `nil` if there isn't a previously stored value.
+    func test_accountSetupImportLogins_isInitiallyNil() {
+        XCTAssertNil(subject.accountSetupImportLogins(userId: "-1"))
+    }
+
+    /// `accountSetupImportLogins(userId:)` can be used to get the user's progress for import logins setup.
+    func test_accountSetupImportLogins_withValue() {
+        subject.setAccountSetupImportLogins(.setUpLater, userId: "1")
+        subject.setAccountSetupImportLogins(.complete, userId: "2")
+
+        XCTAssertEqual(subject.accountSetupImportLogins(userId: "1"), .setUpLater)
+        XCTAssertEqual(subject.accountSetupImportLogins(userId: "2"), .complete)
+        XCTAssertEqual(userDefaults.integer(forKey: "bwPreferencesStorage:accountSetupImportLogins_1"), 1)
+        XCTAssertEqual(userDefaults.integer(forKey: "bwPreferencesStorage:accountSetupImportLogins_2"), 2)
+    }
+
     /// `accountSetupVaultUnlock(userId:)` returns `nil` if there isn't a previously stored value.
     func test_accountSetupVaultUnlock_isInitiallyFalse() {
         XCTAssertNil(subject.accountSetupVaultUnlock(userId: "-1"))
