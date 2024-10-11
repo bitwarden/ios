@@ -59,6 +59,13 @@ protocol AppSettingsStore: AnyObject {
     ///
     func accountSetupAutofill(userId: String) -> AccountSetupProgress?
 
+    /// The user's progress for importing logins.
+    ///
+    /// - Parameter userId: The user ID associated with the stored import logins setup progress.
+    /// - Returns: The user's import logins setup progress.
+    ///
+    func accountSetupImportLogins(userId: String) -> AccountSetupProgress?
+
     /// The user's progress for setting up vault unlock.
     ///
     /// - Parameter userId: The user ID associated with the stored vault unlock setup progress.
@@ -228,6 +235,14 @@ protocol AppSettingsStore: AnyObject {
     ///   - userId: The user ID associated with the stored autofill setup progress.
     ///
     func setAccountSetupAutofill(_ autofillSetup: AccountSetupProgress?, userId: String)
+
+    /// Sets the user's progress for import logins setup.
+    ///
+    /// - Parameters:
+    ///   - autofillSetup: The user's import logins setup progress.
+    ///   - userId: The user ID associated with the stored import logins setup progress.
+    ///
+    func setAccountSetupImportLogins(_ importLoginsSetup: AccountSetupProgress?, userId: String)
 
     /// Sets the user's progress for vault unlock setup.
     ///
@@ -628,6 +643,7 @@ extension DefaultAppSettingsStore: AppSettingsStore {
     ///
     enum Keys {
         case accountSetupAutofill(userId: String)
+        case accountSetupImportLogins(userId: String)
         case accountSetupVaultUnlock(userId: String)
         case addSitePromptShown
         case allowSyncOnRefresh(userId: String)
@@ -677,6 +693,8 @@ extension DefaultAppSettingsStore: AppSettingsStore {
             switch self {
             case let .accountSetupAutofill(userId):
                 key = "accountSetupAutofill_\(userId)"
+            case let .accountSetupImportLogins(userId):
+                key = "accountSetupImportLogins_\(userId)"
             case let .accountSetupVaultUnlock(userId):
                 key = "accountSetupVaultUnlock_\(userId)"
             case .addSitePromptShown:
@@ -843,6 +861,10 @@ extension DefaultAppSettingsStore: AppSettingsStore {
         fetch(for: .accountSetupAutofill(userId: userId))
     }
 
+    func accountSetupImportLogins(userId: String) -> AccountSetupProgress? {
+        fetch(for: .accountSetupImportLogins(userId: userId))
+    }
+
     func accountSetupVaultUnlock(userId: String) -> AccountSetupProgress? {
         fetch(for: .accountSetupVaultUnlock(userId: userId))
     }
@@ -935,6 +957,10 @@ extension DefaultAppSettingsStore: AppSettingsStore {
 
     func setAccountSetupAutofill(_ autofillSetup: AccountSetupProgress?, userId: String) {
         store(autofillSetup, for: .accountSetupAutofill(userId: userId))
+    }
+
+    func setAccountSetupImportLogins(_ importLoginsSetup: AccountSetupProgress?, userId: String) {
+        store(importLoginsSetup, for: .accountSetupImportLogins(userId: userId))
     }
 
     func setAccountSetupVaultUnlock(_ vaultUnlockSetup: AccountSetupProgress?, userId: String) {

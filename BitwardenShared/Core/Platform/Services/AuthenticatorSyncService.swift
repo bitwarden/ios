@@ -160,16 +160,17 @@ actor DefaultAuthenticatorSyncService: NSObject, AuthenticatorSyncService {
         let decryptedCiphers = try await totpCiphers.asyncMap { cipher in
             try await self.clientService.vault(for: userId).ciphers().decrypt(cipher: cipher)
         }
-        let account = try await stateService.getActiveAccount()
-        let username = account.profile.email
+        let account = try? await stateService.getAccount(userId: userId)
 
         return decryptedCiphers.map { cipher in
             AuthenticatorBridgeItemDataView(
+                accountDomain: account?.settings.environmentUrls?.webVaultHost,
+                accountEmail: account?.profile.email,
                 favorite: false,
                 id: cipher.id ?? UUID().uuidString,
                 name: cipher.name,
                 totpKey: cipher.login?.totp,
-                username: username
+                username: cipher.login?.username
             )
         }
     }

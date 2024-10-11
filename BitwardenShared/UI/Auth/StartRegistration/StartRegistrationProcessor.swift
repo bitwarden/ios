@@ -165,7 +165,7 @@ class StartRegistrationProcessor: StateProcessor<
                !token.isEmpty {
                 coordinator.navigate(to: .completeRegistration(
                     emailVerificationToken: token,
-                    userEmail: state.emailText
+                    userEmail: email
                 ))
             } else {
                 guard let preAuthUrls = await services.stateService.getPreAuthEnvironmentUrls() else {
@@ -173,7 +173,7 @@ class StartRegistrationProcessor: StateProcessor<
                 }
 
                 await services.stateService.setAccountCreationEnvironmentUrls(urls: preAuthUrls, email: email)
-                coordinator.navigate(to: .checkEmail(email: state.emailText))
+                coordinator.navigate(to: .checkEmail(email: email))
             }
         } catch let error as StartRegistrationError {
             showStartRegistrationErrorAlert(error)

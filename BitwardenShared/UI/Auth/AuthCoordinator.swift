@@ -453,6 +453,7 @@ final class AuthCoordinator: NSObject, // swiftlint:disable:this type_body_lengt
     private func showIntroCarousel() {
         let processor = IntroCarouselProcessor(
             coordinator: asAnyCoordinator(),
+            services: services,
             state: IntroCarouselState()
         )
         let view = IntroCarouselView(store: Store(processor: processor))
