@@ -60,6 +60,7 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
             await appProcessor.start(
                 appContext: .mainApp,
                 navigator: rootViewController,
+                splashWindow: splashWindow,
                 window: appWindow
             )
             hideSplash()

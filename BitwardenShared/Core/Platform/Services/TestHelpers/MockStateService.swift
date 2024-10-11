@@ -7,6 +7,7 @@ class MockStateService: StateService { // swiftlint:disable:this type_body_lengt
     var accountEncryptionKeys = [String: AccountEncryptionKeys]()
     var accountSetupAutofill = [String: AccountSetupProgress]()
     var accountSetupAutofillError: Error?
+    var accountSetupImportLogins = [String: AccountSetupProgress]()
     var accountSetupVaultUnlock = [String: AccountSetupProgress]()
     var accountTokens: Account.AccountTokens?
     var accountVolatileData: [String: AccountVolatileData] = [:]
@@ -19,7 +20,6 @@ class MockStateService: StateService { // swiftlint:disable:this type_body_lengt
     var appLanguage: LanguageOption = .default
     var appTheme: AppTheme?
     var biometricsEnabled = [String: Bool]()
-    var biometricIntegrityStates = [String: String]()
     var capturedUserId: String?
     var clearClipboardValues = [String: ClearClipboardValue]()
     var clearClipboardResult: Result<Void, Error> = .success(())
@@ -47,7 +47,6 @@ class MockStateService: StateService { // swiftlint:disable:this type_body_lengt
     // swiftlint:disable:next identifier_name
     var getAccountHasBeenUnlockedInteractivelyResult: Result<Bool, Error> = .success(false)
     var getBiometricAuthenticationEnabledResult: Result<Void, Error> = .success(())
-    var getBiometricIntegrityStateError: Error?
     var lastSyncTimeByUserId = [String: Date]()
     var lastSyncTimeSubject = CurrentValueSubject<Date?, Never>(nil)
     var lastUserShouldConnectToWatch = false
@@ -70,9 +69,7 @@ class MockStateService: StateService { // swiftlint:disable:this type_body_lengt
     var setAccountSetupAutofillCalled = false
     var setBiometricAuthenticationEnabledResult: Result<Void, Error> = .success(())
     var setBiometricIntegrityStateError: Error?
-    var settingsBadgeSubject = CurrentValueSubject<SettingsBadgeState, Never>(
-        SettingsBadgeState(autofillSetupProgress: nil, badgeValue: nil, vaultUnlockSetupProgress: nil)
-    )
+    var settingsBadgeSubject = CurrentValueSubject<SettingsBadgeState, Never>(.fixture())
     var shouldTrustDevice = [String: Bool?]()
     var syncToAuthenticatorByUserId = [String: Bool]()
     var syncToAuthenticatorResult: Result<Void, Error> = .success(())
@@ -156,6 +153,10 @@ class MockStateService: StateService { // swiftlint:disable:this type_body_lengt
 
     func getAccountSetupAutofill(userId: String) async -> AccountSetupProgress? {
         accountSetupAutofill[userId]
+    }
+
+    func getAccountSetupImportLogins(userId: String) async -> AccountSetupProgress? {
+        accountSetupImportLogins[userId]
     }
 
     func getAccountSetupVaultUnlock(userId: String) async -> AccountSetupProgress? {
@@ -367,6 +368,11 @@ class MockStateService: StateService { // swiftlint:disable:this type_body_lengt
             throw accountSetupAutofillError
         }
         accountSetupAutofill[userId] = autofillSetup
+    }
+
+    func setAccountSetupImportLogins(_ importLoginsSetup: AccountSetupProgress?, userId: String?) async throws {
+        let userId = try unwrapUserId(userId)
+        accountSetupImportLogins[userId] = importLoginsSetup
     }
 
     func setAccountSetupVaultUnlock(_ vaultUnlockSetup: AccountSetupProgress?, userId: String?) async throws {
@@ -649,25 +655,9 @@ extension MockStateService {
         return biometricsEnabled[activeAccount.profile.userId] ?? false
     }
 
-    func getBiometricIntegrityState() async throws -> String? {
-        guard let activeAccount else { throw StateServiceError.noActiveAccount }
-        if let getBiometricIntegrityStateError {
-            throw getBiometricIntegrityStateError
-        }
-        return biometricIntegrityStates[activeAccount.profile.userId] ?? nil
-    }
-
     func setBiometricAuthenticationEnabled(_ isEnabled: Bool?) async throws {
         guard let activeAccount else { throw StateServiceError.noActiveAccount }
         try setBiometricAuthenticationEnabledResult.get()
         biometricsEnabled[activeAccount.profile.userId] = isEnabled
-    }
-
-    func setBiometricIntegrityState(_ base64EncodedState: String?) async throws {
-        guard let activeAccount else { throw StateServiceError.noActiveAccount }
-        if let setBiometricIntegrityStateError {
-            throw setBiometricIntegrityStateError
-        }
-        biometricIntegrityStates[activeAccount.profile.userId] = base64EncodedState
     }
 } // swiftlint:disable:this file_length

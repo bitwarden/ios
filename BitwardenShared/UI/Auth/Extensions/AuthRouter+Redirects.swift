@@ -1,7 +1,5 @@
 // MARK: AuthRouterRedirects
 
-// swiftlint:disable file_length
-
 extension AuthRouter {
     /// Configures the app with an active account.
     ///
@@ -33,7 +31,7 @@ extension AuthRouter {
         if account.profile.forcePasswordResetReason != nil {
             return .updateMasterPassword
         } else if await (try? services.stateService.getAccountSetupVaultUnlock()) == .incomplete {
-            return .vaultUnlockSetup
+            return .vaultUnlockSetup(.createAccount)
         } else if await (try? services.stateService.getAccountSetupAutofill()) == .incomplete {
             return .autofillSetup
         } else {
@@ -363,14 +361,6 @@ extension AuthRouter {
                     return .landingSoftLoggedOut(email: activeAccount.profile.email)
                 }
 
-                let hasMasterPassword = activeAccount.profile.userDecryptionOptions?.hasMasterPassword ?? true
-
-                if !hasMasterPassword {
-                    let biometricUnlockStatus = try await services.biometricsRepository.getBiometricUnlockStatus()
-                    if case .available(_, true, false) = biometricUnlockStatus {
-                        return .enterpriseSingleSignOn(email: activeAccount.profile.email)
-                    }
-                }
                 return .vaultUnlock(
                     activeAccount,
                     animated: animated,

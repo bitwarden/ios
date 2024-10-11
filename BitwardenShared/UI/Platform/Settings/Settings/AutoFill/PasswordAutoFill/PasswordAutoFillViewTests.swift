@@ -73,6 +73,7 @@ class PasswordAutoFillViewTests: BitwardenTestCase {
                 .portrait(heightMultiple: 1.2),
                 .portraitDark(heightMultiple: 1.2),
                 .tallPortraitAX5(heightMultiple: 2.2),
+                .defaultLandscape,
             ]
         )
     }
@@ -89,6 +90,7 @@ class PasswordAutoFillViewTests: BitwardenTestCase {
                 .portrait(heightMultiple: 1.2),
                 .portraitDark(heightMultiple: 1.2),
                 .tallPortraitAX5(heightMultiple: 3),
+                .defaultLandscape,
             ]
         )
     }

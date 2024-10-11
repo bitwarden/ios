@@ -54,6 +54,22 @@ class AppSettingsStoreTests: BitwardenTestCase { // swiftlint:disable:this type_
         XCTAssertEqual(userDefaults.integer(forKey: "bwPreferencesStorage:accountSetupAutofill_2"), 2)
     }
 
+    /// `accountSetupImportLogins(userId:)` returns `nil` if there isn't a previously stored value.
+    func test_accountSetupImportLogins_isInitiallyNil() {
+        XCTAssertNil(subject.accountSetupImportLogins(userId: "-1"))
+    }
+
+    /// `accountSetupImportLogins(userId:)` can be used to get the user's progress for import logins setup.
+    func test_accountSetupImportLogins_withValue() {
+        subject.setAccountSetupImportLogins(.setUpLater, userId: "1")
+        subject.setAccountSetupImportLogins(.complete, userId: "2")
+
+        XCTAssertEqual(subject.accountSetupImportLogins(userId: "1"), .setUpLater)
+        XCTAssertEqual(subject.accountSetupImportLogins(userId: "2"), .complete)
+        XCTAssertEqual(userDefaults.integer(forKey: "bwPreferencesStorage:accountSetupImportLogins_1"), 1)
+        XCTAssertEqual(userDefaults.integer(forKey: "bwPreferencesStorage:accountSetupImportLogins_2"), 2)
+    }
+
     /// `accountSetupVaultUnlock(userId:)` returns `nil` if there isn't a previously stored value.
     func test_accountSetupVaultUnlock_isInitiallyFalse() {
         XCTAssertNil(subject.accountSetupVaultUnlock(userId: "-1"))
@@ -152,42 +168,6 @@ class AppSettingsStoreTests: BitwardenTestCase { // swiftlint:disable:this type_
         subject.appTheme = nil
         XCTAssertNil(subject.appTheme)
         XCTAssertNil(userDefaults.string(forKey: "bwPreferencesStorage:theme"))
-    }
-
-    /// `biometricIntegrityState` returns nil if there is no previous value.
-    func test_biometricIntegrityState_isInitiallyNil() {
-        XCTAssertNil(subject.biometricIntegrityState(userId: "-1"))
-    }
-
-    /// `biometricIntegrityState` returns nil if there is no previous value.
-    func test_biometricIntegrityState_withValue() {
-        subject.setBiometricIntegrityState("state1", userId: "0")
-        subject.setBiometricIntegrityState("state2", userId: "1")
-
-        XCTAssertEqual("state1", subject.biometricIntegrityState(userId: "0"))
-        XCTAssertEqual("state2", subject.biometricIntegrityState(userId: "1"))
-
-        subject.setBiometricIntegrityState("state3", userId: "0")
-        subject.setBiometricIntegrityState("state4", userId: "1")
-
-        XCTAssertEqual("state3", subject.biometricIntegrityState(userId: "0"))
-        XCTAssertEqual("state4", subject.biometricIntegrityState(userId: "1"))
-    }
-
-    /// `biometricIntegrityStateLegacy` returns `nil` if there isn't a previously stored value.
-    func test_biometricIntegrityStateLegacy_isInitiallyNil() {
-        XCTAssertNil(subject.biometricIntegrityStateLegacy)
-    }
-
-    /// `biometricIntegrityStateLegacy` can be used to get and set the value.
-    func test_biometricIntegrityStateLegacy_withValue() {
-        subject.biometricIntegrityStateLegacy = "1"
-        XCTAssertEqual(subject.biometricIntegrityStateLegacy, "1")
-        XCTAssertEqual(userDefaults.string(forKey: "bwPreferencesStorage:biometricIntegritySource"), "1")
-
-        subject.biometricIntegrityStateLegacy = nil
-        XCTAssertNil(subject.biometricIntegrityStateLegacy)
-        XCTAssertNil(userDefaults.string(forKey: "bwPreferencesStorage:biometricIntegritySource"))
     }
 
     /// `clearClipboardValue(userId:)` returns `.never` if there isn't a previously stored value.

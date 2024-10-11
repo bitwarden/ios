@@ -45,7 +45,7 @@ class VaultUnlockSetupHelperTests: BitwardenTestCase {
 
     /// `setBiometricUnlock()` successfully disables biometric unlock.
     func test_setBiometricUnlock_disable() async {
-        let disabledStatus = BiometricsUnlockStatus.available(.faceID, enabled: false, hasValidIntegrity: false)
+        let disabledStatus = BiometricsUnlockStatus.available(.faceID, enabled: false)
         biometricsRepository.biometricUnlockStatus = .success(disabledStatus)
 
         var alertsShown = [Alert]()
@@ -60,7 +60,7 @@ class VaultUnlockSetupHelperTests: BitwardenTestCase {
 
     /// `setBiometricUnlock()` successfully enables biometric unlock.
     func test_setBiometricUnlock_enable() async {
-        let enabledStatus = BiometricsUnlockStatus.available(.faceID, enabled: true, hasValidIntegrity: true)
+        let enabledStatus = BiometricsUnlockStatus.available(.faceID, enabled: true)
         biometricsRepository.biometricUnlockStatus = .success(enabledStatus)
 
         var alertsShown = [Alert]()
@@ -75,7 +75,7 @@ class VaultUnlockSetupHelperTests: BitwardenTestCase {
 
     /// `setBiometricUnlock()` shows an alert and logs an error if setting biometric unlock fails.
     func test_setBiometricUnlock_allowBiometricUnlockFailure() async {
-        let unlockStatus = BiometricsUnlockStatus.available(.faceID, enabled: true, hasValidIntegrity: true)
+        let unlockStatus = BiometricsUnlockStatus.available(.faceID, enabled: true)
         authRepository.allowBiometricUnlockResult = .failure(BitwardenTestError.example)
         biometricsRepository.biometricUnlockStatus = .success(unlockStatus)
 

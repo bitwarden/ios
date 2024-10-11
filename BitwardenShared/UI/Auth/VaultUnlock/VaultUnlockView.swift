@@ -71,12 +71,6 @@ struct VaultUnlockView: View {
                         .styleGuide(.footnote)
                         .foregroundColor(Asset.Colors.textSecondary.swiftUIColor)
                         .accessibilityIdentifier("UserAndEnvironmentDataLabel")
-
-                    if store.state.isBiometricsEnabledAndInvalid {
-                        Text(Localizations.accountBiometricInvalidatedExtension)
-                            .styleGuide(.body, weight: .bold)
-                            .foregroundColor(Asset.Colors.error.swiftUIColor)
-                    }
                 }
 
                 biometricAuthButton
@@ -113,7 +107,7 @@ struct VaultUnlockView: View {
 
     /// A button to trigger a biometric auth unlock.
     @ViewBuilder private var biometricAuthButton: some View {
-        if case let .available(biometryType, true, true) = store.state.biometricUnlockStatus {
+        if case let .available(biometryType, true) = store.state.biometricUnlockStatus {
             AsyncButton {
                 Task { await store.perform(.unlockVaultWithBiometrics) }
             } label: {
@@ -247,28 +241,6 @@ struct VaultUnlockView: View {
                     state: VaultUnlockState(
                         email: "user@bitwarden.com",
                         profileSwitcherState: .singleAccount,
-                        unlockMethod: .password,
-                        webVaultHost: "vault.bitwarden.com"
-                    )
-                )
-            )
-        )
-    }
-}
-
-#Preview("Biometrics Available/Enabled") {
-    NavigationView {
-        VaultUnlockView(
-            store: Store(
-                processor: StateProcessor(
-                    state: VaultUnlockState(
-                        biometricUnlockStatus: .available(
-                            .faceID,
-                            enabled: true,
-                            hasValidIntegrity: false
-                        ),
-                        email: "user@bitwarden.com",
-                        profileSwitcherState: .empty(),
                         unlockMethod: .password,
                         webVaultHost: "vault.bitwarden.com"
                     )

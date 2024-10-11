@@ -948,7 +948,6 @@ extension DefaultAuthRepository: AuthRepository {
             break
         }
 
-        try await configureBiometricUnlockIfRequired(method: method)
         try await configurePinUnlockIfNeeded(method: method)
 
         _ = try await trustDeviceService.trustDeviceIfNeeded()
@@ -1015,31 +1014,6 @@ extension DefaultAuthRepository: AuthRepository {
     private func userIdOrActive(_ maybeId: String?) async throws -> String {
         if let maybeId { return maybeId }
         return try await stateService.getActiveAccountId()
-    }
-
-    /// This method checks the biometric unlock status, and if biometric unlock is available but not
-    /// fully configured (i.e., it doesn't have a valid integrity), it sets up biometric integrity and configures
-    /// the biometric unlock key.
-    ///
-    /// - Parameter method: The unlocking `InitUserCryptoMethod` method.
-    /// - Throws: An error if configuring biometric integrity or setting the biometric unlock key fails.
-    ///
-    private func configureBiometricUnlockIfRequired(method: InitUserCryptoMethod) async throws {
-        switch method {
-        case .authRequest,
-             .decryptedKey:
-            break
-        case .deviceKey,
-             .keyConnector,
-             .password,
-             .pin:
-            if case .available(_, true, false) = try? await biometricsRepository.getBiometricUnlockStatus() {
-                try await biometricsRepository.configureBiometricIntegrity()
-                try await biometricsRepository.setBiometricUnlockKey(
-                    authKey: clientService.crypto().getUserEncryptionKey()
-                )
-            }
-        }
     }
 
     /// Configures PIN unlock if the user requires master password or biometrics after an app restart.

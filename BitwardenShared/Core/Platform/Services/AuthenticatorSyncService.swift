@@ -25,10 +25,10 @@ actor DefaultAuthenticatorSyncService: NSObject, AuthenticatorSyncService {
     private let authBridgeItemService: AuthenticatorBridgeItemService
 
     /// The Tasks listening for Cipher updates (one for each user, indexed by the userId).
-    private var cipherPublisherTasks = [String: Task<Void, Error>?]()
+    private var cipherPublisherTasks = [String: Task<Void, Error>]()
 
     /// The service used to manage syncing and updates to the user's ciphers.
-    private let cipherService: CipherService
+    private let cipherDataStore: CipherDataStore
 
     /// The service that handles common client functionality such as encryption and decryption.
     private let clientService: ClientService
@@ -51,10 +51,6 @@ actor DefaultAuthenticatorSyncService: NSObject, AuthenticatorSyncService {
     /// The service used by the application to manage account state.
     private let stateService: StateService
 
-    /// a Task that subscribes to the sync setting publisher for accounts. This allows us to take action once
-    /// a user opts-in to Authenticator sync.
-    private var syncSettingSubscriberTask: Task<Void, Error>?
-
     /// The service used by the application to manage vault access.
     private let vaultTimeoutService: VaultTimeoutService
 
@@ -64,7 +60,7 @@ actor DefaultAuthenticatorSyncService: NSObject, AuthenticatorSyncService {
     ///
     /// - Parameters:
     ///   - authBridgeItemService: The service for managing sharing items to/from the Authenticator app.
-    ///   - cipherService: The service used to manage syncing and updates to the user's ciphers.
+    ///   - cipherDataStore: The service used to manage syncing and updates to the user's ciphers.
     ///   - clientService: The service that handles common client functionality such as encryption and decryption.
     ///   - configService: The service to get server-specified configuration.
     ///   - errorReporter: The service used by the application to report non-fatal errors.\ organizations.
@@ -76,7 +72,7 @@ actor DefaultAuthenticatorSyncService: NSObject, AuthenticatorSyncService {
     ///
     init(
         authBridgeItemService: AuthenticatorBridgeItemService,
-        cipherService: CipherService,
+        cipherDataStore: CipherDataStore,
         clientService: ClientService,
         configService: ConfigService,
         errorReporter: ErrorReporter,
@@ -86,7 +82,7 @@ actor DefaultAuthenticatorSyncService: NSObject, AuthenticatorSyncService {
         vaultTimeoutService: VaultTimeoutService
     ) {
         self.authBridgeItemService = authBridgeItemService
-        self.cipherService = cipherService
+        self.cipherDataStore = cipherDataStore
         self.clientService = clientService
         self.configService = configService
         self.errorReporter = errorReporter
@@ -102,9 +98,33 @@ actor DefaultAuthenticatorSyncService: NSObject, AuthenticatorSyncService {
     public func start() async {
         guard !started else { return }
         started = true
-        if await configService.getFeatureFlag(FeatureFlag.enableAuthenticatorSync,
-                                              defaultValue: false) {
-            subscribeToAppState()
+
+        guard await configService.getFeatureFlag(FeatureFlag.enableAuthenticatorSync,
+                                                 defaultValue: false) else {
+            return
+        }
+
+        Task {
+            for await (userId, _) in await self.stateService.syncToAuthenticatorPublisher().values {
+                guard let userId else { continue }
+
+                do {
+                    try await determineSyncForUserId(userId)
+                } catch {
+                    errorReporter.log(error: error)
+                }
+            }
+        }
+        Task {
+            for await vaultStatus in await self.vaultTimeoutService.vaultLockStatusPublisher().values {
+                guard let vaultStatus else { continue }
+
+                do {
+                    try await determineSyncForUserId(vaultStatus.userId)
+                } catch {
+                    errorReporter.log(error: error)
+                }
+            }
         }
     }
 
@@ -138,56 +158,53 @@ actor DefaultAuthenticatorSyncService: NSObject, AuthenticatorSyncService {
                 && cipher.login?.totp != nil
         }
         let decryptedCiphers = try await totpCiphers.asyncMap { cipher in
-            try await self.clientService.vault().ciphers().decrypt(cipher: cipher)
+            try await self.clientService.vault(for: userId).ciphers().decrypt(cipher: cipher)
         }
-        let account = try await stateService.getActiveAccount()
-        let username = account.profile.name ?? account.profile.email
+        let account = try? await stateService.getAccount(userId: userId)
 
         return decryptedCiphers.map { cipher in
             AuthenticatorBridgeItemDataView(
+                accountDomain: account?.settings.environmentUrls?.webVaultHost,
+                accountEmail: account?.profile.email,
                 favorite: false,
                 id: cipher.id ?? UUID().uuidString,
                 name: cipher.name,
                 totpKey: cipher.login?.totp,
-                username: username
+                username: cipher.login?.username
             )
         }
     }
 
-    /// This function handles the initial syncing with the Authenticator app as well as listening for updates
-    /// when the user adds new items. This is called when the sync is turned on.
+    /// If sync has been turned off for all accounts, delete the Authenticator key from the shared keychain.
     ///
-    /// - Parameter userId: The userId of the user who has turned on sync.
-    ///
-    private func handleSyncOnForUserId(_ userId: String) async {
-        guard !vaultTimeoutService.isLocked(userId: userId) else {
-            return
-        }
-
-        do {
-            try await createAuthenticatorKeyIfNeeded()
-        } catch {
-            errorReporter.log(error: error)
-        }
-        subscribeToCipherUpdates(userId: userId)
-    }
-
-    /// This function handles stopping sync and cleaning up all sync-related items when a user has turned sync Off.
-    ///
-    /// - Parameter userId: The userId of the user who has turned off sync.
-    ///
-    private func handleSyncOffForUserId(_ userId: String) {
-        cipherPublisherTasks[userId]??.cancel()
-        cipherPublisherTasks[userId] = nil
-    }
-
-    /// Subscribe to NotificationCenter updates about if the app is in the foreground vs. background.
-    ///
-    private func subscribeToAppState() {
-        Task {
-            for await _ in notificationCenterService.willEnterForegroundPublisher() {
-                subscribeToSyncToAuthenticatorSetting()
+    private func deleteKeyIfSyncingIsOff() async throws {
+        for account in try await stateService.getAccounts() {
+            let hasAccountWithSync = try await stateService.getSyncToAuthenticator(userId: account.profile.userId)
+            guard !hasAccountWithSync else {
+                return
             }
+        }
+        try sharedKeychainRepository.deleteAuthenticatorKey()
+    }
+
+    /// Determine if the given userId has sync turned on and an unlocked vault. This method serves as the
+    /// integration point of both the sync settings subscriber and the vault subscriber. When the user has sync turned
+    /// on and the vault unlocked, we can proceed with the sync.
+    ///
+    /// - Parameter userId: The userId of the user whose sync status is being determined.
+    ///
+    private func determineSyncForUserId(_ userId: String) async throws {
+        if try await !stateService.getSyncToAuthenticator(userId: userId) {
+            cipherPublisherTasks[userId]?.cancel()
+            cipherPublisherTasks.removeValue(forKey: userId)
+            try await authBridgeItemService.deleteAllForUserId(userId)
+            try await deleteKeyIfSyncingIsOff()
+        } else if vaultTimeoutService.isLocked(userId: userId) {
+            cipherPublisherTasks[userId]?.cancel()
+            cipherPublisherTasks.removeValue(forKey: userId)
+        } else {
+            try await createAuthenticatorKeyIfNeeded()
+            subscribeToCipherUpdates(userId: userId)
         }
     }
 
@@ -200,29 +217,11 @@ actor DefaultAuthenticatorSyncService: NSObject, AuthenticatorSyncService {
 
         cipherPublisherTasks[userId] = Task {
             do {
-                for try await ciphers in try await self.cipherService.ciphersPublisher().values {
+                for try await ciphers in self.cipherDataStore.cipherPublisher(userId: userId).values {
                     try await writeCiphers(ciphers: ciphers, userId: userId)
                 }
             } catch {
                 errorReporter.log(error: error)
-            }
-        }
-    }
-
-    /// Subscribe to the Sync to Authenticator setting to handle when the user grants (or revokes)
-    /// permission to sync items to the Authenticator app.
-    ///
-    private func subscribeToSyncToAuthenticatorSetting() {
-        syncSettingSubscriberTask?.cancel()
-        syncSettingSubscriberTask = Task {
-            for await (userId, shouldSync) in await self.stateService.syncToAuthenticatorPublisher().values {
-                guard let userId else { continue }
-
-                if shouldSync {
-                    await handleSyncOnForUserId(userId)
-                } else {
-                    handleSyncOffForUserId(userId)
-                }
             }
         }
     }
@@ -234,6 +233,8 @@ actor DefaultAuthenticatorSyncService: NSObject, AuthenticatorSyncService {
     ///   - userId: The userId of the account to which the Ciphers belong.
     ///
     private func writeCiphers(ciphers: [Cipher], userId: String) async throws {
+        guard !vaultTimeoutService.isLocked(userId: userId) else { return }
+
         let items = try await decryptTOTPs(ciphers, userId: userId)
         try await authBridgeItemService.replaceAllItems(with: items, forUserId: userId)
     }

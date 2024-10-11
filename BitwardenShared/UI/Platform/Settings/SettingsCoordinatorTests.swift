@@ -282,6 +282,14 @@ class SettingsCoordinatorTests: BitwardenTestCase {
         XCTAssertTrue(action.view is UIHostingController<VaultSettingsView>)
     }
 
+    /// `navigate(to:)` with `.vaultUnlockSetup` pushes the vault unlock setup screen.
+    @MainActor
+    func test_navigateTo_vaultUnlockSetup() throws {
+        subject.navigate(to: .vaultUnlockSetup)
+
+        XCTAssertEqual(module.authCoordinator.routes, [.vaultUnlockSetup(.settings)])
+    }
+
     /// `showLoadingOverlay()` and `hideLoadingOverlay()` can be used to show and hide the loading overlay.
     @MainActor
     func test_show_hide_loadingOverlay() throws {

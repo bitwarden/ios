@@ -99,11 +99,6 @@ class DefaultMigrationService {
             appSettingsStore.setLastSyncTime(nil, userId: accountId)
             appSettingsStore.setNotificationsLastRegistrationDate(nil, userId: accountId)
 
-            // Migrate biometrics integrity state.
-            if let biometricIntegrityState = appSettingsStore.biometricIntegrityStateLegacy {
-                appSettingsStore.setBiometricIntegrityState(biometricIntegrityState, userId: accountId)
-            }
-
             // Migrate tokens to Keychain.
             let tokens = account._tokens
             state.accounts[accountId]?._tokens = nil
@@ -112,8 +107,6 @@ class DefaultMigrationService {
             try await keychainRepository.setAccessToken(tokens.accessToken, userId: accountId)
             try await keychainRepository.setRefreshToken(tokens.refreshToken, userId: accountId)
         }
-
-        appSettingsStore.biometricIntegrityStateLegacy = nil
     }
 
     /// Performs migration 2.
@@ -178,39 +171,38 @@ class DefaultMigrationService {
     /// Performs migration 3.
     ///
     /// Notes:
-    ///   - Migrates the integrity state values for the extensions to the new key values.
+    ///   - Previously this migrated the MAUI integrity state values to the native key format.
+    ///     Since that's been removed, this just removes the MAUI integrity state values.
     ///
     private func performMigration3() async throws {
-        defer {
-            // Remove the previous values.
-            appGroupUserDefaults.removeObject(forKey: "bwPreferencesStorage:iOSAutoFillBiometricIntegritySource")
-            appGroupUserDefaults.removeObject(forKey: "bwPreferencesStorage:iOSExtensionBiometricIntegritySource")
-            appGroupUserDefaults.removeObject(forKey: "bwPreferencesStorage:iOSShareExtensionBiometricIntegritySource")
-        }
+        appGroupUserDefaults.removeObject(forKey: "bwPreferencesStorage:biometricIntegritySource")
+        appGroupUserDefaults.removeObject(forKey: "bwPreferencesStorage:iOSAutoFillBiometricIntegritySource")
+        appGroupUserDefaults.removeObject(forKey: "bwPreferencesStorage:iOSExtensionBiometricIntegritySource")
+        appGroupUserDefaults.removeObject(forKey: "bwPreferencesStorage:iOSShareExtensionBiometricIntegritySource")
+    }
 
+    /// Performs migration 4.
+    ///
+    /// Notes:
+    ///   - Removes the integrity state values.
+    ///
+    private func performMigration4() async throws {
         guard let state = appSettingsStore.state else { return }
 
         for (accountId, _) in state.accounts {
-            func migrateIntegrityState(previousKey: String, newKey: String) {
-                // Don't migrate the key if a new value is set.
-                guard appGroupUserDefaults.string(forKey: newKey) == nil else { return }
-                let previousValue = appGroupUserDefaults.string(forKey: previousKey)
-                appGroupUserDefaults.set(previousValue, forKey: newKey)
-            }
-
             let appIdentifier = Bundle.main.appIdentifier
-            migrateIntegrityState(
-                previousKey: "bwPreferencesStorage:iOSAutoFillBiometricIntegritySource",
-                newKey: "bwPreferencesStorage:biometricIntegritySource_\(accountId)_\(appIdentifier).autofill"
+            appGroupUserDefaults.removeObject(
+                forKey: "bwPreferencesStorage:biometricIntegritySource_\(accountId)_\(appIdentifier)"
             )
-            migrateIntegrityState(
-                previousKey: "bwPreferencesStorage:iOSExtensionBiometricIntegritySource",
-                newKey: "bwPreferencesStorage:biometricIntegritySource_\(accountId)_\(appIdentifier).find-login-action-extension"
+            appGroupUserDefaults.removeObject(
+                forKey: "bwPreferencesStorage:biometricIntegritySource_\(accountId)_\(appIdentifier).autofill"
+            )
+            appGroupUserDefaults.removeObject(
+                forKey: "bwPreferencesStorage:biometricIntegritySource_\(accountId)_\(appIdentifier).find-login-action-extension"
                 // swiftlint:disable:previous line_length
             )
-            migrateIntegrityState(
-                previousKey: "bwPreferencesStorage:iOSShareExtensionBiometricIntegritySource",
-                newKey: "bwPreferencesStorage:biometricIntegritySource_\(accountId)_\(appIdentifier).share-extension"
+            appGroupUserDefaults.removeObject(
+                forKey: "bwPreferencesStorage:biometricIntegritySource_\(accountId)_\(appIdentifier).share-extension"
             )
         }
     }
@@ -223,6 +215,7 @@ extension DefaultMigrationService {
             performMigration1,
             performMigration2,
             performMigration3,
+            performMigration4,
         ]
     }
 

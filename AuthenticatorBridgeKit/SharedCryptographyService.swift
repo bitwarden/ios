@@ -62,6 +62,8 @@ public class DefaultAuthenticatorCryptographyService: SharedCryptographyService 
 
         return items.map { item in
             AuthenticatorBridgeItemDataView(
+                accountDomain: (try? decrypt(item.accountDomain, withKey: symmetricKey)) ?? "",
+                accountEmail: (try? decrypt(item.accountEmail, withKey: symmetricKey)) ?? "",
                 favorite: item.favorite,
                 id: item.id,
                 name: (try? decrypt(item.name, withKey: symmetricKey)) ?? "",
@@ -79,6 +81,8 @@ public class DefaultAuthenticatorCryptographyService: SharedCryptographyService 
 
         return items.map { item in
             AuthenticatorBridgeItemDataModel(
+                accountDomain: encrypt(item.accountDomain, withKey: symmetricKey) ?? "",
+                accountEmail: encrypt(item.accountEmail, withKey: symmetricKey) ?? "",
                 favorite: item.favorite,
                 id: item.id,
                 name: encrypt(item.name, withKey: symmetricKey) ?? "",
