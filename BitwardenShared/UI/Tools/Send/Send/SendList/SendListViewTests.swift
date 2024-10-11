@@ -65,109 +65,37 @@ class SendListViewTests: BitwardenTestCase {
 
     /// The view renders correctly when there are no items.
     @MainActor
-    func test_snapshot_empty_light() {
+    func test_snapshot_empty() {
         processor.state = .empty
-        assertSnapshot(of: subject, as: .defaultPortrait)
-    }
-
-    /// The view renders in dark mode correctly when there are no items.
-    @MainActor
-    func test_snapshot_empty_dark() {
-        processor.state = .empty
-        assertSnapshot(of: subject, as: .defaultPortraitDark)
-    }
-
-    /// The view renders in large accessibility sizes correctly when there are no items.
-    @MainActor
-    func test_snapshot_empty_ax5() {
-        processor.state = .empty
-        assertSnapshot(of: subject, as: .defaultPortraitAX5)
+        assertSnapshots(of: subject, as: [.defaultPortrait, .defaultLandscape, .defaultPortraitAX5])
     }
 
     /// The view renders correctly when the search results are empty.
     @MainActor
-    func test_snapshot_search_empty_light() {
+    func test_snapshot_search_empty() {
         processor.state.searchResults = []
         processor.state.searchText = "Searching"
-        assertSnapshot(of: subject, as: .defaultPortrait)
-    }
-
-    /// The view renders in dark mode correctly when the search results are empty.
-    @MainActor
-    func test_snapshot_search_empty_dark() {
-        processor.state.searchResults = []
-        processor.state.searchText = "Searching"
-        assertSnapshot(of: subject, as: .defaultPortraitDark)
-    }
-
-    /// The view renders in large accessibility correctly when the search results are empty.
-    @MainActor
-    func test_snapshot_search_empty_ax5() {
-        processor.state.searchResults = []
-        processor.state.searchText = "Searching"
-        assertSnapshot(of: subject, as: .defaultPortraitAX5)
+        assertSnapshots(of: subject, as: [.defaultPortrait, .defaultPortraitDark, .defaultPortraitAX5])
     }
 
     /// The view renders correctly when there are search results.
     @MainActor
-    func test_snapshot_search_results_light() {
+    func test_snapshot_search_results() {
         processor.state = .hasSearchResults
-        assertSnapshot(of: subject, as: .defaultPortrait)
+        assertSnapshots(of: subject, as: [.defaultPortrait, .defaultPortraitDark, .defaultPortraitAX5])
     }
 
-    /// The view renders in dark mode correctly when there are search results.
+    /// The view renders correctly when there are sends.
     @MainActor
-    func test_snapshot_search_results_dark() {
-        processor.state = .hasSearchResults
-        assertSnapshot(of: subject, as: .defaultPortraitDark)
-    }
-
-    /// The view renders in large accessibility correctly when there are search results.
-    @MainActor
-    func test_snapshot_search_results_ax5() {
-        processor.state = .hasSearchResults
-        assertSnapshot(of: subject, as: .defaultPortraitAX5)
+    func test_snapshot_values() {
+        processor.state = .content
+        assertSnapshots(of: subject, as: [.defaultPortrait, .defaultPortraitDark, .defaultPortraitAX5])
     }
 
     /// The view renders in light mode correctly when there are sends.
     @MainActor
-    func test_snapshot_values_light() {
-        processor.state = .content
-        assertSnapshot(of: subject, as: .defaultPortrait)
-    }
-
-    /// The view renders in dark mode correctly when there are sends.
-    @MainActor
-    func test_snapshot_values_dark() {
-        processor.state = .content
-        assertSnapshot(of: subject, as: .defaultPortrait)
-    }
-
-    /// The view renders in large accessibility sizes correctly when there are sends.
-    @MainActor
-    func test_snapshot_values_ax5() {
-        processor.state = .content
-        assertSnapshot(of: subject, as: .defaultPortrait)
-    }
-
-    /// The view renders in light mode correctly when there are sends.
-    @MainActor
-    func test_snapshot_textValues_light() {
+    func test_snapshot_textValues() {
         processor.state = .contentTextType
-        assertSnapshot(of: subject, as: .defaultPortrait)
-    }
-
-    /// The view renders in dark mode correctly when there are sends.
-    @MainActor
-    func test_snapshot_textValues_dark() {
-        processor.state = .contentTextType
-        assertSnapshot(of: subject, as: .defaultPortraitDark)
-    }
-
-    /// The view renders in large accessibility sizes correctly when there are sends.
-    @MainActor
-    func test_snapshot_textValues_ax5() {
-        processor.state = .contentTextType
-        assertSnapshot(of: subject, as: .defaultPortraitAX5)
+        assertSnapshots(of: subject, as: [.defaultPortrait, .defaultPortraitDark, .defaultLandscape])
     }
 }
