@@ -100,7 +100,7 @@ struct ImportLoginsSuccessView: View {
 
 #if DEBUG
 #Preview {
-    ImportLoginsSuccessView(store: Store(processor: StateProcessor(state: ())))
+    ImportLoginsSuccessView(store: Store(processor: StateProcessor()))
         .navStackWrapped
 }
 #endif

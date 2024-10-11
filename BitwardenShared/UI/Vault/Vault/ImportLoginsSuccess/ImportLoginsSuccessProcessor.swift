@@ -16,7 +16,7 @@ class ImportLoginsSuccessProcessor: StateProcessor<Void, ImportLoginsSuccessActi
     ///
     init(coordinator: AnyCoordinator<VaultRoute, AuthAction>) {
         self.coordinator = coordinator
-        super.init(state: ())
+        super.init()
     }
 
     // MARK: Methods
