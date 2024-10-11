@@ -22,17 +22,15 @@ struct FloatingActionButton: View {
     var body: some View {
         Button(action: action) {
             image
-                .resizable()
                 .imageStyle(
                     .init(
                         color: Asset.Colors.buttonFilledForeground.swiftUIColor,
                         scaleWithFont: false,
-                        width: 32,
-                        height: 32
+                        width: 24,
+                        height: 24
                     )
                 )
         }
-        .frame(width: 50, height: 50)
         .buttonStyle(CircleButtonStyle())
     }
 }

@@ -27,7 +27,7 @@ struct CircleButtonStyle: ButtonStyle {
     func makeBody(configuration: Configuration) -> some View {
         configuration.label
             .foregroundColor(foregroundColor)
-            .padding(8)
+            .padding(12)
             .background(backgroundColor)
             .clipShape(Circle())
             .opacity(configuration.isPressed ? 0.5 : 1)
