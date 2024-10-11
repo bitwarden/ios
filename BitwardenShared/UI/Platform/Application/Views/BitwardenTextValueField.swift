@@ -62,7 +62,7 @@ struct BitwardenTextValueField<AccessoryContent>: View where AccessoryContent: V
         titleAccessibilityIdentifier: String? = "ItemName",
         value: String,
         valueAccessibilityIdentifier: String? = "ItemValue",
-        textSelectionEnabled: Bool = false,
+        textSelectionEnabled: Bool = true,
         @ViewBuilder accessoryContent: () -> AccessoryContent
     ) {
         self.textSelectionEnabled = textSelectionEnabled
@@ -92,7 +92,7 @@ extension BitwardenTextValueField where AccessoryContent == EmptyView {
         titleAccessibilityIdentifier: String? = "ItemName",
         value: String,
         valueAccessibilityIdentifier: String? = "ItemValue",
-        textSelectionEnabled: Bool = false
+        textSelectionEnabled: Bool = true
     ) {
         self.init(
             title: title,
