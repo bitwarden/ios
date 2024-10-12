@@ -72,26 +72,58 @@ private struct SearchableVaultListView: View {
         GeometryReader { reader in
             ScrollView {
                 VStack(spacing: 24) {
-                    vaultFilterRow
-                        .padding(.top, 16)
+                    Group {
+                        importLoginsActionCard
+
+                        vaultFilterRow
+                    }
+                    .padding(.top, 16)
 
                     Spacer()
 
-                    Text(Localizations.noItems)
-                        .multilineTextAlignment(.center)
-                        .styleGuide(.callout)
-                        .foregroundColor(Asset.Colors.textPrimary.swiftUIColor)
+                    PageHeaderView(
+                        image: Asset.Images.items,
+                        title: Localizations.saveAndProtectYourData,
+                        message: Localizations
+                            .theVaultProtectsMoreThanJustPasswordsStoreSecureLoginsIdsCardsAndNotesSecurelyHere
+                    )
+                    .padding(.horizontal, 16)
 
-                    Button(Localizations.addAnItem) {
+                    Button {
                         store.send(.addItemPressed)
+                    } label: {
+                        HStack {
+                            Image(decorative: Asset.Images.plus)
+                                .resizable()
+                                .frame(width: 16, height: 16)
+                            Text(Localizations.newLogin)
+                        }
+                        .padding(.horizontal, 24)
                     }
-                    .buttonStyle(.tertiary())
+                    .buttonStyle(.primary(shouldFillWidth: false))
 
                     Spacer()
                 }
+                .animation(.easeInOut, value: store.state.importLoginsSetupProgress == .complete)
                 .padding(.horizontal, 16)
                 .frame(minHeight: reader.size.height)
             }
+        }
+    }
+
+    /// The action card for importing login items.
+    @ViewBuilder private var importLoginsActionCard: some View {
+        if store.state.shouldShowImportLoginsActionCard {
+            ActionCard(
+                title: Localizations.importSavedLogins,
+                message: Localizations.importSavedLoginsDescriptionLong,
+                actionButtonState: ActionCard.ButtonState(title: Localizations.getStarted) {
+                    store.send(.showImportLogins)
+                },
+                dismissButtonState: ActionCard.ButtonState(title: Localizations.dismiss) {
+                    await store.perform(.dismissImportLoginsActionCard)
+                }
+            )
         }
     }
 
@@ -303,6 +335,9 @@ struct VaultListView: View {
             await store.perform(.appeared)
         }
         .task {
+            await store.perform(.streamAccountSetupProgress)
+        }
+        .task {
             await store.perform(.streamOrganizations)
         }
         .task {
@@ -396,6 +431,21 @@ struct VaultListView_Previews: PreviewProvider {
             )
         }
         .previewDisplayName("Empty")
+
+        NavigationView {
+            VaultListView(
+                store: Store(
+                    processor: StateProcessor(
+                        state: VaultListState(
+                            importLoginsSetupProgress: .incomplete,
+                            loadingState: .data([])
+                        )
+                    )
+                ),
+                timeProvider: PreviewTimeProvider()
+            )
+        }
+        .previewDisplayName("Empty - Import Logins")
 
         NavigationView {
             VaultListView(

@@ -60,6 +60,13 @@ protocol StateService: AnyObject {
     ///
     func getAccountSetupAutofill(userId: String) async -> AccountSetupProgress?
 
+    /// Gets the user's progress for importing logins.
+    ///
+    /// - Parameter userId: The user ID associated with the import logins setup progress.
+    /// - Returns: The user's import logins setup progress.
+    ///
+    func getAccountSetupImportLogins(userId: String) async -> AccountSetupProgress?
+
     /// Gets the user's progress for setting up vault unlock.
     ///
     /// - Parameter userId: The user ID associated with the vault unlock setup progress.
@@ -118,12 +125,6 @@ protocol StateService: AnyObject {
     ///     If `false`, the device should not attempt biometric authentication for authorization events.
     ///
     func getBiometricAuthenticationEnabled() async throws -> Bool
-
-    /// Gets the BiometricIntegrityState for the active user.
-    ///
-    /// - Returns: An optional base64 string encoding of the BiometricIntegrityState `Data` as last stored for the user.
-    ///
-    func getBiometricIntegrityState() async throws -> String?
 
     /// Gets the clear clipboard value for an account.
     ///
@@ -377,6 +378,14 @@ protocol StateService: AnyObject {
     ///
     func setAccountSetupAutofill(_ autofillSetup: AccountSetupProgress?, userId: String?) async throws
 
+    /// Sets the user's progress for setting up import logins.
+    ///
+    /// - Parameters:
+    ///   - importLogins: The user's import logins setup progress.
+    ///   - userId: The user ID associated with the import logins setup progress.
+    ///
+    func setAccountSetupImportLogins(_ importLogins: AccountSetupProgress?, userId: String?) async throws
+
     /// Sets the user's progress for setting up vault unlock.
     ///
     /// - Parameters:
@@ -418,12 +427,6 @@ protocol StateService: AnyObject {
     ///     If `false`, the device should not attempt biometric authentication for authorization events.
     ///
     func setBiometricAuthenticationEnabled(_ isEnabled: Bool?) async throws
-
-    /// Sets the BiometricIntegrityState for the active user.
-    ///
-    /// - Parameter base64State: A base64 string encoding of the BiometricIntegrityState `Data`.
-    ///
-    func setBiometricIntegrityState(_ base64State: String?) async throws
 
     /// Sets the clear clipboard value for an account.
     ///
@@ -728,6 +731,14 @@ extension StateService {
         try await getAccountSetupAutofill(userId: getActiveAccountId())
     }
 
+    /// Gets the active user's progress for importing logins.
+    ///
+    /// - Returns: The user's import logins setup progress.
+    ///
+    func getAccountSetupImportLogins() async throws -> AccountSetupProgress? {
+        try await getAccountSetupImportLogins(userId: getActiveAccountId())
+    }
+
     /// Gets the active user's progress for setting up vault unlock.
     ///
     /// - Returns: The user's vault unlock setup progress.
@@ -968,6 +979,14 @@ extension StateService {
         try await setAccountSetupAutofill(autofillSetup, userId: nil)
     }
 
+    /// Sets the active user's progress for importing logins.
+    ///
+    /// - Parameter importLogins: The user's import logins progress.
+    ///
+    func setAccountSetupImportLogins(_ importLogins: AccountSetupProgress?) async throws {
+        try await setAccountSetupImportLogins(importLogins, userId: nil)
+    }
+
     /// Sets the active user's progress for setting up vault unlock.
     ///
     /// - Parameter vaultUnlockSetup: The user's vault unlock setup progress.
@@ -1200,11 +1219,13 @@ actor DefaultStateService: StateService { // swiftlint:disable:this type_body_le
     /// - Parameters:
     ///  - appSettingsStore: The service that persists app settings.
     ///  - dataStore: The data store that handles performing data requests.
+    ///  - errorReporter: The service used by the application to report non-fatal errors.
     ///  - keychainRepository: A service used to access data in the keychain.
     ///
     init(
         appSettingsStore: AppSettingsStore,
         dataStore: DataStore,
+        errorReporter: ErrorReporter,
         keychainRepository: KeychainRepository
     ) {
         self.appSettingsStore = appSettingsStore
@@ -1213,6 +1234,12 @@ actor DefaultStateService: StateService { // swiftlint:disable:this type_body_le
 
         appThemeSubject = CurrentValueSubject(AppTheme(appSettingsStore.appTheme))
         showWebIconsSubject = CurrentValueSubject(!appSettingsStore.disableWebIcons)
+
+        Task {
+            for await activeUserId in self.appSettingsStore.activeAccountIdPublisher().values {
+                errorReporter.setUserId(activeUserId)
+            }
+        }
     }
 
     // MARK: Methods
@@ -1279,6 +1306,10 @@ actor DefaultStateService: StateService { // swiftlint:disable:this type_body_le
 
     func getAccountSetupAutofill(userId: String) async -> AccountSetupProgress? {
         appSettingsStore.accountSetupAutofill(userId: userId)
+    }
+
+    func getAccountSetupImportLogins(userId: String) async -> AccountSetupProgress? {
+        appSettingsStore.accountSetupImportLogins(userId: userId)
     }
 
     func getAccountSetupVaultUnlock(userId: String) async -> AccountSetupProgress? {
@@ -1486,7 +1517,6 @@ actor DefaultStateService: StateService { // swiftlint:disable:this type_body_le
         }
 
         appSettingsStore.setBiometricAuthenticationEnabled(nil, for: knownUserId)
-        appSettingsStore.setBiometricIntegrityState(nil, userId: knownUserId)
         appSettingsStore.setDefaultUriMatchType(nil, userId: knownUserId)
         appSettingsStore.setDisableAutoTotpCopy(nil, userId: knownUserId)
         appSettingsStore.setEncryptedPrivateKey(key: nil, userId: knownUserId)
@@ -1520,6 +1550,12 @@ actor DefaultStateService: StateService { // swiftlint:disable:this type_body_le
     func setAccountSetupAutofill(_ autofillSetup: AccountSetupProgress?, userId: String?) async throws {
         let userId = try userId ?? getActiveAccountUserId()
         appSettingsStore.setAccountSetupAutofill(autofillSetup, userId: userId)
+        await updateSettingsBadgePublisher(userId: userId)
+    }
+
+    func setAccountSetupImportLogins(_ importLogins: AccountSetupProgress?, userId: String?) async throws {
+        let userId = try userId ?? getActiveAccountUserId()
+        appSettingsStore.setAccountSetupImportLogins(importLogins, userId: userId)
         await updateSettingsBadgePublisher(userId: userId)
     }
 
@@ -1812,6 +1848,7 @@ actor DefaultStateService: StateService { // swiftlint:disable:this type_body_le
     ///
     private func updateSettingsBadgePublisher(userId: String) async {
         let autofillSetupProgress = await getAccountSetupAutofill(userId: userId)
+        let importLoginsSetupProgress = await getAccountSetupImportLogins(userId: userId)
         let vaultUnlockSetupProgress = await getAccountSetupVaultUnlock(userId: userId)
         let badgeCount = [autofillSetupProgress, vaultUnlockSetupProgress]
             .compactMap { $0 }
@@ -1820,6 +1857,7 @@ actor DefaultStateService: StateService { // swiftlint:disable:this type_body_le
         settingsBadgeByUserIdSubject.value[userId] = SettingsBadgeState(
             autofillSetupProgress: autofillSetupProgress,
             badgeValue: badgeCount > 0 ? String(badgeCount) : nil,
+            importLoginsSetupProgress: importLoginsSetupProgress,
             vaultUnlockSetupProgress: vaultUnlockSetupProgress
         )
     }
@@ -1845,18 +1883,8 @@ extension DefaultStateService {
         return appSettingsStore.isBiometricAuthenticationEnabled(userId: userId)
     }
 
-    func getBiometricIntegrityState() async throws -> String? {
-        let userId = try getActiveAccountUserId()
-        return appSettingsStore.biometricIntegrityState(userId: userId)
-    }
-
     func setBiometricAuthenticationEnabled(_ isEnabled: Bool?) async throws {
         let userId = try getActiveAccountUserId()
         appSettingsStore.setBiometricAuthenticationEnabled(isEnabled, for: userId)
-    }
-
-    func setBiometricIntegrityState(_ base64State: String?) async throws {
-        let userId = try getActiveAccountUserId()
-        appSettingsStore.setBiometricIntegrityState(base64State, userId: userId)
     }
 }

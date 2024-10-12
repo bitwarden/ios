@@ -406,7 +406,7 @@ class ViewItemViewTests: BitwardenTestCase { // swiftlint:disable:this type_body
     @MainActor
     func test_snapshot_previews_sshKey() {
         assertSnapshot(
-            matching: ViewItemView_Previews.sshKeyPreview,
+            of: ViewItemView_Previews.sshKeyPreview,
             as: .tallPortrait
         )
     }

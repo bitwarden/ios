@@ -21,6 +21,9 @@ struct PasswordAutoFillView: View {
     /// An object used to open urls from this view.
     @Environment(\.openURL) private var openURL
 
+    /// An environment variable for getting the vertical size class of the view.
+    @Environment(\.verticalSizeClass) var verticalSizeClass
+
     // MARK: View
 
     var body: some View {
@@ -48,22 +51,25 @@ struct PasswordAutoFillView: View {
     /// The content view.
     private var contentView: some View {
         VStack(spacing: 0) {
-            ZStack {
-                gifViewPlaceholder
+            dynamicStackView {
+                ZStack {
+                    gifViewPlaceholder
 
-                gifView
+                    gifView
+                }
+                .frame(width: 230, height: 278)
+
+                VStack(spacing: 16) {
+                    Text(Localizations.turnOnAutoFill)
+                        .styleGuide(.title2, weight: .bold)
+
+                    Text(Localizations.useAutoFillToLogIntoYourAccountsWithASingleTap)
+                        .styleGuide(.body)
+                        .multilineTextAlignment(.center)
+                }
             }
-            .frame(width: 230, height: 278)
             .padding(.top, 32)
-
-            Text(Localizations.turnOnAutoFill)
-                .styleGuide(.title2, weight: .bold)
-                .padding(.top, 32)
-
-            Text(Localizations.useAutoFillToLogIntoYourAccountsWithASingleTap)
-                .styleGuide(.body)
-                .multilineTextAlignment(.center)
-                .padding([.top, .horizontal], 16)
+            .padding(.horizontal, 16)
 
             autofillInstructions
                 .padding(.top, 32)
@@ -229,6 +235,18 @@ struct PasswordAutoFillView: View {
             .foregroundStyle(Asset.Colors.textPrimary.swiftUIColor)
             .multilineTextAlignment(.center)
             .frame(maxWidth: .infinity)
+    }
+
+    /// A dynamic stack view that lays out content vertically when in a regular vertical size class
+    /// and horizontally for the compact vertical size class.
+    @ViewBuilder
+    private func dynamicStackView(@ViewBuilder content: () -> some View) -> some View {
+        if verticalSizeClass == .regular {
+            VStack(spacing: 32, content: content)
+        } else {
+            HStack(spacing: 32, content: content)
+                .padding(.horizontal, 80)
+        }
     }
 }
 

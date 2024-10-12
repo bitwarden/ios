@@ -15,4 +15,14 @@ public protocol ErrorReporter: AnyObject, AuthenticatorBridgeKit.ErrorReporter {
     /// - Parameter error: The error to log.
     ///
     func log(error: Error)
+
+    /// Sets the current region the user is on.
+    /// - Parameters:
+    ///   - region: Region the user is on (US, EU, SelfHosted).
+    ///   - isPreAuth: Whether this region is being used pre authentication or when already authenticated.
+    func setRegion(_ region: String, isPreAuth: Bool)
+
+    /// Sets the current user iD to attach to errors.
+    /// - Parameter userId: User ID to attach.
+    func setUserId(_ userId: String?)
 }

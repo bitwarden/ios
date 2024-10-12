@@ -30,7 +30,7 @@ class VaultUnlockSetupProcessorTests: BitwardenTestCase {
                 errorReporter: errorReporter,
                 stateService: stateService
             ),
-            state: VaultUnlockSetupState(),
+            state: VaultUnlockSetupState(accountSetupFlow: .createAccount),
             vaultUnlockSetupHelper: vaultUnlockSetupHelper
         )
     }
@@ -48,9 +48,9 @@ class VaultUnlockSetupProcessorTests: BitwardenTestCase {
 
     // MARK: Tests
 
-    /// `perform(_:)` with `.continueFlow` navigates to autofill setup.
+    /// `perform(_:)` with `.continueFlow` navigates to autofill setup when in the create account flow.
     @MainActor
-    func test_perform_continueFlow() async {
+    func test_perform_continueFlow_createAccount() async {
         stateService.activeAccount = .fixture()
 
         await subject.perform(.continueFlow)
@@ -69,10 +69,22 @@ class VaultUnlockSetupProcessorTests: BitwardenTestCase {
         XCTAssertEqual(errorReporter.errors as? [StateServiceError], [.noActiveAccount])
     }
 
+    /// `perform(_:)` with `.continueFlow` dismisses the view when in the settings flow.
+    @MainActor
+    func test_perform_continueFlow_settings() async {
+        subject.state.accountSetupFlow = .settings
+        stateService.activeAccount = .fixture()
+
+        await subject.perform(.continueFlow)
+
+        XCTAssertEqual(coordinator.routes, [.dismiss])
+        XCTAssertEqual(stateService.accountSetupVaultUnlock["1"], .complete)
+    }
+
     /// `perform(_:)` with `.loadData` fetches the biometrics unlock status.
     @MainActor
     func test_perform_loadData() async {
-        let status = BiometricsUnlockStatus.available(.faceID, enabled: false, hasValidIntegrity: false)
+        let status = BiometricsUnlockStatus.available(.faceID, enabled: false)
         biometricsRepository.biometricUnlockStatus = .success(status)
 
         await subject.perform(.loadData)
@@ -108,7 +120,7 @@ class VaultUnlockSetupProcessorTests: BitwardenTestCase {
     /// `perform(_:)` with `.loadData` fetches the biometrics unlock status for a device with Touch ID.
     @MainActor
     func test_perform_loadData_touchID() async {
-        let status = BiometricsUnlockStatus.available(.touchID, enabled: false, hasValidIntegrity: false)
+        let status = BiometricsUnlockStatus.available(.touchID, enabled: false)
         biometricsRepository.biometricUnlockStatus = .success(status)
 
         await subject.perform(.loadData)
@@ -120,11 +132,10 @@ class VaultUnlockSetupProcessorTests: BitwardenTestCase {
     /// `perform(_:)` with `.toggleUnlockMethod` disables biometrics unlock and updates the state.
     @MainActor
     func test_perform_toggleUnlockMethod_biometrics_disable() async {
-        subject.state.biometricsStatus = .available(.faceID, enabled: true, hasValidIntegrity: true)
+        subject.state.biometricsStatus = .available(.faceID, enabled: true)
         vaultUnlockSetupHelper.setBiometricUnlockStatus = .available(
             .faceID,
-            enabled: false,
-            hasValidIntegrity: false
+            enabled: false
         )
 
         await subject.perform(.toggleUnlockMethod(.biometrics(.faceID), newValue: false))
@@ -138,8 +149,7 @@ class VaultUnlockSetupProcessorTests: BitwardenTestCase {
     func test_perform_toggleUnlockMethod_biometrics_enable() async {
         vaultUnlockSetupHelper.setBiometricUnlockStatus = .available(
             .faceID,
-            enabled: true,
-            hasValidIntegrity: true
+            enabled: true
         )
 
         await subject.perform(.toggleUnlockMethod(.biometrics(.faceID), newValue: true))

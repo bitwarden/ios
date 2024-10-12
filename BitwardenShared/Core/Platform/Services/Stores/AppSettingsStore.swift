@@ -21,13 +21,6 @@ protocol AppSettingsStore: AnyObject {
     /// The app's theme.
     var appTheme: String? { get set }
 
-    /// The legacy system biometric integrity state `Data`, base64 encoded.
-    ///
-    /// NOTE: This is only used for migrating from the legacy app and isn't constrained to a
-    ///     specific user, `biometricIntegrityState(userId:)` should be used instead.
-    ///
-    var biometricIntegrityStateLegacy: String? { get set }
-
     /// Whether to disable the website icons.
     var disableWebIcons: Bool { get set }
 
@@ -66,6 +59,13 @@ protocol AppSettingsStore: AnyObject {
     ///
     func accountSetupAutofill(userId: String) -> AccountSetupProgress?
 
+    /// The user's progress for importing logins.
+    ///
+    /// - Parameter userId: The user ID associated with the stored import logins setup progress.
+    /// - Returns: The user's import logins setup progress.
+    ///
+    func accountSetupImportLogins(userId: String) -> AccountSetupProgress?
+
     /// The user's progress for setting up vault unlock.
     ///
     /// - Parameter userId: The user ID associated with the stored vault unlock setup progress.
@@ -80,14 +80,6 @@ protocol AppSettingsStore: AnyObject {
     /// - Returns: Whether the vault should sync on refreshing.
     ///
     func allowSyncOnRefresh(userId: String) -> Bool
-
-    /// The system biometric integrity state `Data`, base64 encoded.
-    ///
-    /// - Parameter userId: The user ID associated with the Biometric Integrity State.
-    /// - Returns: A base64 encoded `String`
-    ///  representing the last known Biometric Integrity State `Data` for the userID.
-    ///
-    func biometricIntegrityState(userId: String) -> String?
 
     /// Gets the time after which the clipboard should be cleared.
     ///
@@ -244,6 +236,14 @@ protocol AppSettingsStore: AnyObject {
     ///
     func setAccountSetupAutofill(_ autofillSetup: AccountSetupProgress?, userId: String)
 
+    /// Sets the user's progress for import logins setup.
+    ///
+    /// - Parameters:
+    ///   - autofillSetup: The user's import logins setup progress.
+    ///   - userId: The user ID associated with the stored import logins setup progress.
+    ///
+    func setAccountSetupImportLogins(_ importLoginsSetup: AccountSetupProgress?, userId: String)
+
     /// Sets the user's progress for vault unlock setup.
     ///
     /// - Parameters:
@@ -269,14 +269,6 @@ protocol AppSettingsStore: AnyObject {
     ///   - userId: The user ID associated with the biometric authentication preference.
     ///
     func setBiometricAuthenticationEnabled(_ isEnabled: Bool?, for userId: String)
-
-    /// Sets a biometric integrity state `Data` as a base64 encoded `String`.
-    ///
-    /// - Parameters:
-    ///   - base64EncodedIntegrityState: The biometric integrity state `Data`, encoded as a base64 `String`.
-    ///   - userId: The user ID associated with the Biometric Integrity State.
-    ///
-    func setBiometricIntegrityState(_ base64EncodedIntegrityState: String?, userId: String)
 
     /// Sets the time after which the clipboard should be cleared.
     ///
@@ -651,6 +643,7 @@ extension DefaultAppSettingsStore: AppSettingsStore {
     ///
     enum Keys {
         case accountSetupAutofill(userId: String)
+        case accountSetupImportLogins(userId: String)
         case accountSetupVaultUnlock(userId: String)
         case addSitePromptShown
         case allowSyncOnRefresh(userId: String)
@@ -658,8 +651,6 @@ extension DefaultAppSettingsStore: AppSettingsStore {
         case appLocale
         case appTheme
         case biometricAuthEnabled(userId: String)
-        case biometricIntegrityState(userId: String, bundleId: String)
-        case biometricIntegrityStateLegacy
         case clearClipboardValue(userId: String)
         case connectToWatch(userId: String)
         case debugFeatureFlag(name: String)
@@ -702,6 +693,8 @@ extension DefaultAppSettingsStore: AppSettingsStore {
             switch self {
             case let .accountSetupAutofill(userId):
                 key = "accountSetupAutofill_\(userId)"
+            case let .accountSetupImportLogins(userId):
+                key = "accountSetupImportLogins_\(userId)"
             case let .accountSetupVaultUnlock(userId):
                 key = "accountSetupVaultUnlock_\(userId)"
             case .addSitePromptShown:
@@ -716,10 +709,6 @@ extension DefaultAppSettingsStore: AppSettingsStore {
                 key = "theme"
             case let .biometricAuthEnabled(userId):
                 key = "biometricUnlock_\(userId)"
-            case let .biometricIntegrityState(userId, bundleId):
-                key = "biometricIntegritySource_\(userId)_\(bundleId)"
-            case .biometricIntegrityStateLegacy:
-                key = "biometricIntegritySource"
             case let .clearClipboardValue(userId):
                 key = "clearClipboard_\(userId)"
             case let .connectToWatch(userId):
@@ -815,11 +804,6 @@ extension DefaultAppSettingsStore: AppSettingsStore {
         set { store(newValue, for: .appTheme) }
     }
 
-    var biometricIntegrityStateLegacy: String? {
-        get { fetch(for: .biometricIntegrityStateLegacy) }
-        set { store(newValue, for: .biometricIntegrityStateLegacy) }
-    }
-
     var disableWebIcons: Bool {
         get { fetch(for: .disableWebIcons) }
         set { store(newValue, for: .disableWebIcons) }
@@ -877,21 +861,16 @@ extension DefaultAppSettingsStore: AppSettingsStore {
         fetch(for: .accountSetupAutofill(userId: userId))
     }
 
+    func accountSetupImportLogins(userId: String) -> AccountSetupProgress? {
+        fetch(for: .accountSetupImportLogins(userId: userId))
+    }
+
     func accountSetupVaultUnlock(userId: String) -> AccountSetupProgress? {
         fetch(for: .accountSetupVaultUnlock(userId: userId))
     }
 
     func allowSyncOnRefresh(userId: String) -> Bool {
         fetch(for: .allowSyncOnRefresh(userId: userId))
-    }
-
-    func biometricIntegrityState(userId: String) -> String? {
-        fetch(
-            for: .biometricIntegrityState(
-                userId: userId,
-                bundleId: bundleId
-            )
-        )
     }
 
     func clearClipboardValue(userId: String) -> ClearClipboardValue {
@@ -980,6 +959,10 @@ extension DefaultAppSettingsStore: AppSettingsStore {
         store(autofillSetup, for: .accountSetupAutofill(userId: userId))
     }
 
+    func setAccountSetupImportLogins(_ importLoginsSetup: AccountSetupProgress?, userId: String) {
+        store(importLoginsSetup, for: .accountSetupImportLogins(userId: userId))
+    }
+
     func setAccountSetupVaultUnlock(_ vaultUnlockSetup: AccountSetupProgress?, userId: String) {
         store(vaultUnlockSetup, for: .accountSetupVaultUnlock(userId: userId))
     }
@@ -990,16 +973,6 @@ extension DefaultAppSettingsStore: AppSettingsStore {
 
     func setBiometricAuthenticationEnabled(_ isEnabled: Bool?, for userId: String) {
         store(isEnabled, for: .biometricAuthEnabled(userId: userId))
-    }
-
-    func setBiometricIntegrityState(_ base64EncodedIntegrityState: String?, userId: String) {
-        store(
-            base64EncodedIntegrityState,
-            for: .biometricIntegrityState(
-                userId: userId,
-                bundleId: bundleId
-            )
-        )
     }
 
     func setClearClipboardValue(_ clearClipboardValue: ClearClipboardValue?, userId: String) {

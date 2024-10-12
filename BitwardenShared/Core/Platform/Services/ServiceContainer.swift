@@ -320,10 +320,11 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
         let stateService = DefaultStateService(
             appSettingsStore: appSettingsStore,
             dataStore: dataStore,
+            errorReporter: errorReporter,
             keychainRepository: keychainRepository
         )
 
-        let environmentService = DefaultEnvironmentService(stateService: stateService)
+        let environmentService = DefaultEnvironmentService(errorReporter: errorReporter, stateService: stateService)
         let collectionService = DefaultCollectionService(collectionDataStore: dataStore, stateService: stateService)
         let settingsService = DefaultSettingsService(settingsDataStore: dataStore, stateService: stateService)
         let tokenService = DefaultTokenService(keychainRepository: keychainRepository, stateService: stateService)
@@ -631,7 +632,7 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
 
         let authenticatorSyncService = DefaultAuthenticatorSyncService(
             authBridgeItemService: authBridgeItemService,
-            cipherService: cipherService,
+            cipherDataStore: dataStore,
             clientService: clientService,
             configService: configService,
             errorReporter: errorReporter,
