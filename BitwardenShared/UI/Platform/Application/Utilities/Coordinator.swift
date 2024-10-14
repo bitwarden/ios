@@ -50,9 +50,11 @@ public protocol Coordinator<Route, Event>: AnyObject {
 
     /// Shows the toast.
     ///
-    /// - Parameter text: The text of the toast to display.
+    /// - Parameters:
+    ///   - title: The title text displayed in the toast.
+    ///   - title: The subtitle text displayed in the toast.
     ///
-    func showToast(_ text: String)
+    func showToast(_ title: String, subtitle: String?)
 
     /// Starts the coordinator, displaying its content.
     ///
@@ -172,10 +174,12 @@ extension Coordinator where Self: HasNavigator {
 
     /// Shows the toast.
     ///
-    /// - Parameter text: The text of the toast to display.
+    /// - Parameters:
+    ///   - title: The title text displayed in the toast.
+    ///   - title: The subtitle text displayed in the toast.
     ///
-    func showToast(_ text: String) {
-        navigator?.showToast(Toast(text: text))
+    func showToast(_ title: String, subtitle: String? = nil) {
+        navigator?.showToast(Toast(title: title, subtitle: subtitle))
     }
 }
 

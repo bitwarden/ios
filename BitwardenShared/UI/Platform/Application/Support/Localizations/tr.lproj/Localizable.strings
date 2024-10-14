@@ -1002,3 +1002,16 @@
 "AutoFillActivatedDescriptionLong" = "Artık kayıtlı parolalarınızı kullanarak uygulamalara ve web sitelerine giriş yapmak için otomatik doldurmayı kullanabilirsiniz. Bitwarden'ın sunduğu tüm imkânları keşfetmeye hazırsınız.";
 "GetStarted" = "Başlayın";
 "Dismiss" = "Kapat";
+"SaveAndProtectYourData" = "Verilerinizi kaydedin ve koruyun";
+"TheVaultProtectsMoreThanJustPasswordsStoreSecureLoginsIdsCardsAndNotesSecurelyHere" = "Kasanız sadece parolalarınız için değil. Hesaplarınızı, kimliklerinizi, kredi kartlarınızı ve notlarınızı da güvenle burada depolayabilirsiniz.";
+"NewLogin" = "Yeni hesap";
+"ImportSavedLogins" = "Kayıtlı hesapları içe aktar";
+"ImportSavedLoginsDescriptionLong" = "Mevcut bir parola yöneticisindeki hesapları bilgisayar kullanarak içe aktarabilirsiniz.";
+"ImportLogins" = "Import logins";
+"GiveYourVaultAHeadStart" = "Give your vault a head start";
+"ImportLoginsDescriptionLong" = "From your computer, follow these instructions to export saved passwords from your browser or other password manager. Then, safely import them to Bitwarden.";
+"ImportLoginsLater" = "Import logins later";
+"ImportLoginsLaterQuestion" = "Import logins later?";
+"YouCanReturnToCompleteThisStepAnytimeInVaultUnderSettings" = "You can return to complete this step anytime in Vault under Settings.";
+"DoYouHaveAComputerAvailable" = "Do you have a computer available?";
+"DoYouHaveAComputerAvailableDescriptionLong" = "The following instructions will guide you through importing logins from your desktop or laptop computer.";

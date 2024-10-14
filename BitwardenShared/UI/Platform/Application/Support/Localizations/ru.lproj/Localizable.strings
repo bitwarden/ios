@@ -1004,3 +1004,16 @@
 "AutoFillActivatedDescriptionLong" = "Теперь вы можете использовать автозаполнение для авторизации в приложениях и на веб-сайтах, используя сохраненные пароли. Познакомьтесь со всем, что может предложить Bitwarden.";
 "GetStarted" = "Начать";
 "Dismiss" = "Отклонить";
+"SaveAndProtectYourData" = "Сохраняйте и защищайте свои данные";
+"TheVaultProtectsMoreThanJustPasswordsStoreSecureLoginsIdsCardsAndNotesSecurelyHere" = "Хранилище защищает не только ваши пароли. Логины, идентификаторы, карты и заметки в нем надежно защищены.";
+"NewLogin" = "Новый логин";
+"ImportSavedLogins" = "Импортировать сохраненные логины";
+"ImportSavedLoginsDescriptionLong" = "Используйте компьютер для импорта логинов из существующего менеджера паролей.";
+"ImportLogins" = "Импорт логинов";
+"GiveYourVaultAHeadStart" = "Дайте старт своему хранилищу";
+"ImportLoginsDescriptionLong" = "Следуйте этим инструкциям, чтобы экспортировать сохраненные пароли из браузера или другого менеджера паролей на вашем компьютере. Затем безопасно импортируйте их в Bitwarden.";
+"ImportLoginsLater" = "Импортировать логины позже";
+"ImportLoginsLaterQuestion" = "Импортировать логины позже?";
+"YouCanReturnToCompleteThisStepAnytimeInVaultUnderSettings" = "Вы можете вернуться к выполнению этого шага в любое время в настройках хранилища.";
+"DoYouHaveAComputerAvailable" = "У вас есть компьютер?";
+"DoYouHaveAComputerAvailableDescriptionLong" = "Следующие инструкции помогут вам импортировать логины с компьютера.";

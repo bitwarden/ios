@@ -1002,3 +1002,16 @@
 "AutoFillActivatedDescriptionLong" = "Na prihlasovanie do aplikácií a webových lokalít pomocou uložených hesiel môžete teraz používať automatické vypĺňanie. Teraz môžete preskúmať všetko ostatné, čo Bitwarden ponúka.";
 "GetStarted" = "Začať";
 "Dismiss" = "Zatvoriť";
+"SaveAndProtectYourData" = "Uložiť a ochrániť vaše údaje";
+"TheVaultProtectsMoreThanJustPasswordsStoreSecureLoginsIdsCardsAndNotesSecurelyHere" = "Trezor chráni viac ako len heslá. Môžete tu bezpečne ukladať prihlasovacie údaje, identifikačné údaje, karty a poznámky.";
+"NewLogin" = "Nové prihlasovacie údaje";
+"ImportSavedLogins" = "Importovať uložené prihlasovacie údaje";
+"ImportSavedLoginsDescriptionLong" = "Na importovanie prihlasovacích údajov zo súčasného správcu hesiel použite počítač.";
+"ImportLogins" = "Import logins";
+"GiveYourVaultAHeadStart" = "Give your vault a head start";
+"ImportLoginsDescriptionLong" = "From your computer, follow these instructions to export saved passwords from your browser or other password manager. Then, safely import them to Bitwarden.";
+"ImportLoginsLater" = "Import logins later";
+"ImportLoginsLaterQuestion" = "Import logins later?";
+"YouCanReturnToCompleteThisStepAnytimeInVaultUnderSettings" = "You can return to complete this step anytime in Vault under Settings.";
+"DoYouHaveAComputerAvailable" = "Do you have a computer available?";
+"DoYouHaveAComputerAvailableDescriptionLong" = "The following instructions will guide you through importing logins from your desktop or laptop computer.";
