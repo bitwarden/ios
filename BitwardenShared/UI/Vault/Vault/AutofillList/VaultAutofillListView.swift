@@ -194,7 +194,7 @@ private struct VaultAutofillListSearchableView: View {
             Group {
                 if store.state.vaultListSections.isEmpty {
                     EmptyContentView(
-                        image: Asset.Images.openSource.swiftUIImage,
+                        image: Asset.Images.items.swiftUIImage,
                         text: store.state.emptyViewMessage
                     ) {
                         Button {
