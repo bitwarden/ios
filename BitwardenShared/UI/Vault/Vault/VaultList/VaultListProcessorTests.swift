@@ -629,7 +629,7 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
     /// whenever it changes.
     @MainActor
     func test_perform_streamAccountSetupProgress() {
-        configService.featureFlagsBool[.nativeCreateAccountFlow] = true
+        configService.featureFlagsBool[.importLoginsFlow] = true
         stateService.activeAccount = .fixture()
 
         let task = Task {
@@ -648,7 +648,7 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
     /// setup progress fails.
     @MainActor
     func test_perform_streamAccountSetupProgress_error() async {
-        configService.featureFlagsBool[.nativeCreateAccountFlow] = true
+        configService.featureFlagsBool[.importLoginsFlow] = true
 
         await subject.perform(.streamAccountSetupProgress)
 
@@ -656,10 +656,10 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
     }
 
     /// `perform(_:)` with `.streamAccountSetupProgress` doesn't load the account setup progress
-    /// if the create account feature flag is disabled.
+    /// if the import logins feature flag is disabled.
     @MainActor
-    func test_perform_streamAccountSetupProgress_nativeCreateAccountFlowDisabled() async {
-        configService.featureFlagsBool[.nativeCreateAccountFlow] = false
+    func test_perform_streamAccountSetupProgress_importLoginsFlowDisabled() async {
+        configService.featureFlagsBool[.importLoginsFlow] = false
         stateService.activeAccount = .fixture()
         stateService.settingsBadgeSubject.send(.fixture())
 

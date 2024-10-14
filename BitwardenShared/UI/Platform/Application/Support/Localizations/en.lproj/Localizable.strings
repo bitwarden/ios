@@ -1016,3 +1016,10 @@
 "YouCanReturnToCompleteThisStepAnytimeInVaultUnderSettings" = "You can return to complete this step anytime in Vault under Settings.";
 "DoYouHaveAComputerAvailable" = "Do you have a computer available?";
 "DoYouHaveAComputerAvailableDescriptionLong" = "The following instructions will guide you through importing logins from your desktop or laptop computer.";
+"StepXOfY" = "Step %1$@ of %2$@";
+"ExportYourSavedLogins" = "Export your saved logins";
+"ExportLoginsStep1" = "On your computer, **log in to your current browser or password manager.**";
+"ExportLoginsStep2" = "**Export your passwords.** This option is usually found in your settings.";
+"ExportLoginsStep3" = "**Select Import data** in the web app, then Done to finish syncing.";
+"ExportLoginsStep3Subtitle" = "You’ll delete this file after import is complete.";
+"NeedHelpCheckOutImportHelp" = "Need help? Check out **[import help](%1$@)**";
