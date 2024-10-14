@@ -1,19 +1,18 @@
 {
   "images" : [
     {
-      "filename" : "yubikey.png",
-      "idiom" : "universal",
-      "scale" : "1x"
+      "filename" : "yubikey.pdf",
+      "idiom" : "universal"
     },
     {
-      "filename" : "yubikey@2x.png",
-      "idiom" : "universal",
-      "scale" : "2x"
-    },
-    {
-      "filename" : "yubikey@3x.png",
-      "idiom" : "universal",
-      "scale" : "3x"
+      "appearances" : [
+        {
+          "appearance" : "luminosity",
+          "value" : "dark"
+        }
+      ],
+      "filename" : "yubikey-dark.pdf",
+      "idiom" : "universal"
     }
   ],
   "info" : {
