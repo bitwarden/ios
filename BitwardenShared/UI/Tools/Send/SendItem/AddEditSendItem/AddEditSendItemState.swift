@@ -23,7 +23,9 @@ struct AddEditSendItemState: Equatable, Sendable {
             switch self {
             case .add,
                  .shareExtension:
-                Localizations.newSend.localizedCapitalized
+                Localizations.newSend.capitalized(
+                    with: Locale(identifier: UI.initialLanguageCode ?? "")
+                )
             case .edit:
                 Localizations.editSend
             }
