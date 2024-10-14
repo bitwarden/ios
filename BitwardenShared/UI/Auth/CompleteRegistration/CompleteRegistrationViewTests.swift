@@ -194,7 +194,7 @@ class CompleteRegistrationViewTests: BitwardenTestCase {
     @MainActor
     func test_snapshot_empty_nativeCreateAccountFlow() throws {
         processor.state.nativeCreateAccountFeatureFlag = true
-        
+
         assertSnapshots(
             of: subject,
             as: [
@@ -205,7 +205,7 @@ class CompleteRegistrationViewTests: BitwardenTestCase {
         )
     }
 
-    /// Tests the view renders correctly when text fields are hidden when the feature flag for native create account is on.
+    /// Tests the view renders correctly when text fields are hidden and new account ff is on.
     @MainActor
     func test_snapshot_textFields_hidden_nativeCreateAccountFlow() throws {
         processor.state.nativeCreateAccountFeatureFlag = true
@@ -219,7 +219,7 @@ class CompleteRegistrationViewTests: BitwardenTestCase {
         assertSnapshot(of: subject, as: .defaultPortrait)
     }
 
-    /// Tests the view renders correctly when the text fields are all populated when the feature flag for native create account is on.
+    /// Tests the view renders correctly when the text fields are all populated and new account ff is on.
     @MainActor
     func test_snapshot_textFields_populated_nativeCreateAccountFlow() throws {
         processor.state.nativeCreateAccountFeatureFlag = true
@@ -241,5 +241,4 @@ class CompleteRegistrationViewTests: BitwardenTestCase {
 
         assertSnapshot(of: subject, as: .defaultPortrait)
     }
-
 }
