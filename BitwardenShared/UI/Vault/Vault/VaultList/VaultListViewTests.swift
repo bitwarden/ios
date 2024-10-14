@@ -111,18 +111,25 @@ class VaultListViewTests: BitwardenTestCase { // swiftlint:disable:this type_bod
         XCTAssertEqual(processor.effects.last, .profileSwitcher(.addAccountPressed))
     }
 
-    /// The action card is hidden if the import logins setup progress is complete.
+    /// The action card is hidden if the import logins setup progress is set up later or complete.
     @MainActor
     func test_importLoginsActionCard_hidden() {
-        processor.state.importLoginsSetupProgress = .complete
         processor.state.loadingState = .data([])
+
+        // Hidden by default when set up progress is `nil`.
+        XCTAssertThrowsError(try subject.inspect().find(actionCard: Localizations.importSavedLogins))
+
+        processor.state.importLoginsSetupProgress = .setUpLater
+        XCTAssertThrowsError(try subject.inspect().find(actionCard: Localizations.importSavedLogins))
+
+        processor.state.importLoginsSetupProgress = .complete
         XCTAssertThrowsError(try subject.inspect().find(actionCard: Localizations.importSavedLogins))
     }
 
-    /// The action card is visible if the import logins setup progress isn't complete.
+    /// The action card is visible if the import logins setup progress is incomplete.
     @MainActor
     func test_importLoginsActionCard_visible() async throws {
-        processor.state.importLoginsSetupProgress = .setUpLater
+        processor.state.importLoginsSetupProgress = .incomplete
         processor.state.loadingState = .data([])
         XCTAssertNoThrow(try subject.inspect().find(actionCard: Localizations.importSavedLogins))
     }
@@ -131,7 +138,7 @@ class VaultListViewTests: BitwardenTestCase { // swiftlint:disable:this type_bod
     /// `.dismissImportLoginsActionCard` effect.
     @MainActor
     func test_importLoginsActionCard_visible_tapDismiss() async throws {
-        processor.state.importLoginsSetupProgress = .setUpLater
+        processor.state.importLoginsSetupProgress = .incomplete
         processor.state.loadingState = .data([])
         let actionCard = try subject.inspect().find(actionCard: Localizations.importSavedLogins)
 
@@ -144,7 +151,7 @@ class VaultListViewTests: BitwardenTestCase { // swiftlint:disable:this type_bod
     /// `.showSetUpUnlock` action.
     @MainActor
     func test_importLoginsActionCard_visible_tapGetStarted() async throws {
-        processor.state.importLoginsSetupProgress = .setUpLater
+        processor.state.importLoginsSetupProgress = .incomplete
         processor.state.loadingState = .data([])
         let actionCard = try subject.inspect().find(actionCard: Localizations.importSavedLogins)
 
