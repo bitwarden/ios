@@ -850,7 +850,7 @@ final class AuthCoordinator: NSObject, // swiftlint:disable:this type_body_lengt
         let view = VaultUnlockView(store: Store(processor: processor))
         stackNavigator?.replace(view, animated: animated)
         if didSwitchAccountAutomatically {
-            processor.state.toast = Toast(text: Localizations.accountSwitchedAutomatically)
+            processor.state.toast = Toast(title: Localizations.accountSwitchedAutomatically)
         }
     }
 

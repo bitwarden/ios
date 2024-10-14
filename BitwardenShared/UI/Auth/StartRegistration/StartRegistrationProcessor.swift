@@ -210,7 +210,7 @@ class StartRegistrationProcessor: StateProcessor<
 extension StartRegistrationProcessor: SelfHostedProcessorDelegate {
     func didSaveEnvironment(urls: EnvironmentUrlData) async {
         await setRegion(.selfHosted, urls)
-        state.toast = Toast(text: Localizations.environmentSaved)
+        state.toast = Toast(title: Localizations.environmentSaved)
     }
 }
 

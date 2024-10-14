@@ -523,7 +523,7 @@ class AddEditItemProcessorTests: BitwardenTestCase {
         XCTAssertNotNil(dismissAction)
         dismissAction?.action()
         XCTAssertEqual(subject.state.loginState.authenticatorKey, .standardTotpKey)
-        XCTAssertEqual(subject.state.toast?.text, Localizations.authenticatorKeyAdded)
+        XCTAssertEqual(subject.state.toast, Toast(title: Localizations.authenticatorKeyAdded))
     }
 
     /// `didMoveCipher(_:to:)` displays a toast after the cipher is moved to the organization.
@@ -534,8 +534,8 @@ class AddEditItemProcessorTests: BitwardenTestCase {
         waitFor { subject.state.toast != nil }
 
         XCTAssertEqual(
-            subject.state.toast?.text,
-            Localizations.movedItemToOrg("Bitwarden Password", "Organization")
+            subject.state.toast,
+            Toast(title: Localizations.movedItemToOrg("Bitwarden Password", "Organization"))
         )
     }
 
@@ -546,7 +546,7 @@ class AddEditItemProcessorTests: BitwardenTestCase {
 
         waitFor { subject.state.toast != nil }
 
-        XCTAssertEqual(subject.state.toast?.text, Localizations.itemUpdated)
+        XCTAssertEqual(subject.state.toast, Toast(title: Localizations.itemUpdated))
     }
 
     /// `perform(_:)` with `.appeared` doesn't show the password autofill alert if it has already been shown.
@@ -1580,7 +1580,7 @@ class AddEditItemProcessorTests: BitwardenTestCase {
     /// `receive(_:)` with `.toastShown` without a value updates the state correctly.
     @MainActor
     func test_receive_toastShown_withoutValue() {
-        let toast = Toast(text: "123")
+        let toast = Toast(title: "123")
         subject.state.toast = toast
         subject.receive(.toastShown(nil))
 
@@ -1590,7 +1590,7 @@ class AddEditItemProcessorTests: BitwardenTestCase {
     /// `receive(_:)` with `.toastShown` with a value updates the state correctly.
     @MainActor
     func test_receive_toastShown_withValue() {
-        let toast = Toast(text: "123")
+        let toast = Toast(title: "123")
         subject.receive(.toastShown(toast))
 
         XCTAssertEqual(subject.state.toast, toast)

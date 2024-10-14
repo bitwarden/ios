@@ -555,8 +555,8 @@ class AuthCoordinatorTests: BitwardenTestCase { // swiftlint:disable:this type_b
         let view: VaultUnlockView = try XCTUnwrap(stackNavigator.actions.last?.view as? VaultUnlockView)
         waitFor(view.store.state.toast != nil)
         XCTAssertEqual(
-            view.store.state.toast?.text,
-            Localizations.accountSwitchedAutomatically
+            view.store.state.toast,
+            Toast(title: Localizations.accountSwitchedAutomatically)
         )
     }
 

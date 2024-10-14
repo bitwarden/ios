@@ -92,7 +92,7 @@ final class PendingRequestsProcessor: StateProcessor<
             await loadData()
 
             // Show the success toast.
-            state.toast = Toast(text: Localizations.requestsDeclined)
+            state.toast = Toast(title: Localizations.requestsDeclined)
         } catch {
             coordinator.showAlert(.networkResponseError(error))
             services.errorReporter.log(error: error)
@@ -131,6 +131,6 @@ extension PendingRequestsProcessor: LoginRequestDelegate {
     /// Update the data and display a success toast after a login request has been answered.
     func loginRequestAnswered(approved: Bool) {
         Task { await loadData() }
-        state.toast = Toast(text: approved ? Localizations.loginApproved : Localizations.logInDenied)
+        state.toast = Toast(title: approved ? Localizations.loginApproved : Localizations.logInDenied)
     }
 }

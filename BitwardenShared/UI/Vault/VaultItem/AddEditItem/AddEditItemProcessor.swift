@@ -118,7 +118,7 @@ final class AddEditItemProcessor: StateProcessor<// swiftlint:disable:this type_
         case .copyTotpPressed:
             guard let key = state.loginState.authenticatorKey else { return }
             services.pasteboardService.copy(key)
-            state.toast = Toast(text: Localizations.valueHasBeenCopied(Localizations.authenticatorKeyScanner))
+            state.toast = Toast(title: Localizations.valueHasBeenCopied(Localizations.authenticatorKeyScanner))
         case .fetchCipherOptions:
             await fetchCipherOptions()
         case .savePressed:
@@ -737,7 +737,7 @@ extension AddEditItemProcessor: AuthenticatorKeyCaptureDelegate {
         do {
             let authKeyModel = try services.totpService.getTOTPConfiguration(key: key)
             state.loginState.totpState = .key(authKeyModel)
-            state.toast = Toast(text: Localizations.authenticatorKeyAdded)
+            state.toast = Toast(title: Localizations.authenticatorKeyAdded)
         } catch {
             coordinator.showAlert(.totpScanFailureAlert())
         }
@@ -777,7 +777,7 @@ extension AddEditItemProcessor: AuthenticatorKeyCaptureDelegate {
 
 extension AddEditItemProcessor: EditCollectionsProcessorDelegate {
     func didUpdateCipher() {
-        state.toast = Toast(text: Localizations.itemUpdated)
+        state.toast = Toast(title: Localizations.itemUpdated)
     }
 }
 
@@ -785,6 +785,6 @@ extension AddEditItemProcessor: EditCollectionsProcessorDelegate {
 
 extension AddEditItemProcessor: MoveToOrganizationProcessorDelegate {
     func didMoveCipher(_ cipher: CipherView, to organization: CipherOwner) {
-        state.toast = Toast(text: Localizations.movedItemToOrg(cipher.name, organization.localizedName))
+        state.toast = Toast(title: Localizations.movedItemToOrg(cipher.name, organization.localizedName))
     }
 } // swiftlint:disable:this file_length

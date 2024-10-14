@@ -125,7 +125,7 @@ final class VaultGroupProcessor: StateProcessor<
             state.url = nil
         case let .copyTOTPCode(code):
             services.pasteboardService.copy(code)
-            state.toast = Toast(text: Localizations.valueHasBeenCopied(Localizations.verificationCode))
+            state.toast = Toast(title: Localizations.valueHasBeenCopied(Localizations.verificationCode))
         case let .itemPressed(item):
             switch item.itemType {
             case .cipher:
@@ -256,21 +256,21 @@ final class VaultGroupProcessor: StateProcessor<
 
 extension VaultGroupProcessor: CipherItemOperationDelegate {
     func itemDeleted() {
-        state.toast = Toast(text: Localizations.itemDeleted)
+        state.toast = Toast(title: Localizations.itemDeleted)
         Task {
             await perform(.refresh)
         }
     }
 
     func itemSoftDeleted() {
-        state.toast = Toast(text: Localizations.itemSoftDeleted)
+        state.toast = Toast(title: Localizations.itemSoftDeleted)
         Task {
             await perform(.refresh)
         }
     }
 
     func itemRestored() {
-        state.toast = Toast(text: Localizations.itemRestored)
+        state.toast = Toast(title: Localizations.itemRestored)
         Task {
             await perform(.refresh)
         }

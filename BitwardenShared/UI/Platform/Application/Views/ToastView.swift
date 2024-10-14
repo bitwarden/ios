@@ -10,8 +10,30 @@ struct Toast: Equatable, Identifiable {
     /// A unique identifier of the toast.
     let id = UUID()
 
-    /// The text displayed in the toast.
-    let text: String
+    /// The title text displayed in the toast.
+    let title: String
+
+    /// The subtitle text displayed in the toast.
+    let subtitle: String?
+
+    // MARK: Initialization
+
+    /// Initialize a `Toast`.
+    ///
+    /// - Parameters:
+    ///   - title: The title text displayed in the toast.
+    ///   - subtitle: The subtitle text displayed in the toast.
+    ///
+    init(title: String, subtitle: String? = nil) {
+        self.title = title
+        self.subtitle = subtitle
+    }
+
+    static func == (lhs: Toast, rhs: Toast) -> Bool {
+        // Exclude `id` from `Equatable`, it's only used by the view to handle animations between toasts.
+        lhs.title == rhs.title
+            && lhs.subtitle == rhs.subtitle
+    }
 }
 
 // MARK: - ToastView
@@ -27,28 +49,42 @@ struct ToastView: View {
 
     var body: some View {
         if let toast {
-            Text(toast.text)
-                .styleGuide(.subheadline, weight: .semibold)
-                .multilineTextAlignment(.center)
-                .dynamicTypeSize(...DynamicTypeSize.accessibility2)
-                .id(toast.id)
-                .padding(14)
-                .foregroundColor(Asset.Colors.textReversed.swiftUIColor)
-                .frame(minWidth: 300, minHeight: 46)
-                .background(Asset.Colors.backgroundAlert.swiftUIColor)
-                .clipShape(RoundedRectangle(cornerRadius: 24))
-                .accessibilityElement(children: .combine)
-                .padding(.horizontal, 16)
-                .task(id: toast.id) {
-                    do {
-                        try await Task.sleep(nanoseconds: 3 * NSEC_PER_SEC)
-                        withAnimation {
-                            self.toast = nil
-                        }
-                    } catch {
-                        // No-op: Skip the animation if the task/sleep is cancelled.
-                    }
+            VStack(alignment: .leading, spacing: 4) {
+                Text(toast.title)
+                    .styleGuide(
+                        .headline,
+                        weight: .bold,
+                        includeLinePadding: false,
+                        includeLineSpacing: false
+                    )
+
+                if let subtitle = toast.subtitle {
+                    Text(subtitle)
+                        .styleGuide(.callout)
                 }
+            }
+            .dynamicTypeSize(...DynamicTypeSize.accessibility2)
+            .id(toast.id)
+            .padding(.horizontal, 16)
+            .padding(.vertical, 14)
+            .foregroundColor(Asset.Colors.textReversed.swiftUIColor)
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .background(Asset.Colors.backgroundAlert.swiftUIColor)
+            .clipShape(RoundedRectangle(cornerRadius: 8))
+            .shadow(color: .black.opacity(0.1), radius: 8, x: 0, y: 2)
+            .shadow(color: .black.opacity(0.05), radius: 4, x: 0, y: 4)
+            .accessibilityElement(children: .combine)
+            .padding(.horizontal, 16)
+            .task(id: toast.id) {
+                do {
+                    try await Task.sleep(nanoseconds: 3 * NSEC_PER_SEC)
+                    withAnimation {
+                        self.toast = nil
+                    }
+                } catch {
+                    // No-op: Skip the animation if the task/sleep is cancelled.
+                }
+            }
         }
     }
 }
@@ -73,16 +109,19 @@ extension View {
 // MARK: - Previews
 
 #if DEBUG
-struct ToastView_Previews: PreviewProvider {
-    static var previews: some View {
-        ToastView(toast: .constant(Toast(text: "Toast!")))
-            .previewDisplayName("Toast View")
+#Preview {
+    VStack {
+        ToastView(toast: .constant(Toast(title: "Toast!")))
 
-        NavigationView {
-            Asset.Colors.backgroundSecondary.swiftUIColor
-                .toast(.constant(Toast(text: "Taos, NM!")))
-        }
-        .previewDisplayName("Overlay")
+        ToastView(toast: .constant(Toast(title: "Toast!", subtitle: "Lorem ipsum dolor sit amet.")))
+    }
+    .padding()
+}
+
+#Preview("Toast Overlay") {
+    NavigationView {
+        Asset.Colors.backgroundSecondary.swiftUIColor
+            .toast(.constant(Toast(title: "Taos, NM!")))
     }
 }
 #endif

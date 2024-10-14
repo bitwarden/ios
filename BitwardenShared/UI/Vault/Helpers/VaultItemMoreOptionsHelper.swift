@@ -109,7 +109,7 @@ class DefaultVaultItemMoreOptionsHelper: VaultItemMoreOptionsHelper {
             }
             services.pasteboardService.copy(code)
             handleDisplayToast(
-                Toast(text: Localizations.valueHasBeenCopied(Localizations.verificationCodeTotp))
+                Toast(title: Localizations.valueHasBeenCopied(Localizations.verificationCodeTotp))
             )
         } catch {
             coordinator.showAlert(.defaultAlert(title: Localizations.anErrorHasOccurred))
@@ -130,7 +130,7 @@ class DefaultVaultItemMoreOptionsHelper: VaultItemMoreOptionsHelper {
         case let .copy(toast, value, requiresMasterPasswordReprompt, event, cipherId):
             let copyBlock = {
                 self.services.pasteboardService.copy(value)
-                handleDisplayToast(Toast(text: Localizations.valueHasBeenCopied(toast)))
+                handleDisplayToast(Toast(title: Localizations.valueHasBeenCopied(toast)))
                 if let event {
                     Task {
                         await self.services.eventService.collect(
