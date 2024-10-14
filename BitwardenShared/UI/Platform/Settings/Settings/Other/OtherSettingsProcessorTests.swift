@@ -97,7 +97,7 @@ class OtherSettingsProcessorTests: BitwardenTestCase {
         XCTAssertFalse(coordinator.isLoadingOverlayShowing)
         XCTAssertEqual(coordinator.loadingOverlaysShown, [LoadingOverlayState(title: Localizations.syncing)])
         XCTAssertTrue(settingsRepository.fetchSyncCalled)
-        XCTAssertEqual(subject.state.toast?.text, Localizations.syncingComplete)
+        XCTAssertEqual(subject.state.toast, Toast(title: Localizations.syncingComplete))
     }
 
     /// `perform(_:)` with `.syncNow` shows the loading overlay while syncing and then an alert if
@@ -134,7 +134,7 @@ class OtherSettingsProcessorTests: BitwardenTestCase {
     /// `receive(_:)` with `.toastShown` updates the state's toast value.
     @MainActor
     func test_receive_toastShown() {
-        let toast = Toast(text: "toast!")
+        let toast = Toast(title: "toast!")
         subject.receive(.toastShown(toast))
         XCTAssertEqual(subject.state.toast, toast)
 

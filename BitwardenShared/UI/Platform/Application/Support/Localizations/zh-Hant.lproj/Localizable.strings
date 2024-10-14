@@ -84,7 +84,7 @@
 "AppExtension" = "App 延伸功能";
 "AutofillAccessibilityDescription" = "使用 Bitwarden 無障礙服務在應用程式和網站中自動填入您的登入資料。";
 "AutofillService" = "自動填入服務";
-"SetBitwardenAsPasskeyManagerDescription" = "Set Bitwarden as your passkey provider in device settings.";
+"SetBitwardenAsPasskeyManagerDescription" = "於裝置設定中將 Bitwarden 設為您的密鑰提供者。";
 "AvoidAmbiguousCharacters" = "避免易混淆的字元";
 "BitwardenAppExtension" = "Bitwarden App 延伸功能";
 "BitwardenAppExtensionAlert2" = "Bitwarden App 延伸功能是新增登入資料至密碼庫的最簡單方法。請至「設定」頁面了解更多關於 Bitwarden App 延伸功能的使用資訊。";
@@ -526,7 +526,7 @@
 "TermsOfService" = "服務條款";
 "PrivacyPolicy" = "隱私權政策";
 "AccessibilityDrawOverPermissionAlert" = "Bitwarden 需要注意 - 請到 Bitwarden 設定的「自動填入服務」中啟用「Draw-Over」";
-"PasskeyManagement" = "Passkey management";
+"PasskeyManagement" = "金鑰管理";
 "AutofillServices" = "自動填入服務";
 "InlineAutofill" = "使用內嵌式自動填入";
 "InlineAutofillDescription" = "若您的 IME（鍵盤）支援，將使用內嵌式自動填入。若您的設定不支援（或未啟用此選項），將使用預設的覆疊式自動填入。";
@@ -1002,3 +1002,16 @@
 "AutoFillActivatedDescriptionLong" = "You can now use autofill to log into apps and websites using your saved passwords. Now, you can explore everything else Bitwarden has to offer.";
 "GetStarted" = "Get started";
 "Dismiss" = "Dismiss";
+"SaveAndProtectYourData" = "Save and protect your data";
+"TheVaultProtectsMoreThanJustPasswordsStoreSecureLoginsIdsCardsAndNotesSecurelyHere" = "The vault protects more than just your passwords. Store secure logins, IDs, cards and notes securely here.";
+"NewLogin" = "New login";
+"ImportSavedLogins" = "Import saved logins";
+"ImportSavedLoginsDescriptionLong" = "Use a computer to import logins from an existing password manager.";
+"ImportLogins" = "Import logins";
+"GiveYourVaultAHeadStart" = "Give your vault a head start";
+"ImportLoginsDescriptionLong" = "From your computer, follow these instructions to export saved passwords from your browser or other password manager. Then, safely import them to Bitwarden.";
+"ImportLoginsLater" = "Import logins later";
+"ImportLoginsLaterQuestion" = "Import logins later?";
+"YouCanReturnToCompleteThisStepAnytimeInVaultUnderSettings" = "You can return to complete this step anytime in Vault under Settings.";
+"DoYouHaveAComputerAvailable" = "Do you have a computer available?";
+"DoYouHaveAComputerAvailableDescriptionLong" = "The following instructions will guide you through importing logins from your desktop or laptop computer.";

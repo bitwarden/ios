@@ -103,7 +103,7 @@ class VaultAutofillListProcessorTests: BitwardenTestCase { // swiftlint:disable:
 
         try await alert.tapAction(title: Localizations.copyPassword)
 
-        XCTAssertEqual(subject.state.toast?.text, Localizations.valueHasBeenCopied(Localizations.password))
+        XCTAssertEqual(subject.state.toast, Toast(title: Localizations.valueHasBeenCopied(Localizations.password)))
     }
 
     /// `perform(_:)` with `.loadData` loads the profile switcher state.
@@ -385,7 +385,7 @@ class VaultAutofillListProcessorTests: BitwardenTestCase { // swiftlint:disable:
     /// `receive(_:)` with `.toastShown` updates the state's toast value.
     @MainActor
     func test_receive_toastShown() {
-        let toast = Toast(text: "toast!")
+        let toast = Toast(title: "toast!")
         subject.receive(.toastShown(toast))
         XCTAssertEqual(subject.state.toast, toast)
 

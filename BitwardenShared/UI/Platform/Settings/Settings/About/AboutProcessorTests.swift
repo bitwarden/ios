@@ -130,7 +130,7 @@ class AboutProcessorTests: BitwardenTestCase {
     /// `receive(_:)` with `.toastShown` updates the state's toast value.
     @MainActor
     func test_receive_toastShown() {
-        let toast = Toast(text: "toast!")
+        let toast = Toast(title: "toast!")
         subject.receive(.toastShown(toast))
         XCTAssertEqual(subject.state.toast, toast)
 
@@ -168,7 +168,7 @@ class AboutProcessorTests: BitwardenTestCase {
             OS: iOS 16.4
             """
         )
-        XCTAssertEqual(subject.state.toast?.text, Localizations.valueHasBeenCopied(Localizations.appInfo))
+        XCTAssertEqual(subject.state.toast, Toast(title: Localizations.valueHasBeenCopied(Localizations.appInfo)))
     }
 
     /// `receive(_:)` with action `.versionTapped` copies the copyright, the version string,
@@ -199,7 +199,7 @@ class AboutProcessorTests: BitwardenTestCase {
             Repository: www.github.com/bitwarden/ios
             """
         )
-        XCTAssertEqual(subject.state.toast?.text, Localizations.valueHasBeenCopied(Localizations.appInfo))
+        XCTAssertEqual(subject.state.toast, Toast(title: Localizations.valueHasBeenCopied(Localizations.appInfo)))
     }
 
     /// `receive(_:)` with `.webVaultTapped` shows an alert for navigating to the web vault
