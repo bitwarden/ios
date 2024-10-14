@@ -10,6 +10,9 @@ struct ImportLoginsView: View {
     /// The `Store` for this view.
     @ObservedObject var store: Store<ImportLoginsState, ImportLoginsAction, ImportLoginsEffect>
 
+    /// The total number of instruction steps after the intro page. Used for displaying Step X of Y.
+    private let totalSteps = 3
+
     // MARK: View
 
     var body: some View {
@@ -65,12 +68,12 @@ struct ImportLoginsView: View {
     /// The step 1 page view.
     @ViewBuilder
     private func step1() -> some View {
-        stepView(step: 1, totalSteps: 3, title: Localizations.exportYourSavedLogins) {
-            NumberedListRow(title: Localizations.exportLoginsStep1)
-            NumberedListRow(title: Localizations.exportLoginsStep2)
+        stepView(step: 1, title: Localizations.exportYourSavedLogins) {
+            NumberedListRow(title: Localizations.onYourComputerLogInToYourCurrentBrowserOrPasswordManager)
+            NumberedListRow(title: Localizations.exportYourPasswordsThisOptionIsUsuallyFoundInYourSettings)
             NumberedListRow(
-                title: Localizations.exportLoginsStep3,
-                subtitle: Localizations.exportLoginsStep3Subtitle
+                title: Localizations.selectImportDataInTheWebAppThenDoneToFinishSyncing,
+                subtitle: Localizations.youllDeleteThisFileAfterImportIsComplete
             )
         }
     }
@@ -78,9 +81,9 @@ struct ImportLoginsView: View {
     /// The step 2 page view.
     @ViewBuilder
     private func step2() -> some View {
-        stepView(step: 2, totalSteps: 3, title: Localizations.logInToBitwarden) {
-            NumberedListRow(title: Localizations.logInToBitwardenStep1(store.state.webVaultHost))
-            NumberedListRow(title: Localizations.logInToBitwardenStep2)
+        stepView(step: 2, title: Localizations.logInToBitwarden) {
+            NumberedListRow(title: Localizations.onYourComputerOpenANewBrowserTabAndGoTo(store.state.webVaultHost))
+            NumberedListRow(title: Localizations.logInToTheBitwardenWebApp)
         }
     }
 
@@ -88,14 +91,12 @@ struct ImportLoginsView: View {
     ///
     /// - Parameters:
     ///   - step: The step number of this page.
-    ///   - totalSteps: The total number of steps.
     ///   - title: The title of the step.
     ///   - list: A closure that returns the views to display in a numbered list.
     ///
     @ViewBuilder
     private func stepView(
         step: Int,
-        totalSteps: Int,
         title: String,
         @ViewBuilder list: () -> some View
     ) -> some View {

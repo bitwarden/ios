@@ -16,6 +16,8 @@ struct NumberedList<Content: View>: View {
     // MARK: View
 
     var body: some View {
+        // This uses SwiftUI's `VariadicView` API, which isn't part of SwiftUI's public API but
+        // since much of SwiftUI itself uses this, there's a low likelihood of this being removed.
         _VariadicView.Tree(Layout()) {
             content
         }
