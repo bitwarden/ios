@@ -1002,3 +1002,16 @@
 "AutoFillActivatedDescriptionLong" = "Man kan nu bruge autofyld til at logge ind på apps og websteder med sine gemte adgangskoder. Nu kan man tjekke alt det andet, Bitwarden har at tilbyde.";
 "GetStarted" = "Komme i gang";
 "Dismiss" = "Afvis";
+"SaveAndProtectYourData" = "Gem og beskyt dine data";
+"TheVaultProtectsMoreThanJustPasswordsStoreSecureLoginsIdsCardsAndNotesSecurelyHere" = "Boksen beskytter mere end blot adgangskoder. Gem sikre logins, ID'er, kort og notater sikkert her.";
+"NewLogin" = "Nyt login";
+"ImportSavedLogins" = "Importér gemte logins";
+"ImportSavedLoginsDescriptionLong" = "Brug en computer til at importere logins fra en eksisterende adgangskodehåndtering.";
+"ImportLogins" = "Importér Logins";
+"GiveYourVaultAHeadStart" = "Giv boksen et forspring";
+"ImportLoginsDescriptionLong" = "Følg fra computeren denne vejledning for at eksportere gemte adgangskoder fra webbrowseren eller adgangskodehåndtering. Importér dem derefter sikkert til Bitwarden.";
+"ImportLoginsLater" = "Importér logins senere";
+"ImportLoginsLaterQuestion" = "Importér logins senere?";
+"YouCanReturnToCompleteThisStepAnytimeInVaultUnderSettings" = "Dette trin kan når som helst fuldføres fra Boks under Indstillinger.";
+"DoYouHaveAComputerAvailable" = "Har man en tilgængelig computer?";
+"DoYouHaveAComputerAvailableDescriptionLong" = "Man guides i flg. vejledning gennem import af logins fra enten en stationær eller bærbare computer.";
