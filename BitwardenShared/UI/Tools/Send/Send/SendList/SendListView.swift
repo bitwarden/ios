@@ -67,7 +67,7 @@ private struct MainSendListView: View {
 
                     PageHeaderView(
                         image: Asset.Images.sendIllustration,
-                        title: Localizations.sendSensitiveInformationSafetly,
+                        title: Localizations.sendSensitiveInformationSafely,
                         message: Localizations
                             .shareFilesAndDataSecurelyWithAnyoneOnAnyPlatformYourInformationWillRemainEndToEndEncrypted
                     )
