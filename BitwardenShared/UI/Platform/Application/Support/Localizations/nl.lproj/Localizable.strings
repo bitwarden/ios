@@ -1002,3 +1002,16 @@
 "AutoFillActivatedDescriptionLong" = "Je kunt nu automatisch invullen om in te loggen op apps en websites met je opgeslagen wachtwoorden. Nu kun je alles ontdekken wat Bitwarden te bieden heeft.";
 "GetStarted" = "Aan de slag";
 "Dismiss" = "Sluiten";
+"SaveAndProtectYourData" = "Je gegevens opslaan en beschermen";
+"TheVaultProtectsMoreThanJustPasswordsStoreSecureLoginsIdsCardsAndNotesSecurelyHere" = "De kluis beschermt meer dan alleen je wachtwoorden. Sla hier beveiligde inloggegevens, ID's, kaarten en notities op.";
+"NewLogin" = "Nieuwe login";
+"ImportSavedLogins" = "Opgeslagen logins importeren";
+"ImportSavedLoginsDescriptionLong" = "Gebruik een computer om logins te importeren uit een bestaande wachtwoordmanager.";
+"ImportLogins" = "Inloggegevens importeren";
+"GiveYourVaultAHeadStart" = "Geef je kluis een snelle start";
+"ImportLoginsDescriptionLong" = "Volg deze instructies vanaf je computer om opgeslagen wachtwoorden te exporteren vanuit je browser of andere wachtwoordmanager. Importeer ze vervolgens veilig in Bitwarden.";
+"ImportLoginsLater" = "Logingegevens later importeren";
+"ImportLoginsLaterQuestion" = "Logingegevens later importeren?";
+"YouCanReturnToCompleteThisStepAnytimeInVaultUnderSettings" = "Je kunt deze stap op ieder moment afronden in je Kluis via Instellingen.";
+"DoYouHaveAComputerAvailable" = "Heb je een computer beschikbaar?";
+"DoYouHaveAComputerAvailableDescriptionLong" = "De volgende instructies helpen je bij het importeren van inloggegevens vanaf je desktop- of laptopcomputer.";

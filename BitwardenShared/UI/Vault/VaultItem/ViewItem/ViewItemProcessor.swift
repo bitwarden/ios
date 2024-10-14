@@ -235,7 +235,7 @@ private extension ViewItemProcessor {
         services.pasteboardService.copy(value)
 
         let localizedFieldName = field?.localizedName ?? Localizations.value
-        state.toast = Toast(text: Localizations.valueHasBeenCopied(localizedFieldName))
+        state.toast = Toast(title: Localizations.valueHasBeenCopied(localizedFieldName))
         if let event = field?.eventOnCopy {
             Task {
                 await services.eventService.collect(
@@ -588,7 +588,7 @@ extension ViewItemProcessor: CipherItemOperationDelegate {
 
 extension ViewItemProcessor: EditCollectionsProcessorDelegate {
     func didUpdateCipher() {
-        state.toast = Toast(text: Localizations.itemUpdated)
+        state.toast = Toast(title: Localizations.itemUpdated)
     }
 }
 
@@ -596,6 +596,6 @@ extension ViewItemProcessor: EditCollectionsProcessorDelegate {
 
 extension ViewItemProcessor: MoveToOrganizationProcessorDelegate {
     func didMoveCipher(_ cipher: CipherView, to organization: CipherOwner) {
-        state.toast = Toast(text: Localizations.movedItemToOrg(cipher.name, organization.localizedName))
+        state.toast = Toast(title: Localizations.movedItemToOrg(cipher.name, organization.localizedName))
     }
 } // swiftlint:disable:this file_length

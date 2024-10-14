@@ -344,6 +344,20 @@ class AppCoordinatorTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         XCTAssertNil(window.viewWithTag(LoadingOverlayDisplayHelper.overlayViewTag))
     }
 
+    /// `showToast(_:subtitle)` shows the toast in the navigator.
+    @MainActor
+    func test_showToast() {
+        let viewController = UIViewController()
+        let window = UIWindow()
+        window.rootViewController = viewController
+        window.makeKeyAndVisible()
+        rootNavigator.rootViewController = viewController
+
+        subject.showToast("Title", subtitle: "Subtitle")
+
+        XCTAssertNotNil(window.viewWithTag(ToastDisplayHelper.toastTag))
+    }
+
     /// `start()` doesn't navigate anywhere (first route is managed by AppProcessor).
     @MainActor
     func test_start() {

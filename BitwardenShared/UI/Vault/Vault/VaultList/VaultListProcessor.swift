@@ -345,15 +345,15 @@ extension VaultListProcessor {
 
 extension VaultListProcessor: CipherItemOperationDelegate {
     func itemDeleted() {
-        state.toast = Toast(text: Localizations.itemDeleted)
+        state.toast = Toast(title: Localizations.itemDeleted)
     }
 
     func itemSoftDeleted() {
-        state.toast = Toast(text: Localizations.itemSoftDeleted)
+        state.toast = Toast(title: Localizations.itemSoftDeleted)
     }
 
     func itemRestored() {
-        state.toast = Toast(text: Localizations.itemRestored)
+        state.toast = Toast(title: Localizations.itemRestored)
     }
 }
 
