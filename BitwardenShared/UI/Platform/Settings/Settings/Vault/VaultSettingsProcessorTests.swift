@@ -5,8 +5,11 @@ import XCTest
 class VaultSettingsProcessorTests: BitwardenTestCase {
     // MARK: Properties
 
+    var configService: MockConfigService!
     var coordinator: MockCoordinator<SettingsRoute, SettingsEvent>!
     var environmentService: MockEnvironmentService!
+    var errorReporter: MockErrorReporter!
+    var stateService: MockStateService!
     var subject: VaultSettingsProcessor!
 
     // MARK: Setup and Teardown
@@ -14,13 +17,19 @@ class VaultSettingsProcessorTests: BitwardenTestCase {
     override func setUp() {
         super.setUp()
 
+        configService = MockConfigService()
         coordinator = MockCoordinator<SettingsRoute, SettingsEvent>()
         environmentService = MockEnvironmentService()
+        errorReporter = MockErrorReporter()
+        stateService = MockStateService()
 
         subject = VaultSettingsProcessor(
             coordinator: coordinator.asAnyCoordinator(),
             services: ServiceContainer.withMocks(
-                environmentService: environmentService
+                configService: configService,
+                environmentService: environmentService,
+                errorReporter: errorReporter,
+                stateService: stateService
             ),
             state: VaultSettingsState()
         )
@@ -30,10 +39,63 @@ class VaultSettingsProcessorTests: BitwardenTestCase {
         super.tearDown()
 
         coordinator = nil
+        environmentService = nil
+        errorReporter = nil
+        stateService = nil
         subject = nil
     }
 
     // MARK: Tests
+
+    /// `perform(_:)` with `.dismissImportLoginsActionCard` sets the user's import logins setup
+    /// progress to complete.
+    @MainActor
+    func test_perform_dismissImportLoginsActionCard() async {
+        stateService.activeAccount = .fixture()
+        stateService.accountSetupImportLogins["1"] = .setUpLater
+
+        await subject.perform(.dismissImportLoginsActionCard)
+
+        XCTAssertEqual(stateService.accountSetupImportLogins["1"], .complete)
+    }
+
+    /// `perform(_:)` with `.dismissImportLoginsActionCard` logs an error and shows an alert if an
+    /// error occurs.
+    @MainActor
+    func test_perform_dismissImportLoginsActionCard_error() async {
+        await subject.perform(.dismissImportLoginsActionCard)
+
+        XCTAssertEqual(coordinator.alertShown, [.defaultAlert(title: Localizations.anErrorHasOccurred)])
+        XCTAssertEqual(errorReporter.errors as? [StateServiceError], [.noActiveAccount])
+    }
+
+    /// `perform(_:)` with `.streamSettingsBadge` updates the state's badge state whenever it changes.
+    @MainActor
+    func test_perform_streamSettingsBadge() {
+        configService.featureFlagsBool[.nativeCreateAccountFlow] = true
+        stateService.activeAccount = .fixture()
+
+        let task = Task {
+            await subject.perform(.streamSettingsBadge)
+        }
+        defer { task.cancel() }
+
+        let badgeState = SettingsBadgeState.fixture(importLoginsSetupProgress: .setUpLater)
+        stateService.settingsBadgeSubject.send(badgeState)
+        waitFor { subject.state.badgeState == badgeState }
+
+        XCTAssertEqual(subject.state.badgeState, badgeState)
+    }
+
+    /// `perform(_:)` with `.streamSettingsBadge` logs an error if streaming the settings badge state fails.
+    @MainActor
+    func test_perform_streamSettingsBadge_error() async {
+        configService.featureFlagsBool[.nativeCreateAccountFlow] = true
+
+        await subject.perform(.streamSettingsBadge)
+
+        XCTAssertEqual(errorReporter.errors as? [StateServiceError], [.noActiveAccount])
+    }
 
     /// `receive(_:)` with `.clearUrl` clears the URL in the state.
     @MainActor

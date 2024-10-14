@@ -14,4 +14,7 @@ enum VaultSettingsAction {
 
     /// The import items button was tapped.
     case importItemsTapped
+
+    /// The user tapped the get started button on the import logins action card.
+    case showImportLogins
 }

@@ -2,10 +2,13 @@
 
 /// The processor used to manage state and handle actions for the `VaultSettingsView`.
 ///
-final class VaultSettingsProcessor: StateProcessor<VaultSettingsState, VaultSettingsAction, Void> {
+final class VaultSettingsProcessor: StateProcessor<VaultSettingsState, VaultSettingsAction, VaultSettingsEffect> {
     // MARK: Types
 
-    typealias Services = HasEnvironmentService
+    typealias Services = HasConfigService
+        & HasEnvironmentService
+        & HasErrorReporter
+        & HasStateService
 
     // MARK: Properties
 
@@ -36,6 +39,15 @@ final class VaultSettingsProcessor: StateProcessor<VaultSettingsState, VaultSett
 
     // MARK: Methods
 
+    override func perform(_ effect: VaultSettingsEffect) async {
+        switch effect {
+        case .dismissImportLoginsActionCard:
+            await dismissImportLoginsActionCard()
+        case .streamSettingsBadge:
+            await streamSettingsBadge()
+        }
+    }
+
     override func receive(_ action: VaultSettingsAction) {
         switch action {
         case .clearUrl:
@@ -50,6 +62,36 @@ final class VaultSettingsProcessor: StateProcessor<VaultSettingsState, VaultSett
             ) {
                 self.state.url = self.services.environmentService.importItemsURL
             })
+        case .showImportLogins:
+            // TODO: PM-13467 Navigate to import logins
+            // coordinator.navigate(to: .importLogins)
+            break
+        }
+    }
+
+    // MARK: Private
+
+    /// Dismisses the import logins action card by marking the user's import logins progress complete.
+    ///
+    private func dismissImportLoginsActionCard() async {
+        do {
+            try await services.stateService.setAccountSetupImportLogins(.complete)
+        } catch {
+            services.errorReporter.log(error: error)
+            coordinator.showAlert(.defaultAlert(title: Localizations.anErrorHasOccurred))
+        }
+    }
+
+    /// Streams the state of the badges in the settings tab.
+    ///
+    private func streamSettingsBadge() async {
+        guard await services.configService.getFeatureFlag(.importLoginsFlow) else { return }
+        do {
+            for await badgeState in try await services.stateService.settingsBadgePublisher().values {
+                state.badgeState = badgeState
+            }
+        } catch {
+            services.errorReporter.log(error: error)
         }
     }
 }
