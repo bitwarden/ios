@@ -78,7 +78,7 @@ class ExtensionActivationViewTests: BitwardenTestCase {
         processor.state.isNativeCreateAccountFeatureFlagEnabled = true
         assertSnapshots(
             of: subject.navStackWrapped,
-            as: [.defaultPortrait, .defaultPortraitDark, .defaultPortraitAX5]
+            as: [.defaultPortrait, .defaultPortraitDark, .defaultPortraitAX5, .defaultLandscape]
         )
     }
 }

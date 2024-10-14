@@ -20,7 +20,7 @@ struct CompleteRegistrationView: View {
         VStack(spacing: 16) {
             if store.state.nativeCreateAccountFeatureFlag {
                 PageHeaderView(
-                    image: Asset.Images.createAccountPassword,
+                    image: Asset.Images.lock,
                     title: Localizations.chooseYourMasterPassword,
                     message: Localizations.chooseAUniqueAndStrongPasswordToKeepYourInformationSafe
                 )
