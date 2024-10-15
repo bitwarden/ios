@@ -70,8 +70,8 @@ class ImportLoginsCoordinator: NSObject, Coordinator, HasStackNavigator {
         switch route {
         case .dismiss:
             stackNavigator?.dismiss()
-        case .importLogins:
-            showImportLogins()
+        case let .importLogins(mode):
+            showImportLogins(mode: mode)
         case .importLoginsSuccess:
             showImportLoginsSuccess()
         }
@@ -83,11 +83,13 @@ class ImportLoginsCoordinator: NSObject, Coordinator, HasStackNavigator {
 
     /// Shows the import login items screen.
     ///
-    private func showImportLogins() {
+    /// - Parameter mode: The mode of the view based on where the flow was started from.
+    ///
+    private func showImportLogins(mode: ImportLoginsState.Mode) {
         let processor = ImportLoginsProcessor(
             coordinator: asAnyCoordinator(),
             services: services,
-            state: ImportLoginsState()
+            state: ImportLoginsState(mode: mode)
         )
         let view = ImportLoginsView(store: Store(processor: processor))
         stackNavigator?.push(view)

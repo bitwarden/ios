@@ -31,7 +31,7 @@ class ImportLoginsProcessorTests: BitwardenTestCase {
                 stateService: stateService,
                 vaultRepository: vaultRepository
             ),
-            state: ImportLoginsState()
+            state: ImportLoginsState(mode: .vault)
         )
     }
 

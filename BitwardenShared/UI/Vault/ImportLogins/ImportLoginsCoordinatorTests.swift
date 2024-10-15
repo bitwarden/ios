@@ -59,7 +59,7 @@ class ImportLoginsCoordinatorTests: BitwardenTestCase {
     /// `navigate(to:)` with `.importLogins` pushes the import logins view onto the stack navigator.
     @MainActor
     func test_navigateTo_importLogins() throws {
-        subject.navigate(to: .importLogins)
+        subject.navigate(to: .importLogins(.vault))
 
         let action = try XCTUnwrap(stackNavigator.actions.last)
         XCTAssertEqual(action.type, .pushed)

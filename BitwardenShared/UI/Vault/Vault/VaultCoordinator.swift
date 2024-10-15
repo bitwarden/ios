@@ -255,7 +255,7 @@ final class VaultCoordinator: Coordinator, HasStackNavigator {
             stackNavigator: navigationController
         )
         coordinator.start()
-        coordinator.navigate(to: .importLogins)
+        coordinator.navigate(to: .importLogins(.vault))
         stackNavigator?.present(navigationController)
     }
 

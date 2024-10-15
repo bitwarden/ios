@@ -144,7 +144,7 @@ class VaultCoordinatorTests: BitwardenTestCase {
         XCTAssertEqual(action.type, .presented)
         XCTAssertTrue(action.view is UINavigationController)
         XCTAssertTrue(module.importLoginsCoordinator.isStarted)
-        XCTAssertEqual(module.importLoginsCoordinator.routes.last, .importLogins)
+        XCTAssertEqual(module.importLoginsCoordinator.routes.last, .importLogins(.vault))
     }
 
     /// `navigate(to:)` with `.list` pushes the vault list view onto the stack navigator.

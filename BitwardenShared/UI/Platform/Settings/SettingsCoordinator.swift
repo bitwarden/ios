@@ -367,7 +367,7 @@ final class SettingsCoordinator: Coordinator, HasStackNavigator { // swiftlint:d
             stackNavigator: navigationController
         )
         coordinator.start()
-        coordinator.navigate(to: .importLogins)
+        coordinator.navigate(to: .importLogins(.settings))
 
         stackNavigator?.present(navigationController)
     }

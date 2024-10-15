@@ -185,7 +185,7 @@ class SettingsCoordinatorTests: BitwardenTestCase {
         XCTAssertEqual(action.type, .presented)
         XCTAssertTrue(action.view is UINavigationController)
         XCTAssertTrue(module.importLoginsCoordinator.isStarted)
-        XCTAssertEqual(module.importLoginsCoordinator.routes.last, .importLogins)
+        XCTAssertEqual(module.importLoginsCoordinator.routes.last, .importLogins(.settings))
     }
 
     /// `navigate(to:)` with `.lockVault` navigates the user to the login view.
