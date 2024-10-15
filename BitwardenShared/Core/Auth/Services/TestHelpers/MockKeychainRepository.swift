@@ -73,7 +73,7 @@ class MockKeychainRepository: KeychainRepository {
         try getAccessTokenResult.get()
     }
 
-    func getAuthenticatorVaultKey(userId: String) async throws -> String? {
+    func getAuthenticatorVaultKey(userId: String) async throws -> String {
         try getValue(for: .authenticatorVaultKey(userId: userId))
     }
 

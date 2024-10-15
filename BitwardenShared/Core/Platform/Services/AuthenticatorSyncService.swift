@@ -163,31 +163,30 @@ actor DefaultAuthenticatorSyncService: NSObject, AuthenticatorSyncService {
         try await keychainRepository.setAuthenticatorVaultKey(key, userId: userId)
     }
 
-    /// Take a list of encrypted ciphers, decrypt them, filter for only active ciphers with a totp code, then
-    /// convert the list to AuthenticatorSyncItemDataModel to be stored and sync'd to the Authenticator app.
+    /// Take a list of encrypted ciphers, filter for only active ciphers with a totp code,  decrypt them, then
+    /// convert the list to AuthenticatorSyncItemDataView to be stored and sync'd to the Authenticator app.
     ///
     /// - Parameters:
     ///   - ciphers: The encrypted `Cipher` objects.
-    ///   - userId: The userId of the account to which these Ciphers belong.
+    ///   - account: The account to which these Ciphers belong.
     ///
     /// - Returns: The decrypted, filtered, and sorted `CipherDTO` objects.
     ///
     private func decryptTOTPs(_ ciphers: [Cipher],
-                              userId: String) async throws -> [AuthenticatorBridgeItemDataView] {
+                              account: Account) async throws -> [AuthenticatorBridgeItemDataView] {
         let totpCiphers = ciphers.filter { cipher in
             cipher.deletedDate == nil
                 && cipher.type == .login
                 && cipher.login?.totp != nil
         }
         let decryptedCiphers = try await totpCiphers.asyncMap { cipher in
-            try await self.clientService.vault(for: userId).ciphers().decrypt(cipher: cipher)
+            try await self.clientService.vault(for: account.profile.userId).ciphers().decrypt(cipher: cipher)
         }
-        let account = try? await stateService.getAccount(userId: userId)
 
         return decryptedCiphers.map { cipher in
             AuthenticatorBridgeItemDataView(
-                accountDomain: account?.settings.environmentUrls?.webVaultHost,
-                accountEmail: account?.profile.email,
+                accountDomain: account.settings.environmentUrls?.webVaultHost,
+                accountEmail: account.profile.email,
                 favorite: false,
                 id: cipher.id ?? UUID().uuidString,
                 name: cipher.name,
@@ -257,14 +256,20 @@ actor DefaultAuthenticatorSyncService: NSObject, AuthenticatorSyncService {
     ///   - userId: The userId of the account to which the Ciphers belong.
     ///
     private func writeCiphers(ciphers: [Cipher], userId: String) async throws {
+        let account = try await stateService.getAccount(userId: userId)
         let useKey = vaultTimeoutService.isLocked(userId: userId)
-        if useKey {
-            try await authRepository.unlockVaultWithAuthenticatorVaultKey(userId: userId)
+
+        do {
+            if useKey {
+                try await authRepository.unlockVaultWithAuthenticatorVaultKey(userId: userId)
+            }
+            let items = try await decryptTOTPs(ciphers, account: account)
+            try await authBridgeItemService.replaceAllItems(with: items, forUserId: userId)
+        } catch {
+            errorReporter.log(error: error)
         }
-        let items = try await decryptTOTPs(ciphers, userId: userId)
         if useKey {
             await vaultTimeoutService.lockVault(userId: userId)
         }
-        try await authBridgeItemService.replaceAllItems(with: items, forUserId: userId)
     }
 }

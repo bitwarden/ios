@@ -768,7 +768,7 @@ extension DefaultAuthRepository: AuthRepository {
     }
 
     func unlockVaultWithAuthenticatorVaultKey(userId: String) async throws {
-        let authenticatorKey = try await keychainService.getAuthenticatorVaultKey(userId: userId) ?? ""
+        let authenticatorKey = try await keychainService.getAuthenticatorVaultKey(userId: userId)
         try await unlockVault(method: .decryptedKey(decryptedUserKey: authenticatorKey), hadUserInteraction: false)
     }
 

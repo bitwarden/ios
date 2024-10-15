@@ -113,7 +113,7 @@ protocol KeychainRepository: AnyObject {
     /// - Parameter userId: The user ID associated with the authenticator vault key.
     /// - Returns: The authenticator vault key.
     ///
-    func getAuthenticatorVaultKey(userId: String) async throws -> String?
+    func getAuthenticatorVaultKey(userId: String) async throws -> String
 
     /// Gets the stored device key for a user from the keychain.
     ///
@@ -395,7 +395,7 @@ extension DefaultKeychainRepository {
         try await getValue(for: .accessToken(userId: userId))
     }
 
-    func getAuthenticatorVaultKey(userId: String) async throws -> String? {
+    func getAuthenticatorVaultKey(userId: String) async throws -> String {
         try await getValue(for: .authenticatorVaultKey(userId: userId))
     }
 
