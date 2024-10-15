@@ -91,6 +91,7 @@ class SettingsViewTests: BitwardenTestCase {
     func test_settingsView_badges() {
         processor.state.badgeState = .fixture(
             autofillSetupProgress: .setUpLater,
+            importLoginsSetupProgress: .setUpLater,
             vaultUnlockSetupProgress: .setUpLater
         )
         assertSnapshots(
