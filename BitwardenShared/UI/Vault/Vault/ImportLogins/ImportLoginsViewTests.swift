@@ -91,4 +91,25 @@ class ImportLoginsViewTests: BitwardenTestCase {
             as: [.defaultPortrait, .defaultPortraitDark, .tallPortraitAX5(heightMultiple: 2.5), .defaultLandscape]
         )
     }
+
+    /// The import logins step 2 page renders correctly.
+    @MainActor
+    func test_snapshot_importLoginsStep2() {
+        processor.state.page = .step2
+        processor.state.webVaultHost = "vault.bitwarden.com"
+        assertSnapshots(
+            of: subject.navStackWrapped,
+            as: [.defaultPortrait, .defaultPortraitDark, .tallPortraitAX5(heightMultiple: 2), .defaultLandscape]
+        )
+    }
+
+    /// The import logins step 3 page renders correctly.
+    @MainActor
+    func test_snapshot_importLoginsStep3() {
+        processor.state.page = .step3
+        assertSnapshots(
+            of: subject.navStackWrapped,
+            as: [.defaultPortrait, .defaultPortraitDark, .tallPortraitAX5(heightMultiple: 2.5), .defaultLandscape]
+        )
+    }
 }

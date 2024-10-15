@@ -10,6 +10,8 @@ struct ImportLoginsState: Equatable, Sendable {
     enum Page: Int {
         case intro
         case step1
+        case step2
+        case step3
 
         /// The page before the current one.
         var previous: Page? {
@@ -26,4 +28,7 @@ struct ImportLoginsState: Equatable, Sendable {
 
     /// The current page.
     var page = Page.intro
+
+    /// The hostname of the web vault URL.
+    var webVaultHost = Constants.defaultWebVaultHost
 }

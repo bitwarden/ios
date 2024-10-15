@@ -39,6 +39,8 @@ class ImportLoginsProcessor: StateProcessor<ImportLoginsState, ImportLoginsActio
 
     override func perform(_ effect: ImportLoginsEffect) async {
         switch effect {
+        case .appeared:
+            await loadData()
         case .importLoginsLater:
             showImportLoginsLaterAlert()
         }
@@ -74,6 +76,17 @@ class ImportLoginsProcessor: StateProcessor<ImportLoginsState, ImportLoginsActio
     private func advancePreviousPage() {
         guard let previous = state.page.previous else { return }
         state.page = previous
+    }
+
+    /// Loads the data for the view.
+    ///
+    private func loadData() async {
+        do {
+            let account = try await services.stateService.getActiveAccount()
+            state.webVaultHost = account.settings.environmentUrls?.webVaultHost ?? Constants.defaultWebVaultHost
+        } catch {
+            services.errorReporter.log(error: error)
+        }
     }
 
     /// Shows the alert confirming the user wants to get started on importing logins.
