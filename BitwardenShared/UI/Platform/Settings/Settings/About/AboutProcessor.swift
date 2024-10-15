@@ -105,7 +105,7 @@ final class AboutProcessor: StateProcessor<AboutState, AboutAction, Void> {
             )
         }
         services.pasteboardService.copy(infoParts.joined(separator: "\n"))
-        state.toast = Toast(text: Localizations.valueHasBeenCopied(Localizations.appInfo))
+        state.toast = Toast(title: Localizations.valueHasBeenCopied(Localizations.appInfo))
     }
 }
 
