@@ -1020,7 +1020,7 @@
 "ExportYourSavedLogins" = "Export your saved logins";
 "OnYourComputerLogInToYourCurrentBrowserOrPasswordManager" = "On your computer, **log in to your current browser or password manager.**";
 "ExportYourPasswordsThisOptionIsUsuallyFoundInYourSettings" = "**Export your passwords.** This option is usually found in your settings.";
-"SelectImportDataInTheWebAppThenDoneToFinishSyncing" = "**Select Import data** in the web app, then Done to finish syncing.";
+"SaveTheExportedFileSomewhereOnYourComputerYouCanFindEasily" = "**Save the exported file** somewhere on your computer you can find easily.";
 "YoullDeleteThisFileAfterImportIsComplete" = "You’ll delete this file after import is complete.";
 "NeedHelpCheckOutImportHelp" = "Need help? Check out **[import help](%1$@)**";
 "LogInToBitwarden" = "Log in to Bitwarden";

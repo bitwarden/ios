@@ -73,7 +73,7 @@ struct ImportLoginsView: View {
             NumberedListRow(title: Localizations.onYourComputerLogInToYourCurrentBrowserOrPasswordManager)
             NumberedListRow(title: Localizations.exportYourPasswordsThisOptionIsUsuallyFoundInYourSettings)
             NumberedListRow(
-                title: Localizations.selectImportDataInTheWebAppThenDoneToFinishSyncing,
+                title: Localizations.saveTheExportedFileSomewhereOnYourComputerYouCanFindEasily,
                 subtitle: Localizations.youllDeleteThisFileAfterImportIsComplete
             )
         }
