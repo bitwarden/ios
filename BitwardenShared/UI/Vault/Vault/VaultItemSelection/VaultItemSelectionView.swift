@@ -50,11 +50,6 @@ struct VaultItemSelectionView: View {
                 store.send(.addTapped)
             }
         }
-        .overlay(alignment: .bottomTrailing) {
-            addItemFloatingActionButton {
-                store.send(.addTapped)
-            }
-        }
     }
 
     // MARK: Private properties
@@ -113,6 +108,11 @@ private struct VaultItemSelectionSearchableView: View {
                 || !store.state.searchResults.isEmpty
 
             contentView()
+                .overlay(alignment: .bottomTrailing) {
+                    addItemFloatingActionButton {
+                        store.send(.addTapped)
+                    }
+                }
                 .hidden(isSearching)
 
             searchContentView()
@@ -255,6 +255,23 @@ private struct VaultItemSelectionSearchableView: View {
     }
 }
 
+#Preview("Search Results") {
+    NavigationView {
+        VaultItemSelectionView(
+            store: Store(
+                processor: StateProcessor(
+                    state: VaultItemSelectionState(
+                        iconBaseURL: nil,
+                        otpAuthModel: .fixtureExample,
+                        searchResults: [.init(id: "1", itemType: .cipher(.fixture()))],
+                        searchText: "Search"
+                    )
+                )
+            )
+        )
+    }
+}
+
 #Preview("Matching Items") {
     NavigationView {
         let ciphers: [CipherView] = [
@@ -287,7 +304,7 @@ private struct VaultItemSelectionSearchableView: View {
                 name: "Company XYZ"
             ),
             .fixture(
-                id: "47",
+                id: "7",
                 login: .fixture(username: "user@bitwarden.com"),
                 name: "Apple"
             ),
