@@ -77,6 +77,11 @@ final class ItemListProcessor: StateProcessor<ItemListState, ItemListAction, Ite
             await determineItemListCardState()
         case let .copyPressed(item):
             switch item.itemType {
+            case let .sharedTotp(model):
+                guard let key = model.itemView.totpKey,
+                      let totpKey = TOTPKeyModel(authenticatorKey: key)
+                else { return }
+                await generateAndCopyTotpCode(totpKey: totpKey)
             case let .totp(model):
                 guard let key = model.itemView.totpKey,
                       let totpKey = TOTPKeyModel(authenticatorKey: key)
@@ -97,12 +102,16 @@ final class ItemListProcessor: StateProcessor<ItemListState, ItemListAction, Ite
         case .clearURL:
             break
         case let .deletePressed(item):
+            guard case .totp = item.itemType else { return }
             confirmDeleteItem(item.id)
         case let .editPressed(item):
             guard case let .totp(model) = item.itemType else { return }
             coordinator.navigate(to: .editItem(item: model.itemView), context: self)
         case let .itemPressed(item):
             switch item.itemType {
+            case let .sharedTotp(model):
+                services.pasteboardService.copy(model.totpCode.code)
+                state.toast = Toast(text: Localizations.valueHasBeenCopied(Localizations.verificationCode))
             case let .totp(model):
                 services.pasteboardService.copy(model.totpCode.code)
                 state.toast = Toast(text: Localizations.valueHasBeenCopied(Localizations.verificationCode))
@@ -325,8 +334,12 @@ private class TOTPExpirationManager {
     func configureTOTPRefreshScheduling(for items: [ItemListItem]) {
         var newItemsByInterval = [UInt32: [ItemListItem]]()
         items.forEach { item in
-            guard case let .totp(model) = item.itemType else { return }
-            newItemsByInterval[model.totpCode.period, default: []].append(item)
+            switch item.itemType {
+            case let .sharedTotp(model):
+                newItemsByInterval[model.totpCode.period, default: []].append(item)
+            case let .totp(model):
+                newItemsByInterval[model.totpCode.period, default: []].append(item)
+            }
         }
         itemsByInterval = newItemsByInterval
     }

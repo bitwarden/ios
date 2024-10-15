@@ -198,7 +198,7 @@ private struct SearchableItemListView: View {
 
     /// A view that displays a list of the sections within this vault group.
     ///
-    @ViewBuilder
+    @ViewBuilder // swiftlint:disable:next function_body_length
     private func groupView(title: String?, items: [ItemListItem]) -> some View {
         LazyVStack(alignment: .leading, spacing: 7) {
             if let title = title?.nilIfEmpty {
@@ -217,27 +217,29 @@ private struct SearchableItemListView: View {
                         }
                     }
 
-                    Button {
-                        store.send(.editPressed(item))
-                    } label: {
-                        HStack(spacing: 4) {
-                            Text(Localizations.edit)
-                            Spacer()
-                            Image(decorative: Asset.Images.pencil)
-                                .imageStyle(.accessoryIcon(scaleWithFont: true))
+                    if case .totp = item.itemType {
+                        Button {
+                            store.send(.editPressed(item))
+                        } label: {
+                            HStack(spacing: 4) {
+                                Text(Localizations.edit)
+                                Spacer()
+                                Image(decorative: Asset.Images.pencil)
+                                    .imageStyle(.accessoryIcon(scaleWithFont: true))
+                            }
                         }
-                    }
 
-                    Divider()
+                        Divider()
 
-                    Button(role: .destructive) {
-                        store.send(.deletePressed(item))
-                    } label: {
-                        HStack(spacing: 4) {
-                            Text(Localizations.delete)
-                            Spacer()
-                            Image(decorative: Asset.Images.trash)
-                                .imageStyle(.accessoryIcon(scaleWithFont: true))
+                        Button(role: .destructive) {
+                            store.send(.deletePressed(item))
+                        } label: {
+                            HStack(spacing: 4) {
+                                Text(Localizations.delete)
+                                Spacer()
+                                Image(decorative: Asset.Images.trash)
+                                    .imageStyle(.accessoryIcon(scaleWithFont: true))
+                            }
                         }
                     }
                 } label: {

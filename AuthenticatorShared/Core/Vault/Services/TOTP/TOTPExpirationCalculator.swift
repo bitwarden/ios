@@ -47,8 +47,12 @@ enum TOTPExpirationCalculator {
         timeProvider: any TimeProvider
     ) -> [Bool: [ItemListItem]] {
         let sortedItems: [Bool: [ItemListItem]] = Dictionary(grouping: items, by: { item in
-            guard case let .totp(model) = item.itemType else { return false }
-            return hasCodeExpired(model.totpCode, timeProvider: timeProvider)
+            switch item.itemType {
+            case let .sharedTotp(model):
+                return hasCodeExpired(model.totpCode, timeProvider: timeProvider)
+            case let .totp(model):
+                return hasCodeExpired(model.totpCode, timeProvider: timeProvider)
+            }
         })
         return sortedItems
     }

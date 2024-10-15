@@ -16,6 +16,7 @@ class ItemListProcessorTests: AuthenticatorTestCase { // swiftlint:disable:this 
     var configService: MockConfigService!
     var coordinator: MockCoordinator<ItemListRoute, ItemListEvent>!
     var errorReporter: MockErrorReporter!
+    var pasteboardService: MockPasteboardService!
     var totpService: MockTOTPService!
     var subject: ItemListProcessor!
 
@@ -31,6 +32,7 @@ class ItemListProcessorTests: AuthenticatorTestCase { // swiftlint:disable:this 
         configService = MockConfigService()
         coordinator = MockCoordinator()
         errorReporter = MockErrorReporter()
+        pasteboardService = MockPasteboardService()
         totpService = MockTOTPService()
 
         let services = ServiceContainer.withMocks(
@@ -40,6 +42,7 @@ class ItemListProcessorTests: AuthenticatorTestCase { // swiftlint:disable:this 
             cameraService: cameraService,
             configService: configService,
             errorReporter: errorReporter,
+            pasteboardService: pasteboardService,
             totpService: totpService
         )
 
@@ -206,6 +209,71 @@ class ItemListProcessorTests: AuthenticatorTestCase { // swiftlint:disable:this 
         XCTAssertEqual(first, thirdResultSection)
     }
 
+    /// `perform(:_)` with `.copyPressed()` with a local item copies the code to the pasteboard
+    /// and updates the toast in the state.
+    func test_perform_copyPressed_localItem() {
+        let totpCode = "654321"
+        let totpModel = TOTPCodeModel(code: totpCode,
+                                      codeGenerationDate: Date(year: 2023, month: 12, day: 31),
+                                      period: 30)
+        let localItem = ItemListItem.fixture()
+        totpService.getTotpCodeResult = .success(totpModel)
+
+        let task = Task {
+            await subject.perform(.copyPressed(localItem))
+        }
+        defer { task.cancel() }
+
+        waitFor(pasteboardService.copiedString != nil)
+
+        XCTAssertEqual(pasteboardService.copiedString, totpCode)
+        XCTAssertEqual(
+            subject.state.toast?.text,
+            Localizations.valueHasBeenCopied(Localizations.verificationCode)
+        )
+    }
+
+    /// `perform(:_)` with `.copyPressed()` with a local item copies the code to the pasteboard
+    /// and updates the toast in the state.
+    func test_perform_copyPressed_error() {
+        let localItem = ItemListItem.fixture()
+        totpService.getTotpCodeResult = .failure(AuthenticatorTestError.example)
+
+        let task = Task {
+            await subject.perform(.copyPressed(localItem))
+        }
+        defer { task.cancel() }
+
+        waitFor(!errorReporter.errors.isEmpty)
+
+        XCTAssertEqual(coordinator.alertShown,
+                       [Alert.defaultAlert(title: Localizations.anErrorHasOccurred)])
+    }
+
+    /// `perform(:_)` with `.copyPressed()` with a shared item copies the code to the pasteboard
+    /// and updates the toast in the state.
+    func test_perform_copyPressed_sharedItem() {
+        let totpCode = "654321"
+        let totpModel = TOTPCodeModel(code: totpCode,
+                                      codeGenerationDate: Date(year: 2023, month: 12, day: 31),
+                                      period: 30)
+        let sharedItem = ItemListItem.fixtureShared()
+        totpService.getTotpCodeResult = .success(totpModel)
+
+        let task = Task {
+            await subject.perform(.copyPressed(sharedItem))
+        }
+        defer { task.cancel() }
+
+        waitFor(pasteboardService.copiedString != nil)
+
+        XCTAssertEqual(pasteboardService.copiedString, totpCode)
+        XCTAssertEqual(
+            subject.state.toast?.text,
+            Localizations.valueHasBeenCopied(Localizations.verificationCode)
+        )
+    }
+
     /// `perform(:_)` with `.search` updates search results in the state.
     func test_perform_search() {
         let result = ItemListItem.fixture(
@@ -270,7 +338,7 @@ class ItemListProcessorTests: AuthenticatorTestCase { // swiftlint:disable:this 
         let firstSection = ItemListSection(id: "", items: [firstItem], name: "Items")
         subject.state.loadingState = .data([firstSection])
 
-        let secondItem = ItemListItem.fixture(
+        let secondItem = ItemListItem.fixtureShared(
             totp: .fixture(
                 totpCode: TOTPCodeModel(
                     code: "345678",
@@ -304,6 +372,31 @@ class ItemListProcessorTests: AuthenticatorTestCase { // swiftlint:disable:this 
         waitFor(subject.state.searchResults == [thirdItem])
 
         task.cancel()
+    }
+
+    /// `perform(_:)` with `.appeared` starts streaming vault items.
+    func test_perform_streamItemList() {
+        let totpCode = TOTPCodeModel(code: "654321",
+                                     codeGenerationDate: Date(year: 2023, month: 12, day: 31),
+                                     period: 30)
+        let results = [
+            ItemListItem.fixture(totp: .fixture(totpCode: totpCode)),
+            ItemListItem.fixtureShared(totp: .fixture(totpCode: totpCode)),
+        ]
+        let resultSection = ItemListSection(id: "", items: results, name: "Items")
+
+        authItemRepository.itemListSubject.send([resultSection])
+        authItemRepository.refreshTotpCodesResult = .success(results)
+
+        let task = Task {
+            await subject.perform(.streamItemList)
+        }
+
+        waitFor(subject.state.loadingState != .loading(nil))
+        task.cancel()
+
+        XCTAssertEqual(authItemRepository.refreshedTotpCodes, results)
+        XCTAssertEqual(subject.state.loadingState, .data([resultSection]))
     }
 
     // MARK: AuthenticatorKeyCaptureDelegate Tests

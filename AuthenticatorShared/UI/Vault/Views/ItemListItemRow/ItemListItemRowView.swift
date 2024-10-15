@@ -32,6 +32,12 @@ struct ItemListItemRowView: View {
 
                 HStack {
                     switch store.state.item.itemType {
+                    case let .sharedTotp(model):
+                        totpCodeRow(
+                            name: store.state.item.name,
+                            accountName: store.state.item.accountName,
+                            model: model.totpCode
+                        )
                     case let .totp(model):
                         totpCodeRow(
                             name: store.state.item.name,

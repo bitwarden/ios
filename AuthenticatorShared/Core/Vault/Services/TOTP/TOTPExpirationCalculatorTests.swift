@@ -65,36 +65,38 @@ final class TOTPExpirationCalculatorTests: AuthenticatorTestCase {
     }
 
     func test_listItemsByExpiration() {
-        let expired = ItemListItem.fixture(
-            totp: ItemListTotpItem.fixture(
-                totpCode: TOTPCodeModel(
-                    code: "",
-                    codeGenerationDate: Date(year: 2024, month: 1, day: 1, second: 29),
-                    period: 30
-                )
-            )
+        let expiredTotp = TOTPCodeModel(
+            code: "",
+            codeGenerationDate: Date(year: 2024, month: 1, day: 1, second: 29),
+            period: 30
         )
-        let current = ItemListItem.fixture(
-            totp: ItemListTotpItem.fixture(
-                totpCode: TOTPCodeModel(
-                    code: "",
-                    codeGenerationDate: Date(year: 2024, month: 1, day: 1, second: 31),
-                    period: 30
-                )
-            )
+        let expired = ItemListItem.fixture(totp: ItemListTotpItem.fixture(totpCode: expiredTotp))
+        let expiredShared = ItemListItem.fixtureShared(
+            totp: ItemListSharedTotpItem.fixture(totpCode: expiredTotp)
+        )
+        let currentTotp = TOTPCodeModel(
+            code: "",
+            codeGenerationDate: Date(year: 2024, month: 1, day: 1, second: 31),
+            period: 30
+        )
+        let current = ItemListItem.fixture(totp: ItemListTotpItem.fixture(totpCode: currentTotp))
+        let currentShared = ItemListItem.fixtureShared(
+            totp: ItemListSharedTotpItem.fixture(totpCode: currentTotp)
         )
         let expectation = [
             true: [
                 expired,
+                expiredShared,
             ],
             false: [
                 current,
+                currentShared,
             ],
         ]
         XCTAssertEqual(
             expectation,
             TOTPExpirationCalculator.listItemsByExpiration(
-                [current, expired],
+                [current, currentShared, expired, expiredShared],
                 timeProvider: MockTimeProvider(
                     .mockTime(
                         Date(
@@ -109,7 +111,7 @@ final class TOTPExpirationCalculatorTests: AuthenticatorTestCase {
         )
     }
 
-    func test_remainingSecons_roundsUp() {
+    func test_remainingSeconds_roundsUp() {
         XCTAssertEqual(
             TOTPExpirationCalculator.remainingSeconds(
                 for: Date(year: 2024, month: 1, day: 1, second: 29, nanosecond: 90_000_000),

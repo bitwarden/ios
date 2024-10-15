@@ -1,3 +1,4 @@
+import AuthenticatorBridgeKit
 import Combine
 import Foundation
 
@@ -89,10 +90,25 @@ protocol AuthenticatorItemRepository: AnyObject {
 class DefaultAuthenticatorItemRepository {
     // MARK: Properties
 
+    /// Service from which to fetch locally stored Authenticator items.
     private let authenticatorItemService: AuthenticatorItemService
+
+    /// Service to determine if the sync feature flag is turned on.
+    private let configService: ConfigService
+
+    /// Service to encrypt/decrypt locally stored Authenticator items.
     private let cryptographyService: CryptographyService
+
+    /// Error Reporter for any errors encountered
     private let errorReporter: ErrorReporter
+
+    /// Service to fetch items from the shared CoreData store - shared from the main Bitwarden PM app.
+    private let sharedItemService: AuthenticatorBridgeItemService
+
+    /// A protocol wrapping the present time.
     private let timeProvider: TimeProvider
+
+    /// A service for refreshing TOTP codes.
     private let totpService: TOTPService
 
     // MARK: Initialization
@@ -100,23 +116,77 @@ class DefaultAuthenticatorItemRepository {
     /// Initialize a `DefaultAuthenticatorItemRepository`
     ///
     /// - Parameters:
-    ///   - authenticatorItemService
-    ///   - cryptographyService
+    ///   - authenticatorItemService: Service to from which to fetch locally stored Authenticator items.
+    ///   - configService: Service to determine if the sync feature flag is turned on.
+    ///   - cryptographyService: Service to encrypt/decrypt locally stored Authenticator items.
+    ///   - sharedItemService: Service to fetch items from the shared CoreData store - shared from
+    ///     the main Bitwarden PM app.
+    ///   - errorReporter: Error Reporter for any errors encountered
+    ///   - timeProvider: A protocol wrapping the present time.
+    ///   - totpService: A service for refreshing TOTP codes.
     init(
         authenticatorItemService: AuthenticatorItemService,
+        configService: ConfigService,
         cryptographyService: CryptographyService,
         errorReporter: ErrorReporter,
+        sharedItemService: AuthenticatorBridgeItemService,
         timeProvider: TimeProvider,
         totpService: TOTPService
     ) {
         self.authenticatorItemService = authenticatorItemService
+        self.configService = configService
         self.cryptographyService = cryptographyService
         self.errorReporter = errorReporter
         self.timeProvider = timeProvider
         self.totpService = totpService
+        self.sharedItemService = sharedItemService
     }
 
     // MARK: Private Methods
+
+    /// Combine sections that are locally stored with the list of the sections created with the shared items,
+    /// when sync with the PM app is enabled.
+    ///
+    /// Note: If the `enablePasswordManagerSync` feature flag is not enabled, or if the user has not yet
+    /// turned on sync for any accounts, this method simply returns `localSections`.
+    ///
+    /// - Parameters:
+    ///   - localSections: The [ItemListSection] sections for the items locally stored
+    ///   - sharedItems: The shared items that are coming in via sync with the PM app
+    /// - Returns: A list of the sections to display in the item list
+    ///
+    private func combinedSections(
+        localSections: [ItemListSection],
+        sharedItems: [AuthenticatorBridgeItemDataView]
+    ) async throws -> [ItemListSection] {
+        guard await configService.getFeatureFlag(.enablePasswordManagerSync),
+              await sharedItemService.isSyncOn() else {
+            return localSections
+        }
+
+        let groupedByAccount = Dictionary(
+            grouping: sharedItems,
+            by: { item in
+                [item.accountEmail, item.accountDomain]
+                    .compactMap { $0?.nilIfEmpty }
+                    .joined(separator: " | ")
+            }
+        )
+
+        var sections = localSections
+
+        for key in groupedByAccount.keys.sorted() {
+            let items = groupedByAccount[key]?.compactMap { item in
+                ItemListItem(itemView: item, timeProvider: self.timeProvider)
+            }
+            guard let items, !items.isEmpty else {
+                continue
+            }
+            sections.append(ItemListSection(id: key, items: items, name: key))
+        }
+
+        return sections
+    }
 
     /// Returns a list of the sections in the item list
     ///
@@ -139,44 +209,34 @@ class DefaultAuthenticatorItemRepository {
             ItemListItem(authenticatorItemView: item, timeProvider: self.timeProvider)
         }
 
+        let syncEnabled: Bool = await configService.getFeatureFlag(.enablePasswordManagerSync)
+        let syncOn = await sharedItemService.isSyncOn()
+        let useSyncValues = syncEnabled && syncOn
+
         return [
             ItemListSection(id: "Favorites", items: favorites, name: Localizations.favorites),
-            ItemListSection(id: "Unorganized", items: nonFavorites, name: ""),
+            ItemListSection(id: useSyncValues ? "LocalCodes" : "Unorganized",
+                            items: nonFavorites,
+                            name: useSyncValues ? Localizations.localCodes : ""),
         ]
         .filter { !$0.items.isEmpty }
     }
 
-    /// A publisher for searching a user's items based on the specified search text and filter type.
+    /// A Publisher that combines all of the locally stored code with the codes shared from the Bitwarden PM app. This
+    /// publisher converts all of these into `[ItemListSection]` ready to be displayed in the ItemList.
     ///
-    /// - Parameters:
-    ///   - searchText: The search text to filter the item list.
-    /// - Returns: A publisher searching for the user's ciphers.
+    /// - Returns: An array of `ItemListSection` containing both locally stored and shared codes.
     ///
-    private func searchPublisher(
-        searchText: String
-    ) async throws -> AnyPublisher<[AuthenticatorItemView], Error> {
-        let query = searchText.trimmingCharacters(in: .whitespacesAndNewlines)
-            .lowercased()
-            .folding(options: .diacriticInsensitive, locale: .current)
-
-        return try await authenticatorItemService.authenticatorItemsPublisher()
-            .asyncTryMap { items -> [AuthenticatorItemView] in
-                let matchingItems = try await items.asyncMap { item in
-                    try await self.cryptographyService.decrypt(item)
-                }
-
-                var matchedItems: [AuthenticatorItemView] = []
-
-                matchingItems.forEach { item in
-                    if item.name.lowercased()
-                        .folding(options: .diacriticInsensitive, locale: nil)
-                        .contains(query) {
-                        matchedItems.append(item)
-                    }
-                }
-
-                return matchedItems.sorted { $0.name.localizedStandardCompare($1.name) == .orderedAscending }
-            }.eraseToAnyPublisher()
+    private func itemListSectionPublisher() async throws -> AnyPublisher<[ItemListSection], Error> {
+        try await authenticatorItemService.authenticatorItemsPublisher()
+            .combineLatest(
+                sharedItemService.sharedItemsPublisher()
+            )
+            .asyncTryMap { localItems, sharedItems in
+                let sections = try await self.itemListSections(from: localItems)
+                return try await self.combinedSections(localSections: sections, sharedItems: sharedItems)
+            }
+            .eraseToAnyPublisher()
     }
 }
 
@@ -206,23 +266,22 @@ extension DefaultAuthenticatorItemRepository: AuthenticatorItemRepository {
 
     func refreshTotpCodes(on items: [ItemListItem]) async throws -> [ItemListItem] {
         try await items.asyncMap { item in
-            guard case let .totp(model) = item.itemType,
-                  let key = model.itemView.totpKey,
-                  let keyModel = TOTPKeyModel(authenticatorKey: key)
-            else {
+            let keyModel: TOTPKeyModel?
+            switch item.itemType {
+            case let .sharedTotp(model):
+                let key = model.itemView.totpKey
+                keyModel = TOTPKeyModel(authenticatorKey: key)
+            case let .totp(model):
+                let key = model.itemView.totpKey
+                keyModel = TOTPKeyModel(authenticatorKey: key)
+            }
+            guard let keyModel else {
                 errorReporter.log(error: TOTPServiceError
                     .unableToGenerateCode("Unable to refresh TOTP code for list view item: \(item.id)"))
                 return item
             }
             let code = try await totpService.getTotpCode(for: keyModel)
-            var updatedModel = model
-            updatedModel.totpCode = code
-            return ItemListItem(
-                id: item.id,
-                name: item.name,
-                accountName: item.accountName,
-                itemType: .totp(model: updatedModel)
-            )
+            return item.with(newTotpModel: code)
         }
     }
 
@@ -246,23 +305,24 @@ extension DefaultAuthenticatorItemRepository: AuthenticatorItemRepository {
     }
 
     func itemListPublisher() async throws -> AsyncThrowingPublisher<AnyPublisher<[ItemListSection], Error>> {
-        try await authenticatorItemService.authenticatorItemsPublisher()
-            .asyncTryMap { items in
-                try await self.itemListSections(from: items)
-            }
-            .eraseToAnyPublisher()
-            .values
+        try await itemListSectionPublisher().values
     }
 
     func searchItemListPublisher(
         searchText: String
     ) async throws -> AsyncThrowingPublisher<AnyPublisher<[ItemListItem], Error>> {
-        try await searchPublisher(
-            searchText: searchText
-        ).asyncTryMap { items in
-            items.compactMap { item in
-                ItemListItem(authenticatorItemView: item, timeProvider: self.timeProvider)
-            }
+        try await itemListSectionPublisher().map { sections -> [ItemListItem] in
+            let query = searchText.trimmingCharacters(in: .whitespacesAndNewlines)
+                .lowercased()
+                .folding(options: .diacriticInsensitive, locale: .current)
+
+            return sections.flatMap(\.items)
+                .filter { item in
+                    item.name.lowercased()
+                        .folding(options: .diacriticInsensitive, locale: nil)
+                        .contains(query)
+                }
+                .sorted { $0.name.localizedStandardCompare($1.name) == .orderedAscending }
         }
         .eraseToAnyPublisher()
         .values
