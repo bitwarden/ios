@@ -39,6 +39,17 @@ class SettingsCoordinatorTests: BitwardenTestCase {
 
     // MARK: Tests
 
+    /// `didCompleteLoginsImport()` notifies the delegate that the user completed importing their
+    /// logins and dismisses the import logins flow.
+    @MainActor
+    func test_didCompleteLoginsImport() throws {
+        subject.didCompleteLoginsImport()
+
+        XCTAssertTrue(delegate.didCompleteLoginsImportCalled)
+        let action = try XCTUnwrap(stackNavigator.actions.last)
+        XCTAssertEqual(action.type, .dismissedWithCompletionHandler)
+    }
+
     /// `navigate(to:)` with `.about` pushes the about view onto the stack navigator.
     @MainActor
     func test_navigateTo_about() throws {
@@ -163,6 +174,18 @@ class SettingsCoordinatorTests: BitwardenTestCase {
         let navigationController = try XCTUnwrap(stackNavigator.actions.last?.view as? UINavigationController)
         XCTAssertTrue(stackNavigator.actions.last?.view is UINavigationController)
         XCTAssertTrue(navigationController.viewControllers.first is UIHostingController<ExportVaultView>)
+    }
+
+    /// `navigate(to:)` with `.importLogins` presents the import logins flow.
+    @MainActor
+    func test_navigateTo_importLogins() throws {
+        subject.navigate(to: .importLogins)
+
+        let action = try XCTUnwrap(stackNavigator.actions.last)
+        XCTAssertEqual(action.type, .presented)
+        XCTAssertTrue(action.view is UINavigationController)
+        XCTAssertTrue(module.importLoginsCoordinator.isStarted)
+        XCTAssertEqual(module.importLoginsCoordinator.routes.last, .importLogins)
     }
 
     /// `navigate(to:)` with `.lockVault` navigates the user to the login view.
@@ -331,6 +354,7 @@ class SettingsCoordinatorTests: BitwardenTestCase {
 }
 
 class MockSettingsCoordinatorDelegate: SettingsCoordinatorDelegate {
+    var didCompleteLoginsImportCalled = false
     var didDeleteAccountCalled = false
     var didLockVaultCalled = false
     var didLogoutCalled = false
@@ -340,6 +364,10 @@ class MockSettingsCoordinatorDelegate: SettingsCoordinatorDelegate {
     var switchUserId: String?
     var wasLogoutUserInitiated: Bool?
     var wasSwitchAutomatic: Bool?
+
+    func didCompleteLoginsImport() {
+        didCompleteLoginsImportCalled = true
+    }
 
     func didDeleteAccount() {
         didDeleteAccountCalled = true

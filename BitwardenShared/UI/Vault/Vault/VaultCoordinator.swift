@@ -56,6 +56,7 @@ final class VaultCoordinator: Coordinator, HasStackNavigator {
     // MARK: Types
 
     typealias Module = GeneratorModule
+        & ImportLoginsModule
         & VaultItemModule
 
     typealias Services = HasApplication
@@ -173,8 +174,6 @@ final class VaultCoordinator: Coordinator, HasStackNavigator {
             showGroup(group, filter: filter)
         case .importLogins:
             showImportLogins()
-        case .importLoginsSuccess:
-            showImportLoginsSuccess()
         case .list:
             showList()
         case let .loginRequest(loginRequest):
@@ -249,25 +248,14 @@ final class VaultCoordinator: Coordinator, HasStackNavigator {
     /// Shows the import login items screen.
     ///
     private func showImportLogins() {
-        let processor = ImportLoginsProcessor(
-            coordinator: asAnyCoordinator(),
-            services: services,
-            state: ImportLoginsState()
-        )
-        let view = ImportLoginsView(store: Store(processor: processor))
-        let viewController = UIHostingController(rootView: view)
-        let navigationController = UINavigationController(rootViewController: viewController)
+        let navigationController = UINavigationController()
         navigationController.modalPresentationStyle = .fullScreen
-        stackNavigator?.present(navigationController)
-    }
-
-    /// Shows the import login success screen.
-    ///
-    private func showImportLoginsSuccess() {
-        let processor = ImportLoginsSuccessProcessor(coordinator: asAnyCoordinator())
-        let view = ImportLoginsSuccessView(store: Store(processor: processor))
-        let viewController = UIHostingController(rootView: view)
-        let navigationController = UINavigationController(rootViewController: viewController)
+        let coordinator = module.makeImportLoginsCoordinator(
+            delegate: self,
+            stackNavigator: navigationController
+        )
+        coordinator.start()
+        coordinator.navigate(to: .importLogins)
         stackNavigator?.present(navigationController)
     }
 
@@ -335,6 +323,19 @@ final class VaultCoordinator: Coordinator, HasStackNavigator {
         let view = VaultItemSelectionView(store: Store(processor: processor))
         let viewController = UIHostingController(rootView: view)
         stackNavigator?.present(UINavigationController(rootViewController: viewController))
+    }
+}
+
+// MARK: - ImportLoginsCoordinatorDelegate
+
+extension VaultCoordinator: ImportLoginsCoordinatorDelegate {
+    func didCompleteLoginsImport() {
+        stackNavigator?.dismiss {
+            self.showToast(
+                Localizations.loginsImported,
+                subtitle: Localizations.rememberToDeleteYourImportedPasswordFileFromYourComputer
+            )
+        }
     }
 }
 

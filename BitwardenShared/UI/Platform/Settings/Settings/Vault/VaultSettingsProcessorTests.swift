@@ -132,4 +132,12 @@ class VaultSettingsProcessorTests: BitwardenTestCase {
         try await alert.tapAction(title: Localizations.continue)
         XCTAssertEqual(subject.state.url, environmentService.importItemsURL)
     }
+
+    /// `receive(_:)` with  `.showImportLogins` navigates to the import logins screen.
+    @MainActor
+    func test_receive_showImportLogins() {
+        subject.receive(.showImportLogins)
+
+        XCTAssertEqual(coordinator.routes.last, .importLogins)
+    }
 }
