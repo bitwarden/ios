@@ -11,6 +11,7 @@ struct ImportLoginsState: Equatable, Sendable {
         case intro
         case step1
         case step2
+        case step3
 
         /// The page before the current one.
         var previous: Page? {

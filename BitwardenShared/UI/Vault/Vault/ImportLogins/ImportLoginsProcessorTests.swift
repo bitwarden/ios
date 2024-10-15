@@ -51,15 +51,21 @@ class ImportLoginsProcessorTests: BitwardenTestCase {
         subject.receive(.advanceNextPage)
         XCTAssertEqual(subject.state.page, .step2)
 
+        subject.receive(.advanceNextPage)
+        XCTAssertEqual(subject.state.page, .step3)
+
         // TODO: PM-11159 Sync vault
         subject.receive(.advanceNextPage)
-        XCTAssertEqual(subject.state.page, .step2)
+        XCTAssertEqual(subject.state.page, .step3)
     }
 
     /// `receive(_:)` with `.advancePreviousPage` advances to the previous page.
     @MainActor
     func test_receive_advancePreviousPage() {
-        subject.state.page = .step2
+        subject.state.page = .step3
+
+        subject.receive(.advancePreviousPage)
+        XCTAssertEqual(subject.state.page, .step2)
 
         subject.receive(.advancePreviousPage)
         XCTAssertEqual(subject.state.page, .step1)
