@@ -138,7 +138,7 @@ class ViewItemViewTests: BitwardenTestCase { // swiftlint:disable:this type_body
     /// Tapping the floating action button dispatches the `.editPressed` action.`
     @MainActor
     func test_editItemFloatingActionButton() throws {
-        let fab = try subject.inspect().find(viewWithAccessibilityLabel: "EditItemFloatingActionButton")
+        let fab = try subject.inspect().find(viewWithAccessibilityIdentifier: "EditItemFloatingActionButton")
         try fab.button().tap()
         XCTAssertEqual(processor.dispatchedActions.last, .editPressed)
     }

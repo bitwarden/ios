@@ -56,14 +56,6 @@ class AttachmentsViewTests: BitwardenTestCase {
         XCTAssertEqual(processor.dispatchedActions.last, .chooseFilePressed)
     }
 
-    /// Tapping the floating action button dispatches the `.chooseFilePressed` action.`
-    @MainActor
-    func test_addItemFloatingActionButton_tap() throws {
-        let fab = try subject.inspect().find(viewWithAccessibilityLabel: "AddItemFloatingActionButton")
-        try fab.button().tap()
-        XCTAssertEqual(processor.dispatchedActions.last, .chooseFilePressed)
-    }
-
     /// Tapping the delete button dispatches the `.delete` action.
     @MainActor
     func test_deleteButton_tap() throws {

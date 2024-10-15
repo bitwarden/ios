@@ -40,7 +40,7 @@ class SendListViewTests: BitwardenTestCase {
     /// Tapping the add item floating acrtion button dispatches the `.addItemPressed` action.`
     @MainActor
     func test_additemFloatingActionButton_tap() throws {
-        let fab = try subject.inspect().find(viewWithAccessibilityLabel: "AddItemFloatingActionButton")
+        let fab = try subject.inspect().find(viewWithAccessibilityIdentifier: "AddItemFloatingActionButton")
         try fab.button().tap()
         XCTAssertEqual(processor.dispatchedActions.last, .addItemPressed)
     }
