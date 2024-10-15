@@ -45,6 +45,7 @@ private struct MainSendListView: View {
         .onChange(of: isSearching) { newValue in
             store.send(.searchStateChanged(isSearching: newValue))
         }
+        .background(Asset.Colors.backgroundPrimary.swiftUIColor)
     }
 
     // MARK: Private views
@@ -69,21 +70,32 @@ private struct MainSendListView: View {
 
                     Spacer()
 
-                    Text(Localizations.noSends)
-                        .multilineTextAlignment(.center)
-                        .styleGuide(.callout)
+                    PageHeaderView(
+                        image: Asset.Images.sendIllustration,
+                        title: Localizations.sendSensitiveInformationSafely,
+                        message: Localizations
+                            .shareFilesAndDataSecurelyWithAnyoneOnAnyPlatformYourInformationWillRemainEndToEndEncrypted
+                    )
+                    .padding(.horizontal, 16)
 
-                    Button(Localizations.addASend) {
+                    Button {
                         store.send(.addItemPressed)
+                    } label: {
+                        HStack {
+                            Image(decorative: Asset.Images.plus)
+                                .resizable()
+                                .frame(width: 16, height: 16)
+                            Text(Localizations.newSend)
+                        }
+                        .padding(.horizontal, 24)
                     }
-                    .buttonStyle(.tertiary())
+                    .buttonStyle(.primary(shouldFillWidth: false))
 
                     Spacer()
                 }
                 .padding(16)
                 .frame(minHeight: reader.size.height)
             }
-            .background(Asset.Colors.backgroundPrimary.swiftUIColor.ignoresSafeArea())
         }
     }
 
@@ -106,7 +118,6 @@ private struct MainSendListView: View {
             .padding(16)
             .padding(.bottom, FloatingActionButton.bottomOffsetPadding)
         }
-        .background(Asset.Colors.backgroundPrimary.swiftUIColor.ignoresSafeArea())
     }
 
     /// A view that displays the search interface, including search results, an empty search
@@ -125,7 +136,6 @@ private struct MainSendListView: View {
                 }
                 .padding(16)
             }
-            .background(Asset.Colors.backgroundPrimary.swiftUIColor.ignoresSafeArea())
         } else {
             SearchNoResultsView()
         }

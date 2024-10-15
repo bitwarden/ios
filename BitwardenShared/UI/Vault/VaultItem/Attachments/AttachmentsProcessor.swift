@@ -89,7 +89,7 @@ class AttachmentsProcessor: StateProcessor<AttachmentsState, AttachmentsAction, 
 
             // Update the view and display the toast.
             state.cipher = updatedCipher
-            state.toast = Toast(text: Localizations.attachmentDeleted)
+            state.toast = Toast(title: Localizations.attachmentDeleted)
         } catch {
             coordinator.showAlert(.networkResponseError(error))
             services.errorReporter.log(error: error)
@@ -159,7 +159,7 @@ class AttachmentsProcessor: StateProcessor<AttachmentsState, AttachmentsAction, 
             state.cipher = updatedCipherView
             state.fileName = nil
             state.fileData = nil
-            state.toast = Toast(text: Localizations.attachementAdded)
+            state.toast = Toast(title: Localizations.attachementAdded)
         } catch let error as InputValidationError {
             coordinator.showAlert(.inputValidationAlert(error: error))
         } catch {

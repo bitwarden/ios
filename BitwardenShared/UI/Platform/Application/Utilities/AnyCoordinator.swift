@@ -20,8 +20,8 @@ open class AnyCoordinator<Route, Event>: Coordinator {
     /// A closure that wraps the `showLoadingOverlay(_:)` method.
     private let doShowLoadingOverlay: (LoadingOverlayState) -> Void
 
-    /// A closure that wraps the `showToast(_:)` method.
-    private let doShowToast: (String) -> Void
+    /// A closure that wraps the `showToast(title:subtitle:)` method.
+    private let doShowToast: (String, String?) -> Void
 
     /// A closure that wraps the `start()` method.
     private let doStart: () -> Void
@@ -44,7 +44,7 @@ open class AnyCoordinator<Route, Event>: Coordinator {
         }
         doShowAlert = { coordinator.showAlert($0, onDismissed: $1) }
         doShowLoadingOverlay = { coordinator.showLoadingOverlay($0) }
-        doShowToast = { coordinator.showToast($0) }
+        doShowToast = { coordinator.showToast($0, subtitle: $1) }
         doStart = { coordinator.start() }
     }
 
@@ -74,8 +74,8 @@ open class AnyCoordinator<Route, Event>: Coordinator {
         doHideLoadingOverlay()
     }
 
-    open func showToast(_ text: String) {
-        doShowToast(text)
+    open func showToast(_ title: String, subtitle: String? = nil) {
+        doShowToast(title, subtitle)
     }
 
     open func start() {

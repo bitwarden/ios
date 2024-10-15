@@ -14,7 +14,7 @@ class MockCoordinator<Route, Event>: Coordinator {
     var isLoadingOverlayShowing = false
     var isStarted: Bool = false
     var loadingOverlaysShown = [LoadingOverlayState]()
-    var toastsShown = [String]()
+    var toastsShown = [Toast]()
     var routes: [Route] = []
 
     func handleEvent(_ event: Event, context: AnyObject?) async {
@@ -41,8 +41,8 @@ class MockCoordinator<Route, Event>: Coordinator {
         loadingOverlaysShown.append(state)
     }
 
-    func showToast(_ text: String) {
-        toastsShown.append(text)
+    func showToast(_ title: String, subtitle: String?) {
+        toastsShown.append(Toast(title: title, subtitle: subtitle))
     }
 
     func start() {

@@ -152,7 +152,7 @@ private struct VaultItemSelectionSearchableView: View {
     private func contentView() -> some View {
         if store.state.vaultListSections.isEmpty {
             EmptyContentView(
-                image: Asset.Images.openSource.swiftUIImage,
+                image: Asset.Images.items.swiftUIImage,
                 text: emptyViewMessage
             ) {
                 Button {

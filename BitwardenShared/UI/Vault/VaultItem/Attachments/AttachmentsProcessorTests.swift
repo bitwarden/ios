@@ -86,7 +86,7 @@ class AttachmentsProcessorTests: BitwardenTestCase {
         XCTAssertEqual(subject.state.cipher, .fixture())
         XCTAssertNil(subject.state.fileName)
         XCTAssertNil(subject.state.fileData)
-        XCTAssertEqual(subject.state.toast?.text, Localizations.attachementAdded)
+        XCTAssertEqual(subject.state.toast, Toast(title: Localizations.attachementAdded))
     }
 
     /// `perform(_:)` with `.save` handles any errors.
@@ -184,7 +184,7 @@ class AttachmentsProcessorTests: BitwardenTestCase {
         XCTAssertEqual(coordinator.loadingOverlaysShown.last?.title, Localizations.deleting)
         XCTAssertFalse(coordinator.isLoadingOverlayShowing)
         XCTAssertEqual(vaultRepository.deleteAttachmentId, "1")
-        XCTAssertEqual(subject.state.toast?.text, Localizations.attachmentDeleted)
+        XCTAssertEqual(subject.state.toast, Toast(title: Localizations.attachmentDeleted))
     }
 
     /// `.receive(_:)` with `.deletePressed(_)` handles any errors.
@@ -231,7 +231,7 @@ class AttachmentsProcessorTests: BitwardenTestCase {
     /// `receive(_:)` with `.toastShown` updates the state's toast value.
     @MainActor
     func test_receive_toastShown() {
-        let toast = Toast(text: "toast!")
+        let toast = Toast(title: "toast!")
         subject.receive(.toastShown(toast))
         XCTAssertEqual(subject.state.toast, toast)
 

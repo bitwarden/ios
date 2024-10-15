@@ -81,7 +81,7 @@ class LandingProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_
         subject.state.region = .unitedStates
         await subject.didSaveEnvironment(urls: EnvironmentUrlData(base: .example))
         XCTAssertEqual(subject.state.region, .selfHosted)
-        XCTAssertEqual(subject.state.toast?.text, Localizations.environmentSaved)
+        XCTAssertEqual(subject.state.toast, Toast(title: Localizations.environmentSaved))
         XCTAssertEqual(
             environmentService.setPreAuthEnvironmentUrlsData,
             EnvironmentUrlData(base: .example)
@@ -548,7 +548,7 @@ class LandingProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_
             coordinator.events.last,
             .action(.lockVault(userId: otherProfile.userId))
         )
-        XCTAssertEqual(subject.state.toast?.text, Localizations.accountLockedSuccessfully)
+        XCTAssertEqual(subject.state.toast, Toast(title: Localizations.accountLockedSuccessfully))
     }
 
     /// `receive(_:)` with `.profileSwitcher(.accountLongPressed)` records any errors from locking the account.
@@ -603,7 +603,7 @@ class LandingProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_
         await confirmAction.handler?(confirmAction, [])
 
         // Verify the results.
-        XCTAssertEqual(subject.state.toast?.text, Localizations.accountLoggedOutSuccessfully)
+        XCTAssertEqual(subject.state.toast, Toast(title: Localizations.accountLoggedOutSuccessfully))
         XCTAssertEqual(
             coordinator.events.last,
             .action(.logout(userId: otherProfile.userId, userInitiated: true))
@@ -865,7 +865,7 @@ class LandingProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_
     /// `receive(_:)` with `.toastShown` updates the state's toast value.
     @MainActor
     func test_receive_toastShown() {
-        let toast = Toast(text: "toast!")
+        let toast = Toast(title: "toast!")
         subject.receive(.toastShown(toast))
         XCTAssertEqual(subject.state.toast, toast)
 

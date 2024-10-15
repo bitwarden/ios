@@ -37,7 +37,7 @@ runs:
         echo "</details>" >> $GITHUB_STEP_SUMMARY
 
     - name: Dispatch an action and get the run ID and URL
-      uses: codex-/return-dispatch@8e5959a15e0ef0a34b9569395f994e61fed5dd26 # v1.16.0
+      uses: codex-/return-dispatch@06d9405c91c1696f12c0bf915ab9c5161c8f06fc # v2.0.1
       id: return_dispatch
       with:
         token: ${{ inputs.token }}

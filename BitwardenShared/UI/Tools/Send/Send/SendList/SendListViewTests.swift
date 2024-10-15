@@ -48,7 +48,7 @@ class SendListViewTests: BitwardenTestCase {
     /// Tapping the add a send button dispatches the `.addItemPressed` action.
     @MainActor
     func test_addSendButton_tap() throws {
-        let button = try subject.inspect().find(button: Localizations.addASend)
+        let button = try subject.inspect().find(button: Localizations.newSend)
         try button.tap()
         XCTAssertEqual(processor.dispatchedActions.last, .addItemPressed)
     }
@@ -67,7 +67,15 @@ class SendListViewTests: BitwardenTestCase {
     @MainActor
     func test_snapshot_empty() {
         processor.state = .empty
-        assertSnapshots(of: subject, as: [.defaultPortrait, .defaultLandscape, .defaultPortraitAX5])
+        assertSnapshots(
+            of: subject,
+            as: [
+                .defaultPortrait,
+                .defaultPortraitDark,
+                .defaultLandscape,
+                .defaultPortraitAX5,
+            ]
+        )
     }
 
     /// The view renders correctly when the search results are empty.
@@ -75,27 +83,59 @@ class SendListViewTests: BitwardenTestCase {
     func test_snapshot_search_empty() {
         processor.state.searchResults = []
         processor.state.searchText = "Searching"
-        assertSnapshots(of: subject, as: [.defaultPortrait, .defaultPortraitDark, .defaultPortraitAX5])
+        assertSnapshots(
+            of: subject,
+            as: [
+                .defaultPortrait,
+                .defaultPortraitDark,
+                .defaultLandscape,
+                .defaultPortraitAX5,
+            ]
+        )
     }
 
     /// The view renders correctly when there are search results.
     @MainActor
     func test_snapshot_search_results() {
         processor.state = .hasSearchResults
-        assertSnapshots(of: subject, as: [.defaultPortrait, .defaultPortraitDark, .defaultPortraitAX5])
+        assertSnapshots(
+            of: subject,
+            as: [
+                .defaultPortrait,
+                .defaultPortraitDark,
+                .defaultLandscape,
+                .defaultPortraitAX5,
+            ]
+        )
+    }
+
+    /// The view renders in correctly when there are sends.
+    @MainActor
+    func test_snapshot_values() {
+        processor.state = .content
+        assertSnapshots(
+            of: subject,
+            as: [
+                .defaultPortrait,
+                .defaultPortraitDark,
+                .defaultLandscape,
+                .defaultPortraitAX5,
+            ]
+        )
     }
 
     /// The view renders correctly when there are sends.
     @MainActor
-    func test_snapshot_values() {
-        processor.state = .content
-        assertSnapshots(of: subject, as: [.defaultPortrait, .defaultPortraitDark, .defaultPortraitAX5])
-    }
-
-    /// The view renders in light mode correctly when there are sends.
-    @MainActor
     func test_snapshot_textValues() {
         processor.state = .contentTextType
-        assertSnapshots(of: subject, as: [.defaultPortrait, .defaultPortraitDark, .defaultLandscape])
+        assertSnapshots(
+            of: subject,
+            as: [
+                .defaultPortrait,
+                .defaultPortraitDark,
+                .defaultLandscape,
+                .defaultPortraitAX5,
+            ]
+        )
     }
 }
