@@ -73,16 +73,10 @@ protocol ClientService {
 extension ClientService {
     /// Returns a `ClientAuthProtocol` for auth data tasks.
     ///
-    func auth() async throws -> ClientAuthProtocol {
-        try await auth(for: nil, isPreAuth: false)
-    }
-
-    /// Returns a `ClientAuthProtocol` for auth data tasks.
-    ///
     /// - Parameter isPreAuth: Whether the client is being used for a user prior to authentication
     ///     (when the user's ID doesn't yet exist).
     ///
-    func auth(isPreAuth: Bool) async throws -> ClientAuthProtocol {
+    func auth(isPreAuth: Bool = false) async throws -> ClientAuthProtocol {
         try await auth(for: nil, isPreAuth: isPreAuth)
     }
 
@@ -103,7 +97,7 @@ extension ClientService {
     /// - Parameter isPreAuth: Whether the client is being used for a user prior to authentication
     ///     (when the user's ID doesn't yet exist). This primarily will happen in SSO flows.
     ///
-    func generators(isPreAuth: Bool) async throws -> ClientGeneratorsProtocol {
+    func generators(isPreAuth: Bool = false) async throws -> ClientGeneratorsProtocol {
         try await generators(for: nil, isPreAuth: isPreAuth)
     }
 
