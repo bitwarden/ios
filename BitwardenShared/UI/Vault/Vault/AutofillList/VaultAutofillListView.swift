@@ -268,14 +268,14 @@ private struct VaultAutofillListSearchableView: View {
                         vaultListSections: [
                             VaultListSection(
                                 id: "Passwords",
-                                items: (1...12).map { id in
-                                        .init(
-                                            cipherView: .fixture(
-                                                id: String(id),
-                                                login: .fixture(),
-                                                name: "Bitwarden"
-                                            )
-                                        )!
+                                items: (1 ... 12).map { id in
+                                    .init(
+                                        cipherView: .fixture(
+                                            id: String(id),
+                                            login: .fixture(),
+                                            name: "Bitwarden"
+                                        )
+                                    )!
                                 },
                                 name: "Passwords"
                             ),

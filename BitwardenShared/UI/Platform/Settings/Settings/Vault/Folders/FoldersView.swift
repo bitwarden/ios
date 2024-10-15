@@ -88,9 +88,9 @@ struct FoldersView: View {
         store: Store(
             processor: StateProcessor(
                 state: .init(
-                    folders: (1 ... 12).map {
+                    folders: (1 ... 12).map { id in
                         .init(
-                            id: String($0),
+                            id: String(id),
                             name: "Test Folder",
                             revisionDate: .now
                         )

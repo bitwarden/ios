@@ -295,8 +295,8 @@ struct SendListView: View {
                                     SendListItem(
                                         id: "12",
                                         itemType: .group(.file, 1)
-                                    )
-                                ] + (1...10).map { id in
+                                    ),
+                                ] + (1 ... 10).map { id in
                                     SendListItem(
                                         id: String(id),
                                         itemType: .group(.file, id)

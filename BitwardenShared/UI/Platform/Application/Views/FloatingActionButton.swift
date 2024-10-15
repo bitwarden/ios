@@ -8,7 +8,7 @@ struct FloatingActionButton: View {
     // MARK: Properties
 
     /// The bottom content offset padding around the floating action button.
-    /// This is the button size plus the bottom/top padding (50 + 16 + 16).
+    /// This is the button size plus the bottom/top padding (50 + 16).
     static let bottomOffsetPadding: CGFloat = 66
 
     /// The image to be displayed within the button.

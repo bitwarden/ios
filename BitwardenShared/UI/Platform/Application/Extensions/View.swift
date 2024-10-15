@@ -131,10 +131,17 @@ extension View {
     /// - Parameter action: The action to perform when the button is tapped.
     /// - Returns: A `FloatingActionButton` configured for adding an item.
     ///
-    func addItemFloatingActionButton(action: @escaping () -> Void) -> some View {
-        floatingActionButton(image: Asset.Images.plus.swiftUIImage, action: action)
-            .accessibilityLabel(Localizations.add)
-            .accessibilityIdentifier("AddItemFloatingActionButton")
+    func addItemFloatingActionButton(
+        hidden: Bool = false,
+        action: @escaping () -> Void
+    ) -> some View {
+        floatingActionButton(
+            hidden: hidden,
+            image: Asset.Images.plus.swiftUIImage,
+            action: action
+        )
+        .accessibilityLabel(Localizations.add)
+        .accessibilityIdentifier("AddItemFloatingActionButton")
     }
 
     /// Returns a floating action button positioned at the bottom-right corner of the screen.
@@ -142,10 +149,17 @@ extension View {
     /// - Parameter action: The action to perform when the button is tapped.
     /// - Returns: A `FloatingActionButton` configured for adding an item.
     ///
-    func editItemFloatingActionButton(action: @escaping () -> Void) -> some View {
-        floatingActionButton(image: Asset.Images.pencil.swiftUIImage, action: action)
-            .accessibilityLabel(Localizations.edit)
-            .accessibilityIdentifier("EditItemFloatingActionButton")
+    func editItemFloatingActionButton(
+        hidden: Bool = false,
+        action: @escaping () -> Void
+    ) -> some View {
+        floatingActionButton(
+            hidden: hidden,
+            image: Asset.Images.pencil.swiftUIImage,
+            action: action
+        )
+        .accessibilityLabel(Localizations.edit)
+        .accessibilityIdentifier("EditItemFloatingActionButton")
     }
 
     /// Returns a floating action button positioned at the bottom-right corner of the screen.
@@ -155,8 +169,16 @@ extension View {
     ///   - action: The action to perform when the button is tapped.
     /// - Returns: A `FloatingActionButton` configured with the specified image and action.
     ///
-    func floatingActionButton(image: Image, action: @escaping () -> Void) -> some View {
-        FloatingActionButton(image: image, action: action)
-            .padding([.trailing, .bottom], 16)
+    func floatingActionButton(
+        hidden: Bool = false,
+        image: Image,
+        action: @escaping () -> Void
+    ) -> some View {
+        FloatingActionButton(
+            image: image,
+            action: action
+        )
+        .padding([.trailing, .bottom], 16)
+        .hidden(hidden)
     }
 }

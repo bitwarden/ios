@@ -34,7 +34,8 @@ struct VaultGroupView: View {
             .navigationBarTitleDisplayMode(.inline)
             .background(Asset.Colors.backgroundPrimary.swiftUIColor.ignoresSafeArea())
             .toolbar {
-                addToolbarItem(hidden: !store.state.showAddToolbarItem) {
+                // Using this state here temporarily until we remove the toolbar button.
+                addToolbarItem(hidden: !store.state.showAddItemFloatingActionButton) {
                     store.send(.addItemPressed)
                 }
             }
@@ -108,7 +109,7 @@ struct VaultGroupView: View {
             }
         }
         .overlay(alignment: .bottomTrailing) {
-            addItemFloatingActionButton {
+            addItemFloatingActionButton(hidden: !store.state.showAddItemFloatingActionButton) {
                 store.send(.addItemPressed)
             }
         }
@@ -296,6 +297,24 @@ struct VaultGroupView: View {
                                 ),
                             ]
                         ),
+                        searchVaultFilterType: .allVaults,
+                        vaultFilterType: .allVaults
+                    )
+                )
+            ),
+            timeProvider: PreviewTimeProvider()
+        )
+    }
+}
+
+#Preview("Trash") {
+    NavigationView {
+        VaultGroupView(
+            store: Store(
+                processor: StateProcessor(
+                    state: VaultGroupState(
+                        group: .trash,
+                        loadingState: .data([]),
                         searchVaultFilterType: .allVaults,
                         vaultFilterType: .allVaults
                     )
