@@ -219,6 +219,7 @@ struct SendListView: View {
                 placement: .navigationBarDrawer(displayMode: .always),
                 prompt: Localizations.search
             )
+            .autocorrectionDisabled(true)
             .refreshable { [weak store] in
                 await store?.perform(.refresh)
             }
