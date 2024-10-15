@@ -133,7 +133,8 @@ extension View {
     ///
     func addItemFloatingActionButton(action: @escaping () -> Void) -> some View {
         floatingActionButton(image: Asset.Images.plus.swiftUIImage, action: action)
-            .accessibilityLabel("AddItemFloatingActionButton")
+            .accessibilityLabel(Localizations.add)
+            .accessibilityIdentifier("AddItemButton")
     }
 
     /// Returns a floating action button positioned at the bottom-right corner of the screen.
@@ -143,7 +144,8 @@ extension View {
     ///
     func editItemFloatingActionButton(action: @escaping () -> Void) -> some View {
         floatingActionButton(image: Asset.Images.pencil.swiftUIImage, action: action)
-            .accessibilityLabel("EditItemFloatingActionButton")
+            .accessibilityLabel(Localizations.edit)
+            .accessibilityIdentifier("EditItemButton")
     }
 
     /// Returns a floating action button positioned at the bottom-right corner of the screen.

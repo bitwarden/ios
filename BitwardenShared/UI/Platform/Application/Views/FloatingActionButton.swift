@@ -9,7 +9,7 @@ struct FloatingActionButton: View {
 
     /// The bottom content offset padding around the floating action button.
     /// This is the button size plus the bottom/top padding (50 + 16 + 16).
-    static let bottomOffsetPadding: CGFloat = 82
+    static let bottomOffsetPadding: CGFloat = 66
 
     /// The image to be displayed within the button.
     let image: Image
@@ -34,3 +34,13 @@ struct FloatingActionButton: View {
         .buttonStyle(CircleButtonStyle())
     }
 }
+
+#if DEBUG
+#Preview {
+    VStack {
+        FloatingActionButton(
+            image: Asset.Images.pencil.swiftUIImage) {}
+    }
+    .padding()
+}
+#endif

@@ -2,7 +2,7 @@ import SwiftUI
 
 // MARK: - CircleButtonStyle
 
-/// The style for all primary buttons in this application.
+/// The style for all circle buttons in this application.
 ///
 struct CircleButtonStyle: ButtonStyle {
     // MARK: Properties
@@ -27,7 +27,7 @@ struct CircleButtonStyle: ButtonStyle {
     func makeBody(configuration: Configuration) -> some View {
         configuration.label
             .foregroundColor(foregroundColor)
-            .padding(12)
+            .frame(width: 50, height: 50)
             .background(backgroundColor)
             .clipShape(Circle())
             .opacity(configuration.isPressed ? 0.5 : 1)
@@ -45,8 +45,8 @@ struct CircleButtonStyle: ButtonStyle {
                     .init(
                         color: Asset.Colors.buttonFilledForeground.swiftUIColor,
                         scaleWithFont: false,
-                        width: 32,
-                        height: 32
+                        width: 24,
+                        height: 24
                     )
                 )
         }

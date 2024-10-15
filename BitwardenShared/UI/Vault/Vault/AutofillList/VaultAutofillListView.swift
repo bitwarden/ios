@@ -136,7 +136,6 @@ private struct VaultAutofillListSearchableView: View {
                 }
             }
         }
-        .padding(.bottom, FloatingActionButton.bottomOffsetPadding)
     }
 
     /// A view for displaying a list of ciphers without sections.
@@ -269,22 +268,15 @@ private struct VaultAutofillListSearchableView: View {
                         vaultListSections: [
                             VaultListSection(
                                 id: "Passwords",
-                                items: [
-                                    .init(cipherView: .fixture(
-                                        id: "1",
-                                        login: .fixture(username: "user@bitwarden.com"),
-                                        name: "Apple"
-                                    ))!,
-                                    .init(cipherView: .fixture(
-                                        id: "2",
-                                        login: .fixture(username: "user@bitwarden.com"),
-                                        name: "Bitwarden"
-                                    ))!,
-                                    .init(cipherView: .fixture(
-                                        id: "3",
-                                        name: "Company XYZ"
-                                    ))!,
-                                ],
+                                items: (1...12).map { id in
+                                        .init(
+                                            cipherView: .fixture(
+                                                id: String(id),
+                                                login: .fixture(),
+                                                name: "Bitwarden"
+                                            )
+                                        )!
+                                },
                                 name: "Passwords"
                             ),
                         ]

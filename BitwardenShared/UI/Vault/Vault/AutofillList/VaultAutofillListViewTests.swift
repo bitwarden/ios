@@ -3,7 +3,7 @@ import XCTest
 
 @testable import BitwardenShared
 
-class VaultAutofillListViewTests: BitwardenTestCase {
+class VaultAutofillListViewTests: BitwardenTestCase { // swiftlint:disable:this type_body_length
     // MARK: Properties
 
     var processor: MockProcessor<VaultAutofillListState, VaultAutofillListAction, VaultAutofillListEffect>!

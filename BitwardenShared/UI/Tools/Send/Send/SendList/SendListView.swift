@@ -103,8 +103,7 @@ private struct MainSendListView: View {
                     )
                 }
             }
-            .padding(.top, 16)
-            .padding(.horizontal, 16)
+            .padding(16)
             .padding(.bottom, FloatingActionButton.bottomOffsetPadding)
         }
         .background(Asset.Colors.backgroundPrimary.swiftUIColor.ignoresSafeArea())
@@ -286,8 +285,13 @@ struct SendListView: View {
                                     SendListItem(
                                         id: "12",
                                         itemType: .group(.file, 1)
-                                    ),
-                                ],
+                                    )
+                                ] + (1...10).map { id in
+                                    SendListItem(
+                                        id: String(id),
+                                        itemType: .group(.file, id)
+                                    )
+                                },
                                 name: "Types"
                             ),
                             SendListSection(

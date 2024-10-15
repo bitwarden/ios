@@ -191,8 +191,7 @@ struct VaultGroupView: View {
                     }
                 }
             }
-            .padding(.top, 16)
-            .padding(.horizontal, 16)
+            .padding(16)
             .padding(.bottom, FloatingActionButton.bottomOffsetPadding)
         }
     }

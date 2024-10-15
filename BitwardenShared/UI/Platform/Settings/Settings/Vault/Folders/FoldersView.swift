@@ -88,68 +88,13 @@ struct FoldersView: View {
         store: Store(
             processor: StateProcessor(
                 state: .init(
-                    folders: [
+                    folders: (1 ... 12).map {
                         .init(
-                            id: "1",
-                            name: "Test",
+                            id: String($0),
+                            name: "Test Folder",
                             revisionDate: .now
-                        ),
-                        .init(
-                            id: "2",
-                            name: "Test",
-                            revisionDate: .now
-                        ),
-                        .init(
-                            id: "3",
-                            name: "Test",
-                            revisionDate: .now
-                        ),
-                        .init(
-                            id: "4",
-                            name: "Test",
-                            revisionDate: .now
-                        ),
-                        .init(
-                            id: "5",
-                            name: "Test",
-                            revisionDate: .now
-                        ),
-                        .init(
-                            id: "6",
-                            name: "Test",
-                            revisionDate: .now
-                        ),
-                        .init(
-                            id: "7",
-                            name: "Test",
-                            revisionDate: .now
-                        ),
-                        .init(
-                            id: "8",
-                            name: "Test",
-                            revisionDate: .now
-                        ),
-                        .init(
-                            id: "9",
-                            name: "Test",
-                            revisionDate: .now
-                        ),
-                        .init(
-                            id: "10",
-                            name: "Test",
-                            revisionDate: .now
-                        ),
-                        .init(
-                            id: "11",
-                            name: "Test",
-                            revisionDate: .now
-                        ),
-                        .init(
-                            id: "12",
-                            name: "Test",
-                            revisionDate: .now
-                        ),
-                    ]
+                        )
+                    }
                 )
             )
         )

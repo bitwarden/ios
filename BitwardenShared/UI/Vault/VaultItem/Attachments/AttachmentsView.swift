@@ -21,17 +21,11 @@ struct AttachmentsView: View {
 
             saveButton
         }
-        .padding(.bottom, FloatingActionButton.bottomOffsetPadding)
         .scrollView()
         .navigationBar(title: Localizations.attachments, titleDisplayMode: .inline)
         .toolbar {
             cancelToolbarItem {
                 store.send(.dismissPressed)
-            }
-        }
-        .overlay(alignment: .bottomTrailing) {
-            addItemFloatingActionButton {
-                store.send(.chooseFilePressed)
             }
         }
         .task {

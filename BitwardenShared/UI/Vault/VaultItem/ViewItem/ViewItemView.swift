@@ -112,6 +112,7 @@ struct ViewItemView: View {
                 )
             }
             .padding(16)
+            .padding(.bottom, FloatingActionButton.bottomOffsetPadding)
         }
     }
 }
