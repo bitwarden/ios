@@ -41,16 +41,16 @@ extension SendListItem {
         case let .send(sendView):
             switch sendView.type {
             case .file:
-                Asset.Images.doc
+                Asset.Images.file
             case .text:
-                Asset.Images.doc3
+                Asset.Images.fileText
             }
         case let .group(group, _):
             switch group {
             case .file:
-                Asset.Images.doc
+                Asset.Images.file
             case .text:
-                Asset.Images.doc3
+                Asset.Images.fileText
             }
         }
     }

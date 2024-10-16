@@ -169,7 +169,7 @@ struct SendListItemRowView: View {
                 await store.perform(.deletePressed(sendView))
             }
         } label: {
-            Asset.Images.horizontalKabob.swiftUIImage
+            Asset.Images.ellipsisHorizontal.swiftUIImage
                 .scaledFrame(width: 22, height: 22)
                 .foregroundStyle(Asset.Colors.textSecondary.swiftUIColor)
         }
@@ -212,7 +212,7 @@ struct SendListItemRowView: View {
             icons.append(
                 SendListItemIcon(
                     accessibilityID: "DisabledSendIcon",
-                    asset: Asset.Images.exclamationTriangle.swiftUIImage
+                    asset: Asset.Images.warning.swiftUIImage
                 )
             )
         }

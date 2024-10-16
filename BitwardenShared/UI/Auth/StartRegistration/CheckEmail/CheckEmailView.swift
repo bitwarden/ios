@@ -18,7 +18,7 @@ struct CheckEmailView: View {
     var body: some View {
         VStack(spacing: 16) {
             VStack(alignment: .center, spacing: 0) {
-                Image(decorative: Asset.Images.email)
+                Image(decorative: Asset.Images.Illustrations.email)
                     .resizable()
                     .frame(width: 100, height: 100)
                     .foregroundColor(Asset.Colors.iconSecondary.swiftUIColor)

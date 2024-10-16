@@ -86,30 +86,29 @@ extension VaultListItem {
         case let .cipher(cipherItem, fido2CredentialAutofillView):
             switch cipherItem.type {
             case .card:
-                Asset.Images.creditCard
+                Asset.Images.card
             case .identity:
-                Asset.Images.id
+                Asset.Images.idCard
             case .login:
                 fido2CredentialAutofillView != nil ? Asset.Images.passkey : Asset.Images.globe
             case .secureNote:
-                Asset.Images.doc
+                Asset.Images.file
             }
         case let .group(group, _):
             switch group {
             case .card:
-                Asset.Images.creditCard
+                Asset.Images.card
             case .collection:
-                Asset.Images.collections
-            case .folder:
-                Asset.Images.folderClosed
+                Asset.Images.collection
+            case .folder,
+                 .noFolder:
+                Asset.Images.folder
             case .identity:
-                Asset.Images.id
+                Asset.Images.idCard
             case .login:
                 Asset.Images.globe
-            case .noFolder:
-                Asset.Images.folderClosed
             case .secureNote:
-                Asset.Images.doc
+                Asset.Images.file
             case .totp:
                 Asset.Images.clock
             case .trash:

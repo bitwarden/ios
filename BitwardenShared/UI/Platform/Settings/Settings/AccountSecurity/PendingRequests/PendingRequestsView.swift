@@ -69,7 +69,7 @@ struct PendingRequestsView: View {
     /// The empty view.
     private var empty: some View {
         VStack(spacing: 20) {
-            Image(decorative: Asset.Images.devices)
+            Image(decorative: Asset.Images.Illustrations.devices)
                 .resizable()
                 .frame(width: 100, height: 100)
 

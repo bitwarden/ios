@@ -104,7 +104,7 @@ struct LoginView: View {
                 store.send(.enterpriseSingleSignOnPressed)
             } label: {
                 HStack(spacing: 8) {
-                    Image(decorative: Asset.Images.bwiProvider)
+                    Image(decorative: Asset.Images.provider)
                         .imageStyle(.accessoryIcon(scaleWithFont: true))
                     Text(Localizations.logInSso)
                 }

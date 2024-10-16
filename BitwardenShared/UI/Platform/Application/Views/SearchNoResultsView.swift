@@ -21,7 +21,7 @@ struct SearchNoResultsView<Content: View>: View {
                     }
 
                     VStack(spacing: 35) {
-                        Image(decorative: Asset.Images.magnifyingGlass)
+                        Image(decorative: Asset.Images.search)
                             .resizable()
                             .frame(width: 74, height: 74)
                             .foregroundColor(Asset.Colors.textSecondary.swiftUIColor)

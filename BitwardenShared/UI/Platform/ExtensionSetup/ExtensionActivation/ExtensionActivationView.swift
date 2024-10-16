@@ -88,7 +88,7 @@ struct ExtensionActivationView: View {
     @ViewBuilder private var image: some View {
         switch store.state.extensionType {
         case .appExtension:
-            Image(decorative: Asset.Images.bwLogo)
+            Image(decorative: Asset.Images.shield)
                 .resizable()
                 .frame(width: 70, height: 70)
                 .padding(16)

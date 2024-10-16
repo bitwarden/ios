@@ -36,7 +36,7 @@ struct VaultListItemRowView: View {
                                     .accessibilityIdentifier("CipherNameLabel")
 
                                 if cipherItem.organizationId != nil {
-                                    Asset.Images.collections.swiftUIImage
+                                    Asset.Images.collection.swiftUIImage
                                         .imageStyle(.accessoryIcon(
                                             color: Asset.Colors.textSecondary.swiftUIColor,
                                             scaleWithFont: true
@@ -81,7 +81,7 @@ struct VaultListItemRowView: View {
                             AsyncButton {
                                 await store.perform(.morePressed)
                             } label: {
-                                Asset.Images.horizontalKabob.swiftUIImage
+                                Asset.Images.ellipsisHorizontal.swiftUIImage
                                     .imageStyle(.rowIcon)
                             }
                             .accessibilityLabel(Localizations.more)

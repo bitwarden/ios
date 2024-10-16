@@ -97,7 +97,7 @@ struct AboutView: View {
         SettingsListItem(name) {
             store.send(action)
         } trailingContent: {
-            Asset.Images.externalLink2.swiftUIImage
+            Asset.Images.externalLink.swiftUIImage
                 .imageStyle(.rowIcon)
         }
     }

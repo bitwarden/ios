@@ -169,7 +169,7 @@ struct GeneratorView: View {
             Button {
                 store.send(.refreshGeneratedValue)
             } label: {
-                Asset.Images.restart2.swiftUIImage
+                Asset.Images.generate.swiftUIImage
                     .imageStyle(.accessoryIcon)
             }
             .buttonStyle(.accessory)
@@ -191,7 +191,7 @@ struct GeneratorView: View {
             Button {
                 openURL(ExternalLinksConstants.generatorUsernameTypes)
             } label: {
-                Asset.Images.questionRound.swiftUIImage
+                Asset.Images.questionCircle.swiftUIImage
                     .resizable()
                     .frame(width: 14, height: 14)
             }

@@ -61,7 +61,7 @@ struct ViewLoginItemView: View {
                 AsyncButton {
                     await store.perform(.checkPasswordPressed)
                 } label: {
-                    Asset.Images.roundCheck.swiftUIImage
+                    Asset.Images.checkCircle.swiftUIImage
                         .imageStyle(.accessoryIcon)
                 }
                 .accessibilityLabel(Localizations.checkPassword)

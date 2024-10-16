@@ -99,10 +99,10 @@ public enum UI {
         )
         UISearchBar.appearance().tintColor = Asset.Colors.textInteraction.color
         // Explicitly tint the image so that it does not assume the tint color assigned to the entire search bar.
-        let image = Asset.Images.cancelRound.image
+        let image = Asset.Images.circleX.image
         let tintedImage = image.withTintColor(Asset.Colors.textSecondary.color, renderingMode: .alwaysOriginal)
         UISearchBar.appearance().setImage(tintedImage, for: .clear, state: .normal)
-        UISearchBar.appearance().setImage(Asset.Images.magnifyingGlass.image, for: .search, state: .normal)
+        UISearchBar.appearance().setImage(Asset.Images.search.image, for: .search, state: .normal)
 
         // Adjust the appearance of `UITextView` for `BitwardenMultilineTextField` instances on
         // iOS 15.

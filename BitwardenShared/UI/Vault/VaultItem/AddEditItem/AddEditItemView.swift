@@ -236,7 +236,7 @@ private extension AddEditItemView {
                         Button {
                             openURL(ExternalLinksConstants.protectIndividualItems)
                         } label: {
-                            Asset.Images.questionRound.swiftUIImage
+                            Asset.Images.questionCircle.swiftUIImage
                         }
                         .foregroundColor(Asset.Colors.iconSecondary.swiftUIColor)
                         .accessibilityLabel(Localizations.masterPasswordRePromptHelp)
