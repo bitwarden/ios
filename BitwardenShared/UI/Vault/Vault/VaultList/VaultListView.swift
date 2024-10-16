@@ -294,6 +294,7 @@ struct VaultListView: View {
                 placement: .navigationBarDrawer(displayMode: .always),
                 prompt: Localizations.search
             )
+            .autocorrectionDisabled(true)
             .task(id: store.state.searchText) {
                 await store.perform(.search(store.state.searchText))
             }
