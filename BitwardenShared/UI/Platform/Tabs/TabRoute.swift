@@ -25,7 +25,7 @@ extension TabRoute: TabRepresentable {
         switch self {
         case .generator: return Asset.Images.restartFilled.image
         case .send: return Asset.Images.sendFilled.image
-        case .settings: return Asset.Images.cogFilled.image
+        case .settings: return Asset.Images.gearFilled.image
         case .vault: return Asset.Images.lockedFilled.image
         }
     }
@@ -43,7 +43,7 @@ extension TabRoute: TabRepresentable {
         switch self {
         case .generator: return Asset.Images.restartFilled.image
         case .send: return Asset.Images.sendFilled.image
-        case .settings: return Asset.Images.cogFilled.image
+        case .settings: return Asset.Images.gearFilled.image
         case .vault: return Asset.Images.lockedFilled.image
         }
     }
