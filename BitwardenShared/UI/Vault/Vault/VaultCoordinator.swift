@@ -71,6 +71,7 @@ final class VaultCoordinator: Coordinator, HasStackNavigator {
         & HasFido2UserInterfaceHelper
         & HasLocalAuthService
         & HasNotificationService
+        & HasSettingsRepository
         & HasStateService
         & HasTimeProvider
         & HasVaultRepository

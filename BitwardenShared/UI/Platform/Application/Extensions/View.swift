@@ -125,4 +125,60 @@ extension View {
             backgroundColor: backgroundColor
         ))
     }
+
+    /// Returns a floating action button positioned at the bottom-right corner of the screen.
+    ///
+    /// - Parameter action: The action to perform when the button is tapped.
+    /// - Returns: A `FloatingActionButton` configured for adding an item.
+    ///
+    func addItemFloatingActionButton(
+        hidden: Bool = false,
+        action: @escaping () -> Void
+    ) -> some View {
+        floatingActionButton(
+            hidden: hidden,
+            image: Asset.Images.plus.swiftUIImage,
+            action: action
+        )
+        .accessibilityLabel(Localizations.add)
+        .accessibilityIdentifier("AddItemFloatingActionButton")
+    }
+
+    /// Returns a floating action button positioned at the bottom-right corner of the screen.
+    ///
+    /// - Parameter action: The action to perform when the button is tapped.
+    /// - Returns: A `FloatingActionButton` configured for adding an item.
+    ///
+    func editItemFloatingActionButton(
+        hidden: Bool = false,
+        action: @escaping () -> Void
+    ) -> some View {
+        floatingActionButton(
+            hidden: hidden,
+            image: Asset.Images.pencil.swiftUIImage,
+            action: action
+        )
+        .accessibilityLabel(Localizations.edit)
+        .accessibilityIdentifier("EditItemFloatingActionButton")
+    }
+
+    /// Returns a floating action button positioned at the bottom-right corner of the screen.
+    ///
+    /// - Parameters:
+    ///   - image: The image to display within the button.
+    ///   - action: The action to perform when the button is tapped.
+    /// - Returns: A `FloatingActionButton` configured with the specified image and action.
+    ///
+    func floatingActionButton(
+        hidden: Bool = false,
+        image: Image,
+        action: @escaping () -> Void
+    ) -> some View {
+        FloatingActionButton(
+            image: image,
+            action: action
+        )
+        .padding([.trailing, .bottom], 16)
+        .hidden(hidden)
+    }
 }

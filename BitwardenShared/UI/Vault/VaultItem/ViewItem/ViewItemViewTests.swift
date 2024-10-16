@@ -135,6 +135,14 @@ class ViewItemViewTests: BitwardenTestCase { // swiftlint:disable:this type_body
         XCTAssertEqual(processor.dispatchedActions.last, .downloadAttachment(.fixture(id: "2")))
     }
 
+    /// Tapping the floating action button dispatches the `.editPressed` action.`
+    @MainActor
+    func test_editItemFloatingActionButton() throws {
+        let fab = try subject.inspect().find(viewWithAccessibilityIdentifier: "EditItemFloatingActionButton")
+        try fab.button().tap()
+        XCTAssertEqual(processor.dispatchedActions.last, .editPressed)
+    }
+
     /// Tapping the password history button dispatches the `passwordHistoryPressed` action.
     @MainActor
     func test_passwordHistoryButton_tap() throws {

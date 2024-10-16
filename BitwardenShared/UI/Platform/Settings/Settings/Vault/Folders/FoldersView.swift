@@ -28,6 +28,11 @@ struct FoldersView: View {
                 store.send(.add)
             }
         }
+        .overlay(alignment: .bottomTrailing) {
+            addItemFloatingActionButton {
+                store.send(.add)
+            }
+        }
         .task {
             await store.perform(.streamFolders)
         }
@@ -73,5 +78,26 @@ struct FoldersView: View {
             }
         }
         .clipShape(RoundedRectangle(cornerRadius: 10))
+        .padding(.bottom, FloatingActionButton.bottomOffsetPadding)
     }
 }
+
+#if DEBUG
+#Preview {
+    FoldersView(
+        store: Store(
+            processor: StateProcessor(
+                state: .init(
+                    folders: (1 ... 12).map { id in
+                        .init(
+                            id: String(id),
+                            name: "Test Folder",
+                            revisionDate: .now
+                        )
+                    }
+                )
+            )
+        )
+    )
+}
+#endif
