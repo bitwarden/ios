@@ -31,14 +31,14 @@ extension ButtonStyle where Self == AccessoryButtonStyle {
 #if DEBUG
 #Preview("Enabled") {
     Button {} label: {
-        Asset.Images.bwiProvider.swiftUIImage
+        Asset.Images.business.swiftUIImage
     }
     .buttonStyle(.accessory)
 }
 
 #Preview("Disabled") {
     Button {} label: {
-        Asset.Images.bwiProvider.swiftUIImage
+        Asset.Images.business.swiftUIImage
     }
     .buttonStyle(.accessory)
     .disabled(true)

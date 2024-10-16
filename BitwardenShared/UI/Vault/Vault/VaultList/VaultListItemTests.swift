@@ -121,11 +121,11 @@ class VaultListItemTests: BitwardenTestCase { // swiftlint:disable:this type_bod
     func test_icon() { // swiftlint:disable:this function_body_length
         XCTAssertEqual(
             VaultListItem(cipherView: .fixture(type: .card))?.icon.name,
-            Asset.Images.creditCard.name
+            Asset.Images.card.name
         )
         XCTAssertEqual(
             VaultListItem(cipherView: .fixture(type: .identity))?.icon.name,
-            Asset.Images.id.name
+            Asset.Images.card.name
         )
         XCTAssertEqual(
             VaultListItem(cipherView: .fixture(type: .login))?.icon.name,
@@ -140,24 +140,24 @@ class VaultListItemTests: BitwardenTestCase { // swiftlint:disable:this type_bod
         )
         XCTAssertEqual(
             VaultListItem(cipherView: .fixture(type: .secureNote))?.icon.name,
-            Asset.Images.doc.name
+            Asset.Images.file.name
         )
 
         XCTAssertEqual(
             VaultListItem(id: "", itemType: .group(.card, 1)).icon.name,
-            Asset.Images.creditCard.name
+            Asset.Images.card.name
         )
         XCTAssertEqual(
             VaultListItem(id: "", itemType: .group(.collection(id: "", name: "", organizationId: "1"), 1)).icon.name,
-            Asset.Images.collections.name
+            Asset.Images.collection.name
         )
         XCTAssertEqual(
             VaultListItem(id: "", itemType: .group(.folder(id: "", name: ""), 1)).icon.name,
-            Asset.Images.folderClosed.name
+            Asset.Images.folder.name
         )
         XCTAssertEqual(
             VaultListItem(id: "", itemType: .group(.identity, 1)).icon.name,
-            Asset.Images.id.name
+            Asset.Images.card.name
         )
         XCTAssertEqual(
             VaultListItem(id: "", itemType: .group(.login, 1)).icon.name,
@@ -165,7 +165,7 @@ class VaultListItemTests: BitwardenTestCase { // swiftlint:disable:this type_bod
         )
         XCTAssertEqual(
             VaultListItem(id: "", itemType: .group(.secureNote, 1)).icon.name,
-            Asset.Images.doc.name
+            Asset.Images.file.name
         )
         XCTAssertEqual(
             VaultListItem(id: "", itemType: .group(.totp, 1)).icon.name,

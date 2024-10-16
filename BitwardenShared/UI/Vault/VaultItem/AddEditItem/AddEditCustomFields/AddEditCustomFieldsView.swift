@@ -122,7 +122,7 @@ struct AddEditCustomFieldsView: View {
                 store.send(.removeCustomFieldPressed(index: index))
             }
         } label: {
-            Asset.Images.gear.swiftUIImage
+            Asset.Images.cog.swiftUIImage
                 .imageStyle(.accessoryIcon)
                 .accessibilityLabel(Localizations.options)
         }

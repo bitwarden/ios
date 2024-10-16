@@ -19,7 +19,7 @@ struct LoginState: Equatable {
 
     /// The password visibility icon used in the view's text field.
     var passwordVisibleIcon: ImageAsset {
-        isMasterPasswordRevealed ? Asset.Images.hidden : Asset.Images.visible
+        isMasterPasswordRevealed ? Asset.Images.eyeSlash : Asset.Images.eye
     }
 
     /// The server URL that is hosting the user's session.

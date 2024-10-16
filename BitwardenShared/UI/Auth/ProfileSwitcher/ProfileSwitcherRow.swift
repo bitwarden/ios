@@ -167,7 +167,7 @@ struct ProfileSwitcherRow: View {
     private var trailingIcon: Image? {
         switch store.state.rowType {
         case .active:
-            return Asset.Images.roundCheck.swiftUIImage
+            return Asset.Images.checkCircle.swiftUIImage
         case let .alternate(account):
             if account.isUnlocked {
                 return Asset.Images.unlocked.swiftUIImage

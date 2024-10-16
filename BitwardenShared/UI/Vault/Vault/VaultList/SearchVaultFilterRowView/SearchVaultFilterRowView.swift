@@ -39,7 +39,7 @@ struct SearchVaultFilterRowView: View {
                             EmptyView()
                         }
                     } label: {
-                        Asset.Images.horizontalKabob.swiftUIImage
+                        Asset.Images.ellipsisHorizontal.swiftUIImage
                             .imageStyle(.rowIcon)
                             .frame(width: 44, height: 44, alignment: .trailing)
                             .contentShape(Rectangle())

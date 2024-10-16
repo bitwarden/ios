@@ -24,7 +24,7 @@ extension View {
     /// - Returns: A `Button` configured for cancelling an operation in a view.
     ///
     func cancelToolbarButton(action: @escaping () -> Void) -> some View {
-        toolbarButton(asset: Asset.Images.cancel, label: Localizations.cancel, action: action)
+        toolbarButton(asset: Asset.Images.close, label: Localizations.cancel, action: action)
             .accessibilityIdentifier("CancelButton")
     }
 
@@ -34,7 +34,7 @@ extension View {
     /// - Returns: A `Button` configured for closing a view.
     ///
     func closeToolbarButton(action: @escaping () -> Void) -> some View {
-        toolbarButton(asset: Asset.Images.cancel, label: Localizations.close, action: action)
+        toolbarButton(asset: Asset.Images.close, label: Localizations.close, action: action)
             .accessibilityIdentifier("CloseButton")
     }
 
@@ -105,7 +105,7 @@ extension View {
         Menu {
             content()
         } label: {
-            Image(asset: Asset.Images.verticalKabob, label: Text(Localizations.options))
+            Image(asset: Asset.Images.ellipsisVertical, label: Text(Localizations.options))
                 .imageStyle(.toolbarIcon)
                 .accessibilityIdentifier("HeaderBarOptionsButton")
         }

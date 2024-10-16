@@ -233,7 +233,7 @@ struct SendListView: View {
                         Button {
                             store.send(.infoButtonPressed)
                         } label: {
-                            Image(asset: Asset.Images.infoRound, label: Text(Localizations.aboutSend))
+                            Image(asset: Asset.Images.informationCircle, label: Text(Localizations.aboutSend))
                                 .resizable()
                                 .foregroundColor(Asset.Colors.iconSecondary.swiftUIColor)
                                 .frame(width: 22, height: 22)

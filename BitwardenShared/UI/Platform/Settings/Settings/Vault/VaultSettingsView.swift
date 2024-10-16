@@ -46,7 +46,7 @@ struct VaultSettingsView: View {
             SettingsListItem(Localizations.importItems, hasDivider: false) {
                 store.send(.importItemsTapped)
             } trailingContent: {
-                Image(asset: Asset.Images.externalLink2)
+                Image(asset: Asset.Images.externalLink)
                     .imageStyle(.rowIcon)
             }
             .accessibilityIdentifier("ImportItemsLinkItemView")

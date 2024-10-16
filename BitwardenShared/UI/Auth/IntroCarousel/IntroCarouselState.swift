@@ -45,7 +45,7 @@ struct IntroCarouselState: Equatable {
         ),
 
         CarouselPage(
-            image: Asset.Images.generate.swiftUIImage,
+            image: Asset.Images.generateIllustration.swiftUIImage,
             message: Localizations.introCarouselPage3Message,
             title: Localizations.introCarouselPage3Title
         ),
