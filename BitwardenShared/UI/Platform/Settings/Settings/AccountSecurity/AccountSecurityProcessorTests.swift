@@ -392,6 +392,16 @@ class AccountSecurityProcessorTests: BitwardenTestCase { // swiftlint:disable:th
         XCTAssertTrue(syncEnabled)
     }
 
+    /// `perform(_:)` with `.toggleSyncWithAuthenticator` correctly handles and logs errors.
+    @MainActor
+    func test_perform_toggleSyncWithAuthenticator_error() async throws {
+        subject.state.isAuthenticatorSyncEnabled = false
+        stateService.syncToAuthenticatorResult = .failure(BitwardenTestError.example)
+        await subject.perform(.toggleSyncWithAuthenticator(true))
+        waitFor { !errorReporter.errors.isEmpty }
+        XCTAssertFalse(subject.state.isAuthenticatorSyncEnabled)
+    }
+
     /// `perform(_:)` with `.toggleUnlockWithBiometrics` disables biometrics unlock and updates the state.
     @MainActor
     func test_perform_toggleUnlockWithBiometrics_disable() async {
