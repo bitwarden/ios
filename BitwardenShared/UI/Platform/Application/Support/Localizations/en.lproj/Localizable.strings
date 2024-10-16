@@ -1031,3 +1031,5 @@
 "FillOutTheFormAndImportYourSavedPasswordFile" = "Fill out the form and **import your saved password file.**";
 "SelectImportDataInTheWebAppThenDoneToFinishSyncing" = "**Select Import data** in the web app, then **Done** to finish syncing.";
 "ForYourSecurityBeSureToDeleteYourSavedPasswordFile" = "For your security, be sure to **delete your saved password file.**";
+"AllowAuthenticatorSyncing" = "Allow authenticator syncing";
+"AuthenticatorSync" = "Authenticator sync";

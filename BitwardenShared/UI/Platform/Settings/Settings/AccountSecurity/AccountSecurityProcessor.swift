@@ -5,7 +5,7 @@ import OSLog
 
 /// The processor used to manage state and handle actions for the account security screen.
 ///
-final class AccountSecurityProcessor: StateProcessor<
+final class AccountSecurityProcessor: StateProcessor<// swiftlint:disable:this type_body_length
     AccountSecurityState,
     AccountSecurityAction,
     AccountSecurityEffect
@@ -77,6 +77,8 @@ final class AccountSecurityProcessor: StateProcessor<
             )
         case .streamSettingsBadge:
             await streamSettingsBadge()
+        case let .toggleSyncWithAuthenticator(isOn):
+            await setSyncToAuthenticator(isOn)
         case let .toggleUnlockWithBiometrics(isOn):
             await setBioMetricAuth(isOn)
         case let .toggleUnlockWithPINCode(isOn):
@@ -166,6 +168,9 @@ final class AccountSecurityProcessor: StateProcessor<
             if try await services.authRepository.isPinUnlockAvailable() {
                 state.isUnlockWithPINCodeOn = true
             }
+            state.isAuthenticatorSyncEnabled = try await services.stateService.getSyncToAuthenticator()
+            state.shouldShowAuthenticatorSyncSection =
+                await services.configService.getFeatureFlag(.enableAuthenticatorSync)
         } catch {
             services.errorReporter.log(error: error)
         }
@@ -193,6 +198,19 @@ final class AccountSecurityProcessor: StateProcessor<
     private func refreshVaultTimeoutAction() async {
         if let sessionTimeoutAction = try? await services.authRepository.sessionTimeoutAction() {
             state.sessionTimeoutAction = sessionTimeoutAction
+        }
+    }
+
+    /// Sets the user's sync with Authenticator setting
+    ///
+    /// - Parameter enabled: Whether or not the the user wants to enable sync with Authenticator.
+    ///
+    private func setSyncToAuthenticator(_ enabled: Bool) async {
+        do {
+            try await services.stateService.setSyncToAuthenticator(enabled)
+            state.isAuthenticatorSyncEnabled = enabled
+        } catch {
+            services.errorReporter.log(error: error)
         }
     }
 
