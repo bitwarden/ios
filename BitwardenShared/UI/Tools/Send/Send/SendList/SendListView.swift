@@ -33,6 +33,11 @@ private struct MainSendListView: View {
 
             content
                 .hidden(isSearching)
+                .overlay(alignment: .bottomTrailing) {
+                    addItemFloatingActionButton {
+                        store.send(.addItemPressed)
+                    }
+                }
 
             search
                 .hidden(!isSearching)
@@ -111,6 +116,7 @@ private struct MainSendListView: View {
                 }
             }
             .padding(16)
+            .padding(.bottom, FloatingActionButton.bottomOffsetPadding)
         }
     }
 
@@ -291,7 +297,12 @@ struct SendListView: View {
                                         id: "12",
                                         itemType: .group(.file, 1)
                                     ),
-                                ],
+                                ] + (1 ... 10).map { id in
+                                    SendListItem(
+                                        id: String(id),
+                                        itemType: .group(.file, id)
+                                    )
+                                },
                                 name: "Types"
                             ),
                             SendListSection(
