@@ -6,6 +6,7 @@ class ImportLoginsProcessor: StateProcessor<ImportLoginsState, ImportLoginsActio
     // MARK: Types
 
     typealias Services = HasErrorReporter
+        & HasSettingsRepository
         & HasStateService
 
     // MARK: Private Properties
@@ -39,6 +40,8 @@ class ImportLoginsProcessor: StateProcessor<ImportLoginsState, ImportLoginsActio
 
     override func perform(_ effect: ImportLoginsEffect) async {
         switch effect {
+        case .advanceNextPage:
+            await advanceNextPage()
         case .appeared:
             await loadData()
         case .importLoginsLater:
@@ -48,8 +51,6 @@ class ImportLoginsProcessor: StateProcessor<ImportLoginsState, ImportLoginsActio
 
     override func receive(_ action: ImportLoginsAction) {
         switch action {
-        case .advanceNextPage:
-            advanceNextPage()
         case .advancePreviousPage:
             advancePreviousPage()
         case .dismiss:
@@ -63,9 +64,10 @@ class ImportLoginsProcessor: StateProcessor<ImportLoginsState, ImportLoginsActio
 
     /// Advances the view to show the next page of instructions.
     ///
-    private func advanceNextPage() {
+    private func advanceNextPage() async {
         guard let next = state.page.next else {
-            // TODO: PM-11159 Sync vault
+            // On the last page, hitting next initiates a vault sync.
+            await syncVault()
             return
         }
         state.page = next
@@ -93,7 +95,7 @@ class ImportLoginsProcessor: StateProcessor<ImportLoginsState, ImportLoginsActio
     ///
     private func showGetStartAlert() {
         coordinator.showAlert(.importLoginsComputerAvailable {
-            self.advanceNextPage()
+            await self.advanceNextPage()
         })
     }
 
@@ -108,5 +110,20 @@ class ImportLoginsProcessor: StateProcessor<ImportLoginsState, ImportLoginsActio
             }
             self.coordinator.navigate(to: .dismiss)
         })
+    }
+
+    /// Syncs the user's vault to fetch any imported logins.
+    ///
+    private func syncVault() async {
+        coordinator.showLoadingOverlay(LoadingOverlayState(title: Localizations.syncingLogins))
+        defer { coordinator.hideLoadingOverlay() }
+
+        do {
+            try await services.settingsRepository.fetchSync()
+            // TODO: PM-11160 Navigate to import successful
+        } catch {
+            coordinator.showAlert(.networkResponseError(error))
+            services.errorReporter.log(error: error)
+        }
     }
 }

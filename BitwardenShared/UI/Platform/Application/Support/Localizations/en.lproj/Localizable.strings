@@ -170,6 +170,7 @@
 "ItemUpdated" = "Item saved";
 "Submitting" = "Submitting...";
 "Syncing" = "Syncing...";
+"SyncingLogins" = "Syncing logins...";
 "SyncingComplete" = "Syncing complete";
 "SyncingFailed" = "Syncing failed";
 "SyncVaultNow" = "Sync vault now";

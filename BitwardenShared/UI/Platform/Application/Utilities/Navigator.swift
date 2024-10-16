@@ -27,14 +27,14 @@ extension Navigator {
     ///
     func showLoadingOverlay(_ state: LoadingOverlayState) {
         guard let rootViewController else { return }
-        LoadingOverlayDisplayHelper.show(in: rootViewController, state: state)
+        LoadingOverlayDisplayHelper.show(in: rootViewController.topmostViewController(), state: state)
     }
 
     /// Hides the loading overlay view.
     ///
     func hideLoadingOverlay() {
         guard let rootViewController else { return }
-        LoadingOverlayDisplayHelper.hide(from: rootViewController)
+        LoadingOverlayDisplayHelper.hide(from: rootViewController.topmostViewController())
     }
 
     /// Shows the toast.

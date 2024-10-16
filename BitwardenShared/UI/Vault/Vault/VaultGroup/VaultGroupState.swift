@@ -69,8 +69,8 @@ struct VaultGroupState: Equatable, Sendable {
         return true
     }
 
-    /// Whether to show the add item button in the toolbar.
-    var showAddToolbarItem: Bool {
+    /// Whether to show the add item floating action button.
+    var showAddItemFloatingActionButton: Bool {
         if case .trash = group {
             return false
         }

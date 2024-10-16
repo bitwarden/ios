@@ -64,11 +64,11 @@ class ImportLoginsViewTests: BitwardenTestCase {
 
     /// Tapping the continue button for a step dispatches the `advanceNextPage` action.
     @MainActor
-    func test_step_continue_tap() throws {
+    func test_step_continue_tap() async throws {
         processor.state.page = .step1
-        let button = try subject.inspect().find(button: Localizations.continue)
-        try button.tap()
-        XCTAssertEqual(processor.dispatchedActions.last, .advanceNextPage)
+        let button = try subject.inspect().find(asyncButton: Localizations.continue)
+        try await button.tap()
+        XCTAssertEqual(processor.effects.last, .advanceNextPage)
     }
 
     // MARK: Snapshots
