@@ -51,16 +51,13 @@ class SelectLanguageViewTests: BitwardenTestCase {
 
     /// Test that the default view renders correctly.
     func test_snapshot_default() {
-        assertSnapshot(of: subject.navStackWrapped, as: .defaultPortrait)
-    }
-
-    /// Test that the default view renders correctly.
-    func test_snapshot_default_dark() {
-        assertSnapshot(of: subject.navStackWrapped, as: .defaultPortraitDark)
-    }
-
-    /// Test that the default view renders correctly.
-    func test_snapshot_default_large() {
-        assertSnapshot(of: subject.navStackWrapped, as: .tallPortraitAX5())
+        assertSnapshots(
+            of: subject.navStackWrapped,
+            as: [
+                .defaultPortrait,
+                .defaultPortraitDark,
+                .tallPortraitAX5(),
+            ]
+        )
     }
 }

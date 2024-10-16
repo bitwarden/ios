@@ -125,7 +125,7 @@ class VaultListItemTests: BitwardenTestCase { // swiftlint:disable:this type_bod
         )
         XCTAssertEqual(
             VaultListItem(cipherView: .fixture(type: .identity))?.icon.name,
-            Asset.Images.card.name
+            Asset.Images.idCard.name
         )
         XCTAssertEqual(
             VaultListItem(cipherView: .fixture(type: .login))?.icon.name,
@@ -157,7 +157,7 @@ class VaultListItemTests: BitwardenTestCase { // swiftlint:disable:this type_bod
         )
         XCTAssertEqual(
             VaultListItem(id: "", itemType: .group(.identity, 1)).icon.name,
-            Asset.Images.card.name
+            Asset.Images.idCard.name
         )
         XCTAssertEqual(
             VaultListItem(id: "", itemType: .group(.login, 1)).icon.name,

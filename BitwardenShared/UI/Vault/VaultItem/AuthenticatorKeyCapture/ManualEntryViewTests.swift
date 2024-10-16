@@ -70,41 +70,25 @@ class ManualEntryViewTests: BitwardenTestCase {
 
     /// Test a snapshot of the ProfileSwitcherView empty state.
     func test_snapshot_manualEntryView_empty() {
-        assertSnapshot(
+        assertSnapshots(
             of: ManualEntryView_Previews.empty,
-            as: .defaultPortrait
+            as: [
+                .defaultPortrait,
+                .defaultLandscape,
+                .defaultPortraitDark,
+            ]
         )
     }
 
-    /// Test a snapshot of the ProfileSwitcherView empty state.
-    func test_snapshot_manualEntryView_empty_landscape() {
-        assertSnapshot(
-            of: ManualEntryView_Previews.empty,
-            as: .defaultLandscape
-        )
-    }
-
-    /// Test a snapshot of the ProfileSwitcherView in dark mode.
-    func test_snapshot_manualEntryView_text_dark() {
-        assertSnapshot(
+    /// Test a snapshot of the ProfileSwitcherView in with text added.
+    func test_snapshot_manualEntryView_text() {
+        assertSnapshots(
             of: ManualEntryView_Previews.textAdded,
-            as: .defaultPortraitDark
-        )
-    }
-
-    /// Test a snapshot of the ProfileSwitcherView with large text.
-    func test_snapshot_manualEntryView_text_largeText() {
-        assertSnapshot(
-            of: ManualEntryView_Previews.textAdded,
-            as: .tallPortraitAX5(heightMultiple: 1.75)
-        )
-    }
-
-    /// Test a snapshot of the ProfileSwitcherView in light mode.
-    func test_snapshot_manualEntryView_text_light() {
-        assertSnapshot(
-            of: ManualEntryView_Previews.textAdded,
-            as: .defaultPortrait
+            as: [
+                .defaultPortrait,
+                .defaultPortraitDark,
+                .tallPortraitAX5(heightMultiple: 1.75),
+            ]
         )
     }
 }
