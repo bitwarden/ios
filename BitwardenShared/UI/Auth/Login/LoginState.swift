@@ -17,11 +17,6 @@ struct LoginState: Equatable {
     /// Whether the user is logging into a newly created account.
     var isNewAccount = false
 
-    /// The password visibility icon used in the view's text field.
-    var passwordVisibleIcon: ImageAsset {
-        isMasterPasswordRevealed ? Asset.Images.eyeSlash : Asset.Images.eye
-    }
-
     /// The server URL that is hosting the user's session.
     var serverURLString: String = ""
 
