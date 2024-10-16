@@ -53,7 +53,7 @@ class TabRouteTests: BitwardenTestCase {
 
     /// `.settings` image is the `.gearFilled` asset.
     func test_settings_image() {
-        XCTAssertEqual(TabRoute.settings(.settings).image?.pngData(), Asset.Images.cogFilled.image.pngData())
+        XCTAssertEqual(TabRoute.settings(.settings).image?.pngData(), Asset.Images.gearFilled.image.pngData())
     }
 
     /// `.settings` is the fourth tab.
@@ -63,7 +63,7 @@ class TabRouteTests: BitwardenTestCase {
 
     /// `.settings` selected image is the `.gearFilled` asset.
     func test_settings_selectedImage() {
-        XCTAssertEqual(TabRoute.settings(.settings).selectedImage?.pngData(), Asset.Images.cogFilled.image.pngData())
+        XCTAssertEqual(TabRoute.settings(.settings).selectedImage?.pngData(), Asset.Images.gearFilled.image.pngData())
     }
 
     /// `.settings` uses the correct localized title.
