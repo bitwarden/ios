@@ -12,7 +12,7 @@ final class EmptyContentViewTests: BitwardenTestCase {
         struct SnapshotView: View {
             var body: some View {
                 EmptyContentView(
-                    image: Asset.Images.items.swiftUIImage,
+                    image: Asset.Images.Illustrations.items.swiftUIImage,
                     text: Localizations.thereAreNoItemsInYourVaultThatMatchX("Bitwarden")
                 ) {
                     Button {} label: {

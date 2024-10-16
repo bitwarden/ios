@@ -51,7 +51,7 @@ struct TwoFactorAuthState: Equatable, Sendable {
     var detailImageAsset: ImageAsset? {
         switch authMethod {
         case .yubiKey:
-            Asset.Images.yubikey
+            Asset.Images.Illustrations.yubikey
         default:
             nil
         }

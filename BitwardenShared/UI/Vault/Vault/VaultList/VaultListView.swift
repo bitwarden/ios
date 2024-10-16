@@ -82,7 +82,7 @@ private struct SearchableVaultListView: View {
                     Spacer()
 
                     PageHeaderView(
-                        image: Asset.Images.items,
+                        image: Asset.Images.Illustrations.items,
                         title: Localizations.saveAndProtectYourData,
                         message: Localizations
                             .theVaultProtectsMoreThanJustPasswordsStoreSecureLoginsIdsCardsAndNotesSecurelyHere

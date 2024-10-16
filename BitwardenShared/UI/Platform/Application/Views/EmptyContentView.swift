@@ -83,7 +83,7 @@ struct EmptyContentView<TextContent: View, ButtonContent: View>: View {
 #if DEBUG
 #Preview {
     EmptyContentView(
-        image: Asset.Images.items.swiftUIImage,
+        image: Asset.Images.Illustrations.items.swiftUIImage,
         text: Localizations.thereAreNoItemsInYourVaultThatMatchX("Bitwarden")
     ) {
         Button {} label: {
