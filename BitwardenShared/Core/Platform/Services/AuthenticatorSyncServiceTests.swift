@@ -754,11 +754,11 @@ final class AuthenticatorSyncServiceTests: BitwardenTestCase { // swiftlint:disa
         let items = try XCTUnwrap(authBridgeItemService.storedItems["1"])
         XCTAssertEqual(items.count, 1)
         XCTAssertEqual(items.first?.id, "1234")
-        XCTAssertTrue(vaultTimeoutService.isClientLocked["1"] ?? false)
         XCTAssertTrue(authRepository.unlockVaultWithAuthVaultKeyCalled)
+        XCTAssertTrue(vaultTimeoutService.isLocked(userId: "1"))
     }
 
-    /// Verify that `writeCiphers()` correctly throws errors up from the AuthRepository if an error occurs when
+    /// Verify that `writeCiphers()` correctly reports errors from the AuthRepository if an error occurs when
     /// unlocking a locked vault with the AuthenticatorVaultKey.
     ///
     @MainActor
@@ -781,6 +781,61 @@ final class AuthenticatorSyncServiceTests: BitwardenTestCase { // swiftlint:disa
         ])
 
         waitFor(!errorReporter.errors.isEmpty)
+        XCTAssertTrue(vaultTimeoutService.isLocked(userId: "1"))
+    }
+
+    /// Verify that `writeCiphers()` correctly catches and logs errors that occur in `decryptTOTPs`. The user's vault is
+    /// re-locked at the end of error handling..
+    ///
+    @MainActor
+    func test_writeCiphers_vaultLockedDecryptTOTPsError() async throws {
+        setupInitialState()
+        await subject.start()
+        stateService.syncToAuthenticatorSubject.send(("1", true))
+        waitFor(keychainRepository.mockStorage["bwKeyChainStorage:mockAppId:authenticatorVaultKey_1"] != nil)
+
+        clientService.mockVault.clientCiphers.decryptResult = { _ in
+            throw BitwardenTestError.example
+        }
+        vaultTimeoutService.isClientLocked["1"] = true
+        cipherDataStore.cipherSubjectByUserId["1"]?.send([
+            .fixture(
+                id: "1234",
+                login: .fixture(
+                    username: "masked@example.com",
+                    totp: "totp"
+                )
+            ),
+        ])
+
+        waitFor(!errorReporter.errors.isEmpty)
+        XCTAssertTrue(vaultTimeoutService.isLocked(userId: "1"))
+    }
+
+    /// Verify that `writeCiphers()` correctly catches and logs errors that occur in `replaceAllItems`. The user's vault is
+    /// re-locked at the end of error handling..
+    ///
+    @MainActor
+    func test_writeCiphers_vaultLockedAuthBridgeError() async throws {
+        setupInitialState()
+        await subject.start()
+        stateService.syncToAuthenticatorSubject.send(("1", true))
+        waitFor(keychainRepository.mockStorage["bwKeyChainStorage:mockAppId:authenticatorVaultKey_1"] != nil)
+
+        authBridgeItemService.errorToThrow = BitwardenTestError.example
+        vaultTimeoutService.isClientLocked["1"] = true
+        cipherDataStore.cipherSubjectByUserId["1"]?.send([
+            .fixture(
+                id: "1234",
+                login: .fixture(
+                    username: "masked@example.com",
+                    totp: "totp"
+                )
+            ),
+        ])
+
+        waitFor(!errorReporter.errors.isEmpty)
+        XCTAssertTrue(vaultTimeoutService.isLocked(userId: "1"))
     }
 
     /// Verify that ciphers are decrypted and synced successfully when the vault is unlocked. Verify that an unlocked
