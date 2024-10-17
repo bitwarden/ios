@@ -37,7 +37,7 @@ env:
   MINT_PATH: .mint/lib
   RESULT_BUNDLE_PATH: build/BitwardenTests.xcresult
   SIMULATOR_NAME: ${{ inputs.simulator-name || 'iPhone 15 Pro' }}
-  SIMULATOR_VERSION: ${{ inputs.simulator-version || '17.0.1' }}
+  SIMULATOR_VERSION: ${{ inputs.simulator-version || '18.0' }}
   XCODE_VERSION: ${{ inputs.xcode-version }}
 
 jobs:
