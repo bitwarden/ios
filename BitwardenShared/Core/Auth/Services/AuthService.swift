@@ -504,7 +504,7 @@ class DefaultAuthService: AuthService { // swiftlint:disable:this type_body_leng
         let appId = await appIdService.getOrCreateAppId()
 
         // Initiate the login request and cache the result.
-        let loginWithDeviceData = try await clientService.auth().newAuthRequest(email: email)
+        let loginWithDeviceData = try await clientService.auth(isPreAuth: true).newAuthRequest(email: email)
         let loginRequest = try await authAPIService.initiateLoginWithDevice(LoginWithDeviceRequestModel(
             email: email,
             publicKey: loginWithDeviceData.publicKey,
