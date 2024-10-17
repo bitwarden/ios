@@ -60,6 +60,22 @@ class DebugMenuViewTests: BitwardenTestCase {
         XCTAssertEqual(processor.effects.last, .toggleFeatureFlag(featureFlagName, true))
     }
 
+    /// Tapping the generate crash button dispatches the `.generateCrash` action.
+    @MainActor
+    func test_generateCrash_tap() throws {
+        let button = try subject.inspect().find(button: Localizations.generateCrash)
+        try button.tap()
+        XCTAssertEqual(processor.dispatchedActions.last, .generateCrash)
+    }
+
+    /// Tapping the generate error report button dispatches the `.generateErrorReport` action.
+    @MainActor
+    func test_generateErrorReport_tap() throws {
+        let button = try subject.inspect().find(button: Localizations.generateErrorReport)
+        try button.tap()
+        XCTAssertEqual(processor.dispatchedActions.last, .generateErrorReport)
+    }
+
     /// Test that the refresh button sends the correct effect.
     @MainActor
     func test_refreshFeatureFlags_tapped() async throws {
