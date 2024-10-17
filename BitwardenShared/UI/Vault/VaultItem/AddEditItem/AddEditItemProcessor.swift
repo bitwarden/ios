@@ -51,7 +51,7 @@ final class AddEditItemProcessor: StateProcessor<// swiftlint:disable:this type_
     AddEditItemState,
     AddEditItemAction,
     AddEditItemEffect
-> {
+>, Rehydratable {
     // MARK: Types
 
     typealias Services = HasAPIService
@@ -104,6 +104,13 @@ final class AddEditItemProcessor: StateProcessor<// swiftlint:disable:this type_
         self.services = services
 
         super.init(state: state)
+    }
+    
+    // MARK: Public properties
+
+    var rehydrationState: RehydrationState? {
+        guard let id = state.cipher.id else { return nil }
+        return RehydrationState(target: .editCipher(cipherId: id))
     }
 
     // MARK: Methods

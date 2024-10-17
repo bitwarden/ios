@@ -10,6 +10,7 @@ final class AuthRouter: NSObject, Router {
         & HasClientService
         & HasConfigService
         & HasErrorReporter
+        & HasRehydrationHelper
         & HasStateService
         & HasVaultTimeoutService
 

@@ -268,6 +268,15 @@ extension AuthRouter {
                 guard let activeAccount = try? await services.authRepository.getAccount() else {
                     return .landing
                 }
+
+                do {
+                    if !isInAppExtension {
+                        try await services.rehydrationHelper.saveRehydrationStateIfNeeded()
+                    }
+                } catch {
+                    services.errorReporter.log(error: error)
+                }
+
                 // Setup the check route for the active account.
                 let event = AuthEvent.accountBecameActive(
                     activeAccount,
@@ -361,11 +370,14 @@ extension AuthRouter {
                     return .landingSoftLoggedOut(email: activeAccount.profile.email)
                 }
 
+                let rehydratableTarget = try await services.rehydrationHelper.getSavedRehydratableTarget()
+
                 return .vaultUnlock(
                     activeAccount,
                     animated: animated,
                     attemptAutomaticBiometricUnlock: attemptAutomaticBiometricUnlock,
-                    didSwitchAccountAutomatically: didSwitchAccountAutomatically
+                    didSwitchAccountAutomatically: didSwitchAccountAutomatically,
+                    rehydratableTarget: rehydratableTarget
                 )
             }
         } catch {
