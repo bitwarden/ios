@@ -117,10 +117,20 @@ public class AppProcessor {
     public func openUrl(_ url: URL) async {
         guard let scheme = url.scheme else { return }
 
-        if scheme == "bitwarden" {
-            await handleBitwardenUrl(url: url)
+        var route: AppRoute?
+        if scheme.isBitwardenAppScheme {
+            route = await handleBitwardenUrl(url: url)
         } else if scheme.isOtpAuthScheme {
-            await handleOtpAuthUrl(url: url)
+            route = await handleOtpAuthUrl(url: url)
+        }
+        guard let route else { return }
+
+        if let userId = try? await services.stateService.getActiveAccountId(),
+           !services.vaultTimeoutService.isLocked(userId: userId),
+           await (try? services.vaultTimeoutService.hasPassedSessionTimeout(userId: userId)) == false {
+            coordinator?.navigate(to: route)
+        } else {
+            await coordinator?.handleEvent(.setAuthCompletionRoute(route))
         }
     }
 
@@ -374,42 +384,29 @@ extension AppProcessor {
     /// Handle a "bitwarden://" url.
     ///
     /// - Parameter url: The Bitwarden URL received by the app.
+    /// - Returns: an `AppRoute` if one was successfully built from the URL passed in, `nil` if not.
     ///
-    private func handleBitwardenUrl(url: URL) async {
-        guard let components = URLComponents(url: url, resolvingAgainstBaseURL: true) else { return }
+    private func handleBitwardenUrl(url: URL) async -> AppRoute? {
+        guard let components = URLComponents(url: url, resolvingAgainstBaseURL: true),
+              components.host == "settings",
+              components.path == "/account_security"
+        else { return nil }
 
-        if components.host == "settings", components.path == "/account_security" {
-            let accountSecurityRoute = AppRoute.tab(.settings(.accountSecurity))
-            guard let userId = try? await services.stateService.getActiveAccountId(),
-                  !services.vaultTimeoutService.isLocked(userId: userId),
-                  await (try? services.vaultTimeoutService.hasPassedSessionTimeout(userId: userId)) == false
-            else {
-                await coordinator?.handleEvent(.setAuthCompletionRoute(accountSecurityRoute))
-                return
-            }
-            coordinator?.navigate(to: accountSecurityRoute)
-        }
+        return AppRoute.tab(.settings(.accountSecurity))
     }
 
     /// Handle an "otpauth://" url.
     ///
     /// - Parameter url: The OTPAuth URL received by the app.
+    /// - Returns: an `AppRoute` if one was successfully built from the URL passed in, `nil` if not.
     ///
-    private func handleOtpAuthUrl(url: URL) async {
+    private func handleOtpAuthUrl(url: URL) async -> AppRoute? {
         guard let otpAuthModel = OTPAuthModel(otpAuthKey: url.absoluteString) else {
             coordinator?.showAlert(.defaultAlert(title: Localizations.anErrorHasOccurred))
-            return
+            return nil
         }
 
-        let vaultItemSelectionRoute = AppRoute.tab(.vault(.vaultItemSelection(otpAuthModel)))
-        guard let userId = try? await services.stateService.getActiveAccountId(),
-              !services.vaultTimeoutService.isLocked(userId: userId),
-              await (try? services.vaultTimeoutService.hasPassedSessionTimeout(userId: userId)) == false
-        else {
-            await coordinator?.handleEvent(.setAuthCompletionRoute(vaultItemSelectionRoute))
-            return
-        }
-        coordinator?.navigate(to: vaultItemSelectionRoute)
+        return AppRoute.tab(.vault(.vaultItemSelection(otpAuthModel)))
     }
 
     /// Starts timer to send organization events regularly
