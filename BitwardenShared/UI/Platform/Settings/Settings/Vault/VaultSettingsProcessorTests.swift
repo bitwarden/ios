@@ -72,7 +72,7 @@ class VaultSettingsProcessorTests: BitwardenTestCase {
     /// `perform(_:)` with `.streamSettingsBadge` updates the state's badge state whenever it changes.
     @MainActor
     func test_perform_streamSettingsBadge() {
-        configService.featureFlagsBool[.nativeCreateAccountFlow] = true
+        configService.featureFlagsBool[.importLoginsFlow] = true
         stateService.activeAccount = .fixture()
 
         let task = Task {
@@ -90,7 +90,7 @@ class VaultSettingsProcessorTests: BitwardenTestCase {
     /// `perform(_:)` with `.streamSettingsBadge` logs an error if streaming the settings badge state fails.
     @MainActor
     func test_perform_streamSettingsBadge_error() async {
-        configService.featureFlagsBool[.nativeCreateAccountFlow] = true
+        configService.featureFlagsBool[.importLoginsFlow] = true
 
         await subject.perform(.streamSettingsBadge)
 
