@@ -121,12 +121,6 @@ struct MasterPasswordGuidanceView: View {
 
 #if DEBUG
 #Preview {
-    MasterPasswordGuidanceView(
-        store: Store(
-            processor: StateProcessor(
-                state: ()
-            )
-        )
-    )
+    MasterPasswordGuidanceView(store: Store(processor: StateProcessor()))
 }
 #endif
