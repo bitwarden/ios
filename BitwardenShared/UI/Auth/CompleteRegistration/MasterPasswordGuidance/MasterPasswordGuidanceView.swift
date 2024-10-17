@@ -95,7 +95,7 @@ struct MasterPasswordGuidanceView: View {
                     .frame(maxWidth: .infinity, alignment: .leading)
                 }
 
-                Image(decorative: Asset.Images.chevronRight)
+                Image(decorative: Asset.Images.chevronRight16)
                     .foregroundStyle(Asset.Colors.iconPrimary.swiftUIColor)
             }
             .padding(16)

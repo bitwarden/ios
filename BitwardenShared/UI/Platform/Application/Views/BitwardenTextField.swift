@@ -63,8 +63,8 @@ struct BitwardenTextField<TrailingContent: View>: View {
                 if let isPasswordVisible, canViewPassword {
                     AccessoryButton(
                         asset: isPasswordVisible.wrappedValue
-                            ? Asset.Images.eyeSlash
-                            : Asset.Images.eye,
+                            ? Asset.Images.hidden
+                            : Asset.Images.visible,
                         accessibilityLabel: isPasswordVisible.wrappedValue
                             ? Localizations.passwordIsVisibleTapToHide
                             : Localizations.passwordIsNotVisibleTapToShow

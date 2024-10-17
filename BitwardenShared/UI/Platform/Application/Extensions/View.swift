@@ -155,7 +155,7 @@ extension View {
     ) -> some View {
         floatingActionButton(
             hidden: hidden,
-            image: Asset.Images.pencil.swiftUIImage,
+            image: Asset.Images.pencil32.swiftUIImage,
             action: action
         )
         .accessibilityLabel(Localizations.edit)

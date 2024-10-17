@@ -169,8 +169,7 @@ struct SendListItemRowView: View {
                 await store.perform(.deletePressed(sendView))
             }
         } label: {
-            Asset.Images.ellipsisHorizontal.swiftUIImage
-                .scaledFrame(width: 22, height: 22)
+            Asset.Images.ellipsisHorizontal24.swiftUIImage
                 .foregroundStyle(Asset.Colors.textSecondary.swiftUIColor)
         }
         .accessibilityIdentifier("SendOptionsButton")

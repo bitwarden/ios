@@ -39,7 +39,7 @@ struct FloatingActionButton: View {
 #Preview {
     VStack {
         FloatingActionButton(
-            image: Asset.Images.pencil.swiftUIImage) {}
+            image: Asset.Images.pencil32.swiftUIImage) {}
     }
     .padding()
 }

@@ -47,7 +47,7 @@ struct VaultItemManagementMenuView: View {
                 await store.perform(.deleteItem)
             }
         } label: {
-            Image(asset: Asset.Images.ellipsisVertical, label: Text(Localizations.options))
+            Image(asset: Asset.Images.ellipsisVertical24, label: Text(Localizations.options))
                 .imageStyle(.toolbarIcon)
         }
         .accessibilityLabel(Localizations.options)

@@ -81,7 +81,7 @@ struct VaultListItemRowView: View {
                             AsyncButton {
                                 await store.perform(.morePressed)
                             } label: {
-                                Asset.Images.ellipsisHorizontal.swiftUIImage
+                                Asset.Images.ellipsisHorizontal24.swiftUIImage
                                     .imageStyle(.rowIcon)
                             }
                             .accessibilityLabel(Localizations.more)

@@ -13,10 +13,10 @@ struct PreventAccountLockView: View {
     // MARK: View
 
     var body: some View {
-        VStack {
-            VStack(spacing: 0) {
-                instructionsView
+        VStack(spacing: 24) {
+            instructionsView
 
+            VStack(spacing: 0) {
                 hintInstructionsView
 
                 writeDownInstructions
@@ -27,7 +27,7 @@ struct PreventAccountLockView: View {
         .scrollView()
         .navigationBar(title: Localizations.preventAccountLockout, titleDisplayMode: .inline)
         .toolbar {
-            cancelToolbarItem {
+            closeToolbarItem {
                 store.send(.dismiss)
             }
         }
@@ -37,28 +37,23 @@ struct PreventAccountLockView: View {
 
     /// The main instructions.
     private var instructionsView: some View {
-        VStack(spacing: 0) {
-            VStack(alignment: .leading, spacing: 8) {
-                Text(Localizations.neverLoseAccessToYourVault)
-                    .styleGuide(.title3, weight: .semibold)
+        VStack(spacing: 8) {
+            Text(Localizations.neverLoseAccessToYourVault)
+                .styleGuide(.title2, weight: .semibold)
 
-                Text(Localizations.theBestWayToMakeSureYouCanAlwaysAccessYourAccountIsToSetUpSafeguardsFromTheStart)
-                    .styleGuide(.body)
-            }
-            .foregroundStyle(Asset.Colors.textPrimary.swiftUIColor)
-            .padding(24)
-
-            Divider()
+            Text(Localizations.theBestWayToMakeSureYouCanAlwaysAccessYourAccountIsToSetUpSafeguardsFromTheStart)
+                .styleGuide(.body)
+                .multilineTextAlignment(.center)
         }
+        .foregroundStyle(Asset.Colors.textPrimary.swiftUIColor)
+        .padding(.top, 8)
     }
 
     /// The hint instructions.
     private var hintInstructionsView: some View {
         VStack(spacing: 0) {
-            HStack(spacing: 20) {
-                Image(decorative: Asset.Images.lightbulb)
-                    .resizable()
-                    .frame(width: 32, height: 32)
+            HStack(spacing: 12) {
+                Image(decorative: Asset.Images.lightbulb24)
                     .foregroundStyle(Asset.Colors.iconSecondary.swiftUIColor)
 
                 VStack(alignment: .leading, spacing: 4) {
@@ -72,18 +67,16 @@ struct PreventAccountLockView: View {
                 }
                 .frame(maxWidth: .infinity, alignment: .leading)
             }
-            .padding(16)
+            .padding(12)
 
-            Divider().padding(.leading, 68)
+            Divider().padding(.leading, 48)
         }
     }
 
     /// The writing down instructions.
     private var writeDownInstructions: some View {
-        HStack(spacing: 20) {
-            Image(decorative: Asset.Images.pencil)
-                .resizable()
-                .frame(width: 32, height: 32)
+        HStack(spacing: 12) {
+            Image(decorative: Asset.Images.pencil24)
                 .foregroundStyle(Asset.Colors.iconSecondary.swiftUIColor)
 
             VStack(alignment: .leading, spacing: 4) {
@@ -97,7 +90,7 @@ struct PreventAccountLockView: View {
             }
             .frame(maxWidth: .infinity, alignment: .leading)
         }
-        .padding(16)
+        .padding(12)
     }
 }
 
@@ -105,12 +98,14 @@ struct PreventAccountLockView: View {
 
 #if DEBUG
 #Preview {
-    PreventAccountLockView(
-        store: Store(
-            processor: StateProcessor(
-                state: ()
+    NavigationView {
+        PreventAccountLockView(
+            store: Store(
+                processor: StateProcessor(
+                    state: ()
+                )
             )
         )
-    )
+    }
 }
 #endif

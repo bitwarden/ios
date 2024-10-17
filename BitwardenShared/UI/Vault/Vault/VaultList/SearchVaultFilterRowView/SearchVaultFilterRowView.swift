@@ -17,7 +17,7 @@ struct SearchVaultFilterRowView: View {
     @ObservedObject var store: Store<SearchVaultFilterRowState, SearchVaultFilterRowAction, Void>
 
     var body: some View {
-        if !store.state.vaultFilterOptions.isEmpty {
+        //if !store.state.vaultFilterOptions.isEmpty {
             VStack(spacing: 0) {
                 HStack(spacing: 0) {
                     Text(store.state.searchVaultFilterType.filterTitle)
@@ -39,9 +39,8 @@ struct SearchVaultFilterRowView: View {
                             EmptyView()
                         }
                     } label: {
-                        Asset.Images.ellipsisHorizontal.swiftUIImage
+                        Asset.Images.ellipsisHorizontal24.swiftUIImage
                             .imageStyle(.rowIcon)
-                            .frame(width: 44, height: 44, alignment: .trailing)
                             .contentShape(Rectangle())
                     }
                     .accessibilityIdentifier("OpenOrgFilter")
@@ -58,7 +57,7 @@ struct SearchVaultFilterRowView: View {
                     Divider()
                 }
             }
-        }
+      //  }
     }
 
     // MARK: Initialization

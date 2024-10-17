@@ -31,8 +31,7 @@ struct RegionSelector: View {
                 }
                 .styleGuide(.footnote)
 
-                Image(decorative: Asset.Images.chevronDown)
-                    .scaledFrame(width: 12, height: 12)
+                Image(decorative: Asset.Images.chevronDown24)
                     .foregroundColor(Asset.Colors.iconSecondary.swiftUIColor)
             }
         }
