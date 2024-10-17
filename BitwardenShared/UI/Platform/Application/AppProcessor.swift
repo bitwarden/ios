@@ -115,22 +115,13 @@ public class AppProcessor {
     /// - Parameter url: The deep link URL to handle.
     ///
     public func openUrl(_ url: URL) async {
-        guard url.scheme?.isOtpAuthScheme == true else { return }
+        guard let scheme = url.scheme else { return }
 
-        guard let otpAuthModel = OTPAuthModel(otpAuthKey: url.absoluteString) else {
-            coordinator?.showAlert(.defaultAlert(title: Localizations.anErrorHasOccurred))
-            return
+        if scheme == "bitwarden" {
+            await handleBitwardenUrl(url: url)
+        } else if scheme.isOtpAuthScheme {
+            await handleOtpAuthUrl(url: url)
         }
-
-        let vaultItemSelectionRoute = AppRoute.tab(.vault(.vaultItemSelection(otpAuthModel)))
-        guard let userId = try? await services.stateService.getActiveAccountId(),
-              !services.vaultTimeoutService.isLocked(userId: userId),
-              await (try? services.vaultTimeoutService.hasPassedSessionTimeout(userId: userId)) == false
-        else {
-            await coordinator?.handleEvent(.setAuthCompletionRoute(vaultItemSelectionRoute))
-            return
-        }
-        coordinator?.navigate(to: vaultItemSelectionRoute)
     }
 
     /// Starts the application flow by navigating the user to the first flow.
@@ -378,6 +369,47 @@ extension AppProcessor {
         } catch {
             services.errorReporter.log(error: error)
         }
+    }
+
+    /// Handle a "bitwarden://" url.
+    ///
+    /// - Parameter url: The Bitwarden URL received by the app.
+    ///
+    private func handleBitwardenUrl(url: URL) async {
+        guard let components = URLComponents(url: url, resolvingAgainstBaseURL: true) else { return }
+
+        if components.host == "settings", components.path == "/account_security" {
+            let accountSecurityRoute = AppRoute.tab(.settings(.accountSecurity))
+            guard let userId = try? await services.stateService.getActiveAccountId(),
+                  !services.vaultTimeoutService.isLocked(userId: userId),
+                  await (try? services.vaultTimeoutService.hasPassedSessionTimeout(userId: userId)) == false
+            else {
+                await coordinator?.handleEvent(.setAuthCompletionRoute(accountSecurityRoute))
+                return
+            }
+            coordinator?.navigate(to: accountSecurityRoute)
+        }
+    }
+
+    /// Handle an "otpauth://" url.
+    ///
+    /// - Parameter url: The OTPAuth URL received by the app.
+    ///
+    private func handleOtpAuthUrl(url: URL) async {
+        guard let otpAuthModel = OTPAuthModel(otpAuthKey: url.absoluteString) else {
+            coordinator?.showAlert(.defaultAlert(title: Localizations.anErrorHasOccurred))
+            return
+        }
+
+        let vaultItemSelectionRoute = AppRoute.tab(.vault(.vaultItemSelection(otpAuthModel)))
+        guard let userId = try? await services.stateService.getActiveAccountId(),
+              !services.vaultTimeoutService.isLocked(userId: userId),
+              await (try? services.vaultTimeoutService.hasPassedSessionTimeout(userId: userId)) == false
+        else {
+            await coordinator?.handleEvent(.setAuthCompletionRoute(vaultItemSelectionRoute))
+            return
+        }
+        coordinator?.navigate(to: vaultItemSelectionRoute)
     }
 
     /// Starts timer to send organization events regularly
