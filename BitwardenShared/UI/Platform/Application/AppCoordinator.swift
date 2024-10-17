@@ -323,8 +323,19 @@ extension AppCoordinator: AuthCoordinatorDelegate {
             if let authCompletionRoute {
                 navigate(to: authCompletionRoute)
                 self.authCompletionRoute = nil
+                Task {
+                    do {
+                        try await services.rehydrationHelper.clearAppRehydrationState()
+                    } catch {
+                        services.errorReporter.log(error: error)
+                    }
+                }
             }
         }
+    }
+
+    func setAuthCompletionRoute(_ route: AppRoute) {
+        self.authCompletionRoute = route
     }
 }
 

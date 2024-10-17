@@ -31,6 +31,7 @@ typealias Services = HasAPIService
     & HasOrganizationAPIService
     & HasPasteboardService
     & HasPolicyService
+    & HasRehydrationHelper
     & HasSendRepository
     & HasSettingsRepository
     & HasStateService
@@ -252,6 +253,12 @@ protocol HasOrganizationAPIService {
 protocol HasPolicyService {
     /// The service for managing the polices for the user.
     var policyService: PolicyService { get }
+}
+
+/// Protocol for an object that provides a `RehydrationHelper`.
+protocol HasRehydrationHelper {
+    /// The helper for app rehydration.
+    var rehydrationHelper: RehydrationHelper { get }
 }
 
 /// Protocol for an object that provides a `SendRepository`.

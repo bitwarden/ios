@@ -5,7 +5,7 @@ import Foundation
 
 /// A processor that can process `ViewItemAction`s.
 ///
-final class ViewItemProcessor: StateProcessor<ViewItemState, ViewItemAction, ViewItemEffect> {
+final class ViewItemProcessor: StateProcessor<ViewItemState, ViewItemAction, ViewItemEffect>, Rehydratable {
     // MARK: Types
 
     typealias Services = HasAPIService
@@ -75,6 +75,12 @@ final class ViewItemProcessor: StateProcessor<ViewItemState, ViewItemAction, Vie
     deinit {
         // When the view is dismissed, ensure any temporary files are deleted.
         services.vaultRepository.clearTemporaryDownloads()
+    }
+    
+    // MARK: Public properties
+
+    var rehydrationState: RehydrationState? {
+        RehydrationState(target: .viewCipher(cipherId: itemId))
     }
 
     // MARK: Methods

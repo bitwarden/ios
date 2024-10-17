@@ -109,6 +109,9 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
     /// The service for managing the polices for the user.
     let policyService: PolicyService
 
+    /// The helper used for app rehydration.
+    let rehydrationHelper: RehydrationHelper
+
     /// The repository used by the application to manage send data for the UI layer.
     public let sendRepository: SendRepository
 
@@ -185,6 +188,7 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
     ///   - notificationCenterService: The service used by the application to access the system's notification center.
     ///   - notificationService: The service used by the application to handle notifications.
     ///   - pasteboardService: The service used by the application for sharing data with other apps.
+    ///   - rehydrationHelper: The helper used for app rehydration.
     ///   - policyService: The service for managing the polices for the user.
     ///   - sendRepository: The repository used by the application to manage send data for the UI layer.
     ///   - settingsRepository: The repository used by the application to manage data for the UI layer.
@@ -231,6 +235,7 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
         notificationService: NotificationService,
         pasteboardService: PasteboardService,
         policyService: PolicyService,
+        rehydrationHelper: RehydrationHelper,
         sendRepository: SendRepository,
         settingsRepository: SettingsRepository,
         stateService: StateService,
@@ -275,6 +280,7 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
         self.notificationService = notificationService
         self.pasteboardService = pasteboardService
         self.policyService = policyService
+        self.rehydrationHelper = rehydrationHelper
         self.sendRepository = sendRepository
         self.settingsRepository = settingsRepository
         self.stateService = stateService
@@ -323,6 +329,8 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
             errorReporter: errorReporter,
             keychainRepository: keychainRepository
         )
+        
+        let rehydrationHelper = DefaultRehydrationHelper(stateService: stateService, timeProvider: timeProvider)
 
         let environmentService = DefaultEnvironmentService(errorReporter: errorReporter, stateService: stateService)
         let collectionService = DefaultCollectionService(collectionDataStore: dataStore, stateService: stateService)
@@ -674,6 +682,7 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
             notificationService: notificationService,
             pasteboardService: pasteboardService,
             policyService: policyService,
+            rehydrationHelper: rehydrationHelper,
             sendRepository: sendRepository,
             settingsRepository: settingsRepository,
             stateService: stateService,

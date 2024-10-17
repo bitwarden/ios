@@ -170,12 +170,15 @@ public enum AuthRoute: Equatable {
     ///   - attemptAutomaticBiometricUnlock: If `true` and biometric unlock is enabled/available,
     ///     the processor should attempt an automatic biometric unlock.
     ///   - didSwitchAccountAutomatically: A flag indicating if the active account was switched automatically.
+    ///   - rehydratableTarget: The target that we want to restore and rehydrate after the vault is unlocked,
+    ///   if there is one.
     ///
     case vaultUnlock(
         Account,
         animated: Bool,
         attemptAutomaticBiometricUnlock: Bool,
-        didSwitchAccountAutomatically: Bool
+        didSwitchAccountAutomatically: Bool,
+        rehydratableTarget: RehydratableTarget? = nil
     )
 
     /// A route to the vault unlock setup screen.
