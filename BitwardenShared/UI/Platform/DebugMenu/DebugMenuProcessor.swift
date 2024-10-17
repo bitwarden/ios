@@ -1,3 +1,4 @@
+import BitwardenSdk
 import Foundation
 
 // MARK: - DebugMenuProcessor
@@ -8,6 +9,7 @@ final class DebugMenuProcessor: StateProcessor<DebugMenuState, DebugMenuAction, 
     // MARK: Types
 
     typealias Services = HasConfigService
+        & HasErrorReporter
 
     // MARK: Properties
 
@@ -42,6 +44,13 @@ final class DebugMenuProcessor: StateProcessor<DebugMenuState, DebugMenuAction, 
         switch action {
         case .dismissTapped:
             coordinator.navigate(to: .dismiss)
+        case .generateCrash:
+            preconditionFailure("Generated crash from debug view.")
+        case .generateErrorReport:
+            services.errorReporter.log(error: BitwardenSdk.BitwardenError.E(
+                message: "Generated error report from debug view.")
+            )
+            services.errorReporter.log(error: KeychainServiceError.osStatusError(1))
         }
     }
 

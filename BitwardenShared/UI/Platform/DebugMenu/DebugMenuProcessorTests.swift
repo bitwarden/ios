@@ -1,3 +1,4 @@
+import BitwardenSdk
 import XCTest
 
 @testable import BitwardenShared
@@ -7,6 +8,7 @@ class DebugMenuProcessorTests: BitwardenTestCase {
 
     var configService: MockConfigService!
     var coordinator: MockCoordinator<DebugMenuRoute, Void>!
+    var errorReporter: MockErrorReporter!
     var subject: DebugMenuProcessor!
 
     // MARK: Set Up & Tear Down
@@ -16,10 +18,12 @@ class DebugMenuProcessorTests: BitwardenTestCase {
 
         configService = MockConfigService()
         coordinator = MockCoordinator<DebugMenuRoute, Void>()
+        errorReporter = MockErrorReporter()
         subject = DebugMenuProcessor(
             coordinator: coordinator.asAnyCoordinator(),
             services: ServiceContainer.withMocks(
-                configService: configService
+                configService: configService,
+                errorReporter: errorReporter
             ),
             state: DebugMenuState(featureFlags: [])
         )
@@ -30,6 +34,7 @@ class DebugMenuProcessorTests: BitwardenTestCase {
 
         configService = nil
         coordinator = nil
+        errorReporter = nil
         subject = nil
     }
 
@@ -82,5 +87,21 @@ class DebugMenuProcessorTests: BitwardenTestCase {
         )
 
         XCTAssertTrue(configService.toggleDebugFeatureFlagCalled)
+    }
+
+    /// `receive()` with `.generateErrorReport` generates error reports on the error reporter.
+    @MainActor
+    func test_receive_generateErrorReport() {
+        subject.receive(.generateErrorReport)
+        XCTAssertEqual(
+            errorReporter.errors[0] as? BitwardenSdk.BitwardenError,
+            BitwardenSdk.BitwardenError.E(
+                message: "Generated error report from debug view."
+            )
+        )
+        XCTAssertEqual(
+            errorReporter.errors[1] as? KeychainServiceError,
+            KeychainServiceError.osStatusError(1)
+        )
     }
 }
