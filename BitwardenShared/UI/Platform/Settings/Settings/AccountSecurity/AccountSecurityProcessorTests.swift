@@ -245,6 +245,7 @@ class AccountSecurityProcessorTests: BitwardenTestCase { // swiftlint:disable:th
     @MainActor
     func test_perform_loadData_isAuthenticatorSyncEnabled() async {
         stateService.activeAccount = .fixture()
+        configService.featureFlagsBool[.enableAuthenticatorSync] = true
 
         stateService.syncToAuthenticatorByUserId[Account.fixture().profile.userId] = false
         await subject.perform(.loadData)
