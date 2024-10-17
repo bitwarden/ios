@@ -171,7 +171,7 @@ extension DefaultGeneratorRepository: GeneratorRepository {
     // MARK: Generator
 
     func generateMasterPassword() async throws -> String {
-        try await clientService.generators().passphrase(
+        try await clientService.generators(isPreAuth: false).passphrase(
             settings: PassphraseGeneratorRequest(
                 numWords: 3,
                 wordSeparator: "-",
@@ -182,15 +182,15 @@ extension DefaultGeneratorRepository: GeneratorRepository {
     }
 
     func generatePassphrase(settings: PassphraseGeneratorRequest) async throws -> String {
-        try await clientService.generators().passphrase(settings: settings)
+        try await clientService.generators(isPreAuth: false).passphrase(settings: settings)
     }
 
     func generatePassword(settings: PasswordGeneratorRequest) async throws -> String {
-        try await clientService.generators().password(settings: settings)
+        try await clientService.generators(isPreAuth: false).password(settings: settings)
     }
 
     func generateUsername(settings: UsernameGeneratorRequest) async throws -> String {
-        try await clientService.generators().username(settings: settings)
+        try await clientService.generators(isPreAuth: false).username(settings: settings)
     }
 
     func getPasswordGenerationOptions() async throws -> PasswordGenerationOptions {
