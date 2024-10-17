@@ -812,8 +812,8 @@ final class AuthenticatorSyncServiceTests: BitwardenTestCase { // swiftlint:disa
         XCTAssertTrue(vaultTimeoutService.isLocked(userId: "1"))
     }
 
-    /// Verify that `writeCiphers()` correctly catches and logs errors that occur in `replaceAllItems`. The user's vault is
-    /// re-locked at the end of error handling..
+    /// Verify that `writeCiphers()` correctly catches and logs errors that occur in `replaceAllItems`.
+    /// The user's vault is re-locked at the end of error handling.
     ///
     @MainActor
     func test_writeCiphers_vaultLockedAuthBridgeError() async throws {
