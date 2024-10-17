@@ -98,6 +98,26 @@ final class AuthenticatorBridgeItemServiceTests: AuthenticatorBridgeKitTestCase 
         XCTAssertEqual(emptyResult.count, 0)
     }
 
+    /// When no temporary item has been stored,  `fetchTemporaryItem()` returns `nil`
+    ///
+    func test_fetchTemporaryItem_emptyResult() async throws {
+        let result = try await subject.fetchTemporaryItem()
+        XCTAssertNil(result)
+    }
+
+    /// Verify that the `fetchTemporaryItem()` is able to fetch the temporary item that was inserted
+    /// and removes it after fetching.
+    ///
+    func test_fetchTemporaryItem_success() async throws {
+        let expectedItem = AuthenticatorBridgeItemDataView.fixture()
+        try await subject.insertTemporaryItem(expectedItem)
+        let result = try await subject.fetchTemporaryItem()
+        XCTAssertEqual(result, expectedItem)
+
+        let retryResult = try await subject.fetchTemporaryItem()
+        XCTAssertNil(retryResult)
+    }
+
     /// Verify that the `insertItems(_:forUserId:)` method successfully inserts the list of items
     /// for the given user id.
     ///
@@ -109,6 +129,32 @@ final class AuthenticatorBridgeItemServiceTests: AuthenticatorBridgeKitTestCase 
         XCTAssertTrue(cryptoService.encryptCalled,
                       "Items should have been encrypted before inserting!!")
         XCTAssertEqual(result, expectedItems)
+    }
+
+    /// When `insertTemporaryItem(_)` is called multiple times, it should replace the temporary
+    /// item - i.e. only the last item will end up stored.
+    ///
+    func test_insertTemporaryItem_replacesItem() async throws {
+        let initialItem = AuthenticatorBridgeItemDataView.fixture(name: "Initial Insert")
+        let expectedItem = AuthenticatorBridgeItemDataView.fixture()
+        try await subject.insertTemporaryItem(initialItem)
+        try await subject.insertTemporaryItem(expectedItem)
+        let result = try await subject.fetchTemporaryItem()
+
+        XCTAssertEqual(result, expectedItem)
+    }
+
+    /// Verify that the `insertTemporaryItem(_)` method successfully inserts a temporary item that is
+    /// then able to be retrieved by `fetchTemporaryItem()`.
+    ///
+    func test_insertTemporaryItem_success() async throws {
+        let expectedItem = AuthenticatorBridgeItemDataView.fixture()
+        try await subject.insertTemporaryItem(expectedItem)
+        let result = try await subject.fetchTemporaryItem()
+
+        XCTAssertTrue(cryptoService.encryptCalled,
+                      "Items should have been encrypted before inserting!!")
+        XCTAssertEqual(result, expectedItem)
     }
 
     /// Verify that `isSyncOn` returns false when the key is not present in the keychain.
@@ -199,6 +245,29 @@ final class AuthenticatorBridgeItemServiceTests: AuthenticatorBridgeKitTestCase 
         waitFor(results.count == 1)
         let combined = (otherUserItems + initialItems)
         XCTAssertEqual(results[0], combined)
+    }
+
+    /// Verify that the shared items publisher does not publish any temporary items
+    ///
+    func test_sharedItemsPublisher_noTemporaryItems() async throws {
+        let expectedItems = AuthenticatorBridgeItemDataView.fixtures().sorted { $0.id < $1.id }
+        try await subject.insertItems(expectedItems, forUserId: "userId")
+        try await subject.insertTemporaryItem(.fixture())
+
+        var results: [[AuthenticatorBridgeItemDataView]] = []
+        let publisher = try await subject.sharedItemsPublisher()
+            .sink(
+                receiveCompletion: { _ in },
+                receiveValue: { value in
+                    results.append(value)
+                }
+            )
+        defer { publisher.cancel() }
+
+        try await subject.insertTemporaryItem(.fixture())
+
+        waitFor(results.count == 1)
+        XCTAssertEqual(results[0], expectedItems)
     }
 
     /// Verify that the shared items publisher publishes all the items inserted initially.

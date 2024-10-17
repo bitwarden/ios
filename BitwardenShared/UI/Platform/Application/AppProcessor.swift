@@ -378,16 +378,34 @@ extension AppProcessor {
     private func handleBitwardenUrl(url: URL) async {
         guard let components = URLComponents(url: url, resolvingAgainstBaseURL: true) else { return }
 
-        if components.host == "settings", components.path == "/account_security" {
-            let accountSecurityRoute = AppRoute.tab(.settings(.accountSecurity))
+        var route: AppRoute?
+
+        switch components.host {
+        case "settings":
+            if components.path == "/account_security" {
+                route = AppRoute.tab(.settings(.accountSecurity))
+            }
+        case "authenticator":
+            if components.path == "/newItem" {
+                guard let item = await services.authenticatorSyncService?.getTemporaryTotpItem(),
+                      let totpKey = item.totpKey,
+                      let otpAuthModel = OTPAuthModel(otpAuthKey: totpKey) else { return }
+
+                route = AppRoute.tab(.vault(.vaultItemSelection(otpAuthModel)))
+            }
+        default:
+            route = nil
+        }
+
+        if let route {
             guard let userId = try? await services.stateService.getActiveAccountId(),
                   !services.vaultTimeoutService.isLocked(userId: userId),
                   await (try? services.vaultTimeoutService.hasPassedSessionTimeout(userId: userId)) == false
             else {
-                await coordinator?.handleEvent(.setAuthCompletionRoute(accountSecurityRoute))
+                await coordinator?.handleEvent(.setAuthCompletionRoute(route))
                 return
             }
-            coordinator?.navigate(to: accountSecurityRoute)
+            coordinator?.navigate(to: route)
         }
     }
 
