@@ -168,9 +168,11 @@ final class AccountSecurityProcessor: StateProcessor<// swiftlint:disable:this t
             if try await services.authRepository.isPinUnlockAvailable() {
                 state.isUnlockWithPINCodeOn = true
             }
-            state.isAuthenticatorSyncEnabled = try await services.stateService.getSyncToAuthenticator()
             state.shouldShowAuthenticatorSyncSection =
                 await services.configService.getFeatureFlag(.enableAuthenticatorSync)
+            if state.shouldShowAuthenticatorSyncSection {
+                state.isAuthenticatorSyncEnabled = try await services.stateService.getSyncToAuthenticator()
+            }
         } catch {
             services.errorReporter.log(error: error)
         }
