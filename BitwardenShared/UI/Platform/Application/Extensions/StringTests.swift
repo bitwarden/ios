@@ -14,6 +14,15 @@ class StringTests: BitwardenTestCase {
         XCTAssertEqual("9c303aee-e636-4760-94b6-e4951d7b0abb".hashColor.description, "#C96CD2FF")
     }
 
+    /// `isValidURL` returns `true` for a valid URL.
+    func test_isBitwardenAppScheme() {
+        XCTAssertTrue("bitwarden".isBitwardenAppScheme)
+        XCTAssertFalse(" ".isBitwardenAppScheme)
+        XCTAssertFalse("bitwarden://".isBitwardenAppScheme)
+        XCTAssertFalse("a<b>c".isBitwardenAppScheme)
+        XCTAssertFalse("a[b]c".isBitwardenAppScheme)
+    }
+
     /// `isValidEmail` with an invalid string returns `false`.
     func test_isValidEmail_withInvalidString() {
         let subjects = [
