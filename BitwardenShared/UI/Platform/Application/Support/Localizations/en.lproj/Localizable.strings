@@ -1032,3 +1032,15 @@
 "FillOutTheFormAndImportYourSavedPasswordFile" = "Fill out the form and **import your saved password file.**";
 "SelectImportDataInTheWebAppThenDoneToFinishSyncing" = "**Select Import data** in the web app, then **Done** to finish syncing.";
 "ForYourSecurityBeSureToDeleteYourSavedPasswordFile" = "For your security, be sure to **delete your saved password file.**";
+"BitwardenTools" = "Bitwarden tools";
+"ImportSuccessful" = "Import successful!";
+"ManageYourLoginsFromAnywhereWithBitwardenToolsForWebAndDesktop" = "Manage your logins from anywhere with Bitwarden tools for web and desktop.";
+"DownloadTheBrowserExtension" = "Download the browser extension";
+"GoToBitwardenToIntegrateBitwardenIntoYourFavoriteBrowserForASeamlessExperience" = "Go to bitwarden.com/download to integrate Bitwarden into your favorite browser for a seamless experience.";
+"UseTheWebApp" = "Use the web app";
+"LogInAtBitwardenToEasilyManageYourAccountAndUpdateSettings" = "Log in at bitwarden.com to easily manage your account and update settings";
+"AutofillPasswords" = "Autofill passwords";
+"SetUpAutofillOnAllYourDevicesToLoginWithASingleTapAnywhere" = "Set up autofill on all your devices to login with a single tap anywhere.";
+"GotIt" = "Got it";
+"AllowAuthenticatorSyncing" = "Allow authenticator syncing";
+"AuthenticatorSync" = "Authenticator sync";

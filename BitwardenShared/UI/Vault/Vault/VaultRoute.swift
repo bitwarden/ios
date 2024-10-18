@@ -45,6 +45,9 @@ public enum VaultRoute: Equatable, Hashable {
     /// A route to the import logins screen.
     case importLogins
 
+    /// A route to the import logins success screen.
+    case importLoginsSuccess
+
     /// A route to the vault list screen.
     case list
 
