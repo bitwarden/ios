@@ -120,7 +120,8 @@ class ImportLoginsProcessor: StateProcessor<ImportLoginsState, ImportLoginsActio
 
         do {
             try await services.settingsRepository.fetchSync()
-            // TODO: PM-11160 Navigate to import successful
+            coordinator.hideLoadingOverlay()
+            coordinator.navigate(to: .importLoginsSuccess)
         } catch {
             coordinator.showAlert(.networkResponseError(error))
             services.errorReporter.log(error: error)

@@ -105,12 +105,6 @@ struct PreventAccountLockView: View {
 
 #if DEBUG
 #Preview {
-    PreventAccountLockView(
-        store: Store(
-            processor: StateProcessor(
-                state: ()
-            )
-        )
-    )
+    PreventAccountLockView(store: Store(processor: StateProcessor()))
 }
 #endif

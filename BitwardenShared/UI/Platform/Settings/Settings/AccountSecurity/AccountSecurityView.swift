@@ -23,6 +23,8 @@ struct AccountSecurityView: View {
 
             unlockOptionsSection
 
+            authenticatorSyncSection
+
             sessionTimeoutSection
 
             otherSection
@@ -211,6 +213,26 @@ struct AccountSecurityView: View {
                 }
                 .toggleStyle(.bitwarden)
                 .accessibilityIdentifier("UnlockWithPinSwitch")
+            }
+        }
+    }
+
+    /// The authenticator sync section.
+    @ViewBuilder private var authenticatorSyncSection: some View {
+        if store.state.shouldShowAuthenticatorSyncSection {
+            VStack(alignment: .leading, spacing: 16) {
+                SectionHeaderView(Localizations.authenticatorSync)
+
+                VStack(spacing: 24) {
+                    Toggle(isOn: store.bindingAsync(
+                        get: \.isAuthenticatorSyncEnabled,
+                        perform: AccountSecurityEffect.toggleSyncWithAuthenticator
+                    )) {
+                        Text(Localizations.allowAuthenticatorSyncing)
+                    }
+                    .toggleStyle(.bitwarden)
+                    .accessibilityLabel(Localizations.allowAuthenticatorSyncing)
+                }
             }
         }
     }

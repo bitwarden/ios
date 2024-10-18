@@ -20,7 +20,7 @@ class PreventAccountLockProcessor: StateProcessor<
     ///
     init(coordinator: AnyCoordinator<AuthRoute, AuthEvent>) {
         self.coordinator = coordinator
-        super.init(state: ())
+        super.init()
     }
 
     // MARK: Methods

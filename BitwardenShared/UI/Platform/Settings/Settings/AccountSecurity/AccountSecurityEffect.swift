@@ -22,6 +22,9 @@ enum AccountSecurityEffect: Equatable {
     /// Stream the state of the badges in the settings tab.
     case streamSettingsBadge
 
+    /// Sync with Authenticator was toggled.
+    case toggleSyncWithAuthenticator(Bool)
+
     /// Unlock with Biometrics was toggled.
     case toggleUnlockWithBiometrics(Bool)
 
