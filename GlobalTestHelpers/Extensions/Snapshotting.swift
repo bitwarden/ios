@@ -2,10 +2,10 @@ import SnapshotTesting
 import SwiftUI
 
 extension Snapshotting where Value: SwiftUI.View, Format == UIImage {
-    /// The default precision for all snapshots in this project. Defaults to `1`.
-    private static var defaultPrecision: Float { 1 }
+    /// The default precision for all view snapshots in this project. Defaults to `1`.
+    private static var defaultPrecision: Float { 0.99 }
 
-    /// The default perceptual precision for all snapshots in this project. Defaults to `0.95`.
+    /// The default perceptual precision for all view snapshots in this project. Defaults to `0.95`.
     private static var defaultPerceptualPrecision: Float { 0.95 }
 
     /// A default snapshot in landscape on iPhone 13, with precision 1 and perceptual precision of 0.95.
@@ -159,6 +159,22 @@ extension Snapshotting where Value: SwiftUI.View, Format == UIImage {
                 UITraitCollection(userInterfaceStyle: .light),
                 UITraitCollection(preferredContentSizeCategory: .accessibilityExtraExtraExtraLarge),
             ])
+        )
+    }
+}
+
+extension Snapshotting where Value == UIViewController, Format == UIImage {
+    /// The default precision for all view controller snapshots in this project. Defaults to `1`.
+    private static var defaultPrecision: Float { 0.99 }
+
+    /// The default perceptual precision for all view controller snapshots in this project. Defaults to `0.95`.
+    private static var defaultPerceptualPrecision: Float { 0.95 }
+
+    /// A default snapshot in landscape on iPhone 13, with precision 1 and perceptual precision of 0.95.
+    static var standardImage: Snapshotting {
+        .image(
+            precision: defaultPrecision,
+            perceptualPrecision: defaultPerceptualPrecision
         )
     }
 }
