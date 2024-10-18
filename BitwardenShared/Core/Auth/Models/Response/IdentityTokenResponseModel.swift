@@ -9,7 +9,7 @@ struct IdentityTokenResponseModel: Equatable, JSONResponse, KdfConfigProtocol {
     // MARK: Account Properties
 
     /// Whether the app needs to force a password reset.
-    let forcePasswordReset: Bool
+    @DefaultFalse var forcePasswordReset: Bool
 
     /// The type of KDF algorithm to use.
     let kdf: KdfType

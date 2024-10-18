@@ -5,8 +5,6 @@ import Networking
 
 /// An object containing a value defining if this device has previously logged into this account or not.
 struct KnownDeviceResponseModel: JSONResponse {
-    static let decoder = JSONDecoder()
-
     // MARK: Properties
 
     /// A flag indicating if this device is known or not.

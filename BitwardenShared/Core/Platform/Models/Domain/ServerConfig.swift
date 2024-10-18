@@ -29,10 +29,10 @@ struct ServerConfig: Equatable, Codable, Sendable {
         environment = responseModel.environment.map(EnvironmentServerConfig.init)
         self.date = date
         let features: [(FeatureFlag, AnyCodable)]
-        features = responseModel.featureStates.compactMap { key, value in
+        features = responseModel.featureStates?.compactMap { key, value in
             guard let flag = FeatureFlag(rawValue: key) else { return nil }
             return (flag, value)
-        }
+        } ?? []
         featureStates = Dictionary(uniqueKeysWithValues: features)
 
         gitHash = responseModel.gitHash

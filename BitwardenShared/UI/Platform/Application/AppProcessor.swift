@@ -115,13 +115,9 @@ public class AppProcessor {
     /// - Parameter url: The deep link URL to handle.
     ///
     public func openUrl(_ url: URL) async {
-        guard let scheme = url.scheme else { return }
-
-        var route: AppRoute?
-        if scheme.isBitwardenAppScheme {
-            route = await handleBitwardenUrl(url: url)
-        } else if scheme.isOtpAuthScheme {
-            route = await handleOtpAuthUrl(url: url)
+        var route = await getBitwardenUrlRoute(url: url)
+        if route == nil {
+            route = await getOtpAuthUrlRoute(url: url)
         }
         guard let route else { return }
 
@@ -381,21 +377,19 @@ extension AppProcessor {
         }
     }
 
-    /// Handle a "bitwarden://" url.
+    /// Attempt to create an `AppRoute` from an "bitwarden://" url.
     ///
     /// - Parameter url: The Bitwarden URL received by the app.
     /// - Returns: an `AppRoute` if one was successfully built from the URL passed in, `nil` if not.
     ///
-    private func handleBitwardenUrl(url: URL) async -> AppRoute? {
-        guard let components = URLComponents(url: url, resolvingAgainstBaseURL: true),
-              let host = components.host else { return nil }
+    private func getBitwardenUrlRoute(url: URL) async -> AppRoute? {
+        guard let scheme = url.scheme, scheme.isBitwardenAppScheme else { return nil }
 
-        let fullPath = "\(host)\(components.path)"
         var route: AppRoute?
-        switch fullPath {
-        case "settings/account_security":
+        switch url.absoluteString {
+        case IncomingLinkConstants.accountSecurity:
             route = AppRoute.tab(.settings(.accountSecurity))
-        case "authenticator/newItem":
+        case IncomingLinkConstants.authenticatorNewItem:
             guard let item = await services.authenticatorSyncService?.getTemporaryTotpItem(),
                   let totpKey = item.totpKey,
                   let otpAuthModel = OTPAuthModel(otpAuthKey: totpKey) else {
@@ -411,12 +405,14 @@ extension AppProcessor {
         return route
     }
 
-    /// Handle an "otpauth://" url.
+    /// Attempt to create an `AppRoute` from an "otpauth://" url.
     ///
     /// - Parameter url: The OTPAuth URL received by the app.
     /// - Returns: an `AppRoute` if one was successfully built from the URL passed in, `nil` if not.
     ///
-    private func handleOtpAuthUrl(url: URL) async -> AppRoute? {
+    private func getOtpAuthUrlRoute(url: URL) async -> AppRoute? {
+        guard let scheme = url.scheme, scheme.isOtpAuthScheme else { return nil }
+
         guard let otpAuthModel = OTPAuthModel(otpAuthKey: url.absoluteString) else {
             coordinator?.showAlert(.defaultAlert(title: Localizations.anErrorHasOccurred))
             return nil
