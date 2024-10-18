@@ -393,7 +393,8 @@ extension AppProcessor {
             guard let item = await services.authenticatorSyncService?.getTemporaryTotpItem(),
                   let totpKey = item.totpKey,
                   let otpAuthModel = OTPAuthModel(otpAuthKey: totpKey) else {
-                coordinator?.showAlert(.defaultAlert(title: Localizations.anErrorHasOccurred))
+                coordinator?.showAlert(.defaultAlert(title: Localizations.somethingWentWrong,
+                                                     message: Localizations.pleaseTryAgain))
                 return nil
             }
 
