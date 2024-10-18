@@ -167,6 +167,13 @@ final class VaultCoordinator: Coordinator, HasStackNavigator {
                     delegate: context as? CipherItemOperationDelegate
                 )
             }
+        case let .editItemFrom(id):
+            Task {
+                guard let cipher = try await services.vaultRepository.fetchCipher(withId: id) else {
+                    return
+                }
+                navigate(to: .editItem(cipher))
+            }
         case .dismiss:
             stackNavigator?.dismiss()
         case let .group(group, filter):

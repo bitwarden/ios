@@ -21,6 +21,10 @@ protocol AuthCoordinatorDelegate: AnyObject {
     /// Called when the auth flow has been completed.
     ///
     func didCompleteAuth()
+
+    /// Sets the auth completion route.
+    /// - Parameter route: The route to navigate to after auth has been completed.
+    func setAuthCompletionRoute(_ route: AppRoute)
 }
 
 // MARK: - AuthCoordinator
@@ -233,8 +237,13 @@ final class AuthCoordinator: NSObject, // swiftlint:disable:this type_body_lengt
             account,
             animated,
             attemptAutomaticBiometricUnlock,
-            didSwitch
+            didSwitch,
+            rehydratableTarget
         ):
+            if let rehydratableTarget {
+                delegate?.setAuthCompletionRoute(rehydratableTarget.appRoute)
+            }
+            
             showVaultUnlock(
                 account: account,
                 animated: animated,
