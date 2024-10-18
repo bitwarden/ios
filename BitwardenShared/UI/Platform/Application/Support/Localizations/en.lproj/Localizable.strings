@@ -1044,3 +1044,5 @@
 "GotIt" = "Got it";
 "GenerateCrash" = "Generate crash";
 "GenerateErrorReport" = "Generate error report";
+"AllowAuthenticatorSyncing" = "Allow authenticator syncing";
+"AuthenticatorSync" = "Authenticator sync";

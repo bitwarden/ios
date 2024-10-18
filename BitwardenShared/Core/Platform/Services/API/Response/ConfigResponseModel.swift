@@ -12,7 +12,7 @@ struct ConfigResponseModel: Equatable, JSONResponse {
     let environment: EnvironmentServerConfigResponseModel?
 
     /// Feature flags to configure the client.
-    let featureStates: [String: AnyCodable]
+    let featureStates: [String: AnyCodable]?
 
     /// The git hash of the server.
     let gitHash: String
