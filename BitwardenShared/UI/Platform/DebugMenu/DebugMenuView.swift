@@ -19,6 +19,11 @@ struct DebugMenuView: View {
             } header: {
                 featureFlagSectionHeader
             }
+            Section {
+                errorReportSection
+            } header: {
+                Text("Error reports")
+            }
         }
         .toolbar {
             ToolbarItem(placement: .navigationBarTrailing) {
@@ -33,6 +38,24 @@ struct DebugMenuView: View {
         .navigationTitle("Debug Menu")
         .task {
             await store.perform(.viewAppeared)
+        }
+    }
+
+    /// The error reports section.
+    private var errorReportSection: some View {
+        Group {
+            Button {
+                store.send(.generateErrorReport)
+            } label: {
+                Text(Localizations.generateErrorReport)
+            }
+            .accessibilityIdentifier("GenerateErrorReportButton")
+            Button {
+                store.send(.generateCrash)
+            } label: {
+                Text(Localizations.generateCrash)
+            }
+            .accessibilityIdentifier("GenerateCrashButton")
         }
     }
 
