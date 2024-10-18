@@ -17,6 +17,6 @@ struct VaultSettingsState {
 
     /// Whether the import logins action card should be shown.
     var shouldShowImportLoginsActionCard: Bool {
-        badgeState?.importLoginsSetupProgress != nil && badgeState?.importLoginsSetupProgress == .setUpLater
+        badgeState?.importLoginsSetupProgress == .setUpLater
     }
 }

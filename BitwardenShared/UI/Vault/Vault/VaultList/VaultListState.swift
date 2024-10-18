@@ -72,7 +72,7 @@ struct VaultListState: Equatable {
 
     /// Whether the import logins action card should be shown.
     var shouldShowImportLoginsActionCard: Bool {
-        importLoginsSetupProgress != nil && importLoginsSetupProgress == .incomplete
+        importLoginsSetupProgress == .incomplete
     }
 
     /// The state for showing the vault filter.

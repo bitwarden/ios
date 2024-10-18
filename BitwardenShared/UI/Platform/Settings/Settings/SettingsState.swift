@@ -24,7 +24,6 @@ struct SettingsState: Equatable {
     var vaultBadgeValue: String? {
         // Since the action card displays on the vault when the progress is incomplete, only show a
         // badge value if the user wants to set it up later.
-        let isSetUpLater = badgeState?.importLoginsSetupProgress == .setUpLater
-        return isSetUpLater ? "1" : nil
+        badgeState?.importLoginsSetupProgress == .setUpLater ? "1" : nil
     }
 }
