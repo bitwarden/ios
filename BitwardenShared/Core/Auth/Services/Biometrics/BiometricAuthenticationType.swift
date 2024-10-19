@@ -8,4 +8,10 @@ enum BiometricAuthenticationType: Equatable {
 
     /// TouchID biometric authentication.
     case touchID
+
+    /// OpticID biometric authentication.
+    case opticID
+
+    /// Unknown other biometric authentication
+    case biometrics
 }
