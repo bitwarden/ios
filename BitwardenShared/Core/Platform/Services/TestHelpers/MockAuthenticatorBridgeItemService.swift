@@ -21,10 +21,12 @@ class MockAuthenticatorBridgeItemService: AuthenticatorBridgeItemService {
     }
 
     func fetchTemporaryItem() async throws -> AuthenticatorBridgeItemDataView? {
-        tempItem
+        guard errorToThrow == nil else { throw errorToThrow! }
+        return tempItem
     }
 
     func insertTemporaryItem(_ item: AuthenticatorBridgeItemDataView) async throws {
+        guard errorToThrow == nil else { throw errorToThrow! }
         tempItem = item
     }
 

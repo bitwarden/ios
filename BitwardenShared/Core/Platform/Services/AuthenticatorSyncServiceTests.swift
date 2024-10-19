@@ -675,6 +675,63 @@ final class AuthenticatorSyncServiceTests: BitwardenTestCase { // swiftlint:disa
         XCTAssertEqual(item.id, "1234")
     }
 
+    /// When the `AuthenticatorBridgeItemService` throws an error , `getTemporaryTotpItem()`  returns `nil`.
+    ///
+    @MainActor
+    func test_getTemporaryTotpItem_error() async throws {
+        configService.featureFlagsBool[.enableAuthenticatorSync] = true
+        authBridgeItemService.errorToThrow = BitwardenTestError.example
+        let result = await subject.getTemporaryTotpItem()
+        XCTAssertNil(result)
+    }
+
+    /// When the feature flag is off, `getTemporaryTotpItem()` always returns `nil`.
+    ///
+    @MainActor
+    func test_getTemporaryTotpItem_featureFlagOff() async throws {
+        configService.featureFlagsBool[.enableAuthenticatorSync] = false
+        authBridgeItemService.tempItem = AuthenticatorBridgeItemDataView(
+            accountDomain: nil,
+            accountEmail: nil,
+            favorite: false,
+            id: "id",
+            name: "name",
+            totpKey: "totpKey",
+            username: nil
+        )
+        let result = await subject.getTemporaryTotpItem()
+        XCTAssertNil(result)
+    }
+
+    /// When the feature flag is off, `getTemporaryTotpItem()` always returns `nil`.
+    ///
+    @MainActor
+    func test_getTemporaryTotpItem_noItem() async throws {
+        configService.featureFlagsBool[.enableAuthenticatorSync] = true
+        authBridgeItemService.tempItem = nil
+        let result = await subject.getTemporaryTotpItem()
+        XCTAssertNil(result)
+    }
+
+    /// \`getTemporaryTotpItem()` returns the stored temporary item.
+    ///
+    @MainActor
+    func test_getTemporaryTotpItem_success() async throws {
+        configService.featureFlagsBool[.enableAuthenticatorSync] = true
+        let expected = AuthenticatorBridgeItemDataView(
+            accountDomain: nil,
+            accountEmail: nil,
+            favorite: false,
+            id: "id",
+            name: "name",
+            totpKey: "totpKey",
+            username: nil
+        )
+        authBridgeItemService.tempItem = expected
+        let result = await subject.getTemporaryTotpItem()
+        XCTAssertEqual(expected, result)
+    }
+
     /// Starting the service when the feature flag is off should do nothing - no subscriptions or responses.
     ///
     @MainActor
