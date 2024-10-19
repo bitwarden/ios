@@ -1,4 +1,5 @@
 import AuthenticationServices
+import AuthenticatorBridgeKit
 import Foundation
 import XCTest
 
@@ -11,6 +12,7 @@ class AppProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_body
 
     var appModule: MockAppModule!
     var authRepository: MockAuthRepository!
+    var authenticatorSyncService: MockAuthenticatorSyncService!
     var autofillCredentialService: MockAutofillCredentialService!
     var clientService: MockClientService!
     var configService: MockConfigService!
@@ -40,6 +42,7 @@ class AppProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_body
         router = MockRouter(routeForEvent: { _ in .landing })
         appModule = MockAppModule()
         authRepository = MockAuthRepository()
+        authenticatorSyncService = MockAuthenticatorSyncService()
         autofillCredentialService = MockAutofillCredentialService()
         clientService = MockClientService()
         configService = MockConfigService()
@@ -64,6 +67,7 @@ class AppProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_body
             debugWillEnterForeground: { [weak self] in self?.willEnterForegroundCalled += 1 },
             services: ServiceContainer.withMocks(
                 authRepository: authRepository,
+                authenticatorSyncService: authenticatorSyncService,
                 autofillCredentialService: autofillCredentialService,
                 clientService: clientService,
                 configService: configService,
@@ -412,6 +416,91 @@ class AppProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_body
 
         await subject.openUrl(.bitwardenAccountSecurity)
         XCTAssertEqual(coordinator.events, [.setAuthCompletionRoute(.tab(.settings(.accountSecurity)))])
+    }
+
+    /// `openUrl(_:)` handles receiving a bitwarden Authenticator new item deep link with the vault unlocked and an
+    /// invalid item is found. It shows a generic error alert and does not produce a route.
+    @MainActor
+    func test_openUrl_bitwardenAuthenticatorNewItem_invalidItem() async throws {
+        let account = Account.fixture()
+        let otpKey: String = .otpAuthUriKeyNoSecret
+        stateService.activeAccount = .fixture()
+        vaultTimeoutService.isClientLocked[account.profile.userId] = false
+        authenticatorSyncService.tempItem = AuthenticatorBridgeItemDataView(
+            accountDomain: nil,
+            accountEmail: nil,
+            favorite: false,
+            id: "",
+            name: "",
+            totpKey: otpKey,
+            username: nil
+        )
+
+        await subject.openUrl(.bitwardenAuthenticatorNewItem)
+        XCTAssertEqual(coordinator.alertShown,
+                       [.defaultAlert(title: Localizations.somethingWentWrong, message: Localizations.pleaseTryAgain)])
+        XCTAssertEqual(coordinator.routes, [])
+    }
+
+    /// `openUrl(_:)` handles receiving a bitwarden Authenticator new item deep link when no temporary item is
+    /// found in the shared store. It shows a generic error alert and does not produce a route.
+    @MainActor
+    func test_openUrl_bitwardenAuthenticatorNewItem_noItemFound() async throws {
+        let account = Account.fixture()
+        stateService.activeAccount = .fixture()
+        vaultTimeoutService.isClientLocked[account.profile.userId] = false
+        authenticatorSyncService.tempItem = nil
+
+        await subject.openUrl(.bitwardenAuthenticatorNewItem)
+        XCTAssertEqual(coordinator.alertShown,
+                       [.defaultAlert(title: Localizations.somethingWentWrong, message: Localizations.pleaseTryAgain)])
+        XCTAssertEqual(coordinator.routes, [])
+    }
+
+    /// `openUrl(_:)` handles receiving a bitwarden Authenticator new item deep link with the vault unlocked and the
+    /// item is found, but the item has no TOTP key.  It shows a generic error alert and does not produce a route.
+    @MainActor
+    func test_openUrl_bitwardenAuthenticatorNewItem_noTotpKey() async throws {
+        let account = Account.fixture()
+        stateService.activeAccount = .fixture()
+        vaultTimeoutService.isClientLocked[account.profile.userId] = false
+        authenticatorSyncService.tempItem = AuthenticatorBridgeItemDataView(
+            accountDomain: nil,
+            accountEmail: nil,
+            favorite: false,
+            id: "",
+            name: "",
+            totpKey: nil,
+            username: nil
+        )
+
+        await subject.openUrl(.bitwardenAuthenticatorNewItem)
+        XCTAssertEqual(coordinator.alertShown,
+                       [.defaultAlert(title: Localizations.somethingWentWrong, message: Localizations.pleaseTryAgain)])
+        XCTAssertEqual(coordinator.routes, [])
+    }
+
+    /// `openUrl(_:)` handles receiving a bitwarden Authenticator new item deep link with the vault unlocked and the
+    /// item is found.
+    @MainActor
+    func test_openUrl_bitwardenAuthenticatorNewItem_success() async throws {
+        let account = Account.fixture()
+        let otpKey: String = .otpAuthUriKeyComplete
+        let model = try XCTUnwrap(OTPAuthModel(otpAuthKey: otpKey))
+        stateService.activeAccount = .fixture()
+        vaultTimeoutService.isClientLocked[account.profile.userId] = false
+        authenticatorSyncService.tempItem = AuthenticatorBridgeItemDataView(
+            accountDomain: nil,
+            accountEmail: nil,
+            favorite: false,
+            id: "",
+            name: "",
+            totpKey: otpKey,
+            username: nil
+        )
+
+        await subject.openUrl(.bitwardenAuthenticatorNewItem)
+        XCTAssertEqual(coordinator.routes.last, .tab(.vault(.vaultItemSelection(model))))
     }
 
     /// `openUrl(_:)` handles receiving a bitwarden link with an invalid path and

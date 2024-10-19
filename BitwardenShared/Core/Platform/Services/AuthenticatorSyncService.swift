@@ -12,6 +12,14 @@ protocol AuthenticatorSyncService {
     /// must be called for the service to do any syncing.
     ///
     func start() async
+
+    /// Gets a temporary TOTP item that was saved from the Authenticator app. If no code was found or any
+    /// errors occur, it simply returns `nil`
+    ///
+    /// - Returns: An `AuthenticatorBridgeItemDataView` representing the saved item or
+    ///     `nil` if a temporary item couldn't be found.
+    ///
+    func getTemporaryTotpItem() async -> AuthenticatorBridgeItemDataView?
 }
 
 // MARK: - DefaultAuthenticatorSyncService
@@ -100,6 +108,13 @@ actor DefaultAuthenticatorSyncService: NSObject, AuthenticatorSyncService {
     }
 
     // MARK: Public Methods
+
+    public func getTemporaryTotpItem() async -> AuthenticatorBridgeItemDataView? {
+        guard await configService.getFeatureFlag(FeatureFlag.enableAuthenticatorSync) else {
+            return nil
+        }
+        return try? await authBridgeItemService.fetchTemporaryItem()
+    }
 
     public func start() async {
         guard !started else { return }

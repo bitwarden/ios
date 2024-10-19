@@ -1046,3 +1046,5 @@
 "GenerateErrorReport" = "Generate error report";
 "AllowAuthenticatorSyncing" = "Allow authenticator syncing";
 "AuthenticatorSync" = "Authenticator sync";
+"SomethingWentWrong" = "Something went wrong";
+"PleaseTryAgain" = "Please try again";
