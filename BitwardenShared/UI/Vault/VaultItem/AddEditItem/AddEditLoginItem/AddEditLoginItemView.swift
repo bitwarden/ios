@@ -49,7 +49,10 @@ struct AddEditLoginItemView: View {
                 )
             ) {
                 if store.state.canViewPassword, store.state.editView {
-                    AccessoryButton(asset: Asset.Images.minusCircle16, accessibilityLabel: Localizations.removePasskey) {
+                    AccessoryButton(
+                        asset: Asset.Images.minusCircle16,
+                        accessibilityLabel: Localizations.removePasskey
+                    ) {
                         store.send(.removePasskeyPressed)
                     }
                     .accessibilityIdentifier("LoginRemovePasskeyButton")
