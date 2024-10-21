@@ -12,82 +12,109 @@ struct ViewIdentityItemView: View {
 
     var body: some View {
         if !store.state.identityName.isEmpty {
+            let identityName = store.state.identityName
             BitwardenTextValueField(
                 title: Localizations.identityName,
-                value: store.state.identityName,
-                valueAccessibilityIdentifier: "ItemNameEntry"
+                value: identityName,
+                valueAccessibilityIdentifier: "ItemNameEntry",
+                copyButtonAction: { store.send(.copyPressed(value: identityName, field: .identityName)) },
+                copyButtonAccessibilityIdentifier: "IdentityCopyNameButton"
             )
             .accessibilityElement(children: .contain)
         }
 
         if !store.state.userName.isEmpty {
+            let username = store.state.userName
             BitwardenTextValueField(
                 title: Localizations.username,
-                value: store.state.userName,
-                valueAccessibilityIdentifier: "IdentityUsernameEntry"
+                value: username,
+                valueAccessibilityIdentifier: "IdentityUsernameEntry",
+                copyButtonAction: { store.send(.copyPressed(value: username, field: .username)) },
+                copyButtonAccessibilityIdentifier: "IdentityCopyUsernameButton"
             )
             .accessibilityElement(children: .contain)
         }
 
         if !store.state.company.isEmpty {
+            let company = store.state.company
             BitwardenTextValueField(
                 title: Localizations.company,
-                value: store.state.company,
-                valueAccessibilityIdentifier: "IdentityCompanyEntry"
+                value: company,
+                valueAccessibilityIdentifier: "IdentityCompanyEntry",
+                copyButtonAction: { store.send(.copyPressed(value: company, field: .company)) },
+                copyButtonAccessibilityIdentifier: "IdentityCopyCompanyButton"
             )
             .accessibilityElement(children: .contain)
         }
 
         if !store.state.socialSecurityNumber.isEmpty {
+            let socialSecurityNumber = store.state.socialSecurityNumber
             BitwardenTextValueField(
                 title: Localizations.ssn,
-                value: store.state.socialSecurityNumber,
-                valueAccessibilityIdentifier: "IdentitySsnEntry"
+                value: socialSecurityNumber,
+                valueAccessibilityIdentifier: "IdentitySsnEntry",
+                copyButtonAction: { store.send(.copyPressed(value: socialSecurityNumber, field: .socialSecurityNumber)) },
+                copyButtonAccessibilityIdentifier: "IdentityCopySocialSecurityNumberButton"
             )
             .accessibilityElement(children: .contain)
         }
 
         if !store.state.passportNumber.isEmpty {
+            let passportNumber = store.state.passportNumber
             BitwardenTextValueField(
                 title: Localizations.passportNumber,
-                value: store.state.passportNumber,
-                valueAccessibilityIdentifier: "IdentityPassportNumberEntry"
+                value: passportNumber,
+                valueAccessibilityIdentifier: "IdentityPassportNumberEntry",
+                copyButtonAction: { store.send(.copyPressed(value: passportNumber, field: .passportNumber)) },
+                copyButtonAccessibilityIdentifier: "IdentityCopyPassportNumberButton"
             )
             .accessibilityElement(children: .contain)
         }
 
         if !store.state.licenseNumber.isEmpty {
+            let licenseNumber = store.state.licenseNumber
             BitwardenTextValueField(
                 title: Localizations.licenseNumber,
-                value: store.state.licenseNumber,
-                valueAccessibilityIdentifier: "IdentityLicenseNumberEntry"
+                value: licenseNumber,
+                valueAccessibilityIdentifier: "IdentityLicenseNumberEntry",
+                copyButtonAction: { store.send(.copyPressed(value: licenseNumber, field: .licenseNumber)) },
+                copyButtonAccessibilityIdentifier: "IdentityCopyLicenseNumberButton"
             )
             .accessibilityElement(children: .contain)
         }
 
         if !store.state.email.isEmpty {
+            let email = store.state.email
             BitwardenTextValueField(
-                title: Localizations.email,
+                title: email,
                 value: store.state.email,
-                valueAccessibilityIdentifier: "IdentityEmailEntry"
+                valueAccessibilityIdentifier: "IdentityEmailEntry",
+                copyButtonAction: { store.send(.copyPressed(value: email, field: .email)) },
+                copyButtonAccessibilityIdentifier: "IdentityCopyEmailButton"
             )
             .accessibilityElement(children: .contain)
         }
 
         if !store.state.phone.isEmpty {
+            let phone = store.state.phone
             BitwardenTextValueField(
                 title: Localizations.phone,
-                value: store.state.phone,
-                valueAccessibilityIdentifier: "IdentityPhoneEntry"
+                value: phone,
+                valueAccessibilityIdentifier: "IdentityPhoneEntry",
+                copyButtonAction: { store.send(.copyPressed(value: phone, field: .phone)) },
+                copyButtonAccessibilityIdentifier: "IdentityCopyPhoneButton"
             )
             .accessibilityElement(children: .contain)
         }
 
         if !store.state.fullAddress.isEmpty {
+            let fullAddress = store.state.fullAddress
             BitwardenTextValueField(
                 title: Localizations.address,
-                value: store.state.fullAddress,
-                valueAccessibilityIdentifier: "IdentityAddressOneEntry"
+                value: fullAddress,
+                valueAccessibilityIdentifier: "IdentityAddressOneEntry",
+                copyButtonAction: { store.send(.copyPressed(value: fullAddress, field: .fullAddress)) },
+                copyButtonAccessibilityIdentifier: "IdentityCopyFullAddressButton"
             )
             .accessibilityElement(children: .contain)
         }

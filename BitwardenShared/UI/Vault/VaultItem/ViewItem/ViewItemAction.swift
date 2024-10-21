@@ -103,6 +103,33 @@ enum CopyableField {
     /// The username field.
     case username
 
+    /// The identity name field.
+    case identityName
+
+    /// The company field.
+    case company
+
+    /// The social security number field.
+    case socialSecurityNumber
+
+    /// The passport number field.
+    case passportNumber
+
+    /// The license number field.
+    case licenseNumber
+
+    /// The email field.
+    case email
+
+    /// The identity phone field.
+    case phone
+
+    /// The identity address field.
+    case fullAddress
+
+    /// The identity address field.
+    case notes
+
     /// The event to collect when copying the field.
     var eventOnCopy: EventType? {
         switch self {
@@ -129,7 +156,16 @@ enum CopyableField {
              .sshPrivateKey,
              .totp:
             true
-        case .customTextField,
+        case .company,
+             .customTextField,
+             .email,
+             .fullAddress,
+             .identityName,
+             .licenseNumber,
+             .notes,
+             .passportNumber,
+             .phone,
+             .socialSecurityNumber,
              .sshKeyFingerprint,
              .sshPublicKey,
              .uri,
@@ -162,6 +198,24 @@ enum CopyableField {
             Localizations.uri
         case .username:
             Localizations.username
+        case .identityName:
+            Localizations.identityName
+        case .company:
+            Localizations.company
+        case .socialSecurityNumber:
+            Localizations.ssn
+        case .passportNumber:
+            Localizations.passportNumber
+        case .licenseNumber:
+            Localizations.licenseNumber
+        case .email:
+            Localizations.email
+        case .phone:
+            Localizations.phone
+        case .fullAddress:
+            Localizations.address
+        case .notes:
+            Localizations.notes
         }
     }
 }
