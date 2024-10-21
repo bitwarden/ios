@@ -288,7 +288,7 @@ struct ViewItemDetailsView: View { // swiftlint:disable:this type_body_length
                 Button {
                     store.send(.downloadAttachment(attachment))
                 } label: {
-                    Image(asset: Asset.Images.download)
+                    Image(asset: Asset.Images.download24)
                         .imageStyle(.rowIcon(color: Asset.Colors.iconSecondary.swiftUIColor))
                 }
                 .accessibilityLabel(Localizations.download)
