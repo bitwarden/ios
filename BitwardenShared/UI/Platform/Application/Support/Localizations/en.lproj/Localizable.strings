@@ -1042,3 +1042,7 @@
 "AutofillPasswords" = "Autofill passwords";
 "SetUpAutofillOnAllYourDevicesToLoginWithASingleTapAnywhere" = "Set up autofill on all your devices to login with a single tap anywhere.";
 "GotIt" = "Got it";
+"GenerateCrash" = "Generate crash";
+"GenerateErrorReport" = "Generate error report";
+"AllowAuthenticatorSyncing" = "Allow authenticator syncing";
+"AuthenticatorSync" = "Authenticator sync";

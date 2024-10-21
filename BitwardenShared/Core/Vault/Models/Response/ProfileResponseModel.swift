@@ -39,7 +39,7 @@ struct ProfileResponseModel: Codable, Equatable {
     let premium: Bool
 
     /// Whether the user has a premium account from their organization.
-    let premiumFromOrganization: Bool
+    @DefaultFalse var premiumFromOrganization: Bool
 
     /// The user's private key.
     let privateKey: String?
@@ -51,5 +51,5 @@ struct ProfileResponseModel: Codable, Equatable {
     let twoFactorEnabled: Bool
 
     /// Whether the user uses key connector.
-    let usesKeyConnector: Bool
+    @DefaultFalse var usesKeyConnector: Bool
 }
