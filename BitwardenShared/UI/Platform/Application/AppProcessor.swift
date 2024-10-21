@@ -167,7 +167,6 @@ public class AppProcessor {
         if let initialRoute {
             coordinator.navigate(to: initialRoute)
         } else {
-            await restoreAuthCompletionRouteIfNeeded()
             await coordinator.handleEvent(.didStart)
         }
     }
@@ -373,25 +372,6 @@ extension AppProcessor {
                 else { continue }
                 try await services.stateService.setAccountSetupAutofill(.complete, userId: userId)
             }
-        } catch {
-            services.errorReporter.log(error: error)
-        }
-    }
-
-    /// Sets the auth completion route if needed based on the rehydration state.
-    /// This is useful for when the timeout lock happens so after the user unlocks again,
-    /// it navigates to the previous view they were into (if it's one of the views we save).
-    private func restoreAuthCompletionRouteIfNeeded() async {
-        guard appExtensionDelegate?.isInAppExtension != true else {
-            return
-        }
-        do {
-            guard let target = try await services.rehydrationHelper.getSavedRehydratableTarget() else {
-                return
-            }
-
-            await coordinator?.handleEvent(.setAuthCompletionRoute(target.appRoute))
-            try await services.rehydrationHelper.clearAppRehydrationState()
         } catch {
             services.errorReporter.log(error: error)
         }

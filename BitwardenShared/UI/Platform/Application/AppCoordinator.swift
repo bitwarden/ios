@@ -130,7 +130,7 @@ class AppCoordinator: Coordinator, HasRootNavigator {
            let fido2AppExtensionDelegate = appExtensionDelegate as? Fido2AppExtensionDelegate,
            case .autofillFido2Credential = fido2AppExtensionDelegate.extensionMode {
             showTransparentController()
-            didCompleteAuth()
+            didCompleteAuth(rehydratableTarget: nil)
             return
         }
 
@@ -305,7 +305,7 @@ class AppCoordinator: Coordinator, HasRootNavigator {
 // MARK: - AuthCoordinatorDelegate
 
 extension AppCoordinator: AuthCoordinatorDelegate {
-    func didCompleteAuth() {
+    func didCompleteAuth(rehydratableTarget: RehydratableTarget?) {
         appExtensionDelegate?.didCompleteAuth()
 
         switch appContext {
@@ -320,9 +320,8 @@ extension AppCoordinator: AuthCoordinatorDelegate {
         case .mainApp:
             showTab(route: .vault(.list))
 
-            if let authCompletionRoute {
-                navigate(to: authCompletionRoute)
-                self.authCompletionRoute = nil
+            if let rehydratableTarget {
+                navigate(to: rehydratableTarget.appRoute)
                 Task {
                     do {
                         try await services.rehydrationHelper.clearAppRehydrationState()
@@ -331,11 +330,12 @@ extension AppCoordinator: AuthCoordinatorDelegate {
                     }
                 }
             }
-        }
-    }
 
-    func setAuthCompletionRoute(_ route: AppRoute) {
-        self.authCompletionRoute = route
+            if let authCompletionRoute {
+                navigate(to: authCompletionRoute)
+                self.authCompletionRoute = nil
+            }
+        }
     }
 }
 

@@ -287,8 +287,6 @@ class VaultItemCoordinator: NSObject, Coordinator, HasStackNavigator { // swiftl
             let store = Store(processor: processor)
             let view = AddEditItemView(store: store)
             stackNavigator.replace(view)
-
-            services.rehydrationHelper.addRehydratableTarget(processor)
         } else {
             presentChildVaultItemCoordinator(route: .editItem(cipherView, hasPremium), context: delegate)
         }
@@ -405,8 +403,6 @@ class VaultItemCoordinator: NSObject, Coordinator, HasStackNavigator { // swiftl
             timeProvider: services.timeProvider
         )
         stackNavigator?.replace(view)
-
-        services.rehydrationHelper.addRehydratableTarget(processor)
     }
 }
 

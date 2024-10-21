@@ -62,11 +62,19 @@ final class AddEditItemProcessor: StateProcessor<// swiftlint:disable:this type_
         & HasFido2UserInterfaceHelper
         & HasPasteboardService
         & HasPolicyService
+        & HasRehydrationHelper
         & HasStateService
         & HasTOTPService
         & HasVaultRepository
 
-    // MARK: Properties
+    // MARK: Public properties
+
+    var rehydrationState: RehydrationState? {
+        guard let id = state.cipher.id else { return nil }
+        return RehydrationState(target: .editCipher(cipherId: id))
+    }
+
+    // MARK: Private Properties
 
     /// A delegate used to communicate with the app extension.
     private weak var appExtensionDelegate: AppExtensionDelegate?
@@ -104,13 +112,12 @@ final class AddEditItemProcessor: StateProcessor<// swiftlint:disable:this type_
         self.services = services
 
         super.init(state: state)
-    }
-    
-    // MARK: Public properties
 
-    var rehydrationState: RehydrationState? {
-        guard let id = state.cipher.id else { return nil }
-        return RehydrationState(target: .editCipher(cipherId: id))
+        if !state.configuration.isAdding {
+            Task {
+                await self.services.rehydrationHelper.addRehydratableTarget(self)
+            }
+        }
     }
 
     // MARK: Methods

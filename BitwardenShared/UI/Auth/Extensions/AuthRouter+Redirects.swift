@@ -18,26 +18,39 @@ extension AuthRouter {
         return try await services.authRepository.setActiveAccount(userId: alternate.profile.userId)
     }
 
-    /// Handles the `didComplete` route by navigating the user to the update master password screen
-    /// if their password needs to be updated or completes the auth flow by navigating the user to
-    /// the vault.
+    /// Handles the `didComplete` route by navigating the user to the corresponding screen
+    /// after the auth flow completes. Normally, this ends up redirecting to `.complete` route.
     ///
-    /// - Returns: A redirect route to either `.complete` or `.updateMasterPassword`.
+    /// - Returns: A redirect route to either `.complete` or some other alternative depending on the context.
     ///
     func completeAuthRedirect() async -> AuthRoute {
         guard let account = try? await services.authRepository.getAccount() else {
             return .landing
         }
+
         if account.profile.forcePasswordResetReason != nil {
             return .updateMasterPassword
-        } else if await (try? services.stateService.getAccountSetupVaultUnlock()) == .incomplete {
-            return .vaultUnlockSetup(.createAccount)
-        } else if await (try? services.stateService.getAccountSetupAutofill()) == .incomplete {
-            return .autofillSetup
-        } else {
-            await setCarouselShownIfEnabled()
-            return .complete
         }
+
+        if await (try? services.stateService.getAccountSetupVaultUnlock()) == .incomplete {
+            return .vaultUnlockSetup(.createAccount)
+        }
+
+        if await (try? services.stateService.getAccountSetupAutofill()) == .incomplete {
+            return .autofillSetup
+        }
+
+        await setCarouselShownIfEnabled()
+
+        do {
+            if let rehydratableTarget = try await services.rehydrationHelper.getSavedRehydratableTarget() {
+                return .completeWithRehydration(rehydratableTarget)
+            }
+        } catch {
+            services.errorReporter.log(error: error)
+        }
+
+        return .complete
     }
 
     /// Handles the `.didDeleteAccount`route and redirects the user to the correct screen
@@ -370,14 +383,11 @@ extension AuthRouter {
                     return .landingSoftLoggedOut(email: activeAccount.profile.email)
                 }
 
-                let rehydratableTarget = try await services.rehydrationHelper.getSavedRehydratableTarget()
-
                 return .vaultUnlock(
                     activeAccount,
                     animated: animated,
                     attemptAutomaticBiometricUnlock: attemptAutomaticBiometricUnlock,
-                    didSwitchAccountAutomatically: didSwitchAccountAutomatically,
-                    rehydratableTarget: rehydratableTarget
+                    didSwitchAccountAutomatically: didSwitchAccountAutomatically
                 )
             }
         } catch {

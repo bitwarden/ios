@@ -38,6 +38,11 @@ public enum AuthRoute: Equatable {
     /// Dismisses the auth flow becuase the vault was unlocked with the never unlock key.
     case completeWithNeverUnlockKey
 
+    /// Dismisses the auth flow.
+    /// - Parameters:
+    ///   - rehydratableTarget: The target that we want to restore and rehydrate after the vault is unlocked..
+    case completeWithRehydration(_ rehydratableTarget: RehydratableTarget)
+
     /// A route to the create account screen.
     case createAccount
 
@@ -170,15 +175,12 @@ public enum AuthRoute: Equatable {
     ///   - attemptAutomaticBiometricUnlock: If `true` and biometric unlock is enabled/available,
     ///     the processor should attempt an automatic biometric unlock.
     ///   - didSwitchAccountAutomatically: A flag indicating if the active account was switched automatically.
-    ///   - rehydratableTarget: The target that we want to restore and rehydrate after the vault is unlocked,
-    ///   if there is one.
     ///
     case vaultUnlock(
         Account,
         animated: Bool,
         attemptAutomaticBiometricUnlock: Bool,
-        didSwitchAccountAutomatically: Bool,
-        rehydratableTarget: RehydratableTarget? = nil
+        didSwitchAccountAutomatically: Bool
     )
 
     /// A route to the vault unlock setup screen.

@@ -20,11 +20,7 @@ enum AuthCoordinatorError: Error {
 protocol AuthCoordinatorDelegate: AnyObject {
     /// Called when the auth flow has been completed.
     ///
-    func didCompleteAuth()
-
-    /// Sets the auth completion route.
-    /// - Parameter route: The route to navigate to after auth has been completed.
-    func setAuthCompletionRoute(_ route: AppRoute)
+    func didCompleteAuth(rehydratableTarget: RehydratableTarget?)
 }
 
 // MARK: - AuthCoordinator
@@ -135,13 +131,7 @@ final class AuthCoordinator: NSObject, // swiftlint:disable:this type_body_lengt
             showCheckEmail(email)
         case .complete,
              .completeWithNeverUnlockKey:
-            if stackNavigator?.isPresenting == true {
-                stackNavigator?.dismiss {
-                    self.delegate?.didCompleteAuth()
-                }
-            } else {
-                delegate?.didCompleteAuth()
-            }
+            completeAuth()
         case let .completeRegistration(emailVerificationToken, userEmail):
             showCompleteRegistration(
                 emailVerificationToken: emailVerificationToken,
@@ -157,6 +147,8 @@ final class AuthCoordinator: NSObject, // swiftlint:disable:this type_body_lengt
                     fromEmail: fromEmail
                 )
             }
+        case let .completeWithRehydration(rehydratableTarget):
+            completeAuth(rehydratableTarget: rehydratableTarget)
         case .createAccount:
             showCreateAccount()
         case .startRegistration:
@@ -237,13 +229,8 @@ final class AuthCoordinator: NSObject, // swiftlint:disable:this type_body_lengt
             account,
             animated,
             attemptAutomaticBiometricUnlock,
-            didSwitch,
-            rehydratableTarget
+            didSwitch
         ):
-            if let rehydratableTarget {
-                delegate?.setAuthCompletionRoute(rehydratableTarget.appRoute)
-            }
-            
             showVaultUnlock(
                 account: account,
                 animated: animated,
@@ -261,6 +248,18 @@ final class AuthCoordinator: NSObject, // swiftlint:disable:this type_body_lengt
     }
 
     // MARK: Private Methods
+
+    /// Completes the auth flow.
+    /// - Parameter rehydratableTarget: The rehydratable target, if any to restore after unlocking if needed.
+    private func completeAuth(rehydratableTarget: RehydratableTarget? = nil) {
+        if stackNavigator?.isPresenting == true {
+            stackNavigator?.dismiss {
+                self.delegate?.didCompleteAuth(rehydratableTarget: rehydratableTarget)
+            }
+        } else {
+            delegate?.didCompleteAuth(rehydratableTarget: rehydratableTarget)
+        }
+    }
 
     /// Configures the app with an active account.
     ///

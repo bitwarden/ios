@@ -329,7 +329,7 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
             errorReporter: errorReporter,
             keychainRepository: keychainRepository
         )
-        
+
         let rehydrationHelper = DefaultRehydrationHelper(stateService: stateService, timeProvider: timeProvider)
 
         let environmentService = DefaultEnvironmentService(errorReporter: errorReporter, stateService: stateService)

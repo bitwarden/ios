@@ -2,11 +2,11 @@ import Foundation
 
 protocol RehydrationHelper {
     /// Adds a new target to be considered for rehydration.
-    func addRehydratableTarget(_ target: Rehydratable)
+    func addRehydratableTarget(_ target: Rehydratable) async
     /// Clears the app rehydration state from the storage.
     func clearAppRehydrationState() async throws
     /// Gets the last target state for rehydartion.
-    func getLastTargetState() -> RehydrationState?
+    func getLastTargetState() async -> RehydrationState?
     /// Attemps to get the saved rehydratable target if there's one and if the expiration time hasn't been reached.
     func getSavedRehydratableTarget() async throws -> RehydratableTarget?
     /// Saves the rehydration state if the last view seen by the user is one that we need to save
@@ -14,49 +14,52 @@ protocol RehydrationHelper {
     func saveRehydrationStateIfNeeded() async throws
 }
 
-class DefaultRehydrationHelper: RehydrationHelper {
+actor DefaultRehydrationHelper: RehydrationHelper {
     /// The total seconds the rehydration state should be taken under consideration
     /// when restoring targets after unlocking.
     private static let rehydrationTimeoutInSecs: TimeInterval = 5 * 60
 
+    /// The service used by the application to manage account state.
     private let stateService: StateService
+    /// A provider of time.
     private let timeProvider: TimeProvider
 
-    var weakTargets = NSPointerArray.weakObjects()
+    /// The weak rehydratable targets.
+    var weakTargets: [WeakWrapper] = []
 
+    /// Initializes a `DefaultRehydrationHelper`
+    /// - Parameters:
+    ///   - stateService: The service used by the application to manage account state.
+    ///   - timeProvider: A provider of time.
     init(stateService: StateService, timeProvider: TimeProvider) {
         self.stateService = stateService
         self.timeProvider = timeProvider
     }
 
-    func addRehydratableTarget(_ target: Rehydratable) {
-        objc_sync_enter(self)
-
-        unowned let weakTarget = target as AnyObject
-        let pointer = Unmanaged.passUnretained(weakTarget).toOpaque()
-        weakTargets.compact()
-        weakTargets.addPointer(pointer)
-
-        objc_sync_exit(self)
+    /// Adds a rehydratable target.
+    /// - Parameter target: Target to rehydrate.
+    func addRehydratableTarget(_ target: Rehydratable) async {
+        weakTargets.append(WeakWrapper(value: target))
     }
-    
+
+    /// Clears the app rehydration state.
     func clearAppRehydrationState() async throws {
         try await stateService.setAppRehydrationState(nil)
     }
 
-    func getLastTargetState() -> RehydrationState? {
-        var rehydrationState: RehydrationState?
-        objc_sync_enter(self)
-
-        weakTargets.compact()
-        if let target = weakTargets.allObjects.last as? Rehydratable {
-            rehydrationState = target.rehydrationState
+    /// Gets the last target state available, i.e. which its weak reference hasn't been cleared.
+    /// This would get the last topmost view that is marked as rehydratable.
+    /// - Returns: The last `RehydrationState` if available.
+    func getLastTargetState() async -> RehydrationState? {
+        guard let target = weakTargets.filter({ $0.weakValue != nil }).last?.weakValue as? Rehydratable else {
+            return nil
         }
 
-        objc_sync_exit(self)
-        return rehydrationState
+        return target.rehydrationState
     }
 
+    /// Gets the in-disk saved rehydratable target, if available.
+    /// - Returns: The saved `RehydratableTarget`, if available.
     func getSavedRehydratableTarget() async throws -> RehydratableTarget? {
         guard let rehydrationState = try await stateService.getAppRehydrationState() else {
             return nil
@@ -69,8 +72,9 @@ class DefaultRehydrationHelper: RehydrationHelper {
         return rehydrationState.target
     }
 
+    /// Saves the rehydration state if needed.
     func saveRehydrationStateIfNeeded() async throws {
-        guard let state = getLastTargetState() else {
+        guard let state = await getLastTargetState() else {
             return
         }
 
@@ -95,4 +99,16 @@ protocol Rehydratable: AnyObject {
 /// The state for rehydration.
 struct RehydrationState: Codable {
     let target: RehydratableTarget
+}
+
+/// A wrapper object to store weak reference and that can be used in an array.
+class WeakWrapper {
+    /// The actual weak object.
+    weak var weakValue: AnyObject?
+
+    /// Initializes a wrapper with a weak reference to `value`
+    /// - Parameter value: Weak value to assign.
+    init(value: AnyObject) {
+        weakValue = value
+    }
 }

@@ -13,6 +13,7 @@ final class ViewItemProcessor: StateProcessor<ViewItemState, ViewItemAction, Vie
         & HasErrorReporter
         & HasEventService
         & HasPasteboardService
+        & HasRehydrationHelper
         & HasStateService
         & HasVaultRepository
 
@@ -31,6 +32,12 @@ final class ViewItemProcessor: StateProcessor<ViewItemState, ViewItemAction, Vie
 
         /// An error for ssh key action handling
         case nonSshKeyTypeToggle(String)
+    }
+
+    // MARK: Public properties
+
+    var rehydrationState: RehydrationState? {
+        RehydrationState(target: .viewCipher(cipherId: itemId))
     }
 
     // MARK: Private Properties
@@ -70,17 +77,15 @@ final class ViewItemProcessor: StateProcessor<ViewItemState, ViewItemAction, Vie
         self.itemId = itemId
         self.services = services
         super.init(state: state)
+
+        Task {
+            await self.services.rehydrationHelper.addRehydratableTarget(self)
+        }
     }
 
     deinit {
         // When the view is dismissed, ensure any temporary files are deleted.
         services.vaultRepository.clearTemporaryDownloads()
-    }
-    
-    // MARK: Public properties
-
-    var rehydrationState: RehydrationState? {
-        RehydrationState(target: .viewCipher(cipherId: itemId))
     }
 
     // MARK: Methods
