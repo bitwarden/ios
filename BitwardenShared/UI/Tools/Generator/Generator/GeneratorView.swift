@@ -159,7 +159,7 @@ struct GeneratorView: View {
             Button {
                 store.send(.copyGeneratedValue)
             } label: {
-                Asset.Images.copy.swiftUIImage
+                Asset.Images.copy16.swiftUIImage
                     .imageStyle(.accessoryIcon)
             }
             .buttonStyle(.accessory)
@@ -169,7 +169,7 @@ struct GeneratorView: View {
             Button {
                 store.send(.refreshGeneratedValue)
             } label: {
-                Asset.Images.generate.swiftUIImage
+                Asset.Images.generate16.swiftUIImage
                     .imageStyle(.accessoryIcon)
             }
             .buttonStyle(.accessory)
@@ -191,9 +191,7 @@ struct GeneratorView: View {
             Button {
                 openURL(ExternalLinksConstants.generatorUsernameTypes)
             } label: {
-                Asset.Images.questionCircle.swiftUIImage
-                    .resizable()
-                    .frame(width: 14, height: 14)
+                Asset.Images.questionCircle16.swiftUIImage
             }
             .buttonStyle(.accessory)
             .accessibilityLabel(Localizations.learnMore)

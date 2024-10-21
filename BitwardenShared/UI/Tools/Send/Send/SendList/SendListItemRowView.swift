@@ -211,7 +211,7 @@ struct SendListItemRowView: View {
             icons.append(
                 SendListItemIcon(
                     accessibilityID: "DisabledSendIcon",
-                    asset: Asset.Images.warning.swiftUIImage
+                    asset: Asset.Images.warning16.swiftUIImage
                 )
             )
         }
@@ -220,7 +220,7 @@ struct SendListItemRowView: View {
             icons.append(
                 SendListItemIcon(
                     accessibilityID: "PasswordProtectedSendIcon",
-                    asset: Asset.Images.key.swiftUIImage
+                    asset: Asset.Images.key16.swiftUIImage
                 )
             )
         }
@@ -230,7 +230,7 @@ struct SendListItemRowView: View {
             icons.append(
                 SendListItemIcon(
                     accessibilityID: "MaxAccessSendIcon",
-                    asset: Asset.Images.doNot.swiftUIImage
+                    asset: Asset.Images.doNot16.swiftUIImage
                 )
             )
         }
@@ -239,7 +239,7 @@ struct SendListItemRowView: View {
             icons.append(
                 SendListItemIcon(
                     accessibilityID: "ExpiredSendIcon",
-                    asset: Asset.Images.clock.swiftUIImage
+                    asset: Asset.Images.clock16.swiftUIImage
                 )
             )
         }
@@ -248,7 +248,7 @@ struct SendListItemRowView: View {
             icons.append(
                 SendListItemIcon(
                     accessibilityID: "PendingDeletionSendIcon",
-                    asset: Asset.Images.trash.swiftUIImage
+                    asset: Asset.Images.trash16.swiftUIImage
                 )
             )
         }

@@ -17,7 +17,7 @@ final class EmptyContentViewTests: BitwardenTestCase {
                 ) {
                     Button {} label: {
                         Label { Text(Localizations.addItem) } icon: {
-                            Asset.Images.plus.swiftUIImage
+                            Asset.Images.plus16.swiftUIImage
                                 .imageStyle(.accessoryIcon(
                                     color: Asset.Colors.buttonFilledForeground.swiftUIColor,
                                     scaleWithFont: true

@@ -13,7 +13,7 @@ extension View {
     /// - Returns: A `Button` configured for adding an item.
     ///
     func addToolbarButton(hidden: Bool = false, action: @escaping () -> Void) -> some View {
-        toolbarButton(asset: Asset.Images.plus, label: Localizations.add, action: action)
+        toolbarButton(asset: Asset.Images.plus24, label: Localizations.add, action: action)
             .hidden(hidden)
             .accessibilityIdentifier("AddItemButton")
     }
@@ -75,6 +75,21 @@ extension View {
         // padding to be applied equally on both sides of the image. This results in extra padding
         // along the margin though.
         .frame(minHeight: 44)
+    }
+
+    /// Returns a `Button` that displays an image for use in a toolbar.
+    ///
+    /// - Parameters:
+    ///   - label: The label associated with the image, used as an accessibility label.
+    ///   - action: The action to perform when the button is tapped.
+    /// - Returns: A `Button` for displaying an image in a toolbar.
+    ///
+    func toolbarButton(_ label: String, action: @escaping () -> Void) -> some View {
+        Button(label, action: action)
+            // Ideally we would set both `minHeight` and `minWidth` to 44. Setting `minWidth` causes
+            // padding to be applied equally on both sides of the image. This results in extra padding
+            // along the margin though.
+            .frame(minHeight: 44)
     }
 
     /// Returns a `Button` that displays a text label for use in a toolbar.

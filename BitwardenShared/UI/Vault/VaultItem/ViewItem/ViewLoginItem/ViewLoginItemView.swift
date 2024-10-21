@@ -61,7 +61,7 @@ struct ViewLoginItemView: View {
                 AsyncButton {
                     await store.perform(.checkPasswordPressed)
                 } label: {
-                    Asset.Images.checkCircle.swiftUIImage
+                    Asset.Images.checkCircle16.swiftUIImage
                         .imageStyle(.accessoryIcon)
                 }
                 .accessibilityLabel(Localizations.checkPassword)
@@ -70,7 +70,7 @@ struct ViewLoginItemView: View {
                 Button {
                     store.send(.copyPressed(value: password, field: .password))
                 } label: {
-                    Asset.Images.copy.swiftUIImage
+                    Asset.Images.copy16.swiftUIImage
                         .imageStyle(.accessoryIcon)
                 }
                 .accessibilityLabel(Localizations.copy)
@@ -107,7 +107,7 @@ struct ViewLoginItemView: View {
             Button {
                 store.send(.copyPressed(value: username, field: .username))
             } label: {
-                Asset.Images.copy.swiftUIImage
+                Asset.Images.copy16.swiftUIImage
                     .imageStyle(.accessoryIcon)
             }
             .accessibilityLabel(Localizations.copy)
@@ -165,7 +165,7 @@ struct ViewLoginItemView: View {
                 Button {
                     store.send(.copyPressed(value: model.code, field: .totp))
                 } label: {
-                    Asset.Images.copy.swiftUIImage
+                    Asset.Images.copy16.swiftUIImage
                         .imageStyle(.accessoryIcon)
                 }
                 .accessibilityLabel(Localizations.copy)

@@ -82,7 +82,7 @@ private struct MainSendListView: View {
                         store.send(.addItemPressed)
                     } label: {
                         HStack {
-                            Image(decorative: Asset.Images.plus)
+                            Image(decorative: Asset.Images.plus16)
                                 .resizable()
                                 .frame(width: 16, height: 16)
                             Text(Localizations.newSend)
@@ -233,10 +233,8 @@ struct SendListView: View {
                         Button {
                             store.send(.infoButtonPressed)
                         } label: {
-                            Image(asset: Asset.Images.informationCircle, label: Text(Localizations.aboutSend))
-                                .resizable()
+                            Image(asset: Asset.Images.informationCircle24, label: Text(Localizations.aboutSend))
                                 .foregroundColor(Asset.Colors.iconSecondary.swiftUIColor)
-                                .frame(width: 22, height: 22)
                         }
                         .frame(minHeight: 44)
                     }

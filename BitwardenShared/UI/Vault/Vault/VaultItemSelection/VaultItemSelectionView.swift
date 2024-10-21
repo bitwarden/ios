@@ -161,7 +161,7 @@ private struct VaultItemSelectionSearchableView: View {
                     Label {
                         Text(Localizations.newItem)
                     } icon: {
-                        Asset.Images.plus.swiftUIImage
+                        Asset.Images.plus16.swiftUIImage
                             .imageStyle(.accessoryIcon(
                                 color: Asset.Colors.buttonFilledForeground.swiftUIColor,
                                 scaleWithFont: true

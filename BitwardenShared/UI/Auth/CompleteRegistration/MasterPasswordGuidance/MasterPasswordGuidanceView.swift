@@ -77,9 +77,7 @@ struct MasterPasswordGuidanceView: View {
         } label: {
             HStack(spacing: 16) {
                 HStack(alignment: .top, spacing: 16) {
-                    Image(decorative: Asset.Images.generate)
-                        .resizable()
-                        .frame(width: 24, height: 24)
+                    Image(decorative: Asset.Images.generate24)
                         .foregroundStyle(Asset.Colors.iconSecondary.swiftUIColor)
 
                     VStack(alignment: .leading, spacing: 0) {

@@ -53,7 +53,7 @@ struct PendingRequestsView: View {
             HStack(spacing: 4) {
                 Spacer()
 
-                Image(decorative: Asset.Images.trash)
+                Image(decorative: Asset.Images.trash16)
                     .imageStyle(.accessoryIcon(scaleWithFont: true))
 
                 Text(Localizations.declineAllRequests)

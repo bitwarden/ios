@@ -17,7 +17,7 @@ struct SearchVaultFilterRowView: View {
     @ObservedObject var store: Store<SearchVaultFilterRowState, SearchVaultFilterRowAction, Void>
 
     var body: some View {
-        //if !store.state.vaultFilterOptions.isEmpty {
+        if !store.state.vaultFilterOptions.isEmpty {
             VStack(spacing: 0) {
                 HStack(spacing: 0) {
                     Text(store.state.searchVaultFilterType.filterTitle)
@@ -57,7 +57,7 @@ struct SearchVaultFilterRowView: View {
                     Divider()
                 }
             }
-      //  }
+        }
     }
 
     // MARK: Initialization

@@ -91,7 +91,7 @@ struct LoginView: View {
                     store.send(.loginWithDevicePressed)
                 } label: {
                     HStack(spacing: 8) {
-                        Image(decorative: Asset.Images.mobile)
+                        Image(decorative: Asset.Images.mobile16)
                             .imageStyle(.accessoryIcon(scaleWithFont: true))
                         Text(Localizations.logInWithDevice)
                     }
@@ -104,7 +104,7 @@ struct LoginView: View {
                 store.send(.enterpriseSingleSignOnPressed)
             } label: {
                 HStack(spacing: 8) {
-                    Image(decorative: Asset.Images.provider)
+                    Image(decorative: Asset.Images.provider16)
                         .imageStyle(.accessoryIcon(scaleWithFont: true))
                     Text(Localizations.logInSso)
                 }

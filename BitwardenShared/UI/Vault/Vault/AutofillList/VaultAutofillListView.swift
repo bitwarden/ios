@@ -201,7 +201,7 @@ private struct VaultAutofillListSearchableView: View {
                             Label {
                                 Text(store.state.emptyViewButtonText)
                             } icon: {
-                                Asset.Images.plus.swiftUIImage
+                                Asset.Images.plus16.swiftUIImage
                                     .imageStyle(.accessoryIcon(
                                         color: Asset.Colors.buttonFilledForeground.swiftUIColor,
                                         scaleWithFont: true

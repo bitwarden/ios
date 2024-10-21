@@ -72,7 +72,7 @@ struct ActionCard<LeadingContent: View>: View {
 
                 if let dismissButtonState {
                     AsyncButton(action: dismissButtonState.action) {
-                        Image(asset: Asset.Images.close, label: Text(dismissButtonState.title))
+                        Image(asset: Asset.Images.close16, label: Text(dismissButtonState.title))
                             .imageStyle(.accessoryIcon(color: Asset.Colors.iconPrimary.swiftUIColor))
                             .padding(16) // Add padding to increase tappable area...
                     }
@@ -165,7 +165,7 @@ struct ActionCard<LeadingContent: View>: View {
             title: "Title",
             message: "Message"
         ) {
-            Asset.Images.warning.swiftUIImage.resizable().frame(width: 24, height: 24)
+            Asset.Images.warning24.swiftUIImage
         }
 
         ActionCard(

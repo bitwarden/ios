@@ -66,7 +66,7 @@ struct AboutView: View {
             SettingsListItem(store.state.version, hasDivider: false) {
                 store.send(.versionTapped)
             } trailingContent: {
-                Asset.Images.copy.swiftUIImage
+                Asset.Images.copy24.swiftUIImage
                     .imageStyle(.rowIcon)
             }
         }
@@ -97,7 +97,7 @@ struct AboutView: View {
         SettingsListItem(name) {
             store.send(action)
         } trailingContent: {
-            Asset.Images.externalLink.swiftUIImage
+            Asset.Images.externalLink24.swiftUIImage
                 .imageStyle(.rowIcon)
         }
     }

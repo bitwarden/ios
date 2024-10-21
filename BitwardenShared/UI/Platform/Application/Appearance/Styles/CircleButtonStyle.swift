@@ -40,13 +40,13 @@ struct CircleButtonStyle: ButtonStyle {
 #Preview {
     VStack {
         Button {} label: {
-            Asset.Images.plus.swiftUIImage
+            Asset.Images.plus32.swiftUIImage
                 .imageStyle(
                     .init(
                         color: Asset.Colors.buttonFilledForeground.swiftUIColor,
                         scaleWithFont: false,
-                        width: 24,
-                        height: 24
+                        width: 32,
+                        height: 32
                     )
                 )
         }

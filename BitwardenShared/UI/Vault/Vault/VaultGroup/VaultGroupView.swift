@@ -119,7 +119,7 @@ struct VaultGroupView: View {
     /// interface, and a message indicating that no results were found.
     ///
     @ViewBuilder private var searchContent: some View {
-        //if store.state.searchText.isEmpty || !store.state.searchResults.isEmpty {
+        if store.state.searchText.isEmpty || !store.state.searchResults.isEmpty {
             ScrollView {
                 LazyVStack(spacing: 0) {
                     searchVaultFilterRow
@@ -137,11 +137,11 @@ struct VaultGroupView: View {
                     }
                 }
             }
-//        } else {
-//            SearchNoResultsView {
-//                searchVaultFilterRow
-//            }
-      //  }
+        } else {
+            SearchNoResultsView {
+                searchVaultFilterRow
+            }
+        }
     }
 
     /// The group content or search view.

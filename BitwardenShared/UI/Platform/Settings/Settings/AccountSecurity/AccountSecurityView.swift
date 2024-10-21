@@ -91,7 +91,7 @@ struct AccountSecurityView: View {
                 ) {
                     store.send(.twoStepLoginPressed)
                 } trailingContent: {
-                    Image(asset: Asset.Images.externalLink)
+                    Image(asset: Asset.Images.externalLink24)
                         .imageStyle(.rowIcon)
                 }
 

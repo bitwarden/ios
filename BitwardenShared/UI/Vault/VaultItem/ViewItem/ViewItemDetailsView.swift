@@ -59,8 +59,8 @@ struct ViewItemDetailsView: View { // swiftlint:disable:this type_body_length
                     if customField.type == .boolean {
                         HStack(spacing: 16) {
                             let image = customField.booleanValue
-                                ? Asset.Images.checkSquare.swiftUIImage
-                                : Asset.Images.square.swiftUIImage
+                                ? Asset.Images.checkSquare16.swiftUIImage
+                                : Asset.Images.square16.swiftUIImage
                             image
                                 .imageStyle(.accessoryIcon(color: Asset.Colors.textSecondary.swiftUIColor))
 
@@ -91,7 +91,7 @@ struct ViewItemDetailsView: View { // swiftlint:disable:this type_body_length
                             case .linked:
                                 if let linkedIdType = customField.linkedIdType {
                                     HStack(spacing: 8) {
-                                        Asset.Images.link.swiftUIImage
+                                        Asset.Images.link16.swiftUIImage
                                             .imageStyle(.accessoryIcon(color: Asset.Colors.textSecondary.swiftUIColor))
                                         Text(linkedIdType.localizedName)
                                     }
@@ -110,7 +110,7 @@ struct ViewItemDetailsView: View { // swiftlint:disable:this type_body_length
                                     Button {
                                         store.send(.copyPressed(value: value, field: .customHiddenField))
                                     } label: {
-                                        Asset.Images.copy.swiftUIImage
+                                        Asset.Images.copy16.swiftUIImage
                                             .imageStyle(.accessoryIcon)
                                     }
                                     .accessibilityIdentifier("HiddenCustomFieldCopyValueButton")
@@ -118,7 +118,7 @@ struct ViewItemDetailsView: View { // swiftlint:disable:this type_body_length
                                     Button {
                                         store.send(.copyPressed(value: value, field: .customTextField))
                                     } label: {
-                                        Asset.Images.copy.swiftUIImage
+                                        Asset.Images.copy16.swiftUIImage
                                             .imageStyle(.accessoryIcon)
                                     }
                                     .accessibilityIdentifier("TextCustomFieldCopyValueButton")
@@ -240,7 +240,7 @@ struct ViewItemDetailsView: View { // swiftlint:disable:this type_body_length
                             Button {
                                 openURL(url)
                             } label: {
-                                Asset.Images.externalLink.swiftUIImage
+                                Asset.Images.externalLink16.swiftUIImage
                                     .imageStyle(.accessoryIcon)
                             }
                             .accessibilityLabel(Localizations.launch)
@@ -249,7 +249,7 @@ struct ViewItemDetailsView: View { // swiftlint:disable:this type_body_length
                         Button {
                             store.send(.copyPressed(value: uri.uri, field: .uri))
                         } label: {
-                            Asset.Images.copy.swiftUIImage
+                            Asset.Images.copy16.swiftUIImage
                                 .imageStyle(.accessoryIcon)
                         }
                         .accessibilityLabel(Localizations.copy)
