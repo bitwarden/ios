@@ -11,15 +11,17 @@ struct BitwardenUITextView: UIViewRepresentable {
     /// A coordinator to act as the delegate for `UITextView`, handling text changes and other events.
     ///
     class Coordinator: NSObject, UITextViewDelegate {
-        ///
+        /// The parent view.
         var parent: BitwardenUITextView
 
-        ///
+        /// The calculated height of the text view.
         var calculatedHeight: Binding<CGFloat>
 
         /// Initializes a new `Coordinator` for the `BitwardenUITextView`.
         ///
-        /// - Parameter parent: The parent view that owns this coordinator.
+        /// - Parameters:
+        ///    -  parent: The parent view that owns this coordinator.
+        ///    - calculatedHeight: The height of the text view.
         ///
         init(
             _ parent: BitwardenUITextView,
@@ -51,10 +53,7 @@ struct BitwardenUITextView: UIViewRepresentable {
     /// - Returns: A `Coordinator` instance to manage the `UITextView`'s events.
     ///
     func makeCoordinator() -> Coordinator {
-        Coordinator(
-            self,
-            calculatedHeight: $calculatedHeight
-        )
+        Coordinator(self, calculatedHeight: $calculatedHeight)
     }
 
     // MARK: - UIViewRepresentable Methods
@@ -74,7 +73,7 @@ struct BitwardenUITextView: UIViewRepresentable {
         textView.isUserInteractionEnabled = true
         textView.isSelectable = true
         textView.backgroundColor = .clear
-        textView.tintColor = Asset.Colors.primaryBitwarden.color
+        textView.tintColor = Asset.Colors.tintPrimary.color
         let font = UIFont.preferredFont(forTextStyle: .body)
         textView.font = UIFontMetrics(forTextStyle: .body).scaledFont(for: font)
         textView.textContainerInset = .zero
