@@ -101,6 +101,7 @@ final class KeychainRepositoryTests: BitwardenTestCase { // swiftlint:disable:th
 
         let expectedQueries = await [
             subject.keychainQueryValues(for: .accessToken(userId: "1")),
+            subject.keychainQueryValues(for: .authenticatorVaultKey(userId: "1")),
             subject.keychainQueryValues(for: .biometrics(userId: "1")),
             subject.keychainQueryValues(for: .neverLock(userId: "1")),
             subject.keychainQueryValues(for: .pendingAdminLoginRequest(userId: "1")),
@@ -121,6 +122,20 @@ final class KeychainRepositoryTests: BitwardenTestCase { // swiftlint:disable:th
         let expectedQuery = await subject.keychainQueryValues(for: item)
 
         try await subject.deleteDeviceKey(userId: "1")
+        XCTAssertEqual(
+            keychainService.deleteQueries,
+            [expectedQuery]
+        )
+    }
+
+    /// `deleteAuthenticatorVaultKey` deletes the stored Authenticator Vault Key with the correct query values.
+    ///
+    func test_deleteAuthenticatorVaultKey_success() async throws {
+        let item = KeychainItem.authenticatorVaultKey(userId: "1")
+        keychainService.deleteResult = .success(())
+        let expectedQuery = await subject.keychainQueryValues(for: item)
+
+        try await subject.deleteAuthenticatorVaultKey(userId: "1")
         XCTAssertEqual(
             keychainService.deleteQueries,
             [expectedQuery]
@@ -168,6 +183,22 @@ final class KeychainRepositoryTests: BitwardenTestCase { // swiftlint:disable:th
         keychainService.searchResult = .failure(error)
         await assertAsyncThrows(error: error) {
             _ = try await subject.getAccessToken(userId: "1")
+        }
+    }
+
+    /// `getAuthenticatorVaultKey(userId:)` returns the stored authenticator vault key.
+    func test_getAuthenticatorVaultKey() async throws {
+        keychainService.setSearchResultData(string: "AUTHENTICATOR_VAULT_KEY")
+        let authVaultKey = try await subject.getAuthenticatorVaultKey(userId: "1")
+        XCTAssertEqual(authVaultKey, "AUTHENTICATOR_VAULT_KEY")
+    }
+
+    /// `getAuthenticatorVaultKey(userId:)` throws an error if one occurs.
+    func test_getAuthenticatorVaultKey_error() async {
+        let error = KeychainServiceError.keyNotFound(.authenticatorVaultKey(userId: "1"))
+        keychainService.searchResult = .failure(error)
+        await assertAsyncThrows(error: error) {
+            _ = try await subject.getAuthenticatorVaultKey(userId: "1")
         }
     }
 
@@ -316,6 +347,35 @@ final class KeychainRepositoryTests: BitwardenTestCase { // swiftlint:disable:th
         keychainService.addResult = .failure(error)
         await assertAsyncThrows(error: error) {
             _ = try await subject.setAccessToken("ACCESS_TOKEN", userId: "1")
+        }
+    }
+
+    /// `setAuthenticatorVaultKey(userId:)` stores the authenticator vault key.
+    func test_setAuthenticatorVaultKey() async throws {
+        keychainService.accessControlResult = .success(
+            SecAccessControlCreateWithFlags(
+                nil,
+                kSecAttrAccessibleWhenUnlockedThisDeviceOnly,
+                [],
+                nil
+            )!
+        )
+        keychainService.setSearchResultData(string: "AUTHENTICATOR_VAULT_KEY")
+        try await subject.setAuthenticatorVaultKey("AUTHENTICATOR_VAULT_KEY", userId: "1")
+
+        let attributes = try XCTUnwrap(keychainService.addAttributes) as Dictionary
+        try XCTAssertEqual(
+            String(data: XCTUnwrap(attributes[kSecValueData] as? Data), encoding: .utf8),
+            "AUTHENTICATOR_VAULT_KEY"
+        )
+    }
+
+    /// `setAuthenticatorVaultKey(userId:)` throws an error if one occurs.
+    func test_setAuthenticatorVaultKey_error() async {
+        let error = KeychainServiceError.accessControlFailed(nil)
+        keychainService.addResult = .failure(error)
+        await assertAsyncThrows(error: error) {
+            _ = try await subject.setAuthenticatorVaultKey("AUTHENTICATOR_VAULT_KEY", userId: "1")
         }
     }
 

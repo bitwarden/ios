@@ -57,41 +57,41 @@ class UITabBarControllerExtensionsTests: BitwardenTestCase {
     /// Tests that the tab bar items are laid out correctly with vault selected (default) in light mode.
     func test_snapshot_tabBarItems_vaultSelected_lightMode() {
         subject.overrideUserInterfaceStyle = .light
-        assertSnapshot(of: subject, as: .image)
+        assertSnapshot(of: subject, as: .standardImage)
     }
 
     /// Tests that the tab bar items are laid out correctly with vault selected (default) in dark mode.
     func test_snapshot_tabBarItems_vaultSelected_darkMode() {
         subject.overrideUserInterfaceStyle = .dark
-        assertSnapshot(of: subject, as: .image)
+        assertSnapshot(of: subject, as: .standardImage)
     }
 
     /// Tests that the tab bar items are laid out correctly with send selected in light mode.
     func test_snapshot_tabBarItems_sendSelected_lightMode() {
         subject.overrideUserInterfaceStyle = .light
         subject.selectedIndex = 1
-        assertSnapshot(of: subject, as: .image)
+        assertSnapshot(of: subject, as: .standardImage)
     }
 
     /// Tests that the tab bar items are laid out correctly with send selected in dark mode.
     func test_snapshot_tabBarItems_sendSelected_darkMode() {
         subject.overrideUserInterfaceStyle = .dark
         subject.selectedIndex = 1
-        assertSnapshot(of: subject, as: .image)
+        assertSnapshot(of: subject, as: .standardImage)
     }
 
     /// Tests that the tab bar items are laid out correctly with generator selected in light mode.
     func test_snapshot_tabBarItems_generatorSelected_lightMode() {
         subject.overrideUserInterfaceStyle = .light
         subject.selectedIndex = 2
-        assertSnapshot(of: subject, as: .image)
+        assertSnapshot(of: subject, as: .standardImage)
     }
 
     /// Tests that the tab bar items are laid out correctly with generator selected in dark mode.
     func test_snapshot_tabBarItems_generatorSelected_darkMode() {
         subject.overrideUserInterfaceStyle = .dark
         subject.selectedIndex = 2
-        assertSnapshot(of: subject, as: .image)
+        assertSnapshot(of: subject, as: .standardImage)
     }
 
     /// Tests that the tab bar items are laid out correctly with settings selected in light mode.
@@ -100,7 +100,7 @@ class UITabBarControllerExtensionsTests: BitwardenTestCase {
         module.settingsNavigator?.rootViewController?.tabBarItem.badgeValue = "1"
         subject.overrideUserInterfaceStyle = .light
         subject.selectedIndex = 3
-        assertSnapshot(of: subject, as: .image)
+        assertSnapshot(of: subject, as: .standardImage)
     }
 
     /// Tests that the tab bar items are laid out correctly with settings selected in dark mode.
@@ -109,6 +109,6 @@ class UITabBarControllerExtensionsTests: BitwardenTestCase {
         module.settingsNavigator?.rootViewController?.tabBarItem.badgeValue = "1"
         subject.overrideUserInterfaceStyle = .dark
         subject.selectedIndex = 3
-        assertSnapshot(of: subject, as: .image)
+        assertSnapshot(of: subject, as: .standardImage)
     }
 }

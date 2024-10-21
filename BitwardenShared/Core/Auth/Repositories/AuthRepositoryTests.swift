@@ -1309,6 +1309,43 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         XCTAssertTrue(vaultTimeoutService.unlockVaultHadUserInteraction)
     }
 
+    /// `unlockVaultWithAuthenticatorVaultKey` throws when it encounters an error trying to unlock
+    /// the vault using the authenticator vault key from the keychain when the key is not found.
+    func test_unlockVaultWithAuthenticatorVaultKey_error() async throws {
+        let active = Account.fixture()
+        stateService.activeAccount = active
+        await assertAsyncThrows(error: KeychainServiceError.keyNotFound(
+            .authenticatorVaultKey(userId: active.profile.userId))
+        ) {
+            try await subject.unlockVaultWithAuthenticatorVaultKey(userId: active.profile.userId)
+        }
+    }
+
+    /// `unlockVaultWithAuthenticatorVaultKey` unlocks the vault using the authenticator vault
+    /// key from the keychain.
+    func test_unlockVaultWithAuthenticatorVaultKey_success() async throws {
+        let active = Account.fixture()
+        stateService.activeAccount = active
+        keychainService.mockStorage = [
+            keychainService.formattedKey(
+                for: KeychainItem.authenticatorVaultKey(
+                    userId: active.profile.userId
+                )
+            ):
+                "pasta",
+        ]
+        stateService.accountEncryptionKeys = [
+            active.profile.userId: .init(
+                encryptedPrivateKey: "secret",
+                encryptedUserKey: "recipe"
+            ),
+        ]
+        clientService.mockCrypto.getUserEncryptionKeyResult = .success("sauce")
+        clientService.mockCrypto.initializeUserCryptoResult = .success(())
+        try await subject.unlockVaultWithAuthenticatorVaultKey(userId: active.profile.userId)
+        XCTAssertFalse(vaultTimeoutService.unlockVaultHadUserInteraction)
+    }
+
     /// `unlockVaultWithBiometrics()` throws an error if the vault is unable to be unlocked.
     func test_unlockVaultWithBiometrics_error_cryptoFail() async {
         stateService.accountEncryptionKeys = [
