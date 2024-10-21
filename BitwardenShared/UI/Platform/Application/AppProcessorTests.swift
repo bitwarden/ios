@@ -367,6 +367,73 @@ class AppProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_body
         }
     }
 
+    /// `openUrl(_:)` handles receiving a bitwarden deep link and setting an auth completion route on the
+    /// coordinator to handle routing to the account security screen when the vault is unlocked.
+    @MainActor
+    func test_openUrl_bitwardenAccountSecurity_vaultLocked() async throws {
+        await subject.openUrl(.bitwardenAccountSecurity)
+        XCTAssertEqual(coordinator.events, [.setAuthCompletionRoute(.tab(.settings(.accountSecurity)))])
+    }
+
+    /// `openUrl(_:)` handles receiving a bitwarden deep link and routing to the account security screen.
+    @MainActor
+    func test_openUrl_bitwardenAccountSecurity_vaultUnlocked() async throws {
+        let account = Account.fixture()
+        stateService.activeAccount = .fixture()
+        vaultTimeoutService.isClientLocked[account.profile.userId] = false
+
+        await subject.openUrl(.bitwardenAccountSecurity)
+        XCTAssertEqual(coordinator.routes.last, .tab(.settings(.accountSecurity)))
+    }
+
+    /// `openUrl(_:)` handles receiving a bitwarden deep link and setting an auth completion route on the
+    /// coordinator if the the user's vault is unlocked but will be timing out as the app is
+    /// foregrounded.
+    @MainActor
+    func test_openUrl_bitwardenAccountSecurity_vaultUnlockedTimeout() async throws {
+        let account = Account.fixture()
+        stateService.activeAccount = .fixture()
+        vaultTimeoutService.isClientLocked[account.profile.userId] = false
+        vaultTimeoutService.shouldSessionTimeout[account.profile.userId] = true
+
+        await subject.openUrl(.bitwardenAccountSecurity)
+        XCTAssertEqual(coordinator.events, [.setAuthCompletionRoute(.tab(.settings(.accountSecurity)))])
+    }
+
+    /// `openUrl(_:)` handles receiving a bitwarden deep link and setting an auth completion route on the
+    /// coordinator if the the user's vault is unlocked but will be timing out as the app is
+    /// foregrounded.
+    @MainActor
+    func test_openUrl_bitwardenAccountSecurity_vaultUnlockedTimeoutError() async throws {
+        let account = Account.fixture()
+        stateService.activeAccount = .fixture()
+        vaultTimeoutService.isClientLocked[account.profile.userId] = false
+        vaultTimeoutService.shouldSessionTimeoutError = BitwardenTestError.example
+
+        await subject.openUrl(.bitwardenAccountSecurity)
+        XCTAssertEqual(coordinator.events, [.setAuthCompletionRoute(.tab(.settings(.accountSecurity)))])
+    }
+
+    /// `openUrl(_:)` handles receiving a bitwarden link with an invalid path and
+    /// silently returns with a no-op.
+    @MainActor
+    func test_openUrl_bitwardenInvalidPath_failSilently() async throws {
+        await subject.openUrl(.bitwardenInvalidPath)
+
+        XCTAssertEqual(coordinator.alertShown, [])
+        XCTAssertEqual(coordinator.routes, [])
+    }
+
+    /// `openUrl(_:)` handles receiving a bitwarden link with nothing but the scheme (i.e. `bitwarden://`) and
+    /// silently returns with a no-op.
+    @MainActor
+    func test_openUrl_bitwardenSchemeOnly_failSilently() async throws {
+        await subject.openUrl(.bitwardenSchemeOnly)
+
+        XCTAssertEqual(coordinator.alertShown, [])
+        XCTAssertEqual(coordinator.routes, [])
+    }
+
     /// `openUrl(_:)` handles receiving an OTP deep link and setting an auth completion route on the
     /// coordinator to handle routing to the vault item selection screen when the vault is unlocked.
     @MainActor

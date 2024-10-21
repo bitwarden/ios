@@ -45,6 +45,12 @@ extension String {
         return Color(hex: color)
     }
 
+    /// A Boolean value indicating whether the string represents the "bitwarden" scheme for custom
+    /// "bitwarden://" app URLs
+    var isBitwardenAppScheme: Bool {
+        self == "bitwarden"
+    }
+
     /// A flag indicating if this string is considered a valid email address or not.
     ///
     /// An email is considered valid if it has at least one `@` symbol in it.
