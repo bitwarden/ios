@@ -1850,10 +1850,13 @@ actor DefaultStateService: StateService { // swiftlint:disable:this type_body_le
         let autofillSetupProgress = await getAccountSetupAutofill(userId: userId)
         let importLoginsSetupProgress = await getAccountSetupImportLogins(userId: userId)
         let vaultUnlockSetupProgress = await getAccountSetupVaultUnlock(userId: userId)
-        let badgeCount = [autofillSetupProgress, vaultUnlockSetupProgress]
+        var badgeCount = [autofillSetupProgress, vaultUnlockSetupProgress]
             .compactMap { $0 }
             .filter { $0 != .complete }
             .count
+        if importLoginsSetupProgress == .setUpLater {
+            badgeCount += 1
+        }
         settingsBadgeByUserIdSubject.value[userId] = SettingsBadgeState(
             autofillSetupProgress: autofillSetupProgress,
             badgeValue: badgeCount > 0 ? String(badgeCount) : nil,
