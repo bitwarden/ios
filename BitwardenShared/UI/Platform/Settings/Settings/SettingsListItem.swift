@@ -111,7 +111,7 @@ struct SettingsListItem<Content: View>: View {
             }
 
             SettingsListItem("Account Security") {} trailingContent: {
-                Image(asset: Asset.Images.externalLink)
+                Image(asset: Asset.Images.externalLink24)
             }
 
             SettingsListItem("Account Security") {}

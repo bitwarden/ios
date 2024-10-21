@@ -107,8 +107,8 @@ class GeneratorViewTests: BitwardenTestCase {
     @MainActor
     func test_selectButton_tap() async throws {
         processor.state.presentationMode = .inPlace
-        let button = try subject.inspect().find(asyncButton: Localizations.select)
-        try await button.tap()
+        let button = try subject.inspect().find(button: Localizations.select)
+        try button.tap()
         XCTAssertEqual(processor.dispatchedActions.last, .selectButtonPressed)
     }
 

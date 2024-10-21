@@ -52,7 +52,12 @@ class MasterPasswordGuidanceViewTests: BitwardenTestCase {
     func test_snapshot_masterPasswordGuidance() {
         assertSnapshots(
             of: subject.navStackWrapped,
-            as: [.defaultPortrait, .defaultPortraitDark, .tallPortraitAX5(heightMultiple: 2), .defaultLandscape]
+            as: [
+                .defaultPortrait,
+                .defaultPortraitDark,
+                .tallPortraitAX5(heightMultiple: 2),
+                .defaultLandscape,
+            ]
         )
     }
 }

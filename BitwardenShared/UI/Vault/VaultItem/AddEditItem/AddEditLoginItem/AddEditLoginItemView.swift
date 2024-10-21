@@ -49,7 +49,10 @@ struct AddEditLoginItemView: View {
                 )
             ) {
                 if store.state.canViewPassword, store.state.editView {
-                    AccessoryButton(asset: Asset.Images.minusRound, accessibilityLabel: Localizations.removePasskey) {
+                    AccessoryButton(
+                        asset: Asset.Images.minusCircle16,
+                        accessibilityLabel: Localizations.removePasskey
+                    ) {
                         store.send(.removePasskeyPressed)
                     }
                     .accessibilityIdentifier("LoginRemovePasskeyButton")
@@ -75,11 +78,11 @@ struct AddEditLoginItemView: View {
             )
         ) {
             if store.state.canViewPassword {
-                AccessoryButton(asset: Asset.Images.roundCheck, accessibilityLabel: Localizations.checkPassword) {
+                AccessoryButton(asset: Asset.Images.checkCircle16, accessibilityLabel: Localizations.checkPassword) {
                     await store.perform(.checkPasswordPressed)
                 }
                 .accessibilityIdentifier("CheckPasswordButton")
-                AccessoryButton(asset: Asset.Images.restart2, accessibilityLabel: Localizations.generatePassword) {
+                AccessoryButton(asset: Asset.Images.generate16, accessibilityLabel: Localizations.generatePassword) {
                     store.send(.generatePasswordPressed)
                 }
                 .accessibilityIdentifier("RegeneratePasswordButton")
@@ -109,11 +112,11 @@ struct AddEditLoginItemView: View {
                     ),
                     trailingContent: {
                         if store.state.canViewPassword {
-                            AccessoryButton(asset: Asset.Images.copy, accessibilityLabel: Localizations.copyTotp) {
+                            AccessoryButton(asset: Asset.Images.copy16, accessibilityLabel: Localizations.copyTotp) {
                                 await store.perform(.copyTotpPressed)
                             }
                         }
-                        AccessoryButton(asset: Asset.Images.camera, accessibilityLabel: Localizations.setupTotp) {
+                        AccessoryButton(asset: Asset.Images.camera16, accessibilityLabel: Localizations.setupTotp) {
                             await store.perform(.setupTotpPressed)
                         }
                     }
@@ -144,7 +147,7 @@ struct AddEditLoginItemView: View {
                     await store.perform(.setupTotpPressed)
                 } label: {
                     HStack(alignment: .center, spacing: 4) {
-                        Asset.Images.camera.swiftUIImage
+                        Asset.Images.camera16.swiftUIImage
                             .imageStyle(.accessoryIcon(scaleWithFont: true))
                         Text(Localizations.setupTotp)
                     }
@@ -184,7 +187,7 @@ struct AddEditLoginItemView: View {
                             }
                         }
                     } label: {
-                        Asset.Images.gear.swiftUIImage
+                        Asset.Images.cog16.swiftUIImage
                             .imageStyle(.accessoryIcon)
                     }
                     .accessibilityIdentifier("LoginUriOptionsButton")
@@ -213,7 +216,7 @@ struct AddEditLoginItemView: View {
             accessibilityIdentifier: "LoginUsernameEntry"
         ) {
             AccessoryButton(
-                asset: Asset.Images.restart2,
+                asset: Asset.Images.generate16,
                 accessibilityLabel: Localizations.generateUsername
             ) {
                 store.send(.generateUsernamePressed)

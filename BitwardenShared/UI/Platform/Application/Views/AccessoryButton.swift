@@ -32,7 +32,7 @@ struct AccessoryButton: View {
             AsyncButton(action: action) {
                 asset.swiftUIImage
                     .resizable()
-                    .frame(width: 14, height: 14)
+                    .frame(width: 16, height: 16)
             }
             .buttonStyle(.accessory)
             .accessibilityLabel(Text(accessibilityLabel))
@@ -40,7 +40,7 @@ struct AccessoryButton: View {
             Button(action: action) {
                 asset.swiftUIImage
                     .resizable()
-                    .frame(width: 14, height: 14)
+                    .frame(width: 16, height: 16)
             }
             .buttonStyle(.accessory)
             .accessibilityLabel(Text(accessibilityLabel))
@@ -81,5 +81,5 @@ struct AccessoryButton: View {
 // MARK: Previews
 
 #Preview {
-    AccessoryButton(asset: Asset.Images.copy, accessibilityLabel: Localizations.copy) {}
+    AccessoryButton(asset: Asset.Images.copy16, accessibilityLabel: Localizations.copy) {}
 }

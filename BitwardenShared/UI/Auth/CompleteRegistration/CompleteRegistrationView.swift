@@ -20,7 +20,7 @@ struct CompleteRegistrationView: View {
         VStack(spacing: 16) {
             if store.state.nativeCreateAccountFeatureFlag {
                 PageHeaderView(
-                    image: Asset.Images.lock,
+                    image: Asset.Images.Illustrations.lock,
                     title: Localizations.chooseYourMasterPassword,
                     message: Localizations.chooseAUniqueAndStrongPasswordToKeepYourInformationSafe
                 )
@@ -100,9 +100,7 @@ struct CompleteRegistrationView: View {
     /// The section where the user can learn more about passwords.
     private var learnMoreSection: some View {
         HStack(alignment: .center, spacing: 16) {
-            Image(decorative: Asset.Images.questionRound)
-                .resizable()
-                .frame(width: 24, height: 24)
+            Image(decorative: Asset.Images.questionCircle24)
                 .foregroundStyle(Asset.Colors.iconSecondary.swiftUIColor)
 
             VStack(alignment: .leading, spacing: 0) {

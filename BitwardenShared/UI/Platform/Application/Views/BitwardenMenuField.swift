@@ -175,7 +175,7 @@ private enum MenuPreviewOptions: CaseIterable, Menuable {
             selection: .constant(.dog)
         ) {
             Button {} label: {
-                Asset.Images.camera.swiftUIImage
+                Asset.Images.camera16.swiftUIImage
             }
             .buttonStyle(.accessory)
         }

@@ -15,27 +15,27 @@ struct ImportLoginsSuccessView: View {
     var body: some View {
         VStack(spacing: 24) {
             PageHeaderView(
-                image: Asset.Images.devices,
+                image: Asset.Images.Illustrations.devices,
                 title: Localizations.importSuccessful,
                 message: Localizations.manageYourLoginsFromAnywhereWithBitwardenToolsForWebAndDesktop
             )
 
             ContentBlock(dividerLeadingPadding: 48) {
                 rowView(
-                    image: Asset.Images.puzzle,
+                    image: Asset.Images.puzzle24,
                     title: Localizations.downloadTheBrowserExtension,
                     subtitle: Localizations
                         .goToBitwardenToIntegrateBitwardenIntoYourFavoriteBrowserForASeamlessExperience
                 )
 
                 rowView(
-                    image: Asset.Images.desktop,
+                    image: Asset.Images.desktop24,
                     title: Localizations.useTheWebApp,
                     subtitle: Localizations.logInAtBitwardenToEasilyManageYourAccountAndUpdateSettings
                 )
 
                 rowView(
-                    image: Asset.Images.shield,
+                    image: Asset.Images.shield24,
                     title: Localizations.autofillPasswords,
                     subtitle: Localizations.setUpAutofillOnAllYourDevicesToLoginWithASingleTapAnywhere
                 )
@@ -76,8 +76,6 @@ struct ImportLoginsSuccessView: View {
     ) -> some View {
         HStack(spacing: 12) {
             Image(decorative: image)
-                .resizable()
-                .frame(width: 24, height: 24)
                 .foregroundStyle(Asset.Colors.iconSecondary.swiftUIColor)
 
             VStack(alignment: .leading, spacing: 2) {
