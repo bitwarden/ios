@@ -86,6 +86,8 @@ extension View {
     ///
     func toolbarButton(_ label: String, action: @escaping () -> Void) -> some View {
         Button(label, action: action)
+            .foregroundColor(Asset.Colors.textInteraction.swiftUIColor)
+            .styleGuide(.body)
             // Ideally we would set both `minHeight` and `minWidth` to 44. Setting `minWidth` causes
             // padding to be applied equally on both sides of the image. This results in extra padding
             // along the margin though.

@@ -46,6 +46,7 @@ struct PreventAccountLockView: View {
         VStack(spacing: 8) {
             Text(Localizations.neverLoseAccessToYourVault)
                 .styleGuide(.title2, weight: .semibold)
+                .multilineTextAlignment(.center)
 
             Text(Localizations.theBestWayToMakeSureYouCanAlwaysAccessYourAccountIsToSetUpSafeguardsFromTheStart)
                 .styleGuide(.body)
